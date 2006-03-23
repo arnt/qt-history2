@@ -15,7 +15,7 @@
 #include "qscreen_qws.h" //so we can check for rotation
 #include "qlibraryinfo.h"
 
-static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bool italic, int pixelSize, const char *file)
+static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bool italic, int pixelSize, const char *file, bool antialiased)
 {
     QString familyname = QString::fromUtf8(family);
     QString foundryname = "";
@@ -30,6 +30,7 @@ static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bo
     QtFontFoundry *foundry = f->foundry(foundryname, true);
     QtFontStyle *style = foundry->style(styleKey,  true);
     style->smoothScalable = (pixelSize == 0);
+    style->antialiased = antialiased;
     QtFontSize *size = style->pixelSize(pixelSize?pixelSize:SMOOTH_SCALABLE, true);
     size->fileName = file;
 }
@@ -70,12 +71,13 @@ static void initializeDb()
     char render[200]="";
     char file[200]="";
     char isitalic[10]="";
+    char flags[10]="";
     do {
         fgets(buf,200,fontdef);
         if (buf[0] != '#') {
             int weight=50;
             int size=0;
-            sscanf(buf,"%s %s %s %s %d %d",name,file,render,isitalic,&weight,&size);
+            sscanf(buf,"%s %s %s %s %d %d %s",name,file,render,isitalic,&weight,&size,flags);
             QString filename;
             if (file[0] != '/') {
 #ifndef QT_NO_LIBRARY
@@ -87,8 +89,9 @@ static void initializeDb()
             }
             filename += file;
             bool italic = isitalic[0] == 'y';
+            bool smooth = QByteArray(flags).contains('s');
             if (QFile::exists(filename))
-                addFont(db, name, weight, italic, size/10, file);
+                addFont(db, name, weight, italic, size/10, file, smooth);
         }
     } while (!feof(fontdef));
     fclose(fontdef);
@@ -236,6 +239,8 @@ static void setSize(FT_Face face, int pixelSize, int stretch)
     if (err && !(face->face_flags & FT_FACE_FLAG_SCALABLE) && ysize == 0 && face->num_fixed_sizes >= 1) {
         // work around FT 2.1.10 problem with BDF without PIXEL_SIZE property
         err = FT_Set_Pixel_Sizes(face, face->available_sizes[0].width, face->available_sizes[0].height);
+        if (err && face->num_fixed_sizes == 1)
+            err=0; //even more of a workaround...
     }
 
     if (err) {
@@ -287,7 +292,7 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
         setSize(face, pixelSize, 100);
         FD_DEBUG("setting pixel size to %d", pixelSize);
 
-        QFontEngineFT *fe = new QFontEngineFT(request, face);
+        QFontEngineFT *fe = new QFontEngineFT(request, face, style->antialiased);
         fe->face_id.filename = file.toLocal8Bit();
         fe->face_id.index = 0;
         return fe;

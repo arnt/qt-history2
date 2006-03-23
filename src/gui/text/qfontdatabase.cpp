@@ -213,6 +213,9 @@ struct QtFontStyle
     const char *weightName;
     const char *setwidthName;
 #endif // Q_WS_X11
+#ifdef Q_WS_QWS
+    bool antialiased;
+#endif
 
     QtFontSize *pixelSize(unsigned short size, bool = false);
 };

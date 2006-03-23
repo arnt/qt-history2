@@ -210,7 +210,7 @@ class QGlyph;
 class QFontEngineFT : public QFontEngine
 {
 public:
-    QFontEngineFT(const QFontDef&, FT_Face face);
+    QFontEngineFT(const QFontDef&, FT_Face face, bool antialiased = true);
    ~QFontEngineFT();
     FT_Face handle() const;
 
@@ -362,7 +362,7 @@ public:
     QFixed descent() const;
     QFixed leading() const;
     QFixed xHeight() const;
-    
+
     QFixed lineThickness() const;
     QFixed underlinePosition() const;
     qreal maxCharWidth() const;

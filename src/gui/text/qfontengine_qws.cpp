@@ -122,13 +122,13 @@ FT_Face QFontEngineFT::handle() const
     return face;
 }
 
-QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face)
+QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face, bool antialias)
 {
     _openType = 0;
     fontDef = d;
     face = ft_face;
 
-    smooth = FT_IS_SCALABLE(face);
+    smooth = FT_IS_SCALABLE(face) && antialias;
     if (fontDef.styleStrategy & QFont::NoAntialias)
         smooth = false;
     rendered_glyphs = new QGlyph *[face->num_glyphs];
