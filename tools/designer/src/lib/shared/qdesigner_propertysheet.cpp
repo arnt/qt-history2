@@ -52,6 +52,8 @@ static bool hasLayoutAttributes(QObject *object)
         return false;
     if (qobject_cast<QLabel*>(object) != 0)
         return false;
+    if (qobject_cast<QDockWidget*>(object) != 0)
+        return false;
     return true;
 }
 
