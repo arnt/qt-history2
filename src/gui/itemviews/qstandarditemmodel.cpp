@@ -504,7 +504,7 @@ Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 }
 
 /*!
-    Clears the model, removing all items.
+    Sets the table dimensions to 0, 0, removes all children and resets the header.
 */
 void QStandardItemModel::clear()
 {
