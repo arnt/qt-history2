@@ -762,7 +762,7 @@ QCoreGraphicsPaintEnginePrivate::penOffset()
         return 0;
     float ret = 0;
     if(current.pen.style() != Qt::NoPen) {
-        if(current.pen.widthF() <= 1.0)
+        if(current.pen.widthF() < 1.0)
             ret = 0.5;
         else
             ret = 0.0f;
