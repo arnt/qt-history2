@@ -2060,7 +2060,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(qt_mac_dblclick.use_qt_time_limit) {
                     EventTime now = GetEventTime(event);
                     if(qt_mac_dblclick.last_time != -2 && qt_mac_dblclick.last_widget == widget &&
-                       now - qt_mac_dblclick.last_time <= ((double)QApplicationPrivate::mouse_double_click_time)/1000)
+                       now - qt_mac_dblclick.last_time <= ((double)QApplicationPrivate::mouse_double_click_time)/1000 &&
+                       qt_mac_dblclick.last_button == button)
                         etype = QEvent::MouseButtonDblClick;
                 } else {
                     UInt32 count = 0;
