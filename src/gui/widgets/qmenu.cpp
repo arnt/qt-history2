@@ -296,8 +296,13 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
 {
     Q_Q(QMenu);
     tearoffHighlighted = 0;
-    if (action == currentAction && !(action && action->menu() && action->menu() != activeMenu))
+    if (action == currentAction && !(action && action->menu() && action->menu() != activeMenu)) {
+        if(QMenu *menu = qobject_cast<QMenu*>(causedPopup.widget)) {
+            if(causedPopup.action && menu->d_func()->activeMenu == q)
+                menu->d_func()->setCurrentAction(causedPopup.action, 0, false);
+        }
         return;
+    }
     if (currentAction)
         q->update(actionRect(currentAction));
 
