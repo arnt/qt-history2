@@ -39,24 +39,37 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
     p.fillRect(e->rect(), widget->palette().brush(widget->backgroundRole()));
 
     p.setPen(widget->palette().dark().color());
-    int width = widget->width();
-    int height = widget->height();
-    int pointCount = qRound((width/float(formWindow->grid().x()))+.5) * qRound((height/float(formWindow->grid().y()))+.5);
+    QPoint grid = formWindow->grid();
+
+    int xstart = e->rect().x();
+    int ystart = e->rect().y();
+    xstart = (xstart/grid.x())*grid.x();
+    ystart = (ystart/grid.y())*grid.y();
+
+    int xend = e->rect().right();
+    xend = (xend/grid.x())*grid.x();
+
+    int yend = e->rect().bottom();
+    yend = (yend/grid.x())*grid.y();
+
+    int pointCount = ((xend - xstart) / grid.x()) *((yend - ystart) * grid.y());
+
+
     static const int BUF_SIZE = 4096;
     QPoint points[BUF_SIZE];
 
-    int x = 0;
-    int y = 0;
     int i = 0;
+    int x = xstart;
+    int y = ystart;
     while (pointCount > 0) {
         while (i < pointCount && i < BUF_SIZE) {
             points[i] = QPoint(x, y);
             ++i;
             x += formWindow->grid().x();
-            if (x >= width) {
-                x = 0;
+            if (x > xend) {
+                x = xstart;
                 y += formWindow->grid().y();
-                if (y > height) // probably never reached..
+                if (y > yend) // probably never reached..
                     break;
             }
         }
@@ -66,7 +79,7 @@ static void paintGrid(QWidget *widget, QDesignerFormWindowInterface *formWindow,
     }
     if (needFrame) {
         p.setPen(widget->palette().dark().color());
-        p.drawRect(widget->rect());
+        p.drawRect(e->rect());
     }
 }
 
@@ -76,7 +89,7 @@ void QDesignerDialog::paintEvent(QPaintEvent *e)
         paintGrid(this, m_formWindow, e);
     } else {
         QPainter p(this);
-        p.fillRect(rect(), palette().brush(QPalette::Background));
+        p.fillRect(e->rect(), palette().brush(QPalette::Background));
     }
 }
 
