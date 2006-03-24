@@ -1176,7 +1176,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
     } else {
         // parent is not clipped, we may or may not have to clip
 
-        if (data.wrect.isValid()) {
+        if (data.wrect.isValid() && QRect(QPoint(),data.crect.size()).contains(data.wrect)) {
             // This is where the main optimization is: we are already
             // clipped, and if our clip is still valid, we can just
             // move our window, and do not need to move or clip

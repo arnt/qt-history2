@@ -1882,7 +1882,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
     } else {
         // parent is not clipped, we may or may not have to clip
 
-        if (data.wrect.isValid()) {
+        if (data.wrect.isValid() && QRect(QPoint(),data.crect.size()).contains(data.wrect)) {
             // This is where the main optimization is: we are already
             // clipped, and if our clip is still valid, we can just
             // move our window, and do not need to move or clip
@@ -1893,7 +1893,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
             if (data.wrect.contains(vrect)) {
                 xrect = data.wrect;
                 xrect.translate(data.crect.topLeft());
-                XMoveResizeWindow(dpy, data.winid, xrect.x(), xrect.y(), xrect.width(), xrect.height());
+                XMoveWindow(dpy, data.winid, xrect.x(), xrect.y());
                 return;
             }
         }
@@ -2026,6 +2026,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 XMoveResizeWindow(dpy, data.winid, x, y, w, h);
         } else if (isResize)
             XResizeWindow(dpy, data.winid, w, h);
+        if (isResize) // set config pending only on resize, see qapplication_x11.cpp, translateConfigEvent()
+            q->setAttribute(Qt::WA_WState_ConfigPending);
+
     } else {
         if(!isResize && q->isVisible()) {
             moveRect(QRect(oldPos, oldSize), x - oldPos.x(), y - oldPos.y());
@@ -2053,9 +2056,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             }
         }
         if (isResize) {
-            // set config pending only on resize, see qapplication_x11.cpp, translateConfigEvent()
-            q->setAttribute(Qt::WA_WState_ConfigPending);
-
             QResizeEvent e(q->size(), oldSize);
             QApplication::sendEvent(q, &e);
         }
