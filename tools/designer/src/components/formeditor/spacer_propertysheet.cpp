@@ -37,11 +37,9 @@ SpacerPropertySheet::~SpacerPropertySheet()
 
 bool SpacerPropertySheet::isVisible(int index) const
 {
-    QString name = propertyName(index);
+    QString group = propertyGroup(index);
 
-    return name == QLatin1String("orientation")
-            || name == QLatin1String("sizeType")
-            || name == QLatin1String("sizeHint");
+    return group == QLatin1String("Spacer");
 }
 
 void SpacerPropertySheet::setProperty(int index, const QVariant &value)
