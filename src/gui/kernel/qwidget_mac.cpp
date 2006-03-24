@@ -954,6 +954,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             ADD_DEBUG_WINDOW_NAME(kWindowVerticalZoomAttribute),
             ADD_DEBUG_WINDOW_NAME(kWindowResizableAttribute),
             ADD_DEBUG_WINDOW_NAME(kWindowNoActivatesAttribute),
+            ADD_DEBUG_WINDOW_NAME(kWindowNoUpdatesAttribute),
+            ADD_DEBUG_WINDOW_NAME(kWindowOpaqueForEventsAttribute),
             ADD_DEBUG_WINDOW_NAME(kWindowLiveResizeAttribute),
             ADD_DEBUG_WINDOW_NAME(kWindowCloseBoxAttribute),
             ADD_DEBUG_WINDOW_NAME(kWindowHideOnSuspendAttribute),
@@ -972,7 +974,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             ADD_DEBUG_WINDOW_NAME(kModalWindowClass),
             { 0, 0 }
         };
-#undef ADD_DEBUG_WINDOW_NAME
         qDebug("Qt: internal: ************* Creating new window %p (%s::%s)", q, q->metaObject()->className(),
                q->objectName().toLocal8Bit().constData());
         bool found_class = false;
@@ -1029,6 +1030,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
             HIWindowChangeFeatures(window, kWindowCanCollapse, 0);
 #endif
+        if(wattr & kWindowHideOnSuspendAttribute)
+            HIWindowChangeAvailability(window, kHIWindowExposeHidden, 0);
+        else
+            HIWindowChangeAvailability(window, 0, kHIWindowExposeHidden);
 	if((flags & Qt::WindowStaysOnTopHint))
 	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
         if(qt_mac_is_macdrawer(q) && parentWidget)
@@ -1061,6 +1066,26 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         } else {
             qDebug("Qt: internal: No window group!!!");
         }
+        HIWindowAvailability hi_avail = 0;
+        if(HIWindowGetAvailability(window, &hi_avail) == noErr) {
+            struct {
+                UInt32 tag;
+                const char *name;
+            } known_avail[] = {
+                ADD_DEBUG_WINDOW_NAME(kHIWindowExposeHidden),
+                { 0, 0 }
+            };
+            qDebug("Qt: internal: ** HIWindowAvailibility:");
+            for(int i = 0; hi_avail && known_avail[i].name; i++) {
+                if((hi_avail & known_avail[i].tag) == known_avail[i].tag) {
+                    hi_avail ^= known_avail[i].tag;
+                    qDebug("Qt: internal: * %s", known_avail[i].name);
+                }
+            }
+            if(hi_avail)
+                qDebug("Qt: internal: !! Attributes: Unknown (%d)", (int)hi_avail);
+        }
+#undef ADD_DEBUG_WINDOW_NAME
 #endif
         if(extra && !extra->mask.isEmpty())
            ReshapeCustomWindow(window);
