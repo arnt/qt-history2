@@ -54,8 +54,9 @@ def readLicenseFile():
             licensee = matchObj.group(1)
         else:
             matchObj = licenseKeyRE.match(line)
-            licensekey = matchObj.group(1) 
-            product = getEditionDefine(licensekey)
+            if matchObj:
+                licensekey = matchObj.group(1) 
+                product = getEditionDefine(licensekey)
     return (licensee, product, licensekey)
 
 def fixLibraries():
