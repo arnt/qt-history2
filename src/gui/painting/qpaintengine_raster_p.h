@@ -263,13 +263,9 @@ public:
     QRasterBuffer() : clip(0), m_width(0), m_height(0), m_buffer(0) { init(); }
 #elif defined(Q_WS_MAC)
     QRasterBuffer() : m_ctx(0), m_data(0), clip(0), m_width(0), m_height(0), m_buffer(0) { init(); }
-# if defined(QMAC_NO_COREGRAPHICS)
-    GWorldPtr m_data;
-# else
     CGContextRef macCGContext() const;
     mutable CGContextRef m_ctx;
     CGImageRef m_data;
-#endif
 #endif
     ~QRasterBuffer();
 

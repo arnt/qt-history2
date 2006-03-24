@@ -894,9 +894,7 @@ void qt_init(QApplicationPrivate *priv, int)
         QColormap::initialize();
         QFont::initialize();
         QCursorData::initialize();
-#if !defined(QMAC_NO_COREGRAPHICS)
         QCoreGraphicsPaintEngine::initialize();
-#endif
 #ifndef QT_NO_ACCESSIBILITY
         QAccessible::initialize();
 #endif

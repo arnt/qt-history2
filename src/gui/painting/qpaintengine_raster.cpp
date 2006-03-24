@@ -684,7 +684,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             return false;
         }
         d->rasterBuffer->prepare(pixmap);
-        isBitmap = pixmap->depth() == 1;
     }
 #endif
 
@@ -841,9 +840,6 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
         }
     }
 #elif defined(Q_WS_MAC)
-#  ifdef QMAC_NO_COREGRAPHICS
-#    warning "unhandled"
-#  else
     extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
     extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *, CGAffineTransform *); //qpaintengine_mac.cpp
     if(CGContextRef ctx = qt_mac_cg_context(device)) {
@@ -857,12 +853,6 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
         CGContextRelease(ctx);
         CGImageRelease(subimage);
     }
-#  endif
-    Q_UNUSED(offset);
-#else
-    Q_UNUSED(d);
-    Q_UNUSED(offset);
-    Q_UNUSED(device);
 #endif
 }
 
@@ -1642,7 +1632,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
         SelectObject(hdc, GetStockObject(BLACK_PEN));
         SetTextColor(hdc, RGB(0,0,0));
         qt_draw_text_item(QPointF(leftBearingReserve, ti.ascent.toReal()), ti, hdc,
-            false, QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), 
+            false, QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(),
             d->matrix.m22(), 0, 0), topLeft);
 
         BitBlt(d->fontRasterBuffer->hdc(), 0, 0, devRect.width(), devRect.height(),
@@ -1686,8 +1676,8 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
 
 
         qt_draw_text_item(QPointF(leftBearingReserve, ti.ascent.toReal()), ti,
-                          d->fontRasterBuffer->hdc(), false, 
-                          QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(), 
+                          d->fontRasterBuffer->hdc(), false,
+                          QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(),
                           d->matrix.m22(), 0, 0), topLeft);
 
 
@@ -1762,7 +1752,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // Hack to reserve some space on the left side of the string in case
     // the character has a large negative bearing (e.g. it should be drawn on top
     // of the previous character)
-    qreal leftBearingReserve = ti.fontEngine->maxCharWidth(); 
+    qreal leftBearingReserve = ti.fontEngine->maxCharWidth();
     qreal bufferWidth = (ti.width + x_buffering).toReal() + leftBearingReserve;
     qreal bufferHeight = (ti.ascent + ti.descent + 1).toReal();
 
@@ -1796,7 +1786,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
     // Fill the font raster buffer with text
     clearType = drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem,
-                                     clearType, leftBearingReserve, 
+                                     clearType, leftBearingReserve,
                                      topLeft);
 
     const int NSPANS = 256;
@@ -2591,9 +2581,6 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     m_buffer = new uchar[width*height*sizeof(uint)];
     memset(m_buffer, 0, width*height*sizeof(uint));
 
-#ifdef QMAC_NO_COREGRAPHICS
-# warning "Unhandled!!"
-#else
     if (m_data) {
         CGImageRelease(m_data);
         m_data = 0;
@@ -2618,8 +2605,6 @@ void QRasterBuffer::prepareBuffer(int width, int height)
                            cgflags, provider, 0, 0, kCGRenderingIntentDefault);
     CGColorSpaceRelease(colorspace);
     CGDataProviderRelease(provider);
-#endif
-
 }
 #elif defined(Q_WS_QWS)
 void QRasterBuffer::prepareBuffer(int /*width*/, int /*height*/)
@@ -3090,7 +3075,7 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
     QPointF pos(QT_WA_INLINE(_pos, _pos + QPointF(xform.dx(), xform.dy())));
     QFontEngine *fe = ti.fontEngine;
     QPointF baseline_pos = xform.inverted().map(xform.map(pos) - topLeft);
-  
+
     SetTextAlign(hdc, TA_BASELINE);
     SetBkMode(hdc, TRANSPARENT);
 
@@ -3113,7 +3098,7 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
         for(int i = 0; i < ti.num_glyphs; i++) {
             QString str(QChar(glyphs->glyph));
             QByteArray cstr = str.toLocal8Bit();
-            TextOutA(hdc, qRound(x + glyphs->offset.x.toReal()), 
+            TextOutA(hdc, qRound(x + glyphs->offset.x.toReal()),
                      qRound(y + glyphs->offset.y.toReal()),
                      cstr.data(), cstr.length());
             x += glyphs->advance.x.toReal();
@@ -3126,13 +3111,13 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
                 || glyphs[i].attributes.dontPrint) {
                 fast = false;
                 break;
-            }            
+            }
         }
 
         // Scale, rotate and translate here. This is only valid for systems > Windows Me.
         // We should never get here on Windows Me or lower if the transformation specifies
-        // scaling or rotation.        
-        QT_WA({            
+        // scaling or rotation.
+        QT_WA({
             XFORM win_xform;
             win_xform.eM11 = xform.m11();
             win_xform.eM12 = xform.m12();
@@ -3143,25 +3128,25 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
             SetGraphicsMode(hdc, GM_ADVANCED);
             SetWorldTransform(hdc, &win_xform);
         }, {
-            // nothing 
+            // nothing
         });
 
         if (fast) {
             // fast path
             QVarLengthArray<wchar_t> g(ti.num_glyphs);
             for (int i = 0; i < ti.num_glyphs; ++i)
-                g[i] = glyphs[i].glyph;            
+                g[i] = glyphs[i].glyph;
             ExtTextOutW(hdc,
                         qRound(baseline_pos.x() + glyphs->offset.x.toReal()),
                         qRound(baseline_pos.y() + glyphs->offset.y.toReal()),
-                        options, 0, convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, 0);            
+                        options, 0, convertToText ? convertedGlyphs : g.data(), ti.num_glyphs, 0);
         } else {
             QVarLengthArray<QFixedPoint> positions;
             QVarLengthArray<glyph_t> _glyphs;
 
             QMatrix matrix;
             matrix.translate(baseline_pos.x(), baseline_pos.y());
-            ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, 
+            ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags,
                 _glyphs, positions);
 
             convertToText = convertToText && ti.num_glyphs == _glyphs.size();
@@ -3186,17 +3171,17 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
             } else {
                 int i = 0;
                 while(i < _glyphs.size()) {
-                    wchar_t g = _glyphs[i];                    
+                    wchar_t g = _glyphs[i];
 
-                    ExtTextOutW(hdc, qRound(positions[i].x), 
+                    ExtTextOutW(hdc, qRound(positions[i].x),
                         qRound(positions[i].y), options, 0,
                                 convertToText ? convertedGlyphs + i : &g, 1, 0);
                     ++i;
-                }         
+                }
             }
-        }    
+        }
         QT_WA({
-            XFORM win_xform;            
+            XFORM win_xform;
             win_xform.eM11 = win_xform.eM22 = 1.0;
             win_xform.eM12 = win_xform.eM21 = win_xform.eDx = win_xform.eDy = 0.0;
             SetWorldTransform(hdc, &win_xform);

@@ -28,8 +28,6 @@
 #include "QtCore/qglobal.h"
 #include "private/qcore_mac_p.h"
 
-//#define QMAC_NO_COREGRAPHICS
-
 #include "QtGui/qpainter.h"
 #include "QtGui/qwidget.h"
 #include "private/qwidget_p.h"
