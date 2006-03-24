@@ -339,10 +339,10 @@ bool QAbstractSpinBox::accelerate() const
     \brief This enum type describes the mode the spinbox will use to
     correct an Intermediate value if editing finishes.
 
-    If the mode is PreviousValue the spinbox will revert to the last
+    If the mode is CorrectToPreviousValue the spinbox will revert to the last
     valid value.
 
-    If the mode is NearestValue the spinbox will revert to the nearest
+    If the mode is CorrectToNearestValue the spinbox will revert to the nearest
     valid value.
 */
 
@@ -1180,7 +1180,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
       buttonState(None), cachedText("\x01"), cachedState(QValidator::Invalid),
       pendingEmit(false), readOnly(false), wrapping(false),
       ignoreCursorPositionChanged(false), frame(true), accelerate(false),
-      correctionMode(QAbstractSpinBox::PreviousValue), acceleration(0),
+      correctionMode(QAbstractSpinBox::CorrectToPreviousValue), acceleration(0),
       hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
 {
 }
@@ -1656,7 +1656,7 @@ void QAbstractSpinBoxPrivate::interpret(EmitPolicy ep)
 
         doInterpret = tmp != copy && (q->validate(tmp, pos) == QValidator::Acceptable);
         if (!doInterpret) {
-            v = (correctionMode == QAbstractSpinBox::NearestValue
+            v = (correctionMode == QAbstractSpinBox::CorrectToNearestValue
                  ? variantBound(minimum, v, maximum) : value);
         }
     }

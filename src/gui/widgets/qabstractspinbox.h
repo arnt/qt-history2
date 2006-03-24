@@ -53,7 +53,7 @@ public:
     ButtonSymbols buttonSymbols() const;
     void setButtonSymbols(ButtonSymbols bs);
 
-    enum CorrectionMode  { PreviousValue, NearestValue };
+    enum CorrectionMode  { CorrectToPreviousValue, CorrectToNearestValue };
 
     void setCorrectionMode(CorrectionMode cm);
     CorrectionMode correctionMode() const;
