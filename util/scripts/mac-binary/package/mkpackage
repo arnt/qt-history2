@@ -597,7 +597,7 @@ fi
 if [ "$MAKE_IMAGE" = "yes" ] && [ "$LICENSETYPE" != "eval" ]; then
     echo "Creating the debug libraries disk image..."
     IMAGE_NAME="Qt ${QT_VERSION_STRING} Debug Libraries"
-    IMAGE="$OUTPUT_DIR/qt-mac-${LICENSETYPE}-${QT_VERSION_STRING}-debug-libs-only.dmg"
+    IMAGE="$OUTPUT_DIR/qt-mac-${LICENSETYPE}-${QT_VERSION_STRING}-debug-libs.dmg"
     DISKIMAGE="$TMP_DIR/diskimage"
 
     #remove the old stuff
