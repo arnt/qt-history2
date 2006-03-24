@@ -366,8 +366,16 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
         return false;
     }
 
+    if (setjmp(png_ptr->jmpbuf)) {
+        png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
+        png_ptr = 0;
+        state = Error;
+        return false;
+    }
+
     QImage image;
     setup_qt(image, png_ptr, info_ptr, gamma);
+
     if (image.isNull()) {
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         png_ptr = 0;
