@@ -59,7 +59,7 @@
     \endcode
 
     The current implementation of QStandardItemModel only supports adding
-    children index's to the first column.
+    children to the first column.
 
     \sa {Model/View Programming}, QAbstractItemModel,
         {itemviews/simpletreemodel}{Simple Tree Model example}
@@ -504,7 +504,7 @@ Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 }
 
 /*!
-    Sets the table dimensions to 0, 0, removes all children and resets the header.
+    Removes all items from the model and resets both the horizontal and vertical headers.
 */
 void QStandardItemModel::clear()
 {
