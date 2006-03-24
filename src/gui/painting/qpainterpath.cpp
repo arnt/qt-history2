@@ -76,11 +76,11 @@ void qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
 
     if (startPoint) {
         *startPoint = r.center()
-                      + QPointF(a * cos(ANGLE(angle)), b * sin(ANGLE(angle)));
+                      + QPointF(a * cos(ANGLE(angle)), -b * sin(ANGLE(angle)));
     }
     if (endPoint) {
         *endPoint = r.center()
-                    + QPointF(a * cos(ANGLE(angle + length)), b * sin(ANGLE(angle + length)));
+                    + QPointF(a * cos(ANGLE(angle + length)), -b * sin(ANGLE(angle + length)));
     }
 }
 

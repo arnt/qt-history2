@@ -2944,7 +2944,7 @@ void QPainter::drawArc(const QRectF &r, int a, int alen)
     QRectF rect = r.normalized();
 
     QPointF startPoint;
-    qt_find_ellipse_coords(r, a/16.0, alen/16.0, &startPoint, 0);
+    qt_find_ellipse_coords(rect, a/16.0, alen/16.0, &startPoint, 0);
 
     QPainterPath path;
     path.moveTo(startPoint);
