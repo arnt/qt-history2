@@ -228,20 +228,21 @@ void QScreenCursor::initSoftwareCursor()
     \class QScreen
     \ingroup qws
 
-    \brief The QScreen class is a base class for implmenting screen
+    \brief The QScreen class is a base class for implementing screen
     drivers in Qtopia Core.
 
     Note that this class is only available in Qtopia Core. Custom
-    screen drivers can be added by subclassing the QScreenDriverPlugin
-    class, using the QScreenDriverFactory class to dynamically load
-    the driver into the application, but there should only be one
-    screen object per application.
+    screen drivers derived from QScreen can be added by subclassing
+    the QScreenDriverPlugin class, using the QScreenDriverFactory
+    class to dynamically load the driver into the application, but
+    there should only be one screen object per application.
 
     The QScreen class provides functions enabling framebuffer and
     palette management and drawing on screen. The class also provides
-    information about several screen properties, e.g its metrics. In
-    addition, the QScreen class and its descendants act as factories
-    for the screen cursor.
+    information about several screen properties, e.g its
+    metrics. Finally, the QScreen class and its descendants act as
+    factories for the screen cursor, creating the cursor whenever
+    required.
 
     \tableofcontents
 
@@ -251,10 +252,10 @@ void QScreenCursor::initSoftwareCursor()
     will be called to map in the framebuffer and the accelerated
     drivers that the graphics card control registers, and when
     initializing the framebuffer, the initDevice() function will be
-    called. The latter function should be reimplemented to set up the
+    called. The latter function can be reimplemented to set up the
     graphics card (note that the default implementation does nothing).
 
-    Likewise, just before a \l {Qtopia Core} application exits the
+    Likewise, just before a \l {Qtopia Core} application exits, the
     disconnect() function will be called. This function should be
     reimplemented to unmap the framebuffer. The shutdownDevice()
     function is also called on shutdown, and can be reimplemented to
@@ -263,10 +264,9 @@ void QScreenCursor::initSoftwareCursor()
     The save() function allows subclasses of QScreen to save the state
     of the graphics card. Hardware QScreen descendants should save the
     state of the registers here to enable switching between virtual
-    consoles. The corresponding restore() function enables QScreen
-    subclasses to restore a previously saved state of the graphics
-    card. Note that the default implementations of these two functions
-    do nothing.
+    consoles. The corresponding restore() function enables restoration
+    of a previously saved state of the graphics card. Note that the
+    default implementations of these two functions do nothing.
 
     QScreen also provides the base() function returning a pointer to
     the beginning of the framebuffer. Use the onCard() function to
@@ -276,19 +276,13 @@ void QScreenCursor::initSoftwareCursor()
 
     \section1 Palette Management
 
-    Use the clut() function to retrieve the screen's color lookup
-    table (i.e. its color palette), and the numCols() function to
-    determine the number of entries in the table. QScreen provides the
-    alloc() function for retrieving the index in the screen's palette
-    which is the closest match to a given RGB value, and the
-    supportsDepth() function to determine if the screen supports a
-    given color depth.
-
-    The solidFill() function allows subclasses of QScreen to fill the
-    given region of the screen with the specified color. Note that
-    this function is not intended to be called explicitly, but it must
-    be reimplemented whenever the blit() function is reimplemented
-    (see \l {Drawing on Screen} for more details).
+    For palette management, the QScreen class provides the clut()
+    function to retrieve the screen's color lookup table (i.e. its
+    color palette), and the numCols() function to determine the number
+    of entries in this table. The alloc() function can be used to
+    retrieve the index in the screen's palette which is the closest
+    match to a given RGB value, and the supportsDepth() function to
+    determine if the screen supports a given color depth.
 
     \section1 Drawing on Screen
 
@@ -300,9 +294,11 @@ void QScreenCursor::initSoftwareCursor()
     specified point using device coordinates, and should be
     reimplemented to make use of accelerated hardware. Note that
     reimplementing blit() requires that the solidFill() function is
-    reimplemented as well. The exposeRegion() function paints a given
-    region on screen. Note that normally there is no need to call
-    either of these functions explicitly.
+    reimplemented as well. The solidFill() function allows subclasses
+    of QScreen to fill the given region of the screen with the
+    specified color. The exposeRegion() function paints a given region
+    on screen. Note that normally there is no need to call either of
+    these functions explicitly.
 
     Reimplement the blank() function to control the display of
     contents on the screen. The setDirty() function can be
@@ -310,11 +306,12 @@ void QScreenCursor::initSoftwareCursor()
     been altered. Note that the default implementations of these two
     latter functions do nothing.
 
-    QScreen provides the mapFromDevice() and mapToDevice() function to
-    map an object from the framebuffer coordinate system to the
-    coordinate space used by the application, and vice versa.
+    QScreen also provides the mapFromDevice() and mapToDevice()
+    function to map an object from the framebuffer coordinate system
+    to the coordinate space used by the application, and vice versa.
 
-    See also the QDirectPainter and QDecoration class documentation.
+    See the QDirectPainter and QDecoration class documentation for
+    more information about drawing on screen.
 
     \section1 Screen Properties
 
@@ -438,8 +435,8 @@ void QScreenCursor::initSoftwareCursor()
 /*!
     \fn QScreen::blank(bool on)
 
-    Reimplement this function to avoid displaying any contents on the
-    screen if \a on is true; otherwise the contents should be shown.
+    Avoids displaying any contents on the screen if \a on is true;
+    otherwise the contents is shown.
 
     The default implementation does nothing.
 */
@@ -473,7 +470,7 @@ void QScreenCursor::initSoftwareCursor()
 /*!
     \fn QScreen::width() const
 
-    Returns the width of the framebuffer in pixels.
+    Returns the width of the framebuffer, in pixels.
 
     \sa deviceWidth(), height()
 */
@@ -481,7 +478,7 @@ void QScreenCursor::initSoftwareCursor()
 /*!
     \fn int QScreen::height() const
 
-    Returns the height of the framebuffer in pixels.
+    Returns the height of the framebuffer, in pixels.
 
     \sa deviceHeight(), width()
 */
@@ -489,7 +486,7 @@ void QScreenCursor::initSoftwareCursor()
 /*!
     \fn QScreen::depth() const
 
-    Returns the depth (in bits per pixel) of the framebuffer.
+    Returns the depth of the framebuffer, in bits per pixel.
 
     Note that the returned depth is the number of bits each pixel
     takes up rather than the number of significant bits, so 24bpp and
@@ -502,10 +499,7 @@ void QScreenCursor::initSoftwareCursor()
 /*!
     \fn int QScreen::pixmapDepth() const
 
-    Returns the preferred depth for pixmaps.
-
-    The default implementation returns the framebuffer's depth in bits
-    per pixel.
+    Returns the preferred depth for pixmaps, in bits per pixel.
 
     \sa depth()
 */
@@ -524,8 +518,8 @@ void QScreenCursor::initSoftwareCursor()
     Returns the full width of the framebuffer device.
 
     Note that the returned width can differ from the width which \l
-    {Qtopia Core} will actually use, if the display is centered within
-    the framebuffer.
+    {Qtopia Core} will actually use, that is if the display is
+    centered within the framebuffer.
 
     \sa deviceHeight(), width()
 */
@@ -536,8 +530,8 @@ void QScreenCursor::initSoftwareCursor()
     Returns the full height of the framebuffer device.
 
     Note that the returned height can differ from the height which \l
-    {Qtopia Core} will actually use, if the display is centered within
-    the framebuffer.
+    {Qtopia Core} will actually use, that is if the display is
+    centered within the framebuffer.
 
     \sa deviceWidth(), height()
 */
@@ -576,6 +570,8 @@ void QScreenCursor::initSoftwareCursor()
 
     The screen size is always located at the beginning of framebuffer
     memory, i.e. it can also be retrieved using the base() function.
+
+    \sa base()
 */
 
 /*!
@@ -603,11 +599,13 @@ void QScreenCursor::initSoftwareCursor()
     \fn QScreen::clut()
 
     Returns the screen's color lookup table (i.e. its color
-    palette). Only valid in paletted modes, i.e. in modes where only
-    palette indexes (and not actual color values) are stored in memory
-    (e.g. 8-bit mode).
+    palette).
 
-    \sa depth(), numCols()
+    Note that this function only apply in paletted modes, i.e. in
+    modes where only palette indexes (and not actual color values) are
+    stored in memory (e.g. 8-bit mode).
+
+    \sa alloc(), depth(), numCols()
 */
 
 /*!
@@ -671,9 +669,11 @@ extern bool qws_accel; //in qapplication_qws.cpp
     Returns the index in the screen's palette which is the closest
     match to the given RGB value (\a red, \a green, \a blue).
 
-    Used in paletted modes only, i.e. in modes where only palette
-    indexes (and not actual color values) are stored in memory
-    (e.g. 8-bit mode).
+    Note that this function only apply in paletted modes, i.e. in
+    modes where only palette indexes (and not actual color values) are
+    stored in memory (e.g. 8-bit mode).
+
+    \sa clut()
 */
 
 int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
@@ -720,10 +720,10 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 
 /*!
     This virtual function allows subclasses of QScreen to save the
-    state of the graphics card to be able to restored it later.
+    state of the graphics card, and be able to restored it later.
 
     Hardware QScreen descendants should save the state of the
-    registers here if necessary to enable switching between virtual
+    registers here, if necessary, to enable switching between virtual
     consoles (for example to and from X).
 
     Note that the default implementation does nothing.
@@ -767,6 +767,8 @@ void QScreen::set(unsigned int, unsigned int, unsigned int, unsigned int)
     otherwise returns false.
 
     Possible values are 1,4,8,16 and 32.
+
+    \sa clut()
 */
 
 bool QScreen::supportsDepth(int d) const
@@ -827,7 +829,7 @@ bool QScreen::onCard(const unsigned char * p) const
 
     If the specified \a buffer is within the graphics card's memory,
     this function stores the offset (in bytes) from the start of
-    graphics card memory in the location specified by the \a offset
+    graphics card memory, in the location specified by the \a offset
     parameter.
 */
 
@@ -1027,7 +1029,9 @@ static void blit_16_to_16(const blit_data *data)
     Copies the given \a region in the given \a image to the point
     specified by \a topLeft using device coordinates.
 
-    Reimplement this function to use accelerated hardware.
+    Reimplement this function to use accelerated hardware. Note that
+    reimplementing this function requires that the solidFill()
+    function is reimplemented as well.
 
     \sa exposeRegion(), {Adding an Accelerated Graphics Driver}
 */
@@ -1455,7 +1459,7 @@ QSize QScreen::mapFromDevice(const QSize &s) const
     screenSize as argument.
 
     Note that the default implementation returns the given \a point as
-    it is, ignoring the \a screenSize argument.
+    it is.
 */
 
 QPoint QScreen::mapToDevice(const QPoint &p, const QSize &) const
@@ -1473,7 +1477,7 @@ QPoint QScreen::mapToDevice(const QPoint &p, const QSize &) const
     screenSize as argument.
 
     Note that the default implementation returns the given \a point as
-    it is, ignoring the \a screenSize argument.
+    it is.
 */
 
 QPoint QScreen::mapFromDevice(const QPoint &p, const QSize &) const
@@ -1486,7 +1490,7 @@ QPoint QScreen::mapFromDevice(const QPoint &p, const QSize &) const
     \overload
 
     Note that the default implementation returns the given \a
-    rectangle as it is, ignoring the \a screenSize argument.
+    rectangle as it is.
 */
 
 QRect QScreen::mapToDevice(const QRect &r, const QSize &) const
@@ -1498,8 +1502,7 @@ QRect QScreen::mapToDevice(const QRect &r, const QSize &) const
     \fn QScreen::mapFromDevice(const QRect &rectangle, const QSize &screenSize) const
     \overload
 
-    The default implementation returns the given \a rectangle as it is,
-    ignoring the \a screenSize argument.
+    The default implementation returns the given \a rectangle as it is.
 */
 
 QRect QScreen::mapFromDevice(const QRect &r, const QSize &) const
@@ -1535,8 +1538,7 @@ QImage QScreen::mapFromDevice(const QImage &i) const
     \fn QScreen::mapToDevice(const QRegion &region, const QSize &screenSize) const
     \overload
 
-    The default implementation returns the given \a region as it is,
-    ignoring the \a screenSize argument.
+    The default implementation returns the given \a region as it is.
 */
 
 QRegion QScreen::mapToDevice(const QRegion &r, const QSize &) const
