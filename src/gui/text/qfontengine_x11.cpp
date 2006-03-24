@@ -1551,6 +1551,12 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
 
 bool QFontEngineFT::loadTransformedGlyphSet(glyph_t *glyphs, int num_glyphs, const QMatrix &matrix, GlyphSet *gs)
 {
+    // don't try to load huge fonts
+    if (fontDef.pixelSize * sqrt(matrix.det()) >= 64) {
+        *gs = 0;
+        return false;
+    }
+
     FT_Matrix m;
     m.xx = FT_Fixed(matrix.m11() * 65536);
     m.xy = FT_Fixed(-matrix.m21() * 65536);
