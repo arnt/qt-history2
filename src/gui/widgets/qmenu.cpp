@@ -1344,7 +1344,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
         pos.setY(screen.top() + desktopFrame);
     }
 
-    if (pos.y() < screen.top() + desktopFrame) 
+    if (pos.y() < screen.top() + desktopFrame)
         pos.setY(screen.top() + desktopFrame);
     if (pos.y()+size.height() > screen.bottom() - desktopFrame) {
         if (d->scroll) {
@@ -1542,9 +1542,7 @@ QAction *QMenu::exec(QList<QAction*> actions, const QPoint &pos, QAction *at)
 void QMenu::hideEvent(QHideEvent *)
 {
     Q_D(QMenu);
-#ifdef QT3_SUPPORT
     emit aboutToHide();
-#endif
     if (d->eventLoop)
         d->eventLoop->exit();
     d->setCurrentAction(0);
@@ -2322,6 +2320,12 @@ void QMenu::internalDelayedPopup()
 }
 
 /*!
+    \fn void QMenu::aboutToHide();
+
+    This signal is emitted just before the menu is hidden from the user.
+*/
+
+/*!
     \fn void QMenu::aboutToShow()
 
     This signal is emitted just before the menu is shown to the user.
@@ -2753,12 +2757,6 @@ int QMenu::findIdForAction(QAction *act) const
     \fn int QMenu::itemHeight(QMenuItem *mi)
 
     Use actionGeometry() instead.
-*/
-
-/*!
-    \fn void QMenu::aboutToHide();
-
-    Invert the logic and use aboutToShow() instead.
 */
 
 /*!

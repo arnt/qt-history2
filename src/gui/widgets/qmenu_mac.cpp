@@ -452,12 +452,9 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
                                 ++merged;
                             }
                         }
-
-#ifdef QT3_SUPPORT
                     } else {
                         emit qmenu->aboutToHide();
                     }
-#endif
                 }
             }
         } else {

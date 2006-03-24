@@ -102,6 +102,7 @@ public:
 
 Q_SIGNALS:
     void aboutToShow();
+    void aboutToHide();
     void triggered(QAction *action);
     void hovered(QAction *action);
 
@@ -329,7 +330,6 @@ protected:
     }
 
 Q_SIGNALS:
-    QT_MOC_COMPAT void aboutToHide();
     QT_MOC_COMPAT void activated(int itemId);
     QT_MOC_COMPAT void highlighted(int itemId);
 
