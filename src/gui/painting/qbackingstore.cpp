@@ -62,6 +62,11 @@ bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 #else
     if (w && w->testAttribute(Qt::WA_PaintOnScreen))
         return true;
+
+    // sanity check for overlarge toplevels. Better: store at least screen size and move offset.
+    if (w && w->isWindow() && (w->width() > 4096  || w->height() > 4096))
+        return true;
+
     static signed char checked_env = -1;
     if(checked_env == -1)
         checked_env = (qgetenv("QT_ONSCREEN_PAINT") == "1") ? 1 : 0;
