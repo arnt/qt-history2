@@ -1454,8 +1454,8 @@ QSize QScreen::mapFromDevice(const QSize &s) const
     \overload
 
     This virtual function allows subclasses of QScreen to map the
-    given object from the framebuffer coordinate system to the
-    coordinate space used by the application, passing the device's \a
+    given object from the coordinate space used by the application to
+    the framebuffer coordinate system, passing the device's \a
     screenSize as argument.
 
     Note that the default implementation returns the given \a point as
@@ -1489,6 +1489,11 @@ QPoint QScreen::mapFromDevice(const QPoint &p, const QSize &) const
     \fn QScreen::mapToDevice(const QRect &rectangle, const QSize &screenSize) const
     \overload
 
+    This virtual function allows subclasses of QScreen to map the
+    given object from the coordinate space used by the application to
+    the framebuffer coordinate system, passing the device's \a
+    screenSize as argument.
+
     Note that the default implementation returns the given \a
     rectangle as it is.
 */
@@ -1502,6 +1507,11 @@ QRect QScreen::mapToDevice(const QRect &r, const QSize &) const
     \fn QScreen::mapFromDevice(const QRect &rectangle, const QSize &screenSize) const
     \overload
 
+    This virtual function allows subclasses of QScreen to map the
+    given object from the framebuffer coordinate system to the
+    coordinate space used by the application, passing the device's \a
+    screenSize as argument.
+
     The default implementation returns the given \a rectangle as it is.
 */
 
@@ -1513,6 +1523,10 @@ QRect QScreen::mapFromDevice(const QRect &r, const QSize &) const
 /*!
     \fn QScreen::mapToDevice(const QImage &image) const
     \overload
+
+    This virtual function allows subclasses of QScreen to map the
+    given object from the coordinate space used by the application to
+    the framebuffer coordinate system.
 
     The default implementation returns the given \a image as it is.
 */
@@ -1526,6 +1540,10 @@ QImage QScreen::mapToDevice(const QImage &i) const
     \fn QScreen::mapFromDevice(const QImage &image) const
     \overload
 
+    This virtual function allows subclasses of QScreen to map the
+    given object from the framebuffer coordinate system to the
+    coordinate space used by the application.
+
     The default implementation returns the given \a image as it is.
 */
 
@@ -1537,6 +1555,11 @@ QImage QScreen::mapFromDevice(const QImage &i) const
 /*!
     \fn QScreen::mapToDevice(const QRegion &region, const QSize &screenSize) const
     \overload
+
+    This virtual function allows subclasses of QScreen to map the
+    given object from the coordinate space used by the application to
+    the framebuffer coordinate system, passing the device's \a
+    screenSize as argument.
 
     The default implementation returns the given \a region as it is.
 */
@@ -1550,8 +1573,12 @@ QRegion QScreen::mapToDevice(const QRegion &r, const QSize &) const
     \fn QScreen::mapFromDevice(const QRegion &region, const QSize &screenSize) const
     \overload
 
-    The default implementation returns the given \a region as it is,
-    ignoring the \a screenSize argument.
+    This virtual function allows subclasses of QScreen to map the
+    given object from the framebuffer coordinate system to the
+    coordinate space used by the application, passing the device's \a
+    screenSize as argument .
+
+    The default implementation returns the given \a region as it is.
 */
 
 QRegion QScreen::mapFromDevice(const QRegion &r, const QSize &) const
