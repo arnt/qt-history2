@@ -339,9 +339,11 @@ void Moc::parseFunctionArguments(FunctionDef *def)
 // returns false if the function should be ignored
 bool Moc::parseFunction(FunctionDef *def, bool inMacro)
 {
-    def->isVirtual = test(VIRTUAL);
-    while (test(INLINE) || test(STATIC))
-        ;
+    def->isVirtual = false;
+    while (test(INLINE) || test(STATIC) || test(VIRTUAL)) {
+        if (lookup() == VIRTUAL)
+            def->isVirtual = true;
+    }
     bool templateFunction = (lookup() == TEMPLATE);
     def->type = parseType();
     if (def->type.name.isEmpty()) {
