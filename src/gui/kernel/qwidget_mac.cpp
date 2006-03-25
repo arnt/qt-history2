@@ -861,18 +861,28 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     hd = 0;
     cg_hd = 0;
     if(window) {                                // override the old window
-        data.fstrut_dirty = true; // we'll re calculate this later
-        if(destroyOldWindow)
-            destroyid = q->winId();
-        HIViewRef hiview = (HIViewRef)window;
-        HIRect bounds;
-        HIViewGetFrame(hiview, &bounds);
-        if(HIViewIsVisible(hiview))
-            q->setAttribute(Qt::WA_WState_Visible);
-        else
-            q->setAttribute(Qt::WA_WState_Visible, false);
-        data.crect.setRect((int)bounds.origin.x, (int)bounds.origin.y, (int)bounds.size.width, (int)bounds.size.height);
-        setWinId((WId)hiview);
+        HIViewRef hiview = (HIViewRef)window, parent = 0;
+        if(topLevel) {
+            WindowRef windowref = qt_mac_window_for(q);
+            OSStatus err = HIViewFindByID(HIViewGetRoot(windowref), kHIViewWindowContentID, &parent);
+            if(err == errUnknownControl)
+                parent = HIViewGetRoot(windowref);
+            else if(err != noErr)
+                qWarning("That cannot happen! %d [%ld]", __LINE__, err);
+        } else if(parentWidget) {
+            parent = (HIViewRef)parentWidget->winId();
+        }
+        if(parent) {
+            HIViewAddSubview(parent, hiview);
+            if(destroyOldWindow)
+                destroyid = q->winId();
+            setWinId((WId)hiview);
+
+            data.fstrut_dirty = true; // we'll re calculate this later
+            q->setAttribute(Qt::WA_WState_Visible, HIViewIsVisible(hiview));
+            HIRect bounds = CGRectMake(data.crect.x(), data.crect.y(), data.crect.width(), data.crect.height());
+            HIViewSetFrame(hiview, &bounds);
+        }
     } else if(desktop) {                        // desktop widget
         if(!qt_root_win)
             QWidgetPrivate::qt_create_root_win();
@@ -1120,13 +1130,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     }
 
     if(HIViewRef destroy_hiview = (HIViewRef)destroyid) {
-        WindowPtr window = q->isWindow() ? qt_mac_window_for(destroy_hiview) : 0;
-        if(window) {
-            ReleaseWindow(window);
-        } else {
-            HIViewRemoveFromSuperview(destroy_hiview);
-            CFRelease(destroy_hiview);
-        }
+        HIViewRemoveFromSuperview(destroy_hiview);
+        CFRelease(destroy_hiview);
     }
 }
 
