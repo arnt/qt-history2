@@ -162,8 +162,8 @@ public:
 */
 
 /*!
-    Constructs a spin box with no minimum and maximum values, a step
-    value of 1. The value is initially set to 0. It is parented to \a
+    Constructs a spin box with 0 as minimum value and 99 as maximum value, a
+    step value of 1. The value is initially set to 0. It is parented to \a
     parent.
 
     \sa setMinimum(), setMaximum(), setSingleStep()
@@ -566,8 +566,8 @@ void QSpinBox::fixup(QString &input) const
 */
 
 /*!
-    Constructs a spin box with no minimum and maximum values, a step
-    value of 1.0 and a precision of 2 decimal places. The value is
+    Constructs a spin box with 0.0 as minimum value and 99.99 as maximum value,
+    a step value of 1.0 and a precision of 2 decimal places. The value is
     initially set to 0.00. The spin box has the given \a parent.
 
     \sa setMinimum(), setMaximum(), setSingleStep()
