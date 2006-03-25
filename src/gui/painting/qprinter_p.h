@@ -31,10 +31,8 @@
 #ifndef QT_NO_PRINTER
 
 #include "QtGui/qprinter.h"
-#ifdef QT3_SUPPORT
-#include "QtCore/qpointer.h"
 #include "QtGui/qprintdialog.h"
-#endif
+#include "QtCore/qpointer.h"
 
 class QPrintEngine;
 
