@@ -2494,7 +2494,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 // Remember which of my widgets has it.
                 qt_pressGrab = w;
                 if (!widget->isActiveWindow() &&
-                     (!app_do_modal || QApplication::activeModalWidget() == widget) &&
+                    (!app_do_modal || QApplication::activeModalWidget() == widget) &&
                     !((widget->windowFlags() & Qt::FramelessWindowHint) || (widget->windowType() == Qt::Tool))) {
                     widget->activateWindow();
                     if (widget->raiseOnClick())
@@ -2511,7 +2511,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #ifndef QT_NO_QWS_MANAGER
             && !QWSManager::grabbedMouse()
 #endif
-           ) {
+            ) {
             qt_last_cursor = 0xffffffff; // cursor can be changed by another application
         }
 
@@ -2525,7 +2525,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
               Unfortunately this translation is currently only
               possible with a known widget. I'll change that soon
               (Matthias).
-             */
+            */
 
             // Danger - make sure we don't lock the server
             switch (event->type) {
@@ -2608,32 +2608,29 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         if ((static_cast<QWSFocusEvent*>(event))->simpleData.get_focus) {
             if (widget == static_cast<QWidget *>(desktop()))
                 return true; // not interesting
-            if (d->inPopupMode()) {
-               //  just some delayed focus event to ignore
-                break;
-            }
             if (activeWindow() != widget) {
                 setActiveWindow(widget);
                 static_cast<QETWidget *>(QApplicationPrivate::active_window)->repaintDecoration(desktop()->rect(), false);
-
-                QWidget *w = widget->focusWidget();
-                while (w && w->focusProxy())
-                    w = w->focusProxy();
-                if (w && (w->focusPolicy() != Qt::NoFocus))
-                    w->setFocus();
-                else
-                    widget->focusNextPrevChild(true);
-                if (!QApplicationPrivate::focus_widget) {
-                    if (widget->focusWidget())
-                        widget->focusWidget()->setFocus();
+                if (!d->inPopupMode()) {
+                    QWidget *w = widget->focusWidget();
+                    while (w && w->focusProxy())
+                        w = w->focusProxy();
+                    if (w && (w->focusPolicy() != Qt::NoFocus))
+                        w->setFocus();
                     else
-                        widget->window()->setFocus();
+                        widget->focusNextPrevChild(true);
+                    if (!QApplicationPrivate::focus_widget) {
+                        if (widget->focusWidget())
+                            widget->focusWidget()->setFocus();
+                        else
+                            widget->window()->setFocus();
+                    }
                 }
             }
         } else {        // lost focus
             if (widget == static_cast<QWidget *>(desktop()))
                 return true; // not interesting
-            if (QApplicationPrivate::focus_widget && !d->inPopupMode()) {
+            if (QApplicationPrivate::focus_widget) {
                 QETWidget *old = static_cast<QETWidget *>(QApplicationPrivate::active_window);
                 setActiveWindow(0);
                 qt_last_cursor = 0xffffffff;
@@ -2641,7 +2638,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 if (old)
                     old->repaintDecoration(desktop()->rect(), false);
                 /* activateWindow() sends focus events
-                QApplication::setFocusWidget(0);
+                   QApplication::setFocusWidget(0);
                 */
             }
         }
@@ -2651,24 +2648,24 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         if (static_cast<QWidget *>(widget) == desktop())
             return true;
         switch ((static_cast<QWSWindowOperationEvent *>(event))->simpleData.op) {
-            case QWSWindowOperationEvent::Show:
-                widget->show();
-                break;
-            case QWSWindowOperationEvent::Hide:
-                widget->hide();
-                break;
-            case QWSWindowOperationEvent::ShowMaximized:
-                widget->showMaximized();
-                break;
-            case QWSWindowOperationEvent::ShowMinimized:
-                widget->showMinimized();
-                break;
-            case QWSWindowOperationEvent::ShowNormal:
-                widget->showNormal();
-                break;
-            case QWSWindowOperationEvent::Close:
-                widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
-                break;
+        case QWSWindowOperationEvent::Show:
+            widget->show();
+            break;
+        case QWSWindowOperationEvent::Hide:
+            widget->hide();
+            break;
+        case QWSWindowOperationEvent::ShowMaximized:
+            widget->showMaximized();
+            break;
+        case QWSWindowOperationEvent::ShowMinimized:
+            widget->showMinimized();
+            break;
+        case QWSWindowOperationEvent::ShowNormal:
+            widget->showNormal();
+            break;
+        case QWSWindowOperationEvent::Close:
+            widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
+            break;
         }
         break;
     default:

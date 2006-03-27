@@ -1921,15 +1921,17 @@ void QApplication::setActiveWindow(QWidget* act)
         sendSpontaneousEvent(w, &activationChange);
     }
 
-    // then focus events
-    if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
-        QApplicationPrivate::setFocusWidget(0, Qt::ActiveWindowFocusReason);
-    } else if (QApplicationPrivate::active_window) {
-        QWidget *w = QApplicationPrivate::active_window->focusWidget();
-        if (w /*&& w->focusPolicy() != QWidget::NoFocus*/)
-            w->setFocus(Qt::ActiveWindowFocusReason);
-        else
-            QApplicationPrivate::active_window->focusNextPrevChild(true);
+    if (QApplicationPrivate::popupWidgets == 0) { // !inPopupMode()
+        // then focus events
+        if (!QApplicationPrivate::active_window && QApplicationPrivate::focus_widget) {
+            QApplicationPrivate::setFocusWidget(0, Qt::ActiveWindowFocusReason);
+        } else if (QApplicationPrivate::active_window) {
+            QWidget *w = QApplicationPrivate::active_window->focusWidget();
+            if (w /*&& w->focusPolicy() != QWidget::NoFocus*/)
+                w->setFocus(Qt::ActiveWindowFocusReason);
+            else
+                QApplicationPrivate::active_window->focusNextPrevChild(true);
+        }
     }
 }
 
