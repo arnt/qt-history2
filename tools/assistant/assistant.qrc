@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/trolltech/assistant/">
+  <file>images/mac/addtab.png</file>
+  <file>images/mac/closetab.png</file>
   <file>images/mac/editcopy.png</file>
   <file>images/mac/find.png</file>
   <file>images/mac/home.png</file>
@@ -10,6 +12,8 @@
   <file>images/mac/book.png</file>
   <file>images/mac/zoomin.png</file>
   <file>images/mac/zoomout.png</file>
+  <file>images/win/addtab.png</file>
+  <file>images/win/closetab.png</file>
   <file>images/win/editcopy.png</file>
   <file>images/win/find.png</file>
   <file>images/win/home.png</file>
@@ -25,8 +29,6 @@
   <file>images/linguist.png</file>
   <file>images/qt.png</file>
   <file>images/assistant-128.png</file>
-  <file>images/addtab.png</file>
-  <file>images/closetab.png</file>
   <file>images/close.png</file>
   <file>images/wrap.png</file>
 </qresource>

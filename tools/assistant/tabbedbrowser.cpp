@@ -29,6 +29,12 @@
 #include <QTextBlock>
 #include <QKeyEvent>
 
+#ifdef Q_WS_MAC
+const QLatin1String ImageLocation(":trolltech/assistant/images/mac/");
+#else
+const QLatin1String ImageLocation(":trolltech/assistant/images/win/");
+#endif
+
 TabbedBrowser::TabbedBrowser(MainWindow *parent)
     : QWidget(parent)
 {
@@ -189,7 +195,7 @@ void TabbedBrowser::init()
     ui.tab->setCornerWidget(newTabButton, Qt::TopLeftCorner);
     newTabButton->setCursor(Qt::ArrowCursor);
     newTabButton->setAutoRaise(true);
-    newTabButton->setIcon(QPixmap(QString::fromUtf8(":/trolltech/assistant/images/addtab.png")));
+    newTabButton->setIcon(QIcon(ImageLocation + QLatin1String("addtab.png")));
     QObject::connect(newTabButton, SIGNAL(clicked()), this, SLOT(newTab()));
     newTabButton->setToolTip(tr("Add page"));
 
@@ -198,7 +204,7 @@ void TabbedBrowser::init()
     ui.tab->setCornerWidget(closeTabButton, Qt::TopRightCorner);
     closeTabButton->setCursor(Qt::ArrowCursor);
     closeTabButton->setAutoRaise(true);
-    closeTabButton->setIcon(QIcon(QLatin1String(":/trolltech/assistant/images/closetab.png")));
+    closeTabButton->setIcon(QIcon(ImageLocation + QLatin1String("closetab.png")));
     QObject::connect(closeTabButton, SIGNAL(clicked()), this, SLOT(closeTab()));
     closeTabButton->setToolTip(tr("Close page"));
     closeTabButton->setEnabled(false);
