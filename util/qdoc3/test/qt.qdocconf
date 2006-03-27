@@ -42,6 +42,7 @@ defines                 = Q_QDOC \
                           QT_.*_SUPPORT \
                           QT_.*_LIB \
                           QT_COMPAT \
+                          QT_KEYPAD_NAVIGATION \
                           QT3_SUPPORT \
                           Q_WS_.* \
                           Q_OS_.* \
