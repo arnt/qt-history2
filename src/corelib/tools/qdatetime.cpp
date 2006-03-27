@@ -1751,13 +1751,13 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
         return t;
     }
 
-    int hour(s.mid(0, 2).toInt());
-    int minute(s.mid(3, 2).toInt());
-    int second(s.mid(6, 2).toInt());
+    const int hour(s.mid(0, 2).toInt());
+    const int minute(s.mid(3, 2).toInt());
+    const int second(s.mid(6, 2).toInt());
 
-    QString msec_s(QLatin1String("0.") + s.mid(9, 4));
-    float msec(msec_s.toFloat());
-    return QTime(hour, minute, second, qRound(msec * 1000.0));
+    const QString msec_s(QLatin1String("0.") + s.mid(9, 4));
+    const float msec(msec_s.toFloat());
+    return QTime(hour, minute, second, qMin(qRound(msec * 1000.0), 999));
 }
 
 /*!
