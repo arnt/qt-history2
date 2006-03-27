@@ -3198,6 +3198,9 @@ QDebug operator<<(QDebug debug, const QStyleOption::OptionType &optionType)
     case QStyleOption::SO_ComplexCustomBase:
         debug << "SO_ComplexCustomBase"; break;
         break;
+    case QStyleOption::SO_SizeGrip:
+        debug << "SO_SizeGrip"; break;
+        break;
     }
     return debug;
 }

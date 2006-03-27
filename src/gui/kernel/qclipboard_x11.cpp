@@ -1037,7 +1037,7 @@ bool QClipboardWatcher::hasFormat_sys(const QString &format) const
     return list.contains(format);
 }
 
-QVariant QClipboardWatcher::retrieveData_sys(const QString &fmt, QVariant::Type type) const
+QVariant QClipboardWatcher::retrieveData_sys(const QString &fmt, QVariant::Type) const
 {
     if (fmt.isEmpty() || empty())
         return QByteArray();
