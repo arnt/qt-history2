@@ -811,6 +811,25 @@ bool QAbstractItemView::dragEnabled() const
 {
     return d_func()->dragEnabled;
 }
+
+/*!
+  \property QAbstractItemView::dragDropEnabled
+  \brief whether the view supports drag and drop
+
+  \sa showDropIndicator acceptDrops dragEnabled
+*/
+void QAbstractItemView::setDragDropEnabled(bool enable)
+{
+    setDragEnabled(enable);
+    setDropIndicatorShown(enable);
+    setAcceptDrops(enable);
+}
+
+bool QAbstractItemView::dragDropEnabled()
+{
+    return (dragEnabled() && showDropIndicator() && acceptDrops());
+}
+
 #endif // QT_NO_DRAGANDDROP
 
 /*!
