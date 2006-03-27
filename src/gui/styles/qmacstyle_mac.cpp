@@ -2539,7 +2539,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             newRect = qt_hirectForQRect(btn->rect, off_rct);
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             if (btn->features & QStyleOptionButton::HasMenu) {
-                int mbi = q->pixelMetric(QStyle::PM_MenuButtonIndicator, btn, w);
+                int mbi = pixelMetric(QStyle::PM_MenuButtonIndicator, btn, w);
                 QRect ir = btn->rect;
                 HIRect arrowRect = CGRectMake(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
                 if (drawColorless && tds == kThemeStateInactive)
@@ -3047,50 +3047,6 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             }
         }
         break;
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-    case CE_DockWidgetTitle:
-        if (const QDockWidget *dockWidget = qobject_cast<const QDockWidget *>(w)) {
-            bool floating = dockWidget->isFloating();
-            if (floating) {
-                ThemeDrawState tds = d->getDrawState(opt->state);
-                HIThemeWindowDrawInfo wdi;
-                wdi.version = qt_mac_hitheme_version;
-                wdi.state = tds;
-                wdi.windowType = kThemeUtilityWindow;
-                wdi.titleHeight = opt->rect.height();
-                wdi.titleWidth = opt->rect.width();
-                wdi.attributes = kThemeWindowHasTitleText;
-
-                HIRect titleBarRect;
-                HIRect tmpRect = qt_hirectForQRect(opt->rect, p);
-                {
-                    QCFType<HIShapeRef> titleRegion;
-                    QRect newr = opt->rect.adjusted(0, 0, 2, 0);
-                    HIThemeGetWindowShape(&tmpRect, &wdi, kWindowTitleBarRgn, &titleRegion);
-                    HIShapeGetBounds(titleRegion, &tmpRect);
-                    newr.translate(newr.x() - int(tmpRect.origin.x), newr.y() - int(tmpRect.origin.y));
-                    titleBarRect = qt_hirectForQRect(newr, p);
-                }
-                QMacCGContext cg(p);
-                HIThemeDrawWindowFrame(&titleBarRect, &wdi, cg, kHIThemeOrientationNormal, 0);
-            }
-        }
-
-        // Draw the text...
-        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
-            if (!dwOpt->title.isEmpty()) {
-                QFont oldFont = p->font();
-                p->setFont(qt_app_fonts_hash()->value("QToolButton", p->font()));
-                const int indent = p->fontMetrics().descent();
-                drawItemText(p, dwOpt->rect.adjusted(indent + 1, 1, -indent - 1, -1),
-                              Qt::AlignCenter, dwOpt->palette,
-                              dwOpt->state & State_Enabled, dwOpt->title,
-                              QPalette::Foreground);
-                p->setFont(oldFont);
-            }
-        }
-        break;
-#endif
     default:
         QWindowsStyle::drawControl(ce, opt, p, w);
         break;
@@ -3449,7 +3405,7 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                                 int(outRect.size.width - newRect.size.width),
                                 int(outRect.size.height - newRect.size.height));
 
-                // HIThemeGetButtonBackgroundBounds offsets non-focused normal sized 
+                // HIThemeGetButtonBackgroundBounds offsets non-focused normal sized
                 // buttons by one in de y direction, account for that here.
                 if (bdi.adornment == kThemeAdornmentNone && bdi.kind == kThemeIncDecButton)
                     off_rct.adjust(0, 1, 0, 0);
