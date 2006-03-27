@@ -2187,6 +2187,21 @@ void Configure::readLicense()
         }
         return;
     } else if(QFile::exists( dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL")) {
+        QFile internalLicenseFile( dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL" );
+        if( !internalLicenseFile.open( QFile::ReadOnly ) ) {
+            cout << "Configuration aborted since license was not accepted";
+            dictionary["DONE"] = "error";
+            return;
+        }
+        QString buffer = internalLicenseFile.readLine(1024);
+        if ( !buffer.startsWith("Trolltech employees and agents") ) {
+            cout << "Configuration aborted since license was not accepted";
+            dictionary["DONE"] = "error";
+            internalLicenseFile.close();
+            return;
+        }
+        internalLicenseFile.close();
+
         cout << endl << "This is the Qt/Windows Trolltech Edition." << endl << endl;
         licenseInfo["LICENSEE"] = "Trolltech";
         dictionary["EDITION"] = "Trolltech";
