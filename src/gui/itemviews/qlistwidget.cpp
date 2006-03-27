@@ -984,8 +984,10 @@ void QListWidgetPrivate::_q_sort()
          \o A Plastique style list widget.
     \row \o \inlineimage cde-listview.png
          \o \inlineimage motif-listview.png
+         \o \inlineimage clearlooks-listview.png
     \row \o A CDE style list widget.
          \o A Motif style list widget.
+         \o A ClearLooks style list widget.
     \endtable
 
     \sa QListWidgetItem, QListView, QTreeView, {Model/View Programming}
