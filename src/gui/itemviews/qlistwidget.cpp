@@ -853,6 +853,7 @@ void QListWidgetPrivate::setup()
 {
     Q_Q(QListWidget);
     q->QListView::setModel(new QListModel(q));
+    // view signals
     QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(_q_emitItemPressed(QModelIndex)));
     QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(_q_emitItemClicked(QModelIndex)));
     QObject::connect(q, SIGNAL(doubleClicked(QModelIndex)),
@@ -1111,7 +1112,8 @@ QListWidget::~QListWidget()
 }
 
 /*!
-    Returns the item that occupies the given \a row in the list.
+    Returns the item that occupies the given \a row in the list if one has been
+    set; otherwise returns 0.
 
     \sa row()
 */

@@ -1633,7 +1633,8 @@ int QTableWidget::column(const QTableWidgetItem *item) const
 
 
 /*!
-    Returns the item for the given \a row and \a column.
+    Returns the item for the given \a row and \a column if one has been set; otherwise
+    returns 0.
 
     \sa setItem()
 */
