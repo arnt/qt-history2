@@ -524,6 +524,20 @@ QToolBar *QMainWindow::addToolBar(const QString &title)
     return toolBar;
 }
 
+/* Removes the toolbar from the mainwindow so that it can be added again. Does not
+   explicitly hide the toolbar. */
+static void qt_remove_toolbar_from_layout(QToolBar *toolbar, QMainWindowPrivate *d)
+{
+    if (toolbar) {
+        QObject::disconnect(d->q_ptr, SIGNAL(iconSizeChanged(QSize)),
+                   toolbar, SLOT(_q_updateIconSize(QSize)));
+        QObject::disconnect(d->q_ptr, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
+                   toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
+
+        d->layout->removeWidget(toolbar);
+    }
+}
+
 /*!
     Inserts the \a toolbar into the area occupied by the \a before toolbar
     so that it appears before it. For example, in normal left-to-right
@@ -538,7 +552,7 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
     Q_ASSERT_X(toolbar->isAreaAllowed(toolBarArea(before)),
                "QMainWIndow::insertToolBar", "specified 'area' is not an allowed area");
 
-    removeToolBar(toolbar);
+    qt_remove_toolbar_from_layout(toolbar, d);    
 
     toolbar->d_func()->_q_updateIconSize(d->iconSize);
     toolbar->d_func()->_q_updateToolButtonStyle(d->toolButtonStyle);
@@ -560,12 +574,7 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 void QMainWindow::removeToolBar(QToolBar *toolbar)
 {
     if (toolbar) {
-        disconnect(this, SIGNAL(iconSizeChanged(QSize)),
-                   toolbar, SLOT(_q_updateIconSize(QSize)));
-        disconnect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
-                   toolbar, SLOT(_q_updateToolButtonStyle(Qt::ToolButtonStyle)));
-
-        d_func()->layout->removeWidget(toolbar);
+        qt_remove_toolbar_from_layout(toolbar, d_func());
         toolbar->hide();
     }
 }
