@@ -668,6 +668,15 @@ bool overrideClassRename(QString className)
     */
     else if(className == "QComboBox")
         return true;
+    
+    /*
+        QButton can be replaced by either Q3Button or QAbstractButton, but
+        this has to be decided on a case-by-case basis. If we do one of them users
+        are going to believe that qt3to4 has done the right thing and be confused when
+        the code doesn't compile.
+    */
+    else if(className == "QButton")
+        return true;
 
     return false;
 }
@@ -684,6 +693,9 @@ bool overrideHeadersRename(QString headerName)
         return true;
     else if(headerName == "QComboBox" ||  headerName == "qcombobox.h")
         return true;
+    else if(headerName == "QButton" ||  headerName == "qbutton.h")
+        return true;
+
     return false;
 }
 
