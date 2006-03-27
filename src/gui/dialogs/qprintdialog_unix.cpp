@@ -18,7 +18,9 @@
 #include "private/qabstractprintdialog_p.h"
 #include <QtGui/QApplication>
 #include <QtGui/QCheckBox>
+#include <QtCore/QLibrary>
 #include <QtCore/QList>
+#include <QtGui/QPrinter>
 #include <QtGui/QTreeView>
 #include <QtGui/QListView>
 #include <QtGui/QShowEvent>
