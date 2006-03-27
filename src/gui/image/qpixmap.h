@@ -110,6 +110,11 @@ public:
     static QPixmap fromWinHBITMAP(HBITMAP hbitmap, HBitmapFormat format = NoAlpha);
 #endif
 
+#if defined(Q_WS_MAC)
+    CGImageRef toMacCGImageRef() const;
+    static QPixmap fromMacCGImageRef(CGImageRef image);
+#endif
+
     inline QPixmap copy(int x, int y, int width, int height) const;
     QPixmap copy(const QRect &rect = QRect()) const;
 

@@ -890,3 +890,38 @@ QPixmap QPixmap::copy(const QRect &rect) const
     return pm;
 }
 
+
+/*!
+    Creates a \c CGImageRef equivalent to the QPixmap. Returns the \c CGImageRef handle.
+
+    It is the caller's responsibility to release the \c CGImageRef data
+    after use.
+
+    \warning This function is only available on Mac OS X.
+
+    \sa fromMacCGImageRef()
+*/
+CGImageRef QPixmap::toMacCGImageRef() const
+{
+    return (CGImageRef)macCGHandle();
+}
+
+/*!
+    Returns a QPixmap that is equivalent to the given \a image.
+
+    \warning This function is only available on Mac OS X.
+
+    \sa toMacCGImageRef(), {QPixmap#Pixmap Conversion}{Pixmap Conversion}
+*/
+QPixmap QPixmap::fromMacCGImageRef(CGImageRef image)
+{
+    const size_t w = CGImageGetWidth(image),
+                 h = CGImageGetHeight(image);
+    QPixmap ret(w, h);
+
+    CGRect rect = CGRectMake(0, 0, w, h);
+    CGContextRef ctx = qt_mac_cg_context(&ret);
+    HIViewDrawCGImage(ctx, &rect, image);
+
+    return ret;
+}
