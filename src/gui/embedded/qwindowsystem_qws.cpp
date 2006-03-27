@@ -1650,7 +1650,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     if (stroke_count == 0) {
 	if (state&btnMask)
 	    force_reject_strokeIM = true;
-        QWSServerPrivate::sendMouseEventUnfiltered(pos, state);
+        QWSServerPrivate::sendMouseEventUnfiltered(pos, state, wheel);
     }
     // stop force reject after stroke ends.
     if (state&btnMask && force_reject_strokeIM)
