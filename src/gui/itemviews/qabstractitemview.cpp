@@ -1937,6 +1937,8 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
     area corresponding to an item of data. If you want to display custom dynamic
     content or implement a custom editor widget, subclass QItemDelegate instead.
 
+    Note: the viewport takes ownership of the widget.
+
     \sa {Delegate Classes}
 */
 void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget)
@@ -1944,6 +1946,10 @@ void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget
     Q_D(QAbstractItemView);
     Q_ASSERT(widget);
     Q_ASSERT(index.isValid());
+    if (QWidget *oldWidget = indexWidget(index)) {
+        d->removeEditor(oldWidget);
+        oldWidget->deleteLater();
+    }
     widget->setParent(viewport());
     widget->setGeometry(visualRect(index));
     d->persistent.append(widget);
