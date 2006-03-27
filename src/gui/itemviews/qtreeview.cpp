@@ -1962,8 +1962,13 @@ void QTreeViewPrivate::layout(int i)
     int level = (i >= 0 ? viewItems.at(i).level + 1 : 0);
     int hidden = 0;
     int last = 0;
+
+    int firstColumn = 0;
+    while (q->isColumnHidden(firstColumn) && firstColumn < q->header()->count())
+        ++firstColumn;
+
     for (int j = first; j < first + count; ++j) {
-        current = model->index(j - first, 0, parent);
+        current = model->index(j - first, firstColumn, parent);
         if (q->isRowHidden(current.row(), parent)) { // slow with lots of hidden rows
             ++hidden;
             last = j - hidden;
