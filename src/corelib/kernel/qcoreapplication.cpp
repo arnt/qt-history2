@@ -634,8 +634,8 @@ void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags, int m
     main event loop receives events from the window system and
     dispatches these to the application widgets.
 
-    To make your application perform idle processing, i.e. executing a
-    special function whenever there are no pending events, use a
+    To make your application perform idle processing (i.e. executing a
+    special function whenever there are no pending events), use a
     QTimer with 0 timeout. More advanced idle processing schemes can
     be achieved using processEvents().
 

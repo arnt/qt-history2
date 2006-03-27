@@ -60,9 +60,9 @@ void QAbstractEventDispatcherPrivate::init()
     \ingroup application
     \ingroup events
 
-    It receives events from the window system and other sources. It
-    then sends them to the QCoreApplication or QApplication instance
-    for processing and delivery. QAbstractEventDispatcher provides
+    An event dispatcher receives events from the window system and other
+    sources. It then sends them to the QCoreApplication or QApplication
+    instance for processing and delivery. QAbstractEventDispatcher provides
     fine-grained control over event delivery.
 
     For simple control of event processing use
@@ -81,8 +81,8 @@ void QAbstractEventDispatcherPrivate::init()
     QEventLoop.
 
     Programs that perform long operations can call processEvents()
-    with various QEventLoop::ProcessEventsFlag values OR'ed together to
-    control which events should be delivered.
+    with a bitwise OR combination of various QEventLoop::ProcessEventsFlag
+    values to control which events should be delivered.
 
     QAbstractEventDispatcher also allows the integration of an
     external event loop with the Qt event loop. For example, the Motif
@@ -122,10 +122,10 @@ QAbstractEventDispatcher::~QAbstractEventDispatcher()
 /*!
     Returns a pointer to the event dispatcher object for the specified
     \a thread. If \a thread is zero, the current thread is used. If no
-    event dispatcher exists for the specified \a thread, this function
+    event dispatcher exists for the specified thread, this function
     returns 0.
 
-    Note: If Qt is built without thread support, the \a thread
+    \bold{Note:} If Qt is built without thread support, the \a thread
     argument is ignored.
  */
 QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
@@ -137,14 +137,16 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
     return QThreadData::get(thread)->eventDispatcher;
 }
 
-/*! \fn bool QAbstractEventDispatcher::processEvents(QEventLoop::ProcessEventsFlags flags)
+/*! 
+    \fn bool QAbstractEventDispatcher::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     Processes pending events that match \a flags until there are no
-    more events to process.
+    more events to process. Returns true if an event was processed;
+    otherwise returns false.
 
     This function is especially useful if you have a long running
     operation and want to show its progress without allowing user
-    input, i.e. by using the QEventLoop::ExcludeUserInputEvents flag.
+    input; i.e. by using the QEventLoop::ExcludeUserInputEvents flag.
 
     If the QEventLoop::WaitForMoreEvents flag is set in \a flags, the
     behavior of this function is as follows:
@@ -163,11 +165,8 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
     and no events are available, this function will return
     immediately.
 
-    Note: This function does not process events continuously; it
+    \bold{Note:} This function does not process events continuously; it
     returns after all available events are processed.
-
-    This function returns true if an event was processed; otherwise it
-    returns false.
 
     \sa hasPendingEvents()
 */
@@ -197,7 +196,7 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
 /*!
     \fn int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
 
-    Register a timer with the specified \a interval for the given \a object.
+    Registers a timer with the specified \a interval for the given \a object.
 */
 int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
 {
@@ -216,13 +215,13 @@ int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
 /*!
     \fn bool QAbstractEventDispatcher::unregisterTimer(int timerId)
 
-    Unregister the timer with the given \a timerId.
+    Unregisters the timer with the given \a timerId.
 */
 
 /*!
     \fn bool QAbstractEventDispatcher::unregisterTimers(QObject *object)
 
-    Unregister all the timers associated with the given \a object.
+    Unregisters all the timers associated with the given \a object.
 */
 
 /*!
@@ -240,9 +239,10 @@ int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
     \sa awake()
 */
 
-/*! \fn void QAbstractEventDispatcher::interrupt()
+/*! 
+    \fn void QAbstractEventDispatcher::interrupt()
 
-    Interrupts event dispatching, i.e. the event dispatcher will
+    Interrupts event dispatching; i.e. the event dispatcher will
     return from processEvents() as soon as possible.
 */
 

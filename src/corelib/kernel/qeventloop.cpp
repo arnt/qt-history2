@@ -99,7 +99,7 @@ QEventLoop::~QEventLoop()
 
     This function is especially useful if you have a long running
     operation and want to show its progress without allowing user
-    input, i.e. by using the \l ExcludeUserInputEvents flag.
+    input; i.e. by using the \l ExcludeUserInputEvents flag.
 
     This function is simply a wrapper for
     QAbstractEventDispatcher::processEvents(). See the documentation
@@ -130,8 +130,8 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
     can be used before calling exec(), because modal widgets call
     use their own local event loop.
 
-    To make your application perform idle processing, i.e. executing a
-    special function whenever there are no pending events, use a
+    To make your application perform idle processing (i.e. executing a
+    special function whenever there are no pending events), use a
     QTimer with 0 timeout. More sophisticated idle processing schemes
     can be achieved using processEvents().
 
@@ -179,11 +179,13 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     operation and want to show its progress without allowing user
     input, i.e. by using the \l ExcludeUserInputEvents flag.
 
-    Note: This function does not process events continuously; it
-    returns after all available events are processed.
-
-    Note: Specifying the \l WaitForMoreEvents flag makes no sense
-    and will be ignored.
+    \bold{Notes:}
+    \list
+    \o This function does not process events continuously; it
+       returns after all available events are processed.
+    \o Specifying the \l WaitForMoreEvents flag makes no sense
+       and will be ignored.
+    \endlist
 */
 void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
 {
