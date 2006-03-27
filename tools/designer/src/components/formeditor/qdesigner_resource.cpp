@@ -50,6 +50,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QSplitter>
 #include <QtGui/QMenuBar>
+#include <QtGui/QFileDialog>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
@@ -1294,8 +1295,25 @@ void QDesignerResource::createResources(DomResources *resources)
 
     QList<DomResource*> dom_include = resources->elementInclude();
     foreach (DomResource *res, dom_include) {
-        QString path = m_formWindow->absoluteDir().absoluteFilePath(res->attributeLocation());
-        m_formWindow->addResourceFile(path);
+        QString path = m_formWindow->absoluteDir().absoluteFilePath(res->attributeLocation());        
+        while (!QFile::exists(path)) {
+            if (QMessageBox::warning(m_formWindow, QObject::tr("Loading qrc file"),
+                QObject::tr("The specified qrc file <p><b>%1</b></p><p>could not be found. "
+                "Do you want to update the file location?</p>").arg(path),
+                QObject::tr("&Yes"), QObject::tr("&No"),
+                QString(), 0, 1) == 0) {
+                QFileInfo fi(path);
+                path = QFileDialog::getOpenFileName(m_formWindow,
+                    QObject::tr("New location for %1").arg(fi.fileName()), fi.absolutePath(),
+                    QObject::tr("Resource files (*.qrc)"));
+                if (path.isEmpty())
+                    break;
+            } else {
+                break;
+            }
+        }
+        if (!path.isEmpty())
+            m_formWindow->addResourceFile(path);
     }
 }
 
