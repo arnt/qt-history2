@@ -390,7 +390,7 @@ int QTreeView::columnAt(int x) const
 /*!
     Returns true if the \a column is hidden; otherwise returns false.
 
-    \sa hideColumn()
+    \sa hideColumn(), isRowHidden()
 */
 bool QTreeView::isColumnHidden(int column) const
 {
@@ -400,6 +400,8 @@ bool QTreeView::isColumnHidden(int column) const
 
 /*!
   If \a hide is true the \a column is hidden, otherwise the \a column is shown.
+
+  \sa hideColumn(), setRowHidden()
 */
 void QTreeView::setColumnHidden(int column, bool hide)
 {
@@ -413,7 +415,7 @@ void QTreeView::setColumnHidden(int column, bool hide)
     Returns true if the item in the given \a row of the \a parent is hidden;
     otherwise returns false.
 
-    \sa setRowHidden()
+    \sa setRowHidden(), isColumnHidden()
 */
 bool QTreeView::isRowHidden(int row, const QModelIndex &parent) const
 {
@@ -426,7 +428,7 @@ bool QTreeView::isRowHidden(int row, const QModelIndex &parent) const
 /*!
   If \a hide is true the \a row with the given \a parent is hidden, otherwise the \a row is shown.
 
-  \sa isRowHidden()
+  \sa isRowHidden(), setColumnHidden()
 */
 void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
 {
@@ -495,7 +497,7 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
 /*!
   Hides the \a column given.
 
-  \sa showColumn()
+  \sa showColumn(), setColumnHidden()
 */
 void QTreeView::hideColumn(int column)
 {
@@ -506,7 +508,7 @@ void QTreeView::hideColumn(int column)
 /*!
   Shows the given \a column in the tree view.
 
-  \sa hideColumn()
+  \sa hideColumn(), setColumnHidden()
 */
 void QTreeView::showColumn(int column)
 {
@@ -518,6 +520,8 @@ void QTreeView::showColumn(int column)
   \fn void QTreeView::expand(const QModelIndex &index)
 
   Expands the model item specified by the \a index.
+
+  \sa expanded()
 */
 void QTreeView::expand(const QModelIndex &index)
 {
@@ -541,6 +545,8 @@ void QTreeView::expand(const QModelIndex &index)
   \fn void QTreeView::collapse(const QModelIndex &index)
 
   Collapses the model item specified by the \a index.
+
+  \sa collapsed()
 */
 void QTreeView::collapse(const QModelIndex &index)
 {
@@ -568,6 +574,8 @@ void QTreeView::collapse(const QModelIndex &index)
 
   Returns true if the model item \a index is expanded; otherwise returns
   false.
+
+  \da expand(), expanded()
 */
 bool QTreeView::isExpanded(const QModelIndex &index) const
 {
@@ -582,7 +590,7 @@ bool QTreeView::isExpanded(const QModelIndex &index) const
   Sets the item referred to by \a index to either collapse or expanded,
   depending on the value of \a expanded.
 
-  \sa expanded()
+  \sa expanded(), expand()
 */
 void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
 {
@@ -937,7 +945,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
   using the \a painter given. The \a option control how the item is
   displayed.
 
-  \sa QStyleOptionViewItem() setAlternatingRowColors()
+  \sa QStyleOptionViewItem(), setAlternatingRowColors()
 */
 void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const
@@ -1708,7 +1716,7 @@ int QTreeView::sizeHintForColumn(int column) const
 /*!
   Returns the size hint for the row indicated by \a index.
 
-  \sa sizeHintForColumn()
+  \sa sizeHintForColumn(), uniformRowHeights()
 */
 int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 {
