@@ -143,6 +143,9 @@ int QStackedWidget::addWidget(QWidget *widget)
     If the QStackedWidget was empty before this function is called,
     \a widget becomes the current widget.
 
+    Inserting a new widget at an index less than or equal to the current index
+    will increment the current index, but keep the current widget.
+
     \sa addWidget(), removeWidget(), count(), currentWidget()
 */
 int QStackedWidget::insertWidget(int index, QWidget *widget)

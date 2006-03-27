@@ -564,6 +564,12 @@ int QTabBar::insertTab(int index, const QString &text)
     Inserts a new tab with icon \a icon and text \a text at position
     \a index. If \a index is out of range, the new tab is
     appended. Returns the new tab's index.
+
+    If the QTabBar was empty before this function is called, the inserted tab
+    becomes the current tab.
+
+    Inserting a new tab at an index less than or equal to the current index
+    will increment the current index, but keep the current tab.
 */
 int QTabBar::insertTab(int index, const QIcon& icon, const QString &text)
 {
@@ -578,8 +584,11 @@ int QTabBar::insertTab(int index, const QIcon& icon, const QString &text)
     d->tabList[index].shortcutId = grabShortcut(QKeySequence::mnemonic(text));
 #endif
     d->refresh();
-    if(d->tabList.count() == 1)
+    if (d->tabList.count() == 1)
         setCurrentIndex(index);
+    else if (index <= d->currentIndex)
+        ++d->currentIndex;
+
     tabInserted(index);
     return index;
 }

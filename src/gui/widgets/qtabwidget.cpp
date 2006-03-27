@@ -315,6 +315,12 @@ int QTabWidget::addTab(QWidget *child, const QIcon& icon, const QString &label)
     If \a index is out of range, the tab is simply appended.
     Otherwise it is inserted at the specified position.
 
+    If the QTabWidget was empty before this function is called,
+    \a w becomes the current page.
+
+    Inserting a new tab at an index less than or equal to the current index
+    will increment the current index, but keep the current page.
+
     If you call insertTab() after show(), the screen will flicker and
     the user may be confused.
 
