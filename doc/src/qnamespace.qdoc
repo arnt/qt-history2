@@ -891,6 +891,7 @@
     \omitvalue WA_ForceUpdatesDisabled
     \omitvalue WA_NoX11EventCompression
     \omitvalue WA_TintedBackground
+    \omitvalue WA_X11OpenGLOverlay
 
     \omitvalue WA_AttributeCount
 */

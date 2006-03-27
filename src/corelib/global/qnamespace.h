@@ -354,6 +354,7 @@ public:
 
         WA_NoX11EventCompression = 81,
         WA_TintedBackground = 82,
+        WA_X11OpenGLOverlay = 83,
 
         WA_AlwaysShowToolTips = 83,
 

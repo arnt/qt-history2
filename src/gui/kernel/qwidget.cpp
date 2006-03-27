@@ -1410,6 +1410,10 @@ void QWidgetPrivate::updateIsOpaque()
 bool QWidgetPrivate::isOpaque() const
 {
     Q_Q(const QWidget);
+#ifdef Q_WS_X11
+    if (q->testAttribute(Qt::WA_X11OpenGLOverlay))
+	return false;
+#endif
     if (q->testAttribute(Qt::WA_OpaquePaintEvent)
         || q->testAttribute(Qt::WA_PaintOnScreen)
         || q->testAttribute(Qt::WA_NoSystemBackground))

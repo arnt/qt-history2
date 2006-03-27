@@ -899,6 +899,7 @@ QGLOverlayWidget::QGLOverlayWidget(const QGLFormat& format, QGLWidget* parent,
                                    const QGLWidget* shareWidget)
     : QGLWidget(format, parent, shareWidget ? shareWidget->d_func()->olw : 0)
 {
+    setAttribute(Qt::WA_X11OpenGLOverlay);
     realWidget = parent;
 }
 
