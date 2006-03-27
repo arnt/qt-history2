@@ -180,9 +180,13 @@ QWidget *QDrag::target() const
 }
 
 /*!
-    Starts the drag and drop operation. The actions that are available to the
-    user when the drag and drop operation is completed are specified in
-    \a request. Qt::CopyAction is always allowed.
+    Starts the drag and drop operation and returns a value indicating the requested
+    drop action when it is completed. The drop actions that the user can choose
+    from are specified in \a request. Qt::CopyAction is always allowed.
+
+    \bold{Note:} Although the drag and drop operation can take some time, this function
+    does not block the event loop. Other events are still delivered to the application
+    while the operation is performed.
 */
 Qt::DropAction QDrag::start(Qt::DropActions request)
 {
