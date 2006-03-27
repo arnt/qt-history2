@@ -349,9 +349,9 @@ Qt::DropActions QListModel::supportedDropActions() const
 
     \ingroup model-view
 
-    The QListWidgetItem class provides a list item for use with the QListWidget
-    class. List items provide label information that is displayed in list
-    widgets.
+    QListWidgetItem is used to represent items in a list provided by the
+    QListWidget class. Each item can hold several pieces of information,
+    and will display these appropriately.
 
     The item view convenience classes use a classic item-based interface
     rather than a pure model/view approach. For a more flexible list view
