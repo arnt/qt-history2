@@ -227,6 +227,7 @@ public:
                   Popup=Qt::PopupFocusReason, Shortcut=Qt::ShortcutFocusReason };
 #endif
     Qt::FocusReason reason();
+    Qt::FocusReason reason() const;
 
 private:
     Qt::FocusReason m_reason;
@@ -599,8 +600,11 @@ public:
     ~QShortcutEvent();
 
     inline const QKeySequence &key() { return sequence; }
+    inline const QKeySequence &key() const { return sequence; }
     inline int shortcutId() { return sid; }
+    inline int shortcutId() const { return sid; }
     inline bool isAmbiguous() { return ambig; }
+    inline bool isAmbiguous() const { return ambig; }
 protected:
     QKeySequence sequence;
     bool ambig;

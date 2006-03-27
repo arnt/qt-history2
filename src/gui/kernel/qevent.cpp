@@ -760,10 +760,19 @@ QFocusEvent::~QFocusEvent()
 {
 }
 
+// remove in Qt 5
+/*!
+    \internal
+ */
+Qt::FocusReason QFocusEvent::reason()
+{
+    return m_reason;
+}
+
 /*!
     Returns the reason for this focus event.
  */
-Qt::FocusReason QFocusEvent::reason()
+Qt::FocusReason QFocusEvent::reason() const
 {
     return m_reason;
 }
@@ -2885,13 +2894,20 @@ QClipboardEvent::~QClipboardEvent()
 */
 
 /*!
-    \fn const QKeySequence &QShortcutEvent::key()
+    \fn const QKeySequence &QShortcutEvent::key() const
 
     Returns the key sequence that triggered the event.
 */
 
+// remove in Qt 5
 /*!
-    \fn int QShortcutEvent::shortcutId()
+    \fn const QKeySequence &QShortcutEvent::key() 
+
+    \internal
+*/
+
+/*!
+    \fn int QShortcutEvent::shortcutId() const
 
     Returns the ID of the QShortcut object for which this event was
     generated.
@@ -2899,13 +2915,27 @@ QClipboardEvent::~QClipboardEvent()
     \sa QShortcut::id()
 */
 
+// Remove in Qt 5
 /*!
-    \fn bool QShortcutEvent::isAmbiguous()
+    \fn int QShortcutEvent::shortcutId()
+
+    \internal
+*/
+
+/*!
+    \fn bool QShortcutEvent::isAmbiguous() const
 
     Returns true if the key sequence that triggered the event is
     ambiguous.
 
     \sa QShortcut::activatedAmbiguously()
+*/
+
+// Remove in Qt 5
+/*!
+    \fn bool QShortcutEvent::isAmbiguous()
+
+    \internal
 */
 
 /*!
