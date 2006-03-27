@@ -2370,12 +2370,14 @@ void QLineEditPrivate::init(const QString& txt)
     actions[RedoAct] = new QAction(QLineEdit::tr("&Redo") + ACCEL_KEY(Y), q);
     QObject::connect(actions[RedoAct], SIGNAL(triggered()), q, SLOT(redo()));
     //popup->insertSeparator();
+#ifndef QT_NO_CLIPBOARD
     actions[CutAct] = new QAction(QLineEdit::tr("Cu&t") + ACCEL_KEY(X), q);
     QObject::connect(actions[CutAct], SIGNAL(triggered()), q, SLOT(cut()));
     actions[CopyAct] = new QAction(QLineEdit::tr("&Copy") + ACCEL_KEY(C), q);
     QObject::connect(actions[CopyAct], SIGNAL(triggered()), q, SLOT(copy()));
     actions[PasteAct] = new QAction(QLineEdit::tr("&Paste") + ACCEL_KEY(V), q);
     QObject::connect(actions[PasteAct], SIGNAL(triggered()), q, SLOT(paste()));
+#endif
     actions[ClearAct] = new QAction(QLineEdit::tr("Delete"), q);
     QObject::connect(actions[ClearAct], SIGNAL(triggered()), q, SLOT(_q_deleteSelected()));
     //popup->insertSeparator();
