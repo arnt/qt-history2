@@ -1269,6 +1269,8 @@ void QComboBox::setEditable(bool editable)
 
 /*!
     Sets the line \a edit to use instead of the current line edit widget.
+
+    The combo box takes ownership of the line edit.
 */
 void QComboBox::setLineEdit(QLineEdit *edit)
 {
