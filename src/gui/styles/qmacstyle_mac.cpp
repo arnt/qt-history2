@@ -1103,7 +1103,6 @@ bool QMacStylePrivate::doAnimate(QMacStylePrivate::Animates as)
     return true;
 }
 
-
 void QMacStylePrivate::HIThemeDrawColorlessButton(const HIRect &macRect,
                                                      const HIThemeButtonDrawInfo &bdi,
                                                      QPainter *p, const QStyleOption *opt) const
@@ -1978,6 +1977,38 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
     ThemeDrawState tds = d->getDrawState(opt->state);
     QMacCGContext cg(p);
     switch (pe) {
+    case PE_IndicatorArrowUp:
+    case PE_IndicatorArrowDown:
+    case PE_IndicatorArrowRight:
+    case PE_IndicatorArrowLeft: {
+        p->save();
+        p->setRenderHint(QPainter::Antialiasing);
+        QMatrix matrix;
+        matrix.translate(opt->rect.center().x() + 1, opt->rect.center().y() + 1);
+        QPainterPath path;
+        switch(pe) {
+        default:
+        case PE_IndicatorArrowDown:
+            break;
+        case PE_IndicatorArrowUp:
+            matrix.rotate(180);
+            break;
+        case PE_IndicatorArrowLeft:
+            matrix.rotate(90);
+            break;
+        case PE_IndicatorArrowRight:
+            matrix.rotate(-90);
+            break;
+        }
+        path.moveTo(0, 5);
+        path.lineTo(-5, -5);
+        path.lineTo(5, -5);
+        p->setMatrix(matrix);
+        p->setPen(Qt::NoPen);
+        p->setBrush(opt->palette.brush(QPalette::WindowText));
+        p->drawPath(path);
+        p->restore();
+        break; }
     case PE_FrameTabBarBase:
         if (const QStyleOptionTabBarBase *tbb
                 = qstyleoption_cast<const QStyleOptionTabBarBase *>(opt)) {
@@ -2151,36 +2182,6 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
         else
             d->HIThemeDrawColorlessButton(macRect, bdi, p, opt);
-        break; }
-    case PE_IndicatorArrowUp:
-    case PE_IndicatorArrowDown:
-    case PE_IndicatorArrowRight:
-    case PE_IndicatorArrowLeft: {
-        HIThemePopupArrowDrawInfo pdi;
-        pdi.version = qt_mac_hitheme_version;
-        pdi.state = tds;
-        switch (pe) {
-        case PE_IndicatorArrowUp:
-            pdi.orientation = kThemeArrowUp;
-            break;
-        case PE_IndicatorArrowDown:
-            pdi.orientation = kThemeArrowDown;
-            break;
-        case PE_IndicatorArrowRight:
-            pdi.orientation = kThemeArrowRight;
-            break;
-        case PE_IndicatorArrowLeft:
-            pdi.orientation = kThemeArrowLeft;
-            break;
-        default:     // Stupid compiler _should_ know better.
-            break;
-        }
-        if (opt->rect.width() < 8)
-            pdi.size = kThemeArrow5pt;
-        else
-            pdi.size = kThemeArrow9pt;
-        HIRect macRect = qt_hirectForQRect(opt->rect);
-        HIThemeDrawPopupArrow(&macRect, &pdi, cg, kHIThemeOrientationNormal);
         break; }
     case PE_FrameFocusRect:
         // Use the our own focus widget stuff.
@@ -2538,14 +2539,21 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             newRect = qt_hirectForQRect(btn->rect, off_rct);
             HIThemeDrawButton(&newRect, &bdi, cg, kHIThemeOrientationNormal, 0);
             if (btn->features & QStyleOptionButton::HasMenu) {
-                int mbi = pixelMetric(PM_MenuButtonIndicator, btn, w);
+                int mbi = q->pixelMetric(QStyle::PM_MenuButtonIndicator, btn, w);
                 QRect ir = btn->rect;
-                QStyleOptionButton newBtn = *btn;
-                newBtn.rect = QRect(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
+                HIRect arrowRect = CGRectMake(ir.right() - mbi, ir.height() / 2 - 5, mbi, ir.height() / 2);
                 if (drawColorless && tds == kThemeStateInactive)
-                    newBtn.state |= State_Active;
+                    tds = kThemeStateActive;
 
-                drawPrimitive(PE_IndicatorArrowDown, &newBtn, p, w);
+                HIThemePopupArrowDrawInfo pdi;
+                pdi.version = qt_mac_hitheme_version;
+                pdi.state = tds;
+                pdi.orientation = kThemeArrowDown;
+                if (arrowRect.size.width < 8.)
+                    pdi.size = kThemeArrow5pt;
+                else
+                    pdi.size = kThemeArrow9pt;
+                HIThemeDrawPopupArrow(&arrowRect, &pdi, cg, kHIThemeOrientationNormal);
             }
         }
         break;
@@ -3039,6 +3047,50 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             }
         }
         break;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+    case CE_DockWidgetTitle:
+        if (const QDockWidget *dockWidget = qobject_cast<const QDockWidget *>(w)) {
+            bool floating = dockWidget->isFloating();
+            if (floating) {
+                ThemeDrawState tds = d->getDrawState(opt->state);
+                HIThemeWindowDrawInfo wdi;
+                wdi.version = qt_mac_hitheme_version;
+                wdi.state = tds;
+                wdi.windowType = kThemeUtilityWindow;
+                wdi.titleHeight = opt->rect.height();
+                wdi.titleWidth = opt->rect.width();
+                wdi.attributes = kThemeWindowHasTitleText;
+
+                HIRect titleBarRect;
+                HIRect tmpRect = qt_hirectForQRect(opt->rect, p);
+                {
+                    QCFType<HIShapeRef> titleRegion;
+                    QRect newr = opt->rect.adjusted(0, 0, 2, 0);
+                    HIThemeGetWindowShape(&tmpRect, &wdi, kWindowTitleBarRgn, &titleRegion);
+                    HIShapeGetBounds(titleRegion, &tmpRect);
+                    newr.translate(newr.x() - int(tmpRect.origin.x), newr.y() - int(tmpRect.origin.y));
+                    titleBarRect = qt_hirectForQRect(newr, p);
+                }
+                QMacCGContext cg(p);
+                HIThemeDrawWindowFrame(&titleBarRect, &wdi, cg, kHIThemeOrientationNormal, 0);
+            }
+        }
+
+        // Draw the text...
+        if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
+            if (!dwOpt->title.isEmpty()) {
+                QFont oldFont = p->font();
+                p->setFont(qt_app_fonts_hash()->value("QToolButton", p->font()));
+                const int indent = p->fontMetrics().descent();
+                drawItemText(p, dwOpt->rect.adjusted(indent + 1, 1, -indent - 1, -1),
+                              Qt::AlignCenter, dwOpt->palette,
+                              dwOpt->state & State_Enabled, dwOpt->title,
+                              QPalette::Foreground);
+                p->setFont(oldFont);
+            }
+        }
+        break;
+#endif
     default:
         QWindowsStyle::drawControl(ce, opt, p, w);
         break;
