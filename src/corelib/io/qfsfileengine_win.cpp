@@ -1421,6 +1421,8 @@ QString QFSFileEngine::fileName(FileName file) const
             int slash = ret.lastIndexOf(QLatin1Char('/'));
             if (slash < 0)
                 return ret;
+            else if (ret.at(0) != QLatin1Char('/') && slash == 2)
+                return ret.left(3);      // include the slash
             else
                 return ret.left(slash > 0 ? slash : 1);
         }
@@ -1456,8 +1458,11 @@ QString QFSFileEngine::fileName(FileName file) const
                 }
                 QT_CHDIR(cur);
             });
-            if (attach_basename)
-                ret += QLatin1Char('/') + fileName(BaseName);
+            if (attach_basename) {
+                if (!ret.endsWith(QLatin1Char('/')))
+                    ret += QLatin1Char('/');
+                ret += fileName(BaseName);
+            }
             ret[0] = ret.at(0).toUpper(); // Force uppercase drive letters.
             return QFSFileEnginePrivate::fixToQtSlashes(ret);
         }
