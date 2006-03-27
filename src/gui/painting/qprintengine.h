@@ -46,10 +46,10 @@ public:
         PPK_SupportedResolutions,
 
         PPK_WindowsPageSize,
-
         PPK_FontEmbedding,
-
         PPK_SuppressSystemPrintStatus,
+        
+        PPK_Duplex,       
 
         PPK_CustomBase = 0xff00
     };

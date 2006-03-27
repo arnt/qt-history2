@@ -341,10 +341,13 @@ static QByteArray wrapDSC(const QByteArray &str)
 // ----------------------------- Internal class declarations -----------------------------
 
 QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
-    : outDevice(0), fd(-1), 
+    : outDevice(0), fd(-1),
       collate(false), copies(1), orientation(QPrinter::Portrait),
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::Color),
-      fullPage(false), printerState(QPrinter::Idle), pid(0)
+      fullPage(false), printerState(QPrinter::Idle), pid(0), duplex(false)
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+    , cups(this)
+#endif
 {
     postscript = true;
     backgroundMode = Qt::TransparentMode;
@@ -855,11 +858,11 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     if (!d->outputFileName.isEmpty()) {
         d->fd = QT_OPEN(d->outputFileName.toLocal8Bit().constData(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
 #if defined(Q_OS_WIN)
-            _S_IREAD | _S_IWRITE
+                        _S_IREAD | _S_IWRITE
 #else
-            0666
+                        0666
 #endif
-           );
+            );
     } else {
         QString pr;
         if (!d->printerName.isEmpty())
@@ -896,7 +899,79 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
                 else
                     pr.prepend(QLatin1String("-P"));
                 (void)execlp(d->printProgram.toLocal8Bit().data(), d->printProgram.toLocal8Bit().data(),
-                              pr.toLocal8Bit().data(), (char *)0);
+                             pr.toLocal8Bit().data(), (char *)0);
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+            } else if (d->cups.isAvailable()) {
+
+                QStringList cupsArgList;
+
+                cupsArgList << "lpr";
+
+                if (!d->printerName.isEmpty()) {
+                    cupsArgList << "-P";
+                    cupsArgList << d->printerName;
+                }
+
+                cupsArgList << "-o";
+                const ppd_option_t* pageSizes = d->cups.pageSizes();
+                cupsArgList << QString("media=%1").arg(pageSizes->choices[d->pageSize].choice);
+
+                if (d->copies > 1) {
+                    cupsArgList << "-#";
+                    cupsArgList << QString::number(d->copies);
+                }
+
+#if 0 // ##########
+                if (d->printer->printRange() == QPrinter::PageRange) {
+                    cupsArgList << "-o";
+                    cupsArgList << QString("print-ranges=%1-%2").arg(d->printer->fromPage()).arg(d->printer->toPage());
+                }
+#endif
+
+                if (d->collate) {
+                    cupsArgList << "-o";
+                    cupsArgList << "Collate=True";
+                }
+
+                if (d->pageOrder == QPrinter::LastPageFirst) {
+                    cupsArgList << "-o";
+                    cupsArgList << "outputorder=reverse";
+                }
+
+                if (d->duplex) {
+                    cupsArgList << "-o";
+                    if (d->orientation == QPrinter::Portrait)
+                        cupsArgList << "sides=two-sided-long-edge";
+                    else
+                        cupsArgList << "sides=two-sided-short-edge";
+                }
+
+                if (d->orientation == QPrinter::Landscape) {
+                    cupsArgList << "-o";
+                    cupsArgList << "landscape";
+                }
+
+                QStringList list = d->cups.options();
+                QStringList::const_iterator it = list.constBegin();
+                while (it != list.constEnd()) {
+                    cupsArgList << "-o";
+                    cupsArgList << QString("%1=%2").arg(*it).arg(*(it+1));
+                    it += 2;
+                }
+
+                char** lprargs = new char*[cupsArgList.count() + 1];
+                int i;
+                for (i = 0; i < cupsArgList.count(); ++i) {
+                    lprargs[i] = cupsArgList.at(i).toLocal8Bit().data();
+                }
+                lprargs[i] = 0;
+
+                // if the CUPS is available we expect lpr arround
+                (void)execvp( "lpr", lprargs );
+                (void)execv( "/bin/lpr", lprargs);
+                (void)execv( "/usr/bin/lpr", lprargs);
+
+#endif
             } else {
                 // if no print program has been specified, be smart
                 // about the option string too.
@@ -1015,7 +1090,7 @@ bool QPSPrintEngine::end()
         (void)::waitpid(d->pid, 0, 0);
         d->pid = 0;
     }
-    
+
     return true;
 }
 
@@ -1272,6 +1347,9 @@ void QPSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &val
     case PPK_FontEmbedding:
         d->embedFonts = value.toBool();
         break;
+    case PPK_Duplex:
+        d->duplex = value.toBool();
+        break;
     default:
         break;
     }
@@ -1280,6 +1358,16 @@ void QPSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &val
 QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
 {
     Q_D(const QPSPrintEngine);
+
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+    if (d->cups.isAvailable()) {
+        if (key == PPK_PaperRect)
+            return QVariant(d->cups.paperRect());
+        else if (key == PPK_PageRect)
+            return QVariant(d->cups.pageRect());
+    }
+#endif
+
     QVariant ret;
     switch (key) {
     case PPK_CollateCopies:
@@ -1339,6 +1427,9 @@ QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
     case PPK_FontEmbedding:
         ret = d->embedFonts;
         break;
+    case PPK_Duplex:
+        ret = d->duplex;
+        break;
     default:
         break;
     }
@@ -1346,3 +1437,248 @@ QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
 }
 
 #endif // QT_NO_PRINTER
+
+
+#if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+
+QCUPSSupport* QPSPrintEngine::cupsSupport()
+{
+    Q_D(QPSPrintEngine);
+    return &d->cups;
+}
+
+// ================ CUPS Support class ========================
+
+QCUPSSupport::QCUPSSupport(QPSPrintEnginePrivate *qq)
+    : q(qq),
+    cupsLib("cups", 2),
+    _cupsGetDests(0),
+    _cupsGetPPD(0),
+    _ppdOpenFile(0),
+    _ppdMarkDefaults(0),
+    _cupsFreeOptions(0),
+    prnCount(0),
+    printers(0),
+    page_sizes(0),
+    currPrinterIndex(0),
+    currPPD(0)
+{
+    if (cupsLib.load()) {
+        _cupsGetDests = (CupsGetDests) cupsLib.resolve("cupsGetDests");
+        _cupsGetPPD = (CupsGetPPD) cupsLib.resolve("cupsGetPPD");
+        _ppdOpenFile = (PPDOpenFile) cupsLib.resolve("ppdOpenFile");
+        _ppdMarkDefaults = (PPDMarkDefaults) cupsLib.resolve("ppdMarkDefaults");
+        _ppdClose = (PPDClose) cupsLib.resolve("ppdClose");
+        _cupsMarkOptions = (CupsMarkOptions) cupsLib.resolve("cupsMarkOptions");
+        _ppdMarkOption = (PPDMarkOption) cupsLib.resolve("ppdMarkOption");
+        _cupsFreeOptions = (CupsFreeOptions) cupsLib.resolve("cupsFreeOptions");
+        _cupsSetDests = (CupsSetDests) cupsLib.resolve("cupsSetDests");
+        _cupsAddOption = (CupsAddOption) cupsLib.resolve("cupsAddOption");
+
+        // getting all available printers
+        if (isAvailable())
+            prnCount = _cupsGetDests(&printers);
+
+        for (int i = 0; i <  prnCount; ++i) {
+            if (printers[i].is_default) {
+                currPrinterIndex = i;
+                setCurrentPrinter(i);
+                break;
+            }
+        }
+    }
+}
+
+QCUPSSupport::~QCUPSSupport()
+{
+     if (currPPD)
+        _ppdClose(currPPD);
+}
+
+int QCUPSSupport::availablePrintersCount() const
+{
+    return prnCount;
+}
+
+const cups_dest_t* QCUPSSupport::availablePrinters() const
+{
+    return printers;
+}
+
+const ppd_file_t* QCUPSSupport::currentPPD() const
+{
+    return currPPD;
+}
+
+const ppd_file_t* QCUPSSupport::setCurrentPrinter(int index)
+{
+    Q_ASSERT(index >= 0 && index <= prnCount);
+
+    currPrinterIndex = index;
+
+    if (currPPD)
+        _ppdClose(currPPD);
+
+    const char *ppdFile = _cupsGetPPD(printers[index].name);
+    currPPD = _ppdOpenFile(ppdFile);
+    unlink(ppdFile);
+
+    // marking default options
+    _ppdMarkDefaults(currPPD);
+
+    // marking options explicitely set
+    _cupsMarkOptions(currPPD, printers[currPrinterIndex].num_options, printers[currPrinterIndex].options);
+
+    // getting pointer to page sizes
+    page_sizes = ppdOption("PageSize");
+
+    return currPPD;
+}
+
+int QCUPSSupport::currentPrinterIndex() const
+{
+    return currPrinterIndex;
+}
+
+bool QCUPSSupport::isAvailable() const
+{
+    return cupsLib.isLoaded() &&
+        _cupsGetDests &&
+        _cupsGetPPD &&
+        _ppdOpenFile &&
+        _ppdMarkDefaults &&
+        _ppdClose &&
+        _cupsMarkOptions &&
+        _ppdMarkOption &&
+        _cupsFreeOptions &&
+        _cupsSetDests &&
+        _cupsAddOption;
+}
+
+const ppd_option_t* QCUPSSupport::ppdOption(const QString &key) const
+{
+    for (int gr = 0; gr < currPPD->num_groups; ++gr) {
+        for (int opt = 0; opt < currPPD->groups[gr].num_options; ++opt) {
+            if (currPPD->groups[gr].options[opt].keyword == key)
+                return &currPPD->groups[gr].options[opt];
+        }
+    }
+    return 0;
+}
+
+const cups_option_t* QCUPSSupport::printerOption(const QString &key) const
+{
+    for (int i = 0; i < printers[currPrinterIndex].num_options; ++i) {
+        if (printers[currPrinterIndex].options[i].name == key)
+            return &printers[currPrinterIndex].options[i];
+    }
+    return 0;
+}
+
+const ppd_option_t* QCUPSSupport::pageSizes() const
+{
+    return page_sizes;
+}
+
+int QCUPSSupport::markOption(const char* name, const char* value)
+{
+    return _ppdMarkOption(currPPD, name, value);
+}
+
+void QCUPSSupport::saveOptions(QList<const ppd_option_t*> options, QList<const char*> markedOptions)
+{
+    int oldOptionCount = printers[currPrinterIndex].num_options;
+    cups_option_t* oldOptions = printers[currPrinterIndex].options;
+
+    int newOptionCount = 0;
+    cups_option_t* newOptions = 0;
+
+    // copying old options that are not on the new list
+    for (int i = 0; i < oldOptionCount; ++i) {
+        bool contains = false;
+        for (int j = 0; j < options.count(); ++j) {
+            if ( strcmp(options.at(j)->keyword, oldOptions[i].name) == 0) {
+                contains = true;
+                break;
+            }
+        }
+
+        if (!contains) {
+            newOptionCount = _cupsAddOption(oldOptions[i].name, oldOptions[i].value, newOptionCount, &newOptions);
+        }
+    }
+
+    // we can release old option list
+     _cupsFreeOptions(oldOptionCount, oldOptions);
+
+    // adding marked options
+    for (int i = 0; i < markedOptions.count(); ++i) {
+        const char* name = markedOptions.at(i);
+        ++i;
+        newOptionCount = _cupsAddOption(name, markedOptions.at(i), newOptionCount, &newOptions);
+    }
+
+    // placing the new option list
+    printers[currPrinterIndex].num_options = newOptionCount;
+    printers[currPrinterIndex].options = newOptions;
+
+    // saving new default values
+    _cupsSetDests(prnCount, printers);
+}
+
+QRect QCUPSSupport::paperRect() const
+{
+    for (int i = 0; i < currPPD->num_sizes; ++i) {
+        if (currPPD->sizes[i].marked == 0)
+            return QRect(0, 0, (int)currPPD->sizes[i].width, (int)currPPD->sizes[i].length);
+    }
+    return QRect();
+}
+
+QRect QCUPSSupport::pageRect() const
+{
+    for (int i = 0; i < currPPD->num_sizes; ++i) {
+        if (currPPD->sizes[i].marked == 0)
+            return QRect((int)currPPD->sizes[i].left,
+                         (int)currPPD->sizes[i].right,
+                         (int)(currPPD->sizes[i].right - currPPD->sizes[i].left),
+                         (int)(currPPD->sizes[i].bottom - currPPD->sizes[i].top));
+    }
+    return QRect();
+}
+
+QStringList QCUPSSupport::options() const
+{
+    QStringList list;
+    collectMarkedOptions(list);
+    return list;
+}
+
+void QCUPSSupport::collectMarkedOptions(QStringList& list, const ppd_group_t* group) const
+{
+    if (group == 0) {
+        for (int i = 0; i < currPPD->num_groups; ++i) {
+            collectMarkedOptions(list, &currPPD->groups[i]);
+            collectMarkedOptionsHelper(list, &currPPD->groups[i]);
+        }
+    } else {
+        for (int i = 0; i < group->num_subgroups; ++i)
+            collectMarkedOptionsHelper(list, &group->subgroups[i]);
+    }
+}
+
+void QCUPSSupport::collectMarkedOptionsHelper(QStringList& list, const ppd_group_t* group) const
+{
+    for (int i = 0; i < group->num_options; ++i) {
+        for (int j = 0; j < group->options[i].num_choices; ++j) {
+            if (group->options[i].choices[j].marked == 1 && strcmp(group->options[i].choices[j].choice, group->options[i].defchoice) != 0)
+                list << group->options[i].keyword << group->options[i].choices[j].choice;
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+#endif // !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
+

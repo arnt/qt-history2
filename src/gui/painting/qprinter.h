@@ -130,6 +130,9 @@ public:
 
     void setFontEmbeddingEnabled(bool enable);
     bool fontEmbeddingEnabled() const;
+    
+    void setDoubleSidePrinting(bool enable);
+    bool doubleSidePrinting();
 
 #ifdef Q_WS_WIN
     void setWinPageSize(int winPageSize);
@@ -162,7 +165,7 @@ public:
     int toPage() const;
 
     void setPrintRange(PrintRange range);
-    PrintRange printRange() const;
+    PrintRange printRange() const;    
 
 #ifdef QT3_SUPPORT
 #ifdef Q_WS_MAC

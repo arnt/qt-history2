@@ -35,6 +35,8 @@ mac {
 !mac:unix {
 	SOURCES += dialogs/qprintdialog_unix.cpp \
 		   dialogs/qpagesetupdialog_unix.cpp
+	FORMS += dialogs/qprintdialog.ui \
+		dialogs/qprintpropertiesdialog.ui
 }
 
 SOURCES += \

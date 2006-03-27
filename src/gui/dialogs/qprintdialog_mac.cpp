@@ -23,19 +23,12 @@ class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 public:
     QPrintDialogPrivate() : ep(0) { }
 
-    inline void _q_browseClicked() {}
-    inline void _q_okClicked() {}
-    inline void _q_printerOrFileSelected(QAbstractButton *) {}
-    inline void _q_landscapeSelected(int) {}
-    inline void _q_paperSizeSelected(int) {}
-    inline void _q_orientSelected(int) {}
-    inline void _q_pageOrderSelected(QAbstractButton *) {}
-    inline void _q_colorModeSelected(QAbstractButton *) {}
-    inline void _q_setNumCopies(int) {}
-    inline void _q_printRangeSelected(QAbstractButton *) {}
-    inline void _q_setFirstPage(int) {}
-    inline void _q_setLastPage(int) {}
-    inline void _q_fileNameEditChanged(const QString & /*text*/) {}
+    inline void _q_printToFileChanged(int) {}
+    inline void _q_rbPrintRangeToggled(bool) {}
+    inline void _q_printerChanged(int index) {}
+    inline void _q_paperSizeChanged(int index) {}
+    inline void _q_btnBrowseClicked() {}
+    inline void _q_btnPropertiesClicked() {}
 
     QMacPrintEnginePrivate *ep;
 };

@@ -958,7 +958,7 @@ void QPrinter::setFontEmbeddingEnabled(bool enable)
 /*!
   \since 4.1
 
-  Returns true is font embedding is enabled.
+  Returns true if font embedding is enabled.
 
   Currently this option is only supported on X11.
 
@@ -969,6 +969,38 @@ bool QPrinter::fontEmbeddingEnabled() const
     Q_D(const QPrinter);
     return d->printEngine->property(QPrintEngine::PPK_FontEmbedding).toBool();
 }
+
+/*!
+  \since 4.2
+
+  Enabled or disables double side printing
+
+  Currently this option is only supported on X11.
+
+  \sa doubleSidePrinting()
+*/
+void QPrinter::setDoubleSidePrinting(bool enable)
+{
+    Q_D(QPrinter);
+    d->printEngine->setProperty(QPrintEngine::PPK_Duplex, enable);
+}
+
+
+/*!
+  \since 4.2
+
+  Returns true if double side printing is enabled.
+
+  Currently this option is only supported on X11.
+
+  \sa setDoubleSidePrinting()
+*/
+bool QPrinter::doubleSidePrinting()
+{
+    Q_D(const QPrinter);
+    return d->printEngine->property(QPrintEngine::PPK_Duplex).toBool();
+}
+
 
 /*!
     Returns the page's rectangle; this is usually smaller than the

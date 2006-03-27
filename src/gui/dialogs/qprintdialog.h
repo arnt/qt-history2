@@ -21,7 +21,7 @@ QT_MODULE(Gui)
 #ifndef QT_NO_PRINTDIALOG
 
 class QPrintDialogPrivate;
-class QAbstractButton;
+class QPushButton;
 class QPrinter;
 
 class Q_GUI_EXPORT QPrintDialog : public QAbstractPrintDialog
@@ -32,33 +32,24 @@ public:
     explicit QPrintDialog(QPrinter *printer, QWidget *parent = 0);
     ~QPrintDialog();
 
+    int exec();
+
 #if defined (Q_OS_UNIX) && !defined (Q_OS_MAC) && defined (QT3_SUPPORT)
     void setPrinter(QPrinter *, bool = false);
     QPrinter *printer() const;
     void addButton(QPushButton *button);
 #endif
 
-    int exec();
-
 private:
-    Q_DISABLE_COPY(QPrintDialog)
-
-// #if defined (Q_OS_UNIX) && !defined (Q_OS_MAC)
-    Q_PRIVATE_SLOT(d_func(), void _q_browseClicked())
-    Q_PRIVATE_SLOT(d_func(), void _q_okClicked())
-    Q_PRIVATE_SLOT(d_func(), void _q_printerOrFileSelected(QAbstractButton *))
-    Q_PRIVATE_SLOT(d_func(), void _q_landscapeSelected(int))
-    Q_PRIVATE_SLOT(d_func(), void _q_paperSizeSelected(int))
-    Q_PRIVATE_SLOT(d_func(), void _q_orientSelected(int))
-    Q_PRIVATE_SLOT(d_func(), void _q_pageOrderSelected(QAbstractButton *))
-    Q_PRIVATE_SLOT(d_func(), void _q_colorModeSelected(QAbstractButton *))
-    Q_PRIVATE_SLOT(d_func(), void _q_setNumCopies(int))
-    Q_PRIVATE_SLOT(d_func(), void _q_printRangeSelected(QAbstractButton *))
-    Q_PRIVATE_SLOT(d_func(), void _q_setFirstPage(int))
-    Q_PRIVATE_SLOT(d_func(), void _q_setLastPage(int))
-    Q_PRIVATE_SLOT(d_func(), void _q_fileNameEditChanged(const QString &text))
-// #endif
+    Q_PRIVATE_SLOT(d_func(), void _q_printToFileChanged(int));
+    Q_PRIVATE_SLOT(d_func(), void _q_rbPrintRangeToggled(bool));
+    Q_PRIVATE_SLOT(d_func(), void _q_printerChanged(int));
+    Q_PRIVATE_SLOT(d_func(), void _q_paperSizeChanged(int));
+    Q_PRIVATE_SLOT(d_func(), void _q_btnBrowseClicked());
+    Q_PRIVATE_SLOT(d_func(), void _q_btnPropertiesClicked());
 };
+
+
 
 #endif // QT_NO_PRINTDIALOG
 
