@@ -333,11 +333,10 @@ void QTableView::paintEvent(QPaintEvent *event)
     const bool enabled = (state & QStyle::State_Enabled) != 0;
 
     QPainter painter(d->viewport);
-    painter.setBrush(option.palette.brush(QPalette::Base));
 
     // if there's nothing to do, clear the area and return
     if (!model() || horizontalHeader->count() == 0 || verticalHeader->count() == 0) {
-        painter.fillRect(event->rect(), painter.brush());
+        painter.fillRect(event->rect(), option.palette.brush(QPalette::Base));
         return;
     }
 
@@ -429,12 +428,15 @@ void QTableView::paintEvent(QPaintEvent *event)
                     }
                     if (focus && index == current)
                         option.state |= QStyle::State_HasFocus;
+                    QBrush fill;
                     if (alternate) {
-                        painter.setBrush(alternateBase
-                                         ? option.palette.brush(QPalette::AlternateBase)
-                                         : option.palette.brush(QPalette::Base));
+                        fill = alternateBase
+                               ? option.palette.brush(QPalette::AlternateBase)
+                               : option.palette.brush(QPalette::Base);
+                    } else {
+                        fill = option.palette.brush(QPalette::Base);
                     }
-                    painter.fillRect(colp, rowp, colw, rowh, painter.brush());
+                    painter.fillRect(colp, rowp, colw, rowh, fill);
                     itemDelegate()->paint(&painter, option, index);
                 }
                 if (v == top && showGrid) {

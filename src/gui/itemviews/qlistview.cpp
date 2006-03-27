@@ -916,8 +916,6 @@ void QListView::paintEvent(QPaintEvent *e)
         }
     }
 
-    painter.setBrush(option.palette.brush(QPalette::Base));
-
     QVector<QModelIndex>::const_iterator end = toBeRendered.constEnd();
     for (QVector<QModelIndex>::const_iterator it = toBeRendered.constBegin(); it != end; ++it) {
         Q_ASSERT((*it).isValid());
@@ -946,11 +944,11 @@ void QListView::paintEvent(QPaintEvent *e)
             option.state &= ~QStyle::State_MouseOver;
 
         if (alternate) {
-            painter.setBrush(alternateBase
-                             ? option.palette.brush(QPalette::AlternateBase)
-                             : option.palette.brush(QPalette::Base));
+            QBrush fill = alternateBase
+                          ? option.palette.brush(QPalette::AlternateBase)
+                          : option.palette.brush(QPalette::Base);
             alternateBase = !alternateBase;
-            painter.fillRect(option.rect, painter.brush());
+            painter.fillRect(option.rect, fill);
         }
         delegate->paint(&painter, option, *it);
     }
