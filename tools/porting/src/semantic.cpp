@@ -185,7 +185,7 @@ void Semantic::parseElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *node)
     const QByteArray nameText = textOf(node->name());
 
     // Don't do anything if the class, struct or enum has already been declared or defined.
-    if (nameLookup(currentScope.top(), node->name()).count() > 0)
+    if (lookupNameInScope(currentScope.top(), node->name()).count() > 0)
         return;
 
     if (kindText == "class" || kindText == "struct") {
