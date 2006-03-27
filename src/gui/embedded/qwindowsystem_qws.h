@@ -198,13 +198,7 @@ public:
         ushort ctrl_unicode;
     };
 
-    struct KeyOverride {
-        ushort scan_code;
-        KeyMap map;
-    };
-
     static const KeyMap *keyMap();
-    static void setOverrideKeys(const KeyOverride*);
 
     class KeyboardFilter
     {
