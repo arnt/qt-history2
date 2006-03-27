@@ -1407,7 +1407,7 @@ bool qt_compat_QPrinter_printSetup(QPrinter *, QPrinterPrivate *pd, QWidget *par
     pd->ensurePrintDialog();
 
     if (parent)
-        pd->printDialog->setParent(parent);
+        pd->printDialog->setParent(parent, pd->printDialog->windowFlags());
 
     return pd->printDialog->exec() != 0;
 }
