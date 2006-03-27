@@ -2279,9 +2279,23 @@
     operations are now defined using logical coordinates and are subject
     to transformation operations.
 
-\omit
     \section1 QPixmap
 
+    The mask() function has been changed to return a reference to a QBitmap
+    rather than a pointer. As a result, it is no longer possible simply to
+    test for a null pointer when determining whether a pixmap has a mask.
+    Instead, you need to explicitly test whether the mask bitmap is null or
+    not.
+
+    \oldcode
+        if (pixmap.mask())
+            widget->setMask(*p.mask());
+    \newcode
+        if (pixmap.mask().isNull() == false)
+            widget->setMask(pixmap.mask());
+    \endcode
+
+\omit
     QPixmap::fromMimeSource(const QString &) -> qPixmapFromMimeSource(const QString &)
 \endomit
 
