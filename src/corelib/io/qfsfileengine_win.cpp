@@ -439,10 +439,10 @@ bool QFSFileEngine::copy(const QString &copyName)
     Q_D(QFSFileEngine);
     QT_WA({
         return ::CopyFileW((TCHAR*)QFSFileEnginePrivate::longFileName(d->file).utf16(),
-                           (TCHAR*)QFSFileEnginePrivate::longFileName(copyName).utf16(), false) != 0;
+                           (TCHAR*)QFSFileEnginePrivate::longFileName(copyName).utf16(), true) != 0;
     } , {
         return ::CopyFileA(QFSFileEnginePrivate::win95Name(d->file),
-                           QFSFileEnginePrivate::win95Name(copyName), false) != 0;
+                           QFSFileEnginePrivate::win95Name(copyName), true) != 0;
     });
 }
 
