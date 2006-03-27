@@ -680,9 +680,6 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 QRect QItemDelegate::textRectangle(QPainter *painter, const QRect &rect,
                                    const QFont &font, const QString &text) const
 {
-    if (text.isEmpty())
-        return QRect();
-
     // In qt 4.2 there will be a proper option in QStyleOptionViewItem for rect.width()
     if (rect.width() == -1) {
         QFontMetrics fontMetrics(font);
