@@ -3502,11 +3502,13 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 #endif // QT_NO_COMBOBOX
     case CT_HeaderSection:
         if (const QStyleOptionHeader *hdr = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
-            int margin = pixelMetric(QStyle::PM_HeaderMargin);
-            QSize icn = hdr->icon.isNull() ? QSize(0,0) : QSize(22,22);
+            bool nullIcon = hdr->icon.isNull();
+            int margin = pixelMetric(QStyle::PM_HeaderMargin, hdr, widget);
+            int iconSize = nullIcon ? 0 : pixelMetric(QStyle::PM_SmallIconSize, hdr, widget);
             QSize txt = hdr->fontMetrics.size(0, hdr->text);
-            sz.setHeight(margin + qMax(icn.height(), txt.height()) + margin);
-            sz.setWidth(margin + icn.width() + margin + txt.width() + margin);
+            sz.setHeight(margin + qMax(iconSize, txt.height()) + margin);
+            sz.setWidth((nullIcon ? 0 : margin) + iconSize
+                        + (hdr->text.isNull() ? 0 : margin) + txt.width() + margin);
         }
         break;
     case CT_TabWidget:
