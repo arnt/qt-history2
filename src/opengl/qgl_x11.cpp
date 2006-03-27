@@ -314,21 +314,21 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_DEPTH_SIZE, &res);
     d->glFormat.setDepth(res);
     if (d->glFormat.depth())
-	d->glFormat.setDepthBufferSize(res);
+        d->glFormat.setDepthBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_RGBA, &res);
     d->glFormat.setRgba(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_ALPHA_SIZE, &res);
     d->glFormat.setAlpha(res);
     if (d->glFormat.alpha())
-	d->glFormat.setAlphaBufferSize(res);
+        d->glFormat.setAlphaBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_ACCUM_RED_SIZE, &res);
     d->glFormat.setAccum(res);
     if (d->glFormat.accum())
-	d->glFormat.setAccumBufferSize(res);
+        d->glFormat.setAccumBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_STENCIL_SIZE, &res);
     d->glFormat.setStencil(res);
     if (d->glFormat.stencil())
-	d->glFormat.setStencilBufferSize(res);
+        d->glFormat.setStencilBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_STEREO, &res);
     d->glFormat.setStereo(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_SAMPLE_BUFFERS_ARB, &res);
@@ -372,11 +372,11 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if (deviceIsPixmap()) {
 #if defined(GLX_MESA_pixmap_colormap) && defined(QGL_USE_MESA_EXT)
         d->gpm = glXCreateGLXPixmapMESA(disp, (XVisualInfo *)d->vi,
-					qt_x11Handle(d->paintDevice),
-					choose_cmap(disp, (XVisualInfo *)d->vi));
+                                        qt_x11Handle(d->paintDevice),
+                                        choose_cmap(disp, (XVisualInfo *)d->vi));
 #else
         d->gpm = (quint32)glXCreateGLXPixmap(disp, (XVisualInfo *)d->vi,
-					      qt_x11Handle(d->paintDevice));
+                                              qt_x11Handle(d->paintDevice));
 #endif
         if (!d->gpm)
             return false;
@@ -609,14 +609,22 @@ void QGLContext::makeCurrent()
                              (GLXContext)d->cx);
     if (!ok)
         qWarning("QGLContext::makeCurrent(): Failed.");
-    if (ok)
+
+
+    if (ok) {
+        if (!qgl_context_storage.hasLocalData())
+            qgl_context_storage.setLocalData(new QGLThreadContext);
+        qgl_context_storage.localData()->context = this;
         currentCtx = this;
+    }
 }
 
 void QGLContext::doneCurrent()
 {
     Q_D(QGLContext);
     glXMakeCurrent(qt_x11Info(d->paintDevice)->display(), 0, 0);
+    if (qgl_context_storage.hasLocalData())
+        qgl_context_storage.localData()->context = 0;
     currentCtx = 0;
 }
 
@@ -628,7 +636,7 @@ void QGLContext::swapBuffers() const
         return;
     if (!deviceIsPixmap())
         glXSwapBuffers(qt_x11Info(d->paintDevice)->display(),
-		       static_cast<QWidget *>(d->paintDevice)->winId());
+                       static_cast<QWidget *>(d->paintDevice)->winId());
 }
 
 QColor QGLContext::overlayTransparentColor() const
@@ -861,13 +869,13 @@ void *QGLContext::getProcAddress(const QString &proc) const
     static qt_glXGetProcAddressARB glXGetProcAddressARB = 0;
 
     if (!glXGetProcAddressARB) {
-	QString glxExt(glXGetClientString(QX11Info::display(), GLX_EXTENSIONS));
-	if (glxExt.contains("GLX_ARB_get_proc_address")) {
-	    QLibrary lib("GL");
-	    glXGetProcAddressARB = (qt_glXGetProcAddressARB) lib.resolve("glXGetProcAddressARB");
-	    if (!glXGetProcAddressARB)
-		return 0;
-	}
+        QString glxExt(glXGetClientString(QX11Info::display(), GLX_EXTENSIONS));
+        if (glxExt.contains("GLX_ARB_get_proc_address")) {
+            QLibrary lib("GL");
+            glXGetProcAddressARB = (qt_glXGetProcAddressARB) lib.resolve("glXGetProcAddressARB");
+            if (!glXGetProcAddressARB)
+                return 0;
+        }
     }
     return glXGetProcAddressARB(reinterpret_cast<const GLubyte *>(proc.toLatin1().data()));
 }
@@ -1312,7 +1320,7 @@ void QGLExtensions::init()
     static bool init_done = false;
 
     if (init_done)
-	return;
+        return;
     init_done = true;
 
     Window win;

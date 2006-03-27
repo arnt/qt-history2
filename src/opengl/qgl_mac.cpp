@@ -94,21 +94,21 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     aglDescribePixelFormat(fmt, AGL_DEPTH_SIZE, &res);
     d->glFormat.setDepth(res);
     if (d->glFormat.depth())
-	d->glFormat.setDepthBufferSize(res);
+        d->glFormat.setDepthBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_RGBA, &res);
     d->glFormat.setRgba(res);
     aglDescribePixelFormat(fmt, AGL_ALPHA_SIZE, &res);
     d->glFormat.setAlpha(res);
     if (d->glFormat.alpha())
-	d->glFormat.setAlphaBufferSize(res);
+        d->glFormat.setAlphaBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_ACCUM_RED_SIZE, &res);
     d->glFormat.setAccum(res);
     if (d->glFormat.accum())
-	d->glFormat.setAccumBufferSize(res);
+        d->glFormat.setAccumBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STENCIL_SIZE, &res);
     d->glFormat.setStencil(res);
     if (d->glFormat.stencil())
-	d->glFormat.setStencilBufferSize(res);
+        d->glFormat.setStencilBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STEREO, &res);
     d->glFormat.setStereo(res);
     aglDescribePixelFormat(fmt, AGL_SAMPLE_BUFFERS_ARB, &res);
@@ -283,6 +283,9 @@ void QGLContext::makeCurrent()
     if (d->update)
 	updatePaintDevice();
     currentCtx = this;
+    if (!qgl_context_storage.hasLocalData())
+        qgl_context_storage.setLocalData(new QGLThreadContext);
+    qgl_context_storage.localData()->context = this;
 }
 
 static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
@@ -402,6 +405,8 @@ void QGLContext::doneCurrent()
 
         return;
     currentCtx = 0;
+    if (qgl_context_storage.hasLocalData())
+        qgl_context_storage.localData()->context = 0;
     aglSetCurrentContext(0);
 }
 
@@ -466,7 +471,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     if(fnt.italic())
         fstyle |= italic;
     if(fnt.underline())
-	fstyle |= underline;
+        fstyle |= underline;
     Str255 name;
     FMGetFontFamilyName((FMFontFamily)((UInt32)fnt.handle()), name);
     short fnum;
@@ -481,20 +486,20 @@ static CFBundleRef qt_getOpenGLBundle()
     CFBundleRef bundle = 0;
 
     OSStatus err = FindFolder(kSystemDomain, kFrameworksFolderType, kDontCreateFolder,
-		              &frameworksVRefNum, &frameworksDirID);
+                              &frameworksVRefNum, &frameworksDirID);
     if (err == noErr) {
-	FSSpec spec;
-	FSRef ref;
+        FSSpec spec;
+        FSRef ref;
 
         Str255 framework_name;
         qt_mac_to_pascal_string(QLatin1String("OpenGL.framework"), framework_name);
         err = FSMakeFSSpec(frameworksVRefNum, frameworksDirID, framework_name, &spec);
-	if (err == noErr) {
-	    FSpMakeFSRef(&spec, &ref);
-	    QCFType<CFURLRef> url = CFURLCreateFromFSRef(kCFAllocatorDefault, &ref);
-	    if (url)
-		bundle = CFBundleCreate(kCFAllocatorDefault, url);
-	}
+        if (err == noErr) {
+            FSpMakeFSRef(&spec, &ref);
+            QCFType<CFURLRef> url = CFURLCreateFromFSRef(kCFAllocatorDefault, &ref);
+            if (url)
+                bundle = CFBundleCreate(kCFAllocatorDefault, url);
+        }
     }
     return bundle;
 }
@@ -593,7 +598,7 @@ void QGLWidget::resizeEvent(QResizeEvent *)
     if(!isValid())
         return;
     if (!isWindow())
-	d->glcx->d_func()->update = true;
+        d->glcx->d_func()->update = true;
     makeCurrent();
     if(!d->glcx->initialized())
         glInit();
@@ -712,7 +717,7 @@ void QGLExtensions::init()
     static bool init_done = false;
 
     if (init_done)
-	return;
+        return;
     init_done = true;
 
     GLint attribs[] = { AGL_RGBA, AGL_NONE };

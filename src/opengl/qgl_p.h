@@ -28,6 +28,7 @@
 #include "QtOpenGL/qgl.h"
 #include "QtOpenGL/qglcolormap.h"
 #include "QtCore/qmap.h"
+#include "QtCore/qthreadstorage.h"
 #include "QtCore/qhash.h"
 #include "private/qwidget_p.h"
 
@@ -42,10 +43,10 @@ class QGLFormatPrivate
 {
 public:
     QGLFormatPrivate() {
-	opts = QGL::DoubleBuffer | QGL::DepthBuffer | QGL::Rgba | QGL::DirectRendering;
-	pln = 0;
-	depthSize = accumSize = stencilSize = alphaSize = -1;
-	numSamples = -1;
+        opts = QGL::DoubleBuffer | QGL::DepthBuffer | QGL::Rgba | QGL::DirectRendering;
+        pln = 0;
+        depthSize = accumSize = stencilSize = alphaSize = -1;
+        numSamples = -1;
     }
     QGL::FormatOptions opts;
     int pln;
@@ -132,12 +133,12 @@ public:
 class QGLExtensions {
 public:
     enum Extension {
-	TextureRectangle 	= 0x00000001,
-	SampleBuffers 		= 0x00000002,
-	GenerateMipmap 		= 0x00000004,
-	TextureCompression 	= 0x00000008,
-	FragmentProgram	 	= 0x00000010,
-	MirroredRepeat		= 0x00000020
+        TextureRectangle        = 0x00000001,
+        SampleBuffers           = 0x00000002,
+        GenerateMipmap          = 0x00000004,
+        TextureCompression      = 0x00000008,
+        FragmentProgram         = 0x00000010,
+        MirroredRepeat          = 0x00000020
     };
     Q_DECLARE_FLAGS(Extensions, Extension)
 
@@ -159,6 +160,10 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QGLExtensions::Extensions)
 #ifndef GL_BGRA
 #define GL_BGRA 0x80E1
 #endif
+struct QGLThreadContext {
+    QGLContext *context;
+};
+extern QThreadStorage<QGLThreadContext *> qgl_context_storage;
 
 typedef QMultiHash<const QGLContext *, const QGLContext *> QGLSharingHash;
 class QGLShareRegister

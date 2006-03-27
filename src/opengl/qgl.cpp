@@ -25,6 +25,9 @@
 
 extern Q_GUI_EXPORT qint64 qt_image_id(const QImage &image);
 extern Q_GUI_EXPORT qint64 qt_pixmap_id(const QPixmap &pixmap);
+
+QThreadStorage<QGLThreadContext *> qgl_context_storage;
+
 Q_GLOBAL_STATIC(QGLFormat, qgl_default_format)
 
 class QGLDefaultOverlayFormat: public QGLFormat
@@ -887,7 +890,6 @@ bool operator!=(const QGLFormat& a, const QGLFormat& b)
 /*****************************************************************************
   QGLContext implementation
  *****************************************************************************/
-
 void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
 {
     Q_Q(QGLContext);
@@ -1741,7 +1743,9 @@ void QGLContext::setInitialized(bool on)
 
 const QGLContext* QGLContext::currentContext()
 {
-    return currentCtx;
+    if (qgl_context_storage.hasLocalData())
+        return qgl_context_storage.localData()->context;
+    return 0;
 }
 
 /*!
@@ -2682,8 +2686,9 @@ void QGLWidget::glDraw()
 void QGLWidget::qglColor(const QColor& c) const
 {
     Q_D(const QGLWidget);
-    if (d->glcx) {
-        if (d->glcx->format().rgba())
+    const QGLContext *ctx = QGLContext::currentContext();
+    if (ctx) {
+        if (ctx->format().rgba())
             glColor4ub(c.red(), c.green(), c.blue(), c.alpha());
         else if (!d->cmap.isEmpty()) { // QGLColormap in use?
             int i = d->cmap.find(c.rgb());
@@ -2691,7 +2696,7 @@ void QGLWidget::qglColor(const QColor& c) const
                 i = d->cmap.findNearest(c.rgb());
             glIndexi(i);
         } else
-            glIndexi(d->glcx->colorIndex(c));
+            glIndexi(ctx->colorIndex(c));
     }
 }
 
@@ -2706,8 +2711,9 @@ void QGLWidget::qglColor(const QColor& c) const
 void QGLWidget::qglClearColor(const QColor& c) const
 {
     Q_D(const QGLWidget);
-    if (d->glcx) {
-        if (d->glcx->format().rgba())
+    const QGLContext *ctx = QGLContext::currentContext();
+    if (ctx) {
+        if (ctx->format().rgba())
             glClearColor((GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
                           (GLfloat)c.blue() / 255.0, (GLfloat) c.alpha() / 255.0);
         else if (!d->cmap.isEmpty()) { // QGLColormap in use?
@@ -2716,7 +2722,7 @@ void QGLWidget::qglClearColor(const QColor& c) const
                 i = d->cmap.findNearest(c.rgb());
             glClearIndex(i);
         } else
-            glClearIndex(d->glcx->colorIndex(c));
+            glClearIndex(ctx->colorIndex(c));
     }
 }
 
