@@ -423,7 +423,6 @@ bool QAbstractSocketPrivate::initSocketLayer(const QHostAddress &host, QAbstract
     return true;
 }
 
-//#define QT_NETWORK_WORKAROUND
 /*! \internal
 
     Slot connected to the read socket notifier. This slot is called
@@ -436,10 +435,8 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::_q_canReadNotification()");
 #endif
-
-#ifdef QT_NETWORK_WORKAROUND
-    readSocketNotifier->setEnabled(false);
-#endif
+    if (!isBuffered)
+        socketEngine->setReadNotificationEnabled(false);
 
     // Prevent recursive calls
     if (readSocketNotifierCalled) {
@@ -502,9 +499,6 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
         socketEngine->setReadNotificationEnabled(readSocketNotifierState);
         readSocketNotifierStateSet = false;
     }
-#ifdef QT_NETWORK_WORKAROUND
-    socketEngine->setReadNotificationEnabled(true);
-#endif
     readSocketNotifierCalled = false;
     return true;
 }
