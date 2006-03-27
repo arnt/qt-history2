@@ -4,82 +4,179 @@
     \contentspage {Qtopia Core}{Contents}
 
     \title The Virtual Framebuffer
-    \ingroup qtopia-core
 
-    The virtual framebuffer allows Qtopia Core programs to be developed on
-    a desktop machine, without switching between consoles and X11.
+    \l {Qtopia Core} applications write directly to the framebuffer,
+    eliminating the need for the X Window System and saving
+    memory. For development and debugging, the \l {Qtopia Core} platform
+    provides a virtual framebuffer allowing \l {Qtopia Core} programs to be
+    developed on a desktop machine, without switching between consoles
+    and X11.
 
-    The virtual framebuffer is located in \c $QTDIR/tools/qvfb.
+    \image qtopiacore-virtualframebuffer.png
 
-    \section1 Using the Virtual Framebuffer
+    The virtual framebuffer emulates a framebuffer using a shared
+    memory region, and the \c qvfb tool to display the framebuffer in
+    a window. The \c qvfb tool is located in Qt's \c /tools/qvfb
+    directory, and provides several features accessible through its
+    \gui File and \gui View menus.
 
-    \list 1
-    \i Configure Qtopia Core with the \c -qvfb argument and compile the library:
-        \code
-        ./configure -qvfb
+    Please note that the virtual framebuffer is a development tool
+    only. No security issues have been considered in the virtual
+    framebuffer design. It should be avoided in a production
+    environment, i.e. do not configure production libraries with the
+    \c -qvfb option.
+
+    \tableofcontents
+
+    \section1 Displaying the Virtual Framebuffer
+
+    To run the \c qvfb tool displaying the virtual framebuffer, the
+    Qtopia Core library must be configured and compiled with the \c
+    -qvfb option:
+
+    \code
+         cd path/to/QtopiaCore
+         ./configure -qvfb
+         make
+    \endcode
+
+    Then compile and run the \c qvfb tool as a normal Qt/X11
+    application (do \e not compile it as a \l {Qtopia Core}
+    application):
+
+    \code
+        cd path/to/Qt/tools/qvfb
         make
-        \endcode
-    \i Compile \c qvfb as a normal Qt/X11 application and run it. Do \e not
-        compile it as a Qtopia Core application.
-    \i Start a Qtopia Core master application (i.e., construct
-        QApplication with the QApplication::GuiServer flag or use the \c
-        -qws command line parameter). You can tell the server that
-        you want to use the virtual framebuffer driver, e.g.:
-        \code
-        masterapp -qws -display QVFb:0
-        \endcode
-    \i Qtopia Core will autodetect \c qvfb, so you can omit the \c -display
-       command line parameter if you know that \c qvfb is running, and that
-       the Qtopia Core library supports \c qvfb. (If this is not the case,
-       Qtopia Core will write to the real framebuffer, and your X11
-       display will be corrupted.)
+        ./qvfb
+    \endcode
 
-    \endlist
-
-    \c qvfb supports the following command line options:
+    The \c qvfb application supports the following command line
+    options:
 
     \table
-    \header \i Option \i Meaning
+    \header \o Option \o Meaning
     \row
-    \i \c -width \e width
-    \i the width of the virtual framebuffer (default: 240).
+    \o \c {-width <width>}
+    \o The width of the virtual framebuffer (default: 240).
     \row
-    \i \c -height \e height
-    \i the height of the virtual framebuffer (default: 320).
+    \o \c {-height <height>}
+    \o The height of the virtual framebuffer (default: 320).
     \row
-    \i \c -depth \e depth
-    \i the depth of the virtual framebuffer (1, 8 or 32; default: 8).
+    \o \c {-depth <depth>}
+    \o The depth of the virtual framebuffer (1, 8 or 32; default: 8).
     \row
-    \i \c -nocursor
-    \i do not display the X11 cursor in the framebuffer window.
+    \o \c -nocursor
+    \o Do not display the X11 cursor in the framebuffer window.
     \row
-    \i \c -qwsdisplay \e :id
-    \i the Qtopia Core display ID to provide (default: :0).
+    \o \c {-qwsdisplay <:id>}
+    \o The \l {Qtopia Core} display ID (default: :0).
     \endtable
 
-    \section1 Virtual Framebuffer Design
+    \section1 Running Applications Using the Virtual Framebuffer
 
-    The virtual framebuffer emulates a framebuffer using a shared memory region
-    (the virtual frame buffer) and a utility to display the framebuffer in a
-    window (\c qvfb). The regions of the display that have changed are updated
-    periodically, so you will see discrete snapshots of the framebuffer rather
-    than each individual drawing operation. For this reason drawing problems
-    such as flickering may not be apparent until the program is run using a real
-    framebuffer.
+    Once the virtual framebuffer is running, that is once the \c qvfb
+    application is running, it is ready for use: Start a Qtopia Core
+    master application (i.e. construct a QApplication obejct with the
+    QApplication::GuiServer flag or use the \c -qws command line
+    parameter. See the \l {Running Applications} for more details).
 
-    The target refresh rate can be set via the \bold{View|Refresh Rate}
-    menu item. This will cause \c qvfb to check for updated regions more
-    frequently. The rate is a target only. If little drawing is being
-    done, the framebuffer will not show any updates between drawing
-    events. If an application is displaying an animation, the updates will
-    be frequent, and the application and \c qvfb will compete for
+    \code
+        cd path/to/QtopiaCore/examples/widgets/analogclock
+        make
+        ./analogclock -qws
+    \endcode
+
+    Note that as long as the virtual framebuffer is running and the
+    Qtopia Core library supports \c qvfb, Qtopia Core will
+    automatically detect it and use it by default. Alternatively, the
+    \c -display option can be used to specify the virtual framebuffer
+    driver. For example:
+
+    \code
+        cd path/to/QtopiaCore/examples/widgets/analogclock
+        make
+        ./analogclock -qws -display QVFb:0
+    \endcode
+
+    \warning If \c qvfb is not running (or the current Qtopia Core
+    library doesn't support it) and the driver is not explicitly
+    specified, Qtopia Core will write to the real framebuffer and the
+    X11 display will be corrupted.
+
+    \section1 The File Menu
+
+    \image qtopiacore-qvfbfilemenu.png
+
+    The \gui File menu allows the user to configure the virtual
+    framebuffer display (\gui File|Configure...), save a snapshot of
+    the framebuffer contents (\gui {File|Save Image...}) and record
+    the movements in the framebuffer (\gui File|Animation...).
+
+    When choosing the \gui File|Configure menu item, the \c qvfb tool
+    provides a configuration dialog allowing the user to customize the
+    display of the virtual framebuffer.
+
+    The user can change the size and depth as weel as the Gamma
+    values. The user can also select the preferred skin, i.e. making
+    the virtual framebuffer simulate the target device environment. In
+    addition, it is possible to emulate a touch screen and a LCD
+    screen.
+
+    \table 100%
+    \row
+        \o
+        \bold {Target Device Environment}
+
+        The \c qvfb tool provides various skins for the virtual
+        framebuffer allowing the user to view their application in an
+        environment similar to their target device. The provided skins
+        are:
+
+        \list
+            \o ClamshellPhone
+            \o pda
+            \o PDAPhone
+            \o QtopiaPDA
+            \o QtopiaPhone-Advanced
+            \o QtopiaPhone-Simple
+            \o SmartPhone
+            \o SmartPhone2
+            \o SmartPhoneWithButtons
+            \o TouchscreenPhone
+            \o Trolltech-Keypad
+            \o Trolltech-Touchscreen
+        \endlist
+
+        See \l {Virtual Framebuffer Features} for more information.
+
+        \o \image qtopiacore-phone.png
+        \o \image qtopiacore-pda.png
+    \endtable
+
+    Note that any applications using the virtual framebuffer will be
+    terminated when configuring (except when changing the Gamma
+    values only).
+
+    \section1 The View Menu
+
+    \image qtopiacore-qvfbviewmenu.png
+
+    The \gui View menu allows the user to modify the target's refresh
+    rate (\gui {View|Refresh Rate...}), i.e. making \c qvfb check for
+    updated regions more frequently.
+
+    The regions of the display that have changed are updated
+    periodically, so discrete snapshots of the framebuffer are
+    displayed rather than each individual drawing operation. For this
+    reason drawing problems such as flickering may not be apparent
+    until the program is run using a real framebuffer.  The refresh
+    rate is a target only. If little drawing is being done, the
+    framebuffer will not show any updates between drawing events. If
+    an application is displaying an animation, the updates will be
+    frequent, and the application and \c qvfb will compete for
     processor time.
 
-    Mouse and keyboard events are passed to the Qtopia Core master process via
-    named pipes.
-
-    \warning The virtual framebuffer is a development tool only. No
-    security issues have been considered in the virtual framebuffer
-    design. It should be avoided in a production environment; do not
-    configure production libraries with \c -qvfb.
+    The \gui View menu also allows the user to zoom to predefined
+    scales (\gui {View|Zoom scale 0.5} etc.) as well as custom scales
+    (\gui {View|Zoom scale...}).
 */
