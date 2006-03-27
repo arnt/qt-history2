@@ -872,10 +872,9 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
 {
     Q_D(const QTreeView);
     const QVector<QTreeViewItem> viewItems = d->viewItems;
-    painter->setBrush(palette().brush(QPalette::Base));
             
     if (viewItems.count() == 0 || d->header->count() == 0) {
-        painter->fillRect(region.boundingRect(), painter->brush());
+        painter->fillRect(region.boundingRect(), palette().brush(QPalette::Base));
         return;
     }
 
@@ -916,20 +915,19 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
             y += itemHeight;
         }
 
-        painter->setBrush(palette().brush(QPalette::Base));
         if (y <= area.bottom()) {
             QRect bottomArea(0, y, viewportWidth, area.height() - y + 1);
             if (area.intersects(bottomArea))
-                painter->fillRect(bottomArea, painter->brush());
+                painter->fillRect(bottomArea, palette().brush(QPalette::Base));
         }
         if (isRightToLeft()) {
             QRect rightArea(0, 0, viewportWidth - headerLength, area.height());
             if (headerLength > 0 && area.intersects(rightArea))
-                painter->fillRect(rightArea, painter->brush());
+                painter->fillRect(rightArea, palette().brush(QPalette::Base));
         } else {
             QRect leftArea(headerLength, 0, viewportWidth - headerLength, area.height());
             if (headerLength < viewportWidth && area.intersects(leftArea))
-                painter->fillRect(leftArea, painter->brush());
+                painter->fillRect(leftArea, palette().brush(QPalette::Base));
         }
     }
 }
@@ -979,7 +977,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         opt.state = state;
         if (!modelIndex.isValid()) {
             opt.rect.setRect(position, y, width, height);
-            painter->fillRect(opt.rect, painter->brush());
+            painter->fillRect(opt.rect, palette().brush(QPalette::Base));
             continue;
         }
         if (selectionModel()->isSelected(modelIndex))
@@ -1000,24 +998,27 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             }
             opt.palette.setCurrentColorGroup(cg);
         }
+        QBrush fill;
         if (alternate) {
-            painter->setBrush(d->current & 1
-                             ? opt.palette.brush(QPalette::AlternateBase)
-                             : opt.palette.brush(QPalette::Base));
+            fill = d->current & 1
+                   ? opt.palette.brush(QPalette::AlternateBase)
+                   : opt.palette.brush(QPalette::Base);
+        } else {
+            fill = opt.palette.brush(QPalette::Base);
         }
         if (headerSection == 0) {
             int i = d->indentation(d->current);
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
-            painter->fillRect(opt.rect, painter->brush());
+            painter->fillRect(opt.rect, fill);
             QRect branches(reverse ? position + width - i : position, y, i, height);
             if ((opt.state & QStyle::State_Selected) && option.showDecorationSelected)
                 painter->fillRect(branches, opt.palette.brush(QPalette::Highlight));
             else
-                painter->fillRect(branches, painter->brush());
+                painter->fillRect(branches, fill);
             drawBranches(painter, branches, index);
         } else {
             opt.rect.setRect(position, y, width, height);
-            painter->fillRect(opt.rect, painter->brush());
+            painter->fillRect(opt.rect, fill);
         }
         itemDelegate()->paint(painter, opt, modelIndex);
     }
