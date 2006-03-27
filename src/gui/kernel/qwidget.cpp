@@ -270,7 +270,8 @@ void QWidget::setEditFocus(bool on)
 
     If enabled, this will cause Qt to fill the background
     using the widget's background role before invoking
-    the paint event.
+    the paint event. The background role is defined by the widget's
+    \l{palette}.
 
     In addition, Windows are always filled with QPalette::Window,
     unless the WA_OpaquePaintEvent or WA_NoSystemBackground
@@ -3113,6 +3114,10 @@ void QWidget::setForegroundRole(QPalette::ColorRole role)
     special palette for the widget class, the parent's palette or (if
     this widget is a top level widget), the default application
     palette.
+
+    \bold{Note:} The palette's background color will only have an effect on
+    the appearance of the widget if the \l autoFillBackground property is
+    set.
 
     \sa QApplication::palette()
 */
