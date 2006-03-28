@@ -35,8 +35,6 @@
 
 //#define QSPLITTER_DEBUG
 
-static int mouseOffset;
-
 /*!
     \class QSplitterHandle
     \brief The QSplitterHandle class provides handle functionality of the splitter.
@@ -203,7 +201,7 @@ void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
     if (!(e->buttons() & Qt::LeftButton))
         return;
     int pos = d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
-                 - mouseOffset;
+                 - d->mouseOffset;
     if (opaqueResize()) {
         moveSplitter(pos);
     } else {
@@ -218,7 +216,7 @@ void QSplitterHandle::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QSplitterHandle);
     if (e->button() == Qt::LeftButton)
-        mouseOffset = d->pick(e->pos());
+        d->mouseOffset = d->pick(e->pos());
 }
 
 /*!
@@ -229,7 +227,7 @@ void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QSplitterHandle);
     if (!opaqueResize() && e->button() == Qt::LeftButton) {
         int pos = d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
-                     - mouseOffset;
+                     - d->mouseOffset;
         d->s->setRubberBand(-1);
         moveSplitter(pos);
     }

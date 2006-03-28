@@ -97,7 +97,7 @@ class QSplitterHandlePrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QSplitterHandle)
 public:
-    QSplitterHandlePrivate() : orient(Qt::Horizontal), opaq(false), s(0) {}
+    QSplitterHandlePrivate() : orient(Qt::Horizontal), opaq(false), s(0), mouseOffset(0) {}
 
     inline int pick(const QPoint &pos) const
     { return orient == Qt::Horizontal ? pos.x() : pos.y(); }
@@ -106,6 +106,7 @@ public:
     bool opaq;
     QSplitter *s;
     bool hover;
+    int mouseOffset;
 };
 
 #endif
