@@ -30,6 +30,8 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
     QPixmap pm;
 
     QString name = format.name();
+    if (name.startsWith(QLatin1String(":/"))) // auto-detect resources
+        name.prepend("qrc");
     const QVariant data = doc->resource(QTextDocument::ImageResource, name);
     if (data.type() == QVariant::Pixmap || data.type() == QVariant::Image) {
         pm = qvariant_cast<QPixmap>(data);
