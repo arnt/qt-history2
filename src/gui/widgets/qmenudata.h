@@ -36,8 +36,9 @@ private:
     void setId(int);
     void setSignalValue(int);
 };
-#endif
 
 QT_END_HEADER
+
+#endif
 
 #endif // QMENUDATA_H
