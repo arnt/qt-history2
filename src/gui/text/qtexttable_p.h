@@ -32,7 +32,7 @@ class QTextTablePrivate : public QTextFramePrivate
 {
     Q_DECLARE_PUBLIC(QTextTable)
 public:
-    QTextTablePrivate() : grid(0), nRows(0), dirty(true) {}
+    QTextTablePrivate() : grid(0), nRows(0), dirty(true), blockFragmentUpdates(false) {}
     ~QTextTablePrivate();
 
     static QTextTable *createTable(QTextDocumentPrivate *, int pos, int rows, int cols, const QTextTableFormat &tableFormat);
@@ -44,10 +44,14 @@ public:
     int findCellIndex(int fragment) const;
 
     QList<int> cells;
+    // symmetric to cells array and maps to indecs in grid,
+    // used for fast-lookup for row/column by fragment
+    mutable QVector<int> cellIndices;
     mutable int *grid;
     mutable int nRows;
     mutable int nCols;
     mutable bool dirty;
+    bool blockFragmentUpdates;
 };
 
 #endif // QTEXTTABLE_P_H

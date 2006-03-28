@@ -271,7 +271,7 @@ void QTextDocumentPrivate::insert_string(int pos, uint strPos, uint length, int 
     adjustDocumentChangesAndCursors(pos, length, op);
 }
 
-void QTextDocumentPrivate::insert_block(int pos, uint strPos, int format, int blockFormat, QTextUndoCommand::Operation op, int command)
+int QTextDocumentPrivate::insert_block(int pos, uint strPos, int format, int blockFormat, QTextUndoCommand::Operation op, int command)
 {
     split(pos);
     uint x = fragments.insert_single(pos, 1);
@@ -314,9 +314,10 @@ void QTextDocumentPrivate::insert_block(int pos, uint strPos, int format, int bl
     }
 
     adjustDocumentChangesAndCursors(pos, 1, op);
+    return x;
 }
 
-void QTextDocumentPrivate::insertBlock(const QChar &blockSeparator,
+int QTextDocumentPrivate::insertBlock(const QChar &blockSeparator,
                                   int pos, int blockFormat, int charFormat, QTextUndoCommand::Operation op)
 {
     Q_ASSERT(formats.format(blockFormat).isBlockFormat());
@@ -328,7 +329,7 @@ void QTextDocumentPrivate::insertBlock(const QChar &blockSeparator,
 
     int strPos = text.length();
     text.append(blockSeparator);
-    insert_block(pos, strPos, charFormat, blockFormat, op, QTextUndoCommand::BlockRemoved);
+    const int fragment = insert_block(pos, strPos, charFormat, blockFormat, op, QTextUndoCommand::BlockRemoved);
 
     Q_ASSERT(blocks.length() == fragments.length());
 
@@ -339,11 +340,12 @@ void QTextDocumentPrivate::insertBlock(const QChar &blockSeparator,
     Q_ASSERT(undoState == undoStack.size());
 
     endEditBlock();
+    return fragment;
 }
 
-void QTextDocumentPrivate::insertBlock(int pos, int blockFormat, int charFormat, QTextUndoCommand::Operation op)
+int QTextDocumentPrivate::insertBlock(int pos, int blockFormat, int charFormat, QTextUndoCommand::Operation op)
 {
-    insertBlock(QChar::ParagraphSeparator, pos, blockFormat, charFormat, op);
+    return insertBlock(QChar::ParagraphSeparator, pos, blockFormat, charFormat, op);
 }
 
 void QTextDocumentPrivate::insert(int pos, int strPos, int strLength, int format)

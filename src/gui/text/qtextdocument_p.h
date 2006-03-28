@@ -144,8 +144,8 @@ public:
 
     void insert(int pos, const QString &text, int format);
     void insert(int pos, int strPos, int strLength, int format);
-    void insertBlock(int pos, int blockFormat, int charFormat, QTextUndoCommand::Operation = QTextUndoCommand::MoveCursor);
-    void insertBlock(const QChar &blockSeparator, int pos, int blockFormat, int charFormat,
+    int insertBlock(int pos, int blockFormat, int charFormat, QTextUndoCommand::Operation = QTextUndoCommand::MoveCursor);
+    int insertBlock(const QChar &blockSeparator, int pos, int blockFormat, int charFormat,
                      QTextUndoCommand::Operation op = QTextUndoCommand::MoveCursor);
 
     void remove(int pos, int length, QTextUndoCommand::Operation = QTextUndoCommand::MoveCursor);
@@ -216,7 +216,7 @@ private:
     void truncateUndoStack();
 
     void insert_string(int pos, uint strPos, uint length, int format, QTextUndoCommand::Operation op);
-    void insert_block(int pos, uint strPos, int format, int blockformat, QTextUndoCommand::Operation op, int command);
+    int insert_block(int pos, uint strPos, int format, int blockformat, QTextUndoCommand::Operation op, int command);
     int remove_string(int pos, uint length, QTextUndoCommand::Operation op);
     int remove_block(int pos, int *blockformat, int command, QTextUndoCommand::Operation op);
 
