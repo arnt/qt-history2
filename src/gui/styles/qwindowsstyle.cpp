@@ -261,12 +261,6 @@ void QWindowsStyle::unpolish(QApplication *app)
 void QWindowsStyle::polish(QWidget *widget)
 {
     QCommonStyle::polish(widget);
-#ifndef QT_NO_RUBBERBAND
-    if (qobject_cast<QRubberBand*>(widget)) {
-        widget->setWindowOpacity(0.7f);
-        widget->setAttribute(Qt::WA_PaintOnScreen);
-    }
-#endif
 #ifndef QT_NO_PROGRESSBAR
     if (qobject_cast<QProgressBar *>(widget))
         widget->installEventFilter(this);
@@ -277,12 +271,6 @@ void QWindowsStyle::polish(QWidget *widget)
 void QWindowsStyle::unpolish(QWidget *widget)
 {
     QCommonStyle::unpolish(widget);
-#ifndef QT_NO_RUBBERBAND
-    if (qobject_cast<QRubberBand*>(widget)) {
-        widget->setWindowOpacity(1.0);
-        widget->setAttribute(Qt::WA_PaintOnScreen, false);
-    }
-#endif
 #ifndef QT_NO_PROGRESSBAR
     if (qobject_cast<QProgressBar *>(widget))
         widget->removeEventFilter(this);
@@ -1205,6 +1193,20 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
         }
         break;
 #endif
+#ifndef QT_NO_RUBBERBAND
+    case SH_RubberBand_Mask:
+        if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
+            ret = 0;
+            if (rbOpt->shape == QRubberBand::Rectangle) {
+                ret = true;
+                if(QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask*>(returnData)) {
+                    mask->region = opt->rect;
+                    mask->region -= opt->rect.adjusted(1, 1, -1, -1);
+                }
+            }
+        }
+        break;
+#endif // QT_NO_RUBBERBAND
     default:
         ret = QCommonStyle::styleHint(hint, opt, widget, returnData);
         break;
@@ -1715,6 +1717,32 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                                 const QWidget *widget) const
 {
     switch (ce) {
+#ifndef QT_NO_RUBBERBAND
+    case CE_RubberBand:
+        if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
+            p->save();
+            QRect r = opt->rect.adjusted(0, 0, -1, -1);
+            QStyleHintReturnMask mask;
+            if (styleHint(QStyle::SH_RubberBand_Mask, opt, widget, &mask))
+                p->setClipRegion(mask.region);
+            p->setBrush(Qt::NoBrush);
+            QPen dottedPen(Qt::white);
+            dottedPen.setWidth(0);
+            p->setPen(dottedPen);
+            p->drawRect(r);
+            dottedPen.setColor(Qt::black);
+            dottedPen.setCapStyle(Qt::FlatCap);
+            QVector<qreal> dashes;
+            dashes << 1 << 1;
+            dottedPen.setDashPattern(dashes);
+            p->setPen(dottedPen);
+            p->drawRect(r);
+            p->restore();
+            return;
+        }
+        break;
+#endif // QT_NO_RUBBERBAND
+
 #if !defined(QT_NO_MENU) && !defined(QT_NO_MAINWINDOW)
     case CE_MenuBarEmptyArea:
         if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
