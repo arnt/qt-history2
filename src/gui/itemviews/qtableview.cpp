@@ -970,6 +970,8 @@ int QTableView::rowViewportPosition(int row) const
 /*!
     Returns the row in which the given y-coordinate, \a y, in contents
     coordinates is located.
+
+    \sa columnAt()
 */
 int QTableView::rowAt(int y) const
 {
@@ -989,7 +991,7 @@ void QTableView::setRowHeight(int row, int height)
 /*!
     Returns the height of the given \a row.
 
-    \sa resizeRowToContents()
+    \sa resizeRowToContents(), columnWidth()
 */
 int QTableView::rowHeight(int row) const
 {
@@ -1008,6 +1010,8 @@ int QTableView::columnViewportPosition(int column) const
 /*!
     Returns the column in which the given x-coordinate, \a x, in contents
     coordinates is located.
+
+    \sa rowAt()
 */
 int QTableView::columnAt(int x) const
 {
@@ -1027,7 +1031,7 @@ void QTableView::setColumnWidth(int column, int width)
 /*!
     Returns the width of the given \a column.
 
-    \sa resizeColumnToContents()
+    \sa resizeColumnToContents(), rowHeight()
 */
 int QTableView::columnWidth(int column) const
 {
@@ -1037,7 +1041,7 @@ int QTableView::columnWidth(int column) const
 /*!
     Returns true if the given \a row is hidden; otherwise returns false.
 
-    \sa setRowHidden
+    \sa isColumnHidden()
 */
 bool QTableView::isRowHidden(int row) const
 {
@@ -1046,6 +1050,8 @@ bool QTableView::isRowHidden(int row) const
 
 /*!
     If \a hide is true \a row will be hidden, otherwise it will be shown.
+
+    \sa setColumnHidden()
 */
 void QTableView::setRowHidden(int row, bool hide)
 {
@@ -1057,7 +1063,7 @@ void QTableView::setRowHidden(int row, bool hide)
 /*!
     Returns true if the given \a column is hidden; otherwise returns false.
 
-    \sa setColumnHidden
+    \sa isRowHidden()
 */
 bool QTableView::isColumnHidden(int column) const
 {
@@ -1067,6 +1073,8 @@ bool QTableView::isColumnHidden(int column) const
 /*!
   If \a hide is true the given \a column will be hidden; otherwise it
   will be shown.
+
+  \sa setRowHidden()
 */
 void QTableView::setColumnHidden(int column, bool hide)
 {
