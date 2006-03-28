@@ -1397,10 +1397,10 @@ QSize QMenuBar::sizeHint() const
         for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
              i != actionRects.constEnd(); ++i) {
             QRect actionRect(i.value());
-            if(actionRect.right() > ret.width())
-                ret.setWidth(actionRect.right());
-            if(actionRect.bottom() > ret.height())
-                ret.setHeight(actionRect.bottom());
+            if(actionRect.x() + actionRect.width() > ret.width())
+                ret.setWidth(actionRect.x() + actionRect.width());
+            if(actionRect.y() + actionRect.height() > ret.height())
+                ret.setHeight(actionRect.y() + actionRect.height());
         }
         ret += QSize(2*fw + 2*hmargin, 2*fw + 2*vmargin);
     }
