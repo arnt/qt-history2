@@ -677,6 +677,8 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
 
     if (!selectionModel() || !tl.isValid() || !br.isValid())
         return;
+    if (!tl.isValid() || !br.isValid())
+        return;
 
     bool verticalMoved = verticalHeader()->sectionsMoved();
     bool horizontalMoved = horizontalHeader()->sectionsMoved();
