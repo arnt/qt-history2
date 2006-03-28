@@ -10,32 +10,30 @@ using namespace qdesigner_internal;
 QDesignerQ3WidgetStack::QDesignerQ3WidgetStack(QWidget *parent)
     : Q3WidgetStack(parent), prev(0), next(0)
 {
-    if (formWindow()) {
-        prev = new QToolButton();
-        prev->setAttribute(Qt::WA_NoChildEventsForParent, true);
-        prev->setParent(this);
+    prev = new QToolButton();
+    prev->setAttribute(Qt::WA_NoChildEventsForParent, true);
+    prev->setParent(this);
 
-        prev->setObjectName(QLatin1String("__qt__passive_prev"));
-        prev->setArrowType(Qt::LeftArrow);
-        prev->setAutoRaise(true);
-        prev->setAutoRepeat(true);
-        prev->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
-        connect(prev, SIGNAL(clicked()), this, SLOT(prevPage()));
+    prev->setObjectName(QLatin1String("__qt__passive_prev"));
+    prev->setArrowType(Qt::LeftArrow);
+    prev->setAutoRaise(true);
+    prev->setAutoRepeat(true);
+    prev->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
+    connect(prev, SIGNAL(clicked()), this, SLOT(prevPage()));
 
-        next = new QToolButton();
-        next->setAttribute(Qt::WA_NoChildEventsForParent, true);
-        next->setParent(this);
-        next->setObjectName(QLatin1String("__qt__passive_next"));
-        next->setArrowType(Qt::RightArrow);
-        next->setAutoRaise(true);
-        next->setAutoRepeat(true);
-        next->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
-        connect(next, SIGNAL(clicked()), this, SLOT(nextPage()));
+    next = new QToolButton();
+    next->setAttribute(Qt::WA_NoChildEventsForParent, true);
+    next->setParent(this);
+    next->setObjectName(QLatin1String("__qt__passive_next"));
+    next->setArrowType(Qt::RightArrow);
+    next->setAutoRaise(true);
+    next->setAutoRepeat(true);
+    next->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
+    connect(next, SIGNAL(clicked()), this, SLOT(nextPage()));
 
-        updateButtons();
+    updateButtons();
 
-        connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
-    }
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
 }
 
 QDesignerFormWindowInterface *QDesignerQ3WidgetStack::formWindow()
@@ -64,7 +62,7 @@ int QDesignerQ3WidgetStack::currentIndex()
 
 void QDesignerQ3WidgetStack::setCurrentIndex(int index)
 {
-    if (container()) {
+    if (container() && (index >= 0) && (index < count())) {
         container()->setCurrentIndex(index);
         emit currentChanged(index);
     }
