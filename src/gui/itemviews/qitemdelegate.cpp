@@ -785,6 +785,7 @@ bool QItemDelegate::editorEvent(QEvent *event,
         QVariant value = index.data(Qt::CheckStateRole);
         if (!value.isValid())
             return false;
+        const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
         QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
                                               check(option, option.rect, value).size(),
                                               QRect(option.rect.x() + textMargin, option.rect.y(),
