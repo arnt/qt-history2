@@ -600,14 +600,20 @@ QString QAction::text() const
     \property QAction::iconText
     \brief the action's descriptive icon text
 
-    If QMainWindow::usesTextLabel is true, the text appears as a label
-    in the relevant tool button. It also serves as the default text in
-    menus and tooltips if these have not been specifically defined
-    with setText() or setToolTip(). If the icon text is not explicitly
-    set in the by using setIconText(), the action's normal text will
-    be used as icon text. There is no default icon text.
+    If QToolBar::toolButtonStyle is set to a value that permits text to
+    be displayed, the text defined held in this property appears as a
+    label in the relevant tool button.
 
-    \sa setToolTip() setStatusTip()
+    It also serves as the default text in menus and tooltips if the action
+    has not been defined with setText() or setToolTip(), and will
+    also be used in toolbar buttons if no icon has been defined using setIcon().
+
+    If the icon text is not explicitly set, the action's normal text will be
+    used for the icon text.
+
+    There is no default icon text.
+
+    \sa setToolTip(), setStatusTip()
 */
 void QAction::setIconText(const QString &text)
 {

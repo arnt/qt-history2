@@ -571,10 +571,11 @@ void QToolBar::setIconSize(const QSize &iconSize)
     d->explicitIconSize = iconSize.isValid();
 }
 
-/*! \property QToolBar::toolButtonStyle
-    \brief style of toolbar buttons.
+/*! 
+    \property QToolBar::toolButtonStyle
+    \brief the style of toolbar buttons
 
-    The defaults is Qt::ToolButtonIconOnly.
+    The default is Qt::ToolButtonIconOnly.
 */
 
 Qt::ToolButtonStyle QToolBar::toolButtonStyle() const
