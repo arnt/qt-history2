@@ -125,7 +125,6 @@ fi
 if [ -f $relpath/LICENSE.Qtopia ]; then
     # Qtopia Edition
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
-    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Licensee="Qtopia"
     Edition="Qtopia"
     QT_EDITION="QT_EDITION_DESKTOP"
