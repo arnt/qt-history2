@@ -1319,11 +1319,6 @@ void QMacStyle::polish(QWidget* w)
         rubber->setAttribute(Qt::WA_PaintOnScreen, false);
         rubber->setAttribute(Qt::WA_NoSystemBackground, false);
     }
-
-    if (QFocusFrame *frame = qobject_cast<QFocusFrame *>(w)) {
-        frame->setAttribute(Qt::WA_NoSystemBackground, false);
-        frame->setAutoFillBackground(false);
-    }
 }
 
 /*! \reimp */
