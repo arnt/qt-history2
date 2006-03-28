@@ -1,124 +1,144 @@
 # Kernel
 
 Feature: PROPERTIES
+Description: Supports scripting Qt-based applications.
 Section: Kernel
 Requires: 
 Name: Properties
 SeeAlso: ???
 
 Feature: THREAD
+Description: Supports multithreaded programming.
 Section: Kernel
 Requires:
-Name: Thread support
+Name: QThread
 SeeAlso: ???
 
 Feature: DRAGANDDROP
+Description: Supports the drag and drop mechansim.
 Section: Kernel
 Requires: QWS_PROPERTIES IMAGEFORMAT_XPM
 Name: Drag and drop
 SeeAlso: ???
 
 Feature: SESSIONMANAGER
+Description: Supports session management.
 Section: Kernel
 Requires: 
-Name: Session management
+Name: Session Manager
 SeeAlso: ???
 
 Feature: SHORTCUT
+Description: Supports keyboard accelerators and shortcuts.
 Section: Kernel
 Requires: 
-Name: Keyboard accelerators and shortcuts
+Name: QShortcut
 SeeAlso: ???
 
 Feature: ACTION
+Description: Supports widget actions.
 Section: Kernel
 Requires: 
 Name: QAction
 SeeAlso: ???
 
 Feature: CURSOR
+Description: Supports mouse cursors.
 Section: Kernel
 Requires:
-Name: Cursors
+Name: QCursor
 SeeAlso: ???
 
 Feature: CLIPBOARD
+Description: Supports cut and paste operations.
 Section: Kernel
 Requires: QWS_PROPERTIES
-Name: Cut and paste
+Name: QClipboard
 SeeAlso: ???
 
 Feature: WHEELEVENT
+Description: Supports wheel events.
 Section: Kernel
 Requires:
-Name: Wheel-mouse events
+Name: QWheelEvent
 SeeAlso: ???
 
 Feature: SOUND
+Description: Supports sound effects.
 Section: Kernel
 Requires:
-Name: Playing sounds
+Name: Sounds
 SeeAlso: ???
 
 Feature: EFFECTS
+Description: Supports special widget effects (e.g. fading and scrolling).
 Section: Kernel
 Requires:
-Name: Special widget effects (fading, scrolling)
+Name: Effects
 SeeAlso: ???
 
 # Data structures
 
 Feature: STL
+Description: Supports standard template library compatiblity.
 Section: Data structures
 Requires:
-Name: Standard template library compatiblity
+Name: Standard Template Library
 SeeAlso: ???
 
 Feature: QUUID_STRING
+Description: Supports convertion between UUID and strings.
 Section: Data structures
 Requires: 
-Name: Convert UUID to/from string
+Name:  Universally Unique Identifier Convertion
 SeeAlso: ???
 
 Feature: TEXTDATE
+Description: Supports month and day names in dates.
 Section: Data structures
 Requires: 
-Name: Month and day names in dates
+Name: Text Date
 SeeAlso: ???
 
 Feature: DATESTRING
+Description: Supports convertion between dates and strings.
 Section: Data structures
 Requires: TEXTDATE
-Name: QDate/QTime/QDateTime toString() and fromString()
+Name: QDate/QTime/QDateTime
 SeeAlso: ???
 
 # File I/O
 
 Feature: PROCESS
+Description: Supports external process invocation.
 Section: File I/O
 Requires: THREAD
-Name: External process invocation.
+Name: QProcess
 SeeAlso: ???
 
 Feature: TEXTSTREAM
+Description: Supports reading and writing of text.
 Section: File I/O
 Requires:
 Name: QTextStream
 SeeAlso: ???
 
 Feature: LIBRARY
+Description: Supports a shared library wrapper.
 Section: File I/O
 Requires: SETTINGS
-Name: Shared library wrapper
+Name: QLibrary
 SeeAlso: ???
 
 Feature: SETTINGS
+Description: Supports persistent application settings.
 Section: File I/O
 Requires: TEXTSTREAM 
-Name: Persistent application settings
+Name: QSettings
 SeeAlso: ???
 
 Feature: DOM
+Description: Supports the Document Object Model.
 Section: File I/O
 Requires:
 Name: Document Object Model
@@ -127,240 +147,289 @@ SeeAlso: ???
 # Widgets
 
 Feature: TREEWIDGET
+Description: Supports views using tree models. 
 Section: Widgets
 Requires: TREEVIEW
 Name: QTreeWidget
 SeeAlso: ???
 
 Feature: LISTWIDGET
+Description: Supports item-based list widgets.
 Section: Widgets
 Requires: LISTVIEW
 Name: QListWidget
 SeeAlso: ???
 
 Feature: TABLEWIDGET
+Description: Supports item-based table views.
 Section: Widgets
 Requires: TABLEVIEW
 Name: QTableWidget
 SeeAlso: ???
 
 Feature: DATETIMEEDIT
+Description: Supports editing dates and times.
 Section: Widgets
 Requires: SPINBOX DATESTRING
 Name: QDateTimeEdit
 SeeAlso: ???
 
 Feature: STACKEDWIDGET
+Description: Supports stacked widgets.
 Section: Widgets
 Requires:
 Name: QStackedWidget
 SeeAlso: ???
 
 Feature: TEXTBROWSER
+Description: Supports HTML document browsing.
 Section: Widgets
 Requires: TEXTEDIT
 Name: QTextBrowser
 SeeAlso: ???
 
 Feature: SPLASHSCREEN
+Description: Supports splash screens that can be shown during application startup.
 Section: Widgets
 Requires: 
 Name: Splash screen widget
 SeeAlso: ???
 
 Feature: SPLITTER
+Description: Supports user controlled splitter widgets.
 Section: Widgets
 Requires: RUBBERBAND
-Name: Splitters
+Name: QSplitter
 SeeAlso: ???
 
 Feature: LCDNUMBER
+Description: Supports LCD-like digits. 
 Section: Widgets
 Requires:
 Name: QLCDNumber
 SeeAlso: ???
 
 Feature: MENU
+Description: Supports popup-menus.
 Section: Widgets
 Requires: ACTION
-Name: Popup-menus
+Name: QMenu
 SeeAlso: ???
 
 Feature: LINEEDIT
+Description: Supports single-line edits.
 Section: Widgets
 Requires:
-Name: Single-line edits
+Name: QLineEdit
 SeeAlso: ???
 
 Feature: SPINBOX
+Description: Supports spin boxes handling integers and discrete sets of values.
 Section: Widgets
 Requires: SPINWIDGET LINEEDIT VALIDATOR
-Name: Spin boxes
+Name: QSpinBox
 SeeAlso: ???
 
 Feature: TABBAR
+Description: Supports tab bars, e.g. for use in tabbed dialogs.
 Section: Widgets
 Requires: TOOLBUTTON
-Name: Tab-bars
+Name: QTabBar
 SeeAlso: ???
 
 Feature: TABWIDGET
+Description: Supports stacking tabbed widgets.
 Section: Widgets
 Requires: TABBAR STACKEDWIDGET
-Name: Tab widgets
+Name: QTabWidget
 SeeAlso: ???
 
 Feature: COMBOBOX
+Description: Supports comboboxes presenting a list of options to the user.
 Section: Widgets
 Requires: LINEEDIT STANDARDITEMMODEL LISTVIEW
 Name: QComboBox
 SeeAlso: ???
 
 Feature: TOOLBUTTON
+Description: Supports quick-access buttons to commands and options.
 Section: Widgets
 Requires: ICON ACTION
-Name: Tool-buttons
+Name: QToolButton
 SeeAlso: ???
 
 Feature: TOOLBAR
+Description: Supports movable panels containing a set of controls.
 Section: Widgets
 Requires: MAINWINDOW
-Name: Toolbars
+Name: QToolBar
 SeeAlso: ???
 
 Feature: TOOLBOX
+Description:  Supports columns of tabbed widget items.
 Section: Widgets
 Requires: ICON TOOLTIP TOOLBUTTON SCROLLAREA
-Name: Tool box
+Name: QToolBox
 SeeAlso: ???
 
 Feature: GROUPBOX
+Description: Supports group box frames.
 Section: Widgets
 Requires:
-Name: Group boxes
+Name: QGroupBox
 SeeAlso: ???
 
 Feature: BUTTONGROUP
+Description: Supports organizing groups of button widgets.
 Section: Widgets
 Requires: GROUPBOX 
-Name: Button groups
+Name: QButtonGroup
 SeeAlso: ???
 
 Feature: MAINWINDOW
+Description: Supports main application windows.
 Section: Widgets
 Requires: MENU RESIZEHANDLER TOOLBUTTON
-Name: Main-windows
+Name: QMainWindow
 SeeAlso: ???
 
 Feature: DOCKWIDGET
+Description: Supports docking widgets inside a QMainWindow or floated as 
+a top-level window on the desktop.
 Section: Widgets
 Requires: RUBBERBAND MAINWINDOW
-Name: Main-windows
+Name: QDockwidget
 SeeAlso: ???
 
 Feature: WORKSPACE
+Description: Supports workspace windows, e.g. used in an MDI application. 
 Section: Widgets
 Requires: SCROLLBAR RESIZEHANDLER MENU TOOLBUTTON MAINWINDOW TOOLBAR MENUBAR
 Name: QWorkSpace
 SeeAlso: ???
 
 Feature: RESIZEHANDLER
+Description: Supports an internal resize handler.
 Section: Widgets
 Requires:
-Name: Internal resize handler
+Name: Resize Handler
 SeeAlso: ???
 
 Feature: STATUSBAR
+Description: Supports presentation of status information.
 Section: Widgets
 Requires:
-Name: Status bars
+Name: QStatusBar
 SeeAlso: ???
 
 Feature: MENUBAR
+Description: Supports pull-down menu items.
 Section: Widgets
 Requires: MENU TOOLBUTTON
-Name: Menu bars
+Name: QMenuBar
 SeeAlso: ???
 
 Feature: PROGRESSBAR
+Description: Supports presentation of operation progress.
 Section: Widgets
 Requires:
-Name: Progress bars
+Name: QProgressBar
 SeeAlso: ???
 
 Feature: SLIDER
+Description: Supports sliders controlling a bounded value.
 Section: Widgets
 Requires:
-Name: Sliders
+Name: QSlider
 SeeAlso: ???
 
 Feature: SCROLLBAR
+Description: Supports scrollbars allowing the user access parts of a 
+document that is larger than the widget used to display it. 
 Section: Widgets
 Requires: SLIDER
-Name: Scroll bars
+Name: QScrollBar
 SeeAlso: ???
 
 Feature: DIAL
+Description: Supports rounded range control, e.g. like a speedometer.
 Section: Widgets
 Requires: SLIDER
-Name: Dials
+Name: QDial
 SeeAlso: ???
 
 Feature: SCROLLAREA
+Description: Supports scrolling views onto widgets.
 Section: Widgets
 Requires: SCROLLBAR
 Name: QScrollArea
 SeeAlso: ???
 
 Feature: SPINWIDGET
+Description: Supports spinbox control widgets.
 Section: Widgets
 Requires:
-Name: Spinbox control widget
+Name: Spin Widget
 SeeAlso: ???
 
 Feature: TEXTEDIT
+Description: Supports rich text editing.
 Section: Widgets
 Requires: SCROLLAREA
-Name: Rich text edit
+Name: QTextEdit
 SeeAlso: ???
 
 Feature: SYNTAXHIGHLIGHTER
+Description: Supports custom syntax highlighting. 
 Section: Widgets
 Requires: TEXTEDIT
 Name: QSyntaxHighlighter
 SeeAlso: ???
 
 Feature: RUBBERBAND
+Description: Supports using rubberbands to indicate selections and boundaries.
 Section: Widgets
 Requires:
 Name: QRubberBand
 SeeAlso: ???
 
 Feature: TOOLTIP
+Description: Supports presentation of tooltips.
 Section: Widgets
 Requires:
-Name: Tool tips
+Name: QToolTip
 SeeAlso: ???
 
 Feature: STATUSTIP
+Description: 
 Section: Widgets
 Requires:
 Name: QStatusTip
 SeeAlso: ???
 
+Feature: SIGNALMAPPER
+Description: Supports bundling of signals from identifiable senders.
+Section: Widgets
+Requires:
+Name: QSignalMapper
+SeeAlso: ???
+
 Feature: WHATSTHIS
+Description: Supports displaying "What's this" help.
 Section: Widgets
 Requires: TOOLBUTTON ACTION
-Name: "What's this" help
+Name: QWhatsThis
 SeeAlso: ???
 
 Feature: VALIDATOR
+Description: Supports validation of input text.
 Section: Widgets
 Requires:
-Name: Input validators
+Name: QValidator
 SeeAlso: ???
 
 Feature: SIZEGRIP
+Description: Supports corner-grips for resizing a top-level windows.
 Section: Widgets
 Requires:
 Name: QSizeGrip
@@ -369,54 +438,64 @@ SeeAlso: ???
 # Dialogs
 
 Feature: MESSAGEBOX
+Description: Supports message boxes displaying  
+informative messages and simple questions.
 Section: Dialogs
 Requires:
 Name: QMessageBox
 SeeAlso: ???
 
 Feature: COLORDIALOG
+Description: Supports a dialog widget for specifying colors.
 Section: Dialogs
 Requires: LINEEDIT VALIDATOR SPINBOX
 Name: QColorDialog
 SeeAlso: ???
 
 Feature: FILEDIALOG
+Description: Supports a dialog for selecting files or directories. 
 Section: Dialogs
 Requires: DIRMODEL TREEVIEW MESSAGEBOX COMBOBOX TOOLBUTTON BUTTONGROUP 
 Name: QFileDialog
 SeeAlso: ???
 
 Feature: FONTDIALOG
+Description: Supports a dialog for selecting fonts.
 Section: Dialogs
 Requires: STRINGLISTMODEL COMBOBOX VALIDATOR GROUPBOX
 Name: QFontDialog
 SeeAlso: ???
 
 Feature: PRINTDIALOG
+Description: Supports a dialog for specifying printer configuration.
 Section: Dialogs
 Requires: PRINTER COMBOBOX BUTTONGROUP SPINBOX TREEVIEW
 Name: QPrintDialog
 SeeAlso: ???
 
 Feature: PROGRESSDIALOG
+Description: Supports feedback on the progress of a slow operation.
 Section: Dialogs
 Requires: PROGRESSBAR
 Name: QProgressDialog
 SeeAlso: ???
 
 Feature: INPUTDIALOG
+Description: Supports a simple convenience dialog to get a single value from the user.
 Section: Dialogs
 Requires: COMBOBOX SPINBOX STACKEDWIDGET
 Name: QInputDialog
 SeeAlso: ???
 
 Feature: TABDIALOG
+Description: Supports a stack of tabbed widgets.
 Section: Dialogs
 Requires: TABBAR
 Name: Q3TabDialog
 SeeAlso: ???
 
 Feature: ERRORMESSAGE
+Description:  Supports an error message display dialog.
 Section: Dialogs
 Requires: TEXTEDIT
 Name: QErrorMessage
@@ -516,12 +595,6 @@ Feature: IMAGEFORMATPLUGIN
 Section: Images
 Requires: 
 Name: QImageFormatPlugin
-SeeAlso: ???
-
-Feature: SIGNALMAPPER
-Section: Widgets
-Requires:
-Name: QSignalMapper
 SeeAlso: ???
 
 Feature: ICON
