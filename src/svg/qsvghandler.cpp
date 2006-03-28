@@ -300,11 +300,11 @@ static bool createSvgGlyph(QSvgFont *font, const QXmlAttributes &attributes)
 static qreal convertToPixels(qreal len, bool isX, QSvgHandler::LengthType type)
 {
     QWidgetList widgets = QApplication::topLevelWidgets();
-    QWidget *sampleWidget = widgets.first();
+    QWidget *sampleWidget = widgets.isEmpty() ? 0 : widgets.first();
 
     if (!sampleWidget) {
         qWarning("can't produce matrics without some widget");
-        return 0;
+        return len;
     }
 
     qreal dpi    = isX ? sampleWidget->logicalDpiX() : sampleWidget->logicalDpiY();
