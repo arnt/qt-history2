@@ -2323,6 +2323,7 @@ QVariant QComboBox::inputMethodQuery(Qt::InputMethodQuery query) const
     \property QComboBox::frame
     \brief whether the combo box draws itself with a frame
 
+
     If enabled (the default) the combo box draws itself inside a
     frame, otherwise the combo box draws itself without any frame.
 */
