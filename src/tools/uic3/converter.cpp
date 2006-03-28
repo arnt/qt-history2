@@ -720,6 +720,52 @@ void Ui3Reader::fixLayoutMargin(DomLayout *ui_layout)
     }
 }
 
+void Ui3Reader::findDerivedFontProperties(const QDomElement &n, DomFont &result) const
+{
+    bool italic = false;
+    bool bold = false;
+    bool underline = false;
+    bool strikeout = false;
+
+    QDomNode pn = n.parentNode();
+    while(!pn.isNull()) {
+        for (QDomElement e=pn.firstChild().toElement(); !e.isNull(); e = e.nextSibling().toElement()) {
+            if (e.tagName().toLower() == QLatin1String("property") &&
+                e.attribute(QLatin1String("name")) == QLatin1String("font")) {
+                QDomElement f = e.firstChild().toElement();
+                for (QDomElement fp = f.firstChild().toElement(); !fp.isNull(); fp = fp.nextSibling().toElement()) {
+                    QString name = fp.tagName().toLower();
+                    QString text = fp.text();
+                    if (!italic && name == QLatin1String("italic")) {
+                        italic = true;
+                        if (text == QLatin1String("true") || text == QLatin1String("1"))
+                            result.setElementItalic(true);
+                    } else if (!bold && name == QLatin1String("bold")) {
+                        bold = true;
+                        if (text == QLatin1String("true") || text == QLatin1String("1"))
+                            result.setElementBold(true);
+                    } else if (!underline && name == QLatin1String("underline")) {
+                        underline = true;
+                        if (text == QLatin1String("true") || text == QLatin1String("1"))
+                            result.setElementUnderline(true);
+                    } else if (!strikeout && name == QLatin1String("strikeout")) {
+                        strikeout = true;
+                        if (text == QLatin1String("true") || text == QLatin1String("1"))
+                            result.setElementStrikeOut(true);
+                    } else if (name == QLatin1String("family")) {
+                        if (result.elementFamily().isEmpty())
+                            result.setElementFamily(text.toAscii());
+                    } else if (name == QLatin1String("pointsize")) {
+                        if (!result.elementPointSize())
+                            result.setElementPointSize(text.toInt());
+                    }
+                }
+            }
+        }
+        pn = pn.parentNode();
+    }
+}
+
 void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *properties,
                                  const QString &className)
 {
@@ -755,25 +801,12 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
             }
 
             if (name == QLatin1String("font")) {
-                // For the boolean properties (italic, bold, underline, strikeout),
-                // Ui 3 files store true as "1", but DomFont::read() expects "true",
-                // so we have to convert them
                 QDomElement f = e.firstChild().toElement();
-                for (QDomElement fp = f.firstChild().toElement(); !fp.isNull(); fp = fp.nextSibling().toElement()) {
-                    QString fpTag = fp.tagName().toLower();
-                    if (fpTag == QLatin1String("italic") ||
-                        fpTag == QLatin1String("bold") ||
-                        fpTag == QLatin1String("underline") ||
-                        fpTag == QLatin1String("strikeout")) {
-                        QDomText text = fp.firstChild().toText();
-                        if (!text.isNull()) {
-                            if (text.data() == QLatin1String("1"))
-                                text.setData(QLatin1String("true"));
-                            else if (text.data() == QLatin1String("0"))
-                                text.setData(QLatin1String("false"));
-                        }
-                    }
-                }
+                DomFont font;
+                findDerivedFontProperties(f, font);
+                e.removeChild(f);
+                f = font.write(e.ownerDocument());
+                e.appendChild(f);
             }
 
             DomProperty *prop = readProperty(e);

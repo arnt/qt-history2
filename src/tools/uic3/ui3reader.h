@@ -24,6 +24,7 @@
 #include <QPair>
 
 class DomUI;
+class DomFont;
 class DomWidget;
 class DomProperty;
 class DomLayout;
@@ -97,6 +98,8 @@ private:
     QString fixClassName(const QString &className) const;
     QString fixDeclaration(const QString &declaration) const;
     QString fixType(const QString &type) const;
+
+    void findDerivedFontProperties(const QDomElement &n, DomFont &result) const;
 
     void fixLayoutMargin(DomLayout *ui_layout);
 
