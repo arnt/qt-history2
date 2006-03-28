@@ -1129,19 +1129,19 @@ void QRasterPaintEngine::drawRects(const QRect *rects, int rectCount)
 
         while (rects < lastRect) {
 
+            QRect rect = rects->normalized();
             if (d->brushData.blend) {
-                QRect r = *rects;
-                r.translate(offset_x, offset_y);
+                QRect r = rect.translated(offset_x, offset_y);
                 fillRect(r, &d->brushData);
             }
 
             if (d->penData.blend) {
                 ProcessSpans brush_blend = d->brushData.blend;
                 d->brushData.blend = 0;
-                int left = rects->x();
-                int right = rects->x() + rects->width();
-                int top = rects->y();
-                int bottom = rects->y() + rects->height();
+                int left = rect.x();
+                int right = rect.x() + rect.width();
+                int top = rect.y();
+                int bottom = rect.y() + rect.height();
                 QPoint pts[] = { QPoint(left, top),
                                  QPoint(right, top),
                                  QPoint(right, bottom),
