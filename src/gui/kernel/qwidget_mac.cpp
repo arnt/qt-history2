@@ -1040,10 +1040,14 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
             HIWindowChangeFeatures(window, kWindowCanCollapse, 0);
 #endif
-        if(wattr & kWindowHideOnSuspendAttribute)
-            HIWindowChangeAvailability(window, kHIWindowExposeHidden, 0);
-        else
-            HIWindowChangeAvailability(window, 0, kHIWindowExposeHidden);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+                if(wattr & kWindowHideOnSuspendAttribute)
+                    HIWindowChangeAvailability(window, kHIWindowExposeHidden, 0);
+                else
+                    HIWindowChangeAvailability(window, 0, kHIWindowExposeHidden);
+            }
+#endif
 	if((flags & Qt::WindowStaysOnTopHint))
 	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
         if(qt_mac_is_macdrawer(q) && parentWidget)
