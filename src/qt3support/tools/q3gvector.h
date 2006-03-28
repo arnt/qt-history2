@@ -16,6 +16,8 @@
 
 #include <Qt3Support/q3ptrcollection.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3GVector : public Q3PtrCollection	// generic vector
@@ -92,5 +94,7 @@ private:
 Q_COMPAT_EXPORT QDataStream &operator>>( QDataStream &, Q3GVector & );
 Q_COMPAT_EXPORT QDataStream &operator<<( QDataStream &, const Q3GVector & );
 #endif
+
+QT_END_HEADER
 
 #endif // Q3GVECTOR_H

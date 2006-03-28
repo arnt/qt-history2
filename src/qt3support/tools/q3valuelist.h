@@ -24,6 +24,8 @@
 #include <list>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 template <typename T>
@@ -198,5 +200,7 @@ Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const Q3ValueList<T
     return operator<<(s, static_cast<const QLinkedList<T> &>(l));
 }
 #endif
+
+QT_END_HEADER
 
 #endif // Q3VALUELIST_H

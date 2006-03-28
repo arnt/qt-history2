@@ -16,6 +16,8 @@
 
 #include <QtGui/qlayout.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QStackedLayoutPrivate;
@@ -65,5 +67,7 @@ public Q_SLOTS:
 private:
     Q_DISABLE_COPY(QStackedLayout)
 };
+
+QT_END_HEADER
 
 #endif // QSTACKEDLAYOUT_H

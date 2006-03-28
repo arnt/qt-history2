@@ -16,6 +16,8 @@
 
 #include <QtCore/qpoint.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 /*******************************************************************************
@@ -292,5 +294,7 @@ Q_CORE_EXPORT QDebug operator<<(QDebug d, const QLineF &p);
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QLineF &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QLineF &);
 #endif
+
+QT_END_HEADER
 
 #endif // QLINE_H

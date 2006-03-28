@@ -17,6 +17,8 @@
 #include <QtGui/qpaintdevice.h>
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_PICTURE
@@ -150,5 +152,7 @@ Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPicture &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPicture &);
 
 #endif // QT_NO_PICTURE
+
+QT_END_HEADER
 
 #endif // QPICTURE_H

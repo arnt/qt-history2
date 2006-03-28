@@ -19,6 +19,8 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qpair.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Network)
 
 #ifndef QT_NO_HTTP
@@ -237,5 +239,7 @@ private:
 };
 
 #endif // QT_NO_HTTP
+
+QT_END_HEADER
 
 #endif // QHTTP_H

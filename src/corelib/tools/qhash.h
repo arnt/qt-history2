@@ -19,6 +19,8 @@
 #include <QtCore/qiterator.h>
 #include <QtCore/qlist.h>
 
+QT_BEGIN_HEADER
+
 #undef QT_QHASH_DEBUG
 QT_MODULE(Core)
 
@@ -832,5 +834,7 @@ Q_INLINE_TEMPLATE Q_TYPENAME QHash<Key, T>::iterator QMultiHash<Key, T>::insert(
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(Hash)
 Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(Hash)
+
+QT_END_HEADER
 
 #endif // QHASH_H

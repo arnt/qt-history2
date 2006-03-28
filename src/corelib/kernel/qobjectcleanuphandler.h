@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QObjectCleanupHandler : public QObject
@@ -38,5 +40,7 @@ private:
 private Q_SLOTS:
     void objectDestroyed(QObject *);
 };
+
+QT_END_HEADER
 
 #endif // QOBJECTCLEANUPHANDLER_H

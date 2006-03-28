@@ -17,6 +17,8 @@
 #include <QtCore/qdatetime.h>
 #include <QtGui/qabstractspinbox.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_DATETIMEEDIT
@@ -148,5 +150,7 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDateTimeEdit::Sections)
 
 #endif // QT_NO_DATETIMEEDIT
+
+QT_END_HEADER
 
 #endif // QDATETIMEEDIT_H

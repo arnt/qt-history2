@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QAbstractSliderPrivate;
@@ -144,5 +146,7 @@ private:
     Q_DISABLE_COPY(QAbstractSlider)
     Q_DECLARE_PRIVATE(QAbstractSlider)
 };
+
+QT_END_HEADER
 
 #endif // QABSTRACTSLIDER_H

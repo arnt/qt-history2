@@ -18,6 +18,8 @@
 #include <QtGui/qwidget.h>
 #include <QtGui/qaction.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QPopupMenu;
@@ -84,5 +86,7 @@ public:
                        DecorationState state = Normal) = 0;
 
 };
+
+QT_END_HEADER
 
 #endif // QDECORATION_QWS_H

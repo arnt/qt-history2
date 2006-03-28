@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractbutton.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QCheckBoxPrivate;
@@ -71,5 +73,7 @@ private:
     Q_DECLARE_PRIVATE(QCheckBox)
     Q_DISABLE_COPY(QCheckBox)
 };
+
+QT_END_HEADER
 
 #endif // QCHECKBOX_H

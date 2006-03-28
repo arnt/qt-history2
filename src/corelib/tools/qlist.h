@@ -25,6 +25,8 @@
 
 #include <new>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 template <typename T> class QVector;
@@ -624,5 +626,7 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::count(const T &t) const
 
 Q_DECLARE_SEQUENTIAL_ITERATOR(List)
 Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(List)
+
+QT_END_HEADER
 
 #endif // QLIST_H

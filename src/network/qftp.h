@@ -18,6 +18,8 @@
 #include <QtNetwork/qurlinfo.h>
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Network)
 
 #ifndef QT_NO_FTP
@@ -140,5 +142,7 @@ private:
 };
 
 #endif // QT_NO_FTP
+
+QT_END_HEADER
 
 #endif // QFTP_H

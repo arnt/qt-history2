@@ -19,6 +19,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QList>
 
+QT_BEGIN_HEADER
+
 class QCursor;
 class QWidget;
 
@@ -57,5 +59,7 @@ public:
 Q_SIGNALS:
     void changed();
 };
+
+QT_END_HEADER
 
 #endif // ABSTRACTMETADATABASE_H

@@ -16,6 +16,8 @@
 
 #include <Qt3Support/q3valuelist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 template<class T>
@@ -35,5 +37,7 @@ public:
     T& top() { return this->last(); }
     const T& top() const { return this->last(); }
 };
+
+QT_END_HEADER
 
 #endif // Q3VALUESTACK_H

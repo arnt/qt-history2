@@ -32,6 +32,8 @@
 #include <QtCore/qfactoryinterface.h>
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_IM) && !defined(QT_NO_LIBRARY)
@@ -66,5 +68,7 @@ public:
 };
 
 #endif // QT_NO_IM
+
+QT_END_HEADER
 
 #endif // QINPUTCONTEXTPLUGIN_H

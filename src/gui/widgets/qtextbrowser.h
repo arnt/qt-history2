@@ -17,6 +17,8 @@
 #include <QtGui/qtextedit.h>
 #include <QtCore/qurl.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_TEXTBROWSER
@@ -81,5 +83,7 @@ private:
 };
 
 #endif // QT_NO_TEXTBROWSER
+
+QT_END_HEADER
 
 #endif // QTEXTBROWSER_H

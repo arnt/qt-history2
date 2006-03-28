@@ -19,6 +19,8 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qabstractitemmodel.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_ITEMVIEWS
@@ -183,5 +185,7 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QItemSelectionRange &);
 #endif
 
 #endif // QT_NO_ITEMVIEWS
+
+QT_END_HEADER
 
 #endif // QITEMSELECTIONMODEL_H

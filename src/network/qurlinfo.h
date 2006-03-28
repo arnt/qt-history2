@@ -18,6 +18,8 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qiodevice.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Network)
 
 #ifndef QT_NO_URLINFO
@@ -88,5 +90,7 @@ private:
 };
 
 #endif // QT_NO_URLINFO
+
+QT_END_HEADER
 
 #endif // QURLINFO_H

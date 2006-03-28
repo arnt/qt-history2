@@ -19,6 +19,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 static const int QLAYOUTSIZE_MAX = INT_MAX/256/16;
@@ -105,5 +107,7 @@ public:
 private:
     QWidget *wid;
 };
+
+QT_END_HEADER
 
 #endif // QLAYOUTITEM_H

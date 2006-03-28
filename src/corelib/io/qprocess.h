@@ -23,6 +23,8 @@ typedef struct _PROCESS_INFORMATION* Q_PID;
 typedef qint64 Q_PID;
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 #ifndef QT_NO_PROCESS
@@ -150,5 +152,7 @@ private:
 };
 
 #endif // QT_NO_PROCESS
+
+QT_END_HEADER
 
 #endif // QPROCESS_H

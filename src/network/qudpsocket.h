@@ -17,6 +17,8 @@
 #include <QtNetwork/qabstractsocket.h>
 #include <QtNetwork/qhostaddress.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Network)
 
 #ifndef QT_NO_UDPSOCKET
@@ -57,5 +59,7 @@ private:
 };
 
 #endif // QT_NO_UDPSOCKET
+
+QT_END_HEADER
 
 #endif // QUDPSOCKET_H

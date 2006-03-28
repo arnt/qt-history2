@@ -22,6 +22,8 @@
 #include <list>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 struct Q_CORE_EXPORT QLinkedListData
@@ -449,5 +451,7 @@ QLinkedList<T> QLinkedList<T>::operator+(const QLinkedList<T> &l) const
 
 Q_DECLARE_SEQUENTIAL_ITERATOR(LinkedList)
 Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(LinkedList)
+
+QT_END_HEADER
 
 #endif // QLINKEDLIST_H

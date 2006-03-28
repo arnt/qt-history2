@@ -20,6 +20,8 @@
 
 #include <QtCore/qregexp.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QSortFilterProxyModelPrivate;
@@ -146,4 +148,6 @@ private:
 };
 
 #endif // QT_NO_SORTFILTERPROXYMODEL
+QT_END_HEADER
+
 #endif // QSORTFILTERPROXYMODEL_H

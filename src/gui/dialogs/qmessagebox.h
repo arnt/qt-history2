@@ -16,6 +16,8 @@
 
 #include <QtGui/qdialog.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_MESSAGEBOX
@@ -170,5 +172,7 @@ str)).arg(qVersion()); QMessageBox::critical(0, QApplication::tr(\
 "Incompatible Qt Library Error"), s, QMessageBox::Abort,0); qFatal(s.toLatin1().data()); }}
 
 #endif // QT_NO_MESSAGEBOX
+
+QT_END_HEADER
 
 #endif // QMESSAGEBOX_H

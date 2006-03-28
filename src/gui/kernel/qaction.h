@@ -20,6 +20,8 @@
 #include <QtCore/qvariant.h>
 #include <QtGui/qicon.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_ACTION
@@ -181,5 +183,7 @@ private:
 #include <QtGui/qactiongroup.h>
 
 #endif // QT_NO_ACTION
+
+QT_END_HEADER
 
 #endif // QACTION_H

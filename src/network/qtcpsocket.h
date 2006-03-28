@@ -16,6 +16,8 @@
 
 #include <QtNetwork/qabstractsocket.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Network)
 
 class QTcpSocketPrivate;
@@ -31,5 +33,7 @@ private:
     Q_DISABLE_COPY(QTcpSocket)
     Q_DECLARE_PRIVATE(QTcpSocket)
 };
+
+QT_END_HEADER
 
 #endif // QTCPSOCKET_H

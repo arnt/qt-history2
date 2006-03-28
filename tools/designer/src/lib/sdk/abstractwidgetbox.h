@@ -20,6 +20,8 @@
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
 
+QT_BEGIN_HEADER
+
 class DomUI;
 class QDesignerDnDItemInterface;
 
@@ -102,5 +104,7 @@ public:
 };
 
 Q_DECLARE_METATYPE(QDesignerWidgetBoxInterface::Widget)
+
+QT_END_HEADER
 
 #endif // ABSTRACTWIDGETBOX_H

@@ -17,6 +17,8 @@
 #include <Qt3Support/q3networkprotocol.h>
 #include <QtCore/qdir.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_NETWORKPROTOCOL
@@ -44,5 +46,7 @@ private:
 };
 
 #endif // QT_NO_NETWORKPROTOCOL
+
+QT_END_HEADER
 
 #endif // Q3LOCALFS_H

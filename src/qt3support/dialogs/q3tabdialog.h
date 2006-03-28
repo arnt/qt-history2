@@ -17,6 +17,8 @@
 #include <QtGui/qdialog.h>
 #include <QtGui/qicon.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class  QTabBar;
@@ -102,5 +104,7 @@ private:
 
     Q_DISABLE_COPY(Q3TabDialog)
 };
+
+QT_END_HEADER
 
 #endif // Q3TABDIALOG_H

@@ -20,6 +20,8 @@
 #include <QtGui/qlayout.h>
 #include <QtCore/qpointer.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_MAINWINDOW
@@ -159,5 +161,7 @@ Q_COMPAT_EXPORT QTextStream &operator>>(QTextStream &, Q3DockArea &);
 #endif
 
 #endif // QT_NO_MAINWINDOW
+
+QT_END_HEADER
 
 #endif // Q3DOCKAREA_H

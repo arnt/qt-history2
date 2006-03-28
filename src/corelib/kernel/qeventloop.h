@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QEventLoopPrivate;
@@ -57,5 +59,7 @@ public Q_SLOTS:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QEventLoop::ProcessEventsFlags)
+
+QT_END_HEADER
 
 #endif // QEVENTLOOP_H

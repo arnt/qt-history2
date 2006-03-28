@@ -17,6 +17,8 @@
 #include <QtGui/qwidget.h>
 #include <QtGui/qvalidator.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_SPINBOX
@@ -131,5 +133,7 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractSpinBox::StepEnabled)
 
 #endif // QT_NO_SPINBOX
+
+QT_END_HEADER
 
 #endif // QABSTRACTSPINBOX_H

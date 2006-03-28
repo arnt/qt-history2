@@ -17,6 +17,8 @@
 
 #include <QtGui/qmotifstyle.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_STYLE_CDE)
@@ -43,5 +45,7 @@ public:
 };
 
 #endif // QT_NO_STYLE_CDE
+
+QT_END_HEADER
 
 #endif // QCDESTYLE_H

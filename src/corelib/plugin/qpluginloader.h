@@ -18,6 +18,8 @@
 
 #ifndef QT_NO_LIBRARY
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QLibraryPrivate;
@@ -47,5 +49,7 @@ private:
 };
 
 #endif // QT_NO_LIBRARY
+
+QT_END_HEADER
 
 #endif //QPLUGINLOADER_H

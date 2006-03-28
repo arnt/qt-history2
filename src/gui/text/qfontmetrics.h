@@ -19,6 +19,8 @@
 #include <QtCore/qrect.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifdef Q_WS_QWS
@@ -149,5 +151,7 @@ public:
 private:
     QFontPrivate *d;
 };
+
+QT_END_HEADER
 
 #endif // QFONTMETRICS_H

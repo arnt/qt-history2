@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 #ifndef QT_NO_SIGNALMAPPER
@@ -60,5 +62,7 @@ public:
 #endif
 };
 #endif // QT_NO_SIGNALMAPPER
+
+QT_END_HEADER
 
 #endif // QSIGNALMAPPER_H

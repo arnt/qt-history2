@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QX11EmbedWidgetPrivate;
@@ -92,5 +94,7 @@ private:
     Q_DECLARE_PRIVATE(QX11EmbedContainer)
     Q_DISABLE_COPY(QX11EmbedContainer)
 };
+
+QT_END_HEADER
 
 #endif // QX11EMBED_X11_H

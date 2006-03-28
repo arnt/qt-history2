@@ -16,6 +16,8 @@
 
 #include <Qt3Support/q3scrollview.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3GridViewPrivate;
@@ -97,5 +99,7 @@ inline QRect Q3GridView::cellRect() const
 
 inline QSize Q3GridView::gridSize() const
 { return QSize(ncols * cellw, nrows * cellh); }
+
+QT_END_HEADER
 
 #endif // Q3GRIDVIEW_H

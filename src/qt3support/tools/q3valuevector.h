@@ -20,6 +20,8 @@
 #include <vector>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 template <typename T>
@@ -73,5 +75,7 @@ public:
         return *(this->begin() + i);
     }
 };
+
+QT_END_HEADER
 
 #endif // Q3VALUEVECTOR_H

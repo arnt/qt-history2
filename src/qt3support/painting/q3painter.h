@@ -16,6 +16,8 @@
 
 #include <QtGui/qpainter.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3Painter : public QPainter
@@ -81,5 +83,7 @@ void Q_COMPAT_EXPORT Q3Painter::drawChord(const QRect &r, int angle, int arcLeng
 {
     QPainter::drawChord(adjustedRectangle(r), angle, arcLength);
 }
+
+QT_END_HEADER
 
 #endif // Q3PAINTER_H

@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qregion.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_DIRECTPAINTER
@@ -43,5 +45,7 @@ public:
 };
 
 #endif
+
+QT_END_HEADER
 
 #endif // QDIRECTPAINTER_QWS_H

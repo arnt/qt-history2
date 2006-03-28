@@ -24,6 +24,8 @@
 
 #include <sys/types.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QAuthDevice;
@@ -124,4 +126,6 @@ private:
 };
 
 #endif // QT_NO_SXE
+QT_END_HEADER
+
 #endif // QTRANSPORTAUTH_QWS_H

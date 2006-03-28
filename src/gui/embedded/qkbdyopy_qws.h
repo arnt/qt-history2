@@ -16,6 +16,8 @@
 
 #include <QtGui/qkbd_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_KBD_YOPY
@@ -33,5 +35,7 @@ private:
 };
 
 #endif // QT_NO_QWS_KBD_YOPY
+
+QT_END_HEADER
 
 #endif // QKBDYOPY_QWS_H

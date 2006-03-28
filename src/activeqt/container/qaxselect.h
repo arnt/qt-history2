@@ -17,6 +17,8 @@
 #include <QtGui/qdialog.h>
 #include "ui_qaxselect.h"
 
+QT_BEGIN_HEADER
+
 QT_MODULE(ActiveQt)
 
 class QAxSelect : public QDialog, private Ui::QAxSelect
@@ -31,5 +33,7 @@ private Q_SLOTS:
     void on_ActiveXList_clicked(const QModelIndex &index);
     void on_ActiveXList_doubleClicked(const QModelIndex &index);
 };
+
+QT_END_HEADER
 
 #endif // QAXSELECT_H

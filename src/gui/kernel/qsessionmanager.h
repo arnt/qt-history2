@@ -21,6 +21,8 @@
 
 #ifndef QT_NO_SESSIONMANAGER
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QSessionManagerPrivate;
@@ -71,5 +73,7 @@ private:
 };
 
 #endif // QT_NO_SESSIONMANAGER
+
+QT_END_HEADER
 
 #endif // QSESSIONMANAGER_H

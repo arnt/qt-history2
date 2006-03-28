@@ -17,6 +17,8 @@
 #include <QtGui/qwidget.h>
 #include <QtGui/qicon.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_TABWIDGET
@@ -170,5 +172,7 @@ private:
 };
 
 #endif // QT_NO_TABWIDGET
+
+QT_END_HEADER
 
 #endif // QTABWIDGET_H

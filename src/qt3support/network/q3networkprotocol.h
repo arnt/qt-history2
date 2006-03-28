@@ -19,6 +19,8 @@
 #include <Qt3Support/q3dict.h>
 #include <Qt3Support/q3valuelist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_NETWORKPROTOCOL
@@ -210,5 +212,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 #endif // QT_NO_NETWORKPROTOCOL
+
+QT_END_HEADER
 
 #endif // Q3NETWORKPROTOCOL_H

@@ -19,6 +19,8 @@
 #include <Qt3Support/q3urloperator.h>
 #include <Qt3Support/q3valuelist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class QAbstractButton;
@@ -306,5 +308,7 @@ private:
 };
 
 #endif // QT_NO_FILEDIALOG
+
+QT_END_HEADER
 
 #endif // Q3FILEDIALOG_H

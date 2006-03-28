@@ -16,6 +16,8 @@
 
 #include <QtGui/qapplication.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_KEYBOARD
@@ -41,5 +43,7 @@ private:
 };
 
 #endif // QT_NO_QWS_KEYBOARD
+
+QT_END_HEADER
 
 #endif // QKBD_QWS_H

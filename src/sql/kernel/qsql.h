@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Sql)
 
 namespace QSql
@@ -61,5 +63,7 @@ namespace QSql
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QSql::ParamType)
+
+QT_END_HEADER
 
 #endif // QSQL_H

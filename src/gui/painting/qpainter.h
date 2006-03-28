@@ -31,6 +31,8 @@
 #include <QtGui/qfontmetrics.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QBrush;
@@ -794,5 +796,7 @@ inline void QPainter::drawPicture(const QPoint &pt, const QPicture &p)
     drawPicture(QPointF(pt), p);
 }
 #endif
+
+QT_END_HEADER
 
 #endif // QPAINTER_H

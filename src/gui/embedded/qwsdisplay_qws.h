@@ -22,6 +22,8 @@
 #include <QtCore/qlist.h>
 #include <QtGui/qwsmemid_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QWSEvent;
@@ -133,5 +135,7 @@ private:
 };
 
 extern QWSDisplay *qt_fbdpy;
+
+QT_END_HEADER
 
 #endif // QWSDISPLAY_QWS_H

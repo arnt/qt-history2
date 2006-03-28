@@ -17,6 +17,8 @@
 #include <QtGui/qframe.h>
 #include <QtGui/qsizepolicy.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_SPLITTER
@@ -148,5 +150,7 @@ private:
 };
 
 #endif // QT_NO_SPLITTER
+
+QT_END_HEADER
 
 #endif // QSPLITTER_H

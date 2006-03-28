@@ -17,6 +17,8 @@
 #include <QtGui/qscreen_qws.h>
 #include <QtGui/qvfbhdr.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_QVFB
@@ -48,5 +50,7 @@ public:
 };
 
 #endif // QT_NO_QWS_QVFB
+
+QT_END_HEADER
 
 #endif // QSCREENVFB_QWS_H

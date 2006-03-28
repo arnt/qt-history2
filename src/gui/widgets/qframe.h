@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QFramePrivate;
@@ -108,5 +110,7 @@ private:
     Q_DISABLE_COPY(QFrame)
     Q_DECLARE_PRIVATE(QFrame)
 };
+
+QT_END_HEADER
 
 #endif // QFRAME_H

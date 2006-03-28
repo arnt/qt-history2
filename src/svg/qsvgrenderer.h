@@ -18,6 +18,8 @@
 #include <QtCore/qsize.h>
 #include <QtCore/qrect.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Svg)
 
 class QSvgRendererPrivate;
@@ -62,5 +64,7 @@ Q_SIGNALS:
 private:
     Q_DECLARE_PRIVATE(QSvgRenderer)
 };
+
+QT_END_HEADER
 
 #endif // QSVGRENDERER_H

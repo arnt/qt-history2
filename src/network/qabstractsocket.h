@@ -17,6 +17,8 @@
 #include <QtCore/qiodevice.h>
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Network)
 
 class QHostAddress;
@@ -183,5 +185,7 @@ Q_SIGNALS:
 
 #endif
 };
+
+QT_END_HEADER
 
 #endif // QABSTRACTSOCKET_H

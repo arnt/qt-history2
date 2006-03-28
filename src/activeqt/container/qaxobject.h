@@ -20,6 +20,8 @@
 
 #include <ActiveQt/qaxbase.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(ActiveQt)
 
 class QAxObject : public QObject, public QAxBase
@@ -66,5 +68,7 @@ template <> inline QAxObject *qobject_cast<QAxObject*>(QObject *o)
     void *result = o ? o->qt_metacast("QAxObject") : 0;
     return (QAxObject*)(result);
 }
+
+QT_END_HEADER
 
 #endif // QAXOBJECT_H

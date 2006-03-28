@@ -19,6 +19,8 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3Support)
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
@@ -238,5 +240,7 @@ private:
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_HTTP
+
+QT_END_HEADER
 
 #endif // Q3HTTP_H

@@ -22,6 +22,8 @@
 #include <QtGui/qpalette.h>
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QAction;
@@ -665,4 +667,6 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::SubControls)
 Q_GUI_EXPORT QDebug operator<<(QDebug debug, QStyle::State state);
 #endif
     
+QT_END_HEADER
+
 #endif // QSTYLE_H

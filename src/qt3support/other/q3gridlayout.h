@@ -16,6 +16,8 @@
 
 #include <QtGui/qboxlayout.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3GridLayout : public QGridLayout
@@ -38,5 +40,7 @@ public:
 private:
     Q_DISABLE_COPY(Q3GridLayout)
 };
+
+QT_END_HEADER
 
 #endif // Q3GRIDLAYOUT_H

@@ -16,6 +16,8 @@
 
 #include <QtGui/qwindowdefs.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_FONTDIALOG
@@ -68,5 +70,7 @@ private:
 };
 
 #endif // QT_NO_FONTDIALOG
+
+QT_END_HEADER
 
 #endif // QFONTDIALOG_H

@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3PointArray;
@@ -30,5 +32,7 @@ public:
     void scan(const Q3PointArray& pa, bool winding, int index, int npoints, Edge edges);
     virtual void processSpans(int n, QPoint* point, int* width)=0;
 };
+
+QT_END_HEADER
 
 #endif // Q3POLYGONSCANNER_H

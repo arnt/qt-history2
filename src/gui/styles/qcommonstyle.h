@@ -18,6 +18,8 @@
 
 class QCommonStylePrivate;
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QCommonStyle: public QStyle
@@ -59,5 +61,7 @@ private:
     Q_DECLARE_PRIVATE(QCommonStyle)
     Q_DISABLE_COPY(QCommonStyle)
 };
+
+QT_END_HEADER
 
 #endif // QCOMMONSTYLE_H

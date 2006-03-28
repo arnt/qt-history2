@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QObject;
@@ -34,5 +36,7 @@ public:
     void stop();
 };
 Q_DECLARE_TYPEINFO(QBasicTimer, Q_MOVABLE_TYPE);
+
+QT_END_HEADER
 
 #endif // QBASICTIMER_H

@@ -16,6 +16,8 @@
 
 #include <QtGui/qframe.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_STACKEDWIDGET
@@ -60,5 +62,7 @@ private:
 };
 
 #endif // QT_NO_STACKEDWIDGET
+
+QT_END_HEADER
 
 #endif // QSTACKEDWIDGET_H

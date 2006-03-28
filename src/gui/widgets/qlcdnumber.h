@@ -17,6 +17,8 @@
 #include <QtGui/qframe.h>
 #include <QtCore/qbitarray.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_LCDNUMBER
@@ -96,5 +98,7 @@ private:
 };
 
 #endif // QT_NO_LCDNUMBER
+
+QT_END_HEADER
 
 #endif // QLCDNUMBER_H

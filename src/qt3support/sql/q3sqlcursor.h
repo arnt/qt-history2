@@ -21,6 +21,8 @@
 #include <QtSql/qsqlquery.h>
 #include <QtSql/qsqlindex.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3Support)
 
 #ifndef QT_NO_SQL
@@ -127,5 +129,7 @@ private:
 };
 
 #endif // QT_NO_SQL
+
+QT_END_HEADER
 
 #endif // Q3SQLCURSOR_H

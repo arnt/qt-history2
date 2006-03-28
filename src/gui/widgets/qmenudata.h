@@ -19,6 +19,8 @@
 #ifdef QT3_SUPPORT
 #include <QtGui/qaction.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QMenuItem : public QAction
@@ -35,5 +37,7 @@ private:
     void setSignalValue(int);
 };
 #endif
+
+QT_END_HEADER
 
 #endif // QMENUDATA_H

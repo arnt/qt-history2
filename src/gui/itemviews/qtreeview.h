@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractitemview.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_TREEVIEW
@@ -154,5 +156,7 @@ private:
 };
 
 #endif // QT_NO_TREEVIEW
+
+QT_END_HEADER
 
 #endif // QTREEVIEW_H

@@ -31,6 +31,8 @@
 #include <QtGui/qevent.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QLayout;
@@ -906,5 +908,7 @@ inline QT3_SUPPORT void QWidget::erase(const QRect &r) { erase_helper(r.x(), r.y
 #endif
 
 #define QWIDGETSIZE_MAX ((1<<24)-1)
+
+QT_END_HEADER
 
 #endif // QWIDGET_H

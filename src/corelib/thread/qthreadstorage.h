@@ -18,6 +18,8 @@
 
 #ifndef QT_NO_THREAD
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QThreadStorageData
@@ -117,5 +119,7 @@ public:
 };
 
 #endif // QT_NO_THREAD
+
+QT_END_HEADER
 
 #endif // QTHREADSTORAGE_H

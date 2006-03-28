@@ -16,6 +16,8 @@
 
 #include <QtGui/qwindowsstyle.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_STYLE_PLASTIQUE)
@@ -65,5 +67,7 @@ private:
 };
 
 #endif // QT_NO_STYLE_PLASTIQUE
+
+QT_END_HEADER
 
 #endif // QPLASTIQUESTYLE_H

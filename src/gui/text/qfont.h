@@ -17,6 +17,8 @@
 #include <QtGui/qwindowdefs.h>
 #include <QtCore/qstring.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QFontPrivate;                                     /* don't touch */
@@ -251,5 +253,7 @@ inline void QFont::setItalic(bool b) {
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QFont &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QFont &);
 #endif
+
+QT_END_HEADER
 
 #endif // QFONT_H

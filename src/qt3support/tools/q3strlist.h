@@ -19,6 +19,8 @@
 #include <QtCore/qdatastream.h>
 #include <QtCore/qlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 #if defined(qdoc)
@@ -97,5 +99,7 @@ inline Q3StrList::Q3StrList( const Q3StrList &strList )
     dc = false;
     operator=( strList );
 }
+
+QT_END_HEADER
 
 #endif // Q3STRLIST_H

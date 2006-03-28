@@ -16,6 +16,8 @@
 
 #include <QtGui/qpixmap.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QVariant;
@@ -65,5 +67,7 @@ inline QBitmap::QBitmap(const QSize &size, bool clear)
     if (clear) this->clear();
 }
 #endif
+
+QT_END_HEADER
 
 #endif // QBITMAP_H

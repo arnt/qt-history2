@@ -25,6 +25,8 @@
 #error qmetatype.h must be included before any header file that defines Bool
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QMetaType {
@@ -212,5 +214,7 @@ template<> struct QMetaTypeId<QWidget *>
 template<> struct QMetaTypeId<void *>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::VoidStar; } };
+
+QT_END_HEADER
 
 #endif // QMETATYPE_H

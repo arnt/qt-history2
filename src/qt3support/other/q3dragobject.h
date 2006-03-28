@@ -21,6 +21,8 @@
 #include <Qt3Support/q3strlist.h>
 #include <QtCore/qlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class QWidget;
@@ -178,5 +180,7 @@ public:
 private:
     Q_DISABLE_COPY(Q3ColorDrag)
 };
+
+QT_END_HEADER
 
 #endif // Q3DRAGOBJECT_H

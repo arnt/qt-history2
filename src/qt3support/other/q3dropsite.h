@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class QWidget;
@@ -25,5 +27,7 @@ public:
     Q3DropSite(QWidget* parent);
     virtual ~Q3DropSite();
 };
+
+QT_END_HEADER
 
 #endif  // QDROPSITE_H

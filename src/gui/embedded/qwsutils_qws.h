@@ -16,6 +16,8 @@
 
 #include <QtGui/qwssocket_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 /********************************************************************
@@ -44,5 +46,7 @@ inline void qws_write_uint(QIODevice *socket, int i)
 }
 
 #endif // QT_NO_QWS_MULTIPROCESS
+
+QT_END_HEADER
 
 #endif // QWSUTILS_QWS_H

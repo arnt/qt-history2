@@ -21,6 +21,8 @@
 #include <QtCore/qvector.h>
 #include <QtCore/qvariant.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_ACCESSIBILITY
@@ -309,5 +311,7 @@ inline QAccessibleEvent::QAccessibleEvent(Type atype, int achild)
     : QEvent(atype), c(achild) {}
 
 #endif // QT_NO_ACCESSIBILITY
+
+QT_END_HEADER
 
 #endif // QACCESSIBLE_H

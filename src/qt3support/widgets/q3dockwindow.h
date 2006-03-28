@@ -16,6 +16,8 @@
 
 #include <Qt3Support/q3frame.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_MAINWINDOW
@@ -199,5 +201,7 @@ inline Q3DockArea *Q3DockWindow::area() const
 }
 
 #endif // QT_NO_MAINWINDOW
+
+QT_END_HEADER
 
 #endif // Q3DOCKWINDOW_H

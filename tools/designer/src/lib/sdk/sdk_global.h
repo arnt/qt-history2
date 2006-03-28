@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 #define QDESIGNER_SDK_EXTERN Q_DECL_EXPORT
 #define QDESIGNER_SDK_IMPORT Q_DECL_IMPORT
 
@@ -26,5 +28,7 @@
 #else
 #  define QDESIGNER_SDK_EXPORT QDESIGNER_SDK_IMPORT
 #endif
+
+QT_END_HEADER
 
 #endif // SDK_GLOBAL_H

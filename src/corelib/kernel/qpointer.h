@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 template <class T>
@@ -91,5 +93,7 @@ inline bool operator!= (const QPointer<T> &p, T *o)
 template<class T>
 inline bool operator!= (const QPointer<T> &p1, const QPointer<T> &p2)
 { return p1.operator->() != p2.operator->() ; }
+
+QT_END_HEADER
 
 #endif // QPOINTER_H

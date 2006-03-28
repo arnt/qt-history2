@@ -17,6 +17,8 @@
 #include <QtOpenGL/qgl.h>
 #include <QtGui/qpaintdevice.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(OpenGL)
 
 class QGLPixelBufferPrivate;
@@ -61,5 +63,7 @@ private:
     QGLPixelBufferPrivate *d_ptr;
     friend class QGLDrawable;
 };
+
+QT_END_HEADER
 
 #endif // QGLPIXELBUFFER_H

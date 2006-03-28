@@ -27,6 +27,8 @@
 #include <QtGui/qtextlayout.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QStyleSheet;
@@ -360,5 +362,7 @@ private:
 };
 
 #endif // QT_NO_TEXTEDIT
+
+QT_END_HEADER
 
 #endif // QTEXTEDIT_H

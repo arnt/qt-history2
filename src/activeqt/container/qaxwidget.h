@@ -17,6 +17,8 @@
 #include <ActiveQt/qaxbase.h>
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(ActiveQt)
 
 class QAxHostWindow;
@@ -81,5 +83,7 @@ template <> inline QAxWidget *qobject_cast<QAxWidget*>(QObject *o)
     void *result = o ? o->qt_metacast("QAxWidget") : 0;
     return (QAxWidget*)(result);
 }
+
+QT_END_HEADER
 
 #endif // QAXWIDGET_H

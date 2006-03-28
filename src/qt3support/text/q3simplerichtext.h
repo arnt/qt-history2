@@ -19,6 +19,8 @@
 #include <QtGui/qregion.h>
 #include <QtGui/qcolor.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_RICHTEXT
@@ -69,5 +71,7 @@ private:
 };
 
 #endif // QT_NO_RICHTEXT
+
+QT_END_HEADER
 
 #endif // Q3SIMPLERICHTEXT_H

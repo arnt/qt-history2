@@ -22,6 +22,8 @@
 #include <QtCore/qlist.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QStringList;
@@ -118,5 +120,7 @@ private:
 
     QFontDatabasePrivate *d;
 };
+
+QT_END_HEADER
 
 #endif // QFONTDATABASE_H

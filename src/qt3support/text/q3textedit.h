@@ -19,6 +19,8 @@
 #include <Qt3Support/q3mimefactory.h>
 #include <QtCore/qmap.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_TEXTEDIT
@@ -573,5 +575,7 @@ inline void Q3TextEdit::setCurrentFont(const QFont &f)
 }
 
 #endif // QT_NO_TEXTEDIT
+
+QT_END_HEADER
 
 #endif // Q3TEXTEDIT_H

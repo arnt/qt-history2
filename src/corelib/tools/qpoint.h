@@ -16,6 +16,8 @@
 
 #include <QtCore/qnamespace.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class Q_CORE_EXPORT QPoint
@@ -323,5 +325,7 @@ inline QPoint QPointF::toPoint() const
 #ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug d, const QPointF &p);
 #endif
+
+QT_END_HEADER
 
 #endif // QPOINT_H

@@ -16,6 +16,8 @@
 
 #include <QtGui/qdecorationdefault_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_QWS_DECORATION_WINDOWS) || defined(QT_PLUGIN)
@@ -37,5 +39,7 @@ protected:
 };
 
 #endif // QT_NO_QWS_DECORATION_WINDOWS
+
+QT_END_HEADER
 
 #endif // QDECORATIONWINDOWS_QWS_H

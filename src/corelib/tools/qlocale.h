@@ -16,6 +16,8 @@
 
 #include <QtCore/qstring.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QDataStream;
@@ -504,5 +506,7 @@ inline bool QLocale::operator!=(const QLocale &other) const
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QLocale &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QLocale &);
 #endif
+
+QT_END_HEADER
 
 #endif // QLOCALE_H

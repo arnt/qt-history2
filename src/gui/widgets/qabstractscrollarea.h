@@ -16,6 +16,8 @@
 
 #include <QtGui/qframe.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_SCROLLAREA
@@ -89,5 +91,7 @@ private:
 };
 
 #endif // QT_NO_SCROLLAREA
+
+QT_END_HEADER
 
 #endif // QABSTRACTSCROLLAREA_H

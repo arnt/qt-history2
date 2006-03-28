@@ -18,6 +18,8 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Sql)
 
 class Q_SQL_EXPORT QSqlIndex : public QSqlRecord
@@ -52,5 +54,7 @@ private:
     QString nm;
     QList<bool> sorts;
 };
+
+QT_END_HEADER
 
 #endif // QSQLINDEX_H

@@ -22,6 +22,8 @@
 #error qfile.h must be included before any header file that defines open
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QAbstractFileEngine;
@@ -155,5 +157,7 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFile::Permissions)
+
+QT_END_HEADER
 
 #endif // QFILE_H

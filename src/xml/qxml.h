@@ -20,6 +20,8 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Xml)
 
 class QXmlNamespaceSupport;
@@ -382,5 +384,7 @@ private:
 
 inline int QXmlAttributes::count() const
 { return length(); }
+
+QT_END_HEADER
 
 #endif // QXML_H

@@ -16,6 +16,8 @@
 
 #include <QtGui/qdecorationdefault_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #if !defined(QT_NO_QWS_DECORATION_STYLED) || defined(QT_PLUGIN)
@@ -33,5 +35,7 @@ public:
 };
 
 #endif // QT_NO_QWS_DECORATION_STYLED
+
+QT_END_HEADER
 
 #endif // QDECORATIONSTYLED_QWS_H

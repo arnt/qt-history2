@@ -18,6 +18,8 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qregexp.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_VALIDATOR
@@ -153,5 +155,7 @@ private:
 #endif // QT_NO_REGEXP
 
 #endif // QT_NO_VALIDATOR
+
+QT_END_HEADER
 
 #endif // QVALIDATOR_H

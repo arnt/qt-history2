@@ -17,6 +17,8 @@
 #include <Qt3Support/q3frame.h>
 #include <QtGui/qscrollbar.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3ScrollViewData;
@@ -213,5 +215,7 @@ public:
     void disableSizeHintCaching();
 
 };
+
+QT_END_HEADER
 
 #endif // Q3SCROLLVIEW_H

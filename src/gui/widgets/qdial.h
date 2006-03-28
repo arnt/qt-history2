@@ -17,6 +17,8 @@
 
 #include <QtGui/qabstractslider.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_DIAL
@@ -80,5 +82,7 @@ private:
 };
 
 #endif  // QT_NO_DIAL
+
+QT_END_HEADER
 
 #endif // QDIAL_H

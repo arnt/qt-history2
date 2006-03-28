@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QString;
@@ -281,5 +283,7 @@ inline bool operator>(QChar c1, QChar c2) { return c1.unicode() > c2.unicode(); 
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QChar &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QChar &);
 #endif
+
+QT_END_HEADER
 
 #endif // QCHAR_H

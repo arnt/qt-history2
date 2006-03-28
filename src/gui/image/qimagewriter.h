@@ -17,6 +17,8 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QIODevice;
@@ -70,5 +72,7 @@ private:
     Q_DISABLE_COPY(QImageWriter)
     QImageWriterPrivate *d;
 };
+
+QT_END_HEADER
 
 #endif // QIMAGEWRITER_H

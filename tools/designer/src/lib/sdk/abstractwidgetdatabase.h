@@ -19,6 +19,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QList>
 
+QT_BEGIN_HEADER
+
 class QIcon;
 class QString;
 class QDesignerFormEditorInterface;
@@ -96,5 +98,7 @@ Q_SIGNALS:
 protected:
     QList<QDesignerWidgetDataBaseItemInterface *> m_items;
 };
+
+QT_END_HEADER
 
 #endif // ABSTRACTWIDGETDATABASE_H

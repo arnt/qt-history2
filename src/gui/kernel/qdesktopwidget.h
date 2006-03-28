@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QApplication;
@@ -66,5 +68,7 @@ private:
     friend class QWSDisplay;
 #endif
 };
+
+QT_END_HEADER
 
 #endif // QDESKTOPWIDGET_H

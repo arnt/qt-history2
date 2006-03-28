@@ -45,6 +45,8 @@ typedef std::basic_string<wchar_t> QStdWString;
 #error qstring.h must be included before any header file that defines truncate
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QCharRef;
@@ -857,5 +859,7 @@ extern Q_CORE_EXPORT QByteArray qt_winQString2MB(const QString& s, int len=-1);
 extern Q_CORE_EXPORT QByteArray qt_winQString2MB(const QChar *ch, int len);
 extern Q_CORE_EXPORT QString qt_winMB2QString(const char* mb, int len=-1);
 #endif
+
+QT_END_HEADER
 
 #endif // QSTRING_H

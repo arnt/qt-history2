@@ -16,6 +16,8 @@
 
 #include <QtGui/qimage.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QWSCursor
@@ -44,5 +46,7 @@ private:
     QImage cursor;
     QRegion rgn;
 };
+
+QT_END_HEADER
 
 #endif // QWSCURSOR_QWS_H

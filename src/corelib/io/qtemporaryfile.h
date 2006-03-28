@@ -21,6 +21,8 @@
 #error qtemporaryfile.h must be included before any header file that defines open
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QTemporaryFilePrivate;
@@ -63,5 +65,7 @@ protected:
 private:
     Q_DISABLE_COPY(QTemporaryFile)
 };
+
+QT_END_HEADER
 
 #endif // QTEMPORARYFILE_H

@@ -17,6 +17,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QAbstractItemModel;
@@ -313,5 +315,7 @@ inline QVariant QModelIndex::data(int arole) const
 
 inline uint qHash(const QModelIndex &index)
 { return uint((index.row() << 4) + index.column() + index.internalId()); }
+
+QT_END_HEADER
 
 #endif // QABSTRACTITEMMODEL_H

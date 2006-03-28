@@ -31,6 +31,8 @@
 # include <QtGui/qtransportauth_qws.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QSessionManager;
@@ -292,5 +294,7 @@ private:
 
     Q_PRIVATE_SLOT(d_func(), void _q_tryEmitLastWindowClosed())
 };
+
+QT_END_HEADER
 
 #endif // QAPPLICATION_H

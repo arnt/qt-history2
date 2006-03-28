@@ -22,6 +22,8 @@
 #include <QtGui/qpen.h>
 #include <QtGui/qbrush.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QString;
@@ -605,5 +607,7 @@ inline void QTextTableFormat::setCellPadding(qreal apadding)
 
 inline void QTextTableFormat::setAlignment(Qt::Alignment aalignment)
 { setProperty(BlockAlignment, int(aalignment)); }
+
+QT_END_HEADER
 
 #endif // QTEXTFORMAT_H

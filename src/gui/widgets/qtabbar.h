@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_TABBAR
@@ -137,5 +139,7 @@ private:
 };
 
 #endif // QT_NO_TABBAR
+
+QT_END_HEADER
 
 #endif // QTABBAR_H

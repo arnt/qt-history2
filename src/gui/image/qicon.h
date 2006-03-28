@@ -18,6 +18,8 @@
 #include <QtCore/qsize.h>
 #include <QtGui/qpixmap.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QIconPrivate;
@@ -84,5 +86,7 @@ Q_DECLARE_TYPEINFO(QIcon, Q_MOVABLE_TYPE);
 #ifdef QT3_SUPPORT
 typedef QIcon QIconSet;
 #endif
+
+QT_END_HEADER
 
 #endif // QICON_H

@@ -20,6 +20,8 @@
 #include <QtCore/qline.h>
 #include <QtCore/qvector.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QFont;
@@ -266,5 +268,7 @@ inline void QPainterPath::detach()
     if (d_ptr->ref != 1)
         detach_helper();
 }
+
+QT_END_HEADER
 
 #endif // QPAINTERPATH_H

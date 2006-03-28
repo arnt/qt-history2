@@ -16,6 +16,8 @@
 
 #include <QtCore/QtGlobal>
 
+QT_BEGIN_HEADER
+
 #if 0
 // pragma for syncqt, don't remove.
 #pragma qt_class(QDesignerExportWidget)
@@ -26,5 +28,7 @@
 #else
 #  define QDESIGNER_WIDGET_EXPORT Q_DECL_IMPORT
 #endif
+
+QT_END_HEADER
 
 #endif //QDESIGNEREXPORTWIDGET_H

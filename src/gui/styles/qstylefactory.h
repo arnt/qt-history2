@@ -16,6 +16,8 @@
 
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QStyle;
@@ -26,5 +28,7 @@ public:
     static QStringList keys();
     static QStyle *create(const QString&);
 };
+
+QT_END_HEADER
 
 #endif // QSTYLEFACTORY_H

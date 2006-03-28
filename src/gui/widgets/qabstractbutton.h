@@ -18,6 +18,8 @@
 #include <QtGui/qkeysequence.h>
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QButtonGroup;
@@ -129,5 +131,7 @@ private:
     Q_DISABLE_COPY(QAbstractButton)
     friend class QButtonGroup;
 };
+
+QT_END_HEADER
 
 #endif // QABSTRACTBUTTON_H

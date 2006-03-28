@@ -16,6 +16,8 @@
 
 #include <QtGui/qfont.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QFontInfo
@@ -47,5 +49,7 @@ public:
 private:
     QFontPrivate *d;
 };
+
+QT_END_HEADER
 
 #endif // QFONTINFO_H

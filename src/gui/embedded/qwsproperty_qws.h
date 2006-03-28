@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 /*********************************************************************
@@ -56,5 +58,7 @@ private:
 };
 
 #endif // QT_NO_QWS_PROPERTIES
+
+QT_END_HEADER
 
 #endif // QWSPROPERTY_QWS_H

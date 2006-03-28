@@ -16,6 +16,8 @@
 
 #include <QtDesigner/sdk_global.h>
 
+QT_BEGIN_HEADER
+
 class DomUI;
 class QWidget;
 class QPoint;
@@ -35,5 +37,7 @@ public:
     virtual DropType type() const = 0;
     virtual QWidget *source() const = 0;
 };
+
+QT_END_HEADER
 
 #endif // ABSTRACTDNDITEM_H

@@ -18,6 +18,8 @@
 #include <QtNetwork/qtcpsocket.h>
 #include <QtGui/qwssocket_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #if defined(QT_NO_NETWORK) || defined(QT_NO_DNS)
@@ -129,5 +131,7 @@ Q_SIGNALS:
 #endif // Q_OS_MAC
 
 #endif // QT_NO_SOUND
+
+QT_END_HEADER
 
 #endif // QSOUNDQSS_QWS_H

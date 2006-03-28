@@ -18,6 +18,8 @@
 #include <Qt3Support/q3intdict.h>
 #include <Qt3Support/q3ptrdict.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3WidgetStackPrivate;
@@ -72,5 +74,7 @@ private:
 
     Q_DISABLE_COPY(Q3WidgetStack)
 };
+
+QT_END_HEADER
 
 #endif // Q3WIDGETSTACK_H

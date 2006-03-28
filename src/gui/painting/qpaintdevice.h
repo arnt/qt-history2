@@ -17,6 +17,8 @@
 #include <QtGui/qwindowdefs.h>
 #include <QtCore/qrect.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #if defined(Q_WS_QWS)
@@ -133,5 +135,7 @@ inline int QPaintDevice::devType() const
 
 inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
+
+QT_END_HEADER
 
 #endif // QPAINTDEVICE_H

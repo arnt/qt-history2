@@ -20,6 +20,8 @@
 #include <Qt3Support/q3networkprotocol.h>
 #include <QtCore/qstringlist.h> // QString->QStringList conversion
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_NETWORKPROTOCOL
@@ -98,5 +100,7 @@ private:
 };
 
 #endif // QT_NO_NETWORKPROTOCOL
+
+QT_END_HEADER
 
 #endif // Q3URLOPERATOR_H

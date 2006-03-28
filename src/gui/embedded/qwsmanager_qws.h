@@ -19,6 +19,8 @@
 #include <QtGui/qdecoration_qws.h>
 #include <QtGui/qevent.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_MANAGER
@@ -78,5 +80,7 @@ private:
 #include <QtGui/qdecorationdefault_qws.h>
 
 #endif // QT_NO_QWS_MANAGER
+
+QT_END_HEADER
 
 #endif // QWSMANAGER_QWS_H

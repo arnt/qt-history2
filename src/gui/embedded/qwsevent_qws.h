@@ -18,6 +18,8 @@
 #include <QtGui/qwsprotocolitem_qws.h>
 #include <QtCore/qrect.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 struct QWSMouseEvent;
@@ -323,5 +325,7 @@ struct QWSIMQueryEvent : QWSEvent {
 };
 
 #endif
+
+QT_END_HEADER
 
 #endif // QWSEVENT_QWS_H

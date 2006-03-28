@@ -20,8 +20,10 @@
 #include <QtCore/QStringList>
 #include <QtCore/QMap>
 
+QT_BEGIN_HEADER
 #if 0
 // pragma for syncqt, don't remove.
+
 #pragma qt_class(QFormBuilder)
 #endif
 
@@ -75,5 +77,7 @@ private:
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
+
+QT_END_HEADER
 
 #endif // FORMBUILDER_H

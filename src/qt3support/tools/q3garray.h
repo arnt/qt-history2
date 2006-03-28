@@ -16,6 +16,8 @@
 
 #include <Qt3Support/q3shared.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3GArray					// generic array
@@ -100,5 +102,7 @@ inline char *Q3GArray::at(uint index) const
 #endif
     return &shd->data[index];
 }
+
+QT_END_HEADER
 
 #endif // Q3GARRAY_H

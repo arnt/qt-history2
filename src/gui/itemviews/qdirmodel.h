@@ -19,6 +19,8 @@
 #include <QtCore/qfileinfo.h>
 #include <QtGui/qicon.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_DIRMODEL
@@ -136,5 +138,7 @@ private:
 };
 
 #endif // QT_NO_DIRMODEL
+
+QT_END_HEADER
 
 #endif // QDIRMODEL_H

@@ -16,6 +16,8 @@
 
 #include <QtCore/qnamespace.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 struct QX11InfoData;
@@ -77,5 +79,7 @@ protected:
                         Qt::HANDLE colormap);
     friend void qt_cleanup();
 };
+
+QT_END_HEADER
 
 #endif // QX11INFO_X11_H

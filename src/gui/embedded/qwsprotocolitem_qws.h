@@ -20,6 +20,8 @@
  *
  *********************************************************************/
 
+QT_BEGIN_HEADER
+
 struct QWSProtocolItem
 {
     // ctor - dtor
@@ -54,5 +56,7 @@ struct QWSProtocolItem
 // size = (int)type + (int)rawLenSize + simpleLen + rawLen
 #define QWS_PROTOCOL_ITEM_SIZE( item ) \
     sizeof(int) + sizeof(int) + (item).simpleLen + (item).rawLen
+
+QT_END_HEADER
 
 #endif // QWSPROTOCOLITEM_QWS_H

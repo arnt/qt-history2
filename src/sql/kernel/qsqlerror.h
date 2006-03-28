@@ -16,6 +16,8 @@
 
 #include <QtCore/qstring.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Sql)
 
 class Q_SQL_EXPORT QSqlError
@@ -64,5 +66,7 @@ private:
 #ifndef QT_NO_DEBUG_STREAM
 Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlError &);
 #endif
+
+QT_END_HEADER
 
 #endif // QSQLERROR_H

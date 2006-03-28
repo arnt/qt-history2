@@ -20,6 +20,8 @@
 #include <QtGui/qtextcursor.h>
 #include <QtGui/qpalette.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QAbstractTextDocumentLayoutPrivate;
@@ -107,5 +109,7 @@ public:
     virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc, int posInDocument, const QTextFormat &format) = 0;
 };
 Q_DECLARE_INTERFACE(QTextObjectInterface, "com.trolltech.Qt.QTextObjectInterface")
+
+QT_END_HEADER
 
 #endif // QABSTRACTTEXTDOCUMENTLAYOUT_H

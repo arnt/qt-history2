@@ -19,6 +19,8 @@
 #include <QtCore/qvector.h>
 #include <QtGui/qwindowdefs.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QColor;
@@ -57,5 +59,7 @@ private:
     QColormap();
     QColormapPrivate *d;
 };
+
+QT_END_HEADER
 
 #endif // QCOLORMAP_H

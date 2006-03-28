@@ -17,6 +17,8 @@
 #include <QtCore/qobjectdefs.h>
 #include <QtCore/qnamespace.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 // Class forward definitions
@@ -129,5 +131,7 @@ typedef QHash<WId, QWidget *> QWidgetMapper;
 #endif
 
 // Global platform-independent types and functions
+
+QT_END_HEADER
 
 #endif // QWINDOWDEFS_H

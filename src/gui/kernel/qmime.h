@@ -16,6 +16,8 @@
 
 #include <QtCore/qmimedata.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QMimeSource
@@ -104,5 +106,7 @@ public:
 };
 
 #endif // Q_WS_MAC
+
+QT_END_HEADER
 
 #endif // QMIME_H

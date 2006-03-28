@@ -25,6 +25,8 @@
 #include <new>
 #undef QT_MAP_DEBUG
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 struct Q_CORE_EXPORT QMapData
@@ -867,5 +869,7 @@ Q_INLINE_TEMPLATE Q_TYPENAME QMap<Key, T>::iterator QMultiMap<Key, T>::insert(co
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(Map)
 Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(Map)
+
+QT_END_HEADER
 
 #endif // QMAP_H

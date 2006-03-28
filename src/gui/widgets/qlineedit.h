@@ -17,6 +17,8 @@
 #include <QtGui/qframe.h>
 #include <QtCore/qstring.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_LINEEDIT
@@ -201,5 +203,7 @@ private:
 };
 
 #endif // QT_NO_LINEEDIT
+
+QT_END_HEADER
 
 #endif // QLINEEDIT_H

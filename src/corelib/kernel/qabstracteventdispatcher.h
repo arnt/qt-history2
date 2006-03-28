@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qeventloop.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QAbstractEventDispatcherPrivate;
@@ -67,5 +69,7 @@ protected:
     QAbstractEventDispatcher(QAbstractEventDispatcherPrivate &,
                              QObject *parent);
 };
+
+QT_END_HEADER
 
 #endif // QABSTRACTEVENTDISPATCHER_H

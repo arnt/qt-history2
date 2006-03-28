@@ -18,6 +18,8 @@
 #include <QtNetwork/qurlinfo.h>
 #include <Qt3Support/q3networkprotocol.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3Support)
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
@@ -164,5 +166,7 @@ protected Q_SLOTS:
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP
+
+QT_END_HEADER
 
 #endif // Q3FTP_H

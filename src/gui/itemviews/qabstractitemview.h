@@ -19,6 +19,8 @@
 #include <QtGui/qitemselectionmodel.h>
 #include <QtGui/qabstractitemdelegate.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_ITEMVIEWS
@@ -276,4 +278,6 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::EditTriggers)
 
 #endif // QT_NO_ITEMVIEWS
+QT_END_HEADER
+
 #endif // QABSTRACTITEMVIEW_H

@@ -18,6 +18,8 @@
 #include <QtCore/qnamespace.h>
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QColor;
@@ -221,5 +223,7 @@ inline QColor::QColor(const QColor &acolor)
 
 inline bool QColor::isValid() const
 { return cspec != Invalid; }
+
+QT_END_HEADER
 
 #endif // QCOLOR_H

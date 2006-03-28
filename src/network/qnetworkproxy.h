@@ -18,6 +18,8 @@
 
 #ifndef QT_NO_NETWORKPROXY
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Network)
 
 class QNetworkProxyPrivate;
@@ -62,4 +64,6 @@ private:
     QNetworkProxyPrivate *d_ptr;
 };
 #endif // QT_NO_NETWORKPROXY
+QT_END_HEADER
+
 #endif // QHOSTINFO_H

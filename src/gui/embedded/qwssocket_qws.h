@@ -30,6 +30,8 @@
 #endif
 
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -83,5 +85,7 @@ private:
 };
 
 #endif // QT_NO_QWS_MULTIPROCESS
+
+QT_END_HEADER
 
 #endif // QWSSOCKET_QWS_H

@@ -25,6 +25,8 @@
 #error qiodevice.h must be included before any header file that defines open
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QByteArray;
@@ -212,5 +214,7 @@ inline QT3_SUPPORT int QIODevice::state() const
 class QDebug;
 Q_CORE_EXPORT QDebug operator<<(QDebug debug, QIODevice::OpenMode modes);
 #endif
+
+QT_END_HEADER
 
 #endif // QIODEVICE_H

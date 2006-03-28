@@ -16,6 +16,8 @@
 
 #include <QtGui/qwindowsstyle.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
@@ -98,5 +100,7 @@ private:
 };
 
 #endif // Q_WS_MAC
+
+QT_END_HEADER
 
 #endif // QMACSTYLE_H

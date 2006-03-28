@@ -18,6 +18,8 @@
 #include <Qt3Support/q3groupbox.h>
 #include <QtCore/qmap.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class QAbstractButton;
@@ -106,5 +108,7 @@ public:
 private:
     Q_DISABLE_COPY(Q3HButtonGroup)
 };
+
+QT_END_HEADER
 
 #endif // Q3BUTTONGROUP_H

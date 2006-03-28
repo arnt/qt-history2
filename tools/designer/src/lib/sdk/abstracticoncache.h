@@ -18,6 +18,8 @@
 
 #include <QtCore/QObject>
 
+QT_BEGIN_HEADER
+
 class QIcon;
 class QPixmap;
 class QString;
@@ -43,5 +45,7 @@ public:
 
     virtual QString resolveQrcPath(const QString &filePath, const QString &qrcPath, const QString &workingDirectory = QString()) const = 0;
 };
+
+QT_END_HEADER
 
 #endif // ABSTRACTICONCACHE_H

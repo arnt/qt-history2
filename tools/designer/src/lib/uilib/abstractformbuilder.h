@@ -23,8 +23,10 @@
 #include <QtGui/QSizePolicy>
 #include <QtGui/QPalette>
 
+QT_BEGIN_HEADER
 #if 0
 // pragma for syncqt, don't remove.
+
 #pragma qt_class(QAbstractFormBuilder)
 #endif
 
@@ -179,5 +181,7 @@ private:
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
+
+QT_END_HEADER
 
 #endif // ABSTRACTFORMBUILDER_H

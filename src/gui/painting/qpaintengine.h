@@ -18,6 +18,8 @@
 #include <QtCore/qobjectdefs.h>
 #include <QtGui/qpainter.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QFontEngine;
@@ -284,5 +286,7 @@ inline void QPaintEngine::clearDirty(DirtyFlags df)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextItem::RenderFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::PaintEngineFeatures)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::DirtyFlags)
+
+QT_END_HEADER
 
 #endif // QPAINTENGINE_H

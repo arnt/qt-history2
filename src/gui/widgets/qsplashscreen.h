@@ -17,6 +17,8 @@
 #include <QtGui/qpixmap.h>
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_SPLASHSCREEN
@@ -59,5 +61,7 @@ private:
 };
 
 #endif // QT_NO_SPLASHSCREEN
+
+QT_END_HEADER
 
 #endif // QSPLASHSCREEN_H

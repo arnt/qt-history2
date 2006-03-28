@@ -29,6 +29,8 @@
 #include <QtGui/qevent.h>
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 namespace QTest
 {
     enum KeyAction { Press, Release, Click };
@@ -152,5 +154,7 @@ namespace QTest
     { keyEvent(Click, widget, key, modifier, delay); }
 
 }
+
+QT_END_HEADER
 
 #endif // QTESTKEYBOARD_H

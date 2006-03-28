@@ -21,6 +21,8 @@
 #include <QtGui/qcombobox.h>
 #include <QtSql/qsqlrelationaltablemodel.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Sql)
 
 class QSqlRelationalDelegate: public QItemDelegate
@@ -89,5 +91,7 @@ void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex 
 };
 
 #endif // QT_GUI_LIB
+
+QT_END_HEADER
 
 #endif // QSQLRELATIONALDELEGATE_H

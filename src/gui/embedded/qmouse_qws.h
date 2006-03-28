@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qpolygon.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QWSPointerCalibrationData
@@ -77,5 +79,7 @@ private:
     int currSample;
     int numSamples;
 };
+
+QT_END_HEADER
 
 #endif // QMOUSE_QWS_H

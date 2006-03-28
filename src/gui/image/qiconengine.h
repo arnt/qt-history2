@@ -17,6 +17,8 @@
 #include <QtCore/qglobal.h>
 #include <QtGui/qicon.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class Q_GUI_EXPORT QIconEngine
@@ -35,5 +37,7 @@ public:
     virtual void paintFrame(QPainter *painter, const QRect &rect, int frameNumber, QIcon::Mode fromMode, QIcon::State fromState, QIcon::Mode toMode, QIcon::State toState);
 #endif
 };
+
+QT_END_HEADER
 
 #endif // QICONENGINE_H

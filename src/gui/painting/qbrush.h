@@ -19,6 +19,8 @@
 #include <QtCore/qvector.h>
 #include <QtGui/qcolor.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 struct QBrushData;
@@ -213,5 +215,7 @@ public:
     QPointF center() const;
     qreal angle() const;
 };
+
+QT_END_HEADER
 
 #endif // QBRUSH_H

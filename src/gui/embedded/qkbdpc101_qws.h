@@ -16,6 +16,8 @@
 
 #include <QtGui/qkbd_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_KEYBOARD
@@ -55,5 +57,7 @@ protected:
 #endif // QT_NO_QWS_KBD_PC101
 
 #endif // QT_NO_QWS_KEYBOARD
+
+QT_END_HEADER
 
 #endif // QKBDPC101_QWS_H

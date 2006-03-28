@@ -19,6 +19,8 @@
 #include <QtCore/qabstractitemmodel.h>
 #include <QtCore/qvariant.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_COMBOBOX
@@ -280,5 +282,7 @@ inline void QComboBox::insertItem(int aindex, const QString &atext,
 { insertItem(aindex, QIcon(), atext, auserData); }
 
 #endif // QT_NO_COMBOBOX
+
+QT_END_HEADER
 
 #endif // QCOMBOBOX_H

@@ -18,6 +18,8 @@
 #include <QtCore/qpoint.h>
 #include <QtCore/qrect.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QMatrix;
@@ -112,5 +114,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QPolygonF &array);
 
 inline void QPolygonF::translate(qreal dx, qreal dy)
 { translate(QPointF(dx, dy)); }
+
+QT_END_HEADER
 
 #endif // QPOLYGON_H

@@ -18,6 +18,8 @@
 #include <QtCore/qrect.h>
 #include <QtGui/qwindowdefs.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 template <class T> class QVector;
@@ -148,5 +150,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRegion &);
 #ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QRegion &);
 #endif
+
+QT_END_HEADER
 
 #endif // QREGION_H

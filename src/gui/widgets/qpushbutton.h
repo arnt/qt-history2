@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractbutton.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QPushButtonPrivate;
@@ -80,5 +82,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_popupPressed())
 #endif
 };
+
+QT_END_HEADER
 
 #endif // QPUSHBUTTON_H

@@ -18,6 +18,8 @@
 
 #include <QtCore/QObject>
 
+QT_BEGIN_HEADER
+
 class QDesignerFormEditorInterface;
 class QAction;
 
@@ -33,5 +35,7 @@ public:
     virtual QDesignerFormEditorInterface *core() const = 0;
 };
 Q_DECLARE_INTERFACE(QDesignerFormEditorPluginInterface, "com.trolltech.Qt.Designer.QDesignerFormEditorPluginInterface")
+
+QT_END_HEADER
 
 #endif // ABSTRACTFORMEDITORPLUGIN_H

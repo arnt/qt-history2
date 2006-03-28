@@ -16,6 +16,8 @@
 
 #include <QtGui/qframe.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QLabelPrivate;
@@ -112,5 +114,7 @@ private:
 
     friend class QTipLabel;
 };
+
+QT_END_HEADER
 
 #endif // QLABEL_H

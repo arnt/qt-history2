@@ -16,6 +16,8 @@
 
 #include <ActiveQt/qaxobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(ActiveQt)
 
 class QAxBase;
@@ -205,5 +207,7 @@ inline void QAxScriptManager::addObject(QObject *object)
     }
     addObject(wrapper);
 }
+
+QT_END_HEADER
 
 #endif // QAXSCRIPT_H

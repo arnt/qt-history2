@@ -18,6 +18,8 @@
 #include <QtNetwork/qabstractsocket.h>
 #include <QtNetwork/qhostaddress.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Network)
 
 class QTcpServerPrivate;
@@ -68,5 +70,7 @@ private:
     Q_DISABLE_COPY(QTcpServer)
     Q_DECLARE_PRIVATE(QTcpServer)
 };
+
+QT_END_HEADER
 
 #endif // QTCPSERVER_H

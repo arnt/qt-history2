@@ -16,6 +16,8 @@
 
 #include <QtCore/qnamespace.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 template <typename T> class QList;
@@ -84,5 +86,7 @@ inline void QTextOption::setFlags(Flags aflags)
 
 inline void QTextOption::setTabStop(qreal atabStop)
 { tab = atabStop; }
+
+QT_END_HEADER
 
 #endif // QTEXTOPTION_H

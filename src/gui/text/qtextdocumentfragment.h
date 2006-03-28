@@ -16,6 +16,8 @@
 
 #include <QtCore/qstring.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QTextStream;
@@ -46,5 +48,7 @@ private:
     QTextDocumentFragmentPrivate *d;
     friend class QTextCursor;
 };
+
+QT_END_HEADER
 
 #endif // QTEXTDOCUMENTFRAGMENT_H

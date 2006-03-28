@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(ActiveQt)
 
 class QAxAggregated;
@@ -45,5 +47,7 @@ protected:
 private:
     IAxServerBase *activex;
 };
+
+QT_END_HEADER
 
 #endif // QAXBINDABLE_H

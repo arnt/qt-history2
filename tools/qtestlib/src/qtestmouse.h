@@ -30,6 +30,8 @@
 #include <QtGui/qevent.h>
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 namespace QTest
 {
     enum MouseAction { MousePress, MouseRelease, MouseClick, MouseDClick, MouseMove };
@@ -100,5 +102,7 @@ namespace QTest
     { mouseEvent(MouseMove, widget, Qt::NoButton, 0, pos, delay); }
 
 }
+
+QT_END_HEADER
 
 #endif // QTESTMOUSE_H

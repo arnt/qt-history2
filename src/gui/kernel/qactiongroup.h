@@ -16,6 +16,8 @@
 
 #include <QtGui/qaction.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_ACTION
@@ -72,5 +74,7 @@ private:
 };
 
 #endif // QT_NO_ACTION
+
+QT_END_HEADER
 
 #endif // QACTIONGROUP_H

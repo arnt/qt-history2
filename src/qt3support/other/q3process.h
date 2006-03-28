@@ -18,6 +18,8 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qdir.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 #ifndef QT_NO_PROCESS
@@ -146,5 +148,7 @@ private:
 };
 
 #endif // QT_NO_PROCESS
+
+QT_END_HEADER
 
 #endif // Q3PROCESS_H

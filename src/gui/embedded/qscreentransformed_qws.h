@@ -17,6 +17,8 @@
 #include <QtGui/qscreenlinuxfb_qws.h>
 #include <QtGui/qscreenvfb_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_TRANSFORMED
@@ -72,5 +74,7 @@ private:
 };
 
 #endif // QT_NO_QWS_TRANSFORMED
+
+QT_END_HEADER
 
 #endif // QSCREENTRANSFORMED_QWS_H

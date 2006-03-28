@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 #ifndef QT_NO_THREAD
@@ -42,5 +44,7 @@ private:
 };
 
 #endif // QT_NO_THREAD
+
+QT_END_HEADER
 
 #endif // QSEMAPHORE_H

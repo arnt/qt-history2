@@ -17,6 +17,8 @@
 #include <QtCore/qobject.h>
 #include <QtGui/qcursor.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_WHATSTHIS
@@ -48,5 +50,7 @@ public:
 };
 
 #endif // QT_NO_WHATSTHIS
+
+QT_END_HEADER
 
 #endif // QWHATSTHIS_H

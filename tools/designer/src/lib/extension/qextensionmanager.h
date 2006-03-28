@@ -18,6 +18,8 @@
 #include <QtDesigner/extension.h>
 #include <QtCore/QHash>
 
+QT_BEGIN_HEADER
+
 class QDESIGNER_EXTENSION_EXPORT QExtensionManager: public QObject, public QAbstractExtensionManager
 {
     Q_OBJECT
@@ -35,5 +37,7 @@ private:
     QHash<QString, QList<QAbstractExtensionFactory*> > m_extensions;
     QList<QAbstractExtensionFactory*> m_globalExtension;
 };
+
+QT_END_HEADER
 
 #endif // QEXTENSIONMANAGER_H

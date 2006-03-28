@@ -17,6 +17,8 @@
 #include <QtCore/qiodevice.h>
 #include <QtNetwork/qhostaddress.h> // int->QHostAddress conversion
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3Support)
 
 #ifndef QT_NO_NETWORK
@@ -136,5 +138,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 #endif // QT_NO_NETWORK
+
+QT_END_HEADER
 
 #endif // Q3SOCKETDEVICE_H

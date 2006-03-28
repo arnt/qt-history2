@@ -17,6 +17,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QUrl;
@@ -63,5 +65,7 @@ private:
     Q_DISABLE_COPY(QMimeData)
     Q_DECLARE_PRIVATE(QMimeData)
 };
+
+QT_END_HEADER
 
 #endif // QMIMEDATA_H

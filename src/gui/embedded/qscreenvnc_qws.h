@@ -16,6 +16,8 @@
 
 #include <QtGui/qscreenlinuxfb_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #define VNCSCREEN_BASE QLinuxFbScreen
@@ -54,5 +56,7 @@ public:
 };
 
 #endif // QT_NO_QWS_VNC
+
+QT_END_HEADER
 
 #endif // QSCREENVNC_QWS_H

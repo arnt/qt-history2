@@ -17,6 +17,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3Signal : public QObject
@@ -57,5 +59,7 @@ private:
 #endif
 
 };
+
+QT_END_HEADER
 
 #endif // Q3SIGNAL_H

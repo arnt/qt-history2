@@ -16,6 +16,8 @@
 
 #include <Qt3Support/q3gdict.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 template<class type>
@@ -86,5 +88,7 @@ public:
     type *operator++()	      { return (type *)Q3GDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)Q3GDictIterator::operator+=(j);}
 };
+
+QT_END_HEADER
 
 #endif // Q3INTDICT_H

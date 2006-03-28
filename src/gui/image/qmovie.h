@@ -28,6 +28,8 @@
 #include <QtGui/qpixmap.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QByteArray;
@@ -135,4 +137,6 @@ public:
 };
 
 #endif // QT_NO_MOVIE
+QT_END_HEADER
+
 #endif // QMOVIE_H

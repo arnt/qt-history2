@@ -18,6 +18,8 @@
 #include <QtNetwork/qhostaddress.h>
 #include <Qt3Support/q3socketdevice.h> // ### remove or keep for users' convenience?
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3Support)
 
 class Q3ServerSocketPrivate;
@@ -54,5 +56,7 @@ private:
     Q3ServerSocketPrivate *d;
     void init( const QHostAddress & address, Q_UINT16 port, int backlog );
 };
+
+QT_END_HEADER
 
 #endif // Q3SERVERSOCKET_H

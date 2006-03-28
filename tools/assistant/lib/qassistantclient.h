@@ -20,6 +20,8 @@
 #include <QtCore/qglobal.h>
 #include <QtAssistant/qassistantclient_global.h>
 
+QT_BEGIN_HEADER
+
 class QTcpSocket;
 
 class QT_ASSISTANT_CLIENT_EXPORT QAssistantClient : public QObject
@@ -61,4 +63,5 @@ private:
     bool opened;
 };
 
+QT_END_HEADER
 #endif

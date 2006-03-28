@@ -16,6 +16,8 @@
 
 #include <QtCore/qabstractfileengine.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QFSFileEnginePrivate;
@@ -77,5 +79,7 @@ public:
 protected:
     QFSFileEngine(QFSFileEnginePrivate &dd);
 };
+
+QT_END_HEADER
 
 #endif // QFSFILEENGINE_H

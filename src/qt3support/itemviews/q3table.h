@@ -24,6 +24,8 @@
 #include <Qt3Support/q3intdict.h>
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3Support)
 
 class Q3TableHeader;
@@ -507,5 +509,7 @@ private:
 
     Q_DISABLE_COPY(Q3Table)
 };
+
+QT_END_HEADER
 
 #endif // Q3TABLE_H

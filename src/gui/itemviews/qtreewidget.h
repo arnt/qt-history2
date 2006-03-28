@@ -19,6 +19,8 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qvector.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_TREEWIDGET
@@ -294,5 +296,7 @@ inline QTreeWidgetItem *QTreeWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }
 
 #endif // QT_NO_TREEWIDGET
+
+QT_END_HEADER
 
 #endif // QTREEWIDGET_H

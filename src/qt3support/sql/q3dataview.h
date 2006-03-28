@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3Support)
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
@@ -50,5 +52,7 @@ private:
 };
 
 #endif // QT_NO_SQL_VIEW_WIDGETS
+
+QT_END_HEADER
 
 #endif // Q3DATAVIEW_H

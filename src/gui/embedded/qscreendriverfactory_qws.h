@@ -16,6 +16,8 @@
 
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QString;
@@ -27,5 +29,7 @@ public:
     static QStringList keys();
     static QScreen *create(const QString&, int);
 };
+
+QT_END_HEADER
 
 #endif // QSCREENDRIVERFACTORY_QWS_H

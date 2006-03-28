@@ -20,6 +20,8 @@
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qstringlist.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(ActiveQt)
 
 class QWidget;
@@ -259,5 +261,7 @@ Q_DECLARE_METATYPE(IUnknown*)
 Q_DECLARE_METATYPE(IDispatch*)
 
 #endif
+
+QT_END_HEADER
 
 #endif // QAXFACTORY_H

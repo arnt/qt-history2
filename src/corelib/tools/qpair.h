@@ -16,6 +16,8 @@
 
 #include <QtCore/qdatastream.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 template <class T1, class T2>
@@ -87,5 +89,7 @@ inline QDataStream& operator<<(QDataStream& s, const QPair<T1, T2>& p)
     return s;
 }
 #endif
+
+QT_END_HEADER
 
 #endif // QPAIR_H

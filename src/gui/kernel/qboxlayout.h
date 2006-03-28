@@ -21,6 +21,8 @@
 
 #include <limits.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QBoxLayoutPrivate;
@@ -125,5 +127,7 @@ public:
 private:
     Q_DISABLE_COPY(QVBoxLayout)
 };
+
+QT_END_HEADER
 
 #endif // QBOXLAYOUT_H

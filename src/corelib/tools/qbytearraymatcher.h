@@ -16,6 +16,8 @@
 
 #include <QtCore/qbytearray.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QByteArrayMatcherPrivate;
@@ -40,5 +42,7 @@ private:
     QByteArray q_pattern;
     uint q_skiptable[256];
 };
+
+QT_END_HEADER
 
 #endif // QBYTEARRAYMATCHER_H

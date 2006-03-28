@@ -17,6 +17,8 @@
 #include <QtGui/qpaintdevice.h>
 #include <QtCore/qstring.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_PRINTER
@@ -231,5 +233,7 @@ inline void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) 
 #endif
 
 #endif // QT_NO_PRINTER
+
+QT_END_HEADER
 
 #endif // QPRINTER_H

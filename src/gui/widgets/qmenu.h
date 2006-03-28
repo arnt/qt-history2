@@ -19,6 +19,8 @@
 #include <QtGui/qicon.h>
 #include <QtGui/qaction.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_MENU
@@ -357,5 +359,7 @@ private:
 };
 
 #endif // QT_NO_MENU
+
+QT_END_HEADER
 
 #endif // QMENU_H

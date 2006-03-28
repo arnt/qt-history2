@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 struct Q_COMPAT_EXPORT Q3Shared
@@ -25,5 +27,7 @@ struct Q_COMPAT_EXPORT Q3Shared
     bool deref()	{ return !--count; }
     uint count;
 };
+
+QT_END_HEADER
 
 #endif // Q3SHARED_H

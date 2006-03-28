@@ -16,6 +16,8 @@
 
 #include <Qt3Support/q3hbox.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3VBox : public Q3HBox
@@ -27,5 +29,7 @@ public:
 private:
     Q_DISABLE_COPY(Q3VBox)
 };
+
+QT_END_HEADER
 
 #endif // Q3VBOX_H

@@ -18,6 +18,8 @@
 #include <QtCore/qvector.h>
 #include <QtSql/qsql.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Sql)
 
 class QString;
@@ -108,5 +110,7 @@ private:
 private:
     Q_DISABLE_COPY(QSqlResult)
 };
+
+QT_END_HEADER
 
 #endif // QSQLRESULT_H

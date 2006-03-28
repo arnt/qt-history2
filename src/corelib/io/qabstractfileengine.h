@@ -20,6 +20,8 @@
 #error qabstractfileengine.h must be included before any header file that defines open
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QFileExtension;
@@ -149,5 +151,7 @@ public:
     virtual ~QAbstractFileEngineHandler();
     virtual QAbstractFileEngine *create(const QString &fileName) const = 0;
 };
+
+QT_END_HEADER
 
 #endif // QABSTRACTFILEENGINE_H

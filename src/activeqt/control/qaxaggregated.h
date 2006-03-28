@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(ActiveQt)
 
 struct IUnknown;
@@ -51,5 +53,7 @@ private:
     ULONG WINAPI AddRef() {return controllingUnknown()->AddRef(); } \
     ULONG WINAPI Release() {return controllingUnknown()->Release(); } \
 
+
+QT_END_HEADER
 
 #endif // QAXAGGREGATED_H

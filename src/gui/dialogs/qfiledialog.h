@@ -18,6 +18,8 @@
 #include <QtCore/qstring.h>
 #include <QtGui/qdialog.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_FILEDIALOG
@@ -233,5 +235,7 @@ inline void QFileDialog::setDirectory(const QDir &adirectory)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFileDialog::Options)
 
 #endif // QT_NO_FILEDIALOG
+
+QT_END_HEADER
 
 #endif // QFILEDIALOG_H

@@ -613,6 +613,15 @@ typedef unsigned long ulong;
 #define FALSE false
 #endif
 
+#if defined(Q_OS_MAC)
+#define QT_BEGIN_HEADER extern "C++" {
+#define QT_END_HEADER }
+#else
+#define QT_BEGIN_HEADER
+#define QT_END_HEADER
+#endif
+
+QT_BEGIN_HEADER
 /*
    Proper for-scoping in VC++6 and MIPSpro CC
 */
@@ -1784,6 +1793,8 @@ QT_LICENSED_MODULE(ActiveQt)
 
 #define QT_MODULE(x) \
     typedef QtValidLicenseFor##x##Module Qt##x##Module;
+
+QT_END_HEADER
 
 #endif /* __cplusplus */
 

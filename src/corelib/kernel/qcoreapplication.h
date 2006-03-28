@@ -22,6 +22,8 @@
 #include <QtCore/qstringlist.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 #if defined(Q_WS_WIN) && !defined(tagMSG)
@@ -199,5 +201,7 @@ Q_CORE_EXPORT QString qAppName();                // get application name
 Q_CORE_EXPORT QString decodeMSG(const MSG &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const MSG &);
 #endif
+
+QT_END_HEADER
 
 #endif // QCOREAPPLICATION_H

@@ -17,6 +17,8 @@
 #include <QtSql/qsqldatabase.h>
 #include <QtSql/qsqlquerymodel.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Sql)
 
 class QSqlTableModelPrivate;
@@ -101,5 +103,7 @@ protected:
     void setQuery(const QSqlQuery &query);
     QModelIndex indexInQuery(const QModelIndex &item) const;
 };
+
+QT_END_HEADER
 
 #endif // QSQLTABLEMODEL_H

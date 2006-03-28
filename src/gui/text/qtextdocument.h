@@ -18,6 +18,8 @@
 #include <QtCore/qsize.h>
 #include <QtGui/qfont.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QTextFormatCollection;
@@ -192,5 +194,7 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextDocument::FindFlags)
+
+QT_END_HEADER
 
 #endif // QTEXTDOCUMENT_H

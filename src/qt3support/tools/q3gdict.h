@@ -17,6 +17,8 @@
 #include <Qt3Support/q3ptrcollection.h>
 #include <QtCore/qstring.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3GDictIterator;
@@ -193,5 +195,7 @@ inline void *Q3GDictIterator::getKeyPtr() const
 {
     return curNode ? ((Q3PtrBucket*)curNode)->getKey() : 0;
 }
+
+QT_END_HEADER
 
 #endif // Q3GDICT_H

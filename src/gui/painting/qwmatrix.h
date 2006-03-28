@@ -16,10 +16,14 @@
 
 #include <QtGui/qmatrix.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #if defined(QT3_SUPPORT)
 typedef QMatrix QWMatrix;
 #endif
+
+QT_END_HEADER
 
 #endif // QWMATRIX_H

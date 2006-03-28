@@ -24,6 +24,8 @@
 #include <Qt3Support/q3valuelist.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QRegExp;
@@ -198,5 +200,7 @@ inline QDataStream &operator<<(QDataStream &out, const QStringList &list)
     return operator<<(out, static_cast<const QList<QString> &>(list));
 }
 #endif // QT_NO_DATASTREAM
+
+QT_END_HEADER
 
 #endif // QSTRINGLIST_H

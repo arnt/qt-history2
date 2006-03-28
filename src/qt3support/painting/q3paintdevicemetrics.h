@@ -16,6 +16,8 @@
 
 #include <QtGui/qpaintdevice.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3PaintDeviceMetrics                        // paint device metrics
@@ -37,5 +39,7 @@ public:
 private:
     const QPaintDevice *pdev;
 };
+
+QT_END_HEADER
 
 #endif // Q3PAINTDEVICEMETRICS_H

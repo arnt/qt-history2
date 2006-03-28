@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QVariant;
@@ -144,5 +146,7 @@ inline void QSizePolicy::transpose() {
     setHorizontalStretch(vStretch);
     setVerticalStretch(hStretch);
 }
+
+QT_END_HEADER
 
 #endif // QSIZEPOLICY_H

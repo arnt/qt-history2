@@ -21,6 +21,8 @@
 #include <QtCore/QHash>
 #include <QtCore/QPair>
 
+QT_BEGIN_HEADER
+
 class QExtensionManager;
 
 class QDESIGNER_EXTENSION_EXPORT QExtensionFactory : public QObject, public QAbstractExtensionFactory
@@ -43,5 +45,7 @@ private:
     mutable QMap< QPair<QString,QObject*>, QObject*> m_extensions;
     mutable QHash<QObject*, bool> m_extended;
 };
+
+QT_END_HEADER
 
 #endif // DEFAULT_EXTENSIONFACTORY_H

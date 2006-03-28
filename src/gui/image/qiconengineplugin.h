@@ -17,6 +17,8 @@
 #include <QtCore/qplugin.h>
 #include <QtCore/qfactoryinterface.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QIconEngine;
@@ -40,5 +42,7 @@ public:
     virtual QStringList keys() const = 0;
     virtual QIconEngine *create(const QString &filename) = 0;
 };
+
+QT_END_HEADER
 
 #endif // QICONENGINEPLUGIN_H

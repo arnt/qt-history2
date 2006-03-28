@@ -16,6 +16,8 @@
 
 #include <QtGui/qkbdtty_qws.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifdef QT_QWS_KBD_SL5000
@@ -39,5 +41,7 @@ private:
 };
 
 #endif // QT_NO_QWS_KBD_SL5000
+
+QT_END_HEADER
 
 #endif // QKBDSL5000_QWS_H

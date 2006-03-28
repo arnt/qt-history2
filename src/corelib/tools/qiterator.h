@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 namespace std { struct bidirectional_iterator_tag; struct random_access_iterator_tag; }
@@ -157,5 +159,7 @@ public: \
     { while (i != c->constBegin()) if (*(n = --i) == t) return true; \
       n = c->end(); return false; } \
 };
+
+QT_END_HEADER
 
 #endif // QITERATOR_H

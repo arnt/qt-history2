@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q3SemaphorePrivate;
@@ -43,5 +45,7 @@ private:
 
     Q3SemaphorePrivate *d;
 };
+
+QT_END_HEADER
 
 #endif // Q3SEMAPHORE_H

@@ -16,6 +16,8 @@
 
 #include <QtGui/qmenu.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class Q_COMPAT_EXPORT Q3PopupMenu : public QMenu
@@ -32,5 +34,7 @@ public:
 private:
     Q_DISABLE_COPY(Q3PopupMenu)
 };
+
+QT_END_HEADER
 
 #endif // QPOPUPMENU_H

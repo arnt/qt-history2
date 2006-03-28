@@ -18,6 +18,8 @@
 #include <QtGui/qwhatsthis.h>
 #include <QtGui/qwidget.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Qt3SupportLight)
 
 class QToolButton;
@@ -45,5 +47,7 @@ public:
     virtual bool clicked(const QString& href);
 
 };
+
+QT_END_HEADER
 
 #endif // Q3WHATSTHIS_H

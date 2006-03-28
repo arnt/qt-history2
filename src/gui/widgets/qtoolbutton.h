@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractbutton.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 #ifndef QT_NO_TOOLBUTTON
@@ -145,5 +147,7 @@ public Q_SLOTS:
 };
 
 #endif // QT_NO_TOOLBUTTON
+
+QT_END_HEADER
 
 #endif // QTOOLBUTTON_H

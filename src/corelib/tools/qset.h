@@ -16,6 +16,8 @@
 
 #include <QtCore/qhash.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 template <class T>
@@ -249,5 +251,7 @@ public:
     { while (c->constBegin() != i) if (*(n = --i) == t) return true;
       n = c->end(); return false;  }
 };
+
+QT_END_HEADER
 
 #endif // QSET_H
