@@ -309,7 +309,7 @@ void QAbstractSpinBox::setFrame(bool enable)
     Q_D(QAbstractSpinBox);
     d->frame = enable;
     update();
-    updateGeometry();
+    d->updateEditFieldGeometry();
 }
 
 /*!
@@ -582,12 +582,8 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *lineEdit)
         connect(d->edit, SIGNAL(cursorPositionChanged(int,int)),
                 this, SLOT(_q_editorCursorPositionChanged(int,int)));
     }
-    QStyleOptionSpinBox opt = d->getStyleOption();
-    opt.subControls = QStyle::SC_SpinBoxEditField;
-    d->edit->setGeometry(style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                 QStyle::SC_SpinBoxEditField, this));
+    d->updateEditFieldGeometry();
     d->edit->setContextMenuPolicy(Qt::NoContextMenu);
-
 
     if (isVisible())
         d->edit->show();
@@ -687,10 +683,7 @@ void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
     Q_D(QAbstractSpinBox);
     QWidget::resizeEvent(e);
 
-    QStyleOptionSpinBox opt = d->getStyleOption();
-    opt.subControls = QStyle::SC_SpinBoxEditField;
-    d->edit->setGeometry(style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                 QStyle::SC_SpinBoxEditField, this));
+    d->updateEditFieldGeometry();
     update();
 }
 
@@ -732,7 +725,6 @@ QSize QAbstractSpinBox::sizeHint() const
     hint += extra;
 
     opt.rect = rect();
-
     return style()->sizeFromContents(QStyle::CT_SpinBox, &opt, hint, this)
         .expandedTo(QApplication::globalStrut());
 }
@@ -1260,6 +1252,14 @@ QString QAbstractSpinBoxPrivate::stripped(const QString &t, int *pos) const
 
 }
 
+void QAbstractSpinBoxPrivate::updateEditFieldGeometry()
+{
+    Q_Q(QAbstractSpinBox);
+    QStyleOptionSpinBox opt = getStyleOption();
+    opt.subControls = QStyle::SC_SpinBoxEditField;
+    edit->setGeometry(q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                 QStyle::SC_SpinBoxEditField, q));
+}
 /*!
     \internal
     Returns true if a specialValueText has been set and the current value is minimum.
