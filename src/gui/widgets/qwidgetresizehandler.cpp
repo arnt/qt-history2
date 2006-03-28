@@ -287,17 +287,6 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
             widget->setGeometry(geom);
     }
 
-#if defined(Q_WS_WIN)
-    MSG msg;
-    QT_WA({
-        while(PeekMessageW(&msg, widget->winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
-            ;
-    } , {
-        while(PeekMessageA(&msg, widget->winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
-            ;
-    });
-#endif
-
     QApplication::syncX();
 }
 
