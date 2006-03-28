@@ -318,19 +318,26 @@
     \table
     \header \o Option   \o Description
     \row    \o release  \o The project is to be built in release mode.
-                        This is ignored if \c debug is also specified.
+            This is ignored if \c debug is also specified.
     \row    \o debug    \o The project is to be built in debug mode.
+    \row    \o debug_and_release \o The project is built in \e both debug and
+            release modes.
     \row    \o warn_on  \o The compiler should output as many warnings as possible.
-                        This is ignored if \c warn_off is specified.
+            This is ignored if \c warn_off is specified.
     \row    \o warn_off \o The compiler should output as few warnings as possible.
     \endtable
 
-    Note that each of the options specified in the \c CONFIG variable can also be
-    used as a condition in scopes. This enables different configurations to be
-    defined for \c release and \c debug builds, and is described in more detail
-    in the \l{qmake-advanced-usage.html#Scopes}{Scopes} section of the
-    Advanced Usage chapter of this manual.
+    The \c debug_and_release option is special in that it enables \e both debug and
+    release versions of a project to be built. In such a case, the Makefile that
+    \c qmake generates includes a rule that builds both versions, and this can be
+    invoked in the following way:
 
+    \code
+        make all
+    \endcode
+
+    Note that each of the options specified in the \c CONFIG variable can also be
+    used as a scope condition.
     You can test for the presence of certain configuration options by using the
     built-in \l{qmake Function Reference#CONFIG(config)}{CONFIG()} function.
     For example, the following lines show the function as the condition in a scope
@@ -340,6 +347,11 @@
     \skipto CONFIG(
     \printuntil else
     \printuntil /^\}$/
+
+    This enables different configurations to be defined for \c release and
+    \c debug builds, and is described in more detail in the
+    \l{qmake Advanced Usage#Scopes}{Scopes} section of the
+    \l{qmake Advanced Usage}{Advanced Usage} chapter of this manual.
 
     The following options define the type of project to be built. Note that some
     of these options only take effect when used on the relevant platform. On other
@@ -711,83 +723,103 @@
     \target CONFIG
     \section1 CONFIG
 
-     The \c CONFIG variable specifies project configuration and
+    The \c CONFIG variable specifies project configuration and
     compiler options.  The values will be recognized internally by
     \c qmake and have special meaning.  They are as follows.
 
     These \c CONFIG values control compilation flags:
 
-    \list
-    \o release - Compile with optimization enabled, ignored if
-        "debug" is specified
-    \o debug - Compile with debug options enabled
-    \o warn_on - The compiler should emit more warnings than normally, ignored if
-         "warn_off" is specified
-    \o warn_off - The compiler should only emit severe warnings.
-    \endlist
+    \table 95%
+    \header \o Option   \o Description
+    \row    \o release  \o The project is to be built in release mode.
+                        This is ignored if \c debug is also specified.
+    \row    \o debug    \o The project is to be built in debug mode.
+    \row    \o debug_and_release \o The project is built in \e both debug and
+                        release modes.
+    \row    \o warn_on  \o The compiler should output as many warnings as possible.
+                        This is ignored if \c warn_off is specified.
+    \row    \o warn_off \o The compiler should output as few warnings as possible.
+    \endtable
 
-    These options define the application/library type:
+    Since the \c debug option overrides the \c release option when both are
+    defined in the \c CONFIG variable, it is necessary to use the
+    \c debug_and_release option if you want to build both debug and release
+    versions of a project. In such a case, the Makefile that \c qmake generates
+    includes a rule that builds both versions, and this can be invoked in the
+    following way:
 
-    \list
-    \o qt - The target is a Qt application/library and requires the Qt header
-         files/library.  The proper include and library paths for the Qt
-         library will automatically be added to the project.
-    \o opengl - The target requires the OpenGL (or Mesa)
+    \code
+        make all
+    \endcode
+
+    The following options define the application/library type:
+
+    \table 95%
+    \header \o Option \o Description
+    \row \o qt \o The target is a Qt application/library and requires the Qt
+         library and header files. The proper include and library paths for the
+         Qt library will automatically be added to the project.
+    \row \o opengl \o The target requires the OpenGL (or Mesa)
         headers/libraries. The proper include and library paths for
         these libraries will automatically be added to the project.
-    \o thread - The target is a multi-threaded application or library.  The
+    \row \o thread \o The target is a multi-threaded application or library.  The
         proper defines and compiler flags will automatically be added to
         the project.
-    \o x11 - The target is a X11 application or library.  The proper
+    \row \o x11 \o The target is a X11 application or library. The proper
         include paths and libraries will automatically be added to the
         project.
-    \o windows - The target is a Win32 window application (app only). The
+    \row \o windows \o The target is a Win32 window application (app only). The
         proper include paths,compiler flags and libraries will
         automatically be added to the project.
-    \o console - The target is a Win32 console application (app only). The
+    \row \o console \o The target is a Win32 console application (app only). The
         proper include paths, compiler flags and libraries will
         automatically be added to the
         project.
-    \o dll - The target is a shared object/DLL.The proper
+    \row \o dll \o The target is a shared object/DLL.The proper
         include paths, compiler flags and libraries will automatically be
         added to the project.
-    \o staticlib - The target is a static library (lib only).  The proper
+    \row \o staticlib \o The target is a static library (lib only).  The proper
         compiler flags will automatically be added to the project.
-    \o plugin - The target is a plugin (lib only). This enables dll as well.
-    \o designer - The target is a plugin for \QD.
-    \o uic3 - Configures qmake to run uic3 on the content of FORMS3 if defined, else FORMS.
-    \o no_lflags_merge - Ensures that the list of libraries stored in the \c LIBS
-       variable is not reduced to a list of unique values before it is used.
-    \endlist
+    \row \o plugin \o The target is a plugin (lib only). This enables dll as well.
+    \row \o designer \o The target is a plugin for \QD.
+    \row \o uic3 \o Configures qmake to run uic3 on the content of \c FORMS3 if
+         defined; otherwise the contents of \c FORMS will be processed instead.
+    \row \o no_lflags_merge \o Ensures that the list of libraries stored in the
+         \c LIBS variable is not reduced to a list of unique values before it is used.
+    \endtable
 
     These options are used to set the compiler flags:
 
-    \list
-    \o exceptions - Exception support is enabled
-    \o rtti - RTTI support is enabled
-    \o stl - STL support is enabled
-    \endlist
+    \table 95%
+    \header \o Option \o Description
+    \row \o exceptions \o Exception support is enabled.
+    \row \o rtti \o RTTI support is enabled.
+    \row \o stl \o STL support is enabled.
+    \endtable
 
     These options define specific things on Windows only:
 
-    \list
-    \o flat - When using the vcapp template this will put all the source files into the source group and
-        the header files into the header group regardless of what directory they reside in.  Turning this
-        option off will group the files within the source/header group depending on the directory they
-        reside.  This is turned on by default.
-    \endlist
+    \table 95%
+    \header \o Option \o Description
+    \row \o flat \o When using the vcapp template this will put all the source
+         files into the source group and the header files into the header group
+         regardless of what directory they reside in.  Turning this
+         option off will group the files within the source/header group depending
+         on the directory they reside. This is turned on by default.
+    \endtable
 
     These options only have an effect on Mac OS X:
 
-    \list
-    \o ppc - Builds a PowerPC binary.
-    \o x86 - Builds an i386 compatible binary.
-    \o app_bundle - Puts the executable into a bundle (this is the default).
-    \o lib_bundle - Puts the library into a library bundle.
-    \endlist
+    \table 95%
+    \header \o Option \o Description
+    \row \o ppc \o Builds a PowerPC binary.
+    \row \o x86 \o Builds an i386 compatible binary.
+    \row \o app_bundle \o Puts the executable into a bundle (this is the default).
+    \row \o lib_bundle \o Puts the library into a library bundle.
+    \endtable
 
-    The \c CONFIG variable will also be checked when resolving
-    scopes.  You may assign anything to this variable.
+    The \c CONFIG variable will also be checked when resolving scopes. You may
+    assign anything to this variable.
 
     For example:
 
@@ -1143,7 +1175,7 @@
     \target QMAKE_AR_CMD
     \section1 QMAKE_AR_CMD
 
-    \e {This is used on Unix platforms only}
+    \e {This is used on Unix platforms only.}
 
     This variable contains the command for invoking the program which
     creates, modifies and extracts archives. The value of this variable is
@@ -1178,7 +1210,7 @@
     \target QMAKE_CFLAGS_MT_DLL
     \section1 QMAKE_CFLAGS_MT_DLL
 
-    \e {This is used on Windows only}
+    \e {This is used on Windows only.}
 
     This variable contains the compiler flags for creating a
     multi-threaded dll or when the version of Qt that you link
@@ -1189,7 +1221,7 @@
     \target QMAKE_CFLAGS_MT_DLLDBG
     \section1 QMAKE_CFLAGS_MT_DLLDBG
 
-    \e {This is used on Windows only}
+    \e {This is used on Windows only.}
 
     This variable contains the compiler flags for creating a debuggable
     multi-threaded dll or when the version of Qt that you link
@@ -1208,7 +1240,7 @@
     \target QMAKE_CFLAGS_SHLIB
     \section1 QMAKE_CFLAGS_SHLIB
 
-    \e {This is used on Unix platforms only}
+    \e {This is used on Unix platforms only.}
 
     This variable contains the compiler flags for creating a shared
     library. The value of this variable is typically handled by
@@ -1273,7 +1305,7 @@
     \target QMAKE_CXXFLAGS_MT_DLL
     \section1 QMAKE_CXXFLAGS_MT_DLL
 
-    \c {This is used on Windows only}
+    \c {This is used on Windows only.}
 
     This variable contains the C++ compiler flags for creating a multi-threaded
     dll. The value of this variable is typically handled by
@@ -1283,7 +1315,7 @@
     \target QMAKE_CXXFLAGS_MT_DLLDBG
     \section1 QMAKE_CXXFLAGS_MT_DLLDBG
 
-    \c {This is used on Windows only}
+    \c {This is used on Windows only.}
 
     This variable contains the C++ compiler flags for creating a multi-threaded debuggable
     dll. The value of this variable is typically handled by
@@ -1466,7 +1498,7 @@
     \target QMAKE_INCDIR_X11
     \section1 QMAKE_INCDIR_X11
 
-    \e {This is used on Unix platforms only}
+    \e {This is used on Unix platforms only.}
 
     This variable contains the location of X11 header file paths to be
     added to INCLUDEPATH when building a X11 application.  The
@@ -1476,7 +1508,7 @@
     \target QMAKE_LFLAGS_CONSOLE
     \section1 QMAKE_LFLAGS_CONSOLE
 
-    \e {This is used on Windows only}
+    \e {This is used on Windows only.}
 
     This variable contains link flags when building console
     programs.  The value of this variable is typically handled by
@@ -1485,7 +1517,7 @@
 
     \section1 QMAKE_LFLAGS_CONSOLE_DLL
 
-    \e {This is used on Windows only}
+    \e {This is used on Windows only.}
 
     This variable contains link flags when building console
     dlls.  The value of this variable is typically handled by
@@ -1543,7 +1575,7 @@
 
     \section1 QMAKE_LFLAGS_WINDOWS
 
-    \e {This is used on Windows only}
+    \e {This is used on Windows only.}
 
     This variable contains link flags when building windows projects.
     The value of this variable is typically handled by \c qmake or
@@ -1551,7 +1583,7 @@
 
     \section1 QMAKE_LFLAGS_WINDOWS_DLL
 
-    \e {This is used on Windows only}
+    \e {This is used on Windows only.}
 
     This variable contains link flags when building windows dll projects.
     The value of this variable is typically handled by \c qmake or
@@ -1566,7 +1598,7 @@
 
     \section1 QMAKE_LIBDIR_FLAGS
 
-    \e {This is used on Unix platforms only}
+    \e {This is used on Unix platforms only.}
 
     This variable contains the location of all library
     directory with -L prefixed.  The value of this variable is typically handled by
@@ -1589,7 +1621,7 @@
 
     \section1 QMAKE_LIBDIR_X11
 
-    \e {This is used on Unix platforms only}
+    \e {This is used on Unix platforms only.}
 
     This variable contains the location of the X11 library
     directory.The value of this variable is typically handled by
@@ -1604,7 +1636,7 @@
 
     \section1 QMAKE_LIBS_CONSOLE
 
-    \e {This is used on Windows only}
+    \e {This is used on Windows only.}
 
     This variable contains all project libraries that should be linked against
     when building a console application.  The value of this
@@ -1631,7 +1663,7 @@
 
     \section1 QMAKE_LIBS_QT_DLL
 
-    \e {This is used on Windows only}
+    \e {This is used on Windows only.}
 
     This variable contains all Qt libraries when Qt is built as a dll.  The
     value of this variable is typically handled by \c qmake or
@@ -1653,7 +1685,7 @@
 
     \section1 QMAKE_LIBS_RT
 
-    \e {This is used with Borland compilers only}
+    \e {This is used with Borland compilers only.}
 
     This variable contains the runtime library needed to link against when
     building an application.  The
@@ -1662,7 +1694,7 @@
 
     \section1 QMAKE_LIBS_RTMT
 
-    \e {This is used with Borland compilers only}
+    \e {This is used with Borland compilers only.}
 
     This variable contains the runtime library needed to link against when
     building a multi-threaded application.  The
@@ -1671,7 +1703,7 @@
 
     \section1 QMAKE_LIBS_THREAD
 
-    \e {This is used on Unix platforms only}
+    \e {This is used on Unix platforms only.}
 
     This variable contains all libraries that need to be linked against
     when building a multi-threaded application.  The
@@ -1680,7 +1712,7 @@
 
     \section1 QMAKE_LIBS_WINDOWS
 
-    \e {This is used on Windows only}
+    \e {This is used on Windows only.}
 
     This variable contains all windows libraries.The value of this
     variable is typically handled by \c qmake or
@@ -1688,7 +1720,7 @@
 
     \section1 QMAKE_LIBS_X11
 
-    \e {This is used on Unix platforms only}
+    \e {This is used on Unix platforms only.}
 
     This variable contains all X11 libraries.The value of this
     variable is typically handled by \c qmake or
@@ -1696,7 +1728,7 @@
 
     \section1 QMAKE_LIBS_X11SM
 
-    \e {This is used on Unix platforms only}
+    \e {This is used on Unix platforms only.}
 
     This variable contains all X11 session management libraries.  The
     value of this variable is typically handled by \c qmake or
