@@ -787,7 +787,7 @@ bool QItemDelegate::editorEvent(QEvent *event,
             return false;
         QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignLeft | Qt::AlignVCenter,
                                               check(option, option.rect, value).size(),
-                                              QRect(option.rect.x(), option.rect.y(),
+                                              QRect(option.rect.x() + textMargin, option.rect.y(),
                                                     option.rect.width(), option.rect.height()));
         if (!checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
             return false;
@@ -804,7 +804,7 @@ bool QItemDelegate::editorEvent(QEvent *event,
             return model->setData(index, state, Qt::CheckStateRole);
         }
     }
-        
+
     return false;
 }
 
