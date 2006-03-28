@@ -106,8 +106,6 @@ private:
     void desc(const char *description, int startingAt = 0, int wrapIndent = 0);
     void desc(const char *option, const char *description, bool skipIndent = false, char fillChar = '.');
     void desc(const char *mark_option, const char *mark, const char *option, const char *description, char fillChar = '.');
-    void dWCE(const char *option, const char *description, bool skipIndent = false, char fillChar = '.');
-    void dWCE(const char *mark_option, const char *mark, const char *option, const char *description, char fillChar = '.');
 };
 
 class MakeItem

@@ -1,6 +1,8 @@
 #include "configureapp.h"
 #include "environment.h"
-#include "keydec.h"
+#ifdef COMMERCIAL_VERSION
+#  include "tools.h"
+#endif
 
 #include <QDate>
 #include <qdir.h>
@@ -21,9 +23,8 @@ std::ostream &operator<<( std::ostream &s, const QString &val ) {
 
 using namespace std;
 
-// Macros to simplify options marking, and WinCE only code
+// Macros to simplify options marking
 #define MARK_OPTION(x,y) ( dictionary[ #x ] == #y ? "*" : " " )
-#define WCE(x) if ( dictionary[ "QMAKESPEC" ].startsWith( "wince-" ) ) { x }
 
 
 bool writeToFile(const char* text, const QString &filename)
@@ -176,27 +177,6 @@ Configure::Configure( int& argc, char** argv )
     QString tmp = dictionary[ "QMAKESPEC" ];
     tmp = tmp.mid( tmp.lastIndexOf( "\\" ) + 1 );
     dictionary[ "QMAKESPEC" ] = tmp;
-
-#if !defined(EVAL)
-    WCE( {
-	// WinCE has different defaults than the desktop version
-	dictionary[ "QMAKE_INTERNAL" ]	= "no";
-	dictionary[ "BUILD_QMAKE" ]	= "no";
-	dictionary[ "ACCESSIBILITY" ]	= "no"; // < CE 4.0
-	dictionary[ "STL" ]		= "no"; // < CE 4.0
-	dictionary[ "OPENGL" ]		= "no"; // < CE 4.0
-	dictionary[ "STYLE_MOTIF" ]	= "no";
-	dictionary[ "STYLE_PLASTIQUE" ]	= "no";
-	dictionary[ "STYLE_CLEANLOOKS" ]= "no";
-	dictionary[ "STYLE_CDE" ]	= "no";
-	dictionary[ "STYLE_WINDOWSXP" ] = "no";
-	dictionary[ "STYLE_POCKETPC" ]	= "yes";
-
-	// Disabled modules for CE
-	disabledModules += "opengl";		// < CE 4.0
-	disabledModules += "sql";		// For now
-    } );
-#endif
 }
 
 Configure::~Configure()
@@ -842,24 +822,6 @@ void Configure::desc(const char *mark_option, const char *mark, const char *opti
     desc(option, description, true, fillChar);
 }
 
-// For Windows CE options only
-/*!
-    Same as above, but only outputs if mkspec starts with "wince-".
-*/
-void Configure::dWCE(const char *option, const char *description, bool skipIndent, char fillChar)
-{
-    if (dictionary["QMAKESPEC"].startsWith("wince-"))
-        desc(option, description, skipIndent, fillChar);
-}
-
-/*!
-    Same as above, but only outputs if mkspec starts with "wince-".
-*/
-void Configure::dWCE(const char *mark_option, const char *mark, const char *option, const char *description, char fillChar)
-{
-    if (dictionary["QMAKESPEC"].startsWith("wince-"))
-        desc(mark_option, mark, option, description, fillChar);
-}
 // Output helper functions ---------------------------------[ Stop ]-
 
 
@@ -997,9 +959,6 @@ bool Configure::displayHelp()
         desc("DSPFILES", "no",  "-no-dsp",              "Do not generate VC++ .dsp files.");
         desc("DSPFILES", "yes", "-dsp",                 "Generate VC++ .dsp files, only if spec \"win32-msvc\".\n");
 
-        dWCE("VCPFILES", "no",  "-no-vcp",              "Do not generate eMbedded VC++ .vcp-files.");
-        dWCE("VCPFILES", "yes", "-vcp",                 "Generate eMbedded VC++ .vcp-files, only if platform \"wince-*\".\n");
-
         desc("VCPROJFILES", "no", "-no-vcproj",         "Do not generate VC++ .vcproj files.");
         desc("VCPROJFILES", "yes", "-vcproj",           "Generate VC++ .vcproj files, only if platform \"win32-msvc.net\".\n");
 
@@ -1021,7 +980,6 @@ bool Configure::displayHelp()
         desc(                   "-no-style-<style>",    "Disable <style> entirely.");
         desc(                   "-qt-style-<style>",    "Enable <style> in the Qt Library.\nAvailable styles: ");
 
-        dWCE("STYLE_POCKETPC", "yes", "",               "  pocketpc", ' ');
         desc("STYLE_WINDOWS", "yes", "",                "  windows", ' ');
         desc("STYLE_WINDOWSXP", "auto", "",             "  windowsxp", ' ');
         desc("STYLE_PLASTIQUE", "yes", "",              "  plastique", ' ');
@@ -1130,7 +1088,7 @@ QString Configure::defaultTo(const QString &option)
 }
 
 /*!
-    Checks the system for the availablilty of a feature.
+    Checks the system for the availability of a feature.
     Returns true if the feature is available, else false.
 */
 bool Configure::checkAvailability(const QString &part)
@@ -1622,7 +1580,6 @@ void Configure::generateConfigfiles()
 	if(dictionary["STYLE_WINDOWSXP"] != "yes")   qconfigList += "QT_NO_STYLE_WINDOWSXP";
 	if(dictionary["STYLE_MOTIF"] != "yes")       qconfigList += "QT_NO_STYLE_MOTIF";
 	if(dictionary["STYLE_CDE"] != "yes")         qconfigList += "QT_NO_STYLE_CDE";
-WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_POCKETPC"; })
 
         if(dictionary["GIF"] == "yes")              qconfigList += "QT_BUILTIN_GIF_READER=1";
         if(dictionary["PNG"] == "no")               qconfigList += "QT_NO_IMAGEFORMAT_PNG";
@@ -1754,10 +1711,10 @@ void Configure::displayConfig()
     cout << "    PATH=\r\n      " << env << endl;
 
     if (dictionary["EDITION"] == "Trolltech") {
-	cout << "Trolltech license file used (" << dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL" << ")" << endl;
+	cout << "Trolltech license file used (" << dictionary["LICENSE FILE"] << ")" << endl;
     } else if (dictionary["EDITION"] == "OpenSource") {
         cout << "You are licensed to use this software under the terms of the GNU GPL." << endl;
-        cout << "See " << dictionary["QT_SOURCE_TREE"] + "\\LICENSE.GPL" << endl << endl;
+        cout << "See " << dictionary["LICENSE FILE"] << endl << endl;
     } else {
         QString l1 = licenseInfo[ "LICENSEE" ];
         QString l2 = licenseInfo[ "LICENSEID" ];
@@ -1794,7 +1751,6 @@ void Configure::displayConfig()
     cout << "    MNG support............." << dictionary[ "MNG" ] << endl << endl;
 
     cout << "Styles:" << endl;
-WCE( { cout << "    PocketPC............." << dictionary[ "STYLE_POCKETPC" ] << endl; } );
     cout << "    Windows................." << dictionary[ "STYLE_WINDOWS" ] << endl;
     cout << "    Windows XP.............." << dictionary[ "STYLE_WINDOWSXP" ] << endl;
     cout << "    Plastique..............." << dictionary[ "STYLE_PLASTIQUE" ] << endl;
@@ -1972,9 +1928,6 @@ void Configure::generateMakefiles()
 	QString spec = dictionary[ "QMAKESPEC" ];
 	if( spec != "win32-msvc" )
 	    dictionary[ "DSPFILES" ] = "no";
-
-	if( !spec.startsWith( "wince-" ) )
-	    dictionary[ "VCPFILES" ] = "no";
 
 	if( spec != "win32-msvc.net" && spec != "win32-msvc2005" )
 	    dictionary[ "VCPROJFILES" ] = "no";
@@ -2168,7 +2121,8 @@ bool Configure::showLicense(const QString &licenseFile)
 
 void Configure::readLicense()
 {
-    if (QFile::exists( dictionary["QT_SOURCE_TREE"] + "/LICENSE.GPL")) {
+    dictionary["LICENSE FILE"] = dictionary["QT_SOURCE_TREE"] + "/LICENSE.GPL";
+    if (QFile::exists(dictionary["LICENSE FILE"])) {
         cout << endl << "This is the Qt/Windows Open Source Edition." << endl;
         licenseInfo["LICENSEE"] = "Open Source";
         dictionary["EDITION"] = "OpenSource";
@@ -2180,193 +2134,37 @@ void Configure::readLicense()
             return;
         }
         cout << endl;
-        if (!showLicense(dictionary["QT_SOURCE_TREE"] + "/LICENSE.GPL")) {
+        if (!showLicense(dictionary["LICENSE FILE"])) {
             cout << "Configuration aborted since license was not accepted";
             dictionary["DONE"] = "error";
             return;
         }
         return;
-    } else if(QFile::exists( dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL")) {
-        QFile internalLicenseFile( dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL" );
-        if( !internalLicenseFile.open( QFile::ReadOnly ) ) {
+    }
+#ifndef COMMERCIAL_VERSION
+    else {
+        cout << endl << "Cannot find the GPL license file (" << dictionary["LICENSE FILE"] << ")" << endl;
+        dictionary["DONE"] = "error";
+    }
+#else
+    else if (Tools::checkInternalLicense(dictionary)) {
+        licenseInfo["LICENSEE"] = dictionary["EDITION"];
+        return;
+    }
+
+    Tools::checkLicense(dictionary, licenseInfo, firstLicensePath());
+    if (dictionary["DONE"] != "error") {
+        // give the user some feedback, and prompt for license acceptance
+        cout << endl << "This is the Qt/Windows " << dictionary["EDITION"] << " Edition."<< endl << endl;
+        if (!showLicense(dictionary["LICENSE FILE"])) {
             cout << "Configuration aborted since license was not accepted";
             dictionary["DONE"] = "error";
             return;
         }
-        QString buffer = internalLicenseFile.readLine(1024);
-        if ( !buffer.startsWith("Trolltech employees and agents") ) {
-            cout << "Configuration aborted since license was not accepted";
-            dictionary["DONE"] = "error";
-            internalLicenseFile.close();
-            return;
-        }
-        internalLicenseFile.close();
-
-        cout << endl << "This is the Qt/Windows Trolltech Edition." << endl << endl;
-        licenseInfo["LICENSEE"] = "Trolltech";
-        dictionary["EDITION"] = "Trolltech";
-        dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
-        dictionary[ "QMAKE_INTERNAL" ] = "yes";
-        return;
     }
-
-    // Read in the license file
-    QString licensePath = firstLicensePath();
-    QFile licenseFile( licensePath );
-    if( !licensePath.isEmpty() && licenseFile.open( QFile::ReadOnly ) ) {
-	cout << "Reading license file in....." << qPrintable(firstLicensePath()) << endl;
-
-	QString buffer = licenseFile.readLine(1024);
-        while (!buffer.isEmpty()) {
-	    if( buffer[ 0 ] != '#' ) {
-		QStringList components = buffer.split( '=' );
-		if ( components.size() >= 2 ) {
-		    QStringList::Iterator it = components.begin();
-		    QString key = (*it++).trimmed().replace( "\"", QString() ).toUpper();
-		    QString value = (*it++).trimmed().replace( "\"", QString() );
-		    licenseInfo[ key ] = value;
-		}
-	    }
-	    // read next line
-	    buffer = licenseFile.readLine(1024);
-	}
-        licenseFile.close();
-    } else {
-	cout << "License file not found in " << QDir::homePath() << endl;
-        cout << "Please put the Qt license file, '.qt-license' in your home "
-             << "directory and run configure again.";
-        dictionary["DONE"] = "error";
-        return;
-   }
-
-    // Verify license info...
-    QString licenseKey = licenseInfo["LICENSEKEYEXT"];
-
-    KeyDecoder keyDec(licenseKey.toLatin1());
-    if (!keyDec.IsValid()) {
-        cout << "License file does not contain proper license key." << endl;
-        dictionary["DONE"] = "error";
-        return;
-    } else if (QString::number(keyDec.getLicenseID()) != licenseInfo["LICENSEID"]) {
-        CDate expiryDate = keyDec.getExpiryDate();
-        QString dateStr;
-        dateStr.sprintf("%04d%02d%02d", expiryDate.year(), expiryDate.month(), expiryDate.day());
-        cout << "License file does not contain proper license key." << endl;
-        cout << dateStr << endl;
-        cout << licenseInfo["EXPIRYDATE"];
-        dictionary["DONE"] = "error";
-        return;
-    }
-
-    uint products = keyDec.getProducts();;
-    uint platforms = keyDec.getPlatforms();
-    uint licenseSchema = keyDec.getLicenseSchema();
-    uint licenseFeatures = keyDec.getLicenseFeatures();
-    uint licenseID = keyDec.getLicenseID();
-
-    // determine which edition we are licensed to use
-    QString licenseType;
-    switch (licenseSchema) {
-    case KeyDecoder::FullCommercial:
-        licenseType = "Commercial";
-        if (products & KeyDecoder::QtUniversal) {
-            dictionary["EDITION"] = "Universal";
-            dictionary["QT_EDITION"] = "QT_EDITION_UNIVERSAL";
-        } else if (products & KeyDecoder::QtDesktop) {
-            dictionary["EDITION"] = "Desktop";
-            dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
-        } else if (products & KeyDecoder::QtDesktopLight) {
-            dictionary["EDITION"] = "DesktopLight";
-            dictionary["QT_EDITION"] = "QT_EDITION_DESKTOPLIGHT";
-        } else if (products & KeyDecoder::QtConsole) {
-            dictionary["EDITION"] = "Console";
-            dictionary["QT_EDITION"] = "QT_EDITION_CONSOLE";
-        }
-        break;
-    case KeyDecoder::SupportedEvaluation:
-    case KeyDecoder::UnsupportedEvaluation:
-    case KeyDecoder::FullSourceEvaluation:
-        licenseType = "Evaluation";
-        if (products & KeyDecoder::QtDesktop) {
-            dictionary["EDITION"] = "Evaluation";
-            dictionary["QT_EDITION"] = "QT_EDITION_EVALUATION";
-        }
-        break;
-    case KeyDecoder::Academic:
-        licenseType = "Academic";
-        if (products & KeyDecoder::QtDesktop) {
-            dictionary["EDITION"] = "Academic";
-            dictionary["QT_EDITION"] = "QT_EDITION_ACADEMIC";
-        }
-        break;
-    case KeyDecoder::Educational:
-        licenseType = "Educational";
-        if (products & KeyDecoder::QtDesktop) {
-            dictionary["EDITION"] = "Educational";
-            dictionary["QT_EDITION"] = "QT_EDITION_EDUCATIONAL";
-        }
-        break;
-    }
-    if (licenseType.isEmpty()
-        || dictionary["EDITION"].isEmpty()
-        || dictionary["QT_EDITION"].isEmpty()) {
-        cout << "License file does not contain proper license key." << endl;
-        dictionary["DONE"] = "error";
-        return;
-    }
-
-    // verify that we are licensed to use Qt on this platform
-    if (!(platforms & KeyDecoder::Windows)) {
-        cout << "You are not licensed for the Qt/Windows platform." << endl << endl;
-        cout << "Please contact sales@trolltech.com to upgrade your license" << endl;
-        cout << "to include the Qt/Windows platform, or install the" << endl;
-        cout << "Qt Open Source Edition if you intend to develop free software." << endl;
-        dictionary["DONE"] = "error";
-        return;
-    }
-
-    // copy one of .LICENSE-*(-US) to .LICENSE
-    QString toLicenseFile = dictionary["QT_SOURCE_TREE"] + "/LICENSE";
-    QString fromLicenseFile;
-    switch (licenseSchema) {
-    case KeyDecoder::FullCommercial:
-        fromLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE";
-        break;
-    case KeyDecoder::SupportedEvaluation:
-    case KeyDecoder::UnsupportedEvaluation:
-    case KeyDecoder::FullSourceEvaluation:
-        fromLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-EVALUATION";
-        break;
-    case KeyDecoder::Academic:
-        fromLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-ACADEMIC";
-        break;
-    case KeyDecoder::Educational:
-        fromLicenseFile = dictionary["QT_SOURCE_TREE"] + "/.LICENSE-EDUCATIONAL";
-        break;
-    }
-    if (licenseFeatures & KeyDecoder::USCustomer)
-        fromLicenseFile += "-US";
-    if (!QFileInfo(toLicenseFile).exists()) {
-        if (!CopyFileA(QDir::convertSeparators(fromLicenseFile).toLocal8Bit(),
-                       QDir::convertSeparators(toLicenseFile).toLocal8Bit(), FALSE)) {
-            cout << "Failed to copy license file";
-            dictionary["DONE"] = "error";
-            return;
-        }
-    }
-
-    // give the user some feedback, and prompt for license acceptence
-    cout << endl << "This is the Qt/Windows " << dictionary["EDITION"] << " Edition."<< endl << endl;
-
-    if (!showLicense(toLicenseFile)) {
-        cout << "Configuration aborted since license was not accepted";
-        dictionary["DONE"] = "error";
-        return;
-    }
+#endif // COMMERCIAL_VERSION
 }
-#endif
 
-#if !defined(EVAL)
 void Configure::reloadCmdLine()
 {
     if( dictionary[ "REDO" ] == "yes" ) {
@@ -2383,9 +2181,7 @@ void Configure::reloadCmdLine()
 	}
     }
 }
-#endif
 
-#if !defined(EVAL)
 void Configure::saveCmdLine()
 {
     if( dictionary[ "REDO" ] != "yes" ) {
@@ -2400,7 +2196,7 @@ void Configure::saveCmdLine()
 	}
     }
 }
-#endif
+#endif // !EVAL
 
 bool Configure::isDone()
 {

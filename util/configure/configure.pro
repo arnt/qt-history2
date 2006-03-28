@@ -94,11 +94,15 @@ SOURCES	 = main.cpp configureapp.cpp environment.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qpoint.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qrect.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/kernel/qmetatype.cpp
-	   
 
-HEADERS += $$QT_SOURCE_TREE/util/scripts/mac-binary/package/InstallerPane/keydec.h
-SOURCES += $$QT_SOURCE_TREE/util/scripts/mac-binary/package/InstallerPane/keydec.cpp
+exists(commercial/tools.h):exists(commercial/tools.cpp) {
+    DEFINES += COMMERCIAL_VERSION
+    HEADERS += commercial/tools.h
+    SOURCES += commercial/tools.cpp
+    INCLUDEPATH += commercial
+} else {
+    DEFINES += GPL_VERSION
+}
 
 INCLUDEPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
 	       $$QT_SOURCE_TREE/include/QtCore \
-	       $$QT_SOURCE_TREE/util/scripts/mac-binary/package/InstallerPane
