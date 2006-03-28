@@ -5743,10 +5743,14 @@ static QByteArray encodeEntity(const QByteArray& str)
 
 void QDomEntityPrivate::save(QTextStream& s, int, int) const
 {
+    QString _name = name;
+    if (_name.startsWith(QLatin1Char('%')))
+        _name = QLatin1String("% ") + _name.mid(1);
+
     if (m_sys.isNull() && m_pub.isNull()) {
-        s << "<!ENTITY " << name << " \"" << encodeEntity(value.toUtf8()) << "\">" << endl;
+        s << "<!ENTITY " << _name << " \"" << encodeEntity(value.toUtf8()) << "\">" << endl;
     } else {
-        s << "<!ENTITY " << name << " ";
+        s << "<!ENTITY " << _name << " ";
         if (m_pub.isNull()) {
             s << "SYSTEM " << quotedValue(m_sys);
         } else {
@@ -6700,6 +6704,21 @@ bool QDomDocument::setContent(const QString& text, bool namespaceProcessing, QSt
     QDomNode::prefix(), QDomNode::localName() and
     QDomNode::namespaceURI() return an empty string.
 
+    Entity references are handled as follows:
+    \list
+    \li References to internal general entities and character entities occuring in the
+        content are included. The result is a QDomText node with the references replaced
+        by their corresponding entity values.
+    \li References to parameter entities occuring in the internal subset are included.
+        The result is a QDomDocumentType node which contains entity and notation declarations
+        with the references replaced by their corresponding entity values.
+    \li Any general parsed entity reference which is not defined in the internal subset and
+        which occurs in the content is represented as a QDomEntityReference node.
+    \li Any parsed entity reference which is not defined in the internal subset and which
+        occurs outside of the content is replaced with an empty string.
+    \li Any unparsed entity reference is replaced with an empty string.
+    \endlist
+
     \sa QDomNode::namespaceURI() QDomNode::localName()
     QDomNode::prefix() QString::isNull() QString::isEmpty()
 */
@@ -7425,8 +7444,13 @@ bool QDomHandler::processingInstruction(const QString& target, const QString& da
     return true;
 }
 
+extern bool qt_xml_skipped_entity_in_content;
 bool QDomHandler::skippedEntity(const QString& name)
 {
+    // we can only handle inserting entity references into content
+    if (!qt_xml_skipped_entity_in_content)
+        return true;
+
     QDomNodePrivate *n = doc->createEntityReference(name);
     n->setLocation(locator->lineNumber(), locator->columnNumber());
     node->appendChild(n);
