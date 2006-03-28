@@ -1795,9 +1795,15 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
 	}
 
         t << "compiler_" << (*it) << "_make_all:";
-        for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
-            QString in = Option::fixPathToTargetOS((*input), false);
-            t << " " << escapeFilePath(replaceExtraCompilerVariables(tmp_out, (*input), QString()));
+        if(project->values((*it) + ".CONFIG").indexOf("combine") != -1) {
+            // compilers with a combined input only have one output
+            QString input = project->values((*it) + ".output");
+            t << " " << escapeFilePath(replaceExtraCompilerVariables(tmp_out, input, QString()));
+        } else {
+            for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
+                QString in = Option::fixPathToTargetOS((*input), false);
+                t << " " << escapeFilePath(replaceExtraCompilerVariables(tmp_out, (*input), QString()));
+            }
         }
         t << endl;
 
@@ -1865,7 +1871,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             if(!tmp_dep.isEmpty())
                 deps += fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
             for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
-                deps += findDependencies((*input)).join(" ");
+                deps += findDependencies((*input));
                 inputs += Option::fixPathToTargetOS((*input), false);
                 if(!tmp_dep_cmd.isEmpty() && doDepends()) {
                     char buff[256];
