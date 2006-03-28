@@ -92,6 +92,8 @@ QCursorData *QCursorData::setBitmap(const QBitmap &bitmap, const QBitmap &mask, 
     d->bg.red   = 0xffff;
     d->bg.green = 0xffff;
     d->bg.blue  = 0xffff;
+    d->update(); // Xcursor's backward compatibility hack needs the cursor to be created
+                 // right after the bitmaps are created and filled with data
     return d;
 }
 

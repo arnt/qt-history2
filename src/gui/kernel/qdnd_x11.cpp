@@ -1235,7 +1235,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
     }
 }
 
-void QDragManager::updateCursor()
+void QDragManager::createCursors()
 {
     if (!noDropCursor) {
         noDropCursor = new QCursor(Qt::ForbiddenCursor);
@@ -1243,7 +1243,10 @@ void QDragManager::updateCursor()
         copyCursor = new QCursor(dragCursor(Qt::CopyAction), 0,0);
         linkCursor = new QCursor(dragCursor(Qt::LinkAction), 0,0);
     }
+}
 
+void QDragManager::updateCursor()
+{
     QCursor *c;
     if (willDrop) {
         if (global_accepted_action == Qt::CopyAction) {

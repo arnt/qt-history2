@@ -134,6 +134,9 @@ public:
     QDrag *object;
 
     void updateCursor();
+#if defined(Q_WS_X11)
+    void createCursors();
+#endif
 
     bool beingCancelled;
     bool restoreCursor;
