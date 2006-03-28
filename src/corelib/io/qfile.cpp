@@ -84,7 +84,7 @@ QFilePrivate::openExternalFile(int flags, FILE *fh)
 void
 QFilePrivate::setError(QFile::FileError err)
 {
-    Q_Q(QFile);    
+    Q_Q(QFile);
     error = err;
     q->setErrorString(QT_TRANSLATE_NOOP(QIODevice, QLatin1String("Unknown error")));
 }
@@ -92,7 +92,7 @@ QFilePrivate::setError(QFile::FileError err)
 void
 QFilePrivate::setError(QFile::FileError err, const QString &errStr)
 {
-    Q_Q(QFile);    
+    Q_Q(QFile);
     error = err;
     q->setErrorString(errStr);
 }
@@ -100,7 +100,7 @@ QFilePrivate::setError(QFile::FileError err, const QString &errStr)
 void
 QFilePrivate::setError(QFile::FileError err, int errNum)
 {
-    Q_Q(QFile);    
+    Q_Q(QFile);
     error = err;
     q->setErrorString(qt_error_string(errNum));
 }
@@ -191,7 +191,7 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     claims to have size 0). Instead, you should either call readAll(), or call
     read() or readLine() repeatedly until no more data can be read. The next
     example uses QTextStream to read \c /proc/modules line by line:
-    
+
     \skipto readRegularEmptyFile_snippet
     \skipto QFile
     \printto /^\}/
@@ -592,7 +592,7 @@ QFile::remove(const QString &fileName)
 
     If a file with the name \a newName already exists, rename() returns false
     (i.e., QFile will not overwrite it).
-    
+
     The file is closed before it is renamed.
 
     \sa setFileName()
@@ -666,7 +666,7 @@ QFile::rename(const QString &oldName, const QString &newName)
 }
 
 /*!
-    Creates a link named \a linkName that points to the file currently specified by fileName(). 
+    Creates a link named \a linkName that points to the file currently specified by fileName().
     What a link is depends on the underlying filesystem
     (be it a shortcut on Windows or a symbolic link on Unix). Returns
     true if successful; otherwise returns false.
@@ -709,13 +709,14 @@ QFile::link(const QString &fileName, const QString &linkName)
 }
 
 /*!
-    Copies the file currently specified by fileName() to \a newName.
-    Returns true if successful; otherwise returns false.
+    Copies the file currently specified by fileName() to a file called
+    \a newName.  Returns true if successful; otherwise returns false.
 
-    If a file with the name \a newName already exists, copy() returns false
-    (i.e., QFile will not overwrite it).
+    Note that if a file with the name \a newName already exists,
+    copy() returns false (i.e. QFile will not overwrite it).
 
-    The file is closed before it is copied.
+    The source file is closed before it is copied, and the new file's
+    timestamp will be the time of the copy operation.
 
     \sa setFileName()
 */
@@ -970,7 +971,7 @@ QFile::handle() const
 {
     if (!isOpen())
         return -1;
-    
+
     if (QAbstractFileEngine *engine = fileEngine())
         return engine->handle();
     return -1;
@@ -1145,7 +1146,7 @@ qint64 QFile::pos() const
 /*!
   Returns true if the end of the file has been reached; otherwise returns
   false.
-  
+
   For regular empty files on Unix (e.g. those in \c /proc), this function
   returns true, since the file system reports that the size of such a file is
   0. Therefore, you should not depend on atEnd() when reading data from such a

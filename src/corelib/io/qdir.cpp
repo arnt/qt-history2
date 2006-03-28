@@ -182,7 +182,7 @@ static int qt_cmp_si(const void *n1, const void *n2)
         return f1->item.isDir() ? -1 : 1;
     if ((qt_cmp_si_sort_flags & QDir::DirsLast) && (f1->item.isDir() != f2->item.isDir()))
         return f1->item.isDir() ? 1 : -1;
-    
+
     int r = 0;
     int sortBy = (qt_cmp_si_sort_flags & QDir::SortByMask)
                  | (qt_cmp_si_sort_flags & QDir::Type);
@@ -942,10 +942,11 @@ QDir::Filters QDir::filter() const
     and directories will include symbolic links to files and directories
     unless you set the NoSymLinks value.
 
-    A default constructed QDir will not filter out files based on their
-    permissions, so entryList() and entryInfoList() will all files that
-    are readable, writable, executable, or any combination of the three.
-    This makes the default easy to write, and at the same time useful.
+    A default constructed QDir will not filter out files based on
+    their permissions, so entryList() and entryInfoList() will return
+    all files that are readable, writable, executable, or any
+    combination of the three.  This makes the default easy to write,
+    and at the same time useful.
 
     For example, setting the \c Readable, \c Writable, and \c Files
     flags allows all files to be listed for which the application has read
@@ -953,6 +954,11 @@ QDir::Filters QDir::filter() const
     also included in this combination then all drives, directories, all
     files that the application can read, write, or execute, and symlinks
     to such files/directories can be listed.
+
+    To retrieve the permissons for a directory, use the
+    entryInfoList() function to get the associated QFileInfo objects
+    and then use the QFileInfo::permissons() to obtain the permissions
+    and ownership for each file.
 */
 
 /*!
