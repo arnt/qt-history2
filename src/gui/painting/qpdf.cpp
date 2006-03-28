@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#include <qdebug.h>
 #include "qpdf_p.h"
 
 #ifndef QT_NO_PRINTER
@@ -900,7 +901,7 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyTransform)
         d->stroker.matrix = state.matrix();
-
+    
     if (flags & DirtyPen) {
         d->pen = state.pen();
         d->hasPen = d->pen != Qt::NoPen;
@@ -921,17 +922,19 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
         d->backgroundMode = state.backgroundMode();
 
     bool ce = d->clipEnabled;
-    if (flags & DirtyClipEnabled)
-        d->clipEnabled = state.isClipEnabled();
-    if (flags & DirtyClipPath)
+    if (flags & DirtyClipPath) {
+        d->clipEnabled = true;
         updateClipPath(state.clipPath(), state.clipOperation());
-    if (flags & DirtyClipRegion) {
+    } else if (flags & DirtyClipRegion) {
+        d->clipEnabled = true;
         QPainterPath path;
         QVector<QRect> rects = state.clipRegion().rects();
         for (int i = 0; i < rects.size(); ++i)
             path.addRect(rects.at(i));
         updateClipPath(path, state.clipOperation());
         flags |= DirtyClipPath;
+    } else if (flags & DirtyClipEnabled) {
+        d->clipEnabled = state.isClipEnabled();
     }
 
     if (ce != d->clipEnabled)
@@ -969,10 +972,11 @@ void QPdfBaseEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
 {
     Q_D(QPdfBaseEngine);
     QPainterPath path = d->stroker.matrix.map(p);
-    //qDebug() << "updateClipPath: " << matrix << p.boundingRect() << path.boundingRect();
+    //qDebug() << "updateClipPath: " << d->stroker.matrix << p.boundingRect() << path.boundingRect() << op;
 
     if (op == Qt::NoClip) {
         d->clipEnabled = false;
+        d->clips.clear();
     } else if (op == Qt::ReplaceClip) {
         d->clips.clear();
         d->clips.append(path);
