@@ -583,6 +583,7 @@ QWSBackingStore::QWSBackingStore()
     isSharedMemory = false;
     memLock = 0;
     ownsMemory = false;
+    _windowType = -1; // invalid
 }
 
 QWSBackingStore::~QWSBackingStore()
