@@ -309,9 +309,6 @@ void QWellArray::setCurrent(int row, int col)
 
 void QWellArray::setSelected(int row, int col)
 {
-    if ((selRow == row) && (selCol == col))
-        return;
-
     int oldRow = selRow;
     int oldCol = selCol;
 
