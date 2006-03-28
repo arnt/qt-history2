@@ -805,7 +805,8 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 DomFont font;
                 findDerivedFontProperties(f, font);
                 e.removeChild(f);
-                f = font.write(e.ownerDocument());
+                QDomDocument doc = e.ownerDocument();
+                f = font.write(doc);
                 e.appendChild(f);
             }
 
