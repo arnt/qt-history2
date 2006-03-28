@@ -395,16 +395,16 @@
         QT += network xml
     \endcode
 
-    Note that \c QT includes the core and GUI modules by default, so the above
-    declaration \e adds the network and XML modules to this default list. The
-    following assignment \e omits the default modules, and will lead to errors
-    when the application's source code is being compiled:
+    Note that \c QT includes the \c core and \c gui modules by default, so the
+    above declaration \e adds the network and XML modules to this default list.
+    The following assignment \e omits the default modules, and will lead to
+    errors when the application's source code is being compiled:
 
     \code
-        QT = network xml # This will omit the core and GUI modules.
+        QT = network xml # This will omit the core and gui modules.
     \endcode
 
-    If you want to build a project \e without the GUI module, you need to
+    If you want to build a project \e without the \c gui module, you need to
     exclude it with the "-=" operator. By default, \c QT contains both
     \c core and \c gui, so the following line will result in a minimal
     Qt project being built:
@@ -427,6 +427,11 @@
     \row    \o xml                        \o QtXml module
     \row    \o qt3support                 \o Qt3Support module
     \endtable
+
+    Note that adding the \c opengl option to the \c QT variable automatically
+    causes the equivalent option to be added to the \c CONFIG variable.
+    Therefore, for Qt applications, it is not necessary to add the \c opengl
+    option to both \c CONFIG and \c{QT}.
 
     \section1 Configuration Features
 
