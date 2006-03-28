@@ -1797,7 +1797,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         t << "compiler_" << (*it) << "_make_all:";
         if(project->values((*it) + ".CONFIG").indexOf("combine") != -1) {
             // compilers with a combined input only have one output
-            QString input = project->values((*it) + ".output");
+            QString input = project->values((*it) + ".output").first();
             t << " " << escapeFilePath(replaceExtraCompilerVariables(tmp_out, input, QString()));
         } else {
             for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
