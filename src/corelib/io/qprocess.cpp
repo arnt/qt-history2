@@ -1293,8 +1293,6 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
     d->program = program;
     d->arguments = arguments;
 
-    QCoreApplication::flush();
-
     d->exitCode = 0;
     d->exitStatus = NormalExit;
     d->processError = QProcess::UnknownError;
