@@ -2,7 +2,7 @@
     \page qmake-manual.html
     \title qmake Manual
     \startpage {index.html}{Qt Reference Documentation}
-    \nextpage Using qmake
+    \nextpage qmake Tutorial
 
     \ingroup buildsystem
     \keyword qmake
@@ -23,7 +23,22 @@
     \c qmake can also generate projects for Microsoft Visual studio
     without requiring the developer to change the project file.
 
-    Table of contents:
+    \section1 Getting Started
+
+    The \l{qmake Tutorial} and guide to \l{qmake Common Projects} provide overviews
+    that aim to help new users get started with \c qmake.
+
+    \list
+    \o \l{qmake Tutorial}
+      \tableofcontents{1 qmake Tutorial}
+    \endlist
+
+    \list
+    \o \l{qmake Common Projects}
+      \tableofcontents{1 qmake Common Projects}
+    \endlist
+
+    \section1 Table of Contents
 
     \list
     \o \l{Using qmake}
@@ -38,15 +53,12 @@
       \tableofcontents{1 Using Precompiled Headers}
     \o \l{qmake Reference}
       \tableofcontents{1 qmake Reference}
-    \endlist
-
-    Getting Started:
-
-    \list
-    \o \l{qmake Tutorial}
-      \tableofcontents{1 qmake Tutorial}
-    \o \l{qmake Common Projects}
-      \tableofcontents{1 qmake Common Projects}
+    \o \l{qmake Variable Reference}
+      \tableofcontents{1 qmake Variable Reference}
+    \o \l{qmake Function Reference}
+      \tableofcontents{1 qmake Function Reference}
+    \o \l{Configuring qmake's Environment}
+      \tableofcontents{1 Configuring qmake's Environment}
     \endlist
 */
 
@@ -823,6 +835,9 @@
     \row \o lib_bundle \o Puts the library into a library bundle.
     \endtable
 
+    The build process for library bundles is also influenced by
+    the \l{#QMAKE_BUNDLE_DATA}{QMAKE_BUNDLE_DATA} variable.
+
     The \c CONFIG variable will also be checked when resolving scopes. You may
     assign anything to this variable.
 
@@ -1186,6 +1201,31 @@
     creates, modifies and extracts archives. The value of this variable is
     typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf}
     and rarely needs to be modified.
+
+    \target QMAKE_BUNDLE_DATA
+    \section1 QMAKE_BUNDLE_DATA
+
+    This variable is used to hold the data that will be installed with a library
+    bundle, and is often used to specify a collection of header files.
+
+    For example, the following lines add \c path/to/header_one.h
+    and \c path/to/header_two.h to a group containing information about the
+    headers supplied with the framework:
+
+    \code
+    FRAMEWORK_HEADERS.version = Versions
+    FRAMEWORK_HEADERS.files = path/to/header_one.h path/to/header_two.h
+    FRAMEWORK_HEADERS.path = Headers
+    QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+    \endcode
+
+    The last line adds the information about the headers to the collection of
+    resources that will be installed with the library bundle.
+
+    Library bundles are created when the \c lib_bundle option is added to the
+    \c CONFIG variable.
+
+    \e {This is used on Mac OS X only.}
 
     \target QMAKE_CFLAGS_DEBUG
     \section1 QMAKE_CFLAGS_DEBUG
@@ -2409,7 +2449,6 @@
     \page qmake-environment-reference.html
     \contentspage {qmake Manual}{Contents}
     \previouspage qmake Function Reference
-    \nextpage qmake Tutorial
 
     \title Configuring qmake's Environment
 
@@ -3294,7 +3333,7 @@
     \page qmake-tutorial.html
     \title qmake Tutorial
     \contentspage {qmake Manual}{Contents}
-    \previouspage qmake Advanced Usage
+    \previouspage qmake Manual
     \nextpage qmake Common Projects
 
     This tutorial teaches you how to use \c qmake.  We recommend that
@@ -3572,6 +3611,7 @@
     \title qmake Common Projects
     \contentspage {qmake Manual}{Contents}
     \previouspage qmake Tutorial
+    \nextpage Using qmake
 
     This chapter describes how to set up \c qmake project files for three
     common types of project that are based on Qt. Although all kinds of
