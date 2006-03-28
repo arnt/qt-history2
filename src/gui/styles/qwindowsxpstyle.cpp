@@ -1516,21 +1516,14 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             bool usePalette = false;
             bool isEnabled = flags & State_Enabled;
             uint resolve_mask = panel->palette.resolve();
-            if (isEnabled) {
-                stateId = ETS_NORMAL;
-                if (resolve_mask & (1 << QPalette::Base)) {
-                    // Base color is set for this widget, so use it
-                    bg = panel->palette.brush(QPalette::Base);
-                    usePalette = true;
-                }
-            } else {
-                stateId = ETS_DISABLED;
-                if (resolve_mask & (1 << QPalette::Background)) {
-                    // Background color is set for this widget, so use it
-                    bg = panel->palette.brush(QPalette::Background);
-                    usePalette = true;
-                }
+          
+            if (resolve_mask & (1 << QPalette::Base)) {
+                // Base color is set for this widget, so use it
+                bg = panel->palette.brush(QPalette::Base);
+                usePalette = true;
             }
+            
+            stateId = isEnabled ? ETS_NORMAL : ETS_DISABLED;
 
             if (usePalette) {
                 p->fillRect(panel->rect, bg);
