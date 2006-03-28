@@ -337,7 +337,7 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
 #ifdef USE_MMAP
     if (mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0) {
 #if defined(QT_DEBUG_COMPONENT)
-        qWarning("munmap: %s", qPrintable(qt_error_string((errno)));
+        qWarning("munmap: %s", qPrintable(qt_error_string((errno))));
 #endif
     }
 #endif // USE_MMAP
