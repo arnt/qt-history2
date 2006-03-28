@@ -404,8 +404,8 @@ QString QDate::shortMonthName(int month)
     st.wYear = 2000;
     st.wMonth = month;
     st.wDay = 1;
-    const wchar_t mmm_t[] = L"MMM"; // workaround for Borland
     QT_WA({
+        const wchar_t mmm_t[] = L"MMM"; // workaround for Borland
         TCHAR buf[255];
         if (GetDateFormat(GetThreadLocale(), 0, &st, mmm_t, buf, 255))
             return QString::fromUtf16((ushort*)buf);
@@ -466,8 +466,8 @@ QString QDate::longMonthName(int month)
     st.wYear = 2000;
     st.wMonth = month;
     st.wDay = 1;
-    const wchar_t mmmm_t[] = L"MMMM"; // workaround for Borland
     QT_WA({
+        const wchar_t mmmm_t[] = L"MMMM"; // workaround for Borland
         TCHAR buf[255];
         if (GetDateFormat(GetThreadLocale(), 0, &st, mmmm_t, buf, 255))
             return QString::fromUtf16((ushort*)buf);
@@ -525,8 +525,8 @@ QString QDate::shortDayName(int weekday)
     st.wMonth = 10;
     st.wDayOfWeek = (weekday == 7) ? 0 : weekday;
     st.wDay = 21 + st.wDayOfWeek;
-    const wchar_t ddd_t[] = L"ddd"; // workaround for Borland
     QT_WA({
+        const wchar_t ddd_t[] = L"ddd"; // workaround for Borland
         TCHAR buf[255];
         if (GetDateFormat(GetThreadLocale(), 0, &st, ddd_t, buf, 255))
             return QString::fromUtf16((ushort*)buf);
@@ -583,8 +583,8 @@ QString QDate::longDayName(int weekday)
     st.wMonth = 10;
     st.wDayOfWeek = (weekday == 7) ? 0 : weekday;
     st.wDay = 21 + st.wDayOfWeek;
-    const wchar_t dddd_t[] = L"dddd"; // workaround for Borland
     QT_WA({
+        const wchar_t dddd_t[] = L"dddd"; // workaround for Borland
         TCHAR buf[255];
         if (GetDateFormat(GetThreadLocale(), 0, &st, dddd_t, buf, 255))
             return QString::fromUtf16((ushort*)buf);
