@@ -912,9 +912,9 @@ bool Configure::displayHelp()
 
         desc("Configure options:\n\n");
 
-        desc(" The defaults (*) are usually acceptable.  If marked with a plus (+) a test for that"
-             " feature has not been done yet, but will be evaluated later, the plus simply denotes"
-             " the default value. Here is a short explanation of each option:\n\n", 0, 1);
+        desc(" The defaults (*) are usually acceptable. A plus (+) denotes a default value"
+             " that needs to be evaluated. If the evaluation succeeds, the feature is"
+             " included. Here is a short explanation of each option:\n\n", 0, 1);
 
         desc("BUILD", "release","-release",             "Compile and link Qt with debugging turned off.");
         desc("BUILD", "debug",  "-debug",               "Compile and link Qt with debugging turned on.");

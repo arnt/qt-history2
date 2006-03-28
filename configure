@@ -2303,10 +2303,9 @@ Installation options:
 
 Configure options:
 
- The defaults (*) are usually acceptable.  If marked with a plus (+) a test
- for that feature has not been done yet, but will be evaluated later, the
- plus simply denotes the default value. Here is a short explanation of each
- option:
+ The defaults (*) are usually acceptable. A plus (+) denotes a default value
+ that needs to be evaluated. If the evaluation succeeds, the feature is 
+ included. Here is a short explanation of each option:
 
     -release ........... Compile and link Qt with debugging turned off.
     -debug ............. Compile and link Qt with debugging turned on.
