@@ -3394,6 +3394,9 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
                 return sz;
             }
         }
+    case CT_TabWidget:
+        sz += QSize(6, 6);
+        break;
         // Otherwise, fall through
     default:
         sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
