@@ -50,25 +50,30 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
 // Reverse lookups using getnameinfo are broken on darwin, use gethostbyaddr instead.
 #if !defined (QT_NO_GETADDRINFO) && !defined (Q_OS_DARWIN)
         sockaddr_in sa4;
+#ifndef QT_NO_IPV6
         sockaddr_in6 sa6;
-        sockaddr *sa;
-        QT_SOCKLEN_T saSize;
+#endif
+        sockaddr *sa = 0;
+        QT_SOCKLEN_T saSize = 0;
         if (address.protocol() == QAbstractSocket::IPv4Protocol) {
             sa = (sockaddr *)&sa4;
             saSize = sizeof(sa4);
             memset(&sa4, 0, sizeof(sa4));
             sa4.sin_family = AF_INET;
             sa4.sin_addr.s_addr = htonl(address.toIPv4Address());
-        } else {
+        }
+#ifndef QT_NO_IPV6
+        else {
             sa = (sockaddr *)&sa6;
             saSize = sizeof(sa6);
             memset(&sa6, 0, sizeof(sa6));
             sa6.sin6_family = AF_INET6;
             memcpy(sa6.sin6_addr.s6_addr, address.toIPv6Address().c, sizeof(sa6.sin6_addr.s6_addr));
         }
-
+#endif
+        
         char hbuf[NI_MAXHOST];
-        if (getnameinfo(sa, saSize, hbuf, sizeof(hbuf), 0, 0, 0) != 0) {
+        if (!sa || getnameinfo(sa, saSize, hbuf, sizeof(hbuf), 0, 0, 0) != 0) {
             results.setError(QHostInfo::HostNotFound);
             results.setErrorString(tr("Host not found"));
             return results;            
@@ -104,12 +109,16 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
                 addr.setAddress(ntohl(((sockaddr_in *) node->ai_addr)->sin_addr.s_addr));
                 if (!addresses.contains(addr))
                     addresses.prepend(addr);
-            } else if (node->ai_family == AF_INET6) {
+            }
+#ifndef QT_NO_IPV6
+            else if (node->ai_family == AF_INET6) {
                 QHostAddress addr;
                 addr.setAddress(((sockaddr_in6 *) node->ai_addr)->sin6_addr.s6_addr);
                 if (!addresses.contains(addr))
                     addresses.append(addr);
-            } else {
+            }
+#endif
+            else {
                 results.setError(QHostInfo::UnknownError);
                 results.setErrorString(tr("Unknown address type"));
                 break;
