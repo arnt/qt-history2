@@ -476,6 +476,10 @@ QStringList QFileDialog::selectedFiles() const
         }
     }
 
+    // accept the current directory when in DirectoryOnly mode
+    if (files.isEmpty() && d->fileNameEdit->text().isEmpty() && d->fileMode == DirectoryOnly)
+        files.append(d->model->filePath(d->rootIndex()));
+
     return files;
 }
 
@@ -620,6 +624,9 @@ void QFileDialog::setFileMode(FileMode mode)
     if (mode == DirectoryOnly) {
         d->fileTypeCombo->clear();
         d->fileTypeCombo->addItem(tr("Directories"));
+        setLabelText(FileName, tr("Directory:"));
+    } else {
+        setLabelText(FileName, tr("File name:"));
     }
     d->fileTypeCombo->setEnabled(mode != DirectoryOnly);
     d->model->refresh(d->rootIndex());
@@ -1862,7 +1869,10 @@ void QFileDialogPrivate::setRootIndex(const QModelIndex &index)
     treeView->setRootIndex(index);
     model->refresh(index);
     selections->blockSignals(block);
-    q->selectFile(fileNameEdit->text());
+    if (fileMode == QFileDialog::DirectoryOnly)
+        fileNameEdit->clear();
+    else
+        q->selectFile(fileNameEdit->text());
 }
 
 QModelIndex QFileDialogPrivate::rootIndex() const
