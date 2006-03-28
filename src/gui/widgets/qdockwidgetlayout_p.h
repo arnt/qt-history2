@@ -62,6 +62,7 @@ public:
     QList<QDockWidgetLayoutInfo> layout_info;
     QList<QDockWidgetLayoutInfo> *save_layout_info;
     mutable QSize minSize;
+    mutable QSize maxSize;
     mutable QSize szHint;
 
     QDockWidgetLayout(Qt::DockWidgetArea a, Qt::Orientation o);
@@ -82,6 +83,7 @@ public:
     int count() const;
     QSize sizeHint() const;
     QSize minimumSize() const;
+    QSize maximumSize() const;
     void invalidate();
     bool isEmpty() const;
 

@@ -497,6 +497,44 @@ QSize QDockWidgetLayout::minimumSize() const
 }
 
 /*! \reimp */
+QSize QDockWidgetLayout::maximumSize() const
+{
+    if (!maxSize.isValid()) {
+        VDEBUG("QDockWidget::maximumSize");
+
+        int size = 0, perp = QLAYOUTSIZE_MAX;
+        const int sep_extent =
+            parentWidget()->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
+
+        for (int it = 0; it < layout_info.count(); ++it) {
+            const QDockWidgetLayoutInfo &info = layout_info.at(it);
+            int s, p;
+            if (info.is_sep) {
+                p = QLAYOUTSIZE_MAX;
+                s = (info.item->widget()->isHidden()) ? 0 : sep_extent;
+            } else {
+                QSize sz = info.item->maximumSize();
+                s = pick(orientation, sz);
+                p = pick_perp(orientation, sz);
+            }
+
+            VDEBUG("  size %d perp %d", s, p);
+            if (s >= QLAYOUTSIZE_MAX) {
+                size = QLAYOUTSIZE_MAX;
+            } else if (size != QLAYOUTSIZE_MAX) {
+                size += s;
+            }
+            perp = qMin(perp, p);
+        }
+
+        VDEBUG("END: size %4d perp %4d", size, perp);
+
+        maxSize = (orientation == Qt::Horizontal) ? QSize(size, perp) : QSize(perp, size);
+    }
+    return maxSize;
+}
+
+/*! \reimp */
 QSize QDockWidgetLayout::sizeHint() const
 {
     if (!szHint.isValid()) {
@@ -533,7 +571,7 @@ void QDockWidgetLayout::invalidate()
 {
     if (relayout_type != QInternal::RelayoutDragging) {
         QLayout::invalidate();
-        minSize = szHint = QSize();
+        minSize = maxSize = szHint = QSize();
     }
 }
 
