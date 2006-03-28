@@ -2702,8 +2702,8 @@ void QApplicationPrivate::closePopup(QWidget *popup)
         // first popup grabbed the keyboard), so we have to do that
         // manually: A popup was closed, so the previous popup gets
         // the focus.
-        QApplicationPrivate::active_window = QApplicationPrivate::popupWidgets->last();
-        if (QWidget *fw = QApplicationPrivate::active_window->focusWidget())
+        QWidget* aw = QApplicationPrivate::popupWidgets->last();
+        if (QWidget *fw = aw->focusWidget())
             fw->setFocus(Qt::PopupFocusReason);
     }
 }
