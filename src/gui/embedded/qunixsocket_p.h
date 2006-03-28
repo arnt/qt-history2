@@ -135,6 +135,8 @@ public:
     qint64 rightsBufferSize() const;
     void setRightsBufferSize(qint64 size);
 
+    bool canReadLine() const;
+
     qint64 write(const char * data, qint64 maxSize)
     { return QIODevice::write(data, maxSize); }
     qint64 write(const QByteArray & byteArray)

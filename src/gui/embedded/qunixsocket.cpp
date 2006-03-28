@@ -1478,6 +1478,13 @@ bool QUnixSocket::waitForBytesWritten(int msecs)
     return false; // fix warnings
 }
 
+/*! \internal */
+bool QUnixSocket::canReadLine() const
+{
+    for(unsigned int ii = 0; ii < d->dataBufferLength; ++ii)
+        if(d->dataBuffer[ii] == '\n') return true;
+    return false;
+}
 
 /*! \internal */
 qint64 QUnixSocket::readData(char * data, qint64 maxSize)
