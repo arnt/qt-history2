@@ -2553,8 +2553,11 @@ void QAbstractItemViewPrivate::fetchMore()
     if (!model || !model->canFetchMore(root))
         return;
     int last = model->rowCount(root) - 1;
-    if (last < 0)
+    if (last < 0) {
+        model->fetchMore(root);
         return;
+    }
+
     QModelIndex index = model->index(last, 0, root);
     QRect rect = q_func()->visualRect(index);
     if (viewport->rect().contains(rect))
