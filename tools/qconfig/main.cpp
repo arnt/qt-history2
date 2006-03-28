@@ -17,14 +17,17 @@
 
 #include <QtGui>
 
-static const QString defaultPath =
-    QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/src/corelib/global";
-
+static QString defaultPath;
 
 class FeatureTextBrowser : public QTextBrowser {
     Q_OBJECT
 public:
-    FeatureTextBrowser(QWidget *parent) : QTextBrowser(parent) {}
+    FeatureTextBrowser(QWidget *parent) : QTextBrowser(parent) {
+        QString docRoot;
+        docRoot = QLibraryInfo::location(QLibraryInfo::DocumentationPath)
+                  + "/html";
+        setSearchPaths(searchPaths() << docRoot);
+    }
 
 signals:
     void featureClicked(const QString &feature);
@@ -32,13 +35,13 @@ signals:
 public slots:
     void setSource(const QUrl &url)
     {
-        if (url.scheme() == "feature") 
-            emit featureClicked(url.authority());        
-        else 
+        if (url.scheme() == "feature")
+            emit featureClicked(url.authority());
+        else
             QTextBrowser::setSource(url);
     }
 };
-    
+
 class Main : public QMainWindow {
     Q_OBJECT
 public:
@@ -48,7 +51,7 @@ public:
     void loadConfig(const QString& filename);
 
 public slots:
-    void modelChanged();    
+    void modelChanged();
     void showInfo(const QModelIndex &index);
     void showInfo(const QString &feature);
     void openConfig();
@@ -57,19 +60,19 @@ public slots:
     void collapseView();
     void about();
     void aboutQt();
-    void quit();    
-    void clear();    
+    void quit();
+    void clear();
     void enableAll();
     void disableAll();
-    
+
 private:
     QTextBrowser *textBrowser;
-    QTreeView *featureTree;    
-    FeatureTreeModel *featureModel;    
+    QTreeView *featureTree;
+    FeatureTreeModel *featureModel;
 
     void init();
-    void updateStatus(int numFeatures = -1);    
-    void completelyExpandIndex(const QModelIndex &parent);    
+    void updateStatus(int numFeatures = -1);
+    void completelyExpandIndex(const QModelIndex &parent);
 };
 
 template<typename Func>
@@ -78,7 +81,7 @@ void foreachIndex_helper(const QModelIndex &parent, Func func)
     const QAbstractItemModel *model = parent.model();
     const int rows = model->rowCount(parent);
     for (int i = 0; i < rows; ++i) {
-        const QModelIndex child = model->index(i, 0, parent);        
+        const QModelIndex child = model->index(i, 0, parent);
         func(child);
         foreachIndex_helper(child, func);
     }
@@ -89,7 +92,7 @@ void foreachIndex(const QAbstractItemModel *model, Func func)
 {
     const int rows = model->rowCount(QModelIndex());
     for (int i = 0; i < rows; ++i) {
-        const QModelIndex child = model->index(i, 0, QModelIndex());        
+        const QModelIndex child = model->index(i, 0, QModelIndex());
         func(child);
         foreachIndex_helper(child, func);
     }
@@ -127,17 +130,17 @@ Main::Main()
     QSplitter *splitter = new QSplitter(this);
 
     featureModel = new FeatureTreeModel(this);
-    featureTree = new QTreeView(splitter);    
+    featureTree = new QTreeView(splitter);
     splitter->addWidget(featureTree);
     featureTree->setRootIsDecorated(true);
     featureTree->setModel(featureModel);
-    featureTree->show();    
-    
+    featureTree->show();
+
     textBrowser = new FeatureTextBrowser(splitter);
     textBrowser->setFrameStyle(QFrame::WinPanel|QFrame::Sunken);
     splitter->addWidget(textBrowser);
-    textBrowser->show();    
-    
+    textBrowser->show();
+
     connect(textBrowser, SIGNAL(featureClicked(const QString&)),
             this, SLOT(showInfo(const QString&)));
     connect(featureTree, SIGNAL(activated(QModelIndex)),
@@ -146,7 +149,7 @@ Main::Main()
             this, SLOT(modelChanged()));
     connect(featureTree, SIGNAL(clicked(QModelIndex)),
             this, SLOT(showInfo(QModelIndex)));
-    
+
     setCentralWidget(splitter);
 
     QMenu *file = menuBar()->addMenu("&File");
@@ -162,7 +165,7 @@ Main::Main()
     QMenu *edit = menuBar()->addMenu("&Tools");
     edit->addAction("&Enable all features", this, SLOT(enableAll()));
     edit->addAction("&Disable all features", this, SLOT(disableAll()));
-    
+
     menuBar()->addSeparator();
 
     QMenu *help = menuBar()->addMenu("&Help");
@@ -185,14 +188,14 @@ Main::Main()
     button->setToolTip("Expand");
     connect(button, SIGNAL(clicked()), this, SLOT(expandView()));
     tb->addWidget(button);
-    addToolBar(tb);    
-    
+    addToolBar(tb);
+
     init();
 }
 
 Main::~Main()
 {
-    delete textBrowser;    
+    delete textBrowser;
     delete featureModel;
     delete featureTree;
 }
@@ -214,8 +217,8 @@ void Main::quit()
                                            "Do you want to quit anyway?",
                                            QMessageBox::Yes,
                                            QMessageBox::No);
-        if (static_cast<QMessageBox::Button>(button) != QMessageBox::Yes) 
-            return;            
+        if (static_cast<QMessageBox::Button>(button) != QMessageBox::Yes)
+            return;
     }
     QApplication::instance()->quit();
 }
@@ -281,9 +284,9 @@ void Main::init()
                                                 defaultPath,
                                                 "Qt Features (qfeatures.txt)");
     }
-    settings.setValue("featureFile", features);    
+    settings.setValue("featureFile", features);
     loadFeatures(features);
-    
+
     expandView();
     collapseView();
 
@@ -302,30 +305,30 @@ void Main::openConfig()
     if (!prevFile.isEmpty())
         configDir = QFileInfo(prevFile).path();
 
-    if (configDir.isEmpty()) 
+    if (configDir.isEmpty())
         configDir = defaultPath;
-    
+
     QString configFile;
     configFile = QFileDialog::getOpenFileName(this,
                                               "Open a configuration file",
                                               configDir,
-                                              "Header files (*.h)");    
-    enableAll();    
+                                              "Header files (*.h)");
+    enableAll();
     if (!configFile.isEmpty())
         loadConfig(configFile);
-    settings.setValue("lastConfig", QFileInfo(configFile).absoluteFilePath()); 
+    settings.setValue("lastConfig", QFileInfo(configFile).absoluteFilePath());
 }
 
 void Main::saveConfig()
 {
     QSettings settings;
     QString configDir;
-    
+
     QString prevFile = settings.value("lastConfig").toString();
     if (!prevFile.isEmpty())
         configDir = QFileInfo(prevFile).path();
 
-    if (configDir.isEmpty()) 
+    if (configDir.isEmpty())
         configDir = defaultPath;
 
     QString configFile;
@@ -335,7 +338,7 @@ void Main::saveConfig()
                                               "Header files (*.h)");
     if (configFile.isEmpty())
         return;
-    
+
     QFile file(configFile);
     if (!file.open(QIODevice::WriteOnly)) {
 	QMessageBox::warning(this,"Warning",
@@ -347,38 +350,38 @@ void Main::saveConfig()
     FeatureTreeModel *model;
     model = static_cast<FeatureTreeModel*>(featureTree->model());
     model->writeConfig(stream);
-    
+
     settings.setValue("lastConfig", QFileInfo(configFile).absoluteFilePath());
-    setWindowModified(false);    
-    updateStatus();    
+    setWindowModified(false);
+    updateStatus();
 }
 
 void Main::loadConfig(const QString &filename)
 {
     if (!QFileInfo(filename).isFile())
 	return;
-        
+
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
 	QMessageBox::warning(this,"Warning", "Cannot open file " + filename);
 	return;
     }
-    
-    QTextStream stream(&file);    
+
+    QTextStream stream(&file);
     FeatureTreeModel *model;
     model = static_cast<FeatureTreeModel*>(featureTree->model());
     model->readConfig(stream);
-    
+
     QSettings settings;
     settings.setValue("lastConfig", QFileInfo(filename).absoluteFilePath());
-    setWindowModified(false);    
+    setWindowModified(false);
     updateStatus();
 }
 
 void Main::loadFeatures(const QString &filename)
 {
-    Feature::clear();    
-    
+    Feature::clear();
+
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
 	QMessageBox::warning(this,"Warning", "Cannot open file " + filename);
@@ -395,9 +398,12 @@ void Main::loadFeatures(const QString &filename)
 	    continue;
 	if (line.startsWith('#'))
 	    continue;
-	
+
 	int colon = line.indexOf(':');
-	if (colon < 0) {
+	if (colon < 0) { // assume description
+            QString description = feature->description().simplified();
+            description += " " + line;
+            feature->setDescription(description);
 	    continue;
 	}
 
@@ -407,7 +413,7 @@ void Main::loadFeatures(const QString &filename)
             if (feature)
                 featureModel->addFeature(feature);
             feature = Feature::getInstance(value);
-            updateStatus(++numFeatures);            
+            updateStatus(++numFeatures);
 	} else if (tag == "Requires") {
             Q_ASSERT(feature);
             feature->setDependencies(value.split(' ', QString::SkipEmptyParts));
@@ -416,10 +422,13 @@ void Main::loadFeatures(const QString &filename)
             feature->setTitle(value);
 	} else if (tag == "Section") {
 	    Q_ASSERT(feature);
-            feature->setSection(value);            
+            feature->setSection(value);
 	} else if (tag == "SeeAlso") {
 	    Q_ASSERT(feature);
             feature->setRelations(value.split(' ', QString::SkipEmptyParts));
+        } else if (tag == "Description") {
+            Q_ASSERT(feature);
+            feature->setDescription(value);
 	}
     }
     if (feature)
@@ -437,17 +446,17 @@ void Main::showInfo(const QModelIndex &index)
 {
     FeatureTreeModel *model;
     model = static_cast<FeatureTreeModel*>(featureTree->model());
-        
-    if (const Feature *feature = model->getFeature(index)) 
+
+    if (const Feature *feature = model->getFeature(index))
 	textBrowser->setHtml(feature->toHtml());
-    
+
     // Ensure index is visible
     QModelIndex parent = model->parent(index);
     while (parent.isValid()) {
         featureTree->setExpanded(parent, true);
-        parent = model->parent(parent);        
+        parent = model->parent(parent);
     }
-    
+
     featureTree->scrollTo(index);
     featureTree->setCurrentIndex(index);
 }
@@ -457,7 +466,7 @@ void Main::showInfo(const QString &feature)
     const Feature *f = Feature::getInstance(feature);
     FeatureTreeModel *model;
     model = static_cast<FeatureTreeModel*>(featureTree->model());
-    showInfo(model->index(f));    
+    showInfo(model->index(f));
 }
 
 void Main::about()
@@ -492,12 +501,15 @@ int main(int argc, char** argv)
     app.setApplicationName("QConfig");
     Main m;
 
+    defaultPath = QLibraryInfo::location(QLibraryInfo::PrefixPath)
+                  + "/src/corelib/global";
+
     for (int i = 1; i < argc; ++i) {
 	QString arg = argv[i];
 	if (arg == "-f" && i+1 < argc)
-            m.loadFeatures(argv[++i]);            
+            m.loadFeatures(argv[++i]);
 	else if (arg == "-c" && i+1 < argc)
-            m.loadConfig(argv[++i]);            
+            m.loadConfig(argv[++i]);
     }
     m.resize(m.sizeHint() + QSize(500,300));
     m.show();

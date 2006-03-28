@@ -13,6 +13,9 @@
 
 #include "feature.h"
 #include <QTextStream>
+#include <QRegExp>
+#include <QLibraryInfo>
+#include <QFileInfo>
 
 QMap<QString, Feature*> Feature::instances;
 
@@ -65,6 +68,29 @@ static QString listToHtml(const QString &title, const QList<Feature*> &list)
     return listToHtml(title, stringlist);
 }
 
+static QString linkify(const QString &src)
+{
+    static QRegExp classRegexp("\\b(Q[\\w]+)");
+    QString docRoot = QLibraryInfo::location(QLibraryInfo::DocumentationPath);
+    QString result = src;
+    int pos = 0;
+    while ((pos = classRegexp.indexIn(result, pos)) != -1) {
+        QString className = classRegexp.cap(1);
+        QString file = docRoot + "/html/" + className.toLower() + ".html";
+        QFileInfo info(file);
+        if (info.isFile()) {
+            QString link = QString("<a href=\"file://%1\">%2</a>")
+                           .arg(file).arg(className);
+            result.replace(pos, className.length(), link);
+            pos += link.length();
+        } else {
+            pos += className.length();
+        }
+    }
+
+    return result;
+}
+
 QString Feature::toHtml() const
 {
     QString str;
@@ -72,12 +98,15 @@ QString Feature::toHtml() const
 
     stream << "<h2><font size=\"+2\" color=\"darkBlue\">"
            << key() << "</font></h2>"
-	   << "<h2><font size=\"+2\">" << title() << "</font></h2>"
-	   << listToHtml("Section", QStringList(section()))
+	   << "<h2><font size=\"+2\">" << title() << "</font></h2>";
+    if (!description().isEmpty())
+        stream << "<p>" << description() << "</p>";
+    stream << listToHtml("Section", QStringList(section()))
 	   << listToHtml("Requires", dependencies())
 	   << listToHtml("Required for", supports())
 	   << listToHtml("See also", relations());
-    return str;
+
+    return linkify(str);
 }
 
 Feature::Feature(const QString &key) : d(new FeaturePrivate(key)) {}
