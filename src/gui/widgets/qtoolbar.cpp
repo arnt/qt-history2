@@ -889,6 +889,10 @@ void QToolBar::paintEvent(QPaintEvent *event)
 void QToolBar::resizeEvent(QResizeEvent *event)
 {
     Q_D(QToolBar);
+    if (d->inResizeEvent)
+        return;
+    d->inResizeEvent = true;
+
     QBoxLayout *box = qobject_cast<QBoxLayout *>(layout());
     Qt::Orientation orientation = (box->direction() == QBoxLayout::LeftToRight
                                    || box->direction() == QBoxLayout::RightToLeft)
@@ -1025,6 +1029,8 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	d->extension->hide();
     }
     QWidget::resizeEvent(event);
+
+    d->inResizeEvent = false;
 }
 
 /*! \reimp */
