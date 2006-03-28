@@ -64,7 +64,7 @@ QCursor::QCursor(Qt::HANDLE cursor)
 {
     if (!QCursorData::initialized)
         QCursorData::initialize();
-    d = new QCursorData;
+    d = new QCursorData(Qt::CustomCursor);
     d->hcurs = cursor;
 }
 

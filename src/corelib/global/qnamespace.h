@@ -965,7 +965,8 @@ public:
         WhatsThisCursor,
         BusyCursor,
         LastCursor = BusyCursor,
-        BitmapCursor = 24
+        BitmapCursor = 24,
+        CustomCursor = 25
 
 #if defined(QT3_SUPPORT) && !defined(Q_MOC_RUN)
         ,

@@ -1856,6 +1856,7 @@
     \value BusyCursor  standard arrow with hourglass/watch
     \value BitmapCursor
     \omitvalue LastCursor
+    \omitvalue CustomCursor
 
     \omitvalue arrowCursor
     \omitvalue upArrowCursor

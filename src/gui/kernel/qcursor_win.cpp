@@ -71,7 +71,7 @@ HCURSOR QCursor::handle() const
 
 QCursor::QCursor(HCURSOR handle)
 {
-    d = new QCursorData;
+    d = new QCursorData(Qt::CustomCursor);
     d->hcurs = handle;
 }
 
