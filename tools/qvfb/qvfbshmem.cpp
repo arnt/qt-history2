@@ -59,7 +59,7 @@ static QString qws_dataDir(int qws_display_id)
     if (!S_ISDIR(buf.st_mode))
         qFatal("%s is not a directory", dataDir.constData());
     if (buf.st_uid != getuid())
-        qFatal("Qtopia Core data directory is not owned by user %d", getuid());
+        qFatal("Qtopia Core data directory is not owned by user %uh", getuid());
 
     if ((buf.st_mode & 0677) != 0600)
         qFatal("Qtopia Core data directory has incorrect permissions: %s", dataDir.constData());
