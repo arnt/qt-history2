@@ -101,21 +101,49 @@ void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
 //    beginGroup();
     int screen = value(key + QLatin1String("/screen"), 0).toInt();
     QRect g = value(key + QLatin1String("/geometry"), fallBack).toRect();
+    QRect screenRect = QApplication::desktop()->availableGeometry(screen);
 
-    if (w->isWindow() && g.intersect(QApplication::desktop()->availableGeometry(screen)).isEmpty()) {
+    // Do geometry in a couple of steps
+    // 1) Make sure the rect is within the specified geometry
+    // 2) Make sure the bottom right and top left fit on the screen, move them in.
+    // 3) Check again and resize.
+
+    if (w->isWindow() && g.intersect(screenRect).isEmpty())
         g = fallBack;
+
+    // Maybe use center?
+    if (!screenRect.contains(g.bottomRight())) {
+        g.moveRight(qMax(0 + g.width(), qMin(screenRect.right(), g.right())));
+        g.moveBottom(qMax(0 + g.height(), qMin(screenRect.bottom(), g.bottom())));
     }
+
+    if (!screenRect.contains(g.topLeft())) {
+        g.moveLeft(qMin(screenRect.right() - g.width(), qMax(screenRect.left(), g.left())));
+        g.moveTop(qMin(screenRect.bottom() - g.height(), qMax(screenRect.top(), g.top())));
+    }
+
+    if (!screenRect.contains(g.bottomRight())) {
+        g.setRight(qMin(screenRect.right(), g.right()));
+        g.moveBottom(qMin(screenRect.bottom(), g.bottom()));
+    }
+
+    if (!screenRect.contains(g.topLeft())) {
+        g.setLeft(qMax(0, qMin(screenRect.left(), g.left())));
+        g.moveTop(qMax(0, qMin(screenRect.top(), g.top())));
+    }
+
+
+    if (!w->isWindow()) // in workspace
+        w->parentWidget()->move(g.topLeft());
+    else
+        w->move(g.topLeft());
 
     if (value(key + QLatin1String("/maximized"), false).toBool()) {
         w->setWindowState(w->windowState() | Qt::WindowMaximized);
     } else {
-        if (!w->isWindow()) // in workspace
-            w->parentWidget()->move(g.topLeft());
-        else
-            w->move(g.topLeft());
-
         w->resize(g.size());
     }
+
     if (value(key + QLatin1String("/visible"), true).toBool())
         w->show();
 //    endGroup();

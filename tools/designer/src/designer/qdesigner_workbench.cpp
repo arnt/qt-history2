@@ -312,10 +312,13 @@ void QDesignerWorkbench::switchToNeutralMode()
         if (tw->isVisible()) {
             // use the actual geometry
             QPoint pos = tw->window()->pos();
-            if (!tw->isWindow())
-                if (QWidget *p = tw->parentWidget())
-                    pos = p->pos(); // in workspace
+            if (!tw->isWindow()) {
+                if (const QWidget *pw = tw->parentWidget()) {
+                    pos = pw->mapTo(tw->window(), QPoint(0, 0));
+                    pos += tw->window()->pos();
+                }
 
+            }
             m_geometries.insert(tw, QRect(pos - desktopOffset, tw->size()));
         }
         tw->setSaveSettingsOnClose(false);
@@ -386,6 +389,10 @@ void QDesignerWorkbench::switchToDockedMode()
     if (m_geometries.isEmpty()) {
         settings.setGeometryFor(mw, qApp->desktop()->availableGeometry(0));
     } else {
+        if (QDesignerToolWindow *widgetBox = findToolWindow(core()->widgetBox())) {
+            QRect r = m_geometries.value(widgetBox, QRect(0, 0, 200, 200));
+            mw->move(r.topLeft());
+        }
         mw->setWindowState(mw->windowState() | Qt::WindowMaximized);
     }
 
