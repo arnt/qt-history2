@@ -209,6 +209,12 @@ void QLayoutItem::setAlignment(Qt::Alignment alignment)
 
     The default values provide a gap that is able to stretch if
     nothing else wants the space.
+
+    Note that if changeSize() is called after the spacer item has been added
+    to a layout, it is necessary to invalidate the layout in order for the
+    spacer item's new size to take effect.
+
+    \sa QLayout::invalidate()
 */
 void QSpacerItem::changeSize(int w, int h, QSizePolicy::Policy hPolicy,
                              QSizePolicy::Policy vPolicy)
