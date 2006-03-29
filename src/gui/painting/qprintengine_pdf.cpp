@@ -46,7 +46,7 @@ static const bool interpolateImages = false;
 #ifdef QT_NO_COMPRESS
 static const bool do_compress = false;
 #else
-static const bool do_compress = true;
+static const bool do_compress = false;
 #endif
 
 QPdfPage::QPdfPage()
@@ -569,7 +569,7 @@ int QPdfEnginePrivate::addBrushPattern(const QMatrix &m, bool *specifyColor, int
 
     QMatrix matrix = m;
     matrix.translate(brushOrigin.x(), brushOrigin.y());
-    matrix = matrix * QMatrix(1, 0, 0, -1, 0, height_);
+    matrix = matrix * pageMatrix();
     //qDebug() << brushOrigin << matrix;
 
     Qt::BrushStyle style = brush.style();
@@ -617,7 +617,7 @@ int QPdfEnginePrivate::addBrushPattern(const QMatrix &m, bool *specifyColor, int
         s << QPdf::generateMatrix(m);
         s << "/Im" << imageObject << " Do\n";
     }
-
+    
     QByteArray str;
     QPdf::ByteStream s(&str);
     s << "<<\n"
@@ -738,6 +738,14 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
     return object;
 }
 
+QMatrix QPdfEnginePrivate::pageMatrix() const
+{
+    qreal scale = 72./resolution;
+    QMatrix tmp(scale, 0.0, 0.0, -scale, 0.0, height_);
+    if (!fullPage)
+        tmp.translate(resolution/3, resolution/3);
+    return tmp;
+}
 
 void QPdfEnginePrivate::newPage()
 {
@@ -748,12 +756,9 @@ void QPdfEnginePrivate::newPage()
     stroker.stream = currentPage;
     pages.append(requestObject());
 
-    *currentPage << "/GSa gs /CSp cs /CSp CS\n";
-    qreal scale = 72./resolution;
-    QMatrix tmp(scale, 0.0, 0.0, -scale, 0.0, height_);
-    if (!fullPage)
-        tmp.translate(resolution/3, resolution/3);
-    *currentPage << QPdf::generateMatrix(tmp) << "q\n";
+    *currentPage << "/GSa gs /CSp cs /CSp CS\n"
+                 << QPdf::generateMatrix(pageMatrix()) 
+                 << "q\n";
 }
 
 
