@@ -475,6 +475,8 @@ QSize QDockWidgetLayout::minimumSize() const
 
         for (int it = 0; it < layout_info.count(); ++it) {
             const QDockWidgetLayoutInfo &info = layout_info.at(it);
+            if (info.item->isEmpty())
+                continue;
             int s, p;
             if (info.is_sep) {
                 s = p = (info.item->widget()->isHidden()) ? 0 : sep_extent;
@@ -508,6 +510,8 @@ QSize QDockWidgetLayout::maximumSize() const
 
         for (int it = 0; it < layout_info.count(); ++it) {
             const QDockWidgetLayoutInfo &info = layout_info.at(it);
+            if (info.item->isEmpty())
+                continue;
             int s, p;
             if (info.is_sep) {
                 p = QLAYOUTSIZE_MAX;
@@ -546,6 +550,8 @@ QSize QDockWidgetLayout::sizeHint() const
 
         for (int it = 0; it < layout_info.count(); ++it) {
             const QDockWidgetLayoutInfo &info = layout_info.at(it);
+            if (info.item->isEmpty())
+                continue;
             int s, p;
             if (info.is_sep) {
                 s = p = (info.item->widget()->isHidden()) ? 0 : sep_extent;
