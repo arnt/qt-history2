@@ -791,7 +791,7 @@ void generateManualRules()
     addRenamedHeaderRule("qwmatrix.h", "qmatrix.h");
     addRenamedHeaderRule("qguardedptr.h", "qpointer.h");
 
-    addRenamedTokenRule("qInitNetworkProtocol", "q3InitNetworkProtocol");
+    addRenamedTokenRule("qInitNetworkProtocols", "q3InitNetworkProtocols");
 
     xml["Rules"]["Count"] = QString("%1").arg(ruleIndex);
 }
