@@ -13,7 +13,8 @@
 
 #include "qanimationwriter.h"
 #include <QFile>
-#include <Q3CString>
+#include <QString>
+#include <QPainter>
 #include <png.h>
 #include <limits.h>
 #include <netinet/in.h> // for htonl
@@ -51,7 +52,7 @@ public:
     {
 	if ( first ) {
 	    // Eh? Not images.
-	    QImage dummy(1,1,32);
+	    QImage dummy(1,1,QImage::Format_RGB32);
 	    setImage(dummy);
 	}
 	writeMEND();
@@ -75,7 +76,7 @@ public:
     static void write( png_structp png_ptr, png_bytep data, png_size_t length)
     {
 	QAnimationWriterMNG* that = (QAnimationWriterMNG*)png_get_io_ptr(png_ptr);
-	/*uint nw =*/ that->dev->writeBlock((const char*)data,length);
+	/*uint nw =*/ that->dev->write((const char*)data,length);
     }
 
     void writePNG(const QImage& image)
@@ -83,24 +84,24 @@ public:
 	info_ptr->channels = 4;
 	png_set_sig_bytes(png_ptr, 8); // Pretend we already wrote the sig
 	png_set_IHDR(png_ptr, info_ptr, image.width(), image.height(),
-	    8, image.hasAlphaBuffer()
+	    8, image.hasAlphaChannel()
 		    ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB,
 	    0, 0, 0);
 	png_write_info(png_ptr, info_ptr);
-	if ( !image.hasAlphaBuffer() )
+	if ( !image.hasAlphaChannel() )
 	    png_set_filler(png_ptr, 0,
-		QImage::systemByteOrder() == QImage::BigEndian ?
+                    QSysInfo::ByteOrder == QSysInfo::BigEndian ?
 		    PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
 	//if ( QImage::systemByteOrder() == QImage::BigEndian ) {
             //png_set_swap_alpha(png_ptr);
         //}
-	if ( QImage::systemByteOrder() == QImage::LittleEndian ) {
+	if ( QSysInfo::ByteOrder == QSysInfo::LittleEndian ) {
 	    png_set_bgr(png_ptr);
 	}
 
 	png_bytep* row_pointers;
 	uint height = image.height();
-	uchar** jt = (uchar**)image.jumpTable();
+	uchar** jt = (uchar**)image.bits();
 	row_pointers=new png_bytep[height];
 	uint y;
 	for (y=0; y<height; y++) {
@@ -115,7 +116,7 @@ public:
 
     void writeMHDR( const QSize& size, int framerate )
     {
-	dev->writeBlock("\212MNG\r\n\032\n", 8);
+	dev->write("\212MNG\r\n\032\n", 8);
 
 	struct {
 	    int width;
@@ -229,13 +230,13 @@ public:
 
 QAnimationWriter::QAnimationWriter( const QString& filename, const char* format )
 {
-    if ( Q3CString(format) != "MNG" ) {
+    if ( format != QLatin1String("MNG") ) {
 	qWarning("Format \"%s\" not supported, only MNG", format);
 	dev = 0;
 	d = 0;
     } else {
 	QFile *f = new QFile(filename);
-	f->open(IO_WriteOnly);
+	f->open(QIODevice::WriteOnly);
 	dev = f;
 	d = new QAnimationWriterMNG(dev);
     }
@@ -243,7 +244,11 @@ QAnimationWriter::QAnimationWriter( const QString& filename, const char* format 
 
 bool QAnimationWriter::okay() const
 {
-    return dev && dev->status() == static_cast<int>(IO_Ok);
+    if ( !dev )
+        return false;
+    QFile *file = qobject_cast<QFile*>(dev);
+    Q_ASSERT(file);
+    return ( file->error() == QFile::NoError );
 }
 
 QAnimationWriter::~QAnimationWriter()
@@ -259,7 +264,7 @@ void QAnimationWriter::setFrameRate(int r)
 
 void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 {
-    QImage frame = frm.convertDepth(32);
+    QImage frame = frm.convertToFormat(QImage::Format_RGB32);
     const int alignx = 1;
     if ( dev ) {
 	if ( prev.isNull() || !d->canCompose() ) {
@@ -270,8 +275,8 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    int w = frame.width();
 	    int h = frame.height();
 
-	    QRgb** jt = (QRgb**)frame.jumpTable();
-	    QRgb** pjt = (QRgb**)prev.jumpTable() + offset.y();
+	    QRgb** jt = (QRgb**)frame.bits();
+	    QRgb** pjt = (QRgb**)prev.bits() + offset.y();
 
 	    // Find left edge of change
 	    done = false;
@@ -332,9 +337,8 @@ void QAnimationWriter::appendFrame(const QImage& frm, const QPoint& offset)
 	    int dw = maxx-minx+1;
 	    int dh = maxy-miny+1;
 
-	    QImage diff(dw, dh, 32);
+	    QImage diff(dw, dh, QImage::Format_ARGB32);
 
-	    diff.setAlphaBuffer(true);
 	    int x, y;
 	    for (y = 0; y < dh; y++) {
 		QRgb* li = (QRgb*)frame.scanLine(y+miny)+minx;
@@ -374,7 +378,8 @@ qDebug("%d,%d  %d,%d",minx,miny,offset.x(),offset.y());
 	if ( prev.isNull() || prev.size() == frame.size() && offset == QPoint(0,0) ) {
 	    prev = frame;
 	} else {
-	    bitBlt(&prev,offset.x(),offset.y(),&frame,0,0,frame.width(),frame.height());
+            QPainter p(&prev);
+            p.drawImage(offset.x(),offset.y(),frame,0,0,frame.width(),frame.height());
 	}
     }
 }
@@ -386,8 +391,7 @@ void QAnimationWriter::appendFrame(const QImage& frm)
 
 void QAnimationWriter::appendBlankFrame()
 {
-    QImage i(1,1,32);
-    i.setAlphaBuffer(true);
+    QImage i(1,1,QImage::Format_ARGB32);
     i.fill(0);
     d->composeImage(i,QPoint(0,0));
 }

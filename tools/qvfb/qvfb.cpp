@@ -19,7 +19,7 @@
 #include "qanimationwriter.h"
 
 #include <QMenuBar>
-#include <Q3PopupMenu>
+#include <QMenu>
 #include <QApplication>
 #include <QMessageBox>
 #include <QComboBox>
@@ -131,10 +131,16 @@ private:
 Zoomer::Zoomer(QVFb* target) :
     qvfb(target)
 {
-    (new QVBoxLayout(this))->setAutoAdd(true);
-    QSlider *sl = new QSlider(10,64,1,32,Qt::Horizontal,this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    QSlider *sl = new QSlider(Qt::Horizontal);
+    sl->setMinimum(10);
+    sl->setMaximum(64);
+    sl->setPageStep(1);
+    sl->setValue(32);
+    layout->addWidget(sl);
     connect(sl,SIGNAL(valueChanged(int)),this,SLOT(zoom(int)));
-    label = new QLabel(this);
+    label = new QLabel();
+    layout->addWidget(label);
 }
 
 void Zoomer::zoom(int z)
@@ -146,9 +152,8 @@ void Zoomer::zoom(int z)
 
 // =====================================================================
 
-QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent,
-	    const char *name, uint flags )
-    : QMainWindow( parent, name, static_cast<Qt::WFlags>(flags) )
+QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent, Qt::WFlags flags )
+    : QMainWindow( parent, flags )
 {
     qApp->setQuitOnLastWindowClosed(false);
     view = 0;
@@ -179,7 +184,7 @@ QVFb::~QVFb()
 
 void QVFb::popupMenu()
 {
-    Q3PopupMenu *pm = new Q3PopupMenu( this );
+    QMenu *pm = new QMenu( this );
     createMenu( pm );
     pm->exec(QCursor::pos());
 }
@@ -236,7 +241,9 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 
      	if ( currentSkinIndex!=-1 ) {
 	    clearMask();
-	    reparent( 0, 0, pos(), true );
+            setParent( 0, 0 );
+            move( pos() );
+            show();
 	    //unset fixed size:
 	    setMinimumSize(0,0);
 	    setMaximumSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
@@ -252,7 +259,7 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 #endif
 	scroller->show();
 	// delete defaultbuttons.conf if it was left behind...
-	unlink(QFileInfo(QString("/tmp/qtembedded-%1/defaultbuttons.conf").arg(view->displayId())).absFilePath().latin1());
+	unlink(QFileInfo(QString("/tmp/qtembedded-%1/defaultbuttons.conf").arg(view->displayId())).absoluteFilePath().toLatin1().constData());
     }
     view->setRate(refreshRate);
     // Resize QVFb to the new size
@@ -263,7 +270,7 @@ void QVFb::init( int display_id, int pw, int ph, int d, int r, const QString& sk
 
     resize(newSize);
 
-    setCaption(QString("Virtual framebuffer %1x%2 %3bpp Display :%4 Rotate %5")
+    setWindowTitle(QString("Virtual framebuffer %1x%2 %3bpp Display :%4 Rotate %5")
                .arg(view->displayWidth()).arg(view->displayHeight())
                .arg(d).arg(display_id).arg(r));
 }
@@ -278,61 +285,53 @@ void QVFb::enableCursor( bool e )
     cursorAction->setChecked( e );
 }
 
-void QVFb::createMenu(QMenuBar *menu)
+template <typename T>
+void QVFb::createMenu(T *menu)
 {
-    menu->insertItem( "&File", createFileMenu() );
-    menu->insertItem( "&View", createViewMenu() );
-    menu->insertSeparator();
-    menu->insertItem( "&Help", createHelpMenu() );
-}
-
-void QVFb::createMenu(Q3PopupMenu *menu)
-{
-    menu->insertItem( "&File", createFileMenu() );
-    menu->insertItem( "&View", createViewMenu() );
-    menu->insertSeparator();
-    menu->insertItem( "&Help", createHelpMenu() );
+    menu->addMenu( createFileMenu() );
+    menu->addMenu( createViewMenu() );
+    menu->addSeparator();
+    menu->addMenu( createHelpMenu() );
 }
 
 QMenu* QVFb::createFileMenu()
 {
-    QMenu *file = new QMenu( this );
-    file->insertItem( "&Configure...", this, SLOT(configure()), Qt::ALT+Qt::CTRL+Qt::Key_C );
-    file->insertSeparator();
-    file->insertItem( "&Save image...", this, SLOT(saveImage()), Qt::ALT+Qt::CTRL+Qt::Key_S );
-    file->insertItem( "&Animation...", this, SLOT(toggleAnimation()), Qt::ALT+Qt::CTRL+Qt::Key_A );
-    file->insertSeparator();
-    file->insertItem( "&Quit", qApp, SLOT(quit()) );
+    QMenu *file = new QMenu( "&File", this );
+    file->addAction( "&Configure...", this, SLOT(configure()), Qt::ALT+Qt::CTRL+Qt::Key_C );
+    file->addSeparator();
+    file->addAction( "&Save image...", this, SLOT(saveImage()), Qt::ALT+Qt::CTRL+Qt::Key_S );
+    file->addAction( "&Animation...", this, SLOT(toggleAnimation()), Qt::ALT+Qt::CTRL+Qt::Key_A );
+    file->addSeparator();
+    file->addAction( "&Quit", qApp, SLOT(quit()) );
     return file;
 }
 
 QMenu* QVFb::createViewMenu()
 {
-    viewMenu = new QMenu( this );
-    viewMenu->setCheckable( true );
+    viewMenu = new QMenu( "&View", this );
     cursorAction = viewMenu->addAction( "Show &Cursor", this,
                                         SLOT(toggleCursor()) );
     cursorAction->setCheckable(true);
     if ( view )
 	enableCursor(true);
-    viewMenu->insertItem( "&Refresh Rate...", this, SLOT(changeRate()) );
-    viewMenu->insertSeparator();
-    viewMenu->insertItem( "Zoom scale &0.5", this, SLOT(setZoomHalf()) );
-    viewMenu->insertItem( "Zoom scale 0.75", this, SLOT(setZoom075()) );
-    viewMenu->insertItem( "Zoom scale &1", this, SLOT(setZoom1()) );
-    viewMenu->insertItem( "Zoom scale &2", this, SLOT(setZoom2()) );
-    viewMenu->insertItem( "Zoom scale &3", this, SLOT(setZoom3()) );
-    viewMenu->insertItem( "Zoom scale &4", this, SLOT(setZoom4()) );
-    viewMenu->insertSeparator();
-    viewMenu->insertItem( "Zoom scale...", this, SLOT(setZoom()) );
+    viewMenu->addAction( "&Refresh Rate...", this, SLOT(changeRate()) );
+    viewMenu->addSeparator();
+    viewMenu->addAction( "Zoom scale &0.5", this, SLOT(setZoomHalf()) );
+    viewMenu->addAction( "Zoom scale 0.75", this, SLOT(setZoom075()) );
+    viewMenu->addAction( "Zoom scale &1", this, SLOT(setZoom1()) );
+    viewMenu->addAction( "Zoom scale &2", this, SLOT(setZoom2()) );
+    viewMenu->addAction( "Zoom scale &3", this, SLOT(setZoom3()) );
+    viewMenu->addAction( "Zoom scale &4", this, SLOT(setZoom4()) );
+    viewMenu->addSeparator();
+    viewMenu->addAction( "Zoom scale...", this, SLOT(setZoom()) );
     return viewMenu;
 }
 
 
 QMenu* QVFb::createHelpMenu()
 {
-    QMenu *help = new QMenu( this );
-    help->insertItem("About...", this, SLOT(about()));
+    QMenu *help = new QMenu( "&Help", this );
+    help->addAction("About...", this, SLOT(about()));
     return help;
 }
 
@@ -479,9 +478,9 @@ void QVFb::configure()
     // Need to block signals, because we connect to animateClick(),
     // since QCheckBox doesn't have setChecked(bool) in 2.x.
     chooseSize(QSize(w,h));
-    config->skin->insertStringList(skinnames);
+    config->skin->insertItems(-1, skinnames);
     if (currentSkinIndex > 0)
-	config->skin->setCurrentItem(currentSkinIndex);
+	config->skin->setCurrentIndex(currentSkinIndex);
     config->touchScreen->setChecked(view->touchScreenEmulation());
     config->lcdScreen->setChecked(view->lcdScreenEmulation());
     config->depth_1->setChecked(view->displayDepth()==1);
@@ -537,7 +536,7 @@ void QVFb::configure()
 	    d=16;
 	else
 	    d=32;
-	int skinIndex = config->skin->currentItem();
+	int skinIndex = config->skin->currentIndex();
 	if ( w != view->displayWidth() || h != view->displayHeight()
 		|| d != view->displayDepth() || skinIndex != currentSkinIndex ) {
 	    QVFbView::Rotation rot = view->displayRotation();
@@ -695,7 +694,7 @@ AnimationSaveWidget::~AnimationSaveWidget()
 bool AnimationSaveWidget::detectPpmtoMpegCommand()
 {
     // search the PATH for the ppmtompeg command to test we can record to mpeg
-    QStringList paths = QStringList::split(QChar(':'),QString(::getenv("PATH")));
+    QStringList paths = QString(::getenv("PATH")).split(":");
     for ( int i = 0; i < paths.count(); i++ )
 	if ( QFile::exists( paths[i] + "/" + "ppmtompeg" ) )
 	    return true;
@@ -739,7 +738,7 @@ void AnimationSaveWidget::timerEvent( QTimerEvent *te )
     if ( te->timerId() == progressTimerId ) {
 	// Parse output log file to work out the encoding progress.
 	QFile f("/tmp/qvfb_tmp_output.log");
-	f.open(IO_ReadOnly);
+	f.open(QIODevice::ReadOnly);
 	int largestNum = 0;
 	bool done = false;
 	char buffer[1024];
@@ -752,7 +751,7 @@ void AnimationSaveWidget::timerEvent( QTimerEvent *te )
 	    f.readLine(buffer, 1024);
 	    str = QString(buffer);
 	    if ( str.left(6) == "FRAME " ) {
-		int num = str.mid(6, str.find(QChar(' '), 6) - 6).toInt();
+		int num = str.mid(6, str.indexOf(QChar(' '), 6) - 6).toInt();
 		if ( num > largestNum )
 		    largestNum = num;
 	    } else if ( str.left(18) == "======FRAMES READ:" ) {
@@ -788,7 +787,7 @@ void AnimationSaveWidget::convertToMpeg(QString filename)
 
     // Build parameter file required by ppmtompeg
     QFile file("/tmp/qvfb_tmp_ppmtompeg.params");
-    if ( file.open( IO_WriteOnly ) ) {
+    if ( file.open( QIODevice::WriteOnly ) ) {
 	QTextStream t( &file );
 	t << "PATTERN IBBPBBPBBPBBPBB\n";
 	t << "OUTPUT " << filename << "\n";
@@ -899,18 +898,17 @@ void AnimationSaveWidget::save()
 	toggleRecord(); // pauses
     statusText->setText( tr("Saving... "));
 
-    QFileDialog *imagesave = new QFileDialog(this, QString(), ".", "*.mpg;*.mng");
     QString filename;
     if ( savingAsMpeg ) {
-	filename = imagesave->getSaveFileName("animation.mpg", "*.mpg", this, "", tr("Save animation..."));
+	filename = QFileDialog::getSaveFileName(this, tr("Save animation..."), "", "*.mpg");
 	if ( !filename.isNull() )
 	    convertToMpeg(filename);
     } else {
-	filename = imagesave->getSaveFileName("animation.mng", "*.mng", this, "", tr("Save animation..."));
+	filename = QFileDialog::getSaveFileName(this, tr("Save animation..."), "", "*.mng");
 	if ( !filename.isNull() ) {
 	    // This might be the simplest posix way to move a file.
 	    // For windows, might need to do something else
-	    ::link("/tmp/qvfb_tmp_animation.mng", filename.latin1());
+	    ::link("/tmp/qvfb_tmp_animation.mng", filename.toLatin1().constData());
 	    ::unlink("/tmp/qvfb_tmp_animation.mng");
 	    statusText->setText( tr("Finished saving."));
 	    reset();

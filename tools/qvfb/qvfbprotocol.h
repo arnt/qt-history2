@@ -28,7 +28,7 @@ public:
 
     int id() const { return mDisplayId; }
 
-    void sendKeyboardData(int unicode, int keycode,
+    void sendKeyboardData(QString unicode, int keycode,
             int modifiers, bool press, bool repeat);
     void sendMouseData(const QPoint &pos, int buttons, int wheel);
 
@@ -63,7 +63,7 @@ public:
 
     int id() const { return mDisplayId; }
 
-    virtual void sendKeyboardData(int unicode, int keycode,
+    virtual void sendKeyboardData(QString unicode, int keycode,
             int modifiers, bool press, bool repeat) = 0;
 
 private:
@@ -93,7 +93,7 @@ public:
     QVFbKeyPipeProtocol(int display_id);
     ~QVFbKeyPipeProtocol();
 
-    void sendKeyboardData(int unicode, int keycode,
+    void sendKeyboardData(QString unicode, int keycode,
             int modifiers, bool press, bool repeat);
 
     QString pipeName() const { return fileName; }

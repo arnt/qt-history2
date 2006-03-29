@@ -62,7 +62,7 @@ QSize Skin::screenSize(const QString &skinFile)
     if ( _skinFileName.isEmpty() )
         return QSize(0,0);
     QFile f( _skinFileName );
-    f.open( IO_ReadOnly );
+    f.open( QIODevice::ReadOnly );
     QTextStream ts( &f );
     int viewW=0, viewH=0;
     parseSkinFileHeader(ts, 0, 0, &viewW, &viewH, 0, 0, 0, 0, 0, 0);
@@ -79,9 +79,9 @@ QString Skin::skinFileName(const QString &skinFile, QString* prefix)
 	fn = pref + fi.baseName() + ".skin";
     } else if (fi.isFile()){
 	fn = skinFile;
-	pref = fi.dirPath() + "/";
+	pref = fi.path() + "/";
     }else if (!skinFile.isNull()){
-	qDebug("Skin file \"%s\" not found", skinFile.latin1());
+	qDebug("Skin file \"%s\" not found", skinFile.toLatin1().constData());
 	return "";
     }
     if ( prefix ) *prefix = pref;
@@ -108,7 +108,7 @@ bool Skin::parseSkinFileHeader(QTextStream& ts,
 	    if ( line.isNull() )
 		break;
 	    if ( line[0] != '#' && !line.isEmpty() ) {
-		int eq = line.find('=');
+		int eq = line.indexOf('=');
 		if ( eq >= 0 ) {
 		    QString key = line.left(eq);
 		    eq++;
@@ -122,20 +122,20 @@ bool Skin::parseSkinFileHeader(QTextStream& ts,
 		    } else if ( key == "Closed" ) {
 			if ( skinImageClosedFileName ) *skinImageClosedFileName = value;
 		    } else if ( key == "Screen" ) {
-			QStringList l = QStringList::split(" ",value);
+			QStringList l = value.split(" ");
 			if ( viewX1 ) *viewX1 = l[0].toInt();
 			if ( viewY1 ) *viewY1 = l[1].toInt();
 			if ( viewW ) *viewW = l[2].toInt();
 			if ( viewH ) *viewH = l[3].toInt();
 		    } else if ( key == "Cursor" ) {
-			QStringList l = QStringList::split(" ",value);
+			QStringList l = value.split(" ");
 			if ( skinCursorFileName ) *skinCursorFileName = l[0];
 			if ( cursorHot ) *cursorHot = QPoint(l[1].toInt(),l[2].toInt());
 		    } else if ( key == "Areas" ) {
 			nareas = value.toInt();
 		    }
 		} else {
-		    qDebug("Broken line: %s",line.latin1());
+		    qDebug("Broken line: %s",line.toLatin1().constData());
 		}
 	    }
 	}
@@ -165,7 +165,7 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
     flipped_open(true)
 {
     setMouseTracking(true);
-    setBackgroundMode(Qt::NoBackground);
+    setAttribute(Qt::WA_NoSystemBackground);
     parent = p;
 
     QString _skinFileName = skinFileName(skinFile,&prefix);
@@ -174,14 +174,14 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
         return;
     }
     QFile f( _skinFileName );
-    f.open( IO_ReadOnly );
+    f.open( QIODevice::ReadOnly );
     QTextStream ts( &f );
     parseSkinFileHeader(ts, &viewX1, &viewY1, &viewW, &viewH, &numberOfAreas,
 	&skinImageUpFileName, &skinImageDownFileName, &skinImageClosedFileName,
 	&skinCursorFileName, &cursorHot);
 
 //  Debug the skin file parsing
-//  printf("read: -%s- -%i- -%i- -%i-\n", skinImage.latin1(), viewX1, viewY1, numberOfAreas );
+//  printf("read: -%s- -%i- -%i- -%i-\n", skinImage.toLatin1().constData(), viewX1, viewY1, numberOfAreas );
     areas = new ButtonAreas[numberOfAreas];
 
     skinImageUpFileName = prefix + skinImageUpFileName;
@@ -197,13 +197,13 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
     while (i < numberOfAreas && !ts.atEnd() ) {
 	QString line = ts.readLine();
 	if ( line[0] != '#' && !line.isEmpty() ) {
-	    QStringList tok = QStringList::split(QRegExp("[ \t][ \t]*"),line);
+	    QStringList tok = line.split(QRegExp("[ \t][ \t]*"));
 	    if ( tok.count()<6 ) {
-		qDebug("Broken line: %s",line.latin1());
+		qDebug("Broken line: %s",line.toLatin1().constData());
 	    } else {
 		areas[i].name = tok[0];
 		QString k = tok[1];
-		if ( k.left(2).lower() == "0x" ) {
+		if ( k.left(2).toLower() == "0x" ) {
 		    areas[i].keyCode = k.mid(2).toInt(0,16);
 		} else {
 		    areas[i].keyCode = k.toInt();
@@ -230,6 +230,7 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
     t_skinkey = new QTimer( this );
     connect( t_skinkey, SIGNAL(timeout()), this, SLOT(skinKeyRepeat()) );
     t_parentmove = new QTimer( this );
+    t_parentmove->setSingleShot( true );
     connect( t_parentmove, SIGNAL(timeout()), this, SLOT(moveParent()) );
 
     skinValid = true;
@@ -247,7 +248,7 @@ void Skin::skinKeyRepeat()
 void Skin::calcRegions()
 {
     for (int i=0; i<numberOfAreas; i++) {
-	Q3PointArray xa(areas[i].area.count());
+	QPolygon xa(areas[i].area.count());
 	int n = areas[i].area.count();
 	for (int p=0; p<n; p++) {
 	    xa.setPoint(p,
@@ -278,31 +279,31 @@ void Skin::loadImages()
 	icurs.load(skinCursorFileName);
 
     if ( zoom != int(zoom) ) {
-	iup = iup.smoothScale(int(iup.width()*zoom),int(iup.height()*zoom));
-	idown = idown.smoothScale(int(idown.width()*zoom),int(idown.height()*zoom));
+	iup = iup.scaled(int(iup.width()*zoom),int(iup.height()*zoom), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+	idown = idown.scaled(int(idown.width()*zoom),int(idown.height()*zoom), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 	if ( !skinImageClosedFileName.isEmpty() )
-	    iclosed = iclosed.smoothScale(int(idown.width()*zoom),int(idown.height()*zoom));
+	    iclosed = iclosed.scaled(int(idown.width()*zoom),int(idown.height()*zoom), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 	if ( !skinCursorFileName.isEmpty() )
-	    icurs = icurs.smoothScale(int(idown.width()*zoom),int(idown.height()*zoom));
+	    icurs = icurs.scaled(int(idown.width()*zoom),int(idown.height()*zoom), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     }
     Qt::ImageConversionFlags conv = Qt::ThresholdAlphaDither|Qt::AvoidDither;
     if ( !skinImageUpFileName.isEmpty() )
-	skinImageUp.convertFromImage(iup);
+	skinImageUp = QPixmap::fromImage(iup);
     if ( !skinImageDownFileName.isEmpty() )
-	skinImageDown.convertFromImage(idown, conv);
+	skinImageDown = QPixmap::fromImage(idown, conv);
     if ( !skinImageClosedFileName.isEmpty() )
-	skinImageClosed.convertFromImage(iclosed, conv);
+	skinImageClosed = QPixmap::fromImage(iclosed, conv);
     if ( !skinCursorFileName.isEmpty() )
-	skinCursor.convertFromImage(icurs, conv);
+	skinCursor = QPixmap::fromImage(icurs, conv);
 
     if ( zoom == int(zoom) ) {
-	QWMatrix scale; scale = scale.scale(zoom,zoom);
-	skinImageUp = skinImageUp.xForm(scale);
-	skinImageDown = skinImageDown.xForm(scale);
+	QMatrix scale; scale = scale.scale(zoom,zoom);
+	skinImageUp = skinImageUp.transformed(scale);
+	skinImageDown = skinImageDown.transformed(scale);
 	if ( !skinImageClosedFileName.isEmpty() )
-	    skinImageClosed = skinImageClosed.xForm(scale);
+	    skinImageClosed = skinImageClosed.transformed(scale);
 	if ( !skinCursorFileName.isEmpty() )
-	    skinCursor = skinCursor.xForm(scale);
+	    skinCursor = skinCursor.transformed(scale);
     }
 
     setFixedSize( skinImageUp.size() );
@@ -415,7 +416,7 @@ void Skin::flip(bool open)
 	view->skinKeyPressEvent( Qt::Key(Qt::Key_Flip), "Flip" );
     }
     flipped_open = open;
-    repaint(false);
+    repaint();
 }
 
 void Skin::startPress(int i)
@@ -430,7 +431,7 @@ void Skin::startPress(int i)
 	    t_skinkey->start(key_repeat_delay);
 	}
 	ButtonAreas *ba = &areas[buttonIndex];
-	repaint( ba->region.boundingRect(), false );
+	repaint( ba->region.boundingRect() );
     }
 }
 
@@ -441,12 +442,12 @@ void Skin::endPress()
     t_skinkey->stop();
     buttonPressed = false;
     ButtonAreas *ba = &areas[buttonIndex];
-    repaint( ba->region.boundingRect(), false );
+    repaint( ba->region.boundingRect() );
 }
 
 void Skin::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( e->state() & Qt::LeftButton ) {
+    if ( e->buttons() & Qt::LeftButton ) {
 	QPoint newpos =  e->globalPos() - clickPos;
 	if ( joydown ) {
 	    int k1=0, k2=0;
@@ -475,7 +476,7 @@ void Skin::mouseMoveEvent( QMouseEvent *e )
 	} else if ( buttonPressed == false ) {
 	    parentpos = newpos;
 	    if ( !t_parentmove->isActive() )
-		t_parentmove->start(50,true);
+		t_parentmove->start(50);
 	}
     }
     if ( cursorw )
@@ -511,12 +512,12 @@ void Skin::setupDefaultButtons()
     QString destDir = QString("/tmp/qtembedded-%1/").arg(view->displayId());
     QFileInfo src(prefix + "defaultbuttons.conf");
     QFileInfo dst(destDir + "defaultbuttons.conf");
-    unlink(dst.absFilePath().latin1());
+    unlink(dst.absoluteFilePath().toLatin1().constData());
     if (src.exists()) {
-	QString srcFile = src.absFilePath();
-	QString origDir = QDir::current().absPath();
+	QString srcFile = src.absoluteFilePath();
+	QString origDir = QDir::current().absolutePath();
 	QDir::setCurrent(destDir);
-	symlink(srcFile.latin1(), dst.fileName().latin1());
+	symlink(srcFile.toLatin1().constData(), dst.fileName().toLatin1().constData());
 	QDir::setCurrent(origDir);
     }
 }
@@ -555,7 +556,7 @@ void CursorWindow::handleMouseEvent(QEvent *ev)
 			mouseRecipient = 0;
 		}
 		if ( mouseRecipient ) {
-		    QMouseEvent me(e->type(),mouseRecipient==skin ? sp : vp,gp,e->button(),e->state());
+		    QMouseEvent me(e->type(),mouseRecipient==skin ? sp : vp,gp,e->button(),e->buttons(),e->modifiers());
 		    QApplication::sendEvent(mouseRecipient, &me);
 		    setPos(gp);
 		} else if ( !skin->parentWidget()->geometry().contains(gp) ) {
@@ -584,27 +585,30 @@ void CursorWindow::setView(QVFbView* v)
 }
 
 CursorWindow::CursorWindow( const QString& fn, QPoint hot, QWidget* sk)
-	:QWidget(0,0, Qt::WStyle_Customize|Qt::WStyle_NoBorder),
+	:QWidget(0),
 	view(0), skin(sk),
 	hotspot(hot)
 {
+    setWindowFlags( Qt::FramelessWindowHint );
     mouseRecipient = 0;
     setMouseTracking(true);
     setCursor(Qt::BlankCursor);
     QImage img( fn );
     QPixmap p;
-    p.convertFromImage( img );
+    p = QPixmap::fromImage( img );
     if ( !p.mask() )
-	if ( img.hasAlphaBuffer() ) {
+	if ( img.hasAlphaChannel() ) {
 	    QBitmap bm;
-	    bm = img.createAlphaMask();
+	    bm = QPixmap::fromImage(img.createAlphaMask());
 	    p.setMask( bm );
 	} else {
 	    QBitmap bm;
-	    bm = img.createHeuristicMask();
+	    bm = QPixmap::fromImage(img.createHeuristicMask());
 	    p.setMask( bm );
 	}
-    setBackgroundPixmap( p );
+    QPalette palette;
+    palette.setBrush(backgroundRole(), QBrush(p));
+    setPalette(palette);
     setFixedSize( p.size() );
     if ( !p.mask().isNull() )
 	setMask( p.mask() );

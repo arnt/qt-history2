@@ -75,8 +75,8 @@ QMMapViewProtocol::QMMapViewProtocol(int displayid, const QSize &s,
 
     dataSize = bpl * h + data_offset_value;
 
-    unlink(fileName.local8Bit().data());
-    fd = ::open( fileName.local8Bit().data(), O_CREAT|O_RDWR, 0666 );
+    unlink(fileName.toLocal8Bit().data());
+    fd = ::open( fileName.toLocal8Bit().data(), O_CREAT|O_RDWR, 0666 );
     ::lseek(fd, dataSize, SEEK_SET);
     ::write(fd, "\0", 1);
     if (fd < 0) {
@@ -115,7 +115,7 @@ QMMapViewProtocol::~QMMapViewProtocol()
 {
     munmap( (char *)hdr, dataSize );
     ::close( fd );
-    unlink( fileName );
+    unlink( fileName.toLocal8Bit().constData() );
     free(dataCache);
     delete kh;
     delete mh;

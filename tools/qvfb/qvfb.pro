@@ -6,8 +6,6 @@ DESTDIR         = ../../bin
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
 
-QT		+= qt3support
-
 DEPENDPATH      = ../../include
 
 FORMS           = config.ui

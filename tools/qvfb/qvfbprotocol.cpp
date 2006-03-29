@@ -36,7 +36,7 @@ QVFbViewProtocol::~QVFbViewProtocol() {}
 
 void QVFbViewProtocol::flushChanges() {}
 
-void QVFbViewProtocol::sendKeyboardData(int unicode, int keycode,
+void QVFbViewProtocol::sendKeyboardData(QString unicode, int keycode,
         int modifiers, bool press, bool repeat)
 {
     if (keyHandler())
@@ -62,7 +62,7 @@ QVFbKeyPipeProtocol::QVFbKeyPipeProtocol(int display_id)
     : QVFbKeyProtocol(display_id)
 {
     fileName = QString(QT_VFB_KEYBOARD_PIPE).arg(display_id);
-    fd = openPipe(fileName.local8Bit().constData());
+    fd = openPipe(fileName.toLocal8Bit().constData());
 
     if (fd == -1)
 	qFatal("Cannot open keyboard pipe %s", fileName.toLocal8Bit().data());
@@ -72,14 +72,14 @@ QVFbKeyPipeProtocol::~QVFbKeyPipeProtocol()
 {
     sendKeyboardData(0, 0, 0, true, false); // magic die key
     ::close(fd);
-    unlink(fileName.local8Bit().constData());
+    unlink(fileName.toLocal8Bit().constData());
 }
 
-void QVFbKeyPipeProtocol::sendKeyboardData(int unicode, int keycode,
+void QVFbKeyPipeProtocol::sendKeyboardData(QString unicode, int keycode,
         int modifiers, bool press, bool repeat)
 {
     QVFbKeyData kd;
-    kd.unicode = unicode;
+    kd.unicode = unicode[0].unicode();
     kd.keycode = keycode;
     kd.modifiers = static_cast<Qt::KeyboardModifier>(modifiers);
     kd.press = press;
@@ -91,7 +91,7 @@ QVFbMousePipe::QVFbMousePipe(int display_id)
     : QVFbMouseProtocol(display_id)
 {
     fileName = QString(QT_VFB_MOUSE_PIPE).arg(display_id);
-    fd = openPipe(fileName.local8Bit().constData());
+    fd = openPipe(fileName.toLocal8Bit().constData());
 
     if (fd == -1)
 	qFatal("Cannot open mouse pipe %s", fileName.toLocal8Bit().data());
@@ -100,7 +100,7 @@ QVFbMousePipe::QVFbMousePipe(int display_id)
 QVFbMousePipe::~QVFbMousePipe()
 {
     ::close(fd);
-    unlink(fileName.local8Bit().constData());
+    unlink(fileName.toLocal8Bit().constData());
 }
 
 

@@ -122,7 +122,7 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
         username = logname;
 
     QString oldPipe = "/tmp/qtembedded-" + username + "/" + QString( QTE_PIPE ).arg( displayid );
-    int oldPipeSemkey = ftok( oldPipe.latin1(), 'd' );
+    int oldPipeSemkey = ftok( oldPipe.toLatin1().constData(), 'd' );
     int oldPipeLockId = semget( oldPipeSemkey, 0, 0 );
     if (oldPipeLockId >= 0){
         sembuf sops;
@@ -133,7 +133,7 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
         do {
             rv = semop(lockId,&sops,1);
         } while ( rv == -1 && errno == EINTR );
-        qFatal("Cannot create lock file as an old version of QVFb has opened %s. Close other QVFb and try again", oldPipe.latin1());
+        qFatal("Cannot create lock file as an old version of QVFb has opened %s. Close other QVFb and try again", oldPipe.toLatin1().constData());
     }
 
     kh = new QVFbKeyPipeProtocol(displayid);
@@ -143,7 +143,7 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
 
     QString mousePipe = mh->pipeName();
 
-    key_t key = ftok( mousePipe.latin1(), 'b' );
+    key_t key = ftok( mousePipe.toLatin1().constData(), 'b' );
 
     int bpl;
     if ( d == 1 )

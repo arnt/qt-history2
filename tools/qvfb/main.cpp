@@ -68,7 +68,7 @@ int main( int argc, char *argv[] )
 	} else if ( arg == "-qwsdisplay" ) {
 	    displaySpec = argv[++i];
 	} else {
-	    printf( "Unknown parameter %s\n", arg.latin1() );
+	    printf( "Unknown parameter %s\n", arg.toLatin1().constData() );
 	    usage( argv[0] );
 	    exit(1);
 	}
@@ -94,7 +94,7 @@ int main( int argc, char *argv[] )
 
     QVFb mw( displayId, width, height, depth, rotation, skin );
     mw.setZoom(zoom);
-    app.setMainWidget( &mw );
+    //app.setMainWidget( &mw );
     mw.enableCursor(cursor);
     mw.show();
 
