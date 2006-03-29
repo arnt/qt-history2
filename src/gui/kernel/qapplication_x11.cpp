@@ -2417,6 +2417,8 @@ void QApplication::beep()
 {
     if (X11->display)
         XBell(X11->display, 0);
+    else
+        printf("\7");
 }
 
 
