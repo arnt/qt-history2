@@ -3098,6 +3098,12 @@
     to the Qt3Support library. It has been replaced by
     the QAbstractScrollArea and QScrollArea classes.
 
+    Note that Qt 4 in general uses the QScrollArea::widget() function
+    where Qt 3 used QScrollView::viewport(). The rationale for this is
+    that it is no longer possible to draw directly on a scroll
+    area. The QScrollArea::widget() function returns the widget set on
+    the scroll area.
+
     \c QScrollView was designed to work around the 16-bit limitation
     on widget coordinates found on most window systems. In Qt 4, this
     is done transparently for \e all widgets, so there is no longer a
@@ -3830,7 +3836,7 @@
        QVariant::ByteArray.
     \endlist
 
-    Also, 
+    Also,
 
     \section1 QVBox
 

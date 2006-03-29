@@ -257,8 +257,14 @@ QAbstractScrollArea::~QAbstractScrollArea()
 {
 }
 
-/*! Returns the viewport widget.
- */
+/*!
+    Returns the viewport widget.
+
+    Use the QScrollBar::widget() function to retrieve the contents of
+    the viewport widget.
+
+    \sa QScrollArea::widget()
+*/
 QWidget *QAbstractScrollArea::viewport() const
 {
     Q_D(const QAbstractScrollArea);
