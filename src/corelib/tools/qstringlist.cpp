@@ -76,21 +76,21 @@
     Indexing:
     \code
         for (int i = 0; i < fonts.size(); ++i)
-            cout << fonts.at(i).ascii() << endl;
+            cout << fonts.at(i).toLocal8Bit().constData() << endl;
     \endcode
 
     Java-style iterator:
     \code
         QStringListIterator i(fonts);
         while (i.hasNext())
-            cout << i.next().ascii() << endl;
+            cout << i.next().toLocal8Bit().constData() << endl;
     \endcode
 
     STL-style iterator:
     \code
         QStringList::const_iterator i;
         for (i = fonts.constBegin(); i != fonts.constEnd(); ++i)
-            cout << (*i).ascii() << endl;
+            cout << (*i).toLocal8Bit().constData() << endl;
     \endcode
 
     QStringListIterator and QMutableStringListIterator are simply
