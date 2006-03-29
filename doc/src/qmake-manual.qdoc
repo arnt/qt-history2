@@ -334,6 +334,8 @@
     \row    \o debug    \o The project is to be built in debug mode.
     \row    \o debug_and_release \o The project is built in \e both debug and
             release modes.
+    \row    \o build_all \o If \c debug_and_release is specified, the project is
+            built in both debug and release modes by default.
     \row    \o warn_on  \o The compiler should output as many warnings as possible.
             This is ignored if \c warn_off is specified.
     \row    \o warn_off \o The compiler should output as few warnings as possible.
@@ -347,6 +349,10 @@
     \code
         make all
     \endcode
+
+    Adding the \c build_all option to the \c CONFIG variable makes this rule
+    the default when building the project, and installation targets will be
+    created for both debug and release builds.
 
     Note that each of the options specified in the \c CONFIG variable can also be
     used as a scope condition.
@@ -475,7 +481,7 @@
     \title Running qmake
     \contentspage {qmake Manual}{Contents}
     \previouspage qmake Project Files
-    \nextpage qmake Reference
+    \nextpage qmake Advanced Usage
 
     The behavior of \c qmake can be customized when it is run by
     specifying various options on the command line. These allow the
@@ -749,25 +755,31 @@
     \table 95%
     \header \o Option   \o Description
     \row    \o release  \o The project is to be built in release mode.
-                        This is ignored if \c debug is also specified.
+            This is ignored if \c debug is also specified.
     \row    \o debug    \o The project is to be built in debug mode.
     \row    \o debug_and_release \o The project is built in \e both debug and
-                        release modes.
+            release modes.
+    \row    \o build_all \o If \c debug_and_release is specified, the project is
+            built in both debug and release modes by default.
     \row    \o warn_on  \o The compiler should output as many warnings as possible.
-                        This is ignored if \c warn_off is specified.
+            This is ignored if \c warn_off is specified.
     \row    \o warn_off \o The compiler should output as few warnings as possible.
     \endtable
 
     Since the \c debug option overrides the \c release option when both are
     defined in the \c CONFIG variable, it is necessary to use the
-    \c debug_and_release option if you want to build both debug and release
-    versions of a project. In such a case, the Makefile that \c qmake generates
-    includes a rule that builds both versions, and this can be invoked in the
-    following way:
+    \c debug_and_release option if you want to allow both debug and release
+    versions of a project to be built. In such a case, the Makefile that
+    \c qmake generates includes a rule that builds both versions, and this can
+    be invoked in the following way:
 
     \code
         make all
     \endcode
+
+    Adding the \c build_all option to the \c CONFIG variable makes this rule
+    the default when building the project, and installation targets will be
+    created for both debug and release builds.
 
     The following options define the application/library type:
 
@@ -1139,6 +1151,29 @@
     is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be
     modified.
 
+    \target POST_TARGETDEPS
+    \section1 POST_TARGETDEPS
+
+    All libraries that the \l{#TARGET}{target} depends on can be
+    listed in this variable. Some backends do not support this, these include
+    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
+    internally by these build tools, this is usefull for explicitly listing
+    dependant static libraries.
+
+    This list will go after all builtin (and \link #PRE_TARGETDEPS
+    $$PRE_TARGETDEPS \endlink) dependencies.
+
+    \target PRE_TARGETDEPS
+    \section1 PRE_TARGETDEPS
+
+    All libraries that the \l{#TARGET}{target} depends on can be
+    listed in this variable. Some backends do not support this, these include
+    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
+    internally by these build tools, this is usefull for explicitly listing
+    dependant static libraries.
+
+    This list will go before all builtin dependencies.
+
     \target PRECOMPILED_HEADER
     \section1 PRECOMPILED_HEADER
 
@@ -1488,35 +1523,6 @@
     INCLUDEPATH when building an application.  The value of this variable is
     typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely
     needs to be modified.
-
-    \section1 QTPLUGIN
-
-    This variable contains a list of names of static plugins that are to be
-    compiled with an application so that they are available as built-in
-    resources.
-
-    \target POST_TARGETDEPS
-    \section1 POST_TARGETDEPS
-
-    All libraries that the \l{#TARGET}{target} depends on can be
-    listed in this variable. Some backends do not support this, these include
-    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
-    internally by these build tools, this is usefull for explicitly listing
-    dependant static libraries.
-
-    This list will go after all builtin (and \link #PRE_TARGETDEPS
-    $$PRE_TARGETDEPS \endlink) dependencies.
-
-    \target PRE_TARGETDEPS
-    \section1 PRE_TARGETDEPS
-
-    All libraries that the \l{#TARGET}{target} depends on can be
-    listed in this variable. Some backends do not support this, these include
-    MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
-    internally by these build tools, this is usefull for explicitly listing
-    dependant static libraries.
-
-    This list will go before all builtin dependencies.
 
     \target QMAKE_INCDIR_OPENGL
     \section1 QMAKE_INCDIR_OPENGL
@@ -1882,6 +1888,12 @@
     \code
         QMAKE_UIC = uic -L /path/to/plugin
     \endcode
+
+    \section1 QTPLUGIN
+
+    This variable contains a list of names of static plugins that are to be
+    compiled with an application so that they are available as built-in
+    resources.
 
     \section1 RC_FILE
 
@@ -2768,7 +2780,7 @@
     \page qmake-advanced-usage.html
     \title qmake Advanced Usage
     \contentspage {qmake Manual}{Contents}
-    \previouspage Configuring qmake's Environment
+    \previouspage Running qmake
     \nextpage Using Precompiled Headers
 
     Many \c qmake project files simply describe the sources and header files used
@@ -3735,4 +3747,66 @@
 
     See the \l{Qt Examples#Qt Designer Examples}{Qt Designer examples} for more
     examples of plugin-based projects.
+
+    \section1 Building and Installing in Debug and Release Modes
+
+    Sometimes, it is necessary to build a project in both debug and release
+    modes. Although the \c CONFIG variable can hold both \c debug and \c release
+    options, the \c debug option overrides the \c release option.
+
+    \section2 Building in Both Modes
+
+    To enable a project to be built in both modes, you must add the
+    \c debug_and_release option to your project's \c CONFIG definition:
+
+    \quotefromfile snippets/qmake/debug_and_release.pro
+    \skipto CONFIG +=
+    \printuntil else
+    \printuntil /^\}/
+
+    The scope in the above snippet modifies the build target in each mode to
+    ensure that the resulting targets have different names. Providing different
+    names for targets ensures that one will not overwrite the other.
+
+    When \c qmake processes the project file, it will generate a Makefile rule
+    to allow the project to be built in both modes. This can be invoked in the
+    following way:
+
+    \code
+        make all
+    \endcode
+
+    The \c build_all option can be added to the \c CONFIG variable in the
+    project file to ensure that the project is built in both modes by default:
+
+    \skipto CONFIG +=
+    \printuntil CONFIG +=
+
+    This allows the Makefile to be processed using the default rule:
+
+    \code
+        make
+    \endcode
+
+    \section2 Installing in Both Modes
+
+    The \c build_all option also ensures that both versions of the target
+    will be installed when the installation rule is invoked:
+
+    \code
+        make install
+    \endcode
+
+    It is possible to customize the names of the build targets depending on
+    the target platform. For example, a library or plugin may be named using a
+    different convention on Windows to the one used on Unix platforms:
+
+    \quotefromfile designer/customwidgetplugin/customwidgetplugin.pro
+    \skipto CONFIG(
+    \printuntil /^\}/
+
+    The default behavior in the above snippet is to modify the name used for
+    the build target when building in debug mode. An \c else clause could be
+    added to the scope to do the same for release mode; left as it is, the
+    target name remains unmodified.
 */
