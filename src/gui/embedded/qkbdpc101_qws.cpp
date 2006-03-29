@@ -117,7 +117,7 @@ static const QWSKeyMap pc101KeyM[] = {
     {   Qt::Key_3,      '3'     , '3'     , 0xffff  },
     {   Qt::Key_0,      '0'     , '0'     , 0xffff  },
     {   Qt::Key_Period,     '.'     , '.'     , 0xffff  },
-    {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
+    {   Qt::Key_SysReq,    0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_Less,   '<'     , '>'  , 0xffff  },
     {   Qt::Key_F11,        0xffff  , 0xffff  , 0xffff  },
@@ -205,6 +205,7 @@ const QWSKeyMap *QWSPC101KeyboardHandler::keyMap() const
 
 void QWSPC101KeyboardHandler::doKey(uchar code)
 {
+
     int keyCode = Qt::Key_unknown;
     bool release = false;
     int keypad = 0;
@@ -273,7 +274,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
             keyCode = Qt::Key_Control;
             break;
         case 0x2a:
-            keyCode = Qt::Key_SysReq;
+            keyCode = Qt::Key_Print;
             break;
         case 0x38:
             keyCode = Qt::Key_Alt;
@@ -287,6 +288,11 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
         case 0x5d:
             keyCode = Qt::Key_Menu;
             break;
+#if 0
+        default:
+            qDebug("extended1 code %x release %d", code, release);
+            break;
+#endif
         }
     } else if (extended == 2) {
         switch (code) {
