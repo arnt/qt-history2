@@ -169,6 +169,7 @@ sub classNames {
 	    if($line) {
                 $line =~ s,//.*$,,; #remove c++ comments
 	        $line .= ";" if($line =~ m/^Q_[A-Z_]*\(.*\)[\r\n]*$/); #qt macro
+	        $line .= ";" if($line =~ m/^QT_(BEGIN|END)_HEADER[\r\n]*$/); #qt macro
 	        $line .= ";" if($line =~ m/^QT_MODULE\(.*\)[\r\n]*$/); # QT_MODULE macro
                 $parsable .= " " . $line;
 	    }
@@ -869,6 +870,8 @@ if($check_includes) {
 			my $iheader = $subdir . "/" . $header;
 			if($public_header) {
 			    if(open(F, "<$iheader")) {
+				my $qt_begin_header_found = 0;
+				my $qt_end_header_found = 0;
 				my $line;
 				while($line = <F>) {
 				    chomp $line;
@@ -892,7 +895,18 @@ if($check_includes) {
 						}
 					    }
 					}
+				    } elsif ($line =~ /^QT_BEGIN_HEADER\s*$/) {
+					$qt_begin_header_found = 1;
+				    } elsif ($line =~ /^QT_END_HEADER\s*$/) {
+					$qt_end_header_found = 1;
 				    }
+				}
+				if ($qt_begin_header_found == 0) {
+				    print "WARNING: $iheader does not include QT_BEGIN_HEADER\n";
+				}
+
+				if ($qt_begin_header_found && $qt_end_header_found == 0) {
+				    print "WARNING: $iheader has QT_BEGIN_HEADER but no QT_END_HEADER\n";
 				}
 				close(F);
 			    }
