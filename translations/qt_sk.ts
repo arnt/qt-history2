@@ -2268,7 +2268,7 @@ aplikácii.&lt;/p&gt;
 &lt;p&gt;Poskytuje portabilitu jednotného kódu na MS&amp;nbsp;Windows, 
 Mac&amp;nbsp;OS&amp;nbsp;X, Linux, a mnohé ďalšie komerčné verzie Unixu.
 &lt;br&gt;Qt je dostupné aj pre malé zariadenia.&lt;/p&gt;
-&lt;p&gt;Qt je produkt firmy TrollTech. Pre ďalšie informácie navštívte 
+&lt;p&gt;Qt je produkt firmy Trolltech. Pre ďalšie informácie navštívte 
 &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
