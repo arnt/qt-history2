@@ -59,7 +59,7 @@
     The application finds these dynamic libraries if the libraries have an
     install name of "@executable_path/../Frameworks/libname.dylib.
 
-    If you use \c qmake and Makefiles, use the \c QMAKE_LFFLAGS_SONAME setting:
+    If you use \c qmake and Makefiles, use the \c QMAKE_LFLAGS_SONAME setting:
 
     \code
         QMAKE_LFLAGS_SONAME  = -Wl,-install_name,@executable_path/../Frameworks/
@@ -119,9 +119,9 @@
 
     \code
         CFURLRef pluginRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-        CFStringRef macPath = CFURLCopyFileSystemPath(pluginRef, 
+        CFStringRef macPath = CFURLCopyFileSystemPath(pluginRef,
                                                kCFURLPOSIXPathStyle);
-        const char *pathPtr = CFStringGetCStringPtr(macPath, 
+        const char *pathPtr = CFStringGetCStringPtr(macPath,
                                                CFStringGetSystemEncoding());
         qDebug("Path = %s", pathPtr);
         CFRelease(pluginRef);
