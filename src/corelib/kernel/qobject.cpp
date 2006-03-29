@@ -2026,7 +2026,7 @@ int QObject::receivers(const char *signal) const
     \code
         QLabel *label = new QLabel;
         QScrollBar *scrollBar = new QScrollBar;
-        QObject::connect(scroll, SIGNAL(valueChanged(int)),
+        QObject::connect(scrollBar, SIGNAL(valueChanged(int)),
                          label,  SLOT(setNum(int)));
     \endcode
 
@@ -2037,7 +2037,7 @@ int QObject::receivers(const char *signal) const
 
     \code
         // WRONG
-        QObject::connect(scroll, SIGNAL(valueChanged(int value)),
+        QObject::connect(scrollBar, SIGNAL(valueChanged(int value)),
                          label, SLOT(setNum(int value)));
     \endcode
 
