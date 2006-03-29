@@ -124,6 +124,17 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
         if (mev->button() & Qt::LeftButton) {
             mousePressed = true;
             pressPoint = mev->pos();
+
+            for (int i = 0; i < tabBar()->count(); ++i) {
+                if (tabBar()->tabRect(i).contains(pressPoint)) {
+                    if (i != tabBar()->currentIndex()) {
+                        SetPropertyCommand *cmd = new SetPropertyCommand(formWindow());
+                        cmd->init(this, "currentIndex", i);
+                        formWindow()->commandHistory()->push(cmd);
+                    }
+                    break;
+                }
+            }
         }
     } break;
 
