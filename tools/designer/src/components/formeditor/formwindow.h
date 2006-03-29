@@ -123,8 +123,7 @@ public:
     QWidget *currentWidget() const;
     void setCurrentWidget(QWidget *currentWidget);
 
-    virtual QSize sizeHint() const
-    { return QSize(400, 300); }  /// ### remove me
+    virtual QSize sizeHint() const;
 
     bool hasInsertedChildren(QWidget *w) const;
 

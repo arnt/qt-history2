@@ -27,6 +27,8 @@
 
 #include <QtCore/QVariant>
 #include <QtCore/QMap>
+#include <QtGui/QMainWindow>
+#include "abstractformwindow.h"
 
 namespace qdesigner_internal {
 
@@ -70,6 +72,22 @@ inline bool isObjectAncestorOf(QObject *ancestor, QObject *child)
             return true;
         obj = obj->parent();
     }
+    return false;
+}
+
+inline bool isCentralWidget(QDesignerFormWindowInterface *fw, QWidget *widget)
+{
+    if (! fw || ! widget)
+        return false;
+
+    if (widget == fw->mainContainer())
+        return true;
+
+    // ### generalize for other containers
+    if (QMainWindow *mw = qobject_cast<QMainWindow*>(fw->mainContainer())) {
+        return mw->centralWidget() == widget;
+    }
+
     return false;
 }
 

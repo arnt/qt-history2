@@ -561,6 +561,21 @@ void FormWindow::setCurrentWidget(QWidget *currentWidget)
     m_currentWidget = currentWidget;
 }
 
+QSize FormWindow::sizeHint() const
+{
+    QMainWindow *mw = qobject_cast<QMainWindow*>(mainContainer());
+    if (!mw) {
+        return QSize(400, 300);
+    }
+    QSize sh = mw->sizeHint();
+    if (sh.width() < 400)
+        sh.setWidth(400);
+    if (sh.height() < 300)
+        sh.setHeight(300);
+    return sh;
+
+}
+
 void FormWindow::selectWidget(QWidget* w, bool select)
 {
     if (!isManaged(w) && !isCentralWidget(w))

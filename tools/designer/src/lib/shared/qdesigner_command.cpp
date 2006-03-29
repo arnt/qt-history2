@@ -14,6 +14,7 @@
 #include <QtDesigner/QtDesigner>
 
 #include "qdesigner_command_p.h"
+#include "qdesigner_utils_p.h"
 #include "layout_p.h"
 #include "qlayout_widget_p.h"
 #include "qdesigner_widget_p.h"
@@ -35,6 +36,7 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QDockWidget>
 #include <QtGui/QMainWindow>
+#include <QtGui/QApplication>
 
 namespace qdesigner_internal {
 
@@ -1700,16 +1702,13 @@ void AdjustWidgetSizeCommand::init(QWidget *widget)
 
 void AdjustWidgetSizeCommand::redo()
 {
-    if (formWindow()->mainContainer() == m_widget && formWindow()->parentWidget()) {
-        m_geometry = formWindow()->parentWidget()->geometry();
-        QSize newsize = m_widget->sizeHint();
-        if (!newsize.isValid())
-            newsize = m_widget->minimumSize();
-        formWindow()->parentWidget()->resize(newsize);
-    } else {
-        m_geometry = m_widget->geometry();
-        m_widget->adjustSize();
-    }
+    QWidget *widget = m_widget;
+    if (Utils::isCentralWidget(formWindow(), widget) && formWindow()->parentWidget())
+        widget = formWindow()->parentWidget();
+
+    m_geometry = widget->geometry();
+    QApplication::processEvents();
+    widget->adjustSize();
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == m_widget)

@@ -13,6 +13,7 @@
 
 #include "layout_p.h"
 #include "qdesigner_widget_p.h"
+#include "qdesigner_utils_p.h"
 #include "qlayout_widget_p.h"
 #include "spacer_widget_p.h"
 #include "layoutdecoration.h"
@@ -28,6 +29,7 @@
 #include <QtGui/QBitmap>
 #include <QtGui/QSplitter>
 #include <QtGui/QMainWindow>
+#include <QtGui/QApplication>
 
 namespace qdesigner_internal {
 
@@ -244,8 +246,16 @@ bool Layout::prepareLayout(bool &needMove, bool &needReparent)
 
 void Layout::finishLayout(bool needMove, QLayout *layout)
 {
-    if (m_parentWidget == layoutBase)
+    if (m_parentWidget == layoutBase) {
+        QWidget *widget = layoutBase;
+        if (Utils::isCentralWidget(formWindow, layoutBase) && formWindow->parentWidget())
+            widget = formWindow->parentWidget();
+
+        oldGeometry = widget->geometry();
+        QApplication::processEvents();
+        widget->adjustSize();
         return;
+    }
 
     if (needMove)
         layoutBase->move(startPoint);
@@ -309,7 +319,10 @@ void Layout::undoLayout()
         formWindow->unmanageWidget(layoutBase);
         layoutBase->hide();
     } else {
-        layoutBase->setGeometry(oldGeometry);
+        QMainWindow *mw = qobject_cast<QMainWindow*>(formWindow->mainContainer());
+        if (layoutBase != formWindow->mainContainer() &&
+                    (!mw || mw->centralWidget() != layoutBase))
+            layoutBase->setGeometry(oldGeometry);
     }
 
     QWidget *ww = m_widgets.size() ? m_widgets.front() : formWindow;
