@@ -304,6 +304,10 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     button->setIcon(QIcon("open.xpm"));
   \endcode
 
+  Use the QImageReader::supportedImageFormats() and
+  QImageWriter::supportedImageFormats() functions to retrieve a
+  complete list of the supported file formats.
+
   When you retrieve a pixmap using pixmap(QSize, Mode, State), and no
   pixmap for this given size, mode and state has been added with
   addFile() or addPixmap(), then QIcon will generate one on the
@@ -385,10 +389,14 @@ QIcon::QIcon(const QIcon &other)
     directory.
 
     The file name can be either refer to an actual file on disk or to
-    one of the application's embedded resources. See the
+    one of the application's embedded resources.  See the
     \l{resources.html}{Resource System} overview for details on how to
     embed images and other resource files in the application's
     executable.
+
+    Use the QImageReader::supportedImageFormats() and
+    QImageWriter::supportedImageFormats() functions to retrieve a
+    complete list of the supported file formats.
 */
 QIcon::QIcon(const QString &fileName)
     : d(0)
@@ -587,6 +595,10 @@ void QIcon::addPixmap(const QPixmap &pixmap, Mode mode, State state)
     \l{resources.html}{Resource System} overview for details on how to
     embed images and other resource files in the application's
     executable.
+
+    Use the QImageReader::supportedImageFormats() and
+    QImageWriter::supportedImageFormats() functions to retrieve a
+    complete list of the supported file formats.
 
     \sa addPixmap()
  */
