@@ -2911,8 +2911,12 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     p->setBrush(cmb->palette.brush(QPalette::Button));
                     p->drawRect(ar.adjusted(0,0,-1,-1));
                 } else {
-                    qDrawWinPanel(p, ar, cmb->palette, false,
-                                  &cmb->palette.brush(QPalette::Button));
+                    // Make qDrawWinButton use the right colors for drawing the shade of the button
+                    QPalette pal(cmb->palette);
+                    pal.setColor(QPalette::Button, cmb->palette.light().color());
+                    pal.setColor(QPalette::Light, cmb->palette.button().color());
+                    qDrawWinButton(p, ar, pal, false,
+                                   &cmb->palette.brush(QPalette::Button));
                 }
 
                 ar.adjust(2, 2, -2, -2);
