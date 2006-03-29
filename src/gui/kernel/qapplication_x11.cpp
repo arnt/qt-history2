@@ -100,38 +100,6 @@ char *_Xsetlocale(int category, const char *locale)
 #endif // X_NOT_BROKEN
 
 
-// Fix old X libraries
-#ifndef XK_KP_Home
-#define XK_KP_Home              0xFF95
-#endif
-#ifndef XK_KP_Left
-#define XK_KP_Left              0xFF96
-#endif
-#ifndef XK_KP_Up
-#define XK_KP_Up                0xFF97
-#endif
-#ifndef XK_KP_Right
-#define XK_KP_Right             0xFF98
-#endif
-#ifndef XK_KP_Down
-#define XK_KP_Down              0xFF99
-#endif
-#ifndef XK_KP_Prior
-#define XK_KP_Prior             0xFF9A
-#endif
-#ifndef XK_KP_Next
-#define XK_KP_Next              0xFF9B
-#endif
-#ifndef XK_KP_End
-#define XK_KP_End               0xFF9C
-#endif
-#ifndef XK_KP_Insert
-#define XK_KP_Insert            0xFF9E
-#endif
-#ifndef XK_KP_Delete
-#define XK_KP_Delete            0xFF9F
-#endif
-
 /* Warning: if you modify this string, modify the list of atoms in qt_x11_p.h as well! */
 static const char * x11_atomnames = {
     // window-manager <-> client protocols
@@ -4137,6 +4105,38 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 #define XK_Kanji_Bangou 0xFF37 /* same as codeinput */
 #endif
 
+// Fix old X libraries
+#ifndef XK_KP_Home
+#define XK_KP_Home              0xFF95
+#endif
+#ifndef XK_KP_Left
+#define XK_KP_Left              0xFF96
+#endif
+#ifndef XK_KP_Up
+#define XK_KP_Up                0xFF97
+#endif
+#ifndef XK_KP_Right
+#define XK_KP_Right             0xFF98
+#endif
+#ifndef XK_KP_Down
+#define XK_KP_Down              0xFF99
+#endif
+#ifndef XK_KP_Prior
+#define XK_KP_Prior             0xFF9A
+#endif
+#ifndef XK_KP_Next
+#define XK_KP_Next              0xFF9B
+#endif
+#ifndef XK_KP_End
+#define XK_KP_End               0xFF9C
+#endif
+#ifndef XK_KP_Insert
+#define XK_KP_Insert            0xFF9E
+#endif
+#ifndef XK_KP_Delete
+#define XK_KP_Delete            0xFF9F
+#endif
+
 // the next lines are taken from XFree > 4.0 (X11/XF86keysyms.h), defining some special
 // multimedia keys. They are included here as not every system has them.
 #define XF86XK_Standby                0x1008FF10
@@ -4189,13 +4189,10 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     XK_BackSpace,        Qt::Key_Backspace,
     XK_Return,                Qt::Key_Return,
     XK_Insert,                Qt::Key_Insert,
-    XK_KP_Insert,        Qt::Key_Insert,
     XK_Delete,                Qt::Key_Delete,
-    XK_KP_Delete,        Qt::Key_Delete,
     XK_Clear,                Qt::Key_Delete,
     XK_Pause,                Qt::Key_Pause,
     XK_Print,                Qt::Key_Print,
-    XK_KP_Begin,        Qt::Key_Clear,
     0x1005FF60,                Qt::Key_SysReq,                // hardcoded Sun SysReq
     0x1007ff00,                Qt::Key_SysReq,                // hardcoded X386 SysReq
     XK_Home,                Qt::Key_Home,                // cursor movement
@@ -4206,14 +4203,6 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     XK_Down,                Qt::Key_Down,
     XK_Prior,                Qt::Key_PageUp,
     XK_Next,                Qt::Key_PageDown,
-    XK_KP_Home,                Qt::Key_Home,
-    XK_KP_End,                Qt::Key_End,
-    XK_KP_Left,                Qt::Key_Left,
-    XK_KP_Up,                Qt::Key_Up,
-    XK_KP_Right,        Qt::Key_Right,
-    XK_KP_Down,                Qt::Key_Down,
-    XK_KP_Prior,        Qt::Key_PageUp,
-    XK_KP_Next,                Qt::Key_PageDown,
     XK_Shift_L,                Qt::Key_Shift,                // modifiers
     XK_Shift_R,                Qt::Key_Shift,
     XK_Shift_Lock,        Qt::Key_Shift,
@@ -4226,16 +4215,6 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     XK_Caps_Lock,        Qt::Key_CapsLock,
     XK_Num_Lock,        Qt::Key_NumLock,
     XK_Scroll_Lock,        Qt::Key_ScrollLock,
-    XK_KP_Space,        Qt::Key_Space,                // numeric keypad
-    XK_KP_Tab,                Qt::Key_Tab,
-    XK_KP_Enter,        Qt::Key_Enter,
-    XK_KP_Equal,        Qt::Key_Equal,
-    XK_KP_Multiply,        Qt::Key_Asterisk,
-    XK_KP_Add,                Qt::Key_Plus,
-    XK_KP_Separator,        Qt::Key_Comma,
-    XK_KP_Subtract,        Qt::Key_Minus,
-    XK_KP_Decimal,        Qt::Key_Period,
-    XK_KP_Divide,        Qt::Key_Slash,
     XK_Super_L,                Qt::Key_Super_L,
     XK_Super_R,                Qt::Key_Super_R,
     XK_Menu,                Qt::Key_Menu,
@@ -4245,6 +4224,34 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
     0x1000FF74,         Qt::Key_Backtab,     // hardcoded HP backtab
     0x1005FF10,         Qt::Key_F11,         // hardcoded Sun F36 (labeled F11)
     0x1005FF11,         Qt::Key_F12,         // hardcoded Sun F37 (labeled F12)
+
+    // numeric and function keypad keys
+
+    XK_KP_Space,        Qt::Key_Space,
+    XK_KP_Tab,          Qt::Key_Tab,
+    XK_KP_Enter,        Qt::Key_Enter,
+    //XK_KP_F1,         Qt::Key_F1,
+    //XK_KP_F2,         Qt::Key_F2,
+    //XK_KP_F3,         Qt::Key_F3,
+    //XK_KP_F4,         Qt::Key_F4,
+    XK_KP_Home,         Qt::Key_Home,
+    XK_KP_Left,         Qt::Key_Left,
+    XK_KP_Up,           Qt::Key_Up,
+    XK_KP_Right,        Qt::Key_Right,
+    XK_KP_Down,         Qt::Key_Down,
+    XK_KP_Prior,        Qt::Key_PageUp,
+    XK_KP_Next,         Qt::Key_PageDown,
+    XK_KP_End,          Qt::Key_End,
+    XK_KP_Begin,        Qt::Key_Clear,
+    XK_KP_Insert,       Qt::Key_Insert,
+    XK_KP_Delete,       Qt::Key_Delete,
+    XK_KP_Equal,        Qt::Key_Equal,
+    XK_KP_Multiply,     Qt::Key_Asterisk,
+    XK_KP_Add,          Qt::Key_Plus,
+    XK_KP_Separator,    Qt::Key_Comma,
+    XK_KP_Subtract,     Qt::Key_Minus,
+    XK_KP_Decimal,      Qt::Key_Period,
+    XK_KP_Divide,       Qt::Key_Slash,
 
     // International input method support keys
 
@@ -4380,6 +4387,20 @@ static const unsigned int KeyTbl[] = {                // keyboard mapping table
 
     0,                        0
 };
+
+static int translateKeySym(uint key)
+{
+    int code = -1;
+    int i = 0;                                // any other keys
+    while (KeyTbl[i]) {
+        if (key == KeyTbl[i]) {
+            code = (int)KeyTbl[i+1];
+            break;
+        }
+        i += 2;
+    }
+    return code;
+}
 
 
 #if !defined(QT_NO_XIM)
@@ -4692,46 +4713,19 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
         code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
     } else if (key >= XK_F1 && key <= XK_F35) {
         code = Qt::Key_F1 + ((int)key - XK_F1);        // function keys
-    } else if (key >= XK_KP_0 && key <= XK_KP_9) {
-        code = Qt::Key_0 + ((int)key - XK_KP_0);        // numeric keypad keys
+    } else if (key >= XK_KP_Space && key <= XK_KP_9) {
+        if (key >= XK_KP_0) {
+            // numeric keypad keys
+            code = Qt::Key_0 + ((int)key - XK_KP_0);
+        } else {
+            code = translateKeySym(key);
+        }
         modifiers |= Qt::KeypadModifier;
     } else if (text.length() == 1 && text.unicode()->unicode() > 0x1f && text.unicode()->unicode() != 0x7f && !(key >= XK_dead_grave && key <= XK_dead_horn)) {
         code = text.unicode()->toUpper().unicode();
     } else {
-        int i = 0;                                // any other keys
-        while (KeyTbl[i]) {
-            if (key == KeyTbl[i]) {
-                code = (int)KeyTbl[i+1];
-                break;
-            }
-            i += 2;
-        }
-        switch (key) {
-        case XK_KP_Insert:
-        case XK_KP_Delete:
-        case XK_KP_Home:
-        case XK_KP_End:
-        case XK_KP_Left:
-        case XK_KP_Up:
-        case XK_KP_Right:
-        case XK_KP_Down:
-        case XK_KP_Prior:
-        case XK_KP_Next:
-        case XK_KP_Space:
-        case XK_KP_Tab:
-        case XK_KP_Enter:
-        case XK_KP_Equal:
-        case XK_KP_Multiply:
-        case XK_KP_Add:
-        case XK_KP_Separator:
-        case XK_KP_Subtract:
-        case XK_KP_Decimal:
-        case XK_KP_Divide:
-            modifiers |= Qt::KeypadModifier;
-            break;
-        default:
-            break;
-        }
+        // any other keys
+        code = translateKeySym(key);
 
         if (code == Qt::Key_Tab && (modifiers & Qt::ShiftModifier)) {
             // map shift+tab to shift+backtab, QShortcutMap knows about it
