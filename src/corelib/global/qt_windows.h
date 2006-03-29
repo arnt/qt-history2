@@ -80,6 +80,11 @@
 
 
 // Added here to shut syncqt up
+// Added here to shut syncqt up
+#ifdef QT_BEGIN_HEAD
 QT_BEGIN_HEADER
+#endif
+#ifdef QT_END_HEADER
 QT_END_HEADER
+#endif
 #endif // QT_WINDOWS_H
