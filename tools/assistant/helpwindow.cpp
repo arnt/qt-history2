@@ -180,7 +180,7 @@ void HelpWindow::setSource(const QUrl &name)
         QStringList args;
         if (pdfbrowser == QLatin1String("kfmclient"))
             args.append(QLatin1String("exec"));
-        args.append(name.toString());
+        args.append(name.toLocalFile());
 
         proc->start(pdfbrowser, args);
 
