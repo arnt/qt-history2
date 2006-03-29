@@ -260,10 +260,10 @@ QDragManager::QDragManager()
     pm_cursor[0] = QPixmap((const char **)move_xpm);
     pm_cursor[1] = QPixmap((const char **)copy_xpm);
     pm_cursor[2] = QPixmap((const char **)link_xpm);
+    object = 0;
 #if defined(Q_WS_X11)
     createCursors();
 #endif
-    object = 0;
     beingCancelled = false;
     restoreCursor = false;
     willDrop = false;
