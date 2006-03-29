@@ -39,6 +39,30 @@
         } \
     } while (0)
 
+static QString classNameForObjectName(const QDomElement &widget, const QString &objectName)
+{
+    QList<QDomElement> widgetStack;
+    widgetStack.append(widget);
+    while (!widgetStack.isEmpty()) {
+        QDomElement w = widgetStack.takeFirst();
+        QDomElement child = w.firstChild().toElement();
+        while (!child.isNull()) {
+            if (child.tagName() == QLatin1String("property")
+                && child.attribute(QLatin1String("name")) == QLatin1String("name")) {
+                QDomElement name = child.firstChild().toElement();
+                DomString str;
+                str.read(name);
+                if (str.text() == objectName)
+                    return w.attribute(QLatin1String("class"));
+            } else if (child.tagName() == QLatin1String("widget")) {
+                widgetStack.prepend(child);
+            }
+            child = child.nextSibling().toElement();
+        }
+    }
+    return QString();
+}
+
 DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 {
     QDomNodeList nl;
@@ -59,6 +83,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     QList<DomAction*> ui_action_list;
     QList<DomActionGroup*> ui_action_group_list;
     QList<DomCustomWidget*> ui_customwidget_list;
+    QList<DomConnection*> ui_connection_list;
     QString author, comment, exportMacro;
     QString klass;
 
@@ -247,6 +272,37 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                 }
                 n2 = n2.nextSibling().toElement();
             }
+        } else if (tagName == QLatin1String("connections")) {
+            QDomElement n2 = n.firstChild().toElement();
+            while (!n2.isNull()) {
+                if (n2.tagName().toLower() == QLatin1String("connection")) {
+
+                    DomConnection *connection = new DomConnection;
+                    connection->read(n2);
+
+                    QString sender = connection->elementSender();
+                    QString senderClass = fixClassName(classNameForObjectName(widget, sender));
+                    QString signal = fixMethod(connection->elementSignal());
+                    QString receiver = connection->elementReceiver();
+                    QString receiverClass = fixClassName(classNameForObjectName(widget, receiver));
+                    QString slot = fixMethod(connection->elementSlot());
+
+                    // make sure that the signal and slot are present in Qt4
+                    if (!WidgetInfo::isValidSignal(senderClass, signal)) {
+                        errorInvalidSignal(signal, sender, senderClass);
+                        delete connection;
+                    }
+                    else if (!WidgetInfo::isValidSlot(receiverClass, slot)) {
+                        errorInvalidSlot(slot, receiver, receiverClass);
+                        delete connection;
+                    } else {
+                        connection->setElementSignal(signal);
+                        connection->setElementSlot(slot);
+                        ui_connection_list.append(connection);
+                    }
+                }
+                n2 = n2.nextSibling().toElement();
+            }
         }
     }
 
@@ -329,6 +385,12 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
         DomIncludes *includes = new DomIncludes();
         includes->setElementInclude(ui_includes);
         ui->setElementIncludes(includes);
+    }
+
+    if (ui_connection_list.size()) {
+        DomConnections *connections = new DomConnections();
+        connections->setElementConnection(ui_connection_list);
+        ui->setElementConnections(connections);
     }
 
     ui->setAttributeStdSetDef(stdsetdef);
@@ -1008,4 +1070,25 @@ QString Ui3Reader::fixType(const QString &t) const
         }
     }
     return newText;
+}
+
+QString Ui3Reader::fixMethod(const QString &method) const
+{
+    const QByteArray normalized = QMetaObject::normalizedSignature(method.toLatin1());
+    QByteArray result;
+    int index = normalized.indexOf('(');
+    if (index == -1)
+        return QLatin1String(normalized);
+    result.append(normalized.left(++index));
+    int limit = normalized.length()-1;
+    while (index < limit) {
+        QByteArray type;
+        while ((index < limit) && (normalized.at(index) != ','))
+            type.append(normalized.at(index++));
+        result.append(fixType(QLatin1String(type)).toLatin1());
+        if ((index < limit) && (normalized.at(index) == ','))
+            result.append(normalized.at(index++));
+    }
+    result.append(normalized.mid(index));
+    return QLatin1String(result);
 }

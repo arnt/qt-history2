@@ -83,6 +83,8 @@ private:
     void init();
 
     void errorInvalidProperty(const QString &propertyName, const QString &widgetName, const QString &widgetClass);
+    void errorInvalidSignal(const QString &signal, const QString &widgetName, const QString &widgetClass);
+    void errorInvalidSlot(const QString &slot, const QString &widgetName, const QString &widgetClass);
 
     DomUI *generateUi4(const QDomElement &e);
     DomWidget *createWidget(const QDomElement &w, const QString &widgetClass = QString());
@@ -98,6 +100,7 @@ private:
     QString fixClassName(const QString &className) const;
     QString fixDeclaration(const QString &declaration) const;
     QString fixType(const QString &type) const;
+    QString fixMethod(const QString &method) const;
 
     void findDerivedFontProperties(const QDomElement &n, DomFont &result) const;
 
