@@ -59,7 +59,7 @@
     \header \o Macro \o Disables \o Set automatically by
 
     \header \i31 Images (\l QImageIO)
-    \row \o \c QT_NO_IMAGEIO_BMP
+    \row \o \c QT_NO_IMAGEFORMAT_BMP
          \o Microsoft Bitmap image file format.
          \o
     \row \o \c QT_NO_IMAGEIO_PPM
@@ -76,9 +76,6 @@
          \o
 
     \header \i31 Animation
-    \row \o \c QT_NO_ASYNC_IMAGE_IO
-         \o Asynchronous Image I/O and GIF image support (\l QImageDecoder, ...)
-         \o
     \row \o \c QT_NO_MOVIE
          \o Animation support (\l QMovie)
          \o \c QT_NO_ASYNC_IO, \c QT_NO_ASYNC_IMAGE_IO

@@ -504,54 +504,65 @@ SeeAlso: ???
 # ItemViews
 
 Feature: ITEMVIEWS
+Description: Supports the model/view architecture managing the relationship 
+between data and the way it is presented to the user.
 Section: ItemViews
 Requires: RUBBERBAND SCROLLAREA
 Name: The Model/View Framework
 SeeAlso: ???
 
 Feature: DIRMODEL
+Description: Supports a data model for the local filesystem.
 Section: ItemViews
 Requires: ITEMVIEWS
 Name: QDirModel
 SeeAlso: ???
 
 Feature: STANDARDITEMMODEL
+Description: Supports a generic model for storing custom data.
 Section: ItemViews
 Requires: ITEMVIEWS
 Name: QStandardItemModel
 SeeAlso: ???
 
 Feature: PROXYMODEL
+Description: Supports processing of data passed between another model and a view.
 Section: ItemViews
 Requires: ITEMVIEWS
 Name: QAbstractProxyModel
 SeeAlso: ???
 
 Feature: SORTFILTERPROXYMODEL
+Description: Supports sorting and filtering of data passed between 
+another model and a view. 
 Section: ItemViews
 Requires: PROXYMODEL
 Name: QSortFilterProxyModel
 SeeAlso: ???
 
 Feature: STRINGLISTMODEL
+Description: Supports a model that supplies strings to views.
 Section: ItemViews
 Requires: ITEMVIEWS
 Name: QStringListModel
 SeeAlso: ???
 
 Feature: LISTVIEW
+Description: Supports a list or icon view onto a model.
 Section: ItemViews
 Requires: ITEMVIEWS
 Name: QListView
 SeeAlso: ???
 
 Feature: TABLEVIEW
+Description: Supports a default model/view implementation of a table view. 
 Section: ItemViews
 Requires: ITEMVIEWS 
 Name: QTableView
 SeeAlso: ???
 
 Feature: TREEVIEW
+Description: Supports a default model/view implementation of a tree view.
 Section: ItemViews
 Requires: ITEMVIEWS
 Name: QTreeView
@@ -560,15 +571,17 @@ SeeAlso: ???
 # Styles
 
 Feature: STYLE_WINDOWS
+Description: Supports a Microsoft Windows-like look and feel. 
 Section: Styles
 Requires:
-Name: Windows style
+Name: QWindowsStyle
 SeeAlso: ???
 
 Feature: STYLE_MOTIF
+Description: Supports a Motif look and feel. 
 Section: Styles
 Requires:
-Name: Motif style
+Name: QMotifStyle
 SeeAlso: ???
 
 Feature: STYLE_CDE
