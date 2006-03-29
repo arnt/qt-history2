@@ -1276,6 +1276,11 @@ void QWindowsXPStyle::polish(QWidget *widget)
         || widget->inherits("Q3TitleBar"))
         widget->setAttribute(Qt::WA_Hover);
 
+#ifndef QT_NO_RUBBERBAND
+    if (qobject_cast<QRubberBand*>(widget)) {
+        widget->setWindowOpacity(0.6);
+    }
+#endif
     if (qobject_cast<QStackedWidget*>(widget) &&
                qobject_cast<QTabWidget*>(widget->parent()))
         widget->parentWidget()->setAttribute(Qt::WA_ContentsPropagated);
@@ -1306,6 +1311,11 @@ void QWindowsXPStyle::polish(QPalette &pal)
 /*! \reimp */
 void QWindowsXPStyle::unpolish(QWidget *widget)
 {
+#ifndef QT_NO_RUBBERBAND
+    if (qobject_cast<QRubberBand*>(widget)) {
+        widget->setWindowOpacity(1.0);
+    }
+#endif
     Q_D(QWindowsXPStyle);
     // Unpolish of widgets is the first thing that
     // happens when a theme changes, or the theme
@@ -2320,6 +2330,22 @@ case CE_DockWidgetTitle:
         }
         break;
 #endif // QT_NO_DOCKWIDGET
+#ifndef QT_NO_RUBBERBAND
+case CE_RubberBand:
+        if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(option)) {
+            QColor highlight = option->palette.color(QPalette::Active, QPalette::Highlight);
+            p->save();
+            QRect r = option->rect;
+            p->setPen(highlight.dark(120));
+            QColor dimHighlight(min(highlight.red()/2 + 110, 255), 
+                                min(highlight.green()/2 + 110, 255), 
+                                min(highlight.blue()/2 + 110, 255));
+            p->setBrush(dimHighlight);
+            p->drawRect(option->rect.adjusted(0, 0, -1, -1));
+            p->restore();
+            return;
+        }
+#endif // QT_NO_RUBBERBAND
 
 default:
         break;
@@ -3471,6 +3497,13 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
             }
         }
         break;
+#ifndef QT_NO_RUBBERBAND
+    case SH_RubberBand_Mask:
+        if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(option)) {
+            res = 0;
+            break;
+        }
+#endif // QT_NO_RUBBERBAND
 
     default:
         res =QWindowsStyle::styleHint(hint, option, widget, returnData);
