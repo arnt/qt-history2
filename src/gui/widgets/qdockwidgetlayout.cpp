@@ -525,10 +525,17 @@ QSize QDockWidgetLayout::maximumSize() const
             VDEBUG("  size %d perp %d", s, p);
             if (s >= QLAYOUTSIZE_MAX) {
                 size = QLAYOUTSIZE_MAX;
-            } else if (size != QLAYOUTSIZE_MAX) {
+            } else if ((size + s) < QLAYOUTSIZE_MAX) {
                 size += s;
+            } else {
+                size = QLAYOUTSIZE_MAX;
             }
             perp = qMin(perp, p);
+        }
+
+        if (size == 0) {
+            // no visible items, use QLAYOUTSIZE_MAX instead of zero
+            size = QLAYOUTSIZE_MAX;
         }
 
         VDEBUG("END: size %4d perp %4d", size, perp);
