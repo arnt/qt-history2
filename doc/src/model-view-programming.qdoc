@@ -750,15 +750,19 @@
     \l QAbstractItemDelegate class.
 
     Delegates are expected to be able to render their contents themselves
-    by implementing the \l{QAbstractItemDelegate::paint()}{paint()}
-    and \l{QAbstractItemDelegate::sizeHint()}{sizeHint()} functions.
+    by implementing the \l{QItemDelegate::paint()}{paint()}
+    and \l{QItemDelegate::sizeHint()}{sizeHint()} functions.
     However, simple widget-based delegates can subclass \l QItemDelegate
     instead of \l QAbstractItemDelegate, and take advantage of the default
-    implementations of those functions.
-    Editors for delegates can be implemented in two ways, either by using
-    widgets to manage the editing process, or by handling events directly.
-    The first approach is covered later in this section.
+    implementations of these functions.
 
+    Editors for delegates can be implemented either by using widgets to manage
+    the editing process or by handling events directly.
+    The first approach is covered later in this chapter, and it is also
+    shown in the \l{Spin Box Delegate Example}{Spin Box Delegate} example.
+
+    The \l{Pixelator Example}{Pixelator} example shows how to create a
+    custom delegate that performs specialized rendering for a table view.
 
     \section1 Using an Existing Delegate
 

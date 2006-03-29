@@ -157,9 +157,9 @@
 
     The \c paint() function does not have to be particularly complicated; it is
     only necessary to ensure that the state of the painter when the function
-    returns is approximately the same as it was when it was called. This usually
-    means that any transformations applied to the painter must be surrounded by
-    \l{QPainter::save()}{save()}...\l{QPainter::restore()}{restore()} calls.
+    returns is the same as it was when it was called. This usually
+    means that any transformations applied to the painter must be preceded by
+    a call to QPainter::save() and followed by a call to QPainter::restore().
 
     The delegate's \l{QAbstractItemDelegate::sizeHint()}{sizeHint()} function
     returns a size for the item based on the predefined pixel size, initially set
