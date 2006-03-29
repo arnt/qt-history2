@@ -149,6 +149,7 @@ public:
                             || (cpen.widthF() > 0 && has_complex_xform)
                             || (render_hints & QPainter::Antialiasing);
     }
+    void clipPolygon(const QPolygonF &poly, QPolygonF *clipped_poly);
 
     Display *dpy;
     int scrn;

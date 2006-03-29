@@ -606,6 +606,17 @@ void QX11PaintEnginePrivate::resetAdaptedOrigin()
         XSetTSOrigin(dpy, gc_brush, 0, 0);
 }
 
+void QX11PaintEnginePrivate::clipPolygon(const QPolygonF &poly, QPolygonF *clipped_poly)
+{
+    int clipped_count = 0;
+    qt_float_point *clipped_points = 0;
+    polygonClipper.clipPolygon((qt_float_point *) poly.data(), poly.size(),
+                               &clipped_points, &clipped_count);
+    clipped_poly->resize(clipped_count);
+    for (int i=0; i<clipped_count; ++i)
+        (*clipped_poly)[i] = *((QPointF *)(&clipped_points[i]));
+
+}
 
 static QPaintEngine::PaintEngineFeatures qt_decide_features()
 {
@@ -1074,14 +1085,19 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyFont) updateFont(state.font());
 
     if (state.state() & DirtyClipEnabled) {
-        if (state.isClipEnabled())
-            updateClipRegion(painter()->clipRegion(), Qt::ReplaceClip);
-        else
+        if (state.isClipEnabled()) {
+            QPolygonF clipped_poly;
+            d->clipPolygon(painter()->clipPath().toFillPolygon(), &clipped_poly);
+            updateClipRegion(QRegion(clipped_poly.toPolygon()), Qt::ReplaceClip);
+        } else {
             updateClipRegion(QRegion(), Qt::NoClip);
+        }
     }
 
     if (flags & DirtyClipPath) {
-        updateClipRegion(QRegion(state.clipPath().toFillPolygon().toPolygon(),
+        QPolygonF clipped_poly;
+        d->clipPolygon(state.clipPath().toFillPolygon(), &clipped_poly);
+        updateClipRegion(QRegion(clipped_poly.toPolygon(),
                                  state.clipPath().fillRule()),
                          state.clipOperation());
     } else if (flags & DirtyClipRegion) {
