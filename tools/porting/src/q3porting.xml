@@ -12,7 +12,7 @@
 **
 **************************************************************************-->
 <Rules>
-    <Count>3600</Count>
+    <Count>3604</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -24,10 +24,6 @@
     <item Type="RenamedHeader" >
         <Qt4>q3asciidict.h</Qt4>
         <Qt3>qasciidict.h</Qt3>
-    </item>
-    <item Type="RenamedHeader" >
-        <Qt4>q3button.h</Qt4>
-        <Qt3>qbutton.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>q3buttongroup.h</Qt4>
@@ -408,10 +404,6 @@
     <item Type="RenamedHeader" >
         <Qt4>q3asciidict.h</Qt4>
         <Qt3>qasciidict.h</Qt3>
-    </item>
-    <item Type="RenamedHeader" >
-        <Qt4>q3button.h</Qt4>
-        <Qt3>qbutton.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>q3buttongroup.h</Qt4>
@@ -1316,6 +1308,14 @@
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
         <Name>Q3PtrListStdIterator</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3PtrQueue</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3PtrStack</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
@@ -4184,6 +4184,7 @@
     <item Type="qt3Header" >jri.h</item>
     <item Type="qt3Header" >jri_md.h</item>
     <item Type="qt3Header" >jritypes.h</item>
+    <item Type="qt3Header" >moc_yacc.h</item>
     <item Type="qt3Header" >mwerks_mac.h</item>
     <item Type="qt3Header" >npapi.h</item>
     <item Type="qt3Header" >npupp.h</item>
@@ -4730,6 +4731,8 @@
     <item Type="qt4Header" >Q3PtrList</item>
     <item Type="qt4Header" >Q3PtrListIterator</item>
     <item Type="qt4Header" >Q3PtrListStdIterator</item>
+    <item Type="qt4Header" >Q3PtrQueue</item>
+    <item Type="qt4Header" >Q3PtrStack</item>
     <item Type="qt4Header" >Q3PtrVector</item>
     <item Type="qt4Header" >Q3RangeControl</item>
     <item Type="qt4Header" >Q3ScrollView</item>
@@ -5504,10 +5507,6 @@
     <item Type="RenamedClass" >
         <Qt4>Q3BoxLayout</Qt4>
         <Qt3>QBoxLayout</Qt3>
-    </item>
-    <item Type="RenamedClass" >
-        <Qt4>Q3Button</Qt4>
-        <Qt3>QButton</Qt3>
     </item>
     <item Type="RenamedClass" >
         <Qt4>Q3ButtonGroup</Qt4>
@@ -6383,6 +6382,10 @@
     <item Type="RenamedEnumvalue" >
         <Qt4>QIODevice::WriteOnly</Qt4>
         <Qt3>IO_WriteOnly</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>QIODevice::Unbuffered</Qt4>
+        <Qt3>IO_Raw</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>QAccessible::Movable</Qt4>
@@ -9683,6 +9686,10 @@
     <item Type="RenamedClass" >
         <Qt4>QPointer</Qt4>
         <Qt3>QGuardedPtr</Qt3>
+    </item>
+    <item Type="RenamedClass" >
+        <Qt4>Q3DeepCopy</Qt4>
+        <Qt3>QDeepCopy</Qt3>
     </item>
     <item Type="NeedHeader" >
         <Class>QCloseEvent</Class>
