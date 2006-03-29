@@ -803,6 +803,8 @@
          defined; otherwise the contents of \c FORMS will be processed instead.
     \row \o no_lflags_merge \o Ensures that the list of libraries stored in the
          \c LIBS variable is not reduced to a list of unique values before it is used.
+    \row \o resources \o Configures qmake to run rcc on the content of RESOURCES if
+         defined.
     \endtable
 
     These options are used to set the compiler flags:
