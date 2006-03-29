@@ -111,7 +111,10 @@ public:
     QT3_SUPPORT_CONSTRUCTOR QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f=0);
     inline QT3_SUPPORT bool isOn() const { return isChecked(); }
     inline QT3_SUPPORT const QPixmap *pixmap() const { return 0; } // help styles compile
-    inline QT3_SUPPORT void setPixmap( const QPixmap &p ) { setIcon(QIcon(p)); }
+    inline QT3_SUPPORT void setPixmap( const QPixmap &p ) { 
+        setIcon(QIcon(p)); 
+        setIconSize(p.size());
+    }
     QT3_SUPPORT QIcon *iconSet() const;
     inline QT3_SUPPORT void setIconSet(const QIcon &icon) { setIcon(icon); }
     inline QT3_SUPPORT bool isToggleButton() const { return isCheckable(); }
