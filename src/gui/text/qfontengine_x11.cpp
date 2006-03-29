@@ -705,7 +705,7 @@ glyph_metrics_t QFontEngineXLFD::boundingBox(const QGlyphLayout *glyphs, int num
     for (i = 0; i < numGlyphs; i++) {
         XCharStruct *xcs = charStruct(_fs, glyphs[i].glyph);
         if (xcs) {
-            QFixed x = overall.xoff + glyphs[i].offset.x - xcs->lbearing;
+            QFixed x = overall.xoff + glyphs[i].offset.x + xcs->lbearing;
             QFixed y = overall.yoff + glyphs[i].offset.y - xcs->ascent;
             overall.x = qMin(overall.x, x);
             overall.y = qMin(overall.y, y);
@@ -1536,7 +1536,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
     g->linearAdvance = slot->linearHoriAdvance >> 10;
     g->width = TRUNC(right - left);
     g->height = TRUNC(top - bottom);
-    g->x = -TRUNC(left);
+    g->x = TRUNC(left);
     g->y = TRUNC(top);
     g->advance = TRUNC(ROUND(slot->advance.x));
     g->format = add_to_glyphset ? Format_None : format;
@@ -1754,7 +1754,7 @@ glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGl
             g = loadGlyph(glyphs[i].glyph);
         }
         if (g) {
-            QFixed x = overall.xoff + glyphs[i].offset.x - g->x;
+            QFixed x = overall.xoff + glyphs[i].offset.x + g->x;
             QFixed y = overall.yoff + glyphs[i].offset.y - g->y;
             overall.x = qMin(overall.x, x);
             overall.y = qMin(overall.y, y);
