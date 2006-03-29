@@ -400,6 +400,7 @@ QRegion QWSManagerPrivate::paint(QPaintDevice *paintDevice)
 
     QRegion updated;
     QPainter painter(paintDevice);
+    painter.setFont(qApp->font());
     painter.translate(bs->topLevelOffset());
     for (int i = 0; i < dirtyRegions.size(); ++i) {
         int region = dirtyRegions.takeFirst();

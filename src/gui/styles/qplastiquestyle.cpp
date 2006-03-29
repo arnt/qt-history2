@@ -3507,7 +3507,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             bool ticksAbove = slider->tickPosition & QSlider::TicksAbove;
             bool ticksBelow = slider->tickPosition & QSlider::TicksBelow;
 
-            QRect groove;             
+            QRect groove;
             //The clickable region is 5 px wider than the visible groove for improved usability
             if (grooveRegion.isValid())
                 groove = horizontal ? grooveRegion.adjusted(0, 5, 0, -5) : grooveRegion.adjusted(5, 0, -5, 0);
@@ -3653,7 +3653,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 }
 
                 painter->drawPixmap(handle.topLeft(), cache);
-                
+
                 if (slider->state & State_HasFocus) {
                     QStyleOptionFocusRect fropt;
                     fropt.QStyleOption::operator=(*slider);
@@ -5233,10 +5233,10 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 #ifdef QT3_SUPPORT
         if (widget && widget->inherits("Q3DockWindowTitleBar")) {
             // Q3DockWindow has smaller titlebars than QDockWidget
-            ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 16);
+            ret = qMax(widget ? widget->fontMetrics().lineSpacing() : option->fontMetrics.lineSpacing(), 16);
         } else
 #endif
-        ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
+            ret = qMax(widget ? widget->fontMetrics().lineSpacing() : option->fontMetrics.lineSpacing(), 30);
         break;
     case PM_MaximumDragDistance:
         return -1;

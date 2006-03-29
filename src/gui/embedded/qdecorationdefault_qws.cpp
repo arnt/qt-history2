@@ -585,7 +585,6 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
         painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
 
         painter->setPen(titlePen);
-        painter->setFont(widget->font());
         painter->drawText(titleRect.x() + 4, titleRect.y(),
                           titleRect.width() - 8, titleRect.height(),
                           Qt::AlignVCenter, widget->windowTitle());

@@ -51,7 +51,7 @@ int QDecorationStyled::titleBarHeight(const QWidget *widget)
     if (!style)
         return 18;
 
-    return style->pixelMetric(QStyle::PM_TitleBarHeight, &opt, widget);
+    return style->pixelMetric(QStyle::PM_TitleBarHeight, &opt, 0);
 }
 
 bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
@@ -61,7 +61,7 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
         return false;
 
     bool isActive = (widget == qApp->activeWindow());
-    QPalette pal = widget->palette();
+    QPalette pal = qApp->palette();
     //ideally, the difference between Active and Inactive should be enough, so we shouldn't need to test this
     if (!isActive) {
         //pal.setCurrentColorGroup(QPalette::Disabled); //Can't do this either, because of palette limitations
@@ -90,7 +90,7 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
     // In the case of a borderless titlebar, the titlebar must be expanded one
     // borderWidth to the left, right and up.
     bool noTitleBorder = style->styleHint(QStyle::SH_TitleBar_NoBorder, 0, widget);
-    int borderWidth = style->pixelMetric(QStyle::PM_MDIFrameWidth, 0, widget);
+    int borderWidth = style->pixelMetric(QStyle::PM_MDIFrameWidth, 0, 0);
     int titleHeight = titleBarHeight(widget) + (noTitleBorder ? borderWidth : 0);
     int titleExtra = noTitleBorder ? borderWidth : 0;
 
@@ -120,7 +120,7 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
             painter->fillRect(br, pal.window());
             if (porterDuff)
                 painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-            style->drawPrimitive(QStyle::PE_FrameWindow, &opt, painter, widget);
+            style->drawPrimitive(QStyle::PE_FrameWindow, &opt, painter, 0);
             painter->restore();
 
             decorationRegion &= (~Borders);
@@ -155,9 +155,9 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
         opt.rect = QRect(widget->rect().x() - titleExtra, -titleHeight,
                          widget->rect().width() + 2 * titleExtra, titleHeight);
 
-	if (paintAll) {
-	    painter->setClipRegion(opt.rect);
-	} else {
+        if (paintAll) {
+            painter->setClipRegion(opt.rect);
+        } else {
             const QRect widgetRect = widget->rect();
             QRegion newClip = opt.rect;
             if (!(decorationRegion & Menu) && hasSysMenu)
@@ -180,8 +180,7 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
         if (state == Pressed)
             opt.activeSubControls = opt.subControls;
 
-        painter->setFont(widget->font());
-        style->drawComplexControl(QStyle::CC_TitleBar, &opt, painter, widget);
+        style->drawComplexControl(QStyle::CC_TitleBar, &opt, painter, 0);
         painter->restore();
 
         decorationRegion &= ~(Title | Menu | Help | Normalize | Minimize | Maximize | Close);
@@ -198,7 +197,7 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
     // In the case of a borderless titlebar, the titlebar must be expanded one
     // borderWidth to the left, right and up.
     bool noTitleBorder = style->styleHint(QStyle::SH_TitleBar_NoBorder, 0, widget);
-    int borderWidth = style->pixelMetric(QStyle::PM_MDIFrameWidth, 0, widget);
+    int borderWidth = style->pixelMetric(QStyle::PM_MDIFrameWidth, 0, 0);
     int titleHeight = titleBarHeight(widget) + (noTitleBorder ? borderWidth : 0);
     int titleExtra = noTitleBorder ? borderWidth : 0;
 
@@ -228,40 +227,40 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
     switch (decorationRegion) {
     case Title:
         region = style->subControlRect(QStyle::CC_TitleBar, &opt,
-                                       QStyle::SC_TitleBarLabel, widget);
+                                       QStyle::SC_TitleBarLabel, 0);
         break;
     case Menu:
         if (hasSysMenu)
             region = style->subControlRect(QStyle::CC_TitleBar, &opt,
-                                           QStyle::SC_TitleBarSysMenu, widget);
+                                           QStyle::SC_TitleBarSysMenu, 0);
         break;
     case Help:
         if (hasContextHelp)
             region = style->subControlRect(QStyle::CC_TitleBar, &opt,
                                            QStyle::SC_TitleBarContextHelpButton,
-                                           widget);
+                                           0);
         break;
     case Normalize:
         if (hasMaximize | hasMinimize)
             region = style->subControlRect(QStyle::CC_TitleBar, &opt,
                                            QStyle::SC_TitleBarNormalButton,
-                                           widget);
+                                           0);
         break;
     case Minimize:
         if (hasMinimize)
             region = style->subControlRect(QStyle::CC_TitleBar, &opt,
                                            QStyle::SC_TitleBarMinButton,
-                                           widget);
+                                           0);
         break;
     case Maximize:
         if (hasMaximize)
             region = style->subControlRect(QStyle::CC_TitleBar, &opt,
                                            QStyle::SC_TitleBarMaxButton,
-                                           widget);
+                                           0);
         break;
     case Close:
         region = style->subControlRect(QStyle::CC_TitleBar, &opt,
-                                       QStyle::SC_TitleBarCloseButton, widget);
+                                       QStyle::SC_TitleBarCloseButton, 0);
         break;
 
     default:
@@ -273,7 +272,7 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
                          rect.height() + titleHeight + titleExtra);
 
     QStyleHintReturnMask mask;
-    style->styleHint(QStyle::SH_WindowFrame_Mask, &opt, widget, &mask);
+    style->styleHint(QStyle::SH_WindowFrame_Mask, &opt, 0, &mask);
 
     return (region & mask.region);
 }

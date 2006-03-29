@@ -320,7 +320,6 @@ bool QDecorationWindows::paint(QPainter *painter, const QWidget *widget, int dec
         painter->fillRect(titleRect, lg);
 
         painter->setPen(titlePen);
-        painter->setFont(widget->font());
         painter->drawText(titleRect, Qt::AlignVCenter, widget->windowTitle());
         decorationRegion ^= Title;
     }
