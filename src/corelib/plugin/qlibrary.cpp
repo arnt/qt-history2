@@ -490,6 +490,7 @@ bool QLibraryPrivate::isPlugin()
     if (pluginState != MightBeAPlugin)
         return pluginState == IsAPlugin;
 
+#ifndef QT_NO_PLUGIN_CHECK
     bool debug = !QLIBRARY_AS_DEBUG;
     QByteArray key;
     bool success = false;
@@ -582,6 +583,9 @@ bool QLibraryPrivate::isPlugin()
     }
 
     return pluginState == IsAPlugin;
+#else
+    return pluginState == MightBeAPlugin;
+#endif
 }
 
 /*!
