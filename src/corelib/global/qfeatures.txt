@@ -64,7 +64,7 @@ Name: QWheelEvent
 SeeAlso: ???
 
 Feature: SOUND
-Description: Supports sound effects.
+Description: Supports playing audio files.
 Section: Kernel
 Requires:
 Name: Sounds
@@ -401,10 +401,10 @@ Name: QToolTip
 SeeAlso: ???
 
 Feature: STATUSTIP
-Description: 
+Description: Supports status tip functionality and events.
 Section: Widgets
 Requires:
-Name: QStatusTip
+Name: Status Tip
 SeeAlso: ???
 
 Feature: SIGNALMAPPER
@@ -453,21 +453,21 @@ Name: QColorDialog
 SeeAlso: ???
 
 Feature: FILEDIALOG
-Description: Supports a dialog for selecting files or directories. 
+Description: Supports a dialog widget for selecting files or directories. 
 Section: Dialogs
 Requires: DIRMODEL TREEVIEW MESSAGEBOX COMBOBOX TOOLBUTTON BUTTONGROUP 
 Name: QFileDialog
 SeeAlso: ???
 
 Feature: FONTDIALOG
-Description: Supports a dialog for selecting fonts.
+Description: Supports a dialog widget for selecting fonts.
 Section: Dialogs
 Requires: STRINGLISTMODEL COMBOBOX VALIDATOR GROUPBOX
 Name: QFontDialog
 SeeAlso: ???
 
 Feature: PRINTDIALOG
-Description: Supports a dialog for specifying printer configuration.
+Description: Supports a dialog widget for specifying printer configuration.
 Section: Dialogs
 Requires: PRINTER COMBOBOX BUTTONGROUP SPINBOX TREEVIEW
 Name: QPrintDialog
@@ -585,307 +585,360 @@ Name: QMotifStyle
 SeeAlso: ???
 
 Feature: STYLE_CDE
+Description:  Supports a CDE look and feel. 
 Section: Styles
 Requires: STYLE_MOTIF
-Name: CDE style
+Name: QCDEStyle
 SeeAlso: ???
 
 Feature: STYLE_PLASTIQUE
+Description: Supports a widget style similar to the Plastik style available in KDE.
 Section: Styles
 Requires: STYLE_WINDOWS IMAGEFORMAT_XPM
-Name: Plastique style
+Name: QPlastiqueStyle
 SeeAlso: ???
 
 Feature: STYLE_WINDOWSXP
+Description: Supports a Microsoft WindowsXP-like look and feel.
 Section: Styles
 Requires: STYLE_WINDOWS
-Name: WindowsXP style
+Name: QWindowsXPStyle
 SeeAlso: ???
 
 # Images
 
 Feature: IMAGEFORMATPLUGIN
+Description: Supports writing an image format plugin.
 Section: Images
 Requires: 
-Name: QImageFormatPlugin
+Name: QImageIOPlugin
 SeeAlso: ???
 
 Feature: ICON
+Description: Supports scalable icons in different modes and states.
 Section: Images
 Requires: IMAGE_HEURISTIC_MASK
 Name: QIcon
 SeeAlso: ???
 
 Feature: MOVIE
+Description: Supports animated images.
 Section: Images
 Requires:
-Name: Animated images
+Name: QMovie
 SeeAlso: ???
 
 Feature: IMAGEFORMAT_BMP
+Description: Supports Microsoft's  Bitmap image file format.
 Section: Images
 Requires:
-Name: BMP image I/O
+Name: BMP Image Format
 SeeAlso: ???
 
 Feature: IMAGEFORMAT_PPM
+Description: Supports the Portable Pixmap image file format.
 Section: Images
 Requires: 
-Name: PPM image I/O
+Name: PPM Image Format
 SeeAlso: ???
 
 Feature: IMAGEFORMAT_XBM
+Description: Supports the X11 Bitmap image file format.
 Section: Images
 Requires: 
-Name: XBM image I/O
+Name: XBM Image Format
 SeeAlso: ???
 
 Feature: IMAGEFORMAT_XPM
+Description: Supports the X11 Pixmap image file format.
 Section: Images
 Requires: TEXTSTREAM
-Name: XPM image I/O
+Name: XPM Image Format
 SeeAlso: ???
 
 Feature: IMAGEFORMAT_PNG
+Description: Supports the Portable Network Graphics image file format.
 Section: Images
 Requires: 
-Name: PNG image I/O
+Name: PNG Image Format
 SeeAlso: ???
 
 Feature: IMAGEFORMAT_JPEG
+Description: Supports the Joint Photographic Experts Group image file format.
 Section: Images
 Requires: 
-Name: JPEG image I/O
+Name: JPEG Image Format
 SeeAlso: ???
 
 Feature: IMAGE_HEURISTIC_MASK
+Description: Supports creating a 1-bpp heuristic mask for images.
 Section: Images
 Requires:
 Name: QImage::createHeuristicMask()
 SeeAlso: ???
 
 Feature: IMAGE_TEXT
+Description: Supports image file text strings.
 Section: Images
 Requires:
-Name: Image file text strings
+Name: Image Text
 SeeAlso: ???
 
 # Painting
 
 Feature: DIRECTPAINTER
+Description: Supports direct access to the video hardware.
 Section: Painting
 Requires:
 Name: QDirectPainter
 SeeAlso: ???
 
 Feature: PICTURE
+Description: Supports recording and replaying QPainter commands.
 Section: Painting
 Requires: 
 Name: QPicture
 SeeAlso: ???
 
 Feature: COLORNAMES
+Description: Supports color names such as "red", used by QColor
+and by some HTML documents.
 Section: Painting
 Requires:
-Name: Named colors
+Name: Color Names
 SeeAlso: ???
 
 Feature: PRINTER
+Description: Supports printing 
 Section: Painting
 Requires: TEXTSTREAM FILEDIALOG
-Name: Printing
+Name: QPrinter
 SeeAlso: ???
 
 # Fonts
 
 Feature: FREETYPE
+Description: Supports the FreeType 2 font engine (and its supported font formats).
 Section: Fonts
 Requires:
-Name: Freetype font engine
+Name: Freetype Font Engine
 SeeAlso: ???
 
 Feature: QWS_QPF
+Description: Supports Qt's pre-rendered fonts, a light-weight non-scalable font format 
+specific to Qtopia Core.
 Section: Fonts
 Requires:
-Name: Pre-rendered fonts
+Name: Qt Prerendered Font Format
 SeeAlso: ???
 
 # Internationalization
 
 Feature: TEXTCODECPLUGIN
+Description: Supports custom text codecs that can be loaded dynamically into applications.
 Section: Internationalization
 Requires: TEXTCODEC LIBRARY
 Name: QTextCodecPlugin
 SeeAlso: ???
 
 Feature: TRANSLATION
+Description: Supports translations using QObject::tr().
 Section: Internationalization
 Requires:
-Name: Translations via QObject::tr()
+Name: Translation
 SeeAlso: ???
 
 Feature: TRANSLATION_UTF8
+Description: Supports translations using QObject::trUtf8().
 Section: Internationalization
 Requires: TRANSLATION TEXTCODEC
-Name: Translations via QObject::trUtf8()
+Name: Translation (UTF-8 representation) 
 SeeAlso: ???
 
 Feature: TEXTCODEC
+Description: Supports conversions between text encodings.
 Section: Internationalization
 Requires:
-Name: Character set conversions
+Name: QTextCodec
 SeeAlso: ???
 
 Feature: CODECS
+Description: Supports non-unicode text conversions.
 Section: Internationalization
 Requires: TEXTCODEC
-Name: Non-Unicode text conversions
+Name: Codecs
 SeeAlso: ???
 
 Feature: BIG_CODECS
+Description: Supports big codecs, e.g. CJK.
 Section: Internationalization
 Requires: 
-Name: Big Codecs (eg. CJK)
+Name: Big Codecs
 SeeAlso: ???
 
 Feature: QWS_INPUTMETHODS
+Description: Supports international input methods.
 Section: Internationalization
 Requires: 
-Name: Input methods
+Name: QWSInputMethod
 SeeAlso: ???
 
 # Networking
 
 Feature: URLINFO
+Description: Supports storage of URL information.
 Section: Networking
 Requires: 
 Name: QUrlInfo
 SeeAlso: ???
 
 Feature: HOSTINFO
+Description: Supports host name lookups.
 Section: Networking
 Requires: TEXTSTREAM 
 Name: QHostInfo
 SeeAlso: ???
 
 Feature: FTP
+Description: Supports FTP file access.
 Section: Networking
 Requires: URLINFO TEXTDATE
-Name: FTP file access
+Name: File Transfer Protocol
 SeeAlso: ???
 
 Feature: HTTP
+Description: Supports HTTP file access.
 Section: Networking
 Requires: HOSTINFO
-Name: HTTP file access
+Name: Hyper Text Transfer Protoco
 SeeAlso: ???
 
 Feature: UDPSOCKET
+Description: Supports User Datagram Protocol sockets.
 Section: Networking
 Requires: 
 Name: QUdpSocket
 SeeAlso: ???
 
 Feature: NETWORKPROXY
+Description: Supports configuring network layer proxy support to the Qt network classes.
 Section: Networking
 Requires: 
 Name: QNetworkProxy
 SeeAlso: ???
 
 Feature: SOCKS5
+Description: Supports SOCKS v5 network proxy.
 Section: Networking
 Requires: NETWORKPROXY
-Name: SOCKS v5 network proxy
+Name:  SOCKS5
 SeeAlso: ???
 
 Feature: COP
+Description: Supports the QCOP protocol, which is a many-to-many
+communication protocol for transferring messages on various
+channels, and Inter Process Communications (IPC).
 Section: Networking
 Requires:
-Name: QCop IPC
+Name: QCopChannel
 SeeAlso: ???
 
 # Qtopia Core
 
 Feature: QWS_SOUNDSERVER
+Description: Supports servers playing sounds.
 Section: Qtopia Core
 Requires: SOUND HOSTINFO QWS_MULTIPROCESS
-Name: Server to play sound
+Name: Sound Server
 SeeAlso: ???
 
 Feature: QWS_MULTIPROCESS
+Description: Supports multi-process architecture.
 Section: Qtopia Core
 Requires:
-Name: Multi-process architecture
+Name: Multi-Process
 SeeAlso: ???
 
 Feature: QWS_KEYBOARD
+Description: Supports the console keyboard.
 Section: Qtopia Core
 Requires:
-Name: Console keyboard
+Name: Keyboard
 SeeAlso: ???
 
 Feature: QWS_CURSOR
+Description: Supports visible cursors.
 Section: Qtopia Core
 Requires: CURSOR
-Name: Visible cursor
+Name: Cursor
 SeeAlso: ???
 
 Feature: QWS_ALPHA_CURSOR
+Description: Supports alpha-blended cursors.
 Section: Qtopia Core
 Requires:
-Name: Alpha-blended cursor
+Name: Alpha Cursor
 SeeAlso: ???
 
 Feature: QWS_MANAGER
+Description: Supports the window manager.
 Section: Qtopia Core
 Requires: QWS_DECORATION_DEFAULT
-Name: Window Manager
+Name: Manager
 SeeAlso: ???
 
 Feature: QWS_DECORATION_DEFAULT
+Description: Supports default decoration of the top level windows. 
 Section: Qtopia Core
 Requires: 
-Name:
+Name: Decoration
 SeeAlso: ???
 
 Feature: QWS_DECORATION_WINDOWS
+Description: Supports a "Windows" style decoration of the top level windows. 
 Section: Qtopia Core
 Requires: QWS_DECORATION_DEFAULT
-Name: The "Windows" style
+Name: Decoration (Windows Style)
 SeeAlso: ???
 
 Feature: QWS_DECORATION_STYLED
+Description: Supports styled decoration of the top level windows. 
 Section: Qtopia Core
 Requires: QWS_DECORATION_DEFAULT
-Name:
+Name: Decoration (Styled)
 SeeAlso: ???
 
 Feature: QWS_MOUSE
+Description: Supports mouse drivers.
 Section: Qtopia Core
 Requires:
 Name: Mouse
 SeeAlso: ???
 
 Feature: QWS_MOUSE_AUTO
+Description: Supports auto-detected mouse drivers.
 Section: Qtopia Core
 Requires:
-Name: Autodetecting mouse driver
+Name: Mouse (Auto)
 SeeAlso: ???
 
 Feature: QWS_MOUSE_MANUAL
+Description: Supports non-autodetected mouse drivers.
 Section: Qtopia Core
 Requires:
-Name: Non-autodetecting mouse driver
+Name: Mouse (Non-Auto)
 SeeAlso: ???
 
 Feature: QWS_PROPERTIES
+Description: Supports window system properties.
 Section: Qtopia Core
 Requires:
-Name: Qtopia Core window system properties.
+Name: Properties
 SeeAlso: ???
 
 Feature: SXE
+Description: Supports Safe Execution Environment (experimental).
 Section: Qtopia Core
 Requires: QWS_MULTIPROCESS
-Name: Safe Execution Environment (experimental)
+Name: SXE
 SeeAlso: ???
