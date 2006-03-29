@@ -28,6 +28,16 @@
 #include <qdebug.h>
 
 #include <private/qwidget_p.h>
+
+//We cannot use the ToolTip hint on windows since
+//it gives the rubberband a shadow. It is aparently required on X11/mac
+//### a rubberband window type would be a more elegant solution
+#ifdef Q_WS_WIN
+#define RUBBERBAND_WINDOW_TYPE Qt::FramelessWindowHint
+#else
+#define RUBBERBAND_WINDOW_TYPE Qt::ToolTip
+#endif
+
 class QRubberBandPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QRubberBand)
@@ -48,7 +58,7 @@ QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
 #ifndef Q_WS_MAC
     opt.opaque = true;
 #else
-    opt.opaque = q->windowFlags() & Qt::ToolTip;
+    opt.opaque = q->windowFlags() & RUBBERBAND_WINDOW_TYPE;
 #endif
     return opt;
 }
@@ -121,12 +131,14 @@ QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
     semi-transparent filled selection rectangle.
 */
 QRubberBand::QRubberBand(Shape s, QWidget *p)
-    : QWidget(*new QRubberBandPrivate, p, (p && p->windowType() != Qt::Desktop) ? Qt::Widget : Qt::ToolTip)
+    : QWidget(*new QRubberBandPrivate, p, (p && p->windowType() != Qt::Desktop) ? Qt::Widget : RUBBERBAND_WINDOW_TYPE)
 {
     Q_D(QRubberBand);
     d->shape = s;
     setAttribute(Qt::WA_TransparentForMouseEvents);
+#ifndef Q_WS_WIN    
     setAttribute(Qt::WA_NoSystemBackground);
+#endif //Q_WS_WIN    
     setAttribute(Qt::WA_WState_ExplicitShowHide);
     setVisible(false);
 #ifdef Q_WS_MAC
@@ -204,9 +216,9 @@ void QRubberBand::changeEvent(QEvent *e)
     switch (e->type()) {
     case QEvent::ParentChange:
         if (parent()) {
-            setWindowFlags(windowFlags() & ~Qt::ToolTip);
+            setWindowFlags(windowFlags() & ~RUBBERBAND_WINDOW_TYPE);
         } else {
-            setWindowFlags(windowFlags() | Qt::ToolTip);
+            setWindowFlags(windowFlags() | RUBBERBAND_WINDOW_TYPE);
         }
         break;
     default:
