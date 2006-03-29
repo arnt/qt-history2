@@ -17,6 +17,8 @@
 #include <QtCore/QString>
 #include <QtCore/QObject>
 
+QT_BEGIN_HEADER
+
 #define Q_TYPEID(IFace) QLatin1String(IFace##_iid)
 
 class QAbstractExtensionFactory
@@ -69,5 +71,7 @@ template <> inline IFace *qt_extension<IFace *>(QAbstractExtensionManager *manag
 { QObject *extension = manager->extension(object, Q_TYPEID(IFace)); return extension ? static_cast<IFace *>(extension->qt_metacast(IFace##_iid)) : static_cast<IFace *>(0); }
 
 #endif
+
+QT_END_HEADER
 
 #endif // EXTENSION_H

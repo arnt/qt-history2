@@ -18,6 +18,7 @@
 #include <QtSql/qsqldriver.h>
 #include <QtSql/private/qsqlcachedresult_p.h>
 
+QT_BEGIN_HEADER
 class QIBaseDriverPrivate;
 class QIBaseResultPrivate;
 class QIBaseDriver;
@@ -82,4 +83,5 @@ private:
     QIBaseDriverPrivate* d;
 };
 
+QT_END_HEADER
 #endif // QSQL_IBASE_H

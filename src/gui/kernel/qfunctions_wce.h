@@ -467,4 +467,8 @@ UINT    GlobalFlags(HGLOBAL hMem);
 
 #endif // Q_OS_TEMP
 
+// silence syncqt
+QT_BEGIN_HEADER
+QT_END_HEADER
+
 #endif // QFUNCTIONS_WCE_H

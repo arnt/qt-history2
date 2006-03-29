@@ -25,6 +25,8 @@
 // We mean it.
 //
 
+QT_BEGIN_HEADER
+
 union QWSMemId
 {
     QWSMemId() {}
@@ -36,5 +38,7 @@ union QWSMemId
     uchar *address;
     int shmid;
 };
+
+QT_END_HEADER
 
 #endif // QWSMEMID_QWS_H

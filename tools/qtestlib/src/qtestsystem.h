@@ -18,6 +18,8 @@
 #include <QtCore/qcoreapplication.h>
 #include <QtCore/qdatetime.h>
 
+QT_BEGIN_HEADER
+
 namespace QTest
 {
     inline static void qWait(int ms)
@@ -32,5 +34,7 @@ namespace QTest
         } while (timer.elapsed() < ms);
     }
 }
+
+QT_END_HEADER
 
 #endif

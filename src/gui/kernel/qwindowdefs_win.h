@@ -36,6 +36,8 @@
 
 #endif
 
+QT_BEGIN_HEADER
+
 #ifndef HINSTANCE
 Q_DECLARE_HANDLE(HINSTANCE);
 #endif
@@ -79,9 +81,12 @@ typedef long HRESULT;
 typedef struct tagMSG MSG;
 typedef HWND WId;
 
+
 Q_CORE_EXPORT HINSTANCE qWinAppInst();
 Q_CORE_EXPORT HINSTANCE qWinAppPrevInst();
 Q_GUI_EXPORT int           qWinAppCmdShow();
 Q_GUI_EXPORT HDC           qt_win_display_dc();
+
+QT_END_HEADER
 
 #endif // QWINDOWDEFS_WIN_H

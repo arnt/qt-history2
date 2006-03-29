@@ -35,6 +35,8 @@
 #define Q_EXPORT_SQLDRIVER_TDS Q_SQL_EXPORT
 #endif
 
+QT_BEGIN_HEADER
+
 class QTDSDriverPrivate;
 class QTDSResultPrivate;
 class QTDSDriver;
@@ -90,5 +92,7 @@ private:
     void init();
     QTDSDriverPrivate *d;
 };
+
+QT_END_HEADER
 
 #endif // QSQL_TDS_H

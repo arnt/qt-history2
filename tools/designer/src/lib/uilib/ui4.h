@@ -29,6 +29,8 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 
+QT_BEGIN_HEADER
+
 class QDomDocument;
 class QDomElement;
 
@@ -2166,5 +2168,7 @@ private:
 #ifdef QFORMINTERNAL_NAMESPACE
 }
 #endif
+
+QT_END_HEADER
 
 #endif // UI4_H

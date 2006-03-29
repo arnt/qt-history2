@@ -19,6 +19,8 @@
 #include <QtCore/qobject.h>
 #include <QtCore/qpointer.h>
 
+QT_BEGIN_HEADER
+
 class QTestEventLoop : public QObject
 {
 public:
@@ -86,5 +88,7 @@ inline void QTestEventLoop::timerEvent(QTimerEvent *e)
     _timeout = true;
     exitLoop();
 }
+
+QT_END_HEADER
 
 #endif

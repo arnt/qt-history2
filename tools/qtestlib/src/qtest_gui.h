@@ -28,6 +28,8 @@
 #pragma qt_no_master_include
 #endif
 
+QT_BEGIN_HEADER
+
 namespace QTest
 {
 
@@ -63,5 +65,7 @@ inline static bool pixmapsAreEqual(const QPixmap *actual, const QPixmap *expecte
         return false;
     return actual->toImage() == expected->toImage();
 }
+
+QT_END_HEADER
 
 #endif

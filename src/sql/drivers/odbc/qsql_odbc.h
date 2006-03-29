@@ -53,6 +53,8 @@
 
 #include <sqlext.h>
 
+QT_BEGIN_HEADER
+
 class QODBCPrivate;
 class QODBCDriverPrivate;
 class QODBCDriver;
@@ -118,5 +120,7 @@ private:
     void cleanup();
     QODBCDriverPrivate* d;
 };
+
+QT_END_HEADER
 
 #endif // QSQL_ODBC_H

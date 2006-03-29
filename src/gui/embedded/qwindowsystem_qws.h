@@ -23,6 +23,8 @@
 #include <QtGui/qkbd_qws.h>
 #include <QtGui/qregion.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 struct QWSWindowPrivate;
@@ -434,5 +436,7 @@ private:
 
     friend class QWSServerPrivate;
 };
+
+QT_END_HEADER
 
 #endif // QWINDOWSYSTEM_QWS_H

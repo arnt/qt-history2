@@ -16,6 +16,8 @@
 
 #include <QtDesigner/extension.h>
 
+QT_BEGIN_HEADER
+
 class QVariant;
 
 class QDesignerPropertySheetExtension
@@ -47,5 +49,7 @@ public:
     virtual void setChanged(int index, bool changed) = 0;
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerPropertySheetExtension, "com.trolltech.Qt.Designer.PropertySheet")
+
+QT_END_HEADER
 
 #endif // PROPERTYSHEET_H

@@ -28,6 +28,8 @@
 
 #include <stdlib.h>
 
+QT_BEGIN_HEADER
+
 class QTestEvent
 {
 public:
@@ -172,5 +174,7 @@ public:
 };
 
 Q_DECLARE_METATYPE(QTestEventList)
+
+QT_END_HEADER
 
 #endif

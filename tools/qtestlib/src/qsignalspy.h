@@ -20,6 +20,8 @@
 #include <QtCore/qmetaobject.h>
 #include <QtCore/qvariant.h>
 
+QT_BEGIN_HEADER
+
 class QSignalSpy: public QObject, public QList<QList<QVariant> >
 {
 public:
@@ -139,5 +141,7 @@ private:
     // holds the QMetaType types for the argument list of the signal
     QList<int> args;
 };
+
+QT_END_HEADER
 
 #endif

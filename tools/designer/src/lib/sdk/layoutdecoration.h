@@ -19,6 +19,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QPair>
 
+QT_BEGIN_HEADER
+
 class QPoint;
 class QLayoutItem;
 class QWidget;
@@ -59,5 +61,7 @@ public:
     virtual void adjustIndicator(const QPoint &pos, int index) = 0;
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerLayoutDecorationExtension, "com.trolltech.Qt.Designer.LayoutDecoration")
+
+QT_END_HEADER
 
 #endif // LAYOUTDECORATION_H

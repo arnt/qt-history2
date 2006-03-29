@@ -23,6 +23,8 @@
 #define Q_EXPORT_SQLDRIVER_PSQL Q_SQL_EXPORT
 #endif
 
+QT_BEGIN_HEADER
+
 typedef struct pg_conn PGconn;
 typedef struct pg_result PGresult;
 
@@ -100,5 +102,7 @@ private:
     void init();
     QPSQLDriverPrivate *d;
 };
+
+QT_END_HEADER
 
 #endif // QSQL_PSQL_H

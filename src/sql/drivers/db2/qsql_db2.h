@@ -23,6 +23,7 @@
 #include <QtSql/qsqlresult.h>
 #include <QtSql/qsqldriver.h>
 
+QT_BEGIN_VERSION
 class QDB2Driver;
 class QDB2DriverPrivate;
 class QDB2ResultPrivate;
@@ -80,5 +81,7 @@ private:
     bool setAutoCommit(bool autoCommit);
     QDB2DriverPrivate* d;
 };
+
+QT_END_HEADER
 
 #endif // QSQL_DB2_H

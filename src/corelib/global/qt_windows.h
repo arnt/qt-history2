@@ -77,4 +77,9 @@
 #ifndef ETO_PDY
 #define ETO_PDY 0x2000
 #endif
+
+
+// Added here to shut syncqt up
+QT_BEGIN_HEADER
+QT_END_HEADER
 #endif // QT_WINDOWS_H

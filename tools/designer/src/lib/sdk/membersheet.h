@@ -19,6 +19,8 @@
 #include <QtCore/QList>
 #include <QtCore/QByteArray>
 
+QT_BEGIN_HEADER
+
 class QDesignerMemberSheetExtension
 {
 public:
@@ -46,5 +48,7 @@ public:
     virtual QList<QByteArray> parameterNames(int index) const = 0;
 };
 Q_DECLARE_EXTENSION_INTERFACE(QDesignerMemberSheetExtension, "com.trolltech.Qt.Designer.MemberSheet")
+
+QT_END_HEADER
 
 #endif // MEMBERSHEET_H

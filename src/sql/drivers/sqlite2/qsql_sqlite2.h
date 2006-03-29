@@ -24,6 +24,8 @@
 # include <QtCore/qt_windows.h>
 #endif
 
+QT_BEGIN_HEADER
+
 class QSQLite2DriverPrivate;
 class QSQLite2ResultPrivate;
 class QSQLite2Driver;
@@ -82,5 +84,7 @@ public:
 private:
     QSQLite2DriverPrivate* d;
 };
+
+QT_END_HEADER
 
 #endif // QSQL_SQLITE2_H

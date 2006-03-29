@@ -16,6 +16,8 @@
 
 #include <QtDesigner/extension.h>
 
+QT_BEGIN_HEADER
+
 class QAction;
 
 class QDesignerTaskMenuExtension
@@ -33,5 +35,6 @@ Q_DECLARE_EXTENSION_INTERFACE(QDesignerTaskMenuExtension, "com.trolltech.Qt.Desi
 inline QAction *QDesignerTaskMenuExtension::preferredEditAction() const
 { return 0; }
 
+QT_END_HEADER
 
 #endif // TASKMENU_H

@@ -29,6 +29,8 @@
 #define Q_EXPORT_SQLDRIVER_MYSQL Q_SQL_EXPORT
 #endif
 
+QT_BEGIN_HEADER
+
 class QMYSQLDriverPrivate;
 class QMYSQLResultPrivate;
 class QMYSQLDriver;
@@ -95,5 +97,7 @@ private:
     void init();
     QMYSQLDriverPrivate* d;
 };
+
+QT_END_HEADER
 
 #endif // QSQL_MYSQL_H

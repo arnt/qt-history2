@@ -24,6 +24,8 @@
 #define Q_EXPORT_SQLDRIVER_OCI Q_SQL_EXPORT
 #endif
 
+QT_BEGIN_HEADER
+
 class QOCIPrivate;
 class QOCIResultPrivate;
 class QOCIDriver;
@@ -88,5 +90,7 @@ protected:
 private:
     QOCIPrivate*        d;
 };
+
+QT_END_HEADER
 
 #endif // QSQL_OCI_H
