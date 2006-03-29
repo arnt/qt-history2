@@ -512,11 +512,14 @@ QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
 
             if (lastNode->text == QLatin1String(" ")) {
 
-                // re-use last node if whitspace'ed, unless it's part of a
-                // <span>Foo</span> <span>Bar</span> alike sequence
-                const QTextHtmlParserNode *secondLastNode = &at(count() - 2);
-                if (secondLastNode->displayMode == QTextHtmlElement::DisplayInline
-                    && secondLastNode->parent == lastNode->parent) {
+                int lastSibling = count() - 2;
+                while (lastSibling
+                       && at(lastSibling).parent != lastNode->parent
+                       && at(lastSibling).displayMode == QTextHtmlElement::DisplayInline) {
+                    lastSibling = at(lastSibling).parent;
+                }
+                
+                if (at(lastSibling).displayMode == QTextHtmlElement::DisplayInline) {
                     reuseLastNode = false;
                 } else {
                     reuseLastNode = true;
