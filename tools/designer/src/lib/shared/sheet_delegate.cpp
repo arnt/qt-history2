@@ -44,7 +44,6 @@ void SheetDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         buttonOption.rect = option.rect;
         buttonOption.palette = option.palette;
         buttonOption.features = QStyleOptionButton::None;
-        buttonOption.text = model->data(index, Qt::DisplayRole).toString();
         m_view->style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter, m_view);
 
         QStyleOption branchOption;
@@ -58,6 +57,14 @@ void SheetDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
             branchOption.state |= QStyle::State_Open;
 
         m_view->style()->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, m_view);
+
+        // draw text
+        QRect textrect = QRect(r.left() + i*2, r.top(), r.width() - ((5*i)/2), r.height());
+        QString text = elidedText(option.fontMetrics, textrect.width(), Qt::ElideMiddle, 
+            model->data(index, Qt::DisplayRole).toString());
+        m_view->style()->drawItemText(painter, textrect, Qt::AlignCenter,
+            option.palette, m_view->isEnabled(), text);
+
     } else {
         QItemDelegate::paint(painter, option, index);
     }
