@@ -1720,23 +1720,22 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 #ifndef QT_NO_RUBBERBAND
     case CE_RubberBand:
         if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
+            // ### workaround for slow general painter path
+            QPixmap tiledPixmap(16, 16);
+            QPainter pixmapPainter(&tiledPixmap);
+            pixmapPainter.setPen(Qt::NoPen);
+            pixmapPainter.setBrush(Qt::Dense4Pattern);
+            pixmapPainter.setBackground(Qt::white);
+            pixmapPainter.setBackgroundMode(Qt::OpaqueMode);
+            pixmapPainter.drawRect(0, 0, tiledPixmap.width(), tiledPixmap.height());
+            pixmapPainter.end();
+            tiledPixmap = QPixmap::fromImage(tiledPixmap.toImage());
             p->save();
-            QRect r = opt->rect.adjusted(0, 0, -1, -1);
+            QRect r = opt->rect;
             QStyleHintReturnMask mask;
             if (styleHint(QStyle::SH_RubberBand_Mask, opt, widget, &mask))
                 p->setClipRegion(mask.region);
-            p->setBrush(Qt::NoBrush);
-            QPen dottedPen(Qt::white);
-            dottedPen.setWidth(0);
-            p->setPen(dottedPen);
-            p->drawRect(r);
-            dottedPen.setColor(Qt::black);
-            dottedPen.setCapStyle(Qt::FlatCap);
-            QVector<qreal> dashes;
-            dashes << 1 << 1;
-            dottedPen.setDashPattern(dashes);
-            p->setPen(dottedPen);
-            p->drawRect(r);
+            p->drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), tiledPixmap);
             p->restore();
             return;
         }
