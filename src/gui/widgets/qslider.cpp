@@ -86,7 +86,6 @@ inline int QSliderPrivate::pick(const QPoint &pt) const
     return orientation == Qt::Horizontal ? pt.x() : pt.y();
 }
 
-
 QStyleOptionSlider QSliderPrivate::getStyleOption() const
 {
     Q_Q(const QSlider);
@@ -369,20 +368,23 @@ bool QSlider::event(QEvent *event)
 void QSlider::mousePressEvent(QMouseEvent *ev)
 {
     Q_D(QSlider);
-    if (d->maximum == d->minimum
-        || (ev->buttons() ^ ev->button())
-        || (ev->button() == Qt::RightButton)) {
+    if (d->maximum == d->minimum || (ev->buttons() ^ ev->button())) {
         ev->ignore();
         return;
     }
     ev->accept();
-    if (ev->button() == Qt::MidButton) {
-        setSliderPosition(d->pixelPosToRangeValue(d->pick(ev->pos())));
+    if ((ev->button() & style()->styleHint(QStyle::SH_Slider_AbsoluteSetButtons)) == ev->button()) {
+        QStyleOptionSlider opt = d->getStyleOption();
+        const QRect sliderRect = style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this);
+        const QPoint center = sliderRect.center() - sliderRect.topLeft();
+        // to take half of the slider off for the setSliderPosition call we use the center - topLeft
+
+        setSliderPosition(d->pixelPosToRangeValue(d->pick(ev->pos() - center)));
         triggerAction(SliderMove);
         setRepeatAction(SliderNoAction);
         d->pressedControl = QStyle::SC_SliderHandle;
         update();
-    } else {
+    } else if ((ev->button() & style()->styleHint(QStyle::SH_Slider_PageSetButtons)) == ev->button()) {
         QStyleOptionSlider opt = d->getStyleOption();
         d->pressedControl = style()->hitTestComplexControl(QStyle::CC_Slider,
                                                            &opt, ev->pos(), this);
@@ -397,16 +399,21 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
                 triggerAction(action);
                 setRepeatAction(action);
             }
-        } else if (d->pressedControl == QStyle::SC_SliderHandle) {
+        }
+    } else {
+        ev->ignore();
+        return;
+    }
+
+    if (d->pressedControl == QStyle::SC_SliderHandle) {
+        QStyleOptionSlider opt = d->getStyleOption();
             setRepeatAction(SliderNoAction);
             QRect sr = style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this);
             d->clickOffset = d->pick(ev->pos() - sr.topLeft());
             d->snapBackPosition = d->position;
             update(sr);
-        }
-    }
-    if (d->pressedControl == QStyle::SC_SliderHandle)
         setSliderDown(true);
+    }
 }
 
 /*!
@@ -415,7 +422,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
 void QSlider::mouseMoveEvent(QMouseEvent *ev)
 {
     Q_D(QSlider);
-    if (d->pressedControl != QStyle::SC_SliderHandle || (ev->buttons() & Qt::RightButton)) {
+    if (d->pressedControl != QStyle::SC_SliderHandle) {
         ev->ignore();
         return;
     }
@@ -426,8 +433,9 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
     if (m >= 0) {
         QRect r = rect();
         r.adjust(-m, -m, m, m);
-        if (!r.contains(ev->pos()))
+        if (!r.contains(ev->pos())) {
             newPosition = d->snapBackPosition;
+    }
     }
     setSliderPosition(newPosition);
 }

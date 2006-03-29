@@ -1512,6 +1512,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     when the user single clicks on an item in an item in an item view.
     Otherwise the signal is emitted when the user double clicks on an item.
 
+    \value SH_Slider_AbsoluteSetButtons Which mouse buttons cause a slider
+    to set the value to the position clicked on.
+
+    \value SH_Slider_PageSetButtons Which mouse buttons cause a slider
+    to page step the value.
+
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()

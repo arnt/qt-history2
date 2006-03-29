@@ -573,6 +573,8 @@ public:
         SH_ItemView_ActivateItemOnSingleClick,
         SH_ScrollBar_ContextMenu,
         SH_ScrollBar_RollBetweenButtons,
+        SH_Slider_AbsoluteSetButtons,
+        SH_Slider_PageSetButtons,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT

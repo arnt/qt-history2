@@ -1634,6 +1634,12 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
 {
     SInt32 ret = 0;
     switch (sh) {
+    case SH_Slider_AbsoluteSetButtons:
+        ret = Qt::LeftButton|Qt::MidButton;
+        break;
+    case SH_Slider_PageSetButtons:
+        ret = 0;
+        break;
     case SH_ScrollBar_ContextMenu:
         ret = false;
         break;

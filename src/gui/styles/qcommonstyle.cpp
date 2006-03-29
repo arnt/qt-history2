@@ -3539,6 +3539,12 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     int ret = 0;
 
     switch (sh) {
+    case SH_Slider_AbsoluteSetButtons:
+        ret = Qt::MidButton;
+        break;
+    case SH_Slider_PageSetButtons:
+        ret = Qt::LeftButton;
+        break;
     case SH_ScrollBar_ContextMenu:
         ret = true;
         break;
