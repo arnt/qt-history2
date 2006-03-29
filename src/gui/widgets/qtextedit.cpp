@@ -104,6 +104,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
     Q_Q(QTextEdit);
 
+    const int oldCursorPos = cursor.position();
     QTextCursor::MoveMode mode = e->modifiers() & Qt::ShiftModifier
                                    ? QTextCursor::KeepAnchor
                                    : QTextCursor::MoveAnchor;
@@ -263,7 +264,8 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     q->ensureCursorVisible();
 
     if (moved) {
-        emit q->cursorPositionChanged();
+        if (cursor.position() != oldCursorPos)
+            emit q->cursorPositionChanged();
         q->updateMicroFocus();
     }
 #ifdef QT_KEYPAD_NAVIGATION
@@ -564,6 +566,7 @@ void QTextEditPrivate::selectionChanged()
 void QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextEdit);
+    const int oldCursorPos = cursor.position();
     int targetY = verticalOffset() - viewport->height();
     bool moved = false;
     qreal y;
@@ -576,7 +579,8 @@ void QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 
     if (moved) {
         q->ensureCursorVisible();
-        emit q->cursorPositionChanged();
+        if (cursor.position() != oldCursorPos)
+            emit q->cursorPositionChanged();
         q->updateMicroFocus();
     }
 }
@@ -584,6 +588,7 @@ void QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 void QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextEdit);
+    const int oldCursorPos = cursor.position();
     int targetY = verticalOffset() + 2 * viewport->height();
     bool moved = false;
     qreal y;
@@ -595,7 +600,8 @@ void QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
 
     if (moved) {
         q->ensureCursorVisible();
-        emit q->cursorPositionChanged();
+        if (cursor.position() != oldCursorPos)
+            emit q->cursorPositionChanged();
         q->updateMicroFocus();
     }
 }
@@ -1258,11 +1264,13 @@ QTextDocument *QTextEdit::document() const
 void QTextEdit::setTextCursor(const QTextCursor &cursor)
 {
     Q_D(QTextEdit);
+    const bool posChanged = cursor.position() != d->cursor.position();
     d->cursor = cursor;
     d->_q_updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
     d->viewport->update();
-    emit cursorPositionChanged();
+    if (posChanged)
+        emit cursorPositionChanged();
 }
 
 /*!
@@ -2219,6 +2227,8 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
     if (!(e->button() & Qt::LeftButton))
         return;
 
+    const int oldCursorPos = d->cursor.position();
+
     d->ensureViewportLayouted();
 
     const QPoint pos = d->mapToContents(e->pos());
@@ -2281,11 +2291,13 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
     }
 
     if (d->readOnly) {
-        emit cursorPositionChanged();
+        if (d->cursor.position() != oldCursorPos)
+            emit cursorPositionChanged();
         d->selectionChanged();
     } else {
         ensureCursorVisible();
-        emit cursorPositionChanged();
+        if (d->cursor.position() != oldCursorPos)
+            emit cursorPositionChanged();
         d->_q_updateCurrentCharFormatAndSelection();
     }
     d->repaintSelection();
@@ -2303,6 +2315,8 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
           || d->selectedWordOnDoubleClick.hasSelection()
           || d->selectedLineOnDoubleClick.hasSelection()))
         return;
+
+    const int oldCursorPos = d->cursor.position();
 
     d->ensureViewportLayouted();
 
@@ -2348,11 +2362,13 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
     if (d->readOnly) {
         const QPoint pos = d->mapToContents(e->pos());
         d->ensureVisible(QRect(pos, QSize(1, 1)));
-        emit cursorPositionChanged();
+        if (d->cursor.position() != oldCursorPos)
+            emit cursorPositionChanged();
         d->selectionChanged();
     } else {
         ensureCursorVisible();
-        emit cursorPositionChanged();
+        if (d->cursor.position() != oldCursorPos)
+            emit cursorPositionChanged();
         d->_q_updateCurrentCharFormatAndSelection();
     }
     d->repaintSelection();
