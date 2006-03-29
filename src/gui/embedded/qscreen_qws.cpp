@@ -1023,6 +1023,64 @@ static void blit_16_to_16(const blit_data *data)
     }
 }
 
+static inline uchar qt_32_to_8(uint rgb)
+{
+    uchar r = (qRed(rgb) + 0x19) / 0x33;
+    uchar g = (qGreen(rgb) + 0x19) / 0x33;
+    uchar b = (qBlue(rgb) + 0x19) / 0x33;
+
+    return r*6*6 + g*6 + b;
+}
+
+#if 0
+static inline uchar qt_16_to_8(ushort pix)
+{
+    return qt_32_to_8(qt_conv16ToRgb(pix));
+}
+#endif
+
+static void blit_32_to_8(const blit_data *data)
+{
+    const int sbpl = data->img->bytesPerLine() / 4;
+    const int dbpl = data->lineStep;
+
+    const uint *src = (const uint *)data->img->bits();
+    src += data->sy * sbpl + data->sx;
+    uchar *dest = (uchar *)data->data;
+    dest += data->dy * dbpl + data->dx;
+
+    int h = data->h;
+    while (h) {
+        for (int i = 0; i < data->w; ++i)
+            dest[i] = qt_32_to_8(src[i]);
+        src += sbpl;
+        dest += dbpl;
+        --h;
+    }
+}
+
+#if 0
+static void blit_16_to_8(const blit_data *data)
+{
+    const int sbpl = data->img->bytesPerLine() / 2;
+    const int dbpl = data->lineStep;
+
+    const ushort *src = (const ushort *)data->img->bits();
+    src += data->sy * sbpl + data->sx;
+    uchar *dest = (uchar *)data->data;
+    dest += data->dy * dbpl + data->dx;
+
+    int h = data->h;
+    while (h) {
+        for (int i = 0; i < data->w; ++i)
+            dest[i] = qt_convRgbTo16(src[i]);
+        src += sbpl;
+        dest += dbpl;
+        --h;
+    }
+}
+#endif
+
 /*!
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
 
@@ -1054,6 +1112,14 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
             func = blit_16_to_16;
         else
             func = blit_32_to_16;
+        break;
+    case 8:
+#if 0
+        if (img.depth() == 16)
+            func = blit_16_to_8;
+        else
+#endif
+            func = blit_32_to_8;
         break;
     default:
         break;
@@ -1140,6 +1206,24 @@ static void fill_16(const fill_data *data)
     }
 }
 
+static void fill_8(const fill_data *data)
+{
+    const int dbpl = data->lineStep;
+    uchar color = qt_32_to_8(data->color);
+
+    uchar *dest = (uchar *)data->data;
+    dest += data->y * dbpl + data->x;
+
+    int h = data->h;
+    while (h) {
+        for (int i = 0; i < data->w; ++i)
+            dest[i] = color;
+        dest += dbpl;
+        --h;
+    }
+}
+
+
 /*!
    This virtual function allows subclasses of QScreen to fill the
    given \a region of the screen with the specified \a color. Note
@@ -1164,6 +1248,8 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
     case 16:
         func = fill_16;
         break;
+    case 8:
+        func = fill_8;
     default:
         break;
     }
