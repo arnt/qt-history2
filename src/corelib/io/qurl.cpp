@@ -3851,6 +3851,8 @@ void QUrl::setHost(const QString &host)
     QURL_UNSETFLAG(d->stateFlags, QUrlPrivate::Validated | QUrlPrivate::Normalized);
 
     d->host = qt_nameprep(host.trimmed());
+    if (d->host.contains(QLatin1Char(':')))
+        d->host = QLatin1Char('[') + d->host + QLatin1Char(']');
 }
 
 /*!
@@ -3861,7 +3863,11 @@ QString QUrl::host() const
 {
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
 
-    return d->host;
+    if (d->host.isEmpty() || d->host.at(0) != QLatin1Char('['))
+        return d->host;
+    QString tmp = d->host.mid(1);
+    tmp.truncate(tmp.length() - 1);
+    return tmp;
 }
 
 /*!
