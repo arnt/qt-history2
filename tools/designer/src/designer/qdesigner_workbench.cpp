@@ -527,6 +527,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     }
 
     QDesignerSettings settings;
+    bool found_visible_window = false;
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         tw->setParent(magicalParent(), magicalWindowFlags(tw));
         if (m_geometries.isEmpty()) {
@@ -537,7 +538,12 @@ void QDesignerWorkbench::switchToTopLevelMode()
             tw->move(g.topLeft() + desktopOffset);
             tw->setVisible(m_visibilities.value(tw, true));
         }
+        found_visible_window |= tw->isVisible();
     }
+
+    if (!m_toolWindows.isEmpty() && !found_visible_window)
+        m_toolWindows.first()->show();
+
     changeBringToFrontVisiblity(true);
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
