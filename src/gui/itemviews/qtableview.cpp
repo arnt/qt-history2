@@ -205,9 +205,8 @@ void QTableView::setSelectionModel(QItemSelectionModel *selectionModel)
 /*!
     Returns the table view's horizontal header.
 
-    \sa setHorizontalHeader() verticalHeader()
+    \sa setHorizontalHeader(), verticalHeader(), QAbstractItemModel::headerData()
 */
-
 QHeaderView *QTableView::horizontalHeader() const
 {
     return d_func()->horizontalHeader;
@@ -216,7 +215,7 @@ QHeaderView *QTableView::horizontalHeader() const
 /*!
     Returns the table view's vertical header.
 
-    \sa setVerticalHeader() horizontalHeader()
+    \sa setVerticalHeader(), horizontalHeader(), QAbstractItemModel::headerData()
 */
 QHeaderView *QTableView::verticalHeader() const
 {

@@ -224,6 +224,8 @@ void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
 
 /*!
   Returns the header for the tree view.
+
+  \sa QAbstractItemModel::headerData()
 */
 QHeaderView *QTreeView::header() const
 {
@@ -236,6 +238,8 @@ QHeaderView *QTreeView::header() const
 
     The view takes ownership over the given \a header and deletes it
     when a new header is set.
+
+    \sa QAbstractItemModel::headerData()
 */
 void QTreeView::setHeader(QHeaderView *header)
 {
