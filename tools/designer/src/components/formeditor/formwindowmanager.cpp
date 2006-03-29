@@ -102,7 +102,7 @@ static bool isMouseMoveOrRelease(QEvent *e)
 bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 {
     if (
-#ifndef Q_OS_WIN
+#ifdef Q_WS_X11
         o == m_core->topLevel() &&
 #endif
         !m_drag_item_list.isEmpty() && isMouseMoveOrRelease(e)) {
@@ -658,7 +658,7 @@ void FormWindowManager::beginDrag(const QList<QDesignerDnDItemInterface*> &item_
         deco->setWindowOpacity(0.8);
     }
 
-#ifndef Q_OS_WIN
+#ifdef Q_WS_X11
     m_core->topLevel()->grabMouse();
     m_savedContextMenuPolicy = m_core->topLevel()->contextMenuPolicy();
     m_core->topLevel()->setContextMenuPolicy(Qt::NoContextMenu);
@@ -728,7 +728,7 @@ void FormWindowManager::setItemsPos(const QPoint &globalPos)
 
 void FormWindowManager::endDrag(const QPoint &pos)
 {
-#ifndef Q_OS_WIN
+#ifdef Q_WS_X11
     m_core->topLevel()->releaseMouse();
     m_core->topLevel()->setContextMenuPolicy(m_savedContextMenuPolicy);
 #endif
