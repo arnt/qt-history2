@@ -974,7 +974,11 @@ void QX11PaintEngine::drawPoints(const QPoint *points, int pointCount)
     if (!d->has_pen)
         return;
 
-    if (d->cpen.widthF() > .0f || d->use_path_fallback) {
+    if (d->cpen.widthF() > .0f
+        || d->has_alpha_brush
+        || d->has_alpha_pen
+        || d->has_custom_pen
+        || (d->render_hints & QPainter::Antialiasing)) {
         const QPoint *end = points + pointCount;
         while (points < end) {
             QPainterPath path;
