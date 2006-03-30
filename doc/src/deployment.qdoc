@@ -375,6 +375,42 @@
         qApp->addLibraryPath("/some/other/path");
     \endcode
 
+    \section2 Visual Studio 2005
+    
+    When deploying an application compiled with Visual Studio 2005
+    there are some additional considerations that need to be handled.
+
+    First, we need to copy the manifest file created when linking the
+    application. This manifest file contains information about the
+    application's dependencies on side-by-side assemblies, like the
+    runtime libraries. The manifest file needs to be copied into the
+    same folder as the application executable. You do not need to copy
+    the manifest files for shared libraries (\c {DLL}s), since they
+    are not used. If the shared library has different dependencies than
+    the application using it, the manifest file needs to be embedded
+    into the \c DLL binary. In Qt 4.1.3 and later we have the following
+    \c CONFIG options for embedding manifests:
+
+    \code
+        embed_manifest_dll
+        embed_manifest_exe
+    \endcode
+
+    To use the options, add:
+
+    \code
+        CONFIG += embed_manifest_exe
+    \endcode
+
+    to your .pro file. \c embed_manifest_dll is enabled by default.
+
+    You can find more information about manifest files and side-by-side
+    assemblies at the \l {http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sbscs/setup/side_by_side_assemblies_reference.asp}{MSDN website}
+
+    Second, we need to include the runtime libraries. To do this, copy
+    the contents of \c {<Visual Studio Install Path>\VC\redist\<Architecture>\Microsoft.VC80.CRT}
+    into the folder where your executable is.
+
     \section1 Application Dependencies
 
     \section2 Additional Libraries
@@ -656,15 +692,17 @@
 
     \table 100%
     \header
-        \o \o VC++ 6.0 \o VC++ 7.1 (2003)
+        \o \o VC++ 6.0 \o VC++ 7.1 (2003) \o VC++ 8.0 (2005)
     \row
         \o The C run-time
         \o \c msvcrt.dll
         \o \c msvcr71.dll
+        \o \c msvcr80.dll
     \row
         \o The C++ run-time
         \o \c msvcp60.dll
         \o \c msvcp71.dll
+        \o \c msvcp80.dll
     \endtable
 
     To verify that the application now can be successfully deployed,
@@ -718,6 +756,7 @@
             \o Qt
             \o VC++ 6.0
             \o VC++ 7.1 (2003)
+            \o VC++ 8.0 (2005)
             \o MinGW
         \row
         \o \list
@@ -731,6 +770,10 @@
         \o \list
                \o MSVCR71.DLL - The C runtime
                \o MSVCP71.DLL - The C++ runtime (only when STL is installed)
+           \endlist
+        \o \list
+               \o MSVCR80.DLL - The C runtime
+               \o MSVCP80.DLL - The C++ runtime (only when STL is installed)
            \endlist
         \o \list
                \o MINGWM10.DLL - The MinGW run-time
