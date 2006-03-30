@@ -195,11 +195,11 @@ objects that can be used to create user interfaces on forms. Each of the
 categories in the widget box contains widgets that have similar uses, or that
 provide related features.
 
-You can display all of the available objects in a category by clicking on
-the \gui + handle next to the category label. When in
-\l{Qt Designer's Widget Editing Mode}{Widget Editing Mode}, you can add objects to a
-form by dragging the appropriate items from the widget box onto the form, and
-dropping them in the required locations.
+You can display all of the available objects in a category by clicking
+on the handle next to the category label. When in \l{Qt Designer's
+Widget Editing Mode}{Widget Editing Mode}, you can add objects to a
+form by dragging the appropriate items from the widget box onto the
+form, and dropping them in the required locations.
 
 \QD provides a scratch pad feature that allows you to collect the most
 commonly used objects in a separate category. This category will be
@@ -272,10 +272,11 @@ suitable for different kinds of components. You can either choose one of
 these templates or open a form that was saved earlier.
 \endtable
 
-If your requirements later change so that you need to supply a different
-type of component, you can easily reuse the contents of your existing form.
-For our example, we select the \bold{Dialog} template, and an empty form
-is created ready for use.
+If your requirements later change so that you need to supply a
+different type of component, you can easily reuse the contents of your
+existing form.  For our example, we select the \bold{Dialog with
+Buttons Bottom} template, and a form with \gui Ok and \gui Cancel
+buttons in the right bottom corner is created ready for use.
 
 \omit
 \image designer-empty-form.png
@@ -308,7 +309,7 @@ focus correctly.
 we can set the order in which widgets receive the keyboard focus.
 \endtable
 
-We ensure that \QD is in widget editing mode by opening the \gui Form menu
+We ensure that \QD is in widget editing mode by opening the \gui Edit menu
 and selecting \gui{Edit Widgets}. This makes it possible for widgets to be
 dragged from the widget box onto the form.
 
@@ -653,7 +654,7 @@ being edited.
 
 The Object Inspector displays a hierarchical list of all the objects on the
 form that is currently being edited. To show the child objects of a container
-widget or a layout, click the \gui + handle next to the object label.
+widget or a layout, click the handle next to the object label.
 
 Each object on a form can be selected by double clicking on the corresponding
 item in the Object Inspector. This feature can be useful if you have many
@@ -1063,7 +1064,7 @@ of actions.
 \i \inlineimage designer-action-editor.png
 \i \bold{The Action Editor}
 
-Enable the action editor by opening the \gui Tool menu, and switching
+Enable the action editor by opening the \gui Tools menu, and switching
 on the \gui {Action Editor} option.
 
 The action editor allows the user to create \gui New actions, as well as
@@ -1374,7 +1375,7 @@ basis.
 \section1 Defining a Resource File
 
 To specify a resource file you must enable the resorce editor by
-opening the \gui Tool menu, and switching on the
+opening the \gui Tools menu, and switching on the
 \gui{Resource Editor} option.
 
 \target ResourceFiles
