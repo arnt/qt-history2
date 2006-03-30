@@ -72,7 +72,7 @@ public:
         : explicitIconSize(false), explicitToolButtonStyle(false), movable(false),
           allowedAreas(Qt::AllToolBarAreas), orientation(Qt::Horizontal),
           toolButtonStyle(Qt::ToolButtonIconOnly),
-          handle(0), extension(0), ignoreActionAddedEvent(false),
+          handle(0), extension(0),
           inResizeEvent(false)
     { }
 
@@ -96,7 +96,6 @@ public:
     QToolBarExtension *extension;
 
     QList<QToolBarItem> items;
-    bool ignoreActionAddedEvent;
 
     QAction *toggleViewAction;
 

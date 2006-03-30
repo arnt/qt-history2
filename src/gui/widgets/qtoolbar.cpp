@@ -571,7 +571,7 @@ void QToolBar::setIconSize(const QSize &iconSize)
     d->explicitIconSize = iconSize.isValid();
 }
 
-/*! 
+/*!
     \property QToolBar::toolButtonStyle
     \brief the style of toolbar buttons
 
@@ -695,6 +695,10 @@ QAction *QToolBar::insertSeparator(QAction *before)
     Adds the given \a widget to the toolbar as the toolbar's last
     item.
 
+    Note: You should use QAction::setVisible() to change the
+    visibility of the widget. Using QWidget::setVisible(),
+    QWidget::show() and QWidget::hide() does not work.
+
     \sa insertWidget()
 */
 QAction *QToolBar::addWidget(QWidget *widget)
@@ -707,6 +711,10 @@ QAction *QToolBar::addWidget(QWidget *widget)
 /*!
     Inserts the given \a widget in front of the toolbar item
     associated with the \a before action.
+
+    Note: You should use QAction::setVisible() to change the
+    visibility of the widget. Using QWidget::setVisible(),
+    QWidget::show() and QWidget::hide() does not work.
 
     \sa addWidget()
 */
@@ -769,9 +777,6 @@ void QToolBar::actionEvent(QActionEvent *event)
     switch (event->type()) {
     case QEvent::ActionAdded:
         {
-            if (d->ignoreActionAddedEvent)
-                break;
-
             Q_ASSERT_X(!widgetAction || d->indexOf(widgetAction) == -1,
                        "QToolBar", "widgets cannot be inserted multiple times");
 
@@ -805,8 +810,12 @@ void QToolBar::actionEvent(QActionEvent *event)
             Q_ASSERT_X(index >= 0 && index < d->items.size(),
                        "QToolBar::actionEvent", "internal error");
             const QToolBarItem &item = d->items.at(index);
-            if (!item.hidden)
+            if (!item.hidden) {
                 item.widget->setVisible(item.action->isVisible());
+            } else {
+                // more elephant shaving
+                QApplication::postEvent(this, new QResizeEvent(size(), size()));
+            }
 
             break;
         }
@@ -936,8 +945,10 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	}
 	if (hide && i > 1) { // never hide the first item in the tb
 	    w->hide();
-	    d->items[i - 1].hidden = true;
-	    ++hidden_count;
+            if (d->items[i - 1].action->isVisible()) {
+                d->items[i - 1].hidden = true;
+                ++hidden_count;
+            }
 	    // the size of the extension menu button needs to be
 	    // considered when buttons in the toolbar are hidden
 	    extension_size = pick(orientation, d->extension->sizeHint());
@@ -1008,9 +1019,9 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                 } else
 #endif // QT_NO_SIGNALMAPPER
                     if (QToolButton *tb = qobject_cast<QToolButton *>(item.widget)) {
-                    QAction *ac = pop->addAction(tb->icon(), tb->text());
-                    connect(ac, SIGNAL(triggered()), tb, SIGNAL(clicked()));
-                }
+                        QAction *ac = pop->addAction(tb->icon(), tb->text());
+                        connect(ac, SIGNAL(triggered()), tb, SIGNAL(clicked()));
+                    }
             }
         }
         if (pop->actions().size() > 0) {
