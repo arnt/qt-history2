@@ -787,11 +787,13 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
         break;
     case Qt::Key_Back:
         if (QApplication::keypadNavigationEnabled()) {
-            if (hasEditFocus())
+            if (hasEditFocus()) {
                 setEditFocus(false);
-            else
-                ev->ignore();
+                ev->accept();
+                return;
+            }
         }
+        QTextEdit::keyPressEvent(ev);
         return;
     default:
         if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
