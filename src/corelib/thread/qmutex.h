@@ -63,36 +63,32 @@ private:
 class Q_CORE_EXPORT QMutexLocker
 {
 public:
-    inline explicit QMutexLocker(QMutex *m) { data.mtx = m; relock(); }
+    inline explicit QMutexLocker(QMutex *m) : mtx(m) { relock(); }
     inline ~QMutexLocker() { unlock(); }
 
     inline void unlock()
     {
-        if (data.mtx) {
-            static quintptr unsigned_1 = 1u;
-            if ((data.val & unsigned_1) == unsigned_1) {
-                data.val &= ~unsigned_1;
-                data.mtx->unlock();
+        if (mtx) {
+            if ((val & quintptr(1u)) == quintptr(1u)) {
+                val &= ~quintptr(1u);
+                mtx->unlock();
             }
         }
     }
 
     inline void relock()
     {
-        if (data.mtx) {
-            static quintptr unsigned_1 = 1u;
-            static quintptr unsigned_0 = 0u;
-            if ((data.val & unsigned_1) == unsigned_0) {
-                data.mtx->lock();
-                data.val |= unsigned_1;
+        if (mtx) {
+            if ((val & quintptr(1u)) == quintptr(0u)) {
+                mtx->lock();
+                val |= quintptr(1u);
             }
         }
     }
 
     inline QMutex *mutex() const
     {
-        static quintptr unsigned_1 = 1u;
-        return reinterpret_cast<QMutex *>(data.val & ~unsigned_1);
+        return reinterpret_cast<QMutex *>(val & ~quintptr(1u));
     }
 
 private:
@@ -101,7 +97,7 @@ private:
     union {
         QMutex *mtx;
         quintptr val;
-    } data;
+    };
 };
 
 #else // QT_NO_THREAD
