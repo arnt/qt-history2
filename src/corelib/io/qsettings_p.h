@@ -95,7 +95,7 @@ class Q_CORE_EXPORT QConfFile
 public:
     InternalSettingsMap mergedKeyMap() const;
 
-    static QConfFile *fromName(const QString &name);
+    static QConfFile *fromName(const QString &name, bool _userPerms);
     static void clearCache();
 
     QString name;
@@ -106,13 +106,14 @@ public:
     InternalSettingsMap removedKeys;
     QAtomic ref;
     QMutex mutex;
+    bool userPerms;
 
 private:
 #ifdef Q_DISABLE_COPY
     QConfFile(const QConfFile &);
     QConfFile &operator=(const QConfFile &);
 #endif
-    QConfFile(const QString &name);
+    QConfFile(const QString &name, bool _userPerms);
     friend class QConfFile_createsItself; // supress compiler warning
 };
 
