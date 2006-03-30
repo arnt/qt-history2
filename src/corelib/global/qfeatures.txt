@@ -810,7 +810,7 @@ Feature: HTTP
 Description: Supports HTTP file access.
 Section: Networking
 Requires: HOSTINFO
-Name: Hyper Text Transfer Protoco
+Name: Hyper Text Transfer Protocol
 SeeAlso: ???
 
 Feature: UDPSOCKET
