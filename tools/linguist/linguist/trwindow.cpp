@@ -1408,7 +1408,7 @@ void TrWindow::setupMenuBar()
         this, SLOT(revalidate()));
     phraseMatchesAct->setCheckable(true);
     phraseMatchesAct->setChecked(true);
-    placeMarkersAct = validationp->addAction(QIcon(rsrcString + "/phrase.png"), tr("&Place marker matches"),
+    placeMarkersAct = validationp->addAction(QIcon(rsrcString + "/validateplacemarkers.png"), tr("&Place marker matches"),
         this, SLOT(revalidate()));
     placeMarkersAct->setCheckable(true);
     placeMarkersAct->setChecked(true);
