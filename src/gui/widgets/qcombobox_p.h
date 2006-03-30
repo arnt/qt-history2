@@ -199,6 +199,7 @@ public:
     void _q_emitHighlighted(const QModelIndex&);
     void _q_emitCurrentIndexChanged(int index);
     void _q_modelDestroyed();
+    void _q_modelReset();
     void _q_resetButton();
     void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void _q_rowsAboutToBeInserted(const QModelIndex & parent, int start, int end);

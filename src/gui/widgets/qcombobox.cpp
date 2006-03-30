@@ -92,6 +92,18 @@ void QComboBoxPrivate::updateArrow(QStyle::StateFlag state)
     q->update(q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow));
 }
 
+void QComboBoxPrivate::_q_modelReset()
+{
+    Q_Q(QComboBox);
+    if (lineEdit) {
+        lineEdit->setText("");
+        updateLineEditGeometry();
+    }
+    q->update();
+
+}
+
+
 void QComboBoxPrivate::_q_modelDestroyed()
 {
     Q_Q(QComboBox);
@@ -1408,6 +1420,8 @@ void QComboBox::setModel(QAbstractItemModel *model)
                    this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(destroyed()),
                    this, SLOT(_q_modelDestroyed()));
+        disconnect(d->model, SIGNAL(modelReset()),
+                   this, SLOT(_q_modelReset()));
         if (d->model->QObject::parent() == this)
             delete d->model;
     }
@@ -1426,6 +1440,8 @@ void QComboBox::setModel(QAbstractItemModel *model)
             this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
     connect(model, SIGNAL(destroyed()),
             this, SLOT(_q_modelDestroyed()));
+    connect(model, SIGNAL(modelReset()),
+            this, SLOT(_q_modelReset()));
 
     if (d->container)
         d->container->itemView()->setModel(model);

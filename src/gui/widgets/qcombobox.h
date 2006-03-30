@@ -269,6 +269,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_rowsAboutToBeRemoved(const QModelIndex & parent, int start, int end))
     Q_PRIVATE_SLOT(d_func(), void _q_rowsRemoved(const QModelIndex & parent, int start, int end))
     Q_PRIVATE_SLOT(d_func(), void _q_modelDestroyed())
+    Q_PRIVATE_SLOT(d_func(), void _q_modelReset())
 };
 
 inline void QComboBox::addItem(const QString &atext, const QVariant &auserData)
