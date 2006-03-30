@@ -1934,6 +1934,7 @@ void qt_message_output(QtMsgType msgType, const char *buf)
         OutputDebugString((fstr + "\n").utf16());
 #else
         fprintf(stderr, "%s\n", buf);
+        fflush(stderr);
 #endif
     }
 
@@ -2222,7 +2223,7 @@ QByteArray qgetenv(const char *varName)
     \relates <QtGlobal>
 
     Same as \l{forever}.
-    
+
     This macro is available even when \c no_keywords is specified
     using the \c .pro file's \c CONFIG variable.
 
