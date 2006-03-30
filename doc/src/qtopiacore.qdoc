@@ -51,13 +51,15 @@
     Qtopia Core applications write directly to the framebuffer,
     eliminating the need for the X Window System and saving memory.
 
-    For development and debugging, the Qtopia Core platform provides a
-    virtual framebuffer as well as the option of running Qtopia Core
-    as a VNC server.
+    For development and debugging purposes, the Qtopia Core platform
+    provides a virtual framebuffer.
+
+    It also provides the option of running an application using the
+    VNC protocol.
 
     \list
         \o \l {The Virtual Framebuffer}
-        \o \l {Running as a  VNC Server}
+        \o \l {The VNC Protocol}
     \endlist
 
     \o \image qtopiacore-architecture.png

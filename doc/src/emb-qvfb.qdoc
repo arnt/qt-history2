@@ -35,7 +35,7 @@
     -qvfb option:
 
     \code
-         cd path/to/QtopiaCore
+         cd path/to/Qtopia/Core
          ./configure -qvfb
          make
     \endcode
@@ -82,7 +82,7 @@
     details). For example:
 
     \code
-        cd path/to/QtopiaCore/examples/widgets/analogclock
+        cd path/to/Qtopia/Core/examples/widgets/analogclock
         make
         ./analogclock -qws
     \endcode
@@ -94,7 +94,7 @@
     driver. For example:
 
     \code
-        cd path/to/QtopiaCore/examples/widgets/analogclock
+        cd path/to/Qtopia/Core/examples/widgets/analogclock
         make
         ./analogclock -qws -display QVFb:0
     \endcode

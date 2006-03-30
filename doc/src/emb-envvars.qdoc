@@ -29,11 +29,10 @@
     \row
     \o \bold QWS_DISPLAY \target QWS_DISPLAY
     \o
-    Specifies the display type and framebuffer. The
-    variable's value is defined as:
+    Specifies the display type and framebuffer:
 
     \code
-        <gfx driver><:driver specific options><:display number>
+        QWS_DISPLAY=<gfx driver><:driver specific options><:display number>
     \endcode
 
     The default value is an unaccelerated Linux framebuffer driver: \c
@@ -50,8 +49,14 @@
 
     \row
     \o \bold QWS_SIZE \target QWS_SIZE
-    \o If defined forces Qtopia Core into a window of \<width\> x
-    \<height\> size centred within the screen, e.g. 320x200
+    \o
+
+    Specifies the size of Qtopia Core's window which is centered
+    within the screen:
+
+    \code
+        QWS_SIZE=<width>x<height>
+    \endcode
 
     \row
     \o \bold QWS_USB_KEYBOARD \target  QWS_USB_KEYBOARD
@@ -64,11 +69,10 @@
     \o \bold QWS_MOUSE_PROTO \target QWS_MOUSE_PROTO
     \o
 
-    Specifies the driver and device for pointer handling. The
-    variable's value is defined as:
+    Specifies the driver and device for pointer handling:
 
     \code
-        <driver>:<device>
+        QWS_MOUSE_PROTO=<driver>:<device>
     \endcode
 
     The available drivers are \c MouseMan, \c IntelliMouse, \c
@@ -88,10 +92,10 @@
     \o \bold QWS_KEYBOARD \target QWS_KEYBOARD
     \o
 
-    Specifies the driver and device for character input. The variable's value is defined as:
+    Specifies the driver and device for character input:
 
     \code
-        <driver>:<device>
+        QWS_KEYBOARD=<driver>:<device>
     \endcode
 
     The available drivers are \c SL5000, \c Yopy, \c VR41xx, \c TTY or
@@ -101,7 +105,7 @@
     Multiple keyboard drivers can be specified in one go:
 
     \code
-        <driver> <driver> <driver>:<device>
+        QWS_KEYBOARD=<driver> <driver> <driver>:<device>
     \endcode
 
     Input will be read from all of specified drivers.
