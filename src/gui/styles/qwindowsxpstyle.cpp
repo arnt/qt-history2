@@ -2841,6 +2841,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             }
             if (sub & SC_ToolButtonMenu) {
                 QStyleOptionToolButton menuOption = *toolbutton;
+                menuOption.state = mflags;
                 menuOption.rect = subControlRect(CC_ToolButton, option, SC_ToolButtonMenu, widget);
                 drawPrimitive(PE_IndicatorButtonDropDown, &menuOption, p, widget);
             }
@@ -3403,6 +3404,9 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
     QSize sz(contentsSize);
 
     switch (ct) {
+    case CT_TabWidget:
+        sz += QSize(6, 6);
+        break;
     case CT_Menu:
         sz -= QSize(1,2);
         break;
@@ -3421,9 +3425,6 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
                 return sz;
             }
         }
-    case CT_TabWidget:
-        sz += QSize(6, 6);
-        break;
         // Otherwise, fall through
     default:
         sz = QWindowsStyle::sizeFromContents(ct, option, sz, widget);
