@@ -1515,6 +1515,24 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
 
 #ifndef QT_NO_DRAGANDDROP
 /*!
+    \enum QAbstractItemView::DropIndicatorPosition
+
+    This enum indicates the position of the drop indicator in
+    relation to the index at the current mouse position:
+
+    \value OnItem  The item will be dropped on the index.
+
+    \value AboveItem  The item will be dropped above the index.
+
+    \value BelowItem  The item will be dropped below the index.
+
+    \value OnViewport  The item will be dropped onto a region of the viewport with
+no items. The way each view handles items dropped onto the viewport depends on
+the behavior of the underlying model in use.
+*/
+
+
+/*!
     \since 4.1
 
     Returns the position of the drop indicator in relation to the closest item.
