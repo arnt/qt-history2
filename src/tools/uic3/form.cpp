@@ -116,6 +116,8 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
                             CustomInclude ci;
                             ci.header = n3.firstChild().toText().data();
                             ci.location = n3.attribute(QLatin1String("location"), QLatin1String("global"));
+                            if (!ci.header.isEmpty())
+                                forwardDecl.removeAll(cl);
                             customWidgetIncludes.insert(cl, ci);
                         }
                         n3 = n3.nextSibling().toElement();
