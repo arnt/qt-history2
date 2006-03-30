@@ -1612,7 +1612,7 @@ void qt_init(QApplicationPrivate *priv, int,
         XDisplayKeycodes(X11->display, &first_keycode, &last_keycode);
         // only need keysyms_per_keycode
         int keysyms_per_keycode = 1;
-        Keysym *keys = XGetKeyboardMapping(X11->display,
+        KeySym *keys = XGetKeyboardMapping(X11->display,
                                   first_keycode,
                                   last_keycode - first_keycode,
                                   &keysyms_per_keycode);
