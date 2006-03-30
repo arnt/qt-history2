@@ -1334,7 +1334,7 @@ QSize QMenuBar::minimumSizeHint() const
     if(as_gui_menubar) {
         QMap<QAction*, QRect> actionRects;
         QList<QAction*> actionList;
-        int w = QApplication::desktop()->width();
+        int w = parentWidget() ? parentWidget()->width() : QApplication::desktop()->width();
         d->calcActionRects(w - (2 * fw), 0, actionRects, actionList);
         if (d->actionList.count() > 0) {
             ret = d->actionRect(d->actionList.at(0)).size();
@@ -1392,7 +1392,7 @@ QSize QMenuBar::sizeHint() const
     if(as_gui_menubar) {
         QMap<QAction*, QRect> actionRects;
         QList<QAction*> actionList;
-        const int w = QApplication::desktop()->width();
+        const int w = parentWidget() ? parentWidget()->width() : QApplication::desktop()->width();
         d->calcActionRects(w - (2 * fw), 0, actionRects, actionList);
         for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
              i != actionRects.constEnd(); ++i) {
