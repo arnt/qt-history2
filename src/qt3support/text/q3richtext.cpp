@@ -4887,7 +4887,8 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
                 }
                 if (extendRight)
                     tmpw = fullSelectionWidth - xleft;
-                painter.fillRect(xleft, y, tmpw, h, color);
+                if(color.isValid())
+                    painter.fillRect(xleft, y, tmpw, h, color);
                 painter.drawText(xstart, y + baseLine, str.mid(start, len));
                 if (selStart != start || selEnd != start + len || selWrap)
                     painter.restore();

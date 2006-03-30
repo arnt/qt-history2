@@ -41,6 +41,9 @@
 #include "q3textbrowser.h"
 #include "private/q3syntaxhighlighter_p.h"
 #include "qtextformat.h"
+#ifndef QT_NO_IM
+#include <qinputcontext.h>
+#endif
 
 #ifndef QT_NO_ACCEL
 #include <qkeysequence.h>
@@ -1524,6 +1527,7 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
     d->numPreeditSelections = 0;
 
     if (d->preeditLength > 0 && cursor->paragraph()) {
+        cursor->setIndex(d->preeditStart);
         cursor->paragraph()->remove(d->preeditStart, d->preeditLength);
         d->preeditStart = d->preeditLength = -1;
     }
@@ -1565,8 +1569,17 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
                 c2.setIndex(c.index() + a.start + a.length);
                 doc->setSelectionEnd(preeditSelectionBase + d->numPreeditSelections, c2);
 
-                doc->setSelectionColor(preeditSelectionBase + d->numPreeditSelections, f.background().color());
-                doc->setSelectionTextColor(preeditSelectionBase + d->numPreeditSelections, f.foreground().color());
+                QColor c = f.hasProperty(QTextFormat::BackgroundBrush) ? f.background().color() : QColor();
+                doc->setSelectionColor(preeditSelectionBase + d->numPreeditSelections, c);
+                c = f.hasProperty(QTextFormat::ForegroundBrush) ? f.foreground().color() : QColor();
+                doc->setSelectionTextColor(preeditSelectionBase + d->numPreeditSelections, c);
+                if (f.fontUnderline()) {
+                    Q3TextParagraph *par = cursor->paragraph();
+                    Q3TextFormat f(*par->string()->at(d->preeditStart).format());
+                    f.setUnderline(true);
+                    Q3TextFormat *f2 = doc->formatCollection()->format(&f);
+                    par->setFormat(d->preeditStart + a.start, a.length, f2);
+                }
                 ++d->numPreeditSelections;
             }
 	}
@@ -2104,6 +2117,16 @@ void Q3TextEdit::contentsMousePressEvent(QMouseEvent *e)
     }
 #endif
 
+#if !defined(QT_NO_IM)
+    if (e->button() == Qt::LeftButton && d->preeditLength > 0 && cursor->paragraph()) {
+        Q3TextCursor c = *cursor;
+        placeCursor(e->pos(), &c, false);
+        inputContext()->mouseHandler(c.index() - d->preeditStart, e);
+        if (d->preeditLength > 0)
+            return;
+    }
+#endif
+        
     if (d->trippleClickTimer->isActive() &&
          (e->globalPos() - d->trippleClickPoint).manhattanLength() <
          QApplication::startDragDistance()) {
@@ -2209,6 +2232,12 @@ void Q3TextEdit::contentsMouseMoveEvent(QMouseEvent *e)
         return;
     }
 #endif
+    
+#if !defined(QT_NO_IM)
+    if (d->preeditLength > 0) 
+        return;
+#endif
+    
     if (mousePressed) {
 #ifndef QT_NO_DRAGANDDROP
         if (mightStartDrag) {
@@ -2361,6 +2390,11 @@ void Q3TextEdit::contentsMouseDoubleClickEvent(QMouseEvent * e)
         e->ignore();
         return;
     }
+#if !defined(QT_NO_IM)
+    if (d->preeditLength > 0) 
+        return;
+#endif
+    
     int para = 0;
     int index = charAt(e->pos(), &para);
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -2701,7 +2735,8 @@ void Q3TextEdit::placeCursor(const QPoint &pos, Q3TextCursor *c, bool link)
     if (!c)
         c = cursor;
 
-    resetInputContext();
+    if(c == cursor)
+        resetInputContext();
     c->restoreState();
     Q3TextParagraph *s = doc->firstParagraph();
     c->place(pos, s, link);
@@ -2711,8 +2746,6 @@ void Q3TextEdit::placeCursor(const QPoint &pos, Q3TextCursor *c, bool link)
 QVariant Q3TextEdit::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     Q3TextCursor c(*cursor);
-    if (d->preeditStart != -1)
-        c.setIndex(d->preeditStart);
 
     switch(query) {
     case Qt::ImMicroFocus: {
