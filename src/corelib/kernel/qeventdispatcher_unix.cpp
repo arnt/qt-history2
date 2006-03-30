@@ -756,7 +756,8 @@ int QEventDispatcherUNIX::activateSocketNotifiers()
 bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherUNIX);
-
+    d->interrupt = false;
+        
     // we are awake, broadcast it
     emit awake();
     QCoreApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
@@ -794,8 +795,6 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
         if (! (flags & QEventLoop::X11ExcludeTimers)) {
             nevents += activateTimers();
         }
-    } else {
-        d->interrupt = false;
     }
     // return true if we handled events, false otherwise
     return (nevents > 0);

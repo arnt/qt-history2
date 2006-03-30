@@ -41,6 +41,7 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherX11);
 
+    d->interrupt = false;
     QApplication::sendPostedEvents();
 
     ulong marker = XNextRequest(X11->display);
@@ -116,8 +117,6 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
         }
         // return true if we handled events, false otherwise
         return QEventDispatcherUNIX::processEvents(flags) ||  (nevents > 0);
-    } else {
-        d->interrupt = false;
     }
     return nevents > 0;
 }

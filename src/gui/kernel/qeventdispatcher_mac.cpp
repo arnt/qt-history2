@@ -467,6 +467,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         return false;
     }
 #endif
+    d->interrupt = false;
     emit awake();
 
     if(!qt_mac_safe_pdev) { //create an empty widget and this can be used for a port anytime
@@ -535,7 +536,6 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
             break;
         }
     }
-    d->interrupt = false;
     return retVal;
 }
 

@@ -56,6 +56,7 @@ bool QEventDispatcherQWS::processEvents(QEventLoop::ProcessEventsFlags flags)
     int           nevents = 0;
 
     // handle gui and posted events
+    d->interrupt = false;
     QApplication::sendPostedEvents();
 
     while (!d->interrupt) {        // also flushes output buffer ###can be optimized
@@ -99,7 +100,6 @@ bool QEventDispatcherQWS::processEvents(QEventLoop::ProcessEventsFlags flags)
         if (QEventDispatcherUNIX::processEvents(flags))
             return true;
     }
-    d->interrupt = false;
     return (nevents > 0);
 }
 

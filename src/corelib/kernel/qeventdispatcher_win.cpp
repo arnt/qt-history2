@@ -367,7 +367,8 @@ QEventDispatcherWin32::~QEventDispatcherWin32()
 bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherWin32);
-
+    
+    d->interrupt = false;
     emit awake();
 
     bool canWait;
@@ -467,8 +468,6 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
         }
     } while (canWait);
 
-    if (d->interrupt)
-        d->interrupt = false;
     return retVal;
 }
 
