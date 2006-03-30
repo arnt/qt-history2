@@ -30,6 +30,7 @@
 #include <QtGui/QSplitter>
 #include <QtGui/QMainWindow>
 #include <QtGui/QApplication>
+#include <QtGui/QScrollArea>
 
 namespace qdesigner_internal {
 
@@ -244,14 +245,60 @@ bool Layout::prepareLayout(bool &needMove, bool &needReparent)
     return true;
 }
 
+static bool isMainContainer(QDesignerFormWindowInterface *fw, const QWidget *w)
+{
+    return w && (w == fw || w == fw->mainContainer());
+}
+
+static bool isPageOfContainerWidget(QDesignerFormWindowInterface *fw, QWidget *widget)
+{
+    QDesignerContainerExtension *c = qt_extension<QDesignerContainerExtension*>(
+            fw->core()->extensionManager(), widget->parentWidget());
+
+    if (c != 0) {
+        for (int i = 0; i<c->count(); ++i) {
+            if (widget == c->widget(i))
+                return true;
+        }
+    }
+
+    return false;
+}
 void Layout::finishLayout(bool needMove, QLayout *layout)
 {
     if (m_parentWidget == layoutBase) {
         QWidget *widget = layoutBase;
-        if (Utils::isCentralWidget(formWindow, layoutBase) && formWindow->parentWidget())
+        oldGeometry = widget->geometry();
+
+        bool done = false;
+        while (!isMainContainer(formWindow, widget) && !done) {
+            QDesignerContainerExtension *c = 0;
+            c = qt_extension<QDesignerContainerExtension*>(formWindow->core()->extensionManager(),
+                        widget->parentWidget());
+
+            if (!formWindow->isManaged(widget)) {
+                widget = widget->parentWidget();
+                continue;
+            } else if (LayoutInfo::isWidgetLaidout(formWindow->core(), widget)) {
+                widget = widget->parentWidget();
+                continue;
+            } else if (isPageOfContainerWidget(formWindow, widget)) {
+                widget = widget->parentWidget();
+                continue;
+            } else if (widget->parentWidget()) {
+                QScrollArea *area = qobject_cast<QScrollArea*>(widget->parentWidget()->parentWidget());
+                if (area && area->widget() == widget) {
+                    widget = area;
+                    continue;
+                }
+            }
+
+            done = true;
+        }
+
+        if (Utils::isCentralWidget(formWindow, widget) && formWindow->parentWidget())
             widget = formWindow->parentWidget();
 
-        oldGeometry = widget->geometry();
         QApplication::processEvents();
         widget->adjustSize();
         return;
