@@ -1,4 +1,3 @@
-//depot/qt/4.1/src/gui/painting/qdrawhelper.cpp#18 - edit change 212515 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
