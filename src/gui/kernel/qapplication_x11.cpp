@@ -260,6 +260,8 @@ extern void qt_desktopwidget_update_workarea();
 // modifier masks for alt/meta - detected when the application starts
 static long qt_alt_mask = 0;
 static long qt_meta_mask = 0;
+static long qt_super_mask = 0;
+static long qt_hyper_mask = 0;
 // modifier mask to remove mode switch from modifiers that have alt/meta set
 // this problem manifests itself on HP/UX 10.20 at least, and without it
 // modifiers do not work at all...
@@ -1550,11 +1552,11 @@ void qt_init(QApplicationPrivate *priv, int,
         int dpi = 0;
         getXDefault("Xft", FC_DPI, &dpi);
         if (dpi) {
-                    for (int s = 0; s < ScreenCount(X11->display); ++s) {
-                        QX11Info::setAppDpiX(s, dpi);
-                        QX11Info::setAppDpiY(s, dpi);
-                    }
-                }
+            for (int s = 0; s < ScreenCount(X11->display); ++s) {
+                QX11Info::setAppDpiX(s, dpi);
+                QX11Info::setAppDpiY(s, dpi);
+            }
+        }
         X11->fc_scale = 1.;
         getXDefault("Xft", FC_SCALE, &X11->fc_scale);
         for (int s = 0; s < ScreenCount(X11->display); ++s) {
@@ -1604,27 +1606,75 @@ void qt_init(QApplicationPrivate *priv, int,
         // look at the modifier mapping, and get the correct masks for alt/meta
         // find the alt/meta masks
         XModifierKeymap *map = XGetModifierMapping(X11->display);
+
+        // get the first and last keycode
+        int first_keycode = 8, last_keycode = 255;
+        XDisplayKeycodes(X11->display, &first_keycode, &last_keycode);
+        // only need keysyms_per_keycode
+        int keysyms_per_keycode = 1;
+        Keysym *keys = XGetKeyboardMapping(X11->display,
+                                  first_keycode,
+                                  last_keycode - first_keycode,
+                                  &keysyms_per_keycode);
+        if (keys)
+            XFree(keys);
+
         if (map) {
             int i, maskIndex = 0, mapIndex = 0;
             for (maskIndex = 0; maskIndex < 8; maskIndex++) {
                 for (i = 0; i < map->max_keypermod; i++) {
                     if (map->modifiermap[mapIndex]) {
-                        KeySym sym =
-                            XKeycodeToKeysym(X11->display, map->modifiermap[mapIndex], 0);
-                        if (qt_alt_mask == 0 &&
-                            (sym == XK_Alt_L || sym == XK_Alt_R)) {
-                            qt_alt_mask = 1 << maskIndex;
+                        KeySym sym;
+                        int x = 0;
+                        do {
+                            sym = XKeycodeToKeysym(X11->display, map->modifiermap[mapIndex], x++);
+                        } while (sym == NoSymbol && x < keysyms_per_keycode);
+                        const long mask = 1 << maskIndex;
+                        if (qt_alt_mask == 0
+                            && qt_meta_mask != mask
+                            && qt_super_mask != mask
+                            && qt_hyper_mask != mask
+                            && (sym == XK_Alt_L || sym == XK_Alt_R)) {
+                            qt_alt_mask = mask;
                         }
-                        if (qt_meta_mask == 0 &&
-                            (sym == XK_Meta_L || sym == XK_Meta_R)) {
-                            qt_meta_mask = 1 << maskIndex;
+                        if (qt_meta_mask == 0
+                            && qt_alt_mask != mask
+                            && qt_super_mask != mask
+                            && qt_hyper_mask != mask
+                            && (sym == XK_Meta_L || sym == XK_Meta_R)) {
+                            qt_meta_mask = mask;
+                        }
+                        if (qt_super_mask == 0
+                            && qt_alt_mask != mask
+                            && qt_meta_mask != mask
+                            && qt_hyper_mask != mask
+                            && (sym == XK_Super_L || sym == XK_Super_R)) {
+                            qt_super_mask = mask;
+                        }
+                        if (qt_hyper_mask == 0
+                            && qt_alt_mask != mask
+                            && qt_meta_mask != mask
+                            && qt_super_mask != mask
+                            && (sym == XK_Hyper_L || sym == XK_Hyper_R)) {
+                            qt_hyper_mask = mask;
                         }
                     }
                     mapIndex++;
                 }
             }
+            // if we don't have a meta key (or it's hidden behind alt), use super or hyper to generate
+            // Qt::Key_Meta and Qt::MetaModifier, since most newer XFree86/Xorg installations map the Windows
+            // key to Super
+            if (qt_meta_mask == 0 || qt_meta_mask == qt_alt_mask) {
+                // no meta keys... s,meta,super,
+                qt_meta_mask = qt_super_mask;
+                if (qt_meta_mask == 0 || qt_meta_mask == qt_alt_mask) {
+                    // no super keys either? guess we'll use hyper then
+                    qt_meta_mask = qt_hyper_mask;
+                }
+            }
 
-            // not look for mode_switch in qt_alt_mask and qt_meta_mask - if it is
+            // now look for mode_switch in qt_alt_mask and qt_meta_mask - if it is
             // present in one or both, then we set qt_mode_switch_remove_mask.
             // see QETWidget::translateKeyEventInternal for an explanation
             // of why this is needed
@@ -1654,6 +1704,7 @@ void qt_init(QApplicationPrivate *priv, int,
             // assume defaults
             qt_alt_mask = Mod1Mask;
             qt_meta_mask = Mod4Mask;
+            // leave qt_super_mask and qt_hyper_mask set to zero
             qt_mode_switch_remove_mask = 0;
         }
 
@@ -4400,6 +4451,14 @@ static int translateKeySym(uint key)
             break;
         }
         i += 2;
+    }
+    if (qt_meta_mask) {
+        // translate Super/Hyper keys to Meta if we're using them as the MetaModifier
+        if (qt_meta_mask == qt_super_mask && (code == Qt::Key_Super_L || code == Qt::Key_Super_R)) {
+            code = Qt::Key_Meta;
+        } else if (qt_meta_mask == qt_hyper_mask && (code == Qt::Key_Hyper_L || code == Qt::Key_Hyper_R)) {
+            code = Qt::Key_Meta;
+        }
     }
     return code;
 }
