@@ -610,8 +610,12 @@ void QX11PaintEnginePrivate::clipPolygon(const QPolygonF &poly, QPolygonF *clipp
 {
     int clipped_count = 0;
     qt_float_point *clipped_points = 0;
+    QRect old_clip = polygonClipper.boundingRect();
+    QRect logic_rect(matrix.inverted().mapRect(old_clip));
+    polygonClipper.setBoundingRect(logic_rect);
     polygonClipper.clipPolygon((qt_float_point *) poly.data(), poly.size(),
                                &clipped_points, &clipped_count);
+    polygonClipper.setBoundingRect(old_clip);
     clipped_poly->resize(clipped_count);
     for (int i=0; i<clipped_count; ++i)
         (*clipped_poly)[i] = *((QPointF *)(&clipped_points[i]));
