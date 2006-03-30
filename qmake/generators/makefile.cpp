@@ -576,24 +576,33 @@ MakefileGenerator::init()
                 if(!verifyExtraCompiler((*it), QString())) //verify
                     continue;
                 QString out = fileFixify(tmp_out, Option::output_dir, Option::output_dir);
+                bool pre_dep = (project->values((*it) + ".CONFIG").indexOf("target_predeps") != -1);
                 if(project->variables().contains((*it) + ".variable_out")) {
                     const QStringList &var_out = project->variables().value((*it) + ".variable_out");
                     for(int i = 0; i < var_out.size(); ++i) {
                         QString v = var_out.at(i);
                         if(v == QLatin1String("SOURCES"))
                             v = "GENERATED_SOURCES";
+                        else if(v == QLatin1String("OBJECTS"))
+                            pre_dep = false;
                         QStringList &list = project->values(v);
                         if(!list.contains(out))
                             list.append(out);
                     }
                 } else if(project->values((*it) + ".CONFIG").indexOf("no_link") == -1) {
                     QStringList &list = project->values("OBJECTS");
+                    pre_dep = false;
                     if(!list.contains(out))
                         list.append(out);
                 } else {
                         QStringList &list = project->values("UNUSED_SOURCES");
                         if(!list.contains(out))
                             list.append(out);
+                }
+                if(pre_dep) {
+                    QStringList &list = project->variables()["PRE_TARGETDEPS"];
+                    if(!list.contains(out))
+                        list.append(out);
                 }
             }
         } else {
@@ -608,22 +617,31 @@ MakefileGenerator::init()
                         continue;
                     QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString());
                     out = fileFixify(out, Option::output_dir, Option::output_dir);
+                    bool pre_dep = (project->values((*it) + ".CONFIG").indexOf("target_predeps") != -1);
                     if(project->variables().contains((*it) + ".variable_out")) {
                         const QStringList &var_out = project->variables().value((*it) + ".variable_out");
                         for(int i = 0; i < var_out.size(); ++i) {
                             QString v = var_out.at(i);
                             if(v == QLatin1String("SOURCES"))
                                 v = "GENERATED_SOURCES";
+                            else if(v == QLatin1String("OBJECTS"))
+                                pre_dep = false;
                             QStringList &list = project->values(v);
                             if(!list.contains(out))
                                 list.append(out);
                         }
                     } else if(project->values((*it) + ".CONFIG").indexOf("no_link") == -1) {
+                        pre_dep = false;
                         QStringList &list = project->values("OBJECTS");
                         if(!list.contains(out))
                             list.append(out);
                     } else {
                         QStringList &list = project->values("UNUSED_SOURCES");
+                        if(!list.contains(out))
+                            list.append(out);
+                    }
+                    if(pre_dep) {
+                        QStringList &list = project->variables()["PRE_TARGETDEPS"];
                         if(!list.contains(out))
                             list.append(out);
                     }
