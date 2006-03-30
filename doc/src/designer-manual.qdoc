@@ -1583,7 +1583,7 @@ With Qt's integrated build tools, \l{qmake-manual.html}{qmake} and
 \l uic, the code for user interface components created
 with \QD is automatically generated when the rest of of your
 application is built. Forms can be included and used directly from
-your application or, and you can use them to extend subclasses of
+your application, or you can use them to extend subclasses of
 standard widgets.
 
 There are three approaches to using a form in your application: the

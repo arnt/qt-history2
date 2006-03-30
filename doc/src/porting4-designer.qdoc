@@ -357,7 +357,7 @@
     path where the files will be accessed.
 
     Caveat: If the resource file was not linked directly into the
-    application, but instead into a dynamic or static libarary that
+    application, but instead into a dynamic or static library that
     was later linked with the application, its virtual file tree will
     not be available to QFile and friends until the Q_INIT_RESOURCE()
     macro is called. This macro takes one argument, which is the name
