@@ -1042,7 +1042,7 @@ Q_DECLARE_TYPEINFO(QRegExpCharClass, Q_MOVABLE_TYPE);
 class QRegExpEngine
 {
 public:
-    QRegExpEngine(Qt::CaseSensitivity cs, bool greedy)
+    QRegExpEngine(Qt::CaseSensitivity cs, bool greedyQuantifiers)
         : cs(cs), greedyQuantifiers(greedyQuantifiers) { setup(); }
 
     QRegExpEngine(const QRegExpEngineKey &key);
