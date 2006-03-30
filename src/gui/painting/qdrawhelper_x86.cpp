@@ -1,3 +1,4 @@
+//depot/qt/4.1/src/gui/painting/qdrawhelper_x86.cpp#3 - edit change 205590 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -654,10 +655,4 @@ void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData)
     }
 }
 
-void qt_blend_color_rgb32_sse(int count, const QSpan *spans, void *userData)
-{
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-    data->solid.color |= 0xff000000;
-    qt_blend_color_argb_sse(count, spans, userData);
-}
 #endif //QT_HAVE_SSE

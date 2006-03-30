@@ -1,3 +1,4 @@
+//depot/qt/4.1/src/gui/painting/qdrawhelper.cpp#18 - edit change 212515 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -1248,13 +1249,6 @@ static void blend_color_argb(int count, const QSpan *spans, void *userData)
     }
 }
 
-static void blend_color_rgb32(int count, const QSpan *spans, void *userData)
-{
-    QSpanData *data = reinterpret_cast<QSpanData *>(userData);
-    data->solid.color |= 0xff000000;
-    blend_color_argb(count, spans, userData);
-}
-
 #ifdef Q_WS_QWS
 
 static inline uint BYTE_MUL_RGB16(uint x, uint a) {
@@ -2203,7 +2197,7 @@ DrawHelper qDrawHelper[QImage::NImageFormats] =
     },
     // Format_RGB32,
     {
-        blend_color_rgb32,
+        blend_color_generic,
         blend_src_generic,
     },
     // Format_ARGB32,
@@ -2312,7 +2306,6 @@ static uint detectCPUFeatures() {
 }
 
 extern void qt_blend_color_argb_sse(int count, const QSpan *spans, void *userData);
-extern void qt_blend_color_rgb32_sse(int count, const QSpan *spans, void *userData);
 
 void qInitDrawhelperAsm()
 {
@@ -2326,7 +2319,6 @@ void qInitDrawhelperAsm()
         functionForMode = qt_functionForMode_SSE;
         functionForModeSolid = qt_functionForModeSolid_SSE;
         qDrawHelper[QImage::Format_ARGB32_Premultiplied].blendColor = qt_blend_color_argb_sse;
-        qDrawHelper[QImage::Format_RGB32].blendColor = qt_blend_color_rgb32_sse;
     }
 #endif
 }
