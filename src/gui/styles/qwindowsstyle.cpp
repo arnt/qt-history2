@@ -1201,7 +1201,10 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
                 ret = true;
                 if(QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask*>(returnData)) {
                     mask->region = opt->rect;
-                    mask->region -= opt->rect.adjusted(1, 1, -1, -1);
+                    int size = 1;
+                    if (widget && widget->isWindow())
+                        size = 4;
+                    mask->region -= opt->rect.adjusted(size, size, -size, -size);
                 }
             }
         }
