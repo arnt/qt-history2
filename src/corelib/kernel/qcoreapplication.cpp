@@ -1616,10 +1616,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(QMutex, libraryPathMutex, (QMutex::Recursive))
 */
 QStringList QCoreApplication::libraryPaths()
 {
-    if (!self) {
-        qWarning("QCoreApplication::libraryPaths: QCoreApplication is not instantiated.");
+    if (!QCoreApplicationPrivate::checkInstance("libraryPaths"))
         return QStringList();
-    }
 
     QMutexLocker locker(libraryPathMutex());
     if (!self->d_func()->app_libpaths) {
@@ -1664,6 +1662,8 @@ QStringList QCoreApplication::libraryPaths()
  */
 void QCoreApplication::setLibraryPaths(const QStringList &paths)
 {
+    if (!QCoreApplicationPrivate::checkInstance("setLibraryPaths"))
+        return;
     delete self->d_func()->app_libpaths;
     self->d_func()->app_libpaths = new QStringList(paths);
 }
@@ -1681,6 +1681,9 @@ void QCoreApplication::setLibraryPaths(const QStringList &paths)
  */
 void QCoreApplication::addLibraryPath(const QString &path)
 {
+    if (!QCoreApplicationPrivate::checkInstance("addLibraryPath"))
+        return;
+
     if (path.isEmpty())
         return;
 
@@ -1700,6 +1703,9 @@ void QCoreApplication::addLibraryPath(const QString &path)
 */
 void QCoreApplication::removeLibraryPath(const QString &path)
 {
+    if (!QCoreApplicationPrivate::checkInstance("removeLibraryPath"))
+        return;
+
     if (path.isEmpty())
         return;
 
