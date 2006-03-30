@@ -1206,7 +1206,8 @@ void QTextEngine::justify(const QScriptLine &line)
 
     itemize();
 
-    if (line.from + (int)line.length == layoutData->string.length())
+    if (line.from + (int)line.length == layoutData->string.length()
+        || layoutData->string.at(line.from + line.length - 1) == QChar::LineSeparator)
         return;
 
     // justify line
