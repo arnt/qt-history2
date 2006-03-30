@@ -25,9 +25,9 @@ class QEventLoopPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QEventLoop)
 public:
     inline QEventLoopPrivate()
-        : exit(true), returnCode(-1)
+        : exit(true), inExec(false), returnCode(-1)
     { }
-    bool exit;
+    bool exit, inExec;
     int returnCode;
 };
 
@@ -147,6 +147,11 @@ int QEventLoop::exec(ProcessEventsFlags flags)
         return -1;
 
     Q_D(QEventLoop);
+    if (d->inExec) {
+        qWarning("QEventLoop::exec: instance %p has already called exec()", this);
+        return -1;
+    }
+    d->inExec = true;
     d->exit = false;
     data->eventLoops.push(this);
 
@@ -167,6 +172,8 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     QEventLoop *eventLoop = data->eventLoops.pop();
     Q_ASSERT_X(eventLoop == this, "QEventLoop::exec()", "internal error");
     Q_UNUSED(eventLoop); // --release warning
+
+    d->inExec = false;
 
     return d->returnCode;
 }
