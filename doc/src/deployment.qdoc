@@ -375,42 +375,6 @@
         qApp->addLibraryPath("/some/other/path");
     \endcode
 
-    \section2 Visual Studio 2005
-    
-    When deploying an application compiled with Visual Studio 2005
-    there are some additional considerations that need to be handled.
-
-    First, we need to copy the manifest file created when linking the
-    application. This manifest file contains information about the
-    application's dependencies on side-by-side assemblies, like the
-    runtime libraries. The manifest file needs to be copied into the
-    same folder as the application executable. You do not need to copy
-    the manifest files for shared libraries (\c {DLL}s), since they
-    are not used. If the shared library has different dependencies than
-    the application using it, the manifest file needs to be embedded
-    into the \c DLL binary. In Qt 4.1.3 and later we have the following
-    \c CONFIG options for embedding manifests:
-
-    \code
-        embed_manifest_dll
-        embed_manifest_exe
-    \endcode
-
-    To use the options, add:
-
-    \code
-        CONFIG += embed_manifest_exe
-    \endcode
-
-    to your .pro file. \c embed_manifest_dll is enabled by default.
-
-    You can find more information about manifest files and side-by-side
-    assemblies at the \l {http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sbscs/setup/side_by_side_assemblies_reference.asp}{MSDN website}
-
-    Second, we need to include the runtime libraries. To do this, copy
-    the contents of \c {<Visual Studio Install Path>\VC\redist\<Architecture>\Microsoft.VC80.CRT}
-    into the folder where your executable is.
-
     \section1 Application Dependencies
 
     \section2 Additional Libraries
@@ -503,7 +467,7 @@
 
     If you want to keep things simple by only having a few files to
     deploy, i.e. a stand-alone executable with the associated compiler
-    specific \c {DLL}s, then you must build everything statically.
+    specific DLLs, then you must build everything statically.
 
     \section2 Building Qt Statically
 
@@ -625,7 +589,7 @@
     \section2 Creating the Application Package
 
     To deploy the application, we must make sure that we copy the
-    relevant Qt \c DLL (corresponding to the Qt modules used in
+    relevant Qt DLL (corresponding to the Qt modules used in
     the application) as well as the executable to the same directory
     in the \c release subdirectory.
 
@@ -637,7 +601,7 @@
 
     We'll cover the plugins shortly, but first we'll check that the
     application will work in a deployed environment: Either copy the
-    executable and the Qt \c {DLL}s to a machine that doesn't have Qt
+    executable and the Qt DLLs to a machine that doesn't have Qt
     or any Qt applications installed, or if you want to test on the
     build machine, ensure that the machine doesn't have Qt in its
     environment.
@@ -648,22 +612,21 @@
     application's functionality will still be missing since we have
     not yet deployed the associated plugins.
 
-    Plugins work differently to normal \c {DLL}s, so we can't just
+    Plugins work differently to normal DLLs, so we can't just
     copy them into the same directory as our application's executable
-    as we did with the Qt \c {DLL}s.  When looking for plugins, the
+    as we did with the Qt DLLs.  When looking for plugins, the
     application searches in a \c plugins subdirectory inside the
     directory of the application executable.
 
     So to make the plugins available to our application, we have to
-    create the \c plugins subdirectory and copy over the relevant \c
-    {DLL}s:
+    create the \c plugins subdirectory and copy over the relevant DLLs:
 
     \code
         plugins\pnp_basictools.dll
         plugins\pnp_extrafilters.dll
     \endcode
 
-    An archive distributing all the Qt \c {DLL}s and application
+    An archive distributing all the Qt DLLs and application
     specific plugins required to run the \l {tools/plugandpaint}{Plug
     & Paint} application, would have to include the following files:
 
@@ -728,6 +691,47 @@
     in the application's own directory. Any number of additional paths
     can be added.
 
+    \section2 Visual Studio 2005
+
+    When deploying an application compiled with Visual Studio 2005
+    there are some additional considerations that need to be handled.
+
+    First, we need to copy the manifest file created when linking the
+    application. This manifest file contains information about the
+    application's dependencies on side-by-side assemblies, such as the
+    runtime libraries. The manifest file needs to be copied into the
+    same folder as the application executable. You do not need to copy
+    the manifest files for shared libraries (DLLs), since they
+    are not used. If the shared library has different dependencies than
+    the application using it, the manifest file needs to be embedded
+    into the DLL binary. In Qt 4.1.3 and later we have the following
+    \c CONFIG options for embedding manifests:
+
+    \code
+        embed_manifest_dll
+        embed_manifest_exe
+    \endcode
+
+    To use the options, add
+
+    \code
+        CONFIG += embed_manifest_exe
+    \endcode
+
+    to your .pro file. The \c embed_manifest_dll option is enabled by default.
+
+    You can find more information about manifest files and side-by-side
+    assemblies at the \l {http://msdn.microsoft.com/library/default.asp?url=/library/en-us/sbscs/setup/side_by_side_assemblies_reference.asp}{MSDN website}.
+
+    We also need to include the runtime libraries. To do this, copy
+    the contents of
+
+    \code
+        <Visual Studio Install Path>\VC\redist\<Architecture>\Microsoft.VC80.CRT
+    \endcode
+
+    into the folder where your executable is.
+
     \section1 Application Dependencies
 
     \section2 Additional Libraries
@@ -780,7 +784,7 @@
            \endlist
     \endtable
 
-    When looking at the plugin \c {DLL}s the exact same dependencies
+    When looking at the plugin DLLs the exact same dependencies
     are listed.
 
     \section2 Qt Plugins
