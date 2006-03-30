@@ -136,14 +136,16 @@ QRubberBand::QRubberBand(Shape s, QWidget *p)
     Q_D(QRubberBand);
     d->shape = s;
     setAttribute(Qt::WA_TransparentForMouseEvents);
-#ifndef Q_WS_WIN    
+#ifndef Q_WS_WIN
     setAttribute(Qt::WA_NoSystemBackground);
-#endif //Q_WS_WIN    
+#endif //Q_WS_WIN
     setAttribute(Qt::WA_WState_ExplicitShowHide);
     setVisible(false);
 #ifdef Q_WS_MAC
-    extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
-    ChangeWindowAttributes(qt_mac_window_for(this), kWindowNoShadowAttribute, 0);
+    if(isWindow()) {
+        extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
+        ChangeWindowAttributes(qt_mac_window_for(this), kWindowNoShadowAttribute, 0);
+    }
 #endif
 }
 
