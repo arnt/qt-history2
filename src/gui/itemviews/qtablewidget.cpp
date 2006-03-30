@@ -1234,16 +1234,12 @@ QTableWidgetItem &QTableWidgetItem::operator=(const QTableWidgetItem &other)
     clear() function.
 
     \table 100%
-    \row \o \inlineimage windowsxp-tableview.png
-         \o \inlineimage macintosh-tableview.png
-         \o \inlineimage plastique-tableview.png
-    \row \o A WindowsXP style table widget.
-         \o A Macintosh style table widget.
-         \o A Plastique style table widget.
-    \row \o \inlineimage cde-tableview.png
-         \o \inlineimage motif-tableview.png
-    \row \o A CDE style table widget.
-         \o A Motif style table widget.
+    \row \o \inlineimage windowsxp-tableview.png Screenshot of a Windows XP style table widget
+         \o \inlineimage macintosh-tableview.png Screenshot of a Macintosh style table widget
+         \o \inlineimage plastique-tableview.png Screenshot of a Plastique style table widget
+    \row \o A \l{Windows XP Style Widget Gallery}{Windows XP style} table widget.
+         \o A \l{Macintosh Style Widget Gallery}{Macintosh style} table widget.
+         \o A \l{Plastique Style Widget Gallery}{Plastique style} table widget.
     \endtable
 
     \sa QTableWidgetItem, QTableView, {Model/View Programming}
@@ -1505,8 +1501,11 @@ void QTableWidgetPrivate::_q_sort()
 /*!
     \fn QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const
 
-    Returns the item at the position (\a{ax}, \a{ay}) in the table's
-    coordinate system.
+    Returns the item at the position (\a{ax}, \a{ay}) in the table
+    widget's coordinate system, or returns 0 if the specified point is not
+    covered by an item in the table widget.
+
+    \sa item()
 */
 
 /*!
@@ -2050,7 +2049,12 @@ int QTableWidget::visualColumn(int logicalColumn) const
 }
 
 /*!
-  Returns a pointer to the item at the coordinates \a p.
+  \fn QTableWidgetItem *QTableWidget::itemAt(const QPoint &point) const
+
+  Returns a pointer to the item at the given \a point, or returns 0 if
+  the point is not covered by an item in the table widget.
+
+  \sa item()
 */
 
 QTableWidgetItem *QTableWidget::itemAt(const QPoint &p) const

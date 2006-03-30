@@ -977,18 +977,12 @@ void QListWidgetPrivate::_q_sort()
     new current item and the item that was previously current.
 
     \table 100%
-    \row \o \inlineimage windowsxp-listview.png
-         \o \inlineimage macintosh-listview.png
-         \o \inlineimage plastique-listview.png
-    \row \o A WindowsXP style list widget.
-         \o A Macintosh style list widget.
-         \o A Plastique style list widget.
-    \row \o \inlineimage cde-listview.png
-         \o \inlineimage motif-listview.png
-         \o \inlineimage clearlooks-listview.png
-    \row \o A CDE style list widget.
-         \o A Motif style list widget.
-         \o A ClearLooks style list widget.
+    \row \o \inlineimage windowsxp-listview.png Screenshot of a Windows XP style list widget
+         \o \inlineimage macintosh-listview.png Screenshot of a Macintosh style table widget
+         \o \inlineimage plastique-listview.png Screenshot of a Plastique style table widget
+    \row \o A \l{Windows XP Style Widget Gallery}{Windows XP style} list widget.
+         \o A \l{Macintosh Style Widget Gallery}{Macintosh style} list widget.
+         \o A \l{Plastique Style Widget Gallery}{Plastique style} list widget.
     \endtable
 
     \sa QListWidgetItem, QListView, QTreeView, {Model/View Programming}

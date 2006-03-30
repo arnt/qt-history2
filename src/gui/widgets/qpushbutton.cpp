@@ -139,11 +139,11 @@ public:
 
     \table 100%
     \row \o \inlineimage macintosh-pushbutton.png Screenshot of a Macintosh style push button
-         \o A push button shown in the Macintosh widget style.
+         \o A push button shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
     \row \o \inlineimage windowsxp-pushbutton.png Screenshot of a Windows XP style push button
-         \o A push button shown in the Windows XP widget style.
+         \o A push button shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
     \row \o \inlineimage plastique-pushbutton.png Screenshot of a Plastique style push button
-         \o A push button shown in the Plastique widget style.
+         \o A push button shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
     \endtable
 
     In Qt, the QAbstractButton base class provides most of the modes

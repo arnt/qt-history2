@@ -114,11 +114,11 @@ public:
 
   \table 100%
   \row \o \inlineimage windowsxp-datetimeedit.png Screenshot of a Windows XP style date time editing widget
-       \o A date time editing widget shown in the Windows XP widget style.
+       \o A date time editing widget shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
   \row \o \inlineimage macintosh-datetimeedit.png Screenshot of a Macintosh style date time editing widget
-       \o A date time editing widget shown in the Macintosh widget style.
+       \o A date time editing widget shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
   \row \o \inlineimage plastique-datetimeedit.png Screenshot of a Plastique style date time editing widget
-       \o A date time editing widget shown in the Plastique widget style.
+       \o A date time editing widget shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
   \endtable
 
   \sa QDateEdit, QTimeEdit, QDate, QTime
@@ -987,11 +987,11 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
 
   \table 100%
   \row \o \inlineimage windowsxp-timeedit.png Screenshot of a Windows XP style time editing widget
-       \o A time editing widget shown in the Windows XP widget style.
+       \o A time editing widget shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
   \row \o \inlineimage macintosh-timeedit.png Screenshot of a Macintosh style time editing widget
-       \o A time editing widget shown in the Macintosh widget style.
+       \o A time editing widget shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
   \row \o \inlineimage plastique-timeedit.png Screenshot of a Plastique style time editing widget
-       \o A time editing widget shown in the Plastique widget style.
+       \o A time editing widget shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
   \endtable
 
   \sa QDateEdit, QDateTimeEdit
@@ -1041,11 +1041,11 @@ QTimeEdit::QTimeEdit(const QTime &time, QWidget *parent)
 
   \table 100%
   \row \o \inlineimage windowsxp-dateedit.png Screenshot of a Windows XP style date editing widget
-       \o A date editing widget shown in the Windows XP widget style.
+       \o A date editing widget shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
   \row \o \inlineimage macintosh-dateedit.png Screenshot of a Macintosh style date editing widget
-       \o A date editing widget shown in the Macintosh widget style.
+       \o A date editing widget shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
   \row \o \inlineimage plastique-dateedit.png Screenshot of a Plastique style date editing widget
-       \o A date editing widget shown in the Plastique widget style.
+       \o A date editing widget shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
   \endtable
 
   \sa QTimeEdit, QDateTimeEdit

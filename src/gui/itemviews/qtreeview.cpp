@@ -105,18 +105,12 @@
     \endomit
 
     \table 100%
-    \row \o \inlineimage windowsxp-treeview.png
-         \o \inlineimage macintosh-treeview.png
-         \o \inlineimage plastique-treeview.png
-    \row \o A WindowsXP style tree view.
-         \o A Macintosh style tree view.
-         \o A Plastique style tree view.
-    \row \o \inlineimage cde-treeview.png
-         \o \inlineimage motif-treeview.png
-         \o \inlineimage cleanlooks-treeview.png
-    \row \o A CDE style tree view.
-         \o A Motif style tree view.
-         \o A CleanLooks style tree view.
+    \row \o \inlineimage windowsxp-treeview.png Screenshot of a Windows XP style tree view
+         \o \inlineimage macintosh-treeview.png Screenshot of a Macintosh style tree view
+         \o \inlineimage plastique-treeview.png Screenshot of a Plastique style tree view
+    \row \o A \l{Windows XP Style Widget Gallery}{Windows XP style} tree view.
+         \o A \l{Macintosh Style Widget Gallery}{Macintosh style} tree view.
+         \o A \l{Plastique Style Widget Gallery}{Plastique style} tree view.
     \endtable
 
     \sa QListView, QTreeWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView

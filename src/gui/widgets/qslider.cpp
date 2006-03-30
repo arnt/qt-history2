@@ -208,11 +208,11 @@ QStyle::SubControl QSliderPrivate::newHoverControl(const QPoint &pos)
 
     \table 100%
     \row \o \inlineimage macintosh-slider.png Screenshot of a Macintosh slider
-         \o A slider shown in the Macintosh widget style.
+         \o A slider shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
     \row \o \inlineimage windows-slider.png Screenshot of a Windows XP slider
-         \o A slider shown in the Windows XP widget style.
+         \o A slider shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
     \row \o \inlineimage plastique-slider.png Screenshot of a Plastique slider
-         \o A slider shown in the Plastique widget style.
+         \o A slider shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
     \endtable
 
     \sa QScrollBar, QSpinBox, {fowler}{GUI Design Handbook: Slider}

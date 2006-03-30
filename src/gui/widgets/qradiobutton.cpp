@@ -65,11 +65,11 @@ public:
 
     \table 100%
     \row \o \inlineimage plastique-radiobutton.png Screenshot of a Plastique radio button
-         \o A radio button shown in the Plastique widget style.
-    \row \o \inlineimage macintosh-radiobutton.png Screenshot of a Macintosh radio button
-         \o A radio button shown in the Macintosh widget style.
+         \o A radio button shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
     \row \o \inlineimage windows-radiobutton.png Screenshot of a Windows XP radio button
-         \o A radio button shown in the Windows XP widget style.
+         \o A radio button shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
+    \row \o \inlineimage macintosh-radiobutton.png Screenshot of a Macintosh radio button
+         \o A radio button shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
     \endtable
 
     \sa QPushButton, QToolButton, QCheckBox, {fowler}{GUI Design Handbook: Radio Button}

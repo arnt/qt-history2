@@ -136,13 +136,13 @@ public:
     \table 100%
     \row
     \o \inlineimage macintosh-label.png Screenshot of a Macintosh style label
-    \o A label shown in the Macintosh widget style.
+    \o A label shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
     \row
     \o \inlineimage plastique-label.png Screenshot of a Plastique style label
-    \o A label shown in the Plastique widget style.
+    \o A label shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
     \row
     \o \inlineimage windowsxp-label.png Screenshot of a Windows XP style label
-    \o A label shown in the Windows XP widget style.
+    \o A label shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
     \endtable
 
     \sa QLineEdit, QTextEdit, QPixmap, QMovie,

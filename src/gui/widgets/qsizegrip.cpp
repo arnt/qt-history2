@@ -77,7 +77,11 @@ static bool qt_sizegrip_atBottom(QWidget* sg)
     On some platforms the sizegrip automatically hides itself when the
     window is shown full screen or maximised.
 
-    \image plastique-sizegrip.png A size grip widget shown in the Plastique widget style.
+    \table 50%
+    \row \o \inlineimage plastique-sizegrip.png Screenshot of a Plastique style size grip
+    \o A size grip widget at the bottom-right corner of a main window, shown in the
+    \l{Plastique Style Widget Gallery}{Plastique widget style}.
+    \endtable
 
     \sa QStatusBar QWidget::windowState()
 */

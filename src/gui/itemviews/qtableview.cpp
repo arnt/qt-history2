@@ -124,16 +124,12 @@ void QTableViewPrivate::trimHiddenSelections(QItemSelectionRange *range) const
     operations between x-coordinates and column indexes.
 
     \table 100%
-    \row \o \inlineimage windowsxp-tableview.png
-         \o \inlineimage macintosh-tableview.png
-         \o \inlineimage plastique-tableview.png
-    \row \o A WindowsXP style table view.
-         \o A Macintosh style table view.
-         \o A Plastique style table view.
-    \row \o \inlineimage cde-tableview.png
-         \o \inlineimage motif-tableview.png
-    \row \o A CDE style table view.
-         \o A Motif style table view.
+    \row \o \inlineimage windowsxp-tableview.png Screenshot of a Windows XP style table view
+         \o \inlineimage macintosh-tableview.png Screenshot of a Macintosh style table view
+         \o \inlineimage plastique-tableview.png Screenshot of a Plastique style table view
+    \row \o A \l{Windows XP Style Widget Gallery}{Windows XP style} table view.
+         \o A \l{Macintosh Style Widget Gallery}{Macintosh style} table view.
+         \o A \l{Plastique Style Widget Gallery}{Plastique style} table view.
     \endtable
 
     \sa QTableWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView

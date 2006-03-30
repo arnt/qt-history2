@@ -176,8 +176,10 @@ int QDialPrivate::valueFromPoint(const QPoint &p) const
     \row \o \inlineimage plastique-dial.png Screenshot of a dial in the Plastique widget style
     \o \inlineimage windowsxp-dial.png Screenshot of a dial in the Windows XP widget style
     \o \inlineimage macintosh-dial.png Screenshot of a dial in the Macintosh widget style
-    \row \o {3,1} Dial shown in various widget styles (from left to right): Plastique,
-    Windows XP, Macintosh.
+    \row \o {3,1} Dials shown in various widget styles (from left to right):
+         \l{Plastique Style Widget Gallery}{Plastique},
+         \l{Windows XP Style Widget Gallery}{Windows XP},
+         \l{Macintosh Style Widget Gallery}{Macintosh}.
     \endtable
 
     \sa QScrollBar, QSpinBox, {fowler}{GUI Design Handbook: Slider}

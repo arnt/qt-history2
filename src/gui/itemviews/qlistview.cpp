@@ -73,16 +73,12 @@
     be rendered as large or small icons depending on their iconSize().
 
     \table 100%
-    \row \o \inlineimage windowsxp-listview.png
-         \o \inlineimage macintosh-listview.png
-         \o \inlineimage plastique-listview.png
-    \row \o A WindowsXP style list view.
-         \o A Macintosh style list view.
-         \o A Plastique style list view.
-    \row \o \inlineimage cde-listview.png
-         \o \inlineimage motif-listview.png
-    \row \o A CDE style list view.
-         \o A Motif style list view.
+    \row \o \inlineimage windowsxp-listview.png Screenshot of a Windows XP style list view
+         \o \inlineimage macintosh-listview.png Screenshot of a Macintosh style table view
+         \o \inlineimage plastique-listview.png Screenshot of a Plastique style table view
+    \row \o A \l{Windows XP Style Widget Gallery}{Windows XP style} list view.
+         \o A \l{Macintosh Style Widget Gallery}{Macintosh style} list view.
+         \o A \l{Plastique Style Widget Gallery}{Plastique style} list view.
     \endtable
 
     \sa {Model/View Programming}, QTreeView, QTableView, QListWidget

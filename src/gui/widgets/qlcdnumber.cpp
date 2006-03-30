@@ -85,7 +85,9 @@ public:
     \inlineimage macintosh-lcdnumber.png Screenshot of a Macintosh style LCD number widget
     \inlineimage plastique-lcdnumber.png Screenshot of a Plastique style LCD number widget
     \row \o LCD number widgets shown in various widget styles (from left to right):
-    Motif, CDE, Windows, Windows XP, Macintosh, Plastique.
+    \l{Motif Style Widget Gallery}{Motif}, \l{CDE Style Widget Gallery}{CDE},
+    \l{Windows Style Widget Gallery}{Windows}, \l{Windows XP Style Widget Gallery}{Windows XP},
+    \l{Macintosh Style Widget Gallery}{Macintosh}, \l{Plastique Style Widget Gallery}{Plastique}.
     \endtable
 
     \sa QLabel, QFrame

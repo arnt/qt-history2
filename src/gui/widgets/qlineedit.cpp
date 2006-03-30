@@ -161,12 +161,12 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     cause the character to be inserted into the line edit.
 
     \table 100%
-    \row \o \inlineimage macintosh-lineedit.png Screenshot of a Macintosh line edit
-         \o A line edit shown in the Macintosh widget style.
-    \row \o \inlineimage windows-lineedit.png Screenshot of a Windows XP line edit
-         \o A line edit shown in the Windows XP widget style.
-    \row \o \inlineimage plastique-lineedit.png Screenshot of a Plastique line edit
-         \o A line edit shown in the Plastique widget style.
+    \row \o \inlineimage macintosh-lineedit.png Screenshot of a Macintosh style line edit
+         \o A line edit shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
+    \row \o \inlineimage windows-lineedit.png Screenshot of a Windows XP style line edit
+         \o A line edit shown in the \l{Windows XP Style Widget Gallery}{Windows XP widget style}.
+    \row \o \inlineimage plastique-lineedit.png Screenshot of a Plastique style line edit
+         \o A line edit shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
     \endtable
 
     \sa QTextEdit, QLabel, QComboBox, {fowler}{GUI Design Handbook: Field, Entry}
