@@ -762,10 +762,14 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
                 painter->setBrush(option->palette.base());
             painter->setPen(QPen(option->palette.dark(), 0));
             painter->drawRect(checkRect);
-//            painter->setRenderHint(QPainter::SmoothPixmapTransform);
-            if (checkbox->state & (State_On | State_Sunken | State_NoChange)) { // ### sunken state is only temporary
+            if (checkbox->state & (State_On | State_Sunken  | State_NoChange)) {
                 QImage image(qt_cleanlooks_checkbox_checked);
                 painter->drawImage(rect, image);
+                if (checkbox->state & State_NoChange) {
+                    QColor bgc = option->palette.background();
+                    bgc.setAlpha(127);
+                    painter->fillRect(checkRect.adjusted(1, 1, -1, -1), bgc);
+                }
             }
         }
         painter->restore();
@@ -774,9 +778,20 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
         painter->save();
         {
             QRect checkRect = rect.adjusted(0, 0, 0, 0);
-            painter->drawImage(rect, QImage(qt_cleanlooks_radiobutton));
-            if (state & (State_On | State_Sunken))
+            if (state & (State_On )) {
+                painter->drawImage(rect, QImage(qt_cleanlooks_radiobutton));
                 painter->drawImage(checkRect, QImage(qt_cleanlooks_radiobutton_checked));
+            }
+            else if (state & State_Sunken) {
+                painter->drawImage(rect, QImage(qt_cleanlooks_radiobutton));
+                QColor bgc = buttonShadow;
+                painter->setRenderHint(QPainter::Antialiasing);
+                painter->setBrush(bgc);
+                painter->setPen(Qt::NoPen);
+                painter->drawEllipse(rect.adjusted(1, 1, -1, -1));                }
+            else {
+                painter->drawImage(rect, QImage(qt_cleanlooks_radiobutton));
+            }
         }
         painter->restore();
     break;
