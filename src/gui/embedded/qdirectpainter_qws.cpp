@@ -24,7 +24,6 @@
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
 
-
 /*!
     \class QDirectPainter
     \ingroup multimedia
@@ -63,6 +62,9 @@
     \sa QScreen, QDecoration
 */
 
+static inline QSize screenS() { return QSize(qt_screen->width(), qt_screen->height()); }
+static inline QSize devS() { return QSize(qt_screen->deviceWidth(), qt_screen->deviceHeight()); }
+
 /*!
     \fn QRegion QDirectPainter::reserveRegion(const QRegion &region)
 
@@ -86,7 +88,10 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
         ad->directPainterID  = QWidget::qwsDisplay()->takeId();
         QWidget::qwsDisplay()->nameRegion(ad->directPainterID, "QDirectPainter reserved space", "reserved");
     }
-    QWidget::qwsDisplay()->requestRegion(ad->directPainterID, -1, QWSBackingStore::OnScreen, reg, QImage::Format_Invalid);
+
+    QRegion treg = qt_screen->isTransformed() ? qt_screen->mapFromDevice(reg, devS()) : reg;
+
+    QWidget::qwsDisplay()->requestRegion(ad->directPainterID, -1, QWSBackingStore::OnScreen, treg, QImage::Format_Invalid);
 
     //### slightly dirty way to do a blocking wait for the region event
 
@@ -94,7 +99,7 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
     while (!ad->seenRegionEvent)
         QApplication::processEvents();
 
-    return ad->directPainterRegion;
+    return qt_screen->isTransformed() ? qt_screen->mapToDevice(ad->directPainterRegion, screenS()) : ad->directPainterRegion;
 }
 
 /*!
@@ -137,7 +142,7 @@ int QDirectPainter::screenDepth()
 */
 int QDirectPainter::screenWidth()
 {
-    return qt_screen->width();
+    return qt_screen->deviceWidth();
 }
 
 /*!
@@ -147,7 +152,7 @@ int QDirectPainter::screenWidth()
 */
 int QDirectPainter::screenHeight()
 {
-    return qt_screen->height();
+    return qt_screen->deviceHeight();
 }
 
 /*!
