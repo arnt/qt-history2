@@ -274,7 +274,7 @@ QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int 
     QStyleHintReturnMask mask;
     style->styleHint(QStyle::SH_WindowFrame_Mask, &opt, 0, &mask);
 
-    return (region & mask.region);
+    return (mask.region.isEmpty() ? region : (region & mask.region));
 }
 
 #endif // QT_NO_QWS_DECORATION_STYLED
