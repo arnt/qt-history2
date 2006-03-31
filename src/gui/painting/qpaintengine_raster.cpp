@@ -1645,6 +1645,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
     } else {
         // Let Windows handle the composition of background and foreground for cleartype text
         QRgb penColor = 0;
+        bool brokenRasterBufferAlpha = false;
         if (clearType) {
             penColor = d->penData.solid.color;
 
@@ -1653,13 +1654,22 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
                 QRgb *sourceScanline = (QRgb *) d->rasterBuffer->scanLine(y);
                 QRgb *destScanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y());
                 for (int x=xmin; x<xmax; ++x) {
+                    uint color = sourceScanline[x];
+
+                    // If the alpha channel of the raster buffer has previously been
+                    // broken by GDI, we assume there are valid colors there and 
+                    // use clear type anyway (this is for XP style)
+                    int alpha = qAlpha(color);
+                    if (qRed(color) > alpha || qGreen(color) > alpha || qBlue(color) > alpha)
+                        brokenRasterBufferAlpha = true;                                           
+
                     // If the background is transparent, set it to completely opaque so we will
                     // recognize it after Windows screws up the alpha channel of font buffer.
                     // Otherwise, just copy the contents.
-                    if (qAlpha(sourceScanline[x]) == 0x00)
-                        destScanline[x - devRect.x()] |= 0xff000000;
+                    if (alpha == 0x00)
+                        destScanline[x - devRect.x()] = color | 0xff000000;
                     else
-                        destScanline[x - devRect.x()] = sourceScanline[x];
+                        destScanline[x - devRect.x()] = color;
                 }
             }
         } else {
@@ -1679,7 +1689,6 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
                           d->fontRasterBuffer->hdc(), false,
                           QMatrix(d->matrix.m11(), d->matrix.m12(), d->matrix.m21(),
                           d->matrix.m22(), 0, 0), topLeft);
-
 
         if (clearType) {
             DeleteObject(SelectObject(d->fontRasterBuffer->hdc(),GetStockObject(NULL_BRUSH)));
@@ -1702,7 +1711,7 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
                         // has no background to use for composition, but also minimizing the
                         // number of cases hit by the fall back.
                         // ### This is far from optimal.
-                        if (qAlpha(rbScanline[x]) == 0) {
+                        if (!brokenRasterBufferAlpha && qAlpha(rbScanline[x]) == 0) {
                             return drawTextInFontBuffer(devRect, xmin, ymin, xmax, ymax, textItem,
                                 false, leftBearingReserve, topLeft);
                         }
