@@ -428,6 +428,10 @@ inline void QOpenGLPaintEnginePrivate::moveTo(const QPointF &p)
 inline void QOpenGLPaintEnginePrivate::lineTo(const QPointF &p)
 {
     GLUtesselator *qgl_tess = tessHandler()->qgl_tess;
+    // ### temp crash fix - the GLU tesselator can't handle the
+    // ### realloc being done after this
+    if (tessVector.size() + 3 > 20000)
+        return;
     tessVector.add(p.x());
     tessVector.add(p.y());
     tessVector.add(0);
