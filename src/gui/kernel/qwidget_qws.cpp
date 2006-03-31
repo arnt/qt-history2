@@ -667,7 +667,7 @@ bool QWSBackingStore::createIfNecessary(QWidget *tlw)
     QBrush bgBrush = tlw->palette().brush(tlw->backgroundRole());
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
 
-    QImage::Format imageFormat = (opaque && qt_screen->depth() == 16) ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied;
+    QImage::Format imageFormat = (opaque && qt_screen->depth() <= 16) ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied;
 
 #ifdef EXPERIMENTAL_ONSCREEN_PAINT
     bool useBS = !opaque || tlw->windowOpacity() != qreal(1.0);

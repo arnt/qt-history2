@@ -1032,12 +1032,10 @@ static inline uchar qt_32_to_8(uint rgb)
     return r*6*6 + g*6 + b;
 }
 
-#if 0
 static inline uchar qt_16_to_8(ushort pix)
 {
     return qt_32_to_8(qt_conv16ToRgb(pix));
 }
-#endif
 
 static void blit_32_to_8(const blit_data *data)
 {
@@ -1059,7 +1057,6 @@ static void blit_32_to_8(const blit_data *data)
     }
 }
 
-#if 0
 static void blit_16_to_8(const blit_data *data)
 {
     const int sbpl = data->img->bytesPerLine() / 2;
@@ -1073,13 +1070,12 @@ static void blit_16_to_8(const blit_data *data)
     int h = data->h;
     while (h) {
         for (int i = 0; i < data->w; ++i)
-            dest[i] = qt_convRgbTo16(src[i]);
+            dest[i] = qt_16_to_8(src[i]);
         src += sbpl;
         dest += dbpl;
         --h;
     }
 }
-#endif
 
 /*!
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
@@ -1114,11 +1110,9 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
             func = blit_32_to_16;
         break;
     case 8:
-#if 0
         if (img.depth() == 16)
             func = blit_16_to_8;
         else
-#endif
             func = blit_32_to_8;
         break;
     default:
