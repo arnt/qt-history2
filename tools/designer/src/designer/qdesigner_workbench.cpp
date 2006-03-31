@@ -358,6 +358,7 @@ void QDesignerWorkbench::switchToNeutralMode()
 
 void QDesignerWorkbench::switchToDockedMode()
 {
+    bool wasTopLevel = (m_mode == TopLevelMode);
     if (m_mode == DockedMode)
         return;
 
@@ -410,6 +411,8 @@ void QDesignerWorkbench::switchToDockedMode()
     qDesigner->setMainWindow(mw);
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
+        if (wasTopLevel)
+            settings.saveGeometryFor(tw);
         QDockWidget *dockWidget = magicalDockWidget(tw);
         if (dockWidget == 0) {
             dockWidget = new QDockWidget(mw);
@@ -537,14 +540,8 @@ void QDesignerWorkbench::switchToTopLevelMode()
     bool found_visible_window = false;
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         tw->setParent(magicalParent(), magicalWindowFlags(tw));
-        if (m_geometries.isEmpty()) {
-            settings.setGeometryFor(tw, tw->geometryHint());
-        } else {
-            QRect g = m_geometries.value(tw, tw->geometryHint());
-            tw->resize(g.size());
-            tw->move(g.topLeft() + desktopOffset);
-            tw->setVisible(m_visibilities.value(tw, true));
-        }
+        settings.setGeometryFor(tw, tw->geometryHint());
+        tw->action()->setChecked(tw->isVisible());
         found_visible_window |= tw->isVisible();
     }
 
@@ -699,13 +696,14 @@ void QDesignerWorkbench::initializeCorePlugins()
 void QDesignerWorkbench::saveSettings() const
 {
     QDesignerSettings settings;
-    foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        settings.saveGeometryFor(tw);
-    }
     if (m_mode == DockedMode) {
         if (qFindChild<QWorkspace *>(qDesigner->mainWindow())) {
             settings.saveGeometryFor(qDesigner->mainWindow());
             settings.setValue(qDesigner->mainWindow()->objectName() + QLatin1String("/visible"), false);
+        }
+    } else {
+        foreach (QDesignerToolWindow *tw, m_toolWindows) {
+            settings.saveGeometryFor(tw);
         }
     }
 }
