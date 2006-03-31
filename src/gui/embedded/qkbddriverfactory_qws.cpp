@@ -18,6 +18,7 @@
 #include "qkbdusb_qws.h"
 #include "qkbdum_qws.h"
 #include "qkbdsl5000_qws.h"
+#include "qkbdvfb_qws.h"
 #include "qkbdyopy_qws.h"
 #include "qkbdvr41xx_qws.h"
 #include <stdlib.h>
@@ -87,6 +88,10 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
 # ifndef QT_NO_QWS_KBD_UM
     if (driver == "um" || driver == "qvfbkeyboard" )
         return new QWSUmKeyboardHandler(device);
+# endif
+# ifndef QT_NO_QWS_QVFB
+    if (driver == "qvfbkbd" || driver == "qvfbkeyboard")
+        return new QVFbKeyboardHandler(device);
 # endif
 #endif
 

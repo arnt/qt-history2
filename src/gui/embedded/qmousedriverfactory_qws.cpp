@@ -19,6 +19,7 @@
 #include "qmousevr41xx_qws.h"
 #include "qmouseyopy_qws.h"
 #include "qmouselinuxtp_qws.h"
+#include "qmousevfb_qws.h"
 #include "qmousetslib_qws.h"
 #include <stdlib.h>
 #include "private/qfactoryloader_p.h"
@@ -91,6 +92,10 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
 #ifndef QT_NO_QWS_MOUSE_TSLIB
     if (driver == "tslib" || driver.isEmpty())
         return new QWSTslibMouseHandler(key, device);
+#endif
+#ifndef QT_NO_QWS_QVFB
+    if (driver == "qvfbmouse" || driver.isEmpty())
+        return new QVFbMouseHandler(key, device);
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)

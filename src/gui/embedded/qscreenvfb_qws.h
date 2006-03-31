@@ -23,9 +23,6 @@ QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_QVFB
 
-class QVFbMouseHandler;
-class QVFbKeyboardHandler;
-
 class QVFbScreen : public QScreen
 {
 public:
@@ -45,8 +42,6 @@ public:
     bool success;
     unsigned char *shmrgn;
     QVFbHeader *hdr;
-    QVFbMouseHandler *mouseHandler;
-    QVFbKeyboardHandler *keyboardHandler;
 };
 
 #endif // QT_NO_QWS_QVFB

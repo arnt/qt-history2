@@ -424,14 +424,14 @@ CFG_GFX_ON=""
 CFG_GFX_OFF=""
 
 if [ "$Edition" = "Trolltech" ]; then
-    CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx um"
+    CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx um qvfb"
     CFG_KBD_ON="tty um"    #default, see QMAKE_VARS above
-    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib"
+    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib qvfb"
     CFG_MOUSE_ON="pc linuxtp"   #default, see QMAKE_VARS above
 else
-    CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx"
+    CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx qvfb"
     CFG_KBD_ON="tty"    #default, see QMAKE_VARS above
-    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib"
+    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib qvfb"
     CFG_MOUSE_ON="pc linuxtp"   #default, see QMAKE_VARS above
 fi
 
@@ -796,7 +796,13 @@ while [ "$#" -gt 0 ]; do
         ;;
     qvfb) # left for commandline compatibility, not documented
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-            [ "$VAL" = "yes" ] && QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\"" && CFG_GFX_ON="$CFG_GFX_ON qvfb"
+            if [ "$VAL" = "yes" ]; then
+                echo "Setting QVFB"
+                QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\" \"kbd-drivers += qvfb\" \"mouse-driver += qvfb\""
+                CFG_GFX_ON="$CFG_GFX_ON qvfb"
+                CFG_KBD_ON="$CFG_KBD_ON qvfb"
+                CFG_MOUSE_ON="$CFG_MOUSE_ON qvfb"
+            fi
         else
             UNKNOWN_OPT=yes
         fi

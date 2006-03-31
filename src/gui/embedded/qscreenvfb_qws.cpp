@@ -24,167 +24,12 @@
 
 #include <qvfbhdr.h>
 #include <qscreenvfb_qws.h>
+#include <qkbdvfb_qws.h>
+#include <qmousevfb_qws.h>
 #include <qwindowsystem_qws.h>
 #include <qsocketnotifier.h>
 #include <qapplication.h>
 #include <qscreen_qws.h>
-
-//===========================================================================
-
-class QVFbMouseHandler : public QObject {
-    Q_OBJECT
-public:
-    QVFbMouseHandler(int display_id);
-    ~QVFbMouseHandler();
-
-private:
-    int mouseFD;
-    int mouseIdx;
-    enum {mouseBufSize = 128};
-    uchar mouseBuf[mouseBufSize];
-
-private slots:
-    void readMouseData();
-};
-
-QVFbMouseHandler::QVFbMouseHandler(int display_id)
-{
-    mouseFD = -1;
-    QByteArray mouseDev = QByteArray(QT_VFB_MOUSE_PIPE).replace("%1", QByteArray::number(display_id));
-
-    if ((mouseFD = open(mouseDev, O_RDWR | O_NDELAY)) < 0) {
-        qDebug("Cannot open %s (%s)", mouseDev.constData(),
-                strerror(errno));
-    } else {
-        // Clear pending input
-        char buf[2];
-        while (read(mouseFD, buf, 1) > 0) { }
-
-        mouseIdx = 0;
-
-        QSocketNotifier *mouseNotifier;
-        mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read, this);
-        connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
-    }
-}
-
-QVFbMouseHandler::~QVFbMouseHandler()
-{
-    if (mouseFD >= 0)
-        close(mouseFD);
-}
-
-void QVFbMouseHandler::readMouseData()
-{
-    int n;
-    do {
-        n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx);
-        if (n > 0)
-            mouseIdx += n;
-    } while (n > 0);
-
-    int idx = 0;
-    static const int packetsize = sizeof(QPoint) + 2*sizeof(int);
-    while (mouseIdx-idx >= packetsize) {
-        uchar *mb = mouseBuf+idx;
-        QPoint mousePos = *reinterpret_cast<QPoint *>(mb);
-        mb += sizeof(QPoint);
-        int bstate = *reinterpret_cast<int *>(mb);
-        mb += sizeof(int);
-        int wheel = *reinterpret_cast<int *>(mb);
-//        limitToScreen(mousePos);
-        QWSServer::sendMouseEvent(mousePos, bstate, wheel);
-        idx += packetsize;
-    }
-
-    int surplus = mouseIdx - idx;
-    for (int i = 0; i < surplus; i++)
-        mouseBuf[i] = mouseBuf[idx+i];
-    mouseIdx = surplus;
-}
-//===========================================================================
-
-class QVFbKeyboardHandler : public QObject
-{
-    Q_OBJECT
-public:
-    QVFbKeyboardHandler(int display_id);
-    virtual ~QVFbKeyboardHandler();
-
-private slots:
-    void readKeyboardData();
-
-private:
-    QString terminalName;
-    int kbdFD;
-    int kbdIdx;
-    int kbdBufferLen;
-    unsigned char *kbdBuffer;
-    QSocketNotifier *notifier;
-};
-
-
-QVFbKeyboardHandler::QVFbKeyboardHandler(int display_id)
-{
-    kbdFD = -1;
-    kbdIdx = 0;
-    kbdBufferLen = sizeof(QVFbKeyData) * 5;
-    kbdBuffer = new unsigned char [kbdBufferLen];
-
-    QByteArray terminalName = QByteArray(QT_VFB_KEYBOARD_PIPE).replace("%1", QByteArray::number(display_id));
-
-    if ((kbdFD = open(terminalName, O_RDWR | O_NDELAY)) < 0) {
-        qDebug("Cannot open %s (%s)", terminalName.constData(),
-        strerror(errno));
-    } else {
-        // Clear pending input
-        char buf[2];
-        while (read(kbdFD, buf, 1) > 0) { }
-
-        notifier = new QSocketNotifier(kbdFD, QSocketNotifier::Read, this);
-        connect(notifier, SIGNAL(activated(int)),this, SLOT(readKeyboardData()));
-    }
-}
-
-QVFbKeyboardHandler::~QVFbKeyboardHandler()
-{
-    if (kbdFD >= 0)
-        close(kbdFD);
-    delete [] kbdBuffer;
-}
-
-
-void QVFbKeyboardHandler::readKeyboardData()
-{
-    int n;
-    do {
-        n  = read(kbdFD, kbdBuffer+kbdIdx, kbdBufferLen - kbdIdx);
-        if (n > 0)
-            kbdIdx += n;
-    } while (n > 0);
-
-    int idx = 0;
-    while (kbdIdx - idx >= (int)sizeof(QVFbKeyData)) {
-        QVFbKeyData *kd = (QVFbKeyData *)(kbdBuffer + idx);
-        if (kd->unicode == 0 && kd->keycode == 0 && kd->modifiers == 0 && kd->press) {
-            // magic exit key
-            qWarning("Instructed to quit by Virtual Keyboard");
-            qApp->quit();
-        }
-#ifndef QT_NO_QWS_KEYBOARD
-        QWSServer::processKeyEvent(kd->unicode, kd->keycode, kd->modifiers, kd->press, kd->repeat);
-#endif
-        idx += sizeof(QVFbKeyData);
-    }
-
-    int surplus = kbdIdx - idx;
-    for (int i = 0; i < surplus; i++)
-        kbdBuffer[i] = kbdBuffer[idx+i];
-    kbdIdx = surplus;
-}
-
-
-//===========================================================================
 
 /*!
     \class QVFbScreen
@@ -264,16 +109,6 @@ void QVFbKeyboardHandler::readKeyboardData()
 */
 
 /*!
-    \variable QVFbScreen::mouseHandler
-    \internal
-*/
-
-/*!
-    \variable QVFbScreen::keyboardHandler
-    \internal
-*/
-
-/*!
     \fn QVFbScreen::QVFbScreen(int displayId)
 
     Constructs a QVNCScreen object. The \a displayId argument
@@ -281,8 +116,6 @@ void QVFbKeyboardHandler::readKeyboardData()
 */
 QVFbScreen::QVFbScreen(int display_id) : QScreen(display_id)
 {
-    mouseHandler = 0;
-    keyboardHandler = 0;
     shmrgn = 0;
     hdr = 0;
     data = 0;
@@ -338,11 +171,20 @@ bool QVFbScreen::connect(const QString &displaySpec)
     memcpy(screenclut, hdr->clut, sizeof(QRgb) * screencols);
 
     if (qApp->type() == QApplication::GuiServer) {
-        // We handle mouse and keyboard here
-        QWSServer::setDefaultMouse("None");
-        QWSServer::setDefaultKeyboard("None");
-        mouseHandler = new QVFbMouseHandler(displayId);
-        keyboardHandler = new QVFbKeyboardHandler(displayId);
+        QString mouseDev = "QVFbMouse:";
+        mouseDev += QT_VFB_MOUSE_PIPE;
+        QString keyboardDev = "QVFbKbd:";
+        keyboardDev += QT_VFB_KEYBOARD_PIPE;
+
+        static char mDevBuffer[200];
+        static char kDevBuffer[200];
+
+        strncpy(mDevBuffer, mouseDev.arg(displayId).toLatin1().constData(), 200);
+        strncpy(kDevBuffer, keyboardDev.arg(displayId).toLatin1().constData(), 200);
+
+        qwsServer->setDefaultMouse(mDevBuffer);
+        qwsServer->setDefaultKeyboard(kDevBuffer);
+
         if (hdr->dataoffset >= (int)sizeof(QVFbHeader)) {
             hdr->serverVersion = QT_VERSION;
         }
@@ -358,12 +200,6 @@ void QVFbScreen::disconnect()
             hdr->serverVersion = 0;
         }
         shmdt((char*)shmrgn);
-    }
-    if (qApp->type() == QApplication::GuiServer) {
-        delete mouseHandler;
-        mouseHandler = 0;
-        delete keyboardHandler;
-        keyboardHandler = 0;
     }
 }
 
@@ -433,7 +269,6 @@ void QVFbScreen::save()
 void QVFbScreen::restore()
 {
 }
-#include "qscreenvfb_qws.moc"
 
 #endif // QT_NO_QWS_QVFB
 

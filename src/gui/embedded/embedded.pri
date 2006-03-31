@@ -119,6 +119,11 @@ embedded {
 #
 # Keyboard drivers
 #
+	contains( kbd-drivers, qvfb ) {
+		HEADERS +=embedded/qkbdvfb_qws.h
+		SOURCES +=embedded/qkbdvfb_qws.cpp
+	}
+
 	contains( kbd-drivers, sl5000 ) {
 		HEADERS +=embedded/qkbdsl5000_qws.h
 		SOURCES +=embedded/qkbdsl5000_qws.cpp
@@ -167,6 +172,11 @@ embedded {
 #
 # Mouse drivers
 #
+	contains( mouse-drivers, qvfb ) {
+		HEADERS +=embedded/qmousevfb_qws.h
+		SOURCES +=embedded/qmousevfb_qws.cpp
+	}
+
 	contains( mouse-drivers, pc ) {
 		HEADERS +=embedded/qmousepc_qws.h
 		SOURCES +=embedded/qmousepc_qws.cpp
