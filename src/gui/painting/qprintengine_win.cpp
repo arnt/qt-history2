@@ -876,9 +876,12 @@ void QWin32PrintEnginePrivate::queryDefault()
 	}
     });
     QStringList info = output.split(',');
-    name = info.at(0);
-    program = info.at(1);
-    port = info.at(2);
+    if(name.isEmpty())
+        name = info.at(0);
+    if(program.isEmpty())
+        program = info.at(1);
+    if(port.isEmpty())
+        port = info.at(2);
 }
 
 QWin32PrintEnginePrivate::~QWin32PrintEnginePrivate()
@@ -1199,6 +1202,8 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
     case PPK_PrinterName:
         d->name = value.toString();
+        if(d->name.isEmpty())
+            d->queryDefault();
         d->initialize();
         break;
 
