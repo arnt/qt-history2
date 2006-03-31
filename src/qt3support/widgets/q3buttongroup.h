@@ -76,7 +76,7 @@ private:
 
     void init();
 
-    bool excl_grp;
+    bool excl_grp; // Not used.
     bool radio_excl;
     QMap<int, QAbstractButton*> buttonIds;
     QButtonGroup group;
