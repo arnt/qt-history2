@@ -64,9 +64,9 @@
     valid QGLWidget, the pbuffer will share its context with \a
     shareWidget.
 
-    If you intend to bind this pbuffer as a dynamic texture, the
-    width and height components of \c size must be powers of two
-    (e.g., 512 x 128).
+    If you intend to bind this pbuffer as a dynamic texture, the width
+    and height components of \c size must be powers of two (e.g., 512
+    x 128). On Mac OS X, the size must be a power of two.
 
     \sa size(), format()
 */
