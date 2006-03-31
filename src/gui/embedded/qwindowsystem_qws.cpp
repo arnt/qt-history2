@@ -1619,6 +1619,8 @@ extern int *qt_last_x,*qt_last_y;
   Send a mouse event. \a pos is the screen position where the mouse
   event occurred and \a state is a mask indicating which buttons are
   pressed.
+
+  \a pos is in device coordinates
 */
 void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
 {
@@ -1637,6 +1639,14 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     } else {
 	tpos = pos;
     }
+
+    if (qt_last_x) {
+         *qt_last_x = tpos.x();
+         *qt_last_y = tpos.y();
+    }
+    QWSServer::mousePosition = tpos;
+    qwsServerPrivate->mouseState = state;
+
 #ifndef QT_NO_QWS_INPUTMETHODS
     const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
     int stroke_count; // number of strokes to keep shown.
@@ -1650,7 +1660,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     if (stroke_count == 0) {
 	if (state&btnMask)
 	    force_reject_strokeIM = true;
-        QWSServerPrivate::sendMouseEventUnfiltered(pos, state, wheel);
+        QWSServerPrivate::sendMouseEventUnfiltered(tpos, state, wheel);
     }
     // stop force reject after stroke ends.
     if (state&btnMask && force_reject_strokeIM)
@@ -1665,13 +1675,6 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
 void QWSServerPrivate::sendMouseEventUnfiltered(const QPoint &pos, int state, int wheel)
 {
     const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
-    if (qt_last_x) {
-         *qt_last_x = pos.x();
-         *qt_last_y = pos.y();
-    }
-    QWSServer::mousePosition = pos;
-    qwsServerPrivate->mouseState = state;
-
     QWSMouseEvent event;
 
     //If grabbing window disappears, grab is still active until
@@ -3828,15 +3831,13 @@ uint QWSInputMethod::inputResolutionShift() const
 */
 void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 {
-    QPoint tpos;
-    if (qt_screen->isTransformed()) {
-	QSize s = QSize(qt_screen->width(), qt_screen->height());
-	tpos = qt_screen->mapToDevice(pos, s);
-    } else {
-	tpos = pos;
+        if (qt_last_x) {
+         *qt_last_x = pos.x();
+         *qt_last_y = pos.y();
     }
-    // because something else will transform it back later.
-    QWSServerPrivate::sendMouseEventUnfiltered( tpos, state, wheel );
+    QWSServer::mousePosition = pos;
+    qwsServerPrivate->mouseState = state;
+    QWSServerPrivate::sendMouseEventUnfiltered(pos, state, wheel);
 }
 #endif // QT_NO_QWS_INPUTMETHODS
 
