@@ -2784,8 +2784,7 @@ void QWSServer::openMouse()
         QList<QByteArray> mouse = mice.split(' ');
         for (QList<QByteArray>::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
             QString ms = *m;
-            QWSMouseHandler* h = d->newMouseHandler(ms);
-            d->mousehandlers.append(h);
+            (void)d->newMouseHandler(ms); // QWSMouseHandler::QWSMouseHandler calls setMouseHandler()
             /* XXX handle mouse cursor visibility sensibly
                if (!h->inherits("QCalibratedMouseHandler"))
                needviscurs = true;
