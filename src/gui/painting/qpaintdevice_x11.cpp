@@ -169,7 +169,7 @@ QPaintDevice::~QPaintDevice()
 
 Drawable Q_GUI_EXPORT qt_x11Handle(const QPaintDevice *pd)
 {
-    Q_ASSERT(pd);
+    if (!pd) return 0;
     if (pd->devType() == QInternal::Widget)
         return static_cast<const QWidget *>(pd)->handle();
     else if (pd->devType() == QInternal::Pixmap)
@@ -185,7 +185,7 @@ Drawable Q_GUI_EXPORT qt_x11Handle(const QPaintDevice *pd)
 */
 const Q_GUI_EXPORT QX11Info *qt_x11Info(const QPaintDevice *pd)
 {
-    Q_ASSERT(pd);
+    if (!pd) return 0;
     if (pd->devType() == QInternal::Widget)
         return &static_cast<const QWidget *>(pd)->x11Info();
     else if (pd->devType() == QInternal::Pixmap)
