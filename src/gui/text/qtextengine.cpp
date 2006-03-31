@@ -1845,3 +1845,24 @@ QStackTextEngine::QStackTextEngine(const QString &string, const QFont &f)
     stackEngine = true;
     layoutData = &_layoutData;
 }
+
+void QTextItemInt::initFontAttributes(const QScriptItem &si, QFont *font, const QTextCharFormat &format)
+{
+    // explicitly initialize flags so that initFontAttributes can be called
+    // multiple times on the same TextItem
+    flags = 0;
+    if (si.analysis.bidiLevel %2)
+        flags |= QTextItem::RightToLeft;
+    ascent = si.ascent;
+    descent = si.descent;    
+    f = font;
+    fontEngine = f->d->engineForScript(si.analysis.script);
+    Q_ASSERT(fontEngine);
+    if (f->d->underline || format.fontUnderline())
+        flags |= QTextItem::Underline;
+    if (f->d->overline || format.fontOverline())
+        flags |= QTextItem::Overline;
+    if (f->d->strikeOut || format.fontStrikeOut())
+        flags |= QTextItem::StrikeOut;
+    underlineColor = format.underlineColor();
+}

@@ -217,6 +217,7 @@ private:
     friend class QGLContext;
     friend class QWin32PaintEngine;
     friend class QPainterPath;
+    friend class QTextItemInt;
 
 #ifndef QT_NO_DATASTREAM
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QFont &);

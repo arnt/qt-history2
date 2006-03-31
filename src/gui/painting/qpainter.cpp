@@ -4116,13 +4116,6 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     QFixed ox = x;
 
     QTextItemInt gf;
-    gf.f = &d->state->font;
-    if (gf.f->d->underline)
-        gf.flags |= QTextItem::Underline;
-    if (gf.f->d->overline)
-        gf.flags |= QTextItem::Overline;
-    if (gf.f->d->strikeOut)
-        gf.flags |= QTextItem::StrikeOut;
 
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i];
@@ -4135,12 +4128,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
                 x += si.width;
             continue;
         }
-        gf.fontEngine = d->state->font.d->engineForScript(si.analysis.script);
-        Q_ASSERT(gf.fontEngine);
-        if (si.analysis.bidiLevel %2)
-            gf.flags |= QTextItem::RightToLeft;
-        gf.ascent = si.ascent;
-        gf.descent = si.descent;
+        gf.initFontAttributes(si, &d->state->font);
         gf.num_glyphs = si.num_glyphs;
         gf.glyphs = engine.glyphs(&si);
         gf.chars = engine.layoutData->string.unicode() + si.position;
