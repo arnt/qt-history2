@@ -648,7 +648,7 @@ void QSplitterPrivate::doMove(bool backwards, int hPos, int index, int delta, bo
     int nextId = backwards ? index - delta : index + delta;
 
     if (w->isHidden()) {
-        doMove(backwards, hPos, nextId, delta, true, positions, widths);
+        doMove(backwards, hPos, nextId, delta, collapsible(nextId), positions, widths);
     } else {
         int hs =s->handle->isHidden() ? 0 : s->getHandleSize(orient);
 
@@ -663,7 +663,7 @@ void QSplitterPrivate::doMove(bool backwards, int hPos, int index, int delta, bo
         positions[index] = backwards ? hPos - ws : hPos + hs;
         widths[index] = ws;
         doMove(backwards, backwards ? hPos - ws - hs : hPos + hs + ws, nextId, delta,
-               true, positions, widths);
+               collapsible(nextId), positions, widths);
     }
 
 }
@@ -1287,8 +1287,8 @@ void QSplitter::moveSplitter(int pos, int index)
     QVarLengthArray<int, 32> ws(d->list.count());
     bool upLeft;
 
-    d->doMove(false, pos, index, +1, (pos > max), poss.data(), ws.data());
-    d->doMove(true, pos, index - 1, +1, (pos < min), poss.data(), ws.data());
+    d->doMove(false, pos, index, +1, (d->collapsible(s) && (pos > max)), poss.data(), ws.data());
+    d->doMove(true, pos, index - 1, +1, (d->collapsible(index - 1) && (pos < min)), poss.data(), ws.data());
     upLeft = (pos < oldP);
 
     int wid, delta, count = d->list.count();
