@@ -291,6 +291,17 @@ void QCoreApplicationPrivate::checkReceiverThread(QObject *receiver)
     Q_UNUSED(thr);
 }
 
+void QCoreApplicationPrivate::appendApplicationPathToLibraryPaths()
+{
+    QStringList *app_libpaths = coreappdata()->app_libpaths;
+    Q_ASSERT(app_libpaths);
+    QString app_location( QCoreApplication::applicationFilePath() );
+    app_location.truncate(app_location.lastIndexOf(QLatin1Char('/')));
+    app_location = QDir(app_location).canonicalPath();
+    if (app_location !=  QLibraryInfo::location(QLibraryInfo::PluginsPath) && QFile::exists(app_location))
+        app_libpaths->append(app_location);
+}
+
 QString qAppName()
 {
     if (!QCoreApplicationPrivate::checkInstance("qAppName"))
@@ -409,12 +420,18 @@ void QCoreApplication::init()
     set_winapp_name();
 #endif
 
-#ifndef QT_NO_LIBRARY
-    d->app_libpaths = 0;
-#endif
-
     Q_ASSERT_X(!self, "QCoreApplication", "there should be only one application object");
     QCoreApplication::self = this;
+
+#ifndef QT_NO_LIBRARY
+    if (!coreappdata()->app_libpaths) {
+        // make sure that library paths is initialized
+        libraryPaths();
+    } else {
+        d->appendApplicationPathToLibraryPaths();
+    }
+#endif
+
 
 #ifndef QT_NO_THREAD
     QThread::initialize();
@@ -449,11 +466,6 @@ QCoreApplication::~QCoreApplication()
 {
     Q_D(QCoreApplication);
     qt_call_post_routines();
-
-#ifndef QT_NO_LIBRARY
-    delete d->app_libpaths;
-    d->app_libpaths = 0;
-#endif
 
     self = 0;
     QCoreApplicationPrivate::is_app_closing = true;
@@ -1532,12 +1544,12 @@ QStringList QCoreApplication::arguments()
 
 void QCoreApplication::setOrganizationName(const QString &orgName)
 {
-    self->d_func()->orgName = orgName;
+    coreappdata()->orgName = orgName;
 }
 
 QString QCoreApplication::organizationName()
 {
-    return self ? self->d_func()->orgName : QString();
+    return coreappdata()->orgName;
 }
 
 /*!
@@ -1557,12 +1569,12 @@ QString QCoreApplication::organizationName()
 */
 void QCoreApplication::setOrganizationDomain(const QString &orgDomain)
 {
-    self->d_func()->orgDomain = orgDomain;
+    coreappdata()->orgDomain = orgDomain;
 }
 
 QString QCoreApplication::organizationDomain()
 {
-    return self ? self->d_func()->orgDomain : QString();
+    return coreappdata()->orgDomain;
 }
 
 /*!
@@ -1577,13 +1589,12 @@ QString QCoreApplication::organizationDomain()
 */
 void QCoreApplication::setApplicationName(const QString &application)
 {
-    self->d_func()->application = application;
+    coreappdata()->application = application;
 }
-
 
 QString QCoreApplication::applicationName()
 {
-    return self ? self->d_func()->application : QString();
+    return coreappdata()->application;
 }
 
 
@@ -1616,12 +1627,9 @@ Q_GLOBAL_STATIC_WITH_ARGS(QMutex, libraryPathMutex, (QMutex::Recursive))
 */
 QStringList QCoreApplication::libraryPaths()
 {
-    if (!QCoreApplicationPrivate::checkInstance("libraryPaths"))
-        return QStringList();
-
     QMutexLocker locker(libraryPathMutex());
-    if (!self->d_func()->app_libpaths) {
-        QStringList *app_libpaths = self->d_func()->app_libpaths = new QStringList;
+    if (!coreappdata()->app_libpaths) {
+        QStringList *app_libpaths = coreappdata()->app_libpaths = new QStringList;
         QString installPathPlugins =  QLibraryInfo::location(QLibraryInfo::PluginsPath);
         if (QFile::exists(installPathPlugins)) {
             // Make sure we convert from backslashes to slashes.
@@ -1629,11 +1637,9 @@ QStringList QCoreApplication::libraryPaths()
             app_libpaths->append(installPathPlugins);
         }
 
-        QString app_location(self->applicationFilePath());
-        app_location.truncate(app_location.lastIndexOf(QLatin1Char('/')));
-        app_location = QDir(app_location).canonicalPath();
-        if (app_location !=  QLibraryInfo::location(QLibraryInfo::PluginsPath) && QFile::exists(app_location))
-            app_libpaths->append(app_location);
+        // If QCoreApplication is not yet instantiated, 
+        // make sure we add the application path when we construct the QCoreApplication
+        if (self) self->d_func()->appendApplicationPathToLibraryPaths();
 
         const QByteArray libPathEnv = qgetenv("QT_PLUGIN_PATH");
         if (!libPathEnv.isEmpty()) {
@@ -1648,7 +1654,7 @@ QStringList QCoreApplication::libraryPaths()
             }
         }
     }
-    return *self->d_func()->app_libpaths;
+    return *(coreappdata()->app_libpaths);
 }
 
 
@@ -1662,12 +1668,8 @@ QStringList QCoreApplication::libraryPaths()
  */
 void QCoreApplication::setLibraryPaths(const QStringList &paths)
 {
-    if (!QCoreApplicationPrivate::checkInstance("setLibraryPaths"))
-        return;
-    delete self->d_func()->app_libpaths;
-    self->d_func()->app_libpaths = new QStringList(paths);
+    *(coreappdata()->app_libpaths) = paths;
 }
-
 /*!
   Appends \a path to the end of the library path list. If \a path is
   empty or already in the path list, the path list is not changed.
@@ -1681,9 +1683,6 @@ void QCoreApplication::setLibraryPaths(const QStringList &paths)
  */
 void QCoreApplication::addLibraryPath(const QString &path)
 {
-    if (!QCoreApplicationPrivate::checkInstance("addLibraryPath"))
-        return;
-
     if (path.isEmpty())
         return;
 
@@ -1691,8 +1690,8 @@ void QCoreApplication::addLibraryPath(const QString &path)
     libraryPaths();
 
     QString canonicalPath = QDir(path).canonicalPath();
-    if (!self->d_func()->app_libpaths->contains(canonicalPath))
-        self->d_func()->app_libpaths->prepend(canonicalPath);
+    if (!coreappdata()->app_libpaths->contains(canonicalPath))
+        coreappdata()->app_libpaths->prepend(canonicalPath);
 }
 
 /*!
@@ -1703,16 +1702,13 @@ void QCoreApplication::addLibraryPath(const QString &path)
 */
 void QCoreApplication::removeLibraryPath(const QString &path)
 {
-    if (!QCoreApplicationPrivate::checkInstance("removeLibraryPath"))
-        return;
-
     if (path.isEmpty())
         return;
 
     // make sure that library paths is initialized
     libraryPaths();
 
-    self->d_func()->app_libpaths->removeAll(path);
+    coreappdata()->app_libpaths->removeAll(path);
 }
 
 #endif //QT_NO_LIBRARY

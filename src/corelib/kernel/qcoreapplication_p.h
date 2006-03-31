@@ -57,12 +57,10 @@ public:
 
     int &argc;
     char **argv;
-    QString orgName, orgDomain, application;
+    void appendApplicationPathToLibraryPaths(void);
+
 #ifndef QT_NO_TRANSLATION
     QTranslatorList translators;
-#endif
-#ifndef QT_NO_LIBRARY
-    QStringList *app_libpaths;
 #endif
     uint application_type;
 
@@ -74,5 +72,22 @@ public:
     static bool is_app_running;
     static bool is_app_closing;
 };
+
+struct QCoreApplicationData {
+    QCoreApplicationData() {
+        app_libpaths = 0;
+    }
+    ~QCoreApplicationData() {
+        delete app_libpaths;
+    }
+    QString orgName, orgDomain, application;
+
+#ifndef QT_NO_LIBRARY
+    QStringList *app_libpaths;
+#endif
+
+};
+
+Q_GLOBAL_STATIC(QCoreApplicationData, coreappdata)
 
 #endif // QCOREAPPLICATION_P_H
