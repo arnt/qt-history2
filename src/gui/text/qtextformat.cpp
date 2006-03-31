@@ -254,6 +254,9 @@ void QTextFormatPrivate::recalcFont() const
 
     if (props.contains(QTextFormat::FontUnderline))
         f.setUnderline(props.value(QTextFormat::FontUnderline).toBool());
+    
+    if (props.contains(QTextFormat::TextUnderlineStyle))
+        f.setUnderline(static_cast<QTextCharFormat::UnderlineStyle>(props.value(QTextFormat::TextUnderlineStyle).toInt()) == QTextCharFormat::SingleUnderline);
 
     if (props.contains(QTextFormat::FontOverline))
         f.setOverline(props.value(QTextFormat::FontOverline).toBool());
@@ -1097,7 +1100,19 @@ QTextCharFormat::QTextCharFormat() : QTextFormat(CharFormat) {}
 
     \sa font()
 */
+bool QTextCharFormat::fontUnderline() const
+{
+    if (hasProperty(TextUnderlineStyle))
+        return underlineStyle() == SingleUnderline;
+    return boolProperty(FontUnderline);
+}
 
+void QTextCharFormat::setUnderlineStyle(UnderlineStyle style)
+{
+    setProperty(TextUnderlineStyle, style);
+    // for compatibility
+    setProperty(FontUnderline, style == SingleUnderline);
+}
 
 /*!
     \fn void QTextCharFormat::setFontOverline(bool overline)
@@ -1353,7 +1368,7 @@ void QTextCharFormat::setFont(const QFont &font)
 
     setFontWeight(font.weight());
     setFontItalic(font.italic());
-    setFontUnderline(font.underline());
+    setUnderlineStyle(font.underline() ? SingleUnderline : NoUnderline);
     setFontOverline(font.overline());
     setFontStrikeOut(font.strikeOut());
     setFontFixedPitch(font.fixedPitch());

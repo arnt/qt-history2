@@ -4343,37 +4343,90 @@ void qt_painter_tread_test()
         qWarning("QPainter: It is not safe to use text and fonts outside the GUI thread");
 }
 
+static QPainterPath generateWavyPath(qreal minWidth, QPaintDevice *device)
+{
+    extern int qt_defaultDpi();
+    QPainterPath path;
+    
+    bool up = true;
+    const int radius = 2 * device->logicalDpiY() / qt_defaultDpi();
+    qreal xs, ys, xc, yc;
+    int i = 0;
+    do {
+        int endAngle     = up ? -180  : 180;
+
+        xs = i*(2*radius);
+        ys = 0;
+        xc = xs + radius;
+        yc = ys + radius;
+
+
+        //the way we draw arc's sucks!!! we need to move
+        // to the start of the new arc to not have the path
+        // be implicetly connected for us
+        path.moveTo(xc + radius * cos(0),
+                    yc - radius * sin(0));
+        path.arcTo(xs, ys, 2*radius, 2*radius, 0, endAngle);
+        up = !up;
+        ++i;
+    } while (xc < minWidth);
+    
+    return path;
+}
+
 static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const QTextItemInt &ti)
 {
     QFontEngine *fe = ti.fontEngine;
 
     const QPen oldPen = painter->pen();
     const QBrush oldBrush = painter->brush();
-    painter->setPen(Qt::NoPen);
+    painter->setBrush(Qt::NoBrush);
+    QPen pen = oldPen;
+    pen.setStyle(Qt::SolidLine);
+    pen.setWidthF(fe->lineThickness().toReal());
+    
+    QLineF line(pos.x(), pos.y(), pos.x() + ti.width.toReal(), pos.y());
 
-    if (ti.flags & QTextItem::Underline) {
+    if (ti.underlineStyle != QTextCharFormat::NoUnderline) {
+        QLineF underLine = line;
+        underLine.translate(0.0, fe->underlinePosition().toReal());
+     
         if (ti.underlineColor.isValid())
-            painter->setBrush(ti.underlineColor);
-        else
-            painter->setBrush(oldPen.brush());
+            pen.setColor(ti.underlineColor);
 
-        int lw = qRound(fe->lineThickness());
-        int yp = qRound(pos.y() + fe->underlinePosition().toReal());
-        painter->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
+        switch (ti.underlineStyle) {
+            case QTextCharFormat::DashUnderline:
+                pen.setStyle(Qt::DashLine);
+            case QTextCharFormat::SingleUnderline:
+                painter->setPen(pen);
+                painter->drawLine(underLine);
+                break;
+            case QTextCharFormat::SpellCheckUnderline:
+                painter->save();
+                painter->setRenderHint(QPainter::Antialiasing);
+                painter->translate(pos.x(), pos.y() + fe->underlinePosition().toReal());
+                painter->setPen(pen.color());
+                painter->setBrush(Qt::NoBrush);
+                painter->drawPath(generateWavyPath(ti.width.toReal(), painter->device()));
+                painter->restore();
+                break;
+            default: break;
+        }
     }
 
-    painter->setBrush(oldPen.brush());
+    pen.setStyle(Qt::SolidLine);
+    pen.setColor(oldPen.color());
 
     if (ti.flags & QTextItem::StrikeOut) {
-        int lw = qRound(fe->lineThickness());
-        int yp = qRound(pos.y() - fe->ascent().toReal()/3.);
-        painter->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
+        QLineF strikeOutLine = line;
+        strikeOutLine.translate(0., - fe->ascent().toReal() / 3.);
+        painter->drawLine(strikeOutLine);
     }
 
     if (ti.flags & QTextItem::Overline) {
-        int lw = qRound(fe->lineThickness());
-        int yp = qRound(pos.y() - fe->ascent().toReal());
-        painter->drawRect(qRound(pos.x()), yp, qRound(ti.width), lw);
+        QLineF overLine = line;
+        overLine.translate(0., - fe->ascent().toReal());
+        painter->drawLine(overLine);
     }
 
     painter->setPen(oldPen);

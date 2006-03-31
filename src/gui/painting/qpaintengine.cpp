@@ -44,7 +44,11 @@ qreal QTextItem::width() const
 QTextItem::RenderFlags QTextItem::renderFlags() const
 {
     const QTextItemInt *ti = static_cast<const QTextItemInt *>(this);
-    return ti->flags;
+    QTextItem::RenderFlags flags = ti->flags;
+    // for compatibility
+    if (ti->underlineStyle == QTextCharFormat::SingleUnderline)
+        flags |= QTextItem::Underline;
+    return flags;
 }
 
 QString QTextItem::text() const

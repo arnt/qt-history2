@@ -1421,13 +1421,13 @@ static void drawMenuText(QPainter *p, QFixed x, QFixed y, const QScriptItem &si,
             }
             ++start;
             gf.width = w;
-            gf.flags |= QTextItem::Underline;
+            gf.underlineStyle = QTextCharFormat::SingleUnderline;
             if (rtl)
                 x -= w;
             p->drawTextItem(QPointF(x.toReal(), y.toReal()), gf);
             if (!rtl)
                 x += w;
-            gf.flags &= ~QTextItem::Underline;
+            gf.underlineStyle = QTextCharFormat::NoUnderline;
             ++gf.chars;
             ++ul;
         }

@@ -183,8 +183,8 @@ class QTextItemInt : public QTextItem
 {
 public:
     inline QTextItemInt()
-        : num_chars(0), chars(0), logClusters(0),
-          f(0), glyphs(0), num_glyphs(0), fontEngine(0)
+        : underlineStyle(QTextCharFormat::NoUnderline), num_chars(0), chars(0),
+          logClusters(0), f(0), glyphs(0), num_glyphs(0), fontEngine(0)
     {}
     
     void initFontAttributes(const QScriptItem &si, QFont *font, const QTextCharFormat &format = QTextCharFormat());
@@ -194,6 +194,7 @@ public:
     QFixed width;
 
     RenderFlags flags;
+    QTextCharFormat::UnderlineStyle underlineStyle;
     int num_chars;
     const QChar *chars;
     const unsigned short *logClusters;

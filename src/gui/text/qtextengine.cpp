@@ -1858,11 +1858,23 @@ void QTextItemInt::initFontAttributes(const QScriptItem &si, QFont *font, const 
     f = font;
     fontEngine = f->d->engineForScript(si.analysis.script);
     Q_ASSERT(fontEngine);
-    if (f->d->underline || format.fontUnderline())
+    
+    underlineColor = format.underlineColor();
+    underlineStyle = QTextCharFormat::NoUnderline;
+
+    if (format.hasProperty(QTextFormat::TextUnderlineStyle)) {
+        underlineStyle = format.underlineStyle();
+    } else if (format.boolProperty(QTextFormat::FontUnderline)
+               || f->d->underline) {
+        underlineStyle = QTextCharFormat::SingleUnderline;
+    }
+    
+    // compat
+    if (underlineStyle == QTextCharFormat::SingleUnderline)
         flags |= QTextItem::Underline;
+    
     if (f->d->overline || format.fontOverline())
         flags |= QTextItem::Overline;
     if (f->d->strikeOut || format.fontStrikeOut())
         flags |= QTextItem::StrikeOut;
-    underlineColor = format.underlineColor();
 }

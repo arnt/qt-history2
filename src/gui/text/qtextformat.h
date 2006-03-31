@@ -135,7 +135,7 @@ public:
         FontSizeIncrement = FontSizeAdjustment, // old name, compat
         FontWeight = 0x2003,
         FontItalic = 0x2004,
-        FontUnderline = 0x2005,
+        FontUnderline = 0x2005, // deprecated, use TextUnderlineStyle instead
         FontOverline = 0x2006,
         FontStrikeOut = 0x2007,
         FontFixedPitch = 0x2008,
@@ -144,6 +144,7 @@ public:
         TextUnderlineColor = 0x2010,
         TextVerticalAlignment = 0x2021,
         TextOutline = 0x2022,
+        TextUnderlineStyle = 0x2023,
 
         IsAnchor = 0x2030,
         AnchorHref = 0x2031,
@@ -283,6 +284,7 @@ class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 {
 public:
     enum VerticalAlignment { AlignNormal = 0, AlignSuperScript, AlignSubScript };
+    enum UnderlineStyle { NoUnderline, SingleUnderline, DashUnderline, SpellCheckUnderline };
 
     QTextCharFormat();
 
@@ -310,9 +312,8 @@ public:
     { return boolProperty(FontItalic); }
 
     inline void setFontUnderline(bool underline)
-    { setProperty(FontUnderline, underline); }
-    inline bool fontUnderline() const
-    { return boolProperty(FontUnderline); }
+    { setProperty(TextUnderlineStyle, underline ? SingleUnderline : NoUnderline); }
+    bool fontUnderline() const;
 
     inline void setFontOverline(bool overline)
     { setProperty(FontOverline, overline); }
@@ -333,6 +334,10 @@ public:
     { setProperty(FontFixedPitch, fixedPitch); }
     inline bool fontFixedPitch() const
     { return boolProperty(FontFixedPitch); }
+    
+    void setUnderlineStyle(UnderlineStyle style);
+    inline UnderlineStyle underlineStyle() const
+    { return static_cast<UnderlineStyle>(intProperty(TextUnderlineStyle)); }
 
     inline void setVerticalAlignment(VerticalAlignment alignment)
     { setProperty(TextVerticalAlignment, alignment); }
