@@ -103,6 +103,8 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
     Q_Q(QTextEdit);
+    if (cursor.isNull())
+        return false;
 
     const int oldCursorPos = cursor.position();
     QTextCursor::MoveMode mode = e->modifiers() & Qt::ShiftModifier
@@ -2259,7 +2261,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
 
 #if !defined(QT_NO_IM)
         QTextLayout *layout = d->cursor.block().layout();
-        if (!layout->preeditAreaText().isEmpty()) {
+        if (layout && !layout->preeditAreaText().isEmpty()) {
             inputContext()->mouseHandler(cursorPos - d->cursor.position(), e);
             if (!layout->preeditAreaText().isEmpty())
                 return;
@@ -2344,7 +2346,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
 
 #if !defined(QT_NO_IM)
     QTextLayout *layout = d->cursor.block().layout();
-    if (!layout->preeditAreaText().isEmpty())
+    if (layout && !layout->preeditAreaText().isEmpty())
         return;
 #endif
 
@@ -2427,7 +2429,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
     }
 #if !defined(QT_NO_IM)
     QTextLayout *layout = d->cursor.block().layout();
-    if (!layout->preeditAreaText().isEmpty())
+    if (layout && !layout->preeditAreaText().isEmpty())
         return;
 #endif
 
@@ -2579,7 +2581,7 @@ void QTextEdit::dropEvent(QDropEvent *e)
 void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->readOnly) {
+    if (d->readOnly || d->cursor.isNull()) {
         e->ignore();
         return;
     }
