@@ -731,15 +731,15 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
         style |= CS_OWNDC;
 #endif
         icon  = true;
-    } else if (type == Qt::Tool) {
+    } else if (type == Qt::Tool || type == Qt::ToolTip){
 	cname = "QTool";
 	style = CS_DBLCLKS;
 #ifndef Q_OS_TEMP
 	style |= CS_SAVEBITS;
 #endif
 	icon = false;
-    } else if (type == Qt::Popup || type == Qt::ToolTip) {
-        cname = (type == Qt::ToolTip) ? "QToolTip" : "QPopup";
+    } else if (type == Qt::Popup) {
+        cname = "QPopup";
         style = CS_DBLCLKS;
 #ifndef Q_OS_TEMP
         style |= CS_SAVEBITS;

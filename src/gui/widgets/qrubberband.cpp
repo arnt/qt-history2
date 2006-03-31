@@ -29,14 +29,8 @@
 
 #include <private/qwidget_p.h>
 
-//We cannot use the ToolTip hint on windows since
-//it gives the rubberband a shadow. It is aparently required on X11/mac
 //### a rubberband window type would be a more elegant solution
-#ifdef Q_WS_WIN
-#define RUBBERBAND_WINDOW_TYPE Qt::FramelessWindowHint
-#else
 #define RUBBERBAND_WINDOW_TYPE Qt::ToolTip
-#endif
 
 class QRubberBandPrivate : public QWidgetPrivate
 {
