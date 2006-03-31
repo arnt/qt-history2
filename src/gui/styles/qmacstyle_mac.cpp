@@ -1819,8 +1819,7 @@ QPixmap QMacStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixm
 {
     switch (iconMode) {
     case QIcon::Disabled: {
-        QImage img = pixmap.toImage();
-        img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
         int imgh = img.height();
         int imgw = img.width();
         QRgb pixel;
@@ -2281,8 +2280,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 
 static inline QPixmap darkenPixmap(const QPixmap &pixmap)
 {
-    QImage img = pixmap.toImage();
-    img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
     int imgh = img.height();
     int imgw = img.width();
     int h, s, v, a;
