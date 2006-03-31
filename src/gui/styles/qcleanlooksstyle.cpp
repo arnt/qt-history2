@@ -798,12 +798,12 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
     case PE_IndicatorToolBarHandle:
         painter->save();
         if (option->state & State_Horizontal) {
-            for (int i = rect.height()/5; i < 4*(rect.height()/5) ; ++i) {
-                int y = rect.topLeft().y() + i;
+            for (int i = rect.height()/5; i <= 4*(rect.height()/5) ; ++i) {
+                int y = rect.topLeft().y() + i + 1;
                 int x1 = rect.topLeft().x() + 3;
                 int x2 = rect.topRight().x() - 2;
 
-                if (i % 2 != 0)
+                if (i % 2 == 0)
                     painter->setPen(QPen(option->palette.light(), 0));
                 else
                     painter->setPen(QPen(gripShadow, 0));
@@ -811,12 +811,12 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
             }
         }
         else { //vertical toolbar
-            for (int i = rect.width()/5; i < 4*(rect.width()/5) ; ++i) {
-                int x = rect.topLeft().x() + i;
+            for (int i = rect.width()/5; i <= 4*(rect.width()/5) ; ++i) {
+                int x = rect.topLeft().x() + i + 1;
                 int y1 = rect.topLeft().y() + 3;
-                int y2 = rect.topLeft().y() - 2;
+                int y2 = rect.topLeft().y() + 5;
 
-                if (i % 2 != 0)
+                if (i % 2 == 0)
                     painter->setPen(QPen(option->palette.light(), 0));
                 else
                     painter->setPen(QPen(gripShadow, 0));
@@ -3037,6 +3037,15 @@ int QCleanLooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
     case PM_ToolBarHandleExtent:
         ret = 9;
         break;
+    case PM_ToolBarItemSpacing:
+        ret = 2;
+        break;
+    case PM_ToolBarFrameWidth:
+        ret = 0;
+        break;
+    case PM_ToolBarItemMargin:
+        ret = 1;
+        break;
     default:
         break;
     }
@@ -3055,9 +3064,11 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     case CT_ComboBox:
     case CT_GroupBox:
     case CT_RadioButton:
-    case CT_ToolButton:
     case CT_HeaderSection:
         newSize += QSize(0, 4);
+        break;
+    case CT_ToolButton:
+        newSize += QSize(4, 6);
         break;
     case CT_LineEdit:
     case CT_SpinBox:
