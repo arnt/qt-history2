@@ -1827,6 +1827,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         QSpanData data;
         data.init(d->rasterBuffer);
         data.type = QSpanData::Texture;
+        data.texture.type = TextureData::Plain;
         data.texture.imageData = d->fontRasterBuffer->buffer();
         data.texture.width = d->fontRasterBuffer->bytesPerLine() / 4;
         data.texture.height = d->fontRasterBuffer->height();
