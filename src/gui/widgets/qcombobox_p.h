@@ -57,7 +57,6 @@ protected:
     {
         QStyleOptionViewItem option = QListView::viewOptions();
         option.showDecorationSelected = true;
-        option.textElideMode = Qt::ElideMiddle;
         return option;
     }
 };
