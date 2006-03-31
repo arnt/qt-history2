@@ -213,7 +213,7 @@ public:
     }
     inline QT3_SUPPORT void activateItemAt(int index) {
         if(QAction *ret = actions().value(index))
-            ret->activate(QAction::Trigger);
+            setActiveAction(ret);
     }
     inline QT3_SUPPORT bool connectItem(int id, const QObject *receiver, const char* member) {
         if(QAction *act = findActionForId(id)) {
