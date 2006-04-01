@@ -5,12 +5,11 @@ SOURCES		= main.cpp \
 		  ../../../sql/drivers/psql/qsql_psql.cpp
 
 unix: {
-    isEmpty(QT_LFLAGS_PSQL) {
-        !contains(LIBS, .*pq.*):LIBS *= -lpq
-    } else {
+    !isEmpty(QT_LFLAGS_PSQL) {
         LIBS *= $$QT_LFLAGS_PSQL
         QMAKE_CXXFLAGS *= $$QT_CFLAGS_PSQL
     }
+    !contains(LIBS, .*pq.*):LIBS *= -lpq
 }
 
 win32:!contains(LIBS, .*pq.* ) {
