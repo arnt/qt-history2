@@ -4387,31 +4387,28 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
     
     QLineF line(pos.x(), pos.y(), pos.x() + ti.width.toReal(), pos.y());
 
-    if (ti.underlineStyle != QTextCharFormat::NoUnderline) {
+    if (ti.underlineStyle == QTextCharFormat::WaveUnderline
+        || ti.underlineStyle == QTextCharFormat::SpellCheckUnderline) {
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->translate(pos.x(), pos.y() + fe->underlinePosition().toReal());
+
+        if (ti.underlineColor.isValid())
+            painter->setPen(ti.underlineColor);
+
+        painter->drawPath(generateWavyPath(ti.width.toReal(), painter->device()));
+        painter->restore();
+    } else if (ti.underlineStyle != QTextCharFormat::NoUnderline) {
         QLineF underLine = line;
         underLine.translate(0.0, fe->underlinePosition().toReal());
      
         if (ti.underlineColor.isValid())
             pen.setColor(ti.underlineColor);
 
-        switch (ti.underlineStyle) {
-            case QTextCharFormat::DashUnderline:
-                pen.setStyle(Qt::DashLine);
-            case QTextCharFormat::SingleUnderline:
-                painter->setPen(pen);
-                painter->drawLine(underLine);
-                break;
-            case QTextCharFormat::SpellCheckUnderline:
-                painter->save();
-                painter->setRenderHint(QPainter::Antialiasing);
-                painter->translate(pos.x(), pos.y() + fe->underlinePosition().toReal());
-                painter->setPen(pen.color());
-                painter->setBrush(Qt::NoBrush);
-                painter->drawPath(generateWavyPath(ti.width.toReal(), painter->device()));
-                painter->restore();
-                break;
-            default: break;
-        }
+        pen.setStyle(static_cast<Qt::PenStyle>(ti.underlineStyle));
+        painter->setPen(pen);
+        painter->drawLine(underLine);
     }
 
     pen.setStyle(Qt::SolidLine);

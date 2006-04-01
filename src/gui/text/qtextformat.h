@@ -284,7 +284,16 @@ class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 {
 public:
     enum VerticalAlignment { AlignNormal = 0, AlignSuperScript, AlignSubScript };
-    enum UnderlineStyle { NoUnderline, SingleUnderline, DashUnderline, SpellCheckUnderline };
+    enum UnderlineStyle { // keep in sync with Qt::PenStyle!
+        NoUnderline,
+        SingleUnderline,
+        DashUnderline,
+        DotLine,
+        DashDotLine,
+        DashDotDotLine,
+        WaveUnderline,
+        SpellCheckUnderline
+    };
 
     QTextCharFormat();
 
