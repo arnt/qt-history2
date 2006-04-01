@@ -4495,7 +4495,9 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 
     d->updateState(d->state);
 
-    if (ti.fontEngine->type() == QFontEngine::Multi) {
+    if (!ti.num_glyphs) {
+        drawTextItemDecoration(this, p, ti);
+    } else if (ti.fontEngine->type() == QFontEngine::Multi) {
         QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
 
         QGlyphLayout *glyphs = ti.glyphs;
