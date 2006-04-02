@@ -26,7 +26,7 @@ void showHelp(const char *appName)
     if (error)
         fprintf(stderr, "%s: %s\n", appName, error);
 
-    fprintf(stderr, "Usage: %s [OPTION]... <UIFILE>\n\n"
+    fprintf(stderr, "Usage: %s [options] <uifile>\n\n"
             "  -h, -help                 display this help and exit\n"
             "  -v, -version              display version\n"
             "  -d, -dependencies         display the dependencies\n"

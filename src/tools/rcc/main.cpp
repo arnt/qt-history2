@@ -77,14 +77,14 @@ int showHelp(const char *argv0, const QString &error)
         fprintf(stderr, "%s: %s\n", argv0, error.toLatin1().constData());
     fprintf(stderr, "Usage: %s  [options] <inputs>\n\n"
             "Options:\n"
-            "\t-o file           Write output to file rather than stdout\n"
-            "\t-name name        Create an external initialization function with name\n"
-            "\t-threshold level  Threshold to consider compressing files\n"
-            "\t-compress level   Compress input files by level\n"
-            "\t-root path        Prefix resource access path with root path\n"
-            "\t-no-compress      Disable all compression\n"
-            "\t-version          Display version\n"
-            "\t-help             Display this information\n",
+            "  -o file           write output to file rather than stdout\n"
+            "  -name name        create an external initialization function with name\n"
+            "  -threshold level  threshold to consider compressing files\n"
+            "  -compress level   compress input files by level\n"
+            "  -root path        prefix resource access path with root path\n"
+            "  -no-compress      disable all compression\n"
+            "  -version          display version\n"
+            "  -help             display this information\n",
             argv0);
     return 1;
 }
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
                 verbose = true;
             } else if(opt == "list") {
                 list = true;
-            } else if(opt == "version") {
+            } else if(opt == "version" || opt == "v") {
                 fprintf(stderr, "Qt Resource Compiler version %s\n", QT_VERSION_STR);
                 return 1;
             } else if(opt == "help" || opt == "h") {

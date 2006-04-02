@@ -72,16 +72,16 @@ void error(const char *msg = "Invalid argument")
     if (msg)
         fprintf(stderr, "moc: %s\n", msg);
     fprintf(stderr, "Usage: moc [options] <header-file>\n"
-            "    -o<file>           Write output to file rather than stdout\n"
-            "    -I<dir>            Add dir to the include path for header files\n"
-            "    -E                 Preprocess only; do not generate meta object code\n"
-            "    -D<macro>[=<def>]  Define macro, with optional definition\n"
-            "    -U<macro>          Undefine macro\n"
-            "    -i                 Do not generate an #include statement\n"
-            "    -p<path>           Path prefix for included file\n"
-            "    -f[<file>]         Force #include, optional file name\n"
-            "    -nw                Do not display warnings\n"
-            "    -v                 Display version of moc\n");
+            "  -o<file>           write output to file rather than stdout\n"
+            "  -I<dir>            add dir to the include path for header files\n"
+            "  -E                 preprocess only; do not generate meta object code\n"
+            "  -D<macro>[=<def>]  define macro, with optional definition\n"
+            "  -U<macro>          undefine macro\n"
+            "  -i                 do not generate an #include statement\n"
+            "  -p<path>           path prefix for included file\n"
+            "  -f[<file>]         force #include, optional file name\n"
+            "  -nw                do not display warnings\n"
+            "  -v                 display version of moc\n");
     exit(1);
 }
 
