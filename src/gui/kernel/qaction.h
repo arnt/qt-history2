@@ -144,6 +144,7 @@ public:
 
 protected:
     bool event(QEvent *);
+    QAction(QActionPrivate &dd, QObject *parent);
 
 public Q_SLOTS:
 #ifdef QT3_SUPPORT

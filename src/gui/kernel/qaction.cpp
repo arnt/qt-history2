@@ -246,6 +246,18 @@ QAction::QAction(const QIcon &icon, const QString &text, QObject* parent)
 }
 
 /*!
+    \internal
+*/
+QAction::QAction(QActionPrivate &dd, QObject *parent)
+    : QObject(dd, parent)
+{
+    Q_D(QAction);
+    d->group = qobject_cast<QActionGroup *>(parent);
+    if (d->group)
+        d->group->addAction(this);
+}
+
+/*!
     Returns the parent widget.
 */
 QWidget *QAction::parentWidget() const
