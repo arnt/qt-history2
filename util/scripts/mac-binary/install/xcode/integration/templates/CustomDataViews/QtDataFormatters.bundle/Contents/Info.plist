@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>QtDataFormatters</string>
 	<key>CFBundleGetInfoString</key>
-	<string>$VERSION_MAJOR$.$VERSION_MINOR$, Copyright 2004 Trolltech AS</string>
+	<string>$VERSION_MAJOR$.$VERSION_MINOR$, Copyright (C) 2004-$THISYEAR$ Trolltech AS</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.apple.Xcode.QtDataFormatters</string>
 	<key>CFBundleInfoDictionaryVersion</key>
