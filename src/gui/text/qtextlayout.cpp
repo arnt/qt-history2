@@ -1633,7 +1633,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
             QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
             if (valign != QTextCharFormat::AlignNormal) {
-                QFixed height = gf.fontEngine->ascent() + gf.fontEngine->descent();
+                QFontEngine *fe = f.d->engineForScript(si.analysis.script);
+                QFixed height = fe->ascent() + fe->descent();
                 if (valign == QTextCharFormat::AlignSubScript)
                     itemBaseLine += height / 6;
                 else if (valign == QTextCharFormat::AlignSuperScript)
