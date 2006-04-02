@@ -30,14 +30,14 @@ int main()
     QPicture myPicture;
     {
         // FORMATS
-        QStringList list = myPicture.inputFormatList();
+        QStringList list = QPicture::inputFormatList();
         foreach (QString string, list)
             myProcessing(string);
     }
 
     {
         // OUTPUT
-        QStringList list = myPicture.outputFormatList();
+        QStringList list = QPicture::outputFormatList();
         foreach (QString string, list)
             myProcessing(string);
     }
