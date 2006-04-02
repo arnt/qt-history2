@@ -252,7 +252,7 @@ int main(int argc, char **argv)
             }
             break;
         case 'v':  // version number
-            if (more)
+            if (more && opt != "version")
                 error();
             fprintf(stderr, "Qt Meta Object Compiler version %d (Qt %s)\n",
                     mocOutputRevision, QT_VERSION_STR);
@@ -265,7 +265,10 @@ int main(int argc, char **argv)
             moc.displayWarnings = false;
             break;
         case 'h': // help
-            error(0); // 0 means usage only
+            if (more && opt != "help")
+                error();
+            else
+                error(0); // 0 means usage only
             break;
         case '-':
             if (more && arg == "--ignore-option-clashes") {
