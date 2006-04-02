@@ -262,7 +262,7 @@
     \fn QFlags QFlags::operator~() const
 
     Returns a QFlags object that contains the bitwise negation of
-    this objec;t.
+    this object.
 
     \sa operator&(), operator|(), operator^()
 */
