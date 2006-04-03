@@ -489,7 +489,7 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
             memcpy(data + y*bpl, data + (h-y-1)*bpl, bpl);
             memcpy(data + (h-y-1)*bpl, buf, bpl);
         }
-        delete buf;
+        delete [] buf;
     }
 
     return true;
