@@ -624,6 +624,8 @@ void QHeaderView::moveSection(int from, int to)
 void QHeaderView::resizeSection(int logicalIndex, int size)
 {
     Q_D(QHeaderView);
+    if (logicalIndex < 0 || logicalIndex >= count())
+        return;
 
     if (isSectionHidden(logicalIndex))
         return;
