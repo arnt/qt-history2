@@ -1101,8 +1101,8 @@ void QVNCServer::discardClient()
     only be one screen object per application.
 
     The VNC protocol allows you to view and interact with the
-    computer's display from anywhere on the network. See the \l
-    {Running as a VNC Server} documentation for more details.
+    computer's display from anywhere on the network. See the \l {The
+    VNC protocol}{VNC protocol} documentation for more details.
 
     The default implementation of QVNCScreen inherits QLinuxFbScreen,
     but any QScreen subclass, or QScreen itself, can serve as its base

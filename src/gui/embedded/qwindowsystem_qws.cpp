@@ -905,13 +905,6 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 */
 
 /*!
-    \fn void QWSServer::setOverrideKeys(const KeyOverride *keyOveride)
-    \internal
-
-    Sets the override keys to \a keyOveride.
-*/
-
-/*!
     \fn const QList<QWSWindow*> &QWSServer::clientWindows()
 
     Returns the list of current top-level windows.
@@ -3911,12 +3904,6 @@ void QWSInputMethod::sendMouseEvent( const QPoint &pos, int state, int wheel )
 
     \brief the unicode value identfying the keyborad scancode
     associated with this KeyMap object
-*/
-
-/*!
-    \class QWSServer::KeyOverride
-    \internal
-    \ingroup qws
 */
 
 /*!
