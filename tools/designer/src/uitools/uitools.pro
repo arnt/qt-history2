@@ -19,7 +19,7 @@ isEmpty(QT_MAJOR_VERSION) {
 QMAKE_TARGET_COMPANY = Trolltech AS
 QMAKE_TARGET_PRODUCT = UiLoader
 QMAKE_TARGET_DESCRIPTION = QUiLoader
-QMAKE_TARGET_COPYRIGHT = Copyright (c) 2003-2005 Trolltech
+QMAKE_TARGET_COPYRIGHT = Copyright (C) 2003-2006 Trolltech AS
 
 include(../lib/uilib/uilib.pri)
 

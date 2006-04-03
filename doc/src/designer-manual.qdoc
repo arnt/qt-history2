@@ -2216,7 +2216,7 @@ without having to write code themselves.
     \ingroup licensing
 
     \legalese
-    Copyright (C) 2005 Trolltech AS. All rights reserved. \BR
+    Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved. \BR
     Copyright (C) 2005 Bjoern Bergstroem
 
     Permission is hereby granted, free of charge, to any person obtaining
@@ -2238,7 +2238,7 @@ without having to write code themselves.
     \contentspage {Qt Designer Manual}{Contents}
     \ingroup licensing
     \legalese
-    Copyright (C) 2005 Trolltech AS. All rights reserved. \BR
+    Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved. \BR
     Copyright (C) 2005 Roberto Raggi
 
     Permission is hereby granted, free of charge, to any person obtaining
