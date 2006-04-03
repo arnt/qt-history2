@@ -235,7 +235,6 @@ static const char *appBTNCol        = 0;                // application btn color
 static const char *mwGeometry        = 0;                // main widget geometry
 static const char *mwTitle        = 0;                // main widget title
 char    *qt_ximServer        = 0;                // XIM Server will connect to
-static bool        mwIconic        = false;        // main widget iconified
 #if 0
 static bool        noxim                = false;        // connect to xim or not
 #endif
@@ -1346,8 +1345,6 @@ void qt_init(QApplicationPrivate *priv, int,
         } else if (arg == "-noxim") {
             noxim=true;
 #endif
-        } else if (arg == "-iconic") {
-            mwIconic = !mwIconic;
         } else if (arg == "-ncols") {   // xv and netscape use this name
             if (++i < argc)
                 X11->color_count = qMax(0,atoi(argv[i]));
