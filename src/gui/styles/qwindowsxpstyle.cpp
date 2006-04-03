@@ -2337,9 +2337,9 @@ case CE_RubberBand:
             p->save();
             QRect r = option->rect;
             p->setPen(highlight.dark(120));
-            QColor dimHighlight(min(highlight.red()/2 + 110, 255), 
-                                min(highlight.green()/2 + 110, 255), 
-                                min(highlight.blue()/2 + 110, 255), 
+            QColor dimHighlight(qMin(highlight.red()/2 + 110, 255), 
+                                qMin(highlight.green()/2 + 110, 255), 
+                                qMin(highlight.blue()/2 + 110, 255), 
                                 (widget && widget->isTopLevel())? 255 : 127);
             p->setBrush(dimHighlight);
             p->drawRect(option->rect.adjusted(0, 0, -1, -1));
