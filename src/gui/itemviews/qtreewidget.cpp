@@ -2067,6 +2067,8 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 void QTreeWidget::setHeaderLabels(const QStringList &labels)
 {
     Q_D(QTreeWidget);
+    if (columnCount() < labels.count())
+        setColumnCount(labels.count());
     QTreeModel *model = d->model();
     QTreeWidgetItem *item = model->header;
     for (int i = 0; i < labels.count(); ++i)
