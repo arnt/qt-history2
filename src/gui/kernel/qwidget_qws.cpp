@@ -258,6 +258,16 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             }
         }
         d->setWinId(0);
+
+        if (d->ic) {
+            delete d->ic;
+        } else {
+            // release previous focus information participating with
+            // preedit preservation of qic
+            QInputContext *qic = inputContext();
+            if (qic)
+                qic->widgetDestroyed(this);
+        }
     }
 }
 
