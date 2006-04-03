@@ -1,5 +1,6 @@
 isEmpty(TARGET):error(You must set TARGET before include()'ing $${_FILE_})
 INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
+isEmpty(QT_ARCH):!isEmpty(ARCH):QT_ARCH=$$ARCH #another compat that will rot for change #215700
 TEMPLATE	= lib
 isEmpty(QT_MAJOR_VERSION) {
    VERSION=4.2.0
