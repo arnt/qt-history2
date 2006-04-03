@@ -9,12 +9,13 @@
     A Qtopia Core application requires a master application to be
     running, or to be the master application itself. The master
     application is responsible for managing top-level window regions,
-    pointer handling and character input.
+    pointer handling and character input. Any Qtopia Core application
+    can be the master application by constructing the QApplication
+    object with the QApplication::GuiServer type, or by running the
+    application with the \c{-qws} command line option.
 
-    Any Qtopia Core application can be the master application by
-    constructing the QApplication object with the
-    QApplication::GuiServer type, or by running the application with
-    the \c{-qws} command line option.
+    An application can be run using both single and multiple displays,
+    and various command line option are also available.
 
     Note that this document assumes that you either are using the \l
     {The Virtual Framebuffer}{Qtopia Core Virtual Framebuffer} or are
@@ -34,7 +35,7 @@
     option:
 
     \code
-        cd path/to/QtopiaCore/demos/textedit
+        cd path/to/Qtopia/Core/demos/textedit
         ./textedit -qws
     \endcode
 
@@ -81,7 +82,7 @@
     transformed display:
 
     \code
-        cd path/to/QtopiaCore/examples/tools/qtdemo
+        cd path/to/Qtopia/Core/examples/tools/qtdemo
         qtdemo -qws -display transformed:rot90:1
     \endcode
 
@@ -92,6 +93,98 @@
     \code
         export QWS_DISPLAY=<gfx driver><:driver specific options><:display number>
     \endcode
+
+    \section1 Command Line Options
+
+    \table 100%
+    \header
+    \o Option \o Description
+    \row
+    \o \bold -fn <font>
+    \o
+    Defines the application font. For example:
+    \code
+        ./myapplication -fn helvetica
+    \endcode
+    The font should be specified using an X logical font description.
+    \row
+    \o \bold -bg <color>
+    \o
+    Sets the default application background color. For example:
+    \code
+        ./myapplication -bg blue
+    \endcode
+    The color-name must be one of the names recognized by the QColor constructor.
+    \row
+    \o \bold -btn <color> \o
+    Sets the default button color. For example:
+    \code
+        ./myapplication -btn green
+    \endcode
+    The color-name must be one of the names recognized by the QColor constructor.
+    \row
+    \o \bold -fg <color> \o
+    Sets the default application foreground color. For example:
+    \code
+        ./myapplication -fg 'dark blue'
+    \endcode
+    The color-name must be one of the names recognized by the QColor constructor.
+    \row
+    \o \bold -name <objectname> \o
+    Sets the application name, i.e. the application object's object name. For example:
+    \code
+        ./myapplication -name texteditapplication
+    \endcode
+    See also qApp.
+    \row
+    \o \bold -title <title> \o
+    Sets the application's title. For example:
+    \code
+        ./myapplication -title 'Text Edit'
+    \endcode
+    \row
+    \o \bold -geometry <width>x<height>x<Xoffset>x<YOffset> \o
+    Sets the client geometry of the first window that is shown. For example:
+    \code
+        ./myapplication -geometry 300x200x50x50
+    \endcode
+    \row
+    \o \bold -keyboard \o
+    Enables the keyboard.
+
+    See also the \l {Pointer Handling} documentation.
+    \row
+    \o \bold -nokeyboard \o
+    Disables the keyboard.
+    \row
+    \o \bold -mouse \o
+    Enables the mouse cursor.
+
+    See also the \l {Pointer Handling} documentation.
+    \row
+    \o \bold -nomouse \o
+    Disables the mouse cursor.
+    \row
+    \o \bold -qws \o
+    Runs the application as a master application, i.e. constructs the
+    QApplication object with the QApplication::GuiServer type.
+    \row
+    \o \bold -display \o
+    Specifies the display driver.
+
+    See also the \l {Running Applications#Using Multiple
+    Displays}{Using Multiple Displays} documentation.
+    \row
+    \o \bold -decoration <style>\o
+    Sets the application decoration. For example:
+    \code
+        ./myapplication -decoration windows
+    \endcode
+    The supported styles are \c windows, \c default and \c styled.
+
+    See also QDecoration.
+    \endtable
+
 
     \omit
     To try this functionality you can do the following:

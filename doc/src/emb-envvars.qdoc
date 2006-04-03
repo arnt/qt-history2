@@ -24,15 +24,17 @@
     \row
     \o \bold QWS_SW_CURSOR \target QWS_SW_CURSOR
     \o If defined, always use a software mouse cursor even when using an
-    accelerated driver that supports a hardware cursor
+    accelerated driver that supports a hardware cursor.
 
     \row
     \o \bold QWS_DISPLAY \target QWS_DISPLAY
     \o
-    Specifies the display type and framebuffer:
+
+    Specifies the display type and framebuffer. For example, if the
+    current shell is bash, ksh, zsh or sh:
 
     \code
-        QWS_DISPLAY=<gfx driver><:driver specific options><:display number>
+        export QWS_DISPLAY=<gfx driver><:driver specific options><:display number>
     \endcode
 
     The default value is an unaccelerated Linux framebuffer driver: \c
@@ -45,34 +47,29 @@
     rot<x>, for instance \c transformed:rot90.
 
     See also \l {Running Applications}, \l {The Virtual Framebuffer}
-    and \l {Running as a VNC Server}.
+    and \l {The VNC Protocol}.
 
     \row
     \o \bold QWS_SIZE \target QWS_SIZE
     \o
 
     Specifies the size of Qtopia Core's window which is centered
-    within the screen:
+    within the screen. For example, if the current shell is bash, ksh,
+    zsh or sh:
 
     \code
-        QWS_SIZE=<width>x<height>
+        export QWS_SIZE=<width>x<height>
     \endcode
-
-    \row
-    \o \bold QWS_USB_KEYBOARD \target  QWS_USB_KEYBOARD
-    \o If defined, instead of opening \c{/dev/tty}, open the USB low-level
-    event device defined in \c QWS_USB_KEYBOARD (e.g. \c /dev/input/event0):
-    this is useful if you want to run X and Qtopia Core side by side on
-    different framebuffers.
 
     \row
     \o \bold QWS_MOUSE_PROTO \target QWS_MOUSE_PROTO
     \o
 
-    Specifies the driver and device for pointer handling:
+    Specifies the driver and device for pointer handling. For example, if the
+    current shell is bash, ksh, zsh or sh:
 
     \code
-        QWS_MOUSE_PROTO=<driver>:<device>
+        export QWS_MOUSE_PROTO=<driver>:<device>
     \endcode
 
     The available drivers are \c MouseMan, \c IntelliMouse, \c
@@ -92,10 +89,11 @@
     \o \bold QWS_KEYBOARD \target QWS_KEYBOARD
     \o
 
-    Specifies the driver and device for character input:
+    Specifies the driver and device for character input. For example, if the
+    current shell is bash, ksh, zsh or sh:
 
     \code
-        QWS_KEYBOARD=<driver>:<device>
+        export QWS_KEYBOARD=<driver>:<device>
     \endcode
 
     The available drivers are \c SL5000, \c Yopy, \c VR41xx, \c TTY or
@@ -105,7 +103,7 @@
     Multiple keyboard drivers can be specified in one go:
 
     \code
-        QWS_KEYBOARD=<driver> <driver> <driver>:<device>
+        export QWS_KEYBOARD=<driver> <driver> <driver>:<device>
     \endcode
 
     Input will be read from all of specified drivers.
