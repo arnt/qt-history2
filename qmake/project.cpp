@@ -2660,6 +2660,8 @@ QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList
             GetSystemInfo(&info);
             switch(info.wProcessorArchitecture) {
             case PROCESSOR_ARCHITECTURE_AMD64:
+                ret = "x86_64";
+                break;
             case PROCESSOR_ARCHITECTURE_INTEL:
                 ret = "x86";
                 break;
