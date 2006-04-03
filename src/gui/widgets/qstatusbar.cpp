@@ -452,12 +452,16 @@ QString QStatusBar::currentMessage() const
     Hides the normal status indications and displays \a message for \a
     timeout milli-seconds or until clearMessage() or another showMessage() is called,
     whichever occurs first.
+
+    Use the showMessage() function instead.
 */
 
 /*!
     \fn void QStatusBar::clear()
 
     Removes any temporary message being shown.
+
+    Use the clearMessage() function instead.
 */
 
 /*!
