@@ -4364,8 +4364,8 @@ static QPainterPath generateWavyPath(qreal minWidth, QPaintDevice *device)
         //the way we draw arc's sucks!!! we need to move
         // to the start of the new arc to not have the path
         // be implicetly connected for us
-        path.moveTo(xc + radius * cos(0),
-                    yc - radius * sin(0));
+        path.moveTo(xc + radius * cos((qreal)0),
+                    yc - radius * sin((qreal)0));
         path.arcTo(xs, ys, 2*radius, 2*radius, 0, endAngle);
         up = !up;
         ++i;
