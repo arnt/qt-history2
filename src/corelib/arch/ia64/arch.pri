@@ -1,4 +1,4 @@
 # 
 # Intel Itanium architecture
 #
-!*-g++:!*-icc:SOURCES += $$ARCH_CPP/qatomic.s
+!*-g++:!*-icc:SOURCES += $$QT_ARCH_CPP/qatomic.s

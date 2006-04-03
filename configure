@@ -4429,6 +4429,7 @@ fi
 cat >>$QTCONFIG.tmp <<EOF
 #configuration
 CONFIG += $QTCONFIG_CONFIG
+QT_ARCH = $ARCH
 QT_EDITION = $Edition
 QT_CONFIG += $QT_CONFIG
 
@@ -4456,7 +4457,6 @@ fi
 CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE.tmp ] && rm -f $CACHEFILE.tmp
 cat >>$CACHEFILE.tmp <<EOF
-ARCH = $ARCH
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath fix_output_dirs QTDIR_build
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath

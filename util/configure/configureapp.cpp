@@ -366,7 +366,7 @@ void Configure::parseCmdLine()
 	    dictionary[ "STYLE_CLEANLOOKS" ] = "yes";
 	else if( configCmdLine.at(i) == "-no-style-cleanlooks" )
 	    dictionary[ "STYLE_CLEANLOOKS" ] = "no";
-        
+
 	else if( configCmdLine.at(i) == "-qt-style-motif" )
 	    dictionary[ "STYLE_MOTIF" ] = "yes";
 	else if( configCmdLine.at(i) == "-no-style-motif" )
@@ -1438,7 +1438,6 @@ void Configure::generateCachefile()
 			<< dictionary[ "QT_SOURCE_TREE" ] << "/mkspecs/" << dictionary[ "QMAKESPEC" ] << endl;
 	else
 	    cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
-        cacheStream << "ARCH=" << dictionary[ "ARCHITECTURE" ] << endl;
 	cacheStream << "QT_BUILD_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 	cacheStream << "QT_SOURCE_TREE=" << dictionary[ "QT_SOURCE_TREE" ] << endl;
 
@@ -1473,8 +1472,9 @@ void Configure::generateCachefile()
 	if ( dictionary[ "RTTI" ] == "yes" )
 	    configStream << " rtti";
 	configStream << endl;
+        cacheStream << "QT_ARCH = " << dictionary[ "ARCHITECTURE" ] << endl;
         configStream << "QT_CONFIG += " << qtConfig.join(" ") << endl;
-        configStream << "QT_EDITION = " << dictionary["EDITION"];
+        configStream << "QT_EDITION = " << dictionary["EDITION"] << endl;
         configStream.flush();
 	configFile.close();
     }

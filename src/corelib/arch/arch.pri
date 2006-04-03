@@ -14,6 +14,6 @@ HEADERS += arch/qatomic_alpha.h \
            arch/qatomic_s390.h \
            arch/qatomic_x86_64.h
 
-ARCH_CPP = $$QT_SOURCE_TREE/src/corelib/arch/$$ARCH
-DEPENDPATH += $$ARCH_CPP
-include($$ARCH_CPP/arch.pri)
+QT_ARCH_CPP = $$QT_SOURCE_TREE/src/corelib/arch/$$QT_ARCH
+DEPENDPATH += $$QT_ARCH_CPP
+include($$QT_ARCH_CPP/arch.pri)

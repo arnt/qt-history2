@@ -1,4 +1,4 @@
 #
 # AMD64 architecture
 #
-solaris-cc*:SOURCES += $$ARCH_CPP/qatomic_sun.s
+solaris-cc*:SOURCES += $$QT_ARCH_CPP/qatomic_sun.s
