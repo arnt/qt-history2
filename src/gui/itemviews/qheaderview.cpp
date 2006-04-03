@@ -452,6 +452,9 @@ int QHeaderView::logicalIndexAt(int position) const
 int QHeaderView::sectionSize(int logicalIndex) const
 {
     Q_D(const QHeaderView);
+    if (logicalIndex < 0 || logicalIndex >= count())
+        return 0;
+
     if (isSectionHidden(logicalIndex))
         return 0;
     int visual = visualIndex(logicalIndex);
