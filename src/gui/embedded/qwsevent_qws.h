@@ -244,7 +244,7 @@ struct QWSQCopMessageEvent : QWSEvent {
         p += simpleData.lchannel;
         message = QByteArray(p, simpleData.lmessage);
         p += simpleData.lmessage;
-        data = QByteArray::fromRawData(p, simpleData.ldata);
+        data = QByteArray(p, simpleData.ldata);
     }
 
     struct SimpleData {
