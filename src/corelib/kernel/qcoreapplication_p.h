@@ -73,21 +73,4 @@ public:
     static bool is_app_closing;
 };
 
-struct QCoreApplicationData {
-    QCoreApplicationData() {
-        app_libpaths = 0;
-    }
-    ~QCoreApplicationData() {
-        delete app_libpaths;
-    }
-    QString orgName, orgDomain, application;
-
-#ifndef QT_NO_LIBRARY
-    QStringList *app_libpaths;
-#endif
-
-};
-
-Q_GLOBAL_STATIC(QCoreApplicationData, coreappdata)
-
 #endif // QCOREAPPLICATION_P_H

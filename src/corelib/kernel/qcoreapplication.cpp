@@ -32,6 +32,7 @@
 #include <qlibraryinfo.h>
 
 #ifdef Q_OS_UNIX
+
 #  if defined(QT_NO_GLIB)
 #    include "qeventdispatcher_unix_p.h"
 #  else
@@ -162,6 +163,23 @@ Q_GLOBAL_STATIC(QCoreApplicationThread, mainThread)
 #else
 static QThread* mainThread() { return QThread::currentThread(); }
 #endif
+
+struct QCoreApplicationData {
+    QCoreApplicationData() {
+        app_libpaths = 0;
+    }
+    ~QCoreApplicationData() {
+        delete app_libpaths;
+    }
+    QString orgName, orgDomain, application;
+
+#ifndef QT_NO_LIBRARY
+    QStringList *app_libpaths;
+#endif
+
+};
+
+Q_GLOBAL_STATIC(QCoreApplicationData, coreappdata)
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv), application_type(0), eventFilter(0),
@@ -1637,7 +1655,7 @@ QStringList QCoreApplication::libraryPaths()
             app_libpaths->append(installPathPlugins);
         }
 
-        // If QCoreApplication is not yet instantiated, 
+        // If QCoreApplication is not yet instantiated,
         // make sure we add the application path when we construct the QCoreApplication
         if (self) self->d_func()->appendApplicationPathToLibraryPaths();
 
