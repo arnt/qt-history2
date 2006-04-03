@@ -28,6 +28,8 @@
 #ifdef Q_OS_UNIX
 # include <unistd.h>
 # include <sys/utsname.h>
+# elif defined(Q_OS_WIN32)
+# include <Windows.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>
@@ -2623,7 +2625,54 @@ QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList
         }
     } else if(var.startsWith(QLatin1String("QMAKE_HOST."))) {
         QString ret, type = var.mid(11);
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_WIN32)
+        if(type == "os") {
+            ret = "Windows";
+        } else if(type == "name") {
+            DWORD name_length = 1024;
+            TCHAR name[1024];
+            if(GetComputerName(name, &name_length))
+                ret = QString::fromUtf16((ushort*)name, name_length);
+        } else if(type == "version" || type == "version_string") {
+            QSysInfo::WinVersion ver = QSysInfo::WindowsVersion;
+            if(type == "version")
+                ret = QString::number(ver);
+            else if(ver == QSysInfo::WV_Me)
+                ret = "WinMe";
+            else if(ver == QSysInfo::WV_95)
+                ret = "Win95";
+            else if(ver == QSysInfo::WV_98)
+                ret = "Win98";
+            else if(ver == QSysInfo::WV_NT)
+                ret = "WinNT";
+            else if(ver == QSysInfo::WV_2000)
+                ret = "Win2000";
+            else if(ver == QSysInfo::WV_2000)
+                ret = "Win2003";
+            else if(ver == QSysInfo::WV_XP)
+                ret = "WinXP";
+            else if(ver == QSysInfo::WV_VISTA)
+                ret = "WinVista";
+            else
+                ret = "Unknown";
+        } else if(type == "arch") {
+            SYSTEM_INFO info;
+            GetSystemInfo(&info);
+            switch(info.wProcessorArchitecture) {
+            case PROCESSOR_ARCHITECTURE_AMD64:
+            case PROCESSOR_ARCHITECTURE_INTEL:
+                ret = "x86";
+                break;
+            case PROCESSOR_ARCHITECTURE_IA64:
+            case PROCESSOR_ARCHITECTURE_IA32_ON_WIN64:
+                ret = "IA64";
+                break;
+            default:
+                ret = "Unknown";
+                break;
+            }
+        }
+#elif defined(Q_OS_UNIX)
         utsname name;
         if(!uname(&name)) {
             if(type == "os")
