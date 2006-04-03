@@ -533,9 +533,10 @@ void QPushButtonPrivate::_q_popupPressed()
     //menu visibility to avoid flicker on button release
     menuOpen = true;
     menu->exec(QPoint(x, y));
-    menuOpen = false;
-    if (guard)
+    if (guard) {
+        menuOpen = false;
         q->setDown(false);
+    }
 }
 #endif // QT_NO_MENU
 
