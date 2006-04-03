@@ -3648,6 +3648,13 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 QMouseEvent e(type, mapFromGlobal(globalPos), globalPos, button,
                               buttons, modifiers);
                 QApplication::sendSpontaneousEvent(this, &e);
+
+                if (type == QEvent::MouseButtonPress
+                    && button == Qt::RightButton
+                    && (openPopupCount == oldOpenPopupCount)) {
+                    QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos);
+                    QApplication::sendSpontaneousEvent(this, &e);
+                }
             }
             replayPopupMouseEvent = false;
         } else if (type == QEvent::MouseButtonPress
