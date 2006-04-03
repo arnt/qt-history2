@@ -1703,8 +1703,10 @@ void QTreeWidgetPrivate::_q_sort()
   \code
     QTreeWidget *treeWidget = new QTreeWidget();
     treeWidget->setColumnCount(1);
+    QList<QTreeWidgetItem *> items;
     for (int i = 0; i < 10; ++i)
-        new QTreeWidgetItem(treeWidget, QStringList(QString("item: %1").arg(i)));
+        items.append(new QTreeWidgetItem(0, QStringList(QString("item: %1").arg(i))));
+    treeWidget->insertTopLevelItems(0, items);
   \endcode
 
   Before items can be added to the tree widget, the number of columns must
