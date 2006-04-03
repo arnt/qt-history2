@@ -117,6 +117,7 @@ public:
     }
     inline QFixed operator/(int d) const { QFixed f; f.val = val/d; return f; }
     inline QFixed operator/(QFixed b) const { QFixed f = *this; return (f /= b); }
+    inline QFixed operator>>(int d) const { QFixed f = *this; f.val >>= d; return f; }
     inline QFixed &operator*=(int i) { val *= i; return *this; }
     inline QFixed &operator*=(uint i) { val *= i; return *this; }
     inline QFixed &operator*=(const QFixed &o) {
