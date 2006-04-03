@@ -2016,7 +2016,6 @@ QString QApplicationPrivate::appName() const // get application name
   Platform specific QApplication members
  *****************************************************************************/
 
-#ifdef QT3_SUPPORT
 #define NoValue         0x0000
 #define XValue          0x0001
 #define YValue          0x0002
@@ -2178,45 +2177,59 @@ static int parseGeometry(const char* string,
         return mask;
 }
 
-
+#ifdef QT3_SUPPORT
 void QApplication::setMainWidget(QWidget *mainWidget)
 {
     QApplicationPrivate::main_widget = mainWidget;
-    if (QApplicationPrivate::main_widget) {                        // give WM command line
-        if (windowIcon().isNull() && QApplicationPrivate::main_widget->testAttribute(Qt::WA_SetWindowIcon))
-            setWindowIcon(QApplicationPrivate::main_widget->windowIcon());
-        if (mwTitle) {
-            // XXX
-        }
-        if (mwGeometry) {                        // parse geometry
-            int x, y;
-            int w, h;
-            int m = parseGeometry(mwGeometry, &x, &y, &w, &h);
-            QSize minSize = QApplicationPrivate::main_widget->minimumSize();
-            QSize maxSize = QApplicationPrivate::main_widget->maximumSize();
-            if ((m & XValue) == 0)
-                x = QApplicationPrivate::main_widget->geometry().x();
-            if ((m & YValue) == 0)
-                y = QApplicationPrivate::main_widget->geometry().y();
-            if ((m & WidthValue) == 0)
-                w = QApplicationPrivate::main_widget->width();
-            if ((m & HeightValue) == 0)
-                h = QApplicationPrivate::main_widget->height();
-            w = qMin(w,maxSize.width());
-            h = qMin(h,maxSize.height());
-            w = qMax(w,minSize.width());
-            h = qMax(h,minSize.height());
-            if ((m & XNegative)) {
-                x = desktop()->width()  + x - w;
-            }
-            if ((m & YNegative)) {
-                y = desktop()->height() + y - h;
-            }
-            QApplicationPrivate::main_widget->setGeometry(x, y, w, h);
-        }
-    }
+    if (QApplicationPrivate::main_widget) // give WM command line
+        QApplicationPrivate::applyQWSSpecificCommandLineArguments(QApplicationPrivate::main_widget);
 }
 #endif
+
+void QApplicationPrivate::applyQWSSpecificCommandLineArguments(QWidget *main_widget)
+{
+    static bool beenHereDoneThat = false;
+    if (beenHereDoneThat)
+        return;
+    beenHereDoneThat = true;
+    if (qApp->windowIcon().isNull() && main_widget->testAttribute(Qt::WA_SetWindowIcon))
+        qApp->setWindowIcon(main_widget->windowIcon());
+    if (mwTitle) //  && main_widget->windowTitle().isEmpty())
+        main_widget->setWindowTitle(mwTitle);
+    if (mwGeometry) { // parse geometry
+        int x = 0;
+        int y = 0;
+        int w, h;
+        int m = parseGeometry(mwGeometry, &x, &y, &w, &h);
+        QSize minSize = main_widget->minimumSize();
+        QSize maxSize = main_widget->maximumSize();
+        if ((m & XValue) == 0)
+            x = main_widget->geometry().x();
+        if ((m & YValue) == 0)
+            y = main_widget->geometry().y();
+        if ((m & WidthValue) == 0)
+            w = main_widget->width();
+        if ((m & HeightValue) == 0)
+            h = main_widget->height();
+        w = qMin(w,maxSize.width());
+        h = qMin(h,maxSize.height());
+        w = qMax(w,minSize.width());
+        h = qMax(h,minSize.height());
+        if ((m & XNegative)) {
+            x = qApp->desktop()->width()  + x - w;
+            x -= (main_widget->frameGeometry().width() - main_widget->width()) / 2;
+        } else {
+            x += (main_widget->geometry().x() - main_widget->x());
+        }
+        if ((m & YNegative)) {
+            y = qApp->desktop()->height() + y - h;
+        } else {
+            y += (main_widget->geometry().y() - main_widget->y());
+        }
+
+        main_widget->setGeometry(x, y, w, h);
+    }
+}
 
 /*****************************************************************************
   QApplication cursor stack

@@ -249,6 +249,8 @@ public:
 
 #if defined(Q_WS_X11)
     static void applyX11SpecificCommandLineArguments(QWidget *main_widget);
+#elif defined(Q_WS_QWS)
+    static void applyQWSSpecificCommandLineArguments(QWidget *main_widget);
 #endif
 
 #ifdef Q_WS_MAC

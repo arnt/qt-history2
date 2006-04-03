@@ -4472,9 +4472,12 @@ void QWidget::setVisible(bool visible)
         if (testAttribute(Qt::WA_WState_ExplicitShowHide) && !testAttribute(Qt::WA_WState_Hidden))
             return;
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11)
         if (windowType() == Qt::Window)
             QApplicationPrivate::applyX11SpecificCommandLineArguments(this);
+#elif defined(Q_WS_QWS)
+        if (windowType() == Qt::Window)
+            QApplicationPrivate::applyQWSSpecificCommandLineArguments(this);
 #endif
 
         bool wasResized = testAttribute(Qt::WA_Resized);
