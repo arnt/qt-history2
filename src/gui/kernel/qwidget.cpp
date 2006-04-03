@@ -6376,8 +6376,8 @@ void QWidget::overrideWindowFlags(Qt::WindowFlags flags)
 */
 
 /*!
-    Sets the parent of the widget to \a parent. The widget is moved
-    to position (0, 0) in its new parent.
+    Sets the parent of the widget to \a parent, and resets the window
+    flags. The widget is moved to position (0, 0) in its new parent.
 
     If the new parent widget is in a different window, the
     reparented widget and its children are appended to the end of the

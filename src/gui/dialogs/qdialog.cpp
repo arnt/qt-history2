@@ -53,6 +53,13 @@
     parent's top-level widget (if it is not top-level itself). It will
     also share the parent's taskbar entry.
 
+    Use the overload of the QWidget::setParent() function to change
+    the ownership of a QDialog widget. This function allows you to
+    explicitly set the window flags of the reparented widget; using
+    the overloaded function will clear the window flags specifying the
+    window-system properties for the widget (in particular it will
+    reset the Qt::Dialog flag).
+
     \section1 Modal Dialogs
 
     A \bold{modal} dialog is a dialog that blocks input to other
