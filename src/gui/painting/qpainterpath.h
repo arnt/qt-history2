@@ -71,6 +71,9 @@ public:
     void lineTo(const QPointF &p);
     inline void lineTo(qreal x, qreal y);
 
+    void arcMoveTo(const QRectF &rect, qreal angle);
+    inline void arcMoveTo(qreal x, qreal y, qreal w, qreal h, qreal angle);
+
     void arcTo(const QRectF &rect, qreal startAngle, qreal arcLength);
     inline void arcTo(qreal x, qreal y, qreal w, qreal h, qreal startAngle, qreal arcLength);
 
@@ -207,6 +210,11 @@ inline void QPainterPath::lineTo(qreal x, qreal y)
 inline void QPainterPath::arcTo(qreal x, qreal y, qreal w, qreal h, qreal startAngle, qreal arcLenght)
 {
     arcTo(QRectF(x, y, w, h), startAngle, arcLenght);
+}
+
+inline void QPainterPath::arcMoveTo(qreal x, qreal y, qreal w, qreal h, qreal angle)
+{
+    arcMoveTo(QRectF(x, y, w, h), angle);
 }
 
 inline void QPainterPath::cubicTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x, qreal ctrlPt2y,

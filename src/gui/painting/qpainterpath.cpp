@@ -799,7 +799,7 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
     \endcode
     \endtable
 
-    \sa addEllipse(), QPainter::drawArc(), QPainter::drawPie(),
+    \sa arcMoveTo(), addEllipse(), QPainter::drawArc(), QPainter::drawPie(),
     {QPainterPath#Composing a QPainterPath}{Composing a
     QPainterPath}
 */
@@ -832,6 +832,38 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
     }
 
 }
+
+
+/*!
+    \fn void QPainterPath::arcMoveTo(qreal x, qreal y qreal width, qreal height, qreal angle)
+
+    \overload
+
+    Creates a move to that lies on the arc that occupies the \a
+    QRectF(\a x, \a y, \a width, \a height) at \a angle.
+*/
+
+
+/*!
+    \fn void QPainterPath::arcMoveTo(const QRectF &rectangle, qreal angle)
+
+    Creates a move to that lies on the arc that occupies the given \a
+    rectangle at \a angle.
+
+    Angles are specified in degrees. Clockwise arcs can be specified
+    using negative angles.
+*/
+
+void QPainterPath::arcMoveTo(const QRectF &rect, qreal angle)
+{
+    if (rect.isNull())
+        return;
+
+    QPointF pt;
+    qt_find_ellipse_coords(rect, angle, 0, &pt, 0);
+    moveTo(pt);
+}
+
 
 
 /*!
