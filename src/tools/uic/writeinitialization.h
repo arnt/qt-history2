@@ -105,8 +105,8 @@ private:
 //
 // Sql
 //
-    void initializeSqlDataTable(DomWidget *w);
-    void initializeSqlDataBrowser(DomWidget *w);
+    void initializeQ3SqlDataTable(DomWidget *w);
+    void initializeQ3SqlDataBrowser(DomWidget *w);
 
     QString findDeclaration(const QString &name);
     DomWidget *findWidget(const QString &widgetClass);

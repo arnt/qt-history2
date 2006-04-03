@@ -168,9 +168,9 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3Table"))) {
         initializeQ3Table(node);
     } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3DataTable"))) {
-        initializeSqlDataTable(node);
+        initializeQ3SqlDataTable(node);
     } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3DataBrowser"))) {
-        initializeSqlDataBrowser(node);
+        initializeQ3SqlDataBrowser(node);
     }
 
     if (uic->isButton(className)) {
@@ -1438,7 +1438,7 @@ QString WriteInitialization::trCall(const QString &str, const QString &commentHi
     return result;
 }
 
-void WriteInitialization::initializeSqlDataTable(DomWidget *w)
+void WriteInitialization::initializeQ3SqlDataTable(DomWidget *w)
 {
     QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
 
@@ -1470,15 +1470,15 @@ void WriteInitialization::initializeSqlDataTable(DomWidget *w)
     output << option.indent << option.indent << varName << "->setSqlCursor(";
 
     if (connection == QLatin1String("(default)")) {
-        output << "new QSqlCursor(" << fixString(table, option.indent) << "), false, true);\n";
+        output << "new Q3SqlCursor(" << fixString(table, option.indent) << "), false, true);\n";
     } else {
-        output << "new QSqlCursor(" << fixString(table, option.indent) << ", true, " << connection << "Connection" << "), false, true);\n";
+        output << "new Q3SqlCursor(" << fixString(table, option.indent) << ", true, " << connection << "Connection" << "), false, true);\n";
     }
-    output << option.indent << option.indent << varName << "->refresh(QDataTable::RefreshAll);\n";
+    output << option.indent << option.indent << varName << "->refresh(Q3DataTable::RefreshAll);\n";
     output << option.indent << "}\n";
 }
 
-void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
+void WriteInitialization::initializeQ3SqlDataBrowser(DomWidget *w)
 {
     QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
 
@@ -1510,9 +1510,9 @@ void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
     output << option.indent << option.indent << varName << "->setSqlCursor(";
 
     if (connection == QLatin1String("(default)")) {
-        output << "new QSqlCursor(" << fixString(table, option.indent) << "), true);\n";
+        output << "new Q3SqlCursor(" << fixString(table, option.indent) << "), true);\n";
     } else {
-        output << "new QSqlCursor(" << fixString(table, option.indent) << ", true, " << connection << "Connection" << "), false, true);\n";
+        output << "new Q3SqlCursor(" << fixString(table, option.indent) << ", true, " << connection << "Connection" << "), false, true);\n";
     }
     output << option.indent << option.indent << varName << "->refresh();\n";
     output << option.indent << "}\n";
