@@ -309,9 +309,9 @@ QStringList QtPrivate::QStringList_filter(const QStringList *that, const QString
 /*!
     \fn QBool QStringList::contains(const QString &str, Qt::CaseSensitivity cs) const
 
-    Returns true if the list contains the string \a str.
-    Does a case insensitive search if \a cs is Qt::CaseSensitive,
-    otherwise the search will be case insensitive.
+    Returns true if the list contains the string \a str; otherwise returns false.
+    Does a case insensitive search if \a cs is Qt::CaseInsensitive; by default,
+    the search is case sensitive.
  */
 QBool QtPrivate::QStringList_contains(const QStringList *that, const QString &str,
                                       Qt::CaseSensitivity cs)
