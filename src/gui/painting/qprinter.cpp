@@ -121,34 +121,6 @@ void QPrinterPrivate::createDefaultEngines()
   If your current locale converts "," to ".", you will need to set
   a locale that doesn't do this (e.g. the "C" locale) before using
   QPrinter.
-
-  The TrueType font embedding for Qt's postscript driver uses code
-  by David Chappell of Trinity College Computing Center.
-
-  \legalese
-  Copyright 1995, Trinity College Computing Center. \BR
-  Written by David Chappell.
-
-  Permission to use, copy, modify, and distribute this software and
-  its documentation for any purpose and without fee is hereby
-  granted, provided that the above copyright notice appear in all
-  copies and that both that copyright notice and this permission
-  notice appear in supporting documentation. This software is
-  provided "as is" without express or implied warranty.
-
-  TrueType font support. These functions allow PPR to generate
-  PostScript fonts from Microsoft compatible TrueType font files.
-
-  The functions in this file do most of the work to convert a
-  TrueType font to a type 3 PostScript font.
-
-  Most of the material in this file is derived from a program called
-  "ttf2ps" which L. S. Ng posted to the usenet news group
-  "comp.sources.postscript". The author did not provide a copyright
-  notice or indicate any restrictions on use.
-
-  Last revised 11 July 1995.
-  \endlegalese
 */
 
 /*!
