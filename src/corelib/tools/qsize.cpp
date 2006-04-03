@@ -22,25 +22,24 @@
     \brief The QSize class defines the size of a two-dimensional
     object using integer point precision.
 
-    A size is specified by a width() and a height().
+    A size is specified by a width() and a height().  It can be set in
+    the constructor and changed using the setWidth(), setHeight(), or
+    scale() functions, or using arithmetic operators. A size can also
+    be manipulated directly by retrieving references to the width and
+    height using the rwidth() and rheight() functions. Finally, the
+    width and height can be swapped using the transpose() function.
 
-    The size can be set in the constructor and changed with the
-    setWidth(), setHeight(), or scale() functions, or using arithmetic
-    operators. The size can also be manipulated directly by retrieving
-    references to the width and height using the rwidth() and
-    rheight() functions. Finally, the width and height can be swapped
-    using the transpose() function.
-
-    The isValid() function determines if a size is valid. A valid size
-    has both width and height greater than zero. The isEmpty()
+    The isValid() function determines if a size is valid (a valid size
+    has both width and height greater than zero). The isEmpty()
     function returns true if either of the width and height is less
-    than, or equal to, zero; if both the width and the height is zero,
-    the isNull() function returns true.
+    than, or equal to, zero, while the isNull() function returns true
+    only if both the width and the height is zero.
 
     Use the expandedTo() function to retrieve a size which holds the
-    maximum height and width of \e this size and a given size. On the
-    other hand, the boundedTo() function returns a size which holds
-    the minimum height and width of \e this size and a given size.
+    maximum height and width of \e this size and a given
+    size. Similarily, the boundedTo() function returns a size which
+    holds the minimum height and width of \e this size and a given
+    size.
 
     QSize objects can be streamed as well as compared.
 
@@ -80,8 +79,8 @@
 /*!
     \fn bool QSize::isEmpty() const
 
-    Returns true if either of the width and height is less than, or
-    equal to, 0; otherwise returns false.
+    Returns true if either of the width and height is less than or
+    equal to 0; otherwise returns false.
 
     \sa isNull(), isValid()
 */
@@ -357,7 +356,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
     \fn QSize QSize::expandedTo(const QSize & otherSize) const
 
     Returns a size holding the maximum width and height of this size
-    and \a otherSize.
+    and the given \a otherSize.
 
     \sa boundedTo(), scale()
 */
@@ -366,7 +365,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
     \fn QSize QSize::boundedTo(const QSize & otherSize) const
 
     Returns a size holding the minimum width and height of this size
-    and \a otherSize.
+    and the given \a otherSize.
 
     \sa expandedTo(), scale()
 */
@@ -438,29 +437,27 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
     \ingroup multimedia
 
-    A size is specified by a width() and a height().
-
-    The size can be set in the constructor and changed with the
-    setWidth(), setHeight(), or scale() functions, or using arithmetic
-    operators. The size can also be manipulated directly by retrieving
-    references to the width and height using the rwidth() and
-    rheight() functions. Finally, the width and height can be swapped
-    using the transpose() function.
+    A size is specified by a width() and a height().  It can be set in
+    the constructor and changed using the setWidth(), setHeight(), or
+    scale() functions, or using arithmetic operators. A size can also
+    be manipulated directly by retrieving references to the width and
+    height using the rwidth() and rheight() functions. Finally, the
+    width and height can be swapped using the transpose() function.
 
     The isValid() function determines if a size is valid. A valid size
-    has both width and height greater than, or equal to, zero. The
+    has both width and height greater than or equal to zero. The
     isEmpty() function returns true if either of the width and height
     is \e less than (or equal to) zero, while the isNull() function
     returns true only if both the width and the height is zero.
 
     Use the expandedTo() function to retrieve a size which holds the
-    maximum height and width of this size and a given size. Likewise,
-    the boundedTo() function returns a size which holds the minimum
-    height and width of this size and a given size.
+    maximum height and width of this size and a given
+    size. Similarily, the boundedTo() function returns a size which
+    holds the minimum height and width of this size and a given size.
 
     The QSizeF class also provides the toSize() function returning a
     QSize copy of this size, constructed by rounding the width and
-    height to the nearest integer.
+    height to the nearest integers.
 
     QSizeF objects can be streamed as well as compared.
 
@@ -797,7 +794,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     \fn QSizeF QSizeF::expandedTo(const QSizeF & otherSize) const
 
     Returns a size holding the maximum width and height of this size
-    and \a otherSize.
+    and the given \a otherSize.
 
     \sa boundedTo(), scale()
 */
@@ -806,7 +803,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     \fn QSizeF QSizeF::boundedTo(const QSizeF & otherSize) const
 
     Returns a size holding the minimum width and height of this size
-    and \a otherSize.
+    and the given \a otherSize.
 
     \sa expandedTo(), scale()
 */
