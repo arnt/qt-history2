@@ -1958,9 +1958,33 @@ int QHttp::setUser(const QString &userName, const QString &password)
 }
 
 /*!
-    Enables proxy support, using the proxy server \a host on port \a
-    port. \a username and \a password can be provided if the proxy
-    server requires authentication.
+    Enables HTTP proxy support, using the proxy server \a host on port \a
+    port. \a username and \a password can be provided if the proxy server
+    requires authentication.
+
+    Example:
+
+    \code
+      void Ticker::getTicks()
+      {
+        http = new QHttp(this);
+        connect(http, SIGNAL(done(bool)), this, SLOT(showPage()));
+        http->setProxy("proxy.example.com", 3128);
+        http->setHost("ticker.example.com");
+        http->get("/ticks.asp");
+      }
+
+      void Ticker::showPage()
+      {
+        display(http->readAll());
+      }
+    \endcode
+
+    QHttp supports non-transparent web proxy servers only, such as the Squid
+    Web proxy cache server (from \l http://www.squid.org/). For transparent
+    proxying, such as SOCKS5, use QNetworkProxy instead.
+
+    \sa QFtp::setProxy()
 */
 int QHttp::setProxy(const QString &host, int port,
                     const QString &username, const QString &password)
@@ -2212,8 +2236,6 @@ void QHttpPrivate::sendRequest()
             }
             header.setValue("Proxy-Authorization", "Basic " + pass.toBase64());
         }
-
-        hostName = proxyHost;
     }
 
     // Username support. Insert the user and password into the query
