@@ -2767,9 +2767,7 @@ void QPainter::drawRoundRect(const QRectF &r, int xRnd, int yRnd)
     qreal rxx2 = 2*rxx;
     qreal ryy2 = 2*ryy;
 
-    QPointF startPoint;
-    qt_find_ellipse_coords(QRectF(x, y, rxx2, ryy2), 90, 90, &startPoint, 0);
-    path.moveTo(startPoint);
+    path.arcMoveTo(x, y, rxx2, ryy2, 90);
     path.arcTo(x, y, rxx2, ryy2, 90, 90);
     path.arcTo(x, y+h-ryy2, rxx2, ryy2, 2*90, 90);
     path.arcTo(x+w-rxx2, y+h-ryy2, rxx2, ryy2, 3*90, 90);
@@ -2943,11 +2941,8 @@ void QPainter::drawArc(const QRectF &r, int a, int alen)
 
     QRectF rect = r.normalized();
 
-    QPointF startPoint;
-    qt_find_ellipse_coords(rect, a/16.0, alen/16.0, &startPoint, 0);
-
     QPainterPath path;
-    path.moveTo(startPoint);
+    path.arcMoveTo(rect, a/16.0);
     path.arcTo(rect, a/16.0, alen/16.0);
     strokePath(path, d->state->pen);
 }
@@ -3094,12 +3089,9 @@ void QPainter::drawChord(const QRectF &r, int a, int alen)
 
     QRectF rect = r.normalized();
 
-    QPointF startPoint;
-    qt_find_ellipse_coords(r, a/16.0, alen/16.0, &startPoint, 0);
-
     QPainterPath path;
-    path.moveTo(startPoint);
-    path.arcTo(rect.x(), rect.y(), rect.width(), rect.height(), a/16.0, alen/16.0);
+    path.arcMoveTo(rect, a/16.0);
+    path.arcTo(rect, a/16.0, alen/16.0);
     path.closeSubpath();
     drawPath(path);
 }
@@ -4347,30 +4339,26 @@ static QPainterPath generateWavyPath(qreal minWidth, QPaintDevice *device)
 {
     extern int qt_defaultDpi();
     QPainterPath path;
-    
+
     bool up = true;
     const int radius = 2 * device->logicalDpiY() / qt_defaultDpi();
-    qreal xs, ys, xc, yc;
+    qreal xs, ys;
     int i = 0;
     do {
         int endAngle     = up ? -180  : 180;
 
         xs = i*(2*radius);
         ys = 0;
-        xc = xs + radius;
-        yc = ys + radius;
-
 
         //the way we draw arc's sucks!!! we need to move
         // to the start of the new arc to not have the path
         // be implicetly connected for us
-        path.moveTo(xc + radius * cos((qreal)0),
-                    yc - radius * sin((qreal)0));
+        path.arcMoveTo(xs, ys, 2*radius, 2*radius, 0);
         path.arcTo(xs, ys, 2*radius, 2*radius, 0, endAngle);
         up = !up;
         ++i;
-    } while (xc < minWidth);
-    
+    } while (xs + radius < minWidth);
+
     return path;
 }
 
@@ -4384,7 +4372,7 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
     QPen pen = oldPen;
     pen.setStyle(Qt::SolidLine);
     pen.setWidthF(fe->lineThickness().toReal());
-    
+
     QLineF line(pos.x(), pos.y(), pos.x() + ti.width.toReal(), pos.y());
 
     if (ti.underlineStyle == QTextCharFormat::WaveUnderline
@@ -4402,7 +4390,7 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
     } else if (ti.underlineStyle != QTextCharFormat::NoUnderline) {
         QLineF underLine = line;
         underLine.translate(0.0, fe->underlinePosition().toReal());
-     
+
         if (ti.underlineColor.isValid())
             pen.setColor(ti.underlineColor);
 
@@ -4463,12 +4451,12 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 
     if (pen().style() == Qt::NoPen)
         return;
-    
+
     const RenderHints oldRenderHints = d->state->renderHints;
     if (d->state->txop >= QPainterPrivate::TxScale) {
         // draw antialias decoration (underline/overline/strikeout) with
         // transformed text
-        
+
         const QMatrix &m = d->state->matrix;
         bool isPlain45DegreeRotation =
                 (qFuzzyCompare(m.m11(), 0.0)
@@ -4591,11 +4579,11 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
         d->engine->drawTextItem(p, ti);
         drawTextItemDecoration(this, p, ti);
     }
-    
+
     if (d->state->renderHints != oldRenderHints) {
         d->state->renderHints = oldRenderHints;
         d->state->dirtyFlags |= QPaintEngine::DirtyHints;
-    }    
+    }
 }
 
 /*!
