@@ -69,7 +69,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_reformatBlocks(int from, int charsRemoved, int charsAdded))
 };
 
-#endif // QT_NO_SYNTAXHIGHLIGHTER
 QT_END_HEADER
+
+#endif // QT_NO_SYNTAXHIGHLIGHTER
 
 #endif // QSYNTAXHIGHLIGHTER_H

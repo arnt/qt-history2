@@ -118,8 +118,8 @@ public:
     { qThreadStorage_setLocalData(d, &t); }
 };
 
-#endif // QT_NO_THREAD
-
 QT_END_HEADER
+
+#endif // QT_NO_THREAD
 
 #endif // QTHREADSTORAGE_H

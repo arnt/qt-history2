@@ -72,8 +72,8 @@ private:
     friend class QBaseApplication;
 };
 
-#endif // QT_NO_SESSIONMANAGER
-
 QT_END_HEADER
+
+#endif // QT_NO_SESSIONMANAGER
 
 #endif // QSESSIONMANAGER_H

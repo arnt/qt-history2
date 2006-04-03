@@ -136,7 +136,8 @@ public:
 #endif
 };
 
-#endif // QT_NO_MOVIE
 QT_END_HEADER
+
+#endif // QT_NO_MOVIE
 
 #endif // QMOVIE_H

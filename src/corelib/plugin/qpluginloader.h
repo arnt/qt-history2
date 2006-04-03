@@ -48,8 +48,9 @@ private:
     bool did_load;
 };
 
-#endif // QT_NO_LIBRARY
 
 QT_END_HEADER
+
+#endif // QT_NO_LIBRARY
 
 #endif //QPLUGINLOADER_H

@@ -147,7 +147,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_sourceColumnsRemoved(const QModelIndex &source_parent, int start, int end))
 };
 
-#endif // QT_NO_SORTFILTERPROXYMODEL
 QT_END_HEADER
+
+#endif // QT_NO_SORTFILTERPROXYMODEL
 
 #endif // QSORTFILTERPROXYMODEL_H

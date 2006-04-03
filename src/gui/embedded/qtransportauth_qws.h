@@ -125,7 +125,7 @@ private:
     Q_DECLARE_PRIVATE(QTransportAuth)
 };
 
-#endif // QT_NO_SXE
 QT_END_HEADER
+#endif // QT_NO_SXE
 
 #endif // QTRANSPORTAUTH_QWS_H

@@ -95,8 +95,8 @@ private:   // Disabled copy constructor and operator=
 
 };
 
-#endif //Q_NO_IM
-
 QT_END_HEADER
+
+#endif //Q_NO_IM
 
 #endif // QINPUTCONTEXT_H

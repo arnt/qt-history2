@@ -128,8 +128,8 @@ public:
 
 };
 
-#endif // QT_NO_SQL
-
 QT_END_HEADER
+
+#endif // QT_NO_SQL
 
 #endif // Q3SQLFIELDINFO_H

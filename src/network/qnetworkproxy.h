@@ -63,7 +63,9 @@ public:
 private:
     QNetworkProxyPrivate *d_ptr;
 };
-#endif // QT_NO_NETWORKPROXY
+
 QT_END_HEADER
+
+#endif // QT_NO_NETWORKPROXY
 
 #endif // QHOSTINFO_H

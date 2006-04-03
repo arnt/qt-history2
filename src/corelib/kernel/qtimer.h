@@ -76,8 +76,8 @@ private:
 
 inline void QTimer::setSingleShot(bool asingleShot) { single = asingleShot; }
 
-#endif // QT_NO_QOBJECT
-
 QT_END_HEADER
+
+#endif // QT_NO_QOBJECT
 
 #endif // QTIMER_H
