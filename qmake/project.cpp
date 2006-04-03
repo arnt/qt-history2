@@ -27,6 +27,7 @@
 #include <qdebug.h>
 #ifdef Q_OS_UNIX
 # include <unistd.h>
+# include <sys/utsname.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>
@@ -2620,6 +2621,25 @@ QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList
             var = ".BUILTIN." + var;
             place[var] =  QStringList("app");
         }
+    } else if(var.startsWith(QLatin1String("QMAKE_HOST."))) {
+        QString ret, type = var.mid(11);
+#ifdef Q_OS_UNIX
+        utsname name;
+        if(!uname(&name)) {
+            if(type == "os")
+                ret = name.sysname;
+            else if(type == "name")
+                ret = name.nodename;
+            else if(type == "version")
+                ret = name.release;
+            else if(type == "version_string")
+                ret = name.version;
+            else if(type == "arch")
+                ret = name.machine;
+        }
+#endif
+        var = ".BUILTIN.HOST." + type;
+        place[var] = QStringList(ret);
     }
     //qDebug("REPLACE [%s]->[%s]", qPrintable(var), qPrintable(place[var].join("::")));
     return place[var];
