@@ -1760,9 +1760,11 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.iconAlignment = Qt::AlignVCenter;
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     Qt::DisplayRole).toString();
-    opt.icon = qvariant_cast<QIcon>(d->model->headerData(logicalIndex, orientation(),
-                                    Qt::DecorationRole));
-
+    QVariant variant = d->model->headerData(logicalIndex, orientation(),
+                                    Qt::DecorationRole);
+    opt.icon = qvariant_cast<QIcon>(variant);
+    if (opt.icon.isNull())
+        opt.icon = qvariant_cast<QPixmap>(variant);
     QVariant textColor = d->model->headerData(logicalIndex, orientation(),
                                     Qt::TextColorRole);
     if (textColor.isValid() && qvariant_cast<QColor>(textColor).isValid())
@@ -1814,8 +1816,11 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
     opt.fontMetrics = QFontMetrics(fnt); // do the metrics with a bold font
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     Qt::DisplayRole).toString();
-    opt.icon = qvariant_cast<QIcon>(d->model->headerData(logicalIndex, orientation(),
-                                    Qt::DecorationRole));
+    QVariant variant = d->model->headerData(logicalIndex, orientation(),
+                                    Qt::DecorationRole);
+    opt.icon = qvariant_cast<QIcon>(variant);
+    if (opt.icon.isNull())
+        opt.icon = qvariant_cast<QPixmap>(variant);
     size = style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, size, this);
 
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
