@@ -308,8 +308,8 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	    doc.location().warning(tr("Cannot find '%1' specified with '\\%2'")
 				   .arg(arg).arg(command));
 	    lastPath = path;
-	}
-	if ( command == COMMAND_SERVICE ) {
+
+	} else if ( command == COMMAND_SERVICE ) {
 	    // If the command is "\service", then we need to tag the
 	    // class with the actual service name.
 	    QStringList args = arg.split(" ");
