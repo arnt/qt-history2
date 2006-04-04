@@ -642,9 +642,10 @@ bool QTextStreamPrivate::scan(const QChar **ptr, int *length, int maxlen, TokenD
     // if the token was not found, but we reached the end of input,
     // then we accept what we got. if we are not at the end of input,
     // we return false.
-    if (!foundToken && (totalSize == 0
-                        || (string && stringOffset + totalSize < string->size())
-                        || (device && !device->atEnd() && canStillReadFromDevice))) {
+    if (!foundToken && (!maxlen || totalSize < maxlen)
+        && (totalSize == 0
+            || (string && stringOffset + totalSize < string->size())
+            || (device && !device->atEnd() && canStillReadFromDevice))) {
 #if defined (QTEXTSTREAM_DEBUG)
         qDebug("QTextStreamPrivate::scan() did not find the token.");
 #endif
