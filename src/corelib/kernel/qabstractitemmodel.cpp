@@ -1584,7 +1584,7 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation orientation
   Note that the headerDataChanged() signal must be emitted explicitly
   when reimplementing this function.
 
-  \sa headerData()
+  \sa Qt::ItemDataRole, headerData()
 */
 
 bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
