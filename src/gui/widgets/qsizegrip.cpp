@@ -55,7 +55,7 @@ static bool qt_sizegrip_atBottom(QWidget* sg)
 }
 
 /*!
-    \class QSizeGrip qsizegrip.h
+    \class QSizeGrip
 
     \brief The QSizeGrip class provides a corner-grip for resizing a top-level window.
 
@@ -83,12 +83,19 @@ static bool qt_sizegrip_atBottom(QWidget* sg)
     \l{Plastique Style Widget Gallery}{Plastique widget style}.
     \endtable
 
+    The QSizeGrip class inherits QWidget and reimplements the \l
+    {QWidget::mousePressEvent()}{mousePressEvent()} and \l
+    {QWidget::mouseMoveEvent()}{mouseMoveEvent()} functions to feature
+    the resize functionality, and the \l
+    {QWidget::paintEvent()}{paintEvent()} function to render the
+    sizegrip widget.
+
     \sa QStatusBar QWidget::windowState()
 */
 
 
 /*!
-    Constructs a resize corner as a child widget of \a
+    Constructs a resize corner as a child widget of  the given \a
     parent.
 */
 QSizeGrip::QSizeGrip(QWidget * parent)
@@ -100,10 +107,10 @@ QSizeGrip::QSizeGrip(QWidget * parent)
 
 #ifdef QT3_SUPPORT
 /*!
-  \obsolete
+    \obsolete
 
-    Constructs a resize corner called \a name, as a child widget of \a
-    parent.
+    Constructs a resize corner with the given \a name, as a child
+    widget of the given \a parent.
 */
 QSizeGrip::QSizeGrip(QWidget * parent, const char* name)
     : QWidget(*new QSizeGripPrivate, parent, 0)
@@ -139,7 +146,7 @@ void QSizeGripPrivate::init()
 
 
 /*!
-    Destroys the size grip.
+    Destroys this size grip.
 */
 QSizeGrip::~QSizeGrip()
 {
@@ -154,7 +161,7 @@ QSizeGrip::~QSizeGrip()
 }
 
 /*!
-    Returns the size grip's size hint; this is a small size.
+  \reimp
 */
 QSize QSizeGrip::sizeHint() const
 {
@@ -165,9 +172,11 @@ QSize QSizeGrip::sizeHint() const
 }
 
 /*!
-    Paints the resize grip. Resize grips are usually rendered as small
-    diagonal textured lines in the lower-right corner. The event is in
-    \a event.
+    Paints the resize grip.
+
+    Resize grips are usually rendered as small diagonal textured lines
+    in the lower-right corner. The paint event is passed in the \a
+    event parameter.
 */
 void QSizeGrip::paintEvent(QPaintEvent *event)
 {
@@ -194,7 +203,11 @@ void QSizeGrip::paintEvent(QPaintEvent *event)
 }
 
 /*!
-    Primes the resize operation. The event is in \a e.
+    \fn void QSizeGrip::mousePressEvent(QMouseEvent * event)
+
+    Receives the mouse press events for the widget, and primes the
+    resize operation. The mouse press event is passed in the \a event
+    parameter.
 */
 void QSizeGrip::mousePressEvent(QMouseEvent * e)
 {
@@ -205,8 +218,9 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 
 
 /*!
-    Resizes the top-level widget containing this widget. The event is
-    in \a e.
+    \fn void QSizeGrip::mouseMoveEvent(QMouseEvent * event)
+    Resizes the top-level widget containing this widget. The mouse
+    move event is passed in the \a event parameter.
 */
 void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 {

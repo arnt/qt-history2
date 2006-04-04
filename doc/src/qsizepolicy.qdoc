@@ -7,11 +7,11 @@
     \ingroup geomanagement
 
     The size policy of a widget is an expression of its willingness to
-    be resized in various ways.
-
-    Widgets that reimplement QWidget::sizePolicy() return a QSizePolicy
-    that describes the horizontal and vertical resizing policy they
-    prefer when being laid out.
+    be resized in various ways, and affects how the widget is treated
+    by the \l{Layout Management}{layout engine}. Widgets that
+    reimplement QWidget::sizePolicy() return a QSizePolicy that
+    describes the horizontal and vertical resizing policy they prefer
+    when being laid out.
 
     QSizePolicy contains two independent QSizePolicy::Policy values
     and two stretch factors; one describes the widgets's horizontal
@@ -19,16 +19,33 @@
     also contains a flag to indicate whether the height and width of
     its preferred size are related.
 
-    The horizontal and vertical policies are set in the usual
-    constructor and can be queried using horizontalPolicy() and
-    verticalPolicy().
-
-    The hasHeightForWidth() flag indicates whether the widget's
+    The horizontal and vertical policies can be set in the
+    constructor, and altered using the setHorizontalPolicy() and
+    setVerticalPolicy() functions. The stretch factors can be set
+    using the setHorizontalStretch() and setVerticalStretch()
+    functions. The flag indicating whether the widget's
     \l{QWidget::sizeHint()}{sizeHint()} is width-dependent (such as a
-    menu bar or a word-wrapping label).
+    menu bar or a word-wrapping label) can be set using the
+    setHeightForWidth() function.
+
+    The current size policies and stretch factors be retrieved using
+    the horizontalPolicy(), verticalPolicy(), horizontalStretch() and
+    verticalStretch() functions. Alternatively, use the transpose()
+    function to swap the horizontal and vertical policies and
+    stretches. The hasHeightForWidth() function returns the current
+    status of the flag indicating the size hint dependencies.
+
+    Use the expandingDirections() function to determine whether the
+    associated widget can make use of more space than its
+    \l{QWidget::sizeHint()}{sizeHint()} function indicates, as well as
+    find out in which directions it can expand.
+
+    Finally, the QSizePolicy class provides operators comparing this
+    size policy to a given policy, as well as a QVariant operator
+    storing this QSizePolicy as a QVariant object.
 
     \sa QSize, QWidget::sizeHint(), QWidget::sizePolicy(),
-        QLayoutItem::sizeHint()
+    QLayoutItem::sizeHint()
 */
 
 /*!
@@ -49,8 +66,8 @@
 /*!
     \enum QSizePolicy::Policy
 
-    The per-dimension sizing types used when constructing a
-    QSizePolicy are:
+    This enum describes the various per-dimension sizing types used
+    when constructing a QSizePolicy.
 
     \value Fixed  The QWidget::sizeHint() is the only acceptable
         alternative, so the widget can never grow or shrink (e.g. the
@@ -83,32 +100,34 @@
     \value Ignored  The sizeHint() is ignored. The widget will get as
         much space as possible.
 
-    \sa PolicyFlag
+    \sa PolicyFlag, setHorizontalPolicy(), setVerticalPolicy()
 */
 
 /*!
     \fn QSizePolicy::QSizePolicy()
 
-    Constructs a QSizePolicy with \l Fixed as its horizontal and
-    vertical policies.
+    Constructs a QSizePolicy object with \l Fixed as its horizontal
+    and vertical policies.
 
-    \sa setHorizontalPolicy(), setVerticalPolicy(), setHorizontalStretch(),
-        setVerticalStretch(), setHeightForWidth()
+    The policies can be altered using the setHorizontalPolicy() and
+    setVerticalPolicy() functions. Use the setHeightForWidth()
+    function if the preferred height of the widget is dependent on the
+    width of the widget (for example, a QLabel with line wrapping).
+
+    \sa setHorizontalStretch(), setVerticalStretch()
 */
 
 /*!
     \fn QSizePolicy::QSizePolicy(Policy horizontal, Policy vertical)
 
-    It constructs a QSizePolicy with independent horizontal and
-    vertical policies, \a horizontal and \a vertical respectively. These policies
-    affect how the widget is treated by the \l{Layout
-    Management}{layout engine}.
+    Constructs a QSizePolicy object with the given \a horizontal and
+    \a vertical policies.
 
     Use setHeightForWidth() if the preferred height of the widget is
     dependent on the width of the widget (for example, a QLabel with
     line wrapping).
 
-    \sa horizontalPolicy(), verticalPolicy(), setHeightForWidth()
+    \sa setHorizontalStretch(), setVerticalStretch()
 */
 
 /*!
@@ -130,36 +149,39 @@
 /*!
     \fn void QSizePolicy::setHorizontalPolicy(Policy policy)
 
-    Sets the horizontal component of the size policy to \a policy.
+    Sets the horizontal component to the given \a policy.
 
-    \sa horizontalPolicy(), setVerticalPolicy()
+    \sa horizontalPolicy(), setVerticalPolicy(), setHorizontalStretch()
 */
 
 /*!
     \fn void QSizePolicy::setVerticalPolicy(Policy policy)
 
-    Sets the vertical component of the size policy to \a policy.
+    Sets the vertical component to the given \a policy.
 
-    \sa verticalPolicy(), setHorizontalPolicy()
+    \sa verticalPolicy(), setHorizontalPolicy(), setVerticalStretch()
 */
 
 /*!
     \fn Qt::Orientations QSizePolicy::expandingDirections() const
 
-    Returns whether this widget can make use of more space than
-    sizeHint(). A value of Qt::Horizontal or Qt::Vertical means that
-    the widget wants to grow horizontally or vertically (i.e., the
-    horizontal or vertical policy is \l Expanding or \l
-    MinimumExpanding), whereas Qt::Horizontal | Qt::Vertical means
-    that it wants to grow in both dimensions.
+    Returns whether a widget can make use of more space than the
+    QWidget::sizeHint() function indicates.
+
+    A value of Qt::Horizontal or Qt::Vertical means that the widget
+    can grow horizontally or vertically (i.e., the horizontal or
+    vertical policy is \l Expanding or \l MinimumExpanding), whereas
+    Qt::Horizontal | Qt::Vertical means that it can grow in both
+    dimensions.
 
     \sa horizontalPolicy(), verticalPolicy()
 */
 
 /*!
-    \fn void QSizePolicy::setHeightForWidth(bool hfw)
+    \fn void QSizePolicy::setHeightForWidth(bool dependent)
 
-    Sets the hasHeightForWidth() flag to \a hfw.
+    Sets the flag determining whether the widget's preferred height
+    depends on its width, to \a dependent.
 
     \sa hasHeightForWidth()
 */
@@ -196,7 +218,7 @@
 
     Returns the horizontal stretch factor of the size policy.
 
-    \sa setHorizontalStretch(), verticalStretch()
+    \sa setHorizontalStretch(), verticalStretch(), horizontalPolicy()
 */
 
 /*!
@@ -204,25 +226,25 @@
 
     Returns the vertical stretch factor of the size policy.
 
-    \sa setVerticalStretch(), horizontalStretch()
+    \sa setVerticalStretch(), horizontalStretch(), verticalPolicy()
 */
 
 /*!
-    \fn void QSizePolicy::setHorizontalStretch(uchar stretch)
+    \fn void QSizePolicy::setHorizontalStretch(uchar stretchFactor)
 
-    Sets the horizontal stretch factor of the size policy to \a
-    stretch.
+    Sets the horizontal stretch factor of the size policy to the given \a
+    stretchFactor.
 
-    \sa horizontalStretch() setVerticalStretch()
+    \sa horizontalStretch(), setVerticalStretch(), setHorizontalPolicy()
 */
 
 /*!
-    \fn void QSizePolicy::setVerticalStretch(uchar stretch)
+    \fn void QSizePolicy::setVerticalStretch(uchar stretchFactor)
 
-    Sets the vertical stretch factor of the size policy to \a
-    stretch.
+    Sets the vertical stretch factor of the size policy to the given
+    \a stretchFactor.
 
-    \sa verticalStretch() setHorizontalStretch()
+    \sa verticalStretch(), setHorizontalStretch(), setVerticalPolicy()
 */
 
 /*!
@@ -236,14 +258,14 @@
     \typedef QSizePolicy::SizeType
     \compat
 
-    Use QSizePolicy::Policy instead.
+    Use the QSizePolicy::Policy enum instead.
 */
 
 /*!
     \enum QSizePolicy::ExpandData
     \compat
 
-    Use Qt::Orientations instead.
+    Use the Qt::Orientations enum instead.
 
     \value NoDirection  Use 0 instead.
     \value Horizontally  Use Qt::Horizontal instead.
@@ -254,25 +276,53 @@
 /*!
     \fn bool QSizePolicy::mayShrinkHorizontally() const
 
-    Use horizontalPolicy() & QSizePolicy::ShrinkFlag instead.
+    Use the horizontalPolicy() function combined with the
+    QSizePolicy::PolicyFlag enum instead.
+
+    \oldcode
+        bool policy = mayShrinkHorizontally();
+    \newcode
+        bool policy = horizontalPolicy() & QSizePolicy::ShrinkFlag;
+    \endcode
 */
 
 /*!
     \fn bool QSizePolicy::mayShrinkVertically() const
 
-    Use verticalPolicy() & QSizePolicy::ShrinkFlag instead.
+    Use the verticalPolicy() function combined with the
+    QSizePolicy::PolicyFlag enum instead.
+
+    \oldcode
+        bool policy = mayShrinkVertically();
+    \newcode
+        bool policy = verticalPolicy() & QSizePolicy::ShrinkFlag;
+    \endcode
 */
 
 /*!
     \fn bool QSizePolicy::mayGrowHorizontally() const
 
-    Use horizontalPolicy() & QSizePolicy::GrowFlag instead.
+    Use the horizontalPolicy() function combined with the
+    QSizePolicy::PolicyFlag enum instead.
+
+    \oldcode
+        bool policy = mayGrowHorizontally();
+    \newcode
+        bool policy = horizontalPolicy() & QSizePolicy::GrowFlag;
+    \endcode
 */
 
 /*!
     \fn bool QSizePolicy::mayGrowVertically() const
 
-    Use verticalPolicy() & QSizePolicy::GrowFlag instead.
+    Use the verticalPolicy() function combined with the
+    QSizePolicy::PolicyFlag enum instead.
+
+    \oldcode
+        bool policy = mayGrowVertically();
+    \newcode
+        bool policy = verticalPolicy() & QSizePolicy::GrowFlag;
+    \endcode
 */
 
 /*!
@@ -282,19 +332,37 @@
 */
 
 /*!
-    \fn QSizePolicy::QSizePolicy(Policy horizontal, Policy vertical, bool hfw)
+    \fn QSizePolicy::QSizePolicy(Policy horizontal, Policy vertical, bool dependent)
 
-    Use the QSizePolicy(\a horizontal, \a vertical) constructor and call
-    setHeightForWidth(\a hfw).
+    Use the QSizePolicy() constructor and the setHeightForWidth()
+    function instead.
+
+    \oldcode
+        QSizePolicy *policy = new QSizePolicy(horizontal, vertical, dependent);
+    \newcode
+        QSizePolicy *policy = new QSizePolicy(horizontal, vertical);
+        policy->setHeightForWidth(dependent);
+    \endcode
 */
 
 /*!
-    \fn QSizePolicy::QSizePolicy(Policy hPolicy, Policy vPolicy, uchar hStretch,
-                                 uchar vStretch, bool hfw)
+    \fn QSizePolicy::QSizePolicy(Policy horizontal, Policy vertical, uchar horizontalStretch,
+                                 uchar verticalStretch, bool dependent)
 
-    Use the QSizePolicy(\a hPolicy, \a vPolicy) constructor and call
-    setHorizontalStretch(\a hStretch), setVerticalStretch(\a
-    vStretch), and setHeightForWidth(\a hfw).
+    Use the QSizePolicy() constructor and call the
+    setHorizontalStretch(), setVerticalStretch(), and
+    setHeightForWidth() functions instead.
+
+    \oldcode
+        QSizePolicy *policy = new QSizePolicy(horizontal, vertical,
+                                                                 horizontalStretch, verticalStretch,
+                                                                 dependent);
+    \newcode
+        QSizePolicy *policy = new QSizePolicy(horizontal, vertical);
+        policy->setHorizontalStretch(horizontalStretch);
+        policy->setVerticalStretch(verticalStretch);
+        policy->setHeightForWidth(dependent);
+    \endcode
 */
 
 /*!
@@ -312,13 +380,13 @@
 /*!
     \fn void QSizePolicy::setHorData(Policy policy)
 
-    Use setHorizontalPolicy(\a policy) instead.
+    Use setHorizontalPolicy() instead.
 */
 
 /*!
     \fn void QSizePolicy::setVerData(Policy policy)
 
-    Use setVerticalPolicy(\a policy) instead.
+    Use setVerticalPolicy() instead.
 */
 
 /*!
@@ -336,12 +404,12 @@
 /*!
     \fn void QSizePolicy::setHorStretch(uchar stretch)
 
-    Use setHorizontalStretch(\a stretch) instead.
+    Use setHorizontalStretch() instead.
 */
 
 /*!
     \fn void QSizePolicy::setVerStretch(uchar stretch)
 
-    Use setVerticalStretch(\a stretch) instead.
+    Use setVerticalStretch() instead.
 */
 #endif
