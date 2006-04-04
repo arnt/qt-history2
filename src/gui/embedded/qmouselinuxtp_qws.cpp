@@ -159,7 +159,7 @@ QWSLinuxTPMouseHandlerPrivate::QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHand
         mousedev = device;
     }
     if ((mouseFD = open(mousedev.toLatin1().constData(), O_RDONLY | O_NDELAY)) < 0) {
-        qWarning("Cannot open /dev/ts (%s)", strerror(errno));
+        qWarning("Cannot open %s (%s)", qPrintable(mousedev), strerror(errno));
         return;
     }
 

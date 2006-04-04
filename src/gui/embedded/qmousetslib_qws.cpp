@@ -102,7 +102,7 @@ private slots:
 
 QWSTslibMouseHandlerPrivate::QWSTslibMouseHandlerPrivate(QWSTslibMouseHandler *h,
                                                          const QString &device)
-    : QWSMouseHandler(driver, device), handler(h)
+    : handler(h)
 {
     devName = device;
 
@@ -262,8 +262,9 @@ void QWSTslibMouseHandlerPrivate::calibrate(const QWSPointerCalibrationData *dat
 /*!
     \internal
 */
-QWSTslibMouseHandler::QWSTslibMouseHandler(const QString &,
+QWSTslibMouseHandler::QWSTslibMouseHandler(const QString &driver,
                                            const QString &device)
+    : QWSCalibratedMouseHandler(driver, device)
 {
     d = new QWSTslibMouseHandlerPrivate(this, device);
 }

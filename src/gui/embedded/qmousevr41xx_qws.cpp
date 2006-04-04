@@ -55,7 +55,7 @@ private:
 };
 
 QWSVr41xxMouseHandler::QWSVr41xxMouseHandler(const QString &drv, const QString &dev)
-    : QWSMouseHandler(drv, dev)
+    : QWSCalibratedMouseHandler(drv, dev)
 {
     d = new QWSVr41xxMouseHandlerPrivate(this, drv, dev);
     setFilterSize(3);
