@@ -23,6 +23,7 @@
 #include "qmap.h"
 #include "qdatastream.h"
 #include "qpointer.h"
+#include "qmutex.h"
 
 #include "qdebug.h"
 
@@ -59,6 +60,8 @@ static QCopServerRegexpList *qcopServerRegexpList = 0;
 
 typedef QMap<QString, QList< QPointer<QCopChannel> > > QCopClientMap;
 static QCopClientMap *qcopClientMap = 0;
+
+Q_GLOBAL_STATIC(QMutex, qcopClientMapMutex)
 
 // Determine if a channel name contains wildcard characters.
 static bool containsWildcards( const QString& channel )
@@ -145,18 +148,22 @@ void QCopChannel::init(const QString& channel)
         return;
     }
 
-    if (!qcopClientMap)
-        qcopClientMap = new QCopClientMap;
+    {
+	QMutexLocker locker(qcopClientMapMutex());
 
-    // do we need a new channel list ?
-    QCopClientMap::Iterator it = qcopClientMap->find(channel);
-    if (it != qcopClientMap->end()) {
-        it.value().append(this);
-        return;
+	if (!qcopClientMap)
+	    qcopClientMap = new QCopClientMap;
+
+	// do we need a new channel list ?
+	QCopClientMap::Iterator it = qcopClientMap->find(channel);
+	if (it != qcopClientMap->end()) {
+	    it.value().append(this);
+	    return;
+	}
+
+	it = qcopClientMap->insert(channel, QList< QPointer<QCopChannel> >());
+	it.value().append(QPointer<QCopChannel>(this));
     }
-
-    it = qcopClientMap->insert(channel, QList< QPointer<QCopChannel> >());
-    it.value().append(QPointer<QCopChannel>(this));
 
     // inform server about this channel
     qt_fbdpy->registerChannel(channel);
@@ -186,6 +193,7 @@ void QCopChannel::reregisterAll()
 
 QCopChannel::~QCopChannel()
 {
+    QMutexLocker locker(qcopClientMapMutex());
     QCopClientMap::Iterator it = qcopClientMap->find(d->channel);
     Q_ASSERT(it != qcopClientMap->end());
     it.value().removeAll(this);
@@ -541,7 +549,11 @@ void QCopChannel::sendLocally(const QString& ch, const QString& msg,
         return;
 
     // feed local clients with received data
-    QList< QPointer<QCopChannel> > clients = (*qcopClientMap)[ch];
+    QList< QPointer<QCopChannel> > clients;
+    {
+	QMutexLocker locker(qcopClientMapMutex());
+	clients = (*qcopClientMap)[ch];
+    }
     for (int i = 0; i < clients.size(); ++i) {
 	QCopChannel *channel = (QCopChannel *)clients.at(i);
 	if ( channel )
