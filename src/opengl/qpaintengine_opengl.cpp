@@ -634,22 +634,25 @@ static bool qt_resolve_frag_program_extensions()
 {
     static int resolved = false;
 
-    if (resolved && qt_glProgramStringARB)
-        return true;
-    else if (resolved)
-        return false;
+    if (!resolved) {
 
-    QGLContext cx(QGLFormat::defaultFormat());
+        QGLContext cx(QGLFormat::defaultFormat());
 
-    // ARB_fragment_program
-    qt_glProgramStringARB = (_glProgramStringARB) cx.getProcAddress("glProgramStringARB");
-    qt_glBindProgramARB = (_glBindProgramARB) cx.getProcAddress("glBindProgramARB");
-    qt_glDeleteProgramsARB = (_glDeleteProgramsARB) cx.getProcAddress("glDeleteProgramsARB");
-    qt_glGenProgramsARB = (_glGenProgramsARB) cx.getProcAddress("glGenProgramsARB");
-    qt_glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) cx.getProcAddress("glProgramLocalParameter4fvARB");
+        // ARB_fragment_program
+        qt_glProgramStringARB = (_glProgramStringARB) cx.getProcAddress("glProgramStringARB");
+        qt_glBindProgramARB = (_glBindProgramARB) cx.getProcAddress("glBindProgramARB");
+        qt_glDeleteProgramsARB = (_glDeleteProgramsARB) cx.getProcAddress("glDeleteProgramsARB");
+        qt_glGenProgramsARB = (_glGenProgramsARB) cx.getProcAddress("glGenProgramsARB");
+        qt_glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) cx.getProcAddress("glProgramLocalParameter4fvARB");
 
-    resolved = qt_glProgramLocalParameter4fvARB ? true : false;
-    return resolved;
+        resolved = true;
+    }
+
+    return qt_glProgramStringARB
+        && qt_glBindProgramARB
+        && qt_glDeleteProgramsARB
+        && qt_glGenProgramsARB
+        && qt_glProgramLocalParameter4fvARB;
 }
 
 void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops& s, unsigned int *colorTable, int size)
@@ -792,7 +795,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->drawable.setAutoBufferSwap(false);
     d->inverseScale = 1;
     d->opacity = 1;
-    setActive(true);
     d->drawable.makeCurrent();
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -868,7 +870,6 @@ bool QOpenGLPaintEngine::end()
     glFlush();
     d->drawable.swapBuffers();
     d->drawable.setAutoBufferSwap(d->has_autoswap);
-    setActive(false);
     return true;
 }
 
