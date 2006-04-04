@@ -597,7 +597,16 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->win = 0;
         myDc = d->hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
         QPixmap *px = static_cast<QPixmap *>(d->paintDevice);
-        d->hbitmap = CreateCompatibleBitmap(qt_win_display_dc(), px->width(), px->height());
+	
+        BITMAPINFO bmi;
+        memset(&bmi, 0, sizeof(bmi));
+        bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+        bmi.bmiHeader.biWidth       = px->width();
+        bmi.bmiHeader.biHeight      = px->height();
+        bmi.bmiHeader.biPlanes      = 1;
+        bmi.bmiHeader.biBitCount    = 32;
+        bmi.bmiHeader.biCompression = BI_RGB;
+        d->hbitmap = CreateDIBSection(qt_win_display_dc(), &bmi, DIB_RGB_COLORS, 0, 0, 0);
         SelectObject(myDc, d->hbitmap);
     } else {
         d->win = ((QWidget*)d->paintDevice)->winId();
