@@ -6706,17 +6706,17 @@ bool QDomDocument::setContent(const QString& text, bool namespaceProcessing, QSt
 
     Entity references are handled as follows:
     \list
-    \li References to internal general entities and character entities occuring in the
+    \o References to internal general entities and character entities occuring in the
         content are included. The result is a QDomText node with the references replaced
         by their corresponding entity values.
-    \li References to parameter entities occuring in the internal subset are included.
+    \o References to parameter entities occuring in the internal subset are included.
         The result is a QDomDocumentType node which contains entity and notation declarations
         with the references replaced by their corresponding entity values.
-    \li Any general parsed entity reference which is not defined in the internal subset and
+    \o Any general parsed entity reference which is not defined in the internal subset and
         which occurs in the content is represented as a QDomEntityReference node.
-    \li Any parsed entity reference which is not defined in the internal subset and which
+    \o Any parsed entity reference which is not defined in the internal subset and which
         occurs outside of the content is replaced with an empty string.
-    \li Any unparsed entity reference is replaced with an empty string.
+    \o Any unparsed entity reference is replaced with an empty string.
     \endlist
 
     \sa QDomNode::namespaceURI() QDomNode::localName()
