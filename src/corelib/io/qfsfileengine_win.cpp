@@ -1038,7 +1038,7 @@ static QString readLink(const QString &link)
 {
 #if !defined(QT_NO_LIBRARY)
     QString ret;
-    //QT_WA({
+    QT_WA({
         bool neededCoInit = false;
         IShellLink *psl;                            // pointer to IShellLink i/f
         HRESULT hres;
@@ -1074,7 +1074,7 @@ static QString readLink(const QString &link)
         }
         if(neededCoInit)
             CoUninitialize();
-   /* } , {
+    } , {
 	    bool neededCoInit = false;
         IShellLinkA *psl;                            // pointer to IShellLink i/f
         HRESULT hres;
@@ -1098,7 +1098,7 @@ static QString readLink(const QString &link)
                 hres = ppf->Load((LPOLESTR)QFileInfo(link).absoluteFilePath().utf16(), STGM_READ);
                 if(SUCCEEDED(hres)) {        // Resolve the link.
 
-                    hres = psl->Resolve(0, SLR_ANY_MATCH);
+                    hres = psl->Resolve(0, SLR_ANY_MATCH | SLR_NO_UI | SLR_UPDATE);
 
                     if(SUCCEEDED(hres)) {
                         if (psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY) == NOERROR)
@@ -1111,7 +1111,7 @@ static QString readLink(const QString &link)
         }
         if(neededCoInit)
             CoUninitialize();
-    });*/
+    });
     return ret;
 #else
     return QString();
