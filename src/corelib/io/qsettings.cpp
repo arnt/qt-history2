@@ -266,7 +266,7 @@ void QSettingsPrivate::requestUpdate()
     }
 }
 
-QStringList QSettingsPrivate::variantListToStringList(const QVariantList &l) const
+QStringList QSettingsPrivate::variantListToStringList(const QVariantList &l)
 {
     QStringList result;
     QVariantList::const_iterator it = l.constBegin();
@@ -275,7 +275,7 @@ QStringList QSettingsPrivate::variantListToStringList(const QVariantList &l) con
     return result;
 }
 
-QVariant QSettingsPrivate::stringListToVariantList(const QStringList &l) const
+QVariant QSettingsPrivate::stringListToVariantList(const QStringList &l)
 {
     QVariantList variantList;
     bool foundNonStringItem = false;

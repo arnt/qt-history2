@@ -158,8 +158,8 @@ public:
     static void processChild(QString key, ChildSpec spec, QMap<QString, QString> &result);
 
     // Variant streaming functions
-    QStringList variantListToStringList(const QVariantList &l) const;
-    QVariant stringListToVariantList(const QStringList &l) const;
+    static QStringList variantListToStringList(const QVariantList &l);
+    static QVariant stringListToVariantList(const QStringList &l);
 
     // parser functions
     static QString &escapedLeadingAt(QString &s);
@@ -217,12 +217,13 @@ public:
     bool isWritable() const;
     QString fileName() const;
 
+    static bool readIniLine(QIODevice &device, QByteArray &line, int &len, int &equalsCharPos);
+    static bool readIniFile(QIODevice &device, InternalSettingsMap *map);
+
 private:
     void initFormat();
     void initAccess();
     void syncConfFile(int confFileNo);
-    bool readIniLine(QIODevice &device, QByteArray &line, int &len, int &equalsCharPos);
-    bool readIniFile(QIODevice &device, InternalSettingsMap *map);
     bool writeIniFile(QIODevice &device, const InternalSettingsMap &map);
 #ifdef Q_OS_MAC
     bool readPlistFile(const QString &fileName, InternalSettingsMap *map) const;
