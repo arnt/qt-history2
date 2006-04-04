@@ -2158,10 +2158,12 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             QFont font = painter->font();
             font.setBold(true);
             painter->setFont(font);
-            painter->setPen(titleBar->palette.text().color().light(120));
-            painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
+            painter->setPen(active? (titleBar->palette.text().color().light(120)) : 
+                                     titleBar->palette.text().color() );
+                painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
             painter->setPen(titleBar->palette.highlightedText().color());
-            painter->drawText(textRect, titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
+            if (active)
+                painter->drawText(textRect, titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
 
             // min button
             if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
