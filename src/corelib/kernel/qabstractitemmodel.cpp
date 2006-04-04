@@ -879,10 +879,10 @@ void QAbstractItemModelPrivate::reset()
        call endRemoveColumns() \e{immediately afterwards}.
     \endlist
 
-    The signals that these functions emit give attached components the chance
-    to take action before any data becomes unavailable. The encapsulation of
-    the insert and remove operations with these begin and end functions also
-    enable the model to manage
+    The \e private signals that these functions emit give attached components
+    the chance to take action before any data becomes unavailable. The
+    encapsulation of the insert and remove operations with these begin and end
+    functions also enables the model to manage
     \l{QPersistentModelIndex}{persistent model indexes} correctly.
     \bold{If you want selections to be handled properly, you must ensure that
     you call these functions.}
@@ -1043,6 +1043,10 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The new items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
+    \bold{Note:} Components connected to this signal use it to adapt to changes
+    in the model's dimensions. It can only be emitted by the QAbstractItemModel
+    implementation, and cannot be explicitly emitted in subclass code.
+
     \sa insertRows(), beginInsertRows()
 */
 
@@ -1052,6 +1056,10 @@ QAbstractItemModel::~QAbstractItemModel()
     This signal is emitted just before rows are inserted into the
     model. The new items will be positioned between \a start and \a end
     inclusive, under the given \a parent item.
+
+    \bold{Note:} Components connected to this signal use it to adapt to changes
+    in the model's dimensions. It can only be emitted by the QAbstractItemModel
+    implementation, and cannot be explicitly emitted in subclass code.
 
     \sa insertRows(), beginInsertRows()
 */
@@ -1063,6 +1071,10 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The removed items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
+    \bold{Note:} Components connected to this signal use it to adapt to changes
+    in the model's dimensions. It can only be emitted by the QAbstractItemModel
+    implementation, and cannot be explicitly emitted in subclass code.
+
     \sa removeRows(), beginRemoveRows()
 */
 
@@ -1072,6 +1084,10 @@ QAbstractItemModel::~QAbstractItemModel()
     This signal is emitted just before rows are removed from the
     model. The items that will be removed are those between \a start and \a end
     inclusive, under the given \a parent item.
+
+    \bold{Note:} Components connected to this signal use it to adapt to changes
+    in the model's dimensions. It can only be emitted by the QAbstractItemModel
+    implementation, and cannot be explicitly emitted in subclass code.
 
     \sa removeRows(), beginRemoveRows()
 */
@@ -1083,6 +1099,10 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The new items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
+    \bold{Note:} Components connected to this signal use it to adapt to changes
+    in the model's dimensions. It can only be emitted by the QAbstractItemModel
+    implementation, and cannot be explicitly emitted in subclass code.
+
     \sa insertColumns(), beginInsertColumns()
 */
 
@@ -1092,6 +1112,10 @@ QAbstractItemModel::~QAbstractItemModel()
     This signal is emitted just before columns are inserted into the
     model. The new items will be positioned between \a start and \a end
     inclusive, under the given \a parent item.
+
+    \bold{Note:} Components connected to this signal use it to adapt to changes
+    in the model's dimensions. It can only be emitted by the QAbstractItemModel
+    implementation, and cannot be explicitly emitted in subclass code.
 
     \sa insertColumns(), beginInsertColumns()
 */
@@ -1103,6 +1127,10 @@ QAbstractItemModel::~QAbstractItemModel()
     model. The removed items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
+    \bold{Note:} Components connected to this signal use it to adapt to changes
+    in the model's dimensions. It can only be emitted by the QAbstractItemModel
+    implementation, and cannot be explicitly emitted in subclass code.
+
     \sa removeColumns(), beginRemoveColumns()
 */
 
@@ -1112,6 +1140,10 @@ QAbstractItemModel::~QAbstractItemModel()
     This signal is emitted just before columns are removed
     from the model. The items to be removed are those between \a start and
     \a end inclusive, under the given \a parent item.
+
+    \bold{Note:} Components connected to this signal use it to adapt to changes
+    in the model's dimensions. It can only be emitted by the QAbstractItemModel
+    implementation, and cannot be explicitly emitted in subclass code.
 
     \sa removeColumns(), beginRemoveColumns()
 */
