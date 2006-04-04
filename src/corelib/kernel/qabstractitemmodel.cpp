@@ -1144,10 +1144,10 @@ bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
     Returns a map with values for all predefined roles in the model
     for the item at the given \a index.
 
-    This must be reimplemented if you want to extend the model with
-    custom roles.
+    Reimplemented this function if you want to extend the default behavior
+    of this function to include custom roles in the map.
 
-    \sa Qt::ItemDataRole data()
+    \sa Qt::ItemDataRole, data()
 */
 QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 {
