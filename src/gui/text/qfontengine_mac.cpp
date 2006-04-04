@@ -824,8 +824,9 @@ glyph_metrics_t QFontEngineMac::boundingBox(glyph_t glyph)
     gm.width = int(metrics.width);
     gm.height = int(metrics.height);
     gm.x = QFixed::fromReal(metrics.topLeft.x);
-    gm.y = QFixed::fromReal(metrics.topLeft.y);
-    gm.xoff = gm.yoff = 0;
+    gm.y = -QFixed::fromReal(metrics.topLeft.y);
+    gm.xoff = QFixed::fromReal(metrics.deviceAdvance.x);
+    gm.yoff = QFixed::fromReal(metrics.deviceAdvance.y);
 
     return gm;
 }
