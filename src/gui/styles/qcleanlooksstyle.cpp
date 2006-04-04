@@ -2998,6 +2998,10 @@ int QCleanLooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
 {
     int ret = -1;
     switch (metric) {
+    case PM_ButtonShiftHorizontal:
+    case PM_ButtonShiftVertical:
+        ret = 0;
+        break;
     case PM_DialogButtonsSeparator:
     case PM_SplitterWidth:
         ret = 6;
