@@ -449,6 +449,8 @@ QFile::decodeName(const QByteArray &localFileName)
 void
 QFile::setEncodingFunction(EncoderFn f)
 {
+    if (!f)
+        f = locale_encode;
     QFilePrivate::encoder = f;
 }
 
@@ -479,6 +481,8 @@ QFile::setEncodingFunction(EncoderFn f)
 void
 QFile::setDecodingFunction(DecoderFn f)
 {
+    if (!f)
+        f = locale_decode;
     QFilePrivate::decoder = f;
 }
 
