@@ -133,7 +133,7 @@ QFontEngineFT::QFontEngineFT(const QFontDef& d, FT_Face ft_face, bool antialias)
         smooth = false;
 
 //    outline_drawing = xsize > (64<<6) || ysize > (64<<6);
-    outline_drawing = fontDef.pixelSize > 48; //###
+    outline_drawing = fontDef.pixelSize > 48 && FT_IS_SCALABLE(face);
 
     if (outline_drawing) {
         rendered_glyphs = 0;
