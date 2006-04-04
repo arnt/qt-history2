@@ -59,6 +59,7 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QAbstractFileEnginePrivate()
 #ifdef Q_OS_UNIX
     need_lstat = 1;
     is_link = 0;
+    is_readonly = 0;
 #endif
     fd = -1;
     fh = 0;
@@ -148,7 +149,7 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
 {
     Q_D(QFSFileEngine);
     d->lastFlushFailed = false;
-    
+
     if (d->file.isEmpty()) {
         qWarning("QFSFileEngine::open: No file name specified");
         setError(QFile::OpenError, QLatin1String("No file name specified"));
@@ -166,6 +167,9 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
                  qt_error_string(int(errno)));
         return false;
     }
+
+    if ((flags & QIODevice::WriteOnly) == 0)
+        d->is_readonly = 1;
 
     if (flags & QIODevice::Unbuffered)
         setvbuf(d->fh, 0, _IONBF, 0);
@@ -240,6 +244,9 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
         return false;
     }
 
+    if ((flags & QIODevice::WriteOnly) == 0)
+        d->is_readonly = 1;
+
     if (flags & QIODevice::Unbuffered)
         setvbuf(d->fh, 0, _IONBF, 0);
 
@@ -293,6 +300,10 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags, FILE *fh)
     d->sequential = S_ISCHR(st.st_mode) || S_ISFIFO(st.st_mode) || S_ISSOCK(st.st_mode);
 #endif
     d->closeFileHandle = false;
+#ifdef Q_OS_UNIX
+    if ((flags & QIODevice::WriteOnly) == 0)
+        d->is_readonly = 1;
+#endif
     return true;
 }
 
@@ -333,6 +344,11 @@ bool QFSFileEngine::close()
 bool QFSFileEngine::flush()
 {
     Q_D(QFSFileEngine);
+#ifdef Q_OS_UNIX
+    if (d->is_readonly)
+        return true;
+#endif
+
     d->ungetchBuffer.clear();
     if (d->lastFlushFailed)
         return false;

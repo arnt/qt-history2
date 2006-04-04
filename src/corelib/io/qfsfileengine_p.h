@@ -53,6 +53,7 @@ public:
 #ifdef Q_OS_UNIX
     mutable uint need_lstat : 1;
     mutable uint is_link : 1;
+    mutable uint is_readonly : 1;
 #endif
 #ifdef Q_WS_WIN
     mutable DWORD fileAttrib;
@@ -61,7 +62,7 @@ public:
 #endif
     bool doStat() const;
     bool isSymlink() const;
-    
+
     int sysOpen(const QString &, int flags);
 
     FILE *fh;
@@ -74,7 +75,7 @@ public:
     };
     LastIOCommand  lastIOCommand;
     bool lastFlushFailed;
-    
+
 protected:
     QFSFileEnginePrivate();
 
