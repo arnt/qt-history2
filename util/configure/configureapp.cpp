@@ -1472,7 +1472,7 @@ void Configure::generateCachefile()
 	if ( dictionary[ "RTTI" ] == "yes" )
 	    configStream << " rtti";
 	configStream << endl;
-        cacheStream << "QT_ARCH = " << dictionary[ "ARCHITECTURE" ] << endl;
+        configStream << "QT_ARCH = " << dictionary[ "ARCHITECTURE" ] << endl;
         configStream << "QT_CONFIG += " << qtConfig.join(" ") << endl;
         configStream << "QT_EDITION = " << dictionary["EDITION"] << endl;
         configStream.flush();
