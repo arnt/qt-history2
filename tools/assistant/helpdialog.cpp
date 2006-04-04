@@ -405,12 +405,10 @@ void HelpDialog::buildKeywordDB()
     QStringList addDocuFiles = Config::configuration()->docFiles();
     QStringList::iterator i = addDocuFiles.begin();
 
-    int steps = 0;
-    for(; i != addDocuFiles.end(); i++)
-        steps += QFileInfo(*i).size();
-
+    // Set up an indeterminate progress bar.
     ui.labelPrepare->setText(tr("Prepare..."));
-    ui.progressPrepare->setMaximum(steps);
+    ui.progressPrepare->setMaximum(0);
+    ui.progressPrepare->setMinimum(0);
     ui.progressPrepare->setValue(0);
     processEvents();
 
@@ -442,11 +440,10 @@ void HelpDialog::buildKeywordDB()
         foreach (IndexItem *indItem, indLst) {
             QFileInfo fi(indItem->reference);
             lst.append(IndexKeyword(indItem->keyword, indItem->reference));
-            if (ui.progressPrepare)
-                ui.progressPrepare->setValue(ui.progressPrepare->value() +
-                                             int(fi.absoluteFilePath().length() * 2));
 
             if(++counter%100 == 0) {
+                if (ui.progressPrepare)
+                    ui.progressPrepare->setValue(counter);
                 processEvents();
                 if(lwClosed) {
                     return;
