@@ -112,8 +112,8 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     dates prior to the introduction of the Gregorian calendar. This
     calendar was adopted by England from the 14 September 1752 (hence
     this is the earliest valid QDate), and subsequently by most other
-    Western countries, by 1923. The latest valid year within this
-    scheme is the year 8000.
+    Western countries, by 1923. The latest valid date within this
+    scheme is 31 December 7999.
 
     \sa QTime QDateTime QDateEdit QDateTimeEdit
 */
