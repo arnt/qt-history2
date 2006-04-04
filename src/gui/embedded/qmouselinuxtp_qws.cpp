@@ -93,7 +93,7 @@ class QWSLinuxTPMouseHandlerPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHandler *h);
+    QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHandler *h, const QString &);
     ~QWSLinuxTPMouseHandlerPrivate();
 
     void suspend();
@@ -118,9 +118,10 @@ private slots:
     void readMouseData();
 };
 
-QWSLinuxTPMouseHandler::QWSLinuxTPMouseHandler(const QString &, const QString &)
+QWSLinuxTPMouseHandler::QWSLinuxTPMouseHandler(const QString &driver, const QString &device)
+    : QWSCalibratedMouseHandler(driver, device)
 {
-    d = new QWSLinuxTPMouseHandlerPrivate(this);
+    d = new QWSLinuxTPMouseHandlerPrivate(this, device);
 }
 
 QWSLinuxTPMouseHandler::~QWSLinuxTPMouseHandler()
@@ -138,33 +139,30 @@ void QWSLinuxTPMouseHandler::resume()
     d->resume();
 }
 
-QWSLinuxTPMouseHandlerPrivate::QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHandler *h)
+QWSLinuxTPMouseHandlerPrivate::QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHandler *h,
+        const QString &device)
     : samples(QT_QWS_TP_SAMPLE_SIZE), currSample(0), lastSample(0),
     numSamples(0), skipCount(0), handler(h)
 {
+    QString mousedev;
+    if (device.isEmpty()) {
 #if defined(QT_QWS_IPAQ)
 # ifdef QT_QWS_IPAQ_RAW
-    if ((mouseFD = open("/dev/h3600_tsraw", O_RDONLY | O_NDELAY)) < 0) {
+        mousedev = "/dev/h3600_tsraw";
 # else
-    if ((mouseFD = open("/dev/h3600_ts", O_RDONLY | O_NDELAY)) < 0) {
+        mousedev = "/dev/h3600_ts";
 # endif
-        qWarning("Cannot open /dev/h3600_ts (%s)", strerror(errno));
-        return;
+#else
+        mousedev = "/dev/ts";
+#endif
+    } else {
+        mousedev = device;
     }
-#else // best to open something, default for EBX is fairly common
-//# ifdef QT_QWS_EBX_TSRAW
-#if 0
-    if ((mouseFD = open("/dev/tsraw", O_RDONLY | O_NDELAY)) < 0) {
-        qWarning("Cannot open /dev/tsraw (%s)", strerror(errno));
-       return;
-    }
-# else
-    if ((mouseFD = open("/dev/ts", O_RDONLY | O_NDELAY)) < 0) {
+    if ((mouseFD = open(mousedev.toLatin1().constData(), O_RDONLY | O_NDELAY)) < 0) {
         qWarning("Cannot open /dev/ts (%s)", strerror(errno));
         return;
-     }
-#endif
-#endif
+    }
+
     mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read,
                                          this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));

@@ -89,8 +89,8 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
     if (driver == "um" || driver == "qvfbkeyboard" )
         return new QWSUmKeyboardHandler(device);
 # endif
-# ifndef QT_NO_QWS_QVFB
-    if (driver == "qvfbkbd" || driver == "qvfbkeyboard")
+# ifndef QT_NO_QWS_KBD_QVFB
+    if (driver == "qvfbkbd" || driver == "qvfbkeyboard" || driver == "qvfb")
         return new QVFbKeyboardHandler(device);
 # endif
 #endif

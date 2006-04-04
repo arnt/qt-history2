@@ -49,7 +49,8 @@ private:
     QWSYopyMouseHandler *handler;
 };
 
-QWSYopyMouseHandler::QWSYopyMouseHandler(const QString &, const QString &)
+QWSYopyMouseHandler::QWSYopyMouseHandler(const QString &driver, const QString &device)
+    : QWSMouseHandler(driver, device)
 {
     d = new QWSYopyMouseHandlerPrivate(this);
 }

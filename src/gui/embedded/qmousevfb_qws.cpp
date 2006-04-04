@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_QWS_QVFB
+#ifndef QT_NO_QWS_MOUSE_QVFB
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -26,8 +26,8 @@
 #include <qapplication.h>
 #include <qtimer.h>
 
-QVFbMouseHandler::QVFbMouseHandler(const QString &, const QString &device)
-    : QObject()
+QVFbMouseHandler::QVFbMouseHandler(const QString &driver, const QString &device)
+    : QObject(), QWSMouseHandler(driver, device)
 {
     QString mouseDev = device;
     if (device.isEmpty())
@@ -94,4 +94,4 @@ void QVFbMouseHandler::readMouseData()
     mouseIdx = surplus;
 }
 
-#endif // QT_NO_QWS_QVFB
+#endif // QT_NO_QWS_MOUSE_QVFB

@@ -58,6 +58,7 @@ protected:
 };
 
 QWSBusMouseHandler::QWSBusMouseHandler(const QString &driver, const QString &device)
+    : QWSMouseHandler(driver, device)
 {
     d = new QWSBusMouseHandlerPrivate(this, driver, device);
 }

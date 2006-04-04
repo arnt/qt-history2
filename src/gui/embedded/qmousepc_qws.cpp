@@ -439,6 +439,7 @@ private:
 };
 
 QWSPcMouseHandler::QWSPcMouseHandler(const QString &driver, const QString &device)
+    : QWSMouseHandler(driver, device)
 {
     d = new QWSPcMouseHandlerPrivate(this, driver, device);
 }

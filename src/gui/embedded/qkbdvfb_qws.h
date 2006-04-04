@@ -20,7 +20,7 @@ QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_KEYBOARD
 
-#ifndef QT_NO_QWS_QVFB
+#ifndef QT_NO_QWS_KBD_QVFB
 
 class QSocketNotifier;
 
@@ -43,7 +43,7 @@ private:
     QSocketNotifier *notifier;
 };
 
-#endif // QT_NO_QWS_QVFB
+#endif // QT_NO_QWS_KBD_QVFB
 
 #endif // QT_NO_QWS_KEYBOARD
 

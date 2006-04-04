@@ -93,8 +93,8 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
     if (driver == "tslib" || driver.isEmpty())
         return new QWSTslibMouseHandler(key, device);
 #endif
-#ifndef QT_NO_QWS_QVFB
-    if (driver == "qvfbmouse" || driver.isEmpty())
+#ifndef QT_NO_QWS_MOUSE_QVFB
+    if (driver == "qvfbmouse" || driver == "qvfb")
         return new QVFbMouseHandler(key, device);
 #endif
 

@@ -18,7 +18,7 @@
 
 QT_MODULE(Gui)
 
-#ifndef QT_NO_QWS_QVFB
+#ifndef QT_NO_QWS_MOUSE_QVFB
 
 class QSocketNotifier;
 
@@ -42,6 +42,6 @@ private:
 private slots:
     void readMouseData();
 };
-#endif // QT_NO_QWS_QVFB
+#endif // QT_NO_QWS_MOUSE_QVFB
 
 #endif // QMOUSEVFB_QWS_H

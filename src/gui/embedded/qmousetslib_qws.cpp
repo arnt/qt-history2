@@ -102,7 +102,7 @@ private slots:
 
 QWSTslibMouseHandlerPrivate::QWSTslibMouseHandlerPrivate(QWSTslibMouseHandler *h,
                                                          const QString &device)
-    : handler(h)
+    : QWSMouseHandler(driver, device), handler(h)
 {
     devName = device;
 

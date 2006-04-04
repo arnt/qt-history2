@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_QWS_QVFB
+#ifndef QT_NO_QWS_KBD_QVFB
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -37,7 +37,7 @@ QVFbKeyboardHandler::QVFbKeyboardHandler(const QString &device)
     kbdBufferLen = sizeof(QVFbKeyData) * 5;
     kbdBuffer = new unsigned char [kbdBufferLen];
 
-    if ((kbdFD = open(terminalName.toLatin1().constData(), O_RDWR | O_NDELAY)) < 0) {
+    if ((kbdFD = open(terminalName.toLatin1().constData(), O_RDONLY | O_NDELAY)) < 0) {
         qWarning("Cannot open %s (%s)", terminalName.toLatin1().constData(),
         strerror(errno));
     } else {
@@ -87,5 +87,5 @@ void QVFbKeyboardHandler::readKeyboardData()
     kbdIdx = surplus;
 }
 
-#endif // QT_NO_QWS_QVFB
+#endif // QT_NO_QWS_KBD_QVFB
 
