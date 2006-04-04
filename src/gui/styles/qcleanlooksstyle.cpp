@@ -580,6 +580,9 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
     QColor shadow = option->palette.background().color().dark(120);
 
     switch(elem) {
+    case PE_IndicatorButtonDropDown:
+        drawPrimitive(PE_PanelButtonCommand, option, painter, widget);
+        break;
     case PE_IndicatorToolBarSeparator:
         {
             QRect rect = option->rect;
