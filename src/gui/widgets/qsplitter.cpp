@@ -1383,8 +1383,8 @@ void QSplitter::setOpaqueResize(bool on)
         splitter->setResizeMode(firstChild, QSplitter::KeepSize);
         splitter->setResizeMode(secondChild, QSplitter::Stretch);
     \newcode
-        splitter->setStretchFactor(firstChild, 0);
-        splitter->setStretchFactor(secondChild, 1);
+        splitter->setStretchFactor(splitter->indexOf(firstChild), 0);
+        splitter->setStretchFactor(splitter->indexOf(secondChild), 1);
     \endcode
 */
 
