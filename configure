@@ -797,7 +797,6 @@ while [ "$#" -gt 0 ]; do
     qvfb) # left for commandline compatibility, not documented
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             if [ "$VAL" = "yes" ]; then
-                echo "Setting QVFB"
                 QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\" \"kbd-drivers += qvfb\" \"mouse-drivers += qvfb\""
                 CFG_GFX_ON="$CFG_GFX_ON qvfb"
                 CFG_KBD_ON="$CFG_KBD_ON qvfb"
