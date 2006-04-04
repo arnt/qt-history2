@@ -1862,7 +1862,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
 
     \list 1
     \o a user-specific location for the Star Runner application
-    \o a user-spefific location for all applications by MySoft
+    \o a user-specific location for all applications by MySoft
     \o a system-wide location for the Star Runner application
     \o a system-wide location for all applications by MySoft
     \endlist
