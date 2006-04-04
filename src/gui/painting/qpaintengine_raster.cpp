@@ -2102,7 +2102,7 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
     if (d->fast_pen
         && (d->pen.style() == Qt::SolidLine || d->pen.style() == Qt::NoPen)
         && qMax(rect.width(), rect.height()) < 1024 // integer math breakdown
-        && d->txop > QPainterPrivate::TxScale) // no shear
+        && d->txop <= QPainterPrivate::TxScale) // no shear
     {
         const QRectF r = d->matrix.mapRect(rect);
         drawEllipse_midpoint_i(QRect(qRound(r.x()), qRound(r.y()),
