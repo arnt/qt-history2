@@ -2991,8 +2991,7 @@ void QWSServerPrivate::request_region(int wid, QWSMemId mid,
         windows.move(oldPos, newPos);
         nReserved = newPos + 1;
         if (isShow) {
-            delete changingw->_backingStore;
-            changingw->_backingStore = 0;
+            changingw->backingStore()->setMemory(0, QSize(), imageFormat, windowtype);
             changingw->requested_region = region;
         } else {
             //handle change
