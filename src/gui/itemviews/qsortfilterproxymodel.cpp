@@ -256,7 +256,7 @@ QModelIndex QSortFilterProxyModelPrivate::proxy_to_source(const QModelIndex &pro
         return QModelIndex(); // for now; we may want to be able to set a root index later
     IndexMap::const_iterator it = index_to_iterator(proxy_index);
     Mapping *m = it.value();
-    if (m->source_rows.isEmpty() || m->source_columns.isEmpty())
+    if ((proxy_index.row() >= m->source_rows.size()) || (proxy_index.column() >= m->source_columns.size()))
         return QModelIndex();
     int source_row = m->source_rows.at(proxy_index.row());
     int source_col = m->source_columns.at(proxy_index.column());
@@ -270,7 +270,7 @@ QModelIndex QSortFilterProxyModelPrivate::source_to_proxy(const QModelIndex &sou
     QModelIndex source_parent = source_index.parent();
     IndexMap::const_iterator it = create_mapping(source_parent);
     Mapping *m = it.value();
-    if (m->proxy_rows.isEmpty() || m->proxy_columns.isEmpty())
+    if ((source_index.row() >= m->proxy_rows.size()) || (source_index.column() >= m->proxy_columns.size()))
         return QModelIndex();
     int proxy_row = m->proxy_rows.at(source_index.row());
     int proxy_column = m->proxy_columns.at(source_index.column());
