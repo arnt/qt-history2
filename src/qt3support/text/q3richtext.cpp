@@ -3026,7 +3026,6 @@ bool Q3TextDocument::find(Q3TextCursor& cursor, const QString &expr, bool cs, bo
         return false;
     for (;;) {
 	QString s = cursor.paragraph()->string()->toString();
-        s.chop(1);
 	int start = cursor.index();
 	for (;;) {
 	    int res = forward
