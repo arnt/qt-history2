@@ -2072,7 +2072,7 @@ void QX11PaintEngine::core_render_glyph(QFontEngineFT *fe, int xp, int yp, uint 
     XRectangle rects[rectcount];
     int n = 0;
     int h = glyph->height;
-    xp -= glyph->x;
+    xp += glyph->x;
     yp += -glyph->y + glyph->height;
     int pitch = ((glyph->width + 31) & ~31) >> 3;
 
