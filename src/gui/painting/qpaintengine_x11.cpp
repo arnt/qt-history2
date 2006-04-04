@@ -865,7 +865,7 @@ void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
             QLineF linef;
             if (d->txop == QPainterPrivate::TxTranslate) {
                 linef = QLineF(lines[i].p1() + offset, lines[i].p2() + offset);
-            } else{
+            } else {
                 linef = lines[i];
             }
             if (clipLine(&linef, d->polygonClipper.boundingRect())) {
@@ -1778,8 +1778,11 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
                 XSetForeground(d->dpy, d->gc, QColormap::instance(d->scrn).pixel(d->bg_brush.color()));
             XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
         }
-        XSetClipMask(d->dpy, d->gc, pixmap.handle());
-        XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
+        QRegion bitmap_region(pixmap);
+        bitmap_region.translate(x, y);
+        bitmap_region = bitmap_region & d->crgn;
+        x11SetClipRegion(d->dpy, d->gc, 0, 0, bitmap_region);
+
         if (mono_dst) {
             XSetBackground(d->dpy, d->gc, qGray(d->bg_brush.color().rgb()) > 127 ? 0 : 1);
             XSetForeground(d->dpy, d->gc, qGray(d->cpen.color().rgb()) > 127 ? 0 : 1);
@@ -1789,8 +1792,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             XSetForeground(d->dpy, d->gc, cmap.pixel(d->cpen.color()));
         }
         XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
-        XSetClipMask(d->dpy, d->gc, XNone);
-        XSetClipOrigin(d->dpy, d->gc, 0, 0);
+        restore_clip = true;
     } else {
         XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
     }
