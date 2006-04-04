@@ -19,7 +19,7 @@
 
     Note that this document assumes that you either are using the \l
     {The Virtual Framebuffer}{Qtopia Core Virtual Framebuffer} or are
-    running Qtopia Core as a \l {Running as a VNC Server}{VNC server},
+    running Qtopia Core using the \l {The VNC Protocol}{VNC}protocol,
     \e or that you have the Linux framebuffer configured correctly and
     that no master process is running. (To test that the Linux
     framebuffer is set up correctly, use the program provided by the

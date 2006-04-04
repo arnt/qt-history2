@@ -127,7 +127,7 @@
 
     \list
        \o \l {The Virtual Framebuffer}
-       \o \l {Running as a VNC Server}
+       \o \l {The VNC Protocol}
     \endlist
 
     Note that the virtual framebuffer requires a Qt/X11
