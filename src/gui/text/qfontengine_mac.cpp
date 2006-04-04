@@ -583,7 +583,7 @@ QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, FMFont fmFont, const QFontDe
                         MAKE_TAG('O', 'S', '/', '2'),
                         /*offset = */8,
                         /*size = */2, &fsType, 0) == noErr) {
-       fsType = qFromBigEndian<quint16>(fsType); 
+       fsType = qFromBigEndian<quint16>(fsType);
     } else {
         fsType = 0;
     }
@@ -610,7 +610,12 @@ static quint32 getGlyphIndex(unsigned char *table, unsigned int unicode)
         if (unicode < 256)
             return (int) *(table+6+unicode);
     } else if (format == 4) {
-        if(unicode > 0xffff)
+        /* some fonts come with invalid cmap tables, where the last segment
+           specified end = start = rangeoffset = 0xffff, delta = 0x0001
+           Since 0xffff is never a valid Unicode char anyway, we just get rid of the issue
+           by returning 0 for 0xffff
+        */
+        if(unicode >= 0xffff)
             return 0;
         quint16 segCountX2 = getUShort(table + 6);
         unsigned char *ends = table + 14;
@@ -985,7 +990,7 @@ QByteArray QFontEngineMac::getSfntTable(uint tag) const
 QFontEngine::Properties QFontEngineMac::properties() const
 {
     QFontEngine::Properties props = QFontEngine::properties();
-    
+
     ATSFontRef atsFont = FMGetATSFontRefFromFont(fmFont);
     QCFString psName;
     if (ATSFontGetPostScriptName(atsFont, kATSOptionFlagsDefault, &psName) == noErr)
