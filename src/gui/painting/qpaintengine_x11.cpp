@@ -850,7 +850,11 @@ void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
     Q_ASSERT(lines);
     Q_ASSERT(lineCount);
     Q_D(QX11PaintEngine);
-    if (d->use_path_fallback) {
+    if (d->has_alpha_brush
+        || d->has_alpha_pen
+        || d->has_custom_pen
+        || (d->cpen.widthF() > 0 && d->has_complex_xform)
+        || (d->render_hints & QPainter::Antialiasing)) {
         for (int i = 0; i < lineCount; ++i) {
             QPainterPath path(lines[i].p1());
             path.lineTo(lines[i].p2());
@@ -860,13 +864,12 @@ void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
     }
 
     if (d->has_pen) {
-        QPointF offset(d->matrix.dx(), d->matrix.dy());
         for (int i = 0; i < lineCount; ++i) {
             QLineF linef;
-            if (d->txop == QPainterPrivate::TxTranslate) {
-                linef = QLineF(lines[i].p1() + offset, lines[i].p2() + offset);
-            } else {
+            if (d->txop == QPainterPrivate::TxNone) {
                 linef = lines[i];
+            } else {
+                linef = QLineF(d->matrix.map(lines[i].p1()), d->matrix.map(lines[i].p2()));
             }
             if (clipLine(&linef, d->polygonClipper.boundingRect())) {
                 XDrawLine(d->dpy, d->hd, d->gc,
