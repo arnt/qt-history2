@@ -85,8 +85,10 @@ void
 QFilePrivate::setError(QFile::FileError err)
 {
     Q_Q(QFile);
-    error = err;
-    q->setErrorString(QT_TRANSLATE_NOOP(QIODevice, QLatin1String("Unknown error")));
+    if (error != err) {
+        error = err;
+        q->setErrorString(QT_TRANSLATE_NOOP(QIODevice, QLatin1String("Unknown error")));
+    }
 }
 
 void
