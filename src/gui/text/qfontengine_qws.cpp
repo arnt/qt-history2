@@ -936,6 +936,8 @@ QFontEngineQPF::QFontEngineQPF(const QFontDef&, const QString &fn)
 
 QFontEngineQPF::~QFontEngineQPF()
 {
+    delete d->tree;
+    delete d;
 }
 
 
