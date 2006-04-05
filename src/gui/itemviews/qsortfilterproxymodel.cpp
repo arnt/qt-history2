@@ -223,7 +223,7 @@ IndexMap::const_iterator QSortFilterProxyModelPrivate::create_mapping(
         if (q->filterAcceptsRow(i, source_parent))
             m->source_rows.append(i);
     }
-    int source_cols = model->columnCount(source_parent);    
+    int source_cols = model->columnCount(source_parent);
     for (int i = 0; i < source_cols; ++i) {
         if (q->filterAcceptsColumn(i, source_parent))
             m->source_columns.append(i);
@@ -393,7 +393,7 @@ void QSortFilterProxyModelPrivate::remove_proxy_interval(
 
 /*!
   \internal
-  
+
   Given proxy-to-source mapping \a proxy_to_source and a set of
   unmapped source items \a source_items, determines the proxy item
   intervals at which the subsets of source items should be inserted
@@ -700,7 +700,7 @@ void QSortFilterProxyModelPrivate::build_source_to_proxy_mapping(
   \internal
 
   Maps the persistent proxy indexes to source indexes and
-  returns the list of source indexes. 
+  returns the list of source indexes.
 */
 QModelIndexList QSortFilterProxyModelPrivate::store_persistent_indexes()
 {
@@ -1002,7 +1002,7 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &so
     \code
         treeView->setSortingEnabled(true);
     \endcode
-    
+
     When this feature is on (the default is off), clicking on a
     header section sorts the items according to that column. By
     clicking repeatedly, the user can alternate between ascending and
@@ -1105,7 +1105,7 @@ QSortFilterProxyModel::QSortFilterProxyModel(QObject *parent)
 }
 
 /*!
-    Destroys the sorting filter model.
+    Destroys this sorting filter model.
 */
 QSortFilterProxyModel::~QSortFilterProxyModel()
 {
@@ -1554,11 +1554,12 @@ void QSortFilterProxyModel::setFilterRegExp(const QRegExp &regExp)
 }
 
 /*!
-  \property QSortFilterProxyModel::filterKeyColumn
-  \brief the column where the key used to filter the contents
-  of the source model is read from.
+    \property QSortFilterProxyModel::filterKeyColumn
+    \brief the column where the key used to filter the contents of the
+    source model is read from.
 
-  If the value is -1, the keys will be read from all columns.
+    The default value is 0. If the value is -1, the keys will be read
+    from all columns.
 */
 int QSortFilterProxyModel::filterKeyColumn() const
 {
@@ -1635,13 +1636,13 @@ void QSortFilterProxyModel::setFilterRegExp(const QString &pattern)
 {
     Q_D(QSortFilterProxyModel);
     d->filter_regexp.setPatternSyntax(QRegExp::RegExp);
-    d->filter_regexp.setPattern(pattern); 
+    d->filter_regexp.setPattern(pattern);
     d->filter_changed();
 }
 
 /*!
     Sets the wildcard expression used to filter the contents
-    of the source model to \a pattern.
+    of the source model to the given \a pattern.
 
     \sa setFilterCaseSensitivity(), setFilterRegExp(), setFilterFixedString()
 */
@@ -1655,7 +1656,7 @@ void QSortFilterProxyModel::setFilterWildcard(const QString &pattern)
 
 /*!
     Sets the fixed string used to filter the contents
-    of the source model to \a pattern.
+    of the source model to the given \a pattern.
 
     \sa setFilterCaseSensitivity(), setFilterRegExp(), setFilterWildcard()
 */
@@ -1732,7 +1733,7 @@ void QSortFilterProxyModel::setFilterRole(int role)
 }
 
 /*!
-  Clears the sorting filter model, removing all mapping.
+    Clears this sorting filter model, removing all mapping.
 */
 void QSortFilterProxyModel::clear()
 {
@@ -1842,10 +1843,10 @@ bool QSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &
 
 /*!
     Returns true if the value in the item in the column indicated by
-    the given \a source_column and \a source_parent should be
-    included in the model.
+    the given \a source_column and \a source_parent should be included
+    in the model.
 
-    The default implementation simply returns true.
+    The default implementation returns true.
 
     \sa filterAcceptsRow()
 */
@@ -1857,8 +1858,10 @@ bool QSortFilterProxyModel::filterAcceptsColumn(int source_column, const QModelI
 }
 
 /*!
-  Returns the source model index  corresponding to the
-  given \a proxyIndex from the sorting filter  model.
+   Returns the source model index corresponding to the given \a
+   proxyIndex from the sorting filter model.
+
+   \sa mapFromSource()
 */
 QModelIndex QSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) const
 {
@@ -1867,8 +1870,10 @@ QModelIndex QSortFilterProxyModel::mapToSource(const QModelIndex &proxyIndex) co
 }
 
 /*!
-  Returns the model index in the QSortFilterProxyModel given
-  the \a sourceIndex from the source model.
+    Returns the model index in the QSortFilterProxyModel given the \a
+    sourceIndex from the source model.
+
+    \sa mapToSource()
 */
 QModelIndex QSortFilterProxyModel::mapFromSource(const QModelIndex &sourceIndex) const
 {
