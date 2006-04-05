@@ -84,8 +84,8 @@ QFilePrivate::openExternalFile(int flags, FILE *fh)
 void
 QFilePrivate::setError(QFile::FileError err)
 {
-    Q_Q(QFile);
     if (error != err) {
+        Q_Q(QFile);
         error = err;
         q->setErrorString(QT_TRANSLATE_NOOP(QIODevice, QLatin1String("Unknown error")));
     }
