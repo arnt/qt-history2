@@ -80,45 +80,64 @@ public:
 
     Qt provides the most commonly required audio operation in GUI
     applications: asynchronously playing a sound file. This is most
-    easily accomplished with a single call:
+    easily accomplished using the static play() function:
+
     \code
         QSound::play("mysounds/bells.wav");
     \endcode
 
-    A second API is provided in which a QSound object is created from
-    a sound file and is played later:
+    Alternatively, create a QSound object from the sound file first
+    and then call the play() slot:
+
     \code
         QSound bells("mysounds/bells.wav");
-
         bells.play();
     \endcode
 
-    Sounds played using the second model may use more memory but play
-    more immediately than sounds played using the first model,
-    depending on the underlying platform audio facilities.
+    Once created a QSound object can be queried for its fileName() and
+    total number of loops() (i.e. the number of times the sound will
+    play). The number of repetitions can be altered using the
+    setLoops() function. While playing the sound, the loopsRemaining()
+    function returns the remaining number of repetitions. Use the
+    isFinished() function to determine whether the sound has finished
+    playing.
 
-    On Microsoft Windows, the underlying multimedia system is used;
-    only WAVE format sound files are supported.
+    Sounds played using a QSound object may use more memory than the
+    static play() function, but it may also play more immediately
+    (depending on the underlying platform audio facilities). Use the
+    static isAvailable() function to determine whether sound
+    facilities exist on the platform. Which facilities that are
+    actually used varies:
 
-    On X11, the \l{ftp://ftp.x.org/contrib/audio/nas/}{Network Audio System}
+    \table
+    \header \o Platform \o Audio Facility
+    \row
+    \o Microsoft Windows
+    \o The underlying multimedia system is used; only WAVE format sound files
+    are supported.
+    \row
+    \o X11
+    \o The \l{ftp://ftp.x.org/contrib/audio/nas/}{Network Audio System}
     is used if available, otherwise all operations work silently. NAS
     supports WAVE and AU files.
-
-    On Mac OS X, we use \l{http://quicktime.apple.com/}{QuickTime} for sound.
-    All QuickTime formats are supported by Qt/Mac.
-
-    In Qtopia Core, a built-in mixing sound server is used, which
-    accesses \c /dev/dsp directly. Only the WAVE format is supported.
-
-    The availability of sound can be tested with
-    QSound::isAvailable().
+    \row
+    \o Mac OS X
+    \o \l{http://quicktime.apple.com/}{QuickTime} is used. All QuickTime
+    formats are supported by Qt/Mac.
+    \row
+    \o Qtopia Core
+    \o A built-in mixing sound server is used, accessing \c /dev/dsp
+    directly. Only the WAVE format is supported.
+    \endtable
 
     Note that QSound does not support \l{resources.html}{resources}.
     This might be fixed in a future Qt version.
 */
 
 /*!
-    Plays the sound in a file called \a filename.
+    Plays the sound stored in the file specified by the given \a filename.
+
+    \sa stop(), loopsRemaining(), isFinished()
 */
 void QSound::play(const QString& filename)
 {
@@ -126,13 +145,14 @@ void QSound::play(const QString& filename)
 }
 
 /*!
-    Constructs a QSound that can quickly play the sound in a file
-    named \a filename.
+    Constructs a QSound object from the file specified by the given \a
+    filename and with the given \a parent.
 
-    This may use more memory than the static \c play function.
+    This may use more memory than the static play() function, but it
+    may also play more immediately (depending on the underlying
+    platform audio facilities).
 
-    The \a parent argument (default 0) is passed on to the QObject
-    constructor.
+    \sa play()
 */
 QSound::QSound(const QString& filename, QObject* parent)
     : QObject(*new QSoundPrivate(filename), parent)
@@ -142,14 +162,18 @@ QSound::QSound(const QString& filename, QObject* parent)
 
 #ifdef QT3_SUPPORT
 /*!
-  \obsolete
-    Constructs a QSound that can quickly play the sound in a file
-    named \a filename.
+    \obsolete
 
-    This may use more memory than the static \c play function.
+    Constructs a QSound object from the file specified by the given \a
+    filename and with the given \a parent and \a name. Use the
+    QSound() construcor and QObject::setObjectName() instead.
 
-    The \a parent and \a name arguments (default 0) are passed on to
-    the QObject constructor.
+    \oldcode
+        QSound *mySound = new QSound(filename, parent, name);
+    \newcode
+        QSounc *mySound = new QSound(filename, parent);
+        mySound->setObjectName(name);
+    \endcode
 */
 QSound::QSound(const QString& filename, QObject* parent, const char* name)
     : QObject(*new QSoundPrivate(filename), parent)
@@ -160,9 +184,11 @@ QSound::QSound(const QString& filename, QObject* parent, const char* name)
 #endif
 
 /*!
-    Destroys the sound object. If the sound is not finished playing stop() is called on it.
+    Destroys this sound object. If the sound is not finished playing,
+    the stop() function is called before the sound object is
+    destructed.
 
-    \sa stop() isFinished()
+    \sa stop(), isFinished()
 */
 QSound::~QSound()
 {
@@ -184,12 +210,14 @@ bool QSound::isFinished() const
 /*!
     \overload
 
-    Starts the sound playing. The function returns immediately.
-    Depending on the platform audio facilities, other sounds may stop
-    or may be mixed with the new sound.
+    Starts playing the sound specified by this QSound object.
 
-    The sound can be played again at any time, possibly mixing or
-    replacing previous plays of the sound.
+    The function returns immediately.  Depending on the platform audio
+    facilities, other sounds may stop or be mixed with the new
+    sound. The sound can be played again at any time, possibly mixing
+    or replacing previous plays of the sound.
+
+    \sa filename()
 */
 void QSound::play()
 {
@@ -200,6 +228,8 @@ void QSound::play()
 
 /*!
     Returns the number of times the sound will play.
+
+    \sa loopsRemaining(), setLoops()
 */
 int QSound::loops() const
 {
@@ -208,8 +238,10 @@ int QSound::loops() const
 }
 
 /*!
-    Returns the number of times the sound will loop. This value
-    decreases each time the sound loops.
+    Returns the remaining number of times the sound will loop (this
+    value decreases each time the sound is played).
+
+    \sa loops(), isFinished()
 */
 int QSound::loopsRemaining() const
 {
@@ -218,8 +250,13 @@ int QSound::loopsRemaining() const
 }
 
 /*!
-    Sets the sound to repeat \a n times when it is played. Passing the
-    value -1 will cause the sound to loop indefinitely.
+    \fn void QSound::setLoops(int number)
+
+    Sets the sound to repeat the given \a number of times when it is
+    played.
+
+    Note that passing the value -1 will cause the sound to loop
+    indefinitely.
 
     \sa loops()
 */
@@ -230,7 +267,9 @@ void QSound::setLoops(int n)
 }
 
 /*!
-    Returns the filename associated with the sound.
+    Returns the filename associated with this QSound object.
+
+    \sa QSound()
 */
 QString QSound::fileName() const
 {
@@ -241,8 +280,8 @@ QString QSound::fileName() const
 /*!
     Stops the sound playing.
 
-    On Windows the current loop will finish if a sound is played
-    in a loop.
+    Note that on Windows the current loop will finish if a sound is
+    played in a loop.
 
     \sa play()
 */
@@ -256,15 +295,16 @@ void QSound::stop()
 
 /*!
     Returns true if sound facilities exist on the platform; otherwise
-    returns false. An application may choose either to notify the user
-    if sound is crucial to the application or to operate silently
-    without bothering the user.
+    returns false.
 
     If no sound is available, all QSound operations work silently and
-    quickly.
+    quickly. An application may choose either to notify the user if
+    sound is crucial to the application or to operate silently without
+    bothering the user.
 
-    Note: On Windows this always returns true because some sound card drivers
-    do not implement a way to find out whether it is available or not.
+    Note: On Windows this always returns true because some sound card
+    drivers do not implement a way to find out whether it is available
+    or not.
 */
 bool QSound::isAvailable()
 {
@@ -313,7 +353,7 @@ QAuBucket::~QAuBucket()
 /*!
     \fn bool QSound::available()
 
-    Use isAvailable() instead.
+    Use the isAvailable() function instead.
 */
 
 
