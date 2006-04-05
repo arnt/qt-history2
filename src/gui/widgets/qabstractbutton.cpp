@@ -441,7 +441,7 @@ void QAbstractButtonPrivate::refresh()
 
     if (blockRefresh)
         return;
-    q->repaint();
+    q->update();
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(q, 0, QAccessible::StateChanged);
 #endif
@@ -459,6 +459,8 @@ void QAbstractButtonPrivate::click()
         return;
     blockRefresh = false;
     refresh();
+    q->repaint(); //flush paint event before invoking potentially expensive operation
+    QApplication::flush();
     emit q->released();
     if (guard)
         emit q->clicked(checked);
@@ -777,6 +779,8 @@ void QAbstractButton::animateClick(int msec)
     if (d->checkable && focusPolicy() != Qt::NoFocus)
         setFocus();
     setDown(true);
+    repaint(); //flush paint event before invoking potentially expensive operation
+    QApplication::flush();
     emit pressed();
     d->animateTimer.start(msec, this);
 }
@@ -915,6 +919,8 @@ void QAbstractButton::mousePressEvent(QMouseEvent *e)
     }
     if (hitButton(e->pos())) {
         setDown(true);
+        repaint(); //flush paint event before invoking potentially expensive operation
+        QApplication::flush();
         emit pressed();
         e->accept();
     } else {
@@ -957,6 +963,8 @@ void QAbstractButton::mouseMoveEvent(QMouseEvent *e)
 
     if (hitButton(e->pos()) != d->down) {
         setDown(!d->down);
+        repaint(); //flush paint event before invoking potentially expensive operation
+        QApplication::flush();
         if (d->down)
             emit pressed();
         else
@@ -981,6 +989,8 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Space:
         if (!e->isAutoRepeat()) {
             setDown(true);
+            repaint(); //flush paint event before invoking potentially expensive operation
+            QApplication::flush();
             emit pressed();
         }
         break;
@@ -1005,6 +1015,8 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Escape:
         if (d->down) {
             setDown(false);
+            repaint(); //flush paint event before invoking potentially expensive operation
+            QApplication::flush();
             emit released();
             break;
         }
