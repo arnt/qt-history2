@@ -1765,6 +1765,7 @@ QWSMouseHandler *QWSServer::mouseHandler()
 */
 void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 {
+    qwsServerPrivate->mousehandlers.removeAll(mh);
     qwsServerPrivate->mousehandlers.prepend(mh);
 }
 
