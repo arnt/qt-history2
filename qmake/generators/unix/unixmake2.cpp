@@ -1262,7 +1262,30 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
       << "includedir=" << pkgConfigFixPath(includeDir) << endl;
     // non-standard entry. Provides useful info normally only
     // contained in the internal .qmake.cache file
-    t << varGlue("CONFIG", "qt_config=", " ", "") << endl << endl;
+    t << varGlue("CONFIG", "qt_config=", " ", "") << endl;
+
+    //extra PKGCONFIG variables
+    const QStringList &pkgconfig_vars = project->values("QMAKE_PKGCONFIG_VARIABLES");
+    for(int i = 0; i < pkgconfig_vars.size(); ++i) {
+        QString var = project->first(pkgconfig_vars.at(i) + ".name"),
+                val = project->values(pkgconfig_vars.at(i) + ".value").join(" ");
+        if(var.isEmpty())
+            continue;
+        if(val.isEmpty()) {
+            const QStringList &var_vars = project->values(pkgconfig_vars.at(i) + ".variable");
+            for(int v = 0; v < var_vars.size(); ++v) {
+                const QStringList &vars = project->values(var_vars.at(v));
+                for(int var = 0; var < vars.size(); ++var) {
+                    if(!val.isEmpty())
+                        val += " ";
+                    val += pkgConfigFixPath(vars.at(var));
+                }
+            }
+        }
+        t << var << "=" << val << endl;
+    }
+
+    t << endl;
 
     QString name = project->first("QMAKE_PKGCONFIG_NAME");
     if(name.isEmpty()) {
@@ -1311,25 +1334,4 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
       << project->values("QMAKE_PKGCONFIG_CFLAGS").join(" ")
         //      << varGlue("DEFINES","-D"," -D"," ")
       << " -I${includedir}" << endl;
-
-    //extra PKGCONFIG variables
-    const QStringList &pkgconfig_vars = project->values("QMAKE_PKGCONFIG_VARIABLES");
-    for(int i = 0; i < pkgconfig_vars.size(); ++i) {
-        QString var = project->first(pkgconfig_vars.at(i) + ".name"),
-                val = project->values(pkgconfig_vars.at(i) + ".value").join(" ");
-        if(var.isEmpty())
-            continue;
-        if(val.isEmpty()) {
-            const QStringList &var_vars = project->values(pkgconfig_vars.at(i) + ".variable");
-            for(int v = 0; v < var_vars.size(); ++v) {
-                const QStringList &vars = project->values(var_vars.at(v));
-                for(int var = 0; var < vars.size(); ++var) {
-                    if(!val.isEmpty())
-                        val += " ";
-                    val += pkgConfigFixPath(vars.at(var));
-                }
-            }
-        }
-        t << var << ": " << val << endl;
-    }
 }
