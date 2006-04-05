@@ -36,7 +36,7 @@
   */
 bool QDesktop::launchMailComposer(const QString &to, const QString &subject, const QString &body)
 {
-    QString url = QString("mailto:%1?subject='%2'&body='%3'").arg(to).arg(subject).arg(body);
+    QString url = QString("mailto:%1?subject=%2&body=%3").arg(to).arg(subject).arg(body);
     return open(url);
 }
 
