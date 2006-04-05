@@ -33,6 +33,7 @@ HEADERS += \
 	kernel/qtooltip.h \
 	kernel/qwhatsthis.h \
 	kernel/qwidget.h \
+	kernel/qwidgetaction.h \
 	kernel/qwindowdefs.h
 
 SOURCES += \
@@ -59,7 +60,8 @@ SOURCES += \
 	kernel/qtooltip.cpp \
 	kernel/qguivariant.cpp \
 	kernel/qwhatsthis.cpp \
-	kernel/qwidget.cpp
+	kernel/qwidget.cpp \
+	kernel/qwidgetaction.cpp
 
 win32 {
 	SOURCES += \
