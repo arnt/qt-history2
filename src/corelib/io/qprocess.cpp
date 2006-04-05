@@ -1035,8 +1035,6 @@ bool QProcess::waitForReadyRead(int msecs)
 {
     Q_D(QProcess);
 
-    if (d->processState == QProcess::NotRunning)
-        return false;
     if (d->processChannel == QProcess::StandardOutput && d->standardOutputClosed)
         return false;
     if (d->processChannel == QProcess::StandardError && d->standardErrorClosed)

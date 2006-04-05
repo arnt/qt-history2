@@ -26,7 +26,7 @@ SOURCES		+= ../../../../src/corelib/global/qglobal.cpp \
                ../../../../src/corelib/tools/qstringmatcher.cpp \
                ../../../../src/corelib/tools/qunicodetables.cpp \
                ../../../../src/corelib/tools/qvector.cpp \
-               ../../../../src/corelib/tools/qvsnprintf.cpp \
+               ../../../../src/corelib/tools/qvsnprintf.cpp
 
 SOURCES		+= \
                ../../../../src/corelib/io/qdir.cpp \
