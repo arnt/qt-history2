@@ -1147,33 +1147,31 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
         {
             int x, y, w, h;
             option->rect.getRect(&x, &y, &w, &h);
-
             int sw = qMin(h, w);
             if (h > w)
                 painter->translate(0, h - w);
             else
                 painter->translate(w - h, 0);
+            
             int sx = x;
             int sy = y;
-            int s = sw / 3;
+            int s = 4;
             if (option->direction == Qt::RightToLeft) {
                 sx = x + sw;
-                for (int i = 0; i < 6; ++i) {
+                for (int i = 0; i < 4; ++i) {
                     painter->setPen(QPen(option->palette.light().color(), 1));
                     painter->drawLine(x, sy - 1 , sx + 1, sw);
                     painter->setPen(QPen(shadow, 1));
                     painter->drawLine(x, sy, sx, sw);
-                    painter->drawLine(x, sy + 1, sx - 1, sw);
                     sx -= s;
                     sy += s;
                 }
             } else {
-                for (int i = 0; i < 6; ++i) {
+                for (int i = 0; i < 4; ++i) {
                     painter->setPen(QPen(option->palette.light().color(), 1));
                     painter->drawLine(sx - 1, sw, sw, sy - 1);
                     painter->setPen(QPen(shadow, 1));
                     painter->drawLine(sx, sw, sw, sy);
-                    painter->drawLine(sx + 1, sw, sw, sy + 1);
                     sx += s;
                     sy += s;
                 }
@@ -3088,6 +3086,9 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         break;
     case CT_MenuBarItem:
 	    newSize += QSize(0, 2);
+	break;
+    case CT_SizeGrip:
+	    newSize += QSize(4, 4);
 	break;
     default:
         break;
