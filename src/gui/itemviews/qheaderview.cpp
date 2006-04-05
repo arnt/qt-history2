@@ -842,7 +842,7 @@ bool QHeaderView::isMovable() const
 /*!
     If \a clickable is true, the header will respond to single clicks.
 
-    \sa isClickable(), sectionClicked(), sectionPressed(), showSortIndicator()
+    \sa isClickable(), sectionClicked(), sectionPressed(), setSortIndicatorShown()
 */
 
 void QHeaderView::setClickable(bool clickable)
