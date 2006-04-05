@@ -2556,9 +2556,13 @@ static void queued_activate(QObject *sender, const QConnection &c, void **argv)
     if (!c.types && c.types != &DIRECT_CONNECTION_ONLY) {
         QMetaMethod m = sender->metaObject()->method(c.signal);
         QConnection &x = const_cast<QConnection &>(c);
-        x.types = ::queuedConnectionTypes(m.parameterTypes());
-        if (!x.types) // cannot queue arguments
-            x.types = &DIRECT_CONNECTION_ONLY;
+        int *tmp = ::queuedConnectionTypes(m.parameterTypes());
+        if (!tmp) // cannot queue arguments
+            tmp = &DIRECT_CONNECTION_ONLY;
+        if (!q_atomic_test_and_set_ptr(&x.types, 0, tmp)) {
+            if (tmp != &DIRECT_CONNECTION_ONLY)
+                qFree(tmp);
+        }
     }
     if (c.types == &DIRECT_CONNECTION_ONLY) // cannot activate
         return;
