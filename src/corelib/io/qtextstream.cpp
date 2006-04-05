@@ -1445,6 +1445,9 @@ QString QTextStream::read(qint64 maxlen)
     Q_D(QTextStream);
     CHECK_VALID_STREAM(QString());
 
+    if (maxlen <= 0)
+        return QString("");     // empty, not null
+
     const QChar *readPtr;
     int length;
     if (!d->scan(&readPtr, &length, int(maxlen), QTextStreamPrivate::EndOfFile))
