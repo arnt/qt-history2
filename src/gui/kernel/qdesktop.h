@@ -17,11 +17,11 @@
 #ifndef QT_NO_DESKTOP
 
 namespace QDesktop {
-    bool launchMailComposer(const QStringList &to, const QString &subject, const QString &body = QString());
-    bool launchMailComposer(const QString &to, const QString &subject, const QString &body = QString());
+    Q_GUI_EXPORT bool launchMailComposer(const QStringList &to, const QString &subject, const QString &body = QString());
+    Q_GUI_EXPORT bool launchMailComposer(const QString &to, const QString &subject, const QString &body = QString());
 
-    bool launchWebBrowser(const QUrl &url);
-    bool open(const QUrl &file);
+    Q_GUI_EXPORT bool launchWebBrowser(const QUrl &url);
+    Q_GUI_EXPORT bool open(const QUrl &file);
 };
 
 #endif // QT_NO_DESKTOP
