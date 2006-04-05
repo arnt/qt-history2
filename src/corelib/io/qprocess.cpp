@@ -1035,6 +1035,8 @@ bool QProcess::waitForReadyRead(int msecs)
 {
     Q_D(QProcess);
 
+    if (d->processState == QProcess::NotRunning)
+        return false;
     if (d->processChannel == QProcess::StandardOutput && d->standardOutputClosed)
         return false;
     if (d->processChannel == QProcess::StandardError && d->standardErrorClosed)
@@ -1281,7 +1283,7 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
 #if defined QPROCESS_DEBUG
     qDebug() << "QProcess::start(" << program << "," << arguments << "," << mode << ")";
 #endif
-    
+
     d->outputReadBuffer.clear();
     d->errorReadBuffer.clear();
     setOpenMode(mode);
