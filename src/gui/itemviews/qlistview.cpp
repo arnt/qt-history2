@@ -1858,7 +1858,7 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
         pos.setX(segmentPositions.at(s));
     }
 
-    QSize size = itemSize(q->viewOptions(), index);
+    QSize size = (uniformItemSizes && cachedItemSize.isValid()) ? cachedItemSize : itemSize(q->viewOptions(), index);
     return QListViewItem(QRect(pos, size), index.row());
 }
 
