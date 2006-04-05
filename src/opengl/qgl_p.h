@@ -36,6 +36,7 @@ class QGLContext;
 class QGLOverlayWidget;
 class QPixmap;
 #ifdef Q_WS_MAC
+#include <AGL/agl.h>
 class QMacWindowChangeEvent;
 #endif
 
@@ -115,6 +116,7 @@ public:
 #endif
 #if defined(Q_WS_MAC)
     bool update;
+    AGLPixelFormat tryFormat(const QGLFormat &format);
 #endif
 #endif
     QGLFormat glFormat;

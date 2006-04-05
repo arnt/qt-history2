@@ -172,84 +172,81 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
   \sa chooseContext()
 */
 
-void *QGLContext::chooseMacVisual(GDHandle /* device */)
+AGLPixelFormat QGLContextPrivate::tryFormat(const QGLFormat &format)
 {
-    Q_D(QGLContext);
-    GLint attribs[40], cnt=0;
-    if(deviceIsPixmap()) {
+    GLint attribs[40], cnt = 0;
+    bool device_is_pixmap = (paintDevice->devType() == QInternal::Pixmap);
+
+    attribs[cnt++] = AGL_RGBA;
+    attribs[cnt++] = AGL_BUFFER_SIZE;
+    attribs[cnt++] = device_is_pixmap ? static_cast<QPixmap *>(paintDevice)->depth() : 32;
+    attribs[cnt++] = AGL_LEVEL;
+    attribs[cnt++] = format.plane();
+
+    if (device_is_pixmap) {
         attribs[cnt++] = AGL_PIXEL_SIZE;
-        attribs[cnt++] = ((QPixmap*)d->paintDevice)->depth();
+        attribs[cnt++] = static_cast<QPixmap *>(paintDevice)->depth();
     }
-    if(d->glFormat.stereo())
-        attribs[cnt++] = AGL_STEREO;
-    {
-        attribs[cnt++] = AGL_RGBA;
-        attribs[cnt++] = AGL_BUFFER_SIZE;
-        attribs[cnt++] = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 32;
-    }
-    if(d->glFormat.alpha()) {
-        attribs[cnt++] = AGL_ALPHA_SIZE;
-        attribs[cnt++] = d->glFormat.alphaBufferSize() == -1 ? 8 : d->glFormat.alphaBufferSize();
-    }
-    if(d->glFormat.stencil()) {
-        attribs[cnt++] = AGL_STENCIL_SIZE;
-        attribs[cnt++] = d->glFormat.stencilBufferSize() == -1 ? 8 : d->glFormat.stencilBufferSize();
-    }
-    if(d->glFormat.depth()) {
-        attribs[cnt++] = AGL_DEPTH_SIZE;
-        attribs[cnt++] = d->glFormat.depthBufferSize() == -1 ? 32 : d->glFormat.depthBufferSize();
-    }
-    if(d->glFormat.accum()) {
-        attribs[cnt++] = AGL_ACCUM_RED_SIZE;
-        attribs[cnt++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
-        attribs[cnt++] = AGL_ACCUM_BLUE_SIZE;
-        attribs[cnt++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
-        attribs[cnt++] = AGL_ACCUM_GREEN_SIZE;
-        attribs[cnt++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
-        attribs[cnt++] = AGL_ACCUM_ALPHA_SIZE;
-        attribs[cnt++] = d->glFormat.accumBufferSize() == -1 ? 16 : d->glFormat.accumBufferSize();
-    }
-    {
-        attribs[cnt++] = AGL_LEVEL;
-        attribs[cnt++] = d->glFormat.plane();
+    if (device_is_pixmap) {
+        attribs[cnt++] = AGL_OFFSCREEN;
+    } else {
+        if(format.doubleBuffer())
+            attribs[cnt++] = AGL_DOUBLEBUFFER;
     }
 
-    if(d->glFormat.sampleBuffers()) {
+    if(glFormat.stereo())
+        attribs[cnt++] = AGL_STEREO;
+    if(format.alpha()) {
+        attribs[cnt++] = AGL_ALPHA_SIZE;
+        attribs[cnt++] = format.alphaBufferSize() == -1 ? 8 : format.alphaBufferSize();
+    }
+    if(format.stencil()) {
+        attribs[cnt++] = AGL_STENCIL_SIZE;
+        attribs[cnt++] = format.stencilBufferSize() == -1 ? 8 : format.stencilBufferSize();
+    }
+    if(format.depth()) {
+        attribs[cnt++] = AGL_DEPTH_SIZE;
+        attribs[cnt++] = format.depthBufferSize() == -1 ? 32 : format.depthBufferSize();
+    }
+    if(format.accum()) {
+        attribs[cnt++] = AGL_ACCUM_RED_SIZE;
+        attribs[cnt++] = format.accumBufferSize() == -1 ? 16 : format.accumBufferSize();
+        attribs[cnt++] = AGL_ACCUM_BLUE_SIZE;
+        attribs[cnt++] = format.accumBufferSize() == -1 ? 16 : format.accumBufferSize();
+        attribs[cnt++] = AGL_ACCUM_GREEN_SIZE;
+        attribs[cnt++] = format.accumBufferSize() == -1 ? 16 : format.accumBufferSize();
+        attribs[cnt++] = AGL_ACCUM_ALPHA_SIZE;
+        attribs[cnt++] = format.accumBufferSize() == -1 ? 16 : format.accumBufferSize();
+    }
+    if(format.sampleBuffers()) {
         attribs[cnt++] = AGL_SAMPLE_BUFFERS_ARB;
         attribs[cnt++] = 1;
         attribs[cnt++] = AGL_SAMPLES_ARB;
-        attribs[cnt++] = d->glFormat.samples() == -1 ? 4 : d->glFormat.samples();
-    }
-
-    if(deviceIsPixmap()) {
-        attribs[cnt++] = AGL_OFFSCREEN;
-    } else {
-        if(d->glFormat.doubleBuffer())
-            attribs[cnt++] = AGL_DOUBLEBUFFER;
-//        attribs[cnt++] = AGL_ACCELERATED;
+        attribs[cnt++] = format.samples() == -1 ? 4 : format.samples();
     }
 
     attribs[cnt] = AGL_NONE;
+    Q_ASSERT(cnt < 40);
+    return aglChoosePixelFormat(0, 0, attribs);
+}
 
-    Q_ASSERT(cnt < 40); // resize buffer above if too small
+void *QGLContext::chooseMacVisual(GDHandle /* device */)
+{
+    Q_D(QGLContext);
+    AGLPixelFormat fmt;
 
-    AGLPixelFormat fmt = aglChoosePixelFormat(0, 0, attribs);
-    if(!fmt) {
-        GLenum err = aglGetError();
-        qWarning("got an error tex: %d", (int)err);
+    fmt = d->tryFormat(d->glFormat);
+    if (!fmt && d->glFormat.stereo()) {
+        d->glFormat.setStereo(false);
+        fmt = d->tryFormat(d->glFormat);
     }
-#if 0
-    else {
-        GLint res;
-        int x = 0;
-        for(AGLPixelFormat fmt2 = fmt; fmt2; fmt2 = aglNextPixelFormat(fmt2)) {
-            aglDescribePixelFormat(fmt2, AGL_RENDERER_ID, &res);
-            GLint res2;
-            aglDescribePixelFormat(fmt2, AGL_ACCELERATED, &res2);
-            qDebug("%d) 0x%08x 0x%08x %d", x++, (int)res, (int)AGL_RENDERER_GENERIC_ID, (int)res2);
-        }
+    if (!fmt && d->glFormat.sampleBuffers()) {
+        d->glFormat.setSampleBuffers(false);
+        fmt = d->tryFormat(d->glFormat);
     }
-#endif
+    if(!fmt)
+        qWarning("QGLContext::chooseMacVisual(): unable to choose a pixel format (error: %d).",
+                 (int)aglGetError());
     return fmt;
 }
 
