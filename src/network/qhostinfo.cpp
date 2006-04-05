@@ -182,9 +182,7 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
     QHostInfoResult *result = new QHostInfoResult;
     QObject::connect(result, SIGNAL(resultsReady(QHostInfo)),
                      receiver, member);
-    QObject::connect(result, SIGNAL(resultsReady(QHostInfo)),
-                     result, SLOT(deleteLater()));
-    result->lookupId = ::qt_qhostinfo_newid();
+    int id = result->lookupId = ::qt_qhostinfo_newid();
     agent->addHostName(lookup, result);
 
 #if !defined QT_NO_THREAD
@@ -196,7 +194,7 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
 //    else
 //	agent->wakeOne();
 #endif
-    return result->lookupId;
+    return id;
 }
 
 /*!
@@ -284,10 +282,8 @@ void QHostInfoAgent::run()
         QHostInfo info = fromName(query->hostName);
         int id = query->object->lookupId;
         info.setLookupId(id);
-        if (pendingQueryId == id) {
+        if (pendingQueryId == id)
             query->object->emitResultsReady(info);
-            query->object = 0;
-        }
         delete query;
     }
 }
