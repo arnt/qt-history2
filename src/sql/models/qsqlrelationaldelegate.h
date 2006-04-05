@@ -90,8 +90,8 @@ void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex 
 
 };
 
-#endif // QT_GUI_LIB
-
 QT_END_HEADER
+
+#endif // QT_GUI_LIB
 
 #endif // QSQLRELATIONALDELEGATE_H
