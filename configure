@@ -1188,7 +1188,7 @@ while [ "$#" -gt 0 ]; do
         OPT="$VAL"
         VAL=`echo $VAR | sed "s,^[^-]*-\([^-]*\).*,\1,"`
         VAR=`echo $VAR | sed "s,^\([^-]*\).*,\1,"`
-        ERROR=no
+        found=no
         if [ "$VAR" = "decoration" ]; then
 	    avail=""
 	    if [ "$OPT" = "qt" ]; then 
@@ -1196,13 +1196,13 @@ while [ "$#" -gt 0 ]; do
 	    elif [ "$OPT" = "plugin" ]; then
 		avail="$CFG_DECORATION_PLUGIN_AVAILABLE"
 	    fi
-            ERROR=yes
             for d in $avail; do
                 if [ "$VAL" = "$d" ]; then
-                    ERROR=no
+                    found=yes
                     break
                 fi
             done
+            [ "$found" = yes ] || ERROR=yes
         elif [ "$VAR" = "mouse" ]; then
 	    avail=""
 	    if [ "$OPT" = "qt" ]; then 
@@ -1210,22 +1210,22 @@ while [ "$#" -gt 0 ]; do
 	    elif [ "$OPT" = "plugin" ]; then
 		avail="$CFG_MOUSE_PLUGIN_AVAILABLE"
 	    fi
-            ERROR=yes
             for d in $avail; do
                 if [ "$VAL" = "$d" ]; then
-                    ERROR=no
+                    found=yes
                     break
                 fi
             done
+            [ "$found" = yes ] || ERROR=yes
         elif [ "$VAR" = "sql" ]; then
-            ERROR=yes
             # check if named driver is available
             for d in $CFG_SQL_AVAILABLE; do
                 if [ "$VAL" = "$d" ]; then
-                    ERROR=no
+                    found=yes
                     break
                 fi
             done
+            [ "$found" = yes ] || ERROR=yes
             # set the CFG_SQL_driver
             eval "CFG_SQL_$VAL=\$OPT"
             continue
