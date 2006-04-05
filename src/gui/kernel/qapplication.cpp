@@ -3215,12 +3215,13 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
   a session manager object as argument, to allow the application
   to communicate with the session manager.
 
-  During a session management action (i.e. within commitData() and
-  saveState()), no user interaction is possible \e unless the
-  application got explicit permission from the session manager. You
-  ask for permission by calling allowsInteraction() or, if it's really
-  urgent, allowsErrorInteraction(). Qt does not enforce this, but the
-  session manager may.
+  During a session management action (i.e. within
+  \l{QApplication::commitData()}{commitData()} and
+  \l{QApplication::saveState()}{saveState()}), no user interaction is
+  possible \e unless the application got explicit permission from the
+  session manager. You ask for permission by calling allowsInteraction()
+  or, if it's really urgent, allowsErrorInteraction(). Qt does not
+  enforce this, but the session manager may.
 
   You can try to abort the shutdown process by calling cancel(). The
   default commitData() function does this if some top-level window
