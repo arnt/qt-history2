@@ -127,5 +127,14 @@ DEFINES *= QT_MOC_COMPAT #we don't need warnings from calling moc code in our ge
    }
 }
 
+
+moc_dir.name = moc_location
+moc_dir.variable = QMAKE_MOC
+
+uic_dir.name = uic_location
+uic_dir.variable = QMAKE_UIC
+
+QMAKE_PKGCONFIG_VARIABLES += moc_dir uic_dir
+
 include(qt_targets.pri)
 
