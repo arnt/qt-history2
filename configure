@@ -533,6 +533,14 @@ if [ -d "$relpath/src/plugins/mousedrivers" ]; then
     CFG_MOUSE_PLUGIN_AVAILABLE=`echo $CFG_MOUSE_PLUGIN_AVAILABLE` # normalize whitespace
 fi
 
+CFG_GFX_PLUGIN_AVAILABLE=""
+if [ -d "$relpath/src/plugins/gfxdrivers" ]; then
+    CFG_GFX_PLUGIN_AVAILABLE=`find $relpath/src/plugins/gfxdrivers/* -prune -type d -exec basename {} \;`
+    CFG_GFX_PLUGIN_AVAILABLE=`echo $CFG_GFX_PLUGIN_AVAILABLE` # normalize whitespace
+    CFG_GFX_AVAILABLE="$CFG_GFX_AVAILABLE $CFG_GFX_PLUGIN_AVAILABLE"
+    CFG_GFX_OFF="$CFG_GFX_AVAILABLE" # assume all off
+fi
+
 #-------------------------------------------------------------------------------
 # parse command line arguments
 #-------------------------------------------------------------------------------
@@ -1188,48 +1196,52 @@ while [ "$#" -gt 0 ]; do
         OPT="$VAL"
         VAL=`echo $VAR | sed "s,^[^-]*-\([^-]*\).*,\1,"`
         VAR=`echo $VAR | sed "s,^\([^-]*\).*,\1,"`
-        found=no
-        if [ "$VAR" = "decoration" ]; then
-	    avail=""
-	    if [ "$OPT" = "qt" ]; then 
-		avail="$CFG_DECORATION_AVAILABLE"
-	    elif [ "$OPT" = "plugin" ]; then
+
+        # Grab the available values
+        case "$VAR" in
+        sql)
+            avail="$CFG_SQL_AVAILABLE"
+            ;;
+        gfx)
+            avail="$CFG_GFX_AVAILABLE"
+            ;;
+        decoration)
+            avail="$CFG_DECORATION_AVAILABLE"
+	    if [ "$OPT" = "plugin" ]; then
 		avail="$CFG_DECORATION_PLUGIN_AVAILABLE"
 	    fi
-            for d in $avail; do
-                if [ "$VAL" = "$d" ]; then
-                    found=yes
-                    break
-                fi
-            done
-            [ "$found" = yes ] || ERROR=yes
-        elif [ "$VAR" = "mouse" ]; then
-	    avail=""
-	    if [ "$OPT" = "qt" ]; then 
-		avail="$CFG_MOUSE_AVAILABLE"
-	    elif [ "$OPT" = "plugin" ]; then
+            ;;
+        kbd)
+            avail="$CFG_KBD_AVAILABLE"
+            ;;
+        mouse)
+            avail="$CFG_MOUSE_AVAILABLE"
+	    if [ "$OPT" = "plugin" ]; then
 		avail="$CFG_MOUSE_PLUGIN_AVAILABLE"
 	    fi
-            for d in $avail; do
-                if [ "$VAL" = "$d" ]; then
-                    found=yes
-                    break
-                fi
-            done
-            [ "$found" = yes ] || ERROR=yes
-        elif [ "$VAR" = "sql" ]; then
-            # check if named driver is available
-            for d in $CFG_SQL_AVAILABLE; do
-                if [ "$VAL" = "$d" ]; then
-                    found=yes
-                    break
-                fi
-            done
-            [ "$found" = yes ] || ERROR=yes
+            ;;
+        *)
+            avail=""
+            echo "BUG: Unhandled type $VAR used in $CURRENT_OPT"
+            ;;
+        esac
+
+        # Check that that user's value is available.
+        found=no
+        for d in $avail; do
+            if [ "$VAL" = "$d" ]; then
+                found=yes
+                break
+            fi
+        done
+        [ "$found" = yes ] || ERROR=yes
+
+        if [ "$VAR" = "sql" ]; then
             # set the CFG_SQL_driver
             eval "CFG_SQL_$VAL=\$OPT"
             continue
         fi
+
         if [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
             if [ "$OPT" = "plugin" ]; then
                 [ "$VAR" = "decoration" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
@@ -2078,10 +2090,6 @@ fi
 # embedded 
 if [ "$PLATFORM_QWS" = "yes" ]; then
 
-    # graphics
-    CFG_GFX_PLUGINS_AVAILABLE=`find $relpath/src/plugins/gfxdrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
-    CFG_GFX_AVAILABLE=`echo $CFG_GFX_PLUGINS_AVAILABLE $CFG_GFX_AVAILABLE`
-    CFG_GFX_OFF=`echo $CFG_GFX_AVAILABLE` # assume all off
     # No OpenGL for Qtopia Core
     if [ "$CFG_OPENGL" = "auto" ]; then
         CFG_OPENGL=no
