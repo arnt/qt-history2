@@ -16,6 +16,7 @@
 #ifndef QT_NO_SYNTAXHIGHLIGHTER
 #include <private/qobject_p.h>
 #include <qtextdocument.h>
+#include <private/qtextdocument_p.h>
 #include <qtextlayout.h>
 #include <qpointer.h>
 #include <qtextobject.h>
@@ -115,20 +116,17 @@ void QSyntaxHighlighterPrivate::_q_reformatBlocks(int from, int charsRemoved, in
     QTextBlock block = doc->findBlock(from);
     if (!block.isValid())
         return;
-
-    QTextBlock endBlock;
-    if (charsAdded > 0)
-        endBlock = doc->findBlock(from + charsAdded - 1);
+    
+    int endPosition;
+    QTextBlock lastBlock = doc->findBlock(from + charsAdded);
+    if (lastBlock.isValid())
+        endPosition = lastBlock.position() + lastBlock.length();
     else
-        endBlock = block;
+        endPosition = doc->docHandle()->length();
 
     bool forceHighlightOfNextBlock = false;
 
-    while (block.isValid()
-           && (!(endBlock < block)
-               || forceHighlightOfNextBlock
-              )
-          ) {
+    while (block.isValid() && (block.position() < endPosition || forceHighlightOfNextBlock)) {
         const int stateBeforeHighlight = block.userState();
 
         reformatBlock(block);
