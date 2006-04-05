@@ -252,7 +252,7 @@ inline QColor QGLDrawable::backgroundColor() const
 {
     if (widget)
         return widget->palette().brush(QPalette::Background).color();
-    return QColor();
+    return QApplication::palette().brush(QPalette::Background).color();
 }
 
 inline QGLContext *QGLDrawable::context() const
