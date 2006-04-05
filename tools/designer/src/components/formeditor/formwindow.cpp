@@ -209,8 +209,7 @@ void FormWindow::init()
     m_geometryChangedTimer->setSingleShot(true);
     connect(m_geometryChangedTimer, SIGNAL(timeout()), this, SIGNAL(geometryChanged()));
 
-    m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-    m_rubberBand->hide();
+    m_rubberBand = 0;
 
     setGrid(QPoint(10,10));
 
@@ -514,6 +513,8 @@ void FormWindow::startRectDraw(const QPoint &pos, QWidget *, RectType t)
     rectAnchor = (t == Insert) ? gridPoint(pos) : pos;
 
     currRect = QRect(rectAnchor, QSize(0, 0));
+    if (!m_rubberBand)
+        m_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
     m_rubberBand->setGeometry(currRect);
     m_rubberBand->show();
 }
@@ -531,7 +532,8 @@ void FormWindow::continueRectDraw(const QPoint &pos, QWidget *, RectType t)
     if (r.width() > 1 || r.height() > 1) {
         oldRectValid = true;
         currRect = r;
-        m_rubberBand->setGeometry(currRect);
+        if (m_rubberBand)
+            m_rubberBand->setGeometry(currRect);
     } else {
         oldRectValid = false;
     }
@@ -539,10 +541,10 @@ void FormWindow::continueRectDraw(const QPoint &pos, QWidget *, RectType t)
 
 void FormWindow::endRectDraw()
 {
-    if (!m_rubberBand->isVisible())
-        return;
-
-    m_rubberBand->hide();
+    if (m_rubberBand) {
+        delete m_rubberBand;
+        m_rubberBand = 0;
+    }
 }
 
 QPoint FormWindow::gridPoint(const QPoint &p) const
