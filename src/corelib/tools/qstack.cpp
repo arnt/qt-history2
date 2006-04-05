@@ -29,14 +29,10 @@
     item without removing it.
 
     Example:
-    \code
-        QStack<int> stack;
-        stack.push(1);
-        stack.push(2);
-        stack.push(3);
-        while (!stack.isEmpty())
-            cout << stack.pop() << endl;
-    \endcode
+
+    \quotefromfile snippets/qstack/main.cpp
+    \skipto QStack
+    \printuntil cout
 
     The example will output 3, 2, 1 in that order.
 
