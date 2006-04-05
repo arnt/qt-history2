@@ -929,6 +929,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->basicStroker.setJoinStyle(d->pen.joinStyle());
         d->basicStroker.setCapStyle(d->pen.capStyle());
         d->basicStroker.setMiterLimit(d->pen.miterLimit());
+
         qreal penWidth = d->pen.widthF();
         if (penWidth == 0)
             d->basicStroker.setStrokeWidth(1);
@@ -941,7 +942,12 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         } else if (pen_style != Qt::NoPen) {
             if (!d->dashStroker)
                 d->dashStroker = new QDashStroker(&d->basicStroker);
-            d->dashStroker->setClipRect(d->deviceRect);
+            if (penWidth == 0) {
+                d->dashStroker->setClipRect(d->deviceRect);
+            } else {
+                QRectF clipRect = d->matrix.inverted().mapRect(QRectF(d->deviceRect));
+                d->dashStroker->setClipRect(clipRect);
+            }
             d->dashStroker->setDashPattern(d->pen.dashPattern());
             d->stroker = d->dashStroker;
         } else {

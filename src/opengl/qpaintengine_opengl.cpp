@@ -1050,6 +1050,15 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     } else if (pen_style != Qt::NoPen) {
         if (!d->dashStroker)
             d->dashStroker = new QDashStroker(&d->basicStroker);
+
+        QRectF deviceRect(0, 0, d->pdev->width(), d->pdev->height());
+        if (penWidth == 0) {
+            d->dashStroker->setClipRect(deviceRect);
+        } else {
+            QRectF clipRect = d->matrix.inverted().mapRect(deviceRect);
+            d->dashStroker->setClipRect(clipRect);
+        }
+
         d->dashStroker->setDashPattern(pen.dashPattern());
         d->stroker = d->dashStroker;
     } else {
