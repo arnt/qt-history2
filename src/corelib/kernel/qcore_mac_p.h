@@ -59,7 +59,7 @@ template <typename T>
 class QCFType
 {
 public:
-    inline QCFType(const T &t = 0) : type(t) {}
+    inline QCFType(const T &t = 0) : type(t) { if(type) CFRetain(type); }
     inline QCFType(const QCFType &helper) : type(helper.type) { if (type) CFRetain(type); }
     inline ~QCFType() { if (type) CFRelease(type); }
     inline operator T() { return type; }
