@@ -620,8 +620,9 @@ QString QDate::longDayName(int weekday)
     year, MM is the month of the year (between 01 and 12), and DD is
     the day of the month between 01 and 31.
 
-    If the \a format is Qt::LocalDate, the string format depends
-    on the locale settings of the system.
+    If the \a format is Qt::LocalDate, the string format depends on the locale
+    settings of the system. On Mac OS X, an assumption is made that the
+    date is in the local time zone.
 
     If the datetime is invalid, an empty string will be returned.
 
@@ -659,7 +660,10 @@ QString QDate::toString(Qt::DateFormat f) const
             macGDate.hour = 0;
             macGDate.minute = 0;
             macGDate.second = 0.0;
-            QCFType<CFDateRef> myDate = CFDateCreate(0, CFGregorianDateGetAbsoluteTime(macGDate, 0));
+            QCFType<CFTimeZoneRef> myTZ = CFTimeZoneCopyDefault();
+
+            QCFType<CFDateRef> myDate = CFDateCreate(0,
+                                            CFGregorianDateGetAbsoluteTime(macGDate, myTZ));
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
             if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                 QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
