@@ -683,8 +683,7 @@ void QProcessPrivate::findExitCode()
     if (GetExitCodeProcess(pid->hProcess, &theExitCode)) {
         exitCode = theExitCode;
         //### for now we assume a crash if exit code is less than -1 or the magic number
-        if (exitCode == 0xf291 || (int)exitCode < 0)
-            crashed = true;
+        crashed = (exitCode == 0xf291 || (int)exitCode < 0);
     }
 }
 
