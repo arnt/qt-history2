@@ -646,6 +646,8 @@ void QSortFilterProxyModelPrivate::source_items_removed(
     // Do the same adjustment for persistent indexes
     for (int i = 0; i < source_indexes.size(); ++i) {
         QModelIndex source_index = source_indexes.at(i);
+        if (model->parent(source_index) != source_parent)
+            continue;
         int source_item = (orient == Qt::Vertical) ? source_index.row() : source_index.column();
         if (source_item >= start) {
             if (source_item <= end) {
