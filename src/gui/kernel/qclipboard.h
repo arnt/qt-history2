@@ -81,11 +81,6 @@ protected:
 
 private:
     Q_DISABLE_COPY(QClipboard)
-
-#if defined(Q_WS_MAC)
-    void loadScrap(bool convert);
-    void saveScrap();
-#endif
 };
 
 #endif // QT_NO_CLIPBOARD

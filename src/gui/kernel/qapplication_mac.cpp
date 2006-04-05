@@ -2461,7 +2461,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
             if(QApplication::desktopSettingsAware())
                 qt_mac_update_os_settings();
-            app->clipboard()->loadScrap(false);
             if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
                 QEvent ev(QEvent::Clipboard);
                 QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
@@ -2481,7 +2480,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventAppDeactivated) {
             while(app->d_func()->inPopupMode())
                 app->activePopupWidget()->close();
-            app->clipboard()->saveScrap();
             if(app) {
                 QEvent ev(QEvent::ApplicationDeactivated);
                 QApplication::sendSpontaneousEvent(app, &ev);

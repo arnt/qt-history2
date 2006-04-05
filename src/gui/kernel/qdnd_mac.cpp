@@ -67,73 +67,6 @@ extern uint qGlobalPostedEventsCount(); //qapplication.cpp
 //promise keeper
 static DragSendDataUPP qt_mac_send_handlerUPP = 0;
 
-class QMacMimeData : public QMimeData
-{
-    public:
-        QVariant variantData(const QString &mime) { return retrieveData(mime, QVariant::Invalid); }
-    private:
-        QMacMimeData();
-};
-
-/*!
-  \internal
-  */
-OSErr QDragManager::qt_mac_send_handler(FlavorType flav, void *data, DragItemRef, DragRef dragRef)
-{
-#ifdef DEBUG_DRAG_PROMISES
-    qDebug("asked to send %c%c%c%c", char(flav >> 24) & 0xFF, char(flav >> 16) & 0xFF, char(flav >> 8) & 0xFF,
-            char(flav) & 0xFF);
-#endif
-    QDragPrivate *o = (QDragPrivate *)data;
-    QDragManager *manager = QDragManager::self();
-    if(!manager || !manager->object || manager->object->d_func() != o || manager->beingCancelled)
-        return cantGetFlavorErr;
-
-    QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
-    {
-        ItemReference ref = 0;
-        if(GetDragItemReferenceNumber(dragRef, 1, &ref) == noErr) {
-            Size sz;
-            extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-            if(GetFlavorDataSize(dragRef, ref, qt_mac_mime_type, &sz) == noErr)
-                qmt = QMacMime::MIME_QT_CONVERTOR;
-        }
-    }
-    while(1) {
-        QList<QMacMime*> all = QMacMime::all(qmt);
-        for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
-            QMacMime *c = (*it);
-            QString mime = c->mimeFor(flav);
-            if(!mime.isNull()) {
-                QList<QByteArray> md = c->convertFromMime(mime,
-                        static_cast<QMacMimeData*>(o->data)->variantData(mime), flav);
-                int item_ref = 1;
-                for(QList<QByteArray>::Iterator it = md.begin(); it != md.end(); ++it)
-                    SetDragItemFlavorData(dragRef, (ItemReference)item_ref++, flav, (*it).data(), (*it).size(), 0);
-                return noErr;
-            }
-        }
-        if(qmt == QMacMime::MIME_DND)
-            break;
-        qmt = QMacMime::MIME_DND; //now just try anything..
-    }
-    return cantGetFlavorErr;
-}
-static void cleanup_dnd_sendUPP()
-{
-    if(qt_mac_send_handlerUPP) {
-        DisposeDragSendDataUPP(qt_mac_send_handlerUPP);
-        qt_mac_send_handlerUPP = 0;
-    }
-}
-static const DragSendDataUPP make_sendUPP()
-{
-    if(qt_mac_send_handlerUPP)
-        return qt_mac_send_handlerUPP;
-    qAddPostRoutine(cleanup_dnd_sendUPP);
-    return qt_mac_send_handlerUPP = NewDragSendDataUPP(QDragManager::qt_mac_send_handler);
-}
-
 //default pixmap
 static const int default_pm_hotx = -2;
 static const int default_pm_hoty = -16;
@@ -252,102 +185,32 @@ static void qt_mac_dnd_update_action(DragReference dragRef) {
  *****************************************************************************/
 bool QDropData::hasFormat_sys(const QString &mime) const
 {
-    ItemReference ref = 0;
-    if(GetDragItemReferenceNumber(qt_mac_current_dragRef, 1, &ref))
+    PasteboardRef board;
+    if(GetDragPasteboard(qt_mac_current_dragRef, &board) != noErr) {
+        qDebug("DnD: Cannot get PasteBoard!");
         return false;
-
-    UInt16 cnt = 0;
-    if(CountDragItemFlavors(qt_mac_current_dragRef, ref, &cnt))
-        return false;
-
-    FlavorType flav;
-    QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
-    Size sz;
-    extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-    if(GetFlavorDataSize(qt_mac_current_dragRef, ref, qt_mac_mime_type, &sz) == noErr
-                            && mime != QLatin1String("text/plain"))
-        qmt = QMacMime::MIME_QT_CONVERTOR;
-    for(int x = 1; x <= (int)cnt; x++) {
-        if(GetFlavorType(qt_mac_current_dragRef, ref, x, &flav) == noErr) {
-            if(QMacMime::convertor(qmt, mime, flav))
-                return true;
-        }
     }
-    return false;
+    return QMacPasteBoard(board, QMacMime::MIME_DND).hasFormat(mime);
 }
 
-QVariant QDropData::retrieveData_sys(const QString &mime, QVariant::Type) const
+QVariant QDropData::retrieveData_sys(const QString &mime, QVariant::Type type) const
 {
-    Size flavorsize=0;
-    QVariant ret;
-    QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
-    {
-        ItemReference ref = 0;
-        if(GetDragItemReferenceNumber(qt_mac_current_dragRef, 1, &ref) == noErr) {
-            Size sz;
-            extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-            if(GetFlavorDataSize(qt_mac_current_dragRef, ref, qt_mac_mime_type, &sz) == noErr
-                    && mime != QLatin1String("text/plain"))
-                qmt = QMacMime::MIME_QT_CONVERTOR;
-        }
+    PasteboardRef board;
+    if(GetDragPasteboard(qt_mac_current_dragRef, &board) != noErr) {
+        qDebug("DnD: Cannot get PasteBoard!");
+        return QVariant();
     }
-    QList<QMacMime*> all = QMacMime::all(qmt);
-    for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
-        QMacMime *c = (*it);
-        int flav = c->flavorFor(mime);
-        if(flav) {
-            UInt16 cnt_items;
-            CountDragItems(qt_mac_current_dragRef, &cnt_items);
-            QList<QByteArray> arrs;
-            for(int i = 1; i <= cnt_items; i++) {
-                ItemReference ref = 0;
-                if(GetDragItemReferenceNumber(qt_mac_current_dragRef, i, &ref)) {
-                    qWarning("Qt: Internal error (%s:%d)", __FILE__, __LINE__);
-                    return QByteArray();
-                }
-                if(GetFlavorDataSize(qt_mac_current_dragRef, ref, flav, &flavorsize) == noErr) {
-                    QByteArray buffer(flavorsize, 0);
-                    GetFlavorData(qt_mac_current_dragRef, ref, flav, buffer.data(), &flavorsize, 0);
-                    arrs.append(buffer);
-                }
-            }
-            if(!arrs.isEmpty()) {
-                ret = c->convertToMime(mime, arrs, flav);
-                break;
-            }
-        }
-    }
-    return ret;
+    return QMacPasteBoard(board, QMacMime::MIME_DND).retrieveData(mime, type);
 }
 
 QStringList QDropData::formats_sys() const
 {
-    QStringList ret;
-
-    ItemReference ref = 0;
-    if(GetDragItemReferenceNumber(qt_mac_current_dragRef, 1, &ref))
-        return ret;
-
-    UInt16 cnt = 0;
-    if(CountDragItemFlavors(qt_mac_current_dragRef, ref, &cnt))
-        return ret;
-
-    FlavorType flav;
-    QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
-    {
-        Size sz;
-        extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-        if(GetFlavorDataSize(qt_mac_current_dragRef, ref, qt_mac_mime_type, &sz) == noErr)
-            qmt = QMacMime::MIME_QT_CONVERTOR;
+    PasteboardRef board;
+    if(GetDragPasteboard(qt_mac_current_dragRef, &board) != noErr) {
+        qDebug("DnD: Cannot get PasteBoard!");
+        return QStringList();
     }
-    for(int x = 1; x <= (int)cnt; x++) {
-        if(GetFlavorType(qt_mac_current_dragRef, ref, x, &flav) == noErr) {
-            QString mime = QMacMime::flavorToMime(qmt, flav);
-            if(!mime.isNull() && !ret.contains(mime))
-                ret.append(mime);
-        }
-    }
-    return ret;
+    return QMacPasteBoard(board, QMacMime::MIME_DND).formats();
 }
 
 void QDragManager::timerEvent(QTimerEvent*)
@@ -560,60 +423,38 @@ Qt::DropAction QDragManager::drag(QDrag *o)
         return Qt::IgnoreAction;
 
     if(object) {
-        o->d_func()->source->removeEventFilter(this);
+        dragPrivate()->source->removeEventFilter(this);
         cancel();
         beingCancelled = false;
     }
 
     object = o;
-    o->d_func()->target = 0;
+    dragPrivate()->target = 0;
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
 #endif
 
+    //setup the data
+    QMacPasteBoard dragBoard(QMacMime::MIME_DND);
+    dragBoard.setMimeData(dragPrivate()->data);
+
+    //create the drag
     OSErr result;
     DragRef dragRef;
-    if((result = NewDrag(&dragRef)))
+    if((result = NewDragWithPasteboard(dragBoard.pasteBoard(), &dragRef)))
         return Qt::IgnoreAction;
-    SetDragSendProc(dragRef, make_sendUPP(), o->d_func()); //fullfills the promise!
     //setup the actions
     SetDragAllowableActions(dragRef, //local
-                            qt_mac_dnd_map_qt_actions(o->d_func()->possible_actions),
+                            qt_mac_dnd_map_qt_actions(dragPrivate()->possible_actions),
                             true);
     SetDragAllowableActions(dragRef, //remote (same as local)
-                            qt_mac_dnd_map_qt_actions(o->d_func()->possible_actions),
+                            qt_mac_dnd_map_qt_actions(dragPrivate()->possible_actions),
                             false);
 
-    //encode the data
-    QList<QMacMime*> all = QMacMime::all(QMacMime::MIME_DND);
-    QStringList fmts = o->d_func()->data->formats();
-    for(int i = 0; i < fmts.size(); ++i) {
-        for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
-            QMacMime *c = (*it);
-            if(c->flavorFor(fmts.at(i))) {
-                for (int j = 0; j < c->countFlavors(); j++) {
-                    const uint flav = c->flavor(j);
-#ifdef DEBUG_DRAG_PROMISES
-                    qDebug("%d) trying to append (%s) '%s' -> %d[%c%c%c%c] (%d)",
-                           i, c->convertorName().toLatin1().constData(), fmts.at(i).toLatin1().constData(),
-                           flav, (flav >> 24) & 0xFF, (flav >> 16) & 0xFF, (flav >> 8) & 0xFF, flav & 0xFF,
-                           c->canConvert(fmts.at(i), flav));
-#endif
-                    if(c->canConvert(fmts.at(i), flav))
-                        AddDragItemFlavor(dragRef, 1, flav, 0, 0, 0); //promised for later
-                }
-            }
-        }
-    }
-    { //mark it with the Qt stamp
-        char t = 123;
-        extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-        AddDragItemFlavor(dragRef, 1, qt_mac_mime_type, &t, 1, 0);
-    }
 
     QPoint hotspot;
-    QPixmap pix = o->d_func()->pixmap;
+    QPixmap pix = dragPrivate()->pixmap;
     if(pix.isNull()) {
         if(dragPrivate()->data->hasText() || dragPrivate()->data->hasUrls()) {
             //get the string
@@ -643,7 +484,7 @@ Qt::DropAction QDragManager::drag(QDrag *o)
             hotspot = QPoint(default_pm_hotx, default_pm_hoty);
         }
     } else {
-        hotspot = o->d_func()->hotspot;
+        hotspot = dragPrivate()->hotspot;
     }
 
     //so we must fake an event

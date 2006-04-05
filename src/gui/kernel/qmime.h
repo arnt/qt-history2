@@ -91,18 +91,32 @@ public:
 
     static void initialize();
 
-    static QList<QMacMime*> all(QMacMimeType);
-    static QMacMime *convertor(QMacMimeType, const QString &mime, int flav);
-    static QString flavorToMime(QMacMimeType, int flav);
+    static QList<QMacMime*> all(uchar);
+    static QMacMime *convertor(uchar, const QString &mime, QString flav);
+    static QMacMime *convertor(uchar, const QString &mime, int flav);
+    static QString flavorToMime(uchar, QString flav);
+    static QString flavorToMime(uchar, int flav);
 
-    virtual QString convertorName()=0;
-    virtual int countFlavors()=0;
-    virtual int flavor(int index)=0;
-    virtual bool canConvert(const QString &mime, int flav)=0;
-    virtual QString mimeFor(int flav)=0;
-    virtual int flavorFor(const QString &mime)=0;
-    virtual QVariant convertToMime(const QString &mime, QList<QByteArray> data, int flav)=0;
-    virtual QList<QByteArray> convertFromMime(const QString &mime, QVariant data, int flav)=0;
+    virtual QString convertorName() = 0;
+    virtual int countFlavors() = 0;
+
+    virtual QString flavorUTI(int index);
+    virtual int flavor(int) { Q_ASSERT(false); return 0; }
+
+    virtual bool canConvert(const QString &mime, QString flav);
+    virtual bool canConvert(const QString &, int) { Q_ASSERT(false); return false; }
+
+    virtual QString mimeFor(QString flav);
+    virtual QString mimeFor(int) { Q_ASSERT(false); return QString(); }
+
+    virtual int flavorFor(const QString &) { Q_ASSERT(false); return 0; }
+    virtual QString flavorUTIFor(const QString &mime);
+
+    virtual QVariant convertToMime(const QString &mime, QList<QByteArray> data, QString flav);
+    virtual QVariant convertToMime(const QString &, QList<QByteArray>, int) { Q_ASSERT(false); return QVariant(); }
+
+    virtual QList<QByteArray> convertFromMime(const QString &mime, QVariant data, QString flav);
+    virtual QList<QByteArray> convertFromMime(const QString &, QVariant, int){ Q_ASSERT(false); return QList<QByteArray>(); }
 };
 
 #endif // Q_WS_MAC

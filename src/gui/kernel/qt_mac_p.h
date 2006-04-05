@@ -26,7 +26,9 @@
 //
 
 #include "QtCore/qglobal.h"
+#include "QtCore/qvariant.h"
 #include "private/qcore_mac_p.h"
+#include <ApplicationServices/ApplicationServices.h>
 
 #include "QtGui/qpainter.h"
 #include "QtGui/qwidget.h"
@@ -141,6 +143,43 @@ public:
         CGContextRetain(context); //we do not take ownership
         return *this;
     }
+};
+
+class QMacMime;
+class QMimeData;
+
+class QMacPasteBoard
+{
+    struct Promise {
+        Promise(QMacMime *c, QString m, QVariant d) : convertor(c), mime(m), data(d) { }
+        QMacMime *convertor;
+        QString mime;
+        QVariant data;
+    };
+    QList<Promise> promises;
+
+    PasteboardRef paste;
+    uchar mime_type;
+    mutable QPointer<QMimeData> mime;
+    mutable bool mac_mime_source;
+    static OSStatus promiseKeeper(PasteboardRef, PasteboardItemID, CFStringRef, void *);
+    bool hasFlavor(QString flavor) const;
+public:
+    QMacPasteBoard(PasteboardRef p, uchar mime_type=0);
+    QMacPasteBoard(uchar mime_type);
+    QMacPasteBoard(CFStringRef name=0, uchar mime_type=0);
+    ~QMacPasteBoard();
+
+    PasteboardRef pasteBoard() const;
+    QMimeData *mimeData() const;
+    void setMimeData(QMimeData *mime);
+
+    QStringList formats() const;
+    bool hasFormat(const QString &format) const;
+    QVariant retrieveData(const QString &format, QVariant::Type) const;
+
+    void clear();
+    bool sync() const;
 };
 
 #include "qpaintdevice.h"
