@@ -76,7 +76,7 @@ OSType translateLocation(Location type)
 /*
     Returns wether the given fsRef is something valid.
 */
-Boolean FSRefIsValid( const FSRef &fsRef )
+static Boolean FSRefIsValid( const FSRef &fsRef )
 {
   return ( FSGetCatalogInfo( &fsRef, kFSCatInfoNone, NULL, NULL, NULL, NULL ) == noErr );
 }
@@ -85,7 +85,7 @@ Boolean FSRefIsValid( const FSRef &fsRef )
     Constructs a full unicode path from a FSRef (I can't find a system function
     that does this.. )
 */
-QString getFullPath(FSRef ref)
+static QString getFullPath(FSRef ref)
 {
     QString path;
     FSRef parent;
@@ -104,7 +104,7 @@ QString getFullPath(FSRef ref)
     return path;
 }
 
-bool lsOpen(const QUrl &url)
+static bool lsOpen(const QUrl &url)
 {
     if (!url.isValid())
         return false;
