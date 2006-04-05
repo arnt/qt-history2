@@ -30,9 +30,16 @@
 #ifndef QT_NO_CODECS
 #include "qtsciicodec_p.h"
 #include "qisciicodec_p.h"
+#include "../../plugins/codecs/cn/qgb18030codec.h"
+#include "../../plugins/codecs/jp/qeucjpcodec.h"
+#include "../../plugins/codecs/jp/qjiscodec.h"
+#include "../../plugins/codecs/jp/qsjiscodec.h"
+#include "../../plugins/codecs/kr/qeuckrcodec.h"
+#include "../../plugins/codecs/tw/qbig5codec.h"
 #endif // QT_NO_CODECS
 #ifdef Q_WS_X11
 #include "qfontlaocodec_p.h"
+#include "../../plugins/codecs/jp/qfontjpcodec.h"
 #endif
 #include "private/qlocale_p.h"
 #include "private/qmutexpool_p.h"
@@ -454,6 +461,16 @@ static void setup()
 
 #ifdef Q_WS_X11
     (void)new QFontLaoCodec;
+#ifndef QT_BOOTSTRAPPED
+    (void)new QFontGb2312Codec;
+    (void)new QFontGbkCodec;
+    (void)new QFontGb18030_0Codec;
+    (void)new QFontJis0208Codec;
+    (void)new QFontJis0201Codec;
+    (void)new QFontKsc5601Codec;
+    (void)new QFontBig5hkscsCodec;
+    (void)new QFontBig5Codec;
+#endif
 #endif
 #ifndef QT_NO_CODECS
     (void)new QTsciiCodec;
@@ -463,6 +480,18 @@ static void setup()
 
     for (int i = 0; i < QSimpleTextCodec::numSimpleCodecs; ++i)
         (void)new QSimpleTextCodec(i);
+
+#ifndef QT_BOOTSTRAPPED
+    (void)new QGb18030Codec;
+    (void)new QGbkCodec;
+    (void)new QGb2312Codec;
+    (void)new QEucJpCodec;
+    (void)new QJisCodec;
+    (void)new QSjisCodec;
+    (void)new QEucKrCodec;
+    (void)new QBig5Codec;
+    (void)new QBig5hkscsCodec;
+#endif
 #endif // QT_NO_CODECS
 
 #ifdef Q_OS_WIN32

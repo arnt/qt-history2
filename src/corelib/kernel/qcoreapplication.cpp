@@ -1646,6 +1646,8 @@ Q_GLOBAL_STATIC_WITH_ARGS(QMutex, libraryPathMutex, (QMutex::Recursive))
 QStringList QCoreApplication::libraryPaths()
 {
     QMutexLocker locker(libraryPathMutex());
+    if (!self)
+        return QStringList();
     if (!coreappdata()->app_libpaths) {
         QStringList *app_libpaths = coreappdata()->app_libpaths = new QStringList;
         QString installPathPlugins =  QLibraryInfo::location(QLibraryInfo::PluginsPath);
