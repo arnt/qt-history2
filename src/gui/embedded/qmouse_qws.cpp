@@ -330,12 +330,8 @@ void QWSCalibratedMouseHandler::writeCalibration()
 {
     QString calFile;
     calFile = qgetenv("POINTERCAL_FILE");
-    if (!calFile.isEmpty()) {
-      qWarning("writeCalibration() POINTERCAL_FILE set, using %s instead", calFile.toLocal8Bit().constData());
-    } else {
-      calFile = "/etc/pointercal";
-      qWarning("writeCalibration() using default /etc/pointercal");
-    }  
+    if (calFile.isEmpty())
+        calFile = "/etc/pointercal";
 
 #ifndef QT_NO_TEXTSTREAM
     QFile file(calFile);
@@ -361,12 +357,9 @@ void QWSCalibratedMouseHandler::writeCalibration()
 void QWSCalibratedMouseHandler::readCalibration()
 {
     QString calFile = qgetenv("POINTERCAL_FILE");
-    if (!calFile.isEmpty()) {
-      qWarning("readCalibration() POINTERCAL_FILE set, using %s instead", calFile.toLocal8Bit().constData());
-    } else {
-      calFile = "/etc/pointercal";
-      qWarning("readCalibration() using default /etc/pointercal");
-    }
+    if (calFile.isEmpty())
+        calFile = "/etc/pointercal";
+
 #ifndef QT_NO_TEXTSTREAM
     QFile file(calFile);
     if (file.open(QIODevice::ReadOnly)) {
