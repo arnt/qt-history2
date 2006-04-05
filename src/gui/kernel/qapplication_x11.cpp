@@ -703,7 +703,7 @@ static void qt_set_input_encoding()
     Atom type;
     int format;
     ulong  nitems, after = 1;
-    const char *data;
+    const char *data = 0;
 
     int e = XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
                                 ATOM(_QT_INPUT_ENCODING), 0, 1024,
@@ -773,7 +773,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
             Atom type = XNone;
 
             while (after > 0) {
-                uchar *data;
+                uchar *data = 0;
                 XGetWindowProperty(X11->display, QX11Info::appRootWindow(0),
                                    ATOM(RESOURCE_MANAGER),
                                    offset, 8192, False, AnyPropertyType,
@@ -2126,7 +2126,7 @@ void qt_save_rootinfo()                                // save new root info
     Atom type;
     int format;
     unsigned long length, after;
-    uchar *data;
+    uchar *data = 0;
 
     if (ATOM(_XSETROOT_ID)) {                        // kill old pixmap
         if (XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
@@ -2159,7 +2159,7 @@ bool qt_wstate_iconified(WId winid)
     Atom type;
     int format;
     unsigned long length, after;
-    uchar *data;
+    uchar *data = 0;
     int r = XGetWindowProperty(X11->display, winid, ATOM(WM_STATE), 0, 2,
                                  False, AnyPropertyType, &type, &format,
                                  &length, &after, &data);
@@ -2369,7 +2369,7 @@ Window QX11Data::findClientWindow(Window win, Atom property, bool leaf)
     Atom   type = XNone;
     int           format, i;
     ulong  nitems, after;
-    uchar *data;
+    uchar *data = 0;
     Window root, parent, target=0, *children=0;
     uint   nchildren;
     if (XGetWindowProperty(X11->display, win, property, 0, 0, false, AnyPropertyType,
