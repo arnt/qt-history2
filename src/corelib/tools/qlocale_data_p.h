@@ -195,23 +195,23 @@ static const QLocalePrivate locale_data[] = {
     {      5,   195,    44,   160,    59,    37,    48,    45,   101,    90,   102,    20,    20,   595,   644,   254,   276 }, // Afrikaans/SouthAfrica
     {      6,     2,    44,    46,    59,    37,    48,    45,   101,   120,   131,    31,    42,   737,   787,   335,   366 }, // Albanian/Albania
     {      7,    69,    46,    44,    59,    37,    48,    45,   101,    29,   150,    20,    55,   867,   982,   431,   499 }, // Amharic/Ethiopia
-    {      8,   186,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   592,   592 }, // Arabic/SaudiArabia
-    {      8,     3,  1643,  1644,    59,  1642,    48,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/Algeria
-    {      8,    17,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/Bahrain
-    {      8,    64,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/Egypt
-    {      8,   103,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/Iraq
-    {      8,   109,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1284,  1284,   592,   592 }, // Arabic/Jordan
-    {      8,   115,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/Kuwait
-    {      8,   119,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1453,  1453,   592,   592 }, // Arabic/Lebanon
-    {      8,   122,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/LibyanArabJamahiriya
-    {      8,   145,  1643,  1644,    59,  1642,    48,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/Morocco
-    {      8,   162,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/Oman
-    {      8,   175,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   592,   592 }, // Arabic/Qatar
-    {      8,   201,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/Sudan
-    {      8,   207,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1453,  1453,   592,   592 }, // Arabic/SyrianArabRepublic
-    {      8,   216,  1643,  1644,    59,  1642,    48,    45,   101,   180,   191,    20,    67,  1145,  1145,   592,   592 }, // Arabic/Tunisia
-    {      8,   223,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   592 }, // Arabic/UnitedArabEmirates
-    {      8,   237,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   592,   592 }, // Arabic/Yemen
+    {      8,   186,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   570 }, // Arabic/SaudiArabia
+    {      8,     3,  1643,  1644,    59,  1642,    48,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/Algeria
+    {      8,    17,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/Bahrain
+    {      8,    64,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/Egypt
+    {      8,   103,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/Iraq
+    {      8,   109,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1284,  1284,   570,   570 }, // Arabic/Jordan
+    {      8,   115,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/Kuwait
+    {      8,   119,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1453,  1453,   570,   570 }, // Arabic/Lebanon
+    {      8,   122,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/LibyanArabJamahiriya
+    {      8,   145,  1643,  1644,    59,  1642,    48,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/Morocco
+    {      8,   162,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/Oman
+    {      8,   175,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   570 }, // Arabic/Qatar
+    {      8,   201,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/Sudan
+    {      8,   207,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1453,  1453,   570,   570 }, // Arabic/SyrianArabRepublic
+    {      8,   216,  1643,  1644,    59,  1642,    48,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   570 }, // Arabic/Tunisia
+    {      8,   223,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   668,   570 }, // Arabic/UnitedArabEmirates
+    {      8,   237,  1643,  1644,    59,  1642,  1632,    45,   101,   180,   191,    20,    67,  1145,  1145,   570,   570 }, // Arabic/Yemen
     {      9,    11,    44,    46,    59,    37,    48,    45,   101,   210,    39,     0,     9,  1622,  1707,   690,   740 }, // Armenian/Armenia
     {     10,   100,    46,    44,    59,    37,    48,    45,   101,   222,   191,    80,    91,  1888,  2051,   858,   956 }, // Assamese/India
     {     12,    15,    44,   160,    59,    37,    48,    45,   101,   233,   244,     0,     9,  2292,  2341,  1117,  1148 }, // Azerbaijani/Azerbaijan
@@ -230,15 +230,15 @@ static const QLocalePrivate locale_data[] = {
     {     27,    54,    44,    46,    59,    37,    48,    45,   101,   583,   594,     0,     9,  4562,  4612,  2678,  2708 }, // Croatian/Croatia
     {     28,    57,    44,   160,    59,    37,    48,    45,   101,   475,   608,   248,   319,  4714,  4754,  2768,  2793 }, // Czech/CzechRepublic
     {     29,    58,    44,    46,    59,    37,    48,    45,   101,   180,   627,   329,   337,  4849,  4898,  2851,  2882 }, // Danish/Denmark
-    {     30,   151,    44,    46,    59,    37,    48,    45,   101,   660,   309,   248,   360,  4983,  5032,  2936,  2958 }, // Dutch/Netherlands
-    {     30,    21,    44,    46,    59,    37,    48,    45,   101,   651,   309,     0,   347,  4983,  5032,  2936,  2958 }, // Dutch/Belgium
+    {     30,   151,    44,    46,    59,    37,    48,    45,   101,   651,   309,   248,   347,  4983,  5032,  2936,  2958 }, // Dutch/Netherlands
+    {     30,    21,    44,    46,    59,    37,    48,    45,   101,   662,   309,     0,   363,  4983,  5032,  2936,  2958 }, // Dutch/Belgium
     {     31,   225,    46,    44,    59,    37,    48,    45,   101,   210,    39,    20,   104,     0,    49,     0,    29 }, // English/UnitedStates
     {     31,     4,    46,    44,    59,    37,    48,    45,   101,   210,    39,    20,   104,     0,    49,     0,    29 }, // English/AmericanSamoa
     {     31,    13,    46,    44,    59,    37,    48,    45,   101,   180,    11,    20,   104,     0,    49,     0,    29 }, // English/Australia
     {     31,    21,    44,    46,    59,    37,    48,    45,   101,    90,   309,     0,   376,     0,    49,     0,    29 }, // English/Belgium
     {     31,    22,    46,    44,    59,    37,    48,    45,   101,    29,   671,     0,     9,     0,    49,     0,    29 }, // English/Belize
     {     31,    28,    46,    44,    59,    37,    48,    45,   101,   684,   102,    20,    20,     0,    49,     0,    29 }, // English/Botswana
-    {     31,    38,    46,    44,    59,    37,    48,    45,   101,   651,    39,    20,   104,     0,    49,     0,    29 }, // English/Canada
+    {     31,    38,    46,    44,    59,    37,    48,    45,   101,   662,    39,    20,   104,     0,    49,     0,    29 }, // English/Canada
     {     31,    89,    46,    44,    59,    37,    48,    45,   101,   210,    39,    20,   104,     0,    49,     0,    29 }, // English/Guam
     {     31,    97,    46,    44,    59,    37,    48,    45,   101,     0,    11,    20,   104,     0,    49,     0,    29 }, // English/HongKong
     {     31,   100,    46,    44,    59,    37,    48,    45,   101,    29,   309,    20,   104,     0,    49,     0,    29 }, // English/India
@@ -260,20 +260,20 @@ static const QLocalePrivate locale_data[] = {
     {     33,    68,    44,   160,    59,    37,    48,    45,   101,   445,   723,   248,   319,  5121,  5182,  3018,  3033 }, // Estonian/Estonia
     {     34,    71,    44,    46,    59,    37,    48,    45,   101,   222,   102,     0,     9,  5275,  5324,  3104,  3137 }, // Faroese/FaroeIslands
     {     36,    73,    44,   160,    59,    37,    48,    45,   101,   475,   742,   329,   337,  5409,  5481,  3216,  3238 }, // Finnish/Finland
-    {     37,    74,    44,   160,    59,    37,    48,    45,   101,   777,   309,     0,   446,  5589,  5656,  3306,  3342 }, // French/France
-    {     37,    21,    44,    46,    59,    37,    48,    45,   101,    29,   309,     0,   422,  5589,  5656,  3306,  3342 }, // French/Belgium
-    {     37,    38,    44,   160,    59,    37,    48,    45,   101,   768,   309,     0,   376,  5589,  5656,  3306,  3342 }, // French/Canada
-    {     37,   125,    44,    46,    59,    37,    48,    45,   101,   777,   309,     0,   446,  5589,  5656,  3306,  3342 }, // French/Luxembourg
-    {     37,   142,    44,   160,    59,    37,    48,    45,   101,   777,   309,     0,   446,  5589,  5656,  3306,  3342 }, // French/Monaco
-    {     37,   206,    46,    39,    59,    37,    48,    45,   101,   777,    11,     0,   458,  5589,  5656,  3306,  3342 }, // French/Switzerland
+    {     37,    74,    44,   160,    59,    37,    48,    45,   101,   768,   309,     0,   422,  5589,  5656,  3306,  3342 }, // French/France
+    {     37,    21,    44,    46,    59,    37,    48,    45,   101,    29,   309,     0,   434,  5589,  5656,  3306,  3342 }, // French/Belgium
+    {     37,    38,    44,   160,    59,    37,    48,    45,   101,   777,   309,     0,   376,  5589,  5656,  3306,  3342 }, // French/Canada
+    {     37,   125,    44,    46,    59,    37,    48,    45,   101,   768,   309,     0,   422,  5589,  5656,  3306,  3342 }, // French/Luxembourg
+    {     37,   142,    44,   160,    59,    37,    48,    45,   101,   768,   309,     0,   422,  5589,  5656,  3306,  3342 }, // French/Monaco
+    {     37,   206,    46,    39,    59,    37,    48,    45,   101,   768,    11,     0,   458,  5589,  5656,  3306,  3342 }, // French/Switzerland
     {     40,   197,    44,    46,    59,    37,    48,    45,   101,   684,   102,     0,     9,  5745,  5795,  3395,  3426 }, // Galician/Spain
     {     41,    81,    44,   160,    59,    37,    48,    45,   101,   233,   244,     0,     9,  5884,  5884,  3478,  3478 }, // Georgian/Georgia
-    {     42,    82,    44,    46,    59,    37,    48,    45,   101,   445,   608,     0,   512,  6184,  6099,  3493,  3515 }, // German/Germany
-    {     42,    14,    44,    46,    59,    37,    48,    45,   101,   445,   786,     0,   473,  5912,  5963,  3493,  3515 }, // German/Austria
-    {     42,    21,    44,    46,    59,    37,    48,    45,   101,   651,   309,     0,   487,  6049,  6099,  3576,  3515 }, // German/Belgium
-    {     42,   123,    46,    39,    59,    37,    48,    45,   101,   445,   608,     0,   512,  6184,  6099,  3493,  3515 }, // German/Liechtenstein
-    {     42,   125,    44,    46,    59,    37,    48,    45,   101,   445,   608,     0,   512,  6184,  6099,  3493,  3515 }, // German/Luxembourg
-    {     42,   206,    46,    39,    59,    37,    48,    45,   101,   445,   608,     0,   512,  6184,  6099,  3493,  3515 }, // German/Switzerland
+    {     42,    82,    44,    46,    59,    37,    48,    45,   101,   445,   608,     0,   473,  5912,  5961,  3493,  3515 }, // German/Germany
+    {     42,    14,    44,    46,    59,    37,    48,    45,   101,   445,   786,     0,   486,  6046,  6097,  3493,  3515 }, // German/Austria
+    {     42,    21,    44,    46,    59,    37,    48,    45,   101,   662,   309,     0,   500,  6183,  5961,  3576,  3515 }, // German/Belgium
+    {     42,   123,    46,    39,    59,    37,    48,    45,   101,   445,   608,     0,   473,  5912,  5961,  3493,  3515 }, // German/Liechtenstein
+    {     42,   125,    44,    46,    59,    37,    48,    45,   101,   445,   608,     0,   473,  5912,  5961,  3493,  3515 }, // German/Luxembourg
+    {     42,   206,    46,    39,    59,    37,    48,    45,   101,   445,   608,     0,   473,  5912,  5961,  3493,  3515 }, // German/Switzerland
     {     43,    85,    44,    46,    59,    37,    48,    45,   101,    90,   131,    20,   104,  6233,  6322,  3605,  3655 }, // Greek/Greece
     {     43,    56,    44,    46,    59,    37,    48,    45,   101,    90,   131,    20,   104,  6233,  6322,  3605,  3655 }, // Greek/Cyprus
     {     44,    86,    44,    46,    59,    37,    48,    45,   101,   684,   102,    20,    20,  4849,  6541,  3759,  3788 }, // Greenlandic/Greenland
@@ -285,7 +285,7 @@ static const QLocalePrivate locale_data[] = {
     {     52,   101,    44,    46,    59,    37,    48,    45,   101,   832,   102,   248,   248,  7801,  7850,  4677,  4706 }, // Indonesian/Indonesia
     {     57,   104,    46,    44,    59,    37,    48,    45,   101,     0,   309,     0,     9,  7938,  8006,  4750,  4791 }, // Irish/Ireland
     {     58,   106,    44,    46,    59,    37,    48,    45,   101,   842,   309,     0,     9,  8122,  8171,  4876,  4905 }, // Italian/Italy
-    {     58,   206,    46,    39,    59,    37,    48,    45,   101,   651,    11,     0,   458,  8122,  8171,  4876,  4905 }, // Italian/Switzerland
+    {     58,   206,    46,    39,    59,    37,    48,    45,   101,   662,    11,     0,   458,  8122,  8171,  4876,  4905 }, // Italian/Switzerland
     {     59,   108,    46,    44,    59,    37,    48,    45,   101,   852,   863,   248,   539,  8266,  8342,  4968,  4997 }, // Japanese/Japan
     {     61,   100,    46,    44,    59,    37,    48,    45,   101,   222,   309,    55,   525,  8406,  8406,  5068,  5125 }, // Kannada/India
     {     63,   110,    44,   160,    59,    37,    48,    45,   101,   445,   889,     0,     9,  8641,  8740,  5271,  5314 }, // Kazakh/Kazakhstan
@@ -304,11 +304,11 @@ static const QLocalePrivate locale_data[] = {
     {     85,   161,    44,   160,    59,    37,    48,    45,   101,  1098,  1111,   228,   666, 11006, 11067,  6781,  2882 }, // Norwegian/Norway
     {     87,   100,    46,    44,    59,    37,  2918,    45,   101,   222,   309,    20,   104,  5884, 11151,  6812,  6898 }, // Oriya/India
     {     88,     1,  1643,  1644,    59,  1642,  1776,  8722,   101,   484,  1129,   248,   683, 11395, 11480,  7047,  7076 }, // Pashto/Afghanistan
-    {     89,   102,  1643,  1644,    59,  1642,  1776,  8722,   101,  1152,  1162,   248,   695, 11815, 11900,  7047,  7169 }, // Persian/Iran
-    {     89,     1,  1643,  1644,    59,  1642,  1776,  8722,   101,  1152,  1162,   248,   695, 11605, 11690,  7047,  7169 }, // Persian/Afghanistan
+    {     89,   102,  1643,  1644,    59,  1642,  1776,  8722,   101,  1152,  1162,   248,   695, 11605, 11690,  7047,  7169 }, // Persian/Iran
+    {     89,     1,  1643,  1644,    59,  1642,  1776,  8722,   101,  1152,  1162,   248,   695, 11819, 11904,  7047,  7169 }, // Persian/Afghanistan
     {     90,   172,    44,   160,    59,    37,    48,    45,   101,   120,    11,     0,     9, 12029, 12076,  7268,  7290 }, // Polish/Poland
-    {     91,   173,    44,    46,    59,    37,    48,    45,   101,   852,  1181,     0,   728, 12178, 12227,  7353,  7383 }, // Portuguese/Portugal
-    {     91,    30,    44,    46,    59,    37,    48,    45,   101,   180,  1181,     0,   708, 12178, 12227,  7353,  7383 }, // Portuguese/Brazil
+    {     91,   173,    44,    46,    59,    37,    48,    45,   101,   852,  1181,     0,   708, 12178, 12227,  7353,  7383 }, // Portuguese/Portugal
+    {     91,    30,    44,    46,    59,    37,    48,    45,   101,   180,  1181,     0,   726, 12178, 12227,  7353,  7383 }, // Portuguese/Brazil
     {     92,   100,    46,    44,    59,    37,  2662,    45,   101,   222,   309,    55,   525, 12318, 12318,  7465,  7546 }, // Punjabi/India
     {     95,   177,    44,    46,    59,    37,    48,    45,   101,   445,   484,     0,     9, 12496, 12545,  7692,  7709 }, // Romanian/Romania
     {     96,   178,    44,   160,    59,    37,    48,    45,   101,   445,  1209,   248,   319, 12644, 12751,  7763,  7799 }, // Russian/RussianFederation
@@ -326,8 +326,8 @@ static const QLocalePrivate locale_data[] = {
     {    110,    59,    46,    44,    59,    37,    48,    45,   101,    58,    70,    20,    20, 13418, 13467,  8227,  8256 }, // Somali/Djibouti
     {    110,    69,    46,    44,    59,    37,    48,    45,   101,    58,    70,    20,    20, 13418, 13467,  8227,  8256 }, // Somali/Ethiopia
     {    110,   111,    46,    44,    59,    37,    48,    45,   101,    58,    70,    20,    20, 13418, 13467,  8227,  8256 }, // Somali/Kenya
-    {    111,   197,    44,    46,    59,    37,    48,    45,   101,   180,  1283,   248,   758, 13657, 13706,  8304,  8335 }, // Spanish/Spain
-    {    111,    10,    44,    46,    59,    37,    48,    45,   101,   180,  1283,     0,   746, 13657, 13706,  8304,  8335 }, // Spanish/Argentina
+    {    111,   197,    44,    46,    59,    37,    48,    45,   101,   180,  1283,   248,   746, 13657, 13706,  8304,  8335 }, // Spanish/Spain
+    {    111,    10,    44,    46,    59,    37,    48,    45,   101,   180,  1283,     0,   761, 13657, 13706,  8304,  8335 }, // Spanish/Argentina
     {    111,    26,    44,    46,    59,    37,    48,    45,   101,   180,  1283,    55,   525, 13657, 13706,  8304,  8335 }, // Spanish/Bolivia
     {    111,    43,    44,    46,    59,    37,    48,    45,   101,   222,  1283,   248,     9, 13657, 13706,  8304,  8335 }, // Spanish/Chile
     {    111,    47,    44,    46,    59,    37,    48,    45,   101,   694,  1283,   248,     9, 13657, 13706,  8304,  8335 }, // Spanish/Colombia
@@ -409,8 +409,8 @@ static const char date_format_data[] =
 "yyyy. MMMM dd\0"
 "dddd, d. MMMM yyyy\0"
 "dddd 'den' d. MMMM yyyy\0"
-"d-MMM-yy\0"
 "d-MMM-yyyy\0"
+"d-MMM-yy\0"
 "dd MMMM yyyy\0"
 "MMM dd,yy\0"
 "d/MM/yyyy\0"
@@ -418,8 +418,8 @@ static const char date_format_data[] =
 "dd MMM,yy\0"
 "dddd, d, MMMM yyyy\0"
 "dddd'na 'd. MMMM'ta 'yyyy\0"
-"yy-MM-dd\0"
 "d MMM yy\0"
+"yy-MM-dd\0"
 "dddd, dd. MMMM yyyy\0"
 "yyyy.MM.dd.\0"
 "yyyy. MMMM d.\0"
@@ -460,58 +460,58 @@ static const char date_format_data[] =
 ;
 
 static const char time_format_data[] =
-"hh:mm:ss\0"
-"hh:mm:ss z\0"
+"HH:mm:ss\0"
+"HH:mm:ss t\0"
 "h:mm:ss AP\0"
 "h:mm:ss.AP\0"
-"h.mm.ss.AP z\0"
+"h.mm.ss.AP t\0"
 "hh:mm:ss AP\0"
-"z h:mm:ss AP\0"
+"t h:mm:ss AP\0"
 "h.mm.ss AP\0"
-"h.mm.ss AP z\0"
-"h:mm:ss AP z\0"
+"h.mm.ss AP t\0"
+"h:mm:ss AP t\0"
 "\xe0\xbd\x86\xe0\xbd\xb4\xe0\xbc\x8b\xe0\xbd\x9a\xe0\xbd\xbc\xe0\xbd\x91\xe0\xbc\x8b"
 "h:mm:ss AP\0"
 "\xe0\xbd\x86\xe0\xbd\xb4\xe0\xbc\x8b\xe0\xbd\x9a\xe0\xbd\xbc\xe0\xbd\x91\xe0\xbc\x8b"
 " h \xe0\xbd\xa6\xe0\xbe\x90\xe0\xbd\xa2\xe0\xbc\x8b\xe0\xbd\x98\xe0\xbc\x8b mm \xe0"
 "\xbd\xa6\xe0\xbe\x90\xe0\xbd\xa2\xe0\xbc\x8b\xe0\xbd\x86\xe0\xbd\xb1\xe0\xbc\x8b "
-"ss AP zzzz\0"
-"hh.mm.ss\0"
-"hh.mm.ss z\0"
-"h:mm:ss\0"
-"h' \xe1\x9e\x98\xe1\x9f\x89\xe1\x9f\x84\xe1\x9e\x84 'm' \xe1\x9e\x93\xe1\x9e\xb6\xe1"
+"ss AP tttt\0"
+"HH.mm.ss\0"
+"HH.mm.ss t\0"
+"H:mm:ss\0"
+"H' \xe1\x9e\x98\xe1\x9f\x89\xe1\x9f\x84\xe1\x9e\x84 'm' \xe1\x9e\x93\xe1\x9e\xb6\xe1"
 "\x9e\x91\xe1\x9e\xb8 'ss' \xe1\x9e\x9c\xe1\x9e\xb7\xe1\x9e\x93\xe1\x9e\xb6\xe1\x9e"
-"\x91\xe1\x9e\xb8\xe2\x80\x8b' z\0"
-"h:mm:ss z\0"
-"h.mm.ss\0"
-"h.mm.ss z\0"
-"hh.mm' u. 'z\0"
-"h:mm:ss' uur' z\0"
-"hh' h 'mm' min 'ss' s 'z\0"
+"\x91\xe1\x9e\xb8\xe2\x80\x8b' t\0"
+"H:mm:ss t\0"
+"H.mm.ss\0"
+"H.mm.ss t\0"
+"H:mm:ss' uur' t\0"
+"HH.mm' u. 't\0"
+"HH' h 'mm' min 'ss' s 't\0"
 "AP hh:mm\0"
 "AP hh:mm:ss\0"
-"h' h 'mm' min 'ss' s 'z\0"
-"hh' h 'mm z\0"
-"hh.mm:ss' h' z\0"
-"hh:mm' Uhr 'z\0"
-"hh 'h' mm 'min' ss 's' z\0"
-"h:mm' Uhr 'z\0"
-"hh:mm:ss AP z\0"
-"h'\xe6\x99\x82'mm'\xe5\x88\x86'ss'\xe7\xa7\x92'z\0"
+"HH' h 'mm t\0"
+"H' h 'mm' min 'ss' s 't\0"
+"HH.mm:ss' h' t\0"
+"H:mm' Uhr 't\0"
+"HH:mm' Uhr 't\0"
+"HH 'h' mm 'min' ss 's' t\0"
+"hh:mm:ss AP t\0"
+"H'\xe6\x99\x82'mm'\xe5\x88\x86'ss'\xe7\xa7\x92't\0"
 "AP h:mm:ss\0"
-"AP hh'\xec\x8b\x9c' mm'\xeb\xb6\x84' ss'\xec\xb4\x88' z\0"
-"h'\xe0\xbb\x82\xe0\xba\xa1\xe0\xba\x87 'm'\xe0\xba\x99\xe0\xba\xb2\xe0\xba\x97\xe0"
+"AP hh'\xec\x8b\x9c' mm'\xeb\xb6\x84' ss'\xec\xb4\x88' t\0"
+"H'\xe0\xbb\x82\xe0\xba\xa1\xe0\xba\x87 'm'\xe0\xba\x99\xe0\xba\xb2\xe0\xba\x97\xe0"
 "\xba\xb5 'ss' \xe0\xba\xa7\xe0\xba\xb4\xe0\xba\x99\xe0\xba\xb2\xe0\xba\x97\xe0\xba"
 "\xb5\0"
 "h:mm:ss APAP\0"
-"'kl. 'hh.mm.ss z\0"
-"h:mm:ss (z)\0"
-"hh:mm:ss (z)\0"
-"hh'h'mm'min'ss's' z\0"
-"hh'H'mm'm'ss's' z\0"
-"hh'h'''mm z\0"
-"hh'H'mm''ss\" z\0"
-"h' \xe0\xb8\x99\xe0\xb8\xb2\xe0\xb8\xac\xe0\xb8\xb4\xe0\xb8\x81\xe0\xb8\xb2 'm' \xe0"
+"'kl. 'HH.mm.ss t\0"
+"H:mm:ss (t)\0"
+"HH:mm:ss (t)\0"
+"HH'H'mm'm'ss's' t\0"
+"HH'h'mm'min'ss's' t\0"
+"HH'H'mm''ss\" t\0"
+"HH'h'''mm t\0"
+"H' \xe0\xb8\x99\xe0\xb8\xb2\xe0\xb8\xac\xe0\xb8\xb4\xe0\xb8\x81\xe0\xb8\xb2 'm' \xe0"
 "\xb8\x99\xe0\xb8\xb2\xe0\xb8\x97\xe0\xb8\xb5 'ss' \xe0\xb8\xa7\xe0\xb8\xb4\xe0\xb8"
 "\x99\xe0\xb8\xb2\xe0\xb8\x97\xe0\xb8\xb5'\0"
 ;
@@ -734,13 +734,13 @@ static const char months_data[] =
 "Xaneiro;Febreiro;Marzo;Abril;Maio;Xu\xc3\xb1o;Xullo;Agosto;Setembro;Outubro;Novem"
 "bro;Decembro;\0"
 "1;2;3;4;5;6;7;8;9;10;11;12;\0"
+"Jan;Feb;Mrz;Apr;Mai;Jun;Jul;Aug;Sep;Okt;Nov;Dez;\0"
+"Januar;Februar;M\xc3\xa4rz;April;Mai;Juni;Juli;August;September;Oktober;November;"
+"Dezember;\0"
 "J\xc3\xa4n;Feb;M\xc3\xa4r;Apr;Mai;Jun;Jul;Aug;Sep;Okt;Nov;Dez;\0"
 "J\xc3\xa4nner;Februar;M\xc3\xa4rz;April;Mai;Juni;Juli;August;September;Oktober;No"
 "vember;Dezember;\0"
 "Jan;Feb;M\xc3\xa4r;Apr;Mai;Jun;Jul;Aug;Sep;Okt;Nov;Dez;\0"
-"Januar;Februar;M\xc3\xa4rz;April;Mai;Juni;Juli;August;September;Oktober;November;"
-"Dezember;\0"
-"Jan;Feb;Mrz;Apr;Mai;Jun;Jul;Aug;Sep;Okt;Nov;Dez;\0"
 "\xce\x99\xce\xb1\xce\xbd;\xce\xa6\xce\xb5\xce\xb2;\xce\x9c\xce\xb1\xcf\x81;\xce\x91"
 "\xcf\x80\xcf\x81;\xce\x9c\xce\xb1\xcf\x8a;\xce\x99\xce\xbf\xcf\x85\xce\xbd;\xce\x99"
 "\xce\xbf\xcf\x85\xce\xbb;\xce\x91\xcf\x85\xce\xb3;\xce\xa3\xce\xb5\xcf\x80;\xce\x9f"
@@ -961,16 +961,6 @@ static const char months_data[] =
 ";\xd8\xa7\xda\xab\xd8\xb3\xd8\xaa;\xd8\xb3\xd9\xbe\xd8\xaa\xd9\x85\xd8\xa8\xd8\xb1"
 ";\xd8\xa7\xda\xa9\xd8\xaa\xd9\x88\xd8\xa8\xd8\xb1;\xd9\x86\xd9\x88\xd9\x85\xd8\xa8"
 "\xd8\xb1;\xd8\xaf\xd8\xb3\xd9\x85\xd8\xa8\xd8\xb1;\0"
-"\xd8\xac\xd9\x86\xd9\x88;\xd9\x81\xd8\xa8\xd8\xb1;\xd9\x85\xd8\xa7\xd8\xb1;\xd8\xa7"
-"\xd9\xbe\xd8\xb1;\xd9\x85\xd9\x80\xdb\x8c;\xd8\xac\xd9\x88\xd9\x86;\xd8\xac\xd9\x88"
-"\xd9\x84;\xd8\xa7\xda\xaf\xd8\xb3;\xd8\xb3\xd9\xbe\xd8\xaa;\xd8\xa7\xda\xa9\xd8\xaa"
-";\xd9\x86\xd9\x88\xd9\x85;\xd8\xaf\xd8\xb3\xd9\x85;\0"
-"\xd8\xac\xd9\x86\xd9\x88\xd8\xb1\xdb\x8c;\xd9\x81\xd8\xa8\xd8\xb1\xd9\x88\xd8\xb1"
-"\xdb\x8c;\xd9\x85\xd8\xa7\xd8\xb1\xda\x86;\xd8\xa7\xd9\xbe\xd8\xb1\xdb\x8c\xd9\x84"
-";\xd9\x85\xdb\x8c;\xd8\xac\xd9\x88\xd9\x86;\xd8\xac\xd9\x88\xd9\x84\xd8\xa7\xdb\x8c"
-";\xd8\xa7\xda\xaf\xd8\xb3\xd8\xaa;\xd8\xb3\xd9\xbe\xd8\xaa\xd9\x85\xd8\xa8\xd8\xb1"
-";\xd8\xa7\xda\xa9\xd8\xaa\xd9\x88\xd8\xa8\xd8\xb1;\xd9\x86\xd9\x88\xd9\x85\xd8\xa8"
-"\xd8\xb1;\xd8\xaf\xd8\xb3\xd9\x85\xd8\xa8\xd8\xb1;\0"
 "\xda\x98\xd8\xa7\xd9\x86;\xd9\x81\xd9\x88\xd8\xb1;\xd9\x85\xd8\xa7\xd8\xb1;\xd8\xa2"
 "\xd9\x88\xd8\xb1;\xd9\x85\xd9\x80\xd9\x87;\xda\x98\xd9\x88\xd9\x86;\xda\x98\xd9\x88"
 "\xdb\x8c;\xd8\xa7\xd9\x88\xd8\xaa;\xd8\xb3\xd9\xbe\xd8\xaa;\xd8\xa7\xda\xa9\xd8\xaa"
@@ -981,6 +971,16 @@ static const char months_data[] =
 "\xd9\x87;\xd8\xa7\xd9\x88\xd8\xaa;\xd8\xb3\xd9\xbe\xd8\xaa\xd8\xa7\xd9\x85\xd8\xa8"
 "\xd8\xb1;\xd8\xa7\xda\xa9\xd8\xaa\xd8\xa8\xd8\xb1;\xd9\x86\xd9\x88\xd8\xa7\xd9\x85"
 "\xd8\xa8\xd8\xb1;\xd8\xaf\xd8\xb3\xd8\xa7\xd9\x85\xd8\xa8\xd8\xb1;\0"
+"\xd8\xac\xd9\x86\xd9\x88;\xd9\x81\xd8\xa8\xd8\xb1;\xd9\x85\xd8\xa7\xd8\xb1;\xd8\xa7"
+"\xd9\xbe\xd8\xb1;\xd9\x85\xd9\x80\xdb\x8c;\xd8\xac\xd9\x88\xd9\x86;\xd8\xac\xd9\x88"
+"\xd9\x84;\xd8\xa7\xda\xaf\xd8\xb3;\xd8\xb3\xd9\xbe\xd8\xaa;\xd8\xa7\xda\xa9\xd8\xaa"
+";\xd9\x86\xd9\x88\xd9\x85;\xd8\xaf\xd8\xb3\xd9\x85;\0"
+"\xd8\xac\xd9\x86\xd9\x88\xd8\xb1\xdb\x8c;\xd9\x81\xd8\xa8\xd8\xb1\xd9\x88\xd8\xb1"
+"\xdb\x8c;\xd9\x85\xd8\xa7\xd8\xb1\xda\x86;\xd8\xa7\xd9\xbe\xd8\xb1\xdb\x8c\xd9\x84"
+";\xd9\x85\xdb\x8c;\xd8\xac\xd9\x88\xd9\x86;\xd8\xac\xd9\x88\xd9\x84\xd8\xa7\xdb\x8c"
+";\xd8\xa7\xda\xaf\xd8\xb3\xd8\xaa;\xd8\xb3\xd9\xbe\xd8\xaa\xd9\x85\xd8\xa8\xd8\xb1"
+";\xd8\xa7\xda\xa9\xd8\xaa\xd9\x88\xd8\xa8\xd8\xb1;\xd9\x86\xd9\x88\xd9\x85\xd8\xa8"
+"\xd8\xb1;\xd8\xaf\xd8\xb3\xd9\x85\xd8\xa8\xd8\xb1;\0"
 "st;lut;mrz;kw;maj;cz;lip;sier;wrz;pa\xc5\xba;lis;gr;\0"
 "stycznia;lutego;marca;kwietnia;maja;czerwca;lipca;sierpnia;wrze\xc5\x9bnia;pa\xc5"
 "\xba\x64ziernika;listopada;grudnia;\0"
@@ -1172,12 +1172,12 @@ static const char days_data[] =
 "\xad\xe1\x88\xb0\xe1\x8a\x9e;\xe1\x88\xa8\xe1\x89\xa1\xe1\x8b\x95;\xe1\x88\x90\xe1"
 "\x88\x99\xe1\x88\xb5;\xe1\x8b\x93\xe1\x88\xad\xe1\x89\xa5;\xe1\x89\x85\xe1\x8b\xb3"
 "\xe1\x88\x9c;\0"
-"\xd8\xad;\xd9\x86;\xd8\xab;\xd8\xb1;\xd8\xae;\xd8\xac;\xd8\xb3;\0"
 "\xd8\xa7\xd9\x84\xd8\xa3\xd8\xad\xd8\xaf;\xd8\xa7\xd9\x84\xd8\xa7\xd8\xab\xd9\x86"
 "\xd9\x8a\xd9\x86;\xd8\xa7\xd9\x84\xd8\xab\xd9\x84\xd8\xa7\xd8\xab\xd8\xa7\xd8\xa1"
 ";\xd8\xa7\xd9\x84\xd8\xa3\xd8\xb1\xd8\xa8\xd8\xb9\xd8\xa7\xd8\xa1;\xd8\xa7\xd9\x84"
 "\xd8\xae\xd9\x85\xd9\x8a\xd8\xb3;\xd8\xa7\xd9\x84\xd8\xac\xd9\x85\xd8\xb9\xd8\xa9"
 ";\xd8\xa7\xd9\x84\xd8\xb3\xd8\xa8\xd8\xaa;\0"
+"\xd8\xad;\xd9\x86;\xd8\xab;\xd8\xb1;\xd8\xae;\xd8\xac;\xd8\xb3;\0"
 "\xd4\xbf\xd5\xab\xd6\x80;\xd4\xb5\xd6\x80\xd5\xaf;\xd4\xb5\xd6\x80\xd6\x84;\xd5\x89"
 "\xd5\xb8\xd6\x80;\xd5\x80\xd5\xb6\xd5\xa3;\xd5\x88\xd6\x82\xd6\x80;\xd5\x87\xd5\xa1"
 "\xd5\xa2;\0"
