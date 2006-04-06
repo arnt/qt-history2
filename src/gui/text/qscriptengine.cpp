@@ -3155,7 +3155,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         openType->shape(item, properties.data());
 
         int newLen = openType->len();
-        OTL_GlyphItem otl_glyphs = openType->glyphs();
+        HB_GlyphItem otl_glyphs = openType->glyphs();
 
         // move the left matra back to its correct position in malayalam and tamil
         if ((script == QUnicodeTables::Malayalam || script == QUnicodeTables::Tamil) && (form(reordered[0]) == Matra)) {
@@ -3167,7 +3167,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
             --basePos;
             if (basePos < newLen && basePos > 1) {
 //                 qDebug("moving prebase matra to position %d in syllable newlen=%d", basePos, newLen);
-                OTL_GlyphItemRec m = otl_glyphs[0];
+                HB_GlyphItemRec m = otl_glyphs[0];
                 --basePos;
                 for (i = 0; i < basePos; ++i)
                     otl_glyphs[i] = otl_glyphs[i+1];

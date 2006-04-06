@@ -30,7 +30,7 @@
 #ifndef QT_NO_OPENTYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include "ftxopen.h"
+#include "harfbuzz.h"
 
 enum { PositioningProperties = 0x80000000 };
 
@@ -52,26 +52,26 @@ public:
         return supported_scripts[script];
     }
     void selectScript(unsigned int script, const Features *features = 0);
-    
+
     void shape(QShaperItem *item, const unsigned int *properties = 0);
     bool positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLogClusters = true);
 
-    OTL_GlyphItem glyphs() const { return otl_buffer->in_string; }
-    int len() const { return otl_buffer->in_length; }
-    void setProperty(int index, uint property) { otl_buffer->in_string[index].properties = property; }
+    HB_GlyphItem glyphs() const { return hb_buffer->in_string; }
+    int len() const { return hb_buffer->in_length; }
+    void setProperty(int index, uint property) { hb_buffer->in_string[index].properties = property; }
 
 
-private: 
+private:
     bool checkScript(unsigned int script);
     QFontEngine *fontEngine;
     FT_Face face;
-    TTO_GDEF gdef;
-    TTO_GSUB gsub;
-    TTO_GPOS gpos;
+    HB_GDEF gdef;
+    HB_GSUB gsub;
+    HB_GPOS gpos;
     bool supported_scripts[QUnicodeTables::ScriptCount];
     FT_ULong current_script;
     bool positioned : 1;
-    OTL_Buffer otl_buffer;
+    HB_Buffer hb_buffer;
     QGlyphLayout::Attributes *tmpAttributes;
     unsigned int *tmpLogClusters;
     int length;

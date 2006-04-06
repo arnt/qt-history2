@@ -157,9 +157,9 @@ contains(QT_CONFIG, fontconfig) {
 }
 
 opentype {
-	INCLUDEPATH += ../3rdparty/opentype
-	HEADERS += text/qopentype_p.h
-	SOURCES += ../3rdparty/opentype/ftxopentype.c \
+	INCLUDEPATH += ../3rdparty/harfbuzz/src
+	HEADERS += text/qopentype_p.h ../3rdparty/harfbuzz/src/harfbuzz.h
+	SOURCES += ../3rdparty/harfbuzz/src/harfbuzz.c \
 		 text/qopentype.cpp
 } else {
 	DEFINES += QT_NO_OPENTYPE
