@@ -1130,7 +1130,7 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
 int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *widget,
                              QStyleHintReturn *returnData) const
 {
-    int ret;
+    int ret = 0;
 
     switch (hint) {
     case SH_EtchDisabledText:

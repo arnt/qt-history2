@@ -4973,7 +4973,9 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
         len = 1;
     }
 
+#ifndef QT_NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
+#endif
     if (!item->font->stringToCMap(ch, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
     for (i = 0; i < len; i++) {
