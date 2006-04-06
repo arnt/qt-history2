@@ -453,8 +453,8 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 
     QMatrix worldMatrix = painter->matrix();
     QMatrix oldWorldMatrix = worldMatrix;
-    worldMatrix.scale(painter->device()->logicalDpiX() / qt_defaultDpi(),
-                      painter->device()->logicalDpiY() / qt_defaultDpi());
+    worldMatrix.scale(qreal(painter->device()->logicalDpiX()) / qreal(qt_defaultDpi()),
+                      qreal(painter->device()->logicalDpiY()) / qreal(qt_defaultDpi()));
     painter->setMatrix(worldMatrix);
 
     while (nrecords-- && !s.atEnd()) {
