@@ -146,8 +146,8 @@ void QWSTslibMouseHandlerPrivate::open()
 
     // always use the linear module which translates from device
     // coordinates to screen coordinates
-    if (ts_load_module(dev, "linear", 0))
-        qWarning("Unable to load the linear module: '%s'", strerror(errno));
+//    if (ts_load_module(dev, "linear", 0))
+//        qWarning("Unable to load the linear module: '%s'", strerror(errno));
 }
 
 void QWSTslibMouseHandlerPrivate::close()
