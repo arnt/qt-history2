@@ -23,6 +23,7 @@
 #include <qevent.h>
 #include <qalgorithms.h>
 #include <qtimer.h>
+#include <qpointer.h>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -107,7 +108,6 @@ signals:
     void playPriorityOnly(bool);
 
 private slots:
-    void destruct();
     void tryReadCommand();
 
 private:
@@ -117,7 +117,7 @@ private:
     bool priExist;
     static int lastId;
     static int nextId() { return ++lastId; }
-    QWS_SOCK_BASE *socket;
+    QPointer<QWS_SOCK_BASE> socket;
 };
 
 int QWSSoundServerClient::lastId = 0;
@@ -130,8 +130,7 @@ QWSSoundServerClient::QWSSoundServerClient(QWS_SOCK_BASE *s, QObject* parent) :
     mCurrentID = nextId();
     connect(socket,SIGNAL(readyRead()),
         this,SLOT(tryReadCommand()));
-    connect(socket,SIGNAL(disconnected()),
-        this,SLOT(destruct()));
+    connect(socket, SIGNAL(disconnected()), this, SLOT(deleteLater()));
 }
 
 QWSSoundServerClient::~QWSSoundServerClient()
@@ -139,12 +138,8 @@ QWSSoundServerClient::~QWSSoundServerClient()
     if (priExist)
 	playPriorityOnly(false);
     emit stopAll(mCurrentID);
-    socket->deleteLater();
-}
-
-void QWSSoundServerClient::destruct()
-{
-    delete this;
+    if (socket)
+        socket->deleteLater();
 }
 
 static QString getStringTok(QString &in)
