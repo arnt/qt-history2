@@ -20,7 +20,7 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
-#ifdef QT_QWS_KBD_SL5000
+#ifndef QT_NO_QWS_KBD_SL5000
 
 class QWSSL5000KbPrivate;
 
