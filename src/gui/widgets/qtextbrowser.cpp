@@ -156,11 +156,11 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
 
     QUrl currentUrlWithoutFragment = currentURL;
     currentUrlWithoutFragment.setFragment(QString());
-    QUrl urlWithoutFragment = url;
-    urlWithoutFragment.setFragment(QString());
+    QUrl newUrlWithoutFragment = currentURL.resolved(url);
+    newUrlWithoutFragment.setFragment(QString());
 
     if (url.isValid()
-        && (urlWithoutFragment != currentUrlWithoutFragment || forceLoadOnSourceChange)) {
+        && (newUrlWithoutFragment != currentUrlWithoutFragment || forceLoadOnSourceChange)) {
         QVariant data = q->loadResource(QTextDocument::HtmlResource, url);
         if (data.type() == QVariant::String) {
             txt = data.toString();
@@ -189,10 +189,7 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
             }
         }
 
-        if (!isAbsoluteFileName(currentURL.toLocalFile()))
-            currentURL = currentURL.resolved(url);
-        else
-            currentURL = url;
+        currentURL = currentURL.resolved(url);
         doSetText = true;
     }
 
