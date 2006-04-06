@@ -163,12 +163,14 @@ class QMacPasteBoard
     mutable QPointer<QMimeData> mime;
     mutable bool mac_mime_source;
     static OSStatus promiseKeeper(PasteboardRef, PasteboardItemID, CFStringRef, void *);
-    bool hasFlavor(QString flavor) const;
 public:
     QMacPasteBoard(PasteboardRef p, uchar mime_type=0);
     QMacPasteBoard(uchar mime_type);
     QMacPasteBoard(CFStringRef name=0, uchar mime_type=0);
     ~QMacPasteBoard();
+
+    bool hasFlavor(QString flavor) const;
+    bool hasOSType(int c_flavor) const;
 
     PasteboardRef pasteBoard() const;
     QMimeData *mimeData() const;
