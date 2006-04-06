@@ -575,7 +575,7 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
     QColor outlineColor = option->palette.dark().color();
     QColor buttonShadow = option->palette.button().color().dark(110);
     QColor buttonShadowAlpha = option->palette.background().color().dark(105);
-    QColor grooveColor = mergedColors(option->palette.dark().color(), option->palette.button().color(),40);
+    QColor grooveColor = mergedColors(option->palette.dark().color(), option->palette.button().color(),60);
     QColor gripShadow = grooveColor.dark(110);
     QColor shadow = option->palette.background().color().dark(120);
 
@@ -1944,7 +1944,8 @@ QPalette QCleanLooksStyle::standardPalette () const
     palette.setBrush(QPalette::All, QPalette::Dark, dark);
     palette.setBrush(QPalette::Disabled, QPalette::Dark, darkDisabled);
 
-    QColor button = backGround;
+    QColor button(239, 235, 230);
+
     palette.setBrush(QPalette::Button, button);
 
     QColor shadow = dark.dark(135);
@@ -1968,7 +1969,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
     } else {
         alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
     }
-    QColor grooveColor = mergedColors(option->palette.dark().color(), option->palette.button().color(),60).light(105);
+    QColor grooveColor = mergedColors(option->palette.dark().color(), option->palette.button().color(), 50);
     QColor gripShadow = grooveColor.dark(110);
     QColor buttonShadow = option->palette.button().color().dark(110);
 
@@ -2403,12 +2404,12 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 painter->setPen(Qt::NoPen);
                 if (horizontal) {
                     painter->drawRect(grooveRect);
-                    painter->setPen(borderColor);
+                    painter->setPen(borderColor.dark(110));
                     painter->drawLine(grooveRect.topLeft(), grooveRect.topRight());
                     painter->drawLine(grooveRect.bottomLeft(), grooveRect.bottomRight());
                 } else {
                     painter->drawRect(grooveRect);
-                    painter->setPen(borderColor);
+                    painter->setPen(borderColor.dark(110));
                     painter->drawLine(grooveRect.topLeft(), grooveRect.bottomLeft());
                     painter->drawLine(grooveRect.topRight(), grooveRect.bottomRight());
                 }
