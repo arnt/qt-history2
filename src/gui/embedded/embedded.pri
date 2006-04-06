@@ -191,7 +191,9 @@ embedded {
 	contains( mouse-drivers, qvfb ) {
 		HEADERS +=embedded/qmousevfb_qws.h
 		SOURCES +=embedded/qmousevfb_qws.cpp
-	}
+        } else {
+            DEFINES+= QT_NO_QWS_MOUSE_QVFB
+     }
 
 	contains( mouse-drivers, pc ) {
 		HEADERS +=embedded/qmousepc_qws.h
