@@ -937,6 +937,7 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
 
     QTest::skipCurrentTest = false;
     QTestResult::finishedCurrentTestFunction();
+    QTestResult::setCurrentTestData(0);
     delete[] slot;
 
     return true;
