@@ -99,6 +99,41 @@ public:
     updated data to the model; releaseEditor() indicates that the user has
     completed editing the data, and that the editor widget can be destroyed.
 
+    \section1 Standard Roles and Data Types
+
+    The default delegate used by the standard views supplied with Qt
+    associates each standard role (defined by Qt::ItemDataRole) with certain
+    data types. Models that return data in these types can influence the
+    appearance of the delegate as described in the following table.
+
+    \table
+    \header \o Role \o Accepted Types
+    \omit
+    \row    \o \l Qt::AccessibleDescriptionRole \o QString
+    \row    \o \l Qt::AccessibleTextRole \o QString
+    \endomit
+    \row    \o \l Qt::BackgroundColorRole \o QColor
+    \row    \o \l Qt::CheckStateRole \o Qt::CheckState
+    \row    \o \l Qt::DecorationRole \o QIcon and QColor
+    \row    \o \l Qt::DisplayRole \o QString and types with a string representation
+    \row    \o \l Qt::EditRole \o See QItemEditorFactory for details
+    \row    \o \l Qt::FontRole \o QFont
+    \row    \o \l Qt::SizeHintRole \o QSize
+    \omit
+    \row    \o \l Qt::StatusTipRole \o 
+    \endomit
+    \row    \o \l Qt::TextAlignmentRole \o Qt::Alignment
+    \row    \o \l Qt::TextColorRole \o QColor
+    \omit
+    \row    \o \l Qt::ToolTipRole
+    \row    \o \l Qt::WhatsThisRole
+    \endomit
+    \endtable
+
+    If the default delegate does not allow the level of customization that
+    you need, it is possible to subclass QItemDelegate to implement the
+    desired behavior.
+
     \section1 Subclassing
 
     When subclassing QItemDelegate to create a delegate that displays items

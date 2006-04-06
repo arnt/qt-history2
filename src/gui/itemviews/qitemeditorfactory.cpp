@@ -31,10 +31,33 @@
     \ingroup model-view
 
     When editing the data shown by an item delegate, the QItemDelegate responsible
-    requests an editor widget from its item editor factory. The default factory is
-    provided by this class, but it is possible to implement subclasses that provide
-    specialized editing behavior, such as row or column-specific editors, or editors
-    for certain types of data.
+    requests an editor widget from its item editor factory by calling the
+    createEditor() function. The default factory is provided by this class, but it
+    is possible to implement subclasses that provide specialized editing behavior,
+    such as row or column-specific editors, or editors for certain types of data.
+
+    \section1 Standard Editing Widgets
+
+    The standard factory implementation provides editors for a variety of data
+    types. These are created whenever a delegate needs to provide an editor for
+    data supplied by a model. The following table shows the relationship between
+    types and the standard editors provided.
+
+    \table
+    \header \o Type \o Editor Widget
+    \row    \o bool \o QComboBox
+    \row    \o double \o QDoubleSpinBox
+    \row    \o int \o{1,2} QSpinBox
+    \row    \o unsigned int
+    \row    \o QDate \o QDateEdit
+    \row    \o QDateTime \o QDateTimeEdit
+    \row    \o QPixmap \o QLabel
+    \row    \o QString \o QLineEdit
+    \row    \o QTime \o QTimeEdit
+    \endtable
+
+    Additional editors can be registered for use with both standard and custom
+    delegates with the registerEditor() function.
 
     \sa QItemDelegate, {Model/View Programming}
 */
