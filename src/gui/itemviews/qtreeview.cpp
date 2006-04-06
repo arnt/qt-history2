@@ -239,7 +239,10 @@ void QTreeView::setHeader(QHeaderView *header)
 {
     Q_ASSERT(header);
     Q_D(QTreeView);
-    delete d->header;
+    if (header == d->header)
+        return;
+    if (d->header && d->header->parent() == this)
+        delete d->header;
     d->header = header;
     d->header->setParent(this);
 
