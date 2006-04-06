@@ -60,6 +60,33 @@ def loadCountryMap(doc):
 
     return result
 
+def loadDefaultMap(doc):
+    result = {}
+
+    list_elt = firstChildElt(doc.documentElement, "defaultCountryList")
+    elt = firstChildElt(list_elt, "defaultCountry")
+    while elt:
+        country = eltText(firstChildElt(elt, "country"));
+        language = eltText(firstChildElt(elt, "language"));
+        result[language] = country;
+        elt = nextSiblingElt(elt, "defaultCountry");
+    return result
+
+def fixedCountryName(name, dupes):
+    if name in dupes:
+        return name + "Country"
+    return name
+
+def fixedLanguageName(name, dupes):
+    if name in dupes:
+        return name + "Language"
+    return name
+
+def findDupes(country_map, language_map):
+    country_set = set([ v[0] for a, v in country_map.iteritems() ])
+    language_set = set([ v[0] for a, v in language_map.iteritems() ])
+    return country_set & language_set
+
 def languageNameToId(name, language_map):
     for key in language_map.keys():
         if language_map[key][0] == name:
@@ -93,14 +120,11 @@ def convertFormat(format):
             elif s.startswith("EEE"):
                 result += "ddd"
                 i += 3
-            elif s.startswith("HH"):
-                result += "hh"
-                i += 2
-            elif s.startswith("H"):
-                result += "h"
-                i += 1
             elif s.startswith("a"):
                 result += "AP"
+                i += 1
+            elif s.startswith("z"):
+                result += "t"
                 i += 1
             else:
                 result += format[i]
@@ -143,6 +167,26 @@ def loadLocaleMap(doc, language_map, country_map):
 
     return result
 
+def compareLocaleKeys(key1, key2):
+    if key1 == key2:
+        return 0
+
+    if key1[0] == key2[0]:
+        l1 = compareLocaleKeys.locale_map[key1]
+        l2 = compareLocaleKeys.locale_map[key2]
+
+        if l1.language in compareLocaleKeys.default_map:
+            default = compareLocaleKeys.default_map[l1.language]
+            if l1.country == default:
+                return -1
+            if l2.country == default:
+                return 1
+    else:
+        return key1[0] - key2[0]
+
+    return key1[1] - key2[1]
+
+
 def languageCount(language_id, locale_map):
     result = 0
     for key in locale_map.keys():
@@ -183,13 +227,15 @@ def printEscapedString(s):
 doc = xml.dom.minidom.parse("locale.xml")
 language_map = loadLanguageMap(doc)
 country_map = loadCountryMap(doc)
+default_map = loadDefaultMap(doc)
 locale_map = loadLocaleMap(doc, language_map, country_map)
+dupes = findDupes(language_map, country_map)
 
 # Language enum
 print "enum Language {"
 language = ""
 for key in language_map.keys():
-    language = language_map[key][0]
+    language = fixedLanguageName(language_map[key][0], dupes)
     print "    " + language + " = " + str(key) + ","
 print "    LastLanguage = " + language
 print "};"
@@ -200,7 +246,7 @@ print
 print "enum Country {"
 country = ""
 for key in country_map.keys():
-    country = country_map[key][0]
+    country = fixedCountryName(country_map[key][0], dupes)
     print "    " + country + " = " + str(key) + ","
 print "    LastCountry = " + country
 print "};"
@@ -231,8 +277,12 @@ days_data = StringData()
 # Locale data
 print "static const QLocalePrivate locale_data[] = {"
 print "//      lang   terr    dec  group   list  prcnt   zero  minus    exp sDtFmt lDtFmt sTmFmt lTmFmt sMonth lMonth  sDays  lDays"
+
 locale_keys = locale_map.keys()
-locale_keys.sort()
+compareLocaleKeys.default_map = default_map
+compareLocaleKeys.locale_map = locale_map
+locale_keys.sort(compareLocaleKeys)
+
 for key in locale_keys:
     l = locale_map[key]
 

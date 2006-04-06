@@ -708,7 +708,7 @@
         <language>
             <name>Bosnian</name>
             <id>142</id>
-            <code>nn</code>
+            <code>bs</code>
         </language>
         <language>
             <name>Divehi</name>
@@ -1938,6 +1938,96 @@
             <code>CS</code>
         </country>
     </countryList>
+    <defaultCountryList>
+        <defaultCountry>
+            <language>Afan</language>
+            <country>Ethiopia</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Afar</language>
+            <country>Djibouti</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Arabic</language>
+            <country>SaudiArabia</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Chinese</language>
+            <country>China</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Dutch</language>
+            <country>Netherlands</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>English</language>
+            <country>UnitedStates</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>French</language>
+            <country>France</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>German</language>
+            <country>Germany</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Greek</language>
+            <country>Greece</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Italian</language>
+            <country>Italy</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Malay</language>
+            <country>Malaysia</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Portuguese</language>
+            <country>Portugal</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Russian</language>
+            <country>RussianFederation</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Serbian</language>
+            <country>SerbiaAndMontenegro</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>SerboCroatian</language>
+            <country>SerbiaAndMontenegro</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Somali</language>
+            <country>Somalia</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Spanish</language>
+            <country>Spain</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Swahili</language>
+            <country>Kenya</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Swedish</language>
+            <country>Sweden</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Tigrinya</language>
+            <country>Eritrea</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Uzbek</language>
+            <country>Uzbekistan</country>
+        </defaultCountry>
+        <defaultCountry>
+            <language>Persian</language>
+            <country>Iran</country>
+        </defaultCountry>
+    </defaultCountryList>
     <localeList>
         <locale>
             <language>C</language>
