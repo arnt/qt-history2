@@ -1089,6 +1089,17 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                                  option->palette.dark().color().light(130), 60);
 
     switch(element) {
+     case CE_RadioButton: //fall through
+     case CE_CheckBox:
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
+            bool hover = (btn->state & State_MouseOver && btn->state & State_Enabled);
+            if (hover)
+                painter->fillRect(rect, btn->palette.background().color().light(104));       
+            QStyleOptionButton copy = *btn;
+            copy.rect.adjust(2, 0, -2, 0);
+            QWindowsStyle::drawControl(element, &copy, painter, widget);
+        }
+        break;
     case CE_Splitter:
         painter->save();
         {
@@ -2416,7 +2427,8 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     if (!horizontal)
                         gradient = QLinearGradient(pixmapRect.left(), pixmapRect.center().y(),
                                                    pixmapRect.right(), pixmapRect.center().y());
-                    if (sunken || (option->state & State_MouseOver)) {
+                    if (sunken || (option->state & State_MouseOver && 
+                        (scrollBar->activeSubControls & SC_ScrollBarSlider))) {
                         gradient.setColorAt(0, gradientStartColor.light(110));
                         gradient.setColorAt(1, gradientStopColor.light(110));
                     } else {
