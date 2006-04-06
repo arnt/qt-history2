@@ -243,13 +243,13 @@ void QWSSL5000KeyboardHandler::doKey(uchar code)
     } else if (keyCode == Qt::Key_NumLock) {
         if (release)
             numLock = !numLock;
-    } else if (keyCode == Qt::Key_Alt) {
+    } else if (keyCode == Qt::AltModifier) {
         alt = !release;
-    } else if (keyCode == Qt::Key_Control) {
+    } else if (keyCode == Qt::ControlModifier) {
         ctrl = !release;
-    } else if (keyCode == Qt::Key_Shift) {
+    } else if (keyCode == Qt::ShiftModifier) {
         shift = !release;
-    } else if (keyCode == Qt::Key_Meta) {
+    } else if (keyCode == Qt::MetaModifier) {
         meta = !release;
     } else if (keyCode == Qt::Key_CapsLock && release) {
         caps = !caps;

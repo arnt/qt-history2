@@ -64,7 +64,7 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
 {
     QString driver = key.toLower();
     Q_UNUSED(device);
-#ifdef QT_QWS_KBD_SL5000
+#ifndef QT_NO_QWS_KBD_SL5000
     if (driver == "sl5000" || driver.isEmpty())
         return new QWSSL5000KeyboardHandler(device);
 #endif
@@ -117,7 +117,7 @@ QStringList QKbdDriverFactory::keys()
 {
     QStringList list;
 
-#ifdef QT_QWS_KBD_SL5000
+#ifndef QT_NO_QWS_KBD_SL5000
     if (!list.contains("SL5000"))
         list << "SL5000";
 #endif
