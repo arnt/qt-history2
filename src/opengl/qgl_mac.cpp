@@ -287,7 +287,7 @@ void QGLContext::makeCurrent()
 
 static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
 {
-    if(widget->isHidden() || widget->isMinimized())
+    if(!widget->isVisible() || widget->isMinimized())
         return QRegion();
     const QRect wrect = QRect(qt_mac_posInWindow(widget), widget->size());
     if(!wrect.isValid())
@@ -306,7 +306,7 @@ static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
             ret &= qt_mac_convert_mac_region(macr);
         }
         const QObjectList &children = clip->children();
-        for(int i = children.size()-1; i >= 0; i--) {
+        for(int i = children.size()-1; i >= 0; --i) {
             if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
                 if(child == last_clip)
                     break;
@@ -339,8 +339,9 @@ void QGLContext::updatePaintDevice()
         WindowPtr window = qt_mac_window_for(hiview);
 #ifdef DEBUG_OPENGL_REGION_UPDATE
         static int serial_no_gl = 0;
-        qDebug("[%d] %p setting on %s %p/%p [%s]", ++serial_no_gl, w,
-               w->metaObject()->className(), hiview, window, w->handle() ? "Inside" : "Outside");
+        qDebug("[%d] %p setting on %s::%s %p/%p [%s]", ++serial_no_gl, w,
+               w->metaObject()->className(), w->objectName().toLatin1().constData(),
+               hiview, window, w->handle() ? "Inside" : "Outside");
 #endif
 
         //update drawable
