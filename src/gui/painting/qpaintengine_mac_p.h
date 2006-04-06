@@ -69,6 +69,8 @@ public:
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
 
     void drawTextItem(const QPointF &pos, const QTextItem &item);
+    void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
+                   Qt::ImageConversionFlags flags = Qt::AutoColor);
 
     Type type() const { return QPaintEngine::CoreGraphics; }
 

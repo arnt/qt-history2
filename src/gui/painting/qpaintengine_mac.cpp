@@ -649,6 +649,57 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     CGContextRestoreGState(d->hd);
 }
 
+
+static void drawImageReleaseData (void *info, const void *, size_t)
+{
+    delete static_cast<QImage *>(info);
+}
+
+
+void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
+                                         Qt::ImageConversionFlags)
+{
+    Q_D(QCoreGraphicsPaintEngine);
+    Q_ASSERT(isActive());
+    if (img.isNull())
+        return;
+
+    const QImage *image = &img;
+    QImage *newImage = 0;
+    if (img.depth() != 32) {
+        newImage = new QImage(img.convertToFormat(QImage::Format_ARGB32_Premultiplied));
+        image = newImage;
+    }
+    uint alphaFormat;
+    switch (image->format()) {
+    default:
+    case QImage::Format_ARGB32_Premultiplied:
+        alphaFormat = kCGImageAlphaPremultipliedFirst;
+        break;
+    case QImage::Format_ARGB32:
+        alphaFormat = kCGImageAlphaFirst;
+        break;
+    case QImage::Format_RGB32:
+        alphaFormat = kCGImageAlphaNone;
+        break;
+    }
+    QCFType<CGDataProviderRef> dataProvider = CGDataProviderCreateWithData(newImage,
+                                                          image->bits(),
+                                                          image->numBytes(),
+                                                          drawImageReleaseData);
+
+    QCFType<CGImageRef> cgimage = CGImageCreate(image->width(), image->height(), 8, 32,
+                                        image->bytesPerLine(),
+                                QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
+                                alphaFormat | kCGBitmapByteOrder32Little,
+                                dataProvider, 0, false, kCGRenderingIntentDefault);
+
+    const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
+    CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy),
+                             image->width()*sx, image->height()*sy);
+    HIViewDrawCGImage(d->hd, &rect, cgimage);
+}
+
 void
 QCoreGraphicsPaintEngine::initialize()
 {
