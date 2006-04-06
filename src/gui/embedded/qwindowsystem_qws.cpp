@@ -82,8 +82,6 @@
 
 #include "qwindowsystem_p.h"
 
-#define EXTERNAL_SOUND_SERVER
-
 extern void qt_qws_set_max_window_rect(const QRect& r);
 
 QWSServer Q_GUI_EXPORT *qwsServer=0;
@@ -1072,7 +1070,7 @@ void QWSServerPrivate::initServer(int flags)
     }
 #endif
 
-#if !defined(QT_NO_SOUND) && !defined(EXTERNAL_SOUND_SERVER) && !defined(Q_OS_DARWIN)
+#if !defined(QT_NO_SOUND) && !defined(QT_EXTERNAL_SOUND_SERVER) && !defined(Q_OS_DARWIN)
     soundserver = new QWSSoundServer(q);
 #endif
 }
@@ -2543,7 +2541,7 @@ void QWSServerPrivate::invokeGrabKeyboard(QWSGrabKeyboardCommand *cmd, QWSClient
 #if !defined(QT_NO_SOUND)
 void QWSServerPrivate::invokePlaySound(QWSPlaySoundCommand *cmd, QWSClient *)
 {
-#if !defined(EXTERNAL_SOUND_SERVER) && !defined(Q_OS_DARWIN)
+#if !defined(QT_EXTERNAL_SOUND_SERVER) && !defined(Q_OS_DARWIN)
     soundserver->playFile( 1, cmd->filename );
 #else
     Q_UNUSED(cmd);
