@@ -423,10 +423,14 @@ int QHeaderView::visualIndexAt(int position) const
     if (position < 0 || position > length())
         return -1;
     int visual = d->headerVisualIndexAt(position);
-    while (d->isVisualIndexHidden(visual) && visual < count)
-        ++visual;
-    if (visual >= count)
+    if (visual < 0)
         return -1;
+
+    while (d->isVisualIndexHidden(visual)){
+        ++visual;
+        if (visual >= count)
+            return -1;
+    }
     return visual;
 }
 
