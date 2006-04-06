@@ -520,8 +520,6 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
             ReleaseEvent(event);
         } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()) > 0);
 
-        QApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
-
         bool canWait = (!retVal
                         && threadData->canWait
                         && !d->interrupt
