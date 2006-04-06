@@ -60,8 +60,8 @@
     enum values.
 
     The traditional C++ approach for storing OR-combinations of enum
-    values is to use an \c int or \c uint variable. The inconvenient
-    with that approach is that there's no type checking at all; any
+    values is to use an \c int or \c uint variable. The inconvenience
+    with this approach is that there's no type checking at all; any
     enum value can be OR'd with any other enum value and passed on to
     a function that takes an \c int or \c uint.
 
