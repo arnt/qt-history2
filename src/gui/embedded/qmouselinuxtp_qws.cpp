@@ -219,7 +219,7 @@ void QWSLinuxTPMouseHandlerPrivate::readMouseData()
             samples[currSample] = QPoint(1000 - data->x, data->y);
 #else
             samples[currSample] = QPoint(data->x, data->y);
-
+#endif
             numSamples++;
             if (numSamples >= QT_QWS_TP_MINIMUM_SAMPLES) {
                 int sampleCount = qMin(numSamples + 1,samples.count());
@@ -234,7 +234,8 @@ void QWSLinuxTPMouseHandlerPrivate::readMouseData()
                 mousePos = totalMousePos / (sampleCount - 1);
 
 # if defined(QT_QWS_IPAQ_RAW) || defined(QT_QWS_EBX_RAW)
-                mousePos = handler->transform(mousePos);
+#warning FIXME transform
+//                mousePos = handler->transform(mousePos);
 # endif
                 if(!waspressed)
                     oldmouse = mousePos;
@@ -287,7 +288,7 @@ void QWSLinuxTPMouseHandlerPrivate::readMouseData()
         }
         idx += sizeof(TS_EVENT);
     }
-#endif
+
     int surplus = mouseIdx - idx;
     for (int i = 0; i < surplus; i++)
         mouseBuf[i] = mouseBuf[idx+i];
