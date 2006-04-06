@@ -109,6 +109,7 @@ public:
     void setKeyFilePath( const QString & );
     QString keyFilePath() const;
     const unsigned char *getClientKey( unsigned char progId );
+    void invalidateClientKeyCache();
     QMutex *getKeyFileMutex();
     void setLogFilePath( const QString & );
     QString logFilePath() const;

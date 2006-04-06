@@ -396,6 +396,12 @@ const unsigned char *QTransportAuth::getClientKey( unsigned char progId )
     return d->getClientKey( progId );
 }
 
+void QTransportAuth::invalidateClientKeyCache()
+{
+    Q_D(QTransportAuth);
+    d->invalidateClientKeyCache();
+}
+
 QMutex *QTransportAuth::getKeyFileMutex()
 {
     Q_D(QTransportAuth);
@@ -492,6 +498,17 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
     return NULL;
 }
 
+void QTransportAuthPrivate::invalidateClientKeyCache()
+{
+    QMutexLocker keyfileLocker( &keyfileMutex );
+    for ( int i = 0; i < KEY_CACHE_SIZE; i++ )
+    {
+        if ( keyCache[i] == NULL )
+            break;
+        free( keyCache[i] );
+        keyCache[i] = 0;
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////
 ////

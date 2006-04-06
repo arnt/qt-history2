@@ -189,6 +189,7 @@ public:
 
     void freeCache();
     const unsigned char *getClientKey( unsigned char progId );
+    void invalidateClientKeyCache();
 
     bool keyInitialised;
     bool keyChanged;
