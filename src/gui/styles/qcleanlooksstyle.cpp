@@ -836,7 +836,7 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
             QRect rect = focusFrame->rect;
             painter->save();
             painter->setBackgroundMode(Qt::TransparentMode);
-            painter->setBrush(QBrush(focusFrame->palette.shadow().color().dark(120), Qt::Dense4Pattern));
+            painter->setBrush(QBrush(focusFrame->palette.shadow().color().dark(110), Qt::Dense4Pattern));
             painter->setBrushOrigin(rect.topLeft());
             painter->setPen(Qt::NoPen);
             painter->drawRect(rect.left(), rect.top(), rect.width(), 1);    // Top
@@ -870,7 +870,7 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
                 QRect innerBorder = rect.adjusted(1, 1, -1, 0);
 
                 if (down) {
-		    painter->fillRect(gradRect, gradientStopColor.dark(110));
+		            painter->fillRect(gradRect, gradientStopColor.dark(110));
                     painter->setPen(gradientStopColor.dark(125));
                     painter->drawLine(innerBorder.topLeft(), innerBorder.topRight());
                     painter->drawLine(innerBorder.topLeft(), innerBorder.bottomLeft());
@@ -1156,12 +1156,13 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             int sx = x;
             int sy = y;
             int s = 4;
+            QColor dark = option->palette.dark().color().light(110);
             if (option->direction == Qt::RightToLeft) {
                 sx = x + sw;
                 for (int i = 0; i < 4; ++i) {
                     painter->setPen(QPen(option->palette.light().color(), 1));
                     painter->drawLine(x, sy - 1 , sx + 1, sw);
-                    painter->setPen(QPen(shadow, 1));
+                    painter->setPen(QPen(dark, 1));
                     painter->drawLine(x, sy, sx, sw);
                     sx -= s;
                     sy += s;
@@ -1170,7 +1171,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 for (int i = 0; i < 4; ++i) {
                     painter->setPen(QPen(option->palette.light().color(), 1));
                     painter->drawLine(sx - 1, sw, sw, sy - 1);
-                    painter->setPen(QPen(shadow, 1));
+                    painter->setPen(QPen(dark, 1));
                     painter->drawLine(sx, sw, sw, sy);
                     sx += s;
                     sy += s;
@@ -3082,7 +3083,7 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         newSize += QSize(0, 1);
         break;
     case CT_PushButton:
-	    newSize += QSize(0, 4);
+	    newSize += QSize(0, 3);
         break;
     case CT_MenuBarItem:
 	    newSize += QSize(0, 2);
@@ -3462,6 +3463,31 @@ int QCleanLooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
     }
     return ret;
 }
+
+/*! \reimp */
+QRect QCleanLooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *w) const
+{
+    QRect r = QWindowsStyle::subElementRect(sr, opt, w);
+    switch (sr) {
+    case SE_PushButtonFocusRect:
+        r.adjust(0, 1, 0, -1);
+        break;
+    default:
+        break;
+    }
+    return r;
+}
+
+/*!
+    \internal
+*/
+QIcon QCleanLooksStyle::standardIconImplementation(StandardPixmap standardIcon,
+                                                  const QStyleOption *option,
+                                                  const QWidget *widget) const
+{
+    return QWindowsStyle::standardIconImplementation(standardIcon, option, widget);
+}
+    
 
 /*!
  \reimp

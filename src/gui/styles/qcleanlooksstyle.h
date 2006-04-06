@@ -39,7 +39,7 @@ public:
     int pixelMetric(PixelMetric metric, const QStyleOption *option = 0, const QWidget *widget = 0) const;
     void drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                             QPainter *painter, const QWidget *widget) const;
-
+    QRect subElementRect(SubElement r, const QStyleOption *opt, const QWidget *widget = 0) const;
     QSize sizeFromContents(ContentsType type, const QStyleOption *option,
                            const QSize &size, const QWidget *widget) const;
     QRect subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
@@ -59,6 +59,10 @@ public:
     void drawItemText(QPainter *painter, const QRect &rect,
                               int flags, const QPalette &pal, bool enabled,
                               const QString &text, QPalette::ColorRole textRole = QPalette::NoRole) const;
+protected Q_SLOTS:
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
+                           const QWidget *widget = 0) const;
+
 };
 
 #endif // QT_NO_STYLE_CLEANLOOKS
