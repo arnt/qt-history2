@@ -180,15 +180,28 @@ QMacPasteBoard::pasteBoard() const
 OSStatus QMacPasteBoard::promiseKeeper(PasteboardRef paste, PasteboardItemID id, CFStringRef f, void *data)
 {
     QCFString flavor(f);
-
     QMacPasteBoard *qpaste = (QMacPasteBoard*) data;
-    QMacPasteBoard::Promise promise = qpaste->promises[(int)id];
+    const int promise_id = (int)id;
+
+    { //protect the marker!
+        extern int qt_mac_mime_type; //qmime_mac.cpp
+        extern CFStringRef qt_mac_mime_typeUTI; //qmime_mac.cpp
+        if(promise_id == qt_mac_mime_type && QString(flavor) == QCFString(qt_mac_mime_typeUTI))
+            return noErr;
+    }
+
+    if(promise_id < 0 || promise_id >= qpaste->promises.size()) {
+        qDebug("Pasteboard: %d: Unexpected [%d]!", __LINE__, promise_id); //shouldn't happen
+        return cantGetFlavorErr;
+    }
+
+    QMacPasteBoard::Promise promise = qpaste->promises[promise_id];
 #ifdef DEBUG_PASTEBOARD
-    qDebug("PasteBoard: Calling in promise for %s[%d] [%s] (%s)", qPrintable(promise.mime), (int)id, qPrintable(QString(flavor)),
+    qDebug("PasteBoard: Calling in promise for %s[%d] [%s] (%s)", qPrintable(promise.mime), promise_id, qPrintable(QString(flavor)),
            qPrintable(promise.convertor->convertorName()));
 #endif
     if(!promise.convertor->canConvert(promise.mime, flavor)) {
-        qDebug("Pasteboard: Unexpected [%d]!", (int)id); //shouldn't happen
+        qDebug("Pasteboard: %d: Unexpected [%d]!", __LINE__, promise_id); //shouldn't happen
         return cantGetFlavorErr;
     }
     QList<QByteArray> md = promise.convertor->convertFromMime(promise.mime, promise.data, flavor);
