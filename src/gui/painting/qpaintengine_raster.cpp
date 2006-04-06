@@ -33,6 +33,7 @@
 #include <private/qpolygonclipper_p.h>
 
 #include "qpaintengine_raster_p.h"
+#include "qbezier_p.h"
 
 #if defined(Q_WS_X11)
 #  include <qwidget.h>
@@ -101,7 +102,8 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                                 LineDrawMode style, const QRect &devRect);
 static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2, QPen *pen, ProcessSpans span_func, QSpanData *data,
                                        LineDrawMode style, const QRect &devRect);
-// static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void *data,
+// static void drawLine_midpoint_f(qreal x1, qreal y1, qreal x2, qreal y2,
+//                                 ProcessSpans span_func, QSpanData *data,
 //                                 LineDrawMode style, const QRect &devRect);
 
 static void drawEllipse_midpoint_i(const QRect &rect,
@@ -615,6 +617,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->user_clip_enabled = false;
     d->opacity = 256;
 
+    d->inverseScale = qreal(1);
+
 #if defined(Q_WS_WIN)
     d->clear_type_text = false;
     QT_WA({
@@ -884,6 +888,13 @@ void QRasterPaintEngine::updateMatrix(const QMatrix &matrix)
         d->txop = QPainterPrivate::TxNone;
         d->int_xform = true;
     }
+
+    // 1/10000 == 0.0001, so we have good enough res to cover curves
+    // that span the entire widget...
+    d->inverseScale = qMax(1 / qMax( qMax(qAbs(matrix.m11()), qAbs(matrix.m22())),
+                                     qMax(qAbs(matrix.m12()), qAbs(matrix.m21())) ),
+                           qreal(0.0001));
+
     d->outlineMapper->setMatrix(d->matrix, d->txop);
     d->penData.setupMatrix(d->matrix, d->txop, d->bilinear);
     d->brushData.setupMatrix(d->brushMatrix(), d->txop, d->bilinear);
@@ -1029,7 +1040,6 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 
     if (update_fast_pen) {
         d->fast_pen = !d->antialiased
-                      && d->pen.brush().isOpaque()
                       && (d->pen.widthF() == 0
                           || d->pen.widthF() <= 1 && d->txop <= QPainterPrivate::TxTranslate);
     }
@@ -1200,7 +1210,76 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
         fillPath(path, &d->brushData);
     }
 
-    if (d->penData.blend) {
+    if (!d->penData.blend)
+        return;
+
+    if (d->fast_pen && d->pen.brush().isOpaque()) {
+        QPointF lastPoint;
+        const int NBEZIERS = 32;
+        QBezier beziers[NBEZIERS];
+
+        d->cachedLines.reset();
+
+        for (int i = 0; i < path.elementCount(); ++i) {
+            const QPainterPath::Element &e = path.elementAt(i);
+            switch (e.type) {
+            case QPainterPath::MoveToElement:
+                lastPoint = e;
+                break;
+            case QPainterPath::LineToElement:
+                d->cachedLines.add(QLineF(lastPoint, e));
+                lastPoint = e;
+                break;
+
+            case QPainterPath::CurveToElement:
+            {
+                QPointF sp = path.elementAt(i-1);
+                QPointF cp2 = path.elementAt(i+1);
+                QPointF ep = path.elementAt(i+2);
+                i+=2;
+
+                qreal inverseScaleHalf = d->inverseScale / 2;
+                beziers[0] = QBezier::fromPoints(sp, e, cp2, ep);
+                QBezier *b = beziers;
+                while (b >= beziers) {
+                    // check if we can pop the top bezier curve from the stack
+                    qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
+                    qreal d;
+                    if (l > d_func()->inverseScale) {
+                        d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2)
+                                  - (b->y4 - b->y1)*(b->x1 - b->x2) )
+                            + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3)
+                                    - (b->y4 - b->y1)*(b->x1 - b->x3) );
+                        d /= l;
+                    } else {
+                        d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
+                            qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
+                    }
+                    if (d < inverseScaleHalf || b == beziers + NBEZIERS - 1) {
+                        // good enough, we pop it off and add the endpoint
+                        QPointF p(b->x4, b->y4);
+                        d_func()->cachedLines.add(QLineF(lastPoint, p));
+                        lastPoint = p;
+                        --b;
+                    } else {
+                        // split, second half of the polygon goes lower into the stack
+                        b->split(b+1, b);
+                        ++b;
+                    }
+                }
+                break;
+            } // case CurveToElement
+            default:
+                break;
+            } // end of switch
+        }
+
+        if (!d->cachedLines.isEmpty()) {
+            drawLines(d->cachedLines.data(), d->cachedLines.size());
+            d->cachedLines.reset();
+        }
+        return;
+    } else {
         Q_ASSERT(d->stroker);
         qreal width = d->pen.widthF();
         d->outlineMapper->beginOutline(Qt::WindingFill);
@@ -1252,7 +1331,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
         bool needs_closing = mode != PolylineMode && points[0] != points[pointCount-1];
 
-        if (d->fast_pen) {
+        if (d->fast_pen && d->pen.brush().isOpaque()) {
             // Use fast path for 0 width /  trivial pens.
 
             QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
@@ -1288,13 +1367,15 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                 if (d->pen.style() == Qt::SolidLine) {
                     drawLine_midpoint_i(qFloor(lp1.x()), qFloor(lp1.y()),
                                         qFloor(lp2.x()), qFloor(lp2.y()),
-                                        d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
+                                        d->penData.blend, &d->penData,
+                                        LineDrawIncludeLastPixel,
                                         devRect);
                 } else {
                     drawLine_midpoint_dashed_i(qFloor(lp1.x()), qFloor(lp1.y()),
                                                qFloor(lp2.x()), qFloor(lp2.y()),
                                                &d->pen,
-                                               d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
+                                               d->penData.blend, &d->penData,
+                                               LineDrawIncludeLastPixel,
                                                devRect);
                 }
             }
@@ -3316,10 +3397,13 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
     int x, y;
     int dx, dy, d, incrE, incrNE;
 
-    QT_FT_Span span = { 0, 1, 0, 255 };
-
     dx = x2 - x1;
     dy = y2 - y1;
+
+    const int NSPANS = 256;
+    QT_FT_Span spans[NSPANS];
+    int current = 0;
+    bool ordered = true;
 
     if (dy == 0) {
         // specialcase horizontal lines
@@ -3331,11 +3415,11 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
             if (len > 0) {
                 if (style == LineDrawNormal && stop == stop_clipped)
                     len--;
-                span.x = ushort(start);
-                span.len = ushort(len);
-                span.y = y1;
-                span.coverage = 255;
-                span_func(1, &span, data);
+                spans[0].x = ushort(start);
+                spans[0].len = ushort(len);
+                spans[0].y = y1;
+                spans[0].coverage = 255;
+                span_func(1, spans, data);
             }
         }
         return;
@@ -3377,9 +3461,11 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 
         if (x>=0 && y>=0 && y < devRect.height()) {
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
-            span.x = x;
-            span.y = y;
-            span_func(1, &span, data);
+            spans[current].len = 1;
+            spans[current].coverage = 255;
+            spans[current].x = x;
+            spans[current].y = y;
+            ++current;
         }
 
         if (y2 > y1) { // 315 -> 360 and 135 -> 180 (unit circle degrees)
@@ -3390,14 +3476,14 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
             incrNE = (dy - dx) * 2;
 
             if (y > y2)
-                return;
+                goto flush_and_return;
 
             while (x < x2) {
                 if (d > 0) {
                     ++y;
                     d += incrNE;
                     if (y > y2)
-                        return;
+                        goto flush_and_return;
                 } else {
                     d += incrE;
                 }
@@ -3408,9 +3494,15 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 
                 Q_ASSERT(x<devRect.width());
                 Q_ASSERT(y<devRect.height());
-                span.x = x;
-                span.y = y;
-                span_func(1, &span, data);
+                if (current == NSPANS) {
+                    span_func(NSPANS, spans, data);
+                    current = 0;
+                }
+                spans[current].len = 1;
+                spans[current].coverage = 255;
+                spans[current].x = x;
+                spans[current].y = y;
+                ++current;
             }
         } else {  // 0-45 and 180->225 (unit circle degrees)
 
@@ -3421,14 +3513,15 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
             incrNE = (dy + dx) * 2;
 
             if (y < 0)
-                return;
+                goto flush_and_return;
 
+            ordered = false;
             while (x < x2) {
                 if (d < 0) {
                     --y;
                     d += incrNE;
                     if (y < 0)
-                        return;
+                        goto flush_and_return;
                 } else {
                     d += incrE;
                 }
@@ -3438,9 +3531,15 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                     continue;
 
                 Q_ASSERT(x<devRect.width() && y<devRect.height());
-                span.x = x;
-                span.y = y;
-                span_func(1, &span, data);
+                if (current == NSPANS) {
+                    span_func(NSPANS, spans, data);
+                    current = 0;
+                }
+                spans[NSPANS - 1 - current].len = 1;
+                spans[NSPANS - 1 - current].coverage = 255;
+                spans[NSPANS - 1 - current].x = x;
+                spans[NSPANS - 1 - current].y = y;
+                ++current;
             }
         }
 
@@ -3473,9 +3572,15 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 
         if (x>=0 && y>=0 && x < devRect.width()) {
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
-            span.x = x;
-            span.y = y;
-            span_func(1, &span, data);
+            if (current == NSPANS) {
+                span_func(NSPANS, spans, data);
+                current = 0;
+            }
+            spans[current].len = 1;
+            spans[current].coverage = 255;
+            spans[current].x = x;
+            spans[current].y = y;
+            ++current;
         }
 
         if (x2 > x1) { // 90 -> 135 and 270 -> 315 (unit circle degrees)
@@ -3485,14 +3590,14 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
             incrNE = (dx - dy) * 2;
 
             if (x > x2)
-                return;
+                goto flush_and_return;
 
             while (y < y2) {
                 if (d > 0) {
                     ++x;
                     d += incrNE;
                     if (x > x2)
-                        return;
+                        goto flush_and_return;
                 } else {
                     d += incrE;
                 }
@@ -3500,9 +3605,15 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                 if (x < 0 || y < 0)
                     continue;
                 Q_ASSERT(x<devRect.width() && y<devRect.height());
-                span.x = x;
-                span.y = y;
-                span_func(1, &span, data);
+                if (current == NSPANS) {
+                    span_func(NSPANS, spans, data);
+                    current = 0;
+                }
+                spans[current].len = 1;
+                spans[current].coverage = 255;
+                spans[current].x = x;
+                spans[current].y = y;
+                ++current;
             }
         } else { // 45 -> 90 and 225 -> 270 (unit circle degrees)
             x1 = qMin(x1, devRect.width() - 1);
@@ -3511,14 +3622,14 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
             incrNE = (dx + dy) * 2;
 
             if (x < 0)
-                return;
+                goto flush_and_return;
 
             while (y < y2) {
                 if (d < 0) {
                     --x;
                     d += incrNE;
                     if (x < 0)
-                        return;;
+                        goto flush_and_return;
                 } else {
                     d += incrE;
                 }
@@ -3526,12 +3637,21 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                 if (y < 0 || x > x1)
                     continue;
                 Q_ASSERT(x>=0 && x<devRect.width() && y>=0 && y<devRect.height());
-                span.x = x;
-                span.y = y;
-                span_func(1, &span, data);
+                if (current == NSPANS) {
+                    span_func(NSPANS, spans, data);
+                    current = 0;
+                }
+                spans[current].len = 1;
+                spans[current].coverage = 255;
+                spans[current].x = x;
+                spans[current].y = y;
+                ++current;
             }
         }
     }
+flush_and_return:
+    if (current > 0)
+        span_func(current, ordered ? spans : spans + (NSPANS - current), data);
 }
 
 static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
@@ -3639,7 +3759,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
 
         // completly clipped, so abort
         if (x2 <= x1)
-            goto flush_and_return;
+            return;
 
         int x = x1;
         int y = y1;
@@ -3850,7 +3970,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                     --x;
                     d += incrNE;
                     if (x < 0)
-                        goto flush_and_return;;
+                        goto flush_and_return;
                 } else {
                     d += incrE;
                 }

@@ -179,6 +179,8 @@ public:
     unsigned long rasterPoolSize;
     unsigned char *rasterPoolBase;
 
+    qreal inverseScale;
+    QDataBuffer<QLineF> cachedLines;
 
     int deviceDepth;
 
