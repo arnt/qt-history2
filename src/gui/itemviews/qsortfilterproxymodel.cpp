@@ -620,19 +620,23 @@ void QSortFilterProxyModelPrivate::source_items_removed(
 
     // Figure out which source items in the "super"-interval to keep (reinsert)
     QVector<int> source_items;
-    for (int i = proxy_start+1; i <= proxy_end-1; ++i) {
-        int source_item = proxy_to_source.at(i);
-        if (source_item < start)
-            source_items.append(source_item);
-        else if (source_item > end)
-            source_items.append(source_item - delta_item_count);
+    if (proxy_end >= 0) {
+        for (int i = proxy_start+1; i <= proxy_end-1; ++i) {
+            int source_item = proxy_to_source.at(i);
+            if (source_item < start)
+                source_items.append(source_item);
+            else if (source_item > end)
+                source_items.append(source_item - delta_item_count);
+        }
     }
 
     QModelIndexList source_indexes = store_persistent_indexes();
 
-    // Remove the items in "super"-interval
-    QModelIndex proxy_parent = QSortFilterProxyModelPrivate::source_to_proxy(source_parent);
-    remove_proxy_interval(source_to_proxy, proxy_to_source, proxy_start, proxy_end, proxy_parent, orient);
+    if (proxy_end >= 0) {
+        // Remove the items in "super"-interval
+        QModelIndex proxy_parent = QSortFilterProxyModelPrivate::source_to_proxy(source_parent);
+        remove_proxy_interval(source_to_proxy, proxy_to_source, proxy_start, proxy_end, proxy_parent, orient);
+    }
 
     // Shrink the source-to-proxy mapping to reflect the new item count
     source_to_proxy.remove(start, delta_item_count);
@@ -845,12 +849,13 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
         int proxy_end_row;
         proxy_item_range(m->proxy_rows, source_rows_change, proxy_start_row, proxy_end_row);
         // ### Find the proxy column range also
-
-        QModelIndex proxy_top_left = create_index(
-            proxy_start_row, m->proxy_columns.at(source_top_left.column()), it);
-        QModelIndex proxy_bottom_right = create_index(
-            proxy_end_row, m->proxy_columns.at(source_bottom_right.column()), it);
-        emit q->dataChanged(proxy_top_left, proxy_bottom_right);
+        if (proxy_end_row >= 0) {
+            QModelIndex proxy_top_left = create_index(
+                proxy_start_row, m->proxy_columns.at(source_top_left.column()), it);
+            QModelIndex proxy_bottom_right = create_index(
+                proxy_end_row, m->proxy_columns.at(source_bottom_right.column()), it);
+            emit q->dataChanged(proxy_top_left, proxy_bottom_right);
+        }
     }
 
     if (!source_rows_insert.isEmpty()) {
