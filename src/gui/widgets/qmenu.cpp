@@ -1282,7 +1282,11 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     d->updateActions();
     QPoint pos = p;
     QSize size = sizeHint();
-    QRect screen = QApplication::desktop()->availableGeometry(p);
+#if defined(Q_WS_MAC)
+    const QRect screen = QApplication::desktop()->availableGeometry(p);
+#else
+    const QRect screen = QApplication::desktop()->screenGeometry(p);
+#endif
     const int desktopFrame = style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, this);
     if (d->ncols > 1) {
         pos.setY(screen.top()+desktopFrame);
@@ -2275,19 +2279,23 @@ void QMenu::internalDelayedPopup()
 
     QPoint pos(rightPos);
     QMenu *caused = qobject_cast<QMenu*>(d->causedPopup.widget);
-    const QRect availGeometry(QApplication::desktop()->availableGeometry(caused));
+#if defined(Q_WS_MAC)
+    const QRect screen = QApplication::desktop()->availableGeometry(caused);
+#else
+    const QRect screen = QApplication::desktop()->screenGeometry(caused);
+#endif
     if (isRightToLeft()) {
         pos = leftPos;
-        if (caused && caused->x() < x() || pos.x() < availGeometry.left()) {
-            if(rightPos.x() + menuSize.width() < availGeometry.right())
+        if (caused && caused->x() < x() || pos.x() < screen.left()) {
+            if(rightPos.x() + menuSize.width() < screen.right())
                 pos = rightPos;
             else
-                pos.rx() = availGeometry.left();
+                pos.rx() = screen.left();
         }
     } else {
-        if (caused && caused->x() > x() || pos.x() + menuSize.width() > availGeometry.right()) {
-            if(leftPos.x() < availGeometry.left())
-                pos.rx() = availGeometry.right() - menuSize.width();
+        if (caused && caused->x() > x() || pos.x() + menuSize.width() > screen.right()) {
+            if(leftPos.x() < screen.left())
+                pos.rx() = screen.right() - menuSize.width();
             else
                 pos = leftPos;
         }
