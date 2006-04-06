@@ -2565,13 +2565,17 @@ void QTextEdit::dropEvent(QDropEvent *e)
     e->acceptProposedAction();
     
     d->repaintSelection();
+    
+    QTextCursor insertionCursor = cursorForPosition(e->pos());
+    insertionCursor.beginEditBlock();
 
     if (e->dropAction() == Qt::MoveAction
         && (e->source() == this || e->source() == d->viewport))
         d->cursor.removeSelectedText();
 
-    d->setCursorPosition(e->pos());
+    d->cursor = insertionCursor;
     insertFromMimeData(e->mimeData());
+    insertionCursor.endEditBlock();
 }
 
 #endif // QT_NO_DRAGANDDROP
