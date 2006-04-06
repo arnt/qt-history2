@@ -2288,7 +2288,9 @@ QPoint QWidget::pos() const
 
 /*!
     \property QWidget::normalGeometry
-    \brief the geometry a toplevel widget has when it is not maximized or fullscreen
+
+    \brief the geometry of the widget as it will appear when shown as
+    a normal (not maximized or fullscreen) toplevel widget
 
     For child widgets this property always holds an empty rect.
 
