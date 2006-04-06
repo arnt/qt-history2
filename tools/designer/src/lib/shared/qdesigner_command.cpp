@@ -228,7 +228,8 @@ void SetPropertyCommand::redo()
                                                                  // the child is the active widget.
     }
 
-    if (m_propertyName == QLatin1String("objectName")) {
+    if (m_propertyName == QLatin1String("objectName") ||
+                m_propertyName == QLatin1String("icon") && qobject_cast<QAction *>(m_object)) {
         if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
             oi->setFormWindow(formWindow());
     }
@@ -259,7 +260,8 @@ void SetPropertyCommand::undo()
                                                                  // the child is the active widget.
     }
 
-    if (m_propertyName == QLatin1String("objectName")) {
+    if (m_propertyName == QLatin1String("objectName") ||
+                m_propertyName == QLatin1String("icon") && qobject_cast<QAction *>(m_object)) {
         if (QDesignerObjectInspectorInterface *oi = formWindow()->core()->objectInspector())
             oi->setFormWindow(formWindow());
     }
