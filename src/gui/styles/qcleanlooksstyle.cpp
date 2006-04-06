@@ -3478,6 +3478,7 @@ QRect QCleanLooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
     return r;
 }
 
+
 /*!
     \internal
 */
@@ -3497,16 +3498,40 @@ QPixmap QCleanLooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
 {
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
+    case SP_MessageBoxInformation:
+        {
+            QPixmap pixmap ("/usr/share/icons/hicolor/48x48/stock/generic/stock_dialog-info.png");   
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_MessageBoxWarning:
+        {
+            QPixmap pixmap ("/usr/share/icons/hicolor/48x48/stock/generic/stock_dialog-warning.png");   
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_MessageBoxCritical:
+        {
+            QPixmap pixmap ("/usr/share/icons/hicolor/48x48/stock/generic/stock_dialog-error.png");   
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_MessageBoxQuestion:
+        {
+            QPixmap pixmap ("/usr/share/icons/hicolor/48x48/stock/generic/stock_unknown.png");   
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
     case SP_TitleBarMenuButton:
     case SP_TitleBarShadeButton:
     case SP_TitleBarUnshadeButton:
     case SP_TitleBarMinButton:
     case SP_TitleBarMaxButton:
     case SP_TitleBarContextHelpButton:
-    case SP_MessageBoxInformation:
-    case SP_MessageBoxWarning:
-    case SP_MessageBoxCritical:
-    case SP_MessageBoxQuestion:
         return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
     case SP_TitleBarNormalButton:
         return QPixmap((const char **)dock_widget_restore_xpm);
