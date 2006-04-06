@@ -14,22 +14,22 @@ Widget::Widget(QWidget *parent)
     QWidget *secondPageWidget = new QWidget;
     QWidget *thirdPageWidget = new QWidget;
 
-    QStackedLayout *stackedLayout = new QStackedLayout;
-    stackedLayout->addWidget(firstPageWidget);
-    stackedLayout->addWidget(secondPageWidget);
-    stackedLayout->addWidget(thirdPageWidget);
+    QStackedWidget *stackedWidget = new QStackedWidget;
+    stackedWidget->addWidget(firstPageWidget);
+    stackedWidget->addWidget(secondPageWidget);
+    stackedWidget->addWidget(thirdPageWidget);
 
     QComboBox *pageComboBox = new QComboBox;
     pageComboBox->addItem(tr("Page 1"));
     pageComboBox->addItem(tr("Page 2"));
     pageComboBox->addItem(tr("Page 3"));
     connect(pageComboBox, SIGNAL(activated(int)),
-            stackedLayout, SLOT(setCurrentIndex(int)));
+            stackedWidget, SLOT(setCurrentIndex(int)));
 
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(pageComboBox);
-    mainLayout->addLayout(stackedLayout);
-    setLayout(mainLayout);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(pageComboBox);
+    layout->addWidget(stackedWidget);
+    setLayout(layout);
 }
 
 int main(int argc, char *argv[])
@@ -39,4 +39,3 @@ int main(int argc, char *argv[])
     widget.show();
     return app.exec();
 }
-

@@ -44,9 +44,12 @@ public:
     ("pages"). For example:
 
     \quotefromfile snippets/qstackedlayout/main.cpp
-    \skipto QWidget
+    \skipto firstPageWidget
     \printto QComboBox
-    \skipto mainWidget
+
+    \skipto QVBoxLayout
+    \printline QVBoxLayout
+    \skipto mainLayout->addLayout
     \printuntil setLayout
 
     QStackedLayout provides no intrinsic means for the user to switch
@@ -161,8 +164,8 @@ int QStackedLayout::addWidget(QWidget *widget)
 /*!
     Inserts the given \a widget at the given \a index in this
     QStackedLayout. If \a index is out of range, the widget is
-    appended to the list (in which case it is the actual index of the
-    \a widget that is returned).
+    appended (in which case it is the actual index of the \a widget
+    that is returned).
 
     If the QStackedLayout is empty before this function is called, the
     given \a widget becomes the current widget.
@@ -310,8 +313,8 @@ int QStackedLayout::currentIndex() const
 /*!
     \fn void QStackedLayout::setCurrentWidget(QWidget *widget)
 
-    Sets the current widget to the specified \a widget. The new widget
-    must already be contained in this stacked layout.
+    Sets the current widget to be the specified \a widget. The new
+    current widget must already be contained in this stacked layout.
 
     \sa setCurrentIndex(), currentWidget()
  */
@@ -351,6 +354,8 @@ QWidget *QStackedLayout::widget(int index) const
 /*!
     \property QStackedLayout::count
     \brief the number of widgets contained in the layout
+
+    \sa currentIndex(), widget()
 */
 int QStackedLayout::count() const
 {
