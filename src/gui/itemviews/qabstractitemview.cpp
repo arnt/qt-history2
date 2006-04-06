@@ -2643,7 +2643,7 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
             q->itemDelegate()->setEditorData(w, index);
             q->itemDelegate()->updateEditorGeometry(w, options, index);
             addEditor(index, w);
-            QWidget::setTabOrder(w, q);
+            QWidget::setTabOrder(q, w);
 #ifndef QT_NO_LINEEDIT
             if (QLineEdit *le = ::qobject_cast<QLineEdit*>(w))
                 le->selectAll();
