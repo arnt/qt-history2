@@ -2255,12 +2255,12 @@ qt_ft_black_render( TRaster_Instance*  raster,
     if ( !raster || !raster->buff || !raster->sizeBuff )
         return Raster_Err_Not_Ini;
 
+    if ( !outline || !outline->contours || !outline->points )
+        return Raster_Err_Invalid;
+
     /* return immediately if the outline is empty */
     if ( outline->n_points == 0 || outline->n_contours <= 0 )
         return Raster_Err_None;
-
-    if ( !outline || !outline->contours || !outline->points )
-        return Raster_Err_Invalid;
 
     if ( outline->n_points != outline->contours[outline->n_contours - 1] + 1 )
         return Raster_Err_Invalid;
