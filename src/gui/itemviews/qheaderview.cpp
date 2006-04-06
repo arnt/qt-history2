@@ -793,7 +793,8 @@ int QHeaderView::count() const
 int QHeaderView::visualIndex(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    Q_ASSERT(logicalIndex >= 0);
+    if (logicalIndex < 0)
+        return -1;
     d->executePostedLayout();
     if (d->visualIndices.isEmpty()) { // nothing has been moved, so we have no mapping
         if (logicalIndex < d->sectionCount)
