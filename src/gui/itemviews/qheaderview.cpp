@@ -701,7 +701,8 @@ void QHeaderView::resizeSections(QHeaderView::ResizeMode mode)
 bool QHeaderView::isSectionHidden(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    Q_ASSERT(logicalIndex >= 0);
+    if (logicalIndex < 0 || logicalIndex >= count())
+        return false;
     d->executePostedLayout();
     if (logicalIndex >= d->sectionHidden.count())
         return false; // there are no hidden sections
@@ -733,6 +734,9 @@ int QHeaderView::hiddenSectionCount() const
 void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
 {
     Q_D(QHeaderView);
+    if (logicalIndex < 0 || logicalIndex >= count())
+        return;
+
     d->executePostedLayout();
     int visual = visualIndex(logicalIndex);
     Q_ASSERT(visual != -1);
