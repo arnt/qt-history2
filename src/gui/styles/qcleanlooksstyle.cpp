@@ -3046,6 +3046,9 @@ int QCleanLooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
     case PM_ButtonShiftVertical:
         ret = 0;
         break;
+    case PM_MessageBoxIconSize:
+        ret = 48;
+        break;
     case PM_DialogButtonsSeparator:
     case PM_SplitterWidth:
         ret = 6;
