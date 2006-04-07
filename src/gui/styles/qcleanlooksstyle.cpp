@@ -1692,7 +1692,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 int dim = (menuItem->rect.height() - 4) / 2;
                 PrimitiveElement arrow;
                 arrow = QApplication::isRightToLeft() ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
-                int xpos = menuItem->rect.left() + menuItem->rect.width() - 6 - 2 - dim;
+                int xpos = menuItem->rect.left() + menuItem->rect.width() - 1 - dim;
                 QRect  vSubMenuRect = visualRect(option->direction, menuItem->rect,
                                                  QRect(xpos, menuItem->rect.top() + menuItem->rect.height() / 2 - dim / 2, dim, dim));
                 QStyleOptionMenuItem newMI = *menuItem;
