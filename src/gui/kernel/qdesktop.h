@@ -11,8 +11,10 @@
 #ifndef QDESKTOP_H
 #define QDESKTOP_H
 
-#include <qstringlist.h>
-#include <qurl.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qurl.h>
+
+QT_BEGIN_HEADER
 
 #ifndef QT_NO_DESKTOP
 
@@ -25,5 +27,8 @@ namespace QDesktop {
 };
 
 #endif // QT_NO_DESKTOP
+
+QT_END_HEADER
+
 #endif // QDESKTOP_H
 
