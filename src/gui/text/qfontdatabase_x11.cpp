@@ -511,7 +511,7 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
 static bool qt_fillFontDef(XFontStruct *fs, QFontDef *fd, int dpi)
 {
     unsigned long value;
-    if (fs && !XGetFontProperty(fs, XA_FONT, &value))
+    if (!fs || !XGetFontProperty(fs, XA_FONT, &value))
         return false;
 
     char *n = XGetAtomName(QX11Info::display(), value);
