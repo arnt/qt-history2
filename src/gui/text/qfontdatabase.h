@@ -35,6 +35,8 @@ class QFontDatabasePrivate;
 
 class Q_GUI_EXPORT QFontDatabase
 {
+    Q_GADGET
+    Q_ENUMS(WritingSystem)
 public:
     enum WritingSystem {
         Any,
@@ -112,7 +114,7 @@ private:
 #ifdef Q_WS_X11
     static QFontEngine *loadXlfd(int screen, int script, const QFontDef &request, int force_encoding_id = -1);
 #endif
-    
+
     friend struct QFontDef;
     friend class QFontPrivate;
     friend class QFontDialog;
