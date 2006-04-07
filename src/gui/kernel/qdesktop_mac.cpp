@@ -9,7 +9,6 @@
 ****************************************************************************/
 
 #include "qdesktop.h"
-#include "qdebug.h"
 
 #ifndef QT_NO_DESKTOP
 
@@ -19,6 +18,8 @@
 #include <qprocess.h>
 #include <qstringlist.h>
 #include <qdir.h>
+#include <qurl.h>
+#include <qstringlist.h>
 #include <private/qcore_mac_p.h> // Remove if released as a solution
 
 /*
@@ -41,44 +42,44 @@ public:
 OSType translateLocation(Location type)
 {
     switch (type) {
-        case QDesktop::Desktop:
-            return kDesktopFolderType; break;
+    case QDesktop::Desktop:
+        return kDesktopFolderType; break;
 
-        case QDesktop::Documents:
-            return kDocumentsFolderType; break;
+    case QDesktop::Documents:
+        return kDocumentsFolderType; break;
 
-        case QDesktop::Fonts:
-            // There are at least two different font directories on the mac: /Library/Fonts and ~/Library/Fonts.
-            // To select a specific one we have to specify a different first parameter when calling FSFindFolder.
-            return kFontsFolderType; break;
+    case QDesktop::Fonts:
+        // There are at least two different font directories on the mac: /Library/Fonts and ~/Library/Fonts.
+        // To select a specific one we have to specify a different first parameter when calling FSFindFolder.
+        return kFontsFolderType; break;
 
-        case QDesktop::Applications:
-            return kApplicationsFolderType; break;
+    case QDesktop::Applications:
+        return kApplicationsFolderType; break;
 
-        case QDesktop::Music:
-            return kMusicDocumentsFolderType; break;
+    case QDesktop::Music:
+        return kMusicDocumentsFolderType; break;
 
-        case QDesktop::Movies:
-            return kMovieDocumentsFolderType; break;
+    case QDesktop::Movies:
+        return kMovieDocumentsFolderType; break;
 
-        case QDesktop::Pictures:
-            return kPictureDocumentsFolderType; break;
+    case QDesktop::Pictures:
+        return kPictureDocumentsFolderType; break;
 
 
-        case QDesktop::Temp:
-            return kTemporaryFolderType; break;
+    case QDesktop::Temp:
+        return kTemporaryFolderType; break;
 
-        default:
-            return kDesktopFolderType; break;
+    default:
+        return kDesktopFolderType; break;
     }
 }
 */
 /*
     Returns wether the given fsRef is something valid.
 */
-static Boolean FSRefIsValid( const FSRef &fsRef )
+static Boolean FSRefIsValid(const FSRef &fsRef)
 {
-  return ( FSGetCatalogInfo( &fsRef, kFSCatInfoNone, NULL, NULL, NULL, NULL ) == noErr );
+  return (FSGetCatalogInfo(&fsRef, kFSCatInfoNone, NULL, NULL, NULL, NULL) == noErr);
 }
 
 /*
@@ -141,6 +142,7 @@ bool QDesktop::open(const QUrl &file)
    // LSOpen does not work in this case, use QProcess open instead.
    return QProcess::startDetached("open", QStringList() << file.toLocalFile());
 }
+
 /*
 QString QDesktop::storageLocation(const Location type)
 {
@@ -158,7 +160,7 @@ QString QDesktop::storageLocation(const Location type)
 
 QString QDesktop::displayName(const Location type)
 {
-    if(QDesktop::Home == type)
+    if (QDesktop::Home == type)
         return QObject::tr("Home");
 
     FSRef ref;

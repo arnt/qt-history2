@@ -11,14 +11,18 @@
 #ifndef QDESKTOP_H
 #define QDESKTOP_H
 
-#include <QtCore/qstringlist.h>
-#include <QtCore/qurl.h>
+#include <QtCore/qstring.h>
+class QStringList;
+class QUrl;
 
 QT_BEGIN_HEADER
 
+QT_MODULE(Gui)
+
 #ifndef QT_NO_DESKTOP
 
-namespace QDesktop {
+namespace QDesktop
+{
     Q_GUI_EXPORT bool launchMailComposer(const QStringList &to, const QString &subject, const QString &body = QString());
     Q_GUI_EXPORT bool launchMailComposer(const QString &to, const QString &subject, const QString &body = QString());
 
