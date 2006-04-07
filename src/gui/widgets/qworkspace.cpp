@@ -643,7 +643,7 @@ QSize QWorkspaceTitleBar::sizeHint() const
 
 /*!
     \class QWorkspace
-    \brief The QWorkspace widget provides a workspace window that be
+    \brief The QWorkspace widget provides a workspace window that can be
     used in an MDI application.
     \ingroup application
 
