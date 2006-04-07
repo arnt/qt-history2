@@ -1323,7 +1323,7 @@ static const char *styleHint(const QFontDef &request)
 
 #ifndef QT_NO_FONTCONFIG
 
-static void addPatternProps(FcPattern *pattern, const QFontPrivate *fp, int script, const QFontDef &request)
+void qt_addPatternProps(FcPattern *pattern, int screen, int script, const QFontDef &request)
 {
     int weight_value = FC_WEIGHT_BLACK;
     if (request.weight == 0)
@@ -1353,7 +1353,7 @@ static void addPatternProps(FcPattern *pattern, const QFontPrivate *fp, int scri
         stretch = 100;
     FcPatternAddInteger(pattern, FC_WIDTH, stretch);
 
-    if (QX11Info::appDepth(fp->screen) <= 8) {
+    if (QX11Info::appDepth(screen) <= 8) {
         // can't do antialiasing on 8bpp
         FcPatternAddBool(pattern, FC_ANTIALIAS, false);
     } else if (request.styleStrategy & (QFont::PreferAntialias|QFont::NoAntialias)) {
@@ -1413,7 +1413,7 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
         value.u.s = (const FcChar8 *)stylehint;
         FcPatternAddWeak(pattern, FC_FAMILY, value, FcTrue);
     }
-    
+
     if (!request.ignorePitch) {
         char pitch_value = FC_PROPORTIONAL;
         if (request.fixedPitch || (desc.family && desc.family->fixedPitch))
@@ -1424,7 +1424,7 @@ static FcPattern *getFcPattern(const QFontPrivate *fp, int script, const QFontDe
     if (::preferScalable(request) || (desc.style && desc.style->smoothScalable))
         FcPatternAddBool(pattern, FC_SCALABLE, true);
 
-    addPatternProps(pattern, fp, script, request);
+    qt_addPatternProps(pattern, fp->screen, script, request);
 
     FcDefaultSubstitute(pattern);
     FcConfigSubstitute(0, pattern, FcMatchPattern);
@@ -1466,28 +1466,66 @@ static void FcFontSetRemove(FcFontSet *fs, int at)
         memmove(fs->fonts + at, fs->fonts + at + 1, len);
 }
 
-static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &request)
+static QFontEngine *tryPatternLoad(FcPattern *p, int screen,
+                                   const QFontDef &request, int script)
 {
-    FM_DEBUG("===================== loadFc: script=%d family='%s'\n", script, request.family.toLatin1().data());
-    FcPattern *pattern = getFcPattern(fp, script, request);
-
-    FcBool forceScalable = request.styleStrategy & QFont::ForceOutline;
-
 #ifdef FONT_MATCH_DEBUG
-    FM_DEBUG("\n\nfinal FcPattern contains:\n");
-    FcPatternPrint(pattern);
+    FcChar8 *fam;
+    FcPatternGetString(p, FC_FAMILY, 0, &fam);
+    FM_DEBUG("==== trying %s\n", fam);
 #endif
+    // skip font if it doesn't support the language we want
+    if (specialChars[script]) {
+        // need to check the charset, as the langset doesn't work for these scripts
+        FcCharSet *cs;
+        if (FcPatternGetCharSet(p, FC_CHARSET, 0, &cs) != FcResultMatch)
+            return 0;
+        if (!FcCharSetHasChar(cs, specialChars[script]))
+            return 0;
+    } else {
+        FcLangSet *langSet = 0;
+        if (FcPatternGetLangSet(p, FC_LANG, 0, &langSet) != FcResultMatch)
+            return 0;
+        if (FcLangSetHasLang(langSet, (const FcChar8*)specialLanguages[script]) != FcLangEqual)
+            return 0;
+    }
 
+    FM_DEBUG("passes charset test\n");
+    FcPattern *pattern = FcPatternDuplicate(p);
+    // add properties back in as the font selected from the
+    // list doesn't contain them.
+    qt_addPatternProps(pattern, screen, script, request);
+
+    FcConfigSubstitute(0, pattern, FcMatchPattern);
+    FcDefaultSubstitute(pattern);
+    FcResult res;
+    FcPattern *match = FcFontMatch(0, pattern, &res);
+    QFontEngineFT *engine = new QFontEngineFT(match, qt_FcPatternToQFontDef(match, request), screen);
+    if (engine->invalid()) {
+        FM_DEBUG("   --> invalid!\n");
+        delete engine;
+        return 0;
+    } else if (scriptRequiresOpenType(script)) {
+        QOpenType *ot = engine->openType();
+        if (!ot || !ot->supportsScript(script)) {
+            FM_DEBUG("  OpenType support missing for script\n");
+            delete engine;
+            return 0;
+        }
+    }
+    return engine;
+}
+
+FcFontSet *qt_fontSetForPattern(FcPattern *pattern, const QFontDef &request)
+{
     FcResult result;
     FcFontSet *fs = FcFontSort(0, pattern, FcTrue, 0, &result);
 #ifdef FONT_MATCH_DEBUG
     FM_DEBUG("first font in fontset:\n");
     FcPatternPrint(fs->fonts[0]);
 #endif
-    
-    FcPatternDestroy(pattern);
-    if (!fs)
-        return 0;
+
+    FcBool forceScalable = request.styleStrategy & QFont::ForceOutline;
 
     // remove fonts if they are not scalable (and should be)
     if (forceScalable) {
@@ -1509,72 +1547,36 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
 
     FM_DEBUG("final pattern contains %d fonts\n", fs->nfont);
 
+    return fs;
+}
+
+static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &request)
+{
+    FM_DEBUG("===================== loadFc: script=%d family='%s'\n", script, request.family.toLatin1().data());
+    FcPattern *pattern = getFcPattern(fp, script, request);
+
+#ifdef FONT_MATCH_DEBUG
+    FM_DEBUG("\n\nfinal FcPattern contains:\n");
+    FcPatternPrint(pattern);
+#endif
+
     QFontEngine *fe = 0;
     if (script != QUnicodeTables::Common) {
         // load a single font for the script
+        fe = tryPatternLoad(pattern, fp->screen, request, script);
+        if (!fe) {
+            FcFontSet *fs = qt_fontSetForPattern(pattern, request);
 
-        for (int i = 0; !fe && i < fs->nfont; ++i) {
-            FcChar8 *fam;
-            FcPatternGetString(fs->fonts[i], FC_FAMILY, 0, &fam);
-            FM_DEBUG("==== trying %s\n", fam);
-            // skip font if it doesn't support the language we want
-            if (specialChars[script]) {
-                // need to check the charset, as the langset doesn't work for these scripts
-                FcCharSet *cs;
-                if (FcPatternGetCharSet(fs->fonts[i], FC_CHARSET, 0, &cs) != FcResultMatch)
-                    continue;
-                if (!FcCharSetHasChar(cs, specialChars[script]))
-                    continue;
-            } else {
-                FcLangSet *langSet = 0;
-                if (FcPatternGetLangSet(fs->fonts[i], FC_LANG, 0, &langSet) != FcResultMatch)
-                    continue;
-                if (FcLangSetHasLang(langSet, (const FcChar8*)specialLanguages[script]) != FcLangEqual)
-                    continue;
-            }
-
-            FM_DEBUG("passes charset test\n");
-            FcPattern *pattern = FcPatternDuplicate(fs->fonts[i]);
-            // add properties back in as the font selected from the
-            // list doesn't contain them.
-            addPatternProps(pattern, fp, script, request);
-
-            FcConfigSubstitute(0, pattern, FcMatchPattern);
-            FcDefaultSubstitute(pattern);
-            FcResult res;
-            FcPattern *match = FcFontMatch(0, pattern, &res);
-            QFontEngineFT *engine = new QFontEngineFT(match, qt_FcPatternToQFontDef(match, request), fp->screen);
-            if (engine->invalid()) {
-                FM_DEBUG("   --> invalid!\n");
-                delete engine;
-            } else if (scriptRequiresOpenType(script)) {
-                QOpenType *ot = engine->openType();
-                if (!ot || !ot->supportsScript(script)) {
-                    FM_DEBUG("  OpenType support missing for script\n");
-                    delete engine;
-                } else {
-                    fe = engine;
-                }
-            } else {
-                fe = engine;
-            }
+            for (int i = 0; !fe && i < fs->nfont; ++i)
+                fe = tryPatternLoad(fs->fonts[i], fp->screen, request, script);
+            FcFontSetDestroy(fs);
+            FM_DEBUG("engine for script %d is %s\n", script, fe ? fe->fontDef.family.toLatin1().data(): "(null)");
         }
-        FM_DEBUG("engine for script %d is %s\n", script, fe ? fe->fontDef.family.toLatin1().data(): "(null)");
-    } else if (fs->nfont) {
-        // create a multi engine for the fontset fontconfig gave us
-        FcFontSet *fontSet = FcFontSetCreate();
-        for (int i = 0; i < fs->nfont; ++i) {
-            FcPattern *pattern = FcPatternDuplicate(fs->fonts[i]);
-            // add properties back in as the font selected from the
-            // list doesn't contain them.
-            addPatternProps(pattern, fp, script, request);
-            FcFontSetAdd(fontSet, pattern);
-        }
-
-        fe = new QFontEngineMultiFT(fontSet, fp->screen, request);
+        FcPatternDestroy(pattern);
+    } else {
+        fe = new QFontEngineMultiFT(pattern, fp->screen, request);
     }
 
-    FcFontSetDestroy(fs);
     return fe;
 }
 #endif // QT_NO_FONTCONFIG

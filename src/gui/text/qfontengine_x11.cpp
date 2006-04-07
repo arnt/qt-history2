@@ -974,27 +974,58 @@ glyph_t QFontEngineXLFD::glyphIndexToFreetypeGlyphIndex(glyph_t g) const
 // Multi FT engine
 // ------------------------------------------------------------------
 
-QFontEngineMultiFT::QFontEngineMultiFT(FcFontSet *fs, int s, const QFontDef &request)
-    : QFontEngineMulti(fs->nfont), fontSet(fs), screen(s)
+static QFontEngine *engineForPattern(FcPattern *pattern, const QFontDef &request,
+                                     int screen)
 {
-    fontDef = request;
-    loadEngine(0);
+    FcResult res;
+    FcPattern *match = FcFontMatch(0, pattern, &res);
+    QFontEngineFT *engine = new QFontEngineFT(match, request, screen);
+    if (!engine->invalid())
+        return engine;
+
+    delete engine;
+    QFontEngine *fe = new QFontEngineBox(request.pixelSize);
+    fe->fontDef = request;
+    return fe;
+}
+
+QFontEngineMultiFT::QFontEngineMultiFT(FcPattern *p, int s, const QFontDef &req)
+    : QFontEngineMulti(2), request(req), pattern(p), fontSet(0), screen(s)
+{
+
+    engines[0] = engineForPattern(pattern, request, screen);
+    engines.at(0)->ref.ref();
     fontDef = engines[0]->fontDef;
     cache_cost = 100;
 }
 
 QFontEngineMultiFT::~QFontEngineMultiFT()
 {
+    FcPatternDestroy(pattern);
     FcFontSetDestroy(fontSet);
 }
 
+
 void QFontEngineMultiFT::loadEngine(int at)
 {
+    extern void qt_addPatternProps(FcPattern *pattern, int screen, int script,
+                                   const QFontDef &request);
+    extern QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &);
+    extern FcFontSet *qt_fontSetForPattern(FcPattern *pattern, const QFontDef &request);
+
+    Q_ASSERT(at > 0);
+    if (!fontSet) {
+        fontSet = qt_fontSetForPattern(pattern, request);
+        engines.resize(fontSet->nfont);
+    }
     Q_ASSERT(at < engines.size());
     Q_ASSERT(engines.at(at) == 0);
-    FcPattern *pattern = fontSet->fonts[at];
-    extern QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &);
-    QFontDef fontDef = qt_FcPatternToQFontDef(fontSet->fonts[at], this->fontDef);
+
+    FcPattern *pattern = FcPatternDuplicate(fontSet->fonts[at]);
+    qt_addPatternProps(pattern, screen, QUnicodeTables::Common, request);
+
+    QFontDef fontDef = qt_FcPatternToQFontDef(pattern, this->request);
+
     // note: we use -1 for the script to make sure that we keep real
     // FT engines separate from Multi engines in the font cache
     QFontCache::Key key(fontDef, -1, screen);
@@ -1002,17 +1033,7 @@ void QFontEngineMultiFT::loadEngine(int at)
     if (!fontEngine) {
         FcConfigSubstitute(0, pattern, FcMatchPattern);
         FcDefaultSubstitute(pattern);
-        FcResult res;
-        FcPattern *match = FcFontMatch(0, pattern, &res);
-        QFontEngineFT *engine = new QFontEngineFT(match, fontDef, screen);
-        if (engine->invalid())
-            delete engine;
-        else
-            fontEngine = engine;
-        if (!fontEngine) {
-            fontEngine = new QFontEngineBox(fontDef.pixelSize);
-            fontEngine->fontDef = fontDef;
-        }
+        fontEngine = engineForPattern(pattern, request, screen);
         QFontCache::instance->insertEngine(key, fontEngine);
     }
     fontEngine->ref.ref();
