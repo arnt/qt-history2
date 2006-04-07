@@ -269,12 +269,14 @@ static void dump_trap(const XTrapezoid &t)
 #endif
 
 static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, int pgSize,
-                                 bool winding)
+                                 bool winding, QRect *br)
 {
     QVector<QEdge> edges;
     edges.reserve(128);
     qreal ymin(INT_MAX/256);
     qreal ymax(INT_MIN/256);
+    qreal xmin(INT_MAX/256);
+    qreal xmax(INT_MIN/256);
 
     Q_ASSERT(pg[0] == pg[pgSize-1]);
     // generate edge table
@@ -298,9 +300,15 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 	edge.b = p1.y() - edge.m * p1.x(); // intersection with y axis
 	edge.m = edge.m != 0.0 ? 1.0 / edge.m : 0.0; // inverted derivative
 	edges.append(edge);
+        xmin = qMin(xmin, XFixedToDouble(edge.p1.x));
+        xmax = qMax(xmax, XFixedToDouble(edge.p2.x));
         ymin = qMin(ymin, XFixedToDouble(edge.p1.y));
         ymax = qMax(ymax, XFixedToDouble(edge.p2.y));
     }
+    br->setX(qRound(xmin));
+    br->setY(qRound(ymin));
+    br->setWidth(qRound(xmax - xmin));
+    br->setHeight(qRound(ymax - ymin));
 
     QList<const QEdge *> et; 	    // edge list
     for (int i = 0; i < edges.size(); ++i)
@@ -1462,6 +1470,31 @@ void QX11PaintEnginePrivate::fillPolygon_translated(const QPointF *polygonPoints
     fillPolygon_dev(translated_points.data(), pointCount, gcMode, mode);
 }
 
+#ifndef QT_NO_XRENDER
+static void qt_XRenderCompositeTrapezoids(Display *dpy,
+                                          int op,
+                                          Picture src,
+                                          Picture dst,
+                                          _Xconst XRenderPictFormat *maskFormat,
+                                          int xSrc,
+                                          int ySrc,
+                                          const QVector<XTrapezoid> &traps)
+{
+    const int MAX_TRAPS = 50000;
+    int traps_left = traps.size();
+    while (traps_left) {
+        int to_draw = traps_left;
+        if (to_draw > MAX_TRAPS)
+            to_draw = MAX_TRAPS;
+        XRenderCompositeTrapezoids(dpy, op, src, dst,
+                                   maskFormat,
+                                   xSrc, ySrc,
+                                   traps.constData()+traps.size()-traps_left, to_draw);
+        traps_left -= to_draw;
+    }
+}
+#endif
+
 void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int pointCount,
                                              QX11PaintEnginePrivate::GCMode gcMode,
                                              QPaintEngine::PolygonDrawMode mode)
@@ -1515,33 +1548,47 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
             if (clippedCount > 0) {
                 QVector<XTrapezoid> traps;
                 traps.reserve(128);
+                QRect br;
                 qt_tesselate_polygon(&traps, (QPointF *)clippedPoints, clippedCount,
-                                     mode == QPaintEngine::WindingMode);
+                                     mode == QPaintEngine::WindingMode, &br);
                 if (traps.size() > 0) {
                     XRenderPictureAttributes attrs;
                     attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
                     XRenderChangePicture(dpy, picture, CPPolyEdge, &attrs);
+
                     if (has_fill_pattern || has_fill_texture) {
-                        for (int i=0; i < traps.size(); ++i) {
-                            int x_offset = qRound(XFixedToDouble(traps.at(i).left.p1.x) - bg_origin.x());
-                            int y_offset = qRound(XFixedToDouble(traps.at(i).left.p1.y) - bg_origin.y());
-                            XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
-                                                       antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
-                                                       x_offset, y_offset,
-                                                       traps.constData() + i, 1);
-                        }
+                        int mask_w = br.width() + (br.x() > 0 ? br.x() : 0);
+                        int mask_h = br.height() + (br.y() > 0 ? br.y() : 0);
+                        Pixmap mask = XCreatePixmap (dpy, RootWindow(dpy, scrn),
+                                                     mask_w, mask_h, antialias ? 8 : 1);
+                        Picture mask_picture = XRenderCreatePicture (dpy, mask,
+                                                                     antialias ? XRenderFindStandardFormat(dpy, PictStandardA8)
+                                                                     : XRenderFindStandardFormat(dpy, PictStandardA1),
+                                                                     CPPolyEdge, &attrs);
+                        XRenderColor transparent;
+                        transparent.red = 0;
+                        transparent.green = 0;
+                        transparent.blue = 0;
+                        transparent.alpha = 0;
+                        XRenderFillRectangle(dpy, PictOpSrc, mask_picture, &transparent, 0, 0, mask_w, mask_h);
+
+                        Picture mask_src = X11->getSolidFill(scrn, Qt::white);
+                        qt_XRenderCompositeTrapezoids(dpy, PictOpOver, mask_src, mask_picture,
+                                                      antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
+                                                      0, 0,
+                                                      traps);
+                        XRenderComposite(dpy, composition_mode, src, mask_picture, picture,
+                                         qRound(bg_origin.x()), qRound(bg_origin.y()),
+                                         0, 0,
+                                         0, 0,
+                                         mask_w, mask_h);
+                        XFreePixmap(dpy, mask);
+                        XRenderFreePicture(dpy, mask_picture);
                     } else {
-                        int traps_left = traps.size();
-                        while (traps_left) {
-                            int to_draw = traps_left;
-                            if (to_draw > 50000)
-                                to_draw = 50000;
-                            XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
-                                                       antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
-                                                       0, 0,
-                                                       traps.constData()+traps.size()-traps_left, to_draw);
-                            traps_left -= to_draw;
-                        }
+                        qt_XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
+                                                      antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
+                                                      0, 0,
+                                                      traps);
                     }
                 }
             }
