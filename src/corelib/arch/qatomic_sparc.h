@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 #if defined(_LP64)
 
 extern "C" {
@@ -90,5 +92,7 @@ inline int q_atomic_decrement(volatile int *ptr)
 }
 
 #endif // !_LP64
+
+QT_END_HEADER
 
 #endif // SPARC_QATOMIC_H

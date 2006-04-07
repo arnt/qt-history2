@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 extern Q_CORE_EXPORT char q_atomic_lock;
 
 inline char q_atomic_swp(volatile char *ptr, char newval)
@@ -97,5 +99,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     q_atomic_swp(&q_atomic_lock, 0);
     return originalValue;
 }
+
+QT_END_HEADER
 
 #endif // ARM_QATOMIC_H

@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 #if defined(Q_CC_GNU) || defined(Q_CC_INTEL)
 
 inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
@@ -152,5 +154,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 }
 
 #endif
+
+QT_END_HEADER
 
 #endif // X86_64_QATOMIC_H

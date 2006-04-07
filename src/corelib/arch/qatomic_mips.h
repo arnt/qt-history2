@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 extern "C" {
     Q_CORE_EXPORT int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
     Q_CORE_EXPORT int q_atomic_test_and_set_acquire_int(volatile int *ptr, int expected, int newval);    
@@ -62,5 +64,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     }
     return expected;
 }
+
+QT_END_HEADER
 
 #endif // MIPS_QATOMIC_H

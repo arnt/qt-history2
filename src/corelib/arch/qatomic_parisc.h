@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 extern "C" {
     Q_CORE_EXPORT void q_atomic_lock(int *lock);
     Q_CORE_EXPORT void q_atomic_unlock(int *lock);
@@ -166,5 +168,7 @@ struct QBasicAtomicPointer
 };
 
 #define Q_ATOMIC_INIT(a) {{-1,-1,-1,-1},(a)}
+
+QT_END_HEADER
 
 #endif // PARISC_QATOMIC_H
