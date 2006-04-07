@@ -14,6 +14,8 @@
 #ifndef S390_QATOMIC_H
 #define S390_QATOMIC_H
 
+QT_BEGIN_HEADER
+
 #define __CS_LOOP(ptr, op_val, op_string) ({				\
 	volatile int old_val, new_val;					\
         __asm__ __volatile__("   l     %0,0(%3)\n"			\
@@ -164,8 +166,10 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 #ifndef __s390x__
     return (void*)__CS_OLD_LOOP(reinterpret_cast<volatile long*>(ptr), (int)newval, "lr");
 #else
-    return (void*)__CSG_OLD_LOOP(reinterpret_cast<volatile int*>(ptr), (long)newval, "lr");
+    return (void*)__CSG_OLD_LOOP(reinterpret_cast<volatile long*>(ptr), (long)newval, "lgr");
 #endif
 }
+
+QT_END_HEADER
 
 #endif // S390_QATOMIC_H
