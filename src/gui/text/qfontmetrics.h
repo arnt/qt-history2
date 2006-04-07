@@ -79,7 +79,8 @@ public:
 
     bool operator==(const QFontMetrics &other); // 5.0 - remove me
     bool operator==(const QFontMetrics &other) const;
-    inline bool operator !=(const QFontMetrics &other) { return !operator==(other); }
+    inline bool operator !=(const QFontMetrics &other) { return !operator==(other); } // 5.0 - remove me
+    inline bool operator !=(const QFontMetrics &other) const { return !operator==(other); }
 
 #ifdef QT3_SUPPORT
     inline QRect boundingRect(const QString &text, int len) const
