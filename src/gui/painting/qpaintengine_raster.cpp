@@ -3427,7 +3427,11 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
         if (x1 >= 0 && x1 < devRect.width()) {
             int start = qMax(0, qMin(y1, y2));
             int stop = qMax(y1, y2) + 1;
-            stop = qMin(devRect.height(), stop);
+            int stop_clipped = qMin(devRect.height(), stop);
+            if (style == LineDrawNormal && stop == stop_clipped)
+                --stop;
+            else
+                stop = stop_clipped;
             fillRect(QRect(x1, start, 1, stop - start), data);
         }
         return;
@@ -3461,10 +3465,11 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 
         if (x>=0 && y>=0 && y < devRect.height()) {
             Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
-            spans[current].len = 1;
-            spans[current].coverage = 255;
-            spans[current].x = x;
-            spans[current].y = y;
+            int index = (y2 > y1 ? current : NSPANS - 1 - current);
+            spans[index].len = 1;
+            spans[index].coverage = 255;
+            spans[index].x = x;
+            spans[index].y = y;
             ++current;
         }
 
@@ -3714,7 +3719,11 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
         if (x1 >= 0 && x1 < devRect.width()) {
             int start = qMax(0, qMin(y1, y2));
             int stop = qMax(y1, y2) + 1;
-            stop = qMin(devRect.height(), stop);
+            int stop_clipped = qMin(devRect.height(), stop);
+            if (style == LineDrawNormal && stop == stop_clipped)
+                --stop;
+            else
+                stop = stop_clipped;
 
             // loop over dashes
             int y = start;
@@ -3771,10 +3780,11 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                     span_func(NSPANS, spans, data);
                     current = 0;
                 }
-                spans[current].len = 1;
-                spans[current].coverage = 255;
-                spans[current].x = x;
-                spans[current].y = y;
+                int index = (y2 > y1 ? current : NSPANS - 1 - current);
+                spans[index].len = 1;
+                spans[index].coverage = 255;
+                spans[index].x = x;
+                spans[index].y = y;
                 ++current;
             }
             if (--currPattern <= 0) {
