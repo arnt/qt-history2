@@ -999,20 +999,21 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
 
     int cpp, ncols, w, h, index = 0;
 
-    if (device) {
-        // "/* XPM */"
-        int readBytes;
-        if ((readBytes = device->readLine(buf.data(), buf.size())) < 0)
-            return false;
+    if (!device)
+        return false;
+ 
+    // "/* XPM */"
+    int readBytes;
+    if ((readBytes = device->readLine(buf.data(), buf.size())) < 0)
+        return false;
 
-        if (buf.indexOf("/* XPM") != 0) {
-            while (readBytes > 0) {
-                device->ungetChar(buf.at(readBytes - 1));
-                --readBytes;
-            }
-            return false;
-        }// bad magic
-    }
+    if (buf.indexOf("/* XPM") != 0) {
+        while (readBytes > 0) {
+            device->ungetChar(buf.at(readBytes - 1));
+            --readBytes;
+        }
+        return false;
+    }// bad magic
 
     if (!read_xpm_header(device, source, index, state, &cpp, &ncols, &w, &h))
         return false;
