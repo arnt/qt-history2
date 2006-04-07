@@ -204,7 +204,7 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
         return pm;
 
     QSize actualSize = pm.size();
-    if (!actualSize.isNull() && (actualSize.width() > size.width() && actualSize.height() > size.height()))
+    if (!actualSize.isNull() && (actualSize.width() > size.width() || actualSize.height() > size.height()))
         actualSize.scale(size, Qt::KeepAspectRatio);
 
     QString key = QLatin1String("$qt_icon_")
@@ -251,7 +251,7 @@ QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::
     if (actualSize.isNull())
         return actualSize;
 
-    if (!actualSize.isNull() && (actualSize.width() > size.width() && actualSize.height() > size.height()))
+    if (!actualSize.isNull() && (actualSize.width() > size.width() || actualSize.height() > size.height()))
         actualSize.scale(size, Qt::KeepAspectRatio);
     return actualSize;
 }
