@@ -447,6 +447,7 @@ void QDesignerResource::changeObjectName(QObject *o, QString objName)
 void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), o)) {
+
         for (int i=0; i<properties.size(); ++i) {
             DomProperty *p = properties.at(i);
             QString propertyName = p->attributeName();
@@ -488,6 +489,12 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
 
             if (propertyName == QLatin1String("objectName"))
                 changeObjectName(o, o->objectName());
+        }
+        QSplitter *splitter = qobject_cast<QSplitter *>(o);
+        if (splitter) {
+            QDesignerWidgetFactoryInterface *widgetFactory = m_core->widgetFactory();
+            widgetFactory->createLayout(splitter, 0, splitter->orientation() == Qt::Horizontal ?
+                        LayoutInfo::HBox : LayoutInfo::VBox);
         }
     }
 }
