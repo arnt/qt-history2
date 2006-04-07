@@ -3114,7 +3114,7 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     case CT_RadioButton:
     case CT_HeaderSection:
     case CT_CheckBox:
-        newSize += QSize(0, 5);
+        newSize += QSize(0, 1);
         break;
     case CT_ToolButton:
         newSize += QSize(4, 6);
@@ -3324,7 +3324,7 @@ QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptio
                     font.setBold(true);
                     QFontMetrics fontMetrics(font);
 
-                    QSize textRect = fontMetrics.boundingRect(groupBoxWidget->title()).size() + QSize(2, 0);
+                    QSize textRect = fontMetrics.boundingRect(groupBoxWidget->title()).size() + QSize(2, 2);
                     if (subControl == SC_GroupBoxCheckBox) {
                         int indicatorWidth = pixelMetric(PM_IndicatorWidth, option, widget);
                         int indicatorHeight = pixelMetric(PM_IndicatorHeight, option, widget);
