@@ -86,7 +86,7 @@ static const char * const qt_cleanlooks_arrow_xpm[] = {
     ".	c #000000",
     "           ",
     "  .     .  ",
-    " ...   ... ",
+    " ...   ... c",
     "  .......  ",
     "   .....   ",
     "    ...    ",
@@ -2684,7 +2684,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     if (!sunken) {
                         int borderSize = 2;
                         if (comboBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(QPoint(downArrowRect.right() - 1, downArrowRect.top() + borderSize),
+                            cachePainter.drawLine(QPoint(downArrowRect.right() - 1, downArrowRect.top() + borderSize ),
                                                   QPoint(downArrowRect.right() - 1, downArrowRect.bottom() - borderSize));
                             cachePainter.setPen(option->palette.light().color());
                             cachePainter.drawLine(QPoint(downArrowRect.right(), downArrowRect.top() + borderSize),
@@ -2717,9 +2717,10 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     }
                     drawPrimitive(PE_PanelButtonCommand, &buttonOption, &cachePainter, widget);
 
-                    cachePainter.setPen(option->palette.dark().color());
+                    cachePainter.setPen(buttonShadow.dark(102));
+                    int borderSize = 4;
+                       
                     if (!sunken) {
-                        int borderSize = 2;
                         if (comboBox->direction == Qt::RightToLeft) {
                             cachePainter.drawLine(QPoint(downArrowRect.right() + 1, downArrowRect.top() + borderSize),
                                                   QPoint(downArrowRect.right() + 1, downArrowRect.bottom() - borderSize));
@@ -2734,34 +2735,46 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                                                   QPoint(downArrowRect.left() , downArrowRect.bottom() - borderSize));
                         }
                     } else {
+                        cachePainter.setPen(option->palette.dark().color());
                         if (comboBox->direction == Qt::RightToLeft) {
-                            cachePainter.drawLine(QPoint(downArrowRect.right() + 1, downArrowRect.top() + 2),
-                                                  QPoint(downArrowRect.right() + 1, downArrowRect.bottom() - 2));
+                            cachePainter.drawLine(QPoint(downArrowRect.right() + 1, downArrowRect.top() + borderSize),
+                                                  QPoint(downArrowRect.right() + 1, downArrowRect.bottom() - borderSize));
 
                         } else {
-                            cachePainter.drawLine(QPoint(downArrowRect.left() - 1, downArrowRect.top() + 2),
-                                                  QPoint(downArrowRect.left() - 1, downArrowRect.bottom() - 2));
+                            cachePainter.drawLine(QPoint(downArrowRect.left() - 1, downArrowRect.top() + borderSize),
+                                                  QPoint(downArrowRect.left() - 1, downArrowRect.bottom() - borderSize));
                         }
                     }
                 }
 
-                // Draw the little arrow
-                QImage downArrow(qt_cleanlooks_arrow_xpm);
-                downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
-
-                if (comboBox->direction == Qt::RightToLeft) {
-                    cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 - 1,
+             
+                if (comboBox->editable) {
+                    // Draw the down arrow
+                    QImage downArrow(qt_cleanlooks_arrow_xpm);
+                    downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
+                    int offset = comboBox->direction == Qt::RightToLeft ? -2 : 2;
+                    cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 + offset,
                                            downArrowRect.center().y() - downArrow.height() / 2 + 1, downArrow);
                 } else {
-                    cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 + 1,
-                                           downArrowRect.center().y() - downArrow.height() / 2 + 1, downArrow);
+                    // Draw the up/down arrow
+                    QImage upArrow(qt_scrollbar_button_arrow_up);
+                    upArrow.setColor(1, comboBox->palette.foreground().color().rgba());
+                    QImage downArrow(qt_scrollbar_button_arrow_down);
+                    downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
+                    
+                    int offset = comboBox->direction == Qt::RightToLeft ? -2 : 2;
+                    
+                    cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 + offset,
+                                           downArrowRect.center().y() - upArrow.height() , upArrow);
+                    cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 + offset,
+                                           downArrowRect.center().y()  + 3, downArrow);
                 }
 
                 // Draw the focus rect
                 if ((focus && (option->state & State_KeyboardFocusChange)) && !comboBox->editable) {
                     QStyleOptionFocusRect focus;
                     focus.rect = subControlRect(CC_ComboBox, &comboBoxCopy, SC_ComboBoxEditField, widget)
-                                 .adjusted(0, 0, option->direction == Qt::RightToLeft ? 1 : -1, 0);
+                                 .adjusted(0, 2, option->direction == Qt::RightToLeft ? 1 : -1, -2);
                     drawPrimitive(PE_FrameFocusRect, &focus, &cachePainter, widget);
                 }
                 cachePainter.end();
@@ -3312,7 +3325,7 @@ QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptio
         switch (subControl) {
         case SC_ComboBoxArrow:
             rect = visualRect(option->direction, option->rect, rect);
-            rect.setRect(rect.right() - 17, rect.top() - 2,
+            rect.setRect(rect.right() - 18, rect.top() - 2,
                          17, rect.height() + 4);
             rect = visualRect(option->direction, option->rect, rect);
             break;
@@ -3320,7 +3333,7 @@ QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptio
             int frameWidth = pixelMetric(PM_DefaultFrameWidth);
             rect = visualRect(option->direction, option->rect, rect);
             rect.setRect(option->rect.left() + frameWidth, option->rect.top() + frameWidth,
-                         option->rect.width() - 18 - 2 * frameWidth,
+                         option->rect.width() - 19 - 2 * frameWidth,
                          option->rect.height() - 2 * frameWidth);
             if (const QStyleOptionComboBox *box = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
                 if (!box->editable) {
