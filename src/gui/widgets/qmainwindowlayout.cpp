@@ -2238,6 +2238,7 @@ static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w, bool dummy)
 
 bool QMainWindowLayout::contains(QWidget *widget) const
 {
+#ifndef QT_NO_TOOLBAR
     // is it a toolbar?
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
@@ -2247,6 +2248,8 @@ bool QMainWindowLayout::contains(QWidget *widget) const
                 return true;
         }
     }
+#endif
+
     // is it a dock widget?
     for (int pos = 0; pos < NPOSITIONS - 1; ++pos) {
         if (!layout_info[pos].item)
