@@ -34,6 +34,7 @@ HEADERS += \
 	kernel/qwhatsthis.h \
 	kernel/qwidget.h \
 	kernel/qwidgetaction.h \
+	kernel/qwidgetaction_p.h \
 	kernel/qwindowdefs.h \
 	kernel/qdesktop.h
 

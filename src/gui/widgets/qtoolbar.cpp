@@ -28,6 +28,7 @@
 #include <qstyleoption.h>
 #include <qtoolbutton.h>
 #include <qwidgetaction.h>
+#include <private/qwidgetaction_p.h>
 #ifdef Q_WS_MAC
 #include <private/qt_mac_p.h>
 #endif
@@ -448,6 +449,14 @@ QToolBar::~QToolBar()
                                    kWindowToolbarButtonAttribute);
 #endif
     }
+    Q_D(QToolBar);
+    for (int i = 0; i < d->items.count(); ++i) {
+        const QToolBarItem &item = d->items.at(i);
+        QWidgetAction *widgetAction = qobject_cast<QWidgetAction *>(item.action);
+        if (item.hasCustomWidget && widgetAction) {
+            widgetAction->removeWidget(item.widget);
+        }
+    }
 }
 
 /*! \property QToolBar::movable
@@ -710,7 +719,8 @@ QAction *QToolBar::insertSeparator(QAction *before)
 */
 QAction *QToolBar::addWidget(QWidget *widget)
 {
-    QAction *action = new QWidgetAction(widget, this);
+    QWidgetAction *action = new QWidgetAction(widget, this);
+    action->d_func()->autoCreated = true;
     addAction(action);
     return action;
 }
@@ -727,7 +737,8 @@ QAction *QToolBar::addWidget(QWidget *widget)
 */
 QAction *QToolBar::insertWidget(QAction *before, QWidget *widget)
 {
-    QAction *action = new QWidgetAction(widget, this);
+    QWidgetAction *action = new QWidgetAction(widget, this);
+    action->d_func()->autoCreated = true;
     insertAction(before, action);
     return action;
 }
@@ -789,11 +800,13 @@ void QToolBar::actionEvent(QActionEvent *event)
 
             QToolBarItem item = d->createItem(action);
             bool visible = item.action->isVisible();
-            if (widgetAction && widgetAction->parentWidget() != this) {
-                // reparent the action and its widget to this toolbar
-                widgetAction->setParent(this);
-                item.widget->setParent(this);
-            }
+            // reparent the action to this toolbar if it has been created
+            // using the addAction(text) etc. convenience functions, to
+            // preserve Qt 4.1.x behavior. The widget is already
+            // reparented to us due to the createWidget call inside
+            // createItem()
+            if (widgetAction && widgetAction->d_func()->autoCreated)
+                    widgetAction->setParent(this);
             // make sure the layout doesn't show() the widget too soon
             item.widget->hide();
             if (event->before()) {

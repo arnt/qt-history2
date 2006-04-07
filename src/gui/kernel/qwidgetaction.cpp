@@ -15,21 +15,7 @@
 #include "qdebug.h"
 
 #ifndef QT_NO_ACTION
-#include "qaction_p.h"
-
-class QWidgetActionPrivate : public QActionPrivate
-{
-    Q_DECLARE_PUBLIC(QWidgetAction)
-public:
-    inline QWidgetActionPrivate() : widgetInUse(false) {}
-    QPointer<QWidget> widget;
-    bool widgetInUse;
-    QList<QWidget *> allWidgets;
-    
-    inline void _q_widgetDestroyed(QObject *o) {
-        allWidgets.removeAll(static_cast<QWidget *>(o));
-    }
-};
+#include "qwidgetaction_p.h"
 
 /*!
     \class QWidgetAction

@@ -47,6 +47,7 @@ protected:
 private:
     Q_DISABLE_COPY(QWidgetAction)
     Q_PRIVATE_SLOT(d_func(), void _q_widgetDestroyed(QObject *))
+    friend class QToolBar;
 };
 
 #endif // QT_NO_ACTION
