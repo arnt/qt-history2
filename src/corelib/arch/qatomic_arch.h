@@ -11,10 +11,12 @@
 **
 ****************************************************************************/
 
-#ifndef QATOMICARCH_H
-#define QATOMICARCH_H
+#ifndef QATOMIC_ARCH_H
+#define QATOMIC_ARCH_H
 
 #include "QtCore/qglobal.h"
+
+QT_BEGIN_HEADER
 
 #if defined(QT_ARCH_ALPHA)
 #  include "QtCore/qatomic_alpha.h"
@@ -45,7 +47,10 @@
 #elif defined(QT_ARCH_X86_64)
 #  include "QtCore/qatomic_x86_64.h"
 #else
-#error "Qt has not been ported to this architecture"
+#  error "Qt has not been ported to this architecture"
 #endif
-#endif
+
+QT_END_HEADER
+
+#endif // QATOMIC_ARCH_H
 

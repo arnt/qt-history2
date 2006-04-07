@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 __forceinline int q_atomic_xchg(int newval)
 {
     static int lockvar = 0;
@@ -109,5 +111,7 @@ inline void *q_atomic_set_ptr(volatile void *pointer, void *newval)
     return ret;
 
 }
+
+QT_END_HEADER
 
 #endif // BOUNDSCHECKER_QATOMIC_H

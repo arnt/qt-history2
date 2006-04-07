@@ -16,7 +16,9 @@
 
 #include <QtCore/qglobal.h>
 
-#if !defined(Q_CC_GNU) && !defined(Q_CC_BOR) 
+QT_BEGIN_HEADER
+
+#if !defined(Q_CC_GNU) && !defined(Q_CC_BOR)
 
 // MSVC++ 6.0 doesn't generate correct code when optimization are turned on!
 #if _MSC_VER < 1300 && defined (_M_IX86)
@@ -190,5 +192,7 @@ inline int q_atomic_test_and_set_release_int(volatile int *ptr, int expected, in
 {
     return q_atomic_test_and_set_int(ptr, expected, newval);
 }
+
+QT_END_HEADER
 
 #endif // WINDOWS_QATOMIC_H
