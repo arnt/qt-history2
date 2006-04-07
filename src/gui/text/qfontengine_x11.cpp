@@ -1004,7 +1004,8 @@ QFontEngineMultiFT::QFontEngineMultiFT(FcPattern *p, int s, const QFontDef &req)
 QFontEngineMultiFT::~QFontEngineMultiFT()
 {
     FcPatternDestroy(pattern);
-    FcFontSetDestroy(fontSet);
+    if (fontSet)
+        FcFontSetDestroy(fontSet);
 }
 
 
