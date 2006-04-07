@@ -412,6 +412,18 @@ static const char * const qt_cleanlooks_checkbox_checked[] = {
     "             ",
     "             "};
 
+class QCleanLooksStylePrivate : public QWindowsStylePrivate
+{
+    Q_DECLARE_PUBLIC(QCleanLooksStyle)
+public:
+    QCleanLooksStylePrivate()
+        : QWindowsStylePrivate()
+    {  }
+
+~QCleanLooksStylePrivate()
+    { }
+};
+
 static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
                                         const QColor &gradientStop, Direction direction = TopDown)
 {
@@ -3099,7 +3111,8 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     case CT_GroupBox:
     case CT_RadioButton:
     case CT_HeaderSection:
-        newSize += QSize(0, 4);
+    case CT_CheckBox:
+        newSize += QSize(0, 5);
         break;
     case CT_ToolButton:
         newSize += QSize(4, 6);
@@ -3109,7 +3122,7 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         newSize += QSize(0, 1);
         break;
     case CT_PushButton:
-	    newSize += QSize(0, 3);
+	    newSize += QSize(0, 4);
         break;
     case CT_MenuBarItem:
 	    newSize += QSize(0, 2);
@@ -3130,6 +3143,9 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
 void QCleanLooksStyle::polish(QApplication *app)
 {
     Q_UNUSED(app);
+    // We only need the overhead when shortcuts are sometimes hidden
+    if (!styleHint(SH_UnderlineShortcut, 0) && app)
+        app->installEventFilter(this);
 }
 
 /*!
