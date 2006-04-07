@@ -175,7 +175,9 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
 #endif
     int w = bi.biWidth,         h = bi.biHeight,  nbits = bi.biBitCount;
     int t = bi.biSize,         comp = bi.biCompression;
-    int red_mask, green_mask, blue_mask;
+    int red_mask = 0;
+    int green_mask = 0;
+    int blue_mask = 0;
     int red_shift = 0;
     int green_shift = 0;
     int blue_shift = 0;
