@@ -1157,6 +1157,9 @@ static inline Operator getOperator(const QSpanData *data)
         break;
     case QSpanData::Texture:
         op.src_fetch = sourceFetch[getBlendType(data)][data->texture.format];
+        solidSource = data->texture.format != QImage::Format_ARGB32_Premultiplied
+                      && data->texture.format != QImage::Format_ARGB32
+                      && data->texture.format != QImage::Format_Indexed8;
     default:
         break;
     }
