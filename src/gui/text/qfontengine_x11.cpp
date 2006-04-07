@@ -56,7 +56,7 @@
 
 struct QFreetypeFace
 {
-    void computeSize(const QFontDef &fontDef, int *xsize, int *ysize);
+    void computeSize(const QFontDef &fontDef, int *xsize, int *ysize, bool *outline_drawing);
     QFontEngine::Properties properties() const;
     QByteArray getSfntTable(uint tag) const;
 
@@ -218,7 +218,7 @@ void QFreetypeFace::release(const QFontEngine::FaceId &face_id)
 #define Y_SIZE(face,i) ((face)->available_sizes[i].height << 6)
 #endif
 
-void QFreetypeFace::computeSize(const QFontDef &fontDef, int *xsize, int *ysize)
+void QFreetypeFace::computeSize(const QFontDef &fontDef, int *xsize, int *ysize, bool *outline_drawing)
 {
     *ysize = fontDef.pixelSize << 6;
     *xsize = *ysize * fontDef.stretch / 100;
@@ -244,6 +244,8 @@ void QFreetypeFace::computeSize(const QFontDef &fontDef, int *xsize, int *ysize)
             *ysize = Y_SIZE(face, best);
         } else
             *xsize = *ysize = 0;
+    } else {
+        *outline_drawing = (*xsize > (64<<6) || *ysize > (64<<6));
     }
 }
 
@@ -1105,8 +1107,7 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     }
 
     lbearing = rbearing = SHRT_MIN;
-    freetype->computeSize(fontDef, &xsize, &ysize);
-    outline_drawing = xsize > (64<<6) || ysize > (64<<6);
+    freetype->computeSize(fontDef, &xsize, &ysize, &outline_drawing);
 
     FT_Face face = lockFace();
 
@@ -1248,7 +1249,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
         }
     }
     Q_ASSERT(format != Format_None);
-    int hfactor = 1;
+    bool hsubpixel = false;
     int vfactor = 1;
     int load_flags = FT_LOAD_DEFAULT;
     if (fe->outline_drawing) {
@@ -1258,7 +1259,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
     } else if (format == Format_A32) {
         if (fe->subpixel == FC_RGBA_RGB || fe->subpixel == FC_RGBA_BGR) {
             load_flags |= FT_LOAD_TARGET_LCD;
-            hfactor = 3;
+            hsubpixel = true;
         } else if (fe->subpixel == FC_RGBA_VRGB || fe->subpixel == FC_RGBA_VBGR) {
             load_flags |= FT_LOAD_TARGET_LCD_V;
             vfactor = 3;
@@ -1346,6 +1347,9 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
     bottom = FLOOR(bottom);
     top = CEIL(top);
 
+    int hpixels = TRUNC(right - left);
+    if (hsubpixel)
+        hpixels = hpixels*3 + 8;
 #ifndef QT_NO_XRENDER
     XGlyphInfo info;
 #else
@@ -1359,53 +1363,71 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
     } XGlyphInfoDummy;
     XGlyphInfoDummy info;
 #endif
-    info.width = TRUNC(right - left);
+    info.width = hpixels;
     info.height = TRUNC(top - bottom);
     info.x = -TRUNC(left);
     info.y = TRUNC(top);
     info.xOff = TRUNC(ROUND(slot->advance.x));
     info.yOff = 0;
+    if (hsubpixel) {
+        info.width /= 3;
+        info.x += 1;
+    }
 
     int pitch = (format == Format_Mono ? ((info.width + 31) & ~31) >> 3 :
                  (format == Format_A8 ? (info.width + 3) & ~3 : info.width * 4));
-    int size = pitch * info.height * vfactor;
-    uchar *buffer = new uchar[size];
-    memset (buffer, 0, size);
+    int size = pitch * info.height;
+    uchar *glyph_buffer = new uchar[size];
 
     if (slot->format == FT_GLYPH_FORMAT_OUTLINE) {
         FT_Bitmap bitmap;
         bitmap.rows = info.height*vfactor;
-        bitmap.width = info.width*hfactor;
-        bitmap.pitch = pitch;
-        bitmap.buffer = buffer;
+        bitmap.width = hpixels;
+        bitmap.pitch = format == Format_Mono ? (((info.width + 31) & ~31) >> 3) : ((bitmap.width + 3) & ~3);
+        if (!hsubpixel && vfactor == 1)
+            bitmap.buffer = glyph_buffer;
+        else
+            bitmap.buffer = new uchar[bitmap.rows*bitmap.pitch];
+        memset(bitmap.buffer, 0, bitmap.rows*bitmap.pitch);
         bitmap.pixel_mode = format == Format_Mono ? ft_pixel_mode_mono : ft_pixel_mode_grays;
         FT_Matrix matrix;
-        matrix.xx = hfactor << 16;
+        matrix.xx = (hsubpixel ? 3 : 1) << 16;
         matrix.yy = vfactor << 16;
         matrix.yx = matrix.xy = 0;
 
         FT_Outline_Transform(&slot->outline, &matrix);
-        FT_Outline_Translate (&slot->outline, -left*hfactor, -bottom*vfactor);
+        FT_Outline_Translate (&slot->outline, (hsubpixel ? -3*left +(4<<6) : -left), -bottom*vfactor);
         FT_Outline_Get_Bitmap(library, &slot->outline, &bitmap);
-        if (hfactor != 1) {
+        if (hsubpixel) {
             Q_ASSERT (bitmap.pixel_mode == FT_PIXEL_MODE_GRAY);
             Q_ASSERT(fe->antialias);
-            uchar *src = buffer;
-            size = info.width * 4 * info.height;
-            uchar *newBuf = new uchar[size];
-            uint *dst = (uint *)newBuf;
+            const uchar *src = bitmap.buffer;
+            uchar *convoluted = new uchar[bitmap.rows*bitmap.pitch];
+            uchar *c = convoluted;
+            // convolute the bitmap with a triangle filter to get rid of color fringes
             int h = info.height;
+            while (h--) {
+                c[0] = c[1] = 0;
+                for (int x = 2; x < bitmap.width - 2; ++x) {
+                    uint sum = src[x-2] + 2*src[x-1] + 3*src[x] + 2*src[x+1] + src[x+2];
+                    c[x] = (uchar) (sum/9);
+                }
+                c[bitmap.width - 2] = c[bitmap.width -1] = 0;
+                src += bitmap.pitch;
+                c += bitmap.pitch;
+            }
+
+            uint *dst = (uint *)glyph_buffer;
+            src = convoluted;
+            h = info.height;
             if (fe->subpixel == FC_RGBA_RGB) {
                 while (h--) {
                     uint *dd = dst;
-                    for (int x = 0; x < bitmap.width; x += 3) {
+                    for (int x = 1; x < bitmap.width - 1; x += 3) {
                         uint red = src[x];
                         uint green = src[x+1];
                         uint blue = src[x+2];
-                        uint high = (red*subpixel_filter[0][0] + green*subpixel_filter[0][1] + blue*subpixel_filter[0][2]) >> 8;
-                        uint mid = (red*subpixel_filter[1][0] + green*subpixel_filter[1][1] + blue*subpixel_filter[1][2]) >> 8;
-                        uint low = (red*subpixel_filter[2][0] + green*subpixel_filter[2][1] + blue*subpixel_filter[2][2]) >> 8;
-                        uint res = (high << 16) + (mid << 8) + low;
+                        uint res = (red << 16) + (green << 8) + blue;
                         *dd = res;
                         ++dd;
                     }
@@ -1415,14 +1437,11 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
             } else {
                 while (h--) {
                     uint *dd = dst;
-                    for (int x = 0; x < bitmap.width; x += 3) {
+                    for (int x = 1; x < bitmap.width - 1; x += 3) {
                         uint blue = src[x];
                         uint green = src[x+1];
                         uint red = src[x+2];
-                        uint high = (red*subpixel_filter[0][0] + green*subpixel_filter[0][1] + blue*subpixel_filter[0][2]) >> 8;
-                        uint mid = (red*subpixel_filter[1][0] + green*subpixel_filter[1][1] + blue*subpixel_filter[1][2]) >> 8;
-                        uint low = (red*subpixel_filter[2][0] + green*subpixel_filter[2][1] + blue*subpixel_filter[2][2]) >> 8;
-                        uint res = (high << 16) + (mid << 8) + low;
+                        uint res = (red << 16) + (green << 8) + blue;
                         *dd = res;
                         ++dd;
                     }
@@ -1430,13 +1449,12 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
                     src += bitmap.pitch;
                 }
             }
-            delete [] buffer;
-            buffer = newBuf;
+            delete [] convoluted;
+            delete [] bitmap.buffer;
         } else if (vfactor != 1) {
-            uchar *src = buffer;
+            uchar *src = bitmap.buffer;
             size = info.width * 4 * info.height;
-            uchar *newBuf = new uchar[size];
-            uint *dst = (uint *)newBuf;
+            uint *dst = (uint *)glyph_buffer;
             int h = info.height;
             if (fe->subpixel == FC_RGBA_VRGB) {
                 while (h--) {
@@ -1469,13 +1487,12 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
                     src += 3*bitmap.pitch;
                 }
             }
-            delete [] buffer;
-            buffer = newBuf;
+            delete [] bitmap.buffer;
         }
     } else if (slot->format == FT_GLYPH_FORMAT_BITMAP) {
         Q_ASSERT(slot->bitmap.pixel_mode == FT_PIXEL_MODE_MONO);
         uchar *src = slot->bitmap.buffer;
-        uchar *dst = buffer;
+        uchar *dst = glyph_buffer;
         int h = slot->bitmap.rows;
         if (format == Format_Mono) {
             int bytes = ((info.width + 7) & ~7) >> 3;
@@ -1485,7 +1502,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
                 src += slot->bitmap.pitch;
             }
         } else {
-            if (hfactor != 1 || vfactor != 1) {
+            if (hsubpixel || vfactor != 1) {
                 while (h--) {
                     uint *dd = (uint *)dst;
                     for (int x = 0; x < slot->bitmap.width; x++) {
@@ -1518,7 +1535,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
              * swap bit order around; FreeType is always MSBFirst
              */
             if (BitmapBitOrder(X11->display) != MSBFirst) {
-                unsigned char *line = (unsigned char *) buffer;
+                unsigned char *line = (unsigned char *) glyph_buffer;
                 int i = size;
                 i = size;
                 while (i--) {
@@ -1533,9 +1550,9 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
         }
 
         ::Glyph xglyph = glyph;
-        XRenderAddGlyphs (X11->display, glyphSet, &xglyph, &info, 1, (const char *)buffer, size);
-        delete [] buffer;
-        buffer = 0;
+        XRenderAddGlyphs (X11->display, glyphSet, &xglyph, &info, 1, (const char *)glyph_buffer, size);
+        delete [] glyph_buffer;
+        glyph_buffer = 0;
     }
 #endif
 
@@ -1555,13 +1572,13 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
     Glyph *g = new Glyph;
 
     g->linearAdvance = slot->linearHoriAdvance >> 10;
-    g->width = TRUNC(right - left);
+    g->width = info.width;
     g->height = TRUNC(top - bottom);
-    g->x = TRUNC(left);
+    g->x = -info.x;
     g->y = TRUNC(top);
     g->advance = TRUNC(ROUND(slot->advance.x));
     g->format = add_to_glyphset ? Format_None : format;
-    g->data = buffer;
+    g->data = glyph_buffer;
 
     // make sure we delete the old cached glyph
     delete glyph_data.value(glyph);
