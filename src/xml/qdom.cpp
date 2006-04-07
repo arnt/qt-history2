@@ -4400,7 +4400,7 @@ bool QDomAttr::specified() const
 */
 QDomElement QDomAttr::ownerElement() const
 {
-    if (!impl && !impl->parent()->isElement())
+    if (!impl || !impl->parent()->isElement())
         return QDomElement();
     return QDomElement((QDomElementPrivate*)(impl->parent()));
 }
@@ -6850,7 +6850,7 @@ QDomDocumentType QDomDocument::doctype() const
 QDomImplementation QDomDocument::implementation() const
 {
     if (!impl)
-        QDomImplementation();
+        return QDomImplementation();
     return QDomImplementation(IMPL->implementation());
 }
 
