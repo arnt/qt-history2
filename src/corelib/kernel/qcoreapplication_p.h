@@ -46,6 +46,9 @@ public:
     virtual void createEventDispatcher();
     static void moveToMainThread(QObject *o);
     static void removePostedEvent(QEvent *);
+#ifdef Q_OS_WIN
+    static void removePostedTimerEvent(QObject *object, int timerId);
+#endif
 
     static QThread *mainThread();
     static bool checkInstance(const char *method);

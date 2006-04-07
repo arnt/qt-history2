@@ -17,6 +17,7 @@
 #include "qt_windows.h"
 #include "qvector.h"
 #include "qmutex.h"
+#include <private/qthread_p.h>
 #include <ctype.h>
 
 
@@ -227,6 +228,35 @@ bool QCoreApplication::winEventFilter(MSG *msg, long *result)        // Windows 
     Q_UNUSED(msg);
     Q_UNUSED(result);
     return false;
+}
+
+void QCoreApplicationPrivate::removePostedTimerEvent(QObject *object, int timerId)
+{
+    QThread *thread = object->thread();
+    if (!thread)
+        return;
+    QThreadData *data = QThreadData::get(thread);
+
+    QMutexLocker locker(&data->postEventList.mutex);
+    if (data->postEventList.size() == 0)
+        return;
+    for (int i = 0; i < data->postEventList.size(); ++i) {
+        const QPostEvent & pe = data->postEventList.at(i);
+        if (pe.receiver == object
+            && pe.event
+            && pe.event->type() == QEvent::Timer
+            && static_cast<QTimerEvent *>(pe.event)->timerId() == timerId) {
+                --pe.receiver->d_func()->postedEvents;
+#ifdef QT3_SUPPORT
+                if (pe.event->type() == QEvent::ChildInserted)
+                    --pe.receiver->d_func()->postedChildInsertedEvents;
+#endif
+                pe.event->posted = false;
+                delete pe.event;
+                const_cast<QPostEvent &>(pe).event = 0;
+                return;
+            }
+    }
 }
 
 #if defined(Q_WS_WIN) && !defined(QT_NO_DEBUG_STREAM)
