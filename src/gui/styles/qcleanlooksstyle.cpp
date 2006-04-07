@@ -3109,7 +3109,6 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
 {
     QSize newSize = QWindowsStyle::sizeFromContents(type, option, size, widget);
     switch (type) {
-    case CT_ComboBox:
     case CT_GroupBox:
     case CT_RadioButton:
     case CT_HeaderSection:
@@ -3121,10 +3120,9 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
         break;
     case CT_LineEdit:
     case CT_SpinBox:
-        newSize += QSize(0, 1);
-        break;
     case CT_PushButton:
-	    newSize += QSize(0, 4);
+	case CT_ComboBox:
+        newSize += QSize(0, 4);
         break;
     case CT_MenuBarItem:
 	    newSize += QSize(0, 2);
@@ -3516,6 +3514,8 @@ QRect QCleanLooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
     case SE_PushButtonFocusRect:
         r.adjust(0, 1, 0, -1);
         break;
+    case SE_PushButtonContents:
+        r.translate(0, 1);
     default:
         break;
     }
