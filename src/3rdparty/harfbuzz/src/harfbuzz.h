@@ -18,6 +18,8 @@
 #include "harfbuzz-gdef.h"
 #include "harfbuzz-gsub.h"
 #include "harfbuzz-gpos.h"
+#ifdef HARFBUZZ_DUMP
 #include "harfbuzz-dump.h"
+#endif
 
 #endif /* HARFBUZZ_OPEN_H */
