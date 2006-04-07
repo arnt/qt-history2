@@ -843,7 +843,7 @@ QCoreGraphicsPaintEnginePrivate::setStrokePen(const QPen &pen)
     else if(pen.joinStyle() == Qt::RoundJoin)
         cglinejoin = kCGLineJoinRound;
     CGContextSetLineJoin(hd, cglinejoin);
-    CGContextSetMiterLimit(hd, cglinewidth * pen.miterLimit());
+//    CGContextSetMiterLimit(hd, pen.miterLimit());
 
     //pen style
     QVector<float> linedashes;
