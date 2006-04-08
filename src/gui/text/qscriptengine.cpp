@@ -3031,7 +3031,9 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                 reph = i;
     }
 
+#ifndef QT_NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
+#endif
     if (!item->font->stringToCMap((const QChar *)reordered.data(), len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -3195,13 +3197,13 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         }
 
     }
-#endif
+#endif // QT_NO_OPENTYPE
     item->glyphs[0].attributes.clusterStart = true;
 
     IDEBUG("<<<<<<");
     return true;
 }
-#endif
+#endif // Q_WS_X11 || Q_WS_QWS
 
 /* syllables are of the form:
 
@@ -3537,7 +3539,9 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         str = (QChar *)reordered.data();
     }
 
+#ifndef QT_NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
+#endif
     if (!item->font->stringToCMap(str, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -4187,7 +4191,9 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item)
         } // switch
     } // for
 
+#ifndef QT_NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
+#endif
     if (!item->font->stringToCMap((const QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -4691,7 +4697,9 @@ static bool myanmar_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         len += 2;
     }
 
+#ifndef QT_NO_OPENTYPE
     const int availableGlyphs = item->num_glyphs;
+#endif
     if (!item->font->stringToCMap((const QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
