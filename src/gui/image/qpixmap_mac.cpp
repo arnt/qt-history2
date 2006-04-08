@@ -865,6 +865,14 @@ QPixmap QPixmap::copy(const QRect &rect) const
             memcpy(pm.data->pixels, data->pixels, data->nbytes);
         } else {
             int x = rect.x(), y = rect.y(), w = rect.width(), h = rect.height();
+            if(x < 0) {
+                w += x;
+                x = 0;
+            }
+            if(y < 0) {
+                h += y;
+                y = 0;
+            }
             if (w > 0 && h > 0 && x < data->w && y < data->h) {
                 pm = QPixmap(w, h);
                 if (x+w > data->w || y+h > data->h) {
@@ -876,7 +884,7 @@ QPixmap QPixmap::copy(const QRect &rect) const
                 }
                 for (int i = 0; i < h; ++i)
                     memcpy(pm.data->pixels + i*pm.data->w,
-                           data->pixels + (i + rect.y())*data->w + rect.x(), w*4);
+                           data->pixels + (i + y)*data->w + x, w*4);
             }
         }
         pm.data->has_alpha = data->has_alpha;
