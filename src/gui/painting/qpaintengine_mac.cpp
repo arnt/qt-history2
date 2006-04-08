@@ -670,29 +670,35 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
         newImage = new QImage(img.convertToFormat(QImage::Format_ARGB32_Premultiplied));
         image = newImage;
     }
-    uint alphaFormat;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    uint cgflags = 0;
+# ifdef kCGBitmapByteOrder32Host //only needed because CGImage.h added symbols in the minor version
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4)
+        cgflags |= kCGBitmapByteOrder32Host;
+# endif
+#else
+    CGImageAlphaInfo cgflags = kCGImageAlphaPremultipliedFirst;
+#endif
     switch (image->format()) {
     default:
     case QImage::Format_ARGB32_Premultiplied:
-        alphaFormat = kCGImageAlphaPremultipliedFirst;
+        cgflags |= kCGImageAlphaPremultipliedFirst;
         break;
     case QImage::Format_ARGB32:
-        alphaFormat = kCGImageAlphaFirst;
+        cgflags |= kCGImageAlphaFirst;
         break;
     case QImage::Format_RGB32:
-        alphaFormat = kCGImageAlphaNone;
+        cgflags |= kCGImageAlphaNone;
         break;
     }
     QCFType<CGDataProviderRef> dataProvider = CGDataProviderCreateWithData(newImage,
                                                           image->bits(),
                                                           image->numBytes(),
                                                           drawImageReleaseData);
-
-    QCFType<CGImageRef> cgimage = CGImageCreate(image->width(), image->height(), 8, 32,
+   QCFType<CGImageRef> cgimage = CGImageCreate(image->width(), image->height(), 8, 32,
                                         image->bytesPerLine(),
                                 QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
-                                alphaFormat | kCGBitmapByteOrder32Little,
-                                dataProvider, 0, false, kCGRenderingIntentDefault);
+                                cgflags, dataProvider, 0, false, kCGRenderingIntentDefault);
 
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy),
