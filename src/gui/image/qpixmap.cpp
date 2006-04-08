@@ -480,7 +480,7 @@ void QPixmap::resize_helper(const QSize &s)
     \fn bool QPixmap::selfMask() const
     \compat
 
-    Returns whether the pixmap is it's own mask or not.
+    Returns whether the pixmap is its own mask or not.
 
     This function is no longer relevant since the concept of self
     masking doesn't exists anymore.

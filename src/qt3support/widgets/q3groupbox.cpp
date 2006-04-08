@@ -284,7 +284,7 @@ void Q3GroupBox::setInsideSpacing(int s)
     \property Q3GroupBox::orientation
     \brief the group box's orientation
 
-    A horizontal group box arranges it's children in columns, while a
+    A horizontal group box arranges its children in columns, while a
     vertical group box arranges them in rows.
 
     Usually it is not a good idea to set this property because it is

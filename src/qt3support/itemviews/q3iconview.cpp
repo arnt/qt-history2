@@ -3294,7 +3294,7 @@ void Q3IconView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
             // prevents icons with alpha channels from being painted
             // twice when they are in 2 containers
             //
-            // NOTE: the item could override this cliprect in it's
+            // NOTE: the item could override this cliprect in its
             // paintItem() implementation, which makes this useless
             p->setClipRect(r2);
             for (int i = 0; i < c->items.size(); ++i) {

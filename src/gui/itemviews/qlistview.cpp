@@ -2014,7 +2014,7 @@ QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QMode
 {
     if (!uniformItemSizes)
         return delegate->sizeHint(option, index);
-    if (!cachedItemSize.isValid()) { // the last item is probaly the largest, so we use it's size
+    if (!cachedItemSize.isValid()) { // the last item is probaly the largest, so we use its size
         int row = model->rowCount(root) - 1;
         QModelIndex sample = model->index(row, column, root);
         cachedItemSize = delegate->sizeHint(option, sample);

@@ -2161,7 +2161,7 @@ static int parseGeometry(const char* string,
                 }
         }
 
-        /* If strind isn't at the end of the string the it's an invalid
+        /* If strind isn't at the end of the string then it's an invalid
                 geometry specification. */
 
         if (*strind != '\0') return 0;
