@@ -166,10 +166,14 @@ static QThread* mainThread() { return QThread::currentThread(); }
 
 struct QCoreApplicationData {
     QCoreApplicationData() {
+#ifndef QT_NO_LIBRARY
         app_libpaths = 0;
+#endif
     }
     ~QCoreApplicationData() {
+#ifndef QT_NO_LIBRARY
         delete app_libpaths;
+#endif
     }
     QString orgName, orgDomain, application;
 
@@ -311,6 +315,7 @@ void QCoreApplicationPrivate::checkReceiverThread(QObject *receiver)
 
 void QCoreApplicationPrivate::appendApplicationPathToLibraryPaths()
 {
+#ifndef QT_NO_LIBRARY
     QStringList *app_libpaths = coreappdata()->app_libpaths;
     Q_ASSERT(app_libpaths);
     QString app_location( QCoreApplication::applicationFilePath() );
@@ -318,6 +323,7 @@ void QCoreApplicationPrivate::appendApplicationPathToLibraryPaths()
     app_location = QDir(app_location).canonicalPath();
     if (app_location !=  QLibraryInfo::location(QLibraryInfo::PluginsPath) && QFile::exists(app_location))
         app_libpaths->append(app_location);
+#endif
 }
 
 QString qAppName()
