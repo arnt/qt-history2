@@ -52,7 +52,7 @@ public:
     inline QTreeWidget *treeWidget() const { return view; }
 
     inline Qt::ItemFlags flags() const { return itemFlags; }
-    void setFlags(Qt::ItemFlags flags);
+    inline void setFlags(Qt::ItemFlags flags);
 
     inline QString text(int column) const
         { return data(column, Qt::DisplayRole).toString(); }
@@ -138,6 +138,7 @@ public:
 private:
     void sortChildren(int column, Qt::SortOrder order, bool climb);
     QVariant childrenCheckState(int column) const;
+    void itemChanged();
 
     int rtti;
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
@@ -148,6 +149,9 @@ private:
     QList<QTreeWidgetItem*> children;
     Qt::ItemFlags itemFlags;
 };
+
+inline void QTreeWidgetItem::setFlags(Qt::ItemFlags aflags)
+{ itemFlags = aflags; itemChanged(); }
 
 inline void QTreeWidgetItem::setText(int column, const QString &atext)
 { setData(column, Qt::DisplayRole, atext); }

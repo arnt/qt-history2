@@ -765,11 +765,6 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 
     \sa flags()
 */
-void QTreeWidgetItem::setFlags(Qt::ItemFlags aflags) {
-    itemFlags = aflags;
-    if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0))
-        model->itemChanged(this);
-}
 
 /*!
     \fn QString QTreeWidgetItem::text(int column) const
@@ -1257,7 +1252,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         if (display.count() <= column) {
             for (int i = display.count() - 1; i < column - 1; ++i)
                 display.append(QString());
-            display.append(value.toString());   
+            display.append(value.toString());
         } else {
             display[column] = value.toString();
         }
@@ -1560,6 +1555,16 @@ QVariant QTreeWidgetItem::childrenCheckState(int column) const
         return Qt::Unchecked;
     return Qt::PartiallyChecked;
 }
+
+/*!
+  \internal
+*/
+void QTreeWidgetItem::itemChanged()
+{
+    if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0))
+        model->itemChanged(this);
+}
+
 
 #ifndef QT_NO_DATASTREAM
 /*!
