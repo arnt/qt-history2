@@ -124,8 +124,8 @@ public:
     }
 
     inline void executePostedLayout() const {
-        if (layoutPosted && state != QAbstractItemView::CollapsingState) {
-            layoutPosted = false;
+        if (delayedLayout.isActive() && state != QAbstractItemView::CollapsingState) {
+            delayedLayout.stop();
             const_cast<QAbstractItemView*>(q_func())->doItemsLayout();
         }
     }
@@ -234,18 +234,17 @@ public:
     int autoScrollInterval;
     int autoScrollCount;
 
-    mutable bool layoutPosted;
     bool alternatingColors;
 
     QSize iconSize;
     Qt::TextElideMode textElideMode;
 
     QRegion updateRegion; // used for the internal update system
-    QBasicTimer updateTimer;
-
     QPoint scrollDelayOffset;
 
+    QBasicTimer updateTimer;
     QBasicTimer delayedEditing;
+    mutable QBasicTimer delayedLayout;
 
     QTimeLine timeline;
 };

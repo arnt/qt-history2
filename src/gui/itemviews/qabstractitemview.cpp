@@ -48,7 +48,6 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollMargin(16),
         autoScrollInterval(50),
         autoScrollCount(0),
-        layoutPosted(false),
         alternatingColors(false),
         textElideMode(Qt::ElideRight)
 {
@@ -722,7 +721,7 @@ void QAbstractItemView::clearSelection()
 */
 void QAbstractItemView::doItemsLayout()
 {
-    d_func()->layoutPosted = false;
+    d_func()->delayedLayout.stop();
     updateGeometries();
     d_func()->viewport->update();
 }
@@ -1510,6 +1509,9 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
     else if (event->timerId() == d->delayedEditing.timerId()) {
         d->delayedEditing.stop();
         d->openEditor(currentIndex(), 0);
+    } else if (event->timerId() == d->delayedLayout.timerId()) {
+        d->delayedLayout.stop();
+        doItemsLayout();
     }
 }
 
@@ -2038,12 +2040,12 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     if (topLeft == bottomRight && topLeft.isValid()) {
         if (d->hasEditor(topLeft))
             itemDelegate()->setEditorData(d->editorForIndex(topLeft), topLeft);
-        else if (isVisible() && !d->layoutPosted) // otherwise the items will be update later anyway
+        else if (isVisible() && !d->delayedLayout.isActive()) // otherwise the items will be update later anyway
             d->viewport->update(visualRect(topLeft));
         return;
     }
     updateEditorData(); // we are counting on having relatively few editors
-    if (!isVisible() || d->layoutPosted)
+    if (!isVisible() || d->delayedLayout.isActive())
         return; // no need to update
     d->viewport->update();
 }
@@ -2620,11 +2622,8 @@ bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos) const
 
 void QAbstractItemViewPrivate::doDelayedItemsLayout()
 {
-    if (!layoutPosted) {
-        int slot = q_func()->metaObject()->indexOfSlot("doItemsLayout()");
-        QApplication::postEvent(q_func(), new QMetaCallEvent(slot));
-        layoutPosted = true;
-    }
+   if (!delayedLayout.isActive())
+        delayedLayout.start(0, q_func());
 }
 
 QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,

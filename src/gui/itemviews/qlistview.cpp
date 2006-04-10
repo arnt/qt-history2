@@ -459,7 +459,7 @@ QRect QListView::visualRect(const QModelIndex &index) const
 {
     if (!index.isValid() || isIndexHidden(index))
         return QRect();
-    
+
     Q_D(const QListView);
     d->executePostedLayout();
     return d->mapToViewport(rectForIndex(index));
@@ -676,8 +676,7 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
 void QListView::timerEvent(QTimerEvent *e)
 {
     Q_D(QListView);
-    if (e->timerId() == d->startLayoutTimer.timerId()) {
-        d->startLayoutTimer.stop();
+    if (e->timerId() == d->delayedLayout.timerId()) {
         setState(ExpandingState); // showing the scrollbars will trigger a resize event,
         doItemsLayout();          // so we set the state to expanding to avoid
         setState(NoState);        // triggering another layout
@@ -702,11 +701,10 @@ void QListView::resizeEvent(QResizeEvent *e)
         // if we are in adjust mode, post a delayed layout
         if (d->resizeMode == Adjust) {
             QSize delta = e->size() - e->oldSize();
-            if (!d->layoutPosted
+            if (!d->delayedLayout.isActive()
                 && ((d->flow == LeftToRight && delta.width() != 0)
                     || (d->flow == TopToBottom && delta.height() != 0))) {
-                d->layoutPosted = true;
-                d->startLayoutTimer.start(100, this); // wait 1/10 sec before starting the layout
+                d->delayedLayout.start(100, this); // wait 1/10 sec before starting the layout
             }
         }
     }
@@ -1156,16 +1154,14 @@ void QListView::setPositionForIndex(const QPoint &position, const QModelIndex &i
     if (d->movement == Static
         || !index.isValid()
         || index.parent() != rootIndex()
-        || index.column() != d->column
-        || index.row() >= d->items.count())
+        || index.column() != d->column)
         return;
     d->executePostedLayout();
-    QListViewItem *item = &d->items[index.row()];
-    if (isVisible())
-        d->viewport->update(visualRect(index)); // update old position
-    item->move(position);
-    if (isVisible())
-        d->viewport->update(visualRect(index)); // update new position
+    if (index.row() >= d->items.count())
+        return;
+    d->setDirtyRegion(visualRect(index)); // update old position
+    d->moveItem(index.row(), position);
+    d->setDirtyRegion(visualRect(index)); // update new position
 }
 
 /*!
@@ -1255,6 +1251,7 @@ QModelIndexList QListView::selectedIndexes() const
 void QListView::doItemsLayout()
 {
     Q_D(QListView);
+    d->layoutChildren(); // make sure the viewport has the right size
     d->prepareItemsLayout();
     if (model() && model()->columnCount(rootIndex()) > 0) { // no columns means no contents
         if (layoutMode() == SinglePass)
@@ -1661,6 +1658,9 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         segPosition = topLeft.x();
     }
 
+    if (moved.count() != items.count())
+        moved.resize(items.count());
+
     QRect rect(QPoint(0, 0), topLeft);
     QListViewItem *item = 0;
     for (int row = first; row <= last; ++row) {
@@ -1698,12 +1698,14 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
                 deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
             }
             // set the position of the item
-            if (flow == QListView::LeftToRight) {
-                item->x = flowPosition;
-                item->y = segPosition;
-            } else { // TopToBottom
-                item->y = flowPosition;
-                item->x = segPosition;
+            if (!moved.testBit(row)) {
+                if (flow == QListView::LeftToRight) {
+                    item->x = flowPosition;
+                    item->y = segPosition;
+                } else { // TopToBottom
+                    item->y = flowPosition;
+                    item->x = segPosition;
+                }
             }
             rect |= item->rect(); // let the contents contain the new item
 
@@ -1934,8 +1936,7 @@ void QListViewPrivate::moveItem(int index, const QPoint &dest)
 
     // move the item without removing it from the tree
     tree.removeLeaf(rect, index);
-    item->x = dest.x();
-    item->y = dest.y();
+    item->move(dest);
     tree.insertLeaf(QRect(dest, rect.size()), index);
 
     // resize the contents area
@@ -1944,6 +1945,10 @@ void QListViewPrivate::moveItem(int index, const QPoint &dest)
     w = w > contentsSize.width() ? w : contentsSize.width();
     h = h > contentsSize.height() ? h : contentsSize.height();
     q->resizeContents(w, h);
+
+    if (moved.count() != items.count())
+        moved.resize(items.count());
+    moved.setBit(index, true);
 }
 
 QPoint QListViewPrivate::snapToGrid(const QPoint &pos) const

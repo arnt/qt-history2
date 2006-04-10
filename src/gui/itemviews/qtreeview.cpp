@@ -463,7 +463,7 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
     Q_D(QTreeView);
 
     // if we are going to do a complete realyout anyway, there is no need to update
-    if (!model() || d->layoutPosted)
+    if (!model() || d->delayedLayout.isActive())
         return;
 
     // refresh the height cache here; we don't really lose anything by getting the size hint,
