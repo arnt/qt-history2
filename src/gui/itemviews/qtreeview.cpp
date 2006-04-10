@@ -2034,7 +2034,6 @@ int QTreeViewPrivate::coordinate(int item) const
     int scrollbarValue = q->verticalScrollBar()->value();
     int topViewItemIndex = itemAt(scrollbarValue);
     if (topViewItemIndex == -1) {
-        const_cast<QTreeViewPrivate*>(this)->updateScrollbars();
         scrollbarValue = q->verticalScrollBar()->value();
         topViewItemIndex = itemAt(scrollbarValue);
     }
