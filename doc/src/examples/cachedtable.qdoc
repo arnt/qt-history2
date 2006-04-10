@@ -109,7 +109,7 @@
     view inherits from the QAbstractItemView class.
 
     We pass our model to the view, using the \l
-    {QAbstractItemView::setModel}{setModel()} function, to make the
+    {QAbstractItemView::setModel()}{setModel()} function, to make the
     view present our data.
 
     \skipto submitButton
