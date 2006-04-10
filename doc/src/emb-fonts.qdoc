@@ -15,9 +15,10 @@
     readability on low-resolution devices.
 
     When Qtopia Core applications run, they look for a file called \c
-    fontdir in Qt's \c /lib/fonts/ directory which defines the fonts
-    that are available to the application. Modify this file to specify
-    the preferred fonts.
+    fontdir in Qtopia Core's \c /lib/fonts/ directory defining the
+    fonts that are available to the application (i.e. the fonts
+    located in the \c /lib/fonts/ directory). Modify this file to
+    specify the preferred fonts.
 
     Support for other font formats can be added, contact
     \l{mailto:info@trolltech.com}{info@trolltech.com} for more
