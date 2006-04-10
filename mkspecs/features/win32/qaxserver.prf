@@ -50,5 +50,5 @@ qt:!target_qt {
    } else { 
       QMAKE_LIBS_QT_ENTRY = -lQAxServer
    }
-   dll:QMAKE_LIBS += $$QMAKE_LIBS_QT_ENTRY
+   !dll:QMAKE_LIBS += $$QMAKE_LIBS_QT_ENTRY
 }
