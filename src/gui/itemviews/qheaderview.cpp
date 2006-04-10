@@ -1509,7 +1509,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             painter.fillRect(0, a - d->offset, 4, d->sectionSpans.at(i).size, color);
         a += d->sectionSpans.at(i).size;
     }
- 
+
 #endif
 }
 
@@ -1819,14 +1819,20 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
     if (!d->model)
         return QSize();
     QSize size(100, 30);
+
+    // use SizeHintRole
+    QVariant variant = d->model->headerData(logicalIndex, orientation(), Qt::SizeHintRole);
+    if (variant.isValid())
+        return qvariant_cast<QSize>(variant);
+
+    // otherwise use the contents
     QStyleOptionHeader opt = d->getStyleOption();
     QFont fnt = font();
     fnt.setBold(true);
-    opt.fontMetrics = QFontMetrics(fnt); // do the metrics with a bold font
+    opt.fontMetrics = QFontMetrics(fnt);
     opt.text = d->model->headerData(logicalIndex, orientation(),
                                     Qt::DisplayRole).toString();
-    QVariant variant = d->model->headerData(logicalIndex, orientation(),
-                                    Qt::DecorationRole);
+    variant = d->model->headerData(logicalIndex, orientation(), Qt::DecorationRole);
     opt.icon = qvariant_cast<QIcon>(variant);
     if (opt.icon.isNull())
         opt.icon = qvariant_cast<QPixmap>(variant);
@@ -2253,7 +2259,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         int oldSectionLength = headerSectionSize(i);
         int newSectionLength = -1;
         QHeaderView::ResizeMode newSectionResizeMode = headerSectionResizeMode(i);
-            
+
         if (isVisualIndexHidden(i)) {
             newSectionLength = 0;
         } else {
@@ -2306,7 +2312,7 @@ void QHeaderViewPrivate::createSectionSpan(int start, int end, int size, QHeader
     SectionSpan span(size, (end - start) + 1, mode);
     int start_section = 0;
     int initial_section_count = headerSectionCount(); // ### debug code
-    
+
     QList<int> spansToRemove;
     for (int i = 0; i < sectionSpans.count(); ++i) {
         int end_section = start_section + sectionSpans.at(i).count - 1;
@@ -2371,7 +2377,7 @@ void QHeaderViewPrivate::createSectionSpan(int start, int end, int size, QHeader
             length += span_size;
             if (end == end_section) {
                 sectionSpans.insert(i + 1, span); // insert after
-                length += span.size;                
+                length += span.size;
                 removeSpans(spansToRemove);
                 Q_ASSERT(initial_section_count == headerSectionCount());
                 return;
@@ -2394,7 +2400,7 @@ void QHeaderViewPrivate::createSectionSpan(int start, int end, int size, QHeader
         }
         start_section += section_count;
     }
-        
+
     // ### adding and removing _ sections_  in addition to spans
     // ### add some more checks here
 
