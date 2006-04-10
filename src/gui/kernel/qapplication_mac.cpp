@@ -1277,6 +1277,54 @@ static mac_enum_mapper keyscan_symbols[] = { //real scan codes
     {   0, MAP_MAC_ENUM(0) }
 };
 
+
+static int get_uniKey(int modif, const QChar &key, int scan)
+{
+    if (key == kClearCharCode && scan == 0x47)
+        return Qt::Key_Clear;
+
+    if (key.isDigit()) {
+        return (key.digitValue() - '0') + Qt::Key_0;
+    }
+
+    if (key.isLetter()) {
+        return (key.toUpper().unicode() - 'A') + Qt::Key_A;
+    }
+    for(int i = 0; keyboard_symbols[i].qt_code; i++) {
+        if(keyboard_symbols[i].mac_code == key) {
+            /* To work like Qt/X11 we issue Backtab when Shift + Tab are pressed */
+            if(keyboard_symbols[i].qt_code == Qt::Key_Tab && (modif & Qt::ShiftModifier)) {
+#ifdef DEBUG_KEY_MAPS
+                qDebug("%d: got key: Qt::Key_Backtab", __LINE__);
+#endif
+                return Qt::Key_Backtab;
+            }
+
+#ifdef DEBUG_KEY_MAPS
+            qDebug("%d: got key: %s", __LINE__, keyboard_symbols[i].desc);
+#endif
+            return keyboard_symbols[i].qt_code;
+        }
+    }
+
+    //last ditch try to match the scan code
+    for(int i = 0; keyscan_symbols[i].qt_code; i++) {
+        if(keyscan_symbols[i].mac_code == scan) {
+#ifdef DEBUG_KEY_MAPS
+            qDebug("%d: got key: %s", __LINE__, keyscan_symbols[i].desc);
+#endif
+            return keyscan_symbols[i].qt_code;
+        }
+    }
+
+    //oh well
+#ifdef DEBUG_KEY_MAPS
+    qDebug("Unknown case.. %s:%d %d %d", __FILE__, __LINE__, key, scan);
+#endif
+    return Qt::Key_unknown;
+}
+
+
 static int get_key(int modif, int key, int scan)
 {
 #ifdef DEBUG_KEY_MAPS
@@ -1636,55 +1684,96 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
 
     //get mac mapping
     static UInt32 tmp_unused_state = 0L;
-    char translatedChar = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
-            (GetCurrentEventKeyModifiers() &
-             (kEventKeyModifierNumLockMask|shiftKey|cmdKey|
-              rightShiftKey|alphaLock)) | keyCode,
-            &tmp_unused_state);
-    if(!translatedChar) {
-        if (outHandled) {
-            qt_mac_eat_unicode_key = false;
-            CallNextEventHandler(er, keyEvent);
-            *outHandled = qt_mac_eat_unicode_key;
+    static KeyboardLayoutRef prevKeyLayoutRef = 0;
+    KeyboardLayoutRef keyLayout = 0;
+    UCKeyboardLayout *uchrData = 0;
+    KLGetCurrentKeyboardLayout(&keyLayout);
+    OSStatus err;
+    if (keyLayout != 0) {
+        err = KLGetKeyboardLayoutProperty(keyLayout, kKLuchrData,
+                                  const_cast<const void **>(reinterpret_cast<void **>(&uchrData)));
+        if (err != noErr) {
+            qWarning("Qt::internal::unable to get keyboardlayout %ld %s:%d",
+                     err, __FILE__, __LINE__);
         }
-        return false;
     }
 
-    //map it into qt keys
-    *qtKey = get_key(*outModifiers, translatedChar, keyCode);
-    if(*outModifiers & (Qt::AltModifier | Qt::ControlModifier)) {
-        if(translatedChar & (1 << 7)) //high ascii
-            translatedChar = 0;
-    } else {          //now get the real ascii value
-        UInt32 tmp_mod = 0L;
-        static UInt32 tmp_state = 0L;
-        if(*outModifiers & Qt::ShiftModifier)
-            tmp_mod |= shiftKey;
-        if(*outModifiers & Qt::MetaModifier)
-            tmp_mod |= controlKey;
-        if(*outModifiers & Qt::ControlModifier)
-            tmp_mod |= cmdKey;
-        if(GetCurrentEventKeyModifiers() & alphaLock) //no Qt mapper
-            tmp_mod |= alphaLock;
-        if(*outModifiers & Qt::AltModifier)
-            tmp_mod |= optionKey;
-        if(*outModifiers & Qt::KeypadModifier)
-            tmp_mod |= kEventKeyModifierNumLockMask;
-        translatedChar = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
-                tmp_mod | keyCode, &tmp_state);
-    }
-    /* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11
-       is this a bug on X11? --Sam */
-    if (ekind != kEventRawKeyUp) {
-        UInt32 unilen = 0;
-        if (GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0)
-                == noErr && unilen == 2) {
-            GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, unilen, 0, outChar);
-        } else if (translatedChar) {
-            static QTextCodec *c = 0;
-            if (!c)
-                c = QTextCodec::codecForName("Apple Roman");
-            *outChar = c->toUnicode(&translatedChar, 1).at(0);
+    if (uchrData) {
+        static UInt32 deadKeyState;
+        if (prevKeyLayoutRef != keyLayout) {
+            // Clear the dead state
+            deadKeyState = 0;
+            prevKeyLayoutRef = keyLayout;
+        }
+        // The easy use the unicode stuff!
+        UniChar string[4];
+        UniCharCount actualLength;
+        OSStatus err = UCKeyTranslate(uchrData, keyCode,
+                                  (ekind == kEventRawKeyDown) ? kUCKeyActionDown : kUCKeyActionUp,
+                                  ((GetCurrentEventKeyModifiers() >> 8) & 0xff), LMGetKbdType(),
+                                  kUCKeyTranslateNoDeadKeysBit, &tmp_unused_state, 4, &actualLength,
+                                  string);
+        if (err == noErr) {
+            *qtKey = get_uniKey(*outModifiers, QChar(string[0]), keyCode);
+            if (ekind == kEventRawKeyDown)
+                *outChar = QChar(string[0]);
+        } else {
+            qWarning("Qt::internal::UCKeyTranslate is returnining %ld %s:%d",
+                     err, __FILE__, __LINE__);
+        }
+    } else {
+        // The road less travelled, Try to get the unichar, using the
+        // given the "mac" keyboard resource.
+        char translatedChar = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
+                (GetCurrentEventKeyModifiers() &
+                 (kEventKeyModifierNumLockMask|shiftKey|cmdKey|
+                  rightShiftKey|alphaLock)) | keyCode,
+                &tmp_unused_state);
+        if(!translatedChar) {
+            if (outHandled) {
+                qt_mac_eat_unicode_key = false;
+                CallNextEventHandler(er, keyEvent);
+                *outHandled = qt_mac_eat_unicode_key;
+            }
+            return false;
+        }
+
+        //map it into qt keys
+        *qtKey = get_key(*outModifiers, translatedChar, keyCode);
+        if(*outModifiers & (Qt::AltModifier | Qt::ControlModifier)) {
+            if(translatedChar & (1 << 7)) //high ascii
+                translatedChar = 0;
+        } else {          //now get the real ascii value
+            UInt32 tmp_mod = 0L;
+            static UInt32 tmp_state = 0L;
+            if(*outModifiers & Qt::ShiftModifier)
+                tmp_mod |= shiftKey;
+            if(*outModifiers & Qt::MetaModifier)
+                tmp_mod |= controlKey;
+            if(*outModifiers & Qt::ControlModifier)
+                tmp_mod |= cmdKey;
+            if(GetCurrentEventKeyModifiers() & alphaLock) //no Qt mapper
+                tmp_mod |= alphaLock;
+            if(*outModifiers & Qt::AltModifier)
+                tmp_mod |= optionKey;
+            if(*outModifiers & Qt::KeypadModifier)
+                tmp_mod |= kEventKeyModifierNumLockMask;
+            translatedChar = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
+                    tmp_mod | keyCode, &tmp_state);
+        }
+        /* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11
+           is this a bug on X11? --Sam */
+        if (ekind != kEventRawKeyUp) {
+            UInt32 unilen = 0;
+            if (GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0)
+                    == noErr && unilen == 2) {
+                GetEventParameter(keyEvent, kEventParamKeyUnicodes, typeUnicodeText, 0, unilen, 0, outChar);
+            } else if (translatedChar) {
+                static QTextCodec *c = 0;
+                if (!c)
+                    c = QTextCodec::codecForName("Apple Roman");
+                *outChar = c->toUnicode(&translatedChar, 1).at(0);
+            }
         }
     }
     return true;
