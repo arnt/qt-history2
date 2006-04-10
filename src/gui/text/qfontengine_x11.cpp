@@ -991,11 +991,11 @@ static QFontEngine *engineForPattern(FcPattern *pattern, const QFontDef &request
     return fe;
 }
 
-QFontEngineMultiFT::QFontEngineMultiFT(FcPattern *p, int s, const QFontDef &req)
+QFontEngineMultiFT::QFontEngineMultiFT(QFontEngine *fe, FcPattern *p, int s, const QFontDef &req)
     : QFontEngineMulti(2), request(req), pattern(p), fontSet(0), screen(s)
 {
 
-    engines[0] = engineForPattern(pattern, request, screen);
+    engines[0] = fe;
     engines.at(0)->ref.ref();
     fontDef = engines[0]->fontDef;
     cache_cost = 100;
@@ -1106,6 +1106,7 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
         FcPatternGetCharSet (pattern, FC_CHARSET, 0, &cs);
         freetype->charset = FcCharSetCopy(cs);
     }
+    symbol = freetype->symbol_map != 0;
 
     lbearing = rbearing = SHRT_MIN;
     freetype->computeSize(fontDef, &xsize, &ysize, &outline_drawing);

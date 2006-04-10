@@ -72,6 +72,7 @@ public:
         Vietnamese,
 
         Other,
+        Symbol = Other,
 
         WritingSystemsCount
     };
@@ -81,6 +82,8 @@ public:
     QFontDatabase();
 
     QList<WritingSystem> writingSystems() const;
+    QList<WritingSystem> writingSystems(const QString &family) const;
+
     QStringList families(WritingSystem writingSystem = Any) const;
     QStringList styles(const QString &family) const;
     QList<int> pointSizes(const QString &family, const QString &style = QString());

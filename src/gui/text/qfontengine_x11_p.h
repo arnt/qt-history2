@@ -109,7 +109,7 @@ private:
 class Q_GUI_EXPORT QFontEngineMultiFT : public QFontEngineMulti
 {
 public:
-    QFontEngineMultiFT(FcPattern *p, int s, const QFontDef &request);
+    QFontEngineMultiFT(QFontEngine *fe, FcPattern *p, int s, const QFontDef &request);
     ~QFontEngineMultiFT();
 
     void loadEngine(int at);

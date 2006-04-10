@@ -48,7 +48,8 @@ public:
         PreferQuality    = 0x0040,
         PreferAntialias  = 0x0080,
         NoAntialias      = 0x0100,
-        OpenGLCompatible = 0x0200
+        OpenGLCompatible = 0x0200,
+        NoFontMerging    = 0x8000
     };
 
     enum Weight {

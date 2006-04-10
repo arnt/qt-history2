@@ -1372,13 +1372,37 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
             continue;
         for (int x = Latin; x < WritingSystemsCount; ++x) {
             const WritingSystem writingSystem = WritingSystem(x);
-            if (!family->writingSystems[writingSystem])
+            if (!(family->writingSystems[writingSystem] & QtFontFamily::Supported))
                 continue;
             if (!list.contains(writingSystem))
                 list.append(writingSystem);
         }
     }
     qSort(list);
+    return list;
+}
+
+
+/*!
+    Returns a sorted list of the writing systems supported by a given
+    font.
+
+    \sa families()
+*/
+QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems(const QString &family) const
+{
+    ::load();
+
+    QList<WritingSystem> list;
+    QtFontFamily *f = d->family(family);
+    if (!f || f->count == 0)
+        return list;
+
+    for (int x = Latin; x < WritingSystemsCount; ++x) {
+        const WritingSystem writingSystem = WritingSystem(x);
+        if (f->writingSystems[writingSystem] & QtFontFamily::Supported)
+            list.append(writingSystem);
+    }
     return list;
 }
 
@@ -1969,16 +1993,17 @@ QString QFontDatabase::writingSystemName(WritingSystem writingSystem)
 */
 QString QFontDatabase::writingSystemSample(WritingSystem writingSystem)
 {
-    QString sample = QString::fromLatin1("AaBb");
+    QString sample;
     switch (writingSystem) {
     case Any:
     case Other:
         // show only ascii characters
-        sample += "YyzZ";
+        sample += QLatin1String("AaBbzZ");
         break;
     case Latin:
         // This is cheating... we only show latin-1 characters so that we don't
         // end up loading lots of fonts - at least on X11...
+        sample = QLatin1String("Aa");
         sample += QChar(0x00C3);
         sample += QChar(0x00E1);
         sample += "Zz";

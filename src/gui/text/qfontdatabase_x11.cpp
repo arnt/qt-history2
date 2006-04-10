@@ -1474,20 +1474,22 @@ static QFontEngine *tryPatternLoad(FcPattern *p, int screen,
     FcPatternGetString(p, FC_FAMILY, 0, &fam);
     FM_DEBUG("==== trying %s\n", fam);
 #endif
-    // skip font if it doesn't support the language we want
-    if (specialChars[script]) {
-        // need to check the charset, as the langset doesn't work for these scripts
-        FcCharSet *cs;
-        if (FcPatternGetCharSet(p, FC_CHARSET, 0, &cs) != FcResultMatch)
-            return 0;
-        if (!FcCharSetHasChar(cs, specialChars[script]))
-            return 0;
-    } else {
-        FcLangSet *langSet = 0;
-        if (FcPatternGetLangSet(p, FC_LANG, 0, &langSet) != FcResultMatch)
-            return 0;
-        if (FcLangSetHasLang(langSet, (const FcChar8*)specialLanguages[script]) != FcLangEqual)
-            return 0;
+    if (script != QUnicodeTables::Common) {
+        // skip font if it doesn't support the language we want
+        if (specialChars[script]) {
+            // need to check the charset, as the langset doesn't work for these scripts
+            FcCharSet *cs;
+            if (FcPatternGetCharSet(p, FC_CHARSET, 0, &cs) != FcResultMatch)
+                return 0;
+            if (!FcCharSetHasChar(cs, specialChars[script]))
+                return 0;
+        } else {
+            FcLangSet *langSet = 0;
+            if (FcPatternGetLangSet(p, FC_LANG, 0, &langSet) != FcResultMatch)
+                return 0;
+            if (FcLangSetHasLang(langSet, (const FcChar8*)specialLanguages[script]) != FcLangEqual)
+                return 0;
+        }
     }
 
     FM_DEBUG("passes charset test\n");
@@ -1561,22 +1563,21 @@ static QFontEngine *loadFc(const QFontPrivate *fp, int script, const QFontDef &r
 #endif
 
     QFontEngine *fe = 0;
-    if (script != QUnicodeTables::Common) {
-        // load a single font for the script
-        fe = tryPatternLoad(pattern, fp->screen, request, script);
-        if (!fe) {
-            FcFontSet *fs = qt_fontSetForPattern(pattern, request);
+    fe = tryPatternLoad(pattern, fp->screen, request, script);
+    if (!fe) {
+        FcFontSet *fs = qt_fontSetForPattern(pattern, request);
 
-            for (int i = 0; !fe && i < fs->nfont; ++i)
-                fe = tryPatternLoad(fs->fonts[i], fp->screen, request, script);
-            FcFontSetDestroy(fs);
-            FM_DEBUG("engine for script %d is %s\n", script, fe ? fe->fontDef.family.toLatin1().data(): "(null)");
-        }
-        FcPatternDestroy(pattern);
-    } else {
-        fe = new QFontEngineMultiFT(pattern, fp->screen, request);
+        for (int i = 0; !fe && i < fs->nfont; ++i)
+            fe = tryPatternLoad(fs->fonts[i], fp->screen, request, script);
+        FcFontSetDestroy(fs);
+        FM_DEBUG("engine for script %d is %s\n", script, fe ? fe->fontDef.family.toLatin1().data(): "(null)");
     }
-
+    if (script == QUnicodeTables::Common
+        && !(request.styleStrategy & QFont::NoFontMerging) && !fe->symbol) {
+        fe = new QFontEngineMultiFT(fe, pattern, fp->screen, request);
+    } else {
+        FcPatternDestroy(pattern);
+    }
     return fe;
 }
 #endif // QT_NO_FONTCONFIG
@@ -1747,22 +1748,29 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
             fe->fontDef = req;
         } else if (d->rawMode) {
             fe = loadRaw(d, req);
-        } else
 #ifndef QT_NO_FONTCONFIG
-            if (X11->has_fontconfig) {
-                fe = loadFc(d, script, req);
-            } else
+        } else if (X11->has_fontconfig) {
+            fe = loadFc(d, script, req);
 #endif
-                {
-                    fe = loadXlfd(d->screen, script, req);
-                }
+        } else {
+            fe = loadXlfd(d->screen, script, req);
+        }
         if (!fe) {
             fe = new QFontEngineBox(req.pixelSize);
             fe->fontDef = QFontDef();
         }
     }
-    d->engineData->engines[script] = fe;
-    fe->ref.ref();
+    if (fe->symbol || (d->request.styleStrategy & QFont::NoFontMerging)) {
+        for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
+            if (!d->engineData->engines[i]) {
+                d->engineData->engines[i] = fe;
+                fe->ref.ref();
+            }
+        }
+    } else {
+        d->engineData->engines[script] = fe;
+        fe->ref.ref();
+    }
     QFontCache::instance->insertEngine(key, fe);
 }
 
