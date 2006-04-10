@@ -1931,7 +1931,7 @@ void QApplication::setActiveWindow(QWidget* act)
                 w->setFocus(Qt::ActiveWindowFocusReason);
             else {
                 QWidget *w = QApplicationPrivate::focusNextPrevChild_helper(QApplicationPrivate::active_window, true);
-                if (w) 
+                if (w)
                     w->setFocus(Qt::ActiveWindowFocusReason);
             }
         }
@@ -1944,6 +1944,8 @@ void QApplication::setActiveWindow(QWidget* act)
 */
 QWidget *QApplicationPrivate::focusNextPrevChild_helper(QWidget *toplevel, bool next)
 {
+    if (!toplevel)
+        return 0;
     uint focus_flag = qt_tab_all_widgets ? Qt::TabFocus : Qt::StrongFocus;
 
     QWidget *f = toplevel->focusWidget();
