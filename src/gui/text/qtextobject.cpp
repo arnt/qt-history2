@@ -806,10 +806,10 @@ QTextBlockUserData::~QTextBlockUserData()
 
     The next() and previous() functions enable iteration over consecutive
     valid blocks in a document under the condition that the document is not
-    modified during the iteration process. Note that, although blocks are
-    returned in sequence, adjacent blocks may come from different places in
-    the document structure. The validity of a block can be determined by
-    calling isValid().
+    modified by other means during the iteration process. Note that, although
+    blocks are returned in sequence, adjacent blocks may come from different
+    places in the document structure. The validity of a block can be determined
+    by calling isValid().
 
     QTextBlock provides comparison operators to make it easier to work with
     blocks: operator==() compares two block for equality, operator!=()
