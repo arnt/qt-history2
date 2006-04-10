@@ -227,7 +227,7 @@ static QRect mapToDevice( const QRect &r, const QSize &s, QVFbView::Rotation rot
 void QVFbView::sendMouseData( const QPoint &pos, int buttons, int wheel )
 {
     QPoint p = mapToDevice( QRect(pos,QSize(1,1)), QSize(displayWidth(), displayHeight()), rotation ).topLeft();
-    mView->sendMouseData(pos, buttons, wheel);
+    mView->sendMouseData(p, buttons, wheel);
 }
 
 void QVFbView::sendKeyboardData( QString unicode, int keycode, int modifiers,
