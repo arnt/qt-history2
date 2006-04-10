@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2006-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
@@ -15,9 +15,105 @@
 
     \contentspage {Qtopia Core}{Contents}
 
-    \title Cross Compiling Applications
+    \title Cross-Compiling Applications
 
     Cross-compiling is the process of executing a compile on one
-    machine and producing object/executable code for a different
-    machine or device.
+    machine, producing object/executable code for a different machine
+    or device.
+
+    \tableofcontents
+
+
+    \section1 Step 1: Setting the Cross-Compiler's Path
+
+    Specify the cross compiler by setting the \c PATH environment
+    variable. For example, if the current shell is bash, ksh, zsh or
+    sh:
+
+    \code
+        export PATH=path/to/cross/compiler:$PATH
+    \endcode
+
+    \section1 Step 2: Including the Required Libraries
+
+    Make sure that all the libraries needed for the application, as
+    well as for the Qt libraries, are present in the tool chain. In
+    particular, if the zlib and jpeg libraries are not available, they
+    must be included by running the \c configure script with the \c -L
+    and \c -I options. For example:
+
+    \code
+        cd path/to/Qtopia/Core
+        ./configure -L /path/to/libjpeg/libraries -I /path/to/libjpeg/headers
+    \endcode
+
+    The JPEG source can be downloaded from \l http://www.ijg.org/. The
+    Qtopia Core distribution includes a version of the zlib source
+    that can be compiled into the Qtopia core library. If integrators
+    wish to use a later version of the zlib library, it can be
+    downloaded from the \l http://www.gzip.org/zlib/ website.
+
+    \section1 Step 3: Creating a Target Specific qmake Specification
+
+    The qmake tool requires a \c qmake.conf file describing the
+    platform and compiler specific default values used to generate
+    appropriate Makefiles. The standard Qtopia Core distribution
+    provides such files for several combinations of platforms and
+    compilers. These files are located in the \c mkspecs subdirectory.
+
+    Create a \c qmake.conf fitting your target environment by copying
+    an already existing file. It is recommended to copy the entire
+    directory, for example:
+
+    \code
+        cp path/to/Qtopia/Core/mkspecs/qws/linux-mips-g++/...
+           path/to/Qtopia/Core/mkspecs/qws/linux-myplatform-g++/...
+    \endcode
+
+    Then customize the new platform specific \c qmake.conf file.
+
+    \section1 Step 4: Providing Mouse and Keyboard Drivers
+
+    Without the proper mouse and keyboard drivers, you won't be able
+    to give any input to your application when it is installed on the
+    target device.
+
+    By default, Qtopia Core provides mouse drivers for the MouseMan,
+    IntelliMouse, Microsoft, NEC Vr41XX, Linux Touch Panel and Yopy
+    protocols as well as the universal touch screen library,
+    tslib. The provided keyboard drivers are SL5000, Yopy, Vr41XX,
+    console (TTY) and USB.
+
+    Other drivers can be added by deriving from the QWSMouseHandler,
+    QWSKeyboardHandler, QMouseDriverPlugin and QKbdDriverPlugin
+    classes, respectively, and using Qt's plugin mechanism. See the \l
+    {How to Create Qt Plugins} documentation and the \l
+    {tools/plugandpaint}{Plug & Paint} example for details.
+
+    \section1 Step 5: Building the Target Specific Executable
+
+    Before building the executable, run the \c configure script
+    specifying the platform architecture as well as the platform
+    specific mouse, keyboard and graphics drivers:
+
+    \code
+        cd path/to/Qtopia/Core
+        ./configure -embedded myplatform -qt-kbd-<mykeyboarddriver>
+                    -qt-mouse-<mymousedriver> -qt-gfx-<mygraphicsdriver>
+
+        cd path/to/myApplication
+        qmake -project
+        qmake
+        make
+    \endcode
+
+    That's all. Your target specific executable is ready for deployment.
+
+    \table 100%
+    \row
+    \o \bold {See also:}
+
+    \l {Character Input}, \l {Pointer Handling} and \l {Deploying an
+    Application on Qtopia Core}.
+    \endtable
 */
