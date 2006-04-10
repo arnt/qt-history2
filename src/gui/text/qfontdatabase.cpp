@@ -1402,6 +1402,9 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
 */
 QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems(const QString &family) const
 {
+    QString familyName, foundryName;
+    parseFontName(family, foundryName, familyName);
+
     ::load();
 #ifdef Q_WS_X11
     if (!d->symbolFonts_checked)
@@ -1409,7 +1412,7 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems(const QString 
 #endif
 
     QList<WritingSystem> list;
-    QtFontFamily *f = d->family(family);
+    QtFontFamily *f = d->family(familyName);
     if (!f || f->count == 0)
         return list;
 
