@@ -179,7 +179,6 @@ public:
     void closePopup(QWidget *popup);
     void openPopup(QWidget *popup);
     static void setFocusWidget(QWidget *focus, Qt::FocusReason reason);
-    static QWidget *focusNextPrevChild_helper(QWidget *toplevel, bool next);
 
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;

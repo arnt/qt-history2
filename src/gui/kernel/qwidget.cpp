@@ -3783,13 +3783,50 @@ bool QWidget::focusNextPrevChild(bool next)
     if (!isWindow() && !isSubWindow && p)
         return p->focusNextPrevChild(next);
 
-    QWidget *w = QApplicationPrivate::focusNextPrevChild_helper(focusWidget(), next);
+    QWidget *w = d_func()->focusNextPrevChild_helper(next);
     if (!w) return false;
 
     w->setFocus(next ? Qt::TabFocusReason : Qt::BacktabFocusReason);
     return true;
 }
 
+/*!internal
+ * Helper function that returns the new focus widget, but does not set the focus reason.
+ * Returns 0 if a new focus widget could not be found.
+*/
+QWidget *QWidgetPrivate::focusNextPrevChild_helper(bool next)
+{
+    Q_Q(QWidget);
+    extern bool qt_tab_all_widgets;
+    uint focus_flag = qt_tab_all_widgets ? Qt::TabFocus : Qt::StrongFocus;
+
+    QWidget *f = q->focusWidget();
+    if (!f)
+        f = q;
+
+    QWidget *w = f;
+    QWidget *test = f->d_func()->focus_next;
+    while (test && test != f) {
+        if ((test->focusPolicy() & focus_flag) == focus_flag
+            && !(test->d_func()->extra && test->d_func()->extra->focus_proxy)
+            && test->isVisibleTo(q) && test->isEnabled()
+            && (q->windowType() != Qt::SubWindow || q->isAncestorOf(test))) {
+            w = test;
+            if (next)
+                break;
+        }
+        test = test->d_func()->focus_next;
+    }
+    if (w == f) {
+        extern bool qt_in_tab_key_event; // defined in qapplication.cpp
+        if (qt_in_tab_key_event) {
+            w->window()->setAttribute(Qt::WA_KeyboardFocusChange);
+            w->update();
+        }
+        return 0;
+    }
+    return w;
+}
 /*!
     Returns the last child of this widget that setFocus had been
     called on.  For top level widgets this is the widget that will get

@@ -1930,50 +1930,14 @@ void QApplication::setActiveWindow(QWidget* act)
             if (w /*&& w->focusPolicy() != QWidget::NoFocus*/)
                 w->setFocus(Qt::ActiveWindowFocusReason);
             else {
-                QWidget *w = QApplicationPrivate::focusNextPrevChild_helper(QApplicationPrivate::active_window, true);
-                if (w)
+                QWidget *w = QApplicationPrivate::active_window->d_func()->focusNextPrevChild_helper(true);
+                if (w) 
                     w->setFocus(Qt::ActiveWindowFocusReason);
             }
         }
     }
 }
 
-/*!internal
- * Helper function that returns the new focus widget, but does not set the focus reason.
- * Returns 0 if a new focus widget could not be found.
-*/
-QWidget *QApplicationPrivate::focusNextPrevChild_helper(QWidget *toplevel, bool next)
-{
-    if (!toplevel)
-        return 0;
-    uint focus_flag = qt_tab_all_widgets ? Qt::TabFocus : Qt::StrongFocus;
-
-    QWidget *f = toplevel->focusWidget();
-    if (!f)
-        f = toplevel;
-
-    QWidget *w = f;
-    QWidget *test = f->d_func()->focus_next;
-    while (test && test != f) {
-        if ((test->focusPolicy() & focus_flag) == focus_flag
-            && !(test->d_func()->extra && test->d_func()->extra->focus_proxy)
-            && test->isVisibleTo(toplevel) && test->isEnabled()
-            && (toplevel->windowType() != Qt::SubWindow || toplevel->isAncestorOf(test))) {
-            w = test;
-            if (next)
-                break;
-        }
-        test = test->d_func()->focus_next;
-    }
-    if (w == f) {
-        if (qt_in_tab_key_event) {
-            w->window()->setAttribute(Qt::WA_KeyboardFocusChange);
-            w->update();
-        }
-        return 0;
-    }
-    return w;
-}
 
 /*!\internal
 
