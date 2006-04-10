@@ -305,7 +305,7 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
 
 int QDecorationDefault::titleBarHeight(const QWidget *)
 {
-    return 20;
+    return qMax(20, QApplication::fontMetrics().lineSpacing() + BORDER_WIDTH);
 }
 
 QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int decorationRegion)
@@ -339,7 +339,7 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
 
         case Title: {
                 QRect r(rect.left()
-                        + (hasSysMenu ? titleHeight : 0),
+                        + (hasSysMenu ? menu_width : 0),
                         rect.top() - titleHeight,
                         rect.width()
                         - (hasSysMenu ? menu_width : 0)
@@ -532,7 +532,7 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
         return false;
 
     const QRect titleRect = QDecoration::region(widget, Title).boundingRect();
-    const QPalette pal = widget->palette();
+    const QPalette pal = QApplication::palette();
     int titleHeight = titleRect.height();
     int titleWidth = titleRect.width();
     QRegion oldClipRegion = painter->clipRegion();

@@ -185,7 +185,8 @@ QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, int
     bool hasContextHelp = flags & Qt::WindowContextHelpButtonHint;
     bool hasMinimize = flags & Qt::WindowMinimizeButtonHint;
     bool hasMaximize = flags & Qt::WindowMaximizeButtonHint;
-    int titleHeight = hasTitle ? 20 : 0;
+    const QFontMetrics fontMetrics = QApplication::fontMetrics();
+    int titleHeight = hasTitle ? qMax(20, fontMetrics.lineSpacing()) : 0;
     int state = widget->windowState();
     bool isMinimized = state & Qt::WindowMinimized;
     bool isMaximized = state & Qt::WindowMaximized;
@@ -292,7 +293,7 @@ bool QDecorationWindows::paint(QPainter *painter, const QWidget *widget, int dec
         return false;
 
     const QRect titleRect = QDecoration::region(widget, Title).boundingRect();
-    const QPalette pal = widget->palette();
+    const QPalette pal = QApplication::palette();
     QRegion oldClipRegion = painter->clipRegion();
 
     bool paintAll = (decorationRegion == int(All));
