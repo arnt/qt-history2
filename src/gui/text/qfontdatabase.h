@@ -71,8 +71,8 @@ public:
         Korean,
         Vietnamese,
 
-        Other,
-        Symbol = Other,
+        Symbol,
+        Other = Symbol,
 
         WritingSystemsCount
     };

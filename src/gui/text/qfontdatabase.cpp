@@ -403,7 +403,11 @@ QtFontFoundry *QtFontFamily::foundry(const QString &f, bool create)
 class QFontDatabasePrivate
 {
 public:
-    QFontDatabasePrivate() : count(0), families(0) { }
+    QFontDatabasePrivate() : count(0), families(0) {
+#ifdef Q_WS_X11
+        symbolFonts_checked = false;
+#endif
+    }
     ~QFontDatabasePrivate() {
         while (count--)
             delete families[count];
@@ -413,6 +417,9 @@ public:
 
     int count;
     QtFontFamily **families;
+#ifdef Q_WS_X11
+    bool symbolFonts_checked;
+#endif
 };
 
 QtFontFamily *QFontDatabasePrivate::family(const QString &f, bool create)
@@ -490,7 +497,7 @@ static const int scriptForWritingSystem[] = {
     QUnicodeTables::Common, // Limbu
     QUnicodeTables::Common, // TaiLe
     QUnicodeTables::Common, // Braille
-    QUnicodeTables::Common  // Other
+    QUnicodeTables::Common  // Symbol
 };
 
 
@@ -1349,7 +1356,7 @@ QFontDatabase::QFontDatabase()
     \value Japanese
     \value Korean
     \value Vietnamese
-    \value Other
+    \value Symbol
 
     \omitvalue WritingSystemsCount
 */
@@ -1364,6 +1371,10 @@ QFontDatabase::QFontDatabase()
 QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
 {
     ::load();
+#ifdef Q_WS_X11
+    if (!d->symbolFonts_checked)
+        checkSymbolFonts();
+#endif
 
     QList<WritingSystem> list;
     for (int i = 0; i < d->count; ++i) {
@@ -1392,6 +1403,10 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
 QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems(const QString &family) const
 {
     ::load();
+#ifdef Q_WS_X11
+    if (!d->symbolFonts_checked)
+        checkSymbolFonts();
+#endif
 
     QList<WritingSystem> list;
     QtFontFamily *f = d->family(family);
@@ -1420,6 +1435,10 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems(const QString 
 QStringList QFontDatabase::families(WritingSystem writingSystem) const
 {
     ::load();
+#ifdef Q_WS_X11
+    if (!d->symbolFonts_checked && writingSystem != Any)
+        checkSymbolFonts();
+#endif
 
     QStringList flist;
     for (int i = 0; i < d->count; i++) {
@@ -1977,8 +1996,8 @@ QString QFontDatabase::writingSystemName(WritingSystem writingSystem)
     case Vietnamese:
         name = "Vietnamese";
         break;
-    case Other:
-        name = "Other";
+    case Symbol:
+        name = "Symbol";
         break;
     default:
         Q_ASSERT_X(false, "QFontDatabase::writingSystemName", "invalid 'writingSystem' parameter");
@@ -1996,7 +2015,7 @@ QString QFontDatabase::writingSystemSample(WritingSystem writingSystem)
     QString sample;
     switch (writingSystem) {
     case Any:
-    case Other:
+    case Symbol:
         // show only ascii characters
         sample += QLatin1String("AaBbzZ");
         break;
