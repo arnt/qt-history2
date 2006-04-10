@@ -657,9 +657,13 @@ static void drawImageReleaseData (void *info, const void *, size_t)
 
 
 void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
-                                         Qt::ImageConversionFlags)
+                                         Qt::ImageConversionFlags flags)
 {
+#ifdef __LITTLE_ENDIAN__
+    QPaintEngine::drawImage(r, imge, sr, flags);
+#else
     Q_D(QCoreGraphicsPaintEngine);
+    Q_UNUSED(flags);
     Q_ASSERT(isActive());
     if (img.isNull())
         return;
@@ -704,6 +708,7 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy),
                              image->width()*sx, image->height()*sy);
     HIViewDrawCGImage(d->hd, &rect, cgimage);
+#endif
 }
 
 void
