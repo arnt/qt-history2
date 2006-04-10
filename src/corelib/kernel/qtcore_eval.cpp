@@ -3,14 +3,24 @@
 #include <qlibraryinfo.h>
 #include <qobject.h>
 #include <qcoreapplication.h>
-#include "keyinfo.h"
+#include "keydec.h"
 
 static const char * const dont_mess_with_me =
     "\nQt %1 Evaluation License\n"
     "Copyright (C) 1992-$THISYEAR$ Trolltech AS.\n"
     "All rights reserved.\n\n"
     "This trial version may only be used for evaluation purposes\n"
-    "and will shut down after 30 minutes.\n"
+    "and will shut down after 120 minutes.\n"
+    "Registered to:\n"
+    "   Licensee: %2\n\n"
+    "The evaluation expires in %4 days\n\n"
+    "Contact sales@trolltech.com for pricing and purchasing information.\n";
+
+static const char * const dont_mess_with_supported =
+    "\nQt %1 Evaluation License\n"
+    "Copyright (C) 1992-$THISYEAR$ Trolltech AS.\n"
+    "All rights reserved.\n\n"
+    "This trial version may only be used for evaluation purposes\n"
     "Registered to:\n"
     "   Licensee: %2\n\n"
     "The evaluation expires in %4 days\n\n"
@@ -46,28 +56,29 @@ static int qt_eval_figure_out()
     QDate today = QDate::currentDate();
     QByteArray license_key(qt_eval_key_data + 12);
 
-    uint products, platform, schema, features, id;
-    QDate expiry;
-    if (decodeLicenseKey(license_key, &products, &platform, &schema, &features, &id, &expiry)) {
+    KeyDecoder decoder(license_key);
+    if (decoder.IsValid()) {
+        CDate tempExpiry = decoder.getExpiryDate();
+        QDate expiry(tempExpiry.year(), tempExpiry.month(), tempExpiry.day());
 
-        if ((products & QtDesktop) == 0)
+        if ((decoder.getProducts() & KeyDecoder::QtDesktop) == 0)
             return -100000;
 
 #if defined(Q_WS_WIN)
-        if ((platform & Windows) == 0)
+        if ((decoder.getPlatforms() & KeyDecoder::Windows) == 0)
 #elif defined(Q_WS_MAC)
-        if ((platform & Mac) == 0)
+        if ((decoder.getPlatforms() & KeyDecoder::Mac) == 0)
 #elif defined(Q_WS_X11)
-        if ((platform & X11) == 0)
+        if ((decoder.getPlatforms() & KeyDecoder::X11) == 0)
 #else
-        if ((platform & Embedded) == 0)
+        if ((decoder.getPlatforms() & KeyDecoder::Embedded) == 0)
 #endif
             return -100001;
 
-        if (schema == 0x20) {
+        if (decoder.getLicenseSchema() == KeyDecoder::Educational) {
             qt_is_educational = true;
             return today.daysTo(expiry);
-        } else if ((schema & 0x07) == 0)
+        } else if ((decoder.getLicenseSchema() & 0x07) == 0) // fail on any non-eval type
             return -100002;
 
         return today.daysTo(expiry);
@@ -83,14 +94,20 @@ static bool qt_eval_is_expired()
 }
 
 QString qt_eval_string() {
-    QString str = QString(QLatin1String(dont_mess_with_me))
-                  .arg(QT_VERSION_STR)
-                  .arg(QLibraryInfo::licensee())
-                  .arg(qt_eval_figure_out());
-    return str;
+    KeyDecoder decoder(qt_eval_key_data + 12);
+    if (decoder.getLicenseSchema() & KeyDecoder::UnsupportedEvaluation)
+        return QString(QLatin1String(dont_mess_with_me))
+            .arg(QT_VERSION_STR)
+            .arg(QLibraryInfo::licensee())
+            .arg(qt_eval_figure_out());
+
+    return QString(QLatin1String(dont_mess_with_supported))
+        .arg(QT_VERSION_STR)
+        .arg(QLibraryInfo::licensee())
+        .arg(qt_eval_figure_out());
 }
 
-#define WARN_TIMEOUT 60 * 1000 * 29
+#define WARN_TIMEOUT 60 * 1000 * 119
 #define KILL_DELAY 60 * 1000 * 1
 
 class QCoreFuriCuri : public QObject
@@ -100,10 +117,13 @@ public:
     int warn;
     int kill;
 
-    QCoreFuriCuri()
+    QCoreFuriCuri() : QObject(), warn(-1), kill(-1)
     {
-        warn = startTimer(WARN_TIMEOUT);
-        kill = 0;
+        KeyDecoder decoder(qt_eval_key_data + 12);
+        if (decoder.getLicenseSchema() & KeyDecoder::UnsupportedEvaluation) {
+            warn = startTimer(WARN_TIMEOUT);
+            kill = 0;
+        }
     }
 
     void timerEvent(QTimerEvent *e) {
