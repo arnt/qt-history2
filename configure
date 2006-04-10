@@ -468,7 +468,7 @@ CFG_RPATH=yes
 CFG_FRAMEWORK=auto
 CFG_UNIVERSAL_BINARY=auto
 CFG_SXE=no
-CFG_LOCAL_INSTALL=yes
+CFG_PREFIX_INSTALL=yes 
 CFG_SDK=
 D_FLAGS=
 I_FLAGS=
@@ -582,7 +582,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -947,6 +947,13 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
+    prefix-install)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_PREFIX_INSTALL="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+	;;
     debug)
         CFG_DEBUG="$VAL"
         ;;
@@ -1916,71 +1923,6 @@ if [ "$OPT_VERBOSE" = "yes" ]; then
 fi
 
 #-------------------------------------------------------------------------------
-# post process QT_INSTALL_* variables
-#-------------------------------------------------------------------------------
-
-#prefix
-if [ -z "$QT_INSTALL_PREFIX" ]; then
-    if [ "$Edition" = "Trolltech" ]; then
-        # At Trolltech, we use sandboxed builds by default
-	QT_INSTALL_PREFIX=$outpath
-    elif [ "$PLATFORM_QWS" = "yes" ]; then
-        QT_INSTALL_PREFIX=/usr/local/Trolltech/QtopiaCore-${QT_VERSION}
-	if [ "$PLATFORM" != "$XPLATFORM" ]; then
-	    QT_INSTALL_PREFIX="${QT_INSTALL_PREFIX}-${ARCH}"
-	fi
-    else
-        # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
-        QT_INSTALL_PREFIX=/usr/local/Trolltech/Qt-${QT_VERSION}
-    fi
-fi
-QT_INSTALL_PREFIX=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PREFIX"`
-
-#docs
-[ -z "$QT_INSTALL_DOCS" ] && QT_INSTALL_DOCS=$QT_INSTALL_PREFIX/doc #default
-QT_INSTALL_DOCS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DOCS"`
-
-#headers
-[ -z "$QT_INSTALL_HEADERS" ] && QT_INSTALL_HEADERS=$QT_INSTALL_PREFIX/include #default
-QT_INSTALL_HEADERS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_HEADERS"`
-
-#libs
-[ -z "$QT_INSTALL_LIBS" ] && QT_INSTALL_LIBS=$QT_INSTALL_PREFIX/lib #default
-QT_INSTALL_LIBS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_LIBS"`
-
-#bins
-[ -z "$QT_INSTALL_BINS" ] && QT_INSTALL_BINS=$QT_INSTALL_PREFIX/bin #default
-QT_INSTALL_BINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_BINS"`
-
-#plugins
-[ -z "$QT_INSTALL_PLUGINS" ] && QT_INSTALL_PLUGINS=$QT_INSTALL_PREFIX/plugins #default
-QT_INSTALL_PLUGINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PLUGINS"`
-
-#data
-[ -z "$QT_INSTALL_DATA" ] && QT_INSTALL_DATA=$QT_INSTALL_PREFIX #default
-QT_INSTALL_DATA=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DATA"`
-
-#translations
-[ -z "$QT_INSTALL_TRANSLATIONS" ] && QT_INSTALL_TRANSLATIONS=$QT_INSTALL_PREFIX/translations #default
-QT_INSTALL_TRANSLATIONS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_TRANSLATIONS"`
-
-#settings
-if [ "$PLATFORM_MAC" = "yes" ]; then
-   [ -z "$QT_INSTALL_SETTINGS" ] && QT_INSTALL_SETTINGS=/Library/Preferences/Qt #default
-else
-   [ -z "$QT_INSTALL_SETTINGS" ] && QT_INSTALL_SETTINGS=/etc/xdg #default
-fi
-QT_INSTALL_SETTINGS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_SETTINGS"`
-
-#examples
-[ -z "$QT_INSTALL_EXAMPLES" ] && QT_INSTALL_EXAMPLES=$QT_INSTALL_PREFIX/examples #default
-QT_INSTALL_EXAMPLES=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_EXAMPLES"`
-
-#demos
-[ -z "$QT_INSTALL_DEMOS" ] && QT_INSTALL_DEMOS=$QT_INSTALL_PREFIX/demos #default
-QT_INSTALL_DEMOS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DEMOS"`
-
-#-------------------------------------------------------------------------------
 # tests that don't need qmake (must be run before displaying help)
 #-------------------------------------------------------------------------------
 
@@ -2116,64 +2058,74 @@ fi # QWS
 #prefix
 if [ -z "$QT_INSTALL_PREFIX" ]; then
     if [ "$Edition" = "Trolltech" ]; then
-        # At Trolltech, we use sandboxed builds by default
-	QT_INSTALL_PREFIX="$outpath"
+	QT_INSTALL_PREFIX="$outpath" # At Trolltech, we use sandboxed builds by default
     elif [ "$PLATFORM_QWS" = "yes" ]; then
         QT_INSTALL_PREFIX="/usr/local/Trolltech/QtopiaCore-${QT_VERSION}"
     else
-        # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
-        QT_INSTALL_PREFIX="/usr/local/Trolltech/Qt-${QT_VERSION}"
+        QT_INSTALL_PREFIX="/usr/local/Trolltech/Qt-${QT_VERSION}" # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
     fi
 fi
 QT_INSTALL_PREFIX=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PREFIX"`
 
 #docs
 if [ -z "$QT_INSTALL_DOCS" ]; then #default
-    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
-	QT_INSTALL_DOCS="/Developer/Documentation/Qt"
-    else
-	QT_INSTALL_DOCS="$QT_INSTALL_PREFIX/doc"
+    if [ "$CFG_PREFIX_INSTALL" = "no" ]; then
+	if [ "$PLATFORM_MAC" = "yes" ]; then
+	    QT_INSTALL_DOCS="/Developer/Documentation/Qt"
+        fi
     fi
+    [ -z "$QT_INSTALL_DOCS" ] && QT_INSTALL_DOCS="$QT_INSTALL_PREFIX/doc" #fallback
+
 fi
 QT_INSTALL_DOCS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DOCS"`
 
 #headers
 if [ -z "$QT_INSTALL_HEADERS" ]; then #default
-    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ]; then
-	QT_INSTALL_HEADERS=
-    else
-	QT_INSTALL_HEADERS="$QT_INSTALL_PREFIX/include"
+    if [ "$CFG_PREFIX_INSTALL" = "no" ]; then
+	if [ "$PLATFORM_MAC" = "yes" ]; then
+	    if [ "$CFG_FRAMEWORK" = "yes" ]; then
+		QT_INSTALL_HEADERS=
+            fi
+        fi
     fi
+    [ -z "$QT_INSTALL_HEADERS" ] && QT_INSTALL_HEADERS="$QT_INSTALL_PREFIX/include"
+
 fi
 QT_INSTALL_HEADERS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_HEADERS"`
 
 #libs
 if [ -z "$QT_INSTALL_LIBS" ]; then #default
-    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ]; then
-	QT_INSTALL_LIBS="/Libraries/Frameworks"
-    else
-	QT_INSTALL_LIBS="$QT_INSTALL_PREFIX/lib"
+    if [ "$CFG_PREFIX_INSTALL" = "no" ]; then
+	if [ "$PLATFORM_MAC" = "yes" ]; then
+	    if [ "$CFG_FRAMEWORK" = "yes" ]; then
+		QT_INSTALL_LIBS="/Libraries/Frameworks"
+            fi
+        fi
     fi
+    [ -z "$QT_INSTALL_LIBS" ] && QT_INSTALL_LIBS="$QT_INSTALL_PREFIX/lib" #fallback
 fi
 QT_INSTALL_LIBS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_LIBS"`
 
 #bins
 if [ -z "$QT_INSTALL_BINS" ]; then #default
-    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
-	QT_INSTALL_BINS="/Developer/Applications/Qt"
-    else
-	QT_INSTALL_BINS="$QT_INSTALL_PREFIX/bin"
+    if [ "$CFG_PREFIX_INSTALL" = "no" ]; then
+	if [ "$PLATFORM_MAC" = "yes" ]; then
+	    QT_INSTALL_BINS="/Developer/Applications/Qt"
+        fi
     fi
+    [ -z "$QT_INSTALL_BINS" ] && QT_INSTALL_BINS="$QT_INSTALL_PREFIX/bin" #fallback
+
 fi
 QT_INSTALL_BINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_BINS"`
 
 #plugins
 if [ -z "$QT_INSTALL_PLUGINS" ]; then #default
-    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
-	QT_INSTALL_PLUGINS="/Developer/Applications/Qt/plugins"
-    else
-	QT_INSTALL_PLUGINS="$QT_INSTALL_PREFIX/plugins"
+    if [ "$CFG_PREFIX_INSTALL" = "no" ]; then
+	if [ "$PLATFORM_MAC" = "yes" ]; then
+	    QT_INSTALL_PLUGINS="/Developer/Applications/Qt/plugins"
+        fi
     fi
+    [ -z "$QT_INSTALL_PLUGINS" ] && QT_INSTALL_PLUGINS="$QT_INSTALL_PREFIX/plugins" #fallback
 fi
 QT_INSTALL_PLUGINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PLUGINS"`
 
@@ -2201,21 +2153,23 @@ QT_INSTALL_SETTINGS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_SETTINGS"`
 
 #examples
 if [ -z "$QT_INSTALL_EXAMPLES" ]; then #default
-    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
-	QT_INSTALL_EXAMPLES="/Developer/Examples/Qt"
-    else
-	QT_INSTALL_EXAMPLES="$QT_INSTALL_PREFIX/examples"
+    if [ "$CFG_PREFIX_INSTALL" = "no" ]; then
+	if [ "$PLATFORM_MAC" = "yes" ]; then
+	    QT_INSTALL_EXAMPLES="/Developer/Examples/Qt"
+        fi
     fi
+    [ -z "$QT_INSTALL_EXAMPLES" ] && QT_INSTALL_EXAMPLES="$QT_INSTALL_PREFIX/examples" #fallback
 fi
 QT_INSTALL_EXAMPLES=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_EXAMPLES"`
 
 #demos
 if [ -z "$QT_INSTALL_DEMOS" ]; then #default
-    if [ "$CFG_LOCAL_INSTALL" = "no" ] && [ "$PLATFORM_MAC" = "yes" ]; then
-	QT_INSTALL_DEMOS="/Developer/Examples/Qt/Demos"
-    else
-	QT_INSTALL_DEMOS="$QT_INSTALL_PREFIX/demos"
+    if [ "$CFG_PREFIX_INSTALL" = "no" ]; then
+	if [ "$PLATFORM_MAC" = "yes" ]; then
+	    QT_INSTALL_DEMOS="/Developer/Examples/Qt/Demos"
+        fi
     fi
+    [ -z "$QT_INSTALL_DEMOS" ] && QT_INSTALL_DEMOS="$QT_INSTALL_PREFIX/demos"
 fi
 QT_INSTALL_DEMOS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DEMOS"`
 
@@ -2284,6 +2238,14 @@ Installation options:
 
     -prefix dir ........ This will install everything relative dir
                          (default $QT_INSTALL_PREFIX)
+
+  * -prefix-install .... Force a sandboxed "local" installation of
+                         Qt. This will install into
+                         $QT_INSTALL_PREFIX, if this option is
+                         disabled then some platforms will attempt a
+                         "system" install by placing default values to
+                         be placed in a system location other than
+                         PREFIX.
 
  You may use these to separate different parts of the install:
 
