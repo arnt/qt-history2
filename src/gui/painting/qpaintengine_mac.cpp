@@ -659,9 +659,6 @@ static void drawImageReleaseData (void *info, const void *, size_t)
 void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
                                          Qt::ImageConversionFlags flags)
 {
-#ifdef __LITTLE_ENDIAN__
-    QPaintEngine::drawImage(r, imge, sr, flags);
-#else
     Q_D(QCoreGraphicsPaintEngine);
     Q_UNUSED(flags);
     Q_ASSERT(isActive());
@@ -674,27 +671,26 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
         newImage = new QImage(img.convertToFormat(QImage::Format_ARGB32_Premultiplied));
         image = newImage;
     }
+
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-    uint cgflags = 0;
-# ifdef kCGBitmapByteOrder32Host //only needed because CGImage.h added symbols in the minor version
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4)
-        cgflags |= kCGBitmapByteOrder32Host;
-# endif
+    uint cgflags = kCGImageAlphaNone;
 #else
-    CGImageAlphaInfo cgflags = kCGImageAlphaPremultipliedFirst;
+    CGImageAlphaInfo cflags = kCGImageAlphaNone;
 #endif
     switch (image->format()) {
-    default:
     case QImage::Format_ARGB32_Premultiplied:
-        cgflags |= kCGImageAlphaPremultipliedFirst;
+        cgflags = kCGImageAlphaPremultipliedFirst;
         break;
     case QImage::Format_ARGB32:
-        cgflags |= kCGImageAlphaFirst;
+        cgflags = kCGImageAlphaFirst;
         break;
-    case QImage::Format_RGB32:
-        cgflags |= kCGImageAlphaNone;
+    default:
         break;
     }
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4) && defined(kCGBitmapByteOrder32Host) //only needed because CGImage.h added symbols in the minor version
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4)
+        cgflags |= kCGBitmapByteOrder32Host;
+#endif
     QCFType<CGDataProviderRef> dataProvider = CGDataProviderCreateWithData(newImage,
                                                           image->bits(),
                                                           image->numBytes(),
@@ -708,7 +704,6 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy),
                              image->width()*sx, image->height()*sy);
     HIViewDrawCGImage(d->hd, &rect, cgimage);
-#endif
 }
 
 void
