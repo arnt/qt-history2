@@ -3783,34 +3783,9 @@ bool QWidget::focusNextPrevChild(bool next)
     if (!isWindow() && !isSubWindow && p)
         return p->focusNextPrevChild(next);
 
-    extern bool qt_tab_all_widgets;
-    uint focus_flag = qt_tab_all_widgets ? Qt::TabFocus : Qt::StrongFocus;
+    QWidget *w = QApplicationPrivate::focusNextPrevChild_helper(focusWidget(), next);
+    if (!w) return false;
 
-    QWidget *f = focusWidget();
-    if (!f)
-        f = this;
-
-    QWidget *w = f;
-    QWidget *test = f->d_func()->focus_next;
-    while (test && test != f) {
-        if ((test->focusPolicy() & focus_flag) == focus_flag
-            && !(test->d_func()->extra && test->d_func()->extra->focus_proxy)
-            && test->isVisibleTo(this) && test->isEnabled()
-            && (!isSubWindow || isAncestorOf(test))) {
-            w = test;
-            if (next)
-                break;
-        }
-        test = test->d_func()->focus_next;
-    }
-    if (w == f) {
-        extern bool qt_in_tab_key_event; // defined in qapplication.cpp
-        if (qt_in_tab_key_event) {
-            w->window()->setAttribute(Qt::WA_KeyboardFocusChange);
-            w->update();
-        }
-        return false;
-    }
     w->setFocus(next ? Qt::TabFocusReason : Qt::BacktabFocusReason);
     return true;
 }
