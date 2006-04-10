@@ -603,6 +603,19 @@ private:
     QUrl m_value;
 };
 
+class QT_PROPERTYEDITOR_EXPORT StringListProperty: public AbstractProperty<QStringList>
+{
+public:
+    StringListProperty(const QStringList &value, const QString &name);
+
+    void setValue(const QVariant &value);
+    QString toString() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+};
+
 }  // namespace qdesigner_internal
 
 #endif // QPROPERTYEDITOR_ITEMS_P_H

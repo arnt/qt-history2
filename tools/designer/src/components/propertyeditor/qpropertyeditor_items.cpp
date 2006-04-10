@@ -14,6 +14,7 @@
 #include "qpropertyeditor_items_p.h"
 #include "flagbox_p.h"
 #include "paletteeditorbutton.h"
+#include "stringlisteditorbutton.h"
 #include "defs.h"
 #include "qlonglongvalidator.h"
 
@@ -1695,5 +1696,46 @@ void UrlProperty::updateValue(QWidget *editor)
             setChanged(true);
         }
 
+    }
+}
+
+// -------------------------------------------------------------------------
+StringListProperty::StringListProperty(const QStringList &value, const QString &name)
+    : AbstractProperty<QStringList>(value, name)
+{
+}
+
+void StringListProperty::setValue(const QVariant &value)
+{
+    m_value = qvariant_cast<QStringList>(value);
+}
+
+QString StringListProperty::toString() const
+{
+    return m_value.join(QLatin1String(", "));
+}
+
+QWidget *StringListProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    StringListEditorButton *btn = new StringListEditorButton(m_value, parent);
+    QObject::connect(btn, SIGNAL(changed()), target, receiver);
+    return btn;
+}
+
+void StringListProperty::updateEditorContents(QWidget *editor)
+{
+    if (StringListEditorButton *btn = qobject_cast<StringListEditorButton*>(editor)) {
+        btn->setStringList(m_value);
+    }
+}
+
+void StringListProperty::updateValue(QWidget *editor)
+{
+    if (StringListEditorButton *btn = qobject_cast<StringListEditorButton*>(editor)) {
+        QStringList newValue = btn->stringList();
+        if (newValue != m_value) {
+            m_value = newValue;
+            setChanged(true);
+        }
     }
 }

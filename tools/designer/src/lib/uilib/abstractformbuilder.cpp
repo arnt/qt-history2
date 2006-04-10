@@ -976,6 +976,11 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
         v = qVariantFromValue(sizePolicy);
     } break;
 
+    case DomProperty::StringList: {
+        DomStringList *sl = p->elementStringList();
+        v = sl->elementString();
+    } break;
+
     default:
         qWarning() << "QAbstractFormBuilder::toVariant:" << p->kind() << " not implemented yet!";
         break;
@@ -1560,6 +1565,12 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
                 dom_prop->setElementIconSet(r);
             else
                 dom_prop->setElementPixmap(r);
+        } break;
+
+        case QVariant::StringList: {
+            DomStringList *sl = new DomStringList;
+            sl->setElementString(qvariant_cast<QStringList>(v));
+            dom_prop->setElementStringList(sl);
         } break;
 
         default: {

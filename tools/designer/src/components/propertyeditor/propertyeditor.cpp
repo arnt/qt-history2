@@ -608,6 +608,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::Url:
                 p = new UrlProperty(value.toUrl(), pname);
                 break;
+            case QVariant::StringList:
+                p = new StringListProperty(qvariant_cast<QStringList>(value), pname);
+                break;
             default:
                 // ### qWarning() << "property" << pname << "with type" << value.type() << "not supported yet!";
                 break;

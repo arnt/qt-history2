@@ -3,11 +3,14 @@ INCLUDEPATH += $$PWD \
     $$QT_BUILD_TREE/tools/designer/src/components/propertyeditor
 
 FORMS += $$PWD/paletteeditor.ui \
+    $$PWD/stringlisteditor.ui \
     $$PWD/previewwidget.ui
 
 HEADERS += $$PWD/propertyeditor.h \
     $$PWD/paletteeditor.h \
     $$PWD/paletteeditorbutton.h \
+    $$PWD/stringlisteditor.h \
+    $$PWD/stringlisteditorbutton.h \
     $$PWD/previewwidget.h \
     $$PWD/previewframe.h \
     $$PWD/styledbutton.h
@@ -15,6 +18,8 @@ HEADERS += $$PWD/propertyeditor.h \
 SOURCES += $$PWD/propertyeditor.cpp \
     $$PWD/paletteeditor.cpp \
     $$PWD/paletteeditorbutton.cpp \
+    $$PWD/stringlisteditor.cpp \
+    $$PWD/stringlisteditorbutton.cpp \
     $$PWD/previewwidget.cpp \
     $$PWD/previewframe.cpp \
     $$PWD/styledbutton.cpp
