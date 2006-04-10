@@ -246,6 +246,7 @@ public Q_SLOTS:
     void removeRow(int row);
     void removeColumn(int column);
     void clear();
+    void clearContents();
 
 Q_SIGNALS:
     void itemPressed(QTableWidgetItem *item);

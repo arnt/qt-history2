@@ -90,6 +90,7 @@ public:
         { return (row * horizontal.count()) + column; }
 
     void clear();
+    void clearContents();
     void itemChanged(QTableWidgetItem *item);
 
     inline QTableWidgetItem *createItem() const
@@ -544,13 +545,6 @@ bool QTableModel::isValid(const QModelIndex &index) const
 
 void QTableModel::clear()
 {
-    for (int i = 0; i < table.count(); ++i) {
-        if (table.at(i)) {
-            table.at(i)->model = 0;
-            delete table.at(i);
-            table[i] = 0;
-        }
-    }
     for (int j = 0; j < vertical.count(); ++j) {
         if (vertical.at(j)) {
             vertical.at(j)->model = 0;
@@ -563,6 +557,18 @@ void QTableModel::clear()
             horizontal.at(k)->model = 0;
             delete horizontal.at(k);
             horizontal[k] = 0;
+        }
+    }
+    clearContents();
+}
+
+void QTableModel::clearContents()
+{
+    for (int i = 0; i < table.count(); ++i) {
+        if (table.at(i)) {
+            table.at(i)->model = 0;
+            delete table.at(i);
+            table[i] = 0;
         }
     }
     reset();
@@ -2152,7 +2158,8 @@ void QTableWidget::removeColumn(int column)
 }
 
 /*!
-  Removes all items and selections in the view.
+  Removes all items in the view.
+  This will also remove all selections.
   The table dimentions stay the same.
 */
 
@@ -2161,6 +2168,18 @@ void QTableWidget::clear()
     Q_D(QTableWidget);
     selectionModel()->clear();
     d->model()->clear();
+}
+
+/*!
+  Removes all items not in the headers from the view.
+  This will also remove all selections.
+  The table dimentions stay the same.
+*/
+void QTableWidget::clearContents()
+{
+    Q_D(QTableWidget);
+    selectionModel()->clear();
+    d->model()->clearContents();
 }
 
 /*!
