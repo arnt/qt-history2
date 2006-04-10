@@ -167,7 +167,6 @@ public:
     uint        stockFont   : 1;
     uint        useTextOutA : 1;
     uint        ttf         : 1;
-    uint        symbol      : 1;
     union {
         TEXTMETRICW        w;
         TEXTMETRICA        a;
