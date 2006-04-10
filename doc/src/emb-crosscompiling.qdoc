@@ -84,10 +84,10 @@
     tslib. The provided keyboard drivers are SL5000, Yopy, Vr41XX,
     console (TTY) and USB.
 
-    Other drivers can be added by deriving from the QWSMouseHandler,
-    QWSKeyboardHandler, QMouseDriverPlugin and QKbdDriverPlugin
-    classes, respectively, and using Qt's plugin mechanism. See the \l
-    {How to Create Qt Plugins} documentation and the \l
+    Other drivers can be added by deriving from the QWSMouseHandler
+    and QMouseDriverPlugin classes, or the QWSKeyboardHandler and
+    QKbdDriverPlugin classes, and using Qt's plugin mechanism. See the
+    \l {How to Create Qt Plugins} documentation and the \l
     {tools/plugandpaint}{Plug & Paint} example for details.
 
     \section1 Step 5: Building the Target Specific Executable
