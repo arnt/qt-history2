@@ -422,6 +422,9 @@ CFG_SQL_AVAILABLE=
 CFG_GFX_AVAILABLE=""
 CFG_GFX_ON=""
 CFG_GFX_OFF=""
+QT_DEFAULT_BUILD_PARTS="libs tools examples"
+CFG_BUILD_PARTS=""
+CFG_NOBUILD_PARTS=""
 
 if [ "$Edition" = "Trolltech" ]; then
     CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx um qvfb"
@@ -478,8 +481,6 @@ l_FLAGS=
 QCONFIG_FLAGS=
 XPLATFORM=
 PLATFORM=$QMAKESPEC
-QMAKE_PROJECTS=
-QMAKE_IGNORE_PROJECTS=
 OPT_CONFIRM_LICENSE=no
 OPT_SHADOW=maybe
 OPT_FAST=auto
@@ -815,19 +816,10 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     nomake)
-        QMAKE_IGNORE_PROJECTS="$QMAKE_IGNORE_PROJECTS $VAL"
+	CFG_BUILD_PARTS="$CFG_NOBUILD_PARTS $VAL"
         ;;
     make)
-        if [ -f $relpath/$VAL ]; then
-            QMAKE_PROJECTS="$QMAKE_PROJECTS $relpath/$VAL"
-        else
-            if [ -d $relpath/$VAL ]; then
-                QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$VAL -name '*.pro' -print`"
-            else
-                QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/. -name '*.pro' -print`"
-            fi
-        fi
-        QMAKE_PROJECTS=`echo $QMAKE_PROJECTS | sort | uniq`
+	CFG_BUILD_PARTS="$CFG_BUILD_PARTS $VAL"
         ;;
     x11)
         if [ "$Edition" = "Trolltech" ] && [ "$VAL" = "yes" ]; then
@@ -2051,6 +2043,18 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
 
 fi # QWS
 
+#setup the build parts
+[ -z "$CFG_BUILD_PARTS" ] && CFG_BUILD_PARTS="$QT_DEFAULT_BUILD_PARTS"
+for nobuild in $CFG_NOBUILD_PARTS; do
+    CFG_BUILD_PARTS=`echo "$CFG_BUILD_PARTS" | sed "s, $nobuild,,g"`
+done
+if echo $CFG_BUILD_PARTS | grep -v libs >/dev/null 2>&1; then
+#    echo
+#    echo "WARNING: libs is a required part of the build."
+#    echo
+    CFG_BUILD_PARTS="$CFG_BUILD_PARTS libs"
+fi
+
 #-------------------------------------------------------------------------------
 # post process QT_INSTALL_* variables
 #-------------------------------------------------------------------------------
@@ -2364,6 +2368,10 @@ Third Party Libraries:
                          See http://www.ijg.org
 
 Additional options:
+
+    -make <part> ....... Add part to the list of parts to be built at make time.
+                         ($QT_DEFAULT_BUILD_PARTS)
+    -nomake <part> ..... Exclude part from the list of parts to be built.
 
     -Rstring ........... Add an explicit runtime library path to the Qt
                          libraries.
@@ -4429,6 +4437,7 @@ cat >>$CACHEFILE.tmp <<EOF
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath fix_output_dirs QTDIR_build
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
+QT_BUILD_PARTS = $CFG_BUILD_PARTS
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
 QMAKE_MOC_SRC    = \$\$QT_BUILD_TREE/src/moc
 
@@ -4513,7 +4522,6 @@ else
     mv -f $CACHEFILE.tmp $CACHEFILE
 fi
 
-
 #-------------------------------------------------------------------------------
 # give feedback on configuration
 #-------------------------------------------------------------------------------
@@ -4580,6 +4588,7 @@ if [ "$OPT_VERBOSE" = "yes" ]; then
 fi
 
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
+echo "Build ............... $CFG_BUILD_PARTS"
 echo "Configuration ....... $QMAKE_CONFIG $QT_CONFIG"
 if [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
    echo "Debug................ yes (combined)"
@@ -4702,7 +4711,7 @@ fi
 if [ -f "${relpath}/projects.pro" ]; then
     mkfile="${outpath}/Makefile"
     [ -f "$mkfile" ] && chmod +w "$mkfile"
-    QTDIR="$outpath" $outpath/bin/qmake -spec "$XQMAKESPEC" ${relpath}/projects.pro -o $mkfile
+    QTDIR="$outpath" $outpath/bin/qmake "QT_PROJECTS=$CFG_BUILD_PARTS" -spec "$XQMAKESPEC" ${relpath}/projects.pro -o $mkfile
 fi
 
 # .projects      -> projects to process
@@ -4807,16 +4816,6 @@ if [ -f .sorted.projects.2 ]; then
 fi
 [ -f .sorted.projects.1 ] && sort .sorted.projects.1 >> .sorted.projects
 rm -f .sorted.projects.2 .sorted.projects.1
-for p in `echo $QMAKE_IGNORE_PROJECTS`; do
-    if [ -f .projects ]; then
-        grep -v $p .projects > .tmp
-        mv -f .tmp .projects
-    fi
-    if [ -f .projects.3 ]; then
-        grep -v $p .projects.3 > .tmp
-        mv -f .tmp .projects.3
-    fi
-done
 
 NORM_PROJECTS=0
 FAST_PROJECTS=0
@@ -4833,10 +4832,29 @@ fi
 echo "  `expr $NORM_PROJECTS + $FAST_PROJECTS` projects found."
 echo
 
+PART_ROOTS=
+for part in $CFG_BUILD_PARTS; do
+    case $part in
+    tools) PART_ROOTS="$PART_ROOTS tools" ;;
+    libs) PART_ROOTS="$PART_ROOTS src" ;;
+    examples) PART_ROOTS="$PART_ROOTS examples demos" ;;
+    *) ;;
+    esac
+done
+
 echo "Creating makefiles. Please wait..."
 for file in .projects .projects.3; do
     [ '!' -f "$file" ] && continue
     for a in `cat $file`; do
+        IN_ROOT=no
+	for r in $PART_ROOTS; do
+	    if echo "$a" | grep "^$r" >/dev/null 2>&1 || echo "$a" | grep "^$relpath/$r" >/dev/null 2>&1; then
+		IN_ROOT=yes
+		break
+            fi
+	done
+        [ "$IN_ROOT" = "no" ] && continue
+
         case $a in
         *winmain/winmain.pro) continue ;;
         */qmake/qmake.pro) continue ;;
