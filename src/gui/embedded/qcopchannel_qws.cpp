@@ -505,7 +505,7 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
         return;
     }
 
-    QList<QWSClient*> clist = (*qcopServerMap)[ch];
+    QList<QWSClient*> clist = qcopServerMap->value(ch);
     for (int i=0; i < clist.size(); ++i) {
         QWSClient *c = clist.at(i);
         QWSServerPrivate::sendQCopEvent(c, ch, msg, data);
