@@ -2031,28 +2031,53 @@ int QTreeViewPrivate::indentation(int i) const
 int QTreeViewPrivate::coordinate(int item) const
 {
     Q_Q(const QTreeView);
-    int scrollBarValue = q->verticalScrollBar()->value();
-    int viewItemIndex = itemAt(scrollBarValue); // first item (may start above the page)
-    if (viewItemIndex == -1) {
-        const_cast<QTreeViewPrivate*>(this)->updateScrollBars();
-        viewItemIndex = itemAt(scrollBarValue); // first item (may start above the page)
+    int scrollbarValue = q->verticalScrollBar()->value();
+    int topViewItemIndex = itemAt(scrollbarValue);
+    if (topViewItemIndex == -1) {
+        const_cast<QTreeViewPrivate*>(this)->updateScrollbars();
+        scrollbarValue = q->verticalScrollBar()->value();
+        topViewItemIndex = itemAt(scrollbarValue);
     }
-    Q_ASSERT(viewItemIndex != -1);
+    Q_ASSERT(topViewItemIndex != -1);
+    int viewItemIndex = topViewItemIndex; // first item (may start above the page)
     int viewItemHeight = height(viewItemIndex);
+    int topItemCoordinate = topItemDelta(scrollbarValue, viewItemHeight);
+    int viewItemCoordinate = topItemCoordinate;
     int viewportHeight = viewport->height();
-    int y = topItemDelta(scrollBarValue, viewItemHeight); // the part of the item above the page
     if (viewItemIndex <= item) {
-        while (y < viewportHeight && viewItemIndex < viewItems.count()) {
+        // search in the visible area first
+        while (viewItemCoordinate < viewportHeight && viewItemIndex < viewItems.count()) {
             if (viewItemIndex == item)
-                return y; // item is visible - actual y in viewport
-            y += height(viewItemIndex);
+                return viewItemCoordinate; // item is visible - actual y in viewport
+            viewItemCoordinate += height(viewItemIndex);
             ++viewItemIndex;
         }
-        // item is below the viewport - estimated y
-        return y + (itemHeight * (item - viewItemIndex));
+        // the item is below the viewport
+        if (editors.isEmpty()) { // optimized; estimate the coordinate
+            return viewItemCoordinate + (itemHeight * (item - viewItemIndex));
+        } else { // non-optimized
+            for (;viewItemIndex < viewItems.count(); ++viewItemIndex) {
+                if (viewItemIndex == item)
+                    return viewItemCoordinate;
+                viewItemCoordinate += height(viewItemIndex);
+            }
+        }
     }
-    // item is above the viewport - estimated y
-    return y - (itemHeight * (viewItemIndex - item));
+
+    // the item is above the viewport
+    if (editors.isEmpty()) { // optimized; estimate the coordinate
+        return viewItemCoordinate - (itemHeight * (viewItemIndex - item));
+    } else { // non-optimized
+        viewItemCoordinate = topItemCoordinate;
+        viewItemIndex = topViewItemIndex;
+        for (; viewItemIndex >= 0; --viewItemIndex) {
+            if (viewItemIndex == item)
+                return viewItemCoordinate;
+            viewItemCoordinate -= height(viewItemIndex);
+        }
+    }
+    Q_ASSERT(false);
+    return 0xDEADBEAF; // the item was not found
 }
 
 /*!
