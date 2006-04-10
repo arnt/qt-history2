@@ -579,11 +579,12 @@ QFontEngineMac::QFontEngineMac(ATSUStyle baseStyle, FMFont fmFont, const QFontDe
     status = ATSUSetAttributes(style, attributeCount, tags, sizes, values);
     Q_ASSERT(status == noErr);
 
+    int tmpFsType;
     if (ATSFontGetTable(FMGetATSFontRefFromFont(fmFont),
                         MAKE_TAG('O', 'S', '/', '2'),
                         /*offset = */8,
-                        /*size = */2, &fsType, 0) == noErr) {
-       fsType = qFromBigEndian<quint16>(fsType);
+                        /*size = */2, &tmpFsType, 0) == noErr) {
+       fsType = qFromBigEndian<quint16>(tmpFsType);
     } else {
         fsType = 0;
     }
