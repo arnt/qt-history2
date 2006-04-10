@@ -794,7 +794,8 @@ QTextBlockUserData::~QTextBlockUserData()
     format.
 
     Text blocks are created by their parent documents. If you need to create
-    a new text block, use the cursor-based interface provided by QTextCursor.
+    a new text block, or modify the contents of a document while examining its
+    contents, use the cursor-based interface provided by QTextCursor instead.
 
     Each text block is located at a specific position() in a document().
     The contents of the block can be obtained by using the text() function.
@@ -803,11 +804,14 @@ QTextBlockUserData::~QTextBlockUserData()
     The visual properties of the block are determined by its text layout(),
     its charFormat(), and its blockFormat().
 
-    The next() and previous() functions allow navigation between blocks
-    within the document. Note that blocks are returned in sequence, so
-    adjacent blocks may come from different places in the document structure.
+    The next() and previous() functions enable iteration over consecutive
+    valid blocks in a document under the condition that the document is not
+    modified during the iteration process. Note that, although blocks are
+    returned in sequence, adjacent blocks may come from different places in
+    the document structure. The validity of a block can be determined by
+    calling isValid().
 
-    QTextBlock provides comparison operators two make it easier to work with
+    QTextBlock provides comparison operators to make it easier to work with
     blocks: operator==() compares two block for equality, operator!=()
     compares two blocks for inequality, and operator<() determines whether
     a block precedes another in the same document.
