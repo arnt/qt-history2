@@ -974,6 +974,11 @@ public:
     QPen pen;
 };
 
+QAbstractGraphicsPathItem::QAbstractGraphicsPathItem(QGraphicsItem *parent)
+    : QGraphicsItem(parent)
+{
+}
+
 QAbstractGraphicsPathItem::QAbstractGraphicsPathItem(QAbstractGraphicsPathItemPrivate &dd,
                                                      QGraphicsItem *parent)
     : QGraphicsItem(dd, parent)
