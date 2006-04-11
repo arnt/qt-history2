@@ -11,7 +11,7 @@ equals(TEMPLATE, "vclib"):ACTIVEQT_IDE = VisualStudio
 equals(ACTIVEQT_IDE, "VisualStudio") {
     ACTIVEQT_IDC = $${QMAKE_IDC}
     ACTIVEQT_IDL = $${QMAKE_IDL}
-    ACTIVEQT_NEWLINE = \t
+    ACTIVEQT_NEWLINE = $$escape_expand(\n)
     ACTIVEQT_TARGET = "$(TargetPath)"
     ACTIVEQT_OUTPUT = $(IntDir)/$${TARGET}
     ACTIVEQT_TLBOUT = "$(TargetDir)/$${TARGET}.tlb"
@@ -20,7 +20,7 @@ equals(ACTIVEQT_IDE, "VisualStudio") {
 equals(ACTIVEQT_IDE, "makefile") {
     ACTIVEQT_IDC = -$(IDC)
     ACTIVEQT_IDL = -$(IDL)
-    ACTIVEQT_NEWLINE = \n\t
+    ACTIVEQT_NEWLINE = $$escape_expand(\n\t)
     ACTIVEQT_TARGET = $(DESTDIR_TARGET)
     ACTIVEQT_OUTPUT = $(OBJECTS_DIR)/$${TARGET}
     isEmpty(DESTDIR) {

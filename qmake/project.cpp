@@ -1553,8 +1553,9 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
 
     enum ExpandFunc { E_MEMBER=1, E_FIRST, E_LAST, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
                       E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
-                      E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_UPPER, E_LOWER, E_FILES,
-                      E_PROMPT, E_RE_ESCAPE, E_REPLACE };
+                      E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
+                      E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
+                      E_REPLACE };
     static QMap<QString, int> *expands = 0;
     if(!expands) {
         expands = new QMap<QString, int>;
@@ -1576,6 +1577,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         expands->insert("system", E_SYSTEM);
         expands->insert("unique", E_UNIQUE);
         expands->insert("quote", E_QUOTE);
+        expands->insert("escape_expand", E_ESCAPE_EXPAND);
         expands->insert("upper", E_UPPER);
         expands->insert("lower", E_LOWER);
         expands->insert("re_escape", E_RE_ESCAPE);
@@ -1884,11 +1886,39 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             ret = uniq.join(" ");
         }
         break; }
-    case E_QUOTE: {
+    case E_QUOTE:
         ret = args.join(" ");
-        ret = ret.replace("\\n", "\n");
-        ret = ret.replace("\\t", "\t");
-        ret = ret.replace("\\r", "\r");
+        break;
+    case E_ESCAPE_EXPAND: {
+        ret = args.join(" ");
+        QChar *ret_data = ret.data();
+        int ret_len = ret.length();
+        for(int x = 0; x < ret_len; ++x) {
+            if(*(ret_data+x) == '\\' && x < ret_len-1) {
+                if(*(ret_data+x+1) == '\\') {
+                    ++x;
+                } else {
+                    struct {
+                        char in, out;
+                    } mapped_quotes[] = {
+                        { 'n', '\n' },
+                        { 't', '\t' },
+                        { 'r', '\r' },
+                        { 0, 0 }
+                    };
+                    for(int i = 0; mapped_quotes[i].in; ++i) {
+                        if(*(ret_data+x+1) == mapped_quotes[i].in) {
+                            *(ret_data+x) = mapped_quotes[i].out;
+                            if(x < ret_len-2)
+                                memcpy(ret_data+x+1, ret_data+x+2, ret_len-x);
+                            --ret_len;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        ret.resize(ret_len);
         break; }
     case E_RE_ESCAPE: {
         ret = QRegExp::escape(args.join(QString(Option::field_sep)));
