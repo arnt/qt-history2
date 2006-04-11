@@ -1,5 +1,6 @@
-# see fonts-qws.html for mor information on this file.
-# format is
+# See qtopiacore-fonts.html for more information on this file.
+#
+# The format is
 #
 # name file renderer italic weight size [flags [sizerange]]
 #
@@ -60,11 +61,6 @@ wenquanyi wenquanyi_16ptb.bdf BDF n 75 160 u
 # Unifont is available in source form from http://czyborra.com/unifont/
 unifont unifont.bdf BDF n 50 160 u
 babelfish babelfish.ttf FT n 50 0 s
-smallsmooth verdana.ttf FT n 50 0 s 90
-smoothtimes times.ttf FT n 50 0 s 100,160,170,220
-smoothtimes timesbd.ttf FT n 75 0 sa 170,250,440
-smoothtimes timesi.ttf FT y 50 0 sa
-smoothtimes timesbi.ttf FT y 75 0 sa
 utopia UTBI____.pfa FT y 75 0 s
 utopia UTB_____.pfa FT n 75 0 s
 utopia UTI_____.pfa FT y 50 0 s
@@ -82,12 +78,18 @@ courier courb.pfa FT n 75 0 s
 courier courbi.pfa FT y 75 0 s
 courier couri.pfa FT y 50 0 s
 cursor cursor.pfa FT n 50 0 s
-lucidux_mono lcdxmo.pfa FT y 50 0 s
-lucidux_mono lcdxmr.pfa FT n 50 0 s
-lucidux_serif lcdxro.pfa FT y 50 0 s
-lucidux_serif lcdxrr.pfa FT n 50 0 s
-lucidux_sans lcdxso.pfa FT y 50 0 s
-lucidux_sans lcdxsr.pfa FT n 50 0 s
+luxi_mono l047013t.pfa FT n 50 0 s
+luxi_mono l047016t.pfa FT n 75 0 s
+luxi_mono l047033t.pfa FT y 50 0 s
+luxi_mono l047036t.pfa FT y 75 0 s
+luxi_serif l048013t.pfa FT n 50 0 s
+luxi_serif l048016t.pfa FT n 75 0 s
+luxi_serif l048033t.pfa FT y 50 0 s
+luxi_serif l048036t.pfa FT y 75 0 s
+luxi_sans l049013t.pfa FT n 50 0 s
+luxi_sans l049016t.pfa FT n 75 0 s
+luxi_sans l049033t.pfa FT y 50 0 s
+luxi_sans l049036t.pfa FT y 75 0 s
 vera_sans Vera.ttf FT n 50 0 s
 vera_sans VeraBd.ttf FT n 75 0 s
 vera_sans VeraIt.ttf FT y 50 0 s
