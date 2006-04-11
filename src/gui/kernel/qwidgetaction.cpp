@@ -22,7 +22,7 @@
     \since 4.2
     \brief The QWidgetAction class extends QAction by an interface
     for inserting custom widgets into action based containers, such
-    as QToolBar.
+    as toolbars.
     
     Most actions in application are represented as items in menus or
     buttons in toolbars. However sometimes more complex widgets are
@@ -49,6 +49,8 @@
     added to two toolbars at the same time then the default widget is shown
     only in the first toolbar the action was added to. QWidgetAction takes
     over ownership of the default widget.
+    
+    Currently in Qt only QToolBar supports QWidgetAction.
 
     \ingroup application
     \mainclass
@@ -78,7 +80,10 @@ QWidgetAction::~QWidgetAction()
 }
 
 /*!
-    Sets the default widget.
+    Sets the default widget. The ownership is transferred to QWidgetAction.
+    Unless createWidget() is re-implemented by a subclass to return a
+    new widget the default widget is used when a container widget requests
+    a widget through requestWidget().
 */
 void QWidgetAction::setDefaultWidget(QWidget *w)
 {
@@ -106,6 +111,8 @@ QWidget *QWidgetAction::defaultWidget() const
 }
 
 /*!
+    Container widgets that support actions call this function to request a
+    widget as visual representation of the action.
 */
 QWidget *QWidgetAction::requestWidget(QWidget *parent)
 {
@@ -127,6 +134,8 @@ QWidget *QWidgetAction::requestWidget(QWidget *parent)
 }
 
 /*!
+    Container widgets that support actions call this function when a widget
+    action is removed.
 */
 void QWidgetAction::releaseWidget(QWidget *w)
 {
@@ -171,8 +180,8 @@ QWidget *QWidgetAction::createWidget(QWidget *parent)
 /*!
     This function is called whenever the action is removed from a container
     widget that displays the action using a custom widget previously created
-    using createWidget(). The default implementation hides and deletes the
-    widget.
+    using createWidget(). The default implementation hides the widget and
+    schedules it for deletion using QObject::deleteLater().
 */
 void QWidgetAction::deleteWidget(QWidget *widget)
 {
@@ -181,7 +190,7 @@ void QWidgetAction::deleteWidget(QWidget *widget)
 }
 
 /*!
-    Returns the list of widgets that were created using createWidget() and
+    Returns the list of widgets that have been using createWidget() and
     are currently in use by widgets the action has been added to.
 */
 QList<QWidget *> QWidgetAction::createdWidgets() const
