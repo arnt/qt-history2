@@ -32,6 +32,7 @@ class MoviePlayer : public QWidget
 
 public:
     MoviePlayer(QWidget *parent = 0);
+    void openFile(const QString &fileName);
 
 private slots:
     void open();

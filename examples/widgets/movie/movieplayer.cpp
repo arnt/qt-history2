@@ -57,17 +57,21 @@ void MoviePlayer::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open a Movie"),
                                currentMovieDirectory);
-    if (!fileName.isEmpty()) {
-        currentMovieDirectory = QFileInfo(fileName).path();
+    if (!fileName.isEmpty())
+        openFile(fileName);
+}
 
-        movie->stop();
-        movieLabel->setMovie(movie);
-        movie->setFileName(fileName);
-        movie->start();
+void MoviePlayer::openFile(const QString &fileName)
+{
+    currentMovieDirectory = QFileInfo(fileName).path();
 
-        updateFrameSlider();
-        updateButtons();
-    }
+    movie->stop();
+    movieLabel->setMovie(movie);
+    movie->setFileName(fileName);
+    movie->start();
+
+    updateFrameSlider();
+    updateButtons();
 }
 
 void MoviePlayer::goToFrame(int frame)

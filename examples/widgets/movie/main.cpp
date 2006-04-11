@@ -12,12 +12,16 @@
 ****************************************************************************/
 
 #include <QApplication>
+#include <QTimer>
 #include "movieplayer.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     MoviePlayer player;
+    QStringList arguments = app.arguments();
+    if (arguments.count() > 1)
+        player.openFile(arguments.last());
     player.show();
     return app.exec();
 }
