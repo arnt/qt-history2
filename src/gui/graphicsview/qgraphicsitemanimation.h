@@ -59,11 +59,11 @@ public:
     
     void clear();
 
-public slots:
+public Q_SLOTS:
     void setStep(qreal x);
     void reset();
 
-signals:
+Q_SIGNALS:
     void newTransformation(const QPointF &pos, const QMatrix &matrix);
     
 private:
