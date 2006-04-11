@@ -44,7 +44,7 @@ class QUnixSocketMessage;
    Use this class to forward on or receive forwarded data over a real
    device for authentication.
 */
-class QAuthDevice : public QBuffer
+class QAuthDevice : public QIODevice
 {
     Q_OBJECT
 public:
@@ -60,10 +60,17 @@ public:
     void *client() const;
     bool authToMessage( QTransportAuth::Data &, char *, const char *, int );
     bool authFromMessage( QTransportAuth::Data &, const char *, int );
+    bool isSequential() const;
+    bool atEnd() const;
+    qint64 bytesAvailable() const;
+    qint64 bytesToWrite() const;
+    bool seek( qint64 );
+    QByteArray & buffer();
 Q_SIGNALS:
     void authViolation( QTransportAuth::Data & );
     void policyCheck( QTransportAuth::Data &, const QString & );
 protected:
+    qint64 readData( char *, qint64 );
     qint64 writeData(const char *, qint64 );
 private Q_SLOTS:
     void recvReadyRead();
@@ -76,6 +83,36 @@ private:
     void *m_client;
     QByteArray msgQueue;
 };
+
+inline bool QAuthDevice::isSequential() const
+{
+    return true;
+}
+
+inline bool QAuthDevice::seek( qint64 )
+{
+    return false;
+}
+
+inline bool QAuthDevice::atEnd() const
+{
+    return msgQueue.isEmpty();
+}
+
+inline qint64 QAuthDevice::bytesAvailable() const
+{
+    return msgQueue.size();
+}
+
+inline qint64 QAuthDevice::bytesToWrite() const
+{
+    return msgQueue.size();
+}
+
+inline QByteArray &QAuthDevice::buffer()
+{
+    return msgQueue;
+}
 
 #define QSXE_KEY_LEN 16
 #define QSXE_MAGIC_BYTES 4

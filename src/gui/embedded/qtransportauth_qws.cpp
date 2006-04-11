@@ -516,7 +516,7 @@ void QTransportAuthPrivate::invalidateClientKeyCache()
 ////
 
 QAuthDevice::QAuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDirection dir )
-    : QBuffer( parent )
+    : QIODevice( parent )
     , d( data )
     , way( dir )
     , m_target( parent )
@@ -528,7 +528,9 @@ QAuthDevice::QAuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDir
         connect( m_target, SIGNAL(readyRead()),
                 this, SLOT(recvReadyRead()));
     }
-    open( QIODevice::WriteOnly );
+    connect( m_target, SIGNAL(bytesWritten(qint64)),
+            this, SIGNAL(bytesWritten(qint64)) );
+    open( QIODevice::WriteOnly | QIODevice::Unbuffered );
 }
 
 QAuthDevice::~QAuthDevice()
@@ -591,46 +593,75 @@ void *QAuthDevice::client() const
 qint64 QAuthDevice::writeData(const char *data, qint64 len)
 {
     if ( way == Receive )  // server
-        return QBuffer::writeData( data, len );
-    // qDebug( "write data %lli bytes, pid %li", len, ::getpid() );
-    char header[AUTH_SPACE(0)];
-    qint64 bytes = 0;
-    if ( authToMessage( *d, header, data, len ))
-        bytes = QBuffer::writeData( header, AUTH_SPACE(0) );
-    bytes += QBuffer::writeData( data, len );
-    close();
-    char buf[128];
-    qint64 ba;
-    qint64 tot = 0;
-    open( QIODevice::ReadOnly );
-    qint64 amtRead;
-    qint64 amtWrit;
+    {
+        Q_ASSERT( "Dont call writeData in server" );
+        return 0;
+    }
+    // client
 #ifdef QTRANSPORTAUTH_DEBUG
     char displaybuf[1024];
-    char *dbufptr = displaybuf;
+    qDebug( "write data %lli bytes, pid %li", len, ::getpid() );
 #endif
-    while (( ba = bytesAvailable() ))
+    char header[QSXE_HEADER_LEN];
+    qint64 bytes = 0;
+    if ( authToMessage( *d, header, data, len ))
     {
-        amtRead = read( buf, ba < 128 ? ba : 128 );
-        amtWrit = m_target->write( buf, amtRead );
+        m_target->write( header, QSXE_HEADER_LEN );
 #ifdef QTRANSPORTAUTH_DEBUG
-        if (( displaybuf + 1023 - dbufptr ) >= ( amtRead * 2 ))
-        {
-            hexstring( dbufptr, (unsigned char *)buf, amtRead );
-            dbufptr += ( amtRead * 2 );
-        }
+        hexstring( displaybuf, (const unsigned char *)header, QSXE_HEADER_LEN );
+        qDebug( "QAuthDevice::writeData - CLIENT: Header written: %s", displaybuf );
 #endif
-        tot += amtWrit;
+        bytes += QSXE_HEADER_LEN;
     }
-    if ( m_target->inherits( "QAbstractSocket" ))
-        reinterpret_cast<QAbstractSocket*>(m_target)->flush();
-    close();
-    buffer().resize( 0 );
-    open( QIODevice::WriteOnly );
+    m_target->write( data, len );
+    bytes += len;
 #ifdef QTRANSPORTAUTH_DEBUG
-    qDebug( "%lli bytes written from authdevice to target: %s", tot, displaybuf );
+    int bytesToDisplay = bytes;
+    const unsigned char *dataptr = (const unsigned char *)data;
+    qDebug( "QAuthDevice::writeData - CLIENT: Data written:" );
+    while ( bytesToDisplay > 0 )
+    {
+        int amt = bytes < 500 ? bytes : 500;
+        hexstring( displaybuf, dataptr, amt );
+        qDebug( "\t\t%s", bytes > 0 ? displaybuf : "(null)" );
+        dataptr += 500;
+        bytesToDisplay -= 500;
+    }
 #endif
-    return tot;
+    if ( m_target->inherits( "QAbstractSocket" ))
+        static_cast<QAbstractSocket*>(m_target)->flush();
+    return bytes;
+}
+
+/*!
+  Reimplement from QIODevice
+
+  read data out of the internal message queue, reduce the queue by the amount
+  read.
+*/
+qint64 QAuthDevice::readData( char *data, qint64 maxSize )
+{
+    if ( msgQueue.size() == 0 )
+        return 0;
+#ifdef QTRANSPORTAUTH_DEBUG
+    char displaybuf[1024];
+    hexstring( displaybuf, reinterpret_cast<const unsigned char *>(msgQueue.constData()),
+            msgQueue.size() > 500 ? 500 : msgQueue.size() );
+    qDebug( "QAuthDevice::readData() buffer %li - %s", msgQueue.size(), displaybuf );
+#endif
+    if ( maxSize > msgQueue.size() )
+    {
+        ::memcpy( data, msgQueue.constData(), msgQueue.size() );
+        msgQueue.clear();
+        msgQueue.resize(0);
+        return msgQueue.size();
+    }
+    else
+    {
+        ::memcpy( data, msgQueue.constData(), maxSize );
+        msgQueue.remove( 0, maxSize );
+        return maxSize;
+    }
 }
 
 /*!
@@ -716,7 +747,7 @@ void QAuthDevice::recvReadyRead()
 bool QAuthDevice::authorizeMessage()
 {
     QBuffer cmdBuf( &msgQueue );
-    cmdBuf.open( QIODevice::ReadOnly );
+    cmdBuf.open( QIODevice::ReadOnly | QIODevice::Unbuffered );
     QWSCommand::Type command_type = (QWSCommand::Type)(qws_read_uint( &cmdBuf ));
     QWSCommand *command = QWSCommand::factory(command_type);
     // if NULL, factory will have already printed warning for bogus
@@ -776,16 +807,15 @@ bool QAuthDevice::authorizeMessage()
 #endif
     // copy message into the authBuf...
     close();
-    buffer().resize(0);
     int commandSize = QWS_PROTOCOL_ITEM_SIZE( *command );
     if ( isAuthorized )
     {
 #ifdef QTRANSPORTAUTH_DEBUG
         qDebug() << "authorized: releasing" << commandSize << "byte command" << request;
 #endif
-        setData( msgQueue.left( commandSize ));
-        open( QIODevice::ReadOnly );
-        emit QBuffer::readyRead();
+        open( QIODevice::ReadOnly | QIODevice::Unbuffered );
+        emit QIODevice::readyRead();
+        qDebug() << "return from emit";
     }
     else
     {
@@ -1005,8 +1035,6 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
     return true;
 }
-
-
 
 
 #ifdef QTRANSPORTAUTH_DEBUG
