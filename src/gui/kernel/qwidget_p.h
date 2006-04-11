@@ -250,7 +250,6 @@ public:
     void show_sys();
     void hide_sys();
     void hide_helper();
-    QWidget *focusNextPrevChild_helper(bool next);
     void setEnabled_helper(bool);
     void registerDropSite(bool);
     void updateFrameStrut() const;
