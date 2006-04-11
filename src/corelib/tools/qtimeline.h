@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Core)
 
 class QTimeLinePrivate;
@@ -99,6 +101,8 @@ private:
     Q_DISABLE_COPY(QTimeLine)
     Q_DECLARE_PRIVATE(QTimeLine)
 };
+
+QT_END_HEADER
 
 #endif
 
