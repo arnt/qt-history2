@@ -851,8 +851,6 @@ void QToolBar::actionEvent(QActionEvent *event)
             layout()->removeWidget(item.widget);
             if (widgetAction && item.hasCustomWidget) {
                 widgetAction->releaseWidget(item.widget);
-//              if (!isHidden() && item.widget->testAttribute(Qt::WA_WState_Created))
-//                  item.widget->hide();
             } else {
                 // destroy the QToolButton/QToolBarSeparator
                 item.widget->hide();
