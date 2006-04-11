@@ -1184,19 +1184,25 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
     QList<QGraphicsItem *> itemsAtPos = items(hoverEvent->scenePos());
     QGraphicsItem *item = 0;
     while (!itemsAtPos.isEmpty()) {
-        if ((item = itemsAtPos.takeFirst())->acceptsHoverEvents())
+        QGraphicsItem *tmp = itemsAtPos.takeFirst();        
+        if (tmp->acceptsHoverEvents()) {
+            item = tmp;
             break;
+        }
     }
 
     if (!item) {
         // Send HoverLeave events to all existing hover items, topmost first.
         while (!d->hoverItems.isEmpty()) {
-            QGraphicsSceneHoverEvent hoverLeaveEvent(QGraphicsSceneEvent::HoverLeave);
-            hoverLeaveEvent.setWidget(hoverEvent->widget());
-            hoverLeaveEvent.setPos(d->hoverItems.last()->mapFromScene(hoverEvent->scenePos()));
-            hoverLeaveEvent.setScenePos(hoverEvent->scenePos());
-            hoverLeaveEvent.setScreenPos(hoverEvent->screenPos());
-            d->hoverItems.takeLast()->event(&hoverLeaveEvent);
+            QGraphicsItem *lastItem = d->hoverItems.takeLast();
+            if (lastItem->acceptsHoverEvents()) {
+                QGraphicsSceneHoverEvent hoverLeaveEvent(QEvent::GraphicsSceneHoverLeave);
+                hoverLeaveEvent.setWidget(hoverEvent->widget());
+                hoverLeaveEvent.setPos(lastItem->mapFromScene(hoverEvent->scenePos()));
+                hoverLeaveEvent.setScenePos(hoverEvent->scenePos());
+                hoverLeaveEvent.setScreenPos(hoverEvent->screenPos());
+                lastItem->event(&hoverLeaveEvent);
+            }
         }
         return;
     }
@@ -1206,7 +1212,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
         QGraphicsItem *topMostItem = d->hoverItems.isEmpty() ? 0 : d->hoverItems.last();
         if (topMostItem && topMostItem->contains(topMostItem->mapFromScene(hoverEvent->scenePos()))) {
             d->hoverItems << item;
-            QGraphicsSceneHoverEvent hover(QGraphicsSceneEvent::HoverEnter);
+            QGraphicsSceneHoverEvent hover(QEvent::GraphicsSceneHoverEnter);
             hover.setPos(hoverEvent->pos());
             hover.setScenePos(hoverEvent->scenePos());
             hover.setScreenPos(hoverEvent->screenPos());
@@ -1217,16 +1223,19 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
         // Otherwise, send leaves to all existing items, then generate a
         // HoverEnter for this item.
         while (!d->hoverItems.isEmpty()) {
-            QGraphicsSceneHoverEvent hoverLeaveEvent(QGraphicsSceneEvent::HoverLeave);
-            hoverLeaveEvent.setWidget(hoverEvent->widget());
-            hoverLeaveEvent.setPos(d->hoverItems.last()->mapFromScene(hoverEvent->scenePos()));
-            hoverLeaveEvent.setScenePos(hoverEvent->scenePos());
-            hoverLeaveEvent.setScreenPos(hoverEvent->screenPos());
-            d->hoverItems.takeLast()->event(&hoverLeaveEvent);
+            QGraphicsItem *lastItem = d->hoverItems.takeLast();
+            if (lastItem->acceptsHoverEvents()) {
+                QGraphicsSceneHoverEvent hoverLeaveEvent(QEvent::GraphicsSceneHoverLeave);
+                hoverLeaveEvent.setWidget(hoverEvent->widget());
+                hoverLeaveEvent.setPos(lastItem->mapFromScene(hoverEvent->scenePos()));
+                hoverLeaveEvent.setScenePos(hoverEvent->scenePos());
+                hoverLeaveEvent.setScreenPos(hoverEvent->screenPos());
+                lastItem->event(&hoverLeaveEvent);
+            }
         }
         d->hoverItems << item;
 
-        QGraphicsSceneHoverEvent hover(QGraphicsSceneEvent::HoverEnter);
+        QGraphicsSceneHoverEvent hover(QEvent::GraphicsSceneHoverEnter);
         hover.setPos(hoverEvent->pos());
         hover.setScenePos(hoverEvent->scenePos());
         hover.setScreenPos(hoverEvent->screenPos());
@@ -1236,7 +1245,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
     
     if (item == d->hoverItems.last()) {
         // Generate a hovermove to the topmost hover item
-        QGraphicsSceneHoverEvent hover(QGraphicsSceneEvent::HoverMove);
+        QGraphicsSceneHoverEvent hover(QEvent::GraphicsSceneHoverMove);
         hover.setPos(item->mapFromScene(hoverEvent->scenePos()));
         hover.setScenePos(hoverEvent->scenePos());
         hover.setScreenPos(hoverEvent->screenPos());
@@ -1247,12 +1256,15 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
     // It's a parent item, so generate HoverLeave events
     // until you find this item.
     while (!d->hoverItems.isEmpty() && d->hoverItems.last() != item) {
-        QGraphicsSceneHoverEvent hoverLeaveEvent(QGraphicsSceneEvent::HoverLeave);
-        hoverLeaveEvent.setWidget(hoverEvent->widget());
-        hoverLeaveEvent.setPos(d->hoverItems.last()->mapFromScene(hoverEvent->scenePos()));
-        hoverLeaveEvent.setScenePos(hoverEvent->scenePos());
-        hoverLeaveEvent.setScreenPos(hoverEvent->screenPos());
-        d->hoverItems.takeLast()->event(&hoverLeaveEvent);
+        QGraphicsItem *lastItem = d->hoverItems.takeLast();
+        if (lastItem->acceptsHoverEvents()) {
+            QGraphicsSceneHoverEvent hoverLeaveEvent(QEvent::GraphicsSceneHoverLeave);
+            hoverLeaveEvent.setWidget(hoverEvent->widget());
+            hoverLeaveEvent.setPos(lastItem->mapFromScene(hoverEvent->scenePos()));
+            hoverLeaveEvent.setScenePos(hoverEvent->scenePos());
+            hoverLeaveEvent.setScreenPos(hoverEvent->screenPos());
+            lastItem->event(&hoverLeaveEvent);
+        }
     }
 }
 
