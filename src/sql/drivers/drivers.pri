@@ -96,7 +96,7 @@ contains(sql-drivers, sqlite2) {
 }
 
 contains(sql-drivers, sqlite) {
-    !contains( LIBS, .*sqlite3.* ) {
+    !system-sqlite:!contains( LIBS, .*sqlite3.* ) {
         CONFIG(release, debug|release):DEFINES *= NDEBUG
         INCLUDEPATH +=  ../3rdparty/sqlite
 
@@ -138,6 +138,9 @@ contains(sql-drivers, sqlite) {
                         ../3rdparty/sqlite/where.c
         unix:SOURCES += ../3rdparty/sqlite/os_unix.c
         win32:SOURCES +=  ../3rdparty/sqlite/os_win.c
+    } else {
+        LIBS *= $$QT_LFLAGS_SQLITE
+        QMAKE_CXXFLAGS *= $$QT_CFLAGS_SQLITE
     }
 
     HEADERS +=      drivers/sqlite/qsql_sqlite.h

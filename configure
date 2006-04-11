@@ -404,6 +404,7 @@ CFG_SM=auto
 CFG_XSHAPE=auto
 CFG_XINERAMA=auto
 CFG_ZLIB=auto
+CFG_SQLITE=qt
 CFG_GIF=no
 CFG_PNG=yes
 CFG_LIBPNG=auto
@@ -506,6 +507,8 @@ QT_LFLAGS_PSQL=
 QT_CFLAGS_MYSQL=
 QT_LFLAGS_MYSQL=
 QT_LFLAGS_MYSQL_R=
+QT_CFLAGS_SQLITE=
+QT_LFLAGS_SQLITE=
 
 # flags for Glib (X11 only)
 QT_CFLAGS_GLIB=
@@ -1067,6 +1070,13 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         [ "$VAL" = "no" ] && CFG_LIBPNG=no
+        ;;
+    sqlite)
+        if [ "$VAL" = "system" ]; then
+            CFG_SQLITE=system
+        else
+            UNKNOWN_OPT=yes
+        fi
         ;;
     libpng)
         [ "$VAL" = "yes" ] && VAL=qt
@@ -2231,10 +2241,10 @@ Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
         [-debug] [-release] [-debug-and-release] [-no-gif] [-qt-gif] [-no-sm] [-sm]
         [-no-zlib] [-qt-zlib] [-system-zlib] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg]
         [-no-libpng] [-qt-libpng] [-system-libpng] [-no-libmng] [-qt-libmng]
-        [-system-libmng] [-no-nis] [-nis] [-no-cups] [-cups] [-no-largefile] [-largefile]
-        [-no-stl] [-stl] [-no-pch] [-pch] [-Istring] [-lstring] [-Lstring] [-Rstring]
-        [-disable-<module>] [-with-<module setting>] [-without-<module setting>] [-fast]
-        [-no-fast]
+        [-system-libmng] [-system-sqlite] [-no-nis] [-nis] [-no-cups] [-cups]
+        [-no-largefile] [-largefile] [-no-stl] [-stl] [-no-pch] [-pch] [-Istring]
+        [-lstring] [-Lstring] [-Rstring] [-disable-<module>] [-with-<module setting>]
+        [-without-<module setting>] [-fast] [-no-fast]
 
 Installation options:
 
@@ -2326,6 +2336,8 @@ fi
 
                          Possible values for <driver>:
                          [ $CFG_SQL_AVAILABLE ]
+
+    -system-sqlite ..... Use sqlite from the operating system.
 
     -no-qt3support       Disables the Qt 3 support functionality.
 
@@ -3306,19 +3318,37 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
             fi
             ;;
         sqlite)
-            if [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
-                if [ "$CFG_SQL_sqlite" = "auto" ]; then
-                        CFG_SQL_sqlite=plugin
+            if [ "$CFG_SQL_sqlite" != "no" ]; then
+                SQLITE_AUTODETECT_FAILED="no"
+                if [ "$CFG_SQLITE" = "system" ]; then
+                    if $WHICH pkg-config >/dev/null 2>&1; then
+                        QT_CFLAGS_SQLITE=`pkg-config --cflags sqlite3`
+                        QT_LFLAGS_SQLITE=`pkg-config --libs sqlite3`
+                    fi
+                    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/sqlite "SQLite" $QT_LFLAGS_SQLITE $L_FLAGS $QT_CFLAGS_SQLITE $I_FLAGS $l_FLAGS; then
+                        if [ "$CFG_SQL_sqlite" = "auto" ]; then
+                            CFG_SQL_sqlite=plugin
+                            QMAKE_CONFIG="$QMAKE_CONFIG system-sqlite"
+                        fi
+                    else
+                        SQLITE_AUTODETECT_FAILED="yes"
+                        CFG_SQL_sqlite=no
+                    fi
+                elif [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
+                    if [ "$CFG_SQL_sqlite" = "auto" ]; then
+                            CFG_SQL_sqlite=plugin
+                    fi
+                else
+                    SQLITE_AUTODETECT_FAILED="yes"
+                    CFG_SQL_sqlite=no
                 fi
-            else
-                if [ "$CFG_SQL_sqlite" != "auto" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+
+                if [ "$SQLITE_AUTODETECT_FAILED" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
                     echo "SQLite support cannot be enabled due to functionality tests!"
                     echo " Turn on verbose messaging (-v) to $0 to see the final report."
                     echo " If you believe this message is in error you may use the continue"
                     echo " switch (-continue) to $0 to continue."
                     exit 101
-                else
-                    CFG_SQL_sqlite=no
                 fi
             fi
             ;;
@@ -4463,6 +4493,12 @@ fi
 if [ -n "$QT_LFLAGS_MYSQL" ]; then
     echo "QT_LFLAGS_MYSQL   = $QT_LFLAGS_MYSQL" >> $CACHEFILE.tmp
 fi
+if [ -n "$QT_CFLAGS_SQLITE" ]; then
+    echo "QT_CFLAGS_SQLITE   = $QT_CFLAGS_SQLITE" >> $CACHEFILE.tmp
+fi
+if [ -n "$QT_LFLAGS_SQLITE" ]; then
+    echo "QT_LFLAGS_SQLITE   = $QT_LFLAGS_SQLITE" >> $CACHEFILE.tmp
+fi
 
 if [ "$QT_EDITION" != "QT_EDITION_OPENSOURCE" ]; then
     echo "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" >>$CACHEFILE.tmp
@@ -4666,7 +4702,7 @@ fi
 [ "$CFG_SQL_db2" != "no" ] && echo "DB2 support ......... $CFG_SQL_db2"
 [ "$CFG_SQL_ibase" != "no" ] && echo "InterBase support ... $CFG_SQL_ibase"
 [ "$CFG_SQL_sqlite2" != "no" ] && echo "SQLite 2 support .... $CFG_SQL_sqlite2"
-[ "$CFG_SQL_sqlite" != "no" ] && echo "SQLite support ...... $CFG_SQL_sqlite"
+[ "$CFG_SQL_sqlite" != "no" ] && echo "SQLite support ...... $CFG_SQL_sqlite ($CFG_SQLITE)"
 
 # complain about not being able to use dynamic plugins if we are using a static build
 if [ "$CFG_SHARED" = "no" ]; then
