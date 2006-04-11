@@ -23,7 +23,7 @@
 #include <QtSql/qsqlresult.h>
 #include <QtSql/qsqldriver.h>
 
-QT_BEGIN_VERSION
+QT_BEGIN_HEADER
 class QDB2Driver;
 class QDB2DriverPrivate;
 class QDB2ResultPrivate;
