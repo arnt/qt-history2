@@ -118,7 +118,7 @@ static void slashify( QString& s, bool allowMultiple = true )
     \code
     Q3Url url( "http://www.trolltech.com" );
     // or
-    Q3Url url( "file:/home/myself/Mail", "Inbox" );
+    Q3Url url( "file:///home/myself/Mail", "Inbox" );
     \endcode
 
     You can then access and manipulate the various parts of the URL.
@@ -217,7 +217,7 @@ bool Q3Url::isRelativeUrl( const QString &url )
 
     Similarly,
     \code
-    Q3Url url( "ftp://ftp.trolltech.com/qt/source", "file:/usr/local" );
+    Q3Url url( "ftp://ftp.trolltech.com/qt/source", "file:///usr/local" );
     \endcode
     will result in a new URL, with "/usr/local" as the path
     and "file" as the protocol.

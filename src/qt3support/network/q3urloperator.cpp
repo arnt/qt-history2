@@ -94,7 +94,7 @@ public:
     \code
     Q3UrlOperator *op = new Q3UrlOperator();
     op->copy( QString("ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz"),
-	     "file:/tmp" );
+	     "file:///tmp" );
     \endcode
 
     If you want to be notified about success/failure, progress, etc.,
