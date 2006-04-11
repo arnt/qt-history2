@@ -1270,7 +1270,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
     }
 #ifdef FC_HINT_STYLE
     if (fe->hint_style == FC_HINT_NONE)
-        load_flags = FT_LOAD_NO_HINTING;
+        load_flags |= FT_LOAD_NO_HINTING;
     else if (fe->hint_style < FC_HINT_FULL)
         load_flags |= FT_LOAD_TARGET_LIGHT;
 #endif
@@ -1297,7 +1297,14 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
 
     const QFreetypeFace * const freetype = fe->freetype;
     FT_Face face = freetype->face;
-    FT_Load_Glyph(face, glyph, load_flags);
+    FT_Error err = FT_Load_Glyph(face, glyph, load_flags);
+    if (err == FT_Err_Too_Few_Arguments) {
+        // this is an error in the bytecode interpreter, just try to run without it
+        load_flags |= FT_LOAD_FORCE_AUTOHINT;
+        err = FT_Load_Glyph(face, glyph, load_flags);
+    }
+    if (err != FT_Err_Ok)
+        qWarning("load glyph failed err=%x face=%p, glyph=%d", err, face, glyph);
 
     if (fe->outline_drawing)
         return 0;
@@ -1526,7 +1533,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
             }
         }
     } else {
-        qWarning("QFontEngine: Glyph neither outline nor bitmap");
+        qWarning("QFontEngine: Glyph neither outline nor bitmap format=%d", slot->format);
         delete [] buffer;
         return 0;
     }
