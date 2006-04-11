@@ -96,6 +96,12 @@ private:
 };
 
 static FT_Library library = 0;
+FT_Library qt_getFreetype()
+{
+    if (!library)
+        FT_Init_FreeType(&library);
+    return library;
+}
 static QHash<QFontEngine::FaceId, QFreetypeFace *> *freetypeFaces = 0;
 
 int QFreetypeFace::fsType() const

@@ -318,7 +318,7 @@ struct QtFontFamily
         :
 #ifdef Q_WS_X11
         fixedPitch(true), hasFT(false), ftWritingSystemCheck(false),
-        xlfdLoaded(false), synthetic(false),
+        xlfdLoaded(false), synthetic(false), symbol_checked(false),
 #else
         fixedPitch(false),
 #endif
@@ -350,6 +350,10 @@ struct QtFontFamily
 #if !defined(QWS) && defined(Q_OS_MAC)
     bool fixedPitchComputed : 1;
 #endif
+#ifdef Q_WS_X11
+    bool symbol_checked;
+#endif
+
     QString name;
     QString rawName;
 #ifdef Q_WS_X11
@@ -403,11 +407,7 @@ QtFontFoundry *QtFontFamily::foundry(const QString &f, bool create)
 class QFontDatabasePrivate
 {
 public:
-    QFontDatabasePrivate() : count(0), families(0) {
-#ifdef Q_WS_X11
-        symbolFonts_checked = false;
-#endif
-    }
+    QFontDatabasePrivate() : count(0), families(0) { }
     ~QFontDatabasePrivate() {
         while (count--)
             delete families[count];
@@ -417,9 +417,6 @@ public:
 
     int count;
     QtFontFamily **families;
-#ifdef Q_WS_X11
-    bool symbolFonts_checked;
-#endif
 };
 
 QtFontFamily *QFontDatabasePrivate::family(const QString &f, bool create)
@@ -1377,8 +1374,7 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
 {
     ::load();
 #ifdef Q_WS_X11
-    if (!d->symbolFonts_checked)
-        checkSymbolFonts();
+    ::checkSymbolFonts();
 #endif
 
     QList<WritingSystem> list;
@@ -1412,8 +1408,7 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems(const QString 
 
     ::load();
 #ifdef Q_WS_X11
-    if (!d->symbolFonts_checked)
-        checkSymbolFonts();
+    ::checkSymbolFonts(familyName);
 #endif
 
     QList<WritingSystem> list;
@@ -1444,8 +1439,8 @@ QStringList QFontDatabase::families(WritingSystem writingSystem) const
 {
     ::load();
 #ifdef Q_WS_X11
-    if (!d->symbolFonts_checked && writingSystem != Any)
-        checkSymbolFonts();
+    if (writingSystem != Any)
+        ::checkSymbolFonts();
 #endif
 
     QStringList flist;

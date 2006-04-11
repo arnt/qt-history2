@@ -634,6 +634,7 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
 
         QtFontFamily *family = fontFamily ? fontFamily : db->family(familyName, true);
         family->fontFileIndex = -1;
+        family->symbol_checked = true;
         QtFontFoundry *foundry = family->foundry(foundryName, true);
         QtFontStyle *style = foundry->style(styleKey, true);
 
@@ -676,8 +677,6 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
     }
 
     XFreeFontNames(fontList);
-
-    db->symbolFonts_checked = true;
 }
 
 
@@ -1189,42 +1188,48 @@ static void load(const QString &family = QString(), int script = -1)
 #endif
 }
 
-static void checkSymbolFonts()
+static void checkSymbolFont(QtFontFamily *family)
+{
+    if (family->symbol_checked || family->fontFilename.isEmpty())
+        return;
+//     qDebug() << "checking " << family->rawName;
+    family->symbol_checked = true;
+
+    extern FT_Library qt_getFreetype();
+    FT_Library library = qt_getFreetype();
+
+    FT_Face face;
+    FT_Error err = FT_New_Face(library, family->fontFilename, family->fontFileIndex, &face);
+    if (err != FT_Err_Ok) {
+        qWarning("checkSymbolFonts: Couldn't open face %s (%s/%d)",
+                 qPrintable(family->rawName), family->fontFilename.data(), family->fontFileIndex);
+        return;
+    }
+    for (int i = 0; i < face->num_charmaps; ++i) {
+        FT_CharMap cm = face->charmaps[i];
+        if (cm->encoding == ft_encoding_adobe_custom
+            || cm->encoding == ft_encoding_symbol) {
+            for (int x = QFontDatabase::Latin; x < QFontDatabase::Other; ++x)
+                family->writingSystems[x] = QtFontFamily::Unsupported;
+            family->writingSystems[QFontDatabase::Other] = QtFontFamily::Supported;
+            break;
+        }
+    }
+
+    FT_Done_Face(face);
+}
+
+static void checkSymbolFonts(const QString &family = QString())
 {
 #ifndef QT_NO_FONTCONFIG
     QFontDatabasePrivate *d = privateDb();
 
-    FT_Library library;
-    FT_Init_FreeType(&library);
-
-    for (int i = 0; i < d->count; ++i) {
-        QtFontFamily *family = d->families[i];
-        if (family->fontFilename.isEmpty())
-            continue;
-
-        FT_Face face;
-        FT_Error err = FT_New_Face(library, family->fontFilename, family->fontFileIndex, &face);
-        if (err != FT_Err_Ok) {
-            qWarning("checkSymbolFonts: Couldn't open face %s (%s/%d)",
-                     qPrintable(family->rawName), family->fontFilename.data(), family->fontFileIndex);
-            continue;
-        }
-        for (int i = 0; i < face->num_charmaps; ++i) {
-            FT_CharMap cm = face->charmaps[i];
-            if (cm->encoding == ft_encoding_adobe_custom
-                || cm->encoding == ft_encoding_symbol) {
-                for (int x = QFontDatabase::Latin; x < QFontDatabase::Other; ++x)
-                    family->writingSystems[x] = QtFontFamily::Unsupported;
-                family->writingSystems[QFontDatabase::Other] = QtFontFamily::Supported;
-                break;
-            }
-        }
-
-        FT_Done_Face(face);
+    if (family.isEmpty()) {
+        for (int i = 0; i < d->count; ++i)
+            checkSymbolFont(d->families[i]);
+    } else {
+        checkSymbolFont(d->family(family));
     }
-
-    FT_Done_FreeType(library);
-    d->symbolFonts_checked = true;
 #endif
 }
 
