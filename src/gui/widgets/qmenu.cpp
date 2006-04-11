@@ -93,7 +93,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
 
     actionRects.clear();
     actionList.clear();
-    QList<QAction*> items = q->actions();
+    QList<QAction*> items = filterActions(q->actions());
     int max_column_width = 0, dh = QApplication::desktop()->availableGeometry(q).height(), ncols = 1, y = 0;
     const int hmargin = q->style()->pixelMetric(QStyle::PM_MenuHMargin, 0, q),
               vmargin = q->style()->pixelMetric(QStyle::PM_MenuVMargin, 0, q),
@@ -105,8 +105,6 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     hasCheckableItems = false;
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
-        if (!action->isVisible())
-            continue;
         hasCheckableItems |= action->isCheckable();
         QIcon is = action->icon();
         if (!is.isNull()) {
@@ -119,8 +117,6 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     QFontMetrics qfm = q->fontMetrics();
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
-        if (!action->isVisible())
-            continue;
 
         QFontMetrics fm(action->font().resolve(q->font()));
         QSize sz;
@@ -183,6 +179,8 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     for(int i = 0; i < actionList.count(); i++) {
         QAction *action = actionList.at(i);
         QRect &rect = actionRects[action];
+        if (rect.isNull())
+            continue;
         if (!scroll &&
            y+rect.height() > dh - (q->style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q) * 2)) {
             ncols--;
@@ -218,10 +216,47 @@ void QMenuPrivate::updateActions()
     itemsDirty = 0;
 }
 
+QList<QAction *> QMenuPrivate::filterActions(const QList<QAction *> &actions) const
+{
+    QList<QAction *> visibleActions;
+    int i = 0;
+    while (i < actions.count()) {
+        QAction *action = actions.at(i);
+        if (!action->isVisible()) {
+            ++i;
+            continue;
+        }
+        if (!action->isSeparator() || !collapseSeparators) {
+            visibleActions.append(action);
+            ++i;
+            continue;
+        }
+        
+        // no leading separators
+        if (!visibleActions.isEmpty())
+            visibleActions.append(action);
+
+        // skip double/tripple/etc. separators
+        while (i < actions.count()
+               && (!actions.at(i)->isVisible() || actions.at(i)->isSeparator()))
+            ++i;
+    }
+
+    if (collapseSeparators) {
+        // remove trailing separators
+        while (!visibleActions.isEmpty() && visibleActions.last()->isSeparator())
+            visibleActions.removeLast();
+    }
+
+    return visibleActions;
+}
+
 QRect QMenuPrivate::actionRect(QAction *act) const
 {
     Q_Q(const QMenu);
     QRect ret = actionRects.value(act);
+    if (ret.isNull())
+        return ret;
     if (scroll)
         ret.translate(0, scroll->scrollOffset);
     if (tearoff)
@@ -2371,6 +2406,33 @@ void QMenu::internalDelayedPopup()
 void QMenu::setNoReplayFor(QWidget *noReplayFor)
 {
     d_func()->noReplayFor = noReplayFor;
+}
+
+/*!
+  \property QMenu::collapseSeparators
+  \since 4.2
+
+  \brief whether consecutive separators should be collapsed
+
+  This property specifies whether consecutive separators in the menu
+  should be visually collapsed to a single one. Separators at the
+  beginning or the end of the menu are also hidden.
+*/
+bool QMenu::collapseSeparators() const
+{
+    Q_D(const QMenu);
+    return d->collapseSeparators;
+}
+
+void QMenu::setCollapseSeparators(bool collapse)
+{
+    Q_D(QMenu);
+    d->collapseSeparators = collapse;
+    d->itemsDirty = 1;
+    if (isVisible()) {
+        d->updateActions();
+        update();
+    }    
 }
 
 #ifdef QT3_SUPPORT

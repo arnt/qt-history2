@@ -48,6 +48,7 @@ QDesignerMenu::QDesignerMenu(QWidget *parent)
 
     setContextMenuPolicy(Qt::DefaultContextMenu);
     setAcceptDrops(true); // ### fake
+    setCollapseSeparators(false);
 
     m_adjustSizeTimer = new QTimer(this);
     connect(m_adjustSizeTimer, SIGNAL(timeout()), this, SLOT(slotAdjustSizeNow()));
