@@ -1527,6 +1527,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
         }
     } else {
         qWarning("QFontEngine: Glyph neither outline nor bitmap");
+        delete [] buffer;
         return 0;
     }
 
