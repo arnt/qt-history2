@@ -2421,17 +2421,49 @@ QHelpEvent::~QHelpEvent()
     \ingroup events
     \ingroup helpsystem
 
-    Status tips can be set on a widget using QWidget::setStatusTip().
-    They are shown in the status bar when the mouse cursor enters the
-    widget. Status tips can also be set on actions using
-    QAction::setStatusTip(), and they are supported for the item view
-    classes through Qt::StatusTipRole.
+    Status tips can be set on a widget using the
+    QWidget::setStatusTip() function.  They are shown in the status
+    bar when the mouse cursor enters the widget. For example:
+
+    \table 100%
+    \row
+    \o
+    \quotefromfile snippets/qstatustipevent/main.cpp
+    \skipto MainWindow::MainWindow
+    \printuntil setCentralWidget
+    \dots
+    \skipto }
+    \printline }
+    \o
+    \image qstatustipevent-widget.png Widget with status tip.
+    \endtable
+
+    Status tips can also be set on actions using the
+    QAction::setStatusTip() function:
+
+    \table 100%
+    \row
+    \o
+    \quotefromfile snippets/qstatustipevent/main.cpp
+    \skipto MainWindow::MainWindow
+    \printuntil {
+    \skipto QMenu
+    \printuntil addAction
+    \dots
+    \skipto }
+    \printline }
+    \o
+    \image qstatustipevent-action.png Action with status tip.
+    \endtable
+
+    Finally, status tips are supported for the item view classes
+    through the Qt::StatusTipRole enum value.
 
     \sa QStatusBar, QHelpEvent, QWhatsThisClickedEvent
 */
 
 /*!
-    Constructs a status tip event with text specified by \a tip.
+    Constructs a status tip event with the text specified by \a tip.
 
     \sa tip()
 */
