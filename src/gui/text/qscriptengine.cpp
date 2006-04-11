@@ -327,7 +327,6 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
     heuristicSetGlyphAttributes(item, item->string->unicode() + item->from, item->length);
 }
 
-#if !defined(Q_WS_MAC)
 static bool basic_shape(QShaperItem *item)
 {
     if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
@@ -337,8 +336,6 @@ static bool basic_shape(QShaperItem *item)
     qt_heuristicPosition(item);
     return true;
 }
-#endif
-
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
@@ -5190,6 +5187,9 @@ const q_scriptEngine qt_scriptEngines[] = {
 
 static bool mac_shape(QShaperItem *item)
 {
+    if (item->font->type() != QFontEngine::Mac)
+        return basic_shape(item);
+
     QFontEngineMacMulti *fe = static_cast<QFontEngineMacMulti *>(item->font);
     if (!fe->stringToCMap(item->string->unicode()+item->from, item->length,
                           item->glyphs, &item->num_glyphs, QFlag(item->flags),

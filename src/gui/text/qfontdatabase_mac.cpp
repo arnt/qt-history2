@@ -142,8 +142,14 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
     // set it to the actual pointsize, so QFontInfo will do the right thing
     req.pointSize = qRound(qt_mac_pointsize(d->request, d->dpi));
 
-    if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
-        Q_ASSERT(e->type() == QFontEngine::Multi);
+    QFontEngine *e = QFontCache::instance->findEngine(key);
+    if (!e && qt_enable_test_font && req.family == QLatin1String("__Qt__Box__Engine__")) {
+        e = new QTestFontEngine(req.pixelSize);
+        e->fontDef = req;
+    }
+
+    if (e) {
+        Q_ASSERT(e->type() == QFontEngine::Multi || e->type() == QFontEngine::TestFontEngine);
         e->ref.ref();
         d->engineData->engine = e;
         return; // the font info and fontdef should already be filled
