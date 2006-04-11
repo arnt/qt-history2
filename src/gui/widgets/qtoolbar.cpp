@@ -254,7 +254,7 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
 
     QWidgetAction *widgetAction = qobject_cast<QWidgetAction *>(action);
     if (widgetAction) {
-        item.widget = widgetAction->createWidget(q);
+        item.widget = widgetAction->requestWidget(q);
         if (item.widget) {
             item.hasCustomWidget = true;
             return item;
@@ -450,11 +450,11 @@ QToolBar::~QToolBar()
 #endif
     }
     Q_D(QToolBar);
-    for (int i = 0; i < d->items.count(); ++i) {
-        const QToolBarItem &item = d->items.at(i);
+    while (!d->items.isEmpty()) {
+        const QToolBarItem item = d->items.takeFirst();
         QWidgetAction *widgetAction = qobject_cast<QWidgetAction *>(item.action);
         if (item.hasCustomWidget && widgetAction) {
-            widgetAction->removeWidget(item.widget);
+            widgetAction->releaseWidget(item.widget);
         }
     }
 }
@@ -719,7 +719,8 @@ QAction *QToolBar::insertSeparator(QAction *before)
 */
 QAction *QToolBar::addWidget(QWidget *widget)
 {
-    QWidgetAction *action = new QWidgetAction(widget, this);
+    QWidgetAction *action = new QWidgetAction(this);
+    action->setDefaultWidget(widget);
     action->d_func()->autoCreated = true;
     addAction(action);
     return action;
@@ -737,7 +738,8 @@ QAction *QToolBar::addWidget(QWidget *widget)
 */
 QAction *QToolBar::insertWidget(QAction *before, QWidget *widget)
 {
-    QWidgetAction *action = new QWidgetAction(widget, this);
+    QWidgetAction *action = new QWidgetAction(this);
+    action->setDefaultWidget(widget);
     action->d_func()->autoCreated = true;
     insertAction(before, action);
     return action;
@@ -848,7 +850,7 @@ void QToolBar::actionEvent(QActionEvent *event)
             QToolBarItem item = d->items.takeAt(index);
             layout()->removeWidget(item.widget);
             if (widgetAction && item.hasCustomWidget) {
-                widgetAction->removeWidget(item.widget);
+                widgetAction->releaseWidget(item.widget);
 //              if (!isHidden() && item.widget->testAttribute(Qt::WA_WState_Created))
 //                  item.widget->hide();
             } else {

@@ -31,14 +31,14 @@ class QWidgetActionPrivate : public QActionPrivate
 {
     Q_DECLARE_PUBLIC(QWidgetAction)
 public:
-    inline QWidgetActionPrivate() : widgetInUse(false), autoCreated(false) {}
-    QPointer<QWidget> widget;
-    QList<QWidget *> allWidgets;
-    uint widgetInUse : 1;
+    inline QWidgetActionPrivate() : defaultWidgetInUse(false), autoCreated(false) {}
+    QPointer<QWidget> defaultWidget;
+    QList<QWidget *> createdWidgets;
+    uint defaultWidgetInUse : 1;
     uint autoCreated : 1; // created by QToolBar::addWidget and the like
     
     inline void _q_widgetDestroyed(QObject *o) {
-        allWidgets.removeAll(static_cast<QWidget *>(o));
+        createdWidgets.removeAll(static_cast<QWidget *>(o));
     }
 };
 

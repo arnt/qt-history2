@@ -30,19 +30,20 @@ class Q_GUI_EXPORT QWidgetAction : public QAction
     Q_DECLARE_PRIVATE(QWidgetAction)
 
 public:
-    QWidgetAction(QWidget *widget, QObject* parent);
+    explicit QWidgetAction(QObject *parent);
     virtual ~QWidgetAction();
     
-    QWidget *createWidget(QWidget *parent);
-    void removeWidget(QWidget *widget);
-    
-    QList<QWidget *> widgets() const;
+    void setDefaultWidget(QWidget *w);
+    QWidget *defaultWidget() const;
 
+    QWidget *requestWidget(QWidget *parent);
+    void releaseWidget(QWidget *widget);
+    
 protected:
-    explicit QWidgetAction(QObject* parent);
     virtual bool event(QEvent *);
-    virtual QWidget *doCreateWidget(QWidget *parent);
-    virtual void doRemoveWidget(QWidget *widget);
+    virtual QWidget *createWidget(QWidget *parent);
+    virtual void deleteWidget(QWidget *widget);
+    QList<QWidget *> createdWidgets() const;
 
 private:
     Q_DISABLE_COPY(QWidgetAction)

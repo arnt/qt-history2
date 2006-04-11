@@ -64,34 +64,79 @@ QWidgetAction::QWidgetAction(QObject* parent)
 }
 
 /*!
-    Convenience constructor that constructs an action with \a parent and uses
-    the specified \a widget when the action is added to a container widget that
-    supports custom widgets, such as QToolBar. The ownership of \a widget is
-    transferred to QWidgetAction.
-*/
-QWidgetAction::QWidgetAction(QWidget *widget, QObject* parent)
-    : QAction(*(new QWidgetActionPrivate), parent)
-{
-    Q_D(QWidgetAction);
-    setVisible(!(widget->isHidden() && widget->testAttribute(Qt::WA_WState_ExplicitShowHide)));
-    d->widget = widget;
-    d->widget->hide();
-    d->widget->setParent(0);
-}
-
-/*!
     Destroys the object and frees allocated resources.
 */
 QWidgetAction::~QWidgetAction()
 {
     Q_D(QWidgetAction);
-    for (int i = 0; i < d->allWidgets.count(); ++i)
-        disconnect(d->allWidgets.at(i), SIGNAL(destroyed(QObject *)),
+    for (int i = 0; i < d->createdWidgets.count(); ++i)
+        disconnect(d->createdWidgets.at(i), SIGNAL(destroyed(QObject *)),
                    this, SLOT(_q_widgetDestroyed(QObject *)));
-    QList<QWidget *> widgetsToDelete = d->allWidgets;
-    d->allWidgets.clear();
+    QList<QWidget *> widgetsToDelete = d->createdWidgets;
+    d->createdWidgets.clear();
     qDeleteAll(widgetsToDelete);
-    delete d->widget;
+    delete d->defaultWidget;
+}
+
+void QWidgetAction::setDefaultWidget(QWidget *w)
+{
+    Q_D(QWidgetAction);
+    if (w == d->defaultWidget || d->defaultWidgetInUse)
+        return;
+    delete d->defaultWidget;
+    d->defaultWidget = w;
+    if (!w)
+        return;
+
+    setVisible(!(w->isHidden() && w->testAttribute(Qt::WA_WState_ExplicitShowHide)));
+    d->defaultWidget->hide();
+    d->defaultWidget->setParent(0);
+    d->defaultWidgetInUse = false;
+}
+
+QWidget *QWidgetAction::defaultWidget() const
+{
+    Q_D(const QWidgetAction);
+    return d->defaultWidget;
+}
+
+QWidget *QWidgetAction::requestWidget(QWidget *parent)
+{
+    Q_D(QWidgetAction);
+
+    QWidget *w = createWidget(parent);
+    if (!w) {
+        if (d->defaultWidgetInUse || !d->defaultWidget)
+            return 0;
+        d->defaultWidget->setParent(parent);
+        d->defaultWidgetInUse = true;
+        return d->defaultWidget;
+    }
+
+    connect(w, SIGNAL(destroyed(QObject *)),
+            this, SLOT(_q_widgetDestroyed(QObject *)));
+    d->createdWidgets.append(w);
+    return w;
+}
+
+void QWidgetAction::releaseWidget(QWidget *w)
+{
+    Q_D(QWidgetAction);
+    
+    if (w == d->defaultWidget) {
+        d->defaultWidget->hide();
+        d->defaultWidget->setParent(0);
+        d->defaultWidgetInUse = false;
+        return;
+    }
+
+    if (!d->createdWidgets.contains(w))
+        return;
+    
+    disconnect(w, SIGNAL(destroyed(QObject *)),
+               this, SLOT(_q_widgetDestroyed(QObject *)));
+    d->createdWidgets.removeAll(w);
+    deleteWidget(w);
 }
 
 /*!
@@ -102,50 +147,16 @@ bool QWidgetAction::event(QEvent *e)
     return QAction::event(e);
 }
 
-QWidget *QWidgetAction::createWidget(QWidget *parent)
-{
-    Q_D(QWidgetAction);
-
-    QWidget *w = doCreateWidget(parent);
-    if (!w) return w;
-
-    connect(w, SIGNAL(destroyed(QObject *)),
-            this, SLOT(_q_widgetDestroyed(QObject *)));
-    d->allWidgets.append(w);
-    return w;
-}
-
-void QWidgetAction::removeWidget(QWidget *w)
-{
-    Q_D(QWidgetAction);
-    if (!d->allWidgets.contains(w))
-        return;
-    disconnect(w, SIGNAL(destroyed(QObject *)),
-            this, SLOT(_q_widgetDestroyed(QObject *)));
-    d->allWidgets.removeAll(w);
-    doRemoveWidget(w);
-}
-
-QList<QWidget *> QWidgetAction::widgets() const
-{
-    Q_D(const QWidgetAction);
-    return d->allWidgets;
-}
-
 /*!
     This function is called whenever the action is added to a container widget
     that supports custom widgets. If you don't want a custom widget to be
     used as representation of the action in the specified \a parent widget then
     0 should be returned.
 */
-QWidget *QWidgetAction::doCreateWidget(QWidget *parent)
+QWidget *QWidgetAction::createWidget(QWidget *parent)
 {
-    Q_D(QWidgetAction);
-    if (d->widgetInUse || !d->widget)
-        return 0;
-    d->widget->setParent(parent);
-    d->widgetInUse = true;
-    return d->widget;
+    Q_UNUSED(parent)
+    return 0;
 }
 
 /*!
@@ -155,17 +166,16 @@ QWidget *QWidgetAction::doCreateWidget(QWidget *parent)
     widget, unless the action was constructed using the QActionWidget
     convenience constructor that takes an instance of a existing custom widget.
 */
-void QWidgetAction::doRemoveWidget(QWidget *widget)
+void QWidgetAction::deleteWidget(QWidget *widget)
 {
-    Q_D(QWidgetAction);
-    if (widget == d->widget) {
-        d->widget->hide();
-        d->widget->setParent(0);
-        d->widgetInUse = false;
-    } else {
-        widget->hide();
-        widget->deleteLater();
-    }
+    widget->hide();
+    widget->deleteLater();
+}
+
+QList<QWidget *> QWidgetAction::createdWidgets() const
+{
+    Q_D(const QWidgetAction);
+    return d->createdWidgets;
 }
 
 #include "moc_qwidgetaction.cpp"
