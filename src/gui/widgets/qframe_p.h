@@ -26,6 +26,7 @@
 //
 
 #include "private/qwidget_p.h"
+#include "qframe.h"
 
 class Q_GUI_EXPORT QFramePrivate : public QWidgetPrivate
 {

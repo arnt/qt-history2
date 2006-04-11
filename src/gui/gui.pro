@@ -27,6 +27,7 @@ include(dialogs/dialogs.pri)
 include(accessible/accessible.pri)
 include(itemviews/itemviews.pri)
 include(inputmethod/inputmethod.pri)
+include(graphicsview/graphicsview.pri)
 
 embedded: INCLUDEPATH *= $$QMAKE_INCDIR_QT/QtNetwork
 

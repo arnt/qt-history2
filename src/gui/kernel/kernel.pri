@@ -30,6 +30,8 @@ HEADERS += \
 	kernel/qsound.h \
 	kernel/qsound_p.h \
 	kernel/qstackedlayout.h \
+	kernel/qtextcontrol_p.h \
+	kernel/qtextcontrol_p_p.h \
 	kernel/qtooltip.h \
 	kernel/qwhatsthis.h \
 	kernel/qwidget.h \
@@ -59,6 +61,7 @@ SOURCES += \
 	kernel/qshortcutmap.cpp \
 	kernel/qsound.cpp \
 	kernel/qstackedlayout.cpp \
+	kernel/qtextcontrol.cpp \
 	kernel/qtooltip.cpp \
 	kernel/qguivariant.cpp \
 	kernel/qwhatsthis.cpp \

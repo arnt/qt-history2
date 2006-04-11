@@ -2988,6 +2988,16 @@ QStyleOptionSizeGrip::QStyleOptionSizeGrip(int version)
 */
 #endif // QT_NO_SIZEGRIP
 
+QStyleOptionGraphicsItem::QStyleOptionGraphicsItem()
+    : levelOfDetail(1)
+{
+}
+
+QStyleOptionGraphicsItem::QStyleOptionGraphicsItem(int version)
+    : QStyleOption(version, Type), levelOfDetail(1)
+{
+}
+
 /*!
     \class QStyleHintReturn
     \brief The QStyleHintReturn class provides style hints that return more
@@ -3197,10 +3207,10 @@ QDebug operator<<(QDebug debug, const QStyleOption::OptionType &optionType)
         debug << "SO_ToolBar"; break;
     case QStyleOption::SO_ComplexCustomBase:
         debug << "SO_ComplexCustomBase"; break;
-        break;
     case QStyleOption::SO_SizeGrip:
         debug << "SO_SizeGrip"; break;
-        break;
+    case QStyleOption::SO_GraphicsItem:
+        debug << "SO_GraphicsItem"; break;
     }
     return debug;
 }

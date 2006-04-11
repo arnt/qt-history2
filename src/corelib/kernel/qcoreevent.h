@@ -182,6 +182,16 @@ public:
 
         ZeroTimerEvent = 154,                   // Used for Windows Zero timer events
 
+        GraphicsSceneMouseMove = 155,           // GraphicsView
+        GraphicsSceneMousePress = 156,
+        GraphicsSceneMouseRelease = 157,
+        GraphicsSceneMouseClick = 158,
+        GraphicsSceneMouseDoubleClick = 159,
+        GraphicsSceneContextMenu = 160,
+        GraphicsSceneHoverEnter = 161,
+        GraphicsSceneHoverMove = 162,
+        GraphicsSceneHoverLeave = 163,
+                
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };

@@ -16,6 +16,7 @@
 
 #include <QtGui/qabstractspinbox.h>
 #include <QtGui/qicon.h>
+#include <QtGui/qmatrix.h>
 #include <QtGui/qslider.h>
 #include <QtGui/qstyle.h>
 #include <QtGui/qtabbar.h>
@@ -35,7 +36,7 @@ public:
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
                       SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_Q3DockWindow,
                       SO_DockWidget, SO_Q3ListViewItem, SO_ViewItem, SO_TabWidgetFrame,
-                      SO_TabBarBase, SO_RubberBand, SO_ToolBar,
+                      SO_TabBarBase, SO_RubberBand, SO_ToolBar, SO_GraphicsItem,
 
                       SO_Complex = 0xf0000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
                       SO_Q3ListView, SO_TitleBar, SO_GroupBox, SO_SizeGrip,
@@ -648,6 +649,22 @@ public:
     QStyleOptionSizeGrip(const QStyleOptionSizeGrip &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 protected:
     QStyleOptionSizeGrip(int version);
+};
+
+class Q_GUI_EXPORT QStyleOptionGraphicsItem : public QStyleOption
+{
+public:
+    enum StyleOptionType { Type = SO_GraphicsItem };
+    enum StyleOptionVersion { Version = 1 };
+
+    QRectF exposedRect;
+    QMatrix matrix;
+    qreal levelOfDetail;
+
+    QStyleOptionGraphicsItem();
+    QStyleOptionGraphicsItem(const QStyleOptionGraphicsItem &other) : QStyleOption(Version, Type) { *this = other; }
+protected:
+    QStyleOptionGraphicsItem(int version);
 };
 
 template <typename T>
