@@ -201,6 +201,7 @@ void QAbstractItemViewPrivate::init()
     \value EnsureVisible  Scroll to ensure that the item is visible.
     \value PositionAtTop  Scroll to position the item at the top of the viewport.
     \value PositionAtBottom  Scroll to position the item at the bottom of the viewport.
+    \value PositionAtCenter  Scroll to position the item at the center of the viewport.
 */
 
 

@@ -1199,10 +1199,14 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     int horizontalPosition = d->horizontalHeader->sectionPosition(index.column());
     int cellWidth = d->horizontalHeader->sectionSize(index.column());
 
-    if (horizontalPosition - horizontalOffset < 0 || cellWidth > viewportWidth)
-        horizontalScrollBar()->setValue(horizontalPosition);
-    else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
-        horizontalScrollBar()->setValue(horizontalPosition - viewportWidth + cellWidth);
+    if (hint == PositionAtCenter) {
+        horizontalScrollBar()->setValue(horizontalPosition - ((viewportWidth - cellWidth) / 2));
+    } else {
+        if (horizontalPosition - horizontalOffset < 0 || cellWidth > viewportWidth)
+            horizontalScrollBar()->setValue(horizontalPosition);
+        else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
+            horizontalScrollBar()->setValue(horizontalPosition - viewportWidth + cellWidth);
+    }
 
     // Adjust vertical position
 
@@ -1223,6 +1227,8 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
         verticalScrollBar()->setValue(verticalPosition);
     else if (hint == PositionAtBottom)
         verticalScrollBar()->setValue(verticalPosition - viewportHeight + cellHeight);
+    else if (hint == PositionAtCenter)
+        verticalScrollBar()->setValue(verticalPosition - ((viewportHeight - cellHeight) / 2));
 
     d->setDirtyRegion(visualRect(index));
 }

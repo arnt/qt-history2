@@ -67,7 +67,8 @@ public:
     enum ScrollHint {
         EnsureVisible,
         PositionAtTop,
-        PositionAtBottom
+        PositionAtBottom,
+        PositionAtCenter
     };
 
     enum EditTrigger {

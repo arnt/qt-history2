@@ -800,13 +800,15 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     if (hint == PositionAtTop || above) {
         int i = d->viewIndex(index);
         verticalScrollBar()->setValue(i * verticalSteps);
-    } else if (hint == PositionAtBottom || below) {
+    } else if (hint == PositionAtCenter || hint == PositionAtBottom || below) {
         int i = d->viewIndex(index);
         if (i < 0) {
             qWarning("scrollTo: item index was illegal: %d", i);
             return;
         }
         int y = area.height();
+        if (hint == PositionAtCenter)
+            y = y / 2;
         while (y > 0 && i > 0)
             y -= d->height(i--);
         int h = d->height(i);
@@ -820,10 +822,14 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     int horizontalPosition = d->header->sectionPosition(index.column());
     int cellWidth = d->header->sectionSize(index.column());
 
-    if (horizontalPosition - horizontalOffset < 0 || cellWidth > viewportWidth)
-        horizontalScrollBar()->setValue(horizontalPosition);
-    else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
-        horizontalScrollBar()->setValue(horizontalPosition - viewportWidth + cellWidth);
+    if (hint == PositionAtCenter) {
+        horizontalScrollBar()->setValue(horizontalPosition - ((viewportWidth - cellWidth) / 2));
+    } else {
+        if (horizontalPosition - horizontalOffset < 0 || cellWidth > viewportWidth)
+            horizontalScrollBar()->setValue(horizontalPosition);
+        else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
+            horizontalScrollBar()->setValue(horizontalPosition - viewportWidth + cellWidth);
+    }
 }
 
 /*!

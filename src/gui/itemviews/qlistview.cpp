@@ -490,19 +490,29 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
         verticalScrollBar()->setValue(vy + rect.top());
     else if (hint == PositionAtBottom || below)
         verticalScrollBar()->setValue(vy + rect.bottom() - viewport()->height());
+    else if (hint == PositionAtCenter)
+        verticalScrollBar()->setValue(vy + rect.top() - ((viewport()->height() - rect.height()) / 2));
 
     // horizontal
     int vx = horizontalScrollBar()->value();
     if (isRightToLeft()) {
-        if ((rect.left() < area.left()) && (rect.right() < area.right())) // left of
-            horizontalScrollBar()->setValue(vx - rect.left());
-        else if (rect.right() > area.right()) // right of
-            horizontalScrollBar()->setValue(vx - rect.right() + viewport()->width());
+        if (hint == PositionAtCenter) {
+            horizontalScrollBar()->setValue(vx - rect.left() + ((viewport()->width() - rect.width()) / 2));
+        } else {
+            if ((rect.left() < area.left()) && (rect.right() < area.right())) // left of
+                horizontalScrollBar()->setValue(vx - rect.left());
+            else if (rect.right() > area.right()) // right of
+                horizontalScrollBar()->setValue(vx - rect.right() + viewport()->width());
+        }
     } else {
-        if (rect.left() < area.left()) // left of
-            horizontalScrollBar()->setValue(vx + rect.left());
-        else if ((rect.right() > area.right()) && (rect.left() > area.left())) // right of
-            horizontalScrollBar()->setValue(vx + rect.right() - viewport()->width());
+        if (hint == PositionAtCenter) {
+            horizontalScrollBar()->setValue(vx + rect.left() - ((viewport()->width()- rect.width()) / 2));
+        } else {
+            if (rect.left() < area.left()) // left of
+                horizontalScrollBar()->setValue(vx + rect.left());
+            else if ((rect.right() > area.right()) && (rect.left() > area.left())) // right of
+                horizontalScrollBar()->setValue(vx + rect.right() - viewport()->width());
+        }
     }
 }
 
