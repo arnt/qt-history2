@@ -370,7 +370,7 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region
 */
 void QGraphicsViewPrivate::contextMenuEvent(QContextMenuEvent *event)
 {
-    if (!scene)
+    if (!scene || !sceneInteractionAllowed)
         return;
 
     mousePressViewPoint = event->pos();
@@ -378,7 +378,7 @@ void QGraphicsViewPrivate::contextMenuEvent(QContextMenuEvent *event)
     mousePressScreenPoint = event->globalPos();
     lastMouseMoveScenePoint = mousePressScenePoint;
 
-    QGraphicsSceneContextMenuEvent contextEvent(QEvent::ContextMenu);
+    QGraphicsSceneContextMenuEvent contextEvent(QEvent::GraphicsSceneContextMenu);
     contextEvent.setWidget(q);
     contextEvent.setScenePos(mousePressScenePoint);
     contextEvent.setScreenPos(mousePressScreenPoint);
