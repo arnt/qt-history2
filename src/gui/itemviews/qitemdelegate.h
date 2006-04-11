@@ -66,18 +66,14 @@ protected:
     virtual void drawFocus(QPainter *painter, const QStyleOptionViewItem &option,
                            const QRect &rect) const;
     virtual void drawCheck(QPainter *painter, const QStyleOptionViewItem &option,
-                           const QRect &rect, Qt::CheckState state) const;    
+                           const QRect &rect, Qt::CheckState state) const;
     void drawBackground(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const;
 
     void doLayout(const QStyleOptionViewItem &option,
                   QRect *checkRect, QRect *iconRect, QRect *textRect, bool hint) const;
-    QPixmap decoration(const QStyleOptionViewItem &option, const QVariant &variant) const;
-    QPixmap *selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const;
-    QRect check(const QStyleOptionViewItem &option, const QRect &bounding,
-                const QVariant &variant) const;
-    QRect textRectangle(QPainter *painter, const QRect &rect,
-                        const QFont &font, const QString &text) const;
+
+    QRect rect(const QStyleOptionViewItem &option, const QModelIndex &index, int role) const;
 
     bool eventFilter(QObject *object, QEvent *event);
     bool editorEvent(QEvent *event, QAbstractItemModel *model,
@@ -85,6 +81,14 @@ protected:
 
     QStyleOptionViewItem setOptions(const QModelIndex &index,
                                     const QStyleOptionViewItem &option) const;
+
+    QPixmap decoration(const QStyleOptionViewItem &option, const QVariant &variant) const;
+    QPixmap *selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const;
+
+    QRect check(const QStyleOptionViewItem &option, const QRect &bounding,
+                const QVariant &variant) const;
+    QRect textRectangle(QPainter *painter, const QRect &rect,
+                        const QFont &font, const QString &text) const;
 
 private:
     Q_DECLARE_PRIVATE(QItemDelegate)

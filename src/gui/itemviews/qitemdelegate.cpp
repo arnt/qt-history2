@@ -195,28 +195,45 @@ void QItemDelegate::paint(QPainter *painter,
     Q_ASSERT(index.isValid());
     QStyleOptionViewItem opt = setOptions(index, option);
 
+    // get the rects
+
+    QVariant value;
+
+    QPixmap pixmap;
+    QRect decorationRect;
+    value = index.data(Qt::DecorationRole);
+    if (value.isValid()) {
+        pixmap = decoration(opt, value);
+        decorationRect = QRect(QPoint(0, 0), option.decorationSize);
+    }
+
+    QString text;
+    QRect displayRect;
+    value = index.data(Qt::DisplayRole);
+    if (value.isValid()) {
+        text = value.toString();
+        displayRect = textRectangle(painter, opt.rect, opt.font, text);
+    }
+
+    QRect checkRect;
+    Qt::CheckState checkState;
+    value = index.data(Qt::CheckStateRole);
+    if (value.isValid()) {
+        checkState = static_cast<Qt::CheckState>(value.toInt());
+        checkRect = check(opt, opt.rect, value);
+    }
+
     // do the layout
 
-    QPixmap pixmap = decoration(opt, index.data(Qt::DecorationRole));
-    QRect pixmapRect = (pixmap.isNull() ? QRect(0, 0, 0, 0)
-                        : QRect(QPoint(0, 0), option.decorationSize));
-
-    QString text = index.data(Qt::DisplayRole).toString();
-    QRect textRect = textRectangle(painter, opt.rect, opt.font, text);
-
-    QVariant value = index.data(Qt::CheckStateRole);
-    QRect checkRect = check(opt, opt.rect, value);
-    Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
-
-    doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
+    doLayout(opt, &checkRect, &decorationRect, &displayRect, false);
 
     // draw the item
 
     drawBackground(painter, opt, index);
     drawCheck(painter, opt, checkRect, checkState);
-    drawDecoration(painter, opt, pixmapRect, pixmap);
-    drawDisplay(painter, opt, textRect, text);
-    drawFocus(painter, opt, textRect);
+    drawDecoration(painter, opt, decorationRect, pixmap);
+    drawDisplay(painter, opt, displayRect, text);
+    drawFocus(painter, opt, displayRect);
 }
 
 /*!
@@ -234,21 +251,14 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     if (value.isValid())
         return qvariant_cast<QSize>(value);
 
-    QString text = index.data(Qt::DisplayRole).toString();
-    value = index.data(Qt::FontRole);
-    QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
-    QRect textRect = textRectangle(0, option.rect, fnt, text);
+    QRect displayRect = rect(option, index, Qt::DisplayRole);
+    QRect decorationRect = rect(option, index, Qt::DecorationRole);
+    QRect checkRect = rect(option, index, Qt::CheckStateRole);
+//    QRect checkRect = check(option, displayRect, index.data(Qt::CheckStateRole));
 
-    QRect pixmapRect;
-    if (index.data(Qt::DecorationRole).isValid())
-        pixmapRect = QRect(0, 0, option.decorationSize.width(),
-                           option.decorationSize.height());
+    doLayout(option, &checkRect, &decorationRect, &displayRect, true);
 
-    QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
-
-    doLayout(option, &checkRect, &pixmapRect, &textRect, true);
-
-    return (pixmapRect|textRect|checkRect).size();
+    return (decorationRect|displayRect|checkRect).size();
 }
 
 /*!
@@ -693,6 +703,35 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
         pm = QPixmapCache::find(key);
     }
     return pm;
+}
+
+/*!
+  \internal
+*/
+
+QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
+                          const QModelIndex &index, int role) const
+{
+    QVariant value = index.data(role);
+    if (role == Qt::CheckStateRole)
+        return check(option, option.rect, value);
+    if (value.isValid()) {
+        switch (value.type()) {
+        case QVariant::String: {
+            QString text = value.toString();
+            value = index.data(Qt::FontRole);
+            QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
+            return textRectangle(0, option.rect, fnt, text); }
+        case QVariant::Pixmap:
+            return QRect(QPoint(0, 0), qvariant_cast<QPixmap>(value).size());
+        case QVariant::Image:
+            return QRect(QPoint(0, 0), qvariant_cast<QImage>(value).size());
+        case QVariant::Icon:
+        case QVariant::Color:
+            return QRect(QPoint(0, 0), option.decorationSize);
+        }
+    }
+    return QRect();
 }
 
 /*!
