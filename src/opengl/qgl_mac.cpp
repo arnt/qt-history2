@@ -375,7 +375,7 @@ void QGLContext::updatePaintDevice()
                     aglDisable((AGLContext)d->cx, AGL_CLIP_REGION);
             } else {
                 HIPoint origin = { 0., 0. };
-                OSStatus status = HIViewConvertPoint(&origin, HIViewRef(w->winId()), 0);
+                HIViewConvertPoint(&origin, HIViewRef(w->winId()), 0);
                 const GLint offs[4] = { qRound(origin.x),
                                         w->window()->frameGeometry().height()
                                                 - (qRound(origin.y) + w->height()),
