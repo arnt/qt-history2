@@ -40,7 +40,7 @@ private:
     Q_PROPERTY(bool tearOffEnabled READ isTearOffEnabled WRITE setTearOffEnabled)
     Q_PROPERTY(QString title READ title WRITE setTitle)
     Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
-    Q_PROPERTY(bool collapseSeparators READ collapseSeparators WRITE setCollapseSeparators)
+    Q_PROPERTY(bool separatorsCollapsible READ separatorsCollapsible WRITE setSeparatorsCollapsible)
 
 public:
     explicit QMenu(QWidget *parent = 0);
@@ -103,8 +103,8 @@ public:
     MenuRef macMenu(MenuRef merge=0);
 #endif
     
-    bool collapseSeparators() const;
-    void setCollapseSeparators(bool collapse);
+    bool separatorsCollapsible() const;
+    void setSeparatorsCollapsible(bool collapse);
 
 Q_SIGNALS:
     void aboutToShow();

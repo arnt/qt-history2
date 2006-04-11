@@ -50,7 +50,7 @@ class QMenuPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QMenu)
 public:
-    QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), collapseSeparators(true), mouseDown(0), hasHadMouse(0), motions(0),
+    QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), collapsibleSeparators(true), mouseDown(0), hasHadMouse(0), motions(0),
                       currentAction(0), scroll(0), eventLoop(0), tearoff(0), tornoff(0), tearoffHighlighted(0),
                       hasCheckableItems(0), sloppyAction(0)
 #ifdef Q_WS_MAC
@@ -75,7 +75,7 @@ public:
     void updateActions();
     QList<QAction *> filterActions(const QList<QAction *> &actions) const;
     uint ncols : 4; //4 bits is probably plenty
-    uint collapseSeparators : 1;
+    uint collapsibleSeparators : 1;
 
     //selection
     uint mouseDown : 1, hasHadMouse : 1;

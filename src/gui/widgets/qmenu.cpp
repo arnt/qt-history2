@@ -226,7 +226,7 @@ QList<QAction *> QMenuPrivate::filterActions(const QList<QAction *> &actions) co
             ++i;
             continue;
         }
-        if (!action->isSeparator() || !collapseSeparators) {
+        if (!action->isSeparator() || !collapsibleSeparators) {
             visibleActions.append(action);
             ++i;
             continue;
@@ -242,7 +242,7 @@ QList<QAction *> QMenuPrivate::filterActions(const QList<QAction *> &actions) co
             ++i;
     }
 
-    if (collapseSeparators) {
+    if (collapsibleSeparators) {
         // remove trailing separators
         while (!visibleActions.isEmpty() && visibleActions.last()->isSeparator())
             visibleActions.removeLast();
@@ -2409,7 +2409,7 @@ void QMenu::setNoReplayFor(QWidget *noReplayFor)
 }
 
 /*!
-  \property QMenu::collapseSeparators
+  \property QMenu::separatorsCollapsible
   \since 4.2
 
   \brief whether consecutive separators should be collapsed
@@ -2418,16 +2418,16 @@ void QMenu::setNoReplayFor(QWidget *noReplayFor)
   should be visually collapsed to a single one. Separators at the
   beginning or the end of the menu are also hidden.
 */
-bool QMenu::collapseSeparators() const
+bool QMenu::separatorsCollapsible() const
 {
     Q_D(const QMenu);
-    return d->collapseSeparators;
+    return d->collapsibleSeparators;
 }
 
-void QMenu::setCollapseSeparators(bool collapse)
+void QMenu::setSeparatorsCollapsible(bool collapse)
 {
     Q_D(QMenu);
-    d->collapseSeparators = collapse;
+    d->collapsibleSeparators = collapse;
     d->itemsDirty = 1;
     if (isVisible()) {
         d->updateActions();
