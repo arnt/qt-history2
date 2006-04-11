@@ -750,6 +750,7 @@ static void qParseArgs(int argc, char *argv[])
          " -xml       : Outputs results as XML document\n"
          " -lightxml  : Outputs results as stream of XML tags\n"
          " -o filename: Writes all output into a file\n"
+         " -silent    : Only outputs warnings and failures\n"
          " -v1        : Print enter messages for each testfunction\n"
          " -v2        : Also print out each QVERIFY/QCOMPARE/QTEST\n"
          " -vs        : Print every signal emitted\n"
@@ -775,6 +776,8 @@ static void qParseArgs(int argc, char *argv[])
             QTestLog::setLogMode(QTestLog::XML);
         } else if (strcmp(argv[i], "-lightxml") == 0) {
             QTestLog::setLogMode(QTestLog::LightXML);
+        } else if (strcmp(argv[i], "-silent") == 0) {
+            QTestLog::setVerboseLevel(-1);
         } else if (strcmp(argv[i], "-v1") == 0) {
             QTestLog::setVerboseLevel(1);
         } else if (strcmp(argv[i], "-v2") == 0) {
