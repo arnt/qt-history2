@@ -79,8 +79,7 @@ public:
 
     QRectF sceneRect() const;
     void setSceneRect(const QRectF &rect);
-    inline void setSceneRect(qreal x, qreal y, qreal width, qreal height)
-    { setSceneRect(QRectF(x, y, width, height)); }
+    inline void setSceneRect(qreal x, qreal y, qreal w, qreal h);
     
     QWidget *renderWidget() const;
     void setRenderWidget(QWidget *widget);
@@ -103,24 +102,20 @@ public:
     void translate(qreal dx, qreal dy);
 
     void centerOn(const QPointF &pos);
-    inline void centerOn(qreal x, qreal y)
-    { centerOn(QPointF(x, y)); }
+    inline void centerOn(qreal x, qreal y);
     void centerOn(const QGraphicsItem *item);
     void ensureVisible(const QPointF &pos, int xmargin = 50, int ymargin = 50);
-    inline void ensureVisible(qreal x, qreal y, int xmargin = 50, int ymargin = 50)
-    { ensureVisible(QPointF(x, y), xmargin, ymargin); }
+    inline void ensureVisible(qreal x, qreal y, int xmargin = 50, int ymargin = 50);
     void ensureVisible(const QGraphicsItem *item, int xmargin = 50, int ymargin = 50);
     
     QList<QGraphicsItem *> items() const;
     QList<QGraphicsItem *> items(const QPoint &pos) const;
-    inline QList<QGraphicsItem *> items(int x, int y) const
-    { return items(QPoint(x, y)); }
+    inline QList<QGraphicsItem *> items(int x, int y) const;
     QList<QGraphicsItem *> items(const QRect &rect) const;
     QList<QGraphicsItem *> items(const QPolygon &polygon) const;
     QList<QGraphicsItem *> items(const QPainterPath &path) const;
     QGraphicsItem *itemAt(const QPoint &pos) const;
-    inline QGraphicsItem *itemAt(int x, int y) const
-    { return itemAt(QPoint(x, y)); }
+    inline QGraphicsItem *itemAt(int x, int y) const;
 
     QPointF mapToScene(const QPoint &point) const;
     QPolygonF mapToScene(const QRect &rect) const;
@@ -130,14 +125,10 @@ public:
     QPolygon mapFromScene(const QRectF &rect) const;
     QPolygon mapFromScene(const QPolygonF &polygon) const;
     QPainterPath mapFromScene(const QPainterPath &path) const;
-    inline QPointF mapToScene(int x, int y) const
-    { return mapToScene(QPoint(x, y)); }
-    inline QPolygonF mapToScene(int x, int y, int width, int height) const
-    { return mapToScene(QRect(x, y, width, height)); }
-    inline QPoint mapFromScene(qreal x, qreal y) const
-    { return mapFromScene(QPointF(x, y)); }
-    inline QPolygon mapFromScene(qreal x, qreal y, qreal width, qreal height) const
-    { return mapFromScene(QRectF(x, y, width, height)); }
+    inline QPointF mapToScene(int x, int y) const;
+    inline QPolygonF mapToScene(int x, int y, int w, int h) const;
+    inline QPoint mapFromScene(qreal x, qreal y) const;
+    inline QPolygon mapFromScene(qreal x, qreal y, qreal w, qreal h) const;
 
 public Q_SLOTS:
     void update(const QList<QRectF> &rects);
@@ -157,6 +148,26 @@ private:
     friend class QGraphicsSceneWidget;
     friend class QGraphicsViewPrivate;
 };
+
+inline void QGraphicsView::setSceneRect(qreal ax, qreal ay, qreal aw, qreal ah)
+{ setSceneRect(QRectF(ax, ay, aw, ah)); }
+inline void QGraphicsView::centerOn(qreal ax, qreal ay)
+{ centerOn(QPointF(ax, ay)); }
+inline void QGraphicsView::ensureVisible(qreal ax, qreal ay, int xmargin, int ymargin)
+{ ensureVisible(QPointF(ax, ay), xmargin, ymargin); }
+inline QList<QGraphicsItem *> QGraphicsView::items(int ax, int ay) const
+{ return items(QPoint(ax, ay)); }
+inline QGraphicsItem *QGraphicsView::itemAt(int ax, int ay) const
+{ return itemAt(QPoint(ax, ay)); }
+inline QPointF QGraphicsView::mapToScene(int ax, int ay) const
+{ return mapToScene(QPoint(ax, ay)); }
+inline QPolygonF QGraphicsView::mapToScene(int ax, int ay, int w, int h) const
+{ return mapToScene(QRect(ax, ay, w, h)); }
+inline QPoint QGraphicsView::mapFromScene(qreal ax, qreal ay) const
+{ return mapFromScene(QPointF(ax, ay)); }
+inline QPolygon QGraphicsView::mapFromScene(qreal ax, qreal ay, qreal w, qreal h) const
+{ return mapFromScene(QRectF(ax, ay, w, h)); }
+
 /*
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsView::PaintOptions)
 */
