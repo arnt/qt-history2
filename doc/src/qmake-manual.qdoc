@@ -60,6 +60,13 @@
     \o \l{Configuring qmake's Environment}
       \tableofcontents{1 Configuring qmake's Environment}
     \endlist
+
+    \section1 Additional Information
+
+    \list
+    \o \l{Third-Party Code Used in qmake}
+      \tableofcontents{1 Third-Party Code Used in qmake}
+    \endlist
 */
 
 /*!
@@ -849,8 +856,8 @@
     \row \o lib_bundle \o Puts the library into a library bundle.
     \endtable
 
-    The build process for library bundles is also influenced by
-    the \l{#QMAKE_BUNDLE_DATA}{QMAKE_BUNDLE_DATA} variable.
+    The build process for bundles is also influenced by
+    the contents of the \l{#QMAKE_BUNDLE_DATA}{QMAKE_BUNDLE_DATA} variable.
 
     The \c CONFIG variable will also be checked when resolving scopes. You may
     assign anything to this variable.
@@ -1262,7 +1269,7 @@
     Library bundles are created when the \c lib_bundle option is added to the
     \c CONFIG variable.
 
-    \e {This is used on Mac OS X only.}
+    \e{This is used on Mac OS X only.}
 
     \target QMAKE_CFLAGS_DEBUG
     \section1 QMAKE_CFLAGS_DEBUG
@@ -1515,6 +1522,15 @@
     This variable contains the file tags needed to be entered into the Makefile, such as SOURCES
     and HEADERS.  The value of this variable is typically handled by \c qmake or
     \l{#QMAKESPEC}{qmake.conf} and rarely needs to be modified.
+
+    \target QMAKE_FRAMEWORK_VERSION
+    \section1 QMAKE_FRAMEWORK_VERSION
+
+    For projects where the build target is a Mac OS X framework, this variable
+    is used to specify the version number that will be applied to the resulting
+    framework.
+
+    \e{This is used on Mac OS X only.}
 
     \target QMAKE_INCDIR
     \section1 QMAKE_INCDIR
@@ -2463,6 +2479,7 @@
     \page qmake-environment-reference.html
     \contentspage {qmake Manual}{Contents}
     \previouspage qmake Function Reference
+    \nextpage Third-Party Code Used in qmake
 
     \title Configuring qmake's Environment
 
@@ -2539,8 +2556,8 @@
     The \c QMAKESPEC environment variable can contain any of the following:
 
     \list
-    \o A complete path to a directory containing a qmake.conf file.
-       In this case \c qmake will open the qmake.conf file from within that
+    \o A complete path to a directory containing a \c{qmake.conf} file.
+       In this case \c qmake will open the \c{qmake.conf} file from within that
        directory.  If the file does not exist, \c qmake will exit with an
        error.
     \o The name of a platform-compiler combination. In this case, \c qmake
@@ -2988,7 +3005,7 @@
 
     Many of the variables used in project files are special variables that
     \c qmake uses when generating Makefiles, such as \c DEFINES, \c SOURCES,
-    and \c HEADERS. It is possible for you to create your own variables to
+    and \c HEADERS. It is possible for you to create variables for your own
     use; \c qmake creates new variables with a given name when it encounters
     an assignment to that name. For example:
 
@@ -3034,8 +3051,8 @@
     \skipto DESTDIR
     \printuntil message(
 
-    In the above assignment, the value of \c $PWD is read when the project
-    file is processed.
+    In the above assignment, the value of the \c PWD environment variable
+    is read when the project file is processed.
 
     To obtain the contents of an environment value at the time when the
     generated Makefile is processed, use the \c $(...) operator:
@@ -3044,7 +3061,7 @@
     \skipto $(PWD)
     \printuntil message(when the Makefile
 
-    In the above assignment, the value of \c $PWD is read immediately
+    In the above assignment, the value of \c PWD is read immediately
     when the project file is processed, but \c $(PWD) is assigned to
     \c DESTDIR in the generated Makefile. This makes the build process
     more flexible as long as the environment variable is set correctly
@@ -3809,4 +3826,40 @@
     the build target when building in debug mode. An \c else clause could be
     added to the scope to do the same for release mode; left as it is, the
     target name remains unmodified.
+*/
+
+/*!
+    \page qmake-environment-reference.html
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Configuring qmake's Environment
+
+    \title Third-Party Code Used in qmake
+
+    \c qmake contains some third-party code to implement the MD5 hashing
+    algorithm. This code was obtained under the license described below.
+
+    \section1 RSA Data Security, Inc. MD5 Message-Digest Algorithm
+
+    \legalese
+    Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
+    rights reserved.
+
+    RSA Data Security, Inc. makes no representations concerning either
+    the merchantability of this software or the suitability of this
+    software for any particular purpose. It is provided "as is"
+    without express or implied warranty of any kind.
+
+    License to copy and use this software is granted provided that it
+    is identified as the "RSA Data Security, Inc. MD5 Message-Digest
+    Algorithm" in all material mentioning or referencing this software
+    or this function.
+
+    License is also granted to make and use derivative works provided
+    that such works are identified as "derived from the RSA Data
+    Security, Inc. MD5 Message-Digest Algorithm" in all material
+    mentioning or referencing the derived work.
+
+    These notices must be retained in any copies of any part of this
+    documentation and/or software.
+    \endlegalese
 */
