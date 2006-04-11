@@ -19,8 +19,10 @@
 
 /*!
     \class QWidgetAction
+    \since 4.2
     \brief The QWidgetAction class extends QAction by an interface
-    for inserting custom widgets into action container widgets.
+    for inserting custom widgets into action based containers, such
+    as QToolBar.
     
     Most actions in application are represented as items in menus or
     buttons in toolbars. However sometimes more complex widgets are
@@ -33,30 +35,27 @@
     subclass QWidgetAction.
 
     If a QWidgetAction is added for example to a QToolBar then
-    QWidgetAction::doCreateWidget() is called. Reimplementations of that
+    QWidgetAction::createWidget() is called. Reimplementations of that
     function should create a new custom widget with the specified parent.
     
-    If the action is removed from a container widget then QWidgetAction::doRemoveWidget()
+    If the action is removed from a container widget then QWidgetAction::deleteWidget()
     is called with the previously created custom widget as argument. The default implementation
     hides the widget and deletes it using QObject::deleteLater().
 
-    If you have only one single custom widget then you can use the convenience
-    constructor of QWidgetAction that takes a QWidget as first argument. That
-    widget will then be used if the action is added to a QToolBar, or in general
-    to an action container that supports QWidgetAction. If such a constructed
-    QWidgetAction is added to two toolbars at the same time then the specified
-    widget is shown only in the first toolbar the action was added to.
-    QWidgetAction takes over ownership of the specified widget.
+    If you have only one single custom widget then you can set it as default
+    widget using setDefaultWidget(). That widget will then be used if the
+    action is added to a QToolBar, or in general to an action container that
+    supports QWidgetAction. If a QWidgetAction with only a default widget is
+    added to two toolbars at the same time then the default widget is shown
+    only in the first toolbar the action was added to. QWidgetAction takes
+    over ownership of the default widget.
 
     \ingroup application
     \mainclass
 */
 
 /*!
-    Constructs an action with \a parent. This constructor can only be called
-    by subclasses which reimplement doCreateWidget().
-    
-    \sa doCreateWidget()
+    Constructs an action with \a parent.
 */
 QWidgetAction::QWidgetAction(QObject* parent)
     : QAction(*(new QWidgetActionPrivate), parent)
@@ -78,6 +77,9 @@ QWidgetAction::~QWidgetAction()
     delete d->defaultWidget;
 }
 
+/*!
+    Sets the default widget.
+*/
 void QWidgetAction::setDefaultWidget(QWidget *w)
 {
     Q_D(QWidgetAction);
@@ -94,12 +96,17 @@ void QWidgetAction::setDefaultWidget(QWidget *w)
     d->defaultWidgetInUse = false;
 }
 
+/*!
+    Returns the default widget.
+*/
 QWidget *QWidgetAction::defaultWidget() const
 {
     Q_D(const QWidgetAction);
     return d->defaultWidget;
 }
 
+/*!
+*/
 QWidget *QWidgetAction::requestWidget(QWidget *parent)
 {
     Q_D(QWidgetAction);
@@ -119,6 +126,8 @@ QWidget *QWidgetAction::requestWidget(QWidget *parent)
     return w;
 }
 
+/*!
+*/
 void QWidgetAction::releaseWidget(QWidget *w)
 {
     Q_D(QWidgetAction);
@@ -162,9 +171,8 @@ QWidget *QWidgetAction::createWidget(QWidget *parent)
 /*!
     This function is called whenever the action is removed from a container
     widget that displays the action using a custom widget previously created
-    using doCreateWidget(). The default implementation hides and deletes the
-    widget, unless the action was constructed using the QActionWidget
-    convenience constructor that takes an instance of a existing custom widget.
+    using createWidget(). The default implementation hides and deletes the
+    widget.
 */
 void QWidgetAction::deleteWidget(QWidget *widget)
 {
@@ -172,6 +180,10 @@ void QWidgetAction::deleteWidget(QWidget *widget)
     widget->deleteLater();
 }
 
+/*!
+    Returns the list of widgets that were created using createWidget() and
+    are currently in use by widgets the action has been added to.
+*/
 QList<QWidget *> QWidgetAction::createdWidgets() const
 {
     Q_D(const QWidgetAction);
