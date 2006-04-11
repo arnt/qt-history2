@@ -5187,7 +5187,7 @@ const q_scriptEngine qt_scriptEngines[] = {
 
 static bool mac_shape(QShaperItem *item)
 {
-    if (item->font->type() != QFontEngine::Mac)
+    if (item->font->type() != QFontEngine::Multi)
         return basic_shape(item);
 
     QFontEngineMacMulti *fe = static_cast<QFontEngineMacMulti *>(item->font);
