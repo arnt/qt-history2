@@ -739,6 +739,13 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 */
 
 /*!
+  \fn void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order)
+
+  Sorts the children of the item using the given \a order,
+  by the values in the given \a column.
+*/
+
+/*!
     \fn QTreeWidget *QTreeWidgetItem::treeWidget() const
 
     Returns the tree widget that contains the item.

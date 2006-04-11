@@ -134,7 +134,8 @@ public:
     QList<QTreeWidgetItem*> takeChildren();
 
     inline int type() const { return rtti; }
-
+    inline void sortChildren(int column, Qt::SortOrder order)
+        { sortChildren(column, order, false); }
 private:
     void sortChildren(int column, Qt::SortOrder order, bool climb);
     QVariant childrenCheckState(int column) const;
