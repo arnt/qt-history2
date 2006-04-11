@@ -1534,7 +1534,7 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
         }
     } else {
         qWarning("QFontEngine: Glyph neither outline nor bitmap format=%d", slot->format);
-        delete [] buffer;
+        delete [] glyph_buffer;
         return 0;
     }
 
