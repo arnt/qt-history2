@@ -162,7 +162,6 @@ QTransportAuth::~QTransportAuth()
 
 void QTransportAuth::setProcessKey( const char *authdata )
 {
-    qDebug( "setProcessKey" );
     Q_D(QTransportAuth);
     ::memcpy(&d->authKey, authdata, sizeof(struct AuthCookie));
     d->keyInitialised = true;
@@ -522,7 +521,6 @@ QAuthDevice::QAuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDir
     , m_target( parent )
     , m_client( 0 )
 {
-    // qDebug( "constructing new auth device; parent %p", parent );
     if ( dir == Receive ) // server side
     {
         connect( m_target, SIGNAL(readyRead()),
@@ -535,7 +533,6 @@ QAuthDevice::QAuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDir
 
 QAuthDevice::~QAuthDevice()
 {
-    // qDebug( "destroying authdevice" );
 }
 
 /*!
@@ -691,10 +688,9 @@ void QAuthDevice::recvReadyRead()
     // there's more of the packet
     if ( msgQueue.size() < (int)sizeof(int) )
     {
-        qDebug() << "returning: msg size too small" << msgQueue.size();
+        // qDebug() << "returning: msg size too small" << msgQueue.size();
         return;
     }
-
 #ifdef QTRANSPORTAUTH_DEBUG
     char displaybuf[1024];
     hexstring( displaybuf, reinterpret_cast<const unsigned char *>(msgQueue.constData()),
@@ -815,7 +811,6 @@ bool QAuthDevice::authorizeMessage()
 #endif
         open( QIODevice::ReadOnly | QIODevice::Unbuffered );
         emit QIODevice::readyRead();
-        qDebug() << "return from emit";
     }
     else
     {
