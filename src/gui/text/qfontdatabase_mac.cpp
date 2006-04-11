@@ -115,46 +115,103 @@ static inline void load(const QString & = QString(), int = -1)
 {
 }
 
-static
-QFontEngine *loadEngine(int, const QFontPrivate *fontPriv, const QFontDef &request,
-                        QtFontFamily *family, QtFontFoundry *, QtFontStyle *)
+void QFontDatabase::load(const QFontPrivate *d, int script)
 {
-    ATSFontFamilyRef atsFamily = 0;
+    // sanity checks
+    if (!QFontCache::instance)
+        qWarning("QFont: Must construct a QApplication before a QFont");
+    Q_ASSERT(script >= 0 && script < QUnicodeTables::ScriptCount);
+    Q_UNUSED(script);
 
-    { //find the font
-        QStringList family_list;
-        if(family)
-            family_list += family->name;
-        family_list += request.family;
-        {   // append the substitute list for each family in family_list
-            QStringList subs_list;
-            QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
-            for (; it != end; ++it)
-                subs_list += QFont::substitutes(*it);
-            family_list += subs_list;
-        }
-        family_list << QApplication::font().defaultFamily();         // add defaultFamily (compatibility)
-        for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
-            if(ATSFontFamilyRef familyref = ATSFontFamilyFindFromName(QCFString(*it),
-                                                                      kATSOptionFlagsDefault)) {
-                QCFString actualName;
-                if(ATSFontFamilyGetName(familyref, kATSOptionFlagsDefault, &actualName) == noErr) {
-                    if(static_cast<QString>(actualName) == *it) {
-                        atsFamily = familyref;
-                        break;
-                    }
-                }
-                if(!family) //just take one if it isn't set yet
-                    atsFamily = familyref;
-            }
-        }
+    QFontDef req = d->request;
+    req.pixelSize = qt_mac_pixelsize(req, d->dpi);
+
+    // set the point size to 0 to get better caching
+    req.pointSize = 0;
+    QFontCache::Key key = QFontCache::Key(req, QUnicodeTables::Common, d->screen);
+
+    if(!(d->engineData = QFontCache::instance->findEngineData(key))) {
+        d->engineData = new QFontEngineData;
+        QFontCache::instance->insertEngineData(key, d->engineData);
+    } else {
+        d->engineData->ref.ref();
     }
-    QFontDef fontDef = request;
-    if(family) { //fill in actual name
+    if(d->engineData->engine) // already loaded
+        return;
+
+    // set it to the actual pointsize, so QFontInfo will do the right thing
+    req.pointSize = qRound(qt_mac_pointsize(d->request, d->dpi));
+
+    if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
+        Q_ASSERT(e->type() == QFontEngine::Multi);
+        e->ref.ref();
+        d->engineData->engine = e;
+        return; // the font info and fontdef should already be filled
+    }
+
+    ATSFontFamilyRef familyRef = 0;
+
+    //find the font
+    QStringList family_list = req.family.split(',');
+    // append the substitute list for each family in family_list
+    {
+	    QStringList subs_list;
+	    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+	    for (; it != end; ++it)
+		    subs_list += QFont::substitutes(*it);
+	    family_list += subs_list;
+    }
+    // add QFont::defaultFamily() to the list, for compatibility with
+    // previous versions
+    family_list << QApplication::font().defaultFamily();
+
+    //find it!
+    QHash<QString, ATSFontFamilyRef> mac_families;
+    {
+	ATSFontFamilyIterator iterator;
+	if(!ATSFontFamilyIteratorCreate(kATSFontContextGlobal, 0, 0,
+		                       kATSOptionFlagsRestrictedScope, &iterator)) {
+	    for(ATSFontFamilyRef family; ATSFontFamilyIteratorNext(iterator, &family) == noErr;) {
+		QCFString actualName;
+		if(ATSFontFamilyGetName(family, kATSOptionFlagsDefault, &actualName) == noErr)
+		    mac_families.insert(static_cast<QString>(actualName).toLower(), family);
+	    }
+	    ATSFontFamilyIteratorRelease(&iterator);
+	}
+    }
+    for(QStringList::ConstIterator it = family_list.constBegin(); it !=  family_list.constEnd(); ++it) {
+	if(mac_families.contains((*it).toLower())) {
+	    familyRef = mac_families.value((*it).toLower());
+	    break;
+	}
+	if(ATSFontFamilyRef family = ATSFontFamilyFindFromName(QCFString(*it), kATSOptionFlagsDefault)) {
+	    QCFString actualName;
+	    if(ATSFontFamilyGetName(family, kATSOptionFlagsDefault, &actualName) == noErr) {
+		if(static_cast<QString>(actualName) == (*it)) {
+		    familyRef = family;
+		    break;
+		}
+	    }
+	    familyRef = family; //just take one if it isn't set yet
+	}
+    }
+
+    //fill in the engine's font definition
+    QFontDef fontDef = d->request; //copy..
+    if(fontDef.pointSize < 0)
+	fontDef.pointSize = qt_mac_pointsize(fontDef, d->dpi);
+    else
+	fontDef.pixelSize = qt_mac_pixelsize(fontDef, d->dpi);
+    {
 	QCFString actualName;
-        if(ATSFontFamilyGetName(atsFamily, kATSOptionFlagsDefault, &actualName) == noErr)
+	if (ATSFontFamilyGetName(familyRef, kATSOptionFlagsDefault, &actualName) == noErr)
 	    fontDef.family = actualName;
     }
 
-    return new QFontEngineMacMulti(atsFamily, fontDef, fontPriv->kerning);
+    QFontEngine *engine = new QFontEngineMacMulti(familyRef, fontDef, d->kerning);
+    d->engineData->engine = engine;
+    engine->ref.ref(); //a ref for the engineData->engine
+
+    QFontCache::instance->insertEngine(key, engine);
 }
+

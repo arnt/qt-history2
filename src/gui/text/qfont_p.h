@@ -128,7 +128,7 @@ public:
     QFontPrivate(const QFontPrivate &other);
     ~QFontPrivate();
 
-#ifndef Q_WS_X11
+#if !defined(Q_WS_X11) && !defined(Q_WS_MAC)
     void load(int script);
 #endif
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
@@ -139,6 +139,15 @@ public:
         if (!engineData || !engineData->engines[script])
             QFontDatabase::load(this, script);
         return engineData->engines[script];
+    }
+#elif defined(Q_WS_MAC)
+    inline QFontEngine *engineForScript(int script) const
+    {
+        if (script >= QUnicodeTables::Inherited)
+            script = QUnicodeTables::Common;
+        if (!engineData || !engineData->engine)
+            QFontDatabase::load(this, script);
+        return engineData->engine;
     }
 #else
     inline QFontEngine *engineForScript(int script) const
