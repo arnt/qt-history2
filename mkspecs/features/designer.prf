@@ -41,7 +41,7 @@ false {
       CONFIG(debug, debug|release):QT_DESIGNER_LINKAGE = -l$${QT_DESIGNER_LIB_NAME}d
       else:QT_DESIGNER_LINKAGE = -l$${QT_DESIGNER_LIB_NAME}
    } else { 
-      isEqual(QT_DESIGNER_LIB_NAME_style, debug):QT_DESIGNER_LINKAGE = -l$${QT_DESIGNER_LIB_NAME}_debug
+      CONFIG(debug, debug|release):QT_DESIGNER_LINKAGE = -l$${QT_DESIGNER_LIB_NAME}_debug
       else:QT_DESIGNER_LINKAGE = -l$${QT_DESIGNER_LIB_NAME}
    }
 }

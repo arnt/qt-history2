@@ -38,7 +38,7 @@ false {
       CONFIG(debug, debug|release):QT_ASSISTANT_LINKAGE = -l$${QT_ASSISTANT_LIB_NAME}d
       else:QT_ASSISTANT_LINKAGE = -l$${QT_ASSISTANT_LIB_NAME}
    } else { 
-      isEqual(QT_ASSISTANT_LIB_NAME_style, debug):QT_ASSISTANT_LINKAGE = -l$${QT_ASSISTANT_LIB_NAME}_debug
+      CONFIG(debug, debug|release):QT_ASSISTANT_LINKAGE = -l$${QT_ASSISTANT_LIB_NAME}_debug
       else:QT_ASSISTANT_LINKAGE = -l$${QT_ASSISTANT_LIB_NAME}
    }
 }

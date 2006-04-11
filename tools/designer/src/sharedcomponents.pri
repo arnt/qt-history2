@@ -53,7 +53,7 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
              CONFIG(debug, debug|release):QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}d
              else:QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}
           } else { 
-            isEqual(QT_SHARED_LIB_NAME_style, debug):QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}_debug
+            CONFIG(debug, debug|release):QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}_debug
             else:QT_SHARED_LINKAGE = -l$${QT_SHARED_LIB_NAME}
           }
        }
