@@ -18,6 +18,7 @@ int main(int argc, char **argv)
 {
     QAxFactory::startServer();
     QApplication app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
 
     return app.exec();
 }
