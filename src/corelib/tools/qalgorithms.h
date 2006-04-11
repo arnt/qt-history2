@@ -101,6 +101,17 @@ inline void qSwap(T &value1, T &value2)
     }
 }
 
+#ifdef qdoc
+template <typename T>
+LessThan qLess()
+{
+}
+
+template <typename T>
+LessThan qGreater()
+{
+}
+#else
 template <typename T>
 class qLess
 {
@@ -120,6 +131,7 @@ public:
         return (t2 < t1);
     }
 };
+#endif
 
 template <typename BiIterator>
 inline void qSort(BiIterator start, BiIterator end)

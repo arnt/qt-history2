@@ -413,8 +413,9 @@
         }
     \endcode
 
-    To sort values in reverse order, pass \c qGreater<T>() as the \a
-    lessThan parameter. For example:
+    To sort values in reverse order, pass
+    \l{qGreater()}{qGreater<T>()} as the \a lessThan parameter. For
+    example:
 
     \code
 	QList<int> list;
@@ -509,8 +510,9 @@
         }
     \endcode
 
-    To sort values in reverse order, pass \c qGreater<T>() as the \a
-    lessThan parameter. For example:
+    To sort values in reverse order, pass
+    \l{qGreater()}{qGreater<T>()} as the \a lessThan parameter. For
+    example:
 
     \code
 	QList<int> list;
@@ -696,4 +698,40 @@
     \overload
 
     This is the same as qDeleteAll(\a{c}.begin(), \a{c}.end()).
+*/
+
+/*! \fn LessThan qLess()
+    \relates <QtAlgorithms>
+
+    Returns a functional object, or functor, that can be passed to qSort()
+    or qStableSort().
+
+    Example:
+
+    \code
+	QList<int> list;
+        list << 33 << 12 << 68 << 6 << 12;
+	qSort(list.begin(), list.end(), qLess<int>());
+        // list: [ 68, 33, 12, 12, 6 ]
+    \endcode
+
+    \sa {qGreater()}{qGreater<T>()}
+*/
+
+/*! \fn LessThan qGreater()
+    \relates <QtAlgorithms>
+
+    Returns a functional object, or functor, that can be passed to qSort()
+    or qStableSort().
+
+    Example:
+
+    \code
+	QList<int> list;
+        list << 33 << 12 << 68 << 6 << 12;
+	qSort(list.begin(), list.end(), qGreater<int>());
+        // list: [ 68, 33, 12, 12, 6 ]
+    \endcode
+
+    \sa {qLess()}{qLess<T>()}
 */
