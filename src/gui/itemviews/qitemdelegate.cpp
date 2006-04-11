@@ -120,7 +120,7 @@ public:
     \row    \o \l Qt::FontRole \o QFont
     \row    \o \l Qt::SizeHintRole \o QSize
     \omit
-    \row    \o \l Qt::StatusTipRole \o 
+    \row    \o \l Qt::StatusTipRole \o
     \endomit
     \row    \o \l Qt::TextAlignmentRole \o Qt::Alignment
     \row    \o \l Qt::TextColorRole \o QColor
@@ -195,7 +195,7 @@ void QItemDelegate::paint(QPainter *painter,
     Q_ASSERT(index.isValid());
     QStyleOptionViewItem opt = setOptions(index, option);
 
-    // do layout
+    // do the layout
 
     QPixmap pixmap = decoration(opt, index.data(Qt::DecorationRole));
     QRect pixmapRect = (pixmap.isNull() ? QRect(0, 0, 0, 0)
@@ -213,17 +213,10 @@ void QItemDelegate::paint(QPainter *painter,
     // draw the item
 
     drawBackground(painter, opt, index);
-
-    if (checkRect.isValid())
-        drawCheck(painter, opt, checkRect, checkState);
-
-    if (pixmapRect.isValid())
-        drawDecoration(painter, opt, pixmapRect, pixmap);
-
-    if (!text.isEmpty()) {
-        drawDisplay(painter, opt, textRect, text);
-        drawFocus(painter, opt, textRect);
-    }
+    drawCheck(painter, opt, checkRect, checkState);
+    drawDecoration(painter, opt, pixmapRect, pixmap);
+    drawDisplay(painter, opt, textRect, text);
+    drawFocus(painter, opt, textRect);
 }
 
 /*!
@@ -379,6 +372,9 @@ void QItemDelegate::setItemEditorFactory(QItemEditorFactory *factory)
 void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &option,
                                 const QRect &rect, const QString &text) const
 {
+    if (text.isEmpty())
+        return;
+
     QPen pen = painter->pen();
     QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;
@@ -418,7 +414,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QRect &rect, const QPixmap &pixmap) const
 {
-    if (pixmap.isNull() || rect.isEmpty())
+    if (pixmap.isNull() || !rect.isValid())
         return;
     QPoint p = QStyle::alignedRect(option.direction, option.decorationAlignment,
                                    pixmap.size(), rect).topLeft();
@@ -440,7 +436,7 @@ void QItemDelegate::drawFocus(QPainter *painter,
                               const QStyleOptionViewItem &option,
                               const QRect &rect) const
 {
-    if ((option.state & QStyle::State_HasFocus) == 0)
+    if ((option.state & QStyle::State_HasFocus) == 0 || !rect.isValid())
         return;
     QStyleOptionFocusRect o;
     o.QStyleOption::operator=(option);
