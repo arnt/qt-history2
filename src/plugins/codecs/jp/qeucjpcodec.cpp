@@ -128,7 +128,7 @@ QByteArray QEucJpCodec::convertFromUnicode(const QChar *uc, int len, ConverterSt
 
 QString QEucJpCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
-    uchar buf[2];
+    uchar buf[2] = {0, 0};
     int nbuf = 0;
     QChar replacement = QChar::ReplacementCharacter;
     if (state) {

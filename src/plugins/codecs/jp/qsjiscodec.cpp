@@ -101,7 +101,7 @@ QByteArray QSjisCodec::convertFromUnicode(const QChar *uc, int len, ConverterSta
 
 QString QSjisCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
-    uchar buf[1];
+    uchar buf[1] = {0};
     int nbuf = 0;
     QChar replacement = QChar::ReplacementCharacter;
     if (state) {

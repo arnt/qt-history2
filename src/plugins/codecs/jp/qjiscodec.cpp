@@ -147,7 +147,7 @@ QByteArray QJisCodec::convertFromUnicode(const QChar *uc, int len, ConverterStat
 
 QString QJisCodec::convertToUnicode(const char* chars, int len, ConverterState *cs) const
 {
-    uchar buf[4];
+    uchar buf[4] = {0, 0, 0, 0};
     int nbuf = 0;
     Iso2022State state = Ascii, prev = Ascii;
     bool esc = false;
