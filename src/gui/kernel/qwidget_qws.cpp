@@ -193,7 +193,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
             extra->topextra->fbottom = br.bottom() - cr.bottom();
             data.crect.adjust(extra->topextra->fleft, extra->topextra->ftop,
                                   -extra->topextra->fright, -extra->topextra->fbottom);
-            topData()->qwsManager = new QWSManager(q);
+            if (!topData()->qwsManager)
+                topData()->qwsManager = new QWSManager(q);
         } else if (topData()->qwsManager) {
             delete topData()->qwsManager;
             topData()->qwsManager = 0;
