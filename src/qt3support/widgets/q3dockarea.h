@@ -40,7 +40,7 @@ class Q_COMPAT_EXPORT Q3DockAreaLayout : public QLayout
 
 public:
     Q3DockAreaLayout(QWidget* parent, Qt::Orientation o, QList<Q3DockWindow *> *wl, int space = -1, int margin = -1, const char *name = 0)
-        : QLayout(parent), orient(o), dockWindows(wl), parentWidget(parent), dirty(true)
+        : QLayout(parent), orient(o), dirty(true), dockWindows(wl), parentWidget(parent)
     {
         if (space != -1)
             setSpacing(space);
