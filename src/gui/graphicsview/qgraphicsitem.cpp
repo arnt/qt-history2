@@ -1621,7 +1621,7 @@ QPixmap QGraphicsPixmapItem::pixmap() const
 QRectF QGraphicsPixmapItem::boundingRect() const
 {
     Q_D(const QGraphicsPixmapItem);
-    return QRectF(QPointF(0, 0), d->pixmap.size());
+    return d->pixmap.isNull() ? QRectF() : QRectF(QPointF(0, 0), d->pixmap.size());
 }
 
 QPainterPath QGraphicsPixmapItem::shape() const
