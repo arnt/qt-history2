@@ -508,7 +508,7 @@ void TrWindow::findAgain()
 
     QModelIndex indxItem = stv->currentIndex();
     if (indxItem.isValid())
-        itemNo = indxItem.row() + 1;      // The for-loop condition for the ContextItem will rule this potential overflow on itemNo
+        itemNo = indxItem.row();
     QModelIndex indxScope = tv->currentIndex();
     if (indxScope.isValid())
         scopeNo = indxScope.row();
