@@ -1923,7 +1923,7 @@ int QString::indexOf(const QString &str, int from, Qt::CaseSensitivity cs) const
     const int sl = str.d->size;
     if (from < 0)
         from += l;
-    if (sl + from > l)
+    if (uint(sl + from) > (uint)l)
         return -1;
     if (!sl)
         return from;
