@@ -2869,6 +2869,10 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
         {
+            if (!receiver->isWidgetType()) {
+                res = d->notify_helper(receiver, e);
+                break;
+            }
             QWidget* w = static_cast<QWidget*>(receiver);
             QKeyEvent* key = static_cast<QKeyEvent*>(e);
 #if defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
