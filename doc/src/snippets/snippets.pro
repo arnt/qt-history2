@@ -36,6 +36,7 @@ SUBDIRS         = brush \
                   qlistwidget-using \
 #                  qmake \                  # not designed to be built
 #                  qsignalmapper \
+                  qsortfilterproxymodel-details \
                   qtablewidget-dnd \
                   qtablewidget-resizing \
                   qtablewidget-using \
