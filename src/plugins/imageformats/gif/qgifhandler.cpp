@@ -384,7 +384,7 @@ int QGIFFormat::decode(QImage *image, const uchar *buffer, int length,
                 bitcount = 0;
                 sp = stack;
                 firstcode = oldcode = 0;
-                needfirst = false;
+                needfirst = true;
                 out_of_bounds = left>=swidth || y>=sheight;
             }
             break;
