@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_QWS_KBD_QVFB
-
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,6 +20,10 @@
 
 #include <qvfbhdr.h>
 #include <qkbdvfb_qws.h>
+
+#ifndef QT_NO_QWS_KEYBOARD
+#ifndef QT_NO_QWS_KBD_QVFB
+
 #include <qwindowsystem_qws.h>
 #include <qsocketnotifier.h>
 #include <qapplication.h>
@@ -75,9 +77,7 @@ void QVFbKeyboardHandler::readKeyboardData()
             qWarning("Instructed to quit by Virtual Keyboard");
             qApp->quit();
         }
-#ifndef QT_NO_QWS_KEYBOARD
         QWSServer::processKeyEvent(kd->unicode, kd->keycode, kd->modifiers, kd->press, kd->repeat);
-#endif
         idx += sizeof(QVFbKeyData);
     }
 
@@ -88,4 +88,5 @@ void QVFbKeyboardHandler::readKeyboardData()
 }
 
 #endif // QT_NO_QWS_KBD_QVFB
+#endif // QT_NO_QWS_KEYBOARD
 
