@@ -26,10 +26,10 @@
 #include <qhash.h>
 #include <qdebug.h>
 #ifdef Q_OS_UNIX
-# include <unistd.h>
-# include <sys/utsname.h>
-# elif defined(Q_OS_WIN32)
-# include <Windows.h>
+#include <unistd.h>
+#include <sys/utsname.h>
+#elif defined(Q_OS_WIN32)
+#include <Windows.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>
@@ -2705,7 +2705,7 @@ QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList
             }
         }
 #elif defined(Q_OS_UNIX)
-        utsname name;
+        struct utsname name;
         if(!uname(&name)) {
             if(type == "os")
                 ret = name.sysname;
