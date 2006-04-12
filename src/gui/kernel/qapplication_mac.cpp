@@ -1663,7 +1663,6 @@ static Boolean qt_KeyEventComparatorProc(EventRef inEvent, void *data)
 static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent, int *qtKey,
                                       QChar *outChar, Qt::KeyboardModifiers *outModifiers, bool *outHandled)
 {
-
     const UInt32 ekind = GetEventKind(keyEvent);
     {
         UInt32 mac_modifiers = 0;
@@ -1708,14 +1707,26 @@ static bool translateKeyEventInternal(EventHandlerCallRef er, EventRef keyEvent,
         // The easy use the unicode stuff!
         UniChar string[4];
         UniCharCount actualLength;
-        OSStatus err = UCKeyTranslate(uchrData, keyCode,
-                                  (ekind == kEventRawKeyDown) ? kUCKeyActionDown : kUCKeyActionUp,
+        int keyAction;
+        switch (ekind) {
+        default:
+        case kEventRawKeyDown:
+            keyAction = kUCKeyActionDown;
+            break;
+        case kEventRawKeyUp:
+            keyAction = kUCKeyActionUp;
+            break;
+        case kEventRawKeyRepeat:
+            keyAction = kUCKeyActionAutoKey;
+            break;
+        }
+        OSStatus err = UCKeyTranslate(uchrData, keyCode, keyAction,
                                   ((GetCurrentEventKeyModifiers() >> 8) & 0xff), LMGetKbdType(),
                                   kUCKeyTranslateNoDeadKeysBit, &tmp_unused_state, 4, &actualLength,
                                   string);
         if (err == noErr) {
             *qtKey = get_uniKey(*outModifiers, QChar(string[0]), keyCode);
-            if (ekind == kEventRawKeyDown)
+            if (ekind != kEventRawKeyUp)
                 *outChar = QChar(string[0]);
         } else {
             qWarning("Qt::internal::UCKeyTranslate is returnining %ld %s:%d",
