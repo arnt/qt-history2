@@ -8,7 +8,7 @@
 **
 ****************************************************************************/
 
-#include "qdesktop.h"
+#include "qdesktopservices.h"
 #include <windows.h>
 #include <qsettings.h>
 #include <qdir.h>

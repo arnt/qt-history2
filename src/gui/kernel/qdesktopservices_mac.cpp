@@ -8,7 +8,7 @@
 **
 ****************************************************************************/
 
-#include "qdesktop.h"
+#include "qdesktopservices.h"
 
 #ifndef QT_NO_DESKTOP
 
