@@ -40,7 +40,11 @@
 #include <errno.h>
 #include <math.h>
 
-#ifndef Q_WS_QWS
+
+#ifdef Q_WS_QWS
+#error qvfb must be compiled with  the Qt/X11 package
+#endif
+
 // Get the name of the directory where Qtopia Core temporary data should
 // live.
 static QString qws_dataDir(int qws_display_id)
@@ -67,7 +71,7 @@ static QString qws_dataDir(int qws_display_id)
 
     return QString(dataDir);
 }
-#endif
+
 
 static QString displayPipe;
 static QString displayPiped;
@@ -187,11 +191,8 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
     hdr->dataoffset = data_offset_value;
     hdr->update = QRect();
 
-#ifdef Q_WS_QWS
-    displayPipe = qws_dataDir() + QString( QTE_PIPE ).arg( displayid );
-#else
     displayPipe = qws_dataDir(displayid) + QString( QTE_PIPE ).arg( displayid );
-#endif
+
     displayPiped = displayPipe + 'd';
 
 
@@ -234,9 +235,13 @@ int  QShMemViewProtocol::numcols() const
     return hdr->numcols;
 }
 
-QRgb *QShMemViewProtocol::clut() const
+QVector<QRgb> QShMemViewProtocol::clut() const
 {
-    return hdr->clut;
+    QVector<QRgb> vector(hdr->numcols);
+    for (int i=0; i < hdr->numcols; ++i)
+        vector[i]=hdr->clut[i];
+
+    return vector;
 }
 
 unsigned char *QShMemViewProtocol::data() const
@@ -263,7 +268,7 @@ void QShMemViewProtocol::flushChanges()
     emit displayDataChanged(r);
 }
 
-void QShMemViewProtocol::setRate(int interval) 
+void QShMemViewProtocol::setRate(int interval)
 {
     if (interval > 0)
         return mRefreshTimer->start(1000/interval);

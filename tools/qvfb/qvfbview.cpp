@@ -336,14 +336,16 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
                        mView->width(), r.height(), QImage::Format_RGB32 );
     }
     case 8: {
-	leading = r.x();
-	return QImage( mView->data() + r.y() * mView->linestep(),
-                       mView->width(), r.height(), QImage::Format_RGB32 );
+        leading = r.x();
+        QImage img( mView->data() + r.y() * mView->linestep(),
+                    mView->width(), r.height(), QImage::Format_Indexed8 );
+        img.setColorTable(mView->clut());
+        return img;
     }
     case 1: {
 	leading = r.x();
 	return QImage( mView->data() + r.y() * mView->linestep(),
-                       mView->width(), r.height(), QImage::Format_RGB32 );
+                       mView->width(), r.height(), QImage::Format_MonoLSB );
     }
     }
     return QImage();

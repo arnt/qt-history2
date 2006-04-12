@@ -31,7 +31,7 @@
 
 QMMapViewProtocol::QMMapViewProtocol(int displayid, const QSize &s,
         int d, QObject *parent)
-    : QVFbViewProtocol(displayid, parent), hdr(0), dataCache(0) 
+    : QVFbViewProtocol(displayid, parent), hdr(0), dataCache(0)
 {
     int actualdepth=d;
 
@@ -146,9 +146,13 @@ int  QMMapViewProtocol::numcols() const
     return hdr->numcols;
 }
 
-QRgb *QMMapViewProtocol::clut() const
+QVector<QRgb> QMMapViewProtocol::clut() const
 {
-    return hdr->clut;
+    QVector<QRgb> vector(hdr->numcols);
+    for (int i=0; i < hdr->numcols; ++i)
+        vector[i]=hdr->clut[i];
+
+    return vector;
 }
 
 unsigned char *QMMapViewProtocol::data() const
@@ -164,7 +168,7 @@ void QMMapViewProtocol::flushChanges()
     emit displayDataChanged(QRect(0, 0, width(), height()));
 }
 
-void QMMapViewProtocol::setRate(int interval) 
+void QMMapViewProtocol::setRate(int interval)
 {
     if (interval > 0)
         return mRefreshTimer->start(1000/interval);

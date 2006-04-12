@@ -37,7 +37,7 @@ public:
     virtual int depth() const = 0;
     virtual int linestep() const = 0;
     virtual int  numcols() const = 0;
-    virtual QRgb *clut() const = 0;
+    virtual QVector<QRgb> clut() const = 0;
     virtual unsigned char *data() const = 0;
 
     virtual void setRate(int) {}

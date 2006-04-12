@@ -28,7 +28,7 @@ public:
     int depth() const;
     int linestep() const;
     int  numcols() const;
-    QRgb *clut() const;
+    QVector<QRgb> clut() const;
     unsigned char *data() const;
 
     void setRate(int);
