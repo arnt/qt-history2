@@ -467,13 +467,12 @@ bool QLibrary::isLibrary(const QString &fileName)
  */
     bool valid = (suffix == "sl");
 #  if defined __ia64
-    valid |= (suffix == "so")
+    valid = valid || (suffix == "so")
 #  endif
+# elif defined(Q_OS_AIX)
+    bool valid = (suffix == "a"  || suffix == "so");
 # elif defined(Q_OS_UNIX)
     bool valid = (suffix == "so");
-# elif defined(Q_OS_AIX)
-	bool valid = (suffix == "a"
-			|| suffix == "so");
 # else
     bool valid = false;
 # endif
