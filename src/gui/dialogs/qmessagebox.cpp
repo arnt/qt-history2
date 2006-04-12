@@ -867,8 +867,16 @@ QSize QMessageBox::sizeHint() const
 {
     Q_D(const QMessageBox);
     ensurePolished();
+    QRect screen = QApplication::desktop()->screenGeometry(pos());
     d->label->adjustSize();
     QSize labelSize(d->label->size());
+    if (labelSize.width() > screen.width()*2/3) {
+        // try again with wordbreak instead of cropping off text
+        // (see also QWidget::adjustSize)
+        d->label->setWordWrap(true);
+        d->label->adjustSize();
+        labelSize = d->label->size();
+    }
     QSize maxButtonSizeHint;
     int n  = d->numButtons;
     for (int i = 0; i < n; i++)
@@ -903,7 +911,6 @@ QSize QMessageBox::sizeHint() const
             h = d->iconLabel->height() + 3*border + bh;
     }
     int w = qMax(buttons, labelSize.width() + lmargin) + 2*border;
-    QRect screen = QApplication::desktop()->screenGeometry(pos());
     if (w > screen.width())
         w = screen.width();
     return QSize(w,h);
