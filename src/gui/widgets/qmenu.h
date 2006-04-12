@@ -66,6 +66,7 @@ public:
     QAction *insertMenu(QAction *before, QMenu *menu);
     QAction *insertSeparator(QAction *before);
 
+    bool isEmpty() const;
     void clear();
 
     void setTearOffEnabled(bool);
@@ -102,7 +103,7 @@ public:
 #ifdef Q_WS_MAC
     MenuRef macMenu(MenuRef merge=0);
 #endif
-    
+
     bool separatorsCollapsible() const;
     void setSeparatorsCollapsible(bool collapse);
 

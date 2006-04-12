@@ -231,7 +231,7 @@ QList<QAction *> QMenuPrivate::filterActions(const QList<QAction *> &actions) co
             ++i;
             continue;
         }
-        
+
         // no leading separators
         if (!visibleActions.isEmpty())
             visibleActions.append(action);
@@ -1201,6 +1201,18 @@ void QMenu::setActiveAction(QAction *act)
 QAction *QMenu::activeAction() const
 {
     return d_func()->currentAction;
+}
+
+/*!
+    Returns true if there are no actions inserted into the menu, false
+    otherwise.
+
+    \sa QWidget::actions()
+*/
+
+bool QMenu::isEmpty() const
+{
+    return actions().isEmpty();
 }
 
 /*!
@@ -2432,7 +2444,7 @@ void QMenu::setSeparatorsCollapsible(bool collapse)
     if (isVisible()) {
         d->updateActions();
         update();
-    }    
+    }
 }
 
 #ifdef QT3_SUPPORT
