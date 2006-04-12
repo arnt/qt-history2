@@ -2236,6 +2236,13 @@ static bool removeWidgetRecursively(QLayoutItem *li, QWidget *w, bool dummy)
     return false;
 }
 
+
+void QMainWindowLayout::removeRecursive(QDockWidget *dockwidget)
+{
+    removeWidgetRecursively(this, dockwidget, save_layout_info != 0);
+}
+#endif // QT_NO_DOCKWIDGET
+
 bool QMainWindowLayout::contains(QWidget *widget) const
 {
 #ifndef QT_NO_TOOLBAR
@@ -2249,7 +2256,8 @@ bool QMainWindowLayout::contains(QWidget *widget) const
         }
     }
 #endif
-
+    
+#ifndef QT_NO_DOCKWIDGET
     // is it a dock widget?
     for (int pos = 0; pos < NPOSITIONS - 1; ++pos) {
         if (!layout_info[pos].item)
@@ -2257,14 +2265,10 @@ bool QMainWindowLayout::contains(QWidget *widget) const
         if (findWidgetRecursively(layout_info[pos].item, widget))
             return true;
     }
+#endif //QT_NO_DOCKWIDGET
+    
     return false;
 }
-
-void QMainWindowLayout::removeRecursive(QDockWidget *dockwidget)
-{
-    removeWidgetRecursively(this, dockwidget, save_layout_info != 0);
-}
-#endif // QT_NO_DOCKWIDGET
 
 #ifndef QT_NO_TOOLBAR
 int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) const
