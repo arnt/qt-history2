@@ -126,6 +126,7 @@
 #include <QtGui/qrubberband.h>
 #include <QtGui/qscrollbar.h>
 #include <QtGui/qstyleoption.h>
+#include <private/qabstractscrollarea_p.h>
 
 static bool qt_closestItemLast(const QGraphicsItem *item1, const QGraphicsItem *item2)
 {
@@ -136,8 +137,9 @@ static bool qt_closestItemLast(const QGraphicsItem *item1, const QGraphicsItem *
     return item2->zValue() > item1->zValue();
 }
 
-class QGraphicsViewPrivate
+class QGraphicsViewPrivate : public QAbstractScrollAreaPrivate
 {
+    Q_DECLARE_PUBLIC(QGraphicsView)
 public:
     QGraphicsViewPrivate();
 
@@ -191,8 +193,6 @@ public:
     QBrush foregroundBrush;
     QRubberBand *rubberBand;
     bool rubberBanding;
-
-    QGraphicsView *q;
 };
 
 /*!
@@ -214,6 +214,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
 */
 void QGraphicsViewPrivate::recalculateContentSize()
 {
+    Q_Q(QGraphicsView);
     if (sceneRect.isNull() && scene)
         sceneRect = scene->itemsBoundingRect();
     
@@ -292,6 +293,8 @@ void QGraphicsViewPrivate::recalculateContentSize()
 void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region
                                       /*, QGraphicsView::PaintOptions options*/)
 {
+    Q_Q(QGraphicsView);
+
 #if defined QGRAPHICSVIEW_DEBUG
     QTime stopWatch;
     stopWatch.start();
@@ -370,6 +373,7 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region
 */
 void QGraphicsViewPrivate::contextMenuEvent(QContextMenuEvent *event)
 {
+    Q_Q(QGraphicsView);
     if (!scene || !sceneInteractionAllowed)
         return;
 
@@ -391,6 +395,7 @@ void QGraphicsViewPrivate::contextMenuEvent(QContextMenuEvent *event)
 */
 void QGraphicsViewPrivate::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    Q_Q(QGraphicsView);
     if (!scene || !sceneInteractionAllowed)
         return;
 
@@ -423,6 +428,7 @@ void QGraphicsViewPrivate::mouseDoubleClickEvent(QMouseEvent *event)
 */
 void QGraphicsViewPrivate::mousePressEvent(QMouseEvent *event)
 {
+    Q_Q(QGraphicsView);
     if (!scene || !sceneInteractionAllowed)
         return;
 
@@ -456,6 +462,7 @@ void QGraphicsViewPrivate::mousePressEvent(QMouseEvent *event)
 */
 void QGraphicsViewPrivate::mouseMoveEvent(QMouseEvent *event)
 {
+    Q_Q(QGraphicsView);
     if (!scene || !sceneInteractionAllowed)
         return;
 
@@ -500,6 +507,7 @@ void QGraphicsViewPrivate::mouseMoveEvent(QMouseEvent *event)
 */
 void QGraphicsViewPrivate::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_Q(QGraphicsView);
     if (!scene || !sceneInteractionAllowed)
         return;
 
@@ -568,6 +576,7 @@ void QGraphicsViewPrivate::focusOutEvent(QFocusEvent *event)
 */
 void QGraphicsViewPrivate::setupRenderWidget(QWidget *widget)
 {
+    Q_Q(QGraphicsView);
     if (!widget)
         widget = new QWidget;
     
@@ -614,6 +623,7 @@ void QGraphicsViewPrivate::setupRenderWidget(QWidget *widget)
 */
 void QGraphicsViewPrivate::updateLastCenterPoint()
 {
+    Q_Q(QGraphicsView);
     lastCenterPoint = q->mapToScene(q->mapFromScene(q->mapToScene(renderWidget->rect().center())));
 }
 
@@ -645,9 +655,9 @@ void QGraphicsViewPrivate::storeMouseEvent(QMouseEvent *event)
     scene. \a parent is passed to QWidget's constructor.
 */
 QGraphicsView::QGraphicsView(QGraphicsScene *scene, QWidget *parent)
-    : QAbstractScrollArea(parent), d(new QGraphicsViewPrivate)
+    : QAbstractScrollArea(*new QGraphicsViewPrivate, parent)
 {
-    d->q = this;
+    Q_D(QGraphicsView);
     QHBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(0);
     viewport()->setLayout(layout);
@@ -687,10 +697,12 @@ QGraphicsView::~QGraphicsView()
 */
 QPainter::RenderHints QGraphicsView::renderHints() const
 {
+    Q_D(const QGraphicsView);
     return d->renderHints;
 }
 void QGraphicsView::setRenderHints(QPainter::RenderHints hints)
 {
+    Q_D(QGraphicsView);
     d->renderHints = hints;
 }
 
@@ -702,6 +714,7 @@ void QGraphicsView::setRenderHints(QPainter::RenderHints hints)
 */
 void QGraphicsView::setRenderHint(QPainter::RenderHint hint, bool enabled)
 {
+    Q_D(QGraphicsView);
     if (enabled)
         d->renderHints |= hint;
     else
@@ -723,10 +736,12 @@ void QGraphicsView::setRenderHint(QPainter::RenderHint hint, bool enabled)
 */
 Qt::Alignment QGraphicsView::alignment() const
 {
+    Q_D(const QGraphicsView);
     return d->alignment;
 }
 void QGraphicsView::setAlignment(Qt::Alignment alignment)
 {
+    Q_D(QGraphicsView);
     if (d->alignment != alignment) {
         d->alignment = alignment;
         d->recalculateContentSize();
@@ -738,6 +753,7 @@ void QGraphicsView::setAlignment(Qt::Alignment alignment)
 */
 QGraphicsView::SelectionMode QGraphicsView::selectionMode() const
 {
+    Q_D(const QGraphicsView);
     return d->selectionMode;
 }
 
@@ -746,6 +762,7 @@ QGraphicsView::SelectionMode QGraphicsView::selectionMode() const
 */
 void QGraphicsView::setSelectionMode(SelectionMode mode)
 {
+    Q_D(QGraphicsView);
     d->selectionMode = mode;
 }
 
@@ -759,10 +776,12 @@ void QGraphicsView::setSelectionMode(SelectionMode mode)
 */
 bool QGraphicsView::isSceneInteractionAllowed() const
 {
+    Q_D(const QGraphicsView);
     return d->sceneInteractionAllowed;
 }
 void QGraphicsView::setSceneInteractionAllowed(bool allowed)
 {
+    Q_D(QGraphicsView);
     d->sceneInteractionAllowed = allowed;
 }
 
@@ -774,6 +793,7 @@ void QGraphicsView::setSceneInteractionAllowed(bool allowed)
 */
 QGraphicsScene *QGraphicsView::scene() const
 {
+    Q_D(const QGraphicsView);
     return d->scene;
 }
 
@@ -787,6 +807,7 @@ QGraphicsScene *QGraphicsView::scene() const
 */
 void QGraphicsView::setScene(QGraphicsScene *scene)
 {
+    Q_D(QGraphicsView);
     if (d->scene == scene)
         return;
 
@@ -816,10 +837,12 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
 */
 QRectF QGraphicsView::sceneRect() const
 {
+    Q_D(const QGraphicsView);
     return d->sceneRect;
 }
 void QGraphicsView::setSceneRect(const QRectF &rect)
 {
+    Q_D(QGraphicsView);
     d->sceneRect = rect;
     d->recalculateContentSize();
     d->lastCenterPoint = d->matrix.map(rect.center());
@@ -835,6 +858,7 @@ void QGraphicsView::setSceneRect(const QRectF &rect)
 */
 QWidget *QGraphicsView::renderWidget() const
 {
+    Q_D(const QGraphicsView);
     return d->renderWidget;
 }
 
@@ -864,6 +888,7 @@ QWidget *QGraphicsView::renderWidget() const
 */
 void QGraphicsView::setRenderWidget(QWidget *widget)
 {
+    Q_D(QGraphicsView);
     d->setupRenderWidget(widget);
 }
 /*
@@ -923,10 +948,12 @@ void QGraphicsView::renderToDevice(QPaintDevice *device, const QRect &rect,
 */
 QBrush QGraphicsView::backgroundBrush() const
 {
+    Q_D(const QGraphicsView);
     return d->backgroundBrush;
 }
 void QGraphicsView::setBackgroundBrush(const QBrush &brush)
 {
+    Q_D(QGraphicsView);
     d->backgroundBrush = brush;
     QWidget::update();
 }
@@ -966,10 +993,12 @@ void QGraphicsView::setBackgroundBrush(const QBrush &brush)
 */
 QBrush QGraphicsView::foregroundBrush() const
 {
+    Q_D(const QGraphicsView);
     return d->foregroundBrush;
 }
 void QGraphicsView::setForegroundBrush(const QBrush &brush)
 {
+    Q_D(QGraphicsView);
     d->foregroundBrush = brush;
     QWidget::update();
 }
@@ -982,6 +1011,7 @@ void QGraphicsView::setForegroundBrush(const QBrush &brush)
 */
 QMatrix QGraphicsView::matrix() const
 {
+    Q_D(const QGraphicsView);
     return d->matrix;
 }
 
@@ -1020,6 +1050,7 @@ QMatrix QGraphicsView::matrix() const
 */
 void QGraphicsView::setMatrix(const QMatrix &matrix, bool combine)
 {
+    Q_D(QGraphicsView);
     QMatrix oldMatrix = d->matrix;
     if (!combine)
         d->matrix = matrix;
@@ -1054,6 +1085,7 @@ void QGraphicsView::resetMatrix()
 */
 void QGraphicsView::rotate(qreal angle)
 {
+    Q_D(QGraphicsView);
     QMatrix matrix = d->matrix;
     matrix.rotate(angle);
     setMatrix(matrix);
@@ -1066,6 +1098,7 @@ void QGraphicsView::rotate(qreal angle)
 */
 void QGraphicsView::scale(qreal sx, qreal sy)
 {
+    Q_D(QGraphicsView);
     QMatrix matrix = d->matrix;
     matrix.scale(sx, sy);
     setMatrix(matrix);
@@ -1078,6 +1111,7 @@ void QGraphicsView::scale(qreal sx, qreal sy)
 */
 void QGraphicsView::shear(qreal sh, qreal sv)
 {
+    Q_D(QGraphicsView);
     QMatrix matrix = d->matrix;
     matrix.shear(sh, sv);
     setMatrix(matrix);
@@ -1090,6 +1124,7 @@ void QGraphicsView::shear(qreal sh, qreal sv)
 */
 void QGraphicsView::translate(qreal dx, qreal dy)
 {
+    Q_D(QGraphicsView);
     QMatrix matrix = d->matrix;
     matrix.translate(dx, dy);
     setMatrix(matrix);
@@ -1106,6 +1141,7 @@ void QGraphicsView::translate(qreal dx, qreal dy)
 */
 void QGraphicsView::centerOn(const QPointF &pos)
 {
+    Q_D(QGraphicsView);
     qreal width = d->renderWidget->width();
     qreal height = d->renderWidget->height();
     QPointF viewPoint = d->matrix.map(pos);
@@ -1149,6 +1185,7 @@ void QGraphicsView::centerOn(const QGraphicsItem *item)
 */
 void QGraphicsView::ensureVisible(const QPointF &pos, int xmargin, int ymargin)
 {
+    Q_D(QGraphicsView);
     Q_UNUSED(xmargin);
     Q_UNUSED(ymargin);
     qreal width = d->renderWidget->width();
@@ -1215,6 +1252,7 @@ void QGraphicsView::ensureVisible(const QGraphicsItem *item, int xmargin, int ym
 */
 QList<QGraphicsItem *> QGraphicsView::items() const
 {
+    Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
     return d->scene->items();
@@ -1242,6 +1280,7 @@ QList<QGraphicsItem *> QGraphicsView::items() const
 */
 QList<QGraphicsItem *> QGraphicsView::items(const QPoint &pos) const
 {
+    Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
     return d->scene->items(mapToScene(pos));
@@ -1264,6 +1303,7 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPoint &pos) const
 */
 QList<QGraphicsItem *> QGraphicsView::items(const QRect &rect) const
 {
+    Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
     return d->scene->items(mapToScene(rect));
@@ -1279,6 +1319,7 @@ QList<QGraphicsItem *> QGraphicsView::items(const QRect &rect) const
 */
 QList<QGraphicsItem *> QGraphicsView::items(const QPolygon &polygon) const
 {
+    Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
     return d->scene->items(mapToScene(polygon));
@@ -1294,6 +1335,7 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPolygon &polygon) const
 */
 QList<QGraphicsItem *> QGraphicsView::items(const QPainterPath &path) const
 {
+    Q_D(const QGraphicsView);
     if (!d->scene)
         return QList<QGraphicsItem *>();
     return d->scene->items(mapToScene(path));
@@ -1321,6 +1363,7 @@ QList<QGraphicsItem *> QGraphicsView::items(const QPainterPath &path) const
 */
 QGraphicsItem *QGraphicsView::itemAt(const QPoint &pos) const
 {
+    Q_D(const QGraphicsView);
     return d->scene ? d->scene->itemAt(mapToScene(pos)) : 0;
 }
 
@@ -1339,6 +1382,7 @@ QGraphicsItem *QGraphicsView::itemAt(const QPoint &pos) const
 */
 QPointF QGraphicsView::mapToScene(const QPoint &point) const
 {
+    Q_D(const QGraphicsView);
     QPointF p = point;
     p.rx() += horizontalScrollBar()->value() - d->leftIndent;
     p.ry() += verticalScrollBar()->value() - d->topIndent;
@@ -1398,6 +1442,7 @@ QPolygonF QGraphicsView::mapToScene(const QPolygon &polygon) const
 */
 QPainterPath QGraphicsView::mapToScene(const QPainterPath &path) const
 {
+    Q_D(const QGraphicsView);
     QMatrix moveMatrix;
     moveMatrix.translate(horizontalScrollBar()->value() - d->leftIndent,
                          verticalScrollBar()->value() - d->topIndent);
@@ -1411,6 +1456,7 @@ QPainterPath QGraphicsView::mapToScene(const QPainterPath &path) const
 */
 QPoint QGraphicsView::mapFromScene(const QPointF &point) const
 {
+    Q_D(const QGraphicsView);
     QPointF p = d->matrix.map(point);
     p.rx() -= horizontalScrollBar()->value() - d->leftIndent;
     p.ry() -= verticalScrollBar()->value() - d->topIndent;
@@ -1470,6 +1516,7 @@ QPolygon QGraphicsView::mapFromScene(const QPolygonF &polygon) const
 */
 QPainterPath QGraphicsView::mapFromScene(const QPainterPath &path) const
 {
+    Q_D(const QGraphicsView);
     QMatrix moveMatrix;
     moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
                          -verticalScrollBar()->value() + d->topIndent);
@@ -1483,6 +1530,7 @@ QPainterPath QGraphicsView::mapFromScene(const QPainterPath &path) const
 */
 void QGraphicsView::update(const QList<QRectF> &rects)
 {
+    Q_D(QGraphicsView);
     QRect renderWidgetRect = d->renderWidget->rect();
 
     QRect sumRect;
@@ -1506,6 +1554,7 @@ void QGraphicsView::update(const QList<QRectF> &rects)
 */
 bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
 {
+    Q_D(QGraphicsView);
     if (receiver != d->renderWidget) {
         if (event->type() != QEvent::KeyPress && event->type() != QEvent::KeyRelease)
             return false;
@@ -1543,7 +1592,7 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
         break;
     case QEvent::MouseMove:
         d->useLastMouseEvent = false;
-    d->mouseMoveEvent(static_cast<QMouseEvent *>(event));
+        d->mouseMoveEvent(static_cast<QMouseEvent *>(event));
         break;
     case QEvent::Resize:
         d->recalculateContentSize();
@@ -1570,12 +1619,19 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
 */
 bool QGraphicsView::event(QEvent *event)
 {
-    if ((event->type() == QEvent::UpdateRequest
-	 || event->type() == QEvent::Paint
-	 || event->type() == QEvent::UpdateLater) && d->renderWidget) {
-        // ### Why aren't QGraphicsView's update events propagated?
-        d->renderWidget->update();
+    Q_D(QGraphicsView);
+    switch (event->type()) {
+    case QEvent::UpdateRequest:
+    case QEvent::Paint:
+    case QEvent::UpdateLater:
+        if (d->renderWidget)
+            d->renderWidget->update();
+        break;
+    default:
+        break;
     }
+
+    
     return QAbstractScrollArea::event(event);
 }
 
@@ -1584,6 +1640,7 @@ bool QGraphicsView::event(QEvent *event)
 */
 void QGraphicsView::scrollContentsBy(int dx, int dy)
 {
+    Q_D(QGraphicsView);
     if (d->accelerateScrolling)
         d->renderWidget->scroll(dx, dy);
     else
@@ -1607,6 +1664,7 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
 */
 void QGraphicsView::paintBackground(QPainter *painter, const QRect &rect)
 {
+    Q_D(QGraphicsView);
     if (backgroundBrush().style() != Qt::NoBrush) {
         painter->save();
         painter->setBrushOrigin(0, 0);
@@ -1679,6 +1737,7 @@ void QGraphicsView::paintForeground(QPainter *painter, const QRect &rect)
 */
 void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> items)
 {
+    Q_D(QGraphicsView);
     QMatrix painterMatrix = painter->deviceMatrix();
 
     foreach (QGraphicsItem *item, items) {
@@ -1714,6 +1773,7 @@ void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> i
 */
 QStyleOptionGraphicsItem QGraphicsView::styleOptionForItem(QGraphicsItem *item) const
 {
+    Q_D(const QGraphicsView);
     QStyleOptionGraphicsItem option;
     option.state = QStyle::State_None;
     option.rect = item->boundingRect().toRect();

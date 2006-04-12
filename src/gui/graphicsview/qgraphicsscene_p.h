@@ -28,12 +28,12 @@
 #include "qgraphicsscene.h"
 #include "qgraphicsscene_bsp_p.h"
 
-#include <private/qabstractscrollarea_p.h>
+#include <private/qobject_p.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qset.h>
 
-class QGraphicsScenePrivate : public QAbstractScrollAreaPrivate
+class QGraphicsScenePrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsScene)
 public:

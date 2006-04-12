@@ -144,9 +144,8 @@ protected:
     QStyleOptionGraphicsItem styleOptionForItem(QGraphicsItem *item) const;
     
 private:
-    QGraphicsViewPrivate *d;
+    Q_DECLARE_PRIVATE(QGraphicsView)
     friend class QGraphicsSceneWidget;
-    friend class QGraphicsViewPrivate;
 };
 
 inline void QGraphicsView::setSceneRect(qreal ax, qreal ay, qreal aw, qreal ah)

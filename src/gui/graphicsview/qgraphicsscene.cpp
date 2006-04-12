@@ -951,7 +951,7 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
     focus.
 
     The focus item receives keyboard input when the scene receives a
-    QGraphicsSceneKeyEvent.
+    key event.
 
     \sa setFocusItem(), QGraphicsItem::hasFocus()
 */
