@@ -815,6 +815,7 @@ bool QAuthDevice::authorizeMessage()
                 "(to turn on discovery mode, export SXE_DISCOVERY_MODE=1)"
 #endif
                 , qPrintable(request), d->progId, d->processId );
+        msgQueue = msgQueue.mid( commandSize );
     }
     delete command;
     return moreToProcess;
