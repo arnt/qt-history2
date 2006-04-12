@@ -36,7 +36,7 @@ class QTextBrowserPrivate : public QTextEditPrivate
 public:
     QTextBrowserPrivate() 
         : textOrSourceChanged(false), forceLoadOnSourceChange(false),
-          openExternalUrls(false), hadSelectionOnMousePress(false) {}
+          hadSelectionOnMousePress(false) {}
 
     void init();
 
@@ -60,8 +60,6 @@ public:
     QString highlightedAnchor; // Anchor below cursor
     bool forceLoadOnSourceChange;
     
-    bool openExternalUrls;
-
 #ifndef QT_NO_CURSOR
     QCursor oldCursor;
 #endif
@@ -143,15 +141,6 @@ void QTextBrowserPrivate::activateAnchor(const QString &href)
     if (textOrSourceChanged)
         return;
     
-    if (openExternalUrls) {
-        const QString scheme = url.scheme();
-        if (!scheme.isEmpty()
-            && scheme != QLatin1String("file")
-            && scheme != QLatin1String("qrc")) {
-            QDesktop::open(url);
-            return;
-        }
-    }
     q->setSource(url);
 }
 
@@ -1028,29 +1017,6 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
     }
 
     return data;
-}
-
-/*
-    \property openExternalUrls
-    \since 4.2
-    \brief whether QTextBrowser should automatically open external urls
-    
-    If the property is true and a link to an external url is activated
-    then QTextBrowser attempts to open it using QDesktopServices.
-    
-    An url is considered to be external if its scheme is neither 'file'
-    nor 'qrc'. 'qrc' is used to address resources.
-*/
-bool QTextBrowser::openExternalUrls() const
-{
-    Q_D(const QTextBrowser);
-    return d->openExternalUrls;
-}
-
-void QTextBrowser::setOpenExternalUrls(bool open)
-{
-    Q_D(QTextBrowser);
-    d->openExternalUrls = open;
 }
 
 /*! \reimp */
