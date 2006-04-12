@@ -94,8 +94,9 @@ public:
 
     // returns true if \a widget is a toolbar or dockwidget that we know about
     bool contains(QWidget *widget) const;
+#ifndef QT_NO_DOCKWIDGET
     void removeRecursive(QDockWidget *dockwidget);
-
+#endif
 
     // utility functions
 
