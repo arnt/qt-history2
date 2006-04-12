@@ -28,7 +28,6 @@
 #include <qdir.h>
 #include <qwhatsthis.h>
 #include <qtextobject.h>
-#include <qdesktopservices.h>
 
 class QTextBrowserPrivate : public QTextEditPrivate
 {
