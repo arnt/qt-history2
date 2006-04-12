@@ -954,26 +954,20 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &so
     by a custom model. The code to set up the model and the view, \e
     without sorting and filtering, would look like this:
 
-    \code
-        QTreeView *treeView = new QTreeView;
-        MyItemModel *model = new MyItemModel(this);
-
-        treeView->setModel(model);
-    \endcode
+    \quotefromfile snippets/qsortfilterproxymodel-details/main.cpp
+    \skipto QTreeView
+    \printuntil treeView->setModel(model);
 
     To add sorting and filtering support to \c MyItemModel, we need
     to create a QSortFilterProxyModel, call setSourceModel() with the
     \c MyItemModel as argument, and install the QSortFilterProxyModel
     on the view:
 
-    \code
-        QTreeView *treeView = new QTreeView;
-        MyItemModel *sourceModel = new MyItemModel(this);
-        QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
-
-        proxyModel->setSourceModel(sourceModel);
-        treeView->setModel(proxyModel);
-    \endcode
+    \quotefromfile snippets/qsortfilterproxymodel-details/main.cpp
+    \skipto QTreeView
+    \printline QTreeView
+    \skipto sourceModel
+    \printuntil  treeView->setModel(proxyModel)
 
     At this point, neither sorting nor filtering is enabled; the
     original data is displayed in the view. Any changes made through
@@ -1004,9 +998,8 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &so
     controls whether the user can sort the view by clicking the
     view's horizontal header. For example:
 
-    \code
-        treeView->setSortingEnabled(true);
-    \endcode
+    \skipto treeView->setSortingEnabled(true)
+    \printline treeView->setSortingEnabled(true)
 
     When this feature is on (the default is off), clicking on a
     header section sorts the items according to that column. By
@@ -1045,9 +1038,9 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &so
     arguments on the QSortFilterProxyModel (or on the original model
     if it implements sort()). For example:
 
-    \code
-        proxyModel->sort(2, Qt::AscendingOrder);
-    \endcode
+    \quotefromfile snippets/qsortfilterproxymodel-details/main.cpp
+    \skipto proxyModel->sort(2, Qt::AscendingOrder)
+    \printline proxyModel->sort(2, Qt::AscendingOrder)
 
     \section1 Filtering
 
@@ -1058,11 +1051,8 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &so
     The QRegExp object can be used to match a regular expression, a
     wildcard pattern, or a fixed string. For example:
 
-    \code
-        proxyModel->setFilterRegExp(QRegExp(".png", Qt::CaseInsensitive,
-                                            QRegExp::FixedString));
-        proxyModel->setFilterKeyColumn(1);
-    \endcode
+    \skipto setFilterRegExp
+    \printuntil setFilterKeyColumn
 
     For hierarchical models, the filter is applied recursively to all
     children. If a parent item doesn't match the filter, none of its
