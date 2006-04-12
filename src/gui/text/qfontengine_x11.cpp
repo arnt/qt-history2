@@ -1517,12 +1517,24 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
                 src += slot->bitmap.pitch;
             }
         } else {
-            if (hsubpixel || vfactor != 1) {
+            if (hsubpixel) {
+                while (h--) {
+                    uint *dd = (uint *)dst;
+                    *dd++ = 0;
+                    for (int x = 0; x < slot->bitmap.width; x++) {
+                        uint a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xffffff : 0x000000);
+                        *dd++ = a;
+                    }
+                    *dd++ = 0;
+                    dst += pitch;
+                    src += slot->bitmap.pitch;
+                }
+            } else if (vfactor != 1) {
                 while (h--) {
                     uint *dd = (uint *)dst;
                     for (int x = 0; x < slot->bitmap.width; x++) {
-                        unsigned char a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xff : 0x00);
-                        *dd++ = (a << 16) | (a << 8) | a;
+                        uint a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xffffff : 0x000000);
+                        *dd++ = a;
                     }
                     dst += pitch;
                     src += slot->bitmap.pitch;
