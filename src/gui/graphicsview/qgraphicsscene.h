@@ -125,6 +125,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void startEmittingUpdates())
     Q_PRIVATE_SLOT(d_func(), void removeItemLater(QGraphicsItem *item))
     friend class QGraphicsItem;
+    friend class QGraphicsView;
     friend class QGraphicsViewPrivate;
 };
 

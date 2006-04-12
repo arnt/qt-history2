@@ -680,8 +680,9 @@ void QGraphicsItem::update(const QRectF &rect)
     if (d->scene) {
         d->scene->itemUpdated(this, rect);
         foreach (QGraphicsItem *item, d->children) {
-            // ### Check if rects intersects, and pass the intersection only.
-            item->update();
+            QRectF childRect = item->matrix().mapRect(rect);
+            if (childRect.intersects(item->boundingRect()))
+                item->update(childRect);
         }
     }
 }

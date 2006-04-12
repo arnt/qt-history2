@@ -79,6 +79,9 @@ public:
     void installEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
     void removeEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
     bool filterEvent(QGraphicsItem *item, QGraphicsSceneEvent *event);
+
+    void sendHoverEvent(QEvent::Type type, QGraphicsItem *item,
+                        QGraphicsSceneHoverEvent *hoverEvent);
 };
 
 #endif

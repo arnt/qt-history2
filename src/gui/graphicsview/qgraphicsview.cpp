@@ -1783,6 +1783,8 @@ QStyleOptionGraphicsItem QGraphicsView::styleOptionForItem(QGraphicsItem *item) 
         option.state |= QStyle::State_Enabled;
     if (item->hasFocus())
         option.state |= QStyle::State_HasFocus;
+    if (d->scene->d_func()->hoverItems.contains(item))
+        option.state |= QStyle::State_MouseOver;
     if (item == d->scene->mouseGrabberItem())
         option.state |= QStyle::State_Sunken;
     return option;
