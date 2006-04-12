@@ -483,7 +483,7 @@ const unsigned char *QTransportAuthPrivate::getClientKey(unsigned char progId)
             if ( keyCache[i] == NULL )
                 keyCache[i] = (AuthRecord*)(malloc( sizeof( kr )));
 #ifdef QTRANSPORTAUTH_DEBUG
-            qDebug( "Found client key for prog %u", progId );
+            qDebug( "%li Found client key for prog %u", getpid(), progId );
 #endif
             memcpy( (char*)(keyCache[i]), &kr, sizeof( kr ));
             ::close( fd );
@@ -520,6 +520,7 @@ QAuthDevice::QAuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDir
     , way( dir )
     , m_target( parent )
     , m_client( 0 )
+    , m_bytesAvailable( 0 )
 {
     if ( dir == Receive ) // server side
     {
@@ -585,7 +586,7 @@ void *QAuthDevice::client() const
   into the target device, followed by the actual incoming data (the
   payload).
 
-  For server end, the writeData implementation in QBuffer is called.
+  For server end, it is a fatal error to write to the device.
 */
 qint64 QAuthDevice::writeData(const char *data, qint64 len)
 {
@@ -597,7 +598,6 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
     // client
 #ifdef QTRANSPORTAUTH_DEBUG
     char displaybuf[1024];
-    qDebug( "write data %lli bytes, pid %li", len, ::getpid() );
 #endif
     char header[QSXE_HEADER_LEN];
     qint64 bytes = 0;
@@ -606,7 +606,7 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
         m_target->write( header, QSXE_HEADER_LEN );
 #ifdef QTRANSPORTAUTH_DEBUG
         hexstring( displaybuf, (const unsigned char *)header, QSXE_HEADER_LEN );
-        qDebug( "QAuthDevice::writeData - CLIENT: Header written: %s", displaybuf );
+        qDebug( "%li QAuthDevice::writeData - CLIENT: Header written: %s", getpid(), displaybuf );
 #endif
         bytes += QSXE_HEADER_LEN;
     }
@@ -615,12 +615,11 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
 #ifdef QTRANSPORTAUTH_DEBUG
     int bytesToDisplay = bytes;
     const unsigned char *dataptr = (const unsigned char *)data;
-    qDebug( "QAuthDevice::writeData - CLIENT: Data written:" );
     while ( bytesToDisplay > 0 )
     {
         int amt = bytes < 500 ? bytes : 500;
         hexstring( displaybuf, dataptr, amt );
-        qDebug( "\t\t%s", bytes > 0 ? displaybuf : "(null)" );
+        qDebug( "%li QAuthDevice::writeData - CLIENT: %s", getpid(), bytes > 0 ? displaybuf : "(null)" );
         dataptr += 500;
         bytesToDisplay -= 500;
     }
@@ -633,8 +632,10 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
 /*!
   Reimplement from QIODevice
 
-  read data out of the internal message queue, reduce the queue by the amount
-  read.
+  Read data out of the internal message queue, reduce the queue by the amount
+  read.  Note that the amount available is only ever the size of a command
+  (although a command can be very big) since we need to check at command
+  boundaries for new authentication headers.
 */
 qint64 QAuthDevice::readData( char *data, qint64 maxSize )
 {
@@ -644,21 +645,15 @@ qint64 QAuthDevice::readData( char *data, qint64 maxSize )
     char displaybuf[1024];
     hexstring( displaybuf, reinterpret_cast<const unsigned char *>(msgQueue.constData()),
             msgQueue.size() > 500 ? 500 : msgQueue.size() );
-    qDebug( "QAuthDevice::readData() buffer %li - %s", msgQueue.size(), displaybuf );
+    qDebug() << getpid() << "QAuthDevice::readData() buffered/requested/avail"
+            << msgQueue.size() << maxSize << m_bytesAvailable << displaybuf;
 #endif
-    if ( maxSize > msgQueue.size() )
-    {
-        ::memcpy( data, msgQueue.constData(), msgQueue.size() );
-        msgQueue.clear();
-        msgQueue.resize(0);
-        return msgQueue.size();
-    }
-    else
-    {
-        ::memcpy( data, msgQueue.constData(), maxSize );
-        msgQueue.remove( 0, maxSize );
-        return maxSize;
-    }
+    Q_ASSERT( m_bytesAvailable <= msgQueue.size() );
+    qint64 bytes = ( maxSize > m_bytesAvailable ) ? m_bytesAvailable : maxSize;
+    ::memcpy( data, msgQueue.constData(), bytes );
+    msgQueue = msgQueue.mid( bytes );
+    m_bytesAvailable -= bytes;
+    return bytes;
 }
 
 /*!
@@ -679,6 +674,7 @@ void QAuthDevice::recvReadyRead()
 {
     qint64 bytes = m_target->bytesAvailable();
     if ( bytes <= 0 ) return;
+    open( QIODevice::ReadOnly | QIODevice::Unbuffered );
     QUnixSocket *usock = static_cast<QUnixSocket*>(m_target);
     QUnixSocketMessage msg = usock->read();
     msgQueue.append( msg.bytes() );
@@ -695,7 +691,7 @@ void QAuthDevice::recvReadyRead()
     char displaybuf[1024];
     hexstring( displaybuf, reinterpret_cast<const unsigned char *>(msgQueue.constData()),
             msgQueue.size() > 500 ? 500 : msgQueue.size() );
-    qDebug( "recv ready read %lli bytes - msg %s", bytes, displaybuf );
+    qDebug( "%li ***** SERVER read %lli bytes - msg %s", getpid(), bytes, displaybuf );
 #endif
 
     bool bufHasMessages = msgQueue.size() > (int)sizeof(int);
@@ -802,14 +798,14 @@ bool QAuthDevice::authorizeMessage()
     }
 #endif
     // copy message into the authBuf...
-    close();
     int commandSize = QWS_PROTOCOL_ITEM_SIZE( *command );
+    bool moreToProcess = ( msgQueue.size() - commandSize ) > (int)sizeof(int);
     if ( isAuthorized )
     {
 #ifdef QTRANSPORTAUTH_DEBUG
-        qDebug() << "authorized: releasing" << commandSize << "byte command" << request;
+        qDebug() << getpid() << "SERVER authorized: releasing" << commandSize << "byte command" << request;
 #endif
-        open( QIODevice::ReadOnly | QIODevice::Unbuffered );
+        m_bytesAvailable = commandSize;
         emit QIODevice::readyRead();
     }
     else
@@ -820,9 +816,8 @@ bool QAuthDevice::authorizeMessage()
 #endif
                 , qPrintable(request), d->progId, d->processId );
     }
-    msgQueue = msgQueue.mid( commandSize );
     delete command;
-    return msgQueue.size() > (int)sizeof(int);
+    return moreToProcess;
 }
 
 /*!
@@ -878,8 +873,8 @@ bool QAuthDevice::authToMessage( QTransportAuth::Data &d, char *hdr, const char 
     char keydisplay[QSXE_KEY_LEN*2+1];
     hexstring( keydisplay, a->d_func()->authKey.key, QSXE_KEY_LEN );
 
-    qDebug( "Auth to message %s against prog id %u and key %s\n",
-            msg, a->d_func()->authKey.progId, keydisplay );
+    qDebug( "%li CLIENT Auth to message %s against prog id %u and key %s\n",
+            getpid(), msg, a->d_func()->authKey.progId, keydisplay );
 #endif
 
     // TODO implement sequence to prevent replay attack, not required
@@ -968,7 +963,8 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
 #ifdef QTRANSPORTAUTH_DEBUG
     char authhdr[QSXE_HEADER_LEN*2+1];
     hexstring( authhdr, reinterpret_cast<const unsigned char *>(msg), QSXE_HEADER_LEN );
-    qDebug( "authFromMessage(): message header is %s", authhdr );
+    qDebug( "%li SERVER authFromMessage(): message header is %s",
+            getpid(), authhdr );
 #endif
 
     unsigned char authLen = (unsigned char)(msg[ QSXE_LEN_IDX ]);
@@ -999,7 +995,7 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
 #ifdef QTRANSPORTAUTH_DEBUG
     char keydisplay[QSXE_KEY_LEN*2+1];
     hexstring( keydisplay, clientKey, QSXE_KEY_LEN );
-    qDebug( "authFromMessage(): message %s against prog id %u and key %s\n",
+    qDebug( "\t\tauthFromMessage(): message %s against prog id %u and key %s\n",
             AUTH_DATA(msg), ((unsigned int)(msg[ QSXE_PROG_IDX ])), keydisplay );
 #endif
 

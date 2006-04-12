@@ -82,6 +82,7 @@ private:
     QIODevice *m_target;
     void *m_client;
     QByteArray msgQueue;
+    qint64 m_bytesAvailable;
 };
 
 inline bool QAuthDevice::isSequential() const
@@ -101,7 +102,7 @@ inline bool QAuthDevice::atEnd() const
 
 inline qint64 QAuthDevice::bytesAvailable() const
 {
-    return msgQueue.size();
+    return m_bytesAvailable;
 }
 
 inline qint64 QAuthDevice::bytesToWrite() const
