@@ -426,7 +426,8 @@ inline my_jpeg_destination_mgr::my_jpeg_destination_mgr(QIODevice *device)
 static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int sourceQuality)
 {
     bool success = false;
-    QImage image = sourceImage;
+    const QImage image = sourceImage;
+    QVector<QRgb> cmap = image.colorTable();
 
     struct jpeg_compress_struct cinfo;
     JSAMPROW row_pointer[1];
@@ -439,6 +440,10 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
     jerr.error_exit = my_error_exit;
 
     if (!setjmp(jerr.setjmp_buffer)) {
+        // WARNING:
+        // this if loop is inside a setjmp/longjmp branch
+        // do not create C++ temporaries here because the destructor may never be called
+        // if you allocate memory, make sure that you can free it (row_pointer[0])
         jpeg_create_compress(&cinfo);
 
         cinfo.dest = iod_dest;
@@ -446,7 +451,6 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
         cinfo.image_width = image.width();
         cinfo.image_height = image.height();
 
-        QVector<QRgb> cmap = image.colorTable();
         bool gray=false;
         switch (image.depth()) {
         case 1:
@@ -497,7 +501,7 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
             switch (image.depth()) {
             case 1:
                 if (gray) {
-                    uchar* data = image.scanLine(cinfo.next_scanline);
+                    const uchar* data = image.scanLine(cinfo.next_scanline);
                     if (image.format() == QImage::Format_MonoLSB) {
                         for (int i=0; i<w; i++) {
                             bool bit = !!(*(data + (i >> 3)) & (1 << (i & 7)));
@@ -510,7 +514,7 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
                         }
                     }
                 } else {
-                    uchar* data = image.scanLine(cinfo.next_scanline);
+                    const uchar* data = image.scanLine(cinfo.next_scanline);
                     if (image.format() == QImage::Format_MonoLSB) {
                         for (int i=0; i<w; i++) {
                             bool bit = !!(*(data + (i >> 3)) & (1 << (i & 7)));
@@ -530,13 +534,13 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
                 break;
             case 8:
                 if (gray) {
-                    uchar* pix = image.scanLine(cinfo.next_scanline);
+                    const uchar* pix = image.scanLine(cinfo.next_scanline);
                     for (int i=0; i<w; i++) {
                         *row = qRed(cmap[*pix]);
                         ++row; ++pix;
                     }
                 } else {
-                    uchar* pix = image.scanLine(cinfo.next_scanline);
+                    const uchar* pix = image.scanLine(cinfo.next_scanline);
                     for (int i=0; i<w; i++) {
                         *row++ = qRed(cmap[*pix]);
                         *row++ = qGreen(cmap[*pix]);
