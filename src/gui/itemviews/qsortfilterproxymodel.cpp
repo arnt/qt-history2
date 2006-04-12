@@ -1531,7 +1531,9 @@ void QSortFilterProxyModel::sort(int column, Qt::SortOrder order)
     \property QSortFilterProxyModel::filterRegExp
     \brief the QRegExp used to filter the contents of the source model
 
-    Setting this property overwrites the current \l filterCaseSensitivity.
+    Setting this property overwrites the current \l
+    filterCaseSensitivity.  By default, the QRegExp is an empty string
+    matching all contents.
 
     \sa setCaseSensitivity(), setFilterWildcard(), setFilterFixedString()
 */
