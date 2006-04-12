@@ -35,8 +35,7 @@ HEADERS += \
 	kernel/qwidget.h \
 	kernel/qwidgetaction.h \
 	kernel/qwidgetaction_p.h \
-	kernel/qwindowdefs.h \
-	kernel/qdesktopservices.h
+	kernel/qwindowdefs.h
 
 SOURCES += \
 	kernel/qaction.cpp \
@@ -75,8 +74,7 @@ win32 {
 		kernel/qmime_win.cpp \
 		kernel/qsound_win.cpp \
 		kernel/qwidget_win.cpp \
-		kernel/qole_win.c \
-		kernel/qdesktopservices_win.cpp
+		kernel/qole_win.c
 }
 
 unix:x11 {
@@ -95,8 +93,7 @@ unix:x11 {
 		kernel/qwidget_x11.cpp \
 		kernel/qwidgetcreate_x11.cpp \
 		kernel/qx11embed_x11.cpp \
-		kernel/qx11info_x11.cpp \
-		kernel/qdesktopservices_x11.cpp
+		kernel/qx11info_x11.cpp
 
         contains(QT_CONFIG, glib) {
             SOURCES += \
@@ -142,8 +139,7 @@ embedded {
 		kernel/qmime_mac.cpp \
 		kernel/qdnd_mac.cpp \
 		kernel/qdesktopwidget_mac.cpp \
-		kernel/qwidget_mac.cpp \
-		kernel/qdesktopservices_mac.cpp
+		kernel/qwidget_mac.cpp
         HEADERS += \
                 kernel/qeventdispatcher_mac_p.h
 }
