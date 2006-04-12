@@ -150,12 +150,14 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     }
     if(deviceIsPixmap())
         updatePaintDevice();
+#if 0
     { //sync the vrefresh
         const GLint sync = 1;
         aglSetInteger((AGLContext)d->cx, AGL_SWAP_INTERVAL, &sync);
         if(!aglIsEnabled((AGLContext)d->cx, AGL_SWAP_INTERVAL))
             aglEnable((AGLContext)d->cx, AGL_SWAP_INTERVAL);
     }
+#endif
     return true;
 }
 
