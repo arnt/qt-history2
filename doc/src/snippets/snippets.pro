@@ -37,6 +37,11 @@ SUBDIRS         = brush \
 #                  qmake \                  # not designed to be built
 #                  qsignalmapper \
                   qsortfilterproxymodel-details \
+                  qstack \
+                  qstackedlayout \
+                  qstackedwidget \
+                  qstandarditemmodel \
+                  qstatustipevent \
                   qtablewidget-dnd \
                   qtablewidget-resizing \
                   qtablewidget-using \
