@@ -478,7 +478,7 @@ void QVFb::configure()
     // Need to block signals, because we connect to animateClick(),
     // since QCheckBox doesn't have setChecked(bool) in 2.x.
     chooseSize(QSize(w,h));
-    config->skin->insertItems(-1, skinnames);
+    config->skin->insertItems(config->skin->count(), skinnames);
     if (currentSkinIndex > 0)
 	config->skin->setCurrentIndex(currentSkinIndex);
     config->touchScreen->setChecked(view->touchScreenEmulation());
