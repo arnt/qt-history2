@@ -305,7 +305,9 @@ static void heuristicSetGlyphAttributes(QShaperItem *item, const QChar *uc, int 
             glyphs[pos].advance = QFixedPoint();
         }
 #endif
-
+        // one gets an inter character justification point if the current char is not a non spacing mark.
+        // as then the current char belongs to the last one and one gets a space justification point
+        // after the space char.
         if (lastCat == QChar::Separator_Space)
             glyphs[pos-1].attributes.justification = QGlyphLayout::Space;
         else if (cat != QChar::Mark_NonSpacing)
