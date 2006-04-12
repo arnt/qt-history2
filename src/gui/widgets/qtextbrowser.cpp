@@ -28,7 +28,7 @@
 #include <qdir.h>
 #include <qwhatsthis.h>
 #include <qtextobject.h>
-#include <qdesktop.h>
+#include <qdesktopservices.h>
 
 class QTextBrowserPrivate : public QTextEditPrivate
 {
