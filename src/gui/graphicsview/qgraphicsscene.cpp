@@ -995,7 +995,7 @@ void QGraphicsScene::setFocusItem(QGraphicsItem *item, Qt::FocusReason focusReas
 
     if (d->focusItem) {
         QFocusEvent event(QEvent::FocusOut, focusReason);
-        d->focusItem->event(&event);
+        d->focusItem->sceneEvent(&event);
         d->lastFocusItem = d->focusItem;
         d->focusItem = 0;
         d->lastFocusItem->update();
@@ -1004,7 +1004,7 @@ void QGraphicsScene::setFocusItem(QGraphicsItem *item, Qt::FocusReason focusReas
     if (item) {
         d->focusItem = item;
         QFocusEvent event(QEvent::FocusIn, focusReason);
-        item->event(&event);
+        item->sceneEvent(&event);
         item->update();
     }
 }
@@ -1141,7 +1141,7 @@ void QGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMen
 {
     if (QGraphicsItem *item = itemAt(contextMenuEvent->scenePos())) {
         contextMenuEvent->setPos(item->mapFromScene(contextMenuEvent->scenePos()));
-        item->event(contextMenuEvent);
+        item->sceneEvent(contextMenuEvent);
     }
 }
 
@@ -1201,7 +1201,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
                 hoverLeaveEvent.setPos(lastItem->mapFromScene(hoverEvent->scenePos()));
                 hoverLeaveEvent.setScenePos(hoverEvent->scenePos());
                 hoverLeaveEvent.setScreenPos(hoverEvent->screenPos());
-                lastItem->event(&hoverLeaveEvent);
+                lastItem->sceneEvent(&hoverLeaveEvent);
             }
         }
         return;
@@ -1216,7 +1216,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
             hover.setPos(hoverEvent->pos());
             hover.setScenePos(hoverEvent->scenePos());
             hover.setScreenPos(hoverEvent->screenPos());
-            item->event(&hover);
+            item->sceneEvent(&hover);
             return;
         }
 
@@ -1230,7 +1230,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
                 hoverLeaveEvent.setPos(lastItem->mapFromScene(hoverEvent->scenePos()));
                 hoverLeaveEvent.setScenePos(hoverEvent->scenePos());
                 hoverLeaveEvent.setScreenPos(hoverEvent->screenPos());
-                lastItem->event(&hoverLeaveEvent);
+                lastItem->sceneEvent(&hoverLeaveEvent);
             }
         }
         d->hoverItems << item;
@@ -1239,7 +1239,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
         hover.setPos(hoverEvent->pos());
         hover.setScenePos(hoverEvent->scenePos());
         hover.setScreenPos(hoverEvent->screenPos());
-        item->event(&hover);
+        item->sceneEvent(&hover);
         return;
     }
     
@@ -1249,7 +1249,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
         hover.setPos(item->mapFromScene(hoverEvent->scenePos()));
         hover.setScenePos(hoverEvent->scenePos());
         hover.setScreenPos(hoverEvent->screenPos());
-        item->event(hoverEvent);
+        item->sceneEvent(hoverEvent);
         return;
     }
 
@@ -1263,7 +1263,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
             hoverLeaveEvent.setPos(lastItem->mapFromScene(hoverEvent->scenePos()));
             hoverLeaveEvent.setScenePos(hoverEvent->scenePos());
             hoverLeaveEvent.setScreenPos(hoverEvent->screenPos());
-            lastItem->event(&hoverLeaveEvent);
+            lastItem->sceneEvent(&hoverLeaveEvent);
         }
     }
 }
@@ -1278,7 +1278,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
 void QGraphicsScene::keyEvent(QKeyEvent *keyEvent)
 {
     if (QGraphicsItem *item = focusItem())
-        item->event(keyEvent);
+        item->sceneEvent(keyEvent);
 }
 
 /*!
@@ -1359,7 +1359,7 @@ void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     }
     mouseEvent->setPos(d->mouseGrabberItem->mapFromScene(mouseEvent->scenePos()));
     mouseEvent->setLastPos(d->mouseGrabberItem->mapFromScene(mouseEvent->lastScenePos()));
-    d->mouseGrabberItem->event(mouseEvent);
+    d->mouseGrabberItem->sceneEvent(mouseEvent);
 
     // Reset the mouse grabber when the last mouse button has been released.
     if (mouseEvent->type() == QGraphicsSceneEvent::GraphicsSceneMouseRelease

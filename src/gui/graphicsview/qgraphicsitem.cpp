@@ -778,7 +778,7 @@ bool QGraphicsItem::eventFilter(QGraphicsItem *watched, QGraphicsSceneEvent *eve
     return false;
 }
 
-void QGraphicsItem::event(QEvent *event)
+void QGraphicsItem::sceneEvent(QEvent *event)
 {
     Q_D(QGraphicsItem);
     if (!d->enabled || !d->visible)

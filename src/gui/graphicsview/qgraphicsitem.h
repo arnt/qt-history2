@@ -154,7 +154,7 @@ public:
 
 protected:
     virtual bool eventFilter(QGraphicsItem *watched, QGraphicsSceneEvent *event);
-    virtual void event(QEvent *event);
+    virtual void sceneEvent(QEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
     virtual void focusEvent(QFocusEvent *event);
     virtual void hoverEvent(QGraphicsSceneHoverEvent *event);
