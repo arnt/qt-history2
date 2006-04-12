@@ -73,6 +73,7 @@ public:
 #endif
 
     bool use_default_engine;
+#ifndef QT_NO_PRINTDIALOG
     void ensurePrintDialog() const {
         if (printDialog)
             return;
@@ -80,6 +81,7 @@ public:
             ownPrintDialog = new QPrintDialog(q_ptr); // printDialog is set here.
         }
     }
+#endif
 };
 
 #endif // QT_NO_PRINTER
