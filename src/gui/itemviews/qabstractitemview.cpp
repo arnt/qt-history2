@@ -573,6 +573,75 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
 }
 
 /*!
+    Sets the given item \a delegate used by this view and model for
+    the given \a row.
+*/
+void QAbstractItemView::setItemDelegateForRow(int row, QAbstractItemDelegate *delegate)
+{
+    Q_ASSERT(delegate);
+    Q_D(QAbstractItemView);
+    if (QAbstractItemDelegate *rowDelegate = d->rowDelegates.value(row, 0)) {
+        disconnect(rowDelegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
+                   this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
+        disconnect(rowDelegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+    }
+    d->rowDelegates.insert(row, delegate);
+    if (delegate) {
+        connect(delegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
+                this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
+        connect(delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+    }
+}
+
+/*!
+   Returns the item delegate uset by this view and model for
+   the given \a row.
+*/
+QAbstractItemDelegate *QAbstractItemView::itemDelegateForRow(int row) const
+{
+    return d_func()->rowDelegates.value(row, 0);
+}
+
+/*!
+    Sets the given item \a delegate used by this view and model for
+    the given \a column.
+*/
+void QAbstractItemView::setItemDelegateForColumn(int column, QAbstractItemDelegate *delegate)
+{
+    Q_ASSERT(delegate);
+    Q_D(QAbstractItemView);
+    if (QAbstractItemDelegate *columnDelegate = d->columnDelegates.value(column, 0)) {
+        disconnect(columnDelegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
+                   this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
+        disconnect(columnDelegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+    }
+    d->columnDelegates.insert(column, delegate);
+    if (delegate) {
+        connect(delegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)),
+                this, SLOT(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
+        connect(delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
+    }
+}
+
+/*!
+   Returns the item delegate uset by this view and model for
+   the given \a column.
+*/
+QAbstractItemDelegate *QAbstractItemView::itemDelegateForColumn(int column) const
+{
+    return d_func()->columnDelegates.value(column, 0);
+}
+
+/*!
+   Returns the item delegate uset by this view and model for
+   the given \a index.
+*/
+QAbstractItemDelegate *QAbstractItemView::itemDelegate(const QModelIndex &index) const
+{
+    return d_func()->delegateForIndex(index);
+}
+
+/*!
   \property QAbstractItemView::selectionMode
   \brief which selection mode the view operates in
 
@@ -1736,12 +1805,14 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
 */
 void QAbstractItemView::commitData(QWidget *editor)
 {
+    Q_D(QAbstractItemView);
     if (!model() || !editor)
         return;
-    editor->removeEventFilter(d_func()->delegate);
-    QModelIndex index = d_func()->indexForEditor(editor);
+    QModelIndex index = d->indexForEditor(editor);
+    QAbstractItemDelegate *delegate = d->delegateForIndex(index);
+    editor->removeEventFilter(delegate);
     itemDelegate()->setModelData(editor, model(), index);
-    editor->installEventFilter(d_func()->delegate);
+    editor->installEventFilter(delegate);
 }
 
 /*!
@@ -1770,7 +1841,8 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
 */
 void QAbstractItemView::setHorizontalStepsPerItem(int steps)
 {
-    d_func()->horizontalStepsPerItem = steps;
+    Q_D(QAbstractItemView);
+    d->horizontalStepsPerItem = steps;
     horizontalScrollBar()->setSingleStep(steps);
 }
 
@@ -1781,7 +1853,8 @@ void QAbstractItemView::setHorizontalStepsPerItem(int steps)
 */
 int QAbstractItemView::horizontalStepsPerItem() const
 {
-    return d_func()->horizontalStepsPerItem;
+    Q_D(const QAbstractItemView);
+    return d->horizontalStepsPerItem;
 }
 
 /*!
@@ -1797,7 +1870,8 @@ int QAbstractItemView::horizontalStepsPerItem() const
 */
 void QAbstractItemView::setVerticalStepsPerItem(int steps)
 {
-    d_func()->verticalStepsPerItem = steps;
+    Q_D(QAbstractItemView);
+    d->verticalStepsPerItem = steps;
     verticalScrollBar()->setSingleStep(steps);
 }
 
@@ -1808,7 +1882,8 @@ void QAbstractItemView::setVerticalStepsPerItem(int steps)
 */
 int QAbstractItemView::verticalStepsPerItem() const
 {
-    return d_func()->verticalStepsPerItem;
+    Q_D(const QAbstractItemView);
+    return d->verticalStepsPerItem;
 }
 
 /*!
@@ -1891,8 +1966,6 @@ int QAbstractItemView::sizeHintForRow(int row) const
         return -1;
 
     QStyleOptionViewItem option = viewOptions();
-    QAbstractItemDelegate *delegate = itemDelegate();
-    Q_ASSERT(delegate);
     int height = 0;
     int colCount = model()->columnCount(rootIndex());
     QModelIndex index;
@@ -1900,7 +1973,8 @@ int QAbstractItemView::sizeHintForRow(int row) const
         index = model()->index(row, c, rootIndex());
         if (QWidget *editor = d->editorForIndex(index))
             height = qMax(height, editor->size().height());
-        height = qMax(height, delegate->sizeHint(option, index).height());
+        int hint = d->delegateForIndex(index)->sizeHint(option, index).height();
+        height = qMax(height, hint);
     }
     return height;
 }
@@ -1922,8 +1996,6 @@ int QAbstractItemView::sizeHintForColumn(int column) const
         return -1;
 
     QStyleOptionViewItem option = viewOptions();
-    QAbstractItemDelegate *delegate = itemDelegate();
-    Q_ASSERT(delegate);
     int width = 0;
     int rows = model()->rowCount(rootIndex());
     QModelIndex index;
@@ -1931,7 +2003,8 @@ int QAbstractItemView::sizeHintForColumn(int column) const
         index = model()->index(r, column, rootIndex());
         if (QWidget *editor = d->editorForIndex(index))
             width = qMax(width, editor->sizeHint().width());
-        width = qMax(width, delegate->sizeHint(option, index).width());
+        int hint = d->delegateForIndex(index)->sizeHint(option, index).width();
+        width = qMax(width, hint);
     }
     return width;
 }
@@ -2711,7 +2784,7 @@ bool QAbstractItemViewPrivate::sendDelegateEvent(const QModelIndex &index, QEven
     QStyleOptionViewItem options = q->viewOptions();
     options.rect = q->visualRect(buddy);
     options.state |= (buddy == q->currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
-    return (event && delegate->editorEvent(event, model, options, buddy));
+    return (event && delegateForIndex(index)->editorEvent(event, model, options, buddy));
 }
 
 bool QAbstractItemViewPrivate::openEditor(const QModelIndex &index, QEvent *event)
@@ -2754,7 +2827,7 @@ QPixmap QAbstractItemViewPrivate::renderToPixmap(const QModelIndexList &indexes,
     option.state |= QStyle::State_Selected;
     for (int j = 0; j < indexes.count(); ++j) {
         option.rect = QRect(rects.at(j).topLeft() - rect.topLeft(), rects.at(j).size());
-        delegate->paint(&painter, option, indexes.at(j));
+        delegateForIndex(indexes.at(j))->paint(&painter, option, indexes.at(j));
     }
     painter.end();
     if (r) *r = rect;

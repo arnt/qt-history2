@@ -887,7 +887,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
 {
     Q_D(const QTreeView);
     const QVector<QTreeViewItem> viewItems = d->viewItems;
-            
+
     if (viewItems.count() == 0 || d->header->count() == 0) {
         painter->fillRect(region.boundingRect(), palette().brush(QPalette::Base));
         return;
@@ -976,7 +976,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     // ### special case: treeviews with multiple columns draw the selections differently than with only one column
     opt.showDecorationSelected = (d->selectionBehavior & SelectRows)
                                  || option.showDecorationSelected;
-    
+
     int width, height = option.rect.height();
     int position;
     int headerSection;
@@ -1708,13 +1708,12 @@ int QTreeView::sizeHintForColumn(int column) const
         return -1;
     int w = 0;
     QStyleOptionViewItem option = viewOptions();
-    QAbstractItemDelegate *delegate = itemDelegate();
     const QVector<QTreeViewItem> viewItems = d->viewItems;
     for (int i = 0; i < viewItems.count(); ++i) {
         QModelIndex index = viewItems.at(i).index;
         if (index.column() != column)
             index = index.sibling(index.row(), column);
-        int width = delegate->sizeHint(option, index).width();
+        int width = d->delegateForIndex(index)->sizeHint(option, index).width();
         w = qMax(w, width + (column == 0 ? d->indentation(i) : 0));
     }
     return w;
@@ -1759,13 +1758,13 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     QStyleOptionViewItem option = viewOptions();
     // This is temporary hack to speed up the function and will go away in 4.2
     option.rect.setWidth(-1);
-    QAbstractItemDelegate *delegate = itemDelegate();
     for (int column = start; column <= end; ++column) {
         QModelIndex idx = index.sibling(index.row(), column);
         if (idx.isValid()) {
             if (QWidget *editor = d->editorForIndex(idx))
                 height = qMax(height, editor->size().height());
-            height = qMax(height, delegate->sizeHint(option, idx).height());
+            int hint = d->delegateForIndex(idx)->sizeHint(option, idx).height();
+            height = qMax(height, hint);
         }
     }
 
@@ -1831,7 +1830,7 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
             beginAnimatedOperation();
         else
             emit q->expanded(index);
-    }    
+    }
 }
 
 void QTreeViewPrivate::collapse(int item, bool emitSignal)
@@ -1863,13 +1862,13 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
     }
     viewItems.remove(item + 1, total); // collapse
     q->setState(QAbstractItemView::NoState);
-    
+
     if (emitSignal) {
         if (animationsEnabled)
             beginAnimatedOperation();
         else
             emit q->collapsed(modelIndex);
-    }    
+    }
 }
 
 void QTreeViewPrivate::prepareAnimatedOperation(int item, AnimatedOperation::Type type)
@@ -1888,7 +1887,7 @@ void QTreeViewPrivate::prepareAnimatedOperation(int item, AnimatedOperation::Typ
         rect.setHeight(h);
         animatedOperation.duration = h;
     }
-    rect.moveTop(top); 
+    rect.moveTop(top);
 
     animatedOperation.top = top;
     animatedOperation.before = renderTreeToPixmap(rect);

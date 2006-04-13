@@ -193,8 +193,17 @@ public:
         return state == QAbstractItemView::AnimatingState;
     }
 
+    inline QAbstractItemDelegate *delegateForIndex(const QModelIndex &index) const {
+	QAbstractItemDelegate *del;
+	if (del = rowDelegates.value(index.row(), 0)) return del;
+	if (del = columnDelegates.value(index.column(), 0)) return del;
+	return delegate;
+    }
+
     QPointer<QAbstractItemModel> model;
     QPointer<QAbstractItemDelegate> delegate;
+    QMap<int, QPointer<QAbstractItemDelegate> > rowDelegates;
+    QMap<int, QPointer<QAbstractItemDelegate> > columnDelegates;
     QPointer<QItemSelectionModel> selectionModel;
 
     QAbstractItemView::SelectionMode selectionMode;
@@ -241,11 +250,10 @@ public:
 
     QRegion updateRegion; // used for the internal update system
     QPoint scrollDelayOffset;
-
+   
     QBasicTimer updateTimer;
     QBasicTimer delayedEditing;
     mutable QBasicTimer delayedLayout;
-
     QTimeLine timeline;
 };
 

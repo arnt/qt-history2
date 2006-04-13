@@ -899,7 +899,6 @@ void QListView::paintEvent(QPaintEvent *e)
     const QModelIndex current = currentIndex();
     const QModelIndex hover = d->hover;
     const QAbstractItemModel *itemModel = model();
-    const QAbstractItemDelegate *delegate = itemDelegate();
     const QItemSelectionModel *selections = selectionModel();
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool alternate = d->alternatingColors;
@@ -954,7 +953,7 @@ void QListView::paintEvent(QPaintEvent *e)
             alternateBase = !alternateBase;
             painter.fillRect(option.rect, fill);
         }
-        delegate->paint(&painter, option, *it);
+        d->delegateForIndex(*it)->paint(&painter, option, *it);
     }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -1824,7 +1823,7 @@ void QListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &
     for (; it != indexes.end(); ++it) {
         item = indexToListViewItem(*it);
         option.rect = viewItemRect(item);
-        delegate->paint(painter, option, *it);
+        delegateForIndex(*it)->paint(painter, option, *it);
     }
 }
 
@@ -2028,11 +2027,11 @@ QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
 QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     if (!uniformItemSizes)
-        return delegate->sizeHint(option, index);
+        return delegateForIndex(index)->sizeHint(option, index);
     if (!cachedItemSize.isValid()) { // the last item is probaly the largest, so we use its size
         int row = model->rowCount(root) - 1;
         QModelIndex sample = model->index(row, column, root);
-        cachedItemSize = delegate->sizeHint(option, sample);
+        cachedItemSize = delegateForIndex(sample)->sizeHint(option, sample);
     }
     return cachedItemSize;
 }

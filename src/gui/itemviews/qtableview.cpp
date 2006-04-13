@@ -438,7 +438,7 @@ void QTableView::paintEvent(QPaintEvent *event)
                         fill = option.palette.brush(QPalette::Base);
                     }
                     painter.fillRect(colp, rowp, colw, rowh, fill);
-                    itemDelegate()->paint(&painter, option, index);
+                    itemDelegate(index)->paint(&painter, option, index);
                 }
                 if (v == top && showGrid) {
                     QPen old = painter.pen();
@@ -914,7 +914,7 @@ int QTableView::sizeHintForRow(int row) const
     QModelIndex index;
     for (int column = left; column <= right; ++column) {
         index = d->model->index(row, column, rootIndex());
-        hint = qMax(hint, itemDelegate()->sizeHint(option, index).height());
+        hint = qMax(hint, itemDelegate(index)->sizeHint(option, index).height());
     }
 
     return d->showGrid ? hint + 1 : hint;
@@ -953,7 +953,7 @@ int QTableView::sizeHintForColumn(int column) const
     QModelIndex index;
     for (int row = top; row <= bottom; ++row) {
         index = d->model->index(row, column, rootIndex());
-        hint = qMax(hint, itemDelegate()->sizeHint(option, index).width());
+        hint = qMax(hint, itemDelegate(index)->sizeHint(option, index).width());
     }
 
     return d->showGrid ? hint + 1 : hint;

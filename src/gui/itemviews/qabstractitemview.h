@@ -148,6 +148,14 @@ public:
     void setIndexWidget(const QModelIndex &index, QWidget *widget);
     QWidget *indexWidget(const QModelIndex &index) const;
 
+    void setItemDelegateForRow(int row, QAbstractItemDelegate *delegate);
+    QAbstractItemDelegate *itemDelegateForRow(int row) const;
+
+    void setItemDelegateForColumn(int column, QAbstractItemDelegate *delegate);
+    QAbstractItemDelegate *itemDelegateForColumn(int column) const;
+
+    QAbstractItemDelegate *itemDelegate(const QModelIndex &index) const;
+
 public Q_SLOTS:
     virtual void reset();
     virtual void setRootIndex(const QModelIndex &index);
