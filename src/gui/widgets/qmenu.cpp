@@ -2325,7 +2325,7 @@ void QMenu::internalDelayedPopup()
     const QPoint leftPos(mapToGlobal(QPoint(actionRect.left() - menuSize.width(), actionRect.top())));
 
     QPoint pos(rightPos);
-    QMenu *caused = qobject_cast<QMenu*>(d->causedPopup.widget);
+    QMenu *caused = qobject_cast<QMenu*>(d->activeMenu->d_func()->causedPopup.widget);
 #if defined(Q_WS_MAC)
     const QRect screen = QApplication::desktop()->availableGeometry(caused);
 #else
