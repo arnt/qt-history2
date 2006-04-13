@@ -107,6 +107,8 @@ signals:
 
     void playPriorityOnly(bool);
 
+    void setSilent( bool );
+
 private slots:
     void tryReadCommand();
 
@@ -200,6 +202,8 @@ void QWSSoundServerClient::tryReadCommand()
 		priExist = sPri;
 		emit playPriorityOnly(sPri);
 	    }
+	} else if( functionName == "SILENT" ) {
+	    emit setSilent( soundid != 0 );
 	}
     }
 }
@@ -692,6 +696,9 @@ void QWSSoundServerSocket::newConnection()
         connect(client, SIGNAL(resume(int, int)),
                 this, SIGNAL(resumeFile(int, int)));
 
+        connect(client, SIGNAL(setSilent(bool)),
+                this, SIGNAL(setSilent(bool)));
+
         connect(client, SIGNAL(setMute(int, int, bool)),
                 this, SIGNAL(setMute(int, int, bool)));
         connect(client, SIGNAL(setVolume(int, int, int, int)),
@@ -739,6 +746,9 @@ public:
 	connect(server, SIGNAL(resumeFile(int, int)),
 		this, SLOT(resumeFile(int, int)));
 
+        connect( server, SIGNAL(setSilent(bool)),
+                this, SLOT(setSilent(bool)));
+
         connect(server, SIGNAL(setMute(int, int, bool)),
                 this, SLOT(setMute(int, int, bool)));
 	connect(server, SIGNAL(setVolume(int, int, int, int)),
@@ -752,6 +762,7 @@ public:
 		server, SIGNAL(deviceError(int, int, int)));
 
 #endif
+        silent = false;
         fd = -1;
         unwritten = 0;
         can_GETOSPACE = true;
@@ -782,6 +793,7 @@ public slots:
     void playPriorityOnly(bool p);
     void sendCompletedSignals();
     void feedDevice(int fd);
+    void setSilent( bool enabled );
 
 protected:
     void timerEvent(QTimerEvent* event);
@@ -815,6 +827,8 @@ private:
     };
     QList<CompletedInfo> completed;
 
+    bool silent;
+
     int fd;
     int unwritten;
     int timerId;
@@ -825,6 +839,22 @@ private:
     QWSSoundServerSocket *server;
 #endif
 };
+
+void QWSSoundServerPrivate::setSilent( bool enabled )
+{
+    // Close output device
+    closeDevice();
+    if( !unwritten && !active.count() ) {
+        sendCompletedSignals();
+    }
+    // Stop processing audio
+    killTimer( timerId );
+    silent = enabled;
+    // If audio remaining, open output device and continue processing
+    if( unwritten || active.count() ) {
+        openDevice();
+    }
+}
 
 void QWSSoundServerPrivate::timerEvent(QTimerEvent* event)
 {
@@ -1076,6 +1106,14 @@ int QWSSoundServerPrivate::openFile(int wid, int sid, const QString& filename)
 bool QWSSoundServerPrivate::openDevice()
 {
         if (fd < 0) {
+            if( silent ) {
+                fd = ::open( "/dev/null", O_WRONLY );
+                // Emulate write to audio device
+                int delay = 1000*(sound_buffer_size>>(sound_stereo+sound_16bit))/sound_speed/2;
+                timerId = startTimer(delay);
+
+                return true;
+            }
             //
             // Don't block open right away.
             //
@@ -1393,6 +1431,12 @@ void QWSSoundClient::playPriorityOnly( bool pri )
 {
     sendServerMessage(QString("PRIORITYONLY ")
         + QString::number(pri ? 1 : 0) + "\n");
+}
+
+void QWSSoundClient::setSilent( bool enable )
+{
+    sendServerMessage(QString("SILENT ")
+            + QString::number( enable ? 1 : 0 ) + "\n");
 }
 
 void QWSSoundClient::tryReadCommand()

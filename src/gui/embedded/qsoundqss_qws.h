@@ -81,6 +81,10 @@ public:
     
     // to be used by server only, to protect phone conversation/rings.
     void playPriorityOnly(bool);
+
+    // If silent, tell sound server to release audio device
+    // Otherwise, allow sound server to regain audio device
+    void setSilent(bool);
     
 Q_SIGNALS:
     void soundCompleted(int);
@@ -121,6 +125,8 @@ Q_SIGNALS:
     void stopAll(int);
 
     void playPriorityOnly(bool);
+
+    void setSilent(bool);
 
     void soundFileCompleted(int, int);
     void deviceReady(int, int);
