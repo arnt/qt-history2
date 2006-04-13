@@ -854,6 +854,8 @@ bool QDateTimeEdit::focusNextPrevChild(bool next)
 
 void QDateTimeEdit::stepBy(int steps)
 {
+    // don't optimize away steps == 0. This is the only way to select
+    // the currentSection in Qt 4.1.x
     Q_D(QDateTimeEdit);
     d->setValue(d->stepBy(d->currentSectionIndex, steps, false), EmitIfChanged);
     d->updateCache(d->value, d->displayText());
