@@ -354,7 +354,7 @@ public:
         SC_GroupBoxLabel =         0x00000002,
         SC_GroupBoxContents =      0x00000004,
         SC_GroupBoxFrame =         0x00000008,
-        
+
         SC_All =                   0xffffffff
     };
     Q_DECLARE_FLAGS(SubControls, SubControl)
@@ -575,6 +575,7 @@ public:
         SH_ScrollBar_RollBetweenButtons,
         SH_Slider_AbsoluteSetButtons,
         SH_Slider_PageSetButtons,
+        SH_Menu_KeyboardSearch,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT
@@ -668,7 +669,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::SubControls)
 #if !defined(QT_NO_DEBUG_STREAM) && !defined(QT_NO_DEBUG)
 Q_GUI_EXPORT QDebug operator<<(QDebug debug, QStyle::State state);
 #endif
-    
+
 QT_END_HEADER
 
 #endif // QSTYLE_H

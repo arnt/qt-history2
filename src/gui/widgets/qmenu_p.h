@@ -106,6 +106,10 @@ public:
     QPointer<QAction> syncAction;
     QStyleOptionMenuItem getStyleOption(const QAction *action) const;
 
+    //search buffer
+    QString searchBuffer;
+    QBasicTimer searchBufferTimer;
+
     //passing of mouse events up the parent heirarchy
     QPointer<QMenu> activeMenu;
     bool mouseEventTaken(QMouseEvent *);

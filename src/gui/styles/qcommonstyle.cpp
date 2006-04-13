@@ -3539,6 +3539,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     int ret = 0;
 
     switch (sh) {
+    case SH_Menu_KeyboardSearch:
+        ret = false;
+        break;
     case SH_Slider_AbsoluteSetButtons:
         ret = Qt::MidButton;
         break;

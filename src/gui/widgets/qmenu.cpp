@@ -2074,7 +2074,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         break;
 
     case Qt::Key_Space:
-        if (!style()->styleHint(QStyle::SH_Menu_SpaceActivatesItem, 0, this))
+        if (!style()->styleHint(QStyle::SH_Menu_SpaceActivatesItem, 0, this) || !d->searchBuffer.isEmpty())
             break;
         // for motif, fall through
 #ifdef QT_KEYPAD_NAVIGATION
@@ -2121,10 +2121,30 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     if (!key_consumed) {                                // send to menu bar
         if ((!e->modifiers() || e->modifiers() == Qt::AltModifier || e->modifiers() == Qt::ShiftModifier) &&
            e->text().length()==1) {
-            int clashCount = 0;
-            QAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
+            bool activateAction = false;
+            QAction *nextAction = 0;
+            if (style()->styleHint(QStyle::SH_Menu_KeyboardSearch, 0, this) && !e->modifiers()) {
+                int best_match_count = 0;
+                d->searchBufferTimer.start(2000, this);
+                d->searchBuffer += e->text();
+                for(int i = 0; i < d->actionList.size(); ++i) {
+                    int match_count = 0;
+                    register QAction *act = d->actionList.at(i);
+                    const QString act_text = act->text();
+                    for(int c = 0; c < d->searchBuffer.size(); ++c) {
+                        if(act_text.indexOf(d->searchBuffer.at(c), 0, Qt::CaseInsensitive) != -1)
+                            ++match_count;
+                    }
+                    if(match_count > best_match_count) {
+                        best_match_count = match_count;
+                        nextAction = act;
+                    }
+                }
+            }
 #ifndef QT_NO_SHORTCUT
-            {
+            else {
+                int clashCount = 0;
+                QAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
                 QChar c = e->text().at(0).toUpper();
                 for(int i = 0; i < d->actionList.size(); ++i) {
                     register QAction *act = d->actionList.at(i);
@@ -2140,21 +2160,21 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                             firstAfterCurrent = act;
                     }
                 }
+                if (clashCount == 1)
+                    activateAction = true;
+                if (clashCount >= 1) {
+                    if (clashCount == 1 || !currentSelected || !firstAfterCurrent)
+                        nextAction = first;
+                    else
+                        nextAction = firstAfterCurrent;
+                }
             }
 #endif
-            QAction *next_action = 0;
-            if (clashCount >= 1) {
-                if (clashCount == 1 || !currentSelected || !firstAfterCurrent)
-                    next_action = first;
-                else
-                    next_action = firstAfterCurrent;
-            }
-            if (next_action) {
-                d->setCurrentAction(next_action, 20, true);
-                if (!next_action->menu() && clashCount <= 1) {
-                    key_consumed = true;
-                    d->activateAction(next_action, QAction::Trigger);
-                }
+            if (nextAction) {
+                key_consumed = true;
+                d->setCurrentAction(nextAction, 20, true);
+                if (!nextAction->menu() && activateAction)
+                    d->activateAction(nextAction, QAction::Trigger);
             }
         }
         if (!key_consumed) {
@@ -2248,6 +2268,8 @@ QMenu::timerEvent(QTimerEvent *e)
     } else if(QMenuPrivate::sloppyDelayTimer.timerId() == e->timerId()) {
         QMenuPrivate::sloppyDelayTimer.stop();
         internalSetSloppyAction();
+    } else if(d->searchBufferTimer.timerId() == e->timerId()) {
+        d->searchBuffer.clear();
     }
 }
 
