@@ -254,7 +254,6 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     QRect displayRect = rect(option, index, Qt::DisplayRole);
     QRect decorationRect = rect(option, index, Qt::DecorationRole);
     QRect checkRect = rect(option, index, Qt::CheckStateRole);
-//    QRect checkRect = check(option, displayRect, index.data(Qt::CheckStateRole));
 
     doLayout(option, &checkRect, &decorationRect, &displayRect, true);
 
