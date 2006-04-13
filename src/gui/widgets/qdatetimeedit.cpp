@@ -540,6 +540,32 @@ void QDateTimeEdit::setCurrentSection(Section section)
 }
 
 /*!
+  \fn void QDateTimeEdit::setSelectedSection(Section section)
+
+  Selects \a section. If \a section doesn't exist in the currently
+  displayed sections this function does nothing. If \a section is
+  NoSection this function will unselect all text in the editor.
+  Otherwise this function will move the cursor and the current section
+  to the selected section.
+
+  \sa currentSection()
+*/
+
+void QDateTimeEdit::setSelectedSection(Section section)
+{
+    Q_D(QDateTimeEdit);
+    if (section == NoSection) {
+        d->edit->setSelection(d->edit->cursorPosition(), 0);
+    } else if (section & d->sections) {
+        if (currentSection() != section)
+            setCurrentSection(section);
+        d->setSelected(d->currentSectionIndex);
+    }
+}
+
+
+
+/*!
   \fn QString QDateTimeEdit::sectionText(Section section) const
 
   Returns the text from the given \a section.

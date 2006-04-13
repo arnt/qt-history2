@@ -91,6 +91,8 @@ public:
     Section currentSection() const;
     void setCurrentSection(Section section);
 
+    void setSelectedSection(Section section);
+
     QString sectionText(Section s) const;
 
     QString displayFormat() const;
