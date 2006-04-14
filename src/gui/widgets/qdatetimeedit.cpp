@@ -960,11 +960,7 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     if (d->readOnly)
         return StepEnabled(0);
     if (d->specialValue()) {
-        if (d->minimum == d->maximum)
-            return StepEnabled(0);
-        return d->wrapping
-            ? StepEnabled(StepDownEnabled|StepUpEnabled)
-            : StepEnabled(StepUpEnabled);
+        return (d->minimum == d->maximum ? StepEnabled(0) : StepUpEnabled);
     }
     switch (d->sectionType(d->currentSectionIndex)) {
     case QDateTimeParser::NoSection:
@@ -972,9 +968,8 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     case QDateTimeParser::LastSection: return 0;
     default: break;
     }
-    if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
-        || d->wrapping)
-        return StepEnabled(StepUpEnabled | StepDownEnabled);
+    if (d->wrapping & QDateTimeEditPrivate::WrapOn)
+        return StepEnabled(StepDownEnabled|StepUpEnabled);
 
     QAbstractSpinBox::StepEnabled ret = 0;
 
@@ -1424,9 +1419,9 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
     const int max = absoluteMax(sectionIndex);
 
     if (val < min) {
-        val = (wrapping ? max - (min - val) + 1 : min);
+        val = ((wrapping & WrapOn) ? max - (min - val) + 1 : min);
     } else if (val > max) {
-        val = (wrapping ? min + val - max - 1 : max);
+        val = ((wrapping & WrapOn) ? min + val - max - 1 : max);
     }
 
     const int tmp = v.toDate().day();
@@ -1438,7 +1433,7 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
         const int localmin = getDigit(minimum, sn.type);
         const int localmax = getDigit(maximum, sn.type);
 
-        if (wrapping) {
+        if (wrapping & WrapOn) {
             // just because we hit the roof in one direction, it
             // doesn't mean that we hit the floor in the other
             if (steps > 0) {
@@ -1478,7 +1473,7 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
     }
 
     if (variantCompare(v, minimum) < 0) {
-        if (wrapping) {
+        if (wrapping & WrapOn) {
             QVariant t = v;
             setDigit(t, sn.type, steps < 0 ? max : min);
             int mincmp = variantCompare(t, minimum);
@@ -1497,7 +1492,7 @@ QVariant QDateTimeEditPrivate::stepBy(int sectionIndex, int steps, bool test) co
             v = value;
         }
     } else if (variantCompare(v, maximum) > 0) {
-        if (wrapping) {
+        if (wrapping & WrapOn) {
             QVariant t = v;
             setDigit(t, sn.type, steps > 0 ? min : max);
             int mincmp = variantCompare(t, minimum);

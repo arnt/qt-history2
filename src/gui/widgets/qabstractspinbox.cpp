@@ -243,7 +243,11 @@ void QAbstractSpinBox::setSpecialValueText(const QString &s)
         // value is 0
     \endcode
 
-    By default, wrapping is turned off.
+    By default, wrapping is set according to the style's value of the
+    SH_SpinControls_DisableOnBounds style hint.
+
+    If SH_SpinControls_DisableOnBounds returns 0 wrapping defaults to
+    false. Otherwise it defaults to true.
 
     \sa QSpinBox::minimum(), QSpinBox::maximum()
 */
@@ -251,13 +255,13 @@ void QAbstractSpinBox::setSpecialValueText(const QString &s)
 bool QAbstractSpinBox::wrapping() const
 {
     Q_D(const QAbstractSpinBox);
-    return d->wrapping;
+    return (d->wrapping & QAbstractSpinBoxPrivate::WrapOn);
 }
 
 void QAbstractSpinBox::setWrapping(bool w)
 {
     Q_D(QAbstractSpinBox);
-    d->wrapping = w;
+    d->wrapping = (w ? QAbstractSpinBoxPrivate::WrapOn : QAbstractSpinBoxPrivate::WrapOff) | QAbstractSpinBoxPrivate::WrapChanged;
 }
 
 
@@ -439,8 +443,7 @@ QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
     Q_D(const QAbstractSpinBox);
     if (d->readOnly || d->type == QVariant::Invalid)
         return StepNone;
-    if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
-        || d->wrapping)
+    if (d->wrapping & QAbstractSpinBoxPrivate::WrapOn)
         return StepEnabled(StepUpEnabled | StepDownEnabled);
     StepEnabled ret = StepNone;
     if (d->variantCompare(d->value, d->maximum) < 0) {
@@ -654,6 +657,11 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
         case QEvent::StyleChange:
             d->spinClickTimerInterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
             d->spinClickThresholdTimerInterval = thresholdTime;
+            if (!(d->wrapping & QAbstractSpinBoxPrivate::WrapChanged)) {
+                const QStyleOptionSpinBox opt = d->getStyleOption();
+                d->wrapping = (style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds, &opt, this) == 0)
+                              ? QAbstractSpinBoxPrivate::WrapOn : QAbstractSpinBoxPrivate::WrapOff;
+            }
             d->reset();
             break;
         case QEvent::EnabledChange:
@@ -1170,7 +1178,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), type(QVariant::Invalid), spinClickTimerId(-1),
       spinClickTimerInterval(100), spinClickThresholdTimerId(-1), spinClickThresholdTimerInterval(thresholdTime),
       buttonState(None), cachedText("\x01"), cachedState(QValidator::Invalid),
-      pendingEmit(false), readOnly(false), wrapping(false),
+      pendingEmit(false), readOnly(false), wrapping(WrapOff),
       ignoreCursorPositionChanged(false), frame(true), accelerate(false),
       correctionMode(QAbstractSpinBox::CorrectToPreviousValue), acceleration(0),
       hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
@@ -1363,7 +1371,10 @@ void QAbstractSpinBoxPrivate::init()
 {
     Q_Q(QAbstractSpinBox);
 
-    spinClickTimerInterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
+    const QStyleOptionSpinBox opt = getStyleOption();
+    spinClickTimerInterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, &opt, q);
+    wrapping = (q->style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds, &opt, q) == 0) ? WrapOn : WrapOff;
+
     spinClickThresholdTimerInterval = thresholdTime;
     q->setFocusPolicy(Qt::WheelFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -1479,12 +1490,12 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
 QVariant QAbstractSpinBoxPrivate::bound(const QVariant &val, const QVariant &old, int steps) const
 {
     QVariant v = val;
-    if (!wrapping || steps == 0 || old.isNull()) {
+    if ((wrapping & WrapOff) || steps == 0 || old.isNull()) {
         if (variantCompare(v, minimum) < 0) {
-            v = wrapping ? maximum : minimum;
+            v = (wrapping & WrapOn) ? maximum : minimum;
         }
         if (variantCompare(v, maximum) > 0) {
-            v = wrapping ? minimum : maximum;
+            v = (wrapping & WrapOn) ? minimum : maximum;
         }
     } else {
         const bool wasMin = old == minimum;

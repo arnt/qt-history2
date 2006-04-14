@@ -111,7 +111,12 @@ public:
     uint spindownEnabled : 1;
     uint spinupEnabled : 1;
     uint readOnly : 1;
-    uint wrapping : 1;
+    enum WrapStatus {
+        WrapOff = 0x0,
+        WrapOn = 0x1,
+        WrapChanged = 0x2
+    };
+    uint wrapping : 2;
     uint ignoreCursorPositionChanged : 1;
     uint frame : 1;
     uint accelerate : 1;
