@@ -474,13 +474,14 @@ void QGraphicsViewPrivate::mouseMoveEvent(QMouseEvent *event)
                 return;
             
             rubberBand = new QRubberBand(QRubberBand::Rectangle, q);
-            rubberBand->show();
         }
         QRect selectionRect = QRect(mousePressViewPoint, event->pos()).normalized();
         rubberBand->setGeometry(selectionRect);
         QPainterPath selectionArea;
         selectionArea.addPolygon(q->mapToScene(selectionRect));
         scene->setSelectionArea(selectionArea);
+        if (!rubberBand->isVisible())
+            rubberBand->show();
         return;
     }
 
@@ -578,7 +579,7 @@ void QGraphicsViewPrivate::setupRenderWidget(QWidget *widget)
 {
     Q_Q(QGraphicsView);
     if (!widget)
-        widget = new QWidget;
+        widget = new QWidget(q->viewport());
     
     accelerateScrolling = !widget->inherits("QGLWidget");
 
@@ -661,7 +662,7 @@ QGraphicsView::QGraphicsView(QGraphicsScene *scene, QWidget *parent)
     QHBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(0);
     viewport()->setLayout(layout);
-    d->setupRenderWidget(new QWidget);
+    d->setupRenderWidget(0);
 
     setScene(scene);
 }
@@ -955,7 +956,7 @@ void QGraphicsView::setBackgroundBrush(const QBrush &brush)
 {
     Q_D(QGraphicsView);
     d->backgroundBrush = brush;
-    QWidget::update();
+    d->renderWidget->update();
 }
 
 /*!
@@ -1000,7 +1001,7 @@ void QGraphicsView::setForegroundBrush(const QBrush &brush)
 {
     Q_D(QGraphicsView);
     d->foregroundBrush = brush;
-    QWidget::update();
+    d->renderWidget->update();
 }
 
 /*!
@@ -1619,19 +1620,6 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
 */
 bool QGraphicsView::event(QEvent *event)
 {
-    Q_D(QGraphicsView);
-    switch (event->type()) {
-    case QEvent::UpdateRequest:
-    case QEvent::Paint:
-    case QEvent::UpdateLater:
-        if (d->renderWidget)
-            d->renderWidget->update();
-        break;
-    default:
-        break;
-    }
-
-    
     return QAbstractScrollArea::event(event);
 }
 
