@@ -145,6 +145,7 @@
 
 #include <private/qobject_p.h>
 #include <QtCore/qcoreapplication.h>
+#include <QtCore/qdebug.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qrect.h>
 #include <QtCore/qset.h>
@@ -1137,7 +1138,12 @@ bool QGraphicsScene::event(QEvent *event)
     case QEvent::FocusIn:
     case QEvent::FocusOut:
         focusEvent(static_cast<QFocusEvent *>(event));
-        break;        
+        break;
+    case QEvent::GraphicsSceneHoverEnter:
+    case QEvent::GraphicsSceneHoverLeave:
+    case QEvent::GraphicsSceneHoverMove:
+        hoverEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
+        break;
     default:
         return false;
     }
