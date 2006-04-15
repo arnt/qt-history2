@@ -830,6 +830,8 @@ void QGraphicsItem::hoverEvent(QGraphicsSceneHoverEvent *event)
     switch (event->type()) {
     case QEvent::GraphicsSceneHoverEnter:
     case QEvent::GraphicsSceneHoverLeave:
+        update();
+        break;
     case QEvent::GraphicsSceneHoverMove:
     default:
         break;
