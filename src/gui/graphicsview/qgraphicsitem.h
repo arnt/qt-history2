@@ -16,6 +16,7 @@
 
 #include <QtCore/qglobal.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qvariant.h>
 #include <QtCore/qrect.h>
 #include <QtGui/qpainterpath.h>
 #include <QtGui/qpixmap.h>
@@ -98,7 +99,7 @@ public:
     void scale(qreal sx, qreal sy);
     void shear(qreal sh, qreal sv);
     void translate(qreal dx, qreal dy);
-    
+
     // Stacking order
     qreal zValue() const;
     void setZValue(qreal z);
@@ -110,7 +111,7 @@ public:
     virtual bool contains(const QPointF &point) const;
     virtual bool collidesWith(QGraphicsItem *other) const;
     virtual bool collidesWith(const QPainterPath &path) const;
-    
+
     // Drawing
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0;
     void update(const QRectF &rect = QRectF());
@@ -138,7 +139,7 @@ public:
     { return mapFromScene(QPointF(x, y));  }
 
     bool isAncestorOf(const QGraphicsItem *child) const;
-    
+
     // Extensions
     QVariant data(int key) const;
     void setData(int key, const QVariant &value);
@@ -207,7 +208,7 @@ private:
     Q_DISABLE_COPY(QAbstractGraphicsPathItem)
     Q_DECLARE_PRIVATE(QAbstractGraphicsPathItem)
 };
-    
+
 class QGraphicsPathItemPrivate;
 class Q_GUI_EXPORT QGraphicsPathItem : public QAbstractGraphicsPathItem
 {
@@ -260,7 +261,7 @@ protected:
     bool supportsExtension(Extension extension) const;
     void setExtension(Extension extension, const QVariant &variant);
     QVariant extension(const QVariant &variant) const;
-    
+
 private:
     Q_DISABLE_COPY(QGraphicsRectItem)
     Q_DECLARE_PRIVATE(QGraphicsRectItem)
@@ -374,7 +375,7 @@ public:
 
     enum { Type = 7 };
     int type() const;
-    
+
 protected:
     bool supportsExtension(Extension extension) const;
     void setExtension(Extension extension, const QVariant &variant);
