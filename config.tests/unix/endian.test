@@ -16,10 +16,10 @@ cd $OUTDIR/config.tests/unix/endian
 ENDIAN="UNKNOWN"
 [ "$VERBOSE" = "yes" ] && make || make >/dev/null 2>&1
 
-if [ ! -e ./endiantest ]; then
-    [ "$VERBOSE" = "yes" ] && echo "Unknown byte order!"
-    exit 2
-fi
+#if [ ! -e ./endiantest ]; then
+#    [ "$VERBOSE" = "yes" ] && echo "Unknown byte order!"
+#    exit 2
+#fi
 
 if strings ./endiantest | grep LeastSignificantByteFirst >/dev/null 2>&1; then
     [ "$VERBOSE" = "yes" ] && echo "    Found 'LeastSignificantByteFirst' in binary"
