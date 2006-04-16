@@ -74,8 +74,8 @@ private:
 
     QRegion clipRgn;
     QPoint offs;
-    int isSharedMemory : 1;
-    int ownsMemory : 1;
+    bool isSharedMemory : 1;
+    bool ownsMemory : 1;
 
     int _windowType;
 
