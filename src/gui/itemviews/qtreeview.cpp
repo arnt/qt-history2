@@ -193,6 +193,8 @@ void QTreeView::setModel(QAbstractItemModel *model)
 void QTreeView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QTreeView);
+    if (index == d->root)
+        return;
     d->header->setRootIndex(index);
     QAbstractItemView::setRootIndex(index);
 }
