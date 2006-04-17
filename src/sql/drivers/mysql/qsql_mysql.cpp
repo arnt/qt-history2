@@ -986,7 +986,7 @@ bool QMYSQLDriver::open(const QString& db,
                                optionFlags))
     {
         if (!db.isEmpty() && mysql_select_db(d->mysql, db.toLocal8Bit().constData())) {
-            setLastError(qMakeError(tr("Unable open database '") + db +
+            setLastError(qMakeError(tr("Unable to open database '") + db +
                          QLatin1Char('\''), QSqlError::ConnectionError, d));
             mysql_close(d->mysql);
             setOpenError(true);

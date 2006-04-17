@@ -197,7 +197,7 @@ void QNativeSocketEnginePrivate::setError(QAbstractSocket::SocketError error, Er
         socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "The address is protected");
         break;
     case DatagramTooLargeErrorString:
-        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Datagram was to large to send");
+        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Datagram was too large to send");
         break;
     case SendDatagramErrorString:
         socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Unable to send a message");
