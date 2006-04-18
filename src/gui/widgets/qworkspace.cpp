@@ -1488,7 +1488,7 @@ void QWorkspacePrivate::normalizeWindow(QWidget* w)
     if (c) {
         w->overrideWindowState(Qt::WindowNoState);
         hideMaximizeControls();
-        if (q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q) || !maxWindow) {
+        if (!maxmenubar || q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q) || !maxWindow) {
             if (w->minimumSize() != w->maximumSize())
                 c->widgetResizeHandler->setActive(true);
             if (c->titlebar)
@@ -1553,7 +1553,7 @@ void QWorkspacePrivate::maximizeWindow(QWidget* w)
 
     activateWindow(w);
     showMaximizeControls();
-    if(q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
+    if(!maxmenubar || q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
         if (!active && becomeActive) {
             active = (QWorkspaceChild*)becomeActive->parentWidget();
             active->setActive(true);
@@ -1866,7 +1866,7 @@ void QWorkspacePrivate::showMaximizeControls()
 void QWorkspacePrivate::hideMaximizeControls()
 {
     Q_Q(QWorkspace);
-    if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
+    if (maxmenubar && !q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
         if (maxmenubar) {
             maxmenubar->setCornerWidget(0, Qt::TopLeftCorner);
             maxmenubar->setCornerWidget(0, Qt::TopRightCorner);
@@ -2955,7 +2955,7 @@ void QWorkspaceChild::adjustToFullscreen()
     if (!childWidget)
         return;
 
-    if(style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
+    if(!((QWorkspace*)parentWidget())->d_func()->maxmenubar || style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
         setGeometry(parentWidget()->rect());
     } else {
         int fw =  style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this);
@@ -3201,7 +3201,7 @@ void QWorkspace::changeEvent(QEvent *ev)
 {
     Q_D(QWorkspace);
     if(ev->type() == QEvent::StyleChange) {
-        if (isVisible() && d->maxWindow) {
+        if (isVisible() && d->maxWindow && d->maxmenubar) {
             if(style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
                 d->hideMaximizeControls(); //hide any visible maximized controls
                 d->showMaximizeControls(); //updates the modification state as well
