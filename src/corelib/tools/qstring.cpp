@@ -3836,21 +3836,20 @@ QString& QString::fill(QChar ch, int size)
     \fn int QString::compare(const QString & s1, const QString & s2, Qt::CaseSensitivity cs)
     \since 4.2
 
-    Compares \a s1 with \a s2 and returns an integer less than, equal to, or greater 
+    Compares \a s1 with \a s2 and returns an integer less than, equal to, or greater
     than zero if \a s1 is less than, equal to, or greater than \a s2.
 
-    If \a cs is Qt::CaseSensitive, the comparison is case sensitive; 
+    If \a cs is Qt::CaseSensitive, the comparison is case sensitive;
     otherwise the comparison is case insensitive.
 
     Case sensitive comparison is based exclusively on the numeric Unicode values
-    of the characters and is very fast, but is not what a human would expect. 
+    of the characters and is very fast, but is not what a human would expect.
     Consider sorting user-visible strings with localeAwareCompare().
 
-    \code
-        int x = QString::compare("aUtO", "AuTo", Qt::CaseInsensitive);  // x == 0
-        int y = QString::compare("auto", "Car", Qt::CaseSensitive);     // y > 0
-        int z = QString::compare("auto", "Car", Qt::CaseInsensitive);   // z < 0
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::compareSensitiveFunction
+    \skipto int x
+    \printuntil int z
 
     \sa localeAwareCompare(), operator==(), operator<(), operator>()
 */
@@ -3864,13 +3863,13 @@ QString& QString::fill(QChar ch, int size)
 */
 
 /*!
-    \fn int compare(const QString& s1, const QLatin1String &s2,  
+    \fn int compare(const QString& s1, const QLatin1String &s2,
                     Qt::CaseSensitivity cs = Qt::caseeSensitive)
     \since 4.2
 */
 
 /*!
-    /fn int compare(const QLatin1String& s1, const QString &s2, 
+    /fn int compare(const QLatin1String& s1, const QString &s2,
                     Qt::CaseSensitivity cs = Qt::CaseSensitive)
 
     \since 4.2
@@ -3908,7 +3907,7 @@ int QString::compare(const QLatin1String &other, Qt::CaseSensitivity cs) const
 
     if (!c)
         return d->size;
-   
+
     if (cs == Qt::CaseSensitive) {
         while (uc != e && *c && *uc == *c)
             uc++, c++;

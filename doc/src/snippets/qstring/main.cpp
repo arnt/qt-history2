@@ -20,6 +20,7 @@ public:
     void argFunction();
     void chopFunction();
     void compareFunction();
+    void compareSensitiveFunction();
     void containsFunction();
     void countFunction();
     void dataFunction();
@@ -188,6 +189,13 @@ void Widget::compareFunction()
     int x = QString::compare("auto", "auto");   // x == 0
     int y = QString::compare("auto", "car");    // y < 0
     int z = QString::compare("car", "auto");    // z > 0
+}
+
+void Widget::compareSensitiveFunction()
+{
+    int x = QString::compare("aUtO", "AuTo", Qt::CaseInsensitive);  // x == 0
+    int y = QString::compare("auto", "Car", Qt::CaseSensitive);     // y > 0
+    int z = QString::compare("auto", "Car", Qt::CaseInsensitive);   // z < 0
 }
 
 void Widget::containsFunction()
