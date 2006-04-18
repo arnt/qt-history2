@@ -26,15 +26,15 @@ QT_MODULE(Core)
 */
 namespace QAlgorithmsPrivate {
 
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan);
-template <typename BiIterator, typename T>
-inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy);
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qSortHelper(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan);
+template <typename RandomAccessIterator, typename T>
+inline void qSortHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &dummy);
 
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan);
-template <typename BiIterator, typename T>
-inline void qStableSortHelper(BiIterator, BiIterator, const T &);
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan);
+template <typename RandomAccessIterator, typename T>
+inline void qStableSortHelper(RandomAccessIterator, RandomAccessIterator, const T &);
 
 }
 
@@ -133,15 +133,15 @@ public:
 };
 #endif
 
-template <typename BiIterator>
-inline void qSort(BiIterator start, BiIterator end)
+template <typename RandomAccessIterator>
+inline void qSort(RandomAccessIterator start, RandomAccessIterator end)
 {
     if (start != end)
         QAlgorithmsPrivate::qSortHelper(start, end, *start);
 }
 
-template <typename BiIterator, typename LessThan>
-inline void qSort(BiIterator start, BiIterator end, LessThan lessThan)
+template <typename RandomAccessIterator, typename LessThan>
+inline void qSort(RandomAccessIterator start, RandomAccessIterator end, LessThan lessThan)
 {
     if (start != end)
         QAlgorithmsPrivate::qSortHelper(start, end, *start, lessThan);
@@ -158,15 +158,15 @@ inline void qSort(Container &c)
         QAlgorithmsPrivate::qSortHelper(c.begin(), c.end(), *c.begin());
 }
 
-template <typename BiIterator>
-inline void qStableSort(BiIterator start, BiIterator end)
+template <typename RandomAccessIterator>
+inline void qStableSort(RandomAccessIterator start, RandomAccessIterator end)
 {
     if (start != end)
         QAlgorithmsPrivate::qStableSortHelper(start, end, *start);
 }
 
-template <typename BiIterator, typename LessThan>
-inline void qStableSort(BiIterator start, BiIterator end, LessThan lessThan)
+template <typename RandomAccessIterator, typename LessThan>
+inline void qStableSort(RandomAccessIterator start, RandomAccessIterator end, LessThan lessThan)
 {
     if (start != end)
         QAlgorithmsPrivate::qStableSortHelper(start, end, *start, lessThan);
@@ -266,8 +266,8 @@ inline void qDeleteAll(const Container &c)
 */
 namespace QAlgorithmsPrivate {
 
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qSortHelper(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan)
 {
 top:
     int span = end - start;
@@ -275,8 +275,8 @@ top:
         return;
 
     --end;
-    BiIterator low = start, high = end - 1;
-    BiIterator pivot = start + span / 2;
+    RandomAccessIterator low = start, high = end - 1;
+    RandomAccessIterator pivot = start + span / 2;
 
     if (lessThan(*end, *start))
         qSwap(*end, *start);
@@ -319,27 +319,27 @@ top:
     goto top;
 }
 
-template <typename BiIterator, typename T>
-inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy)
+template <typename RandomAccessIterator, typename T>
+inline void qSortHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &dummy)
 {
     qSortHelper(begin, end, dummy, qLess<T>());
 }
 
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan)
 {
     const int span = end - start;
     if (span < 2)
        return;
         
     // Split in half and sort halves.
-    BiIterator middle = start + span / 2;
+    RandomAccessIterator middle = start + span / 2;
     qStableSortHelper(start, middle, t, lessThan);
     qStableSortHelper(middle, end, t, lessThan);
     
     // Merge
-    BiIterator lo = start;
-    BiIterator hi = middle;
+    RandomAccessIterator lo = start;
+    RandomAccessIterator hi = middle;
     
     while (lo != middle && hi != end) {
         if (!lessThan(*hi, *lo)) {
@@ -348,7 +348,7 @@ Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, co
             // Move *hi to lo's position, shift values
             // between lo and hi - 1 one place up.
             T value = *hi;
-            for (BiIterator i = hi; i != lo; --i) {
+            for (RandomAccessIterator i = hi; i != lo; --i) {
                 *i = *(i-1); 
             }
             *lo = value;
@@ -359,8 +359,8 @@ Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, co
     }
 }
 
-template <typename BiIterator, typename T>
-inline void qStableSortHelper(BiIterator begin, BiIterator end, const T &dummy)
+template <typename RandomAccessIterator, typename T>
+inline void qStableSortHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &dummy)
 {
     qStableSortHelper(begin, end, dummy, qLess<T>());
 }

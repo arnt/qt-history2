@@ -360,7 +360,7 @@
     \endcode
 */
 
-/*! \fn void qSort(BiIterator begin, BiIterator end)
+/*! \fn void qSort(RandomAccessIterator begin, RandomAccessIterator end)
     \relates <QtAlgorithms>
 
     Sorts the items in range [\a begin, \a end) in ascending order
@@ -384,10 +384,10 @@
     taken to be equal. It is then undefined which one of the two
     items will appear before the other after the sort.
 
-    \sa qStableSort(), {bidirectional iterators}
+    \sa qStableSort(), {random access iterators}
 */
 
-/*! \fn void qSort(BiIterator begin, BiIterator end, LessThan lessThan)
+/*! \fn void qSort(RandomAccessIterator begin, RandomAccessIterator end, LessThan lessThan)
     \relates <QtAlgorithms>
 
     \overload
@@ -481,7 +481,7 @@
     original container will still appear first after the sort. This
     property is often useful when sorting user-visible data.
 
-    \sa qSort(), {bidirectional iterators}
+    \sa qSort(), {random access iterators}
 */
 
 /*! \fn void qStableSort(BiIterator begin, BiIterator end, LessThan lessThan)
