@@ -14,6 +14,7 @@
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qpainter.h>
+#include <qpaintengine.h>
 #include <qdrawutil.h>
 #include "qdecorationdefault_qws.h"
 
@@ -549,6 +550,8 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
     bool paintAll = (decorationRegion == int(All));
     bool handled = false;
 
+    bool porterDuff = painter->paintEngine()->hasFeature(QPaintEngine::PorterDuff);
+
     if ((paintAll || decorationRegion & Borders) && state == Normal && hasBorder) {
         if (hasTitle) { // reduce flicker
             QRect rect(widget->rect());
@@ -557,11 +560,13 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
             painter->setClipRegion(oldClipRegion - r);
         }
         QRect br = QDecoration::region(widget).boundingRect();
-        painter->setCompositionMode(QPainter::CompositionMode_Source);
+        if (porterDuff)
+            painter->setCompositionMode(QPainter::CompositionMode_Source);
         qDrawWinPanel(painter, br.x(), br.y(), br.width(),
                     br.height(), pal, false,
                     &pal.brush(QPalette::Background));
-        painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+        if (porterDuff)
+            painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         handled |= true;
     }
 
@@ -578,11 +583,13 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
             titlePen   = pal.color(QPalette::Text);
         }
 
-        painter->setCompositionMode(QPainter::CompositionMode_Source);
+        if (porterDuff)
+            painter->setCompositionMode(QPainter::CompositionMode_Source);
         qDrawShadePanel(painter,
                         titleRect.x(), titleRect.y(), titleRect.width(), titleRect.height(),
                         pal, true, 1, &titleBrush);
-        painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+        if (porterDuff)
+            painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
 
         painter->setPen(titlePen);
         painter->drawText(titleRect.x() + 4, titleRect.y(),
@@ -631,11 +638,14 @@ void QDecorationDefault::paintButton(QPainter *painter, const QWidget *widget,
 
     const QPixmap pm = pixmapFor(widget, buttonRegion, xoff, yoff);
     QRect brect(QDecoration::region(widget, buttonRegion).boundingRect());
+    bool porterDuff = painter->paintEngine()->hasFeature(QPaintEngine::PorterDuff);
 
     if (state & QDecoration::Pressed) {
-        painter->setCompositionMode(QPainter::CompositionMode_Source);
+        if (porterDuff)
+            painter->setCompositionMode(QPainter::CompositionMode_Source);
         qDrawWinPanel(painter, brect, pal, true, &pal.brush(QPalette::Background));
-        painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+        if (porterDuff)
+            painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         ++xoff;
         ++yoff;
     } else {
