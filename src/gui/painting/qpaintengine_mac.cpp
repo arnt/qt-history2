@@ -675,7 +675,7 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     uint cgflags = kCGImageAlphaNone;
 #else
-    CGImageAlphaInfo cflags = kCGImageAlphaNone;
+    CGImageAlphaInfo cgflags = kCGImageAlphaNone;
 #endif
     switch (image->format()) {
     case QImage::Format_ARGB32_Premultiplied:
