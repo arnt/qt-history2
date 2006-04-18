@@ -274,8 +274,8 @@ void QLinuxFbScreen::disconnect()
 
 static void writeTerm(const char* termctl, int sizeof_termctl)
 {
-    const char* tt[]={"/dev/console","/dev/tty","/dev/tty0",0};
-    const char** dev=tt;
+    static const char *const tt[]={"/dev/console","/dev/tty","/dev/tty0",0};
+    const char*const* dev=tt;
     while (*dev) {
         int tty=::open(*dev,O_WRONLY);
         if (tty>=0) {
@@ -422,7 +422,7 @@ void QLinuxFbScreen::createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_f
 bool QLinuxFbScreen::initDevice()
 {
     // No blankin' screen, no blinkin' cursor!, no cursor!
-    const char termctl[]="\033[9;0]\033[?33l\033[?25l\033[?1c";
+    static const char termctl[]="\033[9;0]\033[?33l\033[?25l\033[?1c";
     writeTerm(termctl,sizeof(termctl));
 
     // Grab current mode so we can reset it
@@ -820,7 +820,7 @@ void QLinuxFbScreen::shutdownDevice()
 */
 
     // Blankin' screen, blinkin' cursor!
-    const char termctl[] = "\033[9;15]\033[?33h\033[?25h\033[?0c";
+    static const char termctl[] = "\033[9;15]\033[?33h\033[?25h\033[?0c";
     writeTerm(termctl,sizeof(termctl));
 }
 

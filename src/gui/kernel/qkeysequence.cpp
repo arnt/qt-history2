@@ -100,7 +100,7 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     similar to the native text on Windows and X11.
 */
 
-static struct {
+static const struct {
     int key;
     const char* name;
 } keyname[] = {

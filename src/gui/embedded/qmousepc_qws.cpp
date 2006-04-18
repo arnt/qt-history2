@@ -212,7 +212,7 @@ public:
         usleep(50000);
         write(fd,"@EeI!",5);
         usleep(10000);
-        char ibuf[] = { 246, 244 };
+        static const char ibuf[] = { 246, 244 };
         write(fd,ibuf,1);
         write(fd,ibuf+1,1);
         tcflush(fd,TCIOFLUSH);

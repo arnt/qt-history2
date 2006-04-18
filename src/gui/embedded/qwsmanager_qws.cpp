@@ -202,7 +202,7 @@ static inline Qt::CursorShape regionToShape(int region)
     if (region == QDecoration::None)
         return Qt::ArrowCursor;
 
-    static struct {
+    static const struct {
         int region;
         Qt::CursorShape shape;
     } r2s[] = {

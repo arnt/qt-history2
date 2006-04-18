@@ -203,7 +203,7 @@ private:
 
 //===========================================================================
 
-static struct {
+static const struct {
     int keysym;
     int keycode;
 } keyMap[] = {
