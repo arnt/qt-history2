@@ -2222,7 +2222,15 @@ static QString timeZone()
 {
 #ifdef Q_OS_WIN
     _tzset();
+# if defined(_MSC_VER) && _MSC_VER >= 1400
+    size_t returnSize = 0;
+    char timeZoneName[256];
+    if (_get_tzname(&returnSize, timeZoneName, 256, 1))
+        return QString();
+    return QString::fromLocal8Bit(timeZoneName);
+# else
     return QString::fromLocal8Bit(_tzname[1]);
+# endif
 #else
     tzset();
     return QString::fromLocal8Bit(tzname[1]);
