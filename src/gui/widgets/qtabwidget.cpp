@@ -654,7 +654,7 @@ QSize QTabWidget::sizeHint() const
     }
     QSize s(d->stack->sizeHint());
     QSize t(d->tabs->sizeHint());
-    if(!style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, &opt, d->tabs))
+    if(usesScrollButtons())
         t = t.boundedTo(QSize(200,200));
     else
         t = t.boundedTo(QApplication::desktop()->size());
@@ -964,9 +964,9 @@ void QTabWidget::setIconSize(const QSize &size)
     This property controls how items are elided when there is not
     enough space to show them for a given tab bar size.
 
-    By default the value is Qt::ElideRight.
+    By default the value is style dependant.
 
-    \sa QTabBar::elideMode
+    \sa QTabBar::elideMode usesScrollButtons QStyle::SH_TabBar_ElideMode
 */
 Qt::TextElideMode QTabWidget::elideMode() const
 {
@@ -977,6 +977,30 @@ void QTabWidget::setElideMode(Qt::TextElideMode mode)
 {
     d_func()->tabs->setElideMode(mode);
 }
+
+/*!
+    \property QTabWidget::usesScrollButtons
+    \brief Whether or not a tab bar should use buttons to scroll tabs when it
+    has many tabs.
+    \since 4.2
+
+    When there are too many tabs in a tab bar for its size, the tab bar can either choose
+    to expand it's size or to add buttons that allow you to scroll through the tabs.
+
+    By default the value is style dependant.
+
+    \sa elideMode QTabBar::usesScrollButtons QStyle::SH_TabBar_PreferNoArrows
+*/
+bool QTabWidget::usesScrollButtons() const
+{
+    return d_func()->tabs->usesScrollButtons();
+}
+
+void QTabWidget::setUsesScrollButtons(bool useButtons)
+{
+    d_func()->tabs->setUsesScrollButtons(useButtons);
+}
+
 /*!
     \fn void QTabWidget::insertTab(QWidget * widget, const QString
     &label, int index)

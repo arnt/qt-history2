@@ -242,7 +242,8 @@ void QTabBarPrivate::init()
 #endif
     q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    elideMode = Qt::ElideRight;
+    elideMode = Qt::TextElideMode(q->style()->styleHint(QStyle::SH_TabBar_ElideMode, 0, q));
+    useScrollButtons = !q->style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, 0, q);
 }
 
 QTabBarPrivate::Tab *QTabBarPrivate::at(int index)
@@ -922,7 +923,7 @@ QSize QTabBar::sizeHint() const
 QSize QTabBar::minimumSizeHint() const
 {
     Q_D(const QTabBar);
-    if (style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, 0, this)) {
+    if (!d->useScrollButtons) {
         QRect r;
         for (int i = 0; i < d->tabList.count(); ++i)
             r = r.unite(d->tabList.at(i).minRect);
@@ -1290,9 +1291,9 @@ void QTabBar::changeEvent(QEvent *e)
     This property controls how items are elided when there is not
     enough space to show them for a given tab bar size.
 
-    By default the value is Qt::ElideRight.
+    By default the value is style dependent.
 
-    \sa QTabWidget::elideMode
+    \sa QTabWidget::elideMode usesScrollButtons QStyle::SH_TabBar_ElideMode
 */
 
 Qt::TextElideMode QTabBar::elideMode() const
@@ -1305,6 +1306,33 @@ void QTabBar::setElideMode(Qt::TextElideMode mode)
 {
     Q_D(QTabBar);
     d->elideMode = mode;
+}
+
+/*!
+    \property QTabBar::usesScrollButtons
+    \brief Whether or not a tab bar should use buttons to scroll tabs when it
+    has many tabs.
+    \since 4.2
+
+    When there are too many tabs in a tab bar for its size, the tab bar can either choose
+    to expand it's size or to add buttons that allow you to scroll through the tabs.
+
+    By default the value is style dependant.
+
+    \sa elideMode QTabWidget::usesScrollButtons QStyle::SH_TabBar_PreferNoArrows
+*/
+bool QTabBar::usesScrollButtons() const
+{
+    return d_func()->useScrollButtons;
+}
+
+void QTabBar::setUsesScrollButtons(bool useButtons)
+{
+    Q_D(QTabBar);
+    if (d->useScrollButtons == useButtons)
+        return;
+    d->useScrollButtons = useButtons;
+    d->refresh();
 }
 
 /*!

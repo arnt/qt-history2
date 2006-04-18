@@ -576,6 +576,7 @@ public:
         SH_Slider_AbsoluteSetButtons,
         SH_Slider_PageSetButtons,
         SH_Menu_KeyboardSearch,
+        SH_TabBar_ElideMode,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT

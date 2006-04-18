@@ -94,6 +94,7 @@ public:
     QStyleOptionTabV2 getStyleOption(int tab) const;
     QSize iconSize;
     Qt::TextElideMode elideMode;
+    bool useScrollButtons;
 };
 
 #endif

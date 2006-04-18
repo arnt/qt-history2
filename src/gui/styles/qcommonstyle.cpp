@@ -3703,6 +3703,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_ScrollBar_RollBetweenButtons:
         ret = false;
         break;
+    case SH_TabBar_ElideMode:
+        ret = Qt::ElideNone;
+        break;
     default:
         ret = 0;
         break;

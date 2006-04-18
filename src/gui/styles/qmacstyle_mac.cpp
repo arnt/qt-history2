@@ -1809,6 +1809,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
             mask->region -= QRect(opt->rect.right() , opt->rect.top() + 3, 1, 2);
         }
         break;
+    case SH_TabBar_ElideMode:
+        ret = Qt::ElideRight;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;

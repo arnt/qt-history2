@@ -1521,6 +1521,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_Slider_PageSetButtons Which mouse buttons cause a slider
     to page step the value.
 
+    \value SH_TabBar_ElideMode The default eliding style for a tabbar.
+
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()

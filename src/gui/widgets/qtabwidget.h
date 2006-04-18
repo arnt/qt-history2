@@ -36,6 +36,7 @@ class Q_GUI_EXPORT QTabWidget : public QWidget
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::TextElideMode elideMode READ elideMode WRITE setElideMode)
+    Q_PROPERTY(bool usesScrollButtons READ usesScrollButtons WRITE setUsesScrollButtons)
 
 public:
     explicit QTabWidget(QWidget *parent = 0);
@@ -97,6 +98,9 @@ public:
 
     QSize iconSize() const;
     void setIconSize(const QSize &size);
+
+    bool usesScrollButtons() const;
+    void setUsesScrollButtons(bool useButtons);
 
 public Q_SLOTS:
     void setCurrentIndex(int index);
