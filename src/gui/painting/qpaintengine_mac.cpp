@@ -684,6 +684,8 @@ void QCoreGraphicsPaintEngine::drawImage(const QRectF &r, const QImage &img, con
     case QImage::Format_ARGB32:
         cgflags = kCGImageAlphaFirst;
         break;
+    case QImage::Format_RGB32:
+        cgflags = kCGImageAlphaNoneSkipFirst;
     default:
         break;
     }
