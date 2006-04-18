@@ -188,33 +188,37 @@ const QString::Null QString::null = QString::Null();
     your applications will be easy to translate if you want to expand
     your application's market at some point. The two main cases where
     QByteArray is appropriate are when you need to store raw binary
-    data, and when memory conservation is critical (e.g. with
-    Qtopia Core).
+    data, and when memory conservation is critical (e.g. with \l {
+    Qtopia Core}).
+
+    \tableofcontents
+
+    \section1 Initializing a string
 
     One way to initialize a QString is simply to pass a \c{const char
     *} to its constructor. For example, the following code creates a
     QString of size 5 containing the data "Hello":
 
-    \code
-        QString str = "Hello";
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::constCharPointer()
+    \skipto Hello
+    \printline Hello
 
-    QString converts the \c{const char *} data into Unicode using
-    fromAscii(). By default, fromAscii() treats character above 128
-    as Latin-1 characters, but this can be changed by calling
-    QTextCodec::setCodecForCStrings().
+    QString converts the \c{const char *} data into Unicode using the
+    fromAscii() function. By default, fromAscii() treats character
+    above 128 as Latin-1 characters, but this can be changed by
+    calling QTextCodec::setCodecForCStrings().
 
-    In all of the QString methods that take \c{const char *}
+    In all of the QString functions that take \c{const char *}
     parameters, the \c{const char *} is interpreted as a classic
-    C-style '\\0'-terminated string. It is legal for the \c{const
-    char *} parameter to be 0.
+    C-style '\\0'-terminated string. It is legal for the \c{const char
+    *} parameter to be 0.
 
     You can also provide string data as an array of \l{QChar}s:
 
-    \code
-        static const QChar data[4] = { 0x0055, 0x006e, 0x10e3, 0x03a3 };
-        QString str(data, 4);
-    \endcode
+    \skipto Widget::constCharArray()
+    \skipto static const
+    \printuntil str
 
     QString makes a deep copy of the QChar data, so you can modify it
     later without experiencing side effects. (If for performance
@@ -224,106 +228,90 @@ const QString::Null QString::null = QString::Null();
     Another approach is to set the size of the string using resize()
     and to initialize the data character per character. QString uses
     0-based indexes, just like C++ arrays. To access the character at
-    a particular index position, you can use operator[](). On
-    non-const strings, operator[]() returns a reference to a
+    a particular index position, you can use \l operator[](). On
+    non-const strings, \l operator[]() returns a reference to a
     character that can be used on the left side of an assignment. For
     example:
 
-    \code
-        QString str;
-        str.resize(4);
-        str[0] = QChar('U');
-        str[1] = QChar('n');
-        str[2] = QChar(0x10e3);
-        str[3] = QChar(0x03a3);
-    \endcode
+    \skipto Widget::characterReference()
+    \skipto QString str
+    \printuntil str[3] = QChar(0x03a3)
 
-    For read-only access, an alternative syntax is to use at():
+    For read-only access, an alternative syntax is to use the at()
+    function:
 
-    \code
-        for (int i = 0; i < str.size(); ++i) {
-            if (str.at(i) >= QChar('a') && str.at(i) <= QChar('f'))
-                qDebug() << "Found character in range [a-f]";
-        }
-    \endcode
+    \skipto Widget::atFunction()
+    \skipto QString str
+    \printuntil }
 
-    at() can be faster than operator[](), because it never causes a
-    \l{deep copy} to occur.
-
-    To extract several characters at a time, use left(), right(), or
-    mid().
+    The at() function can be faster than \l operator[](), because it
+    never causes a \l{deep copy} to occur. Alternatively, use the
+    left(), right(), or mid() functions to extract several characters
+    at a time.
 
     A QString can embed '\\0' characters (QChar::null). The size()
     function always returns the size of the whole string, including
     embedded '\\0' characters.
 
-    After a call to resize(), newly allocated characters have
-    undefined values. To set all the characters in the string to a
-    particular value, call fill().
+    After a call to the resize() function, newly allocated characters
+    have undefined values. To set all the characters in the string to
+    a particular value, use the fill() function.
 
     QString provides dozens of overloads designed to simplify string
     usage. For example, if you want to compare a QString with a string
     literal, you can write code like this and it will work as expected:
 
-    \code
-        if (str == "auto" || str == "extern"
-                || str == "static" || str == "register") {
-            ...
-        }
-    \endcode
+    \skipto Widget::stringLiteral()
+    \skipto QString str
+    \printuntil }
 
     You can also pass string literals to functions that take QStrings
-    and the QString(const char *) constructor will be
-    invoked. Similarily, you can pass a QString to a function that
-    takes a \c{const char *} using the \l qPrintable() macro which
-    returns the given QString as a \c{const char *}. This is
+    as arguments, invoking the QString(const char *)
+    constructor. Similarily, you can pass a QString to a function that
+    takes a \c{const char *} argument using the \l qPrintable() macro
+    which returns the given QString as a \c{const char *}. This is
     equivalent to calling <QString>.toAscii().constData().
+
+    \section1 Manipulating string data
 
     QString provides the following basic functions for modifying the
     character data: append(), prepend(), insert(), replace(), and
     remove(). For example:
 
-    \code
-        QString str = "and";
-        str.prepend("rock ");           // str == "rock and"
-        str.append(" roll");            // str == "rock and roll"
-        str.replace(5, 3, "&");         // str == "rock & roll"
-    \endcode
+    \skipto Widget::modify()
+    \skipto QString str
+    \printuntil str.replace(5, 3, "&")
+
+    If you are building a QString gradually and know in advance
+    approximately how many characters the QString will contain, you
+    can call reserve(), asking QString to preallocate a certain amount
+    of memory. You can also call capacity() to find out how much
+    memory QString actually allocated.
 
     The replace() and remove() functions' first two arguments are the
     position from which to start erasing and the number of characters
-    that should be erased.
+    that should be erased.  If you want to replace all occurrences of
+    a particular substring with another, use one of the two-parameter
+    replace() overloads.
 
     A frequent requirement is to remove whitespace characters from a
     string ('\\n', '\\t', ' ', etc.). If you want to remove whitespace
-    from both ends of a QString, use trimmed(). If you want to remove
-    whitespace from both ends and replace multiple consecutive
-    whitespaces with a single space character within the string, use
-    simplified().
+    from both ends of a QString, use the trimmed() function. If you
+    want to remove whitespace from both ends and replace multiple
+    consecutive whitespaces with a single space character within the
+    string, use simplified().
 
     If you want to find all occurrences of a particular character or
-    substring in a QString, use indexOf() or lastIndexOf(). The
-    former searches forward starting from a given index position, the
-    latter searches backward. Both return the index position of the
-    character or substring if they find it; otherwise, they return -1.
-    For example, here's a typical loop that finds all occurrences of a
-    particular substring:
+    substring in a QString, use the indexOf() or lastIndexOf()
+    functions. The former searches forward starting from a given index
+    position, the latter searches backward. Both return the index
+    position of the character or substring if they find it; otherwise,
+    they return -1.  For example, here's a typical loop that finds all
+    occurrences of a particular substring:
 
-    \code
-        QString str = "We must be <b>bold</b>, very <b>bold</b>";
-        int j = 0;
-        while ((j = str.indexOf("<b>", j)) != -1) {
-            qDebug() << "Found <b> tag at index position" << j;
-            ++j;
-        }
-    \endcode
-
-    If you want to see if a QString starts or ends with a particular
-    substring use startsWith() or endsWith(). If you simply want to
-    check whether a QString contains a particular character or
-    substring, use contains(). If you want to find out how many times
-    a particular character or substring occurs in the string, use
-    count().
+    \skipto Widget::index()
+    \skipto QString str
+    \printuntil }
 
     QString provides many functions for converting numbers into
     strings and strings into numbers. See the arg() functions, the
@@ -333,67 +321,68 @@ const QString::Null QString::null = QString::Null();
     To get an upper- or lowercase version of a string use toUpper() or
     toLower().
 
-    If you want to replace all occurrences of a particular substring
-    with another, use one of the two-parameter replace() overloads.
-
-    QStrings can be compared using overloaded operators such as
-    operator<(), operator<=(), operator==(), operator>=(), and so on.
-    The comparison is based exclusively on the numeric Unicode values
-    of the characters and is very fast, but is not what a human would
-    expect. QString::localeAwareCompare() is a better choice for
-    sorting user-interface strings.
-
     Lists of strings are handled by the QStringList class. You can
-    split a string into a list of strings using split(), and join a
-    list of strings into a single string with an optional separator
-    using QStringList::join(). You can obtain a list of strings from
-    a string list that contain a particular substring or that match a
-    particular QRegExp using QStringList::find().
+    split a string into a list of strings using the split() function,
+    and join a list of strings into a single string with an optional
+    separator using QStringList::join(). You can obtain a list of
+    strings from a string list that contain a particular substring or
+    that match a particular QRegExp using the QStringList::find()
+    function.
 
-    If you are building a QString gradually and know in advance
-    approximately how many characters the QString will contain, you
-    can call reserve(), asking QString to preallocate a certain amount
-    of memory. You can also call capacity() to find out how much
-    memory QString actually allocated.
+    \section1 Querying string data.
+
+    If you want to see if a QString starts or ends with a particular
+    substring use startsWith() or endsWith(). If you simply want to
+    check whether a QString contains a particular character or
+    substring, use the contains() function. If you want to find out
+    how many times a particular character or substring occurs in the
+    string, use count().
+
+    QStrings can be compared using overloaded operators such as \l
+    operator<(), \l operator<=(), \l operator==(), \l operator>=(),
+    and so on.  Note that the comparison is based exclusively on the
+    numeric Unicode values of the characters. It is very fast, but is
+    not what a human would expect; the QString::localeAwareCompare()
+    function is a better choice for sorting user-interface strings.
 
     To obtain a pointer to the actual character data, call data() or
     constData(). These functions return a pointer to the beginning of
     the QChar data. The pointer is guaranteed to remain valid until a
     non-const function is called on the QString.
 
-    \section1 Conversions between 8-bit strings and Unicode strings
+    \section1 Converting between 8-bit strings and Unicode strings
 
     QString provides the following four functions that return a
     \c{const char *} version of the string as QByteArray: toAscii(),
     toLatin1(), toUtf8(), and toLocal8Bit().
 
     \list
-    \i toAscii() returns an ASCII encoded 8-bit string.
-    \i toLatin1() returns a Latin-1 (ISO 8859-1) encoded 8-bit string.
-    \i toUtf8() returns a UTF-8 encoded 8-bit string. UTF-8 is a
+    \o toAscii() returns an ASCII encoded 8-bit string.
+    \o toLatin1() returns a Latin-1 (ISO 8859-1) encoded 8-bit string.
+    \o toUtf8() returns a UTF-8 encoded 8-bit string. UTF-8 is a
        superset of ASCII that supports the entire Unicode character
        set through multibyte sequences.
-    \i toLocal8Bit() returns an 8-bit string using the system's local
+    \o toLocal8Bit() returns an 8-bit string using the system's local
        encoding.
     \endlist
 
     To convert from one of these encodings, QString provides
     fromAscii(), fromLatin1(), fromUtf8(), and fromLocal8Bit(). Other
-    encodings are supported through QTextCodec.
+    encodings are supported through the QTextCodec class.
 
     As mentioned above, QString provides a lot of functions and
     operators that make it easy to interoperate with \c{const char *}
-    strings. This functionaly is a double-edged sword: It makes QString
-    more convenient to use if all strings are ASCII or Latin-1, but
-    there is always the risk that an implicit conversion from or to
-    \c{const char *} is done using the wrong 8-bit encoding. To
-    minimize these risks, you can turn off these implicit conversions
-    by defining these two preprocessor symbols:
+    strings. But this functionality is a double-edged sword: It makes
+    QString more convenient to use if all strings are ASCII or
+    Latin-1, but there is always the risk that an implicit conversion
+    from or to \c{const char *} is done using the wrong 8-bit
+    encoding. To minimize these risks, you can turn off these implicit
+    conversions by defining the following two preprocessor symbols:
 
     \list
-    \i \c QT_NO_CAST_FROM_ASCII disables automatic conversions from
+    \o \c QT_NO_CAST_FROM_ASCII disables automatic conversions from
        ASCII to Unicode.
-    \i \c QT_NO_CAST_TO_ASCII disables automatic conversion from QString
+    \o \c QT_NO_CAST_TO_ASCII disables automatic conversion from QString
        to ASCII.
     \endlist
 
@@ -416,34 +405,31 @@ const QString::Null QString::null = QString::Null();
     \endcode
 
     Similarly, you must call toAscii(), toLatin1(), toUtf8(), or
-    toLocal8Bit() explicitly to convert the QString to an 8-bit string.
-    (Other encodings are supported through QTextCodec.)
+    toLocal8Bit() explicitly to convert the QString to an 8-bit
+    string.  (Other encodings are supported through the QTextCodec
+    class.)
 
+    \table 100 %
+    \row
+    \o
     \section1 Note for C programmers
 
     Due to C++'s type system and the fact that QString is
     \l{implicitly shared}, QStrings may be treated like \c{int}s or
     other basic types. For example:
 
-    \code
-    QString boolToString(bool b)
-    {
-        QString result;
-        if (b)
-            result = "True";
-        else
-            result = "False";
-        return result;
-    }
-    \endcode
+    \skipto boolToString(bool b)
+    \printuntil }
 
-    The variable, result, is a normal variable allocated on the
-    stack. When return is called, because we're returning by value,
-    The copy constructor is called and a copy of the string is
-    returned. (No actual copying takes place thanks to the implicit
-    sharing.)
+    The \c result variable, is a normal variable allocated on the
+    stack. When \c return is called, and because we're returning by
+    value, the copy constructor is called and a copy of the string is
+    returned. No actual copying takes place thanks to the implicit
+    sharing.
 
-    \section1 Distinction between null and empty strings
+    \endtable
+
+    \section1 Distinguishing between null and empty strings
 
     For historical reasons, QString distinguishes between a null
     string and an empty string. A \e null string is a string that is
@@ -452,22 +438,15 @@ const QString::Null QString::null = QString::Null();
     string with size 0. A null string is always empty, but an empty
     string isn't necessarily null:
 
-    \code
-        QString().isNull();             // returns true
-        QString().isEmpty();            // returns true
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto QString().isNull()
+    \printuntil QString("abc").isEmpty()
 
-        QString("").isNull();           // returns false
-        QString("").isEmpty();          // returns true
-
-        QString("abc").isNull();        // returns false
-        QString("abc").isEmpty();       // returns false
-    \endcode
-
-    All functions except isNull() treat null strings the same as
-    empty strings. For example, toAscii().constData() returns a
-    pointer to a '\\0' character for a null string (\e not a null pointer),
-    and QString() compares equal to QString(""). We recommend that you
-    always use isEmpty() and avoid isNull().
+    All functions except isNull() treat null strings the same as empty
+    strings. For example, toAscii().constData() returns a pointer to a
+    '\\0' character for a null string (\e not a null pointer), and
+    QString() compares equal to QString(""). We recommend that you
+    always use the isEmpty() function and avoid isNull().
 
     \sa fromRawData(), QChar, QLatin1String, QByteArray
 */
@@ -813,33 +792,28 @@ void QString::free(Data *d)
     from the end.
 
     Example:
-    \code
-        QString str = "Hello world";
-        str.resize(5);
-        // str == "Hello"
 
-        str.resize(8);
-        // str == "Hello???" (where ? stands for any character)
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::resizeFunction()
+    \skipto QString s
+    \printuntil // s == "Hello???"
 
     If you want to append a certain number of identical characters to
     the string, use operator+=() as follows rather than resize():
 
-    \code
-        QString str = "Hello";
-        str += QString(10, 'X');
-        // str == "HelloXXXXXXXXXX"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::resizeFunction()
+    \skipto QString t
+    \printuntil // t == "HelloXXXXXXXXXX"
 
     If you want to expand the string so that it reaches a certain
     width and fill the new positions with a particular character, use
     leftJustified():
 
-    \code
-        QString str = "Hello";
-        str = str.leftJustified(10, ' ');
-        // str == "Hello     "
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::resizeFunction()
+    \skipto QString r
+    \printuntil // r == "Hello     "
 
     \sa truncate(), reserve()
 */
@@ -896,15 +870,10 @@ void QString::resize(int size)
     we're fairly sure that size is large enough to make a call to
     reserve() worthwhile:
 
-    \code
-        QString result;
-        int len = 0;
-        result.reserve(maxSize);
-        while (...) {
-            result[len++] = getNextChar(); // fill part of the space
-        }
-        result.squeeze();
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::reverseFunction()
+    \skipto QString result
+    \printuntil result.squeeze()
 
     \sa squeeze(), capacity()
 */
@@ -1059,11 +1028,11 @@ QString &QString::operator=(QChar ch)
     reference to this string.
 
     Example:
-    \code
-        QString str = "Meal";
-        str.insert(1, QString("ontr"));
-        // str == "Montreal"
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::insertFunction()
+    \skipto QString str
+    \printuntil  // str == "Montreal"
 
     If \a i is greater than size(), the array is first extended using
     resize().
@@ -1139,16 +1108,18 @@ QString& QString::insert(int i, QChar ch)
     Appends the string \a str onto the end of this string.
 
     Example:
-    \code
-        QString x = "free";
-        QString y = "dom";
-        x.append(y);
-        // x == "freedom"
-    \endcode
 
-    This is the same as insert(size(), \a str).
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::appendFunction()
+    \skipto QString
+    \printuntil //
 
-    This operation is typically very fast (\l{constant time}),
+    This is the same as using the insert() function:
+
+    \skipto insert
+    \printline insert
+
+    The append() function is typically very fast (\l{constant time}),
     because QString preallocates extra space at the end of the string
     data so it can grow without reallocating the entire string each
     time.
@@ -1236,12 +1207,11 @@ QString &QString::append(QChar ch)
     returns a reference to this string.
 
     Example:
-    \code
-        QString x = "ship";
-        QString y = "air";
-        x.prepend(y);
-        // x == "airship"
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::prependFunction()
+    \skipto QString x
+    \printuntil // x == "airship"
 
     \sa append(), insert()
 */
@@ -1293,11 +1263,10 @@ QString &QString::append(QChar ch)
     If \a pos is within the string, but \a pos + \a len is beyond the
     end of the string, the string is truncated at position \a pos.
 
-    \code
-        QString str = "Montreal";
-        str.remove(1, 4);
-        // str == "Meal"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::removeFunction()
+    \skipto QString s
+    \printuntil // s == "Meal"
 
     \sa insert(), replace()
 */
@@ -1348,11 +1317,11 @@ QString &QString::remove(const QString &str, Qt::CaseSensitivity cs)
     case sensitive; otherwise the search is case insensitive.
 
     Example:
-    \code
-        QString str = "Ali Baba";
-        str.remove(QChar('a'), Qt::CaseInsensitive);
-        // str == "li Bb"
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::removeFunction()
+    \skipto QString t
+    \printuntil // t == "li Bb"
 
     This is the same as replace(\a ch, "", \a cs).
 */
@@ -1383,11 +1352,10 @@ QString &QString::remove(QChar ch, Qt::CaseSensitivity cs)
     Removes every occurrence of the regular expression \a rx in the
     string, and returns a reference to the string. For example:
 
-    \code
-        QString str = "Telephone";
-        str.remove(QRegExp("[aeiou]."));
-        // str == "The"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::removeFunction()
+    \skipto QString r
+    \printuntil // r == "The"
 
     \sa indexOf(), lastIndexOf(), replace()
 */
@@ -1397,12 +1365,11 @@ QString &QString::remove(QChar ch, Qt::CaseSensitivity cs)
     string \a after, and returns a reference to this string.
 
     Example:
-    \code
-        QString x = "Say yes!";
-        QString y = "no";
-        x.replace(4, 3, y);
-        // x == "Say no!"
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::replaceFunction()
+    \skipto QString x
+    \printuntil // x == "Say no!"
 
     \sa insert(), remove()
 */
@@ -1446,11 +1413,11 @@ QString &QString::replace(int pos, int len, QChar after)
     case sensitive; otherwise the search is case insensitive.
 
     Example:
-    \code
-        QString str = "colour behaviour flavour neighbour";
-        str.replace(QString("ou"), QString("o"));
-        // str == "color behavior flavor neighbor"
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::replaceFunction()
+    \skipto QString str
+    \printuntil // str == "color behavior flavor neighbor"
 */
 QString &QString::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
 {
@@ -1903,14 +1870,11 @@ bool QString::operator>(const QLatin1String &other) const
     case sensitive; otherwise the search is case insensitive.
 
     Example:
-    \code
-        QString x = "sticky question";
-        QString y = "sti";
-        x.indexOf(y);               // returns 0
-        x.indexOf(y, 1);            // returns 10
-        x.indexOf(y, 10);           // returns 10
-        x.indexOf(y, 11);           // returns -1
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::indexOfFunction()
+    \skipto QString x
+    \printuntil  x.indexOf(y, 11)
 
     If \a from is -1, the search starts at the last character; if it
     is -2, at the next to last character and so on.
@@ -2030,14 +1994,11 @@ int QString::indexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
     case sensitive; otherwise the search is case insensitive.
 
     Example:
-    \code
-        QString x = "crazy azimuths";
-        QString y = "az";
-        x.lastIndexOf(y);           // returns 6
-        x.lastIndexOf(y, 6);        // returns 6
-        x.lastIndexOf(y, 5);        // returns 2
-        x.lastIndexOf(y, 1);        // returns -1
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::lastIndexOfFunction()
+    \skipto QString x
+    \printuntil x.lastIndexOf(y, 1)
 
     \sa indexOf(), contains(), count()
 */
@@ -2139,21 +2100,20 @@ int QString::lastIndexOf(QChar ch, int from, Qt::CaseSensitivity cs) const
     Replaces every occurrence of the regular expression \a rx in the
     string with \a after. Returns a reference to the string. For
     example:
-    \code
-        QString str = "Banana";
-        str.replace(QRegExp("a[mn]"), "ox");
-        // str == "Boxoxa"
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::replaceFunction()
+    \skipto QString s =
+    \printuntil // s == "Boxoxa"
 
     For regular expressions containing \l{capturing parentheses},
     occurrences of \bold{\\1}, \bold{\\2}, ..., in \a after are
     replaced with \a{rx}.cap(1), cap(2), ...
 
-    \code
-        QString str = "A <i>bon mot</i>.";
-        str.replace(QRegExp("<i>([^<]*)</i>"), "\\emph{\\1}");
-        // str == "A \\emph{bon mot}."
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::replaceFunction()
+    \skipto QString t
+    \printuntil // t == "A \\emph{bon mot}."
 
     \sa indexOf(), lastIndexOf(), remove(), QRegExp::cap()
 */
@@ -2346,10 +2306,10 @@ int QString::count(QChar ch, Qt::CaseSensitivity cs) const
     case sensitive; otherwise the search is case insensitive.
 
     Example:
-    \code
-        QString str = "Peter Pan";
-        str.contains("peter", Qt::CaseInsensitive);    // returns true
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::containsFunction()
+    \skipto QString str
+    \printuntil contains
 
     \sa indexOf(), count()
 */
@@ -2379,10 +2339,11 @@ int QString::count(QChar ch, Qt::CaseSensitivity cs) const
     position \a from. Returns -1 if \a rx didn't match anywhere.
 
     Example:
-    \code
-        QString str = "the minimum";
-        str.indexOf(QRegExp("m[aeiou]"), 0);       // returns 4
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::firstIndexOfFunction()
+    \skipto QString str
+    \printuntil str.indexOf(QRegExp("m[aeiou]"), 0)
 */
 int QString::indexOf(const QRegExp& rx, int from) const
 {
@@ -2397,17 +2358,19 @@ int QString::indexOf(const QRegExp& rx, int from) const
     position \a from. Returns -1 if \a rx didn't match anywhere.
 
     Example:
-    \code
-        QString str = "the minimum";
-        str.lastIndexOf(QRegExp("m[aeiou]"));      // returns 8
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::lastIndexOfFunction()
+    \skipto QString str
+    \printuntil str.lastIndexOf(QRegExp("m[aeiou]"))
 */
 int QString::lastIndexOf(const QRegExp& rx, int from) const
 {
     return rx.lastIndexIn(*this, from);
 }
 
-/*! \overload
+/*!
+    \overload
 
     Returns the number of times the regular expression \a rx matches
     in the string.
@@ -2415,10 +2378,11 @@ int QString::lastIndexOf(const QRegExp& rx, int from) const
     This function counts overlapping matches, so in the example
     below, there are four instances of "ana" or "ama":
 
-    \code
-        QString str = "banana and panama";
-        str.contains(QRegExp("a[nm]a"));    // returns 4
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::countFunction()
+    \skipto QString str
+    \printuntil count
+
 */
 int QString::count(const QRegExp& rx) const
 {
@@ -2483,26 +2447,19 @@ int QString::count(const QRegExp& rx) const
     to skip empty fields and how to deal with leading and trailing
     separators; see \l{SectionFlags}.
 
-    \code
-        QString csv = "forename,middlename,surname,phone";
-        QString str = csv.section(',', 2, 2);   // str == "surname"
-
-        QString path = "/usr/local/bin/myapp"; // First field is empty
-        QString str = path.section('/', 3, 4);  // str == "bin/myapp"
-        QString str = path.section('/', 3, 3, SectionSkipEmpty); // str == "myapp"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::sectionFunction()
+    \skipto QString str
+    \printuntil str == "myapp"
 
     If \a start or \a end is negative, we count fields from the right
     of the string, the right-most field being -1, the one from
     right-most field being -2, and so on.
 
-    \code
-        QString csv = "forename,middlename,surname,phone";
-        QString str = csv.section(',', -3, -2);  // str == "middlename,surname"
-
-        QString path = "/usr/local/bin/myapp"; // First field is empty
-        QString str = path.section('/', -1); // str == "myapp"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::sectionFunction()
+    \skipto str = csv.section(',', -3, -2)
+    \printuntil str == "myapp"
 
     \sa split()
 */
@@ -2510,15 +2467,12 @@ int QString::count(const QRegExp& rx) const
 /*!
     \overload
 
-    \code
-        QString data = "forename**middlename**surname**phone";
-        QString str = data.section("**", 2, 2); // str == "surname"
-    \endcode
-
-    \code
-        QString data = "forename**middlename**surname**phone";
-        QString str = data.section("**", -3, -2); // str == "middlename**surname"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::sectionFunction()
+    \skipto QString str
+    \printline QString str
+    \skipto  QString data
+    \printuntil data.section("**", -3, -2)
 
     \sa split()
 */
@@ -2584,17 +2538,10 @@ public:
     This string is treated as a sequence of fields separated by the
     regular expression, \a reg.
 
-    \code
-        QString line = "forename\tmiddlename  surname \t \t phone";
-        QRegExp sep("\\s+");
-        QString s = line.section(sep, 2, 2); // s == "surname"
-    \endcode
-
-    \code
-        QString line = "forename\tmiddlename  surname \t \t phone";
-        QRegExp sep("\\s+");
-        QString s = line.section(sep, -3, -2); // s == "middlename  surname"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::sectionFunction()
+    \skipto QString line
+    \printuntil str = line.section(sep, -3, -2)
 
     \warning Using this QRegExp version is much more expensive than
     the overloaded string and character versions.
@@ -2664,10 +2611,10 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
     The entire string is returned if \a len is greater than size() or
     less than zero.
 
-    \code
-        QString x = "Pineapple";
-        QString y = x.left(4);      // y == "Pine"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::leftFunction()
+    \skipto QString x
+    \printuntil QString y = x.left(4)
 
     \sa right(), mid(), startsWith()
 */
@@ -2687,10 +2634,10 @@ QString QString::left(int len)  const
     The entire string is returned if \a len is greater than size() or
     less than zero.
 
-    \code
-        QString x = "Pineapple";
-        QString y = x.right(5);     // y == "apple"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::rightFunction()
+    \skipto QString x
+    \printuntil y == "apple"
 
     \sa left(), mid(), endsWith()
 */
@@ -2714,11 +2661,11 @@ QString QString::right(int len) const
     from position \a i.
 
     Example:
-    \code
-        QString x = "Nine pineapples";
-        QString y = x.mid(5, 4);            // y == "pine"
-        QString z = x.mid(5);               // z == "pineapples"
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::midFunction()
+    \skipto QString x
+    \printuntil QString z
 
     \sa left(), right()
 */
@@ -2819,11 +2766,10 @@ bool QString::startsWith(const QChar &c, Qt::CaseSensitivity cs) const
     If \a cs is Qt::CaseSensitive (the default), the search is case
     sensitive; otherwise the search is case insensitive.
 
-    \code
-        QString str = "Bananas";
-        str.endsWith("anas");         // returns true
-        str.endsWith("pple");         // returns false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::endsWithFunction
+    \skipto QString str
+    \printuntil str.endsWith("pple")
 
     \sa startsWith()
 */
@@ -3557,11 +3503,10 @@ void QString::truncate(int pos)
     If \a n is greater than size(), the result is an empty string.
 
     Example:
-    \code
-        QString str("LOGOUT\r\n");
-        str.chop(2);
-        // str == "LOGOUT"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::chopFunction()
+    \skipto QString
+    \printuntil  // str == "LOGOUT"
 
     If you want to remove characters from the \e beginning of the
     string, use remove() instead.
@@ -3580,14 +3525,11 @@ void QString::chop(int n)
     size beforehand.
 
     Example:
-    \code
-        QString str = "Berlin";
-        str.fill("z");
-        // str == "zzzzzz"
 
-        str.fill("A", 2);
-        // str == "AA"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::fillFunction()
+    \skipto QString str
+    \printuntil // str == "AA"
 
     \sa resize()
 */
@@ -3638,11 +3580,11 @@ QString& QString::fill(QChar ch, int size)
     Returns true if this string is null; otherwise returns false.
 
     Example:
-    \code
-        QString().isNull();             // returns true
-        QString("").isNull();           // returns false
-        QString("abc").isNull();        // returns false
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::isNullFunction()
+    \skipto QString().isNull()
+    \printuntil QString("abc").isNull()
 
     Qt makes a distinction between null strings and empty strings for
     historical reasons. For most applications, what matters is
@@ -3658,12 +3600,11 @@ QString& QString::fill(QChar ch, int size)
     false.
 
     Example:
-    \code
-        QString().isEmpty();            // returns true
-        QString("").isEmpty();          // returns true
-        QString("x").isEmpty();         // returns false
-        QString("abc").isEmpty();       // returns false
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::isEmptyFunction()
+    \skipto QString().isEmpty()
+    \printuntil QString("abc").isEmpty()
 
     \sa size()
 */
@@ -4084,10 +4025,10 @@ const ushort *QString::utf16() const
     \a width, then any characters in a copy of the string after
     position \a width are removed, and the copy is returned.
 
-    \code
-        QString s = "apple";
-        QString t = s.leftJustified(8, '.');        // t == "apple..."
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::leftJustifiedFunction()
+    \skipto QString s
+    \printuntil QString t
 
     \sa rightJustified()
 */
@@ -4124,11 +4065,10 @@ QString QString::leftJustified(int width, QChar fill, bool truncate) const
     \a width, then the resulting string is truncated at position \a
     width.
 
-    \code
-        QString str = "apple";
-        str = str.rightJustified(8, '.');
-        // str == "...apple"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::rightFunction()
+    \skipto QString s
+    \printuntil t == "...apple"
 
     \sa leftJustified()
 */
@@ -5063,10 +5003,10 @@ float QString::toFloat(bool *ok) const
 
     The base is 10 by default and must be between 2 and 36.
 
-    \code
-        QString str;
-        str.setNum(1234);       // str == "1234"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::setNumFunction
+    \skipto QString str
+    \printuntil  str.setNum(1234)
 */
 
 /*! \fn QString &QString::setNum(uint n, int base)
@@ -5194,11 +5134,10 @@ QString &QString::setNum(double n, char f, int prec)
     Returns a string equivalent of the number \a n to base \a base,
     which is 10 by default and must be between 2 and 36.
 
-    \code
-        long a = 63;
-        QString str = QString::number(a, 16);             // str == "3f"
-        QString str = QString::number(a, 16).upper();     // str == "3F"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::numberFunction()
+    \skipto long a
+    \printuntil QString::number(a, 16).toUpper()
 
     \sa setNum()
 */
@@ -5609,12 +5548,10 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     The following example shows how we could create a 'status' string
     when processing a list of files:
 
-    \code
-        QString status = QString("Processing file %1 of %2: %3")
-                            .arg(i)         // current file's number
-                            .arg(total)     // number of files to process
-                            .arg(fileName); // current file's name
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto argFunction
+    \skipto QString i
+    \printuntil .arg(i).arg(total).arg(fileName)
 
     It is generally fine to use file names and numbers as we have
     done in the example above. But note that using arg() to construct
@@ -5646,11 +5583,10 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     the strings are replaced in one pass. This can make a difference
     if \a a1 contains e.g. \c{%1}:
 
-    \code
-        QString str = "%1 %2";
-        str.arg("%1f", "Hello");        // returns "%1f Hello"
-        str.arg("%1f").arg("Hello");    // returns "Hellof"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::argFunction()
+    \skipto QString str
+    \printuntil .arg("Hello")
 */
 
 /*!
@@ -5682,24 +5618,18 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     negative value will produce a left-aligned number.
 
     The '%' can be followed by an 'L', in which case the sequence is
-    replaced with a localized representation of \a a. The conversion uses
-    the default locale, set by QLocale::setDefaultLocale(). If no default
-    locale was specified, the "C" locale is used. The 'L' flag is ignored
-    if \a base is not 10.
+    replaced with a localized representation of \a a. The conversion
+    uses the default locale, set by QLocale::setDefault(). If no
+    default locale was specified, the "C" locale is used. The 'L' flag
+    is ignored if \a base is not 10.
 
-    \code
-        QString str;
-        str = QString("Decimal 63 is %1 in hexadecimal")
-                .arg(63, 0, 16);
-        // str == "Decimal 63 is 3f in hexadecimal"
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::argFunction()
+    \skipto QString str
+    \printline QString str
+    \skipto Decimal
+    \printuntil   // str == "12345 12,345 3039"
 
-        QLocale::setDefaultLocale(QLocale::English, QLocale::UnitedStates);
-        str = QString("%1 %L2 %L3")
-                .arg(12345)
-                .arg(12345)
-                .arg(12345, 0, 16);
-        // str == "12345 12,345 3039"
-    \endcode
 */
 
 /*! \fn QString QString::arg(uint a, int fieldWidth, int base, const QChar &fillChar) const
@@ -5730,19 +5660,13 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     using QLocale::setDefault(). The 'L' flag is ignored if \a base is
     not 10.
 
-    \code
-        QString str;
-        str = QString( "Decimal 63 is %1 in hexadecimal" )
-                .arg( 63, 0, 16 );
-        // str == "Decimal 63 is 3f in hexadecimal"
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::argFunction()
+    \skipto QString str
+    \printline QString str
+    \skipto Decimal
+    \printuntil   // str == "12345 12,345 3039"
 
-        QLocale::setDefault(QLocale::English, QLocale::UnitedStates);
-        str = QString( "%1 %L2 %L3" )
-                .arg( 12345 )
-                .arg( 12345 )
-                .arg( 12345, 0, 16 );
-        // str == "12345 12,345 3039"
-    \endcode
 */
 
 /*! \fn QString QString::arg(ulong a, int fieldWidth, int base, const QChar &fillChar) const
@@ -5863,12 +5787,12 @@ QString QString::arg(char a, int fieldWidth, const QChar &fillChar) const
     which is 'g' by default and can be any of the following:
 
     \table
-    \header \i Format \i Meaning
-    \row \i \c e \i format as [-]9.9e[+|-]999
-    \row \i \c E \i format as [-]9.9E[+|-]999
-    \row \i \c f \i format as [-]9.9
-    \row \i \c g \i use \c e or \c f format, whichever is the most concise
-    \row \i \c G \i use \c E or \c f format, whichever is the most concise
+    \header \o Format \o Meaning
+    \row \o \c e \o format as [-]9.9e[+|-]999
+    \row \o \c E \o format as [-]9.9E[+|-]999
+    \row \o \c f \o format as [-]9.9
+    \row \o \c g \o use \c e or \c f format, whichever is the most concise
+    \row \o \c G \o use \c E or \c f format, whichever is the most concise
     \endtable
 
     With 'e', 'E', and 'f', \a prec is the number of digits after the
@@ -6053,14 +5977,11 @@ void QString::updateProperties() const
     by other means.
 
     Example:
-    \code
-        QString str = "Hello world";
-        QChar *data = str.data();
-        while (*data) {
-            qDebug() << data->unicode();
-            ++data;
-        }
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::dataFunction()
+    \skipto QString str
+    \printuntil }
 
     \sa constData(), operator[]()
 */
@@ -6144,18 +6065,11 @@ void QString::updateProperties() const
     Here's an example of how we can use a QRegExp on raw data in
     memory without requiring to copy the data into a QString:
 
-    \code
-        static const QChar unicode[] = {
-            0x005A, 0x007F, 0x00A4, 0x0060, 0x1009, 0x0020,
-            ...
-            0x0020
-        };
-        int size = sizeof(unicode) / sizeof(QChar);
-
-        QString str = QString::fromRawData(unicode, size);
-        if (str.contains(QRegExp(pattern)))
-        ...
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::fromRawDataFunction()
+    \skipto QRegExp
+    \printuntil // ...
+    \printline }
 
     \warning A string created with fromRawData() is \e not
     '\\0'-terminated, unless the raw data contains a '\\0' character
