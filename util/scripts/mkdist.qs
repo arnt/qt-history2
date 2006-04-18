@@ -11,8 +11,8 @@ const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "core"];
 const validLicenses = ["opensource", "commercial", "preview", "eval"];
-const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
-const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
+const validSwitches = ["gzip", "bzip", "zip", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
+const validVars = ["branch", "version"]; // variables with arbitrary values, set by -foo value
 
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
 			  "jpg", "bmp", "any", "pic", "ppm",
@@ -20,11 +20,6 @@ const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
 			  "icns", "qpf", "bdf", "pfb", "pfa",
 			  "ttf", "resource"];
 
-var binaryHosts = new Array();
-binaryHosts["win"] = "innsikt";
-binaryHosts["mac"] = "tick";
-const binaryUser = "period";
-		     
 const user = System.getenv("USER");
 
 var startDate = new Date(); // the start date of the script
@@ -307,21 +302,9 @@ for (var p in validPlatforms) {
 	    print("Compressing and packaging file(s)...");
 	    compress(platform, platDir, platName);
 
-	    // create binaries
- 	    if (options["binaries"] && (platform in binaryHosts)) {
- 		if (license == "commercial" && platform == "win") {
- 		    createBinary(platform, license, platName, "vs2003");
- 		    createBinary(platform, license, platName, "vc60");
- 		} else if (license == "opensource" && platform == "win") {
- 		    createBinary(platform, license, platName, "mingw");
- 		} else if (license == "commercial" && platform == "mac") {
- 		    createBinary(platform, license, platName, "");
- 		    createBinary(platform, "eval", platName, "");
- 		}
- 	    }
-
-	    // create eval binary
-	    if (options["eval"] && license == "commercial" && (platform in binaryHosts)) {
+	    // create eval patches for win and mac
+	    if (options["eval"] && license == "commercial" &&
+		(platform == "win" || platform == "mac")) {
 		// delete and make an empty platDir
 		var dir = new Dir(platDir);
 		if (dir.exists)
@@ -330,14 +313,7 @@ for (var p in validPlatforms) {
 		copyEval(platDir);
                 replaceTags(platDir, getEvalFileList(platDir), defaultTags(platform, license, platName), true);
 		compress(platform, platDir, platName.replace("commercial", "evalpatches"));
- 		if (options["binaries"] && platform == "win") {
- 		    createBinary(platform, "eval", platName, "vs2003");
- 		    createBinary(platform, "eval", platName, "vc60");
- 		} else if (options["binaries"] && platform == "mac") {
- 		    createBinary(platform, "eval", platName, "");
- 		}
 	    }
-
 	    indentation-=tabSize;
 	}
     }
@@ -473,13 +449,6 @@ function checkTools()
  	execute("bzip2 -h");
 	execute("cp --help");
 	execute("which scp");
-	execute("ssh -V");
-	for (var p in binaryHosts) {
-	    if (options["binaries"] && options[p]) {
-		var host = binaryHosts[p];
-		execute(["ssh", binaryUser + "@" + host, "true"]);
-	    }
-	}
 	execute(p4Command);
     } catch (e) {
 	throw "Tool failed: %1".arg(e);
@@ -647,121 +616,6 @@ function compress(platform, packageDir, packageName)
     }
 }
 
-
-/************************************************************
- * creates binaries on remote hosts and collects the results back
- */
-function createBinary(platform, license, packageName, compiler)
-{
-    var login = binaryUser + "@" + binaryHosts[platform];
-    var hostDir = platform + "-binary";
-
-    // clean up hostDir or create new one
-    try {
-	execute(["ssh", login, "rm -rf", hostDir]);
-    } catch (e) {
-	hostDir += startDate.getTime();
-	execute(["ssh", login, "mkdir", hostDir]);
-    }
-    
-    // check that package exists
-    var packageFile = packageName;
-    if (platform == "win")
-	packageFile += ".zip";
-    else
-	packageFile += ".tar.gz";
-    if (!File.exists(outputDir + "/" + packageFile)) {
- 	warning("Package: " + outputDir + "/" + packageFile + " not found.");
- 	return;
-    }
-
-    // copy a valid license file
-    if (license != "opensource") {
-	p4Copy("//depot/infra/main/licensekeys/qt-license" + 
-	       "-" + platform + "-" + license + "-desktop",
-	       distDir + "/tmp-qt-license");
-	execute(["scp", distDir + "/tmp-qt-license", login + ":.qt-license"]);
-    }
-
-    // copy script over
-    var binaryScriptsDir = checkout("util/scripts/" + platform + "-binary/...", hostDir);
-    execute(["scp", "-r", binaryScriptsDir, login + ":."]);
-    
-    // copy src package over
-    execute(["scp", outputDir + "/" + packageFile, login + ":" + hostDir]);
-
-    // copy eval patches over
-    if (license == "eval") {
-	var patchPackageFile = packageFile.replace("commercial", "evalpatches");
-	if (!File.exists(outputDir + "/" + patchPackageFile)) {
-	    warning("Package: " + outputDir + "/" + patchPackageFile + " not found.");
-	    return;
-	}
-	execute(["scp", outputDir + "/" + patchPackageFile, login + ":" + hostDir]);
-    }
-
-    if (platform == "win") {
-	// get absolute windows path to hostDir
-	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + hostDir]);
-	var windowsPath = Process.stdout.split("\n")[0];
-
-	//strip away sh.exe paths
-	execute(["ssh", login, "echo", "$PATH"]);
-	var pathVariable = Process.stdout.split("\n")[0].split(":");
-	for (var i in pathVariable) {
-	    pathVariable[i] = pathVariable[i].replace(/^\/usr\/bin$/, "");
-	    pathVariable[i] = pathVariable[i].replace(/^\/bin$/, "");
-	}
-	pathVariable = pathVariable.join(":");
-	
-	// run script
-	try {
-	    execute(["ssh", login, 
-		     "PATH='" + pathVariable + "'",
-		     "cmd", "/c", "'" + hostDir + "\\winbinary.bat",
-		     windowsPath,
-		     packageName,
-		     options["version"],
-		     license,
-		     compiler + "'"]);
-	} catch (e) {
-	    warning("Package: " + packageFile + " did not compile!.");
-	    File.write(outputDir + "/compilefailed-" + packageName + ".log", Process.stderr);
-	    return;
-	}
-	
-	// collect binary
-	execute(["scp", login + ":" + hostDir + "/" + packageName + "*.exe", outputDir + "/."]);
-
-    } else if (platform == "mac") {
-	// get absolute path to hostDir
-	execute(["ssh", login, "cd", hostDir, "&&", "pwd"]);
-	var macPath = Process.stdout.split("\n")[0];
-
-	// run script
-	try {
-	    execute(["ssh", login,
-		     "cd",
-		     hostDir,
-		     "&&",
-		     "MAKEFLAGS=-j2",
-		     "package/mkpackage",
-		     "-qtpackage",
-		     macPath + "/" + packageFile,
-		     "-licensetype",
-		     license,
-		     "-image"]);
-	} catch (e) {
-	    warning("Package: " + packageFile + " did not compile!.");
-	    File.write(outputDir + "/compilefailed-" + packageName + ".log", Process.stderr);
-	    return;
-	}
-
-	// collect binary
-	execute(["scp", login + ":" + hostDir + "/outputs/*.dmg", outputDir + "/."]);
-    }
-}
-
 /************************************************************
  * gets a list of all files and subdirectories relative to the specified directory (not absolutePath)
  */
@@ -905,6 +759,9 @@ function getEvalFileList()
 {
     evalFiles = new Array();
     evalFiles.push("/src/corelib/kernel/qtcore_eval.cpp");
+    evalFiles.push("/src/corelib/eval.pri");
+    evalFiles.push("/util/scripts/mac-binary/package/InstallerPane/keydec.cpp");
+    evalFiles.push("/util/scripts/mac-binary/package/InstallerPane/keydec.h");
     return evalFiles;
 }
 
@@ -913,17 +770,12 @@ function getEvalFileList()
  */
 function copyEval(packageDir)
 {
-    p4Copy(p4BranchPath + "/src/corelib/eval.pri" + "@" + p4Label,
-	   packageDir + "/src/corelib/eval.pri");
-    
     var evalFiles = getEvalFileList();
     for (var i in evalFiles) {
         var evalFile = evalFiles[i];
         p4Copy(p4BranchPath + evalFile + "@" + p4Label,
 	       packageDir + evalFile);
     }
-
-    checkout("util/licensekeys/shared/...", packageDir + "/util/licensekeys/shared");
 }
 
 /************************************************************
