@@ -32,7 +32,7 @@ void debugBinaryString(const QByteArray &input)
             startOffset += tmp.size();
 
             for (int j = 0; j < tmp.size(); ++j)
-                printf(" %02hhx", int(tmp[j]));
+                printf(" %02x", int(tmp[j]));
             for (int j = tmp.size(); j < 16 + 1; ++j)
                 printf("   ");
             for (int j = 0; j < tmp.size(); ++j)
