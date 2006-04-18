@@ -2224,8 +2224,8 @@ static QString timeZone()
     _tzset();
 # if defined(_MSC_VER) && _MSC_VER >= 1400
     size_t returnSize = 0;
-    char timeZoneName[256];
-    if (_get_tzname(&returnSize, timeZoneName, 256, 1))
+    char timeZoneName[512];
+    if (_get_tzname(&returnSize, timeZoneName, 512, 1))
         return QString();
     return QString::fromLocal8Bit(timeZoneName);
 # else
