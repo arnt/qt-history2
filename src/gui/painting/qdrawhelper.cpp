@@ -1714,10 +1714,10 @@ static void blend_tiled_rgb16(int count, const QSpan *spans, void *userData)
                     length -= l;
                     sx = 0;
                 }
-                ++spans;
             }
-            return;
+            ++spans;
         }
+        return;
     }
 
     // texture is RGB16
