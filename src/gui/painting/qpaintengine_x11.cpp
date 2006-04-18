@@ -2176,6 +2176,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
     QMatrix matrix = d->matrix;
     matrix.translate(p.x(), p.y());
     ft->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    if (glyphs.count() == 0)
+        return;
 
     bool drawTransformed = false;
 #ifndef QT_NO_XRENDER
