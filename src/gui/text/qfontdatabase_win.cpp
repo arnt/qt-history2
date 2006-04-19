@@ -284,7 +284,8 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
     bool scalable;
     int size;
  
-    // ### make non scalable fonts work
+//    QString escript = QString::fromUtf16((ushort *)f->elfScript);
+//    qDebug("script=%s", escript.latin1());
 
     QT_WA({
         familyName = QString::fromUtf16((ushort*)f->elfLogFont.lfFaceName);
@@ -432,11 +433,63 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
             family->writingSystems[QFontDatabase::Latin] = QtFontFamily::Supported;
 #endif
             if (!hasScript)
-                family->writingSystems[QFontDatabase::Other] = QtFontFamily::Supported;
+                family->writingSystems[QFontDatabase::Symbol] = QtFontFamily::Supported;
             family->writingSystemCheck = true;
             // qDebug("usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1());
         } else if (!family->writingSystemCheck) {
-            family->writingSystems[QFontDatabase::Other] = QtFontFamily::Supported;
+            QString script = QT_WA_INLINE(QString::fromUtf16((const ushort *)f->elfScript),
+                                          QString::fromLocal8Bit((const char *)((ENUMLOGFONTEXA *)f)->elfScript));
+            switch(f->elfScript[0]) {
+            case 'W': // Western
+            case 'B': // Baltic
+            case 'V': // Vietnamese
+                family->writingSystems[QFontDatabase::Latin] = QtFontFamily::Supported;
+                break;
+            case 'T': 
+                if (f->elfScript[1] == 'h') // Thai
+                    family->writingSystems[QFontDatabase::Thai] = QtFontFamily::Supported;
+                else if (f->elfScript[1] == 'u') // Turkish
+                    family->writingSystems[QFontDatabase::Latin] = QtFontFamily::Supported;
+                break;
+            case 'S': // Symbol
+                family->writingSystems[QFontDatabase::Symbol] = QtFontFamily::Supported;
+                break;
+            case 'O':
+                if (f->elfScript[1] == 't') // Other
+                    family->writingSystems[QFontDatabase::Symbol] = QtFontFamily::Supported;
+                else if (f->elfScript[1] == 'E') // OEM/Dos
+                    family->writingSystems[QFontDatabase::Latin] = QtFontFamily::Supported;
+                break;
+            case 'C':
+                if (f->elfScript[1] == 'H') { // CHINESE
+                    if (f->elfScript[8] == 'G') // CHINESE_GB2312
+                        family->writingSystems[QFontDatabase::SimplifiedChinese] = QtFontFamily::Supported;
+                    else if (f->elfScript[8] == 'B') // CHINESE_BIG5
+                        family->writingSystems[QFontDatabase::TraditionalChinese] = QtFontFamily::Supported;
+                } else if (f->elfScript[1] == 'y') { // Cyrillic
+                    family->writingSystems[QFontDatabase::Cyrillic] = QtFontFamily::Supported;
+                } else if (f->elfScript[1] == 'e') { // Central European
+                    family->writingSystems[QFontDatabase::Latin] = QtFontFamily::Supported;
+                }
+                break;
+            case 'H': 
+                if (f->elfScript[1] == 'a') // Hangul
+                    family->writingSystems[QFontDatabase::Korean] = QtFontFamily::Supported;
+                else if (f->elfScript[1] == 'e') // Hebrew
+                    family->writingSystems[QFontDatabase::Hebrew] = QtFontFamily::Supported;
+                break;
+            case 'G': // Greek
+                family->writingSystems[QFontDatabase::Greek] = QtFontFamily::Supported;
+                break;
+            case 'J': // Japanese
+                family->writingSystems[QFontDatabase::Japanese] = QtFontFamily::Supported;
+                break;
+            case 'A': // Arabic
+                family->writingSystems[QFontDatabase::Arabic] = QtFontFamily::Supported;
+                break;
+            default:
+                break;
+            }
         }
     }
 
@@ -447,6 +500,19 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 static
 void populate_database(const QString& fam)
 {
+    QFontDatabasePrivate *d = privateDb();
+    if (!d)
+        return;
+
+    QtFontFamily *family = 0;
+    if(!fam.isEmpty()) {
+        family = d->family(fam);
+        if(family && family->loaded)
+            return;
+    } else if (d->count) {
+        return;
+    }
+    
     HDC dummy = GetDC(0);
 
 #ifndef Q_OS_TEMP
@@ -493,6 +559,13 @@ void populate_database(const QString& fam)
 
 
     ReleaseDC(0, dummy);
+    
+    
+    if(!fam.isEmpty()) {
+        family = d->family(fam);
+        if(family)
+            family->loaded = true;
+    }
 }
 
 static void initializeDb()
@@ -830,7 +903,9 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp, const QFontDef &requ
     }
     QFontEngine *fe = new QFontEngineWin(desc->family->name, hfont, stockFont, lf);
     initFontInfo(fe, request, fp);
-    if(script == QUnicodeTables::Common) {
+    if(script == QUnicodeTables::Common
+       && !(request.styleStrategy & QFont::NoFontMerging)
+       && !(desc->family->writingSystems[QFontDatabase::Symbol] & QtFontFamily::Supported)) {
         if(!tryFonts) {
 	    LANGID lid = GetUserDefaultLangID();
 	    switch( lid&0xff ) {

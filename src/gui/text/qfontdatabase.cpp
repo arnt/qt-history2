@@ -324,6 +324,7 @@ struct QtFontFamily
 #endif
 #ifdef Q_WS_WIN
         writingSystemCheck(false),
+        loaded(false),
 #endif
 #if !defined(QWS) && defined(Q_OS_MAC)
         fixedPitchComputed(false),
@@ -346,6 +347,7 @@ struct QtFontFamily
 #endif
 #ifdef Q_WS_WIN
     bool writingSystemCheck : 1;
+    bool loaded : 1;
 #endif
 #if !defined(QWS) && defined(Q_OS_MAC)
     bool fixedPitchComputed : 1;
