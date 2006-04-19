@@ -1666,11 +1666,17 @@ QString QDir::currentPath()
 /*!
     Returns the user's home directory.
 
-    Under Windows the \c HOME environment variable is used. If this
-    does not exist the \c USERPROFILE environment variable is used. If
-    that does not exist the path is formed by concatenating the \c
-    HOMEDRIVE and \c HOMEPATH environment variables. If they don't
-    exist the rootPath() is used (this uses the \c SystemDrive
+    Under Windows the directory returned will be the directory of the current
+    user's profile, which often have the form 
+    \code
+    C:\Documents and Settings\Username
+    \endcode
+
+    If that does not exist or cannot be retrieved, the \c USERPROFILE environment variable is used. If
+    this does not exist the path is formed by concatenating the \c
+    HOMEDRIVE and \c HOMEPATH environment variables. 
+    If they don't exist the \c HOME environment variable is used. 
+    If that don't exist the rootPath() is used (this uses the \c SystemDrive
     environment variable). If none of these exist "C:\" is used.
 
     Under non-Windows operating systems the \c HOME environment

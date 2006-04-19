@@ -63,6 +63,12 @@ typedef DECLSPEC_IMPORT PVOID (WINAPI *PtrFreeSid)(PSID);
 static PtrFreeSid ptrFreeSid = 0;
 static TRUSTEE_W currentUserTrusteeW;
 
+typedef BOOL (WINAPI *PtrOpenProcessToken)(HANDLE, DWORD, PHANDLE );
+static PtrOpenProcessToken ptrOpenProcessToken = 0;
+typedef BOOL (WINAPI *PtrGetUserProfileDirectoryW)( HANDLE, LPWSTR, LPDWORD);
+static PtrGetUserProfileDirectoryW ptrGetUserProfileDirectoryW = 0;
+
+
 static void resolveLibs()
 {
     static bool triedResolve = false;
@@ -132,6 +138,11 @@ static void resolveLibs()
                         free(versionData);
                     }
                 }
+            }
+            ptrOpenProcessToken = (PtrOpenProcessToken)GetProcAddress(advapiHnd, "OpenProcessToken");
+	        HINSTANCE userenvHnd = LoadLibraryW(L"userenv");
+            if (userenvHnd) {
+                ptrGetUserProfileDirectoryW = (PtrGetUserProfileDirectoryW)GetProcAddress(userenvHnd, "GetUserProfileDirectoryW");
             }
         }
     }
@@ -870,13 +881,47 @@ QString QFSFileEngine::currentPath(const QString &fileName)
 */
 QString QFSFileEngine::homePath()
 {
-    QString ret = QString::fromLocal8Bit(qgetenv("USERPROFILE").constData());
+    QString ret;
+#if !defined(QT_NO_LIBRARY)
+    QT_WA (
+    {
+        resolveLibs();
+		if (ptrOpenProcessToken && ptrGetUserProfileDirectoryW) {
+			HANDLE hnd = ::GetCurrentProcess();
+			HANDLE token;
+			BOOL ok = ::ptrOpenProcessToken(hnd, TOKEN_QUERY, &token);
+			if (ok) {
+				DWORD dwBufferSize = 0;
+				// First call, to determine size of the strings (with '\0').
+				ok = ::ptrGetUserProfileDirectoryW(token, NULL, &dwBufferSize);
+				if (!ok && dwBufferSize != 0) {		// We got the required buffer size
+					wchar_t *userDirectory = new wchar_t[dwBufferSize];
+					// Second call, now we can fill the allocated buffer.
+					ok = ::ptrGetUserProfileDirectoryW(token, userDirectory, &dwBufferSize);
+					if (ok)
+						ret = QString::fromUtf16((ushort*)userDirectory);
+
+					delete [] userDirectory;
+				}
+				::CloseHandle(token);
+			}
+		}
+    }
+    ,
+    {
+        // GetUserProfileDirectory is only available from NT 4.0, 
+		// so fall through for Win98 and friends version.
+    })
+#endif
     if(ret.isEmpty() || !QFile::exists(ret)) {
-        ret = QString::fromLocal8Bit(qgetenv("HOMEDRIVE").constData()) + QString::fromLocal8Bit(qgetenv("HOMEPATH").constData());
+        ret = QString::fromLocal8Bit(qgetenv("USERPROFILE").constData());
         if(ret.isEmpty() || !QFile::exists(ret)) {
-            ret = QString::fromLocal8Bit(qgetenv("HOME").constData());
-            if(ret.isEmpty() || !QFile::exists(ret))
-                ret = rootPath();
+            ret = QString::fromLocal8Bit(qgetenv("HOMEDRIVE").constData()) + QString::fromLocal8Bit(qgetenv("HOMEPATH").constData());
+            if(ret.isEmpty() || !QFile::exists(ret)) {
+                ret = QString::fromLocal8Bit(qgetenv("HOME").constData());
+                if(ret.isEmpty() || !QFile::exists(ret))
+                    ret = rootPath();
+            }
         }
     }
     return QFSFileEnginePrivate::fixToQtSlashes(ret);
