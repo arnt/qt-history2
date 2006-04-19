@@ -3368,7 +3368,7 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
     register qulonglong acc;
     register unsigned char c;
     register qulonglong qbase, cutoff;
-    register int neg, any, cutlim;
+    register int any, cutlim;
 
     if (ok != 0)
         *ok = true;
@@ -3387,7 +3387,6 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
             *endptr = s - 1;
         return 0;
     } else {
-        neg = 0;
         if (c == '+')
             c = *s++;
     }
@@ -3428,8 +3427,7 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
         acc = ULLONG_MAX;
         if (ok != 0)
             *ok = false;
-    }else if (neg)
-        acc = (~acc) + 1;
+    }
     if (endptr != 0)
         *endptr = (any ? s - 1 : nptr);
     return acc;
