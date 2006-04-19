@@ -427,7 +427,7 @@ QVector<QPair<int, QVector<int > > > QSortFilterProxyModelPrivate::proxy_interva
         int proxy_high = proxy_to_source.size() - 1;
         QModelIndex i1 = compare ? model->index(first_new_source_item, sort_column, source_parent) : QModelIndex();
         while (proxy_low <= proxy_high) {
-            proxy_item = ((proxy_high - proxy_low) / 2) + proxy_low;
+            proxy_item = (proxy_low + proxy_high) / 2;
             if (compare) {
                 QModelIndex i2 = model->index(proxy_to_source.at(proxy_item), sort_column, source_parent);
                 if ((sort_order == Qt::AscendingOrder) ? q->lessThan(i1, i2) : q->lessThan(i2, i1))
