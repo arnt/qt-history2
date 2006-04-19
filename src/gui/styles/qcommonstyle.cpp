@@ -1996,8 +1996,6 @@ static QPolygonF calcArrow(const QStyleOptionSlider *dial, qreal &a)
     if (len < 5)
         len = 5;
     int back = len / 2;
-    if (back < 1)
-        back = 1;
 
     QPolygonF arrow(3);
     arrow[0] = QPointF(0.5 + xc + len * qCos(a),
