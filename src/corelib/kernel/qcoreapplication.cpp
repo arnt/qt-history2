@@ -1146,8 +1146,8 @@ void QCoreApplicationPrivate::removePostedEvent(QEvent * event)
 #ifndef QT_NO_DEBUG
             qWarning("QCoreApplication::removePostedEvent: Event of type %d deleted while posted to %s %s",
                      event->type(),
-                     pe.receiver ? pe.receiver->metaObject()->className() : "null",
-                     pe.receiver ? pe.receiver->objectName().toLocal8Bit().data() : "object");
+                     pe.receiver->metaObject()->className(),
+                     pe.receiver->objectName().toLocal8Bit().data());
 #endif
             --pe.receiver->d_func()->postedEvents;
 #ifdef QT3_SUPPORT
