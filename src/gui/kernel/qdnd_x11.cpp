@@ -176,7 +176,7 @@ static Atom qt_xdnd_dragsource_xid = 0;
 
 // the types in this drop. 100 is no good, but at least it's big.
 const int qt_xdnd_max_type = 100;
-static Atom qt_xdnd_types[qt_xdnd_max_type];
+static Atom qt_xdnd_types[qt_xdnd_max_type + 1];
 
 // timer used when target wants "continuous" move messages (eg. scroll)
 static int heartbeat = -1;
@@ -802,7 +802,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
             p = c->mapToParent(p);
             c = c->parentWidget();
         }
-        QWidget *target_widget = c->acceptDrops() ? c : 0;
+        QWidget *target_widget = c && c->acceptDrops() ? c : 0;
 
         QRect answerRect(c->mapToGlobal(p), QSize(1,1));
 
