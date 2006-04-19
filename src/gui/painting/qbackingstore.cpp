@@ -108,7 +108,7 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &toBePainted, int 
     if (unclipped && !QWidgetBackingStore::paintOnScreen(widget))
         widget->setAttribute(Qt::WA_PaintUnclipped);
 
-    bool setFlag = widget && !widget->testAttribute(Qt::WA_WState_InPaintEvent);
+    bool setFlag = !widget->testAttribute(Qt::WA_WState_InPaintEvent);
     if(setFlag)
         widget->setAttribute(Qt::WA_WState_InPaintEvent);
 
