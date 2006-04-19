@@ -665,8 +665,6 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
             else
                 family->writingSystems[i] |= QtFontFamily::UnsupportedXLFD;
         }
-        if (encoding_id == -1)
-            family->xlfdLoaded = true;
     }
     if (!reqFamily) {
         // mark encoding as loaded
