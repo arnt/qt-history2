@@ -595,8 +595,6 @@ QString QKeySequencePrivate::encodeString(int key, QKeySequence::SequenceFormat 
     } else if (key >= Qt::Key_F1 && key <= Qt::Key_F35) {
             p = nativeText ? QShortcut::tr("F%1").arg(key - Qt::Key_F1 + 1)
                            : QString(QLatin1String("F%1")).arg(key - Qt::Key_F1 + 1);
-    } else if (key > Qt::Key_Space && key <= Qt::Key_AsciiTilde) {
-        p.sprintf("%c", key);
     } else if (key) {
         int i=0;
         while (keyname[i].name) {
