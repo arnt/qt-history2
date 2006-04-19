@@ -5233,7 +5233,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 #ifdef QT3_SUPPORT
         if (widget && widget->inherits("Q3DockWindowTitleBar")) {
             // Q3DockWindow has smaller titlebars than QDockWidget
-            ret = qMax(widget ? widget->fontMetrics().lineSpacing() : option->fontMetrics.lineSpacing(), 16);
+            ret = qMax(widget->fontMetrics().lineSpacing(), 16);
         } else
 #endif
             ret = qMax(widget ? widget->fontMetrics().lineSpacing() : option->fontMetrics.lineSpacing(), 30);
