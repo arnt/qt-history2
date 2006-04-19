@@ -427,7 +427,7 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
 {
     bool success = false;
     const QImage image = sourceImage;
-    QVector<QRgb> cmap = image.colorTable();
+    const QVector<QRgb> cmap = image.colorTable();
 
     struct jpeg_compress_struct cinfo;
     JSAMPROW row_pointer[1];
