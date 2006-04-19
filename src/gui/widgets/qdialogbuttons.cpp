@@ -415,8 +415,8 @@ QDialogButtons::sizeHint() const
 QSize
 QDialogButtons::sizeHint(QDialogButtons::Button button) const
 {
-    QWidget *w = NULL;
     if(d->visible & button) {
+        QWidget *w;
         if(!d->buttons.contains(button)) {
             QDialogButtons *that = (QDialogButtons*)this; //ick, constness..
             w = that->createButton(button);
@@ -424,8 +424,9 @@ QDialogButtons::sizeHint(QDialogButtons::Button button) const
         } else {
             w = d->buttons[button];
         }
+        return w->sizeHint();
     }
-    return w->sizeHint();
+    return QSize();
 }
 
 QSize
