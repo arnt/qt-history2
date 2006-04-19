@@ -1060,8 +1060,9 @@ QByteArray QIODevice::readLine(qint64 maxSize)
             break;
 
         readSoFar += readBytes;
-    } while ((!maxSize || readSoFar < maxSize) && readBytes > 0
-             && readBytes == tmp.size() && tmp.at(readBytes - 1) != '\n');
+    } while ((!maxSize || readSoFar < maxSize) && 
+             readSoFar + 1 == tmp.size() &&   // +1 due to the ending null
+             tmp.at(readSoFar - 1) != '\n');
 
     tmp.resize(int(readSoFar));
     return tmp;
