@@ -1,7 +1,5 @@
 TEMPLATE = subdirs
 
-CONFIG += qt ordered
+CONFIG += qt
 
 SUBDIRS = src
-
-
