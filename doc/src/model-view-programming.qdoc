@@ -770,13 +770,17 @@
     to provide editing facilities. This default implementation of the
     delegate interface renders items in the usual style for each of the
     standard views: \l QListView, \l QTableView, and \l QTreeView.
-    The delegate being used for a view is returned by the
+
+    All the standard roles are handled by the default delegate used by
+    the standard views. The way these are interpreted is described in the
+    QItemDelegate documentation.
+
+    The delegate used by a view is returned by the
     \l{QAbstractItemView::itemDelegate()}{itemDelegate()} function.
     The \l{QAbstractItemView::setItemDelegate()}{setItemDelegate()} function
     allows you to install a custom delegate for a standard view, and it is
     necessary to use this function when setting the delegate for a custom
     view.
-
 
     \section1 A Simple Delegate
 

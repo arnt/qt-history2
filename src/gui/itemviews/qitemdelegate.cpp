@@ -131,8 +131,8 @@ public:
     \endtable
 
     If the default delegate does not allow the level of customization that
-    you need, it is possible to subclass QItemDelegate to implement the
-    desired behavior.
+    you need, either for display purposes or for editing data, it is possible to
+    subclass QItemDelegate to implement the desired behavior.
 
     \section1 Subclassing
 
@@ -141,6 +141,11 @@ public:
     render items suitably for all the required states; e.g. selected,
     disabled, checked. The documentation for the paint() function contains
     some hints to show how this can be achieved.
+
+    Custom editing features for can be added by subclassing QItemDelegate and
+    reimplementing createEditor(), setEditorData(), setModelData(), and
+    updateEditorGeometry(). This process is described in the
+    \l{Spin Box Delegate Example}{Spin Box Delegate example}.
 
     \sa {Model/View Programming}, QAbstractItemDelegate
 */

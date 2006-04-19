@@ -101,6 +101,9 @@ QItemEditorFactory::~QItemEditorFactory()
 /*!
 Registers an item editor creator specified by \a creator for the given \a type of data.
 
+\bold{Note:} The factory takes ownership of the item editor creator and will destroy
+it if a new creator for the same type is registered later.
+
 \sa createEditor()*/
 void QItemEditorFactory::registerEditor(QVariant::Type type, QItemEditorCreatorBase *creator)
 {
@@ -264,11 +267,17 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
 /*!
     \fn QByteArray QItemEditorCreatorBase::valuePropertyName() const
 
-    Returns the name of the property associated with the creator's editor
-    widgets.
+    Returns the name of the property used to get and set values in the creator's
+    editor widgets.
 
-    When implementing this function in subclasses, the property name you
-    must return corresponds to the type of value that your editor widgets
-    are designed to edit.
+    When implementing this function in subclasses, you must ensure that the
+    editor widget's property specified by this function can accept the type
+    the creator is registered for. For example, a creator which constructs
+    QCheckBox widgets to edit boolean values would return the
+    \l{QCheckBox::checkable}{checkable} property name from this function,
+    and must be registered in the item editor factory for the QVariant::Bool
+    type.
+
+    \sa QItemEditorFactory::registerEditor()
 */
 #endif // QT_NO_ITEMVIEWS
