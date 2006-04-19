@@ -185,18 +185,24 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
 QByteArray QDefaultItemEditorFactory::valuePropertyName(QVariant::Type type) const
 {
     switch (type) {
+#ifndef QT_NO_COMBOBOX
     case QVariant::Bool:
-        return "currentItem";
+        return "currentIndex";
+#endif
+#ifndef QT_NO_SPINBOX
     case QVariant::UInt:
     case QVariant::Int:
     case QVariant::Double:
         return "value";
+#endif
+#ifndef QT_NO_DATETIMEEDIT
     case QVariant::Date:
         return "date";
     case QVariant::Time:
         return "time";
     case QVariant::DateTime:
         return "dateTime";
+#endif
     case QVariant::String:
     default:
         // the default editor is a lineedit
