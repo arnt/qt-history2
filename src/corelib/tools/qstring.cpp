@@ -2694,11 +2694,10 @@ QString QString::mid(int i, int len) const
     If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
-    \code
-        QString str = "Bananas";
-        str.startsWith("Ban");     // returns true
-        str.startsWith("Car");     // returns false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::startsWithFunction()
+    \skipto QString str
+    \printuntil str.startsWith("Car");     // returns false
 
     \sa endsWith()
 */
@@ -3351,11 +3350,11 @@ QString& QString::setUnicode(const QChar *unicode, int size)
     '\\f', '\\r', and ' '.
 
     Example:
-    \code
-        QString str = "  lots\t of\nwhitespace\r\n ";
-        str = str.simplified();
-        // str == "lots of whitespace";
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::simplifiedFunction()
+    \skipto QString str
+    \printuntil // str == "lots of whitespace"
 
     \sa trimmed()
 */
@@ -3394,11 +3393,11 @@ QString QString::simplified() const
     '\\f', '\\r', and ' '.
 
     Example:
-    \code
-        QString str = "  lots\t of\nwhitespace\r\n ";
-        str = str.trimmed();
-        // str == "lots\t of\nwhitespace";
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::trimmedFunction()
+    \skipto QString str
+    \printuntil // str == "lots\t of\nwhitespace"
 
     Unlike simplified(), trimmed() leaves internal whitespace alone.
 
@@ -3443,10 +3442,11 @@ QString QString::trimmed() const
     reference.
 
     Example:
-    \code
-        if (str[0] == QChar('?'))
-            str[0] = QChar('_');
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::arrayOperator()
+    \skipto QString str
+    \printuntil str[0] = QChar('_')
 
     The return value is of type QCharRef, a helper class for QString.
     When you get an object of type QCharRef, you can use it as if it
@@ -3480,11 +3480,11 @@ QString QString::trimmed() const
     If \a pos is beyond the end of the string, nothing happens.
 
     Example:
-    \code
-        QString str = "Vladivostok";
-        str.truncate(4);
-        // str == "Vlad"
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::truncateFunction()
+    \skipto QString str
+    \printuntil // str == "Vlad"
 
     \sa chop(), resize(), left()
 */
@@ -3564,13 +3564,11 @@ QString& QString::fill(QChar ch, int size)
     '\\0'-terminated strings.
 
     Example:
-    \code
-        QString str = "World";
-        int n = str.size();         // n == 5
-        str.data()[0];              // returns 'W'
-        str.data()[4];              // returns 'd'
-        str.data()[5];              // returns '\0'
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::sizeFunction()
+    \skipto QString str
+    \printuntil str.data()[5]
 
     \sa isEmpty(), resize()
 */
@@ -3615,12 +3613,11 @@ QString& QString::fill(QChar ch, int size)
     returns a reference to this string.
 
     Example:
-    \code
-        QString x = "free";
-        QString y = "dom";
-        x += y;
-        // x == "freedom"
-    \endcode
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::plusEqualOperator()
+    \skipto QString x
+    \printuntil // x == "freedom"
 
     This operation is typically very fast (\l{constant time}),
     because QString preallocates extra space at the end of the string
@@ -4096,10 +4093,10 @@ QString QString::rightJustified(int width, QChar fill, bool truncate) const
 /*!
     Returns a lowercase copy of the string.
 
-    \code
-        QString str = "TROlltECH";
-        str = str.toLower();        // str == "trolltech"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toLowerFunction()
+    \skipto QString str
+    \printuntil str.toLower()
 
     \sa toUpper()
 */
@@ -4138,10 +4135,10 @@ QString QString::toLower() const
 /*!
     Returns an uppercase copy of the string.
 
-    \code
-        QString str = "TeXt";
-        str = str.toUpper();        // str == "TEXT"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toUpperFunction()
+    \skipto QString str
+    \printuntil str.toUpper()
 
     \sa toLower()
 */
@@ -4193,27 +4190,25 @@ QString QString::toUpper() const
     \c{long long}). If you need those, use the standard snprintf()
     function instead:
 
-    \code
-        char buf[BufSize];
-        ::snprintf(buf, BufSize, "%lld", 123456789LL);
-        QString str = QString::fromAscii(buf);
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::splitFunction()
+    \skipto size_t
+    \printuntil QString str
 
     \warning We do not recommend using QString::sprintf() in new Qt
     code. Instead, consider using QTextOStream or arg(), both of
     which support Unicode strings seamlessly and are type-safe.
     Here's an example that uses QTextOStream:
 
-    \code
-        QString result;
-        QTextOStream(&result) << "pi = " << 3.14;
-        // result == "pi = 3.14"
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::splitFunction()
+    \skipto QString result
+    \printuntil // result == "pi = 3.14"
 
-    For \link QObject::tr() translations,\endlink especially if the
-    strings contains more than one escape sequence, you should
-    consider using the arg() function instead. This allows the order
-    of the replacements to be controlled by the translator.
+    For \l {QObject::tr()}{translations} especially if the strings
+    contains more than one escape sequence, you should consider using
+    the arg() function instead. This allows the order of the
+    replacements to be controlled by the translator.
 
     \sa arg()
 */
@@ -4577,12 +4572,10 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
 
     Example:
 
-    \code
-        QString str = "FF";
-        bool ok;
-        qint64 hex = str.toLongLong(&ok, 16);      // hex == 255, ok == true
-        qint64 dec = str.toLongLong(&ok, 10);      // dec == 0, ok == false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toLongLongFunction()
+    \skipto QString str
+    \printuntil qint64 dec
 
     \sa number(), toULongLong(), toInt()
 */
@@ -4630,12 +4623,10 @@ qint64 QString::toLongLong(bool *ok, int base) const
 
     Example:
 
-    \code
-        QString str = "FF";
-        bool ok;
-        quint64 hex = str.toULongLong(&ok, 16);    // hex == 255, ok == true
-        quint64 dec = str.toULongLong(&ok, 10);    // dec == 0, ok == false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toULongLongFunction()
+    \skipto QString str
+    \printuntil quint64 dec
 
     \sa number(), toLongLong()
 */
@@ -4670,7 +4661,7 @@ quint64 QString::toULongLong(bool *ok, int base) const
 }
 
 /*!
-  \fn long QString::toLong(bool *ok, int base) const
+    \fn long QString::toLong(bool *ok, int base) const
 
     Returns the string converted to a \c long using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
@@ -4685,12 +4676,10 @@ quint64 QString::toULongLong(bool *ok, int base) const
 
     Example:
 
-    \code
-        QString str = "FF";
-        bool ok;
-        long hex = str.toLong(&ok, 16);     // hex == 255, ok == true
-        long dec = str.toLong(&ok, 10);     // dec == 0, ok == false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toLongFunction()
+    \skipto QString str
+    \printuntil long dec
 
     \sa number(), toULong(), toInt()
 */
@@ -4722,12 +4711,10 @@ long QString::toLong(bool *ok, int base) const
 
     Example:
 
-    \code
-        QString str = "FF";
-        bool ok;
-        ulong hex = str.toULong(&ok, 16);   // hex == 255, ok == true
-        ulong dec = str.toULong(&ok, 10);   // dec == 0, ok == false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toULongFunction()
+    \skipto QString str
+    \printuntil ulong dec
 
     \sa number()
 */
@@ -4758,12 +4745,10 @@ ulong QString::toULong(bool *ok, int base) const
 
     Example:
 
-    \code
-        QString str = "FF";
-        bool ok;
-        int hex = str.toInt(&ok, 16);       // hex == 255, ok == true
-        int dec = str.toInt(&ok, 10);       // dec == 0, ok == false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toIntFunction()
+    \skipto QString str
+    \printuntil int dec
 
     \sa number(), toUInt(), toDouble()
 */
@@ -4793,12 +4778,10 @@ int QString::toInt(bool *ok, int base) const
 
     Example:
 
-    \code
-        QString str = "FF";
-        bool ok;
-        uint hex = str.toUInt(&ok, 16);     // hex == 255, ok == true
-        uint dec = str.toUInt(&ok, 10);     // dec == 0, ok == false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toUIntFunction()
+    \skipto QString str
+    \printuntil uint dec
 
     \sa number(), toInt()
 */
@@ -4828,12 +4811,10 @@ uint QString::toUInt(bool *ok, int base) const
 
     Example:
 
-    \code
-        QString str = "FF";
-        bool ok;
-        short hex = str.toShort(&ok, 16);   // hex == 255, ok == true
-        short dec = str.toShort(&ok, 10);   // dec == 0, ok == false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toShortFunction()
+    \skipto QString str
+    \printuntil short dec
 
     \sa number(), toUShort(), toInt()
 */
@@ -4863,12 +4844,10 @@ short QString::toShort(bool *ok, int base) const
 
     Example:
 
-    \code
-        QString str = "FF";
-        bool ok;
-        ushort hex = str.toUShort(&ok, 16);     // hex == 255, ok == true
-        ushort dec = str.toUShort(&ok, 10);     // dec == 0, ok == false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toUShortFunction()
+    \skipto QString str
+    \printuntil ushort dec
 
     \sa number(), toShort()
 */
@@ -4893,10 +4872,10 @@ ushort QString::toUShort(bool *ok, int base) const
     If \a ok is not 0: if a conversion error occurs, \c{*}\a{ok} is set to
     false; otherwise \c{*}\a{ok} is set to true.
 
-    \code
-        QString str = "1234.56";
-        double val = str.toDouble();   // val == 1234.56
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toDoubleFunction()
+    \skipto QString str
+    \printuntil double val
 
     This function tries to interpret the string according to the
     current locale. The current locale is determined from the
@@ -4905,29 +4884,21 @@ ushort QString::toUShort(bool *ok, int base) const
     according to the current locale, this function falls back
     on the "C" locale.
 
-    \code
-        bool ok;
-        double d;
-
-        QLocale::setDefault(QLocale::C);
-        d = QString( "1234,56" ).toDouble(&ok); // ok == false
-        d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
-
-        QLocale::setDefault(QLocale::German);
-        d = QString( "1234,56" ).toDouble(&ok); // ok == true, d == 1234.56
-        d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toDoubleFunction()
+    \skipto bool ok
+    \printto QLocale::setDefault(QLocale::German);
+    \printto QLocale::setDefault(QLocale::C);
 
     Due to the ambiguity between the decimal point and thousands group
     separator in various locales, this function does not handle
     thousands group separators. If you need to convert such numbers,
     see QLocale::toDouble().
 
-    \code
-        bool ok;
-        QLocale::setDefault(QLocale::C);
-        double d = QString( "1,234,567.89" ).toDouble(&ok); // ok == false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toDoubleFunction()
+    \skipto QLocale::setDefault(QLocale::C);
+    \printuntil d =
 
     \warning If the string contains trailing whitespace this function
     will fail, and set \c{*}\a{ok} to false if \a ok is not 0. Leading
@@ -4967,14 +4938,11 @@ double QString::toDouble(bool *ok) const
     false; otherwise *\a{ok} is set to true.
 
     Example:
-    \code
-        QString str1 = "1234.56";
-        str1.toFloat();             // returns 1234.56
 
-        bool ok;
-        QString str2 = "R2D2";
-        str2.toFloat(&ok);          // returns 0.0, sets ok to false
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::toFloatFunction()
+    \skipto QString str1
+    \printuntil str2.toFloat(&ok)
 
     \sa number(), toDouble(), toInt()
 */
@@ -5236,14 +5204,11 @@ QString QString::number(double n, char f, int prec)
     appear in the result. By default, empty entries are kept.
 
     Example:
-    \code
-        QString str = "a,,b,c";
-        QStringList list1 = str.split(",");
-        // list1: [ "a", "", "b", "c" ]
 
-        QStringList list2 = str.split(",", QString::SkipEmptyParts);
-        // list2: [ "a", "b", "c" ]
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::splitCaseSensitiveFunction()
+    \skipto QString str
+    \printuntil // list2: [ "a", "b", "c" ]
 
     \sa QStringList::join(), section()
 */
@@ -5294,31 +5259,27 @@ QStringList QString::split(const QChar &sep, SplitBehavior behavior, Qt::CaseSen
     Here's an example where we extract the words in a sentence
     using one or more whitespace characters as the separator:
 
-    \code
-        QString str = "Some  text\n\twith  strange whitespace.";
-        QStringList list = str.split(QRegExp("\\s+"));
-        // list: [ "Some", "text", "with", "strange", "whitespace." ]
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::splitFunction()
+    \skipto QString str
+    \printuntil // list: [ "Some", "text", "with", "strange", "whitespace." ]
 
     Here's a similar example, but this time we use any sequence of
     non-word characters as the separator:
 
-    \code
-        QString str = "This time, a normal English sentence.";
-        QStringList list = str.split(QRegExp("\\W+"),
-                                     QString::SkipEmptyParts);
-        // list: [ "This", "time", "a", "normal", "English", "sentence" ]
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::splitFunction()
+    \skipto str = "This time
+    \printuntil // list: [ "This", "time", "a", "normal", "English", "sentence" ]
 
     Here's a third example where we use a zero-length assertion,
     \bold{\\b} (word boundary), to split the string into an
     alternating sequence of non-word and word tokens:
 
-    \code
-        QString str = "Now: this sentence fragment.";
-        QStringList list = str.split(QRegExp("\\b"));
-        // list: [ "", "Now", ": ", "this", " ", "sentence", " ", "fragment", "." ]
-    \endcode
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::splitFunction()
+    \skipto str = "Now
+    \printuntil // list: [ "", "Now", ": ", "this", " ", "sentence", " ", "fragment", "." ]
 
     \sa QStringList::join(), section()
 */

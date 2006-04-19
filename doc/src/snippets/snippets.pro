@@ -42,6 +42,7 @@ SUBDIRS         = brush \
                   qstackedwidget \
                   qstandarditemmodel \
                   qstatustipevent \
+                  qstring \
                   qtablewidget-dnd \
                   qtablewidget-resizing \
                   qtablewidget-using \

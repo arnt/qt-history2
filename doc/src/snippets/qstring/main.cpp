@@ -1,5 +1,6 @@
 #include <QtGui>
 #include <QApplication>
+#include <stdio.h>
 
 class Widget : public QWidget
 {
@@ -48,6 +49,31 @@ public:
     void rightJustifiedFunction();
     void sectionFunction();
     void setNumFunction();
+    void simplifiedFunction();
+
+    void sizeFunction();
+    void splitFunction();
+    void splitCaseSensitiveFunction();
+    void sprintfFunction();
+    void startsWithFunction();
+    void toDoubleFunction();
+    void toFloatFunction();
+    void toIntFunction();
+    void toLongFunction();
+    void toLongLongFunction();
+
+    void toLowerFunction();
+    void toShortFunction();
+    void toUIntFunction();
+    void toULongFunction();
+    void toULongLongFunction();
+    void toUShortFunction();
+    void toUpperFunction();
+    void trimmedFunction();
+    void truncateFunction();
+
+    void plusEqualOperator();
+    void arrayOperator();
 };
 
 Widget::Widget(QWidget *parent)
@@ -450,6 +476,213 @@ void Widget::setNumFunction()
     str.setNum(1234);       // str == "1234"
 }
 
+void Widget::simplifiedFunction()
+{
+    QString str = "  lots\t of\nwhitespace\r\n ";
+    str = str.simplified();
+    // str == "lots of whitespace";
+}
+
+void Widget::sizeFunction()
+{
+    QString str = "World";
+    int n = str.size();         // n == 5
+    str.data()[0];              // returns 'W'
+    str.data()[4];              // returns 'd'
+    str.data()[5];              // returns '\0'
+}
+
+void Widget::splitFunction()
+{
+    QString str;
+    QStringList list;
+
+    str = "Some  text\n\twith  strange whitespace.";
+    list = str.split(QRegExp("\\s+"));
+    // list: [ "Some", "text", "with", "strange", "whitespace." ]
+
+    str = "This time, a normal English sentence.";
+    list = str.split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    // list: [ "This", "time", "a", "normal", "English", "sentence" ]
+
+    str = "Now: this sentence fragment.";
+    list = str.split(QRegExp("\\b"));
+    // list: [ "", "Now", ": ", "this", " ", "sentence", " ", "fragment", "." ]
+}
+
+void Widget::splitCaseSensitiveFunction()
+{
+    QString str = "a,,b,c";
+
+    QStringList list1 = str.split(",");
+    // list1: [ "a", "", "b", "c" ]
+
+    QStringList list2 = str.split(",", QString::SkipEmptyParts);
+    // list2: [ "a", "b", "c" ]
+}
+
+void Widget::sprintfFunction()
+{
+    size_t BufSize;
+    char buf[BufSize];
+
+    ::snprintf(buf, BufSize, "%lld", 123456789LL);
+    QString str = QString::fromAscii(buf);
+
+    QString result;
+    QTextStream(&result) << "pi = " << 3.14;
+    // result == "pi = 3.14"
+}
+
+void Widget::startsWithFunction()
+{
+    QString str = "Bananas";
+    str.startsWith("Ban");     // returns true
+    str.startsWith("Car");     // returns false
+}
+
+void Widget::toDoubleFunction()
+{
+    QString str = "1234.56";
+    double val = str.toDouble();   // val == 1234.56
+
+    bool ok;
+    double d;
+
+    QLocale::setDefault(QLocale::C);
+    d = QString( "1234,56" ).toDouble(&ok); // ok == false
+    d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+
+    QLocale::setDefault(QLocale::German);
+    d = QString( "1234,56" ).toDouble(&ok); // ok == true, d == 1234.56
+    d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+
+    QLocale::setDefault(QLocale::C);
+    d = QString( "1,234,567.89" ).toDouble(&ok); // ok == false
+}
+
+void Widget::toFloatFunction()
+{
+    QString str1 = "1234.56";
+    str1.toFloat();             // returns 1234.56
+
+    bool ok;
+    QString str2 = "R2D2";
+    str2.toFloat(&ok);          // returns 0.0, sets ok to false
+}
+
+void Widget::toIntFunction()
+{
+    QString str = "FF";
+    bool ok;
+    int hex = str.toInt(&ok, 16);       // hex == 255, ok == true
+    int dec = str.toInt(&ok, 10);       // dec == 0, ok == false
+}
+
+void Widget::toLongFunction()
+{
+    QString str = "FF";
+    bool ok;
+
+    long hex = str.toLong(&ok, 16);     // hex == 255, ok == true
+    long dec = str.toLong(&ok, 10);     // dec == 0, ok == false
+}
+
+void Widget::toLongLongFunction()
+{
+    QString str = "FF";
+    bool ok;
+
+    qint64 hex = str.toLongLong(&ok, 16);      // hex == 255, ok == true
+    qint64 dec = str.toLongLong(&ok, 10);      // dec == 0, ok == false
+}
+
+void Widget::toLowerFunction()
+{
+    QString str = "TROlltECH";
+    str = str.toLower();        // str == "trolltech"
+}
+
+void Widget::toShortFunction()
+{
+    QString str = "FF";
+    bool ok;
+
+    short hex = str.toShort(&ok, 16);   // hex == 255, ok == true
+    short dec = str.toShort(&ok, 10);   // dec == 0, ok == false
+}
+
+void Widget::toUIntFunction()
+{
+    QString str = "FF";
+    bool ok;
+
+    uint hex = str.toUInt(&ok, 16);     // hex == 255, ok == true
+    uint dec = str.toUInt(&ok, 10);     // dec == 0, ok == false
+}
+
+void Widget::toULongFunction()
+{
+    QString str = "FF";
+    bool ok;
+
+    ulong hex = str.toULong(&ok, 16);   // hex == 255, ok == true
+    ulong dec = str.toULong(&ok, 10);   // dec == 0, ok == false
+}
+
+void Widget::toULongLongFunction()
+{
+    QString str = "FF";
+    bool ok;
+
+    quint64 hex = str.toULongLong(&ok, 16);    // hex == 255, ok == true
+    quint64 dec = str.toULongLong(&ok, 10);    // dec == 0, ok == false
+}
+
+void Widget::toUShortFunction()
+{
+    QString str = "FF";
+    bool ok;
+
+    ushort hex = str.toUShort(&ok, 16);     // hex == 255, ok == true
+    ushort dec = str.toUShort(&ok, 10);     // dec == 0, ok == false
+}
+
+void Widget::toUpperFunction()
+{
+    QString str = "TeXt";
+    str = str.toUpper();        // str == "TEXT"
+}
+
+void Widget::trimmedFunction()
+{
+    QString str = "  lots\t of\nwhitespace\r\n ";
+    str = str.trimmed();
+    // str == "lots\t of\nwhitespace"
+}
+
+void Widget::truncateFunction()
+{
+    QString str = "Vladivostok";
+    str.truncate(4);
+    // str == "Vlad"
+}
+
+void Widget::plusEqualOperator()
+{
+    QString x = "free";
+    QString y = "dom";
+    x += y;
+    // x == "freedom"
+}
+
+void Widget::arrayOperator()
+{
+    QString str;
+
+    if (str[0] == QChar('?'))
+        str[0] = QChar('_');
+}
 
 int main(int argc, char *argv[])
 {
