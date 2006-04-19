@@ -222,7 +222,7 @@ QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *sh
     if(!pbuf) {
 	qWarning("QGLPixelBuffer: Unable to create pbuffer [w=%d, h=%d] - giving up.", size.width(), size.height());
 	ReleaseDC(dmy.winId(), dc);
-	return;
+	return false;
     }
 
     ReleaseDC(dmy.winId(), dc);
