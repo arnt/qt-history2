@@ -331,11 +331,6 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
     QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, true)->childrenRows
                                : d->topLevelRows;
 
-    if (row < 0)
-        row = 0;
-    else if (row > rows.count())
-        row = rows.count();
-
     if (!parent.isValid() && d->verticalHeader.size() > row)
         d->verticalHeader.insert(row, count, 0);
 
@@ -367,11 +362,6 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
     Q_D(QStandardItemModel);
     if (count < 1 || column < 0 || column > columnCount(parent) || parent.column() > 0)
         return false;
-
-    if (column < 0)
-        column = 0;
-    else if (column > columnCount(parent))
-        column = columnCount(parent);
 
     beginInsertColumns(parent, column, column + count - 1);
 
