@@ -993,7 +993,9 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
         ::_exit(1);
     }
     int result;
-    return (waitpid(childPid, &result, 0) && WIFEXITED(result));
+    while (waitpid(childPid, &result, 0) == -1 && errno == EINTR)
+        ;                       // nothing
+    return WIFEXITED(result);
 }
 
 void QProcessPrivate::initializeProcessManager()
