@@ -31,6 +31,7 @@
 
 #include <olectl.h>
 #include "activeqt_extrainfo.h"
+#include <qaxtypes.h>
 
 /* XPM */
 static const char *widgetIcon[]={
@@ -131,13 +132,16 @@ int QActiveXPluginObject::qt_metacall(QMetaObject::Call call, int signal, void *
             m_propValues.insert(signal, new QVariant(qVar));
             return 1;
         } else if(call == QMetaObject::ReadProperty) {
-/*            if (m_propValues.contains(signal)) {
+            if (m_propValues.contains(signal)) {
                 QMetaProperty mprop = mo->property(signal);
                 QVariantToVoidStar(*m_propValues.value(signal), *argv, mprop.typeName(), mprop.type());
                 return 1;
-            } else */{
+            } else {
                 return m_axobject->qt_metacall(call,signal,argv);
             }
+        } else if(call == QMetaObject::QueryPropertyStored) {
+            if (m_propValues.contains(signal))
+                if (argv[0]) *reinterpret_cast< bool*>(argv[0]) = true;
         }
     }
 

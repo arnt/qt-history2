@@ -9,6 +9,8 @@ CONFIG(debug, debug|release) {
     else:TARGET = $$member(TARGET, 0)d
 }
 
+INCLUDEPATH += $$QT_SOURCE_TREE/src/activeqt/shared/
+
 # Input
 SOURCES += plugin.cpp \
     activeqt_extrainfo.cpp \
