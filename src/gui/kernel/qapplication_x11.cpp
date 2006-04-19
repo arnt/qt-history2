@@ -5222,7 +5222,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
         if (isVisible())
             QApplication::syncX();
 
-        if (! d->extra || d->extra->compress_events) {
+        if (d->extra->compress_events) {
             // ConfigureNotify compression for faster opaque resizing
             XEvent otherEvent;
             while (XCheckTypedWindowEvent(X11->display, winId(), ConfigureNotify,
