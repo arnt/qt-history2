@@ -338,15 +338,6 @@ void PieView::paintEvent(QPaintEvent *event)
             }
         }
     }
-
-    if (!selectionRect.isEmpty()) {
-        QStyleOptionRubberBand band;
-        band.shape = QRubberBand::Rectangle;
-        band.rect = selectionRect;
-        painter.save();
-        style()->drawControl(QStyle::CE_RubberBand, &band, &painter);
-        painter.restore();
-    }
 }
 
 void PieView::resizeEvent(QResizeEvent * /* event */)
