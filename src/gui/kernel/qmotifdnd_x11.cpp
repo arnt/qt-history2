@@ -605,6 +605,8 @@ static int _DndIndexToTargets(Display * display,
 
     if (!(targets_table = TargetsTable (display)) ||
         (index >= targets_table->num_entries)) {
+        if (targets_table)
+            XFree((char*)targets_table);
         return -1;
     }
 
