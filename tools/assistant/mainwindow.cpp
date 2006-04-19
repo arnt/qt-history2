@@ -168,7 +168,12 @@ void MainWindow::setup()
     viewsAction->setText(tr("Views"));
     ui.viewMenu->addAction(viewsAction);
 
-    helpDock->tabWidget()->setCurrentIndex(config->sideBarPage());
+    const int tabIndex = config->sideBarPage();
+    helpDock->tabWidget()->setCurrentIndex(tabIndex);
+    // The tab index is 0 by default, so we need to force an upate
+    // to poulate the contents in this case.
+    if (tabIndex == 0) 
+        helpDock->currentTabChanged(tabIndex);
     QObject::connect(ui.actionEditFind, SIGNAL(triggered()), tabs, SLOT(find()));
     QObject::connect(ui.actionEditFindNext, SIGNAL(triggered()), tabs, SLOT(findNext()));
     QObject::connect(ui.actionEditFindPrev, SIGNAL(triggered()), tabs, SLOT(findPrevious()));

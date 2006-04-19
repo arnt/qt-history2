@@ -80,7 +80,8 @@ public slots:
     void initialize();
     void startSearch();
     void addBookmark();
-
+    void currentTabChanged(int index);
+    
 private slots:
     void on_buttonAdd_clicked();
     void on_buttonRemove_clicked();
@@ -95,7 +96,6 @@ private slots:
     void loadIndexFile();
     void insertContents();
     void setupFullTextIndex();
-    void currentTabChanged(int index);
     void showTopic();
     void searchInIndex(const QString &s);
     void toggleContents();
