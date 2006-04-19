@@ -111,8 +111,14 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
     To minimize space consumption, you can remove the right, left and
     bottom edges of the frame with setFlat().
 
-    \inlineimage plastique-groupbox.png Screenshot in Plastique style
-    \inlineimage windows-groupbox.png Screenshot in Windows style
+    \table 100%
+    \row \o \inlineimage windowsxp-groupbox.png Screenshot of a Windows XP style group box
+         \o \inlineimage macintosh-groupbox.png Screenshot of a Macintosh style group box
+         \o \inlineimage plastique-groupbox.png Screenshot of a Plastique style group box
+    \row \o A \l{Windows XP Style Widget Gallery}{Windows XP style} group box.
+         \o A \l{Macintosh Style Widget Gallery}{Macintosh style} group box.
+         \o A \l{Plastique Style Widget Gallery}{Plastique style} group box.
+    \endtable
 
     \sa QButtonGroup
 */
