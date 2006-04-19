@@ -103,13 +103,14 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
     box's child widgets.
 
     QGroupBox also lets you set the \l title (normally set in the
-    constructor) and the title's alignment(). If setCheckable(true) is
-    called then the group box is isCheckable(), and it can be
-    setChecked(). Checkable group boxes child widgets are enabled or
-    disabled depending on whether or not the group box is isChecked().
+    constructor) and the title's \l alignment. Group boxes can be
+    \l checkable; child widgets in checkable group boxes are enabled or
+    disabled depending on whether or not the group box is \l checked.
 
-    To minimize space consumption, you can remove the right, left and
-    bottom edges of the frame with setFlat().
+    You can minimize the space consumption of a group box by enabling the
+    \l flat property. Although the visual appearance of a flattened group box
+    depends on the widget style in use, enabling this property usually
+    results in the removal of the left, right and bottom edges of the frame.
 
     \table 100%
     \row \o \inlineimage windowsxp-groupbox.png Screenshot of a Windows XP style group box
@@ -120,13 +121,13 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
          \o A \l{Plastique Style Widget Gallery}{Plastique style} group box.
     \endtable
 
-    \sa QButtonGroup
+    \sa QButtonGroup, {Group Box Example}
 */
 
 
 
 /*!
-    Constructs a group box widget with no title and parent \a parent.
+    Constructs a group box widget with the given \a parent but with no title.
 */
 
 QGroupBox::QGroupBox(QWidget *parent)
@@ -137,8 +138,7 @@ QGroupBox::QGroupBox(QWidget *parent)
 }
 
 /*!
-    Constructs a group box with the title \a title and parent \a
-    parent.
+    Constructs a group box with the given \a title and \a parent.
 */
 
 QGroupBox::QGroupBox(const QString &title, QWidget *parent)
@@ -193,18 +193,21 @@ void QGroupBox::setTitle(const QString &title)
 
 /*!
     \property QGroupBox::title
-    \brief the group box title text.
+    \brief the group box title text
 
-    The group box title text will have a focus-change keyboard
-    shortcut if the title contains \&, followed by a letter.
+    The group box title text will have a keyboard shortcut if the title
+    contains an ampersand (\&) followed by a letter.
 
     \code
         g->setTitle("&User information");
     \endcode
+
     This produces "\underline{U}ser information"; \key Alt+U moves the keyboard
     focus to the group box.
 
     There is no default title text.
+
+    \sa alignment
 */
 
 QString QGroupBox::title() const
@@ -217,14 +220,14 @@ QString QGroupBox::title() const
     \property QGroupBox::alignment
     \brief the alignment of the group box title.
 
-    The title is always placed on the upper frame line. The horizontal
-    alignment can be specified by the alignment parameter.
+    Most styles place the title at the top of the frame. The horizontal
+    alignment of the title can be specified using single values from
+    the following list:
 
-    The alignment is one of the following flags:
     \list
-    \i Qt::AlignLeft aligns the title text to the left.
-    \i Qt::AlignRight aligns the title text to the right.
-    \i Qt::AlignHCenter aligns the title text centered.
+    \i Qt::AlignLeft aligns the title text with the left-hand side of the group box.
+    \i Qt::AlignRight aligns the title text with the right-hand side of the group box.
+    \i Qt::AlignHCenter aligns the title text with the horizontal center of the group box.
     \endlist
 
     The default alignment is Qt::AlignLeft.
@@ -446,10 +449,16 @@ QSize QGroupBox::minimumSizeHint() const
     \property QGroupBox::flat
     \brief whether the group box is painted flat or has a frame
 
-    By default a group box has a surrounding frame, with the title
-    being placed on the upper frame line. In flat mode the right, left
-    and bottom frame lines are omitted, and only the thin line at the
-    top is drawn.
+    A group box usually consists of a surrounding frame with a title
+    at the top. If this property is enabled, only the top part of the frame is
+    drawn in most styles; otherwise the whole frame is drawn.
+
+    By default, this property is disabled; i.e. group boxes are not flat unless
+    explicitly specified.
+
+    \bold{Note:} In some styles, flat and non-flat group boxes have similar
+    representations and may not be as distinguishable as they are in other
+    styles.
 
     \sa title
 */
@@ -472,15 +481,19 @@ void QGroupBox::setFlat(bool b)
 
 /*!
     \property QGroupBox::checkable
-    \brief Whether the group box has a checkbox in its title.
+    \brief whether the group box has a checkbox in its title
 
-    If this property is true, the group box has a checkbox. If the
-    checkbox is checked (which is the default), the group box's
-    children are enabled.
+    If this property is true, the group box displays its title using
+    a checkbox in place of an ordinary label. If the checkbox is checked,
+    the group box's children are enabled; otherwise they are disabled and
+    inaccessible.
 
-    setCheckable() controls whether or not the group box has a
-    checkbox, and isCheckable() controls whether the checkbox is
-    checked or not.
+    By default, group boxes are not checkable.
+
+    If this property is enabled for a group box, it will also be initially
+    checked to ensure that its contents are enabled.
+
+    \sa checked
 */
 void QGroupBox::setCheckable(bool checkable)
 {
@@ -526,19 +539,23 @@ bool QGroupBox::isChecked() const
 /*!
     \fn void QGroupBox::toggled(bool on)
 
-    If the group box has a check box (see \l isCheckable()) this signal
-    is emitted when the check box is toggled. \a on is true if the check
-    box is checked; otherwise it is false.
+    If the group box is checkable, this signal is emitted when the check box
+    is toggled. \a on is true if the check box is checked; otherwise it is false.
+
+    \sa checkable
 */
 
 /*!
     \property QGroupBox::checked
-    \brief Whether the group box's checkbox is checked.
+    \brief whether the group box is checked
 
-    If the group box has a check box (see \l isCheckable()), and the
-    check box is checked, the group box's children
-    are enabled. If the checkbox is unchecked the children are
-    disabled.
+    If the group box is checkable, it is displayed with a check box.
+    If the check box is checked, the group box's children are enabled;
+    otherwise the children are disabled and are inaccessible to the user.
+
+    By default, checkable group boxes are also checked.
+
+    \sa checkable
 */
 void QGroupBox::setChecked(bool b)
 {
