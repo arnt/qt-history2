@@ -98,11 +98,13 @@ void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDa
                 break;
             }
             case QPainterPath::LineToElement:
+                Q_ASSERT(current);
                 current->unite(e.x, e.y);
                 break;
             case QPainterPath::CurveToElement: {
                 const QPainterPath::Element &cp2 = path.elementAt(i+1);
                 const QPainterPath::Element &ep = path.elementAt(i+2);
+                Q_ASSERT(current);
                 current->unite(e.x, e.y);
                 current->unite(cp2.x, cp2.y);
                 current->unite(ep.x, ep.y);
