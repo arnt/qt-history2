@@ -229,6 +229,7 @@ private:
     QGLContextPrivate* d_ptr;
 
     friend class QGLPixelBuffer;
+    friend class QGLPixelBufferPrivate;
     friend class QGLWidget;
     friend class QGLDrawable;
     friend class QGLWidgetPrivate;
@@ -342,6 +343,7 @@ private:
 #endif
     friend class QGLDrawable;
     friend class QGLPixelBuffer;
+    friend class QGLPixelBufferPrivate;
     friend class QGLContext;
     friend class QGLOverlayWidget;
     friend class QOpenGLPaintEngine;

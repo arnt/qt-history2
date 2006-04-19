@@ -79,14 +79,12 @@ static bool qt_resolve_pbuffer_extensions()
     return resolved;
 }
 
-QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
-    : d_ptr(new QGLPixelBufferPrivate)
+bool
+QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
 {
-    Q_D(QGLPixelBuffer);
-
     if (!qt_resolve_pbuffer_extensions()) {
         qWarning("QGLPixelBuffer: pbuffers are not supported on this system.");
-        return;
+        return false;
     }
 
     int i = 0;
@@ -143,34 +141,34 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
     if (configs && num_configs) {
         int res;
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_LEVEL, &res);
-        d->format.setPlane(res);
+        format.setPlane(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_DOUBLEBUFFER, &res);
-        d->format.setDoubleBuffer(res);
+        format.setDoubleBuffer(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_DEPTH_SIZE, &res);
-        d->format.setDepth(res);
-        if (d->format.depth())
-            d->format.setDepthBufferSize(res);
+        format.setDepth(res);
+        if (format.depth())
+            format.setDepthBufferSize(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_RGBA, &res);
-        d->format.setRgba(res);
+        format.setRgba(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_ALPHA_SIZE, &res);
-        d->format.setAlpha(res);
-        if (d->format.alpha())
-            d->format.setAlphaBufferSize(res);
+        format.setAlpha(res);
+        if (format.alpha())
+            format.setAlphaBufferSize(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_ACCUM_RED_SIZE, &res);
-        d->format.setAccum(res);
-        if (d->format.accum())
-            d->format.setAccumBufferSize(res);
+        format.setAccum(res);
+        if (format.accum())
+            format.setAccumBufferSize(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_STENCIL_SIZE, &res);
-        d->format.setStencil(res);
-        if (d->format.stencil())
-            d->format.setStencilBufferSize(res);
+        format.setStencil(res);
+        if (format.stencil())
+            format.setStencilBufferSize(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_STEREO, &res);
-        d->format.setStereo(res);
+        format.setStereo(res);
         glXGetFBConfigAttrib(X11->display, configs[0], GLX_SAMPLE_BUFFERS_ARB, &res);
-        d->format.setSampleBuffers(res);
-        if (d->format.sampleBuffers()) {
+        format.setSampleBuffers(res);
+        if (format.sampleBuffers()) {
             glXGetFBConfigAttrib(X11->display, configs[0], GLX_SAMPLES_ARB, &res);
-            d->format.setSamples(res);
+            format.setSamples(res);
         }
 
         int pb_attribs[] = {GLX_PBUFFER_WIDTH, size.width(), GLX_PBUFFER_HEIGHT, size.height(), XNone};
@@ -178,33 +176,27 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
         if (shareWidget && shareWidget->d_func()->glcx)
             shareContext = (GLXContext) shareWidget->d_func()->glcx->d_func()->cx;
 
-        d->pbuf = glXCreatePbuffer(QX11Info::display(), configs[0], pb_attribs);
-        d->ctx = glXCreateNewContext(QX11Info::display(), configs[0], GLX_RGBA_TYPE, shareContext, true);
-
-        if (d->pbuf && d->ctx) {
-            d->size = size;
-            d->invalid = false;
-        } else {
-            qWarning("QGLPixelBuffer: Unable to create a pbuffer/context - giving up.");
-        }
+        pbuf = glXCreatePbuffer(QX11Info::display(), configs[0], pb_attribs);
+        ctx = glXCreateNewContext(QX11Info::display(), configs[0], GLX_RGBA_TYPE, shareContext, true);
 
         XFree(configs);
-        d->qctx = new QGLContext(f);
-        d->qctx->d_func()->sharing = (shareWidget != 0);
-        d->qctx->d_func()->paintDevice = this;
+        if (!pbuf || !ctx) {
+            qWarning("QGLPixelBuffer: Unable to create a pbuffer/context - giving up.");
+            return false;
+        }
+        return true;
     } else {
         qWarning("QGLPixelBuffer: Unable to find a context/format match - giving up.");
-        return;
+        return false;
     }
 }
 
-QGLPixelBuffer::~QGLPixelBuffer()
+bool
+QGLPixelBufferPrivate::cleanup()
 {
-    Q_D(QGLPixelBuffer);
-    glXDestroyContext(QX11Info::display(), d->ctx);
-    glXDestroyPbuffer(QX11Info::display(), d->pbuf);
-    delete d->qctx;
-    delete d_ptr;
+    glXDestroyContext(QX11Info::display(), ctx);
+    glXDestroyPbuffer(QX11Info::display(), pbuf);
+    return true;
 }
 
 bool QGLPixelBuffer::makeCurrent()

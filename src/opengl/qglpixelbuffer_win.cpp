@@ -149,15 +149,14 @@ PFNWGLSETPBUFFERATTRIBARBPROC wglSetPbufferAttribARB = 0;
 bool qt_resolve_pbuffer_extensions();
 QGLFormat pfiToQGLFormat(HDC hdc, int pfi);
 
-QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
-    : d_ptr(new QGLPixelBufferPrivate)
+bool
+QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
 {
-    Q_D(QGLPixelBuffer);
     if (!qt_resolve_pbuffer_extensions())
-        return;
+        return false;
 
-    d->dc = GetDC(d->dmy.winId());
-    Q_ASSERT(d->dc);
+    dc = GetDC(dmy.winId());
+    Q_ASSERT(dc);
 
     int attribs[40];
     int i = 0;
@@ -204,13 +203,13 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
     // Find pbuffer capable pixel format.
     unsigned int num_formats = 0;
     int pixel_format;
-    wglChoosePixelFormatARB(d->dc, attribs, 0, 1, &pixel_format, &num_formats);
+    wglChoosePixelFormatARB(dc, attribs, 0, 1, &pixel_format, &num_formats);
     if (num_formats == 0) {
 	qWarning("QGLPixelBuffer: Unable to find a pixel format with pbuffer  - giving up.");
-	ReleaseDC(d->dmy.winId(), d->dc);
-	return;
+	ReleaseDC(dmy.winId(), dc);
+	return false;
     }
-    d->format = pfiToQGLFormat(d->dc, pixel_format);
+    format = pfiToQGLFormat(dc, pixel_format);
 
     // NB! The below ONLY works if the width/height are powers of 2.
     // Set some pBuffer attributes so that we can use this pBuffer as
@@ -219,47 +218,42 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
 			WGL_TEXTURE_TARGET_ARB, WGL_TEXTURE_2D_ARB,
 			0};
 
-    d->pbuf = wglCreatePbufferARB(d->dc, pixel_format, size.width(), size.height(), pb_attribs);
-    if(!d->pbuf) {
+    pbuf = wglCreatePbufferARB(dc, pixel_format, size.width(), size.height(), pb_attribs);
+    if(!pbuf) {
 	qWarning("QGLPixelBuffer: Unable to create pbuffer [w=%d, h=%d] - giving up.", size.width(), size.height());
-	ReleaseDC(d->dmy.winId(), d->dc);
+	ReleaseDC(dmy.winId(), dc);
 	return;
     }
 
-    ReleaseDC(d->dmy.winId(), d->dc);
-    d->dc = wglGetPbufferDCARB(d->pbuf);
-    d->ctx = wglCreateContext(d->dc);
+    ReleaseDC(dmy.winId(), dc);
+    dc = wglGetPbufferDCARB(pbuf);
+    ctx = wglCreateContext(dc);
 
-    if (!d->dc || !d->ctx) {
+    if (!dc || !ctx) {
 	qWarning("QGLPixelBuffer: Unable to create pbuffer context - giving up.");
-	return;
+	return false;
     }
 
     HGLRC share_ctx = shareWidget ? shareWidget->d_func()->glcx->d_func()->rc : 0;
-    if (share_ctx && !wglShareLists(share_ctx, d->ctx))
+    if (share_ctx && !wglShareLists(share_ctx, ctx))
         qWarning("QGLPixelBuffer: Unable to share display lists - with share widget.");
 
     int width, height;
-    wglQueryPbufferARB(d->pbuf, WGL_PBUFFER_WIDTH_ARB, &width);
-    wglQueryPbufferARB(d->pbuf, WGL_PBUFFER_HEIGHT_ARB, &height);
-    d->size = QSize(width, height);
-    d->invalid = false;
-    d->qctx = new QGLContext(f);
-    d->qctx->d_func()->sharing = (shareWidget != 0);
-    d->qctx->d_func()->paintDevice = this;
+    wglQueryPbufferARB(pbuf, WGL_PBUFFER_WIDTH_ARB, &width);
+    wglQueryPbufferARB(pbuf, WGL_PBUFFER_HEIGHT_ARB, &height);
+    return true;
 }
 
-QGLPixelBuffer::~QGLPixelBuffer()
+bool
+QGLPixelBufferPrivate::cleanup()
 {
-    Q_D(QGLPixelBuffer);
-    wglMakeCurrent(d->dc, 0);
-    wglDeleteContext(d->ctx);
-    if (!d->invalid) {
-        wglReleasePbufferDCARB(d->pbuf, d->dc);
-        wglDestroyPbufferARB(d->pbuf);
+    wglMakeCurrent(dc, 0);
+    wglDeleteContext(ctx);
+    if (!invalid) {
+        wglReleasePbufferDCARB(pbuf, dc);
+        wglDestroyPbufferARB(pbuf);
     }
-    delete d->qctx;
-    delete d_ptr;
+    return true;
 }
 
 bool QGLPixelBuffer::bindToDynamicTexture(GLuint texture_id)

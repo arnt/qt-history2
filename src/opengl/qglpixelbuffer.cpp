@@ -70,11 +70,32 @@
 
     \sa size(), format()
 */
+QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+    : d_ptr(new QGLPixelBufferPrivate)
+{
+    Q_D(QGLPixelBuffer);
+    if(d->init(size, f, shareWidget)) {
+        d->req_size = size;
+        d->req_format = f;
+        d->req_shareWidget = shareWidget;
+        d->invalid = false;
+        d->qctx = new QGLContext(f);
+        d->qctx->d_func()->sharing = (shareWidget != 0);
+        d->qctx->d_func()->paintDevice = this;
+    }
+}
 
 /*! \fn QGLPixelBuffer::~QGLPixelBuffer()
 
     Destroys the pbuffer and frees any allocated resources.
 */
+QGLPixelBuffer::~QGLPixelBuffer()
+{
+    Q_D(QGLPixelBuffer);
+    d->cleanup();
+    delete d->qctx;
+    delete d_ptr;
+}
 
 /*! \fn bool QGLPixelBuffer::makeCurrent()
 
@@ -106,7 +127,7 @@ GLuint QGLPixelBuffer::generateDynamicTexture() const
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, d->size.width(), d->size.height(), 0, GL_RGBA, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, d->req_size.width(), d->req_size.height(), 0, GL_RGBA, GL_FLOAT, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     return texture;
@@ -192,7 +213,7 @@ void QGLPixelBuffer::updateDynamicTexture(GLuint texture_id) const
     if (d->invalid)
         return;
     glBindTexture(GL_TEXTURE_2D, texture_id);
-    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 0, 0, d->size.width(), d->size.height(), 0);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 0, 0, d->req_size.width(), d->req_size.height(), 0);
 }
 
 /*!
@@ -201,7 +222,7 @@ void QGLPixelBuffer::updateDynamicTexture(GLuint texture_id) const
 QSize QGLPixelBuffer::size() const
 {
     Q_D(const QGLPixelBuffer);
-    return d->size;
+    return d->req_size;
 }
 
 /*!
@@ -214,10 +235,10 @@ QImage QGLPixelBuffer::toImage() const
         return QImage();
 
     const_cast<QGLPixelBuffer *>(this)->makeCurrent();
-    QImage img(d->size, QImage::Format_ARGB32);
-    int w = d->size.width();
-    int h = d->size.height();
-    glReadPixels(0, 0, d->size.width(), d->size.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
+    QImage img(d->req_size, QImage::Format_ARGB32);
+    int w = d->req_size.width();
+    int h = d->req_size.height();
+    glReadPixels(0, 0, d->req_size.width(), d->req_size.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
 	// OpenGL gives RGBA; Qt wants ARGB
 	uint *p = (uint*)img.bits();
@@ -278,8 +299,8 @@ int QGLPixelBuffer::metric(PaintDeviceMetric metric) const
 
     float dpmx = qt_defaultDpi()*100./2.54;
     float dpmy = qt_defaultDpi()*100./2.54;
-    int w = d->size.width();
-    int h = d->size.height();
+    int w = d->req_size.width();
+    int h = d->req_size.height();
     switch (metric) {
     case PdmWidth:
         return w;

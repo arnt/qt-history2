@@ -107,12 +107,17 @@ public:
         share_ctx = 0;
 #endif
     }
+    bool init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget);
+    bool cleanup();
 
     bool invalid;
-    QSize size;
     QGLContext *qctx;
     QGLPixelBuffer *q_ptr;
     QGLFormat format;
+
+    QGLFormat req_format;
+    QPointer<QGLWidget> req_shareWidget;
+    QSize req_size;
 
 #ifdef Q_WS_X11
     GLXPbuffer pbuf;
