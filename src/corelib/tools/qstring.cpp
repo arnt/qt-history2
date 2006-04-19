@@ -454,7 +454,8 @@ const QString::Null QString::null = QString::Null();
 /*!
     \enum QString::SplitBehavior
 
-    This enum specifies how split() should behave with respect to empty strings.
+    This enum specifies how the split() function should behave with
+    respect to empty strings.
 
     \value KeepEmptyParts  If a field is empty, keep it in the result.
     \value SkipEmptyParts  If a field is empty, don't include it in the result.
@@ -544,8 +545,9 @@ inline int QString::grow(int size)
 
 /*! \fn QString::QString(const char *str)
 
-    Constructs a string initialized with the ASCII string \a str. \a
-    str is converted to Unicode using fromAscii().
+    Constructs a string initialized with the ASCII string \a str. The
+    given const char pointer is converted to Unicode using the
+    fromAscii() function.
 
     You can disable this constructor by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -557,8 +559,8 @@ inline int QString::grow(int size)
 
 /*! \fn QString QString::fromStdString(const std::string &str)
 
-    Returns a copy of \a str. \a str is converted to Unicode using
-    fromAscii().
+    Returns a copy of the \a str string. The given string is converted
+    to Unicode using the fromAscii() function.
 
     This constructor is only available if Qt is configured with STL
     compatibility enabled.
@@ -569,9 +571,10 @@ inline int QString::grow(int size)
 #ifndef QT_NO_STL
 /*! \fn QString QString::fromStdWString(const std::wstring &str)
 
-    Returns a copy of \a str. \a str is assumed to be encoded in
-    utf16 if the size of wchar_t is 2 bytes (e.g. on windows) and ucs4
-    if the size of wchar_t is 4 bytes (most Unix systems).
+    Returns a copy of the \a str string. The given string is assumed
+    to be encoded in utf16 if the size of wchar_t is 2 bytes (e.g. on
+    windows) and ucs4 if the size of wchar_t is 4 bytes (most Unix
+    systems).
 
     This constructor is only available if Qt is configured with STL
     compatibility enabled.
@@ -688,8 +691,8 @@ QString::QString(const QChar *unicode, int size)
 
 
 /*!
-    Constructs a string of size \a size with every character set to
-    \a ch.
+    Constructs a string of the given \a size with every character set
+    to \a ch.
 
     \sa fill()
 */
@@ -735,14 +738,17 @@ QString::QString(QChar ch)
 
 /*! \fn QString::QString(const QByteArray &ba)
 
-    Constructs a string initialized with the byte array \a ba. \a ba
-    is converted to Unicode using fromAscii(). Stops copying at the
-    first 0 character, otherwise copies the entire byte array.
+    Constructs a string initialized with the byte array \a ba. The
+    given byte array is converted to Unicode using fromAscii(). Stops
+    copying at the first 0 character, otherwise copies the entire byte
+    array.
 
     You can disable this constructor by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
     can be useful if you want to ensure that all user-visible strings
     go through QObject::tr(), for example.
+
+    \sa fromAscii(), fromLatin1(), fromLocal8Bit(), fromUtf8()
 */
 
 /*! \fn QString::QString(const Null &)
@@ -799,7 +805,7 @@ void QString::free(Data *d)
     \printuntil // s == "Hello???"
 
     If you want to append a certain number of identical characters to
-    the string, use operator+=() as follows rather than resize():
+    the string, use \l operator+=() as follows rather than resize():
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::resizeFunction()
@@ -808,7 +814,7 @@ void QString::free(Data *d)
 
     If you want to expand the string so that it reaches a certain
     width and fill the new positions with a particular character, use
-    leftJustified():
+    the leftJustified() function:
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::resizeFunction()
@@ -977,8 +983,8 @@ QString &QString::operator=(const QString &other)
 
     \overload
 
-    Assigns \a ba to this string. \a ba is converted to Unicode using
-    fromAscii().
+    Assigns \a ba to this string. The byte array is converted to
+    Unicode using the fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -990,8 +996,8 @@ QString &QString::operator=(const QString &other)
 
     \overload
 
-    Assigns \a str to this string. \a str is converted to Unicode
-    using fromAscii().
+    Assigns \a str to this string. The const char pointer is converted
+    to Unicode using the fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1004,7 +1010,7 @@ QString &QString::operator=(const QString &other)
     \overload
 
     Assigns character \a ch to this string. The character is converted
-    to Unicode using fromAscii().
+    to Unicode using the fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1022,10 +1028,11 @@ QString &QString::operator=(QChar ch)
     return operator=(QString(ch));
 }
 
-/*! \fn QString& QString::insert(int i, const QString &str)
+/*!
+     \fn QString& QString::insert(int position, const QString &str)
 
-    Inserts the string \a str at index position \a i and returns a
-    reference to this string.
+    Inserts the string \a str at the given index \a position and
+    returns a reference to this string.
 
     Example:
 
@@ -1034,16 +1041,18 @@ QString &QString::operator=(QChar ch)
     \skipto QString str
     \printuntil  // str == "Montreal"
 
-    If \a i is greater than size(), the array is first extended using
-    resize().
+    If the given \a position is greater than size(), the array is
+    first extended using resize().
 
     \sa append(), prepend(), replace(), remove()
 */
 
 
-/*! \overload
+/*!
+    \fn QString &QString::insert(int position, const QLatin1String &str)
+    \overload
 
-    Inserts the Latin-1 string \a str at index position \a i.
+    Inserts the Latin-1 string \a str at the given index \a position.
 */
 QString &QString::insert(int i, const QLatin1String &str)
 {
@@ -1060,10 +1069,12 @@ QString &QString::insert(int i, const QLatin1String &str)
     return *this;
 }
 
-/*! \overload
+/*!
+    \fn QString& QString::insert(int position, const QChar *unicode, int size)
+    \overload
 
-    Inserts the first \a size characters of the QChar array \a
-    unicode at index position \a i in the string.
+    Inserts the first \a size characters of the QChar array \a unicode
+    at the given index \a position in the string.
 */
 QString& QString::insert(int i, const QChar *unicode, int size)
 {
@@ -1087,9 +1098,11 @@ QString& QString::insert(int i, const QChar *unicode, int size)
     return *this;
 }
 
-/*! \overload
+/*!
+    \fn QString& QString::insert(int position, QChar ch)
+    \overload
 
-    Inserts \a ch at index position \a i in the string.
+    Inserts \a ch at the given index \a position in the string.
 */
 
 QString& QString::insert(int i, QChar ch)
@@ -1165,26 +1178,26 @@ QString &QString::append(const QLatin1String &str)
 
     \overload
 
-    Appends the byte array \a ba to this string. \a ba is converted
-    to Unicode using fromAscii().
+    Appends the byte array \a ba to this string. The given byte array
+    is converted to Unicode using the fromAscii() function.
 
-    You can disable this function by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
+    You can disable this function by defining \c QT_NO_CAST_FROM_ASCII
+    when you compile your applications. This can be useful if you want
+    to ensure that all user-visible strings go through QObject::tr(),
+    for example.
 */
 
 /*! \fn QString &QString::append(const char *str)
 
     \overload
 
-    Appends the string \a str to this string. \a str is converted to
-    Unicode using fromAscii().
+    Appends the string \a str to this string. the given const char
+    pointer is converted to Unicode using the fromAscii() function.
 
-    You can disable this function by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
+    You can disable this function by defining \c QT_NO_CAST_FROM_ASCII
+    when you compile your applications. This can be useful if you want
+    to ensure that all user-visible strings go through QObject::tr(),
+    for example.
 */
 
 /*!
@@ -1227,8 +1240,8 @@ QString &QString::append(QChar ch)
 
     \overload
 
-    Prepends the byte array \a ba to this string. \a ba is converted
-    to Unicode using fromAscii().
+    Prepends the byte array \a ba to this string. The byte array is
+    converted to Unicode using the fromAscii() function.
 
     You can disable this function by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1240,8 +1253,8 @@ QString &QString::append(QChar ch)
 
     \overload
 
-    Prepends the string \a str to this string. \a str is converted to
-    Unicode using fromAscii().
+    Prepends the string \a str to this string. The const char pointer
+    is converted to Unicode using the fromAscii() function.
 
     You can disable this function by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1257,11 +1270,14 @@ QString &QString::append(QChar ch)
 */
 
 /*!
-    Removes \a len characters from the string, starting at index
-    position \a pos, and returns a reference to the string.
+    \fn QString &QString::remove(int position, int n)
 
-    If \a pos is within the string, but \a pos + \a len is beyond the
-    end of the string, the string is truncated at position \a pos.
+    Removes \a n characters from the string, starting at the given \a
+    position index, and returns a reference to the string.
+
+    If the specified \a position index is within the string, but \a
+    position + \a n is beyond the end of the string, the string is
+    truncated at the specified \a position.
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::removeFunction()
@@ -1290,13 +1306,15 @@ QString &QString::remove(int pos, int len)
 
 /*! \overload
 
-    Removes every occurrence of \a str in this string. Returns a
-    reference to this string.
+    Removes every occurrence of the given \a str string in this
+    string, and returns a reference to this string.
 
     If \a cs is Qt::CaseSensitive (the default), the search is
     case sensitive; otherwise the search is case insensitive.
 
-    This is the same as replace(\a str, "", \a cs).
+    This is the same as \c replace(str, "", cs).
+
+    \sa replace()
 */
 QString &QString::remove(const QString &str, Qt::CaseSensitivity cs)
 {
@@ -1323,7 +1341,9 @@ QString &QString::remove(const QString &str, Qt::CaseSensitivity cs)
     \skipto QString t
     \printuntil // t == "li Bb"
 
-    This is the same as replace(\a ch, "", \a cs).
+    This is the same as \c replace(ch, "", cs).
+
+    \sa replace()
 */
 QString &QString::remove(QChar ch, Qt::CaseSensitivity cs)
 {
@@ -1361,8 +1381,10 @@ QString &QString::remove(QChar ch, Qt::CaseSensitivity cs)
 */
 
 /*!
-    Replaces \a len characters from index position \a pos with the
-    string \a after, and returns a reference to this string.
+    \fn QString &QString::replace(int position, int n, const QString &after)
+
+    Replaces \a n characters from the specified index \a position with the string \a
+    after, and returns a reference to this string.
 
     Example:
 
@@ -1381,10 +1403,12 @@ QString &QString::replace(int pos, int len, const QString &after)
     return insert(pos, copy.constData(), copy.d->size);
 }
 
-/*! \overload
+/*!
+    \fn QString &QString::replace(int position, int n, const QChar *unicode, int size)
+    \overload
 
-    Replaces \a len characters from index position \a pos with the
-    first \a size characters of the QChar array \a unicode.
+    Replaces \a n characters from the specified index \a position with
+    the first \a size characters of the QChar array \a unicode.
 */
 QString &QString::replace(int pos, int len, const QChar *unicode, int size)
 {
@@ -1393,10 +1417,11 @@ QString &QString::replace(int pos, int len, const QChar *unicode, int size)
 }
 
 /*!
+    \fn QString &QString::replace(int position, int n, QChar after)
     \overload
 
-    Replaces \a len characters from index position \a pos with the
-    character \a after.
+    Replaces \a n characters from the specified index \a position with
+    the character \a after.
 */
 QString &QString::replace(int pos, int len, QChar after)
 {
@@ -1601,7 +1626,8 @@ bool QString::operator==(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other byte array is converted to a QString using the
+    fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1613,7 +1639,8 @@ bool QString::operator==(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other const char pointer is converted to a QString using
+    the fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1627,8 +1654,8 @@ bool QString::operator==(const QLatin1String &other) const
 
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
-    expect. Consider sorting user-interface strings with
-    localeAwareCompare().
+    expect. Consider sorting user-interface strings using the
+    QString::localeAwareCompare() function.
 */
 bool QString::operator<(const QString &other) const
 {
@@ -1660,7 +1687,8 @@ bool QString::operator<(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other byte array is converted to a QString using the
+    fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1672,7 +1700,8 @@ bool QString::operator<(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other const char pointer is converted to a QString using
+    the fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1700,7 +1729,8 @@ bool QString::operator<(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other byte array is converted to a QString using the
+    fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1712,7 +1742,8 @@ bool QString::operator<(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other const char pointer is converted to a QString using
+    the fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1756,7 +1787,8 @@ bool QString::operator>(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other byte array is converted to a QString using the
+    fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1768,12 +1800,13 @@ bool QString::operator>(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other const char pointer is converted to a QString using
+    the fromAscii() function.
 
-    You can disable this operator by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
+    You can disable this operator by defining \c QT_NO_CAST_FROM_ASCII
+    when you compile your applications. This can be useful if you want
+    to ensure that all user-visible strings go through QObject::tr(),
+    for example.
 */
 
 /*! \fn bool QString::operator>=(const QString &other) const
@@ -1796,19 +1829,21 @@ bool QString::operator>(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other byte array is converted to a QString using the
+    fromAscii() function.
 
-    You can disable this operator by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
+    You can disable this operator by defining \c QT_NO_CAST_FROM_ASCII
+    when you compile your applications. This can be useful if you want
+    to ensure that all user-visible strings go through QObject::tr(),
+    for example.
 */
 
 /*! \fn bool QString::operator>=(const char *other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other const char pointer is converted to a QString using
+    the fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -1836,19 +1871,21 @@ bool QString::operator>(const QLatin1String &other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other byte array is converted to a QString using the
+    fromAscii() function.
 
-    You can disable this operator by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
+    You can disable this operator by defining \c QT_NO_CAST_FROM_ASCII
+    when you compile your applications. This can be useful if you want
+    to ensure that all user-visible strings go through QObject::tr(),
+    for example.
 */
 
 /*! \fn bool QString::operator!=(const char *other) const
 
     \overload
 
-    \a other is converted to a QString using fromAscii().
+    The \a other const char pointer is converted to a QString using
+    the fromAscii() function.
 
     You can disable this operator by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -2410,6 +2447,10 @@ int QString::count(const QRegExp& rx) const
 /*!
     \enum QString::SectionFlag
 
+    This enum specifies flags that can be used to affect various
+    aspects of the section() function's behavior with respect to
+    separators and empty fields.
+
     \value SectionDefault Empty fields are counted, leading and
     trailing separators are not included, and the separator is
     compared case sensitively.
@@ -2605,10 +2646,12 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
 #endif
 
 /*!
-    Returns a substring that contains the \a len leftmost characters
+    \fn QString QString::left(int n)  const
+
+    Returns a substring that contains the \a n leftmost characters
     of the string.
 
-    The entire string is returned if \a len is greater than size() or
+    The entire string is returned if \a n is greater than size() or
     less than zero.
 
     \quotefromfile snippets/qstring/main.cpp
@@ -2628,10 +2671,12 @@ QString QString::left(int len)  const
 }
 
 /*!
-    Returns a substring that contains the \a len rightmost characters
+    \fn QString QString::right(int n) const
+
+    Returns a substring that contains the \a n rightmost characters
     of the string.
 
-    The entire string is returned if \a len is greater than size() or
+    The entire string is returned if \a n is greater than size() or
     less than zero.
 
     \quotefromfile snippets/qstring/main.cpp
@@ -2651,14 +2696,16 @@ QString QString::right(int len) const
 }
 
 /*!
-    Returns a string that contains the \a len characters of this
-    string, starting at position \a i.
+    \fn QString QString::mid(int position, int n) const
 
-    Returns an empty string if index \a i exceeds the length of the
-    string. If there are less than \a len characters available in the
-    string starting at position \a i, or if \a len is -1 (the
-    default), the function returns all characters that are available
-    from position \a i.
+    Returns a string that contains \a n characters of this string,
+    starting at the specified \a position index.
+
+    Returns an empty string if the \a position index exceeds the
+    length of the string. If there are less than \a n characters
+    available in the string starting at the given \a position, or if
+    \a n is -1 (the default), the function returns all characters that
+    are available from the specified \a position.
 
     Example:
 
@@ -3426,20 +3473,21 @@ QString QString::trimmed() const
     return QString(s + start, l);
 }
 
-/*! \fn const QChar QString::at(int i) const
+/*! \fn const QChar QString::at(int position) const
 
-    Returns the character at index position \a i in the string.
+    Returns the character at the given index \a position in the
+    string.
 
-    \a i must be a valid index position in the string (i.e., 0 <= \a
-    i < size()).
+    The \a position must be a valid index position in the string
+    (i.e., 0 <= \a position < size()).
 
     \sa operator[]()
 */
 
-/*! \fn QCharRef QString::operator[](int i)
+/*! \fn QCharRef QString::operator[](int position)
 
-    Returns the character at index position \a i as a modifiable
-    reference.
+    Returns the character at the specified \a position index as a
+    modifiable reference.
 
     Example:
 
@@ -3456,28 +3504,31 @@ QString QString::trimmed() const
     \sa at()
 */
 
-/*! \fn const QChar QString::operator[](int i) const
+/*! \fn const QChar QString::operator[](int position) const
 
     \overload
 
-    Same as at(\a i).
+    Returns the character at the specified \a position index as a
+    modifiable reference. Equivalent to \c  at(position).
 */
 
-/*! \fn QCharRef QString::operator[](uint i)
+/*! \fn QCharRef QString::operator[](uint position)
 
     \overload
 */
 
-/*! \fn const QChar QString::operator[](uint i) const
+/*! \fn const QChar QString::operator[](uint position) const
 
     \overload
 */
 
 /*!
+    \fn void QString::truncate(int position)
 
-    Truncates the string at index position \a pos.
+    Truncates the string at the given \a position index.
 
-    If \a pos is beyond the end of the string, nothing happens.
+    If the specified \a position index is beyond the end of the
+    string, nothing happens.
 
     Example:
 
@@ -3497,7 +3548,6 @@ void QString::truncate(int pos)
 
 
 /*!
-
     Removes \a n characters from the end of the string.
 
     If \a n is greater than size(), the result is an empty string.
@@ -3549,7 +3599,10 @@ QString& QString::fill(QChar ch, int size)
 /*!
     \fn int QString::length() const
 
-    Same as size().
+    Returns the number of characters in this string.  Equivalent to
+    size().
+
+    \sa setLength()
 */
 
 /*!
@@ -3587,7 +3640,7 @@ QString& QString::fill(QChar ch, int size)
     Qt makes a distinction between null strings and empty strings for
     historical reasons. For most applications, what matters is
     whether or not a string contains any data, and this can be
-    determined using isEmpty().
+    determined using the isEmpty() function.
 
     \sa isEmpty()
 */
@@ -3638,8 +3691,8 @@ QString& QString::fill(QChar ch, int size)
 
     \overload
 
-    Appends the byte array \a ba to this string. \a ba is converted
-    to Unicode using fromAscii().
+    Appends the byte array \a ba to this string. The byte array is
+    converted to Unicode using the fromAscii() function.
 
     You can disable this function by defining \c
     QT_NO_CAST_FROM_ASCII when you compile your applications. This
@@ -3651,13 +3704,13 @@ QString& QString::fill(QChar ch, int size)
 
     \overload
 
-    Appends the string \a str to this string. \a str is converted to
-    Unicode using fromAscii().
+    Appends the string \a str to this string. The const char pointer
+    is converted to Unicode using the fromAscii() function.
 
-    You can disable this function by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
+    You can disable this function by defining \c QT_NO_CAST_FROM_ASCII
+    when you compile your applications. This can be useful if you want
+    to ensure that all user-visible strings go through QObject::tr(),
+    for example.
 */
 
 /*! \fn QString &QString::operator+=(char ch)
@@ -3665,12 +3718,12 @@ QString& QString::fill(QChar ch, int size)
     \overload
 
     Appends the character \a ch to this string. The character is
-    converted to Unicode using fromAscii().
+    converted to Unicode using the fromAscii() function.
 
-    You can disable this function by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
+    You can disable this function by defining \c QT_NO_CAST_FROM_ASCII
+    when you compile your applications. This can be useful if you want
+    to ensure that all user-visible strings go through QObject::tr(),
+    for example.
 */
 
 /*! \fn QString &QString::operator+=(QChar ch)
@@ -3696,7 +3749,9 @@ QString& QString::fill(QChar ch, int size)
     Returns true if \a s1 is equal to \a s2; otherwise returns false.
     Note that no string is equal to \a s1 being 0.
 
-    Equivalent to \a s1 != 0 && compare(\a s1, \a s2) == 0.
+    Equivalent to \c {s1 != 0 && compare(s1, s2) == 0}.
+
+    \sa QString::compare()
 */
 
 /*!
@@ -3706,9 +3761,11 @@ QString& QString::fill(QChar ch, int size)
     \relates QString
 
     Returns true if \a s1 is not equal to \a s2; otherwise returns false.
-    Note that no string is equal to \a s1 being 0.
 
-    For \a s1 != 0, this is equivalent to compare(\a s1, \a s2) != 0.
+    For \a s1 != 0, this is equivalent to \c {compare(\a s1, \a s2) !=
+    0}. Note that no string is equal to \a s1 being 0.
+
+    \sa QString::compare()
 */
 
 /*!
@@ -3717,14 +3774,16 @@ QString& QString::fill(QChar ch, int size)
     \overload
     \relates QString
 
-    Returns true if \a s1 is lexically less than \a s2; otherwise returns false.
+    Returns true if \a s1 is lexically less than \a s2; otherwise
+    returns false.  For \a s1 != 0, this is equivalent to \c
+    {compare(s1, s2) < 0}.
 
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
-    expect. Consider sorting user-interface strings with
-    QString::localeAwareCompare().
+    expect. Consider sorting user-interface strings using the
+    QString::localeAwareCompare() function.
 
-    For \a s1 != 0, equivalent to compare(\a s1, \a s2) \< 0.
+    \sa QString::compare()
 */
 
 /*!
@@ -3734,14 +3793,15 @@ QString& QString::fill(QChar ch, int size)
     \relates QString
 
     Returns true if \a s1 is lexically less than or equal to \a s2;
-    otherwise returns false.
+    otherwise returns false.  For \a s1 != 0, this is equivalent to \c
+    {compare(s1, s2) <= 0}.
 
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-interface strings with
     QString::localeAwareCompare().
 
-    For \a s1 != 0, this is equivalent to compare(\a s1, \a s2) \<= 0.
+    \sa QString::compare()
 */
 
 /*!
@@ -3751,14 +3811,14 @@ QString& QString::fill(QChar ch, int size)
     \relates QString
 
     Returns true if \a s1 is lexically greater than \a s2; otherwise
-    returns false.
+    returns false.  Equivalent to \c {compare(s1, s2) > 0}.
 
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
-    expect. Consider sorting user-interface strings with
-    QString::localeAwareCompare().
+    expect. Consider sorting user-interface strings using the
+    QString::localeAwareCompare() function.
 
-    Equivalent to compare(\a s1, \a s2) \> 0.
+    \sa QString::compare()
 */
 
 /*!
@@ -3768,23 +3828,21 @@ QString& QString::fill(QChar ch, int size)
     \relates QString
 
     Returns true if \a s1 is lexically greater than or equal to \a s2;
-    otherwise returns false.
+    otherwise returns false.  For \a s1 != 0, this is equivalent to \c
+    {compare(s1, s2) >= 0}.
 
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
-    expect. Consider sorting user-interface strings with
-    QString::localeAwareCompare().
-
-    For \a s1 != 0, this is equivalent to compare(\a s1, \a s2) \>= 0.
+    expect. Consider sorting user-interface strings using the
+    QString::localeAwareCompare() function.
 */
 
 /*!
     \fn const QString operator+(const QString &s1, const QString &s2)
-
     \relates QString
 
-    Returns a string which is the result of concatenating the string
-    \a s1 and the string \a s2.
+    Returns a string which is the result of concatenating \a s1 and \a
+    s2.
 */
 
 /*!
@@ -3793,9 +3851,11 @@ QString& QString::fill(QChar ch, int size)
     \overload
     \relates QString
 
-    Returns a string which is the result of concatenating the string
-    \a s1 and the string \a s2. \a s2 is converted to
-    Unicode using fromAscii().
+    Returns a string which is the result of concatenating \a s1 and \a
+    s2 (\a s2 is converted to Unicode using the QString::fromAscii()
+    function).
+
+    \sa QString::fromAscii()
 */
 
 /*!
@@ -3804,9 +3864,11 @@ QString& QString::fill(QChar ch, int size)
     \overload
     \relates QString
 
-    Returns a string which is the result of concatenating the
-    string \a s1 and string \a s2. \a s1 is converted to
-    Unicode using fromAscii().
+    Returns a string which is the result of concatenating \a s1 and \a
+    s2 (\a s1 is converted to Unicode using the QString::fromAscii()
+    function).
+
+    \sa QString::fromAscii()
 */
 
 /*!
@@ -3816,7 +3878,7 @@ QString& QString::fill(QChar ch, int size)
     \relates QString
 
     Returns a string which is the result of concatenating the string
-    \a s and character \a ch.
+    \a s and the character \a ch.
 */
 
 /*!
@@ -3826,7 +3888,7 @@ QString& QString::fill(QChar ch, int size)
     \relates QString
 
     Returns a string which is the result of concatenating the
-    character \a ch and string \a s.
+    character \a ch and the string \a s.
 */
 
 /*!
@@ -3848,7 +3910,7 @@ QString& QString::fill(QChar ch, int size)
     \skipto int x
     \printuntil int z
 
-    \sa localeAwareCompare(), operator==(), operator<(), operator>()
+    \sa operator==(), operator<(), operator>()
 */
 
 /*!
@@ -3875,7 +3937,12 @@ QString& QString::fill(QChar ch, int size)
 /*!
     \overload
 
-    Same as compare(*this, \a other).
+    Lexically compares this string with the \a other string and
+    returns an integer less than, equal to, or greater than zero if
+    this string is less than, equal to, or greater than the other
+    string.
+
+    Equivalent to \c {compare(*this, other)}.
 */
 int QString::compare(const QString &other) const
 {
@@ -3935,7 +4002,11 @@ int QString::compare(const QLatin1String &other, Qt::CaseSensitivity cs) const
 /*!
     \overload
 
-    Same as localeAwareCompare(*this, \a other).
+    Compares this string with the \a other string and returns an
+    integer less than, equal to, or greater than zero if this string
+    is less than, equal to, or greater than the \a other string.
+
+    Same as \c {localeAwareCompare(*this, other)}.
 */
 
 #if !defined(CSTR_LESS_THAN)
@@ -4011,11 +4082,16 @@ const ushort *QString::utf16() const
 }
 
 /*!
-    Returns a string of size() \a width that contains this string
+    Returns a string of size \a width that contains this string
     padded by the \a fill character.
 
     If \a truncate is false and the size() of the string is more than
     \a width, then the returned string is a copy of the string.
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::leftJustifiedFunction()
+    \skipto QString s
+    \printuntil QString t
 
     If \a truncate is true and the size() of the string is more than
     \a width, then any characters in a copy of the string after
@@ -4023,8 +4099,8 @@ const ushort *QString::utf16() const
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::leftJustifiedFunction()
-    \skipto QString s
-    \printuntil QString t
+    \skipto QString str
+    \printuntil str.leftJustified(5, '.', true)
 
     \sa rightJustified()
 */
@@ -4052,7 +4128,12 @@ QString QString::leftJustified(int width, QChar fill, bool truncate) const
 
 /*!
     Returns a string of size() \a width that contains the \a fill
-    character followed by the string.
+    character followed by the string. For example:
+
+    \quotefromfile snippets/qstring/main.cpp
+    \skipto Widget::rightJustifiedFunction()
+    \skipto QString s
+    \printuntil t == "...apple"
 
     If \a truncate is false and the size() of the string is more than
     \a width, then the returned string is a copy of the string.
@@ -4062,9 +4143,9 @@ QString QString::leftJustified(int width, QChar fill, bool truncate) const
     width.
 
     \quotefromfile snippets/qstring/main.cpp
-    \skipto Widget::rightFunction()
-    \skipto QString s
-    \printuntil t == "...apple"
+    \skipto Widget::rightJustifiedFunction()
+    \skipto QString str
+    \printuntil str == "Pinea"
 
     \sa leftJustified()
 */
@@ -4196,16 +4277,16 @@ QString QString::toUpper() const
     \printuntil QString str
 
     \warning We do not recommend using QString::sprintf() in new Qt
-    code. Instead, consider using QTextOStream or arg(), both of
+    code. Instead, consider using QTextStream or arg(), both of
     which support Unicode strings seamlessly and are type-safe.
-    Here's an example that uses QTextOStream:
+    Here's an example that uses QTextStream:
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::splitFunction()
     \skipto QString result
     \printuntil // result == "pi = 3.14"
 
-    For \l {QObject::tr()}{translations} especially if the strings
+    For \l {QObject::tr()}{translations}, especially if the strings
     contains more than one escape sequence, you should consider using
     the arg() function instead. This allows the order of the
     replacements to be controlled by the translator.
@@ -4563,8 +4644,8 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
     base, which is 10 by default and must be between 2 and 36, or 0.
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If a conversion error occurs, *\a{ok} is set to false; otherwise
+    *\a{ok} is set to true.
 
     If \a base is 0, the C language convention is used: If the string
     begins with "0x", base 16 is used; if the string begins with "0",
@@ -4614,8 +4695,8 @@ qint64 QString::toLongLong(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If a conversion error occurs, *\a{ok} is set to false; otherwise
+    *\a{ok} is set to true.
 
     If \a base is 0, the C language convention is used: If the string
     begins with "0x", base 16 is used; if the string begins with "0",
@@ -4667,8 +4748,8 @@ quint64 QString::toULongLong(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If a conversion error occurs, *\a{ok} is set to false; otherwise
+    *\a{ok} is set to true.
 
     If \a base is 0, the C language convention is used: If the string
     begins with "0x", base 16 is used; if the string begins with "0",
@@ -4702,8 +4783,8 @@ long QString::toLong(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If a conversion error occurs, *\a{ok} is set to false; otherwise
+    *\a{ok} is set to true.
 
     If \a base is 0, the C language convention is used: If the string
     begins with "0x", base 16 is used; if the string begins with "0",
@@ -4736,8 +4817,8 @@ ulong QString::toULong(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If a conversion error occurs, *\a{ok} is set to false; otherwise
+    *\a{ok} is set to true.
 
     If \a base is 0, the C language convention is used: If the string
     begins with "0x", base 16 is used; if the string begins with "0",
@@ -4769,8 +4850,8 @@ int QString::toInt(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If a conversion error occurs, *\a{ok} is set to false; otherwise
+    *\a{ok} is set to true.
 
     If \a base is 0, the C language convention is used: If the string
     begins with "0x", base 16 is used; if the string begins with "0",
@@ -4802,8 +4883,8 @@ uint QString::toUInt(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If a conversion error occurs, *\a{ok} is set to false; otherwise
+    *\a{ok} is set to true.
 
     If \a base is 0, the C language convention is used: If the string
     begins with "0x", base 16 is used; if the string begins with "0",
@@ -4835,8 +4916,8 @@ short QString::toShort(bool *ok, int base) const
     base, which is 10 by default and must be between 2 and 36, or 0.
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If a conversion error occurs, *\a{ok} is set to false; otherwise
+    *\a{ok} is set to true.
 
     If \a base is 0, the C language convention is used: If the string
     begins with "0x", base 16 is used; if the string begins with "0",
@@ -4869,8 +4950,8 @@ ushort QString::toUShort(bool *ok, int base) const
 
     Returns 0.0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \c{*}\a{ok} is set to
-    false; otherwise \c{*}\a{ok} is set to true.
+    If a conversion error occurs, \c{*}\a{ok} is set to false;
+    otherwise \c{*}\a{ok} is set to true.
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::toDoubleFunction()
@@ -4932,10 +5013,8 @@ double QString::toDouble(bool *ok) const
 /*!
     Returns the string converted to a \c float value.
 
-    Returns 0.0 if the conversion fails.
-
-    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    false; otherwise *\a{ok} is set to true.
+    If a conversion error occurs, *\a{ok} is set to false; otherwise
+    *\a{ok} is set to true. Returns 0.0 if the conversion fails.
 
     Example:
 
@@ -4965,8 +5044,8 @@ float QString::toFloat(bool *ok) const
 
 /*! \fn QString &QString::setNum(int n, int base)
 
-    Sets the string to the printed value of \a n in base \a base and
-    returns a reference to the string.
+    Sets the string to the printed value of \a n in the specified \a
+    base, and returns a reference to the string.
 
     The base is 10 by default and must be between 2 and 36.
 
@@ -5034,14 +5113,15 @@ QString &QString::setNum(qulonglong n, int base)
 */
 
 /*!
+    \fn QString &QString::setNum(double n, char format, int precision)
     \overload
 
-    Sets the string to the printed value of \a n, formatted using
-    format \a f with precision \a prec, and returns a reference to the
-    string.
+    Sets the string to the printed value of \a n, formatted according
+    to the given \a format and \a precision, and returns a reference
+    to the string.
 
-    The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'.
-    See \l{#arg-formats}{arg()} for an explanation of the formats.
+    The \a format can be 'f', 'F', 'e', 'E', 'g' or 'G' (see
+    \l{#arg-formats}{arg()} for an explanation of the formats).
 
     Unlike QLocale::toString(), this function doesn't honor the
     user's locale settings.
@@ -5079,27 +5159,21 @@ QString &QString::setNum(double n, char f, int prec)
 }
 
 /*!
-    \fn QString &QString::setNum(float n, char f, int prec)
-
+    \fn QString &QString::setNum(float n, char format, int precision)
     \overload
 
-    Sets the string to the printed value of \a n, formatted in format
-    \a f with precision \a prec, and returns a reference to the
-    string.
-
-    The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'.
-    See \l{#arg-formats}{arg()} for an explanation of the formats.
-
-    Unlike QLocale::toString(), this function doesn't honor the
-    user's locale settings.
+    Sets the string to the printed value of \a n, formatted according
+    to the given \a format and \a precision, and returns a reference
+    to the string.
 */
 
 
 /*!
   \fn QString QString::number(long n, int base)
 
-    Returns a string equivalent of the number \a n to base \a base,
-    which is 10 by default and must be between 2 and 36.
+    Returns a string equivalent of the number \a n according to the
+    specified \a base The base is 10 by default and must be between 2
+    and 36.
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::numberFunction()
@@ -5170,14 +5244,15 @@ QString QString::number(qulonglong n, int base)
 
 
 /*!
+    \fn QString QString::number(double n, char format, int precision)
     \overload
 
-    Argument \a n is formatted according to the format \a f, and the
-    precision \a prec. The format \a f can be 'f', 'F', 'e', 'E', 'g'
-    or 'G'. See \l{#arg-formats}{arg()} for an explanation of the
-    formats.
+    Returns a string equivalent of the number \a n, formatted
+    according to the specified \a format and \a precision. The \a
+    format can be 'f', 'F', 'e', 'E', 'g' or 'G' (see
+    \l{#arg-formats}{arg()} for an explanation of the formats).
 
-    Unlike QLocale::toString(), this function doesn't honor the
+    Unlike QLocale::toString(), this function does not honor the
     user's locale settings.
 
     \sa setNum(), QLocale::toString()
@@ -5196,9 +5271,9 @@ QString QString::number(double n, char f, int prec)
     containing this string.
 
     If \a cs is true, the string is only split only where characters
-    are found that match \a sep exactly. If \a cs is false, the
-    string is split, the string is split where characters are found
-    that match \a sep case insensitively (e.g. "and" matches "AND").
+    are found that match \a sep exactly. If \a cs is false, the string
+    is split where characters are found that match \a sep case
+    insensitively (e.g. "and" matches "AND").
 
     If \a behavior is QString::SkipEmptyParts, empty entries don't
     appear in the result. By default, empty entries are kept.
@@ -5304,6 +5379,8 @@ QStringList QString::split(const QRegExp &rx, SplitBehavior behavior) const
 
 /*!
     \enum QString::NormalizationForm
+
+    This enum describes the various normalized forms of Unicode text.
 
     \value NormalizationForm_D  Canonical Decomposition
     \value NormalizationForm_C  Canonical Decomposition followed by Canonical Composition
@@ -5497,13 +5574,14 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 }
 
 /*!
-    This function returns a copy of this string where \a a replaces
-    the lowest numbered occurrence of \c %1, \c %2, ..., \c %99.
+    This function returns a copy of this string where \a a
+    replaces the lowest numbered occurrence of \c %1, \c %2, ..., \c
+    %99.
 
     The \a fieldWidth value specifies the minimum amount of space that
-    \a a is padded to and filled with the character \a fillChar. A
-    positive value will produce right-aligned text, whereas a negative
-    value will produce left-aligned text.
+    \a a is padded to and filled with the character \a
+    fillChar. A positive value will produce right-aligned text,
+    whereas a negative value will produce left-aligned text.
 
     The following example shows how we could create a 'status' string
     when processing a list of files:
@@ -5513,15 +5591,15 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     \skipto QString i
     \printuntil .arg(i).arg(total).arg(fileName)
 
-    It is generally fine to use file names and numbers as we have
-    done in the example above. But note that using arg() to construct
+    It is generally fine to use file names and numbers as we have done
+    in the example above. But note that using arg() to construct
     natural language sentences does not usually translate well into
     other languages because sentence structure and word order often
     differ between languages.
 
     If there is no place marker (\c %1, \c %2, etc.), a warning
-    message is output and the result is undefined.
-    Note that only placeholders between \c %1 and \c %99 are supported.
+    message is output and the result is undefined.  Note that only
+    placeholders between \c %1 and \c %99 are supported.
 */
 QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) const
 {
@@ -5539,9 +5617,9 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \fn QString QString::arg(const QString& a1, const QString& a2) const
     \overload
 
-    This is the same as str.arg(\a a1).arg(\a a2), except that
-    the strings are replaced in one pass. This can make a difference
-    if \a a1 contains e.g. \c{%1}:
+    This is the same as \c {str.arg(a1).arg(a2)}, except that the
+    strings \a a1 and \a a2 are replaced in one pass. This can make a
+    difference if \a a1 contains e.g. \c{%1}:
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::argFunction()
@@ -5553,24 +5631,25 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     \fn QString QString::arg(const QString& a1, const QString& a2, const QString& a3) const
     \overload
 
-    This is the same as calling str.arg(\a a1).arg(\a a2).arg(\a a3),
-    except that the strings are replaced in one pass.
+    This is the same as calling \c str.arg(a1).arg(a2).arg(a3), except
+    that the strings \a a1, \a a2 and \a a3 are replaced in one pass.
 */
 
 /*!
     \fn QString QString::arg(const QString& a1, const QString& a2, const QString& a3, const QString& a4) const
     \overload
 
-    This is the same as calling str.arg(\a a1).arg(\a a2).arg(\a
-    a3).arg(\a a4), except that the strings are replaced in one pass.
+    This is the same as calling \c
+    {str.arg(a1).arg(a2).arg(a3).arg(a4)}, except that the strings \a
+    a1, \a a2, \a a3 and \a a4 are replaced in one pass.
 */
 
 /*! \fn QString QString::arg(int a, int fieldWidth, int base, const QChar &fillChar) const
 
     \overload
 
-    \a a is expressed in base \a base, which is 10 by default and must
-    be between 2 and 36.
+    The \a a argument is expressed in base \a base, which is 10 by
+    default and must be between 2 and 36.
 
     The \a fieldWidth value specifies the minimum amount of space that
     \a a is padded to and filled with the character \a fillChar. A
@@ -5596,9 +5675,9 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
 
     \overload
 
-    \a base is the base to use when converting the integer \a a into a
-    string. \a base must be between 2 and 36, with 8 giving octal, 10
-    decimal, and 16 hexadecimal numbers.
+    The \a base argument specifies the base to use when converting the
+    integer \a a into a string. The base must be between 2 and 36,
+    with 8 giving octal, 10 decimal, and 16 hexadecimal numbers.
 */
 
 /*! \fn QString QString::arg(long a, int fieldWidth, int base, const QChar &fillChar) const
@@ -5610,8 +5689,8 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     positive value will produce a right-aligned number, whereas a
     negative value will produce a left-aligned number.
 
-    \a a is expressed in base \a base, which is 10 by default and must
-    be between 2 and 36.
+    The \a a argument is expressed in the given \a base, which is 10
+    by default and must be between 2 and 36.
 
     The '%' can be followed by an 'L', in which case the sequence is
     replaced with a localized representation of \a a. The conversion
@@ -5633,17 +5712,17 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
 
     \overload
 
-    \a base is the base to use when converting the integer \a a into a
-    string. \a base must be between 2 and 36, with 8 giving octal, 10
-    decimal, and 16 hexadecimal numbers.
+    The \a base argument specifies the base to use when converting the
+    integer \a a into a string. The base must be between 2 and 36,
+    with 8 giving octal, 10 decimal, and 16 hexadecimal numbers.
 */
 
 /*!
     \overload
 
-    \a base is the base to use when converting the integer \a a into a
-    string. \a base must be between 2 and 36, with 8 giving octal, 10
-    decimal, and 16 hexadecimal numbers.
+    The \a base argument specifies the base to use when converting the
+    integer \a a into a string. The base must be between 2 and 36,
+    with 8 giving octal, 10 decimal, and 16 hexadecimal numbers.
 */
 QString QString::arg(qlonglong a, int fieldWidth, int base, const QChar &fillChar) const
 {
@@ -5670,9 +5749,9 @@ QString QString::arg(qlonglong a, int fieldWidth, int base, const QChar &fillCha
 /*!
     \overload
 
-    \a base is the base to use when converting the integer \a a into a
-    string. \a base must be between 2 and 36, with 8 giving octal, 10
-    decimal, and 16 hexadecimal numbers.
+    The \a base argument specifies the base to use when converting the
+    integer \a a into a string. \a base must be between 2 and 36, with
+    8 giving octal, 10 decimal, and 16 hexadecimal numbers.
 */
 QString QString::arg(qulonglong a, int fieldWidth, int base, const QChar &fillChar) const
 {
@@ -5701,9 +5780,9 @@ QString QString::arg(qulonglong a, int fieldWidth, int base, const QChar &fillCh
 
     \overload
 
-    \a base is the base to use when converting the integer \a a into a
-    string. \a base must be between 2 and 36, with 8 giving octal, 10
-    decimal, and 16 hexadecimal numbers.
+    The \a base argument specifies the base to use when converting the
+    integer \a a into a string. The base must be between 2 and 36,
+    with 8 giving octal, 10 decimal, and 16 hexadecimal numbers.
 */
 
 /*!
@@ -5711,9 +5790,9 @@ QString QString::arg(qulonglong a, int fieldWidth, int base, const QChar &fillCh
 
     \overload
 
-    \a base is the base to use when converting the integer \a a into a
-    string. \a base must be between 2 and 36, with 8 giving octal, 10
-    decimal, and 16 hexadecimal numbers.
+    The \a base argument specifies the base to use when converting the
+    integer \a a into a string. The base must be between 2 and 36,
+    with 8 giving octal, 10 decimal, and 16 hexadecimal numbers.
 */
 
 /*!
@@ -5729,7 +5808,7 @@ QString QString::arg(QChar a, int fieldWidth, const QChar &fillChar) const
 /*!
     \overload
 
-    \a a is interpreted as a Latin-1 character.
+    The \a a argument is interpreted as a Latin-1 character.
 */
 QString QString::arg(char a, int fieldWidth, const QChar &fillChar) const
 {
@@ -5739,11 +5818,12 @@ QString QString::arg(char a, int fieldWidth, const QChar &fillChar) const
 }
 
 /*!
+    \fn QString QString::arg(double a, int fieldWidth, char format, int precision, const QChar &fillChar) const
     \overload
 
     \target arg-formats
 
-    Argument \a a is formatted according to the \a fmt format specified,
+    Argument \a a is formatted according to the specified \a format,
     which is 'g' by default and can be any of the following:
 
     \table
@@ -5755,9 +5835,9 @@ QString QString::arg(char a, int fieldWidth, const QChar &fillChar) const
     \row \o \c G \o use \c E or \c f format, whichever is the most concise
     \endtable
 
-    With 'e', 'E', and 'f', \a prec is the number of digits after the
-    decimal point. With 'g' and 'G', \a prec is the maximum number of
-    significant digits (trailing zeroes are omitted).
+    With 'e', 'E', and 'f', \a precision is the number of digits after
+    the decimal point. With 'g' and 'G', \a precision is the maximum
+    number of significant digits (trailing zeroes are omitted).
 
     \code
         double d = 12.34;
@@ -5933,15 +6013,15 @@ void QString::updateProperties() const
     can be used to access and modify the characters that compose the
     string. For convenience, the data is '\\0'-terminated.
 
-    The pointer remains valid as long as the string isn't modified
-    by other means.
-
     Example:
 
     \quotefromfile snippets/qstring/main.cpp
     \skipto Widget::dataFunction()
     \skipto QString str
     \printuntil }
+
+    Note that the pointer remains valid only as long as the string is
+    not modified by other means.
 
     \sa constData(), operator[]()
 */
@@ -5957,42 +6037,49 @@ void QString::updateProperties() const
     can be used to access the characters that compose the string. For
     convenience, the data is '\\0'-terminated.
 
-    The pointer remains valid as long as the string isn't modified.
+    Note that the pointer remains valid only as long as the string is
+    not modified.
 
     \sa data(), operator[]()
 */
 
 /*! \fn void QString::push_front(const QString &other)
 
-    This function is provided for STL compatibility. It is equivalent
-    to prepend(\a other).
+    This function is provided for STL compatibility, prepending the
+    given \a other string to the beginning of this string. It is
+    equivalent to \c prepend(other).
+
+    \sa prepend()
 */
 
 /*! \fn void QString::push_front(QChar ch)
 
     \overload
 
-    Same as prepend(\a ch).
+    Prepends the given \a ch character to the beginning of this string.
 */
 
 /*! \fn void QString::push_back(const QString &other)
 
-    This function is provided for STL compatibility. It is equivalent
-    to append(\a other).
+    This function is provided for STL compatibility, appending the
+    given \a other string onto the end of this string. It is
+    equivalent to \c append(other).
+
+    \sa append()
 */
 
 /*! \fn void QString::push_back(QChar ch)
 
     \overload
 
-    Same as append(\a ch).
+    Appends the given \a ch character onto the end of this string.
 */
 
 /*! \fn std::string QString::toStdString() const
 
     Returns a std::string object with the data contained in this
-    QString. The Unicode data is converted into 8-bit characters
-    using toAscii().
+    QString. The Unicode data is converted into 8-bit characters using
+    the toAscii() function.
 
     This operator is mostly useful to pass a QString to a function
     that accepts a std::string object.
@@ -6012,10 +6099,10 @@ void QString::updateProperties() const
 */
 
 /*!
-    Constructs a QString that uses the first \a size Unicode
-    characters in the array \a unicode. The data in \a unicode is \e
-    not copied. The caller must be able to guarantee that \a unicode
-    will not be deleted or modified as long as the QString (or an
+    Constructs a QString that uses the first \a size Unicode characters
+    in the array \a unicode. The data in \a unicode is \e not
+    copied. The caller must be able to guarantee that \a unicode will
+    not be deleted or modified as long as the QString (or an
     unmodified copy of it) exists.
 
     Any attempts to modify the QString or copies of it will cause it
@@ -6176,15 +6263,16 @@ QString QString::fromRawData(const QChar *unicode, int size)
     QString::localeAwareCompare().
 */
 
-/*! \fn bool QLatin1String::operator<(const QString &other) const
+/*!
+    \fn bool QLatin1String::operator<(const QString &other) const
 
-    Returns true if this string is lexically less than string \a
-    other; otherwise returns false.
+    Returns true if this string is lexically less than the \a other
+    string; otherwise returns false.
 
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
-    expect. Consider sorting user-interface strings with
-    QString::localeAwareCompare().
+    expect. Consider sorting user-interface strings using the
+    QString::localeAwareCompare() function.
 */
 
 /*! \fn bool QLatin1String::operator>=(const QString &other) const
@@ -6211,11 +6299,12 @@ QString QString::fromRawData(const QChar *unicode, int size)
 
 #ifndef QT_NO_DATASTREAM
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QString &string)
     \relates QString
 
-    Writes the string \a str to the stream \a out.
+    Writes the given \a string to the specified \a stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator<<(QDataStream &out, const QString &str)
@@ -6258,11 +6347,12 @@ QDataStream &operator<<(QDataStream &out, const QString &str)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QString &string)
     \relates QString
 
-    Reads a string from the stream \a in into string \a str.
+    Reads a string from the specified \a stream into the given \a string.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream Operators}
 */
 
 QDataStream &operator>>(QDataStream &in, QString &str)

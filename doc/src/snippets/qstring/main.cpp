@@ -338,6 +338,9 @@ void Widget::leftJustifiedFunction()
 {
     QString s = "apple";
     QString t = s.leftJustified(8, '.');    // t == "apple..."
+
+    QString str = "Pineapple";
+    str = str.leftJustified(5, '.', true);    // str == "Pinea"
 }
 
 void Widget::midFunction()
@@ -442,6 +445,9 @@ void Widget::rightJustifiedFunction()
 {
     QString s = "apple";
     QString t = s.rightJustified(8, '.');    // t == "...apple"
+
+    QString str = "Pineapple";
+    str = str.rightJustified(5, '.', true);    // str == "Pinea"
 }
 
 void Widget::sectionFunction()
