@@ -2262,7 +2262,9 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
 #if !defined(QT_NO_IM)
         QTextLayout *layout = d->cursor.block().layout();
         if (layout && !layout->preeditAreaText().isEmpty()) {
-            inputContext()->mouseHandler(cursorPos - d->cursor.position(), e);
+            QInputContext *ctx = inputContext();
+            if (ctx)
+                ctx->mouseHandler(cursorPos - d->cursor.position(), e);
             if (!layout->preeditAreaText().isEmpty())
                 return;
         }
