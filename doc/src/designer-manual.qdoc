@@ -1587,18 +1587,23 @@ application is built. Forms can be included and used directly from
 your application, or you can use them to extend subclasses of
 standard widgets.
 
-There are three approaches to using a form in your application: the
-direct approach, single inheritance subclassing, and multiple
-inheritance subclassing.
-In the direct approach, you simply construct a widget to use as a
+There are three approaches to using a form in your application:
+
+\list
+\o In the direct approach, you simply construct a widget to use as a
 placeholder for the component, and set up the user interface inside it.
-In the single inheritance approach, you subclass the form's base class
+\o In the single inheritance approach, you subclass the form's base class
 (QWidget or QDialog, for example), and include a private instance of
 the form's user interface object.
-In the multiple inheritance approach, you subclass from both the
+\o In the multiple inheritance approach, you subclass from both the
 form's base class and the form's user interface object. This allows the
 widgets defined in the form to be used directly from within the scope of
 the subclass.
+\endlist
+
+Additionally, the signals and slots connections defined for the form
+can be set up manually, or you can take advantage of QMetaObject's
+ability to make connections between signals and suitably-named slots.
 
 \target TheDirectApproach
 \section1 The Direct Approach
@@ -1658,6 +1663,9 @@ Components used in this way expose the widgets and layouts used in the
 form to the QDialog subclass, and provide a standard system for
 making signal and slot connections between the user interface and other
 objects in your application.
+
+This approach is used in the \l{Calculator Form Example}{Calculator Form}
+example.
 
 To ensure that we can use the user interface, we need to include the
 header file that \c uic generates before referring to \c{Ui::ImageDialog}:
@@ -1794,10 +1802,11 @@ was given for the image.
 \section2 A Dialog With Auto-Connect
 
 Although it is easy to implement a custom slot in the dialog and
-connect it in the constructor, we could instead use \c{uic}'s
+connect it in the constructor, we could instead use QMetaObject's
 auto-connection facilities to connect the \gui OK button's clicked()
-signal to a slot in our subclass. To do this, we only need to
-declare and implement a slot with a name that follows a standard
+signal to a slot in our subclass. \c{uic} automatically generates
+code in the dialog's setupUi() function to do this, so we only need
+to declare and implement a slot with a name that follows a standard
 convention:
 
 \code
