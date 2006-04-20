@@ -148,7 +148,7 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
     if (s.isEmpty())
         perfectMatch = 0;
 
-    const QRegExp regExp(s);
+    const QRegExp regExp(s, Qt::CaseInsensitive);
     QMultiMap<QString, QString>::iterator it = contents.begin();
     QString lastKey;
     for (; it != contents.end(); ++it) {
@@ -158,7 +158,6 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
         const QString key = it.key();
         if (key.contains(regExp) || key.contains(s, Qt::CaseInsensitive)) {
             list.append(key);
-            //qDebug() << regExp << regExp.indexIn(s) << s << key << regExp.matchedLength();
             if (perfectMatch == -1 && (key.startsWith(real, Qt::CaseInsensitive))) {
                 if (goodMatch == -1)
                     goodMatch = list.count() - 1;
@@ -175,7 +174,7 @@ QModelIndex IndexListModel::filter(const QString &s, const QString &real)
     if (bestMatch == -1)
         bestMatch = goodMatch;
     bestMatch = qMax(0, bestMatch);
-    
+
     // sort the new list
     QString match;
     if (bestMatch >= 0 && list.count() > bestMatch)
