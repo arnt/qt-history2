@@ -1126,9 +1126,12 @@ QByteArray Semantic::textOf(const AST *node) const
 
 void Semantic::createNameUse(Member *member, NameAST *name)
 {
+    if (!name)
+       return;
+
     AST *unqualifedName = name->unqualifiedName()->name();
 
-    if(!unqualifedName || !member || !name)
+    if(!unqualifedName || !member)
         return;
 
     CodeModel::NameUse *nameUse = CodeModel::Create<CodeModel::NameUse>(m_storage);
