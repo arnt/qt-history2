@@ -1344,7 +1344,7 @@ void QFileDialogPrivate::_q_showContextMenu(const QPoint &pos)
     QModelIndex index = view->indexAt(pos);
     QMenu menu(view);
 
-    if (index.isValid()) {
+    if (index.isValid() && index.sibling(index.row(), 0) != rootIndex()) {
         // file context menu
         menu.addAction(openAction);
         menu.addSeparator();
