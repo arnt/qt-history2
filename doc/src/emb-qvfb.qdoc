@@ -77,7 +77,7 @@
     \o The preferred skin which must be located in Qt's \c /tools/qvfb/ directory.
     \row
     \o \c {-zoom <factor>}
-    \o The scale of the application view.
+    \o Scales the application view with the given factor.
 
     \endtable
 
@@ -187,36 +187,20 @@
     \o \c SmartPhone.skin
     \endtable
 
-    The \c .skin file specifies two pixmaps: One for the normal skin
-    (\c Up) and one for the activated skin (\c Down). It also
-    specifies the screen size (\c Screen) and the number of available
-    buttons (\c Areas) followed by a description of the buttons
-    themselves. Each button is specified by its name, keycode and
-    coordinates. The coordinates are a list of at least 2 points in
-    clockwise order that define a shape for the button. The two points
-    are treated as opposite edges of a rectangle and a click inside
-    the points will be treated as a click on that button. While
+    The \c SmartPhone.skin file specifies two pixmaps: One for the
+    normal skin (\c Up) and one for the activated skin (\c Down). It
+    also specifies the screen size (\c Screen) and the number of
+    available buttons (\c Areas) followed by a description of the
+    buttons themselves. Each button is specified by its name, keycode
+    and coordinates. The coordinates are a list of at least 2 points
+    in clockwise order that define a shape for the button; a click
+    inside this shape will be treated as a click on that button. While
     pressed, the pixels for the button are redrawn from the activated
     skin.
-
-    In addition, it is possible to specify the cursor image, using a
-    \c Cursor variable.
 
     The \c defaultbuttons.conf file customizes the launch screen
     applications, orders the soft keys and provides input method
     hints.
-
-    It is possible to specify the screen size independently of the
-    currently used skin. For example:
-
-    \code
-        ./qvfb -skin SmartPhone.skin -width 240 -height 320 -zoom 0.7
-    \endcode
-
-    The command above makes the virtual framebuffer use a screen size
-    of 240x320 pixels even though the SmartPhone.skin has a default
-    screen area of 176x208 skin pixels.
-
 
     \section2 The File Menu
 
