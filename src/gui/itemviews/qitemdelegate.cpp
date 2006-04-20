@@ -733,6 +733,7 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
         case QVariant::Icon:
         case QVariant::Color:
             return QRect(QPoint(0, 0), option.decorationSize);
+        default: break;
         }
     }
     return QRect();

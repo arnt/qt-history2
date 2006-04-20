@@ -1300,7 +1300,7 @@ int QTreeView::verticalOffset() const
 {
     Q_D(const QTreeView);
     if (scrollMode() == QAbstractItemView::ScrollPerItem) {
-        if (uniformRowHeights)
+        if (uniformRowHeights())
             return verticalScrollBar()->value() * d->defaultItemHeight;
         // If we are scrolling per item and have non-uniform row heights,
         // finding the vertical offset in pixels is going to be relatively slow.
