@@ -484,8 +484,11 @@ static bool hebrew_shape(QShaperItem *item)
         logClusters[i] = cluster_start;
     }
 
-    if (!item->font->stringToCMap(shapedChars, slen, glyphs, &item->num_glyphs, QFlag(item->flags)))
+    if (!item->font->stringToCMap(shapedChars, slen, glyphs, &item->num_glyphs, QFlag(item->flags))) {
+        if (item->length > 256)
+            ::free(shapedChars);
         return false;
+    }
     for (int i = 0; i < item->num_glyphs; ++i) {
         if (glyphs[i].attributes.mark) {
             glyphs[i].advance.x = 0;
