@@ -315,7 +315,7 @@ public:
 
 protected:
     void timerEvent(QTimerEvent * event);
-    
+
     QMutex mutex;
     int sweepTimerId;
     //socket descriptor, data, timestamp
@@ -628,7 +628,7 @@ void QSocks5SocketEnginePrivate::parseAuthenticatingReply()
 void QSocks5SocketEnginePrivate::sendRequestMethod()
 {
     QHostAddress address;
-    quint16 port;
+    quint16 port = 0;
     char command = 0;
     if (mode == ConnectMode) {
         command = S5_CONNECT;
@@ -773,7 +773,7 @@ void QSocks5SocketEnginePrivate::_q_emitPendingReadNotification()
         QSOCKS5_D_DEBUG << "emitting readNotification";
         emit q->readNotification();
         // check if there needs to be a new zero read notifcation
-        if (socks5State == ControlSocketError 
+        if (socks5State == ControlSocketError
             && data->controlSocket->error() == QAbstractSocket::RemoteHostClosedError) {
             connectData->readBuffer.clear();
             emitReadNotification();
@@ -1005,14 +1005,14 @@ void QSocks5SocketEnginePrivate::_q_controlSocketConnected()
 
 void QSocks5SocketEnginePrivate::_q_controlSocketReadNotification()
 {
-    QSOCKS5_D_DEBUG << "_q_controlSocketReadNotification socks5state" <<  s5StateToString(socks5State) 
+    QSOCKS5_D_DEBUG << "_q_controlSocketReadNotification socks5state" <<  s5StateToString(socks5State)
                     << "bytes avaliable" << data->controlSocket->bytesAvailable();
 
     if (data->controlSocket->bytesAvailable() == 0) {
         QSOCKS5_D_DEBUG << "########## bogus read why do we get these ... on windows only";
         return;
     }
- 
+
     switch (socks5State) {
         case AuthenticationMethodsSent:
             parseAuthenticationMethodReply();
@@ -1071,7 +1071,7 @@ void QSocks5SocketEnginePrivate::_q_controlSocketError(QAbstractSocket::SocketEr
             if (!readNotificationPending)
                 connectData->readBuffer.clear();
             emitReadNotification();
-        }   
+        }
     } else if (error == QAbstractSocket::ConnectionRefusedError
         || error == QAbstractSocket::HostNotFoundError) {
         socks5State = ConnectError;
@@ -1239,7 +1239,7 @@ bool QSocks5SocketEngine::listen()
     // check that we are in bound and then go to listening.
     if (d->socketState == QAbstractSocket::BoundState) {
         d->socketState = QAbstractSocket::ListeningState;
-        
+
         // check if we already have a connection
         if (d->socks5State == QSocks5SocketEnginePrivate::BindSuccess)
             d->emitReadNotification();
@@ -1373,7 +1373,7 @@ qint64 QSocks5SocketEngine::write(const char *data, qint64 len)
                     break;
                 }
             }
-            if (d->data->controlSocket->error() != QAbstractSocket::UnknownSocketError 
+            if (d->data->controlSocket->error() != QAbstractSocket::UnknownSocketError
                 && d->data->controlSocket->error() != QAbstractSocket::SocketTimeoutError) {
                 QSOCKS5_DEBUG << "control socket error while writing. -- " << d->data->controlSocket->errorString();
                 totalWritten = -1;
@@ -1610,7 +1610,7 @@ bool QSocks5SocketEngine::isReadNotificationEnabled() const
 void QSocks5SocketEngine::setReadNotificationEnabled(bool enable)
 {
     Q_D(QSocks5SocketEngine);
-    
+
     QSOCKS5_Q_DEBUG << "setReadNotificationEnabled(" << enable << ")";
 
     bool emitSignal = false;
