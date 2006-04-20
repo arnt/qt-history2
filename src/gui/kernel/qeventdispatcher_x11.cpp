@@ -102,8 +102,11 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
             if (qApp->x11ProcessEvent(&event) == 1)
                 return true;
 
-            if (event.xany.serial >= marker)
+            if (event.xany.serial >= marker) {
+                if (XEventsQueued(X11->display, QueuedAfterFlush))
+                    flags &= ~QEventLoop::WaitForMoreEvents;
                 goto out;
+            }
         }
     } while (!d->interrupt && XEventsQueued(X11->display, QueuedAfterFlush));
 
