@@ -317,7 +317,7 @@ struct QtFontFamily
     QtFontFamily(const QString &n)
         :
 #ifdef Q_WS_X11
-        fixedPitch(true), hasFT(false), ftWritingSystemCheck(false),
+        fixedPitch(true), ftWritingSystemCheck(false),
         xlfdLoaded(false), synthetic(false), symbol_checked(false),
 #else
         fixedPitch(false),
@@ -340,7 +340,6 @@ struct QtFontFamily
 
     bool fixedPitch : 1;
 #ifdef Q_WS_X11
-    bool hasFT : 1;
     bool ftWritingSystemCheck : 1;
     bool xlfdLoaded : 1;
     bool synthetic : 1;

@@ -1012,7 +1012,6 @@ static void loadFontConfig()
 	    foundry_value = 0;
         QtFontFamily *family = db->family(familyName, true);
         family->rawName = rawName;
-        family->hasFT = true;
 
         FcLangSet *langset = 0;
         FcResult res = FcPatternGetLangSet(fonts->fonts[i], FC_LANG, 0, &langset);
@@ -1120,7 +1119,6 @@ static void loadFontConfig()
         QtFontFamily *family = db->family(f->qtname, true);
         family->fixedPitch = f->fixed;
         family->rawName = f->rawname;
-        family->hasFT = true;
         family->synthetic = true;
         QtFontFoundry *foundry = family->foundry(QString(), true);
 
@@ -1298,8 +1296,8 @@ static void initializeDb()
     // print the database
     for (int f = 0; f < db->count; f++) {
         QtFontFamily *family = db->families[f];
-        FD_DEBUG("'%s' %s  hasFT=%s", family->name.latin1(), (family->fixedPitch ? "fixed" : ""),
-                 (family->hasFT ? "yes" : "no"));
+        FD_DEBUG("'%s' %s  fixed=%s", family->name.latin1(), (family->fixedPitch ? "fixed" : ""),
+                 (family->fixedPitch ? "yes" : "no"));
         for (int i = 0; i < QFontDatabase::WritingSystemsCount; ++i) {
             QFontDatabase::WritingSystem ws = QFontDatabase::WritingSystem(i);
             FD_DEBUG("\t%s: %s", QFontDatabase::writingSystemName(ws).toLatin1().constData(),
