@@ -336,6 +336,9 @@ QSize ArthurStyle::sizeFromContents(ContentsType type, const QStyleOption *optio
 
 
     switch (type) {
+    case CT_RadioButton:
+        newSize += QSize(20, 0);
+        break;
 
     case CT_PushButton:
         newSize.setHeight(26);
