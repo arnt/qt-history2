@@ -744,6 +744,8 @@ void ResourceEditor::itemChanged(const QModelIndex &index)
 void ResourceEditor::itemActivated(const QModelIndex &index)
 {
     ResourceModel *model = currentModel();
+    if (!model)
+        return;
 
     QString prefix, file;
     model->getItem(index, prefix, file);
