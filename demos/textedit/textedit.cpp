@@ -19,6 +19,7 @@
 #include <QClipboard>
 #include <QColorDialog>
 #include <QComboBox>
+#include <QFontComboBox>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -290,20 +291,17 @@ void TextEdit::setupTextActions()
     connect(comboStyle, SIGNAL(activated(int)),
             this, SLOT(textStyle(int)));
 
-    comboFont = new QComboBox(tb);
+    comboFont = new QFontComboBox(tb);
     tb->addWidget(comboFont);
-    comboFont->setEditable(true);
-    QFontDatabase db;
-    comboFont->addItems(db.families());
     connect(comboFont, SIGNAL(activated(const QString &)),
             this, SLOT(textFamily(const QString &)));
-    comboFont->setCurrentIndex(comboFont->findText(QApplication::font().family()));
 
     comboSize = new QComboBox(tb);
     comboSize->setObjectName("comboSize");
     tb->addWidget(comboSize);
     comboSize->setEditable(true);
 
+    QFontDatabase db;
     foreach(int size, db.standardSizes())
         comboSize->addItem(QString::number(size));
 
@@ -560,7 +558,7 @@ void TextEdit::clipboardDataChanged()
 
 void TextEdit::fontChanged(const QFont &f)
 {
-    comboFont->setCurrentIndex(comboFont->findText(f.family()));
+    comboFont->setCurrentIndex(comboFont->findText(QFontInfo(f).family()));
     comboSize->setCurrentIndex(comboSize->findText(QString::number(f.pointSize())));
     actionTextBold->setChecked(f.bold());
     actionTextItalic->setChecked(f.italic());

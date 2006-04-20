@@ -20,6 +20,7 @@
 
 class QAction;
 class QComboBox;
+class QFontComboBox;
 class QTextEdit;
 class QTextCharFormat;
 class QMenu;
@@ -84,9 +85,9 @@ private:
         *actionCopy,
         *actionPaste;
 
-    QComboBox *comboStyle,
-              *comboFont,
-              *comboSize;
+    QComboBox *comboStyle;
+    QFontComboBox *comboFont;
+    QComboBox *comboSize;
 
     QToolBar *tb;
     QString fileName;
