@@ -30,6 +30,7 @@ signals:
 
 private slots:
     void emitFindNext();
+    void verifyText(const QString &);
 };
 
 #endif

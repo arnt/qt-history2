@@ -23,10 +23,18 @@ FindDialog::FindDialog(QWidget *parent)
     : QDialog(parent)
 {
     setupUi(this);
+    
+    findNxt->setEnabled(false);
 
     connect(findNxt, SIGNAL(clicked()), this, SLOT(emitFindNext()));
-
+    connect(led, SIGNAL(textChanged(const QString &)), this, SLOT(verifyText(const QString &)));
+    
     led->setFocus();
+}
+
+void FindDialog::verifyText(const QString &text)
+{
+    findNxt->setEnabled(!text.isEmpty());
 }
 
 void FindDialog::emitFindNext()

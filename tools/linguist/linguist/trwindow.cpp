@@ -589,8 +589,8 @@ void TrWindow::findAgain()
     setCurrentMessageRow(oldItemNo.row()); */
 
     qApp->beep();
-    QMessageBox::warning( this, tr("Qt Linguist"),
-                          QString( tr("Cannot find the string '%1'.") ).arg(findText) );
+    QMessageBox::warning( finddlg, tr("Qt Linguist"),
+                          QString( tr("Cannot find the string '%1'.") ).arg(findText));
 //    foundItem   = 0;
     foundWhere  = 0;
     foundOffset = 0;
@@ -1219,9 +1219,9 @@ void TrWindow::next()
 
 void TrWindow::findNext(const QString &text, int where, bool matchCase)
 {
+    if (text.isEmpty())
+        return;
     findText = text;
-    if (findText.isEmpty())
-        findText = QString("magicwordthatyoushouldavoid");
     findWhere = where;
     findMatchCase = matchCase;
     findAgainAct->setEnabled(true);
