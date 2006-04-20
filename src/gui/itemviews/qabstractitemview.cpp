@@ -49,7 +49,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollInterval(50),
         autoScrollCount(0),
         alternatingColors(false),
-        textElideMode(Qt::ElideRight)
+        textElideMode(Qt::ElideRight),
+        scrollMode(QAbstractItemView::ScrollPerItem)
 {
 }
 
@@ -76,12 +77,13 @@ void QAbstractItemViewPrivate::init()
 
     viewport->setBackgroundRole(QPalette::Base);
 
-    q->setHorizontalStepsPerItem(64);
-    q->setVerticalStepsPerItem(64);
+    // obsoleted; remove
+    horizontalStepsPerItem = 1;
+    verticalStepsPerItem = 1;
 
     doDelayedItemsLayout();
 
-	q->setAttribute(Qt::WA_InputMethodEnabled);
+    q->setAttribute(Qt::WA_InputMethodEnabled);
 }
 
 /*!
@@ -248,6 +250,13 @@ void QAbstractItemViewPrivate::init()
     \value EditingState   The user is editing an item in a widget editor.
     \value ExpandingState   The user is opening a branch of items.
     \value CollapsingState   The user is closing a branch of items.
+*/
+
+/*!
+  \enum QAbstractItemView::ScrollMode
+
+  \value ScrollPerItem    The view will scroll the contents one item at a time.
+  \value ScrollPerPixel   The view will scroll the contents one pixel at a time.
 */
 
 /*!
@@ -813,6 +822,25 @@ void QAbstractItemView::setEditTriggers(EditTriggers actions)
 QAbstractItemView::EditTriggers QAbstractItemView::editTriggers() const
 {
     return d_func()->editTriggers;
+}
+
+/*!
+    \property QAbstractItemView::scrollMode
+    \brief how the view scrolls its contents
+
+      This property controlls how the view scroll its contents.
+      Scrolling can be done either per pixel or per item.
+*/
+
+void QAbstractItemView::setScrollMode(ScrollMode mode)
+{
+    d_func()->scrollMode = mode;
+    updateGeometries(); // update the scrollbars
+}
+
+QAbstractItemView::ScrollMode QAbstractItemView::scrollMode() const
+{
+    return d_func()->scrollMode;
 }
 
 /*!
@@ -1829,6 +1857,7 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
 }
 
 /*!
+    \obsolete
     Sets the horizontal scrollbar's steps per item to \a steps.
 
     This is the number of steps used by the horizontal scrollbar to
@@ -1847,6 +1876,7 @@ void QAbstractItemView::setHorizontalStepsPerItem(int steps)
 }
 
 /*!
+    \obsolete
     Returns the horizontal scrollbar's steps per item.
 
     \sa setHorizontalStepsPerItem() verticalStepsPerItem()
@@ -1858,6 +1888,7 @@ int QAbstractItemView::horizontalStepsPerItem() const
 }
 
 /*!
+    \obsolete
     Sets the vertical scrollbar's steps per item to \a steps.
 
     This is the number of steps used by the vertical scrollbar to
@@ -1876,6 +1907,7 @@ void QAbstractItemView::setVerticalStepsPerItem(int steps)
 }
 
 /*!
+    \obsolete
     Returns the vertical scrollbar's steps per item.
 
     \sa setVerticalStepsPerItem() horizontalStepsPerItem()

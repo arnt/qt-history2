@@ -33,7 +33,7 @@ class QAbstractItemViewPrivate;
 class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
 {
     Q_OBJECT
-    Q_ENUMS(SelectionMode SelectionBehavior ScrollHint)
+    Q_ENUMS(SelectionMode SelectionBehavior ScrollHint ScrollMode)
     Q_FLAGS(EditTriggers)
     Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)
     Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
@@ -48,6 +48,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
     Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::TextElideMode textElideMode READ textElideMode WRITE setTextElideMode)
+    Q_PROPERTY(ScrollMode scrollMode READ scrollMode WRITE setScrollMode)
 
 public:
     enum SelectionMode {
@@ -82,6 +83,11 @@ public:
     };
 
     Q_DECLARE_FLAGS(EditTriggers, EditTrigger)
+        
+    enum ScrollMode {
+        ScrollPerItem,
+        ScrollPerPixel
+    };
 
     explicit QAbstractItemView(QWidget *parent = 0);
     ~QAbstractItemView();
@@ -106,6 +112,9 @@ public:
 
     void setEditTriggers(EditTriggers triggers);
     EditTriggers editTriggers() const;
+
+    void setScrollMode(ScrollMode mode);
+    ScrollMode scrollMode() const;
 
     void setAutoScroll(bool enable);
     bool hasAutoScroll() const;

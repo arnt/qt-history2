@@ -46,7 +46,7 @@ public:
 
     QTreeViewPrivate()
         : QAbstractItemViewPrivate(),
-          header(0), indent(20), lastViewedItem(0), itemHeight(-1), 
+          header(0), indent(20), lastViewedItem(0), defaultItemHeight(-1),
           uniformRowHeights(false), rootDecoration(true),
           itemsExpandable(true), sortingEnabled(false),
           animationsEnabled(false), columnResizeTimerID(0)  {}
@@ -64,7 +64,7 @@ public:
         QPixmap before;
         QPixmap after;
     };
-    
+
     void expand(int item, bool emitSignal);
     void collapse(int item, bool emitSignal);
 
@@ -87,36 +87,18 @@ public:
         { return (--item < 0 ? 0 : item); }
     inline int below(int item) const
         { return (++item >= viewItems.count() ? viewItems.count() - 1 : item); }
+    inline void invalidateHeightCache(int item) const
+        { viewItems[item].height = 0; }
 
-    inline int height(int item) const {
-        if (uniformRowHeights)
-            return itemHeight;
-        if (viewItems.isEmpty())
-            return 0;
-        const QModelIndex index = viewItems.at(item).index;
-        int height = viewItems.at(item).height;
-        if (height <= 0 && index.isValid()) {
-            height = q_func()->indexRowSizeHint(index);
-            viewItems[item].height = height;
-        }
-        if (!index.isValid() || height < 0)
-            return 0;
-        return height;
-    }
-
-    inline void invalidateHeightCache(int item) const {
-        viewItems[item].height = 0;
-    }
-        
-    int indentation(int item) const;
-    int coordinate(int item) const;
-    int item(int coordinate) const;
+    int itemHeight(int item) const;
+    int indentationForItem(int item) const;
+    int coordinateForItem(int item) const;
+    int itemAtCoordinate(int coordinate) const;
 
     int viewIndex(const QModelIndex &index) const;
     QModelIndex modelIndex(int i) const;
 
-    int itemAt(int value) const;
-    int topItemDelta(int value, int iheight) const;
+    int itemAtValue(int value, int *delta) const;
     int columnAt(int x) const;
 
     void relayout(const QModelIndex &parent);
@@ -135,7 +117,7 @@ public:
 
     mutable QVector<QTreeViewItem> viewItems;
     mutable int lastViewedItem;
-    int itemHeight; // this is just a number; contentsHeight() / numItems
+    int defaultItemHeight; // this is just a number; contentsHeight() / numItems
     bool uniformRowHeights; // used when all rows have the same height
     bool rootDecoration;
     bool itemsExpandable;

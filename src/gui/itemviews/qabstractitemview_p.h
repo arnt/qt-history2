@@ -222,6 +222,8 @@ public:
 
     QPersistentModelIndex root;
     QPersistentModelIndex hover;
+
+    // ###obsolete; remove
     int horizontalStepsPerItem;
     int verticalStepsPerItem;
 
@@ -255,6 +257,8 @@ public:
     QBasicTimer delayedEditing;
     mutable QBasicTimer delayedLayout;
     QTimeLine timeline;
+
+    QAbstractItemView::ScrollMode scrollMode;
 };
 
 #include <qvector.h>
