@@ -127,12 +127,10 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
 
     ui->setElementClass(sheet->property(sheet->indexOf(QLatin1String("objectName"))).toString());
 
-    if (m_formWindow) {
-        for (int index = 0; index < m_formWindow->toolCount(); ++index) {
-            QDesignerFormWindowToolInterface *tool = m_formWindow->tool(index);
-            Q_ASSERT(tool != 0);
-            tool->saveToDom(ui, widget);
-        }
+    for (int index = 0; index < m_formWindow->toolCount(); ++index) {
+        QDesignerFormWindowToolInterface *tool = m_formWindow->tool(index);
+        Q_ASSERT(tool != 0);
+        tool->saveToDom(ui, widget);
     }
 
     QString author = m_formWindow->author();
@@ -701,6 +699,8 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
         m_laidout.insert(item->widget(), true);
     } else if (!item->spacerItem()) { // we use spacer as fake item in the Designer
         ui_item = QAbstractFormBuilder::createDom(item, ui_layout, ui_parentWidget);
+    } else {
+        return 0;
     }
 
     if (m_chain.size() && item->widget()) {
