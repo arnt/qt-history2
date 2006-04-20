@@ -157,7 +157,7 @@ bool Skin::parseSkinFileHeader(QTextStream& ts,
     return true;
 }
 
-Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : 
+Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
     QWidget(p), view(0), buttonPressed(false), buttonIndex(0), skinValid(false),
     zoom(1.0), numberOfAreas(0), areas(0),
     cursorw(0),
@@ -210,7 +210,7 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
 		}
 
 		int p=0;
-		for (int j=2; j<(int)tok.count(); ) {
+		for (int j=2; j < tok.count() - 1; ) {
 		    int x = tok[j++].toInt();
 		    int y = tok[j++].toInt();
 		    areas[i].area.putPoints(p++,1,x,y);
@@ -397,7 +397,7 @@ void Skin::mousePressEvent( QMouseEvent *e )
 		}
 	    }
 	}
-	
+
 //	This is handy for finding the areas to define rectangles for new skins
 //	printf("Clicked in %i,%i\n",  e->pos().x(),  e->pos().y());
 	clickPos = e->pos();
