@@ -64,7 +64,7 @@
     rectangle or not, and the intersects() function returns true if
     this rectangle intersects with a given rectangle. The QRect class
     also provides the intersect() function which returns the
-    intersection rectangle, and the unite function() which returns the
+    intersection rectangle, and the unite() function which returns the
     rectangle that encloses the given rectangle and this:
 
     \table
