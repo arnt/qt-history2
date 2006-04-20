@@ -155,7 +155,6 @@ void Zoomer::zoom(int z)
 QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent, Qt::WFlags flags )
     : QMainWindow( parent, flags )
 {
-    qApp->setQuitOnLastWindowClosed(false);
     view = 0;
     scroller = 0;
     this->skin = 0;
@@ -508,6 +507,8 @@ void QVFb::configure()
     updateGammaLabels();
 
     double ogr=view->gammaRed(), ogg=view->gammaGreen(), ogb=view->gammaBlue();
+    qApp->setQuitOnLastWindowClosed(false);
+
     hide();
     if ( config->exec() ) {
 	int id = view->displayId(); // not settable yet
@@ -555,6 +556,7 @@ void QVFb::configure()
 	view->setGamma(ogr, ogg, ogb);
     }
     show();
+    qApp->setQuitOnLastWindowClosed(true);
     delete config;
     config=0;
 }
