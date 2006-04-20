@@ -801,28 +801,9 @@ int QFontMetrics::lineWidth() const
     \ingroup shared
 
     QFontMetricsF functions calculate the size of characters and
-    strings for a given font. There are three ways you can create a
-    QFontMetricsF object:
-
-    \list 1
-    \i Calling the QFontMetricsF constructor with a QFont creates a
-    font metrics object for a screen-compatible font, i.e. the font
-    cannot be a printer font. If the font is changed
-    later, the font metrics object is \e not updated.
-
-    (Note: If you use a printer font the values returned may be
-    inaccurate. Printer fonts are not always accessible so the nearest
-    screen font is used if a printer font is supplied.)
-
-    \i QWidget::fontMetrics() returns the font metrics for a widget's
-    font. This is equivalent to QFontMetricsF(widget->font()). If the
-    widget's font is changed later, the font metrics object is \e not
-    updated.
-
-    \i QPainter::fontMetrics() returns the font metrics for a
-    painter's current font. If the painter's font is changed later, the
-    font metrics object is \e not updated.
-    \endlist
+    strings for a given font. You can construct a QFontMetricsF object
+    with an existing QFont to obtain metrics for that font. If the
+    font is changed later, the font metrics object is \e not updated.
 
     Once created, the object provides functions to access the
     individual metrics of the font, its characters, and for strings
@@ -854,8 +835,8 @@ int QFontMetrics::lineWidth() const
     \code
     QFont font("times", 24);
     QFontMetricsF fm(font);
-    int pixelsWide = fm.width("What's the width of this text?");
-    int pixelsHigh = fm.height();
+    qreal pixelsWide = fm.width("What's the width of this text?");
+    qreal pixelsHigh = fm.height();
     \endcode
 
     \sa QFont QFontInfo QFontDatabase
