@@ -86,10 +86,13 @@
     A skin is a set of XML and pixmap files that tell the vitual
     framebuffer how it should look and how it should behave; a skin
     can change the unrealistic display into a display that is
-    identical to the device being devolped. Note that a skin can have
-    buttons which, when clicked, send signals to the Qtopia
-    application running inside the virtual framebuffer, just as would
-    happen on a real device.
+    identical to the device being developed. To access the \c qvfb
+    tool's menus when a skin is activated, right-click over the
+    display.
+
+    Note that a skin can have buttons which (when clicked) send
+    signals to the Qtopia application running inside the virtual
+    framebuffer, just as would happen on a real device.
 
     \table 100%
     \row
@@ -115,7 +118,7 @@
             \o Trolltech-Touchscreen
         \endlist
 
-        In addition it is possible to create custom skins.
+        In addition, it is possible to create custom skins.
 
         \o \image qtopiacore-phone.png
         \o \image qtopiacore-pda.png
@@ -124,83 +127,121 @@
     \bold {Creating Custom Skins}
 
     The XML and pixmap files specifying a custom skin must be located
-    in a corresponding subdirectory of the Qt's \c /tools/qvfb
-    directory. See the SmartPhone skin for an example of the file
-    structure:
+    in subdirectory of the Qt's \c /tools/qvfb directory, called \c
+    /customskin.skin. See the ClamshellPhone skin for an example of the
+    file structure:
 
     \code
-        cd path/to/Qt/tools/qvfb/SmartPhone.skin/
+        cd path/to/Qt/tools/qvfb/ClamshellPhone.skin/
     \endcode
 
-    The \c SmartPhone.skin directory contains the following files:
+    The \c /ClamshellPhone.skin directory contains the following files:
 
     \list
-        \o SmartPhone.skin
-        \o defaultbuttons.conf
-        \o SmartPhone.png
-        \o SmartPhone-pressed.png
+        \o \c ClamshellPhone.skin
+        \o \c ClamshellPhone1-5.png
+        \o \c ClamshellPhone1-5-pressed.png
+        \o \c ClamshellPhone1-5-closed.png
+        \o \c defaultbuttons.conf (only necessary for \l Qtopia)
     \endlist
+
+    Note that the \c defaultbuttons.conf file is only necessary if the
+    skin is supposed to be used with \l Qtopia (The file customizes
+    the launch screen applications, orders the soft keys and provides
+    input method hints). See the \l Qtopia documentation for more
+    information.
 
     \table 100%
     \header
-    \o {2,1} The SmartPhone Skin
+    \o {3,1} The ClamshellPhone Skin
     \row
-    \o
-    \image qtopiacore-smartphone.png The SmartPhone Skin
-    \o {1,3}
+    \o {1,5}
+
+    The \c ClamShellPhone.skin file specifies three pixmaps:
+
     \code
         [SkinFile]
-        Up=SmartPhone.png
-        Down=SmartPhone-pressed.png
-        Screen=90 107 176 208
-        Areas=26
-
-        "1"        0x0031 138 459 149 473 142 483 120 ...
-        "2"        0x0032 153 467 202 492
-        "3"        0x0033 258 457 260 470 243 483 215 ...
-        "4"        0x0034 138 492 149 506 142 516 120 ...
-        "5"        0x0035 153 499 202 524
-        "6"        0x0036 258 489 260 502 243 515 215 ...
-        "7"        0x0037 138 524 149 538 142 548 120 ...
-        "8"        0x0038 153 531 202 556
-        "9"        0x0039 258 521 260 534 243 547 215 ...
-        "*"        0x002a 138 556 149 570 142 580 120 ...
-        "0"        0x0030 153 564 202 589
-        "#"        0x0023 258 554 260 567 243 580 215 ...
-        "Call"     0x01100004  88 395 130 439
-        "Hangup"   0x01100005 227 395 269 439
-        "Context1" 0x01100000 145 321 134 333 132 ...
-        "Back"     0x01000061 249 322 240 354 219 373 ...
-        "Select"   0x01010000 160 338 195 371
-        "Left"     0x1000012 159 338 149 328 141 336 ...
-        "Down"     0x1000015 160 373 150 382 159 391 ...
-        "Right"    0x1000014 195 336 206 323 215 338 ...
-        "Up"       0x1000013 160 336 149 326 158 319  ...
+        Up=ClamshellPhone1-5.png
+        Down=ClamshellPhone1-5-pressed.png
+        Closed=ClamshellPhone1-5-closed.png
     \endcode
+
+    One for the normal skin (\c Up), one for the activated skin (\c
+    Down) and one for the closed skin (\c Closed). In addition, it is
+    possible to specify a pixmap for the cursor (using a \c Cursor
+    variable).
+
+    \code
+        Screen=72 84 176 208
+        Areas=22
+    \endcode
+
+    The \c ClamShellPhone.skin file also specifies the screen size (\c
+    Screen) and the number of available buttons (\c Areas). Then it
+    describes the buttons themselves:
+
+    \code
+        "Power"     0x0100000a 205 563 249 586
+        "1"         0x0031      62 414 119 438
+        "2"         0x0032     130 414 189 438
+        "3"         0x0033     198 413 257 438
+        "4"         0x0034      54 444 117 470
+        "5"         0x0035     128 444 189 471
+        "6"         0x0036     202 444 264 471
+        "7"         0x0037      47 477 113 507
+        "8"         0x0038     126 477 190 507
+        "9"         0x0039     205 478 270 509
+        "*"         0x002a      39 515 110 552
+        "0"         0x0030     122 515 195 553
+        "#"         0x0023     207 516 280 553
+        "Context1"  0x01100000 137 360 108 383 123 410
+                                90 409  60 387  63 378
+                               100 362
+        "Back"      0x01000061 184 361 206 376 213 387
+                               197 410 226 410 256 392
+                               258 381 244 369
+        "Backspace" 0x01000003  68 563 113 587
+        "Select"    0x01010000 160 391 172 390 181 386
+                               184 381 180 377 173
+                               373 165 372 155 372
+                               145 375 138 378 136
+                               382 138 387 147 390
+        "Left"      0x1000012  141 390 136 385 136 381
+                               143 375 132 371 120
+                               380 121 393 129 401
+        "Down"      0x1000015  143 389 130 402 162 412
+                               191 404 175 390
+        "Right"     0x1000014  186 370 176 375 184 382
+                               182 387 175 390 190 404
+                               201 396 202 375
+        "Up"        0x1000013  133 370 143 374 176 374
+                               185 370 169 362 149 362
+        "Flip"      0x01100006  98 325 225 353
+    \endcode
+
+    Each button is specified by its name, keycode and coordinates.
+
+    The coordinates are a list of at least 2 points in clockwise order
+    that define a shape for the button; a click inside this shape will
+    be treated as a click on that button. While pressed, the pixels
+    for the button are redrawn from the activated skin.
+
+    \o
+    \image qtopiacore-clamshellphone-closed.png The ClamshellPhone Skin (closed)
     \row
-    \o \c SmartPhone.png
+    \o \c ClamshellPhone1-5-closed.png
     \row
     \o
-    \image qtopiacore-smartphonepressed.png The SmartPhone Skin
+    \image qtopiacore-clamshellphone.png The ClamshellPhone Skin
     \row
-    \o \c SmartPhone-pressed.png
-    \o \c SmartPhone.skin
+    \o \c ClamshellPhone1-5.png
+    \row
+    \o
+    \image qtopiacore-clamshellphone-pressed.png The ClamshellPhone Skin (pressed)
+    \row
+    \o \c ClamshellPhone.skin
+    \o \c ClamshellPhone1-5-pressed.png
     \endtable
-
-    The \c SmartPhone.skin file specifies two pixmaps: One for the
-    normal skin (\c Up) and one for the activated skin (\c Down). It
-    also specifies the screen size (\c Screen) and the number of
-    available buttons (\c Areas) followed by a description of the
-    buttons themselves. Each button is specified by its name, keycode
-    and coordinates. The coordinates are a list of at least 2 points
-    in clockwise order that define a shape for the button; a click
-    inside this shape will be treated as a click on that button. While
-    pressed, the pixels for the button are redrawn from the activated
-    skin.
-
-    The \c defaultbuttons.conf file customizes the launch screen
-    applications, orders the soft keys and provides input method
-    hints.
 
     \section2 The File Menu
 
@@ -214,7 +255,7 @@
     When choosing the \gui File|Configure menu item, the \c qvfb tool
     provides a configuration dialog allowing the user to customize the
     display of the virtual framebuffer. The user can modify the size
-    and depth as weel as the Gamma values, and also select the
+    and depth as well as the Gamma values, and also select the
     preferred skin (i.e. making the virtual framebuffer simulate the
     target device environment). In addition, it is possible to emulate
     a touch screen and a LCD screen.
