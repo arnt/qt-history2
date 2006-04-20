@@ -285,7 +285,7 @@ bool QMoviePrivate::isDone()
 */
 int QMoviePrivate::speedAdjustedDelay(int delay) const
 {
-    return int(float(delay) * float(100.0) / float(speed));
+    return int( (qint64(delay) * qint64(100) ) / qint64(speed) );
 }
 
 /*!
