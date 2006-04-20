@@ -162,7 +162,7 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
     option.state &= ~QStyle::State_HasFocus;
 
-    if (property->isSeparator()) {
+    if (property && property->isSeparator()) {
         QBrush bg = option.palette.dark();
         painter->fillRect(option.rect, bg);
     }
@@ -173,7 +173,7 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
     QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &option));
     painter->setPen(QPen(color));
-    if (index.column() == 1 || !property->isSeparator()) {
+    if (index.column() == 1 || !(property && property->isSeparator())) {
         int right = (option.direction == Qt::LeftToRight) ? option.rect.right() : option.rect.left();
         painter->drawLine(right, option.rect.y(), right, option.rect.bottom());
     }
