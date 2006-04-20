@@ -268,8 +268,8 @@ void sqlite3_interrupt(sqlite3*);
 ** and comments is a semicolon, then return true.  otherwise return
 ** false.
 */
-int sqlite3_complete(const char *sql);
-int sqlite3_complete16(const void *sql);
+/* int sqlite3_complete(const char *sql); */
+/* int sqlite3_complete16(const void *sql); */
 
 /*
 ** This routine identifies a callback function that is invoked
