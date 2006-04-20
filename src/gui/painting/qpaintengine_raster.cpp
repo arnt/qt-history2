@@ -3412,9 +3412,9 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
             int stop = qMax(x1, x2) + 1;
             int stop_clipped = qMin(devRect.width(), stop);
             int len = stop_clipped - start;
+            if (style == LineDrawNormal && stop == stop_clipped)
+                len--;
             if (len > 0) {
-                if (style == LineDrawNormal && stop == stop_clipped)
-                    len--;
                 spans[0].x = ushort(start);
                 spans[0].len = ushort(len);
                 spans[0].y = y1;
@@ -3430,11 +3430,10 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
             int stop = qMax(y1, y2) + 1;
             int stop_clipped = qMin(devRect.height(), stop);
             int len = stop_clipped - start;
-            if (len > 0) {
-                if (style == LineDrawNormal && stop == stop_clipped)
-                    len--;
+            if (style == LineDrawNormal && stop == stop_clipped)
+                len--;
+            if (len > 0)
                 fillRect(QRect(x1, start, 1, len), data);
-            }
         }
         return;
     }
@@ -3693,10 +3692,10 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
             int stop = qMax(x1, x2) + 1;
             int stop_clipped = qMin(devRect.width(), stop);
             int len = stop_clipped - start;
-            if (len > 0) {
-                if (style == LineDrawNormal && stop == stop_clipped)
-                    len--;
+            if (style == LineDrawNormal && stop == stop_clipped)
+                len--;
 
+            if (len > 0) {
                 int x = start;
                 while (x < stop_clipped) {
                     if (current == NSPANS) {
