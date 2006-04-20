@@ -1501,7 +1501,7 @@ static QList<QAccessible::Action> supportedPredefinedActions(QInterfaceItem inte
 
 /*
     Translates a predefined QAccessible::Action to a Mac action constant.
-    Returns an empty string if the Qt Actions has no mac equivalent.
+    Returns an empty string if the Qt Action has no mac equivalent.
 */
 static QCFString translateAction(const QAccessible::Action action)
 {
