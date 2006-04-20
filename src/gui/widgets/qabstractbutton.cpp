@@ -813,8 +813,10 @@ void QAbstractButton::click()
         if (guard)
             emit clicked(d->checked);
 #ifndef QT_NO_BUTTONGROUP
-        if (guard && d->group)
+        if (guard && d->group) {
+            emit d->group->buttonClicked(d->group->id(this));
             emit d->group->buttonClicked(this);
+        }
 #endif
     }
 }
@@ -1054,8 +1056,10 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
             if (guard)
                 emit clicked(d->checked);
 #ifndef QT_NO_BUTTONGROUP
-            if (guard && d->group)
+            if (guard && d->group) {
+                emit d->group->buttonClicked(d->group->id(this));
                 emit d->group->buttonClicked(this);
+            }
 #endif
             if (guard)
                 emit pressed();
