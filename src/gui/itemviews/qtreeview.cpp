@@ -2117,7 +2117,8 @@ int QTreeViewPrivate::item(int yCoordinate) const
     // If coordinate() is ever changed to not estimate
     // the value then change this to just walk the tree
     int start = 0;
-    int end = viewItems.count();
+    int end = viewItems.count() - 1;
+    // this binary search is copied from qabstractitemview_p.h
     int i = (start + end + 1) >> 1;
     while (end - start > 0) {
         if (yCoordinate < coordinate(i))
@@ -2126,7 +2127,9 @@ int QTreeViewPrivate::item(int yCoordinate) const
             start = i;
         i = (start + end + 1) >> 1;
     }
-    return (i < viewItems.count() ? i : -1);
+    if (yCoordinate > coordinate(i) + height(i))
+        return -1;
+    return i;
 }
 
 int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
