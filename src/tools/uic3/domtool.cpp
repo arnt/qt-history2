@@ -378,7 +378,7 @@ static double versionToDouble(QString version)
     QString num_str;
     for (int i = 0; i < version.size(); ++i) {
         char c = version.at(i).toAscii();
-        if (c < '0' && c > '9' && c != '.')
+        if ((c < '0' || c > '9') && c != '.')
             break;
         if (c == '.') {
             if (decpt)
