@@ -254,6 +254,9 @@ Q_SIGNALS:
     QT_MOC_COMPAT void textChanged(const QString &);
 #endif
 
+protected:
+    QComboBox(QComboBoxPrivate &, QWidget *);
+
 private:
     Q_DECLARE_PRIVATE(QComboBox)
     Q_DISABLE_COPY(QComboBox)

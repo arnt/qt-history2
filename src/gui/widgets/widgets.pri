@@ -19,6 +19,7 @@ HEADERS += \
         widgets/qdockwidget_p.h \
         widgets/qdockwidgetlayout_p.h \
         widgets/qdockwidgetseparator_p.h \
+        widgets/qfontcombobox.h \
         widgets/qframe.h \
         widgets/qframe_p.h \
         widgets/qgroupbox.h \
@@ -79,6 +80,7 @@ SOURCES += \
         widgets/qdockwidgetlayout.cpp \
         widgets/qdockwidgetseparator.cpp \
         widgets/qeffects.cpp \
+        widgets/qfontcombobox.cpp \
         widgets/qframe.cpp \
         widgets/qgroupbox.cpp \
         widgets/qlabel.cpp \

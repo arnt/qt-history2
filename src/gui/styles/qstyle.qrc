@@ -20,5 +20,7 @@
 <file>images/viewlist-16.png</file>
 <file>images/trash-16.png</file>
 <file>images/networkdrive-16.png</file>
+<file>images/fontbitmap-16.png</file>
+<file>images/fonttruetype-16.png</file>
 </qresource>
 </RCC>

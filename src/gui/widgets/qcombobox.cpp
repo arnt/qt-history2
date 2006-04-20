@@ -547,8 +547,16 @@ QStyleOptionComboBox QComboBoxPrivateContainer::comboStyleOption() const
     Constructs a combobox with the given \a parent, using the default
     model QStandardItemModel.
 */
-QComboBox::QComboBox(QWidget *parent) :
-    QWidget(*new QComboBoxPrivate(), parent, 0)
+QComboBox::QComboBox(QWidget *parent)
+    : QWidget(*new QComboBoxPrivate(), parent, 0)
+{
+    Q_D(QComboBox);
+    d->init();
+}
+
+
+QComboBox::QComboBox(QComboBoxPrivate &dd, QWidget *parent)
+    : QWidget(dd, parent, 0)
 {
     Q_D(QComboBox);
     d->init();
@@ -559,8 +567,8 @@ QComboBox::QComboBox(QWidget *parent) :
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
 */
-QComboBox::QComboBox(QWidget *parent, const char *name) :
-    QWidget(*new QComboBoxPrivate(), parent, 0)
+QComboBox::QComboBox(QWidget *parent, const char *name)
+    : QWidget(*new QComboBoxPrivate(), parent, 0)
 {
     Q_D(QComboBox);
     d->init();
@@ -571,8 +579,8 @@ QComboBox::QComboBox(QWidget *parent, const char *name) :
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
 */
-QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
-    QWidget(*new QComboBoxPrivate(), parent, 0)
+QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
+    : QWidget(*new QComboBoxPrivate(), parent, 0)
 {
     Q_D(QComboBox);
     d->init();
