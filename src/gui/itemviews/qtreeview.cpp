@@ -1168,6 +1168,9 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
         QPersistentModelIndex persistent = index.sibling(index.row(), column);
         emit doubleClicked(persistent);
 
+        if (!persistent.isValid())
+            return;
+
         if (edit(persistent, DoubleClicked, event) || state() != NoState)
             return; // the double click triggered editing
 
@@ -1175,7 +1178,16 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
             emit activated(persistent);
 
         d->executePostedLayout(); // we need to make sure viewItems is updated
-        if (d->itemsExpandable && model()->hasChildren(d->viewItems.at(i).index)) {
+        if (d->itemsExpandable && model()->hasChildren(persistent)) {
+            if (!((i < d->viewItems.count()) && (d->viewItems.at(i).index == persistent))) {
+                // find the new index of the item
+                for (i = 0; i < d->viewItems.count(); ++i) {
+                    if (d->viewItems.at(i).index == persistent)
+                        break;
+                }
+                if (i == d->viewItems.count())
+                    return;
+            }
             if (d->viewItems.at(i).expanded)
                 d->collapse(i, true);
             else
