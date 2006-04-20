@@ -155,32 +155,16 @@
     \header
     \o {3,1} The ClamshellPhone Skin
     \row
-    \o {1,5}
-
-    The \c ClamShellPhone.skin file specifies three pixmaps:
+    \o {3,1}
 
     \code
         [SkinFile]
         Up=ClamshellPhone1-5.png
         Down=ClamshellPhone1-5-pressed.png
         Closed=ClamshellPhone1-5-closed.png
-    \endcode
-
-    One for the normal skin (\c Up), one for the activated skin (\c
-    Down) and one for the closed skin (\c Closed). In addition, it is
-    possible to specify a pixmap for the cursor (using a \c Cursor
-    variable).
-
-    \code
         Screen=72 84 176 208
         Areas=22
-    \endcode
 
-    The \c ClamShellPhone.skin file also specifies the screen size (\c
-    Screen) and the number of available buttons (\c Areas). Then it
-    describes the buttons themselves:
-
-    \code
         "Power"     0x0100000a 205 563 249 586
         "1"         0x0031      62 414 119 438
         "2"         0x0032     130 414 189 438
@@ -194,52 +178,50 @@
         "*"         0x002a      39 515 110 552
         "0"         0x0030     122 515 195 553
         "#"         0x0023     207 516 280 553
-        "Context1"  0x01100000 137 360 108 383 123 410
-                                90 409  60 387  63 378
+        "Context1"  0x01100000 137 360 108 383 123 410 90 409  60 387  63 378
                                100 362
-        "Back"      0x01000061 184 361 206 376 213 387
-                               197 410 226 410 256 392
+        "Back"      0x01000061 184 361 206 376 213 387 197 410 226 410 256 392
                                258 381 244 369
         "Backspace" 0x01000003  68 563 113 587
-        "Select"    0x01010000 160 391 172 390 181 386
-                               184 381 180 377 173
-                               373 165 372 155 372
-                               145 375 138 378 136
+        "Select"    0x01010000 160 391 172 390 181 386 184 381 180 377 173
+                               373 165 372 155 372 145 375 138 378 136
                                382 138 387 147 390
-        "Left"      0x1000012  141 390 136 385 136 381
-                               143 375 132 371 120
+        "Left"      0x1000012  141 390 136 385 136 381 143 375 132 371 120
                                380 121 393 129 401
-        "Down"      0x1000015  143 389 130 402 162 412
-                               191 404 175 390
-        "Right"     0x1000014  186 370 176 375 184 382
-                               182 387 175 390 190 404
+        "Down"      0x1000015  143 389 130 402 162 412 191 404 175 390
+        "Right"     0x1000014  186 370 176 375 184 382 182 387 175 390 190 404
                                201 396 202 375
-        "Up"        0x1000013  133 370 143 374 176 374
-                               185 370 169 362 149 362
+        "Up"        0x1000013  133 370 143 374 176 374 185 370 169 362 149 362
         "Flip"      0x01100006  98 325 225 353
     \endcode
 
-    Each button is specified by its name, keycode and coordinates.
+    The \c ClamShellPhone.skin file quoted above, specifies three
+    pixmaps: One for the normal skin (\c Up), one for the activated
+    skin (\c Down) and one for the closed skin (\c Closed). In
+    addition, it is possible to specify a pixmap for the cursor (using
+    a \c Cursor variable).
+
+    The file also specifies the screen size (\c Screen) and the number
+    of available buttons (\c Areas). Then it describes the buttons
+    themselves; each button is specified by its name, keycode and
+    coordinates.
 
     The coordinates are a list of at least 2 points in clockwise order
     that define a shape for the button; a click inside this shape will
     be treated as a click on that button. While pressed, the pixels
     for the button are redrawn from the activated skin.
 
+    \row
+    \row
     \o
     \image qtopiacore-clamshellphone-closed.png The ClamshellPhone Skin (closed)
-    \row
-    \o \c ClamshellPhone1-5-closed.png
-    \row
     \o
     \image qtopiacore-clamshellphone.png The ClamshellPhone Skin
-    \row
-    \o \c ClamshellPhone1-5.png
-    \row
     \o
     \image qtopiacore-clamshellphone-pressed.png The ClamshellPhone Skin (pressed)
     \row
-    \o \c ClamshellPhone.skin
+    \o \c ClamshellPhone1-5-closed.png
+    \o \c ClamshellPhone1-5.png
     \o \c ClamshellPhone1-5-pressed.png
     \endtable
 
