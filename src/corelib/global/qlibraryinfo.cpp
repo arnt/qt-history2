@@ -47,7 +47,18 @@ public:
     }
     static QSettings *configuration()
     {
+#ifdef QT_NO_THREAD
+        // This recursion guard should be a temporary solution; the recursive
+        // dependency should be found and removed.
+        static bool initializing = false;
+        if (initializing)
+            return 0;
+        initializing = true;
+#endif
         QLibrarySettings *ls = qt_library_settings();
+#ifdef QT_NO_THREAD
+        initializing = false;
+#endif
         return ls ? static_cast<QSettings *>(qt_library_settings()->settings) : (QSettings*)0;
     }
 
