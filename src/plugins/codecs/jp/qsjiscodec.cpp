@@ -23,7 +23,7 @@
 #include "qsjiscodec.h"
 #include "qlist.h"
 
-// #ifndef QT_NO_TEXTCODECPLUGIN
+#ifndef QT_NO_TEXTCODEC
 enum {
     Esc = 0x1b
 };
@@ -179,4 +179,4 @@ QList<QByteArray> QSjisCodec::_aliases()
          << "MS_Kanji";
     return list;
 }
-// #endif // QT_NO_TEXTCODECPLUGIN
+#endif // QT_NO_TEXTCODEC

@@ -42,7 +42,7 @@
 #include <QtCore/qtextcodec.h>
 #include <QtCore/qlist.h>
 
-// #ifndef QT_NO_TEXTCODECPLUGIN
+#ifndef QT_NO_TEXTCODEC
 
 class QEucKrCodec : public QTextCodec {
 public:
@@ -78,6 +78,6 @@ public:
 };
 #endif
 
-// #endif // QT_NO_TEXTCODECPLUGIN
+#endif // QT_NO_TEXTCODEC
 
 #endif // QEUCKRCODEC_H
