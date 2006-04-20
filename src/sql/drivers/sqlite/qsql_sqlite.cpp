@@ -71,7 +71,6 @@ public:
     QSQLiteResultPrivate(QSQLiteResult *res);
     void cleanup();
     bool fetchNext(QSqlCachedResult::ValueCache &values, int idx, bool initialFetch);
-    bool isSelect();
     // initializes the recordInfo and the cache
     void initColumns(bool emptyResultset);
     void finalize();
@@ -194,6 +193,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
             // must be first call.
             initColumns(true);
         q->setAt(QSql::AfterLastRow);
+        sqlite3_reset(stmt);
         return false;
     case SQLITE_ERROR:
     case SQLITE_MISUSE:
