@@ -47,7 +47,7 @@ public:
         pad = 0;
     }
 
-    inline ~QGraphicsItemPrivate()
+    inline virtual ~QGraphicsItemPrivate()
     { delete matr; }
 
     inline QMatrix matrix() const

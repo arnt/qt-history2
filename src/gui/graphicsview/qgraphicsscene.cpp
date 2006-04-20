@@ -286,6 +286,7 @@ void QGraphicsScenePrivate::resetIndex()
             QTimer::singleShot(0, q, SLOT(generateBspTree()));
         }
     }
+    removedItems.clear();
 }
 
 /*!
@@ -313,13 +314,15 @@ void QGraphicsScenePrivate::generateBspTree()
 
     for (int i = 0; i < newItems.size(); ++i) {
         QGraphicsItem *item = newItems.at(i);
-        if (!freeItemIndexes.isEmpty()) {
-            int freeIndex = freeItemIndexes.takeFirst();
-            item->d_func()->index = freeIndex;
-            allItems[freeIndex] = item;
-        } else {
-            item->d_func()->index = allItems.size();
-            allItems << item;
+        if (item && !removedItems.contains(item)) {
+            if (!freeItemIndexes.isEmpty()) {
+                int freeIndex = freeItemIndexes.takeFirst();
+                item->d_func()->index = freeIndex;
+                allItems[freeIndex] = item;
+            } else {
+                item->d_func()->index = allItems.size();
+                allItems << item;
+            }
         }
     }
     
@@ -333,16 +336,22 @@ void QGraphicsScenePrivate::generateBspTree()
         bspTree.init(boundingRect, QGraphicsSceneBspTree::Node::Both);
 
         for (int i = 0; i < allItems.size(); ++i) {
-            QGraphicsItem *item = allItems.at(i);
-            bspTree.insertLeaf(item->sceneBoundingRect(), i);
-            item->d_func()->index = i;
+            if (QGraphicsItem *item = allItems.at(i)) {
+                if (!removedItems.contains(item)) {
+                    bspTree.insertLeaf(item->sceneBoundingRect(), i);
+                    item->d_func()->index = i;
+                }
+            }
         }
     } else {
         // Otherwise, just add the items to the tree.
         for (int i = 0; i < newItems.size(); ++i) {
-            QGraphicsItem *item = newItems.at(i);
-            bspTree.insertLeaf(item->sceneBoundingRect(),
-                               item->d_func()->index);
+            if (QGraphicsItem *item = newItems.at(i)) {
+                if (!removedItems.contains(item)) {
+                    bspTree.insertLeaf(item->sceneBoundingRect(),
+                                       item->d_func()->index);
+                }
+            }
         }
     }
 
@@ -377,7 +386,20 @@ void QGraphicsScenePrivate::startEmittingUpdates()
 */
 void QGraphicsScenePrivate::removeItemLater(QGraphicsItem *item)
 {
+    if (item == mouseGrabberItem)
+        mouseGrabberItem = 0;
+    if (item == focusItem)
+        focusItem = 0;
+    if (removedItems.isEmpty())
+        resetIndex();
+    if (QGraphicsItem *parent = item->d_func()->parent) {
+        parent->d_func()->children.removeAll(item);
+        item->d_func()->parent = 0;
+        item->d_func()->scene = 0;
+    }
     removedItems << item;
+    foreach (QGraphicsItem *child, item->children())
+        removeItemLater(child);
 }
 
 /*!
@@ -469,12 +491,24 @@ QGraphicsScene::QGraphicsScene(QObject *parent)
 QGraphicsScene::~QGraphicsScene()
 {
     Q_D(QGraphicsScene);
+    for (int i = 0; i < d->newItems.size(); ++i) {
+        if (QGraphicsItem *item = d->newItems[i]) {
+            if (!d->removedItems.contains(item)) {
+                d->newItems[i] = 0;
+                d->removeFromIndex(item);
+                item->d_func()->scene = 0;
+                delete item;
+            }
+        }
+    }
     for (int i = 0; i < d->allItems.size(); ++i) {
         if (QGraphicsItem *item = d->allItems[i]) {
-            d->removeFromIndex(item);
-            item->d_func()->scene = 0;
-            delete item;
-            d->allItems[i] = 0;
+            if (!d->removedItems.contains(item)) {
+                d->allItems[i] = 0;
+                d->removeFromIndex(item);
+                item->d_func()->scene = 0;
+                delete item;
+            }
         }
     }
 }
@@ -766,6 +800,12 @@ QGraphicsItem *QGraphicsScene::addItem(QGraphicsItem *item)
 
     if (item->d_func()->scene)
         item->d_func()->scene->removeItem(item);
+    if (QGraphicsItem *itemParent = item->d_func()->parent) {
+        if (itemParent->scene() != this) {
+            itemParent->d_func()->children.removeAll(item);
+            item->d_func()->parent = 0;
+        }
+    }
     item->d_func()->scene = this;
     if (d->indexMethod != QGraphicsScene::NoIndex) {
         d->newItems << item;
@@ -947,16 +987,24 @@ QGraphicsTextItem *QGraphicsScene::addText(const QString &text, const QPen &pen,
 void QGraphicsScene::removeItem(QGraphicsItem *item)
 {
     Q_D(QGraphicsScene);
+
     d->removeFromIndex(item);
     item->d_func()->scene = 0;
+    if (QGraphicsItem *parentItem = item->parentItem()) {
+        if (parentItem->scene() == this)
+            parentItem->d_func()->children.removeAll(item);
+    }
     int index = item->d_func()->index;
     if (index != -1) {
         d->freeItemIndexes << index;
         d->allItems[index] = 0;
+    } else {
+        d->newItems.removeAll(item);
     }
-    if (d->mouseGrabberItem == item)
+    if (item == d->mouseGrabberItem)
         d->mouseGrabberItem = 0;
-
+    if (item == d->focusItem)
+        d->focusItem = 0;
     foreach (QGraphicsItem *child, item->children())
         removeItem(child);
 }

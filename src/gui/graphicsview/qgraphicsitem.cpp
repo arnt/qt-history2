@@ -108,20 +108,16 @@ QGraphicsItem::QGraphicsItem(QGraphicsItemPrivate &dd, QGraphicsItem *parent)
 QGraphicsItem::~QGraphicsItem()
 {
     Q_D(QGraphicsItem);
-    if (d->scene)
-        d->scene->removeItem(this);
-    if (d->parent)
-        d->parent->d_func()->children.removeAll(this);
-    for (int i = 0; i < d->children.size(); ++i) {
-        QGraphicsItem *item = d->children[i];
-        item->d_func()->parent = 0;
-        delete item;
-        d->children[i] = 0;
-    }
 
-    // Cannot call removeFromIndex from the destructor.
-    // sceneBoundingRect() is virtual.
-    // ### removeFromIndex();
+    qDeleteAll(d->children);
+    d->children.clear();
+
+    if (QGraphicsItem *parent = parentItem())
+        parent->d_func()->children.removeAll(this);
+    if (d->scene)
+        d->scene->d_func()->removeItemLater(this);
+
+    delete d;
 }
 
 /*!

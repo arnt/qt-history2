@@ -42,6 +42,9 @@ public:
         : widget(0),
           q_ptr(0)
     { }
+
+    inline virtual ~QGraphicsSceneEventPrivate()
+    { }
     
     QWidget *widget;
     QGraphicsSceneEvent *q_ptr;

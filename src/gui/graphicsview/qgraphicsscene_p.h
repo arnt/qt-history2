@@ -61,10 +61,10 @@ public:
     QList<QGraphicsItem *> newItems;
     QList<QGraphicsItem *> selectedItems;
     QList<QGraphicsItem *> allItems;
-    QSet<QGraphicsItem *> removedItems;
     QList<int> freeItemIndexes;
     void removeItemLater(QGraphicsItem *item);
     QList<QGraphicsItem *> validItems() const;
+    QSet<QGraphicsItem *> removedItems;
 
     bool hasFocus;
     QGraphicsItem *focusItem;
