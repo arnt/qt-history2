@@ -366,7 +366,7 @@ bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent) {
     if (count < 1 || row < 0 || (row + count) > rowCount(parent))
         return false;
 
-    beginRemoveRows(parent, row, row + count);
+    beginRemoveRows(parent, row, row + count -1);
 
     bool blockSignal = signalsBlocked();
     blockSignals(true);
