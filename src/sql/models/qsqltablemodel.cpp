@@ -1043,14 +1043,14 @@ bool QSqlTableModel::insertRows(int row, int count, const QModelIndex &parent)
     case OnRowChange:
         if (count != 1)
             return false;
-        beginInsertRows(parent, row, row + 1);
+        beginInsertRows(parent, row, row);
         d->insertIndex = row;
         // ### apply dangling changes...
         d->clearEditBuffer();
         emit primeInsert(row, d->editBuffer);
         break;
     case OnManualSubmit:
-        beginInsertRows(parent, row, row + count);
+        beginInsertRows(parent, row, row + count - 1);
         if (!d->cache.isEmpty()) {
             QMap<int, QSqlTableModelPrivate::ModifiedRow>::Iterator it = d->cache.end();
             while (it != d->cache.begin() && (--it).key() >= row) {
