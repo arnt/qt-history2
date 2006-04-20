@@ -792,8 +792,8 @@ void QTextDocumentPrivate::undoRedo(bool undo)
 	}
 	case QTextUndoCommand::GroupFormatChange: {
             PMDEBUG("   group format change");
-            QTextObject *object = c.object;
-            int oldFormat = formats.objectFormatIndex(object->objectIndex());
+            QTextObject *object = objectForIndex(c.objectIndex);
+            int oldFormat = formats.objectFormatIndex(c.objectIndex);
             changeObjectFormat(object, c.format);
             c.format = oldFormat;
 	    break;
@@ -1080,8 +1080,7 @@ void QTextDocumentPrivate::changeObjectFormat(QTextObject *obj, int format)
         documentChange(f->firstPosition(), f->lastPosition() - f->firstPosition());
 
     QTextUndoCommand c = { QTextUndoCommand::GroupFormatChange, true, QTextUndoCommand::MoveCursor, oldFormatIndex,
-                      0, 0, { 1 } };
-    c.object = obj;
+                      0, 0, { obj->d_func()->objectIndex } };
     appendUndoItem(c);
 
     endEditBlock();
