@@ -3424,15 +3424,17 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
         }
         return;
     } else if (dx == 0) {
+        // specialcase vertical lines
         if (x1 >= 0 && x1 < devRect.width()) {
             int start = qMax(0, qMin(y1, y2));
             int stop = qMax(y1, y2) + 1;
             int stop_clipped = qMin(devRect.height(), stop);
-            if (style == LineDrawNormal && stop == stop_clipped)
-                --stop;
-            else
-                stop = stop_clipped;
-            fillRect(QRect(x1, start, 1, stop - start), data);
+            int len = stop_clipped - start;
+            if (len > 0) {
+                if (style == LineDrawNormal && stop == stop_clipped)
+                    len--;
+                fillRect(QRect(x1, start, 1, len), data);
+            }
         }
         return;
     }
