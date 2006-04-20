@@ -24,6 +24,7 @@ SOURCES		= smain.cpp \
                ../../../3rdparty/sqlite/legacy.c \
                ../../../3rdparty/sqlite/main.c \
                ../../../3rdparty/sqlite/opcodes.c \
+               ../../../3rdparty/sqlite/os.c \
                ../../../3rdparty/sqlite/pager.c \
                ../../../3rdparty/sqlite/parse.c \
                ../../../3rdparty/sqlite/pragma.c \
