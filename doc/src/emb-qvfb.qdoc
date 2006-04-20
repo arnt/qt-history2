@@ -15,10 +15,12 @@
     \image qtopiacore-virtualframebuffer.png
 
     The virtual framebuffer emulates a framebuffer using a shared
-    memory region and the \c qvfb tool to display the framebuffer in
-    a window. The \c qvfb tool is located in Qt's \c /tools/qvfb
-    directory, and provides several features accessible through its
-    \gui File and \gui View menus.
+    memory region and the \c qvfb tool to display the framebuffer in a
+    window. The \c qvfb tool also supports a feature known as a skin
+    which can be used to change the look and feel of the display. The
+    tool is located in Qt's \c /tools/qvfb directory, and provides
+    several additional features accessible through its \gui File and
+    \gui View menus.
 
     Please note that the virtual framebuffer is a development tool
     only. No security issues have been considered in the virtual
@@ -70,7 +72,193 @@
     \row
     \o \c {-qwsdisplay <:id>}
     \o The \l {Qtopia Core} display ID (default: :0).
+    \row
+    \o \c {-skin <name>.skin}
+    \o The preferred skin which must be located in Qt's \c /tools/qvfb/ directory.
+    \row
+    \o \c {-zoom <factor>}
+    \o The scale of the application view.
+
     \endtable
+
+    \section2 Skins
+
+    A skin is a set of XML and pixmap files that tell the vitual
+    framebuffer how it should look and how it should behave; a skin
+    can change the unrealistic display into a display that is
+    identical to the device being devolped. Note that a skin can have
+    buttons which, when clicked, send signals to the Qtopia
+    application running inside the virtual framebuffer, just as would
+    happen on a real device.
+
+    \table 100%
+    \row
+        \o
+        \bold {Target Device Environment}
+
+        The \c qvfb tool provides various skins by default, allowing
+        the user to view their application in an environment similar
+        to their target device. The provided skins are:
+
+        \list
+            \o ClamshellPhone
+            \o pda
+            \o PDAPhone
+            \o QtopiaPDA
+            \o QtopiaPhone-Advanced
+            \o QtopiaPhone-Simple
+            \o SmartPhone
+            \o SmartPhone2
+            \o SmartPhoneWithButtons
+            \o TouchscreenPhone
+            \o Trolltech-Keypad
+            \o Trolltech-Touchscreen
+        \endlist
+
+        In addition it is possible to create custom skins.
+
+        \o \image qtopiacore-phone.png
+        \o \image qtopiacore-pda.png
+    \endtable
+
+    \bold {Creating Custom Skins}
+
+    The XML and pixmap files specifying a custom skin must be located
+    in a corresponding subdirectory of the Qt's \c /tools/qvfb
+    directory. See the SmartPhone skin for an example of the file
+    structure:
+
+    \code
+        cd path/to/Qt/tools/qvfb/SmartPhone.skin/
+    \endcode
+
+    The \c SmartPhone.skin directory contains the following files:
+
+    \list
+        \o SmartPhone.skin
+        \o defaultbuttons.conf
+        \o SmartPhone.png
+        \o SmartPhone-pressed.png
+    \endlist
+
+    \table 100%
+    \header
+    \o {2,1} The SmartPhone Skin
+    \row
+    \o
+    \image qtopiacore-smartphone.png The SmartPhone Skin
+    \o {1,3}
+    \code
+        [SkinFile]
+        Up=SmartPhone.png
+        Down=SmartPhone-pressed.png
+        Screen=90 107 176 208
+        Areas=26
+
+        "1"        0x0031 138 459 149 473 142 483 120 ...
+        "2"        0x0032 153 467 202 492
+        "3"        0x0033 258 457 260 470 243 483 215 ...
+        "4"        0x0034 138 492 149 506 142 516 120 ...
+        "5"        0x0035 153 499 202 524
+        "6"        0x0036 258 489 260 502 243 515 215 ...
+        "7"        0x0037 138 524 149 538 142 548 120 ...
+        "8"        0x0038 153 531 202 556
+        "9"        0x0039 258 521 260 534 243 547 215 ...
+        "*"        0x002a 138 556 149 570 142 580 120 ...
+        "0"        0x0030 153 564 202 589
+        "#"        0x0023 258 554 260 567 243 580 215 ...
+        "Call"     0x01100004  88 395 130 439
+        "Hangup"   0x01100005 227 395 269 439
+        "Context1" 0x01100000 145 321 134 333 132 ...
+        "Back"     0x01000061 249 322 240 354 219 373 ...
+        "Select"   0x01010000 160 338 195 371
+        "Left"     0x1000012 159 338 149 328 141 336 ...
+        "Down"     0x1000015 160 373 150 382 159 391 ...
+        "Right"    0x1000014 195 336 206 323 215 338 ...
+        "Up"       0x1000013 160 336 149 326 158 319  ...
+    \endcode
+    \row
+    \o \c SmartPhone.png
+    \row
+    \o
+    \image qtopiacore-smartphonepressed.png The SmartPhone Skin
+    \row
+    \o \c SmartPhone-pressed.png
+    \o \c SmartPhone.skin
+    \endtable
+
+    The \c .skin file specifies two pixmaps: One for the normal skin
+    (\c Up) and one for the activated skin (\c Down). It also
+    specifies the screen size (\c Screen) and the number of available
+    buttons (\c Areas) followed by a description of the buttons
+    themselves. Each button is specified by its name, keycode and
+    coordinates. The coordinates are a list of at least 2 points in
+    clockwise order that define a shape for the button. The two points
+    are treated as opposite edges of a rectangle and a click inside
+    the points will be treated as a click on that button. While
+    pressed, the pixels for the button are redrawn from the activated
+    skin.
+
+    In addition, it is possible to specify the cursor image, using a
+    \c Cursor variable.
+
+    The \c defaultbuttons.conf file customizes the launch screen
+    applications, orders the soft keys and provides input method
+    hints.
+
+    It is possible to specify the screen size independently of the
+    currently used skin. For example:
+
+    \code
+        ./qvfb -skin SmartPhone.skin -width 240 -height 320 -zoom 0.7
+    \endcode
+
+    The command above makes the virtual framebuffer use a screen size
+    of 240x320 pixels even though the SmartPhone.skin has a default
+    screen area of 176x208 skin pixels.
+
+
+    \section2 The File Menu
+
+    \image qtopiacore-qvfbfilemenu.png
+
+    The \gui File menu allows the user to configure the virtual
+    framebuffer display (\gui File|Configure...), save a snapshot of
+    the framebuffer contents (\gui {File|Save Image...}) and record
+    the movements in the framebuffer (\gui File|Animation...).
+
+    When choosing the \gui File|Configure menu item, the \c qvfb tool
+    provides a configuration dialog allowing the user to customize the
+    display of the virtual framebuffer. The user can modify the size
+    and depth as weel as the Gamma values, and also select the
+    preferred skin (i.e. making the virtual framebuffer simulate the
+    target device environment). In addition, it is possible to emulate
+    a touch screen and a LCD screen.
+
+    Note that when configuring (except when changing the Gamma values
+    only), any applications using the virtual framebuffer will be
+    terminated.
+
+    \section2 The View Menu
+
+    \image qtopiacore-qvfbviewmenu.png
+
+    The \gui View menu allows the user to modify the target's refresh
+    rate (\gui {View|Refresh Rate...}), making \c qvfb check for
+    updated regions more or less frequently.
+
+    The regions of the display that have changed are updated
+    periodically, i.e. the virtual framebuffer is displaying discrete
+    snapshots of the framebuffer rather than each individual drawing
+    operation. For this reason drawing problems such as flickering may
+    not be apparent until the program is run using a real framebuffer.
+    If little drawing is being done, the framebuffer will not show any
+    updates between drawing events. If an application is displaying an
+    animation, the updates will be frequent, and the application and
+    \c qvfb will compete for processor time.
+
+    The \gui View menu also allows the user to zoom the view of the
+    application  (\gui {View|Zoom *}).
 
     \section1 Running Applications Using the Virtual Framebuffer
 
@@ -103,75 +291,4 @@
     library doesn't support it) and the driver is not explicitly
     specified, Qtopia Core will write to the real framebuffer and the
     X11 display will be corrupted.
-
-    \section1 The File Menu
-
-    \image qtopiacore-qvfbfilemenu.png
-
-    The \gui File menu allows the user to configure the virtual
-    framebuffer display (\gui File|Configure...), save a snapshot of
-    the framebuffer contents (\gui {File|Save Image...}) and record
-    the movements in the framebuffer (\gui File|Animation...).
-
-    When choosing the \gui File|Configure menu item, the \c qvfb tool
-    provides a configuration dialog allowing the user to customize the
-    display of the virtual framebuffer. The user can modify the size
-    and depth as weel as the Gamma values, and also select the
-    preferred skin (i.e. making the virtual framebuffer simulate the
-    target device environment). In addition, it is possible to emulate
-    a touch screen and a LCD screen.
-
-    \table 100%
-    \row
-        \o
-        \bold {Target Device Environment}
-
-        The \c qvfb tool provides various skins for the virtual
-        framebuffer allowing the user to view their application in an
-        environment similar to their target device. The provided skins
-        are:
-
-        \list
-            \o ClamshellPhone
-            \o pda
-            \o PDAPhone
-            \o QtopiaPDA
-            \o QtopiaPhone-Advanced
-            \o QtopiaPhone-Simple
-            \o SmartPhone
-            \o SmartPhone2
-            \o SmartPhoneWithButtons
-            \o TouchscreenPhone
-            \o Trolltech-Keypad
-            \o Trolltech-Touchscreen
-        \endlist
-
-        \o \image qtopiacore-phone.png
-        \o \image qtopiacore-pda.png
-    \endtable
-
-    Note that when configuring (except when changing the Gamma values
-    only), any applications using the virtual framebuffer will be
-    terminated.
-
-    \section1 The View Menu
-
-    \image qtopiacore-qvfbviewmenu.png
-
-    The \gui View menu allows the user to modify the target's refresh
-    rate (\gui {View|Refresh Rate...}), making \c qvfb check for
-    updated regions more or less frequently.
-
-    The regions of the display that have changed are updated
-    periodically, i.e. the virtual framebuffer is displaying discrete
-    snapshots of the framebuffer rather than each individual drawing
-    operation. For this reason drawing problems such as flickering may
-    not be apparent until the program is run using a real framebuffer.
-    If little drawing is being done, the framebuffer will not show any
-    updates between drawing events. If an application is displaying an
-    animation, the updates will be frequent, and the application and
-    \c qvfb will compete for processor time.
-
-    The \gui View menu also allows the user to zoom the view of the
-    application  (\gui {View|Zoom *}).
 */
