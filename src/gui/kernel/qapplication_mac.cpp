@@ -37,6 +37,7 @@
 #include "qwidget.h"
 #include "qcolormap.h"
 #include "qdir.h"
+#include "qdebug.h"
 #include "private/qmacinputcontext_p.h"
 #include "private/qpaintengine_mac_p.h"
 #include "private/qcursor_p.h"
@@ -51,10 +52,6 @@
 
 #ifndef QT_NO_THREAD
 #  include "qmutex.h"
-#endif
-
-#ifndef QT_NO_DEBUG
-#  include "qdebug.h"
 #endif
 
 #include <unistd.h>
@@ -2227,6 +2224,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                      wheel_delta, buttons, modifiers,
                                      axis == kEventMouseWheelAxisX ? Qt::Horizontal : Qt::Vertical);
                     QApplication::sendSpontaneousEvent(QApplicationPrivate::focus_widget, &qwe2);
+                    if(!qwe2.isAccepted())
+                        handled_event = false;
                 }
             } else {
 #ifdef QMAC_SPEAK_TO_ME
@@ -2256,7 +2255,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
                 QMouseEvent qme(etype, plocal, p, buttonToSend, buttons, modifiers);
                 QApplication::sendSpontaneousEvent(widget, &qme);
+                if(!qme.isAccepted())
+                    handled_event = false;
             }
+
             if(ekind == kEventMouseDown &&
                ((button == Qt::RightButton) ||
                 (button == Qt::LeftButton && (modifiers & Qt::MetaModifier))))

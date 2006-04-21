@@ -305,8 +305,14 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                                  sizeof(window), 0, &window) == noErr) {
                 HIViewRef hiview;
                 if(HIViewGetViewForMouseEvent(HIViewGetRoot(window), event, &hiview) == noErr) {
-                    if(QWidget *w = QWidget::find((WId)hiview))
+                    if(QWidget *w = QWidget::find((WId)hiview)) {
+#if 0
                         send_to_app = !w->isActiveWindow();
+#else
+                        Q_UNUSED(w);
+                        send_to_app = true;
+#endif
+                    }
                 }
             }
         }
@@ -909,7 +915,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             wclass = kDocumentWindowClass;
 
         WindowGroupRef grp = 0;
-        WindowAttributes wattr = kWindowCompositingAttribute;
+        WindowAttributes wattr = kWindowCompositingAttribute | kWindowStandardHandlerAttribute;
         if(qt_mac_is_macsheet(q)) {
             //grp = GetWindowGroupOfClass(kMovableModalWindowClass);
             wclass = kSheetWindowClass;
@@ -1028,6 +1034,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if(OSStatus ret = qt_mac_create_window(wclass, wattr, &r, &window))
             qWarning("QWidget: Internal error: %s:%d: If you reach this error please contact Trolltech and include the\n"
                    "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
+        topData()->wclass = wclass;
         QWidget *me = q;
         if(SetWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(me), &me) != noErr)
             qWarning("Qt:Internal error (%s:%d)", __FILE__, __LINE__); //no real way to recover
@@ -2075,6 +2082,7 @@ void QWidgetPrivate::deleteSysExtra()
 
 void QWidgetPrivate::createTLSysExtra()
 {
+    extra->topextra->wclass = 0;
     extra->topextra->group = 0;
     extra->topextra->is_moved = 0;
     extra->topextra->resizer = 0;
@@ -2204,16 +2212,19 @@ QPaintEngine *QWidget::paintEngine() const
 void QWidgetPrivate::setModal_sys()
 {
     Q_Q(QWidget);
-    // We need a different window type if we are to be run modal. SetWindowClass will
-    // disappear, so Apple recommends changing the window group instead.
-    // Also, of this widget's window is a secondary window, we need to set the window
-    // type if the primary window is modal.
-    const QWidget * const windowParent = q->window()->parentWidget();
-    const QWidget * const primaryWindow = windowParent ? windowParent->window() : 0;
-    const WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
-    if (q->testAttribute(Qt::WA_ShowModal) || (primaryWindow && primaryWindow->testAttribute(Qt::WA_ShowModal))) {
-        if (q->testAttribute(Qt::WA_WState_Created) && !topData()->group) {
-            SetWindowGroup(qt_mac_window_for(q), wgr);
+    if (q->testAttribute(Qt::WA_WState_Created)) {
+        //setup the proper window class
+        WindowClass old_wclass;
+        WindowPtr window = qt_mac_window_for(q);
+        GetWindowClass(qt_mac_window_for(q), &old_wclass);
+
+        const QWidget * const windowParent = q->window()->parentWidget();
+        const QWidget * const primaryWindow = windowParent ? windowParent->window() : 0;
+        if (q->testAttribute(Qt::WA_ShowModal) || (primaryWindow && primaryWindow->testAttribute(Qt::WA_ShowModal))) {
+            if(old_wclass == kDocumentWindowClass || old_wclass == kFloatingWindowClass || old_wclass == kUtilityWindowClass)
+                HIWindowChangeClass(window, kMovableModalWindowClass);
+        } else if(old_wclass != topData()->wclass) {
+            HIWindowChangeClass(window, topData()->wclass);
         }
     }
 
@@ -2222,9 +2233,10 @@ void QWidgetPrivate::setModal_sys()
     // of this window.
     if (q->testAttribute(Qt::WA_ShowModal)) {
         const QObjectList children = q->children();
+        const WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
         for (QObjectList::ConstIterator it = children.constBegin(); it != children.constEnd(); ++it) {
             const QObject * const child = *it;
-            if (child->isWidgetType() == false) 
+            if (child->isWidgetType() == false)
                 continue;
             const QWidget * const widget = static_cast<QWidget const * const>(child);
             if (widget->isWindow() == false)

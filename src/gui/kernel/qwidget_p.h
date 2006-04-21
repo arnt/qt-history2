@@ -92,6 +92,7 @@ struct QTLWExtra {
     QBitmap *iconMask;
 #endif
 #if defined(Q_WS_MAC)
+    quint32 wclass;
     WindowGroupRef group;
     uint is_moved: 1;
     uint resizer : 4;
