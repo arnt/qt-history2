@@ -1383,7 +1383,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar()
 */
 QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     : QStyleOption(version, SO_ProgressBar),
-      minimum(0), maximum(0), progress(0), textAlignment(0), textVisible(false)
+      minimum(0), maximum(0), progress(0), textAlignment(Qt::AlignLeft), textVisible(false)
 {
 }
 
