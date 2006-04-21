@@ -12,7 +12,7 @@ public:
 MyPushButton::MyPushButton(QWidget *parent)
     : QPushButton(parent)
 {
-}
+ }
 
 void MyPushButton::paintEvent(QPaintEvent *)
 {
@@ -41,6 +41,14 @@ public:
 
 MyStyle::MyStyle()
 {
+    QStyleOptionFrame *option;
+
+    if (const QStyleOptionFrame *frameOption =
+           qstyleoption_cast<const QStyleOptionFrame *>(option)) {
+        QStyleOptionFrameV2 frameOptionV2(*frameOption);
+
+        // draw the frame using frameOptionV2
+    }
 }
 
 void MyStyle::drawPrimitive(PrimitiveElement element,

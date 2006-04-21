@@ -63,6 +63,9 @@
     The qstyleoption_cast() function will return 0 if the object to
     which \c option points is not of the correct type.
 
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
     \sa QStyle, QStylePainter
 */
 
@@ -297,6 +300,9 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
 
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
     \sa QStyleOption
 */
 
@@ -353,7 +359,7 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
     \brief The QStyleOptionFrame class is used to describe the
     parameters for drawing a frame.
 
-    QStyleOptionFrame is used for drawing several built-in Qt widget,
+    QStyleOptionFrame is used for drawing several built-in Qt widgets,
     including QFrame, QGroupBox, QLineEdit, and QMenu. Note that to
     describe the parameters necessary for drawing a frame in Qt 4.1 or
     above, you must use the QStyleOptionFrameV2 subclass.
@@ -379,8 +385,8 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 */
 
 /*!
-    Constructs a QStyleOptionFrame. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionFrame, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionFrame::QStyleOptionFrame()
@@ -427,6 +433,8 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
     \variable QStyleOptionFrame::lineWidth
     \brief The line width for drawing the frame.
 
+    The default value is 0.
+
     \sa QFrame::lineWidth
 */
 
@@ -434,6 +442,8 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
     \variable QStyleOptionFrame::midLineWidth
     \brief The mid-line width for drawing the frame. This is usually used in
     drawing sunken or raised frames.
+
+    The default value is 0.
 
     \sa QFrame::midLineWidth
 */
@@ -447,7 +457,7 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
     \since 4.1
 
     QStyleOptionFrameV2 inherits QStyleOptionFrame which is used for
-    drawing several built-in Qt widget, including QFrame, QGroupBox,
+    drawing several built-in Qt widgets, including QFrame, QGroupBox,
     QLineEdit, and QMenu.
 
     An instance of the QStyleOptionFrameV2 class has \l type SO_Frame
@@ -463,14 +473,10 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
     QStyleOptionFrame and QStyleOptionFrameV2. One way to achieve this
     is to use the QStyleOptionFrameV2 copy constructor. For example:
 
-    \code
-        if (const QStyleOptionFrame *frameOption =
-               qstyleoption_cast<const QStyleOptionFrame *>(option)) {
-            QStyleOptionFrameV2 frameOptionV2(*frameOption);
-
-            // draw the frame using frameOptionV2
-        }
-    \endcode
+    \quotefromfile snippets/qstyleoption/main.cpp
+    \skipto MyStyle()
+    \skipto QStyleOptionFrame
+    \printuntil }
 
     In the example above: If the \c frameOption's version is 1, \l
     FrameFeature is set to \l None for \c frameOptionV2. If \c
@@ -484,7 +490,7 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 */
 
 /*!
-    Constructs a QStyleOptionFrameV2.
+    Constructs a QStyleOptionFrameV2 object.
 */
 QStyleOptionFrameV2::QStyleOptionFrameV2()
     : QStyleOptionFrame(Version), features(None)
@@ -646,13 +652,24 @@ QStyleOptionGroupBox::QStyleOptionGroupBox(int version)
     \brief The QStyleOptionHeader class is used to describe the
     parameters for drawing a header.
 
-    The QStyleOptionHeader class is used for drawing the item views'
-    header pane, header sort arrow, and header label.
+    QStyleOptionHeader contains all the information that QStyle
+    functions need to draw the item views' header pane, header sort
+    arrow, and header label.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption
 */
 
 /*!
-    Constructs a QStyleOptionHeader. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionHeader, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionHeader::QStyleOptionHeader()
@@ -680,7 +697,7 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     \variable QStyleOptionHeader::orientation
     \brief the header's orientation (horizontal or vertical)
 
-    \sa Qt::Orientation
+    The default orientation is Qt::Horizontal
 */
 
 /*!
@@ -703,46 +720,59 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 
 /*!
     \variable QStyleOptionHeader::section
-    \brief Which section of the header is being painted.
+    \brief which section of the header is being painted
+
+    The default value is 0.
 */
 
 /*!
     \variable QStyleOptionHeader::text
     \brief The text of the header.
+
+    The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionHeader::textAlignment
-    \brief The alignment flags for the text of the header.
+    \brief the alignment flags for the text of the header
 
-    \sa Qt::Alignment
+    The default value is Qt::AlignLeft.
 */
 
 /*!
     \variable QStyleOptionHeader::icon
-    \brief The icon of the header.
+    \brief the icon of the header
+
+    The default value is an empty icon, i.e. an icon with neither a
+    pixmap nor a filename.
 */
 
 /*!
     \variable QStyleOptionHeader::iconAlignment
     \brief The alignment flags for the icon of the header.
 
-    \sa Qt::Alignment
+    The default value is Qt::AlignLeft.
 */
 
 /*!
     \variable QStyleOptionHeader::position
     \brief the section's position in relation to the other sections
+
+    The default value is QStyleOptionHeader::Beginning.
 */
 
 /*!
     \variable QStyleOptionHeader::selectedPosition
     \brief the section's position in relation to the selected section
+
+    The default value is QStyleOptionHeader::NotAdjacent
 */
 
 /*!
     \variable QStyleOptionHeader::sortIndicator
     \brief the direction the sort indicator should be drawn
+
+    The default value is QStyleOptionHeader::None.
 */
 
 /*!
@@ -754,6 +784,8 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     \value Middle In the middle of the header
     \value End At the end of the header
     \value OnlyOneSection Only one header section
+
+    \sa position
 */
 
 /*!
@@ -765,15 +797,20 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     \value NextIsSelected The next section is selected
     \value PreviousIsSelected The previous section is selected
     \value NextAndPreviousAreSelected Both the next and previous section are selected
+
+    \sa selectedPosition
 */
 
 /*!
     \enum QStyleOptionHeader::SortIndicator
 
     Indicates which direction the sort indicator should be drawn
+
     \value None No sort indicator is needed
     \value SortUp Draw an up indicator
     \value SortDown Draw a down indicator
+
+    \sa sortIndicator
 */
 
 /*!
@@ -789,6 +826,9 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     direct (i.e., using the . or -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
 
     \sa QStyleOption, QStyleOptionToolButton
 */
@@ -808,8 +848,8 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 */
 
 /*!
-    Constructs a QStyleOptionButton. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionButton, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionButton::QStyleOptionButton()
@@ -1570,13 +1610,24 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
     \brief The QStyleOptionMenuItem class is used to describe the
     parameter necessary for drawing a menu item.
 
-    The QStyleOptionMenuItem is used for drawing menu items from \l
-    QMenu. It is also used for drawing other menu-related widgets.
+    QStyleOptionMenuItem contains all the information that QStyle
+    functions need to draw the menu items from \l QMenu. It is also
+    used for drawing other menu-related widgets.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption
 */
 
 /*!
-    Constructs a QStyleOptionMenuItem. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionMenuItem, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionMenuItem::QStyleOptionMenuItem()
@@ -1615,7 +1666,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 /*!
     \enum QStyleOptionMenuItem::MenuItemType
 
-    These values indicate the type of menu item that the structure describes.
+    This enum indicates the type of menu item that the structure describes.
 
     \value Normal A normal menu item.
     \value DefaultItem A menu item that is the default action as specified with \l QMenu::defaultAction().
@@ -1625,19 +1676,21 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     \value TearOff A tear-off handle for the menu.
     \value Margin The margin of the menu.
     \value EmptyArea The empty area of the menu.
+
+    \sa menuItemType
 */
 
 /*!
     \enum QStyleOptionMenuItem::CheckType
 
-    These enums are used to indicate whether or not a check mark should be
+    This enum is used to indicate whether or not a check mark should be
     drawn for the item, or even if it should be drawn at all.
 
     \value NotCheckable The item is not checkable.
     \value Exclusive The item is an exclusive check item (like a radio button).
     \value NonExclusive The item is a non-exclusive check item (like a check box).
 
-    \sa QAction::checkable, QAction::checked, QActionGroup::exclusive
+    \sa checkType, QAction::checkable, QAction::checked, QActionGroup::exclusive
 */
 
 /*!
@@ -1645,23 +1698,28 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
     \brief the type of menu item
 
+    The default value is \l Normal.
+
     \sa MenuItemType
 */
 
 /*!
     \variable QStyleOptionMenuItem::checkType
     \brief The type of checkmark of the menu item
+
+    The default value is \l NotCheckable.
+
     \sa CheckType
 */
 
 /*!
     \variable QStyleOptionMenuItem::checked
-    \brief whether the menu item is checked or not.
+    \brief whether the menu item is checked or not; by default false.
 */
 
 /*!
     \variable QStyleOptionMenuItem::menuHasCheckableItems
-    \brief whether the menu as a whole has checkable items or not.
+    \brief whether the menu as a whole has checkable items or not; by default true
 
     If this option is set to false, then the menu has no checkable
     items. This makes it possible for GUI styles to save some
@@ -1670,23 +1728,29 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 /*!
     \variable QStyleOptionMenuItem::menuRect
-    \brief The rectangle for the entire menu.
+    \brief the rectangle for the entire menu
+
+    The default value is a null rectangle, i.e. a rectangle with both
+    the width and the height set to 0.
 */
 
 /*!
     \variable QStyleOptionMenuItem::text
-    \brief The text for the menu item.
+    \brief the text for the menu item
 
     Note that the text format is something like this "Menu
     text\bold{\\t}Shortcut".
 
-    If the menu item doesn't have a shortcut, it will just contain
-    the menu item's text.
+    If the menu item doesn't have a shortcut, it will just contain the
+    menu item's text. The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionMenuItem::icon
-    \brief The icon for the menu item.
+    \brief the icon for the menu item
+
+    The default value is an empty icon, i.e. an icon with neither a
+    pixmap nor a filename.
 */
 
 /*!
@@ -1695,7 +1759,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
     This can be used for drawing the icon into the correct place or
     properly aligning items. The variable must be set regardless of
-    whether or not the menu item has an icon.
+    whether or not the menu item has an icon. The default value is 0.
 */
 
 /*!
@@ -1703,7 +1767,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     \brief The tab width for the menu item.
 
     The tab width is the distance between the text of the menu item
-    and the shortcut.
+    and the shortcut. The default value is 0.
 */
 
 
@@ -1711,8 +1775,10 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     \variable QStyleOptionMenuItem::font
     \brief The font used for the menu item text.
 
-    This is the font that should be used for drawing the menu text minus the
-    shortcut. The shortcut is usually drawn using the painter's font.
+    This is the font that should be used for drawing the menu text
+    minus the shortcut. The shortcut is usually drawn using the
+    painter's font. By default, the application's default font is
+    used.
 */
 
 /*!
@@ -1726,6 +1792,9 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
     For performance reasons, the access to the member variables is
     direct (i.e., using the . or -> operator).
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
 
     \sa QStyleOption
 */
@@ -2260,6 +2329,9 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
     direct (i.e., using the . or -> operator). This low-level feel
     makes the structures straightforward to use and emphasizes that
     these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
 
     \sa QStyleOption
 */
