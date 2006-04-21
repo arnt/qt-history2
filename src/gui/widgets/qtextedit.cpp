@@ -11,9 +11,31 @@
 **
 ****************************************************************************/
 
-#include "qtextedit.h"
 #include "qtextedit_p.h"
 #include "qlineedit.h"
+
+QStringList QTextEditMimeData::formats() const
+{
+    if (!fragment.isEmpty())
+        return QStringList() << "text/plain" << "text/html";
+    else
+        return QMimeData::formats();
+}
+
+QVariant QTextEditMimeData::retrieveData(const QString &mimeType, QVariant::Type type) const
+{
+    if (!fragment.isEmpty())
+        setup();
+    return QMimeData::retrieveData(mimeType, type);
+}
+
+void QTextEditMimeData::setup() const
+{
+    QTextEditMimeData *that = const_cast<QTextEditMimeData *>(this);
+    that->setData(QLatin1String("text/html"), fragment.toHtml("utf-8").toUtf8());
+    that->setText(fragment.toPlainText());
+    fragment = QTextDocumentFragment();
+}
 
 #ifndef QT_NO_TEXTEDIT
 
@@ -47,43 +69,6 @@
 #else
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
-
-class QTextEditMimeData : public QMimeData
-{
-public:
-    inline QTextEditMimeData(const QTextDocumentFragment &aFragment) : fragment(aFragment) {}
-
-    virtual QStringList formats() const;
-protected:
-    virtual QVariant retrieveData(const QString &mimeType, QVariant::Type type) const;
-private:
-    void setup() const;
-
-    mutable QTextDocumentFragment fragment;
-};
-
-QStringList QTextEditMimeData::formats() const
-{
-    if (!fragment.isEmpty())
-        return QStringList() << "text/plain" << "text/html";
-    else
-        return QMimeData::formats();
-}
-
-QVariant QTextEditMimeData::retrieveData(const QString &mimeType, QVariant::Type type) const
-{
-    if (!fragment.isEmpty())
-        setup();
-    return QMimeData::retrieveData(mimeType, type);
-}
-
-void QTextEditMimeData::setup() const
-{
-    QTextEditMimeData *that = const_cast<QTextEditMimeData *>(this);
-    that->setData(QLatin1String("text/html"), fragment.toHtml("utf-8").toUtf8());
-    that->setText(fragment.toPlainText());
-    fragment = QTextDocumentFragment();
-}
 
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)

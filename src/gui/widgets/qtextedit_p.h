@@ -33,6 +33,7 @@
 #include "QtGui/qmenu.h"
 #include "QtGui/qabstracttextdocumentlayout.h"
 #include "QtCore/qbasictimer.h"
+#include "QtGui/qtextedit.h"
 
 #ifndef QT_NO_TEXTEDIT
 
@@ -202,5 +203,20 @@ private:
     QWidget *editWidget;
 };
 #endif // QT_NO_MENU
+
+// also used by QLabel
+class QTextEditMimeData : public QMimeData
+{
+public:
+    inline QTextEditMimeData(const QTextDocumentFragment &aFragment) : fragment(aFragment) {}
+
+    virtual QStringList formats() const;
+protected:
+    virtual QVariant retrieveData(const QString &mimeType, QVariant::Type type) const;
+private:
+    void setup() const;
+
+    mutable QTextDocumentFragment fragment;
+};
 
 #endif // QTEXTEDIT_P_H
