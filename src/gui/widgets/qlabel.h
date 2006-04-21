@@ -33,6 +33,7 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
+    Q_PROPERTY(bool textSelectable READ isTextSelectable WRITE setTextSelectable)
 
 public:
     explicit QLabel(QWidget *parent=0, Qt::WFlags f=0);
@@ -85,11 +86,22 @@ public Q_SLOTS:
     void setNum(int);
     void setNum(double);
     void clear();
+  
+    bool isTextSelectable() const;
+    void setTextSelectable(bool selectable);
+
+Q_SIGNALS:
+    void anchorClicked(const QString& link);
+    void highlighted(const QString& link);
 
 protected:
     bool event(QEvent *e);
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
+    void mousePressEvent(QMouseEvent *ev);
+    void mouseMoveEvent(QMouseEvent *ev);
+    void mouseReleaseEvent(QMouseEvent *ev);
+    void contextMenuEvent(QContextMenuEvent *ev);
 
 #ifdef QT3_SUPPORT
 public:
@@ -111,6 +123,10 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_movieUpdated(const QRect&))
     Q_PRIVATE_SLOT(d_func(), void _q_movieResized(const QSize&))
 #endif
+
+    Q_PRIVATE_SLOT(d_func(), void _q_copy())
+    Q_PRIVATE_SLOT(d_func(), void _q_copyLink())
+    Q_PRIVATE_SLOT(d_func(), void _q_selectAll())
 
     friend class QTipLabel;
 };
