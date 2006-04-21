@@ -1374,7 +1374,7 @@ QStyleOptionTabV2 &QStyleOptionTabV2::operator=(const QStyleOptionTab &other)
 
 QStyleOptionProgressBar::QStyleOptionProgressBar()
     : QStyleOption(QStyleOptionProgressBar::Version, SO_ProgressBar),
-      minimum(0), maximum(0), progress(0), textAlignment(0), textVisible(false)
+      minimum(0), maximum(0), progress(0), textAlignment(Qt::AlignLeft), textVisible(false)
 {
 }
 
