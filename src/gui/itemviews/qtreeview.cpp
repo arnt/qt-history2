@@ -1216,7 +1216,7 @@ QModelIndex QTreeView::indexAt(const QPoint &point) const
     int column = d->columnAt(point.x());
     if (idx.isValid() && column >= 0)
         return model()->sibling(idx.row(), column, idx);
-    return QModelIndex();
+    return idx;
 }
 
 /*!
