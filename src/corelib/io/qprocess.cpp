@@ -963,18 +963,15 @@ QProcess::ProcessState QProcess::state() const
 }
 
 /*!
-    Sets the environment that QProcess will use when starting a
-    process to \a environment. \a environment is a list of key=value
-    pairs. Example:
+    Sets the environment that QProcess will use when starting a process to the
+    \a environment specified which consists of a list of key=value pairs.
 
-    \code
-        QProcess process;
-        QStringList env = QProcess::systemEnvironment();
-        env << "TMPDIR=C:\\MyApp\\temp"; // Add an environment variable
-        env.replaceInStrings(QRegExp("^PATH=(.*)", false), "PATH=\\1;C:\\Bin"); // Add Bin to PATH
-        process.setEnvironment(env);
-        process.start("myapp");
-    \endcode
+    For example, the following code adds the \c{C:\\BIN} directory to the list of
+    executable paths (\c{PATHS}) on Windows:
+
+    \quotefromfile snippets/qprocess-environment/main.cpp
+    \skipto QProcess process;
+    \printuntil process.start
 
     \sa environment(), systemEnvironment()
 */
