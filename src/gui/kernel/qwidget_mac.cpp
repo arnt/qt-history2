@@ -2208,13 +2208,30 @@ void QWidgetPrivate::setModal_sys()
     // disappear, so Apple recommends changing the window group instead.
     // Also, of this widget's window is a secondary window, we need to set the window
     // type if the primary window is modal.
-    WindowPtr window = qt_mac_window_for(q);
     const QWidget * const windowParent = q->window()->parentWidget();
     const QWidget * const primaryWindow = windowParent ? windowParent->window() : 0;
+    const WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
     if (q->testAttribute(Qt::WA_ShowModal) || (primaryWindow && primaryWindow->testAttribute(Qt::WA_ShowModal))) {
         if (q->testAttribute(Qt::WA_WState_Created) && !topData()->group) {
-            WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
-            SetWindowGroup(window, wgr);
+            SetWindowGroup(qt_mac_window_for(q), wgr);
+        }
+    }
+
+    // Set the window group for child windows. This is done to make sure that non-modal
+    // child windows that were created before this window became modal are shown on top
+    // of this window.
+    if (q->testAttribute(Qt::WA_ShowModal)) {
+        const QObjectList children = q->children();
+        for (QObjectList::ConstIterator it = children.constBegin(); it != children.constEnd(); ++it) {
+            const QObject * const child = *it;
+            if (child->isWidgetType() == false) 
+                continue;
+            const QWidget * const widget = static_cast<QWidget const * const>(child);
+            if (widget->isWindow() == false)
+                continue;
+            if (widget->windowFlags() & Qt::WindowStaysOnTopHint)
+                continue;
+            SetWindowGroup(qt_mac_window_for(widget), wgr);
         }
     }
 }
