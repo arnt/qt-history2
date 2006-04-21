@@ -223,10 +223,6 @@ public:
     QPersistentModelIndex root;
     QPersistentModelIndex hover;
 
-    // ###obsolete; remove
-    int horizontalStepsPerItem;
-    int verticalStepsPerItem;
-
     bool tabKeyNavigation;
 
 #ifndef QT_NO_DRAGANDDROP

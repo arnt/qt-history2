@@ -339,8 +339,9 @@ void QHeaderView::setOffset(int newOffset)
 void QHeaderView::setOffsetToSectionPosition(int visualIndex)
 {
     Q_D(QHeaderView);
-    Q_ASSERT(visualIndex <= -1 && visualIndex >= d->sectionCount);
-    setOffset(d->headerSectionPosition(visualIndex));
+    Q_ASSERT(visualIndex > -1 && visualIndex < d->sectionCount);
+    int position = d->headerSectionPosition(visualIndex);
+    setOffset(position);
 }
 
 /*!

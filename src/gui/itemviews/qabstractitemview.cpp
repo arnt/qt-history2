@@ -77,10 +77,6 @@ void QAbstractItemViewPrivate::init()
 
     viewport->setBackgroundRole(QPalette::Base);
 
-    // obsoleted; remove
-    horizontalStepsPerItem = 1;
-    verticalStepsPerItem = 1;
-
     doDelayedItemsLayout();
 
     q->setAttribute(Qt::WA_InputMethodEnabled);
@@ -253,6 +249,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
+  \since 4.2
   \enum QAbstractItemView::ScrollMode
 
   \value ScrollPerItem    The view will scroll the contents one item at a time.
@@ -825,11 +822,12 @@ QAbstractItemView::EditTriggers QAbstractItemView::editTriggers() const
 }
 
 /*!
+    \since 4.2
     \property QAbstractItemView::scrollMode
     \brief how the view scrolls its contents
 
-      This property controlls how the view scroll its contents.
-      Scrolling can be done either per pixel or per item.
+    This property controlls how the view scroll its contents.
+    Scrolling can be done either per pixel or per item.
 */
 
 void QAbstractItemView::setScrollMode(ScrollMode mode)
@@ -1870,9 +1868,8 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
 */
 void QAbstractItemView::setHorizontalStepsPerItem(int steps)
 {
-    Q_D(QAbstractItemView);
-    d->horizontalStepsPerItem = steps;
-    horizontalScrollBar()->setSingleStep(steps);
+    Q_UNUSED(steps);
+    // do nothing
 }
 
 /*!
@@ -1883,8 +1880,7 @@ void QAbstractItemView::setHorizontalStepsPerItem(int steps)
 */
 int QAbstractItemView::horizontalStepsPerItem() const
 {
-    Q_D(const QAbstractItemView);
-    return d->horizontalStepsPerItem;
+    return 1;
 }
 
 /*!
@@ -1901,9 +1897,8 @@ int QAbstractItemView::horizontalStepsPerItem() const
 */
 void QAbstractItemView::setVerticalStepsPerItem(int steps)
 {
-    Q_D(QAbstractItemView);
-    d->verticalStepsPerItem = steps;
-    verticalScrollBar()->setSingleStep(steps);
+    Q_UNUSED(steps);
+    // do nothing
 }
 
 /*!
@@ -1914,8 +1909,7 @@ void QAbstractItemView::setVerticalStepsPerItem(int steps)
 */
 int QAbstractItemView::verticalStepsPerItem() const
 {
-    Q_D(const QAbstractItemView);
-    return d->verticalStepsPerItem;
+    return 1;
 }
 
 /*!

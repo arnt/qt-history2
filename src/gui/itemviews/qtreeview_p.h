@@ -98,7 +98,7 @@ public:
     int viewIndex(const QModelIndex &index) const;
     QModelIndex modelIndex(int i) const;
 
-    int itemAtValue(int value, int *delta) const;
+    int firstVisibleItem(int *offset = 0) const;
     int columnAt(int x) const;
 
     void relayout(const QModelIndex &parent);
