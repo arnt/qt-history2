@@ -594,7 +594,7 @@ QWSBackingStore::QWSBackingStore()
     isSharedMemory = false;
     memLock = 0;
     ownsMemory = false;
-    _windowType = -1; // invalid
+    _windowType = Invalid;
 }
 
 QWSBackingStore::~QWSBackingStore()
@@ -687,19 +687,19 @@ bool QWSBackingStore::createIfNecessary(QWidget *tlw)
 #endif
     bool doCreate = false;
     if (useBS)
-        doCreate = tlwSize != size() || imageFormat != img.format() || _windowType == NoBS; // ...
+        doCreate = tlwSize != size() || imageFormat != img.format() || _windowType == NonBuffered; // ...
     else
-        doCreate = _windowType != NoBS;
+        doCreate = _windowType != NonBuffered;
 
     if (doCreate) {
-        create(tlwSize, imageFormat, useBS ? int(opaque) : int(NoBS));
+        create(tlwSize, imageFormat, useBS ? int(opaque) : int(NonBuffered));
          QWidget::qwsDisplay()->requestRegion(tlw->data->winid,
                                               memoryId(),
                                               _windowType, tlwRegion, imageFormat);
          offs = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
     }
 
-    if (windowType() == QWSBackingStore::NoBS)
+    if (windowType() == QWSBackingStore::NonBuffered)
         offs = tlw->geometry().topLeft();
 
     return doCreate;
@@ -713,7 +713,7 @@ void QWSBackingStore::create(QSize s, QImage::Format imageFormat, int windowType
     detach();
     _windowType = windowType;
 
-    if (_windowType == QWSBackingStore::NoBS) {
+    if (_windowType == QWSBackingStore::NonBuffered) {
         mem = qt_screen->base();
         img = QImage(mem, qt_screen->width(), qt_screen->height(), imageFormat);
         return;
@@ -759,13 +759,13 @@ void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat, i
         return;
     detach();
     _windowType = windowType;
-    if (windowType == QWSBackingStore::NoBS) {
+    if (windowType == QWSBackingStore::NonBuffered) {
         mem  = qt_screen->base();
         return;
     }
     if (s.isNull())
         return;
-    if (windowType == YellowThing) {
+    if (windowType == DebugHighlighter) {
         // QT_FLUSH_PAINT
         //detach has already set everything
         return;
@@ -790,8 +790,9 @@ void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat, i
 
 void QWSBackingStore::setMemory(QWSMemId id, const QSize &s, QImage::Format imageFormat, int windowType)
 {
+    detach();
     _windowType = windowType;
-    if (_windowType == QWSBackingStore::NoBS) {
+    if (_windowType == QWSBackingStore::NonBuffered) {
         //qDebug("QWSBackingStore::setMemory");
         mem = qt_screen->base();
 
@@ -800,7 +801,7 @@ void QWSBackingStore::setMemory(QWSMemId id, const QSize &s, QImage::Format imag
         ownsMemory = false;
         return;
     }
-    if (windowType == YellowThing) {
+    if (windowType == DebugHighlighter) {
         // Handle QT_FLUSH_PAINT
         mem = 0;
         img = QImage();
@@ -1071,7 +1072,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     topextra->fright = br.right()-data.crect.right();
                     topextra->fbottom = br.bottom()-data.crect.bottom();
                     QWSBackingStore *bs = &topextra->backingStore->buffer;
-                    if (bs->windowType() == QWSBackingStore::NoBS) {
+                    if (bs->windowType() == QWSBackingStore::NonBuffered) {
                         QWidget::qwsDisplay()->requestRegion(data.winid, bs->memoryId(), bs->windowType(),
                                                              myregion, bs->image().format());
 #ifndef QT_NO_QWS_MANAGER

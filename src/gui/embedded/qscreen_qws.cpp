@@ -1279,13 +1279,21 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
 
     QRegion exposedBelow = exposed;
     bool opaque = true;
+    int windowType = QWSBackingStore::Invalid;
 
     if (win) {
+        if (win->backingStore()) {
+            windowType = win->backingStore()->windowType();
+            if ((windowType == QWSBackingStore::Transparent || windowType == QWSBackingStore::Opaque)
+                && win->backingStore()->isNull())
+                windowType = QWSBackingStore::Invalid;
+        }
         opaque = win->isOpaque();
         if (opaque) {
             exposedBelow -= win->requestedRegion();
-            if (above_changing)
-                blend -= win->requestedRegion();
+            if (above_changing || windowType == QWSBackingStore::ReservedRegion
+                || windowType == QWSBackingStore::NonBuffered)
+                blend -= exposed & win->requestedRegion();
         } else {
             blend += exposed & win->requestedRegion();
         }
@@ -1301,9 +1309,8 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
     }
     if (!win) {
         paintBackground(exposed-blend);
-    } else if (!above_changing && win->backingStore() && !win->backingStore()->isNull()) {
-        if (win->backingStore()->windowType() != QWSBackingStore::NoBS)
-            blit(win, (exposed - blend));
+    } else if (!above_changing && windowType == QWSBackingStore::Opaque) {
+        blit(win, (exposed - blend));
     }
     QRegion blendRegion = exposed & blend;
     if (win)
@@ -1322,7 +1329,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             spanData.setup(qwsServer->backgroundBrush(), opacity);
             spanData.dx = off.x();
             spanData.dy = off.y();
-        } else if (win->backingStore()->windowType() == QWSBackingStore::YellowThing) {
+        } else if (windowType == QWSBackingStore::DebugHighlighter) {
             spanData.setup(QColor(255,255,31,127), opacity);
             spanData.dx = off.x();
             spanData.dy = off.y();

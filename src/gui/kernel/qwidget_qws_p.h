@@ -60,7 +60,7 @@ public:
 
     bool isNull() const { return img.isNull(); }
 
-    enum WindowType {Transparent=0, Opaque=1, OnScreen=2, NoBS=3, YellowThing=4};
+    enum WindowType {Transparent=0, Opaque=1, ReservedRegion=2, NonBuffered=3, DebugHighlighter=4, Invalid=5};
 
     int windowType() const { return _windowType; }
 

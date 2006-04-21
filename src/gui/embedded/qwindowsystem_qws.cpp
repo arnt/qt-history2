@@ -2974,7 +2974,7 @@ void QWSServerPrivate::request_region(int wid, QWSMemId mid,
     }
     bool isShow = !changingw->isVisible() && !region.isEmpty();
 
-    if (windowtype == QWSBackingStore::OnScreen) {
+    if (windowtype == QWSBackingStore::ReservedRegion) {
         int i = 0;
 
         int oldPos = windows.indexOf(changingw);
@@ -3012,7 +3012,7 @@ void QWSServerPrivate::request_region(int wid, QWSMemId mid,
 #endif
         }
 
-        changingw->opaque = windowtype != QWSBackingStore::Transparent && windowtype != QWSBackingStore::YellowThing;
+        changingw->opaque = windowtype != QWSBackingStore::Transparent && windowtype != QWSBackingStore::DebugHighlighter;
 
         setWindowRegion(changingw, region);
     }
