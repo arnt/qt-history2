@@ -21,6 +21,7 @@
 #include "qtoolbar.h"
 #include "qevent.h"
 #include "qstyle.h"
+#include "qdebug.h"
 
 #include <private/qapplication_p.h>
 #include <private/qmenu_p.h>
@@ -225,18 +226,18 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
 #undef MENU_TRANSLATE
 
     QMenuMergeList *list = 0;
-    GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
-                        sizeof(list), 0, &list);
-    for(int i = 0; list && i < list->size(); ++i) {
-        QMenuMergeItem item = list->at(i);
-        if(item.command == ret && item.action)
-            return 0;
+    if(GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
+                           sizeof(list), 0, &list) == noErr && list) {
+        for(int i = 0; i < list->size(); ++i) {
+            QMenuMergeItem item = list->at(i);
+            if(item.command == ret && item.action)
+                return 0;
+        }
     }
 
     QAction *cmd_action = 0;
-    GetMenuCommandProperty(merge, ret, kMenuCreatorQt, kMenuPropertyQAction,
-                           sizeof(cmd_action), 0, &cmd_action);
-    if(cmd_action)
+    if(GetMenuCommandProperty(merge, ret, kMenuCreatorQt, kMenuPropertyQAction,
+                              sizeof(cmd_action), 0, &cmd_action) == noErr && cmd_action)
         return 0; //already taken
     return ret;
 }
@@ -563,9 +564,8 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
                     index = 0; //no need
 
                 QMenuMergeList *list = 0;
-                GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
-                                    sizeof(list), 0, &list);
-                if(!list) {
+                if(GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
+                                       sizeof(list), 0, &list) != noErr || !list) {
                     list = new QMenuMergeList;
                     SetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
                                         sizeof(list), &list);
