@@ -600,7 +600,7 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
     case PE_IndicatorToolBarSeparator:
         {
             QRect rect = option->rect;
-            const int margin = 2;
+            const int margin = 6;
             if (option->state & State_Horizontal) {
                 const int offset = rect.width()/2;
                 painter->setPen(QPen(option->palette.background().color().dark(110)));
