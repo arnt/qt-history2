@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QFontComboBox : public QComboBox
     Q_ENUMS(FontSelection)
 
 public:
-    QFontComboBox(QWidget *parent);
+    explicit QFontComboBox(QWidget *parent = 0);
     ~QFontComboBox();
 
     void setWritingSystem(QFontDatabase::WritingSystem);
@@ -48,19 +48,19 @@ public:
 
     QFont currentFont() const;
     QSize sizeHint() const;
-    
-public Q_SLOTS:    
+
+public Q_SLOTS:
     void setCurrentFont(const QFont &f);
-    
+
 Q_SIGNALS:
     void currentFontChanged(const QFont &f);
-    
+
 protected:
     bool event(QEvent *e);
 
 private:
     Q_DISABLE_COPY(QFontComboBox)
-    Q_DECLARE_PRIVATE(QFontComboBox)        
+    Q_DECLARE_PRIVATE(QFontComboBox)
     Q_PRIVATE_SLOT(d_func(), void _q_currentChanged(const QString &))
 };
 
