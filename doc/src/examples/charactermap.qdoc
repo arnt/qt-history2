@@ -183,11 +183,12 @@ QScrollArea provides a viewport onto the \c CharacterWidget when we set
 its widget and handles much of the work needed to provide a scrolling
 viewport.
 
-We list the available fonts and styles in the comboboxes using the
-following functions:
+The font combo box is automatically popuplated with a list of available
+fonts. We list the available styles for the current font in the style
+combobox using the following function:
 
-\skipto findFonts()
-\printuntil findStyles()
+\skipto findStyles(
+\printuntil findStyles(
 
 The line edit and push button are used to supply text to the clipboard:
 
@@ -204,11 +205,14 @@ by other widgets.
 \skipto connect(fontCombo
 \printuntil updateStyle
 
-The font combobox's \l{QComboBox::currentIndexChanged()}{currentIndexChanged()}
-signal is connected to the findStyles() function so that the list of available
-styles can be shown for each font that is used. Since both the font and the style
-can be changed by the user, the currentIndexChanged() signals from both the
-font and style comboboxes are connected directly to the character widget.
+The font combobox's
+\l{QFontComboBox::currentFontChanged()}{currentFontChanged()} signal is
+connected to the findStyles() function so that the list of available styles
+can be shown for each font that is used. Since both the font and the style
+can be changed by the user, the font combobox's currentFontChanged() signal
+and the style combobox's
+\l{QComboBox::currentIndexChanged()}{currentIndexChanged()} are connected
+directly to the character widget.
 
 The final two connections allow characters to be selected in the character
 widget, and text to be inserted into the clipboard:
@@ -226,17 +230,10 @@ and provides a window title:
 \skipto controlsLayout
 \printuntil /^\}/
 
-We implement two functions to set up the fonts because the display font family
-and style can be set independently. findFonts() uses a font database to
-provide items in the font combobox:
-
-\skipto findFonts
-\printuntil /^\}/
-
-In this function, we clear the combobox, but only add entries for the
-available font families. The styles that can be used with each font are
-found by the findStyles() function. This function is called whenever the
-user selects a different font in the font combobox.
+The font combobox is automatically populated with a list of available font
+families. The styles that can be used with each font are found by the
+findStyles() function. This function is called whenever the user selects a
+different font in the font combobox.
 
 \skipto findStyles
 \printuntil styleCombo->clear()

@@ -218,10 +218,10 @@ void QFontComboBoxPrivate::_q_currentChanged(const QString &text)
 
 /*!
     \class QFontComboBox
-
     \brief The QFontComboBox widget is a combobox that lets the user
     select a font family.
 
+    \since 4.2
     \ingroup basic
 
     The combobox is populated with an alphabetized list of font
