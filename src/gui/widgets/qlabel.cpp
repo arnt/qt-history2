@@ -1092,10 +1092,9 @@ void QLabel::setBuddy(QWidget *buddy)
         releaseShortcut(d->shortcutId);
         d->shortcutId = -1;
         d->doc->setPlainText(d->text); // restore the old text
-        if (!buddy) {
-            d->updateLabel();
-        } else
-            d->updateShortcut();
+        if (buddy)                     
+            d->updateShortcut(); // grab new shortcut
+        d->updateLabel();
     }
 }
 
