@@ -318,7 +318,7 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region
     // Draw background
     //if ((options & QGraphicsView::NoBackground) == 0) {
     foreach (QRect rect, exposedRegion.rects())
-        q->paintBackground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect().toRect());
+        q->paintBackground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect());
     //}
 
     // Find all visible items
@@ -364,7 +364,7 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region
     // Draw foreground
     //if ((options & QGraphicsView::NoForeground) == 0) {
     foreach (QRect rect, exposedRegion.rects())
-            q->paintForeground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect().toRect());
+        q->paintForeground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect());
     //}
 }
 
@@ -1650,7 +1650,7 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
 
     \sa paintForeground(), paintItems()
 */
-void QGraphicsView::paintBackground(QPainter *painter, const QRect &rect)
+void QGraphicsView::paintBackground(QPainter *painter, const QRectF &rect)
 {
     Q_D(QGraphicsView);
     if (backgroundBrush().style() != Qt::NoBrush) {
@@ -1677,7 +1677,7 @@ void QGraphicsView::paintBackground(QPainter *painter, const QRect &rect)
 
     \sa paintBackground(), paintItems()
 */
-void QGraphicsView::paintForeground(QPainter *painter, const QRect &rect)
+void QGraphicsView::paintForeground(QPainter *painter, const QRectF &rect)
 {
     if (foregroundBrush().style() != Qt::NoBrush) {
         painter->save();

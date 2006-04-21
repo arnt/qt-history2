@@ -82,7 +82,7 @@ public:
     void setAcceptsHoverEvents(bool enabled);
 
     bool hasFocus() const;
-    void setFocus();
+    void setFocus(Qt::FocusReason focusReason = Qt::OtherFocusReason);
     void clearFocus();
 
     // Positioning in scene coordinates
@@ -94,7 +94,8 @@ public:
     // Local transformation
     QMatrix matrix() const;
     QMatrix sceneMatrix() const;
-    void setMatrix(const QMatrix &matrix);
+    void setMatrix(const QMatrix &matrix, bool combine = false);
+    void resetMatrix();
     void rotate(qreal angle);
     void scale(qreal sx, qreal sy);
     void shear(qreal sh, qreal sv);

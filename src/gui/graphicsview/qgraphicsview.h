@@ -138,8 +138,8 @@ protected:
     bool event(QEvent *event);
     void scrollContentsBy(int dx, int dy);
 
-    virtual void paintBackground(QPainter *painter, const QRect &rect);
-    virtual void paintForeground(QPainter *painter, const QRect &rect);
+    virtual void paintBackground(QPainter *painter, const QRectF &rect);
+    virtual void paintForeground(QPainter *painter, const QRectF &rect);
     virtual void paintItems(QPainter *painter, const QList<QGraphicsItem *> items);
     QStyleOptionGraphicsItem styleOptionForItem(QGraphicsItem *item) const;
     
