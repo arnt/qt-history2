@@ -296,11 +296,11 @@ void Layout::finishLayout(bool needMove, QLayout *layout)
             done = true;
         }
 
-        if (Utils::isCentralWidget(formWindow, widget) && formWindow->parentWidget())
-            widget = formWindow->parentWidget();
-
         QApplication::processEvents();
-        widget->adjustSize();
+        // We don't want to resize the form window
+        if (!Utils::isCentralWidget(formWindow, widget))
+            widget->adjustSize();
+
         return;
     }
 
