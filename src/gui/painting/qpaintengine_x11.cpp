@@ -1539,58 +1539,63 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
                                &clippedPoints, &clippedCount);
 
 #ifndef QT_NO_XRENDER
+    bool solid_fill = fill.color().alpha() == 255;
+    if (fill.texture().depth() == 1 && solid_fill) {
+        has_fill_texture = false;
+        has_fill_pattern = true;
+    }
+
     bool antialias = render_hints & QPainter::Antialiasing;
-    if (X11->use_xrender && fill.style() != Qt::NoBrush && !has_fill_pattern &&
-        (has_fill_texture || antialias || fill.color().alpha() != 255
-         || has_alpha_pen != has_alpha_brush))
+    if (X11->use_xrender
+        && picture
+        && !has_fill_pattern
+        && (clippedCount > 0)
+        && (fill.style() != Qt::NoBrush)
+        && (has_fill_texture || antialias || !solid_fill || has_alpha_pen != has_alpha_brush))
     {
-        if (picture) {
-            if (clippedCount > 0) {
-                QVector<XTrapezoid> traps;
-                traps.reserve(128);
-                QRect br;
-                qt_tesselate_polygon(&traps, (QPointF *)clippedPoints, clippedCount,
-                                     mode == QPaintEngine::WindingMode, &br);
-                if (traps.size() > 0) {
-                    XRenderPictureAttributes attrs;
-                    attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
-                    XRenderChangePicture(dpy, picture, CPPolyEdge, &attrs);
+        QVector<XTrapezoid> traps;
+        traps.reserve(128);
+        QRect br;
+        qt_tesselate_polygon(&traps, (QPointF *)clippedPoints, clippedCount,
+                             mode == QPaintEngine::WindingMode, &br);
+        if (traps.size() > 0) {
+            XRenderPictureAttributes attrs;
+            attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
+            XRenderChangePicture(dpy, picture, CPPolyEdge, &attrs);
 
-                    if (has_fill_pattern || has_fill_texture) {
-                        int mask_w = br.width() + (br.x() > 0 ? br.x() : 0);
-                        int mask_h = br.height() + (br.y() > 0 ? br.y() : 0);
-                        Pixmap mask = XCreatePixmap (dpy, RootWindow(dpy, scrn),
-                                                     mask_w, mask_h, antialias ? 8 : 1);
-                        Picture mask_picture = XRenderCreatePicture (dpy, mask,
-                                                                     antialias ? XRenderFindStandardFormat(dpy, PictStandardA8)
-                                                                     : XRenderFindStandardFormat(dpy, PictStandardA1),
-                                                                     CPPolyEdge, &attrs);
-                        XRenderColor transparent;
-                        transparent.red = 0;
-                        transparent.green = 0;
-                        transparent.blue = 0;
-                        transparent.alpha = 0;
-                        XRenderFillRectangle(dpy, PictOpSrc, mask_picture, &transparent, 0, 0, mask_w, mask_h);
+            if (has_fill_texture) {
+                int mask_w = br.width() + (br.x() > 0 ? br.x() : 0);
+                int mask_h = br.height() + (br.y() > 0 ? br.y() : 0);
+                Pixmap mask = XCreatePixmap (dpy, RootWindow(dpy, scrn),
+                                             mask_w, mask_h, antialias ? 8 : 1);
+                Picture mask_picture = XRenderCreatePicture (dpy, mask,
+                                                             antialias ? XRenderFindStandardFormat(dpy, PictStandardA8)
+                                                             : XRenderFindStandardFormat(dpy, PictStandardA1),
+                                                             CPPolyEdge, &attrs);
+                XRenderColor transparent;
+                transparent.red = 0;
+                transparent.green = 0;
+                transparent.blue = 0;
+                transparent.alpha = 0;
+                XRenderFillRectangle(dpy, PictOpSrc, mask_picture, &transparent, 0, 0, mask_w, mask_h);
 
-                        Picture mask_src = X11->getSolidFill(scrn, Qt::white);
-                        qt_XRenderCompositeTrapezoids(dpy, PictOpOver, mask_src, mask_picture,
-                                                      antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
-                                                      0, 0,
-                                                      traps);
-                        XRenderComposite(dpy, composition_mode, src, mask_picture, picture,
-                                         qRound(bg_origin.x()), qRound(bg_origin.y()),
-                                         0, 0,
-                                         0, 0,
-                                         mask_w, mask_h);
-                        XFreePixmap(dpy, mask);
-                        XRenderFreePicture(dpy, mask_picture);
-                    } else {
-                        qt_XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
-                                                      antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
-                                                      0, 0,
-                                                      traps);
-                    }
-                }
+                Picture mask_src = X11->getSolidFill(scrn, Qt::white);
+                qt_XRenderCompositeTrapezoids(dpy, PictOpOver, mask_src, mask_picture,
+                                              antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
+                                              0, 0,
+                                              traps);
+                XRenderComposite(dpy, composition_mode, src, mask_picture, picture,
+                                 qRound(bg_origin.x()), qRound(bg_origin.y()),
+                                 0, 0,
+                                 0, 0,
+                                 mask_w, mask_h);
+                XFreePixmap(dpy, mask);
+                XRenderFreePicture(dpy, mask_picture);
+            } else {
+                qt_XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
+                                              antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
+                                              0, 0,
+                                              traps);
             }
         }
     } else
