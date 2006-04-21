@@ -204,17 +204,17 @@ by other widgets.
 \skipto connect(fontCombo
 \printuntil updateStyle
 
-The font combobox's activated() signal is connected to
-the findStyles() function so that the list of available styles can
-be shown for each font that is used. Since both the font and the style
-can be changed by the user, the activated() signals from both the
-font and style comboboxes are connected directly to the character
-widget:
+The font combobox's \l{QComboBox::currentIndexChanged()}{currentIndexChanged()}
+signal is connected to the findStyles() function so that the list of available
+styles can be shown for each font that is used. Since both the font and the style
+can be changed by the user, the currentIndexChanged() signals from both the
+font and style comboboxes are connected directly to the character widget.
+
+The final two connections allow characters to be selected in the character
+widget, and text to be inserted into the clipboard:
 
 \printuntil connect(clipboardButton
 
-The final two connections allow characters to be selected in the character
-widget, and text to be inserted into the clipboard.
 The character widget emits the characterSelected() custom signal when
 the user clicks on a character, and this is handled by the insertCharacter()
 function in this class. The clipboard is changed when the push button emits
