@@ -1205,6 +1205,11 @@ public:
     inline void setText(const QString &s) { m_text = s; }
 
     // attribute accessors
+    inline bool hasAttributeRole() { return m_has_attr_role; }
+    inline QString attributeRole() { return m_attr_role; }
+    inline void setAttributeRole(const QString& a) { m_attr_role = a; m_has_attr_role = true; }
+    inline void clearAttributeRole() { m_has_attr_role = false; }
+
     // child element accessors
     inline int elementRed() { return m_red; }
     void setElementRed(int a);
@@ -1220,6 +1225,9 @@ private:
     void clear(bool clear_all = true);
 
     // attribute data
+    QString m_attr_role;
+    bool m_has_attr_role;
+
     // child element data
     int m_red;
     int m_green;
@@ -1950,16 +1958,16 @@ public:
     inline DomDateTime* elementDateTime() { return m_dateTime; }
     void setElementDateTime(DomDateTime* a);
 
-    inline DomPointF* elementPointF() { return m_pointf; }
+    inline DomPointF* elementPointF() { return m_pointF; }
     void setElementPointF(DomPointF* a);
 
-    inline DomRectF* elementRectF() { return m_rectf; }
+    inline DomRectF* elementRectF() { return m_rectF; }
     void setElementRectF(DomRectF* a);
 
-    inline DomSizeF* elementSizeF() { return m_sizef; }
+    inline DomSizeF* elementSizeF() { return m_sizeF; }
     void setElementSizeF(DomSizeF* a);
 
-    inline qlonglong elementLongLong() { return m_longlong; }
+    inline qlonglong elementLongLong() { return m_longLong; }
     void setElementLongLong(qlonglong a);
 
     inline DomChar* elementChar() { return m_char; }
@@ -2003,10 +2011,10 @@ private:
     DomDate* m_date;
     DomTime* m_time;
     DomDateTime* m_dateTime;
-    DomPointF* m_pointf;
-    DomRectF* m_rectf;
-    DomSizeF* m_sizef;
-    qlonglong m_longlong;
+    DomPointF* m_pointF;
+    DomRectF* m_rectF;
+    DomSizeF* m_sizeF;
+    qlonglong m_longLong;
     DomChar* m_char;
     DomUrl* m_url;
 

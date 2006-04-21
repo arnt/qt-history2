@@ -995,11 +995,22 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
 void QAbstractFormBuilder::setupColorGroup(QPalette &palette, QPalette::ColorGroup colorGroup,
             DomColorGroup *group)
 {
+    int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("colorRole");
+    Q_ASSERT(e_index != -1);
+    QMetaEnum colorRole_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
     QList<DomColor*> colors = group->elementColor();
     for (int role = 0; role < colors.size(); ++role) {
         DomColor *color = colors.at(role);
         QColor c(color->elementRed(), color->elementGreen(), color->elementBlue());
-        palette.setColor(colorGroup, QPalette::ColorRole(role), c); // ### TODO: support the QPalette::ColorRole as string
+        int r = role;
+        if (color->hasAttributeRole()) {
+            QString role = color->attributeRole();
+            int value = colorRole_enum.keyToValue(role.toLatin1());
+            if (value != -1)
+                r = value;
+        }
+        palette.setColor(colorGroup, QPalette::ColorRole(r), c);
     }
 }
 
@@ -1008,17 +1019,25 @@ void QAbstractFormBuilder::setupColorGroup(QPalette &palette, QPalette::ColorGro
 */
 DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
 {
+    int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("colorRole");
+    Q_ASSERT(e_index != -1);
+    QMetaEnum colorRole_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
     DomColorGroup *group = new DomColorGroup();
     QList<DomColor*> colors;
 
+    uint mask = palette.resolve();
     for (int role = QPalette::Foreground; role < QPalette::NColorRoles; ++role) {
-        QColor c = palette.color(QPalette::ColorRole(role));
+        if (mask & (1 << role)) {
+            QColor c = palette.color(QPalette::ColorRole(role));
 
-        DomColor *color = new DomColor();
-        color->setElementRed(c.red());
-        color->setElementGreen(c.green());
-        color->setElementBlue(c.blue());
-        colors.append(color);
+            DomColor *color = new DomColor();
+            color->setElementRed(c.red());
+            color->setElementGreen(c.green());
+            color->setElementBlue(c.blue());
+            color->setAttributeRole(colorRole_enum.key(role));
+            colors.append(color);
+        }
     }
 
     group->setElementColor(colors);

@@ -2654,6 +2654,7 @@ void DomColor::clear(bool clear_all)
 
     if (clear_all) {
     m_text = QString();
+    m_has_attr_role = false;
     }
 
     m_red = 0;
@@ -2663,6 +2664,7 @@ void DomColor::clear(bool clear_all)
 
 DomColor::DomColor()
 {
+    m_has_attr_role = false;
     m_red = 0;
     m_green = 0;
     m_blue = 0;
@@ -2674,6 +2676,8 @@ DomColor::~DomColor()
 
 void DomColor::read(const QDomElement &node)
 {
+    if (node.hasAttribute(QLatin1String("role")))
+        setAttributeRole(node.attribute(QLatin1String("role")));
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -2706,6 +2710,9 @@ QDomElement DomColor::write(QDomDocument &doc, const QString &tagName)
     QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("color") : tagName.toLower());
 
     QDomElement child;
+
+    if (hasAttributeRole())
+        e.setAttribute(QLatin1String("role"), attributeRole());
 
     child = doc.createElement(QLatin1String("red"));
     child.appendChild(doc.createTextNode(QString::number(m_red)));
@@ -4325,9 +4332,9 @@ void DomProperty::clear(bool clear_all)
     delete m_date;
     delete m_time;
     delete m_dateTime;
-    delete m_pointf;
-    delete m_rectf;
-    delete m_sizef;
+    delete m_pointF;
+    delete m_rectF;
+    delete m_sizeF;
     delete m_char;
     delete m_url;
 
@@ -4358,10 +4365,10 @@ void DomProperty::clear(bool clear_all)
     m_date = 0;
     m_time = 0;
     m_dateTime = 0;
-    m_pointf = 0;
-    m_rectf = 0;
-    m_sizef = 0;
-    m_longlong = 0;
+    m_pointF = 0;
+    m_rectF = 0;
+    m_sizeF = 0;
+    m_longLong = 0;
     m_char = 0;
     m_url = 0;
 }
@@ -4391,10 +4398,10 @@ DomProperty::DomProperty()
     m_date = 0;
     m_time = 0;
     m_dateTime = 0;
-    m_pointf = 0;
-    m_rectf = 0;
-    m_sizef = 0;
-    m_longlong = 0;
+    m_pointF = 0;
+    m_rectF = 0;
+    m_sizeF = 0;
+    m_longLong = 0;
     m_char = 0;
     m_url = 0;
 }
@@ -4415,9 +4422,9 @@ DomProperty::~DomProperty()
     delete m_date;
     delete m_time;
     delete m_dateTime;
-    delete m_pointf;
-    delete m_rectf;
-    delete m_sizef;
+    delete m_pointF;
+    delete m_rectF;
+    delete m_sizeF;
     delete m_char;
     delete m_url;
 }
@@ -4799,7 +4806,7 @@ QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
             break;
         }
         case LongLong: {
-            QDomElement child = doc.createElement(QLatin1String("longlong"));
+            QDomElement child = doc.createElement(QLatin1String("longLong"));
             QDomText text = doc.createTextNode(QString::number(elementLongLong()));
             child.appendChild(text);
             e.appendChild(child);
@@ -4988,28 +4995,28 @@ void DomProperty::setElementPointF(DomPointF* a)
 {
     clear(false);
     m_kind = PointF;
-    m_pointf = a;
+    m_pointF = a;
 }
 
 void DomProperty::setElementRectF(DomRectF* a)
 {
     clear(false);
     m_kind = RectF;
-    m_rectf = a;
+    m_rectF = a;
 }
 
 void DomProperty::setElementSizeF(DomSizeF* a)
 {
     clear(false);
     m_kind = SizeF;
-    m_sizef = a;
+    m_sizeF = a;
 }
 
 void DomProperty::setElementLongLong(qlonglong a)
 {
     clear(false);
     m_kind = LongLong;
-    m_longlong = a;
+    m_longLong = a;
 }
 
 void DomProperty::setElementChar(DomChar* a)

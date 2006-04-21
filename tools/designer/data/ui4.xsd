@@ -238,6 +238,7 @@
                     <xs:element name="green" type="xs:integer" />
                     <xs:element name="blue" type="xs:integer" />
                 </xs:sequence>
+                <xs:attribute name="role" type="xs:string" />
         </xs:complexType>
 
         <xs:complexType name="ColorGroup">
@@ -402,10 +403,10 @@
                         <xs:element name="date" type="Date" />
                         <xs:element name="time" type="Time" />
                         <xs:element name="dateTime" type="DateTime" />
-                        <xs:element name="pointf" type="PointF" />
-                        <xs:element name="rectf" type="RectF" />
-                        <xs:element name="sizef" type="SizeF" />
-                        <xs:element name="longlong" type="xs:longlong" />
+                        <xs:element name="pointF" type="PointF" />
+                        <xs:element name="rectF" type="RectF" />
+                        <xs:element name="sizeF" type="SizeF" />
+                        <xs:element name="longLong" type="xs:longlong" />
                         <xs:element name="char" type="Char" />
                         <xs:element name="url" type="Url" />
                 </xs:choice>

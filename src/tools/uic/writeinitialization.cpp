@@ -901,9 +901,14 @@ void WriteInitialization::writeColorGroup(DomColorGroup *colorGroup, const QStri
     QList<DomColor*> colors = colorGroup->elementColor();
     for (int i=0; i<colors.size(); ++i) {
         DomColor *color = colors.at(i);
+        QString role;
+        if (color->hasAttributeRole())
+            role = "QPalette::" + color->attributeRole();
+        else
+            role = "static_cast<QPalette::ColorRole>(" + QString::number(i) + ")";
 
         output << option.indent << paletteName << ".setColor(" << group
-            << ", " << "static_cast<QPalette::ColorRole>(" << i << ")"
+            << ", " << role
             << ", " << domColor2QString(color)
             << ");\n";
     }
