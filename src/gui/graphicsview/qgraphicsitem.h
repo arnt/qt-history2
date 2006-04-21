@@ -16,6 +16,7 @@
 
 #include <QtCore/qglobal.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qvariant.h>
 #include <QtCore/qrect.h>
 #include <QtGui/qpainterpath.h>
 #include <QtGui/qpixmap.h>
@@ -40,7 +41,6 @@ class QPen;
 class QPointF;
 class QRectF;
 class QStyleOptionGraphicsItem;
-class QVariant;
 
 class QGraphicsItemPrivate;
 class Q_GUI_EXPORT QGraphicsItem
