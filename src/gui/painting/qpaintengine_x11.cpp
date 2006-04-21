@@ -1540,7 +1540,7 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
 
 #ifndef QT_NO_XRENDER
     bool solid_fill = fill.color().alpha() == 255;
-    if (fill.texture().depth() == 1 && solid_fill) {
+    if (has_fill_texture && fill.texture().depth() == 1 && solid_fill) {
         has_fill_texture = false;
         has_fill_pattern = true;
     }
