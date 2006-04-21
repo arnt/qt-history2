@@ -660,8 +660,11 @@ void QTreeView::keyboardSearch(const QString &search)
     if (!model() || !model()->rowCount(rootIndex()) || !model()->columnCount(rootIndex()))
         return;
 
-    QModelIndex start = currentIndex().isValid() ? currentIndex()
-                        : model()->index(0, 0, rootIndex());
+    QModelIndex start;
+    if (currentIndex().isValid())
+        start = currentIndex();
+    else
+        start = model()->index(0, 0, rootIndex());
 
     QTime now(QTime::currentTime());
     bool skipRow = false;
@@ -683,9 +686,12 @@ void QTreeView::keyboardSearch(const QString &search)
     }
 
     // skip if we are searching for the same key or a new search started
-    if (skipRow)
-        start = indexBelow(start).isValid() ?
-                indexBelow(start) : model()->index(0, start.column(), rootIndex());
+    if (skipRow) {
+        if (indexBelow(start).isValid())
+            start = indexBelow(start);
+        else
+            start = model()->index(0, start.column(), rootIndex());
+    }
 
     int startIndex = d->viewIndex(start);
     if (startIndex <= -1)
