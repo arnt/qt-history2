@@ -228,6 +228,7 @@ void QFreetypeFace::computeSize(const QFontDef &fontDef, int *xsize, int *ysize,
 {
     *ysize = fontDef.pixelSize << 6;
     *xsize = *ysize * fontDef.stretch / 100;
+    *outline_drawing = false;
 
     /*
      * Bitmap only faces must match exactly, so find the closest
