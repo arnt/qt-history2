@@ -657,7 +657,7 @@ QStyleOptionGroupBox::QStyleOptionGroupBox(int version)
 
 QStyleOptionHeader::QStyleOptionHeader()
     : QStyleOption(QStyleOptionHeader::Version, SO_Header),
-      section(0), textAlignment(0), iconAlignment(0),
+      section(0), textAlignment(Qt::AlignLeft), iconAlignment(Qt::AlignLeft),
       position(QStyleOptionHeader::Beginning),
       selectedPosition(QStyleOptionHeader::NotAdjacent), sortIndicator(None),
       orientation(Qt::Horizontal)
