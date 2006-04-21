@@ -43,21 +43,9 @@
     The following code snippet shows how to use a specific
     QStyleOption subclass to paint a push button:
 
-    \code
-        void MyPushButton::paintEvent(QPaintEvent *)
-        {
-            QStyleOptionButton option;
-            option.initFrom(this);
-            option.state = isDown() ? QStyle::State_Sunken : QStyle::State_Raised;
-            if (isDefault())
-                option.features |= QStyleOptionButton::DefaultButton;
-            option.text = text();
-            option.icon = icon();
-
-            QPainter painter(this);
-            style().drawControl(QStyle::CE_PushButton, &option, &painter, this);
-        }
-    \endcode
+    \quotefromfile snippets/qstyleoption/main.cpp
+    \skipto MyPushButton::paintEvent
+    \printuntil /^\}/
 
     In our example, the control is a QStyle::CE_PushButton, and
     according to the QStyle::drawControl() documentation the
@@ -65,29 +53,15 @@
 
     When reimplementing QStyle functions that take a QStyleOption
     parameter, you often need to cast the QStyleOption to a subclass.
-    For safety, you can use qstyleoption_cast<T>() to ensure that the pointer
-    type is correct. For example:
+    For safety, you can use qstyleoption_cast() to ensure that the
+    pointer type is correct. For example:
 
-    \code
-        void MyStyle::drawPrimitive(PrimitiveElement element,
-                                    const QStyleOption *option,
-                                    QPainter *painter,
-                                    const QWidget *widget)
-        {
-            if (element == PE_FocusRect) {
-                const QStyleOptionFocusRect *focusRectOption =
-                        qstyleoption_cast<const QStyleOptionFocusRect *>(option);
-                if (focusRectOption) {
-                    ...
-                }
-            } else {
-                ...
-            }
-        }
-    \endcode
+    \quotefromfile snippets/qstyleoption/main.cpp
+    \skipto MyStyle::drawPrimitive
+    \printuntil /^\}/
 
-    qstyleoption_cast<T>() will return 0 if the object to which \c option
-    points isn't of the correct type.
+    The qstyleoption_cast() function will return 0 if the object to
+    which \c option points is not of the correct type.
 
     \sa QStyle, QStylePainter
 */
@@ -129,10 +103,12 @@
                          all custom controls values must be above this value
     \value SO_ComplexCustomBase Reserved for custom QStyleOptions;
                          all custom complex controls values must be above this value
+
+    \sa type
 */
 
 /*!
-    Constructs a QStyleOption with version \a version and type \a
+    Constructs a QStyleOption with the specified \a version and \a
     type.
 
     The version has no special meaning for QStyleOption; it can be
@@ -153,7 +129,7 @@ QStyleOption::QStyleOption(int version, int type)
 
 
 /*!
-    Destroys the style option object.
+    Destroys this style option object.
 */
 QStyleOption::~QStyleOption()
 {
@@ -164,10 +140,10 @@ QStyleOption::~QStyleOption()
     \since 4.1
 
     Initializes the \l state, \l direction, \l rect, \l palette, and
-    \l fontMetrics member variables based on \a widget.
+    \l fontMetrics member variables based on the specified \a widget.
 
-    This function is provided only for convenience. You can also
-    initialize the variables manually if you want.
+    This is a convenience function; the member variables can also be
+    initialized manually.
 
     \sa QWidget::layoutDirection(), QWidget::rect(),
         QWidget::palette(), QWidget::fontMetrics()
@@ -240,16 +216,28 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 /*!
     \variable QStyleOption::palette
     \brief the palette that should be used when painting the control
+
+    By default, the application's default palette is used.
+
+    \sa initFrom()
 */
 
 /*!
     \variable QStyleOption::direction
     \brief the text layout direction that should be used when drawing text in the control
+
+    By default, the layout direction is Qt::LeftToRight.
+
+    \sa initFrom()
 */
 
 /*!
     \variable QStyleOption::fontMetrics
     \brief the font metrics that should be used when drawing text in the control
+
+    By default, the application's default font is used.
+
+    \sa initFrom()
 */
 
 /*!
@@ -257,23 +245,32 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
     \brief the area that should be used for various calculations and painting.
 
     This can have different meanings for different types of elements.
-    For example, for \l QStyle::CE_PushButton it would be the
-    rectangle for the entire button, while for \l
-    QStyle::CE_PushButtonLabel it would be just the area for the push
-    button label.
+    For example, for a \l QStyle::CE_PushButton element it would be
+    the rectangle for the entire button, while for a \l
+    QStyle::CE_PushButtonLabel element it would be just the area for
+    the push button label.
+
+    The default value is a null rectangle, i.e. a rectangle with both
+    the width and the height set to 0.
+
+    \sa initFrom()
 */
 
 /*!
     \variable QStyleOption::state
     \brief the style flags that are used when drawing the control
 
-    \sa QStyle::drawPrimitive(), QStyle::drawControl(), QStyle::drawComplexControl(),
-        QStyle::State
+    The default value is QStyle::State_None.
+
+    \sa initFrom(), QStyle::drawPrimitive(), QStyle::drawControl(),
+    QStyle::drawComplexControl(), QStyle::State
 */
 
 /*!
     \variable QStyleOption::type
     \brief the option type of the style option
+
+    The default value is SO_Default.
 
     \sa OptionType
 */
@@ -283,19 +280,29 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
     \brief the version of the style option
 
     This value can be used by subclasses to implement extensions
-    without breaking compatibility. If you use qstyleoption_cast<T>(), you
-    normally don't need to check it.
+    without breaking compatibility. If you use the qstyleoption_cast()
+    function, you normally don't need to check it.
+
+    The default value is 1.
 */
 
 /*!
     \class QStyleOptionFocusRect
+
     \brief The QStyleOptionFocusRect class is used to describe the
     parameters for drawing a focus rectangle with QStyle.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    \sa QStyleOption
 */
 
 /*!
-    Constructs a QStyleOptionFocusRect. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionFocusRect, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionFocusRect::QStyleOptionFocusRect()
@@ -334,6 +341,10 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 /*!
     \variable QStyleOptionFocusRect::backgroundColor
     \brief The background color on which the focus rectangle is being drawn.
+
+    The default value is an invalid color with the RGB value (0, 0,
+    0). An invalid color is a color that is not properly set up for
+    the underlying window system.
 */
 
 /*!
@@ -770,10 +781,16 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     \brief The QStyleOptionButton class is used to describe the
     parameters for drawing buttons.
 
-    The QStyleOptionButton class is used to draw \l QPushButton, \l
-    QCheckBox, and \l QRadioButton.
+    QStyleOptionButton contains all the information that QStyle
+    functions need to draw graphical elements like QPushButton,
+    QCheckBox, and QRadioButton.
 
-    \sa QStyleOptionToolButton
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    \sa QStyleOption, QStyleOptionToolButton
 */
 
 /*!
@@ -828,9 +845,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
 
 /*!
     \variable QStyleOptionButton::features
-    \brief The features for the button
-
-    This variable is a bitwise OR of the features that describe this button.
+    \brief a bitwise OR of the features that describe this button.
 
     \sa ButtonFeature
 */
@@ -838,11 +853,16 @@ QStyleOptionButton::QStyleOptionButton(int version)
 /*!
     \variable QStyleOptionButton::text
     \brief The text of the button.
+
+    The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionButton::icon
     \brief The icon of the button.
+
+    The default value is an empty icon, i.e. an icon with neither a
+    pixmap nor a filename.
 
     \sa iconSize
 */
@@ -850,6 +870,8 @@ QStyleOptionButton::QStyleOptionButton(int version)
 /*!
     \variable QStyleOptionButton::iconSize
     \brief The size of the icon for the button
+
+    The default value is QSize(-1, -1), i.e. an invalid size.
 */
 
 
@@ -1698,18 +1720,20 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     \brief The QStyleOptionComplex class is used to hold parameters that are
     common to all complex controls.
 
-    This class is not used on its own. Instead it is used to derive other
-    complex control options, for example \l QStyleOptionSlider and
-    \l QStyleOptionSpinBox.
+    This class is not used on its own. Instead it is used to derive
+    other complex control options, for example QStyleOptionSlider and
+    QStyleOptionSpinBox.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator).
+
+    \sa QStyleOption
 */
 
 /*!
-    Constructs a QStyleOptionComplex of type \a type and version \a
-    version. Usually this constructor is called by subclasses.
-
-    The \l subControls member is initialized to \l QStyle::SC_All.
-    The \l activeSubControls member is initialized to \l
-    QStyle::SC_None.
+    Constructs a QStyleOptionComplex of the specified \a type and \a
+    version, initializing the member variables to their default
+    values. This constructor is usually called by subclasses.
 */
 
 QStyleOptionComplex::QStyleOptionComplex(int version, int type)
@@ -1737,18 +1761,20 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 
 /*!
     \variable QStyleOptionComplex::subControls
-    \brief The sub-controls that need to be painted.
+    \brief a bitwise OR of the various sub-controls that need to be
+    drawn for the complex control
 
-    This is a bitwise OR of the various sub-controls that need to be drawn for the complex control.
+    The default value is QStyle::SC_All.
 
     \sa QStyle::SubControl
 */
 
 /*!
     \variable QStyleOptionComplex::activeSubControls
-    \brief The sub-controls that are active for the complex control.
+    \brief a bitwise OR of the various sub-controls that are active
+    (pressed) for the complex control.
 
-    This a bitwise OR of the various sub-controls that are active (pressed) for the complex control.
+    The default value is QStyle::SC_None.
 
     \sa QStyle::SubControl
 */
@@ -2225,12 +2251,22 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
 /*!
     \class QStyleOptionDockWidget
     \brief The QStyleOptionDockWidget class is used to describe the
-    parameters for drawing a dock window.
+    parameters for drawing a dock widget.
+
+    QStyleOptionDockWidget contains all the information that QStyle
+    functions need to draw graphical elements like QDockWidget.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    \sa QStyleOption
 */
 
 /*!
-    Constructs a QStyleOptionDockWidget. The member variables are
-    initialized to default values.
+    Constructs a QStyleOptionDockWidget, initializing the member
+    variables to their default values.
 */
 
 QStyleOptionDockWidget::QStyleOptionDockWidget()
@@ -2267,22 +2303,30 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
 
 /*!
     \variable QStyleOptionDockWidget::title
-    \brief The title of the dock window
+    \brief the title of the dock window
+
+    The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionDockWidget::closable
-    \brief Indicates that the dock window is closable.
+
+    \brief Indicates that the dock window is closable; true by
+    default.
 */
 
 /*!
     \variable QStyleOptionDockWidget::movable
-    \brief Indicates that the dock window is movable.
+
+    \brief Indicates that the dock window is movable; false by
+    default.
 */
 
 /*!
     \variable QStyleOptionDockWidget::floatable
-    \brief Indicates that the dock window is floatable.
+
+    \brief Indicates that the dock window is floatable; true by
+    default.
 */
 
 /*!
@@ -2785,27 +2829,14 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     \fn T qstyleoption_cast<T>(const QStyleOption *option)
     \relates QStyleOption
 
-    Returns a T or 0 depending on the \l{QStyleOption::type}{type}
-    and \l{QStyleOption::version}{version} of \a option.
+    Returns a T or 0 depending on the \l{QStyleOption::type}{type} and
+    \l{QStyleOption::version}{version} of the given \a option.
 
     Example:
 
-    \code
-        void MyStyle::drawPrimitive(PrimitiveElement element,
-                                    const QStyleOption *option,
-                                    QPainter *painter,
-                                    const QWidget *widget)
-        {
-            if (element == PE_FocusRect) {
-                const QStyleOptionFocusRect *focusRectOption =
-                        qstyleoption_cast<const QStyleOptionFocusRect *>(option);
-                if (focusRectOption) {
-                    ...
-                }
-            }
-            ...
-        }
-    \endcode
+    \quotefromfile snippets/qstyleoption/main.cpp
+    \skipto MyStyle::drawPrimitive
+    \printuntil /^\}/
 
     \sa QStyleOption::type, QStyleOption::version
 */
@@ -2815,7 +2846,7 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     \overload
     \relates QStyleOption
 
-    Returns a T or 0 depending on the type of \a option.
+    Returns a T or 0 depending on the type of the given \a option.
 */
 
 #ifndef QT_NO_TABWIDGET
