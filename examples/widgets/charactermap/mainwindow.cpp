@@ -21,7 +21,7 @@ MainWindow::MainWindow()
     QWidget *centralWidget = new QWidget;
 
     QLabel *fontLabel = new QLabel(tr("Font:"));
-    fontCombo = new QComboBox;
+    fontCombo = new QFontComboBox;
     QLabel *styleLabel = new QLabel(tr("Style:"));
     styleCombo = new QComboBox;
 
@@ -29,18 +29,17 @@ MainWindow::MainWindow()
     characterWidget = new CharacterWidget;
     scrollArea->setWidget(characterWidget);
 
-    findFonts();
-    findStyles();
+    findStyles(fontCombo->currentFont());
 
     lineEdit = new QLineEdit;
     QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"));
 
     clipboard = QApplication::clipboard();
 
-    connect(fontCombo, SIGNAL(currentIndexChanged(const QString &)),
-            this, SLOT(findStyles()));
-    connect(fontCombo, SIGNAL(currentIndexChanged(const QString &)),
-            characterWidget, SLOT(updateFont(const QString &)));
+    connect(fontCombo, SIGNAL(currentFontChanged(const QFont &)),
+            this, SLOT(findStyles(const QFont &)));
+    connect(fontCombo, SIGNAL(currentFontChanged(const QFont &)),
+            characterWidget, SLOT(updateFont(const QFont &)));
     connect(styleCombo, SIGNAL(currentIndexChanged(const QString &)),
             characterWidget, SLOT(updateStyle(const QString &)));
     connect(characterWidget, SIGNAL(characterSelected(const QString &)),
@@ -70,24 +69,14 @@ MainWindow::MainWindow()
     setWindowTitle(tr("Character Map"));
 }
 
-void MainWindow::findFonts()
-{
-    QFontDatabase fontDatabase;
-    fontCombo->clear();
-
-    QString family;
-    foreach (family, fontDatabase.families())
-        fontCombo->addItem(family);
-}
-
-void MainWindow::findStyles()
+void MainWindow::findStyles(const QFont &font)
 {
     QFontDatabase fontDatabase;
     QString currentItem = styleCombo->currentText();
     styleCombo->clear();
 
     QString style;
-    foreach (style, fontDatabase.styles(fontCombo->currentText()))
+    foreach (style, fontDatabase.styles(font.family()))
         styleCombo->addItem(style);
 
     int styleIndex = styleCombo->findText(currentItem);

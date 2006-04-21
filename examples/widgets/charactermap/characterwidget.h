@@ -32,7 +32,7 @@ public:
     QSize sizeHint() const;
 
 public slots:
-    void updateFont(const QString &fontFamily);
+    void updateFont(const QFont &font);
     void updateStyle(const QString &fontStyle);
 
 signals:

@@ -22,9 +22,9 @@ CharacterWidget::CharacterWidget(QWidget *parent)
     setMouseTracking(true);
 }
 
-void CharacterWidget::updateFont(const QString &fontFamily)
+void CharacterWidget::updateFont(const QFont &font)
 {
-    displayFont.setFamily(fontFamily);
+    displayFont.setFamily(font.family());
     displayFont.setPixelSize(16);
     update();
 }
