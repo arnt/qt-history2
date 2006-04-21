@@ -106,7 +106,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2, QPen *pen
 //                                 ProcessSpans span_func, QSpanData *data,
 //                                 LineDrawMode style, const QRect &devRect);
 
-static void drawEllipse_midpoint_i(const QRect &rect,
+static void drawEllipse_midpoint_i(const QRect &rect, const QRect &clip,
                                    ProcessSpans pen_func, ProcessSpans brush_func,
                                    QSpanData *pen_data, QSpanData *brush_data);
 
@@ -2192,8 +2192,10 @@ void QRasterPaintEngine::drawEllipse(const QRectF &rect)
         && d->txop <= QPainterPrivate::TxScale) // no shear
     {
         const QRectF r = d->matrix.mapRect(rect);
+        const QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
         drawEllipse_midpoint_i(QRect(qRound(r.x()), qRound(r.y()),
                                      qRound(r.width()), qRound(r.height())),
+                               devRect,
                                d->penData.blend, d->brushData.blend,
                                &d->penData, &d->brushData);
         return;
@@ -4015,10 +4017,42 @@ flush_and_return:
 
 /*!
     \internal
+    Modify \a spans to be within the \a clip rectangle.
+    Returns the new number of spans.
+*/
+static inline int ellipseSpansClipped(QT_FT_Span *spans, int numSpans,
+                                      const QRect &clip)
+{
+    const short minx = clip.topLeft().x();
+    short miny = clip.topLeft().y();
+    const short maxx = clip.bottomRight().x();
+    const short maxy = clip.bottomRight().y();
+
+    int n = 0;
+    for (int i = 0; i < numSpans; ++i) {
+        if (spans[i].y > maxy
+            || spans[i].y < miny
+            || spans[i].x > maxx
+            || spans[i].x + spans[i].len < minx) {
+            continue;
+        }
+        spans[n].x = qMax(minx, qMin(maxx, spans[i].x));
+        spans[n].len = qMin(spans[i].len, ushort(maxx - spans[n].x + 1));
+        spans[n].y = spans[i].y;
+        spans[n].coverage = spans[i].coverage;
+
+        ++n;
+    }
+    return n;
+}
+
+/*!
+    \internal
     \a x and \a y is relative to the midpoint of \a rect.
 */
 static inline void drawEllipsePoints(int x, int y, int length,
                                      const QRect &rect,
+                                     const QRect &clip,
                                      ProcessSpans pen_func, ProcessSpans brush_func,
                                      QSpanData *pen_data, QSpanData *brush_data)
 {
@@ -4071,16 +4105,16 @@ static inline void drawEllipsePoints(int x, int y, int length,
         fill[1].y = outline[3].y;
         fill[1].coverage = 255;
 
-        if (fill[0].y >= fill[1].y)
-            brush_func(1, fill, brush_data);
-        else
-            brush_func(2, fill, brush_data);
+        int n = (fill[0].y >= fill[1].y ? 1 : 2);
+        n = ellipseSpansClipped(fill, n, clip);
+        if (n > 0)
+            brush_func(n, fill, brush_data);
     }
     if (pen_func) {
-        if (outline[1].y >= outline[2].y)
-            pen_func(2, outline, pen_data);
-        else
-            pen_func(4, outline, pen_data);
+        int n = (outline[1].y >= outline[2].y ? 2 : 4);
+        n = ellipseSpansClipped(outline, n, clip);
+        if (n > 0)
+            pen_func(n, outline, pen_data);
     }
 }
 
@@ -4088,7 +4122,7 @@ static inline void drawEllipsePoints(int x, int y, int length,
     \internal
     Draws an ellipse using the integer point midpoint algorithm.
 */
-static void drawEllipse_midpoint_i(const QRect &rect,
+static void drawEllipse_midpoint_i(const QRect &rect, const QRect &clip,
                                    ProcessSpans pen_func, ProcessSpans brush_func,
                                    QSpanData *pen_data, QSpanData *brush_data)
 {
@@ -4113,13 +4147,13 @@ static void drawEllipse_midpoint_i(const QRect &rect,
             ++x;
         } else {     // select SE
             d += b*b*(2*x + 3) + a*a*(-2*y + 2);
-            drawEllipsePoints(startx, y, x - startx + 1, rect,
+            drawEllipsePoints(startx, y, x - startx + 1, rect, clip,
                               pen_func, brush_func, pen_data, brush_data);
             startx = ++x;
             --y;
         }
     }
-    drawEllipsePoints(startx, y, x - startx + 1, rect,
+    drawEllipsePoints(startx, y, x - startx + 1, rect, clip,
                       pen_func, brush_func, pen_data, brush_data);
 
     // region 2
@@ -4138,7 +4172,7 @@ static void drawEllipse_midpoint_i(const QRect &rect,
             d += a*a*(-2*y + 3);
         }
         --y;
-        drawEllipsePoints(x, y, 1, rect,
+        drawEllipsePoints(x, y, 1, rect, clip,
                           pen_func, brush_func, pen_data, brush_data);
     }
 }
