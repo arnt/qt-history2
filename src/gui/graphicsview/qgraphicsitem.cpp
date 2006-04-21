@@ -677,13 +677,35 @@ void QGraphicsItem::translate(qreal dx, qreal dy)
     setMatrix(QMatrix().translate(dx, dy), true);
 }
 
+/*!
+    Returns the Z-value, or the elevation, of the item. The Z-value decides
+    the stacking order of sibling (neighboring) items.
 
+    The default Z-value is 0.
+    
+    \sa setZValue()
+*/
 qreal QGraphicsItem::zValue() const
 {
     Q_D(const QGraphicsItem);
     return d->z;
 }
 
+/*!
+    Sets the Z-value, or the elevation, of the item, to \a z. The elevation
+    decides the stacking order of sibling (neighboring) items. An item of high
+    Z-value will be drawn on top of an item with a lower Z-value if their
+    parent is identical. In addition, children of an item will always be drawn
+    on top of the parent, regardless of the child's Z-value. Sibling items
+    that share the same Z-value will be drawn in an undefined order, although
+    the order will stay the same for as long as the items live.
+
+    The Z-value does not affect the item's size in any way.
+
+    The default Z-value is 0.
+
+    \sa zValue()
+*/
 void QGraphicsItem::setZValue(qreal z)
 {
     Q_D(QGraphicsItem);
