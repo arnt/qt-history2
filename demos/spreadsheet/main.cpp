@@ -275,7 +275,7 @@ void SpreadSheet::createActions()
     clearAction->setShortcut(Qt::Key_Delete);
     connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
 
-    aboutSpreadSheet = new QAction(tr("About SpreadSheet"), this);
+    aboutSpreadSheet = new QAction(tr("About Spreadsheet"), this);
     connect(aboutSpreadSheet, SIGNAL(triggered()), this, SLOT(showAbout()));
 
     exitAction = new QAction(tr("E&xit"), this);
@@ -718,7 +718,7 @@ const char *htmlText =
 
 void SpreadSheet::showAbout()
 {
-    QMessageBox::about(this, "About Spread Sheet", htmlText);
+    QMessageBox::about(this, "About Spreadsheet", htmlText);
 }
 
 
