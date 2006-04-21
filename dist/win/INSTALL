@@ -14,20 +14,7 @@
 
     NOTE: The install path must not contain any spaces.
 
-3. Environment variables
-
-   In order to use Qt, some environment variables needs to be
-   extended.
-
-        PATH               - to locate qmake, moc and other Qt tools
-
-   This is done by adding c:\Qt\%VERSION%\bin to the PATH variable.
-
-   For newer versions of Windows, PATH can be extended through
-   "Control Panel->System->Advanced->Environment variables" and for
-   older versions by editing c:\autoexec.bat.
-
-4.  Building
+3.  Building
 
     To configure the Qt library for your machine type:
 
@@ -50,6 +37,19 @@
         make confclean
 
     before running the configure script again.
+
+4. Environment variables
+
+   In order to use Qt, some environment variables needs to be
+   extended.
+
+        PATH               - to locate qmake, moc and other Qt tools
+
+   This is done by adding c:\Qt\%VERSION%\bin to the PATH variable.
+
+   For newer versions of Windows, PATH can be extended through
+   "Control Panel->System->Advanced->Environment variables" and for
+   older versions by editing c:\autoexec.bat.
 
 5.  That's all. Qt is now installed.
 
