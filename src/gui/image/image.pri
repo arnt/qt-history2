@@ -79,7 +79,8 @@ SOURCES += \
     	  ../3rdparty/libpng/pngwio.c \
     	  ../3rdparty/libpng/pngwrite.c \
     	  ../3rdparty/libpng/pngwtran.c \
-    	  ../3rdparty/libpng/pngwutil.c
+    	  ../3rdparty/libpng/pngwutil.c \
+	  ../3rdparty/libpng/pnggccrd.c
     }
 } else {
     DEFINES *= QT_NO_IMAGEFORMAT_PNG
