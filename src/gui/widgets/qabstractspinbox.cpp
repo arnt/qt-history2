@@ -1382,10 +1382,8 @@ void QAbstractSpinBoxPrivate::init()
 
     q->setLineEdit(new QLineEdit(q));
     edit->setObjectName(QLatin1String("qt_spinbox_lineedit"));
-    if (type != QVariant::Invalid) {
-        validator = new QSpinBoxValidator(q, this);
-        edit->setValidator(validator);
-    }
+    validator = new QSpinBoxValidator(q, this);
+    edit->setValidator(validator);
 }
 
 /*!
