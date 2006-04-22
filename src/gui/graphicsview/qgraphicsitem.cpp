@@ -715,11 +715,39 @@ void QGraphicsItem::setZValue(qreal z)
     }
 }
 
+/*!
+    Returns the bounding rect of this item in scene coordinates, by combining
+    sceneMatrix() with boundingRect().
+*/
 QRectF QGraphicsItem::sceneBoundingRect() const
 {
     return sceneMatrix().mapRect(boundingRect());
 }
 
+/*!
+    Returns the shape of this item as a QPainterPath in local coordinates. The
+    shape is used for collision detection and hit tests.
+
+    The default implementation calls boundingRect() to return a simple '
+    rectangular shape, but subclasses can reimplement this function to return
+    a more accurate shape for non-rectangular items. For example, a round item
+    may choose to return an elliptic shape for better collision detection. For
+    example:
+
+    \code
+        QPainterPath RoundItem::shape() const
+        {
+            QPainterPath path;
+            path.addEllipse(boundingRect());
+            return path;
+        }
+    \endcode
+
+    This function is called by the default implementations of contains() and
+    collidesWith().
+
+    \sa boundingRect(), contains()
+*/
 QPainterPath QGraphicsItem::shape() const
 {
     QPainterPath path;
@@ -727,11 +755,39 @@ QPainterPath QGraphicsItem::shape() const
     return path;
 }
 
+/*!
+    Returns true if this item contains \a point, which is in local
+    coordinates; otherwise, false is returned. It is most often called from
+    QGraphicsView to determine what item is under the cursor, and for that
+    reason, the implementation of this function should be as light-weight as
+    possible.
+
+    By default, this function calls shape(), but you can reimplement it in a
+    subclass to provide a (perhaps more efficient) implementation.
+
+    \sa shape(), boundingRect(), collidesWith()
+*/
 bool QGraphicsItem::contains(const QPointF &point) const
 {
     return shape().contains(point);
 }
 
+/*!
+    Returns true if this item collides with \a other; otherwise returns false.
+    In item is said to collide with another if the items either intersect, or
+    if either item is contained within the other's area.
+
+    The default implementation is based on shape intersection, and it calls
+    shape() on both items. Because arbitrary shape-shape intersection grows
+    with an order of magnitude of complexity, this operation can be noticably
+    time consuming. You have the option of reimplementing this function in a
+    subclass of QGraphicsItem to provide a custom algorithm. This allows you
+    to make use of natural constraints in the shapes of your own items. For
+    instance, two untransformed perfectly circular items' collision can be
+    determined very efficiently by comparing positions and radii.
+
+    \sa contains(), shape()
+*/
 bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
 {
     if (other == this)
@@ -753,6 +809,14 @@ bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
     return collidesWith(matrixB.map(other->shape()));
 }
 
+/*!
+    \overload
+
+    Returns true if this item collides with \a path, which is in local
+    coordinates.
+
+    \sa contains(), shape()
+*/
 bool QGraphicsItem::collidesWith(const QPainterPath &path) const
 {
     QMatrix matrix = sceneMatrix();

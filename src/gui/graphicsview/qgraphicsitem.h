@@ -90,6 +90,7 @@ public:
     QPointF scenePos() const;
     void setPos(const QPointF &pos);
     inline void setPos(qreal x, qreal y) { setPos(QPointF(x, y)); }
+    inline void moveBy(qreal dx, qreal dy) { setPos(pos().x() + dx, pos().y() + dy); }
 
     // Local transformation
     QMatrix matrix() const;
