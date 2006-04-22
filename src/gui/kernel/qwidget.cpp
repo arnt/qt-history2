@@ -4991,11 +4991,13 @@ bool QWidget::event(QEvent *event)
         wheelEvent((QWheelEvent*)event);
         break;
 #endif
+#ifndef QT_NO_TABLETEVENT
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
         tabletEvent((QTabletEvent*)event);
         break;
+#endif
 #ifdef QT3_SUPPORT
     case QEvent::Accel:
         event->ignore();
@@ -5321,11 +5323,13 @@ bool QWidget::event(QEvent *event)
         d->topData()->fleft = 0;
         d->topData()->fbottom = 0;
         break;
+#ifndef QT_NO_ACTION
     case QEvent::ActionAdded:
     case QEvent::ActionRemoved:
     case QEvent::ActionChanged:
         actionEvent((QActionEvent*)event);
         break;
+#endif
     default:
         return QObject::event(event);
     }
@@ -5481,9 +5485,9 @@ void QWidget::wheelEvent(QWheelEvent *event)
 {
     event->ignore();
 }
-#endif
+#endif // QT_NO_WHEELEVENT
 
-
+#ifndef QT_NO_TABLETEVENT
 /*!
     This event handler, for event \a event, can be reimplemented in a
     subclass to receive tablet events for the widget.
@@ -5502,6 +5506,7 @@ void QWidget::tabletEvent(QTabletEvent *event)
 {
     event->ignore();
 }
+#endif // QT_NO_TABLETEVENT
 
 /*!
     This event handler, for event \a event, can be reimplemented in a
@@ -5729,6 +5734,7 @@ void QWidget::resizeEvent(QResizeEvent *)
 {
 }
 
+#ifndef QT_NO_ACTION
 /*!
     \fn void QWidget::actionEvent(QActionEvent *event)
 
@@ -5741,6 +5747,7 @@ void QWidget::actionEvent(QActionEvent *)
 {
 
 }
+#endif
 
 /*!
     This event handler, for event \a event, can be reimplemented in a

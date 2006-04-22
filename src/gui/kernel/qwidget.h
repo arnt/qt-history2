@@ -537,8 +537,12 @@ protected:
     virtual void resizeEvent(QResizeEvent *);
     virtual void closeEvent(QCloseEvent *);
     virtual void contextMenuEvent(QContextMenuEvent *);
+#ifndef QT_NO_TABLETEVENT
     virtual void tabletEvent(QTabletEvent *);
+#endif
+#ifndef QT_NO_ACTION
     virtual void actionEvent(QActionEvent *);
+#endif
 
 #ifndef QT_NO_DRAGANDDROP
     virtual void dragEnterEvent(QDragEnterEvent *);

@@ -1931,7 +1931,7 @@ void QApplication::setActiveWindow(QWidget* act)
                 w->setFocus(Qt::ActiveWindowFocusReason);
             else {
                 QWidget *w = QApplicationPrivate::focusNextPrevChild_helper(QApplicationPrivate::active_window, true);
-                if (w) 
+                if (w)
                     w->setFocus(Qt::ActiveWindowFocusReason);
             }
         }
@@ -3048,6 +3048,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             context->setAccepted(eventAccepted);
         }
         break;
+#ifndef QT_NO_TABLETEVENT
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
@@ -3078,7 +3079,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             qt_tabletChokeMouse = tablet->isAccepted();
         }
         break;
+#endif // QT_NO_TABLETEVENT
 
+#if !defined(QT_NO_TOOLTIP) && !defined(QT_NO_WHATSTHIS)
     case QEvent::ToolTip:
     case QEvent::WhatsThis:
     case QEvent::QueryWhatsThis:
@@ -3102,7 +3105,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             help->setAccepted(eventAccepted);
         }
         break;
-
+#endif
+#if !defined(QT_NO_STATUSTIP) && !defined(QT_NO_WHATSTHIS)
     case QEvent::StatusTip:
     case QEvent::WhatsThisClicked:
         {
@@ -3115,6 +3119,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             }
         }
         break;
+#endif
 
 #ifndef QT_NO_DRAGANDDROP
     case QEvent::DragEnter: {

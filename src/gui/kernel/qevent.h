@@ -41,7 +41,6 @@ protected:
     Qt::KeyboardModifiers modState;
 };
 
-
 class Q_GUI_EXPORT QMouseEvent : public QInputEvent
 {
 public:
@@ -129,6 +128,7 @@ protected:
 };
 #endif
 
+#ifndef QT_NO_TABLETEVENT
 class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 {
 public:
@@ -173,7 +173,7 @@ protected:
     void *mExtra;
 
 };
-
+#endif // QT_NO_TABLETEVENT
 
 class Q_GUI_EXPORT QKeyEvent : public QInputEvent
 {
@@ -333,7 +333,6 @@ public:
     ~QHideEvent();
 };
 
-
 class Q_GUI_EXPORT QContextMenuEvent : public QInputEvent
 {
 public:
@@ -365,6 +364,7 @@ protected:
     uint reas : 8;
 };
 
+#ifndef QT_NO_INPUTMETHOD
 class Q_GUI_EXPORT QInputMethodEvent : public QEvent
 {
 public:
@@ -403,6 +403,7 @@ private:
     int replace_from;
     int replace_length;
 };
+#endif // QT_NO_INPUTMETHOD
 
 #ifndef QT_NO_DRAGANDDROP
 
@@ -537,7 +538,7 @@ private:
     QPoint gp;
 };
 
-
+#ifndef QT_NO_STATUSTIP
 class Q_GUI_EXPORT QStatusTipEvent : public QEvent
 {
 public:
@@ -548,7 +549,9 @@ public:
 private:
     QString s;
 };
+#endif
 
+#ifndef QT_NO_WHATSTHIS
 class Q_GUI_EXPORT QWhatsThisClickedEvent : public QEvent
 {
 public:
@@ -559,8 +562,9 @@ public:
 private:
     QString s;
 };
+#endif
 
-
+#ifndef QT_NO_ACTION
 class Q_GUI_EXPORT QActionEvent : public QEvent
 {
     QAction *act, *bef;
@@ -571,7 +575,7 @@ public:
     inline QAction *action() const { return act; }
     inline QAction *before() const { return bef; }
 };
-
+#endif
 
 class Q_GUI_EXPORT QFileOpenEvent : public QEvent
 {
@@ -584,6 +588,7 @@ private:
     QString f;
 };
 
+#ifndef QT_NO_TOOLBAR
 class Q_GUI_EXPORT QToolBarChangeEvent : public QEvent
 {
 public:
@@ -594,7 +599,9 @@ public:
 private:
     uint tog : 1;
 };
+#endif
 
+#ifndef QT_NO_SHORTCUT
 class Q_GUI_EXPORT QShortcutEvent : public QEvent
 {
 public:
@@ -612,7 +619,9 @@ protected:
     bool ambig;
     int  sid;
 };
+#endif
 
+#ifndef QT_NO_CLIPBOARD
 class Q_GUI_EXPORT QClipboardEvent : public QEvent
 {
 public:
@@ -621,6 +630,7 @@ public:
 
     QEventPrivate *data() { return d; };
 };
+#endif
 
 class Q_GUI_EXPORT QWindowStateChangeEvent: public QEvent
 {

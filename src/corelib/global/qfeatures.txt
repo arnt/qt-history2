@@ -63,6 +63,13 @@ Requires:
 Name: QWheelEvent
 SeeAlso: ???
 
+Feature: TABLETEVENT
+Description: Supports tablet events.
+Section: Kernel
+Requires:
+Name: QTabletEvent
+SeeAlso: ???
+
 Feature: SOUND
 Description: Supports playing audio files.
 Section: Kernel

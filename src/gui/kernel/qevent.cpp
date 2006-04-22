@@ -1535,6 +1535,8 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     \sa replacementStart(), setCommitString()
 */
 
+#ifndef QT_NO_TABLETEVENT
+
 /*!
     \class QTabletEvent
     \brief The QTabletEvent class contains parameters that describe a Tablet event.
@@ -1843,6 +1845,8 @@ QTabletEvent::~QTabletEvent()
 
     The high precision y position of the tablet device.
 */
+
+#endif // QT_NO_TABLETEVENT
 
 #ifndef QT_NO_DRAGANDDROP
 /*!
@@ -2414,6 +2418,8 @@ QHelpEvent::~QHelpEvent()
 {
 }
 
+#ifndef QT_NO_STATUSTIP
+
 /*!
     \class QStatusTipEvent
     \brief The QStatusTipEvent class provides an event that is used to show messages in a status bar.
@@ -2485,6 +2491,10 @@ QStatusTipEvent::~QStatusTipEvent()
     \sa QStatusBar::showMessage()
 */
 
+#endif // QT_NO_STATUSTIP
+
+#ifndef QT_NO_WHATSTHIS
+
 /*!
     \class QWhatsThisClickedEvent
     \brief The QWhatsThisClickedEvent class provides an event that
@@ -2518,6 +2528,10 @@ QWhatsThisClickedEvent::~QWhatsThisClickedEvent()
     Returns the URL that was clicked by the user in the "What's
     This?" text.
 */
+
+#endif // QT_NO_WHATSTHIS
+
+#ifndef QT_NO_ACTION
 
 /*!
     \class QActionEvent
@@ -2571,6 +2585,8 @@ QActionEvent::~QActionEvent()
 
     \sa action(), QWidget::actions()
 */
+
+#endif // QT_NO_ACTION
 
 /*!
     \class QHideEvent
@@ -2680,6 +2696,7 @@ QFileOpenEvent::~QFileOpenEvent()
     Returns the file that is being opened.
 */
 
+#ifndef QT_NO_TOOLBAR
 /*!
     \internal
     \class QToolBarChangeEvent
@@ -2724,6 +2741,10 @@ QToolBarChangeEvent::~QToolBarChangeEvent()
     Qt::ShiftButton, Qt::ControlButton, Qt::MetaButton, and Qt::AltButton.
 */
 
+#endif // QT_NO_TOOLBAR
+
+#ifndef QT_NO_SHORTCUT
+
 QShortcutEvent::QShortcutEvent(const QKeySequence &key, int id, bool ambiguous)
     : QEvent(Shortcut), sequence(key), ambig(ambiguous), sid(id)
 {}
@@ -2731,6 +2752,8 @@ QShortcutEvent::QShortcutEvent(const QKeySequence &key, int id, bool ambiguous)
 QShortcutEvent::~QShortcutEvent()
 {
 }
+
+#endif // QT_NO_SHORTCUT
 
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QEvent *e) {
@@ -2772,10 +2795,11 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     }
     return dbg.space();
 
-
+#ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip:
         n = "ToolTip";
         break;
+#endif
     case QEvent::WindowActivate:
         n = "WindowActivate";
         break;
