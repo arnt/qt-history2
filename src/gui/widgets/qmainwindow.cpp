@@ -552,7 +552,7 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
     Q_ASSERT_X(toolbar->isAreaAllowed(toolBarArea(before)),
                "QMainWIndow::insertToolBar", "specified 'area' is not an allowed area");
 
-    qt_remove_toolbar_from_layout(toolbar, d);    
+    qt_remove_toolbar_from_layout(toolbar, d);
 
     toolbar->d_func()->_q_updateIconSize(d->iconSize);
     toolbar->d_func()->_q_updateToolButtonStyle(d->toolButtonStyle);
@@ -754,6 +754,7 @@ bool QMainWindow::event(QEvent *event)
         return true;
     } else
 #endif
+#ifndef QT_NO_STATUSTIP
     if (event->type() == QEvent::StatusTip) {
 #ifndef QT_NO_STATUSBAR
         if (QStatusBar *sb = d->layout->statusBar())
@@ -762,7 +763,9 @@ bool QMainWindow::event(QEvent *event)
 #endif
             static_cast<QStatusTipEvent*>(event)->ignore();
         return true;
-    } else if (event->type() == QEvent::StyleChange) {
+    } else
+#endif // QT_NO_STATUSTIP
+    if (event->type() == QEvent::StyleChange) {
         if (!d->explicitIconSize)
             setIconSize(QSize());
     }

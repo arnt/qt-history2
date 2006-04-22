@@ -281,10 +281,12 @@ void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activat
         if(popup)
             popupAction(action, activateFirst);
         q->update(actionRect(action));
+#ifndef QT_NO_STATUSTIP
     }  else if (previousAction) {
         QString empty;
         QStatusTipEvent tip(empty);
         QApplication::sendEvent(q, &tip);
+#endif
     }
 
 

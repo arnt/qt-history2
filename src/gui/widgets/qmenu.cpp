@@ -354,6 +354,7 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
             popupAction(currentAction, popup, activateFirst);
         }
         q->update(actionRect(action));
+#ifndef QT_NO_STATUSTIP
     }  else if (previousAction) {
         QWidget *w = causedPopup.widget;
         while (QMenu *m = qobject_cast<QMenu*>(w))
@@ -363,6 +364,7 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
             QStatusTipEvent tip(empty);
             QApplication::sendEvent(w, &tip);
         }
+#endif
     }
     if (hideActiveMenu) {
         activeMenu = 0;
