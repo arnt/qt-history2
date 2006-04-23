@@ -1634,12 +1634,15 @@ QWidgetList QWorkspace::windowList(WindowOrder order) const
 bool QWorkspace::event(QEvent *e)
 {
     Q_D(QWorkspace);
+#ifndef QT_NO_SHORTCUT
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         const char *theSlot = d->shortcutMap.value(se->shortcutId(), 0);
         if (theSlot)
             QMetaObject::invokeMethod(this, theSlot);
-    } else if (e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut){
+    } else
+#endif
+    if (e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut){
         return true;
     }
     return QWidget::event(e);

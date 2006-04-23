@@ -884,6 +884,7 @@ void QLabel::contextMenuEvent(QContextMenuEvent *ev)
 */
 bool QLabel::event(QEvent *e)
 {
+#ifndef QT_NO_SHORTCUT
     Q_D(QLabel);
     QEvent::Type type = e->type();
 #ifndef QT_NO_SHORTCUT
