@@ -66,11 +66,11 @@ void MainWindow::on_actionFileNew_triggered()
     QAxSelect select(this);
     if (select.exec()) {
         QAxWidget *container = new QAxWidget(workspace);
-        workspace->addWindow(container);
         container->setAttribute(Qt::WA_DeleteOnClose);
         container->setControl(select.clsid());
 	container->setObjectName(container->windowTitle());
-	container->show();
+        workspace->addWindow(container);
+        container->show();
     }
     updateGUI();
 }
