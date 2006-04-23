@@ -74,6 +74,8 @@ public:
     ~QPersistentModelIndex();
     bool operator<(const QPersistentModelIndex &other) const;
     bool operator==(const QPersistentModelIndex &other) const;
+    inline bool operator!=(const QPersistentModelIndex &other) const
+    { return !operator==(other); }
     QPersistentModelIndex &operator=(const QPersistentModelIndex &other);
     bool operator==(const QModelIndex &other) const;
     bool operator!=(const QModelIndex &other) const;
