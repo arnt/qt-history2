@@ -2899,7 +2899,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 }
 #endif
 
-
+#ifndef QT_NO_CLIPBOARD
 /*!
     \internal
 
@@ -2919,6 +2919,7 @@ QClipboardEvent::QClipboardEvent(QEventPrivate *data)
 QClipboardEvent::~QClipboardEvent()
 {
 }
+#endif // QT_NO_CLIPBOARD
 
 /*!
     \class QShortcutEvent
