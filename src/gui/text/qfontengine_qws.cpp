@@ -947,10 +947,13 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
         *nglyphs = len;
         return false;
     }
+    *nglyphs = 0;
 
-    for(int i = 0; i < len; i++)
-        glyphs[i].glyph = str[i].unicode();
-    *nglyphs = len;
+    for(int i = 0; i < len; i++) {
+        unsigned int uc = getChar(str, i, len);
+        glyphs[*nglyphs].glyph = uc < 0x10000 ? uc : 0;
+        ++*nglyphs;
+    }
 
     for(int i = 0; i < len; i++) {
         QGlyphLayout &g=glyphs[i];

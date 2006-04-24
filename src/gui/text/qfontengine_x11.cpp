@@ -605,12 +605,30 @@ QFontEngineXLFD::~QFontEngineXLFD()
 #endif
 }
 
-bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
+bool QFontEngineXLFD::stringToCMap(const QChar *s, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
 {
     if (*nglyphs < len) {
         *nglyphs = len;
         return false;
     }
+
+    // filter out surrogates, we can't handle them anyway with XLFD fonts
+    QVarLengthArray<ushort> _s;
+    QChar *str = (QChar *)_s.data();
+    for (int i = 0; i < len; ++i) {
+        if (i < len - 1
+            && s[i].unicode() >= 0xd800 && s[i].unicode() < 0xdc00
+            && s[i+1].unicode() >= 0xdc00 && s[i].unicode() < 0xe000) {
+            *str = QChar();
+            ++i;
+        } else {
+            *str = s[i];
+        }
+        ++str;
+    }
+
+    len = str - (QChar *)_s.data();
+    str = (QChar *)_s.data();
 
     bool mirrored = flags & QTextEngine::RightToLeft;
     if (_codec) {
