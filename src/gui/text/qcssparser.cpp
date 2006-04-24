@@ -104,6 +104,54 @@ static QCss::Property findProperty(const QString &name)
     return prop->id;
 }
 
+QColor Declaration::colorValue() const
+{
+    if (values.count() != 1)
+        return QColor();
+
+    Value v = values.first();
+    if (v.type == Value::Identifier || v.type == Value::String) {
+        v.variant.convert(QVariant::Color);
+        v.type = Value::Color;
+    }
+    if (v.type == Value::Color)
+        return qvariant_cast<QColor>(v.variant);
+
+    if (v.type != Value::Function)
+        return QColor();
+
+    QStringList lst = v.variant.toStringList();
+    if (lst.count() != 2)
+        return QColor();
+    
+    // function name
+    if (lst.at(0).compare(QLatin1String("rgb"), Qt::CaseInsensitive) != 0)
+        return QColor();
+    
+    Parser p(lst.at(1));
+    if (!p.testExpr())
+        return QColor();
+    
+    QVector<Value> colorDigits;
+    if (!p.parseExpr(&colorDigits))
+        return QColor();
+    
+    if (colorDigits.count() != 5
+        || colorDigits.at(1).type != Value::TermOperatorComma
+        || colorDigits.at(3).type != Value::TermOperatorComma)
+        return QColor();
+    
+    for (int i = 0; i < 5; i += 2)
+        if (colorDigits.at(i).type == Value::Percentage) {
+            colorDigits[i].variant = colorDigits.at(i).variant.toDouble() * 255. / 100.;
+            colorDigits[i].type = Value::Number;
+        }
+
+    return QColor(colorDigits.at(0).variant.toInt(),
+                  colorDigits.at(2).variant.toInt(), 
+                  colorDigits.at(4).variant.toInt());
+}
+
 static inline bool isHexDigit(const char c)
 {
     return (c >= '0' && c <= '9')

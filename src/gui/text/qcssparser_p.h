@@ -67,11 +67,6 @@ struct Q_INTERNAL_EXPORT Value
         OperatorPlus,
         OperatorMinus
     };
-    enum TermOperatorType {
-        TermNoOperator,
-        TermSlash,
-        TermComma
-    };
     inline Value() : type(Unknown), unaryOperator(NoOperator) { }
     Type type;
     QVariant variant;
@@ -86,6 +81,9 @@ struct Q_INTERNAL_EXPORT Declaration
     inline bool isEmpty() const { return property.isEmpty() && propertyId == UnknownProperty; }
     QVector<Value> values;
     bool important;
+    
+    // helper functions
+    QColor colorValue() const;
 };
 
 struct Q_INTERNAL_EXPORT PseudoClass
