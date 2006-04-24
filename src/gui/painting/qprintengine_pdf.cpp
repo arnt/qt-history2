@@ -46,7 +46,7 @@ static const bool interpolateImages = false;
 #ifdef QT_NO_COMPRESS
 static const bool do_compress = false;
 #else
-static const bool do_compress = false;
+static const bool do_compress = true;
 #endif
 
 QPdfPage::QPdfPage()
@@ -82,10 +82,10 @@ QPdfEngine::QPdfEngine(QPrinter::PrinterMode m)
     state = QPrinter::Idle;
 
     pagesize_ = QPrinter::A4;
-    
+
     if (m == QPrinter::HighResolution)
         d->resolution = 1200;
-    else if (m == QPrinter::ScreenResolution) 
+    else if (m == QPrinter::ScreenResolution)
         d->resolution = qt_defaultDpi();
 
     QRect r = paperRect();
@@ -617,7 +617,7 @@ int QPdfEnginePrivate::addBrushPattern(const QMatrix &m, bool *specifyColor, int
         s << QPdf::generateMatrix(m);
         s << "/Im" << imageObject << " Do\n";
     }
-    
+
     QByteArray str;
     QPdf::ByteStream s(&str);
     s << "<<\n"
@@ -659,7 +659,7 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
         return -1;
 
     int object = imageCache.value(serial_no);
-    if(object) 
+    if(object)
         return object;
 
     QImage image = img;
@@ -690,10 +690,10 @@ int QPdfEnginePrivate::addImage(const QImage &img, bool *bitmap, qint64 serial_n
     } else {
         QByteArray imageData;
         QByteArray softMaskData;
-    
+
         imageData.resize(3 * w * h);
         softMaskData.resize(w * h);
-    
+
         uchar *data = (uchar *)imageData.data();
         uchar *sdata = (uchar *)softMaskData.data();
         bool hasAlpha = false;
@@ -757,7 +757,7 @@ void QPdfEnginePrivate::newPage()
     pages.append(requestObject());
 
     *currentPage << "/GSa gs /CSp cs /CSp CS\n"
-                 << QPdf::generateMatrix(pageMatrix()) 
+                 << QPdf::generateMatrix(pageMatrix())
                  << "q\n";
 }
 
@@ -979,7 +979,13 @@ void QPdfEnginePrivate::embedFont(QFontSubset *font)
         QByteArray descriptor;
         QPdf::ByteStream s(&descriptor);
         s << "<< /Type /FontDescriptor\n"
-            "/FontName /" << properties.postscriptName << "\n"
+            "/FontName /Q";
+        int tag = fontDescriptor;
+        for (int i = 0; i < 5; ++i) {
+            s << (char)('A' + (tag % 26));
+            tag /= 26;
+        }
+        s <<  "+" << properties.postscriptName << "\n"
             "/Flags " << 4 << "\n"
             "/FontBBox ["
           << properties.boundingBox.x()*scale
