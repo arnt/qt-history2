@@ -947,9 +947,14 @@ void QListView::paintEvent(QPaintEvent *e)
             option.state &= ~QStyle::State_MouseOver;
 
         if (alternate) {
-            QBrush fill = alternateBase
-                          ? option.palette.brush(QPalette::AlternateBase)
-                          : option.palette.brush(QPalette::Base);
+            QBrush fill;
+            if (alternateBase) {
+                option.state |= QStyle::State_Alternate;
+                fill = option.palette.brush(QPalette::AlternateBase);
+            } else {
+                option.state &= ~QStyle::State_Alternate;
+                fill = option.palette.brush(QPalette::Base);
+            }
             alternateBase = !alternateBase;
             painter.fillRect(option.rect, fill);
         }

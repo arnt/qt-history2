@@ -101,7 +101,8 @@ public:
 #ifdef QT_KEYPAD_NAVIGATION
         State_HasEditFocus =  0x01000000,
 #endif
-        State_ReadOnly =      0x02000000
+        State_ReadOnly =      0x02000000,
+        State_Alternate =     0x04000000
     };
     Q_DECLARE_FLAGS(State, StateFlag)
 

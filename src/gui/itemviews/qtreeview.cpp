@@ -1025,9 +1025,13 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         }
         QBrush fill;
         if (alternate) {
-            fill = d->current & 1
-                   ? opt.palette.brush(QPalette::AlternateBase)
-                   : opt.palette.brush(QPalette::Base);
+            if (d->current & 1) {
+                opt.state |= QStyle::State_Alternate;
+                fill = opt.palette.brush(QPalette::AlternateBase);
+            } else {
+                opt.state &= ~QStyle::State_Alternate;
+                fill = opt.palette.brush(QPalette::Base);
+            }
         } else {
             fill = opt.palette.brush(QPalette::Base);
         }

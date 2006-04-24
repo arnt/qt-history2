@@ -470,9 +470,13 @@ void QTableView::paintEvent(QPaintEvent *event)
                         option.state |= QStyle::State_HasFocus;
                     QBrush fill;
                     if (alternate) {
-                        fill = alternateBase
-                               ? option.palette.brush(QPalette::AlternateBase)
-                               : option.palette.brush(QPalette::Base);
+                        if (alternateBase) {
+                            option.state |= QStyle::State_Alternate;
+                            fill = option.palette.brush(QPalette::AlternateBase);
+                        } else {
+                            option.state &= ~QStyle::State_Alternate;
+                            fill = option.palette.brush(QPalette::Base);
+                        }
                     } else {
                         fill = option.palette.brush(QPalette::Base);
                     }
