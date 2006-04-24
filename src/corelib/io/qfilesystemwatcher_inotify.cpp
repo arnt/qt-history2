@@ -197,7 +197,7 @@ QStringList QInotifyFileSystemWatcherEngine::addPaths(const QStringList &paths,
     }
 
     start();
-
+   
     return p;
 }
 
@@ -246,7 +246,7 @@ void QInotifyFileSystemWatcherEngine::readFromInotify()
 {
     QMutexLocker locker(&mutex);
 
-    qDebug() << "QInotifyFileSystemWatcherEngine::readFromInotify";
+    // qDebug() << "QInotifyFileSystemWatcherEngine::readFromInotify";
 
     int buffSize = 0;
     ioctl(inotifyFd, FIONREAD, &buffSize);
@@ -262,6 +262,7 @@ void QInotifyFileSystemWatcherEngine::readFromInotify()
             id = -id;
             path = idToPath.value(id);
             if (path.isEmpty()) {
+                ev += sizeof(inotify_event) + ev->len;
                 continue;
             }
         }
@@ -271,9 +272,15 @@ void QInotifyFileSystemWatcherEngine::readFromInotify()
             idToPath.remove(id);
             inotify_rm_watch(inotifyFd, ev->wd);
 
-            emit fileChanged(path, true);
+            if (id < 0)
+                emit directoryChanged(path, true);
+            else
+                emit fileChanged(path, true);
         } else {
-            emit fileChanged(path, false);
+            if (id < 0)
+                emit directoryChanged(path, false);
+            else
+                emit fileChanged(path, false);
         }
 
         ev += sizeof(inotify_event) + ev->len;
