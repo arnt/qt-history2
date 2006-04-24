@@ -293,7 +293,7 @@ void QUiLoaderPrivate::setupWidgetMap() const
     \endcode
 
     By including the user interface in the form's resources (\c
-    myForm.grc), we ensure that it will be present at run-time:
+    myForm.qrc), we ensure that it will be present at run-time:
 
     \code
         <!DOCTYPE RCC><RCC version="1.0">
