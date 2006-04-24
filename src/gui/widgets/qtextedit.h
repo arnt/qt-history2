@@ -361,6 +361,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_setCursorAfterUndoRedo(int, int, int))
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEdit::AutoFormatting)
+
 #endif // QT_NO_TEXTEDIT
 
 QT_END_HEADER

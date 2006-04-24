@@ -58,6 +58,8 @@ private:
     Q_DECLARE_PRIVATE(QUdpSocket)
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QUdpSocket::BindMode)
+
 #endif // QT_NO_UDPSOCKET
 
 QT_END_HEADER
