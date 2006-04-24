@@ -67,7 +67,7 @@ public:
     ~QThreadData();
 
     static QThreadData *get(QThread *thread);
-    
+
     int id;
     bool quitNow;
     QAbstractEventDispatcher *eventDispatcher;
@@ -117,6 +117,32 @@ public:
 #endif // Q_OS_WIN32
 
     QThreadData data;
+
+    static void createEventDispatcher(QThreadData *data);
+    static QThread *adoptCurrentThread();
+    static bool adoptCurrentThreadEnabled;
+};
+
+// thread wrapper for the main() thread
+class QAdoptedThread : public QThread
+{
+    Q_DECLARE_PRIVATE(QThread)
+public:
+    inline QAdoptedThread()
+    {
+        // thread should be running and not finished for the lifetime
+        // of the application (even if QCoreApplication goes away)
+        d_func()->running = true;
+        d_func()->finished = false;
+    }
+    ~QAdoptedThread();
+private:
+    inline void run()
+    {
+        // this function should never be called, it is implemented
+        // only so that we can instantiate the object
+        qFatal("QAdoptedThread: internal error");
+    }
 };
 
 #else // QT_NO_THREAD

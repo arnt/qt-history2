@@ -134,32 +134,12 @@ Qt::HANDLE qt_application_thread_id = 0;
 #endif
 
 #ifndef QT_NO_THREAD
-// thread wrapper for the main() thread
-class QCoreApplicationThread : public QThread
-{
-    Q_DECLARE_PRIVATE(QThread)
-public:
-    inline QCoreApplicationThread()
-    {
-        // thread should be running and not finished for the lifetime
-        // of the application (even if QCoreApplication goes away)
-        d_func()->running = true;
-        d_func()->finished = false;
-    }
-    inline ~QCoreApplicationThread()
-    {
-        // avoid warning from QThread
-        d_func()->running = false;
-    }
-private:
-    inline void run()
-    {
-        // this function should never be called, it is implemented
-        // only so that we can instantiate the object
-        qFatal("QCoreApplicationThread: internal error");
-    }
-};
-Q_GLOBAL_STATIC(QCoreApplicationThread, mainThread)
+Q_GLOBAL_STATIC(QAdoptedThread, actual_mainThread);
+static QThread *the_mainThread = 0;
+static QThread *mainThread() {
+    return the_mainThread ? the_mainThread : actual_mainThread();
+}
+
 #else
 static QThread* mainThread() { return QThread::currentThread(); }
 #endif
@@ -775,6 +755,14 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
     if (receiver == 0) {
         qWarning("QCoreApplication::postEvent: Unexpected null receiver");
         delete event;
+        return;
+    }
+
+    // überhack for enabling some threading features for (mumble)
+    if (receiver == (QObject *) 0xfeedface && event == (QEvent *) 0xc0ffee) {
+        QThreadPrivate::adoptCurrentThreadEnabled = true;
+        if (!the_mainThread)
+            the_mainThread = new QAdoptedThread();
         return;
     }
 

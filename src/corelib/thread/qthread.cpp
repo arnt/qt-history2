@@ -16,6 +16,7 @@
 #include "qmutex.h"
 #include "qmutexpool_p.h"
 #include "qreadwritelock.h"
+#include "qabstracteventdispatcher.h"
 
 #include <qeventloop.h>
 #include <qhash.h>
@@ -98,6 +99,33 @@ QThread *QThreadPrivate::threadForId(int id)
     QReadLocker locker(&idHash->lock);
     return idHash->table.value(id);
 }
+
+
+/*
+  QAdoptedThread
+*/
+Q_GLOBAL_STATIC(QMutex, qthread_adopt_mutex);
+
+bool QThreadPrivate::adoptCurrentThreadEnabled = false;
+
+QThread *QThreadPrivate::adoptCurrentThread()
+{
+    QMutexLocker locker(qthread_adopt_mutex());
+    adoptCurrentThreadEnabled = false;
+    QThread *current = new QAdoptedThread();
+    setCurrentThread(current);
+    adoptCurrentThreadEnabled = true;
+    createEventDispatcher(QThreadData::get(current));
+    return current;
+}
+
+QAdoptedThread::~QAdoptedThread()
+{
+    // avoid warning from QThread
+    d_func()->running = false;
+    delete d_func()->data.eventDispatcher;
+}
+
 
 /*!
     \class QThread

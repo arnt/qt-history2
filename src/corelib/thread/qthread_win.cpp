@@ -52,6 +52,12 @@ void QThreadPrivate::setCurrentThread(QThread *thread)
     TlsSetValue(qt_current_thread_tls_index, thread);
 }
 
+void QThreadPrivate::createEventDispatcher(QThreadData *data)
+{
+    data->eventDispatcher = new QEventDispatcherWin32;
+    data->eventDispatcher->startingUp();
+}
+
 unsigned int __stdcall QThreadPrivate::start(void *arg)
 {
     qt_create_tls();
@@ -64,8 +70,7 @@ unsigned int __stdcall QThreadPrivate::start(void *arg)
     QThreadData *data = &thr->d_func()->data;
     data->quitNow = false;
     // ### TODO: allow the user to create a custom event dispatcher
-    data->eventDispatcher = new QEventDispatcherWin32;
-    data->eventDispatcher->startingUp();
+    createEventDispatcher(data);
 
     emit thr->started();
     QThread::setTerminationEnabled(true);
@@ -124,7 +129,11 @@ Qt::HANDLE QThread::currentThreadId()
 
 QThread *QThread::currentThread()
 {
-    return reinterpret_cast<QThread *>(TlsGetValue(qt_current_thread_tls_index));
+    QThread *current = reinterpret_cast<QThread *>(TlsGetValue(qt_current_thread_tls_index));
+    if (!current && QThreadPrivate::adoptCurrentThreadEnabled) {
+        current = QThreadPrivate::adoptCurrentThread();
+    }
+    return current;
 }
 
 void QThread::sleep(unsigned long secs)
