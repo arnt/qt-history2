@@ -280,7 +280,7 @@ void QInotifyFileSystemWatcherEngine::readFromInotify()
             }
         }
 
-        if ((ev->mask & (IN_MOVE | IN_DELETE | IN_DELETE_SELF | IN_UNMOUNT)) != 0) {
+        if ((ev->mask & (IN_DELETE_SELF | IN_UNMOUNT)) != 0) {
             pathToID.remove(path);
             idToPath.remove(id);
             inotify_rm_watch(inotifyFd, ev->wd);
