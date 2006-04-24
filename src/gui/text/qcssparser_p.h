@@ -47,7 +47,7 @@ enum Property
     NumProperties,
 };
 
-struct Value
+struct Q_INTERNAL_EXPORT Value
 {
     enum Type {
         Unknown,
@@ -78,7 +78,7 @@ struct Value
     UnaryOperator unaryOperator;
 };
 
-struct Declaration
+struct Q_INTERNAL_EXPORT Declaration
 {
     inline Declaration() : propertyId(UnknownProperty), important(false) {}
     QString property;
@@ -88,13 +88,13 @@ struct Declaration
     bool important;
 };
 
-struct PseudoClass
+struct Q_INTERNAL_EXPORT PseudoClass
 {
     QString name;
     QString function;
 };
 
-struct AttributeSelector
+struct Q_INTERNAL_EXPORT AttributeSelector
 {
     enum ValueMatchType {
         NoMatch,
@@ -109,7 +109,7 @@ struct AttributeSelector
     ValueMatchType valueMatchCriterium;
 };
 
-struct BasicSelector
+struct Q_INTERNAL_EXPORT BasicSelector
 {
     inline BasicSelector() : relationToNext(NoRelation) {}
 
@@ -130,7 +130,7 @@ struct BasicSelector
     Relation relationToNext;
 };
 
-struct Selector
+struct Q_INTERNAL_EXPORT Selector
 {
     QVector<BasicSelector> basicSelectors;
 };
@@ -140,31 +140,31 @@ struct MediaRule;
 struct PageRule;
 struct ImportRule;
 
-struct StyleRule
+struct Q_INTERNAL_EXPORT StyleRule
 {
     QVector<Selector> selectors;
     QVector<Declaration> declarations;
 };
 
-struct MediaRule
+struct Q_INTERNAL_EXPORT MediaRule
 {
     QStringList media;
     QVector<StyleRule> styleRules;
 };
 
-struct PageRule
+struct Q_INTERNAL_EXPORT PageRule
 {
     QString selector;
     QVector<Declaration> declarations;
 };
 
-struct ImportRule
+struct Q_INTERNAL_EXPORT ImportRule
 {
     QString href;
     QStringList media;
 };
 
-struct StyleSheet
+struct Q_INTERNAL_EXPORT StyleSheet
 {
     QVector<StyleRule> styleRules;
     QVector<MediaRule> mediaRules;
@@ -220,7 +220,7 @@ enum TokenType {
     OR
 };
 
-struct Symbol
+struct Q_INTERNAL_EXPORT Symbol
 {
     inline Symbol() : start(0), len(-1) {}
     TokenType token;
@@ -230,7 +230,7 @@ struct Symbol
     QString temporaryLexem() const;
 };
 
-class Scanner
+class Q_INTERNAL_EXPORT Scanner
 {
 public:
     static QString preprocess(const QString &input);
@@ -238,7 +238,7 @@ public:
     static const char *tokenName(TokenType t);
 };
 
-class Parser
+class Q_INTERNAL_EXPORT Parser
 {
 public:
     explicit Parser(const QString &css);
