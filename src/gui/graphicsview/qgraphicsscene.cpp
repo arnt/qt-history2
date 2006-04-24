@@ -454,7 +454,7 @@ bool QGraphicsScenePrivate::filterEvent(QGraphicsItem *item, QGraphicsSceneEvent
     QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator it = eventFilters.lowerBound(item);
     QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator end = eventFilters.upperBound(item);
     while (it != end) {
-        if (it.value()->eventFilter(it.key(), event))
+        if (it.value()->sceneEventFilter(it.key(), event))
             return true;
         ++it;
     }

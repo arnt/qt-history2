@@ -16,6 +16,45 @@
 */
 
 /*!
+    \enum QGraphicsItem::GraphicsItemFlag
+
+    This enum describes different flags that you can set on an item to
+    toggle different features in the item's behavior.
+
+    \value ItemIsMovable The item supports interactive movement using
+    the mouse. By clicking on the item and then dragging, the item
+    will move together with the mouse cursor. If the item has
+    children, all children are also moved. If the item is part of a
+    selection, all selected items are also moved. This feature is
+    provided as a convenience through the base implementation of
+    QGraphicsItem::mouseEvent(). This flag is enabled by default, so
+    all items are by default movable.
+
+    \value ItemIsSelectable The item supports selection. Enabling this
+    feature will enable setSelected() to toggle selection for the
+    item. It will also let the item be selected automatically as a
+    result of calling QGraphicsScene::setSelectionArea(), by clicking
+    on an item, or by using rubber band selection in QGraphicsView.
+    This flag is by default enabled, so all items are by default
+    selectable.
+
+    \value ItemIsFocusable The item supports keyboard input focus
+    (i.e., it is an input item). Enabling this flag will allow the
+    item to accept focus, which again allows the delivery of key
+    events to QGraphicsItem::keyEvent(). By default, this item is
+    disabled, so no items can by default take focus.
+*/
+
+/*!
+    \enum QGraphicsItem::Extension
+    \internal
+
+    Note: This is provided as a hook to avoid future problems related
+    to adding virtual functions. See also extension(),
+    supportsExtension() and setExtension().
+*/
+
+/*!
     \class QAbstractGraphicsPathItem
 */
 
@@ -733,6 +772,28 @@ void QGraphicsItem::setZValue(qreal z)
 }
 
 /*!
+    \fn virtual QRectF boundingRect() const = 0
+
+    This pure virtual function defines the outer bounds of the item as
+    a rectangle; all painting must be restricted to inside an item's
+    bounding rect. QGraphicsView uses this to determine whether the
+    item requires redrawing.
+
+    Although the item's shape can be arbitrary, the bounding rect is
+    always rectangular.
+
+    Reimplement this function to let QGraphicsView efficiently
+    determine what parts of the widget, if any, need to be redrawn.
+
+    Note: For shapes that paint an outline / stroke, it is important
+    to include half the pen width in the bounding rect. If you are
+    using antialiasing, 2 - two - points must be added to each side of
+    the bounding rectangle to include smooth edges.
+
+    \sa shape(), contains()
+*/
+
+/*!
     Returns the bounding rect of this item in scene coordinates, by combining
     sceneMatrix() with boundingRect().
 */
@@ -1068,6 +1129,32 @@ int QGraphicsItem::type() const
     return UserType;
 }
 
+/*!
+    Installs an event filter for this item on \a filterItem, causing
+    all events for this item to first pass through \a filterItem's
+    sceneEventFilter() function.
+
+    To filter another item's events, install this item as an event filter
+    for the other item. Example:
+
+    \code
+        QGraphicsScene scene;
+        QGraphicsEllipseItem *ellipse = scene.addEllipse(QRectF(-10, -10, 20, 20));
+        QGraphicsLineItem *line = scene.addLine(QLineF(-10, -10, 20, 20));
+
+	line->installEventFilter(ellipse);
+	// line's events are filtered by ellipse's sceneEventFilter() function.
+
+	ellipse->installEventFilter(line);
+	// ellipse's events are filtered by line's sceneEventFilter() function.
+    \endcode
+
+    An item can only filter events for other items in the same
+    scene. Also, an item cannot filter its own events; instead, you
+    can reimplement sceneEvent() directly.
+
+    \sa removeEventFilter(), sceneEventFilter(), sceneEvent()
+*/
 void QGraphicsItem::installEventFilter(QGraphicsItem *filterItem)
 {
     Q_D(QGraphicsItem);
@@ -1084,6 +1171,11 @@ void QGraphicsItem::installEventFilter(QGraphicsItem *filterItem)
     d->scene->d_func()->installEventFilter(filterItem, this);
 }
 
+/*!
+    Removes an event filter on this item from \a filterItem.
+
+    \sa installEventFilter()
+*/
 void QGraphicsItem::removeEventFilter(QGraphicsItem *filterItem)
 {
     Q_D(QGraphicsItem);
@@ -1092,13 +1184,27 @@ void QGraphicsItem::removeEventFilter(QGraphicsItem *filterItem)
     d->scene->d_func()->removeEventFilter(filterItem, this);
 }
 
-bool QGraphicsItem::eventFilter(QGraphicsItem *watched, QGraphicsSceneEvent *event)
+/*!
+    Filters events for the item \a watched. \a event is the filtered
+    event. Reimplement this function after installing this item as an
+    event filter for another item to intersect all the other item's
+    events.
+    
+    \sa installEventFilter()
+*/
+bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent *event)
 {
     Q_UNUSED(watched);
     Q_UNUSED(event);
     return false;
 }
 
+/*!
+    This virtual function receives events to this item. Reimplement
+    this function to intercept events before they are dispatched to
+    the specialized event handlers contextMenuEvent(), focusEvent(),
+    hoverEvent(), keyEvent() and mouseEvent().
+*/
 void QGraphicsItem::sceneEvent(QEvent *event)
 {
     Q_D(QGraphicsItem);
@@ -1134,16 +1240,41 @@ void QGraphicsItem::sceneEvent(QEvent *event)
     }
 }
 
+/*!
+    This event handler, for event \a event, can be reimplemented to
+    receive context menu events for this item. The default
+    implementation does nothing.
+
+    \sa focusEvent(), hoverEvent(), keyEvent(), mouseEvent(),
+    inputMethodEvent()
+*/
 void QGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
     Q_UNUSED(event);
 }
 
+/*!
+    This event handler, for event \a event, can be reimplemented to
+    receive focus events for this item. The default implementation
+    does nothing.
+
+    \sa contextMenuEvent(), hoverEvent(), keyEvent(), mouseEvent(),
+    inputMethodEvent()
+*/
 void QGraphicsItem::focusEvent(QFocusEvent *event)
 {
     Q_UNUSED(event);
 }
 
+/*!
+    This event handler, for event \a event, can be reimplemented to
+    receive hover events for this item. The default implementation
+    calls update() for enter and leave events; otherwise it does
+    nothing.
+
+    \sa contextMenuEvent(), focusEvent(), keyEvent(), mouseEvent(),
+    inputMethodEvent()
+*/
 void QGraphicsItem::hoverEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
@@ -1152,24 +1283,36 @@ void QGraphicsItem::hoverEvent(QGraphicsSceneHoverEvent *event)
     case QEvent::GraphicsSceneHoverLeave:
         update();
         break;
-    case QEvent::GraphicsSceneHoverMove:
     default:
         break;
     }
 }
 
+/*!
+    This event handler, for event \a event, can be reimplemented to
+    receive key events for this item. The default implementation
+    does nothing.
+
+    Note that key events are only received for items that set the
+    ItemIsFocusable flag, and that have keyboard input focus.
+
+    \sa setFocus(), QGraphicsScene::setFocusItem(),
+    contextMenuEvent(), focusEvent(), hoverEvent(), mouseEvent(),
+    inputMethodEvent()
+*/
 void QGraphicsItem::keyEvent(QKeyEvent *event)
 {
     Q_UNUSED(event);
-    switch (event->type()) {
-    case QEvent::KeyPress:
-    case QEvent::KeyRelease:
-        break;
-    default:
-        break;
-    }
 }
 
+/*!
+    This event handler, for event \a event, can be reimplemented to
+    receive mouse events for this item. The default implementation
+    handles basic item interaction, such as selection and moving.
+
+    \sa contextMenuEvent(), focusEvent(), hoverEvent(), keyEvent(),
+    inputMethodEvent()
+*/
 void QGraphicsItem::mouseEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_D(QGraphicsItem);
@@ -1227,11 +1370,26 @@ void QGraphicsItem::mouseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
+/*!
+    This event handler, for event \a event, can be reimplemented to
+    receive input method events for this item. The default
+    implementation does nothing.
+
+    \sa contextMenuEvent(), focusEvent(), hoverEvent(), keyEvent(),
+    mouseEvent(), inputMethodEvent()
+*/
 void QGraphicsItem::inputMethodEvent(QInputMethodEvent *event)
 {
     event->ignore();
 }
 
+/*!
+    This method is only relevant for input items. It is used by the
+    input method to query a set of properties of the item to be able
+    to support complex input method operations, such as support for
+    surrounding text and reconversions. \a query specifies which
+    property is queried.
+*/
 QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     Q_UNUSED(query);
@@ -1240,6 +1398,9 @@ QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
 
 /*!
     \internal
+
+    Note: This is provided as a hook to avoid future problems related
+    to adding virtual functions.
 */
 bool QGraphicsItem::supportsExtension(Extension extension) const
 {
@@ -1249,6 +1410,9 @@ bool QGraphicsItem::supportsExtension(Extension extension) const
 
 /*!
     \internal
+
+    Note: This is provided as a hook to avoid future problems related
+    to adding virtual functions.
 */
 void QGraphicsItem::setExtension(Extension extension, const QVariant &variant)
 {
@@ -1258,6 +1422,9 @@ void QGraphicsItem::setExtension(Extension extension, const QVariant &variant)
 
 /*!
     \internal
+
+    Note: This is provided as a hook to avoid future problems related
+    to adding virtual functions.
 */
 QVariant QGraphicsItem::extension(const QVariant &variant) const
 {
@@ -1265,6 +1432,13 @@ QVariant QGraphicsItem::extension(const QVariant &variant) const
     return QVariant();
 }
 
+/*!
+    \internal
+
+    Adds this item to the scene's index. Called in conjunction with
+    removeFromIndex() to ensure the index bookkeeping is correct when
+    the item's position, transformation or shape changes.
+*/
 void QGraphicsItem::addToIndex()
 {
     Q_D(QGraphicsItem);
@@ -1272,6 +1446,13 @@ void QGraphicsItem::addToIndex()
         d->scene->d_func()->addToIndex(this);
 }
 
+/*!
+    \internal
+
+    Removes this item from the scene's index. Called in conjunction
+    with addToIndex() to ensure the index bookkeeping is correct when
+    the item's position, transformation or shape changes.
+*/
 void QGraphicsItem::removeFromIndex()
 {
     Q_D(QGraphicsItem);
@@ -2062,7 +2243,6 @@ bool QGraphicsTextItem::contains(const QPointF &point) const
 
 void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    QGraphicsItemPrivate *d = QGraphicsItem::d_ptr;
     Q_UNUSED(widget);
     painter->save();
     dd->textControl.drawContents(painter);
