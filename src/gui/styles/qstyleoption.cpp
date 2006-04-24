@@ -2666,7 +2666,7 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 */
 
 QStyleOptionRubberBand::QStyleOptionRubberBand()
-    : QStyleOption(Version, SO_RubberBand)
+    : QStyleOption(Version, SO_RubberBand), shape(QRubberBand::Line), opaque(false)
 {
 }
 
@@ -2674,7 +2674,7 @@ QStyleOptionRubberBand::QStyleOptionRubberBand()
     \internal
 */
 QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
-    : QStyleOption(version, SO_RubberBand)
+    : QStyleOption(version, SO_RubberBand), shape(QRubberBand::Line), opaque(false)
 {
 }
 
