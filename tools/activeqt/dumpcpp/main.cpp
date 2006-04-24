@@ -270,7 +270,9 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
 
         out << indent << "inline ";
         bool foreignNamespace = true;
-        if (!propertyType.contains("::") && qax_qualified_usertypes.contains(simplePropType)) {
+        if (!propertyType.contains("::") && 
+            (qax_qualified_usertypes.contains(simplePropType) || qax_qualified_usertypes.contains("enum "+ simplePropType))
+           ) {
             propertyType = nameSpace + "::" + propertyType;
             foreignNamespace = false;
         }
