@@ -792,17 +792,17 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         break;
     case VT_DATE:
         var = DATEToQDateTime(arg.date);
-        if (type == QVariant::Date || (!type && typeName == "QDate*")) {
+        if (type == QVariant::Date || (!type && (typeName == "QDate" || typeName == "QDate*"))) {
             var.convert(QVariant::Date);
-        } else if (type == QVariant::Time || (!type && typeName == "QTime*")) {
+        } else if (type == QVariant::Time || (!type && (typeName == "QTime" || typeName == "QTime*"))) {
             var.convert(QVariant::Time);
         }
         break;
     case VT_DATE|VT_BYREF:
         var = DATEToQDateTime(*arg.pdate);
-        if (type == QVariant::Date || (!type && typeName == "QDate*")) {
+        if (type == QVariant::Date || (!type && (typeName == "QDate" || typeName == "QDate*"))) {
             var.convert(QVariant::Date);
-        } else if (type == QVariant::Time || (!type && typeName == "QTime*")) {
+        } else if (type == QVariant::Time || (!type && (typeName == "QTime" || typeName == "QTime*"))) {
             var.convert(QVariant::Time);
         }
         break;
