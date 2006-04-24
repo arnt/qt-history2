@@ -887,7 +887,6 @@ bool QLabel::event(QEvent *e)
 #ifndef QT_NO_SHORTCUT
     Q_D(QLabel);
     QEvent::Type type = e->type();
-#ifndef QT_NO_SHORTCUT
     if (type == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (se->shortcutId() == d->shortcutId) {
