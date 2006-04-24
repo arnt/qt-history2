@@ -171,7 +171,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         out << "public:" << endl;
         out << "    " << className << "(";
         if (category & Licensed)
-            out << "const QString &licenseKey, ";
+            out << "const QString &licenseKey = QString(), ";
         if (category & ActiveX)
             out << "QWidget *parent = 0, Qt::WFlags f";
         else if (category & SubObject)
@@ -190,10 +190,14 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         out << "    {" << endl;
         if (category & SubObject)
             out << "        internalRelease();" << endl;
-        else if (category & Licensed)
-            out << "        setControl(\"" << controlID << ":\" + licenseKey);" << endl;
-        else
+        else if (category & Licensed) {
+            out << "        if (licenseKey.isEmpty())" << endl;
+            out << "            setControl(\"" << controlID << "\");" << endl;
+            out << "        else" << endl;
+            out << "            setControl(\"" << controlID << ":\" + licenseKey);" << endl;
+        } else {
             out << "        setControl(\"" << controlID << "\");" << endl;
+        }
         out << "    }" << endl;
         out << endl;
 
