@@ -1288,7 +1288,7 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
                                       int row, int column, const QModelIndex &parent)
 {
     // check if the action is supported
-    if (!data || action != Qt::CopyAction)
+    if (!data || !(action == Qt::CopyAction || action == Qt::MoveAction))
         return false;
     // check if the format is supported
     QString format = mimeTypes().at(0);
@@ -2238,7 +2238,7 @@ bool QAbstractListModel::hasChildren(const QModelIndex &parent) const
 bool QAbstractTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                        int row, int column, const QModelIndex &parent)
 {
-    if (!data || action != Qt::CopyAction)
+    if (!data || !(action == Qt::CopyAction || action == Qt::MoveAction))
         return false;
 
     QString format = mimeTypes().at(0);
@@ -2286,7 +2286,7 @@ bool QAbstractTableModel::dropMimeData(const QMimeData *data, Qt::DropAction act
 bool QAbstractListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                       int row, int column, const QModelIndex &parent)
 {
-    if (!data || action != Qt::CopyAction)
+    if (!data || !(action == Qt::CopyAction || action == Qt::MoveAction))
         return false;
 
     QString format = mimeTypes().at(0);
