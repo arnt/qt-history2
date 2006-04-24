@@ -1,0 +1,841 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "qcssparser_p.h"
+
+#include <QDebug>
+#include <QColor>
+
+#include "qcssscanner.cpp"
+
+using namespace QCss;
+
+const char *Scanner::tokenName(TokenType t)
+{
+    switch (t) {
+        case NONE: return "NONE";
+        case S: return "S";
+        case CDO: return "CDO";
+        case CDC: return "CDC";
+        case INCLUDES: return "INCLUDES";
+        case DASHMATCH: return "DASHMATCH";
+        case LBRACE: return "LBRACE";
+        case PLUS: return "PLUS";
+        case GREATER: return "GREATER";
+        case COMMA: return "COMMA";
+        case STRING: return "STRING";
+        case INVALID: return "INVALID";
+        case IDENT: return "IDENT";
+        case HASH: return "HASH";
+        case ATKEYWORD_SYM: return "ATKEYWORD_SYM";
+        case EXCLAMATION_SYM: return "EXCLAMATION_SYM";
+        case LENGTH: return "LENGTH";
+        case PERCENTAGE: return "PERCENTAGE";
+        case NUMBER: return "NUMBER";
+        case FUNCTION: return "FUNCTION";
+        case COLON: return "COLON";
+        case SEMICOLON: return "SEMICOLON";
+        case RBRACE: return "RBRACE";
+        case SLASH: return "SLASH";
+        case MINUS: return "MINUS";
+        case DOT: return "DOT";
+        case STAR: return "STAR";
+        case LBRACKET: return "LBRACKET";
+        case RBRACKET: return "RBRACKET";
+        case EQUAL: return "EQUAL";
+        case LPAREN: return "LPAREN";
+        case RPAREN: return "RPAREN";
+        case OR: return "OR";
+    }
+    return "";
+}
+
+static const struct QCssPropertyInfo { const char *name; QCss::Property id; } properties[NumProperties + 1] = {
+    { "background-color", BackgroundColor },
+    { "color", Color },
+    { "float", Float },
+    { "font", Font },
+    { "font-family", FontFamily },
+    { "font-size", FontSize },
+    { "font-style", FontStyle },
+    { "font-weight", FontWeight },
+    { "margin-bottom", MarginBottom },
+    { "margin-left", MarginLeft },
+    { "margin-right", MarginRight },
+    { "margin-top", MarginTop },
+    { "-qt-block-indent", QtBlockIndent },
+    { "-qt-list-indent", QtListIndent },
+    { "-qt-paragraph-type", QtParagraphType },
+    { "-qt-table-type", QtTableType },
+    { "text-decoration", TextDecoration },
+    { "text-indent", TextIndent },
+    { "vertical-align", VerticalAlignment },
+    { "white-space", Whitespace },
+    { 0, UnknownProperty }
+};
+
+static bool operator<(const QString &name, const QCssPropertyInfo &prop)
+{
+    return name < QLatin1String(prop.name);
+}
+
+static bool operator<(const QCssPropertyInfo &prop, const QString &name)
+{
+    return QLatin1String(prop.name) < name;
+}
+
+static QCss::Property findProperty(const QString &name)
+{
+    const QCssPropertyInfo *start = &properties[0];
+    const QCssPropertyInfo *end = &properties[NumProperties];
+    const QCssPropertyInfo *prop = qBinaryFind(start, end, name);
+    if (!prop->name)
+        return QCss::UnknownProperty;
+    return prop->id;
+}
+
+static inline bool isHexDigit(const char c)
+{
+    return (c >= '0' && c <= '9')
+           || (c >= 'a' && c <= 'f')
+           || (c >= 'A' && c <= 'F')
+           ;
+}         
+
+QString Scanner::preprocess(const QString &input)
+{
+    QString output = input;
+
+    int i = 0;
+    while (i < output.size()) {
+        if (output.at(i) == QLatin1Char('\\')) {
+
+            ++i;
+            // test for unicode hex escape
+            int hexCount = 0;
+            const int hexStart = i;
+            while (i < output.size()
+                   && isHexDigit(output.at(i).toLatin1())
+                   && hexCount < 7) {
+                ++hexCount;
+                ++i;
+            }
+            if (hexCount == 0)
+                continue;
+
+            hexCount = qMin(hexCount, 6);
+            bool ok = false;
+            ushort code = output.mid(hexStart, hexCount).toUShort(&ok, 16);
+            if (ok) {
+                output.replace(hexStart - 1, hexCount + 1, QChar(code));
+                i = hexStart;
+            } else {
+                i = hexStart;
+            }
+        } else {
+            ++i;
+        }
+    }
+    return output;
+}
+
+int QCssScanner_Generated::handleCommentStart()
+{
+    while (pos < input.size() - 1) {
+        if (input.at(pos) == QLatin1Char('*')
+            && input.at(pos + 1) == QLatin1Char('/')) {
+            pos += 2;
+            break;
+        }
+        ++pos;
+    }
+    return S;
+}
+
+QVector<Symbol> Scanner::scan(const QString &preprocessedInput)
+{
+    QVector<Symbol> symbols;
+    QCssScanner_Generated scanner(preprocessedInput);
+    Symbol sym;
+    int tok = scanner.lex();
+    while (tok != -1) {
+        sym.token = static_cast<TokenType>(tok);
+        sym.text = scanner.input;
+        sym.start = scanner.lexemStart;
+        sym.len = scanner.lexemLength;
+        symbols.append(sym);
+        tok = scanner.lex();
+    }
+    return symbols;
+}
+
+QString Symbol::lexem() const
+{
+    QString result;
+    result.reserve(len);
+    for (int i = 0; i < len; ++i) {
+        if (text.at(start + i) == QLatin1Char('\\') && i < len - 1)
+            ++i;
+        result.append(text.at(start + i));
+    }
+    return result;
+}
+
+QString Symbol::temporaryLexem() const
+{
+    if (len <= 0) return QString();
+    QString result = QString::fromRawData(text.constData() + start, len);
+    int i = 0;
+    while (i < result.length()) {
+        if (result.at(i) == QLatin1Char('\\'))
+            result.remove(i, 1);
+        ++i;
+    }
+    return result;
+}
+
+Parser::Parser(const QString &css)
+{
+    symbols = Scanner::scan(Scanner::preprocess(css));
+    index = 0;
+    errorIndex = -1;
+}
+
+bool Parser::parse(StyleSheet *styleSheet)
+{
+    if (testTokenAndEndsWith(ATKEYWORD_SYM, QLatin1String("charset"))) {
+        if (!next(STRING)) return false;
+        if (!next(SEMICOLON)) return false;
+    }
+
+    while (test(S) || test(CDO) || test(CDC));
+
+    while (testImport()) {
+        ImportRule rule;
+        if (!parseImport(&rule)) return false;
+        styleSheet->importRules.append(rule);
+        while (test(S) || test(CDO) || test(CDC));
+    }
+
+    do {
+        if (testMedia()) {
+            MediaRule rule;
+            if (!parseMedia(&rule)) return false;
+            styleSheet->mediaRules.append(rule);
+        } else if (testPage()) {
+            PageRule rule;
+            if (!parsePage(&rule)) return false;
+            styleSheet->pageRules.append(rule);
+        } else if (testRuleset()) {
+            StyleRule rule;
+            if (!parseRuleset(&rule)) return false;
+            styleSheet->styleRules.append(rule);
+        } else if (test(ATKEYWORD_SYM)) {
+            if (!until(RBRACE)) return false;
+        } else {
+            return false;
+        }
+        while (test(S) || test(CDO) || test(CDC));
+    } while (hasNext());
+    return true;
+}
+
+Symbol Parser::errorSymbol()
+{
+    if (errorIndex == -1) return Symbol();
+    return symbols.at(errorIndex);
+}
+
+static inline void removeOptionalQuotes(QString *str)
+{
+    if (!str->startsWith(QLatin1Char('\''))
+        && !str->startsWith(QLatin1Char('\"')))
+        return;
+    str->remove(0, 1);
+    str->chop(1);
+}
+
+bool Parser::parseImport(ImportRule *importRule)
+{
+    skipSpace();
+
+    if (test(STRING)) {
+        importRule->href = lexem();
+    } else {
+        if (!testAndParseUri(&importRule->href)) return false;
+    }
+    removeOptionalQuotes(&importRule->href);
+
+    skipSpace();
+
+    if (testMedium()) {
+        if (!parseMedium(&importRule->media)) return false;
+
+        while (test(COMMA)) {
+            skipSpace();
+            if (!parseNextMedium(&importRule->media)) return false;
+        }
+    }
+
+    if (!next(SEMICOLON)) return false;
+
+    skipSpace();
+    return true;
+}
+
+bool Parser::parseMedia(MediaRule *mediaRule)
+{
+    do {
+        skipSpace();
+        if (!parseNextMedium(&mediaRule->media)) return false;
+    } while (test(COMMA));
+
+    if (!next(LBRACE)) return false;
+    skipSpace();
+
+    while (testRuleset()) {
+        StyleRule rule;
+        if (!parseRuleset(&rule)) return false;
+        mediaRule->styleRules.append(rule);
+    }
+
+    if (!next(RBRACE)) return false;
+    skipSpace();
+    return true;
+}
+
+bool Parser::parseMedium(QStringList *media)
+{
+    media->append(lexem());
+    skipSpace();
+    return true;
+}
+
+bool Parser::parsePage(PageRule *pageRule)
+{
+    skipSpace();
+
+    if (testPseudoPage())
+        if (!parsePseudoPage(&pageRule->selector)) return false;
+
+    skipSpace();
+    if (!next(LBRACE)) return false;
+
+    do {
+        skipSpace();
+        Declaration decl;
+        if (!parseNextDeclaration(&decl)) return false;
+        if (!decl.isEmpty())
+            pageRule->declarations.append(decl);
+    } while (test(SEMICOLON));
+
+    if (!next(RBRACE)) return false;
+    skipSpace();
+    return true;
+}
+
+bool Parser::parsePseudoPage(QString *selector)
+{
+    if (!next(IDENT)) return false;
+    *selector = lexem();
+    return true;
+}
+
+bool Parser::parseNextOperator(Value *value)
+{
+    if (!hasNext()) return true;
+    switch (next()) {
+        case SLASH: value->type = Value::TermOperatorSlash; skipSpace(); break;
+        case COMMA: value->type = Value::TermOperatorComma; skipSpace(); break;
+        default: prev(); break;
+    }
+    return true;
+}
+
+bool Parser::parseCombinator(BasicSelector::Relation *relation)
+{
+    *relation = BasicSelector::NoRelation;
+    if (lookup() == S) {
+        *relation = BasicSelector::MatchNextSelectorIfAncestor;
+        skipSpace();
+    } else {
+        prev();
+    }
+    if (test(PLUS)) {
+        *relation = BasicSelector::MatchNextSelectorIfPreceeds;
+    } else if (test(GREATER)) {
+        *relation = BasicSelector::MatchNextSelectorIfParent;
+    }
+    skipSpace();
+    return true;
+}
+
+bool Parser::parseUnaryOperator(Value::UnaryOperator *op)
+{
+    switch (lookup()) {
+        case MINUS: *op = Value::OperatorMinus; break;
+        case PLUS: *op = Value::OperatorPlus; break;
+        default: return false;
+    }
+    return true;
+}
+
+bool Parser::parseProperty(Declaration *decl)
+{
+    decl->propertyId = findProperty(temporaryLexem());
+    if (decl->propertyId == UnknownProperty) {
+        decl->property = lexem();
+    }
+    skipSpace();
+    return true;
+}
+
+bool Parser::parseRuleset(StyleRule *styleRule)
+{
+    Selector sel;
+    if (!parseSelector(&sel)) return false;
+    styleRule->selectors.append(sel);
+
+    while (test(COMMA)) {
+        skipSpace();
+        Selector sel;
+        if (!parseNextSelector(&sel)) return false;
+        styleRule->selectors.append(sel);
+    }
+
+    skipSpace();
+    if (!next(LBRACE)) return false;
+    const int declarationStart = index;
+
+    do {
+        skipSpace();
+        Declaration decl;
+        const int rewind = index;
+        if (!parseNextDeclaration(&decl)) {
+            index = rewind;
+            const bool foundSemicolon = until(SEMICOLON);
+            const int semicolonIndex = index;
+
+            index = declarationStart;
+            const bool foundRBrace = until(RBRACE);
+
+            if (foundSemicolon && semicolonIndex < index) {
+                decl = Declaration();
+                index = semicolonIndex - 1;
+            } else {
+                skipSpace();
+                return foundRBrace;
+            }
+        }
+        if (!decl.isEmpty())
+            styleRule->declarations.append(decl);
+    } while (test(SEMICOLON));
+
+    if (!next(RBRACE)) return false;
+    skipSpace();
+    return true;
+}
+
+bool Parser::parseSelector(Selector *sel)
+{
+    BasicSelector basicSel;
+    if (!parseSimpleSelector(&basicSel)) return false;
+    while (testCombinator()) {
+        if (!parseCombinator(&basicSel.relationToNext)) return false;
+
+        if (!testSimpleSelector()) break;
+        sel->basicSelectors.append(basicSel);
+
+        basicSel = BasicSelector();
+        if (!parseSimpleSelector(&basicSel)) return false;
+    }
+    sel->basicSelectors.append(basicSel);
+    return true;
+}
+
+bool Parser::parseSimpleSelector(BasicSelector *basicSel)
+{
+    int minCount = 0;
+    if (lookupElementName()) {
+        if (!parseElementName(&basicSel->elementName)) return false;
+    } else {
+        prev();
+        minCount = 1;
+    }
+    bool onceMore;
+    int count = 0;
+    do {
+        onceMore = false;
+        if (test(HASH)) {
+            QString id = lexem();
+            // chop off leading #
+            id.remove(0, 1);
+            basicSel->ids.append(id);
+            onceMore = true;
+        } else if (testClass()) {
+            onceMore = true;
+            QString klass;
+            if (!parseClass(&klass)) return false;
+            basicSel->classes.append(klass);
+        } else if (testAttrib()) {
+            onceMore = true;
+            AttributeSelector a;
+            if (!parseAttrib(&a)) return false;
+            basicSel->attributeSelectors.append(a);
+        } else if (testPseudo()) {
+            onceMore = true;
+            PseudoClass ps;
+            if (!parsePseudo(&ps)) return false;
+            basicSel->pseudoClasses.append(ps);
+        }
+        if (onceMore) ++count;
+    } while (onceMore);
+    return count >= minCount;
+}
+
+bool Parser::parseClass(QString *name)
+{
+    if (!next(IDENT)) return false;
+    *name = lexem();
+    return true;
+}
+
+bool Parser::parseElementName(QString *name)
+{
+    switch (lookup()) {
+        case IDENT:
+        case STAR: *name = lexem(); break;
+        default: return false;
+    }
+    return true;
+}
+
+bool Parser::parseAttrib(AttributeSelector *attr)
+{
+    skipSpace();
+    if (!next(IDENT)) return false;
+    attr->name = lexem();
+    skipSpace();
+
+    if (test(EQUAL)) {
+        attr->valueMatchCriterium = AttributeSelector::MatchEqual;
+    } else if (test(INCLUDES)) {
+        attr->valueMatchCriterium = AttributeSelector::MatchContains;
+    } else if (test(DASHMATCH)) {
+        attr->valueMatchCriterium = AttributeSelector::MatchBeginsWith;
+    } else {
+        return next(RBRACKET);
+    }
+
+    skipSpace();
+
+    if (!test(IDENT) && !test(STRING)) return false;
+    attr->value = unquotedLexem();
+
+    skipSpace();
+    return next(RBRACKET);
+}
+
+bool Parser::parsePseudo(PseudoClass *pseudo)
+{
+    if (test(IDENT)) {
+        pseudo->name = lexem();
+        return true;
+    }
+    if (!next(FUNCTION)) return false;
+    pseudo->function = lexem();
+    // chop off trailing parenthesis
+    pseudo->function.chop(1);
+    skipSpace();
+    if (!test(IDENT)) return false;
+    pseudo->name = lexem();
+    skipSpace();
+    return next(RPAREN);
+}
+
+bool Parser::parseNextDeclaration(Declaration *decl)
+{
+    if (!testProperty())
+        return true; // not an error!
+    if (!parseProperty(decl)) return false;
+    if (!next(COLON)) return false;
+    skipSpace();
+    if (!parseNextExpr(&decl->values)) return false;
+    if (testPrio())
+        if (!parsePrio(decl)) return false;
+    return true;
+}
+
+bool Parser::testPrio()
+{
+    const int rewind = index;
+    if (!test(EXCLAMATION_SYM)) return false;
+    skipSpace();
+    if (!test(IDENT)) {
+        index = rewind;
+        return false;
+    }
+    if (lexem().toLower() != QLatin1String("important")) {
+        index = rewind;
+        return false;
+    }
+    return true;
+}
+
+bool Parser::parsePrio(Declaration *declaration)
+{
+    declaration->important = true;
+    skipSpace();
+    return true;
+}
+
+bool Parser::parseExpr(QVector<Value> *values)
+{
+    Value val;
+    if (!parseTerm(&val)) return false;
+    values->append(val);
+    bool onceMore;
+    do {
+        onceMore = false;
+        val = Value();
+        if (!parseNextOperator(&val)) return false;
+        if (val.type != QCss::Value::Unknown)
+            values->append(val);
+        if (testTerm()) {
+            onceMore = true;
+            val = Value();
+            if (!parseTerm(&val)) return false;
+            values->append(val);
+        }
+    } while (onceMore);
+    return true;
+}
+
+bool Parser::testTerm()
+{
+    return testUnaryOperator()
+           || test(NUMBER)
+           || test(PERCENTAGE)
+           || test(LENGTH)
+           || test(STRING)
+           || test(IDENT)
+           || testHexColor()
+           || testFunction();
+}
+
+bool Parser::parseTerm(Value *value)
+{
+    bool haveUnary = false;
+    if (lookupUnaryOperator()) {
+        if (!parseUnaryOperator(&value->unaryOperator)) return false;
+        haveUnary = true;
+        if (!hasNext()) return false;
+        next();
+    }
+
+    QString str = lexem();
+    value->variant = str;
+    value->type = QCss::Value::String;
+    switch (lookup()) {
+        case NUMBER:
+            value->type = Value::Number;
+            value->variant.convert(QVariant::Double);
+            break;
+        case PERCENTAGE:
+            value->type = Value::Percentage;
+            str.chop(1); // strip off %
+            value->variant = str;
+            break;
+        case LENGTH:
+            value->type = Value::Length;
+            break;
+
+        case STRING:
+            if (haveUnary) return false;
+            value->type = Value::String;
+            str.chop(1);
+            str.remove(0, 1);
+            value->variant = str;
+            break;
+        case IDENT:
+            if (haveUnary) return false;
+            value->type = Value::Identifier;
+            break;
+        default: {
+            if (haveUnary) return false;
+            prev();
+            if (testHexColor()) {
+                QColor col;
+                if (!parseHexColor(&col)) return false;
+                value->type = Value::Color;
+                value->variant = col;
+            } else if (testFunction()) {
+                QString name, args;
+                if (!parseFunction(&name, &args)) return false;
+                if (name == QLatin1String("url")) {
+                    value->type = Value::Uri;
+                    removeOptionalQuotes(&args);
+                    value->variant = args;
+                } else {
+                    value->type = Value::Function;
+                    value->variant = QStringList() << name << args;
+                }
+            } else {
+                return recordError();
+            }
+            return true;
+        }
+    }
+    skipSpace();
+    return true;
+}
+
+bool Parser::parseFunction(QString *name, QString *args)
+{
+    *name = lexem();
+    name->chop(1);
+    skipSpace();
+    const int start = index;
+    if (!until(RPAREN)) return false;
+    for (int i = start; i < index - 1; ++i)
+        args->append(symbols.at(i).lexem());
+    /*
+    if (!nextExpr(&arguments)) return false;
+    if (!next(RPAREN)) return false;
+    */
+    skipSpace();
+    return true;
+}
+
+bool Parser::parseHexColor(QColor *col)
+{
+    col->setNamedColor(lexem());
+    if (!col->isValid()) return false;
+    skipSpace();
+    return true;
+}
+
+bool Parser::testAndParseUri(QString *uri)
+{
+    const int rewind = index;
+    if (!testFunction()) return false;
+
+    QString name, args;
+    if (!parseFunction(&name, &args)) {
+        index = rewind;
+        return false;
+    }
+    if (name.toLower() != QLatin1String("url")) {
+        index = rewind;
+        return false;
+    }
+    *uri = args;
+    removeOptionalQuotes(uri);
+    return true;
+}
+
+bool Parser::testSimpleSelector()
+{
+    return testElementName()
+           || (test(HASH))
+           || testClass()
+           || testAttrib()
+           || testPseudo();
+}
+
+bool Parser::next(TokenType t)
+{
+    if (hasNext() && next() == t)
+        return true;
+    return recordError();
+}
+
+bool Parser::test(TokenType t)
+{
+    if (index >= symbols.count())
+        return false;
+    if (symbols.at(index).token == t) {
+        ++index;
+        return true;
+    }
+    return false;
+}
+
+QString Parser::unquotedLexem() const
+{
+    QString s = lexem();
+    if (lookup() == STRING) {
+        s.chop(1);
+        s.remove(0, 1);
+    }
+    return s;
+}
+
+QString Parser::lexemUntil(TokenType t)
+{
+    QString lexem;
+    while (hasNext() && next() != t)
+        lexem += symbol().lexem();
+    return lexem;
+}
+
+bool Parser::until(TokenType target, TokenType target2)
+{
+    int braceCount = 0;
+    int brackCount = 0;
+    int parenCount = 0;
+    if (index) {
+        switch(symbols.at(index-1).token) {
+        case LBRACE: ++braceCount; break;
+        case LBRACKET: ++brackCount; break;
+        case FUNCTION:
+        case LPAREN: ++parenCount; break;
+        default: ;
+        }
+    }
+    while (index < symbols.size()) {
+        TokenType t = symbols.at(index++).token;
+        switch (t) {
+        case LBRACE: ++braceCount; break;
+        case RBRACE: --braceCount; break;
+        case LBRACKET: ++brackCount; break;
+        case RBRACKET: --brackCount; break;
+        case FUNCTION:
+        case LPAREN: ++parenCount; break;
+        case RPAREN: --parenCount; break;
+        default: break;
+        }
+        if ((t == target || (target2 != NONE && t == target2))
+            && braceCount <= 0
+            && brackCount <= 0
+            && parenCount <= 0)
+            return true;
+
+        if (braceCount < 0 || brackCount < 0 || parenCount < 0) {
+            --index;
+            break;
+        }
+    }
+    return false;
+}
+
+bool Parser::testTokenAndEndsWith(TokenType t, const QLatin1String &str)
+{
+    if (!test(t)) return false;
+    if (!temporaryLexem().endsWith(str, Qt::CaseInsensitive)) {
+        prev();
+        return false;
+    }
+    return true;
+}
+
