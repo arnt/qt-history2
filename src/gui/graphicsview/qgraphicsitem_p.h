@@ -39,8 +39,6 @@ public:
         visible = 1;
         enabled = 1;
         selected = 0;
-        rotating = 0;
-        scaling = 0;
         acceptsMouse = 1;
         acceptsHover = 0;
         flags =  QGraphicsItem::ItemIsSelectable;
@@ -75,13 +73,11 @@ public:
     quint32 visible : 1;
     quint32 enabled : 1;
     quint32 selected : 1;
-    quint32 rotating : 1;
-    quint32 scaling : 1;
     quint32 acceptsMouse : 1;
     quint32 acceptsHover : 1;
     quint32 resizeHandle : 2;
     quint32 flags : 11;
-    quint32 pad : 12;
+    quint32 pad : 14;
 
     QGraphicsItem *q_ptr;
 };

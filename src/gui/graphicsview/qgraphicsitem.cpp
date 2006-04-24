@@ -1177,37 +1177,28 @@ void QGraphicsItem::mouseEvent(QGraphicsSceneMouseEvent *event)
     switch (event->type()) {
     case QEvent::GraphicsSceneMouseMove:
         if ((event->buttons() & Qt::LeftButton) && (flags() & ItemIsMovable)) {
-	    if (!d->rotating) {
-		QPointF oldPos = pos();
-		setPos(mapToParent(event->pos()) - matrix().map(event->buttonDownPos(Qt::LeftButton)));
-		QPointF diff = pos() - oldPos;
-		if (d->scene) {
-		    foreach (QGraphicsItem *item, d->scene->selectedItems()) {
-			if (item != this && !isAncestorOf(item))
-			    item->setPos(item->pos() + diff);
-		    }
-		}
-	    } else {
-		qreal xdist = event->pos().x();
-		qreal ydist = event->pos().y();
-		qreal radius = ::sqrt((xdist * xdist) + (ydist * ydist));
-		qreal angle = ::acos(xdist / radius);
-		if (ydist >= 0)
-		    angle = (2.0 * 3.14159265359) - angle;
-                rotate(angle);
+	    QPointF newPos(mapToParent(event->pos()) - matrix().map(event->buttonDownPos(Qt::LeftButton)));
+	    QPointF diff = newPos - pos();
+
+	    // Determine the list of selected items
+	    QList<QGraphicsItem *> selectedItems;
+	    if (d->scene) {
+		selectedItems = d->scene->selectedItems();
+	    } else if (QGraphicsItem *parent = parentItem()) {
+		while (parent && parent->isSelected())
+		    selectedItems << parent;
+	    }
+	    selectedItems << this;
+
+	    // Move all selected items
+	    foreach (QGraphicsItem *item, selectedItems) {
+		if (!item->parentItem() || !item->parentItem()->isSelected())
+		    item->setPos(item == this ? newPos : item->pos() + diff);
 	    }
         }
         break;
     case QEvent::GraphicsSceneMouseDoubleClick:
     case QEvent::GraphicsSceneMousePress:
-        /*
-        if (d->selected && event->button() == Qt::LeftButton && (flags() & ItemIsRotatable)
-	    && QRectF(boundingRect().topRight() + QPointF(-10 - 4, 4), QSizeF(10, 10)).contains(event->pos())) {
-            d->rotating = 1;
-	    break;
-	}
-        */
-        d->rotating = 0;
 	if (event->button() == Qt::LeftButton && (flags() & ItemIsSelectable) && !d->selected) {
             if (d->scene) {
                 if ((event->modifiers() & Qt::ControlModifier) == 0)
@@ -1401,12 +1392,6 @@ void QGraphicsPathItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
 	painter->setBrush(Qt::NoBrush);
 	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
-
-        /*
-       ### ItemIsRotatable
-	if (flags() & ItemIsRotatable)
-	  painter->drawEllipse(QRectF(boundingRect().topRight() + QPointF(-10 - 4, 4), QSizeF(10, 10)));
-        */
     }
 }
 
@@ -1507,12 +1492,6 @@ void QGraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
 	painter->setBrush(Qt::NoBrush);
 	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
-
-        /*
-       ### ItemIsRotatable
-	if (flags() & ItemIsRotatable)
-	  painter->drawEllipse(QRectF(boundingRect().topRight() + QPointF(-10 - 4, 4), QSizeF(10, 10)));
-        */
     }
 }
 
@@ -1613,12 +1592,6 @@ void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
 	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
 	painter->setBrush(Qt::NoBrush);
 	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
-
-        /*
-       ### ItemIsRotatable
-	if (flags() & ItemIsRotatable)
-	  painter->drawEllipse(QRectF(boundingRect().topRight() + QPointF(-10 - 4, 4), QSizeF(10, 10)));
-        */
     }
 }
 
@@ -1719,12 +1692,6 @@ void QGraphicsPolygonItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
 	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
 	painter->setBrush(Qt::NoBrush);
 	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
-
-        /*
-       ### ItemIsRotatable
-	if (flags() & ItemIsRotatable)
-	  painter->drawEllipse(QRectF(boundingRect().topRight() + QPointF(-10 - 4, 4), QSizeF(10, 10)));
-        */
     }
 }
 
@@ -2102,7 +2069,7 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->restore();
 
     if (option->state & (QStyle::State_Selected | QStyle::State_HasFocus)) {
-        painter->setPen(QPen(d->scaling ? Qt::red : Qt::black, 1));
+        painter->setPen(QPen(Qt::black, 1));
         painter->setBrush(Qt::NoBrush);
         painter->drawRect(dd->boundingRect);
     }
