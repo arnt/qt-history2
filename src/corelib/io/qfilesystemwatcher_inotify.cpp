@@ -173,10 +173,24 @@ QStringList QInotifyFileSystemWatcherEngine::addPaths(const QStringList &paths,
     QMutableListIterator<QString> it(p);
     while (it.hasNext()) {
         QString path = it.next();
-        int wd = inotify_add_watch(inotifyFd, QFile::encodeName(path),
-                                   IN_MODIFY | IN_ATTRIB | IN_CLOSE_WRITE
-                                   | IN_MOVE | IN_DELETE | IN_DELETE_SELF
-                                   | IN_UNMOUNT);
+        QFileInfo fi(path);
+        bool isDir = fi.isDir();
+        int wd = inotify_add_watch(inotifyFd, 
+                                   QFile::encodeName(path),
+                                   (isDir 
+                                    ? (0
+                                       | IN_ATTRIB
+                                       | IN_MOVE
+                                       | IN_CREATE
+                                       | IN_DELETE
+                                       | IN_DELETE_SELF
+                                       )
+                                    : (0
+                                       | IN_ATTRIB
+                                       | IN_MODIFY
+                                       | IN_MOVE
+                                       | IN_DELETE_SELF
+                                       )));
         if (wd <= 0) {
             perror("QInotifyFileSystemWatcherEngine::addPaths: inotify_add_watch failed");
             continue;
@@ -184,8 +198,7 @@ QStringList QInotifyFileSystemWatcherEngine::addPaths(const QStringList &paths,
 
         it.remove();
 
-        QFileInfo fi(path);
-        int id = fi.isDir() ? -wd : wd;
+        int id = isDir ? -wd : wd;
         if (id < 0) {
             directories->append(path);
         } else {
