@@ -23,6 +23,7 @@
 #include "qtextformat_p.h"
 #include "qtextdocument_p.h"
 #include "qtextcursor.h"
+#include "qcssparser_p.h"
 
 #define MAX_ENTITY 259
 static const struct QTextHtmlEntity { const char *name; quint16 code; } entities[MAX_ENTITY]= {
@@ -1351,24 +1352,6 @@ static bool parseFontFamily(QTextHtmlParserNode *node, const QString &value)
     return true;
 }
 
-static QColor parseColor(QString value)
-{
-    QColor color;
-    if (value.startsWith(QLatin1String("rgb("))
-        && value.endsWith(QLatin1Char(')'))) {
-
-        value.chop(1);
-        value.remove(0, 4);
-
-        const QStringList rgb = value.split(',');
-        if (rgb.count() == 3)
-            color.setRgb(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
-    } else {
-        color.setNamedColor(value);
-    }
-    return color;
-}
-
 // style parser taken from Qt 3
 static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
 {
@@ -1399,10 +1382,6 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
             else
                 format.setVAlign(QTextFormat::AlignNormal);
 #endif
-        } else if (style.startsWith(QLatin1String("color:"))) {
-            node->color = parseColor(style.mid(6).trimmed());
-        } else if (style.startsWith(QLatin1String("background-color:"))) {
-            node->bgColor = parseColor(style.mid(17).trimmed());
         } else if (style.startsWith(QLatin1String("float:"))) {
             QString s = style.mid(6).trimmed();
             node->cssFloat = QTextFrameFormat::InFlow;
@@ -1510,6 +1489,23 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
                 continue;
 
             parseFontFamily(node, values.takeFirst());
+        }
+    }
+    
+    QString css = value;
+    css.prepend(QLatin1String("dummy {"));
+    css.append(QLatin1Char('}'));
+    QCss::Parser parser(css);
+    QCss::StyleSheet sheet;
+    parser.parse(&sheet);
+    if (sheet.styleRules.count() != 1) return;
+    
+    for (int i = 0; i < sheet.styleRules.at(0).declarations.count(); ++i) {
+        const QCss::Declaration &decl = sheet.styleRules.at(0).declarations.at(i);
+        switch (decl.propertyId) {
+            case QCss::Color: node->color = decl.colorValue(); break;
+            case QCss::BackgroundColor: node->bgColor = decl.colorValue(); break;
+            default: break;
         }
     }
 }
