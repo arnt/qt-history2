@@ -782,9 +782,15 @@ void QGraphicsScene::clearSelection()
 }
 
 /*!
-    Adds the item \a item to the scene, and returns the same item. If the item
-    is visible (i.e., QGraphicsItem::isVisible() returns true), QGraphicsScene
-    will emit changed() once control goes back to the event loop.
+    Adds the item \a item and all its childen to the scene, and
+    returns \a item.
+
+    If the item is visible (i.e., QGraphicsItem::isVisible() returns
+    true), QGraphicsScene will emit changed() once control goes back
+    to the event loop.
+
+    If the item is already associated with a scene, it will first be
+    removed from that scene, and then added to this scene.
 
     \sa removeItem(), addEllipse(), addLine(), addPath(), addPixmap(), addRect(), addText()
 */
@@ -980,7 +986,9 @@ QGraphicsTextItem *QGraphicsScene::addText(const QString &text, const QPen &pen,
 }
 
 /*!
-    Removes the item \a item from the scene.
+    Removes the item \a item and all its children from the scene.  The
+    ownership of \a item is passed on to the caller (i.e.,
+    QGraphicsScene will no longer delete \a item when destroyed).
 
     \sa addItem()
 */
@@ -992,7 +1000,7 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
     item->d_func()->scene = 0;
     if (QGraphicsItem *parentItem = item->parentItem()) {
         if (parentItem->scene() == this)
-            parentItem->d_func()->children.removeAll(item);
+            item->setParentItem(0);
     }
     int index = item->d_func()->index;
     if (index != -1) {
