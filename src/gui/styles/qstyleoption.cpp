@@ -1093,8 +1093,8 @@ QStyleOptionToolBar::QStyleOptionToolBar(int version)
 */
 
 /*!
-    Constructs a QStyleOptionTab object. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionTab object, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionTab::QStyleOptionTab()
@@ -1145,7 +1145,10 @@ QStyleOptionTab::QStyleOptionTab(int version)
     qstyleoption_cast(), you normally don't need to check it.
 */
 
-/*! \enum QStyleOptionTab::TabPosition
+/*!
+    \enum QStyleOptionTab::TabPosition
+
+    This enum describes the position of the tab.
 
     \value Beginning The tab is the first tab in the tab bar.
     \value Middle The tab is neither the first nor the last tab in the tab bar.
@@ -1169,6 +1172,10 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 /*! \enum QStyleOptionTab::SelectedPosition
 
+    This enum describes the position of the selected tab. Some styles
+    need to draw a tab differently depending on whether or not it is
+    adjacent to the selected tab.
+
     \value NotAdjacent The tab is not adjacent to a selected tab (or is the selected tab).
     \value NextIsSelected The next tab (typically the tab on the right) is selected.
     \value PreviousIsSelected The previous tab (typically the tab on the left) is selected.
@@ -1179,15 +1186,17 @@ QStyleOptionTab::QStyleOptionTab(int version)
 /*!
     \variable QStyleOptionTab::selectedPosition
 
-    \brief The position of the selected tab in relation to this tab. Some styles
-    need to draw a tab differently depending on whether or not it is adjacent
-    to the selected tab.
+    \brief the position of the selected tab in relation to this tab
+
+    The default value is NotAdjacent, i.e. the tab is not adjacent to
+    a selected tab nor is it the selected tab.
 */
 
 /*!
     \variable QStyleOptionTab::cornerWidgets
 
-    \brief Information on the cornerwidgets of the tab bar.
+    \brief an OR combination of CornerWidget values indicating the
+    corner widgets of the tab bar; the default value is NoCornerWidgets
 
     \sa CornerWidget
 */
@@ -1195,32 +1204,42 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 /*!
     \variable QStyleOptionTab::shape
-    \brief The tab shape used to draw the tab.
+
+    \brief the tab shape used to draw the tab; by default
+    QTabBar::RoundedNorth
+
     \sa QTabBar::Shape
 */
 
 /*!
     \variable QStyleOptionTab::text
     \brief The text of the tab.
+
+    The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionTab::icon
     \brief The icon for the tab.
+
+    The default value is an empty icon, i.e. an icon with neither a
+    pixmap nor a filename.
 */
 
 /*!
     \variable QStyleOptionTab::row
     \brief which row the tab is currently in
 
-    0 indicates the front row.
-
-    Currently this property can only be 0.
+    The default value is 0, indicating the front row.  Currently this
+    property can only be 0.
 */
 
 /*!
     \variable QStyleOptionTab::position
     \brief the position of the tab in the tab bar
+
+    The default value is \l Beginning, i.e. the tab is the first tab
+    in the tab bar.
 */
 
 /*!
@@ -1243,16 +1262,12 @@ QStyleOptionTab::QStyleOptionTab(int version)
     QStyleOptionTab and QStyleOptionTabV2. One way to achieve this is
     to use the QStyleOptionTabV2 copy constructor. For example:
 
-    \code
-        if (const QStyleOptionTab *tabOption =
-               qstyleoption_cast<const QStyleOptionTab *>(option)) {
-            QStyleOptionTabV2 tabV2(*tabOption);
+    \quotefromfile snippets/qstyleoption/main.cpp
+    \skipto MyStyle::MyStyle()
+    \skipto *tabOption
+    \printuntil }
 
-            // draw the tab using tabV2
-        }
-    \endcode
-
-    in the example above: If \c tabOption's version is 1, the extra
+    In the example above: If \c tabOption's version is 1, the extra
     member (\l iconSize) will be set to an invalid size for \c tabV2.
     If \c tabOption's version is 2, the constructor will simply copy
     the \c tab's iconSize.
@@ -1266,11 +1281,12 @@ QStyleOptionTab::QStyleOptionTab(int version)
 /*!
     \variable QStyleOptionTabV2::iconSize
 
-    The size for the icons. If this size is invalid and you need an
-    icon size, you can use QStyle::pixelMetric() to find the default
-    icon size for tab bars.
+    \brief the size for the icons
 
-    \sa QTabBar::iconSize() QStyle::pixelMetric()
+    The default value is QSize(-1, -1), i.e. an invalid size; use
+    QStyle::pixelMetric() to find the default icon size for tab bars.
+
+    \sa QTabBar::iconSize()
 */
 
 /*!
@@ -1368,8 +1384,8 @@ QStyleOptionTabV2 &QStyleOptionTabV2::operator=(const QStyleOptionTab &other)
 */
 
 /*!
-    Constructs a QStyleOptionProgressBar. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionProgressBar, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionProgressBar::QStyleOptionProgressBar()
@@ -1418,33 +1434,39 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     \variable QStyleOptionProgressBar::minimum
     \brief The minimum value for the progress bar
 
-    This is the minimum value in the progress bar.
+    This is the minimum value in the progress bar. The default value
+    is 0.
+
     \sa QProgressBar::minimum
 */
 
 /*!
     \variable QStyleOptionProgressBar::maximum
-    \brief The maximum value for the progress bar
+    \brief the maximum value for the progress bar
 
-    This is the maximum value in the progress bar.
+    This is the maximum value in the progress bar. The default value
+    is 0.
+
     \sa QProgressBar::maximum
 */
 
 /*!
     \variable QStyleOptionProgressBar::text
-    \brief The text for the progress bar.
+    \brief the text for the progress bar
 
-    The progress bar text is usually just the progress expressed as a string.
-    An empty string indicates that the progress bar has not started yet.
+    The progress bar text is usually just the progress expressed as a
+    string.  An empty string indicates that the progress bar has not
+    started yet. The default value is an empty string.
 
     \sa QProgressBar::text
 */
 
 /*!
     \variable QStyleOptionProgressBar::textVisible
-    \brief A flag indicating whether or not text is visible.
+    \brief a flag indicating whether or not text is visible
 
-    If this flag is true then the text is visible. Otherwise, the text is not visible.
+    If this flag is true then the text is visible. Otherwise, the text
+    is not visible. The default value is false.
 
     \sa QProgressBar::textVisible
 */
@@ -1452,17 +1474,19 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 
 /*!
     \variable QStyleOptionProgressBar::textAlignment
-    \brief The text alignment for the text in the QProgressBar
+    \brief the text alignment for the text in the QProgressBar
 
-    This can be used as a guide on where the text should be in the progressbar.
+    This can be used as a guide on where the text should be in the
+    progressbar. The default value is Qt::AlignLeft.
 */
 
 /*!
     \variable QStyleOptionProgressBar::progress
     \brief the current progress for the progress bar.
 
-    The current progress. A value of QStyleOptionProgressBar::minimum - 1
-    indicates that the progress hasn't started yet.
+    The current progress. A value of QStyleOptionProgressBar::minimum
+    - 1 indicates that the progress hasn't started yet. The default
+    value is 0.
 
     \sa QProgressBar::value
 */
@@ -1490,14 +1514,10 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
     to achieve this is to use the QStyleOptionProgressBarV2 copy
     constructor. For example:
 
-    \code
-        if (const QStyleOptionProgressBar *progressBarOption =
-               qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
-               QStyleOptionProgressBarV2 progressBarV2(*progressBarOption);
-
-            // draw the progress bar using progressBarV2
-        }
-    \endcode
+    \quotefromfile snippets/qstyleoption/main.cpp
+    \skipto MyStyle::MyStyle()
+    \skipto *progressBarOption
+    \printuntil }
 
     In the example above: If the \c progressBarOption's version is 1,
     the extra members (\l orientation, \l invertedAppearance, and \l
@@ -1512,8 +1532,8 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 */
 
 /*!
-    Constructs a QStyleOptionProgressBarV2. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionProgressBarV2, initializing he members
+    variables to their default values.
 */
 
 QStyleOptionProgressBarV2::QStyleOptionProgressBarV2()
@@ -1586,21 +1606,24 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
 
 /*!
     \variable QStyleOptionProgressBarV2::orientation
-    \brief the progress bar's orientation (horizontal or vertical)
+    \brief the progress bar's orientation (horizontal or vertical);
+    the default orentation is Qt::Horizontal
 
     \sa QProgressBar::orientation
 */
 
 /*!
     \variable QStyleOptionProgressBarV2::invertedAppearance
-    \brief whether the progress bar's appearance is inverted
+    \brief whether the progress bar's appearance is inverted; the
+    default value is false
 
     \sa QProgressBar::invertedAppearance
 */
 
 /*!
     \variable QStyleOptionProgressBarV2::bottomToTop
-    \brief whether the text reads from bottom to top when the progress bar is vertical
+    \brief whether the text reads from bottom to top when the progress
+    bar is vertical; the default value is false
 
     \sa QProgressBar::textDirection
 */
@@ -2067,10 +2090,21 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     \brief The QStyleOptionQ3ListViewItem class is used to describe an
     item drawn in a Q3ListView.
 
-    This is used by the compatibility Q3ListView to draw its items.
-    It should be avoided for new classes.
+    This class is used for drawing the compatibility Q3ListView's
+    items. \bold {It is not recommended for new classes}.
 
-    \sa Q3ListView, Q3ListViewItem
+    QStyleOptionQ3ListViewItem contains all the information that
+    QStyle functions need to draw the Q3ListView items.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QStyleOptionQ3ListView, Q3ListViewItem
 */
 
 /*!
@@ -2089,8 +2123,8 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 */
 
 /*!
-    Constructs a QStyleOptionQ3ListViewItem. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionQ3ListViewItem, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem()
@@ -2128,9 +2162,9 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 
 /*!
     \variable QStyleOptionQ3ListViewItem::features
-    \brief The features for this item
+    \brief the features for this item
 
-    This variable is a bitwise OR of the features of the item.
+    This variable is a bitwise OR of the features of the item. The deafult value is \l None.
 
     \sa Q3ListViewItemFeature
 */
@@ -2139,7 +2173,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
     \variable QStyleOptionQ3ListViewItem::height
     \brief The height of the item
 
-    This doesn't include the height of the item's children.
+    This doesn't include the height of the item's children. The default height is 0.
 
     \sa Q3ListViewItem::height()
 */
@@ -2148,12 +2182,14 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
     \variable QStyleOptionQ3ListViewItem::totalHeight
     \brief The total height of the item, including its children
 
+    The default total height is 0.
+
     \sa Q3ListViewItem::totalHeight()
 */
 
 /*!
     \variable QStyleOptionQ3ListViewItem::itemY
-    \brief The Y-coordinate for the item
+    \brief The Y-coordinate for the item; the default value is 0
 
     \sa Q3ListViewItem::itemPos()
 */
@@ -2268,12 +2304,25 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
     parameters for drawing various parts of a \l Q3DockWindow.
 
     This class is used for drawing the old Q3DockWindow and its
-    parts. It is not recommended for new classes.
+    parts. \bold {It is not recommended for new classes}.
+
+    QStyleOptionQ3DockWindow contains all the information that QStyle
+    functions need to draw Q3DockWindow and its parts.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption,  Q3DockWindow
 */
 
 /*!
-    Constructs a QStyleOptionQ3DockWindow. The member variables are
-    initialized to default values.
+    Constructs a QStyleOptionQ3DockWindow, initializing the member
+    variables to their default values.
 */
 
 QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow()
@@ -2309,12 +2358,15 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
 
 /*!
     \variable QStyleOptionQ3DockWindow::docked
-    \brief Indicates that the dock window is currently docked.
+
+    \brief indicates whether the dock window is currently docked; the
+    default value is false
 */
 
 /*!
     \variable QStyleOptionQ3DockWindow::closeEnabled
-    \brief Indicates that the dock window has a close button.
+    \brief indicates wheter the dock window has a close button; ; the
+    default value is false
 */
 
 /*!
@@ -2657,12 +2709,23 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
     \brief The QStyleOptionRubberBand class is used to describe the
     parameters needed for drawing a rubber band.
 
-    The QStyleOptionRubberBand class is used for drawing QRubberBand.
+    QStyleOptionRubberBand contains all the information that
+    QStyle functions need to draw QRubberBand.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QRubberBand
 */
 
 /*!
-    Creates a QStyleOptionRubberBand. The members variables are
-    initialized to default values.
+    Creates a QStyleOptionRubberBand, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionRubberBand::QStyleOptionRubberBand()
@@ -2698,12 +2761,16 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
 
 /*!
     \variable QStyleOptionRubberBand::shape
-    \brief The shape of the rubber band.
+    \brief the shape of the rubber band
+
+    The default shape is QRubberBand::Line.
 */
 
 /*!
     \variable QStyleOptionRubberBand::opaque
-    \brief Whether the rubber band is required to be drawn in an opque style.
+
+    \brief whether the rubber band is required to be drawn in an opque
+    style; the default value is true
 */
 #endif // QT_NO_RUBBERBAND
 

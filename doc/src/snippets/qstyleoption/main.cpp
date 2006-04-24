@@ -12,7 +12,7 @@ public:
 MyPushButton::MyPushButton(QWidget *parent)
     : QPushButton(parent)
 {
- }
+}
 
 void MyPushButton::paintEvent(QPaintEvent *)
 {
@@ -49,6 +49,20 @@ MyStyle::MyStyle()
 
         // draw the frame using frameOptionV2
     }
+
+    if (const QStyleOptionProgressBar *progressBarOption =
+           qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
+        QStyleOptionProgressBarV2 progressBarV2(*progressBarOption);
+
+        // draw the progress bar using progressBarV2
+    }
+
+    if (const QStyleOptionTab *tabOption =
+           qstyleoption_cast<const QStyleOptionTab *>(option)) {
+        QStyleOptionTabV2 tabV2(*tabOption);
+
+        // draw the tab using tabV2
+   }
 }
 
 void MyStyle::drawPrimitive(PrimitiveElement element,
