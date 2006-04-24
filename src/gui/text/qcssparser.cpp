@@ -60,7 +60,13 @@ const char *Scanner::tokenName(TokenType t)
     return "";
 }
 
-static const struct QCssPropertyInfo { const char *name; QCss::Property id; } properties[NumProperties + 1] = {
+struct QCssKnownValue
+{
+    const char *name;
+    int id;
+};
+
+static const QCssKnownValue properties[NumProperties + 1] = {
     { "background-color", BackgroundColor },
     { "color", Color },
     { "float", Float },
@@ -81,26 +87,48 @@ static const struct QCssPropertyInfo { const char *name; QCss::Property id; } pr
     { "text-indent", TextIndent },
     { "vertical-align", VerticalAlignment },
     { "white-space", Whitespace },
-    { 0, UnknownProperty }
+    { 0, 0 }
 };
 
-static bool operator<(const QString &name, const QCssPropertyInfo &prop)
+static const QCssKnownValue values[NumKnownValues + 1] = {
+    { "bold", Value_Bold },
+    { "italic", Value_Italic },
+    { "large", Value_Large },
+    { "left", Value_Left },
+    { "line-through", Value_LineThrough },
+    { "medium", Value_Medium },
+    { "normal", Value_Normal },
+    { "nowrap", Value_NoWrap },
+    { "oblique", Value_Oblique },
+    { "overline", Value_Overline },
+    { "pre", Value_Pre },
+    { "pre-wrap", Value_PreWrap },
+    { "right", Value_Right },
+    { "small" , Value_Small },
+    { "sub", Value_Sub },
+    { "super", Value_Super },
+    { "underline", Value_Underline },
+    { "x-large", Value_XLarge },
+    { "xx-large", Value_XXLarge },
+    { 0, 0 }
+};
+
+static bool operator<(const QString &name, const QCssKnownValue &prop)
 {
     return name < QLatin1String(prop.name);
 }
 
-static bool operator<(const QCssPropertyInfo &prop, const QString &name)
+static bool operator<(const QCssKnownValue &prop, const QString &name)
 {
     return QLatin1String(prop.name) < name;
 }
 
-static QCss::Property findProperty(const QString &name)
+static int findKnownValue(const QString &name, const QCssKnownValue *start, int numValues)
 {
-    const QCssPropertyInfo *start = &properties[0];
-    const QCssPropertyInfo *end = &properties[NumProperties];
-    const QCssPropertyInfo *prop = qBinaryFind(start, end, name);
+    const QCssKnownValue *end = &start[numValues];
+    const QCssKnownValue *prop = qBinaryFind(start, end, name);
     if (!prop->name)
-        return QCss::UnknownProperty;
+        return 0;
     return prop->id;
 }
 
@@ -440,7 +468,7 @@ bool Parser::parseUnaryOperator(Value::UnaryOperator *op)
 
 bool Parser::parseProperty(Declaration *decl)
 {
-    decl->propertyId = findProperty(temporaryLexem());
+    decl->propertyId = static_cast<Property>(findKnownValue(temporaryLexem(), properties, NumProperties));
     if (decl->propertyId == UnknownProperty) {
         decl->property = lexem();
     }
@@ -715,10 +743,16 @@ bool Parser::parseTerm(Value *value)
             str.remove(0, 1);
             value->variant = str;
             break;
-        case IDENT:
+        case IDENT: {
             if (haveUnary) return false;
             value->type = Value::Identifier;
+            const int id = findKnownValue(str, values, NumKnownValues);
+            if (id != 0) {
+                value->type = Value::KnownIdentifier;
+                value->variant = id;
+            }
             break;
+        }
         default: {
             if (haveUnary) return false;
             prev();

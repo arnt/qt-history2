@@ -21,8 +21,7 @@
 namespace QCss
 {
 
-enum Property
-{
+enum Property {
     UnknownProperty,
     BackgroundColor,
     Color,
@@ -47,6 +46,30 @@ enum Property
     NumProperties,
 };
 
+enum KnownValue {
+    UnknownValue,
+    Value_Normal,
+    Value_Pre,
+    Value_NoWrap,
+    Value_PreWrap,
+    Value_Small,
+    Value_Medium,
+    Value_Large,
+    Value_XLarge,
+    Value_XXLarge,
+    Value_Italic,
+    Value_Oblique,
+    Value_Bold,
+    Value_Underline,
+    Value_Overline,
+    Value_LineThrough,
+    Value_Sub,
+    Value_Super,
+    Value_Left,
+    Value_Right,
+    NumKnownValues
+};
+
 struct Q_INTERNAL_EXPORT Value
 {
     enum Type {
@@ -56,6 +79,7 @@ struct Q_INTERNAL_EXPORT Value
         Length,
         String,
         Identifier,
+        KnownIdentifier,
         Uri,
         Color,
         Function,
