@@ -570,32 +570,40 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 
     \since 4.1
 
-    The QStyleOptionGroupBox class is used to draw the group box'
-    frame, title, and optional check box.
+    QStyleOptionButton contains all the information that QStyle
+    functions need the various graphical elements of a group box.
 
     It holds the lineWidth and the midLineWidth for drawing the panel,
     the group box's \l {text}{title} and the title's \l
     {textAlignment}{alignment} and \l {textColor}{color}.
 
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
     For an example demonstrating how style options can be used, see
     the \l {widgets/styles}{Styles} example.
 
-    \sa QStyleOption
-
+    \sa QStyleOption, QStyleOptionComplex, QGroupBox
 */
 
 /*!
     \variable QStyleOptionGroupBox::lineWidth
 
-    \brief The line width for drawing the panel.
+    \brief the line width for drawing the panel
+
+    The default value is 0.
 
     \sa QFrame::lineWidth
 */
 
 /*!
     \variable QStyleOptionGroupBox::midLineWidth
-    \brief The mid-line width for drawing the panel. This is usually used in
-    drawing sunken or raised group box frames.
+    \brief The mid-line width for drawing the panel.
+
+    The mid-line width is usually used when drawing sunken or raised
+    group box frames. The default value is 0.
 
     \sa QFrame::midLineWidth
 */
@@ -603,7 +611,9 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 /*!
     \variable QStyleOptionGroupBox::text
 
-    The text of the group box.
+    \brief the text of the group box
+
+    The default value is an empty string.
 
     \sa QGroupBox::title
 */
@@ -611,7 +621,9 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 /*!
     \variable QStyleOptionGroupBox::textAlignment
 
-    The alignment of the group box title.
+    \brief the alignment of the group box title
+
+    The default value is Qt::AlignLeft.
 
     \sa QGroupBox::alignment
 */
@@ -619,12 +631,16 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
 /*!
     \variable QStyleOptionGroupBox::textColor
 
-    The color of the group box title.
+    \brief the color of the group box title
+
+    The default value is an invalid color with the RGB value (0, 0,
+    0). An invalid color is a color that is not properly set up for
+    the underlying window system.
 */
 
 /*!
-    Constructs a QStyleOptionGroupBox. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionGroupBox, initializing the members
+    variables to their default values.
 */
 QStyleOptionGroupBox::QStyleOptionGroupBox()
     : QStyleOptionComplex(Version, Type), features(QStyleOptionFrameV2::None),
@@ -1885,13 +1901,23 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
     \brief The QStyleOptionSlider class is used to describe the
     parameters needed for drawing a slider.
 
-    The QStyleOptionSlider class is used for drawing \l QSlider and
-    \l QScrollBar.
+    QStyleOptionSlider contains all the information that QStyle
+    functions need to draw QSlider and QScrollBar.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOptionComplex, QSlider, QScrollBar
 */
 
 /*!
-    Constructs a QStyleOptionSlider. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionSlider, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionSlider::QStyleOptionSlider()
@@ -1935,91 +1961,113 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
     \variable QStyleOptionSlider::orientation
     \brief the slider's orientation (horizontal or vertical)
 
+    The default orientation is Qt::Horizontal.
+
     \sa Qt::Orientation
 */
 
 /*!
     \variable QStyleOptionSlider::minimum
-    \brief The minimum value for the slider.
+    \brief the minimum value for the slider
+
+    The default value is 0.
 */
 
 /*!
     \variable QStyleOptionSlider::maximum
-    \brief The maximum value for the slider.
+    \brief the maximum value for the slider
+
+    The default value is 0.
 */
 
 /*!
     \variable QStyleOptionSlider::tickPosition
-    \brief the position of the slider's tick marks, if any.
+    \brief the position of the slider's tick marks, if any
+
+    The default value is QSlider::NoTicks.
 
     \sa QSlider::TickPosition
 */
 
 /*!
     \variable QStyleOptionSlider::tickInterval
-    \brief The interval that should be drawn between tick marks.
+    \brief the interval that should be drawn between tick marks
+
+    The default value is 0.
 */
 
 /*!
     \variable QStyleOptionSlider::notchTarget
-    \brief The number of pixel between notches
+    \brief the number of pixel between notches
+
+    The default value is 0.0.
 
     \sa QDial::notchTarget()
 */
 
 /*!
     \variable QStyleOptionSlider::dialWrapping
-    \brief Indicates whether or not the dial should wrap or not
+    \brief whether or not the dial should wrap or not
+
+    The default value is false, i.e. the dial is not wrapped.
 
     \sa QDial::wrapping()
 */
 
 /*!
     \variable QStyleOptionSlider::upsideDown
-    \brief Indicates slider control orientation.
+    \brief the slider control orientation
 
-    Normally a slider increases as it moves up or to the right; upsideDown
-    indicates that it should do the opposite (increase as it moves down or to
-    the left).
+    Normally a slider increases as it moves up or to the right;
+    upsideDown indicates that it should do the opposite (increase as
+    it moves down or to the left).  The default value is false,
+    i.e. the slider increases as it moves up or to the right.
 
-    \sa QStyle::sliderPositionFromValue(), QStyle::sliderValueFromPosition(),
-        QAbstractSlider::invertedAppearance
+    \sa QStyle::sliderPositionFromValue(),
+    QStyle::sliderValueFromPosition(),
+    QAbstractSlider::invertedAppearance
 */
 
 /*!
     \variable QStyleOptionSlider::sliderPosition
-    \brief The position of the slider handle.
+    \brief the position of the slider handle
 
     If the slider has active feedback (i.e.,
-    QAbstractSlider::tracking is true), this value will be the same
-    as \l sliderValue. Otherwise, it will have the current position
-    of the handle.
+    QAbstractSlider::tracking is true), this value will be the same as
+    \l sliderValue. Otherwise, it will have the current position of
+    the handle. The default value is 0.
 
     \sa QAbstractSlider::tracking, sliderValue
 */
 
 /*!
     \variable QStyleOptionSlider::sliderValue
-    \brief The value of the slider.
+    \brief the value of the slider
 
     If the slider has active feedback (i.e.,
     QAbstractSlider::tracking is true), this value will be the same
     as \l sliderPosition. Otherwise, it will have the value the
     slider had before the mouse was pressed.
 
+    The default value is 0.
+
     \sa QAbstractSlider::tracking sliderPosition
 */
 
 /*!
     \variable QStyleOptionSlider::singleStep
-    \brief The size of the single step of the slider.
+    \brief the size of the single step of the slider
+
+    The default value is 0.
 
     \sa QAbstractSlider::singleStep
 */
 
 /*!
     \variable QStyleOptionSlider::pageStep
-    \brief The size of the page step of the slider.
+    \brief the size of the page step of the slider
+
+    The default value is 0.
 
     \sa QAbstractSlider::pageStep
 */
@@ -2031,12 +2079,23 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
     \brief The QStyleOptionSpinBox class is used to describe the
     parameters necessary for drawing a spin box.
 
-    The QStyleOptionSpinBox is used for drawing QSpinBox and QDateTimeEdit.
+    QStyleOptionSpinBox contains all the information that QStyle
+    functions need to draw QSpinBox and QDateTimeEdit.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QStyleOptionComplex
 */
 
 /*!
-    Constructs a QStyleOptionSpinBox. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionSpinBox, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionSpinBox::QStyleOptionSpinBox()
@@ -2074,22 +2133,28 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 
 /*!
     \variable QStyleOptionSpinBox::buttonSymbols
-    \brief The type of button symbols to draw for the spin box.
+    \brief the type of button symbols to draw for the spin box
+
+    The default value is QAbstractSpinBox::UpDownArrows specufying
+    little arrows in the classic style.
 
     \sa QAbstractSpinBox::ButtonSymbols
 */
 
 /*!
     \variable QStyleOptionSpinBox::stepEnabled
-    \brief Indicates which buttons of the spin box are enabled.
+    \brief which buttons of the spin box that are enabled
+
+    The default value is QAbstractSpinBox::StepNone.
 
     \sa QAbstractSpinBox::StepEnabled
 */
 
 /*!
     \variable QStyleOptionSpinBox::frame
-    \brief Indicates whether whether the spin box has a frame.
+    \brief whether the spin box has a frame.
 
+    The default value is false, i.e. the spin box has no frame.
 */
 #endif // QT_NO_SPINBOX
 
@@ -2212,13 +2277,26 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
     \brief The QStyleOptionQ3ListView class is used to describe the
     parameters for drawing a Q3ListView.
 
-    The class is used for drawing the compat \l Q3ListView. It is not
-    recommended for use in new code.
+    This class is used for drawing the compatibility Q3ListView. \bold
+    {It is not recommended for new classes}.
+
+    QStyleOptionQ3ListView contains all the information that QStyle
+    functions need to draw Q3ListView.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOptionComplex, Q3ListView, QStyleOptionQ3ListViewItem
 */
 
 /*!
-    Creates a QStyleOptionQ3ListView. The members variables are
-    initialized to default values.
+    Creates a QStyleOptionQ3ListView, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionQ3ListView::QStyleOptionQ3ListView()
@@ -2256,7 +2334,7 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 
 /*!
     \variable QStyleOptionQ3ListView::items
-    \brief A list of items in the \l Q3ListView.
+    \brief a list of items in the Q3ListView
 
     This is a list of \l {QStyleOptionQ3ListViewItem}s. The first item
     can be used for most of the calculation that are needed for
@@ -2268,40 +2346,46 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 
 /*!
     \variable QStyleOptionQ3ListView::viewportPalette
-    \brief The palette of Q3ListView's viewport.
+    \brief the palette of Q3ListView's viewport
+
+    By default, the application's default palette is used.
 */
 
 /*!
     \variable QStyleOptionQ3ListView::viewportBGRole
-    \brief The background role of \l Q3ListView's viewport.
+    \brief the background role of Q3ListView's viewport
+
+    The default value is QPalette::Base.
 
     \sa QWidget::backgroundRole()
 */
 
 /*!
     \variable QStyleOptionQ3ListView::sortColumn
-    \brief The sort column of the list view.
+    \brief the sort column of the list view; the default value is 0
 
     \sa Q3ListView::sortColumn()
 */
 
 /*!
     \variable QStyleOptionQ3ListView::itemMargin
-    \brief The margin for items in the list view.
+    \brief the margin for items in the list view; the default value is 0
 
     \sa Q3ListView::itemMargin()
 */
 
 /*!
     \variable QStyleOptionQ3ListView::treeStepSize
-    \brief The number of pixel to offset children items from their parents.
+
+    \brief the number of pixel to offset children items from their
+    parents; the default value is 0
 
     \sa Q3ListView::treeStepSize()
 */
 
 /*!
     \variable QStyleOptionQ3ListView::rootIsDecorated
-    \brief Whether root items are decorated
+    \brief whether root items are decorated; the default value is false
 
     \sa Q3ListView::rootIsDecorated()
 */
@@ -2466,7 +2550,18 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
     \brief The QStyleOptionToolButton class is used to describe the
     parameters for drawing a tool button.
 
-    The QStyleOptionToolButton class is used for drawing QToolButton.
+    QStyleOptionToolButton contains all the information that QStyle
+    functions need to draw QToolButton.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QStyleOptionComplex, QStyleOptionButton
 */
 
 /*!
@@ -2482,8 +2577,8 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
 */
 
 /*!
-    Constructs a QStyleOptionToolButton. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionToolButton, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionToolButton::QStyleOptionToolButton()
@@ -2522,16 +2617,20 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 
 /*!
     \variable QStyleOptionToolButton::features
-    \brief The features of the tool button.
 
-    This variable is a bitwise OR describing the features of the button.
+    \brief an OR combination of the tool button's features
+
+    The default value is \l None.
 
     \sa ToolButtonFeature
 */
 
 /*!
     \variable QStyleOptionToolButton::icon
-    \brief The icon for the tool button.
+    \brief the icon for the tool button
+
+    The default value is an empty icon, i.e. an icon with neither a
+    pixmap nor a filename.
 
     \sa iconSize
 */
@@ -2539,41 +2638,53 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 /*!
     \variable QStyleOptionToolButton::iconSize
     \brief the size of the icon for the tool button
+
+    The default value is QSize(-1, -1), i.e. an invalid size.
 */
 
 /*!
     \variable QStyleOptionToolButton::text
     \brief The text of the tool button.
 
-    This value is only used if toolButtonStyle is Qt::ToolButtonTextUnderIcon,
-    Qt::ToolButtonTextBesideIcon, or Qt::ToolButtonTextOnly
+    This value is only used if toolButtonStyle is
+    Qt::ToolButtonTextUnderIcon, Qt::ToolButtonTextBesideIcon, or
+    Qt::ToolButtonTextOnly. The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionToolButton::arrowType
-    \brief The direction of the arrow for the tool button
+    \brief the direction of the arrow for the tool button
 
-    This value is only used if \l features includes \l Arrow.
+    This value is only used if \l features includes \l Arrow. The
+    default value is Qt::DownArrow.
 */
 
 /*!
     \variable QStyleOptionToolButton::toolButtonStyle
-    \brief Used to describe the appearance of a tool button
+
+    \brief a Qt::ToolButtonStyle value describing the appearance of
+    the tool button
+
+    The default value is Qt::ToolButtonIconOnly.
 
     \sa QToolButton::toolButtonStyle()
 */
 
 /*!
     \variable QStyleOptionToolButton::pos
-    \brief The position of the tool button
+    \brief the position of the tool button
+
+    The default value is a null point, i.e. (0, 0)
 */
 
 /*!
     \variable QStyleOptionToolButton::font
-    \brief The font that is used for the text.
+    \brief the font that is used for the text
 
-    This value is only used if toolButtonStyle is Qt::ToolButtonTextUnderIcon,
-    Qt::ToolButtonTextBesideIcon, or Qt::ToolButtonTextOnly
+    This value is only used if toolButtonStyle is
+    Qt::ToolButtonTextUnderIcon, Qt::ToolButtonTextBesideIcon, or
+    Qt::ToolButtonTextOnly. By default, the application's default font
+    is used.
 */
 
 /*!
@@ -2581,12 +2692,23 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     \brief The QStyleOptionComboBox class is used to describe the
     parameter for drawing a combobox.
 
-    The QStyleOptionComboBox class is used for drawing QComboBox.
+    QStyleOptionButton contains all the information that QStyle
+    functions need to draw QComboBox.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QStyleOptionComplex, QComboBox
 */
 
 /*!
-    Creates a QStyleOptionComboBox. The members variables are
-    initialized to default values.
+    Creates a QStyleOptionComboBox, initializing the members variables
+    to their default values.
 */
 
 QStyleOptionComboBox::QStyleOptionComboBox()
@@ -2622,7 +2744,9 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 
 /*!
     \variable QStyleOptionComboBox::editable
-    \brief whether or not the combobox is editable or not.
+
+    \brief whether or not the combobox is editable or not; the default
+    value is false
 
     \sa QComboBox::isEditable()
 */
@@ -2630,29 +2754,41 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 
 /*!
     \variable QStyleOptionComboBox::frame
-    \brief Indicates whether whether the combo box has a frame.
+
+    \brief indicates whether whether the combo box has a frame; the
+    default value is true
 */
 
 /*!
     \variable QStyleOptionComboBox::currentText
-    \brief The text for the current item of the combo box
+    \brief the text for the current item of the combo box
+
+    The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionComboBox::currentIcon
-    \brief The icon for the current item of the combo box
+    \brief the icon for the current item of the combo box
+
+    The default value is an empty icon, i.e. an icon with neither a
+    pixmap nor a filename.
 */
 
 /*!
     \variable QStyleOptionComboBox::iconSize
-    \brief The icon size for the current item of the combo box
+    \brief the icon size for the current item of the combo box
+
+    The default value is QSize(-1, -1), i.e. an invalid size.
 */
 
 /*!
     \variable QStyleOptionComboBox::popupRect
     \brief The popup rectangle for the combobox.
 
-    This variable is currently unused, you can safely ignore it,
+    The default value is a null rectangle, i.e. a rectangle with both
+    the width and the height set to 0.
+
+    This variable is currently unused, you can safely ignore it.
 
     \sa SC_ComboBoxListBoxPopup
 */
@@ -2803,13 +2939,24 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
     \brief The QStyleOptionTitleBar class is used to describe the
     parameters for drawing a title bar.
 
-    The QStyleOptionTitleBar class is used to draw the title bars of
-    QWorkspace's MDI children.
+    QStyleOptionTitleBar contains all the information that QStyle
+    functions need to draw the title bars of QWorkspace's MDI
+    children.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QStyleOptionComplex, QWorkspace
 */
 
 /*!
-    Constructs a QStyleOptionTitleBar. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionTitleBar, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionTitleBar::QStyleOptionTitleBar()
@@ -2846,26 +2993,32 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 
 /*!
     \variable QStyleOptionTitleBar::text
-    \brief The text of the title bar.
+    \brief the text of the title bar
+
+    The default value is an empty string.
 */
 
 /*!
     \variable QStyleOptionTitleBar::icon
-    \brief The icon for the title bar.
+    \brief the icon for the title bar
+
+    The default value is an empty icon, i.e. an icon with neither a
+    pixmap nor a filename.
 */
 
 /*!
     \variable QStyleOptionTitleBar::titleBarState
-    \brief The state of the title bar.
+    \brief The state of the title bar
 
-    This is basically the window state of the underlying widget.
+    This is basically the window state of the underlying widget. The
+    default value is 0.
 
     \sa QWidget::windowState()
 */
 
 /*!
     \variable QStyleOptionTitleBar::titleBarFlags
-    \brief The widget flags for the title bar.
+    \brief the widget flags for the title bar
 
     \sa Qt::WFlags
 */
