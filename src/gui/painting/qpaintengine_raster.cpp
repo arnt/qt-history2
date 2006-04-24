@@ -100,8 +100,10 @@ enum LineDrawMode {
 
 static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans span_func, QSpanData *data,
                                 LineDrawMode style, const QRect &devRect);
-static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2, QPen *pen, ProcessSpans span_func, QSpanData *data,
-                                       LineDrawMode style, const QRect &devRect);
+static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
+                                       QPen *pen, ProcessSpans span_func, QSpanData *data,
+                                       LineDrawMode style, const QRect &devRect,
+                                       int *patternOffset);
 // static void drawLine_midpoint_f(qreal x1, qreal y1, qreal x2, qreal y2,
 //                                 ProcessSpans span_func, QSpanData *data,
 //                                 LineDrawMode style, const QRect &devRect);
@@ -1339,6 +1341,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             LineDrawMode mode_for_last = (d->pen.capStyle() != Qt::FlatCap
                                           ? LineDrawIncludeLastPixel
                                           : LineDrawNormal);
+            int dashOffset = 0;
 
             // Draw the all the line segments.
             for (int i=1; i<pointCount; ++i) {
@@ -1356,7 +1359,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                                                &d->pen,
                                                d->penData.blend, &d->penData,
                                                i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
-                                               devRect);
+                                               devRect, &dashOffset);
                 }
             }
 
@@ -1376,7 +1379,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                                                &d->pen,
                                                d->penData.blend, &d->penData,
                                                LineDrawIncludeLastPixel,
-                                               devRect);
+                                               devRect, &dashOffset);
                 }
             }
 
@@ -1454,6 +1457,8 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
         int dx = int(d->matrix.dx());
         int dy = int(d->matrix.dy());
 
+        int dashOffset = 0;
+
         // Draw the all the line segments.
         for (int i=1; i<pointCount; ++i) {
             if (d->pen.style() == Qt::SolidLine)
@@ -1468,7 +1473,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
                                            &d->pen,
                                            d->penData.blend, &d->penData,
                                            i == pointCount - 1 ? mode_for_last : LineDrawIncludeLastPixel,
-                                           devRect);
+                                           devRect, &dashOffset);
 
         }
 
@@ -1484,7 +1489,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
                                     points[0].x() * m11 + dx, points[0].y() * m22 + dy,
                                            &d->pen,
                                            d->penData.blend, &d->penData, LineDrawIncludeLastPixel,
-                                    devRect);
+                                           devRect, &dashOffset);
         }
 
     }
@@ -2120,6 +2125,7 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
         int dx = int(d->matrix.dx());
         int dy = int(d->matrix.dy());
         for (int i=0; i<lineCount; ++i) {
+            int dashOffset = 0;
             if (d->int_xform) {
                 const QLine &l = lines[i];
                 int x1 = l.x1() * m11 + dx;
@@ -2131,7 +2137,10 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                     drawLine_midpoint_i(x1, y1, x2, y2,
                                         d->penData.blend, &d->penData, mode, bounds);
                 else
-                    drawLine_midpoint_dashed_i(x1, y1, x2, y2, &d->pen, d->penData.blend, &d->penData, mode, bounds);
+                    drawLine_midpoint_dashed_i(x1, y1, x2, y2,
+                                               &d->pen, d->penData.blend,
+                                               &d->penData, mode, bounds,
+                                               &dashOffset);
             } else {
                 QLineF line = lines[i] * d->matrix;
                 if (d->pen.style() == Qt::SolidLine)
@@ -2141,8 +2150,9 @@ void QRasterPaintEngine::drawLines(const QLine *lines, int lineCount)
                 else
                     drawLine_midpoint_dashed_i(qRound(line.x1()), qRound(line.y1()),
                                                qRound(line.x2()), qRound(line.y2()),
-                                               &d->pen,
-                                               d->penData.blend, &d->penData, mode, bounds);
+                                               &d->pen, d->penData.blend,
+                                               &d->penData, mode, bounds,
+                                               &dashOffset);
             }
         }
     } else {
@@ -2165,6 +2175,7 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
                             : LineDrawIncludeLastPixel;
         for (int i=0; i<lineCount; ++i) {
             QLineF line = lines[i] * d->matrix;
+            int dashOffset = 0;
             if (d->pen.style() == Qt::SolidLine)
                 drawLine_midpoint_i(qRound(line.x1()), qRound(line.y1()),
                                     qRound(line.x2()), qRound(line.y2()),
@@ -2173,7 +2184,8 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
                 drawLine_midpoint_dashed_i(qRound(line.x1()), qRound(line.y1()),
                                            qRound(line.x2()), qRound(line.y2()),
                                            &d->pen,
-                                           d->penData.blend, &d->penData, mode, bounds);
+                                           d->penData.blend, &d->penData, mode,
+                                           bounds, &dashOffset);
         }
     } else {
         QPaintEngine::drawLines(lines, lineCount);
@@ -3665,10 +3677,11 @@ flush_and_return:
 static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                                        QPen *pen,
                                        ProcessSpans span_func, QSpanData *data,
-                                       LineDrawMode style, const QRect &devRect)
+                                       LineDrawMode style, const QRect &devRect,
+                                       int *patternOffset)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << "   - drawLine_midpoint_dashed_i" << line;
+    qDebug() << "   - drawLine_midpoint_dashed_i" << x1 << y1 << x2 << y2 << *patternOffset;
 #endif
 
     int x, y;
@@ -3677,10 +3690,52 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
     dx = x2 - x1;
     dy = y2 - y1;
 
-    const QVector<qreal> pattern = pen->dashPattern();
+    Q_ASSERT(*patternOffset >= 0);
+
+    const QVector<qreal> penPattern = pen->dashPattern();
+    QVarLengthArray<qreal> pattern(penPattern.size());
+
+    int patternLength = 0;
+    for (int i = 0; i < penPattern.size(); ++i)
+        patternLength += int(penPattern.at(i));
+
+    // pattern must be reversed if coordinates are out of order
+    int reverseLength = -1;
+    if (dy == 0 && x1 > x2)
+        reverseLength = x1 - x2;
+    else if (dx == 0 && y1 > y2)
+        reverseLength = y1 - y2;
+    else if (qAbs(dx) >= qAbs(dy) && x2 < x1) // x major axis
+        reverseLength = qAbs(dx);
+    else if (qAbs(dy) >= qAbs(dx) && y2 < y1) // y major axis
+        reverseLength = qAbs(dy);
+
+    const bool reversed = (reverseLength > -1);
+    if (reversed) { // reverse pattern
+        for (int i = 0; i < penPattern.size(); ++i)
+            pattern[penPattern.size() - 1 - i] = penPattern.at(i);
+
+        *patternOffset = (patternLength - 1 - *patternOffset);
+        *patternOffset += patternLength - (reverseLength % patternLength);
+        *patternOffset = *patternOffset % patternLength;
+    } else {
+        for (int i = 0; i < penPattern.size(); ++i)
+            pattern[i] = penPattern.at(i);
+    }
+
     int dashIndex = 0;
-    bool inDash = true;
-    int currPattern = int(pattern.at(dashIndex));
+    bool inDash = !reversed;
+    int currPattern = int(pattern[dashIndex]);
+
+    // adjust pattern for offset
+    int adjust = *patternOffset;
+    while (adjust--) {
+        if (--currPattern == 0) {
+            inDash = !inDash;
+            dashIndex = ((dashIndex + 1) % pattern.size());
+            currPattern = int(pattern[dashIndex]);
+        }
+    }
 
     const int NSPANS = 256;
     QT_FT_Span spans[NSPANS];
@@ -3704,16 +3759,22 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                         span_func(NSPANS, spans, data);
                         current = 0;
                     }
-                    const int dash = int(pattern.at(dashIndex));
-                    spans[current].x = ushort(x);
-                    x += qMin(dash, stop_clipped - x);
-                    spans[current].len = ushort(x - spans[current].x);
-                    spans[current].y = y1;
-                    spans[current].coverage = 255;
-                    ++current;
-                    const int space = int(pattern.at(dashIndex + 1));
-                    x += space;
-                    dashIndex = (dashIndex + 2) % pattern.size();
+                    const int dash = qMin(currPattern, stop_clipped - x);
+                    if (inDash) {
+                        spans[current].x = ushort(x);
+                        spans[current].len = ushort(dash);
+                        spans[current].y = y1;
+                        spans[current].coverage = 255;
+                        ++current;
+                    }
+                    if (dash < currPattern) {
+                        currPattern -= dash;
+                    } else {
+                        dashIndex = (dashIndex + 1) % pattern.size();
+                        currPattern = int(pattern[dashIndex]);
+                        inDash = !inDash;
+                    }
+                    x += dash;
                 }
             }
         }
@@ -3731,22 +3792,28 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
             // loop over dashes
             int y = start;
             while (y < stop) {
-                const int dash = qMin(int(pattern.at(dashIndex)), stop - y);
-                for (int i = 0; i < dash; ++i) {
-                    if (current == NSPANS) {
-                        span_func(NSPANS, spans, data);
-                        current = 0;
+                const int dash = qMin(currPattern, stop - y);
+                if (inDash) {
+                    for (int i = 0; i < dash; ++i) {
+                        if (current == NSPANS) {
+                            span_func(NSPANS, spans, data);
+                            current = 0;
+                        }
+                        spans[current].x = x1;
+                        spans[current].len = 1;
+                        spans[current].coverage = 255;
+                        spans[current].y = ushort(y + i);
+                        ++current;
                     }
-                    spans[current].x = x1;
-                    spans[current].len = 1;
-                    spans[current].coverage = 255;
-                    spans[current].y = ushort(y + i);
-                    ++current;
+                }
+                if (dash < currPattern) {
+                    currPattern -= dash;
+                } else {
+                    dashIndex = (dashIndex + 1) % pattern.size();
+                    currPattern = int(pattern[dashIndex]);
+                    inDash = !inDash;
                 }
                 y += dash;
-                const int space = int(pattern.at(dashIndex + 1));
-                y += space;
-                dashIndex = (dashIndex + 2) % pattern.size();
             }
         }
         goto flush_and_return;
@@ -3771,7 +3838,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
 
         // completly clipped, so abort
         if (x2 <= x1)
-            return;
+            goto flush_and_return;
 
         int x = x1;
         int y = y1;
@@ -3793,7 +3860,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
             if (--currPattern <= 0) {
                 inDash = !inDash;
                 dashIndex = (dashIndex + 1) % pattern.size();
-                currPattern = int(pattern.at(dashIndex));
+                currPattern = int(pattern[dashIndex]);
             }
         }
 
@@ -3837,7 +3904,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 if (--currPattern <= 0) {
                     inDash = !inDash;
                     dashIndex = (dashIndex + 1) % pattern.size();
-                    currPattern = int(pattern.at(dashIndex));
+                    currPattern = int(pattern[dashIndex]);
                 }
             }
         } else {  // 0-45 and 180->225 (unit circle degrees)
@@ -3871,16 +3938,17 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                         span_func(NSPANS, spans, data);
                         current = 0;
                     }
-                    spans[NSPANS - 1 - current].len = 1;
-                    spans[NSPANS - 1 - current].coverage = 255;
-                    spans[NSPANS - 1 - current].x = x;
-                    spans[NSPANS - 1 - current].y = y;
+                    const int index = NSPANS - current - 1;
+                    spans[index].len = 1;
+                    spans[index].coverage = 255;
+                    spans[index].x = x;
+                    spans[index].y = y;
                     ++current;
                 }
                 if (--currPattern <= 0) {
                     inDash = !inDash;
                     dashIndex = (dashIndex + 1) % pattern.size();
-                    currPattern = int(pattern.at(dashIndex));
+                    currPattern = int(pattern[dashIndex]);
                 }
             }
         }
@@ -3926,7 +3994,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
             if (--currPattern <= 0) {
                 inDash = !inDash;
                 dashIndex = (dashIndex + 1) % pattern.size();
-                currPattern = int(pattern.at(dashIndex));
+                currPattern = int(pattern[dashIndex]);
             }
         }
 
@@ -3966,7 +4034,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 if (--currPattern <= 0) {
                     inDash = !inDash;
                     dashIndex = (dashIndex + 1) % pattern.size();
-                    currPattern = int(pattern.at(dashIndex));
+                    currPattern = int(pattern[dashIndex]);
                 }
             }
         } else { // 45 -> 90 and 225 -> 270 (unit circle degrees)
@@ -4005,7 +4073,7 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
                 if (--currPattern <= 0) {
                     inDash = !inDash;
                     dashIndex = (dashIndex + 1) % pattern.size();
-                    currPattern = int(pattern.at(dashIndex));
+                    currPattern = int(pattern[dashIndex]);
                 }
             }
         }
@@ -4013,6 +4081,17 @@ static void drawLine_midpoint_dashed_i(int x1, int y1, int x2, int y2,
 flush_and_return:
     if (current > 0)
         span_func(current, ordered ? spans : spans + (NSPANS - current), data);
+
+    // adjust offset
+    if (reversed) {
+        *patternOffset = (patternLength - 1 - *patternOffset);
+    } else {
+        *patternOffset = 0;
+        for (int i = 0; i <= dashIndex; ++i)
+            *patternOffset += int(pattern[i]);
+        *patternOffset += patternLength - currPattern - 1;
+        *patternOffset = (*patternOffset % patternLength);
+    }
 }
 
 /*!
@@ -4024,7 +4103,7 @@ static inline int ellipseSpansClipped(QT_FT_Span *spans, int numSpans,
                                       const QRect &clip)
 {
     const short minx = clip.topLeft().x();
-    short miny = clip.topLeft().y();
+    const short miny = clip.topLeft().y();
     const short maxx = clip.bottomRight().x();
     const short maxy = clip.bottomRight().y();
 
