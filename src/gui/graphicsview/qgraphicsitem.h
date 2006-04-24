@@ -121,12 +121,12 @@ public:
     { update(QRectF(x, y, width, height)); }
 
     // Coordinate mapping
-    QPointF mapToItem(QGraphicsItem *item, const QPointF &pos) const;
-    QPointF mapToParent(const QPointF &pos) const;
-    QPointF mapToScene(const QPointF &pos) const;
-    QPointF mapFromItem(QGraphicsItem *item, const QPointF &pos) const;
-    QPointF mapFromParent(const QPointF &pos) const;
-    QPointF mapFromScene(const QPointF &pos) const;
+    QPointF mapToItem(QGraphicsItem *item, const QPointF &point) const;
+    QPointF mapToParent(const QPointF &point) const;
+    QPointF mapToScene(const QPointF &point) const;
+    QPointF mapFromItem(QGraphicsItem *item, const QPointF &point) const;
+    QPointF mapFromParent(const QPointF &point) const;
+    QPointF mapFromScene(const QPointF &point) const;
     inline QPointF mapToItem(QGraphicsItem *item, qreal x, qreal y) const
     { return mapToItem(item, QPointF(x, y)); }
     inline QPointF mapToParent(qreal x, qreal y) const
@@ -142,7 +142,7 @@ public:
 
     bool isAncestorOf(const QGraphicsItem *child) const;
 
-    // Extensions
+    // Custom data
     QVariant data(int key) const;
     void setData(int key, const QVariant &value);
 

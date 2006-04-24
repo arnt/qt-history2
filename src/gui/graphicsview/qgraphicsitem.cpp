@@ -580,7 +580,24 @@ QMatrix QGraphicsItem::matrix() const
 /*!
     Returns this item's scene transformation matrix. This matrix can be used
     to map coordinates and geometrical shapes from this item's local
-    coordinate system to the scene's coordinate system.
+    coordinate system to the scene's coordinate system. To map coordinates
+    from the scene, you must first invert the returned matrix.
+
+    Example:
+
+    \code
+        QGraphicsRectItem rect;
+        rect.setPos(100, 100);
+
+        rect.sceneMatrix().map(QPointF(0, 0));
+        // returns QPointF(100, 100);
+
+        rect.sceneMatrix().inverted().map(QPointF(100, 100));
+        // returns QPointF(0, 0);
+    \endcode
+
+    Unlike matrix(), which returns only an item's local transformation, this
+    function includes the item's (and any parents') position.
 
     \sa matrix(), setMatrix(), scenePos()
 */
@@ -797,7 +814,7 @@ bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
     
     QMatrix matrixA = sceneMatrix();
     QMatrix matrixB = other->sceneMatrix();
-    
+
     QRectF rectA = matrixA.mapRect(boundingRect());
     QRectF rectB = matrixB.mapRect(other->boundingRect());
     if (!rectA.intersects(rectB) && !rectA.contains(rectB)) {
@@ -806,7 +823,7 @@ bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
         return false;
     }
 
-    return collidesWith(matrixB.map(other->shape()));
+    return collidesWith(matrixA.inverted().map(matrixB.map(other->shape())));
 }
 
 /*!
@@ -829,8 +846,13 @@ bool QGraphicsItem::collidesWith(const QPainterPath &path) const
         return false;
     }
 
+    // When precisely on top of eachother, they collide.
+    QPainterPath thisPath = shape();
+    if (thisPath == path)
+        return true;
+
     // Convert this item and the other item's areas to polygons.
-    QList<QPolygonF> polysA = shape().toFillPolygons();
+    QList<QPolygonF> polysA = thisPath.toFillPolygons();
     QList<QPolygonF> polysB = path.toFillPolygons();
 
     // Check if any lines intersect, O(N^4)
@@ -861,69 +883,186 @@ bool QGraphicsItem::collidesWith(const QPainterPath &path) const
     return false;
 }
 
+/*!
+    Schedules a redraw of the area covered by \a rect in this item. You can
+    call this function whenever your item needs to be redrawn, such as if it
+    changes appearance or size.
+
+    This function does not cause an immediate paint; instead it schedules a
+    paint request that is processed by QGraphicsView after control reaches the
+    event loop. The item will only be redrawn if it is visible in any
+    associated view.
+
+    As a side effect of the item being repainted, other items that overlap the
+    area \a rect may also be repainted.
+
+    If the item is invisible (i.e., isVisible() returns false), this function
+    does nothing.
+
+    \sa paint(), boundingRect()
+*/
 void QGraphicsItem::update(const QRectF &rect)
 {
     Q_D(QGraphicsItem);
-    if (d->scene)
+    if (d->scene && isVisible())
         d->scene->itemUpdated(this, rect);
 }
 
-QPointF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPointF &pos) const
+/*!
+    Maps the point \a point, which is in this item's coordinate system, to \a
+    item's coordinate system, and returns the mapped coordinate.
+
+    \sa mapToParent(), mapToScene(), matrix(), mapFromItem()
+*/
+QPointF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPointF &point) const
 {
-    return item->mapFromScene(mapToScene(pos));
+    return item->mapFromScene(mapToScene(point));
 }
 
-QPointF QGraphicsItem::mapToParent(const QPointF &pos) const
-{
-    Q_D(const QGraphicsItem);
-    return matrix().map(pos) + d->pos;
-}
+/*!
+    Maps the point \a point, which is in this item's coordinate system, to its
+    parent's coordinate system, and returns the mapped coordinate. If the item
+    has no parent, \a point will be mapped to the scene's coordinate system.
 
-QPointF QGraphicsItem::mapToScene(const QPointF &pos) const
-{
-    Q_D(const QGraphicsItem);
-    return d->parent ? d->parent->mapToScene(mapToParent(pos)) : mapToParent(pos);
-}
-
-QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPointF &pos) const
-{
-    return mapFromScene(item->mapToScene(pos));
-}
-
-QPointF QGraphicsItem::mapFromParent(const QPointF &pos) const
+    \sa mapToItem(), mapToScene(), matrix(), mapFromParent()
+*/
+QPointF QGraphicsItem::mapToParent(const QPointF &point) const
 {
     Q_D(const QGraphicsItem);
-    return matrix().inverted().map(pos - d->pos);
+    return matrix().map(point) + d->pos;
 }
 
-QPointF QGraphicsItem::mapFromScene(const QPointF &pos) const
+/*!
+    Maps the point \a point, which is in this item's coordinate system, to the
+    scene's coordinate system, and returns the mapped coordinate.
+
+    \sa mapToItem(), mapToParent(), matrix(), mapFromScene()
+*/
+QPointF QGraphicsItem::mapToScene(const QPointF &point) const
 {
     Q_D(const QGraphicsItem);
-    return d->parent ? mapFromParent(d->parent->mapFromScene(pos)) : mapFromParent(pos);
+    return d->parent ? d->parent->mapToScene(mapToParent(point)) : mapToParent(point);
 }
 
+/*!
+    Maps the point \a point, which is in \a item's coordinate system, to this
+    item's coordinate system, and returns the mapped coordinate.
+
+    \a mapFromParent(), mapFromScene(), matrix(), mapToItem()
+*/
+QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPointF &point) const
+{
+    return mapFromScene(item->mapToScene(point));
+}
+
+/*!
+    Maps the point \a point, which is in this item's parent's coordinate
+    system, to this item's coordinate system, and returns the mapped
+    coordinate.
+
+    \a mapFromItem(), mapFromScene(), matrix(), mapToParent()
+*/
+QPointF QGraphicsItem::mapFromParent(const QPointF &point) const
+{
+    Q_D(const QGraphicsItem);
+    return matrix().inverted().map(point - d->pos);
+}
+
+/*!
+    Maps the point \a point, which is in this item's scene's coordinate
+    system, to this item's coordinate system, and returns the mapped
+    coordinate.
+
+    \a mapFromItem(), mapFromParent(), matrix(), mapToScene()
+*/
+QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
+{
+    Q_D(const QGraphicsItem);
+    return d->parent ? mapFromParent(d->parent->mapFromScene(point)) : mapFromParent(point);
+}
+
+/*!
+    Returns true if this item is an ancestor of \a child (i.e., if this item
+    is \a child's parent, or one of \a child's parent's ancestors).
+
+    \sa parentItem()
+*/
 bool QGraphicsItem::isAncestorOf(const QGraphicsItem *child) const
 {
     Q_D(const QGraphicsItem);
+    if (!child || child == this)
+        return false;
     for (int i = 0; i < d->children.size(); ++i)
         return d->children.at(i) == child || d->children.at(i)->isAncestorOf(child);
     return false;
 }
 
+class QGraphicsItemCustomDataStore
+{
+public:
+    QMap<QGraphicsItem *, QMap<int, QVariant> > data;
+};
+Q_GLOBAL_STATIC(QGraphicsItemCustomDataStore, qt_dataStore);
+
+/*!
+    Returns this item's custom data for the key \a key as a QVariant.
+
+    Custom item data is useful for storing arbitrary properties in any
+    item. Example:
+
+    \code
+        static const int ObjectName = 0;
+    
+        QGraphicsItem *item = scene.itemAt(100, 50);
+        if (item->data(ObjectName).toString().isEmpty()) {
+            if (qgraphicsitem_cast<ButtonItem *>(item))
+                item->setData(ObjectName, "Button");
+        }
+    \endcode
+
+    Qt does not use this feature for storing data; it is provided solely
+    for the convenience of the user.    
+
+    \sa setData()
+*/
 QVariant QGraphicsItem::data(int key) const
 {
-    // ### Unimplemented - don't store this data inside the item
-    Q_UNUSED(key);
-    return QVariant();
+    QGraphicsItemCustomDataStore *store = qt_dataStore();
+    if (!store->data.contains(const_cast<QGraphicsItem *>(this)))
+        return QVariant();
+    return store->data.value(const_cast<QGraphicsItem *>(this)).value(key);
 }
 
+/*!
+    Sets this item's custom data for the key \a key to \a value.
+
+    Custom item data is useful for storing arbitrary properties for any
+    item. Qt does not use this feature for storing data; it is provided solely
+    for the convenience of the user.
+
+    \sa data()
+*/
 void QGraphicsItem::setData(int key, const QVariant &value)
 {
-    // ### Unimplemented - don't store this data inside the item
-    Q_UNUSED(key);
-    Q_UNUSED(value);
+    qt_dataStore()->data[this][key] = value;
 }
 
+/*!
+    template <class T> inline T qgraphicsitem_cast(QGraphicsItem *item)
+
+    Returns the given \a item cast to type T if \a item is of type T;
+    otherwise, 0 is returned.
+*/
+
+/*!
+    Returns the type of an item as an int. All standard graphicsitem classes
+    are associated with a unique value; see QGraphicsItem::Type. This type
+    information is used by qgraphicsitem_cast() to distinguish between types.
+
+    Reimplementing this function will enable use of qgraphicsitem_cast() with
+    the item. Custom items must return a value larger than UserType
+    (0x80000000).
+*/
 int QGraphicsItem::type() const
 {
     return UserType;
