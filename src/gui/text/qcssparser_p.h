@@ -166,6 +166,7 @@ struct Q_INTERNAL_EXPORT StyleRule
 {
     QVector<Selector> selectors;
     QVector<Declaration> declarations;
+    void extractFontProperties(QFont *font, int *fontSizeAdjustment) const;
 };
 
 struct Q_INTERNAL_EXPORT MediaRule

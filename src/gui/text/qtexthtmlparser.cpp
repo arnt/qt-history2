@@ -24,6 +24,7 @@
 #include "qtextdocument_p.h"
 #include "qtextcursor.h"
 #include "qcssparser_p.h"
+#include "qfont_p.h"
 
 #define MAX_ENTITY 259
 static const struct QTextHtmlEntity { const char *name; quint16 code; } entities[MAX_ENTITY]= {
@@ -1359,30 +1360,7 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
     int count = a.count(';')+1;
     for (int s = 0; s < count; s++) {
         QString style = a.section(';', s, s).trimmed();
-        if (style.startsWith(QLatin1String("font-size:"))) {
-            parseFontSize(node, style.mid(10));
-        } if (style.startsWith(QLatin1String("font-style:"))) {
-            parseFontStyle(node, style.mid(11).trimmed());
-        } else if (style.startsWith(QLatin1String("font-weight:"))) {
-            parseFontWeight(node, style.mid(12));
-        } else if (style.startsWith(QLatin1String("font-family:"))) {
-            parseFontFamily(node, style.mid(12));
-        } else if (style.startsWith(QLatin1String("text-decoration:"))) {
-            QString s = style.mid(16);
-            node->fontUnderline = static_cast<bool>(s.contains("underline")) ? On : Off;
-            node->fontOverline = static_cast<bool>(s.contains("overline")) ? On : Off;
-            node->fontStrikeOut = static_cast<bool>(s.contains("line-through")) ? On : Off;
-#if 0
-        } else if (style.startsWith(QLatin1String("vertical-align:"))) {
-            QString s = style.mid(15).trimmed();
-            if (s == QLatin1String("sub"))
-                format.setVAlign(QTextFormat::AlignSubScript);
-            else if (s == QLatin1String("super"))
-                format.setVAlign(QTextFormat::AlignSuperScript);
-            else
-                format.setVAlign(QTextFormat::AlignNormal);
-#endif
-        } else if (style.startsWith(QLatin1String("float:"))) {
+        if (style.startsWith(QLatin1String("float:"))) {
             QString s = style.mid(6).trimmed();
             node->cssFloat = QTextFrameFormat::InFlow;
             if (s == QLatin1String("left"))
@@ -1506,6 +1484,43 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
             case QCss::Color: node->color = decl.colorValue(); break;
             case QCss::BackgroundColor: node->bgColor = decl.colorValue(); break;
             default: break;
+        }
+    }
+
+    {
+        QFont f;
+        int adjustment = -255;
+        sheet.styleRules.at(0).extractFontProperties(&f, &adjustment);
+        if (f.resolve() & QFontPrivate::Size) {
+            if (f.pointSize() > 0) {
+                node->fontPointSize = f.pointSize();
+                node->hasFontPointSize = true;
+            } else if (f.pixelSize() > 0) {
+                node->fontPixelSize = f.pixelSize();
+                node->hasFontPixelSize = true;
+            }
+        }
+        if (f.resolve() & QFontPrivate::Style)
+            node->fontItalic = (f.style() == QFont::StyleNormal) ? Off : On;
+
+        if (f.resolve() & QFontPrivate::Weight)
+            node->fontWeight = f.weight();
+
+        if (f.resolve() & QFontPrivate::Family)
+            node->fontFamily = f.family();
+
+        if (f.resolve() & QFontPrivate::Underline)
+            node->fontUnderline = f.underline() ? On : Off;
+        
+        if (f.resolve() & QFontPrivate::Overline)
+            node->fontOverline = f.overline() ? On : Off;
+        
+        if (f.resolve() & QFontPrivate::StrikeOut)
+            node->fontStrikeOut = f.strikeOut() ? On : Off;
+        
+        if (adjustment >= -1) {
+            node->hasFontSizeAdjustment = true;
+            node->fontSizeAdjustment = adjustment;
         }
     }
 }

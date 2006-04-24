@@ -15,6 +15,7 @@
 
 #include <QDebug>
 #include <QColor>
+#include <QFont>
 
 #include "qcssscanner.cpp"
 
@@ -178,6 +179,107 @@ QColor Declaration::colorValue() const
     return QColor(colorDigits.at(0).variant.toInt(),
                   colorDigits.at(2).variant.toInt(), 
                   colorDigits.at(4).variant.toInt());
+}
+
+static void setFontSizeFromValue(Value value, QFont *font, int *fontSizeAdjustment)
+{
+    if (value.type == Value::KnownIdentifier) {
+        switch (value.variant.toInt()) {
+            case Value_Small: *fontSizeAdjustment = -1; break;
+            case Value_Medium: *fontSizeAdjustment = 0; break;
+            case Value_Large: *fontSizeAdjustment = 1; break;
+            case Value_XLarge: *fontSizeAdjustment = 2; break;
+            case Value_XXLarge: *fontSizeAdjustment = 3; break;
+            default: break;
+        }
+        return;
+    }
+    if (value.type != Value::Length)
+        return;
+    QString s = value.variant.toString();
+    if (s.endsWith(QLatin1String("pt"), Qt::CaseInsensitive)) {
+        s.chop(2);
+        value.variant = s;
+        if (value.variant.convert(QVariant::Double))
+            font->setPointSizeF(value.variant.toDouble());
+    } else if (s.endsWith(QLatin1String("px"), Qt::CaseInsensitive)) {
+        s.chop(2);
+        value.variant = s;
+        if (value.variant.convert(QVariant::Int))
+            font->setPixelSize(value.variant.toInt());
+    }
+}
+
+static void setFontStyleFromValue(const Value &value, QFont *font)
+{
+    if (value.type != Value::KnownIdentifier)
+        return;
+    switch (value.variant.toInt()) {
+        case Value_Normal: font->setStyle(QFont::StyleNormal); break;
+        case Value_Italic: font->setStyle(QFont::StyleItalic); break;
+        case Value_Oblique: font->setStyle(QFont::StyleOblique); break;
+        default: break;
+    }
+}
+
+static void setFontWeightFromValue(const Value &value, QFont *font)
+{
+    if (value.type == Value::KnownIdentifier) {
+        switch (value.variant.toInt()) {
+            case Value_Normal: font->setWeight(QFont::Normal); break;
+            case Value_Bold: font->setWeight(QFont::Bold); break;
+            default: break;
+        }
+        return;
+    }
+    if (value.type != Value::Number)
+        return;
+    font->setWeight(value.variant.toInt() / 8);
+}
+
+static void setFontFamilyFromValue(const Value &value, QFont *font)
+{
+    QString fam = value.variant.toString();
+    if (!fam.isEmpty())
+        font->setFamily(fam);
+}
+
+static void setTextDecorationFromValues(const QVector<Value> &values, QFont *font)
+{
+    font->setUnderline(false);
+    font->setOverline(false);
+    font->setStrikeOut(false);
+    for (int i = 0; i < values.count(); ++i) {
+        if (values.at(i).type != Value::KnownIdentifier)
+            continue;
+        switch (values.at(i).variant.toInt()) {
+            case Value_Underline: font->setUnderline(true); break;
+            case Value_Overline: font->setOverline(true); break;
+            case Value_LineThrough: font->setStrikeOut(true); break;
+            default: break;
+        }
+    }
+}
+
+void StyleRule::extractFontProperties(QFont *font, int *fontSizeAdjustment) const
+{
+    *font = QFont();
+    *fontSizeAdjustment = -255;
+    
+    for (int i = 0; i < declarations.count(); ++i) {
+        const Declaration &decl = declarations.at(i);
+        if (decl.values.isEmpty())
+            continue;
+        const Value val = decl.values.first();
+        switch (decl.propertyId) {
+            case FontSize: setFontSizeFromValue(val, font, fontSizeAdjustment); break;
+            case FontStyle: setFontStyleFromValue(val, font); break;
+            case FontWeight: setFontWeightFromValue(val, font); break;
+            case FontFamily: setFontFamilyFromValue(val, font); break;
+            case TextDecoration: setTextDecorationFromValues(decl.values, font); break;
+            default: break;
+        }
+    }
 }
 
 static inline bool isHexDigit(const char c)
