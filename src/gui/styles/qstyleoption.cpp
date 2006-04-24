@@ -924,6 +924,14 @@ QStyleOptionButton::QStyleOptionButton(int version)
 
     \since 4.1
 
+    QStyleOptionToolBar contains all the information that QStyle
+    functions need to draw QToolBar.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
     The QStyleOptionToolBar class holds the lineWidth and the
     midLineWidth for drawing the widget. It also stores information
     about which \l {toolBarArea}{area} the toolbar should be located
@@ -944,8 +952,8 @@ QStyleOptionButton::QStyleOptionButton(int version)
 */
 
 /*!
-    Constructs a QStyleOptionToolBar. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionToolBar, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionToolBar::QStyleOptionToolBar()
@@ -2654,12 +2662,23 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
     \brief The QStyleOptionToolBox class is used to describe the
     parameters needed for drawing a tool box.
 
-    The QStyleOptionToolBox class is used for drawing QToolBox.
+    QStyleOptionToolBox contains all the information that QStyle
+    functions need to draw QToolBox.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QToolBox
 */
 
 /*!
-    Creates a QStyleOptionToolBox. The members variables are
-    initialized to default values.
+    Creates a QStyleOptionToolBox, initializing the members variables
+    to their default values.
 */
 
 QStyleOptionToolBox::QStyleOptionToolBox()
@@ -2696,11 +2715,16 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 /*!
     \variable QStyleOptionToolBox::icon
     \brief The icon for the tool box tab.
+
+   The default value is an empty icon, i.e. an icon with neither a
+   pixmap nor a filename.
 */
 
 /*!
     \variable QStyleOptionToolBox::text
     \brief The text for the tool box tab.
+
+    The default value is an empty string.
 */
 
 #ifndef QT_NO_RUBBERBAND
@@ -2851,10 +2875,19 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
     \brief The QStyleOptionViewItem class is used to describe the
     parameters used to draw an item in a view widget.
 
-    The QStyleOptionViewItem class is used by Qt's model/view classes
-    to draw their items.
+    QStyleOptionViewItem contains all the information that QStyle
+    functions need to draw the items for Qt's model/view classes.
 
-    \sa {model-view-programming.html}{Model/View Programming}
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, {model-view-programming.html}{Model/View
+    Programming}
 */
 
 /*!
@@ -2873,11 +2906,12 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 /*!
     \variable QStyleOptionViewItem::showDecorationSelected
 
-    \brief Whether the decoration should be highlighted on selected items.
+    \brief whether the decoration should be highlighted on selected
+    items
 
     If this option is true, the branch and any decorations on selected items
     should be highlighted, indicating that the item is selected; otherwise, no
-    highlighting is required.
+    highlighting is required. The default value is false.
 
     \sa QStyle::SH_ItemView_ShowDecorationSelected, QAbstractItemView
 */
@@ -2885,15 +2919,18 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 /*!
     \variable QStyleOptionViewItem::textElideMode
 
-    \brief Where ellipsis should be added for text that is too long to fit
-    into an item.
+    \brief where ellipsis should be added for text that is too long to fit
+    into an item
+
+    The default value is Qt::ElideMiddle, i.e. the ellipsis appears in
+    the middle of the text.
 
     \sa Qt::TextElideMode, QStyle::SH_ItemView_EllipsisLocation
 */
 
 /*!
-    Constructs a QStyleOptionViewItem. The members variables are
-    initialized to default values.
+    Constructs a QStyleOptionViewItem, initializing the members
+    variables to their default values.
 */
 
 QStyleOptionViewItem::QStyleOptionViewItem()
@@ -2935,31 +2972,41 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 
 /*!
     \variable QStyleOptionViewItem::displayAlignment
-    \brief The alignment of the display value for the item.
+    \brief the alignment of the display value for the item
+
+    The default value is Qt::AlignLeft.
 */
 
 /*!
     \variable QStyleOptionViewItem::decorationAlignment
-    \brief The alignment of the decoration for the item.
+    \brief the alignment of the decoration for the item
+
+    The default value is Qt::AlignLeft.
 */
 
 /*!
     \variable QStyleOptionViewItem::decorationPosition
-    \brief The position of the decoration for the item.
+    \brief the position of the decoration for the item
+
+    The default value is \l Left.
 
     \sa Position
 */
 
 /*!
     \variable QStyleOptionViewItem::decorationSize
-    \brief The size of the decoration for the item.
+    \brief the size of the decoration for the item
+
+    The default value is QSize(-1, -1), i.e. an invalid size.
 
     \sa decorationAlignment, decorationPosition
 */
 
 /*!
     \variable QStyleOptionViewItem::font
-    \brief The font used for the item
+    \brief the font used for the item
+
+    By default, the application's default font is used.
 
     \sa QFont
 */
@@ -2994,12 +3041,23 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     \brief The QStyleOptionTabWidgetFrame class is used to describe the
     parameters for drawing the frame around a tab widget.
 
-    QStyleOptionTabWidgetFrame is used for drawing QTabWidget.
+    QStyleOptionTabWidgetFrame contains all the information that
+    QStyle functions need to draw the frame around QTabWidget.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QTabWidget
 */
 
 /*!
-    Constructs a QStyleOptionTabWidgetFrame. The members variables
-    are initialized to default values.
+    Constructs a QStyleOptionTabWidgetFrame, initializing the members
+    variables to their default values.
 */
 QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame()
     : QStyleOption(Version, SO_TabWidgetFrame), lineWidth(0), midLineWidth(0),
@@ -3034,32 +3092,44 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 
 /*!
     \variable QStyleOptionTabWidgetFrame::lineWidth
-    \brief The line width for drawing the panel.
+    \brief the line width for drawing the panel
+
+    The default value is 0.
 */
 
 /*!
     \variable QStyleOptionTabWidgetFrame::midLineWidth
-    \brief The mid-line width for drawing the panel. This is usually used in
-    drawing sunken or raised frames.
+    \brief the mid-line width for drawing the panel
+
+    The mid line width is usually used in drawing sunken or raised
+    frames. The default value is 0.
 */
 
 /*!
     \variable QStyleOptionTabWidgetFrame::shape
-    \brief The tab shape used to draw the tabs.
+    \brief the tab shape used to draw the tabs
+
+    The default value is QTabBar::RoundedNorth.
 */
 
 /*!
     \variable QStyleOptionTabWidgetFrame::tabBarSize
     \brief The size of the tab bar.
+
+    The default value is QSize(-1, -1), i.e. an invalid size.
 */
 
 /*!
     \variable QStyleOptionTabWidgetFrame::rightCornerWidgetSize
     \brief The size of the right-corner widget.
+
+    The default value is QSize(-1, -1), i.e. an invalid size.
 */
 
 /*! \variable QStyleOptionTabWidgetFrame::leftCornerWidgetSize
     \brief The size of the left-corner widget.
+
+    The default value is QSize(-1, -1), i.e. an invalid size.
 */
 #endif // QT_NO_TABWIDGET
 
@@ -3067,16 +3137,30 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 
 /*!
     \class QStyleOptionTabBarBase
-    \brief The QStyleOptionTabBarBase class is used to describe the
-    the base of a tabbar. That is the part that the tabbar usually overlaps with.
 
-   This is drawn by a standalone QTabBar (one that isn't part of a QTabWidget).
+    \brief The QStyleOptionTabBarBase class is used to describe
+    the base of a tabbar, i.e. the part that the tabbar usually
+    overlaps with.
 
-   \sa QTabBar::drawBase()
+    QStyleOptionTabBarBase  contains all the information that QStyle
+    functions need to draw the tab bar base. Note that this is only
+    drawn for a standalone QTabBar (one that isn't part of a
+    QTabWidget).
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters used by the style functions.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QTabBar::drawBase()
 */
 
 /*!
-    Construct a QStyleOptionTabBarBase. The members are given default values.
+    Construct a QStyleOptionTabBarBase, initializing the members
+    vaiables to their default values.
 */
 QStyleOptionTabBarBase::QStyleOptionTabBarBase()
     : QStyleOption(Version, SO_TabBarBase), shape(QTabBar::RoundedNorth)
@@ -3109,21 +3193,28 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 /*!
     \variable QStyleOptionTabBarBase::shape
 
-    The shape of the tabbar.
+    \brief the shape of the tabbar
+
+    The default value is QTabBar::RoundedNorth.
 */
 
 /*!
     \variable QStyleOptionTabBarBase::tabBarRect
 
-    The rectangle containing all the tabs.
+    \brief the rectangle containing all the tabs
+
+    The default value is a null rectangle, i.e. a rectangle with both
+    the width and the height set to 0.
 */
 
 /*!
     \variable QStyleOptionTabBarBase::selectedTabRect
 
-    The rectangle containing the selected tab
+    \brief the rectangle containing the selected tab
 
-    This is within the bounds of the tabBarRect.
+    This rectangle is contained within the tabBarRect. The default
+    value is a null rectangle, i.e. a rectangle with both the width
+    and the height set to 0.
 */
 
 #endif // QT_NO_TABBAR
