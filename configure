@@ -379,6 +379,15 @@ echo
 # initalize variables
 #-------------------------------------------------------------------------------
 
+SYSTEM_VARIABLES="CC CXX CFLAGS CXXFLAGS LDFLAGS"
+for varname in $SYSTEM_VARIABLES; do
+    cmd=`echo \
+'if [ -n "\$'${varname}'" ]; then 
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_'${varname}' = \$'${varname}'\""; 
+fi'`
+    eval "$cmd"
+done
+
 QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif plastique cleanlooks windows\""
 QMAKE_VARS="$QMAKE_VARS \"decorations += default windows styled\""
 if [ "$Edition" = "Trolltech" ]; then
@@ -4994,6 +5003,16 @@ fi
 #-------------------------------------------------------------------------------
 if [ `basename $0` != "config.status" ]; then
     CONFIG_STATUS="$relpath/$relconf $OPT_CMDLINE"
+
+    # add the system variables
+    for varname in $SYSTEM_VARIABLES; do
+        cmd=`echo \
+'if [ -n "\$'${varname}'" ]; then
+    CONFIG_STATUS="'${varname}'='"'\\\$${varname}'"' \$CONFIG_STATUS"
+fi'`
+	eval "$cmd"
+    done
+
     echo "$CONFIG_STATUS" | grep '\-confirm\-license' >/dev/null 2>&1 || CONFIG_STATUS="$CONFIG_STATUS -confirm-license"
 
     [ -f $outpath/config.status ] && rm -f $outpath/config.status
