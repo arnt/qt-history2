@@ -1779,6 +1779,12 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                                     Qt::TextColorRole);
     if (textColor.isValid() && qvariant_cast<QColor>(textColor).isValid())
         opt.palette.setColor(QPalette::ButtonText, qvariant_cast<QColor>(textColor));
+    QVariant backgroundColor = d->model->headerData(logicalIndex, orientation(),
+                                    Qt::BackgroundColorRole);
+    if (backgroundColor.isValid() && qvariant_cast<QColor>(backgroundColor).isValid()) {
+        opt.palette.setColor(QPalette::Button, qvariant_cast<QColor>(backgroundColor));
+        opt.palette.setColor(QPalette::Window, qvariant_cast<QColor>(backgroundColor));
+    }
 
     // the section position
     int visual = visualIndex(logicalIndex);
