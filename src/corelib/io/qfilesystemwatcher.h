@@ -7,7 +7,7 @@ QT_BEGIN_HEADER
 
 class QFileSystemWatcherPrivate;
 
-class QFileSystemWatcher : public QObject
+class Q_CORE_EXPORT QFileSystemWatcher : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QFileSystemWatcher)
