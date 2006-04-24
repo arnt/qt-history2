@@ -103,7 +103,6 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "EMBEDDED" ]	    = "no";
     dictionary[ "BUILD_QMAKE" ]	    = "yes";
     dictionary[ "DSPFILES" ]	    = "yes";
-    dictionary[ "VCPFILES" ]	    = "yes";
     dictionary[ "VCPROJFILES" ]	    = "yes";
     dictionary[ "QMAKE_INTERNAL" ]  = "no";
     dictionary[ "FAST" ]            = "no";
