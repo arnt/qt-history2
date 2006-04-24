@@ -76,6 +76,10 @@ public:
 
     bool operator ==(const QHostAddress &address) const;
     bool operator ==(SpecialAddress address) const;
+    inline bool operator !=(const QHostAddress &address) const
+    { return !operator==(address); }
+    inline bool operator !=(SpecialAddress address) const
+    { return !operator==(address); }
     bool isNull() const;
     void clear();
 

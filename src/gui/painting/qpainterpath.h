@@ -55,6 +55,7 @@ public:
 
         bool operator==(const Element &e) const { return qFuzzyCompare(x, e.x)
             && qFuzzyCompare(y, e.y) && type == e.type; }
+        inline bool operator!=(const Element &e) const { return !operator==(e); }
     };
 
     QPainterPath();

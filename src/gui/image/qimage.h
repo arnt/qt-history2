@@ -46,6 +46,8 @@ public:
         { return key < other.key || key==other.key && lang < other.lang; }
     bool operator== (const QImageTextKeyLang& other) const
         { return key==other.key && lang==other.lang; }
+    inline bool operator!= (const QImageTextKeyLang &other) const
+        { return !operator==(other); }
 };
 #endif //QT_NO_IMAGE_TEXT
 
