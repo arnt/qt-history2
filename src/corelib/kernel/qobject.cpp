@@ -478,6 +478,20 @@ QMetaCallEvent::~QMetaCallEvent()
     Some QObject functions, e.g. children(), return a QObjectList.
     QObjectList is a typedef for QList<QObject *>.
 
+    \section1 Auto-Connection
+
+    Qt's meta-object system provides a mechanism to automatically connect
+    signals and slots between QObject subclasses and their children. As long
+    as objects are defined with suitable object names, and slots follow a
+    simple naming convention, this connection can be performed at run-time
+    by the QMetaObject::connectSlotsByName() function.
+
+    \l uic generates code that invokes this function to enable auto-connection
+    to be performed between widgets on forms created with \QD. More information
+    about using auto-connection with \QD is given in the
+    \l{Using a Component in Your Application#A Dialog With Auto-Connect}{Using a
+    Component in Your Application} section of the \QD manual.
+
     \sa QMetaObject, QPointer, QObjectCleanupHandler,
         {Object Trees and Object Ownership}
 */

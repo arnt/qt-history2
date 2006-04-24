@@ -1572,10 +1572,22 @@ QVariant QComboBox::itemData(int index, int role) const
   \fn void QComboBox::insertItem(int index, const QString &text, const QVariant &userData)
 
   Inserts the \a text and \a userData into the combobox at the given \a index.
+
+  If the index is equal to or higher than the total number of items, the new item
+  is appended to the list of existing items. If the index is zero or negative, the
+  new item is prepended to the list of existing items.
+
+  \sa insertItems()
 */
 
 /*!
     Inserts the \a icon, \a text and \a userData into the combobox at the given \a index.
+
+    If the index is equal to or higher than the total number of items, the new item
+    is appended to the list of existing items. If the index is zero or negative, the
+    new item is prepended to the list of existing items.
+
+    \sa insertItems()
 */
 void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, const QVariant &userData)
 {
@@ -1614,6 +1626,12 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
 /*!
     Inserts the strings from the \a list into the combobox as separate items,
     starting at the \a index specified.
+
+    If the index is equal to or higher than the total number of items, the new items
+    are appended to the list of existing items. If the index is zero or negative, the
+    new items are prepended to the list of existing items.
+
+    \sa insertItem()
 */
 void QComboBox::insertItems(int index, const QStringList &list)
 {
@@ -2233,9 +2251,10 @@ QVariant QComboBox::inputMethodQuery(Qt::InputMethodQuery query) const
 /*!
     \fn void QComboBox::insertItem(const QPixmap &pixmap, const QString &text, int index)
 
-
     Use an insertItem() function that takes a QIcon instead, for
     example, insertItem(index, QIcon(pixmap), text).
+
+    \sa insertItems()
 */
 
 /*!

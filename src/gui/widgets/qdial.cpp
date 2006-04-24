@@ -135,42 +135,44 @@ int QDialPrivate::valueFromPoint(const QPoint &p) const
 
     QDial is used when the user needs to control a value within a
     program-definable range, and the range either wraps around
-    (typically, 0..359 degrees) or the dialog layout needs a square
-    widget.
+    (for example, with angles measured from 0 to 359 degrees) or the
+    dialog layout needs a square widget.
 
-    Both API- and UI-wise, the dial is very similar to a \link QSlider
-    slider. \endlink Indeed, when wrapping() is false (the default)
-    there is no real difference between a slider and a dial. They
-    have the same signals, slots and member functions, all of which do
-    the same things. Which one you use depends only on your taste
-    and on the application.
+    Since QDial inherits from QAbstractSlider, the dial behaves in
+    a similar way to a \l{QSlider}{slider}. When wrapping() is false
+    (the default setting) there is no real difference between a slider
+    and a dial. They both share the same signals, slots and member
+    functions. Which one you use depends on the expectations of
+    your users and on the type of application.
 
     The dial initially emits valueChanged() signals continuously while
     the slider is being moved; you can make it emit the signal less
-    often by calling setTracking(false). dialMoved() is emitted
-    continuously even when tracking() is false.
+    often by disabling the \l tracking property. The sliderMoved() signal
+    is emitted continuously even when tracking is disabled.
 
-    The slider also emits dialPressed() and dialReleased() signals
-    when the mouse button is pressed and released. But note that the
-    dial's value can change without these signals being emitted; the
-    keyboard and wheel can be used to change the value.
+    The dial also emits sliderPressed() and sliderReleased() signals
+    when the mouse button is pressed and released. Note that the
+    dial's value can change without these signals being emitted since
+    the keyboard and wheel can also be used to change the value.
 
     Unlike the slider, QDial attempts to draw a "nice" number of
-    notches rather than one per lineStep(). If possible, the number
-    of notches drawn is one per lineStep(), but if there aren't enough
-    pixels to draw every one, QDial will draw every second, third
-    etc., notch. notchSize() returns the number of units per notch,
-    hopefully a multiple of lineStep(); setNotchTarget() sets the
-    target distance between neighbouring notches in pixels. The
-    default is 3.75 pixels.
+    notches rather than one per line step (see the \l lineStep
+    property). If possible, the number of notches drawn is one per
+    line step, but if there aren't enough pixels to draw every one, QDial
+    will skip notches to try and draw a uniform set (e.g. by drawing every
+    second or third notch).
+    The notchSize property controls the number of units per notch, which
+    may be a multiple of the \l lineStep, and the \l notchTarget property
+    determines the target distance between adjacent notches in pixels.
 
     Like the slider, the dial makes the QAbstractSlider functions
     setValue(), addLine(), subtractLine(), addPage() and
     subtractPage() available as slots.
 
     The dial's keyboard interface is fairly simple: The left/up and
-    right/down arrow keys move by lineStep(), page up and page down by
-    pageStep() and Home and End to minValue() and maxValue().
+    right/down arrow keys adjust the dial's \l value by the defined \l lineStep,
+    page up and page down by the defined \l pageStep, and the Home and End
+    keys set the value to the to defined \l minValue and \l maxValue.
 
     \table
     \row \o \inlineimage plastique-dial.png Screenshot of a dial in the Plastique widget style
@@ -333,11 +335,15 @@ void QDial::setWrapping(bool enable)
     \property QDial::wrapping
     \brief whether wrapping is enabled
 
-    If true, wrapping is enabled. This means that the arrow can be
-    turned around 360 degrees. Otherwise there is some space at the bottom of
-    the dial which is skipped by the arrow.
+    If true, wrapping is enabled; otherwise some space is inserted at the bottom
+    of the dial to separate the ends of the range of vaild values.
 
-    This property's default is false.
+    If enabled, the arrow can be oriented at any angle on the dial. If disabled,
+    the arrow will be restricted to the upper part of the dial; if it is rotated
+    into the space at the bottom of the dial, it will be clamped to the closest
+    end of the valid range of values.
+
+    By default this property is false.
 */
 
 bool QDial::wrapping() const
@@ -355,7 +361,7 @@ bool QDial::wrapping() const
     possible it is a multiple of lineStep() that results in an
     on-screen notch size near notchTarget().
 
-    \sa notchTarget() lineStep()
+    \sa notchTarget lineStep
 */
 
 int QDial::notchSize() const
@@ -395,6 +401,8 @@ void QDial::setNotchTarget(double target)
     between each notch.
 
     The actual size may differ from the target size.
+
+    The default notch target is 3.7 pixels.
 */
 qreal QDial::notchTarget() const
 {
@@ -414,8 +422,11 @@ void QDial::setNotchesVisible(bool visible)
     \property QDial::notchesVisible
     \brief whether the notches are shown
 
-    If true, the notches are shown. If false (the default) notches are
-    not shown.
+    If the property is true, a series of notches are drawn around the dial
+    to indicate the range of values available; otherwise no notches are
+    shown.
+
+    By default, this property is disabled.
 */
 bool QDial::notchesVisible() const
 {

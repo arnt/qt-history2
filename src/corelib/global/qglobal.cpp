@@ -1113,7 +1113,7 @@ bool qSharedBuild()
     \macro Q_OS_WIN32
     \relates <QtGlobal>
 
-    Defined on Win32 (Windows 98/ME and Windows NT/2000/XP).
+    Defined on all supported versions of Windows.
 */
 
 /*!
