@@ -728,6 +728,17 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
     resolve_mask |= (1<<cr);
 }
 
+/*!
+    Returns true if the ColorGroup \a cg and ColorRole \a cr has been set
+    previously on this palette, returns false otherwise.
+
+    \sa setBrush
+*/
+bool QPalette::isBrushSet(ColorGroup cg, ColorRole cr) const
+{
+    Q_UNUSED(cg);
+    return (resolve_mask & (1<<cr));
+}
 
 /*!
     \internal

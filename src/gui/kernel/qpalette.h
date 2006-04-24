@@ -69,6 +69,7 @@ public:
     inline void setColor(ColorGroup cg, ColorRole cr, const QColor &color);
     inline void setColor(ColorRole cr, const QColor &color);
     inline void setBrush(ColorRole cr, const QBrush &brush);
+    bool isBrushSet(ColorGroup cg, ColorRole cr) const;
     void setBrush(ColorGroup cg, ColorRole cr, const QBrush &brush);
     void setColorGroup(ColorGroup cr, const QBrush &windowText, const QBrush &button,
                        const QBrush &light, const QBrush &dark, const QBrush &mid,
