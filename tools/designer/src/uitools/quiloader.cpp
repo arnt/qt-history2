@@ -262,8 +262,8 @@ void QUiLoaderPrivate::setupWidgetMap() const
     create user interfaces at run-time using the information stored in
     .ui files or specified plugin paths.
 
-    In addition, you can intervene the process of creating an user
-    interface by deriving your own loader class.
+    In addition, you can customize of creating an user interface by
+    deriving your own loader class.
 
     If you have a custom component or application that embed Qt
     Designer, you can also use the QFormBuilder class provided by the
@@ -276,50 +276,25 @@ void QUiLoaderPrivate::setupWidgetMap() const
     the pluginPaths() function. You can retrieve the contents of an \c
     .ui file using the load() function. For example:
 
-    \code
-    MyForm::MyForm(QWidget *parent)
-        : QWidget(parent)
-    {
-        QUiLoader loader;
-        QFile file(":/forms/mywidget.ui");
-        file.open(QFile::ReadOnly);
-        QWidget *myWidget = loader.load(&file, this);
-        file.close();
+    \quotefromfile snippets/quiloader/mywidget.cpp
+    \skipto MyWidget::MyWidget
+    \printuntil /^\}/
 
-        QVBoxLayout *layout = new QVBoxLayout;
-        layout->addWidget(myWidget);
-        setLayout(layout);
-    }
-    \endcode
+    By including the user interface in the form's resources (\c myform.qrc),
+    we ensure that it will be present at run-time:
 
-    By including the user interface in the form's resources (\c
-    myForm.qrc), we ensure that it will be present at run-time:
-
-    \code
-        <!DOCTYPE RCC><RCC version="1.0">
-        <qresource prefix="/forms">
-        <file>mywidget.ui</file>
-        </qresource>
-        </RCC>
-    \endcode
+    \quotefromfile snippets/quiloader/mywidget.qrc
+    \skipto <!DOCTYPE
+    \printuntil </RCC>
 
     The availableWidgets() function returns a QStringList with the
     class names of the widgets available in the specified plugin
     paths. You can create any of these widgets using the
     createWidget() function. For example:
 
-    \code
-        QUiLoader loader;
-        MyCustomWidget *myWidget;
-        QWidget parent;
-
-        QStringList availableWidgets = loader.availableWidgets();
-
-        if (availableWidgets.contains("MyCustomWidget"))
-            myWidget = qobject_cast<MyCustomWidget *>loader.createWidget("MyCustomWidget",
-                                                                          parent)
-        }
-    \endcode
+    \quotefromfile snippets/quiloader/main.cpp
+    \skipto loadCustomWidget
+    \printuntil /^\}/
 
     You can make a custom widget available to the loader using the
     addPluginPath() function, and you can remove all the available widgets
