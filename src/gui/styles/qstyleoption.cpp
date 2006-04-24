@@ -686,7 +686,7 @@ QStyleOptionHeader::QStyleOptionHeader()
 */
 QStyleOptionHeader::QStyleOptionHeader(int version)
     : QStyleOption(version, SO_Header),
-      section(0), textAlignment(0), iconAlignment(0),
+      section(0), textAlignment(Qt::AlignLeft), iconAlignment(Qt::AlignLeft),
       position(QStyleOptionHeader::Beginning),
       selectedPosition(QStyleOptionHeader::NotAdjacent), sortIndicator(None),
       orientation(Qt::Horizontal)
@@ -2935,7 +2935,7 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 
 QStyleOptionViewItem::QStyleOptionViewItem()
     : QStyleOption(Version, SO_ViewItem),
-      displayAlignment(0), decorationAlignment(0),
+      displayAlignment(Qt::AlignLeft), decorationAlignment(Qt::AlignLeft),
       textElideMode(Qt::ElideMiddle), decorationPosition(Left),
       showDecorationSelected(false)
 {
@@ -2946,7 +2946,7 @@ QStyleOptionViewItem::QStyleOptionViewItem()
 */
 QStyleOptionViewItem::QStyleOptionViewItem(int version)
     : QStyleOption(version, SO_ViewItem),
-      displayAlignment(0), decorationAlignment(0),
+      displayAlignment(Qt::AlignLeft), decorationAlignment(Qt::AlignLeft),
       textElideMode(Qt::ElideMiddle), decorationPosition(Left),
       showDecorationSelected(false)
 {
