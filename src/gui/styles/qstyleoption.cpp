@@ -2300,8 +2300,8 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 */
 
 QStyleOptionQ3ListView::QStyleOptionQ3ListView()
-    : QStyleOptionComplex(Version, SO_Q3ListView), sortColumn(0), itemMargin(0), treeStepSize(0),
-      rootIsDecorated(false)
+    : QStyleOptionComplex(Version, SO_Q3ListView), viewportBGRole(QPalette::Base),
+      sortColumn(0), itemMargin(0), treeStepSize(0), rootIsDecorated(false)
 {
 }
 
@@ -2309,8 +2309,8 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView()
     \internal
 */
 QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
-    : QStyleOptionComplex(version, SO_Q3ListView), sortColumn(0), itemMargin(0), treeStepSize(0),
-      rootIsDecorated(false)
+    : QStyleOptionComplex(version, SO_Q3ListView),  viewportBGRole(QPalette::Base),
+      sortColumn(0), itemMargin(0), treeStepSize(0), rootIsDecorated(false)
 {
 }
 
