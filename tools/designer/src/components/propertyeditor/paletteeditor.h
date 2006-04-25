@@ -19,6 +19,7 @@
 
 class QListView;
 class QLabel;
+class QtBrushButton;
 
 namespace qdesigner_internal {
 
@@ -37,7 +38,7 @@ public:
 
 private slots:
 
-    void on_buildButton_changed();
+    void on_buildButton_colorChanged(const QColor &);
     void on_activeRadio_clicked();
     void on_inactiveRadio_clicked();
     void on_disabledRadio_clicked();
@@ -102,21 +103,21 @@ private:
     bool m_compute;
 };
 
-class ColorEditor : public QWidget
+class BrushEditor : public QWidget
 {
     Q_OBJECT
 public:
-    ColorEditor(QWidget *parent = 0);
+    BrushEditor(QWidget *parent = 0);
 
-    void setColor(const QColor &color);
-    QColor color() const;
+    void setBrush(const QBrush &brush);
+    QBrush brush() const;
     bool changed() const;
 signals:
     void changed(QWidget *widget);
 private slots:
-    void colorChanged();
+    void brushChanged();
 private:
-    StyledButton *button;
+    QtBrushButton *button;
     bool m_changed;
 };
 

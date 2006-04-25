@@ -20,6 +20,8 @@
 #include <QLabel>
 #include <QHeaderView>
 
+#include "qtbrushbutton.h"
+
 using namespace qdesigner_internal;
 
 PaletteEditor::PaletteEditor(QWidget *parent)
@@ -86,7 +88,7 @@ void PaletteEditor::setPalette(const QPalette &palette, const QPalette &parentPa
     setPalette(palette);
 }
 
-void PaletteEditor::on_buildButton_changed()
+void PaletteEditor::on_buildButton_colorChanged(const QColor &)
 {
     buildPalette();
 }
@@ -144,7 +146,7 @@ void PaletteEditor::paletteChanged(const QPalette &palette)
 
 void PaletteEditor::buildPalette()
 {
-    QColor btn = ui.buildButton->brush().color();
+    QColor btn = ui.buildButton->color();
     QPalette temp = QPalette(btn);
     setPalette(temp);
 }
@@ -158,10 +160,10 @@ void PaletteEditor::updatePreviewPalette()
     QPalette previewPalette;
     for (int i = QPalette::Foreground; i < QPalette::NColorRoles; i++) {
         QPalette::ColorRole r = (QPalette::ColorRole)i;
-        QColor c = currentPalette.color(g, r);
-        previewPalette.setColor(QPalette::Active, r, c);
-        previewPalette.setColor(QPalette::Inactive, r, c);
-        previewPalette.setColor(QPalette::Disabled, r, c);
+        QBrush br = currentPalette.brush(g, r);
+        previewPalette.setBrush(QPalette::Active, r, br);
+        previewPalette.setBrush(QPalette::Inactive, r, br);
+        previewPalette.setBrush(QPalette::Disabled, r, br);
     }
     ui.previewFrame->setPreviewPalette(previewPalette);
 
@@ -173,7 +175,7 @@ void PaletteEditor::updatePreviewPalette()
 
 void PaletteEditor::updateStyledButton()
 {
-    ui.buildButton->setBrush(palette().brush(QPalette::Active, QPalette::Button));
+    ui.buildButton->setColor(palette().color(QPalette::Active, QPalette::Button));
 }
 
 QPalette PaletteEditor::getPalette(QWidget* parent, const QPalette &init,
@@ -246,7 +248,7 @@ QVariant PaletteModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
     if (role == Qt::BackgroundColorRole)
-        return m_palette.color(columnToGroup(index.column()),
+        return m_palette.brush(columnToGroup(index.column()),
                     (QPalette::ColorRole)index.row());
     return QVariant();
 }
@@ -257,15 +259,15 @@ bool PaletteModel::setData(const QModelIndex &index, const QVariant &value, int 
         return false;
 
     if (index.column() != 0 && role == Qt::BackgroundColorRole) {
-        QColor c = qVariantValue<QColor>(value);
+        QBrush br = qVariantValue<QBrush>(value);
         QPalette::ColorRole r = (QPalette::ColorRole)index.row();
         QPalette::ColorGroup g = columnToGroup(index.column());
-        m_palette.setBrush(g, r, c);
+        m_palette.setBrush(g, r, br);
 
         QModelIndex idxBegin = PaletteModel::index(r, 0);
         QModelIndex idxEnd = PaletteModel::index(r, 3);
         if (m_compute) {
-            m_palette.setBrush(QPalette::Inactive, r, c);
+            m_palette.setBrush(QPalette::Inactive, r, br);
             switch (r) {
                 case QPalette::Foreground:
                 case QPalette::Text:
@@ -273,23 +275,23 @@ bool PaletteModel::setData(const QModelIndex &index, const QVariant &value, int 
                 case QPalette::Base:
                     break;
                 case QPalette::Dark:
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Foreground, c);
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Dark, c);
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Text, c);
-                    m_palette.setBrush(QPalette::Disabled, QPalette::ButtonText, c);
+                    m_palette.setBrush(QPalette::Disabled, QPalette::Foreground, br);
+                    m_palette.setBrush(QPalette::Disabled, QPalette::Dark, br);
+                    m_palette.setBrush(QPalette::Disabled, QPalette::Text, br);
+                    m_palette.setBrush(QPalette::Disabled, QPalette::ButtonText, br);
                     idxBegin = PaletteModel::index(0, 0);
                     idxEnd = PaletteModel::index(m_roleNames.count() - 1, 3);
                     break;
                 case QPalette::Background:
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Base, c);
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Background, c);
+                    m_palette.setBrush(QPalette::Disabled, QPalette::Base, br);
+                    m_palette.setBrush(QPalette::Disabled, QPalette::Background, br);
                     idxBegin = PaletteModel::index(QPalette::Base, 0);
                     break;
                 case QPalette::Highlight:
-                    m_palette.setBrush(QPalette::Disabled, QPalette::Highlight, c.dark(120));
+                    //m_palette.setBrush(QPalette::Disabled, QPalette::Highlight, c.dark(120));
                     break;
                 default:
-                    m_palette.setBrush(QPalette::Disabled, r, c);
+                    m_palette.setBrush(QPalette::Disabled, r, br);
                     break;
             }
         }
@@ -379,36 +381,36 @@ int PaletteModel::groupToColumn(QPalette::ColorGroup group) const
 
 //////////////////////////
 
-ColorEditor::ColorEditor(QWidget *parent)
+BrushEditor::BrushEditor(QWidget *parent)
     : QWidget(parent)
 {
     QLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
-    button = new StyledButton(this);
+    button = new QtBrushButton(this);
     layout->addWidget(button);
-    connect(button, SIGNAL(changed()), this, SLOT(colorChanged()));
+    connect(button, SIGNAL(brushChanged(const QBrush &)), this, SLOT(brushChanged()));
     setFocusProxy(button);
     m_changed = false;
 }
 
-void ColorEditor::setColor(const QColor &color)
+void BrushEditor::setBrush(const QBrush &brush)
 {
-    button->setBrush(color);
+    button->setBrush(brush);
     m_changed = false;
 }
 
-QColor ColorEditor::color() const
+QBrush BrushEditor::brush() const
 {
-    return button->brush().color();
+    return button->brush();
 }
 
-void ColorEditor::colorChanged()
+void BrushEditor::brushChanged()
 {
     m_changed = true;
     emit changed(this);
 }
 
-bool ColorEditor::changed() const
+bool BrushEditor::changed() const
 {
     return m_changed;
 }
@@ -476,7 +478,7 @@ QWidget *ColorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
         //editor->installEventFilter(const_cast<ColorDelegate *>(this));
         ed = editor;
     } else {
-        ColorEditor *editor = new ColorEditor(parent);
+        BrushEditor *editor = new BrushEditor(parent);
         connect(editor, SIGNAL(changed(QWidget *)), this, SIGNAL(commitData(QWidget *)));
         editor->setFocusPolicy(Qt::NoFocus);
         editor->installEventFilter(const_cast<ColorDelegate *>(this));
@@ -494,9 +496,9 @@ void ColorDelegate::setEditorData(QWidget *ed, const QModelIndex &index) const
         QString colorName = qVariantValue<QString>(index.model()->data(index, Qt::DisplayRole));
         editor->setLabel(colorName);
     } else {
-        QColor c = qVariantValue<QColor>(index.model()->data(index, Qt::BackgroundColorRole));
-        ColorEditor *editor = static_cast<ColorEditor *>(ed);
-        editor->setColor(c);
+        QBrush br = qVariantValue<QBrush>(index.model()->data(index, Qt::BackgroundColorRole));
+        BrushEditor *editor = static_cast<BrushEditor *>(ed);
+        editor->setBrush(br);
     }
 }
 
@@ -508,10 +510,10 @@ void ColorDelegate::setModelData(QWidget *ed, QAbstractItemModel *model,
         bool mask = editor->edited();
         model->setData(index, mask, Qt::EditRole);
     } else {
-        ColorEditor *editor = static_cast<ColorEditor *>(ed);
+        BrushEditor *editor = static_cast<BrushEditor *>(ed);
         if (editor->changed()) {
-            QColor c = editor->color();
-            model->setData(index, c, Qt::BackgroundColorRole);
+            QBrush br = editor->brush();
+            model->setData(index, br, Qt::BackgroundColorRole);
         }
     }
 }
@@ -530,6 +532,18 @@ void ColorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
     bool mask = qVariantValue<bool>(index.model()->data(index, Qt::EditRole));
     if (index.column() == 0 && mask) {
         option.font.setBold(true);
+    }
+    QBrush br = qVariantValue<QBrush>(index.model()->data(index, Qt::BackgroundColorRole));
+    if (br.style() == Qt::LinearGradientPattern ||
+            br.style() == Qt::RadialGradientPattern ||
+            br.style() == Qt::ConicalGradientPattern) {
+        painter->save();
+        painter->translate(option.rect.x(), option.rect.y());
+        painter->scale(option.rect.width(), option.rect.height());
+        painter->fillRect(0, 0, 1, 1, br);
+        painter->restore();
+    } else {
+        painter->fillRect(option.rect, br);
     }
     QItemDelegate::paint(painter, option, index);
     painter->drawLine(option.rect.right(), option.rect.y(),

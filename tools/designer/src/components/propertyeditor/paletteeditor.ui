@@ -19,8 +19,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>337</width>
-    <height>433</height>
+    <width>323</width>
+    <height>347</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -36,7 +36,7 @@
   </property>
   <layout class="QVBoxLayout" >
    <property name="margin" >
-    <number>8</number>
+    <number>9</number>
    </property>
    <property name="spacing" >
     <number>6</number>
@@ -60,36 +60,40 @@
      </property>
      <layout class="QGridLayout" >
       <property name="margin" >
-       <number>8</number>
+       <number>9</number>
       </property>
       <property name="spacing" >
        <number>6</number>
       </property>
-      <item row="0" column="0" >
-       <widget class="QLabel" name="label" >
-        <property name="text" >
-         <string>Quick</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="1" >
-       <widget class="qdesigner_internal::StyledButton" name="buildButton" >
+       <widget class="QtColorButton" name="buildButton" >
         <property name="sizePolicy" >
          <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>0</vsizetype>
+          <hsizetype>7</hsizetype>
+          <vsizetype>13</vsizetype>
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="focusPolicy" >
-         <enum>Qt::StrongFocus</enum>
+        <property name="text" >
+         <string/>
         </property>
-        <property name="toolTip" >
-         <string>Choose a color</string>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="4" >
+       <widget class="QTreeView" name="paletteView" >
+        <property name="minimumSize" >
+         <size>
+          <width>0</width>
+          <height>200</height>
+         </size>
         </property>
-        <property name="whatsThis" >
-         <string>Choose the effect-color for the generated palette.</string>
+       </widget>
+      </item>
+      <item row="0" column="3" >
+       <widget class="QRadioButton" name="detailsRadio" >
+        <property name="text" >
+         <string>Show Details</string>
         </property>
        </widget>
       </item>
@@ -103,20 +107,10 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="3" >
-       <widget class="QRadioButton" name="detailsRadio" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="label" >
         <property name="text" >
-         <string>Show Details</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="4" >
-       <widget class="QTreeView" name="paletteView" >
-        <property name="minimumSize" >
-         <size>
-          <width>0</width>
-          <height>200</height>
-         </size>
+         <string>Quick</string>
         </property>
        </widget>
       </item>
@@ -252,22 +246,21 @@
  <pixmapfunction></pixmapfunction>
  <customwidgets>
   <customwidget>
-   <class>qdesigner_internal::StyledButton</class>
-   <extends></extends>
-   <header>styledbutton.h</header>
+   <class>QtColorButton</class>
+   <extends>QToolButton</extends>
+   <header>qtcolorbutton.h</header>
    <container>0</container>
    <pixmap></pixmap>
   </customwidget>
   <customwidget>
    <class>qdesigner_internal::PreviewFrame</class>
-   <extends></extends>
+   <extends>QWidget</extends>
    <header>previewframe.h</header>
    <container>0</container>
    <pixmap></pixmap>
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>buildButton</tabstop>
   <tabstop>buttonHelp</tabstop>
   <tabstop>buttonOk</tabstop>
   <tabstop>buttonCancel</tabstop>
