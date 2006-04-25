@@ -24,10 +24,10 @@ int main(int argc, char *argv[])
         }
         file.close();
 
-        qDebug("found non-latin1 characters in '%s'", argv[i]);
         if (!mod)
             continue;
 
+        qDebug("found non-latin1 characters in '%s'", argv[i]);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
             qFatal("Cannot open '%s' for writing: %s", argv[i], qPrintable(file.errorString()));
         if (file.write(ba) < 0)
