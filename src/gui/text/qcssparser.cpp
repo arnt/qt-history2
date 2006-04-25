@@ -181,67 +181,78 @@ QColor Declaration::colorValue() const
                   colorDigits.at(4).variant.toInt());
 }
 
-static void setFontSizeFromValue(Value value, QFont *font, int *fontSizeAdjustment)
+static bool setFontSizeFromValue(Value value, QFont *font, int *fontSizeAdjustment)
 {
     if (value.type == Value::KnownIdentifier) {
+        bool valid = true;
         switch (value.variant.toInt()) {
             case Value_Small: *fontSizeAdjustment = -1; break;
             case Value_Medium: *fontSizeAdjustment = 0; break;
             case Value_Large: *fontSizeAdjustment = 1; break;
             case Value_XLarge: *fontSizeAdjustment = 2; break;
             case Value_XXLarge: *fontSizeAdjustment = 3; break;
-            default: break;
+            default: valid = false; break;
         }
-        return;
+        return valid;
     }
     if (value.type != Value::Length)
-        return;
+        return false;
+    
+    bool valid = false;
     QString s = value.variant.toString();
     if (s.endsWith(QLatin1String("pt"), Qt::CaseInsensitive)) {
         s.chop(2);
         value.variant = s;
-        if (value.variant.convert(QVariant::Double))
+        if (value.variant.convert(QVariant::Double)) {
             font->setPointSizeF(value.variant.toDouble());
+            valid = true;
+        }
     } else if (s.endsWith(QLatin1String("px"), Qt::CaseInsensitive)) {
         s.chop(2);
         value.variant = s;
-        if (value.variant.convert(QVariant::Int))
+        if (value.variant.convert(QVariant::Int)) {
             font->setPixelSize(value.variant.toInt());
+            valid = true;
+        }
     }
+    return valid;
 }
 
-static void setFontStyleFromValue(const Value &value, QFont *font)
+static bool setFontStyleFromValue(const Value &value, QFont *font)
 {
     if (value.type != Value::KnownIdentifier)
-        return;
+        return false ;
     switch (value.variant.toInt()) {
-        case Value_Normal: font->setStyle(QFont::StyleNormal); break;
-        case Value_Italic: font->setStyle(QFont::StyleItalic); break;
-        case Value_Oblique: font->setStyle(QFont::StyleOblique); break;
+        case Value_Normal: font->setStyle(QFont::StyleNormal); return true;
+        case Value_Italic: font->setStyle(QFont::StyleItalic); return true;
+        case Value_Oblique: font->setStyle(QFont::StyleOblique); return true;
         default: break;
     }
+    return false;
 }
 
-static void setFontWeightFromValue(const Value &value, QFont *font)
+static bool setFontWeightFromValue(const Value &value, QFont *font)
 {
     if (value.type == Value::KnownIdentifier) {
         switch (value.variant.toInt()) {
-            case Value_Normal: font->setWeight(QFont::Normal); break;
-            case Value_Bold: font->setWeight(QFont::Bold); break;
+            case Value_Normal: font->setWeight(QFont::Normal); return true;
+            case Value_Bold: font->setWeight(QFont::Bold); return true;
             default: break;
         }
-        return;
+        return false;
     }
     if (value.type != Value::Number)
-        return;
+        return false;
     font->setWeight(value.variant.toInt() / 8);
+    return true;
 }
 
-static void setFontFamilyFromValue(const Value &value, QFont *font)
+static bool setFontFamilyFromValue(const Value &value, QFont *font)
 {
     QString fam = value.variant.toString();
-    if (!fam.isEmpty())
-        font->setFamily(fam);
+    if (fam.isEmpty()) return false;
+    font->setFamily(fam);
+    return true;
 }
 
 static void setTextDecorationFromValues(const QVector<Value> &values, QFont *font)
@@ -261,6 +272,31 @@ static void setTextDecorationFromValues(const QVector<Value> &values, QFont *fon
     }
 }
 
+static void parseShorthandFontProperty(const QVector<Value> &values, QFont *font, int *fontSizeAdjustment)
+{
+    font->setStyle(QFont::StyleNormal);
+    font->setWeight(QFont::Normal);
+    *fontSizeAdjustment = 0;
+
+    int i = 0;
+    while (i < values.count()) {
+        if (setFontStyleFromValue(values.at(i), font)
+            || setFontWeightFromValue(values.at(i), font))
+            ++i;
+        else
+            break;
+    }
+    
+    if (i < values.count()) {
+        setFontSizeFromValue(values.at(i), font, fontSizeAdjustment);
+        ++i;
+    }
+    
+    if (i < values.count()) {
+        setFontFamilyFromValue(values.at(i), font);
+    }
+}
+
 void StyleRule::extractFontProperties(QFont *font, int *fontSizeAdjustment) const
 {
     *font = QFont();
@@ -277,6 +313,7 @@ void StyleRule::extractFontProperties(QFont *font, int *fontSizeAdjustment) cons
             case FontWeight: setFontWeightFromValue(val, font); break;
             case FontFamily: setFontFamilyFromValue(val, font); break;
             case TextDecoration: setTextDecorationFromValues(decl.values, font); break;
+            case Font: parseShorthandFontProperty(decl.values, font, fontSizeAdjustment); break;
             default: break;
         }
     }
