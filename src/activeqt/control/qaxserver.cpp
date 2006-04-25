@@ -390,6 +390,7 @@ static const char* const type_map[][2] =
     { "QPixmap",	"IPictureDisp*" },
     { "QVariant",	"VARIANT" },
     { "QVariantList",	"SAFEARRAY(VARIANT)" },
+    { "QList<QVariant>","SAFEARRAY(VARIANT)" },
     { "quint64",	"CY" },
     { "qint64",	        "CY" },
     { "qulonglong",	"CY" },
