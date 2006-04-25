@@ -899,37 +899,42 @@ bool Parser::parseTerm(Value *value)
         next();
     }
 
-    QString str = lexem();
-    value->variant = str;
-    value->type = QCss::Value::String;
+    value->type = QCss::Value::Unknown;
     switch (lookup()) {
         case NUMBER:
             value->type = Value::Number;
-            value->variant.convert(QVariant::Double);
+            value->variant = lexem().toDouble();
             break;
-        case PERCENTAGE:
+        case PERCENTAGE: {
             value->type = Value::Percentage;
+            QString str = lexem();
             str.chop(1); // strip off %
             value->variant = str;
             break;
+        }
         case LENGTH:
             value->type = Value::Length;
+            value->variant = lexem();
             break;
 
-        case STRING:
+        case STRING: {
             if (haveUnary) return false;
             value->type = Value::String;
+            QString str = lexem();
             str.chop(1);
             str.remove(0, 1);
             value->variant = str;
             break;
+        }
         case IDENT: {
             if (haveUnary) return false;
-            value->type = Value::Identifier;
-            const int id = findKnownValue(str, values, NumKnownValues);
+            const int id = findKnownValue(temporaryLexem(), values, NumKnownValues);
             if (id != 0) {
                 value->type = Value::KnownIdentifier;
                 value->variant = id;
+            } else {
+                value->type = Value::Identifier;
+                value->variant = lexem();
             }
             break;
         }
