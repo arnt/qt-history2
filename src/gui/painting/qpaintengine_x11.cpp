@@ -2056,6 +2056,8 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
     QMatrix matrix;
     matrix.translate(p.x(), p.y());
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    if (glyphs.size() == 0)
+        return;
 
     int size = qRound(ti.fontEngine->ascent());
     QSize s(size - 3, size - 3);
@@ -2088,6 +2090,8 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &ti)
     QMatrix matrix = d->matrix;
     matrix.translate(p.x(), p.y());
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    if (glyphs.size() == 0)
+        return;
 
     QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(ti.fontEngine);
     Qt::HANDLE font_id = xlfd->fontStruct()->fid;
@@ -2201,6 +2205,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         QPaintEngine::drawTextItem(p, ti);
         return;
     }
+    if (glyphs.size() == 0)
+        return;
 
 #ifndef QT_NO_XRENDER
     if (xrenderPath) {

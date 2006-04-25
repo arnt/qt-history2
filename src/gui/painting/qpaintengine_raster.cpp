@@ -3339,6 +3339,8 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
             matrix.translate(baseline_pos.x(), baseline_pos.y());
             ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags,
                 _glyphs, positions);
+            if (_glyphs.size() == 0)
+                return;
 
             convertToText = convertToText && ti.num_glyphs == _glyphs.size();
 

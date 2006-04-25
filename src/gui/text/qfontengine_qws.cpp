@@ -225,6 +225,8 @@ void QFontEngineFT::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemInt
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
     getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    if (glyphs.size() == 0)
+        return;
 
     for(int i = 0; i < glyphs.size(); i++) {
         const QGlyph *glyph = rendered_glyphs[glyphs[i]];
@@ -979,6 +981,8 @@ void QFontEngineQPF::draw(QPaintEngine *p, qreal _x, qreal _y, const QTextItemIn
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
     getGlyphPositions(si.glyphs, si.num_glyphs, matrix, si.flags, glyphs, positions);
+    if (glyphs.size() == 0)
+        return;
 
     for(int i = 0; i < glyphs.size(); i++) {
         const QPFGlyph *glyph = d->tree->get(glyphs[i]);
