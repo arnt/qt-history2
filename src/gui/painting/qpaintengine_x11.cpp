@@ -2205,8 +2205,6 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         QPaintEngine::drawTextItem(p, ti);
         return;
     }
-    if (glyphs.size() == 0)
-        return;
 
 #ifndef QT_NO_XRENDER
     if (xrenderPath) {
