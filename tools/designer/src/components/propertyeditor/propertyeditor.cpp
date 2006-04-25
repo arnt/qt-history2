@@ -26,6 +26,7 @@
 #include <qdesigner_utils_p.h>
 #include <metadatabase_p.h>
 
+#include "paletteeditorbutton.h"
 #include <QtGui/QtGui>
 
 #ifndef Q_MOC_RUN
@@ -72,6 +73,24 @@ public:
     void updateValue(QWidget *editor);
 private:
     QDesignerFormEditorInterface *m_core;
+};
+
+class PaletteProperty : public AbstractProperty<QPalette>
+{
+public:
+    PaletteProperty(QDesignerFormEditorInterface *core, const QPalette &value,
+                QWidget *selectedWidget, const QString &name);
+
+    void setValue(const QVariant &value);
+    QString toString() const;
+
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+
+private:
+    QDesignerFormEditorInterface *m_core;
+    QWidget *m_selectedWidget;
 };
 
 // This handles editing of pixmap and icon properties
@@ -438,6 +457,51 @@ void PixmapProperty::updateValue(QWidget *editor)
     }
 }
 
+// -------------------------------------------------------------------------
+PaletteProperty::PaletteProperty(QDesignerFormEditorInterface *core, const QPalette &value, QWidget *selectedWidget,
+                const QString &name)
+    : AbstractProperty<QPalette>(value, name)
+{
+    m_selectedWidget = selectedWidget;
+    m_core = core;
+}
+
+void PaletteProperty::setValue(const QVariant &value)
+{
+    m_value = qvariant_cast<QPalette>(value);
+}
+
+QString PaletteProperty::toString() const
+{
+    return QString(); // ### implement me
+}
+
+QWidget *PaletteProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    PaletteEditorButton *btn = new PaletteEditorButton(m_core, m_value, m_selectedWidget, parent);
+    QObject::connect(btn, SIGNAL(changed()), target, receiver);
+    return btn;
+}
+
+void PaletteProperty::updateEditorContents(QWidget *editor)
+{
+    if (PaletteEditorButton *btn = qobject_cast<PaletteEditorButton*>(editor)) {
+        btn->setPalette(m_value);
+    }
+}
+
+void PaletteProperty::updateValue(QWidget *editor)
+{
+    if (PaletteEditorButton *btn = qobject_cast<PaletteEditorButton*>(editor)) {
+        QPalette newValue = btn->palette();
+
+        if (newValue.resolve() != m_value.resolve() || newValue != m_value) {
+            m_value = newValue;
+            setChanged(true);
+        }
+    }
+}
+
 
 // -------------------------------------------------------------------------------------
 
@@ -602,7 +666,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new StringProperty(qvariant_cast<QKeySequence>(value), pname);
                 break;
             case QVariant::Palette:
-                p = new PaletteProperty(qvariant_cast<QPalette>(value),
+                p = new PaletteProperty(m_core, qvariant_cast<QPalette>(value),
                                 qobject_cast<QWidget *>(object), pname);
                 break;
             case QVariant::Url:

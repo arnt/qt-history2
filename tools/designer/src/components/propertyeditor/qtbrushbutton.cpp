@@ -13,17 +13,21 @@ public:
     QBrush m_brush;
     bool m_backgroundTransparent;
     QtBrushManager *m_brushManager;
+    QtBrushDialog *m_dialog;
 };
 
 void QtBrushButtonPrivate::slotEditBrush()
 {
     QtBrushDialog dlg(q_ptr);
+    m_dialog = &dlg;
     dlg.setBrush(m_brush);
     dlg.setBrushManager(m_brushManager);
     q_ptr->connect(&dlg, SIGNAL(textureChooserActivated(QWidget *, const QBrush &)),
             q_ptr, SIGNAL(textureChooserActivated(QWidget *, const QBrush &)));
-    if (dlg.exec() != QDialog::Accepted)
+    if (dlg.exec() != QDialog::Accepted) {
+        m_dialog = 0;
         return;
+    }
     QBrush brush = dlg.brush();
     if (brush.style() == Qt::TexturePattern) {
         QPixmap pix = brush.texture();
@@ -36,6 +40,7 @@ void QtBrushButtonPrivate::slotEditBrush()
     m_brush = brush;
     emit q_ptr->brushChanged(m_brush);
     q_ptr->update();
+    m_dialog = 0;
 }
 
 ///////////////
@@ -48,6 +53,7 @@ QtBrushButton::QtBrushButton(QWidget *parent)
 
     d_ptr->m_backgroundTransparent = true;
     d_ptr->m_brushManager = 0;
+    d_ptr->m_dialog = 0;
 
     connect(this, SIGNAL(clicked()), this, SLOT(slotEditBrush()));
     setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
@@ -79,6 +85,8 @@ void QtBrushButton::setBrush(const QBrush &brush)
     if (d_ptr->m_brush == brush)
         return;
     d_ptr->m_brush = brush;
+    if (d_ptr->m_dialog)
+        d_ptr->m_dialog->setBrush(brush);
     update();
 }
 

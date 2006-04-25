@@ -19,13 +19,16 @@
 #include <QtGui/QPalette>
 #include <QtGui/QToolButton>
 
+#include "abstractformeditor.h"
+
 namespace qdesigner_internal {
 
 class QT_PROPERTYEDITOR_EXPORT PaletteEditorButton: public QToolButton
 {
     Q_OBJECT
 public:
-    PaletteEditorButton(const QPalette &palette, QWidget *selectedWidget, QWidget *parent = 0);
+    PaletteEditorButton(QDesignerFormEditorInterface *core, const QPalette &palette,
+                QWidget *selectedWidget, QWidget *parent = 0);
     virtual ~PaletteEditorButton();
 
     inline QPalette palette() const
@@ -43,6 +46,7 @@ private slots:
 private:
     QPalette m_palette;
     QWidget *m_selectedWidget;
+    QDesignerFormEditorInterface *m_core;
 };
 
 }  // namespace qdesigner_internal

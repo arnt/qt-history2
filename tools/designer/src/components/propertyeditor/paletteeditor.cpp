@@ -21,12 +21,18 @@
 #include <QHeaderView>
 
 #include "qtbrushbutton.h"
+#include "findicondialog_p.h"
+
+#include <QtDesigner/QtDesigner>
+
+#include "qdebug.h"
 
 using namespace qdesigner_internal;
 
-PaletteEditor::PaletteEditor(QWidget *parent)
+PaletteEditor::PaletteEditor(QDesignerFormEditorInterface *core, QWidget *parent)
     : QDialog(parent)
 {
+    m_core = core;
     ui.setupUi(this);
     m_modelUpdated = false;
     m_paletteUpdated = false;
@@ -36,7 +42,7 @@ PaletteEditor::PaletteEditor(QWidget *parent)
     updateStyledButton();
     m_paletteModel = new PaletteModel(this);
     ui.paletteView->setModel(m_paletteModel);
-    ColorDelegate *delegate = new ColorDelegate(this);
+    ColorDelegate *delegate = new ColorDelegate(core, this);
     ui.paletteView->setItemDelegate(delegate);
     ui.paletteView->setEditTriggers(QAbstractItemView::AllEditTriggers);
     //ui.paletteView->setAlternatingRowColors(true);
@@ -178,10 +184,10 @@ void PaletteEditor::updateStyledButton()
     ui.buildButton->setColor(palette().color(QPalette::Active, QPalette::Button));
 }
 
-QPalette PaletteEditor::getPalette(QWidget* parent, const QPalette &init,
+QPalette PaletteEditor::getPalette(QDesignerFormEditorInterface *core, QWidget* parent, const QPalette &init,
             const QPalette &parentPal, int *ok)
 {
-    PaletteEditor dlg(parent);
+    PaletteEditor dlg(core, parent);
     QPalette parentPalette(parentPal);
     uint mask = init.resolve();
     for (int i = 0; i < (int)QPalette::NColorRoles; i++) {
@@ -381,14 +387,17 @@ int PaletteModel::groupToColumn(QPalette::ColorGroup group) const
 
 //////////////////////////
 
-BrushEditor::BrushEditor(QWidget *parent)
+BrushEditor::BrushEditor(QDesignerFormEditorInterface *core, QWidget *parent)
     : QWidget(parent)
 {
+    m_core = core;
     QLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     button = new QtBrushButton(this);
     layout->addWidget(button);
     connect(button, SIGNAL(brushChanged(const QBrush &)), this, SLOT(brushChanged()));
+    connect(button, SIGNAL(textureChooserActivated(QWidget *, const QBrush &)),
+                this, SLOT(textureChooserActivated(QWidget *, const QBrush &)));
     setFocusProxy(button);
     m_changed = false;
 }
@@ -408,6 +417,30 @@ void BrushEditor::brushChanged()
 {
     m_changed = true;
     emit changed(this);
+}
+
+void BrushEditor::textureChooserActivated(QWidget *parent, const QBrush &initialBrush)
+{
+    FindIconDialog dialog(m_core->formWindowManager()->activeFormWindow(), parent);
+    QString file_path;
+    QString qrc_path;
+
+    QPixmap pixmap = initialBrush.texture();
+    if (!pixmap.isNull()) {
+        file_path = m_core->iconCache()->pixmapToFilePath(pixmap);
+        qrc_path = m_core->iconCache()->pixmapToQrcPath(pixmap);
+    }
+
+    dialog.setPaths(qrc_path, file_path);
+    if (dialog.exec()) {
+        file_path = dialog.filePath();
+        qrc_path = dialog.qrcPath();
+        if (!file_path.isEmpty()) {
+            pixmap = m_core->iconCache()->nameToPixmap(file_path, qrc_path);
+            QBrush br(pixmap);
+            button->setBrush(br);
+        }
+    }
 }
 
 bool BrushEditor::changed() const
@@ -478,7 +511,7 @@ QWidget *ColorDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
         //editor->installEventFilter(const_cast<ColorDelegate *>(this));
         ed = editor;
     } else {
-        BrushEditor *editor = new BrushEditor(parent);
+        BrushEditor *editor = new BrushEditor(m_core, parent);
         connect(editor, SIGNAL(changed(QWidget *)), this, SIGNAL(commitData(QWidget *)));
         editor->setFocusPolicy(Qt::NoFocus);
         editor->installEventFilter(const_cast<ColorDelegate *>(this));
