@@ -17,8 +17,8 @@ int main()
 }
 EOF
 
-COMPILER=`grep QMAKE_CC $XCONFIG | sed "s,.*= *,,"`
-$COMPILER $IFLAGS $LFLAGS -o tslib tslib.c -lts >/dev/null 2>&1 && TSLIB_SUPPORT=yes
+COMPILER=`grep QMAKE_CC "$XCONFIG" | sed "s,.*= *,,"`
+"$COMPILER" $IFLAGS $LFLAGS -o tslib tslib.c -lts >/dev/null 2>&1 && TSLIB_SUPPORT=yes
 rm -f tslib.c tslib
 
 # done

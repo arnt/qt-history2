@@ -9,8 +9,8 @@ cat >>iwmmxt.c << EOF
 #include <mmintrin.h>
 EOF
 
-COMPILER=`grep QMAKE_CC $XCONFIG | sed "s,.*= *,,"`
-$COMPILER -c iwmmxt.c >/dev/null 2>&1 && IWMMXT_SUPPORT=yes
+COMPILER=`grep QMAKE_CC "$XCONFIG" | sed "s,.*= *,,"`
+"$COMPILER" -c iwmmxt.c >/dev/null 2>&1 && IWMMXT_SUPPORT=yes
 rm -f iwmmxt.c iwmmxt.o
 
 # done

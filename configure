@@ -16,7 +16,7 @@
 relconf=`basename $0`
 # the directory of this script is the "source tree"
 relpath=`dirname $0`
-relpath=`(cd $relpath; /bin/pwd)`
+relpath=`(cd "$relpath"; /bin/pwd)`
 # the current directory is the "build tree" or "object tree"
 outpath=`/bin/pwd`
 
@@ -31,17 +31,43 @@ QT_CONFIG=
 
 SUPPORTED=
 
+QMAKE_VARS_FILE=.qmake.vars
+exec 5> "$QMAKE_VARS_FILE"
+
 #-------------------------------------------------------------------------------
-# utility function
+# utility functions
 #-------------------------------------------------------------------------------
+
+# Adds a new qmake variable to the cache
+# Usage: QMakeVar mode varname contents
+#   where mode is one of: set, add, del
+QMakeVar()
+{
+    case "$1" in
+	set)
+	    eq="="
+	    ;;
+	add)
+	    eq="+="
+	    ;;
+	del)
+	    eq="-="
+	    ;;
+	*)
+	    echo >&2 "BUG: wrong command to QMakeVar: $1"
+	    ;;
+    esac
+
+    echo >&5 "$2" "$eq" "$3"
+}
 
 # relies on $QMAKESPEC being set correctly. parses include statements in
 # qmake.conf and prints out the expanded file
 getQMakeConf()
 {
-    tmpSPEC=$QMAKESPEC
+    tmpSPEC="$QMAKESPEC"
     if [ -n "$1" ]; then
-        tmpSPEC=$1
+        tmpSPEC="$1"
     fi
     $AWK -v "QMAKESPEC=$tmpSPEC" '
 /^include\(.+\)$/{
@@ -51,7 +77,7 @@ getQMakeConf()
     close(fname)
     next
 }
-{ print }' $tmpSPEC/qmake.conf
+{ print }' "$tmpSPEC/qmake.conf"
 }
 
 #-------------------------------------------------------------------------------
@@ -73,13 +99,13 @@ PLATFORM_X11=no
 PLATFORM_MAC=no
 PLATFORM_QWS=no
 
-if [ -f $relpath/src/gui/kernel/qapplication_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
+if [ -f "$relpath"/src/gui/kernel/qapplication_mac.cpp ] && [ -d /System/Library/Frameworks/Carbon.framework ]; then
     # Qt/Mac
     # ~ the Carbon SDK exists
     # ~ src/gui/base/qapplication_mac.cpp is present
     # ~ this is the internal edition and Qt/Mac sources exist
     PLATFORM_MAC=maybe
-elif [ -f $relpath/src/gui/kernel/qapplication_qws.cpp ]; then
+elif [ -f "$relpath"/src/gui/kernel/qapplication_qws.cpp ]; then
     # Qtopia Core
     # ~ src/gui/base/qapplication_qws.cpp is present
     # ~ this is the free or commercial edition
@@ -90,7 +116,7 @@ fi
 #-----------------------------------------------------------------------------
 # Qt version detection
 #-----------------------------------------------------------------------------
-QT_VERSION=`grep '^# *define *QT_VERSION_STR' $relpath/src/corelib/global/qglobal.h`
+QT_VERSION=`grep '^# *define *QT_VERSION_STR' "$relpath"/src/corelib/global/qglobal.h`
 QT_MAJOR_VERSION=
 QT_MINOR_VERSION=0
 QT_PATCH_VERSION=0
@@ -111,7 +137,7 @@ if [ -z "$QT_MAJOR_VERSION" ]; then
    exit 1
 fi
 
-QT_PACKAGEDATE=`grep '^# *define *QT_PACKAGEDATE_STR' $relpath/src/corelib/global/qglobal.h | sed -e 's,^# *define *QT_PACKAGEDATE_STR *"\([^ ]*\)"$,\1,' -e s,-,,g`
+QT_PACKAGEDATE=`grep '^# *define *QT_PACKAGEDATE_STR' "$relpath"/src/corelib/global/qglobal.h | sed -e 's,^# *define *QT_PACKAGEDATE_STR *"\([^ ]*\)"$,\1,' -e s,-,,g`
 if [ -z "$QT_PACKAGEDATE" ]; then
    echo "Unable to determine package date from qglobal.h: '$QT_PACKAGEDATE'"
    echo "Cannot proceed"
@@ -122,13 +148,13 @@ fi
 # check the license
 #-------------------------------------------------------------------------------
 
-if [ -f $relpath/LICENSE.Qtopia ]; then
+if [ -f "$relpath"/LICENSE.Qtopia ]; then
     # Qtopia Edition
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     Licensee="Qtopia"
     Edition="Qtopia"
     QT_EDITION="QT_EDITION_DESKTOP"
-elif [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
+elif [ -f "$relpath"/LICENSE.QPL -o -f "$relpath"/LICENSE.GPL ]; then
     # Open Source edition - may only be used under the terms of the QPL or GPL.
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
@@ -136,14 +162,14 @@ elif [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     Edition="OpenSource"
     EditionString="Open Source"
     QT_EDITION="QT_EDITION_OPENSOURCE"
-elif [ -f $relpath/LICENSE.PREVIEW ]; then
+elif [ -f "$relpath"/LICENSE.PREVIEW ]; then
     # tech preview
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Licensee="Preview"
     Edition="Preview"
     QT_EDITION="QT_EDITION_OPENSOURCE"
-elif [ -f $relpath/LICENSE.TROLL ]; then
+elif [ -f "$relpath"/LICENSE.TROLL ]; then
     # internal Trolltech edition
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     Licensee="Trolltech"
@@ -155,14 +181,14 @@ else
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     
     # fix license file to quote the right side
-    newlicense=`cat $HOME/.qt-license | sed -e 's/=\([^\"]\)/=\"\1/g' -e 's/\([^\"]\)$/\1\"/g' `
-    cat > $HOME/.qt-license-temp <<EOF
+    newlicense=`cat "$HOME"/.qt-license | sed -e 's/=\([^\"]\)/=\"\1/g' -e 's/\([^\"]\)$/\1\"/g' `
+    cat > "$HOME"/.qt-license-temp <<EOF
 $newlicense
 EOF
     
     # read in the license file
-    if [ -f $HOME/.qt-license ]; then
-        . $HOME/.qt-license >/dev/null 2>&1
+    if [ -f "$HOME"/.qt-license ]; then
+        . "$HOME"/.qt-license >/dev/null 2>&1
         if [ -z "$LicenseKeyExt" ]; then
             echo
             echo "You are using an old license file."
@@ -191,7 +217,7 @@ EOF
     fi
 
     # Key verification
-    echo $LicenseKeyExt | grep ".....*-....*-....*-....*-.....*-.....*-...." >/dev/null 2>&1 \
+    echo "$LicenseKeyExt" | grep ".....*-....*-....*-....*-.....*-.....*-...." >/dev/null 2>&1 \
         && LicenseValid="yes" \
         || LicenseValid="no"
     if [ "$LicenseValid" != "yes" ]; then
@@ -205,7 +231,7 @@ EOF
     LicenseFeatureCode=`echo $LicenseKeyExt | cut -f 4 -d - | cut -b 1`
 
     # determine which edition we are licensed to use
-    case $LicenseTypeCode in
+    case "$LicenseTypeCode" in
     F4M)
         LicenseType="Commercial"
         case $ProductCode in
@@ -310,21 +336,21 @@ EOF
              ;;
         esac
     fi
-    case $LicenseFeatureCode in
+    case "$LicenseFeatureCode" in
     G)
         # US
         case "$LicenseType" in
         Commercial)
-            cp -f $relpath/.LICENSE${LICENSE_EXTENSION}-US $outpath/LICENSE
+            cp -f "$relpath/.LICENSE${LICENSE_EXTENSION}-US" "$outpath/LICENSE"
             ;;
         Evaluation)
-            cp -f $relpath/.LICENSE${LICENSE_EXTENSION}-EVALUATION-US $outpath/LICENSE
+            cp -f "$relpath/.LICENSE${LICENSE_EXTENSION}-EVALUATION-US" "$outpath/LICENSE"
             ;;
         Academic)
-            cp -f $relpath/.LICENSE-ACADEMIC-US $outpath/LICENSE
+            cp -f "$relpath/.LICENSE-ACADEMIC-US" "$outpath/LICENSE"
             ;;
         Educational)
-            cp -f $relpath/.LICENSE-EDUCATIONAL-US $outpath/LICENSE
+            cp -f "$relpath/.LICENSE-EDUCATIONAL-US" "$outpath/LICENSE"
             ;;
         esac
         ;;
@@ -332,16 +358,16 @@ EOF
         # non-US
         case "$LicenseType" in
         Commercial)
-            cp -f $relpath/.LICENSE${LICENSE_EXTENSION} $outpath/LICENSE
+            cp -f "$relpath/.LICENSE${LICENSE_EXTENSION}" "$outpath/LICENSE"
             ;;
         Evaluation)
-            cp -f $relpath/.LICENSE${LICENSE_EXTENSION}-EVALUATION $outpath/LICENSE
+            cp -f "$relpath/.LICENSE${LICENSE_EXTENSION}-EVALUATION" $"outpath/LICENSE"
             ;;
         Academic)
-            cp -f $relpath/.LICENSE-ACADEMIC $outpath/LICENSE
+            cp -f "$relpath/.LICENSE-ACADEMIC" "$outpath/LICENSE"
             ;;
         Educational)
-            cp -f $relpath/.LICENSE-EDUCATIONAL $outpath/LICENSE
+            cp -f "$relpath/.LICENSE-EDUCATIONAL" "$outpath/LICENSE"
             ;;
         esac
         ;;
@@ -351,7 +377,7 @@ EOF
         exit 1
         ;;
     esac
-    if [ '!' -f $outpath/LICENSE ]; then
+    if [ '!' -f "$outpath/LICENSE" ]; then
         echo "The LICENSE, LICENSE.QPL, or LICENSE.GPL file shipped with"
         echo "this software has disappeared."
         echo
@@ -383,17 +409,19 @@ SYSTEM_VARIABLES="CC CXX CFLAGS CXXFLAGS LDFLAGS"
 for varname in $SYSTEM_VARIABLES; do
     cmd=`echo \
 'if [ -n "\$'${varname}'" ]; then 
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_'${varname}' = \$'${varname}'\""; 
+    QMakeVar set QMAKE_'${varname}' "\$'${varname}'"
 fi'`
     eval "$cmd"
 done
 
-QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif plastique cleanlooks windows\""
-QMAKE_VARS="$QMAKE_VARS \"decorations += default windows styled\""
+QMakeVar add styles "cde mac motif plastique cleanlooks windows"
+QMakeVar add decorations "default windows styled"
 if [ "$Edition" = "Trolltech" ]; then
-    QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty um\" \"mouse-drivers += pc linuxtp\"" # adjust below as well
+    QMakeVar add kbd-drivers "tty um"
+    QMakeVar add mouse-drivers "pc linuxtp" # adjust below as well
 else
-    QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust below as well
+    QMakeVar add kbd-drivers tty
+    QMakeVar mouse-drivers pc # adjust below as well
 fi
 
 # QTDIR may be set and point to an old or system-wide Qt installation
@@ -438,14 +466,14 @@ CFG_NOBUILD_PARTS=""
 
 if [ "$Edition" = "Trolltech" ]; then
     CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx um qvfb"
-    CFG_KBD_ON="tty um"    #default, see QMAKE_VARS above
+    CFG_KBD_ON="tty um"    #default, see QMakeVar above
     CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib qvfb"
-    CFG_MOUSE_ON="pc linuxtp"   #default, see QMAKE_VARS above
+    CFG_MOUSE_ON="pc linuxtp"   #default, see QMakeVar above
 else
     CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx qvfb"
-    CFG_KBD_ON="tty"    #default, see QMAKE_VARS above
+    CFG_KBD_ON="tty"    #default, see QMakeVar above
     CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib qvfb"
-    CFG_MOUSE_ON="pc linuxtp"   #default, see QMAKE_VARS above
+    CFG_MOUSE_ON="pc linuxtp"   #default, see QMakeVar above
 fi
 
 CFG_KBD_OFF=
@@ -527,7 +555,7 @@ QT_LIBS_GLIB=
 # check SQL drivers, mouse drivers and decorations available in this package
 #-------------------------------------------------------------------------------
 
-CFG_SQL_AVAILABLE=`find $relpath/src/plugins/sqldrivers/* -prune -type d -exec basename {} \;`
+CFG_SQL_AVAILABLE=`find "$relpath"/src/plugins/sqldrivers/* -prune -type d -exec basename {} \;`
 CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`               # normalize whitespace
 # by default, auto-detect which sql drivers can be built
 for i in $CFG_SQL_AVAILABLE; do
@@ -536,19 +564,19 @@ done
 
 CFG_DECORATION_PLUGIN_AVAILABLE=""
 if [ -d "$relpath/src/plugins/decorations" ]; then
-    CFG_DECORATION_PLUGIN_AVAILABLE=`find $relpath/src/plugins/decorations/* -prune -type d -exec basename {} \;`
+    CFG_DECORATION_PLUGIN_AVAILABLE=`find "$relpath"/src/plugins/decorations/* -prune -type d -exec basename {} \;`
     CFG_DECORATION_PLUGIN_AVAILABLE=`echo $CFG_DECORATION_PLUGIN_AVAILABLE` # normalize whitespace
 fi
 
 CFG_MOUSE_PLUGIN_AVAILABLE=""
 if [ -d "$relpath/src/plugins/mousedrivers" ]; then
-    CFG_MOUSE_PLUGIN_AVAILABLE=`find $relpath/src/plugins/mousedrivers/* -prune -type d -exec basename {} \;`
+    CFG_MOUSE_PLUGIN_AVAILABLE=`find "$relpath"/src/plugins/mousedrivers/* -prune -type d -exec basename {} \;`
     CFG_MOUSE_PLUGIN_AVAILABLE=`echo $CFG_MOUSE_PLUGIN_AVAILABLE` # normalize whitespace
 fi
 
 CFG_GFX_PLUGIN_AVAILABLE=""
 if [ -d "$relpath/src/plugins/gfxdrivers" ]; then
-    CFG_GFX_PLUGIN_AVAILABLE=`find $relpath/src/plugins/gfxdrivers/* -prune -type d -exec basename {} \;`
+    CFG_GFX_PLUGIN_AVAILABLE=`find "$relpath"/src/plugins/gfxdrivers/* -prune -type d -exec basename {} \;`
     CFG_GFX_PLUGIN_AVAILABLE=`echo $CFG_GFX_PLUGIN_AVAILABLE` # normalize whitespace
     CFG_GFX_AVAILABLE="$CFG_GFX_AVAILABLE $CFG_GFX_PLUGIN_AVAILABLE"
     CFG_GFX_OFF="$CFG_GFX_AVAILABLE" # assume all off
@@ -562,7 +590,7 @@ fi
 while [ "$#" -gt 0 ]; do
     CURRENT_OPT="$1"
     UNKNOWN_ARG=no
-    case $1 in
+    case "$1" in
     #Autoconf style options
     --enable-*)
         VAR=`echo $1 | sed "s,^--enable-\(.*\),\1,"`
@@ -613,7 +641,7 @@ while [ "$#" -gt 0 ]; do
     -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey|-sdk)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
-        VAL=$1
+        VAL="$1"
         ;;
     #Qt style complex options in one command
     -enable-*|-disable-*)
@@ -633,7 +661,7 @@ while [ "$#" -gt 0 ]; do
     -embedded)
         VAR=embedded
         # this option may or may not be followed by an argument
-        if [ -z $2 ] || echo $2 | grep '^-' >/dev/null 2>&1; then
+        if [ -z "$2" ] || echo "$2" | grep '^-' >/dev/null 2>&1; then
             VAL=auto
         else
             shift;
@@ -723,7 +751,7 @@ while [ "$#" -gt 0 ]; do
     shift
 
     UNKNOWN_OPT=no
-    case $VAR in
+    case "$VAR" in
     qt3support)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_QT3SUPPORT="$VAL"
@@ -818,7 +846,9 @@ while [ "$#" -gt 0 ]; do
     qvfb) # left for commandline compatibility, not documented
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             if [ "$VAL" = "yes" ]; then
-                QMAKE_VARS="$QMAKE_VARS \"gfx-drivers += qvfb\" \"kbd-drivers += qvfb\" \"mouse-drivers += qvfb\""
+		QMakeVar add gfx-drivers qvfb
+		QMakeVar add kbd-drivers qvfb
+		QMakeVar add mouse-drivers qvfb
                 CFG_GFX_ON="$CFG_GFX_ON qvfb"
                 CFG_KBD_ON="$CFG_KBD_ON qvfb"
                 CFG_MOUSE_ON="$CFG_MOUSE_ON qvfb"
@@ -869,8 +899,9 @@ while [ "$#" -gt 0 ]; do
     profile)
         if [ "$VAL" = "yes" ]; then
             CFG_PROFILE=yes
-            QMAKE_VARS="$QMAKE_VARS QMAKE_CFLAGS+=-pg QMAKE_CXXFLAGS+=-pg"
-            QMAKE_VARS="$QMAKE_VARS QMAKE_LFLAGS+=-pg"
+	    QMakeVar add QMAKE_CFLAGS -pg
+	    QMakeVar add QMAKE_CXXFLAGS -pg
+	    QMakeVar add QMAKE_LFLAGS -pg
         else
             UNKNOWN_OPT=yes
         fi
@@ -1262,9 +1293,9 @@ while [ "$#" -gt 0 ]; do
 
         if [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
             if [ "$OPT" = "plugin" ]; then
-                [ "$VAR" = "decoration" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
+                [ "$VAR" = "decoration" ] && QMakeVar del "${VAR}s" "$VAL"
                 [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"` && CFG_DECORATION_PLUGIN="$CFG_DECORATION_PLUGIN ${VAL}"
-                [ "$VAR" = "mouse" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
+                [ "$VAR" = "mouse" ] && QMakeVar del "${VAR}s" "$VAL"
                 [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"` && CFG_MOUSE_PLUGIN="$CFG_MOUSE_PLUGIN ${VAL}"		
                 VAR="${VAR}-${OPT}"
             else
@@ -1276,7 +1307,7 @@ while [ "$#" -gt 0 ]; do
                     VAR="${VAR}-driver"
                 fi
             fi
-            QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\""
+	    QMakeVar add "${VAR}s" "${VAL}"
         elif [ "$OPT" = "no" ]; then
             PLUG_VAR="${VAR}-plugin"
             if [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "mouse" ]; then
@@ -1288,11 +1319,12 @@ while [ "$#" -gt 0 ]; do
             [ "$VAR" = "gfx" ] && CFG_GFX_ON=`echo "${CFG_GFX_ON} " | sed "s,${VAL} ,,g"`
             [ "$VAR" = "kbd" ] && CFG_KBD_ON=`echo "${CFG_KBD_ON} " | sed "s,${VAL} ,,g"`
             [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"`
-            QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
+	    QMakeVar del "${IN_VAR}s" "$VAL"
+	    QMakeVar del "${PLUG_VAR}s" "$VAL"
         fi
         if [ "$ERROR" = "yes" ]; then
            echo "$CURRENT_OPT: unknown argument"
-           OPT_HELP=yes;
+           OPT_HELP=yes
         fi
         ;;
     v|verbose)
@@ -1327,31 +1359,31 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     add_define)
-        D_FLAGS="$D_FLAGS $VAL"
+        D_FLAGS="$D_FLAGS \"$VAL\""
         ;;
     add_ipath)
-        I_FLAGS="$I_FLAGS -I${VAL}"
+        I_FLAGS="$I_FLAGS -I\"${VAL}\""
         ;;
     add_lpath)
-        L_FLAGS="$L_FLAGS -L${VAL}"
+        L_FLAGS="$L_FLAGS -L\"${VAL}\""
         ;;
     add_rpath)
-        RPATH_FLAGS="$RPATH_FLAGS ${VAL}"
+        RPATH_FLAGS="$RPATH_FLAGS \"${VAL}\""
         ;;
     add_link)
-        l_FLAGS="$l_FLAGS -l${VAL}"
+        l_FLAGS="$l_FLAGS -l\"${VAL}\""
         ;;
     add_fpath)
         if [ "$PLATFORM_MAC" = "yes" ]; then
-            L_FLAGS="$L_FLAGS -F${VAL}"
-            I_FLAGS="$I_FLAGS -F${VAL}"
+            L_FLAGS="$L_FLAGS -F\"${VAL}\""
+            I_FLAGS="$I_FLAGS -F\"${VAL}\""
         else
             UNKNOWN_OPT=yes
         fi
         ;;
     add_framework)
         if [ "$PLATFORM_MAC" = "yes" ]; then
-            l_FLAGS="$l_FLAGS -framework ${VAL}"
+            l_FLAGS="$l_FLAGS -framework \"${VAL}\""
         else
             UNKNOWN_OPT=yes
         fi
@@ -1373,13 +1405,13 @@ done
 #-------------------------------------------------------------------------------
 
 # where to find which..
-unixtests=$relpath/config.tests/unix
-WHICH=$unixtests/which.test
+unixtests="$relpath/config.tests/unix"
+WHICH="$unixtests/which.test"
 
 # find out which awk we want to use, prefer gawk, then nawk, then regular awk
 AWK=
 for e in gawk nawk awk; do
-    if $WHICH $e >/dev/null 2>&1 && ( $e -f /dev/null /dev/null ) >/dev/null 2>&1; then
+    if "$WHICH" $e >/dev/null 2>&1 && ( $e -f /dev/null /dev/null ) >/dev/null 2>&1; then
         AWK=$e
         break
     fi
@@ -1421,25 +1453,25 @@ fi
 # symlink or copy part of the sources
 if [ "$OPT_SHADOW" = "yes" ]; then
     echo "Preparing build tree..."
-    [ -d $outpath/bin ] || mkdir -p $outpath/bin
+    [ -d "$outpath/bin" ] || mkdir -p "$outpath/bin"
 
     # symlink the qmake directory
-    for a in `find $relpath/qmake`; do
-        my_a=`echo $a | sed "s,^${relpath}/,${outpath}/,"`
-        if [ '!' -f $my_a ]; then
-            if [ -d $a ]; then
+    find "$relpath/qmake" | while read a; do
+        my_a=`echo "$a" | sed "s,^${relpath}/,${outpath}/,"`
+        if [ '!' -f "$my_a" ]; then
+            if [ -d "$a" ]; then
                 # directories are created...
-                mkdir -p $my_a
+                mkdir -p "$my_a"
             else
-                a_dir=`dirname $my_a`
-                [ -d $a_dir ] || mkdir -p $a_dir
+                a_dir=`dirname "$my_a"`
+                [ -d "$a_dir" ] || mkdir -p "$a_dir"
                 # ... and files are symlinked
-                case `basename $a` in
+                case `basename "$a"` in
                 *.o|*.d|GNUmakefile*|qmake)
                     ;;
                 *)
-                    rm -f $my_a
-                    ln -s $a $my_a
+                    rm -f "$my_a"
+                    ln -s "$a" "$my_a"
                     ;;
                 esac
             fi
@@ -1450,27 +1482,27 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     rm -f "$outpath/bin/syncqt"
     if [ -x "/usr/bin/perl" ] && [ -x "$relpath/bin/syncqt" ]; then
         mkdir -p "$outpath/bin"
-        echo "#!/bin/sh" >$outpath/bin/syncqt
-        echo "QTDIR=$relpath; export QTDIR" >>$outpath/bin/syncqt
-        [ "$Edition" = "Trolltech" ] && echo "perl $relpath/bin/syncqt -outdir $relpath" >>$outpath/bin/syncqt
-        echo "perl $relpath/bin/syncqt -outdir $outpath" >>$outpath/bin/syncqt
-        chmod 755 $outpath/bin/syncqt
+        echo "#!/bin/sh" >"$outpath/bin/syncqt"
+        echo "QTDIR=\"$relpath\"; export QTDIR" >>"$outpath/bin/syncqt"
+        [ "$Edition" = "Trolltech" ] && echo "perl \"$relpath/bin/syncqt\" -outdir \"$relpath\"" >>"$outpath/bin/syncqt"
+        echo "perl \"$relpath/bin/syncqt\" -outdir \"$outpath\"" >>"$outpath/bin/syncqt"
+        chmod 755 "$outpath/bin/syncqt"
     fi
 
     # symlink the mkspecs directory
-    mkdir -p $outpath/mkspecs
-    rm -f $outpath/mkspecs/*
-    ln -s $relpath/mkspecs/* $outpath/mkspecs
-    rm -f $outpath/mkspecs/default
+    mkdir -p "$outpath/mkspecs"
+    rm -f "$outpath"/mkspecs/*
+    ln -s "$relpath"/mkspecs/* "$outpath/mkspecs"
+    rm -f "$outpath/mkspecs/default"
 
     # symlink the doc directory
-    rm -rf $outpath/doc
-    ln -s $relpath/doc $outpath/doc
+    rm -rf "$outpath/doc"
+    ln -s "$relpath/doc" "$outpath/doc"
 
     # make sure q3porting.xml can be found
-    mkdir -p $outpath/tools/porting/src
-    rm -f $outpath/tools/porting/src/q3porting.xml
-    ln -s $relpath/tools/porting/src/q3porting.xml $outpath/tools/porting/src
+    mkdir -p "$outpath/tools/porting/src"
+    rm -f "$outpath/tools/porting/src/q3porting.xml"
+    ln -s "$relpath/tools/porting/src/q3porting.xml" "$outpath/tools/porting/src"
 fi
 
 if [ "$OPT_FAST" = "auto" ]; then
@@ -1485,7 +1517,7 @@ fi
 if [ -z "$MAKE" ]; then
     MAKE=
     for mk in gmake make; do
-        if $WHICH $mk >/dev/null 2>&1; then
+        if "$WHICH" $mk >/dev/null 2>&1; then
             MAKE=`$WHICH $mk`
             break
         fi
@@ -1714,9 +1746,9 @@ fi
 
 if [ "$PLATFORM_QWS" = "yes" ]; then
     CFG_SM=no
-    PLATFORMS=`find $relpath/mkspecs/qws | sed "s,$relpath/mkspecs/qws/,,"`
+    PLATFORMS=`find "$relpath/mkspecs/qws" | sed "s,$relpath/mkspecs/qws/,,"`
 else
-    PLATFORMS=`find $relpath/mkspecs/ -type f | grep -v qws | sed "s,$relpath/mkspecs/qws/,,"`
+    PLATFORMS=`find "$relpath/mkspecs/" -type f | grep -v qws | sed "s,$relpath/mkspecs/qws/,,"`
 fi
 
 [ -z "$XPLATFORM" ] && XPLATFORM="$PLATFORM"
@@ -1779,14 +1811,14 @@ if [ '!' -f "${XQMAKESPEC}/qplatformdefs.h" ]; then
 fi
 
 # now look at the configs and figure out what platform we are config'd for
-[ '!' -z "`getQMakeConf $XQMAKESPEC | grep QMAKE_LIBS_X11 | awk '{print $3;}'`" ] && PLATFORM_X11=yes
+[ '!' -z "`getQMakeConf \"$XQMAKESPEC\" | grep QMAKE_LIBS_X11 | awk '{print $3;}'`" ] && PLATFORM_X11=yes
 ### echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && PLATFORM_QWS=yes
 
 if [ "$UNAME_SYSTEM" = "SunOS" ]; then
     # Solaris 2.5 and 2.6 have libposix4, which was renamed to librt for Solaris 7 and up
     if echo $UNAME_RELEASE | grep "^5\.[5|6]" >/dev/null 2>&1; then
-        sed -e "s,-lrt,-lposix4," $XQMAKESPEC/qmake.conf > $XQMAKESPEC/qmake.conf.new
-        mv $XQMAKESPEC/qmake.conf.new $XQMAKESPEC/qmake.conf
+        sed -e "s,-lrt,-lposix4," "$XQMAKESPEC/qmake.conf" > "$XQMAKESPEC/qmake.conf.new"
+        mv "$XQMAKESPEC/qmake.conf.new" "$XQMAKESPEC/qmake.conf"
     fi
 fi
 
@@ -1960,13 +1992,13 @@ else
     CFG_UNIVERSAL_BINARY="no"
 fi
 
-TEST_COMPILER=`getQMakeConf $XQMAKESPEC | grep "^QMAKE_CC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+TEST_COMPILER=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
 
 # auto-detect precompiled header support
 if [ "$CFG_PRECOMPILE" = "auto" ]; then
     if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
        CFG_PRECOMPILE=no
-    elif $unixtests/precomp.test $TEST_COMPILER $OPT_VERBOSE; then
+    elif "$unixtests/precomp.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
        CFG_PRECOMPILE=no
     else
        CFG_PRECOMPILE=yes
@@ -1980,7 +2012,7 @@ fi
 
 # auto-detect -fvisibility support
 if [ "$CFG_REDUCE_EXPORTS" = "auto" ]; then
-    if $unixtests/fvisibility.test $TEST_COMPILER $OPT_VERBOSE; then
+    if "$unixtests/fvisibility.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
        CFG_REDUCE_EXPORTS=no
     else
        CFG_REDUCE_EXPORTS=yes
@@ -1988,7 +2020,7 @@ if [ "$CFG_REDUCE_EXPORTS" = "auto" ]; then
 fi
 
 # detect sse support
-if $unixtests/sse.test $TEST_COMPILER $OPT_VERBOSE; then
+if "$unixtests/sse.test" "$TEST_COMPILER" "$OPT_VERBOSE"; then
     CFG_HAVE_SSE=no
 else
     CFG_HAVE_SSE=yes
@@ -1996,7 +2028,7 @@ fi
 
 # check iwmmxt support
 if [ "$CFG_IWMMXT" = "yes" ]; then
-    if ! $unixtests/iwmmxt.test $XQMAKESPEC $OPT_VERBOSE; then
+    if ! "$unixtests/iwmmxt.test" "$XQMAKESPEC" "$OPT_VERBOSE"; then
         echo "The iwmmxt functionality test failed!"
 	echo " Please make sure your compiler supports iwmmxt intrinsics!"
 	exit 1
@@ -2004,7 +2036,7 @@ if [ "$CFG_IWMMXT" = "yes" ]; then
 fi
 
 #auto-detect GNU make support
-if [ "$CFG_USE_GNUMAKE" = "auto" ] && $MAKE -v | grep "GNU Make" >/dev/null 2>&1; then
+if [ "$CFG_USE_GNUMAKE" = "auto" ] && "$MAKE" -v | grep "GNU Make" >/dev/null 2>&1; then
    CFG_USE_GNUMAKE=yes
 fi
 
@@ -2088,7 +2120,7 @@ if [ -z "$QT_INSTALL_PREFIX" ]; then
         QT_INSTALL_PREFIX="/usr/local/Trolltech/Qt-${QT_VERSION}" # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
     fi
 fi
-QT_INSTALL_PREFIX=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PREFIX"`
+QT_INSTALL_PREFIX=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_PREFIX"`
 
 #docs
 if [ -z "$QT_INSTALL_DOCS" ]; then #default
@@ -2100,7 +2132,7 @@ if [ -z "$QT_INSTALL_DOCS" ]; then #default
     [ -z "$QT_INSTALL_DOCS" ] && QT_INSTALL_DOCS="$QT_INSTALL_PREFIX/doc" #fallback
 
 fi
-QT_INSTALL_DOCS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DOCS"`
+QT_INSTALL_DOCS=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_DOCS"`
 
 #headers
 if [ -z "$QT_INSTALL_HEADERS" ]; then #default
@@ -2114,7 +2146,7 @@ if [ -z "$QT_INSTALL_HEADERS" ]; then #default
     [ -z "$QT_INSTALL_HEADERS" ] && QT_INSTALL_HEADERS="$QT_INSTALL_PREFIX/include"
 
 fi
-QT_INSTALL_HEADERS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_HEADERS"`
+QT_INSTALL_HEADERS=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_HEADERS"`
 
 #libs
 if [ -z "$QT_INSTALL_LIBS" ]; then #default
@@ -2127,7 +2159,7 @@ if [ -z "$QT_INSTALL_LIBS" ]; then #default
     fi
     [ -z "$QT_INSTALL_LIBS" ] && QT_INSTALL_LIBS="$QT_INSTALL_PREFIX/lib" #fallback
 fi
-QT_INSTALL_LIBS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_LIBS"`
+QT_INSTALL_LIBS=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_LIBS"`
 
 #bins
 if [ -z "$QT_INSTALL_BINS" ]; then #default
@@ -2139,7 +2171,7 @@ if [ -z "$QT_INSTALL_BINS" ]; then #default
     [ -z "$QT_INSTALL_BINS" ] && QT_INSTALL_BINS="$QT_INSTALL_PREFIX/bin" #fallback
 
 fi
-QT_INSTALL_BINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_BINS"`
+QT_INSTALL_BINS=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_BINS"`
 
 #plugins
 if [ -z "$QT_INSTALL_PLUGINS" ]; then #default
@@ -2150,19 +2182,19 @@ if [ -z "$QT_INSTALL_PLUGINS" ]; then #default
     fi
     [ -z "$QT_INSTALL_PLUGINS" ] && QT_INSTALL_PLUGINS="$QT_INSTALL_PREFIX/plugins" #fallback
 fi
-QT_INSTALL_PLUGINS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PLUGINS"`
+QT_INSTALL_PLUGINS=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_PLUGINS"`
 
 #data
 if [ -z "$QT_INSTALL_DATA" ]; then #default
     QT_INSTALL_DATA="$QT_INSTALL_PREFIX"
 fi
-QT_INSTALL_DATA=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DATA"`
+QT_INSTALL_DATA=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_DATA"`
 
 #translations
 if [ -z "$QT_INSTALL_TRANSLATIONS" ]; then #default
     QT_INSTALL_TRANSLATIONS="$QT_INSTALL_PREFIX/translations"
 fi
-QT_INSTALL_TRANSLATIONS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_TRANSLATIONS"`
+QT_INSTALL_TRANSLATIONS=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_TRANSLATIONS"`
 
 #settings
 if [ -z "$QT_INSTALL_SETTINGS" ]; then #default
@@ -2172,7 +2204,7 @@ if [ -z "$QT_INSTALL_SETTINGS" ]; then #default
 	QT_INSTALL_SETTINGS=/etc/xdg
     fi
 fi
-QT_INSTALL_SETTINGS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_SETTINGS"`
+QT_INSTALL_SETTINGS=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_SETTINGS"`
 
 #examples
 if [ -z "$QT_INSTALL_EXAMPLES" ]; then #default
@@ -2183,7 +2215,7 @@ if [ -z "$QT_INSTALL_EXAMPLES" ]; then #default
     fi
     [ -z "$QT_INSTALL_EXAMPLES" ] && QT_INSTALL_EXAMPLES="$QT_INSTALL_PREFIX/examples" #fallback
 fi
-QT_INSTALL_EXAMPLES=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_EXAMPLES"`
+QT_INSTALL_EXAMPLES=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_EXAMPLES"`
 
 #demos
 if [ -z "$QT_INSTALL_DEMOS" ]; then #default
@@ -2194,7 +2226,7 @@ if [ -z "$QT_INSTALL_DEMOS" ]; then #default
     fi
     [ -z "$QT_INSTALL_DEMOS" ] && QT_INSTALL_DEMOS="$QT_INSTALL_PREFIX/demos"
 fi
-QT_INSTALL_DEMOS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DEMOS"`
+QT_INSTALL_DEMOS=`"$relpath/config.tests/unix/makeabs" "$QT_INSTALL_DEMOS"`
 
 #-------------------------------------------------------------------------------
 # help - interactive parts of the script _after_ this section please
@@ -2647,7 +2679,7 @@ fi # Help
 # -----------------------------------------------------------------------------
 
 if [ "$Edition" = "Qtopia" ]; then
-    TheLicense=`head -n 1 $relpath/LICENSE.Qtopia`
+    TheLicense=`head -n 1 "$relpath/LICENSE.Qtopia"`
     while true; do
         if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
             echo "You have already accepted the terms of the $TheLicense license."
@@ -2675,7 +2707,7 @@ if [ "$Edition" = "Qtopia" ]; then
             echo
             exit 0
         elif [ "$acceptance" = "?" ]; then
-            more $relpath/LICENSE.Qtopia
+            more "$relpath/LICENSE.Qtopia"
         fi
     done
 elif [ "$Edition" = "OpenSource" ]; then
@@ -2720,10 +2752,10 @@ elif [ "$Edition" = "OpenSource" ]; then
             echo
             exit 1
         elif [ "$acceptance" = "G" -o "$acceptance" = "g" ]; then
-            more $relpath/LICENSE.GPL
+            more "$relpath/LICENSE.GPL"
         elif [ "$acceptance" = "Q" -o "$acceptance" = "q" ]; then
             if [ "$PLATFORM_QWS" != "yes" ]; then
-                more $relpath/LICENSE.QPL
+                more "$relpath/LICENSE.QPL"
             fi
         fi
     done
@@ -2755,7 +2787,7 @@ elif [ "$Edition" = "Preview" ]; then
             echo
             exit 0
         elif [ "$acceptance" = "?" ]; then
-            more $relpath/LICENSE.PREVIEW
+            more "$relpath/LICENSE.PREVIEW"
         fi
     done
 elif [ "$Edition" != "Trolltech" ]; then
@@ -2845,7 +2877,7 @@ elif [ "$Edition" != "Trolltech" ]; then
             echo
             exit 1
         else [ "$acceptance" = "?" ]
-            more $relpath/LICENSE
+            more "$relpath/LICENSE"
         fi
     done
 fi
@@ -2855,7 +2887,7 @@ case "$PLATFORM" in
 aix-*)
     AIX_VERSION=`uname -v`
     if [ "$AIX_VERSION" -lt "5" ]; then
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lbind\""
+	QMakeVar add QMAKE_LIBS_X11 -lbind
     fi
     ;;
 *)
@@ -2865,23 +2897,23 @@ esac
 #-------------------------------------------------------------------------------
 # generate qconfig.cpp
 #-------------------------------------------------------------------------------
-[ -d $outpath/src/corelib/global ] || mkdir -p $outpath/src/corelib/global
+[ -d "$outpath/src/corelib/global" ] || mkdir -p "$outpath/src/corelib/global"
 
-LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsuser=$Licensee" "\\0"`
-LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsprod=$Edition" "\\0"`
-PREFIX_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_prfxpath=$QT_INSTALL_PREFIX" "\\0"`
-DOCUMENTATION_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_docspath=$QT_INSTALL_DOCS" "\\0"`
-HEADERS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_hdrspath=$QT_INSTALL_HEADERS" "\\0"`
-LIBRARIES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_libspath=$QT_INSTALL_LIBS" "\\0"`
-BINARIES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_binspath=$QT_INSTALL_BINS" "\\0"`
-PLUGINS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_plugpath=$QT_INSTALL_PLUGINS" "\\0"`
-DATA_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_datapath=$QT_INSTALL_DATA" "\\0"`
-TRANSLATIONS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_trnspath=$QT_INSTALL_TRANSLATIONS" "\\0"`
-SETTINGS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_stngpath=$QT_INSTALL_SETTINGS" "\\0"`
-EXAMPLES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_xmplpath=$QT_INSTALL_EXAMPLES" "\\0"`
-DEMOS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_demopath=$QT_INSTALL_DEMOS" "\\0"`
+LICENSE_USER_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_lcnsuser=$Licensee" "\\0"`
+LICENSE_PRODUCTS_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_lcnsprod=$Edition" "\\0"`
+PREFIX_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_prfxpath=$QT_INSTALL_PREFIX" "\\0"`
+DOCUMENTATION_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_docspath=$QT_INSTALL_DOCS" "\\0"`
+HEADERS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_hdrspath=$QT_INSTALL_HEADERS" "\\0"`
+LIBRARIES_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_libspath=$QT_INSTALL_LIBS" "\\0"`
+BINARIES_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_binspath=$QT_INSTALL_BINS" "\\0"`
+PLUGINS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_plugpath=$QT_INSTALL_PLUGINS" "\\0"`
+DATA_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_datapath=$QT_INSTALL_DATA" "\\0"`
+TRANSLATIONS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_trnspath=$QT_INSTALL_TRANSLATIONS" "\\0"`
+SETTINGS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_stngpath=$QT_INSTALL_SETTINGS" "\\0"`
+EXAMPLES_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_xmplpath=$QT_INSTALL_EXAMPLES" "\\0"`
+DEMOS_PATH_STR=`"$relpath/config.tests/unix/padstring" 268 "qt_demopath=$QT_INSTALL_DEMOS" "\\0"`
 
-cat > $outpath/src/corelib/global/qconfig.cpp.new <<EOF
+cat > "$outpath/src/corelib/global/qconfig.cpp.new" <<EOF
 /* License Info */
 static const char qt_configure_licensee_str          [256 + 12] = "$LICENSE_USER_STR";
 static const char qt_configure_licensed_products_str [256 + 12] = "$LICENSE_PRODUCTS_STR";
@@ -2914,12 +2946,12 @@ static const char qt_configure_demos_path_str        [256 + 12] = "$DEMOS_PATH_S
 EOF
 
 # avoid unecessary rebuilds by copying only if qconfig.cpp has changed
-if cmp -s $outpath/src/corelib/global/qconfig.cpp $outpath/src/corelib/global/qconfig.cpp.new; then
-    rm -f $outpath/src/corelib/global/qconfig.cpp.new
+if cmp -s "$outpath/src/corelib/global/qconfig.cpp" "$outpath/src/corelib/global/qconfig.cpp.new"; then
+    rm -f "$outpath/src/corelib/global/qconfig.cpp.new"
 else
-    [ -f $outpath/src/corelib/global/qconfig.cpp ] && chmod +w $outpath/src/corelib/global/qconfig.cpp
-    mv $outpath/src/corelib/global/qconfig.cpp.new $outpath/src/corelib/global/qconfig.cpp
-    chmod -w $outpath/src/corelib/global/qconfig.cpp
+    [ -f "$outpath/src/corelib/global/qconfig.cpp" ] && chmod +w "$outpath/src/corelib/global/qconfig.cpp"
+    mv "$outpath/src/corelib/global/qconfig.cpp.new" "$outpath/src/corelib/global/qconfig.cpp"
+    chmod -w "$outpath/src/corelib/global/qconfig.cpp"
 fi
 
 # -----------------------------------------------------------------------------
@@ -2931,16 +2963,16 @@ if [ -x "/usr/bin/perl" ] && [ -x "$relpath/bin/syncqt" ]; then
     SYNCQT_OPTS=
     [ "$Edition" = "Trolltech" ] &&  SYNCQT_OPTS="$SYNCQT_OPTS -check-includes"
     if [ "$OPT_SHADOW" = "yes" ]; then
-       $outpath/bin/syncqt $SYNCQT_OPTS
+       "$outpath/bin/syncqt" $SYNCQT_OPTS
     elif [ "$Edition" = "Trolltech" ]; then
-       QTDIR=$relpath perl $outpath/bin/syncqt $SYNCQT_OPTS
+       QTDIR="$relpath" perl "$outpath/bin/syncqt" $SYNCQT_OPTS
     fi
 fi
 
 if [ "$OPT_SHADOW" = "yes" ]; then
     # we are doing a shadow build, so we need to use the includes from
     # $outpath/include as well
-    QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=${outpath}/include\""
+    QMakeVar add INCLUDEPATH "\"${outpath}/include\""
 fi
 
 # $1: variable name
@@ -2951,9 +2983,9 @@ setBootstrapVariable()
 {
     variableRegExp="$1[^_A-Z0-9]"
     if [ -n "$2" ]; then
-	getQMakeConf | grep "$variableRegExp" | sed "$2" >> $mkfile
+	getQMakeConf | grep "$variableRegExp" | sed 's/\+=/=/' | sed "$2" >> "$mkfile"
     else
-	getQMakeConf | grep "$variableRegExp" >> $mkfile
+	getQMakeConf | grep "$variableRegExp" | sed 's/\+=/=/' >> "$mkfile"
     fi
 }
 
@@ -3002,8 +3034,8 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         in_mkfile="$relpath/qmake/$in_mkfile"
         mkfile="$outpath/qmake/$mkfile"
         if [ -f "$mkfile" ]; then
-            [ "$Edition" = "Trolltech" ] && $WHICH chflags >/dev/null 2>&1 && chflags nouchg $mkfile
-            rm -f $mkfile
+            [ "$Edition" = "Trolltech" ] && "$WHICH" chflags >/dev/null 2>&1 && chflags nouchg "$mkfile"
+            rm -f "$mkfile"
         fi
         [ -f "$in_mkfile" ] || continue
 
@@ -3026,7 +3058,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DQMAKE_OPENSOURCE_EDITION"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -DQMAKE_OPENSOURCE_EDITION"
         else
-            echo "include Makefile.commercial" >>$mkfile
+            echo "include Makefile.commercial" >>"$mkfile"
         fi
         if [ "$CFG_DEBUG" = "yes" ]; then
             setBootstrapVariable QMAKE_CFLAGS_DEBUG
@@ -3034,30 +3066,30 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(QMAKE_CXXFLAGS_DEBUG)"
         fi
-	if [ '!' -z "$RPATH_FLAGS" ] && [ '!' -z "`getQMakeConf $QMAKESPEC | grep QMAKE_RPATH | awk '{print $3;}'`" ]; then
+	if [ '!' -z "$RPATH_FLAGS" ] && [ '!' -z "`getQMakeConf \"$QMAKESPEC\" | grep QMAKE_RPATH | awk '{print $3;}'`" ]; then
   	    setBootstrapVariable QMAKE_RPATH 's,\$\$LITERAL_WHITESPACE, ,'
 	    for rpath in $RPATH_FLAGS; do
-		EXTRA_LFLAGS="\$(QMAKE_RPATH)$rpath $EXTRA_LFLAGS"
+		EXTRA_LFLAGS="\$(QMAKE_RPATH)\"$rpath\" $EXTRA_LFLAGS"
             done
         fi
         if [ "$PLATFORM_MAC" = "yes" ]; then
-            echo "export MACOSX_DEPLOYMENT_TARGET = 10.2" >>$mkfile
-            echo "CARBON_LFLAGS =-framework CoreServices -framework CoreFoundation" >>$mkfile
+            echo "export MACOSX_DEPLOYMENT_TARGET = 10.2" >>"$mkfile"
+            echo "CARBON_LFLAGS =-framework CoreServices -framework CoreFoundation" >>"$mkfile"
             EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
             EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
             EXTRA_CXXFLAGS="$EXTRA_CFLAGS \$(CARBON_CXXFLAGS)"
             EXTRA_OBJS="qsettings_mac.o qcore_mac.o"
-            EXTRA_SRCS="$relpath/src/corelib/io/qsettings_mac.cpp $relpath/src/corelib/kernel/qcore_mac.cpp"
+            EXTRA_SRCS="\"$relpath/src/corelib/io/qsettings_mac.cpp\" \"$relpath/src/corelib/kernel/qcore_mac.cpp\""
 	    if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
-		X86_FLAGS=`getQMakeConf $XQMAKESPEC | grep "^QMAKE_CFLAGS_X86[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
-		PPC_FLAGS=`getQMakeConf $XQMAKESPEC | grep "^QMAKE_CFLAGS_PPC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+		X86_FLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CFLAGS_X86[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+		PPC_FLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CFLAGS_PPC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
 		EXTRA_CFLAGS="$X86_CFLAGS $PPC_FLAGS $EXTRA_CFLAGS"
 		EXTRA_CXXFLAGS="$X86_FLAGS $PPC_FLAGS $EXTRA_CXXFLAGS"
                 EXTRA_LFLAGS="$EXTRA_LFLAGS $X86_FLAGS $PPC_FLAGS"
             fi
 	    if [ '!' -z "$CFG_SDK" ]; then
-		echo "SDK_LFLAGS =-Wl,-syslibroot,$CFG_SDK" >>$mkfile
-		echo "SDK_CFLAGS =-isysroot $CFG_SDK" >>$mkfile
+		echo "SDK_LFLAGS =-Wl,-syslibroot,$CFG_SDK" >>"$mkfile"
+		echo "SDK_CFLAGS =-isysroot $CFG_SDK" >>"$mkfile"
 		EXTRA_CFLAGS="$EXTRA_CFLAGS \$(SDK_CFLAGS)"
 		EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(SDK_CFLAGS)"
 		EXTRA_LFLAGS="$EXTRA_LFLAGS \$(SDK_LFLAGS)"
@@ -3066,32 +3098,34 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         [ "$CFG_EMBEDDED" != "no" ] && EXTRA_CFLAGS="$EXTRA_CFLAGS -DQWS"
         if [ '!' -z "$D_FLAGS" ]; then
             for DEF in $D_FLAGS; do
-                EXTRA_CFLAGS="$EXTRA_CFLAGS -D${DEF}"
+                EXTRA_CFLAGS="$EXTRA_CFLAGS \"-D${DEF}\""
             done
         fi
         QMAKE_BIN_DIR="$QT_INSTALL_BINS"
         [ -z "$QMAKE_BIN_DIR" ] && QMAKE_BIN_DIR="${QT_INSTALL_PREFIX}/bin"
         QMAKE_DATA_DIR="$QT_INSTALL_DATA"
         [ -z "$QMAKE_DATA_DIR" ] && QMAKE_DATA_DIR="${QT_INSTALL_PREFIX}"
-        echo >>$mkfile
-        sed -e "s,@SOURCE_PATH@,$relpath,g" -e "s,@BUILD_PATH@,$outpath,g" \
+        echo >>"$mkfile"
+	adjrelpath=`echo "$relpath" | sed 's/ /\\\\\\\\ /g'`
+	adjoutpath=`echo "$outpath" | sed 's/ /\\\\\\\\ /g'`
+        sed -e "s,@SOURCE_PATH@,$adjrelpath,g" -e "s,@BUILD_PATH@,$adjoutpath,g" \
             -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS,g" -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS,g" \
             -e "s,@QMAKE_CXXFLAGS@,$EXTRA_CXXFLAGS,g" \
             -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$QMAKE_BIN_DIR,g" \
             -e "s,@QT_INSTALL_DATA@,\$(INSTALL_ROOT)$QMAKE_DATA_DIR,g" \
             -e "s,@QMAKE_QTOBJS@,$EXTRA_OBJS,g" -e "s,@QMAKE_QTSRCS@,$EXTRA_SRCS,g" \
-	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
+	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" "$in_mkfile" >>"$mkfile"
 
         if [ "$Edition" = "Trolltech" ] &&
-            $WHICH makedepend >/dev/null 2>&1 && grep 'depend:' "$mkfile" >/dev/null 2>&1; then
-            (cd $outpath/qmake && $MAKE -f $mkfile depend) >/dev/null 2>&1
-	    sed "s,^.*/\([^/]*.o\):,\1:,g" $mkfile >${mkfile}.tmp
-	    mv ${mkfile}.tmp ${mkfile}
+            "$WHICH" makedepend >/dev/null 2>&1 && grep 'depend:' "$mkfile" >/dev/null 2>&1; then
+            (cd "$outpath/qmake" && "$MAKE" -f "$mkfile" depend) >/dev/null 2>&1
+	    sed "s,^.*/\([^/]*.o\):,\1:,g" "$mkfile" >"${mkfile}.tmp"
+	    mv "${mkfile}.tmp" "${mkfile}"
         fi
     done
 
     QMAKE_BUILD_ERROR=no
-    (cd $outpath/qmake; $MAKE) || QMAKE_BUILD_ERROR=yes
+    (cd "$outpath/qmake"; "$MAKE") || QMAKE_BUILD_ERROR=yes
     [ '!' -z "$QCONFIG_H" ] && mv -f "$QCONFIG_H" "$QMAKE_QCONFIG_H" #move qmake's qconfig.h to qconfig.h.qmake
     [ '!' -z "$OLD_QCONFIG_H" ] && mv -f "${OLD_QCONFIG_H}.old" "$OLD_QCONFIG_H" #put back qconfig.h
     [ "$QMAKE_BUILD_ERROR" = "yes" ] && exit 2
@@ -3103,7 +3137,7 @@ fi # Build qmake
 
 # detect zlib
 if [ "$CFG_ZLIB" = "auto" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/zlib "zlib" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/zlib "zlib" $L_FLAGS $I_FLAGS $l_FLAGS; then
        CFG_ZLIB=system
     else
        CFG_ZLIB=yes
@@ -3120,7 +3154,7 @@ if [ "$CFG_JPEG" = "auto" ]; then
 fi
 # detect jpeg
 if [ "$CFG_LIBJPEG" = "auto" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/libjpeg "libjpeg" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/libjpeg "libjpeg" $L_FLAGS $I_FLAGS $l_FLAGS; then
        CFG_LIBJPEG=system
     else
        CFG_LIBJPEG=qt
@@ -3137,7 +3171,7 @@ if [ "$CFG_MNG" = "auto" ]; then
 fi
 # detect mng
 if [ "$CFG_LIBMNG" = "auto" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/libmng "libmng" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/libmng "libmng" $L_FLAGS $I_FLAGS $l_FLAGS; then
        CFG_LIBMNG=system
     else
        CFG_LIBMNG=qt
@@ -3146,7 +3180,7 @@ fi
 
 # detect png
 if [ "$CFG_LIBPNG" = "auto" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/libpng "libpng" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/libpng "libpng" $L_FLAGS $I_FLAGS $l_FLAGS; then
        CFG_LIBPNG=system
     else
        CFG_LIBPNG=qt
@@ -3167,13 +3201,13 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
 #            QT_LFLAGS_MYSQL_R=`mysql_config --libs_r 2>/dev/null`
 #            QT_LFLAGS_MYSQL=`mysql_config --libs 2>/dev/null`
             if [ "$CFG_SQL_mysql" != "no" ]; then
-                if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/mysql_r "MySQL (thread-safe)" $QT_LFLAGS_MYSQL_R $L_FLAGS $QT_CFLAGS_MYSQL $I_FLAGS $l_FLAGS; then
-                    QMAKE_VARS="$QMAKE_VARS \"CONFIG += use_libmysqlclient_r\""
+                if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/mysql_r "MySQL (thread-safe)" $QT_LFLAGS_MYSQL_R $L_FLAGS $QT_CFLAGS_MYSQL $I_FLAGS $l_FLAGS; then
+		    QMakeVar add CONFIG use_libmysqlclient_r
                     if [ "$CFG_SQL_mysql" = "auto" ]; then
                         CFG_SQL_mysql=plugin
                     fi
                     QT_LFLAGS_MYSQL="$QT_LFLAGS_MYSQL_R"
-                elif $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/mysql "MySQL (thread-unsafe)" $QT_LFLAGS_MYSQL $L_FLAGS $QT_CFLAGS_MYSQL $I_FLAGS $l_FLAGS; then
+                elif "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/mysql "MySQL (thread-unsafe)" $QT_LFLAGS_MYSQL $L_FLAGS $QT_CFLAGS_MYSQL $I_FLAGS $l_FLAGS; then
                     if [ "$CFG_SQL_mysql" = "auto" ]; then
                         CFG_SQL_mysql=plugin
                     fi
@@ -3196,7 +3230,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                 QT_LFLAGS_PSQL=`pg_config --libdir 2>/dev/null`
                 [ -z "$QT_CFLAGS_PSQL" ] || QT_CFLAGS_PSQL="-I$QT_CFLAGS_PSQL"
                 [ -z "$QT_LFLAGS_PSQL" ] || QT_LFLAGS_PSQL="-L$QT_LFLAGS_PSQL"
-                if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/psql "PostgreSQL" $QT_LFLAGS_PSQL $L_FLAGS $QT_CFLAGS_PSQL $I_FLAGS $l_FLAGS; then
+                if "$unixtests/compile.test" $XQMAKESPEC $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/psql "PostgreSQL" $QT_LFLAGS_PSQL $L_FLAGS $QT_CFLAGS_PSQL $I_FLAGS $l_FLAGS; then
                     if [ "$CFG_SQL_psql" = "auto" ]; then
                         CFG_SQL_psql=plugin
                     fi
@@ -3215,7 +3249,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
         ;;
         odbc)
             if [ "$CFG_SQL_odbc" != "no" ]; then
-                if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/odbc "ODBC" $L_FLAGS $I_FLAGS $l_FLAGS; then
+                if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/odbc "ODBC" $L_FLAGS $I_FLAGS $l_FLAGS; then
                     if [ "$CFG_SQL_odbc" = "auto" ]; then
                         CFG_SQL_odbc=plugin
                     fi
@@ -3234,7 +3268,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
             ;;
         oci)
             if [ "$CFG_SQL_oci" != "no" ]; then
-                if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/oci "OCI" $L_FLAGS $I_FLAGS $l_FLAGS; then
+                if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/oci "OCI" $L_FLAGS $I_FLAGS $l_FLAGS; then
                     if [ "$CFG_SQL_oci" = "auto" ]; then
                         CFG_SQL_oci=plugin
                     fi
@@ -3253,7 +3287,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
             ;;
         tds)
             if [ "$CFG_SQL_tds" != "no" ]; then
-                if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/tds "TDS" $L_FLAGS $I_FLAGS $l_FLAGS; then
+                if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/tds "TDS" $L_FLAGS $I_FLAGS $l_FLAGS; then
                     if [ "$CFG_SQL_tds" = "auto" ]; then
                         CFG_SQL_tds=plugin
                     fi
@@ -3272,7 +3306,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
             ;;
         db2)
             if [ "$CFG_SQL_db2" != "no" ]; then
-                if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/db2 "DB2" $L_FLAGS $I_FLAGS $l_FLAGS; then
+                if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/db2 "DB2" $L_FLAGS $I_FLAGS $l_FLAGS; then
                     if [ "$CFG_SQL_db2" = "auto" ]; then
                         CFG_SQL_db2=plugin
                     fi
@@ -3291,7 +3325,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
             ;;
         ibase)
             if [ "$CFG_SQL_ibase" != "no" ]; then
-                if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/ibase "InterBase" $L_FLAGS $I_FLAGS $l_FLAGS; then
+                if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/ibase "InterBase" $L_FLAGS $I_FLAGS $l_FLAGS; then
                     if [ "$CFG_SQL_ibase" = "auto" ]; then
                         CFG_SQL_ibase=plugin
                     fi
@@ -3310,7 +3344,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
             ;;
         sqlite2)
             if [ "$CFG_SQL_sqlite2" != "no" ]; then
-                if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/sqlite2 "SQLite2" $L_FLAGS $I_FLAGS $l_FLAGS; then
+                if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/sqlite2 "SQLite2" $L_FLAGS $I_FLAGS $l_FLAGS; then
                     if [ "$CFG_SQL_sqlite2" = "auto" ]; then
                         CFG_SQL_sqlite2=plugin
                     fi
@@ -3335,7 +3369,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                         QT_CFLAGS_SQLITE=`pkg-config --cflags sqlite3`
                         QT_LFLAGS_SQLITE=`pkg-config --libs sqlite3`
                     fi
-                    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/sqlite "SQLite" $QT_LFLAGS_SQLITE $L_FLAGS $QT_CFLAGS_SQLITE $I_FLAGS $l_FLAGS; then
+                    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/sqlite "SQLite" $QT_LFLAGS_SQLITE $L_FLAGS $QT_CFLAGS_SQLITE $I_FLAGS $l_FLAGS; then
                         if [ "$CFG_SQL_sqlite" = "auto" ]; then
                             CFG_SQL_sqlite=plugin
                             QMAKE_CONFIG="$QMAKE_CONFIG system-sqlite"
@@ -3344,7 +3378,7 @@ for _SQLDR in $CFG_SQL_AVAILABLE; do
                         SQLITE_AUTODETECT_FAILED="yes"
                         CFG_SQL_sqlite=no
                     fi
-                elif [ -f $relpath/src/3rdparty/sqlite/sqlite3.h ]; then
+                elif [ -f "$relpath/src/3rdparty/sqlite/sqlite3.h" ]; then
                     if [ "$CFG_SQL_sqlite" = "auto" ]; then
                             CFG_SQL_sqlite=plugin
                     fi
@@ -3372,7 +3406,7 @@ done
 
 # auto-detect NIS support
 if [ "$CFG_NIS" != "no" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/nis "NIS" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/nis "NIS" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_NIS=yes
     else
         if [ "$CFG_NIS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3389,7 +3423,7 @@ fi
 
 # auto-detect CUPS support
 if [ "$CFG_CUPS" != "no" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/cups "Cups" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/cups "Cups" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_CUPS=yes
     else
         if [ "$CFG_CUPS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3406,20 +3440,20 @@ fi
 
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
-    x11tests=$relpath/config.tests/x11
+    x11tests="$relpath/config.tests/x11"
     X11TESTS_FLAGS=
 
     # work around broken X11 headers when using GCC 2.95 or later
     NOTYPE=no
-    $x11tests/notype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath && NOTYPE=yes
+    "$x11tests/notype.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" && NOTYPE=yes
     if [ $NOTYPE = "yes" ]; then
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fpermissive\""
+	QMakeVar add QMAKE_CXXFLAGS -fpermissive
         X11TESTS_FLAGS="$X11TESTS_FLAGS -fpermissive"
     fi
 
     # auto-detect OpenGL support
     if [ "$CFG_OPENGL" = "auto" ]; then
-        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/opengl "OpenGL" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+        if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/opengl "OpenGL" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
             CFG_OPENGL=yes
         else
             CFG_OPENGL=no
@@ -3428,7 +3462,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xcursor support
     if [ "$CFG_XCURSOR" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xcursor "Xcursor" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+	if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/xcursor "Xcursor" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XCURSOR=yes
 	else
 	    if [ "$CFG_XCURSOR" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3445,7 +3479,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xfixes support
     if [ "$CFG_XFIXES" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xfixes "Xfixes" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
+	if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/xfixes "Xfixes" $L_FLAGS $I_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XFIXES=yes
 	else
 	    if [ "$CFG_XFIXES" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3462,7 +3496,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xrandr support (resize and rotate extension)
     if [ "$CFG_XRANDR" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrandr "Xrandr" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+	if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/xrandr "Xrandr" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XRANDR=yes
 	else
 	    if [ "$CFG_XRANDR" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3479,7 +3513,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xrender support
     if [ "$CFG_XRENDER" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xrender "Xrender" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+	if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/xrender "Xrender" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XRENDER=yes
 	else
 	    if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3496,9 +3530,9 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect FontConfig support
     if [ "$CFG_FONTCONFIG" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/fontconfig "FontConfig" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+	if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/fontconfig "FontConfig" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
 	    CFG_FONTCONFIG=yes
-	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=-lfreetype -lfontconfig \$\$QMAKE_LIBS_X11\""
+	    QMakeVar set QMAKE_LIBS_X11 '-lfreetype -lfontconfig $$QMAKE_LIBS_X11'
 	    CFG_LIBFREETYPE=system
 	else
 	    if [ "$CFG_FONTCONFIG" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3515,7 +3549,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Session Management support
     if [ "$CFG_SM" = "auto" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/sm "Session Management" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+	if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/sm "Session Management" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
 	    CFG_SM=yes
 	else
 	    if [ "$CFG_SM" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3532,7 +3566,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect SHAPE support
     if [ "$CFG_XSHAPE" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xshape "XShape" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+	if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/xshape "XShape" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XSHAPE=yes
 	else
 	    if [ "$CFG_XSHAPE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3549,7 +3583,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Xinerama support
     if [ "$CFG_XINERAMA" != "no" ]; then
-	if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinerama "Xinerama" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+	if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/xinerama "Xinerama" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
 	    CFG_XINERAMA=yes
 	else
 	    if [ "$CFG_XINERAMA" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3566,7 +3600,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect tablet support (currenlty only in IRIX)
     if [ "$CFG_TABLET" != "no" ]; then
-        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xinput "Tablet (XInput)" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+        if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/xinput "Tablet (XInput)" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
             CFG_TABLET=yes
         else
             if [ "$CFG_TABLET" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3583,7 +3617,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect XKB support
     if [ "$CFG_XKB" != "no" ]; then
-        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/xkb "XKB" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
+        if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/xkb "XKB" $L_FLAGS $I_FLAGS $l_FLAGS $X11TESTS_FLAGS; then
             CFG_XKB=yes
         else
             if [ "$CFG_XKB" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3600,14 +3634,14 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 
     # auto-detect Glib support
     if [ "$CFG_GLIB" != "no" ]; then
-        if $WHICH pkg-config >/dev/null 2>&1; then
+        if "$WHICH" pkg-config >/dev/null 2>&1; then
             QT_CFLAGS_GLIB=`pkg-config --cflags glib-2.0`
             QT_LIBS_GLIB=`pkg-config --libs glib-2.0`
         fi
-        if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/x11/glib "Glib" $L_FLAGS $I_FLAGS $l_FLAGS $QT_CFLAGS_GLIB $QT_LIBS_GLIB $X11TESTS_FLAGS; then
+        if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/x11/glib "Glib" $L_FLAGS $I_FLAGS $l_FLAGS $QT_CFLAGS_GLIB $QT_LIBS_GLIB $X11TESTS_FLAGS; then
             CFG_GLIB=yes
-            QMAKE_VARS="$QMAKE_VARS \"QT_CFLAGS_GLIB = $QT_CFLAGS_GLIB\""
-            QMAKE_VARS="$QMAKE_VARS \"QT_LIBS_GLIB = $QT_LIBS_GLIB\""
+	    QMakeVar set QT_CFLAGS_GLIB "$QT_CFLAGS_GLIB"
+	    QMakeVar set QT_LIBS_GLIB "$QT_LIBS_GLIB"
         else
             if [ "$CFG_GLIB" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
                 echo "Glib support cannot be enabled due to functionality tests!"
@@ -3626,7 +3660,7 @@ fi # X11
 [ "x$CFG_EMBEDDED" != "xno" ] && CFG_LIBFREETYPE="$CFG_QWS_FREETYPE"
 [ "x$PLATFORM_MAC" = "xyes" ] && CFG_LIBFREETYPE=no
 if [ "$CFG_LIBFREETYPE" = "auto" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/freetype "FreeType" $L_FLAGS $I_FLAGS $l_FLAGS ; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/freetype "FreeType" $L_FLAGS $I_FLAGS $l_FLAGS ; then
         CFG_LIBFREETYPE=system
     else
         CFG_LIBFREETYPE=yes
@@ -3638,7 +3672,7 @@ if [ "$CFG_ENDIAN" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
 	true #leave as auto
     else
-        $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
+        "$unixtests/endian.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath"
 	F="$?"
         if [ "$F" -eq 0 ]; then
             CFG_ENDIAN="Q_LITTLE_ENDIAN"
@@ -3656,7 +3690,7 @@ if [ "$CFG_ENDIAN" = "auto" ]; then
 fi
 
 if [ "$CFG_STL" != "no" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/stl "STL" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/stl "STL" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_STL=yes
     else
         if [ "$CFG_STL" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3673,7 +3707,7 @@ fi
 
 # find if the platform supports IPv6
 if [ "$CFG_IPV6" != "no" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/ipv6 "IPv6" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/ipv6 "IPv6" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_IPV6=yes
     else
         if [ "$CFG_IPV6" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3690,7 +3724,7 @@ fi
 
 # find if the platform provides getaddrinfo (ipv6 dns lookups)
 if [ "$CFG_GETADDRINFO" != "no" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/getaddrinfo "getaddrinfo" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/getaddrinfo "getaddrinfo" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_GETADDRINFO=yes
     else
 	if [ "$CFG_GETADDRINFO" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3707,7 +3741,7 @@ fi
 
 # find if the platform provides if_nametoindex (ipv6 interface name support)
 if [ "$CFG_IPV6IFNAME" != "no" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/ipv6ifname "IPv6 interface name" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/ipv6ifname "IPv6 interface name" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_IPV6IFNAME=yes
     else
         if [ "$CFG_IPV6IFNAME" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3724,7 +3758,7 @@ fi
 
 # find if the platform supports X/Open Large File compilation environment
 if [ "$CFG_LARGEFILE" != "no" ]; then
-    if $unixtests/compile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath config.tests/unix/largefile "X/Open Large File" $L_FLAGS $I_FLAGS $l_FLAGS; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/largefile "X/Open Large File" $L_FLAGS $I_FLAGS $l_FLAGS; then
         CFG_LARGEFILE=yes
     else
         if [ "$CFG_LARGEFILE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3809,7 +3843,7 @@ minimal|small|medium|large|full)
     ;;
 *)
     # not known to be sufficient for anything
-    if [ '!' -f $relpath/src/corelib/global/qconfig-$CFG_QCONFIG.h ]; then
+    if [ '!' -f "$relpath/src/corelib/global/qconfig-${CFG_QCONFIG}.h" ]; then
         echo >&2 "No such configuration: $CFG_QCONFIG"
         OPT_HELP=yes
     fi
@@ -3834,11 +3868,11 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$CFG_EMBEDDED"
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     QT_CONFIG="$QT_CONFIG embedded"
-    rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
+    rm -f "src/.moc/$QMAKE_OUTDIR/allmoc.cpp" # needs remaking if config changes
 fi
-QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\""
-QMAKE_VARS="$QMAKE_VARS \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
-QMAKE_VARS="$QMAKE_VARS \"RCC_DIR=.rcc/$QMAKE_OUTDIR\""
+QMakeVar set OBJECTS_DIR ".obj/$QMAKE_OUTDIR"
+QMakeVar set MOC_DIR ".moc/$QMAKE_OUTDIR"
+QMakeVar set RCC_DIR ".rcc/$QMAKE_OUTDIR"
 if [ "$CFG_LARGEFILE" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG largefile"
 fi
@@ -3937,35 +3971,35 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     fi
     if [ "$CFG_XINERAMA" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xinerama"
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXinerama \$\$QMAKE_LIBS_X11\""
+	QMakeVar set QMAKE_LIBS_X11 '-lXinerama $$QMAKE_LIBS_X11'
     fi
     if [ "$CFG_XCURSOR" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xcursor"
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXcursor \$\$QMAKE_LIBS_X11\""
+	QMakeVar set QMAKE_LIBS_X11 '-lXcursor $$QMAKE_LIBS_X11'
     fi
     if [ "$CFG_XFIXES" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xfixes"
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXfixes \$\$QMAKE_LIBS_X11\""
+	QMakeVar set QMAKE_LIBS_X11 '-lXfixes $$QMAKE_LIBS_X11'
     fi
     if [ "$CFG_XRANDR" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xrandr"
         if [ "$CFG_XRENDER" != "yes" ]; then
-            # libXranr uses 1 function from libXrender, so we always have to have it :/
-            QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrandr -lXrender \$\$QMAKE_LIBS_X11\""
+            # libXrandr uses 1 function from libXrender, so we always have to have it :/
+	    QMakeVar set QMAKE_LIBS_X11 '-lXrandr -lXrender $$QMAKE_LIBS_X11'
         else
-            QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrandr \$\$QMAKE_LIBS_X11\""
+	    QMakeVar set QMAKE_LIBS_X11 '-lXrandr $$QMAKE_LIBS_X11'
         fi
     fi
     if [ "$CFG_XRENDER" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xrender"
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrender \$\$QMAKE_LIBS_X11\""
+	QMakeVar set QMAKE_LIBS_X11 '-lXrender $$QMAKE_LIBS_X11'
     fi
     if [ "$CFG_FONTCONFIG" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG fontconfig"
     fi
     if [ "$CFG_TABLET" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG tablet"
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXi \$\$QMAKE_LIBS_X11\""
+	QMakeVar set QMAKE_LIBS_X11 '-lXi $$QMAKE_LIBS_X11'
     fi
     if [ "$CFG_XKB" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xkb"
@@ -3977,15 +4011,15 @@ elif [ "$PLATFORM_MAC" = "yes" ]; then
     fi
 fi
 
-[ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
-[ '!' -z "$L_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_FLAGS+=$L_FLAGS\""
-[ '!' -z "$l_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"LIBS+=$l_FLAGS\""
+[ '!' -z "$D_FLAGS" ] && QMakeVar add DEFINES "$D_FLAGS"
+[ '!' -z "$L_FLAGS" ] && QMakeVar add QMAKE_LIBDIR_FLAGS "$L_FLAGS"
+[ '!' -z "$l_FLAGS" ] && QMakeVar add LIBS "$l_FLAGS"
 
 if [ "$PLATFORM_MAC" = "yes" ]; then
     if [ "$CFG_RPATH" = "yes" ]; then
        QMAKE_CONFIG="$QMAKE_CONFIG absolute_library_soname"
     fi
-elif [ -z "`getQMakeConf $XQMAKESPEC | grep QMAKE_RPATH | awk '{print $3;}'`" ]; then
+elif [ -z "`getQMakeConf \"$XQMAKESPEC\" | grep QMAKE_RPATH | awk '{print $3;}'`" ]; then
     if [ -n "$RPATH_FLAGS" ]; then
         echo
         echo "ERROR: -R cannot be used on this platform as \$QMAKE_RPATH is"
@@ -3999,18 +4033,18 @@ elif [ -z "`getQMakeConf $XQMAKESPEC | grep QMAKE_RPATH | awk '{print $3;}'`" ];
 else
     if [ "$CFG_RPATH" = "yes" ]; then
         # set the default rpath to the library installation directory
-        RPATH_FLAGS="$QT_INSTALL_LIBS $RPATH_FLAGS"
+        RPATH_FLAGS="\"$QT_INSTALL_LIBS\" $RPATH_FLAGS"
     fi
     if [ -n "$RPATH_FLAGS" ]; then
         # add the user defined rpaths
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_RPATHDIR+=$RPATH_FLAGS\""
+	QMakeVar add QMAKE_RPATHDIR "$RPATH_FLAGS"
     fi
 fi
 
 if [ '!' -z "$I_FLAGS" ]; then
     # add the user define include paths
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=$I_FLAGS\""
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=$I_FLAGS\""
+    QMakeVar add QMAKE_CFLAGS "$I_FLAGS"
+    QMakeVar add QMAKE_CXXFLAGS "$I_FLAGS"
 fi
 
 # turn off exceptions for the compilers that support it
@@ -4022,16 +4056,16 @@ fi
 if [ "$CFG_EXCEPTIONS" = "no" ]; then
     case "$COMPILER" in
     g++*)
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-fno-exceptions\""
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-fno-exceptions\""
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-fno-exceptions\""
+	QMakeVar add QMAKE_CFLAGS -fno-exceptions
+	QMakeVar add QMAKE_CXXFLAGS -fno-exceptions
+	QMakeVar add QMAKE_LFLAGS -fno-exceptions
         ;;
     cc*)
         case "$PLATFORM" in
         irix-cc*)
-            QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=-LANG:exceptions=off\""
-            QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-LANG:exceptions=off\""
-            QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=-LANG:exceptions=off\""
+	    QMakeVar add QMAKE_CFLAGS -LANG:exceptions=off
+	    QMakeVar add QMAKE_CXXFLAGS -LANG:exceptions=off
+	    QMakeVar add QMAKE_LFLAGS -LANG:exceptions=off
             ;;
         *) ;;
         esac
@@ -4189,16 +4223,16 @@ QT_BUILD_KEY=`echo $QT_BUILD_KEY | sed -e "s,  *, ,g" -e "s,^  *,," -e "s,  *$,,
 
 case "$CFG_QCONFIG" in
 full)
-    echo "/* Everything */" >$outpath/src/corelib/global/qconfig.h.new
+    echo "/* Everything */" >"$outpath/src/corelib/global/qconfig.h.new"
     ;;
 *)
-    tmpconfig=$outpath/src/corelib/global/qconfig.h.new
-    echo "#ifndef QT_BOOTSTRAPPED" >$tmpconfig
-    echo "#include <qconfig-$CFG_QCONFIG.h>" >>$tmpconfig
-    echo "#endif" >>$tmpconfig
+    tmpconfig="$outpath/src/corelib/global/qconfig.h.new"
+    echo "#ifndef QT_BOOTSTRAPPED" >"$tmpconfig"
+    echo "#include <qconfig-$CFG_QCONFIG.h>" >>"$tmpconfig"
+    echo "#endif" >>"$tmpconfig"
     ;;
 esac
-cat >>$outpath/src/corelib/global/qconfig.h.new <<EOF
+cat >>"$outpath/src/corelib/global/qconfig.h.new" <<EOF
 
 /* Qt Edition */
 #ifndef QT_EDITION
@@ -4212,7 +4246,7 @@ cat >>$outpath/src/corelib/global/qconfig.h.new <<EOF
 #define Q_LITTLE_ENDIAN 1234
 EOF
 if [ "$CFG_ENDIAN" = "auto" ]; then
-    cat >>$outpath/src/corelib/global/qconfig.h.new <<EOF
+    cat >>"$outpath/src/corelib/global/qconfig.h.new" <<EOF
 #if defined(__BIG_ENDIAN__)
 # define Q_BYTE_ORDER Q_BIG_ENDIAN
 #elif defined(__LITTLE_ENDIAN__)
@@ -4222,26 +4256,26 @@ if [ "$CFG_ENDIAN" = "auto" ]; then
 #endif
 EOF
 else
-    echo "#define Q_BYTE_ORDER $CFG_ENDIAN" >>$outpath/src/corelib/global/qconfig.h.new
+    echo "#define Q_BYTE_ORDER $CFG_ENDIAN" >>"$outpath/src/corelib/global/qconfig.h.new"
 fi
 
-echo '/* Machine Architecture */' >>$outpath/src/corelib/global/qconfig.h.new
+echo '/* Machine Architecture */' >>"$outpath/src/corelib/global/qconfig.h.new"
 ARCH_STR=`echo $ARCH | tr '[:lower:]' '[:upper:]'`
-echo "#define QT_ARCH_${ARCH_STR}" >>$outpath/src/corelib/global/qconfig.h.new
+echo "#define QT_ARCH_${ARCH_STR}" >>"$outpath/src/corelib/global/qconfig.h.new"
 
-echo '/* Compile time features */' >>$outpath/src/corelib/global/qconfig.h.new
-[ '!' -z "$LicenseKeyExt" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKeyExt\"" >>$outpath/src/corelib/global/qconfig.h.new
+echo '/* Compile time features */' >>"$outpath/src/corelib/global/qconfig.h.new"
+[ '!' -z "$LicenseKeyExt" ] && echo "#define QT_PRODUCT_LICENSEKEY \"$LicenseKeyExt\"" >>"$outpath/src/corelib/global/qconfig.h.new"
 
 if [ "$CFG_LARGEFILE" = "yes" ]; then
-    echo "#define QT_LARGEFILE_SUPPORT 64" >>$outpath/src/corelib/global/qconfig.h.new
+    echo "#define QT_LARGEFILE_SUPPORT 64" >>"$outpath/src/corelib/global/qconfig.h.new"
 fi
 
-$unixtests/ptrsize.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
-echo "#define QT_POINTER_SIZE $?" >>$outpath/src/corelib/global/qconfig.h.new
-echo "" >>$outpath/src/corelib/global/qconfig.h.new
+"$unixtests/ptrsize.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath"
+echo "#define QT_POINTER_SIZE $?" >>"$outpath/src/corelib/global/qconfig.h.new"
+echo "" >>"$outpath/src/corelib/global/qconfig.h.new"
 
 if [ "$Edition" = "Trolltech" ]; then
-    echo "#define QT_BUILD_INTERNAL" >>$outpath/src/corelib/global/qconfig.h.new
+    echo "#define QT_BUILD_INTERNAL" >>"$outpath/src/corelib/global/qconfig.h.new"
 fi
 
 # Embedded compile time options
@@ -4250,28 +4284,9 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS Q_WS_QWS"
 
     # Add excluded decorations to $QCONFIG_FLAGS
-    VDECORATION=no
-    VNO=no
-    for QMVAR in $QMAKE_VARS; do
-        STRIPPED=`echo $QMVAR | sed 's,^",,' | sed 's,"$,,'`
-        if [ "$VDECORATION" = "yes" ]; then
-            if [ "$VNO" = "yes" ]; then
-                NODECORATION=`echo $STRIPPED | tr '[:lower:]' '[:upper:]'`
-                QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DECORATION_$NODECORATION"
-                VDECORATION=no
-                VNO=no
-            else
-                if [ "$STRIPPED" = "-=" ]; then
-                    VNO=yes
-                else
-                    VDECORATION=no
-                fi
-            fi
-        else
-            if [ "$STRIPPED" = "decorations" ]; then
-                VDECORATION=yes
-            fi
-        fi
+    grep '^decorations -=' "$QMAKE_VARS_FILE" | while read decor; do
+        NODECORATION=`echo $decor | tr '[:lower:]' '[:upper:]'`
+        QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DECORATION_$NODECORATION"
     done
 
     # Figure which embedded drivers which are turned off
@@ -4321,8 +4336,8 @@ for DRIVER in $CFG_SQL_AVAILABLE; do
     esac
 done
 
-QMAKE_VARS="$QMAKE_VARS \"sql-drivers = $SQL_DRIVERS\""
-QMAKE_VARS="$QMAKE_VARS \"sql-plugins = $SQL_PLUGINS\""
+QMakeVar set sql-drivers "$SQL_DRIVERS"
+QMakeVar set sql-plugins "$SQL_PLUGINS"
 
 # Add other configuration options to the qconfig.h file
 [ "$CFG_GIF" = "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_BUILTIN_GIF_READER=1"
@@ -4372,14 +4387,14 @@ if [ -n "$QCONFIG_FLAGS" ]; then
         fi
 
         if [ -z $cfgdNeg ]; then
-cat >>$outpath/src/corelib/global/qconfig.h.new << EOF
+cat >>"$outpath/src/corelib/global/qconfig.h.new" << EOF
 #ifndef $cfgd
 # define $cfg
 #endif
 
 EOF
         else
-cat >>$outpath/src/corelib/global/qconfig.h.new << EOF
+cat >>"$outpath/src/corelib/global/qconfig.h.new" << EOF
 #if defined($cfgd) && defined($cfgdNeg)
 # undef $cfgd
 #elif !defined($cfgd) && !defined($cfgdNeg)
@@ -4392,7 +4407,7 @@ EOF
 fi
 
 if [ "$CFG_REDUCE_EXPORTS" = "yes" ]; then
-cat >>$outpath/src/corelib/global/qconfig.h.new << EOF
+cat >>"$outpath/src/corelib/global/qconfig.h.new" << EOF
 #define QT_VISIBILITY_AVAILABLE
 
 EOF
@@ -4416,8 +4431,8 @@ fi
 # save configuration into qconfig.pri
 #-------------------------------------------------------------------------------
 
-QTCONFIG=$outpath/mkspecs/qconfig.pri
-[ -f $QTCONFIG.tmp ] && rm -f $QTCONFIG.tmp
+QTCONFIG="$outpath/mkspecs/qconfig.pri"
+[ -f "$QTCONFIG.tmp" ] && rm -f "$QTCONFIG.tmp"
 QTCONFIG_CONFIG=
 if [ "$CFG_DEBUG" = "yes" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG debug"
@@ -4443,7 +4458,7 @@ fi
 if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG x86 ppc"
 fi
-cat >>$QTCONFIG.tmp <<EOF
+cat >>"$QTCONFIG.tmp" <<EOF
 #configuration
 CONFIG += $QTCONFIG_CONFIG
 QT_ARCH = $ARCH
@@ -4458,22 +4473,22 @@ QT_PATCH_VERSION = $QT_PATCH_VERSION
 
 EOF
 if [ "$CFG_RPATH" = "yes" ]; then
-    echo "QMAKE_RPATHDIR += $QT_INSTALL_LIBS" >> $QTCONFIG.tmp
+    echo "QMAKE_RPATHDIR += \"$QT_INSTALL_LIBS\"" >> "$QTCONFIG.tmp"
 fi
 # replace qconfig.pri if it differs from the newly created temp file
-if cmp -s $QTCONFIG.tmp $QTCONFIG; then
-    rm -f $QTCONFIG.tmp
+if cmp -s "$QTCONFIG.tmp" "$QTCONFIG"; then
+    rm -f "$QTCONFIG.tmp"
 else
-    mv -f $QTCONFIG.tmp $QTCONFIG
+    mv -f "$QTCONFIG.tmp" "$QTCONFIG"
 fi
 
 #-------------------------------------------------------------------------------
 # save configuration into .qmake.cache
 #-------------------------------------------------------------------------------
 
-CACHEFILE=$outpath/.qmake.cache
-[ -f $CACHEFILE.tmp ] && rm -f $CACHEFILE.tmp
-cat >>$CACHEFILE.tmp <<EOF
+CACHEFILE="$outpath/.qmake.cache"
+[ -f "$CACHEFILE.tmp" ] && rm -f "$CACHEFILE.tmp"
+cat >>"$CACHEFILE.tmp" <<EOF
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath fix_output_dirs QTDIR_build
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
@@ -4492,80 +4507,63 @@ QMAKE_LIBDIR_QT  = \$\$QT_BUILD_TREE/lib
 EOF
 
 if [ -n "$QT_CFLAGS_PSQL" ]; then
-    echo "QT_CFLAGS_PSQL   = $QT_CFLAGS_PSQL" >> $CACHEFILE.tmp
+    echo "QT_CFLAGS_PSQL   = $QT_CFLAGS_PSQL" >> "$CACHEFILE.tmp"
 fi
 if [ -n "$QT_LFLAGS_PSQL" ]; then
-    echo "QT_LFLAGS_PSQL   = $QT_LFLAGS_PSQL" >> $CACHEFILE.tmp
+    echo "QT_LFLAGS_PSQL   = $QT_LFLAGS_PSQL" >> "$CACHEFILE.tmp"
 fi
 if [ -n "$QT_CFLAGS_MYSQL" ]; then
-    echo "QT_CFLAGS_MYSQL   = $QT_CFLAGS_MYSQL" >> $CACHEFILE.tmp
+    echo "QT_CFLAGS_MYSQL   = $QT_CFLAGS_MYSQL" >> "$CACHEFILE.tmp"
 fi
 if [ -n "$QT_LFLAGS_MYSQL" ]; then
-    echo "QT_LFLAGS_MYSQL   = $QT_LFLAGS_MYSQL" >> $CACHEFILE.tmp
+    echo "QT_LFLAGS_MYSQL   = $QT_LFLAGS_MYSQL" >> "$CACHEFILE.tmp"
 fi
 if [ -n "$QT_CFLAGS_SQLITE" ]; then
-    echo "QT_CFLAGS_SQLITE   = $QT_CFLAGS_SQLITE" >> $CACHEFILE.tmp
+    echo "QT_CFLAGS_SQLITE   = $QT_CFLAGS_SQLITE" >> "$CACHEFILE.tmp"
 fi
 if [ -n "$QT_LFLAGS_SQLITE" ]; then
-    echo "QT_LFLAGS_SQLITE   = $QT_LFLAGS_SQLITE" >> $CACHEFILE.tmp
+    echo "QT_LFLAGS_SQLITE   = $QT_LFLAGS_SQLITE" >> "$CACHEFILE.tmp"
 fi
 
 if [ "$QT_EDITION" != "QT_EDITION_OPENSOURCE" ]; then
-    echo "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" >>$CACHEFILE.tmp
+    echo "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" >> "$CACHEFILE.tmp"
 fi
 
 #dump in the SDK info
 if [ '!' -z "$CFG_SDK" ]; then
-   echo "QMAKE_MAC_SDK = $CFG_SDK" >>$CACHEFILE.tmp
+   echo "QMAKE_MAC_SDK = $CFG_SDK" >> "$CACHEFILE.tmp"
 fi
 
 #dump the qmake spec
 if [ -d "$outpath/mkspecs/$XPLATFORM" ]; then
-   echo "QMAKESPEC = \$\$QT_BUILD_TREE/mkspecs/$XPLATFORM" >>$CACHEFILE.tmp
+   echo "QMAKESPEC = \$\$QT_BUILD_TREE/mkspecs/$XPLATFORM" >> "$CACHEFILE.tmp"
 else
-   echo "QMAKESPEC = $XPLATFORM" >>$CACHEFILE.tmp
+   echo "QMAKESPEC = $XPLATFORM" >> "$CACHEFILE.tmp"
 fi
 
 # cmdline args
-quoted=no
-tmp=""
-for i in $QMAKE_VARS; do
-    if [ "$quoted" = "no" ]; then
-        case "$i" in
-        \"*\") echo $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE.tmp ;;
-        \"*) quoted=yes ; tmp=$i ;;
-        *) echo $i >>$CACHEFILE.tmp ;;
-        esac
-    else
-        case "$i" in
-        *\") quoted=no
-           echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>$CACHEFILE.tmp
-           tmp="" ;;
-        *) tmp="$tmp $i" >>$CACHEFILE.tmp ;;
-    esac
-    fi
-done
+cat "$QMAKE_VARS_FILE" >> "$CACHEFILE.tmp"
+
 # incrementals
 INCREMENTAL=""
-[ "$CFG_INCREMENTAL" = "auto" ] && $WHICH p4 >/dev/null 2>&1 && [ "$Edition" = "Trolltech" ] && CFG_INCREMENTAL="yes"
+[ "$CFG_INCREMENTAL" = "auto" ] && "$WHICH" p4 >/dev/null 2>&1 && [ "$Edition" = "Trolltech" ] && CFG_INCREMENTAL="yes"
 if [ "$CFG_INCREMENTAL" = "yes" ]; then
-    openfiles=`find $relpath -perm u+w -mtime -3 | grep 'cpp$'`
-    for f in $openfiles; do
+    find "$relpath" -perm u+w -mtime -3 | grep 'cpp$' | while read f; do
         # don't need to worry about generated files
         [ -r `echo $f | sed "s,cpp$,ui,"` ] && continue
-        basename $f | grep '^moc_' >/dev/null 2>&1 && continue
+        basename "$f" | grep '^moc_' >/dev/null 2>&1 && continue
         # done
-        INCREMENTAL="$INCREMENTAL `basename $f | sed 's,.cpp,.o,'`"
+        INCREMENTAL="$INCREMENTAL `basename \"$f\" | sed 's,.cpp,.o,'`"
     done
-    [ '!' -z "$INCREMENTAL" ] && echo "QMAKE_INCREMENTAL += $INCREMENTAL" >>$CACHEFILE.tmp
-    [ -r "$outpath/.qmake.incremental" ] && echo "include($outpath/.qmake.incremental)" >>$CACHEFILE.tmp
+    [ '!' -z "$INCREMENTAL" ] && echo "QMAKE_INCREMENTAL += $INCREMENTAL" >> "$CACHEFILE.tmp"
+    [ -r "$outpath/.qmake.incremental" ] && echo "include($outpath/.qmake.incremental)" >> "$CACHEFILE.tmp"
 fi
 
 # replace .qmake.cache if it differs from the newly created temp file
-if cmp -s $CACHEFILE.tmp $CACHEFILE; then
-    rm -f $CACHEFILE.tmp
+if cmp -s "$CACHEFILE.tmp" "$CACHEFILE"; then
+    rm -f "$CACHEFILE.tmp"
 else
-    mv -f $CACHEFILE.tmp $CACHEFILE
+    mv -f "$CACHEFILE.tmp" "$CACHEFILE"
 fi
 
 #-------------------------------------------------------------------------------
@@ -4629,7 +4627,12 @@ else
 fi
 
 if [ "$OPT_VERBOSE" = "yes" ]; then
-    echo "qmake vars ...... $QMAKE_VARS"
+    if echo '\c' | grep '\c' >/dev/null; then
+        echo -n "qmake vars ...... "
+    else
+        echo "qmake vars ...... \c"
+    fi
+    cat "$QMAKE_VARS_FILE" | tr '\n' ' '
     echo "qmake switches .. $QMAKE_SWITCHES"
 fi
 
@@ -4729,7 +4732,7 @@ if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ] && [ "$CFG_DEBUG"
 fi
 echo
 
-sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
+sepath=`echo "$relpath" | sed -e 's/\\./\\\\./g'`
 PROCS=1
 EXEC=""
 
@@ -4740,7 +4743,7 @@ EXEC=""
 
 echo "Finding project files. Please wait..."
 if [ -z "$QMAKE_PROJECTS" ]; then
-    QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
+    QMAKE_PROJECTS=`find "$relpath/." -name '*.pro' -print | sed 's-/\./-/-'`
 else
     QT_PROJECTS=
     for a in `echo $QMAKE_PROJECTS`; do
@@ -4757,7 +4760,7 @@ fi
 if [ -f "${relpath}/projects.pro" ]; then
     mkfile="${outpath}/Makefile"
     [ -f "$mkfile" ] && chmod +w "$mkfile"
-    QTDIR="$outpath" $outpath/bin/qmake "QT_PROJECTS=$CFG_BUILD_PARTS" -spec "$XQMAKESPEC" ${relpath}/projects.pro -o $mkfile
+    QTDIR="$outpath" "$outpath/bin/qmake" "QT_PROJECTS=$CFG_BUILD_PARTS" -spec "$XQMAKESPEC" "${relpath}/projects.pro" -o "$mkfile"
 fi
 
 # .projects      -> projects to process
@@ -4768,7 +4771,7 @@ rm -f .projects .projects.1 .projects.2 .projects.3
 
 if [ -z "$AWK" ]; then
     for p in `echo $QMAKE_PROJECTS`; do
-        echo $p >> .projects
+        echo "$p" >> .projects
     done
 else
     cat >projects.awk <<EOF
@@ -4830,14 +4833,14 @@ EOF
 
     rm -f .projects.all
     for p in `echo $QMAKE_PROJECTS`; do
-       echo $p >> .projects.all
+       echo "$p" >> .projects.all
     done
 
     # if you get errors about the length of the command line to awk, change the -l arg
     # to split below
     split -l 100 .projects.all .projects.all.
     for p in .projects.all.*; do
-       $AWK -f projects.awk `cat $p`
+       "$AWK" -f projects.awk `cat $p`
        [ -f .projects.1.tmp ] && cat .projects.1.tmp >> .projects.1
        [ -f .projects.2.tmp ] && cat .projects.2.tmp >> .projects.2
        [ -f .projects.3.tmp ] && cat .projects.3.tmp >> .projects.3
@@ -4880,7 +4883,7 @@ echo
 
 PART_ROOTS=
 for part in $CFG_BUILD_PARTS; do
-    case $part in
+    case "$part" in
     tools) PART_ROOTS="$PART_ROOTS tools" ;;
     libs) PART_ROOTS="$PART_ROOTS src" ;;
     examples) PART_ROOTS="$PART_ROOTS examples demos" ;;
@@ -4908,8 +4911,8 @@ for file in .projects .projects.3; do
         *) SPEC=$XQMAKESPEC ;;
         esac
         dir=`dirname $a | sed -e "s;$sepath;.;g"`
-        test -d $dir || mkdir -p $dir
-        OUTDIR=$outpath/$dir
+        test -d "$dir" || mkdir -p "$dir"
+        OUTDIR="$outpath/$dir"
         if [ -f "${OUTDIR}/Makefile" ] && [ "$OPT_FAST" = "yes" ]; then
             # fast configure - the makefile exists, skip it
             # since the makefile exists, it was generated by qmake, which means we
@@ -4925,7 +4928,8 @@ for file in .projects .projects.3; do
             echo "  for $a\c"
         fi
 
-        QMAKE_EXEC="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_SPEC_ARGS -o $OUTDIR $a"
+        QMAKE="$outpath/bin/qmake"
+	QMAKE_ARGS="$QMAKE_SWITCHES $QMAKE_SPEC_ARGS"
         if [ "$file" = ".projects.3" ]; then
             if echo '\c' | grep '\c' >/dev/null; then
                 echo -n " (fast)"
@@ -4934,7 +4938,7 @@ for file in .projects .projects.3; do
             fi
             echo
 
-            cat >${OUTDIR}/Makefile <<EOF
+            cat >"${OUTDIR}/Makefile" <<EOF
 # ${OUTDIR}/Makefile: generated by configure
 #
 # WARNING: This makefile will be replaced with a real makefile.
@@ -4942,10 +4946,11 @@ for file in .projects .projects.3; do
 EOF
             [ "$CFG_DEBUG_RELEASE" = "no" ] && echo "first_target: first" >>${OUTDIR}/Makefile
 
-            cat >>${OUTDIR}/Makefile <<EOF
+            cat >>"${OUTDIR}/Makefile" <<EOF
+QMAKE = "$QMAKE"
 all clean install qmake first Makefile: FORCE
-	$QMAKE_EXEC
-	cd $OUTDIR
+	\$(QMAKE) $QMAKE_ARGS -o "$OUTDIR" "$a"
+	cd "$OUTDIR"
 	\$(MAKE) \$@
 
 FORCE:
@@ -4954,16 +4959,13 @@ EOF
         else
             if [ "$OPT_VERBOSE" = "yes" ]; then
                 echo " (`basename $SPEC`)"
-                if echo '\c' | grep '\c' >/dev/null; then
-                    echo -n "$QMAKE_EXEC"
-                else
-                    echo "$QMAKE_EXEC\c"
-                fi
+                echo "$QMAKE" $QMAKE_ARGS -o "$OUTDIR" "$a"
+	    else
+		echo
             fi
-            echo
 
-            [ -f "${OUTDIR}/Makefile" ] && chmod +w ${OUTDIR}/Makefile
-            QTDIR="$outpath" $QMAKE_EXEC
+            [ -f "${OUTDIR}/Makefile" ] && chmod +w "${OUTDIR}/Makefile"
+            QTDIR="$outpath" "$QMAKE" $QMAKE_ARGS -o "$OUTDIR" "$a"
        fi
     done
 done
@@ -5015,14 +5017,14 @@ fi'`
 
     echo "$CONFIG_STATUS" | grep '\-confirm\-license' >/dev/null 2>&1 || CONFIG_STATUS="$CONFIG_STATUS -confirm-license"
 
-    [ -f $outpath/config.status ] && rm -f $outpath/config.status
-    echo "#!/bin/sh" >$outpath/config.status
-    echo "if [ \"\$#\" -gt 0 ]; then" >>$outpath/config.status
-    echo "  $CONFIG_STATUS \"\$@\"" >>$outpath/config.status
-    echo "else" >>$outpath/config.status
-    echo "  $CONFIG_STATUS" >>$outpath/config.status
-    echo "fi" >>$outpath/config.status
-    chmod +x $outpath/config.status
+    [ -f "$outpath/config.status" ] && rm -f "$outpath/config.status"
+    echo "#!/bin/sh" > "$outpath/config.status"
+    echo "if [ \"\$#\" -gt 0 ]; then" >> "$outpath/config.status"
+    echo "  $CONFIG_STATUS \"\$@\"" >> "$outpath/config.status"
+    echo "else" >> "$outpath/config.status"
+    echo "  $CONFIG_STATUS" >> "$outpath/config.status"
+    echo "fi" >> "$outpath/config.status"
+    chmod +x "$outpath/config.status"
 fi
 
 if [ -n "$RPATH_MESSAGE" ]; then

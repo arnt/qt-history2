@@ -11,7 +11,7 @@ __attribute__((visibility("default"))) void blah();
 #endif
 EOF
 
-$COMPILER -c -fvisibility=hidden fvisibility.c >/dev/null 2>&1 && FVISIBILITY_SUPPORT=yes
+"$COMPILER" -c -fvisibility=hidden fvisibility.c >/dev/null 2>&1 && FVISIBILITY_SUPPORT=yes
 rm -f fvisibility.c fvisibility.o
 
 # done
