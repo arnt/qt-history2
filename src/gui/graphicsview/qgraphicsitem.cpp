@@ -13,6 +13,60 @@
 
 /*!
     \class QGraphicsItem
+    \brief The QGraphicsItem class is the base class for all graphical
+    items in a QGraphicsScene.
+
+    It provides a light-weight foundation for writing your own custom items.
+    This includes defining the item's geometry, collision detection, its
+    painting implementation and item interaction through its event handlers.
+
+    For convenience, Qt provides a set of standard graphics items for the most
+    common shapes. These are:
+
+    \list
+    \o QGraphicsEllipseItem provides an ellipse item
+    \o QGraphicsLineItem provides a line item
+    \o QGraphicsPathItem provides an arbitrary path item
+    \o QGraphicsPixmapItem provides a pixmap item
+    \o QGraphicsPolygonItem provides a polygon item
+    \o QGraphicsRectItem provides a rectangular item
+    \o QGraphicsTextItem provides a text item
+    \endlist
+
+    All of an item's geometric information is based on its local coordinate
+    system. The item's position, pos(), is the only function that does not
+    operate in local coordinates, as it returns a position in parent
+    coordinates.
+
+    To write your own graphics item, you first create a subclass of
+    QGraphicsItem, and then start by implementing its two pure virtual public
+    functions: boundingRect(), which returns an estimate of the area painted
+    by the item, and paint(), which implements the actual painting. For
+    example:
+
+    \code
+        class SimpleItem : public QGraphicsItem
+        {
+        public:
+            QRectF boundingRect() const
+            {
+                qreal penWidth = 1;
+                return QRectF(-10 - penWidth / 2, -10 - penWidth / 2,
+                              20 + penWidth / 2, 20 + penWidth / 2);
+            }
+
+            void paint(QPainter *painter, QStyleOptionGraphicsItem *option,
+                       QWidget *widget)
+            {
+                painter->drawRoundRect(-10, -10, 20, 20);
+            }
+        };
+    \endcode
+
+    The boundingRect() function has many different purposes. QGraphicsScene
+    bases its item index on boundingRect(), and QGraphicsView uses it both for
+    culling invisible items, and for determining the area that needs to be
+    recomposed when drawing overlapping items.
 */
 
 /*!
