@@ -14,8 +14,8 @@
 #ifndef QFONTCOMBOBOX_H
 #define QFONTCOMBOBOX_H
 
-#include <qcombobox.h>
-#include <qfontdatabase.h>
+#include <QtGui/qcombobox.h>
+#include <QtGui/qfontdatabase.h>
 
 class QFontComboBoxPrivate;
 
