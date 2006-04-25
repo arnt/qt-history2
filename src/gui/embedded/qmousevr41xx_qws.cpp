@@ -99,6 +99,7 @@ QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
 
     rtimer = new QTimer(this);
+    rtimer->setSingleShot(true);
     connect(rtimer, SIGNAL(timeout()), this, SLOT(sendRelease()));
     mouseIdx = 0;
 
@@ -151,10 +152,10 @@ void QWSVr41xxMouseHandlerPrivate::readMouseData()
                 if (handler->sendFiltered(t, Qt::LeftButton))
                     pressed = true;
                 if (pressed)
-                    rtimer->start(200, true); // release unreliable
+                    rtimer->start(200); // release unreliable
             }
         } else if (pressed) {
-            rtimer->start(50, true);
+            rtimer->start(50);
             pressed = false;
         }
         idx += sizeof(ushort) * 6;

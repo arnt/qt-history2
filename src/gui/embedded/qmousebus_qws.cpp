@@ -89,13 +89,11 @@ QWSBusMouseHandlerPrivate::QWSBusMouseHandlerPrivate(QWSBusMouseHandler *h,
         mouseDev = "/dev/mouse";
     obstate = -1;
     mouseFD = -1;
-    mouseFD = open(mouseDev.local8Bit(), O_RDWR | O_NDELAY);
-    if (mouseFD < 0) {
-        mouseFD = open(mouseDev.local8Bit(), O_RDONLY | O_NDELAY);
-        if (mouseFD < 0)
-            qDebug("Cannot open %s (%s)", mouseDev.ascii(),
-                    strerror(errno));
-    }
+    mouseFD = open(mouseDev.toLocal8Bit(), O_RDWR | O_NDELAY);
+    if (mouseFD < 0)
+        mouseFD = open(mouseDev.toLocal8Bit(), O_RDONLY | O_NDELAY);
+    if (mouseFD < 0)
+        qDebug("Cannot open %s (%s)", qPrintable(mouseDev), strerror(errno));
 
     // Clear pending input
     tcflush(mouseFD,TCIFLUSH);
