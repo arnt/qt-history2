@@ -136,7 +136,7 @@ static bool read_xbm_body(QIODevice *device, int w, int h, QImage *outImage)
 
 static bool read_xbm_image(QIODevice *device, QImage *outImage)
 {
-    int w, h;
+    int w = 0, h = 0;
     if (!read_xbm_header(device, w, h))
         return false;
     return read_xbm_body(device, w, h, outImage);
