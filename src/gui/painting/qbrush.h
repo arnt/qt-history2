@@ -125,6 +125,8 @@ typedef QVector<QGradientStop> QGradientStops;
 
 class Q_GUI_EXPORT QGradient
 {
+    Q_GADGET
+    Q_ENUMS(Type Spread)
 public:
     enum Type {
         LinearGradient,

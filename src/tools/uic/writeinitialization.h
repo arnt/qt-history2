@@ -22,6 +22,7 @@
 
 class Driver;
 class Uic;
+class DomBrush;
 struct Option;
 
 struct WriteInitialization : public TreeWalker
@@ -81,6 +82,7 @@ private:
     void writeProperties(const QString &varName, const QString &className,
                          const QList<DomProperty*> &lst);
     void writeColorGroup(DomColorGroup *colorGroup, const QString &group, const QString &paletteName);
+    void writeBrush(DomBrush *brush, const QString &brushName);
 
 //
 // special initialization

@@ -87,6 +87,10 @@ class DomItem;
 class DomWidget;
 class DomSpacer;
 class DomColor;
+class DomGradientStop;
+class DomGradient;
+class DomBrush;
+class DomColorRole;
 class DomColorGroup;
 class DomPalette;
 class DomFont;
@@ -1219,10 +1223,10 @@ public:
     inline void setText(const QString &s) { m_text = s; }
 
     // attribute accessors
-    inline bool hasAttributeRole() { return m_has_attr_role; }
-    inline QString attributeRole() { return m_attr_role; }
-    inline void setAttributeRole(const QString& a) { m_attr_role = a; m_has_attr_role = true; }
-    inline void clearAttributeRole() { m_has_attr_role = false; }
+    inline bool hasAttributeAlpha() { return m_has_attr_alpha; }
+    inline int attributeAlpha() { return m_attr_alpha; }
+    inline void setAttributeAlpha(int a) { m_attr_alpha = a; m_has_attr_alpha = true; }
+    inline void clearAttributeAlpha() { m_has_attr_alpha = false; }
 
     // child element accessors
     inline int elementRed() { return m_red; }
@@ -1239,8 +1243,8 @@ private:
     void clear(bool clear_all = true);
 
     // attribute data
-    QString m_attr_role;
-    bool m_has_attr_role;
+    int m_attr_alpha;
+    bool m_has_attr_alpha;
 
     // child element data
     int m_red;
@@ -1249,6 +1253,246 @@ private:
 
     DomColor(const DomColor &other);
     void operator = (const DomColor&other);
+};
+
+class QDESIGNER_UILIB_EXPORT DomGradientStop {
+public:
+    DomGradientStop();
+    ~DomGradientStop();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    inline bool hasAttributePosition() { return m_has_attr_position; }
+    inline double attributePosition() { return m_attr_position; }
+    inline void setAttributePosition(double a) { m_attr_position = a; m_has_attr_position = true; }
+    inline void clearAttributePosition() { m_has_attr_position = false; }
+
+    // child element accessors
+    inline DomColor* elementColor() { return m_color; }
+    void setElementColor(DomColor* a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    double m_attr_position;
+    bool m_has_attr_position;
+
+    // child element data
+    DomColor* m_color;
+
+    DomGradientStop(const DomGradientStop &other);
+    void operator = (const DomGradientStop&other);
+};
+
+class QDESIGNER_UILIB_EXPORT DomGradient {
+public:
+    DomGradient();
+    ~DomGradient();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    inline bool hasAttributeStartX() { return m_has_attr_startX; }
+    inline double attributeStartX() { return m_attr_startX; }
+    inline void setAttributeStartX(double a) { m_attr_startX = a; m_has_attr_startX = true; }
+    inline void clearAttributeStartX() { m_has_attr_startX = false; }
+
+    inline bool hasAttributeStartY() { return m_has_attr_startY; }
+    inline double attributeStartY() { return m_attr_startY; }
+    inline void setAttributeStartY(double a) { m_attr_startY = a; m_has_attr_startY = true; }
+    inline void clearAttributeStartY() { m_has_attr_startY = false; }
+
+    inline bool hasAttributeEndX() { return m_has_attr_endX; }
+    inline double attributeEndX() { return m_attr_endX; }
+    inline void setAttributeEndX(double a) { m_attr_endX = a; m_has_attr_endX = true; }
+    inline void clearAttributeEndX() { m_has_attr_endX = false; }
+
+    inline bool hasAttributeEndY() { return m_has_attr_endY; }
+    inline double attributeEndY() { return m_attr_endY; }
+    inline void setAttributeEndY(double a) { m_attr_endY = a; m_has_attr_endY = true; }
+    inline void clearAttributeEndY() { m_has_attr_endY = false; }
+
+    inline bool hasAttributeCentralX() { return m_has_attr_centralX; }
+    inline double attributeCentralX() { return m_attr_centralX; }
+    inline void setAttributeCentralX(double a) { m_attr_centralX = a; m_has_attr_centralX = true; }
+    inline void clearAttributeCentralX() { m_has_attr_centralX = false; }
+
+    inline bool hasAttributeCentralY() { return m_has_attr_centralY; }
+    inline double attributeCentralY() { return m_attr_centralY; }
+    inline void setAttributeCentralY(double a) { m_attr_centralY = a; m_has_attr_centralY = true; }
+    inline void clearAttributeCentralY() { m_has_attr_centralY = false; }
+
+    inline bool hasAttributeFocalX() { return m_has_attr_focalX; }
+    inline double attributeFocalX() { return m_attr_focalX; }
+    inline void setAttributeFocalX(double a) { m_attr_focalX = a; m_has_attr_focalX = true; }
+    inline void clearAttributeFocalX() { m_has_attr_focalX = false; }
+
+    inline bool hasAttributeFocalY() { return m_has_attr_focalY; }
+    inline double attributeFocalY() { return m_attr_focalY; }
+    inline void setAttributeFocalY(double a) { m_attr_focalY = a; m_has_attr_focalY = true; }
+    inline void clearAttributeFocalY() { m_has_attr_focalY = false; }
+
+    inline bool hasAttributeRadius() { return m_has_attr_radius; }
+    inline double attributeRadius() { return m_attr_radius; }
+    inline void setAttributeRadius(double a) { m_attr_radius = a; m_has_attr_radius = true; }
+    inline void clearAttributeRadius() { m_has_attr_radius = false; }
+
+    inline bool hasAttributeAngle() { return m_has_attr_angle; }
+    inline double attributeAngle() { return m_attr_angle; }
+    inline void setAttributeAngle(double a) { m_attr_angle = a; m_has_attr_angle = true; }
+    inline void clearAttributeAngle() { m_has_attr_angle = false; }
+
+    inline bool hasAttributeType() { return m_has_attr_type; }
+    inline QString attributeType() { return m_attr_type; }
+    inline void setAttributeType(const QString& a) { m_attr_type = a; m_has_attr_type = true; }
+    inline void clearAttributeType() { m_has_attr_type = false; }
+
+    inline bool hasAttributeSpread() { return m_has_attr_spread; }
+    inline QString attributeSpread() { return m_attr_spread; }
+    inline void setAttributeSpread(const QString& a) { m_attr_spread = a; m_has_attr_spread = true; }
+    inline void clearAttributeSpread() { m_has_attr_spread = false; }
+
+    // child element accessors
+    inline QList<DomGradientStop*> elementGradientStop() { return m_gradientStop; }
+    void setElementGradientStop(const QList<DomGradientStop*>& a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    double m_attr_startX;
+    bool m_has_attr_startX;
+
+    double m_attr_startY;
+    bool m_has_attr_startY;
+
+    double m_attr_endX;
+    bool m_has_attr_endX;
+
+    double m_attr_endY;
+    bool m_has_attr_endY;
+
+    double m_attr_centralX;
+    bool m_has_attr_centralX;
+
+    double m_attr_centralY;
+    bool m_has_attr_centralY;
+
+    double m_attr_focalX;
+    bool m_has_attr_focalX;
+
+    double m_attr_focalY;
+    bool m_has_attr_focalY;
+
+    double m_attr_radius;
+    bool m_has_attr_radius;
+
+    double m_attr_angle;
+    bool m_has_attr_angle;
+
+    QString m_attr_type;
+    bool m_has_attr_type;
+
+    QString m_attr_spread;
+    bool m_has_attr_spread;
+
+    // child element data
+    QList<DomGradientStop*> m_gradientStop;
+
+    DomGradient(const DomGradient &other);
+    void operator = (const DomGradient&other);
+};
+
+class QDESIGNER_UILIB_EXPORT DomBrush {
+public:
+    DomBrush();
+    ~DomBrush();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    inline bool hasAttributeBrushStyle() { return m_has_attr_brushStyle; }
+    inline QString attributeBrushStyle() { return m_attr_brushStyle; }
+    inline void setAttributeBrushStyle(const QString& a) { m_attr_brushStyle = a; m_has_attr_brushStyle = true; }
+    inline void clearAttributeBrushStyle() { m_has_attr_brushStyle = false; }
+
+    // child element accessors
+    enum Kind { Unknown = 0, Color, Texture, Gradient };
+    inline Kind kind() { return m_kind; }
+
+    inline DomColor* elementColor() { return m_color; }
+    void setElementColor(DomColor* a);
+
+    inline DomProperty* elementTexture() { return m_texture; }
+    void setElementTexture(DomProperty* a);
+
+    inline DomGradient* elementGradient() { return m_gradient; }
+    void setElementGradient(DomGradient* a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    QString m_attr_brushStyle;
+    bool m_has_attr_brushStyle;
+
+    // child element data
+    Kind m_kind;
+    DomColor* m_color;
+    DomProperty* m_texture;
+    DomGradient* m_gradient;
+
+    DomBrush(const DomBrush &other);
+    void operator = (const DomBrush&other);
+};
+
+class QDESIGNER_UILIB_EXPORT DomColorRole {
+public:
+    DomColorRole();
+    ~DomColorRole();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    inline bool hasAttributeRole() { return m_has_attr_role; }
+    inline QString attributeRole() { return m_attr_role; }
+    inline void setAttributeRole(const QString& a) { m_attr_role = a; m_has_attr_role = true; }
+    inline void clearAttributeRole() { m_has_attr_role = false; }
+
+    // child element accessors
+    inline DomBrush* elementBrush() { return m_brush; }
+    void setElementBrush(DomBrush* a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    QString m_attr_role;
+    bool m_has_attr_role;
+
+    // child element data
+    DomBrush* m_brush;
+
+    DomColorRole(const DomColorRole &other);
+    void operator = (const DomColorRole&other);
 };
 
 class QDESIGNER_UILIB_EXPORT DomColorGroup {
@@ -1263,6 +1507,9 @@ public:
 
     // attribute accessors
     // child element accessors
+    inline QList<DomColorRole*> elementColorRole() { return m_colorRole; }
+    void setElementColorRole(const QList<DomColorRole*>& a);
+
     inline QList<DomColor*> elementColor() { return m_color; }
     void setElementColor(const QList<DomColor*>& a);
 
@@ -1272,6 +1519,7 @@ private:
 
     // attribute data
     // child element data
+    QList<DomColorRole*> m_colorRole;
     QList<DomColor*> m_color;
 
     DomColorGroup(const DomColorGroup &other);

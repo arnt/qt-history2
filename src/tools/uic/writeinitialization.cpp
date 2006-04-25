@@ -887,6 +887,12 @@ void WriteInitialization::writeProperties(const QString &varName,
 
 QString WriteInitialization::domColor2QString(DomColor *c)
 {
+    if (c->hasAttributeAlpha())
+        return QString::fromLatin1("QColor(%1, %2, %3, %4)")
+            .arg(c->elementRed())
+            .arg(c->elementGreen())
+            .arg(c->elementBlue())
+            .arg(c->attributeAlpha());
     return QString::fromLatin1("QColor(%1, %2, %3)")
         .arg(c->elementRed())
         .arg(c->elementGreen())
@@ -898,19 +904,91 @@ void WriteInitialization::writeColorGroup(DomColorGroup *colorGroup, const QStri
     if (!colorGroup)
         return;
 
+    // old format
     QList<DomColor*> colors = colorGroup->elementColor();
     for (int i=0; i<colors.size(); ++i) {
         DomColor *color = colors.at(i);
-        QString role;
-        if (color->hasAttributeRole())
-            role = "QPalette::" + color->attributeRole();
-        else
-            role = "static_cast<QPalette::ColorRole>(" + QString::number(i) + ")";
 
         output << option.indent << paletteName << ".setColor(" << group
-            << ", " << role
+            << ", " << "static_cast<QPalette::ColorRole>(" << QString::number(i) << ")"
             << ", " << domColor2QString(color)
             << ");\n";
+    }
+
+    // new format
+    QList<DomColorRole *> colorRoles = colorGroup->elementColorRole();
+    QListIterator<DomColorRole *> itRole(colorRoles);
+    while (itRole.hasNext()) {
+        DomColorRole *colorRole = itRole.next();
+        if (colorRole->hasAttributeRole()) {
+            QString brushName = driver->unique(QLatin1String("brush"));
+            writeBrush(colorRole->elementBrush(), brushName);
+
+            output << option.indent << paletteName << ".setBrush(" << group
+                << ", " << "QPalette::" << colorRole->attributeRole()
+                << ", " << brushName << ");\n";
+        }
+    }
+}
+
+void WriteInitialization::writeBrush(DomBrush *brush, const QString &brushName)
+{
+    QString style = QLatin1String("SolidPattern");
+    if (brush->hasAttributeBrushStyle())
+        style = brush->attributeBrushStyle();
+
+    if (style == QLatin1String("LinearGradientPattern") ||
+            style == QLatin1String("RadialGradientPattern") ||
+            style == QLatin1String("ConicalGradientPattern")) {
+        DomGradient *gradient = brush->elementGradient();
+        QString gradientType = gradient->attributeType();
+        QString gradientName = driver->unique(QLatin1String("gradient"));
+        if (gradientType == QLatin1String("LinearGradient")) {
+            output << option.indent << "QLinearGradient " << gradientName
+                << "(" << gradient->attributeStartX()
+                << ", " << gradient->attributeStartY()
+                << ", " << gradient->attributeEndX()
+                << ", " << gradient->attributeEndY() << ");\n";
+        } else if (gradientType == QLatin1String("RadialGradient")) {
+            output << option.indent << "QRadialGradient " << gradientName
+                << "(" << gradient->attributeCentralX()
+                << ", " << gradient->attributeCentralY()
+                << ", " << gradient->attributeRadius()
+                << ", " << gradient->attributeFocalX()
+                << ", " << gradient->attributeFocalY() << ");\n";
+        } else if (gradientType == QLatin1String("ConicalGradient")) {
+            output << option.indent << "QConicalGradient " << gradientName
+                << "(" << gradient->attributeCentralX()
+                << ", " << gradient->attributeCentralY()
+                << ", " << gradient->attributeAngle() << ");\n";
+        }
+
+        output << option.indent << gradientName << ".setSpread("
+                << gradient->attributeSpread() << ");\n";
+
+        QList<DomGradientStop *> stops = gradient->elementGradientStop();
+        QListIterator<DomGradientStop *> it(stops);
+        while (it.hasNext()) {
+            DomGradientStop *stop = it.next();
+            DomColor *color = stop->elementColor();
+            output << option.indent << gradientName << ".setColorAt("
+                << stop->attributePosition() << ", "
+                << domColor2QString(color) << ");\n";
+        }
+        output << option.indent << "QBrush " << brushName << "("
+            << gradientName << ");\n";
+    } else if (style == QLatin1String("TexturePattern")) {
+        DomProperty *property = brush->elementTexture();
+
+        output << option.indent << "QBrush " << brushName << " = QBrush("
+            << pixCall(property) << ");\n";
+    } else {
+        DomColor *color = brush->elementColor();
+        output << option.indent << "QBrush " << brushName << "("
+            << domColor2QString(color) << ");\n";
+
+        output << option.indent << brushName << ".setStyle("
+            << "Qt::" << style << ");\n";
     }
 }
 

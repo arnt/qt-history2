@@ -53,6 +53,7 @@ namespace QFormInternal
 class DomAction;
 class DomActionGroup;
 class DomActionRef;
+class DomBrush;
 class DomColorGroup;
 class DomConnections;
 class DomCustomWidgets;
@@ -162,6 +163,8 @@ protected:
 
     void setupColorGroup(QPalette &palette, QPalette::ColorGroup colorGroup, DomColorGroup *group);
     DomColorGroup *saveColorGroup(const QPalette &palette);
+    QBrush setupBrush(DomBrush *brush);
+    DomBrush *saveBrush(const QBrush &brush);
 
     void reset();
 

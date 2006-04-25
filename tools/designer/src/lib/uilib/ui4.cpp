@@ -2654,7 +2654,8 @@ void DomColor::clear(bool clear_all)
 
     if (clear_all) {
     m_text = QString();
-    m_has_attr_role = false;
+    m_has_attr_alpha = false;
+    m_attr_alpha = 0;
     }
 
     m_red = 0;
@@ -2664,7 +2665,8 @@ void DomColor::clear(bool clear_all)
 
 DomColor::DomColor()
 {
-    m_has_attr_role = false;
+    m_has_attr_alpha = false;
+    m_attr_alpha = 0;
     m_red = 0;
     m_green = 0;
     m_blue = 0;
@@ -2676,8 +2678,8 @@ DomColor::~DomColor()
 
 void DomColor::read(const QDomElement &node)
 {
-    if (node.hasAttribute(QLatin1String("role")))
-        setAttributeRole(node.attribute(QLatin1String("role")));
+    if (node.hasAttribute(QLatin1String("alpha")))
+        setAttributeAlpha(node.attribute(QLatin1String("alpha")).toInt());
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -2711,8 +2713,8 @@ QDomElement DomColor::write(QDomDocument &doc, const QString &tagName)
 
     QDomElement child;
 
-    if (hasAttributeRole())
-        e.setAttribute(QLatin1String("role"), attributeRole());
+    if (hasAttributeAlpha())
+        e.setAttribute(QLatin1String("alpha"), attributeAlpha());
 
     child = doc.createElement(QLatin1String("red"));
     child.appendChild(doc.createTextNode(QString::number(m_red)));
@@ -2747,8 +2749,465 @@ void DomColor::setElementBlue(int a)
     m_blue = a;
 }
 
+void DomGradientStop::clear(bool clear_all)
+{
+    delete m_color;
+
+    if (clear_all) {
+    m_text = QString();
+    m_has_attr_position = false;
+    m_attr_position = 0.0;
+    }
+
+    m_color = 0;
+}
+
+DomGradientStop::DomGradientStop()
+{
+    m_has_attr_position = false;
+    m_attr_position = 0.0;
+    m_color = 0;
+}
+
+DomGradientStop::~DomGradientStop()
+{
+    delete m_color;
+}
+
+void DomGradientStop::read(const QDomElement &node)
+{
+    if (node.hasAttribute(QLatin1String("position")))
+        setAttributePosition(node.attribute(QLatin1String("position")).toDouble());
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("color")) {
+            DomColor *v = new DomColor();
+            v->read(e);
+            setElementColor(v);
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomGradientStop::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("gradientstop") : tagName.toLower());
+
+    QDomElement child;
+
+    if (hasAttributePosition())
+        e.setAttribute(QLatin1String("position"), attributePosition());
+
+    if (m_color != 0)
+        e.appendChild(m_color->write(doc, QLatin1String("color")));
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomGradientStop::setElementColor(DomColor* a)
+{
+    delete m_color;
+    m_color = a;
+}
+
+void DomGradient::clear(bool clear_all)
+{
+    for (int i = 0; i < m_gradientStop.size(); ++i)
+        delete m_gradientStop[i];
+    m_gradientStop.clear();
+
+    if (clear_all) {
+    m_text = QString();
+    m_has_attr_startX = false;
+    m_attr_startX = 0.0;
+    m_has_attr_startY = false;
+    m_attr_startY = 0.0;
+    m_has_attr_endX = false;
+    m_attr_endX = 0.0;
+    m_has_attr_endY = false;
+    m_attr_endY = 0.0;
+    m_has_attr_centralX = false;
+    m_attr_centralX = 0.0;
+    m_has_attr_centralY = false;
+    m_attr_centralY = 0.0;
+    m_has_attr_focalX = false;
+    m_attr_focalX = 0.0;
+    m_has_attr_focalY = false;
+    m_attr_focalY = 0.0;
+    m_has_attr_radius = false;
+    m_attr_radius = 0.0;
+    m_has_attr_angle = false;
+    m_attr_angle = 0.0;
+    m_has_attr_type = false;
+    m_has_attr_spread = false;
+    }
+
+}
+
+DomGradient::DomGradient()
+{
+    m_has_attr_startX = false;
+    m_attr_startX = 0.0;
+    m_has_attr_startY = false;
+    m_attr_startY = 0.0;
+    m_has_attr_endX = false;
+    m_attr_endX = 0.0;
+    m_has_attr_endY = false;
+    m_attr_endY = 0.0;
+    m_has_attr_centralX = false;
+    m_attr_centralX = 0.0;
+    m_has_attr_centralY = false;
+    m_attr_centralY = 0.0;
+    m_has_attr_focalX = false;
+    m_attr_focalX = 0.0;
+    m_has_attr_focalY = false;
+    m_attr_focalY = 0.0;
+    m_has_attr_radius = false;
+    m_attr_radius = 0.0;
+    m_has_attr_angle = false;
+    m_attr_angle = 0.0;
+    m_has_attr_type = false;
+    m_has_attr_spread = false;
+}
+
+DomGradient::~DomGradient()
+{
+    for (int i = 0; i < m_gradientStop.size(); ++i)
+        delete m_gradientStop[i];
+    m_gradientStop.clear();
+}
+
+void DomGradient::read(const QDomElement &node)
+{
+    if (node.hasAttribute(QLatin1String("startx")))
+        setAttributeStartX(node.attribute(QLatin1String("startx")).toDouble());
+    if (node.hasAttribute(QLatin1String("starty")))
+        setAttributeStartY(node.attribute(QLatin1String("starty")).toDouble());
+    if (node.hasAttribute(QLatin1String("endx")))
+        setAttributeEndX(node.attribute(QLatin1String("endx")).toDouble());
+    if (node.hasAttribute(QLatin1String("endy")))
+        setAttributeEndY(node.attribute(QLatin1String("endy")).toDouble());
+    if (node.hasAttribute(QLatin1String("centralx")))
+        setAttributeCentralX(node.attribute(QLatin1String("centralx")).toDouble());
+    if (node.hasAttribute(QLatin1String("centraly")))
+        setAttributeCentralY(node.attribute(QLatin1String("centraly")).toDouble());
+    if (node.hasAttribute(QLatin1String("focalx")))
+        setAttributeFocalX(node.attribute(QLatin1String("focalx")).toDouble());
+    if (node.hasAttribute(QLatin1String("focaly")))
+        setAttributeFocalY(node.attribute(QLatin1String("focaly")).toDouble());
+    if (node.hasAttribute(QLatin1String("radius")))
+        setAttributeRadius(node.attribute(QLatin1String("radius")).toDouble());
+    if (node.hasAttribute(QLatin1String("angle")))
+        setAttributeAngle(node.attribute(QLatin1String("angle")).toDouble());
+    if (node.hasAttribute(QLatin1String("type")))
+        setAttributeType(node.attribute(QLatin1String("type")));
+    if (node.hasAttribute(QLatin1String("spread")))
+        setAttributeSpread(node.attribute(QLatin1String("spread")));
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("gradientstop")) {
+            DomGradientStop *v = new DomGradientStop();
+            v->read(e);
+            m_gradientStop.append(v);
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomGradient::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("gradient") : tagName.toLower());
+
+    QDomElement child;
+
+    if (hasAttributeStartX())
+        e.setAttribute(QLatin1String("startx"), attributeStartX());
+
+    if (hasAttributeStartY())
+        e.setAttribute(QLatin1String("starty"), attributeStartY());
+
+    if (hasAttributeEndX())
+        e.setAttribute(QLatin1String("endx"), attributeEndX());
+
+    if (hasAttributeEndY())
+        e.setAttribute(QLatin1String("endy"), attributeEndY());
+
+    if (hasAttributeCentralX())
+        e.setAttribute(QLatin1String("centralx"), attributeCentralX());
+
+    if (hasAttributeCentralY())
+        e.setAttribute(QLatin1String("centraly"), attributeCentralY());
+
+    if (hasAttributeFocalX())
+        e.setAttribute(QLatin1String("focalx"), attributeFocalX());
+
+    if (hasAttributeFocalY())
+        e.setAttribute(QLatin1String("focaly"), attributeFocalY());
+
+    if (hasAttributeRadius())
+        e.setAttribute(QLatin1String("radius"), attributeRadius());
+
+    if (hasAttributeAngle())
+        e.setAttribute(QLatin1String("angle"), attributeAngle());
+
+    if (hasAttributeType())
+        e.setAttribute(QLatin1String("type"), attributeType());
+
+    if (hasAttributeSpread())
+        e.setAttribute(QLatin1String("spread"), attributeSpread());
+
+    for (int i = 0; i < m_gradientStop.size(); ++i) {
+        DomGradientStop* v = m_gradientStop[i];
+        QDomNode child = v->write(doc, QLatin1String("gradientstop"));
+        e.appendChild(child);
+    }
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomGradient::setElementGradientStop(const QList<DomGradientStop*>& a)
+{
+    m_gradientStop = a;
+}
+
+void DomBrush::clear(bool clear_all)
+{
+    delete m_color;
+    delete m_texture;
+    delete m_gradient;
+
+    if (clear_all) {
+    m_text = QString();
+    m_has_attr_brushStyle = false;
+    }
+
+    m_kind = Unknown;
+
+    m_color = 0;
+    m_texture = 0;
+    m_gradient = 0;
+}
+
+DomBrush::DomBrush()
+{
+    m_kind = Unknown;
+
+    m_has_attr_brushStyle = false;
+    m_color = 0;
+    m_texture = 0;
+    m_gradient = 0;
+}
+
+DomBrush::~DomBrush()
+{
+    delete m_color;
+    delete m_texture;
+    delete m_gradient;
+}
+
+void DomBrush::read(const QDomElement &node)
+{
+    if (node.hasAttribute(QLatin1String("brushstyle")))
+        setAttributeBrushStyle(node.attribute(QLatin1String("brushstyle")));
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("color")) {
+            DomColor *v = new DomColor();
+            v->read(e);
+            setElementColor(v);
+            continue;
+        }
+        if (tag == QLatin1String("texture")) {
+            DomProperty *v = new DomProperty();
+            v->read(e);
+            setElementTexture(v);
+            continue;
+        }
+        if (tag == QLatin1String("gradient")) {
+            DomGradient *v = new DomGradient();
+            v->read(e);
+            setElementGradient(v);
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomBrush::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("brush") : tagName.toLower());
+
+    QDomElement child;
+
+    if (hasAttributeBrushStyle())
+        e.setAttribute(QLatin1String("brushstyle"), attributeBrushStyle());
+
+    switch(kind()) {
+        case Color: {
+            DomColor* v = elementColor();
+            if (v != 0) {
+                QDomElement child = v->write(doc, QLatin1String("color"));
+                e.appendChild(child);
+            }
+            break;
+        }
+        case Texture: {
+            DomProperty* v = elementTexture();
+            if (v != 0) {
+                QDomElement child = v->write(doc, QLatin1String("texture"));
+                e.appendChild(child);
+            }
+            break;
+        }
+        case Gradient: {
+            DomGradient* v = elementGradient();
+            if (v != 0) {
+                QDomElement child = v->write(doc, QLatin1String("gradient"));
+                e.appendChild(child);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomBrush::setElementColor(DomColor* a)
+{
+    clear(false);
+    m_kind = Color;
+    m_color = a;
+}
+
+void DomBrush::setElementTexture(DomProperty* a)
+{
+    clear(false);
+    m_kind = Texture;
+    m_texture = a;
+}
+
+void DomBrush::setElementGradient(DomGradient* a)
+{
+    clear(false);
+    m_kind = Gradient;
+    m_gradient = a;
+}
+
+void DomColorRole::clear(bool clear_all)
+{
+    delete m_brush;
+
+    if (clear_all) {
+    m_text = QString();
+    m_has_attr_role = false;
+    }
+
+    m_brush = 0;
+}
+
+DomColorRole::DomColorRole()
+{
+    m_has_attr_role = false;
+    m_brush = 0;
+}
+
+DomColorRole::~DomColorRole()
+{
+    delete m_brush;
+}
+
+void DomColorRole::read(const QDomElement &node)
+{
+    if (node.hasAttribute(QLatin1String("role")))
+        setAttributeRole(node.attribute(QLatin1String("role")));
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("brush")) {
+            DomBrush *v = new DomBrush();
+            v->read(e);
+            setElementBrush(v);
+            continue;
+        }
+    }
+
+    m_text.clear();
+    for (QDomNode child = node.firstChild(); !child.isNull(); child = child.nextSibling()) {
+        if (child.isText())
+            m_text.append(child.nodeValue());
+    }
+}
+
+QDomElement DomColorRole::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QString::fromUtf8("colorrole") : tagName.toLower());
+
+    QDomElement child;
+
+    if (hasAttributeRole())
+        e.setAttribute(QLatin1String("role"), attributeRole());
+
+    if (m_brush != 0)
+        e.appendChild(m_brush->write(doc, QLatin1String("brush")));
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomColorRole::setElementBrush(DomBrush* a)
+{
+    delete m_brush;
+    m_brush = a;
+}
+
 void DomColorGroup::clear(bool clear_all)
 {
+    for (int i = 0; i < m_colorRole.size(); ++i)
+        delete m_colorRole[i];
+    m_colorRole.clear();
     for (int i = 0; i < m_color.size(); ++i)
         delete m_color[i];
     m_color.clear();
@@ -2765,6 +3224,9 @@ DomColorGroup::DomColorGroup()
 
 DomColorGroup::~DomColorGroup()
 {
+    for (int i = 0; i < m_colorRole.size(); ++i)
+        delete m_colorRole[i];
+    m_colorRole.clear();
     for (int i = 0; i < m_color.size(); ++i)
         delete m_color[i];
     m_color.clear();
@@ -2778,6 +3240,12 @@ void DomColorGroup::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("colorrole")) {
+            DomColorRole *v = new DomColorRole();
+            v->read(e);
+            m_colorRole.append(v);
+            continue;
+        }
         if (tag == QLatin1String("color")) {
             DomColor *v = new DomColor();
             v->read(e);
@@ -2799,6 +3267,11 @@ QDomElement DomColorGroup::write(QDomDocument &doc, const QString &tagName)
 
     QDomElement child;
 
+    for (int i = 0; i < m_colorRole.size(); ++i) {
+        DomColorRole* v = m_colorRole[i];
+        QDomNode child = v->write(doc, QLatin1String("colorrole"));
+        e.appendChild(child);
+    }
     for (int i = 0; i < m_color.size(); ++i) {
         DomColor* v = m_color[i];
         QDomNode child = v->write(doc, QLatin1String("color"));
@@ -2808,6 +3281,11 @@ QDomElement DomColorGroup::write(QDomDocument &doc, const QString &tagName)
         e.appendChild(doc.createTextNode(m_text));
 
     return e;
+}
+
+void DomColorGroup::setElementColorRole(const QList<DomColorRole*>& a)
+{
+    m_colorRole = a;
 }
 
 void DomColorGroup::setElementColor(const QList<DomColor*>& a)

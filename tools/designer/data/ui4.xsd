@@ -238,11 +238,53 @@
                     <xs:element name="green" type="xs:integer" />
                     <xs:element name="blue" type="xs:integer" />
                 </xs:sequence>
+                <xs:attribute name="alpha" type="xs:integer" />
+        </xs:complexType>
+
+        <xs:complexType name="GradientStop">
+                <xs:sequence>
+                    <xs:element name="color" type="Color" />
+                </xs:sequence>
+                <xs:attribute name="position" type="xs:double" />
+        </xs:complexType>
+
+        <xs:complexType name="Gradient">
+                <xs:sequence maxOccurs="unbounded">
+                    <xs:element name="gradientStop" type="GradientStop" />
+                </xs:sequence>
+                <xs:attribute name="startX" type="xs:double" />
+                <xs:attribute name="startY" type="xs:double" />
+                <xs:attribute name="endX" type="xs:double" />
+                <xs:attribute name="endY" type="xs:double" />
+                <xs:attribute name="centralX" type="xs:double" />
+                <xs:attribute name="centralY" type="xs:double" />
+                <xs:attribute name="focalX" type="xs:double" />
+                <xs:attribute name="focalY" type="xs:double" />
+                <xs:attribute name="radius" type="xs:double" />
+                <xs:attribute name="angle" type="xs:double" />
+                <xs:attribute name="type" type="xs:string" />
+                <xs:attribute name="spread" type="xs:string" />
+        </xs:complexType>
+
+        <xs:complexType name="Brush">
+                <xs:choice>
+                    <xs:element name="color" type="Color" />
+                    <xs:element name="texture" type="Property" />
+                    <xs:element name="gradient" type="Gradient" />
+                </xs:choice>
+                <xs:attribute name="brushStyle" type="xs:string" />
+        </xs:complexType>
+
+        <xs:complexType name="ColorRole">
+                <xs:sequence>
+                    <xs:element name="brush" type="Brush" />
+                </xs:sequence>
                 <xs:attribute name="role" type="xs:string" />
         </xs:complexType>
 
         <xs:complexType name="ColorGroup">
                 <xs:sequence maxOccurs="unbounded">
+                        <xs:element name="colorRole" type="ColorRole" />
                         <xs:element name="color" type="Color" />
                 </xs:sequence>
         </xs:complexType>
