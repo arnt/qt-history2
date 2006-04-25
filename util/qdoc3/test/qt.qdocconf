@@ -62,6 +62,7 @@ macro.QD                = "\\e{Qt Designer}"
 macro.QA                = "\\e{Qt Assistant}"
 macro.aring.HTML        = "&aring;"
 macro.Auml.HTML         = "&Auml;"
+macro.uuml.HTML         = "&uuml;"
 
 Cpp.ignoretokens        = QAXFACTORY_EXPORT \
                           QDESIGNER_COMPONENTS_LIBRARY \

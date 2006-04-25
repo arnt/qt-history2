@@ -32,15 +32,9 @@
     URLs can be represented in two forms: encoded or unencoded. The
     unencoded representation is suitable for showing to users, but
     the encoded representation is typically what you would send to
-    a web server.
-
-    \code
-        // Unencoded URL
-        "http://bühler.example.com/List of applicants.xml"
-
-        // Encoded URL
-        "http://xn--bhler-kva.example.com/List%20of%20applicants.xml"
-    \endcode
+    a web server. For example, the unencoded URL
+    "http://b\uuml\c{}hler.example.com" would be sent to the server as
+    "http://xn--bhler-kva.example.com/List%20of%20applicants.xml".
 
     A URL can also be constructed piece by piece by calling
     setScheme(), setUserName(), setPassword(), setHost(), setPort(),

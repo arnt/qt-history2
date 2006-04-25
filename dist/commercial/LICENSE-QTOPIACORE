@@ -146,7 +146,7 @@ functions. Third Party Libraries do not comprise part of the Licensed
 Software. In some cases, access to Third Party Libraries may be
 included along with the Licensed Software delivery as a convenience
 for development and testing only. Such source code and libraries as
-are or may be listed in the "…/src/3rdparty" source tree delivered
+are or may be listed in the "/src/3rdparty" source tree delivered
 with the Licensed Software, as may be amended from time to time, do
 not comprise the Licensed Software. Licensee acknowledges (1) that
 some Third Party Libraries may require additional licensing of

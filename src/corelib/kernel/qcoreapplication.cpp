@@ -758,7 +758,7 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         return;
     }
 
-    // überhack for enabling some threading features for (mumble)
+    // uberhack for enabling some threading features for (mumble)
     if (receiver == (QObject *) 0xfeedface && event == (QEvent *) 0xc0ffee) {
         QThreadPrivate::adoptCurrentThreadEnabled = true;
         if (!the_mainThread)

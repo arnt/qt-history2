@@ -472,8 +472,8 @@
     such as the D-BUS and ogg libraries, with the following lines:
 
     \code
-        CONFIG += link_pkgconfig
-        PKGCONFIG += ogg dbus-1
+        CONFIG += link_pkgconfig
+        PKGCONFIG += ogg dbus-1
     \endcode
 
     More information about features can be found in the
