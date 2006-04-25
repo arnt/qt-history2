@@ -999,9 +999,6 @@ void QTextStream::flush()
 /*!
     Seeks to the position \a pos in the device. Returns true on
     success; otherwise returns false.
-
-    If QTextStream operates on a string, this function does nothing
-    and returns false.
 */
 bool QTextStream::seek(qint64 pos)
 {
