@@ -2689,7 +2689,8 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger
 {
     if (!index.isValid())
         return false;
-    if ((model->flags(index) & Qt::ItemIsEditable) == 0)
+    Qt::ItemFlags flags = model->flags(index);
+    if (((flags & Qt::ItemIsEditable) == 0) || ((flags & Qt::ItemIsEnabled) == 0))
         return false;
     if (state == QAbstractItemView::EditingState)
         return false;
