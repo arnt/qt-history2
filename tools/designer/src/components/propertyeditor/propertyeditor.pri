@@ -4,7 +4,14 @@ INCLUDEPATH += $$PWD \
 
 FORMS += $$PWD/paletteeditor.ui \
     $$PWD/stringlisteditor.ui \
-    $$PWD/previewwidget.ui
+    $$PWD/previewwidget.ui \
+    $$PWD/qtgradientstopseditor.ui \
+    $$PWD/qtgradienteditor.ui \
+    $$PWD/qtgradientdialog.ui \
+    $$PWD/qtbrusheditor.ui \
+    $$PWD/qtbrushdialog.ui \
+    $$PWD/qtbrushpatterneditor.ui \
+    $$PWD/qtbrushpatterndialog.ui
 
 HEADERS += $$PWD/propertyeditor.h \
     $$PWD/paletteeditor.h \
@@ -13,7 +20,23 @@ HEADERS += $$PWD/propertyeditor.h \
     $$PWD/stringlisteditorbutton.h \
     $$PWD/previewwidget.h \
     $$PWD/previewframe.h \
-    $$PWD/styledbutton.h
+    $$PWD/styledbutton.h \
+    $$PWD/qtgradientstopsmodel.h\
+    $$PWD/qtgradientstopswidget.h\
+    $$PWD/qtgradientstopseditor.h\
+    $$PWD/qtgradientwidget.h\
+    $$PWD/qtgradienteditor.h\
+    $$PWD/qtgradientdialog.h\
+    $$PWD/qtbrushwidget.h\
+    $$PWD/qtbrusheditor.h\
+    $$PWD/qtbrushdialog.h\
+    $$PWD/qtbrushbutton.h\
+    $$PWD/qtbrushmanager.h\
+    $$PWD/qtbrushpatterneditor.h\
+    $$PWD/qtbrushpatterndialog.h\
+    $$PWD/qtspinbox.h\
+    $$PWD/qtcolorbutton.h\
+    $$PWD/qtcolorline.h
 
 SOURCES += $$PWD/propertyeditor.cpp \
     $$PWD/paletteeditor.cpp \
@@ -22,7 +45,23 @@ SOURCES += $$PWD/propertyeditor.cpp \
     $$PWD/stringlisteditorbutton.cpp \
     $$PWD/previewwidget.cpp \
     $$PWD/previewframe.cpp \
-    $$PWD/styledbutton.cpp
+    $$PWD/styledbutton.cpp \
+    $$PWD/qtgradientstopsmodel.cpp\
+    $$PWD/qtgradientstopswidget.cpp\
+    $$PWD/qtgradientstopseditor.cpp\
+    $$PWD/qtgradientwidget.cpp\
+    $$PWD/qtgradienteditor.cpp\
+    $$PWD/qtgradientdialog.cpp\
+    $$PWD/qtbrushwidget.cpp\
+    $$PWD/qtbrusheditor.cpp\
+    $$PWD/qtbrushdialog.cpp\
+    $$PWD/qtbrushbutton.cpp\
+    $$PWD/qtbrushmanager.cpp\
+    $$PWD/qtbrushpatterneditor.cpp\
+    $$PWD/qtbrushpatterndialog.cpp\
+    $$PWD/qtspinbox.cpp\
+    $$PWD/qtcolorbutton.cpp\
+    $$PWD/qtcolorline.cpp
 
 HEADERS += $$PWD/qpropertyeditor.h \
     $$PWD/qpropertyeditor_items_p.h \
@@ -43,3 +82,4 @@ SOURCES += $$PWD/qpropertyeditor.cpp \
     $$PWD/defs.cpp \
     $$PWD/qlonglongvalidator.cpp
 
+RESOURCES += $$PWD/qtgradienteditor.qrc

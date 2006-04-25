@@ -1,0 +1,540 @@
+<ui version="4.0" >
+ <author></author>
+ <comment></comment>
+ <exportmacro></exportmacro>
+ <class>QtGradientEditor</class>
+ <widget class="QWidget" name="QtGradientEditor" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>332</width>
+    <height>244</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <item row="1" column="1" colspan="2" >
+    <widget class="QStackedWidget" name="stackedWidget" >
+     <property name="currentIndex" >
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="linearPage" >
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="1" column="1" >
+        <widget class="QComboBox" name="spreadLinearComboBox" />
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label_9" >
+         <property name="text" >
+          <string>Spread</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" >
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string>Start Point</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="label_10" >
+            <property name="text" >
+             <string>Y</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QtDoubleSpinBox" name="startLinearYSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="label_12" >
+            <property name="text" >
+             <string>X</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QtDoubleSpinBox" name="startLinearXSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QGroupBox" name="groupBox_2" >
+         <property name="title" >
+          <string>Final Point</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="label_11" >
+            <property name="text" >
+             <string>Y</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="label_13" >
+            <property name="text" >
+             <string>X</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QtDoubleSpinBox" name="endLinearYSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QtDoubleSpinBox" name="endLinearXSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="radialPage" >
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="2" column="1" >
+        <widget class="QComboBox" name="spreadRadialComboBox" />
+       </item>
+       <item row="2" column="0" >
+        <widget class="QLabel" name="label_20" >
+         <property name="text" >
+          <string>Spread</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label_7" >
+         <property name="text" >
+          <string>Radius</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" >
+        <widget class="QGroupBox" name="groupBox_3" >
+         <property name="title" >
+          <string>Central Point</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="label_14" >
+            <property name="text" >
+             <string>Y</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="label_16" >
+            <property name="text" >
+             <string>X</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QtDoubleSpinBox" name="centralRadialYSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QtDoubleSpinBox" name="centralRadialXSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QGroupBox" name="groupBox_4" >
+         <property name="title" >
+          <string>Focal Point</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="1" >
+           <widget class="QtDoubleSpinBox" name="focalRadialXSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QtDoubleSpinBox" name="focalRadialYSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="label_17" >
+            <property name="text" >
+             <string>X</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="label_15" >
+            <property name="text" >
+             <string>Y</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QtDoubleSpinBox" name="radiusRadialSpinBox" >
+         <property name="decimals" >
+          <number>3</number>
+         </property>
+         <property name="maximum" >
+          <double>2</double>
+         </property>
+         <property name="singleStep" >
+          <double>0.01</double>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="conicalPage" >
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="0" colspan="2" >
+        <widget class="QGroupBox" name="groupBox_5" >
+         <property name="title" >
+          <string>Central Point</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item rowspan="2" row="0" column="2" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QtDoubleSpinBox" name="centralConicalXSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QtDoubleSpinBox" name="centralConicalYSpinBox" >
+            <property name="decimals" >
+             <number>3</number>
+            </property>
+            <property name="maximum" >
+             <double>1</double>
+            </property>
+            <property name="singleStep" >
+             <double>0.01</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="label_19" >
+            <property name="text" >
+             <string>X</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="label_18" >
+            <property name="text" >
+             <string>Y</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="1" >
+        <widget class="QtDoubleSpinBox" name="angleConicalSpinBox" >
+         <property name="wrapping" >
+          <bool>true</bool>
+         </property>
+         <property name="decimals" >
+          <number>1</number>
+         </property>
+         <property name="maximum" >
+          <double>360</double>
+         </property>
+         <property name="singleStep" >
+          <double>1</double>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QLabel" name="label_4" >
+         <property name="text" >
+          <string>Angle</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" >
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <widget class="QLabel" name="label_8" >
+     <property name="text" >
+      <string>Gradient Type</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2" >
+    <widget class="QComboBox" name="typeComboBox" />
+   </item>
+   <item row="2" column="0" colspan="3" >
+    <widget class="QtGradientStopsEditor" name="gradientStopsEditor" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>13</hsizetype>
+       <vsizetype>0</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item rowspan="2" row="0" column="0" >
+    <widget class="QFrame" name="frame" >
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QtGradientWidget" name="gradientWidget" />
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <pixmapfunction></pixmapfunction>
+ <customwidgets>
+  <customwidget>
+   <class>QtDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>qtspinbox.h</header>
+   <container>0</container>
+   <pixmap></pixmap>
+  </customwidget>
+  <customwidget>
+   <class>QtGradientStopsEditor</class>
+   <extends>QFrame</extends>
+   <header>qtgradientstopseditor.h</header>
+   <container>0</container>
+   <pixmap></pixmap>
+  </customwidget>
+  <customwidget>
+   <class>QtGradientWidget</class>
+   <extends>QFrame</extends>
+   <header>qtgradientwidget.h</header>
+   <container>0</container>
+   <pixmap></pixmap>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>typeComboBox</tabstop>
+  <tabstop>startLinearXSpinBox</tabstop>
+  <tabstop>startLinearYSpinBox</tabstop>
+  <tabstop>endLinearXSpinBox</tabstop>
+  <tabstop>endLinearYSpinBox</tabstop>
+  <tabstop>spreadLinearComboBox</tabstop>
+  <tabstop>centralRadialXSpinBox</tabstop>
+  <tabstop>centralRadialYSpinBox</tabstop>
+  <tabstop>focalRadialXSpinBox</tabstop>
+  <tabstop>focalRadialYSpinBox</tabstop>
+  <tabstop>radiusRadialSpinBox</tabstop>
+  <tabstop>spreadRadialComboBox</tabstop>
+  <tabstop>centralConicalXSpinBox</tabstop>
+  <tabstop>centralConicalYSpinBox</tabstop>
+  <tabstop>angleConicalSpinBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
