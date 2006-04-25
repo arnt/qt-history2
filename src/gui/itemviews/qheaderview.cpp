@@ -1458,7 +1458,6 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 
     QRect rect;
     int logical;
-    bool highlight = false;
     const int width = d->viewport->width();
     const int height = d->viewport->height();
     const bool active = isActiveWindow();
@@ -1467,24 +1466,32 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         if (d->isVisualIndexHidden(i))
             continue;
         logical = logicalIndex(i);
+        bool highlight = false;
         if (orientation() == Qt::Horizontal) {
             rect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
-            highlight = d->columnIntersectsSelection(logical);
+            if (d->highlightSelected && active)
+                highlight = d->columnIntersectsSelection(logical);
         } else {
             rect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
-            highlight = d->rowIntersectsSelection(logical);
+            if (d->highlightSelected && active)
+                highlight = d->rowIntersectsSelection(logical);
         }
         rect.translate(offset);
-        if (d->highlightSelected && highlight && active) {
-            QFont bf(fnt);
-            bf.setBold(true);
-            painter.setFont(bf);
-            paintSection(&painter, rect, logical);
-            painter.setFont(fnt); // restore the font
-        } else {
-            paintSection(&painter, rect, logical);
-        }
+
+        QFont sectionFont;
+        QVariant variant = d->model->headerData(logical, orientation(),
+                                                Qt::FontRole);
+        if (variant.isValid() && variant.canConvert<QFont>())
+            sectionFont = qvariant_cast<QFont>(variant);
+        else
+            sectionFont = fnt;
+        if (highlight)
+            sectionFont.setBold(true);
+        painter.setFont(sectionFont);
+
+        paintSection(&painter, rect, logical);
     }
+    painter.setFont(fnt);
 
     if (d->reverse()) {
         if (rect.left() > area.left())
@@ -1834,7 +1841,13 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
 
     // otherwise use the contents
     QStyleOptionHeader opt = d->getStyleOption();
-    QFont fnt = font();
+    QVariant var = d->model->headerData(logicalIndex, orientation(),
+                                            Qt::FontRole);
+    QFont fnt;
+    if (var.isValid() && var.canConvert<QFont>())
+        fnt = qvariant_cast<QFont>(var);
+    else
+        fnt = font();
     fnt.setBold(true);
     opt.fontMetrics = QFontMetrics(fnt);
     opt.text = d->model->headerData(logicalIndex, orientation(),
