@@ -907,6 +907,14 @@ bool QFontEngineMac::canRender(const QChar *string, int len)
 
 void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt &ti, int paintDeviceHeight)
 {
+    QVarLengthArray<QFixedPoint> positions;
+    QVarLengthArray<glyph_t> glyphs;
+    QMatrix matrix;
+    matrix.translate(x, y);
+    getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
+    if (glyphs.size() == 0)
+        return;
+
     CGContextSetFontSize(ctx, fontDef.pixelSize);
 
     CGAffineTransform oldTextMatrix = CGContextGetTextMatrix(ctx);
@@ -922,11 +930,6 @@ void QFontEngineMac::draw(CGContextRef ctx, qreal x, qreal y, const QTextItemInt
 
     CGContextSetTextDrawingMode(ctx, kCGTextFill);
 
-    QVarLengthArray<QFixedPoint> positions;
-    QVarLengthArray<glyph_t> glyphs;
-    QMatrix matrix;
-    matrix.translate(x, y);
-    getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 
     QVarLengthArray<CGSize> advances(glyphs.size());
     QVarLengthArray<CGGlyph> cgGlyphs(glyphs.size());
