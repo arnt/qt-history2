@@ -68,6 +68,10 @@ struct QCssKnownValue
 };
 
 static const QCssKnownValue properties[NumProperties + 1] = {
+    { "-qt-block-indent", QtBlockIndent },
+    { "-qt-list-indent", QtListIndent },
+    { "-qt-paragraph-type", QtParagraphType },
+    { "-qt-table-type", QtTableType },
     { "background-color", BackgroundColor },
     { "color", Color },
     { "float", Float },
@@ -80,10 +84,6 @@ static const QCssKnownValue properties[NumProperties + 1] = {
     { "margin-left", MarginLeft },
     { "margin-right", MarginRight },
     { "margin-top", MarginTop },
-    { "-qt-block-indent", QtBlockIndent },
-    { "-qt-list-indent", QtListIndent },
-    { "-qt-paragraph-type", QtParagraphType },
-    { "-qt-table-type", QtTableType },
     { "text-decoration", TextDecoration },
     { "text-indent", TextIndent },
     { "vertical-align", VerticalAlignment },

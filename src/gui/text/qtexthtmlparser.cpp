@@ -1270,11 +1270,7 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
     int count = a.count(';')+1;
     for (int s = 0; s < count; s++) {
         QString style = a.section(';', s, s).trimmed();
-        if (style.startsWith(QLatin1String("-qt-block-indent:"))) {
-            const QString s = style.mid(17).trimmed();
-            if (setIntAttribute(&node->cssBlockIndent, s))
-                node->hasCssBlockIndent = true;
-        } else if (style.startsWith(QLatin1String("text-indent:")) && style.endsWith(QLatin1String("px"))) {
+        if (style.startsWith(QLatin1String("text-indent:")) && style.endsWith(QLatin1String("px"))) {
             node->text_indent = style.mid(12, style.length() - 14).trimmed().toDouble();
         } else if (style.startsWith(QLatin1String("-qt-list-indent:"))) {
             const QString s = style.mid(16).trimmed();
@@ -1340,6 +1336,10 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
                         default: break;
                     }
                 }
+                break;
+            case QCss::QtBlockIndent:
+                node->hasCssBlockIndent = true;
+                node->cssBlockIndent = decl.values.first().variant.toInt();
                 break;
             default: break;
         }
