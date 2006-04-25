@@ -632,10 +632,8 @@ bool Parser::parseUnaryOperator(Value::UnaryOperator *op)
 
 bool Parser::parseProperty(Declaration *decl)
 {
-    decl->propertyId = static_cast<Property>(findKnownValue(lexem(), properties, NumProperties));
-    if (decl->propertyId == UnknownProperty) {
-        decl->property = lexem();
-    }
+    decl->property = lexem();
+    decl->propertyId = static_cast<Property>(findKnownValue(decl->property, properties, NumProperties));
     skipSpace();
     return true;
 }
@@ -825,7 +823,7 @@ bool Parser::testPrio()
         index = rewind;
         return false;
     }
-    if (lexem().toLower() != QLatin1String("important")) {
+    if (lexem().compare(QLatin1String("important"), Qt::CaseInsensitive) != 0) {
         index = rewind;
         return false;
     }
@@ -883,42 +881,37 @@ bool Parser::parseTerm(Value *value)
         next();
     }
 
-    value->type = QCss::Value::Unknown;
+    QString str = lexem();
+    value->variant = str;
+    value->type = QCss::Value::String;
     switch (lookup()) {
         case NUMBER:
             value->type = Value::Number;
-            value->variant = lexem().toDouble();
+            value->variant.convert(QVariant::Double);
             break;
-        case PERCENTAGE: {
+        case PERCENTAGE:
             value->type = Value::Percentage;
-            QString str = lexem();
             str.chop(1); // strip off %
             value->variant = str;
             break;
-        }
         case LENGTH:
             value->type = Value::Length;
-            value->variant = lexem();
             break;
 
-        case STRING: {
+        case STRING:
             if (haveUnary) return false;
             value->type = Value::String;
-            QString str = lexem();
             str.chop(1);
             str.remove(0, 1);
             value->variant = str;
             break;
-        }
         case IDENT: {
             if (haveUnary) return false;
-            const int id = findKnownValue(lexem(), values, NumKnownValues);
+            value->type = Value::Identifier;
+            const int id = findKnownValue(str, values, NumKnownValues);
             if (id != 0) {
                 value->type = Value::KnownIdentifier;
                 value->variant = id;
-            } else {
-                value->type = Value::Identifier;
-                value->variant = lexem();
             }
             break;
         }
