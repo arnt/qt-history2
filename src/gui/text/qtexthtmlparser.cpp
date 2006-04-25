@@ -1270,14 +1270,7 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
     int count = a.count(';')+1;
     for (int s = 0; s < count; s++) {
         QString style = a.section(';', s, s).trimmed();
-        if (style.startsWith(QLatin1String("float:"))) {
-            QString s = style.mid(6).trimmed();
-            node->cssFloat = QTextFrameFormat::InFlow;
-            if (s == QLatin1String("left"))
-                node->cssFloat = QTextFrameFormat::FloatLeft;
-            else if (s == QLatin1String("right"))
-                node->cssFloat = QTextFrameFormat::FloatRight;
-        } else if (style.startsWith(QLatin1String("-qt-block-indent:"))) {
+        if (style.startsWith(QLatin1String("-qt-block-indent:"))) {
             const QString s = style.mid(17).trimmed();
             if (setIntAttribute(&node->cssBlockIndent, s))
                 node->hasCssBlockIndent = true;
@@ -1334,9 +1327,20 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
     
     for (int i = 0; i < sheet.styleRules.at(0).declarations.count(); ++i) {
         const QCss::Declaration &decl = sheet.styleRules.at(0).declarations.at(i);
+        if (decl.values.isEmpty()) continue;
         switch (decl.propertyId) {
             case QCss::Color: node->color = decl.colorValue(); break;
             case QCss::BackgroundColor: node->bgColor = decl.colorValue(); break;
+            case QCss::Float:
+                node->cssFloat = QTextFrameFormat::InFlow;
+                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
+                    switch (decl.values.first().variant.toInt()) {
+                        case QCss::Value_Left: node->cssFloat = QTextFrameFormat::FloatLeft; break;
+                        case QCss::Value_Right: node->cssFloat = QTextFrameFormat::FloatRight; break;
+                        default: break;
+                    }
+                }
+                break;
             default: break;
         }
     }
