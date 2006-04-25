@@ -1285,7 +1285,9 @@ bool QVNCScreen::initDevice()
     hdr->dirty = false;
     memset(qvnc_screen->hdr->map, 0, MAP_WIDTH*MAP_HEIGHT);
 
+#ifndef QT_NO_QWS_CURSOR
     QScreenCursor::initSoftwareCursor();
+#endif
 
     return true;
 }
