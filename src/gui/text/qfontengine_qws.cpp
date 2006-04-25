@@ -160,6 +160,7 @@ QFontEngineFT::~QFontEngineFT()
     FT_Done_Face(face);
 }
 
+#endif // QT_NO_FREETYPE
 
 inline unsigned int getChar(const QChar *str, int &i, const int len)
 {
@@ -173,6 +174,8 @@ inline unsigned int getChar(const QChar *str, int &i, const int len)
     }
     return uc;
 }
+
+#ifndef QT_NO_FREETYPE
 
 /* returns 0 as glyph index for non existant glyphs */
 bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
