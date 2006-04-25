@@ -1678,11 +1678,11 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         break;
     case SH_ScrollView_FrameOnlyAroundContents:
         if (w && (w->isWindow() || !w->parentWidget() || w->parentWidget()->isWindow())
-            && (qobject_cast<const QAbstractScrollArea *>(w)
+                && (w->inherits("QWorkspaceChild")
 #ifdef QT3_SUPPORT
                 || w->inherits("QScrollView")
 #endif
-                || w->inherits("QWorkspaceChild")))
+                ))
             ret = true;
         else
             ret = QWindowsStyle::styleHint(sh, opt, w, hret);
