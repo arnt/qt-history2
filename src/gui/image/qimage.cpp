@@ -35,6 +35,23 @@
 
 #ifdef Q_WS_QWS
 #include <qscreen_qws.h> //### for qt_conv...
+#else
+static inline ushort qt_convRgbTo16(QRgb c)
+{
+    return ((c >> 8) & 0xf800)
+        | ((c >> 5) & 0x07e)
+        | ((c >> 3) & 0x1f);
+}
+
+static inline QRgb qt_conv16ToRgb(ushort c)
+{
+    QRgb r = (((c) << 3) & 0xf8)
+             | (((c) << 5) & 0xfc00)
+             | (((c) << 8) & 0xf80000);
+    r |= (r >> 5) & 0x70007;
+    r |= (r >> 6) & 0x300;
+    return r | 0xff000000;
+}
 #endif
 
 #if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER-0 >= 50190001)
@@ -169,11 +186,9 @@ static int depthForFormat(QImage::Format format)
     case QImage::Format_ARGB32_Premultiplied:
         depth = 32;
         break;
-#ifdef Q_WS_QWS
     case QImage::Format_RGB16:
         depth = 16;
         break;
-#endif
     }
     return depth;
 }
@@ -206,12 +221,10 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
         depth = 32;
         numColors = 0;
         break;
-#ifdef Q_WS_QWS
     case QImage::Format_RGB16:
         depth = 16;
         numColors = 0;
         break;
-#endif
     }
 
     QImageData *d = new QImageData;
@@ -694,10 +707,8 @@ static QImage::Format formatFor(int depth, QImage::Endian bitOrder)
         format = QImage::Format_Indexed8;
     } else if (depth == 32) {
         format = QImage::Format_RGB32;
-#ifdef Q_WS_QWS
     } else if (depth == 16) {
         format = QImage::Format_RGB16;
-#endif
     } else {
         qWarning("QImage: depth %d not supported", depth);
         format = QImage::Format_Invalid;
@@ -1774,10 +1785,7 @@ QImage::Format QImage::format() const
 bool QImage::hasAlphaBuffer() const
 {
     return d && (d->format != Format_RGB32)
-#ifdef Q_WS_QWS
-        && (d->format != Format_RGB16)
-#endif
-        ;
+        && (d->format != Format_RGB16);
 }
 
 /*!
@@ -2508,10 +2516,7 @@ static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
         }
 
         if (src->format != QImage::Format_RGB32
-#ifdef Q_WS_QWS
-            && src->format != QImage::Format_RGB16
-#endif
-            ) {
+            && src->format != QImage::Format_RGB16) {
             const int trans = 216;
             Q_ASSERT(dst->colortable.size() > trans);
             dst->colortable[trans] = 0;
@@ -2661,8 +2666,7 @@ static void convert_Mono_to_Indexed8(QImageData *dest, const QImageData *src, Qt
 }
 
 
-#ifdef Q_WS_QWS
-#ifdef QT_QWS_DEPTH_16
+#if !defined(Q_WS_QWS) || defined(QT_QWS_DEPTH_16)
 
 static void convert_16_to_32(QImageData *dest, const QImageData *src, Qt::ImageConversionFlags)
 {
@@ -2717,7 +2721,6 @@ static void convert_32_to_16(QImageData *dest,   const QImageData *src, Qt::Imag
 #else
 #define convert_32_to_16 0
 #define convert_16_to_32 0
-#endif
 #endif //Q_WS_QWS
 /*
         Format_Invalid,
@@ -2742,10 +2745,8 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
         0,
         0,
         0,
+        0,
         0
-#ifdef Q_WS_QWS
-        , 0
-#endif
     },
     {
         0,
@@ -2754,10 +2755,8 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
         convert_Mono_to_Indexed8,
         convert_Mono_to_X32,
         convert_Mono_to_X32,
-        convert_Mono_to_X32
-#ifdef Q_WS_QWS
-        , 0
-#endif
+        convert_Mono_to_X32,
+        0
     }, // Format_Mono
 
     {
@@ -2767,10 +2766,8 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
         convert_Mono_to_Indexed8,
         convert_Mono_to_X32,
         convert_Mono_to_X32,
-        convert_Mono_to_X32
-#ifdef Q_WS_QWS
-        , 0
-#endif
+        convert_Mono_to_X32,
+        0
     }, // Format_MonoLSB
 
     {
@@ -2780,10 +2777,8 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
         0,
         convert_Indexed8_to_X32,
         convert_Indexed8_to_X32,
-        convert_Indexed8_to_X32
-#ifdef Q_WS_QWS
-        , 0
-#endif
+        convert_Indexed8_to_X32,
+        0
     }, // Format_Indexed8
 
     {
@@ -2793,10 +2788,8 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
         convert_RGB_to_Indexed8,
         0,
         mask_alpha_converter,
-        mask_alpha_converter
-#ifdef Q_WS_QWS
-        , convert_32_to_16
-#endif
+        mask_alpha_converter,
+        convert_32_to_16
     }, // Format_RGB32
 
     {
@@ -2806,10 +2799,8 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
         convert_ARGB_to_Indexed8,
         mask_alpha_converter,
         0,
-        convert_ARGB_to_ARGB_PM
-#ifdef Q_WS_QWS
-        , convert_32_to_16
-#endif
+        convert_ARGB_to_ARGB_PM,
+        convert_32_to_16
     }, // Format_ARGB32
 
     {
@@ -2819,13 +2810,10 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
         convert_ARGB_PM_to_Indexed8,
         convert_ARGB_PM_to_RGB,
         convert_ARGB_PM_to_ARGB,
+        0,
         0
-#ifdef Q_WS_QWS
-        , 0
-#endif
-    }  // Format_ARGB32_Premultiplied
-#ifdef Q_WS_QWS
-    ,
+    },  // Format_ARGB32_Premultiplied
+
     {
         0,
         0,
@@ -2836,7 +2824,6 @@ static const Image_Converter converter_map[QImage::NImageFormats][QImage::NImage
         convert_16_to_32,
         0
     } // Format_RGB16
-#endif
 };
 
 /*!
@@ -2862,8 +2849,7 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         return image;
     }
 
-#ifdef Q_WS_QWS
-#ifdef QT_QWS_DEPTH_16
+#if !defined(Q_WS_QWS) || defined(QT_QWS_DEPTH_16)
     if (format == Format_RGB16) {
         QImage tmp;
         if (d->format == Format_RGB32 || d->format == Format_ARGB32)
@@ -2886,7 +2872,6 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         else
             return image.convertToFormat(format);
     }
-#endif
 #endif
 
     return QImage();
@@ -3005,10 +2990,8 @@ QRgb QImage::pixel(int x, int y) const
         return d->colortable.at((*(s + (x >> 3)) >> (x & 7)) & 1);
     case Format_Indexed8:
         return d->colortable.at((int)s[x]);
-#ifdef Q_WS_QWS
     case Format_RGB16:
         return qt_conv16ToRgb(reinterpret_cast<const ushort*>(s)[x]);
-#endif
     default:
         return ((QRgb*)s)[x];
     }
@@ -3067,11 +3050,9 @@ void QImage::setPixel(int x, int y, uint index_or_rgb)
     case Format_ARGB32_Premultiplied:
         ((uint *)s)[x] = index_or_rgb;
         break;
-#ifdef Q_WS_QWS
     case Format_RGB16:
         ((ushort *)s)[x] = qt_convRgbTo16(index_or_rgb);
         break;
-#endif
     case Format_Invalid:
     case NImageFormats:
         Q_ASSERT(false);
@@ -3133,14 +3114,12 @@ bool QImage::allGray() const
         while (p--)
             if (!qIsGray(*b++))
                 return false;
-#ifdef Q_WS_QWS
     } else if (d->depth == 16) {
         int p = width()*height();
         const ushort* b = (const ushort *)bits();
         while (p--)
             if (!qIsGray(qt_conv16ToRgb(*b++)))
                 return false;
-#endif
     } else {
         if (d->colortable.isEmpty())
             return true;
@@ -3695,7 +3674,6 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
                 dsl[dx] = ssl[sx];
         }
     }
-#ifdef Q_WS_QWS
     // 16 bit
     else if (d->depth == 16) {
         for (int sy = 0; sy < h; sy++, dy += dyi) {
@@ -3706,7 +3684,6 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
                 dsl[dx] = ssl[sx];
         }
     }
-#endif
     // 32 bit
     else if (d->depth == 32) {
         for (int sy = 0; sy < h; sy++, dy += dyi) {
@@ -3810,7 +3787,6 @@ QImage QImage::rgbSwapped() const
             }
         }
         break;
-#ifdef Q_WS_QWS
     case Format_RGB16:
         res = QImage(d->width, d->height, d->format);
         for (int i = 0; i < d->height; i++) {
@@ -3824,7 +3800,6 @@ QImage QImage::rgbSwapped() const
             }
         }
         break;
-#endif
     }
     return res;
 }
@@ -4142,10 +4117,9 @@ bool QImage::operator==(const QImage & i) const
     if (d->format != Format_RGB32) {
         if (d->colortable != i.d->colortable)
             return false;
-        if (d->format == Format_ARGB32 || d->format == Format_ARGB32_Premultiplied
-#ifdef Q_WS_QWS
+        if (d->format == Format_ARGB32
+            || d->format == Format_ARGB32_Premultiplied
             || d->format == Format_RGB16
-#endif
             ) {
             if (memcmp(bits(), i.bits(), d->nbytes))
                 return false;
