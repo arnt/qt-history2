@@ -2532,21 +2532,21 @@ void QWidgetPrivate::updateFrameStrut() const
 
 void QWidget::setWindowOpacity(qreal opacity)
 {
-    if (isTopLevel()) {
-        ulong value = ulong(opacity * 0xffffffff);
-        XChangeProperty(QX11Info::display(), winId(), ATOM(_NET_WM_WINDOW_OPACITY), XA_CARDINAL,
-                        32, PropModeReplace, (uchar*)&value, 1);
-    }
+    if (!isWindow())
+        return;
+
+    Q_D(QWidget);
+    opacity = qBound(0.0, opacity, 1.0);
+    d->topData()->opacity = uint(opacity * 255);
+    ulong value = ulong(opacity * 0xffffffff);
+    XChangeProperty(QX11Info::display(), winId(), ATOM(_NET_WM_WINDOW_OPACITY), XA_CARDINAL,
+                    32, PropModeReplace, (uchar*)&value, 1);
 }
 
 qreal QWidget::windowOpacity() const
 {
     Q_D(const QWidget);
-    if (isTopLevel()) {
-        QTLWExtra *topData = d->topData();
-        return double(topData->opacity) / 255.;
-    } else
-        return 1.0;
+    return isWindow() ? d->topData()->opacity / 255. : 1.0;
 }
 
 /*!

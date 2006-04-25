@@ -1641,7 +1641,7 @@ void QWidget::setWindowOpacity(qreal level)
     if (!ptrSetLayeredWindowAttributes)
         return;
 
-    level = qMin<qreal>(qMax<qreal>(level, 0), 1.0);
+    level = qBound(0.0, level, 1.0);
     int wl = GetWindowLongA(winId(), GWL_EXSTYLE);
 
     if (level != 1.0) {
@@ -1662,7 +1662,7 @@ void QWidget::setWindowOpacity(qreal level)
 
 qreal QWidget::windowOpacity() const
 {
-    return isWindow() ? (d_func()->topData()->opacity / 255.0) : 0.0;
+    return isWindow() ? (d_func()->topData()->opacity / 255.0) : 1.0;
 }
 
 class QGlobalRasterPaintEngine: public QRasterPaintEngine

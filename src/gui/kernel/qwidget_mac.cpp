@@ -2161,14 +2161,14 @@ void QWidget::setWindowOpacity(qreal level)
     if(!isWindow())
         return;
 
-    level = qMin<qreal>(qMax(level, 0.0), 1.0);
+    level = qBound(0.0, level, 1.0);
     QMacSavedPortInfo::setWindowAlpha(this, level);
     d->topData()->opacity = (uchar)(level * 255);
 }
 
 qreal QWidget::windowOpacity() const
 {
-    return isWindow() ? ((QWidget*)this)->d_func()->topData()->opacity / 255.0 : 0.0;
+    return isWindow() ? ((QWidget*)this)->d_func()->topData()->opacity / 255.0 : 1.0;
 }
 
 struct QPaintEngineCleanupHandler

@@ -1300,17 +1300,19 @@ void QWidgetPrivate::updateCursor(const QRegion &r) const
 
 void QWidget::setWindowOpacity(qreal level)
 {
+    if (!isWindow())
+        return;
+
     Q_D(QWidget);
-    level = qMin<qreal>(qMax(level, qreal(0.0)), qreal(1.0));
+    level = qBound(0.0, level, 1.0);
     uchar opacity = uchar(level * 255);
     d->topData()->opacity = opacity;
-    if (isWindow())
-        qwsDisplay()->setOpacity(data->winid, opacity);
+    qwsDisplay()->setOpacity(data->winid, opacity);
 }
 
 qreal QWidget::windowOpacity() const
 {
-    return isWindow() ? ((QWidget*)this)->d_func()->topData()->opacity / 255.0 : 0.0;
+    return isWindow() ? ((QWidget*)this)->d_func()->topData()->opacity / 255.0 : 1.0;
 }
 
 //static QSingleCleanupHandler<QWSPaintEngine> qt_paintengine_cleanup_handler;
