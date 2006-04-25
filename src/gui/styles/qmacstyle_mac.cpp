@@ -4007,6 +4007,10 @@ QRect QMacStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *op
                         int newSum = indicatorWidth + 1;
                         int newLeft = labelRect.left() + (rtl ? -newSum : newSum);
                         labelRect.moveLeft(newLeft);
+                    } else if (groupBox->features & QStyleOptionFrameV2::Flat) {
+                        int newLeft = labelRect.left() - (rtl ? 3 : -3);
+                        labelRect.moveLeft(newLeft);
+                        labelRect.moveTop(labelRect.top() + 5);
                     } else {
                         int newLeft = labelRect.left() - (rtl ? 3 : 2);
                         labelRect.moveLeft(newLeft);
