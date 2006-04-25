@@ -59,7 +59,9 @@ QWSVr41xxKeyboardHandler::~QWSVr41xxKeyboardHandler()
 
 QWSVr41xxKbPrivate::QWSVr41xxKbPrivate(QWSVr41xxKeyboardHandler *h, const QString &device) : handler(h)
 {
-    terminalName = device.isEmpty() ? "/dev/buttons" : device;
+    terminalName = device;
+    if (terminalName.isEmpty())
+        terminalName = "/dev/buttons";
     buttonFD = -1;
     notifier = 0;
 
