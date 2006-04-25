@@ -181,6 +181,22 @@ QColor Declaration::colorValue() const
                   colorDigits.at(4).variant.toInt());
 }
 
+bool Declaration::pixelValue(qreal *real) const
+{
+    if (values.count() != 1)
+        return false;
+    Value v = values.first();
+    if (v.type != Value::Length)
+        return false;
+    QString s = v.variant.toString();
+    if (!s.endsWith(QLatin1String("px"), Qt::CaseInsensitive))
+        return false;
+    s.chop(2);
+    bool ok = false;
+    *real = s.toDouble(&ok);
+    return ok;
+}
+
 static bool setFontSizeFromValue(Value value, QFont *font, int *fontSizeAdjustment)
 {
     if (value.type == Value::KnownIdentifier) {

@@ -108,6 +108,7 @@ struct Q_INTERNAL_EXPORT Declaration
     
     // helper functions
     QColor colorValue() const;
+    bool pixelValue(qreal *value) const;
 };
 
 struct Q_INTERNAL_EXPORT PseudoClass
