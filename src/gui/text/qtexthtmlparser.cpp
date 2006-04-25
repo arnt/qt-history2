@@ -1249,68 +1249,8 @@ static void setWidthAttribute(QTextLength *width, QString value)
     }
 }
 
-static QTextHtmlParserNode::WhiteSpaceMode stringToWhiteSpaceMode(const QString &s)
-{
-    if (s == QLatin1String("normal"))
-        return QTextHtmlParserNode::WhiteSpaceNormal;
-    else if (s == QLatin1String("pre"))
-        return QTextHtmlParserNode::WhiteSpacePre;
-    else if (s == QLatin1String("nowrap"))
-        return QTextHtmlParserNode::WhiteSpaceNoWrap;
-    else if (s == QLatin1String("pre-wrap"))
-        return QTextHtmlParserNode::WhiteSpacePreWrap;
-
-    return QTextHtmlParserNode::WhiteSpaceModeUndefined;
-}
-
-// style parser taken from Qt 3
 static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
 {
-    QString a = value;
-    int count = a.count(';')+1;
-    for (int s = 0; s < count; s++) {
-        QString style = a.section(';', s, s).trimmed();
-        if (style.startsWith(QLatin1String("-qt-list-indent:"))) {
-            const QString s = style.mid(16).trimmed();
-            if (setIntAttribute(&node->cssListIndent, s)) {
-                node->hasCssListIndent = true;
-            }
-        } else if (style.startsWith(QLatin1String("-qt-paragraph-type:"))) {
-            const QString s = style.mid(19).trimmed().toLower();
-            if (s == QLatin1String("empty"))
-                node->isEmptyParagraph = true;
-        } else if (style.startsWith(QLatin1String("-qt-table-type:"))) {
-            const QString s = style.mid(15).trimmed().toLower();
-            if (s == QLatin1String("frame"))
-                node->isTextFrame = true;
-        } else if (style.startsWith(QLatin1String("white-space:"))) {
-            const QString s = style.mid(12).trimmed().toLower();
-            QTextHtmlParserNode::WhiteSpaceMode ws = stringToWhiteSpaceMode(s);
-            if (ws != QTextHtmlParserNode::WhiteSpaceModeUndefined)
-                node->wsm = ws;
-        } else if (style.startsWith(QLatin1String("margin-top:")) && style.endsWith("px")) {
-            const QString s = style.mid(11, style.length() - 13).trimmed();
-            setIntAttribute(&node->margin[QTextHtmlParser::MarginTop], s);
-        } else if (style.startsWith(QLatin1String("margin-bottom:")) && style.endsWith("px")) {
-            const QString s = style.mid(14, style.length() - 16).trimmed();
-            setIntAttribute(&node->margin[QTextHtmlParser::MarginBottom], s);
-        } else if (style.startsWith(QLatin1String("margin-left:")) && style.endsWith("px")) {
-            const QString s = style.mid(12, style.length() - 14).trimmed();
-            setIntAttribute(&node->margin[QTextHtmlParser::MarginLeft], s);
-        } else if (style.startsWith(QLatin1String("margin-right:")) && style.endsWith("px")) {
-            const QString s = style.mid(13, style.length() - 15).trimmed();
-            setIntAttribute(&node->margin[QTextHtmlParser::MarginRight], s);
-        } else if (style.startsWith(QLatin1String("vertical-align:"))) {
-            const QString s = style.mid(15, style.length() - 15).trimmed();
-            if (s == "sub")
-                node->verticalAlignment = QTextCharFormat::AlignSubScript;
-            else if (s == "super")
-                node->verticalAlignment = QTextCharFormat::AlignSuperScript;
-            else
-                node->verticalAlignment = QTextCharFormat::AlignNormal;
-        }
-    }
-    
     QString css = value;
     css.prepend(QLatin1String("dummy {"));
     css.append(QLatin1Char('}'));
@@ -1339,7 +1279,42 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
                 node->hasCssBlockIndent = true;
                 node->cssBlockIndent = decl.values.first().variant.toInt();
                 break;
-            case QCss::TextIndent: decl.pixelValue(&node->text_indent); break;
+            case QCss::TextIndent: decl.realValue(&node->text_indent, "px"); break;
+            case QCss::QtListIndent:
+                if (decl.intValue(&node->cssListIndent))
+                    node->hasCssListIndent = true;
+                break;
+            case QCss::QtParagraphType:
+                if (decl.values.first().variant.toString().compare(QLatin1String("empty"), Qt::CaseInsensitive) == 0)
+                    node->isEmptyParagraph = true;
+                break;
+            case QCss::QtTableType:
+                if (decl.values.first().variant.toString().compare(QLatin1String("frame"), Qt::CaseInsensitive) == 0)
+                    node->isTextFrame = true;
+                break;
+            case QCss::Whitespace:
+                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
+                    switch (decl.values.first().variant.toInt()) {
+                        case QCss::Value_Normal: node->wsm = QTextHtmlParserNode::WhiteSpaceNormal; break;
+                        case QCss::Value_Pre: node->wsm = QTextHtmlParserNode::WhiteSpacePre; break;
+                        case QCss::Value_NoWrap: node->wsm = QTextHtmlParserNode::WhiteSpaceNoWrap; break;
+                        case QCss::Value_PreWrap: node->wsm = QTextHtmlParserNode::WhiteSpacePreWrap; break;
+                        default: break;
+                    }
+                }
+            case QCss::MarginTop: decl.intValue(&node->margin[QTextHtmlParser::MarginTop], "px"); break;
+            case QCss::MarginBottom: decl.intValue(&node->margin[QTextHtmlParser::MarginBottom], "px"); break;
+            case QCss::MarginLeft: decl.intValue(&node->margin[QTextHtmlParser::MarginLeft], "px"); break;
+            case QCss::MarginRight: decl.intValue(&node->margin[QTextHtmlParser::MarginRight], "px"); break;
+            case QCss::VerticalAlignment:
+                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
+                    switch (decl.values.first().variant.toInt()) {
+                        case QCss::Value_Sub: node->verticalAlignment = QTextCharFormat::AlignSubScript; break;
+                        case QCss::Value_Super: node->verticalAlignment = QTextCharFormat::AlignSuperScript; break;
+                        default: node->verticalAlignment = QTextCharFormat::AlignNormal; break;
+                    }
+                }
+                break;
             default: break;
         }
     }

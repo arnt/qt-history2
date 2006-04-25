@@ -43,7 +43,7 @@ enum Property {
     TextIndent,
     VerticalAlignment,
     Whitespace,
-    NumProperties,
+    NumProperties
 };
 
 enum KnownValue {
@@ -108,7 +108,8 @@ struct Q_INTERNAL_EXPORT Declaration
     
     // helper functions
     QColor colorValue() const;
-    bool pixelValue(qreal *value) const;
+    bool realValue(qreal *value, const char *unit = 0) const;
+    bool intValue(int *value, const char *unit = 0) const;
 };
 
 struct Q_INTERNAL_EXPORT PseudoClass

@@ -67,7 +67,7 @@ struct QCssKnownValue
     int id;
 };
 
-static const QCssKnownValue properties[NumProperties + 1] = {
+static const QCssKnownValue properties[NumProperties + 2] = {
     { "-qt-block-indent", QtBlockIndent },
     { "-qt-list-indent", QtListIndent },
     { "-qt-paragraph-type", QtParagraphType },
@@ -88,6 +88,7 @@ static const QCssKnownValue properties[NumProperties + 1] = {
     { "text-indent", TextIndent },
     { "vertical-align", VerticalAlignment },
     { "white-space", Whitespace },
+    { "zzzzzz", 0 },
     { 0, 0 }
 };
 
@@ -128,7 +129,7 @@ static int findKnownValue(const QString &name, const QCssKnownValue *start, int 
 {
     const QCssKnownValue *end = &start[numValues];
     const QCssKnownValue *prop = qBinaryFind(start, end, name);
-    if (!prop->name)
+    if (!prop->id)
         return 0;
     return prop->id;
 }
@@ -181,19 +182,43 @@ QColor Declaration::colorValue() const
                   colorDigits.at(4).variant.toInt());
 }
 
-bool Declaration::pixelValue(qreal *real) const
+bool Declaration::realValue(qreal *real, const char *unit) const
 {
     if (values.count() != 1)
         return false;
     Value v = values.first();
-    if (v.type != Value::Length)
+    if (unit && v.type != Value::Length)
         return false;
     QString s = v.variant.toString();
-    if (!s.endsWith(QLatin1String("px"), Qt::CaseInsensitive))
-        return false;
-    s.chop(2);
+    if (unit) {
+        if (!s.endsWith(QLatin1String(unit), Qt::CaseInsensitive))
+            return false;
+        s.chop(qstrlen(unit));
+    }
     bool ok = false;
-    *real = s.toDouble(&ok);
+    qreal val = s.toDouble(&ok);
+    if (ok)
+        *real = val;
+    return ok;
+}
+
+bool Declaration::intValue(int *real, const char *unit) const
+{
+    if (values.count() != 1)
+        return false;
+    Value v = values.first();
+    if (unit && v.type != Value::Length)
+        return false;
+    QString s = v.variant.toString();
+    if (unit) {
+        if (!s.endsWith(QLatin1String(unit), Qt::CaseInsensitive))
+            return false;
+        s.chop(qstrlen(unit));
+    }
+    bool ok = false;
+    int val = s.toInt(&ok);
+    if (ok)
+        *real = val;
     return ok;
 }
 
