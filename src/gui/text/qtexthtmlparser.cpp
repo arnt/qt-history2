@@ -26,7 +26,7 @@
 #include "qcssparser_p.h"
 #include "qfont_p.h"
 
-#define MAX_ENTITY 259
+#define MAX_ENTITY 258
 static const struct QTextHtmlEntity { const char *name; quint16 code; } entities[MAX_ENTITY]= {
     { "AElig", 0x00c6 },
     { "Aacute", 0x00c1 },
@@ -285,8 +285,7 @@ static const struct QTextHtmlEntity { const char *name; quint16 code; } entities
     { "yuml", 0x00ff },
     { "zeta", 0x03b6 },
     { "zwj", 0x200d },
-    { "zwnj", 0x200c },
-    { 0, 0 }
+    { "zwnj", 0x200c }
 };
 
 static bool operator<(const QString &entityStr, const QTextHtmlEntity &entity)
@@ -302,16 +301,16 @@ static bool operator<(const QTextHtmlEntity &entity, const QString &entityStr)
 static QChar resolveEntity(const QString &entity)
 {
     const QTextHtmlEntity *start = &entities[0];
-    const QTextHtmlEntity *end = &entities[MAX_ENTITY-1];
+    const QTextHtmlEntity *end = &entities[MAX_ENTITY];
     const QTextHtmlEntity *e = qBinaryFind(start, end, entity);
-    if (!e->name)
+    if (e == end)
         return QChar();
     return e->code;
 }
 
 // the displayMode value is according to the what are blocks in the piecetable, not
 // what the w3c defines.
-static const QTextHtmlElement elements[Html_NumElements+1]= {
+static const QTextHtmlElement elements[Html_NumElements]= {
     { "a",          Html_a,          QTextHtmlElement::DisplayInline },
     { "address",    Html_address,    QTextHtmlElement::DisplayInline },
     { "b",          Html_b,          QTextHtmlElement::DisplayInline },
@@ -368,7 +367,6 @@ static const QTextHtmlElement elements[Html_NumElements+1]= {
     { "u",          Html_u,          QTextHtmlElement::DisplayInline },
     { "ul",         Html_ul,         QTextHtmlElement::DisplayBlock },
     { "var",        Html_var,        QTextHtmlElement::DisplayInline },
-    { 0, 0,         QTextHtmlElement::DisplayNone }
 };
 
 
@@ -387,14 +385,15 @@ static const QTextHtmlElement *lookupElement(const QString &element)
     const QTextHtmlElement *start = &elements[0];
     const QTextHtmlElement *end = &elements[Html_NumElements];
     const QTextHtmlElement *e = qBinaryFind(start, end, element);
-    Q_ASSERT(!e->name || e->name == element);
+    if (e == end)
+        return 0;
     return e;
 }
 
 int QTextHtmlParser::lookupElement(const QString &element)
 {
     const QTextHtmlElement *e = ::lookupElement(element);
-    if (!e->name)
+    if (!e)
         return -1;
     return e->id;
 }
@@ -747,7 +746,7 @@ void QTextHtmlParser::parseTag()
     node->tag = parseWord().toLower();
 
     const QTextHtmlElement *elem = ::lookupElement(node->tag);
-    if (elem->name) {
+    if (elem) {
         node->id = elem->id;
         node->isBlock = (elem->displayMode == QTextHtmlElement::DisplayBlock);
         node->displayMode = elem->displayMode;

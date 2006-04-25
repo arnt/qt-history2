@@ -67,7 +67,7 @@ struct QCssKnownValue
     int id;
 };
 
-static const QCssKnownValue properties[NumProperties + 2] = {
+static const QCssKnownValue properties[NumProperties - 1] = {
     { "-qt-block-indent", QtBlockIndent },
     { "-qt-list-indent", QtListIndent },
     { "-qt-paragraph-type", QtParagraphType },
@@ -87,12 +87,10 @@ static const QCssKnownValue properties[NumProperties + 2] = {
     { "text-decoration", TextDecoration },
     { "text-indent", TextIndent },
     { "vertical-align", VerticalAlignment },
-    { "white-space", Whitespace },
-    { "zzzzzz", 0 },
-    { 0, 0 }
+    { "white-space", Whitespace }
 };
 
-static const QCssKnownValue values[NumKnownValues + 1] = {
+static const QCssKnownValue values[NumKnownValues - 1] = {
     { "bold", Value_Bold },
     { "italic", Value_Italic },
     { "large", Value_Large },
@@ -111,8 +109,7 @@ static const QCssKnownValue values[NumKnownValues + 1] = {
     { "super", Value_Super },
     { "underline", Value_Underline },
     { "x-large", Value_XLarge },
-    { "xx-large", Value_XXLarge },
-    { 0, 0 }
+    { "xx-large", Value_XXLarge }
 };
 
 static bool operator<(const QString &name, const QCssKnownValue &prop)
@@ -127,9 +124,9 @@ static bool operator<(const QCssKnownValue &prop, const QString &name)
 
 static int findKnownValue(const QString &name, const QCssKnownValue *start, int numValues)
 {
-    const QCssKnownValue *end = &start[numValues];
+    const QCssKnownValue *end = &start[numValues - 1];
     const QCssKnownValue *prop = qBinaryFind(start, end, name);
-    if (!prop->id)
+    if (prop == end)
         return 0;
     return prop->id;
 }
