@@ -667,6 +667,7 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
 
     int prevValue = d->value;
     setValue(d->value + int(offset));
+    triggerAction(SliderMove);
     if (prevValue != d->value) {
         e->accept();
         offset -= int(offset);
