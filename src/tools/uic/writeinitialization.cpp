@@ -1080,10 +1080,15 @@ void WriteInitialization::initializeQ3ListBox(DomWidget *w)
             continue;
 
         refreshOut << option.indent << varName << "->insertItem(";
-        refreshOut << pixCall(pixmap)
-                   << ", ";
-        refreshOut << trCall(text->elementString())
-                   << ");\n";
+        if (pixmap) {
+            refreshOut << pixCall(pixmap);
+
+            if (text)
+                refreshOut << ", ";
+        }
+        if (text)
+            refreshOut << trCall(text->elementString());
+        refreshOut << ");\n";
     }
 }
 
