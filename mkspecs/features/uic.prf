@@ -23,7 +23,7 @@ isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
     # as UIC3 files don't need a ui_<formname>.h file
 
     uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-    uic.depend_command = $$QMAKE_UIC -d ${QMAKE_FILE_IN}
+    uic.depend_command = "$$QMAKE_UIC" -d "${QMAKE_FILE_IN}"
     uic.output = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
     uic.input = FORMS
     uic.variable_out = GENERATED_FILES
