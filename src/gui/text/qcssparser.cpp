@@ -114,12 +114,12 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
 
 static bool operator<(const QString &name, const QCssKnownValue &prop)
 {
-    return name < QLatin1String(prop.name);
+    return QString::compare(name, QLatin1String(prop.name), Qt::CaseInsensitive) < 0;
 }
 
 static bool operator<(const QCssKnownValue &prop, const QString &name)
 {
-    return QLatin1String(prop.name) < name;
+    return QString::compare(QLatin1String(prop.name), name, Qt::CaseInsensitive) < 0;
 }
 
 static int findKnownValue(const QString &name, const QCssKnownValue *start, int numValues)
@@ -444,19 +444,6 @@ QString Symbol::lexem() const
     return result;
 }
 
-QString Symbol::temporaryLexem() const
-{
-    if (len <= 0) return QString();
-    QString result = QString::fromRawData(text.constData() + start, len);
-    int i = 0;
-    while (i < result.length()) {
-        if (result.at(i) == QLatin1Char('\\'))
-            result.remove(i, 1);
-        ++i;
-    }
-    return result;
-}
-
 Parser::Parser(const QString &css)
 {
     symbols = Scanner::scan(Scanner::preprocess(css));
@@ -645,7 +632,7 @@ bool Parser::parseUnaryOperator(Value::UnaryOperator *op)
 
 bool Parser::parseProperty(Declaration *decl)
 {
-    decl->propertyId = static_cast<Property>(findKnownValue(temporaryLexem(), properties, NumProperties));
+    decl->propertyId = static_cast<Property>(findKnownValue(lexem(), properties, NumProperties));
     if (decl->propertyId == UnknownProperty) {
         decl->property = lexem();
     }
@@ -925,7 +912,7 @@ bool Parser::parseTerm(Value *value)
         }
         case IDENT: {
             if (haveUnary) return false;
-            const int id = findKnownValue(temporaryLexem(), values, NumKnownValues);
+            const int id = findKnownValue(lexem(), values, NumKnownValues);
             if (id != 0) {
                 value->type = Value::KnownIdentifier;
                 value->variant = id;
@@ -1096,7 +1083,7 @@ bool Parser::until(TokenType target, TokenType target2)
 bool Parser::testTokenAndEndsWith(TokenType t, const QLatin1String &str)
 {
     if (!test(t)) return false;
-    if (!temporaryLexem().endsWith(str, Qt::CaseInsensitive)) {
+    if (!lexem().endsWith(str, Qt::CaseInsensitive)) {
         prev();
         return false;
     }

@@ -252,7 +252,6 @@ struct Q_INTERNAL_EXPORT Symbol
     QString text;
     int start, len;
     QString lexem() const;
-    QString temporaryLexem() const;
 };
 
 class Q_INTERNAL_EXPORT Scanner
@@ -333,7 +332,6 @@ public:
     inline void prev() { index--; }
     inline const Symbol &symbol() const { return symbols.at(index - 1); }
     inline QString lexem() const { return symbol().lexem(); }
-    inline QString temporaryLexem() const { return symbol().temporaryLexem(); }
     QString unquotedLexem() const;
     QString lexemUntil(TokenType t);
     bool until(TokenType target, TokenType target2 = NONE);
