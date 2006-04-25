@@ -1282,8 +1282,11 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 
     if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0)) {
         model->emitDataChanged(this, column);
-        if (role == Qt::CheckStateRole && par && (par->itemFlags & Qt::ItemIsTristate))
-            model->emitDataChanged(par, column);
+        if (role == Qt::CheckStateRole) {
+            QTreeWidgetItem *p;
+            for (p = par; p && (p->itemFlags & Qt::ItemIsTristate); p = p->par)
+                model->emitDataChanged(p, column);
+        }
     }
 }
 
