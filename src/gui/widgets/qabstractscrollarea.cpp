@@ -144,6 +144,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     opt.init(q);
 
     bool hasCornerWidget = (cornerWidget != 0);
+    bool hasMacReverseCornerWidget = false;
 
 // If the scrollbars are at the very right and bottom of the window we
 // move their positions to be alligned with the size grip.
@@ -166,15 +167,22 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     // Get the size of the size-grip from the style.
     const int sizeGripSize = q->style()->pixelMetric(QStyle::PM_SizeGripSize, &opt, q);
 
-    // Get coordiantes for the bottom-right corner of the scroll area and its window.
+    // Look for a native size grip at the visual window bottom right and at the
+    // absolute window bottom right. In reverse mode, the native size grip does not
+    // swich side, so me need to check if it is on the "wrong side".
     const QPoint scrollAreaBottomRight = q->mapTo(q->window(), widgetRect.bottomRight());
     const QPoint windowBottomRight = q->window()->rect().bottomRight();
-    const QPoint offset = windowBottomRight - scrollAreaBottomRight;
+    const QPoint visualWindowBottomRight = QStyle::visualPos(opt.direction, opt.rect, windowBottomRight);
+    const QPoint visalOffset = visualWindowBottomRight - scrollAreaBottomRight;
 
-    if (offset.manhattanLength() < sizeGripSize)
+    const bool hasMacCornerWidget = (visalOffset.manhattanLength() < sizeGripSize);
+    if (hasMacCornerWidget) {
         hasCornerWidget = true;
+    } else {
+        const QPoint offset = windowBottomRight - scrollAreaBottomRight;
+        hasMacReverseCornerWidget = (offset.manhattanLength() < sizeGripSize);
+    }
 #endif
-
     QPoint cornerOffset(needv ? vsbExt : 0, needh ? hsbExt : 0);
     QRect controlsRect;
     QRect viewportRect; 
@@ -205,7 +213,9 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     const QPoint cornerPoint(controlsRect.bottomRight() + QPoint(1, 1) - cornerOffset);
 
     if (needh) {
-        const QRect horizontalScrollbarRect(QPoint(controlsRect.left(), cornerPoint.y()), QPoint(cornerPoint.x() - 1, controlsRect.bottom()));
+        QRect horizontalScrollbarRect(QPoint(controlsRect.left(), cornerPoint.y()), QPoint(cornerPoint.x() - 1, controlsRect.bottom()));
+        if (hasMacReverseCornerWidget)
+            horizontalScrollbarRect.adjust(vsbExt, 0, 0, 0);
         hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, horizontalScrollbarRect));
     }
     
