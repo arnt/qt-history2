@@ -77,6 +77,8 @@ Qt's class documentation.
 
 These documents describe aspects of Qt's architecture and design,
 including overviews of core Qt features and technologies.
+
+\generatelist{related}
 */
 
 /*!
@@ -85,6 +87,31 @@ including overviews of core Qt features and technologies.
 
 Qt is provided with a set of build tools to help developers automate
 the process of building and installing Qt applications.
+
+\table 100%
+\header \o Development \o Tools \o Deployment
+\row
+\o
+ \list
+    \o \l {Debugging Techniques}
+    \o \l {The Qt Resource System}
+    \o \l {Porting Applications to Qtopia Core}
+    \o \l {Using Precompiled Headers}
+\endlist
+\o
+\list
+    \o \l {moc}
+    \o \l {qmake}
+    \o \l {rcc}
+    \o \l {uic}
+\endlist
+\o
+\list
+    \o \l {Cross Compiling Applications}
+    \o \l {Deploying Qt Applications}
+    \o \l {Window System Specific Notes}
+\endlist
+\endtable
 */
 
 /*!
@@ -94,6 +121,8 @@ the process of building and installing Qt applications.
 The following documents contain collections of classes, grouped by
 subject area or related to particular functionality, or comprehensive
 lists of classes and functions.
+
+\generatelist{related}
 */
 
 /*!
@@ -102,6 +131,8 @@ lists of classes and functions.
 
 These codecs provide facilities for conversion between Unicode and
 specific text encodings.
+
+\generatelist{related}
 */
 
 /*!
@@ -110,6 +141,8 @@ specific text encodings.
 
 The following list contains links to guides and other resources for
 developers of graphical user interface (GUI) applications.
+
+\generatelist{related}
 */
 
 /*!
@@ -117,6 +150,8 @@ developers of graphical user interface (GUI) applications.
 \title How To Guides and Learning Resources
 
 These guides provide specific help about specific Qt-related topics.
+
+\generatelist{related}
 */
 
 /*!
@@ -125,6 +160,8 @@ These guides provide specific help about specific Qt-related topics.
 
 These documents include information about Qt's licenses and the licenses
 of third party components used in Qt.
+
+\generatelist{related}
 */
 
 /*!
@@ -133,6 +170,8 @@ of third party components used in Qt.
 
 These documents describe platform-specific features provided by Qt, and
 discuss issues related to particular platforms and environments.
+
+\generatelist{related}
 */
 
 /*!
@@ -142,16 +181,8 @@ discuss issues related to particular platforms and environments.
 A number of guides and documents are available that cover porting issues,
 from detailed coverage of API differences between Qt 3 and Qt 4 to
 platform and tool-specific documentation.
-*/
 
-/*!
-\group qtopia-core
-\title Qtopia Core
-
-These documents cover aspects of Qtopia Core, from installation and building
-to fine-tuning and deployment.
-
-See also the \l{Qtopia Core website}.
+\generatelist{related}
 */
 
 /*! \group activeqt-tools
@@ -159,6 +190,8 @@ See also the \l{Qtopia Core website}.
 \title Tools for ActiveQt
 
 These tools provide support for integrating Qt with ActiveX components.
+
+\generatelist{related}
 
 \sa {ActiveQt Framework}
 */

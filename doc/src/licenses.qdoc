@@ -105,6 +105,7 @@
 /*!
     \page licenses-fonts.html
     \title Licenses for Fonts Used in Qtopia Core
+    \ingroup qtopiacore
 
     The fonts supplied with Qtopia Core have been obtained under a
     variety of different licenses listed below.

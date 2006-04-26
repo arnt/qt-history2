@@ -1,9 +1,9 @@
 /*!
     \page qtopiacore-vnc.html
-
     \contentspage {Qtopia Core}{Contents}
 
     \title The VNC Protocol
+    \ingroup qtopiacore
 
     VNC (Virtual Network Computing) software makes it possible to view
     and interact with one computer (the "server") from any other
@@ -17,7 +17,6 @@
         ./configure -qt-gfx-vnc
         make
     \endcode
-    \ingroup qtopia-core
 
     Then start a Qtopia Core master application (i.e. construct a
     QApplication object with the QApplication::GuiServer flag or use

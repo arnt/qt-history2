@@ -1,7 +1,7 @@
 /*!
     \page qtopiacore-porting.html
-
     \title Issues to be Aware of When Porting Qtopia Core
+    \ingroup qtopiacore
 
     Qtopia Core is reasonably platform-independent, although the only
     publically available version is a Linux implementation. If you are

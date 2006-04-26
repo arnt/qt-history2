@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 /*!
-    \page tools-list.html
+    \group tools
 
     \title Qt's Tools
     \ingroup buildsystem

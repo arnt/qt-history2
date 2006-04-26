@@ -5,7 +5,7 @@
 
     \title Porting Applications to Qtopia Core
     \ingroup porting
-    \ingroup qtopia-core
+    \ingroup qtopiacore
 
     Existing Qt applications should require no porting provided there is no
     platform dependent code.

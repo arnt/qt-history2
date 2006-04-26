@@ -12,11 +12,10 @@
 
 /*!
     \page qtopiacore-accel.html
-
     \contentspage {Qtopia Core}{Contents}
 
     \title Adding an Accelerated Graphics Driver
-    \ingroup qtopia-core
+    \ingroup qtopiacore
 
     Qtopia Core uses Qt's premade raster-based implementation of
     QPaintEngine (\c QRasterPaintEngine) to implement painting

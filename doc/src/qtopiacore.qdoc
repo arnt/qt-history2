@@ -1,6 +1,5 @@
 /*!
-    \page qtopiacore.html
-
+    \group qtopiacore
     \title Qtopia Core
 
     The Qtopia Core platform is a C++ framework for GUI and
@@ -75,7 +74,4 @@
     See also \l {Testing the Linux Framebuffer}.
 
     \endtable
-
-
-
 */

@@ -14,9 +14,9 @@
 
 /*!
     \page uic.html
-
     \title User Interface Compiler (uic)
     \ingroup buildsystem
+    \ingroup tools
     \keyword uic
 
     \omit KEEP THIS FILE SYNCHRONIZED WITH uic.1 \endomit

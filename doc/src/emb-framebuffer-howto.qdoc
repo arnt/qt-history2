@@ -2,8 +2,8 @@
     \page qtopiacore- testingframebuffer.html
     \contentspage {Qtopia Core}{Contents}
 
-    \title Testing the  Linux Framebuffer
-    \ingroup qtopia-core
+    \title Testing the Linux Framebuffer
+    \ingroup qtopiacore
 
     To test that the Linux framebuffer is set up correctly, and that
     the device permissions are correct, use the program below which

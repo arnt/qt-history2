@@ -322,6 +322,16 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
             generateOverviewList(relative, marker);
 	} else if (atom->string() == "namespaces") {
 	    generateAnnotatedList(relative, marker, namespaceIndex);
+	} else if (atom->string() == "related") {
+            const FakeNode *fake = static_cast<const FakeNode *>(relative);
+            if (fake && !fake->groupMembers().isEmpty()) {
+                QMap<QString, const Node *> groupMembersMap;
+                foreach (Node *node, fake->groupMembers()) {
+                    if (node->type() == Node::Fake)
+                        groupMembersMap[node->name()] = node;
+                }
+                generateAnnotatedList(fake, marker, groupMembersMap);
+            }
         }
 
 	break;
@@ -899,8 +909,10 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
 
     if (!fake->groupMembers().isEmpty()) {
         QMap<QString, const Node *> groupMembersMap;
-        foreach (Node *node, fake->groupMembers())
-            groupMembersMap[node->name()] = node;
+        foreach (Node *node, fake->groupMembers()) {
+            if (node->type() == Node::Class)
+                groupMembersMap[node->name()] = node;
+        }
         generateAnnotatedList(fake, marker, groupMembersMap);
     }
 

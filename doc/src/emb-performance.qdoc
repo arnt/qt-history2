@@ -1,16 +1,15 @@
 /*!
     \page qtopiacore-performance.html
-
     \contentspage Qtopia Core
 
     \title Performance Tuning
+    \ingroup qtopiacore
 
     When building embedded applications on low-powered devices, a
     number of options are available that reduce the memory and/or CPU
     requirements by making various trade-offs. These options range
     from variations in programming style, to linking and memory
     allocation.
-    \ingroup qtopia-core
 
     But note that the most direct way of saving resources, is to avoid
     compiling in features that are not required. See \l {Fine-Tuning

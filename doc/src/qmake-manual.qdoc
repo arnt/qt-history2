@@ -5,6 +5,7 @@
     \nextpage qmake Tutorial
 
     \ingroup buildsystem
+    \ingroup tools
     \keyword qmake
 
     \c qmake is a tool from Trolltech that helps simplify the build

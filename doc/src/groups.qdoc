@@ -308,7 +308,6 @@ with three levels of detail:
 
 These classes are used to handle input and output to and from external
 devices, processes, files etc. as well as manipulating files and directories.
-
 */
 
 /*! \group misc
@@ -378,7 +377,7 @@ See also the \l{ActiveQt framework} for Windows.
 /*! \group qws
 
 \title Qtopia Core Classes
-\ingroup qtopia-core
+\ingroup qtopiacore
 
 These classes are relevant to \l{Qtopia Core} users.
 */

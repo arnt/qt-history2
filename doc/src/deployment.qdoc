@@ -12,8 +12,8 @@
 
 /*!
     \group deployment
-
     \title Deploying Qt Applications
+    \ingroup buildsystem
 
     Deploying an Qt application does not require any C++
     programming. All you need to do is to build Qt and your

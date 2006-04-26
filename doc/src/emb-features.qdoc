@@ -1,9 +1,9 @@
 /*!
     \page qtopiacore-features.html
-
     \contentspage {Qtopia Core}{Contents}
 
     \title Fine-Tuning Features
+    \ingroup qtopiacore
 
     On the Qtopia Core platform the set of applications is often
     fixed, and reducing the size of Qt is important to save resources.
@@ -37,7 +37,6 @@
     /src/corelib/global directory. Use the \c -qconfig option and pass
     the configuration's filename without the \c qconfig- prefix and \c
     .h extension, as argument. For example:
-    \ingroup qtopia-core
 
     \code
         configure -qconfig myfile

@@ -16,7 +16,7 @@
     \contentspage {Qtopia Core}{Contents}
 
     \title Environment Variables
-    \ingroup qtopia-core
+    \ingroup qtopiacore
 
     \table
     \header \o Variable \o Description

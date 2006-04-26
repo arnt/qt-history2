@@ -12,10 +12,10 @@
 
 /*!
     \page qtopiacore-crosscompiling.html
-
     \contentspage {Qtopia Core}{Contents}
 
     \title Cross-Compiling Applications
+    \ingroup qtopiacore
 
     Cross-compiling is the process of executing a compile on one
     machine, producing object/executable code for a different machine

@@ -1,10 +1,9 @@
 /*!
     \page qtopiacore-running.html
-
     \contentspage {Qtopia Core}{Contents}
 
     \title Running Applications
-    \ingroup qtopia-core
+    \ingroup qtopiacore
 
     A Qtopia Core application requires a master application to be
     running, or to be the master application itself. The master

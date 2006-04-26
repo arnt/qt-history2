@@ -3,6 +3,7 @@
     \contentspage Qtopia Core
 
     \title Deploying an Application on Qtopia Core
+    \ingroup qtopiacore
 
     The procedure of deploying an Qt application on \l {Qtopia Core}
     is essentially the same as the deployment procedure on Qt/X11

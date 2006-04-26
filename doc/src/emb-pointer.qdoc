@@ -1,15 +1,14 @@
 /*!
     \page qtopiacore-pointer.html
-
     \contentspage {Qtopia Core}{Contents}
 
     \title Pointer Handling
+    \ingroup qtopiacore
 
     Pointer handling in Qtopia Core works for both mouse and
     mouse-like devices such as touch panels and trackballs. The
     various drivers can be enabled and disabled using the \c configure
     script. For example:
-    \ingroup qtopia-core
 
     \code
         configure -qt-mouse-tslib

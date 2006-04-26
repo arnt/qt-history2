@@ -1,9 +1,9 @@
 /*!
     \page qtopiacore-fonts.html
-
     \contentspage {Qtopia Core}{Contents}
 
     \title Fonts
+    \ingroup qtopiacore
 
     The Qtopia Core platform uses the \l
     {http://freetype.sourceforge.net/freetype2/index.html}{FreeType 2}
@@ -51,7 +51,6 @@
     of the Qtopia Core platform.
 
     \tableofcontents
-    \ingroup qtopia-core
 
     \section1 FreeType
 
@@ -131,10 +130,10 @@
     \row \o \bold size \o \c 0 for scalable or point size * 10 (i.e. \c 120
             for 12pt)
     \row \o \bold flags \o \list
-		        \o \c s: smooth (anti-aliased)
-		        \o \c u: Unicode range when saving (default is Latin1)
-		        \o \c a: ASCII range when saving (default is Latin1)
-		        \endlist
+                        \o \c s: smooth (anti-aliased)
+                        \o \c u: Unicode range when saving (default is Latin1)
+                        \o \c a: ASCII range when saving (default is Latin1)
+                        \endlist
     \endtable
 
     The font definition file does not specify \l QPF fonts; these are
