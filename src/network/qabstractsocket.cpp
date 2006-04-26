@@ -362,6 +362,11 @@ void QAbstractSocketPrivate::resetSocketLayer()
         socketEngine->deleteLater();
         socketEngine = 0;
     }
+    if (connectTimer) {
+        connectTimer->stop();
+        connectTimer->deleteLater();
+        connectTimer = 0;
+    }
 }
 
 /*! \internal
@@ -495,7 +500,8 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
 
     // reset the read socket notifier state if we reentered inside the
     // readyRead() connected slot.
-    if (readSocketNotifierStateSet && readSocketNotifierState != socketEngine->isReadNotificationEnabled()) {
+    if (readSocketNotifierStateSet && socketEngine &&
+        readSocketNotifierState != socketEngine->isReadNotificationEnabled()) {
         socketEngine->setReadNotificationEnabled(readSocketNotifierState);
         readSocketNotifierStateSet = false;
     }
@@ -787,10 +793,12 @@ void QAbstractSocketPrivate::_q_abortConnectionAttempt()
 #if defined(QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocketPrivate::_q_abortConnectionAttempt() (timed out)");
 #endif
-    socketEngine->setWriteNotificationEnabled(false);
+    if (socketEngine) {
+        socketEngine->setWriteNotificationEnabled(false);
 
-    if (socketEngine->isValid())
-        _q_testConnection();
+        if (socketEngine->isValid())
+            _q_testConnection();
+    }
 }
 
 /*! \internal
@@ -1339,6 +1347,7 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
             return false;
     }
 
+    Q_ASSERT(d->socketEngine);
     forever {
         bool readyToRead = false;
         bool readyToWrite = false;
