@@ -407,9 +407,11 @@ bool QLineF::isNull() const
 /*!
     \fn QLineF::setLength(qreal length)
 
-    Sets the length of the line to the given \a length.
+    Sets the length of the line to the given \a length. If the line is a
+    null line, the length will remain zero regardless of the length
+    specified.
 
-    \sa length()
+    \sa length(), isNull()
 */
 
 /*!
