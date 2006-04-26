@@ -233,6 +233,33 @@ void RichTextEditor::setDefaultFont(const QFont &font)
     emit textChanged();
 }
 
+static bool compareFontSizes(const QFont &font1, const QFont &font2)
+{
+    int ps1 = font1.pointSize();
+    if (ps1 == -1 && font1.pointSizeF() > 0)
+        ps1 = (int) font1.pointSizeF();
+
+    int ps2 = font2.pointSize();
+    if (ps2 == -1 && font2.pointSizeF() > 0)
+        ps2 = (int) font2.pointSizeF();
+
+    if (ps1 != -1 || ps2 != -1)
+        return ps1 == ps2;
+
+    return font1.pixelSize() == font2.pixelSize();
+}
+
+static inline bool compareFonts(const QFont &font1, const QFont &font2)
+{
+    return font1.family() == font2.family()
+            && compareFontSizes(font1, font2)
+            && font1.bold() == font2.bold()
+            && font1.italic() == font2.italic()
+            && font1.overline() == font2.overline()
+            && font1.underline() == font2.underline()
+            && font1.strikeOut() == font2.strikeOut();
+}
+
 Qt::TextFormat RichTextEditor::detectFormat() const
 {
     Qt::TextFormat result = Qt::PlainText;
@@ -242,7 +269,7 @@ Qt::TextFormat RichTextEditor::detectFormat() const
     cursor.movePosition(QTextCursor::End);
     while (!cursor.atStart()) {
         QFont font = cursor.charFormat().font();
-        if (font != default_font) {
+        if (!compareFonts(font, default_font)) {
             result = Qt::RichText;
             break;
         }
