@@ -1047,7 +1047,7 @@ DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
 
             DomColorRole *colorRole = new DomColorRole();
             colorRole->setElementBrush(saveBrush(br));
-            colorRole->setAttributeRole(colorRole_enum.key(role));
+            colorRole->setAttributeRole(colorRole_enum.valueToKey(role));
             colorRoles.append(colorRole);
         }
     }
@@ -1138,7 +1138,7 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
 
     DomBrush *brush = new DomBrush();
     Qt::BrushStyle style = br.style();
-    brush->setAttributeBrushStyle(brushStyle_enum.key(style));
+    brush->setAttributeBrushStyle(brushStyle_enum.valueToKey(style));
     if (style == Qt::LinearGradientPattern ||
                 style == Qt::RadialGradientPattern ||
                 style == Qt::ConicalGradientPattern) {
@@ -1153,8 +1153,8 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
         DomGradient *gradient = new DomGradient();
         const QGradient *gr = br.gradient();
         QGradient::Type type = gr->type();
-        gradient->setAttributeType(gradientType_enum.key(type));
-        gradient->setAttributeSpread(gradientSpread_enum.key(gr->spread()));
+        gradient->setAttributeType(gradientType_enum.valueToKey(type));
+        gradient->setAttributeSpread(gradientSpread_enum.valueToKey(gr->spread()));
         QList<DomGradientStop *> stops;
         QGradientStops st = gr->stops();
         QVectorIterator<QPair<qreal, QColor> > it(st);
