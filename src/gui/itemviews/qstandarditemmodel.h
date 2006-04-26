@@ -62,6 +62,8 @@ public:
     using QObject::parent;
 #endif
 
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+
 private:
     Q_DECLARE_PRIVATE(QStandardItemModel)
     Q_DISABLE_COPY(QStandardItemModel)

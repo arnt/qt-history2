@@ -80,6 +80,9 @@ public:
     QStdModelRow *containedRow(const QModelIndex &index, bool createIfMissing) const;
     void clear();
 
+    void sort(QVector<QStdModelRow*> &rows, int columnCount,
+              QStdModelRow *parentRow, int column, Qt::SortOrder order);
+
     mutable QVector<QStdModelRow*> topLevelRows;
     QVector<QStdModelItem*> horizontalHeader, verticalHeader;
     int topLevelColumns;

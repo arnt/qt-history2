@@ -15,6 +15,7 @@
 
 #ifndef QT_NO_STANDARDITEMMODEL
 
+#include <qdatetime.h>
 #include <qpair.h>
 #include <qvariant.h>
 #include <qvector.h>
@@ -546,6 +547,134 @@ void QStandardItemModelPrivate::clear()
     horizontalHeader.clear();
     qDeleteAll(verticalHeader);
     verticalHeader.clear();
+}
+
+/*!
+    \internal
+*/
+class QStandardItemModelCompare
+{
+public:
+    inline QStandardItemModelCompare(int column, Qt::SortOrder order, int role)
+        : column(column), order(order), role(role) { }
+
+    inline bool lessThan(const QVariant &l, const QVariant &r) const
+    {
+        // this code is copied from QSortFilterProxyModel::lessThan()
+        switch (l.type()) {
+            case QVariant::Int:
+                return l.toInt() < r.toInt();
+            case QVariant::UInt:
+                return l.toUInt() < r.toUInt();
+            case QVariant::LongLong:
+                return l.toLongLong() < r.toLongLong();
+            case QVariant::ULongLong:
+                return l.toULongLong() < r.toULongLong();
+            case QVariant::Double:
+                return l.toDouble() < r.toDouble();
+            case QVariant::Char:
+                return l.toChar() < r.toChar();
+            case QVariant::Date:
+                return l.toDate() < r.toDate();
+            case QVariant::Time:
+                return l.toTime() < r.toTime();
+            case QVariant::DateTime:
+                return l.toDateTime() < r.toDateTime();
+            case QVariant::String:
+            default:
+                return l.toString().compare(r.toString()) < 0;
+        }
+        return false;
+    }
+
+    inline bool operator()(const QPair<QStdModelRow*,int> &left,
+                           const QPair<QStdModelRow*,int> &right) const
+    {
+        QStdModelRow *leftRow = left.first;
+        QStdModelRow *rightRow = right.first;
+        if (!leftRow && !rightRow)
+            return false;
+        if (leftRow && !rightRow)
+            return true;
+        if (rightRow && !leftRow)
+            return false;
+        if ((leftRow->items.count() <= column)
+            || (rightRow->items.count() <= column))
+            return false;
+        QVariant l = leftRow->items.at(column)->value(role);
+        QVariant r = rightRow->items.at(column)->value(role);
+        return (order == Qt::AscendingOrder)
+            ? lessThan(l, r) : lessThan(r, l);
+    }
+
+private:
+    int column;
+    Qt::SortOrder order;
+    int role;
+};
+
+/*!
+    \internal
+*/
+void QStandardItemModelPrivate::sort(QVector<QStdModelRow*> &rows, int columnCount,
+                                     QStdModelRow *parentRow, int column, Qt::SortOrder order)
+{
+    Q_Q(QStandardItemModel);
+    if (column >= columnCount)
+        return;
+
+    // store the original persistent indexes
+    QModelIndexList oldPersistentIndexes = q->persistentIndexList();
+
+    // store the original order of indexes
+    QVector<QPair<QStdModelRow*,int> > sorting(rows.count());
+    for (int i = 0; i < sorting.count(); ++i) {
+        sorting[i].first = rows.at(i);
+        sorting[i].second = i;
+    }
+
+    // do the sorting
+    QStandardItemModelCompare compare(column, order, Qt::DisplayRole);
+    qStableSort(sorting.begin(), sorting.end(), compare);
+
+    QVector<QPair<QModelIndex, QModelIndex> > changedPersistentIndexes;
+    for (int r = 0; r < sorting.count(); ++r) {
+        QStdModelRow *row = sorting.at(r).first;
+        int oldRow = sorting.at(r).second;
+        if (r != oldRow) {
+            // change position
+            rows.replace(r, row);
+            // persistent indexes may be affected
+            for (int c = 0; c < columnCount; ++c) {
+                QModelIndex from = createIndex(oldRow, c, parentRow);
+                if (oldPersistentIndexes.contains(from)) {
+                    QModelIndex to = createIndex(r, c, parentRow);
+                    changedPersistentIndexes.append(
+                        QPair<QModelIndex, QModelIndex>(from, to));
+                }
+            }
+        }
+        // sort children
+        if (row)
+            sort(row->childrenRows, row->childrenColumns, row, column, order);
+    }
+
+    // update persistent indexes
+    QPair<QModelIndex, QModelIndex> indexPair;
+    foreach (indexPair, changedPersistentIndexes)
+        q->changePersistentIndex(indexPair.first, indexPair.second);
+}
+
+/*!
+  \reimp
+*/
+void QStandardItemModel::sort(int column, Qt::SortOrder order)
+{
+    Q_D(QStandardItemModel);
+    if (column < 0)
+        return;
+    d->sort(d->topLevelRows, d->topLevelColumns, 0, column, order);
+    emit layoutChanged();
 }
 
 #endif // QT_NO_STANDARDITEMMODEL
