@@ -1481,7 +1481,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         QFont sectionFont;
         QVariant variant = d->model->headerData(logical, orientation(),
                                                 Qt::FontRole);
-        if (variant.isValid() && variant.canConvert<QFont>())
+        if (variant.isValid() && qVariantCanConvert<QFont>(variant))
             sectionFont = qvariant_cast<QFont>(variant);
         else
             sectionFont = fnt;
@@ -1844,7 +1844,7 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
     QVariant var = d->model->headerData(logicalIndex, orientation(),
                                             Qt::FontRole);
     QFont fnt;
-    if (var.isValid() && var.canConvert<QFont>())
+    if (var.isValid() && qVariantCanConvert<QFont>(var))
         fnt = qvariant_cast<QFont>(var);
     else
         fnt = font();
