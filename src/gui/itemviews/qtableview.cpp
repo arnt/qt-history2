@@ -180,7 +180,8 @@ void QTableView::setModel(QAbstractItemModel *model)
 void QTableView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QTableView);
-
+    if (index == d->root)
+        return;
     d->verticalHeader->setRootIndex(index);
     d->horizontalHeader->setRootIndex(index);
     QAbstractItemView::setRootIndex(index);
@@ -1240,9 +1241,9 @@ QRect QTableView::visualRect(const QModelIndex &index) const
 
     d_func()->executePostedLayout();
 
-    const int i = showGrid() ? 1 : 0;
+    int gridSize = d_func()->showGrid ? 1 : 0;
     return QRect(columnViewportPosition(index.column()), rowViewportPosition(index.row()),
-                 columnWidth(index.column()) - i,        rowHeight(index.row()) - i);
+                 columnWidth(index.column()) - gridSize,        rowHeight(index.row()) - gridSize);
 }
 
 /*!
