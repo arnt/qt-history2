@@ -16,6 +16,10 @@
 
 #include <QtGui/qscreenlinuxfb_qws.h>
 
+#if defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_NO_QWS_VNC)
+#define QT_NO_QWS_VNC
+#endif
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
