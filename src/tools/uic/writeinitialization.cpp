@@ -963,7 +963,7 @@ void WriteInitialization::writeBrush(DomBrush *brush, const QString &brushName)
                 << ", " << gradient->attributeAngle() << ");\n";
         }
 
-        output << option.indent << gradientName << ".setSpread("
+        output << option.indent << gradientName << ".setSpread(QGradient::"
                 << gradient->attributeSpread() << ");\n";
 
         QList<DomGradientStop *> stops = gradient->elementGradientStop();
