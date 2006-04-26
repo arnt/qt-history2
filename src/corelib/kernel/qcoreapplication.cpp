@@ -758,6 +758,7 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         return;
     }
 
+#ifndef QT_NO_THREAD
     // uberhack for enabling some threading features for (mumble)
     if (receiver == (QObject *) 0xfeedface && event == (QEvent *) 0xc0ffee) {
         QThreadPrivate::adoptCurrentThreadEnabled = true;
@@ -765,6 +766,7 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
             the_mainThread = new QAdoptedThread();
         return;
     }
+#endif
 
     /*
       avoid a deadlock when trying to create the mainThread() when
