@@ -125,7 +125,7 @@ ProjectGenerator::init()
                     }
                 }
             }
-            if(add_depend && !dir.isEmpty() && !v["DEPENDPATH"].contains(dir)) {
+            if(add_depend && !dir.isEmpty() && !v["DEPENDPATH"].contains(dir, Qt::CaseInsensitive)) {
                 QFileInfo fi(fileInfo(dir));
                 if(fi.absoluteFilePath() != qmake_getpwd())
                     v["DEPENDPATH"] += fileFixify(dir);
@@ -146,7 +146,7 @@ ProjectGenerator::init()
                     newdir = fileFixify(newdir);
                     QStringList &subdirs = v["SUBDIRS"];
                     if(exists(fi.filePath() + QDir::separator() + fi.fileName() + Option::pro_ext) &&
-                       !subdirs.contains(newdir)) {
+                       !subdirs.contains(newdir, Qt::CaseInsensitive)) {
                         subdirs.append(newdir);
                     } else {
                         QStringList profiles = QDir(newdir).entryList(QStringList("*" + Option::pro_ext), QDir::Files);
@@ -159,7 +159,7 @@ ProjectGenerator::init()
                             nd += profiles[i];
                             fileFixify(nd);
                             if(profiles[i] != "." && profiles[i] != ".." &&
-                               !subdirs.contains(nd) && !out_file.endsWith(nd))
+                               !subdirs.contains(nd, Qt::CaseInsensitive) && !out_file.endsWith(nd))
                                 subdirs.append(nd);
                         }
                     }
@@ -167,7 +167,7 @@ ProjectGenerator::init()
                         QStringList dirs = QDir(newdir).entryList(QDir::Dirs);
                         for(int i = 0; i < (int)dirs.count(); i++) {
                             QString nd = fileFixify(newdir + QDir::separator() + dirs[i]);
-                            if(dirs[i] != "." && dirs[i] != ".." && !knownDirs.contains(nd))
+                            if(dirs[i] != "." && dirs[i] != ".." && !knownDirs.contains(nd, Qt::CaseInsensitive))
                                 knownDirs.append(nd);
                         }
                     }
@@ -194,13 +194,13 @@ ProjectGenerator::init()
                             for(int i = 0; i < (int)profiles.count(); i++) {
                                 QString nd = newdir + QDir::separator() + files[i];
                                 fileFixify(nd);
-                                if(files[i] != "." && files[i] != ".." && !subdirs.contains(nd)) {
+                                if(files[i] != "." && files[i] != ".." && !subdirs.contains(nd, Qt::CaseInsensitive)) {
                                     if(newdir + files[i] != Option::output_dir + Option::output.fileName())
                                         subdirs.append(nd);
                                 }
                             }
                         }
-                        if(Option::recursive && !knownDirs.contains(newdir))
+                        if(Option::recursive && !knownDirs.contains(newdir, Qt::CaseInsensitive))
                             knownDirs.append(newdir);
                     }
                 }
@@ -237,7 +237,7 @@ ProjectGenerator::init()
                     if(!file_dir.isEmpty()) {
                         for(int inc_it = 0; inc_it < deplist.size(); ++inc_it) {
                             QMakeLocalFileName inc = deplist[inc_it];
-                            if(inc.local() == file_dir && !v["INCLUDEPATH"].contains(inc.real()))
+                            if(inc.local() == file_dir && !v["INCLUDEPATH"].contains(inc.real(), Qt::CaseInsensitive))
                                 v["INCLUDEPATH"] += inc.real();
                         }
                     }
@@ -255,15 +255,8 @@ ProjectGenerator::init()
                             QString src(dep.left(dep.length() - h_ext.length()) +
                                         Option::cpp_ext.at(cppit));
                             if(exists(src)) {
-                                bool exists = false;
                                 QStringList &srcl = v["SOURCES"];
-                                for(int src_it = 0; src_it < srcl.size(); ++src_it) {
-                                    if(srcl[src_it].toLower() == src.toLower()) {
-                                        exists = true;
-                                        break;
-                                    }
-                                }
-                                if(!exists)
+                                if(!srcl.contains(src, Qt::CaseInsensitive))
                                     srcl.append(src);
                             }
                         }
@@ -271,7 +264,7 @@ ProjectGenerator::init()
                               file_no_path.startsWith(Option::lex_mod)) {
                         addConfig("lex_included");
                     }
-                    if(!h.contains(dep))
+                    if(!h.contains(dep, Qt::CaseInsensitive))
                         h += dep;
                 }
             }
@@ -410,8 +403,10 @@ ProjectGenerator::addFile(QString file)
     }
 
     QString newfile = fixPathToQmake(fileFixify(file));
-    if(!where.isEmpty() && !project->variables()[where].contains(file)) {
-        project->variables()[where] += newfile;
+
+    QStringList &endList = project->variables()[where];
+    if(!endList.contains(newfile, Qt::CaseInsensitive)) {
+        endList += newfile;
         return true;
     }
     return false;
