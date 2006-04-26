@@ -209,6 +209,8 @@ public:
     bool updateHoverControl(const QPoint &pos);
     QStyle::SubControl newHoverControl(const QPoint &pos);
     QSize recomputeSizeHint(QSize &sh) const;
+    QString itemText(const QModelIndex &index) const;
+    int itemRole() const;
 
     QAbstractItemModel *model;
     QLineEdit *lineEdit;

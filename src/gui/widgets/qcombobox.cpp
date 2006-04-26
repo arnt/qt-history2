@@ -885,10 +885,10 @@ void QComboBoxPrivate::_q_complete()
         Qt::MatchFlags flags(Qt::MatchWrap|Qt::MatchStartsWith);
         if (q->caseSensitivity() == Qt::CaseSensitive)
             flags |= Qt::MatchCaseSensitive;
-        QModelIndexList list = model->match(currentIndex, Qt::EditRole, text, 1, flags);
+        QModelIndexList list = model->match(currentIndex, itemRole(), text, 1, flags);
         if (!list.count())
             return;
-        QString completed = model->data(list.first(), Qt::EditRole).toString();
+        QString completed = model->data(list.first(), itemRole()).toString();
         QString extra = completed.mid(text.length());
         skipCompletion = true; // avoid recursion
         lineEdit->setText(text + extra);
@@ -913,7 +913,7 @@ void QComboBoxPrivate::emitActivated(const QModelIndex &index)
     Q_Q(QComboBox);
     if (!index.isValid())
         return;
-    QString text(q->model()->data(index, Qt::EditRole).toString());
+    QString text(itemText(index));
     emit q->activated(index.row());
     emit q->activated(text);
 }
@@ -923,7 +923,7 @@ void QComboBoxPrivate::_q_emitHighlighted(const QModelIndex &index)
     Q_Q(QComboBox);
     if (!index.isValid())
         return;
-    QString text(q->model()->data(index, Qt::EditRole).toString());
+    QString text(itemText(index));
     emit q->highlighted(index.row());
     emit q->highlighted(text);
 }
@@ -934,9 +934,19 @@ void QComboBoxPrivate::_q_emitCurrentIndexChanged(int index)
     QModelIndex mi = q->model()->index(index, modelColumn, q->rootModelIndex());
     QString text;
     if (mi.isValid())
-        text = q->model()->data(mi, Qt::EditRole).toString();
+        text = itemText(mi);
     emit q->currentIndexChanged(index);
     emit q->currentIndexChanged(text);
+}
+
+QString QComboBoxPrivate::itemText(const QModelIndex &index) const
+{
+    return q_func()->model()->data(index, itemRole()).toString();
+}
+
+int QComboBoxPrivate::itemRole() const
+{
+    return q_func()->isEditable() ? Qt::EditRole : Qt::DisplayRole;
 }
 
 /*!
@@ -1531,7 +1541,7 @@ QString QComboBox::currentText() const
     if (d->lineEdit)
         return d->lineEdit->text();
     else if (d->currentIndex.isValid())
-	return model()->data(d->currentIndex, Qt::EditRole).toString();
+	return d->itemText(d->currentIndex);
     else
 	return QString();
 }
@@ -1544,7 +1554,7 @@ QString QComboBox::itemText(int index) const
 {
     Q_D(const QComboBox);
     QModelIndex mi = model()->index(index, d->modelColumn, rootModelIndex());
-    return model()->data(mi, Qt::EditRole).toString();
+    return d->itemText(mi);
 }
 
 /*!
