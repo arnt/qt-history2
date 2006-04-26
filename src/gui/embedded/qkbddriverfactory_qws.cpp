@@ -13,6 +13,8 @@
 
 #include "qkbddriverfactory_qws.h"
 
+#ifndef QT_NO_QWS_KEYBOARD
+
 #include "qapplication.h"
 #include "qkbdtty_qws.h"
 #include "qkbdusb_qws.h"
@@ -150,3 +152,5 @@ QStringList QKbdDriverFactory::keys()
 
     return list;
 }
+
+#endif // QT_NO_QWS_KEYBOARD

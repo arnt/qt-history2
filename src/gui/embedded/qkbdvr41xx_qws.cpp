@@ -13,7 +13,7 @@
 
 #include "qkbdvr41xx_qws.h"
 
-#ifndef QT_NO_QWS_KBD_VR41XX
+#if !defined(QT_NO_QWS_KEYBOARD) && !defined(QT_NO_QWS_KBD_VR41XX)
 
 #include <sys/types.h>
 #include <sys/stat.h>

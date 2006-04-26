@@ -20,7 +20,7 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
-#ifndef QT_NO_QWS_KBD_VR41XX
+#if !defined(QT_NO_QWS_KEYBOARD) && !defined(QT_NO_QWS_KBD_VR41XX)
 
 class QWSVr41xxKbPrivate;
 
