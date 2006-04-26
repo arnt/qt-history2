@@ -27,6 +27,7 @@
 
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
+#include <private/qt_mac_p.h>
 #endif
 
 /*!
@@ -148,7 +149,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 
 // If the scrollbars are at the very right and bottom of the window we
 // move their positions to be alligned with the size grip.
-#ifdef Q_OS_MAC
+#ifdef Q_WS_MAC
     // Use small scrollbars for tool windows.
     const QMacStyle::WidgetSizePolicy hpolicy = QMacStyle::widgetSizePolicy(hbar);
     const QMacStyle::WidgetSizePolicy vpolicy = QMacStyle::widgetSizePolicy(vbar);
@@ -164,23 +165,28 @@ void QAbstractScrollAreaPrivate::layoutChildren()
             QMacStyle::setWidgetSizePolicy(vbar, QMacStyle::SizeDefault);
     }
 
-    // Get the size of the size-grip from the style.
-    const int sizeGripSize = q->style()->pixelMetric(QStyle::PM_SizeGripSize, &opt, q);
+    // Check if a native sizegrip is present.
+    HIViewRef nativeSizeGrip;
+    HIViewFindByID(HIViewGetRoot(HIViewGetWindow(HIViewRef(q->winId()))), kHIViewWindowGrowBoxID, &nativeSizeGrip);
+    if (nativeSizeGrip) {
 
-    // Look for a native size grip at the visual window bottom right and at the
-    // absolute window bottom right. In reverse mode, the native size grip does not
-    // swich side, so me need to check if it is on the "wrong side".
-    const QPoint scrollAreaBottomRight = q->mapTo(q->window(), widgetRect.bottomRight());
-    const QPoint windowBottomRight = q->window()->rect().bottomRight();
-    const QPoint visualWindowBottomRight = QStyle::visualPos(opt.direction, opt.rect, windowBottomRight);
-    const QPoint visalOffset = visualWindowBottomRight - scrollAreaBottomRight;
+        // Get the size of the size-grip from the style.
+        const int sizeGripSize = q->style()->pixelMetric(QStyle::PM_SizeGripSize, &opt, q);
 
-    const bool hasMacCornerWidget = (visalOffset.manhattanLength() < sizeGripSize);
-    if (hasMacCornerWidget) {
-        hasCornerWidget = true;
-    } else {
-        const QPoint offset = windowBottomRight - scrollAreaBottomRight;
-        hasMacReverseCornerWidget = (offset.manhattanLength() < sizeGripSize);
+        // Look for a native size grip at the visual window bottom right and at the
+        // absolute window bottom right. In reverse mode, the native size grip does not
+        // swich side, so me need to check if it is on the "wrong side".
+        const QPoint scrollAreaBottomRight = q->mapTo(q->window(), widgetRect.bottomRight());
+        const QPoint windowBottomRight = q->window()->rect().bottomRight();
+        const QPoint visualWindowBottomRight = QStyle::visualPos(opt.direction, opt.rect, windowBottomRight);
+        const QPoint visalOffset = visualWindowBottomRight - scrollAreaBottomRight;
+        const bool hasMacCornerWidget = (visalOffset.manhattanLength() < sizeGripSize);
+        if (hasMacCornerWidget) {
+            hasCornerWidget = true;
+        } else {
+            const QPoint offset = windowBottomRight - scrollAreaBottomRight;
+            hasMacReverseCornerWidget = (offset.manhattanLength() < sizeGripSize);
+        }
     }
 #endif
     QPoint cornerOffset(needv ? vsbExt : 0, needh ? hsbExt : 0);
