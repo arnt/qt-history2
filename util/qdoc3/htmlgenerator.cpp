@@ -79,7 +79,16 @@ void HtmlGenerator::initializeGenerator(const Config &config)
         ++edition;
     }
 
+    // Copy the stylesheets from the directory containing the qdocconf file.
+    // ### This should be changed to use a special directory in doc/src.
     stylesheets = config.getStringList(HtmlGenerator::format() + Config::dot + HTMLGENERATOR_STYLESHEETS);
+    QStringList::ConstIterator styleIter = stylesheets.begin();
+    QDir configPath = QDir::current();
+    while (styleIter != stylesheets.end()) {
+	QString filePath = configPath.absoluteFilePath(*styleIter);
+	Config::copyFile(config.location(), filePath, filePath, outputDir());
+	++styleIter;
+    }
 }
 
 void HtmlGenerator::terminateGenerator()
@@ -1636,7 +1645,7 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
             // Check whether the page is part of a group or is the group
             // definition page.
             QString group;
-            bool isGroupPage;
+            bool isGroupPage = false;
             if (fakeNode->doc().metaCommandsUsed().contains("ingroup")) {
                 group = fakeNode->doc().metaCommandArgs("ingroup")[0];
                 isGroupPage = false;
