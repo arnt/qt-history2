@@ -16,9 +16,12 @@
 
 /*! \group installation
 \title Installation
+\ingroup buildsystem
 
 The installation procedure is different for the different Qt platforms.
 Please follow the instructions for your platform from the following list.
+
+\generatelist{related}
 */
 
 /*! \page install-x11.html

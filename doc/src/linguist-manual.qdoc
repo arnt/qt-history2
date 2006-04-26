@@ -1,7 +1,7 @@
 /*!
     \page linguist-manual.html
     \title Qt Linguist Manual
-    \ingroup tools
+    \ingroup qttools
 
     \startpage {index.html}{Qt Reference Documentation}
     \nextpage Qt Linguist Manual: Release Manager
@@ -99,6 +99,9 @@
     \contentspage {Qt Linguist Manual}{Contents}
     \previouspage Qt Linguist Manual
     \nextpage Qt Linguist Manual: Translators
+
+    \keyword lupdate
+    \keyword lrelease
 
     Two tools are provided for the release manager, \l lupdate and \l
     lrelease. These tools depend on \e qmake project files. You don't

@@ -14,6 +14,7 @@
     \page winsystem.html
     \title Window System Specific Notes
     \ingroup buildsystem
+    \ingroup deployment
 
     Qt is a cross-platform GUI toolkit, so almost the entire API is the
     same on all platforms and window systems. If you wish to use

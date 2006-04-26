@@ -89,29 +89,32 @@ Qt is provided with a set of build tools to help developers automate
 the process of building and installing Qt applications.
 
 \table 100%
-\header \o Development \o Tools \o Deployment
+\header \o Development \o Cross-Platform Issues \o Specific Tools
 \row
 \o
  \list
     \o \l {Debugging Techniques}
+    \o \l {Qt's Tools}
     \o \l {The Qt Resource System}
-    \o \l {Porting Applications to Qtopia Core}
     \o \l {Using Precompiled Headers}
-\endlist
-\o
-\list
-    \o \l {moc}
-    \o \l {qmake}
-    \o \l {rcc}
-    \o \l {uic}
 \endlist
 \o
 \list
     \o \l {Cross Compiling Applications}
     \o \l {Deploying Qt Applications}
+    \o \l {Installation}{Installing Qt}
     \o \l {Window System Specific Notes}
 \endlist
+\o
+\list
+    \o \l lupdate and \l lrelease
+    \o \l {moc}{Meta-Object Compiler (moc)}
+    \o \l {User Interface Compiler (uic)}
+    \o \l {Resource Compiler (rcc)}
+\endlist
 \endtable
+
+
 */
 
 /*!

@@ -14,7 +14,7 @@
     \page moc.html
     \title Using the Meta-Object Compiler (moc)
     \ingroup buildsystem
-    \ingroup tools
+    \ingroup qttools
     \keyword moc
 
     The Meta-Object Compiler, \c moc, is the program that handles

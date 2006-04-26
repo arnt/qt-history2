@@ -2,7 +2,7 @@
     \page rcc.html
     \title Resource Compiler (rcc)
     \ingroup buildsystem
-    \ingroup tools
+    \ingroup qttools
     \keyword rcc
 
     The \c rcc tool is used to embed resources into a Qt application during
