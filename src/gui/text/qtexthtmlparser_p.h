@@ -32,6 +32,7 @@
 #include "QtGui/qtextcursor.h"
 #include "private/qtextformat_p.h"
 #include "private/qtextdocument_p.h"
+#include "private/qcssparser_p.h"
 
 enum QTextHTMLElements {
     Html_qt,
@@ -236,6 +237,8 @@ struct QTextHtmlParserNode {
     inline int uncollapsedMargin(int mar) const { return margin[mar]; }
 
     bool isNestedList(const QTextHtmlParser *parser) const;
+    
+    void applyCssDeclarations(const QVector<QCss::Declaration> &declarations);
 
     int margin[4];
     friend class QTextHtmlParser;

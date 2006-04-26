@@ -23,7 +23,6 @@
 #include "qtextformat_p.h"
 #include "qtextdocument_p.h"
 #include "qtextcursor.h"
-#include "qcssparser_p.h"
 #include "qfont_p.h"
 
 #define MAX_ENTITY 258
@@ -1210,6 +1209,104 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         hasFontPointSize = true;
 }
 
+void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> &declarations)
+{
+    for (int i = 0; i < declarations.count(); ++i) {
+        const QCss::Declaration &decl = declarations.at(i);
+        if (decl.values.isEmpty()) continue;
+        switch (decl.propertyId) {
+            case QCss::Color: color = decl.colorValue(); break;
+            case QCss::BackgroundColor: bgColor = decl.colorValue(); break;
+            case QCss::Float:
+                cssFloat = QTextFrameFormat::InFlow;
+                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
+                    switch (decl.values.first().variant.toInt()) {
+                        case QCss::Value_Left: cssFloat = QTextFrameFormat::FloatLeft; break;
+                        case QCss::Value_Right: cssFloat = QTextFrameFormat::FloatRight; break;
+                        default: break;
+                    }
+                }
+                break;
+            case QCss::QtBlockIndent:
+                hasCssBlockIndent = true;
+                cssBlockIndent = decl.values.first().variant.toInt();
+                break;
+            case QCss::TextIndent: decl.realValue(&text_indent, "px"); break;
+            case QCss::QtListIndent:
+                if (decl.intValue(&cssListIndent))
+                    hasCssListIndent = true;
+                break;
+            case QCss::QtParagraphType:
+                if (decl.values.first().variant.toString().compare(QLatin1String("empty"), Qt::CaseInsensitive) == 0)
+                    isEmptyParagraph = true;
+                break;
+            case QCss::QtTableType:
+                if (decl.values.first().variant.toString().compare(QLatin1String("frame"), Qt::CaseInsensitive) == 0)
+                    isTextFrame = true;
+                break;
+            case QCss::Whitespace:
+                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
+                    switch (decl.values.first().variant.toInt()) {
+                        case QCss::Value_Normal: wsm = QTextHtmlParserNode::WhiteSpaceNormal; break;
+                        case QCss::Value_Pre: wsm = QTextHtmlParserNode::WhiteSpacePre; break;
+                        case QCss::Value_NoWrap: wsm = QTextHtmlParserNode::WhiteSpaceNoWrap; break;
+                        case QCss::Value_PreWrap: wsm = QTextHtmlParserNode::WhiteSpacePreWrap; break;
+                        default: break;
+                    }
+                }
+            case QCss::MarginTop: decl.intValue(&margin[QTextHtmlParser::MarginTop], "px"); break;
+            case QCss::MarginBottom: decl.intValue(&margin[QTextHtmlParser::MarginBottom], "px"); break;
+            case QCss::MarginLeft: decl.intValue(&margin[QTextHtmlParser::MarginLeft], "px"); break;
+            case QCss::MarginRight: decl.intValue(&margin[QTextHtmlParser::MarginRight], "px"); break;
+            case QCss::VerticalAlignment:
+                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
+                    switch (decl.values.first().variant.toInt()) {
+                        case QCss::Value_Sub: verticalAlignment = QTextCharFormat::AlignSubScript; break;
+                        case QCss::Value_Super: verticalAlignment = QTextCharFormat::AlignSuperScript; break;
+                        default: verticalAlignment = QTextCharFormat::AlignNormal; break;
+                    }
+                }
+                break;
+            default: break;
+        }
+    }
+
+    QFont f;
+    int adjustment = -255;
+    QCss::extractFontProperties(declarations, &f, &adjustment);
+    if (f.resolve() & QFontPrivate::Size) {
+        if (f.pointSize() > 0) {
+            fontPointSize = f.pointSize();
+            hasFontPointSize = true;
+        } else if (f.pixelSize() > 0) {
+            fontPixelSize = f.pixelSize();
+            hasFontPixelSize = true;
+        }
+    }
+    if (f.resolve() & QFontPrivate::Style)
+        fontItalic = (f.style() == QFont::StyleNormal) ? Off : On;
+
+    if (f.resolve() & QFontPrivate::Weight)
+        fontWeight = f.weight();
+
+    if (f.resolve() & QFontPrivate::Family)
+        fontFamily = f.family();
+
+    if (f.resolve() & QFontPrivate::Underline)
+        fontUnderline = f.underline() ? On : Off;
+    
+    if (f.resolve() & QFontPrivate::Overline)
+        fontOverline = f.overline() ? On : Off;
+    
+    if (f.resolve() & QFontPrivate::StrikeOut)
+        fontStrikeOut = f.strikeOut() ? On : Off;
+    
+    if (adjustment >= -1) {
+        hasFontSizeAdjustment = true;
+        fontSizeAdjustment = adjustment;
+    }
+}
+
 static bool setIntAttribute(int *destination, const QString &value)
 {
     bool ok = false;
@@ -1257,103 +1354,7 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
     QCss::StyleSheet sheet;
     parser.parse(&sheet);
     if (sheet.styleRules.count() != 1) return;
-    
-    for (int i = 0; i < sheet.styleRules.at(0).declarations.count(); ++i) {
-        const QCss::Declaration &decl = sheet.styleRules.at(0).declarations.at(i);
-        if (decl.values.isEmpty()) continue;
-        switch (decl.propertyId) {
-            case QCss::Color: node->color = decl.colorValue(); break;
-            case QCss::BackgroundColor: node->bgColor = decl.colorValue(); break;
-            case QCss::Float:
-                node->cssFloat = QTextFrameFormat::InFlow;
-                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
-                    switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Left: node->cssFloat = QTextFrameFormat::FloatLeft; break;
-                        case QCss::Value_Right: node->cssFloat = QTextFrameFormat::FloatRight; break;
-                        default: break;
-                    }
-                }
-                break;
-            case QCss::QtBlockIndent:
-                node->hasCssBlockIndent = true;
-                node->cssBlockIndent = decl.values.first().variant.toInt();
-                break;
-            case QCss::TextIndent: decl.realValue(&node->text_indent, "px"); break;
-            case QCss::QtListIndent:
-                if (decl.intValue(&node->cssListIndent))
-                    node->hasCssListIndent = true;
-                break;
-            case QCss::QtParagraphType:
-                if (decl.values.first().variant.toString().compare(QLatin1String("empty"), Qt::CaseInsensitive) == 0)
-                    node->isEmptyParagraph = true;
-                break;
-            case QCss::QtTableType:
-                if (decl.values.first().variant.toString().compare(QLatin1String("frame"), Qt::CaseInsensitive) == 0)
-                    node->isTextFrame = true;
-                break;
-            case QCss::Whitespace:
-                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
-                    switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Normal: node->wsm = QTextHtmlParserNode::WhiteSpaceNormal; break;
-                        case QCss::Value_Pre: node->wsm = QTextHtmlParserNode::WhiteSpacePre; break;
-                        case QCss::Value_NoWrap: node->wsm = QTextHtmlParserNode::WhiteSpaceNoWrap; break;
-                        case QCss::Value_PreWrap: node->wsm = QTextHtmlParserNode::WhiteSpacePreWrap; break;
-                        default: break;
-                    }
-                }
-            case QCss::MarginTop: decl.intValue(&node->margin[QTextHtmlParser::MarginTop], "px"); break;
-            case QCss::MarginBottom: decl.intValue(&node->margin[QTextHtmlParser::MarginBottom], "px"); break;
-            case QCss::MarginLeft: decl.intValue(&node->margin[QTextHtmlParser::MarginLeft], "px"); break;
-            case QCss::MarginRight: decl.intValue(&node->margin[QTextHtmlParser::MarginRight], "px"); break;
-            case QCss::VerticalAlignment:
-                if (decl.values.first().type == QCss::Value::KnownIdentifier) {
-                    switch (decl.values.first().variant.toInt()) {
-                        case QCss::Value_Sub: node->verticalAlignment = QTextCharFormat::AlignSubScript; break;
-                        case QCss::Value_Super: node->verticalAlignment = QTextCharFormat::AlignSuperScript; break;
-                        default: node->verticalAlignment = QTextCharFormat::AlignNormal; break;
-                    }
-                }
-                break;
-            default: break;
-        }
-    }
-
-    {
-        QFont f;
-        int adjustment = -255;
-        sheet.styleRules.at(0).extractFontProperties(&f, &adjustment);
-        if (f.resolve() & QFontPrivate::Size) {
-            if (f.pointSize() > 0) {
-                node->fontPointSize = f.pointSize();
-                node->hasFontPointSize = true;
-            } else if (f.pixelSize() > 0) {
-                node->fontPixelSize = f.pixelSize();
-                node->hasFontPixelSize = true;
-            }
-        }
-        if (f.resolve() & QFontPrivate::Style)
-            node->fontItalic = (f.style() == QFont::StyleNormal) ? Off : On;
-
-        if (f.resolve() & QFontPrivate::Weight)
-            node->fontWeight = f.weight();
-
-        if (f.resolve() & QFontPrivate::Family)
-            node->fontFamily = f.family();
-
-        if (f.resolve() & QFontPrivate::Underline)
-            node->fontUnderline = f.underline() ? On : Off;
-        
-        if (f.resolve() & QFontPrivate::Overline)
-            node->fontOverline = f.overline() ? On : Off;
-        
-        if (f.resolve() & QFontPrivate::StrikeOut)
-            node->fontStrikeOut = f.strikeOut() ? On : Off;
-        
-        if (adjustment >= -1) {
-            node->hasFontSizeAdjustment = true;
-            node->fontSizeAdjustment = adjustment;
-        }
-    }
+    node->applyCssDeclarations(sheet.styleRules.at(0).declarations);
 }
 
 void QTextHtmlParser::parseAttributes()

@@ -335,7 +335,7 @@ static void parseShorthandFontProperty(const QVector<Value> &values, QFont *font
     }
 }
 
-void StyleRule::extractFontProperties(QFont *font, int *fontSizeAdjustment) const
+void QCss::extractFontProperties(const QVector<Declaration> &declarations, QFont *font, int *fontSizeAdjustment)
 {
     *font = QFont();
     *fontSizeAdjustment = -255;
