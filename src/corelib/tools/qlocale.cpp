@@ -67,10 +67,6 @@
 #   define ULLONG_MAX Q_UINT64_C(0xffffffffffffffff)
 #endif
 
-#if !defined(Q_OS_WIN) && !(defined(Q_OS_MAC) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3))
-#define QT_USE_DATABASE
-#endif
-
 #define CONVERSION_BUFF_SIZE 255
 
 #ifndef QT_QLOCALE_USES_FCVT
@@ -86,7 +82,6 @@ static qulonglong qstrtoull(const char *nptr, const char **endptr, register int 
 /******************************************************************************
 ** Helpers for accessing Qt locale database
 */
-
 
 #include "qlocale_data_p.h"
 
@@ -518,11 +513,11 @@ static QString toQtFormat(const QString &sys_fmt)
 static QString systemMonthName(int month, QLocale::FormatType format)
 {
     QStringList monthNames;
+    QCFType<CFDateFormatterRef> formatter
+        = CFDateFormatterCreate(0, QCFType<CFLocaleRef>(CFLocaleCopyCurrent()),
+                                kCFDateFormatterNoStyle,  kCFDateFormatterNoStyle);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-        QCFType<CFDateFormatterRef> formatter
-            = CFDateFormatterCreate(0, QCFType<CFLocaleRef>(CFLocaleCopyCurrent()),
-                                    kCFDateFormatterNoStyle,  kCFDateFormatterNoStyle);
         QCFType<CFArrayRef> values = static_cast<CFArrayRef>(CFDateFormatterCopyProperty(formatter,
                 (format == QLocale::LongFormat) ? kCFDateFormatterMonthSymbols
                                               : kCFDateFormatterShortMonthSymbols));
@@ -539,11 +534,11 @@ static QString systemMonthName(int month, QLocale::FormatType format)
 static QString systemDayName(int day, QLocale::FormatType format)
 {
     QStringList monthNames;
+    QCFType<CFDateFormatterRef> formatter
+        = CFDateFormatterCreate(0, QCFType<CFLocaleRef>(CFLocaleCopyCurrent()),
+                                kCFDateFormatterNoStyle,  kCFDateFormatterNoStyle);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
-        QCFType<CFDateFormatterRef> formatter
-            = CFDateFormatterCreate(0, QCFType<CFLocaleRef>(CFLocaleCopyCurrent()),
-                                    kCFDateFormatterNoStyle,  kCFDateFormatterNoStyle);
         QCFType<CFArrayRef> values = static_cast<CFArrayRef>(CFDateFormatterCopyProperty(formatter,
                 (format == QLocale::LongFormat) ? kCFDateFormatterWeekdaySymbols
                                                 : kCFDateFormatterShortWeekdaySymbols));
@@ -648,7 +643,6 @@ static QString systemTimeFormat(QLocale::FormatType format)
     return QString();
 }
 
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 static QString getCFLocaleValue(CFLocaleRef locale, CFStringRef key)
 {
     CFTypeRef value = CFLocaleGetValue(locale, key);
@@ -656,9 +650,6 @@ static QString getCFLocaleValue(CFLocaleRef locale, CFStringRef key)
 }
 static const QLocalePrivate *systemLocale()
 {
-    if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
-        return 0;
-
     static QLocalePrivate *result = 0;
     if (result == 0) {
         const QLocalePrivate *plain = findLocale(QLocalePrivate::systemLocaleName());
@@ -677,7 +668,6 @@ static const QLocalePrivate *systemLocale()
 
     return result;
 }
-#endif
 
 static QString toQtFormat(const QString &sys_fmt)
 {
@@ -776,7 +766,7 @@ QString QLocalePrivate::month(int index, bool short_format) const
     if (index < 0 || index >= 12)
         return QString();
 
-#ifndef QT_USE_DATABASE
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     if (this == systemLocale()) {
         QString str = systemMonthName(index, short_format ? QLocale::ShortFormat : QLocale::LongFormat);
         if (!str.isEmpty())
@@ -797,7 +787,7 @@ QString QLocalePrivate::day(int index, bool short_format) const
     if (index == 7)
         index = 0;
 
-#ifndef QT_USE_DATABASE
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     if (this == systemLocale()) {
         QString str = systemDayName(index, short_format ? QLocale::ShortFormat : QLocale::LongFormat);
         if (!str.isEmpty())
@@ -1064,7 +1054,7 @@ QByteArray QLocalePrivate::systemLocaleName()
 {
     QByteArray result = envVarLocale();
 
-#if defined(Q_OS_MAC)
+#if !defined(QWS) && defined(Q_OS_MAC)
     if (!result.isEmpty())
         return result;
 
@@ -2199,7 +2189,7 @@ QString QLocale::toString(const QDate &date, const QString &format) const
 */
 QString QLocale::toString(const QDate &date, FormatType format) const
 {
-#ifndef QT_USE_DATABASE
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     if (d == systemLocale())
         return systemDateToString(date, format);
 #endif
@@ -2398,7 +2388,7 @@ QString QLocale::toString(const QTime &time, const QString &format) const
 */
 QString QLocale::toString(const QTime &time, FormatType format) const
 {
-#ifndef QT_USE_DATABASE
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     if (d == systemLocale())
         return systemTimeToString(time, format);
 #endif
@@ -2420,7 +2410,7 @@ QString QLocale::toString(const QTime &time, FormatType format) const
 
 QString QLocale::dateFormat(FormatType format) const
 {
-#ifndef QT_USE_DATABASE
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
     if (d == systemLocale()) {
         QString result = systemDateFormat(format);
         if (!result.isEmpty())
@@ -2448,7 +2438,7 @@ QString QLocale::dateFormat(FormatType format) const
 
 QString QLocale::timeFormat(FormatType format) const
 {
-#ifndef QT_USE_DATABASE
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     if (d == systemLocale()) {
         QString result = systemTimeFormat(format);
         if (!result.isEmpty())
@@ -2591,8 +2581,7 @@ QString QLocale::toString(double i, char f, int prec) const
 
 QLocale QLocale::system()
 {
-
-#ifndef QT_USE_DATABASE
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     /* If LANG is set, we use that, NOT the system's locale. Otherwise we end up with a locale
        that reports country/language from LANG, but actually uses locale used by the system
        functions. */
