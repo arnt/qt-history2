@@ -248,7 +248,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 if (insertable)
                     settings.setValue("/CLSID/" + classId + "/Insertable/.", QVariant(""));
                 if (file.right(3).toLower() == "dll")
-                    settings.setValue("/CLSID/" + classId + "/InProcServer32/.", "\"" + file + "\"");
+                    settings.setValue("/CLSID/" + classId + "/InProcServer32/.", file);
                 else
                     settings.setValue("/CLSID/" + classId + "/LocalServer32/.", "\"" + file + "\" -activex");
                 settings.setValue("/CLSID/" + classId + "/MiscStatus/.", control ? "1" : "0");
