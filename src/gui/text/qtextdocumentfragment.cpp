@@ -403,7 +403,7 @@ QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html)
         html.prepend(QLatin1String("<meta name=\"qrichtext\" content=\"1\" />"));
     }
 
-    parse(html);
+    parse(html, doc);
 //    dumpHtml();
 }
 

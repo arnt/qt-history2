@@ -996,6 +996,7 @@ void QTextBrowser::paintEvent(QPaintEvent *e)
     \header \i ResourceType  \i QVariant::Type
     \row    \i QTextDocument::HtmlResource  \i QString or QByteArray
     \row    \i QTextDocument::ImageResource \i QImage, QPixmap or QByteArray
+    \row    \i QTextDocument::StyleSheetResource \i QString or QByteArray
     \endtable
 */
 QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)

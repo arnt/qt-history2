@@ -103,6 +103,7 @@ enum QTextHTMLElements {
     Html_style,
     Html_title,
     Html_meta,
+    Html_link,
 
     Html_NumElements
 };
@@ -268,7 +269,7 @@ public:
 
     void dumpHtml();
 
-    void parse(const QString &text);
+    void parse(const QString &text, QTextDocument *doc = 0);
 
     static int lookupElement(const QString &element);
 protected:
@@ -292,6 +293,13 @@ protected:
     inline bool hasPrefix(QChar c, int lookahead = 0) const
         {return pos + lookahead < len && txt.at(pos) == c; }
     int margin(int i, int mar) const;
+    
+    // ### basic for now
+    QVector<QCss::Declaration> declarationsForNode(QTextHtmlParserNode *node) const;
+    
+    QCss::StyleSheet externalStyleSheet;
+    QCss::StyleSheet inlineStyleSheet;
+    QTextDocument *doc;
 };
 
 #endif // QTEXTHTMLPARSER_P_H

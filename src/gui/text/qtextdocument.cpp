@@ -1062,6 +1062,7 @@ UserCanceled:
 
     \value HtmlResource  The resource contains HTML.
     \value ImageResource The resource contains image data.
+    \value StyleSheetResource The resource contains CSS.
     \value UserResource  The first available value for user defined
                          resource types.
 

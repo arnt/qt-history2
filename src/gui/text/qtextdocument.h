@@ -153,6 +153,7 @@ public:
     enum ResourceType {
         HtmlResource  = 1,
         ImageResource = 2,
+        StyleSheetResource = 3,
 
         UserResource  = 100
     };
