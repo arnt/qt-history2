@@ -330,7 +330,7 @@ static void setupLocaleMapper()
     localeMapper = QTextCodec::codecForName("System");
 #else
 
-#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF) && !defined(Q_OS_MAC)
+#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
     char *charset = nl_langinfo (CODESET);
     if (charset)
       localeMapper = QTextCodec::codecForName(charset);
