@@ -288,14 +288,15 @@ protected:
     QString parseWord();
     void resolveParent();
     void resolveNode();
-    void parseAttributes();
+    QStringList parseAttributes();
+    void applyAttributes(const QStringList &attributes);
     void eatSpace();
     inline bool hasPrefix(QChar c, int lookahead = 0) const
         {return pos + lookahead < len && txt.at(pos) == c; }
     int margin(int i, int mar) const;
     
     // ### basic for now
-    QVector<QCss::Declaration> declarationsForNode(QTextHtmlParserNode *node) const;
+    QVector<QCss::Declaration> declarationsForNode(QTextHtmlParserNode *node, const QStringList &attributes) const;
     
     QCss::StyleSheet externalStyleSheet;
     QCss::StyleSheet inlineStyleSheet;

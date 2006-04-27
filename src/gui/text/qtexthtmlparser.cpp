@@ -767,10 +767,14 @@ void QTextHtmlParser::parseTag()
     resolveNode();
     QColor inheritedNodeColor = node->color;
     node->color = QColor();
-    node->applyCssDeclarations(declarationsForNode(node));
+
+    QStringList attributes;
     // _need_ at least one space after the tag name, otherwise there can't be attributes
     if (pos < len && txt.at(pos).isSpace())
-        parseAttributes();
+        attributes = parseAttributes();
+
+    node->applyCssDeclarations(declarationsForNode(node, attributes));
+    applyAttributes(attributes);
 
     // special handling for anchors with href attribute (hyperlinks)
     if (node->isAnchor && !node->anchorHref.isEmpty()) {
@@ -1364,14 +1368,10 @@ static void parseStyleAttribute(QTextHtmlParserNode *node, const QString &value)
     node->applyCssDeclarations(sheet.styleRules.at(0).declarations);
 }
 
-void QTextHtmlParser::parseAttributes()
+QStringList QTextHtmlParser::parseAttributes()
 {
-    // local state variable for qt3 textedit mode
-    bool seenQt3Richtext = false;
-    QString linkHref;
-    QString linkType;
+    QStringList attrs;
 
-    QTextHtmlParserNode *node = &nodes.last();
     while (pos < len) {
         eatSpace();
         if (hasPrefix(QLatin1Char('>')) || hasPrefix(QLatin1Char('/')))
@@ -1388,6 +1388,27 @@ void QTextHtmlParser::parseAttributes()
         }
         if (value.size() == 0)
             continue;
+        attrs << key << value;
+    }
+
+    return attrs;
+}
+
+void QTextHtmlParser::applyAttributes(const QStringList &attributes)
+{
+    // local state variable for qt3 textedit mode
+    bool seenQt3Richtext = false;
+    QString linkHref;
+    QString linkType;
+
+    if (attributes.count() % 2 == 1)
+        return;
+
+    QTextHtmlParserNode *node = &nodes.last();
+
+    for (int i = 0; i < attributes.count(); i += 2) {
+        QString key = attributes.at(i);
+        QString value = attributes.at(i + 1);
 
         switch (node->id) {
             case Html_font:
@@ -1542,14 +1563,50 @@ void QTextHtmlParser::parseAttributes()
     }
 }
 
-static bool matchRule(const QCss::StyleRule &rule, QTextHtmlParserNode *node)
+static bool matchRule(const QCss::StyleRule &rule, QTextHtmlParserNode *node, const QStringList &attributes)
 {
     for (int i = 0; i < rule.selectors.count(); ++i) {
         for (int j = 0; j < rule.selectors.at(i).basicSelectors.count(); ++j) {
             const QCss::BasicSelector &sel = rule.selectors.at(i).basicSelectors.at(j);
+
+            if (!sel.attributeSelectors.isEmpty()) {
+                if (attributes.isEmpty())
+                    continue;
+
+                bool matched = true;
+                for (int i = 0; i < sel.attributeSelectors.count(); ++i) {
+                    const QCss::AttributeSelector &a = sel.attributeSelectors.at(i);
+                    const int idx = attributes.indexOf(a.name);
+                    if (idx == -1 || (idx % 2 == 1) || (idx == attributes.count() - 1)) {
+                        matched = false;
+                        break;
+                    }
+                    const QString attrValue = attributes.at(idx + 1);
+
+                    if (a.valueMatchCriterium == QCss::AttributeSelector::MatchContains) {
+
+                        QStringList lst = attrValue.split(QLatin1Char(' '));
+                        if (!lst.contains(a.value)) {
+                            matched = false;
+                            break;
+                        }
+                    } else if (
+                        (a.valueMatchCriterium == QCss::AttributeSelector::MatchEqual
+                         && attrValue != a.value)
+                        ||
+                        (a.valueMatchCriterium == QCss::AttributeSelector::MatchBeginsWith
+                         && !attrValue.startsWith(a.value))
+                       ) {
+                        matched = false;
+                        break;
+                    }
+                }
+                if (!matched)
+                    continue;
+            }
+
             if (sel.relationToNext == QCss::BasicSelector::NoRelation
                 && sel.ids.isEmpty() && sel.pseudoClasses.isEmpty()
-                && sel.attributeSelectors.isEmpty()
                 && sel.elementName == node->tag)
                     return true;
             }
@@ -1557,18 +1614,18 @@ static bool matchRule(const QCss::StyleRule &rule, QTextHtmlParserNode *node)
     return false;
 }
 
-QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(QTextHtmlParserNode *node) const
+QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(QTextHtmlParserNode *node, const QStringList &attributes) const
 {
     QVector<QCss::Declaration> decls;
     // ###
     for (int i = 0; i < externalStyleSheet.styleRules.count(); ++i) {
         const QCss::StyleRule rule = externalStyleSheet.styleRules.at(i);
-        if (matchRule(rule, node))
+        if (matchRule(rule, node, attributes))
             decls += rule.declarations;
     }
     for (int i = 0; i < inlineStyleSheet.styleRules.count(); ++i) {
         const QCss::StyleRule rule = inlineStyleSheet.styleRules.at(i);
-        if (matchRule(rule, node))
+        if (matchRule(rule, node, attributes))
             decls += rule.declarations;
     }
     return decls;
