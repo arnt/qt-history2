@@ -5,6 +5,6 @@ SUBDIRS = \
     uitools \
     lib \
     components \
-    designer \
-    plugins
+    designer
 
+CONFIG(shared,shared|static):SUBDIRS += plugins
