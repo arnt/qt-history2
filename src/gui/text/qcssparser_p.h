@@ -141,7 +141,6 @@ struct Q_INTERNAL_EXPORT BasicSelector
     QString elementName;
 
     QStringList ids;
-    QStringList classes;
     QVector<PseudoClass> pseudoClasses;
     QVector<AttributeSelector> attributeSelectors;
 

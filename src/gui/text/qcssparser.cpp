@@ -712,9 +712,11 @@ bool Parser::parseSimpleSelector(BasicSelector *basicSel)
             onceMore = true;
         } else if (testClass()) {
             onceMore = true;
-            QString klass;
-            if (!parseClass(&klass)) return false;
-            basicSel->classes.append(klass);
+            AttributeSelector a;
+            a.name = QLatin1String("class");
+            a.valueMatchCriterium = AttributeSelector::MatchContains;
+            if (!parseClass(&a.value)) return false;
+            basicSel->attributeSelectors.append(a);
         } else if (testAttrib()) {
             onceMore = true;
             AttributeSelector a;

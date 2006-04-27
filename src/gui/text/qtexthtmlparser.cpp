@@ -1548,7 +1548,7 @@ static bool matchRule(const QCss::StyleRule &rule, QTextHtmlParserNode *node)
         for (int j = 0; j < rule.selectors.at(i).basicSelectors.count(); ++j) {
             const QCss::BasicSelector &sel = rule.selectors.at(i).basicSelectors.at(j);
             if (sel.relationToNext == QCss::BasicSelector::NoRelation
-                && sel.ids.isEmpty() && sel.classes.isEmpty() && sel.pseudoClasses.isEmpty()
+                && sel.ids.isEmpty() && sel.pseudoClasses.isEmpty()
                 && sel.attributeSelectors.isEmpty()
                 && sel.elementName == node->tag)
                     return true;
