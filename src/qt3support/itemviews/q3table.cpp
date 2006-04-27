@@ -41,16 +41,15 @@
 
 using namespace Qt;
 
+class Q3HeaderData;
+extern bool qt_get_null_label_bit(Q3HeaderData *data, int section);
+extern void qt_set_null_label_bit(Q3HeaderData *data, int section, bool b);
+
 static bool qt_update_cell_widget = true;
 static bool qt_table_clipper_enabled = true;
 #ifndef QT_INTERNAL_TABLE
 Q_COMPAT_EXPORT
 #endif
-
-class Q3HeaderData;
-extern bool qt_get_null_label_bit(Q3HeaderData *data, int section);
-extern void qt_set_null_label_bit(Q3HeaderData *data, int section, bool b);
-
 void qt_set_table_clipper_enabled(bool enabled)
 {
     qt_table_clipper_enabled = enabled;
