@@ -1557,6 +1557,9 @@ void QSortFilterProxyModel::setFilterRegExp(const QRegExp &regExp)
 
     The default value is 0. If the value is -1, the keys will be read
     from all columns.
+
+    Setting the filter key column to a number that is greater than the column count
+    will not have any effect when a model is set.
 */
 int QSortFilterProxyModel::filterKeyColumn() const
 {
@@ -1567,7 +1570,8 @@ int QSortFilterProxyModel::filterKeyColumn() const
 void QSortFilterProxyModel::setFilterKeyColumn(int column)
 {
     Q_D(QSortFilterProxyModel);
-    Q_ASSERT(d->model == &d->empty || column < d->model->columnCount());
+    if (d->model != &d->empty && column >= d->model->columnCount())
+        return;
     d->filter_column = column;
     d->filter_changed();
 }
