@@ -364,7 +364,11 @@ QTableWidgetItem *QTableModel::verticalHeaderItem(int section)
 
 QModelIndex QTableModel::index(const QTableWidgetItem *item) const
 {
+    if (!item)
+        return QModelIndex();
     int i = table.indexOf(const_cast<QTableWidgetItem*>(item));
+    if (i < 0)
+        return QModelIndex();
     int row = i / columnCount();
     int col = i % columnCount();
     return QAbstractTableModel::index(row, col);
@@ -1621,7 +1625,6 @@ int QTableWidget::columnCount() const
 */
 int QTableWidget::row(const QTableWidgetItem *item) const
 {
-    Q_ASSERT(item);
     Q_D(const QTableWidget);
     return d->model()->index(item).row();
 }
@@ -1631,7 +1634,6 @@ int QTableWidget::row(const QTableWidgetItem *item) const
 */
 int QTableWidget::column(const QTableWidgetItem *item) const
 {
-    Q_ASSERT(item);
     Q_D(const QTableWidget);
     return d->model()->index(item).column();
 }
@@ -1886,8 +1888,9 @@ bool QTableWidget::isSortingEnabled() const
 
 void QTableWidget::editItem(QTableWidgetItem *item)
 {
-    Q_ASSERT(item);
     Q_D(QTableWidget);
+    if (!item)
+        return;
     edit(d->model()->index(item));
 }
 
@@ -1898,8 +1901,9 @@ void QTableWidget::editItem(QTableWidgetItem *item)
 */
 void QTableWidget::openPersistentEditor(QTableWidgetItem *item)
 {
-    Q_ASSERT(item);
     Q_D(QTableWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::openPersistentEditor(index);
 }
@@ -1911,8 +1915,9 @@ void QTableWidget::openPersistentEditor(QTableWidgetItem *item)
 */
 void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
 {
-    Q_ASSERT(item);
     Q_D(QTableWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::closePersistentEditor(index);
 }
@@ -1939,7 +1944,6 @@ QWidget *QTableWidget::cellWidget(int row, int column) const
 */
 void QTableWidget::setCellWidget(int row, int column, QWidget *widget)
 {
-    Q_ASSERT(widget);
     QModelIndex index = model()->index(row, column, QModelIndex());
     QAbstractItemView::setIndexWidget(index, widget);
 }
@@ -2074,8 +2078,9 @@ QTableWidgetItem *QTableWidget::itemAt(const QPoint &p) const
 */
 QRect QTableWidget::visualItemRect(const QTableWidgetItem *item) const
 {
-    Q_ASSERT(item);
     Q_D(const QTableWidget);
+    if (!item)
+        return QRect();
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
     Q_ASSERT(index.isValid());
     return visualRect(index);
@@ -2089,8 +2094,9 @@ QRect QTableWidget::visualItemRect(const QTableWidgetItem *item) const
 
 void QTableWidget::scrollToItem(const QTableWidgetItem *item, QAbstractItemView::ScrollHint hint)
 {
-    Q_ASSERT(item);
     Q_D(QTableWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
     Q_ASSERT(index.isValid());
     QTableView::scrollTo(index, hint);
@@ -2257,7 +2263,6 @@ QList<QTableWidgetItem*> QTableWidget::items(const QMimeData *data) const
 QModelIndex QTableWidget::indexFromItem(QTableWidgetItem *item) const
 {
     Q_D(const QTableWidget);
-    Q_ASSERT(item);
     return d->model()->index(item);
 }
 
@@ -2268,7 +2273,6 @@ QModelIndex QTableWidget::indexFromItem(QTableWidgetItem *item) const
 QTableWidgetItem *QTableWidget::itemFromIndex(const QModelIndex &index) const
 {
     Q_D(const QTableWidget);
-    Q_ASSERT(index.isValid());
     return d->model()->item(index);
 }
 
