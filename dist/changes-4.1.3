@@ -1,0 +1,145 @@
+Qt 4.1.3 is a bug-fix release. It maintains both forward and backward
+compatibility (source and binary) with Qt 4.1.0.
+
+The Qt version 4.1 series is binary compatible with the 4.0.x series.
+Applications compiled for 4.0 will continue to run with 4.1.
+
+#################################
+# TODO: 2006/01/25 - 2006/04/11 #
+# Last change: 208881
+#################################
+
+****************************************************************************
+*                           General                                        *
+****************************************************************************
+
+Meta Object Compiler (moc)
+
+Configure / Compilation
+
+Porting (qt3to4)
+	qt3to4 now adds the needed include directive for 
+	qPixmapFromMimeFactory().
+
+Qt Designer
+	Improved usability by letting the Find Icon dialog remember the last
+	path visited.
+
+Qt Assistant 
+
+Qt Linguist / Internationalization
+
+Qt Translation
+
+Examples
+
+	Fixed a bug in the Tooltips example when moving the cursor from one 
+	circle to the next.
+	Fixed a bug in the FTP example which caused the Download button to be
+	incorrectly enabled/disabled.
+
+****************************************************************************
+*                          Library                                         *
+****************************************************************************
+
+General improvements
+--------------------
+
+- Fixed rendering of some GIF images.
+
+- Q3UrlOperator
+	Fixed listChildren() for the case when setProtocol() haven't been 
+	called.
+
+- QAbstractItemView
+	Fixed QStatusTipEvents for itemview.
+
+- QCheckBox
+	Only emit the stateChanged() signal when the state actually change.
+
+- QDatabase
+ 	Fixed bool values in prepared values in the MYSQL driver.
+	Fixed use of stored procedures that returns a result set in MySQL 5.x.
+
+
+- QComboBox
+	Correct escape of '&' in items.
+
+- QCheckBox
+	Fixed some painting issues when using CDE of Motif style.
+
+- QFile
+	Correct error reporting on flush() and close().
+
+- QFileDialog
+	Fixed a bug that allowed selection of multiple files in 
+	getOpenFileName().
+
+- QGroupBox
+	Fixed some painting issues appearing on all styles except WindowsXP.
+
+- QImage
+	Fixed writing to a PNG file when the alpha value is premultiplied.
+
+- QPicture
+	Fixed a DPI issue when drawing into a QLabel.
+
+- QListView
+	Fixed setRowHidden().
+
+- QMenu
+	Let setActiveAction open a submenu to be consistent with QMenuBar.
+
+- QSortFilterProxyModel
+	Fixed a crash when deleting rows.
+
+- QSqlRelationalTableModel
+	Inserting using the OnManualSubmit edit strategy failed in some cases.
+
+- QStackedLayout
+	Fixed a bug causing a focus change when calling removeWidget().
+
+- QTextStream
+	Fixed a bug causing aboutToClose() to be connected to a NULL slot
+	after calling unsetDevice().
+
+- QTreeView
+	Fixed some drag and drop issues.
+
+- QUrl
+	Fixed setPort() with given -1 as port number.
+
+Platform-Specific changes
+-------------------------
+
+Windows:
+
+
+X11:
+
+- QFontDatabase
+	Fixed a bug which made isFixedPitch() returns 'true' for certain
+	non-fixed-pitch fonts, like "Sans Serif".
+
+- Correctly handle the .so file extension on HP/UX IA-64.
+
+Mac OS X:
+
+- Fixed a bug that made the close button unavailable on modal windows.
+- Fixed icon rendering on x86 CPUs.
+- Fixed painting of QBitmap into a QPixmap.
+- Added the -framework and -F configure options.
+
+Qtopia Core:
+
+- Added configure options to build decorations and mouse drivers as plugins.
+- Lots of new documentation.
+- Added support for 8 and 16 bit screens.
+- Fixed a bug that could result in painting errors after setting a new 
+  decoration with QApplication::qwsSetDocoration().
+- New skins for QVfb provided in the X11 package.
+
+3rd-party libraries
+-------------------
+
+
