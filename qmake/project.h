@@ -80,6 +80,7 @@ class QMakeProject
 
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
     bool doVariableReplace(QString &str, QMap<QString, QStringList> &place);
+    QStringList doVariableReplaceExpand(const QString &str, QMap<QString, QStringList> &place, bool *ok=0);
     void init(QMakeProperty *, const QMap<QString, QStringList> *);
     QStringList &values(const QString &v, QMap<QString, QStringList> &place);
 

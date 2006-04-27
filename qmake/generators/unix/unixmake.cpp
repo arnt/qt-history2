@@ -116,20 +116,20 @@ UnixMakefileGenerator::init()
         for(QStringList::ConstIterator it = libdirs.begin(); it != libdirs.end(); ++it) {
             if(!project->isEmpty("QMAKE_LFLAGS_RPATH") && project->isActiveConfig("rpath_libdirs"))
                 project->values("QMAKE_LFLAGS") += var("QMAKE_LFLAGS_RPATH") + (*it);
-            project->values("QMAKE_LIBDIR_FLAGS") += "-L" + (*it);
+            project->values("QMAKE_LIBDIR_FLAGS") += "-L" + escapeFilePath((*it));
         }
     }
     if(project->isActiveConfig("macx") && !project->isEmpty("QMAKE_FRAMEWORKDIR")) {
         const QStringList &fwdirs = project->values("QMAKE_FRAMEWORKDIR");
         for(QStringList::ConstIterator it = fwdirs.begin(); it != fwdirs.end(); ++it) {
-            project->values("QMAKE_FRAMEWORKDIR_FLAGS") += "-F" + (*it);
+            project->values("QMAKE_FRAMEWORKDIR_FLAGS") += "-F" + escapeFilePath((*it));
         }
     }
     if(!project->isEmpty("QMAKE_RPATHDIR")) {
         const QStringList &rpathdirs = project->values("QMAKE_RPATHDIR");
         for(QStringList::ConstIterator it = rpathdirs.begin(); it != rpathdirs.end(); ++it) {
             if(!project->isEmpty("QMAKE_LFLAGS_RPATH"))
-                project->values("QMAKE_LFLAGS") += var("QMAKE_LFLAGS_RPATH") + QFileInfo((*it)).absoluteFilePath();
+                project->values("QMAKE_LFLAGS") += var("QMAKE_LFLAGS_RPATH") + escapeFilePath(QFileInfo((*it)).absoluteFilePath());
         }
     }
     QString compile_flag = var("QMAKE_COMPILE_FLAG");

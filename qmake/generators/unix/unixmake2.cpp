@@ -97,12 +97,17 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH       = " << "-I" << specdir();
     if(!project->isActiveConfig("no_include_pwd")) {
-        QString pwd = fileFixify(qmake_getpwd());
+        QString pwd = escapeFilePath(fileFixify(qmake_getpwd()));
         if(pwd.isEmpty())
             pwd = ".";
         t << " -I" << pwd;
     }
-    t << varGlue("INCLUDEPATH"," -I", " -I", "") << endl;
+    {
+        const QStringList &incs = project->values("INCLUDEPATH");
+        for(QStringList::ConstIterator incit = incs.begin(); incit != incs.end(); ++incit)
+            t << " " << "-I" << escapeFilePath((*incit));
+    }
+    t << endl;
 
     if(!project->isActiveConfig("staticlib")) {
         t << "LINK          = " << var("QMAKE_LINK") << endl;

@@ -463,6 +463,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     const int vals_len = vals.length();
     for(int x = 0, parens = 0; x < vals_len; x++) {
         unicode = (vals_data+x)->unicode();
+        bool append_char = true;
         if(x != (int)vals_len-1 && unicode == SLASH &&
            ((vals_data+(x+1))->unicode() == '\'' || (vals_data+(x+1))->unicode() == DOUBLEQUOTE)) {
             build += *(vals_data+(x++)); //get that 'escape'
@@ -486,6 +487,8 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     }
     if(!build.isEmpty())
         ret << build;
+    for(int i = 0; i < ret.count(); i++)
+        ret[i] = remove_quotes(ret[i]);
     return ret;
 }
 
@@ -938,7 +941,6 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         return true; // oh well
 #undef SKIP_WS
 
-    doVariableReplace(vals, place);
     doVariableReplace(var, place);
     var = varMap(var); //backwards compatability
     if(!var.isEmpty() && Option::mkfile::do_preprocess) {
@@ -951,7 +953,13 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     }
 
     // vallist is the broken up list of values
-    QStringList vallist = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
+    QStringList vallist;
+    {
+        //doVariableReplace(vals, place);
+        QStringList tmp = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
+        for(int i = 0; i < tmp.size(); ++i)
+            vallist += doVariableReplaceExpand(tmp[i], place);
+    }
     if(!vallist.filter("=").isEmpty())
         warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
                  var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
@@ -2449,8 +2457,19 @@ QMakeProject::expand(const QString &str)
 bool
 QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
 {
+    bool ret;
+    str = doVariableReplaceExpand(str, place, &ret).join(QString(Option::field_sep));
+    return ret;
+}
+
+QStringList
+QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringList> &place, bool *ok)
+{
+    QStringList ret;
+    if(ok)
+        *ok = true;
     if(str.isEmpty())
-        return true;
+        return ret;
 
     const ushort LSQUARE = '[';
     const ushort RSQUARE = ']';
@@ -2462,17 +2481,18 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
     const ushort SLASH = '\\';
     const ushort UNDERSCORE = '_';
     const ushort DOT = '.';
+    const ushort SPACE = ' ';
+    const ushort TAB = '\t';
 
     ushort unicode;
     const QChar *str_data = str.data();
     const int str_len = str.length();
 
     ushort term;
-    QString replacement;
     QString var, args;
 
-    QString ret;
     int replaced = 0;
+    QString current;
     for(int i = 0; i < str_len; ++i) {
         unicode = (str_data+i)->unicode();
         const int start_var = i;
@@ -2484,16 +2504,22 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                     i++;
                     escape = true;
                     if(!(replaced++))
-                        ret = str.left(start_var);
-                    ret.append(str.at(i));
+                        current = str.left(start_var);
+                    current.append(str.at(i));
                     break;
                 }
             }
             if(!escape && replaced)
-                ret.append(QChar(unicode));
+                current.append(QChar(unicode));
             continue;
         }
-        if(unicode == DOLLAR && str_len > i+2) {
+        if(unicode == SPACE || unicode == TAB) {
+            unicode = 0;
+            if(!current.isEmpty()) {
+                ret.append(current);
+                current.clear();
+            }
+        } else if(unicode == DOLLAR && str_len > i+2) {
             unicode = (str_data+(++i))->unicode();
             if(unicode == DOLLAR) {
                 term = 0;
@@ -2549,41 +2575,54 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                 if(term) {
                     if(unicode != term) {
                         qmake_error_msg("Missing " + QString(term) + " terminator [found " + QString(unicode) + "]");
-                        return false;
+                        if(ok)
+                            *ok = false;
+                        return QStringList();
                     }
                     unicode = 0;
                 } else if(i > str_len-1) {
                     unicode = 0;
                 }
 
-                replacement.clear();
+                QStringList replacement;
                 if(var_type == ENVIRON) {
-                    replacement = QString::fromLocal8Bit(qgetenv(var.toLatin1().constData()));
+                    replacement = QStringList(QString::fromLocal8Bit(qgetenv(var.toLatin1().constData())));
                 } else if(var_type == PROPERTY) {
                     if(prop)
-                        replacement = prop->value(var);
+                        replacement = QStringList(prop->value(var));
                 } else if(var_type == FUNCTION) {
-                    replacement = doProjectExpand(var, args, place);
+                    replacement = QStringList(doProjectExpand(var, args, place));
                 } else if(var_type == VAR) {
-                    replacement = values(var, place).join(QString(Option::field_sep));
+                    replacement = values(var, place);
                 }
-                if(!(replaced++))
-                    ret = str.left(start_var);
-                ret.append(replacement);
+                if(!(replaced++) && start_var)
+                    current = str.left(start_var);
+                if(!replacement.isEmpty()) {
+                    current += replacement.takeFirst();
+                    if(!replacement.isEmpty()) {
+                        if(!current.isEmpty())
+                            ret.append(current);
+                        current = replacement.takeLast();
+                        if(!replacement.isEmpty())
+                            ret += replacement;
+                    }
+                }
                 debug_msg(2, "Project Parser [var replace]: %s -> %s",
                           str.toLatin1().constData(), var.toLatin1().constData(),
-                          replacement.toLatin1().constData());
+                          replacement.join("::").toLatin1().constData());
             } else {
                 if(replaced)
-                    ret.append("$");
+                    current.append("$");
             }
         }
         if(replaced && unicode)
-            ret.append(QChar(unicode));
+            current.append(QChar(unicode));
     }
-    if(replaced)
-        str = ret;
-    return true;
+    if(!replaced)
+        ret = QStringList(str);
+    else if(!current.isEmpty())
+        ret.append(current);
+    return ret;
 }
 
 QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList> &place)

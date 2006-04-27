@@ -215,7 +215,7 @@ MakefileGenerator::initOutPaths()
             QStringList &inputs = project->values((*it2));
             for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                 (*input) = fileFixify((*input), Option::output_dir, Option::output_dir);
-                QString path = replaceExtraCompilerVariables(tmp_out, (*input), QString());
+                QString path = unescapeFilePath(replaceExtraCompilerVariables(tmp_out, (*input), QString()));
                 path = Option::fixPathToTargetOS(path);
                 int slash = path.lastIndexOf(Option::dir_sep);
                 if(slash != -1) {
@@ -828,7 +828,7 @@ MakefileGenerator::init()
     //find out where qmake (myself) lives
     if (project->isEmpty("QMAKE_QMAKE")) {
         if (!Option::qmake_abslocation.isNull())
-            project->values("QMAKE_QMAKE").append(Option::qmake_abslocation);
+            project->values("QMAKE_QMAKE").append(escapeFilePath(Option::qmake_abslocation));
         else
             project->values("QMAKE_QMAKE").append("qmake");
     }
@@ -1184,6 +1184,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &src)
             cimp = "QMAKE_RUN_CC_IMP";
         }
         bool use_implicit_rule = !project->isEmpty(cimp);
+        use_implicit_rule = false;
         if(use_implicit_rule) {
             if(!project->isEmpty("OBJECTS_DIR")) {
                 use_implicit_rule = false;
@@ -1740,14 +1741,14 @@ MakefileGenerator::writeExtraTargets(QTextStream &t)
             QString dep = var((*dep_it) + ".target");
             if(dep.isEmpty())
                 dep = (*dep_it);
-            deps += " " + dep;
+            deps += " " + escapeFilePath(dep);
         }
         if(project->values((*it) + ".CONFIG").indexOf("fix_target") != -1)
             targ = fileFixify(targ);
         if(project->isEmpty("QMAKE_NOFORCE") &&
            project->values((*it) + ".CONFIG").indexOf("phony") != -1)
             deps += QString(" ") + "FORCE";
-        t << targ << ":" << deps;
+        t << escapeFilePath(targ) << ":" << deps;
         if(!cmd.isEmpty())
             t << "\n\t" << cmd;
         t << endl << endl;
@@ -1773,7 +1774,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
 	        }
 	    }
             if(argv0 != -1) {
-                cmdline[argv0] = Option::fixPathToTargetOS(cmdline.at(argv0), false);
+                cmdline[argv0] = escapeFilePath(Option::fixPathToTargetOS(cmdline.at(argv0), false));
                 tmp_cmd = cmdline.join(" ");
             }
         }
@@ -1791,8 +1792,10 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             if(argv0 != -1) {
                 const QString c = Option::fixPathToLocalOS(cmdline.at(argv0), true);
                 if(exists(c)) {
-                    cmdline[argv0] = Option::fixPathToLocalOS(cmdline.at(argv0), false);
+                    cmdline[argv0] = escapeFilePath(Option::fixPathToLocalOS(cmdline.at(argv0), false));
                     tmp_dep_cmd = cmdline.join(" ");
+                } else {
+                    cmdline[argv0] = escapeFilePath(cmdline.at(argv0));
                 }
             }
         }
