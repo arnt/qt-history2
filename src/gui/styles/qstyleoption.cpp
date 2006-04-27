@@ -3020,6 +3020,8 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
     \variable QStyleOptionTitleBar::titleBarFlags
     \brief the widget flags for the title bar
 
+    The default value is Qt::Widget.
+
     \sa Qt::WFlags
 */
 
