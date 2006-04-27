@@ -113,7 +113,8 @@ QListWidgetItem *QListModel::at(int row) const
 
 void QListModel::remove(QListWidgetItem *item)
 {
-    Q_ASSERT(item);
+    if (!item)
+        return;
     int row = lst.indexOf(item);
     Q_ASSERT(row != -1);
     beginRemoveRows(QModelIndex(), row, row);
@@ -125,7 +126,9 @@ void QListModel::remove(QListWidgetItem *item)
 
 void QListModel::insert(int row, QListWidgetItem *item)
 {
-    Q_ASSERT(item);
+    if (!item)
+        return;
+
     item->model = this;
     item->view = ::qobject_cast<QListWidget*>(QObject::parent());
     if (row < 0)
@@ -158,7 +161,9 @@ void QListModel::insert(int row, const QStringList &labels)
 
 QListWidgetItem *QListModel::take(int row)
 {
-    Q_ASSERT(row >= 0 && row < lst.count());
+    if (row < 0 || row >= lst.count())
+        return 0;
+
     beginRemoveRows(QModelIndex(), row, row);
     lst.at(row)->model = 0;
     lst.at(row)->view = 0;
@@ -174,10 +179,12 @@ int QListModel::rowCount(const QModelIndex &parent) const
 
 QModelIndex QListModel::index(QListWidgetItem *item) const
 {
-    Q_ASSERT(item);
+    if (!item)
+        return QModelIndex();
     int row = lst.lastIndexOf(item);
-    Q_ASSERT(row != -1);
-    return createIndex(row, 0, item);
+    if (row != -1);
+        return createIndex(row, 0, item);
+    return QModelIndex();
 }
 
 QModelIndex QListModel::index(int row, int column, const QModelIndex &parent) const
@@ -1219,7 +1226,6 @@ QListWidgetItem *QListWidget::currentItem() const
 */
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
-    Q_ASSERT(item);
     setCurrentRow(row(item));
 }
 
@@ -1272,10 +1278,10 @@ QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
 */
 QRect QListWidget::visualItemRect(const QListWidgetItem *item) const
 {
-    Q_ASSERT(item);
     Q_D(const QListWidget);
+    if (!item)
+        return QRect();
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    Q_ASSERT(index.isValid());
     return visualRect(index);
 }
 
@@ -1316,8 +1322,9 @@ bool QListWidget::isSortingEnabled() const
 
 void QListWidget::editItem(QListWidgetItem *item)
 {
-    Q_ASSERT(item);
     Q_D(QListWidget);
+    if (!item)
+        return;
     edit(d->model()->index(item));
 }
 
@@ -1328,8 +1335,9 @@ void QListWidget::editItem(QListWidgetItem *item)
 */
 void QListWidget::openPersistentEditor(QListWidgetItem *item)
 {
-    Q_ASSERT(item);
     Q_D(QListWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::openPersistentEditor(index);
 }
@@ -1341,7 +1349,6 @@ void QListWidget::openPersistentEditor(QListWidgetItem *item)
 */
 void QListWidget::closePersistentEditor(QListWidgetItem *item)
 {
-    Q_ASSERT(item);
     Q_D(QListWidget);
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::closePersistentEditor(index);
@@ -1354,7 +1361,6 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
 */
 QWidget *QListWidget::itemWidget(QListWidgetItem *item) const
 {
-    Q_ASSERT(item);
     Q_D(const QListWidget);
     QModelIndex index = d->model()->index(item);
     return QAbstractItemView::indexWidget(index);
@@ -1373,8 +1379,9 @@ QWidget *QListWidget::itemWidget(QListWidgetItem *item) const
 */
 void QListWidget::setItemWidget(QListWidgetItem *item, QWidget *widget)
 {
-    Q_ASSERT(item);
     Q_D(QListWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(item);
     QAbstractItemView::setIndexWidget(index, widget);
 }
@@ -1455,10 +1462,10 @@ void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
 
 void QListWidget::scrollToItem(const QListWidgetItem *item, QAbstractItemView::ScrollHint hint)
 {
-    Q_ASSERT(item);
     Q_D(QListWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    Q_ASSERT(index.isValid());
     QListView::scrollTo(index, hint);
 }
 
@@ -1548,7 +1555,6 @@ QList<QListWidgetItem*> QListWidget::items(const QMimeData *data) const
 QModelIndex QListWidget::indexFromItem(QListWidgetItem *item) const
 {
     Q_D(const QListWidget);
-    Q_ASSERT(item);
     return d->model()->index(item);
 }
 
@@ -1559,8 +1565,9 @@ QModelIndex QListWidget::indexFromItem(QListWidgetItem *item) const
 QListWidgetItem *QListWidget::itemFromIndex(const QModelIndex &index) const
 {
     Q_D(const QListWidget);
-    Q_ASSERT(index.isValid());
-    return d->model()->at(index.row());
+    if (index.isValid())
+        return d->model()->at(index.row());
+    return 0;
 }
 
 /*!
