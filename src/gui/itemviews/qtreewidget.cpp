@@ -108,7 +108,8 @@ void QTreeModel::clear()
 
 void QTreeModel::setColumnCount(int columns)
 {
-    Q_ASSERT(columns >= 0);
+    if (columns < 0)
+        return;
     if (!header)
         header = new QTreeWidgetItem();
     int count = header->columnCount();
@@ -374,8 +375,8 @@ bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent) {
     QTreeWidgetItem *itm = item(parent);
     for (int i = row+count-1; i >= row; --i) {
         QTreeWidgetItem *child = itm ? itm->takeChild(i) : tree.takeAt(i);
-        child->view = 0;
         Q_ASSERT(child);
+        child->view = 0;
         delete child;
         child = 0;
     }
@@ -1394,14 +1395,15 @@ void QTreeWidgetItem::addChild(QTreeWidgetItem *child)
 
 /*!
   Inserts the \a child item at \a index in the list of children.
+
+  If the child has already been inserted somewhere else it wont be inserted again.
 */
 void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 {
     // FIXME: here we have a problem;
     // the user could build up a tree and then insert the root in the view
-    if (index < 0 || index > children.count() || child == 0)
+    if (index < 0 || index > children.count() || child == 0 || child->view != 0 || child->par != 0)
         return;
-    Q_ASSERT(!child->view || !child->par);
     if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0)) {
         model->beginInsertItems(this, index, 1);
         int cols = model->columnCount();
@@ -1462,6 +1464,8 @@ void QTreeWidgetItem::addChildren(const QList<QTreeWidgetItem*> &children)
   \since 4.1
 
   Inserts the given list of \a children into the list of the item children at \a index .
+
+  Children that have already been inserted somewhere else wont be inserted.
 */
 void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &children)
 {
@@ -1471,7 +1475,8 @@ void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &c
     if (model) model->beginInsertItems(this, index, children.count());
     for (int n = 0; n < children.count(); ++n) {
         QTreeWidgetItem *child = children.at(n);
-        Q_ASSERT(!child->view || !child->par);
+        if(child->view || child->par)
+            continue;
         if (view && model) {
             QStack<QTreeWidgetItem*> stack;
             stack.push(child);
@@ -1936,15 +1941,17 @@ int QTreeWidget::topLevelItemCount() const
 /*!
   Inserts the \a item at \a index in the top level in the view.
 
+  If the item has already been inserted somewhere else it wont be inserted.
+
   \sa addTopLevelItem(), columnCount()
 */
 
 void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 {
     Q_D(QTreeWidget);
-    if (index < 0 || index > d->model()->tree.count() || item == 0)
+    if (index < 0 || index > d->model()->tree.count() ||
+        item == 0 || item->view != 0 || item->par != 0)
         return;
-    Q_ASSERT(!item->view || !item->par);
     QStack<QTreeWidgetItem*> stack;
     stack.push(item);
     while (!stack.isEmpty()) {
@@ -2012,6 +2019,8 @@ int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
 
   Inserts the list of \a items at \a index in the top level in the view.
 
+  Items that have already been inserted somewhere else wont be inserted.
+
   \sa addTopLevelItems()
 */
 void QTreeWidget::insertTopLevelItems(int index, const QList<QTreeWidgetItem*> &items)
@@ -2019,7 +2028,8 @@ void QTreeWidget::insertTopLevelItems(int index, const QList<QTreeWidgetItem*> &
     Q_D(QTreeWidget);
     for (int n = 0; n < items.count(); ++n) {
         QTreeWidgetItem *item = items.at(n);
-        Q_ASSERT(!item->view || !item->par);
+        if (item->view || item->par)
+            continue;
         QStack<QTreeWidgetItem*> stack;
         stack.push(item);
         while (!stack.isEmpty()) {
@@ -2166,8 +2176,9 @@ QTreeWidgetItem *QTreeWidget::itemAt(const QPoint &p) const
 */
 QRect QTreeWidget::visualItemRect(const QTreeWidgetItem *item) const
 {
-    Q_ASSERT(item);
     Q_D(const QTreeWidget);
+    if (!item)
+        return QRect();
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     Q_ASSERT(index.isValid());
     return visualRect(index);
@@ -2224,7 +2235,6 @@ bool QTreeWidget::isSortingEnabled() const
 
 void QTreeWidget::editItem(QTreeWidgetItem *item, int column)
 {
-    Q_ASSERT(item);
     Q_D(QTreeWidget);
     edit(d->model()->index(item, column));
 }
@@ -2237,8 +2247,9 @@ void QTreeWidget::editItem(QTreeWidgetItem *item, int column)
 
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
 {
-    Q_ASSERT(item);
     Q_D(QTreeWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(item, column);
     QAbstractItemView::openPersistentEditor(index);
 }
@@ -2254,8 +2265,9 @@ void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
 
 void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 {
-    Q_ASSERT(item);
     Q_D(QTreeWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(item, column);
     QAbstractItemView::closePersistentEditor(index);
 }
@@ -2267,7 +2279,6 @@ void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 */
 QWidget *QTreeWidget::itemWidget(QTreeWidgetItem *item, int column) const
 {
-    Q_ASSERT(item);
     Q_D(const QTreeWidget);
     QModelIndex index = d->model()->index(item, column);
     return QAbstractItemView::indexWidget(index);
@@ -2286,9 +2297,9 @@ QWidget *QTreeWidget::itemWidget(QTreeWidgetItem *item, int column) const
 */
 void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widget)
 {
-    Q_ASSERT(item);
-    Q_ASSERT(widget);
     Q_D(QTreeWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(item, column);
     QAbstractItemView::setIndexWidget(index, widget);
 }
@@ -2390,8 +2401,9 @@ void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
 */
 bool QTreeWidget::isItemExpanded(const QTreeWidgetItem *item) const
 {
-    Q_ASSERT(item);
     Q_D(const QTreeWidget);
+    if (!item)
+        return false;
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     return isExpanded(index);
 }
@@ -2404,8 +2416,9 @@ bool QTreeWidget::isItemExpanded(const QTreeWidgetItem *item) const
 */
 void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 {
-    Q_ASSERT(item);
     Q_D(QTreeWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     Q_ASSERT(index.isValid());
     setExpanded(index, expand);
@@ -2419,8 +2432,9 @@ void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 */
 void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, ScrollHint hint)
 {
-    Q_ASSERT(item);
     Q_D(QTreeWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     Q_ASSERT(index.isValid());
     QTreeView::scrollTo(index, hint);
@@ -2434,8 +2448,9 @@ void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, ScrollHint hint)
 */
 void QTreeWidget::expandItem(const QTreeWidgetItem *item)
 {
-    Q_ASSERT(item);
     Q_D(QTreeWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     expand(index);
 }
@@ -2448,8 +2463,9 @@ void QTreeWidget::expandItem(const QTreeWidgetItem *item)
 */
 void QTreeWidget::collapseItem(const QTreeWidgetItem *item)
 {
-    Q_ASSERT(item);
     Q_D(QTreeWidget);
+    if (!item)
+        return;
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     collapse(index);
 }
@@ -2540,7 +2556,6 @@ QList<QTreeWidgetItem*> QTreeWidget::items(const QMimeData *data) const
 QModelIndex QTreeWidget::indexFromItem(QTreeWidgetItem *item, int column) const
 {
     Q_D(const QTreeWidget);
-    Q_ASSERT(item);
     return d->model()->index(item, column);
 }
 
@@ -2552,7 +2567,6 @@ QModelIndex QTreeWidget::indexFromItem(QTreeWidgetItem *item, int column) const
 QTreeWidgetItem *QTreeWidget::itemFromIndex(const QModelIndex &index) const
 {
     Q_D(const QTreeWidget);
-    Q_ASSERT(index.isValid());
     return d->model()->item(index);
 }
 
