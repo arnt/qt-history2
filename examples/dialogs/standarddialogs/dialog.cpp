@@ -202,6 +202,7 @@ void Dialog::setColor()
     if (color.isValid()) {
         colorLabel->setText(color.name());
         colorLabel->setPalette(QPalette(color));
+        colorLabel->setAutoFillBackground(true);
     }
 }
 
