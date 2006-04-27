@@ -620,16 +620,6 @@ bool Parser::parseCombinator(BasicSelector::Relation *relation)
     return true;
 }
 
-bool Parser::parseUnaryOperator(Value::UnaryOperator *op)
-{
-    switch (lookup()) {
-        case MINUS: *op = Value::OperatorMinus; break;
-        case PLUS: *op = Value::OperatorPlus; break;
-        default: return false;
-    }
-    return true;
-}
-
 bool Parser::parseProperty(Declaration *decl)
 {
     decl->property = lexem();
@@ -861,7 +851,7 @@ bool Parser::parseExpr(QVector<Value> *values)
 
 bool Parser::testTerm()
 {
-    return testUnaryOperator()
+    return test(PLUS) || test(MINUS)
            || test(NUMBER)
            || test(PERCENTAGE)
            || test(LENGTH)
@@ -873,15 +863,15 @@ bool Parser::testTerm()
 
 bool Parser::parseTerm(Value *value)
 {
+    QString str = lexem();
     bool haveUnary = false;
-    if (lookupUnaryOperator()) {
-        if (!parseUnaryOperator(&value->unaryOperator)) return false;
+    if (lookup() == PLUS || lookup() == MINUS) {
         haveUnary = true;
         if (!hasNext()) return false;
         next();
+        str += lexem();
     }
 
-    QString str = lexem();
     value->variant = str;
     value->type = QCss::Value::String;
     switch (lookup()) {

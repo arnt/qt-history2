@@ -86,15 +86,9 @@ struct Q_INTERNAL_EXPORT Value
         TermOperatorSlash,
         TermOperatorComma
     };
-    enum UnaryOperator {
-        NoOperator,
-        OperatorPlus,
-        OperatorMinus
-    };
-    inline Value() : type(Unknown), unaryOperator(NoOperator) { }
+    inline Value() : type(Unknown) { }
     Type type;
     QVariant variant;
-    UnaryOperator unaryOperator;
 };
 
 struct Q_INTERNAL_EXPORT Declaration
@@ -278,7 +272,6 @@ public:
     bool parsePseudoPage(QString *selector);
     bool parseNextOperator(Value *value);
     bool parseCombinator(BasicSelector::Relation *relation);
-    bool parseUnaryOperator(Value::UnaryOperator *op);
     bool parseProperty(Declaration *decl);
     bool parseRuleset(StyleRule *styleRule);
     bool parseSelector(Selector *sel);
@@ -316,8 +309,6 @@ public:
     inline bool testExpr() { return testTerm(); }
     inline bool parseNextExpr(QVector<Value> *values) { if (!testExpr()) return recordError(); return parseExpr(values); }
     bool testPrio();
-    inline bool testUnaryOperator() { return test(MINUS) || test(PLUS); }
-    inline bool lookupUnaryOperator() { return lookup() == MINUS || lookup() == PLUS; }
     inline bool testHexColor() { return test(HASH); }
     inline bool testFunction() { return test(FUNCTION); }
     inline bool parseNextFunction(QString *name, QString *args) { if (!testFunction()) return recordError(); return parseFunction(name, args); }
