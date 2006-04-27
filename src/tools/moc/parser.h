@@ -28,7 +28,7 @@ public:
     QStack<QByteArray> currentFilenames;
 
     inline bool hasNext() const { return (index < symbols.size()); }
-    inline Token next() { return symbols.at(index++).token; }
+    inline Token next() { if (index >= symbols.size()) return NOTOKEN; return symbols.at(index++).token; }
     bool test(Token);
     void next(Token);
     void next(Token, const char *msg);
