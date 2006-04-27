@@ -1666,21 +1666,30 @@ QString QDir::currentPath()
 /*!
     Returns the user's home directory.
 
-    Under Windows the directory returned will be the directory of the current
-    user's profile, which often have the form 
+    Under Windows this function will return the directory of the
+    current user's profile. Typically, this is:
+
     \code
-    C:\Documents and Settings\Username
+        C:\Documents and Settings\Username
     \endcode
 
-    If that does not exist or cannot be retrieved, the \c USERPROFILE environment variable is used. If
-    this does not exist the path is formed by concatenating the \c
-    HOMEDRIVE and \c HOMEPATH environment variables. 
-    If they don't exist the \c HOME environment variable is used. 
-    If that don't exist the rootPath() is used (this uses the \c SystemDrive
-    environment variable). If none of these exist "C:\" is used.
+    If the directory of the current user's profile does not exist or
+    cannot be retrieved, the following alternatives will be probed (in
+    the given order) until an existing and available path is found:
+
+    \list 1
+    \o The path specified by the \c USERPROFILE environment variable.
+    \o The path formed by concatenating the \c HOMEDRIVE and \c HOMEPATH
+    environment variables.
+    \o The path specified by the \c HOME environment variable.
+    \o The path returned by the rootPath() function (which uses the \c SystemDrive
+    environment variable)
+    \o  The "C:\" directory.
+    \endlist
 
     Under non-Windows operating systems the \c HOME environment
-    variable is used if it exists, otherwise rootPath() is used.
+    variable is used if it exists, otherwise the path returned by the
+    rootPath() function is used.
 
     \sa home() drives() currentPath() rootPath() tempPath()
 */
@@ -2116,7 +2125,7 @@ QDebug operator<<(QDebug debug, QDir::Filters filters)
 {
     QStringList flags;
     if (filters == QDir::NoFilter) {
-        flags << "NoFilter";        
+        flags << "NoFilter";
     } else {
         if (filters & QDir::Dirs) flags << "Dirs";
         if (filters & QDir::AllDirs) flags << "AllDirs";
