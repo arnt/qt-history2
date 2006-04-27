@@ -49,7 +49,7 @@
 
     \code
         QPainter painter(this);
-        QPen pen(Qt::green, 3, Qt::DashDotLine, Qt::RoundCap. Qt::RoundJoin);
+        QPen pen(Qt::green, 3, Qt::DashDotLine, Qt::RoundCap, Qt::RoundJoin);
         painter.setPen(pen);
     \endcode
 
