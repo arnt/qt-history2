@@ -743,8 +743,8 @@ bool Parser::parseClass(QString *name)
 bool Parser::parseElementName(QString *name)
 {
     switch (lookup()) {
-        case IDENT:
-        case STAR: *name = lexem(); break;
+        case STAR: name->clear(); break;
+        case IDENT: *name = lexem(); break;
         default: return false;
     }
     return true;
