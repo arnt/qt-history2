@@ -1604,10 +1604,13 @@ static bool matchRule(const QCss::StyleRule &rule, QTextHtmlParserNode *node, co
                 if (!matched)
                     continue;
             }
+            
+            if (!sel.elementName.isEmpty()
+                && sel.elementName != node->tag)
+                    continue;
 
             if (sel.relationToNext == QCss::BasicSelector::NoRelation
-                && sel.ids.isEmpty() && sel.pseudoClasses.isEmpty()
-                && sel.elementName == node->tag)
+                && sel.ids.isEmpty() && sel.pseudoClasses.isEmpty())
                     return true;
             }
     }
