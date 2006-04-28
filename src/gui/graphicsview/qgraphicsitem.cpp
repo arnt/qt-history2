@@ -355,7 +355,7 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
     }
     if (parent == d->parent)
         return;
-    
+
     if (d->parent) {
         // Remove from current parent
         if (d->parent == parent)
@@ -434,7 +434,7 @@ void QGraphicsItem::setFlags(GraphicsItemFlags flags)
             clearFocus();
         if (!(d->flags & ItemIsSelectable) && isSelected())
             setSelected(false);
-        
+
         update();
     }
 }
@@ -472,7 +472,7 @@ bool QGraphicsItem::isVisible() const
 
     Items are visible by default; it is unnecessary to call setVisible(true)
     on a new item.
-    
+
     \sa isVisible()
 */
 void QGraphicsItem::setVisible(bool visible)
@@ -490,7 +490,7 @@ void QGraphicsItem::setVisible(bool visible)
         d->visible = quint32(visible);
         update();
 
-        foreach (QGraphicItem *child, children())
+        foreach (QGraphicsItem *child, children())
             child->setVisible(visible);
     }
 }
@@ -519,7 +519,7 @@ bool QGraphicsItem::isEnabled() const
 
     Disabled items are traditionally drawn using grayed-out colors (see \l
     QPalette::Disabled).
-    
+
     Items are enabled by default.
 
     \sa isEnabled()
@@ -539,7 +539,7 @@ void QGraphicsItem::setEnabled(bool enabled)
         d->enabled = quint32(enabled);
         update();
 
-        foreach (QGraphicItem *child, children())
+        foreach (QGraphicsItem *child, children())
             child->setEnabled(enabled);
     }
 }
@@ -548,7 +548,7 @@ void QGraphicsItem::setEnabled(bool enabled)
     Returns true if this item is selected; otherwise, false is returned.
 
     Items are not selected by default.
-    
+
     \sa setSelected(), QGraphicsScene::setSelectionArea()
 */
 bool QGraphicsItem::isSelected() const
@@ -572,7 +572,7 @@ bool QGraphicsItem::isSelected() const
     the selected state of an item. However, a more common way of selecting
     items is to call QGraphicsScene::setSelectionArea(), which will call this
     function for all items within a specified area on the scene.
-    
+
     \sa isSelected(), QGraphicsScene::selectedItems()
 */
 void QGraphicsItem::setSelected(bool selected)
@@ -595,7 +595,7 @@ void QGraphicsItem::setSelected(bool selected)
     By default, all items accept mouse events. If the item does not accept
     mouse events, QGraphicsScene will forward the mouse events to the first
     item beneith it that does accept mouse events.
-    
+
     \sa setAcceptsMouseEvents(), setAcceptsHoverEvents()
 */
 bool QGraphicsItem::acceptsMouseEvents() const
@@ -808,7 +808,7 @@ QMatrix QGraphicsItem::sceneMatrix() const
     If \a combine is true, then \a matrix is combined with the current matrix;
     otherwise, \a matrix \e replaces the current matrix. \a combine is false
     by default.
-    
+
     To simplify interation with items using a transformed view, QGraphicsItem
     provides mapTo... and mapFrom... functions that can translate between
     items' and the scene's coordinates. For example, you can call mapToScene()
@@ -893,7 +893,7 @@ void QGraphicsItem::translate(qreal dx, qreal dy)
     the stacking order of sibling (neighboring) items.
 
     The default Z-value is 0.
-    
+
     \sa setZValue()
 */
 qreal QGraphicsItem::zValue() const
@@ -1024,7 +1024,7 @@ bool QGraphicsItem::contains(const QPointF &point) const
     Keep in mind that when reimplementing this function and calling shape() or
     boundingRect() on \a other, the returned coordinates must be mapped to
     this item's coordinate system before any intersection can take place.
-    
+
     \sa contains(), shape()
 */
 bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
@@ -1033,7 +1033,7 @@ bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
         return true;
     if (!other)
         return false;
-    
+
     QMatrix matrixA = sceneMatrix();
     QMatrix matrixB = other->sceneMatrix();
 
@@ -1059,7 +1059,7 @@ bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
 bool QGraphicsItem::collidesWith(const QPainterPath &path) const
 {
     QMatrix matrix = sceneMatrix();
-    
+
     QRectF rectA = boundingRect();
     QRectF rectB = path.controlPointRect();
     if (!rectA.intersects(rectB) && !rectA.contains(rectB) && !rectB.contains(rectA)) {
@@ -1234,7 +1234,7 @@ Q_GLOBAL_STATIC(QGraphicsItemCustomDataStore, qt_dataStore);
 
     \code
         static const int ObjectName = 0;
-    
+
         QGraphicsItem *item = scene.itemAt(100, 50);
         if (item->data(ObjectName).toString().isEmpty()) {
             if (qgraphicsitem_cast<ButtonItem *>(item))
@@ -1243,7 +1243,7 @@ Q_GLOBAL_STATIC(QGraphicsItemCustomDataStore, qt_dataStore);
     \endcode
 
     Qt does not use this feature for storing data; it is provided solely
-    for the convenience of the user.    
+    for the convenience of the user.
 
     \sa setData()
 */
@@ -1350,7 +1350,7 @@ void QGraphicsItem::removeEventFilter(QGraphicsItem *filterItem)
     event. Reimplement this function after installing this item as an
     event filter for another item to intersect all the other item's
     events.
-    
+
     \sa installEventFilter()
 */
 bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent *event)
@@ -1371,7 +1371,7 @@ void QGraphicsItem::sceneEvent(QEvent *event)
     Q_D(QGraphicsItem);
     if (!d->enabled || !d->visible)
         return;
-    
+
     switch (event->type()) {
     case QEvent::GraphicsSceneContextMenu:
         contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(event));
@@ -2419,7 +2419,7 @@ QRectF QGraphicsLineItem::boundingRect() const
 {
     Q_D(const QGraphicsLineItem);
     qreal penWidth = d->pen.widthF() / 2.0;
-    
+
     return shape().controlPointRect()
         .adjusted(-penWidth, -penWidth, penWidth, penWidth);
 }
@@ -2443,7 +2443,7 @@ QPainterPath QGraphicsLineItem::shape() const
 bool QGraphicsLineItem::contains(const QPointF &point) const
 {
     Q_D(const QGraphicsLineItem);
-    
+
     const qreal twopi = 3.14159265359 * 2.0;
 
     QLineF hypo = QLineF(d->line.p1(), point);
@@ -2631,7 +2631,7 @@ bool QGraphicsPixmapItem::contains(const QPointF &point) const
     \reimp
 */
 void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                                Widget *widget)
+                                QWidget *widget)
 {
     Q_D(QGraphicsPixmapItem);
     Q_UNUSED(widget);
@@ -2700,7 +2700,7 @@ class QGraphicsTextItemPrivate
 {
 public:
     QTextControl textControl;
-    
+
     QFont font;
     QPen pen;
     QRectF boundingRect;
@@ -2752,7 +2752,7 @@ void QGraphicsTextItem::setText(const QString &text)
     QSizeF size = QFontMetricsF(dd->font).size(Qt::TextShowMnemonic, text);
     size.rheight() += 20;
     size.rwidth() += 15;
-    dd->boundingRect = QRectF(QPointF(), size);    
+    dd->boundingRect = QRectF(QPointF(), size);
     dd->textControl.setPlainText(text);
     dd->textControl.document()->setPageSize(size);
     dd->textControl.setViewport(dd->boundingRect);
