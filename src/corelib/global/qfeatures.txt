@@ -624,7 +624,7 @@ SeeAlso: ???
 Feature: ICON
 Description: Supports scalable icons in different modes and states.
 Section: Images
-Requires: IMAGE_HEURISTIC_MASK
+Requires: 
 Name: QIcon
 SeeAlso: ???
 
@@ -718,7 +718,7 @@ SeeAlso: ???
 Feature: PRINTER
 Description: Supports printing 
 Section: Painting
-Requires: TEXTSTREAM FILEDIALOG
+Requires: TEXTSTREAM
 Name: QPrinter
 SeeAlso: ???
 

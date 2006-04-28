@@ -79,7 +79,9 @@ public:
     void _q_rbPrintRangeToggled(bool);
     void _q_printerChanged(int index);
     void _q_paperSizeChanged(int index);
+#ifndef QT_NO_FILEDIALOG
     void _q_btnBrowseClicked();
+#endif
     void _q_btnPropertiesClicked();
     void refreshPageSizes();
 
@@ -964,7 +966,9 @@ void QPrintDialogPrivate::init()
     QObject::connect(ui.cbPaperSize, SIGNAL(currentIndexChanged(int)),
                      q, SLOT(_q_paperSizeChanged(int)));
 
+#ifndef QT_NO_FILEDIALOG
     QObject::connect(ui.btnBrowse, SIGNAL(clicked()), q, SLOT(_q_btnBrowseClicked()));
+#endif
     QObject::connect(ui.btnProperties, SIGNAL(clicked()), q, SLOT(_q_btnPropertiesClicked()));
 
     if (!p->outputFileName().isEmpty())
@@ -1075,11 +1079,13 @@ void QPrintDialogPrivate::refreshPageSizes()
     ui.cbPaperSize->blockSignals(false);
 }
 
+#ifndef QT_NO_FILEDIALOG
 void QPrintDialogPrivate::_q_btnBrowseClicked()
 {
     Q_Q(QPrintDialog);
     ui.leFile->setText(QFileDialog::getSaveFileName(q, QApplication::translate("PrinterDialog","Print To File ...")));
 }
+#endif
 
 void QPrintDialogPrivate::_q_btnPropertiesClicked()
 {
