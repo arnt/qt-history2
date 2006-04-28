@@ -952,24 +952,22 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         fprintf(stdout, "%s %s %s\n", var.toLatin1().constData(), op.toLatin1().constData(), vals.toLatin1().constData());
     }
 
-    // vallist is the broken up list of values
-    QStringList vallist;
-    {
-        //doVariableReplace(vals, place);
-        QStringList tmp = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
-        for(int i = 0; i < tmp.size(); ++i)
-            vallist += doVariableReplaceExpand(tmp[i], place);
-    }
-    if(!vallist.filter("=").isEmpty())
+    if(vals.contains('='))
         warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
                  var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
 
     QStringList &varlist = place[var]; // varlist is the list in the symbol table
-    debug_msg(1, "Project Parser: %s:%d :%s: :%s: (%s)", parser.file.toLatin1().constData(), parser.line_no,
-              var.toLatin1().constData(), op.toLatin1().constData(), vallist.isEmpty() ? "" : vallist.join(" :: ").toLatin1().constData());
+
+    {
+        QString tmp_vals = vals;
+        doVariableReplace(tmp_vals, place);
+        debug_msg(1, "Project Parser: %s:%d :%s: :%s: (%s)", parser.file.toLatin1().constData(), parser.line_no,
+                  var.toLatin1().constData(), op.toLatin1().constData(), tmp_vals.toLatin1().constData());
+    }
 
     // now do the operation
     if(op == "~=") {
+        doVariableReplace(vals, place);
         if(vals.length() < 4 || vals.at(0) != 's') {
             qmake_error_msg(("~= operator only can handle s/// function ('" +
                             s + "')").toLatin1());
@@ -1011,6 +1009,14 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                          var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
             varlist.clear();
         }
+
+        QStringList vallist;
+        {
+            //doVariableReplace(vals, place);
+            QStringList tmp = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
+            for(int i = 0; i < tmp.size(); ++i)
+                vallist += doVariableReplaceExpand(tmp[i], place);
+        }
         for(QStringList::ConstIterator valit = vallist.begin();
             valit != vallist.end(); ++valit) {
             if((*valit).isEmpty())
@@ -1021,9 +1027,9 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
             else if(op == "-=")
                 varlist.removeAll((*valit));
         }
+        if(var == "REQUIRES") // special case to get communicated to backends!
+            doProjectCheckReqs(vallist, place);
     }
-    if(var == "REQUIRES") // special case to get communicated to backends!
-        doProjectCheckReqs(vallist, place);
     return true;
 }
 
