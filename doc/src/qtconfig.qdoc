@@ -1,14 +1,12 @@
 /*!
     \page qtconfig.html
-    \title Configuring Qt on X11
+    \title Configuring Qt
     \ingroup qttools
     \keyword qtconfig
 
-    \tableofcontents
+    The \c qtconfig tool allows users to customize the default settings for
+    Qt applications on a per-user basis, enabling features such as the widget
+    style to be changed without requiring applications to be recompiled.
 
-    \section1 Introduction
-
-    On platforms where X11 is used to provide an application's GUI, Qt obtains
-    information about the look and feel of the user's display from the desktop
-    environment.
+    \image qtconfig-appearance.png
 */

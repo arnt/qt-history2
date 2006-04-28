@@ -261,6 +261,12 @@ QPrinter *QAbstractPrintDialog::printer() const
 */
 
 /*!
+    \fn QPrintDialog::~QPrintDialog()
+
+    Destroys the print dialog.
+*/
+
+/*!
     \fn int QPrintDialog::exec()
     \reimp
 */

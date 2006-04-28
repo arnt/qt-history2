@@ -166,7 +166,7 @@
     KDE build system\endlink to configure your application. This ensures
     that your icons are installed in the appropriate locations for KDE.
 
-    The KDE developer website is \l{http://developer.kde.org/}.
+    The KDE developer website is at \l{http://developer.kde.org/}.
 
     \section2 GNOME
 
@@ -193,5 +193,5 @@
     Application Development book\endlink. This ensures that your icons are
     installed in the appropriate locations for GNOME.
 
-    The GNOME developer website is \l{http://developer.gnome.org/}.
+    The GNOME developer website is at \l{http://developer.gnome.org/}.
 */

@@ -44,7 +44,7 @@
          \o Generate C++ code from user interface files.
     \row \o \l{Resource Compiler (rcc)}
          \o Embed resources into Qt applications during the build process.
-    \row \o \l{Configuring Qt on X11}{Configuring Qt on X11 (qtconfig)}
+    \row \o \l{Configuring Qt}{Configuring Qt (qtconfig)}
          \o Unix-based Qt configuration tool with online help.
     \endtable
 
