@@ -1059,7 +1059,11 @@ void QWidgetPrivate::show_sys()
     if (IsZoomed(q->winId()))
         data.window_state |= Qt::WindowMaximized;
 
-    UpdateWindow(q->winId());
+    // synchronously repaint windows, i.e. splashscreen
+    // child widgets get the paint event through the
+    // backingstore
+    if (q->isWindow())
+        UpdateWindow(q->winId());
     invalidateBuffer(q->rect());
 }
 
@@ -1103,8 +1107,13 @@ void QWidget::show_sys()
     ShowWindow(winId(), sm);
     if (isWindow() && sm == SW_SHOW)
         SetForegroundWindow(winId());
-    UpdateWindow(winId());
-    if(!q->isWindow())
+
+    // synchronously repaint windows, i.e. splashscreen
+    // child widgets get the paint event through the
+    // backingstore
+    if (q->isWindow())
+        UpdateWindow(winId());
+    else
         invalidateBuffer(q->rect());
 }
 
