@@ -1463,9 +1463,6 @@ void QTextEdit::selectAll()
     d->cursor.select(QTextCursor::Document);
     d->selectionChanged();
     d->viewport->update();
-#ifndef QT_NO_CLIPBOARD
-    d->setClipboardSelection();
-#endif
 }
 
 /*! \internal
