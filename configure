@@ -4490,8 +4490,8 @@ CACHEFILE="$outpath/.qmake.cache"
 [ -f "$CACHEFILE.tmp" ] && rm -f "$CACHEFILE.tmp"
 cat >>"$CACHEFILE.tmp" <<EOF
 CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath fix_output_dirs QTDIR_build
-QT_SOURCE_TREE = $relpath
-QT_BUILD_TREE = $outpath
+QT_SOURCE_TREE = \$\$quote($relpath)
+QT_BUILD_TREE = \$\$quote($outpath)
 QT_BUILD_PARTS = $CFG_BUILD_PARTS
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
 QMAKE_MOC_SRC    = \$\$QT_BUILD_TREE/src/moc
@@ -4543,6 +4543,7 @@ fi
 
 # cmdline args
 cat "$QMAKE_VARS_FILE" >> "$CACHEFILE.tmp"
+rm -f "$QMAKE_VARS_FILE" 2>/dev/null
 
 # incrementals
 INCREMENTAL=""
