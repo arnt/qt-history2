@@ -51,6 +51,7 @@ void QTextEditMimeData::setup() const
 #include <qtimer.h>
 #include "private/qtextdocumentlayout_p.h"
 #include "qtextdocument.h"
+#include "private/qtextdocument_p.h"
 #include "qtextlist.h"
 
 #include <qtextformat.h>
@@ -439,15 +440,6 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
     // avoid multiple textChanged() signals being emitted
     QObject::disconnect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
 
-    if (clearDocument) {
-        doc->clear();
-
-        cursor.movePosition(QTextCursor::Start);
-        QTextBlockFormat blockFmt;
-        blockFmt.setLayoutDirection(q->layoutDirection());
-        cursor.setBlockFormat(blockFmt);
-    }
-
     if (!text.isEmpty()) {
         // clear 'our' cursor for insertion to prevent
         // the emission of the cursorPositionChanged() signal.
@@ -457,16 +449,23 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
         // document.
         cursor = QTextCursor();
         if (format == Qt::PlainText) {
-            QTextCursor insertionCursor(doc);
-            insertionCursor.setCharFormat(charFormatForInsertion);
-            insertionCursor.insertText(text);
+            doc->setPlainText(text);
+            QTextCursor formatCursor(doc);
+            formatCursor.select(QTextCursor::Document);
+            formatCursor.setCharFormat(charFormatForInsertion);
         } else {
             doc->setHtml(text);
         }
         cursor = QTextCursor(doc);
-    } else {
-        // preserve the char format across clear()
+    } else if (clearDocument) {
+        doc->clear();
+    }
+
+    if (clearDocument) {
         cursor.movePosition(QTextCursor::Start);
+        QTextBlockFormat blockFmt;
+        blockFmt.setLayoutDirection(q->layoutDirection());
+        cursor.setBlockFormat(blockFmt);
         cursor.setCharFormat(charFormatForInsertion);
     }
 
