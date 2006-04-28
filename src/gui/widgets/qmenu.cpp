@@ -1365,29 +1365,26 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     QPoint mouse = QCursor::pos();
     const bool snapToMouse = (p == mouse);
 
+    //handle popup falling "off screen"
     if (qApp->layoutDirection() == Qt::RightToLeft) {
-        if(snapToMouse) {
-            // Ensure that the menu is visible when the menu is opened at the
-            // mouse cursor position (e.g., a context menu), and if we are in
-            // reverse layout mode, "flip" it so it opens to the left instead of
-            // the right.
-            pos.setX(pos.x()-size.width());
-        }
+        if(snapToMouse) //position flowing left from the mouse
+            pos.setX(mouse.x()-size.width());
 
-        //handle popup falling "off screen"
-        if (pos.x() < screen.left())
-            pos.setX(pos.x()-size.width());
-        else if (pos.x()+size.width() > screen.right())
-            pos.setX(qMax(pos.x()-size.width(), screen.right()-size.width()));
+        if (pos.x() < screen.left()+desktopFrame)
+            pos.setX(qMax(p.x(), screen.left()+desktopFrame));
+        else if (pos.x()+size.width() > screen.right()-desktopFrame)
+            pos.setX(qMax(p.x()-size.width(), screen.right()-desktopFrame-size.width()));
     } else {
-        //handle popup falling "off screen"
-        if (pos.x()+size.width() > screen.right())
-            pos.setX(qMax(p.x()-size.width(), screen.right()-size.width()));
-        else if (pos.x() < screen.left())
+        if (pos.x()+size.width() > screen.right()-desktopFrame)
+            pos.setX(qMin(p.x()-size.width(), screen.right()-desktopFrame-size.width()));
+        else if (pos.x() < screen.left()+desktopFrame)
             pos.setX(p.x());
     }
     if (pos.y() + size.height() > screen.bottom() - desktopFrame) {
-        pos.setY(qMax(mouse.y()- (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()));
+        if(snapToMouse)
+            pos.setY(qMin(mouse.y() - (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()));
+        else
+            pos.setY(qMax(p.y() - (size.height() + desktopFrame), screen.bottom()-desktopFrame-size.height()));
     } else if (pos.y() < screen.top() + desktopFrame) {
         pos.setY(screen.top() + desktopFrame);
     }
