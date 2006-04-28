@@ -645,7 +645,7 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
 bool QEventDispatcherWin32::unregisterTimer(int timerId)
 {
     if (timerId < 1) {
-        qWarning("QEventDispatcherUNIX::unregisterTimer: invalid argument");
+        qWarning("QEventDispatcherWin32::unregisterTimer: invalid argument");
         return false;
     }
     QThread *currentThread = QThread::currentThread();
@@ -683,7 +683,7 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
 bool QEventDispatcherWin32::unregisterTimers(QObject *object)
 {
     if (!object) {
-        qWarning("QEventDispatcherUNIX::unregisterTimers: invalid argument");
+        qWarning("QEventDispatcherWin32::unregisterTimers: invalid argument");
         return false;
     }
     QThread *currentThread = QThread::currentThread();
@@ -724,7 +724,7 @@ QList<QEventDispatcherWin32::TimerInfo>
 QEventDispatcherWin32::registeredTimers(QObject *object) const
 {
     if (!object) {
-        qWarning("QEventDispatcherUNIX:registeredTimers: invalid argument");
+        qWarning("QEventDispatcherWin32:registeredTimers: invalid argument");
         return QList<TimerInfo>();
     }
 
