@@ -309,7 +309,6 @@ private:
 
     void emitBlockAttributes(const QTextBlock &block);
     bool emitCharFormatStyle(const QTextCharFormat &format);
-    bool emitLogicalFontSize(const QTextCharFormat &format);
     void emitTextLength(const char *attribute, const QTextLength &length);
     void emitAlignment(Qt::Alignment alignment);
     void emitFloatStyle(QTextFrameFormat::Position pos, StyleMode mode = EmitStyleTag);

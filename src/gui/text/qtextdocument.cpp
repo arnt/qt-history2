@@ -1266,6 +1266,21 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         html += QString::number(format.fontPointSize());
         html += QLatin1String("pt;");
         attributesEmitted = true;
+    } else if (format.hasProperty(QTextFormat::FontSizeAdjustment)) {
+        static const char * const sizeNames[] = {
+            "small", "medium", "large", "x-large", "xx-large"
+        };
+        const char *name = 0;
+        const int idx = format.intProperty(QTextFormat::FontSizeAdjustment) + 1;
+        if (idx >= 0 && idx <= 4) {
+            name = sizeNames[idx];
+        }
+        if (name) {
+            html += QLatin1String(" font-size:");
+            html += QLatin1String(name);
+            html += QLatin1Char(';');
+            attributesEmitted = true;
+        }
     }
 
     if (format.fontWeight() != defaultCharFormat.fontWeight()) {
@@ -1350,19 +1365,6 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
     }
 
     return attributesEmitted;
-}
-
-bool QTextHtmlExporter::emitLogicalFontSize(const QTextCharFormat &format)
-{
-    if (!format.hasProperty(QTextFormat::FontSizeAdjustment))
-        return false;
-
-    int logSize = 3 + format.property(QTextFormat::FontSizeAdjustment).toInt();
-    html += QLatin1String("<font size=\"");
-    html += QString::number(logSize);
-    html += QLatin1String("\">");
-
-    return true;
 }
 
 void QTextHtmlExporter::emitTextLength(const char *attribute, const QTextLength &length)
@@ -1464,10 +1466,6 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     else
         html.chop(qstrlen(styleTag.latin1()));
 
-    // qt 4.0.0's parser only supports logical font sizes through the
-    // font tag, not through css, so we have to emit <font> here ;(
-    const bool emittedFontTag = emitLogicalFontSize(format);
-
     QString txt = fragment.text();
     if (txt.count() == 1 && txt.at(0) == QChar::ObjectReplacementCharacter) {
         if (format.isImageFormat()) {
@@ -1505,9 +1503,6 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
             html += lines.at(i);
         }
     }
-
-    if (emittedFontTag)
-        html += QLatin1String("</font>");
 
     if (attributesEmitted)
         html += QLatin1String("</span>");
@@ -1650,8 +1645,6 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
     const QTextCharFormat blockCharFmt = block.charFormat();
     const QTextCharFormat diff = formatDifference(defaultCharFormat, blockCharFmt).toCharFormat();
 
-    const bool emittedFontTag = emitLogicalFontSize(diff);
-
     defaultCharFormat.merge(blockCharFmt);
 
     QTextBlock::Iterator it = block.begin();
@@ -1663,9 +1656,6 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 
     if (fragmentMarkers && block.position() + block.length() == doc->docHandle()->length())
         html += QLatin1String("<!--EndFragment-->");
-
-    if (emittedFontTag)
-        html += QLatin1String("</font>");
 
     if (pre)
         html += QLatin1String("</pre>");
