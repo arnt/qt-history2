@@ -38,6 +38,14 @@
     operate in local coordinates, as it returns a position in parent
     coordinates.
 
+    You can set whether an item should be visible (i.e., drawn, and accepting
+    events), by calling setVisible(). Hiding an item will also hide its
+    children. Similarily, you can enable or disable an item by calling
+    setEnabled(). If you disable an item, all its children will also be
+    disabled. By default, items are both visible and enabled. To toggle
+    whether an item is selected or not, call setSelected(). Normally,
+    selection is toggled by the scene, as a result of user interaction.
+
     To write your own graphics item, you first create a subclass of
     QGraphicsItem, and then start by implementing its two pure virtual public
     functions: boundingRect(), which returns an estimate of the area painted
@@ -66,7 +74,94 @@
     The boundingRect() function has many different purposes. QGraphicsScene
     bases its item index on boundingRect(), and QGraphicsView uses it both for
     culling invisible items, and for determining the area that needs to be
-    recomposed when drawing overlapping items.
+    recomposed when drawing overlapping items. In addition, QGraphicsItem's
+    collision detection mechanisms use boundingRect() to provide an efficient
+    cut-off. The fine grained collision algorithm in collidesWith() is based
+    on calling shape(), which returns an accurate outline of the item's shape
+    as a QPainterPath.
+
+    Collision detection can be done in two ways:
+
+    \list 1
+
+    \o Reimplement shape() to return an accurate shape for your item, and rely
+    on the default implementation of collidesWith() to do shape-shape
+    intersection. This can be rather expensive if the shapes are complex.
+
+    \o Reimplement collidesWith() to provide your own custom item and shape
+    collision algorithm.
+
+    \endlist
+
+    The contains() function can be called to determine whether the item \e
+    contains a point or not. This function can also be reimplemented by the
+    item. The default behavior of contains() is based on calling shape().
+
+    Items can contain other items, and also be contained by other items. All
+    items can have a parent item and a list of children. Unless the item has
+    no parent, its position is in \e parent coordinates (i.e., the parent's
+    local coordinates). Parent items propagate both their position and their
+    transformation to all children.
+
+    QGraphicsItem supports affine transformations in addition to its base
+    position, pos(). To change the item's transformation, you can either pass
+    a transformation matrix to setMatrix(), or call one of the convenience
+    functions rotate(), scale(), translate(), or shear(). Item transformations
+    accumulate from parent to child, so if both a parent and child item are
+    rotated 90 degrees, the child's total transformation will be 180 degrees.
+    Similarily, if the item's parent is scaled to 2x its original size, its
+    children will also be twice as large. An item's transformation does not
+    affect its own local geometry; all geometry functions (e.g., contains(),
+    update(), and all the mapping functions) still operate in local
+    coordinates. For convenience, QGraphicsItem provides the functions
+    sceneMatrix(), which returns the item's total transformation matrix
+    (including its position and all parents' positions and transformations),
+    and scenePos(), which returns its position in scene coordinates. To reset
+    an item's matrix, call resetMatrix().
+
+    The paint() function is called by QGraphicsView to paint the item's
+    contents. The item has no background or default fill of its own; whatever
+    is behind the item will shine through all areas that are not explicitly
+    painted in this function.  You can call update() to schedule a repaint,
+    optionally passing the rectangle that needs a repaint. Depending on
+    whether or not the item is visible in a view, the item may or may not be
+    repainted; there is no equivalent to QWidget::repaint() in QGraphicsItem.
+
+    Items are painted by the view, starting with the parent items and then
+    drawing children, in ascending stacking order. You can set an item's
+    stacking order by calling setZValue(), and test it by calling
+    zValue(). Stacking order applies to sibling items; parents are always
+    drawn before their children.
+
+    QGraphicsItem receives events from QGraphicsScene through the virtual
+    function sceneEvent(). This function distributes the most common events
+    to a set of convenience event handlers:
+
+    \list
+    \o contextMenuEvent() handles context menu events
+    \o focusEvent() handles both focus in and out events
+    \o hoverEvent() handles hover enter, move and leave events
+    \o inputMethodEvent() handles input events, for accessibility support
+    \o keyEvent() handles key press and release events
+    \o mouseEvent() handles mouse press, move, release, click and doubleclick events
+    \endlist
+
+    You can filter events for any other item by installing event filters.
+    This functionaly is separate from from Qt's regular event filters, (see
+    QObject::installEventFilter(),) which only work on subclasses of QObject.
+    After installing your item as an event filter for another item by calling
+    installEventFilter(), the filtered events will be received by the virtual
+    function sceneEventFilter(). You can remove item event filters by calling
+    removeEventFilter().
+
+    Sometimes it's useful to register custom data with an item, be it a custom
+    item, or a standard item. You can call setData() on any item to store data
+    in it using a key-value pair (the key being an integer, and the value is a
+    QVariant). To get custom data from an item, call data(). This
+    functionality is completely untouched by Qt itself; it is provided for the
+    user's convenience.
+
+    \sa QGraphicsScene, QGraphicsView
 */
 
 /*!
@@ -394,6 +489,9 @@ void QGraphicsItem::setVisible(bool visible)
         }
         d->visible = quint32(visible);
         update();
+
+        foreach (QGraphicItem *child, children())
+            child->setVisible(visible);
     }
 }
 
@@ -440,6 +538,9 @@ void QGraphicsItem::setEnabled(bool enabled)
         }
         d->enabled = quint32(enabled);
         update();
+
+        foreach (QGraphicItem *child, children())
+            child->setEnabled(enabled);
     }
 }
 
@@ -910,14 +1011,20 @@ bool QGraphicsItem::contains(const QPointF &point) const
     if either item is contained within the other's area.
 
     The default implementation is based on shape intersection, and it calls
-    shape() on both items. Because arbitrary shape-shape intersection grows
-    with an order of magnitude of complexity, this operation can be noticably
-    time consuming. You have the option of reimplementing this function in a
-    subclass of QGraphicsItem to provide a custom algorithm. This allows you
-    to make use of natural constraints in the shapes of your own items. For
-    instance, two untransformed perfectly circular items' collision can be
-    determined very efficiently by comparing positions and radii.
+    shape() on both items. Because the complexity of arbitrary shape-shape
+    intersection grows with an order of magnitude when the shapes are complex,
+    this operation can be noticably time consuming. You have the option of
+    reimplementing this function in a subclass of QGraphicsItem to provide a
+    custom algorithm. This allows you to make use of natural constraints in
+    the shapes of your own items, in order to improve the performance of the
+    collision detection. For instance, two untransformed perfectly circular
+    items' collision can be determined very efficiently by comparing their
+    positions and radii.
 
+    Keep in mind that when reimplementing this function and calling shape() or
+    boundingRect() on \a other, the returned coordinates must be mapped to
+    this item's coordinate system before any intersection can take place.
+    
     \sa contains(), shape()
 */
 bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
@@ -1514,6 +1621,23 @@ void QGraphicsItem::removeFromIndex()
         d->scene->d_func()->removeFromIndex(this);
 }
 
+/*!
+    \class QAbstractGraphicsPathItem
+    \brief The QAbstractGraphicsPathItem class provides a common base for
+    all path items.
+
+    This class does not fully implement an item by itself; in particular, it
+    does not implement boundingRect() and paint(), which are inherited by
+    QGraphicsItem.
+
+    You can subclass this item to provide a simple base implementation of
+    accessors for the item's pen and brush.
+
+    \sa QGraphicsRectItem, QGraphicsEllipseItem, QGraphicsPathItem,
+    QGraphicsPolygonItem, QGraphicsTextItem, QGraphicsLineItem,
+    QGraphicsPixmapItem
+*/
+
 class QAbstractGraphicsPathItemPrivate : public QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractGraphicsPathItem)
@@ -1523,44 +1647,94 @@ public:
     QPen pen;
 };
 
+/*!
+    Constructs a QAbstractGraphicsPathItem. \a parent is passed to
+    QGraphicsItem's constructor.
+*/
 QAbstractGraphicsPathItem::QAbstractGraphicsPathItem(QGraphicsItem *parent)
     : QGraphicsItem(parent)
 {
 }
 
+/*!
+    \internal
+*/
 QAbstractGraphicsPathItem::QAbstractGraphicsPathItem(QAbstractGraphicsPathItemPrivate &dd,
                                                      QGraphicsItem *parent)
     : QGraphicsItem(dd, parent)
 {
 }
 
+/*!
+    Destroys a QAbstractGraphicsPathItem.
+*/
 QAbstractGraphicsPathItem::~QAbstractGraphicsPathItem()
 {
 }
 
+/*!
+    Returns the item's pen. If no pen has been set, this function returns
+    QPen(), a default black solid line pen with 0 width.
+*/
 QPen QAbstractGraphicsPathItem::pen() const
 {
     Q_D(const QAbstractGraphicsPathItem);
     return d->pen;
 }
 
+/*!
+    Sets the pen for this item to \a pen.
+
+    The pen is used to draw the item's outline.
+
+    \sa pen()
+*/
 void QAbstractGraphicsPathItem::setPen(const QPen &pen)
 {
     Q_D(QAbstractGraphicsPathItem);
     d->pen = pen;
 }
 
+/*!
+    Returns the item's brush, or an empty brush if no brush has been set.
+
+    \sa setBrush()
+*/
 QBrush QAbstractGraphicsPathItem::brush() const
 {
     Q_D(const QAbstractGraphicsPathItem);
     return d->brush;
 }
 
+/*!
+    Sets the item's brush to \a brush.
+
+    The item's brush is used to fill the item.
+
+    \sa brush()
+*/
 void QAbstractGraphicsPathItem::setBrush(const QBrush &brush)
 {
     Q_D(QAbstractGraphicsPathItem);
     d->brush = brush;
 }
+
+/*!
+    \class QGraphicsPathItem
+    \brief The QGraphicsPathItem class provides a path item that you
+    can add to a QGraphicsScene.
+
+    To set the item's path, pass a QPainterPath to QGraphicsPathItem's
+    constructor, or call setPath(). path() returns the current path.
+
+    QGraphicsPathItem uses the path to provide a reasonable implementation of
+    boundingRect(), shape(), and contains(). The paint() function draws the
+    path using the item's associated pen and brush, which you can set by
+    calling setPen() and setBrush().
+
+    \sa QGraphicsRectItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem
+*/
 
 class QGraphicsPathItemPrivate : public QAbstractGraphicsPathItemPrivate
 {
@@ -1570,6 +1744,10 @@ public:
     QRectF boundingRect;
 };
 
+/*!
+    Constructs a QGraphicsPath item using \a path as the default path.
+    \a parent is passed to QAbstractGraphicsPathItem's constructor.
+*/
 QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path, QGraphicsItem *parent)
     : QAbstractGraphicsPathItem(*new QGraphicsPathItemPrivate, parent)
 {
@@ -1577,16 +1755,30 @@ QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path, QGraphicsItem *pa
         setPath(path);
 }
 
+/*!
+    Destroys the QGraphicsPathItem.
+*/
 QGraphicsPathItem::~QGraphicsPathItem()
 {
 }
 
+/*!
+    Returns the item's path as a QPainterPath. If no item has been set, an
+    empty QPainterPath is returned.
+
+    \sa setPath()
+*/
 QPainterPath QGraphicsPathItem::path() const
 {
     Q_D(const QGraphicsPathItem);
     return d->path;
 }
 
+/*!
+    Sets the item's path to \a path.
+
+    \sa path()
+*/
 void QGraphicsPathItem::setPath(const QPainterPath &path)
 {
     Q_D(QGraphicsPathItem);
@@ -1596,6 +1788,9 @@ void QGraphicsPathItem::setPath(const QPainterPath &path)
     update();
 }
 
+/*!
+    \reimp
+*/
 QRectF QGraphicsPathItem::boundingRect() const
 {
     Q_D(const QGraphicsPathItem);
@@ -1604,18 +1799,28 @@ QRectF QGraphicsPathItem::boundingRect() const
                                     penWidth, penWidth);
 }
 
+/*!
+    \reimp
+*/
 QPainterPath QGraphicsPathItem::shape() const
 {
     Q_D(const QGraphicsPathItem);
     return d->path;
 }
 
+/*!
+    \reimp
+*/
 bool QGraphicsPathItem::contains(const QPointF &point) const
 {
     return QAbstractGraphicsPathItem::contains(point);
 }
 
-void QGraphicsPathItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+/*!
+    \reimp
+*/
+void QGraphicsPathItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                              QWidget *widget)
 {
     Q_D(QGraphicsPathItem);
     Q_UNUSED(widget);
@@ -1630,6 +1835,9 @@ void QGraphicsPathItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     }
 }
 
+/*!
+    \reimp
+*/
 int QGraphicsPathItem::type() const
 {
     return Type;
@@ -1662,6 +1870,23 @@ QVariant QGraphicsPathItem::extension(const QVariant &variant) const
     return QVariant();
 }
 
+/*!
+    \class QGraphicsRectItem
+    \brief The QGraphicsRectItem provides a rectangle item that you
+    can add to a QGraphicsScene.
+
+    To set the item's rectangle, pass a QRectF to QGraphicsRectItem's
+    constructor, or call setRect(). rect() returns the current rectangle.
+
+    QGraphicsRectItem uses the rect and the pen width to provide a reasonable
+    implementation of boundingRect(), shape(), and contains(). The paint()
+    function draws the rectangle using the item's associated pen and brush,
+    which you can set by calling setPen() and setBrush().
+
+    \sa QGraphicsPathItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem
+*/
+
 class QGraphicsRectItemPrivate : public QAbstractGraphicsPathItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsRectItem)
@@ -1669,22 +1894,39 @@ public:
     QRectF rect;
 };
 
+/*!
+    Constructs a QGraphicsRectItem, using \a rect as the default rectangle.
+    \a parent is passed to QAbstractGraphicsPathItem's constructor.
+*/
 QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent)
     : QAbstractGraphicsPathItem(*new QGraphicsRectItemPrivate, parent)
 {
     setRect(rect);
 }
 
+/*!
+    Destroys the QGraphicsRectItem.
+*/
 QGraphicsRectItem::~QGraphicsRectItem()
 {
 }
 
+/*!
+    Returns the item's rectangle.
+
+    \sa setRect()
+*/
 QRectF QGraphicsRectItem::rect() const
 {
     Q_D(const QGraphicsRectItem);
     return d->rect;
 }
 
+/*!
+    Sets the item's rectangle to \a rect.
+
+    \sa rect()
+*/
 void QGraphicsRectItem::setRect(const QRectF &rect)
 {
     Q_D(QGraphicsRectItem);
@@ -1693,6 +1935,9 @@ void QGraphicsRectItem::setRect(const QRectF &rect)
     update();
 }
 
+/*!
+    \reimp
+*/
 QRectF QGraphicsRectItem::boundingRect() const
 {
     Q_D(const QGraphicsRectItem);
@@ -1701,6 +1946,9 @@ QRectF QGraphicsRectItem::boundingRect() const
                             penWidth, penWidth);
 }
 
+/*!
+    \reimp
+*/
 QPainterPath QGraphicsRectItem::shape() const
 {
     Q_D(const QGraphicsRectItem);
@@ -1709,13 +1957,20 @@ QPainterPath QGraphicsRectItem::shape() const
     return path;
 }
 
+/*!
+    \reimp
+*/
 bool QGraphicsRectItem::contains(const QPointF &point) const
 {
     Q_D(const QGraphicsRectItem);
     return d->rect.contains(point);
 }
 
-void QGraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+/*!
+    \reimp
+*/
+void QGraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                              QWidget *widget)
 {
     Q_D(QGraphicsRectItem);
     Q_UNUSED(widget);
@@ -1730,11 +1985,13 @@ void QGraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     }
 }
 
+/*!
+    \reimp
+*/
 int QGraphicsRectItem::type() const
 {
     return Type;
 }
-
 
 /*!
     \internal
@@ -1763,6 +2020,24 @@ QVariant QGraphicsRectItem::extension(const QVariant &variant) const
     return QVariant();
 }
 
+/*!
+    \class QGraphicsEllipseItem
+    \brief The QGraphicsEllipseItem provides an ellipse item that you
+    can add to a QGraphicsScene.
+
+    To set the item's ellipse, pass a QRectF to QGraphicsEllipseItem's
+    constructor, or call setRect(). rect() returns the current ellipse
+    geometry.
+
+    QGraphicsEllipseItem uses the rect and the pen width to provide a
+    reasonable implementation of boundingRect(), shape(), and contains(). The
+    paint() function draws the ellipse using the item's associated pen and
+    brush, which you can set by calling setPen() and setBrush().
+
+    \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsPolygonItem,
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem
+*/
+
 class QGraphicsEllipseItemPrivate : public QAbstractGraphicsPathItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsEllipseItem)
@@ -1770,22 +2045,42 @@ public:
     QRectF rect;
 };
 
+/*!
+    Constructs a QGraphicsEllipseItem using \a rect as the default rectangle.
+    \a parent is passed to QAbstractGraphicsPathItem's constructor.
+*/
 QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *parent)
     : QAbstractGraphicsPathItem(*new QGraphicsEllipseItemPrivate, parent)
 {
     setRect(rect);
 }
 
+/*!
+    Destroys the QGraphicsEllipseItem.
+*/
 QGraphicsEllipseItem::~QGraphicsEllipseItem()
 {
 }
 
+/*!
+    Returns the item's ellipse geometry as a QRectF.
+
+    \sa setRect(), QPainter::drawEllipse()
+*/
 QRectF QGraphicsEllipseItem::rect() const
 {
     Q_D(const QGraphicsEllipseItem);
     return d->rect;
 }
 
+/*!
+    Sets the item's ellipse geometry to \a rect. The rectangle's left edge
+    defines the left edge of the ellipse, and the rectangle's top edge
+    describes the top of the ellipse. The height and width of the rectangle
+    describe the height and width of the ellipse.
+
+    \sa rect(), QPainter::drawEllipse()
+*/
 void QGraphicsEllipseItem::setRect(const QRectF &rect)
 {
     Q_D(QGraphicsEllipseItem);
@@ -1794,6 +2089,9 @@ void QGraphicsEllipseItem::setRect(const QRectF &rect)
     update();
 }
 
+/*!
+    \reimp
+*/
 QRectF QGraphicsEllipseItem::boundingRect() const
 {
     Q_D(const QGraphicsEllipseItem);
@@ -1802,6 +2100,9 @@ QRectF QGraphicsEllipseItem::boundingRect() const
                             penWidth, penWidth);
 }
 
+/*!
+    \reimp
+*/
 QPainterPath QGraphicsEllipseItem::shape() const
 {
     Q_D(const QGraphicsEllipseItem);
@@ -1810,12 +2111,19 @@ QPainterPath QGraphicsEllipseItem::shape() const
     return path;
 }
 
+/*!
+    \reimp
+*/
 bool QGraphicsEllipseItem::contains(const QPointF &point) const
 {
     return QAbstractGraphicsPathItem::contains(point);
 }
 
-void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+/*!
+    \reimp
+*/
+void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                                 QWidget *widget)
 {
     Q_D(QGraphicsEllipseItem);
     Q_UNUSED(widget);
@@ -1830,6 +2138,9 @@ void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     }
 }
 
+/*!
+    \reimp
+*/
 int QGraphicsEllipseItem::type() const
 {
     return Type;
@@ -1863,6 +2174,23 @@ QVariant QGraphicsEllipseItem::extension(const QVariant &variant) const
     return QVariant();
 }
 
+/*!
+    \class QGraphicsPolygonItem
+    \brief The QGraphicsPolygonItem provides a polygon item that you
+    can add to a QGraphicsScene.
+
+    To set the item's polygon, pass a QPolygonF to QGraphicsPolygonItem's
+    constructor, or call setPolygon(). polygon() returns the current polygon.
+
+    QGraphicsPolygonItem uses the polygon and the pen width to provide a
+    reasonable implementation of boundingRect(), shape(), and contains(). The
+    paint() function draws the polygon using the item's associated pen and
+    brush, which you can set by calling setPen() and setBrush().
+
+    \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem
+*/
+
 class QGraphicsPolygonItemPrivate : public QAbstractGraphicsPathItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsPolygonItem)
@@ -1870,22 +2198,40 @@ public:
     QPolygonF polygon;
 };
 
+/*!
+    Constructs a QGraphicsPolygonItem with \a polygon as the default
+    polygon. \a parent is passed to QAbstractGraphicsPathItem's constructor.
+*/
 QGraphicsPolygonItem::QGraphicsPolygonItem(const QPolygonF &polygon, QGraphicsItem *parent)
     : QAbstractGraphicsPathItem(*new QGraphicsPolygonItemPrivate, parent)
 {
     setPolygon(polygon);
 }
 
+/*!
+    Destroys the QGraphicsPolygonItem.
+*/
 QGraphicsPolygonItem::~QGraphicsPolygonItem()
 {
 }
 
+/*!
+    Returns the item's polygon, or an empty polygon if no polygon
+    has been set.
+
+    \sa setPolygon()
+*/
 QPolygonF QGraphicsPolygonItem::polygon() const
 {
     Q_D(const QGraphicsPolygonItem);
     return d->polygon;
 }
 
+/*!
+    Sets the item's polygon to \a polygon.
+
+    \sa polygon()
+*/
 void QGraphicsPolygonItem::setPolygon(const QPolygonF &polygon)
 {
     Q_D(QGraphicsPolygonItem);
@@ -1894,6 +2240,9 @@ void QGraphicsPolygonItem::setPolygon(const QPolygonF &polygon)
     update();
 }
 
+/*!
+    \reimp
+*/
 QRectF QGraphicsPolygonItem::boundingRect() const
 {
     Q_D(const QGraphicsPolygonItem);
@@ -1902,6 +2251,9 @@ QRectF QGraphicsPolygonItem::boundingRect() const
                                 penWidth, penWidth);
 }
 
+/*!
+    \reimp
+*/
 QPainterPath QGraphicsPolygonItem::shape() const
 {
     Q_D(const QGraphicsPolygonItem);
@@ -1910,11 +2262,17 @@ QPainterPath QGraphicsPolygonItem::shape() const
     return path;
 }
 
+/*!
+    \reimp
+*/
 bool QGraphicsPolygonItem::contains(const QPointF &point) const
 {
     return QAbstractGraphicsPathItem::contains(point);
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsPolygonItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_D(QGraphicsPolygonItem);
@@ -1930,11 +2288,13 @@ void QGraphicsPolygonItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     }
 }
 
+/*!
+    \reimp
+*/
 int QGraphicsPolygonItem::type() const
 {
     return Type;
 }
-
 
 /*!
     \internal
@@ -1963,6 +2323,23 @@ QVariant QGraphicsPolygonItem::extension(const QVariant &variant) const
     return QVariant();
 }
 
+/*!
+    \class QGraphicsLineItem
+    \brief The QGraphicsLineItem provides a line item that you can add to a
+    QGraphicsScene.
+
+    To set the item's line, pass a QLineF to QGraphicsLineItem's constructor,
+    or call setLine(). line() returns the current line.
+
+    QGraphicsLineItem uses the line and the pen width to provide a reasonable
+    implementation of boundingRect(), shape(), and contains(). The paint()
+    function draws the line using the item's associated pen, which you can set
+    by calling setPen().
+
+    \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
+    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsPixmapItem
+*/
+
 class QGraphicsLineItemPrivate : public QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsLineItem)
@@ -1971,34 +2348,62 @@ public:
     QPen pen;
 };
 
+/*!
+    Constructs a QGraphicsLineItem, using \a line as the default line.  \a
+    parent is passed to QGraphicsItem's constructor.
+*/
 QGraphicsLineItem::QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent)
     : QGraphicsItem(*new QGraphicsLineItemPrivate, parent)
 {
     setLine(line);
 }
 
+/*!
+    Destroys the QGraphicsLineItem.
+*/
 QGraphicsLineItem::~QGraphicsLineItem()
 {
 }
 
+/*!
+    Returns the item's pen, or QPen() if no pen has been set.
+
+    \sa setPen()
+*/
 QPen QGraphicsLineItem::pen() const
 {
     Q_D(const QGraphicsLineItem);
     return d->pen;
 }
 
+/*!
+    Sets the item's pen to \a pen. If no pen is set, the line will be painted
+    using a black solid 0-width line.
+
+    \sa pen()
+*/
 void QGraphicsLineItem::setPen(const QPen &pen)
 {
     Q_D(QGraphicsLineItem);
     d->pen = pen;
 }
 
+/*!
+    Returns the item's line, or QLineF() if no line has been set.
+
+    \sa setLine()
+*/
 QLineF QGraphicsLineItem::line() const
 {
     Q_D(const QGraphicsLineItem);
     return d->line;
 }
 
+/*!
+    Sets the item's line to \a line.
+
+    \sa line()
+*/
 void QGraphicsLineItem::setLine(const QLineF &line)
 {
     Q_D(QGraphicsLineItem);
@@ -2007,6 +2412,9 @@ void QGraphicsLineItem::setLine(const QLineF &line)
     update();
 }
 
+/*!
+    \reimp
+*/
 QRectF QGraphicsLineItem::boundingRect() const
 {
     Q_D(const QGraphicsLineItem);
@@ -2016,6 +2424,9 @@ QRectF QGraphicsLineItem::boundingRect() const
         .adjusted(-penWidth, -penWidth, penWidth, penWidth);
 }
 
+/*!
+    \reimp
+*/
 QPainterPath QGraphicsLineItem::shape() const
 {
     Q_D(const QGraphicsLineItem);
@@ -2026,6 +2437,9 @@ QPainterPath QGraphicsLineItem::shape() const
     return path;
 }
 
+/*!
+    \reimp
+*/
 bool QGraphicsLineItem::contains(const QPointF &point) const
 {
     Q_D(const QGraphicsLineItem);
@@ -2042,6 +2456,9 @@ bool QGraphicsLineItem::contains(const QPointF &point) const
     return QRectF(d->line.p1(), QSizeF(d->line.dx(), d->line.dy())).normalized().contains(point);
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_D(QGraphicsLineItem);
@@ -2078,11 +2495,13 @@ void QGraphicsLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     }
 }
 
+/*!
+    \reimp
+*/
 int QGraphicsLineItem::type() const
 {
     return Type;
 }
-
 
 /*!
     \internal
@@ -2111,6 +2530,21 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     return QVariant();
 }
 
+/*!
+    \class QGraphicsPixmapItem
+    \brief The QGraphicsPixmapItem provides a pixmap item that you can add to
+    a QGraphicsScene.
+
+    To set the item's pixmap, pass a QPixmap to QGraphicsPixmapItem's
+    constructor, or call setPixmap(). pixmap() returns the current pixmap.
+
+    QGraphicsPixmapItem uses pixmap's optional alpha mask to provide a
+    reasonable implementation of boundingRect(), shape(), and contains().
+
+    \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
+    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem
+*/
+
 class QGraphicsPixmapItemPrivate : public QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsPixmapItem)
@@ -2118,16 +2552,28 @@ public:
     QPixmap pixmap;
 };
 
+/*!
+    Constructs a QGraphicsPixmapItem, using \a pixmap as the default pixmap.
+    \a parent is passed to QGraphicsItem's constructor.
+*/
 QGraphicsPixmapItem::QGraphicsPixmapItem(const QPixmap &pixmap, QGraphicsItem *parent)
     : QGraphicsItem(*new QGraphicsPixmapItemPrivate, parent)
 {
     setPixmap(pixmap);
 }
 
+/*!
+    Destroys the QGraphicsPixmapItem.
+*/
 QGraphicsPixmapItem::~QGraphicsPixmapItem()
 {
 }
 
+/*!
+    Sets the item's pixmap to \a pixmap.
+
+    \sa pixmap()
+*/
 void QGraphicsPixmapItem::setPixmap(const QPixmap &pixmap)
 {
     Q_D(QGraphicsPixmapItem);
@@ -2137,18 +2583,30 @@ void QGraphicsPixmapItem::setPixmap(const QPixmap &pixmap)
     update();
 }
 
+/*!
+    Returns the item's pixmap, or an invalid QPixmap if no pixmap has been
+    set.
+
+    \sa setPixmap()
+*/
 QPixmap QGraphicsPixmapItem::pixmap() const
 {
     Q_D(const QGraphicsPixmapItem);
     return d->pixmap;
 }
 
+/*!
+    \reimp
+*/
 QRectF QGraphicsPixmapItem::boundingRect() const
 {
     Q_D(const QGraphicsPixmapItem);
     return d->pixmap.isNull() ? QRectF() : QRectF(QPointF(0, 0), d->pixmap.size());
 }
 
+/*!
+    \reimp
+*/
 QPainterPath QGraphicsPixmapItem::shape() const
 {
     Q_D(const QGraphicsPixmapItem);
@@ -2161,12 +2619,19 @@ QPainterPath QGraphicsPixmapItem::shape() const
     return path;
 }
 
+/*!
+    \reimp
+*/
 bool QGraphicsPixmapItem::contains(const QPointF &point) const
 {
     return QGraphicsItem::contains(point);
 }
 
-void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+/*!
+    \reimp
+*/
+void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                                Widget *widget)
 {
     Q_D(QGraphicsPixmapItem);
     Q_UNUSED(widget);
@@ -2179,6 +2644,9 @@ void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     }
 }
 
+/*!
+    \reimp
+*/
 int QGraphicsPixmapItem::type() const
 {
     return Type;
@@ -2211,6 +2679,23 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
     return QVariant();
 }
 
+/*!
+    \class QGraphicsTextItem
+    \brief The QGraphicsTextItem provides a text item that you can add to
+    a QGraphicsScene.
+
+    To set the item's text, pass a QString to QGraphicsTextItem's
+    constructor, or call setText(). text() returns the current text.
+
+    QGraphicsTextItem uses the text's formatted size and the associated font
+    and pen width to provide a reasonable implementation of boundingRect(),
+    shape(), and contains(). You can set the font and pen by calling setFont()
+    or setPen().
+
+    \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
+    QGraphicsPixmapItem, QGraphicsPolygonItem, QGraphicsLineItem
+*/
+
 class QGraphicsTextItemPrivate
 {
 public:
@@ -2223,6 +2708,10 @@ public:
     QGraphicsTextItem *qq;
 };
 
+/*!
+    Constructs a QGraphicsTextItem, using \a text as the default text. \a
+    parent is passed to QGraphicsItem's constructor.
+*/
 QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
     : QGraphicsItem(parent), dd(new QGraphicsTextItemPrivate)
 {
@@ -2234,16 +2723,29 @@ QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
             this, SLOT(textChanged()));
 }
 
+/*!
+    Destroys the QGraphicsTextItem.
+*/
 QGraphicsTextItem::~QGraphicsTextItem()
 {
     delete dd;
 }
 
+/*!
+    Returns the item's text, or an empty QString if no text has been set.
+
+    \sa setText()
+*/
 QString QGraphicsTextItem::text() const
 {
     return dd->textControl.toPlainText();
 }
 
+/*!
+    Sets the item's text to \a text.
+
+    \sa text()
+*/
 void QGraphicsTextItem::setText(const QString &text)
 {
     update();
@@ -2257,32 +2759,58 @@ void QGraphicsTextItem::setText(const QString &text)
     update();
 }
 
+/*!
+    Returns the item's font, which is used to render the text.
+
+    \sa setFont(), setPen()
+*/
 QFont QGraphicsTextItem::font() const
 {
     return dd->font;
 }
 
+/*!
+    Sets the font used to render the text item to \a font.
+
+    \sa font(), setPen()
+*/
 void QGraphicsTextItem::setFont(const QFont &font)
 {
     dd->font = font;
 }
 
+/*!
+    Returns the pen used to render the item's text.
+
+    \sa setPen(), font()
+*/
 QPen QGraphicsTextItem::pen() const
 {
     return dd->pen;
 }
 
+/*!
+    Sets the pen used to render the text item to \a pen.
+
+    \sa pen(), setFont()
+*/
 void QGraphicsTextItem::setPen(const QPen &pen)
 {
     dd->pen = pen;
     update();
 }
 
+/*!
+    \reimp
+*/
 QRectF QGraphicsTextItem::boundingRect() const
 {
     return dd->boundingRect;
 }
 
+/*!
+    \reimp
+*/
 QPainterPath QGraphicsTextItem::shape() const
 {
     QPainterPath path;
@@ -2290,12 +2818,19 @@ QPainterPath QGraphicsTextItem::shape() const
     return path;
 }
 
+/*!
+    \reimp
+*/
 bool QGraphicsTextItem::contains(const QPointF &point) const
 {
     return dd->boundingRect.contains(point);
 }
 
-void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                              QWidget *widget)
 {
     Q_UNUSED(widget);
     painter->save();
@@ -2309,11 +2844,17 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     }
 }
 
+/*!
+    \reimp
+*/
 int QGraphicsTextItem::type() const
 {
     return Type;
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::mouseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (hasFocus()) {
@@ -2359,6 +2900,9 @@ void QGraphicsTextItem::mouseEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::keyEvent(QKeyEvent *event)
 {
     switch (event->type()) {
@@ -2373,6 +2917,9 @@ void QGraphicsTextItem::keyEvent(QKeyEvent *event)
     }
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::focusEvent(QFocusEvent *event)
 {
     dd->textControl.setFocus(event->gotFocus());
@@ -2406,11 +2953,17 @@ QVariant QGraphicsTextItem::extension(const QVariant &variant) const
     return QVariant();
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::viewportUpdate(const QRectF &rect)
 {
     update(rect);
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::textChanged()
 {
     QFontMetrics fm(dd->font);

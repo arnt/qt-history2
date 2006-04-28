@@ -14,8 +14,8 @@
 /*!
     \class QGraphicsScene
 
-    \brief The QGraphicsScene class provides a 2D surface for managing a large
-    number of graphical items.
+    \brief The QGraphicsScene class provides a surface for managing a large
+    number of 2D graphical items.
 
     The class serves as a container for QGraphicsItems. It is used together
     with QGraphicsView for visualizing graphical items, such as lines,
@@ -117,6 +117,8 @@
     stays the mouse grabber until it receives a mouse release when no other
     mouse buttons are pressed. You can call mouseGrabberItem() to determine
     what item is currently grabbing the mouse.
+
+    \sa QGraphicsItem, QGraphicsView
 */
 
 /*!
