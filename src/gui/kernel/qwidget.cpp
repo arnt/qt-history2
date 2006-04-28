@@ -4632,7 +4632,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
     bool quitOnClose = q->testAttribute(Qt::WA_QuitOnClose)
                     && (!(q->parentWidget() && q->parentWidget()->isVisible()));
 
-    if (quitOnClose) {
+    if (quitOnClose && QApplication::instance()->d_func()->in_exec) {
         // QApplicationPrivate::_q_tryEmitLastWindowClosed will check if all windows have been closed,
         // emitting QApplication::lastWindowClosed() if necessary
         QMetaObject::invokeMethod(QApplication::instance(),
