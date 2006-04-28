@@ -21,5 +21,6 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
     WidgetGallery gallery;
-    return gallery.exec();
+    gallery.show();
+    return app.exec();
 }
