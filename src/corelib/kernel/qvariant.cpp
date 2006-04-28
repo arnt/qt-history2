@@ -2008,34 +2008,17 @@ QDataStream& operator<<(QDataStream &s, const QVariant::Type p)
     QVariant::Invalid; otherwise returns false.
 */
 
-#define Q_VARIANT_TO(f) \
-Q##f QVariant::to##f() const { \
-    if (d.type == f) \
-        return *v_cast<Q##f >(&d); \
-    Q##f ret; \
-    handler->convert(&d, f, &ret, 0); \
-    return ret; \
-}
+template <typename T>
+inline T qVariantToHelper(const QVariant::Private &d, QVariant::Type t,
+                          const QVariant::Handler *handler, T * = 0)
+{
+    if (d.type == t)
+        return *v_cast<T>(&d);
 
-Q_VARIANT_TO(StringList)
-Q_VARIANT_TO(Date)
-Q_VARIANT_TO(Time)
-Q_VARIANT_TO(DateTime)
-Q_VARIANT_TO(ByteArray)
-Q_VARIANT_TO(Char)
-Q_VARIANT_TO(Url)
-Q_VARIANT_TO(Locale)
-Q_VARIANT_TO(RegExp)
-#ifndef QT_NO_GEOM_VARIANT
-Q_VARIANT_TO(Size)
-Q_VARIANT_TO(SizeF)
-Q_VARIANT_TO(Rect)
-Q_VARIANT_TO(Point)
-Q_VARIANT_TO(PointF)
-Q_VARIANT_TO(LineF)
-Q_VARIANT_TO(Line)
-Q_VARIANT_TO(RectF)
-#endif
+    T ret;
+    handler->convert(&d, t, &ret, 0);
+    return ret;
+}
 
 /*!
     \fn QStringList QVariant::toStringList() const
@@ -2046,6 +2029,10 @@ Q_VARIANT_TO(RectF)
 
     \sa canConvert(), convert()
 */
+QStringList QVariant::toStringList() const
+{
+    return qVariantToHelper<QStringList>(d, StringList, handler);
+}
 
 /*!
     Returns the variant as a QString if the variant has type() \l
@@ -2057,13 +2044,9 @@ Q_VARIANT_TO(RectF)
 */
 QString QVariant::toString() const
 {
-    if (d.type == String)
-        return *reinterpret_cast<const QString *>(&d.data.ptr);
-
-    QString ret;
-    handler->convert(&d, String, &ret, 0);
-    return ret;
+    return qVariantToHelper<QString>(d, String, handler);
 }
+
 /*!
     Returns the variant as a QMap<QString, QVariant> if the variant
     has type() \l Map; otherwise returns an empty map.
@@ -2072,10 +2055,7 @@ QString QVariant::toString() const
 */
 QVariantMap QVariant::toMap() const
 {
-    if (d.type != Map)
-        return QMap<QString, QVariant>();
-
-    return *v_cast<QVariantMap>(&d);
+    return qVariantToHelper<QVariantMap>(d, Map, handler);
 }
 
 /*!
@@ -2089,6 +2069,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QDate QVariant::toDate() const
+{
+    return qVariantToHelper<QDate>(d, Date, handler);
+}
 
 /*!
     \fn QTime QVariant::toTime() const
@@ -2101,6 +2085,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QTime QVariant::toTime() const
+{
+    return qVariantToHelper<QTime>(d, Time, handler);
+}
 
 /*!
     \fn QDateTime QVariant::toDateTime() const
@@ -2114,6 +2102,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QDateTime QVariant::toDateTime() const
+{
+    return qVariantToHelper<QDateTime>(d, DateTime, handler);
+}
 
 /*!
     \fn QByteArray QVariant::toByteArray() const
@@ -2124,7 +2116,12 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QByteArray QVariant::toByteArray() const
+{
+    return qVariantToHelper<QByteArray>(d, ByteArray, handler);
+}
 
+#ifndef QT_NO_GEOM_VARIANT
 /*!
     \fn QPoint QVariant::toPoint() const
 
@@ -2133,6 +2130,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QPoint QVariant::toPoint() const
+{
+    return qVariantToHelper<QPoint>(d, Point, handler);
+}
 
 /*!
     \fn QRect QVariant::toRect() const
@@ -2142,6 +2143,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QRect QVariant::toRect() const
+{
+    return qVariantToHelper<QRect>(d, Rect, handler);
+}
 
 /*!
     \fn QSize QVariant::toSize() const
@@ -2151,6 +2156,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QSize QVariant::toSize() const
+{
+    return qVariantToHelper<QSize>(d, Size, handler);
+}
 
 /*!
     \fn QSizeF QVariant::toSizeF() const
@@ -2160,6 +2169,64 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QSizeF QVariant::toSizeF() const
+{
+    return qVariantToHelper<QSizeF>(d, SizeF, handler);
+}
+
+/*!
+    \fn QRectF QVariant::toRectF() const
+
+    Returns the variant as a QRectF if the variant has type() \l Rect
+    or \l RectF; otherwise returns an invalid QRectF.
+
+    \sa canConvert(), convert()
+*/
+QRectF QVariant::toRectF() const
+{
+    return qVariantToHelper<QRectF>(d, RectF, handler);
+}
+
+/*!
+    \fn QLineF QVariant::toLineF() const
+
+    Returns the variant as a QLineF if the variant has type() \l
+    LineF; otherwise returns an invalid QLineF.
+
+    \sa canConvert(), convert()
+*/
+QLineF QVariant::toLineF() const
+{
+    return qVariantToHelper<QLineF>(d, LineF, handler);
+}
+
+/*!
+    \fn QLine QVariant::toLine() const
+
+    Returns the variant as a QLine if the variant has type() \l Line;
+    otherwise returns an invalid QLine.
+
+    \sa canConvert(), convert()
+*/
+QLine QVariant::toLine() const
+{
+    return qVariantToHelper<QLine>(d, Line, handler);
+}
+
+/*!
+    \fn QPointF QVariant::toPointF() const
+
+    Returns the variant as a QPointF if the variant has type() \l
+    Point or \l PointF; otherwise returns a null QPointF.
+
+    \sa canConvert(), convert()
+*/
+QPointF QVariant::toPointF() const
+{
+    return qVariantToHelper<QPointF>(d, PointF, handler);
+}
+
+#endif // QT_NO_GEOM_VARIANT
 
 /*!
     \fn QUrl QVariant::toUrl() const
@@ -2169,6 +2236,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QUrl QVariant::toUrl() const
+{
+    return qVariantToHelper<QUrl>(d, Url, handler);
+}
 
 /*!
     \fn QLocale QVariant::toLocale() const
@@ -2178,6 +2249,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QLocale QVariant::toLocale() const
+{
+    return qVariantToHelper<QLocale>(d, Locale, handler);
+}
 
 /*!
     \fn QRegExp QVariant::toRegExp() const
@@ -2188,42 +2263,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
-
-/*!
-    \fn QRectF QVariant::toRectF() const
-
-    Returns the variant as a QRectF if the variant has type() \l Rect
-    or \l RectF; otherwise returns an invalid QRectF.
-
-    \sa canConvert(), convert()
-*/
-
-/*!
-    \fn QLineF QVariant::toLineF() const
-
-    Returns the variant as a QLineF if the variant has type() \l
-    LineF; otherwise returns an invalid QLineF.
-
-    \sa canConvert(), convert()
-*/
-
-/*!
-    \fn QLine QVariant::toLine() const
-
-    Returns the variant as a QLine if the variant has type() \l Line;
-    otherwise returns an invalid QLine.
-
-    \sa canConvert(), convert()
-*/
-
-/*!
-    \fn QPointF QVariant::toPointF() const
-
-    Returns the variant as a QPointF if the variant has type() \l
-    Point or \l PointF; otherwise returns a null QPointF.
-
-    \sa canConvert(), convert()
-*/
+QRegExp QVariant::toRegExp() const
+{
+    return qVariantToHelper<QRegExp>(d, RegExp, handler);
+}
 
 /*!
     \fn QChar QVariant::toChar() const
@@ -2233,6 +2276,10 @@ QVariantMap QVariant::toMap() const
 
     \sa canConvert(), convert()
 */
+QChar QVariant::toChar() const
+{
+    return qVariantToHelper<QChar>(d, Char, handler);
+}
 
 /*!
     Returns the variant as a QBitArray if the variant has type()
@@ -2242,9 +2289,22 @@ QVariantMap QVariant::toMap() const
 */
 QBitArray QVariant::toBitArray() const
 {
-    if (d.type == BitArray)
-        return *v_cast<QBitArray>(&d);
-    return QBitArray();
+    return qVariantToHelper<QBitArray>(d, BitArray, handler);
+}
+
+template <typename T>
+inline T qNumVariantToHelper(const QVariant::Private &d, QVariant::Type t,
+                             const QVariant::Handler *handler, bool *ok, const T& val)
+{
+    if (ok)
+        *ok = true;
+    if (d.type == t)
+        return val;
+
+    T ret;
+    if (!handler->convert(&d, t, &ret, ok) && ok)
+        *ok = false;
+    return ret;
 }
 
 /*!
@@ -2259,20 +2319,7 @@ QBitArray QVariant::toBitArray() const
 */
 int QVariant::toInt(bool *ok) const
 {
-    if (d.type == Int) {
-        if (ok)
-            *ok = true;
-        return d.data.i;
-    }
-
-    bool c = canConvert(Int);
-    if (ok)
-        *ok = c;
-    int res = 0;
-    if (c)
-        handler->convert(&d, Int, &res, ok);
-
-    return res;
+    return qNumVariantToHelper<int>(d, Int, handler, ok, d.data.i);
 }
 
 /*!
@@ -2287,20 +2334,7 @@ int QVariant::toInt(bool *ok) const
 */
 uint QVariant::toUInt(bool *ok) const
 {
-    if (d.type == UInt) {
-        if (ok)
-            *ok = true;
-        return d.data.u;
-    }
-
-    bool c = canConvert(UInt);
-    if (ok)
-        *ok = c;
-    uint res = 0u;
-    if (c)
-        handler->convert(&d, UInt, &res, ok);
-
-    return res;
+    return qNumVariantToHelper<uint>(d, UInt, handler, ok, d.data.u);
 }
 
 /*!
@@ -2315,20 +2349,7 @@ uint QVariant::toUInt(bool *ok) const
 */
 qlonglong QVariant::toLongLong(bool *ok) const
 {
-    if (d.type == LongLong) {
-        if (ok)
-            *ok = true;
-        return d.data.ll;
-    }
-
-    bool c = canConvert(LongLong);
-    if (ok)
-        *ok = c;
-    qlonglong res = Q_INT64_C(0);
-    if (c)
-        handler->convert(&d, LongLong, &res, ok);
-
-    return res;
+    return qNumVariantToHelper<qlonglong>(d, LongLong, handler, ok, d.data.ll);
 }
 
 /*!
@@ -2344,20 +2365,7 @@ qlonglong QVariant::toLongLong(bool *ok) const
 */
 qulonglong QVariant::toULongLong(bool *ok) const
 {
-    if (d.type == ULongLong) {
-        if (ok)
-            *ok = true;
-        return d.data.ull;
-    }
-
-    bool c = canConvert(ULongLong);
-    if (ok)
-        *ok = c;
-    qulonglong res = Q_UINT64_C(0);
-    if (c)
-        handler->convert(&d, ULongLong, &res, ok);
-
-    return res;
+    return qNumVariantToHelper<qulonglong>(d, ULongLong, handler, ok, d.data.ull);
 }
 
 /*!
@@ -2393,20 +2401,7 @@ bool QVariant::toBool() const
 */
 double QVariant::toDouble(bool *ok) const
 {
-    if (d.type == Double) {
-        if (ok)
-        *ok = true;
-        return d.data.d;
-    }
-
-    bool c = canConvert(Double);
-    if (ok)
-        *ok = c;
-    double res = 0.0;
-    if (c)
-        handler->convert(&d, Double, &res, ok);
-
-    return res;
+    return qNumVariantToHelper<double>(d, Double, handler, ok, d.data.d);
 }
 
 /*!
@@ -2417,11 +2412,7 @@ double QVariant::toDouble(bool *ok) const
 */
 QVariantList QVariant::toList() const
 {
-    if (d.type == List)
-        return *v_cast<QVariantList>(&d);
-    QVariantList res;
-    handler->convert(&d, List, &res, 0);
-    return res;
+    return qVariantToHelper<QVariantList>(d, List, handler);
 }
 
 /*! \fn QVariant::canCast(Type t) const
