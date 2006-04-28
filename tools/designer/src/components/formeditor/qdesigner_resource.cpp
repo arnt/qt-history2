@@ -1477,3 +1477,9 @@ QActionGroup *QDesignerResource::createActionGroup(QObject *parent, const QStrin
     return 0;
 }
 
+void QDesignerResource::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
+{
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
+        widget = promoted->child();
+    QAbstractFormBuilder::loadExtraInfo(ui_widget, widget, parentWidget);
+}

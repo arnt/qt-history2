@@ -113,6 +113,8 @@ protected:
 
     virtual void layoutInfo(DomLayout *layout, QObject *parent, int *margin, int *spacing);
 
+    virtual void loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
+
     DomProperty *createIconProperty(const QVariant &v) const;
 
     void changeObjectName(QObject *o, QString name);

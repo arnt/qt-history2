@@ -150,4 +150,11 @@ QLayout *QDesignerFormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWi
     return QFormBuilder::create(ui_layout, layout, parentWidget);
 }
 
+void QDesignerFormBuilder::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
+{
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
+        widget = promoted->child();
+    QFormBuilder::loadExtraInfo(ui_widget, widget, parentWidget);
+}
+
 } // namespace qdesigner_internal

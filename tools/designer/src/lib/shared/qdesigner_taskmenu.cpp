@@ -103,6 +103,7 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     connect(m_createDockWidgetAction, SIGNAL(triggered()), this, SLOT(createDockWidget()));
 
     m_promoteToCustomWidgetAction = new QAction(tr("Promote to Custom Widget"), this);
+    m_promoteToCustomWidgetAction->setObjectName(QLatin1String("__qt__promoteToCustomWidgetAction"));
     connect(m_promoteToCustomWidgetAction, SIGNAL(triggered()), this, SLOT(promoteToCustomWidget()));
 
     QString demote_string = tr("Demote from Custom Widget");
