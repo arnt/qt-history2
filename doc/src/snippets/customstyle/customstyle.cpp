@@ -2,11 +2,18 @@
 
 #include "customstyle.h"
 
+CustomStyle::CustomStyle()
+{
+    QSpinBox *spinBox = qobject_cast<QSpinBox *>(widget);
+    if (spinBox) {
+    }
+}
+
 void CustomStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                 QPainter *painter, const QWidget *widget) const
 {
     if (element == PE_IndicatorSpinUp || element == PE_IndicatorSpinDown) {
-	QPointArray points(3);
+	QPolygon points(3);
 	int x = option->rect.x();
 	int y = option->rect.y();
 	int w = option->rect.width() / 2;
@@ -24,7 +31,7 @@ void CustomStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
 	    points[2] = QPoint(x + w / 2, y + h);
 	}
 
-	if (option->state & Style_Enabled) {
+	if (option->state & State_Enabled) {
 	    painter->setPen(option->palette.mid().color());
 	    painter->setBrush(option->palette.buttonText());
 	} else {

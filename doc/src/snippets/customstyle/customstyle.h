@@ -8,7 +8,7 @@ class CustomStyle : public QWindowsStyle
     Q_OBJECT
 
 public:
-    CustomStyle() {}
+    CustomStyle()
     ~CustomStyle() {}
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
