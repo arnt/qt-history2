@@ -1003,19 +1003,19 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                 ++varit;
         }
     } else {
-        if(op == "=") {
-            if(!varlist.isEmpty())
-                warn_msg(WarnParser, "Operator=(%s) clears variables previously set: %s:%d",
-                         var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
-            varlist.clear();
-        }
-
         QStringList vallist;
         {
             //doVariableReplace(vals, place);
             QStringList tmp = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
             for(int i = 0; i < tmp.size(); ++i)
                 vallist += doVariableReplaceExpand(tmp[i], place);
+        }
+
+        if(op == "=") {
+            if(!varlist.isEmpty())
+                warn_msg(WarnParser, "Operator=(%s) clears variables previously set: %s:%d",
+                         var.toLatin1().constData(), parser.file.toLatin1().constData(), parser.line_no);
+            varlist.clear();
         }
         for(QStringList::ConstIterator valit = vallist.begin();
             valit != vallist.end(); ++valit) {
