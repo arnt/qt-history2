@@ -1414,7 +1414,7 @@
     10.3. GCC 3.3 is also available on the Mac OS X 10.4 "Xcode Tools"
     CD and as a download for Mac OS X 10.2 from Apple (\l
     {https://connect.apple.com/}{connect.apple.com}). You can use
-    Apple's gcc_select(1) command line tool to switch the default
+    Apple's \c gcc_select(1) command line tool to switch the default
     complier on your system.
 
     \section2 Architecture Dependencies
