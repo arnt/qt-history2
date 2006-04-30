@@ -1427,7 +1427,7 @@
     command line argument to the Qt configure command. For example:
 
     \code
-         ./configue (other arguments) -universal -sdk /Developer/SDKs/MacOSX10.4u.sdk
+         ./configure (other arguments) -universal -sdk /Developer/SDKs/MacOSX10.4u.sdk
     \endcode
 
     From 4.1.1 the Qt binary package is already universal.
