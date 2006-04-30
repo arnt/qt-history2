@@ -880,7 +880,7 @@
 
     Start by installing a static version of the Qt library. Remember
     that you will not be able to use plugins and you must build in all
-    the image formats, sqldrivers, etc..
+    the image formats, SQL drivers, etc..
 
     \code
         cd /path/to/Qt
