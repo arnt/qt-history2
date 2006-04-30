@@ -1440,7 +1440,7 @@
     it on their \l
     {http://developer.apple.com/documentation}{developer website}.
 
-    Once you have a universal Qt, \a qmake will generate make files
+    Once you have a universal Qt, \a qmake will generate makefiles
     that will build for its host architecture by default. If you want
     to build for a specific architecture, you can control this with
     the \c CONFIG line in your \c .pro file. Use \c CONFIG+=ppc for
@@ -1453,6 +1453,6 @@
         CONFIG+=x86 ppc
     \endcode
 
-    Besides \c lipo, you can also check your binaries with the file(1)
+    Besides \c lipo, you can also check your binaries with the \c file(1)
     command line tool or the Finder.
 */

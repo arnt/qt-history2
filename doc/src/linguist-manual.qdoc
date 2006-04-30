@@ -1116,7 +1116,7 @@
 
     At the beginning of a project add the translation source files to be
     used to the project file and add calls to \l lupdate and \l lrelease to
-    the make file.
+    the makefile.
 
     During the project all the programmer must do is wrap any user-visible
     text in \c tr() calls. They should also use the two argument form for
