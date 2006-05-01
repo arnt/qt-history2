@@ -1348,6 +1348,14 @@ typedef z_stream FAR *  png_zstreamp;
 #      if 0 /* ... other platforms, with other meanings */
 #      endif
 #   endif
+
+#   if !defined(PNG_IMPEXP)
+#       include <qconfig.h>
+#       if defined(QT_VISIBILITY_AVAILABLE)
+#           define PNG_IMPEXP __attribute__((visibility("default")))
+#       endif
+#   endif
+
 #endif
 
 #ifndef PNGAPI
