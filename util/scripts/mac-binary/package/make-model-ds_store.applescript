@@ -13,7 +13,7 @@
    If it's OK, copy /Volumes/Qt-x.y.z/.DS_Store to safe location (call it model-DS_Store.x.y.z)
    
    Edit this file and replace all occurences of backgroundXXXXXXXXXXXX (21 chars) with
-   findersbackground (should be two places to correct).
+   findersbackground.png (should be two places to correct).
    
    Save the file and you should be ready to go.
    
@@ -25,8 +25,8 @@ tell application "FileStorm"
 	make new document at before first document with properties {name:"diskimage"}
 	
 	tell first document
-		set disk image name to "/Users/twschulz/Desktop/qt-mac-commercial-4.1.1.dmg"
-		set {volume name} to {"Qt 4.1.1"}
+		set disk image name to "/Users/twschulz/Desktop/qt-mac-commercial-4.1.3.dmg"
+		set {volume name} to {"Qt 4.1.3"}
 		set icon path to "/Users/twschulz/troll/qt/4.1/util/scripts/mac-binary/package/backgrounds/DriveIcon.icns"
 		set background image path to "/Users/twschulz/troll/qt/4.1/util/scripts/mac-binary/package/backgrounds/DiskImage-Commercial.png"
 		set height to 660
