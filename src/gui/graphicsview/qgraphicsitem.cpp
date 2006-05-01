@@ -927,7 +927,7 @@ void QGraphicsItem::setZValue(qreal z)
 }
 
 /*!
-    \fn virtual QRectF boundingRect() const = 0
+    \fn virtual QRectF QGraphicsItem::boundingRect() const = 0
 
     This pure virtual function defines the outer bounds of the item as
     a rectangle; all painting must be restricted to inside an item's
@@ -1104,6 +1104,35 @@ bool QGraphicsItem::collidesWith(const QPainterPath &path) const
     }
     return false;
 }
+
+/*!
+    \fn virtual void QGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0
+
+    This function, which is usually called by QGraphicsView, paints the
+    contents of an item in local coordinates.
+
+    Reimplement this function in a QGraphicsItem subclass to provide the
+    item's painting implementation, using \a painter. The \a option parameter
+    provides style options for the item, such as its state, exposed area and
+    its level-of-detail hints. The \a widget argument is optional. If
+    provided, it points to the widget that is being painted on; otherwise, it
+    is 0.
+
+    \code
+        void RoundRectItem::paint(QPainter *painter,
+                                  const QStyleOptionGraphicsItem *option,
+                                  QWidget *widget)
+        {
+            painter->drawRoundRect(-10, -10, 20, 20);
+        }
+    \endcode
+
+    The painter's pen is 0-width by default, and its pen is initialized to the
+    QPalette::Text brush from the paint device's palette. The brush is
+    initialized to QPalette::Window.
+
+    All painting is done in local coordinates. 
+*/
 
 /*!
     Schedules a redraw of the area covered by \a rect in this item. You can
