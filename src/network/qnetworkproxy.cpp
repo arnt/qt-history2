@@ -67,7 +67,7 @@
     username/password authentication.  Both IPv4 and IPv6 are
     supported, but domain name resolution via the SOCKS server is not
     supported; i.e. all domain names are resolved locally. There are
-    several things to remmber when using SOCKS5 with QUdpSocket and
+    several things to remember when using SOCKS5 with QUdpSocket and
     QTcpServer:
 
     With QUdpSocket, a call to \l {QUdpSocket::bind()}{bind()} may fail
