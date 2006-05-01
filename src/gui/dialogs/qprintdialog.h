@@ -53,8 +53,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_btnPropertiesClicked())
 };
 
-
-
 #endif // QT_NO_PRINTDIALOG
 
 QT_END_HEADER
