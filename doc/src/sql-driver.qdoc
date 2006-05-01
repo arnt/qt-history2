@@ -527,7 +527,7 @@
 
     \code
         cd %QTDIR%\src\plugins\sqldrivers\sqlite
-        qmake -o Makefile "INCLUDEPATH+=C:\SQLITE\INCLUDE" "LIBS+=C:\SQLITE\LIB\SQLITE3.LIB" mysql.pro
+        qmake -o Makefile "INCLUDEPATH+=C:\SQLITE\INCLUDE" "LIBS+=C:\SQLITE\LIB\SQLITE3.LIB" sqlite.pro
         nmake
     \endcode
 
