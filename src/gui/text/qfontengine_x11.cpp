@@ -1365,6 +1365,9 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
         }
 
     }
+    if (format != Format_Mono)
+        load_flags |= FT_LOAD_NO_BITMAP;
+
 #ifdef FC_HINT_STYLE
     if (fe->hint_style == FC_HINT_NONE)
         load_flags |= FT_LOAD_NO_HINTING;
@@ -1395,6 +1398,10 @@ QFontEngineFT::Glyph *QFontEngineFT::Font::loadGlyph(const QFontEngineFT *fe, ui
     const QFreetypeFace * const freetype = fe->freetype;
     FT_Face face = freetype->face;
     FT_Error err = FT_Load_Glyph(face, glyph, load_flags);
+    if (err && (load_flags & FT_LOAD_NO_BITMAP)) {
+        load_flags &= ~FT_LOAD_NO_BITMAP;
+        err = FT_Load_Glyph(face, glyph, load_flags);
+    }
     if (err == FT_Err_Too_Few_Arguments) {
         // this is an error in the bytecode interpreter, just try to run without it
         load_flags |= FT_LOAD_FORCE_AUTOHINT;
