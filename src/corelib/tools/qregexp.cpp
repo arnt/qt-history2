@@ -903,7 +903,7 @@ struct QRegExpMatchState
     inline QRegExpMatchState() { captured.fill(-1, 2); }
 
     void drain() { bigArray.clear(); } // to save memory
-    void setup(QRegExpEngine *eng);
+    void prepareForMatch(QRegExpEngine *eng);
     void match(const QString &str, int pos, bool minimal, bool oneTest, int caretIndex);
     bool matchHere();
     bool testAnchor(int i, int a, const int *capBegin);
@@ -1312,7 +1312,7 @@ QRegExpEngine::~QRegExpEngine()
 {
 }
 
-void QRegExpMatchState::setup(QRegExpEngine *eng)
+void QRegExpMatchState::prepareForMatch(QRegExpEngine *eng)
 {
     /*
       We use one QVector<int> for all the big data used a lot in
@@ -1343,7 +1343,6 @@ void QRegExpMatchState::setup(QRegExpEngine *eng)
     capEnd = tempCapBegin + 3 * ncap;
 
     slideTab = tempCapBegin + 4 * ncap;
-    captured.fill(-1, 2 + 2 * eng->officialncap);
     this->eng = eng;
 }
 
@@ -1397,7 +1396,8 @@ void QRegExpMatchState::match(const QString &str0, int pos0, bool minimal0, bool
         }
     }
 
-    int capturedSize = 2 + 2 * eng->officialncap;
+    int numCaptures = eng->numCaptures();
+    int capturedSize = 2 + 2 * numCaptures;
     captured.resize(capturedSize);
     if (matched) {
         int *c = captured.data();
@@ -1405,7 +1405,7 @@ void QRegExpMatchState::match(const QString &str0, int pos0, bool minimal0, bool
         *c++ = matchLen;
 
 #ifndef QT_NO_REGEXP_CAPTURE
-        for (int i = 0; i < eng->officialncap; ++i) {
+        for (int i = 0; i < numCaptures; ++i) {
             int j = eng->captureForOfficialCapture.at(i);
             int len = capEnd[j] - capBegin[j];
             *c++ = (len > 0) ? pos + capBegin[j] : 0;
@@ -1778,7 +1778,7 @@ bool QRegExpMatchState::testAnchor(int i, int a, const int *capBegin)
         for (j = 0; j < ahead.size(); j++) {
             if ((a & (QRegExpEngine::Anchor_FirstLookahead << j)) != 0) {
                 QRegExpMatchState matchState;
-                matchState.setup(ahead[j]->eng);
+                matchState.prepareForMatch(ahead[j]->eng);
                 matchState.match(cstr, 0, true, true, matchState.caretPos - matchState.pos - i);
                 if ((matchState.captured.at(0) == 0) == ahead[j]->neg)
                     return false;
@@ -3298,28 +3298,36 @@ static void derefEngine(QRegExpEngine *eng, const QRegExpEngineKey &key)
 
 static void prepareEngine(QRegExpPrivate *priv)
 {
+    bool initMatchState;
+
     {
 #if !defined(QT_NO_REGEXP_OPTIM)
         // the mutex protects both the globalEngineCache() and the priv->eng pointer
         QMutexLocker locker(mutex());
+#endif
 
-        if (priv->eng == 0) {
+        initMatchState = !priv->eng;
+
+#if !defined(QT_NO_REGEXP_OPTIM)
+        if (!priv->eng) {
             priv->eng = globalEngineCache()->take(priv->engineKey);
             if (priv->eng != 0)
                 ++priv->eng->ref;
         }
 #endif // QT_NO_REGEXP_OPTIM
 
-        if (priv->eng == 0)
+        if (!priv->eng)
             priv->eng = new QRegExpEngine(priv->engineKey);
     }
 
-    priv->matchState.setup(priv->eng);
+    if (initMatchState)
+        priv->matchState.captured.fill(-1, 2 + 2 * priv->eng->numCaptures());
 }
 
 static void prepareEngineForMatch(QRegExpPrivate *priv, const QString &str)
 {
     prepareEngine(priv);
+    priv->matchState.prepareForMatch(priv->eng);
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = str;
     priv->capturedCache.clear();
@@ -3440,7 +3448,7 @@ QRegExp &QRegExp::operator=(const QRegExp &rx)
     priv->capturedCache = rx.priv->capturedCache;
 #endif
     if (priv->eng)
-        priv->matchState.setup(priv->eng);
+        priv->matchState.prepareForMatch(priv->eng);
     priv->matchState.captured = rx.priv->matchState.captured;
     return *this;
 }
@@ -3524,7 +3532,7 @@ QString QRegExp::pattern() const
 
 /*!
     Sets the pattern string to \a pattern. The case sensitivity,
-    wildcard and minimal matching options are not changed.
+    wildcard, and minimal matching options are not changed.
 
     \sa setPatternSyntax(), setCaseSensitivity()
 */
@@ -3591,7 +3599,7 @@ QRegExp::PatternSyntax QRegExp::patternSyntax() const
 */
 void QRegExp::setPatternSyntax(PatternSyntax syntax)
 {
-    if ((bool)syntax != (bool)priv->engineKey.patternSyntax) {
+    if (syntax != priv->engineKey.patternSyntax) {
         invalidateEngine(priv);
         priv->engineKey.patternSyntax = syntax;
     }
@@ -3828,6 +3836,7 @@ int QRegExp::numCaptures() const
 QStringList QRegExp::capturedTexts()
 {
     if (priv->capturedCache.isEmpty()) {
+        prepareEngine(priv);
         for (int i = 0; i < priv->matchState.captured.size(); i += 2) {
             QString m;
             if (priv->matchState.captured.at(i + 1) == 0)
