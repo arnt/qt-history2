@@ -127,7 +127,7 @@ public:
     explicit QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen);
     ~QFontEngineFT();
 
-    QFontEngine::FaceId faceId() const { return face_id; }
+    QFontEngine::FaceId faceId() const;
     QFontEngine::Properties properties() const;
     void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
     QByteArray getSfntTable(uint tag) const;
