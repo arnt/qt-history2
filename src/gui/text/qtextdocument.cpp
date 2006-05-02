@@ -1180,7 +1180,10 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
     QString title  = doc->metaInformation(QTextDocument::DocumentTitle);
     if (!title.isEmpty())
         html += "<title>" + title + "</title>";
-    html += QString("</head><body style=\" white-space: pre-wrap;");
+    html += QLatin1String("<style type=\"text/css\">\n");
+    html += QLatin1String("p, li { white-space: pre-wrap; }\n");
+    html += QLatin1String("</style>");
+    html += QLatin1String("</head><body style=\"");
 
     html += QLatin1String(" font-family:");
     html += defaultCharFormat.fontFamily();
@@ -1574,6 +1577,8 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
             || ch == QTextEndOfFrame)
             return;
     }
+    
+    html += QLatin1Char('\n');
 
     // save and later restore, in case we 'change' the default format by
     // emitting block char format information
@@ -1680,7 +1685,7 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
 {
     QTextTableFormat format = table->format();
 
-    html += QLatin1String("<table");
+    html += QLatin1String("\n<table");
 
     if (format.hasProperty(QTextFormat::FrameBorder))
         emitAttribute("border", QString::number(format.border()));
@@ -1719,7 +1724,7 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
         html += QLatin1String("<thead>");
 
     for (int row = 0; row < rows; ++row) {
-        html += QLatin1String("<tr>");
+        html += QLatin1String("\n<tr>");
 
         for (int col = 0; col < columns; ++col) {
             const QTextTableCell cell = table->cellAt(row, col);
@@ -1731,7 +1736,7 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
             if (cell.column() != col)
                 continue;
 
-            html += QLatin1String("<td");
+            html += QLatin1String("\n<td");
 
             if (!widthEmittedForColumn[col]) {
                 emitTextLength("width", columnWidths.at(col));
@@ -1775,14 +1780,14 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
             && frameIt.currentBlock().begin().atEnd())
             return;
     }
-
+    
     for (QTextFrame::Iterator it = frameIt;
          !it.atEnd(); ++it) {
         if (QTextFrame *f = it.currentFrame()) {
             if (QTextTable *table = qobject_cast<QTextTable *>(f)) {
                 emitTable(table);
             } else {
-                html += QLatin1String("<table");
+                html += QLatin1String("\n<table");
                 QTextFrameFormat format = f->frameFormat();
 
                 if (format.hasProperty(QTextFormat::FrameBorder))
@@ -1806,7 +1811,7 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
                     emitAttribute("bgcolor", bg.color().name());
 
                 html += QLatin1Char('>');
-                html += QLatin1String("<tr><td style=\"border: none;\">");
+                html += QLatin1String("\n<tr>\n<td style=\"border: none;\">");
                 emitFrame(f->begin());
                 html += QLatin1String("</td></tr></table>");
             }
