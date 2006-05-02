@@ -1045,7 +1045,7 @@ FT_Face QFontEngineXLFD::non_locked_face() const
     return freetype ? freetype->face : 0;
 }
 
-glyph_t QFontEngineXLFD::glyphIndexToFreetypeGlyphIndex(glyph_t g) const
+uint QFontEngineXLFD::toUnicode(glyph_t g) const
 {
     if (_codec) {
         QTextCodec::ConverterState state;
@@ -1063,8 +1063,12 @@ glyph_t QFontEngineXLFD::glyphIndexToFreetypeGlyphIndex(glyph_t g) const
         Q_ASSERT(s.length() == 1);
         g = s.at(0).unicode();
     }
-    g = FT_Get_Char_Index(freetype->face, g);
     return g;
+}
+
+glyph_t QFontEngineXLFD::glyphIndexToFreetypeGlyphIndex(glyph_t g) const
+{
+    return FT_Get_Char_Index(freetype->face, toUnicode(g));
 }
 #endif
 

@@ -283,9 +283,15 @@ QByteArray QFontSubset::glyphName(unsigned int glyph, const QVector<int> reverse
 #endif
         FT_Get_Glyph_Name(face, glyphIndex, &name, 32);
     }
-    if (name[0])
+    if (name[0]) {
         s << "/" << name;
-    else
+    } else
+#endif
+#if defined(Q_WS_X11)
+    if (fontEngine->type() == QFontEngine::XLFD) {
+        uint uc = static_cast<QFontEngineXLFD *>(fontEngine)->toUnicode(glyphIndex);
+        s << "/" << glyphName(uc, false /* ### */);
+    } else
 #endif
     if (glyph == 0) {
         s << "/.notdef ";
@@ -1518,7 +1524,7 @@ static QByteArray charString(const QPainterPath &path, qreal advance, qreal lsb,
     for (int i = 0; i < path.elementCount(); ++i) {
         const QPainterPath::Element &elm = path.elementAt(i);
         int x = qRound(elm.x*factor);
-        int y = qRound(elm.y*factor);
+        int y = -qRound(elm.y*factor);
         int dx = x - xl;
         int dy = y - yl;
         if (elm.type == QPainterPath::MoveToElement && openpath) {
@@ -1548,9 +1554,9 @@ static QByteArray charString(const QPainterPath &path, qreal advance, qreal lsb,
             const QPainterPath::Element &elm2 = path.elementAt(++i);
             const QPainterPath::Element &elm3 = path.elementAt(++i);
             int x2 = qRound(elm2.x*factor);
-            int y2 = qRound(elm2.y*factor);
+            int y2 = -qRound(elm2.y*factor);
             int x3 = qRound(elm3.x*factor);
-            int y3 = qRound(elm3.y*factor);
+            int y3 = -qRound(elm3.y*factor);
             charstring += encodeNumber(dx, tmp);
             charstring += encodeNumber(dy, tmp);
             charstring += encodeNumber(x2 - x, tmp);
@@ -1570,6 +1576,27 @@ static QByteArray charString(const QPainterPath &path, qreal advance, qreal lsb,
     return charstring;
 }
 
+#ifndef QT_NO_FREETYPE
+const char *helvetica_styles[4] = {
+    "Helvetica",
+    "Helvetica-Bold",
+    "Helvetica-Oblique",
+    "Helvetica-BoldOblique"
+};
+const char *times_styles[4] = {
+    "Times-Regular",
+    "Times-Bold",
+    "Times-Italic",
+    "Times-BoldItalic"
+};
+const char *courier_styles[4] = {
+    "Courier",
+    "Courier-Bold",
+    "Courier-Oblique",
+    "Courier-BoldOblique"
+};
+#endif
+
 QByteArray QFontSubset::toType1() const
 {
     QFontEngine::Properties properties = fontEngine->properties();
@@ -1583,52 +1610,79 @@ QByteArray QFontSubset::toType1() const
     QByteArray id = QByteArray::number(object_id);
     QByteArray psname = properties.postscriptName;
     psname.replace(" ", "");
-    s << "/F" << id << "-Base <<\n";
-    if(!psname.isEmpty())
-        s << "/FontName /" << psname << "\n";
-    s << "/FontInfo <</FsType " << (int)fontEngine->fsType << ">>\n"
-        "/FontType 1\n"
-        "/PaintType 0\n"
-        "/FontMatrix [.001 0 0 .001 0 0]\n"
-        "/FontBBox { 0 0 0 0 }\n"
-        "/Private <<\n"
-        "/password 5839\n"
-        "/MinFeature {16 16}\n"
-        "/BlueValues []\n"
-        "/lenIV -1\n"
-        ">>\n"
-        "/CharStrings <<\n";
 
-    for (int i = 0; i < nGlyphs; ++i) {
-        glyph_t g = glyph_indices.at(i);
-        QPainterPath path;
-        glyph_metrics_t metric;
-        fontEngine->getUnscaledGlyph(g, &path, &metric);
-        QByteArray charstring = ::charString(path, metric.xoff.toReal(), metric.x.toReal(),
-                                             properties.emSquare.toReal());
-        s << glyphName(i, reverseMap)
-          << " <" << charstring << ">\n";
+    bool standard_font = false;
+
+#ifndef QT_NO_FREETYPE
+    FT_Face face = ft_face(fontEngine);
+    if (face && !FT_IS_SCALABLE(face)) {
+        int style = 0;
+        if (fontEngine->fontDef.style)
+            style += 2;
+        if (fontEngine->fontDef.weight >= QFont::Bold)
+            style++;
+        if (fontEngine->fontDef.family.contains(QLatin1String("Helvetica"))) {
+            psname = helvetica_styles[style];
+            standard_font = true;
+        } else if (fontEngine->fontDef.family.contains(QLatin1String("Times"))) {
+            psname = times_styles[style];
+            standard_font = true;
+        } else if (fontEngine->fontDef.family.contains(QLatin1String("Courier"))) {
+            psname = courier_styles[style];
+            standard_font = true;
+        }
     }
-    s << ">>\n"
-        "/Encoding 256 array\n"
-        "0 1 255 {1 index exch /.notdef put} for\n"
-        ">> def\n";
+#endif
+    if (!standard_font) {
+        s << "/F" << id << "-Base <<\n";
+        if(!psname.isEmpty())
+            s << "/FontName /" << psname << "\n";
+        s << "/FontInfo <</FsType " << (int)fontEngine->fsType << ">>\n"
+            "/FontType 1\n"
+            "/PaintType 0\n"
+            "/FontMatrix [.001 0 0 .001 0 0]\n"
+            "/FontBBox { 0 0 0 0 }\n"
+            "/Private <<\n"
+            "/password 5839\n"
+            "/MinFeature {16 16}\n"
+            "/BlueValues []\n"
+            "/lenIV -1\n"
+            ">>\n"
+            "/CharStrings <<\n";
 
+        for (int i = 0; i < nGlyphs; ++i) {
+            glyph_t g = glyph_indices.at(i);
+            QPainterPath path;
+            glyph_metrics_t metric;
+            fontEngine->getUnscaledGlyph(g, &path, &metric);
+            QByteArray charstring = ::charString(path, metric.xoff.toReal(), metric.x.toReal(),
+                                                 properties.emSquare.toReal());
+            s << glyphName(i, reverseMap)
+              << " <" << charstring << ">\n";
+        }
+        s << ">>\n"
+            ">> def\n";
+    }
     int page = 0;
     while (nGlyphs > 0) {
-        s << "/F" << id << "-" << page
-          << "F" << id << "-Base\n"
-            "0 dict copy dup /Encoding get\n";
+        s << "/F" << id << "-" << page;
+        if (standard_font)
+            s << "/" << psname << " findfont\n";
+        else
+            s << "F" << id << "-Base\n";
+
+        s << "0 dict copy dup /Encoding 256 array\n"
+            "0 1 255 {1 index exch /.notdef put} for\n";
         for (int i = 0; i < nGlyphs; ++i)
             s << "dup " << i << glyphName(i, reverseMap) << " put\n";
-        s << "pop definefont pop\n";
+        s << "put definefont pop\n";
         ++page;
         nGlyphs -= 256;
     }
     s << "/F" << id << " <<\n"
         "/FontType 0\n"
         "/FMapType 2\n"
-        "/FontMatrix[1 0 0 -1 0 0]\n"
+        "/FontMatrix[1 0 0 1 0 0]\n"
         "/Encoding [";
     for (int i = 0; i < page; ++i) {
         if (page % 16 == 0)

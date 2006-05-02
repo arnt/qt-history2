@@ -92,6 +92,7 @@ public:
     FT_Face non_locked_face() const;
     glyph_t glyphIndexToFreetypeGlyphIndex(glyph_t g) const;
 #endif
+    uint toUnicode(glyph_t g) const;
 
 private:
     XFontStruct *_fs;
