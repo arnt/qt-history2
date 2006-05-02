@@ -231,6 +231,17 @@ void qt_mac_update_metal_style(QWidget *w)
     }
 }
 
+void qt_mac_update_opaque_sizegrip(QWidget *window)
+{
+    if (!window->isWindow())
+        return;
+    HIViewRef growBox;
+    HIViewFindByID(HIViewGetRoot(qt_mac_window_for(window)), kHIViewWindowGrowBoxID, &growBox);
+    if (!growBox)
+        return;
+    HIGrowBoxViewSetTransparent(growBox, !window->testAttribute(Qt::WA_MacOpaqueSizeGrip));
+}
+
 static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
                                      Rect *geo, WindowPtr *w)
 {
@@ -1136,6 +1147,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             HIViewSetVisible(hiview, true);
             setWinId((WId)hiview);
         }
+        qt_mac_update_opaque_sizegrip(q);
     } else {
         data.fstrut_dirty = false; // non-toplevel widgets don't have a frame, so no need to update the strut
         if(HIViewRef hiview = qt_mac_create_widget((HIViewRef)parentWidget->winId())) {

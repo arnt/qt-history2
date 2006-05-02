@@ -867,6 +867,7 @@
     \value WA_MouseNoMask Makes the widget receive mouse events for the entire widget regardless of the currently set mask.
     \value WA_NoMousePropagation Prohibits mouse events from being propagated to the widget's parent.
     \value WA_RightToLeft Indicates that the layout direction for the widget is right to left.
+    \value WA_MacOpaqueSizeGrip Indicates that the native Carbon size grip should be opaque instead of transparent (the default). This attribute is only meaningfull on Mac OS X and is set by widget's author.
     \value WA_ShowModal \e{This attribute has been deprecated.} Use QWidget::windowModality instead.
 
     \omitvalue WA_SetLayoutDirection

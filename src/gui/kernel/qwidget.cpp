@@ -6688,6 +6688,12 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         qt_mac_update_metal_style(this);
 #endif
         break;
+    case Qt::WA_MacOpaqueSizeGrip:
+#ifdef Q_WS_MAC
+        extern void qt_mac_update_opaque_sizegrip(QWidget*); //qwidget_mac.cpp
+        qt_mac_update_opaque_sizegrip(this);
+#endif
+        break;
     case Qt::WA_ShowModal:
         if (!on) {
             if (isVisible() && isModal())
