@@ -57,6 +57,7 @@ public:
     void generateIndexSections(const QString &fileName, const QString &url,
                                const QString &title) const;
     void addExternalLink(const QString &url, const Node *relative);
+    QString fullDocumentName(const Node *node) const;
 
 private:
     void resolveInheritance(int pass, ClassNode *classe);

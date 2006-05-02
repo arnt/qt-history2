@@ -861,12 +861,13 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
 
     thisStream << indent << "<" << nodeName
         << " access=\"" << access << "\""
-        << " name=\"" << HtmlGenerator::protect(objName) << "\"";
-        
-    // Class contain information about their base classes.
+        << " name=\"" << HtmlGenerator::protect(objName) << "\""
+        << " location=\"" << node->location().fileName() << "\""
+        << " href=\"" << fullDocumentName(node) << "\"";
 
     if (node->type() == Node::Class) {
 
+        // Classes contain information about their base classes.
         if (objName.isEmpty())
             return;
 
@@ -884,7 +885,7 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
     // Fake nodes (such as manual pages) contain subtypes, titles and other
     // attributes.
 
-    if (node->type() == Node::Fake) {
+    else if (node->type() == Node::Fake) {
 
         if (objName.isEmpty())
             return;
@@ -924,12 +925,13 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
     // Function nodes contain information about the type of function being
     // described.
 
-    if (node->type() == Node::Function) {
+    else if (node->type() == Node::Function) {
 
         if (objName.isEmpty())
             return;
 
         const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
+
         switch (functionNode->virtualness()) {
             case FunctionNode::NonVirtual:
                 thisStream << " virtual=\"non\"";
@@ -1097,4 +1099,67 @@ void Tree::addExternalLink(const QString &url, const Node *relative)
     Location location(relative->doc().location());
     Doc doc(location, " ", emptySet); // placeholder
     fakeNode->setDoc(doc);
+}
+
+QString Tree::fullDocumentName(const Node *node) const
+{
+    if (node->type() == Node::Namespace) {
+
+        // The root namespace has no name - check for this before creating
+        // an attribute containing the location of any documentation.
+
+        if (!node->name().isEmpty())
+            return node->name().toLower() + ".html";
+        else
+            return "";
+    } else if (node->type() == Node::Fake) {
+        QString base = node->name();
+	base.replace(QRegExp("[^A-Za-z0-9.]+"), "");
+	base = base.trimmed();
+	base = base.toLower();
+        return base;
+    }
+
+    QString parentName;
+    Node *parentNode = 0;
+
+    if ((parentNode = node->relates()))
+        parentName = fullDocumentName(node->relates());
+    else if ((parentNode = node->parent()))
+        parentName = fullDocumentName(node->parent());
+
+    switch (node->type()) {
+        case Node::Class:
+            if (parentNode && parentNode->type() == Node::Class)
+                return HtmlGenerator::protect(parentNode->name()).toLower()
+                     + "-" + HtmlGenerator::protect(node->name()).toLower()
+                     + ".html";
+            else
+                return HtmlGenerator::protect(node->name()).toLower() + ".html";
+        case Node::Function:
+            // Functions can be overloaded.
+            const FunctionNode *functionNode = static_cast<const FunctionNode *>(node);
+            if (functionNode->overloadNumber() > 1)
+                return parentName + "#" + HtmlGenerator::protect(node->name())
+                                  + "-" + QString::number(functionNode->overloadNumber());
+            else
+                return parentName + "#" + HtmlGenerator::protect(node->name());
+
+        case Node::Enum:
+            return parentName + "#" + HtmlGenerator::protect(node->name()) + "-enum";
+        case Node::Typedef:
+            return parentName + "#" + HtmlGenerator::protect(node->name()) + "-typedef";
+        case Node::Property:
+            return parentName + "#" + HtmlGenerator::protect(node->name()) + "-prop";
+        case Node::Variable:
+            return parentName + "#" + HtmlGenerator::protect(node->name()) + "-var";
+        case Node::Target:
+            return parentName + "#" + HtmlGenerator::protect(node->name());
+        case Node::Namespace:
+        case Node::Fake:
+        default:
+            break;
+    }
+
+    return "";
 }
