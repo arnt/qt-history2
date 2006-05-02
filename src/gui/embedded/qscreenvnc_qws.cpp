@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "qscreenvnc_qws.h"
-
-#if !defined(QT_NO_QWS_VNC)
-
 #include "qplatformdefs.h"
+
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_NO_QWS_VNC)
+
 #include "qtimer.h"
 #include "qwindowsystem_qws.h"
+#include "qscreenvnc_qws.h"
 #include <private/qsharedmemory_p.h>
 #include <stdlib.h>
 #include <qdebug.h>
