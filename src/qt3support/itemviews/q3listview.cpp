@@ -2065,11 +2065,11 @@ void Q3ListViewItem::paintCell(QPainter * p, const QColorGroup & cg,
     int r = marg;
     const QPixmap * icon = pixmap(column);
 
-    if (pal.background() != lv->palette().color(lv->backgroundRole()))
-        p->fillRect(0, 0, width, height(), pal.background());
+    const QPalette::ColorRole crole = lv->backgroundRole();
+    if (pal.brush(crole) != lv->palette().brush(crole))
+        p->fillRect(0, 0, width, height(), pal.brush(crole));
     else
         lv->paintEmptyArea(p, QRect(0, 0, width, height()));
-
 
     // (lars) what does this do???
 #if 0 // RS: ####
@@ -2981,6 +2981,7 @@ void Q3ListView::paintEmptyArea(QPainter * p, const QRect & rect)
     QStyleOptionQ3ListView opt = getStyleOption(this, 0);
     opt.rect = rect;
     opt.sortColumn = d->sortcolumn;
+    opt.subControls = QStyle::SC_Q3ListView;
     style()->drawComplexControl(QStyle::CC_Q3ListView, &opt, p, this);
 }
 
