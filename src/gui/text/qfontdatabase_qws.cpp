@@ -121,7 +121,7 @@ static void initializeDb()
         //### This code could be prettier
         QString rotation;
         if (u2 != u3)
-            QString rotation = dir[i].mid(u2+1,u3-u2-1);
+            rotation = dir[i].mid(u2+1,u3-u2-1);
 
         QString screenr;
         if (qt_screen->isTransformed()) {
