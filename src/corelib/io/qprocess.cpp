@@ -1267,7 +1267,12 @@ QByteArray QProcess::readAllStandardError()
 
     On Windows, arguments that contain spaces are wrapped in quotes.
 
-    \sa pid(), started()
+    Note: processes are started asynchronously, which means the started()
+    and error() signals may be delayed. Call waitForStarted() to make
+    sure the process has started (or has failed to start) and those signals
+    have been emitted.
+
+    \sa pid(), started(), waitForStarted()
 */
 void QProcess::start(const QString &program, const QStringList &arguments, OpenMode mode)
 {
