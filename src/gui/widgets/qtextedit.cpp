@@ -459,13 +459,10 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
         cursor = QTextCursor(doc);
     } else if (clearDocument) {
         doc->clear();
-    }
-
-    if (clearDocument) {
         cursor.movePosition(QTextCursor::Start);
         QTextBlockFormat blockFmt;
         blockFmt.setLayoutDirection(q->layoutDirection());
-        cursor.setBlockFormat(blockFmt);
+        cursor.mergeBlockFormat(blockFmt);
         cursor.setCharFormat(charFormatForInsertion);
     }
 
