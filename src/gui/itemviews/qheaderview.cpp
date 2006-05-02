@@ -131,9 +131,9 @@
     This signal is emitted when a section is clicked. The section's logical
     index is specified by \a logicalIndex.
 
-    Note that you will also get a sectionPressed
-
-    \sa setClickable()
+    Note that the sectionPressed signal will also be emitted.
+ 
+    \sa setClickable(), sectionPressed()
 */
 
 /*!
