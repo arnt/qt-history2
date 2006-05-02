@@ -62,24 +62,26 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
     \ingroup appearance
 
-    The style factory creates a QStyle object for a given key with
-    create().
+    The QStyle class is an abstract base class that encapsulates the
+    look and feel of a GUI. QStyleFactory creates a QStyle object
+    using the create() function and a key identifying the style. The
+    styles are either built-in or dynamically loaded from a style
+    plugin (see QStylePlugin).
 
-    The styles are either built-in or dynamically loaded from a style
-    plugin (see \l QStylePlugin).
-
-    keys() returns a list of valid keys, typically
-    including "windows", "motif", "cde", "plastique", and "cleanlooks".
-    Depending on the platform, "windowsxp" and "macintosh" may be
-    available. Keys are case insensitive.
+    The valid keys can be retrieved using the keys()
+    function. Typically they include "windows", "motif", "cde", and
+    "plastique" and "cleanlooks".  Depending on the platform,
+    "windowsxp" and "macintosh" may be available. Note that keys are
+    case insensitive.
 
     \sa QStyle
 */
 
 /*!
-    Creates a QStyle object that matches \a key. This is either a
-    built-in style, or a style from a style plugin. Keys are case
-    insensitive.
+    Creates a QStyle object that matches the given \a key. This is either a
+    built-in style, or a style from a style plugin.
+
+    Note that keys are case insensitive.
 
     \sa keys()
 */
@@ -139,7 +141,8 @@ QStyle *QStyleFactory::create(const QString& key)
 }
 
 /*!
-    Returns the list of keys this factory can create styles for.
+    Returns the list of valid keys, i.e. the leys this factory can
+    create styles for.
 
     \sa create()
 */

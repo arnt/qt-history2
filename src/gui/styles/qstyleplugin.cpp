@@ -20,15 +20,16 @@
 
     \ingroup plugins
 
-    The style plugin is a simple plugin interface that makes it easy
+    QStylePlugin is a simple plugin interface that makes it easy
     to create custom styles that can be loaded dynamically into
-    applications with a QStyleFactory.
+    applications using the QStyleFactory class.
 
     Writing a style plugin is achieved by subclassing this base class,
-    reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the Q_EXPORT_PLUGIN2() macro.
+    reimplementing the pure virtual keys() and create() functions, and
+    exporting the class using the Q_EXPORT_PLUGIN2() macro. See \l
+    {How to Create Qt Plugins} for details.
 
-    \sa {How to Create Qt Plugins}
+    \sa QStyleFactory, QStyle
 */
 
 /*!
@@ -45,36 +46,27 @@
 /*!
     \fn QStyle* QStylePlugin::create(const QString& key)
 
-    Creates and returns a QStyle object for the style key \a key. The
-    style key is usually the class name of the required style. Keys are
-    case insensitive.
+    Creates and returns a QStyle object for the given style \a key.
 
-    Example:
+    The style key is usually the class name of the required
+    style. Note that the keys are case insensitive. For example:
 
-    \code
-        QStringList MyStylePlugin::keys() const
-        {
-            return QStringList() << "Rocket" << "StarBuster";
-        }
-
-        QStyle *MyStylePlugin::create(const QString &key)
-        {
-            QString lcKey = key;
-            if (lcKey == "rocket") {
-                return new RocketStyle;
-            } else if (lcKey == "starbuster") {
-                return new StarBusterStyle;
-            }
-            return 0;
-        }
-    \endcode
+    \quotefromfile snippets/qstyleplugin/main.cpp
+    \skipto MyStylePlugin::keys
+    \printuntil }
+    \skipto MyStylePlugin::create
+    \printuntil return 0
+    \printuntil }
 
     \sa keys()
 */
 
 /*!
-    Constructs a style plugin with parent \a parent. This is invoked automatically by the
-    Q_EXPORT_PLUGIN2() macro.
+    Constructs a style plugin with the given \a parent.
+
+    Note that this constructor is invoked automatically by the
+    Q_EXPORT_PLUGIN2() macro, so there is no need for calling it
+    explicitly.
 */
 QStylePlugin::QStylePlugin(QObject *parent)
     : QObject(parent)
@@ -84,8 +76,8 @@ QStylePlugin::QStylePlugin(QObject *parent)
 /*!
     Destroys the style plugin.
 
-    You never have to call this explicitly. Qt destroys a plugin
-    automatically when it is no longer used.
+    Note that Qt destroys a plugin automatically when it is no longer
+    used, so there is no need for calling the destructor explicitly.
 */
 QStylePlugin::~QStylePlugin()
 {

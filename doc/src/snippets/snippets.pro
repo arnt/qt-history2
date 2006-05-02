@@ -44,6 +44,7 @@ SUBDIRS         = brush \
                   qstatustipevent \
                   qstring \
                   qstyleoption \
+                  qstyleplugin \
                   qtablewidget-dnd \
                   qtablewidget-resizing \
                   qtablewidget-using \
