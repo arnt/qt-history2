@@ -955,4 +955,62 @@ Ideas for other sections:
     \o \c colspan
     \o \c rowspan
     \endlist
+
+    \section1 CSS Properties
+    The following table lists the CSS properties supported by Qt's
+    \l{Rich Text Processing}{rich text} engine:
+
+    \table
+    \header \o Property
+            \o Values
+            \o Description
+    \row
+            \o \c background-color
+            \o <color>
+            \o Background color for elements
+    \row    \o \c color
+            \o <color>
+            \o Text foreground color
+    \row    \o \c font-family
+            \o <family name>
+            \o Font family name
+    \row    \o \c font-size
+            \o [ small | medium | large | x-large | xx-large ] | <size>pt | <size>px
+            \o Font size as value relative to the document font or in points or pixels
+    \row    \o \c font-style
+            \o [ normal | italic | oblique ]
+            \o
+    \row    \o \c font-weight
+            \o [ normal | bold | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 ]
+            \o 'normal' and 'bold' are mapped to the corresponding QFont weights,
+               the numeric value is mapped to the QFont weight by division by 8.
+    \row    \o \c text-decoration
+            \o none | [ underline || overline || line-through ]
+            \o
+    \row    \o \c font
+            \o [ [ <'font-style'> || <'font-weight'> ]? <'font-size'> <'font-family'> ]
+            \o Font shorthand property.
+    \row    \o \c text-indent
+            \o <length>px
+            \o First line text indentation in pixels
+    \row    \o \c white-space
+            \o normal | pre | nowrap | pre-wrap
+            \o Declares how whitespace in HTML is handled.
+    \row    \o \c margin-top
+            \o <length>px
+            \o Top paragraph margin in pixels
+    \row    \o \c margin-bottom
+            \o <length>px
+            \o Bottom paragraph margin in pixels
+    \row    \o \c margin-left
+            \o <length>px
+            \o Left paragraph margin in pixels
+    \row    \o \c margin-right
+            \o <length>px
+            \o Right paragraph margin in pixels
+    \row    \o \c vertical-alignment
+            \o baseline | sub | super
+            \o Vertical text alignment
+    \endtable
+
 */
