@@ -49,18 +49,18 @@
     \endlist
 
     To check whether a system tray is present on the user's desktop,
-    call the static function QSystemTrayIcon::isSystemTrayAvailable(). If the system tray 
-    is currently unavailable but becomes available later, QSystemTrayIcon will automatically add an 
+    call the static function QSystemTrayIcon::isSystemTrayAvailable(). If the system tray
+    is currently unavailable but becomes available later, QSystemTrayIcon will automatically add an
     entry in the system tray if it is visible().
 
     To add a system tray entry, create a QSystemTrayIcon object, call setContextMenu()
     to provide a context menu for the icon, and call show() to make it visible in the system
     tray. Status notification messages ("balloon messages") can be displayed at any time using
     showMessage().
-    
+
     The activated() signal is emitted when the users clicks on the icon. (More precisely,
     on Windows, it is emitted when the left mouse button is released; on X11, when the
-    left mouse button is pressed.) 
+    left mouse button is pressed.)
 */
 
 /*!
@@ -91,6 +91,7 @@ void QSystemTrayIcon::setContextMenu(QMenu *menu)
 {
     Q_D(QSystemTrayIcon);
     d->menu = menu;
+    d->updateMenu();
 }
 
 /*!
@@ -125,7 +126,7 @@ QIcon QSystemTrayIcon::icon() const
 /*!
     \property QSystemTrayIcon::toolTip
     \brief the tooltip for the system tray entry
-  
+
     On some systems, the tooltip's length is limited. The tooltip will be truncated if necessary.
 */
 void QSystemTrayIcon::setToolTip(const QString &tooltip)
@@ -160,7 +161,7 @@ QString QSystemTrayIcon::toolTip() const
     \property QSystemTrayIcon::visible
     \brief whether the system tray entry is visible
 
-    Calling setVisible(true) or show() makes the system tray entry visible. Calling 
+    Calling setVisible(true) or show() makes the system tray entry visible. Calling
     setVisible(false) or hide() hides the system tray entry.
 */
 void QSystemTrayIcon::setVisible(bool visible)
@@ -194,7 +195,7 @@ bool QSystemTrayIcon::event(QEvent *e)
 
     This signal is emitted when the user activates the system tray icon
     with \a globalPos being the global mouse position at that moment.
-  
+
     The mouse button that activates a system tray entry is dependant on the platform
     On Window, this is a left button click. On X11, this is triggered when the
     left button is pressed.
@@ -206,7 +207,7 @@ bool QSystemTrayIcon::event(QEvent *e)
     \fn void QSystemTrayIcon::clicked(const QPoint &globalPos, Qt::MouseButton button)
 
     This signal is emitted when the \a button is clicked (i.e pressed down then
-    released while the mouse cursor is inside the icon) with \a globalPos being the 
+    released while the mouse cursor is inside the icon) with \a globalPos being the
     global mouse position at that moment.
 
     \sa activated(), doubleClicked(), messageClicked()
@@ -256,11 +257,11 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
 
     \sa showMessage()
   */
-void QSystemTrayIcon::showMessage(const QString& title, const QString& msg, 
+void QSystemTrayIcon::showMessage(const QString& title, const QString& msg,
                             QSystemTrayIcon::MessageIcon icon, int msecs)
 {
     Q_D(QSystemTrayIcon);
-    d->showMessage(title, msg, icon, msecs); 
+    d->showMessage(title, msg, icon, msecs);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -279,14 +280,14 @@ void QBalloonTip::showBalloon(QSystemTrayIcon::MessageIcon icon, const QString& 
 
 void QBalloonTip::hideBalloon()
 {
-    if (!theSolitaryBalloonTip) 
+    if (!theSolitaryBalloonTip)
         return;
     theSolitaryBalloonTip->hide();
     delete theSolitaryBalloonTip;
     theSolitaryBalloonTip = 0;
 }
 
-QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title, 
+QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title,
                          const QString& message, QSystemTrayIcon *ti)
     : QWidget(0, Qt::ToolTip), trayIcon(ti), timerId(-1)
 {
@@ -431,7 +432,7 @@ void QBalloonTip::balloon(const QPoint& pos, int msecs, bool showArrow)
     path.arcTo(QRect(ml, mb - rc*2, rc*2, rc*2), -90, -90);
     path.lineTo(ml, mt + rc);
     path.arcTo(QRect(ml, mt, rc*2, rc*2), 180, -90);
-    
+
     QPainter painter(&pixmap);
     painter.setPen(QPen(Qt::black, border));
     painter.setBrush(palette().color(QPalette::Window));

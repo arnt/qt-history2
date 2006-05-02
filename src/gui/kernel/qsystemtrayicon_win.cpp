@@ -1,15 +1,15 @@
 #include "qsystemtrayicon_p.h"
 #define _WIN32_IE 0x0500
 #include <QDesktopWidget>
-//#define _WIN32_IE 0x0600 
+//#define _WIN32_IE 0x0600
 
 //workaround for MINGW :
-#ifndef NIN_BALLOONSHOW     
+#ifndef NIN_BALLOONSHOW
 #define NIN_BALLOONTIMEOUT  (WM_USER + 4)
-#endif 
+#endif
 #ifndef NIN_BALLOONUSERCLICK
 #define NIN_BALLOONUSERCLICK (WM_USER + 5)
-#endif 
+#endif
 
 #include <qt_windows.h>
 #include <commctrl.h>
@@ -69,7 +69,7 @@ bool QSystemTrayIconSys::supportsMessages() const
     if (hmod)
     {
         DLLGETVERSIONPROC pDllGetVersion;
-        pDllGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hmod, 
+        pDllGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hmod,
                           "DllGetVersion");
         if(pDllGetVersion)
         {
@@ -83,11 +83,11 @@ bool QSystemTrayIconSys::supportsMessages() const
                     return true;
             }
         }
-    }     
+    }
     return false;
 }
 
-QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *object) 
+QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *object)
     : hIcon(0), q(object), button(Qt::NoButton)
 {
     // For restoring the tray icon after explorer crashes
@@ -106,7 +106,7 @@ QSystemTrayIconSys::~QSystemTrayIconSys()
 	DestroyIcon(hIcon);
 }
 
-void QSystemTrayIconSys::setIconContentsW(NOTIFYICONDATAW &tnd) 
+void QSystemTrayIconSys::setIconContentsW(NOTIFYICONDATAW &tnd)
 {
     tnd.uFlags = NIF_MESSAGE|NIF_ICON|NIF_TIP;
     tnd.uCallbackMessage = MYWM_NOTIFYICON;
@@ -119,7 +119,7 @@ void QSystemTrayIconSys::setIconContentsW(NOTIFYICONDATAW &tnd)
     }
 }
 
-void QSystemTrayIconSys::setIconContentsA(NOTIFYICONDATAA &tnd) 
+void QSystemTrayIconSys::setIconContentsA(NOTIFYICONDATAA &tnd)
 {
     tnd.uFlags = NIF_MESSAGE|NIF_ICON|NIF_TIP;
     tnd.uCallbackMessage = MYWM_NOTIFYICON;
@@ -151,11 +151,11 @@ int iconFlag( QSystemTrayIcon::MessageIcon icon )
     return flag;
 }
 
-bool QSystemTrayIconSys::showMessageW(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs) 
+bool QSystemTrayIconSys::showMessageW(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs)
 {
     NOTIFYICONDATA tnd;
     memset(&tnd, 0, sizeof(NOTIFYICONDATAW));
- 
+
     setIconContentsW(tnd);
     lstrcpynW(tnd.szInfo, (TCHAR*)message.utf16(), qMin(message.length() + 1, 256));
     lstrcpynW(tnd.szInfoTitle, (TCHAR*)title.utf16(), qMin(title.length() + 1, 64));
@@ -169,11 +169,11 @@ bool QSystemTrayIconSys::showMessageW(const QString &title, const QString &messa
     return ptrShell_NotifyIcon(NIM_MODIFY, &tnd);
 }
 
-bool QSystemTrayIconSys::showMessageA(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs) 
+bool QSystemTrayIconSys::showMessageA(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs)
 {
     NOTIFYICONDATAA tnd;
     memset(&tnd, 0, sizeof(NOTIFYICONDATAA));
-    
+
     setIconContentsA(tnd);
     lstrcpynA(tnd.szInfo, message.toLocal8Bit().constData(), qMin(message.length() + 1, 256));
     lstrcpynA(tnd.szInfoTitle, title.toLocal8Bit().constData(), qMin(title.length() + 1, 64));
@@ -200,7 +200,7 @@ bool QSystemTrayIconSys::trayMessageA(DWORD msg)
     return Shell_NotifyIconA(msg, &tnd);
 }
 
-bool QSystemTrayIconSys::trayMessageW(DWORD msg) 
+bool QSystemTrayIconSys::trayMessageW(DWORD msg)
 {
     NOTIFYICONDATAW tnd;
     memset(&tnd, 0, sizeof(NOTIFYICONDATAW));
@@ -219,7 +219,7 @@ bool QSystemTrayIconSys::trayMessage(DWORD msg)
     resolveLibs();
     if (!(ptrShell_NotifyIcon))
         return false;
-        
+
     QT_WA({
         return trayMessageW(msg);
     },
@@ -256,7 +256,7 @@ void QSystemTrayIconSys::createIcon()
 {
     hIcon = 0;
     QIcon icon = q->icon();
-    if (icon.isNull()) 
+    if (icon.isNull())
         return;
 
     QSize size = icon.actualSize(QSize(32, 32));
@@ -296,7 +296,7 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
 
     case WM_DRAWITEM:
 	return iconDrawItem((LPDRAWITEMSTRUCT)m->lParam);
-    
+
     case MYWM_NOTIFYICON:
 	{
             RECT r;
@@ -307,23 +307,23 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
 	    QPoint gpos = QCursor::pos();
 
             switch (m->lParam) {
-// LeftButton                
+// LeftButton
             case WM_LBUTTONDBLCLK:
                 button = Qt::NoButton;
 	        emit q->doubleClicked(gpos);
 		break;
-		
+
 	    case WM_LBUTTONDOWN:
                 button = Qt::LeftButton;
                 emit q->activated(gpos);
                 break;
-                
+
             case WM_LBUTTONUP:
                 if (button == Qt::LeftButton) {
                     emit q->clicked(gpos, button);
                 }
                 break;
-// Right Button                
+// Right Button
 	    case WM_RBUTTONDOWN:
                 button = Qt::RightButton;
                 break;
@@ -348,7 +348,7 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
                     emit q->clicked(gpos, button);
                 }
                 break;
-		
+
             case NIN_BALLOONUSERCLICK:
                 emit q->messageClicked();
                 break;
@@ -389,17 +389,17 @@ QRect QSystemTrayIconSys::findTrayGeometry()
     //Use lower right corner as fallback
     QPoint brCorner = qApp->desktop()->screenGeometry().bottomRight();
     QRect ret(brCorner.x() - 10, brCorner.y() - 10, 10, 10);
-    
+
     HWND trayHandle = FindWindowA("Shell_TrayWnd", NULL);
     if (trayHandle) {
         trayHandle = FindWindowExA(trayHandle, NULL, "TrayNotifyWnd", NULL);
         if (trayHandle) {
-            RECT r;        
-            if (GetWindowRect(trayHandle, &r)) { 
+            RECT r;
+            if (GetWindowRect(trayHandle, &r)) {
                 ret = QRect(r.left, r.top, r.right- r.left, r.bottom - r.top);
-            } 
+            }
         }
-    } 	
+    }
     return ret;
 }
 
@@ -407,7 +407,7 @@ QRect QSystemTrayIconSys::findTrayGeometry()
 * This function tries to determine the icon center position from the tray, in order to obtain
 * the source of balloon tips, when emulated by Qt.
 *
-* If no visible icon is found a point centered on the left side of the tray is returned. 
+* If no visible icon is found a point centered on the left side of the tray is returned.
 *
 * If everything fails, (-1, -1) is returned.
 */
@@ -418,31 +418,31 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
     DWORD processID = -1;
 
     HWND trayHandle = FindWindowA("Shell_TrayWnd", NULL);
-    
+
     //find the toolbar used in the notification area
     if (trayHandle) {
         trayHandle = FindWindowExA(trayHandle, NULL, "TrayNotifyWnd", NULL);
         if (trayHandle) {
             HWND hwnd = FindWindowEx(trayHandle, NULL, _T("SysPager"), NULL);
-            if (hwnd) {                
+            if (hwnd) {
                 hwnd = FindWindowEx(hwnd, NULL, _T("ToolbarWindow32"), NULL);
                 if (hwnd)
                     trayHandle = hwnd;
-            }   
+            }
         }
-    } 	
-    
+    }
+
     if (!trayHandle)
         return ret;
-       
-    GetWindowThreadProcessId(trayHandle, &processID); 
+
+    GetWindowThreadProcessId(trayHandle, &processID);
     if (processID <= 0)
         return ret;
 
     HANDLE trayProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, processID);
     if (!trayProcess)
         return ret;
-    
+
     int buttonCount = SendMessage(trayHandle, TB_BUTTONCOUNT, 0, 0);
     LPVOID data = VirtualAllocEx(trayProcess, NULL, sizeof(TBBUTTON), MEM_COMMIT, PAGE_READWRITE);
 
@@ -456,25 +456,25 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
         DWORD numBytes = -1;
         DWORD appData[2] = { 0, 0 };
         SendMessage(trayHandle, TB_GETBUTTON, toolbarButton , (LPARAM)data);
-        
+
         if(!ReadProcessMemory(trayProcess, data, &buttonData, sizeof(TBBUTTON), &numBytes))
             continue;
-     
+
         if(!ReadProcessMemory(trayProcess, (LPVOID) buttonData.dwData, appData, sizeof(appData), &numBytes))
             continue;
-       
+
         int currentIconId = appData[1];
         HWND currentIconHandle = (HWND) appData[0];
         bool isHidden = buttonData.fsState & TBSTATE_HIDDEN;
-        
-        if (currentIconHandle == winId() && 
+
+        if (currentIconHandle == winId() &&
             currentIconId == iconId && !isHidden) {
             SendMessage(trayHandle, TB_GETITEMRECT, toolbarButton , (LPARAM)data);
             RECT iconRect = {0, 0};
             if(ReadProcessMemory(trayProcess, data, &iconRect, sizeof(RECT), &numBytes)) {
     	        MapWindowPoints(trayHandle, NULL, (LPPOINT)&iconRect, 2);
-                QRect geometry(iconRect.left, iconRect.top, 
-                                iconRect.right - iconRect.left, 
+                QRect geometry(iconRect.left, iconRect.top,
+                                iconRect.right - iconRect.left,
                                 iconRect.bottom - iconRect.top);
                 ret = geometry.center();
                 break;
@@ -483,11 +483,11 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
     }
     VirtualFreeEx(trayProcess, data, NULL, MEM_RELEASE);
     CloseHandle(trayProcess);
-    return ret;	
+    return ret;
 }
 
 
-void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title, QSystemTrayIcon::MessageIcon type, int timeOut) 
+void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title, QSystemTrayIcon::MessageIcon type, int timeOut)
 {
     if (!sys)
         return;
@@ -495,28 +495,28 @@ void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &
     uint uSecs = 0;
     if ( timeOut < 0)
         uSecs = 10000; //10 sec default
-    else uSecs = (int)timeOut; 
-    
+    else uSecs = (int)timeOut;
+
     resolveLibs();
     //message is limited to 256 chars + NULL
     QString messageString = message.left(255) + QChar();
     //title is limited to 64 chars + NULL
     QString titleString = title.left(63) + QChar();
- 
+
     if (sys->supportsMessages()) {
         QT_WA({
             sys->showMessageW(messageString, titleString, type, (unsigned int)uSecs);
         }, {
             sys->showMessageA(messageString, titleString, type, (unsigned int)uSecs);
         });
-    } else { 
+    } else {
         //use fallbacks
         QPoint iconPos = sys->findIconPosition(0);
         if(iconPos != QPoint(-1, -1)) {
             QBalloonTip::showBalloon(type, message, title, sys->q, iconPos, uSecs, true);
         } else {
             QRect trayRect = sys->findTrayGeometry();
-            QBalloonTip::showBalloon(type, message, title, sys->q, QPoint(trayRect.left(), 
+            QBalloonTip::showBalloon(type, message, title, sys->q, QPoint(trayRect.left(),
                                      trayRect.center().y()), uSecs, false);
         }
     }
@@ -542,6 +542,11 @@ void QSystemTrayIconPrivate::updateIcon()
 
     sys->createIcon();
     sys->trayMessage(NIM_MODIFY);
+}
+
+void QSystemTrayIconPrivate::updateMenu()
+{
+
 }
 
 void QSystemTrayIconPrivate::updateToolTip()

@@ -31,7 +31,7 @@ class QSystemTrayIconSys : public QWidget
 
 public:
     QSystemTrayIconSys(QSystemTrayIcon *q);
-    ~QSystemTrayIconSys();    
+    ~QSystemTrayIconSys();
     enum {
         SYSTEM_TRAY_REQUEST_DOCK = 0,
         SYSTEM_TRAY_BEGIN_MESSAGE = 1,
@@ -76,7 +76,7 @@ Window locateSystemTray()
 
     return XGetSelectionOwner(QX11Info::display(), sysTraySelection);
 }
- 
+
 bool QSystemTrayIconSys::sysTrayTracker(void *message, long *result)
 {
     bool retval = false;
@@ -113,8 +113,8 @@ bool QSystemTrayIconSys::sysTrayTracker(void *message, long *result)
     return retval;
 }
 
-QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q) 
-    : QWidget(0, Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint), 
+QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q)
+    : QWidget(0, Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint),
       q(q), doubleClicked(false)
 {
     setAttribute(Qt::WA_AlwaysShowToolTips);
@@ -131,7 +131,7 @@ QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q)
     }
     if (trayIcons.isEmpty()) {
         sysTrayWindow = locateSystemTray();
-	if (sysTrayWindow != None) 
+	if (sysTrayWindow != None)
 	    XSelectInput(display, sysTrayWindow, StructureNotifyMask); // track tray events
     }
     trayIcons.append(this);
@@ -142,8 +142,8 @@ QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q)
 }
 
 QSystemTrayIconSys::~QSystemTrayIconSys()
-{ 
-    trayIcons.removeAt(trayIcons.indexOf(this)); 
+{
+    trayIcons.removeAt(trayIcons.indexOf(this));
     if (trayIcons.isEmpty()) {
         Display *display = QX11Info::display();
         if (sysTrayWindow == None)
@@ -199,8 +199,8 @@ void QSystemTrayIconSys::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     const QRect r = rect();
-    p.drawPixmap(r.x() + (r.width() - cachedPixmap.width())/2, 
-                 r.y() + (r.height() - cachedPixmap.height())/2, 
+    p.drawPixmap(r.x() + (r.width() - cachedPixmap.width())/2,
+                 r.y() + (r.height() - cachedPixmap.height())/2,
                  cachedPixmap);
 }
 
@@ -263,6 +263,11 @@ void QSystemTrayIconPrivate::updateIcon()
     sys->updateIcon();
 }
 
+void QSystemTrayIconPrivate::updateMenu()
+{
+
+}
+
 void QSystemTrayIconPrivate::updateToolTip()
 {
     if (!sys)
@@ -275,14 +280,14 @@ bool QSystemTrayIconPrivate::isSystemTrayAvailable()
     return locateSystemTray() != None;
 }
 
-void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title, 
-                                   QSystemTrayIcon::MessageIcon icon, int msecs) 
+void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title,
+                                   QSystemTrayIcon::MessageIcon icon, int msecs)
 {
     if (!sys || !sys->isVisible())
         return;
     QPoint g = sys->mapToGlobal(QPoint(0, 0));
-    QBalloonTip::showBalloon(icon, message, title, sys->q, 
-                             QPoint(g.x() + sys->width()/2, g.y() + sys->height()/2), 
+    QBalloonTip::showBalloon(icon, message, title, sys->q,
+                             QPoint(g.x() + sys->width()/2, g.y() + sys->height()/2),
                              msecs);
 }
 

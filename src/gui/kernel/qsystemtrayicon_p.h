@@ -52,6 +52,7 @@ public:
     void remove();
     void updateIcon();
     void updateToolTip();
+    void updateMenu();
     void showMessage(const QString &msg, const QString &title, QSystemTrayIcon::MessageIcon icon, int secs);
     static bool isSystemTrayAvailable();
     QPointer<QMenu> menu;
@@ -64,13 +65,13 @@ public:
 class QBalloonTip : public QWidget
 {
 public:
-    static void showBalloon(QSystemTrayIcon::MessageIcon icon, const QString& title, 
+    static void showBalloon(QSystemTrayIcon::MessageIcon icon, const QString& title,
                             const QString& msg, QSystemTrayIcon *trayIcon,
                             const QPoint& pos, int timeout, bool showArrow = true);
     static void hideBalloon();
 
 private:
-    QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title, 
+    QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title,
                 const QString& msg, QSystemTrayIcon *trayIcon);
     ~QBalloonTip();
     void balloon(const QPoint&, int, bool);

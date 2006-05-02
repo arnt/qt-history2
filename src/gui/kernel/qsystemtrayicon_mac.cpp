@@ -12,6 +12,10 @@ void QSystemTrayIconPrivate::updateIcon()
 {
 }
 
+void QSystemTrayIconPrivate::updateMenu()
+{
+}
+
 void QSystemTrayIconPrivate::updateToolTip()
 {
 }
@@ -24,5 +28,4 @@ bool QSystemTrayIconPrivate::isSystemTrayAvailable()
 void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title,
                                          QSystemTrayIcon::MessageIcon icon, int msecs)
 {
-    return;
 }
