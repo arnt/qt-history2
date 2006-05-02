@@ -478,7 +478,7 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
     else
         fd->addStyle.clear();
 
-    fd->pointSize = atoi(tokens[PointSize]);
+    fd->pointSize = atoi(tokens[PointSize])/10.;
     fd->styleHint = QFont::AnyStyle;        // ### any until we match families
 
     char slant = tolower((uchar) tokens[Slant][0]);
