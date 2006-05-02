@@ -1659,7 +1659,9 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
 
     if (pre)
         html += QLatin1String("</pre>");
-    else if (!list)
+    else if (list)
+        html += QLatin1String("</li>");
+    else
         html += QLatin1String("</p>");
 
     if (list) {
