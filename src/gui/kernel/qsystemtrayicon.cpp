@@ -21,6 +21,11 @@
 #include "qpushbutton.h"
 #include "qpainterpath.h"
 #include "qpainter.h"
+#include "qstyle.h"
+#include "qgridlayout.h"
+#include "qapplication.h"
+#include "qdesktopwidget.h"
+#include "qbitmap.h"
 
 /*!
     \class QSystemTrayIcon
