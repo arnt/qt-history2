@@ -975,8 +975,24 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
     // check return type
     if (ret.data()) {
         const char *retType = obj->metaObject()->method(idx).typeName();
-        if (qstrcmp(ret.name(), retType) != 0)
-            return false;
+        if (qstrcmp(ret.name(), retType) != 0) {
+            // normalize the return value as well
+            // the trick here is to make a function signature out of the return type
+            // so that we can call normalizedSignature() and avoid duplicating code
+            QByteArray unnormalized;
+            int len = qstrlen(ret.name());
+ 
+            unnormalized.reserve(len + 3);
+            unnormalized = "_(";        // the function is called "_"
+            unnormalized.append(ret.name());
+            unnormalized.append(')');
+
+            QByteArray normalized = QMetaObject::normalizedSignature(unnormalized.constData());
+            normalized.truncate(normalized.length() - 1); // drop the ending ')'
+
+            if (qstrcmp(normalized.constData() + 2, retType) != 0)
+                return false;
+        }
     }
     void *param[] = {ret.data(), val0.data(), val1.data(), val2.data(), val3.data(), val4.data(),
                      val5.data(), val6.data(), val7.data(), val8.data(), val9.data()};
