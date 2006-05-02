@@ -239,7 +239,8 @@ void QTextDocumentPrivate::setLayout(QAbstractTextDocumentLayout *layout)
         delete lout;
     lout = layout;
     emit q->contentsChange(0, 0, length());
-    lout->documentChanged(0, 0, length());
+    if (lout)
+        lout->documentChanged(0, 0, length());
 }
 
 
