@@ -2516,11 +2516,25 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 bdi.state = kThemeStateActive;
             bdi.adornment = kThemeAdornmentNone;
             bdi.value = kThemeButtonOff;
+
+            switch (qt_aqua_size_constrain(w)) {
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                bdi.kind = kThemePushButtonNormal;
+                break;
+            case QAquaSizeMini:
+                bdi.kind = kThemePushButtonMini;
+                break;
+            case QAquaSizeSmall:
+                bdi.kind = kThemePushButtonSmall;
+                break;
+            }
+
             if ((btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
-                || (btn->rect.width() < 50 || btn->rect.height() < 30))
+                || ((btn->rect.width() < 50 || btn->rect.height() < 30)
+                      && bdi.kind == kThemePushButtonNormal))
                 bdi.kind = kThemeBevelButton;
-            else
-                bdi.kind = kThemePushButton;
+
             if (btn->state & State_HasFocus
                     && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
                 bdi.adornment |= kThemeAdornmentFocus;
@@ -2568,7 +2582,23 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             // windows style if it has an icon, then it should be more like a
             // tab. So, cheat a little here.
             if (btn->icon.isNull()) {
+                QFont oldFont = p->font();
+                QFont newFont = qt_app_fonts_hash()->value("QPushButton", oldFont);
+                if (oldFont == newFont) {
+                    switch (qt_aqua_size_constrain(w)) {
+                    default:
+                        break;
+                    case QAquaSizeSmall:
+                        newFont = qt_app_fonts_hash()->value("QToolButton", newFont);
+                        break;
+                    case QAquaSizeMini:
+                        newFont = qt_app_fonts_hash()->value("QMiniPushButton", newFont);
+                        break;
+                    }
+                    p->setFont(newFont);
+                }
                 QWindowsStyle::drawControl(ce, btn, p, w);
+                p->setFont(oldFont);
             } else {
                 QRect br = p->boundingRect(btn->rect, Qt::AlignCenter, btn->text);
                 QIcon::Mode mode = btn->state & State_Enabled ? QIcon::Normal
@@ -3073,10 +3103,24 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeStateActive;
             bdi.value = kThemeButtonOff;
-            if (btn->features & QStyleOptionButton::None)
-                bdi.kind = kThemePushButton;
-            else
+            switch (qt_aqua_size_constrain(widget)) {
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                bdi.kind = kThemePushButtonNormal;
+                break;
+            case QAquaSizeMini:
+                bdi.kind = kThemePushButtonMini;
+                break;
+            case QAquaSizeSmall:
+                bdi.kind = kThemePushButtonSmall;
+                break;
+            }
+
+            if ((btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
+                || ((btn->rect.width() < 50 || btn->rect.height() < 30)
+                      && bdi.kind == kThemePushButtonNormal))
                 bdi.kind = kThemeBevelButton;
+
             bdi.adornment = kThemeAdornmentNone;
             HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
             rect.setRect(int(outRect.origin.x), int(outRect.origin.y - 2),
@@ -4227,22 +4271,50 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 return sz;
             }
         }
+        QAquaWidgetSize widgetSize = qt_aqua_size_constrain(widget);
         ThemeButtonKind bkind;
         switch (ct) {
         default:
         case CT_PushButton:
-            bkind = kThemePushButton;
+            switch (widgetSize) {
+            default:
+            case QAquaSizeLarge:
+                bkind = kThemePushButtonNormal;
+                break;
+            case QAquaSizeSmall:
+                bkind = kThemePushButtonSmall;
+                break;
+            case QAquaSizeMini:
+                bkind = kThemePushButtonMini;
+                break;
+            }
             break;
         case CT_ToolButton:
-            bkind = kThemeBevelButton;
+            switch (widgetSize) {
+            default:
+            case QAquaSizeLarge:
+                bkind = kThemeBevelButtonLarge;
+                break;
+            case QAquaSizeMini:
+            case QAquaSizeSmall:
+                bkind = kThemeBevelButtonSmall;
+            }
             break;
         case CT_ComboBox:
-            bkind = kThemePopupButton;
+            switch (widgetSize) {
+            default:
+            case QAquaSizeLarge:
+                bkind = kThemePopupButtonNormal;
+                break;
+            case QAquaSizeSmall:
+                bkind = kThemePopupButtonSmall;
+                break;
+            case QAquaSizeMini:
+                bkind = kThemePopupButtonMini;
+                break;
+            }
             break;
         }
-
-        if (bkind == kThemeBevelButton && qt_aqua_size_constrain(widget) == QAquaSizeSmall)
-            bkind = kThemeSmallBevelButton;
 
         HIThemeButtonDrawInfo bdi;
         bdi.version = qt_mac_hitheme_version;

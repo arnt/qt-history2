@@ -379,6 +379,7 @@ void qt_mac_update_os_settings()
             { "QToolButton", kThemeSmallSystemFont },
             { "QMenuItem", kThemeMenuItemCmdKeyFont },  // It doesn't exist, but its unique.
             { "QComboLineEdit", kThemeViewsFont },  // It doesn't exist, but its unique.
+            { "QMiniPushButton", kThemeMiniSystemFont },  // It doesn't exist, but its unique.
             { 0, 0 } };
         Str255 f_name;
         SInt16 f_size;
