@@ -450,7 +450,9 @@ Qt::ItemFlags QTableModel::flags(const QModelIndex &index) const
     return (Qt::ItemIsEditable
             |Qt::ItemIsSelectable
             |Qt::ItemIsUserCheckable
-            |Qt::ItemIsEnabled);
+            |Qt::ItemIsEnabled
+            |Qt::ItemIsDragEnabled
+            |Qt::ItemIsDropEnabled);
 }
 
 void QTableModel::sort(int column, Qt::SortOrder order)
