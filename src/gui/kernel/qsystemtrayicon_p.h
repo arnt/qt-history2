@@ -15,26 +15,23 @@
 #define QSYSTEMTRAYICON_P_H
 
 //
-////  W A R N I N G
-////  -------------
-////
-//// This file is not part of the Qt API.  It exists for the convenience
-//// of a number of Qt sources files.  This header file may change from
-//// version to version without notice, or even be removed.
-////
-//// We mean it.
-////
+//  W A R N I N G
+//  -------------
 //
+// This file is not part of the Qt API.  It exists for the convenience
+// of a number of Qt sources files.  This header file may change from
+// version to version without notice, or even be removed.
 //
-#include "private/qobject_p.h"
+// We mean it.
+//
 
 #include "qsystemtrayicon.h"
+#include "private/qobject_p.h"
 
-#include <QMenu>
-#include <QString>
-#include <QIcon>
-#include <QPointer>
-#include <QPixmap>
+#include "QtGui/QMenu"
+#include "QtCore/QString"
+#include "QtCore/QPointer"
+#include "QtGui/QPixmap"
 
 class QSystemTrayIconSys;
 class QToolButton;
