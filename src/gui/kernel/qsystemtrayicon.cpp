@@ -30,18 +30,20 @@
 /*!
     \class QSystemTrayIcon
     \brief The QSystemTrayIcon class provides a way to add an entry to the system tray.
+    \since 4.2
+    \ingroup application
 
     Modern operating systems usually provide a special area on the desktop,
-    called \e{system tray} or \e{notification area}, where applications can
-    display icons and short messages.
+    called the \e{system tray} or \e{notification area}, where long-running
+    applications can display icons and short messages.
 
-    \img system-tray.png The system tray on Windows XP
+    \image system-tray.png The system tray on Windows XP.
 
-    The system tray is supported on the following platforms:
+    The QSystemTrayIcon class can be used on the following platforms:
 
     \list
-    \o All versions of Windows.
-    \o On X11, all window managers that implement the freedesktop.org system
+    \o All supported versions of Windows.
+    \o All window managers for X11 that implement the \l{freedesktop.org} system
        tray specification, including recent versions of KDE and GNOME.
     \omit
     \o On Mac OS X, when the \c growl program is running.
@@ -49,23 +51,24 @@
     \endlist
 
     To check whether a system tray is present on the user's desktop,
-    call the static function QSystemTrayIcon::isSystemTrayAvailable(). If the system tray
-    is currently unavailable but becomes available later, QSystemTrayIcon will automatically add an
-    entry in the system tray if it is visible().
+    call the QSystemTrayIcon::isSystemTrayAvailable() static function.
 
     To add a system tray entry, create a QSystemTrayIcon object, call setContextMenu()
-    to provide a context menu for the icon, and call show() to make it visible in the system
-    tray. Status notification messages ("balloon messages") can be displayed at any time using
-    showMessage().
+    to provide a context menu for the icon, and call show() to make it visible in the
+    system tray. Status notification messages ("balloon messages") can be displayed at
+    any time using showMessage().
 
-    The activated() signal is emitted when the users clicks on the icon. (More precisely,
-    on Windows, it is emitted when the left mouse button is released; on X11, when the
-    left mouse button is pressed.)
+    If the system tray is unavailable when a system tray icon is constructed, but
+    becomes available later, QSystemTrayIcon will automatically add an entry for the
+    application in the system tray if the icon is \l visible.
+
+    The activated() signal is emitted when the user clicks on the icon.
 */
 
 /*!
-    Creates a QSystemTrayIcon object. \a parent is propagated
-    to the QObject constructor. The icon is initially invisible.
+    Constructs a QSystemTrayIcon object with the given \a parent.
+
+    The icon is initially invisible.
 
     \sa visible
 */
@@ -84,8 +87,10 @@ QSystemTrayIcon::~QSystemTrayIcon()
 }
 
 /*!
-    The menu will pop up when the user requests the context menu for the system tray entry
-    by clicking the mouse button.
+    Sets the specified \a menu to be the context menu for the system tray icon.
+
+    The menu will pop up when the user requests the context menu for the system
+    tray icon by clicking the mouse button.
 */
 void QSystemTrayIcon::setContextMenu(QMenu *menu)
 {
@@ -105,10 +110,10 @@ QMenu* QSystemTrayIcon::contextMenu() const
 
 /*!
     \property QSystemTrayIcon::icon
-    \brief the system tray icon.
+    \brief the system tray icon
 
-    On Windows, the system tray icon size is 16x16. On X11, the preferred size 22x22 and
-    will be scaled as necessary.
+    On Windows, the system tray icon size is 16x16; on X11, the preferred size is
+    22x22. The icon will be scaled to the appropriate size as necessary.
 */
 void QSystemTrayIcon::setIcon(const QIcon &icon)
 {
@@ -127,7 +132,8 @@ QIcon QSystemTrayIcon::icon() const
     \property QSystemTrayIcon::toolTip
     \brief the tooltip for the system tray entry
 
-    On some systems, the tooltip's length is limited. The tooltip will be truncated if necessary.
+    On some systems, the tooltip's length is limited. The tooltip will be truncated
+    if necessary.
 */
 void QSystemTrayIcon::setToolTip(const QString &tooltip)
 {
@@ -144,6 +150,7 @@ QString QSystemTrayIcon::toolTip() const
 
 /*!
     \fn void QSystemTrayIcon::show()
+
     Shows the icon in the system tray.
 
     \sa hide(), visible
@@ -151,6 +158,7 @@ QString QSystemTrayIcon::toolTip() const
 
 /*!
     \fn void QSystemTrayIcon::hide()
+
     Hides the system tray entry.
 
     \sa show(), visible
@@ -161,8 +169,8 @@ QString QSystemTrayIcon::toolTip() const
     \property QSystemTrayIcon::visible
     \brief whether the system tray entry is visible
 
-    Calling setVisible(true) or show() makes the system tray entry visible. Calling
-    setVisible(false) or hide() hides the system tray entry.
+    Setting this property to true or calling show() makes the system tray icon
+    visible; setting this property to false or calling hide() hides it.
 */
 void QSystemTrayIcon::setVisible(bool visible)
 {
@@ -193,12 +201,13 @@ bool QSystemTrayIcon::event(QEvent *e)
 /*!
     \fn void QSystemTrayIcon::activated(const QPoint &globalPos)
 
-    This signal is emitted when the user activates the system tray icon
-    with \a globalPos being the global mouse position at that moment.
+    This signal is emitted when the user activates the system tray icon.
+    The global mouse position on the desktop at that moment is specified by \a globalPos.
 
-    The mouse button that activates a system tray entry is dependant on the platform
-    On Window, this is a left button click. On X11, this is triggered when the
-    left button is pressed.
+    \bold{Note:} The mouse button that activates a system tray entry is dependent on
+    the platform. On Windows, this signal is emitted when the left mouse button is
+    released when the cursor is still inside the icon; on X11, it is emitted when the
+    left mouse button is pressed.
 
     \sa clicked(), doubleClicked()
 */
@@ -206,9 +215,13 @@ bool QSystemTrayIcon::event(QEvent *e)
 /*!
     \fn void QSystemTrayIcon::clicked(const QPoint &globalPos, Qt::MouseButton button)
 
-    This signal is emitted when the \a button is clicked (i.e pressed down then
-    released while the mouse cursor is inside the icon) with \a globalPos being the
-    global mouse position at that moment.
+    This signal is emitted when the icon is clicked with the specified \a button.
+    The global mouse position on the desktop at that moment is specified by
+    \a globalPos.
+
+    \bold{Note:} On Windows, this signal is emitted when the left mouse button is
+    released when the cursor is still inside the icon; on X11, it is emitted when the
+    left mouse button is pressed.
 
     \sa activated(), doubleClicked(), messageClicked()
 */
@@ -217,8 +230,8 @@ bool QSystemTrayIcon::event(QEvent *e)
     \fn void QSystemTrayIcon::doubleClicked(const QPoint &globalPos)
 
     This signal is emitted when the user double clicks the system tray
-    icon with the left mouse button, with \a globalPos being the global mouse
-    position at that moment.
+    icon with the left mouse button. The global mouse position on the desktop at
+    that moment is specified by \a globalPos.
 
     \sa clicked(), activated()
 */
@@ -228,15 +241,17 @@ bool QSystemTrayIcon::event(QEvent *e)
 
     This signal is emitted when the message displayed using showMessage()
     was clicked by the user.
+
+    \sa clicked()
 */
 
 
 /*!
-    Returns true if the system tray is available; otherwise returns
-    false.
+    Returns true if the system tray is available; otherwise returns false.
 
     If the system tray is currently unavailable but becomes available later,
-    QSystemTrayIcon will automatically add an entry in the system tray if it is visible().
+    QSystemTrayIcon will automatically add an entry in the system tray if it
+    is \l visible.
 */
 
 bool QSystemTrayIcon::isSystemTrayAvailable()
@@ -245,15 +260,17 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
 }
 
 /*!
-    Shows a balloon message for the entry with title \a title,
-    message \a msg and icon \a icon for \a msecs milliseconds.
+    \fn void QSystemTrayIcon::showMessage(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int milliseconds)
 
-    The messageClicked() signal is emitted when the message was clicked
-    by the user.
+    Shows a balloon message for the entry with the given \a title and \a message for
+    the specified number of \a milliseconds.
 
-    Note that display of messages are system dependant and may
-    not appear at all. Hence, it should not be relied upon as the
-    sole means for providing critical information.
+    Message can be clicked by the user; the messageClicked() signal will emitted when
+    this occurs.
+
+    Note that display of messages are dependent on the system configuration and user
+    preferences, and that messages may not appear at all. Hence, it should not be
+    relied upon as the sole means for providing critical information.
 
     \sa showMessage()
   */
