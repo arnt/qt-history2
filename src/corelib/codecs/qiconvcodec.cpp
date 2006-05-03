@@ -1,5 +1,6 @@
 #include "qiconvcodec_p.h"
 
+#include <errno.h>
 #if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
 #include <langinfo.h>
 #endif
