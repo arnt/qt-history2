@@ -384,7 +384,8 @@ QByteArray qCompress(const uchar* data, int nbytes, int compressionLevel)
 }
 #endif
 
-/*! \fn QByteArray qUncompress(const QByteArray& data)
+/*! 
+    \fn QByteArray qUncompress(const QByteArray& data)
 
     \relates QByteArray
 
@@ -396,6 +397,11 @@ QByteArray qCompress(const uchar* data, int nbytes, int compressionLevel)
     This function will uncompress data compressed with qCompress()
     from this and any earlier Qt version, back to Qt 3.1 when this
     feature was added.
+
+    \bold{Note:} If you want to use this function to uncompress external
+    data compressed using zlib, you first need to prepend four bytes to the
+    byte array that contain the expected length of the uncompressed data
+    encoded in big-endian order (most significant byte first).
 
     \sa qCompress()
 */
