@@ -273,19 +273,19 @@ QStyle::~QStyle()
     first time.
 
     Note that the default implementation does nothing. Reasonable
-    actions in this function might be to call
-    QWidget::setBackgroundMode() for the widget. An example of highly
-    unreasonable use would be setting the geometry! Reimplementing
-    this function provides a back-door through which the appearance of
-    a widget can be changed, but with Qt 4.0's style engine there is
-    rarely necessary to implement this function; reimplement
-    drawItem(), drawPrimitive(), etc. instead.
+    actions in this function might be to call the
+    QWidget::setBackgroundMode() function for the widget. Do not use
+    the function to set, for example, the geometry; reimplementing
+    this function do provide a back-door through which the appearance
+    of a widget can be changed, but with Qt 4.0's style engine there
+    is rarely necessary to implement this function; reimplement the
+    drawItemPixmap(), drawItemText(), drawPrimitive(), etc. instead.
 
     The QWidget::inherits() function may provide enough information to
-    allow class-specific customizations. But be careful not to
-    hard-code things too much because new QStyle subclasses are
-    expected to work reasonably with all current and \e future
-    widgets.
+    allow class-specific customizations. But because new QStyle
+    subclasses are expected to work reasonably with all current and \e
+    future widgets, limited use of hard-coded customization is
+    recommended.
 
     \sa unpolish()
 */
@@ -294,7 +294,7 @@ void QStyle::polish(QWidget * /* widget */)
 }
 
 /*!
-    Uninitializate the given \a{widget}'s appearance.
+    Uninitialize the given \a{widget}'s appearance.
 
     This function is the counterpart to polish(). It is called for
     every polished widget whenever the style is dynamically changed;
@@ -312,8 +312,6 @@ void QStyle::unpolish(QWidget * /* widget */)
     \overload
 
     Late initialization of the given \a application object.
-
-    \sa unpolish()
 */
 void QStyle::polish(QApplication * /* app */)
 {
@@ -324,8 +322,6 @@ void QStyle::polish(QApplication * /* app */)
     \overload
 
     Uninitialize the given \a application.
-
-    \sa polish()
 */
 void QStyle::unpolish(QApplication * /* app */)
 {
@@ -350,13 +346,12 @@ void QStyle::polish(QPalette & /* pal */)
     Returns the area within the given \a rectangle in which to draw
     the provided \a text according to the specified font \a metrics
     and \a alignment. The \a enabled parameter indicates whether or
-    not the item is enabled.
+    not the associated item is enabled.
 
     If the given \a rectangle is larger than the area needed to render
     the \a text, the rectangle that is returned will be offset within
-    \a rectangle according to the \a alignment.
-
-    For example, if \a alignment is Qt::AlignCenter, the returned
+    \a rectangle according to the specified \a alignment.  For
+    example, if \a alignment is Qt::AlignCenter, the returned
     rectangle will be centered within \a rectangle. If the given \a
     rectangle is smaller than the area needed, the returned rectangle
     will be the smallest rectangle large enough to render the \a text.
@@ -414,11 +409,11 @@ QRect QStyle::itemPixmapRect(const QRect &rect, int alignment, const QPixmap &pi
 
     The text is drawn using the painter's pen, and aligned and wrapped
     according to the specified \a alignment. If an explicit \a
-    textRole is specified, the text is drawn using the color specified
-    for the specified role in \a palette. The \a enabled parameter
-    indicates whether or not the item is enabled; when reimplementing
-    this function, the \a enabled paramet should influence how the
-    item is drawn.
+    textRole is specified, the text is drawn using the \a palette's
+    color for the given role. The \a enabled parameter indicates
+    whether or not the item is enabled; when reimplementing this
+    function, the \a enabled parameter should influence how the item is
+    drawn.
 
     \sa Qt::Alignment, drawItemPixmap()
 */
@@ -453,7 +448,7 @@ void QStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, c
     \fn void QStyle::drawItemPixmap(QPainter *painter, const QRect &rectangle, int alignment,
                             const QPixmap &pixmap) const
 
-    Draws the given \a pixmap in the specified \a rectangle, acoording
+    Draws the given \a pixmap in the specified \a rectangle, according
     to the specified \a alignment, using the provided \a painter.
 
     \sa drawItemText()
@@ -563,7 +558,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     elements.
 
     Note that not all primitives use all of these flags, and that the
-    flags may mean different things to different primitives.
+    flags may mean different things to different items.
 
     \value State_Active
     \value State_AutoRaise
@@ -608,7 +603,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     aid in drawing the primitive element.
 
     The table below is listing the primitive elements and their
-    associated style option subclass. The style options contains all
+    associated style option subclasses. The style options contain all
     the parameters required to draw the elements, including
     QStyleOption::state which holds the style flags that are used when
     drawing. The table also describes which flags that are set when
@@ -739,15 +734,13 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     Draws the given \a element with the provided  \a painter with the
     style options specified by \a option.
 
-    The \a widget argument is optional and may contain a widget that
-    may aid in drawing the control.
-
-    The \a option parameter is a pointer to a QStyleOption object that
-    can be casted to the correct subclass using the
-    qstyleoption_cast() function.
+    The \a widget argument is optional and can be used as aid in
+    drawing the control. The \a option parameter is a pointer to a
+    QStyleOption object that can be casted to the correct subclass
+    using the qstyleoption_cast() function.
 
     The table below is listing the control elements and their
-    associated style option subclass. The style options contains all
+    associated style option subclass. The style options contain all
     the parameters required to draw the controls, including
     QStyleOption::state which holds the style flags that are used when
     drawing. The table also describes which flags that are set when
@@ -856,14 +849,14 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SE_DialogButtonIgnore  Area for a dialog's ignore button.
     \value SE_DialogButtonCustom  Area for a dialog's custom widget area (in the button row).
 
-    \value SE_HeaderArrow
-    \value SE_HeaderLabel
+    \value SE_HeaderArrow Area for the sort indicator for a header.
+    \value SE_HeaderLabel Area for the label in a header.
 
-    \value SE_TabWidgetLeftCorner
-    \value SE_TabWidgetRightCorner
-    \value SE_TabWidgetTabBar
-    \value SE_TabWidgetTabContents
-    \value SE_TabWidgetTabPane
+    \value SE_TabWidgetLeftCorner Area for the left corner widget in a tab widget.
+    \value SE_TabWidgetRightCorner Area for the right corner widget in a tab widget.
+    \value SE_TabWidgetTabBar Area for the tab bar widget in a tab widget.
+    \value SE_TabWidgetTabContents Area for the contents of the tab widget.
+    \value SE_TabWidgetTabPane Area for the pane of a tab widget.
     \value SE_ToolBoxTabContents  Area for a toolbox tab's icon and label.
 
     \value SE_ViewItemCheckIndicator Area for a view item's check mark.
@@ -881,18 +874,17 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 /*!
     \fn QRect QStyle::subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const
 
-    Returns the sub-area \a element as described in \a option in logical
-    coordinates.
+    Returns the sub-area for the given \a element as described in the
+    provided style \a option. The returned rectangle is defined in
+    screen coordinates.
 
-    The \a widget argument is optional and may contain a widget that
-    may aid determining the subRect.
-
-    The QStyleOption can be cast to the appropriate type based on the
-    value of \a element. See the table below for the appropriate \a
-    option casts:
+    The \a widget argument is optional and can be used to aid
+    determining the area. The QStyleOption object can be casted to the
+    appropriate type using the qstyleoption_cast() function. See the
+    table below for the appropriate \a option casts:
 
     \table
-    \header \o SubElement \o Option Cast
+    \header \o Sub Element \o QStyleOption Subclass
     \row \o \l SE_PushButtonContents   \o \l QStyleOptionButton
     \row \o \l SE_PushButtonFocusRect  \o \l QStyleOptionButton
     \row \o \l SE_CheckBoxIndicator    \o \l QStyleOptionButton
@@ -907,8 +899,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \o \l SE_ProgressBarContents  \o \l QStyleOptionProgressBar
     \row \o \l SE_ProgressBarLabel     \o \l QStyleOptionProgressBar
     \endtable
-
-    \sa SubElement QStyleOption
 */
 
 /*!
@@ -1007,8 +997,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     Draws the given \a control using the provided \a painter with the
     style options specified by \a option.
 
-    The \a widget argument is optional and may contain a widget to
-    aid in drawing the control.
+    The \a widget argument is optional and can be used as aid in
+    drawing the control.
 
     The \a option parameter is a pointer to a QStyleOptionComplex
     object that can be casted to the correct subclass using the
@@ -1020,7 +1010,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     function.
 
     The table below is listing the complex control elements and their
-    associated style option subclass. The style options contains all
+    associated style option subclass. The style options contain all
     the parameters required to draw the controls, including
     QStyleOption::state which holds the \l {QStyle::StateFlag}{style
     flags} that are used when drawing. The table also describes which
@@ -1077,18 +1067,17 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         const QStyleOptionComplex *option, SubControl subControl,
         const QWidget *widget) const = 0
 
-    Returns the rectangle for the SubControl \a subControl in the
-    ComplexControl \a control, with the style options specified by \a
-    option in visual coordinates.
+    Returns the rectangle containing the specified \a subControl of
+    the given complex \a control (with the style specified by \a
+    option). The rectangle is defined in screen coordinates.
 
-    The \a option argument is a pointer to a QStyleOptionComplex or one of its
-    subclasses. The structure can be cast to the appropriate type based on the
-    value of \a control. See drawComplexControl() for details.
+    The \a option argument is a pointer to QStyleOptionComplex or
+    one of its subclasses, and can be casted to the appropiate type
+    using the qstyleoption_cast() function. See drawComplexControl()
+    for details. The \a widget is optional and can contain additional
+    information for the function.
 
-    The \a widget is optional and can contain additional information
-    for the function.
-
-    \sa drawComplexControl() ComplexControl SubControl QStyleOptionComplex
+    \sa drawComplexControl()
 */
 
 /*!
@@ -1103,10 +1092,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     Note that the \a position is expressed in screen coordinates.
 
     The \a option argument is a pointer to a QStyleOptionComplex
-    object (or one of its subclasses). The object can be cased to the
+    object (or one of its subclasses). The object can be casted to the
     appropriate type using the qstyleoption_cast() function. See
     drawComplexControl() for details. The \a widget argument is
-    optional and can contain additional information for the functions.
+    optional and can contain additional information for the function.
 
     \sa drawComplexControl(), subControlRect()
 */
@@ -1207,7 +1196,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_MenuScrollerHeight  Height of the scroller area in a QMenu.
     \value PM_MenuScrollerHeight  Height of the scroller area in a QMenu.
     \value PM_MenuTearoffHeight  Height of a tear off area in a QMenu.
-    \value PM_MenuDesktopFrameWidth
+    \value PM_MenuDesktopFrameWidth The frame width for the menu on the desktop.
 
     \value PM_CheckListButtonSize  Area (width/height) of the
         checkbox/radio button in a Q3CheckListItem.
@@ -1218,14 +1207,14 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_DialogButtonsButtonWidth  Minimum width of a button in a dialog buttons widget.
     \value PM_DialogButtonsButtonHeight  Minimum height of a button in a dialog buttons widget.
 
-    \value PM_HeaderMarkSize
-    \value PM_HeaderGripMargin
-    \value PM_HeaderMargin
+    \value PM_HeaderMarkSize The size of the sort indicator in a header.
+    \value PM_HeaderGripMargin The size of the resize grip in a header.
+    \value PM_HeaderMargin The size of the margin between the sort indicator and the text.
     \value PM_SpinBoxSliderHeight The height of the optional spin box slider.
 
-    \value PM_DefaultTopLevelMargin
-    \value PM_DefaultChildMargin
-    \value PM_DefaultLayoutSpacing
+    \value PM_DefaultTopLevelMargin The margin for a QProgressDialog.
+    \value PM_DefaultChildMargin The default margin for children in a layout.
+    \value PM_DefaultLayoutSpacing The spacing between the buttons in a progress dialog.
 
     \value PM_ToolBarIconSize Default tool bar icon size
     \value PM_SmallIconSize Default small icon size
@@ -1233,10 +1222,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value PM_FocusFrameHMargin Horizontal margin that the focus frame will outset the widget by.
     \value PM_FocusFrameVMargin Vertical margin that the focus frame will outset the widget by.
-    \value PM_IconViewIconSize
-    \value PM_ListViewIconSize
+    \value PM_IconViewIconSize The default size for icons in an icon view.
+    \value PM_ListViewIconSize The default size for icons in a list view.
 
-    \value PM_ToolTipLabelFrameWidth
+    \value PM_ToolTipLabelFrameWidth The frame width for a tool tip label.
     \value PM_CheckBoxLabelSpacing The spacing between a check box and its label.
     \value PM_TabBarIconSize The default icon size for a tab bar.
     \value PM_SizeGripSize The size of a size grip.
@@ -1283,8 +1272,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value CT_CheckBox A check box, like QCheckBox.
     \value CT_ComboBox A combo box, like QComboBox.
-    \value CT_DialogButtons
-    \value CT_Q3DockWindow
+    \omitvalue CT_DialogButtons
+    \value CT_Q3DockWindow A Q3DockWindow.
     \value CT_HeaderSection A header section, like QHeader.
     \value CT_LineEdit A line edit, like QLineEdit.
     \value CT_Menu A menu, like QMenu.
@@ -1350,11 +1339,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_EtchDisabledText Disabled text is "etched" as it is on Windows.
 
-    \value SH_DitherDisabledText
+    \value SH_DitherDisabledText Disabled text is dithered as it is on Motif.
 
     \value SH_GUIStyle The GUI style to use.
 
-    \value SH_ScrollBar_ContextMenu
+    \value SH_ScrollBar_ContextMenu Whether or not a scrollbar has a context menu.
 
     \value SH_ScrollBar_MiddleClickAbsolutePosition  A boolean value.
         If true, middle clicking on a scroll bar causes the slider to
@@ -1491,7 +1480,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_LineEdit_PasswordCharacter  The Unicode character to be
     used for passwords.
 
-    \value SH_Table_GridLineColor
+    \value SH_Table_GridLineColor The RGB value of the grid for a table.
 
     \value SH_UnderlineShortcut  Whether shortcuts are underlined.
 
@@ -1573,13 +1562,14 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \fn int QStyle::styleHint(StyleHint hint, const QStyleOption *option, \
                               const QWidget *widget, QStyleHintReturn *returnData) const
 
-    Returns the style hint \a hint for \a widget described in the QStyleOption
-    \a option. Currently \a returnData and \a widget are not used; they are
-    provided for future enhancement. The \a option parameter is used only in
-    SH_ComboBox_Popup, SH_ComboBox_LayoutDirection, and
-    SH_GroupBox_TextLabelColor.
+    Returns an integer representing the specified style \a hint for
+    the given \a widget described by the provided style \a option.
 
-    For an explanation of the return value, see \l StyleHint.
+    Note that currently, the \a returnData and \a widget parameters
+    are not used; they are provided for future enhancement. In
+    addition, the \a option parameter is used only in case of the
+    SH_ComboBox_Popup, SH_ComboBox_LayoutDirection, and
+    SH_GroupBox_TextLabelColor style hints.
 */
 
 /*!
@@ -1601,28 +1591,28 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_MessageBoxWarning  The "warning" icon.
     \value SP_MessageBoxCritical  The "critical" icon.
     \value SP_MessageBoxQuestion  The "question" icon.
-    \value SP_DesktopIcon
-    \value SP_TrashIcon
-    \value SP_ComputerIcon
-    \value SP_DriveFDIcon
-    \value SP_DriveHDIcon
-    \value SP_DriveCDIcon
-    \value SP_DriveDVDIcon
-    \value SP_DriveNetIcon
-    \value SP_DirOpenIcon
-    \value SP_DirClosedIcon
-    \value SP_DirLinkIcon
-    \value SP_FileIcon
-    \value SP_FileLinkIcon
-    \value SP_FileDialogStart
-    \value SP_FileDialogEnd
-    \value SP_FileDialogToParent
-    \value SP_FileDialogNewFolder
-    \value SP_FileDialogDetailedView
-    \value SP_FileDialogInfoView
-    \value SP_FileDialogContentsView
-    \value SP_FileDialogListView
-    \value SP_FileDialogBack
+    \value SP_DesktopIcon The "desktop" icon.
+    \value SP_TrashIcon The "trash" icon.
+    \value SP_ComputerIcon The "My computer" icon.
+    \value SP_DriveFDIcon The floppy icon.
+    \value SP_DriveHDIcon The harddrive icon.
+    \value SP_DriveCDIcon The CD icon.
+    \value SP_DriveDVDIcon The DVD icon.
+    \value SP_DriveNetIcon The network icon.
+    \value SP_DirOpenIcon The open directory icon.
+    \value SP_DirClosedIcon The closed directory icon.
+    \value SP_DirLinkIcon The link to directory icon.
+    \value SP_FileIcon The file icon.
+    \value SP_FileLinkIcon The link to file icon.
+    \value SP_FileDialogStart The "start" icon in a file dialog.
+    \value SP_FileDialogEnd The "end" icon in a file dialog.
+    \value SP_FileDialogToParent The "parent directory" icon in a file dialog.
+    \value SP_FileDialogNewFolder The "create new folder" icon in a file dialog.
+    \value SP_FileDialogDetailedView The detailed view icon in a file dialog.
+    \value SP_FileDialogInfoView The file info icon in a file dialog.
+    \value SP_FileDialogContentsView The contents view icon in a file dialog.
+    \value SP_FileDialogListView The list view icon in a file dialog.
+    \value SP_FileDialogBack The back arrow in a file dialog.
     \value SP_DockWidgetCloseButton  Close button on dock windows (see also QDockWidget).
     \value SP_ToolBarHorizontalExtensionButton Extension button for horizontal toolbars.
     \value SP_ToolBarVerticalExtensionButton Extension button for vertical toolbars.
@@ -1668,25 +1658,28 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \fn QPixmap QStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option, \
                                        const QWidget *widget) const
 
-    Returns a pixmap for \a standardPixmap.
+    Returns a pixmap for the given \a standardPixmap.
 
-    The \a option argument can be used to pass extra information required
-    when drawing the ControlElement.
-
-    The \a widget argument is optional and may contain a widget that
-    may aid in drawing the control.
+    A standard pixmap is a pixmap that can follow some existing GUI
+    style or guideline. The \a option argument can be used to pass
+    extra information required when defining the appropiate
+    pixmap. The \a widget argument is optional and can also be used to
+    aid the determination of the pixmap.
 
     \sa standardIcon()
 */
 
 
 /*!
-    Returns the rectangle \a logicalRect converted to screen coordinates based
-    on \a direction. The \a boundingRect rectangle is used to perform the
-    translation.
+    \fn QRect QStyle::visualRect(Qt::LayoutDirection direction, const QRect &boundingRectangle, const QRect &logicalRectangle)
 
-    This function is provided to aid style implementors in supporting
-    right-to-left desktops. It typically is used in subControlRect().
+    Returns the given \a logicalRectangle converted to screen
+    coordinates based on the specified \a direction. The \a
+    boundingRectangle is used when performing the translation.
+
+    This function is provided to support right-to-left desktops, and
+    is typically used in implementations of the subControlRect()
+    function.
 
     \sa QWidget::layoutDirection
 */
@@ -1701,9 +1694,11 @@ QRect QStyle::visualRect(Qt::LayoutDirection direction, const QRect &boundingRec
 }
 
 /*!
-    Returns the point \a logicalPos converted to screen coordinates based on
-    \a direction.  The \a boundingRect rectangle is used to perform the
-    translation.
+    \fn QPoint QStyle::visualPos(Qt::LayoutDirection direction, const QRect &boundingRectangle, const QPoint &logicalPosition)
+
+    Returns the given \a logicalPosition converted to screen
+    coordinates based on the specified \a direction.  The \a
+    boundingRectangle is used when performing the translation.
 
     \sa QWidget::layoutDirection
 */
@@ -1737,14 +1732,13 @@ QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment
 }
 
 /*!
-
   Transforms an \a alignment of Qt::AlignLeft or Qt::AlignRight
   without Qt::AlignAbsolute into Qt::AlignLeft or Qt::AlignRight with
   Qt::AlignAbsolute according to the layout \a direction. The other
   alignment flags are left untouched.
 
-  If no horizontal aligment was specified, the function returns the
-  default alignment for the layout \a direction.
+  If no horizontal alignment was specified, the function returns the
+  default alignment for the given layout \a direction.
 
   QWidget::layoutDirection
 */
@@ -1761,16 +1755,16 @@ Qt::Alignment QStyle::visualAlignment(Qt::LayoutDirection direction, Qt::Alignme
 }
 
 /*!
-    Converts \a logicalValue to a pixel position. \a min maps to 0, \a
-    max maps to \a span and other values are distributed evenly
-    in-between.
+    Converts the given \a logicalValue to a pixel position. The \a min
+    parameter maps to 0, \a max maps to \a span and other values are
+    distributed evenly in-between.
 
     This function can handle the entire integer range without
-    overflow, providing \a span is less than 4096.
+    overflow, providing that \a span is less than 4096.
 
     By default, this function assumes that the maximum value is on the
     right for horizontal items and on the bottom for vertical items.
-    Set \a upsideDown to true to reverse this behavior.
+    Set the \a upsideDown parameter to true to reverse this behavior.
 
     \sa sliderValueFromPosition()
 */
@@ -1803,16 +1797,19 @@ int QStyle::sliderPositionFromValue(int min, int max, int logicalValue, int span
 }
 
 /*!
-    Converts the pixel position \a pos to a value. 0 maps to \a min,
-    \a span maps to \a max and other values are distributed evenly
-    in-between.
+    \fn int QStyle::sliderValueFromPosition(int min, int max, int position, int span, bool upsideDown)
+
+    Converts the given pixel \a position to a logical value. 0 maps to
+    the \a min parameter, \a span maps to \a max and other values are
+    distributed evenly in-between.
 
     This function can handle the entire integer range without
     overflow.
 
-    By default, this function assumes that the maximum value
-    is on the right for horizontal items and on the bottom for
-    vertical items. Set \a upsideDown to true to reverse this behavior.
+    By default, this function assumes that the maximum value is on the
+    right for horizontal items and on the bottom for vertical
+    items. Set the \a upsideDown parameter to true to reverse this
+    behavior.
 
     \sa sliderPositionFromValue()
 */
@@ -1869,8 +1866,10 @@ int QStyle::sliderValueFromPosition(int min, int max, int pos, int span, bool up
 */
 
 /*!
-     Returns the style's standard palette. On systems that support
-     system colors, the style's standard palette is not used.
+     Returns the style's standard palette.
+
+     Note that on systems that support system colors, the style's
+     standard palette is not used.
  */
 QPalette QStyle::standardPalette() const
 {
@@ -1897,17 +1896,18 @@ QPalette QStyle::standardPalette() const
 /*!
     \since 4.1
 
-    Returns an icon for \a standardIcon.
+    Returns an icon for the given \a standardIcon.
 
-    The \a option argument can be used to pass extra information required
-    when determining the icon.
+    The \a standardIcon is a standard pixmap which can follow some
+    existing GUI style or guideline. The \a option argument can be
+    used to pass extra information required when defining the
+    appropiate icon. The \a widget argument is optional and can also
+    be used to aid the determination of the icon.
 
-    The \a widget argument is optional and may contain a widget that
-    may aid determining the icon.
-
-    \warning Because of binary compatibility constraints, this function is not virtual.
-    If you want to provide your own icons in a QStyle subclass, add a slot called
-    standardIconImplementation() to you subclass. The standardIcon() function will
+    \warning Because of binary compatibility constraints, this
+    function is not virtual.  If you want to provide your own icons in
+    a QStyle subclass, reimplement the standardIconImplementation()
+    slot in your subclass instead. The standardIcon() function will
     dynamically detect the slot and call it.
 
     \sa standardIconImplementation(), standardPixmap()
@@ -1929,20 +1929,20 @@ QIcon QStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *opti
 /*!
     \since 4.1
 
-    Returns an icon for \a standardIcon.
+    Returns an icon for the given \a standardIcon.
 
-    The \a option argument contains extra information required when determining
-    the icon. The \a widget argument is optional and may contain a widget that
-    may aid determining the icon.
+    Reimplement this slot to provide your own icons in a QStyle
+    subclass; because of binary compatibility constraints, the
+    standardIcon() function (introduced in Qt 4.1) is not
+    virtual. Instead, standardIcon() will dynamically detect and call
+    \e this slot.  The default implementation simply calls the
+    standardPixmap() function with the given parameters.
 
-    The default implementation simply calls standardPixmap(\a standardIcon, \a option,
-    \a widget).
-
-    \warning Because of binary compatibility constraints, the standardIcon()
-    function, introduced in Qt 4.1, isn't virtual. If you want to provide
-    your own icons in a QStyle subclass, add a slot called standardIconImplementation() to
-    your subclass. The standardIcon() function will dynamically detect the slot and
-    call it.
+    The \a standardIcon is a standard pixmap which can follow some
+    existing GUI style or guideline. The \a option argument can be
+    used to pass extra information required when defining the
+    appropiate icon. The \a widget argument is optional and can also
+    be used to aid the determination of the icon.
 
     \sa standardIcon()
 */
