@@ -32,6 +32,7 @@
 #include "qclipboard.h"
 #include "../text/qtextdocumentlayout_p.h"
 #include "qtextedit_p.h"
+#include <qdebug.h>
 
 class QLabelPrivate : public QFramePrivate
 {
@@ -678,7 +679,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
 
         if (m < 0 && q->frameWidth()) // no indent, but we do have a frame
             m = fm.width('x') - margin*2;
-        if (m >= 0) {
+        if (m > 0) {
             int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
             if ((align & Qt::AlignLeft) || (align & Qt::AlignRight))
                 hextra += m;
@@ -1043,6 +1044,10 @@ void QLabelPrivate::updateLabel()
             Q_ASSERT(l != 0);
             l->setWordWrapMode(QTextOption::WordWrap);
         }
+
+        QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
+        fmt.setMargin(0);
+        doc->rootFrame()->setFrameFormat(fmt);
     }
     q->updateGeometry();
     q->update(q->contentsRect());
