@@ -150,6 +150,7 @@ struct Q_INTERNAL_EXPORT BasicSelector
 struct Q_INTERNAL_EXPORT Selector
 {
     QVector<BasicSelector> basicSelectors;
+    int specificity() const;
 };
 
 struct StyleRule;

@@ -357,6 +357,20 @@ void QCss::extractFontProperties(const QVector<Declaration> &declarations, QFont
     }
 }
 
+int Selector::specificity() const
+{
+    int val = 0;
+    for (int i = 0; i < basicSelectors.count(); ++i) {
+        const BasicSelector &sel = basicSelectors.at(i);
+        if (!sel.elementName.isEmpty())
+            val += 1;
+        
+        val += (sel.pseudoClasses.count() + sel.attributeSelectors.count()) * 0x10;
+        val += sel.ids.count() * 0x100;
+    }
+    return val;
+}
+
 StyleSelector::~StyleSelector()
 {
 }
