@@ -1215,73 +1215,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
     if (!d->penData.blend)
         return;
 
-    if (d->fast_pen && d->pen.brush().isOpaque()) {
-        QPointF lastPoint;
-        const int NBEZIERS = 32;
-        QBezier beziers[NBEZIERS];
-
-        d->cachedLines.reset();
-
-        for (int i = 0; i < path.elementCount(); ++i) {
-            const QPainterPath::Element &e = path.elementAt(i);
-            switch (e.type) {
-            case QPainterPath::MoveToElement:
-                lastPoint = e;
-                break;
-            case QPainterPath::LineToElement:
-                d->cachedLines.add(QLineF(lastPoint, e));
-                lastPoint = e;
-                break;
-
-            case QPainterPath::CurveToElement:
-            {
-                QPointF sp = path.elementAt(i-1);
-                QPointF cp2 = path.elementAt(i+1);
-                QPointF ep = path.elementAt(i+2);
-                i+=2;
-
-                qreal inverseScaleHalf = d->inverseScale / 2;
-                beziers[0] = QBezier::fromPoints(sp, e, cp2, ep);
-                QBezier *b = beziers;
-                while (b >= beziers) {
-                    // check if we can pop the top bezier curve from the stack
-                    qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
-                    qreal d;
-                    if (l > d_func()->inverseScale) {
-                        d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2)
-                                  - (b->y4 - b->y1)*(b->x1 - b->x2) )
-                            + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3)
-                                    - (b->y4 - b->y1)*(b->x1 - b->x3) );
-                        d /= l;
-                    } else {
-                        d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
-                            qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
-                    }
-                    if (d < inverseScaleHalf || b == beziers + NBEZIERS - 1) {
-                        // good enough, we pop it off and add the endpoint
-                        QPointF p(b->x4, b->y4);
-                        d_func()->cachedLines.add(QLineF(lastPoint, p));
-                        lastPoint = p;
-                        --b;
-                    } else {
-                        // split, second half of the polygon goes lower into the stack
-                        b->split(b+1, b);
-                        ++b;
-                    }
-                }
-                break;
-            } // case CurveToElement
-            default:
-                break;
-            } // end of switch
-        }
-
-        if (!d->cachedLines.isEmpty()) {
-            drawLines(d->cachedLines.data(), d->cachedLines.size());
-            d->cachedLines.reset();
-        }
-        return;
-    } else {
+    {
         Q_ASSERT(d->stroker);
         qreal width = d->pen.widthF();
         d->outlineMapper->beginOutline(Qt::WindingFill);
