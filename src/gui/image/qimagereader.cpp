@@ -293,15 +293,12 @@ bool QImageReaderPrivate::initHandler()
         }
     }
 
-#ifndef QT_NO_LIBRARY
     // assign a handler
     if (!handler && (handler = ::createReadHandler(device, format)) == 0) {
         imageReaderError = QImageReader::UnsupportedFormatError;
         errorString = QT_TRANSLATE_NOOP(QImageReader, "Unsupported image format");
         return false;
     }
-#endif
-    
     return true;
 }
 
