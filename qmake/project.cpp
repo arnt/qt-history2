@@ -2729,14 +2729,18 @@ QStringList &QMakeProject::values(const QString &_var, QMap<QString, QStringList
             SYSTEM_INFO info;
             GetSystemInfo(&info);
             switch(info.wProcessorArchitecture) {
+#ifdef PROCESSOR_ARCHITECTURE_AMD64
             case PROCESSOR_ARCHITECTURE_AMD64:
                 ret = "x86_64";
                 break;
+#endif
             case PROCESSOR_ARCHITECTURE_INTEL:
                 ret = "x86";
                 break;
             case PROCESSOR_ARCHITECTURE_IA64:
+#ifdef PROCESSOR_ARCHITECTURE_IA32_ON_WIN64
             case PROCESSOR_ARCHITECTURE_IA32_ON_WIN64:
+#endif
                 ret = "IA64";
                 break;
             default:
