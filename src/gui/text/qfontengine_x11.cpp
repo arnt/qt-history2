@@ -674,7 +674,7 @@ bool QFontEngineXLFD::stringToCMap(const QChar *s, int len, QGlyphLayout *glyphs
     }
 
     // filter out surrogates, we can't handle them anyway with XLFD fonts
-    QVarLengthArray<ushort> _s;
+    QVarLengthArray<ushort> _s(len);
     QChar *str = (QChar *)_s.data();
     for (int i = 0; i < len; ++i) {
         if (i < len - 1
