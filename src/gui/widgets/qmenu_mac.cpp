@@ -73,12 +73,63 @@ extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); //qapplication_xxx.cpp
 /*****************************************************************************
   QMenu utility functions
  *****************************************************************************/
-inline static QString qt_mac_no_ampersands(QString str) {
+QString qt_mac_no_ampersands(QString str) {
     for(int w = -1; (w=str.indexOf('&', w+1)) != -1;) {
         if(w < (int)str.length())
             str.remove(w, 1);
     }
     return str;
+}
+
+void qt_mac_get_accel(quint32 accel_key, quint32 *modif, quint32 *key) {
+    if(modif) {
+        *modif = 0;
+        if((accel_key & Qt::CTRL) != Qt::CTRL)
+            *modif |= kMenuNoCommandModifier;
+        if((accel_key & Qt::META) == Qt::META)
+            *modif |= kMenuControlModifier;
+        if((accel_key & Qt::ALT) == Qt::ALT)
+            *modif |= kMenuOptionModifier;
+        if((accel_key & Qt::SHIFT) == Qt::SHIFT)
+            *modif |= kMenuShiftModifier;
+    }
+
+    accel_key &= ~(Qt::MODIFIER_MASK | Qt::UNICODE_ACCEL);
+    if(key) {
+        *key = 0;
+        if(accel_key == Qt::Key_Return)
+            *key = kMenuReturnGlyph;
+        else if(accel_key == Qt::Key_Enter)
+            *key = kMenuEnterGlyph;
+        else if(accel_key == Qt::Key_Tab)
+            *key = kMenuTabRightGlyph;
+        else if(accel_key == Qt::Key_Backspace)
+            *key = kMenuDeleteLeftGlyph;
+        else if(accel_key == Qt::Key_Delete)
+            *key = kMenuDeleteRightGlyph;
+        else if(accel_key == Qt::Key_Escape)
+            *key = kMenuEscapeGlyph;
+        else if(accel_key == Qt::Key_PageUp)
+            *key = kMenuPageUpGlyph;
+        else if(accel_key == Qt::Key_PageDown)
+            *key = kMenuPageDownGlyph;
+        else if(accel_key == Qt::Key_Up)
+            *key = kMenuUpArrowGlyph;
+        else if(accel_key == Qt::Key_Down)
+            *key = kMenuDownArrowGlyph;
+        else if(accel_key == Qt::Key_Left)
+            *key = kMenuLeftArrowGlyph;
+        else if(accel_key == Qt::Key_Right)
+            *key = kMenuRightArrowGlyph;
+        else if(accel_key == Qt::Key_CapsLock)
+            *key = kMenuCapsLockGlyph;
+        else if(accel_key >= Qt::Key_F1 && accel_key <= Qt::Key_F15)
+            *key = (accel_key - Qt::Key_F1) + kMenuF1Glyph;
+        else if(accel_key == Qt::Key_Home)
+            *key = kMenuNorthwestArrowGlyph;
+        else if(accel_key == Qt::Key_End)
+            *key = kMenuSoutheastArrowGlyph;
+    }
 }
 
 bool qt_mac_watchingAboutToShow(QMenu *menu)
@@ -683,55 +734,13 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
             data.whichData |= kMenuItemDataCmdKeyModifiers;
             data.whichData |= kMenuItemDataCmdKeyGlyph;
         } else {
-            int accel_key = accel[0];
             data.whichData |= kMenuItemDataCmdKeyModifiers;
-            if((accel_key & Qt::CTRL) != Qt::CTRL)
-                data.cmdKeyModifiers |= kMenuNoCommandModifier;
-            if((accel_key & Qt::META) == Qt::META)
-                data.cmdKeyModifiers |= kMenuControlModifier;
-            if((accel_key & Qt::ALT) == Qt::ALT)
-                data.cmdKeyModifiers |= kMenuOptionModifier;
-            if((accel_key & Qt::SHIFT) == Qt::SHIFT)
-                data.cmdKeyModifiers |= kMenuShiftModifier;
-
-            accel_key &= ~(Qt::MODIFIER_MASK | Qt::UNICODE_ACCEL);
-            if(accel_key == Qt::Key_Return)
-                data.cmdKeyGlyph = kMenuReturnGlyph;
-            else if(accel_key == Qt::Key_Enter)
-                data.cmdKeyGlyph = kMenuEnterGlyph;
-            else if(accel_key == Qt::Key_Tab)
-                data.cmdKeyGlyph = kMenuTabRightGlyph;
-            else if(accel_key == Qt::Key_Backspace)
-                data.cmdKeyGlyph = kMenuDeleteLeftGlyph;
-            else if(accel_key == Qt::Key_Delete)
-                data.cmdKeyGlyph = kMenuDeleteRightGlyph;
-            else if(accel_key == Qt::Key_Escape)
-                data.cmdKeyGlyph = kMenuEscapeGlyph;
-            else if(accel_key == Qt::Key_PageUp)
-                data.cmdKeyGlyph = kMenuPageUpGlyph;
-            else if(accel_key == Qt::Key_PageDown)
-                data.cmdKeyGlyph = kMenuPageDownGlyph;
-            else if(accel_key == Qt::Key_Up)
-                data.cmdKeyGlyph = kMenuUpArrowGlyph;
-            else if(accel_key == Qt::Key_Down)
-                data.cmdKeyGlyph = kMenuDownArrowGlyph;
-            else if(accel_key == Qt::Key_Left)
-                data.cmdKeyGlyph = kMenuLeftArrowGlyph;
-            else if(accel_key == Qt::Key_Right)
-                data.cmdKeyGlyph = kMenuRightArrowGlyph;
-            else if(accel_key == Qt::Key_CapsLock)
-                data.cmdKeyGlyph = kMenuCapsLockGlyph;
-            else if(accel_key >= Qt::Key_F1 && accel_key <= Qt::Key_F15)
-                data.cmdKeyGlyph = (accel_key - Qt::Key_F1) + kMenuF1Glyph;
-            else if(accel_key == Qt::Key_Home)
-                data.cmdKeyGlyph = kMenuNorthwestArrowGlyph;
-            else if(accel_key == Qt::Key_End)
-                data.cmdKeyGlyph = kMenuSoutheastArrowGlyph;
+            qt_mac_get_accel(accel[0], (quint32*)&data.cmdKeyModifiers, (quint32*)&data.cmdKeyGlyph);
             if(data.cmdKeyGlyph) {
                 data.whichData |= kMenuItemDataCmdKeyGlyph;
             } else {
                 data.whichData |= kMenuItemDataCmdKey;
-                data.cmdKey = (UniChar)accel_key;
+                data.cmdKey = (UniChar)accel[0];
             }
         }
     }

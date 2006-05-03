@@ -143,9 +143,10 @@ embedded {
 		kernel/qdnd_mac.cpp \
 		kernel/qdesktopwidget_mac.cpp \
 		kernel/qwidget_mac.cpp \
-                kernel/qsystemtrayicon_mac.cpp
+                kernel/qsystemtrayicon_mac.mm
         HEADERS += \
                 kernel/qeventdispatcher_mac_p.h
+        LIBS += -framework AppKit
 }
 
 wince-* {

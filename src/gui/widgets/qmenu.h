@@ -357,6 +357,7 @@ private:
     friend class QComboBox;
 
 #ifdef Q_WS_MAC
+    friend void qt_mac_trayicon_activate_action(QMenu *, QAction *action);
     friend bool qt_mac_watchingAboutToShow(QMenu *);
     friend OSStatus qt_mac_menu_event(EventHandlerCallRef, EventRef, void *);
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
