@@ -4051,8 +4051,13 @@ static inline int ellipseSpansClipped(QT_FT_Span *spans, int numSpans,
             || spans[i].x + spans[i].len < minx) {
             continue;
         }
-        spans[n].x = qMax(minx, qMin(maxx, spans[i].x));
-        spans[n].len = qMin(spans[i].len, ushort(maxx - spans[n].x + 1));
+        if (spans[i].x < minx) {
+            spans[n].len = spans[i].len - (minx - spans[i].x);
+            spans[n].x = minx;
+        } else {
+            spans[n].x = spans[i].x;
+            spans[n].len = qMin(spans[i].len, ushort(maxx - spans[n].x + 1));
+        }
         spans[n].y = spans[i].y;
         spans[n].coverage = spans[i].coverage;
 
@@ -4178,7 +4183,7 @@ static void drawEllipse_midpoint_i(const QRect &rect, const QRect &clip,
 #else
     d = b*b*(x + 0.5)*(x + 0.5) + a*a*((y - 1)*(y - 1) - b*b);
 #endif
-    const int miny = rect.width() & 0x1;
+    const int miny = rect.height() & 0x1;
     while (y > miny) {
         if (d < 0) { // select SE
             d += b*b*(2*x + 2) + a*a*(-2*y + 3);
