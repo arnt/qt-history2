@@ -57,7 +57,7 @@ embed_testlib {
 embedded:QMAKE_CXXFLAGS+=-fno-rtti
 
 # prefix test binary with tst_
-TARGET = $$join(TARGET,,"tst_")
+!contains(TARGET, ^tst_.*):TARGET = $$join(TARGET,,"tst_")
 
 ########################################################################
 # Use install rule to run test application.
