@@ -14,8 +14,8 @@
 #ifndef QSYSTEMTRAYICON_H
 #define QSYSTEMTRAYICON_H
 
-#include "qobject.h"
-#include "qicon.h"
+#include "QtCore/qobject.h"
+#include "QtGui/qicon.h"
 
 QT_BEGIN_HEADER
 
