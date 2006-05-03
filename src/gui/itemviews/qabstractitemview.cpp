@@ -736,8 +736,6 @@ void QAbstractItemView::reset()
 void QAbstractItemView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QAbstractItemView);
-    if (d->root == index)
-        return;
     d->root = index;
     d->doDelayedItemsLayout();
 }
