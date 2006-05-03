@@ -132,7 +132,7 @@ void QAbstractItemViewPrivate::init()
     \code
         horizontalScrollBar()->setRange(0, realWidth - width());
     \endcode
-    Note that QAbstractScrollView wont turn on/off the scroolbars based upon the
+    Note that QAbstractScrollArea wont turn on/off the scroolbars based upon the
     ranges until the widget is shown.  They should be manually turned
     on and off in if other functions require that information.
 
