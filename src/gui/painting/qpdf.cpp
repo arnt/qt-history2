@@ -904,12 +904,12 @@ void QPdfBaseEngine::updateState(const QPaintEngineState &state)
     
     if (flags & DirtyPen) {
         d->pen = state.pen();
-        d->hasPen = d->pen != Qt::NoPen;
+        d->hasPen = d->pen.style() != Qt::NoPen;
         d->stroker.setPen(d->pen);
     }
     if (flags & DirtyBrush) {
         d->brush = state.brush();
-        d->hasBrush = d->brush != Qt::NoBrush;
+        d->hasBrush = d->brush.style() != Qt::NoBrush;
     }
     if (flags & DirtyBrushOrigin) {
         d->brushOrigin = state.brushOrigin();
