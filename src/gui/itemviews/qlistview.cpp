@@ -549,7 +549,21 @@ void QListView::scrollContentsBy(int dx, int dy)
 
     dx = isRightToLeft() ? -dx : dx;
 
-    if (state() == DragSelectingState) {
+    if (scrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
+        if (d->flow == TopToBottom && dy != 0) {
+            int currentValue = verticalScrollBar()->value();
+            int previousValue = currentValue + dy;
+            int currentCoordinate = d->flowPositions.at(currentValue);
+            int previousCoordinate = d->flowPositions.at(previousValue);
+            dy = previousCoordinate - currentCoordinate;
+        } else if (d->flow == LeftToRight && dx != 0) {
+            int currentValue = horizontalScrollBar()->value();
+            int previousValue = currentValue + dx;
+            int currentCoordinate = d->flowPositions.at(currentValue);
+            int previousCoordinate = d->flowPositions.at(previousValue);
+            dx = previousCoordinate - currentCoordinate;
+        }
+    } else if (state() == DragSelectingState) {
         if (dx > 0) // right
             d->elasticBand.moveRight(d->elasticBand.right() + dx);
         else if (dx < 0) // left
@@ -559,7 +573,6 @@ void QListView::scrollContentsBy(int dx, int dy)
         else if (dy < 0) // up
             d->elasticBand.moveTop(d->elasticBand.top() - dy);
     }
-
     d->scrollContentsBy(dx, dy);
 
     // update the dragged items
@@ -895,7 +908,6 @@ void QListView::paintEvent(QPaintEvent *e)
     d->intersectingSet(e->rect().translated(horizontalOffset(), verticalOffset()), false);
     toBeRendered = d->intersectVector;
 
-    const QPoint offset = d->scrollDelayOffset;
     const QModelIndex current = currentIndex();
     const QModelIndex hover = d->hover;
     const QAbstractItemModel *itemModel = model();
@@ -922,7 +934,7 @@ void QListView::paintEvent(QPaintEvent *e)
     QVector<QModelIndex>::const_iterator end = toBeRendered.constEnd();
     for (QVector<QModelIndex>::const_iterator it = toBeRendered.constBegin(); it != end; ++it) {
         Q_ASSERT((*it).isValid());
-        option.rect = visualRect(*it).translated(offset);
+        option.rect = visualRect(*it);
         option.state = state;
         if (selections && selections->isSelected(*it))
             option.state |= QStyle::State_Selected;
@@ -1007,7 +1019,17 @@ QModelIndex QListView::indexAt(const QPoint &p) const
 */
 int QListView::horizontalOffset() const
 {
-    return isRightToLeft() ? horizontalScrollBar()->maximum() - horizontalScrollBar()->value() : horizontalScrollBar()->value();
+    Q_D(const QListView);
+    if (scrollMode() == QAbstractItemView::ScrollPerItem
+        && d->movement == Static && d->flow == LeftToRight
+        && !d->flowPositions.isEmpty()) {
+        int position = d->flowPositions.at(horizontalScrollBar()->value());
+        int maximum = d->flowPositions.at(horizontalScrollBar()->maximum());
+        return (isRightToLeft() ? maximum - position : position);
+    }
+    return (isRightToLeft()
+            ? horizontalScrollBar()->maximum() - horizontalScrollBar()->value()
+            : horizontalScrollBar()->value());
 }
 
 /*!
@@ -1015,6 +1037,13 @@ int QListView::horizontalOffset() const
 */
 int QListView::verticalOffset() const
 {
+    Q_D(const QListView);
+    if (scrollMode() == QAbstractItemView::ScrollPerItem
+        && d->movement == Static && d->flow == TopToBottom
+        && !d->flowPositions.isEmpty()) {
+        //qDebug() << "verticalOffset" << d->flowPositions.at(verticalScrollBar()->value());
+        return d->flowPositions.at(verticalScrollBar()->value());
+    }
     return verticalScrollBar()->value();
 }
 
@@ -1298,13 +1327,39 @@ void QListView::updateGeometries()
         if (max.width() >= d->contentsSize.width() && max.height() >= d->contentsSize.height())
             vsize = max;
 
-        horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
-        horizontalScrollBar()->setPageStep(vsize.width());
-        horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
-
-        verticalScrollBar()->setSingleStep(step.height() + d->spacing);
-        verticalScrollBar()->setPageStep(vsize.height());
-        verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
+        const bool perItemScrolling = (scrollMode() == QAbstractItemView::ScrollPerItem
+                                       && d->movement == Static);
+        if (d->flow == TopToBottom) {
+            horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
+            horizontalScrollBar()->setPageStep(vsize.width());
+            horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
+            if (perItemScrolling && d->segmentPositions.count() != 0) {
+                int steps = (d->flowPositions.count() / d->segmentPositions.count()) - 1;
+                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), steps);
+                verticalScrollBar()->setSingleStep(1);
+                verticalScrollBar()->setPageStep(pageSteps);
+                verticalScrollBar()->setRange(0, steps - pageSteps + 1);
+            } else {
+                verticalScrollBar()->setSingleStep(step.height() + d->spacing);
+                verticalScrollBar()->setPageStep(vsize.height());
+                verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
+            }
+        } else { // LeftToRight
+            if (perItemScrolling && d->segmentPositions.count() != 0) {
+                int steps = (d->flowPositions.count() / d->segmentPositions.count()) - 1;
+                int pageSteps = d->perItemScrollingPageSteps(vsize.width(), steps);
+                horizontalScrollBar()->setSingleStep(1);
+                horizontalScrollBar()->setPageStep(pageSteps);
+                horizontalScrollBar()->setRange(0, steps - pageSteps + 1);
+            } else {
+                horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
+                horizontalScrollBar()->setPageStep(vsize.width());
+                horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
+            }
+            verticalScrollBar()->setSingleStep(step.height() + d->spacing);
+            verticalScrollBar()->setPageStep(vsize.height());
+            verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
+        }
     }
     // if the scrollbars are turned off, we resize the contents to the viewport
     if (d->movement == Static && !d->wrap) {
@@ -1874,7 +1929,8 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
         pos.setX(segmentPositions.at(s));
     }
 
-    QSize size = (uniformItemSizes && cachedItemSize.isValid()) ? cachedItemSize : itemSize(q->viewOptions(), index);
+    QSize size = (uniformItemSizes && cachedItemSize.isValid())
+                 ? cachedItemSize : itemSize(q->viewOptions(), index);
     return QListViewItem(QRect(pos, size), index.row());
 }
 
@@ -2039,6 +2095,20 @@ QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QMode
         cachedItemSize = delegateForIndex(sample)->sizeHint(option, sample);
     }
     return cachedItemSize;
+}
+
+int QListViewPrivate::perItemScrollingPageSteps(int length, int steps) const
+{
+    if (uniformItemSizes)
+        return length / flowPositions.at(1);
+    int pageSteps = 0;
+    int pos = length - (batchSavedPosition - flowPositions.at(steps));
+    while (pos > 0 && steps > 0) {
+        pos -= (flowPositions.at(steps) - flowPositions.at(steps - 1));
+        ++pageSteps;
+        --steps;
+    }
+    return pageSteps;
 }
 
 #endif // QT_NO_LISTVIEW

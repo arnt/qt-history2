@@ -129,6 +129,8 @@ public:
     QModelIndex closestIndex(const QPoint &target, const QVector<QModelIndex> &candidates) const;
     QSize itemSize(const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
+    int perItemScrollingPageSteps(int length, int steps) const;
+
     bool selectionAllowed(const QModelIndex &index) const
     {
         if (movement == QListView::Static)
