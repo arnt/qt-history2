@@ -24,23 +24,31 @@
 # include "private/qfactoryloader_p.h"
 #endif
 #include "qstringlist.h"
+
+#ifdef Q_OS_UNIX
+#  include "qiconvcodec_p.h"
+#endif
+
 #include "qutfcodec_p.h"
 #include "qsimplecodec_p.h"
 #include "qlatincodec_p.h"
 #ifndef QT_NO_CODECS
-#include "qtsciicodec_p.h"
-#include "qisciicodec_p.h"
-#include "../../plugins/codecs/cn/qgb18030codec.h"
-#include "../../plugins/codecs/jp/qeucjpcodec.h"
-#include "../../plugins/codecs/jp/qjiscodec.h"
-#include "../../plugins/codecs/jp/qsjiscodec.h"
-#include "../../plugins/codecs/kr/qeuckrcodec.h"
-#include "../../plugins/codecs/tw/qbig5codec.h"
+#  include "qtsciicodec_p.h"
+#  include "qisciicodec_p.h"
+#  if defined(QT_NO_ICONV) && !defined(QT_BOOTSTRAPPED)
+// no iconv(3) support, must build all codecs into the library
+#    include "../../plugins/codecs/cn/qgb18030codec.h"
+#    include "../../plugins/codecs/jp/qeucjpcodec.h"
+#    include "../../plugins/codecs/jp/qjiscodec.h"
+#    include "../../plugins/codecs/jp/qsjiscodec.h"
+#    include "../../plugins/codecs/kr/qeuckrcodec.h"
+#    include "../../plugins/codecs/tw/qbig5codec.h"
+#  endif // QT_NO_ICONV
+#  ifdef Q_WS_X11
+#    include "qfontlaocodec_p.h"
+#    include "../../plugins/codecs/jp/qfontjpcodec.h"
+#  endif
 #endif // QT_NO_CODECS
-#ifdef Q_WS_X11
-#include "qfontlaocodec_p.h"
-#include "../../plugins/codecs/jp/qfontjpcodec.h"
-#endif
 #include "private/qlocale_p.h"
 #include "private/qmutexpool_p.h"
 
@@ -49,7 +57,7 @@
 #ifndef Q_OS_TEMP
 #include <locale.h>
 #endif
-#if defined(_XOPEN_UNIX) && !defined(Q_OS_QNX6)
+#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
 #include <langinfo.h>
 #endif
 
@@ -330,15 +338,23 @@ static void setupLocaleMapper()
     localeMapper = QTextCodec::codecForName("System");
 #else
 
+#ifndef QT_NO_ICONV
+    localeMapper = QTextCodec::codecForName("System");
+#endif
+
 #if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
-    char *charset = nl_langinfo (CODESET);
-    if (charset)
-      localeMapper = QTextCodec::codecForName(charset);
+    if (!localeMapper) {
+        char *charset = nl_langinfo (CODESET);
+        if (charset)
+            localeMapper = QTextCodec::codecForName(charset);
+    }
 #endif
 
     if (!localeMapper) {
-        // Very poorly defined and followed standards causes lots of code
-        // to try to get all the cases...
+        // Very poorly defined and followed standards causes lots of
+        // code to try to get all the cases... This logic is
+        // duplicated in QIconvCodec, so if you change it here, change
+        // it there too.
 
         // Try to determine locale codeset from locale name assigned to
         // LC_CTYPE category.
@@ -459,9 +475,11 @@ static void setup()
     // create the cleanup object to cleanup all codecs on exit
     (void) createQTextCodecCleanup();
 
-#ifdef Q_WS_X11
+#ifndef QT_NO_CODECS
+#  ifdef Q_WS_X11
     (void)new QFontLaoCodec;
-#ifndef QT_BOOTSTRAPPED
+#    if defined(QT_NO_ICONV) && !defined(QT_BOOTSTRAPPED)
+    // no iconv(3) support, must build all codecs into the library
     (void)new QFontGb2312Codec;
     (void)new QFontGbkCodec;
     (void)new QFontGb18030_0Codec;
@@ -470,9 +488,9 @@ static void setup()
     (void)new QFontKsc5601Codec;
     (void)new QFontBig5hkscsCodec;
     (void)new QFontBig5Codec;
-#endif
-#endif
-#ifndef QT_NO_CODECS
+#    endif // QT_NO_ICONV && !QT_BOOTSTRAPPED
+#  endif // Q_WS_X11
+
     (void)new QTsciiCodec;
 
     for (int i = 0; i < 9; ++i)
@@ -481,7 +499,7 @@ static void setup()
     for (int i = 0; i < QSimpleTextCodec::numSimpleCodecs; ++i)
         (void)new QSimpleTextCodec(i);
 
-#ifndef QT_BOOTSTRAPPED
+#  if defined(QT_NO_ICONV) && !defined(QT_BOOTSTRAPPED)
     (void)new QGb18030Codec;
     (void)new QGbkCodec;
     (void)new QGb2312Codec;
@@ -491,7 +509,7 @@ static void setup()
     (void)new QEucKrCodec;
     (void)new QBig5Codec;
     (void)new QBig5hkscsCodec;
-#endif
+#  endif // QT_NO_ICONV && !QT_BOOTSTRAPPED
 #endif // QT_NO_CODECS
 
 #ifdef Q_OS_WIN32
@@ -504,6 +522,11 @@ static void setup()
     (void)new QLatin15Codec;
     (void)new QLatin1Codec;
     (void)new QUtf8Codec;
+
+#if defined(Q_OS_UNIX) && !defined(QT_NO_ICONV) && !defined(QT_BOOTSTRAPPED)
+    // QIconvCodec depends on the UTF-16 codec, so it needs to be created last
+    (void) new QIconvCodec();
+#endif
 
     if (!localeMapper)
         setupLocaleMapper();

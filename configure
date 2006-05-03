@@ -490,6 +490,7 @@ CFG_TABLET=auto
 CFG_XKB=auto
 CFG_NIS=auto
 CFG_CUPS=auto
+CFG_ICONV=auto
 CFG_GLIB=auto
 CFG_LARGEFILE=auto
 CFG_STL=auto
@@ -623,7 +624,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -1192,6 +1193,13 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     cups)
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_CUPS="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
+        ;;
+    iconv)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
             CFG_CUPS="$VAL"
         else
@@ -2249,6 +2257,13 @@ if [ "$OPT_HELP" = "yes" ]; then
         CUY="*"
         CUN=" "
     fi
+    if [ "$CFG_ICONV" = "no" ]; then
+        CIY=" "
+        CIN="*"
+    else
+        CIY="*"
+        CIN="*"
+    fi
     if [ "$CFG_LARGEFILE" = "no" ]; then
         LFSY=" "
         LFSN="*"
@@ -2278,14 +2293,17 @@ if [ "$OPT_HELP" = "yes" ]; then
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
         [-libdir dir] [-bindir dir] [-plugindir dir ] [-datadir dir]
-        [-translationdir dir] [-sysconfdir dir] [-examplesdir dir] [-demosdir dir]
-        [-debug] [-release] [-debug-and-release] [-no-gif] [-qt-gif] [-no-sm] [-sm]
-        [-no-zlib] [-qt-zlib] [-system-zlib] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg]
-        [-no-libpng] [-qt-libpng] [-system-libpng] [-no-libmng] [-qt-libmng]
-        [-system-libmng] [-system-sqlite] [-no-nis] [-nis] [-no-cups] [-cups]
-        [-no-largefile] [-largefile] [-no-stl] [-stl] [-no-pch] [-pch] [-Istring]
-        [-lstring] [-Lstring] [-Rstring] [-disable-<module>] [-with-<module setting>]
-        [-without-<module setting>] [-fast] [-no-fast]
+        [-translationdir dir] [-sysconfdir dir] [-examplesdir dir]
+        [-demosdir dir] [-debug] [-release] [-debug-and-release]
+        [-no-gif] [-qt-gif] [-no-sm] [-sm] [-no-zlib] [-qt-zlib]
+        [-system-zlib] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg]
+        [-no-libpng] [-qt-libpng] [-system-libpng] [-no-libmng]
+        [-qt-libmng] [-system-libmng] [-system-sqlite] [-no-nis]
+        [-nis] [-no-cups] [-cups] [-no-iconv] [-iconv] [-no-largefile]
+        [-largefile] [-no-stl] [-stl] [-no-pch] [-pch] [-Istring]
+        [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
+        [-with-<module setting>] [-without-<module setting>] [-fast]
+        [-no-fast]
 
 Installation options:
 
@@ -2446,6 +2464,9 @@ Additional options:
 
  $CUN  -no-cups............ Do not compile CUPS support.
  $CUY  -cups .............. Compile CUPS support.
+
+ $CIN  -no-iconv........... Do not compile support for iconv(3).
+ $CIY  -iconv.............. Compile support for iconv(3).
 
  $PHN  -no-pch ............ Do not use precompiled header support.
  $PHY  -pch ............... Use precompiled header support.
@@ -3438,6 +3459,25 @@ if [ "$CFG_CUPS" != "no" ]; then
     fi
 fi
 
+# auto-detect iconv(3) support
+if [ "$CFG_ICONV" != "no" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" "$OPT_VERBOSE" "$relpath" "$outpath" "config.tests/unix/iconv" "POSIX iconv" "$L_FLAGS" "$I_FLAGS" "$l_FLAGS"; then
+        CFG_ICONV=yes
+    elif "$unixtests/compile.test" "$XQMAKESPEC" "$OPT_VERBOSE" "$relpath" "$outpath" "config.tests/unix/gnu-libiconv" "GNU libiconv" "$L_FLAGS" "$I_FLAGS" "$l_FLAGS"; then
+        CFG_ICONV=gnu
+    else
+        if [ "$CFG_ICONV" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+            echo "Iconv support cannot be enabled due to functionality tests!"
+            echo " Turn on verbose messaging (-v) to $0 to see the final report."
+            echo " If you believe this message is in error you may use the continue"
+            echo " switch (-continue) to $0 to continue."
+            exit 101
+        else
+            CFG_ICONV=no
+        fi
+    fi
+fi
+
 # x11
 if [ "$PLATFORM_X11" = "yes" ]; then
     x11tests="$relpath/config.tests/x11"
@@ -3958,6 +3998,8 @@ else
 fi
 [ "$CFG_NIS" = "yes" ] && QT_CONFIG="$QT_CONFIG nis"
 [ "$CFG_CUPS" = "yes" ] && QT_CONFIG="$QT_CONFIG cups"
+[ "$CFG_ICONV" = "yes" ] && QT_CONFIG="$QT_CONFIG iconv"
+[ "$CFG_ICONV" = "gnu" ] && QT_CONFIG="$QT_CONFIG gnu-libiconv"
 [ "$CFG_GLIB" = "yes" ] && QT_CONFIG="$QT_CONFIG glib"
 [ "$CFG_NAS" = "system" ] && QT_CONFIG="$QT_CONFIG nas"
 
@@ -4352,6 +4394,7 @@ QMakeVar set sql-plugins "$SQL_PLUGINS"
 
 # X11/Unix/Mac only configs
 [ "$CFG_CUPS" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_CUPS"
+[ "$CFG_ICONV" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ICONV"
 [ "$CFG_GLIB" != "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GLIB"
 [ "$CFG_GETADDRINFO" = "no" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETADDRINFO"
 [ "$CFG_IPV6IFNAME" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6IFNAME"
@@ -4660,6 +4703,7 @@ echo "getaddrinfo support . $CFG_GETADDRINFO"
 echo "Accessibility ....... $CFG_ACCESSIBILITY"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
+echo "Iconv support ....... $CFG_ICONV"
 echo "Glib support ........ $CFG_GLIB"
 echo "Large File support .. $CFG_LARGEFILE"
 echo "GIF support ......... $CFG_GIF"

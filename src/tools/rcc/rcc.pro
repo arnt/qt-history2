@@ -52,7 +52,6 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
            ../../corelib/codecs/qtsciicodec.cpp \
            ../../corelib/codecs/qlatincodec.cpp \
            ../../corelib/codecs/qsimplecodec.cpp \
-	   ../../corelib/codecs/qfontlaocodec.cpp \
            ../../xml/qdom.cpp \
 	   ../../xml/qxml.cpp 
 
