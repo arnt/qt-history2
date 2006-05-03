@@ -37,9 +37,11 @@ class QGraphicsPolygonItem;
 class QGraphicsRectItem;
 class QGraphicsSceneContextMenuEvent;
 class QGraphicsSceneEvent;
+class QGraphicsSceneHelpEvent;
 class QGraphicsSceneHoverEvent;
 class QGraphicsSceneMouseEvent;
 class QGraphicsTextItem;
+class QHelpEvent;
 class QLineF;
 class QPainterPath;
 class QPixmap;
@@ -106,9 +108,10 @@ public:
     QGraphicsItem *mouseGrabberItem() const;
 
 protected:
-    virtual bool event(QEvent *event);
+    bool event(QEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
     virtual void focusEvent(QFocusEvent *event);
+    virtual void helpEvent(QGraphicsSceneHelpEvent *event);
     virtual void hoverEvent(QGraphicsSceneHoverEvent *event);
     virtual void keyEvent(QKeyEvent *event);
     virtual void mouseEvent(QGraphicsSceneMouseEvent *event);

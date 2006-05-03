@@ -66,6 +66,9 @@ public:
     void setFlag(GraphicsItemFlag flag, bool enabled = true);
     void setFlags(GraphicsItemFlags flags);
 
+    QString toolTip() const;
+    void setToolTip(const QString &toolTip);
+
     bool isVisible() const;
     void setVisible(bool visible);
 

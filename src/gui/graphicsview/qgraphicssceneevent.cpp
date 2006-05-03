@@ -377,3 +377,43 @@ void QGraphicsSceneHoverEvent::setScreenPos(const QPoint &pos)
     Q_D(QGraphicsSceneHoverEvent);
     d->screenPos = pos;
 }
+
+class QGraphicsSceneHelpEventPrivate : public QGraphicsSceneEventPrivate
+{
+public:
+    QPointF scenePos;
+    QPoint screenPos;
+};
+
+QGraphicsSceneHelpEvent::QGraphicsSceneHelpEvent(Type type)
+    : QGraphicsSceneEvent(*new QGraphicsSceneHelpEventPrivate, type)
+{
+}
+
+QGraphicsSceneHelpEvent::~QGraphicsSceneHelpEvent()
+{
+}
+
+QPointF QGraphicsSceneHelpEvent::scenePos() const
+{
+    Q_D(const QGraphicsSceneHelpEvent);
+    return d->scenePos;
+}
+
+void QGraphicsSceneHelpEvent::setScenePos(const QPointF &pos)
+{
+    Q_D(QGraphicsSceneHelpEvent);
+    d->scenePos = pos;
+}
+
+QPoint QGraphicsSceneHelpEvent::screenPos() const
+{
+    Q_D(const QGraphicsSceneHelpEvent);
+    return d->screenPos;
+}
+
+void QGraphicsSceneHelpEvent::setScreenPos(const QPoint &pos)
+{
+    Q_D(QGraphicsSceneHelpEvent);
+    d->screenPos = pos;
+}

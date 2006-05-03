@@ -140,6 +140,23 @@ private:
     Q_DECLARE_PRIVATE(QGraphicsSceneHoverEvent)
 };
 
+class QGraphicsSceneHelpEventPrivate;
+class Q_GUI_EXPORT QGraphicsSceneHelpEvent : public QGraphicsSceneEvent
+{
+public:
+    QGraphicsSceneHelpEvent(Type type = None);
+    ~QGraphicsSceneHelpEvent();
+
+    QPointF scenePos() const;
+    void setScenePos(const QPointF &pos);
+    
+    QPoint screenPos() const;
+    void setScreenPos(const QPoint &pos);
+
+private:
+    Q_DECLARE_PRIVATE(QGraphicsSceneHelpEvent)
+};
+
 QT_END_HEADER
 
 #endif

@@ -33,8 +33,13 @@ class QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsItem)
 public:
+    enum Extra {
+        ExtraMatrix,
+        ExtraToolTip
+    };
+
     inline QGraphicsItemPrivate()
-        : z(0), scene(0), parent(0), matr(0), index(-1), q_ptr(0)
+        : z(0), scene(0), parent(0), index(-1), q_ptr(0)
     {
         visible = 1;
         enabled = 1;
@@ -46,28 +51,52 @@ public:
     }
 
     inline virtual ~QGraphicsItemPrivate()
-    { delete matr; }
+    { }
 
-    inline QMatrix matrix() const
-    { return matr ? *matr : QMatrix(); }
-
-    inline void setMatrix(const QMatrix &m)
+    inline QVariant extra(Extra type) const
     {
-        if (m.isIdentity()) {
-            delete matr;
-            matr = 0;
-            return;
+        for (int i = 0; i < extras.size(); ++i) {
+            const ExtraStruct &extra = extras.at(i);
+            if (extra.type == type)
+                return extra.value;
         }
-        if (!matr)
-            matr = new QMatrix;
-        *matr = m;
+        return QVariant();
     }
 
+    inline void setExtra(Extra type, const QVariant &value)
+    {
+        int index = -1;
+        for (int i = 0; i < extras.size(); ++i) {
+            if (extras.at(i).type == type) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) {
+            extras << ExtraStruct(type, value);
+        } else {
+            extras[index].value = value;
+        }
+    }
+
+    struct ExtraStruct {
+        ExtraStruct(Extra type, QVariant value)
+            : type(type), value(value)
+        { }
+        
+        Extra type;
+        QVariant value;
+
+        bool operator<(Extra extra) const
+        { return type < extra; }
+    };
+    QList<ExtraStruct> extras;
+    
     QPointF pos;
     qreal z;
     QGraphicsScene *scene;
     QGraphicsItem *parent;
-    QMatrix *matr;
     QList<QGraphicsItem *> children;
     int index;
     quint32 visible : 1;

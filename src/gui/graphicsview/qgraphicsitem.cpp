@@ -254,6 +254,8 @@
 
 #include <math.h>
 
+Q_DECLARE_METATYPE(QMatrix)
+
 /*!
     \internal
 
@@ -437,6 +439,30 @@ void QGraphicsItem::setFlags(GraphicsItemFlags flags)
 
         update();
     }
+}
+
+/*!
+    Returns the item's tool tip, or an empty QString if no tool tip has been
+    set.
+
+    \sa setToolTip(), QToolTip
+*/
+QString QGraphicsItem::toolTip() const
+{
+    Q_D(const QGraphicsItem);
+    return d->extra(QGraphicsItemPrivate::ExtraToolTip).toString();
+}
+
+/*!
+    Sets the item's tool tip to \a toolTip. If \a toolTip is empty, the item's
+    tool tip is cleared.
+
+    \sa toolTip(), QToolTip
+*/
+void QGraphicsItem::setToolTip(const QString &toolTip)
+{
+    Q_D(QGraphicsItem);
+    d->setExtra(QGraphicsItemPrivate::ExtraToolTip, toolTip);
 }
 
 /*!
@@ -768,7 +794,7 @@ void QGraphicsItem::setPos(const QPointF &pos)
 QMatrix QGraphicsItem::matrix() const
 {
     Q_D(const QGraphicsItem);
-    return d->matrix();
+    return qVariantValue<QMatrix>(d->extra(QGraphicsItemPrivate::ExtraMatrix));
 }
 
 /*!
@@ -798,7 +824,7 @@ QMatrix QGraphicsItem::matrix() const
 QMatrix QGraphicsItem::sceneMatrix() const
 {
     Q_D(const QGraphicsItem);
-    QMatrix m = d->matrix() * QMatrix().translate(d->pos.x(), d->pos.y());
+    QMatrix m = matrix() * QMatrix().translate(d->pos.x(), d->pos.y());
     return d->parent ? m * d->parent->sceneMatrix() : m;
 }
 
@@ -821,7 +847,7 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
 {
     Q_D(QGraphicsItem);
 
-    QMatrix oldMatrix = d->matrix();
+    QMatrix oldMatrix = this->matrix();
     QMatrix newMatrix;
     if (!combine)
         newMatrix = matrix;
@@ -832,7 +858,9 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
 
     qt_graphicsItem_fullUpdate(this);
     removeFromIndex();
-    d->setMatrix(newMatrix);
+    QVariant variant;
+    qVariantSetValue<QMatrix>(variant, newMatrix);
+    d->setExtra(QGraphicsItemPrivate::ExtraMatrix, variant);
     addToIndex();
     qt_graphicsItem_fullUpdate(this);
 }

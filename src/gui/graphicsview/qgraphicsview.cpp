@@ -20,7 +20,7 @@
     QGraphicsView visualizes the contents of a QGraphicsScene in a scrollable
     viewport. To create a scene with geometrical items, see QGraphicsScene's
     documentation.
-    
+
     To visualize a scene, you start by constructing a QGraphicsView object,
     passing the address of the scene you want to visualize to QGraphicsView's
     constructor. Alternatively, you can call setScene() to set the scene at a
@@ -63,7 +63,7 @@
     regular QPainter, and standard render hints. To change the default render
     hints that QGraphicsView passes to QPainter when painting items, you can
     call setRenderHints().
-    
+
     By default, QGraphicsView renders its contents onto a regular widget. You
     can access this widget by calling renderWidget(), or you can replace it by
     calling setRenderWidget(). To render using OpenGL, simply call
@@ -76,7 +76,7 @@
     two common transformations are scaling, which is used to implement
     zooming, and rotation. QGraphicsView keeps the center of the view fixed
     during a transformation.
-    
+
     You can interact with the items on the scene by using the mouse and
     keyboard. QGraphicsView translates the mouse and key events into \e scene
     events, (events that inherit QGraphicsSceneEvent,), and forward them to
@@ -88,7 +88,7 @@
     item, it's the item that handles the mouse moves and moves itself.  Item
     interaction is enabled by default, and you can disable it by calling
     setSceneInteractionEnabled().
-    
+
     You can also provide your own custom scene interaction, by creating a
     subclass of QGraphicsView, and reimplementing the mouse and key event
     handlers. To simplify how you programmatically interact with items in the
@@ -156,6 +156,7 @@ public:
     void keyReleaseEvent(QKeyEvent *event);
     void focusInEvent(QFocusEvent *event);
     void focusOutEvent(QFocusEvent *event);
+    void helpEvent(QHelpEvent *event);
 
     void setupRenderWidget(QWidget *widget);
 
@@ -182,7 +183,7 @@ public:
     bool useLastMouseEvent;
     void replayLastMouseEvent();
     void storeMouseEvent(QMouseEvent *event);
-    
+
     QPointF lastCenterPoint;
     bool useLastCenterPoint;
     Qt::Alignment alignment;
@@ -217,7 +218,7 @@ void QGraphicsViewPrivate::recalculateContentSize()
     Q_Q(QGraphicsView);
     if (sceneRect.isNull() && scene)
         sceneRect = scene->itemsBoundingRect();
-    
+
     int width = renderWidget->width();
     int height = renderWidget->height();
     int margin = 4;
@@ -280,7 +281,7 @@ void QGraphicsViewPrivate::recalculateContentSize()
         q->verticalScrollBar()->setSingleStep(height / 20);
         topIndent = 0;
     }
-    
+
     // Restore the center point from before the ranges changed.
     lastCenterPoint = savedLastCenterPoint;
 
@@ -417,7 +418,7 @@ void QGraphicsViewPrivate::mouseDoubleClickEvent(QMouseEvent *event)
     mouseEvent.setLastScreenPos(q->mapFromScene(lastMouseMoveScenePoint));
     mouseEvent.setButtons(event->buttons());
     mouseEvent.setButtons(event->buttons());
-    
+
     mouseEvent.setButton(event->button());
     mouseEvent.setModifiers(event->modifiers());
     QApplication::sendEvent(scene, &mouseEvent);
@@ -439,8 +440,8 @@ void QGraphicsViewPrivate::mousePressEvent(QMouseEvent *event)
     mousePressButton = event->button();
 
     if ((rubberBanding = !scene->itemAt(mousePressScenePoint)))
-        scene->clearSelection();        
-    
+        scene->clearSelection();
+
     storeMouseEvent(event);
 
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
@@ -472,7 +473,7 @@ void QGraphicsViewPrivate::mouseMoveEvent(QMouseEvent *event)
             if ((mousePressViewPoint - event->pos()).manhattanLength()
                 < QApplication::startDragDistance())
                 return;
-            
+
             rubberBand = new QRubberBand(QRubberBand::Rectangle, q);
         }
         QRect selectionRect = QRect(mousePressViewPoint, event->pos()).normalized();
@@ -487,7 +488,7 @@ void QGraphicsViewPrivate::mouseMoveEvent(QMouseEvent *event)
 
     if (!useLastMouseEvent)
         storeMouseEvent(event);
-    
+
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseMove);
     mouseEvent.setWidget(q);
     mouseEvent.setButtonDownScenePos(mousePressButton, mousePressScenePoint);
@@ -519,9 +520,9 @@ void QGraphicsViewPrivate::mouseReleaseEvent(QMouseEvent *event)
         rubberBanding = false;
         return;
     }
-    
+
     storeMouseEvent(event);
- 
+
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseRelease);
     mouseEvent.setWidget(q);
     mouseEvent.setButtonDownScenePos(mousePressButton, mousePressScenePoint);
@@ -575,17 +576,29 @@ void QGraphicsViewPrivate::focusOutEvent(QFocusEvent *event)
 /*!
     \internal
 */
+void QGraphicsViewPrivate::helpEvent(QHelpEvent *event)
+{
+    Q_Q(QGraphicsView);
+    QGraphicsSceneHelpEvent helpEvent(QEvent::GraphicsSceneHelp);
+    helpEvent.setScreenPos(event->globalPos());
+    helpEvent.setScenePos(q->mapToScene(event->pos()));
+    QApplication::sendEvent(scene, &helpEvent);
+}
+
+/*!
+    \internal
+*/
 void QGraphicsViewPrivate::setupRenderWidget(QWidget *widget)
 {
     Q_Q(QGraphicsView);
     if (!widget)
         widget = new QWidget(q->viewport());
-    
+
     accelerateScrolling = !widget->inherits("QGLWidget");
 
     if (!renderWidget) {
         // If we didn't have a render widget already, we set the center
-        // point to what corresponds to the center of the render widget.       
+        // point to what corresponds to the center of the render widget.
         lastCenterPoint = q->mapToScene(q->mapFromScene(q->mapToScene(widget->rect().center())));
         useLastCenterPoint = true;
     }
@@ -903,7 +916,7 @@ void QGraphicsView::renderToDevice(QPaintDevice *device, const QRect &rect,
     if (options & StretchContents) {
         qDebug() << (device->width() / qreal(printRect.width()))
                  << (device->height() / qreal(printRect.height()));
-        
+
         painter.scale(device->width() / qreal(printRect.width()),
                       device->height() / qreal(printRect.height()));
     }
@@ -1035,12 +1048,12 @@ QMatrix QGraphicsView::matrix() const
     \code
         QGraphicsScene scene;
         scene.addText("GraphicsView rotated clockwise");
-    
+
         QGraphicsView view(&scene);
         view.rotate(90); // the text is rendered with a 90 degree clockwise rotation
         view.show();
-    \endcode    
-    
+    \endcode
+
     To simplify interation with items using a transformed view, QGraphicsView
     provides mapTo... and mapFrom... functions that can translate between
     scene and view coordinates. For example, you can call mapToScene() to map
@@ -1198,7 +1211,7 @@ void QGraphicsView::ensureVisible(const QPointF &pos, int xmargin, int ymargin)
     qreal right = left + width;
     qreal top = d->topIndent ? d->topIndent : verticalScrollBar()->value();
     qreal bottom = top + height;
-    
+
     if (viewPoint.x() <= left + xmargin) {
         // need to scroll from the left
         if (!d->leftIndent)
@@ -1608,6 +1621,9 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
     case QEvent::FocusOut:
         d->focusOutEvent(static_cast<QFocusEvent *>(event));
         break;
+    case QEvent::ToolTip:
+        d->helpEvent(static_cast<QHelpEvent *>(event));
+        break;
     default:
         break;
     }
@@ -1697,7 +1713,7 @@ void QGraphicsView::paintForeground(QPainter *painter, const QRectF &rect)
     \a painter is pre-transformed with the view matrix; any painting is done
     in \e scene coordinates. Before drawing each item, the painter must be
     transformed using QGraphicsItem::sceneMatrix().
-    
+
     By reimplementing this function, you gain complete control over how each
     item is drawn, and in some cases this can increase drawing performance
     significantly.

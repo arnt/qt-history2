@@ -154,6 +154,7 @@
 #include <QtCore/qtimer.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qpolygon.h>
+#include <QtGui/qtooltip.h>
 #include <math.h>
 
 static bool qt_rectInPoly(const QPolygonF &poly, const QRectF &rect)
@@ -295,13 +296,13 @@ void QGraphicsScenePrivate::resetIndex()
     \internal
 */
 void QGraphicsScenePrivate::generateBspTree()
-{   
+{
     Q_Q(QGraphicsScene);
 
     if (!generatingBspTree)
         return;
     generatingBspTree = false;
-    
+
     QRectF boundingRect = q->itemsBoundingRect();
 
     // ### newitems
@@ -311,7 +312,7 @@ void QGraphicsScenePrivate::generateBspTree()
             freeItemIndexes << i;
         }
     }
-    
+
     int oldItemCount = allItems.size();
 
     for (int i = 0; i < newItems.size(); ++i) {
@@ -327,7 +328,7 @@ void QGraphicsScenePrivate::generateBspTree()
             }
         }
     }
-    
+
     if (closestPowerOf2(oldItemCount) < closestPowerOf2(allItems.size())) {
         // ### Use a better algorithm that isn't so vulnerable to border-case
         // slowness.
@@ -370,7 +371,7 @@ void QGraphicsScenePrivate::emitUpdated()
     calledEmitUpdated = false;
     QList<QRectF> oldUpdatedRects = updatedRects;
     updatedRects.clear();
-    emit q->changed(oldUpdatedRects);    
+    emit q->changed(oldUpdatedRects);
 }
 
 /*!
@@ -436,7 +437,7 @@ void QGraphicsScenePrivate::removeEventFilter(QGraphicsItem *watched, QGraphicsI
 {
     if (!eventFilters.contains(watched))
         return;
-    
+
     QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator it = eventFilters.lowerBound(watched);
     QMultiMap<QGraphicsItem *, QGraphicsItem *>::Iterator end = eventFilters.upperBound(watched);
     do {
@@ -589,9 +590,9 @@ QList<QGraphicsItem *> QGraphicsScene::items() const
 }
 
 /*!
-    Returns all items at position \a pos in the scene. The items are listed in
-    descending Z order (i.e., the first item in the list is the top-most item,
-    and the last item is the bottom-most item).
+    Returns all visible items at position \a pos in the scene. The items are
+    listed in descending Z order (i.e., the first item in the list is the
+    top-most item, and the last item is the bottom-most item).
 
     \sa itemAt()
 */
@@ -613,8 +614,8 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPointF &pos) const
 /*!
     \overload
 
-    Returns all items that are either inside or intersect with the rectangle
-    \a rect.
+    Returns all visible items that are either inside or intersect with the
+    rectangle \a rect.
 
     \sa itemAt()
 */
@@ -639,8 +640,8 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect) const
 /*!
     \overload
 
-    Returns all items that are either inside or intersect with the polygon
-    \a polygon.
+    Returns all visible items that are either inside or intersect with the
+    polygon \a polygon.
 
     \sa itemAt()
 */
@@ -657,8 +658,8 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPolygonF &polygon) const
 /*!
     \overload
 
-    Returns all items that are either inside or intersect with the path
-    \a path.
+    Returns all visible items that are either inside or intersect with the
+    path \a path.
 
     \sa itemAt()
 */
@@ -737,7 +738,7 @@ QList<QGraphicsItem *> QGraphicsScene::selectedItems() const
     }
 
     that->d_func()->selectedItems = actuallySelectedSet.values();
-    
+
     return d->selectedItems;
 }
 
@@ -803,7 +804,7 @@ QGraphicsItem *QGraphicsScene::addItem(QGraphicsItem *item)
         qWarning("QGraphicsScene::addItem: cannot add null item");
         return 0;
     }
-    
+
     d->addToIndex(item);
 
     if (item->d_func()->scene)
@@ -824,7 +825,7 @@ QGraphicsItem *QGraphicsScene::addItem(QGraphicsItem *item)
 
     if (item->isSelected())
         d->selectedItems << item;
-    
+
     foreach (QGraphicsItem *child, item->children())
         addItem(child);
 
@@ -1073,7 +1074,7 @@ void QGraphicsScene::setFocusItem(QGraphicsItem *item, Qt::FocusReason focusReas
         d->focusItem = 0;
         d->lastFocusItem->update();
     }
-    
+
     if (item) {
         d->focusItem = item;
         QFocusEvent event(QEvent::FocusIn, focusReason);
@@ -1202,6 +1203,13 @@ bool QGraphicsScene::event(QEvent *event)
     case QEvent::GraphicsSceneHoverMove:
         hoverEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
         break;
+    case QEvent::Leave:
+        // Remove any tooltips
+        QToolTip::showText(QPoint(), QString());
+        break;
+    case QEvent::GraphicsSceneHelp:
+        helpEvent(static_cast<QGraphicsSceneHelpEvent *>(event));
+        break;
     default:
         return false;
     }
@@ -1247,6 +1255,32 @@ void QGraphicsScene::focusEvent(QFocusEvent *focusEvent)
 }
 
 /*!
+    \reimp
+*/
+void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *event)
+{
+    // Find the first item that does tooltips
+    QList<QGraphicsItem *> itemsAtPos = items(event->scenePos());
+    QGraphicsItem *toolTipItem = 0;
+    for (int i = 0; i < itemsAtPos.size(); ++i) {
+        QGraphicsItem *tmp = itemsAtPos.at(i);
+        if (!tmp->toolTip().isEmpty()) {
+            toolTipItem = tmp;
+            break;
+        }
+    }
+
+    // Show or hide the tooltip
+    QString text;
+    QPoint point;
+    if (toolTipItem && !toolTipItem->toolTip().isEmpty()) {
+        text = toolTipItem->toolTip();
+        point = event->screenPos();
+    }
+    QToolTip::showText(point, text);
+}
+
+/*!
     This event handler, for event \a hoverEvent, can be reimplemented in a
     subclass to receive hover events. The default implementation forwards the
     event to the topmost item that accepts hover events at the scene position
@@ -1261,8 +1295,8 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
     // Find the first item that accepts hover events
     QList<QGraphicsItem *> itemsAtPos = items(hoverEvent->scenePos());
     QGraphicsItem *item = 0;
-    while (!itemsAtPos.isEmpty()) {
-        QGraphicsItem *tmp = itemsAtPos.takeFirst();        
+    for (int i = 0; i < itemsAtPos.size(); ++i) {
+        QGraphicsItem *tmp = itemsAtPos.at(i);
         if (tmp->acceptsHoverEvents()) {
             item = tmp;
             break;
@@ -1294,7 +1328,7 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
         // missing links.
         QList<QGraphicsItem *> parents;
         parents << item;
-        
+
         QGraphicsItem *parent = item->parentItem();
         while (parent && (d->hoverItems.isEmpty() || parent != d->hoverItems.last())) {
             parents.prepend(parent);
@@ -1347,12 +1381,11 @@ void QGraphicsScene::keyEvent(QKeyEvent *keyEvent)
 void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     Q_D(QGraphicsScene);
-    
+
     if (!d->mouseGrabberItem) {
         if (mouseEvent->type() != QGraphicsSceneMouseEvent::GraphicsSceneMousePress
             && mouseEvent->type() != QGraphicsSceneMouseEvent::GraphicsSceneMouseDoubleClick) {
-            // As long as we don't have any mouse grabber, all mouse events
-            // but the MousePress events are ignored.
+            // Ignore mouse moves when there is no grabber.
             return;
         }
 
@@ -1364,7 +1397,7 @@ void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
                     // events.
                     return;
                 }
-                
+
                 d->mouseGrabberItem = item;
 
                 for (int i = 0x1; i <= 0x10; i <<= 1) {
@@ -1375,7 +1408,7 @@ void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
                                                                  mouseEvent->scenePos());
                         d->mouseGrabberButtonDownScreenPos.insert(Qt::MouseButton(i),
                                                                   mouseEvent->screenPos());
-                    }                        
+                    }
                 }
                 break;
             }
@@ -1384,7 +1417,7 @@ void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
         // Ignore mouse events that nobody wants.
         if (!d->mouseGrabberItem) {
             clearSelection();
-	    setFocusItem(0, Qt::MouseFocusReason);
+            setFocusItem(0, Qt::MouseFocusReason);
             return;
         }
     } else if (!d->mouseGrabberItem->isVisible()) {
@@ -1396,7 +1429,7 @@ void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     // Set focus on the mouse grabber if it accepts focus
     if (d->mouseGrabberItem->flags() & QGraphicsItem::ItemIsFocusable)
         setFocusItem(d->mouseGrabberItem, Qt::MouseFocusReason);
-    
+
     // Forward the event.
     for (int i = 0x1; i <= 0x10; i <<= 1) {
         if (mouseEvent->buttons() & i) {
@@ -1457,7 +1490,7 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
 
     QRectF boundingRect = item->boundingRect();
     if (!rect.isNull())
-	boundingRect &= rect;
+        boundingRect &= rect;
     d->updatedRects << item->sceneMatrix().mapRect(boundingRect);
     if (!d->calledEmitUpdated) {
         d->calledEmitUpdated = true;
