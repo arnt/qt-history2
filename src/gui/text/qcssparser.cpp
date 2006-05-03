@@ -375,67 +375,106 @@ StyleSelector::~StyleSelector()
 {
 }
 
-bool StyleSelector::matchRule(const StyleRule &rule, void *node)
+QStringList StyleSelector::nodeIds(void *node) const
 {
-    for (int i = 0; i < rule.selectors.count(); ++i) {
-        for (int j = 0; j < rule.selectors.at(i).basicSelectors.count(); ++j) {
-            const QCss::BasicSelector &sel = rule.selectors.at(i).basicSelectors.at(j);
+    return QStringList(attribute(node, QLatin1String("id")));
+}
 
-            if (!sel.attributeSelectors.isEmpty()) {
-                if (!hasAttributes(node))
-                    continue;
+bool StyleSelector::selectorMatches(const Selector &selector, void *node)
+{
+    for (int j = 0; j < selector.basicSelectors.count(); ++j) {
+        const QCss::BasicSelector &sel = selector.basicSelectors.at(j);
 
-                bool matched = true;
-                for (int i = 0; i < sel.attributeSelectors.count(); ++i) {
-                    const QCss::AttributeSelector &a = sel.attributeSelectors.at(i);
-                    if (!hasAttribute(node, a.name)) {
-                        matched = false;
-                        break;
-                    }
-                    const QString attrValue = attribute(node, a.name);
+        if (!sel.attributeSelectors.isEmpty()) {
+            if (!hasAttributes(node))
+                continue;
 
-                    if (a.valueMatchCriterium == QCss::AttributeSelector::MatchContains) {
-
-                        QStringList lst = attrValue.split(QLatin1Char(' '));
-                        if (!lst.contains(a.value)) {
-                            matched = false;
-                            break;
-                        }
-                    } else if (
-                        (a.valueMatchCriterium == QCss::AttributeSelector::MatchEqual
-                         && attrValue != a.value)
-                        ||
-                        (a.valueMatchCriterium == QCss::AttributeSelector::MatchBeginsWith
-                         && !attrValue.startsWith(a.value))
-                       ) {
-                        matched = false;
-                        break;
-                    }
+            bool matched = true;
+            for (int i = 0; i < sel.attributeSelectors.count(); ++i) {
+                const QCss::AttributeSelector &a = sel.attributeSelectors.at(i);
+                if (!hasAttribute(node, a.name)) {
+                    matched = false;
+                    break;
                 }
-                if (!matched)
-                    continue;
-            }
-            
-            if (!sel.elementName.isEmpty()
-                && sel.elementName != nodeName(node))
-                    continue;
+                const QString attrValue = attribute(node, a.name);
 
-            if (sel.relationToNext == QCss::BasicSelector::NoRelation
-                && sel.ids.isEmpty() && sel.pseudoClasses.isEmpty())
-                    return true;
+                if (a.valueMatchCriterium == QCss::AttributeSelector::MatchContains) {
+
+                    QStringList lst = attrValue.split(QLatin1Char(' '));
+                    if (!lst.contains(a.value)) {
+                        matched = false;
+                        break;
+                    }
+                } else if (
+                    (a.valueMatchCriterium == QCss::AttributeSelector::MatchEqual
+                     && attrValue != a.value)
+                    ||
+                    (a.valueMatchCriterium == QCss::AttributeSelector::MatchBeginsWith
+                     && !attrValue.startsWith(a.value))
+                   ) {
+                    matched = false;
+                    break;
+                }
             }
+            if (!matched)
+                continue;
+        }
+        
+        if (!sel.elementName.isEmpty()
+            && sel.elementName != nodeName(node))
+                continue;
+
+        if (!sel.ids.isEmpty()
+            && sel.ids != nodeIds(node))
+                continue;
+
+        if (sel.relationToNext == QCss::BasicSelector::NoRelation
+            && sel.pseudoClasses.isEmpty())
+                return true;
     }
     return false;    
+}
+
+namespace QCss {
+    struct SelectorSortHelper
+    {
+        inline SelectorSortHelper(QVector<StyleRule> &rules) : rules(rules) {}
+
+        bool operator()(const QPair<int, int> &lhs, const QPair<int, int> &rhs) const
+        {
+            return rules.at(lhs.first).selectors.at(lhs.second).specificity()
+                   < rules.at(rhs.first).selectors.at(rhs.second).specificity();
+        }
+        
+        QVector<StyleRule> &rules;
+    };
 }
 
 QVector<Declaration> StyleSelector::declarationsForNode(void *node)
 {
     QVector<Declaration> decls;
+    
+    // first field in pair is index in styleRules, second field is
+    // index within style rule
+    QVector<QPair<int, int> > selectors;
+
     for (int i = 0; i < styleSheet.styleRules.count(); ++i) {
-        const QCss::StyleRule &rule = styleSheet.styleRules.at(i);
-        if (matchRule(rule, node))
-            decls += rule.declarations;
+        for (int j = 0; j < styleSheet.styleRules.at(i).selectors.count(); ++j)
+            if (selectorMatches(styleSheet.styleRules.at(i).selectors.at(j), node)) {
+                QPair<int, int> selectorPtr;
+                selectorPtr.first = i;
+                selectorPtr.second = j;
+                selectors.append(selectorPtr);
+                break;
+            }
     }
+
+    // sort by specificity
+    SelectorSortHelper helper(styleSheet.styleRules);
+    qSort(selectors.begin(), selectors.end(), helper);
+   
+    for (int i = 0; i < selectors.count(); ++i)
+        decls += styleSheet.styleRules.at(selectors.at(i).first).declarations;
     return decls;
 }
 

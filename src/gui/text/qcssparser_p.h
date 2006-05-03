@@ -204,10 +204,11 @@ public:
     virtual QString attribute(void *node, const QString &name) const = 0;
     virtual bool hasAttribute(void *node, const QString &name) const = 0;
     virtual bool hasAttributes(void *node) const = 0;
+    virtual QStringList nodeIds(void *node) const;
 
     StyleSheet styleSheet;
 private:
-    bool matchRule(const StyleRule &rule, void *node);
+    bool selectorMatches(const Selector &rule, void *node);
 };
 
 enum TokenType {
