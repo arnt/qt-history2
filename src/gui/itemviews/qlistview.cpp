@@ -899,6 +899,12 @@ void QListView::paintEvent(QPaintEvent *e)
     QPainter painter(d->viewport);
     QRect area = e->rect();
 
+    // if there's nothing to do, clear the area and return
+    if (!model()) {
+        painter.fillRect(area, option.palette.brush(QPalette::Base));
+        return;
+    }
+
     QVector<QModelIndex> toBeRendered;
 //     QVector<QRect> rects = e->region().rects();
 //     for (int i = 0; i < rects.size(); ++i) {
