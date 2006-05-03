@@ -502,7 +502,7 @@ SignalSlotEditorWindow::SignalSlotEditorWindow(QDesignerFormEditorInterface *cor
     m_editor = 0;
     m_view = new QTreeView(this);
     m_view->setItemDelegate(new ConnectionDelegate(this));
-    m_view->setEditTriggers(QAbstractItemView::SelectedClicked
+    m_view->setEditTriggers(QAbstractItemView::DoubleClicked
                                 | QAbstractItemView::EditKeyPressed);
     m_view->setRootIsDecorated(false);
     connect(m_view, SIGNAL(activated(QModelIndex)), this, SLOT(updateUi()));
