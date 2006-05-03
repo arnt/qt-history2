@@ -44,7 +44,7 @@
 #    include "../../plugins/codecs/kr/qeuckrcodec.h"
 #    include "../../plugins/codecs/tw/qbig5codec.h"
 #  endif // QT_NO_ICONV
-#  ifdef Q_WS_X11
+#  if defined(Q_WS_X11) && !defined(QT_BOOTSTRAPPED)
 #    include "qfontlaocodec_p.h"
 #    include "../../plugins/codecs/jp/qfontjpcodec.h"
 #  endif
@@ -476,9 +476,10 @@ static void setup()
     (void) createQTextCodecCleanup();
 
 #ifndef QT_NO_CODECS
-#  ifdef Q_WS_X11
+#  if defined(Q_WS_X11) && !defined(QT_BOOTSTRAPPED)
+    // no font codecs when bootstrapping
     (void)new QFontLaoCodec;
-#    if defined(QT_NO_ICONV) && !defined(QT_BOOTSTRAPPED)
+#    if defined(QT_NO_ICONV)
     // no iconv(3) support, must build all codecs into the library
     (void)new QFontGb2312Codec;
     (void)new QFontGbkCodec;
@@ -500,6 +501,7 @@ static void setup()
         (void)new QSimpleTextCodec(i);
 
 #  if defined(QT_NO_ICONV) && !defined(QT_BOOTSTRAPPED)
+    // no asian codecs when bootstrapping, sorry
     (void)new QGb18030Codec;
     (void)new QGbkCodec;
     (void)new QGb2312Codec;
