@@ -25,9 +25,13 @@ CONFIG(debug, debug|release) {
     OBJECTS_DIR     = tmp/release
     MOC_DIR         = tmp/release
 }
-isEmpty(QTEST_LIB)|!exists($$[QT_INSTALL_LIBS]) {
-    warning("Cannot find qtestlib!")
+QTEST_LIB = $$fromfile($$QTESTLIB_PRL, QMAKE_PRL_TARGET)
+win32:QTEST_LIB = $${QTEST_LIB}4.dll
+isEmpty(QTEST_LIB) {
+    warning("Cannot find qtestlib's prl file, run qmake in $QTDIR/tools/qtestlib/src")
     CONFIG += embed_testlib
+} else {
+    !exists($$[QT_INSTALL_LIBS]/$$QTEST_LIB):CONFIG += embed_testlib
 }
 
 # make sure the test is build according to your Qt configuration
@@ -51,6 +55,9 @@ embed_testlib {
 }
 
 embedded:QMAKE_CXXFLAGS+=-fno-rtti
+
+# prefix test binary with tst_
+TARGET = $$join(TARGET,,"tst_")
 
 ########################################################################
 # Use install rule to run test application.
