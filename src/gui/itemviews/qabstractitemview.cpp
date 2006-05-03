@@ -549,7 +549,6 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
 */
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
-    Q_ASSERT(delegate);
     Q_D(QAbstractItemView);
 
     if (d->delegate) {
@@ -737,6 +736,8 @@ void QAbstractItemView::reset()
 void QAbstractItemView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QAbstractItemView);
+    if (d->root == index)
+        return;
     d->root = index;
     d->doDelayedItemsLayout();
 }
@@ -880,6 +881,8 @@ bool QAbstractItemView::tabKeyNavigation() const
 /*!
   \property QAbstractItemView::showDropIndicator
   \brief whether the drop indicator is shown when dragging items and dropping.
+
+  \sa dragEnabled acceptDrops
 */
 
 void QAbstractItemView::setDropIndicatorShown(bool enable)
@@ -895,6 +898,8 @@ bool QAbstractItemView::showDropIndicator() const
 /*!
   \property QAbstractItemView::dragEnabled
   \brief whether the view supports dragging of its own items
+
+  \sa showDropIndicator acceptDrops
 */
 
 void QAbstractItemView::setDragEnabled(bool enable)
@@ -937,7 +942,6 @@ bool QAbstractItemView::dragDropEnabled()
 
   By default, this property is false.
 */
-
 void QAbstractItemView::setAlternatingRowColors(bool enable)
 {
     d_func()->alternatingColors = enable;
