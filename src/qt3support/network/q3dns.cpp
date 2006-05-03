@@ -61,9 +61,6 @@ extern "C" int res_init();
 #include "q3socketdevice.h"
 #include "q3cleanuphandler.h"
 #include <limits.h>
-#ifdef Q_OS_MAC
-#include "../3rdparty/dlcompat/dlfcn.h"
-#endif
 
 //#define Q3DNS_DEBUG
 
@@ -2484,26 +2481,6 @@ void Q3Dns::doSynchronousLookup()
 
 #if defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 3)))
 #define Q_MODERN_RES_API
-#else
-static int q3dns_res_init()
-{
-#ifdef Q_OS_MAC
-    extern void *qt_mac_resolve_sys(void *handle, const char *symbol);
-
-    typedef int (*PtrRes_init)();
-    static PtrRes_init ptrRes_init = 0;
-    if (!ptrRes_init)
-	ptrRes_init = (PtrRes_init)qt_mac_resolve_sys(RTLD_NEXT, "res_init");
-    if (ptrRes_init)
-	return (*ptrRes_init)();
-    else
-	return -1;
-#elif defined(Q_OS_UNIX)
-    return res_init();
-#else
-    return 0; // not called at all on Windows.
-#endif
-}
 #endif
 
 void Q3Dns::doResInit()
@@ -2568,7 +2545,7 @@ void Q3Dns::doResInit()
 	if ( *res.defdname )
 	    domains->append( QString::fromLatin1( res.defdname ).lower().local8Bit() );
 #else
-	q3dns_res_init();
+	res_init();
 	int i;
 	// find the name servers to use
 	for( i=0; i < MAXNS && i < _res.nscount; i++ )

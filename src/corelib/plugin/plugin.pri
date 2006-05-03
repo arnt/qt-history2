@@ -19,11 +19,6 @@ win32 {
 	SOURCES += plugin/qlibrary_win.cpp
 }
 
-mac { 
-	SOURCES+=../3rdparty/dlcompat/dlfcn.c
-	INCLUDEPATH+=../3rdparty/dlcompat
-}
-
 unix {
 	SOURCES += plugin/qlibrary_unix.cpp
 }
