@@ -6,7 +6,7 @@ Applications compiled for 4.0 will continue to run with 4.1.
 
 #################################
 # TODO: 2006/01/25 - 2006/04/11 #
-# Last change: 213769
+# Last change: 214471
 #################################
 
 ****************************************************************************
@@ -17,11 +17,15 @@ Meta Object Compiler (moc)
 
 Configure / Compilation
 	Compile with NAS sound support enabled and no Qt 3 support.
+	Fixed some issues with resolving absolute paths when configuring 
+	Qt using "-prefix".
 
 Porting (qt3to4)
 	qt3to4 now adds the needed include directive for 
 	qPixmapFromMimeFactory().
-
+	Added rule for QDeepCopy.
+	Improved handling of files with non-unix line endings.
+	
 Qt Designer
 	Improved usability by letting the Find Icon dialog remember the last
 	path visited.
@@ -32,7 +36,11 @@ Qt Designer
 	Fixed code generation for custom widgets containing a QComboBox.
 	Fixed but that prevented the windowTitle property for QDockWidgets from
 	being designable.
-
+	Fixed problem where designer would fail reflect QTreeWidget column changes.
+	Fixed potensial assert when font size is specified in points.
+	Fixed potensial crash when breaking the layout of an empty splitter.
+	Ensure that designer saves the used pixmap function.
+	
 Qt Assistant 
 	Assistant now sets the proper encoding attribute when saving files,
 	solving problems when viewing the page in some browsers.
@@ -40,14 +48,12 @@ Qt Assistant
 
 Qt Linguist / Internationalization
 	Improved window placement on startup.
+	Fixed problem where .ts files for Qt3 .ui files would be grayed out.
 
 uic
 	Fix code generating bug for forms in namepsaces preventing connections
 	from beeing made.
 	Split large generated strings to avoid compiler errors.
-
-qtconfig
-	Fix assert when editing font family substitutions.
 
 Qt Translation
 
@@ -58,6 +64,7 @@ Demos / Examples
 	incorrectly enabled/disabled.
 	Fixed a crash in the FTP example.
 	Made it easier to change the Arthur Widget properties in Designer.
+	Fixed indexing issues in the spreadsheet demo.
 
 ****************************************************************************
 *                          Library                                         *
@@ -72,23 +79,44 @@ General improvements
 - A parent modal dialog of a child modal dialog can no longer be brought on top of the child.
 - Make sure modal widgets are modal when opened on a closing parent.
 - Fix expose painting error when closing a child popup.
+- Ensure that index widget pointers are maintained when a view is sorted.
+- Ensure that closingDown() returns true when the application 
+  objects are being destroyed.
+- Fixed a potensial crash in the PNG image handler.
 
 - Q3DockWindow
 	Fixed placement when showing after being hidden.
-
+	Fixed issue where calling show() on a hidden Q3DockWindow would make the 
+	dockwindow overlap the existing one.
+	
 - Q3GroupBox
 	Removed empty row at the bottom.
 
 - Q3TextBrowser
 	Fix bug that preventend some Unicode HTML files from beeing displayed.
 
+- Q3ToolBar
+	Ensure that toolbar separators are painted in all styles.
+
 - Q3IconView
 	Fixed a crash when disabling the view while an item is being edited.
+
+- Q3ListView
+	Fixed incorrect background color.
+	Fixed painting issues with disabled items.
+	Added support for tooltips.
 
 - Q3Table
 	Fixed a painting bug in the headers that occurred when a cell was
 	selected.
-
+	Ensure that checkbox backgrounds are filled.
+	Fixed issue where calling selectRow() would not deselect current row 
+	in SingeRow selection mode.
+	
+- Q3Header
+	Fixed incorrect vertical text alignment.
+	Fixed issue where a header label would be lost after swapping two column headers.
+	
 - Q3UrlOperator
 	Fixed listChildren() for the case when setProtocol() haven't been 
 	called.
@@ -100,7 +128,13 @@ General improvements
 	Fixed QStatusTipEvents for itemviews.
 	Fixed a crash occurring when removing a row in a slot connected to
 	selectionChanged().
-
+	Fixed issue where itemChanged() would be emitted twice.
+	Fixed issue where input methods would not work on editable itemviews.
+	Fixed potensial crash.
+	Make sure the editor does not open when expanding and collapsing branches
+	in QTreeView. Note that this change introduces a system dependent delay to 
+	differentiate between double and single clicks.
+	
 - QAbstractSocket
 	Fix potential crash when connecting to local sockets on BSD systems.
 
@@ -111,6 +145,10 @@ General improvements
 	Correct escape of '&' in items.
 	Reset input context when showing the popup.
 
+- QCommonStyle
+	Fixed incorrect values returned from sizeHintFromContents() for the header
+	sections.
+	
 - QCheckBox
 	Fixed some painting issues when using CDE of Motif style.
 
@@ -131,13 +169,15 @@ General improvements
 - QFile
 	Correct error reporting on flush() and close().
 	Fix caching issues causing wrong file sizes to be returned in some cases.
-
+	Ensure that QFile::write will fail when trying to write to a full disk.
+	
 - QFileDialog
 	Fixed a bug that allowed selection of multiple files in 
 	getOpenFileName().
 	Give proper error message when deleting a directory failed.
 	Fix bug preventing update when changing the FileMode.
-
+	Added support for using several new characters, such as @{},*~^ in dialog file filters.
+	
 - QFtp
 	Fix crash if FTP session got deleted in slot.
 
@@ -161,7 +201,7 @@ General improvements
 	pressing the left mouse key.
 	Fixed bug giving the last section a resize cursor event though it cannot be resized.
 	Icons in header views now respect the layout direction.
-
+	
 - QImage
 	Fixed writing to a PNG file when the alpha value is premultiplied.
 	Fixed a bug where dotsPermMeter was not preserved after 
@@ -181,6 +221,9 @@ General improvements
 	Emit currentChanged() when the current item is deleted.
 	Fixed a bug causing the selection to be lost when an item was removed.
 
+- QLibrary
+	Added support for suffixes before library extensions.
+	
 - QListView
 	Fixed setRowHidden().
 	Made descision of showing scrollbars independent of previous scrollbar
@@ -193,7 +236,10 @@ General improvements
 	Fixed a crash when deleting QMainWindow::statusBar().
 	Fixed bug causing wrong behavior when removing a QToolBar with removeToolBar()
 	Fixed layout error when showing the status bar after the mainwindow.
-
+	Fixed incorrect assert in QMainWindowLayout::dockWidgetArea().
+	Fixed a bug making it impossible to have a dockwidget under two others in the 
+	same dockwidget area.
+	
 - QMenu
 	Let setActiveAction open a submenu to be consistent with QMenuBar.
 	Let the Alt key close a context menu.
@@ -201,6 +247,7 @@ General improvements
 	Improve navigation behavior when using up/down arrow on a menu with no 
 	selected items.
 	Fix crash when clicking on cleared disabled submenus.
+	Ensured that only the currently highlighted submenu is visible.
 
 - QMotifStyle
 	Draw QSlider tick marks.
@@ -213,16 +260,20 @@ General improvements
 
 - QPainter
 	Optimized drawing of dotted lines.
-
+	Fixed potensial assert after calling setClipping(true).
+	
 - QPainter
 	Fix bug causing contains(QPoint) to return the wrong answer in some cases.
+	Fixed some painting issues with drawArc().
 
 - QPen
 	Fixed bug that caused wrong dash patterns to be drawn when changing style.
 
 - QPicture
 	Fixed a DPI issue when drawing into a QLabel.
-
+	Make sure that the bounding rect is updated for all drawing operations.
+	Make sure SVG files saved by QPicture includes namespace bindings in the SVG tag.
+	
 - QPlastiqueStyle
 	Improved usability in QSlider by making the hit rectangle for mouse
 	clicks wider. 
@@ -237,10 +288,17 @@ General improvements
 - QPrintDialog
 	Fixed a crash when opening a page setup dialog on a PDF printer.
 
+- QPushButton
+	Make sure a pushbutton with flat property paints buttoncontents.
+	
 - QProcess
 	exitStatus is now reset after a sub-process crash.
 	Fix bug causing the system to lock on X11 after calling startDetached() 65536 times.
 
+- QScrollArea
+	Fixed problem where focusing the next child in a scroll area would make the 
+	top left part of the child scroll out of view.
+	
 - QSettings
 	Make it possible to the the "Default" registry entry on windows.
 
@@ -266,6 +324,8 @@ General improvements
 
 - QSvgRenderer
 	Fixed rendering into a QPicture.
+	Fixed issue where id attributes containing certain characters would 
+	not render correctly.
 
 - QSplashScreen
 	Fixed rendering of pixmaps with alpha channels.
@@ -280,11 +340,16 @@ General improvements
 - QTabBar
 	Only emit currentChanged() when the current index actually changes.
 
+- QTabWidget
+	Ensure that QTabWidget has the same behaviour as QStackedWidget when inserting 
+	a page at index <= currentIndex().
+	
 - QTableView
 	Fixed selection after rows/columns have been moved.
 	Made descision of showing scrollbars independent of previous scrollbar
 	state.
  	Fixed a bug causing mouse clicks to be lost.
+	Fixed potensial assertion when hiding columns in QTableView.
 
 - QTabWidget
 	Fixed drawing of icons.
@@ -292,15 +357,29 @@ General improvements
 - QTextCodec
 	Fixed detection of locales with the '@' modifier.
 
+- QTextDocumentLayout
+	Make sure the right margin of a QTextBlock is filled with the background color.
+	
 - QTextEdit
 	Fixed a bug causing setPlainText() to emit textChanged() three times.
 	Fixed an infinte loop triggered if calling setHtml() inside 
 	resizeEvent().
 	Support pasting text with '\r' line feeds.
-
+	Fixed a bug causing tables loaded from HTML to be saved incorrectly.
+	Made it possible to delete images using backspace.
+	
+- QTextBrowser
+	Fixed incorrect mouse cursor after right-clicking a link.
+	Fixed incorrect mouse cursor in read only mode.
+	Fixed issue where arrow cursor would override custom cursors.
+	Fixed potensial crash when inserting HTML.
+	
 - QTreeWidget
  	Fix bug where itemChanged() to be emitted with a null pointer.
 
+- QTreeWidgetItemIterator
+	Fixed incorrect assert when created around an empty QTreeWidget.
+	
 - QToolTip
 	Enable word breaking in rich-text tooltips.
 
@@ -319,13 +398,17 @@ General improvements
 	Fix Parent-child relation decoration painting error.
 	Fix scrollbar visibility bug.	
 	Fix branch indicator painting error in right-to-left mode.
+	Fixed painting issues when using reverse layout on hidden headers.
 
 - QTreeWidget
 	Fixed selection after sortItems().
 
+- QUdpSocket
+	Fixed issue where unbuffered sockets would continuously emit readyRead().
+	
 - QUrl
 	Fixed setPort() with given -1 as port number.
-	setEncodedUrl() now escapes '[' and ']' after the host in tlerantMode
+	setEncodedUrl() now escapes '[' and ']' after the host in tolerantMode
 
 - QUtf16Codec
 	Fix bug in covertFromUnicode() on big-endian machines.
@@ -333,18 +416,29 @@ General improvements
 - QVariant
 	Proper handling of variants of type "QList<QVariant>".
 
+- QWidget
+	Make sure application does not close if a widget with a visible parent exists.
+	Fixed issue where QWidget::scroll() would scroll child widgets in some cases.
+	Fixed painting issues when resizing very large child widgets.
+	
 - QWorkSpace
 	Set the correct position when maximizing a child with the NoBorder 
 	hint.
 	Fix MDI titlebar text wrapping in Plastique style.
-
+	Fixed some painting issues when resizing child windows.
+	
 Platform-Specific changes
 -------------------------
 
 Windows:
 
+- Use correct default font on Windows 2000 and later versions. This
+  also fixes issues with international characters on some systems.
+
 - Calling showMaximixed() on a QDialog without minimize nor maximize buttons
   now behaves properly.
+
+- Improved calculation of bounding rect for text.
 
 - Fixed a bug making it possible to open multiple context menus using the 
   context menu key.
@@ -353,11 +447,29 @@ Windows:
 
 - Optimized painting of ellipses.
 
+- Fix problem where realease version of IDC
+
 - Fix window state bug when restoring minimized maximized windows.
+
 - Fix painting error on XP style tabs in right-to-left mode.
-- Fix incorrect toolbar button spacing in XP style
+
+- Fix incorrect toolbar button spacing in XP and Windows style
+
 - Fix bug making QFontiIfo::family() return an empty string.
+
 - Tool windows are now resizable by default.
+
+- Improved precision for tablet coordinates.
+
+- Improved probing and detection for OpenGL overlay mode.
+
+- Fixed issue where certain fonts would be incorrectly replaced when printing.
+
+- Fixed issue with minimized fixed size dialogs not responding to user input.
+
+- Fixed issue preventing bitmap fonts from beeing drawn using a scaled painter.
+
+- Make sure QMAKE_PRE_LINK is respected by qmake on Windows.
 
 - QPainter
 	Fixed an issue where drawText() on a QPrinter sometimes would 
@@ -371,12 +483,24 @@ Windows:
 - QAxWidget
 	Fixed conversion of short* and char* output parameters.
 
+- QFile
+	Make sure QFile::copy() returns false when target exists.
+	
 - QFileinfo
-	Fix crash when calling exitsts() on a invalid shortcut.
+	Fix crash when calling exists() on a invalid shortcut.
 
+- QLibrary
+	Enable loading of filenames with non-standard suffix.
+
+- QLocale
+	Added support for 'z' in time format strings.
+	
 - QPrinter 
 	setPageSize() now correctly updates pageRect and paperRect.
 
+- QTextBrowser
+	Make sure QTextBrowser does not override QApplication::setOverrideCursor().
+	
 - QWindowsStyle
 	Use the platform spesific icons provided by the system when
 	appropriate.
@@ -390,15 +514,25 @@ X11:
 - Fixed a crash when clicking a mouse button while dragging.
 - Improve QProcess resource usage by making sure it closes all unused pipes.
 - Make QFontEngine honor the autohinter setting from FontConfig. 
-
+- Fixed a potential crash when drawing a large number of polygons/trapezoids.
+- QtConfig
+	Fixed missing update of window decorations.
+	Fix assert when editing font family substitutions.
+- Fixed X Error when closing application using the Motif style.
+- Ensure that -style command line arguments are respected when using customized visual.
+- Fixed issues with multiple painters on the same device.
+	
 Mac OS X:
 
+- Fixed issues with pasting of Japanese characters.
 - Fixed a bug that made the close button unavailable on modal windows.
 - Fixed icon rendering on x86 CPUs.
 - Fixed painting of QBitmap into a QPixmap.
 - Added the -framework and -F configure options.
 - Fixed a bug where the menubar would not show all items.
 - Fixed several drag and drop issues.
+- Fixed a bug causing the font size to change when clicking 
+  checkable toolbar buttons.
 - Fixed a crash when using a Qt-plugin in a non-Qt application.
 - Fixed use of newlines in a QMessageBox.
 - Fixed painting of QGroupBox without any text.
@@ -414,10 +548,18 @@ Mac OS X:
 - Fixed bug causing QPrinter::pageSize() to return wrong sizes. 
 - Fix setting printer resolution.
 - Improve quality of PDF output. 
-
+- Ensure that calling setDirtyRegion from within dragMoveEvent 
+  updates the view.
+- Fixed bug preventing designer from being hidden using "Command + H".
+- Fixed bug resulting in painting and performance issues for embedded QGLWidgets
+ when using MacMetalStyle.
+- Fixed a bug sometimes preventing widgets from showing.
+- Ensure that the correct number of tick marks are painted on sliders.
+- Fixed issue where Qt::FramelessWindowHint widgets were not visible in expose.
 - QLibrary
 	isLibrary() now supports .dylib libraries with version numbers.
-
+- Designer
+	Fixed some painting issues with widgets that are not laid out.
 
 Qtopia Core:
 
@@ -432,8 +574,9 @@ Qtopia Core:
 - Removed dependency of shared memory when using QT_NO_QWS_MULTIPROCESS.
 - Fix input method focus change problems.
 - Look for fonts using QLibrary::LibrariesPath instead of PrefixPath
+- Ensure that the smooth font flag is respected when parsing the 'fontdir' file.
+- Fixed crash when Helvetica font is not available.
+- Reduced memory useage with large fonts.
 
 3rd-party libraries
 -------------------
-
-
