@@ -116,25 +116,7 @@ struct QTextHtmlElement
 };
 
 class QTextHtmlParser;
-struct QTextHtmlParserAttribute {
-    enum {
-        Add,
-        Attributes,
-        And,
-        Styles,
-        Here,
-        That,
-        The,
-        Parser,
-        Does,
-        Not,
-        Resolve,
-        Eg,
-        Tables
-    } id;
-    QString value;
-};
-Q_DECLARE_TYPEINFO(QTextHtmlParserAttribute, Q_MOVABLE_TYPE);
+
 
 enum QTriState { Off = 0, On = 1, Unspecified = 2 };
 
@@ -150,7 +132,7 @@ struct QTextHtmlParserNode {
     QTextHtmlParserNode();
     QString tag;
     QString text;
-    QVector<QTextHtmlParserAttribute> attributes;
+    QStringList attributes;
     int parent;
     QVector<int> children;
     int id;
@@ -295,8 +277,7 @@ protected:
         {return pos + lookahead < len && txt.at(pos) == c; }
     int margin(int i, int mar) const;
     
-    // ### basic for now
-    QVector<QCss::Declaration> declarationsForNode(QTextHtmlParserNode *node, const QStringList &attributes) const;
+    QVector<QCss::Declaration> declarationsForNode(QTextHtmlParserNode *node) const;
     
     QCss::StyleSheet externalStyleSheet;
     QCss::StyleSheet inlineStyleSheet;

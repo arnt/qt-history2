@@ -768,13 +768,13 @@ void QTextHtmlParser::parseTag()
     QColor inheritedNodeColor = node->color;
     node->color = QColor();
 
-    QStringList attributes;
+    node->attributes.clear();
     // _need_ at least one space after the tag name, otherwise there can't be attributes
     if (pos < len && txt.at(pos).isSpace())
-        attributes = parseAttributes();
+        node->attributes = parseAttributes();
 
-    node->applyCssDeclarations(declarationsForNode(node, attributes));
-    applyAttributes(attributes);
+    node->applyCssDeclarations(declarationsForNode(node));
+    applyAttributes(node->attributes);
 
     // special handling for anchors with href attribute (hyperlinks)
     if (node->isAnchor && !node->anchorHref.isEmpty()) {
@@ -1563,76 +1563,64 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
     }
 }
 
-static bool matchRule(const QCss::StyleRule &rule, QTextHtmlParserNode *node, const QStringList &attributes)
+class QTextHtmlStyleSelector : public QCss::StyleSelector
 {
-    for (int i = 0; i < rule.selectors.count(); ++i) {
-        for (int j = 0; j < rule.selectors.at(i).basicSelectors.count(); ++j) {
-            const QCss::BasicSelector &sel = rule.selectors.at(i).basicSelectors.at(j);
+public:
+    inline QTextHtmlStyleSelector(const QTextHtmlParser *parser, const QCss::StyleSheet &sheet)
+        : QCss::StyleSelector(sheet), parser(parser) {}
 
-            if (!sel.attributeSelectors.isEmpty()) {
-                if (attributes.isEmpty())
-                    continue;
+    virtual QString nodeName(void *node) const;
+    virtual QString attribute(void *node, const QString &name) const;
+    virtual bool hasAttribute(void *node, const QString &name) const;
+    virtual bool hasAttributes(void *node) const;
 
-                bool matched = true;
-                for (int i = 0; i < sel.attributeSelectors.count(); ++i) {
-                    const QCss::AttributeSelector &a = sel.attributeSelectors.at(i);
-                    int idx = -1;
-                    do {
-                        idx = attributes.indexOf(a.name, idx + 1);
-                    } while (idx != -1 && (idx % 2 == 1));
-                    if (idx == -1) {
-                        matched = false;
-                        break;
-                    }
-                    const QString attrValue = attributes.at(idx + 1);
+private:
+    const QTextHtmlParser *parser;
+};
 
-                    if (a.valueMatchCriterium == QCss::AttributeSelector::MatchContains) {
-
-                        QStringList lst = attrValue.split(QLatin1Char(' '));
-                        if (!lst.contains(a.value)) {
-                            matched = false;
-                            break;
-                        }
-                    } else if (
-                        (a.valueMatchCriterium == QCss::AttributeSelector::MatchEqual
-                         && attrValue != a.value)
-                        ||
-                        (a.valueMatchCriterium == QCss::AttributeSelector::MatchBeginsWith
-                         && !attrValue.startsWith(a.value))
-                       ) {
-                        matched = false;
-                        break;
-                    }
-                }
-                if (!matched)
-                    continue;
-            }
-            
-            if (!sel.elementName.isEmpty()
-                && sel.elementName != node->tag)
-                    continue;
-
-            if (sel.relationToNext == QCss::BasicSelector::NoRelation
-                && sel.ids.isEmpty() && sel.pseudoClasses.isEmpty())
-                    return true;
-            }
-    }
-    return false;
+QString QTextHtmlStyleSelector::nodeName(void *node) const
+{
+    return reinterpret_cast<QTextHtmlParserNode *>(node)->tag;
 }
 
-QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(QTextHtmlParserNode *node, const QStringList &attributes) const
+static inline int findAttribute(const QStringList &attributes, const QString &name)
+{
+    int idx = -1;
+    do {
+        idx = attributes.indexOf(name, idx + 1);
+    } while (idx != -1 && (idx % 2 == 1));
+    return idx;
+}
+
+QString QTextHtmlStyleSelector::attribute(void *node, const QString &name) const
+{
+    const QStringList &attributes = reinterpret_cast<QTextHtmlParserNode *>(node)->attributes;
+    const int idx = findAttribute(attributes, name);
+    if (idx == -1)
+        return QString();
+    return attributes.at(idx + 1);
+}
+
+bool QTextHtmlStyleSelector::hasAttribute(void *node, const QString &name) const
+{
+   const QStringList &attributes = reinterpret_cast<QTextHtmlParserNode *>(node)->attributes;
+   return findAttribute(attributes, name) != -1;
+}
+
+bool QTextHtmlStyleSelector::hasAttributes(void *node) const
+{
+   const QStringList &attributes = reinterpret_cast<QTextHtmlParserNode *>(node)->attributes;
+   return !attributes.isEmpty();
+}
+
+QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(QTextHtmlParserNode *node) const
 {
     QVector<QCss::Declaration> decls;
-    // ###
-    for (int i = 0; i < externalStyleSheet.styleRules.count(); ++i) {
-        const QCss::StyleRule rule = externalStyleSheet.styleRules.at(i);
-        if (matchRule(rule, node, attributes))
-            decls += rule.declarations;
-    }
-    for (int i = 0; i < inlineStyleSheet.styleRules.count(); ++i) {
-        const QCss::StyleRule rule = inlineStyleSheet.styleRules.at(i);
-        if (matchRule(rule, node, attributes))
-            decls += rule.declarations;
-    }
+
+    QTextHtmlStyleSelector selector(this, externalStyleSheet);
+    decls = selector.declarationsForNode(node);
+
+    selector.styleSheet = inlineStyleSheet;
+    decls += selector.declarationsForNode(node);
     return decls;
 }

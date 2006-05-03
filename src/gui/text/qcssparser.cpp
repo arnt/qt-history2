@@ -357,6 +357,74 @@ void QCss::extractFontProperties(const QVector<Declaration> &declarations, QFont
     }
 }
 
+StyleSelector::~StyleSelector()
+{
+}
+
+bool StyleSelector::matchRule(const StyleRule &rule, void *node)
+{
+    for (int i = 0; i < rule.selectors.count(); ++i) {
+        for (int j = 0; j < rule.selectors.at(i).basicSelectors.count(); ++j) {
+            const QCss::BasicSelector &sel = rule.selectors.at(i).basicSelectors.at(j);
+
+            if (!sel.attributeSelectors.isEmpty()) {
+                if (!hasAttributes(node))
+                    continue;
+
+                bool matched = true;
+                for (int i = 0; i < sel.attributeSelectors.count(); ++i) {
+                    const QCss::AttributeSelector &a = sel.attributeSelectors.at(i);
+                    if (!hasAttribute(node, a.name)) {
+                        matched = false;
+                        break;
+                    }
+                    const QString attrValue = attribute(node, a.name);
+
+                    if (a.valueMatchCriterium == QCss::AttributeSelector::MatchContains) {
+
+                        QStringList lst = attrValue.split(QLatin1Char(' '));
+                        if (!lst.contains(a.value)) {
+                            matched = false;
+                            break;
+                        }
+                    } else if (
+                        (a.valueMatchCriterium == QCss::AttributeSelector::MatchEqual
+                         && attrValue != a.value)
+                        ||
+                        (a.valueMatchCriterium == QCss::AttributeSelector::MatchBeginsWith
+                         && !attrValue.startsWith(a.value))
+                       ) {
+                        matched = false;
+                        break;
+                    }
+                }
+                if (!matched)
+                    continue;
+            }
+            
+            if (!sel.elementName.isEmpty()
+                && sel.elementName != nodeName(node))
+                    continue;
+
+            if (sel.relationToNext == QCss::BasicSelector::NoRelation
+                && sel.ids.isEmpty() && sel.pseudoClasses.isEmpty())
+                    return true;
+            }
+    }
+    return false;    
+}
+
+QVector<Declaration> StyleSelector::declarationsForNode(void *node)
+{
+    QVector<Declaration> decls;
+    for (int i = 0; i < styleSheet.styleRules.count(); ++i) {
+        const QCss::StyleRule &rule = styleSheet.styleRules.at(i);
+        if (matchRule(rule, node))
+            decls += rule.declarations;
+    }
+    return decls;
+}
+
 static inline bool isHexDigit(const char c)
 {
     return (c >= '0' && c <= '9')

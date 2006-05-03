@@ -191,6 +191,24 @@ struct Q_INTERNAL_EXPORT StyleSheet
     QVector<ImportRule> importRules;
 };
 
+class Q_INTERNAL_EXPORT StyleSelector
+{
+public:
+    inline StyleSelector(const StyleSheet &sheet) : styleSheet(sheet) {}
+    virtual ~StyleSelector();
+    
+    QVector<Declaration> declarationsForNode(void *node);
+    
+    virtual QString nodeName(void *node) const = 0;
+    virtual QString attribute(void *node, const QString &name) const = 0;
+    virtual bool hasAttribute(void *node, const QString &name) const = 0;
+    virtual bool hasAttributes(void *node) const = 0;
+
+    StyleSheet styleSheet;
+private:
+    bool matchRule(const StyleRule &rule, void *node);
+};
+
 enum TokenType {
     NONE,
 
