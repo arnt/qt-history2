@@ -946,7 +946,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
         }
         if (isRightToLeft()) {
             QRect rightArea(0, 0, viewportWidth - headerLength, area.height());
-            if (headerLength > 0 && area.intersects(rightArea))
+            if (headerLength < viewportWidth && area.intersects(rightArea))
                 painter->fillRect(rightArea, palette().brush(QPalette::Base));
         } else {
             QRect leftArea(headerLength, 0, viewportWidth - headerLength, area.height());
