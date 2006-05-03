@@ -43,6 +43,7 @@ SUBDIRS         = brush \
                   qstandarditemmodel \
                   qstatustipevent \
                   qstring \
+                  qstringlist \
                   qstyleoption \
                   qstyleplugin \
                   qtablewidget-dnd \
