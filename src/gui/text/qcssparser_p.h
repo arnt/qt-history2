@@ -198,17 +198,24 @@ public:
     inline StyleSelector(const StyleSheet &sheet) : styleSheet(sheet) {}
     virtual ~StyleSelector();
     
-    QVector<Declaration> declarationsForNode(void *node);
+    union NodePtr {
+        void *ptr;
+        int id;
+    };
     
-    virtual QString nodeName(void *node) const = 0;
-    virtual QString attribute(void *node, const QString &name) const = 0;
-    virtual bool hasAttribute(void *node, const QString &name) const = 0;
-    virtual bool hasAttributes(void *node) const = 0;
-    virtual QStringList nodeIds(void *node) const;
+    QVector<Declaration> declarationsForNode(NodePtr node);
+    
+    virtual QString nodeName(NodePtr node) const = 0;
+    virtual QString attribute(NodePtr node, const QString &name) const = 0;
+    virtual bool hasAttribute(NodePtr node, const QString &name) const = 0;
+    virtual bool hasAttributes(NodePtr node) const = 0;
+    virtual QStringList nodeIds(NodePtr node) const;
+    virtual NodePtr parentNode(NodePtr node) = 0;
+    virtual void freeNode(NodePtr node) = 0;
 
     StyleSheet styleSheet;
 private:
-    bool selectorMatches(const Selector &rule, void *node);
+    bool selectorMatches(const Selector &rule, NodePtr node);
 };
 
 enum TokenType {

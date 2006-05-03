@@ -277,7 +277,7 @@ protected:
         {return pos + lookahead < len && txt.at(pos) == c; }
     int margin(int i, int mar) const;
     
-    QVector<QCss::Declaration> declarationsForNode(QTextHtmlParserNode *node) const;
+    QVector<QCss::Declaration> declarationsForNode(int node) const;
     
     QCss::StyleSheet externalStyleSheet;
     QCss::StyleSheet inlineStyleSheet;

@@ -746,6 +746,7 @@ void QTextHtmlParser::parseTag()
         p = at(p).parent;
 
     QTextHtmlParserNode *node = newNode(p);
+    const int nodeIndex = int(node - nodes.constBegin());
 
     // parse tag name
     node->tag = parseWord().toLower();
@@ -773,7 +774,7 @@ void QTextHtmlParser::parseTag()
     if (pos < len && txt.at(pos).isSpace())
         node->attributes = parseAttributes();
 
-    node->applyCssDeclarations(declarationsForNode(node));
+    node->applyCssDeclarations(declarationsForNode(nodeIndex));
     applyAttributes(node->attributes);
 
     // special handling for anchors with href attribute (hyperlinks)
@@ -1569,18 +1570,20 @@ public:
     inline QTextHtmlStyleSelector(const QTextHtmlParser *parser, const QCss::StyleSheet &sheet)
         : QCss::StyleSelector(sheet), parser(parser) {}
 
-    virtual QString nodeName(void *node) const;
-    virtual QString attribute(void *node, const QString &name) const;
-    virtual bool hasAttribute(void *node, const QString &name) const;
-    virtual bool hasAttributes(void *node) const;
+    virtual QString nodeName(NodePtr node) const;
+    virtual QString attribute(NodePtr node, const QString &name) const;
+    virtual bool hasAttribute(NodePtr node, const QString &name) const;
+    virtual bool hasAttributes(NodePtr node) const;
+    virtual NodePtr parentNode(NodePtr node);
+    virtual void freeNode(NodePtr node);
 
 private:
     const QTextHtmlParser *parser;
 };
 
-QString QTextHtmlStyleSelector::nodeName(void *node) const
+QString QTextHtmlStyleSelector::nodeName(NodePtr node) const
 {
-    return reinterpret_cast<QTextHtmlParserNode *>(node)->tag;
+    return parser->at(node.id).tag;
 }
 
 static inline int findAttribute(const QStringList &attributes, const QString &name)
@@ -1592,35 +1595,51 @@ static inline int findAttribute(const QStringList &attributes, const QString &na
     return idx;
 }
 
-QString QTextHtmlStyleSelector::attribute(void *node, const QString &name) const
+QString QTextHtmlStyleSelector::attribute(NodePtr node, const QString &name) const
 {
-    const QStringList &attributes = reinterpret_cast<QTextHtmlParserNode *>(node)->attributes;
+    const QStringList &attributes = parser->at(node.id).attributes;
     const int idx = findAttribute(attributes, name);
     if (idx == -1)
         return QString();
     return attributes.at(idx + 1);
 }
 
-bool QTextHtmlStyleSelector::hasAttribute(void *node, const QString &name) const
+bool QTextHtmlStyleSelector::hasAttribute(NodePtr node, const QString &name) const
 {
-   const QStringList &attributes = reinterpret_cast<QTextHtmlParserNode *>(node)->attributes;
+   const QStringList &attributes = parser->at(node.id).attributes;
    return findAttribute(attributes, name) != -1;
 }
 
-bool QTextHtmlStyleSelector::hasAttributes(void *node) const
+bool QTextHtmlStyleSelector::hasAttributes(NodePtr node) const
 {
-   const QStringList &attributes = reinterpret_cast<QTextHtmlParserNode *>(node)->attributes;
+   const QStringList &attributes = parser->at(node.id).attributes;
    return !attributes.isEmpty();
 }
 
-QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(QTextHtmlParserNode *node) const
+QCss::StyleSelector::NodePtr QTextHtmlStyleSelector::parentNode(NodePtr node)
+{
+    NodePtr parent;
+    parent.id = 0;
+    if (node.id) {
+        parent.id = parser->at(node.id).parent;
+    }
+    return parent;
+}
+
+void QTextHtmlStyleSelector::freeNode(NodePtr)
+{
+}
+
+QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(int node) const
 {
     QVector<QCss::Declaration> decls;
 
     QTextHtmlStyleSelector selector(this, externalStyleSheet);
-    decls = selector.declarationsForNode(node);
+    QCss::StyleSelector::NodePtr n;
+    n.id = node;
+    decls = selector.declarationsForNode(n);
 
     selector.styleSheet = inlineStyleSheet;
-    decls += selector.declarationsForNode(node);
+    decls += selector.declarationsForNode(n);
     return decls;
 }

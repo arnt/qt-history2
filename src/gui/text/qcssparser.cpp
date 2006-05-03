@@ -375,12 +375,12 @@ StyleSelector::~StyleSelector()
 {
 }
 
-QStringList StyleSelector::nodeIds(void *node) const
+QStringList StyleSelector::nodeIds(NodePtr node) const
 {
     return QStringList(attribute(node, QLatin1String("id")));
 }
 
-bool StyleSelector::selectorMatches(const Selector &selector, void *node)
+bool StyleSelector::selectorMatches(const Selector &selector, NodePtr node)
 {
     for (int j = 0; j < selector.basicSelectors.count(); ++j) {
         const QCss::BasicSelector &sel = selector.basicSelectors.at(j);
@@ -450,7 +450,7 @@ namespace QCss {
     };
 }
 
-QVector<Declaration> StyleSelector::declarationsForNode(void *node)
+QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
 {
     QVector<Declaration> decls;
     
