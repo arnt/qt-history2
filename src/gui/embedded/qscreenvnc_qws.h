@@ -22,6 +22,10 @@ QT_MODULE(Gui)
 
 #define VNCSCREEN_BASE QLinuxFbScreen
 
+#ifdef QT_NO_QWS_MULTIPROCESS
+#define QT_NO_QWS_VNC
+#endif
+
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_NO_QWS_VNC)
 
 class QVNCServer;
