@@ -748,6 +748,8 @@ CGImageRef qt_mac_create_imagemask(const QPixmap &px)
 
 IconRef qt_mac_create_iconref(const QPixmap &px)
 {
+    if (px.isNull())
+        return 0;
     QMacSavedPortInfo pi; //save the current state
     //create icon
     IconFamilyHandle iconFamily = reinterpret_cast<IconFamilyHandle>(NewHandle(0));
