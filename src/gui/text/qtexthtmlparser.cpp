@@ -1576,8 +1576,11 @@ static bool matchRule(const QCss::StyleRule &rule, QTextHtmlParserNode *node, co
                 bool matched = true;
                 for (int i = 0; i < sel.attributeSelectors.count(); ++i) {
                     const QCss::AttributeSelector &a = sel.attributeSelectors.at(i);
-                    const int idx = attributes.indexOf(a.name);
-                    if (idx == -1 || (idx % 2 == 1) || (idx == attributes.count() - 1)) {
+                    int idx = -1;
+                    do {
+                        idx = attributes.indexOf(a.name, idx + 1);
+                    } while (idx != -1 && (idx % 2 == 1));
+                    if (idx == -1) {
                         matched = false;
                         break;
                     }
