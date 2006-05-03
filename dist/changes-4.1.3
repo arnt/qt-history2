@@ -6,7 +6,7 @@ Applications compiled for 4.0 will continue to run with 4.1.
 
 #################################
 # TODO: 2006/01/25 - 2006/04/11 #
-# Last change: 213540
+# Last change: 213769
 #################################
 
 ****************************************************************************
@@ -41,6 +41,14 @@ Qt Assistant
 Qt Linguist / Internationalization
 	Improved window placement on startup.
 
+uic
+	Fix code generating bug for forms in namepsaces preventing connections
+	from beeing made.
+	Split large generated strings to avoid compiler errors.
+
+qtconfig
+	Fix assert when editing font family substitutions.
+
 Qt Translation
 
 Demos / Examples
@@ -59,7 +67,11 @@ General improvements
 --------------------
 
 - Fixed rendering of some GIF images.
-- Popup and Tool widgets are now blocked by a sibling modal dialog.
+- Popup and Tool widgets are now correctly blocked by a sibling modal dialog.
+- Group-leader widgets are no longer blocked by non-child modal widgets.
+- A parent modal dialog of a child modal dialog can no longer be brought on top of the child.
+- Make sure modal widgets are modal when opened on a closing parent.
+- Fix expose painting error when closing a child popup.
 
 - Q3DockWindow
 	Fixed placement when showing after being hidden.
@@ -89,6 +101,9 @@ General improvements
 	Fixed a crash occurring when removing a row in a slot connected to
 	selectionChanged().
 
+- QAbstractSocket
+	Fix potential crash when connecting to local sockets on BSD systems.
+
 - QCheckBox
 	Only emit the stateChanged() signal when the state actually change.
 
@@ -109,6 +124,10 @@ General improvements
 - QDir
 	Fix infinite loop in rename() if renaming a directory without write permission.
 
+- QDirModel
+	Fixed possible assert on broken links.
+	Fix bug preventing links to "/" on Unix system from working correctly.
+
 - QFile
 	Correct error reporting on flush() and close().
 	Fix caching issues causing wrong file sizes to be returned in some cases.
@@ -117,6 +136,14 @@ General improvements
 	Fixed a bug that allowed selection of multiple files in 
 	getOpenFileName().
 	Give proper error message when deleting a directory failed.
+	Fix bug preventing update when changing the FileMode.
+
+- QFtp
+	Fix crash if FTP session got deleted in slot.
+
+- QGridLayout
+	All addWidget() functions now invalidates the layout.
+	Fix minimum size for layouts that contains widgets that have height-for-width.
 
 - QGroupBox
 	Fixed some painting issues appearing on all styles except WindowsXP.
@@ -132,6 +159,8 @@ General improvements
 	Fixed a painting error when the header was hidden.
 	Fixed a painting error when the user activated the context menu while
 	pressing the left mouse key.
+	Fixed bug giving the last section a resize cursor event though it cannot be resized.
+	Icons in header views now respect the layout direction.
 
 - QImage
 	Fixed writing to a PNG file when the alpha value is premultiplied.
@@ -157,9 +186,13 @@ General improvements
 	Made descision of showing scrollbars independent of previous scrollbar
 	state.
 
+- QLocale
+	Fix bug causing toString() to return the wrong day of week in some cases.
+
 - QMainWindow
 	Fixed a crash when deleting QMainWindow::statusBar().
 	Fixed bug causing wrong behavior when removing a QToolBar with removeToolBar()
+	Fixed layout error when showing the status bar after the mainwindow.
 
 - QMenu
 	Let setActiveAction open a submenu to be consistent with QMenuBar.
@@ -180,6 +213,9 @@ General improvements
 
 - QPainter
 	Optimized drawing of dotted lines.
+
+- QPainter
+	Fix bug causing contains(QPoint) to return the wrong answer in some cases.
 
 - QPen
 	Fixed bug that caused wrong dash patterns to be drawn when changing style.
@@ -204,6 +240,9 @@ General improvements
 - QProcess
 	exitStatus is now reset after a sub-process crash.
 	Fix bug causing the system to lock on X11 after calling startDetached() 65536 times.
+
+- QSettings
+	Make it possible to the the "Default" registry entry on windows.
 
 - QSortFilterProxyModel
 	Fixed a crash when deleting rows.
@@ -257,6 +296,10 @@ General improvements
 	Fixed a bug causing setPlainText() to emit textChanged() three times.
 	Fixed an infinte loop triggered if calling setHtml() inside 
 	resizeEvent().
+	Support pasting text with '\r' line feeds.
+
+- QTreeWidget
+ 	Fix bug where itemChanged() to be emitted with a null pointer.
 
 - QToolTip
 	Enable word breaking in rich-text tooltips.
@@ -273,6 +316,9 @@ General improvements
 	state.
 	Fixed a bug causing horizontal scrolling when it only should scroll
 	vertically.
+	Fix Parent-child relation decoration painting error.
+	Fix scrollbar visibility bug.	
+	Fix branch indicator painting error in right-to-left mode.
 
 - QTreeWidget
 	Fixed selection after sortItems().
@@ -311,6 +357,7 @@ Windows:
 - Fix painting error on XP style tabs in right-to-left mode.
 - Fix incorrect toolbar button spacing in XP style
 - Fix bug making QFontiIfo::family() return an empty string.
+- Tool windows are now resizable by default.
 
 - QPainter
 	Fixed an issue where drawText() on a QPrinter sometimes would 
@@ -326,6 +373,9 @@ Windows:
 
 - QFileinfo
 	Fix crash when calling exitsts() on a invalid shortcut.
+
+- QPrinter 
+	setPageSize() now correctly updates pageRect and paperRect.
 
 - QWindowsStyle
 	Use the platform spesific icons provided by the system when
@@ -361,9 +411,13 @@ Mac OS X:
 - Fixed animation of the Composition Modes demo.
 - Fixed painting of QSpinBoxes smaller than 25 pixels.
 - Fixed bug preventing the page ranges in the print dialog form being set.
-- Fixed causing QPrinter::pageSize() to return wrong sizes. 
+- Fixed bug causing QPrinter::pageSize() to return wrong sizes. 
 - Fix setting printer resolution.
 - Improve quality of PDF output. 
+
+- QLibrary
+	isLibrary() now supports .dylib libraries with version numbers.
+
 
 Qtopia Core:
 
@@ -377,7 +431,7 @@ Qtopia Core:
   style.
 - Removed dependency of shared memory when using QT_NO_QWS_MULTIPROCESS.
 - Fix input method focus change problems.
-
+- Look for fonts using QLibrary::LibrariesPath instead of PrefixPath
 
 3rd-party libraries
 -------------------
