@@ -1189,6 +1189,7 @@ void QSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     }
 
     d->clear_mapping();
+    reset();
 }
 
 /*!
