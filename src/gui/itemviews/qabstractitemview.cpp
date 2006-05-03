@@ -1345,8 +1345,8 @@ void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 
 /*!
     This function is called with the given \a event when a drop event occurs over
-    the widget. If there's a valid item under the mouse pointer when the drop
-    occurs, the drop event is accepted; otherwise it is ignored.
+    the widget. If the model accepts the even position the drop event is accepted;
+    otherwise it is ignored.
 
     \sa startDrag()
 */
@@ -1354,12 +1354,13 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
 {
     Q_D(QAbstractItemView);
     QModelIndex index;
-    // if we drop on the viewport
+    // rootIndex() (i.e. the viewport) might be a valid index
     if (d->viewport->rect().contains(event->pos())) {
         index = indexAt(event->pos());
         if (!index.isValid())
-            index = rootIndex(); // drop on viewport
+            index = rootIndex();
     }
+    
     // if we are allowed to do the drop
     if (model()->supportedDropActions() & event->proposedAction()) {
         int row = -1;

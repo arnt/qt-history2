@@ -533,6 +533,8 @@ void QListView::reset()
 void QListView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QListView);
+    if (index == d->root)
+        return;
     if (model())
         d->column = qBound(0, d->column, model()->columnCount(index) - 1);
     QAbstractItemView::setRootIndex(index);
