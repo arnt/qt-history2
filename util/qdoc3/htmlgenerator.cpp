@@ -729,7 +729,6 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 
     out() << "</ul>\n";
 
-    out() << "<div class=\"sections\">\n";
     bool needOtherSection = false;
 
     sections = marker->sections(inner, CodeMarker::Summary, CodeMarker::Okay);
@@ -737,18 +736,15 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     while ( s != sections.end() ) {
         if (s->members.isEmpty()) {
             if (!s->inherited.isEmpty())
-            out() << "<div class=\"" << registerRef((*s).name.toLower()) << "\">\n";
                 needOtherSection = true;
         } else {
 	    out() << "<a name=\"" << registerRef((*s).name.toLower()) << "\"></a>\n";
 	    out() << "<h3>" << protect((*s).name) << "</h3>\n";
-            out() << "</div>\n";
 
 	    generateSectionList(*s, inner, marker, CodeMarker::Summary);
         }
 	++s;
     }
-        out() << "<div class=\"additional-inherited-members\">\n";
 
     if (needOtherSection) {
 	out() << "<h3>Additional Inherited Members</h3>\n"
@@ -759,21 +755,17 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
             if (s->members.isEmpty() && !s->inherited.isEmpty())
                 generateSectionInheritedList(*s, inner, marker);
             ++s;
-        out() << "</div>\n";
         }
 	out() << "</ul>\n";
-    out() << "</div>\n";
-
     }
 
     out() << "<a name=\"" << registerRef( "details" ) << "\"></a>\n";
 
     if ( !inner->doc().isEmpty() ) {
-	out() << "<div class=\"detailed-description\">\n"
+	out() << "<hr />\n"
               << "<h2>" << "Detailed Description" << "</h2>\n";
 	generateBody( inner, marker );
 	generateAlsoList( inner, marker );
-        out() << "</div>\n";
     }
 
     sections = marker->sections(inner, CodeMarker::Detailed, CodeMarker::Okay);
@@ -2162,16 +2154,14 @@ void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *re
 
     if (node->type() == Node::Enum
             && (enume = static_cast<const EnumNode *>(node))->flagsType()) {
-        out() << "<div class=\"flags\">\n";
-        out() << "<h3>";
+        out() << "<h3 class=\"flags\">";
         out() << "<a name=\"" + refForNode( node ) + "\"></a>";
         generateSynopsis(enume, relative, marker, CodeMarker::Detailed);
         out() << "<br />";
         generateSynopsis(enume->flagsType(), relative, marker, CodeMarker::Detailed);
         out() << "</h3>\n";
     } else {
-        out() << "<div class=\"fn\">\n";
-        out() << "<h3>";
+        out() << "<h3 class=\"fn\">";
         out() << "<a name=\"" + refForNode( node ) + "\"></a>";
         generateSynopsis( node, relative, marker, CodeMarker::Detailed );
         out() << "</h3>\n";
@@ -2206,7 +2196,6 @@ void HtmlGenerator::generateDetailedMember(const Node *node, const InnerNode *re
         }
     }
     generateAlsoList( node, marker );
-    out() << "</div>\n";
 }
 
 void HtmlGenerator::findAllClasses(const InnerNode *node)
