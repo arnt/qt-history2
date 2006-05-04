@@ -125,7 +125,8 @@ embedded {
 		kernel/qdnd_qws.cpp \
 		kernel/qeventdispatcher_qws.cpp \
 		kernel/qsound_qws.cpp \
-		kernel/qwidget_qws.cpp
+		kernel/qwidget_qws.cpp \
+		kernel/qsystemtrayicon_qws.cpp
 }
 
 !x11:mac {
