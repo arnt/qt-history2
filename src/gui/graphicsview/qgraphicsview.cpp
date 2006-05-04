@@ -1262,6 +1262,75 @@ void QGraphicsView::ensureVisible(const QGraphicsItem *item, int xmargin, int ym
 }
 
 /*!
+    Scales the view matrix and scrolls the scroll bars to ensures that the
+    scene rectangle \a rect fits inside the view.
+
+    This function keeps the view's rotation, translation, or shear. The view
+    is scaled according to \a aspectRatioMode. \a rect will be centered in the
+    view if it does not fit tightly.
+
+    \sa setMatrix(), ensureVisible(), centerOn()
+*/
+void QGraphicsView::fitInView(const QRectF &rect, Qt::AspectRatioMode aspectRatioMode)
+{
+    Q_D(QGraphicsView);
+    if (!d->scene || rect.isNull())
+        return;
+
+    // Reset the view scale to 1:1.
+    QRectF unity = d->matrix.mapRect(QRectF(0, 0, 1, 1));
+    scale(1 / unity.width(), 1 / unity.height());
+
+    // Find the ideal x / y scaling ratio to fit \a rect in the view.
+    int margin = 2;
+    QRectF viewRect = d->renderWidget->rect().adjusted(margin, margin, -margin, -margin);
+    QRectF sceneRect = d->matrix.mapRect(rect);
+    qreal xratio = viewRect.width() / sceneRect.width();
+    qreal yratio = viewRect.height() / sceneRect.height();
+
+    // Respect the aspect ratio mode.
+    switch (aspectRatioMode) {
+    case Qt::KeepAspectRatio:
+        xratio = yratio = qMin(xratio, yratio);
+        break;
+    case Qt::KeepAspectRatioByExpanding:
+        xratio = yratio = qMax(xratio, yratio);
+        break;
+    case Qt::IgnoreAspectRatio:
+        break;
+    }
+
+    // Scale and center on the center of \a rect.
+    scale(xratio, yratio);
+    centerOn(rect.center());
+}
+
+/*!
+    \fn void fitInView(qreal x, qreal y, qreal w, qreal h,
+                          Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio)
+
+    \overload
+
+    This convenience function is equivalent to calling
+    fitInView(QRectF(\a x, \a y, \a w, \a h), \a aspectRatioMode).
+
+    \sa ensureVisible(), centerOn()
+*/
+
+/*!
+    \overload
+
+    Ensures that \a item fits tightly inside the view, scaling the view
+    according to \a aspectRatioMode.
+
+    \sa ensureVisible(), centerOn()
+*/
+void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode aspectRatioMode)
+{
+    fitInView(item->sceneMatrix().map(item->shape()).boundingRect(), aspectRatioMode);
+}
+
+/*!
     Returns a list of all the items in the associated scene.
 
     \sa QGraphicsScene::items()
