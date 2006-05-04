@@ -438,8 +438,8 @@ private:
 
 template <class T> inline T qgraphicsitem_cast(QGraphicsItem *item)
 {
-    return static_cast<T>(0)->Type == QGraphicsItem::Type 
-	|| static_cast<T>(0)->Type == item->type() ? static_cast<T>(item) : 0;
+    return int(static_cast<T>(0)->Type) == int(QGraphicsItem::Type)
+	|| int(static_cast<T>(0)->Type) == item->type() ? static_cast<T>(item) : 0;
 }
 
 #ifndef QT_NO_DEBUG
