@@ -189,7 +189,7 @@ static HHOOK   journalRec  = 0;
 
 extern "C" LRESULT CALLBACK QtWndProc(HWND, UINT, WPARAM, LPARAM);
 
-#define XCOORD_MAX 32767
+#define XCOORD_MAX 16383
 #define WRECT_MAX 16383
 
 /*****************************************************************************
@@ -871,7 +871,10 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
     Q_Q(QWidget);
     if (!rgn.isEmpty()) {
-        InvalidateRgn(q->winId(), rgn.handle(), FALSE);
+        QRegion wrgn = rgn;
+        if (data.wrect.isValid())
+            wrgn.translate(-data.wrect.topLeft());
+        InvalidateRgn(q->winId(), wrgn.handle(), FALSE);
         // check if this is the first call to dirty a previously clean widget
         if (!q->testAttribute(Qt::WA_PendingUpdate)) {
             q->setAttribute(Qt::WA_PendingUpdate);
