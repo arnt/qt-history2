@@ -453,7 +453,7 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
 
     //search for our icon among all toolbar buttons
     for (int toolbarButton = 0; toolbarButton  < buttonCount; ++toolbarButton ) {
-        DWORD numBytes = -1;
+        SIZE_T numBytes = -1;
         DWORD appData[2] = { 0, 0 };
         SendMessage(trayHandle, TB_GETBUTTON, toolbarButton , (LPARAM)data);
 
