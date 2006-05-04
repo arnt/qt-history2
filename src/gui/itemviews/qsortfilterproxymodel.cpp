@@ -837,6 +837,7 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
 
     if (!source_rows_resort.isEmpty()) {
         // Re-sort the rows
+        emit q->layoutAboutToBeChanged();
         QModelIndexList source_indexes = store_persistent_indexes();
         remove_source_items(m->proxy_rows, m->source_rows, source_rows_resort, source_parent, Qt::Vertical, false);
         sort_source_rows(source_rows_resort, source_parent);
@@ -1735,6 +1736,7 @@ void QSortFilterProxyModel::setFilterRole(int role)
 void QSortFilterProxyModel::clear()
 {
     Q_D(QSortFilterProxyModel);
+    emit layoutAboutToBeChanged();
     d->clear_mapping();
     emit layoutChanged();
 }

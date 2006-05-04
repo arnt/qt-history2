@@ -42,6 +42,8 @@ public:
     void _q_columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
     void _q_rowsAboutToBeInserted(const QModelIndex &parent, int start, int end);
     void _q_columnsAboutToBeInserted(const QModelIndex &parent, int start, int end);
+    void _q_layoutAboutToBeChanged();
+    void _q_layoutChanged();
 
     inline void remove(QList<QItemSelectionRange> &r)
     {
@@ -61,6 +63,8 @@ public:
     QItemSelection currentSelection;
     QPersistentModelIndex currentIndex;
     QItemSelectionModel::SelectionFlags currentCommand;
+    QList<QPersistentModelIndex> savedPersistentIndexes;
+    QList<QPersistentModelIndex> savedPersistentCurrentIndexes;
 };
 
 #endif // QT_NO_ITEMVIEWS

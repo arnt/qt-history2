@@ -459,6 +459,8 @@ void QTreeModel::sort(int column, Qt::SortOrder order)
     if (header && (column < 0 || column >= header->columnCount()))
         return;
 
+    emit layoutAboutToBeChanged();
+
     // sort top level
     sortItems(&tree, column, order);
 

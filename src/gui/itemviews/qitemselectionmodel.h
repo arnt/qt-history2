@@ -159,6 +159,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_rowsAboutToBeRemoved(const QModelIndex&, int, int))
     Q_PRIVATE_SLOT(d_func(), void _q_columnsAboutToBeInserted(const QModelIndex&, int, int))
     Q_PRIVATE_SLOT(d_func(), void _q_rowsAboutToBeInserted(const QModelIndex&, int, int))
+    Q_PRIVATE_SLOT(d_func(), void _q_layoutAboutToBeChanged())
+    Q_PRIVATE_SLOT(d_func(), void _q_layoutChanged())
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags)

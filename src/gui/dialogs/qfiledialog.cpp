@@ -1517,8 +1517,12 @@ void QFileDialogPrivate::_q_setUnsorted()
 
 void QFileDialogPrivate::_q_sortByColumn(int column)
 {
+    // saving the current index is a work-around to keep the selection;
+    // remove this when the stat hack in QDirModel is removed
+    QPersistentModelIndex current = treeView->currentIndex();
     treeView->sortByColumn(column);
     model->refresh(rootIndex());
+    treeView->setCurrentIndex(current);
 }
 
 /*!
@@ -1887,8 +1891,12 @@ void QFileDialogPrivate::setDirSorting(QDir::SortFlags sort)
     sortBySizeAction->setChecked(sortBy == QDir::Size);
     sortByDateAction->setChecked(sortBy == QDir::Time);
     unsortedAction->setChecked(sortBy == QDir::Unsorted);
+    // saving the current index is a work-around to keep the selection;
+    // remove this when the stat hack in QDirModel is removed
+    QPersistentModelIndex current = listView->currentIndex();
     model->setSorting(sort);
     model->refresh(rootIndex());
+    listView->setCurrentIndex(current);
 }
 
 void QFileDialogPrivate::setDirFilter(QDir::Filters filters)

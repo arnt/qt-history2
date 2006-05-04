@@ -267,6 +267,9 @@ void QListModel::sort(int column, Qt::SortOrder order)
 {
     if (column != 0)
         return;
+
+    emit layoutAboutToBeChanged();
+
     QVector < QPair<QListWidgetItem*,int> > sorting(lst.count());
     for (int i = 0; i < lst.count(); ++i) {
         sorting[i].first = lst.at(i);

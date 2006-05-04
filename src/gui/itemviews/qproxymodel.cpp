@@ -415,6 +415,7 @@ void QProxyModel::connectToModel(const QAbstractItemModel *model) const
     connect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
             this, SLOT(_q_sourceColumnsRemoved(const QModelIndex&,int,int)));
     connect(model, SIGNAL(modelReset()), this, SIGNAL(modelReset())); // signal to signal
+    connect(model, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged())); // signal to signal
     connect(model, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged())); // signal to signal
 }
 
@@ -445,6 +446,7 @@ void QProxyModel::disconnectFromModel(const QAbstractItemModel *model) const
     disconnect(model, SIGNAL(columnsRemoved(const QModelIndex&,int,int)),
                this, SLOT(_q_sourceColumnsRemoved(const QModelIndex&,int,int)));
     disconnect(model, SIGNAL(modelReset()), this, SIGNAL(modelReset())); // signal to signal
+    disconnect(model, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged())); // signal to signal
     disconnect(model, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged())); // signal to signal
 }
 

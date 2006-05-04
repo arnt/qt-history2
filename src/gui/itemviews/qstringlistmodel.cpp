@@ -209,10 +209,12 @@ bool QStringListModel::removeRows(int row, int count, const QModelIndex &parent)
 */
 void QStringListModel::sort(int, Qt::SortOrder order)
 {
+    emit layoutAboutToBeChanged();
     if (order == Qt::AscendingOrder)
         qSort(lst.begin(), lst.end(), qLess<QString>());
     else
         qSort(lst.begin(), lst.end(), qGreater<QString>());
+    emit layoutChanged();
 }
 
 /*!

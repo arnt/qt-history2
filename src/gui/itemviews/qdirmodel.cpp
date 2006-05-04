@@ -794,6 +794,7 @@ void QDirModel::setNameFilters(const QStringList &filters)
 {
     Q_D(QDirModel);
     d->nameFilters = filters;
+    emit layoutAboutToBeChanged();
     if (d->shouldStat)
        refresh(QModelIndex());
     else
@@ -824,6 +825,7 @@ void QDirModel::setFilter(QDir::Filters filters)
 {
     Q_D(QDirModel);
     d->filters = filters;
+    emit layoutAboutToBeChanged();
     if (d->shouldStat)
         refresh(QModelIndex());
     else
@@ -853,6 +855,7 @@ void QDirModel::setSorting(QDir::SortFlags sort)
 {
     Q_D(QDirModel);
     d->sort = sort;
+    emit layoutAboutToBeChanged();
     if (d->shouldStat)
         refresh(QModelIndex());
     else

@@ -630,6 +630,101 @@ void QItemSelectionModelPrivate::_q_rowsAboutToBeInserted(const QModelIndex &par
 }
 
 /*!
+  \internal
+
+  Split selection into individual (persistent) indexes. This is done in
+  preparation for the layoutChanged() signal, where the indexes can be
+  merged again.
+*/
+void QItemSelectionModelPrivate::_q_layoutAboutToBeChanged()
+{
+    savedPersistentIndexes.clear();
+    savedPersistentCurrentIndexes.clear();
+    QModelIndexList indexes = ranges.indexes();
+    QModelIndexList::const_iterator it;
+    for (it = indexes.begin(); it != indexes.end(); ++it)
+        savedPersistentIndexes.append(QPersistentModelIndex(*it));
+    indexes = currentSelection.indexes();
+    for (it = indexes.begin(); it != indexes.end(); ++it)
+        savedPersistentCurrentIndexes.append(QPersistentModelIndex(*it));
+}
+
+/*!
+  \internal
+
+  Merges \a indexes into an item selection made up of ranges.
+  Assumes that the indexes are sorted.
+*/
+static QItemSelection mergeIndexes(const QList<QPersistentModelIndex> &indexes)
+{
+    QItemSelection colSpans;
+    // merge columns
+    int i = 0;
+    while (i < indexes.count()) {
+        QModelIndex tl = indexes.at(i);
+        QModelIndex br = tl;
+        while (++i < indexes.count()) {
+            QModelIndex next = indexes.at(i);
+            if ((next.row() == br.row()) && (next.column() == br.column() + 1))
+                br = next;
+            else
+                break;
+        }
+        colSpans.append(QItemSelectionRange(tl, br));
+    }
+    // merge rows
+    QItemSelection rowSpans;
+    i = 0;
+    while (i < colSpans.count()) {
+        QModelIndex tl = colSpans.at(i).topLeft();
+        QModelIndex br = colSpans.at(i).bottomRight();
+        QModelIndex prevTl = tl;
+        while (++i < colSpans.count()) {
+            QModelIndex nextTl = colSpans.at(i).topLeft();
+            QModelIndex nextBr = colSpans.at(i).bottomRight();
+            if ((nextTl.column() == prevTl.column()) && (nextBr.column() == br.column())
+                && (nextTl.row() == prevTl.row() + 1) && (nextBr.row() == br.row() + 1)) {
+                br = nextBr;
+                prevTl = nextTl;
+            } else {
+                break;
+            }
+        }
+        rowSpans.append(QItemSelectionRange(tl, br));
+    }
+    return rowSpans;
+}
+
+/*!
+  \internal
+
+  Merge the selected indexes into selection ranges again.
+*/
+void QItemSelectionModelPrivate::_q_layoutChanged()
+{
+    if (savedPersistentCurrentIndexes.isEmpty() && savedPersistentIndexes.isEmpty()) {
+        // either the selection was actually empty, or we
+        // didn't get the layoutAboutToBeChanged() signal
+        return;
+    }
+    // clear the "old" selection
+    ranges.clear();
+    currentSelection.clear();
+
+    // sort the "new" selection, as preparation for merging
+    qStableSort(savedPersistentIndexes.begin(), savedPersistentIndexes.end());
+    qStableSort(savedPersistentCurrentIndexes.begin(), savedPersistentCurrentIndexes.end());
+
+    // update the selection by merging the individual indexes
+    ranges = mergeIndexes(savedPersistentIndexes);
+    currentSelection = mergeIndexes(savedPersistentCurrentIndexes);
+
+    // release the persistent indexes
+    savedPersistentIndexes.clear();
+    savedPersistentCurrentIndexes.clear();
+}
+
+/*!
   \class QItemSelectionModel
 
   \brief The QItemSelectionModel class keeps track of a view's selected items.
@@ -679,6 +774,10 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
                 this, SLOT(_q_rowsAboutToBeInserted(const QModelIndex&,int,int)));
         connect(model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
                 this, SLOT(_q_columnsAboutToBeInserted(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(layoutAboutToBeChanged()),
+                this, SLOT(_q_layoutAboutToBeChanged()));
+        connect(model, SIGNAL(layoutChanged()),
+                this, SLOT(_q_layoutChanged()));
     }
 }
 
@@ -698,6 +797,10 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
                 this, SLOT(_q_rowsAboutToBeInserted(const QModelIndex&,int,int)));
         connect(model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
                 this, SLOT(_q_columnsAboutToBeInserted(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(layoutAboutToBeChanged()),
+                this, SLOT(_q_layoutAboutToBeChanged()));
+        connect(model, SIGNAL(layoutChanged()),
+                this, SLOT(_q_layoutChanged()));
     }
 }
 
@@ -717,6 +820,10 @@ QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstra
                 this, SLOT(_q_rowsAboutToBeInserted(const QModelIndex&,int,int)));
         connect(model, SIGNAL(columnsAboutToBeInserted(const QModelIndex&,int,int)),
                 this, SLOT(_q_columnsAboutToBeInserted(const QModelIndex&,int,int)));
+        connect(model, SIGNAL(layoutAboutToBeChanged()),
+                this, SLOT(_q_layoutAboutToBeChanged()));
+        connect(model, SIGNAL(layoutChanged()),
+                this, SLOT(_q_layoutChanged()));
     }
 }
 

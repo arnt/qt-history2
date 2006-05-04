@@ -475,6 +475,8 @@ void QTableModel::sort(int column, Qt::SortOrder order)
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(sortable.begin(), sortable.end(), compare);
 
+    emit layoutAboutToBeChanged();
+
     QVector<QTableWidgetItem*> sorted_table(table.count());
     QModelIndexList from;
     QModelIndexList to;

@@ -959,18 +959,31 @@ void QAbstractItemModelPrivate::reset()
 */
 
 /*!
+    \fn void QAbstractItemModel::layoutAboutToBeChanged()
+
+    \since 4.2
+
+    This signal is emitted just before the layout of a model is changed.
+    Components connected to this signal use it to adapt to changes
+    in the model's layout.
+
+    \sa layoutChanged()
+*/
+
+/*!
     \fn void QAbstractItemModel::layoutChanged()
 
     This signal is emitted whenever the layout of items exposed by the model
-    changes; for example, when the model is sorted. When this signal is
+    has changed; for example, when the model has been sorted. When this signal is
     received by a view, it should update the layout of items to reflect this
     change.
 
-    When subclassing QAbstractItemModel or QAbstractProxyModel, ensure that you
-    emit this signal if you change the order of items or alter the structure of
-    the data you expose to views.
+    When subclassing QAbstractItemModel or QAbstractProxyModel, ensure that
+    you emit layoutAboutToBeChanged() before changing the order of items or
+    altering the structure of the data you expose to views, and emit
+    layoutChanged() after changing the layout.
 
-    \sa dataChanged(), headerDataChanged(), reset()
+    \sa layoutAboutToBeChanged(), dataChanged(), headerDataChanged(), reset()
 */
 
 /*!

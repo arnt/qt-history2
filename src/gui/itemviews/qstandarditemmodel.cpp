@@ -674,6 +674,7 @@ void QStandardItemModel::sort(int column, Qt::SortOrder order)
     Q_D(QStandardItemModel);
     if (column < 0)
         return;
+    emit layoutAboutToBeChanged();
     d->sort(d->topLevelRows, d->topLevelColumns, 0, column, order);
     emit layoutChanged();
 }
