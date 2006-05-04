@@ -2122,7 +2122,7 @@ QFtp::State QFtp::state() const
 
 /*!
     Returns the last error that occurred. This is useful to find out
-    what when wrong when receiving a commandFinished() or a done()
+    what went wrong when receiving a commandFinished() or a done()
     signal with the \c error argument set to \c true.
 
     If you start a new command, the error status is reset to \c NoError.
