@@ -956,9 +956,13 @@ bool qSharedBuild()
 */
 
 /*!
-    \variable QSysInfo::WordSize
-    \brief the size in bits of a pointer for the platform on which
-           the application is compiled (32 or 64)
+    \variable QSysInfo::Sizes
+
+    This enum provides platform-specific information about the sizes of data
+    structures used by the underlying architecture.
+
+    \value WordSize The size in bits of a pointer for the platform on which
+           the application is compiled (32 or 64).
 */
 
 /*!

@@ -3928,7 +3928,7 @@ QString& QString::fill(QChar ch, int size)
 */
 
 /*!
-    /fn int compare(const QLatin1String& s1, const QString &s2,
+    \fn int compare(const QLatin1String& s1, const QString &s2,
                     Qt::CaseSensitivity cs = Qt::CaseSensitive)
 
     \since 4.2

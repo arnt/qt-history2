@@ -456,7 +456,8 @@
     This is the same as qSort(\a{container}.begin(), \a{container}.end());
 */
 
-/*! \fn void qStableSort(BiIterator begin, BiIterator end)
+/*! 
+    \fn void qStableSort(RandomAccessIterator begin, RandomAccessIterator end)
     \relates <QtAlgorithms>
 
     Sorts the items in range [\a begin, \a end) in ascending order
@@ -464,9 +465,9 @@
 
     Example:
     \code
-	QList<int> list;
+        QList<int> list;
         list << 33 << 12 << 68 << 6 << 12;
-	qStableSort(list.begin(), list.end());
+        qStableSort(list.begin(), list.end());
         // list: [ 6, 12, 12, 33, 68 ]
     \endcode
 
@@ -484,7 +485,8 @@
     \sa qSort(), {random access iterators}
 */
 
-/*! \fn void qStableSort(BiIterator begin, BiIterator end, LessThan lessThan)
+/*! 
+    \fn void qStableSort(RandomAccessIterator begin, RandomAccessIterator end, LessThan lessThan)
     \relates <QtAlgorithms>
 
     \overload
@@ -503,9 +505,9 @@
 
         int doSomething()
         {
-	    QStringList list;
+            QStringList list;
             list << "AlPha" << "beTA" << "gamma" << "DELTA";
-	    qStableSort(list.begin(), list.end(), caseInsensitiveLessThan);
+            qStableSort(list.begin(), list.end(), caseInsensitiveLessThan);
             // list: [ "AlPha", "beTA", "DELTA", "gamma" ]
         }
     \endcode
@@ -515,9 +517,9 @@
     example:
 
     \code
-	QList<int> list;
+        QList<int> list;
         list << 33 << 12 << 68 << 6 << 12;
-	qStableSort(list.begin(), list.end(), qGreater<int>());
+        qStableSort(list.begin(), list.end(), qGreater<int>());
         // list: [ 68, 33, 12, 12, 6 ]
     \endcode
 
@@ -527,7 +529,8 @@
     property is often useful when sorting user-visible data.
 */
 
-/*! \fn void qStableSort(Container &container)
+/*! 
+    \fn void qStableSort(Container &container)
     \relates <QtAlgorithms>
 
     \overload
