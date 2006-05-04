@@ -205,15 +205,35 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 }
 
 /*!
-    \variable QStyleOption::Type
+    \enum QStyleOption::StyleOptionType
 
-    Equals SO_Default.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Default} for
+           this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOption::Version
+    \enum QStyleOption::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -327,15 +347,34 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 }
 
 /*!
-    \variable QStyleOptionFocusRect::Type
+    \enum QStyleOptionFocusRect::StyleOptionType
 
-    Equals SO_FocusRect.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_FocusRect} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionFocusRect::Version
+    \enum QStyleOptionFocusRect::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -409,24 +448,34 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 */
 
 /*!
-    \variable QStyleOptionFrame::Type
+    \enum QStyleOptionFrame::StyleOptionType
 
-    Equals SO_Frame.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Frame} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
     general you do not need to worry about this unless you want to
     create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionFrame::Version
+    \enum QStyleOptionFrame::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
 
     The version is used by QStyleOption subclasses to implement
     extensions without breaking compatibility. If you use
     qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -723,15 +772,34 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 */
 
 /*!
-    \variable QStyleOptionHeader::Type
+    \enum QStyleOptionHeader::StyleOptionType
 
-    Equals SO_Header.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Header} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionHeader::Version
+    \enum QStyleOptionHeader::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -888,15 +956,34 @@ QStyleOptionButton::QStyleOptionButton(int version)
 */
 
 /*!
-    \variable QStyleOptionButton::Type
+    \enum QStyleOptionButton::StyleOptionType
 
-    Equals SO_Button.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Button} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionButton::Version
+    \enum QStyleOptionButton::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -1149,24 +1236,34 @@ QStyleOptionTab::QStyleOptionTab(int version)
 */
 
 /*!
-    \variable QStyleOptionTab::Type
+    \enum QStyleOptionTab::StyleOptionType
 
-    Equals SO_Tab.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Tab} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
     general you do not need to worry about this unless you want to
     create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionTab::Version
+    \enum QStyleOptionTab::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
 
     The version is used by QStyleOption subclasses to implement
     extensions without breaking compatibility. If you use
     qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -1434,24 +1531,34 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 */
 
 /*!
-    \variable QStyleOptionProgressBar::Type
+    \enum QStyleOptionProgressBar::StyleOptionType
 
-    Equals SO_ProgressBar.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_ProgressBar} for this class).
 
     The type is used internally by QStyleOption, its subclasses, and
     qstyleoption_cast() to determine the type of style option. In
     general you do not need to worry about this unless you want to
     create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionProgressBar::Version
+    \enum QStyleOptionProgressBar::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
 
     The version is used by QStyleOption subclasses to implement
     extensions without breaking compatibility. If you use
     qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -1699,15 +1806,34 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 */
 
 /*!
-    \variable QStyleOptionMenuItem::Type
+    \enum QStyleOptionMenuItem::StyleOptionType
 
-    Equals SO_MenuItem.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_MenuItem} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionMenuItem::Version
+    \enum QStyleOptionMenuItem::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -1864,15 +1990,34 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 */
 
 /*!
-    \variable QStyleOptionComplex::Type
+    \enum QStyleOptionComplex::StyleOptionType
 
-    Equals SO_Complex.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Complex} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionComplex::Version
+    \enum QStyleOptionComplex::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -1946,15 +2091,34 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 */
 
 /*!
-    \variable QStyleOptionSlider::Type
+    \enum QStyleOptionSlider::StyleOptionType
 
-    Equals SO_Slider.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Slider} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionSlider::Version
+    \enum QStyleOptionSlider::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2120,15 +2284,34 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 */
 
 /*!
-    \variable QStyleOptionSpinBox::Type
+    \enum QStyleOptionSpinBox::StyleOptionType
 
-    Equals SO_SpinBox.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_SpinBox} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionSpinBox::Version
+    \enum QStyleOptionSpinBox::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2222,15 +2405,34 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 */
 
 /*!
-    \variable QStyleOptionQ3ListViewItem::Type
+    \enum QStyleOptionQ3ListViewItem::StyleOptionType
 
-    Equals SO_Q3ListViewItem.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Q3ListViewItem} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionQ3ListViewItem::Version
+    \enum QStyleOptionQ3ListViewItem::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2321,15 +2523,34 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 */
 
 /*!
-    \variable QStyleOptionQ3ListView::Type
+    \enum QStyleOptionQ3ListView::StyleOptionType
 
-    Equals SO_Q3ListView.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Q3ListView} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionQ3ListView::Version
+    \enum QStyleOptionQ3ListView::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2437,15 +2658,34 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
 */
 
 /*!
-    \variable QStyleOptionQ3DockWindow::Type
+    \enum QStyleOptionQ3DockWindow::StyleOptionType
 
-    Equals SO_Q3DockWindow.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_Q3DockWindow} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionQ3DockWindow::Version
+    \enum QStyleOptionQ3DockWindow::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2506,15 +2746,34 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
 */
 
 /*!
-    \variable QStyleOptionDockWidget::Type
+    \enum QStyleOptionDockWidget::StyleOptionType
 
-    Equals SO_DockWidget.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_DockWidget} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionDockWidget::Version
+    \enum QStyleOptionDockWidget::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2604,15 +2863,34 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 */
 
 /*!
-    \variable QStyleOptionToolButton::Type
+    \enum QStyleOptionToolButton::StyleOptionType
 
-    Equals SO_ToolButton.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_ToolButton} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionToolButton::Version
+    \enum QStyleOptionToolButton::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2731,15 +3009,34 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 */
 
 /*!
-    \variable QStyleOptionComboBox::Type
+    \enum QStyleOptionComboBox::StyleOptionType
 
-    Equals SO_ComboBox.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_ComboBox} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionComboBox::Version
+    \enum QStyleOptionComboBox::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2837,15 +3134,34 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 */
 
 /*!
-    \variable QStyleOptionToolBox::Type
+    \enum QStyleOptionToolBox::StyleOptionType
 
-    Equals SO_ToolBox.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_ToolBox} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionToolBox::Version
+    \enum QStyleOptionToolBox::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2908,15 +3224,34 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
 */
 
 /*!
-    \variable QStyleOptionRubberBand::Type
+    \enum QStyleOptionRubberBand::StyleOptionType
 
-    Equals SO_RubberBand.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_RubberBand} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionRubberBand::Version
+    \enum QStyleOptionRubberBand::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -2971,15 +3306,34 @@ QStyleOptionTitleBar::QStyleOptionTitleBar()
 */
 
 /*!
-    \variable QStyleOptionTitleBar::Type
+    \enum QStyleOptionTitleBar::StyleOptionType
 
-    Equals SO_TitleBar.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_TitleBar} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionTitleBar::Version
+    \enum QStyleOptionTitleBar::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -3114,15 +3468,34 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 */
 
 /*!
-    \variable QStyleOptionViewItem::Type
+    \enum QStyleOptionViewItem::StyleOptionType
 
-    Equals SO_ViewItem.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_ViewItem} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionViewItem::Version
+    \enum QStyleOptionViewItem::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -3234,15 +3607,34 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 }
 
 /*!
-    \variable QStyleOptionTabWidgetFrame::Type
+    \enum QStyleOptionTabWidgetFrame::StyleOptionType
 
-    Equals SO_TabWidgetFrame.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_TabWidgetFrame} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionTabWidgetFrame::Version
+    \enum QStyleOptionTabWidgetFrame::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -3334,15 +3726,34 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
     Constructs a copy of \a other.
 */
 /*!
-    \variable QStyleOptionTabBarBase::Type
+    \enum QStyleOptionTabBarBase::StyleOptionType
 
-    Equals SO_TabBarBase.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_TabBarBase} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleOptionTabBarBase::Version
+    \enum QStyleOptionTabBarBase::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -3439,15 +3850,35 @@ QStyleOptionGraphicsItem::QStyleOptionGraphicsItem(int version)
 */
 
 /*!
-    \variable QStyleHintReturn::Type
+    \enum QStyleHintReturn::StyleOptionType
 
-    Equals SH_Default.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleHintReturn subclass.
+
+    \value Type The type of style option provided (\c{SH_Default} for
+           this class).
+
+    The type is used internally by QStyleHintReturn, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleHintReturn subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleHintReturn::Version
+    \enum QStyleHintReturn::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleHintReturn subclass.
+
+    \value Version 1
+
+    The version is used by QStyleHintReturn subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -3519,15 +3950,35 @@ QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
 }
 
 /*!
-    \variable QStyleHintReturnMask::Type
+    \enum QStyleHintReturnMask::StyleOptionType
 
-    Equals SH_Mask.
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleHintReturn subclass.
+
+    \value Type The type of style option provided (\c{SH_Mask} for
+           this class).
+
+    The type is used internally by QStyleHintReturn, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleHintReturn subclass and your own styles.
+
+    \sa StyleOptionVersion
 */
 
 /*!
-    \variable QStyleHintReturnMask::Version
+    \enum QStyleHintReturnMask::StyleOptionVersion
 
-    Equals 1.
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleHintReturn subclass.
+
+    \value Version 1
+
+    The version is used by QStyleHintReturn subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!

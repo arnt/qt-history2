@@ -1295,9 +1295,13 @@ void QTextEdit::setFontPointSize(qreal s)
 }
 
 /*!
-    Sets the font weight of the current format to \a w.
+    \fn void QTextEdit::setFontWeight(int weight)
 
-    \sa fontWeight() setCurrentFont() setFontFamily() QFont::Weight
+    Sets the font weight of the current format to the given \a weight,
+    where the value used is in the range defined by the QFont::Weight
+    enum.
+
+    \sa fontWeight(), setCurrentFont(), setFontFamily()
 */
 void QTextEdit::setFontWeight(int w)
 {

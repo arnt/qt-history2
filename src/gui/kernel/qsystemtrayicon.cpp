@@ -66,6 +66,19 @@
 */
 
 /*!
+    \enum QSystemTrayIcon::MessageIcon
+
+    This enum describes the icon that is shown when a balloon message is displayed.
+
+    \value NoIcon      No icon is shown.
+    \value Information An information icon is shown.
+    \value Warning     A standard warning icon is shown.
+    \value Critical    A critical warning icon is shown.
+
+    \sa QMessageBox
+*/
+
+/*!
     Constructs a QSystemTrayIcon object with the given \a parent.
 
     The icon is initially invisible.
@@ -260,10 +273,10 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
 }
 
 /*!
-    \fn void QSystemTrayIcon::showMessage(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon icon, int milliseconds)
+    \fn void QSystemTrayIcon::showMessage(const QString &title, const QString &message, MessageIcon icon, int milliseconds)
 
-    Shows a balloon message for the entry with the given \a title and \a message for
-    the specified number of \a milliseconds.
+    Shows a balloon message for the entry with the given \a title, \a message and
+    \a icon for the time specified in \a milliseconds.
 
     Message can be clicked by the user; the messageClicked() signal will emitted when
     this occurs.
@@ -272,7 +285,7 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
     preferences, and that messages may not appear at all. Hence, it should not be
     relied upon as the sole means for providing critical information.
 
-    \sa showMessage()
+    \sa show()
   */
 void QSystemTrayIcon::showMessage(const QString& title, const QString& msg,
                             QSystemTrayIcon::MessageIcon icon, int msecs)
