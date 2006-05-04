@@ -598,8 +598,12 @@ public:
         if ((leftRow->items.count() <= column)
             || (rightRow->items.count() <= column))
             return false;
-        QVariant l = leftRow->items.at(column)->value(role);
-        QVariant r = rightRow->items.at(column)->value(role);
+        QStdModelItem *leftItem = leftRow->items.at(column);
+        QStdModelItem *rightItem = rightRow->items.at(column);
+        if (!leftItem || !rightItem)
+            return false;
+        QVariant l = leftItem->value(role);
+        QVariant r = rightItem->value(role);
         return (order == Qt::AscendingOrder)
             ? lessThan(l, r) : lessThan(r, l);
     }
