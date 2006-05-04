@@ -35,7 +35,7 @@ class QSizeGripPrivate : public QWidgetPrivate
 public:
     void init();
     QPoint p;
-    QSize s;
+    QRect r;
     int d;
     bool hiddenByUser;
     bool atBottom;
@@ -213,7 +213,7 @@ void QSizeGrip::mousePressEvent(QMouseEvent * e)
 {
     Q_D(QSizeGrip);
     d->p = e->globalPos();
-    d->s = qt_sizegrip_topLevelWidget(this)->size();
+    d->r = qt_sizegrip_topLevelWidget(this)->geometry();
 }
 
 
@@ -246,39 +246,36 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 
     QSize ns;
     if (d->atBottom)
-        ns.rheight() = np.y() - d->p.y() + d->s.height();
+        ns.rheight() = np.y() - d->p.y() + d->r.height();
     else
-        ns.rheight() = d->s.height() - (np.y() - d->p.y());
+        ns.rheight() = d->r.height() - (np.y() - d->p.y());
 
     if (isRightToLeft())
-        ns.rwidth() = d->s.width() - (np.x() - d->p.x());
+        ns.rwidth() = d->r.width() - (np.x() - d->p.x());
     else
-        ns.rwidth() = np.x() - d->p.x() + d->s.width();
+        ns.rwidth() = np.x() - d->p.x() + d->r.width();
 
     ns = ns.expandedTo(tlw->minimumSize()).expandedTo(tlw->minimumSizeHint()).boundedTo(tlw->maximumSize());
 
-    QRect g = tlw->geometry();
+    QRect nr(QPoint(), ns);            
     if (d->atBottom) {
-        if (isRightToLeft()) {
-            tlw->setGeometry(g.right() - ns.width() + 1, g.y(), ns.width(), ns.height());
-            int width = tlw->width();
-            if (width != ns.width()) // check if the platform was able to set the requested geometry
-                tlw->setGeometry(g.right() - width + 1, g.y(), width, tlw->height());
-        } else
-            tlw->resize(ns);
+        if (isRightToLeft()) 
+            nr.moveTopRight(d->r.topRight());
+        else 
+            nr.moveTopLeft(d->r.topLeft());
     } else {
         if (isRightToLeft())
-            tlw->setGeometry(g.right() - ns.width() + 1, g.bottom() - ns.height() + 1,
-                             ns.width(), ns.height());
+            nr.moveBottomRight(d->r.bottomRight());
         else
-            tlw->setGeometry(g.x(), g.bottom() - ns.height() + 1, ns.width(), ns.height());
+            nr.moveBottomLeft(d->r.bottomLeft());
     }
+    tlw->setGeometry(nr);
+
 #ifdef Q_WS_WIN
     MSG msg;
     while(PeekMessage(&msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
       ;
 #endif
-    QApplication::syncX();
 }
 
 /*! \reimp */
@@ -301,7 +298,7 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 #ifndef Q_WS_MAC
                               | Qt::WindowMaximized
 #endif
-                                 ))==0);
+                              ))==0);
     }
     return false;
 }
