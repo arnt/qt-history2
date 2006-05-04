@@ -2253,14 +2253,15 @@ static uint detectCPUFeatures() {
          "popf\n"
          "pushf\n"
          "pop %%eax\n"
+         "xor %%edx, %%edx\n"
          "xor %%ebx, %%eax\n"
          "jz 1f\n"
 
          "mov $0x00000001, %%eax\n"
          "cpuid\n"
-         "mov %%edx, %0\n"
          "1:\n"
          "pop %%ebx\n"
+         "mov %%edx, %0\n"
         : "=r" (result)
         :
         : "%eax", "%ecx", "%edx"
