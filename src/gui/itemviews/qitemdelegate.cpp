@@ -250,8 +250,6 @@ void QItemDelegate::paint(QPainter *painter,
 QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
-    Q_ASSERT(index.isValid());
-
     QVariant value = index.data(Qt::SizeHintRole);
     if (value.isValid())
         return qvariant_cast<QSize>(value);
@@ -535,6 +533,8 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     int w, h;
 
     textRect->adjust(-textMargin, 0, textMargin, 0); // add width padding
+    if (textRect->height() == 0)
+        textRect->setHeight(option.fontMetrics.lineSpacing());
 
     QSize pm(0, 0);
     if (pixmapRect->isValid()) {
