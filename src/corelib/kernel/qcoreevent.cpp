@@ -87,11 +87,22 @@
     \value Drop                             A drag and drop action is completed (QDropEvent).
     \value EnabledChange                    Widget's enabled state has changed.
     \value Enter                            Mouse enters widget's boundaries.
+    \value EnterEditFocus                   An editor widget gains focus for editing.
     \value EnterWhatsThisMode               Send to toplevel widgets when the application enters "What's This?" mode.
     \value FileOpen                         File open request (QFileOpenEvent).
     \value FocusIn                          Widget gains keyboard focus (QFocusEvent).
     \value FocusOut                         Widget loses keyboard focus (QFocusEvent).
     \value FontChange                       Widget's font has changed.
+    \value GraphicsSceneContextMenu         Context popup menu over a graphics scene (QGraphicsSceneContextMenuEvent).
+    \value GraphicsSceneHelp                The user requests help for a graphics scene (QHelpEvent).
+    \value GraphicsSceneHoverEnter          The mouse cursor enters a hover item in a graphics scene (QGraphicsSceneHoverEvent).
+    \value GraphicsSceneHoverLeave          The mouse cursor leaves a hover item in a graphics scene (QGraphicsSceneHoverEvent).
+    \value GraphicsSceneHoverMove           The mouse cursor moves inside a hover item in a graphics scene (QGraphicsSceneHoverEvent).
+    \value GraphicsSceneMouseClick          Mouse click (press and release) in a graphics scene (QGraphicsSceneMouseEvent).
+    \value GraphicsSceneMouseDoubleClick    Mouse press again (double click) in a graphics scene (QGraphicsSceneMouseEvent).
+    \value GraphicsSceneMouseMove           Move mouse in a graphics scene (QGraphicsSceneMouseEvent).
+    \value GraphicsSceneMousePress          Mouse press in a graphics scene (QGraphicsSceneMouseEvent).
+    \value GraphicsSceneMouseRelease        Mouse release in a graphics scene (QGraphicsSceneMouseEvent).
     \value Hide                             Widget was hidden (QHideEvent).
     \value HideToParent                     A child widget has been hidden.
     \value HoverEnter                       The mouse cursor enters a hover widget (QHoverEvent).
@@ -106,6 +117,7 @@
     \value LayoutDirectionChange            The direction of layouts changed.
     \value LayoutRequest                    Widget layout needs to be redone.
     \value Leave                            Mouse leaves widget's boundaries.
+    \value LeaveEditFocus                   An editor widget loses focus for editing.
     \value LeaveWhatsThisMode               Send to toplevel widgets when the application leaves "What's This?" mode.
     \value LocaleChange                     The system locale has changed.
     \value MenubarUpdated                   The window's menu bar has been updated.

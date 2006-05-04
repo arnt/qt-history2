@@ -368,5 +368,21 @@ void QFileSystemWatcher::removePaths(const QStringList &paths)
     \sa fileChanged()
 */
 
+/*!
+    \fn QStringList QFileSystemWatcher::directories() const
+
+    Returns a list of paths to directories that are being watched.
+
+    \sa files()
+*/
+
+/*!
+    \fn QStringList QFileSystemWatcher::files() const
+
+    Returns a list of paths to files that are being watched.
+
+    \sa directories()
+*/
+
 #include "moc_qfilesystemwatcher.cpp"
 #include "qfilesystemwatcher.moc"

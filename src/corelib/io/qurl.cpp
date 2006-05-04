@@ -11,7 +11,8 @@
 **
 ****************************************************************************/
 
-/*! \class QUrl
+/*! 
+    \class QUrl
 
     \brief The QUrl class provides a convenient interface for working
     with URLs.
@@ -71,10 +72,10 @@
     servers, mail clients and so on.
 
     QUrl conforms to the URI specification from
-    \l{http://www.ietf.org/rfc/rfc3986.txt}{RFC3986} (Uniform Resource
-    Identifier: Generic Syntax), and includes scheme extensions from
-    \l{http://www.ietf.org/rfc/rfc1738.txt}{RFC1738} (Uniform Resource
-    Locators).
+    \l{RFC 3986} (Uniform Resource Identifier: Generic Syntax), and includes scheme extensions from
+    \l{RFC 1738} (Uniform Resource Locators).
+
+    \sa QUrlInfo
 */
 
 /*!
@@ -3959,7 +3960,7 @@ QString QUrl::path() const
     Returns true if this URL contains a Query (i.e., if ? was seen on it).
 
     \since 4.2
-    \sa hasQueryItem, encodedQuery
+    \sa hasQueryItem(), encodedQuery()
 */
 bool QUrl::hasQuery() const
 {
@@ -4292,7 +4293,7 @@ QString QUrl::fragment() const
     Returns true if this URL contains a fragment (i.e., if # was seen on it).
 
     \since 4.2
-    \sa fragment, setFragment
+    \sa fragment(), setFragment()
 */
 bool QUrl::hasFragment() const
 {

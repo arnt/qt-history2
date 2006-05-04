@@ -956,7 +956,7 @@ bool qSharedBuild()
 */
 
 /*!
-    \variable QSysInfo::Sizes
+    \enum QSysInfo::Sizes
 
     This enum provides platform-specific information about the sizes of data
     structures used by the underlying architecture.
