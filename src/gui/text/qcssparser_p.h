@@ -210,12 +210,14 @@ public:
     virtual bool hasAttribute(NodePtr node, const QString &name) const = 0;
     virtual bool hasAttributes(NodePtr node) const = 0;
     virtual QStringList nodeIds(NodePtr node) const;
+    virtual bool hasParent(NodePtr node) const = 0;
     virtual NodePtr parentNode(NodePtr node) = 0;
     virtual void freeNode(NodePtr node) = 0;
 
     StyleSheet styleSheet;
 private:
     bool selectorMatches(const Selector &rule, NodePtr node);
+    bool basicSelectorMatches(const BasicSelector &rule, NodePtr node);
 };
 
 enum TokenType {

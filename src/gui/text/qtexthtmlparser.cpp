@@ -1574,6 +1574,7 @@ public:
     virtual QString attribute(NodePtr node, const QString &name) const;
     virtual bool hasAttribute(NodePtr node, const QString &name) const;
     virtual bool hasAttributes(NodePtr node) const;
+    virtual bool hasParent(NodePtr node) const;
     virtual NodePtr parentNode(NodePtr node);
     virtual void freeNode(NodePtr node);
 
@@ -1614,6 +1615,11 @@ bool QTextHtmlStyleSelector::hasAttributes(NodePtr node) const
 {
    const QStringList &attributes = parser->at(node.id).attributes;
    return !attributes.isEmpty();
+}
+
+bool QTextHtmlStyleSelector::hasParent(NodePtr node) const
+{
+    return parser->at(node.id).parent != 0;
 }
 
 QCss::StyleSelector::NodePtr QTextHtmlStyleSelector::parentNode(NodePtr node)

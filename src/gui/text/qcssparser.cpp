@@ -382,57 +382,93 @@ QStringList StyleSelector::nodeIds(NodePtr node) const
 
 bool StyleSelector::selectorMatches(const Selector &selector, NodePtr node)
 {
-    for (int j = 0; j < selector.basicSelectors.count(); ++j) {
-        const QCss::BasicSelector &sel = selector.basicSelectors.at(j);
+    if (selector.basicSelectors.isEmpty()) return false;
 
-        if (!sel.attributeSelectors.isEmpty()) {
-            if (!hasAttributes(node))
-                continue;
-
-            bool matched = true;
-            for (int i = 0; i < sel.attributeSelectors.count(); ++i) {
-                const QCss::AttributeSelector &a = sel.attributeSelectors.at(i);
-                if (!hasAttribute(node, a.name)) {
-                    matched = false;
-                    break;
-                }
-                const QString attrValue = attribute(node, a.name);
-
-                if (a.valueMatchCriterium == QCss::AttributeSelector::MatchContains) {
-
-                    QStringList lst = attrValue.split(QLatin1Char(' '));
-                    if (!lst.contains(a.value)) {
-                        matched = false;
-                        break;
-                    }
-                } else if (
-                    (a.valueMatchCriterium == QCss::AttributeSelector::MatchEqual
-                     && attrValue != a.value)
-                    ||
-                    (a.valueMatchCriterium == QCss::AttributeSelector::MatchBeginsWith
-                     && !attrValue.startsWith(a.value))
-                   ) {
-                    matched = false;
-                    break;
-                }
-            }
-            if (!matched)
-                continue;
-        }
-        
-        if (!sel.elementName.isEmpty()
-            && sel.elementName != nodeName(node))
-                continue;
-
-        if (!sel.ids.isEmpty()
-            && sel.ids != nodeIds(node))
-                continue;
-
-        if (sel.relationToNext == QCss::BasicSelector::NoRelation
-            && sel.pseudoClasses.isEmpty())
-                return true;
+    if (selector.basicSelectors.first().relationToNext == BasicSelector::NoRelation) {
+        if (selector.basicSelectors.count() != 1)
+            return false;
+        return basicSelectorMatches(selector.basicSelectors.first(), node);
     }
-    return false;    
+    if (selector.basicSelectors.count() <= 1 || !hasParent(node))
+        return false;
+    
+    int i = selector.basicSelectors.count() - 1;
+    if (!basicSelectorMatches(selector.basicSelectors.at(i), node))
+        return false;
+    
+    bool match = true;
+    NodePtr parent = parentNode(node);
+    --i;
+    do {
+        const BasicSelector &sel = selector.basicSelectors.at(i);
+        if (sel.relationToNext == BasicSelector::MatchNextSelectorIfAncestor
+            || sel.relationToNext == BasicSelector::MatchNextSelectorIfParent) {
+            match = true;
+            do {
+                match = basicSelectorMatches(sel, parent);
+                if (!match) {
+                    if (!hasParent(parent))
+                        break;
+                }
+                NodePtr nextParent = parentNode(parent);
+                freeNode(parent);
+                parent = nextParent;
+            } while (!match && sel.relationToNext != BasicSelector::MatchNextSelectorIfParent);
+            if (!match)
+                break;
+        } else {
+            match = false;
+            break;
+        }
+        --i;
+    } while (i >= 0 && match);
+    
+    freeNode(parent);
+
+    return match;
+}
+
+bool StyleSelector::basicSelectorMatches(const BasicSelector &sel, NodePtr node)
+{
+    if (!sel.attributeSelectors.isEmpty()) {
+        if (!hasAttributes(node))
+            return false;
+
+        for (int i = 0; i < sel.attributeSelectors.count(); ++i) {
+            const QCss::AttributeSelector &a = sel.attributeSelectors.at(i);
+            if (!hasAttribute(node, a.name))
+                return false;
+
+            const QString attrValue = attribute(node, a.name);
+
+            if (a.valueMatchCriterium == QCss::AttributeSelector::MatchContains) {
+
+                QStringList lst = attrValue.split(QLatin1Char(' '));
+                if (!lst.contains(a.value))
+                    return false;
+            } else if (
+                (a.valueMatchCriterium == QCss::AttributeSelector::MatchEqual
+                 && attrValue != a.value)
+                ||
+                (a.valueMatchCriterium == QCss::AttributeSelector::MatchBeginsWith
+                 && !attrValue.startsWith(a.value))
+               )
+                return false;
+        }
+    }
+    
+    if (!sel.elementName.isEmpty()
+        && sel.elementName != nodeName(node))
+            return false;
+
+    if (!sel.ids.isEmpty()
+        && sel.ids != nodeIds(node))
+            return false;
+
+    if (!sel.pseudoClasses.isEmpty())
+        return false;
+
+    return true;
 }
 
 namespace QCss {
