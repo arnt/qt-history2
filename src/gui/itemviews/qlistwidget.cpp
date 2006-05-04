@@ -391,24 +391,30 @@ Qt::DropActions QListModel::supportedDropActions() const
     The isItemHidden() function can be used to determine whether the
     item is hidden.  Items can be hidden with setItemHidden().
 
+    \section1 Subclassing
+
+    When subclassing QListWidgetItem to provide custom items, it is possible to
+    define new types for them so that they can be distinguished from standard
+    items. The constructors for subclasses that require this feature need to
+    call the base class constructor with a new type value equal to or greater
+    than \l UserType.
+
     \sa QListWidget, {Model/View Programming}, QTreeWidgetItem, QTableWidgetItem
 */
 
 /*!
-    \variable QListWidgetItem::Type
+    \enum QListWidgetItem::ItemType
 
-    The default type for list widget items.
+    This enum describes the types that are used to describe list widget items.
 
-    \sa UserType, type()
-*/
+    \value Type     The default type for list widget items.
+    \value UserType The minimum value for custom types. Values below UserType are
+                    reserved by Qt.
 
-/*!
-    \variable QListWidgetItem::UserType
+    You can define new user types in QListWidgetItem subclasses to ensure that
+    custom items are treated specially.
 
-    The minimum value for custom types. Values below UserType are
-    reserved by Qt.
-
-    \sa Type, type()
+    \sa type()
 */
 
 /*!
@@ -518,7 +524,7 @@ QListWidgetItem *QListWidgetItem::clone() const
   \l{Qt::ItemDataRole}). Reimplement this function if you need
   extra roles or special behavior for certain roles.
 
-  \sa Qt::ItemDataRole, data(), itemData()
+  \sa Qt::ItemDataRole, data()
 */
 void QListWidgetItem::setData(int role, const QVariant &value)
 {
@@ -1021,20 +1027,28 @@ void QListWidgetPrivate::_q_sort()
 /*!
     \fn void QListWidget::itemPressed(QListWidgetItem *item)
 
-    This signal is emitted when an item has been pressed (mouse click
-    and release).
+    This signal is emitted with the specified \a item when a mouse button is pressed
+    on an item in the widget.
+
+    \sa itemClicked(), itemDoubleClicked()
 */
 
 /*!
     \fn void QListWidget::itemClicked(QListWidgetItem *item)
 
-    This signal is emitted when a mouse button is clicked.
+    This signal is emitted with the specified \a item when a mouse button is clicked
+    on an item in the widget.
+
+    \sa itemPressed(), itemDoubleClicked()
 */
 
 /*!
     \fn void QListWidget::itemDoubleClicked(QListWidgetItem *item)
 
-    This signal is emitted when a mouse button is double clicked.
+    This signal is emitted with the specified \a item when a mouse button is double
+    clicked on an item in the widget.
+
+    \sa itemClicked(), itemPressed()
 */
 
 /*!

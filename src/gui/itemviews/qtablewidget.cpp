@@ -785,6 +785,14 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
     with the setChecked() function. The corresponding checked() function
     indicates whether the item is currently checked.
 
+    \section1 Subclassing
+
+    When subclassing QTableWidgetItem to provide custom items, it is possible to
+    define new types for them so that they can be distinguished from standard
+    items. The constructors for subclasses that require this feature need to
+    call the base class constructor with a new type value equal to or greater
+    than \l UserType.
+
     \sa QTableWidget, {Model/View Programming}, QListWidgetItem, QTreeWidgetItem
 */
 
@@ -1521,20 +1529,18 @@ void QTableWidgetPrivate::_q_sort()
 */
 
 /*!
-    \variable QTableWidgetItem::Type
+    \enum QTableWidgetItem::ItemType
 
-    The default type for table widget items.
+    This enum describes the types that are used to describe table widget items.
 
-    \sa UserType, type()
-*/
+    \value Type     The default type for table widget items.
+    \value UserType The minimum value for custom types. Values below UserType are
+                    reserved by Qt.
 
-/*!
-    \variable QTableWidgetItem::UserType
+    You can define new user types in QTableWidgetItem subclasses to ensure that
+    custom items are treated specially.
 
-    The minimum value for custom types. Values below UserType are
-    reserved by Qt.
-
-    \sa Type, type()
+    \sa type()
 */
 
 /*!
@@ -1869,7 +1875,7 @@ void QTableWidget::sortItems(int column, Qt::SortOrder order)
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 void QTableWidget::setSortingEnabled(bool enable)
 {
@@ -1877,7 +1883,7 @@ void QTableWidget::setSortingEnabled(bool enable)
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 bool QTableWidget::isSortingEnabled() const
 {
@@ -2286,7 +2292,7 @@ void QTableWidget::setModel(QAbstractItemModel * /*model*/)
     qFatal("QTableWidget::setModel() - Changing the model of the QTableWidget is not allowed.");
 }
 
-/* \reimp */
+/*! \reimp */
 bool QTableWidget::event(QEvent *e)
 {
     return QTableView::event(e);

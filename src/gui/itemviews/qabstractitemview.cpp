@@ -246,6 +246,7 @@ void QAbstractItemViewPrivate::init()
     \value EditingState   The user is editing an item in a widget editor.
     \value ExpandingState   The user is opening a branch of items.
     \value CollapsingState   The user is closing a branch of items.
+    \value AnimatingState The item view is performing an animation.
 */
 
 /*!

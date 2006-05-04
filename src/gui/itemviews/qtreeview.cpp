@@ -70,7 +70,7 @@
     Headers in a tree view are constructed using the QHeaderView class
     and can be hidden using header()->hide().
 
-    \section2 Key Bindings
+    \section1 Key Bindings
 
     QTreeView supports a set of key bindings that enable the user to
     navigate in the view and interact with the contents of items:
@@ -357,8 +357,7 @@ int QTreeView::columnViewportPosition(int column) const
 /*!
   Returns the width of the \a column.
 
-  \sa resizeColumnToContents()
-  \sa setColumnWidth()
+  \sa resizeColumnToContents(), setColumnWidth()
 */
 int QTreeView::columnWidth(int column) const
 {
@@ -367,10 +366,9 @@ int QTreeView::columnWidth(int column) const
 }
 
 /*!
-  Sets the width of the \a column to \width.
+  Sets the width of the given \a column to the \a width specified.
 
-  \sa columnWidth()
-  \sa resizeColumnToContents()
+  \sa columnWidth(), resizeColumnToContents()
 */
 void QTreeView::setColumnWidth(int column, int width)
 {
@@ -576,7 +574,7 @@ void QTreeView::collapse(const QModelIndex &index)
   Returns true if the model item \a index is expanded; otherwise returns
   false.
 
-  \da expand(), expanded()
+  \sa expand(), expanded()
 */
 bool QTreeView::isExpanded(const QModelIndex &index) const
 {
@@ -887,7 +885,8 @@ void QTreeView::paintEvent(QPaintEvent *event)
 
 /*!
   \since 4.2
-  Draws the part of the tree intersecting the given \a region.
+  Draws the part of the tree intersecting the given \a region using the specified
+  \a painter.
 
   \sa paintEvent()
 */
@@ -1648,8 +1647,7 @@ void QTreeView::columnCountChanged(int, int)
 /*!
   Resizes the \a column given to the size of its contents.
 
-  \sa columnWidth()
-  \sa setColumnWidth()
+  \sa columnWidth(), setColumnWidth()
 */
 void QTreeView::resizeColumnToContents(int column)
 {
@@ -1694,6 +1692,8 @@ void QTreeView::selectAll()
     This function is called whenever \a{column}'s size is changed in
     the header. \a oldSize and \a newSize give the previous size and
     the new size in pixels.
+
+    \sa setColumnWidth()
 */
 void QTreeView::columnResized(int column, int /* oldSize */, int /* newSize */)
 {

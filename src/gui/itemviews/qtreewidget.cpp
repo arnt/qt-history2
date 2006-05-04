@@ -713,24 +713,30 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
   with the setChecked() function. The corresponding checked() function
   indicates whether the item is currently checked.
 
+  \section1 Subclassing
+
+  When subclassing QTreeWidgetItem to provide custom items, it is possible to
+  define new types for them so that they can be distinguished from standard
+  items. The constructors for subclasses that require this feature need to
+  call the base class constructor with a new type value equal to or greater
+  than \l UserType.
+
   \sa QTreeWidget, {Model/View Programming}, QListWidgetItem, QTableWidgetItem
 */
 
 /*!
-    \variable QTreeWidgetItem::Type
+    \enum QTreeWidgetItem::ItemType
 
-    The default type for tree widget items.
+    This enum describes the types that are used to describe tree widget items.
 
-    \sa UserType, type()
-*/
+    \value Type     The default type for tree widget items.
+    \value UserType The minimum value for custom types. Values below UserType are
+                    reserved by Qt.
 
-/*!
-    \variable QTreeWidgetItem::UserType
+    You can define new user types in QTreeWidgetItem subclasses to ensure that
+    custom items are treated specially; for example, when items are sorted.
 
-    The minimum value for custom types. Values below UserType are
-    reserved by Qt.
-
-    \sa Type, type()
+    \sa type()
 */
 
 /*!
@@ -2211,7 +2217,7 @@ void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 }
 
 /*!
-  \reimpl
+  \reimp
 
   \sa sortItems(), sortColumn()
 */
@@ -2221,7 +2227,7 @@ void QTreeWidget::setSortingEnabled(bool enable)
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 
 bool QTreeWidget::isSortingEnabled() const

@@ -49,10 +49,10 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(const QTreeWidgetItemIterator &
 }
 
 /*!
-    Constructs an iterator for the QTreeWidget \a widget. 
-    The iterator is set to point to the first toplevel 
-    item (QTreeWidgetItem) of \a widget or the next matching item if 
-    the toplevel item doesn't match the flags.
+    Constructs an iterator for the given \a widget that uses the specified \a flags
+    to determine which items are found during iteration.
+    The iterator is set to point to the first top-level item contained in the widget,
+    or the next matching item if the top-level item doesn't match the flags.
 
     \sa QTreeWidgetItemIterator::IteratorFlag
 */
@@ -71,10 +71,10 @@ QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFl
 }
 
 /*!
-    Constructs an iterator for the QTreeWidget that contains the \a item
-    using the flags \a flags. The iterator is set
-    to point to \a item or the next matching item if \a item doesn't
-    match the flags.
+    Constructs an iterator for the given \a item that uses the specified \a flags
+    to determine which items are found during iteration.
+    The iterator is set to point to \a item, or the next matching item if \a item
+    doesn't match the flags.
 
     \sa QTreeWidgetItemIterator::IteratorFlag
 */
@@ -363,7 +363,8 @@ void QTreeWidgetItemIteratorPrivate::ensureValidIterator(const QTreeWidgetItem *
 /*!
   \fn QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator+=(int n)
 
-  Makes the iterator go forward by n matching items. (If n is negative, the iterator goes backward.)
+  Makes the iterator go forward by \a n matching items. (If n is negative, the
+  iterator goes backward.)
 
   If the current item is beyond the last item, the current item pointer is
   set to 0. Returns the resulting iterator.
@@ -378,7 +379,8 @@ void QTreeWidgetItemIteratorPrivate::ensureValidIterator(const QTreeWidgetItem *
 /*!
   \fn QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator-=(int n)
 
-  Makes the iterator go back by n matching items. (If n is negative, the iterator goes forward.)
+  Makes the iterator go backward by \a n matching items. (If n is negative, the
+  iterator goes forward.)
 
   If the current item is ahead of the last item, the current item pointer is
   set to 0. Returns the resulting iterator.

@@ -549,9 +549,6 @@ void QStandardItemModelPrivate::clear()
     verticalHeader.clear();
 }
 
-/*!
-    \internal
-*/
 class QStandardItemModelCompare
 {
 public:

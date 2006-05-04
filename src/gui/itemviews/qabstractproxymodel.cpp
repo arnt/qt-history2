@@ -128,6 +128,8 @@ void QAbstractProxyModel::revert()
 */
 
 /*!
+  Returns a source selection mapped from the specified \a proxySelection.
+
   Reimplement this method to map proxy selections to source selections.
  */
 QItemSelection QAbstractProxyModel::mapSelectionToSource(const QItemSelection &proxySelection) const
@@ -140,6 +142,8 @@ QItemSelection QAbstractProxyModel::mapSelectionToSource(const QItemSelection &p
 }
 
 /*!
+  Returns a proxy selection mapped from the specified \a sourceSelection.
+
   Reimplement this method to map source selections to proxy selections.
 */
 QItemSelection QAbstractProxyModel::mapSelectionFromSource(const QItemSelection &sourceSelection) const
