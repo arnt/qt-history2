@@ -1289,10 +1289,16 @@ static int get_uniKey(int modif, const QChar &key, int scan)
         return Qt::Key_Clear;
 
     if (key.isDigit()) {
-        return (key.digitValue() - '0') + Qt::Key_0;
+#ifdef DEBUG_KEY_MAPS
+            qDebug("%d: got key: %d", __LINE__, key.digitValue());
+#endif
+        return key.digitValue() + Qt::Key_0;
     }
 
     if (key.isLetter()) {
+#ifdef DEBUG_KEY_MAPS
+        qDebug("%d: got key: %d", __LINE__, (key.toUpper().unicode() - 'A'));
+#endif
         return (key.toUpper().unicode() - 'A') + Qt::Key_A;
     }
     for(int i = 0; keyboard_symbols[i].qt_code; i++) {
@@ -1324,7 +1330,7 @@ static int get_uniKey(int modif, const QChar &key, int scan)
 
     //oh well
 #ifdef DEBUG_KEY_MAPS
-    qDebug("Unknown case.. %s:%d %d %d", __FILE__, __LINE__, key, scan);
+    qDebug("Unknown case.. %s:%d %d %d", __FILE__, __LINE__, key.toLatin1(), scan);
 #endif
     return Qt::Key_unknown;
 }
@@ -2353,19 +2359,19 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                    qMax(1, accel_str.length()));
                 if(static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(widget, &accel_ev)) {
 #ifdef DEBUG_KEY_MAPS
-                    qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
+                    qDebug("KeyEvent: %s::%s consumed Accel: %s %d",
                            widget ? widget->metaObject()->className() : "none",
                            widget ? widget->objectName().toLatin1().constData() : "",
-                           asChar, translatedChar, asString.toLatin1().constData(), ekind == kEventRawKeyRepeat);
+                           asString.toLatin1().constData(), ekind == kEventRawKeyRepeat);
 #endif
                     key_event = false;
                 } else {
                     if(accel_ev.isAccepted()) {
 #ifdef DEBUG_KEY_MAPS
-                        qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
+                        qDebug("KeyEvent: %s::%s overrode Accel: %s %d",
                                widget ? widget->metaObject()->className() : "none",
                                widget ? widget->objectName().toLatin1().constData() : "",
-                               asChar, translatedChar, asString.toLatin1().constData(), ekind == kEventRawKeyRepeat);
+                               asString.toLatin1().constData(), ekind == kEventRawKeyRepeat);
 #endif
                     }
                 }
@@ -2443,11 +2449,11 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     }
                 }
 #ifdef DEBUG_KEY_MAPS
-                qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) 0x%08x%s",
+                qDebug("KeyEvent: Sending %s to %s::%s: %s 0x%08x%s",
                        etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
                        widget ? widget->metaObject()->className() : "none",
                        widget ? widget->objectName().toLatin1().constData() : "",
-                       asChar, translatedChar, asString.toLatin1().constData(), int(modifiers),
+                       asString.toLatin1().constData(), int(modifiers),
                        ekind == kEventRawKeyRepeat ? " Repeat" : "");
 #endif
                 /* This is actually wrong - but unfortunatly it is the best that can be
