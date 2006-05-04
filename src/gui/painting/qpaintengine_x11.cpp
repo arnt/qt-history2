@@ -2215,12 +2215,13 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         ::Picture src = X11->getSolidFill(d->scrn, pen);
         XRenderPictFormat *maskFormat = XRenderFindStandardFormat(X11->display, ft->xglyph_format);
 
+        enum { t_min = SHRT_MIN >> 1, t_max = SHRT_MAX >> 1};
         QFixed xp = positions[0].x;
         QFixed yp = positions[0].y;
 
         // better return instead of crashing the X server
-        if (xp.toInt() < SHRT_MIN || xp.toInt() > SHRT_MAX
-            || yp.toInt() < SHRT_MIN || yp.toInt() > SHRT_MAX)
+        if (xp.toInt() < t_min || xp.toInt() > t_max 
+            || yp.toInt() < t_min || yp.toInt() > t_max)
             return;
 
         XGlyphElt32 elt;
