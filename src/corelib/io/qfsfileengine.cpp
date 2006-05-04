@@ -162,7 +162,6 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags)
     d->fh = QT_FOPEN(QFile::encodeName(d->file).constData(),
                      openModeToFopenMode(flags, d->file).constData());
     if (!d->fh) {
-        QString errString = QT_TRANSLATE_NOOP(QFSFileEngine, "Unknown error");
         setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError,
                  qt_error_string(int(errno)));
         return false;
@@ -238,7 +237,6 @@ bool QFSFileEngine::open(QIODevice::OpenMode flags, int fd)
 #ifdef Q_OS_UNIX
     d->fh = fdopen(fd, openModeToFopenMode(flags).constData());
     if (!d->fh) {
-        QString errString = QT_TRANSLATE_NOOP(QFSFileEngine, "Unknown error");
         setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError,
                  qt_error_string(int(errno)));
         return false;

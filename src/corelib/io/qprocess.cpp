@@ -1300,7 +1300,7 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
     d->exitCode = 0;
     d->exitStatus = NormalExit;
     d->processError = QProcess::UnknownError;
-    setErrorString(tr("Unknown error"));
+    d->errorString.clear();
     d->startProcess();
 }
 

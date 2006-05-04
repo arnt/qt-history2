@@ -84,11 +84,8 @@ QFilePrivate::openExternalFile(int flags, FILE *fh)
 void
 QFilePrivate::setError(QFile::FileError err)
 {
-    if (error != err) {
-        Q_Q(QFile);
-        error = err;
-        q->setErrorString(QT_TRANSLATE_NOOP(QIODevice, QLatin1String("Unknown error")));
-    }
+    error = err;
+    errorString.clear();
 }
 
 void
@@ -265,18 +262,15 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
 QFile::QFile()
     : QIODevice(*new QFilePrivate)
 {
-    unsetError();
 }
 QFile::QFile(const QString &name)
     : QIODevice(*new QFilePrivate)
 {
     d_func()->fileName = name;
-    unsetError();
 }
 QFile::QFile(QFilePrivate &dd)
     : QIODevice(dd)
 {
-    unsetError();
 }
 #else
 /*!
@@ -285,7 +279,6 @@ QFile::QFile(QFilePrivate &dd)
 QFile::QFile()
     : QIODevice(*new QFilePrivate, 0)
 {
-    unsetError();
 }
 /*!
     Constructs a new file object with the given \a parent.
@@ -293,7 +286,6 @@ QFile::QFile()
 QFile::QFile(QObject *parent)
     : QIODevice(*new QFilePrivate, parent)
 {
-    unsetError();
 }
 /*!
     Constructs a new file object to represent the file with the given \a name.
@@ -303,7 +295,6 @@ QFile::QFile(const QString &name)
 {
     Q_D(QFile);
     d->fileName = name;
-    unsetError();
 }
 /*!
     Constructs a new file object with the given \a parent to represent the
@@ -314,7 +305,6 @@ QFile::QFile(const QString &name, QObject *parent)
 {
     Q_D(QFile);
     d->fileName = name;
-    unsetError();
 }
 /*!
     \internal
@@ -322,7 +312,6 @@ QFile::QFile(const QString &name, QObject *parent)
 QFile::QFile(QFilePrivate &dd, QObject *parent)
     : QIODevice(dd, parent)
 {
-    unsetError();
 }
 #endif
 
@@ -1186,7 +1175,7 @@ bool QFile::seek(qint64 off)
         d->setError(err, fileEngine()->errorString());
         return false;
     }
-    unsetError();
+    d->error = NoError;
     return true;
 }
 
@@ -1205,7 +1194,7 @@ qint64 QFile::readLineData(char *data, qint64 maxlen)
 qint64 QFile::readData(char *data, qint64 len)
 {
     Q_D(QFile);
-    unsetError();
+    d->error = NoError;
 
     qint64 ret = -1;
     qint64 read = fileEngine()->read(data, len);
@@ -1229,7 +1218,7 @@ qint64
 QFile::writeData(const char *data, qint64 len)
 {
     Q_D(QFile);
-    unsetError();
+    d->error = NoError;
 
     qint64 ret = fileEngine()->write(data, len);
     if(ret < 0) {

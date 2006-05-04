@@ -88,7 +88,6 @@ static const qint64 QIODEVICE_BUFFERSIZE = 16384;
  */
 QIODevicePrivate::QIODevicePrivate()
     : openMode(QIODevice::NotOpen),
-      errorString(QT_TRANSLATE_NOOP(QIODevice, QLatin1String("Unknown error"))),
       pos(0), devicePos(0)
 {
 }
@@ -271,7 +270,7 @@ QIODevicePrivate::~QIODevicePrivate()
     \sa readyRead()
 */
 
-/*!     
+/*!
     \fn QIODevice::readyRead()
 
     This signal is emitted once every time new data is available for
@@ -508,11 +507,7 @@ void QIODevice::close()
     emit aboutToClose();
 #endif
     d->openMode = NotOpen;
-#ifdef QT_NO_QOBJECT
-    d->errorString = QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
-#else
-    d->errorString = tr("Unknown error");
-#endif
+    d->errorString.clear();
     d->pos = 0;
     d->buffer.clear();
 }
@@ -1393,7 +1388,15 @@ void QIODevice::setErrorString(const QString &str)
 */
 QString QIODevice::errorString() const
 {
-    return d_func()->errorString;
+    Q_D(const QIODevice);
+    if (d->errorString.isEmpty()) {
+#ifdef QT_NO_QOBJECT
+        return QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
+#else
+        return tr("Unknown error");
+#endif
+    }
+    return d->errorString;
 }
 
 /*!
