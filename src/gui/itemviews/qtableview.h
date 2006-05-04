@@ -75,6 +75,10 @@ public:
     void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
     QModelIndex indexAt(const QPoint &p) const;
 
+    void setSpan(int row, int column, int rowSpan, int columnSpan);
+    int rowSpan(int row, int column) const;
+    int columnSpan(int row, int column) const;
+
 public Q_SLOTS:
     void selectRow(int row);
     void selectColumn(int column);
