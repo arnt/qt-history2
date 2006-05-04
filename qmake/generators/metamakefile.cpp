@@ -14,6 +14,7 @@
 #include "metamakefile.h"
 #include "qregexp.h"
 #include "qdir.h"
+#include "qdebug.h"
 #include "makefile.h"
 #include "project.h"
 #include "cachekeys.h"
@@ -247,8 +248,8 @@ SubdirsMetaMakefileGenerator::init()
     init_flag = true;
 
     if(Option::recursive) {
-        const QString old_output_dir = Option::output_dir;
-        const QString oldpwd = qmake_getpwd();
+        const QString old_output_dir = QDir::cleanPath(Option::output_dir);
+        const QString oldpwd = QDir::cleanPath(qmake_getpwd());
         const QStringList &subdirs = project->values("SUBDIRS");
         static int recurseDepth = -1;
         ++recurseDepth;
@@ -264,10 +265,15 @@ SubdirsMetaMakefileGenerator::init()
             QMakeProject *sub_proj = new QMakeProject(project->properities());
             for (int ind = 0; ind < sub->indent; ++ind)
                 printf(" ");
-            printf("Reading %s\n", subdir.absoluteFilePath().toLatin1().constData());
             sub->input_dir = subdir.absolutePath();
+            if(subdir.isRelative() && old_output_dir != oldpwd) {
+                sub->output_dir = old_output_dir + "/" + subdir.path();
+                printf("Reading %s [%s]\n", subdir.absoluteFilePath().toLatin1().constData(), sub->output_dir.toLatin1().constData());
+            } else { //what about shadow builds?
+                sub->output_dir = sub->input_dir;
+                printf("Reading %s\n", subdir.absoluteFilePath().toLatin1().constData());
+            }
             qmake_setpwd(sub->input_dir);
-            sub->output_dir = qmake_getpwd(); //this is not going to work for shadow builds ### --Sam
             Option::output_dir = sub->output_dir;
             if(Option::output_dir.at(Option::output_dir.length()-1) != QLatin1Char('/'))
                 Option::output_dir += QLatin1Char('/');
