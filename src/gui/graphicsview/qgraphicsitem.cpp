@@ -1904,7 +1904,7 @@ QVariant QGraphicsPathItem::extension(const QVariant &variant) const
 
 /*!
     \class QGraphicsRectItem
-    \brief The QGraphicsRectItem provides a rectangle item that you
+    \brief The QGraphicsRectItem class provides a rectangle item that you
     can add to a QGraphicsScene.
     \since 4.2
     \ingroup multimedia
@@ -2056,7 +2056,7 @@ QVariant QGraphicsRectItem::extension(const QVariant &variant) const
 
 /*!
     \class QGraphicsEllipseItem
-    \brief The QGraphicsEllipseItem provides an ellipse item that you
+    \brief The QGraphicsEllipseItem class provides an ellipse item that you
     can add to a QGraphicsScene.
     \since 4.2
     \ingroup multimedia
@@ -2212,7 +2212,7 @@ QVariant QGraphicsEllipseItem::extension(const QVariant &variant) const
 
 /*!
     \class QGraphicsPolygonItem
-    \brief The QGraphicsPolygonItem provides a polygon item that you
+    \brief The QGraphicsPolygonItem class provides a polygon item that you
     can add to a QGraphicsScene.
     \since 4.2
     \ingroup multimedia
@@ -2363,7 +2363,7 @@ QVariant QGraphicsPolygonItem::extension(const QVariant &variant) const
 
 /*!
     \class QGraphicsLineItem
-    \brief The QGraphicsLineItem provides a line item that you can add to a
+    \brief The QGraphicsLineItem class provides a line item that you can add to a
     QGraphicsScene.
     \since 4.2
     \ingroup multimedia
@@ -2572,7 +2572,7 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
 
 /*!
     \class QGraphicsPixmapItem
-    \brief The QGraphicsPixmapItem provides a pixmap item that you can add to
+    \brief The QGraphicsPixmapItem class provides a pixmap item that you can add to
     a QGraphicsScene.
     \since 4.2
     \ingroup multimedia
@@ -2723,7 +2723,7 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
 
 /*!
     \class QGraphicsTextItem
-    \brief The QGraphicsTextItem provides a text item that you can add to
+    \brief The QGraphicsTextItem class provides a text item that you can add to
     a QGraphicsScene.
     \since 4.2
     \ingroup multimedia
