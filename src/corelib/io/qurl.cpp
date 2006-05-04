@@ -3268,8 +3268,14 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         }
         that->port = __port;
         that->path = QUrl::fromPercentEncoding(__path);
-        that->query = __query;
-        that->fragment = QUrl::fromPercentEncoding(__fragment);
+        if (that->hasQuery)
+            that->query = __query;
+        else
+            that->query.clear();
+        if (that->hasFragment)
+            that->fragment = QUrl::fromPercentEncoding(__fragment);
+        else
+            that->fragment.clear();
     }
 
     that->isValid = true;
@@ -3952,6 +3958,7 @@ QString QUrl::path() const
 /*!
     Returns true if this URL contains a Query (i.e., if ? was seen on it).
 
+    \since 4.2
     \sa hasQueryItem, encodedQuery
 */
 bool QUrl::hasQuery() const
@@ -4020,6 +4027,13 @@ char QUrl::queryValueDelimiter() const
     does not fit into the key-value pattern, or that uses a different
     scheme for encoding special characters than what is suggested by
     QUrl.
+
+    Passing a value of QByteArray() to \a query (a null QByteArray) unsets
+    the query completely. However, passing a value of QByteArray("")
+    will set the query to an empty value, as if the original URL
+    had a lone "?".
+
+    \sa encodedQuery(), hasQuery()
 */
 void QUrl::setEncodedQuery(const QByteArray &query)
 {
@@ -4028,7 +4042,7 @@ void QUrl::setEncodedQuery(const QByteArray &query)
     QURL_UNSETFLAG(d->stateFlags, QUrlPrivate::Validated | QUrlPrivate::Normalized);
 
     d->query = query;
-    d->hasQuery = !query.isEmpty();
+    d->hasQuery = !query.isNull();
 }
 
 /*!
@@ -4245,7 +4259,12 @@ QByteArray QUrl::encodedQuery() const
 
     The fragment is sometimes also referred to as the URL "reference".
 
-    \sa fragment()
+    Passing an argument of QString() (a null QString) will unset the fragment.
+    Passing an argument of QString("") (an empty but not null QString)
+    will set the fragment to an empty string (as if the original URL
+    had a lone "#").
+
+    \sa fragment(), hasFragment()
 */
 void QUrl::setFragment(const QString &fragment)
 {
@@ -4254,7 +4273,7 @@ void QUrl::setFragment(const QString &fragment)
     QURL_UNSETFLAG(d->stateFlags, QUrlPrivate::Validated | QUrlPrivate::Normalized);
 
     d->fragment = fragment;
-    d->hasFragment = !fragment.isEmpty();
+    d->hasFragment = !fragment.isNull();
 }
 
 /*!
@@ -4272,6 +4291,7 @@ QString QUrl::fragment() const
 /*!
     Returns true if this URL contains a fragment (i.e., if # was seen on it).
 
+    \since 4.2
     \sa fragment, setFragment
 */
 bool QUrl::hasFragment() const
