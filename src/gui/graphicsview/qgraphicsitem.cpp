@@ -15,6 +15,8 @@
     \class QGraphicsItem
     \brief The QGraphicsItem class is the base class for all graphical
     items in a QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
 
     It provides a light-weight foundation for writing your own custom items.
     This includes defining the item's geometry, collision detection, its
@@ -201,38 +203,6 @@
     Note: This is provided as a hook to avoid future problems related
     to adding virtual functions. See also extension(),
     supportsExtension() and setExtension().
-*/
-
-/*!
-    \class QAbstractGraphicsPathItem
-*/
-
-/*!
-    \class QGraphicsPathItem
-*/
-
-/*!
-    \class QGraphicsRectItem
-*/
-
-/*!
-    \class QGraphicsEllipseItem
-*/
-
-/*!
-    \class QGraphicsPolygonItem
-*/
-
-/*!
-    \class QGraphicsLineItem
-*/
-
-/*!
-    \class QGraphicsPixmapItem
-*/
-
-/*!
-    \class QGraphicsTextItem
 */
 
 #include "qgraphicsitem.h"
@@ -1327,7 +1297,8 @@ void QGraphicsItem::setData(int key, const QVariant &value)
 }
 
 /*!
-    template <class T> inline T qgraphicsitem_cast(QGraphicsItem *item)
+    \fn T qgraphicsitem_cast(QGraphicsItem *item)
+    \relates QGraphicsItem
 
     Returns the given \a item cast to type T if \a item is of type T;
     otherwise, 0 is returned.
@@ -1682,6 +1653,8 @@ void QGraphicsItem::removeFromIndex()
     \class QAbstractGraphicsPathItem
     \brief The QAbstractGraphicsPathItem class provides a common base for
     all path items.
+    \since 4.2
+    \ingroup multimedia
 
     This class does not fully implement an item by itself; in particular, it
     does not implement boundingRect() and paint(), which are inherited by
@@ -1780,6 +1753,8 @@ void QAbstractGraphicsPathItem::setBrush(const QBrush &brush)
     \class QGraphicsPathItem
     \brief The QGraphicsPathItem class provides a path item that you
     can add to a QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
 
     To set the item's path, pass a QPainterPath to QGraphicsPathItem's
     constructor, or call setPath(). path() returns the current path.
@@ -1931,6 +1906,8 @@ QVariant QGraphicsPathItem::extension(const QVariant &variant) const
     \class QGraphicsRectItem
     \brief The QGraphicsRectItem provides a rectangle item that you
     can add to a QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
 
     To set the item's rectangle, pass a QRectF to QGraphicsRectItem's
     constructor, or call setRect(). rect() returns the current rectangle.
@@ -2081,6 +2058,8 @@ QVariant QGraphicsRectItem::extension(const QVariant &variant) const
     \class QGraphicsEllipseItem
     \brief The QGraphicsEllipseItem provides an ellipse item that you
     can add to a QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
 
     To set the item's ellipse, pass a QRectF to QGraphicsEllipseItem's
     constructor, or call setRect(). rect() returns the current ellipse
@@ -2235,6 +2214,8 @@ QVariant QGraphicsEllipseItem::extension(const QVariant &variant) const
     \class QGraphicsPolygonItem
     \brief The QGraphicsPolygonItem provides a polygon item that you
     can add to a QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
 
     To set the item's polygon, pass a QPolygonF to QGraphicsPolygonItem's
     constructor, or call setPolygon(). polygon() returns the current polygon.
@@ -2384,6 +2365,8 @@ QVariant QGraphicsPolygonItem::extension(const QVariant &variant) const
     \class QGraphicsLineItem
     \brief The QGraphicsLineItem provides a line item that you can add to a
     QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
 
     To set the item's line, pass a QLineF to QGraphicsLineItem's constructor,
     or call setLine(). line() returns the current line.
@@ -2591,6 +2574,8 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     \class QGraphicsPixmapItem
     \brief The QGraphicsPixmapItem provides a pixmap item that you can add to
     a QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
 
     To set the item's pixmap, pass a QPixmap to QGraphicsPixmapItem's
     constructor, or call setPixmap(). pixmap() returns the current pixmap.
@@ -2740,6 +2725,8 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
     \class QGraphicsTextItem
     \brief The QGraphicsTextItem provides a text item that you can add to
     a QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
 
     To set the item's text, pass a QString to QGraphicsTextItem's
     constructor, or call setText(). text() returns the current text.

@@ -16,6 +16,8 @@
 /*!
     \class QGraphicsView
     \brief The QGraphicsView class provides a widget for displaying the contents of a QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
 
     QGraphicsView visualizes the contents of a QGraphicsScene in a scrollable
     viewport. To create a scene with geometrical items, see QGraphicsScene's
