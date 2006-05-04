@@ -106,7 +106,7 @@ static QTextCodec *createForName(const QByteArray &name)
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
         if (nameMatch(name, keys.at(i).toLatin1())) {
-            QByteArray realName = keys.at(i).toLatin1();
+            QString realName = keys.at(i);
             if (QTextCodecFactoryInterface *factory
                 = qobject_cast<QTextCodecFactoryInterface*>(l->instance(realName))) {
                 return factory->create(realName);
@@ -813,10 +813,10 @@ QList<QByteArray> QTextCodec::availableCodecs()
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
-        if (!keys.at(i).startsWith("MIB: ")) {
+        if (!keys.at(i).startsWith(QLatin1String("MIB: "))) {
             QByteArray name = keys.at(i).toLatin1();
             if (!codecs.contains(name))
-                codecs += keys.at(i).toLatin1();
+                codecs += name;
         }
     }
 #endif
@@ -841,7 +841,7 @@ QList<int> QTextCodec::availableMibs()
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
-        if (keys.at(i).startsWith("MIB: ")) {
+        if (keys.at(i).startsWith(QLatin1String("MIB: "))) {
             int mib = keys.at(i).mid(5).toInt();
             if (!codecs.contains(mib))
                 codecs += mib;

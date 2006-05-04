@@ -3257,7 +3257,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         if (!labels.isEmpty()) {
             for (int i = 0; i < labels.size(); ++i) {
                 QString label = labels.at(i);
-                if (label.startsWith("xn--"))
+                if (label.startsWith(QLatin1String("xn--")))
                     labels[i] = qt_nameprep(QUrl::fromPunycode(label.toLatin1()));
                 else
                     labels[i] = qt_nameprep(label);
@@ -3322,7 +3322,7 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
     QString auth = authority();
     bool doFileScheme = scheme == QLatin1String("file") && !path.isEmpty();
     if ((options & QUrl::RemoveAuthority) != QUrl::RemoveAuthority && (!auth.isEmpty() || doFileScheme)) {
-        if (doFileScheme && !path.startsWith("/"))
+        if (doFileScheme && !path.startsWith(QLatin1Char('/')))
             url += "/";
         url += "//";
 

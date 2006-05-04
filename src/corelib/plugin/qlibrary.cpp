@@ -449,30 +449,30 @@ bool QLibrary::isLibrary(const QString &fileName)
     QStringList suffixes = completeSuffix.split(QLatin1Char('.'));
     QString suffix = suffixes.first();
 # if defined(Q_OS_DARWIN)
-    
+
     // On Mac, libs look like libmylib.1.0.0.dylib
     const QString lastSuffix = suffixes.at(suffixes.count() - 1);
     const QString firstSuffix = suffixes.at(0);
-        
-    bool valid = (lastSuffix == "dylib"
-            || firstSuffix == "so"
-            || firstSuffix == "bundle");
+
+    bool valid = (lastSuffix == QLatin1String("dylib")
+            || firstSuffix == QLatin1String("so")
+            || firstSuffix == QLatin1String("bundle"));
 
     return valid;
 # elif defined(Q_OS_HPUX)
-/*  
+/*
     See "HP-UX Linker and Libraries User's Guide", section "Link-time Differences between PA-RISC and IPF":
-    "In PA-RISC (PA-32 and PA-64) shared libraries are suffixed with .sl. In IPF (32-bit and 64-bit), 
+    "In PA-RISC (PA-32 and PA-64) shared libraries are suffixed with .sl. In IPF (32-bit and 64-bit),
     the shared libraries are suffixed with .so. For compatibility, the IPF linker also supports the .sl suffix."
  */
-    bool valid = (suffix == "sl");
+    bool valid = (suffix == QLatin1String("sl"));
 #  if defined __ia64
-    valid = valid || (suffix == "so")
+    valid = valid || (suffix == QLatin1String("so"))
 #  endif
 # elif defined(Q_OS_AIX)
-    bool valid = (suffix == "a"  || suffix == "so");
+    bool valid = (suffix == QLatin1String("a") || suffix == QLatin1String("so"));
 # elif defined(Q_OS_UNIX)
-    bool valid = (suffix == "so");
+    bool valid = (suffix == QLatin1String("so"));
 # else
     bool valid = false;
 # endif
@@ -502,7 +502,7 @@ bool QLibraryPrivate::isPlugin()
     QString regkey = QString::fromLatin1("Qt Plugin Cache %1.%2.%3/%4")
                      .arg((QT_VERSION & 0xff0000) >> 16)
                      .arg((QT_VERSION & 0xff00) >> 8)
-                     .arg(QLIBRARY_AS_DEBUG ? "debug" : "false")
+                     .arg(QLIBRARY_AS_DEBUG ? QLatin1String("debug") : QLatin1String("false"))
                      .arg(fileName);
     QStringList reg;
 

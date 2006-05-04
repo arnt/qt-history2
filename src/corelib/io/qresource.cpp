@@ -453,7 +453,7 @@ QStringList QResourceFileEngine::entryList(QDir::Filters filters, const QStringL
 
     QStringList entries = d->resource.children();
     for(int i = 0; i < entries.size(); i++) {
-        QResourceInfo entry(d->resource.fileName() + "/" + entries[i]);
+        QResourceInfo entry(d->resource.fileName() + QLatin1String("/") + entries[i]);
 #ifndef QT_NO_REGEXP
         if(!(filters & QDir::AllDirs && entry.isContainer())) {
             bool matched = false;

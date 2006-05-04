@@ -1246,7 +1246,7 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
 QStringList QAbstractItemModel::mimeTypes() const
 {
     QStringList types;
-    types << "application/x-qabstractitemmodeldatalist";
+    types << QLatin1String("application/x-qabstractitemmodeldatalist");
     return types;
 }
 

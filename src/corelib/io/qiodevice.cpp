@@ -1580,23 +1580,23 @@ QDebug operator<<(QDebug debug, QIODevice::OpenMode modes)
     debug << "OpenMode(";
     QStringList modeList;
     if (modes == QIODevice::NotOpen) {
-        modeList << "NotOpen";
+        modeList << QLatin1String("NotOpen");
     } else {
         if (modes & QIODevice::ReadOnly)
-            modeList << "ReadOnly";
+            modeList << QLatin1String("ReadOnly");
         if (modes & QIODevice::WriteOnly)
-            modeList << "WriteOnly";
+            modeList << QLatin1String("WriteOnly");
         if (modes & QIODevice::Append)
-            modeList << "Append";
+            modeList << QLatin1String("Append");
         if (modes & QIODevice::Truncate)
-            modeList << "Truncate";
+            modeList << QLatin1String("Truncate");
         if (modes & QIODevice::Text)
-            modeList << "Text";
+            modeList << QLatin1String("Text");
         if (modes & QIODevice::Unbuffered)
-            modeList << "Unbuffered";
+            modeList << QLatin1String("Unbuffered");
     }
     qSort(modeList);
-    debug << modeList.join("|");
+    debug << modeList.join(QLatin1String("|"));
     debug << ")";
     return debug;
 }

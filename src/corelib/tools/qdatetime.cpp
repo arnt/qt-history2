@@ -3547,9 +3547,9 @@ int QDateTimeParser::sectionPos(const SectionNode &sn) const
 
 static QString unquote(const QString &str)
 {
-    const char quote = '\'';
-    const char slash = '\\';
-    const char zero = '0';
+    const QLatin1Char quote('\'');
+    const QLatin1Char slash('\\');
+    const QLatin1Char zero('0');
     QString ret;
     QChar status = zero;
     for (int i=0; i<str.size(); ++i) {
@@ -3725,7 +3725,7 @@ bool QDateTimeParser::parseFormat(const QString &newFormat)
 //     }
 
     QDTPDEBUG << newFormat << displayFormat;
-    QDTPDEBUGN("separators:\n'%s'", separators.join("\n").toLatin1().constData());
+    QDTPDEBUGN("separators:\n'%s'", separators.join(QLatin1String("\n")).toLatin1().constData());
 
     return true;
 }
@@ -4746,10 +4746,10 @@ QString QDateTimeParser::sectionName(int s) const
 QString QDateTimeParser::stateName(int s) const
 {
     switch (s) {
-    case Invalid: return "Invalid";
-    case Intermediate: return "Intermediate";
-    case Acceptable: return "Acceptable";
-    default: return "Unknown state " + QString::number(s);
+    case Invalid: return QLatin1String("Invalid");
+    case Intermediate: return QLatin1String("Intermediate");
+    case Acceptable: return QLatin1String("Acceptable");
+    default: return QLatin1String("Unknown state ") + QString::number(s);
     }
 }
 

@@ -371,7 +371,7 @@ void QProcessPrivate::startProcess()
         processState = QProcess::NotRunning;
         emit q->stateChanged(processState);
         processError = QProcess::FailedToStart;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Resource error (fork failure)"));
+        q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Resource error (fork failure)")));
         emit q->error(processError);
         cleanup();
         return;
@@ -484,13 +484,15 @@ void QProcessPrivate::execChild(const QByteArray &programName)
 #else
         static const char libraryPath[] = "LD_LIBRARY_PATH";
 #endif
-        QStringList matches = environment.filter(QRegExp("^" + QByteArray(libraryPath) + "="));
-        char *envLibraryPath = ::getenv(libraryPath);
-        if (matches.isEmpty() && envLibraryPath != 0) {
-            QString entry = libraryPath;
-            entry += "=";
+        const QString libraryPathString = QLatin1String(libraryPath);
+        QStringList matches = environment.filter(
+                QRegExp(QLatin1Char('^') + libraryPathString + QLatin1Char('=')));
+        const QString envLibraryPath = QString::fromLocal8Bit(::getenv(libraryPath));
+        if (matches.isEmpty() && !envLibraryPath.isEmpty()) {
+            QString entry = libraryPathString;
+            entry += QLatin1Char('=');
             entry += envLibraryPath;
-            environment << QString(libraryPath) +  "=" + QString(envLibraryPath);
+            environment << libraryPathString + QLatin1Char('=') + envLibraryPath;
         }
 
         char **envp = new char *[environment.count() + 1];
@@ -502,9 +504,9 @@ void QProcessPrivate::execChild(const QByteArray &programName)
         }
 
         if (!encodedProgramName.contains("/")) {
-            char *path = ::getenv("PATH");
-            if (path) {
-                QStringList pathEntries = QString(path).split(":");
+            const QString path = QString::fromLocal8Bit(::getenv("PATH"));
+            if (!path.isEmpty()) {
+                QStringList pathEntries = path.split(QLatin1Char(':'));
                 for (int k = 0; k < pathEntries.size(); ++k) {
                     QByteArray tmp = QFile::encodeName(pathEntries.at(k));
                     if (!tmp.endsWith('/')) tmp += '/';
@@ -681,7 +683,7 @@ bool QProcessPrivate::waitForStarted(int msecs)
     } while (ret < 0 && errno == EINTR);
     if (ret == 0) {
         processError = QProcess::Timedout;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
+        q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out")));
 #if defined (QPROCESS_DEBUG)
         qDebug("QProcessPrivate::waitForStarted(%d) == false (timed out)", msecs);
 #endif
@@ -734,7 +736,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
         }
         if (ret == 0) {
             processError = QProcess::Timedout;
-            q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
+            q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out")));
 	    return false;
 	}
 
@@ -808,7 +810,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
         if (ret == 0) {
 	    processError = QProcess::Timedout;
-	    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
+	    q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out")));
 	    return false;
 	}
 
@@ -875,7 +877,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
         }
 	if (ret == 0) {
 	    processError = QProcess::Timedout;
-	    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
+	    q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out")));
 	    return false;
 	}
 
@@ -968,10 +970,10 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                 argv[i + 1] = ::strdup(arguments.at(i).toLocal8Bit().constData());
             argv[arguments.size() + 1] = 0;
 
-            if (!program.contains("/")) {
-                char *path = ::getenv("PATH");
-                if (path) {
-                    QStringList pathEntries = QString(path).split(":");
+            if (!program.contains(QLatin1Char('/'))) {
+                const QString path = QString::fromLocal8Bit(::getenv("PATH"));
+                if (!path.isEmpty()) {
+                    QStringList pathEntries = path.split(QLatin1Char(':'));
                     for (int k = 0; k < pathEntries.size(); ++k) {
                         QByteArray tmp = QFile::encodeName(pathEntries.at(k));
                         if (!tmp.endsWith('/')) tmp += '/';

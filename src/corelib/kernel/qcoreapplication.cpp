@@ -1401,7 +1401,7 @@ QString QCoreApplication::applicationFilePath()
 #  ifdef Q_OS_LINUX
     // Try looking for a /proc/<pid>/exe symlink first which points to
     // the absolute path of the executable
-    QFileInfo pfi(QString("/proc/%1/exe").arg(getpid()));
+    QFileInfo pfi(QString::fromLatin1("/proc/%1/exe").arg(getpid()));
     if (pfi.exists() && pfi.isSymLink())
         return pfi.canonicalFilePath();
 #  endif
