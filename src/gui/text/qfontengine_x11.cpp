@@ -493,10 +493,12 @@ static QStringList fontPath()
                                 fs = fs.left(fs.length()-1);
                             else
                                 end = true;
-                            if (fs[0] != '#' && !fs.contains(":unscaled"))
+
+                            fs = fs.left(fs.indexOf(":unscaled"));
+                            if (fs[0] != '#')
                                 fontpath += fs;
                             fs = f.readLine(1024);
-                            fs=fs.trimmed();
+                            fs = fs.trimmed();
                             if (fs.isEmpty())
                                 end = true;
                         }
@@ -506,10 +508,9 @@ static QStringList fontPath()
                 f.close();
             }
             xfsconfig_read = true;
-        } else if (!strstr(font_path[i], ":unscaled")) {
-            // Fonts paths marked :unscaled are always bitmapped fonts
-            // -> we can as well ignore them now and save time
-            fontpath += font_path[i];
+        } else {
+            QString fs = QString::fromLatin1(font_path[i]);
+            fontpath += fs.left(fs.indexOf(":unscaled"));
         }
     }
     XFreeFontPath(font_path);
