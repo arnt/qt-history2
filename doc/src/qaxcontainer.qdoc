@@ -14,7 +14,7 @@
     subclass, QAxObject, that can be used to easily access non-visual
     COM objects. Scripting COM objects embedded using these classes
     is possible through the QAxScript, QAxScriptManager and
-    QAxScriptEngine classes, and a set of \l{ActiveQt Tools}{tools}
+    QAxScriptEngine classes, and a set of \l{Tools for ActiveQt}{tools}
     makes it easy to access COM objects programmatically.
 
     The module consists of six classes

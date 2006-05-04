@@ -22,11 +22,11 @@
     painted over a scene rendered using OpenGL.
 
     In this example, we demonstrate how this is done by reusing the code
-    from the \l{Hello GL} example to provide a 3D scene, and painting over
-    it with some translucent 2D graphics. Instead of examining each class
-    in detail, we only cover the parts of the \c GLWidget class that
-    enable overpainting, and provide more detailed discussion in the final
-    section of this document.
+    from the \l{Hello GL Example}{Hello GL} example to provide a 3D scene,
+    and painting over it with some translucent 2D graphics. Instead of
+    examining each class in detail, we only cover the parts of the
+    \c GLWidget class that enable overpainting, and provide more detailed
+    discussion in the final section of this document.
 
     \section1 GLWidget Class Definition
 
@@ -174,7 +174,7 @@
     created.
 
     The \c animate() slot is called every time the widget's \c animationTimer emits
-    the \l{QTimer::activated()}{activated()} signal. This keeps the bubbles moving
+    the \l{QTimer::timeout()}{timeout()} signal. This keeps the bubbles moving
     around.
 
     \skipto ::animate

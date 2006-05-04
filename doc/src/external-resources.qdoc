@@ -79,6 +79,11 @@
 */
 
 /*!
+    \externalpage http://www.rfc-editor.org/rfc/rfc1738.txt
+    \title RFC 1738
+*/
+
+/*!
     \externalpage http://www.rfc-editor.org/rfc/rfc1928.txt
     \title RFC 1928
 */
@@ -91,4 +96,9 @@
 /*!
     \externalpage http://www.rfc-editor.org/rfc/rfc3174.txt
     \title RFC 3174
+*/
+
+/*!
+    \externalpage http://www.rfc-editor.org/rfc/rfc3986.txt
+    \title RFC 3986
 */
