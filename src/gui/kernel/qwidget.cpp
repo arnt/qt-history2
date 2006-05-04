@@ -222,7 +222,9 @@ bool QWidget::hasEditFocus() const
 }
 
 /*!
-    Sets whether this widget has edit focus.  If a widget has edit focus
+    \fn void QWidget::setEditFocus(bool enable)
+
+    Sets whether this widget has edit focus. If a widget has edit focus
     Qt::Key_Up and Qt::Key_Down will be delivered to the widget normally,
     otherwise they are used to change focus.
 

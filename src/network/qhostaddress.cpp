@@ -402,6 +402,20 @@ QHostAddress &QHostAddress::operator=(const QString &address)
 }
 
 /*!
+    \fn bool QHostAddress::operator!=(const QHostAddress &other) const
+
+    Returns true if this host address is not the same as the \a other
+    address given; otherwise returns false.
+*/
+
+/*!
+    \fn bool QHostAddress::operator!=(SpecialAddress other) const
+
+    Returns true if this host address is not the same as the \a other
+    address given; otherwise returns false.
+*/
+
+/*!
     Sets the host address to 0.0.0.0.
 */
 void QHostAddress::clear()

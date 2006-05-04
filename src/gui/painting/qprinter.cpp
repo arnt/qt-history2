@@ -945,7 +945,7 @@ bool QPrinter::fontEmbeddingEnabled() const
 /*!
   \since 4.2
 
-  Enabled or disables double side printing
+  Enables double side printing if \a enable is true; otherwise disables it.
 
   Currently this option is only supported on X11.
 
@@ -1578,16 +1578,23 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
     engine and QPrinter. A property may or may not be supported by a
     given print engine.
 
-    \value PPK_CollateCopies A bool value describing wether the
+    \value PPK_CollateCopies A boolean value indicating whether the
     printout should be collated or not.
 
     \value PPK_ColorMode Refers to QPrinter::ColorMode, either color or
     monochrome.
 
-    \value PPK_Creator
+    \value PPK_Creator A string describing the document's creator.
+
+    \value PPK_Duplex A boolean value indicating whether both sides of
+    the printer paper should be used for the printout.
 
     \value PPK_DocumentName A string describing the document name in
     the spooler.
+
+    \value PPK_FontEmbedding A boolean value indicating whether data for
+    the document's fonts should be embedded in the data sent to the
+    printer.
 
     \value PPK_FullPage A boolean describing if the printer should be
     full page or not.
@@ -1623,12 +1630,12 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
     \value PPK_SupportedResolutions A list of integer QVariants
     describing the set of supported resolutions that the printer has.
 
-    \value PPK_WindowsPageSize An integer specifying a DM_PAPER entry
-    on Windows.
-
     \value PPK_SuppressSystemPrintStatus Suppress the built-in dialog for showing
     printing progress. As of 4.1 this only has effect on Mac OS X where, by default,
     a status dialog is shown.
+
+    \value PPK_WindowsPageSize An integer specifying a DM_PAPER entry
+    on Windows.
 
     \value PPK_CustomBase Basis for extension.
 */

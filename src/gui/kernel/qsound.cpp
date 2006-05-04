@@ -217,7 +217,7 @@ bool QSound::isFinished() const
     sound. The sound can be played again at any time, possibly mixing
     or replacing previous plays of the sound.
 
-    \sa filename()
+    \sa fileName()
 */
 void QSound::play()
 {

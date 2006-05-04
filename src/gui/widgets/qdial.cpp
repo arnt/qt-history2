@@ -156,23 +156,20 @@ int QDialPrivate::valueFromPoint(const QPoint &p) const
     the keyboard and wheel can also be used to change the value.
 
     Unlike the slider, QDial attempts to draw a "nice" number of
-    notches rather than one per line step (see the \l lineStep
-    property). If possible, the number of notches drawn is one per
-    line step, but if there aren't enough pixels to draw every one, QDial
-    will skip notches to try and draw a uniform set (e.g. by drawing every
-    second or third notch).
-    The notchSize property controls the number of units per notch, which
-    may be a multiple of the \l lineStep, and the \l notchTarget property
-    determines the target distance between adjacent notches in pixels.
+    notches rather than one per line step. If possible, the number of
+    notches drawn is one per line step, but if there aren't enough pixels
+    to draw every one, QDial will skip notches to try and draw a uniform
+    set (e.g. by drawing every second or third notch).
 
     Like the slider, the dial makes the QAbstractSlider functions
     setValue(), addLine(), subtractLine(), addPage() and
     subtractPage() available as slots.
 
-    The dial's keyboard interface is fairly simple: The left/up and
-    right/down arrow keys adjust the dial's \l value by the defined \l lineStep,
-    page up and page down by the defined \l pageStep, and the Home and End
-    keys set the value to the to defined \l minValue and \l maxValue.
+    The dial's keyboard interface is fairly simple: The \key{left}/\key{up}
+    and \key{right}/\key{down} arrow keys adjust the dial's \l value by the
+    defined \l singleStep, \key{Page Up} and \key{Page Down} by the defined
+    \l pageStep, and the \key Home and \key End keys set the value to the
+    defined \l minimum and \l maximum values.
 
     \table
     \row \o \inlineimage plastique-dial.png Screenshot of a dial in the Plastique widget style
@@ -361,7 +358,7 @@ bool QDial::wrapping() const
     possible it is a multiple of lineStep() that results in an
     on-screen notch size near notchTarget().
 
-    \sa notchTarget lineStep
+    \sa notchTarget, lineStep()
 */
 
 int QDial::notchSize() const

@@ -1056,6 +1056,9 @@ DomColorGroup *QAbstractFormBuilder::saveColorGroup(const QPalette &palette)
     return group;
 }
 
+/*!
+    \internal
+*/
 QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
 {
     int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("brushStyle");
@@ -1130,6 +1133,9 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
     return br;
 }
 
+/*!
+    \internal
+*/
 DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
 {
     int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("brushStyle");

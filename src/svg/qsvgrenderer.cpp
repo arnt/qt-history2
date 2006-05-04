@@ -54,9 +54,11 @@
 
     \list
     \o The animated() function indicates whether a drawing contains animation information.
+    \omit
     \o The animationDuration() function provides the duration in milliseconds of the
        animation, without taking any looping into account.
     \o The \l currentFrame property contains the current frame of the animation.
+    \endomit
     \o The \l framesPerSecond property contains the rate at which the animation plays.
     \endlist
 
@@ -163,9 +165,10 @@ void QSvgRenderer::setViewBox(const QRect &viewbox)
 }
 
 /*!
-    Returns true if the current document contains animated elements; otherwise returns false.
+    Returns true if the current document contains animated elements; otherwise
+    returns false.
 
-    \sa currentFrame(), animationDuration(), framesPerSecond()
+    \sa framesPerSecond()
 */
 bool QSvgRenderer::animated() const
 {
@@ -182,7 +185,7 @@ bool QSvgRenderer::animated() const
 
     The number of frames per second is 0 if the current document is not animated.
 
-    \sa currentFrame, animationDuration(), animated()
+    \sa animated()
 */
 int QSvgRenderer::framesPerSecond() const
 {
@@ -197,12 +200,15 @@ void QSvgRenderer::setFramesPerSecond(int num)
 }
 
 /*!
+  \property QSvgRenderer::currentFrame
+  \brief the current frame of the document's animation, or 0 if the document is not animated
   \internal
 
-    \property QSvgRenderer::currentFrame
-    \brief the current frame of the document's animation, or 0 if the document is not animated
+  \sa animationDuration(), framesPerSecond, animated()
+*/
 
-    \sa animationDuration(), framesPerSecond, animated()
+/*!
+  \internal
 */
 int QSvgRenderer::currentFrame() const
 {
@@ -210,6 +216,9 @@ int QSvgRenderer::currentFrame() const
     return d->currentFrame;
 }
 
+/*!
+  \internal
+*/
 void QSvgRenderer::setCurrentFrame(int frame)
 {
     Q_D(QSvgRenderer);
@@ -217,12 +226,12 @@ void QSvgRenderer::setCurrentFrame(int frame)
 }
 
 /*!
-  \internal
+    \internal
 
     Returns the number of frames in the animation, or 0 if the current document is not
     animated.
 
-    \sa animated(), currentFrame(), framesPerSecond()
+    \sa animated(), framesPerSecond
 */
 int QSvgRenderer::animationDuration() const
 {

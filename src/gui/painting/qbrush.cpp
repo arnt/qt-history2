@@ -1274,10 +1274,10 @@ QRadialGradient::QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx, qre
 }
 
 /*!
-    Constructs a radial gradient with the given \a center, \a
-    radius and the focal point in the circle center.
+    Constructs a radial gradient with the center at (\a cx, \a cy) and the
+    specified \a radius. The focal point lies at the center of the circle.
 
-     \sa QGradient::setColorAt(), QGradient::setStops()
+    \sa QGradient::setColorAt(), QGradient::setStops()
  */
 QRadialGradient::QRadialGradient(qreal cx, qreal cy, qreal radius)
 {

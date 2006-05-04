@@ -77,35 +77,43 @@
     general you do not need to worry about this unless you want to
     create your own QStyleOption subclass and your own styles.
 
-    \value SO_Default QStyleOption
-    \value SO_FocusRect \l QStyleOptionFocusRect
     \value SO_Button \l QStyleOptionButton
-    \value SO_Tab \l QStyleOptionTab
-    \value SO_TabWidgetFrame \l QStyleOptionTabWidgetFrame
-    \value SO_TabBarBase \l QStyleOptionTabBarBase
-    \value SO_MenuItem \l QStyleOptionMenuItem
-    \value SO_Complex \l QStyleOptionComplex
-    \value SO_Slider \l QStyleOptionSlider
-    \value SO_Frame \l QStyleOptionFrame \l QStyleOptionFrameV2
-    \value SO_GroupBox \l QStyleOptionGroupBox
-    \value SO_ProgressBar \l QStyleOptionProgressBar \l QStyleOptionProgressBarV2
-    \value SO_Q3ListView \l QStyleOptionQ3ListView
-    \value SO_Q3ListViewItem \l QStyleOptionQ3ListViewItem
-    \value SO_Header \l QStyleOptionHeader
-    \value SO_Q3DockWindow \l QStyleOptionQ3DockWindow
-    \value SO_DockWidget \l QStyleOptionDockWidget
-    \value SO_SpinBox \l QStyleOptionSpinBox
-    \value SO_ToolButton \l QStyleOptionToolButton
     \value SO_ComboBox \l QStyleOptionComboBox
-    \value SO_ToolBox \l QStyleOptionToolBox
-    \value SO_ToolBar \l QStyleOptionToolBar
+    \value SO_Complex \l QStyleOptionComplex
+    \value SO_Default QStyleOption
+    \value SO_DockWidget \l QStyleOptionDockWidget
+    \value SO_FocusRect \l QStyleOptionFocusRect
+    \value SO_Frame \l QStyleOptionFrame \l QStyleOptionFrameV2
+    \value SO_GraphicsItem \l QStyleOptionGraphicsItem
+    \value SO_GroupBox \l QStyleOptionGroupBox
+    \value SO_Header \l QStyleOptionHeader
+    \value SO_MenuItem \l QStyleOptionMenuItem
+    \value SO_ProgressBar \l QStyleOptionProgressBar \l QStyleOptionProgressBarV2
     \value SO_RubberBand \l QStyleOptionRubberBand
+    \value SO_SizeGrip \l QStyleOptionSizeGrip
+    \value SO_Slider \l QStyleOptionSlider
+    \value SO_SpinBox \l QStyleOptionSpinBox
+    \value SO_Tab \l QStyleOptionTab
+    \value SO_TabBarBase \l QStyleOptionTabBarBase
+    \value SO_TabWidgetFrame \l QStyleOptionTabWidgetFrame
     \value SO_TitleBar \l QStyleOptionTitleBar
+    \value SO_ToolBar \l QStyleOptionToolBar
+    \value SO_ToolBox \l QStyleOptionToolBox
+    \value SO_ToolButton \l QStyleOptionToolButton
     \value SO_ViewItem \l QStyleOptionViewItem (used in Interviews)
+
+    The following values are used for custom controls:
+
     \value SO_CustomBase Reserved for custom QStyleOptions;
                          all custom controls values must be above this value
     \value SO_ComplexCustomBase Reserved for custom QStyleOptions;
                          all custom complex controls values must be above this value
+
+    Some style options are defined for various Qt3Support controls:
+
+    \value SO_Q3DockWindow \l QStyleOptionQ3DockWindow
+    \value SO_Q3ListView \l QStyleOptionQ3ListView
+    \value SO_Q3ListViewItem \l QStyleOptionQ3ListViewItem
 
     \sa type
 */
@@ -610,6 +618,21 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
     \value Flat Indicates a flat frame.
 */
 
+/*!
+    \enum QStyleOptionFrameV2::StyleOptionVersion
+
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 2
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
+*/
+
 
 /*!
     \class QStyleOptionGroupBox
@@ -635,6 +658,37 @@ QStyleOptionFrameV2 &QStyleOptionFrameV2::operator=(const QStyleOptionFrame &oth
     the \l {widgets/styles}{Styles} example.
 
     \sa QStyleOption, QStyleOptionComplex, QGroupBox
+*/
+
+/*!
+    \enum QStyleOptionGroupBox::StyleOptionType
+
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_GroupBox} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
+*/
+
+/*!
+    \enum QStyleOptionGroupBox::StyleOptionVersion
+
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -1171,6 +1225,37 @@ QStyleOptionToolBar::QStyleOptionToolBar(int version)
     The default value is 0.
 */
 
+/*!
+    \enum QStyleOptionToolBar::StyleOptionType
+
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_ToolBar} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
+*/
+
+/*!
+    \enum QStyleOptionToolBar::StyleOptionVersion
+
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
+*/
+
 
 #endif
 
@@ -1397,6 +1482,21 @@ QStyleOptionTab::QStyleOptionTab(int version)
     the \l {widgets/styles}{Styles} example.
 
     \sa QStyleOptionTab, QStyleOption
+*/
+
+/*!
+    \enum QStyleOptionTabV2::StyleOptionVersion
+
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 2
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
 */
 
 /*!
@@ -1758,6 +1858,38 @@ QStyleOptionProgressBarV2 &QStyleOptionProgressBarV2::operator=(const QStyleOpti
 
     \sa QProgressBar::textDirection
 */
+
+/*!
+    \enum QStyleOptionProgressBarV2::StyleOptionType
+
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_ProgressBar} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
+*/
+
+/*!
+    \enum QStyleOptionProgressBarV2::StyleOptionVersion
+
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 2
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
+*/
+
 
 /*!
     \class QStyleOptionMenuItem

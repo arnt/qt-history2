@@ -134,6 +134,10 @@ QWidget *QWidgetAction::requestWidget(QWidget *parent)
 }
 
 /*!
+    \fn void QWidgetAction::releaseWidget(QWidget *widget)
+
+    Releases the specified \a widget.
+
     Container widgets that support actions call this function when a widget
     action is removed.
 */

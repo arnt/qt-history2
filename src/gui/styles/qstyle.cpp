@@ -650,7 +650,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \o \l State_Sunken \o Indicates that the button is pressed.
     \endtable
 
-    \sa drawComplexControl(). drawControl()
+    \sa drawComplexControl(), drawControl()
 */
 
 /*!

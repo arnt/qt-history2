@@ -817,11 +817,15 @@ void QTextCursorPrivate::setCharFormat(const QTextCharFormat &_format, QTextDocu
 /*!
     \enum QTextCursor::SelectionType
 
-    \value WordUnderCursor Selects the word under the cursor. If the cursor
+    This enum describes the types of selection that can be applied with the
+    select() function.
+
+    \value Document         Selects the entire document.
+    \value BlockUnderCursor Selects the block of text under the cursor.
+    \value LineUnderCursor  Selects the line of text under the cursor.
+    \value WordUnderCursor  Selects the word under the cursor. If the cursor
            is not positioned within a string of selectable characters, no
            text is selected.
-    \value LineUnderCursor Selects the line of text under the cursor.
-    \value BlockUnderCursor Selects the block of text under the cursor.
 */
 
 /*!
@@ -1037,6 +1041,7 @@ void QTextCursor::insertText(const QString &text)
 }
 
 /*!
+    \fn void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     \overload
 
     Inserts \a text at the current position with the given \a format.
@@ -1606,6 +1611,7 @@ void QTextCursor::insertBlock(const QTextBlockFormat &format)
 }
 
 /*!
+    \fn void QTextCursor::insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat)
     \overload
 
     Inserts a new empty block at the cursor position() with block
@@ -1820,8 +1826,10 @@ void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
     \overload
     \since 4.2
 
-    Inserts the image defined by \a format at the current position() with the specified
-    alignment.
+    Inserts the image defined by the given \a format at the cursor's current position
+    with the specified \a alignment.
+
+    \sa position()
 */
 void QTextCursor::insertImage(const QTextImageFormat &format, QTextFrameFormat::Position alignment)
 {
