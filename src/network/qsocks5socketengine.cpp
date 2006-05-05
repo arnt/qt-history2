@@ -659,8 +659,9 @@ void QSocks5SocketEnginePrivate::sendRequestMethod()
     }
     QSOCKS5_DEBUG << "sending" << dump(buf);
     QByteArray sealedBuf;
-    if (!data->authenticator->seal(buf, &sealedBuf))
-        qDebug() << "shit";
+    if (!data->authenticator->seal(buf, &sealedBuf)) {
+        // ### Handle this error.
+    }
     data->controlSocket->write(sealedBuf);
     data->controlSocket->flush();
     socks5State = RequestMethodSent;
