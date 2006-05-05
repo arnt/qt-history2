@@ -1845,6 +1845,49 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 
 #ifndef Q_OS_TEMP
+        case WM_WINDOWPOSCHANGING:
+            {
+                result = false;
+                if (widget->isWindow()
+                    && widget->layout()
+                    && widget->layout()->hasHeightForWidth()) {
+                    WINDOWPOS *winPos = (WINDOWPOS *)lParam;
+                    QRect fs = widget->frameStrut();
+                    QRect rect = widget->geometry();
+                    QRect newRect = QRect(winPos->x + fs.left(),
+                                          winPos->y + fs.top(),
+                                          winPos->cx - fs.left() - fs.right(),
+                                          winPos->cy - fs.top() - fs.bottom());
+
+                    QSize newSize = QLayout::closestAcceptableSize(widget, newRect.size());
+
+                    int dh = newSize.height() - newRect.height();
+                    int dw = newSize.width() - newRect.width();
+                    if (!dw && ! dh)
+                        break; // Size OK
+
+                    if (rect.y() != newRect.y()) {
+                        newRect.setTop(newRect.top() - dh);
+                    } else {
+                        newRect.setBottom(newRect.bottom() + dh);
+                    }
+
+                    if (rect.x() != newRect.x()) {
+                        newRect.setLeft(newRect.left() - dw);
+                    } else {
+                        newRect.setRight(newRect.right() + dw);
+                    }
+
+                    winPos->x = newRect.x() - fs.left();
+                    winPos->y = newRect.y() - fs.top();
+                    winPos->cx = newRect.width() + fs.left() + fs.right();
+                    winPos->cy = newRect.height() + fs.top() + fs.bottom();
+
+                    RETURN(0);
+                }
+            }
+            break;
+
         case WM_GETMINMAXINFO:
             if (widget->xtra()) {
                 MINMAXINFO *mmi = (MINMAXINFO *)lParam;
