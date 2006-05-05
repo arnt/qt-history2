@@ -1359,8 +1359,9 @@ qint64 QSocks5SocketEngine::write(const char *data, qint64 len)
 
             QByteArray buf(data + totalWritten, qMin<int>(len - totalWritten, 49152));
             QByteArray sealedBuf;
-            if (!d->data->authenticator->seal(buf, &sealedBuf))
-                qDebug() << "shit";
+            if (!d->data->authenticator->seal(buf, &sealedBuf)) {
+                // ### Handle this error.
+            }
             int written = d->data->controlSocket->write(sealedBuf);
             if (written != sealedBuf.size()) {
                 QSOCKS5_Q_DEBUG << "control socket write failed :" << d->data->controlSocket->errorString();
