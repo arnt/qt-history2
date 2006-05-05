@@ -316,7 +316,7 @@ void Tree::resolveInheritance(NamespaceNode *rootNode)
 void Tree::resolveProperties()
 {
     PropertyMap::ConstIterator propEntry;
-    
+
     propEntry = priv->unresolvedPropertyMap.begin();
     while (propEntry != priv->unresolvedPropertyMap.end()) {
 	PropertyNode *property = propEntry.key();
@@ -1137,13 +1137,14 @@ QString Tree::fullDocumentName(const Node *node) const
             else
                 return HtmlGenerator::protect(node->name()).toLower() + ".html";
         case Node::Function:
-            // Functions can be overloaded.
-            const FunctionNode *functionNode = static_cast<const FunctionNode *>(node);
-            if (functionNode->overloadNumber() > 1)
-                return parentName + "#" + HtmlGenerator::protect(node->name())
-                                  + "-" + QString::number(functionNode->overloadNumber());
-            else
+            {
+                // Functions can be overloaded.
+                const FunctionNode *functionNode = static_cast<const FunctionNode *>(node);
+                if (functionNode->overloadNumber() > 1)
+                    return parentName + "#" + HtmlGenerator::protect(node->name())
+                           + "-" + QString::number(functionNode->overloadNumber());
                 return parentName + "#" + HtmlGenerator::protect(node->name());
+            }
 
         case Node::Enum:
             return parentName + "#" + HtmlGenerator::protect(node->name()) + "-enum";
