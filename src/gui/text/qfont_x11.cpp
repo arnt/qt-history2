@@ -213,7 +213,7 @@ Qt::HANDLE QFont::handle() const
 
     On X11, depending on whether Qt was built with FontConfig support, it is an
     XLFD (X Logical Font Description) or a FontConfig pattern. An XLFD may be
-    returned even if FontConfig support is enabled..
+    returned even if FontConfig support is enabled.
 
     Using the return value of this function is usually \e not \e
     portable.
