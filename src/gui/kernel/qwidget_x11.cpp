@@ -2520,10 +2520,10 @@ void QWidgetPrivate::updateFrameStrut() const
         // will still be incorrect though... perhaps i should have foffset as well, to
         // indicate the frame offset (equal to the border_width on X).
         // - Brad
-        top->frameStrut.addCoords(wattr.border_width,
-                                  wattr.border_width,
-                                  wattr.border_width,
-                                  wattr.border_width);
+        top->frameStrut.adjust(wattr.border_width,
+                               wattr.border_width,
+                               wattr.border_width,
+                               wattr.border_width);
     }
 
    data.fstrut_dirty = 0;
