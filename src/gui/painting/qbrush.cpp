@@ -611,7 +611,7 @@ bool QBrush::isOpaque() const
         return !texture().hasAlpha();
     }
 
-    return opaqueColor;
+    return false;
 }
 
 
