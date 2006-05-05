@@ -437,7 +437,11 @@ void QProcessPrivate::execChild(const QByteArray &programName)
     // add every argument to the list
     for (int i = 0; i < arguments.count(); ++i) {
         QString arg = arguments.at(i);
+#ifdef Q_OS_MAC
+        argv[i + 1] = ::strdup(arg.toUtf8().constData());
+#else
         argv[i + 1] = ::strdup(arg.toLocal8Bit().constData());
+#endif
     }
 
     // on all pipes, close the end that we don't use
@@ -966,8 +970,13 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
 
         if (fork() == 0) {
             char **argv = new char *[arguments.size() + 2];
-            for (int i = 0; i < arguments.size(); ++i)
+            for (int i = 0; i < arguments.size(); ++i) {
+#ifdef Q_OS_MAC
+                argv[i + 1] = ::strdup(arguments.at(i).toUtf8().constData());
+#else
                 argv[i + 1] = ::strdup(arguments.at(i).toLocal8Bit().constData());
+#endif
+            }
             argv[arguments.size() + 1] = 0;
 
             if (!program.contains(QLatin1Char('/'))) {
