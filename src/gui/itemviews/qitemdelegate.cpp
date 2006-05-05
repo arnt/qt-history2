@@ -200,7 +200,7 @@ void QItemDelegate::paint(QPainter *painter,
     Q_ASSERT(index.isValid());
     QStyleOptionViewItem opt = setOptions(index, option);
 
-    // get the rects
+    // get the data and the rectangles
 
     QVariant value;
 
@@ -512,8 +512,9 @@ void QItemDelegate::drawBackground(QPainter *painter,
         painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
     } else {
         QVariant value = index.data(Qt::BackgroundColorRole);
-        if (value.isValid() && qvariant_cast<QColor>(value).isValid())
-            painter->fillRect(option.rect, qvariant_cast<QColor>(value));
+        QColor color = qvariant_cast<QColor>(value).isValid();
+        if (value.isValid() && color.isValid())
+            painter->fillRect(option.rect, color);
     }
 }
 
