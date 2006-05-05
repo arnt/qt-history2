@@ -269,7 +269,7 @@ void QTableViewPrivate::drawSpans(const QRect &area, QPainter *painter, const QS
 */
 void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-    Q_Q(QTableView);    
+    Q_Q(QTableView);
     QStyleOptionViewItem opt = option;
 
     if (selectionModel && selectionModel->isSelected(index))
@@ -1205,7 +1205,7 @@ void QTableView::updateGeometries()
             int l = d->verticalHeader->logicalIndex(--r);
             y -= d->verticalHeader->sectionSize(l);
         }
-        int rowsInViewport = (c > 0 ? (rowCount - r - 1) : rowCount);
+        int rowsInViewport = (r > 0 ? (rowCount - r - 1) : rowCount);
         verticalScrollBar()->setRange(0, rowCount - rowsInViewport);
         verticalScrollBar()->setPageStep(rowsInViewport);
 
