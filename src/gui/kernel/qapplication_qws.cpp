@@ -3298,10 +3298,10 @@ void QETWidget::updateRegion()
 #endif
 
     QRect br(myregion.boundingRect());
-    topextra->fleft = d->data.crect.x() - br.x();
-    topextra->ftop = d->data.crect.y() - br.y();
-    topextra->fright = br.right() - d->data.crect.right();
-    topextra->fbottom = br.bottom() - d->data.crect.bottom();
+    topextra->frameStrut.setCoords(d->data.crect.x() - br.x(),
+                                   d->data.crect.y() - br.y(),
+                                   br.right() - d->data.crect.right(),
+                                   br.bottom() - d->data.crect.bottom());
 }
 
 void  QApplication::setCursorFlashTime(int msecs)

@@ -68,7 +68,8 @@ struct QTLWExtra {
     QIcon *icon; // widget icon
     QPixmap *iconPixmap;
     short incw, inch; // size increments
-    ulong fleft, fright, ftop, fbottom; // frame strut
+     // frame strut, don't use these directly, use QWidgetPrivate::frameStrut() instead.
+    QRect frameStrut;
     uint opacity : 8;
 #ifndef Q_WS_MAC
     QWidgetBackingStore *backingStore;
@@ -108,7 +109,9 @@ struct QTLWExtra {
     HICON winIconSmall; // internal small Windows icon
 #endif
     QRect normalGeometry; // used by showMin/maximized/FullScreen
-
+#ifdef Q_WS_WIN
+    uint style, exstyle;
+#endif
 };
 
 struct QWExtra {
@@ -253,7 +256,10 @@ public:
     void hide_helper();
     void setEnabled_helper(bool);
     void registerDropSite(bool);
+    
     void updateFrameStrut() const;
+    QRect frameStrut() const;
+
     void setWindowIconText_sys(const QString &cap);
     void setWindowIconText_helper(const QString &cap);
     void setWindowTitle_sys(const QString &cap);

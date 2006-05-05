@@ -302,6 +302,7 @@ public:
     QWExtra    *xtra() { return d_func()->extraData(); }
     QTLWExtra  *topData() { return d_func()->topData(); }
     QWidgetData *dataPtr() { return data; }
+    QRect frameStrut() const { return d_func()->frameStrut(); }
     bool        winEvent(MSG *m, long *r)        { return QWidget::winEvent(m, r); }
     void        markFrameStrutDirty()        { data->fstrut_dirty = 1; }
     bool        translateMouseEvent(const MSG &msg);
@@ -1334,7 +1335,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         if (QApplication::desktopSettingsAware() && wParam != SPI_SETWORKAREA) {
             widget = (QETWidget*)QWidget::find(hwnd);
             if (widget) {
-                widget->markFrameStrutDirty();
+                if (wParam == SPI_SETNONCLIENTMETRICS)
+                    widget->markFrameStrutDirty();
                 if (!widget->parentWidget())
                     qt_set_windows_resources();
             }
@@ -1583,13 +1585,11 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (widget->isWindow()) {
                 QPoint pos = widget->mapFromGlobal(QPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
                 // don't show resize-cursors for fixed-size widgets
-                int fleft = widget->topData()->fleft;
-                int ftop = widget->topData()->ftop;
-
+                QRect fs = widget->frameStrut();
                 if (!widget->isMinimized()) {
                     if (widget->minimumWidth() == widget->maximumWidth() && (pos.x() < 0 || pos.x() >= widget->width()))
                         break;
-                    if (widget->minimumHeight() == widget->maximumHeight() && (pos.y() < -(ftop - fleft) || pos.y() >= widget->height()))
+                    if (widget->minimumHeight() == widget->maximumHeight() && (pos.y() < -(fs.top() - fs.left()) || pos.y() >= widget->height()))
                         break;
                 }
             }
@@ -1848,19 +1848,20 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WM_GETMINMAXINFO:
             if (widget->xtra()) {
                 MINMAXINFO *mmi = (MINMAXINFO *)lParam;
-                QWExtra           *x = widget->xtra();
+                QWExtra *x = widget->xtra();
+                QRect fs = widget->frameStrut();
 		if ( x->minw > 0 )
-		    mmi->ptMinTrackSize.x = x->minw + x->topextra->fright + x->topextra->fleft;
+		    mmi->ptMinTrackSize.x = x->minw + fs.right() + fs.left();
 		if ( x->minh > 0 )
-		    mmi->ptMinTrackSize.y = x->minh + x->topextra->ftop + x->topextra->fbottom;
+		    mmi->ptMinTrackSize.y = x->minh + fs.top() + fs.bottom();
                 if ( x->maxw < QWIDGETSIZE_MAX ) {
-		    mmi->ptMaxTrackSize.x = x->maxw + x->topextra->fright + x->topextra->fleft;
+		    mmi->ptMaxTrackSize.x = x->maxw + fs.right() + fs.left();
                     // windows with titlebar have an implicit sizelimit of 112 pixels
                     if (widget->windowFlags() & Qt::WindowTitleHint)
                         mmi->ptMaxTrackSize.x = qMax<long>(mmi->ptMaxTrackSize.x, 112);
                 }
 		if ( x->maxh < QWIDGETSIZE_MAX )
-		    mmi->ptMaxTrackSize.y = x->maxh + x->topextra->ftop + x->topextra->fbottom;
+		    mmi->ptMaxTrackSize.y = x->maxh + fs.top() + fs.bottom();
                 RETURN(0);
             }
             break;

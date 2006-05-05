@@ -187,20 +187,21 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
             QRect cr = data.crect;
             QRegion r = QApplication::qwsDecoration().region(q, cr) | cr;
             QRect br(r.boundingRect());
-            extra->topextra->fleft = cr.x() - br.x();
-            extra->topextra->ftop = cr.y() - br.y();
-            extra->topextra->fright = br.right() - cr.right();
-            extra->topextra->fbottom = br.bottom() - cr.bottom();
-            data.crect.adjust(extra->topextra->fleft, extra->topextra->ftop,
-                                  -extra->topextra->fright, -extra->topextra->fbottom);
+            extra->topextra->frameStrut.setCoords(cr.x() - br.x(),
+                                                  cr.y() - br.y(),
+                                                  br.right() - cr.right(),
+                                                  br.bottom() - cr.bottom());
+            data.crect.adjust(extra->topextra->frameStrut.left(),
+                              extra->topextra->frameStrut.top(),
+                              -extra->topextra->frameStrut.right(),
+                              -extra->topextra->frameStrut.bottom());
             if (!topData()->qwsManager)
                 topData()->qwsManager = new QWSManager(q);
         } else if (topData()->qwsManager) {
             delete topData()->qwsManager;
             topData()->qwsManager = 0;
-            data.crect.translate(-extra->topextra->fleft, -extra->topextra->ftop);
-            extra->topextra->fleft = extra->topextra->ftop =
-                extra->topextra->fright = extra->topextra->fbottom = 0;
+            data.crect.translate(-extra->topextra->frameStrut.left(), -extra->topextra->frameStrut.top());
+            extra->topextra->frameStrut.setCoords(0, 0, 0, 0);
         }
 #endif
         // declare the widget's object name as window role
@@ -211,10 +212,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
         //XXX If we are session managed, inform the window manager about it
     } else {
         if (extra && extra->topextra)        { // already allocated due to reparent?
-            extra->topextra->fleft = 0;
-            extra->topextra->ftop = 0;
-            extra->topextra->fright = 0;
-            extra->topextra->fbottom = 0;
+            extra->topextra->frameStrut.setCoords(0, 0, 0, 0);
         }
         //updateRequestedRegion(mapToGlobal(QPoint(0,0)));
     }
@@ -324,11 +322,12 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
 
-    if (q->isWindow())
-        q->setGeometry(extra->topextra->fleft, extra->topextra->ftop,
-                       s.width(), s.height());
-    else
+    if (q->isWindow()) {
+        QRect fs = frameStrut();
+        q->setGeometry(fs.left(), fs.top(), s.width(), s.height());
+    } else {
         q->setGeometry(0, 0, s.width(), s.height());
+    }
 
     if (q->isWindow()) {
         if (!extra->topextra->caption.isEmpty())
@@ -1067,10 +1066,10 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 #endif
                 if (topextra) {
                     QRect br(myregion.boundingRect());
-                    topextra->fleft = data.crect.x()-br.x();
-                    topextra->ftop = data.crect.y()-br.y();
-                    topextra->fright = br.right()-data.crect.right();
-                    topextra->fbottom = br.bottom()-data.crect.bottom();
+                    topextra->frameStrut.setCoords(data.crect.x()-br.x(),
+                                                   data.crect.y()-br.y(),
+                                                   br.right()-data.crect.right(),
+                                                   br.bottom()-data.crect.bottom());
                     QWSBackingStore *bs = &topextra->backingStore->buffer;
                     if (bs->windowType() == QWSBackingStore::NonBuffered) {
                         QWidget::qwsDisplay()->requestRegion(data.winid, bs->memoryId(), bs->windowType(),
@@ -1232,10 +1231,10 @@ void QWidget::setMask(const QRegion& region)
                     myregion += topextra->qwsManager->region();
 #endif
                 QRect br(myregion.boundingRect());
-                topextra->fleft = d->data.crect.x()-br.x();
-                topextra->ftop = d->data.crect.y()-br.y();
-                topextra->fright = br.right()-d->data.crect.right();
-                topextra->fbottom = br.bottom()-d->data.crect.bottom();
+                topextra->frameStrut.setCoords(d->data.crect.x()-br.x(),
+                                               d->data.crect.y()-br.y(),
+                                               br.right()-d->data.crect.right(),
+                                               br.bottom()-d->data.crect.bottom());
             }
             d->invalidateBuffer(rect());
         } else {
@@ -1273,10 +1272,10 @@ void QWidgetPrivate::updateFrameStrut() const
     }
     QRect contents = geometry();
     QRect frame = r.boundingRect();
-    top->fleft = contents.left() - frame.left();
-    top->ftop = contents.top() - frame.top();
-    top->fright = frame.right() - contents.right();
-    top->fbottom = frame.bottom() - contents.bottom();
+    top->frameStrut.setCoords(contents.left() - frame.left(),
+                              contents.top() - frame.top(),
+                              frame.right() - contents.right(),
+                              frame.bottom() - contents.bottom());
 #endif
     data.fstrut_dirty = false;
 #endif

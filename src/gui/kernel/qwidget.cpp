@@ -1106,7 +1106,7 @@ void QWidgetPrivate::createTLExtra()
         x->opacity = 255;
         x->icon = 0;
         x->iconPixmap = 0;
-        x->fleft = x->fright = x->ftop = x->fbottom = 0;
+        x->frameStrut.setCoords(0, 0, 0, 0);
         x->incw = x->inch = 0;
         x->basew = x->baseh = 0;
         x->normalGeometry = QRect(0,0,-1,-1);
@@ -2179,13 +2179,11 @@ QRect QWidget::frameGeometry() const
 {
     Q_D(const QWidget);
     if (isWindow() && ! (windowType() == Qt::Popup)) {
-        if (data->fstrut_dirty)
-            d->updateFrameStrut();
-        QTLWExtra *top = d->topData();
-        return QRect(data->crect.x() - top->fleft,
-                     data->crect.y() - top->ftop,
-                     data->crect.width() + top->fleft + top->fright,
-                     data->crect.height() + top->ftop + top->fbottom);
+        QRect fs = d->frameStrut();
+        return QRect(data->crect.x() - fs.left(),
+                     data->crect.y() - fs.top(),
+                     data->crect.width() + fs.left() + fs.right(),
+                     data->crect.height() + fs.top() + fs.bottom());
     }
     return data->crect;
 }
@@ -2204,11 +2202,8 @@ QRect QWidget::frameGeometry() const
 int QWidget::x() const
 {
     Q_D(const QWidget);
-    if (isWindow() && ! (windowType() == Qt::Popup)) {
-        if (data->fstrut_dirty)
-            d->updateFrameStrut();
-        return data->crect.x() - d->topData()->fleft;
-    }
+    if (isWindow() && ! (windowType() == Qt::Popup)) 
+        return data->crect.x() - d->frameStrut().left();
     return data->crect.x();
 }
 
@@ -2225,11 +2220,8 @@ int QWidget::x() const
 int QWidget::y() const
 {
     Q_D(const QWidget);
-    if (isWindow() && ! (windowType() == Qt::Popup)) {
-        if (data->fstrut_dirty)
-            d->updateFrameStrut();
-        return data->crect.y() - d->topData()->ftop;
-    }
+    if (isWindow() && ! (windowType() == Qt::Popup))
+        return data->crect.y() - d->frameStrut().top();
     return data->crect.y();
 }
 
@@ -2257,10 +2249,8 @@ QPoint QWidget::pos() const
 {
     Q_D(const QWidget);
     if (isWindow() && ! (windowType() == Qt::Popup)) {
-        if (data->fstrut_dirty)
-            d->updateFrameStrut();
-        QTLWExtra *top = d->topData();
-        return QPoint(data->crect.x() - top->fleft, data->crect.y() - top->ftop);
+        QRect fs = d->frameStrut();
+        return QPoint(data->crect.x() - fs.left(), data->crect.y() - fs.top());
     }
     return data->crect.topLeft();
 }
@@ -4019,12 +4009,9 @@ QSize QWidget::frameSize() const
 {
     Q_D(const QWidget);
     if (isWindow() && !(windowType() == Qt::Popup)) {
-        if (data->fstrut_dirty)
-            d->updateFrameStrut();
-        QWidget *that = (QWidget *) this;
-        QTLWExtra *top = that->d_func()->topData();
-        return QSize(data->crect.width() + top->fleft + top->fright,
-                      data->crect.height() + top->ftop + top->fbottom);
+        QRect fs = d->frameStrut();
+        return QSize(data->crect.width() + fs.left() + fs.right(),
+                      data->crect.height() + fs.top() + fs.bottom());
     }
     return data->crect.size();
 }
@@ -5320,10 +5307,7 @@ bool QWidget::event(QEvent *event)
 #endif
     case QEvent::EmbeddingControl:
         data->window_flags & ~Qt::WindowType_Mask;
-        d->topData()->ftop = 0;
-        d->topData()->fright = 0;
-        d->topData()->fleft = 0;
-        d->topData()->fbottom = 0;
+        d->topData()->frameStrut.setCoords(0 ,0, 0, 0);
         break;
 #ifndef QT_NO_ACTION
     case QEvent::ActionAdded:
@@ -7610,5 +7594,17 @@ void QWidget::languageChange() { }  // compat
 
      \sa QWidget::setMaximumSize()
 */
+
+QRect QWidgetPrivate::frameStrut() const
+{
+    Q_Q(const QWidget);
+    if (!q->isWindow() || (q->windowType() == Qt::Desktop)) {
+        // x2 = x1 + w - 1, so w/h = 1
+        return QRect(0, 0, 1, 1);
+    }
+    if (data.fstrut_dirty && q->isVisible())
+        updateFrameStrut();
+    return topData()->frameStrut;
+}
 
 #include "moc_qwidget.cpp"

@@ -458,16 +458,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             pt.y = 0;
             ClientToScreen(id, &pt);
             data.crect = QRect(QPoint(pt.x, pt.y),
-                           QPoint(pt.x+cr.right, pt.y+cr.bottom));
+                               QPoint(pt.x+cr.right, pt.y+cr.bottom));
 
             QTLWExtra *top = topData();
-            top->ftop = data.crect.top() - fr.top;
-            top->fleft = data.crect.left() - fr.left;
-            top->fbottom = fr.bottom - data.crect.bottom();
-            top->fright = fr.right - data.crect.right();
-            data.fstrut_dirty = false;
-
-            createTLExtra();
+            top->style = style;
+            top->exstyle = exsty;
+            updateFrameStrut();
         } else {
             data.crect.setCoords(cr.left, cr.top, cr.right, cr.bottom);
             // in case extra data already exists (eg. reparent()).  Set it.
@@ -1312,26 +1308,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (data.window_state & Qt::WindowActive)
                 swpf |= SWP_NOACTIVATE;
             SetWindowPos(q->winId(), 0, 0, 0, 0, 0, swpf);
-
-            // We also need to update the frame strut, but since updateFrameStrut
-            // just returns when the window is hidden we need to do this explicitly.
-            // More pasted code, ick.
-            RECT  fr, cr;
-            GetWindowRect(q->winId(), &fr);
-            GetClientRect(q->winId(), &cr);
-
-            POINT pt;
-            pt.x = 0;
-            pt.y = 0;
-
-            ClientToScreen(q->winId(), &pt);
-            q->data->crect = QRect(QPoint(pt.x, pt.y),
-                                   QPoint(pt.x + cr.right, pt.y + cr.bottom));
-
-            top->ftop = data.crect.top() - fr.top;
-            top->fleft = data.crect.left() - fr.left;
-            top->fbottom = fr.bottom - data.crect.bottom();
-            top->fright = fr.right - data.crect.right();
+            updateFrameStrut();
         }
         data.window_state &= ~Qt::WindowFullScreen;
         topData()->savedFlags = 0;
@@ -1573,12 +1550,10 @@ void QWidget::setMask(const QRegion &region)
     HRGN wr = CreateRectRgn(0,0,0,0);
     CombineRgn(wr, region.handle(), 0, RGN_COPY);
 
-    int fleft = 0, ftop = 0;
-    if (isWindow()) {
-        ftop = d->topData()->ftop;
-        fleft = d->topData()->fleft;
-    }
-    OffsetRgn(wr, fleft, ftop);
+    QPoint offset = (isWindow() 
+                     ? d->frameStrut().topLeft()
+                     : QPoint(0, 0));
+    OffsetRgn(wr, offset.x(), offset.y());
 #ifndef QT_NO_BACKINGSTORE
     if (isVisible()) {
         if (!isWindow()) {
@@ -1609,31 +1584,21 @@ void QWidget::clearMask()
 
 void QWidgetPrivate::updateFrameStrut() const
 {
-    Q_Q(const QWidget);
-    if (!q->isVisible() || (q->windowType() == Qt::Desktop)) {
-        q->data->fstrut_dirty = q->isVisible();
-        return;
-    }
-
-    RECT  fr, cr;
-    GetWindowRect(q->winId(), &fr);
-    GetClientRect(q->winId(), &cr);
-
-    POINT pt;
-    pt.x = 0;
-    pt.y = 0;
-
-    ClientToScreen(q->winId(), &pt);
-    q->data->crect = QRect(QPoint(pt.x, pt.y),
-                         QPoint(pt.x + cr.right, pt.y + cr.bottom));
-
+    RECT rect;
+    rect.left = data.crect.left();
+    rect.top = data.crect.top();
+    rect.right = data.crect.right() + 1;
+    rect.bottom = data.crect.bottom() + 1;
+    RECT frect = rect;
+    
     QTLWExtra *top = topData();
-    top->ftop = data.crect.top() - fr.top;
-    top->fleft = data.crect.left() - fr.left;
-    top->fbottom = fr.bottom - data.crect.bottom();
-    top->fright = fr.right - data.crect.right();
-
-    q->data->fstrut_dirty = false;
+    if (AdjustWindowRectEx(&frect, top->style & ~WS_OVERLAPPED, FALSE, top->exstyle)) {
+        top->frameStrut.setCoords(rect.left - frect.left,
+                                  rect.top - frect.top,
+                                  frect.right - rect.right,
+                                  frect.bottom - rect.bottom);
+        data.fstrut_dirty = false;
+    }
 }
 
 void QWidget::setWindowOpacity(qreal level)

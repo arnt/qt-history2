@@ -1700,16 +1700,15 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                         bounds.bottom = bounds.top + extra->maxh;
                 }
                 if(QTLWExtra *tlextra = d->topData()) {
-                    if(data->fstrut_dirty)
-                        d->updateFrameStrut();
-                    bounds.left += tlextra->fleft;
+                    QRect fs = d->frameStrut();
+                    bounds.left += fs.left();
                     if(bounds.right < avail.x()+avail.width())
-                        bounds.right = qMin<short>((uint)avail.x()+avail.width(), bounds.right+tlextra->fleft);
+                        bounds.right = qMin<short>((uint)avail.x()+avail.width(), bounds.right+fs.left());
                     if(bounds.bottom < avail.y()+avail.height())
-                        bounds.bottom = qMin<short>((uint)avail.y()+avail.height(), bounds.bottom+tlextra->ftop);
-                    bounds.top += tlextra->ftop;
-                    bounds.right -= tlextra->fright;
-                    bounds.bottom -= tlextra->fbottom;
+                        bounds.bottom = qMin<short>((uint)avail.y()+avail.height(), bounds.bottom+fs.top());
+                    bounds.top += fs.top();
+                    bounds.right -= fs.right();
+                    bounds.bottom -= fs.bottom();
                 }
                 QRect orect(geometry().x(), geometry().y(), width(), height()),
                       nrect(bounds.left, bounds.top, bounds.right - bounds.left,
@@ -2117,29 +2116,24 @@ void QWidgetPrivate::updateFrameStrut() const
 {
     Q_Q(const QWidget);
     QWidgetPrivate *that = const_cast<QWidgetPrivate*>(this);
-    if(!data.fstrut_dirty) {
-        that->data.fstrut_dirty = q->isVisible();
-        return;
-    }
+
     that->data.fstrut_dirty = false;
     QTLWExtra *top = that->topData();
-    top->fleft = top->fright = top->ftop = top->fbottom = 0;
-    if(!(q->windowType() == Qt::Desktop) && q->isWindow()) {
-        WindowPtr window = qt_mac_window_for(q);
-        Rect window_r, content_r;
-        //get bounding rects
-        RgnHandle rgn = qt_mac_get_rgn();
-        GetWindowRegion(window, kWindowStructureRgn, rgn);
-        GetRegionBounds(rgn, &window_r);
-        GetWindowRegion(window, kWindowContentRgn, rgn);
-        GetRegionBounds(rgn, &content_r);
-        qt_mac_dispose_rgn(rgn);
-        //put into qt structure
-        top->fleft = content_r.left - window_r.left;
-        top->ftop = content_r.top - window_r.top;
-        top->fright = window_r.right - content_r.right;
-        top->fbottom = window_r.bottom - content_r.bottom;
-    }
+
+    WindowPtr window = qt_mac_window_for(q);
+    Rect window_r, content_r;
+    //get bounding rects
+    RgnHandle rgn = qt_mac_get_rgn();
+    GetWindowRegion(window, kWindowStructureRgn, rgn);
+    GetRegionBounds(rgn, &window_r);
+    GetWindowRegion(window, kWindowContentRgn, rgn);
+    GetRegionBounds(rgn, &content_r);
+    qt_mac_dispose_rgn(rgn);
+    //put into qt structure
+    top->frameStrut.setCoords(content_r.left - window_r.left,
+                              content_r.top - window_r.top,
+                              window_r.right - content_r.right,
+                              window_r.bottom - content_r.bottom);
 }
 
 void QWidgetPrivate::registerDropSite(bool on)
@@ -2263,9 +2257,9 @@ void QWidgetPrivate::setModal_sys()
     // of this window.
     if (q->testAttribute(Qt::WA_ShowModal)) {
         const QObjectList children = q->children();
-        for(int i = 0; i < children.size(); ++i) {
-            const QObject *child = children.at(i);
-            if (!child->isWidgetType())
+        for (QObjectList::ConstIterator it = children.constBegin(); it != children.constEnd(); ++it) {
+            const QObject * const child = *it;
+            if (child->isWidgetType() == false)
                 continue;
             const QWidget *widget = static_cast<const QWidget*>(child);
             if (widget->isWindow() == false)

@@ -3018,7 +3018,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             topData->parentWinId = event->xreparent.parent;
 
             // the widget frame strut should also be invalidated
-            topData->fleft = topData->fright = topData->ftop = topData->fbottom = 0;
+            topData->frameStrut.setCoords(0, 0, 0, 0);
 
             // work around broken window managers... if we get a
             // ReparentNotify before the MapNotify, we assume that
@@ -3962,7 +3962,8 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
     unsigned long nitems, after;
 
     if (event->xproperty.atom == ATOM(_KDE_NET_WM_FRAME_STRUT)) {
-        d->topData()->fleft = d->topData()->fright = d->topData()->ftop = d->topData()->fbottom = 0;
+        QTLWExtra *topData = d->topData();
+        topData->frameStrut.setCoords(0, 0, 0, 0);
         this->data->fstrut_dirty = 1;
 
         if (event->xproperty.state == PropertyNewValue) {
@@ -3973,10 +3974,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             if (e == Success && ret == XA_CARDINAL &&
                 format == 32 && nitems == 4) {
                 long *strut = (long *) data;
-                d->topData()->fleft   = strut[0];
-                d->topData()->fright  = strut[1];
-                d->topData()->ftop    = strut[2];
-                d->topData()->fbottom = strut[3];
+                topData->frameStrut.setCoords(strut[0], strut[1], strut[2], strut[3]);
                 this->data->fstrut_dirty = 0;
             }
         }
@@ -4034,7 +4032,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
         }
     } else if (event->xproperty.atom == ATOM(WM_STATE)) {
         // the widget frame strut should also be invalidated
-        d->topData()->fleft = d->topData()->fright = d->topData()->ftop = d->topData()->fbottom = 0;
+        d->topData()->frameStrut.setCoords(0, 0, 0, 0);
         this->data->fstrut_dirty = 1;
 
         if (event->xproperty.state == PropertyDelete) {

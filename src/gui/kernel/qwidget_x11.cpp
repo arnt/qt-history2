@@ -811,7 +811,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         QTLWExtra *top = topData();
         top->parentWinId = 0;
         // zero the frame strut and mark it dirty
-        top->fleft = top->fright = top->ftop = top->fbottom = 0;
+        top->frameStrut.setCoords(0, 0, 0, 0);
         data.fstrut_dirty = true;
     }
     if (q->isWindow()) {
@@ -1404,13 +1404,14 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                     const QRect normalGeometry = geometry();
 
                     if (isVisible()) {
-                        d->updateFrameStrut();
+                        data->fstrut_dirty = true;
                         const QRect maxRect = QApplication::desktop()->availableGeometry(this);
                         const QRect r = top->normalGeometry;
-                        setGeometry(maxRect.x() + top->fleft,
-                                    maxRect.y() + top->ftop,
-                                    maxRect.width() - top->fleft - top->fright,
-                                    maxRect.height() - top->ftop - top->fbottom);
+                        const QRect fs = d->frameStrut();
+                        setGeometry(maxRect.x() + fs.left(),
+                                    maxRect.y() + fs.top(),
+                                    maxRect.width() - fs.left() - fs.right(),
+                                    maxRect.height() - fs.top() - fs.bottom());
                         top->normalGeometry = r;
                     }
 
@@ -1433,9 +1434,9 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                 needShow = isVisible();
 
                 if (newstate & Qt::WindowFullScreen) {
-                    d->updateFrameStrut();
+                    data->fstrut_dirty = true;
                     const QRect normalGeometry = geometry();
-                    const QPoint fullScreenOffset = QPoint(top->fleft, top->ftop);
+                    const QPoint fullScreenOffset = d->frameStrut().topLeft();
 
                     top->savedFlags = windowFlags();
                     setParent(0, Qt::Window | Qt::FramelessWindowHint);
@@ -1452,13 +1453,14 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
 
                     if (newstate & Qt::WindowMaximized) {
                         // from fullscreen to maximized
-                        d->updateFrameStrut();
+                        data->fstrut_dirty = true;
                         const QRect maxRect = QApplication::desktop()->availableGeometry(this);
                         const QRect r = top->normalGeometry;
-                        setGeometry(maxRect.x() + top->fleft,
-                                    maxRect.y() + top->ftop,
-                                    maxRect.width() - top->fleft - top->fright,
-                                    maxRect.height() - top->ftop - top->fbottom);
+                        const QRect fs = d->frameStrut();
+                        setGeometry(maxRect.x() + fs.left(),
+                                    maxRect.y() + fs.top(),
+                                    maxRect.width() - fs.left() - fs.right(),
+                                    maxRect.height() - fs.top() - fs.bottom());
                         top->normalGeometry = r;
                     } else {
                         // restore original geometry
@@ -1639,16 +1641,17 @@ void QWidgetPrivate::show_sys()
             qt_x11_wait_for_window_manager(q);
 
             // if the wm was not smart enough to adjust our size, do that manually
-            updateFrameStrut();
+            data.fstrut_dirty = true;
             QRect maxRect = QApplication::desktop()->availableGeometry(q);
 
             QTLWExtra *top = topData();
             QRect normalRect = top->normalGeometry;
+            const QRect fs = frameStrut();
 
-            q->setGeometry(maxRect.x() + top->fleft,
-                           maxRect.y() + top->ftop,
-                           maxRect.width() - top->fleft - top->fright,
-                           maxRect.height() - top->ftop - top->fbottom);
+            q->setGeometry(maxRect.x() + fs.left(),
+                           maxRect.y() + fs.top(),
+                           maxRect.width() - fs.left() - fs.right(),
+                           maxRect.height() - fs.top() - fs.bottom());
 
             // restore the original normalGeometry
             top->normalGeometry = normalRect;
@@ -1741,12 +1744,12 @@ void QWidgetPrivate::hide_sys()
         if (q->winId()) // in nsplugin, may be 0
             XWithdrawWindow(X11->display, q->winId(), xinfo.screen());
 
-        QTLWExtra *top = topData();
-        data.crect.moveTopLeft(QPoint(data.crect.x() - top->fleft,
-                                          data.crect.y() - top->ftop));
+        const QRect fs = frameStrut();
+        data.crect.moveTopLeft(QPoint(data.crect.x() - fs.left(),
+                                          data.crect.y() - fs.top()));
 
         // zero the frame strut and mark it dirty
-        top->fleft = top->fright = top->ftop = top->fbottom = 0;
+        topData()->frameStrut.setCoords(0, 0, 0, 0);
         data.fstrut_dirty = true;
 
         XFlush(X11->display);
@@ -2456,10 +2459,6 @@ void QWidget::clearMask()
 void QWidgetPrivate::updateFrameStrut() const
 {
     Q_Q(const QWidget);
-    if (! q->isVisible() || (q->windowType() == Qt::Desktop)) {
-        data.fstrut_dirty = (!q->isVisible());
-        return;
-    }
 
     Atom type_ret;
     Window l = q->winId(), w = l, p, r; // target window, it's parent, root
@@ -2510,10 +2509,10 @@ void QWidgetPrivate::updateFrameStrut() const
                               0, 0, &transx, &transy, &p) &&
         XGetWindowAttributes(X11->display, w, &wattr)) {
         QTLWExtra *top = topData();
-        top->fleft = transx;
-        top->ftop = transy;
-        top->fright = wattr.width - data.crect.width() - top->fleft;
-        top->fbottom = wattr.height - data.crect.height() - top->ftop;
+        top->frameStrut.setCoords(transx,
+                                  transy,
+                                  wattr.width - data.crect.width() - transx,
+                                  wattr.height - data.crect.height() - transy);
 
         // add the border_width for the window managers frame... some window managers
         // do not use a border_width of zero for their frames, and if we the left and
@@ -2521,10 +2520,10 @@ void QWidgetPrivate::updateFrameStrut() const
         // will still be incorrect though... perhaps i should have foffset as well, to
         // indicate the frame offset (equal to the border_width on X).
         // - Brad
-        top->fleft += wattr.border_width;
-        top->fright += wattr.border_width;
-        top->ftop += wattr.border_width;
-        top->fbottom += wattr.border_width;
+        top->frameStrut.addCoords(wattr.border_width,
+                                  wattr.border_width,
+                                  wattr.border_width,
+                                  wattr.border_width);
     }
 
    data.fstrut_dirty = 0;
