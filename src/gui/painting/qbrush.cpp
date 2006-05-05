@@ -1099,6 +1099,24 @@ bool QGradient::operator==(const QGradient &gradient)
 
 
 /*!
+    Constructs a default linear gradient with interpolation area
+    between (0, 0) and (1, 1).
+
+    \sa QGradient::setColorAt(), setStart(), setFinalStop()
+*/
+
+QLinearGradient::QLinearGradient()
+{
+    m_type = LinearGradient;
+    m_spread = PadSpread;
+    m_data.linear.x1 = 0;
+    m_data.linear.y1 = 0;
+    m_data.linear.x2 = 1;
+    m_data.linear.y2 = 1;
+}
+
+
+/*!
     Constructs a linear gradient with interpolation area between the
     given \a start point and \a finalStop.
 
@@ -1145,6 +1163,42 @@ QPointF QLinearGradient::start() const
     return QPointF(m_data.linear.x1, m_data.linear.y1);
 }
 
+/*!
+    \fn void QLinearGradient::setStart(qreal x, qreal y)
+
+    \overload
+
+    Sets the start point of this linear gradient in logical
+    coordinates to \a x, \a y.
+
+    \sa start()
+*/
+
+/*!
+    Sets the start point of this linear gradient in logical
+    coordinates to \a start.
+
+    \sa start()
+*/
+
+void QLinearGradient::setStart(const QPointF &start)
+{
+    Q_ASSERT(m_type == LinearGradient);
+    m_data.linear.x1 = start.x();
+    m_data.linear.y1 = start.y();
+}
+
+
+/*!
+    \fn void QLinearGradient::setFinalStop(qreal x, qreal y)
+
+    \overload
+
+    Sets the final stop point of this linear gradient in logical
+    coordinates to \a x, \a y.
+
+    \sa start()
+*/
 
 /*!
     Returns the final stop point of this linear gradient in logical coordinates.
@@ -1156,6 +1210,21 @@ QPointF QLinearGradient::finalStop() const
 {
     Q_ASSERT(m_type == LinearGradient);
     return QPointF(m_data.linear.x2, m_data.linear.y2);
+}
+
+
+/*!
+    Sets the final stop point of this linear gradient in logical
+    coordinates to \a stop.
+
+    \sa finalStop()
+*/
+
+void QLinearGradient::setFinalStop(const QPointF &stop)
+{
+    Q_ASSERT(m_type == LinearGradient);
+    m_data.linear.x2 = stop.x();
+    m_data.linear.y2 = stop.y();
 }
 
 
@@ -1292,6 +1361,22 @@ QRadialGradient::QRadialGradient(qreal cx, qreal cy, qreal radius)
 
 
 /*!
+    Constructs a radial gradient with the center and focal point at
+    (0, 0) with a radius of 1.
+*/
+QRadialGradient::QRadialGradient()
+{
+    m_type = RadialGradient;
+    m_spread = PadSpread;
+    m_data.radial.cx = 0;
+    m_data.radial.cy = 0;
+    m_data.radial.radius = 1;
+    m_data.radial.fx = 0;
+    m_data.radial.fy = 0;
+}
+
+
+/*!
     Returns the center of this radial gradient in logical coordinates.
 
     \sa QGradient::stops()
@@ -1303,9 +1388,34 @@ QPointF QRadialGradient::center() const
     return QPointF(m_data.radial.cx, m_data.radial.cy);
 }
 
+/*!
+    \fn void QRadialGradient::setCenter(qreal x, qreal y)
+
+    \overload
+
+    Sets the center of this radial gradient in logical coordinates
+    to (\a x, \a y).
+
+    \sa center()
+*/
 
 /*!
-    Returns the radius of the radial gradient in logical coordinates.
+    Sets the center of this radial gradient in logical coordinates
+    to \a center.
+
+    \sa center()
+*/
+
+void QRadialGradient::setCenter(const QPointF &center)
+{
+    Q_ASSERT(m_type == RadialGradient);
+    m_data.radial.cx = center.x();
+    m_data.radial.cy = center.y();
+}
+
+
+/*!
+    Returns the radius of this radial gradient in logical coordinates.
 
     \sa QGradient::stops()
 */
@@ -1314,6 +1424,17 @@ qreal QRadialGradient::radius() const
 {
     Q_ASSERT(m_type == RadialGradient);
     return m_data.radial.radius;
+}
+
+
+/*!
+    Sets the radius of this radial gradient in logical coordinates
+    to \a radius
+*/
+void QRadialGradient::setRadius(qreal radius)
+{
+    Q_ASSERT(m_type == RadialGradient);
+    m_data.radial.radius = radius;
 }
 
 
@@ -1329,6 +1450,32 @@ QPointF QRadialGradient::focalPoint() const
     Q_ASSERT(m_type == RadialGradient);
     return QPointF(m_data.radial.fx, m_data.radial.fy);
 }
+
+/*!
+    \fn void QRadialGradient::setFocalPoint(qreal x, qreal y)
+
+    \overload
+
+    Sets the focal point of this radial gradient in logical
+    coordinates to (\a x, \a y).
+
+    \sa focalPoint()
+*/
+
+/*!
+    Sets the focal point of this radial gradient in logical
+    coordinates to \a focalPoint.
+
+    \sa focalPoint()
+*/
+
+void QRadialGradient::setFocalPoint(const QPointF &focalPoint)
+{
+    Q_ASSERT(m_type == RadialGradient);
+    m_data.radial.fx = focalPoint.x();
+    m_data.radial.fy = focalPoint.y();
+}
+
 
 
 /*!
@@ -1368,11 +1515,11 @@ QPointF QRadialGradient::focalPoint() const
 
 
 /*!
-    Constructs a conical with the given \a center, starting the
-    interpolation at the given \a angle. The \a angle must be specified in
-    degrees between 0 and 360.
+    Constructs a conical gradient with the given \a center, starting
+    the interpolation at the given \a angle. The \a angle must be
+    specified in degrees between 0 and 360.
 
-    \sa setColorAt(), setStops()
+    \sa QGradient::setColorAt(), QGradient::setStops()
 */
 
 QConicalGradient::QConicalGradient(const QPointF &center, qreal angle)
@@ -1386,11 +1533,11 @@ QConicalGradient::QConicalGradient(const QPointF &center, qreal angle)
 
 
 /*!
-    Constructs a conical with the given center (\a cx, \a cy),
-    starting the interpolation at the given \a angle. The angle must
-    be specified in degrees between 0 and 360.
+    Constructs a conical gradient with the given center (\a cx, \a
+    cy), starting the interpolation at the given \a angle. The angle
+    must be specified in degrees between 0 and 360.
 
-    \sa setColorAt(), setStops()
+    \sa QGradient::setColorAt(), QGradient::setStops()
 */
 
 QConicalGradient::QConicalGradient(qreal cx, qreal cy, qreal angle)
@@ -1400,6 +1547,23 @@ QConicalGradient::QConicalGradient(qreal cx, qreal cy, qreal angle)
     m_data.conical.cx = cx;
     m_data.conical.cy = cy;
     m_data.conical.angle = angle;
+}
+
+
+/*!
+    Constructs a conical with center at (0, 0) starting the
+    interpolation at angle 0.
+
+    \sa QGradient::setColorAt(), setCenter(), setAngle()
+*/
+
+QConicalGradient::QConicalGradient()
+{
+    m_type = ConicalGradient;
+    m_spread = PadSpread;
+    m_data.conical.cx = 0;
+    m_data.conical.cy = 0;
+    m_data.conical.angle = 0;
 }
 
 
@@ -1417,6 +1581,31 @@ QPointF QConicalGradient::center() const
 
 
 /*!
+    \fn void QConicalGradient::setCenter(qreal x, qreal y)
+
+    \overload
+
+    Sets the center of this conical gradient in logical coordinates to
+    (\a x, \a y).
+
+    \sa center()
+*/
+
+/*!
+    Sets the center of this conical gradient in logical coordinates to
+    \a center.
+
+    \sa center()
+*/
+
+void QConicalGradient::setCenter(const QPointF &center)
+{
+    Q_ASSERT(m_type == ConicalGradient);
+    m_data.conical.cx = center.x();
+    m_data.conical.cy = center.y();
+}
+
+/*!
     Returns the start angle of the conical gradient in logical coordinates
 
     \sa stops()
@@ -1427,6 +1616,21 @@ qreal QConicalGradient::angle() const
     Q_ASSERT(m_type == ConicalGradient);
     return m_data.conical.angle;
 }
+
+
+/*!
+    Sets the start angle for this conical gradient in logical
+    coordinates
+
+    \sa angle()
+*/
+
+void QConicalGradient::setAngle(qreal angle)
+{
+    Q_ASSERT(m_type == ConicalGradient);
+    m_data.conical.angle = angle;
+}
+
 
 /*!
     \typedef QGradientStop

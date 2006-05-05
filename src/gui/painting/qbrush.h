@@ -186,17 +186,24 @@ inline void QGradient::setSpread(Spread aspread)
 class Q_GUI_EXPORT QLinearGradient : public QGradient
 {
 public:
+    QLinearGradient();
     QLinearGradient(const QPointF &start, const QPointF &finalStop);
     QLinearGradient(qreal xStart, qreal yStart, qreal xFinalStop, qreal yFinalStop);
 
     QPointF start() const;
+    void setStart(const QPointF &start);
+    inline void setStart(qreal x, qreal y) { setStart(QPointF(x, y)); }
+
     QPointF finalStop() const;
+    void setFinalStop(const QPointF &stop);
+    inline void setFinalStop(qreal x, qreal y) { setFinalStop(QPointF(x, y)); }
 };
 
 
 class Q_GUI_EXPORT QRadialGradient : public QGradient
 {
 public:
+    QRadialGradient();
     QRadialGradient(const QPointF &center, qreal radius, const QPointF &focalPoint);
     QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx, qreal fy);
 
@@ -204,19 +211,31 @@ public:
     QRadialGradient(qreal cx, qreal cy, qreal radius);
 
     QPointF center() const;
+    void setCenter(const QPointF &center);
+    inline void setCenter(qreal x, qreal y) { setCenter(QPointF(x, y)); }
+
     QPointF focalPoint() const;
+    void setFocalPoint(const QPointF &focalPoint);
+    inline void setFocalPoint(qreal x, qreal y) { setFocalPoint(QPointF(x, y)); }
+
     qreal radius() const;
+    void setRadius(qreal radius);
 };
 
 
 class Q_GUI_EXPORT QConicalGradient : public QGradient
 {
 public:
+    QConicalGradient();
     QConicalGradient(const QPointF &center, qreal startAngle);
     QConicalGradient(qreal cx, qreal cy, qreal startAngle);
 
     QPointF center() const;
+    void setCenter(const QPointF &center);
+    inline void setCenter(qreal x, qreal y) { setCenter(QPointF(x, y)); }
+
     qreal angle() const;
+    void setAngle(qreal angle);
 };
 
 QT_END_HEADER
