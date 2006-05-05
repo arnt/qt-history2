@@ -389,7 +389,7 @@ QTextFormat QInputContext::standardFormat(StandardFormat s) const
     QColor bg;
     switch (s) {
     case QInputContext::PreeditFormat: {
-        fmt.setFontUnderline(true);
+        fmt.setUnderlineStyle(QTextCharFormat::DashUnderline);
 #ifndef Q_WS_WIN
         int h1, s1, v1, h2, s2, v2;
         pal.color(QPalette::Base).getHsv(&h1, &s1, &v1);
