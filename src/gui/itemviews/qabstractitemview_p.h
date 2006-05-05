@@ -199,6 +199,12 @@ public:
 	if ((del = columnDelegates.value(index.column(), 0))) return del;
 	return delegate;
     }
+    
+    // reimplemented from QAbstractScrollAreaPrivate
+    virtual QPoint contentsOffset() const {
+        Q_Q(const QAbstractItemView);
+        return QPoint(q->horizontalOffset(), q->verticalOffset());
+    }
 
     QPointer<QAbstractItemModel> model;
     QPointer<QAbstractItemDelegate> delegate;

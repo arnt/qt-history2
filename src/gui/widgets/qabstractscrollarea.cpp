@@ -83,14 +83,6 @@
 inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e)
 { Q_Q(QAbstractScrollArea); return q->viewportEvent(e); }
 
-class QAbstractScrollAreaViewport : public QWidget
-{
-    Q_OBJECT
-public:
-    QAbstractScrollAreaViewport(QWidget *parent):QWidget(parent){ setObjectName(QLatin1String("qt_scrollarea_viewport")); }
-    bool event(QEvent *e);
-    friend class QAbstractScrollArea;
-};
 bool QAbstractScrollAreaViewport::event(QEvent *e) {
     if (QAbstractScrollArea* viewport = qobject_cast<QAbstractScrollArea*>(parentWidget()))
         return ((QAbstractScrollAreaPrivate*)((QAbstractScrollAreaViewport*)viewport)->d_ptr)->viewportEvent(e);
@@ -782,6 +774,21 @@ void QAbstractScrollAreaPrivate::_q_showOrHideScrollBars()
     layoutChildren();
 }
 
+QPoint QAbstractScrollAreaPrivate::contentsOffset() const
+{
+    Q_Q(const QAbstractScrollArea);
+    QPoint offset;
+    if (vbar->isVisible())
+        offset.setY(vbar->value());
+    if (hbar->isVisible()) {
+        if (q->isRightToLeft())
+            offset.setX(hbar->maximum() - hbar->value());
+        else
+            offset.setX(hbar->value());
+    }
+    return offset;
+}
+
 /*!
     \reimp
 
@@ -810,5 +817,5 @@ QSize QAbstractScrollArea::sizeHint() const
 }
 
 #include "moc_qabstractscrollarea.cpp"
-#include "qabstractscrollarea.moc"
+#include "moc_qabstractscrollarea_p.cpp"
 #endif // QT_NO_SCROLLAREA

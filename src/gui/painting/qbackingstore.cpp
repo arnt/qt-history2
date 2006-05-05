@@ -21,6 +21,8 @@
 #include <qdebug.h>
 #include <qstack.h>
 #include <qevent.h>
+#include <qabstractscrollarea.h>
+#include <private/qabstractscrollarea_p.h>
 #ifdef Q_WS_X11
 # include "private/qt_x11_p.h"
 #endif
@@ -810,7 +812,17 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
                     && !q->testAttribute(Qt::WA_NoSystemBackground)) {
 
                     QPainter p(q);
-                    paintBackground(&p, toBePainted.boundingRect(), asRoot || onScreen);
+                    QRect backgroundRect = toBePainted.boundingRect();
+                    if (qobject_cast<QAbstractScrollAreaViewport *>(q)) {
+                        QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(q->parent());
+                        if (scrollArea) {
+                            QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(scrollArea->d_ptr);
+                            const QPoint offset = priv->contentsOffset();
+                            p.translate(-offset);
+                            backgroundRect.translate(offset);
+                        }
+                    }
+                    paintBackground(&p, backgroundRect, asRoot || onScreen);
                 }
                 if (q->testAttribute(Qt::WA_TintedBackground)
                     && !onScreen && !asRoot && !isOpaque() ) {

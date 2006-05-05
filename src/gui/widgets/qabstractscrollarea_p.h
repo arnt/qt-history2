@@ -54,6 +54,17 @@ public:
     void _q_hslide(int);
     void _q_vslide(int);
     void _q_showOrHideScrollBars();
+    
+    virtual QPoint contentsOffset() const;
+};
+
+class QAbstractScrollAreaViewport : public QWidget
+{
+    Q_OBJECT
+public:
+    QAbstractScrollAreaViewport(QWidget *parent):QWidget(parent){ setObjectName(QLatin1String("qt_scrollarea_viewport")); }
+    bool event(QEvent *e);
+    friend class QAbstractScrollArea;
 };
 
 #endif // QT_NO_SCROLLAREA
