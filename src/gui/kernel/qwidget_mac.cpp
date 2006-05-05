@@ -33,6 +33,8 @@
 #include "qtimer.h"
 #include "qdebug.h"
 
+#include <private/qabstractscrollarea_p.h>
+#include <qabstractscrollarea.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <limits.h>
 
@@ -475,6 +477,21 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         if(was_unclipped)
                             widget->setAttribute(Qt::WA_PaintUnclipped);
                         p.setClipRegion(qrgn.translated(redirectionOffset));
+
+
+                        if (qobject_cast<QAbstractScrollAreaViewport *>(widget)) {
+                            QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(widget->parent());
+                            if (scrollArea) {
+                                QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(scrollArea->d_ptr);
+                                const QPoint offset = priv->contentsOffset();
+                                p.translate(-offset);
+                                rr.translate(offset);
+                            }
+                        }
+
+
+
+
                         widget->d_func()->paintBackground(&p, rr, widget->isWindow());
                         if (widget->testAttribute(Qt::WA_TintedBackground)) {
                             QColor tint = widget->palette().window().color();
