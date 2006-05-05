@@ -257,7 +257,8 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 
     ns = ns.expandedTo(tlw->minimumSize()).expandedTo(tlw->minimumSizeHint()).boundedTo(tlw->maximumSize());
 
-    QRect nr(QPoint(), ns);            
+    QPoint p;
+    QRect nr(p, ns);            
     if (d->atBottom) {
         if (isRightToLeft()) 
             nr.moveTopRight(d->r.topRight());
