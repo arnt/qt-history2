@@ -465,7 +465,7 @@ void QTableModel::sort(int column, Qt::SortOrder order)
 
     for (int row = 0; row < rowCount(); ++row) {
         QTableWidgetItem *itm = item(row, column);
-                
+
         if (itm)
             sortable.append(QPair<QTableWidgetItem*,int>(itm, row));
         else
@@ -1115,7 +1115,10 @@ QVariant QTableWidgetItem::data(int role) const
 */
 bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
 {
-    return text() < other.text();
+    const QVariant v1 = data(Qt::DisplayRole), v2 = other.data(Qt::DisplayRole);
+    if(v1.canConvert(QVariant::LongLong) && v2.canConvert(QVariant::LongLong))
+        return v1.toLongLong() < v2.toLongLong();
+    return v1.toString() < v2.toString();
 }
 
 #ifndef QT_NO_DATASTREAM
