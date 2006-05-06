@@ -28,7 +28,7 @@
 #include <private/qprintengine_ps_p.h>
 #endif
 
-#ifdef QT_PDF_SUPPORT
+#ifndef QT_NO_PDF
 #include "qprintengine_pdf_p.h"
 #endif
 
@@ -404,7 +404,7 @@ QPrinter::~QPrinter()
 void QPrinter::setOutputFormat(OutputFormat format)
 {
 
-#ifdef QT_PDF_SUPPORT
+#ifndef QT_NO_PDF
     Q_D(QPrinter);
     if (d->outputFormat == format)
         return;

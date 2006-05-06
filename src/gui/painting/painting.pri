@@ -13,9 +13,11 @@ HEADERS += \
 	painting/qpainter_p.h \
 	painting/qpainterpath.h \
 	painting/qpainterpath_p.h \
+	painting/qpdf_p.h \
 	painting/qpen.h \
 	painting/qpolygon.h \
 	painting/qpolygonclipper_p.h \
+	painting/qprintengine_pdf_p.h \
 	painting/qprinter.h \
 	painting/qprinter_p.h \
 	painting/qregion.h \
@@ -34,8 +36,10 @@ SOURCES += \
 	painting/qpaintengine.cpp \
 	painting/qpainter.cpp \
 	painting/qpainterpath.cpp \
+	painting/qpdf.cpp \
 	painting/qpen.cpp \
 	painting/qpolygon.cpp \
+	painting/qprintengine_pdf.cpp \
 	painting/qprinter.cpp \
 	painting/qstroker.cpp \
         painting/qstylepainter.cpp \
@@ -135,11 +139,4 @@ embedded {
 } else:win32:!win32-msvc {
     SOURCES += painting/qdrawhelper_x86.cpp
     DEFINES += QT_HAVE_SSE
-}
-
-CONFIG += pdf
-pdf {
-    DEFINES += QT_PDF_SUPPORT
-    SOURCES += painting/qprintengine_pdf.cpp painting/qpdf.cpp
-    HEADERS += painting/qprintengine_pdf_p.h painting/qpdf_p.h
 }
