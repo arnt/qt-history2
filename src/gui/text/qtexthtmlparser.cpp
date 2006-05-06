@@ -1574,8 +1574,10 @@ public:
     virtual QString attribute(NodePtr node, const QString &name) const;
     virtual bool hasAttribute(NodePtr node, const QString &name) const;
     virtual bool hasAttributes(NodePtr node) const;
-    virtual bool hasParent(NodePtr node) const;
+    virtual bool isNullNode(NodePtr node) const;
     virtual NodePtr parentNode(NodePtr node);
+    virtual NodePtr previousSiblingNode(NodePtr node);
+    virtual NodePtr duplicateNode(NodePtr node);
     virtual void freeNode(NodePtr node);
 
 private:
@@ -1617,9 +1619,9 @@ bool QTextHtmlStyleSelector::hasAttributes(NodePtr node) const
    return !attributes.isEmpty();
 }
 
-bool QTextHtmlStyleSelector::hasParent(NodePtr node) const
+bool QTextHtmlStyleSelector::isNullNode(NodePtr node) const
 {
-    return parser->at(node.id).parent != 0;
+    return node.id == 0;
 }
 
 QCss::StyleSelector::NodePtr QTextHtmlStyleSelector::parentNode(NodePtr node)
@@ -1630,6 +1632,27 @@ QCss::StyleSelector::NodePtr QTextHtmlStyleSelector::parentNode(NodePtr node)
         parent.id = parser->at(node.id).parent;
     }
     return parent;
+}
+
+QCss::StyleSelector::NodePtr QTextHtmlStyleSelector::duplicateNode(NodePtr node)
+{
+    return node;
+}
+
+QCss::StyleSelector::NodePtr QTextHtmlStyleSelector::previousSiblingNode(NodePtr node)
+{
+    NodePtr sibling;
+    sibling.id = 0;
+    if (!node.id)
+        return sibling;
+    int parent = parser->at(node.id).parent;
+    if (!parent)
+        return sibling;
+    const int childIdx = parser->at(parent).children.indexOf(node.id);
+    if (childIdx <= 0)
+        return sibling;
+    sibling.id = parser->at(parent).children.at(childIdx - 1);
+    return sibling;
 }
 
 void QTextHtmlStyleSelector::freeNode(NodePtr)

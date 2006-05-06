@@ -389,41 +389,46 @@ bool StyleSelector::selectorMatches(const Selector &selector, NodePtr node)
             return false;
         return basicSelectorMatches(selector.basicSelectors.first(), node);
     }
-    if (selector.basicSelectors.count() <= 1 || !hasParent(node))
+    if (selector.basicSelectors.count() <= 1)
         return false;
     
     int i = selector.basicSelectors.count() - 1;
-    if (!basicSelectorMatches(selector.basicSelectors.at(i), node))
-        return false;
-    
+    node = duplicateNode(node);
     bool match = true;
-    NodePtr parent = parentNode(node);
-    --i;
+
+    BasicSelector sel = selector.basicSelectors.at(i);
     do {
-        const BasicSelector &sel = selector.basicSelectors.at(i);
+        match = basicSelectorMatches(sel, node);
+        if (!match) {
+            if (sel.relationToNext == BasicSelector::MatchNextSelectorIfParent)
+                break;
+        }
+
+        if (match || sel.relationToNext != BasicSelector::MatchNextSelectorIfAncestor)
+            --i;
+
+        if (i < 0)
+            break;
+        
+        sel = selector.basicSelectors.at(i);
         if (sel.relationToNext == BasicSelector::MatchNextSelectorIfAncestor
             || sel.relationToNext == BasicSelector::MatchNextSelectorIfParent) {
-            match = true;
-            do {
-                match = basicSelectorMatches(sel, parent);
-                if (!match) {
-                    if (!hasParent(parent))
-                        break;
-                }
-                NodePtr nextParent = parentNode(parent);
-                freeNode(parent);
-                parent = nextParent;
-            } while (!match && sel.relationToNext != BasicSelector::MatchNextSelectorIfParent);
-            if (!match)
-                break;
-        } else {
+            
+            NodePtr nextParent = parentNode(node);
+            freeNode(node);
+            node = nextParent;
+       } else if (sel.relationToNext == BasicSelector::MatchNextSelectorIfPreceeds) {
+            NodePtr previousSibling = previousSiblingNode(node);
+            freeNode(node);
+            node = previousSibling;
+       }
+        if (isNullNode(node)) {
             match = false;
             break;
         }
-        --i;
-    } while (i >= 0 && match);
+   } while (i >= 0 && (match || sel.relationToNext == BasicSelector::MatchNextSelectorIfAncestor));
     
-    freeNode(parent);
+    freeNode(node);
 
     return match;
 }
