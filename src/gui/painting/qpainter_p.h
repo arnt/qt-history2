@@ -139,6 +139,7 @@ public:
     void updateState(QPainterState *state);
 
     void draw_helper(const QPainterPath &path, DrawOperation operation = StrokeAndFillDraw);
+    void drawStretchToDevice(const QPainterPath &path, DrawOperation operation);
 
     void updateMatrix();
     void updateInvMatrix();

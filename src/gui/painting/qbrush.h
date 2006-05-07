@@ -141,6 +141,11 @@ public:
         RepeatSpread
     };
 
+    enum CoordinateMode {
+        LogicalMode,
+        StretchToDeviceMode
+    };
+
     QGradient();
 
     Type type() const { return m_type; }
@@ -152,6 +157,9 @@ public:
 
     void setStops(const QGradientStops &stops);
     QGradientStops stops() const;
+
+    CoordinateMode coordinateMode() const;
+    void setCoordinateMode(CoordinateMode mode);
 
     bool operator==(const QGradient &gradient); // 5.0 - remove me
     bool operator==(const QGradient &gradient) const;

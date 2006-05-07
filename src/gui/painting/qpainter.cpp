@@ -40,6 +40,8 @@
 // Other
 #include <math.h>
 
+#define QGradient_StretchToDevice 0x10000000
+
 // #define QT_DEBUG_DRAW
 #ifdef QT_DEBUG_DRAW
 bool qt_show_painter_debug_output = true;
@@ -52,6 +54,36 @@ void qt_format_text(const QFont &font,
                     int tabstops, int* tabarray, int tabarraylen,
                     QPainter *painter);
 
+/* Returns true if the gradient requires stretch to device...*/
+static inline bool check_gradient(const QBrush &brush)
+{
+    switch (brush.style()) {
+    case Qt::LinearGradientPattern:
+    case Qt::RadialGradientPattern:
+    case Qt::ConicalGradientPattern:
+        if (brush.gradient()->coordinateMode() == QGradient::StretchToDeviceMode)
+            return true;
+    default:
+        ;
+    }
+    return false;
+}
+
+/* Discards the emulation flags that are not relevant for line drawing
+   and returns the result
+*/
+static inline uint line_emulation(uint emulation)
+{
+    return emulation & (QPaintEngine::PrimitiveTransform
+                        | QPaintEngine::AlphaBlend
+                        | QPaintEngine::Antialiasing
+                        | QPaintEngine::BrushStroke
+                        | QPaintEngine::ConstantOpacity
+                        | QGradient_StretchToDevice);
+}
+
+
+
 void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperation op)
 {
 #ifdef QT_DEBUG_DRAW
@@ -62,6 +94,11 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     if (originalPath.isEmpty())
         return;
+
+    if (state->emulationSpecifier == QGradient_StretchToDevice) {
+        drawStretchToDevice(originalPath, op);
+        return;
+    }
 
     Q_Q(QPainter);
     int devMinX = 0, devMaxX = 0, devMinY = 0, devMaxY = 0;
@@ -155,6 +192,66 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
                  QRectF(0, 0, absPathRect.width(), absPathRect.height()),
                  Qt::OrderedDither | Qt::OrderedAlphaDither);
     q->restore();
+}
+
+
+void QPainterPrivate::drawStretchToDevice(const QPainterPath &path, DrawOperation op)
+{
+    Q_Q(QPainter);
+
+    double sw = original_device->width();
+    double sh = original_device->height();
+
+    QMatrix inv(1.0/sw, 0, 0, 1.0/sh, 0, 0);
+
+    QPen pen = state->pen;
+    QBrush brush = state->brush;
+
+    if ((op & FillDraw) && brush.style() == Qt::NoBrush) op = DrawOperation(op - FillDraw);
+    if ((op & StrokeDraw) && pen.style() == Qt::NoPen) op = DrawOperation(op - StrokeDraw);
+
+    q->scale(sw, sh);
+    q->setPen(Qt::NoPen);
+    updateState(state);
+
+    // Draw the xformed fill if the brush is a stretch gradient.
+    if ((op & FillDraw) && check_gradient(brush)) {
+        engine->drawPath(path * inv);
+        op = DrawOperation(op - FillDraw);
+    }
+
+    // Draw the xformed outline if the pen is a stretch gradient.
+    if ((op & StrokeDraw) && check_gradient(pen.brush())) {
+        q->setBrush(pen.brush());
+        updateState(state);
+
+        QPainterPathStroker stroker;
+        stroker.setDashPattern(pen.style());
+        stroker.setWidth(pen.widthF());
+        stroker.setJoinStyle(pen.joinStyle());
+        stroker.setCapStyle(pen.capStyle());
+        stroker.setMiterLimit(pen.miterLimit());
+        QPainterPath stroke = stroker.createStroke(path);
+
+        engine->drawPath(stroke * inv);
+        op = DrawOperation(op - StrokeDraw);
+    }
+
+    q->scale(1/sw, 1/sh);
+
+    if (op & FillDraw) {
+        updateState(state);
+        engine->drawPath(path);
+    }
+
+    q->setPen(pen);
+
+    if (op & StrokeDraw) {
+        q->setBrush(Qt::NoBrush);
+        updateState(state);
+        engine->drawPath(path);
+        q->setBrush(brush);
+    }
 }
 
 
@@ -254,14 +351,14 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         skip = false;
 
         QBrush penBrush = s->pen.brush();
-        alpha |= (!penBrush.isOpaque() || !s->brush.isOpaque());
-        linearGradient |= ((penBrush.style() == Qt::LinearGradientPattern) ||
+        alpha = (!penBrush.isOpaque() || !s->brush.isOpaque());
+        linearGradient = ((penBrush.style() == Qt::LinearGradientPattern) ||
                            (s->brush.style() == Qt::LinearGradientPattern));
-        radialGradient |= ((penBrush.style() == Qt::RadialGradientPattern) ||
+        radialGradient = ((penBrush.style() == Qt::RadialGradientPattern) ||
                            (s->brush.style() == Qt::RadialGradientPattern));
-        conicalGradient |= ((penBrush.style() == Qt::ConicalGradientPattern) ||
+        conicalGradient = ((penBrush.style() == Qt::ConicalGradientPattern) ||
                             (s->brush.style() == Qt::ConicalGradientPattern));
-        patternBrush |= (((penBrush.style() > Qt::SolidPattern
+        patternBrush = (((penBrush.style() > Qt::SolidPattern
                            && penBrush.style() < Qt::LinearGradientPattern)
                           || s->brush.style() == Qt::TexturePattern) ||
                          ((s->brush.style() > Qt::SolidPattern
@@ -349,6 +446,16 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         s->emulationSpecifier |= QPaintEngine::ConstantOpacity;
     else
         s->emulationSpecifier &= ~QPaintEngine::ConstantOpacity;
+
+    bool gradientStretch = false;
+    if (linearGradient || conicalGradient || radialGradient) {
+        gradientStretch |= check_gradient(s->brush);
+        gradientStretch |= check_gradient(s->pen.brush());
+    }
+    if (gradientStretch)
+        s->emulationSpecifier |= QGradient_StretchToDevice;
+    else
+        s->emulationSpecifier &= ~QGradient_StretchToDevice;
 }
 
 
@@ -3204,12 +3311,8 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    uint lineEmulation = d->state->emulationSpecifier
-                         & (QPaintEngine::PrimitiveTransform
-                            | QPaintEngine::AlphaBlend
-                            | QPaintEngine::Antialiasing
-                            | QPaintEngine::BrushStroke
-                            | QPaintEngine::ConstantOpacity);
+    uint lineEmulation = line_emulation(d->state->emulationSpecifier);
+
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::PrimitiveTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
@@ -3253,12 +3356,8 @@ void QPainter::drawLines(const QLine *lines, int lineCount)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    uint lineEmulation = d->state->emulationSpecifier
-                         & (QPaintEngine::PrimitiveTransform
-                            | QPaintEngine::AlphaBlend
-                            | QPaintEngine::Antialiasing
-                            | QPaintEngine::BrushStroke
-                            | QPaintEngine::ConstantOpacity);
+    uint lineEmulation = line_emulation(d->state->emulationSpecifier);
+
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::PrimitiveTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
@@ -3381,12 +3480,7 @@ void QPainter::drawPolyline(const QPointF *points, int pointCount)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    uint lineEmulation = d->state->emulationSpecifier
-                         & (QPaintEngine::PrimitiveTransform
-                            | QPaintEngine::AlphaBlend
-                            | QPaintEngine::Antialiasing
-                            | QPaintEngine::BrushStroke
-                            | QPaintEngine::ConstantOpacity);
+    uint lineEmulation = line_emulation(d->state->emulationSpecifier);
 
     if (lineEmulation) {
         // ###
@@ -3422,12 +3516,7 @@ void QPainter::drawPolyline(const QPoint *points, int pointCount)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    uint lineEmulation = d->state->emulationSpecifier
-                         & (QPaintEngine::PrimitiveTransform
-                            | QPaintEngine::AlphaBlend
-                            | QPaintEngine::Antialiasing
-                            | QPaintEngine::BrushStroke
-                            | QPaintEngine::ConstantOpacity);
+    uint lineEmulation = line_emulation(d->state->emulationSpecifier);
 
     if (lineEmulation) {
         // ###

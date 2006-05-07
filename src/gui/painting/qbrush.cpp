@@ -894,6 +894,7 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     \internal
 */
 QGradient::QGradient()
+    : dummy(0)
 {
 }
 
@@ -1018,11 +1019,42 @@ QGradientStops QGradient::stops() const
 
 
 /*!
+    Returns the coordinate mode of this gradient.
+
+    \sa setCoordinateMode(), CoordinateMode
+*/
+
+QGradient::CoordinateMode QGradient::coordinateMode() const
+{
+    if (dummy == 0)
+        return LogicalMode;
+    else
+        return StretchToDeviceMode;
+}
+
+/*!
+    Sets the coordinate mode of this gradient to mode
+
+    \sa coordinateMode(), CoordinateMode
+*/
+void QGradient::setCoordinateMode(QGradient::CoordinateMode mode)
+{
+    if (mode == LogicalMode)
+        dummy = 0;
+    else
+        dummy = (void *) 1;
+}
+
+
+
+/*!
     \internal
 */
 bool QGradient::operator==(const QGradient &gradient) const
 {
-    if (gradient.m_type != m_type || gradient.m_spread != m_spread) return false;
+    if (gradient.m_type != m_type
+        || gradient.m_spread != m_spread
+        || gradient.dummy == dummy) return false;
 
     if (m_type == LinearGradient) {
         if (m_data.linear.x1 != gradient.m_data.linear.x1
