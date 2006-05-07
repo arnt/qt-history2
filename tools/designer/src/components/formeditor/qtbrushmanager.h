@@ -8,9 +8,10 @@
 #include <QMap>
 #include <QBrush>
 
-class QtBrushManagerPrivate;
 
 namespace qdesigner_internal {
+
+class QtBrushManagerPrivate;
 
 class QT_FORMEDITOR_EXPORT QtBrushManager : public QDesignerBrushManagerInterface
 {

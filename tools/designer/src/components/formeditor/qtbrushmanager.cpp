@@ -4,6 +4,8 @@
 
 using namespace qdesigner_internal;
 
+namespace qdesigner_internal {
+
 class QtBrushManagerPrivate
 {
     QtBrushManager *q_ptr;
@@ -13,6 +15,7 @@ public:
     QString theCurrentBrush;
 };
 
+}  // namespace qdesigner_internal
 
 QtBrushManager::QtBrushManager(QObject *parent)
     : QDesignerBrushManagerInterface(parent)
