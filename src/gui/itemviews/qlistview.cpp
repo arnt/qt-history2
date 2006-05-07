@@ -533,8 +533,6 @@ void QListView::reset()
 void QListView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QListView);
-    if (index == d->root)
-        return;
     if (model())
         d->column = qBound(0, d->column, model()->columnCount(index) - 1);
     QAbstractItemView::setRootIndex(index);
@@ -552,20 +550,40 @@ void QListView::scrollContentsBy(int dx, int dy)
     dx = isRightToLeft() ? -dx : dx;
 
     if (scrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
-        if (d->flow == TopToBottom && dy != 0) {
-            int currentValue = verticalScrollBar()->value();
-            int previousValue = currentValue + dy;
-            int currentCoordinate = d->flowPositions.at(currentValue);
-            int previousCoordinate = d->flowPositions.at(previousValue);
-            dy = previousCoordinate - currentCoordinate;
-        } else if (d->flow == LeftToRight && dx != 0) {
-            int currentValue = horizontalScrollBar()->value();
-            int previousValue = currentValue + dx;
-            int currentCoordinate = d->flowPositions.at(currentValue);
-            int previousCoordinate = d->flowPositions.at(previousValue);
-            dx = previousCoordinate - currentCoordinate;
+        if (d->wrap) {
+            const int max = d->segmentPositions.count();
+            if (d->flow == TopToBottom && dx != 0) {
+                int currentValue = qBound(0, horizontalScrollBar()->value(), max);
+                int previousValue = qBound(0, currentValue + dx, max);
+                int currentCoordinate = d->segmentPositions.at(currentValue);
+                int previousCoordinate = d->segmentPositions.at(previousValue);
+                dx = previousCoordinate - currentCoordinate;
+            } else if (d->flow == LeftToRight && dy != 0) {
+                int currentValue = qBound(0, verticalScrollBar()->value(), max);
+                int previousValue = qBound(0, currentValue + dy, max);
+                int currentCoordinate = d->segmentPositions.at(currentValue);
+                int previousCoordinate = d->segmentPositions.at(previousValue);
+                dy = previousCoordinate - currentCoordinate;
+            }
+        } else {
+            const int max = d->flowPositions.count();
+            if (d->flow == TopToBottom && dy != 0) {
+                int currentValue = qBound(0, verticalScrollBar()->value(), max);
+                int previousValue = qBound(0, currentValue + dy, max);
+                int currentCoordinate = d->flowPositions.at(currentValue);
+                int previousCoordinate = d->flowPositions.at(previousValue);
+                dy = previousCoordinate - currentCoordinate;
+            } else if (d->flow == LeftToRight && dx != 0) {
+                int currentValue = qBound(0, horizontalScrollBar()->value(), max);
+                int previousValue = qBound(0, currentValue + dx, max);
+                int currentCoordinate = d->flowPositions.at(currentValue);
+                int previousCoordinate = d->flowPositions.at(previousValue);
+                dx = previousCoordinate - currentCoordinate;
+            }
         }
-    } else if (state() == DragSelectingState) {
+    }
+
+    if (state() == DragSelectingState) {
         if (dx > 0) // right
             d->elasticBand.moveRight(d->elasticBand.right() + dx);
         else if (dx < 0) // left
@@ -575,6 +593,7 @@ void QListView::scrollContentsBy(int dx, int dy)
         else if (dy < 0) // up
             d->elasticBand.moveTop(d->elasticBand.top() - dy);
     }
+
     d->scrollContentsBy(dx, dy);
 
     // update the dragged items
@@ -1028,12 +1047,22 @@ QModelIndex QListView::indexAt(const QPoint &p) const
 int QListView::horizontalOffset() const
 {
     Q_D(const QListView);
-    if (scrollMode() == QAbstractItemView::ScrollPerItem
-        && d->movement == Static && d->flow == LeftToRight
-        && !d->flowPositions.isEmpty()) {
-        int position = d->flowPositions.at(horizontalScrollBar()->value());
-        int maximum = d->flowPositions.at(horizontalScrollBar()->maximum());
-        return (isRightToLeft() ? maximum - position : position);
+    if (scrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static ) {
+        if (d->wrap) {
+            if (d->flow == TopToBottom && !d->segmentPositions.isEmpty()) {
+                int position = d->segmentPositions.at(horizontalScrollBar()->value());
+                int maximum = d->segmentPositions.at(horizontalScrollBar()->maximum());
+                return (isRightToLeft() ? maximum - position : position);
+            }
+            //return 0;
+        } else {
+            if (d->flow == LeftToRight && !d->flowPositions.isEmpty()) {
+                int position = d->flowPositions.at(horizontalScrollBar()->value());
+                int maximum = d->flowPositions.at(horizontalScrollBar()->maximum());
+                return (isRightToLeft() ? maximum - position : position);
+            }
+            //return 0;
+        }
     }
     return (isRightToLeft()
             ? horizontalScrollBar()->maximum() - horizontalScrollBar()->value()
@@ -1046,11 +1075,14 @@ int QListView::horizontalOffset() const
 int QListView::verticalOffset() const
 {
     Q_D(const QListView);
-    if (scrollMode() == QAbstractItemView::ScrollPerItem
-        && d->movement == Static && d->flow == TopToBottom
-        && !d->flowPositions.isEmpty()) {
-        //qDebug() << "verticalOffset" << d->flowPositions.at(verticalScrollBar()->value());
-        return d->flowPositions.at(verticalScrollBar()->value());
+    if (scrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
+        if (d->wrap) {
+            if (d->flow == LeftToRight && !d->segmentPositions.isEmpty())
+                return d->segmentPositions.at(verticalScrollBar()->value());
+        } else {
+            if (d->flow == TopToBottom && !d->flowPositions.isEmpty())
+                return d->flowPositions.at(verticalScrollBar()->value());
+        }
     }
     return verticalScrollBar()->value();
 }
@@ -1331,30 +1363,14 @@ void QListView::updateGeometries()
 
         QSize vsize = d->viewport->size();
         QSize max = maximumViewportSize();
-
         if (max.width() >= d->contentsSize.width() && max.height() >= d->contentsSize.height())
             vsize = max;
 
         const bool perItemScrolling = (scrollMode() == QAbstractItemView::ScrollPerItem
                                        && d->movement == Static);
         if (d->flow == TopToBottom) {
-            horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
-            horizontalScrollBar()->setPageStep(vsize.width());
-            horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
-            if (perItemScrolling && d->segmentPositions.count() != 0) {
-                int steps = (d->flowPositions.count() / d->segmentPositions.count()) - 1;
-                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), steps);
-                verticalScrollBar()->setSingleStep(1);
-                verticalScrollBar()->setPageStep(pageSteps);
-                verticalScrollBar()->setRange(0, steps - pageSteps + 1);
-            } else {
-                verticalScrollBar()->setSingleStep(step.height() + d->spacing);
-                verticalScrollBar()->setPageStep(vsize.height());
-                verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
-            }
-        } else { // LeftToRight
-            if (perItemScrolling && d->segmentPositions.count() != 0) {
-                int steps = (d->flowPositions.count() / d->segmentPositions.count()) - 1;
+            if (perItemScrolling && d->wrap) { // ###
+                int steps = d->segmentPositions.count();
                 int pageSteps = d->perItemScrollingPageSteps(vsize.width(), steps);
                 horizontalScrollBar()->setSingleStep(1);
                 horizontalScrollBar()->setPageStep(pageSteps);
@@ -1364,9 +1380,40 @@ void QListView::updateGeometries()
                 horizontalScrollBar()->setPageStep(vsize.width());
                 horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
             }
-            verticalScrollBar()->setSingleStep(step.height() + d->spacing);
-            verticalScrollBar()->setPageStep(vsize.height());
-            verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
+            if (perItemScrolling && !d->wrap) {
+                int steps = d->flowPositions.count();
+                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), steps);
+                verticalScrollBar()->setSingleStep(1);
+                verticalScrollBar()->setPageStep(pageSteps);
+                verticalScrollBar()->setRange(0, steps - pageSteps);
+            } else {
+                verticalScrollBar()->setSingleStep(step.height() + d->spacing);
+                verticalScrollBar()->setPageStep(vsize.height());
+                verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
+            }
+        } else { // LeftToRight
+            if (perItemScrolling && !d->wrap) {
+                int steps = d->flowPositions.count();
+                int pageSteps = d->perItemScrollingPageSteps(vsize.width(), steps);
+                horizontalScrollBar()->setSingleStep(1);
+                horizontalScrollBar()->setPageStep(pageSteps);
+                horizontalScrollBar()->setRange(0, steps - pageSteps);
+            } else {
+                horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
+                horizontalScrollBar()->setPageStep(vsize.width());
+                horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
+            }
+            if (perItemScrolling && d->wrap) { // ###
+                int steps = d->segmentPositions.count();
+                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), steps);
+                verticalScrollBar()->setSingleStep(1);
+                verticalScrollBar()->setPageStep(pageSteps);
+                verticalScrollBar()->setRange(0, steps - pageSteps + 1);
+            } else {
+                verticalScrollBar()->setSingleStep(step.height() + d->spacing);
+                verticalScrollBar()->setPageStep(vsize.height());
+                verticalScrollBar()->setRange(0, d->contentsSize.height() - vsize.height());
+            }
         }
     }
     // if the scrollbars are turned off, we resize the contents to the viewport
@@ -1474,15 +1521,11 @@ void QListViewPrivate::prepareItemsLayout()
 {
     Q_Q(QListView);
     clear();
-    layoutBounds = viewport->rect();
+    layoutBounds = QRect(QPoint(0,0), q->maximumViewportSize());
 
-    if (resizeMode == QListView::Adjust) {
-        int verticalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->verticalScrollBar());
-        int dw = q->verticalScrollBar()->isVisible() ? 0 : verticalMargin;
-        int horizontalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->horizontalScrollBar());
-        int dh = q->horizontalScrollBar()->isVisible() ? 0 : horizontalMargin;
-        layoutBounds.adjust(0, 0, -dw, -dh);
-    }
+    int verticalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->verticalScrollBar());
+    int horizontalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->horizontalScrollBar());
+    layoutBounds.adjust(0, 0, -verticalMargin, -horizontalMargin);
 
     int rowCount = model ? model->rowCount(root) : 0;
     int colCount = model ? model->columnCount(root) : 0;
@@ -2044,13 +2087,15 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
     QRect result = rect;
 
     // If the listview is in "listbox-mode", the items are as wide as the view.
-    if (!wrap && movement == QListView::Static && flow == QListView::TopToBottom) {
-        if (q_func()->isRightToLeft()) {
-            // Adjust the rect by expanding the left edge
-            result.setLeft(result.right() - qMax(contentsSize.width(), viewport->width()));
-        } else {
-            // Adjust the rect by expanding the right edge
-            result.setWidth(qMax(contentsSize.width(), viewport->width()));
+    if (!wrap && movement == QListView::Static) {
+        QSize vsize = viewport->size();
+        if (flow == QListView::TopToBottom) {
+            if (q_func()->isRightToLeft()) // Adjust the rect by expanding the left edge
+                result.setLeft(result.right() - qMax(contentsSize.width(), vsize.width()));
+            else // Adjust the rect by expanding the right edge
+                result.setWidth(qMax(contentsSize.width(), vsize.width()));
+        } else { // LeftToRight
+            result.setHeight(qMax(contentsSize.height(), vsize.height()));
         }
     }
 
@@ -2107,12 +2152,16 @@ QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QMode
 
 int QListViewPrivate::perItemScrollingPageSteps(int length, int steps) const
 {
+    const QVector<int> positions = (wrap ? segmentPositions : flowPositions);
+    if (positions.isEmpty())
+        return 0;
+    const int lastPosition = (wrap ?  segmentPositions.last() : batchSavedPosition);
     if (uniformItemSizes)
-        return length / flowPositions.at(1);
+        return length / positions.at(1);
     int pageSteps = 0;
-    int pos = length - (batchSavedPosition - flowPositions.at(steps));
+    int pos = length - (lastPosition - positions.at(--steps));
     while (pos > 0 && steps > 0) {
-        pos -= (flowPositions.at(steps) - flowPositions.at(steps - 1));
+        pos -= (positions.at(steps) - positions.at(steps - 1));
         ++pageSteps;
         --steps;
     }
