@@ -1,8 +1,8 @@
 #include "qtbrusheditor.h"
 #include "qtbrushpatterndialog.h"
 #include "qtgradientdialog.h"
-#include "qtbrushmanager.h"
 #include "ui_qtbrusheditor.h"
+#include "abstractbrushmanager.h"
 
 class QtBrushEditorPrivate
 {
@@ -24,7 +24,7 @@ public:
     void slotCurrentBrushChanged(const QString &name, const QBrush &brush);
 
     QBrush m_brush;
-    QtBrushManager *m_brushManager;
+    QDesignerBrushManagerInterface *m_brushManager;
 
     QMap<QString, QListWidgetItem *> m_brushToItem;
     QMap<QListWidgetItem *, QString> m_itemToBrush;
@@ -294,7 +294,7 @@ QBrush QtBrushEditor::brush() const
     return d_ptr->m_brush;
 }
 
-void QtBrushEditor::setBrushManager(QtBrushManager *manager)
+void QtBrushEditor::setBrushManager(QDesignerBrushManagerInterface *manager)
 {
     if (d_ptr->m_brushManager == manager)
         return;

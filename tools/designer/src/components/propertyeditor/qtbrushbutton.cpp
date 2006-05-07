@@ -12,7 +12,7 @@ public:
     void slotEditBrush();
     QBrush m_brush;
     bool m_backgroundTransparent;
-    QtBrushManager *m_brushManager;
+    QDesignerBrushManagerInterface *m_brushManager;
     QtBrushDialog *m_dialog;
 };
 
@@ -153,7 +153,7 @@ void QtBrushButton::paintEvent(QPaintEvent *e)
     }
 }
 
-void QtBrushButton::setBrushManager(QtBrushManager *manager)
+void QtBrushButton::setBrushManager(QDesignerBrushManagerInterface *manager)
 {
     d_ptr->m_brushManager = manager;
 }

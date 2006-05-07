@@ -2,6 +2,8 @@
 #include <QPixmap>
 #include <QPainter>
 
+using namespace qdesigner_internal;
+
 class QtBrushManagerPrivate
 {
     QtBrushManager *q_ptr;
@@ -13,7 +15,7 @@ public:
 
 
 QtBrushManager::QtBrushManager(QObject *parent)
-    : QObject(parent)
+    : QDesignerBrushManagerInterface(parent)
 {
     d_ptr = new QtBrushManagerPrivate;
     d_ptr->q_ptr = this;

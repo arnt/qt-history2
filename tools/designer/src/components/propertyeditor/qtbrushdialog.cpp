@@ -37,7 +37,7 @@ QBrush QtBrushDialog::brush() const
     return d_ptr->m_ui.brushEditor->brush();
 }
 
-void QtBrushDialog::setBrushManager(QtBrushManager *manager)
+void QtBrushDialog::setBrushManager(QDesignerBrushManagerInterface *manager)
 {
     d_ptr->m_ui.brushEditor->setBrushManager(manager);
 }

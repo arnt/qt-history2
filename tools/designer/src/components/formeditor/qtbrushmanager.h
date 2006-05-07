@@ -1,11 +1,18 @@
 #ifndef QTBRUSHMANAGER_H
 #define QTBRUSHMANAGER_H
 
+#include <QtDesigner/QtDesigner>
+#include "formeditor_global.h"
+
 #include <QObject>
 #include <QMap>
 #include <QBrush>
 
-class QtBrushManager : public QObject
+class QtBrushManagerPrivate;
+
+namespace qdesigner_internal {
+
+class QT_FORMEDITOR_EXPORT QtBrushManager : public QDesignerBrushManagerInterface
 {
     Q_OBJECT
 public:
@@ -27,9 +34,11 @@ signals:
     void currentBrushChanged(const QString &name, const QBrush &brush);
 
 private:
-    class QtBrushManagerPrivate *d_ptr;
+    QtBrushManagerPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QtBrushManager)
     Q_DISABLE_COPY(QtBrushManager)
 };
+
+}  // namespace qdesigner_internal
 
 #endif

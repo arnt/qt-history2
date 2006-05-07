@@ -222,6 +222,20 @@ void QDesignerFormEditorInterface::setObjectInspector(QDesignerObjectInspectorIn
 /*!
     \internal
 
+    Returns an interface to the brush manager used by the palette editor.
+*/
+QDesignerBrushManagerInterface *QDesignerFormEditorInterface::brushManager() const
+{ return m_brushManager; }
+
+/*!
+    \internal
+*/
+void QDesignerFormEditorInterface::setBrushManager(QDesignerBrushManagerInterface *brushManager)
+{ m_brushManager = brushManager; }
+
+/*!
+    \internal
+
     Returns an interface to the icon cache used by the form editor to
     manage icons.
 */

@@ -608,7 +608,7 @@ void QDesignerActions::previewForm(QAction *action)
             if (style != 0) {
                 style->setParent(widget);
                 widget->setStyle(style);
-                widget->setPalette(style->standardPalette());
+                //widget->setPalette(style->standardPalette());
                 QList<QWidget*> lst = qFindChildren<QWidget*>(widget);
                 foreach (QWidget *w, lst) {
                     if (w->windowType() == Qt::Popup)

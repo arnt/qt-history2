@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class QtBrushManager;
+class QDesignerBrushManagerInterface;
 
 class QtBrushEditor : public QWidget
 {
@@ -15,7 +15,7 @@ public:
     void setBrush(const QBrush &brush);
     QBrush brush() const;
 
-    void setBrushManager(QtBrushManager *manager);
+    void setBrushManager(QDesignerBrushManagerInterface *manager);
 
 signals:
     void textureChooserActivated(QWidget *parent, const QBrush &initialBrush);

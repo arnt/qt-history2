@@ -394,6 +394,7 @@ BrushEditor::BrushEditor(QDesignerFormEditorInterface *core, QWidget *parent)
     QLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     button = new QtBrushButton(this);
+    button->setBrushManager(m_core->brushManager());
     layout->addWidget(button);
     connect(button, SIGNAL(brushChanged(const QBrush &)), this, SLOT(brushChanged()));
     connect(button, SIGNAL(textureChooserActivated(QWidget *, const QBrush &)),

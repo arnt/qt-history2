@@ -14,6 +14,7 @@ HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/abstractwidgetfactory.h \
     $$PWD/abstractobjectinspector.h \
     $$PWD/abstractactioneditor.h \
+    $$PWD/abstractbrushmanager.h \
     $$PWD/abstracticoncache.h \
     $$PWD/propertysheet.h \
     $$PWD/membersheet.h \

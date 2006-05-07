@@ -31,7 +31,6 @@ HEADERS += $$PWD/propertyeditor.h \
     $$PWD/qtbrusheditor.h\
     $$PWD/qtbrushdialog.h\
     $$PWD/qtbrushbutton.h\
-    $$PWD/qtbrushmanager.h\
     $$PWD/qtbrushpatterneditor.h\
     $$PWD/qtbrushpatterndialog.h\
     $$PWD/qtspinbox.h\
@@ -56,7 +55,6 @@ SOURCES += $$PWD/propertyeditor.cpp \
     $$PWD/qtbrusheditor.cpp\
     $$PWD/qtbrushdialog.cpp\
     $$PWD/qtbrushbutton.cpp\
-    $$PWD/qtbrushmanager.cpp\
     $$PWD/qtbrushpatterneditor.cpp\
     $$PWD/qtbrushpatterndialog.cpp\
     $$PWD/qtspinbox.cpp\

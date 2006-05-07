@@ -22,6 +22,7 @@ HEADERS += \
            $$PWD/qdockwidget_container.h \
            $$PWD/qworkspace_container.h \
            $$PWD/default_layoutdecoration.h \
+           $$PWD/qtbrushmanager.h \
            $$PWD/iconcache.h \
            $$PWD/tool_widgeteditor.h
 
@@ -44,6 +45,7 @@ SOURCES += \
            $$PWD/default_layoutdecoration.cpp \
            $$PWD/default_actionprovider.cpp \
            $$PWD/tool_widgeteditor.cpp \
+           $$PWD/qtbrushmanager.cpp \
            $$PWD/iconcache.cpp
 
 RESOURCES += $$PWD/formeditor.qrc

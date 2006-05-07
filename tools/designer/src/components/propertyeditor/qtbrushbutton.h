@@ -3,7 +3,7 @@
 
 #include <QToolButton>
 
-class QtBrushManager;
+class QDesignerBrushManagerInterface;
 
 class QtBrushButton : public QToolButton
 {
@@ -19,7 +19,7 @@ public:
     void setBrush(const QBrush &brush);
     QBrush brush() const;
 
-    void setBrushManager(QtBrushManager *manager);
+    void setBrushManager(QDesignerBrushManagerInterface *manager);
 
 signals:
     void brushChanged(const QBrush &brush);
