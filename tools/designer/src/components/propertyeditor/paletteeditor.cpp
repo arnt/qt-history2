@@ -575,13 +575,11 @@ void ColorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
         painter->scale(option.rect.width(), option.rect.height());
         painter->fillRect(0, 0, 1, 1, br);
         painter->restore();
-    } else if (br.style() == Qt::TexturePattern) {
+    } else {
         painter->save();
         painter->setBrushOrigin(option.rect.x(), option.rect.y());
         painter->fillRect(option.rect, br);
         painter->restore();
-    } else {
-        painter->fillRect(option.rect, br);
     }
     QItemDelegate::paint(painter, option, index);
     painter->drawLine(option.rect.right(), option.rect.y(),
