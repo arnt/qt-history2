@@ -1566,8 +1566,8 @@ void QX11PaintEnginePrivate::fillPolygon_dev(const QPointF *polygonPoints, int p
             if (has_fill_texture) {
                 if (fill.texture().depth() == 1) {
                     for (int i=0; i < traps.size(); ++i) {
-                        int x_offset = XFixedToDouble(traps.at(i).left.p1.x) - bg_origin.x();
-                        int y_offset = XFixedToDouble(traps.at(i).left.p1.y) - bg_origin.y();
+                        int x_offset = int(XFixedToDouble(traps.at(i).left.p1.x) - bg_origin.x());
+                        int y_offset = int(XFixedToDouble(traps.at(i).left.p1.y) - bg_origin.y());
                         XRenderCompositeTrapezoids(dpy, composition_mode, src, picture,
                                                    antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
                                                    x_offset, y_offset,
