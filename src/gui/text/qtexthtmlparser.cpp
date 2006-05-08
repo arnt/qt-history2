@@ -735,7 +735,10 @@ void QTextHtmlParser::parseTag()
     if (hasPrefix(QLatin1Char('/'))) {
         if (nodes.last().id == Html_style) {
             QCss::Parser parser(nodes.last().text);
-            parser.parse(&inlineStyleSheet);
+            QCss::StyleSheet sheet;
+            parser.parse(&sheet);
+            inlineStyleSheets.append(sheet);
+            resolveStyleSheetImports(sheet);
         }
         parseCloseTag();
         return;
@@ -1548,27 +1551,15 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
         }
     }
     
-    if (doc && !linkHref.isEmpty() && linkType == QLatin1String("text/css")) {
-        QVariant res = doc->resource(QTextDocument::StyleSheetResource, linkHref);
-        QString css;
-        if (res.type() == QVariant::String) {
-            css = res.toString();
-        } else if (res.type() == QVariant::ByteArray) {
-            // #### detect @charset
-            css = QString::fromUtf8(res.toByteArray());
-        }
-        if (!css.isEmpty()) {
-            QCss::Parser parser(css);
-            parser.parse(&externalStyleSheet);
-        }
-    }
+    if (doc && !linkHref.isEmpty() && linkType == QLatin1String("text/css"))
+        importStyleSheet(linkHref);
 }
 
 class QTextHtmlStyleSelector : public QCss::StyleSelector
 {
 public:
-    inline QTextHtmlStyleSelector(const QTextHtmlParser *parser, const QCss::StyleSheet &sheet)
-        : QCss::StyleSelector(sheet), parser(parser) {}
+    inline QTextHtmlStyleSelector(const QTextHtmlParser *parser)
+        : parser(parser) {}
 
     virtual QString nodeName(NodePtr node) const;
     virtual QString attribute(NodePtr node, const QString &name) const;
@@ -1659,18 +1650,50 @@ void QTextHtmlStyleSelector::freeNode(NodePtr)
 {
 }
 
+void QTextHtmlParser::resolveStyleSheetImports(const QCss::StyleSheet &sheet)
+{
+    for (int i = 0; i < sheet.importRules.count(); ++i) {
+        const QCss::ImportRule &rule = sheet.importRules.at(i);
+        if (rule.media.isEmpty()
+            || rule.media.contains(QLatin1String("screen"), Qt::CaseInsensitive))
+            importStyleSheet(rule.href);
+    }
+}
+
+void QTextHtmlParser::importStyleSheet(const QString &href)
+{
+    if (externalStyleSheets.contains(href) || !doc)
+        return;
+    
+    QVariant res = doc->resource(QTextDocument::StyleSheetResource, href);
+    QString css;
+    if (res.type() == QVariant::String) {
+        css = res.toString();
+    } else if (res.type() == QVariant::ByteArray) {
+        // #### detect @charset
+        css = QString::fromUtf8(res.toByteArray());
+    }
+    if (!css.isEmpty()) {
+        QCss::Parser parser(css);
+        QCss::StyleSheet sheet;
+        parser.parse(&sheet);
+        externalStyleSheets.insert(href, sheet);
+        resolveStyleSheetImports(sheet);
+    }
+}
+
 QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(int node) const
 {
     QVector<QCss::Declaration> decls;
 
-    QTextHtmlStyleSelector selector(this, externalStyleSheet);
+    QTextHtmlStyleSelector selector(this);
+    selector.styleSheets = externalStyleSheets.values();
+    selector.styleSheets += inlineStyleSheets;
     selector.medium = QLatin1String("screen");
 
     QCss::StyleSelector::NodePtr n;
     n.id = node;
     decls = selector.declarationsForNode(n);
 
-    selector.styleSheet = inlineStyleSheet;
-    decls += selector.declarationsForNode(n);
     return decls;
 }

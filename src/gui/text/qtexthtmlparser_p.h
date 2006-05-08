@@ -278,9 +278,11 @@ protected:
     int margin(int i, int mar) const;
     
     QVector<QCss::Declaration> declarationsForNode(int node) const;
+    void resolveStyleSheetImports(const QCss::StyleSheet &sheet);
+    void importStyleSheet(const QString &href);
     
-    QCss::StyleSheet externalStyleSheet;
-    QCss::StyleSheet inlineStyleSheet;
+    QHash<QString, QCss::StyleSheet> externalStyleSheets;
+    QList<QCss::StyleSheet> inlineStyleSheets;
     QTextDocument *doc;
 };
 

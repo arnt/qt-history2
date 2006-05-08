@@ -196,7 +196,6 @@ struct Q_INTERNAL_EXPORT StyleSheet
 class Q_INTERNAL_EXPORT StyleSelector
 {
 public:
-    inline StyleSelector(const StyleSheet &sheet) : styleSheet(sheet) {}
     virtual ~StyleSelector();
     
     union NodePtr {
@@ -217,7 +216,7 @@ public:
     virtual NodePtr duplicateNode(NodePtr node) = 0;
     virtual void freeNode(NodePtr node) = 0;
 
-    StyleSheet styleSheet;
+    QList<StyleSheet> styleSheets;
     QString medium;
 private:
     void matchRules(NodePtr node, const QVector<StyleRule> &rules, QVector<QPair<int, StyleRule> > *matchingRules);

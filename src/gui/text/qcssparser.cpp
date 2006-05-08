@@ -503,13 +503,20 @@ void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, QV
 QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
 {
     QVector<Declaration> decls;
+    if (styleSheets.isEmpty())
+        return decls;
     
     QVector<QPair<int, StyleRule> > matchingRules;
-    matchRules(node, styleSheet.styleRules, &matchingRules);
-    if (!medium.isEmpty()) {
-        for (int i = 0; i < styleSheet.mediaRules.count(); ++i) {
-            if (styleSheet.mediaRules.at(i).media.contains(medium, Qt::CaseInsensitive)) {
-                matchRules(node, styleSheet.mediaRules.at(i).styleRules, &matchingRules);
+
+    for (int sheetIdx = 0; sheetIdx < styleSheets.count(); ++sheetIdx) {
+        const StyleSheet &styleSheet = styleSheets.at(sheetIdx);
+
+        matchRules(node, styleSheet.styleRules, &matchingRules);
+        if (!medium.isEmpty()) {
+            for (int i = 0; i < styleSheet.mediaRules.count(); ++i) {
+                if (styleSheet.mediaRules.at(i).media.contains(medium, Qt::CaseInsensitive)) {
+                    matchRules(node, styleSheet.mediaRules.at(i).styleRules, &matchingRules);
+                }
             }
         }
     }
@@ -601,7 +608,8 @@ QVector<Symbol> Scanner::scan(const QString &preprocessedInput)
 QString Symbol::lexem() const
 {
     QString result;
-    result.reserve(len);
+    if (len > 0)
+        result.reserve(len);
     for (int i = 0; i < len; ++i) {
         if (text.at(start + i) == QLatin1Char('\\') && i < len - 1)
             ++i;
@@ -648,7 +656,7 @@ bool Parser::parse(StyleSheet *styleSheet)
             styleSheet->styleRules.append(rule);
         } else if (test(ATKEYWORD_SYM)) {
             if (!until(RBRACE)) return false;
-        } else {
+        } else if (hasNext()) {
             return false;
         }
         while (test(S) || test(CDO) || test(CDC));
