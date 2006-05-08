@@ -966,6 +966,11 @@ void WriteInitialization::writeBrush(DomBrush *brush, const QString &brushName)
         output << option.indent << gradientName << ".setSpread(QGradient::"
                 << gradient->attributeSpread() << ");\n";
 
+        if (gradient->hasAttributeCoordinateMode()) {
+            output << option.indent << gradientName << ".setCoordinateMode(QGradient::"
+                    << gradient->attributeCoordinateMode() << ");\n";
+        }
+
         QList<DomGradientStop *> stops = gradient->elementGradientStop();
         QListIterator<DomGradientStop *> it(stops);
         while (it.hasNext()) {
