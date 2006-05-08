@@ -79,6 +79,7 @@ class QAbstractFormBuilderGadget: public QWidget
     Q_PROPERTY(Qt::BrushStyle brushStyle READ fakeBrushStyle)
     Q_PROPERTY(QGradient::Type gradientType READ fakeGradientType)
     Q_PROPERTY(QGradient::Spread gradientSpread READ fakeGradientSpread)
+    Q_PROPERTY(QGradient::CoordinateMode gradientCoordinate READ fakeGradientCoordinate)
 public:
     QAbstractFormBuilderGadget() { Q_ASSERT(0); }
 
@@ -89,6 +90,7 @@ public:
     Qt::BrushStyle fakeBrushStyle() const       { Q_ASSERT(0); return Qt::NoBrush; }
     QGradient::Type fakeGradientType() const    { Q_ASSERT(0); return QGradient::NoGradient; }
     QGradient::Spread fakeGradientSpread() const  { Q_ASSERT(0); return QGradient::PadSpread; }
+    QGradient::CoordinateMode fakeGradientCoordinate() const  { Q_ASSERT(0); return QGradient::LogicalMode; }
 };
 
 #ifdef Q_WS_MAC
@@ -1081,6 +1083,10 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
         Q_ASSERT(e_index != -1);
         QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
 
+        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("coordinateMode");
+        Q_ASSERT(e_index != -1);
+        QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
         DomGradient *gradient = brush->elementGradient();
         int type = gradientType_enum.keyToValue(gradient->attributeType().toLatin1());
 
@@ -1102,6 +1108,9 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
 
         int spread = gradientSpread_enum.keyToValue(gradient->attributeSpread().toLatin1());
         gr->setSpread((QGradient::Spread)spread);
+
+        int coord = gradientCoordinate_enum.keyToValue(gradient->attributeCoordinateMode().toLatin1());
+        gr->setCoordinateMode((QGradient::CoordinateMode)coord);
 
         QList<DomGradientStop *> stops = gradient->elementGradientStop();
         QListIterator<DomGradientStop *> it(stops);
@@ -1156,11 +1165,16 @@ DomBrush *QAbstractFormBuilder::saveBrush(const QBrush &br)
         Q_ASSERT(e_index != -1);
         QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
 
+        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("gradientCoordinate");
+        Q_ASSERT(e_index != -1);
+        QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
+
         DomGradient *gradient = new DomGradient();
         const QGradient *gr = br.gradient();
         QGradient::Type type = gr->type();
         gradient->setAttributeType(gradientType_enum.valueToKey(type));
         gradient->setAttributeSpread(gradientSpread_enum.valueToKey(gr->spread()));
+        gradient->setAttributeCoordinateMode(gradientCoordinate_enum.valueToKey(gr->coordinateMode()));
         QList<DomGradientStop *> stops;
         QGradientStops st = gr->stops();
         QVectorIterator<QPair<qreal, QColor> > it(st);

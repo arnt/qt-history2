@@ -1361,6 +1361,11 @@ public:
     inline void setAttributeSpread(const QString& a) { m_attr_spread = a; m_has_attr_spread = true; }
     inline void clearAttributeSpread() { m_has_attr_spread = false; }
 
+    inline bool hasAttributeCoordinateMode() { return m_has_attr_coordinateMode; }
+    inline QString attributeCoordinateMode() { return m_attr_coordinateMode; }
+    inline void setAttributeCoordinateMode(const QString& a) { m_attr_coordinateMode = a; m_has_attr_coordinateMode = true; }
+    inline void clearAttributeCoordinateMode() { m_has_attr_coordinateMode = false; }
+
     // child element accessors
     inline QList<DomGradientStop*> elementGradientStop() { return m_gradientStop; }
     void setElementGradientStop(const QList<DomGradientStop*>& a);
@@ -1405,6 +1410,9 @@ private:
 
     QString m_attr_spread;
     bool m_has_attr_spread;
+
+    QString m_attr_coordinateMode;
+    bool m_has_attr_coordinateMode;
 
     // child element data
     QList<DomGradientStop*> m_gradientStop;

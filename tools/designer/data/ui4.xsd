@@ -264,6 +264,7 @@
                 <xs:attribute name="angle" type="xs:double" />
                 <xs:attribute name="type" type="xs:string" />
                 <xs:attribute name="spread" type="xs:string" />
+                <xs:attribute name="coordinateMode" type="xs:string" />
         </xs:complexType>
 
         <xs:complexType name="Brush">

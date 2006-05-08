@@ -2853,6 +2853,7 @@ void DomGradient::clear(bool clear_all)
     m_attr_angle = 0.0;
     m_has_attr_type = false;
     m_has_attr_spread = false;
+    m_has_attr_coordinateMode = false;
     }
 
 }
@@ -2881,6 +2882,7 @@ DomGradient::DomGradient()
     m_attr_angle = 0.0;
     m_has_attr_type = false;
     m_has_attr_spread = false;
+    m_has_attr_coordinateMode = false;
 }
 
 DomGradient::~DomGradient()
@@ -2916,6 +2918,8 @@ void DomGradient::read(const QDomElement &node)
         setAttributeType(node.attribute(QLatin1String("type")));
     if (node.hasAttribute(QLatin1String("spread")))
         setAttributeSpread(node.attribute(QLatin1String("spread")));
+    if (node.hasAttribute(QLatin1String("coordinatemode")))
+        setAttributeCoordinateMode(node.attribute(QLatin1String("coordinatemode")));
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -2978,6 +2982,9 @@ QDomElement DomGradient::write(QDomDocument &doc, const QString &tagName)
 
     if (hasAttributeSpread())
         e.setAttribute(QLatin1String("spread"), attributeSpread());
+
+    if (hasAttributeCoordinateMode())
+        e.setAttribute(QLatin1String("coordinatemode"), attributeCoordinateMode());
 
     for (int i = 0; i < m_gradientStop.size(); ++i) {
         DomGradientStop* v = m_gradientStop[i];
