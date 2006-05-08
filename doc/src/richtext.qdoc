@@ -1013,4 +1013,8 @@ Ideas for other sections:
             \o Vertical text alignment
     \endtable
 
+    \section1 Supported CSS Selectors
+    All CSS 2.1 selector classes are supported except pseudo class selectors such as
+    :first-child, :visited or :hover.
+
 */
