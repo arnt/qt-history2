@@ -1664,6 +1664,8 @@ QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(int node) const
     QVector<QCss::Declaration> decls;
 
     QTextHtmlStyleSelector selector(this, externalStyleSheet);
+    selector.medium = QLatin1String("screen");
+
     QCss::StyleSelector::NodePtr n;
     n.id = node;
     decls = selector.declarationsForNode(n);

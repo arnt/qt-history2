@@ -476,53 +476,49 @@ bool StyleSelector::basicSelectorMatches(const BasicSelector &sel, NodePtr node)
     return true;
 }
 
-namespace QCss {
-    struct SelectorSortHelper
-    {
-        inline SelectorSortHelper(QVector<StyleRule> &rules) : rules(rules) {}
+static inline bool qcss_selectorLessThan(const QPair<int, QCss::StyleRule> &lhs, const QPair<int, QCss::StyleRule> &rhs)
+{
+    return lhs.first < rhs.first;
+}
 
-        bool operator()(const QPair<int, int> &lhs, const QPair<int, int> &rhs) const
-        {
-            return rules.at(lhs.first).selectors.at(lhs.second).specificity()
-                   < rules.at(rhs.first).selectors.at(rhs.second).specificity();
+void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, QVector<QPair<int, StyleRule> > *matchingRules)
+{
+    for (int i = 0; i < rules.count(); ++i) {
+        const StyleRule &rule = rules.at(i);
+        int maxSpecificity = -1;
+        for (int j = 0; j < rule.selectors.count(); ++j) {
+            if (selectorMatches(rule.selectors.at(j), node)) {
+                maxSpecificity = qMax(maxSpecificity, rule.selectors.at(j).specificity());
+            }
         }
-        
-        QVector<StyleRule> &rules;
-    };
+        if (maxSpecificity != -1) {
+            QPair<int, StyleRule> r;
+            r.first = maxSpecificity;
+            r.second = rule;
+            matchingRules->append(r);
+        }
+    }
 }
 
 QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
 {
     QVector<Declaration> decls;
     
-    // first field in pair is index in styleRules, second field is
-    // index within style rule
-    QVector<QPair<int, int> > selectors;
-
-    for (int i = 0; i < styleSheet.styleRules.count(); ++i) {
-        const StyleRule &rule = styleSheet.styleRules.at(i);
-        int matchingSelector = -1;
-        for (int j = 0; j < rule.selectors.count(); ++j) {
-            if (selectorMatches(rule.selectors.at(j), node)) {
-                if (matchingSelector == -1
-                    || rule.selectors.at(j).specificity() > rule.selectors.at(matchingSelector).specificity())
-                    matchingSelector = j;
+    QVector<QPair<int, StyleRule> > matchingRules;
+    matchRules(node, styleSheet.styleRules, &matchingRules);
+    if (!medium.isEmpty()) {
+        for (int i = 0; i < styleSheet.mediaRules.count(); ++i) {
+            if (styleSheet.mediaRules.at(i).media.contains(medium, Qt::CaseInsensitive)) {
+                matchRules(node, styleSheet.mediaRules.at(i).styleRules, &matchingRules);
             }
-        }
-        if (matchingSelector != -1) {
-            QPair<int, int> selectorPtr;
-            selectorPtr.first = i;
-            selectorPtr.second = matchingSelector;
-            selectors.append(selectorPtr);
         }
     }
 
     // sort by specificity
-    SelectorSortHelper helper(styleSheet.styleRules);
-    qSort(selectors.begin(), selectors.end(), helper);
-   
-    for (int i = 0; i < selectors.count(); ++i)
-        decls += styleSheet.styleRules.at(selectors.at(i).first).declarations;
+    qSort(matchingRules.begin(), matchingRules.end(), qcss_selectorLessThan);
+
+    for (int i = 0; i < matchingRules.count(); ++i)
+        decls += matchingRules.at(i).second.declarations;
     
     return decls;
 }

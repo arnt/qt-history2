@@ -17,6 +17,7 @@
 #include <QStringList>
 #include <QVector>
 #include <QVariant>
+#include <QPair>
 
 namespace QCss
 {
@@ -217,7 +218,9 @@ public:
     virtual void freeNode(NodePtr node) = 0;
 
     StyleSheet styleSheet;
+    QString medium;
 private:
+    void matchRules(NodePtr node, const QVector<StyleRule> &rules, QVector<QPair<int, StyleRule> > *matchingRules);
     bool selectorMatches(const Selector &rule, NodePtr node);
     bool basicSelectorMatches(const BasicSelector &rule, NodePtr node);
 };
