@@ -42,7 +42,7 @@ FtpWindow::FtpWindow(QWidget *parent)
 
     progressDialog = new QProgressDialog(this);
 
-    connect(fileList, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
+    connect(fileList, SIGNAL(itemActivated(QListWidgetItem *)),
             this, SLOT(processItem(QListWidgetItem *)));
     connect(fileList, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)),
             this, SLOT(enableDownloadButton()));
@@ -80,11 +80,12 @@ void FtpWindow::connectOrDisconnect()
         ftp->deleteLater();
         ftp = 0;
         fileList->setEnabled(false);
+        cdToParentButton->setEnabled(false);
         downloadButton->setEnabled(false);
         connectButton->setText(tr("Connect"));
         return;
     }
-    
+
     QApplication::setOverrideCursor(Qt::WaitCursor);
     
     ftp = new QFtp(this);
@@ -95,6 +96,10 @@ void FtpWindow::connectOrDisconnect()
     connect(ftp, SIGNAL(dataTransferProgress(qint64, qint64)),
             this, SLOT(updateDataTransferProgress(qint64, qint64)));
 
+    fileList->clear();
+    currentPath.clear();
+    isDirectory.clear();
+    
     ftp->connectToHost(ftpServerLineEdit->text());
     ftp->login();
     ftp->list();
