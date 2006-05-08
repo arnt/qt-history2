@@ -153,7 +153,7 @@ public:
     void ensureCursorVisible();
 
     virtual QVariant loadResource(int type, const QUrl &name);
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
     QMenu *createStandardContextMenu();
 #endif
     

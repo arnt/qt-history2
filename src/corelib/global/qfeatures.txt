@@ -336,6 +336,13 @@ Requires: MENU TOOLBUTTON
 Name: QMenuBar
 SeeAlso: ???
 
+Feature: CONTEXTMENU
+Description: Supports pop-up menus on right mouse click
+Section: Widgets
+Requires: MENU
+Name: Context menu
+SeeeAlso: ???
+
 Feature: PROGRESSBAR
 Description: Supports presentation of operation progress.
 Section: Widgets

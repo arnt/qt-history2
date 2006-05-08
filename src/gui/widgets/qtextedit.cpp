@@ -2472,7 +2472,7 @@ bool QTextEdit::focusNextPrevChild(bool next)
 */
 void QTextEdit::contextMenuEvent(QContextMenuEvent *e)
 {
-#ifdef QT_NO_MENU
+#ifdef QT_NO_CONTEXTMENU
     Q_UNUSED(e);
 #else
     QMenu *menu = createStandardContextMenu();
@@ -2729,7 +2729,7 @@ void QTextEdit::wheelEvent(QWheelEvent *e)
 }
 #endif
 
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
 /*!  This function creates the standard context menu which is shown
   when the user clicks on the line edit with the right mouse
   button. It is called from the default contextMenuEvent() handler.
@@ -2782,7 +2782,7 @@ QMenu *QTextEdit::createStandardContextMenu()
 
     return menu;
 }
-#endif // QT_NO_MENU
+#endif // QT_NO_CONTEXTMENU
 
 /*!
   returns a QTextCursor at position \a pos (in viewport coordinates).
@@ -3750,7 +3750,7 @@ void QTextEdit::ensureCursorVisible()
 */
 #endif // QT_NO_TEXTEDIT
 
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
 #define NUM_CONTROL_CHARACTERS 10
 const struct QUnicodeControlCharacter {
     const char *text;
@@ -3799,7 +3799,7 @@ void QUnicodeControlCharacterMenu::menuActionTriggered()
     }
 #endif
 }
-#endif // QT_NO_MENU
+#endif // QT_NO_CONTEXTMENU
 
 #include "moc_qtextedit.cpp"
 #include "moc_qtextedit_p.cpp"

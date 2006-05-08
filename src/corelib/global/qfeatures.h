@@ -522,6 +522,11 @@
 #define QT_NO_WORKSPACE
 #endif
 
+// Context Menu
+#if !defined(QT_NO_CONTEXTMENU) && (defined(QT_NO_MENU))
+#define QT_NO_CONTEXTMENU
+#endif
+
 // QFileDialog
 #if !defined(QT_NO_FILEDIALOG) && (defined(QT_NO_DIRMODEL) || defined(QT_NO_TREEVIEW) || defined(QT_NO_MESSAGEBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_BUTTONGROUP))
 #define QT_NO_FILEDIALOG

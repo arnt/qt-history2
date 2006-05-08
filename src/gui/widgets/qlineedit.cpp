@@ -2230,7 +2230,7 @@ void QLineEditPrivate::drag()
 
 #endif // QT_NO_DRAGANDDROP
 
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
 /*!
     Shows the standard context menu created with
     createStandardContextMenu().
@@ -2313,7 +2313,7 @@ QMenu *QLineEdit::createStandardContextMenu()
     }
     return popup;
 }
-#endif // QT_NO_MENU
+#endif // QT_NO_CONTEXTMENU
 
 /*! \reimp */
 void QLineEdit::changeEvent(QEvent *ev)

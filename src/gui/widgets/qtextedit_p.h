@@ -189,7 +189,7 @@ public:
 };
 #endif // QT_NO_TEXTEDIT
 
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
 class QUnicodeControlCharacterMenu : public QMenu
 {
     Q_OBJECT
@@ -202,7 +202,7 @@ private Q_SLOTS:
 private:
     QWidget *editWidget;
 };
-#endif // QT_NO_MENU
+#endif // QT_NO_CONTEXTMENU
 
 // also used by QLabel
 class QTextEditMimeData : public QMimeData

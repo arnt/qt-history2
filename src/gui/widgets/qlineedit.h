@@ -133,7 +133,7 @@ public Q_SLOTS:
 public:
     void deselect();
     void insert(const QString &);
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
     QMenu *createStandardContextMenu();
 #endif
     
@@ -161,7 +161,7 @@ protected:
     void dropEvent(QDropEvent *);
 #endif
     void changeEvent(QEvent *);
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
     void contextMenuEvent(QContextMenuEvent *);
 #endif
 #ifdef QT3_SUPPORT
