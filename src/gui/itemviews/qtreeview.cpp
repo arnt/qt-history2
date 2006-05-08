@@ -778,6 +778,8 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     if (!model() || !index.isValid())
         return;
 
+    d->executePostedLayout();
+
     // Expand all parents if the parent(s) of the node are not expanded.
     QModelIndex parent = index.parent();
     while (parent.isValid() && state() == NoState && d->itemsExpandable) {
