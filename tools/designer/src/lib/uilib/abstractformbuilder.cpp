@@ -1083,7 +1083,7 @@ QBrush QAbstractFormBuilder::setupBrush(DomBrush *brush)
         Q_ASSERT(e_index != -1);
         QMetaEnum gradientSpread_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
 
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("coordinateMode");
+        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("gradientCoordinate");
         Q_ASSERT(e_index != -1);
         QMetaEnum gradientCoordinate_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
 
