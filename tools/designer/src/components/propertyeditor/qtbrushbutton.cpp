@@ -133,6 +133,9 @@ void QtBrushButton::paintEvent(QPaintEvent *e)
     } else {
         p.translate(corr, corr);
     }
+    p.setBrushOrigin(0, 0);
+    p.fillRect(0, 0, r.width(), r.height(), br);
+    /*
     if (d_ptr->m_brush.style() == Qt::LinearGradientPattern ||
             d_ptr->m_brush.style() == Qt::RadialGradientPattern ||
             d_ptr->m_brush.style() == Qt::ConicalGradientPattern) {
@@ -145,6 +148,7 @@ void QtBrushButton::paintEvent(QPaintEvent *e)
     } else {
         p.fillRect(0, 0, r.width(), r.height(), br);
     }
+    */
     if (!d_ptr->m_backgroundTransparent) {
         p.end();
         p.begin(this);

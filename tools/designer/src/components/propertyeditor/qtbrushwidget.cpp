@@ -113,6 +113,9 @@ void QtBrushWidget::paintEvent(QPaintEvent *e)
         }
     }
 
+    p.setBrushOrigin(0, 0);
+    p.fillRect(r, br);
+    /*
     if (d_ptr->m_brush.style() == Qt::LinearGradientPattern ||
             d_ptr->m_brush.style() == Qt::RadialGradientPattern ||
             d_ptr->m_brush.style() == Qt::ConicalGradientPattern) {
@@ -125,5 +128,6 @@ void QtBrushWidget::paintEvent(QPaintEvent *e)
     } else {
         p.fillRect(r, br);
     }
+    */
 }
 

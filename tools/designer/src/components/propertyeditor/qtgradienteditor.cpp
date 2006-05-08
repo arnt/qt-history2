@@ -388,6 +388,7 @@ QGradient QtGradientEditor::gradient() const
         return QGradient();
     gradient->setStops(d_ptr->m_ui.gradientWidget->gradientStops());
     gradient->setSpread(d_ptr->m_ui.gradientWidget->gradientSpread());
+    gradient->setCoordinateMode(QGradient::StretchToDeviceMode);
     QGradient gr = *gradient;
     delete gradient;
     return gr;
