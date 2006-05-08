@@ -500,14 +500,21 @@ QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
     QVector<QPair<int, int> > selectors;
 
     for (int i = 0; i < styleSheet.styleRules.count(); ++i) {
-        for (int j = 0; j < styleSheet.styleRules.at(i).selectors.count(); ++j)
-            if (selectorMatches(styleSheet.styleRules.at(i).selectors.at(j), node)) {
-                QPair<int, int> selectorPtr;
-                selectorPtr.first = i;
-                selectorPtr.second = j;
-                selectors.append(selectorPtr);
-                break;
+        const StyleRule &rule = styleSheet.styleRules.at(i);
+        int matchingSelector = -1;
+        for (int j = 0; j < rule.selectors.count(); ++j) {
+            if (selectorMatches(rule.selectors.at(j), node)) {
+                if (matchingSelector == -1
+                    || rule.selectors.at(j).specificity() > rule.selectors.at(matchingSelector).specificity())
+                    matchingSelector = j;
             }
+        }
+        if (matchingSelector != -1) {
+            QPair<int, int> selectorPtr;
+            selectorPtr.first = i;
+            selectorPtr.second = matchingSelector;
+            selectors.append(selectorPtr);
+        }
     }
 
     // sort by specificity
@@ -516,6 +523,7 @@ QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
    
     for (int i = 0; i < selectors.count(); ++i)
         decls += styleSheet.styleRules.at(selectors.at(i).first).declarations;
+    
     return decls;
 }
 
