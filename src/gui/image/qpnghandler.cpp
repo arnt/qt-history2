@@ -567,10 +567,8 @@ bool QPNGImageWriter::writeImage(const QImage& image_in, int quality_in, const Q
     QImage image = image_in;
     if(image.format() == QImage::Format_ARGB32_Premultiplied)
         image = image.convertToFormat(QImage::Format_ARGB32);
-#ifdef Q_WS_QWS
     else if (image.format() == QImage::Format_RGB16)
         image = image.convertToFormat(QImage::Format_RGB32);
-#endif
 
     QPoint offset = image.offset();
     int off_x = off_x_in + offset.x();
