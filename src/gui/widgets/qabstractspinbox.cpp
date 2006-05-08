@@ -1083,7 +1083,7 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
     Q_D(QAbstractSpinBox);
 
     d->reset();
-    QMenu *menu = d->edit->createStandardContextMenu();
+    QPointer<QMenu> menu = d->edit->createStandardContextMenu();
     menu->addSeparator();
     const uint se = stepEnabled();
     QAction *up = menu->addAction(tr("&Step up"));
@@ -1095,7 +1095,7 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
     const QPoint pos = (e->reason() == QContextMenuEvent::Mouse)
         ? e->globalPos() : mapToGlobal(QPoint(e->pos().x(), 0)) + QPoint(width() / 2, height() / 2);
     const QAction *action = menu->exec(pos);
-    delete menu;
+    delete static_cast<QMenu *>(menu);
     if (that) {
         if (action == up) {
             stepBy(1);
