@@ -105,15 +105,18 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o);
     Q_ASSERT(sheet != 0);
 
+    const QMetaObject *meta = o->metaObject();
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o))
+        meta = promoted->child()->metaObject();
+
     foreach (DomProperty *p, properties) {
         int index = sheet->indexOf(p->attributeName());
-        QVariant v = toVariant(o->metaObject(), p);
+        QVariant v = toVariant(meta, p);
 
         if (!v.isNull()) {
-            if (strcmp(o->metaObject()->className(), "QAxWidget") != 0)
+            if (strcmp(meta->className(), "QAxWidget") != 0)
                 sheet->setProperty(index, v);
-
-            if (o->metaObject()->indexOfProperty(p->attributeName().toUtf8()) != -1)
+            else if (o->metaObject()->indexOfProperty(p->attributeName().toUtf8()) != -1)
                 o->setProperty(p->attributeName().toUtf8(), v);
         }
     }
