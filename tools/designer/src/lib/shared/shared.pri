@@ -36,6 +36,7 @@ HEADERS += \
     $$PWD/qdesigner_dockwidget_p.h \
     $$PWD/qdesigner_toolbox_p.h \
     $$PWD/qdesigner_dnditem_p.h \
+    $$PWD/qsimpleresource_p.h \
     $$PWD/widgetfactory_p.h \
     $$PWD/widgetdatabase_p.h \
     $$PWD/promotetocustomwidgetdialog_p.h \
@@ -68,6 +69,7 @@ SOURCES += \
     $$PWD/qdesigner_propertysheet.cpp \
     $$PWD/qdesigner_integration.cpp \
     $$PWD/qdesigner_dnditem.cpp \
+    $$PWD/qsimpleresource.cpp \
     $$PWD/invisible_widget.cpp \
     $$PWD/qlayout_widget.cpp \
     $$PWD/tree_widget.cpp \

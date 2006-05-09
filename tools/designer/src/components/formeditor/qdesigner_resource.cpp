@@ -65,7 +65,7 @@
 using namespace qdesigner_internal;
 
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
-   : m_formWindow(formWindow), m_core(formWindow->core())
+   : QSimpleResource(formWindow->core()), m_formWindow(formWindow)
 {
     setWorkingDirectory(formWindow->absoluteDir());
 
@@ -394,7 +394,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
     if (ui_layoutItem->kind() == DomLayoutItem::Spacer) {
         QHash<QString, DomProperty*> properties = propertyMap(ui_layoutItem->elementSpacer()->elementProperty());
 
-        Spacer *spacer = (Spacer*) m_core->widgetFactory()->createWidget(QLatin1String("Spacer"), parentWidget);
+        Spacer *spacer = (Spacer*) core()->widgetFactory()->createWidget(QLatin1String("Spacer"), parentWidget);
         core()->metaDataBase()->add(spacer);
 
         spacer->setInteraciveMode(false);
@@ -403,7 +403,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
 
         if (m_formWindow) {
             m_formWindow->manageWidget(spacer);
-            if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), spacer))
+            if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), spacer))
                 sheet->setChanged(sheet->indexOf(QLatin1String("orientation")), true);
         }
 
@@ -444,7 +444,7 @@ void QDesignerResource::changeObjectName(QObject *o, QString objName)
 
 void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), o)) {
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o)) {
 
         for (int i=0; i<properties.size(); ++i) {
             DomProperty *p = properties.at(i);
@@ -490,7 +490,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
         }
         QSplitter *splitter = qobject_cast<QSplitter *>(o);
         if (splitter) {
-            QDesignerWidgetFactoryInterface *widgetFactory = m_core->widgetFactory();
+            QDesignerWidgetFactoryInterface *widgetFactory = core()->widgetFactory();
             widgetFactory->createLayout(splitter, 0, splitter->orientation() == Qt::Horizontal ?
                         LayoutInfo::HBox : LayoutInfo::VBox);
         }
@@ -507,23 +507,23 @@ QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *par
     if (m_isMainWidget)
         m_isMainWidget = false;
 
-    QWidget *w = m_core->widgetFactory()->createWidget(className, parentWidget);
+    QWidget *w = core()->widgetFactory()->createWidget(className, parentWidget);
     if (!w)
         return 0;
 
     if (name.isEmpty()) {
-        QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
+        QDesignerWidgetDataBaseInterface *db = core()->widgetDataBase();
         if (QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(w)))
             name = qtify(item->name());
     }
 
     changeObjectName(w, name);
 
-    QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget);
+    QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), parentWidget);
     if (!qobject_cast<QMenu*>(w) && (!parentWidget || !container)) {
         m_formWindow->manageWidget(w);
     } else {
-        m_core->metaDataBase()->add(w);
+        core()->metaDataBase()->add(w);
     }
 
     w->setWindowFlags(w->windowFlags() & ~Qt::Window);
@@ -554,7 +554,7 @@ QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *par
     else if (layoutName == QLatin1String("QStackedLayout"))
         layoutType = LayoutInfo::Stacked;
 
-    QLayout *lay = m_core->widgetFactory()->createLayout(layoutBase, layout, layoutType);
+    QLayout *lay = core()->widgetFactory()->createLayout(layoutBase, layout, layoutType);
     if (lay != 0)
         changeObjectName(lay, name);
 
@@ -564,7 +564,7 @@ QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *par
 // save
 DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
 {
-    QDesignerMetaDataBaseItemInterface *item = m_core->metaDataBase()->item(widget);
+    QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(widget);
     if (!item)
         return 0;
 
@@ -574,15 +574,15 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     }
 
     QDesignerWidgetDataBaseItemInterface *widgetInfo =  0;
-    int widgetInfoIndex = m_core->widgetDataBase()->indexOfObject(widget, false);
+    int widgetInfoIndex = core()->widgetDataBase()->indexOfObject(widget, false);
     if (widgetInfoIndex != -1) {
-        widgetInfo = m_core->widgetDataBase()->item(widgetInfoIndex);
+        widgetInfo = core()->widgetDataBase()->item(widgetInfoIndex);
 
         if (widgetInfo->isCustom()) {
             if (widgetInfo->extends().isEmpty()) {
                 const QMetaObject *mo = widget->metaObject()->superClass();
                 while (mo != 0) {
-                    if (m_core->widgetDataBase()->indexOfClassName(QLatin1String(mo->className())) != -1) {
+                    if (core()->widgetDataBase()->indexOfClassName(QLatin1String(mo->className())) != -1) {
                         widgetInfo->setExtends(QLatin1String(mo->className()));
                         break;
                     }
@@ -605,7 +605,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w = saveWidget(toolBar, ui_parentWidget);
     else if (QDesignerDockWidget *dockWidget = qobject_cast<QDesignerDockWidget*>(widget))
         w = saveWidget(dockWidget, ui_parentWidget);
-    else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), widget))
+    else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), widget))
         w = saveWidget(widget, container, ui_parentWidget);
     else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
         w = createDom(promoted->child(), ui_parentWidget, recursive);
@@ -647,12 +647,12 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
 
 DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_parentLayout, DomWidget *ui_parentWidget)
 {
-    QDesignerMetaDataBaseItemInterface *item = m_core->metaDataBase()->item(layout);
+    QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(layout);
 
     if (item == 0) {
         layout = qFindChild<QLayout*>(layout);
         // refresh the meta database item
-        item = m_core->metaDataBase()->item(layout);
+        item = core()->metaDataBase()->item(layout);
     }
 
     if (item == 0) {
@@ -680,7 +680,7 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
     DomLayoutItem *ui_item = 0;
 
     if (Spacer *s = qobject_cast<Spacer*>(item->widget())) {
-        if (!m_core->metaDataBase()->item(s))
+        if (!core()->metaDataBase()->item(s))
             return 0;
 
         DomSpacer *spacer = new DomSpacer();
@@ -747,7 +747,7 @@ void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets
 
 DomTabStops *QDesignerResource::saveTabStops()
 {
-    QDesignerMetaDataBaseItemInterface *item = m_core->metaDataBase()->item(m_formWindow);
+    QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(m_formWindow);
     Q_ASSERT(item);
 
     QStringList tabStops;
@@ -777,7 +777,7 @@ void QDesignerResource::applyTabStops(QWidget *widget, DomTabStops *tabStops)
         }
     }
 
-    QDesignerMetaDataBaseItemInterface *item = m_core->metaDataBase()->item(m_formWindow);
+    QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(m_formWindow);
     Q_ASSERT(item);
     item->setTabOrder(tabOrder);
 }
@@ -806,7 +806,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidg
 {
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
-    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), widget)) {
+    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), widget)) {
         for (int i=0; i<container->count(); ++i) {
             QWidget *page = container->widget(i);
             Q_ASSERT(page);
@@ -890,7 +890,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
 
-    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), widget)) {
+    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), widget)) {
         for (int i=0; i<container->count(); ++i) {
             QWidget *page = container->widget(i);
             Q_ASSERT(page);
@@ -944,7 +944,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui
     DomWidget *ui_widget = QAbstractFormBuilder::createDom(widget, ui_parentWidget, false);
     QList<DomWidget*> ui_widget_list;
 
-    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), widget)) {
+    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), widget)) {
         for (int i=0; i<container->count(); ++i) {
             QWidget *page = container->widget(i);
             Q_ASSERT(page);
@@ -1009,7 +1009,7 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
         return !LayoutInfo::isWidgetLaidout(core(), check_widget);
     }
 
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), obj)) {
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), obj)) {
         int pindex = sheet->indexOf(prop);
         if (sheet->isAttribute(pindex))
             return false;
@@ -1048,7 +1048,7 @@ bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *
     core()->metaDataBase()->add(widget); // ensure the widget is in the meta database
 
     if (! QAbstractFormBuilder::addItem(ui_widget, widget, parentWidget) || qobject_cast<QMainWindow*> (parentWidget)) {
-        if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget))
+        if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), parentWidget))
             container->addWidget(widget);
     }
 
@@ -1198,7 +1198,7 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
 QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
 {
     QList<DomProperty*> properties;
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), object)) {
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), object)) {
         for (int index = 0; index < sheet->count(); ++index) {
             QString propertyName = sheet->propertyName(index);
             QVariant value = sheet->property(index);
@@ -1339,70 +1339,6 @@ DomResources *QDesignerResource::saveResources()
     dom_resources->setElementInclude(dom_include);
 
     return dom_resources;
-}
-
-QIcon QDesignerResource::nameToIcon(const QString &filePath, const QString &qrcPath)
-{
-    QString file_path = filePath;
-    QString qrc_path = qrcPath;
-
-    if (qrc_path.isEmpty())
-        file_path = workingDirectory().absoluteFilePath(file_path);
-    else
-        qrc_path = workingDirectory().absoluteFilePath(qrc_path);
-
-    return core()->iconCache()->nameToIcon(file_path, qrc_path);
-}
-
-QString QDesignerResource::iconToFilePath(const QIcon &pm) const
-{
-    QString file_path = core()->iconCache()->iconToFilePath(pm);
-    QString qrc_path = core()->iconCache()->iconToQrcPath(pm);
-    if (qrc_path.isEmpty())
-        return workingDirectory().relativeFilePath(file_path);
-
-    return file_path;
-}
-
-QString QDesignerResource::iconToQrcPath(const QIcon &pm) const
-{
-    QString qrc_path = core()->iconCache()->iconToQrcPath(pm);
-    if (qrc_path.isEmpty())
-        return QString();
-
-    return workingDirectory().relativeFilePath(qrc_path);
-}
-
-QPixmap QDesignerResource::nameToPixmap(const QString &filePath, const QString &qrcPath)
-{
-    QString file_path = filePath;
-    QString qrc_path = qrcPath;
-
-    if (qrc_path.isEmpty())
-        file_path = workingDirectory().absoluteFilePath(file_path);
-    else
-        qrc_path = workingDirectory().absoluteFilePath(qrc_path);
-
-    return core()->iconCache()->nameToPixmap(file_path, qrc_path);
-}
-
-QString QDesignerResource::pixmapToFilePath(const QPixmap &pm) const
-{
-    QString file_path = core()->iconCache()->pixmapToFilePath(pm);
-    QString qrc_path = core()->iconCache()->pixmapToQrcPath(pm);
-    if (qrc_path.isEmpty())
-        return workingDirectory().relativeFilePath(file_path);
-
-    return file_path;
-}
-
-QString QDesignerResource::pixmapToQrcPath(const QPixmap &pm) const
-{
-    QString qrc_path = core()->iconCache()->pixmapToQrcPath(pm);
-    if (qrc_path.isEmpty())
-        return QString();
-
-    return workingDirectory().relativeFilePath(qrc_path);
 }
 
 DomAction *QDesignerResource::createDom(QAction *action)
