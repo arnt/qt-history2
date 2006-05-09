@@ -2759,12 +2759,14 @@ public:
 QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
     : QGraphicsItem(parent), dd(new QGraphicsTextItemPrivate)
 {
-    if (!text.isEmpty())
-        setText(text);
     connect(&dd->textControl, SIGNAL(viewportUpdateRequest(const QRectF &)),
             this, SLOT(viewportUpdate(const QRectF &)));
-    connect(&dd->textControl, SIGNAL(textChanged()),
-            this, SLOT(textChanged()));
+    connect(&dd->textControl, SIGNAL(documentSizeChanged(const QSizeF &)),
+            this, SLOT(updateBoundingRect(const QSizeF &)));
+    if (!text.isEmpty()) {
+        setText(text);
+        adjustSize();
+    }
 }
 
 /*!
@@ -2792,15 +2794,7 @@ QString QGraphicsTextItem::text() const
 */
 void QGraphicsTextItem::setText(const QString &text)
 {
-    update();
-    QSizeF size = QFontMetricsF(dd->font).size(Qt::TextShowMnemonic, text);
-    size.rheight() += 20;
-    size.rwidth() += 15;
-    dd->boundingRect = QRectF(QPointF(), size);
     dd->textControl.setPlainText(text);
-    dd->textControl.document()->setPageSize(size);
-    dd->textControl.setViewport(dd->boundingRect);
-    update();
 }
 
 /*!
@@ -2894,6 +2888,11 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 int QGraphicsTextItem::type() const
 {
     return Type;
+}
+
+void QGraphicsTextItem::adjustSize()
+{
+    dd->textControl.adjustSize();
 }
 
 /*!
@@ -3008,20 +3007,11 @@ void QGraphicsTextItem::viewportUpdate(const QRectF &rect)
 /*!
     \reimp
 */
-void QGraphicsTextItem::textChanged()
+void QGraphicsTextItem::updateBoundingRect(const QSizeF &size)
 {
-    QFontMetrics fm(dd->font);
-    QSizeF size = fm.size(Qt::TextShowMnemonic, dd->textControl.toPlainText());
-    size.rheight() += fm.lineSpacing();
-
-    if (size != dd->boundingRect.size()) {
-        // ### This could be made more efficient.
-        update();
-        dd->boundingRect = QRectF(QPointF(), size);
-        dd->textControl.document()->setPageSize(size);
-        dd->textControl.setViewport(dd->boundingRect);
-        update();
-    }
+    update();
+    dd->boundingRect.setSize(size);
+    update();
 }
 
 #ifndef QT_NO_DEBUG

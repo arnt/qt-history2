@@ -79,8 +79,10 @@ public:
     inline void repaintSelection()
     { emit q_ptr->viewportUpdateRequest(selectionRect()); }
 
-    inline QPointF mapToContents(const QPointF &point) const
-    { return QPointF(point.x() + viewport.x(), point.y() + viewport.y()); }
+    inline QPointF mapToContents(const QPointF &point) const {
+        QRectF vp = q_func()->viewport();
+        return QPointF(point.x() + vp.x(), point.y() + vp.y());
+    }
 
     void selectionChanged();
 
@@ -105,7 +107,7 @@ public:
     void deleteSelected();
     
     inline void updateViewport()
-    { emit q_ptr->viewportUpdateRequest(QRectF(QPointF(0, 0), viewport.size())); }
+    { emit q_ptr->viewportUpdateRequest(QRectF(QPointF(0, 0), q_func()->viewport().size())); }
 
     void undo();
     void redo();
@@ -166,8 +168,6 @@ public:
 
     QVector<QAbstractTextDocumentLayout::Selection> extraSelections;
     
-    QRectF viewport;
-
     QPalette palette;
     
     QTextControl *q_ptr;

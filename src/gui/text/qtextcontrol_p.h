@@ -69,9 +69,6 @@ public:
     explicit QTextControl(const QString &text, QObject *parent = 0);
     virtual ~QTextControl();
 
-    void setViewport(const QRectF &viewport);
-    QRectF viewport() const;
-
     void setDocument(QTextDocument *document);
     QTextDocument *document() const;
 
@@ -152,6 +149,8 @@ public Q_SLOTS:
 
     void scrollToAnchor(const QString &name);
 
+    void adjustSize();
+    
 Q_SIGNALS:
     void textChanged();
     void undoAvailable(bool b);
@@ -164,6 +163,7 @@ Q_SIGNALS:
     // control signals
     void viewportUpdateRequest(const QRectF &rectInViewport);
     void visibilityRequest(const QRectF &rectInDocument);
+    void documentSizeChanged(const QSizeF &);
 
 public:
     // control properties
@@ -181,6 +181,9 @@ public:
     virtual void mouseMoveEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);
     virtual void mouseDoubleClickEvent(QMouseEvent *e);
+    
+    // control methods to re-implement
+    virtual QRectF viewport() const;
 
 protected:
 //    virtual bool event(QEvent *e);

@@ -417,6 +417,8 @@ public:
     enum { Type = 8 };
     int type() const;
 
+    void adjustSize();
+    
 protected:
     void mouseEvent(QGraphicsSceneMouseEvent *event);
     void keyEvent(QKeyEvent *event);
@@ -428,7 +430,7 @@ protected:
 
 private Q_SLOTS:
     void viewportUpdate(const QRectF &rect);
-    void textChanged();
+    void updateBoundingRect(const QSizeF &size);
 
 private:
     Q_DISABLE_COPY(QGraphicsTextItem)

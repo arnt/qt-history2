@@ -379,6 +379,7 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
         }
 
         QObject::connect(doc->documentLayout(), SIGNAL(update(QRectF)), q, SLOT(repaintContents(QRectF)));
+        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SIGNAL(documentSizeChanged(QSizeF)));
 // #####        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 
@@ -485,12 +486,13 @@ void QTextControlPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
 
 void QTextControlPrivate::repaintContents(const QRectF &contentsRect)
 {
-    QRectF r = contentsRect.intersect(viewport);
+    Q_Q(QTextControl);
+    const QRectF vp = q->viewport();
+    QRectF r = contentsRect.intersect(vp);
     if (r.isEmpty())
         return;
 
-    r.translate(-viewport.topLeft());
-    Q_Q(QTextControl);
+    r.translate(-vp.topLeft());
     emit q->viewportUpdateRequest(r);
 }
 
@@ -516,13 +518,14 @@ void QTextControlPrivate::selectionChanged()
 void QTextControlPrivate::pageUp(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextControl);
-    int targetY = int(viewport.y() - viewport.height());
+    const QRectF vp = q->viewport();
+    int targetY = int(vp.y() - vp.height());
     bool moved = false;
     qreal y;
     // move to the targetY using movePosition to keep the cursor's x
     do {
         const QRectF r = q->cursorRect();
-        y = viewport.y() + r.y() - r.height();
+        y = vp.y() + r.y() - r.height();
         moved = cursor.movePosition(QTextCursor::Up, moveMode);
     } while (moved && y > targetY);
 
@@ -536,12 +539,13 @@ void QTextControlPrivate::pageUp(QTextCursor::MoveMode moveMode)
 void QTextControlPrivate::pageDown(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextControl);
-    int targetY = int(viewport.y() + 2 * viewport.height());
+    const QRectF vp = q->viewport();
+    int targetY = int(vp.y() + 2 * vp.height());
     bool moved = false;
     qreal y;
     // move to the targetY using movePosition to keep the cursor's x
     do {
-        y = viewport.y() + q->cursorRect().bottom();
+        y = vp.y() + q->cursorRect().bottom();
         moved = cursor.movePosition(QTextCursor::Down, moveMode);
     } while (moved && y < targetY);
 
@@ -588,10 +592,11 @@ void QTextControlPrivate::ensureVisible(int documentPosition)
         return;
 
     Q_Q(QTextControl);
-    
+    /* ####################
     QRectF newViewport = viewport;
     newViewport.setY(blockY + line.y());
     emit q->visibilityRequest(newViewport);
+    */
 //    const int y = qRound(blockY + line.y());
 //    vbar->setValue(y);
 }
@@ -601,6 +606,7 @@ void QTextControlPrivate::ensureVisible(const QRectF &rect)
 {
     Q_Q(QTextControl);
     
+    /* ###########
     QRectF newViewport = viewport;
     if (rect.left() < viewport.left())
         newViewport.setX(rect.x() - rect.width());
@@ -613,15 +619,17 @@ void QTextControlPrivate::ensureVisible(const QRectF &rect)
         newViewport.setY(rect.bottom() - viewport.height());
     
     emit q->visibilityRequest(newViewport);
+    */
 }
 
 void QTextControlPrivate::ensureViewportLayouted()
 {
+    Q_Q(QTextControl);
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
     if (!layout)
         return;
     if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout))
-        tlayout->ensureLayouted(viewport.bottom());
+        tlayout->ensureLayouted(q->viewport().bottom());
 }
 
 void QTextControlPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
@@ -1004,18 +1012,6 @@ QTextControl::~QTextControl()
 {
     // #### REMOVEME once in Qt
     delete d_ptr;
-}
-
-void QTextControl::setViewport(const QRectF &viewport)
-{
-    Q_D(QTextControl);
-    d->viewport = viewport;
-}
-
-QRectF QTextControl::viewport() const
-{
-    Q_D(const QTextControl);
-    return d->viewport;
 }
 
 /*
@@ -1652,6 +1648,7 @@ QRectF QTextControlPrivate::rectForPosition(int position) const
 
 QRectF QTextControlPrivate::selectionRect() const
 {
+    Q_Q(const QTextControl);
     QRectF r = rectForPosition(cursor.selectionStart());
 
     if (cursor.hasComplexSelection() && cursor.currentTable()) {
@@ -1722,7 +1719,7 @@ QRectF QTextControlPrivate::selectionRect() const
         }
     }
 
-    r.translate(-viewport.topLeft());
+    r.translate(-q->viewport().topLeft());
     return r;
 }
 
@@ -1955,6 +1952,12 @@ void QTextControl::mouseDoubleClickEvent(QMouseEvent *e)
 
     d->trippleClickPoint = e->globalPos();
     d->trippleClickTimer.start(qApp->doubleClickInterval(), this);
+}
+
+QRectF QTextControl::viewport() const
+{
+    Q_D(const QTextControl);
+    return QRectF(QPointF(0, 0), d->doc->documentLayout()->documentSize());
 }
 
 /*
@@ -2251,7 +2254,7 @@ QRectF QTextControl::cursorRect(const QTextCursor &cursor) const
         return QRectF();
 
     QRectF r = d->rectForPosition(cursor.position());
-    r.translate(-d->viewport.topLeft());
+    r.translate(-viewport().topLeft());
     return r;
 }
 
@@ -2618,6 +2621,30 @@ void QTextControl::scrollToAnchor(const QString &name)
                 d->ensureVisible(fragment.position());
                 return;
             }
+        }
+    }
+}
+
+void QTextControl::adjustSize()
+{
+    // Pull this private function in from qglobal.cpp
+    Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
+
+    Q_D(QTextControl);
+    QFont f = d->doc->defaultFont();
+    QFontMetrics fm(f);
+    int mw =  fm.width('x') * 80;
+    int w = mw;
+    d->doc->setPageSize(QSizeF(w, INT_MAX));
+    QSizeF size = d->doc->documentLayout()->documentSize();
+    if (size.width() != 0) {
+        w = qt_int_sqrt((uint)(5 * size.height() * size.width() / 3));
+        d->doc->setPageSize(QSizeF(qMin(w, mw), INT_MAX));
+
+        size = d->doc->documentLayout()->documentSize();
+        if (w*3 < 5*size.height()) {
+            w = qt_int_sqrt((uint)(2 * size.height() * size.width()));
+            d->doc->setPageSize(QSizeF(qMin(w, mw), INT_MAX));
         }
     }
 }
@@ -3004,8 +3031,8 @@ void QTextControl::setPalette(const QPalette &pal)
 void QTextControl::drawContents(QPainter *p)
 {
     Q_D(QTextControl);
-    QRectF r = d->viewport; // ### intersect with clip rect from paint event
-    p->translate(-d->viewport.topLeft());
+    QRectF r = viewport(); // ### intersect with clip rect from paint event
+    p->translate(-r.topLeft());
     p->setClipRect(r);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
