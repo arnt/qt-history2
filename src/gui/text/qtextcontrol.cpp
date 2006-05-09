@@ -380,7 +380,7 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
 
         QObject::connect(doc->documentLayout(), SIGNAL(update(QRectF)), q, SLOT(repaintContents(QRectF)));
         QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SIGNAL(documentSizeChanged(QSizeF)));
-// #####        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(adjustScrollbars()));
+        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 
 // ###        doc->setDefaultFont(q->font());
@@ -1932,13 +1932,41 @@ void QTextControl::mouseDoubleClickEvent(QMouseEvent *e)
 QRectF QTextControl::viewport() const
 {
     Q_D(const QTextControl);
-    return QRectF(QPointF(0, 0), d->doc->documentLayout()->documentSize());
+    if (!d->scrollArea)
+        return QRectF(QPointF(0, 0), d->doc->documentLayout()->documentSize());
+    
+    QScrollBar *hbar = d->scrollArea->horizontalScrollBar();
+    QScrollBar *vbar = d->scrollArea->verticalScrollBar();
+    QPointF topLeft;
+    topLeft.setX(d->scrollArea->isRightToLeft() ? (hbar->maximum() - hbar->value()) : hbar->value());
+    topLeft.setY(vbar->value());
+    return QRectF(topLeft, d->scrollArea->viewport()->size());
 }
 
-void QTextControl::ensureVisible(const QRectF &rectInDocument)
+void QTextControl::ensureVisible(const QRectF &_rect)
 {
-    Q_UNUSED(rectInDocument);
-    // assume viewport == document size in default mode
+    Q_D(QTextControl);
+    if (!d->scrollArea)
+        return; // assume viewport == document size in default mode
+    
+    QWidget *viewport = d->scrollArea->viewport();
+    QScrollBar *hbar = d->scrollArea->horizontalScrollBar();
+    QScrollBar *vbar = d->scrollArea->verticalScrollBar();
+
+    const QRect rect = _rect.toRect();
+    const int visibleWidth = viewport->width();
+    const int visibleHeight = viewport->height();
+    const QPoint topLeft = this->viewport().topLeft().toPoint();
+
+    if (rect.x() < topLeft.x())
+        hbar->setValue(rect.x() - rect.width());
+    else if (rect.x() + rect.width() > topLeft.x() + visibleWidth)
+        hbar->setValue(rect.x() + rect.width() - visibleWidth);
+
+    if (rect.y() < topLeft.y())
+        vbar->setValue(rect.y() - rect.height());
+    else if (rect.y() + rect.height() > topLeft.y() + visibleHeight)
+        vbar->setValue(rect.y() + rect.height() - visibleHeight);
 }
 
 /*
@@ -2604,6 +2632,52 @@ void QTextControl::scrollToAnchor(const QString &name)
             }
         }
     }
+}
+
+void QTextControl::setScrollArea(QAbstractScrollArea *scrollArea)
+{
+    Q_D(QTextControl);
+    d->scrollArea = scrollArea;
+}
+
+void QTextControlPrivate::adjustScrollbars()
+{
+    if (!scrollArea || ignoreAutomaticScrollbarAdjustement)
+        return;
+
+    QAbstractTextDocumentLayout *layout = doc->documentLayout();
+
+    QWidget *viewport = scrollArea->viewport();
+    const QSize viewportSize = viewport->size();
+    QSize docSize;
+
+    if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout)) {
+        docSize = tlayout->dynamicDocumentSize().toSize();
+        int percentageDone = tlayout->layoutStatus();
+        // extrapolate height
+        if (percentageDone > 0)
+            docSize.setHeight(docSize.height() * 100 / percentageDone);
+    } else {
+        docSize = layout->documentSize().toSize();
+    }
+    
+    QScrollBar *hbar = scrollArea->horizontalScrollBar();
+    QScrollBar *vbar = scrollArea->verticalScrollBar();
+
+    hbar->setRange(0, docSize.width() - viewportSize.width());
+    hbar->setPageStep(viewportSize.width());
+
+    vbar->setRange(0, docSize.height() - viewportSize.height());
+    vbar->setPageStep(viewportSize.height());
+
+    // if we are in left-to-right mode widening the document due to
+    // lazy layouting does not require a repaint. If in right-to-left
+    // the scrollbar has the value zero and it visually has the maximum
+    // value (it is visually at the right), then widening the document
+    // keeps it at value zero but visually adjusts it to the new maximum
+    // on the right, hence we need an update.
+    if (scrollArea->isRightToLeft())
+        viewport->update();
 }
 
 void QTextControl::adjustSize()
