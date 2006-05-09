@@ -41,7 +41,6 @@ class QTextControlPrivate
 public:
     inline QTextControlPrivate()
         : doc(0), cursorOn(false), readOnly(false),
-          autoFormatting(QTextControl::AutoNone),
           mousePressed(false), mightStartDrag(false),
           lineWrap(QTextControl::WidgetWidth), lineWrapColumnOrWidth(0),
           lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
@@ -123,8 +122,6 @@ public:
     QTextCursor dndFeedbackCursor;
 
     bool readOnly; /* ### move to document? */
-
-    QTextControl::AutoFormatting autoFormatting;
 
     QBasicTimer cursorBlinkTimer;
     QBasicTimer autoScrollTimer;

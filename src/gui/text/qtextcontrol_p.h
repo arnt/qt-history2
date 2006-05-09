@@ -48,9 +48,7 @@ class QTextControl : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextControl)
-    Q_FLAGS(AutoFormatting)
     Q_ENUMS(LineWrapMode)
-    Q_PROPERTY(AutoFormatting autoFormatting READ autoFormatting WRITE setAutoFormatting)
     Q_PROPERTY(QString documentTitle READ documentTitle WRITE setDocumentTitle)
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     Q_PROPERTY(LineWrapMode lineWrapMode READ lineWrapMode WRITE setLineWrapMode)
@@ -69,14 +67,6 @@ public:
         FixedColumnWidth
     };
 
-    enum AutoFormattingFlag {
-        AutoNone = 0,
-        AutoBulletList = 0x00000001,
-        AutoAll = 0xffffffff
-    };
-
-    Q_DECLARE_FLAGS(AutoFormatting, AutoFormattingFlag)
-
     explicit QTextControl(QObject *parent = 0);
     explicit QTextControl(const QString &text, QObject *parent = 0);
     virtual ~QTextControl();
@@ -93,22 +83,10 @@ public:
     bool isReadOnly() const;
     void setReadOnly(bool ro);
 
-    qreal fontPointSize() const;
-    QString fontFamily() const;
-    int fontWeight() const;
-    bool fontUnderline() const;
-    bool fontItalic() const;
-    QColor textColor() const;
-    QFont currentFont() const;
-    Qt::Alignment alignment() const;
-
     void mergeCurrentCharFormat(const QTextCharFormat &modifier);
 
     void setCurrentCharFormat(const QTextCharFormat &format);
     QTextCharFormat currentCharFormat() const;
-
-    AutoFormatting autoFormatting() const;
-    void setAutoFormatting(AutoFormatting features);
 
     inline void setDocumentTitle(const QString &title)
     { document()->setMetaInformation(QTextDocument::DocumentTitle, title); }
@@ -167,15 +145,6 @@ public:
     QList<ExtraSelection> extraSelections() const;
 
 public Q_SLOTS:
-    void setFontPointSize(qreal s);
-    void setFontFamily(const QString &fontFamily);
-    void setFontWeight(int w);
-    void setFontUnderline(bool b);
-    void setFontItalic(bool b);
-    void setTextColor(const QColor &c);
-    void setCurrentFont(const QFont &f);
-    void setAlignment(Qt::Alignment a);
-
     void setPlainText(const QString &text);
     void setHtml(const QString &text);
 

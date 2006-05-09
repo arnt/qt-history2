@@ -952,17 +952,6 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
 */
 
 /*
-    \enum QTextControl::AutoFormattingFlag
-
-    \value AutoNone Don't do any automatic formatting.
-    \value AutoBulletList Automatically create bullet lists (e.g. when
-    the user enters an asterisk ('*') in the left most column, or
-    presses Enter in an existing list item.
-    \value AutoAll Apply all automatic formatting. Currently only
-    automatic bullet lists are supported.
-*/
-
-/*
     \enum QTextControl::CursorAction
 
     \value MoveBackward
@@ -1030,111 +1019,6 @@ QRectF QTextControl::viewport() const
 }
 
 /*
-    Returns the point size of the font of the current format.
-
-    \sa setFontFamily() setCurrentFont() setFontPointSize()
-*/
-qreal QTextControl::fontPointSize() const
-{
-    Q_D(const QTextControl);
-    return d->cursor.charFormat().fontPointSize();
-}
-
-/*
-    Returns the font family of the current format.
-
-    \sa setFontFamily() setCurrentFont() setFontPointSize()
-*/
-QString QTextControl::fontFamily() const
-{
-    Q_D(const QTextControl);
-    return d->cursor.charFormat().fontFamily();
-}
-
-/*
-    Returns the font weight of the current format.
-
-    \sa setFontWeight() setCurrentFont() setFontPointSize() QFont::Weight
-*/
-int QTextControl::fontWeight() const
-{
-    Q_D(const QTextControl);
-    return d->cursor.charFormat().fontWeight();
-}
-
-/*
-    Returns true if the font of the current format is underlined; otherwise returns
-    false.
-
-    \sa setFontUnderline()
-*/
-bool QTextControl::fontUnderline() const
-{
-    Q_D(const QTextControl);
-    return d->cursor.charFormat().fontUnderline();
-}
-
-/*
-    Returns true if the font of the current format is italic; otherwise returns
-    false.
-
-    \sa setFontItalic()
-*/
-bool QTextControl::fontItalic() const
-{
-    Q_D(const QTextControl);
-    return d->cursor.charFormat().fontItalic();
-}
-
-/*
-    Returns the text color of the current format.
-
-    \sa setTextColor()
-*/
-QColor QTextControl::textColor() const
-{
-    Q_D(const QTextControl);
-    return d->cursor.charFormat().foreground().color();
-}
-
-/*
-    Returns the font of the current format.
-
-    \sa setCurrentFont() setFontFamily() setFontPointSize()
-*/
-QFont QTextControl::currentFont() const
-{
-    Q_D(const QTextControl);
-    return d->cursor.charFormat().font();
-}
-
-/*
-    Sets the alignment of the current paragraph to \a a. Valid
-    alignments are Qt::AlignLeft, Qt::AlignRight,
-    Qt::AlignJustify and Qt::AlignCenter (which centers
-    horizontally).
-*/
-void QTextControl::setAlignment(Qt::Alignment a)
-{
-    Q_D(QTextControl);
-    QTextBlockFormat fmt;
-    fmt.setAlignment(a);
-    d->cursor.mergeBlockFormat(fmt);
-// ######    updateMicroFocus();
-}
-
-/*
-    Returns the alignment of the current paragraph.
-
-    \sa setAlignment()
-*/
-Qt::Alignment QTextControl::alignment() const
-{
-    Q_D(const QTextControl);
-    return d->cursor.blockFormat().alignment();
-}
-
-/*
     Makes \a document the new document of the text editor.
 
     The parent QObject of the provided document remains the owner
@@ -1194,95 +1078,6 @@ QTextCursor QTextControl::textCursor() const
 {
     Q_D(const QTextControl);
     return d->cursor;
-}
-
-/*
-    Sets the font family of the current format to \a fontFamily.
-
-    \sa fontFamily() setCurrentFont()
-*/
-void QTextControl::setFontFamily(const QString &fontFamily)
-{
-    QTextCharFormat fmt;
-    fmt.setFontFamily(fontFamily);
-    mergeCurrentCharFormat(fmt);
-}
-
-/*
-    Sets the point size of the current format to \a s.
-
-    Note that if \a s is zero or negative, the behavior of this
-    function is not defined.
-
-    \sa fontPointSize() setCurrentFont() setFontFamily()
-*/
-void QTextControl::setFontPointSize(qreal s)
-{
-    QTextCharFormat fmt;
-    fmt.setFontPointSize(s);
-    mergeCurrentCharFormat(fmt);
-}
-
-/*
-    Sets the font weight of the current format to \a w.
-
-    \sa fontWeight() setCurrentFont() setFontFamily() QFont::Weight
-*/
-void QTextControl::setFontWeight(int w)
-{
-    QTextCharFormat fmt;
-    fmt.setFontWeight(w);
-    mergeCurrentCharFormat(fmt);
-}
-
-/*
-    If \a underline is true, sets the current format to underline;
-    otherwise sets the current format to non-underline.
-
-    \sa fontUnderline()
-*/
-void QTextControl::setFontUnderline(bool underline)
-{
-    QTextCharFormat fmt;
-    fmt.setFontUnderline(underline);
-    mergeCurrentCharFormat(fmt);
-}
-
-/*
-    If \a italic is true, sets the current format to italic;
-    otherwise sets the current format to non-italic.
-
-    \sa fontItalic()
-*/
-void QTextControl::setFontItalic(bool italic)
-{
-    QTextCharFormat fmt;
-    fmt.setFontItalic(italic);
-    mergeCurrentCharFormat(fmt);
-}
-
-/*
-    Sets the text color of the current format to \a c.
-
-    \sa textColor()
-*/
-void QTextControl::setTextColor(const QColor &c)
-{
-    QTextCharFormat fmt;
-    fmt.setForeground(QBrush(c));
-    mergeCurrentCharFormat(fmt);
-}
-
-/*
-    Sets the font of the current format to \a f.
-
-    \sa currentFont() setFontPointSize() setFontFamily()
-*/
-void QTextControl::setCurrentFont(const QFont &f)
-{
-    QTextCharFormat fmt;
-    fmt.setFont(f);
-    mergeCurrentCharFormat(fmt);
 }
 
 /*
@@ -1758,16 +1553,6 @@ process:
     default:
         {
             QString text = e->text();
-
-            if (d->cursor.atBlockStart()
-                && (d->autoFormatting & AutoBulletList)
-                && (!text.isEmpty())
-                && (text[0] == '-' || text[0] == '*')
-                && (!d->cursor.currentList())) {
-
-                text.remove(0, 1);
-                d->createAutoBulletList();
-            }
 
             if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
                 if (d->overwriteMode
@@ -2336,7 +2121,7 @@ QVariant QTextControl::inputMethodQuery(Qt::InputMethodQuery property) const
         return cursorRect().translated(d->viewport->pos());
     */
     case Qt::ImFont:
-        return QVariant(currentFont());
+        return QVariant(d->cursor.charFormat().font());
     case Qt::ImCursorPosition:
         return QVariant(d->cursor.position() - block.position());
     case Qt::ImSurroundingText:
@@ -2765,30 +2550,6 @@ QTextCharFormat QTextControl::currentCharFormat() const
 {
     Q_D(const QTextControl);
     return d->cursor.charFormat();
-}
-
-/*
-    \property QTextControl::autoFormatting
-    \brief the enabled set of auto formatting features
-
-    The value can be any combination of the values in the
-    AutoFormattingFlag enum.  The default is AutoNone. Choose
-    AutoAll to enable all automatic formatting.
-
-    Currently, the only automatic formatting feature provided is
-    AutoBulletList; future versions of Qt may offer more.
-*/
-
-QTextControl::AutoFormatting QTextControl::autoFormatting() const
-{
-    Q_D(const QTextControl);
-    return d->autoFormatting;
-}
-
-void QTextControl::setAutoFormatting(AutoFormatting features)
-{
-    Q_D(QTextControl);
-    d->autoFormatting = features;
 }
 
 /*
