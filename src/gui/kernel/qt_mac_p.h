@@ -70,6 +70,17 @@ public:
     static bool blocking() { return block != 0; }
 };
 
+class QMacCocoaAutoReleasePool
+{
+private:
+    void *pool;
+public:
+    QMacCocoaAutoReleasePool();
+    ~QMacCocoaAutoReleasePool();
+
+    inline void *handle() const { return pool; }
+};
+
 class Q_GUI_EXPORT QMacWindowChangeEvent
 {
 private:

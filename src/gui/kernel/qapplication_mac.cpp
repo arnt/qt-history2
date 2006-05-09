@@ -143,9 +143,6 @@ extern bool qt_mac_is_macsheet(const QWidget *); //qwidget_mac.cpp
 extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
 
-extern void qt_mac_cocoa_init();
-extern void qt_mac_cocoa_cleanup();
-
 /* Resolution change magic */
 static void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 {
@@ -840,8 +837,6 @@ bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
 /* platform specific implementations */
 void qt_init(QApplicationPrivate *priv, int)
 {
-    qt_mac_cocoa_init();
-
     if(qt_is_gui_used) {
         ProcessSerialNumber psn;
         if(GetCurrentProcess(&psn) == noErr) {
@@ -970,8 +965,6 @@ void qt_cleanup()
             qt_mac_safe_pdev = 0;
         }
     }
-
-    qt_mac_cocoa_cleanup();
 }
 
 /*****************************************************************************

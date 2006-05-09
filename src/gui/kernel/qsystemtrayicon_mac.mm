@@ -25,8 +25,9 @@ void qt_mac_trayicon_activate_action(QMenu *menu, QAction *action)
     emit menu->triggered(action);
 }
 
-NSImage *qt_mac_create_ns_image(const QPixmap &pm) {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+NSImage *qt_mac_create_ns_image(const QPixmap &pm) 
+{
+    QMacCocoaAutoReleasePool pool;
     if(CGImageRef image = pm.toMacCGImageRef()) {
         NSRect imageRect = NSMakeRect(0.0, 0.0, CGImageGetWidth(image), CGImageGetHeight(image));
         NSImage *newImage = [[NSImage alloc] initWithSize:imageRect.size]; 
@@ -38,7 +39,6 @@ NSImage *qt_mac_create_ns_image(const QPixmap &pm) {
         [newImage unlockFocus];
         return newImage;
     }
-    [pool release];
     return 0;
 }
 
@@ -46,12 +46,14 @@ class QSystemTrayIconSys
 {
 public:
     QSystemTrayIconSys() { 
+        QMacCocoaAutoReleasePool pool;
         item = [[[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength] retain];
         [item setTarget:item];
         [item setAction:@selector(clickSelector:)];
         [item setDoubleAction:@selector(doubleClickSelector:)];
     }
     ~QSystemTrayIconSys() { 
+        QMacCocoaAutoReleasePool pool;
         [[NSStatusBar systemStatusBar] removeStatusItem:item];
         [item release]; 
     }
@@ -77,6 +79,7 @@ void QSystemTrayIconPrivate::remove()
 void QSystemTrayIconPrivate::updateIcon()
 {
     if(sys && !icon.isNull()) {
+        QMacCocoaAutoReleasePool pool;
         const short scale = GetMBarHeight()-4;
         [sys->item setImage:qt_mac_create_ns_image(icon.pixmap(QSize(scale, scale)))];
     }
@@ -85,6 +88,7 @@ void QSystemTrayIconPrivate::updateIcon()
 void QSystemTrayIconPrivate::updateMenu()
 {
     if(sys) {
+        QMacCocoaAutoReleasePool pool;
         if(menu && !menu->isEmpty()) {
             [sys->item setHighlightMode:YES];
             NSMenu *m = [[QNSMenu alloc] initWithQMenu:menu];
@@ -99,6 +103,7 @@ void QSystemTrayIconPrivate::updateMenu()
 void QSystemTrayIconPrivate::updateToolTip()
 {
     if(sys) {
+        QMacCocoaAutoReleasePool pool;
         [sys->item setToolTip:(NSString*)QCFString::toCFStringRef(toolTip)];
     }
 }
@@ -108,11 +113,25 @@ bool QSystemTrayIconPrivate::isSystemTrayAvailable()
     return true;
 }
 
-void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &,
-                                         QSystemTrayIcon::MessageIcon, int)
+void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title,
+                                         QSystemTrayIcon::MessageIcon icon, int msecs)
 {
     if(sys) {
+        QMacCocoaAutoReleasePool pool;
+#if 0        
         //[sys->item setTitle:(NSString*)QCFString::toCFStringRef(message)];
+#elif 0
+        Q_Q(QSystemTrayIcon);
+        NSView *v = [sys->item view];
+        NSWindow *w = [v window];
+        w = [sys->item window];
+        qDebug() << w << v;
+        QPoint p(qRound([w frame].origin.x), qRound([w frame].origin.y));
+        qDebug() << p;
+        QBalloonTip::showBalloon(icon, message, title, q, QPoint(0, 0), msecs);
+#else
+        //do growl? we need to weak link the framework and stuff then, less than desirable - IMO.
+#endif        
     }
 }
 
@@ -189,31 +208,15 @@ void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &
 @end
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-/* General cocoa cleanup, done here because this is the only .mm for now! -Sam */
-static NSAutoreleasePool *qt_mac_pool = 0;
-void qt_mac_cocoa_cleanup()
+/* Done here because this is the only .mm for now! -Sam */
+QMacCocoaAutoReleasePool::QMacCocoaAutoReleasePool()
 {
-    if(qt_mac_pool) {
-        [qt_mac_pool release];
-        qt_mac_pool = 0;
-    }
+    NSApplicationLoad();
+    pool = (void*)[[NSAutoreleasePool alloc] init];
 }
-void qt_mac_cocoa_init()
+
+QMacCocoaAutoReleasePool::~QMacCocoaAutoReleasePool()
 {
-    if(!qt_mac_pool) {
-        NSApplicationLoad();
-        qt_mac_pool = [[NSAutoreleasePool alloc] init];
-    }
+    [(NSAutoreleasePool*)pool release];
 }
+
