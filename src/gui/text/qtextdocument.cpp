@@ -304,6 +304,7 @@ QTextDocument *QTextDocument::clone(QObject *parent) const
     doc->d_func()->pageSize = d->pageSize;
     doc->d_func()->useDesignMetrics = d->useDesignMetrics;
     doc->d_func()->setDefaultFont(d->defaultFont());
+    doc->d_func()->resources = d->resources;
     return doc;
 }
 
