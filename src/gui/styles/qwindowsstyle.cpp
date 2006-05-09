@@ -1775,9 +1775,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator){
                 int yoff = y-1 + h / 2;
                 p->setPen(menuitem->palette.dark().color());
-                p->drawLine(x, yoff, x + w, yoff);
+                p->drawLine(x + 2, yoff, x + w - 4, yoff);
                 p->setPen(menuitem->palette.light().color());
-                p->drawLine(x, yoff + 1, x + w, yoff + 1);
+                p->drawLine(x + 2, yoff + 1, x + w - 4, yoff + 1);
                 return;
             }
 
