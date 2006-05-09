@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
 
     QDirModel model;
     QTreeView tree;
+    tree.header()->setClickable(true);
+    tree.header()->setSortIndicatorShown(true);
     tree.setModel(&model);
 
     tree.setWindowTitle(QObject::tr("Dir View"));
