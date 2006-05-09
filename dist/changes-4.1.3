@@ -4,11 +4,6 @@ compatibility (source and binary) with Qt 4.1.0.
 The Qt version 4.1 series is binary compatible with the 4.0.x series.
 Applications compiled for 4.0 will continue to run with 4.1.
 
-#################################
-# TODO: 2006/01/25 - 2006/04/11 #
-# Last change: 216658
-#################################p
-
 ****************************************************************************
 *                           General                                        *
 ****************************************************************************
@@ -68,8 +63,6 @@ uic
 	Ensured that "uic3 -convert" will convert connections.
 	Ensured that uic3 will convert QDataTable and QSqlCursor to Qt3
         support classes.
-
-Qt Translation
 
 Demos / Examples
 	Fixed a bug in the Tooltips example when moving the cursor from one
@@ -198,12 +191,11 @@ General improvements
 	Fixed some painting issues when using CDE or Motif style.
 
 - QDatabase
- 	Fixed bool values in prepared values in the MYSQL driver.
+ 	Fixed bool values in prepared queries in the MYSQL driver.
 	Fixed use of stored procedures that returns a result set in MySQL
         5.x.
 	Fixed queries on tables with a LONG field type in Oracle databases.
 	Fixed reading of large blobs from an Interbase database.
-	Fixed binding of OUT values.
 
 - QDir
 	Fixed infinite loop in rename() when renaming a directory without
@@ -420,7 +412,7 @@ General improvements
 	Fixed removeColumn() for columns that contain relations.
 
 - QSqlTableModel
-	Made the OnFieldChange edit strategy behave like OnFieldChange when
+	Made the OnFieldChange edit strategy behave like OnRowChange when
         inserting rows.
 
 - QStackedLayout
@@ -885,7 +877,3 @@ Qtopia Core:
 - Fixed issues with -title and -geometry command line arguments.
 
 - Improved sound support.
-
-
-3rd-party libraries
--------------------
