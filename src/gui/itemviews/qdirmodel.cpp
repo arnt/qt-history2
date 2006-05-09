@@ -538,6 +538,10 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         if (role == FileNameRole)
             return fileName(index);
     }
+
+    if (index.column() == 1 && Qt::TextAlignmentRole == role) {
+        return Qt::AlignRight;
+    }
     return QVariant();
 }
 
