@@ -199,8 +199,11 @@ QString QFileIconProvider::type(const QFileInfo &info) const
 {
     if (info.isRoot())
         return QApplication::translate("QFileDialog", "Drive");
-    if (info.isFile())
-        return info.suffix() + QLatin1String(" ") + QApplication::translate("QFileDialog", "File");
+    if (info.isFile()) {
+        if (!info.suffix().isEmpty())
+            return info.suffix() + " " + QApplication::translate("QFileDialog", "File");
+        return QApplication::translate("QFileDialog", "File");
+    }
     if (info.isDir())
         return QApplication::translate("QFileDialog", "Directory");
     if (info.isSymLink())
