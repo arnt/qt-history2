@@ -48,7 +48,7 @@ public:
         : QAbstractItemViewPrivate(),
           header(0), indent(20), lastViewedItem(0), defaultItemHeight(-1),
           uniformRowHeights(false), rootDecoration(true),
-          itemsExpandable(true), sortingEnabled(false),
+          itemsExpandable(true), sortingEnabled(true),
           animationsEnabled(false), columnResizeTimerID(0)  {}
 
     ~QTreeViewPrivate() {}
