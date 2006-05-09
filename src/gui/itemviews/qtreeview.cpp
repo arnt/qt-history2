@@ -185,6 +185,9 @@ void QTreeView::setModel(QAbstractItemModel *model)
         connect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
                 this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
     }
+
+    if (d->sortingEnabled)
+        sortByColumn(header()->sortIndicatorSection());
 }
 
 /*!
@@ -618,6 +621,7 @@ void QTreeView::setSortingEnabled(bool enable)
         connect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortByColumn(int)));
     else
         disconnect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortByColumn(int)));
+    sortByColumn(header()->sortIndicatorSection());
 }
 
 bool QTreeView::isSortingEnabled() const
