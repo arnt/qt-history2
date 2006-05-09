@@ -1501,6 +1501,10 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
     number of matching data items equals \a hits, the search reaches
     the last row, or the search reaches \a start again, depending on
     whether \c MatchWrap is specified in \a flags.
+
+    By default, this function will perform a wrapping, string-based comparison
+    on all items, searching for items that begin with the search term specified
+    by \a value.
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits,
