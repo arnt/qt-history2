@@ -865,6 +865,10 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
         CGContextRelease(ctx);
         CGImageRelease(subimage);
     }
+#else
+    Q_UNUSED(d);
+    Q_UNUSED(device);
+    Q_UNUSED(offset);
 #endif
 }
 
@@ -1721,11 +1725,11 @@ bool QRasterPaintEngine::drawTextInFontBuffer(const QRect &devRect, int xmin, in
                     uint color = sourceScanline[x];
 
                     // If the alpha channel of the raster buffer has previously been
-                    // broken by GDI, we assume there are valid colors there and 
+                    // broken by GDI, we assume there are valid colors there and
                     // use clear type anyway (this is for XP style)
                     int alpha = qAlpha(color);
                     if (qRed(color) > alpha || qGreen(color) > alpha || qBlue(color) > alpha)
-                        brokenRasterBufferAlpha = true;                                           
+                        brokenRasterBufferAlpha = true;
 
                     // If the background is transparent, set it to completely opaque so we will
                     // recognize it after Windows screws up the alpha channel of font buffer.
