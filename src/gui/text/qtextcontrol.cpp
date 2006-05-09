@@ -592,34 +592,9 @@ void QTextControlPrivate::ensureVisible(int documentPosition)
         return;
 
     Q_Q(QTextControl);
-    /* ####################
-    QRectF newViewport = viewport;
+    QRectF newViewport = q->viewport();
     newViewport.setY(blockY + line.y());
-    emit q->visibilityRequest(newViewport);
-    */
-//    const int y = qRound(blockY + line.y());
-//    vbar->setValue(y);
-}
-
-// rect is in content coordinates
-void QTextControlPrivate::ensureVisible(const QRectF &rect)
-{
-    Q_Q(QTextControl);
-    
-    /* ###########
-    QRectF newViewport = viewport;
-    if (rect.left() < viewport.left())
-        newViewport.setX(rect.x() - rect.width());
-    else if (rect.right() > viewport.right())
-        newViewport.setX(rect.right() - viewport.width());
-
-    if (rect.top() < viewport.top())
-        newViewport.setY(rect.y() - rect.height());
-    else if (rect.bottom() > viewport.bottom())
-        newViewport.setY(rect.bottom() - viewport.height());
-    
-    emit q->visibilityRequest(newViewport);
-    */
+    q->ensureVisible(newViewport);
 }
 
 void QTextControlPrivate::ensureViewportLayouted()
@@ -1864,7 +1839,7 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
 
     if (d->readOnly) {
         const QPointF pos = d->mapToContents(e->pos());
-        d->ensureVisible(QRectF(pos, QSizeF(1, 1)));
+        ensureVisible(QRectF(pos, QSizeF(1, 1)));
         emit cursorPositionChanged();
         d->selectionChanged();
     } else {
@@ -1958,6 +1933,12 @@ QRectF QTextControl::viewport() const
 {
     Q_D(const QTextControl);
     return QRectF(QPointF(0, 0), d->doc->documentLayout()->documentSize());
+}
+
+void QTextControl::ensureVisible(const QRectF &rectInDocument)
+{
+    Q_UNUSED(rectInDocument);
+    // assume viewport == document size in default mode
 }
 
 /*
@@ -2838,7 +2819,7 @@ void QTextControl::ensureCursorVisible()
 {
     Q_D(QTextControl);
     QRectF crect = d->rectForPosition(d->cursor.position());
-    d->ensureVisible(crect);
+    ensureVisible(crect);
 // ####    updateMicroFocus();
 }
 

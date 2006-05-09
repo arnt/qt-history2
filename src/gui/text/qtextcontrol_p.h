@@ -162,7 +162,6 @@ Q_SIGNALS:
 
     // control signals
     void viewportUpdateRequest(const QRectF &rectInViewport);
-    void visibilityRequest(const QRectF &rectInDocument);
     void documentSizeChanged(const QSizeF &);
 
 public:
@@ -184,6 +183,7 @@ public:
     
     // control methods to re-implement
     virtual QRectF viewport() const;
+    virtual void ensureVisible(const QRectF &rectInDocument);
 
 protected:
 //    virtual bool event(QEvent *e);

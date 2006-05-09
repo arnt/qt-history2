@@ -93,7 +93,6 @@ public:
 
     void setClipboardSelection();
     void ensureVisible(int documentPosition);
-    void ensureVisible(const QRectF &rect);
 
     void ensureViewportLayouted();
 
