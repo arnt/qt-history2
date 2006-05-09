@@ -44,13 +44,11 @@ class QMenu;
 class QTextControlPrivate;
 class QMimeData;
 
-class QTextControl : public QObject
+class Q_INTERNAL_EXPORT QTextControl : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextControl)
     Q_ENUMS(LineWrapMode)
-    Q_PROPERTY(QString documentTitle READ documentTitle WRITE setDocumentTitle)
-    Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     Q_PROPERTY(LineWrapMode lineWrapMode READ lineWrapMode WRITE setLineWrapMode)
     QDOC_PROPERTY(QTextOption::WrapMode wordWrapMode READ wordWrapMode WRITE setWordWrapMode)
     Q_PROPERTY(int lineWrapColumnOrWidth READ lineWrapColumnOrWidth WRITE setLineWrapColumnOrWidth)
@@ -87,16 +85,6 @@ public:
 
     void setCurrentCharFormat(const QTextCharFormat &format);
     QTextCharFormat currentCharFormat() const;
-
-    inline void setDocumentTitle(const QString &title)
-    { document()->setMetaInformation(QTextDocument::DocumentTitle, title); }
-    inline QString documentTitle() const
-    { return document()->metaInformation(QTextDocument::DocumentTitle); }
-
-    inline bool isUndoRedoEnabled() const
-    { return document()->isUndoRedoEnabled(); }
-    inline void setUndoRedoEnabled(bool enable)
-    { document()->setUndoRedoEnabled(enable); }
 
     LineWrapMode lineWrapMode() const;
     void setLineWrapMode(LineWrapMode mode);
