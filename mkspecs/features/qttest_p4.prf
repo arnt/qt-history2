@@ -1,5 +1,4 @@
 CONFIG          += qt warn_on console depend_includepath
-CONFIG          -= debug_and_release_target
 
 # find qtestlib's prl file and extract the librarie's name
 QTEST_LIB =
@@ -71,5 +70,6 @@ else:unix: runme.commands += ./$(QMAKE_TARGET)
 else:      runme.commands += $(QMAKE_TARGET)
 embedded:  runme.commands += -qws
 INSTALLS += runme
+
 
 ########################################################################
