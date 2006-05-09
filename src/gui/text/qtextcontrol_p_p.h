@@ -32,8 +32,10 @@
 #include "QtGui/qmenu.h"
 #include "QtGui/qabstracttextdocumentlayout.h"
 #include "QtCore/qbasictimer.h"
+#include "QtCore/qpointer.h"
 
 class QMimeData;
+class QAbstractScrollArea;
 
 class QTextControlPrivate
 {
@@ -90,6 +92,8 @@ public:
     void pageDown(QTextCursor::MoveMode moveMode);
 
     void updateCurrentCharFormatAndSelection();
+    
+    void adjustScrollbars();
 
     void setClipboardSelection();
     void ensureVisible(int documentPosition);
@@ -168,7 +172,8 @@ public:
     QVector<QAbstractTextDocumentLayout::Selection> extraSelections;
     
     QPalette palette;
-    
+
+    QPointer<QAbstractScrollArea> scrollArea;
     QTextControl *q_ptr;
 };
 

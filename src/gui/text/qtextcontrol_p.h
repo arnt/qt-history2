@@ -43,6 +43,7 @@ class QTextDocument;
 class QMenu;
 class QTextControlPrivate;
 class QMimeData;
+class QAbstractScrollArea;
 
 class Q_INTERNAL_EXPORT QTextControl : public QObject
 {
@@ -151,6 +152,8 @@ public Q_SLOTS:
 
     void adjustSize();
     
+    void setScrollArea(QAbstractScrollArea *scrollArea);
+    
 Q_SIGNALS:
     void textChanged();
     void undoAvailable(bool b);
@@ -209,7 +212,7 @@ private:
     QTextControlPrivate *d_ptr;
     Q_PRIVATE_SLOT(d_func(), void repaintContents(const QRectF &r))
     Q_PRIVATE_SLOT(d_func(), void updateCurrentCharFormatAndSelection())
-// ##    Q_PRIVATE_SLOT(d_func(), void adjustScrollbars())
+    Q_PRIVATE_SLOT(d_func(), void adjustScrollbars())
     Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
     Q_PRIVATE_SLOT(d_func(), void deleteSelected())
     Q_PRIVATE_SLOT(d_func(), void undo())
