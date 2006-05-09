@@ -28,6 +28,7 @@
 #include <qstyle.h>
 #include <qtimer.h>
 #include "private/qtextdocumentlayout_p.h"
+#include "private/qtextedit_p.h"
 #include "qtextdocument.h"
 #include "qtextlist.h"
 
@@ -47,43 +48,6 @@
 #else
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
-
-class QTextControlMimeData : public QMimeData
-{
-public:
-    inline QTextControlMimeData(const QTextDocumentFragment &aFragment) : fragment(aFragment) {}
-
-    virtual QStringList formats() const;
-protected:
-    virtual QVariant retrieveData(const QString &mimeType, QVariant::Type type) const;
-private:
-    void setup() const;
-
-    mutable QTextDocumentFragment fragment;
-};
-
-QStringList QTextControlMimeData::formats() const
-{
-    if (!fragment.isEmpty())
-        return QStringList() << "text/plain" << "text/html";
-    else
-        return QMimeData::formats();
-}
-
-QVariant QTextControlMimeData::retrieveData(const QString &mimeType, QVariant::Type type) const
-{
-    if (!fragment.isEmpty())
-        setup();
-    return QMimeData::retrieveData(mimeType, type);
-}
-
-void QTextControlMimeData::setup() const
-{
-    QTextControlMimeData *that = const_cast<QTextControlMimeData *>(this);
-    that->setData(QLatin1String("text/html"), fragment.toHtml("utf-8").toUtf8());
-    that->setText(fragment.toPlainText());
-    fragment = QTextDocumentFragment();
-}
 
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)
@@ -2671,7 +2635,7 @@ QMimeData *QTextControl::createMimeDataFromSelection() const
 {
     Q_D(const QTextControl);
     const QTextDocumentFragment fragment(d->cursor);
-    return new QTextControlMimeData(fragment);
+    return new QTextEditMimeData(fragment);
 }
 
 /*
