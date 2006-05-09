@@ -13,6 +13,7 @@
 
 #include "qmenu.h"
 #include "qhash.h"
+#include <qdebug.h>
 #include "qapplication.h"
 #include <private/qt_mac_p.h>
 #include "qregexp.h"
@@ -568,8 +569,23 @@ QMenuPrivate::QMacMenuPrivate::QMacMenuPrivate() : menu(0)
 
 QMenuPrivate::QMacMenuPrivate::~QMacMenuPrivate()
 {
-    for(QList<QMacMenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it)
-        delete (*it);
+    for(QList<QMacMenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it) {
+        QMacMenuAction *action = (*it);
+        RemoveMenuCommandProperty(action->menu, action->command, kMenuCreatorQt, kMenuPropertyQAction);
+        if(action->merged) {
+            QMenuMergeList *list = 0;
+            GetMenuItemProperty(action->menu, 0, kMenuCreatorQt, kMenuPropertyMergeList,
+                                sizeof(list), 0, &list);
+            for(int i = 0; list && i < list->size(); ) {
+                QMenuMergeItem item = list->at(i);
+                if(item.action == action)
+                    list->removeAt(i);
+                else
+                    ++i;
+            }
+        }
+        delete action;
+    }
     if(menu)
         ReleaseMenu(menu);
 }
@@ -633,13 +649,11 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
             InsertMenuItemTextWithCFString(action->menu, 0, before_index-1, attr, action->command);
         else
             AppendMenuItemTextWithCFString(action->menu, 0, attr, action->command, (MenuItemIndex*)&index);
-        SetMenuCommandProperty(action->menu, action->command, kMenuCreatorQt, kMenuPropertyQAction,
-                               sizeof(action), &action);
     } else {
         qt_mac_command_set_enabled(action->menu, action->command, !QApplicationPrivate::modalState());
-        SetMenuCommandProperty(action->menu, action->command, kMenuCreatorQt, kMenuPropertyQAction,
-                               sizeof(action), &action);
     }
+    SetMenuCommandProperty(action->menu, action->command, kMenuCreatorQt, kMenuPropertyQAction,
+                           sizeof(action), &action);
     syncAction(action);
 }
 
