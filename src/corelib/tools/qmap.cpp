@@ -618,9 +618,9 @@ void QMapData::dump()
 /*! \fn QList<T> QMap::values() const
 
     Returns a list containing all the values in the map, in ascending
-    order of their keys. If a key is associated multiple values, all
-    of its values will be in the list, and not just the most recently
-    inserted one.
+    order of their keys. If a key is associated with multiple values,
+    all of its values will be in the list, and not just the most
+    recently inserted one.
 
     \sa keys()
 */
@@ -738,7 +738,7 @@ void QMapData::dump()
 
     Returns an const iterator pointing to the item with key \a key in the
     map.
-    
+
     If the map contains no item with key \a key, the function
     returns constEnd().
 
