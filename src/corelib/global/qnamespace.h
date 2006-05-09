@@ -1318,7 +1318,8 @@ public:
         Image         = 0x03,
         Printer       = 0x04,
         Picture       = 0x05,
-        Pbuffer       = 0x06
+        Pbuffer       = 0x06,    // GL pbuffer
+        FramebufferObject = 0x07 // GL framebuffer object
     };
     enum RelayoutType {
         RelayoutNormal,
