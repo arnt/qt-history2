@@ -32,19 +32,29 @@ QT_MODULE(Core)
 class Q_CORE_EXPORT QDebug
 {
     struct Stream {
-        Stream(QtMsgType t) : ts(&buffer, QIODevice::WriteOnly), ref(1), type(t), space(true){}
+        Stream(QIODevice *device) : ts(device), ref(1), type(QtDebugMsg), space(true), message_output(false) {}
+        Stream(QString *string) : ts(string, QIODevice::WriteOnly), ref(1), type(QtDebugMsg), space(true), message_output(false) {}
+        Stream(QtMsgType t) : ts(&buffer, QIODevice::WriteOnly), ref(1), type(t), space(true), message_output(true) {}
         QTextStream ts;
         QString buffer;
         int ref;
         QtMsgType type;
         bool space;
+        bool message_output;
     } *stream;
 public:
+    inline QDebug(QIODevice *device) : stream(new Stream(device)) {}
+    inline QDebug(QString *string) : stream(new Stream(string)) {}
     inline QDebug(QtMsgType t) : stream(new Stream(t)) {}
     inline QDebug(const QDebug &o):stream(o.stream) { ++stream->ref; }
     inline QDebug &operator=(const QDebug &other);
-    inline ~QDebug()
-        { if (!--stream->ref) { qt_message_output(stream->type, stream->buffer.toLocal8Bit().data()); delete stream; } }
+    inline ~QDebug() {
+        if (!--stream->ref) {
+            if(stream->message_output)
+                qt_message_output(stream->type, stream->buffer.toLocal8Bit().data());
+            delete stream;
+        }
+    }
     inline QDebug &space() { stream->space = true; stream->ts << " "; return *this; }
     inline QDebug &nospace() { stream->space = false; return *this; }
     inline QDebug &maybeSpace() { if (stream->space) stream->ts << " "; return *this; }
