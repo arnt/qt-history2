@@ -105,6 +105,8 @@ QPixmap QtBrushManager::brushPixmap(const QBrush &brush) const
     QImage img(w, h, QImage::Format_ARGB32_Premultiplied);
     QPainter p(&img);
     p.setCompositionMode(QPainter::CompositionMode_Source);
+    p.fillRect(QRect(0, 0, w, h), brush);
+    /*
     if (brush.style() == Qt::LinearGradientPattern ||
             brush.style() == Qt::RadialGradientPattern ||
             brush.style() == Qt::ConicalGradientPattern) {
@@ -113,6 +115,7 @@ QPixmap QtBrushManager::brushPixmap(const QBrush &brush) const
     } else {
         p.fillRect(QRect(0, 0, w, h), brush);
     }
+    */
 
     return QPixmap::fromImage(img);
 }

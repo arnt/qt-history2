@@ -29,6 +29,8 @@
 
 using namespace qdesigner_internal;
 
+static int BrushRole = 33;
+
 PaletteEditor::PaletteEditor(QDesignerFormEditorInterface *core, QWidget *parent)
     : QDialog(parent)
 {
@@ -253,7 +255,7 @@ QVariant PaletteModel::data(const QModelIndex &index, int role) const
         }
         return QVariant();
     }
-    if (role == Qt::BackgroundColorRole)
+    if (role == BrushRole)
         return m_palette.brush(columnToGroup(index.column()),
                     (QPalette::ColorRole)index.row());
     return QVariant();
@@ -264,7 +266,7 @@ bool PaletteModel::setData(const QModelIndex &index, const QVariant &value, int 
     if (!index.isValid())
         return false;
 
-    if (index.column() != 0 && role == Qt::BackgroundColorRole) {
+    if (index.column() != 0 && role == BrushRole) {
         QBrush br = qVariantValue<QBrush>(value);
         QPalette::ColorRole r = (QPalette::ColorRole)index.row();
         QPalette::ColorGroup g = columnToGroup(index.column());
@@ -530,7 +532,7 @@ void ColorDelegate::setEditorData(QWidget *ed, const QModelIndex &index) const
         QString colorName = qVariantValue<QString>(index.model()->data(index, Qt::DisplayRole));
         editor->setLabel(colorName);
     } else {
-        QBrush br = qVariantValue<QBrush>(index.model()->data(index, Qt::BackgroundColorRole));
+        QBrush br = qVariantValue<QBrush>(index.model()->data(index, BrushRole));
         BrushEditor *editor = static_cast<BrushEditor *>(ed);
         editor->setBrush(br);
     }
@@ -547,7 +549,7 @@ void ColorDelegate::setModelData(QWidget *ed, QAbstractItemModel *model,
         BrushEditor *editor = static_cast<BrushEditor *>(ed);
         if (editor->changed()) {
             QBrush br = editor->brush();
-            model->setData(index, br, Qt::BackgroundColorRole);
+            model->setData(index, br, BrushRole);
         }
     }
 }
@@ -567,13 +569,16 @@ void ColorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
     if (index.column() == 0 && mask) {
         option.font.setBold(true);
     }
-    QBrush br = qVariantValue<QBrush>(index.model()->data(index, Qt::BackgroundColorRole));
+    QBrush br = qVariantValue<QBrush>(index.model()->data(index, BrushRole));
     if (br.style() == Qt::LinearGradientPattern ||
             br.style() == Qt::RadialGradientPattern ||
             br.style() == Qt::ConicalGradientPattern) {
         painter->save();
         painter->translate(option.rect.x(), option.rect.y());
         painter->scale(option.rect.width(), option.rect.height());
+        QGradient gr = *(br.gradient());
+        gr.setCoordinateMode(QGradient::LogicalMode);
+        br = QBrush(gr);
         painter->fillRect(0, 0, 1, 1, br);
         painter->restore();
     } else {
