@@ -3102,11 +3102,13 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             EXTRA_OBJS="qsettings_mac.o qcore_mac.o"
             EXTRA_SRCS="\"$relpath/src/corelib/io/qsettings_mac.cpp\" \"$relpath/src/corelib/kernel/qcore_mac.cpp\""
 	    if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
-		X86_FLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CFLAGS_X86[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
-		PPC_FLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CFLAGS_PPC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
-		EXTRA_CFLAGS="$X86_CFLAGS $PPC_FLAGS $EXTRA_CFLAGS"
-		EXTRA_CXXFLAGS="$X86_FLAGS $PPC_FLAGS $EXTRA_CXXFLAGS"
-                EXTRA_LFLAGS="$EXTRA_LFLAGS $X86_FLAGS $PPC_FLAGS"
+		X86_CFLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CFLAGS_X86[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+		X86_LFLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_LFLAGS_X86[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+		PPC_CFLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_CFLAGS_PPC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+		PPC_LFLAGS=`getQMakeConf "$XQMAKESPEC" | grep "^QMAKE_LFLAGS_PPC[^_A-Z0-9]" | sed "s,.* *= *\(.*\)$,\1,"`
+		EXTRA_CFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CFLAGS"
+		EXTRA_CXXFLAGS="$X86_CFLAGS $PPC_CFLAGS $EXTRA_CXXFLAGS"
+                EXTRA_LFLAGS="$EXTRA_LFLAGS $X86_LFLAGS $PPC_LFLAGS"
             fi
 	    if [ '!' -z "$CFG_SDK" ]; then
 		echo "SDK_LFLAGS =-Wl,-syslibroot,$CFG_SDK" >>"$mkfile"
