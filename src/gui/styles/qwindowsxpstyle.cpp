@@ -1369,6 +1369,44 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
         }
         break;}
 
+    case SE_PushButtonContents:
+        if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
+            MARGINS borderSize;
+            if (widget) {
+                HTHEME theme = pOpenThemeData(QWindowsXPStylePrivate::winId(widget), L"Button");
+                if (theme) {
+                    int stateId;
+                    if (!(option->state & State_Enabled))
+                        stateId = PBS_DISABLED;
+                    else if (option->state & State_Sunken)
+                        stateId = PBS_PRESSED;
+                    else if (option->state & State_MouseOver)
+                        stateId = PBS_HOT;
+                    else if (option->state & State_Default)
+                        stateId = PBS_DEFAULTED;
+                    else
+                        stateId = PBS_NORMAL;
+                    
+                    int border = pixelMetric(PM_DefaultFrameWidth, btn, widget);
+                    rect = option->rect.adjusted(border, border, -border, -border);
+        
+                    int result = pGetThemeMargins(theme,
+                                                  NULL,
+                                                  BP_PUSHBUTTON,
+                                                  stateId,
+                                                  TMT_CONTENTMARGINS,
+                                                  NULL,
+                                                  &borderSize);
+                    
+                    if (result == S_OK) {
+                        rect.adjust(borderSize.cxLeftWidth, borderSize.cyTopHeight, 
+                                    -borderSize.cxRightWidth, -borderSize.cyBottomHeight);
+                        rect = visualRect(option->direction, option->rect, rect);
+                    }
+                }
+            }
+        }
+        break;
     default:
         rect = QWindowsStyle::subElementRect(sr, option, widget);
     }
