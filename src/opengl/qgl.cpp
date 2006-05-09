@@ -3155,6 +3155,8 @@ void QGLExtensions::init_extensions()
         glExtensions |= FragmentProgram;
     if (extensions.contains("mirrored_repeat"))
         glExtensions |= MirroredRepeat;
+    if (extensions.contains("EXT_framebuffer_object"))
+        glExtensions |= FramebufferObject;
 
     QGLContext cx(QGLFormat::defaultFormat());
     if (glExtensions & TextureCompression) {
