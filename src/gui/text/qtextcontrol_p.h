@@ -183,6 +183,7 @@ public:
     virtual void mouseMoveEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);
     virtual void mouseDoubleClickEvent(QMouseEvent *e);
+    virtual void contextMenuEvent(QContextMenuEvent *e);
     
     // control methods to re-implement
     virtual QRectF viewport() const;
@@ -191,7 +192,6 @@ public:
 protected:
 //    virtual bool event(QEvent *e);
     virtual void timerEvent(QTimerEvent *e);
-    virtual void contextMenuEvent(QContextMenuEvent *e);
 /*
     virtual void dragEnterEvent(QDragEnterEvent *e);
     virtual void dragLeaveEvent(QDragLeaveEvent *e);

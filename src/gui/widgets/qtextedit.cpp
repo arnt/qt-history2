@@ -53,6 +53,7 @@ void QTextEditMimeData::setup() const
 #include "qtextdocument.h"
 #include "private/qtextdocument_p.h"
 #include "qtextlist.h"
+#include "private/qtextcontrol_p.h"
 
 #include <qtextformat.h>
 #include <qdatetime.h>
@@ -3768,7 +3769,7 @@ const struct QUnicodeControlCharacter {
     { QT_TRANSLATE_NOOP("QUnicodeControlCharacterMenu", "PDF Pop directional formatting"), 0x202c },
 };
 
-QUnicodeControlCharacterMenu::QUnicodeControlCharacterMenu(QWidget *_editWidget, QWidget *parent)
+QUnicodeControlCharacterMenu::QUnicodeControlCharacterMenu(QObject *_editWidget, QWidget *parent)
     : QMenu(parent), editWidget(_editWidget)
 {
     setTitle(tr("Insert Unicode control character"));
@@ -3792,6 +3793,9 @@ void QUnicodeControlCharacterMenu::menuActionTriggered()
         return;
     }
 #endif
+    if (QTextControl *control = qobject_cast<QTextControl *>(editWidget)) {
+        control->insertPlainText(str);
+    }
 #ifndef QT_NO_LINEEDIT
     if (QLineEdit *edit = qobject_cast<QLineEdit *>(editWidget)) {
         edit->insert(str);

@@ -2226,13 +2226,11 @@ QMenu *QTextControl::createStandardContextMenu()
 
     a->setEnabled(!d->doc->isEmpty());
 
-    /* ####
     if (!d->readOnly) {
         menu->addSeparator();
         QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this, menu);
         menu->addMenu(ctrlCharacterMenu);
     }
-    */
 
     return menu;
 }

@@ -194,13 +194,13 @@ class QUnicodeControlCharacterMenu : public QMenu
 {
     Q_OBJECT
 public:
-    QUnicodeControlCharacterMenu(QWidget *editWidget, QWidget *parent);
+    QUnicodeControlCharacterMenu(QObject *editWidget, QWidget *parent);
 
 private Q_SLOTS:
     void menuActionTriggered();
 
 private:
-    QWidget *editWidget;
+    QObject *editWidget;
 };
 #endif // QT_NO_CONTEXTMENU
 
