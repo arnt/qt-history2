@@ -3,7 +3,7 @@ CONFIG          -= debug_and_release_target
 
 # find qtestlib's prl file and extract the librarie's name
 QTEST_LIB =
-mac:exists($$[QT_INSTALL_LIBS]/QtTest.framework):QTEST_LIB = QTest.framework
+mac:exists($$[QT_INSTALL_LIBS]/QtTest.framework):QTEST_LIB = QtTest.framework
 CONFIG(debug, debug|release) {
     isEmpty(QTEST_LIB) {
        win32 {
