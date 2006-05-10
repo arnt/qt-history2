@@ -1658,10 +1658,22 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     int handle = d->sectionHandleAt(pos);
     while (handle > -1 && isSectionHidden(handle)) handle--;
-    if (handle > -1 && resizeMode(handle) == Interactive)
+    if (handle > -1 && resizeMode(handle) == Interactive) {
         emit sectionHandleDoubleClicked(handle);
-    else
+#ifndef QT_NO_CURSOR
+        Qt::CursorShape splitCursor = (orientation() == Qt::Horizontal)
+                                      ? Qt::SplitHCursor : Qt::SplitVCursor;
+        if (cursor().shape() == splitCursor) {
+            // signal handlers may have changed the section size
+            handle = d->sectionHandleAt(pos);
+            while (handle > -1 && isSectionHidden(handle)) handle--;
+            if (!(handle > -1 && resizeMode(handle) == Interactive))
+                setCursor(Qt::ArrowCursor);
+        }
+#endif
+    } else {
         emit sectionDoubleClicked(logicalIndexAt(e->pos()));
+    }
 }
 
 /*!
