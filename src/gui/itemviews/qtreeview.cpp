@@ -1674,8 +1674,8 @@ void QTreeView::sortByColumn(int column)
     Q_D(QTreeView);
     if (!d->model)
         return;
-    bool ascending = (header()->sortIndicatorSection() == column
-                      && header()->sortIndicatorOrder() == Qt::DescendingOrder);
+    bool ascending = (header()->sortIndicatorSection() != column
+                      || header()->sortIndicatorOrder() == Qt::DescendingOrder);
     Qt::SortOrder order = ascending ? Qt::AscendingOrder : Qt::DescendingOrder;
     header()->setSortIndicator(column, order);
     d->model->sort(column, order);
