@@ -29,6 +29,7 @@ template<typename T> class QList;
 class QFocusEvent;
 class QKeyEvent;
 class QGraphicsItem;
+class QGraphicsItemGroup;
 class QGraphicsEllipseItem;
 class QGraphicsLineItem;
 class QGraphicsPathItem;
@@ -88,6 +89,9 @@ public:
     QList<QGraphicsItem *> selectedItems() const;
     void setSelectionArea(const QPainterPath &path);
     void clearSelection();
+
+    QGraphicsItemGroup *createItemGroup(const QList<QGraphicsItem *> &items);
+    void destroyItemGroup(QGraphicsItemGroup *group);
 
     QGraphicsItem *addItem(QGraphicsItem *item);
     QGraphicsEllipseItem *addEllipse(const QRectF &rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());

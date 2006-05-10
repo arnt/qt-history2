@@ -240,7 +240,7 @@ void QGraphicsScenePrivate::addToIndex(QGraphicsItem *item)
 {
     Q_Q(QGraphicsScene);
     if (indexMethod == QGraphicsScene::BspTreeIndex) {
-        if (!generatingBspTree && item->d_func()->index != -1) {
+        if (item->d_func()->index != -1) {
             bspTree.insertLeaf(item->sceneBoundingRect(), item->d_func()->index);
             foreach (QGraphicsItem *child, item->children())
                 child->addToIndex();
@@ -782,6 +782,72 @@ void QGraphicsScene::clearSelection()
     foreach (QGraphicsItem *item, d->selectedItems)
         item->setSelected(false);
     d->selectedItems.clear();
+}
+
+/*!
+    Groups all items in \a items into a new QGraphicsItemGroup, and returns a
+    pointer to the group. The group is created with the common ancestor of \a
+    items as its parent, and with position (0, 0). The items are all
+    reparented to the group, and their positions and transformations are
+    mapped to the group.
+
+    QGraphicsScene has ownership of the group item; you do not need to delete
+    it. To dismantle (ungroup) a group, call destroyItemGroup().
+
+    \sa destroyItemGroup(), QGraphicsItemGroup::addToGroup()
+*/
+QGraphicsItemGroup *QGraphicsScene::createItemGroup(const QList<QGraphicsItem *> &items)
+{
+    // Build a list of the first item's ancestors
+    QList<QGraphicsItem *> ancestors;
+    int n = 0;
+    QGraphicsItem *parent = items.at(n++);
+    while ((parent = parent->parentItem()))
+        ancestors.append(parent);
+
+    // Find the common ancestor for all items
+    QGraphicsItem *commonAncestor = 0;
+    if (!ancestors.isEmpty()) {
+        while (n < items.size()) {
+            int commonIndex = -1;
+            QGraphicsItem *parent = items.at(n++);
+            do {
+                int index = ancestors.indexOf(parent, qMax(0, commonIndex));
+                if (index != -1) {
+                    commonIndex = index;
+                    break;
+                }
+            } while ((parent = parent->parentItem()));
+
+            if (commonIndex == -1) {
+                commonAncestor = 0;
+                break;
+            }
+
+            commonAncestor = ancestors.at(commonIndex);
+        }
+    }
+
+    // Create a new group at that level
+    QGraphicsItemGroup *group = new QGraphicsItemGroup(commonAncestor);
+    foreach (QGraphicsItem *item, items)
+        group->addToGroup(item);
+    return group;
+}
+
+/*!
+    Reparents all items in \a group to \a group's parent item, then removes \a
+    group from the scene, and finally deletes it. The items' positions and
+    transformations are mapped from the group to the group's parent.
+
+    \sa createItemGroup(), QGraphicsItemGroup::removeFromGroup()
+*/
+void QGraphicsScene::destroyItemGroup(QGraphicsItemGroup *group)
+{
+    foreach (QGraphicsItem *item, group->children())
+        group->removeFromGroup(item);
+    removeItem(group);
+    delete group;
 }
 
 /*!

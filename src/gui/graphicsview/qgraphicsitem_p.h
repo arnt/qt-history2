@@ -46,6 +46,7 @@ public:
         selected = 0;
         acceptsMouse = 1;
         acceptsHover = 0;
+        isMemberOfGroup = 0;
         flags =  QGraphicsItem::ItemIsSelectable;
         pad = 0;
     }
@@ -84,7 +85,7 @@ public:
         ExtraStruct(Extra type, QVariant value)
             : type(type), value(value)
         { }
-        
+
         Extra type;
         QVariant value;
 
@@ -92,7 +93,7 @@ public:
         { return type < extra; }
     };
     QList<ExtraStruct> extras;
-    
+
     QPointF pos;
     qreal z;
     QGraphicsScene *scene;
@@ -104,9 +105,10 @@ public:
     quint32 selected : 1;
     quint32 acceptsMouse : 1;
     quint32 acceptsHover : 1;
+    quint32 isMemberOfGroup : 1;
     quint32 resizeHandle : 2;
     quint32 flags : 11;
-    quint32 pad : 14;
+    quint32 pad : 13;
 
     QGraphicsItem *q_ptr;
 };

@@ -27,6 +27,7 @@ QT_MODULE(Gui)
 
 class QBrush;
 class QFocusEvent;
+class QGraphicsItemGroup;
 class QGraphicsSceneContextMenuEvent;
 class QGraphicsSceneEvent;
 class QGraphicsSceneHoverEvent;
@@ -61,6 +62,9 @@ public:
     QGraphicsItem *parentItem() const;
     void setParentItem(QGraphicsItem *parent);
     QList<QGraphicsItem *> children() const;
+
+    QGraphicsItemGroup *group() const;
+    void setGroup(QGraphicsItemGroup *group);
 
     GraphicsItemFlags flags() const;
     void setFlag(GraphicsItemFlag flag, bool enabled = true);
@@ -111,6 +115,7 @@ public:
 
     // Hit test
     virtual QRectF boundingRect() const = 0;
+    QRectF childrenBoundingRect() const;
     QRectF sceneBoundingRect() const;
     virtual QPainterPath shape() const;
     virtual bool contains(const QPointF &point) const;
@@ -186,6 +191,7 @@ private:
 
     Q_DISABLE_COPY(QGraphicsItem)
     Q_DECLARE_PRIVATE(QGraphicsItem)
+    friend class QGraphicsItemGroup;
     friend class QGraphicsScene;
     friend class QGraphicsScenePrivate;
     friend class QGraphicsView;
@@ -438,10 +444,31 @@ private:
     friend class QGraphicsTextItemPrivate;
 };
 
+class QGraphicsItemGroupPrivate;
+class Q_GUI_EXPORT QGraphicsItemGroup : public QGraphicsItem
+{
+public:
+    QGraphicsItemGroup(QGraphicsItem *parent = 0);
+    ~QGraphicsItemGroup();
+
+    void addToGroup(QGraphicsItem *item);
+    void removeFromGroup(QGraphicsItem *item);
+
+    QRectF boundingRect() const;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+    enum { Type = 9 };
+    int type() const;
+
+private:
+    Q_DISABLE_COPY(QGraphicsItemGroup)
+    Q_DECLARE_PRIVATE(QGraphicsItemGroup)
+};
+
 template <class T> inline T qgraphicsitem_cast(QGraphicsItem *item)
 {
     return int(static_cast<T>(0)->Type) == int(QGraphicsItem::Type)
-	|| int(static_cast<T>(0)->Type) == item->type() ? static_cast<T>(item) : 0;
+        || int(static_cast<T>(0)->Type) == item->type() ? static_cast<T>(item) : 0;
 }
 
 #ifndef QT_NO_DEBUG

@@ -300,6 +300,38 @@ QGraphicsScene *QGraphicsItem::scene() const
 }
 
 /*!
+    Returns a pointer to this item's item group, or 0 if this item is not
+    member of a group.
+
+    \sa QGraphicsItemGroup, QGraphicsItemGroup::items(), QGraphicsScene::groupSelectedItems()
+*/
+QGraphicsItemGroup *QGraphicsItem::group() const
+{
+    Q_D(const QGraphicsItem);
+    if (!d->isMemberOfGroup)
+        return 0;
+    QGraphicsItem *parent = const_cast<QGraphicsItem *>(this);
+    while ((parent = parent->parentItem())) {
+        if (QGraphicsItemGroup *group = qgraphicsitem_cast<QGraphicsItemGroup *>(parent))
+            return group;
+    }
+    // Unreachable; if d->isMemberOfGroup is != 0, then one parent of this
+    // item is a group item.
+    return 0;
+}
+
+/*!
+    Adds this item to the item group \a group. If \a group is 0, this item is
+    removed from any current group and added as a child of the previous
+    group's parent.
+
+    \sa group(), QGraphicsItemGroup::addItem(), QGraphicsScene::groupSelectedItems()
+*/
+void QGraphicsItem::setGroup(QGraphicsItemGroup *group)
+{
+}
+
+/*!
     Returns a pointer to this item's parent item. If this item does not have a
     parent, 0 is returned.
 
@@ -330,14 +362,14 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
 
     if (d->parent) {
         // Remove from current parent
-        if (d->parent == parent)
-            return;
+        removeFromIndex();
         d->parent->d_func()->children.removeAll(this);
         d->parent->update();
     }
 
     if ((d->parent = parent)) {
         d->parent->d_func()->children << this;
+        addToIndex();
         d->parent->update();
     }
 }
@@ -925,6 +957,29 @@ void QGraphicsItem::setZValue(qreal z)
 }
 
 /*!
+    Returns the bounding rect of this item's descendents (i.e., its children,
+    their children, etc.) in local coordinates. If the item has no children,
+    this function returns an empty QRectF.
+
+    Note that this does not include this item's bounding rect; it only returns
+    its descendents' accumulated bounding rect. If you need to include this
+    item's bounding rect, you can add boundingRect() to childrenBoundingRect()
+    using QRectF::operator|().
+
+    \sa boundingRect(), sceneBoundingRect()
+*/
+QRectF QGraphicsItem::childrenBoundingRect() const
+{
+    QRectF childRect;
+    foreach (QGraphicsItem *child, children()) {
+        QPointF childPos = child->pos();
+        QMatrix matrix = child->matrix() * QMatrix().translate(childPos.x(), childPos.y());
+        childRect |= matrix.mapRect(child->boundingRect() | child->childrenBoundingRect());
+    }
+    return childRect;
+}
+
+/*!
     \fn virtual QRectF QGraphicsItem::boundingRect() const = 0
 
     This pure virtual function defines the outer bounds of the item as
@@ -1129,7 +1184,7 @@ bool QGraphicsItem::collidesWith(const QPainterPath &path) const
     QPalette::Text brush from the paint device's palette. The brush is
     initialized to QPalette::Window.
 
-    All painting is done in local coordinates. 
+    All painting is done in local coordinates.
 */
 
 /*!
@@ -1161,11 +1216,13 @@ void QGraphicsItem::update(const QRectF &rect)
     Maps the point \a point, which is in this item's coordinate system, to \a
     item's coordinate system, and returns the mapped coordinate.
 
+    If \a item is 0, this function returns the same as mapToScene().
+
     \sa mapToParent(), mapToScene(), matrix(), mapFromItem()
 */
 QPointF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPointF &point) const
 {
-    return item->mapFromScene(mapToScene(point));
+    return item ? item->mapFromScene(mapToScene(point)) : mapToScene(point);
 }
 
 /*!
@@ -1197,11 +1254,13 @@ QPointF QGraphicsItem::mapToScene(const QPointF &point) const
     Maps the point \a point, which is in \a item's coordinate system, to this
     item's coordinate system, and returns the mapped coordinate.
 
+    If \a item is 0, this function returns the same as mapFromScene().
+
     \a mapFromParent(), mapFromScene(), matrix(), mapToItem()
 */
 QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPointF &point) const
 {
-    return mapFromScene(item->mapToScene(point));
+    return item ? mapFromScene(item->mapToScene(point)) : mapFromScene(point);
 }
 
 /*!
@@ -1331,11 +1390,11 @@ int QGraphicsItem::type() const
         QGraphicsEllipseItem *ellipse = scene.addEllipse(QRectF(-10, -10, 20, 20));
         QGraphicsLineItem *line = scene.addLine(QLineF(-10, -10, 20, 20));
 
-	line->installEventFilter(ellipse);
-	// line's events are filtered by ellipse's sceneEventFilter() function.
+        line->installEventFilter(ellipse);
+        // line's events are filtered by ellipse's sceneEventFilter() function.
 
-	ellipse->installEventFilter(line);
-	// ellipse's events are filtered by line's sceneEventFilter() function.
+        ellipse->installEventFilter(line);
+        // ellipse's events are filtered by line's sceneEventFilter() function.
     \endcode
 
     An item can only filter events for other items in the same
@@ -1509,29 +1568,29 @@ void QGraphicsItem::mouseEvent(QGraphicsSceneMouseEvent *event)
     switch (event->type()) {
     case QEvent::GraphicsSceneMouseMove:
         if ((event->buttons() & Qt::LeftButton) && (flags() & ItemIsMovable)) {
-	    QPointF newPos(mapToParent(event->pos()) - matrix().map(event->buttonDownPos(Qt::LeftButton)));
-	    QPointF diff = newPos - pos();
+            QPointF newPos(mapToParent(event->pos()) - matrix().map(event->buttonDownPos(Qt::LeftButton)));
+            QPointF diff = newPos - pos();
 
-	    // Determine the list of selected items
-	    QList<QGraphicsItem *> selectedItems;
-	    if (d->scene) {
-		selectedItems = d->scene->selectedItems();
-	    } else if (QGraphicsItem *parent = parentItem()) {
-		while (parent && parent->isSelected())
-		    selectedItems << parent;
-	    }
-	    selectedItems << this;
+            // Determine the list of selected items
+            QList<QGraphicsItem *> selectedItems;
+            if (d->scene) {
+                selectedItems = d->scene->selectedItems();
+            } else if (QGraphicsItem *parent = parentItem()) {
+                while (parent && parent->isSelected())
+                    selectedItems << parent;
+            }
+            selectedItems << this;
 
-	    // Move all selected items
-	    foreach (QGraphicsItem *item, selectedItems) {
-		if (!item->parentItem() || !item->parentItem()->isSelected())
-		    item->setPos(item == this ? newPos : item->pos() + diff);
-	    }
+            // Move all selected items
+            foreach (QGraphicsItem *item, selectedItems) {
+                if (!item->parentItem() || !item->parentItem()->isSelected())
+                    item->setPos(item == this ? newPos : item->pos() + diff);
+            }
         }
         break;
     case QEvent::GraphicsSceneMouseDoubleClick:
     case QEvent::GraphicsSceneMousePress:
-	if (event->button() == Qt::LeftButton && (flags() & ItemIsSelectable) && !d->selected) {
+        if (event->button() == Qt::LeftButton && (flags() & ItemIsSelectable) && !d->selected) {
             if (d->scene) {
                 if ((event->modifiers() & Qt::ControlModifier) == 0)
                     d->scene->clearSelection();
@@ -1861,9 +1920,9 @@ void QGraphicsPathItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->drawPath(d->path);
 
     if (option->state & QStyle::State_Selected) {
-	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
+        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
     }
 }
 
@@ -2013,9 +2072,9 @@ void QGraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->drawRect(d->rect);
 
     if (option->state & QStyle::State_Selected) {
-	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
+        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
     }
 }
 
@@ -2168,9 +2227,9 @@ void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     painter->drawEllipse(d->rect);
 
     if (option->state & QStyle::State_Selected) {
-	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
+        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
     }
 }
 
@@ -2320,9 +2379,9 @@ void QGraphicsPolygonItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     painter->drawPolygon(d->polygon);
 
     if (option->state & QStyle::State_Selected) {
-	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
+        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
     }
 }
 
@@ -2507,8 +2566,8 @@ void QGraphicsLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->drawLine(d->line);
 
     if (option->state & QStyle::State_Selected) {
-	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-	painter->setBrush(Qt::NoBrush);
+        painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
+        painter->setBrush(Qt::NoBrush);
 
         QPointF p1 = d->line.p1();
         QPointF p2 = d->line.p2();
@@ -3012,6 +3071,120 @@ void QGraphicsTextItem::updateBoundingRect(const QSizeF &size)
     update();
     dd->boundingRect.setSize(size);
     update();
+}
+
+/*!
+    \class QGraphicsItemGroup
+
+    \brief The QGraphicsItemGroup class provides treating a group of items as
+    one.
+*/
+
+class QGraphicsItemGroupPrivate : public QGraphicsItemPrivate
+{
+public:
+    QRectF itemsBoundingRect;
+};
+
+/*!
+    Constructs a QGraphicsItemGroup. \a parent is passed to QGraphicsItem's
+    constructor.
+*/
+QGraphicsItemGroup::QGraphicsItemGroup(QGraphicsItem *parent)
+    : QGraphicsItem(*new QGraphicsItemGroupPrivate, parent)
+{
+}
+
+/*!
+    Destroys the QGraphicsItemGroup.
+*/
+QGraphicsItemGroup::~QGraphicsItemGroup()
+{
+}
+
+/*!
+    Adds \a item to this item group. \a item will be reparented to this group,
+    but its position and transformation relative to the scene will stay
+    intact.
+
+    \sa removeFromGroup(), QGraphicsScene::createItemGroup()
+*/
+void QGraphicsItemGroup::addToGroup(QGraphicsItem *item)
+{
+    Q_D(QGraphicsItemGroup);
+    if (!item) {
+        qWarning("QGraphicsItemGroup::addToGroup: cannot add null item");
+        return;
+    }
+    if (item == this) {
+        qWarning("QGraphicsItemGroup::addToGroup: cannot add a group to itself");
+        return;
+    }
+
+    QPointF oldPos = mapFromItem(item, 0, 0);
+    item->setParentItem(this);
+    item->setPos(oldPos);
+    item->d_func()->isMemberOfGroup = 1;
+    d->itemsBoundingRect |= (item->matrix() * QMatrix().translate(oldPos.x(), oldPos.y()))
+                            .mapRect(item->boundingRect() | item->childrenBoundingRect());
+    update();
+}
+
+/*!
+    Removes \a item from this group. \a item will be reparented to this
+    group's parent item, or to 0 if this group has no parent.  \a item's
+    position and transformation relative to the scene will stay intact.
+
+    \sa addToGroup(), QGraphicsScene::destroyItemGroup()
+*/
+void QGraphicsItemGroup::removeFromGroup(QGraphicsItem *item)
+{
+    Q_D(QGraphicsItemGroup);
+    if (!item) {
+        qWarning("QGraphicsItemGroup::removeFromGroup: cannot remove null item");
+        return;
+    }
+
+    QGraphicsItem *newParent = parentItem();
+    QPointF oldPos = item->mapToItem(newParent, 0, 0);
+    item->setParentItem(newParent);
+    item->setPos(oldPos);
+    item->d_func()->isMemberOfGroup = (item->group() != 0);
+
+    // ### Quite expensive. But removeFromGroup() isn't called very often.
+    d->itemsBoundingRect = childrenBoundingRect();
+}
+
+/*!
+    \reimp
+
+    Returns the bounding rect of this group item, and all its children.
+*/
+QRectF QGraphicsItemGroup::boundingRect() const
+{
+    Q_D(const QGraphicsItemGroup);
+    return d->itemsBoundingRect;
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsItemGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+                               QWidget *widget)
+{
+    if (option->state & QStyle::State_Selected) {
+        Q_D(QGraphicsItemGroup);
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(d->itemsBoundingRect);
+    }
+}
+
+/*!
+    \reimp
+*/
+int QGraphicsItemGroup::type() const
+{
+    return Type;
 }
 
 #ifndef QT_NO_DEBUG
