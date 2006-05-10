@@ -222,6 +222,7 @@ public:
     QPersistentModelIndex pressedIndex;
     Qt::KeyboardModifiers pressedModifiers;
     QPoint pressedPosition;
+    bool pressedAlreadySelected;
 
     QAbstractItemView::State state;
     QAbstractItemView::EditTriggers editTriggers;

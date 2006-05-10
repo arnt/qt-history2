@@ -1095,7 +1095,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
 
     QPersistentModelIndex index = idx;
 
-    bool alreadySelected = selectionModel()->isSelected(index);
+    d->pressedAlreadySelected = selectionModel()->isSelected(index);
     d->pressedIndex = index;
     d->pressedModifiers = event->modifiers();
     QItemSelectionModel::SelectionFlags command = selectionCommand(index, event);
@@ -1112,11 +1112,8 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
 
     // signal handlers may change the model
-    if (index.isValid()) {
+    if (index.isValid())
         emit pressed(index);
-        if (alreadySelected)
-            edit(index, SelectedClicked, event);
-    }
 }
 
 /*!
@@ -1231,7 +1228,9 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 
     if (index == d_func()->pressedIndex && index.isValid()) {
         // signal handlers may change the model
-        bool edited = edit(index, NoEditTriggers, event); // send event to delegate
+        EditTrigger trigger = d->pressedAlreadySelected
+                              ? SelectedClicked : NoEditTriggers;
+        bool edited = edit(index, trigger, event); // send event to delegate
         emit clicked(index);
         if (edited) // if the delegate handled the click, the item is not activated
             return;
