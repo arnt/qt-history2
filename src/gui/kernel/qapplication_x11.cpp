@@ -756,10 +756,10 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
         // loop... so I have to save this value to be able to use it later
         paletteAlreadySet = (QApplicationPrivate::sys_pal != 0);
 
-        QString style = QApplication::style()->metaObject()->className();
-        if (style == QLatin1String("QWindowsStyle")
-            || style == QLatin1String("QMotifStyle")
-            || style == QLatin1String("QCDEStyle")) {
+        const char *style = QApplication::style()->metaObject()->className();
+        if (qstrcmp(style, "QWindowsStyle") == 0
+            || qstrcmp(style, "QMotifStyle") == 0
+            || qstrcmp(style, "QCDEStyle") == 0) {
             // ### Only plain styles currently work fine with RESOURCE_MANAGER
             // provided palette entries. For now, we apply this code to only
             // our own plain styles, until we can get complex styles to work

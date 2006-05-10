@@ -246,7 +246,7 @@ QImageReaderPrivate::QImageReaderPrivate(QImageReader *qq)
     deleteDevice = false;
     handler = 0;
     imageReaderError = QImageReader::UnknownError;
-    errorString = QT_TRANSLATE_NOOP(QImageReader, "Unknown error");
+    errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Unknown error"));
 
     q = qq;
 }
@@ -269,7 +269,7 @@ bool QImageReaderPrivate::initHandler()
     // check some preconditions
     if (!device || (!deleteDevice && !device->isOpen())) {
         imageReaderError = QImageReader::DeviceError;
-        errorString = QT_TRANSLATE_NOOP(QImageReader, "Invalid device");
+        errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Invalid device"));
         return false;
     }
 
@@ -282,13 +282,14 @@ bool QImageReaderPrivate::initHandler()
         QString fileName = file->fileName();
 
         do {
-            file->setFileName(fileName + QLatin1Char('.') + extensions.at(currentExtension++));
+            file->setFileName(fileName + QLatin1Char('.')
+                    + QString::fromLatin1(extensions.at(currentExtension++).constData()));
             file->open(QIODevice::ReadOnly);
         } while (!file->isOpen() && currentExtension < extensions.size());
 
         if (!device->isOpen()) {
             imageReaderError = QImageReader::FileNotFoundError;
-            errorString = QT_TRANSLATE_NOOP(QImageReader, "File not found");
+            errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "File not found"));
             return false;
         }
     }
@@ -296,7 +297,7 @@ bool QImageReaderPrivate::initHandler()
     // assign a handler
     if (!handler && (handler = ::createReadHandler(device, format)) == 0) {
         imageReaderError = QImageReader::UnsupportedFormatError;
-        errorString = QT_TRANSLATE_NOOP(QImageReader, "Unsupported image format");
+        errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Unsupported image format"));
         return false;
     }
     return true;
@@ -309,10 +310,11 @@ void QImageReaderPrivate::getText()
 {
     if (!text.isEmpty() || (!handler && !initHandler()) || !handler->supportsOption(QImageIOHandler::Description))
         return;
-    foreach (QString pair, handler->option(QImageIOHandler::Description).toString().split("\n\n")) {
-        int index = pair.indexOf(":");
-        if (index >= 0 && pair.indexOf(" ") < index) {
-            text.insert("Description", pair.simplified());
+    foreach (QString pair, handler->option(QImageIOHandler::Description).toString().split(
+                QLatin1String("\n\n"))) {
+        int index = pair.indexOf(QLatin1Char(':'));
+        if (index >= 0 && pair.indexOf(QLatin1Char(' ')) < index) {
+            text.insert(QLatin1String("Description"), pair.simplified());
         } else {
             QString key = pair.left(index);
             text.insert(key, pair.mid(index + 2).simplified());
@@ -687,7 +689,7 @@ QImage QImageReader::read()
     QImage image;
     if (!d->handler->read(&image)) {
         d->imageReaderError = InvalidDataError;
-        d->errorString = QT_TRANSLATE_NOOP(QImageReader, "Unable to read image data");
+        d->errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Unable to read image data"));
         return QImage();
     }
 

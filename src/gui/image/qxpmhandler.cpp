@@ -753,9 +753,9 @@ static QString fbname(const QString &fileName) // get file basename (sort of)
     QString s = fileName;
     if (!s.isEmpty()) {
         int i;
-        if ((i = s.lastIndexOf('/')) >= 0)
+        if ((i = s.lastIndexOf(QLatin1Char('/'))) >= 0)
             s = s.mid(i);
-        if ((i = s.lastIndexOf('\\')) >= 0)
+        if ((i = s.lastIndexOf(QLatin1Char('\\'))) >= 0)
             s = s.mid(i);
         QRegExp r(QLatin1String("[a-zA-Z][a-zA-Z0-9_]*"));
         int p = r.indexIn(s);
@@ -900,9 +900,9 @@ static bool read_xpm_body(
             int transparentColor = currentColor;
             if (ncols <= 256) {
                 image.setColor(transparentColor, 0);
-                colorMap.insert(xpmHash((const char *)index.constData()), transparentColor);
+                colorMap.insert(xpmHash(QLatin1String(index.constData())), transparentColor);
             } else {
-                colorMap.insert(xpmHash((const char *)index.constData()), 0);
+                colorMap.insert(xpmHash(QLatin1String(index.constData())), 0);
             }
         } else {
             QRgb c_rgb;
@@ -916,9 +916,9 @@ static bool read_xpm_body(
             }
             if (ncols <= 256) {
                 image.setColor(currentColor, 0xff000000 | c_rgb);
-                colorMap.insert(xpmHash((const char *)index.constData()), currentColor);
+                colorMap.insert(xpmHash(QLatin1String(index.constData())), currentColor);
             } else {
-                colorMap.insert(xpmHash((const char *)index.constData()), 0xff000000 | c_rgb);
+                colorMap.insert(xpmHash(QLatin1String(index.constData())), 0xff000000 | c_rgb);
             }
         }
     }
@@ -1122,13 +1122,13 @@ static bool write_xpm_image(const QImage &sourceImage, QIODevice *device, const 
         for(x=0; x<w; x++) {
             int color = (int)(*(yp + x));
             QByteArray chars(xpm_color_name(cpp, colorMap[color]));
-            line[cc++] = chars[0];
+            line[cc++] = QLatin1Char(chars[0]);
             if (cpp > 1) {
-                line[cc++] = chars[1];
+                line[cc++] = QLatin1Char(chars[1]);
                 if (cpp > 2) {
-                    line[cc++] = chars[2];
+                    line[cc++] = QLatin1Char(chars[2]);
                     if (cpp > 3) {
-                        line[cc++] = chars[3];
+                        line[cc++] = QLatin1Char(chars[3]);
                     }
                 }
             }

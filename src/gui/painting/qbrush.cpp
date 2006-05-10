@@ -66,7 +66,8 @@ const uchar *qt_patternForBrush(int brushStyle, bool invert)
 QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
 {
     QPixmap pm;
-    QString key = "$qt-brush$" + QString::number(brushStyle) + QString::number((int)invert);
+    QString key = QLatin1String("$qt-brush$") + QString::number(brushStyle)
+                  + QString::number((int)invert);
     if (!QPixmapCache::find(key, pm)) {
         pm = QBitmap::fromData(QSize(8, 8), qt_patternForBrush(brushStyle, invert),
                                QImage::Format_MonoLSB);

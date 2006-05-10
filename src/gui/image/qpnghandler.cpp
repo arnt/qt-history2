@@ -425,14 +425,14 @@ bool QPngHandlerPrivate::readPngImage(QImage *outImage)
     int num_text=0;
     png_get_text(png_ptr,info_ptr,&text_ptr,&num_text);
     while (num_text--) {
-        image.setText(text_ptr->key,0,text_ptr->text);
+        image.setText(text_ptr->key,0,QString::fromAscii(text_ptr->text));
         text_ptr++;
     }
 
-    foreach (QString pair, description.split("\n\n")) {
-        int index = pair.indexOf(":");
-        if (index >= 0 && pair.indexOf(" ") < index) {
-            image.setText("Description", pair.simplified());
+    foreach (QString pair, description.split(QLatin1String("\n\n"))) {
+        int index = pair.indexOf(QLatin1Char(':'));
+        if (index >= 0 && pair.indexOf(QLatin1Char(' ')) < index) {
+            image.setText(QLatin1String("Description"), pair.simplified());
         } else {
             QString key = pair.left(index);
             image.setText(key, pair.mid(index + 2).simplified());
@@ -497,11 +497,11 @@ static void set_text(const QImage &image, png_structp png_ptr, png_infop info_pt
             text.insert(key, image.text(key));
     }
     foreach (QString pair, description.split(QLatin1String("\n\n"))) {
-        int index = pair.indexOf(":");
-        if (index >= 0 && pair.indexOf(" ") < index) {
+        int index = pair.indexOf(QLatin1Char(':'));
+        if (index >= 0 && pair.indexOf(QLatin1Char(' ')) < index) {
             QString s = pair.simplified();
             if (!s.isEmpty())
-                text.insert("Description", s);
+                text.insert(QLatin1String("Description"), s);
         } else {
             QString key = pair.left(index);
             if (!key.simplified().isEmpty())

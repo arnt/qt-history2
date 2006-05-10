@@ -96,8 +96,9 @@ struct QImageData {        // internal image data
         QStringList r;
         QMap<QImageTextKeyLang,QString>::const_iterator it = text_lang.begin();
         for (; it != text_lang.end(); ++it) {
-            r.removeAll(it.key().lang);
-            r.append(it.key().lang);
+            QString lang = QString::fromAscii(it.key().lang.constData());
+            r.removeAll(lang);
+            r.append(lang);
         }
         return r;
     }
@@ -106,8 +107,9 @@ struct QImageData {        // internal image data
         QStringList r;
         QMap<QImageTextKeyLang,QString>::const_iterator it = text_lang.begin();
         for (; it != text_lang.end(); ++it) {
-            r.removeAll(it.key().key);
-            r.append(it.key().key);
+            QString key = QString::fromAscii(it.key().key.constData());
+            r.removeAll(key);
+            r.append(key);
         }
         return r;
     }
@@ -4295,7 +4297,7 @@ QString QImage::text(const QString &key) const
     foreach (QString key, d->text.keys()) {
         if (!tmp.isEmpty())
             tmp += QLatin1String("\n\n");
-        tmp += key + ": " + d->text.value(key).simplified();
+        tmp += key + QLatin1String(": ") + d->text.value(key).simplified();
     }
     return tmp;
 }

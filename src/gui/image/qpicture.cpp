@@ -1010,7 +1010,7 @@ static QStringList qToStringList(const QList<QByteArray> arr)
 {
     QStringList list;
     for (int i = 0; i < arr.count(); ++i)
-        list.append(QString(arr.at(i)));
+        list.append(QString::fromLatin1(arr.at(i)));
     return list;
 }
 
@@ -1196,7 +1196,7 @@ Q_GLOBAL_STATIC(QMutex, mutex)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QPictureFormatInterface_iid,
                            QCoreApplication::libraryPaths(),
-                           "/pictureformats"))
+                           QLatin1String("/pictureformats")))
 #endif
 void qt_init_picture_plugins()
 {

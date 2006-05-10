@@ -446,7 +446,7 @@ void QColor::setNamedColor(const QString &name)
     }
 
     QByteArray n = name.toLatin1();
-    if (name[0] == '#') {
+    if (n.startsWith('#')) {
         QRgb rgb;
         if (qt_get_hex_rgb(n, &rgb)) {
             setRgb(rgb);

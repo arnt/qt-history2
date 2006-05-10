@@ -20,14 +20,15 @@
 #include "qrgb.h"
 #include "qstringlist.h"
 
-static int hex2int(QChar hexchar)
+static int hex2int(char hex)
 {
+    QChar hexchar = QLatin1Char(hex);
     int v;
     if (hexchar.isDigit())
         v = hexchar.digitValue();
-    else if (hexchar >= 'A' && hexchar <= 'F')
+    else if (hexchar >= QLatin1Char('A') && hexchar <= QLatin1Char('F'))
         v = hexchar.cell() - 'A' + 10;
-    else if (hexchar >= 'a' && hexchar <= 'f')
+    else if (hexchar >= QLatin1Char('a') && hexchar <= QLatin1Char('f'))
         v = hexchar.cell() - 'a' + 10;
     else
         v = -1;
@@ -288,7 +289,7 @@ QStringList qt_get_colornames()
     int i = 0;
     QStringList lst;
     for (i = 0; i < rgbTblSize; i++)
-        lst << rgbTbl[i].name;
+        lst << QLatin1String(rgbTbl[i].name);
     return lst;
 }
 
