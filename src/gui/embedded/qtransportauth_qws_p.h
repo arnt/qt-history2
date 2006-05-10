@@ -30,7 +30,7 @@
 void hexstring( char *buf, const unsigned char* key, size_t sz );
 #endif
 
-// Keys expire after a day
+// Keys expire after this many seconds
 #define QSXE_KEY_PERIOD 86400
 
 class QUnixSocketMessage;

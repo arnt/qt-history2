@@ -116,6 +116,7 @@ public:
     bool isDiscoveryMode() const;
     void setProcessKey( const char * );
     void registerPolicyReceiver( QObject * );
+    void unregisterPolicyReceiver( QObject * );
 
 private:
     // users should never construct their own

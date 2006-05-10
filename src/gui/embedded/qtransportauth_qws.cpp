@@ -160,6 +160,12 @@ QTransportAuth::~QTransportAuth()
     // qDebug( "deleting transport auth" );
 }
 
+/*!
+  Set the process key for this currently running Qtopia process to
+  the \a authdata.  \a authdata should be sizeof(struct AuthCookie)
+  in length and contain the key and program id.  Use this method
+  when setting or changing the SXE identity of the current program.
+*/
 void QTransportAuth::setProcessKey( const char *authdata )
 {
     Q_D(QTransportAuth);
@@ -168,13 +174,62 @@ void QTransportAuth::setProcessKey( const char *authdata )
     d->keyChanged = true;
 }
 
+
+/*!
+  Register \a pr as a policy handler object.  The object pointed to
+  by \a pr should have a slot as follows
+  \code
+      policyCheck( QTransportAuth::Data &, const QString & )
+  \endcode
+  All requests received by this server will then generate a call to
+  this slot, and may be processed for policy compliance.
+*/
 void QTransportAuth::registerPolicyReceiver( QObject *pr )
 {
     Q_D(QTransportAuth);
     QPointer<QObject> guard = pr;
+    // relies on QPointer::operator ==(const T *o, const QPointer<T> &p)
+    // and QList::contains() which calls it
+    if ( d->policyReceivers.contains( guard ))
+        return;
     d->policyReceivers.append(guard);
+    if ( d->buffers.count() > 0 )
+    {
+        QHash<QTransportAuth::Data*,QAuthDevice*>::iterator it = d->buffers.begin();
+        while ( it != d->buffers.end() )
+        {
+            connect( it.value(), SIGNAL(policyCheck(QTransportAuth::Data &, const QString &)),
+                pr, SLOT(policyCheck(QTransportAuth::Data &, const QString &)));
+            ++it;
+        }
+    }
 }
 
+/*!
+  Unregister the \a pr from being a policy handler.  No more policyCheck signals
+  are received by this object.
+*/
+void QTransportAuth::unregisterPolicyReceiver( QObject *pr )
+{
+    Q_D(QTransportAuth);
+    QPointer<QObject> guard = pr;
+    if ( !d->policyReceivers.contains( guard ))
+        return;
+    d->policyReceivers.removeAll(guard);
+    if ( d->buffers.count() > 0 )
+    {
+        QHash<QTransportAuth::Data*,QAuthDevice*>::iterator it = d->buffers.begin();
+        while ( it != d->buffers.end() )
+        {
+            it.value()->disconnect( pr );
+            ++it;
+        }
+    }
+}
+
+/*!
+  Record a new transport connection with \a properies and \a descriptor.
+*/
 QTransportAuth::Data *QTransportAuth::connectTransport( unsigned char properties, int descriptor )
 {
     Q_D(QTransportAuth);
@@ -703,7 +758,6 @@ void QAuthDevice::recvReadyRead()
             // not all arrived yet?  come back later
             if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::TooSmall )
             {
-                // qDebug() << "returning: auth header not all received";
                 d->status = saveStatus;
                 return;
             }
@@ -961,6 +1015,13 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
         return false;
     }
 
+    // At this point we know the header is at least long enough to contain valid auth
+    // data, however the data may be spoofed.  If it is not verified then the status will
+    // be set to uncertified so the spoofed data will not be relied on.  However we want to
+    // know the program id which is being reported (even if it might be spoofed) for
+    // policy debugging purposes.  So set it here, rather than after verification.
+    d.progId = msg[QSXE_PROG_IDX];
+
 #ifdef QTRANSPORTAUTH_DEBUG
     char authhdr[QSXE_HEADER_LEN*2+1];
     hexstring( authhdr, reinterpret_cast<const unsigned char *>(msg), QSXE_HEADER_LEN );
@@ -983,15 +1044,6 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
         return false;
     }
     AuthRecord *ar = (AuthRecord *)clientKey;
-    time_t now = time(0);
-    if ( ar->change_time + QSXE_KEY_PERIOD < now )
-    {
-        d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::OutOfDate;
-#ifdef QTRANSPORTAUTH_DEBUG
-        qDebug( "authFromMessage() - key out of date" );
-#endif
-        return false;
-    }
 
 #ifdef QTRANSPORTAUTH_DEBUG
     char keydisplay[QSXE_KEY_LEN*2+1];
@@ -1021,9 +1073,19 @@ bool QAuthDevice::authFromMessage( QTransportAuth::Data &d, const char *msg, int
             return false;
         }
     }
+
+    time_t now = time(0);
+    if ( ar->change_time + QSXE_KEY_PERIOD < now )
+    {
+        d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::OutOfDate;
+#ifdef QTRANSPORTAUTH_DEBUG
+        qDebug( "authFromMessage() - key out of date" );
+#endif
+        return false;
+    }
+
     // TODO - provide sequence number check against replay attack
     // Note that this is only reqd for promiscuous transports (not UDS)
-    d.progId = msg[QSXE_PROG_IDX];
     d.status = ( d.status & QTransportAuth::StatusMask ) | QTransportAuth::Success;
     return true;
 }
