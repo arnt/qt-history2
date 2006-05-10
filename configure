@@ -2309,7 +2309,7 @@ Installation options:
 
  These are optional, but you may specify install directories.
 
-    -prefix dir ........ This will install everything relative dir
+    -prefix dir ........ This will install everything relative to dir
                          (default $QT_INSTALL_PREFIX)
 
   * -prefix-install .... Force a sandboxed "local" installation of
