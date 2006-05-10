@@ -2125,24 +2125,24 @@ QDebug operator<<(QDebug debug, QDir::Filters filters)
 {
     QStringList flags;
     if (filters == QDir::NoFilter) {
-        flags << "NoFilter";
+        flags << QLatin1String("NoFilter");
     } else {
-        if (filters & QDir::Dirs) flags << "Dirs";
-        if (filters & QDir::AllDirs) flags << "AllDirs";
-        if (filters & QDir::Files) flags << "Files";
-        if (filters & QDir::Drives) flags << "Drives";
-        if (filters & QDir::NoSymLinks) flags << "NoSymLinks";
-        if (filters & QDir::NoDotAndDotDot) flags << "NoDotAndDotDot";
-        if ((filters & QDir::AllEntries) == QDir::AllEntries) flags << "AllEntries";
-        if (filters & QDir::Readable) flags << "Readable";
-        if (filters & QDir::Writable) flags << "Writable";
-        if (filters & QDir::Executable) flags << "Executable";
-        if (filters & QDir::Modified) flags << "Modified";
-        if (filters & QDir::Hidden) flags << "Hidden";
-        if (filters & QDir::System) flags << "System";
-        if (filters & QDir::CaseSensitive) flags << "CaseSensitive";
+        if (filters & QDir::Dirs) flags << QLatin1String("Dirs");
+        if (filters & QDir::AllDirs) flags << QLatin1String("AllDirs");
+        if (filters & QDir::Files) flags << QLatin1String("Files");
+        if (filters & QDir::Drives) flags << QLatin1String("Drives");
+        if (filters & QDir::NoSymLinks) flags << QLatin1String("NoSymLinks");
+        if (filters & QDir::NoDotAndDotDot) flags << QLatin1String("NoDotAndDotDot");
+        if ((filters & QDir::AllEntries) == QDir::AllEntries) flags << QLatin1String("AllEntries");
+        if (filters & QDir::Readable) flags << QLatin1String("Readable");
+        if (filters & QDir::Writable) flags << QLatin1String("Writable");
+        if (filters & QDir::Executable) flags << QLatin1String("Executable");
+        if (filters & QDir::Modified) flags << QLatin1String("Modified");
+        if (filters & QDir::Hidden) flags << QLatin1String("Hidden");
+        if (filters & QDir::System) flags << QLatin1String("System");
+        if (filters & QDir::CaseSensitive) flags << QLatin1String("CaseSensitive");
     }
-    debug << "QDir::Filters(" << flags.join("|") << ")";
+    debug << "QDir::Filters(" << flags.join(QLatin1String("|")) << ")";
     return debug;
 }
 #endif

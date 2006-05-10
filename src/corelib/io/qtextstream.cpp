@@ -1443,7 +1443,7 @@ QString QTextStream::read(qint64 maxlen)
     CHECK_VALID_STREAM(QString());
 
     if (maxlen <= 0)
-        return QString("");     // empty, not null
+        return QString::fromLatin1("");     // empty, not null
 
     const QChar *readPtr;
     int length;

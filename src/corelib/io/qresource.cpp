@@ -93,7 +93,7 @@ int QResource::findNode(const QString &path) const
     //now iterate up the tree
     int node = -1;
     QLocale locale;
-    QStringList segments = path.split('/', QString::SkipEmptyParts);
+    QStringList segments = path.split(QLatin1Char('/'), QString::SkipEmptyParts);
     for(int i = 0; child_count && i < segments.size(); ++i) {
         const QString &segment = segments[i];
         const int h = qHash(segment);

@@ -719,6 +719,12 @@ QT_BEGIN_HEADER
 #  define QT_MOC_COMPAT
 #endif
 
+#ifdef QT_ASCII_CAST_WARNINGS
+#  define QT_ASCII_CAST_WARN Q_DECL_DEPRECATED
+#else
+#  define QT_ASCII_CAST_WARN
+#endif
+
 #ifdef __i386__
 #  if defined(Q_CC_GNU)
 #    define QT_FASTCALL __attribute__((regparm(3)))

@@ -117,7 +117,7 @@ unix {
 }
 
 contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
-DEFINES += QT_NO_CAST_TO_ASCII
+DEFINES += QT_NO_CAST_TO_ASCII QT_ASCII_CAST_WARNINGS
 contains(QT_CONFIG, qt3support):DEFINES *= QT3_SUPPORT
 DEFINES *= QT_MOC_COMPAT #we don't need warnings from calling moc code in our generated code
 
@@ -127,7 +127,6 @@ DEFINES *= QT_MOC_COMPAT #we don't need warnings from calling moc code in our ge
       else:TARGET = $$member(TARGET, 0)d
    }
 }
-
 
 moc_dir.name = moc_location
 moc_dir.variable = QMAKE_MOC

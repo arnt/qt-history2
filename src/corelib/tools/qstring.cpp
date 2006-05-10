@@ -137,6 +137,38 @@ inline char qToLower(char ch)
 const QString::Null QString::null = QString::Null();
 
 /*!
+  \macro QT_NO_CAST_FROM_ASCII
+  \relates QString
+
+  Disables automatic conversions from 8-bit strings (char *) to unicode QStrings
+
+  \sa QT_NO_CAST_TO_ASCII, QT_ASCII_CAST_WARNINGS
+*/
+
+/*!
+  \macro QT_NO_CAST_TO_ASCII
+  \relates QString
+
+  disables automatic conversion from QString to ASCII 8-bit strings (char *)
+
+  \sa QT_NO_CAST_FROM_ASCII, QT_ASCII_CAST_WARNINGS
+*/
+
+/*!
+  \macro QT_ASCII_CAST_WARNINGS
+  \since 4.2
+  \relates QString
+
+  This macro can be defined to force a warning whenever a function is
+  called that converts between unicode and 8-bit encodings.
+
+  Note: This only works for compilers that support warnings for
+  deprecated API.
+
+  \sa QT_NO_CAST_TO_ASCII, QT_NO_CAST_FROM_ASCII
+*/
+
+/*!
     \class QCharRef
     \reentrant
     \brief The QCharRef class is a helper class for QString.

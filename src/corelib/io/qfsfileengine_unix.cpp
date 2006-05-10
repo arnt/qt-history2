@@ -474,7 +474,8 @@ QString QFSFileEngine::fileName(FileName file) const
 
                 if (!ret.startsWith(QLatin1Char('/'))) {
                     if (d->file.startsWith(QLatin1Char('/'))) {
-                        ret.prepend(d->file.left(d->file.lastIndexOf('/')) + QLatin1Char('/'));
+                        ret.prepend(d->file.left(d->file.lastIndexOf(QLatin1Char('/')))
+                                    + QLatin1Char('/'));
                     } else {
                         ret.prepend(QDir::currentPath() + QLatin1Char('/'));
                     }

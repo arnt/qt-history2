@@ -92,42 +92,41 @@ bool QLibraryPrivate::load_sys()
 
     // The first filename we want to attempt to load is the filename as the callee specified.
     // Thus, the first attempt we do must be with an empty prefix and empty suffix.
-    QStringList suffixes, prefixes("");
-    suffixes << "";
+    QStringList suffixes(QLatin1String("")), prefixes(QLatin1String(""));
     if (pluginState != IsAPlugin) {
-        prefixes << "lib";
+        prefixes << QLatin1String("lib");
 #if defined(Q_OS_HPUX)
         if (majorVerNum > -1) {
-            suffixes << QString(".sl.%1").arg(majorVerNum);
+            suffixes << QString::fromLatin1(".sl.%1").arg(majorVerNum);
         } else {
-            suffixes << ".sl";
+            suffixes << QLatin1String(".sl");
         }
 # if defined(__ia64)
         if (majorVerNum > -1) {
-            suffixes << QString(".so.%1").arg(majorVerNum);
+            suffixes << QString::fromLatin1(".so.%1").arg(majorVerNum);
         } else {
-            suffixes << ".so";
+            suffixes << QLatin1String(".so");
         }
 # endif
 #elif defined(Q_OS_AIX)
         suffixes << ".a";
 #else
         if (majorVerNum > -1) {
-            suffixes << QString(".so.%1").arg(majorVerNum);
+            suffixes << QString::fromLatin1(".so.%1").arg(majorVerNum);
         } else {
-            suffixes << ".so";
+            suffixes << QLatin1String(".so");
         }
 #endif
 # ifdef Q_OS_MAC
         if (majorVerNum > -1) {
-            suffixes << QString(".%1.bundle").arg(majorVerNum);
-            suffixes << QString(".%1.dylib").arg(majorVerNum);
+            suffixes << QString::fromLatin1(".%1.bundle").arg(majorVerNum);
+            suffixes << QString::fromLatin1(".%1.dylib").arg(majorVerNum);
         } else {
-            suffixes << ".bundle" << ".dylib";
+            suffixes << QLatin1String(".bundle") << QLatin1String(".dylib");
         }
 #endif
     }
-        
+
     QString attempt;
     for(int prefix = 0; !pHnd && prefix < prefixes.size(); prefix++) {
         for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {

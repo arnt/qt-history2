@@ -5,6 +5,7 @@ DEFINES   += QT_BUILD_COMPAT_LIB
 win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x60000000
 
 include(../qbase.pri)
+DEFINES -= QT_ASCII_CAST_WARNINGS
 
 PRECOMPILED_HEADER = other/qt_compat_pch.h
 

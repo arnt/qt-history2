@@ -3020,10 +3020,9 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dateTime)
 // checks if there is an unqoted 'AP' or 'ap' in the string
 static bool hasUnquotedAP(const QString &f)
 {
-    const char quote = '\'';
+    const QLatin1Char quote('\'');
     bool inquote = false;
-    QChar status = QLatin1Char('0');
-    for (int i=0; i<f.size(); ++i) {
+    for (int i=0; i < f.size(); ++i) {
         if (f.at(i) == quote) {
             inquote = !inquote;
         } else if (!inquote && f.at(i).toUpper() == QLatin1Char('A')) {
@@ -3140,7 +3139,7 @@ static QString getFmtString(const QString& f, const QTime* dt = 0, const QDate* 
 // Parses the format string and uses getFmtString to get the values for the tokens. Ret
 static QString fmtDateTime(const QString& f, const QTime* dt, const QDate* dd)
 {
-    const char quote = '\'';
+    const QLatin1Char quote('\'');
     if (f.isEmpty())
         return QString();
     if (dt && !dt->isValid())
@@ -3587,9 +3586,9 @@ static int countRepeat(const QString &str, int index)
 
 bool QDateTimeParser::parseFormat(const QString &newFormat)
 {
-    const char quote = '\'';
-    const char slash = '\\';
-    const char zero = '0';
+    const QLatin1Char quote('\'');
+    const QLatin1Char slash('\\');
+    const QLatin1Char zero('0');
     if (newFormat == displayFormat && !newFormat.isEmpty()) {
         //&& layoutDirection == QApplication::layoutDirection()) {
         return true;
@@ -4370,7 +4369,7 @@ int QDateTimeParser::findAmPm(QString &str, int index, int *used) const
     if (str.trimmed().isEmpty()) {
         return PossibleBoth;
     }
-    const char space = ' ';
+    const QLatin1Char space(' ');
     int size = sectionMaxSize(index);
 
     enum {
@@ -4612,7 +4611,7 @@ int QDateTimeParser::potentialValueHelper(const QString &str, int min, int max, 
 
 QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, const QString &s) const
 {
-    const char space = ' ';
+    const QLatin1Char space(' ');
 
     const QVariant minimum = getMinimum();
     const QVariant maximum = getMaximum();

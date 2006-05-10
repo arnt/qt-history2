@@ -38,8 +38,8 @@ class Q_CORE_EXPORT QChar {
 public:
     QChar();
 #ifndef QT_NO_CAST_FROM_ASCII
-    QChar(char c);
-    QChar(uchar c);
+    QT_ASCII_CAST_WARN QChar(char c);
+    QT_ASCII_CAST_WARN QChar(uchar c);
 #endif
     QChar(QLatin1Char ch);
     QChar(uchar c, uchar r);
