@@ -1228,7 +1228,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 
     if (index == d_func()->pressedIndex && index.isValid()) {
         // signal handlers may change the model
-        EditTrigger trigger = d->pressedAlreadySelected
+        EditTrigger trigger = ((event->button() & Qt::LeftButton) && d->pressedAlreadySelected)
                               ? SelectedClicked : NoEditTriggers;
         bool edited = edit(index, trigger, event); // send event to delegate
         emit clicked(index);
@@ -1252,7 +1252,7 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
     // signal handlers may change the model
     QPersistentModelIndex persistent = index;
     emit doubleClicked(persistent);
-    if (!edit(persistent, DoubleClicked, event)
+    if (!((event->button() & Qt::LeftButton) && edit(persistent, DoubleClicked, event))
         && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
         emit activated(persistent);
 }
