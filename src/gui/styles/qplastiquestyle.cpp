@@ -2668,7 +2668,12 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             }
 
             bool selected = menuItem->state & State_Selected;
-            if (selected) {
+            bool checkable = menuItem->checkType != QStyleOptionMenuItem::NotCheckable;
+            bool checked = menuItem->checked;
+            bool sunken = menuItem->state & State_Sunken;
+            bool enabled = menuItem->state & State_Enabled;
+
+            if (selected && enabled) {
                 qt_plastique_draw_gradient(painter, menuItem->rect,
                                            option->palette.highlight().color().light(105),
                                            option->palette.highlight().color().dark(110));
@@ -2680,11 +2685,6 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             } else {
                 painter->fillRect(option->rect, option->palette.background().color().light(103));
             }
-
-            bool checkable = menuItem->checkType != QStyleOptionMenuItem::NotCheckable;
-            bool checked = menuItem->checked;
-            bool sunken = menuItem->state & State_Sunken;
-            bool enabled = menuItem->state & State_Enabled;
 
             // Check
             QRect checkRect(option->rect.left() + 7, option->rect.center().y() - 6, 13, 13);
@@ -2701,9 +2701,9 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                                    : alphaCornerColor.rgba());
                     painter->drawImage(checkRect.topLeft(), image);
 
-                    if (checked || sunken) {
+                    if (checked || (sunken && enabled)) {
                         image = QImage(qt_plastique_radio_check);
-                        if (sunken) {
+                        if (sunken && enabled) {
                             image.setColor(1, mergedColors(menuItem->palette.background().color(), alphaTextColor).rgba());
                             image.setColor(2, mergedColors(menuItem->palette.background().color(), menuItem->palette.foreground().color()).rgba());
                         } else {
@@ -2727,9 +2727,9 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                         painter->drawPoint(checkRect.bottomRight());
                         painter->fillRect(checkRect.adjusted(1, 1, -1, -1), option->palette.base().color());
 
-                        if (checked || sunken) {
+                        if (checked || (sunken && enabled)) {
                             QImage image(qt_plastique_check);
-                            if (sunken) {
+                            if (sunken && enabled) {
                                 image.setColor(0, mergedColors(menuItem->palette.background().color(), menuItem->palette.foreground().color()).rgba());
                                 image.setColor(1, mergedColors(menuItem->palette.background().color(), alphaTextColor).rgba());
                             } else {

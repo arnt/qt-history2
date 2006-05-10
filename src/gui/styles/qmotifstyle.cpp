@@ -1166,10 +1166,11 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
                 QStyleOptionButton newMenuItem;
                 newMenuItem.state = menuitem->checked ? State_On : State_None;
-                if (menuitem->state & State_Sunken)
-                    newMenuItem.state |= State_Sunken;
-                if ((opt->state & State_Enabled))
+                if (opt->state & State_Enabled) {
                     newMenuItem.state |= State_Enabled;
+                    if (menuitem->state & State_Sunken)
+                        newMenuItem.state |= State_Sunken;
+                }
                 if (menuitem->checkType & QStyleOptionMenuItem::Exclusive) {
                     newMenuItem.rect.setRect(xvis + 2, y + motifItemFrame + mh / 4, 11, 11);
                     drawPrimitive(PE_IndicatorRadioButton, &newMenuItem, p, widget);
