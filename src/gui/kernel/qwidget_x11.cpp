@@ -1744,7 +1744,7 @@ void QWidgetPrivate::hide_sys()
         if (q->winId()) // in nsplugin, may be 0
             XWithdrawWindow(X11->display, q->winId(), xinfo.screen());
 
-        const QRect fs = frameStrut();
+        const QRect fs = topData()->frameStrut;
         data.crect.moveTopLeft(QPoint(data.crect.x() - fs.left(),
                                           data.crect.y() - fs.top()));
 
