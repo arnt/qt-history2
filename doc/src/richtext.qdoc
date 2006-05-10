@@ -744,9 +744,8 @@ Ideas for other sections:
     \row    \o \c body
             \o Document body
             \o Supports the \c bgcolor attribute, which
-                                   can be a Qt
-                                   \l{QColor::setNamedColor()}{color name}
-                                   or a \c #RRGGBB color specification.
+               can be a Qt \l{QColor::setNamedColor()}{color name}
+               or a \c #RRGGBB color specification.
     \row    \o \c br
             \o Line break
             \o
@@ -780,9 +779,9 @@ Ideas for other sections:
     \row    \o \c font
             \o Font size, family, and/or color
             \o Supports the following attributes:
-                                   \c size, \c face, and \c color (Qt
-                                   \l{QColor::setNamedColor()}{color
-                                   names} or \c #RRGGBB).
+               \c size, \c face, and \c color (Qt
+               \l{QColor::setNamedColor()}{color names} or
+               \c #RRGGBB).
     \row    \o \c h1
             \o Level 1 heading
             \o Supports the standard \l{block attributes}.
@@ -807,8 +806,7 @@ Ideas for other sections:
     \row    \o \c hr
             \o Horizontal line
             \o Supports the \c width attribute, which can
-                                   be specified as an absolute or
-                                   relative (\c %) value.
+               be specified as an absolute or relative (\c %) value.
     \row    \o \c html
             \o HTML document
             \o
@@ -818,21 +816,18 @@ Ideas for other sections:
     \row    \o \c img
             \o Image
             \o Supports the \c src, \c source
-                                   (for Qt 3 compatibility), \c
-                                   width, and \c height attributes.
+               (for Qt 3 compatibility), \c width, and \c height
+               attributes.
     \row    \o \c kbd
             \o User-entered text
             \o
     \row    \o \c meta
             \o Meta-information
-            \o If a text encoding is specified
-                                   using the \c{meta} tag, it is
-                                   picked up by Qt::codecForHtml().
-                                   Likewise, if an encoding is
-                                   specified to
-                                   QTextDocument::toHtml(), the
-                                   encoding is stored using a \c meta
-                                   tag, for example:
+            \o If a text encoding is specified using the \c{meta} tag,
+               it is picked up by Qt::codecForHtml().
+               Likewise, if an encoding is specified to
+               QTextDocument::toHtml(), the encoding is stored using
+               a \c meta tag, for example:
 
     \code
         <meta http-equiv="Content-Type" content="text/html; charset=EUC-JP" />
@@ -882,9 +877,9 @@ Ideas for other sections:
     \row    \o \c table
             \o Table
             \o Supports the following attributes: \c border,
-                                   \c bgcolor (Qt \l{QColor::setNamedColor()}{color names}
-                                   or \c #RRGGBB), \c cellspacing, \c cellpadding,
-                                   \c width (absolute or relative), and \c height.
+               \c bgcolor (Qt \l{QColor::setNamedColor()}{color names}
+               or \c #RRGGBB), \c cellspacing, \c cellpadding,
+               \c width (absolute or relative), and \c height.
     \row    \o \c tbody
             \o Table body
             \o Does nothing.
@@ -904,14 +899,13 @@ Ideas for other sections:
     \row    \o \c title
             \o Document title
             \o The value specified using the \c
-                                   title tag is available through
-                                   QTextDocument::metaInformation().
+               title tag is available through
+               QTextDocument::metaInformation().
     \row    \o \c tr
             \o Table row
             \o Supports the \c bgcolor attribute, which
-                                   can be a Qt
-                                   \l{QColor::setNamedColor()}{color name}
-                                   or a \c #RRGGBB color specification.
+               can be a Qt \l{QColor::setNamedColor()}{color name}
+               or a \c #RRGGBB color specification.
     \row    \o \c tt
             \o Typewrite font
             \o
@@ -1014,7 +1008,8 @@ Ideas for other sections:
     \endtable
 
     \section1 Supported CSS Selectors
-    All CSS 2.1 selector classes are supported except pseudo class selectors such as
-    :first-child, :visited or :hover.
+
+    All CSS 2.1 selector classes are supported except pseudo-class selectors such
+    as \c{:first-child}, \c{:visited} and \c{:hover}.
 
 */
