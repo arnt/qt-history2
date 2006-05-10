@@ -1321,12 +1321,16 @@ void QGraphicsScene::focusEvent(QFocusEvent *focusEvent)
 }
 
 /*!
-    \reimp
+   This event handler, for event \a helpEvent, can be reimplemented in a
+   subclass to receive help events. The default implementation uses the event
+   to show tooltips for items.
+
+   \sa QGraphicsItem::toolTip()
 */
-void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *event)
+void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
 {
     // Find the first item that does tooltips
-    QList<QGraphicsItem *> itemsAtPos = items(event->scenePos());
+    QList<QGraphicsItem *> itemsAtPos = items(helpEvent->scenePos());
     QGraphicsItem *toolTipItem = 0;
     for (int i = 0; i < itemsAtPos.size(); ++i) {
         QGraphicsItem *tmp = itemsAtPos.at(i);
@@ -1341,7 +1345,7 @@ void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *event)
     QPoint point;
     if (toolTipItem && !toolTipItem->toolTip().isEmpty()) {
         text = toolTipItem->toolTip();
-        point = event->screenPos();
+        point = helpEvent->screenPos();
     }
     QToolTip::showText(point, text);
 }

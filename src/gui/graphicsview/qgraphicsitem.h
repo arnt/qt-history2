@@ -87,7 +87,7 @@ public:
 
     bool acceptsHoverEvents() const;
     void setAcceptsHoverEvents(bool enabled);
-
+    
     bool hasFocus() const;
     void setFocus(Qt::FocusReason focusReason = Qt::OtherFocusReason);
     void clearFocus();

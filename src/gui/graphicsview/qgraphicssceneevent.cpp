@@ -61,8 +61,8 @@ public:
 };
 
 /*!
-  Constructs a generic graphics scene event of the specified \a type.
-  \internal
+    Constructs a generic graphics scene event of the specified \a type.
+    \internal
 */
 QGraphicsSceneEvent::QGraphicsSceneEvent(Type type)
     : QEvent(type), d_ptr(new QGraphicsSceneEventPrivate)
@@ -71,8 +71,8 @@ QGraphicsSceneEvent::QGraphicsSceneEvent(Type type)
 }
 
 /*!
-  \internal
-  Constructs a generic graphics scene event.
+    \internal
+    Constructs a generic graphics scene event.
 */
 QGraphicsSceneEvent::QGraphicsSceneEvent(QGraphicsSceneEventPrivate &dd, Type type)
     : QEvent(type), d_ptr(&dd)
@@ -81,7 +81,7 @@ QGraphicsSceneEvent::QGraphicsSceneEvent(QGraphicsSceneEventPrivate &dd, Type ty
 }
 
 /*!
-  Destroys the event.
+    Destroys the event.
 */
 QGraphicsSceneEvent::~QGraphicsSceneEvent()
 {
@@ -89,9 +89,10 @@ QGraphicsSceneEvent::~QGraphicsSceneEvent()
 }
 
 /*!
-  Returns the widget where the event originated.
+    Returns the widget where the event originated. If the event did not
+    originate from a widget, 0 is returned.
 
-  \sa setWidget()
+    \sa setWidget()
 */
 QWidget *QGraphicsSceneEvent::widget() const
 {
@@ -99,9 +100,9 @@ QWidget *QGraphicsSceneEvent::widget() const
 }
 
 /*!
-  Sets the \a widget related to this event.
+    Sets the \a widget related to this event.
 
-  \sa widget()
+    \sa widget()
 */
 void QGraphicsSceneEvent::setWidget(QWidget *widget)
 {
@@ -111,12 +112,12 @@ void QGraphicsSceneEvent::setWidget(QWidget *widget)
 class QGraphicsSceneMouseEventPrivate : public QGraphicsSceneEventPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsSceneMouseEvent)
-public:
+        public:
     inline QGraphicsSceneMouseEventPrivate()
         : button(Qt::NoButton),
           buttons(0),
           modifiers(0)
-    { }
+        { }
     
     QPointF pos;
     QPointF scenePos;
@@ -133,8 +134,8 @@ public:
 };
 
 /*!
-  \internal
-  Constructs a generic graphics scene mouse event of the specified \a type.
+    \internal
+    Constructs a generic graphics scene mouse event of the specified \a type.
 */
 QGraphicsSceneMouseEvent::QGraphicsSceneMouseEvent(Type type)
     : QGraphicsSceneEvent(*new QGraphicsSceneMouseEventPrivate, type)
@@ -142,16 +143,16 @@ QGraphicsSceneMouseEvent::QGraphicsSceneMouseEvent(Type type)
 }
 
 /*!
-  Destroys the event.
+    Destroys the event.
 */
 QGraphicsSceneMouseEvent::~QGraphicsSceneMouseEvent()
 {
 }
 
 /*!
-  Returns the mouse cursor position in view coordinates.
+    Returns the mouse cursor position in item coordinates.
 
-  \sa scenePos(), screenPos(), lastPos()
+    \sa scenePos(), screenPos(), lastPos()
 */
 QPointF QGraphicsSceneMouseEvent::pos() const
 {
@@ -160,7 +161,7 @@ QPointF QGraphicsSceneMouseEvent::pos() const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setPos(const QPointF &pos)
 {
@@ -169,9 +170,9 @@ void QGraphicsSceneMouseEvent::setPos(const QPointF &pos)
 }
 
 /*!
-  Returns the mouse cursor position in scene coordinates.
+    Returns the mouse cursor position in scene coordinates.
 
-  \sa pos(), screenPos(), lastScenePos()
+    \sa pos(), screenPos(), lastScenePos()
 */
 QPointF QGraphicsSceneMouseEvent::scenePos() const
 {
@@ -180,7 +181,7 @@ QPointF QGraphicsSceneMouseEvent::scenePos() const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setScenePos(const QPointF &pos)
 {
@@ -189,9 +190,9 @@ void QGraphicsSceneMouseEvent::setScenePos(const QPointF &pos)
 }
 
 /*!
-  Returns the mouse cursor position in screen coordinates.
+    Returns the mouse cursor position in screen coordinates.
 
-  \sa pos(), scenePos(), lastScreenPos()
+    \sa pos(), scenePos(), lastScreenPos()
 */
 QPoint QGraphicsSceneMouseEvent::screenPos() const
 {
@@ -200,7 +201,7 @@ QPoint QGraphicsSceneMouseEvent::screenPos() const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setScreenPos(const QPoint &pos)
 {
@@ -209,8 +210,8 @@ void QGraphicsSceneMouseEvent::setScreenPos(const QPoint &pos)
 }
 
 /*!
-  Returns the mouse cursor position in view coordinates where the specified
-  \a button was clicked.
+    Returns the mouse cursor position in item coordinates where the specified
+    \a button was clicked.
 
   \sa buttonDownScenePos(), buttonDownScreenPos(), pos()
 */
@@ -221,7 +222,7 @@ QPointF QGraphicsSceneMouseEvent::buttonDownPos(Qt::MouseButton button) const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setButtonDownPos(Qt::MouseButton button, const QPointF &pos)
 {
@@ -230,10 +231,10 @@ void QGraphicsSceneMouseEvent::setButtonDownPos(Qt::MouseButton button, const QP
 }
 
 /*!
-  Returns the mouse cursor position in scene coordinates where the specified
-  \a button was clicked.
+    Returns the mouse cursor position in scene coordinates where the specified
+    \a button was clicked.
 
-  \sa buttonDownPos(), buttonDownScreenPos(), scenePos()
+    \sa buttonDownPos(), buttonDownScreenPos(), scenePos()
 */
 QPointF QGraphicsSceneMouseEvent::buttonDownScenePos(Qt::MouseButton button) const
 {
@@ -242,7 +243,7 @@ QPointF QGraphicsSceneMouseEvent::buttonDownScenePos(Qt::MouseButton button) con
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setButtonDownScenePos(Qt::MouseButton button, const QPointF &pos)
 {
@@ -251,10 +252,10 @@ void QGraphicsSceneMouseEvent::setButtonDownScenePos(Qt::MouseButton button, con
 }
 
 /*!
-  Returns the mouse cursor position in screen coordinates where the specified
-  \a button was clicked.
+    Returns the mouse cursor position in screen coordinates where the
+    specified \a button was clicked.
 
-  \sa screenPos(), buttonDownPos(), buttonDownScenePos()
+    \sa screenPos(), buttonDownPos(), buttonDownScenePos()
 */
 QPoint QGraphicsSceneMouseEvent::buttonDownScreenPos(Qt::MouseButton button) const
 {
@@ -263,7 +264,7 @@ QPoint QGraphicsSceneMouseEvent::buttonDownScreenPos(Qt::MouseButton button) con
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setButtonDownScreenPos(Qt::MouseButton button, const QPoint &pos)
 {
@@ -272,9 +273,9 @@ void QGraphicsSceneMouseEvent::setButtonDownScreenPos(Qt::MouseButton button, co
 }
 
 /*!
-  Returns the last recorded mouse cursor position in view coordinates.
+    Returns the last recorded mouse cursor position in item coordinates.
 
-  \sa lastScenePos(), lastScreenPos(), pos()
+    \sa lastScenePos(), lastScreenPos(), pos()
 */
 QPointF QGraphicsSceneMouseEvent::lastPos() const
 {
@@ -283,7 +284,7 @@ QPointF QGraphicsSceneMouseEvent::lastPos() const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setLastPos(const QPointF &pos)
 {
@@ -292,9 +293,9 @@ void QGraphicsSceneMouseEvent::setLastPos(const QPointF &pos)
 }
 
 /*!
-  Returns the last recorded mouse cursor position in scene coordinates.
+    Returns the last recorded mouse cursor position in scene coordinates.
 
-  \sa lastPos(), lastScreenPos(), scenePos()
+    \sa lastPos(), lastScreenPos(), scenePos()
 */
 QPointF QGraphicsSceneMouseEvent::lastScenePos() const
 {
@@ -303,7 +304,7 @@ QPointF QGraphicsSceneMouseEvent::lastScenePos() const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setLastScenePos(const QPointF &pos)
 {
@@ -312,9 +313,9 @@ void QGraphicsSceneMouseEvent::setLastScenePos(const QPointF &pos)
 }
 
 /*!
-  Returns the last recorded mouse cursor position in screen coordinates.
+    Returns the last recorded mouse cursor position in screen coordinates.
 
-  \sa lastPos(), lastScenePos(), screenPos()
+    \sa lastPos(), lastScenePos(), screenPos()
 */
 QPoint QGraphicsSceneMouseEvent::lastScreenPos() const
 {
@@ -323,7 +324,7 @@ QPoint QGraphicsSceneMouseEvent::lastScreenPos() const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setLastScreenPos(const QPoint &pos)
 {
@@ -332,10 +333,10 @@ void QGraphicsSceneMouseEvent::setLastScreenPos(const QPoint &pos)
 }
 
 /*!
-  Returns the combination of mouse buttons that were pressed at the time the
-  event was sent.
+    Returns the combination of mouse buttons that were pressed at the time the
+    event was sent.
 
-  \sa button(), modifiers()
+    \sa button(), modifiers()
 */
 Qt::MouseButtons QGraphicsSceneMouseEvent::buttons() const
 {
@@ -344,7 +345,7 @@ Qt::MouseButtons QGraphicsSceneMouseEvent::buttons() const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setButtons(Qt::MouseButtons buttons)
 {
@@ -353,9 +354,9 @@ void QGraphicsSceneMouseEvent::setButtons(Qt::MouseButtons buttons)
 }
 
 /*!
-  Returns the mouse button that was pressed at the time the event was sent.
+    Returns the mouse button that was pressed at the time the event was sent.
 
-  \sa buttons(), modifiers()
+    \sa buttons(), modifiers()
 */
 Qt::MouseButton QGraphicsSceneMouseEvent::button() const
 {
@@ -364,7 +365,7 @@ Qt::MouseButton QGraphicsSceneMouseEvent::button() const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setButton(Qt::MouseButton button)
 {
@@ -373,9 +374,9 @@ void QGraphicsSceneMouseEvent::setButton(Qt::MouseButton button)
 }
 
 /*!
-  Returns the keyboard modifiers in use at the time the event was sent.
+    Returns the keyboard modifiers in use at the time the event was sent.
 
-  \sa button(), buttons()
+    \sa button(), buttons()
 */
 Qt::KeyboardModifiers QGraphicsSceneMouseEvent::modifiers() const
 {
@@ -384,7 +385,7 @@ Qt::KeyboardModifiers QGraphicsSceneMouseEvent::modifiers() const
 }
 
 /*!
-  \internal
+    \internal
 */
 void QGraphicsSceneMouseEvent::setModifiers(Qt::KeyboardModifiers modifiers)
 {
@@ -395,10 +396,10 @@ void QGraphicsSceneMouseEvent::setModifiers(Qt::KeyboardModifiers modifiers)
 class QGraphicsSceneContextMenuEventPrivate : public QGraphicsSceneEventPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsSceneContextMenuEvent)
-public:
+        public:
     inline QGraphicsSceneContextMenuEventPrivate()
         : modifiers(0)
-    { }
+        { }
     
     QPointF pos;
     QPointF scenePos;
@@ -407,8 +408,8 @@ public:
 };
 
 /*!
-  Constructs a graphics scene context menu event of the specified \a type.
-  \internal
+    Constructs a graphics scene context menu event of the specified \a type.
+    \internal
 */
 QGraphicsSceneContextMenuEvent::QGraphicsSceneContextMenuEvent(Type type)
     : QGraphicsSceneEvent(*new QGraphicsSceneContextMenuEventPrivate, type)
@@ -416,17 +417,17 @@ QGraphicsSceneContextMenuEvent::QGraphicsSceneContextMenuEvent(Type type)
 }
 
 /*!
-  Destroys the event.
+    Destroys the event.
 */
 QGraphicsSceneContextMenuEvent::~QGraphicsSceneContextMenuEvent()
 {
 }
 
 /*!
-  Returns the position of the mouse cursor in view coordinates at the moment the
-  the context menu was requested.
+    Returns the position of the mouse cursor in item coordinates at the moment
+    the the context menu was requested.
 
-  \sa scenePos(), screenPos()
+    \sa scenePos(), screenPos()
 */
 QPointF QGraphicsSceneContextMenuEvent::pos() const
 {
@@ -435,11 +436,11 @@ QPointF QGraphicsSceneContextMenuEvent::pos() const
 }
 
 /*!
-  \fn void QGraphicsSceneContextMenuEvent::setPos(const QPointF &point)
-  \internal
+    \fn void QGraphicsSceneContextMenuEvent::setPos(const QPointF &point)
+    \internal
 
-  Sets the position associated with the context menu to the given \a point in view
-  coordinates.
+    Sets the position associated with the context menu to the given \a point
+    in item coordinates.
 */
 void QGraphicsSceneContextMenuEvent::setPos(const QPointF &pos)
 {
@@ -448,10 +449,10 @@ void QGraphicsSceneContextMenuEvent::setPos(const QPointF &pos)
 }
 
 /*!
-  Returns the position of the mouse cursor in scene coordinates at the moment the
-  the context menu was requested.
+    Returns the position of the mouse cursor in scene coordinates at the moment the
+    the context menu was requested.
 
-  \sa pos(), screenPos()
+    \sa pos(), screenPos()
 */
 QPointF QGraphicsSceneContextMenuEvent::scenePos() const
 {
@@ -460,11 +461,11 @@ QPointF QGraphicsSceneContextMenuEvent::scenePos() const
 }
 
 /*!
-  \fn void QGraphicsSceneContextMenuEvent::setScenePos(const QPointF &point)
-  \internal
+    \fn void QGraphicsSceneContextMenuEvent::setScenePos(const QPointF &point)
+    \internal
 
-  Sets the position associated with the context menu to the given \a point in scene
-  coordinates.
+    Sets the position associated with the context menu to the given \a point
+    in scene coordinates.
 */
 void QGraphicsSceneContextMenuEvent::setScenePos(const QPointF &pos)
 {
@@ -473,10 +474,10 @@ void QGraphicsSceneContextMenuEvent::setScenePos(const QPointF &pos)
 }
 
 /*!
-  Returns the position of the mouse cursor in screen coordinates at the moment the
-  the context menu was requested.
+    Returns the position of the mouse cursor in screen coordinates at the moment the
+    the context menu was requested.
 
-  \sa pos(), scenePos()
+    \sa pos(), scenePos()
 */
 QPoint QGraphicsSceneContextMenuEvent::screenPos() const
 {
@@ -485,11 +486,11 @@ QPoint QGraphicsSceneContextMenuEvent::screenPos() const
 }
 
 /*!
-  \fn void QGraphicsSceneContextMenuEvent::setScreenPos(const QPointF &point)
-  \internal
+    \fn void QGraphicsSceneContextMenuEvent::setScreenPos(const QPoint &point)
+    \internal
 
-  Sets the position associated with the context menu to the given \a point in screen
-  coordinates.
+    Sets the position associated with the context menu to the given \a point
+    in screen coordinates.
 */
 void QGraphicsSceneContextMenuEvent::setScreenPos(const QPoint &pos)
 {
@@ -498,7 +499,7 @@ void QGraphicsSceneContextMenuEvent::setScreenPos(const QPoint &pos)
 }
 
 /*!
-  Returns the keyboard modifiers in use when the context menu was requested.
+    Returns the keyboard modifiers in use when the context menu was requested.
 */
 Qt::KeyboardModifiers QGraphicsSceneContextMenuEvent::modifiers() const
 {
@@ -507,9 +508,10 @@ Qt::KeyboardModifiers QGraphicsSceneContextMenuEvent::modifiers() const
 }
 
 /*!
-  \internal
-  Sets the keyboard modifiers associated with the context menu to the \a modifiers
-  specified.
+    \internal
+
+    Sets the keyboard modifiers associated with the context menu to the \a
+    modifiers specified.
 */
 void QGraphicsSceneContextMenuEvent::setModifiers(Qt::KeyboardModifiers modifiers)
 {
@@ -526,8 +528,8 @@ public:
 };
 
 /*!
-  \internal
-  Constructs a graphics scene hover event of the specified \a type.
+    \internal
+    Constructs a graphics scene hover event of the specified \a type.
 */
 QGraphicsSceneHoverEvent::QGraphicsSceneHoverEvent(Type type)
     : QGraphicsSceneEvent(*new QGraphicsSceneHoverEventPrivate, type)
@@ -535,17 +537,17 @@ QGraphicsSceneHoverEvent::QGraphicsSceneHoverEvent(Type type)
 }
 
 /*!
-  Destroys the event.
+    Destroys the event.
 */
 QGraphicsSceneHoverEvent::~QGraphicsSceneHoverEvent()
 {
 }
 
 /*!
-  Returns the position of the mouse cursor in view coordinates at the moment the
-  the hover event was sent.
+    Returns the position of the mouse cursor in item coordinates at the moment
+    the the hover event was sent.
 
-  \sa scenePos(), screenPos()
+    \sa scenePos(), screenPos()
 */
 QPointF QGraphicsSceneHoverEvent::pos() const
 {
@@ -554,11 +556,11 @@ QPointF QGraphicsSceneHoverEvent::pos() const
 }
 
 /*!
-  \fn void QGraphicsSceneHoverEvent::setPos(const QPointF &point)
-  \internal
+    \fn void QGraphicsSceneHoverEvent::setPos(const QPointF &point)
+    \internal
 
-  Sets the position associated with the hover event to the given \a point in view
-  coordinates.
+    Sets the position associated with the hover event to the given \a point in
+    item coordinates.
 */
 void QGraphicsSceneHoverEvent::setPos(const QPointF &pos)
 {
@@ -567,10 +569,10 @@ void QGraphicsSceneHoverEvent::setPos(const QPointF &pos)
 }
 
 /*!
-  Returns the position of the mouse cursor in scene coordinates at the moment the
-  the hover event was sent.
+    Returns the position of the mouse cursor in scene coordinates at the
+    moment the the hover event was sent.
 
-  \sa pos(), screenPos()
+    \sa pos(), screenPos()
 */
 QPointF QGraphicsSceneHoverEvent::scenePos() const
 {
@@ -579,11 +581,11 @@ QPointF QGraphicsSceneHoverEvent::scenePos() const
 }
 
 /*!
-  \fn void QGraphicsSceneHoverEvent::setScenePos(const QPointF &point)
-  \internal
+    \fn void QGraphicsSceneHoverEvent::setScenePos(const QPointF &point)
+    \internal
 
-  Sets the position associated with the hover event to the given \a point in scene
-  coordinates.
+    Sets the position associated with the hover event to the given \a point in
+    scene coordinates.
 */
 void QGraphicsSceneHoverEvent::setScenePos(const QPointF &pos)
 {
@@ -592,10 +594,10 @@ void QGraphicsSceneHoverEvent::setScenePos(const QPointF &pos)
 }
 
 /*!
-  Returns the position of the mouse cursor in screen coordinates at the moment the
-  the hover event was sent.
+    Returns the position of the mouse cursor in screen coordinates at the
+    moment the the hover event was sent.
 
-  \sa pos(), scenePos()
+    \sa pos(), scenePos()
 */
 QPoint QGraphicsSceneHoverEvent::screenPos() const
 {
@@ -604,11 +606,11 @@ QPoint QGraphicsSceneHoverEvent::screenPos() const
 }
 
 /*!
-  \fn void QGraphicsSceneHoverEvent::setScreenPos(const QPoint &point)
-  \internal
+    \fn void QGraphicsSceneHoverEvent::setScreenPos(const QPoint &point)
+    \internal
 
-  Sets the position associated with the hover event to the given \a point in screen
-  coordinates.
+    Sets the position associated with the hover event to the given \a point in
+    screen coordinates.
 */
 void QGraphicsSceneHoverEvent::setScreenPos(const QPoint &pos)
 {
@@ -624,8 +626,8 @@ public:
 };
 
 /*!
-  \internal
-  Constructs a graphics scene help event of the specified \a type.
+    \internal
+    Constructs a graphics scene help event of the specified \a type.
 */
 QGraphicsSceneHelpEvent::QGraphicsSceneHelpEvent(Type type)
     : QGraphicsSceneEvent(*new QGraphicsSceneHelpEventPrivate, type)
@@ -633,17 +635,17 @@ QGraphicsSceneHelpEvent::QGraphicsSceneHelpEvent(Type type)
 }
 
 /*!
-  Destroys the event.
+    Destroys the event.
 */
 QGraphicsSceneHelpEvent::~QGraphicsSceneHelpEvent()
 {
 }
 
 /*!
-  Returns the position of the mouse cursor in scene coordinates at the moment the
-  the help event was sent.
+    Returns the position of the mouse cursor in scene coordinates at the
+    moment the the help event was sent.
 
-  \sa screenPos()
+    \sa screenPos()
 */
 QPointF QGraphicsSceneHelpEvent::scenePos() const
 {
@@ -652,11 +654,11 @@ QPointF QGraphicsSceneHelpEvent::scenePos() const
 }
 
 /*!
-  \fn void QGraphicsSceneHelpEvent::setScenePos(const QPointF &point)
-  \internal
+    \fn void QGraphicsSceneHelpEvent::setScenePos(const QPointF &point)
+    \internal
 
-  Sets the position associated with the context menu to the given \a point in scene
-  coordinates.
+    Sets the position associated with the context menu to the given \a point
+    in scene coordinates.
 */
 void QGraphicsSceneHelpEvent::setScenePos(const QPointF &pos)
 {
@@ -665,10 +667,10 @@ void QGraphicsSceneHelpEvent::setScenePos(const QPointF &pos)
 }
 
 /*!
-    Returns the position of the mouse cursor in screen coordinates at the moment the
-    the help event was sent.
+    Returns the position of the mouse cursor in screen coordinates at the
+    moment the the help event was sent.
 
-    \sa scenePos()
+  \sa scenePos()
 */
 QPoint QGraphicsSceneHelpEvent::screenPos() const
 {
@@ -677,11 +679,11 @@ QPoint QGraphicsSceneHelpEvent::screenPos() const
 }
 
 /*!
-  \fn void QGraphicsSceneHelpEvent::setScreenPos(const QPoint &point)
-  \internal
+    \fn void QGraphicsSceneHelpEvent::setScreenPos(const QPoint &point)
+    \internal
 
-  Sets the position associated with the context menu to the given \a point in screen
-  coordinates.
+    Sets the position associated with the context menu to the given \a point
+    in screen coordinates.
 */
 void QGraphicsSceneHelpEvent::setScreenPos(const QPoint &pos)
 {

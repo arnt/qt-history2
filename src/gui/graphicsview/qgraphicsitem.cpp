@@ -303,7 +303,7 @@ QGraphicsScene *QGraphicsItem::scene() const
     Returns a pointer to this item's item group, or 0 if this item is not
     member of a group.
 
-    \sa QGraphicsItemGroup, QGraphicsItemGroup::items(), QGraphicsScene::groupSelectedItems()
+    \sa QGraphicsItemGroup, QGraphicsScene::createItemGroup()
 */
 QGraphicsItemGroup *QGraphicsItem::group() const
 {
@@ -325,10 +325,16 @@ QGraphicsItemGroup *QGraphicsItem::group() const
     removed from any current group and added as a child of the previous
     group's parent.
 
-    \sa group(), QGraphicsItemGroup::addItem(), QGraphicsScene::groupSelectedItems()
+    \sa group(), QGraphicsScene::createItemGroup()
 */
 void QGraphicsItem::setGroup(QGraphicsItemGroup *group)
 {
+    if (!group) {
+        if (QGraphicsItemGroup *group = this->group())
+            group->removeFromGroup(this);
+    } else {
+        group->addToGroup(this);
+    }
 }
 
 /*!
@@ -788,6 +794,22 @@ void QGraphicsItem::setPos(const QPointF &pos)
 }
 
 /*!
+    \fn void QGraphicsItem::setPos(qreal x, qreal y)
+    \overload
+
+    This convenience function is equivalent to calling setPos(QPointF(\a x, \a
+    y)).
+*/
+
+/*!
+    \fn void QGraphicsItem::moveBy(qreal dx, qreal dy)
+
+    Moves the item by \a dx points horizontally, and \a dy point
+    vertically. This function is equivalent to calling setPos(pos() +
+    QPointF(\a dx, \a dy)).
+*/
+
+/*!
     Returns this item's transformation matrix. If no matrix has been set, the
     identity matrix is returned.
 
@@ -1213,6 +1235,14 @@ void QGraphicsItem::update(const QRectF &rect)
 }
 
 /*!
+    \fn void QGraphicsItem::update(qreal x, qreal y, qreal width, qreal height)
+    \overload
+
+    This convenience function is equivalent to calling update(QRectF(\a x, \a
+    y, \a width, \a height)).
+*/
+
+/*!
     Maps the point \a point, which is in this item's coordinate system, to \a
     item's coordinate system, and returns the mapped coordinate.
 
@@ -1224,6 +1254,14 @@ QPointF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPointF &point) cons
 {
     return item ? item->mapFromScene(mapToScene(point)) : mapToScene(point);
 }
+
+/*!
+    \fn QPointF QGraphicsItem::mapToItem(QGraphicsItem *item, qreal x, qreal y) const
+    \overload
+
+    This convenience function is equivalent to calling mapToItem(\a item,
+    QPointF(\a x, \a y)).
+*/
 
 /*!
     Maps the point \a point, which is in this item's coordinate system, to its
@@ -1239,6 +1277,14 @@ QPointF QGraphicsItem::mapToParent(const QPointF &point) const
 }
 
 /*!
+    \fn QPointF QGraphicsItem::mapToParent(qreal x, qreal y) const
+    \overload
+
+    This convenience function is equivalent to calling mapToParent(QPointF(\a
+    x, \a y)).
+*/
+
+/*!
     Maps the point \a point, which is in this item's coordinate system, to the
     scene's coordinate system, and returns the mapped coordinate.
 
@@ -1251,12 +1297,20 @@ QPointF QGraphicsItem::mapToScene(const QPointF &point) const
 }
 
 /*!
+    \fn QPointF QGraphicsItem::mapToScene(qreal x, qreal y) const
+    \overload
+
+    This convenience function is equivalent to calling mapToScene(QPointF(\a
+    x, \a y)).
+*/
+
+/*!
     Maps the point \a point, which is in \a item's coordinate system, to this
     item's coordinate system, and returns the mapped coordinate.
 
     If \a item is 0, this function returns the same as mapFromScene().
 
-    \a mapFromParent(), mapFromScene(), matrix(), mapToItem()
+    \sa mapFromParent(), mapFromScene(), matrix(), mapToItem()
 */
 QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPointF &point) const
 {
@@ -1264,11 +1318,19 @@ QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPointF &point) co
 }
 
 /*!
+    \fn QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, qreal x, qreal y) const
+    \overload
+
+    This convenience function is equivalent to calling mapFromItem(\a item,
+    QPointF(\a x, \a y)).
+*/
+
+/*!
     Maps the point \a point, which is in this item's parent's coordinate
     system, to this item's coordinate system, and returns the mapped
     coordinate.
 
-    \a mapFromItem(), mapFromScene(), matrix(), mapToParent()
+    \sa mapFromItem(), mapFromScene(), matrix(), mapToParent()
 */
 QPointF QGraphicsItem::mapFromParent(const QPointF &point) const
 {
@@ -1277,17 +1339,33 @@ QPointF QGraphicsItem::mapFromParent(const QPointF &point) const
 }
 
 /*!
+    \fn QPointF QGraphicsItem::mapFromParent(qreal x, qreal y) const
+    \overload
+
+    This convenience function is equivalent to calling
+    mapFromParent(QPointF(\a x, \a y)).
+*/
+
+/*!
     Maps the point \a point, which is in this item's scene's coordinate
     system, to this item's coordinate system, and returns the mapped
     coordinate.
 
-    \a mapFromItem(), mapFromParent(), matrix(), mapToScene()
+    \sa mapFromItem(), mapFromParent(), matrix(), mapToScene()
 */
 QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
 {
     Q_D(const QGraphicsItem);
     return d->parent ? mapFromParent(d->parent->mapFromScene(point)) : mapFromParent(point);
 }
+
+/*!
+    \fn QPointF QGraphicsItem::mapFromScene(qreal x, qreal y) const
+    \overload
+
+    This convenience function is equivalent to calling mapFromScene(QPointF(\a
+    x, \a y)).
+*/
 
 /*!
     Returns true if this item is an ancestor of \a child (i.e., if this item
@@ -1452,6 +1530,8 @@ bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent
     this function to intercept events before they are dispatched to
     the specialized event handlers contextMenuEvent(), focusEvent(),
     hoverEvent(), keyEvent() and mouseEvent().
+
+    \a event is the intercepted event.
 */
 void QGraphicsItem::sceneEvent(QEvent *event)
 {
@@ -1624,7 +1704,7 @@ void QGraphicsItem::mouseEvent(QGraphicsSceneMouseEvent *event)
     implementation does nothing.
 
     \sa contextMenuEvent(), focusEvent(), hoverEvent(), keyEvent(),
-    mouseEvent(), inputMethodEvent()
+    mouseEvent()
 */
 void QGraphicsItem::inputMethodEvent(QInputMethodEvent *event)
 {
@@ -1637,6 +1717,8 @@ void QGraphicsItem::inputMethodEvent(QInputMethodEvent *event)
     to support complex input method operations, such as support for
     surrounding text and reconversions. \a query specifies which
     property is queried.
+
+    \sa inputMethodEvent()
 */
 QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
 {
@@ -2949,6 +3031,9 @@ int QGraphicsTextItem::type() const
     return Type;
 }
 
+/*!
+    Adjusts the text item to a reasonable size.
+*/
 void QGraphicsTextItem::adjustSize()
 {
     dd->textControl.adjustSize();
@@ -3056,7 +3141,7 @@ QVariant QGraphicsTextItem::extension(const QVariant &variant) const
 }
 
 /*!
-    \reimp
+    \internal
 */
 void QGraphicsTextItem::viewportUpdate(const QRectF &rect)
 {
@@ -3064,7 +3149,7 @@ void QGraphicsTextItem::viewportUpdate(const QRectF &rect)
 }
 
 /*!
-    \reimp
+    \internal
 */
 void QGraphicsTextItem::updateBoundingRect(const QSizeF &size)
 {

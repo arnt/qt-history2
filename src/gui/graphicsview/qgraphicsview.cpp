@@ -1306,8 +1306,8 @@ void QGraphicsView::fitInView(const QRectF &rect, Qt::AspectRatioMode aspectRati
 }
 
 /*!
-    \fn void fitInView(qreal x, qreal y, qreal w, qreal h,
-                          Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio)
+    \fn void QGraphicsView::fitInView(qreal x, qreal y, qreal w, qreal h,
+    Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio)
 
     \overload
 
