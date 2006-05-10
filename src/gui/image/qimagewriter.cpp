@@ -285,7 +285,7 @@ void QImageWriter::setDevice(QIODevice *device)
         delete d->device;
 
     d->device = device;
-    if (!d->device->isOpen())
+    if (d->device && !d->device->isOpen())
         d->device->open(QIODevice::WriteOnly);
     d->deleteDevice = false;
     delete d->handler;
