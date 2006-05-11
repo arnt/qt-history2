@@ -222,6 +222,7 @@
 #include <QtGui/qpainter.h>
 #include <QtGui/qpainterpath.h>
 #include <QtGui/qstyleoption.h>
+#include <QtGui/qabstracttextdocumentlayout.h>
 
 #include <private/qgraphicsitem_p.h>
 #include <private/qtextcontrol_p.h>
@@ -3406,6 +3407,8 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
             this, SLOT(viewportUpdate(const QRectF &)));
     connect(dd->textControl, SIGNAL(documentSizeChanged(const QSizeF &)),
             this, SLOT(updateBoundingRect(const QSizeF &)));
+    
+    updateBoundingRect(dd->textControl->document()->documentLayout()->documentSize());
 }
 
 /*!
