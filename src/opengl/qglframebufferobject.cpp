@@ -346,32 +346,36 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
 
     \ingroup multimedia
 
-    The QGLFramebufferObject provides a rendering surface that can be
-    painted on with a QPainter, native GL calls, or a mix of the
-    two. This surface can be bound and used as a regular texture in
-    your own GL drawing code.  By default, the QGLFramebufferObject
-    class generates a 2D GL texture (using the GL_TEXTURE_2D target),
-    which is used as the rendering surface.
+    The QGLFramebufferObject encapsulates an OpenGL framebuffer
+    object, which provides a rendering surface that can be painted on
+    with a QPainter, rendered to using native GL calls, or both. This
+    surface can be bound and used as a regular texture in your own GL
+    drawing code.  By default, the QGLFramebufferObject class
+    generates a 2D GL texture (using the \c{GL_TEXTURE_2D} target),
+    which is used as the rendering target in the framebuffer object.
 
-    It is important to have a GL context set as the current context
-    when creating a QGLFramebufferObject.
+    \bold{It is important to have a GL context set as the current
+    context when creating a QGLFramebufferObject.}
 
-    OpenGL framebuffer objects are similar in use to pbuffers
-    (\l{QGLPixelBuffer}{QGLPixelBuffer}), but there are a number of
-    advantages with using framebuffer objects instead of
-    pbuffers:
+    OpenGL framebuffer objects are similar in use to pbuffers (see
+    \l{QGLPixelBuffer}{QGLPixelBuffer}), but there are a number of
+    advantages with using framebuffer objects instead of pbuffers:
 
     \list 1
     \o A framebuffer object does not require a separate rendering
     context, so no context switching will occur when switching
     rendering targets. There is an overhead involved in switching
-    rendering targets, but in general it is cheaper than a context
-    switch to a pbuffer.
+    targets, but in general it is cheaper than a context switch to a
+    pbuffer.
 
-    \o Another major benefit is that rendering to dynamic textures
-    works on all platforms. No need to do explicit copy calls from a
-    buffer into a texture, as was necessary under X11 if you wanted
-    dynamically updated textures.
+    \o Rendering to dynamic textures works on all platforms. No need
+    to do explicit copy calls from a buffer into a texture, as was
+    necessary on systems that did not support the \c{render_texture}
+    extension.
+
+    \o It is possible to attach several rendering buffers (or texture
+    objects) to the same framebuffer object, and render to all of them
+    without doing a context switch.
 
     \o The OpenGL framebuffer extension is a pure GL extension with no
     system dependant WGL, AGL or GLX parts. This makes using
@@ -442,7 +446,7 @@ QGLFramebufferObject::~QGLFramebufferObject()
     The framebuffer can become invalid if the init process fails, the
     user attaches an invalid buffer to the framebuffer object, or a
     non-power of 2 width/height is specified as the texture size if
-    the texture target is GL_TEXTURE_2D.
+    the texture target is \c{GL_TEXTURE_2D}.
 */
 bool QGLFramebufferObject::isValid() const
 {
