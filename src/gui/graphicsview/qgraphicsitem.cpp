@@ -292,14 +292,16 @@ void QGraphicsItemPrivate::remapItemPos(QEvent *event, QGraphicsItem *item)
         }
         break;
     }
-    case QEvent::GraphicsSceneContextMenu:
+    case QEvent::GraphicsSceneContextMenu: {
         QGraphicsSceneContextMenuEvent *contextEvent = static_cast<QGraphicsSceneContextMenuEvent *>(event);
         contextEvent->setPos(item->mapFromItem(q, contextEvent->pos()));
         break;
-    case QEvent::GraphicsSceneHoverMove:
+    }
+    case QEvent::GraphicsSceneHoverMove: {
         QGraphicsSceneHoverEvent *hoverEvent = static_cast<QGraphicsSceneHoverEvent *>(event);
         hoverEvent->setPos(item->mapFromItem(q, hoverEvent->pos()));
         break;
+    }
     default:
         break;
     }
@@ -1673,7 +1675,7 @@ void QGraphicsItem::sceneEvent(QEvent *event)
             // hover move events are forwarded.
             return;
         }
-        
+
         QGraphicsItem *handler = this;
         while (!handler->handlesChildEvents())
             handler = handler->parentItem();
@@ -1686,7 +1688,7 @@ void QGraphicsItem::sceneEvent(QEvent *event)
         }
         return;
     }
-    
+
     if (!d->enabled || !d->visible)
         return;
 
