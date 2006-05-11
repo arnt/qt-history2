@@ -4142,6 +4142,9 @@ static inline void drawEllipsePoints(int x, int y, int length,
     }
 }
 
+#if 0//defined(__arm__) || (_MSC_VER >= 1300 && _MSC_VER < 1400)
+#  define FLOATING_POINT_BUGGY_OR_NO_FPU
+#endif
 /*!
     \internal
     Draws an ellipse using the integer point midpoint algorithm.
@@ -4150,7 +4153,7 @@ static void drawEllipse_midpoint_i(const QRect &rect, const QRect &clip,
                                    ProcessSpans pen_func, ProcessSpans brush_func,
                                    QSpanData *pen_data, QSpanData *brush_data)
 {
-#ifdef __arm__ // no fpu, so use fixed point
+#ifdef FLOATING_POINT_BUGGY_OR_NO_FPU // no fpu, so use fixed point
     const QFixed a = QFixed(rect.width()) >> 1;
     const QFixed b = QFixed(rect.height()) >> 1;
     QFixed d = b*b - (a*a*b) + ((a*a) >> 2);
@@ -4181,7 +4184,7 @@ static void drawEllipse_midpoint_i(const QRect &rect, const QRect &clip,
                       pen_func, brush_func, pen_data, brush_data);
 
     // region 2
-#ifdef __arm__
+#ifdef FLOATING_POINT_BUGGY_OR_NO_FPU
     d = b*b*(x + (QFixed(1) >> 1))*(x + (QFixed(1) >> 1))
         + a*a*((y - 1)*(y - 1) - b*b);
 #else
