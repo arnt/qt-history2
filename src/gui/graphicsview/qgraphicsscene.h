@@ -19,6 +19,7 @@
 #include <QtCore/qrect.h>
 #include <QtGui/qbrush.h>
 #include <QtGui/qfont.h>
+#include <QtGui/qmatrix.h>
 #include <QtGui/qpen.h>
 
 QT_BEGIN_HEADER
@@ -72,6 +73,10 @@ public:
     void setSceneRect(const QRectF &rect);
     inline void setSceneRect(qreal x, qreal y, qreal w, qreal h)
     { setSceneRect(QRectF(x, y, w, h)); }
+
+    void drawScene(QPainter *painter, const QRectF &target, const QRectF &source,
+                   Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio,
+                   const QMatrix &matrix = QMatrix());
 
     ItemIndexMethod itemIndexMethod() const;
     void setItemIndexMethod(ItemIndexMethod method);

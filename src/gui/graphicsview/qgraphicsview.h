@@ -50,15 +50,7 @@ public:
         MultiSelection,
         ExtendedSelection
     };
-/*
-    enum PaintOption {
-        StretchContents = 0x1,
-        NoBackground = 0x2,
-        NoForeground = 0x4,
-        IgnoreViewMatrix = 0x8
-    };
-    Q_DECLARE_FLAGS(PaintOptions, PaintOption)
-*/    
+
     QGraphicsView(QGraphicsScene *scene = 0, QWidget *parent = 0);
     ~QGraphicsView();
 
@@ -85,9 +77,6 @@ public:
     
     QWidget *renderWidget() const;
     void setRenderWidget(QWidget *widget);
-    /*
-    void renderToDevice(QPaintDevice *device, const QRect &rect = QRect(), PaintOptions options = 0);
-    */
     
     QBrush backgroundBrush() const;
     void setBackgroundBrush(const QBrush &brush);
@@ -114,6 +103,9 @@ public:
                           Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio);
     void fitInView(const QGraphicsItem *item,
                    Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio);
+
+    void drawScene(QPainter *painter, const QRectF &target = QRectF(), const QRect &source = QRect(),
+                   Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
     
     QList<QGraphicsItem *> items() const;
     QList<QGraphicsItem *> items(const QPoint &pos) const;
@@ -175,10 +167,6 @@ inline QPoint QGraphicsView::mapFromScene(qreal ax, qreal ay) const
 { return mapFromScene(QPointF(ax, ay)); }
 inline QPolygon QGraphicsView::mapFromScene(qreal ax, qreal ay, qreal w, qreal h) const
 { return mapFromScene(QRectF(ax, ay, w, h)); }
-
-/*
-Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsView::PaintOptions)
-*/
 
 QT_END_HEADER
 

@@ -151,7 +151,7 @@ public:
     void recalculateContentSize();
 
     // Event forwarding
-    void paintEvent(QPainter *painter, const QRegion &region /*, QGraphicsView::PaintOptions options */);
+    void paintEvent(QPainter *painter, const QRegion &region);
     void contextMenuEvent(QContextMenuEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
@@ -296,8 +296,7 @@ void QGraphicsViewPrivate::recalculateContentSize()
 /*!
     \internal
 */
-void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region
-                                      /*, QGraphicsView::PaintOptions options*/)
+void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
 {
     Q_Q(QGraphicsView);
 
@@ -322,10 +321,8 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region
         exposedRegion = renderWidget->rect();
 
     // Draw background
-    //if ((options & QGraphicsView::NoBackground) == 0) {
     foreach (QRect rect, exposedRegion.rects())
         q->paintBackground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect());
-    //}
 
     // Find all visible items
     QList<QGraphicsItem *> visibleItems;
@@ -368,10 +365,8 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region
 #endif
 
     // Draw foreground
-    //if ((options & QGraphicsView::NoForeground) == 0) {
     foreach (QRect rect, exposedRegion.rects())
         q->paintForeground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect());
-    //}
 }
 
 /*!
@@ -918,28 +913,7 @@ void QGraphicsView::setRenderWidget(QWidget *widget)
     Q_D(QGraphicsView);
     d->setupRenderWidget(widget);
 }
-/*
-void QGraphicsView::renderToDevice(QPaintDevice *device, const QRect &rect,
-                                   PaintOptions options)
-{
-    QRect printRect = !rect.isNull() ? rect : d->renderWidget->rect();
 
-    QPainter painter(device);
-
-    if (options & StretchContents) {
-        qDebug() << (device->width() / qreal(printRect.width()))
-                 << (device->height() / qreal(printRect.height()));
-
-        painter.scale(device->width() / qreal(printRect.width()),
-                      device->height() / qreal(printRect.height()));
-    }
-
-    qDebug() << "Rect:" << printRect;
-    qDebug() << "Mapped rect:" << painter.deviceMatrix().mapRect(printRect);
-
-    d->paintEvent(&painter, QRegion(printRect), options);
-}
-*/
 /*!
     \property QGraphicsView::backgroundBrush
     \brief the background brush of the view.
@@ -1115,7 +1089,6 @@ void QGraphicsView::rotate(qreal angle)
     Q_D(QGraphicsView);
     QMatrix matrix = d->matrix;
     matrix.rotate(angle);
-    setMatrix(matrix);
 }
 
 /*!
@@ -1339,6 +1312,59 @@ void QGraphicsView::fitInView(const QRectF &rect, Qt::AspectRatioMode aspectRati
 void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode aspectRatioMode)
 {
     fitInView(item->sceneMatrix().map(item->shape()).boundingRect(), aspectRatioMode);
+}
+
+/*!
+    Draws the \a source rect, which is in view coordinates, from scene into \a
+    target, which is in paint device coordinates, using \a painter. This
+    function is useful for capturing the contents of the view to a paint
+    device, such as a QImage (e.g., to take a "screenshot"), or for printing
+    to QPrinter. For example:
+
+    \code
+        QGraphicsScene scene;
+        scene.addItem(...
+        ...
+
+        QGraphicsView view(&scene);
+        view.show();
+        ...
+
+        QPrinter printer(QPrinter::HighResolution);
+        printer.setPageSize(QPrinter::A4);
+        QPainter painter(&printer);
+
+        view.drawScene(&painter, QRect(0, 0, printer.width(), printer.height()),
+                       view.rect(), Qt::KeepAspectRatio);
+    \endcode
+
+    If \a source is a null rect, this function will use rect() to determine
+    what to draw. If \a target is a null rect, the dimensions of \a painter's
+    paint device (e.g., for a QPrinter, the page size) will be used.
+
+    The source rect will be transformed according to \a aspectratioMode to fit
+    into the target rect. By default, the aspect ratio is ignored, and \a
+    source is scaled to fit tightly in \a target.
+
+    \sa QGraphicsScene::drawScene()
+*/
+void QGraphicsView::drawScene(QPainter *painter, const QRectF &target, const QRect &source,
+                              Qt::AspectRatioMode aspectRatioMode)
+{
+    Q_D(QGraphicsView);
+
+    paintBackground(painter, source);
+
+    QRect sourceRect = source;
+    if (sourceRect.isNull())
+        sourceRect = d->renderWidget->rect();
+
+    d->scene->drawScene(painter, target,
+                        sourceRect.translated(horizontalScrollBar()->value(),
+                                              verticalScrollBar()->value()),
+                        aspectRatioMode, matrix());
+
+    paintForeground(painter, source);
 }
 
 /*!

@@ -156,7 +156,10 @@
 #include <QtCore/qset.h>
 #include <QtCore/qtimer.h>
 #include <QtGui/qevent.h>
+#include <QtGui/qmatrix.h>
+#include <QtGui/qpainter.h>
 #include <QtGui/qpolygon.h>
+#include <QtGui/qstyleoption.h>
 #include <QtGui/qtooltip.h>
 #include <math.h>
 
@@ -539,6 +542,103 @@ void QGraphicsScene::setSceneRect(const QRectF &rect)
 {
     Q_D(QGraphicsScene);
     d->sceneRect = rect;
+}
+
+/*!
+    Draws the \a source rect from scene into \a target, using \a painter. This
+    function is useful for capturing the contents of the scene to a paint
+    device, such as a QImage (e.g., to take a "screenshot"), or for printing
+    to QPrinter. For example:
+
+    \code
+        QGraphicsScene scene;
+        scene.addItem(...
+        ...
+        QPrinter printer(QPrinter::HighResolution);
+        printer.setPageSize(QPrinter::A4);
+
+        QPainter painter(&printer);
+        scene.drawScene(&painter, QRect(0, 0, printer.width(), printer.height()),
+                        scene.itemsBoundingRect(), Qt::KeepAspectRatio);
+    \endcode
+
+    If \a source is a null rect, this function will use sceneRect() to
+    determine what to draw. If \a target is a null rect, the dimensions of \a
+    painter's paint device will be used.
+
+    The source rect will be transformed according to \a aspectratioMode to fit
+    into the target rect. By default, the aspect ratio is ignored, and \a
+    source is scaled to fit tightly in \a target.
+
+    It is also possible to draw the scene transformed by passing a matrix via
+    \a matrix. The source rectangle is then specified in transformed
+    coordinates.
+*/
+void QGraphicsScene::drawScene(QPainter *painter, const QRectF &target, const QRectF &source,
+                               Qt::AspectRatioMode aspectRatioMode, const QMatrix &matrix)
+{
+    QRectF sourceRect = source;
+    if (sourceRect.isNull())
+        sourceRect = sceneRect();
+
+    QRectF targetRect = target;
+    if (targetRect.isNull())
+        targetRect.setRect(0, 0, painter->device()->width(), painter->device()->height());
+
+    // Find the ideal x / y scaling ratio to fit \a source in \a target.
+    qreal xratio = targetRect.width() / source.width();
+    qreal yratio = targetRect.height() / source.height();
+
+    // Respect the aspect ratio mode.
+    switch (aspectRatioMode) {
+    case Qt::KeepAspectRatio:
+        xratio = yratio = qMin(xratio, yratio);
+        break;
+    case Qt::KeepAspectRatioByExpanding:
+        xratio = yratio = qMax(xratio, yratio);
+        break;
+    case Qt::IgnoreAspectRatio:
+        break;
+    }
+
+    // Scale the painter
+    painter->save();
+    painter->setClipRect(targetRect);
+    painter->scale(xratio, yratio);
+    painter->translate(-source.topLeft());
+    painter->setMatrix(matrix, true);
+
+    foreach (QGraphicsItem *item, items(matrix.inverted().map(source))) {
+        // Create the styleoption object
+        QStyleOptionGraphicsItem option;
+        option.state = QStyle::State_None;
+        option.rect = item->boundingRect().toRect();
+        if (item->isSelected())
+            option.state |= QStyle::State_Selected;
+        if (item->isEnabled())
+            option.state |= QStyle::State_Enabled;
+
+        QMatrix itemMatrix = item->sceneMatrix();
+        QMatrix transformationMatrix = itemMatrix * matrix;
+
+        // Calculate a simple level-of-detail metric.
+        QRectF mappedRect = transformationMatrix.mapRect(QRectF(0, 0, 1, 1));
+        qreal dx = transformationMatrix.mapRect(QRectF(0, 0, 1, 1)).size().width();
+        qreal dy = transformationMatrix.mapRect(QRectF(0, 0, 1, 1)).size().height();
+        option.levelOfDetail = qMin(dx, dy);
+
+        // Also pass the device matrix, so the item can do more advanced
+        // level-of-detail calculations.
+        option.matrix = transformationMatrix;
+
+        // Draw the item
+        painter->save();
+        painter->setMatrix(itemMatrix, true);
+        item->paint(painter, &option);
+        painter->restore();
+    }
+
+    painter->restore();
 }
 
 /*!
