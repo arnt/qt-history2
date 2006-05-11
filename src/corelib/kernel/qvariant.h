@@ -141,7 +141,7 @@ class Q_CORE_EXPORT QVariant
     QVariant(bool b);
     QVariant(double d);
 #ifndef QT_NO_CAST_FROM_ASCII
-    QT_ASCII_CAST_WARN QVariant(const char *str);
+    QT_ASCII_CAST_WARN_CONSTRUCTOR QVariant(const char *str);
 #endif
 
     QVariant(const QByteArray &bytearray);

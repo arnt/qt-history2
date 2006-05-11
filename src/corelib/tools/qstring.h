@@ -309,9 +309,9 @@ public:
 
     // ASCII compatibility
 #ifndef QT_NO_CAST_FROM_ASCII
-    inline QT_ASCII_CAST_WARN QString(const char *ch) : d(&shared_null)
+    inline QT_ASCII_CAST_WARN_CONSTRUCTOR QString(const char *ch) : d(&shared_null)
     { d->ref.ref(); *this = fromAscii(ch); }
-    inline QT_ASCII_CAST_WARN QString(const QByteArray &a) : d(&shared_null)
+    inline QT_ASCII_CAST_WARN_CONSTRUCTOR QString(const QByteArray &a) : d(&shared_null)
     { d->ref.ref(); *this = fromAscii(a.constData()); }
     inline QT_ASCII_CAST_WARN QString &operator=(const char *ch)
     { return (*this = fromAscii(ch)); }
