@@ -15,11 +15,13 @@ contains(QT_CONFIG, opengl):CONFIG += opengl
 HEADERS += qgl.h \
 	   qglcolormap.h \
 	   qpaintengine_opengl_p.h \
-	   qglpixelbuffer.h
+	   qglpixelbuffer.h \
+	   qglframebufferobject.h
 SOURCES	+= qgl.cpp \
 	   qglcolormap.cpp \
 	   qpaintengine_opengl.cpp \
-	   qglpixelbuffer.cpp
+	   qglpixelbuffer.cpp \
+	   qglframebufferobject.cpp
 x11 {
     SOURCES += qgl_x11.cpp \
 	       qglpixelbuffer_x11.cpp

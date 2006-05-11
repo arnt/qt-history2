@@ -30,6 +30,7 @@
 #include <private/qglpixelbuffer_p.h>
 #include <private/qstroker_p.h>
 #include <private/qbezier_p.h>
+#include <qglframebufferobject.h>
 
 #ifdef Q_OS_MAC
 # include <OpenGL/glu.h>
@@ -163,12 +164,13 @@ void qt_painterpath_split(const QPainterPath &path, QDataBuffer<int> *paths, QDa
 
 class QGLDrawable {
 public:
-    QGLDrawable() : widget(0), buffer(0) {}
+    QGLDrawable() : widget(0), buffer(0), fbo(0) {}
     inline void setDevice(QPaintDevice *pdev);
     inline void setAutoBufferSwap(bool);
     inline bool autoBufferSwap() const;
     inline void swapBuffers();
     inline void makeCurrent();
+    inline void doneCurrent();
     inline QSize size() const;
     inline QGLFormat format() const;
     inline GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
@@ -179,6 +181,7 @@ public:
 private:
     QGLWidget *widget;
     QGLPixelBuffer *buffer;
+    QGLFramebufferObject *fbo;
 };
 
 void QGLDrawable::setDevice(QPaintDevice *pdev)
@@ -187,6 +190,8 @@ void QGLDrawable::setDevice(QPaintDevice *pdev)
         widget = static_cast<QGLWidget *>(pdev);
     else if (pdev->devType() == QInternal::Pbuffer)
         buffer = static_cast<QGLPixelBuffer *>(pdev);
+    else if (pdev->devType() == QInternal::FramebufferObject)
+        fbo = static_cast<QGLFramebufferObject *>(pdev);
 }
 
 inline void QGLDrawable::setAutoBufferSwap(bool enable)
@@ -212,6 +217,14 @@ inline void QGLDrawable::makeCurrent()
         widget->makeCurrent();
     else if (buffer)
         buffer->makeCurrent();
+    else if (fbo)
+        fbo->bind();
+}
+
+inline void QGLDrawable::doneCurrent()
+{
+    if (fbo)
+        fbo->release();
 }
 
 inline QSize QGLDrawable::size() const
@@ -220,6 +233,8 @@ inline QSize QGLDrawable::size() const
         return widget->size();
     else if (buffer)
         return buffer->size();
+    else if (fbo)
+        return fbo->size();
     return QSize();
 }
 
@@ -229,6 +244,8 @@ inline QGLFormat QGLDrawable::format() const
         return widget->format();
     else if (buffer)
         return buffer->format();
+    else if (fbo && QGLContext::currentContext())
+        return QGLContext::currentContext()->format();
     return QGLFormat();
 }
 
@@ -238,6 +255,8 @@ inline GLuint QGLDrawable::bindTexture(const QImage &image, GLenum target, GLint
         return widget->d_func()->glcx->d_func()->bindTexture(image, target, format, true);
     else if (buffer)
         return buffer->d_func()->qctx->d_func()->bindTexture(image, target, format, true);
+    else if (fbo && QGLContext::currentContext())
+        return const_cast<QGLContext *>(QGLContext::currentContext())->d_func()->bindTexture(image, target, format, true);
     return 0;
 }
 
@@ -247,6 +266,8 @@ inline GLuint QGLDrawable::bindTexture(const QPixmap &pixmap, GLenum target, GLi
         return widget->d_func()->glcx->d_func()->bindTexture(pixmap, target, format, true);
     else if (buffer)
         return buffer->d_func()->qctx->d_func()->bindTexture(pixmap, target, format, true);
+    else if (fbo && QGLContext::currentContext())
+        return const_cast<QGLContext *>(QGLContext::currentContext())->d_func()->bindTexture(pixmap, target, format, true);
     return 0;
 }
 
@@ -263,6 +284,8 @@ inline QGLContext *QGLDrawable::context() const
         return widget->d_func()->glcx;
     else if (buffer)
         return buffer->d_func()->qctx;
+    else if (fbo)
+        return const_cast<QGLContext *>(QGLContext::currentContext());
     return 0;
 }
 
@@ -872,6 +895,7 @@ bool QOpenGLPaintEngine::end()
     glFlush();
     d->drawable.swapBuffers();
     d->drawable.setAutoBufferSwap(d->has_autoswap);
+    d->drawable.doneCurrent();
     return true;
 }
 
