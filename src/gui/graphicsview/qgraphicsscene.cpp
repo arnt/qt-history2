@@ -363,6 +363,9 @@ void QGraphicsScenePrivate::generateBspTree()
 
     newItems.clear();
     emit q->changed(QList<QRectF>() << boundingRect);
+
+    if (sceneRect.isNull())
+        sceneRect = boundingRect;
 }
 
 /*!
