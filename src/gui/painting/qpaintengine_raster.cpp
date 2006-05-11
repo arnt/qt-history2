@@ -3345,7 +3345,7 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
                                 LineDrawMode style, const QRect &devRect)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << "   - drawLine_midpoint_i" << line;
+    qDebug() << "   - drawLine_midpoint_i" << QLine(QPoint(x1, y1), QPoint(x2, y2));
 #endif
 
     int x, y;
