@@ -435,8 +435,10 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
         doc->clear();
         cursor.movePosition(QTextCursor::Start);
         QTextBlockFormat blockFmt;
+        /* ####
         blockFmt.setLayoutDirection(q->layoutDirection());
         cursor.mergeBlockFormat(blockFmt);
+        */
         cursor.setCharFormat(charFormatForInsertion);
     }
 
@@ -1522,38 +1524,6 @@ process:
     default:
         {
             QString text = e->text();
-
-            if (e->key() == Qt::Key_Tab) {
-                if (d->tabChangesFocus) {
-                    e->ignore();
-                    return;
-                }
-                /*
-                if (d->cursor.currentTable()) {
-                    d->gotoNextTableCell();
-                    break;
-                } else if (d->cursor.atBlockStart()) {
-                    d->indent();
-                    break;
-                }
-                */
-            }
-
-            if (e->key() == Qt::Key_Backtab) {
-                if (d->tabChangesFocus) {
-                    e->ignore();
-                    return;
-                }
-                /*
-                if (d->cursor.currentTable()) {
-                    d->gotoPreviousTableCell();
-                    break;
-                } else if (d->cursor.atBlockStart()) {
-                    d->outdent();
-                    break;
-                }
-                */
-            }
 
             if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
                 if (d->overwriteMode
@@ -2732,7 +2702,7 @@ void QTextControl::adjustSize()
     Q_D(QTextControl);
     QFont f = d->doc->defaultFont();
     QFontMetrics fm(f);
-    int mw =  fm.width('x') * 80;
+    int mw =  fm.width(QLatin1Char('x')) * 80;
     int w = mw;
     d->doc->setPageSize(QSizeF(w, INT_MAX));
     QSizeF size = d->doc->documentLayout()->documentSize();
