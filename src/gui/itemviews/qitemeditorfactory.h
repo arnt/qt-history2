@@ -48,6 +48,21 @@ private:
 };
 
 template <class T>
+class QStandardItemEditorCreator: public QItemEditorCreatorBase
+{
+public:
+    inline QStandardItemEditorCreator()
+        : propertyName(T::staticMetaObject.userProperty().name())
+    {}
+    inline QWidget *createWidget(QWidget *parent) const { return new T(parent); }
+    inline QByteArray valuePropertyName() const { return propertyName; }
+
+private:
+    QByteArray propertyName;
+};
+
+
+template <class T>
 Q_INLINE_TEMPLATE QItemEditorCreator<T>::QItemEditorCreator(const QByteArray &avaluePropertyName)
     : propertyName(avaluePropertyName) {}
 

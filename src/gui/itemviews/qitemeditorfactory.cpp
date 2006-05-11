@@ -69,42 +69,49 @@
 */
 
 /*!
-Creates an editor widget with the given \a parent for the specified \a type of data,
-and returns it as a QWidget.
+    Creates an editor widget with the given \a parent for the specified \a type of data,
+    and returns it as a QWidget.
 
-\sa registerEditor()*/
+    \sa registerEditor()
+*/
 QWidget *QItemEditorFactory::createEditor(QVariant::Type type, QWidget *parent) const
 {
     QItemEditorCreatorBase *creator = creatorMap.value(type, 0);
-    if (!creator)
-        return defaultFactory()->createEditor(type, parent);
+    if (!creator) {
+        const QItemEditorFactory *dfactory = defaultFactory();
+        return dfactory == this ? 0 : dfactory->createEditor(type, parent);
+    }
     return creator->createWidget(parent);
 }
 
 /*!
-Returns the property name used to identify the given \a type of data. */
+    Returns the property name used to access data for the given \a type of data.
+*/
 QByteArray QItemEditorFactory::valuePropertyName(QVariant::Type type) const
 {
     QItemEditorCreatorBase *creator = creatorMap.value(type, 0);
-    if (!creator)
-        return defaultFactory()->valuePropertyName(type);
+    if (!creator) {
+        const QItemEditorFactory *dfactory = defaultFactory();
+        return dfactory == this ? QByteArray() : dfactory->valuePropertyName(type);
+    }
     return creator->valuePropertyName();
 }
 
 /*!
-Destroys the item editor factory.*/
+    Destroys the item editor factory.
+*/
 QItemEditorFactory::~QItemEditorFactory()
 {
-
 }
 
 /*!
-Registers an item editor creator specified by \a creator for the given \a type of data.
+    Registers an item editor creator specified by \a creator for the given \a type of data.
 
-\bold{Note:} The factory takes ownership of the item editor creator and will destroy
-it if a new creator for the same type is registered later.
+    \bold{Note:} The factory takes ownership of the item editor creator and will destroy
+    it if a new creator for the same type is registered later.
 
-\sa createEditor()*/
+    \sa createEditor()
+*/
 void QItemEditorFactory::registerEditor(QVariant::Type type, QItemEditorCreatorBase *creator)
 {
    delete creatorMap.value(type, 0);
@@ -218,9 +225,10 @@ struct QDefaultFactoryCleaner
 };
 
 /*!
-Returns the default item editor factory.
+    Returns the default item editor factory.
 
-\sa setDefaultFactory()*/
+    \sa setDefaultFactory()
+*/
 const QItemEditorFactory *QItemEditorFactory::defaultFactory()
 {
     static const QDefaultItemEditorFactory factory;
@@ -252,7 +260,10 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     for editors using a QVariant-based scheme to associate data types with editor
     creators.
 
-    \sa QItemEditorFactory, {Model/View Programming}
+    QStandardItemEditorCreator is a convenience template class that can be used
+    to register widgets without the need to subclass QItemEditorCreatorBase.
+
+    \sa QStandardItemEditorCreator, QItemEditorFactory, {Model/View Programming}
 */
 
 /*!
@@ -284,6 +295,34 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     and must be registered in the item editor factory for the QVariant::Bool
     type.
 
-    \sa QItemEditorFactory::registerEditor()
+    Note: Since Qt 4.2 the item delegates query the user property of widgets,
+    and only call this function if the widget has no user property. You can
+    override this behavior by reimplementing QAbstractItemDelegate::setModelData()
+    and QAbstractItemDelegate::setEditorData().
+
+    \sa QMetaProperty::userProperty(), QItemEditorFactory::registerEditor()
 */
+
+/*! \class QStandardItemEditorCreator
+    \since 4.2
+    \ingroup model-view
+
+    This convenience template class makes it possible to register widgets without
+    having to subclass QItemEditorCreatorBase.
+
+    Example:
+
+    \code
+    QItemEditorFactory *editorFactory = new QItemEditorFactory;
+    QItemEditorCreatorBase *creator = new QStandardItemEditorCreator<MyFancyDateTimeEdit>();
+    editorFactory->registerEditor(QVariant::DateType, creator);
+    \endcode
+
+    Setting the \c editorFactory created above in an item delegate via
+    QItemDelegate::setItemEditorFactory() makes sure that all values of type
+    QVariant::DateTime will be edited in \c{MyFancyDateTimeEdit}.
+
+    \sa QItemEditorCreatorBase, QItemEditorFactory, QItemDelegate
+*/
+
 #endif // QT_NO_ITEMVIEWS

@@ -29,6 +29,7 @@
 #include <qbitmap.h>
 #include <qpixmapcache.h>
 #include <qitemeditorfactory.h>
+#include <qmetaobject.h>
 #include <private/qobject_p.h>
 #include <private/qdnd_p.h>
 #include <qdebug.h>
@@ -288,6 +289,10 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
 /*!
     Sets the data to be displayed and edited by the \a editor for the
     item specified by \a index.
+
+    The default implementation uses the editor's user property to set values.
+
+    \sa QMetaProperty::isUser()
 */
 
 void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
@@ -298,7 +303,9 @@ void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
 #else
     Q_D(const QItemDelegate);
     QVariant v = index.data(Qt::EditRole);
-    QByteArray n = d->editorFactory()->valuePropertyName(v.type());
+    QByteArray n = editor->metaObject()->userProperty().name();
+    if (n.isEmpty())
+        n = d->editorFactory()->valuePropertyName(v.type());
     if (!n.isEmpty())
         editor->setProperty(n, v);
 #endif
@@ -307,6 +314,10 @@ void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) con
 /*!
     Sets the data for the specified \a model and item \a index from that
     supplied by the \a editor.
+
+    The default implementation uses the editor's user property to get values.
+
+    \sa QMetaProperty::isUser()
 */
 
 void QItemDelegate::setModelData(QWidget *editor,
@@ -314,15 +325,16 @@ void QItemDelegate::setModelData(QWidget *editor,
                                  const QModelIndex &index) const
 {
 #ifdef QT_NO_PROPERTIES
-    Q_UNUSED(editor);
     Q_UNUSED(model);
+    Q_UNUSED(editor);
     Q_UNUSED(index);
 #else
     Q_D(const QItemDelegate);
     Q_ASSERT(model);
     Q_ASSERT(editor);
-    QVariant::Type t = model->data(index, Qt::EditRole).type();
-    QByteArray n = d->editorFactory()->valuePropertyName(t);
+    QByteArray n = editor->metaObject()->userProperty().name();
+    if (n.isEmpty())
+        n = d->editorFactory()->valuePropertyName(model->data(index, Qt::EditRole).type());
     if (!n.isEmpty())
         model->setData(index, editor->property(n), Qt::EditRole);
 #endif

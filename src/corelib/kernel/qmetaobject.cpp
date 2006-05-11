@@ -615,6 +615,22 @@ QMetaProperty QMetaObject::property(int index) const
 }
 
 /*!
+    Returns the property that has the USER flag set to true.
+
+    \sa QMetaProperty::isUser()
+ */
+QMetaProperty QMetaObject::userProperty() const
+{
+    const int propCount = propertyCount();
+    for (int i = 0; i < propCount; ++i) {
+        const QMetaProperty prop = property(i);
+        if (prop.isUser())
+            return prop;
+    }
+    return QMetaProperty();
+}
+
+/*!
     Returns the meta-data for the item of class information with the
     given \a index.
 
@@ -1890,7 +1906,7 @@ bool QMetaProperty::isStored(const QObject *object) const
     \c{Q_PROPERTY()}'s \c USER attribute is false; otherwise returns
     true (if the attribute is true or is a function or expression).
 
-    \sa isDesignable(), isScriptable(), isEditable()
+    \sa QMetaObject::userProperty(), isDesignable(), isScriptable(), isEditable()
 */
 bool QMetaProperty::isUser(const QObject *object) const
 {

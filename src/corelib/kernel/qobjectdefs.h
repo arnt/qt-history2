@@ -223,6 +223,7 @@ struct Q_CORE_EXPORT QMetaObject
     QMetaEnum enumerator(int index) const;
     QMetaProperty property(int index) const;
     QMetaClassInfo classInfo(int index) const;
+    QMetaProperty userProperty() const;
 
     static bool checkConnectArgs(const char *signal, const char *method);
     static QByteArray normalizedSignature(const char *method);
