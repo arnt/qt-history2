@@ -17,7 +17,7 @@
 QStringList QTextEditMimeData::formats() const
 {
     if (!fragment.isEmpty())
-        return QStringList() << "text/plain" << "text/html";
+        return QStringList() << QString::fromLatin1("text/plain") << QString::fromLatin1("text/html");
     else
         return QMimeData::formats();
 }
@@ -67,9 +67,9 @@ void QTextEditMimeData::setup() const
 
 #ifndef QT_NO_SHORTCUT
 #include <qkeysequence.h>
-#define ACCEL_KEY(k) "\t" + QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
+#define ACCEL_KEY(k) QString::fromLatin1("\t") + QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
 #else
-#define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
+#define ACCEL_KEY(k) QString("\tCtrl+" #k)
 #endif
 
 // could go into QTextCursor...
@@ -1873,7 +1873,7 @@ process:
             if (d->cursor.atBlockStart()
                 && (d->autoFormatting & AutoBulletList)
                 && (!text.isEmpty())
-                && (text[0] == '-' || text[0] == '*')
+                && (text[0] == QLatin1Char('-') || text[0] == QLatin1Char('*'))
                 && (!d->cursor.currentList())) {
 
                 text.remove(0, 1);
@@ -2994,8 +2994,8 @@ bool QTextEdit::canInsertFromMimeData(const QMimeData *source) const
     if (d->acceptRichText)
         return source->hasText()
             || source->hasHtml()
-            || source->hasFormat("application/x-qrichtext")
-            || source->hasFormat("application/x-qt-richtext");
+            || source->hasFormat(QLatin1String("application/x-qrichtext"))
+            || source->hasFormat(QLatin1String("application/x-qt-richtext"));
     else
         return source->hasText();
 }
@@ -3015,9 +3015,9 @@ void QTextEdit::insertFromMimeData(const QMimeData *source)
 
     bool hasData = false;
     QTextDocumentFragment fragment;
-    if (source->hasFormat("application/x-qrichtext") && d->acceptRichText) {
+    if (source->hasFormat(QLatin1String("application/x-qrichtext")) && d->acceptRichText) {
         // x-qrichtext is always UTF-8 (taken from Qt3 since we don't use it anymore).
-        fragment = QTextDocumentFragment::fromHtml(QString::fromUtf8(source->data("application/x-qrichtext")));
+        fragment = QTextDocumentFragment::fromHtml(QString::fromUtf8(source->data(QLatin1String("application/x-qrichtext"))));
         hasData = true;
     } else if (source->hasHtml() && d->acceptRichText) {
         fragment = QTextDocumentFragment::fromHtml(source->html());

@@ -70,14 +70,14 @@ bool Qt::mightBeRichText(const QString& text)
     if (text.mid(start, 5).toLower() == QLatin1String("<!doc"))
         return true;
     int open = start;
-    while (open < text.length() && text.at(open) != '<'
-            && text.at(open) != '\n') {
-        if (text.at(open) == '&' &&  text.mid(open+1,3) == "lt;")
+    while (open < text.length() && text.at(open) != QLatin1Char('<')
+            && text.at(open) != QLatin1Char('\n')) {
+        if (text.at(open) == QLatin1Char('&') &&  text.mid(open+1,3) == QLatin1String("lt;"))
             return true; // support desperate attempt of user to see <...>
         ++open;
     }
-    if (open < text.length() && text.at(open) == '<') {
-        const int close = text.indexOf('>', open);
+    if (open < text.length() && text.at(open) == QLatin1Char('<')) {
+        const int close = text.indexOf(QLatin1Char('>'), open);
         if (close > -1) {
             QString tag;
             for (int i = open+1; i < close; ++i) {
@@ -85,7 +85,7 @@ bool Qt::mightBeRichText(const QString& text)
                     tag += text[i];
                 else if (!tag.isEmpty() && text[i].isSpace())
                     break;
-                else if (!text[i].isSpace() && (!tag.isEmpty() || text[i] != '!'))
+                else if (!text[i].isSpace() && (!tag.isEmpty() || text[i] != QLatin1Char('!')))
                     return false; // that's not a tag
             }
             return QTextHtmlParser::lookupElement(tag.toLower()) != -1;
@@ -144,47 +144,47 @@ QString Qt::convertFromPlainText(const QString &plain, Qt::WhiteSpaceMode mode)
 {
     int col = 0;
     QString rich;
-    rich += "<p>";
+    rich += QLatin1String("<p>");
     for (int i = 0; i < plain.length(); ++i) {
-        if (plain[i] == '\n'){
+        if (plain[i] == QLatin1Char('\n')){
             int c = 1;
-            while (i+1 < plain.length() && plain[i+1] == '\n') {
+            while (i+1 < plain.length() && plain[i+1] == QLatin1Char('\n')) {
                 i++;
                 c++;
             }
             if (c == 1)
-                rich += "<br>\n";
+                rich += QLatin1String("<br>\n");
             else {
-                rich += "</p>\n";
+                rich += QLatin1String("</p>\n");
                 while (--c > 1)
-                    rich += "<br>\n";
-                rich += "<p>";
+                    rich += QLatin1String("<br>\n");
+                rich += QLatin1String("<p>");
             }
             col = 0;
         } else {
-            if (mode == Qt::WhiteSpacePre && plain[i] == '\t'){
-                rich += 0x00a0U;
+            if (mode == Qt::WhiteSpacePre && plain[i] == QLatin1Char('\t')){
+                rich += QChar(0x00a0U);
                 ++col;
                 while (col % 8) {
-                    rich += 0x00a0U;
+                    rich += QChar(0x00a0U);
                     ++col;
                 }
             }
             else if (mode == Qt::WhiteSpacePre && plain[i].isSpace())
-                rich += 0x00a0U;
-            else if (plain[i] == '<')
-                rich +="&lt;";
-            else if (plain[i] == '>')
-                rich +="&gt;";
-            else if (plain[i] == '&')
-                rich +="&amp;";
+                rich += QChar(0x00a0U);
+            else if (plain[i] == QLatin1Char('<'))
+                rich += QLatin1String("&lt;");
+            else if (plain[i] == QLatin1Char('>'))
+                rich += QLatin1String("&gt;");
+            else if (plain[i] == QLatin1Char('&'))
+                rich += QLatin1String("&amp;");
             else
                 rich += plain[i];
             ++col;
         }
     }
     if (col != 0)
-        rich += "</p>";
+        rich += QLatin1String("</p>");
     return rich;
 }
 
@@ -543,11 +543,11 @@ QString QTextDocument::toPlainText() const
 {
     Q_D(const QTextDocument);
     QString txt = d->plainText();
-    txt.replace(QTextBeginningOfFrame, '\n');
-    txt.replace(QTextEndOfFrame, '\n');
-    txt.replace(QChar::ParagraphSeparator, '\n');
-    txt.replace(QChar::LineSeparator, '\n');
-    txt.replace(QChar::Nbsp, ' ');
+    txt.replace(QTextBeginningOfFrame, QLatin1Char('\n'));
+    txt.replace(QTextEndOfFrame, QLatin1Char('\n'));
+    txt.replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
+    txt.replace(QChar::LineSeparator, QLatin1Char('\n'));
+    txt.replace(QChar::Nbsp, QLatin1Char(' '));
     return txt;
 }
 
@@ -1176,11 +1176,11 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
     html.reserve(doc->docHandle()->length());
 
     if (!encoding.isEmpty())
-        html += QString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=%1\" />").arg(QString::fromAscii(encoding));
+        html += QString::fromLatin1("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=%1\" />").arg(QString::fromAscii(encoding));
 
     QString title  = doc->metaInformation(QTextDocument::DocumentTitle);
     if (!title.isEmpty())
-        html += "<title>" + title + "</title>";
+        html += QString::fromLatin1("<title>") + title + QString::fromLatin1("</title>");
     html += QLatin1String("<style type=\"text/css\">\n");
     html += QLatin1String("p, li { white-space: pre-wrap; }\n");
     html += QLatin1String("</style>");
@@ -1244,7 +1244,7 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
 void QTextHtmlExporter::emitAttribute(const char *attribute, const QString &value)
 {
     html += QLatin1Char(' ');
-    html += attribute;
+    html += QLatin1String(attribute);
     html += QLatin1String("=\"");
     html += value;
     html += QLatin1Char('"');
@@ -1377,7 +1377,7 @@ void QTextHtmlExporter::emitTextLength(const char *attribute, const QTextLength 
         return;
 
     html += QLatin1Char(' ');
-    html += attribute;
+    html += QLatin1String(attribute);
     html += QLatin1String("=\"");
     html += QString::number(length.rawValue());
 
@@ -1538,7 +1538,7 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     html += style;
 
     if (block.begin().atEnd()) {
-        html += "-qt-paragraph-type:empty;";
+        html += QLatin1String("-qt-paragraph-type:empty;");
     }
 
     emitMargins(QString::number(format.topMargin()),
