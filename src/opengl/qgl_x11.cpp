@@ -960,7 +960,7 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget *shareWidget)
 
     if (q->isValid() && context->format().hasOverlay()) {
         QString olwName = q->objectName();
-        olwName += "-QGL_internal_overlay_widget";
+        olwName += QLatin1String("-QGL_internal_overlay_widget");
         olw = new QGLOverlayWidget(QGLFormat::defaultOverlayFormat(), q, shareWidget);
         olw->setObjectName(olwName);
         if (olw->isValid()) {
