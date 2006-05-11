@@ -313,7 +313,7 @@ void QClipboard::clear(Mode mode)
 }
 
 
-bool QClipboard::supportsMode(Mode mode) const 
+bool QClipboard::supportsMode(Mode mode) const
 {
     return (mode == Clipboard || mode == Selection);
 }
@@ -325,7 +325,7 @@ bool QClipboard::ownsMode(Mode mode) const
     else if(mode == Selection)
         return selectionData()->timestamp != CurrentTime;
     else
-        return false; 
+        return false;
 }
 
 
@@ -627,7 +627,7 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     int dataFormat = 0;
     QByteArray data;
     if (X11->xdndMimeDataForAtom(target, d->source(), &data, &atomFormat, &dataFormat)) {
-        
+
         VDEBUG("QClipboard: send_selection():\n"
           "    property type %lx\n"
           "    property name '%s'\n"
@@ -639,18 +639,18 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
         // Motif clients (since Motif doesn't support INCR)
         static Atom motif_clip_temporary = ATOM(CLIP_TEMPORARY);
         bool allow_incr = property != motif_clip_temporary;
-    
+
         // X_ChangeProperty protocol request is 24 bytes
         const int increment = (XMaxRequestSize(X11->display) * 4) - 24;
         if (data.size() > increment && allow_incr) {
             long bytes = data.size();
             XChangeProperty(X11->display, window, property,
                             ATOM(INCR), 32, PropModeReplace, (uchar *) &bytes, 1);
-    
+
             (void)new QClipboardINCRTransaction(window, property, atomFormat, dataFormat, data, increment);
             return ATOM(INCR);
         }
-    
+
         // make sure we can perform the XChangeProperty in a single request
         if (data.size() > increment)
             return XNone; // ### perhaps use several XChangeProperty calls w/ PropModeAppend?
@@ -707,12 +707,12 @@ bool QClipboard::event(QEvent *e)
             if (pending_clipboard_changed) {
                 pending_clipboard_changed = false;
                 clipboardData()->clear();
-                emit dataChanged();
+                emitChanged(QClipboard::Clipboard);
             }
             if (pending_selection_changed) {
                 pending_selection_changed = false;
                 selectionData()->clear();
-                emit selectionChanged();
+                emitChanged(QClipboard::Selection);
             }
 
             return true;
@@ -753,7 +753,7 @@ bool QClipboard::event(QEvent *e)
 
             if (! waiting_for_data) {
                 d->clear();
-                emit selectionChanged();
+                emitChanged(QClipboard::Selection);
             } else {
                 pending_selection_changed = true;
                 if (! pending_timer_id)
@@ -772,7 +772,7 @@ bool QClipboard::event(QEvent *e)
 
             if (! waiting_for_data) {
                 d->clear();
-                emit dataChanged();
+                emitChanged(QClipboard::Clipboard);
             } else {
                 pending_clipboard_changed = true;
                 if (! pending_timer_id)
@@ -1041,7 +1041,7 @@ QVariant QClipboardWatcher::retrieveData_sys(const QString &fmt, QVariant::Type)
     int size = format_atoms.size() / sizeof(Atom);
     for (int i = 0; i < size; ++i)
         atoms.append(targets[i]);
-    
+
     Atom fmtatom = X11->xdndMimeAtomForFormat(fmt, atoms);
 
     if (fmtatom == 0)
@@ -1178,9 +1178,9 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
     XSetSelectionOwner(dpy, atom, newOwner, X11->time);
 
     if (mode == Selection)
-        emit selectionChanged();
+        emitChanged(QClipboard::Selection);
     else
-        emit dataChanged();
+        emitChanged(QClipboard::Clipboard);
 
     if (XGetSelectionOwner(dpy, atom) != newOwner) {
         qWarning("QClipboard::setData: Cannot set X11 selection owner for %s",

@@ -65,6 +65,7 @@ public:
     void setPixmap(const QPixmap &, Mode mode  = Clipboard);
 
 Q_SIGNALS:
+    void changed(QClipboard::Mode);
     void selectionChanged();
     void findChanged();
     void dataChanged();
@@ -84,7 +85,7 @@ protected:
 
 private:
     Q_DISABLE_COPY(QClipboard)
-    
+
     bool supportsMode(Mode mode) const;
     bool ownsMode(Mode mode) const;
     void emitChanged(Mode mode);

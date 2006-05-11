@@ -83,9 +83,9 @@
 
     \section1 Notes for Mac OS X Users
 
-    Mac OS X supports a separate find clipboard that is used to hold 
-    search strings. This find clipboard can be accessed 
-    by specifying the Find mode. 
+    Mac OS X supports a separate find clipboard that is used to hold
+    search strings. This find clipboard can be accessed
+    by specifying the Find mode.
 
     \section1 Notes for Windows and Mac OS X Users
 
@@ -101,7 +101,7 @@
     notified of changes.
 
     \endlist
-    
+
     \sa QApplication
 */
 
@@ -500,7 +500,7 @@ void QClipboard::emitChanged(Mode mode)
         case Clipboard:
             emit dataChanged();
         break;
-        case Selection: 
+        case Selection:
             emit selectionChanged();
         break;
         case Find:
@@ -509,6 +509,7 @@ void QClipboard::emitChanged(Mode mode)
         default:
         break;
     }
+    emit changed(mode);
 }
 
 const char* QMimeDataWrapper::format(int n) const
