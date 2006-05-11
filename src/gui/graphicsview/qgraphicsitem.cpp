@@ -464,7 +464,7 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
     Returns a list of this item's children. The items are returned in no
     particular order.
 
-    \sa descendents(), setParentItem()
+    \sa setParentItem()
 */
 QList<QGraphicsItem *> QGraphicsItem::children() const
 {
@@ -970,7 +970,8 @@ void QGraphicsItem::ensureVisible(const QPointF &pos, int xmargin, int ymargin)
 }
 
 /*!
-    \fn void QGraphicsView::ensureVisible(qreal x, qreal y, int xmargin = 50, int ymargin = 50)
+    \fn void QGraphicsItem::ensureVisible(qreal x, qreal y,
+    int xmargin = 50, int ymargin = 50)
 
     This convenience function is equivalent to calling
     ensureVisible(QPointF(\a x, \a y), \a xmargin, \a ymargin):
