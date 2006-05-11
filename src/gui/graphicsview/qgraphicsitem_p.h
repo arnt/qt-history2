@@ -37,7 +37,8 @@ class QGraphicsItemPrivate
 public:
     enum Extra {
         ExtraMatrix,
-        ExtraToolTip
+        ExtraToolTip,
+        ExtraCursor
     };
 
     inline QGraphicsItemPrivate()

@@ -554,6 +554,49 @@ void QGraphicsItem::setToolTip(const QString &toolTip)
 }
 
 /*!
+    Returns the current cursor shape for the item. The mouse cursor will
+    assume this shape when it's over this item. See the list of predefined
+    cursor objects for a range of useful shapes.
+
+    An editor item might want to use an I-beam cursor:
+
+    \code
+        item->setCursor(Qt::IBeamCursor);
+    \endcode
+
+    If no cursor has been set, the parent's cursor is used.
+
+    \sa QWidget::cursor, QApplication::overrideCursor()
+*/
+QCursor QGraphicsItem::cursor() const
+{
+    Q_D(const QGraphicsItem);
+    return qVariantValue<QCursor>(d->extra(QGraphicsItemPrivate::ExtraCursor));
+}
+
+/*!
+    Sets the current cursor shape for the item to \a cursor. The mouse cursor
+    will assume this shape when it's over this item. See the \link
+    Qt::CursorShape list of predefined cursor objects\endlink for a range of
+    useful shapes.
+
+    An editor item might want to use an I-beam cursor:
+
+    \code
+        item->setCursor(Qt::IBeamCursor);
+    \endcode
+
+    If no cursor has been set, the parent's cursor is used.
+
+    \sa QWidget::cursor, QApplication::overrideCursor()
+*/
+void QGraphicsItem::setCursor(const QCursor &cursor)
+{
+    Q_D(QGraphicsItem);
+    d->setExtra(QGraphicsItemPrivate::ExtraCursor, cursor);
+}
+
+/*!
    Returns true if the item is visible; otherwise, false is returned.
 
    Note that the item's general visibility is unrelated to whether or not it
@@ -3471,16 +3514,16 @@ QDebug operator<<(QDebug debug, QGraphicsItem *item)
     }
 
     QStringList flags;
-    if (item->isVisible()) flags << "isVisible";
-    if (item->isEnabled()) flags << "isEnabled";
-    if (item->isSelected()) flags << "isSelected";
-    if (item->hasFocus()) flags << "HasFocus";
+    if (item->isVisible()) flags << QLatin1String("isVisible");
+    if (item->isEnabled()) flags << QLatin1String("isEnabled");
+    if (item->isSelected()) flags << QLatin1String("isSelected");
+    if (item->hasFocus()) flags << QLatin1String("HasFocus");
 
     debug << "QGraphicsItem(this =" << ((void*)item)
           << ", parent =" << ((void*)item->parentItem())
           << ", pos =" << item->pos()
           << ", z =" << item->zValue() << ", flags = {"
-          << flags.join("|") << " })";
+          << flags.join(QLatin1String("|")) << " })";
     return debug;
 }
 #endif

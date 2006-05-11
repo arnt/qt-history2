@@ -28,6 +28,7 @@ QT_MODULE(Gui)
 #ifndef QT_NO_GRAPHICSVIEW
 
 class QBrush;
+class QCursor;
 class QFocusEvent;
 class QGraphicsItemGroup;
 class QGraphicsSceneContextMenuEvent;
@@ -74,6 +75,9 @@ public:
 
     QString toolTip() const;
     void setToolTip(const QString &toolTip);
+
+    QCursor cursor() const;
+    void setCursor(const QCursor &cursor);
 
     bool isVisible() const;
     void setVisible(bool visible);

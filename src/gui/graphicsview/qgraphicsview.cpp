@@ -507,6 +507,12 @@ void QGraphicsViewPrivate::mouseMoveEvent(QMouseEvent *event)
     mouseEvent.setModifiers(event->modifiers());
     lastMouseMoveScenePoint = mouseEvent.scenePos();
     QApplication::sendEvent(scene, &mouseEvent);
+
+    if (QGraphicsItem *item = scene->itemAt(q->mapToScene(event->pos()))) {
+        q->setCursor(item->cursor());
+    } else {
+        q->unsetCursor();
+    }
 }
 
 /*!
@@ -1690,6 +1696,7 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
         break;
     case QEvent::Leave:
         d->useLastMouseEvent = false;
+        unsetCursor();
         break;
     case QEvent::FocusIn:
         d->focusInEvent(static_cast<QFocusEvent *>(event));
