@@ -26,12 +26,17 @@
 //
 
 #include "qgraphicsscene.h"
+
+#ifndef QT_NO_GRAPHICSVIEW
+
 #include "qgraphicsscene_bsp_p.h"
 
 #include <private/qobject_p.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qset.h>
+
+class QGraphicsView;
 
 class QGraphicsScenePrivate : public QObjectPrivate
 {
@@ -75,6 +80,8 @@ public:
     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownScenePos;
     QMap<Qt::MouseButton, QPoint> mouseGrabberButtonDownScreenPos;
 
+    QList<QGraphicsView *> views;
+
     QMultiMap<QGraphicsItem *, QGraphicsItem *> eventFilters;
     void installEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
     void removeEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
@@ -83,5 +90,7 @@ public:
     void sendHoverEvent(QEvent::Type type, QGraphicsItem *item,
                         QGraphicsSceneHoverEvent *hoverEvent);
 };
+
+#endif // QT_NO_GRAPHICSVIEW
 
 #endif

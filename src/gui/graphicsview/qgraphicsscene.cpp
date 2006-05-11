@@ -139,9 +139,12 @@
     scenes, where many items are added, moved or removed continuously.
 */
 
+#include "qgraphicsscene.h"
+
+#ifndef QT_NO_GRAPHICSVIEW
+
 #include "qgraphicsitem.h"
 #include "qgraphicsitem_p.h"
-#include "qgraphicsscene.h"
 #include "qgraphicsscene_p.h"
 #include "qgraphicssceneevent.h"
 
@@ -1569,3 +1572,5 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
 }
 
 #include "moc_qgraphicsscene.cpp"
+
+#endif // QT_NO_GRAPHICSVIEW

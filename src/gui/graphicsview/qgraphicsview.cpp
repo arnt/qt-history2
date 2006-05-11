@@ -112,11 +112,14 @@
     \value ExtendedSelection
 */
 
+#include "qgraphicsview.h"
+
+#ifndef QT_NO_GRAPHICSVIEW
+
 #include "qgraphicsitem.h"
 #include "qgraphicsscene.h"
 #include "qgraphicsscene_p.h"
 #include "qgraphicssceneevent.h"
-#include "qgraphicsview.h"
 
 #include <QtCore/qdatetime.h>
 #include <QtCore/qdebug.h>
@@ -830,11 +833,13 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
     if (d->scene) {
         disconnect(d->scene, SIGNAL(changed(const QList<QRectF> &)),
                    this, SLOT(update(const QList<QRectF> &)));
+        d->scene->d_func()->views.removeAll(this);
     }
 
     if ((d->scene = scene)) {
         connect(d->scene, SIGNAL(changed(const QList<QRectF> &)),
                 this, SLOT(update(const QList<QRectF> &)));
+        d->scene->d_func()->views << this;
         d->recalculateContentSize();
         d->lastCenterPoint = d->matrix.map(d->sceneRect.center());
     }
@@ -1864,3 +1869,5 @@ QStyleOptionGraphicsItem QGraphicsView::styleOptionForItem(QGraphicsItem *item) 
         option.state |= QStyle::State_Sunken;
     return option;
 }
+
+#endif // QT_NO_GRAPHICSVIEW

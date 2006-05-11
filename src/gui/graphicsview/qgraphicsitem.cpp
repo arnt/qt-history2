@@ -206,9 +206,13 @@
 */
 
 #include "qgraphicsitem.h"
+
+#ifndef QT_NO_GRAPHICSVIEW
+
 #include "qgraphicsscene.h"
 #include "qgraphicsscene_p.h"
 #include "qgraphicssceneevent.h"
+#include "qgraphicsview.h"
 #include <QtCore/qbitarray.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qpoint.h>
@@ -940,6 +944,36 @@ void QGraphicsItem::setPos(const QPointF &pos)
     Moves the item by \a dx points horizontally, and \a dy point
     vertically. This function is equivalent to calling setPos(pos() +
     QPointF(\a dx, \a dy)).
+*/
+
+/*!
+    If this item is part of a scene that is viewed by a QGraphicsView, this
+    convenience function will scroll the view to ensure that \a pos is visible
+    inside the view's viewport, with margins specified in viewport pixels by
+    \a xmargin and \a ymargin.
+
+    If the specified point cannot be reached, the contents are scrolled to the
+    nearest valid position. The default value for both margins is 50 pixels.
+
+    If this item is not viewed by a QGraphicsView, this function does nothing.
+
+    \sa QGraphicsView::ensureVisible()
+*/
+void QGraphicsItem::ensureVisible(const QPointF &pos, int xmargin, int ymargin)
+{
+    Q_D(QGraphicsItem);
+    if (d->scene) {
+        QPointF scenePos = mapToScene(pos);
+        foreach (QGraphicsView *view, d->scene->d_func()->views)
+            view->ensureVisible(scenePos, xmargin, ymargin);
+    }
+}
+
+/*!
+    \fn void QGraphicsView::ensureVisible(qreal x, qreal y, int xmargin = 50, int ymargin = 50)
+
+    This convenience function is equivalent to calling
+    ensureVisible(QPointF(\a x, \a y), \a xmargin, \a ymargin):
 */
 
 /*!
@@ -3449,3 +3483,5 @@ QDebug operator<<(QDebug debug, QGraphicsItem *item)
     return debug;
 }
 #endif
+
+#endif // QT_NO_GRAPHICSVIEW

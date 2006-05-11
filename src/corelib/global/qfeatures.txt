@@ -379,6 +379,13 @@ Requires: SCROLLBAR
 Name: QScrollArea
 SeeAlso: ???
 
+Feature: GRAPHICSVIEW
+Description: Supports the graphicsview classes.
+Section: Widgets
+Requires: SCROLLAREA
+Name: QGraphicsView
+SeeAlso: ???
+
 Feature: SPINWIDGET
 Description: Supports spinbox control widgets.
 Section: Widgets

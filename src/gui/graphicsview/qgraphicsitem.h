@@ -25,6 +25,8 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
+#ifndef QT_NO_GRAPHICSVIEW
+
 class QBrush;
 class QFocusEvent;
 class QGraphicsItemGroup;
@@ -101,6 +103,10 @@ public:
     void setPos(const QPointF &pos);
     inline void setPos(qreal x, qreal y) { setPos(QPointF(x, y)); }
     inline void moveBy(qreal dx, qreal dy) { setPos(pos().x() + dx, pos().y() + dy); }
+
+    void ensureVisible(const QPointF &pos, int xmargin = 50, int ymargin = 50);
+    inline void ensureVisible(qreal x, qreal y, int xmargin = 50, int ymargin = 50)
+    { ensureVisible(QPointF(x, y), xmargin, ymargin); }
 
     // Local transformation
     QMatrix matrix() const;
@@ -481,3 +487,5 @@ QDebug operator<<(QDebug debug, QGraphicsItem *item);
 QT_END_HEADER
 
 #endif
+
+#endif // QT_NO_GRAPHICSVIEW

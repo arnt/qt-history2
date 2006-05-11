@@ -29,6 +29,8 @@
 
 #include "qgraphicsitem.h"
 
+#ifndef QT_NO_GRAPHICSVIEW
+
 class QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsItem)
@@ -119,5 +121,7 @@ public:
 
     QGraphicsItem *q_ptr;
 };
+
+#endif // QT_NO_GRAPHICSVIEW
 
 #endif
