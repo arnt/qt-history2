@@ -4142,7 +4142,7 @@ static inline void drawEllipsePoints(int x, int y, int length,
     }
 }
 
-#if 0//defined(__arm__) || (_MSC_VER >= 1300 && _MSC_VER < 1400)
+#if defined(__arm__) || (_MSC_VER >= 1300 && _MSC_VER < 1400)
 #  define FLOATING_POINT_BUGGY_OR_NO_FPU
 #endif
 /*!
