@@ -105,7 +105,8 @@ static Visual *find_visual(Display *display,
     if (visual_class != -1) {
         rvi.c_class = visual_class;
         mask |= VisualClassMask;
-    } else if (visual_id != -1) {
+    }
+    if (visual_id != -1) {
         rvi.visualid = visual_id;
         mask |= VisualIDMask;
     }
