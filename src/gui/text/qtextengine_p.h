@@ -154,10 +154,10 @@ inline int qRound(const QFixed &f) { return f.toInt(); }
 
 inline QFixed operator*(int i, const QFixed &d) { return d*i; }
 inline QFixed operator+(int i, const QFixed &d) { return d+i; }
-inline QFixed operator-(int i, const QFixed &d) { return d-i; }
+inline QFixed operator-(int i, const QFixed &d) { return -(d-i); } 
 inline QFixed operator*(uint i, const QFixed &d) { return d*i; }
 inline QFixed operator+(uint i, const QFixed &d) { return d+i; }
-inline QFixed operator-(uint i, const QFixed &d) { return d-i; }
+inline QFixed operator-(uint i, const QFixed &d) { return -(d-i); }
 // inline QFixed operator*(qreal d, const QFixed &d2) { return d2*d; }
 
 inline bool operator==(const QFixed &f, int i) { return f.value() == (i<<6); }
