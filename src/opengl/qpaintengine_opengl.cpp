@@ -1810,7 +1810,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
             qgl_glyph->y = float(font_tex->y_offset) / glyph_tex_height;
             qgl_glyph->width = float(glyph_width/scale) / glyph_tex_width;
             qgl_glyph->height = float(glyph_height/scale) / glyph_tex_height;
-            qgl_glyph->x_offset = metrics.x;
+            qgl_glyph->x_offset = -metrics.x;
             qgl_glyph->y_offset = metrics.y;
 
             QImage glyph_im(ti.fontEngine->alphaMapForGlyph(glyphs[i]).convertToFormat(QImage::Format_Indexed8));
