@@ -244,21 +244,19 @@ const QMimeData *QClipboard::mimeData(Mode mode) const
     return &data->watcher;
 }
 
-bool QClipboard::ownsClipboard() const
+bool QClipboard::supportsMode(Mode mode) const 
 {
-    QClipboardData *d = clipboardData();
-
-    return d->iData && OleIsCurrentClipboard(d->iData) == S_OK;
+    return (mode == Clipboard)
 }
 
-bool QClipboard::supportsSelection() const
+bool QClipboard::ownsMode(Mode mode) const
 {
-    return false;
-}
-
-bool QClipboard::ownsSelection() const
-{
-    return false;
+    if (mode == Clipboard) {
+        QClipboardData *d = clipboardData();
+        return d->iData && OleIsCurrentClipboard(d->iData) == S_OK;
+    } else {
+        return false; 
+    }
 }
 
 void QClipboard::ownerDestroyed()

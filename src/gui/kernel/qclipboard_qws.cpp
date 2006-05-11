@@ -232,22 +232,16 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
     emit dataChanged();
 }
 
-bool QClipboard::supportsSelection() const
+bool QClipboard::supportsMode(Mode mode) const 
 {
-    return false;
+    return (mode == Clipboard)
 }
 
-
-bool QClipboard::ownsSelection() const
+bool QClipboard::ownsMode(Mode mode) const
 {
-    return false;
-}
-
-
-bool QClipboard::ownsClipboard() const
-{
-    qWarning("QClipboard::ownsClipboard: UNIMPLEMENTED!");
-    return false;
+    if (mode == Clipboard)
+        qWarning("QClipboard::ownsClipboard: UNIMPLEMENTED!");
+    return false; 
 }
 
 

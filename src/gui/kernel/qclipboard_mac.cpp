@@ -40,28 +40,44 @@ void qt_event_send_clipboard_changed(); //qapplication_mac.cpp
   QClipboard member functions for mac.
  *****************************************************************************/
 
-static QMacPasteBoard *qt_mac_pasteboard = 0;
-static void qt_mac_cleanupPasteboard() {
-    delete qt_mac_pasteboard;
-    qt_mac_pasteboard = 0;
+static QMacPasteBoard *qt_mac_pasteboards[2] = {0, 0};
+
+static inline QMacPasteBoard *qt_mac_pasteboard(QClipboard::Mode mode)
+{
+    // Assert on the mode, unsupported modes should be caught before
+    // calling this function.
+    Q_ASSERT(mode == QClipboard::Clipboard || mode == QClipboard::Find);
+
+    if (mode == QClipboard::Clipboard)
+        return qt_mac_pasteboards[0];
+    else
+        return qt_mac_pasteboards[1];
 }
 
-static bool qt_mac_updateScrap()
+static void qt_mac_cleanupPasteboard() {
+    delete qt_mac_pasteboards[0];
+    delete qt_mac_pasteboards[1];
+    qt_mac_pasteboards[0] = 0;
+    qt_mac_pasteboards[1] = 0;
+}
+
+static bool qt_mac_updateScrap(QClipboard::Mode mode)
 {
-    if(!qt_mac_pasteboard) {
-        qt_mac_pasteboard = new QMacPasteBoard(kPasteboardClipboard, QMacMime::MIME_CLIP);
+    if(!qt_mac_pasteboards[0]) {
+        qt_mac_pasteboards[0] = new QMacPasteBoard(kPasteboardClipboard, QMacMime::MIME_CLIP);
+        qt_mac_pasteboards[1] = new QMacPasteBoard(kPasteboardFind, QMacMime::MIME_CLIP);
         qAddPostRoutine(qt_mac_cleanupPasteboard);
         return true;
     }
-    return qt_mac_pasteboard->sync();
+    return qt_mac_pasteboard(mode)->sync();
 }
 
 void QClipboard::clear(Mode mode)
 {
-    if(mode != Clipboard)
+    if (supportsMode(mode) == false)
         return;
-    qt_mac_updateScrap();
-    qt_mac_pasteboard->clear();
+    qt_mac_updateScrap(mode);
+    qt_mac_pasteboard(mode)->clear();
 }
 
 void QClipboard::ownerDestroyed()
@@ -92,46 +108,51 @@ bool QClipboard::event(QEvent *e)
             }
         }
     }
-    if(check_clip && qt_mac_updateScrap()) {
-        qt_mac_pasteboard->setMimeData(0);
-        emit dataChanged();
+    
+    if (check_clip) {
+        if (qt_mac_updateScrap(QClipboard::Clipboard)) {
+            qt_mac_pasteboard(QClipboard::Clipboard)->setMimeData(0);
+            emitChanged(QClipboard::Clipboard);
+        }
+
+        if (qt_mac_updateScrap(QClipboard::Find)) {
+            qt_mac_pasteboard(QClipboard::Find)->setMimeData(0);
+            emitChanged(QClipboard::Find);
+        }
     }
+
     return QObject::event(e);
 }
 
 const QMimeData *QClipboard::mimeData(Mode mode) const
 {
-    if(mode != Clipboard)
+    if (supportsMode(mode) == false)
         return 0;
-    qt_mac_updateScrap();
-    return qt_mac_pasteboard->mimeData();
+    qt_mac_updateScrap(mode);
+    return qt_mac_pasteboard(mode)->mimeData();
 }
 
 void QClipboard::setMimeData(QMimeData *src, Mode mode)
 {
-    if(mode != Clipboard)
+    if (supportsMode(mode) == false)
         return;
-    qt_mac_updateScrap();
-    qt_mac_pasteboard->setMimeData(src);
-    emit dataChanged();
+    qt_mac_updateScrap(mode);
+    qt_mac_pasteboard(mode)->setMimeData(src);
+    emitChanged(mode);
     qt_event_send_clipboard_changed();
 }
 
-bool QClipboard::supportsSelection() const
+bool QClipboard::supportsMode(Mode mode) const 
 {
-    return false; //nei takk
+    return (mode == Clipboard || mode == Find);
 }
 
-bool QClipboard::ownsSelection() const
+bool QClipboard::ownsMode(Mode mode) const
 {
+    Q_UNUSED(mode);
     return false;
 }
 
-bool QClipboard::ownsClipboard() const
-{
-    qWarning("Qt: QClipboard::ownsClipboard: UNIMPLEMENTED!");
-    return false;
-}
 #endif // QT_NO_CLIPBOARD
 
 /*****************************************************************************

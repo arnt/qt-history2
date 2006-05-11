@@ -81,6 +81,12 @@
 
     \endlist
 
+    \section1 Notes for Mac OS X Users
+
+    Mac OS X supports a separate find clipboard that is used to hold 
+    search strings. This find clipboard can be accessed 
+    by specifying the Find mode. 
+
     \section1 Notes for Windows and Mac OS X Users
 
     \list
@@ -95,7 +101,7 @@
     notified of changes.
 
     \endlist
-
+    
     \sa QApplication
 */
 
@@ -399,7 +405,7 @@ QMimeSource *QClipboard::data(Mode mode) const
 {
     Q_D(const QClipboard);
 
-    if (mode != Clipboard && !supportsSelection())
+    if (supportsMode(mode) == false)
         return 0;
 
     if (d->compat_data[mode])
@@ -420,13 +426,90 @@ void QClipboard::setData(QMimeSource *source, Mode mode)
 {
     Q_D(QClipboard);
 
-    if (mode != Clipboard && !supportsSelection())
+    if (supportsMode(mode) == false)
         return;
 
     d->compat_data[mode] = source;
     setMimeData(new QMimeSourceWrapper(d, mode));
 }
 #endif // QT3_SUPPORT
+
+/*!
+    Returns true if the clipboard supports mouse selection; otherwise
+    returns false.
+*/
+bool QClipboard::supportsSelection() const
+{
+    return supportsMode(Selection);
+}
+
+/*!
+    Returns true if the clipboard supports a separate search buffer; otherwise
+    returns false.
+*/
+bool QClipboard::supportsFind() const
+{
+    return supportsMode(Find);
+}
+
+/*!
+    Returns true if this clipboard object owns the clipboard data;
+    otherwise returns false.
+*/
+bool QClipboard::ownsClipboard() const
+{
+    return ownsMode(Clipboard);
+}
+
+/*!
+    Returns true if this clipboard object owns the mouse selection
+    data; otherwise returns false.
+*/
+bool QClipboard::ownsSelection() const
+{
+    return ownsMode(Selection);
+}
+
+/*!
+    Returns true if this clipboard object owns the clipboard search data;
+    otherwise returns false.
+*/
+bool QClipboard::ownsFind() const
+{
+    return ownsMode(Find);
+}
+
+/*! \internal
+    \fn bool supportsMode(Mode mode) const;
+    Returns true if the clipboard supports the clipboard mode speacified by \a mode;
+    otherwise returns false.
+*/
+
+/*! \internal
+    \fn bool ownsMode(Mode mode) const;
+    Returns true if the clipboard supports the clipboard data speacified by \a mode;
+    otherwise returns false.
+*/
+
+/*! \internal
+    Emits the apropriate changed signal for \a mode.
+*/
+void QClipboard::emitChanged(Mode mode)
+{
+    switch (mode) {
+        case Clipboard:
+            emit dataChanged();
+        break;
+        case Selection: 
+            emit selectionChanged();
+        break;
+        case Find:
+            emit findChanged();
+        break;
+        default:
+        break;
+    }
+}
 
 const char* QMimeDataWrapper::format(int n) const
 {

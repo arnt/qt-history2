@@ -313,29 +313,20 @@ void QClipboard::clear(Mode mode)
 }
 
 
-/*!
-    Returns true if the clipboard supports mouse selection; otherwise
-    returns false.
-*/
-bool QClipboard::supportsSelection() const
+bool QClipboard::supportsMode(Mode mode) const 
 {
-    return true;
+    return (mode == Clipboard || mode == Selection)
 }
 
-
-/*!
-    Returns true if this clipboard object owns the mouse selection
-    data; otherwise returns false.
-*/
-bool QClipboard::ownsSelection() const
-{ return selectionData()->timestamp != CurrentTime; }
-
-/*!
-    Returns true if this clipboard object owns the clipboard data;
-    otherwise returns false.
-*/
-bool QClipboard::ownsClipboard() const
-{ return clipboardData()->timestamp != CurrentTime; }
+bool QClipboard::ownsMode(Mode mode) const
+{
+    if (mode == Clipboard)
+        return clipboardData()->timestamp != CurrentTime;
+    else if(mode == Selection)
+        return selectionData()->timestamp != CurrentTime;
+    else
+        return false; 
+}
 
 
 // event filter function... captures interesting events while
@@ -968,7 +959,7 @@ QClipboardWatcher::QClipboardWatcher(QClipboard::Mode mode)
         break;
 
     default:
-        qWarning("QClipboardWatcher: Internal error: Unknown clipboard mode");
+        qWarning("QClipboardWatcher: Internal error: Unsupported clipboard mode");
         break;
     }
 
@@ -1114,6 +1105,9 @@ const QMimeData* QClipboard::mimeData(Mode mode) const
     case Clipboard:
         d = clipboardData();
         break;
+    default:
+        qWarning("QClipboard::mimeData: unsupported mode '%d'", mode);
+        return 0;
     }
 
     if (! d->source() && ! timer_event_clear) {
@@ -1160,7 +1154,7 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
         break;
 
     default:
-        qWarning("QClipboard::data: Invalid mode '%d'", mode);
+        qWarning("QClipboard::setMimeData: unsupported mode '%d'", mode);
         return;
     }
 

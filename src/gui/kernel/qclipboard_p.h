@@ -65,19 +65,20 @@ class QClipboardPrivate : public QObjectPrivate
 {
 public:
     QClipboardPrivate() : QObjectPrivate() {
-        compat_data[0] = compat_data[1] = 0;
-        wrapper[0] = new QMimeDataWrapper();
-        wrapper[1] = new QMimeDataWrapper();
+        for (int i = 0; i <= QClipboard::LastMode; ++i) {
+            compat_data[i] = 0;
+            wrapper[i] = new QMimeDataWrapper();
+        }
     }
     ~QClipboardPrivate() {
-        delete wrapper[0];
-        delete wrapper[1];
-        delete compat_data[0];
-        delete compat_data[1];
+        for (int i = 0; i <= QClipboard::LastMode; ++i) {
+            delete wrapper[i];
+            delete compat_data[i];
+        }
     }
 
-    mutable QMimeDataWrapper *wrapper[2];
-    mutable QMimeSource *compat_data[2];
+    mutable QMimeDataWrapper *wrapper[QClipboard::LastMode + 1];
+    mutable QMimeSource *compat_data[QClipboard::LastMode + 1];
 };
 
 inline QMimeSourceWrapper::QMimeSourceWrapper(QClipboardPrivate *priv, QClipboard::Mode m)
