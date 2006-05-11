@@ -1633,8 +1633,8 @@ QWidgetList QWorkspace::windowList(WindowOrder order) const
 /*! \reimp */
 bool QWorkspace::event(QEvent *e)
 {
-    Q_D(QWorkspace);
 #ifndef QT_NO_SHORTCUT
+    Q_D(QWorkspace);
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         const char *theSlot = d->shortcutMap.value(se->shortcutId(), 0);

@@ -934,7 +934,9 @@ QAction::setData(const QVariant &data)
 bool
 QAction::showStatusText(QWidget *widget)
 {
-#ifndef QT_NO_STATUSTIP
+#ifdef QT_NO_STATUSTIP
+    Q_UNUSED(widget);
+#else
     if(QObject *object = widget ? widget : parent()) {
         QStatusTipEvent tip(statusTip());
         QApplication::sendEvent(object, &tip);

@@ -274,7 +274,9 @@ void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activat
         q->update(actionRect(currentAction));
 
     popupState = popup;
+#ifndef QT_NO_STATUSTIP
     QAction *previousAction = currentAction;
+#endif
     currentAction = action;
     if(action) {
         activateAction(action, QAction::Hover);

@@ -345,7 +345,9 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
     if (!sloppyRegion.isEmpty())
         sloppyRegion = QRegion();
     QMenu *hideActiveMenu = activeMenu;
+#ifndef QT_NO_STATUSTIP
     QAction *previousAction = currentAction;
+#endif
     currentAction = action;
     if (action && !action->isSeparator()) {
         activateAction(action, QAction::Hover);
