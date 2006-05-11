@@ -104,7 +104,7 @@ class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
     Q_PROPERTY(double maximum READ maximum WRITE setMaximum)
     Q_PROPERTY(double minimum READ minimum WRITE setMinimum)
     Q_PROPERTY(double singleStep READ singleStep WRITE setSingleStep)
-    Q_PROPERTY(double value READ value WRITE setValue NOTIFY valueChanged)
+    Q_PROPERTY(double value READ value WRITE setValue NOTIFY valueChanged USER true)
 public:
     explicit QDoubleSpinBox(QWidget *parent = 0);
 
