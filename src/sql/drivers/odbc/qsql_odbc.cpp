@@ -586,7 +586,7 @@ bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
                          opt.toLocal8Bit().constData());
         }
         if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO)
-            qSqlWarning(QString::fromAscii("QODBCDriver::open: Unable to set connection attribute'%1'").arg(
+            qSqlWarning(QString::fromLatin1("QODBCDriver::open: Unable to set connection attribute'%1'").arg(
                         opt), this);
     }
     return true;
