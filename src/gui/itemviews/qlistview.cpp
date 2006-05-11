@@ -611,8 +611,10 @@ void QListView::resizeContents(int width, int height)
 {
     Q_D(QListView);
     d->contentsSize = QSize(width, height);
-    horizontalScrollBar()->setRange(0, width - viewport()->width() - 1);
-    verticalScrollBar()->setRange(0, height - viewport()->height() - 1);
+//    if (scrollMode() == ScrollPerPixel) {
+//    horizontalScrollBar()->setRange(0, width - viewport()->width() - 1);
+//    verticalScrollBar()->setRange(0, height - viewport()->height() - 1);
+    // }
 }
 
 /*!
@@ -1050,8 +1052,11 @@ int QListView::horizontalOffset() const
     if (scrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static ) {
         if (d->wrap) {
             if (d->flow == TopToBottom && !d->segmentPositions.isEmpty()) {
-                int position = d->segmentPositions.at(horizontalScrollBar()->value());
-                int maximum = d->segmentPositions.at(horizontalScrollBar()->maximum());
+                const int max = d->segmentPositions.count() - 1;
+                int currentValue = qBound(0, horizontalScrollBar()->value(), max);
+                int position = d->segmentPositions.at(currentValue);
+                int maximumValue = qBound(0, horizontalScrollBar()->maximum(), max);
+                int maximum = d->segmentPositions.at(maximumValue);
                 return (isRightToLeft() ? maximum - position : position);
             }
             //return 0;
@@ -1361,6 +1366,7 @@ void QListView::updateGeometries()
         QStyleOptionViewItem option = viewOptions();
         QSize step = d->itemSize(option, index);
 
+        QSize csize = d->contentsSize;
         QSize vsize = d->viewport->size();
         QSize max = maximumViewportSize();
         if (max.width() >= d->contentsSize.width() && max.height() >= d->contentsSize.height())
@@ -1371,10 +1377,10 @@ void QListView::updateGeometries()
         if (d->flow == TopToBottom) {
             if (perItemScrolling && d->wrap) { // ###
                 int steps = d->segmentPositions.count();
-                int pageSteps = d->perItemScrollingPageSteps(vsize.width(), steps);
+                int pageSteps = d->perItemScrollingPageSteps(vsize.width(), csize.width());
                 horizontalScrollBar()->setSingleStep(1);
                 horizontalScrollBar()->setPageStep(pageSteps);
-                horizontalScrollBar()->setRange(0, steps - pageSteps + 1);
+                horizontalScrollBar()->setRange(0, steps - pageSteps);
             } else {
                 horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
                 horizontalScrollBar()->setPageStep(vsize.width());
@@ -1382,7 +1388,7 @@ void QListView::updateGeometries()
             }
             if (perItemScrolling && !d->wrap) {
                 int steps = d->flowPositions.count();
-                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), steps);
+                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), csize.height());
                 verticalScrollBar()->setSingleStep(1);
                 verticalScrollBar()->setPageStep(pageSteps);
                 verticalScrollBar()->setRange(0, steps - pageSteps);
@@ -1394,7 +1400,7 @@ void QListView::updateGeometries()
         } else { // LeftToRight
             if (perItemScrolling && !d->wrap) {
                 int steps = d->flowPositions.count();
-                int pageSteps = d->perItemScrollingPageSteps(vsize.width(), steps);
+                int pageSteps = d->perItemScrollingPageSteps(vsize.width(), csize.width());
                 horizontalScrollBar()->setSingleStep(1);
                 horizontalScrollBar()->setPageStep(pageSteps);
                 horizontalScrollBar()->setRange(0, steps - pageSteps);
@@ -1405,10 +1411,10 @@ void QListView::updateGeometries()
             }
             if (perItemScrolling && d->wrap) { // ###
                 int steps = d->segmentPositions.count();
-                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), steps);
+                int pageSteps = d->perItemScrollingPageSteps(vsize.height(), csize.height());
                 verticalScrollBar()->setSingleStep(1);
                 verticalScrollBar()->setPageStep(pageSteps);
-                verticalScrollBar()->setRange(0, steps - pageSteps + 1);
+                verticalScrollBar()->setRange(0, steps - pageSteps);
             } else {
                 verticalScrollBar()->setSingleStep(step.height() + d->spacing);
                 verticalScrollBar()->setPageStep(vsize.height());
@@ -2150,21 +2156,24 @@ QSize QListViewPrivate::itemSize(const QStyleOptionViewItem &option, const QMode
     return cachedItemSize;
 }
 
-int QListViewPrivate::perItemScrollingPageSteps(int length, int steps) const
+int QListViewPrivate::perItemScrollingPageSteps(int length, int bounds) const
 {
     const QVector<int> positions = (wrap ? segmentPositions : flowPositions);
-    if (positions.isEmpty())
-        return 0;
-    const int lastPosition = (wrap ?  segmentPositions.last() : batchSavedPosition);
+    if (positions.isEmpty() || bounds <= length)
+        return positions.count();
     if (uniformItemSizes)
         return length / positions.at(1);
     int pageSteps = 0;
-    int pos = length - (lastPosition - positions.at(--steps));
+    int steps = positions.count() - 1;
+    int max = qMax(length, bounds);
+    int min = qMin(length, bounds);
+    int pos = min - (max - positions.last());
     while (pos > 0 && steps > 0) {
         pos -= (positions.at(steps) - positions.at(steps - 1));
         ++pageSteps;
         --steps;
     }
+    // at this point we know that positions has at least one entry
     return pageSteps;
 }
 
