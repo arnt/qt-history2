@@ -551,7 +551,7 @@ void QListView::scrollContentsBy(int dx, int dy)
 
     if (scrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
         if (d->wrap) {
-            const int max = d->segmentPositions.count();
+            const int max = d->segmentPositions.count() - 1;
             if (d->flow == TopToBottom && dx != 0) {
                 int currentValue = qBound(0, horizontalScrollBar()->value(), max);
                 int previousValue = qBound(0, currentValue + dx, max);
@@ -566,7 +566,7 @@ void QListView::scrollContentsBy(int dx, int dy)
                 dy = previousCoordinate - currentCoordinate;
             }
         } else {
-            const int max = d->flowPositions.count();
+            const int max = d->flowPositions.count() - 1;
             if (d->flow == TopToBottom && dy != 0) {
                 int currentValue = qBound(0, verticalScrollBar()->value(), max);
                 int previousValue = qBound(0, currentValue + dy, max);
