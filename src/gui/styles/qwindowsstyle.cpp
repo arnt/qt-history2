@@ -419,7 +419,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
 #endif // Q_WS_WIN
 
     case PM_SplitterWidth:
-        ret = qMax(6, QApplication::globalStrut().width());
+        ret = qMax(4, QApplication::globalStrut().width());
         break;
 
 #if defined(Q_WS_WIN)
@@ -2141,27 +2141,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                         &opt->palette.brush(QPalette::Button));
         break;
 #ifndef QT_NO_SPLITTER
-case CE_Splitter: {
-        QPen oldPen = p->pen();
-        p->setPen(opt->palette.light().color());
-        if (opt->state & State_Horizontal) {
-            p->drawLine(opt->rect.x() + 1, opt->rect.y(), opt->rect.x() + 1, opt->rect.height());
-            p->setPen(opt->palette.dark().color());
-            p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.x(), opt->rect.height());
-            p->drawLine(opt->rect.right() - 1, opt->rect.y(), opt->rect.right() - 1,
-                        opt->rect.height());
-            p->setPen(opt->palette.shadow().color());
-            p->drawLine(opt->rect.right(), opt->rect.y(), opt->rect.right(), opt->rect.height());
-        } else {
-            p->drawLine(opt->rect.x(), opt->rect.y() + 1, opt->rect.width(), opt->rect.y() + 1);
-            p->setPen(opt->palette.dark().color());
-            p->drawLine(opt->rect.x(), opt->rect.bottom() - 1, opt->rect.width(),
-                        opt->rect.bottom() - 1);
-            p->setPen(opt->palette.shadow().color());
-            p->drawLine(opt->rect.x(), opt->rect.bottom(), opt->rect.width(), opt->rect.bottom());
-        }
-        p->setPen(oldPen);
-        break; }
+    case CE_Splitter:
+        p->eraseRect(opt->rect);
+        break;
 #endif // QT_NO_SPLITTER
 #ifndef QT_NO_SCROLLBAR
     case CE_ScrollBarSubLine:

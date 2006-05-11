@@ -1611,6 +1611,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_MessageBoxIconSize:
         ret = 64;
         break;
+    case PM_SplitterWidth:
+        ret = qMax(6, QApplication::globalStrut().width());
+        break;
     default:
         ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
