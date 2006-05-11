@@ -30,7 +30,9 @@
 #include "private/qtextdocumentlayout_p.h"
 #include "private/qtextedit_p.h"
 #include "qtextdocument.h"
+#include "private/qtextdocument_p.h"
 #include "qtextlist.h"
+#include "private/qtextcontrol_p.h"
 
 #include <qtextformat.h>
 #include <qdatetime.h>
@@ -44,9 +46,9 @@
 
 #ifndef QT_NO_SHORTCUT
 #include <qkeysequence.h>
-#define ACCEL_KEY(k) "\t" + QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
+#define ACCEL_KEY(k) QString::fromLatin1("\t") + QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
 #else
-#define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
+#define ACCEL_KEY(k) QString("\tCtrl+" #k)
 #endif
 
 // could go into QTextCursor...
@@ -67,7 +69,10 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
     Q_Q(QTextControl);
+    if (cursor.isNull())
+        return false;
 
+    const int oldCursorPos = cursor.position();
     QTextCursor::MoveMode mode = e->modifiers() & Qt::ShiftModifier
                                    ? QTextCursor::KeepAnchor
                                    : QTextCursor::MoveAnchor;
@@ -227,7 +232,8 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     q->ensureCursorVisible();
 
     if (moved) {
-        emit q->cursorPositionChanged();
+        if (cursor.position() != oldCursorPos)
+            emit q->cursorPositionChanged();
 // ####        q->updateMicroFocus();
     }
 #ifdef QT_KEYPAD_NAVIGATION
@@ -359,6 +365,12 @@ void QTextControlPrivate::createAutoBulletList()
 void QTextControlPrivate::init(const QString &html)
 {
     setContent(Qt::RichText, html);
+
+/* ####
+#ifndef QT_NO_CURSOR
+    viewport->setCursor(Qt::IBeamCursor);
+#endif
+*/
 }
 
 void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text, QTextDocument *document)
@@ -402,19 +414,6 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
     // avoid multiple textChanged() signals being emitted
     QObject::disconnect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
 
-    if (clearDocument) {
-        doc->clear();
-
-/*########        
-        cursor.movePosition(QTextCursor::Start);
-        QTextBlockFormat blockFmt;
-        blockFmt.setLayoutDirection(q->layoutDirection());
-        cursor.setBlockFormat(blockFmt);
-*/
-    }
-
-// ###    viewport->setCursor(Qt::IBeamCursor);
-
     if (!text.isEmpty()) {
         // clear 'our' cursor for insertion to prevent
         // the emission of the cursorPositionChanged() signal.
@@ -424,16 +423,20 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
         // document.
         cursor = QTextCursor();
         if (format == Qt::PlainText) {
-            QTextCursor insertionCursor(doc);
-            insertionCursor.setCharFormat(charFormatForInsertion);
-            insertionCursor.insertText(text);
+            doc->setPlainText(text);
+            QTextCursor formatCursor(doc);
+            formatCursor.select(QTextCursor::Document);
+            formatCursor.setCharFormat(charFormatForInsertion);
         } else {
             doc->setHtml(text);
         }
         cursor = QTextCursor(doc);
-    } else {
-        // preserve the char format across clear()
+    } else if (clearDocument) {
+        doc->clear();
         cursor.movePosition(QTextCursor::Start);
+        QTextBlockFormat blockFmt;
+        blockFmt.setLayoutDirection(q->layoutDirection());
+        cursor.mergeBlockFormat(blockFmt);
         cursor.setCharFormat(charFormatForInsertion);
     }
 
@@ -518,6 +521,7 @@ void QTextControlPrivate::selectionChanged()
 void QTextControlPrivate::pageUp(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextControl);
+    const int oldCursorPos = cursor.position();
     const QRectF vp = q->viewport();
     int targetY = int(vp.y() - vp.height());
     bool moved = false;
@@ -531,7 +535,8 @@ void QTextControlPrivate::pageUp(QTextCursor::MoveMode moveMode)
 
     if (moved) {
         q->ensureCursorVisible();
-        emit q->cursorPositionChanged();
+        if (cursor.position() != oldCursorPos)
+            emit q->cursorPositionChanged();
 // #####        q->updateMicroFocus();
     }
 }
@@ -539,6 +544,7 @@ void QTextControlPrivate::pageUp(QTextCursor::MoveMode moveMode)
 void QTextControlPrivate::pageDown(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextControl);
+    const int oldCursorPos = cursor.position();
     const QRectF vp = q->viewport();
     int targetY = int(vp.y() + 2 * vp.height());
     bool moved = false;
@@ -551,7 +557,8 @@ void QTextControlPrivate::pageDown(QTextCursor::MoveMode moveMode)
 
     if (moved) {
         q->ensureCursorVisible();
-        emit q->cursorPositionChanged();
+        if (cursor.position() != oldCursorPos)
+            emit q->cursorPositionChanged();
 // ######        q->updateMicroFocus();
     }
 }
@@ -561,7 +568,6 @@ void QTextControlPrivate::updateCurrentCharFormatAndSelection()
     updateCurrentCharFormat();
     selectionChanged();
 }
-
 
 void QTextControlPrivate::setClipboardSelection()
 {
@@ -813,7 +819,7 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     The find() function can be used to find and select a given string
     within the text.
 
-    \section2 Read-only key bindings
+    \section2 Read-only Key Bindings
 
     When QTextControl is used read-only the key-bindings are limited to
     navigation, and text may only be selected with the mouse:
@@ -830,6 +836,7 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     \row \i Alt+Wheel
          \i Scrolls the page horizontally (the Wheel is the mouse wheel).
     \row \i Ctrl+Wheel        \i Zooms the text.
+    \row \i Ctrl+A            \i Selects all text.
     \endtable
 
     The text edit may be able to provide some meta-information. For
@@ -866,24 +873,16 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     modified since it was either loaded or since the last call to setModified
     with false as argument. In addition it provides methods for undo and redo.
 
-    \section2 Editing key bindings
+    \section2 Editing Key Bindings
 
-    The list of key-bindings which are implemented for editing:
+    The list of key bindings which are implemented for editing:
     \table
     \header \i Keypresses \i Action
     \row \i Backspace \i Deletes the character to the left of the cursor.
     \row \i Delete \i Deletes the character to the right of the cursor.
-    \row \i Ctrl+A \i Moves the cursor to the beginning of the line.
-    \row \i Ctrl+B \i Moves the cursor one character to the left.
     \row \i Ctrl+C \i Copy the selected text to the clipboard.
     \row \i Ctrl+Insert \i Copy the selected text to the clipboard.
-    \row \i Ctrl+D \i Delete the character to the right of the cursor.
-    \row \i Ctrl+E \i Moves the cursor to the end of the line.
-    \row \i Ctrl+F \i Moves the cursor one character to the right.
-    \row \i Ctrl+H \i Deletes the character to the left of the cursor.
     \row \i Ctrl+K \i Deletes to the end of the line.
-    \row \i Ctrl+N \i Moves the cursor one line down.
-    \row \i Ctrl+P \i Moves the cursor one line up.
     \row \i Ctrl+V \i Pastes the clipboard text into text edit.
     \row \i Shift+Insert \i Pastes the clipboard text into text edit.
     \row \i Ctrl+X \i Deletes the selected text and copies it to the clipboard.
@@ -1033,11 +1032,13 @@ QTextDocument *QTextControl::document() const
 void QTextControl::setTextCursor(const QTextCursor &cursor)
 {
     Q_D(QTextControl);
+    const bool posChanged = cursor.position() != d->cursor.position();
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
     d->updateViewport();
-    emit cursorPositionChanged();
+    if (posChanged)
+        emit cursorPositionChanged();
 }
 
 /*
@@ -1155,9 +1156,6 @@ void QTextControl::selectAll()
     d->cursor.select(QTextCursor::Document);
     d->selectionChanged();
     d->updateViewport();
-#ifndef QT_NO_CLIPBOARD
-    d->setClipboardSelection();
-#endif
 }
 
 /* #######
@@ -1525,6 +1523,38 @@ process:
         {
             QString text = e->text();
 
+            if (e->key() == Qt::Key_Tab) {
+                if (d->tabChangesFocus) {
+                    e->ignore();
+                    return;
+                }
+                /*
+                if (d->cursor.currentTable()) {
+                    d->gotoNextTableCell();
+                    break;
+                } else if (d->cursor.atBlockStart()) {
+                    d->indent();
+                    break;
+                }
+                */
+            }
+
+            if (e->key() == Qt::Key_Backtab) {
+                if (d->tabChangesFocus) {
+                    e->ignore();
+                    return;
+                }
+                /*
+                if (d->cursor.currentTable()) {
+                    d->gotoPreviousTableCell();
+                    break;
+                } else if (d->cursor.atBlockStart()) {
+                    d->outdent();
+                    break;
+                }
+                */
+            }
+
             if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
                 if (d->overwriteMode
                     // no need to call deleteChar() if we have a selection, insertText
@@ -1707,6 +1737,8 @@ void QTextControl::mousePressEvent(QMouseEvent *e)
     if (!(e->button() & Qt::LeftButton))
         return;
 
+    const int oldCursorPos = d->cursor.position();
+
     d->ensureViewportLayouted();
 
     const QPointF pos = d->mapToContents(e->pos());
@@ -1738,8 +1770,10 @@ void QTextControl::mousePressEvent(QMouseEvent *e)
 #if !defined(QT_NO_IM)
         /* #########
         QTextLayout *layout = d->cursor.block().layout();
-        if (!layout->preeditAreaText().isEmpty()) {
-            inputContext()->mouseHandler(cursorPos - d->cursor.position(), e);
+        if (layout && !layout->preeditAreaText().isEmpty()) {
+            QInputContext *ctx = inputContext();
+            if (ctx)
+                ctx->mouseHandler(cursorPos - d->cursor.position(), e);
             if (!layout->preeditAreaText().isEmpty())
                 return;
         }
@@ -1771,11 +1805,13 @@ void QTextControl::mousePressEvent(QMouseEvent *e)
     }
 
     if (d->readOnly) {
-        emit cursorPositionChanged();
+        if (d->cursor.position() != oldCursorPos)
+            emit cursorPositionChanged();
         d->selectionChanged();
     } else {
         ensureCursorVisible();
-        emit cursorPositionChanged();
+        if (d->cursor.position() != oldCursorPos)
+            emit cursorPositionChanged();
         d->updateCurrentCharFormatAndSelection();
     }
     d->repaintSelection();
@@ -1793,6 +1829,8 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
           || d->selectedWordOnDoubleClick.hasSelection()
           || d->selectedLineOnDoubleClick.hasSelection()))
         return;
+
+    const int oldCursorPos = d->cursor.position();
 
     d->ensureViewportLayouted();
 
@@ -1822,7 +1860,7 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
 
 #if !defined(QT_NO_IM)
     QTextLayout *layout = d->cursor.block().layout();
-    if (!layout->preeditAreaText().isEmpty())
+    if (layout && !layout->preeditAreaText().isEmpty())
         return;
 #endif
 
@@ -1840,11 +1878,13 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
     if (d->readOnly) {
         const QPointF pos = d->mapToContents(e->pos());
         ensureVisible(QRectF(pos, QSizeF(1, 1)));
-        emit cursorPositionChanged();
+        if (d->cursor.position() != oldCursorPos)
+            emit cursorPositionChanged();
         d->selectionChanged();
     } else {
         ensureCursorVisible();
-        emit cursorPositionChanged();
+        if (d->cursor.position() != oldCursorPos)
+            emit cursorPositionChanged();
         d->updateCurrentCharFormatAndSelection();
     }
     d->repaintSelection();
@@ -1903,7 +1943,7 @@ void QTextControl::mouseDoubleClickEvent(QMouseEvent *e)
     }
 #if !defined(QT_NO_IM)
     QTextLayout *layout = d->cursor.block().layout();
-    if (!layout->preeditAreaText().isEmpty())
+    if (layout && !layout->preeditAreaText().isEmpty())
         return;
 #endif
 
@@ -1992,7 +2032,7 @@ void QTextControl::ensureVisible(const QRectF &_rect)
 */
 void QTextControl::contextMenuEvent(QContextMenuEvent *e)
 {
-#ifdef QT_NO_MENU
+#ifdef QT_NO_CONTEXTMENU
     Q_UNUSED(e);
 #else
     QMenu *menu = createStandardContextMenu();
@@ -2059,13 +2099,19 @@ void QTextControl::dropEvent(QDropEvent *e)
         return;
 
     e->acceptProposedAction();
+    
+    d->repaintSelection();
+    
+    QTextCursor insertionCursor = cursorForPosition(e->pos());
+    insertionCursor.beginEditBlock();
 
     if (e->dropAction() == Qt::MoveAction
         && (e->source() == this || e->source() == d->viewport))
         d->cursor.removeSelectedText();
 
-    d->setCursorPosition(e->pos());
+    d->cursor = insertionCursor;
     insertFromMimeData(e->mimeData());
+    insertionCursor.endEditBlock();
 }
 
 */
@@ -2075,7 +2121,7 @@ void QTextControl::dropEvent(QDropEvent *e)
 void QTextControl::inputMethodEvent(QInputMethodEvent *e)
 {
     Q_D(QTextControl);
-    if (d->readOnly) {
+    if (d->readOnly || d->cursor.isNull()) {
         e->ignore();
         return;
     }
@@ -2181,7 +2227,7 @@ void QTextControl::showEvent(QShowEvent *)
     }
 }
 
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
 /*  This function creates the standard context menu which is shown
   when the user clicks on the line edit with the right mouse
   button. It is called from the default contextMenuEvent() handler.
@@ -2234,7 +2280,7 @@ QMenu *QTextControl::createStandardContextMenu()
 
     return menu;
 }
-#endif // QT_NO_MENU
+#endif // QT_NO_CONTEXTMENU
 
 /*
   returns a QTextCursor at position \a pos (in viewport coordinates).
@@ -2445,8 +2491,8 @@ bool QTextControl::canInsertFromMimeData(const QMimeData *source) const
     if (d->acceptRichText)
         return source->hasText()
             || source->hasHtml()
-            || source->hasFormat("application/x-qrichtext")
-            || source->hasFormat("application/x-qt-richtext");
+            || source->hasFormat(QLatin1String("application/x-qrichtext"))
+            || source->hasFormat(QLatin1String("application/x-qt-richtext"));
     else
         return source->hasText();
 }
@@ -2466,9 +2512,9 @@ void QTextControl::insertFromMimeData(const QMimeData *source)
 
     bool hasData = false;
     QTextDocumentFragment fragment;
-    if (source->hasFormat("application/x-qrichtext") && d->acceptRichText) {
+    if (source->hasFormat(QLatin1String("application/x-qrichtext")) && d->acceptRichText) {
         // x-qrichtext is always UTF-8 (taken from Qt3 since we don't use it anymore).
-        fragment = QTextDocumentFragment::fromHtml(QString::fromUtf8(source->data("application/x-qrichtext")));
+        fragment = QTextDocumentFragment::fromHtml(QString::fromUtf8(source->data(QLatin1String("application/x-qrichtext"))));
         hasData = true;
     } else if (source->hasHtml() && d->acceptRichText) {
         fragment = QTextDocumentFragment::fromHtml(source->html());
