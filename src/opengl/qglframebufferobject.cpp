@@ -290,8 +290,8 @@ bool QGLFramebufferObjectPrivate::checkFramebufferStatus() const
 
 void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
 {
-    if ((QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
-        && !qt_resolve_framebufferobject_extensions())
+    bool ext_detected = (QGLExtensions::glExtensions & QGLExtensions::FramebufferObject);
+    if (!ext_detected || (ext_detected && !qt_resolve_framebufferobject_extensions()))
         return;
 
     size = sz;
