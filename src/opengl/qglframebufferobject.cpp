@@ -290,10 +290,8 @@ bool QGLFramebufferObjectPrivate::checkFramebufferStatus() const
 
 void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
 {
-    // ### this stuff needs to be exported to work under windows - fix this
-    if (//(QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
-        //&&
-	!qt_resolve_framebufferobject_extensions())
+    if ((QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
+        && !qt_resolve_framebufferobject_extensions())
         return;
 
     size = sz;
@@ -534,9 +532,8 @@ QPaintEngine *QGLFramebufferObject::paintEngine() const
 */
 bool QGLFramebufferObject::hasOpenGLFramebufferObjects()
 {
-    return (//(QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
-            //&&
-        qt_resolve_framebufferobject_extensions());
+    return ((QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
+            && qt_resolve_framebufferobject_extensions());
 }
 
 extern int qt_defaultDpi();
