@@ -411,6 +411,7 @@ private:
 };
 
 class QGraphicsTextItemPrivate;
+class QTextControl;
 class Q_GUI_EXPORT QGraphicsTextItem : public QObject, public QGraphicsItem
 {
     Q_OBJECT
@@ -437,6 +438,9 @@ public:
     int type() const;
 
     void adjustSize();
+    
+    void setTextControl(QTextControl *control);
+    QTextControl *textControl() const;
     
 protected:
     void mouseEvent(QGraphicsSceneMouseEvent *event);

@@ -3115,7 +3115,7 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
 class QGraphicsTextItemPrivate
 {
 public:
-    QTextControl textControl;
+    QTextControl *textControl;
 
     QFont font;
     QPen pen;
@@ -3131,10 +3131,9 @@ public:
 QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
     : QGraphicsItem(parent), dd(new QGraphicsTextItemPrivate)
 {
-    connect(&dd->textControl, SIGNAL(viewportUpdateRequest(const QRectF &)),
-            this, SLOT(viewportUpdate(const QRectF &)));
-    connect(&dd->textControl, SIGNAL(documentSizeChanged(const QSizeF &)),
-            this, SLOT(updateBoundingRect(const QSizeF &)));
+    dd->textControl = 0;
+    setTextControl(new QTextControl(this));
+
     if (!text.isEmpty()) {
         setText(text);
         adjustSize();
@@ -3156,7 +3155,7 @@ QGraphicsTextItem::~QGraphicsTextItem()
 */
 QString QGraphicsTextItem::text() const
 {
-    return dd->textControl.toPlainText();
+    return dd->textControl->toPlainText();
 }
 
 /*!
@@ -3166,7 +3165,7 @@ QString QGraphicsTextItem::text() const
 */
 void QGraphicsTextItem::setText(const QString &text)
 {
-    dd->textControl.setPlainText(text);
+    dd->textControl->setPlainText(text);
 }
 
 /*!
@@ -3244,7 +3243,7 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 {
     Q_UNUSED(widget);
     painter->save();
-    dd->textControl.drawContents(painter);
+    dd->textControl->drawContents(painter);
     painter->restore();
 
     if (option->state & (QStyle::State_Selected | QStyle::State_HasFocus)) {
@@ -3267,7 +3266,7 @@ int QGraphicsTextItem::type() const
 */
 void QGraphicsTextItem::adjustSize()
 {
-    dd->textControl.adjustSize();
+    dd->textControl->adjustSize();
 }
 
 /*!
@@ -3299,16 +3298,16 @@ void QGraphicsTextItem::mouseEvent(QGraphicsSceneMouseEvent *event)
 
         switch (event->type()) {
         case QEvent::GraphicsSceneMousePress:
-            dd->textControl.mousePressEvent(&mouseEvent);
+            dd->textControl->mousePressEvent(&mouseEvent);
             break;
         case QEvent::GraphicsSceneMouseRelease:
-            dd->textControl.mouseReleaseEvent(&mouseEvent);
+            dd->textControl->mouseReleaseEvent(&mouseEvent);
             break;
         case QEvent::GraphicsSceneMouseMove:
-            dd->textControl.mouseMoveEvent(&mouseEvent);
+            dd->textControl->mouseMoveEvent(&mouseEvent);
             break;
         case QEvent::GraphicsSceneMouseDoubleClick:
-            dd->textControl.mouseDoubleClickEvent(&mouseEvent);
+            dd->textControl->mouseDoubleClickEvent(&mouseEvent);
             break;
         default:
             break;
@@ -3325,10 +3324,10 @@ void QGraphicsTextItem::keyEvent(QKeyEvent *event)
 {
     switch (event->type()) {
     case QEvent::KeyPress:
-        dd->textControl.keyPressEvent(event);
+        dd->textControl->keyPressEvent(event);
         break;
     case QEvent::KeyRelease:
-        dd->textControl.keyReleaseEvent(event);
+        dd->textControl->keyReleaseEvent(event);
         break;
     default:
         break;
@@ -3340,7 +3339,7 @@ void QGraphicsTextItem::keyEvent(QKeyEvent *event)
 */
 void QGraphicsTextItem::focusEvent(QFocusEvent *event)
 {
-    dd->textControl.setFocus(event->gotFocus());
+    dd->textControl->setFocus(event->gotFocus());
     update();
 }
 
@@ -3387,6 +3386,34 @@ void QGraphicsTextItem::updateBoundingRect(const QSizeF &size)
     update();
     dd->boundingRect.setSize(size);
     update();
+}
+
+/*!
+    \internal
+*/
+void QGraphicsTextItem::setTextControl(QTextControl *control)
+{
+    if (!control) return;
+
+    if (dd->textControl) {
+        dd->textControl->disconnect(this);
+        if (dd->textControl->parent() == this)
+            delete dd->textControl;
+    }
+    
+    dd->textControl = control;
+    connect(dd->textControl, SIGNAL(viewportUpdateRequest(const QRectF &)),
+            this, SLOT(viewportUpdate(const QRectF &)));
+    connect(dd->textControl, SIGNAL(documentSizeChanged(const QSizeF &)),
+            this, SLOT(updateBoundingRect(const QSizeF &)));
+}
+
+/*!
+    \internal
+*/
+QTextControl *QGraphicsTextItem::textControl() const
+{
+    return dd->textControl;
 }
 
 /*!
