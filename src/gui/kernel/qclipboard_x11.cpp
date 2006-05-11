@@ -315,7 +315,7 @@ void QClipboard::clear(Mode mode)
 
 bool QClipboard::supportsMode(Mode mode) const 
 {
-    return (mode == Clipboard || mode == Selection)
+    return (mode == Clipboard || mode == Selection);
 }
 
 bool QClipboard::ownsMode(Mode mode) const
@@ -399,7 +399,7 @@ bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int ti
                 return true;
 
             now = QTime::currentTime();
-            if ( started > now )			// crossed midnight
+            if ( started > now )                        // crossed midnight
                 started = now;
 
             XFlush(X11->display);

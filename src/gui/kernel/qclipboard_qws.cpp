@@ -234,7 +234,7 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
 
 bool QClipboard::supportsMode(Mode mode) const 
 {
-    return (mode == Clipboard)
+    return (mode == Clipboard);
 }
 
 bool QClipboard::ownsMode(Mode mode) const
