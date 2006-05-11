@@ -49,7 +49,7 @@
     the changed() signal. To remove an item, call removeItem().
 
     QGraphicsScene uses an indexing algorithm to manage the location of items
-    efficiently. By default, a BSP (Binary Space Partioning) tree is used; an
+    efficiently. By default, a BSP (Binary Space Partitioning) tree is used; an
     algorithm suitable for large scenes where most items remain static (i.e.,
     do not move around). You can choose to disable this index by calling
     setItemIndexMethod(). For more information about the available indexing
