@@ -229,13 +229,80 @@ Q_DECLARE_METATYPE(QMatrix)
 /*!
     \internal
 
-    Propagates updates.
+    Propagates updates to \a item and all its children.
 */
 static void qt_graphicsItem_fullUpdate(QGraphicsItem *item)
 {
     item->update();
     foreach (QGraphicsItem *child, item->children())
         qt_graphicsItem_fullUpdate(child);
+}
+
+/*!
+    \internal
+
+    Propagates child event handling for this item and all its children.
+*/
+void QGraphicsItemPrivate::setHandlesChildEvents(bool enabled)
+{
+    if (!handlesChildEvents) {
+        ancestorHandlesChildEvents = enabled;
+        foreach (QGraphicsItem *child, children)
+            child->d_func()->setHandlesChildEvents(enabled);
+    }
+}
+
+/*!
+    \internal
+
+    Propagates item group membership.
+*/
+void QGraphicsItemPrivate::setIsMemberOfGroup(bool enabled)
+{
+    Q_Q(QGraphicsItem);
+    isMemberOfGroup = enabled;
+    if (!qgraphicsitem_cast<QGraphicsItemGroup *>(q)) {
+        foreach (QGraphicsItem *child, children)
+            child->d_func()->setIsMemberOfGroup(enabled);
+    }
+}
+
+/*!
+    \internal
+
+    Maps any item pos properties of \a event to \a item's coordinate system.
+*/
+void QGraphicsItemPrivate::remapItemPos(QEvent *event, QGraphicsItem *item)
+{
+    Q_Q(QGraphicsItem);
+    switch (event->type()) {
+    case QEvent::GraphicsSceneMouseMove:
+    case QEvent::GraphicsSceneMousePress:
+    case QEvent::GraphicsSceneMouseRelease:
+    case QEvent::GraphicsSceneMouseClick:
+    case QEvent::GraphicsSceneMouseDoubleClick: {
+        QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent *>(event);
+        mouseEvent->setPos(item->mapFromItem(q, mouseEvent->pos()));
+        mouseEvent->setLastPos(item->mapFromItem(q, mouseEvent->pos()));
+        for (int i = 0x1; i <= 0x10; i <<= 1) {
+            if (mouseEvent->buttons() & i) {
+                Qt::MouseButton button = Qt::MouseButton(i);
+                mouseEvent->setButtonDownPos(button, item->mapFromItem(q, mouseEvent->buttonDownPos(button)));
+            }
+        }
+        break;
+    }
+    case QEvent::GraphicsSceneContextMenu:
+        QGraphicsSceneContextMenuEvent *contextEvent = static_cast<QGraphicsSceneContextMenuEvent *>(event);
+        contextEvent->setPos(item->mapFromItem(q, contextEvent->pos()));
+        break;
+    case QEvent::GraphicsSceneHoverMove:
+        QGraphicsSceneHoverEvent *hoverEvent = static_cast<QGraphicsSceneHoverEvent *>(event);
+        hoverEvent->setPos(item->mapFromItem(q, hoverEvent->pos()));
+        break;
+    default:
+        break;
+    }
 }
 
 /*!
@@ -377,14 +444,21 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
         d->parent->d_func()->children << this;
         addToIndex();
         d->parent->update();
+
+        // Optionally inherit ancestor event handling from the new parent
+        if (!d->handlesChildEvents) {
+            d->ancestorHandlesChildEvents = parent->d_func()->ancestorHandlesChildEvents;
+            foreach (QGraphicsItem *child, d->children)
+                child->d_func()->setHandlesChildEvents(d->ancestorHandlesChildEvents);
+        }
     }
 }
 
 /*!
-   Returns a list of this item's children. The items are returned in no
-   particular order.
+    Returns a list of this item's children. The items are returned in no
+    particular order.
 
-   \sa setParentItem()
+    \sa descendents(), setParentItem()
 */
 QList<QGraphicsItem *> QGraphicsItem::children() const
 {
@@ -581,6 +655,8 @@ void QGraphicsItem::setEnabled(bool enabled)
 /*!
     Returns true if this item is selected; otherwise, false is returned.
 
+    Items that are in a group inherit the group's selected state.
+
     Items are not selected by default.
 
     \sa setSelected(), QGraphicsScene::setSelectionArea()
@@ -588,12 +664,19 @@ void QGraphicsItem::setEnabled(bool enabled)
 bool QGraphicsItem::isSelected() const
 {
     Q_D(const QGraphicsItem);
+    if (QGraphicsItemGroup *group = this->group())
+        return group->isSelected();
     return d->selected;
 }
 
 /*!
     If \a selected is true and this item is selectable, this item is selected;
     otherwise, it is unselected.
+
+    If the item is in a group, the whole group's selected state is toggled by
+    this function. If the group is selected, all items in the group are also
+    selected, and if the group is not selected, no item in the group is
+    selected.
 
     Only visible, enabled, selectable items can be selected.  If \a selected
     is true and this item is either invisible or disabled or unselectable,
@@ -605,12 +688,18 @@ bool QGraphicsItem::isSelected() const
     This function is provided for convenience, allowing individual toggling of
     the selected state of an item. However, a more common way of selecting
     items is to call QGraphicsScene::setSelectionArea(), which will call this
-    function for all items within a specified area on the scene.
+    function for all visible, enabled, and selectable items within a specified
+    area on the scene.
 
     \sa isSelected(), QGraphicsScene::selectedItems()
 */
 void QGraphicsItem::setSelected(bool selected)
 {
+    if (QGraphicsItemGroup *group = this->group()) {
+        group->setSelected(selected);
+        return;
+    }
+
     Q_D(QGraphicsItem);
     if (!(d->flags & ItemIsSelectable) || !d->enabled || !d->visible)
         selected = false;
@@ -684,6 +773,48 @@ void QGraphicsItem::setAcceptsHoverEvents(bool enabled)
 {
     Q_D(QGraphicsItem);
     d->acceptsHover = quint32(enabled);
+}
+
+/*!
+    Returns true if this item handles child events (i.e., all events intented
+    for any of its children are instead sent to this item); otherwise, false
+    is returned.
+
+    This property is useful for item groups; it allows one item to handle
+    events on behalf of its children, as opposed to its children handling
+    their events individually.
+
+    The default is to return false; children handle their own events.
+
+    \sa setHandlesChildEvents()
+*/
+bool QGraphicsItem::handlesChildEvents() const
+{
+    Q_D(const QGraphicsItem);
+    return d->handlesChildEvents;
+}
+
+/*!
+    If \a enabled is true, this item is set to handle all events for all its
+    children (i.e., all events intented for any of its children are instead
+    sent to this item); otherwise, if \a enabled is false, this item will only
+    handle its own events. The default value is false.
+
+    This property is useful for item groups; it allows one item to handle
+    events on behalf of its children, as opposed to its children handling
+    their events individually.
+
+    \sa handlesChildEvents()
+*/
+void QGraphicsItem::setHandlesChildEvents(bool enabled)
+{
+    Q_D(QGraphicsItem);
+    if (d->handlesChildEvents == enabled)
+        return;
+
+    d->handlesChildEvents = enabled;
+    foreach (QGraphicsItem *item, d->children)
+        item->d_func()->setHandlesChildEvents(enabled);
 }
 
 /*!
@@ -1536,6 +1667,26 @@ bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent
 void QGraphicsItem::sceneEvent(QEvent *event)
 {
     Q_D(QGraphicsItem);
+    if (d->ancestorHandlesChildEvents) {
+        if (event->type() == QEvent::HoverEnter || event->type() == QEvent::HoverLeave) {
+            // Hover enter and hover leave events for children are ignored;
+            // hover move events are forwarded.
+            return;
+        }
+        
+        QGraphicsItem *handler = this;
+        while (!handler->handlesChildEvents())
+            handler = handler->parentItem();
+        if (handler) {
+            // Forward the event to the closest parent that handles child
+            // events, mapping existing item-local coordinates to its
+            // coordinate system.
+            d->remapItemPos(event, handler);
+            handler->sceneEvent(event);
+        }
+        return;
+    }
+    
     if (!d->enabled || !d->visible)
         return;
 
@@ -3178,6 +3329,7 @@ public:
 QGraphicsItemGroup::QGraphicsItemGroup(QGraphicsItem *parent)
     : QGraphicsItem(*new QGraphicsItemGroupPrivate, parent)
 {
+    setHandlesChildEvents(true);
 }
 
 /*!
@@ -3209,7 +3361,7 @@ void QGraphicsItemGroup::addToGroup(QGraphicsItem *item)
     QPointF oldPos = mapFromItem(item, 0, 0);
     item->setParentItem(this);
     item->setPos(oldPos);
-    item->d_func()->isMemberOfGroup = 1;
+    item->d_func()->setIsMemberOfGroup(1);
     d->itemsBoundingRect |= (item->matrix() * QMatrix().translate(oldPos.x(), oldPos.y()))
                             .mapRect(item->boundingRect() | item->childrenBoundingRect());
     update();
@@ -3234,7 +3386,7 @@ void QGraphicsItemGroup::removeFromGroup(QGraphicsItem *item)
     QPointF oldPos = item->mapToItem(newParent, 0, 0);
     item->setParentItem(newParent);
     item->setPos(oldPos);
-    item->d_func()->isMemberOfGroup = (item->group() != 0);
+    item->d_func()->setIsMemberOfGroup(item->group() != 0);
 
     // ### Quite expensive. But removeFromGroup() isn't called very often.
     d->itemsBoundingRect = childrenBoundingRect();
@@ -3257,6 +3409,7 @@ QRectF QGraphicsItemGroup::boundingRect() const
 void QGraphicsItemGroup::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
                                QWidget *widget)
 {
+    Q_UNUSED(widget);
     if (option->state & QStyle::State_Selected) {
         Q_D(QGraphicsItemGroup);
         painter->setBrush(Qt::NoBrush);

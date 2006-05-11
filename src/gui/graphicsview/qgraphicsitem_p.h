@@ -47,6 +47,8 @@ public:
         acceptsMouse = 1;
         acceptsHover = 0;
         isMemberOfGroup = 0;
+        handlesChildEvents = 0;
+        ancestorHandlesChildEvents = 0;
         flags =  QGraphicsItem::ItemIsSelectable;
         pad = 0;
     }
@@ -54,6 +56,10 @@ public:
     inline virtual ~QGraphicsItemPrivate()
     { }
 
+    void setHandlesChildEvents(bool enabled);
+    void setIsMemberOfGroup(bool enabled);
+    void remapItemPos(QEvent *event, QGraphicsItem *item);
+    
     inline QVariant extra(Extra type) const
     {
         for (int i = 0; i < extras.size(); ++i) {
@@ -106,7 +112,8 @@ public:
     quint32 acceptsMouse : 1;
     quint32 acceptsHover : 1;
     quint32 isMemberOfGroup : 1;
-    quint32 resizeHandle : 2;
+    quint32 handlesChildEvents : 1;
+    quint32 ancestorHandlesChildEvents : 1;
     quint32 flags : 11;
     quint32 pad : 13;
 
