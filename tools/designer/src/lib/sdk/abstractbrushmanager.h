@@ -3,9 +3,9 @@
 
 #include <QtDesigner/sdk_global.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QMap>
-#include <QBrush>
+#include <QtCore/qobject.h>
+#include <QtCore/qmap.h>
+#include <QtGui/qbrush.h>
 
 QT_BEGIN_HEADER
 
