@@ -517,7 +517,37 @@ QSize QGLFramebufferObject::size() const
 */
 QImage QGLFramebufferObject::toImage() const
 {
-    return QImage();
+    Q_D(const QGLFramebufferObject);
+    if (!d->valid)
+        return QImage();
+
+    const_cast<QGLFramebufferObject *>(this)->bind();
+    QImage img(d->size, QImage::Format_ARGB32);
+    int w = d->size.width();
+    int h = d->size.height();
+    glReadPixels(0, 0, d->size.width(), d->size.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+	// OpenGL gives RGBA; Qt wants ARGB
+	uint *p = (uint*)img.bits();
+	uint *end = p + w*h;
+	if (1) {
+	    while (p < end) {
+		uint a = *p << 24;
+		*p = (*p >> 8) | a;
+		p++;
+	    }
+	} else {
+	    while (p < end) {
+		*p = 0xFF000000 | (*p>>8);
+		++p;
+	    }
+	}
+    } else {
+	// OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
+	img = img.rgbSwapped();
+    }
+    const_cast<QGLFramebufferObject *>(this)->release();
+    return img.mirrored();
 }
 
 Q_GLOBAL_STATIC(QOpenGLPaintEngine, qt_buffer_paintengine)
