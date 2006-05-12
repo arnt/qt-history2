@@ -3046,6 +3046,14 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     QGraphicsPixmapItem uses pixmap's optional alpha mask to provide a
     reasonable implementation of boundingRect(), shape(), and contains().
 
+    The pixmap is drawn at the item's (0, 0) coordinate, as returned by
+    offset(). You can change the drawing offset by calling setOffset().
+
+    You can set the pixmap's transformation mode by calling
+    setTransformationMode(). By default, Qt::FastTransformation is used, which
+    provides fast, non-smooth scaling. Call transformationMode() to get the
+    current transformation mode for the item.
+    
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem
 */
@@ -3054,7 +3062,13 @@ class QGraphicsPixmapItemPrivate : public QGraphicsItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsPixmapItem)
 public:
+    QGraphicsPixmapItemPrivate()
+        : transformationMode(Qt::FastTransformation)
+    {}
+    
     QPixmap pixmap;
+    Qt::TransformationMode transformationMode;
+    QPointF offset;
 };
 
 /*!
@@ -3110,12 +3124,72 @@ QPixmap QGraphicsPixmapItem::pixmap() const
 }
 
 /*!
+    Returns the transformation mode of the pixmap. The default mode is
+    Qt::FastTransformation, which provides quick transformation with no
+    smoothing.
+
+    \sa setTransformationMode()
+*/
+Qt::TransformationMode QGraphicsPixmapItem::transformationMode() const
+{
+    Q_D(const QGraphicsPixmapItem);
+    return d->transformationMode;
+}
+
+/*!
+    Sets the pixmap item's transformation mode to \a mode, and toggles an
+    update of the item. The default mode is Qt::FastTransformation, which
+    provides quick transformation with no smoothing.
+
+    \sa transformationMode()
+*/
+void QGraphicsPixmapItem::setTransformationMode(Qt::TransformationMode mode)
+{
+    Q_D(QGraphicsPixmapItem);
+    if (mode != d->transformationMode) {
+        update();
+        d->transformationMode = mode;
+        update();
+    }
+}
+
+/*!
+    Returns the pixmap item's \e offset, which defines the point of the
+    top-left corner of the pixmap, in local coordinates.
+
+    \sa setOffset()
+*/
+QPointF QGraphicsPixmapItem::offset() const
+{
+    Q_D(const QGraphicsPixmapItem);
+    return d->offset;
+}
+
+/*!
+    Sets the pixmap item's offset to \a offset. QGraphicsPixmapItem will draw
+    its pixmap using \a offset for its top-left corner.
+
+    \sa offset()
+*/
+void QGraphicsPixmapItem::setOffset(const QPointF &offset)
+{
+    Q_D(QGraphicsPixmapItem);
+    if (offset != d->offset) {
+        update();
+        d->offset = offset;
+        update();
+    }
+}
+
+/*!
     \reimp
 */
 QRectF QGraphicsPixmapItem::boundingRect() const
 {
     Q_D(const QGraphicsPixmapItem);
-    return d->pixmap.isNull() ? QRectF() : QRectF(QPointF(0, 0), d->pixmap.size());
+    qreal halfPw = 0.5;
+    return d->pixmap.isNull() ? QRectF() : QRectF(d->offset, d->pixmap.size())
+        .adjusted(-halfPw, -halfPw, halfPw, halfPw);
 }
 
 /*!
@@ -3127,9 +3201,9 @@ QPainterPath QGraphicsPixmapItem::shape() const
     QPainterPath path;
     QBitmap mask = d->pixmap.mask();
     if (mask.isNull())
-        path.addRect(QRectF(0, 0, d->pixmap.width(), d->pixmap.height()));
+        path.addRect(QRectF(d->offset.x(), d->offset.y(), d->pixmap.width(), d->pixmap.height()));
     else
-        path.addRegion(QRegion(mask));
+        path.addRegion(QRegion(mask).translated(d->offset.toPoint()));
     return path;
 }
 
@@ -3149,14 +3223,20 @@ void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 {
     Q_D(QGraphicsPixmapItem);
     Q_UNUSED(widget);
+
+    painter->setRenderHint(QPainter::SmoothPixmapTransform,
+                           (d->transformationMode == Qt::SmoothTransformation));
+
     QRectF exposed = option->exposedRect.adjusted(-1, -1, 1, 1);
     exposed &= QRectF(0, 0, d->pixmap.width(), d->pixmap.height());
+    exposed.translate(d->offset);
     painter->drawPixmap(exposed, d->pixmap, exposed);
 
     if (option->state & QStyle::State_Selected) {
-        painter->setPen(QPen(Qt::black, 2));
+        painter->setPen(QPen(Qt::black, 1));
         painter->setBrush(Qt::NoBrush);
-        painter->drawRect(0, 0, d->pixmap.size().width(), d->pixmap.size().height());
+        painter->drawRect(QRectF(QPointF(d->offset.x(), d->offset.y()),
+                                 QSizeF(d->pixmap.width(), d->pixmap.height())));
     }
 }
 

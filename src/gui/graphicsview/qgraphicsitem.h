@@ -247,7 +247,7 @@ class Q_GUI_EXPORT QGraphicsPathItem : public QAbstractGraphicsPathItem
 {
 public:
     QGraphicsPathItem(QGraphicsItem *parent = 0);
-    QGraphicsPathItem(const QPainterPath &path = QPainterPath(), QGraphicsItem *parent = 0);
+    QGraphicsPathItem(const QPainterPath &path, QGraphicsItem *parent = 0);
     ~QGraphicsPathItem();
 
     QPainterPath path() const;
@@ -277,7 +277,7 @@ class Q_GUI_EXPORT QGraphicsRectItem : public QAbstractGraphicsPathItem
 {
 public:
     QGraphicsRectItem(QGraphicsItem *parent = 0);
-    QGraphicsRectItem(const QRectF &rect = QRect(), QGraphicsItem *parent = 0);
+    QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent = 0);
     ~QGraphicsRectItem();
 
     QRectF rect() const;
@@ -307,7 +307,7 @@ class Q_GUI_EXPORT QGraphicsEllipseItem : public QAbstractGraphicsPathItem
 {
 public:
     QGraphicsEllipseItem(QGraphicsItem *parent = 0);
-    QGraphicsEllipseItem(const QRectF &rect = QRect(), QGraphicsItem *parent = 0);
+    QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *parent = 0);
     ~QGraphicsEllipseItem();
 
     QRectF rect() const;
@@ -337,7 +337,7 @@ class Q_GUI_EXPORT QGraphicsPolygonItem : public QAbstractGraphicsPathItem
 {
 public:
     QGraphicsPolygonItem(QGraphicsItem *parent = 0);
-    QGraphicsPolygonItem(const QPolygonF &polygon = QPolygonF(), QGraphicsItem *parent = 0);
+    QGraphicsPolygonItem(const QPolygonF &polygon, QGraphicsItem *parent = 0);
     ~QGraphicsPolygonItem();
 
     QPolygonF polygon() const;
@@ -367,7 +367,7 @@ class Q_GUI_EXPORT QGraphicsLineItem : public QGraphicsItem
 {
 public:
     QGraphicsLineItem(QGraphicsItem *parent = 0);
-    QGraphicsLineItem(const QLineF &line = QLineF(), QGraphicsItem *parent = 0);
+    QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent = 0);
     ~QGraphicsLineItem();
 
     QPen pen() const;
@@ -400,11 +400,17 @@ class Q_GUI_EXPORT QGraphicsPixmapItem : public QGraphicsItem
 {
 public:
     QGraphicsPixmapItem(QGraphicsItem *parent = 0);
-    QGraphicsPixmapItem(const QPixmap &pixmap = QPixmap(), QGraphicsItem *parent = 0);
+    QGraphicsPixmapItem(const QPixmap &pixmap, QGraphicsItem *parent = 0);
     ~QGraphicsPixmapItem();
 
     QPixmap pixmap() const;
     void setPixmap(const QPixmap &pixmap);
+
+    Qt::TransformationMode transformationMode() const;
+    void setTransformationMode(Qt::TransformationMode mode);
+
+    QPointF offset() const;
+    void setOffset(const QPointF &offset);
 
     QRectF boundingRect() const;
     QPainterPath shape() const;
@@ -432,7 +438,7 @@ class Q_GUI_EXPORT QGraphicsTextItem : public QObject, public QGraphicsItem
     Q_OBJECT
 public:
     QGraphicsTextItem(QGraphicsItem *parent = 0);
-    QGraphicsTextItem(const QString &text = QString(), QGraphicsItem *parent = 0);
+    QGraphicsTextItem(const QString &text, QGraphicsItem *parent = 0);
     ~QGraphicsTextItem();
 
     QString text() const;
