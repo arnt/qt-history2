@@ -3304,6 +3304,8 @@ public:
     QTextControl *textControl;
     
     QPointF mapToControl(const QPointF &point) const;
+    void _q_updateBoundingRect(const QSizeF &);
+    void _q_update(QRectF);
 
     QFont font;
     QPen pen;
@@ -3330,6 +3332,7 @@ QPointF QGraphicsTextItemPrivate::mapToControl(const QPointF &point) const
 QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
     : QGraphicsItem(parent), dd(new QGraphicsTextItemPrivate)
 {
+    dd->qq = this;
     if (!text.isEmpty())
         setText(text);
 }
@@ -3341,6 +3344,7 @@ QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
 QGraphicsTextItem::QGraphicsTextItem(QGraphicsItem *parent)
     : QGraphicsItem(parent), dd(new QGraphicsTextItemPrivate)
 {
+    dd->qq = this;
 }
 
 /*!
@@ -3599,29 +3603,28 @@ QVariant QGraphicsTextItem::extension(const QVariant &variant) const
 /*!
     \internal
 */
-void QGraphicsTextItem::update(const QRectF &rect)
+void QGraphicsTextItemPrivate::_q_update(QRectF rect)
 {
-    // reimplemented to make it a slot
-    QGraphicsItem::update(rect);
+    rect.translate(0, - pageNumber * textControl->document()->pageSize().height());
+    if (boundingRect.intersects(rect))
+        qq->update(rect);
 }
 
 /*!
     \internal
 */
-void QGraphicsTextItem::updateBoundingRect(const QSizeF &size)
+void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
 {
-    if (!dd->textControl) return; // can't happen
-    const QSizeF pageSize = dd->textControl->document()->pageSize();
+    if (!textControl) return; // can't happen
+    const QSizeF pageSize = textControl->document()->pageSize();
+    qq->update();
     if (pageSize.height() != INT_MAX) {
         // ###
-        update();
-        dd->boundingRect.setSize(pageSize);
-        update();
+        boundingRect.setSize(pageSize);
     } else {
-        update();
-        dd->boundingRect.setSize(size);
-        update();
+        boundingRect.setSize(size);
     }
+    qq->update();
 }
 
 /*!
@@ -3639,11 +3642,11 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
     
     dd->textControl = control;
     connect(dd->textControl, SIGNAL(updateRequest(const QRectF &)),
-            this, SLOT(update(const QRectF &)));
+            this, SLOT(_q_update(QRectF)));
     connect(dd->textControl, SIGNAL(documentSizeChanged(const QSizeF &)),
-            this, SLOT(updateBoundingRect(const QSizeF &)));
+            this, SLOT(_q_updateBoundingRect(const QSizeF &)));
     
-    updateBoundingRect(dd->textControl->document()->documentLayout()->documentSize());
+    dd->_q_updateBoundingRect(dd->textControl->document()->documentLayout()->documentSize());
 }
 
 /*!
@@ -3812,5 +3815,7 @@ QDebug operator<<(QDebug debug, QGraphicsItem *item)
     return debug;
 }
 #endif
+
+#include "moc_qgraphicsitem.cpp"
 
 #endif // QT_NO_GRAPHICSVIEW

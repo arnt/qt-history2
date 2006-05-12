@@ -467,9 +467,6 @@ public:
     void setPageNumber(int page);
     int pageNumber() const;
 
-public Q_SLOTS:    
-    void update(const QRectF &rect = QRectF());
-    
 protected:
     void mouseEvent(QGraphicsSceneMouseEvent *event);
     void keyEvent(QKeyEvent *event);
@@ -479,11 +476,10 @@ protected:
     void setExtension(Extension extension, const QVariant &variant);
     QVariant extension(const QVariant &variant) const;
 
-private Q_SLOTS:
-    void updateBoundingRect(const QSizeF &size);
-
 private:
     Q_DISABLE_COPY(QGraphicsTextItem)
+    Q_PRIVATE_SLOT(dd, void _q_updateBoundingRect(const QSizeF &))
+    Q_PRIVATE_SLOT(dd, void _q_update(QRectF))
     QGraphicsTextItemPrivate *dd;
     friend class QGraphicsTextItemPrivate;
 };
