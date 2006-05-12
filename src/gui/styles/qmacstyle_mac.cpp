@@ -3040,15 +3040,33 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     case CE_ProgressBarGroove:
         break;
     case CE_SizeGrip: {
-        HIThemeGrowBoxDrawInfo gdi;
-        gdi.version = qt_mac_hitheme_version;
-        gdi.state = tds;
-        gdi.kind = kHIThemeGrowBoxKindNormal;
-        gdi.direction = kThemeGrowRight | kThemeGrowDown;
-        gdi.size = kHIThemeGrowBoxSizeNormal;
-        HIPoint pt = CGPointMake(opt->rect.x(), opt->rect.y());
-        HIThemeDrawGrowBox(&pt, &gdi, cg, kHIThemeOrientationNormal);
-        break; }
+        if (w->testAttribute(Qt::WA_MacOpaqueSizeGrip)) {
+            HIThemeGrowBoxDrawInfo gdi;
+            gdi.version = qt_mac_hitheme_version;
+            gdi.state = tds;
+            gdi.kind = kHIThemeGrowBoxKindNormal;
+            gdi.direction = kThemeGrowRight | kThemeGrowDown;
+            gdi.size = kHIThemeGrowBoxSizeNormal;
+            HIPoint pt = CGPointMake(opt->rect.x(), opt->rect.y());
+            HIThemeDrawGrowBox(&pt, &gdi, cg, kHIThemeOrientationNormal);
+        } else {
+            // It isn't possible to draw a transparent size grip with the 
+            // native API, so we do it ourselves here.
+            QPen blackish(QColor(128, 128, 128));
+            QPen greyish(QColor(200, 200, 200));
+
+            for (int l = 0; l < 3; ++ l) {
+                const int offset = (l * 4 + 3);
+                const QPoint start(opt->rect.width() - offset, opt->rect.height() - 2);
+                const QPoint end(opt->rect.width() - 2, opt->rect.height() - offset);
+                p->setPen(blackish);
+                p->drawLine(start, end);
+                p->setPen(greyish);
+                p->drawLine(start + QPoint(-1, 0), end + QPoint(0, -1));
+            }
+        }
+        break;
+        }
     case CE_Splitter: {
         HIThemeSplitterDrawInfo sdi;
         sdi.version = qt_mac_hitheme_version;
