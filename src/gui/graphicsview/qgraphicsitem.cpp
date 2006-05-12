@@ -3219,8 +3219,6 @@ void QGraphicsTextItem::setPen(const QPen &pen)
 */
 QRectF QGraphicsTextItem::boundingRect() const
 {
-    if (!dd->textControl)
-        return QRectF();
     return dd->boundingRect;
 }
 
@@ -3434,6 +3432,10 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
 */
 QTextControl *QGraphicsTextItem::textControl() const
 {
+    if (!dd->textControl) {
+        QGraphicsTextItem *that = const_cast<QGraphicsTextItem *>(this);
+        that->setTextControl(new QTextControl(that));
+    }
     return dd->textControl;
 }
 
