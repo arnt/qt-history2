@@ -30,7 +30,7 @@ static gboolean x11EventSourcePrepare(GSource *, gint *timeout)
 {
     if (timeout)
         *timeout = -1;
-    return XEventsQueued(X11->display, QueuedAlready);
+    return XEventsQueued(X11->display, QueuedAfterFlush);
 }
 
 static gboolean x11EventSourceCheck(GSource *)
