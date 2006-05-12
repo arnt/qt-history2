@@ -89,8 +89,8 @@ void QtBrushManager::setCurrentBrush(const QString &name)
 
 QPixmap QtBrushManager::brushPixmap(const QBrush &brush) const
 {
-    int w = 48;
-    int h = 48;
+    int w = 64;
+    int h = 64;
 
     /*
     int pixSize = 5;

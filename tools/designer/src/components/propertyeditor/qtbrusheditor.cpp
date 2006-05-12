@@ -179,6 +179,7 @@ void QtBrushEditorPrivate::slotItemRenamed(QListWidgetItem *item)
 void QtBrushEditorPrivate::slotBrushAdded(const QString &name, const QBrush &brush)
 {
     QListWidgetItem *item = new QListWidgetItem(m_brushManager->brushPixmap(brush), name, m_ui.listWidget);
+    item->setSizeHint(QSize(72, 84));
     item->setFlags(item->flags() | Qt::ItemIsEditable);
     m_itemToBrush[item] = name;
     m_brushToItem[name] = item;
@@ -233,8 +234,8 @@ QtBrushEditor::QtBrushEditor(QWidget *parent)
     d_ptr->m_ui.listWidget->setMovement(QListView::Static);
     d_ptr->m_ui.listWidget->setTextElideMode(Qt::ElideRight);
     d_ptr->m_ui.listWidget->setResizeMode(QListWidget::Adjust);
-    d_ptr->m_ui.listWidget->setSpacing(2);
-    d_ptr->m_ui.listWidget->setIconSize(QSize(48, 48));
+    //d_ptr->m_ui.listWidget->setSpacing(2);
+    d_ptr->m_ui.listWidget->setIconSize(QSize(64, 64));
     //d_ptr->m_ui.listWidget->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
     connect(d_ptr->m_ui.listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
