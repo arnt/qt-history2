@@ -139,9 +139,9 @@ protected:
 
     virtual void paintBackground(QPainter *painter, const QRectF &rect);
     virtual void paintForeground(QPainter *painter, const QRectF &rect);
-    virtual void paintItems(QPainter *painter, const QList<QGraphicsItem *> items);
-    QStyleOptionGraphicsItem styleOptionForItem(QGraphicsItem *item) const;
-    
+    virtual void paintItems(QPainter *painter, const QList<QGraphicsItem *> &items,
+                            const QList<QStyleOptionGraphicsItem> &options);
+
 private:
     Q_DECLARE_PRIVATE(QGraphicsView)
     friend class QGraphicsSceneWidget;

@@ -133,15 +133,6 @@
 #include <QtGui/qstyleoption.h>
 #include <private/qabstractscrollarea_p.h>
 
-static bool qt_closestItemLast(const QGraphicsItem *item1, const QGraphicsItem *item2)
-{
-    if (item2->isAncestorOf(item1))
-        return false;
-    if (item2->zValue() == item1->zValue())
-        return item2 > item1;
-    return item2->zValue() > item1->zValue();
-}
-
 class QGraphicsViewPrivate : public QAbstractScrollAreaPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsView)
@@ -354,9 +345,44 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
     bool doo = false;
 #endif
 
-    qSort(visibleItems.begin(), visibleItems.end(), qt_closestItemLast);
+    // Reverse the list to get the closest items last.
+    if (!visibleItems.isEmpty()) {
+        QGraphicsItem **a = &visibleItems.first();
+        QGraphicsItem **b = &visibleItems.last();
+        while (a < b) {
+            QGraphicsItem *tmp = *a;
+            *a = *b;
+            *b = tmp;
+            ++a;
+            --b;
+        }
+    }
 
-    q->paintItems(painter, visibleItems);
+    // Generate the style options
+    QList<QStyleOptionGraphicsItem> styleOptions;
+    for (int i = 0; i < visibleItems.size(); ++i) {
+        QGraphicsItem *item = visibleItems.at(i);
+
+        QStyleOptionGraphicsItem option;
+        option.state = QStyle::State_None;
+        option.rect = item->boundingRect().toRect();
+        if (item->isSelected())
+            option.state |= QStyle::State_Selected;
+        if (item->isEnabled())
+            option.state |= QStyle::State_Enabled;
+        if (item->hasFocus())
+            option.state |= QStyle::State_HasFocus;
+        if (scene->d_func()->hoverItems.contains(item))
+            option.state |= QStyle::State_MouseOver;
+        if (item == scene->mouseGrabberItem())
+            option.state |= QStyle::State_Sunken;
+        option.exposedRect = item->boundingRect();
+        option.exposedRect &= painterMatrix.inverted().mapRect(exposedRegion.boundingRect()).adjusted(-1, -1, 1, 1);
+        styleOptions << option;
+    }
+    
+    // Draw the items
+    q->paintItems(painter, visibleItems, styleOptions);
 
 #if defined QGRAPHICSVIEW_DEBUG
     qDebug() << "\tTime spent drawing:" << (stopWatch.elapsed() / 1000.0) << "("
@@ -1832,16 +1858,14 @@ void QGraphicsView::paintForeground(QPainter *painter, const QRectF &rect)
 
     \code
         void CustomView::paintItems(QPainter *painter,
-                                    const QList<QGraphicsItem *> items)
+                                    const QList<QGraphicsItem *> &items,
+                                    const QList<QStyleOptionGraphicsItem> &options)
         {
-            foreach (QGraphicsItem *item, items) {
-                // Create the styleoption object
-                QStyleOptionGraphicsItem option = styleOptionForItem(item);
-
+            for (int i = 0; i < items.size(); ++i) {
                 // Draw the item
                 painter->save();
-                painter->setMatrix(item->sceneMatrix(), true);
-                item->paint(painter, &option, renderWidget());
+                painter->setMatrix(items.at(i)->sceneMatrix(), true);
+                items.at(i)->paint(painter, options.at(i), renderWidget());
                 painter->restore();
             }
         }
@@ -1849,14 +1873,16 @@ void QGraphicsView::paintForeground(QPainter *painter, const QRectF &rect)
 
     \sa styleOptionForItem(), paintBackground(), paintForeground()
 */
-void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> items)
+void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> &items,
+                               const QList<QStyleOptionGraphicsItem> &options)
 {
     Q_D(QGraphicsView);
     QMatrix painterMatrix = painter->deviceMatrix();
 
-    foreach (QGraphicsItem *item, items) {
+    for (int i = 0; i < items.size(); ++i) {
         // Create the styleoption object
-        QStyleOptionGraphicsItem option = styleOptionForItem(item);
+        QStyleOptionGraphicsItem option = options.at(i);
+        QGraphicsItem *item = items.at(i);
 
         QMatrix itemMatrix = item->sceneMatrix();
         QMatrix transformationMatrix = itemMatrix * painterMatrix;
@@ -1877,31 +1903,6 @@ void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> i
         item->paint(painter, &option, d->renderWidget);
         painter->restore();
     }
-}
-
-/*!
-    Returns a style option object for the item \a item. This is a convenience
-    function, provided for those who reimplement paintItems().
-
-    \sa paintItems()
-*/
-QStyleOptionGraphicsItem QGraphicsView::styleOptionForItem(QGraphicsItem *item) const
-{
-    Q_D(const QGraphicsView);
-    QStyleOptionGraphicsItem option;
-    option.state = QStyle::State_None;
-    option.rect = item->boundingRect().toRect();
-    if (item->isSelected())
-        option.state |= QStyle::State_Selected;
-    if (item->isEnabled())
-        option.state |= QStyle::State_Enabled;
-    if (item->hasFocus())
-        option.state |= QStyle::State_HasFocus;
-    if (d->scene->d_func()->hoverItems.contains(item))
-        option.state |= QStyle::State_MouseOver;
-    if (item == d->scene->mouseGrabberItem())
-        option.state |= QStyle::State_Sunken;
-    return option;
 }
 
 #endif // QT_NO_GRAPHICSVIEW
