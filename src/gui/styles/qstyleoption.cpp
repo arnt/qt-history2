@@ -3947,15 +3947,80 @@ QStyleOptionSizeGrip::QStyleOptionSizeGrip(int version)
 */
 #endif // QT_NO_SIZEGRIP
 
+/*!
+    \class QStyleOptionGraphicsItem
+
+    \brief The QStyleOptionGraphicsItem class is used to describe
+    the parameters needed to draw a QGraphicsItem.
+
+    For performance reasons, the access to the member variables is
+    direct (i.e., using the . or -> operator). This low-level feel
+    makes the structures straightforward to use and emphasizes that
+    these are simply parameters.
+
+    For an example demonstrating how style options can be used, see
+    the \l {widgets/styles}{Styles} example.
+
+    \sa QStyleOption, QGraphicsItem::paint()
+*/
+
+/*!
+    Constructs a QStyleOptionGraphicsItem. The levelOfDetail parameter is
+    initialized to 1.
+*/
 QStyleOptionGraphicsItem::QStyleOptionGraphicsItem()
     : levelOfDetail(1)
 {
 }
 
+/*!
+    \internal
+*/
 QStyleOptionGraphicsItem::QStyleOptionGraphicsItem(int version)
     : QStyleOption(version, Type), levelOfDetail(1)
 {
 }
+
+/*!
+    \variable QStyleOptionGraphicsItem::exposedRect
+    \brief the exposed rectangle, in item coordinates
+
+    Make use of this rectangle to speed up item drawing when only parts of the
+    item are exposed. If the whole item is exposed, this rectangle will be the
+    same as QGraphicsItem::boundingRect().
+*/
+
+/*!
+     \variable QStyleOptionGraphicsItem::matrix
+     \brief the complete transformation matrix for the item
+
+     This matrix is the sum of the item's scene matrix and the matrix of the
+     painter used for drawing the item. It is provided for convenience,
+     allowing anvanced level-of-detail metrics that can be used to speed up
+     item drawing.
+
+     To find the dimentions of an item in screen coordinates (i.e., pixels),
+     you can use the mapping functions of QMatrix, such as QMatrix::map().
+
+     \sa QStyleOptionGraphicsItem::levelOfDetail
+*/
+
+/*!
+    \variable QStyleOptionGraphicsItem::levelOfDetail
+    \brief a simple metric for determining an item's level of detail
+
+    This simple metric provides an easy way to determine the level of detail
+    for an item. Its value represents the maximum value of the height and
+    width of a unity rectangle, mapped using the complete transformation
+    matrix of the painter used to draw the item. By default, if no
+    transformations are applied, its value is 1. If zoomed out 1:2, the level
+    of detail will be 0.5, and if zoomed in 2:1, its value is 2.
+
+    For more advanced level-of-detail metrics, use
+    QStyleOptionGraphicsItem::matrix directly.
+
+    \sa QStyleOptionGraphicsItem::matrix
+*/
 
 /*!
     \class QStyleHintReturn
