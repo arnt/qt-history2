@@ -1103,6 +1103,9 @@ void QWidgetPrivate::createTLExtra()
         createExtra();
     if (!extra->topextra) {
         QTLWExtra* x = extra->topextra = new QTLWExtra;
+#ifdef QT_WINDOW_SURFACE
+        x->windowSurface = 0;
+#endif
         x->opacity = 255;
         x->icon = 0;
         x->iconPixmap = 0;
@@ -2202,7 +2205,7 @@ QRect QWidget::frameGeometry() const
 int QWidget::x() const
 {
     Q_D(const QWidget);
-    if (isWindow() && ! (windowType() == Qt::Popup)) 
+    if (isWindow() && ! (windowType() == Qt::Popup))
         return data->crect.x() - d->frameStrut().left();
     return data->crect.x();
 }
@@ -7606,5 +7609,41 @@ QRect QWidgetPrivate::frameStrut() const
         updateFrameStrut();
     return topData()->frameStrut;
 }
+
+
+void QWidget::setWindowSurface(QWindowSurface *surface)
+{
+#ifdef QT_WINDOW_SURFACE
+    if (!isTopLevel())
+        return;
+
+    // ### Global update ??
+    d_func()->topData()->windowSurface = surface;
+#else
+    Q_UNUSED(surface);
+#endif
+}
+
+
+QWindowSurface *QWidget::windowSurface() const
+{
+#ifdef QT_WINDOW_SURFACE
+    if (!isTopLevel())
+        return 0;
+
+    return d_func()->topData()->windowSurface;
+#else
+    return 0;
+#endif
+}
+
+
+
+QWidgetData *qt_qwidget_data(QWidget *widget)
+{
+    return widget->data;
+}
+
+
 
 #include "moc_qwidget.cpp"

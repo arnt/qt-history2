@@ -112,6 +112,10 @@ struct QTLWExtra {
 #ifdef Q_WS_WIN
     uint style, exstyle;
 #endif
+
+#ifdef QT_WINDOW_SURFACE
+    QWindowSurface *windowSurface;
+#endif
 };
 
 struct QWExtra {
@@ -256,7 +260,7 @@ public:
     void hide_helper();
     void setEnabled_helper(bool);
     void registerDropSite(bool);
-    
+
     void updateFrameStrut() const;
     QRect frameStrut() const;
 

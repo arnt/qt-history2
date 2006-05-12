@@ -36,6 +36,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef QT_WINDOW_SURFACE
+#include "qwindowsurface_p.h"
+#endif
+
 /*****************************************************************************
   Top Level Window backing store
  *****************************************************************************/
@@ -220,6 +224,17 @@ void qt_syncBackingStore(QRegion rgn, QWidget *widget)
     qt_syncBackingStore(rgn, widget, false);
 }
 
+#ifdef QT_WINDOW_SURFACE
+QWindowSurface *qt_default_window_surface(QWidget *widget)
+{
+#ifdef Q_WS_WIN
+    return new QRasterWindowSurface(widget);
+#else
+    return 0;
+#endif
+}
+#endif
+
 #ifdef Q_WS_WIN
 
 /*
@@ -235,6 +250,10 @@ void QWidgetBackingStore::blitToScreen(const QRegion &rgn, QWidget *widget)
 
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         QWidgetBackingStore *bs = tlw->d_func()->topData()->backingStore;
+
+#ifdef QT_WINDOW_SURFACE
+        bs->windowSurface->flush(widget, rgn, widget->mapTo(tlw, QPoint(0, 0)));
+#else
         QSize tlwSize = tlw->size();
         if (!bs || bs->buffer.size() != tlwSize)
             return;
@@ -256,6 +275,7 @@ void QWidgetBackingStore::blitToScreen(const QRegion &rgn, QWidget *widget)
         if (tmp_widget_dc)
             ReleaseDC(widget->winId(), widget_dc);
         engine->releaseDC(engine_dc);
+#endif
     }
 }
 #endif
@@ -304,11 +324,17 @@ static inline bool qRectIntersects(const QRect &r1, const QRect &r2)
 }
 
 QWidgetBackingStore::QWidgetBackingStore(QWidget *t) : tlw(t)
+#ifndef QT_WINDOW_SURFACE
 #ifdef Q_WS_WIN
                                                      , buffer(t)
 #endif
+#endif
 {
-
+#ifdef QT_WINDOW_SURFACE
+    windowSurface = tlw->windowSurface();
+    if (!windowSurface)
+        windowSurface = qt_default_window_surface(t);
+#endif
 }
 
 QWidgetBackingStore::~QWidgetBackingStore()
@@ -324,12 +350,20 @@ QWidgetBackingStore::~QWidgetBackingStore()
 */
 void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *widget)
 {
+#ifndef QT_WINDOW_SURFACE
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
     if (buffer.isNull())
         return;
 #endif
+#endif
 
     QPoint pos(widget->mapTo(tlw, rect.topLeft()));
+
+
+#ifdef QT_WINDOW_SURFACE
+    windowSurface->scroll(QRect(pos, rect.size()), dx, dy);
+
+#else
 
 #if defined(Q_WS_WIN)
     QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
@@ -359,6 +393,7 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
     }
     buffer.blit(bsrect, pos + QPoint(dx,dy));
 #endif
+#endif // QT_WINDOW_SURFACE
 }
 
 
@@ -538,6 +573,10 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 
         QPoint wOffset = widget->data->wrect.topLeft();
 
+#ifdef QT_WINDOW_SURFACE
+        windowSurface->flush(widget, rgn, offset);
+#else
+
 #if defined(Q_WS_WIN)
 #if 1
         QRasterPaintEngine *engine = (QRasterPaintEngine*) buffer.paintEngine();
@@ -607,6 +646,8 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
                   br.x() + offset.x(), br.y() + offset.y(), br.width(), br.height(), wbr.x(), wbr.y());
         XFreeGC(X11->display, gc);
 #endif
+
+#endif // QT_WINDOW_SURFACE
     }
 
     if(recursive) {
@@ -638,6 +679,16 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
     if(!QWidgetBackingStore::paintOnScreen(widget)) {
         QRegion toClean;
+        QSize tlwSize = tlw->size();
+
+#ifdef QT_WINDOW_SURFACE
+        if (windowSurface->size() != tlwSize) {
+            windowSurface->resize(tlwSize);
+            toClean = QRegion(0, 0, tlw->width(), tlw->height());
+        } else {
+            toClean = dirty;
+        }
+#else
 
 #ifdef Q_WS_QWS
         bool created = buffer.createIfNecessary(tlw);
@@ -654,8 +705,6 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         }
         tlwOffset = buffer.tlwOffset();
 #else // not QWS
-
-        QSize tlwSize = tlw->size();
 
         if (buffer.size() != tlwSize) {
 #if defined(Q_WS_X11)
@@ -674,17 +723,39 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         }
 #endif //Q_WS_QWS
 
+#endif // QT_WINDOW_SURFACE
+
+         // ### move into prerender step
+
 #ifdef Q_WS_QWS
         buffer.lock();
 #endif
+
         if(!toClean.isEmpty()) {
             dirty -= toClean;
             if (tlw->updatesEnabled()) {
+
+#ifdef QT_WINDOW_SURFACE
+                // Pre render config
+                windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
+                windowSurface->beginPaint(toClean);
+                windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
+
+                tlw->d_func()->drawWidget(windowSurface->paintDevice(), toClean, tlwOffset);
+
+                // Drawing the overlay...
+                windowSurface->paintDevice()->paintEngine()->setSystemClip(toClean);
+                windowSurface->endPaint(toClean);
+                windowSurface->paintDevice()->paintEngine()->setSystemClip(QRegion());
+#else
+
 #ifdef Q_WS_QWS
                 tlw->d_func()->drawWidget(buffer.paintDevice(), toClean, tlwOffset);
 #else
                 tlw->d_func()->drawWidget(&buffer, toClean, tlwOffset);
 #endif
+
+#endif // QT_WINDOW_SURRACE
             }
         }
 
@@ -718,8 +789,15 @@ void QWidgetBackingStore::releaseBuffer()
 #elif defined(Q_WS_WIN)
 void QWidgetBackingStore::releaseBuffer()
 {
+#ifdef QT_WINDOW_SURFACE
+    windowSurface->release();
+#else
+    // ### How come there's a null ptr check here? The buffer should
+    // always have an engine. Is this a result of the direct rendering
+    // change we did earlier this year?
     if (buffer.paintEngine())
         ((QRasterPaintEngine *)buffer.paintEngine())->releaseBuffer();
+#endif
 }
 #endif
 

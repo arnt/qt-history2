@@ -62,6 +62,7 @@ class QShowEvent;
 class QHideEvent;
 class QInputContext;
 class QIcon;
+class QWindowSurface;
 #if defined(Q_WS_X11)
 class QX11Info;
 #endif
@@ -513,6 +514,9 @@ public:
     bool autoFillBackground() const;
     void setAutoFillBackground(bool enabled);
 
+    void setWindowSurface(QWindowSurface *surface);
+    QWindowSurface *windowSurface() const;
+
 Q_SIGNALS:
     void customContextMenuRequested(const QPoint &pos);
 
@@ -626,6 +630,8 @@ private:
     friend class QWSManagerPrivate;
     friend class QDecoration;
 #endif
+
+    friend Q_GUI_EXPORT QWidgetData *qt_qwidget_data(QWidget *widget);
 
 private:
     Q_DISABLE_COPY(QWidget)

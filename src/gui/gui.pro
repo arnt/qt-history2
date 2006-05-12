@@ -35,3 +35,8 @@ embedded: INCLUDEPATH *= $$QMAKE_INCDIR_QT/QtNetwork
 QMAKE_LIBS += $$QMAKE_LIBS_GUI
 
 contains(DEFINES,QT_EVAL):include($$QT_BUILD_TREE/src/corelib/eval.pri)
+
+
+# # uncomment the following lines to use qwindow surface
+# DEFINES += QT_WINDOW_SURFACE
+# include(../../../research/painter/qwindowsurface/qwindowsurface.pri)
