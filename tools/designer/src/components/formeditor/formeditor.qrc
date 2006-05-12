@@ -111,6 +111,9 @@
 
 
   </qresource>
+  <qresource prefix="/trolltech/brushes">
+    <file>defaultbrushes.xml</file>
+  </qresource>
 </RCC>
 
 

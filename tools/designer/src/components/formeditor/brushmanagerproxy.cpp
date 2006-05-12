@@ -141,7 +141,6 @@ void BrushManagerProxy::setBrushManager(QtBrushManager *manager)
                 file.close();
                 QDomDocument doc;
                 if (doc.setContent(contents)) {
-                    DomBrush dom;
                     QDomElement domElement = doc.documentElement();
 
                     QString name = domElement.attribute(QLatin1String("name"));
@@ -150,6 +149,7 @@ void BrushManagerProxy::setBrushManager(QtBrushManager *manager)
                     QSimpleResource resource(d_ptr->theCore);
 
                     QDomElement brushElement = domElement.firstChildElement(QLatin1String("brush"));
+                    DomBrush dom;
                     dom.read(brushElement);
                     QBrush br = resource.setupBrush(&dom);
 
@@ -168,100 +168,31 @@ void BrushManagerProxy::setBrushManager(QtBrushManager *manager)
 
     if (!customBrushesExist) {
         // load brushes from resources
-        QColor red = QColor::fromRgb(255, 0, 0);
-        QColor white = QColor::fromRgb(255, 255, 255);
-        QColor darkBlue = QColor::fromRgb(5, 0, 70);
-        QColor darkGreen = QColor::fromRgb(60, 160, 00);
-        QColor blue = QColor::fromRgb(0, 0, 255);
-        QColor black = QColor::fromRgb(0, 0, 0);
-        QColor yellow = QColor::fromRgb(255, 255, 0);
+        QFile qrcFile(QLatin1String(":trolltech/brushes/defaultbrushes.xml"));
+        if (qrcFile.open(QIODevice::ReadOnly)) {
+            QByteArray contents = qrcFile.readAll();
+            qrcFile.close();
+            QDomDocument doc;
+            if (doc.setContent(contents)) {
+                QDomElement domElement = doc.documentElement();
 
-        QLinearGradient gr1(0, 0, 1, 0);
-        gr1.setCoordinateMode(QGradient::StretchToDeviceMode);
-        gr1.setColorAt(0.000, red);
-        gr1.setColorAt(0.225, red);
-        gr1.setColorAt(0.250, white);
-        gr1.setColorAt(0.275, white);
-        gr1.setColorAt(0.300, darkBlue);
-        gr1.setColorAt(0.400, darkBlue);
-        gr1.setColorAt(0.425, white);
-        gr1.setColorAt(0.450, white);
-        gr1.setColorAt(0.475, red);
-        gr1.setColorAt(1.000, red);
-        QBrush br1(gr1);
+                QDomElement descElement = domElement.firstChildElement(QLatin1String("description"));
+                while (!descElement.isNull()) {
+                    QString name = descElement.attribute(QLatin1String("name"));
 
-        QLinearGradient gr2(0, 0, 0, 1);
-        gr2.setCoordinateMode(QGradient::StretchToDeviceMode);
-        gr2.setColorAt(0, white);
-        gr2.setColorAt(0.475, white);
-        gr2.setColorAt(0.525, red);
-        gr2.setColorAt(1, red);
-        QBrush br2(gr2);
+                    QSimpleResource resource(d_ptr->theCore);
 
-        QLinearGradient gr3(0, 0, 0, 1);
-        gr3.setCoordinateMode(QGradient::StretchToDeviceMode);
-        gr3.setColorAt(0, black);
-        gr3.setColorAt(0.323, black);
-        gr3.setColorAt(0.343, red);
-        gr3.setColorAt(0.656, red);
-        gr3.setColorAt(0.676, yellow);
-        gr3.setColorAt(1, yellow);
-        QBrush br3(gr3);
+                    QDomElement brushElement = descElement.firstChildElement(QLatin1String("brush"));
+                    DomBrush dom;
+                    dom.read(brushElement);
+                    QBrush br = resource.setupBrush(&dom);
 
-        QLinearGradient gr4(0, 0, 1, 0);
-        gr4.setCoordinateMode(QGradient::StretchToDeviceMode);
-        gr4.setColorAt(0, blue);
-        gr4.setColorAt(0.323, blue);
-        gr4.setColorAt(0.343, white);
-        gr4.setColorAt(0.656, white);
-        gr4.setColorAt(0.676, red);
-        gr4.setColorAt(1, red);
-        QBrush br4(gr4);
+                    d_ptr->theManager->addBrush(name, br);
 
-        QLinearGradient gr5(0, 0, 1, 0);
-        gr5.setCoordinateMode(QGradient::StretchToDeviceMode);
-        gr5.setColorAt(0, darkGreen);
-        gr5.setColorAt(0.323, darkGreen);
-        gr5.setColorAt(0.343, white);
-        gr5.setColorAt(0.656, white);
-        gr5.setColorAt(0.676, red);
-        gr5.setColorAt(1, red);
-        QBrush br5(gr5);
-
-        QLinearGradient gr6(0, 0, 0, 1);
-        gr6.setCoordinateMode(QGradient::StretchToDeviceMode);
-        gr6.setColorAt(0, red);
-        gr6.setColorAt(0.24, red);
-        gr6.setColorAt(0.26, yellow);
-        gr6.setColorAt(0.74, yellow);
-        gr6.setColorAt(0.76, red);
-        gr6.setColorAt(1, red);
-        QBrush br6(gr6);
-
-        QRadialGradient gr7(0.5, 0.5, 0.5, 0.5, 0.5);
-        gr7.setCoordinateMode(QGradient::StretchToDeviceMode);
-        gr7.setColorAt(0, red);
-        gr7.setColorAt(0.49, red);
-        gr7.setColorAt(0.51, white);
-        gr7.setColorAt(1, white);
-        QBrush br7(gr7);
-
-        manager->addBrush(QLatin1String("Norwegian"), br1);
-        manager->addBrush(QLatin1String("Polish"), br2);
-        manager->addBrush(QLatin1String("German"), br3);
-        manager->addBrush(QLatin1String("French"), br4);
-        manager->addBrush(QLatin1String("Italian"), br5);
-        manager->addBrush(QLatin1String("Spanish"), br6);
-        manager->addBrush(QLatin1String("Japanese"), br7);
-
-        manager->addBrush(QLatin1String("red"), QBrush(Qt::red));
-        manager->addBrush(QLatin1String("green"), QBrush(Qt::green));
-        manager->addBrush(QLatin1String("blue"), QBrush(Qt::blue));
-        manager->addBrush(QLatin1String("yellow"), QBrush(Qt::yellow));
-        manager->addBrush(QLatin1String("magenta"), QBrush(Qt::magenta));
-        manager->addBrush(QLatin1String("cyan"), QBrush(Qt::cyan));
-        manager->addBrush(QLatin1String("black"), QBrush(Qt::black));
-        manager->addBrush(QLatin1String("white"), QBrush(Qt::white));
+                    descElement = descElement.nextSiblingElement(QLatin1String("description"));
+                }
+            }
+        }
     }
 }
 
