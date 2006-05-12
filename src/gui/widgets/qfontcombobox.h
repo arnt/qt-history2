@@ -17,6 +17,8 @@
 #include <QtGui/qcombobox.h>
 #include <QtGui/qfontdatabase.h>
 
+QT_BEGIN_HEADER
+
 class QFontComboBoxPrivate;
 
 class Q_GUI_EXPORT QFontComboBox : public QComboBox
@@ -65,5 +67,7 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QFontComboBox::FontFilters)
+
+QT_END_HEADER
 
 #endif
