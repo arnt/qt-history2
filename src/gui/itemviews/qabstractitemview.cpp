@@ -50,7 +50,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollCount(0),
         alternatingColors(false),
         textElideMode(Qt::ElideRight),
-        scrollMode(QAbstractItemView::ScrollPerItem)
+        verticalScrollMode(QAbstractItemView::ScrollPerItem),
+        horizontalScrollMode(QAbstractItemView::ScrollPerItem)
 {
 }
 
@@ -823,22 +824,42 @@ QAbstractItemView::EditTriggers QAbstractItemView::editTriggers() const
 
 /*!
     \since 4.2
-    \property QAbstractItemView::scrollMode
-    \brief how the view scrolls its contents
+    \property QAbstractItemView::verticalScrollMode
+    \brief how the view scrolls its contents in the vertical direction
 
-    This property controlls how the view scroll its contents.
+    This property controlls how the view scroll its contents vertically.
     Scrolling can be done either per pixel or per item.
 */
 
-void QAbstractItemView::setScrollMode(ScrollMode mode)
+void QAbstractItemView::setVerticalScrollMode(ScrollMode mode)
 {
-    d_func()->scrollMode = mode;
+    d_func()->verticalScrollMode = mode;
     updateGeometries(); // update the scrollbars
 }
 
-QAbstractItemView::ScrollMode QAbstractItemView::scrollMode() const
+QAbstractItemView::ScrollMode QAbstractItemView::verticalScrollMode() const
 {
-    return d_func()->scrollMode;
+    return d_func()->verticalScrollMode;
+}
+
+/*!
+    \since 4.2
+    \property QAbstractItemView::horizontalScrollMode
+    \brief how the view scrolls its contents in the horizontal direction
+
+    This property controlls how the view scroll its contents horizontally.
+    Scrolling can be done either per pixel or per item.
+*/
+
+void QAbstractItemView::setHorizontalScrollMode(ScrollMode mode)
+{
+    d_func()->horizontalScrollMode = mode;
+    updateGeometries(); // update the scrollbars
+}
+
+QAbstractItemView::ScrollMode QAbstractItemView::horizontalScrollMode() const
+{
+    return d_func()->horizontalScrollMode;
 }
 
 /*!
@@ -1358,7 +1379,7 @@ void QAbstractItemView::dropEvent(QDropEvent *event)
         if (!index.isValid())
             index = rootIndex();
     }
-    
+
     // if we are allowed to do the drop
     if (model()->supportedDropActions() & event->proposedAction()) {
         int row = -1;

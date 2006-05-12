@@ -200,7 +200,7 @@ public:
 	if ((del = columnDelegates.value(index.column(), 0))) return del;
 	return delegate;
     }
-    
+
     // reimplemented from QAbstractScrollAreaPrivate
     virtual QPoint contentsOffset() const {
         Q_Q(const QAbstractItemView);
@@ -262,7 +262,8 @@ public:
     mutable QBasicTimer delayedLayout;
     QTimeLine timeline;
 
-    QAbstractItemView::ScrollMode scrollMode;
+    QAbstractItemView::ScrollMode verticalScrollMode;
+    QAbstractItemView::ScrollMode horizontalScrollMode;
 };
 
 #include <qvector.h>

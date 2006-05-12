@@ -808,7 +808,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
     bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
     if (hint == PositionAtTop || above) {
         int i = d->viewIndex(index);
-        if (scrollMode() == QAbstractItemView::ScrollPerItem)
+        if (verticalScrollMode() == QAbstractItemView::ScrollPerItem)
             verticalScrollBar()->setValue(i);
         else
             verticalScrollBar()->setValue(d->coordinateForItem(i));
@@ -908,7 +908,7 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
 
     QStyleOptionViewItem option = viewOptions();
     const QStyle::State state = option.state;
-    const int viewportWidth = d->viewport->width();
+    const int deviceWidth = painter->device()->width();
     const int headerLength = d->header->length();
 
     int firstVisibleItemOffset = 0;
@@ -945,17 +945,17 @@ void QTreeView::drawTree(QPainter *painter, const QRegion &region) const
         }
 
         if (y <= area.bottom()) {
-            QRect bottomArea(0, y, viewportWidth, area.bottom() - y + 1);
+            QRect bottomArea(0, y, deviceWidth, area.bottom() - y + 1);
             if (area.intersects(bottomArea))
                 painter->fillRect(bottomArea, palette().brush(QPalette::Base));
         }
         if (isRightToLeft()) {
-            QRect rightArea(0, 0, viewportWidth - headerLength, area.height());
-            if (headerLength < viewportWidth && area.intersects(rightArea))
+            QRect rightArea(0, 0, deviceWidth - headerLength, area.height());
+            if (headerLength < deviceWidth && area.intersects(rightArea))
                 painter->fillRect(rightArea, palette().brush(QPalette::Base));
         } else {
-            QRect leftArea(headerLength, 0, viewportWidth - headerLength, area.height());
-            if (headerLength < viewportWidth && area.intersects(leftArea))
+            QRect leftArea(headerLength, 0, deviceWidth - headerLength, area.height());
+            if (headerLength < deviceWidth && area.intersects(leftArea))
                 painter->fillRect(leftArea, palette().brush(QPalette::Base));
         }
     }
@@ -1087,7 +1087,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         extraFlags |= QStyle::State_Active;
 
     QPoint oldBO = painter->brushOrigin();
-    if (scrollMode() == QAbstractItemView::ScrollPerPixel)
+    if (verticalScrollMode() == QAbstractItemView::ScrollPerPixel)
         painter->setBrushOrigin(QPoint(0, verticalOffset()));
 
     if (level >= outer) {
@@ -1316,7 +1316,7 @@ int QTreeView::horizontalOffset() const
 int QTreeView::verticalOffset() const
 {
     Q_D(const QTreeView);
-    if (scrollMode() == QAbstractItemView::ScrollPerItem) {
+    if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
         if (uniformRowHeights())
             return verticalScrollBar()->value() * d->defaultItemHeight;
         // If we are scrolling per item and have non-uniform row heights,
@@ -1492,7 +1492,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     Q_D(QTreeView);
     dx = isRightToLeft() ? -dx : dx;
     if (dx) {
-        if (scrollMode() == QAbstractItemView::ScrollPerItem) {
+        if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
             int currentScrollbarValue = horizontalScrollBar()->value();
             int previousScrollbarValue = currentScrollbarValue + dx; // -(-dx)
             d->header->setOffsetToSectionPosition(currentScrollbarValue);
@@ -1527,7 +1527,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         return;
     }
 
-    if (dy && scrollMode() == QAbstractItemView::ScrollPerItem) {
+    if (dy && verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
         int currentScrollbarValue = verticalScrollBar()->value();
         int previousScrollbarValue = currentScrollbarValue + dy; // -(-dy)
         int currentViewIndex = currentScrollbarValue; // the first visible item
@@ -2092,7 +2092,7 @@ int QTreeViewPrivate::itemHeight(int item) const
 int QTreeViewPrivate::coordinateForItem(int item) const
 {
     Q_Q(const QTreeView);
-    if (scrollMode == QAbstractItemView::ScrollPerPixel) {
+    if (verticalScrollMode == QAbstractItemView::ScrollPerPixel) {
         if (uniformRowHeights)
             return (item * defaultItemHeight) - q->verticalScrollBar()->value();
         // ### optimize (spans or caching)
@@ -2145,7 +2145,7 @@ int QTreeViewPrivate::coordinateForItem(int item) const
 int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
 {
     Q_Q(const QTreeView);
-    if (scrollMode == QAbstractItemView::ScrollPerPixel) {
+    if (verticalScrollMode == QAbstractItemView::ScrollPerPixel) {
         if (uniformRowHeights) {
             Q_ASSERT(defaultItemHeight != 0);
             return (coordinate + q->verticalScrollBar()->value()) / defaultItemHeight;
@@ -2245,7 +2245,7 @@ int QTreeViewPrivate::firstVisibleItem(int *offset) const
 {
     Q_Q(const QTreeView);
     const int value = q->verticalScrollBar()->value();
-    if (scrollMode == QAbstractItemView::ScrollPerItem) {
+    if (verticalScrollMode == QAbstractItemView::ScrollPerItem) {
         if (offset)
             *offset = 0;
         return (value < 0 || value >= viewItems.count()) ? -1 : value;
@@ -2327,9 +2327,7 @@ void QTreeViewPrivate::updateScrollBars()
         return;
     }
 
-    if (scrollMode == QAbstractItemView::ScrollPerItem) {
-
-        // vertical scrollbar
+    if (verticalScrollMode == QAbstractItemView::ScrollPerItem) {
         int itemsInViewport = 0;
         if (uniformRowHeights) {
             itemsInViewport = viewportSize.height() / defaultItemHeight;
@@ -2342,9 +2340,19 @@ void QTreeViewPrivate::updateScrollBars()
         }
         q->verticalScrollBar()->setRange(0, viewItems.count() - itemsInViewport);
         q->verticalScrollBar()->setPageStep(itemsInViewport);
+    } else { // scroll per pixel
+        int contentsHeight = 0;
+        if (uniformRowHeights) {
+            contentsHeight = defaultItemHeight * viewItems.count();
+        } else { // ### optimize (spans or caching)
+            for (int i = 0; i < viewItems.count(); ++i)
+                contentsHeight += itemHeight(i);
+        }
+        q->verticalScrollBar()->setRange(0, contentsHeight - viewportSize.height());
+        q->verticalScrollBar()->setPageStep(viewportSize.height());
+    }
 
-        // horizontal scrollbar
-
+    if (horizontalScrollMode == QAbstractItemView::ScrollPerItem) {
         const int columnCount = header->count();
         int x = viewportSize.width();
         int c = columnCount;
@@ -2355,21 +2363,7 @@ void QTreeViewPrivate::updateScrollBars()
         int columnsInViewport = (c > 0 ? (columnCount - c - 1) : columnCount);
         q->horizontalScrollBar()->setRange(0, columnCount - columnsInViewport);
         q->horizontalScrollBar()->setPageStep(columnsInViewport);
-
     } else { // scroll per pixel
-
-        // vertical scrollbar
-        int contentsHeight = 0;
-        if (uniformRowHeights) {
-            contentsHeight = defaultItemHeight * viewItems.count();
-        } else { // ### optimize (spans or caching)
-            for (int i = 0; i < viewItems.count(); ++i)
-                contentsHeight += itemHeight(i);
-        }
-        q->verticalScrollBar()->setRange(0, contentsHeight - viewportSize.height());
-        q->verticalScrollBar()->setPageStep(viewportSize.height());
-
-        // horizontal scrollbar
         const int horizontalLength = header->length();
         const QSize maxSize = q->maximumViewportSize();
         if (maxSize.width() >= horizontalLength && q->verticalScrollBar()->maximum() <= 0)

@@ -510,7 +510,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
     Q_D(QTableView);
     dx = isRightToLeft() ? -dx : dx;
     if (dx) {
-        if (scrollMode() == QAbstractItemView::ScrollPerItem) {
+        if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
             int currentScrollbarValue = horizontalScrollBar()->value();
             int previousScrollbarValue = currentScrollbarValue + dx; // -(-dx)
             d->horizontalHeader->setOffsetToSectionPosition(currentScrollbarValue);
@@ -531,7 +531,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
         }
     }
     if (dy) {
-        if (scrollMode() == QAbstractItemView::ScrollPerItem) {
+        if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
             int currentScrollbarValue = verticalScrollBar()->value();
             int previousScrollbarValue = currentScrollbarValue + dy; // -(-dy)
             d->verticalHeader->setOffsetToSectionPosition(currentScrollbarValue);
@@ -1180,12 +1180,16 @@ void QTableView::updateGeometries()
 
     // update scrollbars
 
+    // ### move this block into the if
     QSize vsize = d->viewport->size();
     QSize max = maximumViewportSize();
+    int horizontalLength = d->horizontalHeader->length();
+    int verticalLength = d->verticalHeader->length();
+    if (max.width() >= horizontalLength && max.height() >= verticalLength)
+        vsize = max;
 
-    if (scrollMode() == QAbstractItemView::ScrollPerItem) {
-
-        // horizontal scrollbar
+    // horizontal scrollbar
+    if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
         const int columnCount = d->horizontalHeader->count();
         int x = vsize.width();
         int c = columnCount;
@@ -1196,8 +1200,13 @@ void QTableView::updateGeometries()
         int columnsInViewport = (c > 0 ? (columnCount - c - 1) : columnCount);
         horizontalScrollBar()->setRange(0, columnCount - columnsInViewport);
         horizontalScrollBar()->setPageStep(columnsInViewport);
+    } else { // ScrollPerPixel
+        horizontalScrollBar()->setPageStep(vsize.width());
+        horizontalScrollBar()->setRange(0, horizontalLength - vsize.width());
+    }
 
-        // vertical scrollbar
+    // vertical scrollbar
+    if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
         const int rowCount = d->verticalHeader->count();
         int y = vsize.height();
         int r = rowCount;
@@ -1208,21 +1217,9 @@ void QTableView::updateGeometries()
         int rowsInViewport = (r > 0 ? (rowCount - r - 1) : rowCount);
         verticalScrollBar()->setRange(0, rowCount - rowsInViewport);
         verticalScrollBar()->setPageStep(rowsInViewport);
-
     } else { // ScrollPerPixel
-
-        int horizontalLength = d->horizontalHeader->length();
-        int verticalLength = d->verticalHeader->length();
-
-        if (max.width() >= horizontalLength && max.height() >= verticalLength)
-            vsize = max;
-
         verticalScrollBar()->setPageStep(vsize.height());
         verticalScrollBar()->setRange(0, verticalLength - vsize.height());
-
-        horizontalScrollBar()->setPageStep(vsize.width());
-        horizontalScrollBar()->setRange(0, horizontalLength - vsize.width());
-
     }
 
     QAbstractItemView::updateGeometries();
