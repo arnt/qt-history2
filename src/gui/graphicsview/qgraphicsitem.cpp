@@ -3116,6 +3116,10 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
 class QGraphicsTextItemPrivate
 {
 public:
+    QGraphicsTextItemPrivate()
+        : textControl(0)
+    { }
+    
     QTextControl *textControl;
 
     QFont font;
@@ -3132,13 +3136,8 @@ public:
 QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
     : QGraphicsItem(parent), dd(new QGraphicsTextItemPrivate)
 {
-    dd->textControl = 0;
-    setTextControl(new QTextControl(this));
-
-    if (!text.isEmpty()) {
+    if (!text.isEmpty())
         setText(text);
-        adjustSize();
-    }
 }
 
 /*!
@@ -3156,7 +3155,9 @@ QGraphicsTextItem::~QGraphicsTextItem()
 */
 QString QGraphicsTextItem::text() const
 {
-    return dd->textControl->toPlainText();
+    return dd->textControl
+        ? dd->textControl->toPlainText()
+        : QString();
 }
 
 /*!
@@ -3166,7 +3167,10 @@ QString QGraphicsTextItem::text() const
 */
 void QGraphicsTextItem::setText(const QString &text)
 {
+    if (!dd->textControl)
+        setTextControl(new QTextControl(this));
     dd->textControl->setPlainText(text);
+    adjustSize();
 }
 
 /*!
@@ -3215,6 +3219,8 @@ void QGraphicsTextItem::setPen(const QPen &pen)
 */
 QRectF QGraphicsTextItem::boundingRect() const
 {
+    if (!dd->textControl)
+        return QRectF();
     return dd->boundingRect;
 }
 
@@ -3223,6 +3229,8 @@ QRectF QGraphicsTextItem::boundingRect() const
 */
 QPainterPath QGraphicsTextItem::shape() const
 {
+    if (!dd->textControl)
+        return QPainterPath();
     QPainterPath path;
     path.addRect(dd->boundingRect);
     return path;
@@ -3243,9 +3251,11 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
                               QWidget *widget)
 {
     Q_UNUSED(widget);
-    painter->save();
-    dd->textControl->drawContents(painter);
-    painter->restore();
+    if (dd->textControl) {
+        painter->save();
+        dd->textControl->drawContents(painter);
+        painter->restore();
+    }
 
     if (option->state & (QStyle::State_Selected | QStyle::State_HasFocus)) {
         painter->setPen(QPen(Qt::black, 1));
@@ -3267,7 +3277,8 @@ int QGraphicsTextItem::type() const
 */
 void QGraphicsTextItem::adjustSize()
 {
-    dd->textControl->adjustSize();
+    if (dd->textControl)
+        dd->textControl->adjustSize();
 }
 
 /*!
@@ -3275,6 +3286,9 @@ void QGraphicsTextItem::adjustSize()
 */
 void QGraphicsTextItem::mouseEvent(QGraphicsSceneMouseEvent *event)
 {
+    if (!dd->textControl)
+        return;
+    
     if (hasFocus()) {
         QEvent::Type type = QEvent::None;
         switch (event->type()) {
@@ -3323,6 +3337,9 @@ void QGraphicsTextItem::mouseEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::keyEvent(QKeyEvent *event)
 {
+    if (!dd->textControl)
+        return;
+    
     switch (event->type()) {
     case QEvent::KeyPress:
         dd->textControl->keyPressEvent(event);
@@ -3340,7 +3357,8 @@ void QGraphicsTextItem::keyEvent(QKeyEvent *event)
 */
 void QGraphicsTextItem::focusEvent(QFocusEvent *event)
 {
-    dd->textControl->setFocus(event->gotFocus());
+    if (dd->textControl)
+        dd->textControl->setFocus(event->gotFocus());
     update();
 }
 
