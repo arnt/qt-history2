@@ -867,16 +867,20 @@ void *QGLContext::getProcAddress(const QString &proc) const
 {
     typedef void *(*qt_glXGetProcAddressARB)(const GLubyte *);
     static qt_glXGetProcAddressARB glXGetProcAddressARB = 0;
+    static bool resolved = false;
 
+    if (resolved && !glXGetProcAddressARB)
+        return 0;
     if (!glXGetProcAddressARB) {
         QString glxExt(glXGetClientString(QX11Info::display(), GLX_EXTENSIONS));
         if (glxExt.contains("GLX_ARB_get_proc_address")) {
             QLibrary lib("GL");
             glXGetProcAddressARB = (qt_glXGetProcAddressARB) lib.resolve("glXGetProcAddressARB");
-            if (!glXGetProcAddressARB)
-                return 0;
         }
+        resolved = true;
     }
+    if (!glXGetProcAddressARB)
+        return 0;
     return glXGetProcAddressARB(reinterpret_cast<const GLubyte *>(proc.toLatin1().data()));
 }
 
