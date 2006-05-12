@@ -386,7 +386,8 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
         option.matrix = neo;
 
         option.exposedRect = item->boundingRect();
-        option.exposedRect &= neo.inverted().mapRect(exposedRegion.boundingRect());
+        option.exposedRect &= neo.inverted().mapRect(QRectF(exposedRegion.boundingRect()));
+        
         styleOptions << option;
     }
     
