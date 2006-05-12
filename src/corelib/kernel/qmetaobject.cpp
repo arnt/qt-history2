@@ -622,7 +622,7 @@ QMetaProperty QMetaObject::property(int index) const
 QMetaProperty QMetaObject::userProperty() const
 {
     const int propCount = propertyCount();
-    for (int i = 0; i < propCount; ++i) {
+    for (int i = propCount - 1; i >= 0; --i) {
         const QMetaProperty prop = property(i);
         if (prop.isUser())
             return prop;
