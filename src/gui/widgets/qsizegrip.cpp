@@ -20,11 +20,15 @@
 #include "qpainter.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
+#include "qdebug.h"
 
 #if defined(Q_WS_X11)
 #include <private/qt_x11_p.h>
 #elif defined (Q_WS_WIN)
 #include "qt_windows.h"
+#endif
+#ifdef Q_WS_MAC
+#include <private/qt_mac_p.h>
 #endif
 
 #include <private/qwidget_p.h>
@@ -270,7 +274,34 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         else
             nr.moveBottomLeft(d->r.bottomLeft());
     }
+    
+#ifdef Q_WS_MAC
+    // If this is a pure resize (i.e. the window position does not change), 
+    // resize the window directly instead of calling setGeometry. This avoids 
+    // painting errors on windows with widgets that have slow repaints.
+    if (d->atBottom && isRightToLeft() == false && nr.topLeft() == tlw->geometry().topLeft()) {
+        const WindowRef window = HIViewGetWindow(reinterpret_cast<HIViewRef>(tlw->winId()));
+        Point start;
+        start.h = d->p.x();
+        start.v = d->p.y();
+        
+        const QSize minimumSize = tlw->minimumSize().expandedTo(tlw->minimumSizeHint());
+        const QSize maximumSize = tlw->maximumSize().boundedTo(QSize(32767, 32767)); // 32767 is a platform limitation.
+        Rect limits;
+        limits.left = minimumSize.width();
+        limits.right = maximumSize.width();
+        limits.top = minimumSize.height();
+        limits.bottom = maximumSize.height();
+               
+        Rect dontCare;
+        QMacBlockingFunction block;
+        ResizeWindow(window, start, &limits, &dontCare);
+    } else {
+        tlw->setGeometry(nr);
+    }
+#else 
     tlw->setGeometry(nr);
+#endif           
 
 #ifdef Q_WS_WIN
     MSG msg;
