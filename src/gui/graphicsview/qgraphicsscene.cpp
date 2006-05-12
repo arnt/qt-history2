@@ -566,7 +566,7 @@ void QGraphicsScene::setSceneRect(const QRectF &rect)
     determine what to draw. If \a target is a null rect, the dimensions of \a
     painter's paint device will be used.
 
-    The source rect will be transformed according to \a aspectratioMode to fit
+    The source rect will be transformed according to \a aspectRatioMode to fit
     into the target rect. By default, the aspect ratio is ignored, and \a
     source is scaled to fit tightly in \a target.
 
