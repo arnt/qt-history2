@@ -36,6 +36,7 @@
 #include "QtCore/qtimeline.h"
 #include "QtGui/qregion.h"
 #include "QtCore/qdebug.h"
+#include "QtGui/qpainter.h"
 
 #ifndef QT_NO_ITEMVIEWS
 

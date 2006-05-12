@@ -1,6 +1,6 @@
 TARGET	   = QtGui
 QPRO_PWD   = $$PWD
-QT = core 
+QT = core
 DEFINES   += QT_BUILD_GUI_LIB
 win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x65000000
 
@@ -28,6 +28,7 @@ include(accessible/accessible.pri)
 include(itemviews/itemviews.pri)
 include(inputmethod/inputmethod.pri)
 include(graphicsview/graphicsview.pri)
+include(undo/undo.pri)
 
 embedded: INCLUDEPATH *= $$QMAKE_INCDIR_QT/QtNetwork
 
