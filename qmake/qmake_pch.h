@@ -1,5 +1,11 @@
 #ifndef QMAKE_PCH_H
 #define QMAKE_PCH_H
+#include <qglobal.h>
+#ifdef Q_WS_WIN
+# define _POSIX_
+# include <limits.h>
+# undef _POSIX_
+#endif
 
 #include <stdio.h>
 //#include "makefile.h"
