@@ -54,7 +54,7 @@ public:
     void bltRect(const QRect &rect, int dx, int dy, QWidget *widget);
     void dirtyRegion(const QRegion &rgn, QWidget *widget=0);
     void cleanRegion(const QRegion &rgn, QWidget *widget=0, bool recursiveCopyToScreen = true);
-#ifdef QT_WINDOW_SURFACE
+#ifndef QT_WINDOW_SURFACE
 #if defined(Q_WS_X11)
     QPixmap backingPixmap() const { return buffer; }
 #elif defined(Q_WS_QWS)

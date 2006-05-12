@@ -38,6 +38,9 @@
 
 #ifdef QT_WINDOW_SURFACE
 #include "qwindowsurface_p.h"
+#ifdef Q_WS_X11
+#include "qwindowsurface_x11_p.h"
+#endif
 #endif
 
 /*****************************************************************************
@@ -229,6 +232,8 @@ QWindowSurface *qt_default_window_surface(QWidget *widget)
 {
 #ifdef Q_WS_WIN
     return new QRasterWindowSurface(widget);
+#elif defined(Q_WS_X11)
+    return new QX11WindowSurface();
 #else
     return 0;
 #endif
