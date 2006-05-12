@@ -376,8 +376,17 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
             option.state |= QStyle::State_MouseOver;
         if (item == scene->mouseGrabberItem())
             option.state |= QStyle::State_Sunken;
+
+        // Calculate a simple level-of-detail metric.
+        QMatrix neo = item->sceneMatrix() * painterMatrix;
+        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
+        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
+        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
+        option.levelOfDetail = qMin(dx, dy);
+        option.matrix = neo;
+
         option.exposedRect = item->boundingRect();
-        option.exposedRect &= painterMatrix.inverted().mapRect(exposedRegion.boundingRect()).adjusted(-1, -1, 1, 1);
+        option.exposedRect &= neo.inverted().mapRect(exposedRegion.boundingRect());
         styleOptions << option;
     }
     
@@ -1884,22 +1893,9 @@ void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> &
         QStyleOptionGraphicsItem option = options.at(i);
         QGraphicsItem *item = items.at(i);
 
-        QMatrix itemMatrix = item->sceneMatrix();
-        QMatrix transformationMatrix = itemMatrix * painterMatrix;
-
-        // Calculate a simple level-of-detail metric.
-        QRectF mappedRect = transformationMatrix.mapRect(QRectF(0, 0, 1, 1));
-        qreal dx = transformationMatrix.mapRect(QRectF(0, 0, 1, 1)).size().width();
-        qreal dy = transformationMatrix.mapRect(QRectF(0, 0, 1, 1)).size().height();
-        option.levelOfDetail = qMin(dx, dy);
-
-        // Also pass the device matrix, so the item can do more advanced
-        // level-of-detail calculations.
-        option.matrix = transformationMatrix;
-
         // Draw the item
         painter->save();
-        painter->setMatrix(itemMatrix, true);
+        painter->setMatrix(item->sceneMatrix(), true);
         item->paint(painter, &option, d->renderWidget);
         painter->restore();
     }
