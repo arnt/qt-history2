@@ -1089,6 +1089,7 @@ void QGraphicsView::rotate(qreal angle)
     Q_D(QGraphicsView);
     QMatrix matrix = d->matrix;
     matrix.rotate(angle);
+    setMatrix(matrix);
 }
 
 /*!
