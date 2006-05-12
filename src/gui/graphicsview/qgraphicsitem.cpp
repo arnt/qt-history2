@@ -2206,6 +2206,15 @@ QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path, QGraphicsItem *pa
 }
 
 /*!
+    Constructs a QGraphicsPath. \a parent is passed to
+    QAbstractGraphicsPathItem's constructor.
+*/
+QGraphicsPathItem::QGraphicsPathItem(QGraphicsItem *parent)
+    : QAbstractGraphicsPathItem(*new QGraphicsPathItemPrivate, parent)
+{
+}
+
+/*!
     Destroys the QGraphicsPathItem.
 */
 QGraphicsPathItem::~QGraphicsPathItem()
@@ -2354,6 +2363,15 @@ QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent)
     : QAbstractGraphicsPathItem(*new QGraphicsRectItemPrivate, parent)
 {
     setRect(rect);
+}
+
+/*!
+    Constructs a QGraphicsRectItem. \a parent is passed to
+    QAbstractGraphicsPathItem's constructor.
+*/
+QGraphicsRectItem::QGraphicsRectItem(QGraphicsItem *parent)
+    : QAbstractGraphicsPathItem(*new QGraphicsRectItemPrivate, parent)
+{
 }
 
 /*!
@@ -2507,6 +2525,15 @@ QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *pa
     : QAbstractGraphicsPathItem(*new QGraphicsEllipseItemPrivate, parent)
 {
     setRect(rect);
+}
+
+/*!
+    Constructs a QGraphicsEllipseItem. \a parent is passed to
+    QAbstractGraphicsPathItem's constructor.
+*/
+QGraphicsEllipseItem::QGraphicsEllipseItem(QGraphicsItem *parent)
+    : QAbstractGraphicsPathItem(*new QGraphicsEllipseItemPrivate, parent)
+{
 }
 
 /*!
@@ -2665,6 +2692,15 @@ QGraphicsPolygonItem::QGraphicsPolygonItem(const QPolygonF &polygon, QGraphicsIt
 }
 
 /*!
+    Constructs a QGraphicsPolygonItem. \a parent is passed to
+    QAbstractGraphicsPathItem's constructor.
+*/
+QGraphicsPolygonItem::QGraphicsPolygonItem(QGraphicsItem *parent)
+    : QAbstractGraphicsPathItem(*new QGraphicsPolygonItemPrivate, parent)
+{
+}
+
+/*!
     Destroys the QGraphicsPolygonItem.
 */
 QGraphicsPolygonItem::~QGraphicsPolygonItem()
@@ -2814,6 +2850,15 @@ QGraphicsLineItem::QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent)
     : QGraphicsItem(*new QGraphicsLineItemPrivate, parent)
 {
     setLine(line);
+}
+
+/*!
+    Constructs a QGraphicsLineItem.  \a parent is passed to QGraphicsItem's
+    constructor.
+*/
+QGraphicsLineItem::QGraphicsLineItem(QGraphicsItem *parent)
+    : QGraphicsItem(*new QGraphicsLineItemPrivate, parent)
+{
 }
 
 /*!
@@ -3023,6 +3068,15 @@ QGraphicsPixmapItem::QGraphicsPixmapItem(const QPixmap &pixmap, QGraphicsItem *p
 }
 
 /*!
+    Constructs a QGraphicsPixmapItem.  \a parent is passed to QGraphicsItem's
+    constructor.
+*/
+QGraphicsPixmapItem::QGraphicsPixmapItem(QGraphicsItem *parent)
+    : QGraphicsItem(*new QGraphicsPixmapItemPrivate, parent)
+{
+}
+
+/*!
     Destroys the QGraphicsPixmapItem.
 */
 QGraphicsPixmapItem::~QGraphicsPixmapItem()
@@ -3096,6 +3150,7 @@ void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     Q_D(QGraphicsPixmapItem);
     Q_UNUSED(widget);
     QRectF exposed = option->exposedRect.adjusted(-1, -1, 1, 1);
+    exposed &= QRectF(0, 0, d->pixmap.width(), d->pixmap.height());
     painter->drawPixmap(exposed, d->pixmap, exposed);
 
     if (option->state & QStyle::State_Selected) {
@@ -3184,6 +3239,15 @@ QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
 {
     if (!text.isEmpty())
         setText(text);
+}
+
+/*!
+    Constructs a QGraphicsTextItem. \a parent is passed to QGraphicsItem's
+    constructor.
+*/
+QGraphicsTextItem::QGraphicsTextItem(QGraphicsItem *parent)
+    : QGraphicsItem(parent), dd(new QGraphicsTextItemPrivate)
+{
 }
 
 /*!
