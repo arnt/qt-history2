@@ -1275,6 +1275,21 @@ void QByteArray::resize(int size)
         x = qAtomicSetPtr(&d, x);
         if (!x->ref.deref())
             qFree(x);
+    } else if ( d == &shared_null ) {
+        //
+        // Optimize the idiom:
+        //    QByteArray a;
+        //    a.resize(sz);
+        //    ...
+        // which is used in place of the Qt 3 idiom:
+        //    QByteArray a(sz);
+        //
+        d->ref.deref(); // cannot be 0
+        d = static_cast<Data *>(qMalloc(sizeof(Data)+size));
+        d->ref.init(1);
+        d->alloc = d->size = size;
+        d->data = d->array;
+        d->array[size] = '\0';
     } else {
         if (d->ref != 1 || size > d->alloc || (size < d->size && size < d->alloc >> 1))
             realloc(qAllocMore(size, sizeof(Data)));
