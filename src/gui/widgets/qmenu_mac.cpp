@@ -646,7 +646,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
         index = before_index;
         MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
         if(before)
-            InsertMenuItemTextWithCFString(action->menu, 0, before_index-1, attr, action->command);
+            InsertMenuItemTextWithCFString(action->menu, 0, qMax(before_index, 0), attr, action->command);
         else
             AppendMenuItemTextWithCFString(action->menu, 0, attr, action->command, (MenuItemIndex*)&index);
     } else {
@@ -869,15 +869,22 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
     if(!action || !menu)
         return;
 
-    const int before_index = actionItems.indexOf(before);
+    int before_index = actionItems.indexOf(before);
+    if(before_index < 0) {
+        before = 0;
+        before_index = actionItems.size();
+    }
     actionItems.insert(before_index, action);
 
+    MenuItemIndex index = actionItems.size()-1;
+
     action->menu = menu;
-    MenuItemIndex index = before_index;
-    if(before)
-        InsertMenuItemTextWithCFString(action->menu, 0, before_index-1, 0, action->command);
-    else
+    if(before) {
+        InsertMenuItemTextWithCFString(action->menu, 0, qMax(1, before_index+1), 0, action->command);
+        index = before_index;
+    } else {
         AppendMenuItemTextWithCFString(action->menu, 0, 0, action->command, &index);
+    }
     SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action),
                         &action);
     syncAction(action);
