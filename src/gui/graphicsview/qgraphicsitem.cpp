@@ -3298,17 +3298,30 @@ class QGraphicsTextItemPrivate
 {
 public:
     QGraphicsTextItemPrivate()
-        : textControl(0)
+        : textControl(0), pageNumber(0)
     { }
     
     QTextControl *textControl;
+    
+    QPointF mapToControl(const QPointF &point) const;
 
     QFont font;
     QPen pen;
     QRectF boundingRect;
+    int pageNumber;
 
     QGraphicsTextItem *qq;
 };
+
+QPointF QGraphicsTextItemPrivate::mapToControl(const QPointF &point) const
+{
+    QPointF pageOffset;
+    const QSizeF pageSize = textControl->document()->pageSize();
+    if (pageSize.height() != INT_MAX)
+        pageOffset.setY(pageNumber * pageSize.height());
+
+    return point + pageOffset;
+}
 
 /*!
     Constructs a QGraphicsTextItem, using \a text as the default text. \a
@@ -3441,7 +3454,13 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     Q_UNUSED(widget);
     if (dd->textControl) {
         painter->save();
-        dd->textControl->drawContents(painter);
+        QRectF r = option->exposedRect;
+
+        const qreal yOffset = dd->pageNumber * dd->textControl->document()->pageSize().height();
+        painter->translate(0, -yOffset);
+        r.translate(0, yOffset);
+
+        dd->textControl->drawContents(painter, r);
         painter->restore();
     }
 
@@ -3496,7 +3515,7 @@ void QGraphicsTextItem::mouseEvent(QGraphicsSceneMouseEvent *event)
             break;
         }
 
-        QMouseEvent mouseEvent(type, event->pos().toPoint(), event->button(),
+        QMouseEvent mouseEvent(type, dd->mapToControl(event->pos()).toPoint(), event->button(),
                                event->buttons(), event->modifiers());
 
         switch (event->type()) {
@@ -3580,9 +3599,10 @@ QVariant QGraphicsTextItem::extension(const QVariant &variant) const
 /*!
     \internal
 */
-void QGraphicsTextItem::viewportUpdate(const QRectF &rect)
+void QGraphicsTextItem::update(const QRectF &rect)
 {
-    update(rect);
+    // reimplemented to make it a slot
+    QGraphicsItem::update(rect);
 }
 
 /*!
@@ -3590,9 +3610,18 @@ void QGraphicsTextItem::viewportUpdate(const QRectF &rect)
 */
 void QGraphicsTextItem::updateBoundingRect(const QSizeF &size)
 {
-    update();
-    dd->boundingRect.setSize(size);
-    update();
+    if (!dd->textControl) return; // can't happen
+    const QSizeF pageSize = dd->textControl->document()->pageSize();
+    if (pageSize.height() != INT_MAX) {
+        // ###
+        update();
+        dd->boundingRect.setSize(pageSize);
+        update();
+    } else {
+        update();
+        dd->boundingRect.setSize(size);
+        update();
+    }
 }
 
 /*!
@@ -3609,8 +3638,8 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
     }
     
     dd->textControl = control;
-    connect(dd->textControl, SIGNAL(viewportUpdateRequest(const QRectF &)),
-            this, SLOT(viewportUpdate(const QRectF &)));
+    connect(dd->textControl, SIGNAL(updateRequest(const QRectF &)),
+            this, SLOT(update(const QRectF &)));
     connect(dd->textControl, SIGNAL(documentSizeChanged(const QSizeF &)),
             this, SLOT(updateBoundingRect(const QSizeF &)));
     
@@ -3627,6 +3656,22 @@ QTextControl *QGraphicsTextItem::textControl() const
         that->setTextControl(new QTextControl(that));
     }
     return dd->textControl;
+}
+
+/*!
+    \internal
+*/
+void QGraphicsTextItem::setPageNumber(int page)
+{
+    dd->pageNumber = page;
+}
+
+/*!
+    \internal
+*/
+int QGraphicsTextItem::pageNumber() const
+{
+    return dd->pageNumber;
 }
 
 /*!

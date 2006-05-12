@@ -76,14 +76,16 @@ public:
     void setCursorPosition(const QPoint &pos);
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
-    void repaintContents(const QRectF &contentsRect);
     void repaintCursor();
     inline void repaintSelection()
-    { emit q_ptr->viewportUpdateRequest(selectionRect()); }
+    { emit q_ptr->updateRequest(selectionRect()); }
 
     inline QPointF mapToContents(const QPointF &point) const {
+        return point; // #########
+        /*
         QRectF vp = q_func()->viewport();
         return QPointF(point.x() + vp.x(), point.y() + vp.y());
+        */
     }
 
     void selectionChanged();
@@ -93,8 +95,6 @@ public:
 
     void updateCurrentCharFormatAndSelection();
     
-    void adjustScrollbars();
-
     void setClipboardSelection();
     void ensureVisible(int documentPosition);
 
@@ -109,9 +109,6 @@ public:
 
     void deleteSelected();
     
-    inline void updateViewport()
-    { emit q_ptr->viewportUpdateRequest(QRectF(QPointF(0, 0), q_func()->viewport().size())); }
-
     void undo();
     void redo();
     void setCursorAfterUndoRedo(int undoPosition, int charsAdded, int charsRemoved);

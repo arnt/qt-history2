@@ -390,9 +390,8 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
             doc = new QTextDocument(q);
         }
 
-        QObject::connect(doc->documentLayout(), SIGNAL(update(QRectF)), q, SLOT(repaintContents(QRectF)));
+        QObject::connect(doc->documentLayout(), SIGNAL(update(QRectF)), q, SIGNAL(updateRequest(QRectF)));
         QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SIGNAL(documentSizeChanged(QSizeF)));
-        QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 
 // ###        doc->setDefaultFont(q->font());
@@ -489,22 +488,10 @@ void QTextControlPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
     }
 }
 
-void QTextControlPrivate::repaintContents(const QRectF &contentsRect)
-{
-    Q_Q(QTextControl);
-    const QRectF vp = q->viewport();
-    QRectF r = contentsRect.intersect(vp);
-    if (r.isEmpty())
-        return;
-
-    r.translate(-vp.topLeft());
-    emit q->viewportUpdateRequest(r);
-}
-
 void QTextControlPrivate::repaintCursor()
 {
     Q_Q(QTextControl);
-    emit q->viewportUpdateRequest(q->cursorRect());
+    emit q->updateRequest(q->cursorRect());
 }
 
 void QTextControlPrivate::selectionChanged()
@@ -522,6 +509,7 @@ void QTextControlPrivate::selectionChanged()
 
 void QTextControlPrivate::pageUp(QTextCursor::MoveMode moveMode)
 {
+    /* ##################
     Q_Q(QTextControl);
     const int oldCursorPos = cursor.position();
     const QRectF vp = q->viewport();
@@ -541,10 +529,12 @@ void QTextControlPrivate::pageUp(QTextCursor::MoveMode moveMode)
             emit q->cursorPositionChanged();
 // #####        q->updateMicroFocus();
     }
+    */
 }
 
 void QTextControlPrivate::pageDown(QTextCursor::MoveMode moveMode)
 {
+    /* #################
     Q_Q(QTextControl);
     const int oldCursorPos = cursor.position();
     const QRectF vp = q->viewport();
@@ -563,6 +553,7 @@ void QTextControlPrivate::pageDown(QTextCursor::MoveMode moveMode)
             emit q->cursorPositionChanged();
 // ######        q->updateMicroFocus();
     }
+    */
 }
 
 void QTextControlPrivate::updateCurrentCharFormatAndSelection()
@@ -600,9 +591,7 @@ void QTextControlPrivate::ensureVisible(int documentPosition)
         return;
 
     Q_Q(QTextControl);
-    QRectF newViewport = q->viewport();
-    newViewport.setY(blockY + line.y());
-    q->ensureVisible(newViewport);
+    emit q->visibilityRequest(QPointF(0, blockY + line.y()));
 }
 
 void QTextControlPrivate::ensureViewportLayouted()
@@ -611,8 +600,10 @@ void QTextControlPrivate::ensureViewportLayouted()
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
     if (!layout)
         return;
+    /* ###############
     if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout))
         tlayout->ensureLayouted(q->viewport().bottom());
+    */
 }
 
 void QTextControlPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
@@ -1038,7 +1029,7 @@ void QTextControl::setTextCursor(const QTextCursor &cursor)
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
-    d->updateViewport();
+// ###### be smarter, repaint only cursor   d->updateViewport();
     if (posChanged)
         emit cursorPositionChanged();
 }
@@ -1157,7 +1148,7 @@ void QTextControl::selectAll()
     Q_D(QTextControl);
     d->cursor.select(QTextCursor::Document);
     d->selectionChanged();
-    d->updateViewport();
+// ########    d->updateViewport();
 }
 
 /* #######
@@ -1694,7 +1685,7 @@ QRectF QTextControlPrivate::selectionRect() const
         }
     }
 
-    r.translate(-q->viewport().topLeft());
+// ###    r.translate(-q->viewport().topLeft());
     return r;
 }
 
@@ -1939,44 +1930,12 @@ void QTextControl::mouseDoubleClickEvent(QMouseEvent *e)
     d->trippleClickTimer.start(qApp->doubleClickInterval(), this);
 }
 
-QRectF QTextControl::viewport() const
-{
-    Q_D(const QTextControl);
-    if (!d->scrollArea)
-        return QRectF(QPointF(0, 0), d->doc->documentLayout()->documentSize());
-    
-    QScrollBar *hbar = d->scrollArea->horizontalScrollBar();
-    QScrollBar *vbar = d->scrollArea->verticalScrollBar();
-    QPointF topLeft;
-    topLeft.setX(d->scrollArea->isRightToLeft() ? (hbar->maximum() - hbar->value()) : hbar->value());
-    topLeft.setY(vbar->value());
-    return QRectF(topLeft, d->scrollArea->viewport()->size());
-}
-
+// ##### make private
 void QTextControl::ensureVisible(const QRectF &_rect)
 {
-    Q_D(QTextControl);
-    if (!d->scrollArea)
-        return; // assume viewport == document size in default mode
-    
-    QWidget *viewport = d->scrollArea->viewport();
-    QScrollBar *hbar = d->scrollArea->horizontalScrollBar();
-    QScrollBar *vbar = d->scrollArea->verticalScrollBar();
-
-    const QRect rect = _rect.toRect();
-    const int visibleWidth = viewport->width();
-    const int visibleHeight = viewport->height();
-    const QPoint topLeft = this->viewport().topLeft().toPoint();
-
-    if (rect.x() < topLeft.x())
-        hbar->setValue(rect.x() - rect.width());
-    else if (rect.x() + rect.width() > topLeft.x() + visibleWidth)
-        hbar->setValue(rect.x() + rect.width() - visibleWidth);
-
-    if (rect.y() < topLeft.y())
-        vbar->setValue(rect.y() - rect.height());
-    else if (rect.y() + rect.height() > topLeft.y() + visibleHeight)
-        vbar->setValue(rect.y() + rect.height() - visibleHeight);
+    const QPointF middle(_rect.left() + _rect.width() / 2,
+                         _rect.top() + _rect.height() / 2);
+    emit visibilityRequest(middle, _rect.width() / 2, _rect.height() / 2);
 }
 
 /*
@@ -2277,7 +2236,7 @@ QRectF QTextControl::cursorRect(const QTextCursor &cursor) const
         return QRectF();
 
     QRectF r = d->rectForPosition(cursor.position());
-    r.translate(-viewport().topLeft());
+// #######    r.translate(-viewport().topLeft());
     return r;
 }
 
@@ -2410,7 +2369,8 @@ void QTextControl::setExtraSelections(const QList<ExtraSelection> &selections)
         d->extraSelections[i].cursor = selections.at(i).cursor;
         d->extraSelections[i].format = selections.at(i).format;
     }
-    d->updateViewport();
+    // ###########
+//    d->updateViewport();
 }
 
 /*
@@ -2646,52 +2606,6 @@ void QTextControl::scrollToAnchor(const QString &name)
             }
         }
     }
-}
-
-void QTextControl::setScrollArea(QAbstractScrollArea *scrollArea)
-{
-    Q_D(QTextControl);
-    d->scrollArea = scrollArea;
-}
-
-void QTextControlPrivate::adjustScrollbars()
-{
-    if (!scrollArea || ignoreAutomaticScrollbarAdjustement)
-        return;
-
-    QAbstractTextDocumentLayout *layout = doc->documentLayout();
-
-    QWidget *viewport = scrollArea->viewport();
-    const QSize viewportSize = viewport->size();
-    QSize docSize;
-
-    if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout)) {
-        docSize = tlayout->dynamicDocumentSize().toSize();
-        int percentageDone = tlayout->layoutStatus();
-        // extrapolate height
-        if (percentageDone > 0)
-            docSize.setHeight(docSize.height() * 100 / percentageDone);
-    } else {
-        docSize = layout->documentSize().toSize();
-    }
-    
-    QScrollBar *hbar = scrollArea->horizontalScrollBar();
-    QScrollBar *vbar = scrollArea->verticalScrollBar();
-
-    hbar->setRange(0, docSize.width() - viewportSize.width());
-    hbar->setPageStep(viewportSize.width());
-
-    vbar->setRange(0, docSize.height() - viewportSize.height());
-    vbar->setPageStep(viewportSize.height());
-
-    // if we are in left-to-right mode widening the document due to
-    // lazy layouting does not require a repaint. If in right-to-left
-    // the scrollbar has the value zero and it visually has the maximum
-    // value (it is visually at the right), then widening the document
-    // keeps it at value zero but visually adjusts it to the new maximum
-    // on the right, hence we need an update.
-    if (scrollArea->isRightToLeft())
-        viewport->update();
 }
 
 void QTextControl::adjustSize()
@@ -3097,14 +3011,11 @@ void QTextControl::setPalette(const QPalette &pal)
     d->palette = pal;
 }
 
-void QTextControl::drawContents(QPainter *p)
+void QTextControl::drawContents(QPainter *p, const QRectF &rect)
 {
     Q_D(QTextControl);
-    QRectF r = viewport(); // ### intersect with clip rect from paint event
-    p->translate(-r.topLeft());
-    p->setClipRect(r);
-
     QAbstractTextDocumentLayout::PaintContext ctx;
+    ctx.clip = rect;
     ctx.selections = d->extraSelections;
     ctx.palette = d->palette;
     if (d->cursorOn /* ####### && q->isEnabled()*/)
@@ -3125,7 +3036,6 @@ void QTextControl::drawContents(QPainter *p)
         selection.format.setProperty(QTextFormat::OutlinePen, outline);
         ctx.selections.append(selection);
     }
-    ctx.clip = r;
 
     d->doc->documentLayout()->draw(p, ctx);    
 }

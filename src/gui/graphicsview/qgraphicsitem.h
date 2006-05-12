@@ -464,6 +464,12 @@ public:
     void setTextControl(QTextControl *control);
     QTextControl *textControl() const;
     
+    void setPageNumber(int page);
+    int pageNumber() const;
+
+public Q_SLOTS:    
+    void update(const QRectF &rect = QRectF());
+    
 protected:
     void mouseEvent(QGraphicsSceneMouseEvent *event);
     void keyEvent(QKeyEvent *event);
@@ -474,7 +480,6 @@ protected:
     QVariant extension(const QVariant &variant) const;
 
 private Q_SLOTS:
-    void viewportUpdate(const QRectF &rect);
     void updateBoundingRect(const QSizeF &size);
 
 private:

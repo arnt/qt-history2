@@ -151,9 +151,7 @@ public Q_SLOTS:
     void scrollToAnchor(const QString &name);
 
     void adjustSize();
-    
-    void setScrollArea(QAbstractScrollArea *scrollArea);
-    
+        
 Q_SIGNALS:
     void textChanged();
     void undoAvailable(bool b);
@@ -164,8 +162,9 @@ Q_SIGNALS:
     void cursorPositionChanged();
 
     // control signals
-    void viewportUpdateRequest(const QRectF &rectInViewport);
+    void updateRequest(const QRectF &rect);
     void documentSizeChanged(const QSizeF &);
+    void visibilityRequest(const QPointF &pos, int xmargin = 50, int ymargin = 50);
 
 public:
     // control properties
@@ -173,7 +172,7 @@ public:
     void setPalette(const QPalette &pal);
 
     // control methods
-    void drawContents(QPainter *painter);
+    void drawContents(QPainter *painter, const QRectF &rect = QRectF());
 
     virtual void setFocus(bool focus, Qt::FocusReason = Qt::OtherFocusReason);
 
@@ -186,7 +185,6 @@ public:
     virtual void contextMenuEvent(QContextMenuEvent *e);
     
     // control methods to re-implement
-    virtual QRectF viewport() const;
     virtual void ensureVisible(const QRectF &rectInDocument);
 
 protected:
@@ -210,9 +208,7 @@ protected:
 private:
     Q_DISABLE_COPY(QTextControl)
     QTextControlPrivate *d_ptr;
-    Q_PRIVATE_SLOT(d_func(), void repaintContents(const QRectF &r))
     Q_PRIVATE_SLOT(d_func(), void updateCurrentCharFormatAndSelection())
-    Q_PRIVATE_SLOT(d_func(), void adjustScrollbars())
     Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
     Q_PRIVATE_SLOT(d_func(), void deleteSelected())
     Q_PRIVATE_SLOT(d_func(), void undo())
