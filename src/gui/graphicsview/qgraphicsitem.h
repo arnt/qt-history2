@@ -187,6 +187,15 @@ protected:
     virtual void inputMethodEvent(QInputMethodEvent *event);
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
+    enum ItemChange { 
+        ItemPositionChange,
+        ItemMatrixChange,
+        ItemVisibleChange,
+        ItemEnabledChange,
+        ItemSelectedChange
+    };
+    virtual void itemChange(ItemChange change);
+
     enum Extension {
         UserExtension = 0x80000000
     };

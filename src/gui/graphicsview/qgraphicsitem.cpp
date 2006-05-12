@@ -197,6 +197,31 @@
 */
 
 /*!
+    \enum QGraphicsItem::ItemChange
+
+    This enum describes the state changes that are notified by
+    QGraphicsItem::itemChange().
+
+    \value ItemEnabledChange The item's enabled state changes. If the item is
+    presently enabled, it will become disabled, and vice verca.
+    
+    \value ItemMatrixChange The item's matrix changes. This notification is
+    only sent when the item's local matrix changes (i.e., as a result of
+    calling setMatrix(), or one of the convenience transformation functions,
+    such as rotate()).
+
+    \value ItemPositionChange The item's position changes. This notification
+    is only sent when the item's local position changes, relative to its
+    parent, has changed (i.e., as a result of calling setPos() or moveBy()).
+    
+    \value ItemSelectedChange The item's selected state changes. If the item
+    is presently selected, it will become unselected, and vice verca.
+
+    \value ItemVisibleChange The item's visible state changes. If the item
+    is presently visible, it will become invisible, and vice verca.
+*/
+
+/*!
     \enum QGraphicsItem::Extension
     \internal
 
@@ -646,6 +671,7 @@ void QGraphicsItem::setVisible(bool visible)
                 setSelected(false);
         }
         d->visible = quint32(visible);
+        itemChange(ItemVisibleChange);
         update();
 
         foreach (QGraphicsItem *child, children())
@@ -695,6 +721,7 @@ void QGraphicsItem::setEnabled(bool enabled)
                 setSelected(false);
         }
         d->enabled = quint32(enabled);
+        itemChange(ItemEnabledChange);
         update();
 
         foreach (QGraphicsItem *child, children())
@@ -755,6 +782,7 @@ void QGraphicsItem::setSelected(bool selected)
         selected = false;
     if (d->selected != selected) {
         d->selected = quint32(selected);
+        itemChange(ItemSelectedChange);
         update();
         if (selected && d->scene)
             d->scene->d_func()->selectedItems << this;
@@ -962,16 +990,16 @@ QPointF QGraphicsItem::scenePos() const
 void QGraphicsItem::setPos(const QPointF &pos)
 {
     Q_D(QGraphicsItem);
-    if (!d->scene) {
-        d->pos = pos;
-        return;
+    if (d->scene) {
+        qt_graphicsItem_fullUpdate(this);
+        removeFromIndex();
     }
-
-    qt_graphicsItem_fullUpdate(this);
-    removeFromIndex();
     d->pos = pos;
-    qt_graphicsItem_fullUpdate(this);
-    addToIndex();
+    itemChange(ItemPositionChange);
+    if (d->scene) {
+        qt_graphicsItem_fullUpdate(this);
+        addToIndex();
+    }
 }
 
 /*!
@@ -1097,6 +1125,7 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
     QVariant variant;
     qVariantSetValue<QMatrix>(variant, newMatrix);
     d->setExtra(QGraphicsItemPrivate::ExtraMatrix, variant);
+    itemChange(ItemMatrixChange);
     addToIndex();
     qt_graphicsItem_fullUpdate(this);
 }
@@ -1956,6 +1985,22 @@ QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     Q_UNUSED(query);
     return QVariant();
+}
+
+/*!
+    This virtual function is called by QGraphicsItem to notify custom items
+    that some part of the item's state has changed. By reimplementing this
+    function, your can react to a change.
+
+    \a change is the parameter of the item that is changing.
+
+    The default implementation does nothing.
+    
+    \sa ItemChange
+*/
+void QGraphicsItem::itemChange(ItemChange change)
+{
+    Q_UNUSED(change);
 }
 
 /*!
@@ -3050,7 +3095,8 @@ void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 {
     Q_D(QGraphicsPixmapItem);
     Q_UNUSED(widget);
-    painter->drawPixmap(0, 0, d->pixmap);
+    QRectF exposed = option->exposedRect.adjusted(-1, -1, 1, 1);
+    painter->drawPixmap(exposed, d->pixmap, exposed);
 
     if (option->state & QStyle::State_Selected) {
         painter->setPen(QPen(Qt::black, 2));
