@@ -95,6 +95,131 @@
    </gradient>
   </brush>
  </description>
+ <description name="Greek" >
+  <brush brushstyle="LinearGradientPattern" >
+   <gradient spread="PadSpread" startx="0" starty="0" type="LinearGradient" endx="0" coordinatemode="StretchToDeviceMode" endy="1" >
+    <gradientstop position="0" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.09" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.105" >
+     <color alpha="255" >
+      <red>255</red>
+      <green>255</green>
+      <blue>255</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.205" >
+     <color alpha="255" >
+      <red>255</red>
+      <green>255</green>
+      <blue>255</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.22" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.32" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.335" >
+     <color alpha="255" >
+      <red>255</red>
+      <green>255</green>
+      <blue>255</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.435" >
+     <color alpha="255" >
+      <red>255</red>
+      <green>255</green>
+      <blue>255</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.45" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.55" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.565" >
+     <color alpha="255" >
+      <red>255</red>
+      <green>255</green>
+      <blue>255</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.665" >
+     <color alpha="255" >
+      <red>255</red>
+      <green>255</green>
+      <blue>255</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.68" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.78" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.795" >
+     <color alpha="255" >
+      <red>255</red>
+      <green>255</green>
+      <blue>255</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.895" >
+     <color alpha="255" >
+      <red>255</red>
+      <green>255</green>
+      <blue>255</blue>
+     </color>
+    </gradientstop>
+    <gradientstop position="0.91" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
+   </gradient>
+  </brush>
+ </description>
  <description name="Italian" >
   <brush brushstyle="LinearGradientPattern" >
    <gradient spread="PadSpread" startx="0" starty="0" type="LinearGradient" endx="1" coordinatemode="StretchToDeviceMode" endy="0" >
