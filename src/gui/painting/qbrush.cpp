@@ -1055,7 +1055,7 @@ bool QGradient::operator==(const QGradient &gradient) const
 {
     if (gradient.m_type != m_type
         || gradient.m_spread != m_spread
-        || gradient.dummy == dummy) return false;
+        || gradient.dummy != dummy) return false;
 
     if (m_type == LinearGradient) {
         if (m_data.linear.x1 != gradient.m_data.linear.x1
