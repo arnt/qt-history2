@@ -141,7 +141,7 @@ QStyleOptionTitleBar QWorkspaceTitleBarPrivate::getStyleOption() const
     QStyleOptionTitleBar opt;
     opt.init(q);
     //################
-    if (window) {
+    if (window && (flags & Qt::WindowTitleHint)) {
         opt.text = window->windowTitle();
         QIcon icon = window->windowIcon();
         QSize s = icon.actualSize(QSize(64, 64));
@@ -485,7 +485,7 @@ void QWorkspaceTitleBar::paintEvent(QPaintEvent *)
     opt.subControls = QStyle::SC_TitleBarLabel;
     opt.activeSubControls = d->buttonDown;
 
-    if (d->window) {
+    if (d->window && (d->flags & Qt::WindowTitleHint)) {
         QString title = qt_setWindowTitle_helperHelper(opt.text, d->window);
         int maxw = style()->subControlRect(QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel,
                                        this).width();
@@ -2381,7 +2381,11 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags
         }
     }
 
-    if (window && (flags & Qt::WindowTitleHint)) {
+    if (window && (flags & (Qt::WindowTitleHint
+			    | Qt::WindowSystemMenuHint
+			    | Qt::WindowMinimizeButtonHint
+			    | Qt::WindowMaximizeButtonHint
+			    | Qt::WindowContextHelpButtonHint))) {
         titlebar = new QWorkspaceTitleBar(window, this, flags);
         connect(titlebar, SIGNAL(doActivate()),
                  this, SLOT(activate()));
