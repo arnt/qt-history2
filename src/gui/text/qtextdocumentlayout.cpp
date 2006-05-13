@@ -1912,12 +1912,11 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 
     const QPointF oldPosition = tl->position();
     tl->setPosition(QPointF(layoutStruct->x_left, layoutStruct->y));
-    const QRectF tlBoundingRect = tl->boundingRect();
 
     if (layoutStruct->fullLayout
         || (bl.position() + bl.length() > layoutFrom && bl.position() <= layoutTo)
         // force relayout if we cross a page boundary
-        || (layoutStruct->pageHeight > 0.0 && layoutStruct->y + tlBoundingRect.height() > layoutStruct->pageBottom)) {
+        || (layoutStruct->pageHeight > 0.0 && layoutStruct->y + tl->boundingRect().height() > layoutStruct->pageBottom)) {
 
 //         qDebug() << "    layouting block at" << bl.position();
         const qreal cy = layoutStruct->y;
@@ -2017,12 +2016,16 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
         }
         tl->endLayout();
     } else {
-        layoutStruct->y += tlBoundingRect.height();
         const int cnt = tl->lineCount();
         for (int i = 0; i < cnt; ++i) {
             QTextLine line = tl->lineAt(i);
             layoutStruct->contentsWidth
                 = qMax(layoutStruct->contentsWidth, line.x() + tl->lineAt(i).naturalTextWidth());
+            const qreal lineHeight = line.height();
+            if (layoutStruct->pageHeight > 0.0 && layoutStruct->y + lineHeight > layoutStruct->pageBottom)
+                layoutStruct->newPage();
+            line.setPosition(QPointF(line.position().x(), layoutStruct->y - tl->position().y()));
+            layoutStruct->y += lineHeight;
         }
         if (layoutStruct->updateRect.isValid()
             && bl.length() > 1) {
@@ -2453,7 +2456,7 @@ void QTextDocumentLayout::adjustSize()
 {
     QFont f = document()->defaultFont();
     QFontMetrics fm(f);
-    int mw =  fm.width('x') * 80;
+    int mw =  fm.width(QLatin1Char('x')) * 80;
     int w = mw;
     QTextDocument *doc = document();
     doc->setPageSize(QSizeF(w, INT_MAX));

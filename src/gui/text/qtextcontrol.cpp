@@ -3014,7 +3014,10 @@ void QTextControl::setPalette(const QPalette &pal)
 void QTextControl::drawContents(QPainter *p, const QRectF &rect)
 {
     Q_D(QTextControl);
+    p->save();
     QAbstractTextDocumentLayout::PaintContext ctx;
+    if (rect.isValid())
+        p->setClipRect(rect);
     ctx.clip = rect;
     ctx.selections = d->extraSelections;
     ctx.palette = d->palette;
@@ -3038,6 +3041,7 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
     }
 
     d->doc->documentLayout()->draw(p, ctx);    
+    p->restore();
 }
 
 #endif // QT_NO_TEXTCONTROL

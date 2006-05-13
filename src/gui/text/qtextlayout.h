@@ -183,6 +183,7 @@ public:
     void setNumColumns(int columns);
 
     void setPosition(const QPointF &pos);
+    QPointF position() const;
 
     int textStart() const;
     int textLength() const;

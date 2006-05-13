@@ -1336,6 +1336,14 @@ void QTextLine::setPosition(const QPointF &pos)
     eng->lines[i].y = QFixed::fromReal(pos.y());
 }
 
+/*!
+    Returns the line's position relative to the text layout's position.
+*/
+QPointF QTextLine::position() const
+{
+    return QPointF(eng->lines[i].x.toReal(), eng->lines[i].y.toReal());
+}
+
 // ### DOC: I have no idea what this means/does.
 // You create a text layout with a string of text. Once you layouted
 // it, it contains a number of QTextLines. from() returns the position
