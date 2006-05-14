@@ -20,6 +20,10 @@
  *
  *********************************************************************/
 
+#include <QtCore/qglobal.h>
+
+class QIODevice;
+
 QT_BEGIN_HEADER
 
 struct QWSProtocolItem

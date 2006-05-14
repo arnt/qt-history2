@@ -15,6 +15,7 @@
 #define QWSCURSOR_QWS_H
 
 #include <QtGui/qimage.h>
+#include <QtGui/qregion.h>
 
 QT_BEGIN_HEADER
 

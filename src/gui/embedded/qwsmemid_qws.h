@@ -25,6 +25,8 @@
 // We mean it.
 //
 
+#include <QtCore/qglobal.h>
+
 QT_BEGIN_HEADER
 
 union QWSMemId
