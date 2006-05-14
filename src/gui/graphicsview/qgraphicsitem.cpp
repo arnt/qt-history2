@@ -3459,11 +3459,9 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     if (dd->textControl) {
         painter->save();
         QRectF r = option->exposedRect;
-
         const qreal yOffset = dd->pageNumber * dd->textControl->document()->pageSize().height();
         painter->translate(0, -yOffset);
         r.translate(0, yOffset);
-
         dd->textControl->drawContents(painter, r);
         painter->restore();
     }
@@ -3606,8 +3604,8 @@ QVariant QGraphicsTextItem::extension(const QVariant &variant) const
 void QGraphicsTextItemPrivate::_q_update(QRectF rect)
 {
     rect.translate(0, - pageNumber * textControl->document()->pageSize().height());
-    if (boundingRect.intersects(rect))
-        qq->update(rect);
+    // the scene takes care of intersecting it with the bounding rect
+    qq->update(rect);
 }
 
 /*!
