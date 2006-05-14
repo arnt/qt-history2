@@ -608,7 +608,7 @@ void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
     \brief whether sorting is enabled
 
     If this property is true sorting is enabled for the table; if the
-    property is false, sorting is not enabled. The default value is true.
+    property is false, sorting is not enabled. The default value is false.
 */
 
 void QTreeView::setSortingEnabled(bool enable)
