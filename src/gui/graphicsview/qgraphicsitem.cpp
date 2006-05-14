@@ -3306,6 +3306,7 @@ public:
     QPointF mapToControl(const QPointF &point) const;
     void _q_updateBoundingRect(const QSizeF &);
     void _q_update(QRectF);
+    void _q_ensureVisible(QPointF p, int xmargin, int ymargin);
 
     QFont font;
     QPen pen;
@@ -3628,6 +3629,15 @@ void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
 /*!
     \internal
 */
+void QGraphicsTextItemPrivate::_q_ensureVisible(QPointF p, int xmargin, int ymargin)
+{
+    p.ry() -= pageNumber * textControl->document()->pageSize().height();
+    qq->ensureVisible(p, xmargin, ymargin);
+}
+
+/*!
+    \internal
+*/
 void QGraphicsTextItem::setTextControl(QTextControl *control)
 {
     if (!control) return;
@@ -3643,6 +3653,8 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
             this, SLOT(_q_update(QRectF)));
     connect(dd->textControl, SIGNAL(documentSizeChanged(const QSizeF &)),
             this, SLOT(_q_updateBoundingRect(const QSizeF &)));
+    connect(dd->textControl, SIGNAL(visibilityRequest(const QPointF &, int, int)),
+            this, SLOT(_q_ensureVisible(const QPointF &, int, int)));
     
     dd->_q_updateBoundingRect(dd->textControl->document()->documentLayout()->documentSize());
 }
