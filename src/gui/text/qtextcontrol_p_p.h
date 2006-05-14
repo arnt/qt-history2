@@ -33,11 +33,12 @@
 #include "QtGui/qabstracttextdocumentlayout.h"
 #include "QtCore/qbasictimer.h"
 #include "QtCore/qpointer.h"
+#include "private/qobject_p.h"
 
 class QMimeData;
 class QAbstractScrollArea;
 
-class QTextControlPrivate
+class QTextControlPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QTextControl)
 public:
@@ -78,7 +79,7 @@ public:
 
     void repaintCursor();
     inline void repaintSelection()
-    { emit q_ptr->updateRequest(selectionRect()); }
+    { emit q_func()->updateRequest(selectionRect()); }
 
     inline QPointF mapToContents(const QPointF &point) const {
         return point; // #########
@@ -97,8 +98,6 @@ public:
     
     void setClipboardSelection();
     void ensureVisible(int documentPosition);
-
-    void ensureViewportLayouted();
 
     void emitCursorPosChanged(const QTextCursor &someCursor);
 
@@ -171,7 +170,6 @@ public:
     QPalette palette;
 
     QPointer<QAbstractScrollArea> scrollArea;
-    QTextControl *q_ptr;
 };
 
 #endif // QTEXTCONTROL_P_H

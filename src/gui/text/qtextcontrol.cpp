@@ -260,12 +260,6 @@ void QTextControlPrivate::updateCurrentCharFormat()
     lastCharFormat = fmt;
 
     emit q->currentCharFormatChanged(fmt);
-#ifdef QT3_SUPPORT
-    // compat signals
-    // ### undefined signals
-    // emit q->currentFontChanged(fmt.font());
-    // emit q->currentColorChanged(fmt.foreground().color());
-#endif
 // ####    q->updateMicroFocus();
 }
 
@@ -592,18 +586,6 @@ void QTextControlPrivate::ensureVisible(int documentPosition)
 
     Q_Q(QTextControl);
     emit q->visibilityRequest(QPointF(0, blockY + line.y()));
-}
-
-void QTextControlPrivate::ensureViewportLayouted()
-{
-    Q_Q(QTextControl);
-    QAbstractTextDocumentLayout *layout = doc->documentLayout();
-    if (!layout)
-        return;
-    /* ###############
-    if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout))
-        tlayout->ensureLayouted(q->viewport().bottom());
-    */
 }
 
 void QTextControlPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
@@ -951,10 +933,8 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     parent.
 */
 QTextControl::QTextControl(QObject *parent)
-    : QObject(parent)
+    : QObject(*new QTextControlPrivate, parent)
 {
-    d_ptr = new QTextControlPrivate;
-    d_ptr->q_ptr = this;
     Q_D(QTextControl);
     d->init();
 }
@@ -964,10 +944,8 @@ QTextControl::QTextControl(QObject *parent)
     the text \a text. The text is interpreted as html.
 */
 QTextControl::QTextControl(const QString &text, QObject *parent)
-    : QObject(parent)
+    : QObject(*new QTextControlPrivate, parent)
 {
-    d_ptr = new QTextControlPrivate;
-    d_ptr->q_ptr = this;
     Q_D(QTextControl);
     d->init(text);
 }
@@ -977,8 +955,6 @@ QTextControl::QTextControl(const QString &text, QObject *parent)
 */
 QTextControl::~QTextControl()
 {
-    // #### REMOVEME once in Qt
-    delete d_ptr;
 }
 
 /*
@@ -1029,7 +1005,8 @@ void QTextControl::setTextCursor(const QTextCursor &cursor)
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
-// ###### be smarter, repaint only cursor   d->updateViewport();
+    // ### be smarter, repaint only cursor/selector
+    emit updateRequest();
     if (posChanged)
         emit cursorPositionChanged();
 }
@@ -1614,7 +1591,6 @@ QRectF QTextControlPrivate::rectForPosition(int position) const
 
 QRectF QTextControlPrivate::selectionRect() const
 {
-    Q_Q(const QTextControl);
     QRectF r = rectForPosition(cursor.selectionStart());
 
     if (cursor.hasComplexSelection() && cursor.currentTable()) {
@@ -1685,7 +1661,6 @@ QRectF QTextControlPrivate::selectionRect() const
         }
     }
 
-// ###    r.translate(-q->viewport().topLeft());
     return r;
 }
 
@@ -1699,8 +1674,6 @@ void QTextControl::mousePressEvent(QMouseEvent *e)
         return;
 
     const int oldCursorPos = d->cursor.position();
-
-    d->ensureViewportLayouted();
 
     const QPointF pos = d->mapToContents(e->pos());
 
@@ -1793,8 +1766,6 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
 
     const int oldCursorPos = d->cursor.position();
 
-    d->ensureViewportLayouted();
-
 /* ####
     if (d->mightStartDrag) {
         d->dragStartTimer.stop();
@@ -1860,7 +1831,6 @@ void QTextControl::mouseReleaseEvent(QMouseEvent *e)
     Q_UNUSED(e);
 #endif
 
-    d->ensureViewportLayouted();
     d->autoScrollTimer.stop();
     d->repaintSelection();
 
@@ -1908,7 +1878,6 @@ void QTextControl::mouseDoubleClickEvent(QMouseEvent *e)
         return;
 #endif
 
-    d->ensureViewportLayouted();
 #ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
 #endif
@@ -2235,9 +2204,7 @@ QRectF QTextControl::cursorRect(const QTextCursor &cursor) const
     if (cursor.isNull())
         return QRectF();
 
-    QRectF r = d->rectForPosition(cursor.position());
-// #######    r.translate(-viewport().topLeft());
-    return r;
+   return d->rectForPosition(cursor.position());
 }
 
 /*
@@ -2369,8 +2336,8 @@ void QTextControl::setExtraSelections(const QList<ExtraSelection> &selections)
         d->extraSelections[i].cursor = selections.at(i).cursor;
         d->extraSelections[i].format = selections.at(i).format;
     }
-    // ###########
-//    d->updateViewport();
+    // ### smarter update
+    emit updateRequest();
 }
 
 /*
@@ -2786,8 +2753,6 @@ void QTextControl::append(const QString &text)
             f = Qt::PlainText;
     }
 
-// ######    const bool atBottom = d->vbar->value() >= d->vbar->maximum();
-
     QTextCursor cursor(d->doc);
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::End);
@@ -2806,11 +2771,6 @@ void QTextControl::append(const QString &text)
         d->cursor.setCharFormat(oldCharFormat);
 
     cursor.endEditBlock();
-
-    /* #####
-    if (atBottom)
-        d->vbar->setValue(d->vbar->maximum());
-    */
 }
 
 /*

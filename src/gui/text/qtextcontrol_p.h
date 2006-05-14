@@ -162,7 +162,7 @@ Q_SIGNALS:
     void cursorPositionChanged();
 
     // control signals
-    void updateRequest(const QRectF &rect);
+    void updateRequest(const QRectF &rect = QRectF());
     void documentSizeChanged(const QSizeF &);
     void visibilityRequest(const QPointF &pos, int xmargin = 50, int ymargin = 50);
 
@@ -207,7 +207,6 @@ protected:
 
 private:
     Q_DISABLE_COPY(QTextControl)
-    QTextControlPrivate *d_ptr;
     Q_PRIVATE_SLOT(d_func(), void updateCurrentCharFormatAndSelection())
     Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
     Q_PRIVATE_SLOT(d_func(), void deleteSelected())
