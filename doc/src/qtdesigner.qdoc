@@ -1088,7 +1088,10 @@
 /*!
     \fn QString QDesignerCustomWidgetInterface::name() const
 
-    Returns the name of the class that implements the custom widget.
+    Returns the class name of the custom widget supplied by the interface.
+
+    The name returned \e must be identical to the class name used for the
+    custom widget.
 */
 
 /*!
