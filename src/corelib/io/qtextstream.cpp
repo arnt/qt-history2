@@ -509,7 +509,31 @@ bool QTextStreamPrivate::fillReadBuffer()
     // reset the Text flag.
     if (textModeEnabled) {
         device->setTextModeEnabled(true);
-        readBuffer.replace(QLatin1String("\r\n"), QLatin1String("\n"));
+
+        // remove all '\r\n' in the string.
+        QChar CR = QLatin1Char('\r');
+        QChar LF = QLatin1Char('\n');
+        QChar *writePtr = readBuffer.data();
+        QChar *readPtr = readBuffer.data();
+        QChar *endPtr = readBuffer.data() + readBuffer.size();
+        
+        int n = 0;
+        while (readPtr < endPtr) {
+            if (readPtr + 1 < endPtr && *readPtr == CR && *(readPtr + 1) == LF) {
+                *writePtr = LF;
+                if (n < readBufferOffset)
+                    --readBufferOffset;
+                ++readPtr;
+            } else  if (readPtr != writePtr) {
+                *writePtr = *readPtr;
+            }
+
+            ++n;
+            ++writePtr;
+            ++readPtr;
+        }
+        readBuffer.resize(writePtr - readBuffer.data());
+
         if (readBuffer.endsWith(QLatin1Char('\r')) && !device->atEnd()) {
             endOfBufferState = QLatin1String("\r");
             readBuffer.chop(1);
