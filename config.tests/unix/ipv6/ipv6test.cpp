@@ -13,7 +13,10 @@ int main()
 {
     sockaddr_in6 tmp;
     sockaddr_storage tmp2;
-    (void)tmp;
+    (void)tmp.sin6_addr.s6_addr;
+    (void)tmp.sin6_port;
+    (void)tmp.sin6_family;
+    (void)tmp.sin6_scope_id;
     (void)tmp2;
 
     return 0;
