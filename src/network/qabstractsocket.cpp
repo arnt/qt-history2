@@ -1665,6 +1665,12 @@ qint64 QAbstractSocket::readLineData(char *data, qint64 maxlen)
 qint64 QAbstractSocket::writeData(const char *data, qint64 size)
 {
     Q_D(QAbstractSocket);
+    if (d->state == QAbstractSocket::UnconnectedState) {
+        d->socketError = QAbstractSocket::UnknownSocketError;
+        setErrorString(tr("Socket is not connected"));
+        return -1;
+    }
+    
     if (!d->isBuffered) {
         qint64 written = d->socketEngine->write(data, size);
         if (written < 0) {
