@@ -1380,7 +1380,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
         if (pos.x()+size.width() > screen.right()-desktopFrame)
             pos.setX(qMin(p.x()-size.width(), screen.right()-desktopFrame-size.width()));
         else if (pos.x() < screen.left()+desktopFrame)
-            pos.setX(p.x());
+            pos.setX(qMax(p.x(), screen.left() + desktopFrame));
     }
     if (pos.y() + size.height() > screen.bottom() - desktopFrame) {
         if(snapToMouse)
