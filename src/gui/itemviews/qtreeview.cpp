@@ -1716,17 +1716,17 @@ void QTreeView::columnResized(int column, int /* oldSize */, int /* newSize */)
 void QTreeView::updateGeometries()
 {
     Q_D(QTreeView);
-    QSize hint = d->header->isHidden() ? QSize(0, 0) : d->header->sizeHint();
-    setViewportMargins(0, hint.height(), 0, 0);
-
-    QRect vg = d->viewport->geometry();
-    QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
-    d->header->setGeometry(geometryRect);
-    d->header->setOffset(horizontalScrollBar()->value());
-    if (d->header->isHidden())
-        QMetaObject::invokeMethod(d->header, "updateGeometries");
-    d->updateScrollBars();
-
+    if (d->header) {
+        QSize hint = d->header->isHidden() ? QSize(0, 0) : d->header->sizeHint();
+        setViewportMargins(0, hint.height(), 0, 0);
+        QRect vg = d->viewport->geometry();
+        QRect geometryRect(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
+        d->header->setGeometry(geometryRect);
+        d->header->setOffset(horizontalScrollBar()->value());
+        if (d->header->isHidden())
+            QMetaObject::invokeMethod(d->header, "updateGeometries");
+        d->updateScrollBars();
+    }
     QAbstractItemView::updateGeometries();
 }
 
@@ -1838,6 +1838,7 @@ void QTreeViewPrivate::initialize()
     Q_Q(QTreeView);
     q->setSelectionBehavior(QAbstractItemView::SelectRows);
     q->setSelectionMode(QAbstractItemView::SingleSelection);
+    q->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
 
     QHeaderView *header = new QHeaderView(Qt::Horizontal, q);
     header->setMovable(true);
@@ -2187,7 +2188,6 @@ int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
 
 int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
 {
-    Q_Q(const QTreeView);
     if (!index.isValid())
         return -1;
 
