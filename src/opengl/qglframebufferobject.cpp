@@ -352,15 +352,13 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     generates a 2D GL texture (using the \c{GL_TEXTURE_2D} target),
     which is used as the rendering target in the framebuffer object.
 
-    \bold{It is important to have a GL context set as the current
-    context when creating a QGLFramebufferObject.}
+    \bold{It is important to have a current GL context when creating a
+    QGLFramebufferObject, otherwise initialization will fail.}
 
-    This class requires the \c{GL_EXT_framebuffer_object} OpenGL
-    extension to work as documented.
-
-    OpenGL framebuffer objects are similar in use to pbuffers (see
-    \l{QGLPixelBuffer}{QGLPixelBuffer}), but there are a number of
-    advantages with using framebuffer objects instead of pbuffers:
+    OpenGL framebuffer objects and pbuffers (see
+    \l{QGLPixelBuffer}{QGLPixelBuffer}) can both be used to render to
+    offscreen surfaces, but there are a number of advantages with
+    using framebuffer objects instead of pbuffers:
 
     \list 1
     \o A framebuffer object does not require a separate rendering
@@ -369,10 +367,10 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     targets, but in general it is cheaper than a context switch to a
     pbuffer.
 
-    \o Rendering to dynamic textures works on all platforms. No need
-    to do explicit copy calls from a buffer into a texture, as was
-    necessary on systems that did not support the \c{render_texture}
-    extension.
+    \o Rendering to dynamic textures (i.e. render-to-texture
+    functionality) works on all platforms. No need to do explicit copy
+    calls from a render buffer into a texture, as was necessary on
+    systems that did not support the \c{render_texture} extension.
 
     \o It is possible to attach several rendering buffers (or texture
     objects) to the same framebuffer object, and render to all of them
@@ -382,6 +380,11 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     system dependant WGL, AGL or GLX parts. This makes using
     framebuffer objects more portable.
     \endlist
+
+    Note that QPainter antialiasing of drawing primitives will not
+    work when using a QGLFramebufferObject as a paintdevice. This is
+    because sample buffers, which are needed for antialiasing, are not
+    yet supported in application-defined framebuffer objects.
 
     \sa {opengl/framebufferobject}{Framebuffer Object example}
 */
