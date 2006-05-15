@@ -75,7 +75,7 @@
     scaled clip rect after the image has been read.
 
     \value Description The image description. Some image formats,
-    such as GIF, PNG and JPEG, allow embedding of text
+    such as GIF and PNG, allow embedding of text
     or comments into the image data (e.g., for storing copyright
     information). It's common that the text is stored in key-value
     pairs, but some formats store all text in one continuous block.
