@@ -19,6 +19,11 @@
 #include <qscrollbar.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
+#include <qdebug.h>
+#include <qglobal.h>
+
+#include <private/qslider_p.h>
+#include <private/qscrollbar_p.h>
 
 #ifndef QT_NO_ACCESSIBILITY
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
@@ -238,44 +243,37 @@ QScrollBar *QAccessibleScrollBar::scrollBar() const
     return qobject_cast<QScrollBar*>(object());
 }
 
+
 /*! \reimp */
 QRect QAccessibleScrollBar::rect(int child) const
 {
-    QRect rect;
-    QStyleOptionSlider option;
-    QRect srect = scrollBar()->style()->subControlRect(QStyle::CC_Slider, &option,
-                                                       QStyle::SC_SliderHandle, scrollBar());
-    int sz = scrollBar()->style()->pixelMetric(QStyle::PM_ScrollBarExtent, &option, scrollBar());
+    QStyle::SubControl subControl;
     switch (child) {
     case LineUp:
-        rect = QRect(0, 0, sz, sz);
+        subControl = QStyle ::SC_ScrollBarSubLine;
         break;
     case PageUp:
-        if (scrollBar()->orientation() == Qt::Vertical)
-            rect = QRect(0, sz, sz, srect.y() - sz);
-        else
-            rect = QRect(sz, 0, srect.x() - sz, sz);
+        subControl = QStyle::SC_ScrollBarSubPage;
         break;
     case Position:
-        rect = srect;
+        subControl = QStyle::SC_ScrollBarSlider;
         break;
     case PageDown:
-        if (scrollBar()->orientation() == Qt::Vertical)
-            rect = QRect(0, srect.bottom(), sz, scrollBar()->rect().height() - srect.bottom() - sz);
-        else
-            rect = QRect(srect.right(), 0, scrollBar()->rect().width() - srect.right() - sz, sz) ;
+        subControl = QStyle::SC_ScrollBarAddPage;        
         break;
     case LineDown:
-        if (scrollBar()->orientation() == Qt::Vertical)
-            rect = QRect(0, scrollBar()->rect().height() - sz, sz, sz);
-        else
-            rect = QRect(scrollBar()->rect().width() - sz, 0, sz, sz);
+        subControl = QStyle::SC_ScrollBarAddLine;
         break;
     default:
         return QAccessibleWidget::rect(child);
     }
-
-    QPoint tp = scrollBar()->mapToGlobal(QPoint(0,0));
+    
+    extern QStyleOptionSlider qt_qscrollbarStyleOption(QScrollBar *scrollbar);
+    const QStyleOptionSlider option = qt_qscrollbarStyleOption(scrollBar());
+    const QRect rect = scrollBar()->style()->subControlRect(QStyle::CC_ScrollBar, &option,
+                                                       subControl, scrollBar());
+    
+    const QPoint tp = scrollBar()->mapToGlobal(QPoint(0,0));
     return QRect(tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height());
 }
 
@@ -425,11 +423,11 @@ QSlider *QAccessibleSlider::slider() const
 QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
-    QStyleOptionSlider option;
-    option.init(slider());
-    option.orientation = slider()->orientation();
+    extern QStyleOptionSlider qt_qsliderStyleOption(QSlider *slider);
+    const QStyleOptionSlider option = qt_qsliderStyleOption(slider());
     QRect srect = slider()->style()->subControlRect(QStyle::CC_Slider, &option,
                                                     QStyle::SC_SliderHandle, slider());
+    
     switch (child) {
     case PageLeft:
         if (slider()->orientation() == Qt::Vertical)

@@ -591,5 +591,12 @@ int QSlider::tickInterval() const
     Use setValue() instead.
 */
 
+/*! \internal
+    Returns the style option for slider.
+*/
+Q_GUI_EXPORT QStyleOptionSlider qt_qsliderStyleOption(QSlider *slider)
+{
+    return slider->d_func()->getStyleOption();
+}
 
 #endif

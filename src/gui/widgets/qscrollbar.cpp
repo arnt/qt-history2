@@ -669,4 +669,12 @@ void QScrollBar::hideEvent(QHideEvent *)
     Use isSliderDown() instead.
 */
 
+/*! \internal
+    Returns the style option for scrollbar.
+*/
+Q_GUI_EXPORT QStyleOptionSlider qt_qscrollbarStyleOption(QScrollBar *scrollbar)
+{
+     return scrollbar->d_func()->getStyleOption();
+}
+
 #endif // QT_NO_SCROLLBAR
