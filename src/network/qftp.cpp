@@ -504,7 +504,7 @@ bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo 
 
     // size
     tmp = lst[4];
-    info->setSize(tmp.toInt());
+    info->setSize(tmp.toLongLong());
 
     // date and time
     QTime time;
