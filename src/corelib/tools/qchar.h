@@ -211,7 +211,7 @@ public:
     inline const char toLatin1() const;
     inline const ushort unicode() const { return ucs; }
 #ifdef Q_NO_PACKED_REFERENCE
-    inline ushort &unicode() { return *(&ucs); }
+    inline ushort &unicode() { return *((ushort*)&ucs); }
 #else
     inline ushort &unicode() { return ucs; }
 #endif
