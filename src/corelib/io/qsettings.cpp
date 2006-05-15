@@ -3130,7 +3130,7 @@ void QSettings::setPath(Format format, Scope scope, const QString &path)
         int main(int argc, char *argv[])
         {
             const QSettings::Format XmlFormat =
-                    QSettings::registerFormat("xml", readXmlFunc, writeXmlFunc);
+                    QSettings::registerFormat("xml", readXmlFile, writeXmlFile);
 
             QSettings settings(XmlFormat, QSettings::UserSettings, "MySoft",
                                "Star Runner");
