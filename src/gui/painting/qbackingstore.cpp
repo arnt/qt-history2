@@ -233,6 +233,7 @@ QWindowSurface *qt_default_window_surface(QWidget *widget)
 #ifdef Q_WS_WIN
     return new QRasterWindowSurface(widget);
 #elif defined(Q_WS_X11)
+    Q_UNUSED(widget);
     return new QX11WindowSurface();
 #else
     return 0;
