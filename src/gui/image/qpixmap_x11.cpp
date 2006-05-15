@@ -1674,7 +1674,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     copies everything to the bottom of the window.
 
     The window system identifier (\c WId) can be retrieved using the
-    QWidget::WId() function. The rationale for using a window
+    QWidget::winId() function. The rationale for using a window
     identifier and not a QWidget, is to enable grabbing of windows
     that are not part of the application, window system frames, and so
     on.
