@@ -3659,11 +3659,11 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl, ParsingMode parsingMode)
             quint8 c = quint8(copy.at(i));
             if (c < 32 || c > 127 || (start != -1 && i >= start && (c == '[' || c == ']'))) {
                 char buf[4];
-                qsnprintf(buf, sizeof(buf), "%%%02hhX", quint8(copy.at(i)));
+                qsnprintf(buf, sizeof(buf), "%%%02hX", quint16(c));
                 buf[3] = '\0';
                 tmp.append(buf);
             } else {
-                tmp.append(copy.at(i));
+                tmp.append(c);
             }
         }
     }
