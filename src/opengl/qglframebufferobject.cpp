@@ -337,8 +337,6 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     QT_CHECK_GLERROR();
 }
 
-
-
 /*!
     \class QGLFramebufferObject
     \brief The QGLFramebufferObject class encapsulates an OpenGL framebuffer object.
@@ -356,6 +354,9 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
 
     \bold{It is important to have a GL context set as the current
     context when creating a QGLFramebufferObject.}
+
+    This class requires the \c{GL_EXT_framebuffer_object} OpenGL
+    extension to work as documented.
 
     OpenGL framebuffer objects are similar in use to pbuffers (see
     \l{QGLPixelBuffer}{QGLPixelBuffer}), but there are a number of
@@ -566,6 +567,7 @@ QPaintEngine *QGLFramebufferObject::paintEngine() const
 */
 bool QGLFramebufferObject::hasOpenGLFramebufferObjects()
 {
+    QGLWidget dmy; // needed to detect and init the QGLExtensions object
     return ((QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
             && qt_resolve_framebufferobject_extensions());
 }
@@ -624,8 +626,8 @@ int QGLFramebufferObject::metric(PaintDeviceMetric metric) const
 
     Returns the framebuffer object handle for this framebuffer
     object. This handle can be used to attach new images or buffers to
-    this framebuffer. The user is responsible for cleaningup and
-    destroying up these objects.
+    this framebuffer. The user is responsible for destroying up these
+    objects.
 */
 GLuint QGLFramebufferObject::handle() const
 {
