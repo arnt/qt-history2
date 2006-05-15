@@ -1284,12 +1284,13 @@ void QByteArray::resize(int size)
         // which is used in place of the Qt 3 idiom:
         //    QByteArray a(sz);
         //
-        d->ref.deref(); // cannot be 0
-        d = static_cast<Data *>(qMalloc(sizeof(Data)+size));
-        d->ref.init(1);
-        d->alloc = d->size = size;
-        d->data = d->array;
-        d->array[size] = '\0';
+        Data *x = static_cast<Data *>(qMalloc(sizeof(Data)+size));
+        x->ref.init(1);
+        x->alloc = x->size = size;
+        x->data = x->array;
+        x->array[size] = '\0';
+        x = qAtomicSetPtr(&d, x);
+        (void) x->ref.deref(); // cannot be 0, x points to shared_null
     } else {
         if (d->ref != 1 || size > d->alloc || (size < d->size && size < d->alloc >> 1))
             realloc(qAllocMore(size, sizeof(Data)));
