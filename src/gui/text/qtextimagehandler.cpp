@@ -31,7 +31,7 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
 
     QString name = format.name();
     if (name.startsWith(QLatin1String(":/"))) // auto-detect resources
-        name.prepend("qrc");
+        name.prepend(QLatin1String("qrc"));
     const QVariant data = doc->resource(QTextDocument::ImageResource, name);
     if (data.type() == QVariant::Pixmap || data.type() == QVariant::Image) {
         pm = qvariant_cast<QPixmap>(data);
@@ -52,7 +52,7 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
 
         if (img.isNull()) // try direct loading
             if (name.isEmpty() || !img.load(name))
-                return QPixmap(":/trolltech/styles/commonstyle/images/file-16.png");
+                return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/file-16.png"));
         pm = QPixmap::fromImage(img);
         doc->addResource(QTextDocument::ImageResource, name, pm);
     }
