@@ -1070,8 +1070,7 @@ bool QPSPrintEngine::end()
     d->outDevice->write(trailer);
     ignoreSigPipe(false);
 
-    if (d->outDevice)
-        d->outDevice->close();
+    d->outDevice->close();
     if (d->fd >= 0)
         ::close(d->fd);
     d->fd = -1;
