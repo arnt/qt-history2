@@ -82,11 +82,13 @@ void FtpWindow::connectOrDisconnect()
         fileList->setEnabled(false);
         cdToParentButton->setEnabled(false);
         downloadButton->setEnabled(false);
+        connectButton->setEnabled(true);
         connectButton->setText(tr("Connect"));
+        setCursor(Qt::ArrowCursor);
         return;
     }
 
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    setCursor(Qt::WaitCursor);
     
     ftp = new QFtp(this);
     connect(ftp, SIGNAL(commandFinished(int, bool)),
@@ -105,6 +107,7 @@ void FtpWindow::connectOrDisconnect()
     ftp->list();
 
     fileList->setEnabled(true);
+    connectButton->setEnabled(false);
     connectButton->setText(tr("Disconnect"));
     statusLabel->setText(tr("Connecting to FTP server %1...")
                          .arg(ftpServerLineEdit->text()));
@@ -134,8 +137,8 @@ void FtpWindow::downloadFile()
     ftp->get(fileList->currentItem()->text(), file);
 
     progressDialog->setLabelText(tr("Downloading %1...").arg(fileName));
-    progressDialog->show();
     downloadButton->setEnabled(false);
+    progressDialog->exec();
 }
 
 void FtpWindow::cancelDownload()
@@ -145,14 +148,16 @@ void FtpWindow::cancelDownload()
 
 void FtpWindow::ftpCommandFinished(int, bool error)
 {
+    setCursor(Qt::ArrowCursor);
+
     if (ftp->currentCommand() == QFtp::ConnectToHost) {
         if (error) {
-            QApplication::restoreOverrideCursor();
             QMessageBox::information(this, tr("FTP"),
                                      tr("Unable to connect to the FTP server "
                                         "at %1. Please check that the host "
                                         "name is correct.")
                                      .arg(ftpServerLineEdit->text()));
+            connectOrDisconnect();
             return;
         }
 
@@ -160,11 +165,11 @@ void FtpWindow::ftpCommandFinished(int, bool error)
                              .arg(ftpServerLineEdit->text()));
         fileList->setFocus();
         downloadButton->setDefault(true);
+        connectButton->setEnabled(true);
         return;
     }
 
     if (ftp->currentCommand() == QFtp::Get) {
-        QApplication::restoreOverrideCursor();
         if (error) {
             statusLabel->setText(tr("Canceled download of %1.")
                                  .arg(file->fileName()));
@@ -178,7 +183,6 @@ void FtpWindow::ftpCommandFinished(int, bool error)
         delete file;
         enableDownloadButton();
     } else if (ftp->currentCommand() == QFtp::List) {
-        QApplication::restoreOverrideCursor();
         if (isDirectory.isEmpty()) {
             fileList->addItem(tr("<empty>"));
             fileList->setEnabled(false);
@@ -211,14 +215,14 @@ void FtpWindow::processItem(QListWidgetItem *item)
         ftp->cd(name);
         ftp->list();
         cdToParentButton->setEnabled(true);
-        QApplication::setOverrideCursor(Qt::WaitCursor);
+        setCursor(Qt::WaitCursor);
         return;
     }
 }
 
 void FtpWindow::cdToParent()
 {
-    QApplication::setOverrideCursor(Qt::WaitCursor);
+    setCursor(Qt::WaitCursor);
     fileList->clear();
     isDirectory.clear();
     currentPath = currentPath.left(currentPath.lastIndexOf('/'));
