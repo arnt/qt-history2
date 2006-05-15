@@ -9,7 +9,7 @@ QT_MODULE(Gui)
 
 class QAbstractButton;
 class QDialogButtonBoxPrivate;
-class QDialogButtonBox : public QWidget
+class Q_GUI_EXPORT QDialogButtonBox : public QWidget
 {
     Q_OBJECT
     Q_ENUMS(QDialogButtonBox::LayoutPolicy)
