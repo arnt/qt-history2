@@ -424,6 +424,7 @@ void InsertWidgetCommand::redo()
     checkObjectName(m_widget);
 
     QWidget *parentWidget = m_widget->parentWidget();
+    Q_ASSERT(parentWidget);
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
