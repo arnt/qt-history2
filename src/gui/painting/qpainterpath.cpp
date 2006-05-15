@@ -835,7 +835,7 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
 
 
 /*!
-    \fn void QPainterPath::arcMoveTo(qreal x, qreal y qreal width, qreal height, qreal angle)
+    \fn void QPainterPath::arcMoveTo(qreal x, qreal y, qreal width, qreal height, qreal angle)
 
     \overload
 

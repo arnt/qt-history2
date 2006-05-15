@@ -461,7 +461,7 @@ void QLineEdit::setFrame(bool enable)
     \brief the line edit's echo mode
 
     The initial setting is \l Normal, but QLineEdit also supports \l
-    NoEcho,\l Password and \l PasswordEchoOnEdit modes.
+    NoEcho, \l Password and \l PasswordEchoOnEdit modes.
 
     The widget's display and the ability to copy or drag the text is
     affected by this setting.
