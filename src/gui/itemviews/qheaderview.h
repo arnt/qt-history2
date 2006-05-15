@@ -31,6 +31,7 @@ class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
     Q_PROPERTY(bool highlightSections READ highlightSections WRITE setHighlightSections)
     Q_PROPERTY(bool stretchLastSection READ stretchLastSection WRITE setStretchLastSection)
     Q_PROPERTY(int defaultSectionSize READ defaultSectionSize WRITE setDefaultSectionSize)
+    Q_PROPERTY(int minimumSectionSize READ minimumSectionSize WRITE setMinimumSectionSize)
     Q_PROPERTY(Qt::Alignment defaultAlignment READ defaultAlignment WRITE setDefaultAlignment)
     Q_ENUMS(ResizeMode)
 
@@ -106,6 +107,9 @@ public:
 
     int defaultSectionSize() const;
     void setDefaultSectionSize(int size);
+
+    int minimumSectionSize() const;
+    void setMinimumSectionSize(int size);
 
     Qt::Alignment defaultAlignment() const;
     void setDefaultAlignment(Qt::Alignment alignment);

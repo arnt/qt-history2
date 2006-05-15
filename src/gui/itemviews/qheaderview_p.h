@@ -57,6 +57,7 @@ public:
           stretchLastSection(false),
           stretchSections(0),
           contentsSections(0),
+          minimumSectionSize(-1),
           sectionIndicatorOffset(0),
           sectionIndicator(0),
           globalResizeMode(QHeaderView::Interactive) {}
@@ -120,7 +121,7 @@ public:
     inline QHeaderView::ResizeMode visualIndexResizeMode(int visual) const {
         return headerSectionResizeMode(visual); // ### remove this
     }
-    
+
     inline bool hasAutoResizeSections() const {
         return stretchSections || stretchLastSection || contentsSections;
     }
@@ -146,7 +147,7 @@ public:
     mutable QBitArray sectionHidden;
     mutable QHash<int, int> hiddenSectionSize; // from logical index to section size
     mutable QSize cachedSizeHint;
-    
+
     int lastPos;
     int firstPos;
     int section; // used for resizing and moving sections
@@ -161,14 +162,15 @@ public:
     bool stretchLastSection;
     int stretchSections;
     int contentsSections;
-    int sectionIndicatorOffset;
     int defaultSectionSize;
+    int minimumSectionSize;
+    int sectionIndicatorOffset;
     Qt::Alignment defaultAlignment;
     QLabel *sectionIndicator;
     QHeaderView::ResizeMode globalResizeMode;
 
     // header section spans
-    
+
     struct SectionSpan {
         int size;
         int count;
@@ -224,7 +226,7 @@ public:
     void setHeaderSectionResizeMode(int visual, QHeaderView::ResizeMode mode);
     QHeaderView::ResizeMode headerSectionResizeMode(int visual) const;
     void setGlobalHeaderResizeMode(QHeaderView::ResizeMode mode);
-    
+
 };
 
 #endif // QT_NO_ITEMVIEWS

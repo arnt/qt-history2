@@ -132,7 +132,7 @@
     index is specified by \a logicalIndex.
 
     Note that the sectionPressed signal will also be emitted.
- 
+
     \sa setClickable(), sectionPressed()
 */
 
@@ -339,9 +339,10 @@ void QHeaderView::setOffset(int newOffset)
 void QHeaderView::setOffsetToSectionPosition(int visualIndex)
 {
     Q_D(QHeaderView);
-    Q_ASSERT(visualIndex > -1 && visualIndex < d->sectionCount);
-    int position = d->headerSectionPosition(visualIndex);
-    setOffset(position);
+    if (visualIndex > -1 && visualIndex < d->sectionCount) {
+        int position = d->headerSectionPosition(visualIndex);
+        setOffset(position);
+    }
 }
 
 /*!
@@ -393,7 +394,7 @@ QSize QHeaderView::sizeHint() const
 /*!
     Returns a suitable size hint for the section specified by \a logicalIndex.
 
-    \sa sizeHint(), defaultSectionSize()
+    \sa sizeHint(), defaultSectionSize(), minimumSectionSize()
 */
 
 int QHeaderView::sectionSizeHint(int logicalIndex) const
@@ -402,7 +403,8 @@ int QHeaderView::sectionSizeHint(int logicalIndex) const
     if (d->model == 0 || logicalIndex < 0 || logicalIndex >= count())
         return -1;
     QSize size = sectionSizeFromContents(logicalIndex);
-    return orientation() == Qt::Horizontal ? size.width() : size.height();
+    int hint = orientation() == Qt::Horizontal ? size.width() : size.height();
+    return qMax(minimumSectionSize(), hint);
 }
 
 /*!
@@ -756,7 +758,7 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         d->sectionHidden.setBit(visual, true);
         // A bit of a hack because resizeSection has to called before hiding FIXME
 //         if (d->hasAutoResizeSections())
-//             resizeSections(); // changes because of the new/old hiddne
+//             resizeSections(); // changes because of the new/old hidden
     } else if (d->isVisualIndexHidden(visual)) {
         int size = d->hiddenSectionSize.value(logicalIndex, d->defaultSectionSize);
         d->hiddenSectionSize.remove(logicalIndex);
@@ -1087,10 +1089,33 @@ void QHeaderView::setDefaultSectionSize(int size)
     d->defaultSectionSize = size;
 }
 
-Qt::Alignment QHeaderView::defaultAlignment() const
+/*!
+    \since 4.2
+    \property QHeaderView::minimumSectionSize
+    \brief the minimum size of the header sections when resizing.
+
+    The minimumSectionSize is the smallest section size allowed.
+    If the minimumSectionSize is set to -1, the property will use the
+    maximum of the global strut or the fontmetrics size.
+
+    \sa QApplication::globalStrut(), fontMetrics()
+*/
+int QHeaderView::minimumSectionSize() const
 {
     Q_D(const QHeaderView);
-    return d->defaultAlignment;
+    if (d->minimumSectionSize == -1) {
+        QSize strut = QApplication::globalStrut();
+        return (orientation() == Qt::Horizontal
+                ? qMax(strut.width(), fontMetrics().maxWidth())
+                : qMax(strut.height(), fontMetrics().height()));
+    }
+    return d->minimumSectionSize;
+}
+
+void QHeaderView::setMinimumSectionSize(int size)
+{
+    Q_D(QHeaderView);
+    d->minimumSectionSize = size;
 }
 
 /*!
@@ -1098,6 +1123,13 @@ Qt::Alignment QHeaderView::defaultAlignment() const
     \property QHeaderView::defaultAlignment
     \brief the default alignment of the text in each header section
 */
+
+Qt::Alignment QHeaderView::defaultAlignment() const
+{
+    Q_D(const QHeaderView);
+    return d->defaultAlignment;
+}
+
 void QHeaderView::setDefaultAlignment(Qt::Alignment alignment)
 {
     Q_D(QHeaderView);
@@ -1148,7 +1180,7 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirs
     Q_D(QHeaderView);
     if (d->orientation != orientation)
         return;
-    // Before initilization the size isn't set
+
     if (count() == 0)
         return;
 
@@ -1173,8 +1205,6 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirs
 }
 
 /*!
-    \internal
-
     Updates the section specified by the given \a logicalIndex.
 */
 
@@ -1190,8 +1220,6 @@ void QHeaderView::updateSection(int logicalIndex)
 }
 
 /*!
-    \internal
-
     Resizes the sections according to their size hints. You should not
     normally need to call this function.
 */
@@ -1568,8 +1596,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
         case QHeaderViewPrivate::ResizeSection: {
             int delta = d->reverse() ? d->lastPos - pos : pos - d->lastPos;
             int size = sectionSize(d->section) + delta;
-            QSize strut = QApplication::globalStrut();
-            int minimum = orientation() == Qt::Horizontal ? strut.width() : strut.height();
+            int minimum = minimumSectionSize();
             if (size > minimum) {
                 resizeSection(d->section, size);
                 d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
@@ -2211,7 +2238,15 @@ bool QHeaderViewPrivate::isSectionSelected(int section) const
 }
 
 /*!
-    Go through and reize all of the sections appling stretchLastSection, manualy stretches, sizes, and useGlobalMode
+  \internal
+  Go through and reize all of the sections appling stretchLastSection,
+  manualy stretches, sizes, and useGlobalMode.
+
+  The different resize modes are:
+  Interactive - the user decides the size
+  Stretch - take up whatever space is left
+  Custom - the size is set programatically outside the header
+  ResizeToContents - the section contents decides the size
  */
 void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool useGlobalMode)
 {
@@ -2222,7 +2257,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         return;
     invalidateCachedSizeHint();
 
-    // If stretchLastSection, find it
+    // find stretchLastSection if we have it
     int stretchSection = -1;
     if (stretchLastSection && !useGlobalMode) {
         for (int i = sectionCount - 1; i >= 0; --i) {
@@ -2233,10 +2268,10 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         }
     }
 
-    // Count up the number of strected sections and how much space left for them
+    // count up the number of strected sections and how much space left for them
     int lengthToStrech = (orientation == Qt::Horizontal ? viewport->width() : viewport->height());
     int numberOfStretchedSections = 0;
-    QList<int> section_sizes; //Store for later so they don't have to be re-calculated
+    QList<int> section_sizes;
     for (int i = 0; i < sectionCount; ++i) {
         if (isVisualIndexHidden(i))
             continue;
@@ -2252,7 +2287,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
             continue;
         }
 
-        // because it isn't stretch determine its width and remove that from lengthToStrech
+        // because it isn't stretch, determine its width and remove that from lengthToStrech
         int sectionSize = 0;
         if (resizeMode == QHeaderView::Interactive || resizeMode == QHeaderView::Custom) {
             sectionSize = headerSectionSize(i);
@@ -2268,16 +2303,12 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
         lengthToStrech -= sectionSize;
     }
 
-    // Calculate the new length for all of the stretched sections
+    // calculate the new length for all of the stretched sections
     int stretchSectionLength = 0;
     int pixelReminder = 0;
     if (numberOfStretchedSections > 0) {
-        QSize strut = QApplication::globalStrut();
-        int minimumLength = orientation == Qt::Horizontal
-                  ? qMax(strut.width(), q->fontMetrics().maxWidth())
-                  : qMax(strut.height(), q->fontMetrics().height());
         int hintLengthForEveryStretchedSection = lengthToStrech / numberOfStretchedSections;
-        stretchSectionLength = qMax(hintLengthForEveryStretchedSection, minimumLength);
+        stretchSectionLength = qMax(hintLengthForEveryStretchedSection, q->minimumSectionSize());
         pixelReminder = lengthToStrech % numberOfStretchedSections;
     }
 
@@ -2285,7 +2316,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
     int previousSectionLength = 0;
     QHeaderView::ResizeMode previousSectionResizeMode = QHeaderView::Interactive;
 
-    // set the position of each section along the total length
+    // resize each section along the total length
     for (int i = 0; i < sectionCount; ++i) {
 
         int oldSectionLength = headerSectionSize(i);
@@ -2299,7 +2330,9 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
             if (useGlobalMode)
                 resizeMode = globalMode;
             else
-                resizeMode = (i == stretchSection ? QHeaderView::Stretch : visualIndexResizeMode(i));
+                resizeMode = (i == stretchSection
+                              ? QHeaderView::Stretch
+                              : visualIndexResizeMode(i));
             if (resizeMode == QHeaderView::Stretch) {
                 newSectionLength = stretchSectionLength;
                 if (pixelReminder > 0) {
