@@ -932,7 +932,7 @@ void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
     else if (mode != ResizeToContents && old == ResizeToContents)
         --d->contentsSections;
 
-    if (d->hasAutoResizeSections())
+    if (d->hasAutoResizeSections() && d->state == QHeaderViewPrivate::NoState)
         resizeSections(); // section sizes may change as a result of the new mode
 }
 
@@ -1066,10 +1066,12 @@ void QHeaderView::setStretchLastSection(bool stretch)
 {
     Q_D(QHeaderView);
     d->stretchLastSection = stretch;
+    if (d->state != QHeaderViewPrivate::NoState)
+        return;
     if (stretch)
         resizeSections();
     else if (count())
-        resizeSection(count() -1, d->defaultSectionSize);
+        resizeSection(count() - 1, d->defaultSectionSize);
 }
 
 /*!
@@ -1574,9 +1576,14 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
             updateSection(d->pressed);
             emit sectionPressed(d->pressed);
         }
-    } else if (resizeMode(handle) == Interactive) {
+    } else if (resizeMode(handle) == Interactive || resizeMode(handle) == Stretch) {
         d->state = QHeaderViewPrivate::ResizeSection;
         d->section = handle;
+        if (resizeMode(handle) == Stretch)
+            setResizeMode(handle, Interactive);
+        if ((visualIndex(handle) == count() - 1) && stretchLastSection())
+            setStretchLastSection(false);
+
     }
     d->firstPos = pos;
     d->lastPos = pos;
@@ -1596,8 +1603,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
         case QHeaderViewPrivate::ResizeSection: {
             int delta = d->reverse() ? d->lastPos - pos : pos - d->lastPos;
             int size = sectionSize(d->section) + delta;
-            int minimum = minimumSectionSize();
-            if (size > minimum) {
+            if (size > minimumSectionSize()) {
                 resizeSection(d->section, size);
                 d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
             }
@@ -1628,8 +1634,8 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
         case QHeaderViewPrivate::NoState: {
 #ifndef QT_NO_CURSOR
             int handle = d->sectionHandleAt(pos);
-            if (handle != -1 && resizeMode(handle) == Interactive
-                && !(visualIndex(handle) == count() - 1 && stretchLastSection()))
+            if (handle != -1
+                && (resizeMode(handle) == Interactive || resizeMode(handle) == Stretch))
                 setCursor(orientation() == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
             else
                 setCursor(Qt::ArrowCursor);
@@ -2246,7 +2252,6 @@ bool QHeaderViewPrivate::isSectionSelected(int section) const
   Interactive - the user decides the size
   Stretch - take up whatever space is left
   Custom - the size is set programatically outside the header
-  ResizeToContents - the section contents decides the size
  */
 void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool useGlobalMode)
 {
