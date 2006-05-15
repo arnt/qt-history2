@@ -2512,6 +2512,8 @@ void Q3Dns::doResInit()
 		    // this host supports ipv6.
 		    if ( address->isIPv4Address() || ipv6support )
 			ns->append( address );
+                    else
+                        delete address;
 		} else {
 		    delete address;
 		}

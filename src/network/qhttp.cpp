@@ -2485,6 +2485,7 @@ void QHttpPrivate::_q_slotReadyRead()
                             finishedWithError(QT_TRANSLATE_NOOP("QHttp", "Invalid HTTP chunked body"),
                                               QHttp::WrongContentLength);
                             closeConn();
+                            delete arr;
                             return;
                         }
                         if (chunkedSize == 0) // last-chunk

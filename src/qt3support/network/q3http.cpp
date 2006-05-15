@@ -2018,6 +2018,7 @@ void Q3Http::slotReadyRead()
 			if ( tmp[0] != '\r' || tmp[1] != '\n' ) {
 			    finishedWithError( QHttp::tr("Invalid HTTP chunked body"), WrongContentLength );
 			    close();
+                            delete arr;
 			    return;
 			}
 		    }
