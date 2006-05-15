@@ -3535,7 +3535,16 @@ QIcon QCleanLooksStyle::standardIconImplementation(StandardPixmap standardIcon,
 {
     return QWindowsStyle::standardIconImplementation(standardIcon, option, widget);
 }
-    
+
+
+QPixmap findIcon(const QString &subpath)
+{
+    QPixmap pixmap (QString("/usr/share/icons/gnome") + subpath);
+    if (pixmap.isNull())
+        pixmap.load(QString("/usr/share/icons/hicolor") + subpath);	
+    return pixmap;
+}
+
 
 /*!
  \reimp
@@ -3547,28 +3556,28 @@ QPixmap QCleanLooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     switch (standardPixmap) {
     case SP_MessageBoxInformation:
         {
-            QPixmap pixmap ("/usr/share/icons/hicolor/48x48/stock/generic/stock_dialog-info.png");   
+            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-info.png");		    
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxWarning:
         {
-            QPixmap pixmap ("/usr/share/icons/hicolor/48x48/stock/generic/stock_dialog-warning.png");   
+            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-warning.png");		    
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxCritical:
         {
-            QPixmap pixmap ("/usr/share/icons/hicolor/48x48/stock/generic/stock_dialog-error.png");   
+            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-error.png");		    
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxQuestion:
         {
-            QPixmap pixmap ("/usr/share/icons/hicolor/48x48/stock/generic/stock_unknown.png");   
+            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_unknown.png");		    
             if (!pixmap.isNull())
                 return pixmap;
             break;
