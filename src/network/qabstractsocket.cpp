@@ -78,11 +78,14 @@
     size of the read buffer, call setReadBufferSize().
 
     To close the socket, call disconnectFromHost(). QAbstractSocket enters
-    QAbstractSocket::ClosingState, then emits closing(). After all pending data
-    has been written to the socket, QAbstractSocket actually closes
-    the socket, enters QAbstractSocket::ClosedState, and emits disconnected(). If you
-    want to abort a connection immediately, discarding all pending
-    data, call abort() instead.
+    QAbstractSocket::ClosingState, then emits closing(). After all pending
+    data has been written to the socket, QAbstractSocket actually closes the
+    socket, enters QAbstractSocket::ClosedState, and emits disconnected(). If
+    you want to abort a connection immediately, discarding all pending data,
+    call abort() instead. If the remote host closes the connection,
+    QAbstractSocket will emit error(QAbstractSocket::RemoteHostClosedError),
+    during which the socket state will still be ConnectedState, and then the
+    disconnected() signal will be emitted.
 
     The port and address of the connected peer is fetched by calling
     peerPort() and peerAddress(). peerName() returns the host name of
@@ -195,7 +198,9 @@
     \value ConnectionRefusedError The connection was refused by the
            peer (or timed out).
     \value RemoteHostClosedError The remote host closed the
-           connection.
+           connection. Note that the client socket (i.e., this socket)
+           will be closed after the remote close notification has
+           been sent.
     \value HostNotFoundError The host address was not found.
     \value SocketAccessError The socket operation failed because the
            application lacked the required privileges.
