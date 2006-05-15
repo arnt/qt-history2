@@ -88,7 +88,7 @@ public Q_SLOTS:
 #endif
 
 private:
-    friend QStyleOptionSlider qt_qsliderStyleOption(QSlider *slider);
+    friend Q_GUI_EXPORT QStyleOptionSlider qt_qsliderStyleOption(QSlider *slider);
     
     Q_DISABLE_COPY(QSlider)
     Q_DECLARE_PRIVATE(QSlider)
