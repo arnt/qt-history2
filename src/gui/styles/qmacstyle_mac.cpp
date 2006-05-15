@@ -1818,6 +1818,10 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_DialogButtonLayoutPolicy:
         ret = 0; // MacLayout
         break;
+    case SH_ComboBox_PopupFrameStyle:
+        ret = QFrame::NoFrame | QFrame::Plain;
+        break;
+
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;

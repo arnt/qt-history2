@@ -3707,6 +3707,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_DialogButtonLayoutPolicy:
         ret = 0; // WinLayout
         break;
+    
+    case SH_ComboBox_PopupFrameStyle:
+        ret = QFrame::StyledPanel | QFrame::Plain;
+        break;
+
     default:
         ret = 0;
         break;

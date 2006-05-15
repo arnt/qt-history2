@@ -579,6 +579,8 @@ public:
         SH_Menu_KeyboardSearch,
         SH_TabBar_ElideMode,
         SH_DialogButtonLayoutPolicy,
+        SH_ComboBox_PopupFrameStyle,
+
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT

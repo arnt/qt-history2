@@ -1555,6 +1555,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_DialogButtonLayoutPolicy Controls how buttons are laid out in a QDialogButtonBox
 
+    \value SH_ComboBox_PopupFrameStyle  The frame style used when drawing a combobox popup menu.
+
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()

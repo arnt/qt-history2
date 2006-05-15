@@ -15,6 +15,7 @@
 
 #include "qcleanlooksstyle.h"
 #include "qwindowsstyle_p.h"
+#include <QComboBox>
 
 #include <qpainter.h>
 #include <qstyleoption.h>
@@ -3485,6 +3486,12 @@ int QCleanLooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
             ret = option->palette.background().color().dark(120).rgb();
             break;
         }
+    case SH_ComboBox_Popup:
+        if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(option))
+            ret = !cmb->editable;
+        else
+            ret = 0;
+        break;
     case SH_WindowFrame_Mask:
         ret = 1;
         if (QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask *>(returnData)) {

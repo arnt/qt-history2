@@ -220,9 +220,11 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
         top->hide();
         bottom->hide();
     } else {
-        setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
         setLineWidth(1);
     }
+    
+    setFrameStyle(style()->styleHint(QStyle::SH_ComboBox_PopupFrameStyle, &opt, this));
+    
     if (top) {
         layout->insertWidget(0, top);
         connect(top, SIGNAL(doScroll(int)), this, SLOT(scrollItemView(int)));
