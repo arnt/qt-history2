@@ -14,6 +14,7 @@
 #include <QtCore/QHash>
 #include <QtGui/QPushButton>
 #include <QtGui/QHBoxLayout>
+#include <QtGui/QStyle>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/private/qwidget_p.h>
 
@@ -152,7 +153,6 @@ public:
 QDialogButtonBoxPrivate::QDialogButtonBoxPrivate(Qt::Orientation orient)
     : orientation(orient), skipDisconnect(false)
 {
-    layoutPolicy = QDialogButtonBox::MacLayout; // q->styleHint(SH_DialogButtonLayoutPolicy)
 }
 
 QDialogButtonBoxPrivate::~QDialogButtonBoxPrivate()
@@ -166,6 +166,7 @@ QDialogButtonBoxPrivate::~QDialogButtonBoxPrivate()
 void QDialogButtonBoxPrivate::initLayout()
 {
     Q_Q(QDialogButtonBox);
+    layoutPolicy = QDialogButtonBox::LayoutPolicy(q->style()->styleHint(QStyle::SH_DialogButtonLayoutPolicy));
     if (orientation == Qt::Horizontal)
         buttonLayout = new QHBoxLayout(q);
     else
@@ -189,7 +190,6 @@ void QDialogButtonBoxPrivate::layoutButtons()
             widget->hide();
         delete item;
     }
-    
 
     const int *currentLayout = layouts[orientation == Qt::Vertical][layoutPolicy];
 
