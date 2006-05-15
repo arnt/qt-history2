@@ -263,7 +263,7 @@
     the widget's rectangle using the scaled painter matrix, we also make sure
     that only the exposed areas of the pixmap are drawn. The calls to
     QPainter::save() and QPainter::restore() make sure that any painting
-    performed afterward uses the standard coordinate system.
+    performed afterwards uses the standard coordinate system.
 
     \printuntil /^\}$/
 
