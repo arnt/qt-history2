@@ -3319,7 +3319,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
                    || tb->shape == QTabBar::RoundedWest || tb->shape == QTabBar::RoundedEast))
             ret = 8;
         else
-            if(tb->shape == QTabBar::TriangularWest || tb->shape == QTabBar::TriangularEast)
+            if(tb && (tb->shape == QTabBar::TriangularWest || tb->shape == QTabBar::TriangularEast))
                 ret = 3;
             else
                 ret = 2;
