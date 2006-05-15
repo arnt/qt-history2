@@ -402,6 +402,8 @@ void QGraphicsScenePrivate::removeItemLater(QGraphicsItem *item)
         mouseGrabberItem = 0;
     if (item == focusItem)
         focusItem = 0;
+    if (item == lastFocusItem)
+        lastFocusItem = 0;
     if (removedItems.isEmpty())
         resetIndex();
     if (QGraphicsItem *parent = item->d_func()->parent) {
@@ -1188,6 +1190,8 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
         d->mouseGrabberItem = 0;
     if (item == d->focusItem)
         d->focusItem = 0;
+    if (item == d->lastFocusItem)
+        d->lastFocusItem = 0;
     foreach (QGraphicsItem *child, item->children())
         removeItem(child);
 }
