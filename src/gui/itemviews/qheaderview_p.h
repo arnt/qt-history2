@@ -45,6 +45,7 @@ public:
           sortIndicatorShown(false),
           lastPos(-1),
           firstPos(-1),
+          originalSize(-1),
           section(-1),
           target(-1),
           pressed(-1),
@@ -58,6 +59,7 @@ public:
           stretchSections(0),
           contentsSections(0),
           minimumSectionSize(-1),
+          lastSectionSize(0),
           sectionIndicatorOffset(0),
           sectionIndicator(0),
           globalResizeMode(QHeaderView::Interactive) {}
@@ -150,6 +152,7 @@ public:
 
     int lastPos;
     int firstPos;
+    int originalSize;
     int section; // used for resizing and moving sections
     int target;
     int pressed;
@@ -164,6 +167,7 @@ public:
     int contentsSections;
     int defaultSectionSize;
     int minimumSectionSize;
+    int lastSectionSize; // $$$
     int sectionIndicatorOffset;
     Qt::Alignment defaultAlignment;
     QLabel *sectionIndicator;
@@ -226,6 +230,9 @@ public:
     void setHeaderSectionResizeMode(int visual, QHeaderView::ResizeMode mode);
     QHeaderView::ResizeMode headerSectionResizeMode(int visual) const;
     void setGlobalHeaderResizeMode(QHeaderView::ResizeMode mode);
+
+    // other
+    int viewSectionSizeHint(int logical) const;
 
 };
 
