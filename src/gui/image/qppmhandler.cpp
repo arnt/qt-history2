@@ -224,9 +224,9 @@ static bool write_pbm_image(QIODevice *out, const QImage &sourceImage, const QBy
     QByteArray format = sourceFormat;
 
     format = format.left(3);                        // ignore RAW part
-    bool gray = format == "PGM";
+    bool gray = format == "pgm";
 
-    if (format == "PBM") {
+    if (format == "pbm") {
         image = image.convertToFormat(QImage::Format_MonoLSB);
     } else if (image.depth() == 1) {
         image = image.convertToFormat(QImage::Format_Indexed8);
