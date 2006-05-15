@@ -528,7 +528,7 @@ TokenSection Preprocessor::readLine()
     if(gotNewline)
         ++lexerTokenIndex; //include newline
     else
-        emit error("Error", "Unexprected end of source");
+        emit error("Error", "Unexpected end of source");
 
     return TokenSection(m_tokenContainer, startIndex, lexerTokenIndex - startIndex);
 }
