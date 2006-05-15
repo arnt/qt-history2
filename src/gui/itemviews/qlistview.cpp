@@ -1805,6 +1805,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
                 item->w = qMin<int>(gridSize.width(), item->w);
                 item->h = qMin<int>(gridSize.height(), item->h);
             }
+
             // create new segment
             if (wrap
                 && flowPosition + deltaFlowPosition > segEndPosition
@@ -1817,24 +1818,41 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
             // We must delay calculation of the seg adjustment, as this item
             // may have caused a wrap to occur
             if (useItemSize) {
-                if (flow == QListView::LeftToRight) {
+                if (flow == QListView::LeftToRight)
                     deltaSegHint = item->h + gap;
-                } else {
+                else
                     deltaSegHint = item->w + gap;
-                }
                 deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
             }
+
             // set the position of the item
             if (!moved.testBit(row)) {
                 if (flow == QListView::LeftToRight) {
-                    item->x = flowPosition;
-                    item->y = segPosition;
+                    if (useItemSize) {
+                        item->x = flowPosition;
+                        item->y = segPosition;
+                    } else { // use grid
+                        item->x = flowPosition + ((deltaFlowPosition - item->w) / 2);
+                        item->y = segPosition +  ((deltaSegPosition - item->h) / 2);
+                    }
                 } else { // TopToBottom
-                    item->y = flowPosition;
-                    item->x = segPosition;
+                    if (useItemSize) {
+                        item->y = flowPosition;
+                        item->x = segPosition;
+                    } else {
+                        item->y = flowPosition + ((deltaFlowPosition - item->h) / 2);
+                        item->x = segPosition +  ((deltaSegPosition - item->w) / 2);
+                    }
                 }
             }
-            rect |= item->rect(); // let the contents contain the new item
+
+            // let the contents contain the new item
+            if (useItemSize)
+                rect |= item->rect();
+            else if (flow == QListView::LeftToRight)
+                rect |= QRect(flowPosition, segPosition, deltaFlowPosition, deltaSegPosition);
+            else // flow == TopToBottom
+                rect |= QRect(segPosition, flowPosition, deltaSegPosition, deltaFlowPosition);
 
             // prepare for next item
             flowPosition += deltaFlowPosition; // current position + item width + gap
