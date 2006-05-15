@@ -1553,6 +1553,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_TabBar_ElideMode The default eliding style for a tabbar.
 
+    \value SH_DialogButtonLayoutPolicy Controls how buttons are laid out in a QDialogButtonBox
+
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()

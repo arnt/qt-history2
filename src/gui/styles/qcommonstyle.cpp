@@ -3704,6 +3704,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_TabBar_ElideMode:
         ret = Qt::ElideNone;
         break;
+    case SH_DialogButtonLayoutPolicy:
+        ret = 0; // WinLayout
+        break;
     default:
         ret = 0;
         break;

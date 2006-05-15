@@ -1815,6 +1815,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_TabBar_ElideMode:
         ret = Qt::ElideRight;
         break;
+    case SH_DialogButtonLayoutPolicy:
+        ret = 0; // MacLayout
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;

@@ -3502,9 +3502,12 @@ int QCleanLooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
             mask->region -= QRect(option->rect.right() , option->rect.top() + 3, 1, 2);
         }
         break;
-        default:
-            ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
+    case SH_DialogButtonLayoutPolicy:
+        ret = 3; // GnomeLayout
         break;
+    default:
+        ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
+    break;
     }
     return ret;
 }

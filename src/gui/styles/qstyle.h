@@ -578,6 +578,7 @@ public:
         SH_Slider_PageSetButtons,
         SH_Menu_KeyboardSearch,
         SH_TabBar_ElideMode,
+        SH_DialogButtonLayoutPolicy,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT
