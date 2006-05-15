@@ -42,7 +42,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
                                Qt::CaseSensitivity cs)
     : QObject(*new QFactoryLoaderPrivate)
 {
-    QCoreApplicationPrivate::moveToMainThread(this);
+    moveToThread(QCoreApplicationPrivate::mainThread());
     Q_D(QFactoryLoader);
     d->iid = iid;
 
@@ -147,7 +147,7 @@ QObject *QFactoryLoader::instance(const QString &key) const
         if (library->instance || library->loadPlugin()) {
             if (QObject *obj = library->instance()) {
                 if (obj && !obj->parent())
-                    QCoreApplicationPrivate::moveToMainThread(obj);
+                    obj->moveToThread(QCoreApplicationPrivate::mainThread());
                 return obj;
             }
         }

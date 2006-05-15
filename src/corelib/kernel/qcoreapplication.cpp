@@ -228,16 +228,6 @@ void QCoreApplicationPrivate::createEventDispatcher()
 #endif
 }
 
-void QCoreApplicationPrivate::moveToMainThread(QObject *o)
-{
-    if (!o || o->thread() == mainThread())
-        return;
-    Q_ASSERT(o->parent() == 0);
-    if (o->thread() != 0)
-        QCoreApplication::sendPostedEvents(o, 0);
-    o->d_func()->thread = QThreadData::get(mainThread())->id;
-}
-
 QThread *QCoreApplicationPrivate::mainThread()
 { return ::mainThread(); }
 
@@ -444,7 +434,8 @@ void QCoreApplication::init()
     if (!QCoreApplicationPrivate::eventDispatcher)
         d->createEventDispatcher();
     Q_ASSERT(QCoreApplicationPrivate::eventDispatcher != 0);
-    QCoreApplicationPrivate::moveToMainThread(QCoreApplicationPrivate::eventDispatcher);
+    if (!QCoreApplicationPrivate::eventDispatcher->parent())
+        QCoreApplicationPrivate::eventDispatcher->moveToThread(mainThread());
 
     QThreadData *data = QThreadData::get(mainThread());
     data->eventDispatcher = QCoreApplicationPrivate::eventDispatcher;

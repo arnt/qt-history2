@@ -73,7 +73,7 @@ public:
     {
         connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
         connect(QCoreApplication::instance(), SIGNAL(destroyed(QObject *)), this, SLOT(cleanup()));
-        QCoreApplicationPrivate::moveToMainThread(this);
+        moveToThread(QCoreApplicationPrivate::mainThread());
         quit = false;
         pendingQueryId = -1;
     }
