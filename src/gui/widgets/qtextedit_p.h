@@ -115,7 +115,9 @@ public:
     { return vbar->value(); }
     
     QRect rectForPosition(int position) const;
-    QRect selectionRect() const;
+    QRect selectionRect(const QTextCursor &cursor) const;
+    inline QRect selectionRect() const
+    { return selectionRect(this->cursor); }
 
     QTextDocument *doc;
     bool cursorOn;

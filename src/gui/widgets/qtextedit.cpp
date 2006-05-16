@@ -2097,7 +2097,7 @@ QRect QTextEditPrivate::rectForPosition(int position) const
     return r;
 }
 
-QRect QTextEditPrivate::selectionRect() const
+QRect QTextEditPrivate::selectionRect(const QTextCursor &cursor) const
 {
     QRect r = rectForPosition(cursor.selectionStart());
 
@@ -2977,12 +2977,17 @@ void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
             return;
     }
 
+    for (int i = 0; i < d->extraSelections.count(); ++i)
+        d->viewport->update(d->selectionRect(d->extraSelections.at(i).cursor));
+
     d->extraSelections.resize(selections.count());
     for (int i = 0; i < selections.count(); ++i) {
         d->extraSelections[i].cursor = selections.at(i).cursor;
         d->extraSelections[i].format = selections.at(i).format;
     }
-    d->viewport->update();
+
+    for (int i = 0; i < d->extraSelections.count(); ++i)
+        d->viewport->update(d->selectionRect(d->extraSelections.at(i).cursor));
 }
 
 /*!
