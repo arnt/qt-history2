@@ -3161,17 +3161,17 @@ void QCleanLooksStyle::polish(QApplication *app)
     Q_UNUSED(app);
 #ifdef Q_WS_X11
     Q_D(QCleanLooksStyle);
-    
+
     d->dataDir = QLatin1String(getenv("XDG_DATA_DIRS"));
-    
+
     if (d->dataDir.isEmpty())
         d->dataDir = QLatin1String("/usr/share");
-    
+
     d->dataDir += QLatin1String("/icons/");
-   
+
     QProcess gconftool;
     gconftool.start(QLatin1String("gconftool-2 --get /desktop/gnome/interface/icon_theme"));
-    
+
     if (gconftool.waitForFinished())
         d->themeName = QLatin1String(gconftool.readLine().trimmed());
 #endif
@@ -3572,9 +3572,9 @@ QIcon QCleanLooksStyle::standardIconImplementation(StandardPixmap standardIcon,
 }
 
 
-QPixmap QCleanLooksStylePrivate::searchIconDir(const QString &searchRoot, 
+QPixmap QCleanLooksStylePrivate::searchIconDir(const QString &searchRoot,
                                                const QString &iconName) const
-{  
+{
     QPixmap pixmap;
     QDir themeDir(searchRoot);
     if (themeDir.exists()) {
@@ -3588,25 +3588,25 @@ QPixmap QCleanLooksStylePrivate::searchIconDir(const QString &searchRoot,
                 break;
         }
     }
-    return pixmap;  
+    return pixmap;
 }
 
 
-QPixmap QCleanLooksStylePrivate::resolveIconHelper(int size, 
-                                                   const QString &themeName, 
+QPixmap QCleanLooksStylePrivate::resolveIconHelper(int size,
+                                                   const QString &themeName,
                                                    const QString &iconName) const
-{  
+{
     QPixmap pixmap;
 
     if (!themeName.isEmpty()) {
-        //### directory name is only an assumption  
-        QString subpath = themeName + QLatin1Char('/') + QString::number(size) + 
-                          QLatin1Char('x') + QString::number(size)+ QLatin1Char('/'); 
+        //### directory name is only an assumption
+        QString subpath = themeName + QLatin1Char('/') + QString::number(size) +
+                          QLatin1Char('x') + QString::number(size)+ QLatin1Char('/');
         QString themePath = dataDir + subpath;
-        pixmap = searchIconDir(themePath, iconName);    
-    }       
-    
-    if (pixmap.isNull()) { 
+        pixmap = searchIconDir(themePath, iconName);
+    }
+
+    if (pixmap.isNull()) {
         //search recursively through inherited themes
         QStringList inheritedThemes;
         QFile themeIndex(dataDir + themeName + QLatin1String("/index.theme"));
@@ -3630,25 +3630,26 @@ QPixmap QCleanLooksStylePrivate::resolveIconHelper(int size,
 }
 
 QPixmap QCleanLooksStylePrivate::resolveIcon(int size, const QString &name) const
-{  
+{
 #ifdef Q_WS_X11
     QPixmap pixmap;
-    QString pixmapName = name + QString::number(size); 
+    QString pixmapName = name + QString::number(size);
     QPixmapCache::find(pixmapName, pixmap);
-    
+
     if (!pixmap.isNull())
         return pixmap;
-    
+
     if (!themeName.isEmpty())
         pixmap = resolveIconHelper(size, themeName, name);
-    
+
     if (pixmap.isNull())
         pixmap = resolveIconHelper(size, QLatin1String("hicolor"), name);
 
     if (!pixmap.isNull())
-        QPixmapCache::insert(pixmapName, pixmap);   
-#endif
+        QPixmapCache::insert(pixmapName, pixmap);
     return pixmap;
+#endif
+    return QPixmap();
 }
 
 
@@ -3663,70 +3664,70 @@ QPixmap QCleanLooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     switch (standardPixmap) {
     case SP_MessageBoxInformation:
         {
-            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-info.png"));		    
+            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-info.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxWarning:
         {
-            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-warning.png"));		    
+            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-warning.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxCritical:
         {
-            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-error.png"));		    
+            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-error.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxQuestion:
         {
-            QPixmap pixmap = d->resolveIcon(48, QLatin1String("dialog-question.png"));		    
+            QPixmap pixmap = d->resolveIcon(48, QLatin1String("dialog-question.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DirOpenIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("folder-open.png"));		    
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("folder-open.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DirClosedIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("folder.png"));		    
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("folder.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DriveFDIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("media-floppy.png"));		    
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("media-floppy.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ComputerIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("computer.png"));		    
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("computer.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DesktopIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("desktop.png"));		    
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("desktop.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_TrashIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("user_trash.png"));		    
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("user_trash.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
@@ -3734,35 +3735,35 @@ QPixmap QCleanLooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_DriveCDIcon:
     case SP_DriveDVDIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("media-cdrom.png"));		    
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("media-cdrom.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DriveHDIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("harddrive.png"));		    
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("harddrive.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileDialogBack:
         {
-            QPixmap pixmap = d->resolveIcon(16, QLatin1String("go-previous.png"));		    
+            QPixmap pixmap = d->resolveIcon(16, QLatin1String("go-previous.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileDialogToParent:
         {
-            QPixmap pixmap = d->resolveIcon(16, QLatin1String("go-up.png"));		    
+            QPixmap pixmap = d->resolveIcon(16, QLatin1String("go-up.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileDialogNewFolder:
         {
-            QPixmap pixmap = d->resolveIcon(16, QLatin1String("folder.png"));		    
+            QPixmap pixmap = d->resolveIcon(16, QLatin1String("folder.png"));
 
             if (!pixmap.isNull())
                 return pixmap;
