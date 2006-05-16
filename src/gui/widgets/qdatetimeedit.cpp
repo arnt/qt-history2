@@ -624,6 +624,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
     if (d->parseFormat(format)) {
         d->sections = d->convertSections(d->display);
         d->clearCache();
+
         d->currentSectionIndex = qMin(d->currentSectionIndex, d->sectionNodes.size() - 1);
         const bool timeShown = (d->sections & TimeSections_Mask);
         const bool dateShown = (d->sections & DateSections_Mask);
@@ -778,7 +779,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             if (state == QValidator::Acceptable
                 && (d->sectionNode(oldCurrent).count != 1 || d->sectionSize(oldCurrent) == d->sectionMaxSize(oldCurrent))) {
                 QDTEDEBUG << "Setting currentsection to" << d->closestSection(d->edit->cursorPosition(), true) << e->key()
-                    << oldCurrent;
+                          << oldCurrent;
                 const int tmp = d->closestSection(d->edit->cursorPosition(), true);
                 if (tmp >= 0)
                     d->currentSectionIndex = tmp;
@@ -832,6 +833,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
     Q_D(QDateTimeEdit);
     QAbstractSpinBox::focusInEvent(e);
     QString *frm = 0;
+    const int oldPos = d->edit->cursorPosition();
     if (d->displayFormat == d->defaultTimeFormat) {
         frm = &d->defaultTimeFormat;
     } else if (d->displayFormat == d->defaultDateFormat) {
@@ -840,7 +842,10 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
 
     if (frm) {
         d->readLocaleSettings();
-        setDisplayFormat(*frm);
+        if (d->displayFormat != *frm) {
+            setDisplayFormat(*frm);
+            d->edit->setCursorPosition(oldPos);
+        }
     }
     bool first;
     switch (e->reason()) {
@@ -851,6 +856,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
     }
     if (QApplication::isRightToLeft())
         first = !first;
+
     d->setSelected(first ? 0 : d->sectionNodes.size() - 1);
 }
 
@@ -1114,10 +1120,6 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     sections = 0;
     cachedDay = -1;
     currentSectionIndex = FirstSectionIndex;
-
-    if (currentSectionIndex >= sectionNodes.size())
-        qFatal("%d currentSectionIndex >= sectionNodes.size()) %d %d", __LINE__,
-               currentSectionIndex, sectionNodes.size());
 
     layoutDirection = QApplication::layoutDirection();
     first.type = FirstSection;
@@ -1611,6 +1613,7 @@ void QDateTimeEditPrivate::_q_editorCursorPositionChanged(int oldpos, int newpos
     }
     QDTEDEBUG << "currentSectionIndex is set to" << sectionName(sectionType(s)) << oldpos << newpos
               << "was" << sectionName(sectionType(currentSectionIndex));
+
     currentSectionIndex = s;
     if (currentSectionIndex >= sectionNodes.size())
         qFatal("%d currentSectionIndex >= sectionNodes.size()) %d %d", __LINE__,
