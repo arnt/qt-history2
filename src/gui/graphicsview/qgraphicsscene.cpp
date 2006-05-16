@@ -959,8 +959,7 @@ void QGraphicsScene::destroyItemGroup(QGraphicsItemGroup *group)
 }
 
 /*!
-    Adds the item \a item and all its childen to the scene, and
-    returns \a item.
+    Adds the item \a item and all its childen to the scene.
 
     If the item is visible (i.e., QGraphicsItem::isVisible() returns
     true), QGraphicsScene will emit changed() once control goes back
@@ -969,14 +968,15 @@ void QGraphicsScene::destroyItemGroup(QGraphicsItemGroup *group)
     If the item is already associated with a scene, it will first be
     removed from that scene, and then added to this scene.
 
-    \sa removeItem(), addEllipse(), addLine(), addPath(), addPixmap(), addRect(), addText()
+    \sa removeItem(), addEllipse(), addLine(), addPath(), addPixmap(),
+    addRect(), addText()
 */
-QGraphicsItem *QGraphicsScene::addItem(QGraphicsItem *item)
+void QGraphicsScene::addItem(QGraphicsItem *item)
 {
     Q_D(QGraphicsScene);
     if (!item) {
         qWarning("QGraphicsScene::addItem: cannot add null item");
-        return 0;
+        return;
     }
 
     d->addToIndex(item);
@@ -1005,8 +1005,6 @@ QGraphicsItem *QGraphicsScene::addItem(QGraphicsItem *item)
 
     if (item->isVisible())
         itemUpdated(item, item->sceneBoundingRect());
-
-    return item;
 }
 
 /*!
@@ -1028,7 +1026,8 @@ QGraphicsEllipseItem *QGraphicsScene::addEllipse(const QRectF &rect, const QPen 
     QGraphicsEllipseItem *item = new QGraphicsEllipseItem(rect);
     item->setPen(pen);
     item->setBrush(brush);
-    return static_cast<QGraphicsEllipseItem *>(addItem(item));
+    addItem(item);
+    return item;
 }
 
 /*!
@@ -1049,7 +1048,8 @@ QGraphicsLineItem *QGraphicsScene::addLine(const QLineF &line, const QPen &pen)
 {
     QGraphicsLineItem *item = new QGraphicsLineItem(line);
     item->setPen(pen);
-    return static_cast<QGraphicsLineItem *>(addItem(item));
+    addItem(item);
+    return item;
 }
 
 /*!
@@ -1071,7 +1071,8 @@ QGraphicsPathItem *QGraphicsScene::addPath(const QPainterPath &path, const QPen 
     QGraphicsPathItem *item = new QGraphicsPathItem(path);
     item->setPen(pen);
     item->setBrush(brush);
-    return static_cast<QGraphicsPathItem *>(addItem(item));
+    addItem(item);
+    return item;
 }
 
 /*!
@@ -1137,7 +1138,8 @@ QGraphicsRectItem *QGraphicsScene::addRect(const QRectF &rect, const QPen &pen, 
     QGraphicsRectItem *item = new QGraphicsRectItem(rect);
     item->setPen(pen);
     item->setBrush(brush);
-    return static_cast<QGraphicsRectItem *>(addItem(item));
+    addItem(item);
+    return item;
 }
 
 /*!
