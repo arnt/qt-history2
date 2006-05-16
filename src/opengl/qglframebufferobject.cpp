@@ -344,13 +344,13 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
 
     \ingroup multimedia
 
-    The QGLFramebufferObject encapsulates an OpenGL framebuffer
-    object, which provides a rendering surface that can be painted on
-    with a QPainter, rendered to using native GL calls, or both. This
-    surface can be bound and used as a regular texture in your own GL
-    drawing code.  By default, the QGLFramebufferObject class
-    generates a 2D GL texture (using the \c{GL_TEXTURE_2D} target),
-    which is used as the rendering target in the framebuffer object.
+    The QGLFramebufferObject class encapsulates an OpenGL framebuffer
+    object. In addition it provides a rendering surface that can be
+    painted on with a QPainter, rendered to using native GL calls, or
+    both. This surface can be bound and used as a regular texture in
+    your own GL drawing code.  By default, the QGLFramebufferObject
+    class generates a 2D GL texture (using the \c{GL_TEXTURE_2D}
+    target), which is used as the internal rendering target.
 
     \bold{It is important to have a current GL context when creating a
     QGLFramebufferObject, otherwise initialization will fail.}
@@ -384,7 +384,10 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     Note that QPainter antialiasing of drawing primitives will not
     work when using a QGLFramebufferObject as a paintdevice. This is
     because sample buffers, which are needed for antialiasing, are not
-    yet supported in application-defined framebuffer objects.
+    yet supported in application-defined framebuffer objects. However,
+    an extension to solve this has already been approved by the OpenGL
+    ARB (\c{GL_EXT_framebuffer_multisample}), and will most likely be
+    available in the near future.
 
     \sa {opengl/framebufferobject}{Framebuffer Object example}
 */
