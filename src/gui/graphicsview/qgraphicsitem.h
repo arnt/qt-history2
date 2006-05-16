@@ -63,6 +63,7 @@ public:
     QGraphicsScene *scene() const;
 
     QGraphicsItem *parentItem() const;
+    QGraphicsItem *topLevelItem() const;
     void setParentItem(QGraphicsItem *parent);
     QList<QGraphicsItem *> children() const;
 
@@ -513,7 +514,7 @@ template <class T> inline T qgraphicsitem_cast(QGraphicsItem *item)
 }
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug debug, QGraphicsItem *item);
+Q_CORE_EXPORT QDebug operator<<(QDebug debug, QGraphicsItem *item);
 #endif
 
 QT_END_HEADER

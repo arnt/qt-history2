@@ -449,6 +449,21 @@ QGraphicsItem *QGraphicsItem::parentItem() const
 }
 
 /*!
+    Returns this item's top-level item. The top-level item is the item's
+    topmost ancestor item whose parent is 0. If an item has no parent, its own
+    pointer is returned (i.e., a top-level item is its own top-level item).
+
+    \sa parentItem()
+*/
+QGraphicsItem *QGraphicsItem::topLevelItem() const
+{
+    QGraphicsItem *parent = const_cast<QGraphicsItem *>(this);
+    while (QGraphicsItem *grandPa = parent->parentItem())
+        parent = grandPa;
+    return parent;
+}
+
+/*!
     Sets this item's parent item to \a parent. If this item already has a
     parent, it is first removed from the previous parent. If \a parent is 0,
     this item will become a top-level item.
@@ -3804,7 +3819,7 @@ int QGraphicsItemGroup::type() const
 }
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug debug, QGraphicsItem *item)
+Q_CORE_EXPORT QDebug operator<<(QDebug debug, QGraphicsItem *item)
 {
     if (!item) {
         debug << "QGraphicsItem(0)";
