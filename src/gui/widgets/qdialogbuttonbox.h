@@ -28,7 +28,6 @@ class Q_GUI_EXPORT QDialogButtonBox : public QWidget
     Q_ENUMS(LayoutPolicy)
     Q_FLAGS(StandardButtons)
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
-    Q_PROPERTY(LayoutPolicy layoutPolicy READ layoutPolicy WRITE setLayoutPolicy)
     Q_PROPERTY(StandardButtons standardButtons READ standardButtons WRITE setStandardButtons)
 
 public:
@@ -73,9 +72,6 @@ public:
 
     void setOrientation(Qt::Orientation orientation);
     Qt::Orientation orientation() const;
-
-    void setLayoutPolicy(LayoutPolicy style);
-    LayoutPolicy layoutPolicy() const;
 
     void addButton(QAbstractButton *button, ButtonRole role);
     QAbstractButton *addButton(const QString &text, ButtonRole role);

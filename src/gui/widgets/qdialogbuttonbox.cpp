@@ -442,29 +442,6 @@ void QDialogButtonBox::setOrientation(Qt::Orientation orientation)
 }
 
 /*!
-    \property QDialogButtonBox::layoutPolicy
-    \brief the layout style of the button box
-
-    This controls the way that buttons are laid out. By default, this follows
-    the style. This is included here to allow people to override the
-    correct style and check how things look on other platforms.
-*/
-void QDialogButtonBox::setLayoutPolicy(LayoutPolicy style)
-{
-    Q_D(QDialogButtonBox);
-    if (style == d->layoutPolicy)
-        return;
-
-    d->layoutPolicy = style;
-    d->layoutButtons();
-}
-
-QDialogButtonBox::LayoutPolicy QDialogButtonBox::layoutPolicy() const
-{
-    return d_func()->layoutPolicy;
-}
-
-/*!
     Delete all buttons from the button box.
 
     \sa removeButton() addButton()
