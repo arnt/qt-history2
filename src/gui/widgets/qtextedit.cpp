@@ -87,6 +87,21 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
     return layout->lineForTextPosition(relativePos);
 }
 
+QTextEditPrivate::QTextEditPrivate()
+    : doc(0), cursorOn(false),
+      readOnly(false),
+      autoFormatting(QTextEdit::AutoNone), tabChangesFocus(false),
+#ifndef QT_NO_DRAGANDDROP
+      mousePressed(false), mightStartDrag(false),
+#endif
+      lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
+      lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
+      preferRichText(false),
+      overwriteMode(false),
+      acceptRichText(true),
+      preeditCursor(0), hideCursor(false)
+{}
+
 bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
     Q_Q(QTextEdit);
