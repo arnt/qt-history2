@@ -204,10 +204,33 @@ QString QFileIconProvider::type(const QFileInfo &info) const
             return info.suffix() + " " + QApplication::translate("QFileDialog", "File");
         return QApplication::translate("QFileDialog", "File");
     }
+
     if (info.isDir())
-        return QApplication::translate("QFileDialog", "Directory");
+        return QApplication::translate("QFileDialog",
+#ifdef Q_OS_WIN
+                                                      "File Folder", "Match Windows Explorer"
+#else
+                                                      "Folder", "All other platforms"
+#endif
+                );
+    // Windows   - "File Folder"
+    // OS X      - "Folder"
+    // Konqueror - "Folder"
+    // Nautilus  - "folder"
+
     if (info.isSymLink())
-        return QApplication::translate("QFileDialog", "Symbolic Link");
+        return QApplication::translate("QFileDialog",
+#ifdef Q_OS_MAC
+                                                      "Alias", "Match OS X Finder"
+#else
+                                                      "Shortcut", "All other platforms"
+#endif
+                                                      );
+    // OS X      - "Alias"
+    // Windows   - "Shortcut"
+    // Konqueror - "Folder" or "TXT File" i.e. what it is pointing to
+    // Nautilus  - "link to folder" or "link to object file", same as Konqueror
+
     return QApplication::translate("QFileDialog", "Unknown");
 }
 
@@ -591,8 +614,17 @@ QVariant QDirModel::headerData(int section, Qt::Orientation orientation, int rol
 	switch (section) {
         case 0: return tr("Name");
         case 1: return tr("Size");
-        case 2: return tr("Type");
-        case 3: return tr("Modified");
+        case 2: return
+#ifdef Q_OS_MAC
+                       tr("Kind", "Match OS X Finder");
+#else
+                       tr("Type", "All other platforms");
+#endif
+        // Windows   - Type
+        // OS X      - Kind
+        // Konqueror - File Type
+        // Nautilus  - Type
+        case 3: return tr("Date Modified");
         default: return QVariant();
         }
     }
@@ -650,7 +682,7 @@ Qt::ItemFlags QDirModel::flags(const QModelIndex &index) const
 
 void QDirModel::sort(int column, Qt::SortOrder order)
 {
-    QDir::SortFlags sort = QDir::DirsFirst;
+    QDir::SortFlags sort = QDir::DirsFirst | QDir::IgnoreCase;
     if (order == Qt::DescendingOrder)
         sort |= QDir::Reversed;
 
@@ -1384,7 +1416,20 @@ QString QDirModelPrivate::name(const QModelIndex &index) const
 
 QString QDirModelPrivate::size(const QModelIndex &index) const
 {
-    quint64 bytes = node(index)->info.size();
+    const QDirNode *n = node(index);
+    if (n->info.isDir()) {
+#ifdef Q_OS_MAC
+        return "--";
+#else
+        return "";
+#endif
+    // Windows   - ""
+    // OS X      - "--"
+    // Konqueror - "4 KB"
+    // Nautilus  - "9 items" (the number of children)
+    }
+
+    quint64 bytes = n->info.size();
     if (bytes >= 1000000000)
         return QLocale().toString(bytes / 1000000000) + QString(" GB");
     if (bytes >= 1000000)
@@ -1402,7 +1447,7 @@ QString QDirModelPrivate::type(const QModelIndex &index) const
 QString QDirModelPrivate::time(const QModelIndex &index) const
 {
 #ifndef QT_NO_DATESTRING
-    return node(index)->info.lastModified().toString("yyyy-MM-dd hh:mm:ss");
+    return node(index)->info.lastModified().toString(Qt::LocalDate);
 #else
     Q_UNUSED(index);
     return QString();
