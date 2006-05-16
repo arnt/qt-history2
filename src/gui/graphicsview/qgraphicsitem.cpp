@@ -1036,7 +1036,8 @@ void QGraphicsItem::setPos(const QPointF &pos)
 /*!
     If this item is part of a scene that is viewed by a QGraphicsView, this
     convenience function will attempt to scroll the view to ensure that \a
-    rect is visible inside the view's viewport.
+    rect is visible inside the view's viewport. If \a rect is a null rect (the
+    default), QGraphicsItem will default to the item's bounding rect.
 
     If the specified rect cannot be reached, the contents are scrolled to the
     nearest valid position.
@@ -1049,9 +1050,10 @@ void QGraphicsItem::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
 {
     Q_D(QGraphicsItem);
     if (d->scene) {
-        QRectF sceneRect = sceneMatrix().mapRect(rect);
+        QRectF sceneRect = !rect.isNull() ? sceneMatrix().mapRect(rect)
+                           : sceneBoundingRect();
         foreach (QGraphicsView *view, d->scene->d_func()->views)
-            view->ensureVisible(rect, xmargin, ymargin);
+            view->ensureVisible(sceneRect, xmargin, ymargin);
     }
 }
 
