@@ -12,10 +12,11 @@ class QDialogButtonBoxPrivate;
 class Q_GUI_EXPORT QDialogButtonBox : public QWidget
 {
     Q_OBJECT
-    Q_ENUMS(QDialogButtonBox::LayoutPolicy)
+    Q_ENUMS(LayoutPolicy)
+    Q_FLAGS(StandardButtons)
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
-    Q_PROPERTY(QDialogButtonBox::LayoutPolicy layoutPolicy READ layoutPolicy WRITE setLayoutPolicy)
-    Q_PROPERTY(QDialogButtonBox::StandardButtons standardButtons READ standardButtons WRITE setStandardButtons)
+    Q_PROPERTY(LayoutPolicy layoutPolicy READ layoutPolicy WRITE setLayoutPolicy)
+    Q_PROPERTY(StandardButtons standardButtons READ standardButtons WRITE setStandardButtons)
 
 public:
     enum ButtonRole {
