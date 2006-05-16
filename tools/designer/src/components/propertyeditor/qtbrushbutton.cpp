@@ -85,8 +85,6 @@ void QtBrushButton::setBrush(const QBrush &brush)
     if (d_ptr->m_brush == brush)
         return;
     d_ptr->m_brush = brush;
-    if (d_ptr->m_dialog)
-        d_ptr->m_dialog->setBrush(brush);
     update();
 }
 
@@ -160,6 +158,12 @@ void QtBrushButton::paintEvent(QPaintEvent *e)
 void QtBrushButton::setBrushManager(QDesignerBrushManagerInterface *manager)
 {
     d_ptr->m_brushManager = manager;
+}
+
+void QtBrushButton::setTexture(const QPixmap &texture)
+{
+    if (d_ptr->m_dialog)
+        d_ptr->m_dialog->setBrush(QBrush(texture));
 }
 
 #include "moc_qtbrushbutton.cpp"

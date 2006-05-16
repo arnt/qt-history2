@@ -440,8 +440,7 @@ void BrushEditor::textureChooserActivated(QWidget *parent, const QBrush &initial
         qrc_path = dialog.qrcPath();
         if (!file_path.isEmpty()) {
             pixmap = m_core->iconCache()->nameToPixmap(file_path, qrc_path);
-            QBrush br(pixmap);
-            button->setBrush(br);
+            button->setTexture(pixmap);
         }
     }
 }

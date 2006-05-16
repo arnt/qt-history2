@@ -21,6 +21,7 @@ public:
 
     void setBrushManager(QDesignerBrushManagerInterface *manager);
 
+    void setTexture(const QPixmap &texture);
 signals:
     void brushChanged(const QBrush &brush);
     void textureChooserActivated(QWidget *parent, const QBrush &initialBrush);
