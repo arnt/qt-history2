@@ -313,7 +313,7 @@ public:
 #endif
 
     int fixedColumnWidth;
-    qreal tabStopWidth;
+    double tabStopWidth;
 
     mutable int currentLazyLayoutPosition;
     mutable int lazyLayoutStepSize;
@@ -2497,13 +2497,13 @@ QTextOption::WrapMode QTextDocumentLayout::wordWrapMode() const
     return d->wordWrapMode;
 }
 
-void QTextDocumentLayout::setTabStopWidth(qreal width)
+void QTextDocumentLayout::setTabStopWidth(double width)
 {
     Q_D(QTextDocumentLayout);
     d->tabStopWidth = width;
 }
 
-qreal QTextDocumentLayout::tabStopWidth() const
+double QTextDocumentLayout::tabStopWidth() const
 {
     Q_D(const QTextDocumentLayout);
     return d->tabStopWidth;

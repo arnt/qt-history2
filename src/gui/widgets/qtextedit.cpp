@@ -2861,16 +2861,13 @@ void QTextEdit::setOverwriteMode(bool overwrite)
 int QTextEdit::tabStopWidth() const
 {
     Q_D(const QTextEdit);
-    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
-        return qRound(layout->tabStopWidth());
-    return 0;
+    return qRound(d->doc->documentLayout()->property("tabStopWidth").toDouble());
 }
 
 void QTextEdit::setTabStopWidth(int width)
 {
     Q_D(QTextEdit);
-    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
-        layout->setTabStopWidth(qreal(width));
+    d->doc->documentLayout()->setProperty("tabStopWidth", QVariant(double(width)));
 }
 
 /*!
