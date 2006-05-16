@@ -135,6 +135,11 @@ public Q_SLOTS:
 protected:
     bool eventFilter(QObject *receiver, QEvent *event);
     bool event(QEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
     void scrollContentsBy(int dx, int dy);
 
     virtual void paintBackground(QPainter *painter, const QRectF &rect);

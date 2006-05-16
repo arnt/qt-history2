@@ -15,7 +15,8 @@
 
 /*!
     \class QGraphicsView
-    \brief The QGraphicsView class provides a widget for displaying the contents of a QGraphicsScene.
+    \brief The QGraphicsView class provides a widget for displaying the
+    contents of a QGraphicsScene.
     \since 4.2
     \ingroup multimedia
 
@@ -1724,7 +1725,7 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
     switch (event->type()) {
     case QEvent::Paint: {
         QPainter painter(d->renderWidget);
-        d->paintEvent(&painter, static_cast<QPaintEvent *>(event)->region()/*, 0 */);
+        d->paintEvent(&painter, static_cast<QPaintEvent *>(event)->region());
         break;
     }
     case QEvent::ContextMenu:
@@ -1732,14 +1733,10 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
         break;
     case QEvent::KeyPress:
         d->keyPressEvent(static_cast<QKeyEvent *>(event));
-        if (event->isAccepted())
-            return true;
-        break;
+        return event->isAccepted() ? true : this->event(event);
     case QEvent::KeyRelease:
         d->keyReleaseEvent(static_cast<QKeyEvent *>(event));
-        if (event->isAccepted())
-            return true;
-        break;
+        return event->isAccepted() ? true : this->event(event);
     case QEvent::MouseButtonPress:
         d->mousePressEvent(static_cast<QMouseEvent *>(event));
         break;
@@ -1783,6 +1780,46 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
 bool QGraphicsView::event(QEvent *event)
 {
     return QAbstractScrollArea::event(event);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsView::keyPressEvent(QKeyEvent *event)
+{
+    QAbstractScrollArea::keyPressEvent(event);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsView::keyReleaseEvent(QKeyEvent *event)
+{
+    QAbstractScrollArea::keyReleaseEvent(event);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsView::mousePressEvent(QMouseEvent *event)
+{
+    QAbstractScrollArea::mousePressEvent(event);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
+{
+    QAbstractScrollArea::mouseMoveEvent(event);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
+{
+    QAbstractScrollArea::mouseReleaseEvent(event);
 }
 
 /*!
