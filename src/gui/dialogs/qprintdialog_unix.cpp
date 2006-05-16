@@ -1165,6 +1165,7 @@ int QPrintDialog::exec()
 }
 
 
+#ifdef QT3_SUPPORT
 QPrinter *QPrintDialog::printer() const
 {
     Q_D(const QPrintDialog);
@@ -1179,6 +1180,7 @@ void QPrintDialog::setPrinter(QPrinter *, bool)
 void QPrintDialog::addButton(QPushButton *)
 {
 }
+#endif // QT3_SUPPORT
 
 ////////////////////////////////////////////////////////////////////////////////
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)

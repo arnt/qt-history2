@@ -784,7 +784,7 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
                 QImage image(qt_cleanlooks_checkbox_checked);
                 painter->drawImage(rect, image);
                 if (checkbox->state & State_NoChange) {
-                    QColor bgc = option->palette.background();
+                    QColor bgc = option->palette.background().color();
                     bgc.setAlpha(127);
                     painter->fillRect(checkRect.adjusted(1, 1, -1, -1), bgc);
                 }
@@ -1109,7 +1109,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             bool hover = (btn->state & State_MouseOver && btn->state & State_Enabled);
             if (hover)
-                painter->fillRect(rect, btn->palette.background().color().light(104));       
+                painter->fillRect(rect, btn->palette.background().color().light(104));
             QStyleOptionButton copy = *btn;
             copy.rect.adjust(2, 0, -2, 0);
             QWindowsStyle::drawControl(element, &copy, painter, widget);
@@ -1178,7 +1178,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 painter->translate(0, h - w);
             else
                 painter->translate(w - h, 0);
-            
+
             int sx = x;
             int sy = y;
             int s = 4;
@@ -2184,7 +2184,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             QFont font = painter->font();
             font.setBold(true);
             painter->setFont(font);
-            painter->setPen(active? (titleBar->palette.text().color().light(120)) : 
+            painter->setPen(active? (titleBar->palette.text().color().light(120)) :
                                      titleBar->palette.text().color() );
                 painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
             painter->setPen(titleBar->palette.highlightedText().color());
@@ -2443,7 +2443,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     if (!horizontal)
                         gradient = QLinearGradient(pixmapRect.left(), pixmapRect.center().y(),
                                                    pixmapRect.right(), pixmapRect.center().y());
-                    if (sunken || (option->state & State_MouseOver && 
+                    if (sunken || (option->state & State_MouseOver &&
                         (scrollBar->activeSubControls & SC_ScrollBarSlider))) {
                         gradient.setColorAt(0, gradientStartColor.light(110));
                         gradient.setColorAt(1, gradientStopColor.light(110));
@@ -2734,7 +2734,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                     cachePainter.setPen(buttonShadow.dark(102));
                     int borderSize = 4;
-                       
+
                     if (!sunken) {
                         if (comboBox->direction == Qt::RightToLeft) {
                             cachePainter.drawLine(QPoint(downArrowRect.right() + 1, downArrowRect.top() + borderSize),
@@ -2762,7 +2762,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     }
                 }
 
-             
+
                 if (comboBox->editable) {
                     // Draw the down arrow
                     QImage downArrow(qt_cleanlooks_arrow_xpm);
@@ -2776,9 +2776,9 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     upArrow.setColor(1, comboBox->palette.foreground().color().rgba());
                     QImage downArrow(qt_scrollbar_button_arrow_down);
                     downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
-                    
+
                     int offset = comboBox->direction == Qt::RightToLeft ? -2 : 2;
-                    
+
                     cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 + offset,
                                            downArrowRect.center().y() - upArrow.height() , upArrow);
                     cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 + offset,
@@ -3551,7 +3551,7 @@ QPixmap findIcon(const QString &subpath)
 {
     QPixmap pixmap (QString("/usr/share/icons/gnome") + subpath);
     if (pixmap.isNull())
-        pixmap.load(QString("/usr/share/icons/hicolor") + subpath);	
+        pixmap.load(QString("/usr/share/icons/hicolor") + subpath);
     return pixmap;
 }
 
@@ -3566,28 +3566,28 @@ QPixmap QCleanLooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     switch (standardPixmap) {
     case SP_MessageBoxInformation:
         {
-            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-info.png");		    
+            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-info.png");
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxWarning:
         {
-            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-warning.png");		    
+            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-warning.png");
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxCritical:
         {
-            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-error.png");		    
+            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-error.png");
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxQuestion:
         {
-            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_unknown.png");		    
+            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_unknown.png");
             if (!pixmap.isNull())
                 return pixmap;
             break;
