@@ -170,13 +170,59 @@ static bool qt_rectInPoly(const QPolygonF &poly, const QRectF &rect)
     return path.intersects(rect) || path.contains(rect);
 };
 
+static inline bool qt_closestLeaf(const QGraphicsItem *item1, const QGraphicsItem *item2)
+{
+    qreal z1 = item1->zValue();
+    qreal z2 = item2->zValue();
+    return z1 != z2 ? z1 > z2 : item1 > item2;
+}
+
 static bool qt_closestItemFirst(const QGraphicsItem *item1, const QGraphicsItem *item2)
 {
-    if (item2->isAncestorOf(item1))
-        return true;
-    if (item2->zValue() == item1->zValue())
-        return item2 < item1;
-    return item2->zValue() < item1->zValue();
+    // Siblings? Just check their z-values.
+    if (item1->parentItem() == item2->parentItem())
+        return qt_closestLeaf(item1, item2);
+
+    // Find item1's ancestors. If item2 is among them, return true (item1 is
+    // above item2).
+    QVector<const QGraphicsItem *> ancestors1;
+    const QGraphicsItem *parent1 = item1;
+    do {
+        if (parent1 == item2)
+            return true;
+        ancestors1.prepend(parent1);
+    } while ((parent1 = parent1->parentItem()));
+
+    // Find item2's ancestors. If item1 is among them, return false (item2 is
+    // above item1).
+    QVector<const QGraphicsItem *> ancestors2;
+    const QGraphicsItem *parent2 = item2;
+    do {
+        if (parent2 == item1)
+            return false;
+        ancestors2.prepend(parent2);
+    } while ((parent2 = parent2->parentItem()));
+
+    // Truncate the largest ancestor list.
+    int size1 = ancestors1.size();
+    int size2 = ancestors2.size();
+    if (size1 > size2) {
+        ancestors1.resize(size2);
+    } else if (size2 > size1) {
+        ancestors2.resize(size1);
+    }
+
+    // Compare items from the two ancestors lists and find a match. Then
+    // compare item1's and item2's toplevels relative to the common ancestor.
+    for (int i = ancestors1.size() - 2; i >= 0; --i) {
+        const QGraphicsItem *a1 = ancestors1.at(i);
+        const QGraphicsItem *a2 = ancestors2.at(i);
+        if (a1 == a2)
+            return qt_closestLeaf(ancestors1.at(i + i), ancestors2.at(i + 1));
+    }
+
+    // No common ancestor? Then just compare the items' toplevels directly.
+    return qt_closestLeaf(ancestors1.first(), ancestors2.first());
 }
 
 static int closestPowerOf2(int input)
