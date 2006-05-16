@@ -28,6 +28,7 @@ static const int ProgressBarFps = 25;
 #include <qcombobox.h>
 #include <qdatetime.h>
 #include <qdebug.h>
+#include <qdialogbuttonbox.h>
 #include <qgroupbox.h>
 #include <qimage.h>
 #include <qlineedit.h>
@@ -5067,7 +5068,7 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
         ret = 0;
         break;
     case SH_DialogButtonLayoutPolicy:
-        ret = 2; // KdeLayout
+        ret = QDialogButtonBox::KdeLayout;
         break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);

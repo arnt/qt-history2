@@ -38,6 +38,7 @@
 #include "qdebug.h"
 #include "qpainterpath.h"
 #include "qmotifstyle_p.h"
+#include "qdialogbuttonbox.h"
 #include <limits.h>
 
 #ifdef Q_WS_X11
@@ -2608,7 +2609,7 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
         break;
 
     case SH_DialogButtonLayoutPolicy:
-        ret = 2; // KdeLayout
+        ret = QDialogButtonBox::KdeLayout;
         break;
     default:
         ret = QCommonStyle::styleHint(hint, opt, widget, returnData);

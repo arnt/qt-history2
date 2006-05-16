@@ -25,6 +25,7 @@
 #include <qbitmap.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
+#include <qdialogbuttonbox.h>
 #include <qdockwidget.h>
 #include <qevent.h>
 #include <qfocusframe.h>
@@ -1816,7 +1817,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         ret = Qt::ElideRight;
         break;
     case SH_DialogButtonLayoutPolicy:
-        ret = 0; // MacLayout
+        ret = QDialogButtonBox::MacLayout;
         break;
     case SH_ComboBox_PopupFrameStyle:
         ret = QFrame::NoFrame | QFrame::Plain;

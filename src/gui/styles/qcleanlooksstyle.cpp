@@ -32,6 +32,7 @@
 #include <QPushButton>
 #include <QPixmapCache>
 #include <QProgressBar>
+#include <QDialogButtonBox>
 #include <QScrollBar>
 #include <QSpinBox>
 #include <QSlider>
@@ -3510,7 +3511,7 @@ int QCleanLooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
         }
         break;
     case SH_DialogButtonLayoutPolicy:
-        ret = 3; // GnomeLayout
+        ret = QDialogButtonBox::GnomeLayout;
         break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);

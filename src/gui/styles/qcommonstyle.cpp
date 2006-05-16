@@ -19,6 +19,7 @@
 #include <qcache.h>
 #include <qdockwidget.h>
 #include <qdrawutil.h>
+#include <qdialogbuttonbox.h>
 #include <qgroupbox.h>
 #include <qmenu.h>
 #include <qpainter.h>
@@ -31,7 +32,6 @@
 #include <qtoolbutton.h>
 #include <qrubberband.h>
 #include <private/qcommonstylepixmaps_p.h>
-#include <private/qdialogbuttons_p.h>
 #include <private/qmath_p.h>
 #include <qdebug.h>
 
@@ -3549,8 +3549,8 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_ScrollBar_ContextMenu:
         ret = true;
         break;
-    case SH_DialogButtons_DefaultButton:
-        ret = QDialogButtons::Accept;
+    case SH_DialogButtons_DefaultButton:  // This value not used anywhere.
+        ret = QDialogButtonBox::AcceptRole;
         break;
 #ifndef QT_NO_GROUPBOX
     case SH_GroupBox_TextLabelVerticalAlignment:
@@ -3705,9 +3705,8 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = Qt::ElideNone;
         break;
     case SH_DialogButtonLayoutPolicy:
-        ret = 0; // WinLayout
+        ret = QDialogButtonBox::WinLayout;
         break;
-    
     case SH_ComboBox_PopupFrameStyle:
         ret = QFrame::StyledPanel | QFrame::Plain;
         break;

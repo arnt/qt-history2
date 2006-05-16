@@ -15,7 +15,6 @@ HEADERS += \
         widgets/qdatetimeedit.h \
         widgets/qdial.h \
         widgets/qdialogbuttonbox.h \
-        widgets/qdialogbuttons_p.h \
         widgets/qdockwidget.h \
         widgets/qdockwidget_p.h \
         widgets/qdockwidgetlayout_p.h \
@@ -76,7 +75,6 @@ SOURCES += \
         widgets/qdatetimeedit.cpp \
         widgets/qdial.cpp \
         widgets/qdialogbuttonbox.cpp \
-        widgets/qdialogbuttons.cpp \
         widgets/qdockseparator.cpp \
         widgets/qdockwidget.cpp \
         widgets/qdockwidgetlayout.cpp \
