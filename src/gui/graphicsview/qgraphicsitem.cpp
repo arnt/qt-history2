@@ -2067,6 +2067,7 @@ void QGraphicsItem::addToIndex()
     Q_D(QGraphicsItem);
     if (d->scene)
         d->scene->d_func()->addToIndex(this);
+    update();
 }
 
 /*!
@@ -2079,6 +2080,7 @@ void QGraphicsItem::addToIndex()
 void QGraphicsItem::removeFromIndex()
 {
     Q_D(QGraphicsItem);
+    update();
     if (d->scene)
         d->scene->d_func()->removeFromIndex(this);
 }
@@ -2257,10 +2259,10 @@ QPainterPath QGraphicsPathItem::path() const
 void QGraphicsPathItem::setPath(const QPainterPath &path)
 {
     Q_D(QGraphicsPathItem);
-    update();
+    removeFromIndex();
     d->path = path;
     d->boundingRect = path.controlPointRect();
-    update();
+    addToIndex();
 }
 
 /*!
@@ -2416,9 +2418,9 @@ QRectF QGraphicsRectItem::rect() const
 void QGraphicsRectItem::setRect(const QRectF &rect)
 {
     Q_D(QGraphicsRectItem);
-    update();
+    removeFromIndex();
     d->rect = rect;
-    update();
+    addToIndex();
 }
 
 /*!
@@ -2581,9 +2583,9 @@ QRectF QGraphicsEllipseItem::rect() const
 void QGraphicsEllipseItem::setRect(const QRectF &rect)
 {
     Q_D(QGraphicsEllipseItem);
-    update();
+    removeFromIndex();
     d->rect = rect;
-    update();
+    addToIndex();
 }
 
 /*!
@@ -2743,9 +2745,9 @@ QPolygonF QGraphicsPolygonItem::polygon() const
 void QGraphicsPolygonItem::setPolygon(const QPolygonF &polygon)
 {
     Q_D(QGraphicsPolygonItem);
-    update();
+    removeFromIndex();
     d->polygon = polygon;
-    update();
+    addToIndex();
 }
 
 /*!
@@ -2904,7 +2906,9 @@ QPen QGraphicsLineItem::pen() const
 void QGraphicsLineItem::setPen(const QPen &pen)
 {
     Q_D(QGraphicsLineItem);
+    removeFromIndex();
     d->pen = pen;
+    addToIndex();
 }
 
 /*!
@@ -2926,9 +2930,9 @@ QLineF QGraphicsLineItem::line() const
 void QGraphicsLineItem::setLine(const QLineF &line)
 {
     Q_D(QGraphicsLineItem);
-    update();
+    removeFromIndex();
     d->line = line;
-    update();
+    addToIndex();
 }
 
 /*!
@@ -3121,10 +3125,9 @@ QGraphicsPixmapItem::~QGraphicsPixmapItem()
 void QGraphicsPixmapItem::setPixmap(const QPixmap &pixmap)
 {
     Q_D(QGraphicsPixmapItem);
-    if (!d->pixmap.isNull())
-        update();
+    removeFromIndex();
     d->pixmap = pixmap;
-    update();
+    addToIndex();
 }
 
 /*!
@@ -3191,9 +3194,9 @@ void QGraphicsPixmapItem::setOffset(const QPointF &offset)
 {
     Q_D(QGraphicsPixmapItem);
     if (offset != d->offset) {
-        update();
+        removeFromIndex();
         d->offset = offset;
-        update();
+        addToIndex();
     }
 }
 
@@ -3503,8 +3506,11 @@ int QGraphicsTextItem::type() const
 */
 void QGraphicsTextItem::adjustSize()
 {
-    if (dd->textControl)
+    if (dd->textControl) {
+        removeFromIndex();
         dd->textControl->adjustSize();
+        addToIndex();
+    }
 }
 
 /*!

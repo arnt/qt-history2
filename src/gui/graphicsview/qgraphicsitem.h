@@ -208,10 +208,10 @@ protected:
     QGraphicsItem(QGraphicsItemPrivate &dd, QGraphicsItem *parent);
     QGraphicsItemPrivate *d_ptr;
 
-private:
     void addToIndex();
     void removeFromIndex();
 
+private:
     Q_DISABLE_COPY(QGraphicsItem)
     Q_DECLARE_PRIVATE(QGraphicsItem)
     friend class QGraphicsItemGroup;
