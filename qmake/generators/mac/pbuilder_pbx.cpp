@@ -244,12 +244,22 @@ nextfile:
             settings.insert("GCC_GENERATE_DEBUGGING_SYMBOLS", "NO");
         if(project->isActiveConfig("sdk") && !project->isEmpty("QMAKE_MAC_SDK"))
             settings.insert("SDKROOT", project->first("QMAKE_MAC_SDK"));
+        {
+            const QStringList &l = project->values("QMAKE_MAC_XCODE_SETTINGS");
+            for(int i = 0; i < l.size(); ++i) {
+                QString name = l.at(i);
+                const QString value = project->values(name + QLatin1String(".value")).join(QString(Option::field_sep));
+                if(!project->isEmpty(name + QLatin1String(".name")))
+                    name = project->values(name + QLatin1String(".name")).first();
+                settings.insert(name, value);
+            }
+        }
+
         QString name;
         if(pbVersion >= 42)
             name = (as_release ? "Release" : "Debug");
         else
             name = (as_release ? "Deployment" : "Development");
-
         if(pbVersion >= 42) {
             QString key = keyFor("QMAKE_SUBDIR_PBX_BUILDCONFIG_" + name);
             project->values("QMAKE_SUBDIR_PBX_BUILDCONFIGS").append(key);
@@ -1355,16 +1365,24 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         settings.insert("GCC_GENERATE_DEBUGGING_SYMBOLS", as_release ? "NO" : "YES");
         if(!as_release)
             settings.insert("GCC_OPTIMIZATION_LEVEL", "0");
-
         if(project->isActiveConfig("sdk") && !project->isEmpty("QMAKE_MAC_SDK"))
                 settings.insert("SDKROOT", project->first("QMAKE_MAC_SDK"));
+        {
+            const QStringList &l = project->values("QMAKE_MAC_XCODE_SETTINGS");
+            for(int i = 0; i < l.size(); ++i) {
+                QString name = l.at(i);
+                const QString value = project->values(name + QLatin1String(".value")).join(QString(Option::field_sep));
+                if(!project->isEmpty(name + QLatin1String(".name")))
+                    name = project->values(name + QLatin1String(".name")).first();
+                settings.insert(name, value);
+            }
+        }
 
         QString name;
         if(pbVersion >= 42)
             name = (as_release ? "Release" : "Debug");
         else
             name = (as_release ? "Deployment" : "Development");
-
         if(pbVersion >= 42) {
             QString key = keyFor("QMAKE_PBX_BUILDCONFIG_" + name);
             project->values("QMAKE_PBX_BUILDCONFIGS").append(key);
