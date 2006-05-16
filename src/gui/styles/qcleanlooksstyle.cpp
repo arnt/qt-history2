@@ -18,8 +18,9 @@
 #include <QComboBox>
 
 #include <qpainter.h>
+#include <QFile>
+#include <QDir>
 #include <qstyleoption.h>
-#include <qdebug.h>
 #include <QApplication>
 #include <QComboBox>
 #include <QDockWidget>
@@ -29,6 +30,7 @@
 #include <QFont>
 #include <QGroupBox>
 #include <QPainterPath>
+#include <QProcess>
 #include <QPushButton>
 #include <QPixmapCache>
 #include <QProgressBar>
@@ -426,6 +428,11 @@ public:
 
 ~QCleanLooksStylePrivate()
     { }
+    QPixmap resolveIcon(int size, const QString &) const;
+    QPixmap resolveIconHelper(int size, const QString &, const QString &) const;
+    QPixmap searchIconDir(const QString &, const QString &) const;
+    QString themeName;
+    QString dataDir;
 };
 
 static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
@@ -462,7 +469,7 @@ static QString uniqueName(const QString &key, const QStyleOption *option, const 
                 complexOption ? uint(complexOption->activeSubControls) : uint(0),
                 option->palette.serialNumber(), size.width(), size.height());
     if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
-        tmp.append("-" + QString::number(spinBox->buttonSymbols) + "-" + QString::number(spinBox->stepEnabled));
+        tmp.append(QLatin1Char('-') + QString::number(spinBox->buttonSymbols) + QLatin1Char('-') + QString::number(spinBox->stepEnabled));
     }
     return tmp;
 }
@@ -523,9 +530,9 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
 /*!
     Constructs a QCleanLooksStyle object.
 */
-QCleanLooksStyle::QCleanLooksStyle()
+QCleanLooksStyle::QCleanLooksStyle() : QWindowsStyle(*new QCleanLooksStylePrivate)
 {
-    setObjectName("CleanLooks");
+    setObjectName(QLatin1String("CleanLooks"));
 }
 
 /*!
@@ -1334,7 +1341,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
         // Draws the header in tables.
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
             QPixmap cache;
-            QString pixmapName = uniqueName("headersection", option, option->rect.size());
+            QString pixmapName = uniqueName(QLatin1String("headersection"), option, option->rect.size());
             pixmapName += QLatin1String("-") + QString::number(int(header->position));
             pixmapName += QLatin1String("-") + QString::number(int(header->orientation));
             QRect r = option->rect;
@@ -1672,7 +1679,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             QString s = menuitem->text;
             if (!s.isEmpty()) {                     // draw text
                 p->save();
-                int t = s.indexOf('\t');
+                int t = s.indexOf(QLatin1Char('\t'));
                 int text_flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, menuitem, widget))
                     text_flags |= Qt::TextHideMnemonic;
@@ -2005,7 +2012,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             QPixmap cache;
-            QString pixmapName = uniqueName("spinbox", spinBox, spinBox->rect.size());
+            QString pixmapName = uniqueName(QLatin1String("spinbox"), spinBox, spinBox->rect.size());
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(spinBox->rect.size());
                 cache.fill(Qt::transparent);
@@ -2594,7 +2601,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                 // The AddLine (down/right) button
                 if (scrollBar->subControls & SC_ScrollBarAddLine) {
-                    QString addLinePixmapName = uniqueName("scrollbar_addline", option, QSize(16, 16));
+                    QString addLinePixmapName = uniqueName(QLatin1String("scrollbar_addline"), option, QSize(16, 16));
                     QRect pixmapRect = scrollBarAddLine;
                     if (isEnabled) {
                         QRect fillRect = pixmapRect.adjusted(1, 1, -1, -1);
@@ -2664,13 +2671,13 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             bool isEnabled = (comboBox->state & State_Enabled);
             bool focus = isEnabled && (comboBox->state & State_HasFocus);
             QPixmap cache;
-            QString pixmapName = uniqueName("combobox", option, comboBox->rect.size());
+            QString pixmapName = uniqueName(QLatin1String("combobox"), option, comboBox->rect.size());
             if (sunken)
-                pixmapName += "-sunken";
+                pixmapName += QLatin1String("-sunken");
             if (comboBox->editable)
-                pixmapName += "-editable";
+                pixmapName += QLatin1String("-editable");
             if (isEnabled)
-                pixmapName += "-enabled";
+                pixmapName += QLatin1String("-enabled");
 
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(comboBox->rect.size());
@@ -3051,6 +3058,9 @@ int QCleanLooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
     case PM_MessageBoxIconSize:
         ret = 48;
         break;
+    case PM_ListViewIconSize:
+        ret = 24;
+        break;
     case PM_DialogButtonsSeparator:
     case PM_SplitterWidth:
         ret = 6;
@@ -3141,6 +3151,7 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     return newSize;
 }
 
+#include "qdebug.h"
 
 /*!
   \reimp
@@ -3148,9 +3159,22 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
 void QCleanLooksStyle::polish(QApplication *app)
 {
     Q_UNUSED(app);
-    // We only need the overhead when shortcuts are sometimes hidden
-    if (!styleHint(SH_UnderlineShortcut, 0) && app)
-        app->installEventFilter(this);
+#ifdef Q_WS_X11
+    Q_D(QCleanLooksStyle);
+    
+    d->dataDir = QLatin1String(getenv("XDG_DATA_DIRS"));
+    
+    if (d->dataDir.isEmpty())
+        d->dataDir = QLatin1String("/usr/share");
+    
+    d->dataDir += QLatin1String("/icons/");
+   
+    QProcess gconftool;
+    gconftool.start(QLatin1String("gconftool --get /desktop/gnome/interface/icon_theme"));
+    
+    if (gconftool.waitForFinished())
+        d->themeName = QLatin1String(gconftool.readLine().trimmed());
+#endif
 }
 
 /*!
@@ -3548,11 +3572,82 @@ QIcon QCleanLooksStyle::standardIconImplementation(StandardPixmap standardIcon,
 }
 
 
-QPixmap findIcon(const QString &subpath)
-{
-    QPixmap pixmap (QString("/usr/share/icons/gnome") + subpath);
+QPixmap QCleanLooksStylePrivate::searchIconDir(const QString &searchRoot, 
+                                               const QString &iconName) const
+{  
+    QPixmap pixmap;
+    QDir themeDir(searchRoot);
+    if (themeDir.exists()) {
+        QStringList list = themeDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (int i = 0 ; i < list.size() ; ++i) {
+            QString path = searchRoot + list[i] + QLatin1Char('/') + iconName;
+            pixmap.load(path);
+            if (pixmap.isNull())
+                pixmap = searchIconDir(searchRoot + list[i] + QLatin1Char('/'), iconName);
+            if (!pixmap.isNull())
+                break;
+        }
+    }
+    return pixmap;  
+}
+
+
+QPixmap QCleanLooksStylePrivate::resolveIconHelper(int size, 
+                                                   const QString &themeName, 
+                                                   const QString &iconName) const
+{  
+    QPixmap pixmap;
+
+    if (!themeName.isEmpty()) {
+        //### directory name is only an assumption  
+        QString subpath = themeName + QLatin1Char('/') + QString::number(size) + 
+                          QLatin1Char('x') + QString::number(size)+ QLatin1Char('/'); 
+        QString themePath = dataDir + subpath;
+        pixmap = searchIconDir(themePath, iconName);    
+    }       
+    
+    if (pixmap.isNull()) { 
+        //search recursively through inherited themes
+        QStringList inheritedThemes;
+        QFile themeIndex(dataDir + themeName + QLatin1String("/index.theme"));
+        if (themeIndex.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&themeIndex);
+            while (!in.atEnd()) {
+                QString line = in.readLine();
+                if (line.startsWith(QLatin1String("Inherits="))) {
+                    line = line.right(line.length() - 9);
+                    inheritedThemes = line.split(QLatin1Char(','));
+                    break;
+                }
+            }
+        }
+        for (int i = 0 ; pixmap.isNull() && i < inheritedThemes.size() ; ++i) {
+           //### add guard against endless recursion
+           pixmap = resolveIconHelper(size, inheritedThemes[i].trimmed(), iconName);
+        }
+    }
+    return pixmap;
+}
+
+QPixmap QCleanLooksStylePrivate::resolveIcon(int size, const QString &name) const
+{  
+#ifdef Q_WS_X11
+    QPixmap pixmap;
+    QString pixmapName = name + QString::number(size); 
+    QPixmapCache::find(pixmapName, pixmap);
+    
+    if (!pixmap.isNull())
+        return pixmap;
+    
+    if (!themeName.isEmpty())
+        pixmap = resolveIconHelper(size, themeName, name);
+    
     if (pixmap.isNull())
-        pixmap.load(QString("/usr/share/icons/hicolor") + subpath);
+        pixmap = resolveIconHelper(size, QLatin1String("hicolor"), name);
+
+    if (!pixmap.isNull())
+        QPixmapCache::insert(pixmapName, pixmap);   
+#endif
     return pixmap;
 }
 
@@ -3563,32 +3658,112 @@ QPixmap findIcon(const QString &subpath)
 QPixmap QCleanLooksStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                       const QWidget *widget) const
 {
+    Q_D(const QCleanLooksStyle);
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
     case SP_MessageBoxInformation:
         {
-            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-info.png");
+            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-info.png"));		    
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxWarning:
         {
-            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-warning.png");
+            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-warning.png"));		    
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxCritical:
         {
-            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_dialog-error.png");
+            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-error.png"));		    
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxQuestion:
         {
-            QPixmap pixmap = findIcon("/48x48/stock/generic/stock_unknown.png");
+            QPixmap pixmap = d->resolveIcon(48, QLatin1String("dialog-question.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DirOpenIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("folder-open.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DirClosedIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("folder.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DriveFDIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("media-floppy.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_ComputerIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("computer.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DesktopIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("desktop.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_TrashIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("user_trash.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DriveCDIcon:
+    case SP_DriveDVDIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("media-cdrom.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_DriveHDIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("harddrive.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_FileDialogBack:
+        {
+            QPixmap pixmap = d->resolveIcon(16, QLatin1String("go-previous.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_FileDialogToParent:
+        {
+            QPixmap pixmap = d->resolveIcon(16, QLatin1String("go-up.png"));		    
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_FileDialogNewFolder:
+        {
+            QPixmap pixmap = d->resolveIcon(16, QLatin1String("folder.png"));		    
+
             if (!pixmap.isNull())
                 return pixmap;
             break;
