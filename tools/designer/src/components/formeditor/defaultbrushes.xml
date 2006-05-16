@@ -217,6 +217,13 @@
       <blue>221</blue>
      </color>
     </gradientstop>
+    <gradientstop position="1" >
+     <color alpha="255" >
+      <red>0</red>
+      <green>176</green>
+      <blue>221</blue>
+     </color>
+    </gradientstop>
    </gradient>
   </brush>
  </description>
