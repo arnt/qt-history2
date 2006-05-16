@@ -2078,13 +2078,21 @@ QRect QTextEditPrivate::rectForPosition(int position) const
     }
     QTextLine line = layout->lineForTextPosition(relativePos);
 
+    int cursorWidth;
+    {
+        bool ok = false;
+        cursorWidth = docLayout->property("cursorWidth").toInt(&ok);
+        if (!ok)
+            cursorWidth = 1;
+    }
+
     QRect r;
 
     if (line.isValid())
-        r = QRect(qRound(layoutPos.x() + line.cursorToX(relativePos))-5, qRound(layoutPos.y() + line.y()),
-                  10, qRound(line.ascent() + line.descent()+1.));
+        r = QRect(qRound(layoutPos.x() + line.cursorToX(relativePos)) - 5 - cursorWidth, qRound(layoutPos.y() + line.y()),
+                  2 * cursorWidth + 10, qRound(line.ascent() + line.descent()+1.));
     else
-        r = QRect(qRound(layoutPos.x()-5), qRound(layoutPos.y()), 10, 10); // #### correct height
+        r = QRect(qRound(layoutPos.x() - 5 - cursorWidth), qRound(layoutPos.y()), 2 * cursorWidth + 10, 10); // #### correct height
 
     return r;
 }
@@ -2883,6 +2891,25 @@ void QTextEdit::setTabStopWidth(int width)
 {
     Q_D(QTextEdit);
     d->doc->documentLayout()->setProperty("tabStopWidth", QVariant(double(width)));
+}
+
+/*!
+    \since 4.2
+    \property QTextEdit::cursorWidth
+    
+    This property specifies the width of the cursor in pixels. The default value is 1.
+*/
+int QTextEdit::cursorWidth() const
+{
+    Q_D(const QTextEdit);
+    return d->doc->documentLayout()->property("cursorWidth").toInt();
+}
+
+void QTextEdit::setCursorWidth(int width)
+{
+    Q_D(QTextEdit);
+    d->doc->documentLayout()->setProperty("cursorWidth", width);
+    d->repaintCursor();
 }
 
 /*!

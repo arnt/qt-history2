@@ -835,12 +835,25 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<FormatRang
 
 /*!
   \fn void QTextLayout::drawCursor(QPainter *painter, const QPointF &position, int cursorPosition) const
+  \overload
 
   Draws a text cursor with the current pen at the given \a position using the
   \a painter specified.
   The corresponding position within the text is specified by \a cursorPosition.
 */
 void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition) const
+{
+    drawCursor(p, pos, cursorPosition, 1);
+}
+
+/*!
+  \fn void QTextLayout::drawCursor(QPainter *painter, const QPointF &position, int cursorPosition, qreal width) const
+
+  Draws a text cursor with the current pen and the specified \a width at the given \a position using the
+  \a painter specified.
+  The corresponding position within the text is specified by \a cursorPosition.
+*/
+void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition, int width) const
 {
     if (!d->layoutData)
         d->itemize();
@@ -871,7 +884,7 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
                 rightToLeft = si.analysis.bidiLevel % 2;
             }
             qreal y = position.y() + (sl.y + sl.ascent - ascent).toReal();
-            p->drawLine(QLineF(x, y, x, y + (ascent + descent).toReal()));
+            p->fillRect(QRectF(x, y, qreal(width), (ascent + descent).toReal()), p->pen().brush());
             if (d->layoutData->hasBidi) {
                 const int arrow_extent = 4;
                 int sign = rightToLeft ? -1 : 1;

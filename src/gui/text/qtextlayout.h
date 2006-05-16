@@ -125,6 +125,7 @@ public:
     void draw(QPainter *p, const QPointF &pos, const QVector<FormatRange> &selections = QVector<FormatRange>(),
               const QRectF &clip = QRectF()) const;
     void drawCursor(QPainter *p, const QPointF &pos, int cursorPosition) const;
+    void drawCursor(QPainter *p, const QPointF &pos, int cursorPosition, int width) const;
 
     QPointF position() const;
     void setPosition(const QPointF &p);

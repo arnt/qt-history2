@@ -55,6 +55,7 @@ class Q_GUI_EXPORT QTextEdit : public QAbstractScrollArea
     Q_PROPERTY(bool overwriteMode READ overwriteMode WRITE setOverwriteMode)
     Q_PROPERTY(int tabStopWidth READ tabStopWidth WRITE setTabStopWidth)
     Q_PROPERTY(bool acceptRichText READ acceptRichText WRITE setAcceptRichText)
+    Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
 public:
     enum LineWrapMode {
         NoWrap,
@@ -168,6 +169,9 @@ public:
 
     int tabStopWidth() const;
     void setTabStopWidth(int width);
+    
+    int cursorWidth() const;
+    void setCursorWidth(int width);
     
     bool acceptRichText() const;
     void setAcceptRichText(bool accept);

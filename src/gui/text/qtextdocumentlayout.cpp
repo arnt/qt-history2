@@ -299,6 +299,7 @@ public:
         : blockTextFlags(0), wordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere),
           fixedColumnWidth(-1),
           tabStopWidth(80), // same default as in qtextengine.cpp
+          cursorWidth(1),
           currentLazyLayoutPosition(-1),
           lazyLayoutStepSize(1000),
           showLayoutProgress(true)
@@ -314,6 +315,7 @@ public:
 
     int fixedColumnWidth;
     double tabStopWidth;
+    int cursorWidth;
 
     mutable int currentLazyLayoutPosition;
     mutable int lazyLayoutStepSize;
@@ -845,7 +847,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
         painter->setPen(context.palette.color(QPalette::Text));
         const int cursorPos = context.cursorPosition - cursorBlockNeedingRepaint.position();
         cursorBlockNeedingRepaint.layout()->drawCursor(painter, offsetOfRepaintedCursorBlock,
-                                                       cursorPos);
+                                                       cursorPos, cursorWidth);
         painter->setPen(oldPen);
     }
 
@@ -1027,7 +1029,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
             cpos = tl->preeditAreaPosition() - (cpos + 2);
         else
             cpos -= blpos;
-        tl->drawCursor(painter, offset, cpos);
+        tl->drawCursor(painter, offset, cpos, cursorWidth);
     }
 
     if (blockFormat.hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth)) {
@@ -2507,6 +2509,18 @@ double QTextDocumentLayout::tabStopWidth() const
 {
     Q_D(const QTextDocumentLayout);
     return d->tabStopWidth;
+}
+
+void QTextDocumentLayout::setCursorWidth(int width)
+{
+    Q_D(QTextDocumentLayout);
+    d->cursorWidth = width;
+}
+
+int QTextDocumentLayout::cursorWidth() const
+{
+    Q_D(const QTextDocumentLayout);
+    return d->cursorWidth;
 }
 
 void QTextDocumentLayout::setFixedColumnWidth(int width)

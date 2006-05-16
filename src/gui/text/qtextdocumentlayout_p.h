@@ -39,6 +39,7 @@ class Q_GUI_EXPORT QTextDocumentLayout : public QAbstractTextDocumentLayout
     Q_DECLARE_PRIVATE(QTextDocumentLayout)
     Q_OBJECT
     Q_PROPERTY(double tabStopWidth READ tabStopWidth WRITE setTabStopWidth)
+    Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
 public:
     explicit QTextDocumentLayout(QTextDocument *doc);
 
@@ -60,6 +61,9 @@ public:
 
     void setTabStopWidth(double width);
     double tabStopWidth() const;
+    
+    void setCursorWidth(int width);
+    int cursorWidth() const;
 
     // internal, to support the ugly FixedColumnWidth wordwrap mode in QTextEdit
     void setFixedColumnWidth(int width);
