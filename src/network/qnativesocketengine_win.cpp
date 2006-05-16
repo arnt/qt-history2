@@ -991,7 +991,6 @@ qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxLength)
         int err = WSAGetLastError();
         WS_ERROR_DEBUG(err);
         switch (err) {
-        case WSAEAGAIN:
         case WSAEWOULDBLOCK:
             ret = -2;
             break;
