@@ -991,6 +991,10 @@ qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxLength)
         int err = WSAGetLastError();
         WS_ERROR_DEBUG(err);
         switch (err) {
+        case WSAEAGAIN:
+        case WSAEWOULDBLOCK:
+            ret = -2;
+            break;
         case WSAEBADF:
         case WSAEINVAL:
             setError(QAbstractSocket::NetworkError, ReadErrorString);
@@ -1003,7 +1007,6 @@ qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxLength)
         default:
             break;
         }
-
     } else {
 	ret = qint64(bytesRead);
     }

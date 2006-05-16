@@ -807,20 +807,26 @@ qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxSize)
     } while (r == -1 && errno == EINTR);
 
     if (r < 0) {
+        r = -1;
         switch (errno) {
+#if EWOULDBLOCK-0 && EWOULDBLOCK != EAGAIN
+        case EWOULDBLOCK:
+#endif
         case EAGAIN:
             // No data was available for reading
-            return 0;
+            r = -2;
+            break;
         case EBADF:
         case EINVAL:
         case EIO:
             setError(QAbstractSocket::NetworkError, ReadErrorString);
             break;
+        case ECONNRESET:
+            r = 0;
+            break;
         default:
             break;
         }
-
-        r = -1;
     }
 
 #if defined (QNATIVESOCKETENGINE_DEBUG)

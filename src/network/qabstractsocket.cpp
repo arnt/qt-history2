@@ -459,6 +459,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
     readSocketNotifierCalled = true;
 
     // If buffered, read data from the socket into the read buffer
+    qint64 newBytes = 0;
     if (isBuffered) {
         // Return if there is no space in the buffer
         if (readBufferMaxSize && readBuffer.size() >= readBufferMaxSize) {
@@ -471,6 +472,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
 
         // If reading from the socket fails after getting a read
         // notification, close the socket.
+        newBytes = readBuffer.size();
         if (!readFromSocket()) {
 #if defined (QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::_q_canReadNotification() disconnecting socket");
@@ -479,6 +481,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
             readSocketNotifierCalled = false;
             return false;
         }
+        newBytes = readBuffer.size() - newBytes;
 
         // If read buffer is full, disable the read socket notifier.
         if (readBufferMaxSize && readBuffer.size() == readBufferMaxSize) {
@@ -487,7 +490,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
     }
 
     // only emit readyRead() when not recursing.
-    if (!emittedReadyRead) {
+    if (!emittedReadyRead && (!isBuffered || newBytes > 0)) {
         emittedReadyRead = true;
         emit q->readyRead();
         emittedReadyRead = false;
@@ -831,6 +834,11 @@ bool QAbstractSocketPrivate::readFromSocket()
     // Read from the socket, store data in the read buffer.
     char *ptr = readBuffer.reserve(bytesToRead);
     qint64 readBytes = socketEngine->read(ptr, bytesToRead);
+    if (readBytes == -2) {
+        // No bytes currently available for reading.
+        readBuffer.truncate(bytesToRead);
+        return true;
+    }
     if (readBytes > 0)
         readBuffer.chop((int) (bytesToRead - readBytes));
 #if defined(QABSTRACTSOCKET_DEBUG)

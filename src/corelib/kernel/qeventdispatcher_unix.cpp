@@ -609,7 +609,7 @@ void QEventDispatcherUNIX::setSocketNotifierPending(QSocketNotifier *notifier)
     // processed.
     if (! FD_ISSET(sn->fd, sn->queue)) {
         d->sn_pending_list.insert((rand() & 0xff) %
-                                   (d->sn_pending_list.size()+1), sn);
+                                  (d->sn_pending_list.size()+1), sn);
         FD_SET(sn->fd, sn->queue);
     }
 }
@@ -706,50 +706,9 @@ int QEventDispatcherUNIX::activateSocketNotifiers()
         if (FD_ISSET(sn->fd, sn->queue)) {
             FD_CLR(sn->fd, sn->queue);
             QCoreApplication::sendEvent(sn->obj, &event);
-            n_act++;
-        }
-
-        if (d->sn_pending_list.isEmpty())
-            break;
-
-        // check if any fds are no longer pending
-        int ret = -1;
-        do {
-            timeval zero_timeout = { 0l, 0l };
-            ret = ::select(d->sn_highest + 1, &rset, &wset, &xset, &zero_timeout);
-        } while (ret == -1 && (errno == EINTR || errno == EAGAIN));
-
-        if (ret < -1) {
-            // any errors caught here are new errors, so we punt and
-            // let doSelect() handle them
-            break;
-        }
-
-        for (int i = 0; i < d->sn_pending_list.size(); ++i) {
-            QSockNot *sn = d->sn_pending_list.at(i);
-
-            fd_set *set = 0;
-            switch (sn->obj->type()) {
-            case QSocketNotifier::Read:
-                set = &rset;
-                break;
-            case QSocketNotifier::Write:
-                set = &wset;
-                break;
-            case QSocketNotifier::Exception:
-                set = &xset;
-                break;
-            }
-
-            if (set && !FD_ISSET(sn->fd, set)) {
-                // fd is no longer pending
-                FD_CLR(sn->fd, set);
-                FD_CLR(sn->fd, sn->queue);
-                d->sn_pending_list.removeAt(i--);
-            }
+            ++n_act;
         }
     }
-
     return n_act;
 }
 

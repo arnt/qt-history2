@@ -645,10 +645,9 @@ qint64 QNativeSocketEngine::read(char *data, qint64 maxSize)
 
     // Handle remote close
     if (readBytes == 0 && d->socketType == QAbstractSocket::TcpSocket) {
-        close();
         d->setError(QAbstractSocket::RemoteHostClosedError,
                     QNativeSocketEnginePrivate::RemoteHostClosedErrorString);
-        d->socketState = QAbstractSocket::UnconnectedState;
+        close();
         return -1;
     }
     return readBytes;
