@@ -687,8 +687,8 @@ void QtGradientStopsWidget::paintEvent(QPaintEvent *e)
 
     double handleWidth = d_ptr->m_handleSize * d_ptr->m_scaleFactor / (w * (d_ptr->m_scaleFactor + max));
 
-    QColor borderColor = QColor::fromRgb(0x20, 0x20, 0x20, 0xFF);
-    QColor insideColor = QColor(Qt::white);
+    QColor insideColor = QColor::fromRgb(0x20, 0x20, 0x20, 0xFF);
+    QColor borderColor = QColor(Qt::white);
     QColor drawColor;
     QColor back1 = QColor(Qt::lightGray);
     QColor back2 = QColor(Qt::darkGray);
@@ -708,7 +708,7 @@ void QtGradientStopsWidget::paintEvent(QPaintEvent *e)
             QColor c = stop->color();
             if ((0.3 * c.redF() + 0.59 * c.greenF() + 0.11 * c.blueF()) * c.alphaF() +
                 (0.3 * back.redF() + 0.59 * back.greenF() + 0.11 * back.blueF()) * (1.0 - c.alphaF()) < 0.5) {
-                drawColor = QColor::fromRgb(0xC0, 0xC0, 0xC0, 0x80);
+                drawColor = QColor::fromRgb(0xC0, 0xC0, 0xC0, 0xB0);
             } else {
                 drawColor = QColor::fromRgb(0x40, 0x40, 0x40, 0x80);
             }
