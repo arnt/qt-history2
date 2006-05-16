@@ -207,7 +207,8 @@ public:
     void insertTopLevelItem(int index, QTreeWidgetItem *item);
     void addTopLevelItem(QTreeWidgetItem *item);
     QTreeWidgetItem *takeTopLevelItem(int index);
-    int indexOfTopLevelItem(QTreeWidgetItem *item); // ### Qt 5: make const
+    int indexOfTopLevelItem(QTreeWidgetItem *item); // ### Qt 5: remove me
+    int indexOfTopLevelItem(QTreeWidgetItem *item) const;
 
     void insertTopLevelItems(int index, const QList<QTreeWidgetItem*> &items);
     void addTopLevelItems(const QList<QTreeWidgetItem*> &items);

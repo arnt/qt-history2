@@ -2011,14 +2011,23 @@ QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 }
 
 /*!
+  \depricated
+ */
+int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
+{
+    Q_D(QTreeWidget);
+    return d->model()->tree.indexOf(item);
+}
+
+/*!
   Returns the index of the given top-level \a item, or -1 if the item
   cannot be found.
 
   \sa sortItems(), topLevelItemCount()
  */
-int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
+int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item) const
 {
-    Q_D(QTreeWidget);
+    Q_D(const QTreeWidget);
     return d->model()->tree.indexOf(item);
 }
 
