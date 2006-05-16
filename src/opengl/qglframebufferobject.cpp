@@ -402,11 +402,11 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     The \a target parameter is used to specify the GL texture
     target. The default target is GL_TEXTURE_2D. Keep in mind that
     GL_TEXTURE_2D textures must have a power of 2 width and height
-    (i.e. 256x512).
+    (e.g. 256x512).
 
     It is important that you have a current GL context set when
     creating the QGLFramebufferObject, otherwise the initalization
-    might fail.
+    will fail.
 
     \sa size(), texture()
 */
@@ -450,10 +450,10 @@ QGLFramebufferObject::~QGLFramebufferObject()
 
     Returns true if the framebuffer object is valid.
 
-    The framebuffer can become invalid if the init process fails, the
-    user attaches an invalid buffer to the framebuffer object, or a
-    non-power of 2 width/height is specified as the texture size if
-    the texture target is \c{GL_TEXTURE_2D}.
+    The framebuffer can become invalid if the initialization process
+    fails, the user attaches an invalid buffer to the framebuffer
+    object, or a non-power of 2 width/height is specified as the
+    texture size if the texture target is \c{GL_TEXTURE_2D}.
 */
 bool QGLFramebufferObject::isValid() const
 {
@@ -496,8 +496,9 @@ bool QGLFramebufferObject::release()
 /*!
     \fn GLuint QGLFramebufferObject::texture() const
 
-    Returns the texture id for this framebuffer object. This texture
-    id can be bound as a normal texture in your own GL code.
+    Returns the texture id for the texture attached as the default
+    rendering target in this framebuffer object. This texture id can
+    be bound as a normal texture in your own GL code.
 */
 GLuint QGLFramebufferObject::texture() const
 {
@@ -532,6 +533,7 @@ QImage QGLFramebufferObject::toImage() const
     QImage img(d->size, QImage::Format_ARGB32);
     int w = d->size.width();
     int h = d->size.height();
+    // ### fix the read format so that we don't have to do all the byte swapping
     glReadPixels(0, 0, d->size.width(), d->size.height(), GL_RGBA, GL_UNSIGNED_BYTE, img.bits());
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
 	// OpenGL gives RGBA; Qt wants ARGB
@@ -630,10 +632,10 @@ int QGLFramebufferObject::metric(PaintDeviceMetric metric) const
 /*!
     \fn GLuint QGLFramebufferObject::handle() const
 
-    Returns the framebuffer object handle for this framebuffer
+    Returns the GL framebuffer object handle for this framebuffer
     object. This handle can be used to attach new images or buffers to
-    this framebuffer. The user is responsible for destroying up these
-    objects.
+    the framebuffer. The user is responsible for cleaning up and
+    destroying these objects.
 */
 GLuint QGLFramebufferObject::handle() const
 {
