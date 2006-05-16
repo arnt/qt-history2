@@ -212,6 +212,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *)
         d->fileName = d->port;
 
     QT_WA({
+    d->devModeW()->dmCopies = d->num_copies;
 	DOCINFO di;
 	memset(&di, 0, sizeof(DOCINFO));
 	di.cbSize = sizeof(DOCINFO);
@@ -223,6 +224,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *)
 	    ok = false;
 	}
     } , {
+    d->devModeA()->dmCopies = d->num_copies;
 	DOCINFOA di;
 	memset(&di, 0, sizeof(DOCINFOA));
 	di.cbSize = sizeof(DOCINFOA);
@@ -954,6 +956,12 @@ void QWin32PrintEnginePrivate::initialize()
     Q_ASSERT(devMode);
     Q_ASSERT(pInfo);
 
+    QT_WA( {
+        num_copies = devModeW()->dmCopies;
+    }, {
+        num_copies = devModeA()->dmCopies;
+    } );
+
     initHDC();
 
 #ifdef QT_DEBUG_DRAW
@@ -1010,7 +1018,8 @@ void QWin32PrintEnginePrivate::initDevRects()
 
 void QWin32PrintEnginePrivate::release()
 {
-    Q_ASSERT(hdc);
+    if (hdc == 0)
+        return ;
 
     if (globalDevMode) { // Devmode comes from print dialog
         GlobalUnlock(globalDevMode);
@@ -1121,13 +1130,8 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
         break;
 
     case PPK_NumberOfCopies:
-        if (!d->devMode)
-            break;
-        QT_WA( {
-            d->devModeW()->dmCopies = value.toInt();
-        }, {
-            d->devModeA()->dmCopies = value.toInt();
-        } );
+        d->num_copies = value.toInt();
+
         break;
 
     case PPK_Orientation:
@@ -1460,12 +1464,16 @@ void QWin32PrintEnginePrivate::readDevmode(HGLOBAL globalDevmode)
             devMode = dm;
             hdc = CreateDC(reinterpret_cast<const wchar_t *>(program.utf16()),
                            reinterpret_cast<const wchar_t *>(name.utf16()), 0, dm);
+
+            num_copies = devModeW()->dmCopies;
         }, {
             DEVMODEA *dm = (DEVMODEA*) GlobalLock(globalDevmode);
             release();
             globalDevMode = globalDevmode;
             devMode = dm;
             hdc = CreateDCA(program.toLatin1(), name.toLatin1(), 0, dm);
+
+            num_copies = devModeA()->dmCopies;
         } );
     }
 

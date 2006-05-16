@@ -94,7 +94,8 @@ public:
         resolution(0),
         printToFile(false),
         fullPage(false),
-        reinit(false)
+        reinit(false),
+        num_copies(1)
     {
     }
 
@@ -195,6 +196,7 @@ public:
     int dpi_x;
     int dpi_y;
     int dpi_display;
+    int num_copies;
 
     uint printToFile : 1;
     uint fullPage : 1;

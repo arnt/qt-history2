@@ -51,12 +51,16 @@ static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialogPrivate *d,
     memset(pd, 0, sizeof(PRINTDLGA));
     pd->lStructSize = sizeof(PRINTDLGA);
 
-    int size = sizeof(DEVMODEA) + d->ep->devModeA()->dmDriverExtra;
-    pd->hDevMode = GlobalAlloc(GHND, size);
-    {
-        void *dest = GlobalLock(pd->hDevMode);
-        memcpy(dest, d->ep->devMode, size);
-        GlobalUnlock(pd->hDevMode);
+    if (d->ep->devModeA() != 0) {
+        int size = sizeof(DEVMODEA) + d->ep->devModeA()->dmDriverExtra;
+        pd->hDevMode = GlobalAlloc(GHND, size);
+        {
+            void *dest = GlobalLock(pd->hDevMode);
+            memcpy(dest, d->ep->devMode, size);
+            GlobalUnlock(pd->hDevMode);
+        }
+    } else {
+        pd->hDevMode = NULL;
     }
     pd->hDevNames  = tempDevNames;
 
@@ -90,7 +94,7 @@ static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialogPrivate *d,
     pd->hwndOwner = parent ? parent->winId() : 0;
     pd->nFromPage = qMax(d->fromPage, d->minPage);
     pd->nToPage   = qMin(d->toPage, d->maxPage);
-    pd->nCopies = d->ep->devModeA()->dmCopies;
+    pd->nCopies = d->ep->num_copies;
 
     return pd;
 }
@@ -134,12 +138,16 @@ static PRINTDLGW *qt_win_make_PRINTDLGW(QWidget *parent, QPrintDialogPrivate *d,
     memset(pd, 0, sizeof(PRINTDLGW));
     pd->lStructSize = sizeof(PRINTDLGW);
 
-    int size = sizeof(DEVMODEW) + d->ep->devModeW()->dmDriverExtra;
-    pd->hDevMode = GlobalAlloc(GHND, size);
-    {
-        void *dest = GlobalLock(pd->hDevMode);
-        memcpy(dest, d->ep->devMode, size);
-        GlobalUnlock(pd->hDevMode);
+    if (d->ep->devModeW() != 0) {
+        int size = sizeof(DEVMODEW) + d->ep->devModeW()->dmDriverExtra;
+        pd->hDevMode = GlobalAlloc(GHND, size);
+        {
+            void *dest = GlobalLock(pd->hDevMode);
+            memcpy(dest, d->ep->devMode, size);
+            GlobalUnlock(pd->hDevMode);
+        }
+    } else {
+        pd->hDevMode = NULL;
     }
     pd->hDevNames  = tempDevNames;
 
@@ -173,7 +181,7 @@ static PRINTDLGW *qt_win_make_PRINTDLGW(QWidget *parent, QPrintDialogPrivate *d,
     pd->hwndOwner = parent ? parent->winId() : 0;
     pd->nFromPage = qMax(d->fromPage, d->minPage);
     pd->nToPage   = qMin(d->toPage, d->maxPage);
-    pd->nCopies = d->ep->devModeW()->dmCopies;
+    pd->nCopies = d->ep->num_copies;
 
     return pd;
 }
@@ -232,10 +240,6 @@ int QPrintDialog::exec()
     }
 
     Q_D(QPrintDialog);
-    if (!d->ep->devMode) {
-        qWarning("QPrintDialog::exec(), printer not initialized");
-        return false;
-    }
 
     QWidget *parent = parentWidget();
     if (parent)
