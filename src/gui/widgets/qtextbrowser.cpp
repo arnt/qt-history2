@@ -88,7 +88,7 @@ public:
 static bool isAbsoluteFileName(const QString &name)
 {
     return !name.isEmpty()
-           && (name[0] == '/'
+           && (name[0] == QLatin1Char('/')
 #if defined(Q_WS_WIN)
                || (name[0].isLetter() && name[1] == QLatin1Char(':')) || name.startsWith("\\\\")
 #endif
@@ -108,11 +108,9 @@ QString QTextBrowserPrivate::findFile(const QUrl &name) const
     if (isAbsoluteFileName(fileName))
         return fileName;
 
-    QString slash("/");
-
     foreach (QString path, searchPaths) {
-        if (!path.endsWith(slash))
-            path.append(slash);
+        if (!path.endsWith(QLatin1Char('/')))
+            path.append(QLatin1Char('/'));
         path.append(fileName);
         if (QFileInfo(path).isReadable())
             return path;
@@ -179,8 +177,8 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
             qWarning("QTextBrowser: No document for %s", url.toString().toLatin1().constData());
 
         if (q->isVisible()) {
-            QString firstTag = txt.left(txt.indexOf('>') + 1);
-            if (firstTag.left(3) == "<qt" && firstTag.contains("type") && firstTag.contains("detail")) {
+            QString firstTag = txt.left(txt.indexOf(QLatin1Char('>')) + 1);
+            if (firstTag.left(3) == QLatin1String("<qt") && firstTag.contains(QLatin1String("type")) && firstTag.contains(QLatin1String("detail"))) {
 #ifndef QT_NO_CURSOR
                 qApp->restoreOverrideCursor();
 #endif
