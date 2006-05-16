@@ -132,6 +132,14 @@
                 <string notr="true">checkBox</string>
             </property>
         </widget>
+        <widget class="QDialogButtonBox" name="Buton Box" icon="widgets/frame.png">
+            <property name="standardButtons" >
+                <set>QDialogButtonBox::Ok|QDialogButtonBox::Cancel</set>
+            </property>
+            <property name="objectName">
+                <string notr="true">buttonBox</string>
+            </property>
+        </widget>
     </category>
 
     <category name="Item Views (Model-Based)">

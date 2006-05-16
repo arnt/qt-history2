@@ -40,6 +40,7 @@ DECLARE_WIDGET(QWorkspace, "")
 DECLARE_WIDGET(QSplitter, "")
 DECLARE_WIDGET(QStackedWidget, "")
 DECLARE_WIDGET(QStatusBar, "")
+DECLARE_WIDGET(QDialogButtonBox, "")
 
 // layouts
 DECLARE_LAYOUT(QGridLayout, "")
