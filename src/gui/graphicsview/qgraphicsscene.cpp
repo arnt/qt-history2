@@ -218,7 +218,7 @@ static bool qt_closestItemFirst(const QGraphicsItem *item1, const QGraphicsItem 
         const QGraphicsItem *a1 = ancestors1.at(i);
         const QGraphicsItem *a2 = ancestors2.at(i);
         if (a1 == a2)
-            return qt_closestLeaf(ancestors1.at(i + i), ancestors2.at(i + 1));
+            return qt_closestLeaf(ancestors1.at(i + 1), ancestors2.at(i + 1));
     }
 
     // No common ancestor? Then just compare the items' toplevels directly.
