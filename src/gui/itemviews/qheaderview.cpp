@@ -328,6 +328,10 @@ void QHeaderView::setOffset(int newOffset)
         d->viewport->scroll(isRightToLeft() ? -ndelta : ndelta, 0);
     else
         d->viewport->scroll(0, ndelta);
+    if (d->state == QHeaderViewPrivate::ResizeSection) {
+        d->firstPos += ndelta;
+        d->lastPos += ndelta;
+    }
 }
 
 /*!
@@ -1283,7 +1287,7 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
         return; // we only handle changes in the top level
     if (qMin(logicalFirst, logicalLast) < 0
         || qMax(logicalLast, logicalFirst) >= sectionCount)
-        return; // should could assert here, but since models could emit signals with strange args, we are a bit forgiving
+        return;
     int oldCount = q->count();
     int changeCount = logicalLast - logicalFirst + 1;
     if (visualIndices.isEmpty() && logicalIndices.isEmpty()) {
