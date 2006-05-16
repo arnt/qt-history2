@@ -3170,7 +3170,7 @@ void QCleanLooksStyle::polish(QApplication *app)
     d->dataDir += QLatin1String("/icons/");
    
     QProcess gconftool;
-    gconftool.start(QLatin1String("gconftool --get /desktop/gnome/interface/icon_theme"));
+    gconftool.start(QLatin1String("gconftool-2 --get /desktop/gnome/interface/icon_theme"));
     
     if (gconftool.waitForFinished())
         d->themeName = QLatin1String(gconftool.readLine().trimmed());
