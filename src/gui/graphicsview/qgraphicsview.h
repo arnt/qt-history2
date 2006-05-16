@@ -95,8 +95,8 @@ public:
     void centerOn(const QPointF &pos);
     inline void centerOn(qreal x, qreal y);
     void centerOn(const QGraphicsItem *item);
-    void ensureVisible(const QPointF &pos, int xmargin = 50, int ymargin = 50);
-    inline void ensureVisible(qreal x, qreal y, int xmargin = 50, int ymargin = 50);
+    void ensureVisible(const QRectF &rect, int xmargin = 50, int ymargin = 50);
+    inline void ensureVisible(qreal x, qreal y, qreal w, qreal h, int xmargin = 50, int ymargin = 50);
     void ensureVisible(const QGraphicsItem *item, int xmargin = 50, int ymargin = 50);
     void fitInView(const QRectF &rect, Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio);
     inline void fitInView(qreal x, qreal y, qreal w, qreal h,
@@ -156,8 +156,8 @@ inline void QGraphicsView::setSceneRect(qreal ax, qreal ay, qreal aw, qreal ah)
 { setSceneRect(QRectF(ax, ay, aw, ah)); }
 inline void QGraphicsView::centerOn(qreal ax, qreal ay)
 { centerOn(QPointF(ax, ay)); }
-inline void QGraphicsView::ensureVisible(qreal ax, qreal ay, int xmargin, int ymargin)
-{ ensureVisible(QPointF(ax, ay), xmargin, ymargin); }
+inline void QGraphicsView::ensureVisible(qreal ax, qreal ay, qreal aw, qreal ah, int xmargin, int ymargin)
+{ ensureVisible(QRectF(ax, ay, aw, ah), xmargin, ymargin); }
 inline void QGraphicsView::fitInView(qreal x, qreal y, qreal w, qreal h, Qt::AspectRatioMode mode)
 { fitInView(QRectF(x, y, w, h), mode); }
 inline QList<QGraphicsItem *> QGraphicsView::items(int ax, int ay) const

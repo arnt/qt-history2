@@ -109,9 +109,9 @@ public:
     inline void setPos(qreal x, qreal y) { setPos(QPointF(x, y)); }
     inline void moveBy(qreal dx, qreal dy) { setPos(pos().x() + dx, pos().y() + dy); }
 
-    void ensureVisible(const QPointF &pos, int xmargin = 50, int ymargin = 50);
-    inline void ensureVisible(qreal x, qreal y, int xmargin = 50, int ymargin = 50)
-    { ensureVisible(QPointF(x, y), xmargin, ymargin); }
+    void ensureVisible(const QRectF &rect, int xmargin = 50, int ymargin = 50);
+    inline void ensureVisible(qreal x, qreal y, qreal w, qreal h, int xmargin = 50, int ymargin = 50)
+    { ensureVisible(QRectF(x, y, w, h), xmargin, ymargin); }
 
     // Local transformation
     QMatrix matrix() const;

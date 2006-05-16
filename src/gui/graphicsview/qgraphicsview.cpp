@@ -45,7 +45,7 @@
     centered in the view. An overload is provided for scrolling to a
     QGraphicsItem, in which case QGraphicsView will see to that the center of
     the item is centered in the view. If all you want is to ensure that a
-    certain point is visible, (but not necessarily centered,) you can call
+    certain area is visible, (but not necessarily centered,) you can call
     ensureVisible() instead.
 
     QGraphicsView can be used to visualize a whole scene, or only parts of it.
@@ -1213,51 +1213,48 @@ void QGraphicsView::centerOn(const QGraphicsItem *item)
 }
 
 /*!
-    Scrolls the contents of the viewport so that the scene coordinate \a pos
+    Scrolls the contents of the viewport so that the scene rectangle \a rect
     is visible, with margins specified in pixels by \a xmargin and \a
-    ymargin. If the specified point cannot be reached, the contents are
+    ymargin. If the specified rect cannot be reached, the contents are
     scrolled to the nearest valid position. The default value for both margins
     is 50 pixels.
 
     \sa centerOn()
 */
-void QGraphicsView::ensureVisible(const QPointF &pos, int xmargin, int ymargin)
+void QGraphicsView::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
 {
     Q_D(QGraphicsView);
     Q_UNUSED(xmargin);
     Q_UNUSED(ymargin);
     qreal width = d->renderWidget->width();
     qreal height = d->renderWidget->height();
-    QPointF viewPoint = d->matrix.map(pos);
-    QPointF oldCenterPoint = pos;
+    QRectF viewRect = d->matrix.mapRect(rect);
 
     qreal left = d->leftIndent ? d->leftIndent : horizontalScrollBar()->value();
     qreal right = left + width;
     qreal top = d->topIndent ? d->topIndent : verticalScrollBar()->value();
     qreal bottom = top + height;
 
-    if (viewPoint.x() <= left + xmargin) {
+    if (viewRect.left() <= left + xmargin) {
         // need to scroll from the left
         if (!d->leftIndent)
-            horizontalScrollBar()->setValue(int(viewPoint.x() - xmargin - 0.5));
+            horizontalScrollBar()->setValue(int(viewRect.left() - xmargin - 0.5));
     }
-    if (viewPoint.x() >= right - xmargin) {
+    if (viewRect.right() >= right - xmargin) {
         // need to scroll from the right
         if (!d->leftIndent)
-            horizontalScrollBar()->setValue(int(viewPoint.x() - width + xmargin + 0.5));
+            horizontalScrollBar()->setValue(int(viewRect.right() - width + xmargin + 0.5));
     }
-    if (viewPoint.y() <= top + ymargin) {
+    if (viewRect.top() <= top + ymargin) {
         // need to scroll from the top
         if (!d->topIndent)
-            verticalScrollBar()->setValue(int(viewPoint.y() - ymargin - 0.5));
+            verticalScrollBar()->setValue(int(viewRect.top() - ymargin - 0.5));
     }
-    if (viewPoint.y() >= bottom - ymargin) {
+    if (viewRect.bottom() >= bottom - ymargin) {
         // need to scroll from the bottom
         if (!d->topIndent)
-            verticalScrollBar()->setValue(int(viewPoint.y() - height + ymargin + 0.5));
+            verticalScrollBar()->setValue(int(viewRect.bottom() - height + ymargin + 0.5));
     }
-
-    d->lastCenterPoint = oldCenterPoint;
 }
 
 /*!
@@ -1280,7 +1277,7 @@ void QGraphicsView::ensureVisible(const QPointF &pos, int xmargin, int ymargin)
 */
 void QGraphicsView::ensureVisible(const QGraphicsItem *item, int xmargin, int ymargin)
 {
-    ensureVisible(item->sceneBoundingRect().center(), xmargin, ymargin);
+    ensureVisible(item->sceneBoundingRect(), xmargin, ymargin);
 }
 
 /*!

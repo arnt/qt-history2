@@ -1035,33 +1035,32 @@ void QGraphicsItem::setPos(const QPointF &pos)
 
 /*!
     If this item is part of a scene that is viewed by a QGraphicsView, this
-    convenience function will scroll the view to ensure that \a pos is visible
-    inside the view's viewport, with margins specified in viewport pixels by
-    \a xmargin and \a ymargin.
+    convenience function will attempt to scroll the view to ensure that \a
+    rect is visible inside the view's viewport.
 
-    If the specified point cannot be reached, the contents are scrolled to the
-    nearest valid position. The default value for both margins is 50 pixels.
+    If the specified rect cannot be reached, the contents are scrolled to the
+    nearest valid position.
 
     If this item is not viewed by a QGraphicsView, this function does nothing.
 
     \sa QGraphicsView::ensureVisible()
 */
-void QGraphicsItem::ensureVisible(const QPointF &pos, int xmargin, int ymargin)
+void QGraphicsItem::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
 {
     Q_D(QGraphicsItem);
     if (d->scene) {
-        QPointF scenePos = mapToScene(pos);
+        QRectF sceneRect = sceneMatrix().mapRect(rect);
         foreach (QGraphicsView *view, d->scene->d_func()->views)
-            view->ensureVisible(scenePos, xmargin, ymargin);
+            view->ensureVisible(rect, xmargin, ymargin);
     }
 }
 
 /*!
-    \fn void QGraphicsItem::ensureVisible(qreal x, qreal y,
+    \fn void QGraphicsItem::ensureVisible(qreal x, qreal y, qreal w, qreal h,
     int xmargin = 50, int ymargin = 50)
 
     This convenience function is equivalent to calling
-    ensureVisible(QPointF(\a x, \a y), \a xmargin, \a ymargin):
+    ensureVisible(QRectF(\a x, \a y, \a w, \a h), \a xmargin, \a ymargin):
 */
 
 /*!
@@ -3243,7 +3242,7 @@ void QGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
                            (d->transformationMode == Qt::SmoothTransformation));
 
     QRectF exposed = option->exposedRect.adjusted(-1, -1, 1, 1);
-    exposed &= QRectF(0, 0, d->pixmap.width(), d->pixmap.height());
+    exposed &= QRectF(d->offset.x(), d->offset.y(), d->pixmap.width(), d->pixmap.height());
     exposed.translate(d->offset);
     painter->drawPixmap(exposed, d->pixmap, exposed);
 
@@ -3647,7 +3646,7 @@ void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
 void QGraphicsTextItemPrivate::_q_ensureVisible(QPointF p, int xmargin, int ymargin)
 {
     p.ry() -= pageNumber * textControl->document()->pageSize().height();
-    qq->ensureVisible(p, xmargin, ymargin);
+    qq->ensureVisible(QRectF(p, QSizeF(xmargin, ymargin)));
 }
 
 /*!
