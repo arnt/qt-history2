@@ -3,6 +3,9 @@
 #include "qtgradientdialog.h"
 #include "ui_qtbrusheditor.h"
 #include "abstractbrushmanager.h"
+#include <qitemdelegate.h>
+#include <qlineedit.h>
+#include <qvalidator.h>
 
 class QtBrushEditorPrivate
 {
@@ -212,6 +215,26 @@ void QtBrushEditorPrivate::slotCurrentBrushChanged(const QString &name, const QB
     m_ui.removeButton->setEnabled(true);
 }
 
+class QtBrushDelegate : public QItemDelegate
+{
+public:
+    QtBrushDelegate(QObject *parent = 0)
+        : QItemDelegate(parent) {}
+    virtual QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+};
+
+QWidget *QtBrushDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    Q_UNUSED(option)
+    Q_UNUSED(index)
+    QLineEdit *le = new QLineEdit(parent);
+    le->setFrame(false);
+    QRegExpValidator *validator = new QRegExpValidator(QRegExp(QLatin1String("([A-Za-z_])([A-Za-z_ 0-9]*)")), le);
+    le->setValidator(validator);
+    return le;
+}
+
+
 QtBrushEditor::QtBrushEditor(QWidget *parent)
     : QWidget(parent)
 {
@@ -236,6 +259,7 @@ QtBrushEditor::QtBrushEditor(QWidget *parent)
     d_ptr->m_ui.listWidget->setResizeMode(QListWidget::Adjust);
     //d_ptr->m_ui.listWidget->setSpacing(2);
     d_ptr->m_ui.listWidget->setIconSize(QSize(64, 64));
+    d_ptr->m_ui.listWidget->setItemDelegate(new QtBrushDelegate(this));
     //d_ptr->m_ui.listWidget->setEditTriggers(QAbstractItemView::AllEditTriggers);
 
     connect(d_ptr->m_ui.listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
