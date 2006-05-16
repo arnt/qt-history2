@@ -28,6 +28,7 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QHeaderView>
 #include <QtGui/QPainter>
+#include <QtGui/QPushButton>
 
 #include <QtCore/qdebug.h>
 
@@ -50,6 +51,14 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     ui.treeWidget->header()->setStretchLastSection(true);
     ui.lblPreview->setBackgroundRole(QPalette::Base);
     ui.chkShowOnStartup->setChecked(QDesignerSettings().showNewFormOnStartup());
+    ui.buttonBox->clear();
+    ui.buttonBox->addButton(QApplication::translate("NewForm", "&Close", 0,
+                                        QApplication::UnicodeUTF8), QDialogButtonBox::RejectRole);
+    createButton = static_cast<QPushButton *>(ui.buttonBox->addButton(QApplication::translate("NewForm", "C&reate", 0,
+                           QApplication::UnicodeUTF8), QDialogButtonBox::AcceptRole));
+    createButton->setEnabled(false);
+    ui.buttonBox->addButton(QApplication::translate("NewForm", "&Open...", 0,
+                                    QApplication::UnicodeUTF8), QDialogButtonBox::ActionRole);
 
     loadFrom(QLatin1String(":/trolltech/designer/templates/forms"), true);
 
@@ -68,15 +77,15 @@ void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWi
     if (current && current->parent()) {
         QIcon icon = formPreviewIcon(current->data(0, TemplateNameRole).toString());
         if (icon.isNull()) {
-            ui.createButton->setEnabled(false);
+            createButton->setEnabled(false);
             ui.lblPreview->setText(tr("Error loading form"));
         } else {
-            ui.createButton->setEnabled(true);
-            ui.createButton->setDefault(true);
+            createButton->setEnabled(true);
+            createButton->setDefault(true);
             ui.lblPreview->setPixmap(icon.pixmap(QSize(256, 256)));
         }
     } else {
-        ui.createButton->setEnabled(false);
+        createButton->setEnabled(false);
         ui.lblPreview->setText(tr("Choose a template for a preview"));
     }
 }
@@ -84,57 +93,68 @@ void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWi
 void NewForm::on_treeWidget_itemActivated(QTreeWidgetItem *item)
 {
     if (item->data(0, TemplateNameRole).isValid())
-        ui.createButton->animateClick(0);
+        createButton->animateClick(0);
 }
 
-void NewForm::on_createButton_clicked()
+void NewForm::on_buttonBox_clicked(int role)
 {
-    if (QTreeWidgetItem *item = ui.treeWidget->currentItem()) {
+    switch (role) {
+    case QDialogButtonBox::RejectRole:
         close();
+        break;
+    case QDialogButtonBox::ActionRole:
+        hide();
+        if (m_workbench->actionManager()->openForm())
+            close();
+        else
+            show();
+        break;
+    case QDialogButtonBox::AcceptRole:
+        if (QTreeWidgetItem *item = ui.treeWidget->currentItem()) {
+            close();
 
-        int maxUntitled = 0;
-        int totalWindows = m_workbench->formWindowCount();
-        // This will cause some problems with i18n, but for now I need the string to be "static"
-        QRegExp rx(QLatin1String("untitled( (\\d+))?"));
-        for (int i = 0; i < totalWindows; ++i) {
-            QString title = m_workbench->formWindow(i)->windowTitle();
-            title = title.replace(QLatin1String("[*]"), QLatin1String(""));
-            if (rx.indexIn(title) != 1) {
-                if (maxUntitled == 0)
-                    ++maxUntitled;
-                if (rx.numCaptures() > 1)
-                    maxUntitled = qMax(rx.cap(2).toInt(), maxUntitled);
+            int maxUntitled = 0;
+            int totalWindows = m_workbench->formWindowCount();
+            // This will cause some problems with i18n, but for now I need the string to be "static"
+            QRegExp rx(QLatin1String("untitled( (\\d+))?"));
+            for (int i = 0; i < totalWindows; ++i) {
+                QString title = m_workbench->formWindow(i)->windowTitle();
+                title = title.replace(QLatin1String("[*]"), QLatin1String(""));
+                if (rx.indexIn(title) != 1) {
+                    if (maxUntitled == 0)
+                        ++maxUntitled;
+                    if (rx.numCaptures() > 1)
+                        maxUntitled = qMax(rx.cap(2).toInt(), maxUntitled);
+                }
             }
-        }
 
-        QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-        if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
-            QString formTemplateName = item->data(0, TemplateNameRole).toString();
-            QFile f(formTemplateName);
-            if (f.open(QFile::ReadOnly)) {
-                editor->setContents(&f);
-                f.close();
-            } else {
-                editor->setContents(QString());
+            QDesignerFormWindow *formWindow = workbench()->createFormWindow();
+            if (QDesignerFormWindowInterface *editor = formWindow->editor()) {
+                QString formTemplateName = item->data(0, TemplateNameRole).toString();
+                QFile f(formTemplateName);
+                if (f.open(QFile::ReadOnly)) {
+                    editor->setContents(&f);
+                    f.close();
+                } else {
+                    editor->setContents(QString());
+                }
+
+                if (QWidget *container = editor->mainContainer())
+                    formWindow->resize(container->size());
             }
+            QString newTitle = QLatin1String("untitled");
+            if (maxUntitled)
+                newTitle += QLatin1String(" ") + QString::number(maxUntitled + 1);
 
-            if (QWidget *container = editor->mainContainer())
-                formWindow->resize(container->size());
+            newTitle.append(QLatin1String("[*]"));
+            formWindow->setWindowTitle(newTitle);
+            formWindow->editor()->setFileName("");
+            formWindow->show();
         }
-        QString newTitle = QLatin1String("untitled");
-        if (maxUntitled)
-            newTitle += QLatin1String(" ") + QString::number(maxUntitled + 1);
-
-        newTitle.append(QLatin1String("[*]"));
-        formWindow->setWindowTitle(newTitle);
-        formWindow->editor()->setFileName("");
-        formWindow->show();
+        break;
+    default:
+        break;
     }
-}
-
-void NewForm::on_closeButton_clicked()
-{
-    close();
 }
 
 QDesignerWorkbench *NewForm::workbench() const
@@ -216,15 +236,6 @@ void NewForm::loadFrom(const QString &path, bool resourceFile)
         }
     }
     ui.treeWidget->setItemExpanded(root, true);
-}
-
-void NewForm::on_openButton_clicked()
-{
-    hide();
-    if (m_workbench->actionManager()->openForm())
-        close();
-    else
-        show();
 }
 
 void NewForm::on_treeWidget_itemPressed(QTreeWidgetItem *item)

@@ -30,9 +30,7 @@ public:
     QDesignerWorkbench *workbench() const;
 
 private slots:
-    void on_createButton_clicked();
-    void on_closeButton_clicked();
-    void on_openButton_clicked();
+    void on_buttonBox_clicked(int);
     void on_treeWidget_itemActivated(QTreeWidgetItem *item);
     void on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *);
     void on_treeWidget_itemPressed(QTreeWidgetItem *item);
@@ -44,6 +42,7 @@ private:
 private:
     QDesignerWorkbench *m_workbench;
     Ui::NewForm ui;
+    QPushButton *createButton;
 };
 
 #endif // NEWFORM_H
