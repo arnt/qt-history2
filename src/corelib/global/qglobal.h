@@ -565,10 +565,10 @@ typedef quint64 qulonglong;
 #endif
 
 #define Q_INIT_RESOURCE(name) \
-    do { extern int ::qInitResources_ ## name (); \
-    qInitResources_ ## name (); } while (0)
+    do { extern int qInitResources_ ## name ();       \
+        qInitResources_ ## name (); } while (0)
 #define Q_CLEANUP_RESOURCE(name) \
-    do { extern int ::qCleanupResources_ ## name (); \
+    do { extern int qCleanupResources_ ## name ();    \
         qCleanupResources_ ## name (); } while (0)
 
 #if defined(__cplusplus)
