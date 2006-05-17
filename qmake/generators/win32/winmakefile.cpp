@@ -527,7 +527,8 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     QString destDir = Option::fixPathToTargetOS(orgDestDir, false);
     if (orgDestDir.endsWith('/') || orgDestDir.endsWith(Option::dir_sep))
         destDir += Option::dir_sep;
-    QString target = QString(project->first("TARGET")+project->first("TARGET_EXT")).remove('"');
+    QString target = QString(project->first("TARGET")+project->first("TARGET_EXT"));
+    target.remove("\"");
     project->values("DEST_TARGET").prepend(destDir + target);
 
     writeObjectsPart(t);
