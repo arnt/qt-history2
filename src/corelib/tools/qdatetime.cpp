@@ -3988,242 +3988,235 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
 QDateTimeParser::StateNode QDateTimeParser::parse(const QString &inp,
                                                   const QVariant &currentValue, bool fixup) const
 {
-    for (int pass=0; pass<2; ++pass) {
-        greedy = (pass == 1);
-        QString input = inp;
-        State state = Acceptable;
-        const QVariant maximum = getMaximum();
-        const QVariant minimum = getMinimum();
+    QString input = inp;
+    State state = Acceptable;
+    const QVariant maximum = getMaximum();
+    const QVariant minimum = getMinimum();
 
-        QVariant tmp;
-        SectionNode sn = {NoSection, 0, false};
-        int pos = 0;
-        bool conflicts = false;
+    QVariant tmp;
+    SectionNode sn = {NoSection, 0, false};
+    int pos = 0;
+    bool conflicts = false;
 
-        //    QDTPDEBUG << "validateAndInterpret" << input;
-        {
-            int year, month, day, hour12, hour, minute, second, msec, ampm, dayofweek, year2digits;
-            const QDateTime &dt = currentValue.toDateTime();
-            year = dt.date().year();
-            year2digits = year % 100;
-            month = dt.date().month();
-            day = dt.date().day();
-            hour = dt.time().hour();
-            hour12 = -1;
-            minute = dt.time().minute();
-            second = dt.time().second();
-            msec = dt.time().msec();
-            dayofweek = dt.date().dayOfWeek();
-            ampm = -1;
-            QSet<int*> isSet;
-            int num;
-            State tmpstate;
-            int *current;
+//    QDTPDEBUG << "validateAndInterpret" << input;
+    {
+        int year, month, day, hour12, hour, minute, second, msec, ampm, dayofweek, year2digits;
+        const QDateTime &dt = currentValue.toDateTime();
+        year = dt.date().year();
+        year2digits = year % 100;
+        month = dt.date().month();
+        day = dt.date().day();
+        hour = dt.time().hour();
+        hour12 = -1;
+        minute = dt.time().minute();
+        second = dt.time().second();
+        msec = dt.time().msec();
+        dayofweek = dt.date().dayOfWeek();
+        ampm = -1;
+        QSet<int*> isSet;
+        int num;
+        State tmpstate;
+        int *current;
 
-            state = Acceptable;
+        state = Acceptable;
 
-            for (int index=0; state != Invalid && index<sectionNodes.size(); ++index) {
-                QString sep = input.mid(pos, separators.at(index).size());
+        for (int index=0; state != Invalid && index<sectionNodes.size(); ++index) {
+            QString sep = input.mid(pos, separators.at(index).size());
 
-                if (sep != separators.at(index)) {
-                    QDTPDEBUG << "invalid because" << sep << "!=" << separators.at(index)
-                        << index << pos << currentSectionIndex;
-                    state = Invalid;
-                    goto end;
-                }
-                pos += separators.at(index).size();
-                sectionNodes[index].pos = pos;
-                current = 0;
-                sn = sectionNodes.at(index);
-                int used;
-
-                num = parseSection(index, input, pos, tmpstate, &used);
-                QDTPDEBUG << "sectionValue" << sectionName(sectionType(index)) << input
-                    << "pos" << pos << "used" << used << stateName(tmpstate);
-                if (fixup && tmpstate == Intermediate && isFixedNumericSection(index) && used < sn.count) {
-                    input.insert(pos, QString().fill(QLatin1Char('0'), sn.count - used)); // ### ltor?
-                    num = parseSection(index, input, pos, tmpstate, &used);
-                }
-                pos += qMax(0, used);
-
-                state = qMin<State>(state, tmpstate);
-                QDTPDEBUG << index << sectionName(sectionType(index)) << "is set to"
-                    << pos << "state is" << stateName(state);
-
-
-                if (state != Invalid) {
-                    switch (sn.type) {
-                        case Hour24Section: current = &hour; break;
-                        case Hour12Section: current = &hour12; break;
-                        case MinuteSection: current = &minute; break;
-                        case SecondSection: current = &second; break;
-                        case MSecSection: current = &msec; break;
-                        case YearSection:
-                                          if (sn.count == 2) {
-                                              current = &year2digits;
-                                          } else {
-                                              current = &year;
-                                          }
-                                          break;
-                        case MonthSection: current = &month; break;
-                        case DaySection:
-                                           if (sn.count >= 3) {
-                                               current = &dayofweek;
-                                           } else {
-                                               current = &day; num = qMax<int>(1, num);
-                                           }
-                                           break;
-                        case AmPmSection: current = &ampm; break;
-                        default:
-                                          qFatal("%s found in sections validateAndInterpret. This should never happen",
-                                                  sectionName(sn.type).toLatin1().constData());
-                                          break;
-                    }
-                    Q_ASSERT(current);
-                    if (isSet.contains(current) && *current != num) {
-                        QDTPDEBUG << "CONFLICT " << sectionName(sn.type) << *current << num;
-                        conflicts = true;
-                        if (index != currentSectionIndex || num == -1) {
-                            continue;
-                        }
-                    }
-                    if (num != -1)
-                        *current = num;
-                    isSet.insert(current);
-                }
-            }
-
-            if (state != Invalid && input.mid(pos) != separators.last()) {
-                QDTPDEBUG << "1invalid because" << input.mid(pos)
-                    << "!=" << separators.last() << pos;
+            if (sep != separators.at(index)) {
+                QDTPDEBUG << "invalid because" << sep << "!=" << separators.at(index)
+                          << index << pos << currentSectionIndex;
                 state = Invalid;
+                goto end;
             }
+            pos += separators.at(index).size();
+            sectionNodes[index].pos = pos;
+            current = 0;
+            sn = sectionNodes.at(index);
+            int used;
+
+            num = parseSection(index, input, pos, tmpstate, &used);
+            QDTPDEBUG << "sectionValue" << sectionName(sectionType(index)) << input
+                      << "pos" << pos << "used" << used << stateName(tmpstate);
+            if (fixup && tmpstate == Intermediate && isFixedNumericSection(index) && used < sn.count) {
+                input.insert(pos, QString().fill(QLatin1Char('0'), sn.count - used)); // ### ltor?
+                num = parseSection(index, input, pos, tmpstate, &used);
+            }
+            pos += qMax(0, used);
+
+            state = qMin<State>(state, tmpstate);
+            QDTPDEBUG << index << sectionName(sectionType(index)) << "is set to"
+                      << pos << "state is" << stateName(state);
+
 
             if (state != Invalid) {
-                if (typ != QVariant::Time) {
-                    if (year % 100 != year2digits) {
-                        if (isSet.contains(&year2digits) && !isSet.contains(&year)) {
-                            year = (year / 100) * 100;
-                            year += year2digits;
-                        } else if (isSet.contains(&year2digits) && isSet.contains(&year)) {
-                            conflicts = true;
-                            SectionNode sn = sectionNode(currentSectionIndex);
-                            if (sn.type == YearSection) {
-                                if (sn.count == 2) {
-                                    year = (year / 100) * 100;
-                                    year += year2digits;
-                                }
-                            }
-                        }
+                switch (sn.type) {
+                case Hour24Section: current = &hour; break;
+                case Hour12Section: current = &hour12; break;
+                case MinuteSection: current = &minute; break;
+                case SecondSection: current = &second; break;
+                case MSecSection: current = &msec; break;
+                case YearSection:
+                    if (sn.count == 2) {
+                        current = &year2digits;
+                    } else {
+                        current = &year;
                     }
+                    break;
+                case MonthSection: current = &month; break;
+                case DaySection:
+                    if (sn.count >= 3) {
+                        current = &dayofweek;
+                    } else {
+                        current = &day; num = qMax<int>(1, num);
+                    }
+                    break;
+                case AmPmSection: current = &ampm; break;
+                default:
+                    qFatal("%s found in sections validateAndInterpret. This should never happen",
+                           sectionName(sn.type).toLatin1().constData());
+                    break;
+                }
+                Q_ASSERT(current);
+                if (isSet.contains(current) && *current != num) {
+                    QDTPDEBUG << "CONFLICT " << sectionName(sn.type) << *current << num;
+                    conflicts = true;
+                    if (index != currentSectionIndex || num == -1) {
+                        continue;
+                    }
+                }
+                if (num != -1)
+                    *current = num;
+                isSet.insert(current);
+            }
+        }
 
-                    const QDate date(year, month, day);
-                    const int diff = dayofweek - date.dayOfWeek() && isSet.contains(&dayofweek);
-                    if (diff != 0 && state == Acceptable) {
+        if (state != Invalid && input.mid(pos) != separators.last()) {
+            QDTPDEBUG << "1invalid because" << input.mid(pos)
+                      << "!=" << separators.last() << pos;
+            state = Invalid;
+        }
+
+        if (state != Invalid) {
+            if (typ != QVariant::Time) {
+                if (year % 100 != year2digits) {
+                    if (isSet.contains(&year2digits) && !isSet.contains(&year)) {
+                        year = (year / 100) * 100;
+                        year += year2digits;
+                    } else if (isSet.contains(&year2digits) && isSet.contains(&year)) {
                         conflicts = true;
-                        const SectionNode &sn = sectionNode(currentSectionIndex);
-                        if (sn.type == DaySection && sn.count >= 3) {
-                            day -= diff;
-                            if (day < 0) {
-                                day += 7;
-                            } else if (day > date.daysInMonth()) {
-                                day -= 7;
+                        SectionNode sn = sectionNode(currentSectionIndex);
+                        if (sn.type == YearSection) {
+                            if (sn.count == 2) {
+                                year = (year / 100) * 100;
+                                year += year2digits;
                             }
-                            QDTPDEBUG << year << month << day << dayofweek
-                                << diff << QDate(year, month, day).dayOfWeek();
-
-                            Q_ASSERT(QDate(year, month, day).dayOfWeek() == dayofweek); // ### remove those
-                            Q_ASSERT(qAbs(QDate(year, month, day).daysTo(date)) <= 7);
                         }
                     }
-                    bool needfixday = false;
-                    if (sectionType(currentSectionIndex) == DaySection) {
+                }
+
+                const QDate date(year, month, day);
+                const int diff = dayofweek - date.dayOfWeek() && isSet.contains(&dayofweek);
+                if (diff != 0 && state == Acceptable) {
+                    conflicts = true;
+                    const SectionNode &sn = sectionNode(currentSectionIndex);
+                    if (sn.type == DaySection && sn.count >= 3) {
+                        day -= diff;
+                        if (day < 0) {
+                            day += 7;
+                        } else if (day > date.daysInMonth()) {
+                            day -= 7;
+                        }
+                        QDTPDEBUG << year << month << day << dayofweek
+                                  << diff << QDate(year, month, day).dayOfWeek();
+
+                        Q_ASSERT(QDate(year, month, day).dayOfWeek() == dayofweek); // ### remove those
+                        Q_ASSERT(qAbs(QDate(year, month, day).daysTo(date)) <= 7);
+                    }
+                }
+                bool needfixday = false;
+                if (sectionType(currentSectionIndex) == DaySection) {
+                    cachedDay = day;
+                } else if (cachedDay > day) {
+                    day = cachedDay;
+                    needfixday = true;
+                }
+
+                if (!QDate::isValid(year, month, day)) {
+                    if (day < 32) {
                         cachedDay = day;
-                    } else if (cachedDay > day) {
-                        day = cachedDay;
+                    }
+                    if (day > 28 && QDate::isValid(year, month, 1)) {
                         needfixday = true;
                     }
+                }
+                if (needfixday) {
+                    if (state == Acceptable && fixday) {
+                        day = qMin<int>(day, QDate(year, month, 1).daysInMonth());
 
-                    if (!QDate::isValid(year, month, day)) {
-                        if (day < 32) {
-                            cachedDay = day;
-                        }
-                        if (day > 28 && QDate::isValid(year, month, 1)) {
-                            needfixday = true;
-                        }
-                    }
-                    if (needfixday) {
-                        if (state == Acceptable && fixday) {
-                            day = qMin<int>(day, QDate(year, month, 1).daysInMonth());
-
-                            const QLocale loc;
-                            for (int i=0; i<sectionNodes.size(); ++i) {
-                                if (sectionType(i) == DaySection) {
-                                    input.replace(sectionPos(i), sectionSize(i), loc.toString(day));
-                                }
+                        const QLocale loc;
+                        for (int i=0; i<sectionNodes.size(); ++i) {
+                            if (sectionType(i) == DaySection) {
+                                input.replace(sectionPos(i), sectionSize(i), loc.toString(day));
                             }
+                        }
+                    } else {
+                        state = qMin(Intermediate, state);
+                    }
+
+                }
+            }
+
+            if (typ != QVariant::Date) {
+                if (isSet.contains(&hour12)) {
+                    const bool hasHour = isSet.contains(&hour);
+                    if (ampm == -1) {
+                        if (hasHour) {
+                            ampm = (hour < 12 ? 0 : 1);
                         } else {
-                            state = qMin(Intermediate, state);
-                        }
-
-                    }
-                }
-
-                if (typ != QVariant::Date) {
-                    if (isSet.contains(&hour12)) {
-                        const bool hasHour = isSet.contains(&hour);
-                        if (ampm == -1) {
-                            if (hasHour) {
-                                ampm = (hour < 12 ? 0 : 1);
-                            } else {
-                                ampm = 0; // no way to tell if this is am or pm so I assume am
-                            }
-                        }
-                        hour12 = (ampm == 0 ? hour12 % 12 : (hour12 % 12) + 12);
-                        if (!hasHour) {
-                            hour = hour12;
-                        } else if (hour != hour12) {
-                            conflicts = true;
-                        }
-                    } else if (ampm != -1) {
-                        if (!isSet.contains(&hour)) {
-                            hour = (12 * ampm); // special case. Only ap section
-                        } else if ((ampm == 0) != (hour < 12)) {
-                            conflicts = true;
+                            ampm = 0; // no way to tell if this is am or pm so I assume am
                         }
                     }
-
+                    hour12 = (ampm == 0 ? hour12 % 12 : (hour12 % 12) + 12);
+                    if (!hasHour) {
+                        hour = hour12;
+                    } else if (hour != hour12) {
+                        conflicts = true;
+                    }
+                } else if (ampm != -1) {
+                    if (!isSet.contains(&hour)) {
+                        hour = (12 * ampm); // special case. Only ap section
+                    } else if ((ampm == 0) != (hour < 12)) {
+                        conflicts = true;
+                    }
                 }
-
-                tmp = QVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
-                QDTPDEBUG << year << month << day << hour << minute << second << msec;
 
             }
-            QDTPDEBUGN("'%s' => '%s'(%s)", input.toLatin1().constData(),
-                    tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
+
+            tmp = QVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
+            QDTPDEBUG << year << month << day << hour << minute << second << msec;
+
         }
+        QDTPDEBUGN("'%s' => '%s'(%s)", input.toLatin1().constData(),
+                   tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
+    }
 end:
-        if (tmp.toDateTime().isValid()) {
-            if (state != Invalid && dateTimeCompare(tmp, minimum) < 0) {
-                state = checkIntermediate(tmp.toDateTime(), input);
-            } else {
-                if (dateTimeCompare(tmp, maximum) > 0)
-                    state = Invalid;
-                QDTPDEBUG << "not checking intermediate because tmp is" << tmp  << minimum << maximum;
-            }
-        }
-        if (pass == 1 || state != Invalid) {
-            StateNode node;
-            node.input = input;
-            node.state = state;
-            node.conflicts = conflicts;
-            node.value = tmp;
-            text = input; // ### do I need this?
-            return node;
+    if (tmp.toDateTime().isValid()) {
+        if (state != Invalid && dateTimeCompare(tmp, minimum) < 0) {
+            state = checkIntermediate(tmp.toDateTime(), input);
+        } else {
+            if (dateTimeCompare(tmp, maximum) > 0)
+                state = Invalid;
+            QDTPDEBUG << "not checking intermediate because tmp is" << tmp  << minimum << maximum;
         }
     }
-    Q_ASSERT(0);
-    return StateNode();
+    StateNode node;
+    node.input = input;
+    node.state = state;
+    node.conflicts = conflicts;
+    node.value = tmp;
+    text = input; // ### do I need this?
+    return node;
 }
 #endif // QT_NO_DATESTRING
 
