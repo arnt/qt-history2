@@ -204,7 +204,7 @@
 
     \value ItemEnabledChange The item's enabled state changes. If the item is
     presently enabled, it will become disabled, and vice verca.
-    
+
     \value ItemMatrixChange The item's matrix changes. This notification is
     only sent when the item's local matrix changes (i.e., as a result of
     calling setMatrix(), or one of the convenience transformation functions,
@@ -213,7 +213,7 @@
     \value ItemPositionChange The item's position changes. This notification
     is only sent when the item's local position changes, relative to its
     parent, has changed (i.e., as a result of calling setPos() or moveBy()).
-    
+
     \value ItemSelectedChange The item's selected state changes. If the item
     is presently selected, it will become unselected, and vice verca.
 
@@ -2011,7 +2011,7 @@ QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
     \a change is the parameter of the item that is changing.
 
     The default implementation does nothing.
-    
+
     \sa ItemChange
 */
 void QGraphicsItem::itemChange(ItemChange change)
@@ -3073,7 +3073,7 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     setTransformationMode(). By default, Qt::FastTransformation is used, which
     provides fast, non-smooth scaling. Call transformationMode() to get the
     current transformation mode for the item.
-    
+
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem
 */
@@ -3085,7 +3085,7 @@ public:
     QGraphicsPixmapItemPrivate()
         : transformationMode(Qt::FastTransformation)
     {}
-    
+
     QPixmap pixmap;
     Qt::TransformationMode transformationMode;
     QPointF offset;
@@ -3319,9 +3319,9 @@ public:
     QGraphicsTextItemPrivate()
         : textControl(0), pageNumber(0)
     { }
-    
+
     QTextControl *textControl;
-    
+
     QPointF mapToControl(const QPointF &point) const;
     void _q_updateBoundingRect(const QSizeF &);
     void _q_update(QRectF);
@@ -3520,7 +3520,7 @@ void QGraphicsTextItem::mouseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (!dd->textControl)
         return;
-    
+
     if (hasFocus()) {
         QEvent::Type type = QEvent::None;
         switch (event->type()) {
@@ -3571,7 +3571,7 @@ void QGraphicsTextItem::keyEvent(QKeyEvent *event)
 {
     if (!dd->textControl)
         return;
-    
+
     switch (event->type()) {
     case QEvent::KeyPress:
         dd->textControl->keyPressEvent(event);
@@ -3669,7 +3669,7 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
         if (dd->textControl->parent() == this)
             delete dd->textControl;
     }
-    
+
     dd->textControl = control;
     connect(dd->textControl, SIGNAL(updateRequest(const QRectF &)),
             this, SLOT(_q_update(QRectF)));
@@ -3677,7 +3677,7 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
             this, SLOT(_q_updateBoundingRect(const QSizeF &)));
     connect(dd->textControl, SIGNAL(visibilityRequest(const QPointF &, int, int)),
             this, SLOT(_q_ensureVisible(const QPointF &, int, int)));
-    
+
     dd->_q_updateBoundingRect(dd->textControl->document()->documentLayout()->documentSize());
 }
 
@@ -3826,7 +3826,7 @@ int QGraphicsItemGroup::type() const
 }
 
 #ifndef QT_NO_DEBUG
-Q_CORE_EXPORT QDebug operator<<(QDebug debug, QGraphicsItem *item)
+Q_GUI_EXPORT QDebug operator<<(QDebug debug, QGraphicsItem *item)
 {
     if (!item) {
         debug << "QGraphicsItem(0)";
