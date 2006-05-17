@@ -79,7 +79,7 @@ public:
     QString defaultDateFormat, defaultTimeFormat;
     Qt::LayoutDirection layoutDirection;
     mutable QVariant conflictGuard;
-    bool hasHadFocus;
+    bool hasHadFocus, formatExplicitlySet;
 };
 
 // --- QDateTimeEdit ---
@@ -175,6 +175,7 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent)
     d->maximum = QVariant(QDATETIME_MAX);
     d->value = QVariant(QDateTime(QDATE_INITIAL, QTIME_MIN));
     setDisplayFormat(d->defaultDateFormat + QLatin1String(" ") + d->defaultTimeFormat);
+    d->formatExplicitlySet = false;
 }
 
 /*!
@@ -190,6 +191,7 @@ QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
     d->maximum = QVariant(QDATETIME_MAX);
     d->value = datetime.isValid() ? QVariant(datetime) : QVariant(QDateTime(QDATE_INITIAL, QTIME_MIN));
     setDisplayFormat(d->defaultDateFormat + QLatin1String(" ") + d->defaultTimeFormat);
+    d->formatExplicitlySet = false;
 }
 
 /*!
@@ -207,6 +209,7 @@ QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
     d->maximum = QVariant(QDATETIME_MAX);
     d->value = QVariant(QDateTime(date.isValid() ? date : QDATE_INITIAL, QTIME_MIN));
     setDisplayFormat(d->defaultDateFormat);
+    d->formatExplicitlySet = false;
 }
 
 /*!
@@ -228,6 +231,7 @@ QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
         d->defaultDateFormat = QLatin1String("hh:mm:ss");
         setDisplayFormat(d->defaultTimeFormat);
     }
+    d->formatExplicitlySet = false;
 }
 
 QDateTime QDateTimeEdit::dateTime() const
@@ -623,6 +627,7 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
 {
     Q_D(QDateTimeEdit);
     if (d->parseFormat(format)) {
+        d->formatExplicitlySet = true;
         d->sections = d->convertSections(d->display);
         d->clearCache();
 
@@ -691,9 +696,11 @@ bool QDateTimeEdit::event(QEvent *e)
 {
     Q_D(QDateTimeEdit);
     switch (e->type()) {
-    case QEvent::ApplicationLayoutDirectionChange:
+    case QEvent::ApplicationLayoutDirectionChange: {
+        const bool was = d->formatExplicitlySet;
         setDisplayFormat(d->displayFormat);
-        break;
+        d->formatExplicitlySet = was;
+        break; }
     default:
         break;
     }
@@ -835,17 +842,20 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
     QAbstractSpinBox::focusInEvent(e);
     QString *frm = 0;
     const int oldPos = d->edit->cursorPosition();
-    if (d->displayFormat == d->defaultTimeFormat) {
-        frm = &d->defaultTimeFormat;
-    } else if (d->displayFormat == d->defaultDateFormat) {
-        frm = &d->defaultDateFormat;
-    }
+    if (!d->formatExplicitlySet) {
+        if (d->displayFormat == d->defaultTimeFormat) {
+            frm = &d->defaultTimeFormat;
+        } else if (d->displayFormat == d->defaultDateFormat) {
+            frm = &d->defaultDateFormat;
+        }
 
-    if (frm) {
-        d->readLocaleSettings();
-        if (d->displayFormat != *frm) {
-            setDisplayFormat(*frm);
-            d->edit->setCursorPosition(oldPos);
+        if (frm) {
+            d->readLocaleSettings();
+            if (d->displayFormat != *frm) {
+                setDisplayFormat(*frm);
+                d->formatExplicitlySet = false;
+                d->edit->setCursorPosition(oldPos);
+            }
         }
     }
     const bool oldHasHadFocus = d->hasHadFocus;
@@ -1125,6 +1135,7 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     : QDateTimeParser(QVariant::DateTime)
 {
     hasHadFocus = false;
+    formatExplicitlySet = false;
     cacheGuard = false;
     fixday = true;
     allowEmpty = false;
