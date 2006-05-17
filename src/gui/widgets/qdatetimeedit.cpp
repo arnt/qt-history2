@@ -79,6 +79,7 @@ public:
     QString defaultDateFormat, defaultTimeFormat;
     Qt::LayoutDirection layoutDirection;
     mutable QVariant conflictGuard;
+    bool hasHadFocus;
 };
 
 // --- QDateTimeEdit ---
@@ -847,12 +848,22 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
             d->edit->setCursorPosition(oldPos);
         }
     }
-    bool first;
+    const bool oldHasHadFocus = d->hasHadFocus;
+    d->hasHadFocus = true;
+    bool first = true;
     switch (e->reason()) {
+    case Qt::BacktabFocusReason:
+        first = false;
+        break;
+    case Qt::MouseFocusReason:
+        return;
+    case Qt::ActiveWindowFocusReason:
+        if (oldHasHadFocus)
+            return;
     case Qt::ShortcutFocusReason:
-    case Qt::TabFocusReason: first = true; break;
-    case Qt::BacktabFocusReason: first = false; break;
-    default: return;
+    case Qt::TabFocusReason:
+    default:
+        break;
     }
     if (QApplication::isRightToLeft())
         first = !first;
@@ -1113,6 +1124,7 @@ QDateEdit::QDateEdit(const QDate &date, QWidget *parent)
 QDateTimeEditPrivate::QDateTimeEditPrivate()
     : QDateTimeParser(QVariant::DateTime)
 {
+    hasHadFocus = false;
     cacheGuard = false;
     fixday = true;
     allowEmpty = false;
