@@ -3939,8 +3939,6 @@ int QDateTimeParser::parseSection(int sectionIndex, QString &text, int index,
                         QDTPDEBUG << sectiontext.left(digits) << tmp << digits;
                         last = tmp;
                         used = digits;
-                        if (sn.count == 1 && !greedy)
-                            break;
                     } else {
                         break;
                     }
