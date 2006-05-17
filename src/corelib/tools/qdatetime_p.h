@@ -67,7 +67,7 @@ class Q_CORE_EXPORT QDateTimeParser
 {
 public:
     QDateTimeParser(QVariant::Type t)
-        : currentSectionIndex(-1), display(0), cachedDay(-1), typ(t), fixday(false), allowEmpty(true)
+        : currentSectionIndex(-1), display(0), cachedDay(-1), typ(t), fixday(false), allowEmpty(true), greedy(true)
     {
         first.type = FirstSection;
         first.pos = -1;
@@ -208,6 +208,7 @@ public:
 
     bool fixday;
     bool allowEmpty;
+    mutable bool greedy;
 
     static int dateTimeCompare(const QVariant &arg1, const QVariant &arg2);
 };
