@@ -332,18 +332,20 @@ QStringList &MingwMakefileGenerator::findDependencies(const QString &file)
     if (file == project->first("QMAKE_IMAGE_COLLECTION")
         || preCompHeaderOut.isEmpty())
         return aList;
-    if (file.endsWith(".c")) {
-	QString cHeader = preCompHeaderOut + Option::dir_sep + "c";
-        if (!aList.contains(cHeader))
-               aList += cHeader;
-    } else {
-        for (QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
-	    if (file.endsWith(*it)) {
-                QString cppHeader = preCompHeaderOut + Option::dir_sep + "c++";
-	        if (!aList.contains(cppHeader))
-                    aList += cppHeader;
-                    break;
-            }
+    for (QStringList::Iterator it = Option::c_ext.begin(); it != Option::c_ext.end(); ++it) {
+        if (file.endsWith(*it)) {
+            QString cHeader = preCompHeaderOut + Option::dir_sep + "c";
+            if (!aList.contains(cHeader))
+                aList += cHeader;
+            break;
+        }
+    }
+    for (QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
+        if (file.endsWith(*it)) {
+            QString cppHeader = preCompHeaderOut + Option::dir_sep + "c++";
+            if (!aList.contains(cppHeader))
+                aList += cppHeader;
+            break;
         }
     }
     return aList;

@@ -30,6 +30,7 @@ QStringList Option::h_ext;
 QString Option::cpp_moc_ext;
 QString Option::h_moc_ext;
 QStringList Option::cpp_ext;
+QStringList Option::c_ext;
 QString Option::obj_ext;
 QString Option::lex_ext;
 QString Option::yacc_ext;
@@ -310,6 +311,7 @@ Option::init(int argc, char **argv)
     Option::prf_ext = ".prf";
     Option::ui_ext = ".ui";
     Option::h_ext << ".h" << ".hpp" << ".hh" << ".hxx";
+    Option::c_ext << ".c";
 #ifndef Q_OS_WIN
     Option::h_ext << ".H";
 #endif
@@ -464,6 +466,9 @@ bool Option::postProcessProject(QMakeProject *project)
     Option::h_ext = project->variables()["QMAKE_EXT_H"];
     if(h_ext.isEmpty())
         h_ext << ".h";
+    Option::c_ext = project->variables()["QMAKE_EXT_C"];
+    if(c_ext.isEmpty())
+        c_ext << ".c"; //something must be there
 
     if(!project->isEmpty("QMAKE_EXT_RES"))
         Option::res_ext = project->first("QMAKE_EXT_RES");

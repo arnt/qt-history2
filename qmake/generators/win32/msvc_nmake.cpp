@@ -195,9 +195,10 @@ void NmakeMakefileGenerator::writeLibDirPart(QTextStream &t)
 
 void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
 {
-    t << ".SUFFIXES: .c";
-    QStringList::Iterator cppit;
-    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+    t << ".SUFFIXES:";
+    for(QStringList::Iterator cit = Option::c_ext.begin(); cit != Option::c_ext.end(); ++cit)
+        t << " " << (*cit);
+    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
         t << " " << (*cppit);
     t << endl << endl;
 
@@ -235,16 +236,18 @@ void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
             QString objDir = var("OBJECTS_DIR");
             if (objDir == ".\\")
                 objDir = "";
-            for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+            for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
                 t << "{" << it.key() << "}" << (*cppit) << "{" << objDir << "}" << Option::obj_ext << "::\n\t"
                   << var("QMAKE_RUN_CXX_IMP_BATCH").replace(QRegExp("\\$@"), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
-            t << "{" << it.key() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
-              << var("QMAKE_RUN_CC_IMP_BATCH").replace(QRegExp("\\$@"), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
+            for(QStringList::Iterator cit = Option::c_ext.begin(); cit != Option::c_ext.end(); ++cit)
+                t << "{" << it.key() << "}" << (*cit) << "{" << objDir << "}" << Option::obj_ext << "::\n\t"
+                  << var("QMAKE_RUN_CC_IMP_BATCH").replace(QRegExp("\\$@"), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
         }
     } else {
-        for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+        for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
             t << (*cppit) << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-        t << ".c" << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
+        for(QStringList::Iterator cit = Option::c_ext.begin(); cit != Option::c_ext.end(); ++cit)
+            t << (*cit) << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
     }
 
 }

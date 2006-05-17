@@ -47,6 +47,7 @@ struct Option
     static QString ui_ext;
     static QStringList h_ext;
     static QStringList cpp_ext;
+    static QStringList c_ext;
     static QString h_moc_ext;
     static QString cpp_moc_ext;
     static QString obj_ext;

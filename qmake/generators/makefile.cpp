@@ -2007,7 +2007,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     if(QFile::exists(dep)) {
                         SourceFileType type = TYPE_UNKNOWN;
                         if(type == TYPE_UNKNOWN) {
-                            if(dep.endsWith(".c"))
+                            for(QStringList::Iterator cit = Option::c_ext.begin();
+                                cit != Option::c_ext.end(); ++cit)
                                 type = TYPE_C;
                         }
                         if(type == TYPE_UNKNOWN) {

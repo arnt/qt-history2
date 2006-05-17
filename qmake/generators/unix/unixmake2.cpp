@@ -217,14 +217,16 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     /* rules */
     t << "first: all" << endl;
     t << "####### Implicit rules" << endl << endl;
-    t << ".SUFFIXES: .c " << Option::obj_ext;
-    QStringList::Iterator cppit;
-    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+    t << ".SUFFIXES: " << Option::obj_ext;
+    for(QStringList::Iterator cit = Option::c_ext.begin(); cit != Option::c_ext.end(); ++cit)
+        t << " " << (*cit);
+    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
         t << " " << (*cppit);
     t << endl << endl;
-    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
         t << (*cppit) << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".c" << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
+    for(QStringList::Iterator cit = Option::c_ext.begin(); cit != Option::c_ext.end(); ++cit)
+        t << (*cit) << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
 
     if(include_deps) {
         QString cmd=var("QMAKE_CFLAGS_DEPS") + " ";
@@ -254,9 +256,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
                 if(!(*it).isEmpty()) {
                     QString d_file;
-                    if((*it).endsWith(".c")) {
-                        d_file = (*it).left((*it).length() - 2);
-                    } else {
+                    for(QStringList::Iterator cit = Option::c_ext.begin();
+                        cit != Option::c_ext.end(); ++cit) {
+                        if((*it).endsWith((*cit))) {
+                            d_file = (*it).left((*it).length() - (*cit).length());
+                            break;
+                        }
+                    }
+                    if(d_file.isEmpty()) {
                         for(QStringList::Iterator cppit = Option::cpp_ext.begin();
                             cppit != Option::cpp_ext.end(); ++cppit) {
                             if((*it).endsWith((*cppit))) {
@@ -794,8 +801,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         if(!project->isEmpty("OBJECTS_DIR"))
             precomph_out_dir = project->first("OBJECTS_DIR");
         precomph_out_dir += project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep;
-        t << "-$(DEL_FILE) " << precomph_out_dir << header_prefix + "c "
-          << precomph_out_dir << header_prefix << "c++" << "\n\t";
+
+        QStringList precomp_files;
+
+        if(!project->isEmpty("QMAKE_CFLAGS_PRECOMPILE"))
+            precomp_files += precomph_out_dir + header_prefix + "c";
+        if(!project->isEmpty("QMAKE_CXXFLAGS_PRECOMPILE"))
+            precomp_files += precomph_out_dir + header_prefix + "c++";
+        if(!project->isEmpty("QMAKE_OBJCFLAGS_PRECOMPILE"))
+            precomp_files += precomph_out_dir + header_prefix + "objective-c";
+        if(!project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE"))
+            precomp_files += precomph_out_dir + header_prefix + "objective-c++";
+        t << "-$(DEL_FILE) " << precomp_files.join(" ") << "\n\t";
     }
     if(!project->isEmpty("IMAGES"))
         t << varGlue("QMAKE_IMAGE_COLLECTION", "\t-$(DEL_FILE) ", " ", "") << "\n\t";
@@ -839,10 +856,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
         QString precomph = fileFixify(project->first("PRECOMPILED_HEADER"));
         t << "###### Prefix headers" << endl;
-        QString comps[] = { "C", "CXX", QString() };
+        QString comps[] = { "C", "CXX", "OBJC", "OBJCXX", QString() };
         for(int i = 0; !comps[i].isNull(); i++) {
             QString flags = var("QMAKE_" + comps[i] + "FLAGS_PRECOMPILE");
-            flags += " $(" + comps[i] + "FLAGS)";
+            if(flags.isEmpty())
+                continue;
+            if(comps[i] == "OBJC" || comps[i] == "OBJCXX")
+                flags += " $(CFLAGS)";
+            else
+                flags += " $(" + comps[i] + "FLAGS)";
 
             QString header_prefix = project->first("QMAKE_PRECOMP_PREFIX");
             QString outdir;
@@ -850,14 +872,22 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
                 outdir = project->first("OBJECTS_DIR");
             outdir += project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep;
 
-            QString compiler, outfile = outdir;
-            if(comps[i] == "C") {
+            QString outfile = outdir;
+            if(comps[i] == "C")
                 outfile += header_prefix + "c";
-                compiler = "$(CC) ";
-            } else {
+            else if(comps[i] == "CXX")
                 outfile += header_prefix + "c++";
+            else if(comps[i] == "OBJC")
+                outfile += header_prefix + "objective-c";
+            else if(comps[i] == "OBJCXX")
+                outfile += header_prefix + "objective-c++";
+
+            QString compiler;
+            if(comps[i] == "C" || comps[i] == "OBJC" || comps[i] == "OBJCXX")
+                compiler = "$(CC) ";
+            else
                 compiler = "$(CXX) ";
-            }
+
             t << outfile << ": " << precomph << " " << findDependencies(precomph).join(" \\\n\t\t")
               << "\n\t" << mkdir_p_asstring(outdir)
               << "\n\t" << compiler << flags << " $(INCPATH) " << precomph << " -o " << outfile << endl << endl;

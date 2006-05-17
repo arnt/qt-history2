@@ -588,8 +588,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t\t" << "};" << "\n";
 
                 bool isObj = false;
-                if(file.endsWith(".c"))
-                    isObj = true;
+                for(int i = 0; !isObj && i < Option::c_ext.size(); ++i) {
+                    if(file.endsWith(Option::c_ext.at(i))) {
+                        isObj = true;
+                        break;
+                    }
+                }
                 for(int i = 0; !isObj && i < Option::cpp_ext.size(); ++i) {
                     if(file.endsWith(Option::cpp_ext.at(i))) {
                         isObj = true;

@@ -297,7 +297,7 @@ VCCLCompilerTool::VCCLCompilerTool()
  * Some values for the attribute UsePrecompiledHeader have changed from VS 2003 to VS 2005,
  * see the following chart, so we need a function that transforms those values if we are
  * using NET2005:
- * 
+ *
  * Meaning                      2003    2005
  * -----------------------------------------
  * Don't use PCH                0       0
@@ -1091,7 +1091,7 @@ bool VCLinkerTool::parseOption(const char* option)
     displayHash("/SWAPRUN"); displayHash("/TLBID"); displayHash("/TLBOUT");
     displayHash("/TSAWARE"); displayHash("/VERBOSE"); displayHash("/VERSION");
     displayHash("/VXD"); displayHash("/WS "); displayHash("/libpath");
-    
+
 #endif
 #ifdef USE_DISPLAY_HASH
     // Sub options
@@ -1865,7 +1865,13 @@ void VCFilter::modifyPCHstage(QString str)
 {
     bool autogenSourceFile = Project->autogenPrecompCPP;
     bool pchThroughSourceFile = !Project->precompCPP.isEmpty();
-    bool isCFile = str.endsWith(".c");
+    bool isCFile = false;
+    for (QStringList::Iterator it = Option::c_ext.begin(); it != Option::c_ext.end(); ++it) {
+        if (str.endsWith(*it)) {
+            isCFile = true;
+            break;
+        }
+    }
     bool isHFile = str.endsWith(".h") && (str == Project->precompH);
     bool isCPPFile = pchThroughSourceFile && (str == Project->precompCPP);
 
@@ -1878,9 +1884,9 @@ void VCFilter::modifyPCHstage(QString str)
             QString toFile(Project->precompCPP);
             CustomBuildTool.Description = "Generating precompiled header source file '" + toFile + "' ...";
             CustomBuildTool.Outputs += toFile;
-        
+
             QStringList lines;
-            CustomBuildTool.CommandLine += 
+            CustomBuildTool.CommandLine +=
                 "echo /*-------------------------------------------------------------------- >" + toFile;
             lines << "* Precompiled header source file used by Visual Studio.NET to generate";
             lines << "* the .pch file.";

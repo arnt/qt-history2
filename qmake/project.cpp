@@ -1125,6 +1125,7 @@ QMakeProject::read(uchar cmd)
         // hack to get the Option stuff in there
         base_vars["QMAKE_EXT_OBJ"] = QStringList(Option::obj_ext);
         base_vars["QMAKE_EXT_CPP"] = Option::cpp_ext;
+        base_vars["QMAKE_EXT_C"] = Option::c_ext;
         base_vars["QMAKE_EXT_H"] = Option::h_ext;
         if(!Option::user_template_prefix.isEmpty())
             base_vars["TEMPLATE_PREFIX"] = QStringList(Option::user_template_prefix);

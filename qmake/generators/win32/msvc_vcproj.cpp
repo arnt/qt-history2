@@ -629,7 +629,10 @@ bool VcprojGenerator::hasBuiltinCompiler(const QString &file)
     for (int i = 0; i < Option::cpp_ext.count(); ++i)
         if (file.endsWith(Option::cpp_ext.at(i)))
             return true;
-    if (file.endsWith(".c") || file.endsWith(".rc"))
+    for (int i = 0; i < Option::c_ext.count(); ++i)
+        if (file.endsWith(Option::c_ext.at(i)))
+            return true;
+    if (file.endsWith(".rc"))
         return true;
     return false;
 }

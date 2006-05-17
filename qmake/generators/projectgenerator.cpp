@@ -22,8 +22,8 @@
 QString project_builtin_regx() //calculate the builtin regular expression..
 {
     QString ret;
-    QStringList builtin_exts(".c");
-    builtin_exts << Option::ui_ext << Option::yacc_ext << Option::lex_ext << ".ts" << ".qrc";
+    QStringList builtin_exts;
+    builtin_exts << Option::c_ext << Option::ui_ext << Option::yacc_ext << Option::lex_ext << ".ts" << ".qrc";
     builtin_exts += Option::h_ext + Option::cpp_ext;
     for(int i = 0; i < builtin_exts.size(); ++i) {
         if(!ret.isEmpty())
@@ -388,10 +388,16 @@ ProjectGenerator::addFile(QString file)
             }
     }
     if(where.isEmpty()) {
+        for(int cit = 0; cit < Option::c_ext.size(); ++cit) {
+            if(file.endsWith(Option::c_ext[cit])) {
+                where = "SOURCES";
+                break;
+            }
+        }
+    }
+    if(where.isEmpty()) {
         if(file.endsWith(Option::ui_ext))
             where = "FORMS";
-        else if(file.endsWith(".c"))
-            where = "SOURCES";
         else if(file.endsWith(Option::lex_ext))
             where = "LEXSOURCES";
         else if(file.endsWith(Option::yacc_ext))

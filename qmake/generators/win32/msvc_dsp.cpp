@@ -48,7 +48,10 @@ bool DspMakefileGenerator::hasBuiltinCompiler(const QString &filename) const
     for (int i = 0; i < Option::cpp_ext.count(); ++i)
         if (filename.endsWith(Option::cpp_ext.at(i)))
             return true;
-    return filename.endsWith(".c");
+    for (int i = 0; i < Option::c_ext.count(); ++i)
+        if (filename.endsWith(Option::c_ext.at(i)))
+            return true;
+    return false;
 }
 
 QString DspMakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
@@ -749,7 +752,14 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
     }
 
     if (config->usePCH) {
-        if (file.endsWith(".c")) {
+        bool c_file = false;
+        for (QStringList::Iterator it = Option::c_ext.begin(); it != Option::c_ext.end(); ++it) {
+            if (file.endsWith(*it)) {
+                c_file = true;
+                break;
+            }
+        }
+        if(c_file) {
             t << "# SUBTRACT CPP /FI" << config->escapeFilePath(config->namePCH) << " /Yu" << config->escapeFilePath(config->namePCH) << " /Fp" << endl;
             return ret;
         } else if (config->precompH.endsWith(file)) {

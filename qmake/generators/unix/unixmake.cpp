@@ -46,6 +46,12 @@ UnixMakefileGenerator::init()
         project->values("QMAKE_CFLAGS_PRECOMPILE").append("-x c-header -c");
     if(project->isEmpty("QMAKE_CXXFLAGS_PRECOMPILE"))
         project->values("QMAKE_CXXFLAGS_PRECOMPILE").append("-x c++-header -c");
+    if(project->isActiveConfig("macx")) {
+        if(project->isEmpty("QMAKE_OBJCFLAGS_PRECOMPILE"))
+            project->values("QMAKE_OBJCFLAGS_PRECOMPILE").append("-x objective-c-header -c");
+        if(project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE"))
+            project->values("QMAKE_OBJCXXFLAGS_PRECOMPILE").append("-x objective-c++-header -c");
+    }
     if(project->isEmpty("QMAKE_CFLAGS_USE_PRECOMPILE"))
         project->values("QMAKE_CFLAGS_USE_PRECOMPILE").append("-include");
     if(project->isEmpty("QMAKE_EXTENSION_PLUGIN"))
@@ -316,18 +322,39 @@ QStringList
             header_prefix = project->first("OBJECTS_DIR");
         header_prefix += project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep;
         header_prefix += project->first("QMAKE_PRECOMP_PREFIX");
-        if(file.endsWith(".c")) {
-            QString precomp_h = header_prefix + "c";
-            if(!ret.contains(precomp_h))
-                ret += precomp_h;
-        } else {
-            for(QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
-                if(file.endsWith(*it)) {
-                    QString precomp_h = header_prefix + "c++";
-                    if(!ret.contains(precomp_h))
-                        ret += precomp_h;
-                    break;
+        for(QStringList::Iterator it = Option::c_ext.begin(); it != Option::c_ext.end(); ++it) {
+            if(file.endsWith(*it)) {
+                if(!project->isEmpty("QMAKE_CFLAGS_PRECOMPILE")) {
+                    QString precomp_c_h = header_prefix + "c";
+                    if(!ret.contains(precomp_c_h))
+                        ret += precomp_c_h;
                 }
+                if(!project->isEmpty("QMAKE_OBJCFLAGS_PRECOMPILE")) {
+                    QString precomp_objc_h = header_prefix + "objective-c";
+                    if(!ret.contains(precomp_objc_h))
+                        ret += precomp_objc_h;
+                }
+                if(!project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE")) {
+                    QString precomp_objcpp_h = header_prefix + "objective-c++";
+                    if(!ret.contains(precomp_objcpp_h))
+                        ret += precomp_objcpp_h;
+                }
+                break;
+            }
+        }
+        for(QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
+            if(file.endsWith(*it)) {
+                if(!project->isEmpty("QMAKE_CXXFLAGS_PRECOMPILE")) {
+                    QString precomp_cpp_h = header_prefix + "c++";
+                    if(!ret.contains(precomp_cpp_h))
+                        ret += precomp_cpp_h;
+                }
+                if(!project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE")) {
+                    QString precomp_objcpp_h = header_prefix + "objective-c++";
+                    if(!ret.contains(precomp_objcpp_h))
+                        ret += precomp_objcpp_h;
+                }
+                break;
             }
         }
     }

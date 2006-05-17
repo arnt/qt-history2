@@ -7,7 +7,7 @@ isEmpty(QT_MAJOR_VERSION) {
 } else {
    VERSION=$${QT_MAJOR_VERSION}.$${QT_MINOR_VERSION}.$${QT_PATCH_VERSION}
 }
-mac:!contains(QMAKE_EXT_CPP, .mm):QMAKE_EXT_CPP += .mm
+mac:!contains(QMAKE_EXT_C, .mm):QMAKE_EXT_C += .mm
 
 #load up the headers info
 CONFIG += qt_install_headers
