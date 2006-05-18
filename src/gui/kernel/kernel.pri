@@ -143,8 +143,8 @@ embedded {
 		kernel/qmime_mac.cpp \
 		kernel/qdnd_mac.cpp \
 		kernel/qdesktopwidget_mac.cpp \
-		kernel/qwidget_mac.cpp \
-                kernel/qsystemtrayicon_mac.mm
+		kernel/qwidget_mac.cpp 
+	OBJECTIVE_SOURCES += kernel/qsystemtrayicon_mac.mm
         HEADERS += \
                 kernel/qeventdispatcher_mac_p.h
         LIBS += -framework AppKit
