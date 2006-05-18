@@ -91,7 +91,8 @@ void QrcItemDelegate::setModelData(QWidget *_editor,
         return;
 
     model->changePrefix(index, new_prefix);
-    model->save();
+    if (!model->save())
+        model->changePrefix(index, old_prefix);
 }
 
 void QrcItemDelegate::setEditorData(QWidget *_editor, const QModelIndex &index) const
