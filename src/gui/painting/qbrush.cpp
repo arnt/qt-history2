@@ -203,6 +203,22 @@ static QBrushData *nullBrushInstance()
     return defaultBrush.pointer;
 }
 
+static bool qbrush_check_type(Qt::BrushStyle style) {
+    switch (style) {
+    case Qt::TexturePattern:
+         qWarning("QBrush: Incorrect use of TexturePattern");
+         break;
+    case Qt::LinearGradientPattern:
+    case Qt::RadialGradientPattern:
+    case Qt::ConicalGradientPattern:
+        qWarning("QBrush: Wrong use of a gradient pattern");
+        break;
+    default:
+        return true;
+    }
+    return false;
+}
+
 /*!
   \internal
   Initializes the brush.
@@ -268,7 +284,12 @@ QBrush::QBrush(const QPixmap &pixmap)
 
 QBrush::QBrush(Qt::BrushStyle style)
 {
-    init(Qt::black, style);
+    if (qbrush_check_type(style))
+        init(Qt::black, style);
+    else {
+        d = nullBrushInstance();
+        d->ref.ref();
+    }
 }
 
 /*!
@@ -279,7 +300,12 @@ QBrush::QBrush(Qt::BrushStyle style)
 
 QBrush::QBrush(const QColor &color, Qt::BrushStyle style)
 {
-    init(color, style);
+    if (qbrush_check_type(style))
+        init(color, style);
+    else {
+        d = nullBrushInstance();
+        d->ref.ref();
+    }
 }
 
 /*!
@@ -291,7 +317,12 @@ QBrush::QBrush(const QColor &color, Qt::BrushStyle style)
 */
 QBrush::QBrush(Qt::GlobalColor color, Qt::BrushStyle style)
 {
-    init(color, style);
+    if (qbrush_check_type(style))
+        init(color, style);
+    else {
+        d = nullBrushInstance();
+        d->ref.ref();
+    }
 }
 
 /*!
@@ -462,10 +493,11 @@ void QBrush::setStyle(Qt::BrushStyle style)
 {
     if (d->style == style)
         return;
-    if (style == Qt::TexturePattern)
-        qWarning("QBrush::setStyle: TexturePattern is for internal use");
-    detach(style);
-    d->style = style;
+
+    if (qbrush_check_type(style)) {
+        detach(style);
+        d->style = style;
+    }
 }
 
 
