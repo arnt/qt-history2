@@ -197,7 +197,7 @@ public:
     \internal
 */
 QGraphicsViewPrivate::QGraphicsViewPrivate()
-    : renderHints(QPainter::TextAntialiasing),
+    : renderHints(QPainter::TextAntialiasing | QPainter::Antialiasing),
       selectionMode(QGraphicsView::ExtendedSelection),
       sceneInteractionAllowed(true), accelerateScrolling(true),
       leftIndent(0), topIndent(0),
@@ -739,7 +739,8 @@ QGraphicsView::~QGraphicsView()
     uses render hints to toggle rendering features such as antialiasing and
     smooth pixmap transformation.
 
-    The default render hint is QPainter::TextAntialiasing.
+    The render hints QPainter::TextAntialiasing and QPainter::Antialiasing are
+    enabled by default.
 
     Example:
 

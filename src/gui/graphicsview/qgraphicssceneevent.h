@@ -127,6 +127,13 @@ public:
     QGraphicsSceneHoverEvent(Type type = None);
     ~QGraphicsSceneHoverEvent();
 
+    inline bool isHoverEnter() const
+    { return type() == GraphicsSceneHoverEnter; }
+    inline bool isHoverMove() const
+    { return type() == GraphicsSceneHoverMove; }
+    inline bool isHoverLeave() const
+    { return type() == GraphicsSceneHoverLeave; }
+
     QPointF pos() const;
     void setPos(const QPointF &pos);
 
