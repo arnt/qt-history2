@@ -1744,13 +1744,15 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
 }
 
 MetaObjectGenerator::MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr)
-: that(ax), d(dptr), disp(0), typeinfo(0), typelib(0), iidnames(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes"))
+: that(ax), d(dptr), disp(0), typeinfo(0), typelib(0), 
+  iidnames(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes"), QSettings::NativeFormat)
 {
     init();
 }
 
 MetaObjectGenerator::MetaObjectGenerator(ITypeLib *tlib, ITypeInfo *tinfo)
-: that(0), d(0), disp(0), typeinfo(tinfo), typelib(tlib), iidnames(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes"))
+: that(0), d(0), disp(0), typeinfo(tinfo), typelib(tlib), 
+  iidnames(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes"), QSettings::NativeFormat)
 {
     init();
 
