@@ -8171,7 +8171,7 @@ QSize Q3TextTableCell::minimumSize() const
 
 QSize Q3TextTableCell::maximumSize() const
 {
-    return QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    return QSize(maxw, QWIDGETSIZE_MAX);
 }
 
 Qt::Orientations Q3TextTableCell::expandingDirections() const
