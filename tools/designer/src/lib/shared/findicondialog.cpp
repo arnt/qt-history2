@@ -47,6 +47,20 @@ static QStringList extensionList()
     return extension_list;
 }
 
+static bool isIconValid(const QString &file)
+{
+    bool enabled = !file.isEmpty();
+    if (enabled) {
+        QStringList ext_list = extensionList();
+        foreach (QString ext, ext_list) {
+            if (file.endsWith(ext.remove(0, 2), Qt::CaseInsensitive)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 static const int g_file_item_id = 0;
 static const int g_dir_item_id = 1;
 
@@ -158,7 +172,7 @@ void FindIconDialog::itemActivated(const QString&, const QString &file_name)
 {
     if (activeBox() != ResourceBox)
         return;
-    if (!file_name.isEmpty())
+    if (isIconValid(file_name))
         accept();
 
     updateButtons();
@@ -297,7 +311,7 @@ void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
 
 void FindIconDialog::updateButtons()
 {
-    ui->m_ok_button->setEnabled(!filePath().isEmpty());
+    ui->m_ok_button->setEnabled(isIconValid(filePath()));
 }
 
 void FindIconDialog::setActiveBox()

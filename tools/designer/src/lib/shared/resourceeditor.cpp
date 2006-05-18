@@ -268,6 +268,8 @@ Qt::ItemFlags EditableResourceModel::flags(const QModelIndex &index) const
 
     if (file.isEmpty())
         result |= Qt::ItemIsEditable;
+    else if (!iconFileExtension(file))
+        result &= ~Qt::ItemIsEnabled & ~Qt::ItemIsSelectable;
 
     return result;
 }
