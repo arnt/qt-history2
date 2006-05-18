@@ -16,6 +16,8 @@
 
 #include <QtCore/qglobal.h>
 
+QT_BEGIN_HEADER
+
 #ifdef QT_ASSISTANT_CLIENT_STATIC
 #  define QT_ASSISTANT_CLIENT_EXPORT
 #elif defined(QT_ASSISTANT_CLIENT_LIBRARY)
@@ -23,5 +25,7 @@
 #else
 #  define QT_ASSISTANT_CLIENT_EXPORT Q_DECL_IMPORT
 #endif
+
+QT_END_HEADER
 
 #endif
