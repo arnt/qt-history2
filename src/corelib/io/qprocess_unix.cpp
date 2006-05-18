@@ -962,13 +962,21 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
 {
     processManager()->start();
 
+    // To catch the startup of the child
+    int startedPipe[2];
+    ::pipe(startedPipe);
+    
     pid_t childPid = fork();
     if (childPid == 0) {
         ::setsid();
         ::signal(SIGHUP, SIG_IGN);
+        ::close(startedPipe[0]);
         ::signal(SIGPIPE, SIG_DFL);
 
-        if (fork() == 0) {
+        pid_t doubleForkPid = fork();
+        if (doubleForkPid == 0) {
+            ::fcntl(startedPipe[1], F_SETFD, FD_CLOEXEC);
+            
             char **argv = new char *[arguments.size() + 2];
             for (int i = 0; i < arguments.size(); ++i) {
 #ifdef Q_OS_MAC
@@ -997,16 +1005,45 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
                 ::execv(argv[0], argv);
             }
 
+            struct sigaction noaction;
+            memset(&noaction, 0, sizeof(noaction));
+            noaction.sa_handler = SIG_IGN;
+            ::sigaction(SIGPIPE, &noaction, 0);
+
+            // '\1' means execv failed
+            char c = '\1';
+            ::write(startedPipe[1], &c, 1);
+            ::close(startedPipe[1]);
             ::_exit(1);
+        } else if (doubleForkPid == -1) {
+            struct sigaction noaction;
+            memset(&noaction, 0, sizeof(noaction));
+            noaction.sa_handler = SIG_IGN;
+            ::sigaction(SIGPIPE, &noaction, 0);
+
+            // '\2' means internal error
+            char c = '\2';
+            ::write(startedPipe[1], &c, 1);
         }
 
+        ::close(startedPipe[1]);
         ::chdir("/");
         ::_exit(1);
     }
+
+    ::close(startedPipe[1]);
+
+    if (childPid == -1) {
+        ::close(startedPipe[0]);
+        return false;
+    }
+
+    char reply = '\0';
+    int startResult = ::read(startedPipe[0], &reply, 1);
     int result;
-    while (waitpid(childPid, &result, 0) == -1 && errno == EINTR)
-        ;                       // nothing
-    return WIFEXITED(result);
+    ::close(startedPipe[0]);
+    ::waitpid(childPid, &result, 0);
+    return startResult != -1 && reply == '\0';
 }
 
 void QProcessPrivate::initializeProcessManager()
