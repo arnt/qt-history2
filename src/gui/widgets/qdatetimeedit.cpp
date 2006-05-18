@@ -989,7 +989,7 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     if (d->readOnly)
         return StepEnabled(0);
     if (d->specialValue()) {
-        return (d->minimum == d->maximum ? StepEnabled(0) : StepUpEnabled);
+        return (d->minimum == d->maximum ? StepEnabled(0) : StepEnabled(StepUpEnabled));
     }
     switch (d->sectionType(d->currentSectionIndex)) {
     case QDateTimeParser::NoSection:
