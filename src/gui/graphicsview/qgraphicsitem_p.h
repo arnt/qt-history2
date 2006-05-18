@@ -52,7 +52,7 @@ public:
         isMemberOfGroup = 0;
         handlesChildEvents = 0;
         ancestorHandlesChildEvents = 0;
-        flags =  QGraphicsItem::ItemIsSelectable;
+        flags = 0;
         pad = 0;
     }
 

@@ -172,28 +172,26 @@
     This enum describes different flags that you can set on an item to
     toggle different features in the item's behavior.
 
+    All flags are disabled by default.
+
     \value ItemIsMovable The item supports interactive movement using
     the mouse. By clicking on the item and then dragging, the item
     will move together with the mouse cursor. If the item has
     children, all children are also moved. If the item is part of a
     selection, all selected items are also moved. This feature is
     provided as a convenience through the base implementation of
-    QGraphicsItem::mouseEvent(). This flag is enabled by default, so
-    all items are by default movable.
+    QGraphicsItem::mouseEvent().
 
     \value ItemIsSelectable The item supports selection. Enabling this
     feature will enable setSelected() to toggle selection for the
     item. It will also let the item be selected automatically as a
     result of calling QGraphicsScene::setSelectionArea(), by clicking
     on an item, or by using rubber band selection in QGraphicsView.
-    This flag is by default enabled, so all items are by default
-    selectable.
 
     \value ItemIsFocusable The item supports keyboard input focus
     (i.e., it is an input item). Enabling this flag will allow the
     item to accept focus, which again allows the delivery of key
-    events to QGraphicsItem::keyEvent(). By default, this item is
-    disabled, so no items can by default take focus.
+    events to QGraphicsItem::keyEvent().
 */
 
 /*!
