@@ -69,10 +69,19 @@ BookWindow::BookWindow()
     ui.genreEdit->setModel(model->relationModel(genreIdx));
     ui.genreEdit->setModelColumn(model->relationModel(genreIdx)->fieldIndex("name"));
 
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(dataChanged(QModelIndex)));
+    QDataWidgetMapper *mapper = new QDataWidgetMapper(this);
+    mapper->setModel(model);
+    mapper->setItemDelegate(new BookDelegate(this));
+    mapper->addMapping(ui.titleEdit, model->fieldIndex("title"));
+    mapper->addMapping(ui.yearEdit, model->fieldIndex("year"));
+    mapper->addMapping(ui.authorEdit, authorIdx);
+    mapper->addMapping(ui.genreEdit, genreIdx);
+    mapper->addMapping(ui.ratingEdit, model->fieldIndex("rating"));
+
     connect(ui.bookTable->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
-            this, SLOT(currentBookChanged(QModelIndex)));
+            mapper, SLOT(setCurrentModelIndex(QModelIndex)));
+
+    ui.bookTable->setCurrentIndex(model->index(0, 0));
 }
 
 void BookWindow::showError(const QSqlError &err)
@@ -81,65 +90,3 @@ void BookWindow::showError(const QSqlError &err)
                 "Error initializing database: " + err.text());
 }
 
-void BookWindow::currentBookChanged(const QModelIndex &index)
-{
-    bool enabled = index.isValid();
-    ui.titleEdit->setEnabled(enabled);
-    ui.yearEdit->setEnabled(enabled);
-    ui.authorEdit->setEnabled(enabled);
-    ui.genreEdit->setEnabled(enabled);
-    ui.ratingEdit->setEnabled(enabled);
-
-    QSqlRecord rec = model->record(index.row());
-    ui.titleEdit->setText(rec.value("title").toString());
-    ui.yearEdit->setValue(rec.value("year").toInt());
-    ui.authorEdit->setCurrentIndex(ui.authorEdit->findText(
-                model->data(model->index(index.row(), authorIdx)).toString()));
-    ui.genreEdit->setCurrentIndex(ui.genreEdit->findText(
-                model->data(model->index(index.row(), genreIdx)).toString()));
-    ui.ratingEdit->setCurrentIndex(rec.value("rating").toInt());
-}
-
-void BookWindow::on_authorEdit_activated(const QString &text)
-{
-    QModelIndex currentIndex = model->index(ui.bookTable->currentIndex().row(), authorIdx);
-    if (model->data(currentIndex).toString() != text)
-        ui.bookTable->itemDelegate()->setModelData(ui.authorEdit, model, currentIndex);
-}
-
-void BookWindow::on_genreEdit_activated(const QString &text)
-{
-    QModelIndex currentIndex = model->index(ui.bookTable->currentIndex().row(), genreIdx);
-    if (model->data(currentIndex).toString() != text)
-        ui.bookTable->itemDelegate()->setModelData(ui.genreEdit, model, currentIndex);
-}
-
-void BookWindow::on_ratingEdit_activated(int value)
-{
-    QModelIndex currentIndex = model->index(ui.bookTable->currentIndex().row(),
-            model->fieldIndex("rating"));
-    if (model->data(currentIndex).toInt() != value)
-        model->setData(currentIndex, value);
-}
-
-void BookWindow::on_titleEdit_textChanged(const QString &text)
-{
-    QModelIndex currentIndex = model->index(ui.bookTable->currentIndex().row(),
-            model->fieldIndex("title"));
-    if (model->data(currentIndex).toString() != text)
-        model->setData(currentIndex, text);
-}
-
-void BookWindow::on_yearEdit_valueChanged(int value)
-{
-    QModelIndex currentIndex = model->index(ui.bookTable->currentIndex().row(),
-            model->fieldIndex("year"));
-    if (model->data(currentIndex).toInt() != value)
-        model->setData(currentIndex, value);
-}
-
-void BookWindow::dataChanged(const QModelIndex &index)
-{
-    if (index.row() == ui.bookTable->currentIndex().row())
-        currentBookChanged(index);
-}
