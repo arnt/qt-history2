@@ -8,7 +8,9 @@ HEADERS += \
     widgets/q3dockwindow.h \
     widgets/q3frame.h \
     widgets/q3vbox.h \
+    widgets/q3vgroupbox.h \
     widgets/q3hbox.h \
+    widgets/q3hgroupbox.h \
     widgets/q3grid.h \
     widgets/q3gridview.h \
     widgets/q3groupbox.h \
@@ -34,7 +36,9 @@ SOURCES += \
     widgets/q3dockwindow.cpp \
     widgets/q3frame.cpp \
     widgets/q3vbox.cpp \
+    widgets/q3vgroupbox.cpp \
     widgets/q3hbox.cpp \
+    widgets/q3hgroupbox.cpp \
     widgets/q3grid.cpp \
     widgets/q3gridview.cpp \
     widgets/q3groupbox.cpp \
