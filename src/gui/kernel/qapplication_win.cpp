@@ -584,7 +584,10 @@ void qt_init(QApplicationPrivate *priv, int)
         else
             argv[j++] = argv[i];
     }
-    priv->argc = j;
+    if(j < priv->argc) {
+        priv->argv[j] = 0;
+        priv->argc = j;
+    }
 #else
     Q_UNUSED(priv);
 #endif // QT_DEBUG
@@ -1656,7 +1659,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     widget->dataPtr()->window_state |= Qt::WindowMaximized;
                 else if (!widget->isMinimized())
                     widget->dataPtr()->window_state &= ~Qt::WindowMaximized;
-                
+
                 if (widget->isMinimized()) {
                     widget->dataPtr()->window_state &= ~Qt::WindowMinimized;
                     widget->showChildren(true);
@@ -1916,7 +1919,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     result = false;
                     break;
                 }
-            
+
                 QWidget *fw = QWidget::keyboardGrabber();
                 if (!fw) {
                     if (qApp->activePopupWidget())
@@ -1925,7 +1928,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                                                   : qApp->activePopupWidget());
                     else if (qApp->focusWidget())
                         fw = qApp->focusWidget();
-                    else if (widget) 
+                    else if (widget)
                         fw = widget->window();
                 }
                 if (fw && fw->isEnabled()) {

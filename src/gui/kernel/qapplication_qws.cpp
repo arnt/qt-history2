@@ -1912,9 +1912,10 @@ void qt_init(QApplicationPrivate *priv, int type)
             argv[j++] = argv[i];
         }
     }
-
-
-    priv->argc = j;
+    if(j < priv->argc) {
+        priv->argv[j] = 0;
+        priv->argc = j;
+    }
 
     mouseInWidget = new QPointer<QWidget>;
 

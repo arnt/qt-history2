@@ -873,7 +873,10 @@ void qt_init(QApplicationPrivate *priv, int)
                     argv[j++] = argv[i];
                 }
         }
-        priv->argc = j;
+        if(j < priv->argc) {
+            priv->argv[j] = 0;
+            priv->argc = j;
+        }
 
         //special hack to change working directory (for an app bundle) when running from finder
         if(!passed_psn.isNull() && QDir::currentPath() == "/") {
