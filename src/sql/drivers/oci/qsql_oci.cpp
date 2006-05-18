@@ -26,10 +26,15 @@
 #include <qstringlist.h>
 #include <qvarlengtharray.h>
 #include <qvector.h>
-
 #include <qdebug.h>
 
 #include <oci.h>
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
 
 #include <stdlib.h>
 
