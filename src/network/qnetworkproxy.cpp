@@ -50,7 +50,7 @@
         serverSocket->setProxy(QNetworkProxy::NoProxy);
     \endcode
 
-    Network proxy is used if the address used in \l
+    Network proxy is not used if the address used in \l
     {QAbstractSocket::connectToHost()}{connectToHost()}, \l
     {QUdpSocket::bind()}{bind()} or \l
     {QTcpServer::listen()}{listen()} is equivalent to
