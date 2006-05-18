@@ -4858,7 +4858,7 @@ QImage QImage::alphaChannel() const
         const uchar *src_data = d->data;
         uchar *dest_data = image.d->data;
         for (int y=0; y<h; ++y) {
-            const QRgb *src = (const QRgb *) src_data;
+            const uchar *src = src_data;
             uchar *dest = dest_data;
             for (int x=0; x<w; ++x) {
                 *dest = qAlpha(d->colortable.at(*src));
