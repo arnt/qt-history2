@@ -40,13 +40,13 @@
 #endif
 
 // newer platform SDKs use SQLLEN instead of SQLINTEGER
-#ifdef SQLLEN
+#if defined(SQLLEN) || defined(Q_OS_WIN64)
 # define QSQLLEN SQLLEN
 #else
 # define QSQLLEN SQLINTEGER
 #endif
 
-#ifdef SQLULEN
+#if defined(SQLULEN) || defined(Q_OS_WIN64)
 # define QSQLULEN SQLULEN
 #else
 # define QSQLULEN SQLUINTEGER
@@ -340,7 +340,7 @@ static QVariant qGetBinaryData(SQLHANDLE hStmt, int column)
             break;
         if (lengthIndicator == SQL_NULL_DATA)
             return QVariant(QVariant::ByteArray);
-        if (lengthIndicator > colSize || lengthIndicator == SQL_NO_TOTAL) {
+        if (lengthIndicator > QSQLLEN(colSize) || lengthIndicator == SQL_NO_TOTAL) {
             read += colSize;
             colSize = 65536;
         } else {
