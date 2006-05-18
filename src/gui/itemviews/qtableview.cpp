@@ -1562,12 +1562,15 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     int viewportWidth = d->viewport->width();
     int horizontalOffset = d->horizontalHeader->offset();
     int horizontalPosition = d->horizontalHeader->sectionPosition(index.column());
+    int horizontalIndex = d->horizontalHeader->visualIndex(index.column());
     int cellWidth = d->hasSpans()
                     ? d->columnSpanWidth(index.column(), span.width())
                     : d->horizontalHeader->sectionSize(index.column());
 
-    if (hint == PositionAtCenter) {
-        horizontalScrollBar()->setValue(horizontalPosition - ((viewportWidth - cellWidth) / 2));
+    if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
+        horizontalScrollBar()->setValue(horizontalIndex);
+    } else if (hint == PositionAtCenter) {
+            horizontalScrollBar()->setValue(horizontalPosition - ((viewportWidth - cellWidth) / 2));
     } else {
         if (horizontalPosition - horizontalOffset < 0 || cellWidth > viewportWidth)
             horizontalScrollBar()->setValue(horizontalPosition);
@@ -1580,6 +1583,7 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     int viewportHeight = d->viewport->height();
     int verticalOffset = d->verticalHeader->offset();
     int verticalPosition = d->verticalHeader->sectionPosition(index.row());
+    int verticalIndex = d->verticalHeader->visualIndex(index.row());
     int cellHeight = d->hasSpans()
                      ? d->rowSpanHeight(index.row(), span.height())
                      : d->verticalHeader->sectionSize(index.row());
@@ -1592,12 +1596,15 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
             hint = PositionAtBottom;
     }
 
-    if (hint == PositionAtTop)
+    if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
+        verticalScrollBar()->setValue(verticalIndex);
+    } else if (hint == PositionAtTop) {
         verticalScrollBar()->setValue(verticalPosition);
-    else if (hint == PositionAtBottom)
+    } else if (hint == PositionAtBottom) {
         verticalScrollBar()->setValue(verticalPosition - viewportHeight + cellHeight);
-    else if (hint == PositionAtCenter)
+    } else if (hint == PositionAtCenter) {
         verticalScrollBar()->setValue(verticalPosition - ((viewportHeight - cellHeight) / 2));
+    }
 
     d->setDirtyRegion(visualRect(index));
 }
