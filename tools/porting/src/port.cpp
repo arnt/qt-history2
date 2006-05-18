@@ -248,10 +248,11 @@ int main(int argc, char**argv)
         foreach (QString logLine, report) {
             logStream << logLine << endl;
         }
-        FileWriter fileWriter(FileWriter::AskOnOverWrite, "Overwrite file ");
-        if (alwaysOverwrite)
-            fileWriter.setOverwriteFiles(FileWriter::AlwaysOverWrite);
-        fileWriter.writeFile(logFileName, logContents);
+        logStream << endl;
+
+        QFile logFile(logFileName);
+        logFile.open(QIODevice::WriteOnly | QIODevice::Append);
+        logFile.write(logContents);
     }
     Logger::deleteInstance();
     PortingRules::deleteInstance();
