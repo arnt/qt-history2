@@ -182,9 +182,123 @@ bool QNativeSocketEnginePrivate::createNewSocket(QAbstractSocket::SocketType soc
     // Ensure that the socket is closed on exec*().
     ::fcntl(socket, F_SETFD, FD_CLOEXEC);
     socketDescriptor = socket;
+    lastSocketError = 0;
     return true;
 }
 
+/*
+    Returns the native socket error, if any.
+*/
+int QNativeSocketEnginePrivate::nativeSocketError() const
+{
+    if (lastSocketError)
+        return lastSocketError; // keep returning
+
+    int err = -1;
+    QT_SOCKOPTLEN_T len = sizeof(err);
+    if (getsockopt(socketDescriptor, SOL_SOCKET, SO_ERROR, (char *) &err, &len) != -1) {
+        lastSocketError = err;
+        return err;
+    }
+    return 0;                   // no error
+}
+
+/*
+    Converts the native socket error condition to a QAbstractSocket::SocketError
+    code and clears the state.
+*/
+void QNativeSocketEnginePrivate::setErrorFromNative()
+{
+    switch (lastSocketError)
+    {
+        // we have no idea what the error codes could be, so let's handle
+        // them all
+
+    case EACCES:
+        setError(QAbstractSocket::SocketAccessError, AccessErrorString);
+        break;
+
+    case EADDRINUSE:
+        setError(QAbstractSocket::NetworkError, AddressInuseErrorString);
+        break;
+
+    case EADDRNOTAVAIL:
+        setError(QAbstractSocket::SocketAddressNotAvailableError, AddressNotAvailableErrorString);
+        break;
+
+    case EAFNOSUPPORT:
+    case EPROTONOSUPPORT:
+    case ESOCKTNOSUPPORT:
+    case EPROTOTYPE:
+        setError(QAbstractSocket::UnsupportedSocketOperationError, ProtocolUnsupportedErrorString);
+        break;
+
+#if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
+    case EWOULDBLOCK:
+#endif
+    case EAGAIN:
+        // this is for connect(2) only
+        // for other cases, it should be handled on its own
+        setError(QAbstractSocket::SocketResourceError, ResourceErrorString);
+        break;
+
+    case EMFILE:
+    case ENFILE:
+    case ENOBUFS:
+    case ENOMEM:
+        setError(QAbstractSocket::SocketResourceError, ResourceErrorString);
+        break;
+ 
+    case EBADF:
+        setError(QAbstractSocket::UnsupportedSocketOperationError, InvalidSocketErrorString);
+        break;
+
+    case ECONNABORTED:
+    case ECONNRESET:
+    case EPIPE:
+        setError(QAbstractSocket::RemoteHostClosedError, RemoteHostClosedErrorString);
+        break;
+
+    case ECONNREFUSED:
+        setError(QAbstractSocket::ConnectionRefusedError, ConnectionRefusedErrorString);
+        break;
+
+    case EHOSTUNREACH:
+        setError(QAbstractSocket::NetworkError, HostUnreachableErrorString);
+        break;
+ 
+    case EINVAL:
+        setError(QAbstractSocket::UnsupportedSocketOperationError, OperationUnsupportedErrorString);
+        break;
+ 
+    case EMSGSIZE:
+        setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
+        break;
+
+    case ENETUNREACH:
+        setError(QAbstractSocket::NetworkError, NetworkUnreachableErrorString);
+        break;
+
+    case ENOTSOCK:
+        setError(QAbstractSocket::UnsupportedSocketOperationError, NotSocketErrorString);
+        break;
+
+    case EPERM:
+        setError(QAbstractSocket::SocketAccessError, AccessErrorString);
+        break;
+
+    case ETIMEDOUT:
+        setError(QAbstractSocket::NetworkError, ConnectionTimeOutErrorString);
+        break;
+
+    default:
+        qWarning("QNativeSocketEngine::setErrorFromNative: got unknown errno=%d", lastSocketError);
+        setError(QAbstractSocket::UnknownSocketError, UnknownSocketErrorString);
+        break;
+    }
+
+    lastSocketError = 0;        // clear it
+}
 
 /*
     Returns the value of the socket option \a opt.
@@ -480,6 +594,9 @@ int QNativeSocketEnginePrivate::nativeAccept()
 
 qint64 QNativeSocketEnginePrivate::nativeBytesAvailable() const
 {
+    if (nativeSocketError())
+        return 0;
+
     /*
       Apparently, there is not consistency among different operating
       systems on how to use FIONREAD.
@@ -509,6 +626,9 @@ qint64 QNativeSocketEnginePrivate::nativeBytesAvailable() const
 
 bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
 {
+    if (nativeSocketError())
+        return false;
+
     // Create a sockaddr struct and reset its port number.
 #if !defined(QT_NO_IPV6)
     struct sockaddr_storage storage;
@@ -550,6 +670,9 @@ bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
 
 qint64 QNativeSocketEnginePrivate::nativePendingDatagramSize() const
 {
+    if (nativeSocketError())
+        return -1;
+
     QVarLengthArray<char, 8192> udpMessagePeekBuffer(8192);
     ssize_t recvResult = -1;
     for (;;) {
@@ -577,6 +700,11 @@ qint64 QNativeSocketEnginePrivate::nativePendingDatagramSize() const
 qint64 QNativeSocketEnginePrivate::nativeReceiveDatagram(char *data, qint64 maxSize,
                                                     QHostAddress *address, quint16 *port)
 {
+    if (nativeSocketError()) {
+        setErrorFromNative();
+        return -1;
+    }
+
 #if !defined(QT_NO_IPV6)
     struct sockaddr_storage aa;
 #else
@@ -612,6 +740,11 @@ qint64 QNativeSocketEnginePrivate::nativeReceiveDatagram(char *data, qint64 maxS
 qint64 QNativeSocketEnginePrivate::nativeSendDatagram(const char *data, qint64 len,
                                                    const QHostAddress &host, quint16 port)
 {
+    if (nativeSocketError()) {
+        setErrorFromNative();
+        return -1;
+    }
+
     struct sockaddr_in sockAddrIPv4;
     struct sockaddr *sockAddrPtr = 0;
     QT_SOCKLEN_T sockAddrSize = 0;
@@ -748,10 +881,16 @@ void QNativeSocketEnginePrivate::nativeClose()
     qDebug("QNativeSocketEngine::nativeClose()");
 #endif
     ::close(socketDescriptor);
+    lastSocketError = 0;
 }
 
 qint64 QNativeSocketEnginePrivate::nativeWrite(const char *data, qint64 len)
 {
+    if (nativeSocketError()) {
+        setErrorFromNative();
+        return -1;
+    }
+
     Q_Q(QNativeSocketEngine);
 
     // ignore the SIGPIPE signal
@@ -795,6 +934,11 @@ qint64 QNativeSocketEnginePrivate::nativeWrite(const char *data, qint64 len)
 */
 qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxSize)
 {
+    if (nativeSocketError()) {
+        setErrorFromNative();
+        return -1;
+    }
+
     Q_Q(QNativeSocketEngine);
     if (!q->isValid()) {
         qWarning("QNativeSocketEngine::unbufferedRead: Invalid socket");

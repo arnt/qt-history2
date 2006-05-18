@@ -122,6 +122,7 @@ QNativeSocketEnginePrivate::QNativeSocketEnginePrivate()
     readNotifier = 0;
     writeNotifier = 0;
     exceptNotifier = 0;
+    lastSocketError = 0;
 }
 
 /*! \internal
@@ -213,6 +214,12 @@ void QNativeSocketEnginePrivate::setError(QAbstractSocket::SocketError error, Er
         break;
     case PortInuseErrorString:
         socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Another socket is already listening on the same port");
+        break;
+    case NotSocketErrorString:
+        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Operation on non-socket");
+        break;
+    case UnknownSocketErrorString:
+        socketErrorString = QT_TRANSLATE_NOOP("QNativeSocketEngine", "Unknown error");
         break;
     }
 }
@@ -778,6 +785,15 @@ bool QNativeSocketEngine::waitForReadOrWrite(bool *readyToRead, bool *readyToWri
     return ret > 0;
 }
 
+bool QNativeSocketEngine::hasPendingSocketError()
+{
+    if (d_func()->nativeSocketError()) {
+        d_func()->setErrorFromNative();
+        return true;
+    }
+    return false;
+}
+
 /*!
     Returns the size of the operating system's socket receive
     buffer. Depending on the operating system, this size may be
@@ -870,13 +886,8 @@ void QNativeSocketEngine::setReadNotificationEnabled(bool enable)
     } else if (enable && QAbstractEventDispatcher::instance(thread())) {
         d->readNotifier = new QSocketNotifier(d->socketDescriptor,
                                               QSocketNotifier::Read, this);
-#ifdef Q_OS_WIN
-        QObject::connect(d->readNotifier, SIGNAL(activated(int)),
-                         this, SLOT(_q_systemReadNotification()));
-#else
         QObject::connect(d->readNotifier, SIGNAL(activated(int)),
                          this, SIGNAL(readNotification()));
-#endif
         d->readNotifier->setEnabled(true);
     }
 }

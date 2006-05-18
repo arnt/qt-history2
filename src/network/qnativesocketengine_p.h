@@ -76,6 +76,7 @@ public:
     bool waitForReadOrWrite(bool *readyToRead, bool *readyToWrite,
 			    bool checkRead, bool checkWrite,
 			    int msecs = 30000, bool *timedOut = 0) const;
+    bool hasPendingSocketError();
 
     bool isReadNotificationEnabled() const;
     void setReadNotificationEnabled(bool enable);
@@ -87,9 +88,6 @@ public:
 private:
     Q_DECLARE_PRIVATE(QNativeSocketEngine)
     Q_DISABLE_COPY(QNativeSocketEngine)
-#ifdef Q_OS_WIN
-    Q_PRIVATE_SLOT(d_func(), void _q_systemReadNotification())
-#endif
 };
 
 #ifdef Q_OS_WIN
@@ -112,6 +110,7 @@ public:
     ~QNativeSocketEnginePrivate();
 
     int socketDescriptor;
+    mutable int lastSocketError;
 
     QSocketNotifier *readNotifier, *writeNotifier, *exceptNotifier;
 
@@ -142,12 +141,17 @@ public:
         ReceiveDatagramErrorString,
         WriteErrorString,
         ReadErrorString,
-        PortInuseErrorString
+        PortInuseErrorString,
+        NotSocketErrorString,
+
+        UnknownSocketErrorString = -1
     };
 
     void setError(QAbstractSocket::SocketError error, ErrorString errorString) const;
+    void setErrorFromNative();
 
     // native functions
+    int nativeSocketError() const;
     int option(QNativeSocketEngine::SocketOption option) const;
     bool setOption(QNativeSocketEngine::SocketOption option, int value);
 
@@ -174,10 +178,6 @@ public:
     void nativeClose();
 
     bool fetchConnectionParameters();
-
-#ifdef Q_OS_WIN
-    void _q_systemReadNotification();
-#endif
 };
 
 #endif // QNATIVESOCKETENGINE_P_H

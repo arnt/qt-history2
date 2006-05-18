@@ -492,7 +492,13 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
     // only emit readyRead() when not recursing.
     if (!emittedReadyRead && (!isBuffered || newBytes > 0)) {
         emittedReadyRead = true;
-        emit q->readyRead();
+        if (socketEngine->hasPendingSocketError()) {
+            socketError = socketEngine->error();
+            q->setErrorString(socketEngine->errorString());
+            emit q->error(socketError);
+        }
+        else
+            emit q->readyRead();
         emittedReadyRead = false;
     }
 
@@ -886,7 +892,7 @@ void QAbstractSocketPrivate::fetchConnectionParameters()
     qDebug("QAbstractSocketPrivate::fetchConnectionParameters() connection to %s:%i established",
            host.toString().toLatin1().constData(), port);
 #endif
-}    
+}        
 
 /*! \internal
 

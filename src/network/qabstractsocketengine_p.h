@@ -88,6 +88,7 @@ public:
 			    bool checkRead, bool checkWrite,
 			    int msecs = 30000, bool *timedOut = 0) const = 0;
 
+    virtual bool hasPendingSocketError();
     QAbstractSocket::SocketError error() const;
     QString errorString() const;
     QAbstractSocket::SocketState state() const;
