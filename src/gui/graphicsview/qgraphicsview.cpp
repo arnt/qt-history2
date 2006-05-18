@@ -313,8 +313,11 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
         exposedRegion = renderWidget->rect();
 
     // Draw background
-    foreach (QRect rect, exposedRegion.rects())
+    foreach (QRect rect, exposedRegion.rects()) {
+        painter->save();
         q->paintBackground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect());
+        painter->restore();
+    }
 
     // Find all visible items
     QList<QGraphicsItem *> visibleItems;
@@ -393,7 +396,9 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
     }
     
     // Draw the items
+    painter->save();
     q->paintItems(painter, visibleItems, styleOptions);
+    painter->restore();
 
 #if defined QGRAPHICSVIEW_DEBUG
     qDebug() << "\tTime spent drawing:" << (stopWatch.elapsed() / 1000.0) << "("
@@ -402,8 +407,11 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
 #endif
 
     // Draw foreground
-    foreach (QRect rect, exposedRegion.rects())
+    foreach (QRect rect, exposedRegion.rects()) {
+        painter->save();
         q->paintForeground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect());
+        painter->restore();
+    }
 }
 
 /*!
