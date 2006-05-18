@@ -30,7 +30,8 @@ HEADERS += \
 	itemviews/qstandarditemmodel.h \
 	itemviews/qstandarditemmodel_p.h \
 	itemviews/qstringlistmodel.h \
-	itemviews/qtreewidgetitemiterator.h
+	itemviews/qtreewidgetitemiterator.h \
+        itemviews/qdatawidgetmapper.h
 
 SOURCES += \
 	itemviews/qabstractitemview.cpp \
@@ -52,5 +53,6 @@ SOURCES += \
 	itemviews/qitemeditorfactory.cpp \
 	itemviews/qstandarditemmodel.cpp \
 	itemviews/qstringlistmodel.cpp \
-	itemviews/qtreewidgetitemiterator.cpp
+	itemviews/qtreewidgetitemiterator.cpp \
+        itemviews/qdatawidgetmapper.cpp
 
