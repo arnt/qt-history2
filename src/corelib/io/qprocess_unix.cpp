@@ -74,11 +74,29 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #include <errno.h>
 #include <stdlib.h>
 
+static qint64 qt_native_read(int fd, char *data, qint64 maxlen)
+{
+    qint64 ret = 0;
+    do {
+        ret = ::read(fd, data, maxlen);
+    } while (ret == -1 && errno == EINTR);
+    return ret;
+}
+
+static qint64 qt_native_write(int fd, const char *data, qint64 len)
+{
+    qint64 ret = 0;
+    do {
+        ret = ::write(fd, data, len);
+    } while (ret == -1 && errno == EINTR);
+    return ret;
+}
+
 static int qt_qprocess_deadChild_pipe[2];
 static void (*qt_sa_old_sigchld_handler)(int) = 0;
 static void qt_sa_sigchld_handler(int signum)
 {
-    ::write(qt_qprocess_deadChild_pipe[1], "", 1);
+    qt_native_write(qt_qprocess_deadChild_pipe[1], "", 1);
 #if defined (QPROCESS_DEBUG)
     fprintf(stderr, "*** SIGCHLD\n");
 #endif
@@ -147,7 +165,7 @@ QProcessManager::QProcessManager()
 QProcessManager::~QProcessManager()
 {
     // notify the thread that we're shutting down.
-    ::write(qt_qprocess_deadChild_pipe[1], "@", 1);
+    qt_native_write(qt_qprocess_deadChild_pipe[1], "@", 1);
     ::close(qt_qprocess_deadChild_pipe[1]);
     wait();
 
@@ -187,7 +205,7 @@ void QProcessManager::run()
         // signals may have been delivered in the meantime, to avoid race
         // conditions.
         char c;
-        if (::read(qt_qprocess_deadChild_pipe[0], &c, 1) < 0 || c == '@')
+        if (qt_native_read(qt_qprocess_deadChild_pipe[0], &c, 1) < 0 || c == '@')
             break;
 
         // catch any and all children that we can.
@@ -206,7 +224,7 @@ void QProcessManager::catchDeadChildren()
         // notify all children that they may have died. they need to run
         // waitpid() in their own thread.
         QProcessInfo *info = it.value();
-        ::write(info->deathPipe, "", 1);
+        qt_native_write(info->deathPipe, "", 1);
 
 #if defined (QPROCESS_DEBUG)
         qDebug() << "QProcessManager::run() sending death notice to" << info->process;
@@ -534,7 +552,7 @@ void QProcessPrivate::execChild(const QByteArray &programName)
 #if defined (QPROCESS_DEBUG)
     fprintf(stderr, "QProcessPrivate::execChild() failed, notifying parent process\n");
 #endif
-    ::write(childStartedPipe[1], "", 1);
+    qt_native_write(childStartedPipe[1], "", 1);
     ::close(childStartedPipe[1]);
     childStartedPipe[1] = -1;
 }
@@ -542,7 +560,7 @@ void QProcessPrivate::execChild(const QByteArray &programName)
 bool QProcessPrivate::processStarted()
 {
     char c;
-    int i = ::read(childStartedPipe[0], &c, 1);
+    int i = qt_native_read(childStartedPipe[0], &c, 1);
     if (startupSocketNotifier) {
         startupSocketNotifier->setEnabled(false);
         delete startupSocketNotifier;
@@ -583,7 +601,7 @@ qint64 QProcessPrivate::bytesAvailableFromStderr() const
 
 qint64 QProcessPrivate::readFromStdout(char *data, qint64 maxlen)
 {
-    qint64 bytesRead = qint64(::read(standardReadPipe[0], data, maxlen));
+    qint64 bytesRead = qt_native_read(standardReadPipe[0], data, maxlen);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::readFromStdout(%p \"%s\", %lld) == %lld",
            data, qt_prettyDebug(data, bytesRead, 16).constData(), maxlen, bytesRead);
@@ -593,7 +611,7 @@ qint64 QProcessPrivate::readFromStdout(char *data, qint64 maxlen)
 
 qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
 {
-    qint64 bytesRead = qint64(::read(errorReadPipe[0], data, maxlen));
+    qint64 bytesRead = qt_native_read(errorReadPipe[0], data, maxlen);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::readFromStderr(%p \"%s\", %lld) == %lld",
            data, qt_prettyDebug(data, bytesRead, 16).constData(), maxlen, bytesRead);
@@ -617,7 +635,7 @@ qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
 {
     qt_ignore_sigpipe();
 
-    qint64 written = qint64(::write(writePipe[1], data, maxlen));
+    qint64 written = qt_native_write(writePipe[1], data, maxlen);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::writeToStdin(%p \"%s\", %lld) == %lld",
            data, qt_prettyDebug(data, maxlen, 16).constData(), maxlen, written);
@@ -931,7 +949,7 @@ bool QProcessPrivate::waitForDeadChild()
     
     // read a byte from the death pipe
     char c;
-    ::read(deathPipe[0], &c, 1);
+    qt_native_read(deathPipe[0], &c, 1);
     
     // check if our process is dead
     int exitStatus;
@@ -1012,7 +1030,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
 
             // '\1' means execv failed
             char c = '\1';
-            ::write(startedPipe[1], &c, 1);
+            qt_native_write(startedPipe[1], &c, 1);
             ::close(startedPipe[1]);
             ::_exit(1);
         } else if (doubleForkPid == -1) {
@@ -1023,7 +1041,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
 
             // '\2' means internal error
             char c = '\2';
-            ::write(startedPipe[1], &c, 1);
+            qt_native_write(startedPipe[1], &c, 1);
         }
 
         ::close(startedPipe[1]);
@@ -1039,7 +1057,7 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
     }
 
     char reply = '\0';
-    int startResult = ::read(startedPipe[0], &reply, 1);
+    int startResult = qt_native_read(startedPipe[0], &reply, 1);
     int result;
     ::close(startedPipe[0]);
     ::waitpid(childPid, &result, 0);

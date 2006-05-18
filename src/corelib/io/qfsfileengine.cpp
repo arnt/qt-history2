@@ -403,7 +403,10 @@ qint64 QFSFileEngine::read(char *data, qint64 len)
                 if ((oldFlags & O_NONBLOCK) == 0)
                     fcntl(fileno(d->fh), F_SETFL, oldFlags | O_NONBLOCK, &v, sizeof(v));
 
-                size_t read = fread(data + readBytes, 1, size_t(len - readBytes), d->fh);
+                size_t read = 0;
+                do {
+                    read = fread(data + readBytes, 1, size_t(len - readBytes), d->fh);
+                } while (read == 0 && errno == EINTR);
                 if (read > 0) {
                     readBytes += read;
                     break;
@@ -418,7 +421,10 @@ qint64 QFSFileEngine::read(char *data, qint64 len)
                     int v = 1;
                     fcntl(fileno(d->fh), F_SETFL, oldFlags, &v, sizeof(v));
                     if (readBytes == 0) {
-                        int readByte = fgetc(d->fh);
+                        int readByte = 0;
+                        do {
+                            readByte = fgetc(d->fh);
+                        } while (readByte == -1 && errno == EINTR);
                         if (readByte != -1) {
                             *data = uchar(readByte);
                             readBytes += 1;
@@ -434,9 +440,9 @@ qint64 QFSFileEngine::read(char *data, qint64 len)
             }
         } else
 #endif
-        {
+        do {
             readBytes = fread(data, 1, size_t(len), d->fh);
-        }
+        } while (readBytes == 0 && errno == EINTR);
         qint64 ret = qint64(readBytes);
         if (ret == 0) {
             setError(QFile::ReadError, qt_error_string(int(errno)));
@@ -469,7 +475,9 @@ qint64 QFSFileEngine::read(char *data, qint64 len)
             const qint64 MaxBlockSize = 32 * 1024 * 1024;
             bytesToRead = qMin(bytesToRead, MaxBlockSize);
 #endif
-            result = QT_READ(d->fd, data + read, int(bytesToRead));
+            do {
+                result = QT_READ(d->fd, data + read, int(bytesToRead));
+            } while (result == -1 && errno == EINTR);
             if (result > 0)
                 read += result;
         } while (result > 0 && read < len);
@@ -537,11 +545,15 @@ qint64 QFSFileEngine::write(const char *data, qint64 len)
         bytesToWrite = qMin<qint64>(bytesToWrite, MaxChunkSize);
 #endif
         if (d->fh) {
-            result = qint64(fwrite(data + written, 1, size_t(bytesToWrite), d->fh));
+            do {
+                result = qint64(fwrite(data + written, 1, size_t(bytesToWrite), d->fh));
+            } while (result == 0 && errno == EINTR);
             if (bytesToWrite > 0 && result == 0)
                 result = -1;
         } else {
-            result = QT_WRITE(d->fd, data + written, bytesToWrite);
+            do {
+                result = QT_WRITE(d->fd, data + written, bytesToWrite);
+            } while (result == -1 && errno == EINTR);
         }
         if (result > 0)
             written += qint64(result);
