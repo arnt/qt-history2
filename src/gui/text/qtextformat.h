@@ -177,6 +177,9 @@ public:
         ImageWidth = 0x5010,
         ImageHeight = 0x5011,
 
+        // selection properties
+        FullWidthSelection = 0x06000,
+
         // --
         UserProperty = 0x100000
     };

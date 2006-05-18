@@ -825,8 +825,24 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<FormatRang
             continue;
 
         l.draw(p, position);
-        for (int i = 0; i < selections.size(); ++i)
-            l.draw(p, position, selections.constData()+i);
+        for (int i = 0; i < selections.size(); ++i) {
+            FormatRange selection = selections.at(i);
+            QVariant fullWidthProp = selection.format.property(QTextFormat::FullWidthSelection);
+            if (fullWidthProp.type() == QVariant::RectF
+                && selection.start >= sl.from
+                && (selection.start < sl.from + sl.length || !sl.length)
+               ) {
+                QRectF selectionRect = fullWidthProp.toRectF();
+                selectionRect.setY(position.y() + l.y());
+                selectionRect.setHeight(l.height());
+                QBrush bg = selection.format.background();
+                if (bg.style() != Qt::NoBrush)
+                    p->fillRect(selectionRect, bg);
+                selection.start = sl.from;
+                selection.length = sl.length;
+            }
+            l.draw(p, position, &selection);
+        }
     }
 
     if (!d->cacheGlyphs)

@@ -2185,6 +2185,16 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
 
     QAbstractTextDocumentLayout::PaintContext ctx;
     ctx.selections = extraSelections;
+    ctx.clip = r;
+
+    for (int i = 0; i < ctx.selections.count(); ++i)
+        if (ctx.selections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
+            QRectF r = viewport->rect();
+            r.translate(xOffset, yOffset);
+            ctx.selections[i].format.setProperty(QTextFormat::FullWidthSelection, QRectF(r));
+            ctx.clip.setLeft(qMin(ctx.clip.left(), qreal(xOffset)));
+            ctx.clip.setWidth(qMax(ctx.clip.width(), r.width()));
+        }
     ctx.palette = q->palette();
 
     if (cursorOn && q->isEnabled()) {
@@ -2212,7 +2222,6 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
         selection.format.setProperty(QTextFormat::OutlinePen, outline);
         ctx.selections.append(selection);
     }
-    ctx.clip = r;
 
     doc->documentLayout()->draw(p, ctx);
 }
@@ -2977,8 +2986,14 @@ void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
             return;
     }
 
-    for (int i = 0; i < d->extraSelections.count(); ++i)
-        d->viewport->update(d->selectionRect(d->extraSelections.at(i).cursor));
+    for (int i = 0; i < d->extraSelections.count(); ++i) {
+        QRect r = d->selectionRect(d->extraSelections.at(i).cursor);
+        if (d->extraSelections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
+            r.setLeft(0);
+            r.setWidth(d->viewport->width());
+        }
+        d->viewport->update(r);
+    }
 
     d->extraSelections.resize(selections.count());
     for (int i = 0; i < selections.count(); ++i) {
@@ -2986,8 +3001,14 @@ void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
         d->extraSelections[i].format = selections.at(i).format;
     }
 
-    for (int i = 0; i < d->extraSelections.count(); ++i)
-        d->viewport->update(d->selectionRect(d->extraSelections.at(i).cursor));
+    for (int i = 0; i < d->extraSelections.count(); ++i) {
+        QRect r = d->selectionRect(d->extraSelections.at(i).cursor);
+        if (d->extraSelections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
+            r.setLeft(0);
+            r.setWidth(d->viewport->width());
+        }
+        d->viewport->update(r);
+    }
 }
 
 /*!

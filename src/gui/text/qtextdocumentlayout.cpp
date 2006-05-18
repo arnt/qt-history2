@@ -1002,13 +1002,24 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
         const QAbstractTextDocumentLayout::Selection &range = context.selections.at(i);
         const int selStart = range.cursor.selectionStart() - blpos;
         const int selEnd = range.cursor.selectionEnd() - blpos;
-        if (selStart < bllen && selEnd > 0) {
+        if (selStart < bllen && selEnd > 0
+             && selEnd > selStart) {
             QTextLayout::FormatRange o;
             o.start = selStart;
             o.length = selEnd - selStart;
             o.format = range.format;
             selections.append(o);
-        }
+        } else if (range.format.hasProperty(QTextFormat::FullWidthSelection)
+                   && bl.contains(range.cursor.position())) {
+            // for full width selections we don't require an actual selection, just
+            // a position to specify the line. that's more convenience in usage.
+            QTextLayout::FormatRange o;
+            QTextLine l = tl->lineForTextPosition(range.cursor.position() - blpos);
+            o.start = l.textStart();
+            o.length = qMax(1, l.textLength());
+            o.format = range.format;
+            selections.append(o);
+       }
         if (selStart <= 0 && selEnd >= 1)
             selFormat = &range.format;
     }
