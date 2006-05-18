@@ -493,6 +493,14 @@
     } AFUNC ## __dest_instance__;
 #endif
 
+#ifndef Q_REQUIRED_RESULT
+#  if defined(Q_CC_GNU) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1))
+#    define Q_REQUIRED_RESULT __attribute__ ((warn_unused_result))
+#  else
+#    define Q_REQUIRED_RESULT
+#  endif
+#endif
+
 
 /*
    The window system, must be one of: (Q_WS_x)
