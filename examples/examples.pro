@@ -2,6 +2,7 @@ TEMPLATE      = subdirs
 SUBDIRS       = assistant \
                 dialogs \
                 draganddrop \
+                graphicsview \
                 itemviews \
                 layouts \
                 linguist \

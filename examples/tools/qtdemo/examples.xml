@@ -25,6 +25,9 @@
     <example filename="fridgemagnets" name="Fridge Magnets" />
     <example filename="puzzle" name="Puzzle" />
   </category>
+  <category dirname="graphicsview" name="GraphicsView">
+    <example filename="graphwidget" name="Graph with Edges and Nodes" />
+  </category>
   <category dirname="itemviews" name="Item Views">
     <example filename="basicsortfiltermodel" name="Basic Sort/Filter Model" />
     <example filename="chart" name="Chart" />
