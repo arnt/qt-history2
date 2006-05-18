@@ -1260,7 +1260,7 @@ private:
     int yyTok; // the last token read
     bool yyMayCapture; // set this to false to disable capturing
 
-    friend class QRegExpMatchState;
+    friend struct QRegExpMatchState;
 };
 
 #ifndef QT_NO_REGEXP_LOOKAHEAD
