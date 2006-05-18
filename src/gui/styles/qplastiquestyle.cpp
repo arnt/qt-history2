@@ -2538,7 +2538,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             QString progressBarName = uniqueName(QLatin1String("progressBarContents"),
                                                  option, rect.size());
             QPixmap cache;
-            if (!UsePixmapCache || !QPixmapCache::find(progressBarName, cache)) {
+            if ((!UsePixmapCache || !QPixmapCache::find(progressBarName, cache)) && rect.height() > 7) {
                 QSize size = rect.size();
                 cache = QPixmap(QSize(size.width() - 6 + 30, size.height() - 6));
                 cache.fill(Qt::white);
