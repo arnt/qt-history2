@@ -113,8 +113,8 @@ public:
 
     Format format() const;
 
-    QImage convertToFormat(Format f, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
-    QImage convertToFormat(Format f, const QVector<QRgb> &colorTable, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
+    QImage convertToFormat(Format f, Qt::ImageConversionFlags flags = Qt::AutoColor) const Q_REQUIRED_RESULT;
+    QImage convertToFormat(Format f, const QVector<QRgb> &colorTable, Qt::ImageConversionFlags flags = Qt::AutoColor) const Q_REQUIRED_RESULT;
 
     int width() const;
     int height() const;
