@@ -2154,10 +2154,12 @@ QRect QTextEditPrivate::selectionRect(const QTextCursor &cursor) const
         if (posBlock == anchorBlock && posBlock.layout()->lineCount()) {
             const QTextLine posLine = posBlock.layout()->lineForTextPosition(position - posBlock.position());
             const QTextLine anchorLine = anchorBlock.layout()->lineForTextPosition(anchor - anchorBlock.position());
-            if (posLine.lineNumber() == anchorLine.lineNumber()) {
-                r = posLine.rect().toRect();
-            } else {
-                r = posBlock.layout()->boundingRect().toRect();
+
+            const int firstLine = qMin(posLine.lineNumber(), anchorLine.lineNumber());
+            const int lastLine = qMax(posLine.lineNumber(), anchorLine.lineNumber());
+            r = QRect();
+            for (int i = firstLine; i <= lastLine; ++i) {
+                r |= posBlock.layout()->lineAt(i).rect().toRect();
             }
             r.translate(doc->documentLayout()->blockBoundingRect(posBlock).topLeft().toPoint());
         } else {
