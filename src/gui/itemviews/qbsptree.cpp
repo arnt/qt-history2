@@ -26,6 +26,7 @@ void QBspTree::create(int n, int d)
     } else {
         depth = d;
     }
+    depth = qMax(depth, 1);
 
     nodes.resize((1 << depth) - 1); // resize to number of nodes
     leaves.resize(1 << depth); // resize to number of leaves
