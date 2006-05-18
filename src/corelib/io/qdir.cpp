@@ -1962,6 +1962,24 @@ QStringList QDir::nameFiltersFromString(const QString &nameFilter)
         Q_INIT_RESOURCE(myapp);
     \endcode
 
+    Note: This macro cannot be used in a namespace. It should be called from
+    main(). If that is not possible, the following workaround can be used
+    to init the resource \c myapp from the function \c{MyNamespace::myFunction}:
+
+    \code
+    inline void initMyResource() { Q_INIT_RESOURCE(myapp); }
+
+    namespace MyNamespace
+    {
+        ...
+
+        void myFunction()
+        {
+            initMyResource();
+        }
+    }
+    \endcode
+
     \sa Q_CLEANUP_RESOURCE(), {The Qt Resource System}
 */
 
@@ -1977,6 +1995,9 @@ QStringList QDir::nameFiltersFromString(const QString &nameFilter)
     application terminates, but if the resources are located in a
     plugin that is being unloaded, call Q_CLEANUP_RESOURCE() to force
     removal of your resources.
+
+    Note: This macro cannot be used in a namespace. Please see the
+    Q_INIT_RESOURCE documentation for a workaround.
 
     Example:
 
