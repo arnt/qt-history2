@@ -166,6 +166,7 @@
 
     \list
     \o \l{opengl/2dpainting}{2D Painting}\raisedaster
+    \o \l{opengl/framebufferobject}{Framebuffer Objects}
     \o \l{opengl/grabber}{Grabber}
     \o \l{opengl/hellogl}{Hello GL}\raisedaster
     \o \l{opengl/overpainting}{Overpainting}\raisedaster
