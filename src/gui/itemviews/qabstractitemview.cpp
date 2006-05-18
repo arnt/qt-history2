@@ -459,11 +459,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
 
     if (d->model) {
         // These asserts do basic sanity checking of the model
-
-        // A model should return the same index, including its internal id/pointer.
-        Q_ASSERT(model->index(0,0) == model->index(0,0));
-        // The parent of a top level index should be invalid.
-        Q_ASSERT(model->index(0,0).parent() == QModelIndex());
+        Q_ASSERT_X(model->index(0,0) == model->index(0,0), "QAbstractItemView::setModel", "A model should return the exact same index (including its internal id/pointer) when asked for it twice in a row.");
+        Q_ASSERT_X(model->index(0,0).parent() == QModelIndex(), "QAbstractItemView::setModel", "The parent of a top level index should be invalid");
 
         connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(dataChanged(QModelIndex,QModelIndex)));
@@ -738,6 +735,7 @@ void QAbstractItemView::reset()
 void QAbstractItemView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QAbstractItemView);
+    Q_ASSERT_X(index.isValid() ? index.model() == model() : true, "QAbstractItemView::setRootIndex", "index must be from the currently set model");
     d->root = index;
     d->doDelayedItemsLayout();
 }
