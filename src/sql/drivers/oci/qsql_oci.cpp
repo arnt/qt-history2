@@ -356,8 +356,9 @@ void QOCIPrivate::outValues(QVector<QVariant> &values, IndicatorArray &indicator
 
         qOraOutValue(values[i], tmpStorage);
 
+        QVariant::Type typ = values.at(i).type();
         if (indicators[i] == -1) // NULL
-            values[i] = QVariant(values.at(i).type());
+            values[i] = QVariant(typ);
         else
             values[i] = QVariant(typ, values.at(i).constData());
     }
@@ -365,14 +366,14 @@ void QOCIPrivate::outValues(QVector<QVariant> &values, IndicatorArray &indicator
 
 struct OraFieldInfo
 {
-    QString           name;
+    QString name;
     QVariant::Type type;
-    ub1                   oraIsNull;
-    ub4                   oraType;
-    sb1                   oraScale;
-    ub4                   oraLength; // size in bytes
-    ub4                   oraFieldLength; // amount of characters
-    sb2                   oraPrecision;
+    ub1 oraIsNull;
+    ub4 oraType;
+    sb1 oraScale;
+    ub4 oraLength; // size in bytes
+    ub4 oraFieldLength; // amount of characters
+    sb2 oraPrecision;
 };
 
 QString qOraWarn(const QOCIPrivate* d)
@@ -510,6 +511,16 @@ static QVariant::Type qDecodeOCIType(int ocitype)
         break;
     }
         return type;
+}
+
+static QSqlField qFromOraInf(const OraFieldInfo &ofi)
+{
+    QSqlField f(ofi.name, ofi.type);
+    f.setRequired(ofi.oraIsNull == 0);
+    f.setLength(ofi.oraPrecision == 0 ? 38 : int(ofi.oraPrecision));
+    f.setPrecision(ofi.oraScale);
+    f.setSqlType(int(ofi.oraType));
+    return f;
 }
 
 static OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
@@ -675,11 +686,12 @@ public:
     void setCharset(OCIDefine* dfn);
     int readPiecewise(QVector<QVariant> &values, int index = 0);
     int readLOBs(QVector<QVariant> &values, int index = 0);
-    void getOraFields(QSqlRecord &rinf);
     int fieldFromDefine(OCIDefine* d);
     void getValues(QVector<QVariant> &v, int index);
     inline int size() { return fieldInf.size(); }
     static bool execBatch(QOCIPrivate *d, QVector<QVariant> &boundValues, bool arrayBind);
+
+    QSqlRecord rec;
 
 private:
     char* create(int position, int size);
@@ -754,6 +766,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
 
         fieldInf[idx].typ = ofi.type;
         fieldInf[idx].oraType = ofi.oraType;
+        rec.append(qFromOraInf(ofi));
 
         switch (ofi.type) {
         case QVariant::DateTime:
@@ -1377,33 +1390,6 @@ int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
     return r;
 }
 
-void QOCIResultPrivate::getOraFields(QSqlRecord &rinf)
-{
-    OCIParam* param = 0;
-    ub4 count = 1;
-    sb4 parmStatus = OCIParamGet(d->sql,
-                                  OCI_HTYPE_STMT,
-                                  d->err,
-                                  (void**)&param,
-                                  count);
-
-    while (parmStatus == OCI_SUCCESS) {
-        OraFieldInfo ofi = qMakeOraField(d, param);
-        QSqlField f(ofi.name, ofi.type);
-        f.setRequired(ofi.oraIsNull == 0);
-        f.setLength(ofi.oraPrecision == 0 ? 38 : int(ofi.oraPrecision));
-        f.setPrecision(ofi.oraScale);
-        f.setSqlType(int(ofi.oraType));
-        rinf.append(f);
-        count++;
-        parmStatus = OCIParamGet(d->sql,
-                                  OCI_HTYPE_STMT,
-                                  d->err,
-                                  (void**)&param,
-                                  count);
-    }
-}
-
 int QOCIResultPrivate::fieldFromDefine(OCIDefine* d)
 {
     for (int i = 0; i < fieldInf.count(); ++i) {
@@ -1677,8 +1663,7 @@ QSqlRecord QOCIResult::record() const
     QSqlRecord inf;
     if (!isActive() || !isSelect() || !cols)
         return inf;
-    cols->getOraFields(inf);
-    return inf;
+    return cols->rec;
 }
 
 QVariant QOCIResult::lastInsertId() const
