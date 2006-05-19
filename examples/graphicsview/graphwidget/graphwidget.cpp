@@ -59,6 +59,8 @@ GraphWidget::GraphWidget()
 
     setSceneRect(scene->sceneRect());
     itemMoved();
+
+    setWindowTitle(tr("Graph Widget"));
 }
 
 void GraphWidget::itemMoved()
