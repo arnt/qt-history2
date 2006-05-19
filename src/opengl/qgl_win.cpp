@@ -554,7 +554,10 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
         if (fmt.stencil())
             fmt.setStencilBufferSize(iValues[5]);
         fmt.setStereo(iValues[6]);
-        fmt.setDirectRendering(iValues[7]);
+	if (iValues[7] == WGL_FULL_ACCELERATION_ARB)
+	    fmt.setDirectRendering(true);
+	else
+	    fmt.setDirectRendering(false);
         fmt.setSampleBuffers(iValues[8]);
         if (fmt.sampleBuffers())
             fmt.setSamples(iValues[9]);
@@ -784,7 +787,10 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         QVarLengthArray<int> iAttributes(40);
         int i = 0;
         iAttributes[i++] = WGL_ACCELERATION_ARB;
-        iAttributes[i++] = WGL_FULL_ACCELERATION_ARB;
+	if (d->glFormat.directRendering())
+	    iAttributes[i++] = WGL_FULL_ACCELERATION_ARB;
+	else
+	    iAttributes[i++] = WGL_NO_ACCELERATION_ARB;
         iAttributes[i++] = WGL_SUPPORT_OPENGL_ARB;
         iAttributes[i++] = TRUE;
         iAttributes[i++] = WGL_DRAW_TO_WINDOW_ARB;
@@ -855,6 +861,8 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
             p->dwFlags |= PFD_DRAW_TO_BITMAP;
         else
             p->dwFlags |= PFD_DRAW_TO_WINDOW;
+	if (!d->glFormat.directRendering())
+	    p->dwFlags |= PFD_GENERIC_FORMAT;
         if (d->glFormat.doubleBuffer() && !deviceIsPixmap())
             p->dwFlags |= PFD_DOUBLEBUFFER;
         if (d->glFormat.stereo())
