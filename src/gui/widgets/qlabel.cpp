@@ -628,7 +628,7 @@ void QLabel::setMargin(int margin)
 
 
 /*!
-    \property QLabel::selectable
+    \property QLabel::textSelectable
     \brief the text is selectable using the mouse
 
     If the label displays text, this property enables or disables the selection of the text
