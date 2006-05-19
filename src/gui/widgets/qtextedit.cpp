@@ -2194,8 +2194,8 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
             QRectF r = viewport->rect();
             r.translate(xOffset, yOffset);
             ctx.selections[i].format.setProperty(QTextFormat::FullWidthSelection, QRectF(r));
-            ctx.clip.setLeft(qMin(ctx.clip.left(), qreal(xOffset)));
-            ctx.clip.setWidth(qMax(ctx.clip.width(), r.width()));
+            ctx.clip.setLeft(0);
+            ctx.clip.setWidth(r.width());
         }
     ctx.palette = q->palette();
 
