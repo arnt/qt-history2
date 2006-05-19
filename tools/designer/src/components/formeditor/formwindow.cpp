@@ -331,7 +331,7 @@ bool FormWindow::handleMousePressEvent(QWidget * /*widget*/, QWidget *managedWid
 
     bool selected = isWidgetSelected(managedWidget);
 
-    if (e->modifiers() & Qt::ShiftModifier) {
+    if (e->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) {
         // shift-click - toggle selection state of widget
         selectWidget(managedWidget, !selected);
         return true;
@@ -1000,7 +1000,7 @@ bool FormWindow::handleKeyPressEvent(QWidget *widget, QWidget *, QKeyEvent *e)
         case Qt::Key_Right:
         case Qt::Key_Up:
         case Qt::Key_Down:
-            if (e->modifiers() && Qt::ControlModifier)
+            if (e->modifiers() & Qt::ControlModifier)
                 handleArrowKeyEvent(e->key(), e->modifiers() == Qt::ControlModifier);
             break;
     }
