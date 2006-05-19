@@ -34,8 +34,9 @@ class QUndoGroup;
 // We mean it.
 //
 
-struct QCommandPrivate
+class QCommandPrivate
 {
+public:
     QCommandPrivate() : id(-1) {}
     QList<QCommand*> child_list;
     QString text;
