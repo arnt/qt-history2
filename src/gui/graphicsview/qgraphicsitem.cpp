@@ -1003,6 +1003,8 @@ QPointF QGraphicsItem::scenePos() const
 void QGraphicsItem::setPos(const QPointF &pos)
 {
     Q_D(QGraphicsItem);
+    if(d->pos == pos)
+        return;
     if (d->scene) {
         qt_graphicsItem_fullUpdate(this);
         removeFromIndex();
