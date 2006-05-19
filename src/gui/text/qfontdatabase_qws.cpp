@@ -158,17 +158,19 @@ static void initializeDb()
     // print the database
     for (int f = 0; f < db->count; f++) {
         QtFontFamily *family = db->families[f];
-        FD_DEBUG("'%s' %s", family->name.latin1(), (family->fixedPitch ? "fixed" : ""));
+        FD_DEBUG("'%s' %s", qPrintable(family->name), (family->fixedPitch ? "fixed" : ""));
+#if 0
         for (int i = 0; i < QFont::LastPrivateScript; ++i) {
-            FD_DEBUG("\t%s: %s", QFontDatabase::scriptName((QFont::Script) i).latin1(),
+            FD_DEBUG("\t%s: %s", qPrintable(QFontDatabase::scriptName((QFont::Script) i)),
                      ((family->scripts[i] & QtFontFamily::Supported) ? "Supported" :
                       (family->scripts[i] & QtFontFamily::UnSupported) == QtFontFamily::UnSupported ?
                       "UnSupported" : "Unknown"));
         }
+#endif
 
         for (int fd = 0; fd < family->count; fd++) {
             QtFontFoundry *foundry = family->foundries[fd];
-            FD_DEBUG("\t\t'%s'", foundry->name.latin1());
+            FD_DEBUG("\t\t'%s'", qPrintable(foundry->name));
             for (int s = 0; s < foundry->count; s++) {
                 QtFontStyle *style = foundry->styles[s];
                 FD_DEBUG("\t\t\tstyle: style=%d weight=%d\n"
