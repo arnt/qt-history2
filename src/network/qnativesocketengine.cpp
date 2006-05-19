@@ -719,6 +719,9 @@ bool QNativeSocketEngine::waitForRead(int msecs, bool *timedOut) const
     Q_CHECK_NOT_STATE(QNativeSocketEngine::waitForRead(),
                       QAbstractSocket::UnconnectedState, false);
 
+    if (timedOut)
+        *timedOut = false;
+    
     int ret = d->nativeSelect(msecs, true);
     if (ret == 0) {
         if (timedOut)
@@ -753,6 +756,9 @@ bool QNativeSocketEngine::waitForWrite(int msecs, bool *timedOut) const
     Q_CHECK_NOT_STATE(QNativeSocketEngine::waitForWrite(),
                       QAbstractSocket::UnconnectedState, false);
 
+    if (timedOut)
+        *timedOut = false;
+    
     int ret = d->nativeSelect(msecs, false);
     if (ret == 0) {
         if (timedOut)
