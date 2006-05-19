@@ -1568,14 +1568,21 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
                     : d->horizontalHeader->sectionSize(index.column());
 
     if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
-        horizontalScrollBar()->setValue(horizontalIndex);
-    } else if (hint == PositionAtCenter) {
-            horizontalScrollBar()->setValue(horizontalPosition - ((viewportWidth - cellWidth) / 2));
-    } else {
-        if (horizontalPosition - horizontalOffset < 0 || cellWidth > viewportWidth)
-            horizontalScrollBar()->setValue(horizontalPosition);
+        if (horizontalPosition - horizontalOffset < 0)
+            horizontalScrollBar()->setValue(horizontalIndex);
         else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
-            horizontalScrollBar()->setValue(horizontalPosition - viewportWidth + cellWidth);
+            for (int w = viewportWidth - cellWidth; w > 0 && horizontalIndex > 0;
+                 w -= columnWidth(horizontalIndex--));
+            horizontalScrollBar()->setValue(horizontalIndex);
+    } else { // ScrollPerPixel
+        if (hint == PositionAtCenter) {
+            horizontalScrollBar()->setValue(horizontalPosition - ((viewportWidth - cellWidth) / 2));
+        } else {
+            if (horizontalPosition - horizontalOffset < 0 || cellWidth > viewportWidth)
+                horizontalScrollBar()->setValue(horizontalPosition);
+            else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
+                horizontalScrollBar()->setValue(horizontalPosition - viewportWidth + cellWidth);
+        }
     }
 
     // Adjust vertical position
@@ -1597,13 +1604,21 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     }
 
     if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
-        verticalScrollBar()->setValue(verticalIndex);
-    } else if (hint == PositionAtTop) {
-        verticalScrollBar()->setValue(verticalPosition);
-    } else if (hint == PositionAtBottom) {
-        verticalScrollBar()->setValue(verticalPosition - viewportHeight + cellHeight);
-    } else if (hint == PositionAtCenter) {
-        verticalScrollBar()->setValue(verticalPosition - ((viewportHeight - cellHeight) / 2));
+        if (verticalPosition - verticalOffset < 0)
+            verticalScrollBar()->setValue(verticalIndex);
+        else if (verticalPosition - verticalOffset + cellHeight > viewportHeight) {
+            for (int h = viewportHeight - cellHeight; h > 0 && verticalIndex > 0;
+                 h -= rowHeight(verticalIndex--));
+            verticalScrollBar()->setValue(verticalIndex);
+        }
+    } else { // ScrollPerPixel
+        if (hint == PositionAtTop) {
+            verticalScrollBar()->setValue(verticalPosition);
+        } else if (hint == PositionAtBottom) {
+            verticalScrollBar()->setValue(verticalPosition - viewportHeight + cellHeight);
+        } else if (hint == PositionAtCenter) {
+            verticalScrollBar()->setValue(verticalPosition - ((viewportHeight - cellHeight) / 2));
+        }
     }
 
     d->setDirtyRegion(visualRect(index));
