@@ -286,15 +286,7 @@ class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
 {
     Q_DECLARE_PUBLIC(QTextDocumentLayout)
 public:
-    QTextDocumentLayoutPrivate()
-        : blockTextFlags(0), wordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere),
-          fixedColumnWidth(-1),
-          tabStopWidth(80), // same default as in qtextengine.cpp
-          cursorWidth(1),
-          currentLazyLayoutPosition(-1),
-          lazyLayoutStepSize(1000),
-          showLayoutProgress(true)
-    { }
+    QTextDocumentLayoutPrivate();
 
     int blockTextFlags;
     QTextOption::WrapMode wordWrapMode;
@@ -311,6 +303,8 @@ public:
     QBasicTimer layoutTimer;
     mutable QBasicTimer sizeChangedTimer;
     bool showLayoutProgress;
+    
+    int lastPageCount;
 
     qreal indent(QTextBlock bl) const;
 
@@ -369,6 +363,17 @@ public:
     { ensureLayoutedByPosition(INT_MAX); }
     void layoutStep() const;
 };
+
+QTextDocumentLayoutPrivate::QTextDocumentLayoutPrivate()
+    : blockTextFlags(0), wordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere),
+      fixedColumnWidth(-1),
+      tabStopWidth(80), // same default as in qtextengine.cpp
+      cursorWidth(1),
+      currentLazyLayoutPosition(-1),
+      lazyLayoutStepSize(1000),
+      showLayoutProgress(true),
+      lastPageCount(-1)
+{}
 
 QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForYPosition(qreal y) const
 {
@@ -2226,7 +2231,6 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     QRectF updateRect;
 
     const QSizeF oldSize = dynamicDocumentSize();
-    const int oldPageCount = dynamicPageCount();
 
     d->lazyLayoutStepSize = 1000;
     d->sizeChangedTimer.stop();
@@ -2262,9 +2266,6 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
         const QSizeF newSize = dynamicDocumentSize();
         if (newSize != oldSize)
             emit documentSizeChanged(newSize);
-        const int newPageCount = dynamicPageCount();
-        if (oldPageCount != newPageCount)
-        emit pageCountChanged(newPageCount);
     }
 
     if (!updateRect.isValid()) {
@@ -2592,8 +2593,15 @@ void QTextDocumentLayout::timerEvent(QTimerEvent *e)
             d->layoutStep();
     } else if (e->timerId() == d->sizeChangedTimer.timerId()) {
         emit documentSizeChanged(dynamicDocumentSize());
-        emit pageCountChanged(dynamicPageCount());
         d->sizeChangedTimer.stop();
+        
+        if (d->currentLazyLayoutPosition == -1) {
+            const int newCount = dynamicPageCount();
+            if (newCount != d->lastPageCount) {
+                d->lastPageCount = newCount;
+                emit pageCountChanged(newCount);
+            }
+        }
     } else {
         QAbstractTextDocumentLayout::timerEvent(e);
     }
