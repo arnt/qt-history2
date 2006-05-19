@@ -522,6 +522,7 @@ void QClipboard::emitChanged(Mode mode)
         break;
         default:
         break;
+        emit changed(mode);
     }
 }
 
