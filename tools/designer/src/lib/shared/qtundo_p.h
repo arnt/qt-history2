@@ -220,6 +220,8 @@ class QDESIGNER_SHARED_EXPORT QtUndoManager : public QObject
 
         bool m_can_undo, m_can_redo;
         QString m_undo_description, m_redo_description;
+
+        bool m_executing;
 };
 
 class QDESIGNER_SHARED_EXPORT QtUndoListModel: public QAbstractItemModel

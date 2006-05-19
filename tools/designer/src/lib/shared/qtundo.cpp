@@ -1176,6 +1176,7 @@ QtUndoManager::QtUndoManager()
     m_current_stack = 0;
     m_can_undo = false;
     m_can_redo = false;
+    m_executing = false;
 
     updateActions();
 }
@@ -1371,6 +1372,9 @@ void QtUndoManager::viewDestroyed(QObject *view)
 
 void QtUndoManager::undo(int count)
 {
+    if (m_executing)
+        return; // recursive call detected
+
     QtUndoStack *stack = currentStack();
 
     if (stack == 0 || !stack->canUndo()) {
@@ -1378,7 +1382,9 @@ void QtUndoManager::undo(int count)
         return;
     }
 
+    m_executing = true;
     stack->undo(count);
+    m_executing = false;
 }
 
 /*!
@@ -1395,6 +1401,9 @@ void QtUndoManager::undo(int count)
 
 void QtUndoManager::redo(int count)
 {
+    if (m_executing)
+        return; // recursive call detected
+
     QtUndoStack *stack = currentStack();
 
     if (stack == 0 || !stack->canRedo()) {
@@ -1402,7 +1411,9 @@ void QtUndoManager::redo(int count)
         return;
     }
 
+    m_executing = true;
     stack->redo(count);
+    m_executing = false;
 }
 
 QtUndoManager *QtUndoManager::m_manager = 0;
