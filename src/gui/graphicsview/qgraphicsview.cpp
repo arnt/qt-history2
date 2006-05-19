@@ -315,7 +315,9 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
     // Draw background
     foreach (QRect rect, exposedRegion.rects()) {
         painter->save();
-        q->paintBackground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect());
+        QRectF exposedRect = q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
+        painter->setClipRect(exposedRect);
+        q->paintBackground(painter, exposedRect);
         painter->restore();
     }
 
@@ -409,7 +411,9 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
     // Draw foreground
     foreach (QRect rect, exposedRegion.rects()) {
         painter->save();
-        q->paintForeground(painter, q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect());
+        QRectF exposedRect = q->mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
+        painter->setClipRect(exposedRect);
+        q->paintForeground(painter, exposedRect);
         painter->restore();
     }
 }
@@ -1940,6 +1944,7 @@ void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> &
         // Draw the item
         painter->save();
         painter->setMatrix(item->sceneMatrix(), true);
+        painter->setClipRect(item->boundingRect());
         item->paint(painter, &option, d->renderWidget);
         painter->restore();
     }
