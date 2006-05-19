@@ -930,7 +930,7 @@ void QLabel::paintEvent(QPaintEvent *)
     if (d->doc) {
         QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
         QRect dr = d->documentRect();
-        d->doc->setPageSize(dr.size());
+        d->doc->setPageSize(QSizeF(dr.size().width(), INT_MAX));
         QRect lr = d->layoutRect();
 
         QAbstractTextDocumentLayout::PaintContext context;
