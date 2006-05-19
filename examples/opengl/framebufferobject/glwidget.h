@@ -36,7 +36,7 @@ public slots:
 private:
     QPoint anchor;
     float scale;
-    float rot;
+    float rot_y, rot_z;
 
     QTimeLine *anim;
     QSvgRenderer *svg_renderer;

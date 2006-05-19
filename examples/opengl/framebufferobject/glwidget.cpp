@@ -37,7 +37,7 @@ GLWidget::GLWidget(QWidget *parent)
     setWindowTitle(tr("OpenGL framebuffer objects"));
     makeCurrent();
     fbo = new QGLFramebufferObject(512, 512);
-    rot = 0.0;
+    rot_y = rot_z = 0.0;
     scale = 1.2;
     anim = new QTimeLine(750, this);
     anim->setUpdateInterval(20);
@@ -46,7 +46,6 @@ GLWidget::GLWidget(QWidget *parent)
 
     svg_renderer = new QSvgRenderer(QLatin1String(":/res/bubbles.svg"), this);
     connect(svg_renderer, SIGNAL(repaintNeeded()), this, SLOT(draw()));
-    glClearColor(0.5, 0.5, 1.0, 1.0);
     glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -87,8 +86,10 @@ void GLWidget::draw()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glViewport(0, 0, width(), height());
+    glPushMatrix();
 
-    glRotatef(rot, 0, 1, 0);
+    glRotatef(rot_y, 0, 1, 0);
+    glRotatef(rot_z, 0, 0, 1);
 
     glScalef(scale/WIDTH, scale/WIDTH, scale/WIDTH);
     glEnable(GL_MULTISAMPLE);
@@ -127,6 +128,19 @@ void GLWidget::draw()
         }
         glTranslatef(-WIDTH*2, 2, 0);
     }
+    glPopMatrix();
+    glScalef(1.6, 1.6, 1.6);
+    glEnable(GL_TEXTURE_2D);
+    glColor4f(1.0, 1.0, 1.0, 0.15);
+    glBegin(GL_POLYGON);
+    {
+        glTexCoord2f(0, 0); glVertex3f(-1, -1, -1);
+        glTexCoord2f(1, 0); glVertex3f(1, -1, -1);
+
+        glTexCoord2f(1, 1); glVertex3f(1, 1, -1);
+        glTexCoord2f(0, 1); glVertex3f(-1, 1, -1);
+    }
+    glEnd();
 
     // restore the GL state that QPainter expects
     glMatrixMode(GL_PROJECTION);
@@ -142,7 +156,7 @@ void GLWidget::draw()
     p.setBrush(Qt::NoBrush);
     p.setPen(Qt::black);
     const QString str1(tr("A simple OpenGL framebuffer object example."));
-    const QString str2(tr("Use the mouse wheel to zoom, press and move mouse to rotate the panel, double-click to flip the text."));
+    const QString str2(tr("Use the mouse wheel to zoom, press buttons and move mouse to rotate, double-click to flip."));
     QFontMetrics fm(p.font());
     p.drawText(width()/2 - fm.width(str1)/2, 20, str1);
     p.drawText(width()/2 - fm.width(str2)/2, 20 + fm.lineSpacing(), str2);
@@ -156,14 +170,18 @@ void GLWidget::mousePressEvent(QMouseEvent *e)
 void GLWidget::mouseMoveEvent(QMouseEvent *e)
 {
     QPoint diff = e->pos() - anchor;
-    rot += diff.x()/5.0;
+    if (e->buttons() & Qt::LeftButton)
+        rot_y += diff.x()/5.0;
+    else if (e->buttons() & Qt::RightButton)
+        rot_z += diff.x()/5.0;
+
     anchor = e->pos();
     draw();
 }
 
 void GLWidget::wheelEvent(QWheelEvent *e)
 {
-    e->delta() > 0 ? scale += 0.1 : scale -= 0.1;
+    e->delta() > 0 ? scale += scale*0.1 : scale -= scale*0.1;
     draw();
 }
 
@@ -174,7 +192,7 @@ void GLWidget::mouseDoubleClickEvent(QMouseEvent *)
 
 void GLWidget::animate(qreal val)
 {
-    rot = val * 180;
+    rot_y = val * 180;
     draw();
 }
 
