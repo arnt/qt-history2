@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <QtOpenGL>
+#include <QImage>
 #include <QTimeLine>
 #include <QSvgRenderer>
 
@@ -38,6 +39,7 @@ private:
     float scale;
     float rot_y, rot_z;
 
+    QImage logo;
     QTimeLine *anim;
     QSvgRenderer *svg_renderer;
     QGLFramebufferObject *fbo;

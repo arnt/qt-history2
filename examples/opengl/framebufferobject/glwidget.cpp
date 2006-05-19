@@ -14,23 +14,6 @@
 #include <QtGui/QImage>
 #include "glwidget.h"
 
-#define WIDTH 12
-#define HEIGHT 11
-
-const char *logo[] =
-{
-    "..XX....X...",
-    ".X..X...X...",
-    "X....X.XXXXX",
-    "X....X..X...",
-    "X....X..X...",
-    "X....X..X...",
-    "X....X..X...",
-    ".X..X...X...",
-    "..XX.....XXX",
-    "...XX.......",
-    "....XX......"
-};
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent)
 {
@@ -46,6 +29,9 @@ GLWidget::GLWidget(QWidget *parent)
 
     svg_renderer = new QSvgRenderer(QLatin1String(":/res/bubbles.svg"), this);
     connect(svg_renderer, SIGNAL(repaintNeeded()), this, SLOT(draw()));
+
+    logo = QImage(":/res/qt4-logo.png");
+    logo = logo.convertToFormat(QImage::Format_ARGB32);
 }
 
 GLWidget::~GLWidget()
@@ -104,26 +90,27 @@ void GLWidget::draw()
 
     glRotatef(rot_y, 0.0f, 1.0f, 0.0f);
     glRotatef(rot_z, 0.0f, 0.0f, 1.0f);
-    glScalef(scale/WIDTH, scale/WIDTH, scale/WIDTH);
+    glScalef(scale/logo.width(), scale/logo.width(), scale/logo.width());
 
     // draw the "Qt"
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glTranslatef(-WIDTH+1, -HEIGHT+1, 0.0f);
-    for (int y=HEIGHT-1; y>=0; --y) {
-        for (int x=0; x<WIDTH; ++x) {
-            if (logo[y][x] == 'X') {
-                glBegin(GL_QUADS);
-                {
-                    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 0.0f);
-                    glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 0.0f);
-                    glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 0.0f);
-                    glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 0.0f);
-                }
-                glEnd();
+    glTranslatef(-logo.width()+1, -logo.height()+1, 0.0f);
+    for (int y=logo.height()-1; y>=0; --y) {
+        uint *p = (uint*) logo.scanLine(y);
+        uint *end = p + logo.width();
+        while (p < end) {
+            glColor4ub(qRed(*p), qGreen(*p), qBlue(*p), qAlpha(*p));
+            glBegin(GL_QUADS);
+            {
+                glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 0.0f);
+                glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 0.0f);
+                glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 0.0f);
+                glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 0.0f);
             }
+            glEnd();
             glTranslatef(2.0f, 0.0f, 0.0f);
+            ++p;
         }
-        glTranslatef(-WIDTH*2.0f, 2.0f, 0.0f);
+        glTranslatef(-logo.width()*2.0f, 2.0f, 0.0f);
     }
 
     // restore the GL state that QPainter expects
