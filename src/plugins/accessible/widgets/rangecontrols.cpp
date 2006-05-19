@@ -240,8 +240,6 @@ QScrollBar *QAccessibleScrollBar::scrollBar() const
     return qobject_cast<QScrollBar*>(object());
 }
 
-extern Q_GUI_EXPORT QStyleOptionSlider qt_qscrollbarStyleOption(QScrollBar *scrollbar);
-
 /*! \reimp */
 QRect QAccessibleScrollBar::rect(int child) const
 {
@@ -266,7 +264,6 @@ QRect QAccessibleScrollBar::rect(int child) const
         return QAccessibleWidget::rect(child);
     }
     
-
     const QStyleOptionSlider option = qt_qscrollbarStyleOption(scrollBar());
     const QRect rect = scrollBar()->style()->subControlRect(QStyle::CC_ScrollBar, &option,
                                                        subControl, scrollBar());
@@ -417,13 +414,10 @@ QSlider *QAccessibleSlider::slider() const
     return qobject_cast<QSlider*>(object());
 }
 
-extern Q_GUI_EXPORT QStyleOptionSlider qt_qsliderStyleOption(QSlider *slider);
-
 /*! \reimp */
 QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
-
     const QStyleOptionSlider option = qt_qsliderStyleOption(slider());
     QRect srect = slider()->style()->subControlRect(QStyle::CC_Slider, &option,
                                                     QStyle::SC_SliderHandle, slider());
