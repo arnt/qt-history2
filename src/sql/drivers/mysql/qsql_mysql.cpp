@@ -40,6 +40,12 @@ Q_DECLARE_METATYPE(MYSQL*)
 Q_DECLARE_METATYPE(MYSQL_STMT*)
 #endif
 
+#if MYSQL_VERSION_ID >= 40100
+#  define Q_CLIENT_MULTI_STATEMENTS CLIENT_MULTI_STATEMENTS
+#else
+#  define Q_CLIENT_MULTI_STATEMENTS 0
+#endif
+
 class QMYSQLDriverPrivate
 {
 public:
@@ -952,7 +958,7 @@ bool QMYSQLDriver::open(const QString& db,
        we have to enable CLIEN_MULTI_STATEMENTS here, otherwise _any_
        stored procedure call will fail.
     */
-    unsigned int optionFlags = CLIENT_MULTI_STATEMENTS;
+    unsigned int optionFlags = Q_CLIENT_MULTI_STATEMENTS;
     const QStringList opts(connOpts.split(QLatin1Char(';'), QString::SkipEmptyParts));
 
     // extract the real options from the string
