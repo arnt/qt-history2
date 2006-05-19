@@ -364,12 +364,12 @@ void QAbstractSocketPrivate::resetSocketLayer()
     if (socketEngine) {
         socketEngine->close();
         socketEngine->disconnect();
-        socketEngine->deleteLater();
+        delete socketEngine;
         socketEngine = 0;
     }
     if (connectTimer) {
         connectTimer->stop();
-        connectTimer->deleteLater();
+        delete connectTimer;
         connectTimer = 0;
     }
 }
@@ -1550,7 +1550,7 @@ void QAbstractSocket::abort()
         return;
     if (d->connectTimer) {
         d->connectTimer->stop();
-        d->connectTimer->deleteLater();
+        delete d->connectTimer;
         d->connectTimer = 0;
     }
 
