@@ -1,0 +1,10 @@
+/*!
+    \example graphicsview/mice
+    \title Colliding Mice Example
+
+    This GraphicsView example shows how to implement
+    animated items, and how to detect collision between
+    items.
+ 
+    \image mice-example.png
+*/

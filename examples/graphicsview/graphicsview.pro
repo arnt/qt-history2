@@ -1,5 +1,5 @@
 TEMPLATE      = subdirs
-SUBDIRS       = graphwidget
+SUBDIRS       = graphwidget mice
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/graphicsview

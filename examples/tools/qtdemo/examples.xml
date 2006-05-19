@@ -27,6 +27,7 @@
   </category>
   <category dirname="graphicsview" name="GraphicsView">
     <example filename="graphwidget" name="Graph with Edges and Nodes" />
+    <example filename="mice" name="Colliding Mice" />
   </category>
   <category dirname="itemviews" name="Item Views">
     <example filename="basicsortfiltermodel" name="Basic Sort/Filter Model" />
