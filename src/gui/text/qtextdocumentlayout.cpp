@@ -286,15 +286,6 @@ class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
 {
     Q_DECLARE_PUBLIC(QTextDocumentLayout)
 public:
-
-#if 0
-    struct Page {
-        QTextBlock first;
-        QTextBlock last;
-    };
-    QList<Page> pages;
-#endif
-
     QTextDocumentLayoutPrivate()
         : blockTextFlags(0), wordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere),
           fixedColumnWidth(-1),
@@ -304,8 +295,6 @@ public:
           lazyLayoutStepSize(1000),
           showLayoutProgress(true)
     { }
-
-    bool pagedLayout;
 
     int blockTextFlags;
     QTextOption::WrapMode wordWrapMode;
