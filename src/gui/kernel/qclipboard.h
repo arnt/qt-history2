@@ -38,15 +38,16 @@ private:
     ~QClipboard();
 
 public:
-    enum Mode { Clipboard, Selection, Find, LastMode = Find };
+    enum Mode { Clipboard, Selection, FindBuffer, LastMode = FindBuffer };
 
     void clear(Mode mode = Clipboard);
 
     bool supportsSelection() const;
-    bool supportsFind() const;
+    bool supportsFindBuffer() const;
+
     bool ownsSelection() const;
     bool ownsClipboard() const;
-    bool ownsFind() const;
+    bool ownsFindBuffer() const;
 
     QString text(Mode mode = Clipboard) const;
     QString text(QString& subtype, Mode mode = Clipboard) const;
@@ -67,9 +68,8 @@ public:
 Q_SIGNALS:
     void changed(QClipboard::Mode);
     void selectionChanged();
-    void findChanged();
+    void findBufferChanged();
     void dataChanged();
-
 private Q_SLOTS:
     void ownerDestroyed();
 

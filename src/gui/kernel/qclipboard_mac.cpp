@@ -46,7 +46,7 @@ static inline QMacPasteBoard *qt_mac_pasteboard(QClipboard::Mode mode)
 {
     // Assert on the mode, unsupported modes should be caught before
     // calling this function.
-    Q_ASSERT(mode == QClipboard::Clipboard || mode == QClipboard::Find);
+    Q_ASSERT(mode == QClipboard::Clipboard || mode == QClipboard::FindBuffer);
 
     if (mode == QClipboard::Clipboard)
         return qt_mac_pasteboards[0];
@@ -115,9 +115,9 @@ bool QClipboard::event(QEvent *e)
             emitChanged(QClipboard::Clipboard);
         }
 
-        if (qt_mac_updateScrap(QClipboard::Find)) {
-            qt_mac_pasteboard(QClipboard::Find)->setMimeData(0);
-            emitChanged(QClipboard::Find);
+        if (qt_mac_updateScrap(QClipboard::FindBuffer)) {
+            qt_mac_pasteboard(QClipboard::FindBuffer)->setMimeData(0);
+            emitChanged(QClipboard::FindBuffer);
         }
     }
 
@@ -144,7 +144,7 @@ void QClipboard::setMimeData(QMimeData *src, Mode mode)
 
 bool QClipboard::supportsMode(Mode mode) const 
 {
-    return (mode == Clipboard || mode == Find);
+    return (mode == Clipboard || mode == FindBuffer);
 }
 
 bool QClipboard::ownsMode(Mode mode) const
