@@ -200,7 +200,7 @@ bool QClipboard::event(QEvent *e)
         else
             propagate = true;
     } else if (m->message == WM_DRAWCLIPBOARD) {
-        emit dataChanged();
+        emitChanged(QClipboard::Clipboard);
         if (!ownsClipboard() && d->iData)
             // clean up the clipboard object if we no longer own the clipboard
             d->releaseIData();
@@ -244,7 +244,7 @@ const QMimeData *QClipboard::mimeData(Mode mode) const
     return &data->watcher;
 }
 
-bool QClipboard::supportsMode(Mode mode) const 
+bool QClipboard::supportsMode(Mode mode) const
 {
     return (mode == Clipboard);
 }
@@ -255,7 +255,7 @@ bool QClipboard::ownsMode(Mode mode) const
         QClipboardData *d = clipboardData();
         return d->iData && OleIsCurrentClipboard(d->iData) == S_OK;
     } else {
-        return false; 
+        return false;
     }
 }
 

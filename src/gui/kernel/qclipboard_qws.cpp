@@ -207,7 +207,7 @@ bool QClipboard::event(QEvent *e)
 
     QWSPropertyNotifyEvent *event = (QWSPropertyNotifyEvent *)(((QClipboardEvent *)e)->data());
     if (event && event->simpleData.state == QWSPropertyNotifyEvent::PropertyNewValue) {
-        emit dataChanged();
+        emitChanged(QClipboard::Clipboard);
     }
 
     return true;
@@ -229,10 +229,10 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
     setupOwner();
 
     d->setSource(src);
-    emit dataChanged();
+    emitChanged(QClipboard::Clipboard);
 }
 
-bool QClipboard::supportsMode(Mode mode) const 
+bool QClipboard::supportsMode(Mode mode) const
 {
     return (mode == Clipboard);
 }
@@ -241,7 +241,7 @@ bool QClipboard::ownsMode(Mode mode) const
 {
     if (mode == Clipboard)
         qWarning("QClipboard::ownsClipboard: UNIMPLEMENTED!");
-    return false; 
+    return false;
 }
 
 
