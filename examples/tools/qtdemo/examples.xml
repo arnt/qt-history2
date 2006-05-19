@@ -25,8 +25,8 @@
     <example filename="fridgemagnets" name="Fridge Magnets" />
     <example filename="puzzle" name="Puzzle" />
   </category>
-  <category dirname="graphicsview" name="GraphicsView">
-    <example filename="graphwidget" name="Graph with Edges and Nodes" />
+  <category dirname="graphicsview" name="Graphics View">
+    <example filename="graphwidget" name="Graph Widget" />
     <example filename="mice" name="Colliding Mice" />
   </category>
   <category dirname="itemviews" name="Item Views">

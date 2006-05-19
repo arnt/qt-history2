@@ -2,8 +2,7 @@
     \example graphicsview/graphwidget
     \title Graph Example
 
-    This GraphicsView example shows how to implement edges
-    between nodes in a graph.
- 
+    This GraphicsView example shows how to implement edges between nodes in a graph.
+
     \image graphwidget-example.png
 */

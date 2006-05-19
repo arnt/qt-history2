@@ -4,6 +4,7 @@ classes.
 These examples demonstrate the fundamental aspects of canvas programming
 with Qt.
 
+
 The example launcher provided with Qt can be used to explore each of the
 examples in this directory.
 
