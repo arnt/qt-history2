@@ -32,13 +32,13 @@ const char *logo[] =
     "....XX......"
 };
 GLWidget::GLWidget(QWidget *parent)
-    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+    : QGLWidget(parent)
 {
     setWindowTitle(tr("OpenGL framebuffer objects"));
     makeCurrent();
     fbo = new QGLFramebufferObject(512, 512);
-    rot_y = rot_z = 0.0;
-    scale = 1.2;
+    rot_y = rot_z = 0.0f;
+    scale = 1.2f;
     anim = new QTimeLine(750, this);
     anim->setUpdateInterval(20);
     connect(anim, SIGNAL(valueChanged(qreal)), SLOT(animate(qreal)));
@@ -46,9 +46,6 @@ GLWidget::GLWidget(QWidget *parent)
 
     svg_renderer = new QSvgRenderer(QLatin1String(":/res/bubbles.svg"), this);
     connect(svg_renderer, SIGNAL(repaintNeeded()), this, SLOT(draw()));
-    glEnable(GL_DEPTH_TEST);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
 }
 
 GLWidget::~GLWidget()
@@ -65,19 +62,19 @@ void GLWidget::draw()
 {
     QPainter p(this); // used for text overlay
 
-    // save the GL state QPainter expects
+    // save the GL state set for QPainter
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
-    // render the SVG file into our framebuffer object
+    // render the 'bubbles.svg' file into our framebuffer object
     QPainter fbo_painter(fbo);
     svg_renderer->render(&fbo_painter);
     fbo_painter.end();
 
-    // draw into the widget
+    // draw into the GL widget
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -86,61 +83,48 @@ void GLWidget::draw()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glViewport(0, 0, width(), height());
-    glPushMatrix();
 
-    glRotatef(rot_y, 0, 1, 0);
-    glRotatef(rot_z, 0, 0, 1);
-
-    glScalef(scale/WIDTH, scale/WIDTH, scale/WIDTH);
-    glEnable(GL_MULTISAMPLE);
+    glBindTexture(GL_TEXTURE_2D, fbo->texture());
+    glEnable(GL_TEXTURE_2D);
     glEnable(GL_DEPTH_TEST);
 
-    glTranslatef(-WIDTH+1, -HEIGHT+1, 0);
+    // draw background
+    glPushMatrix();
+    glScalef(1.6f, 1.6f, 1.6f);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.15f);
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+    }
+    glEnd();
+    glPopMatrix();
+
+    glRotatef(rot_y, 0.0f, 1.0f, 0.0f);
+    glRotatef(rot_z, 0.0f, 0.0f, 1.0f);
+    glScalef(scale/WIDTH, scale/WIDTH, scale/WIDTH);
+
+    // draw the "Qt"
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glTranslatef(-WIDTH+1, -HEIGHT+1, 0.0f);
     for (int y=HEIGHT-1; y>=0; --y) {
         for (int x=0; x<WIDTH; ++x) {
             if (logo[y][x] == 'X') {
-                // front side
-                glEnable(GL_TEXTURE_2D);
-                glBindTexture(GL_TEXTURE_2D, fbo->texture());
-                glColor3f(1.0, 1.0, 1.0);
                 glBegin(GL_QUADS);
                 {
-                    glTexCoord2f(0, 0); glVertex3f(-1, -1, 0);
-                    glTexCoord2f(1, 0); glVertex3f(1, -1, 0);
-                    glTexCoord2f(1, 1); glVertex3f(1, 1, 0);
-                    glTexCoord2f(0, 1); glVertex3f(-1, 1, 0);
-                }
-                glEnd();
-                glDisable(GL_TEXTURE_2D);
-
-                // flip side
-                glColor4f(0.45, 0.45, 0.45, 0.9);
-                glBegin(GL_QUADS);
-                {
-                    glTexCoord2f(1, 0); glVertex3f(-1, -1, -0.01);
-                    glTexCoord2f(1, 1); glVertex3f(-1, 1, -0.01);
-                    glTexCoord2f(0, 1); glVertex3f(1, 1, -0.01);
-                    glTexCoord2f(0, 0); glVertex3f(1, -1, -0.01);
+                    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 0.0f);
+                    glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 0.0f);
+                    glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 0.0f);
+                    glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 0.0f);
                 }
                 glEnd();
             }
-            glTranslatef(2, 0, 0);
+            glTranslatef(2.0f, 0.0f, 0.0f);
         }
-        glTranslatef(-WIDTH*2, 2, 0);
+        glTranslatef(-WIDTH*2.0f, 2.0f, 0.0f);
     }
-    glPopMatrix();
-    glScalef(1.6, 1.6, 1.6);
-    glEnable(GL_TEXTURE_2D);
-    glColor4f(1.0, 1.0, 1.0, 0.15);
-    glBegin(GL_POLYGON);
-    {
-        glTexCoord2f(0, 0); glVertex3f(-1, -1, -1);
-        glTexCoord2f(1, 0); glVertex3f(1, -1, -1);
-
-        glTexCoord2f(1, 1); glVertex3f(1, 1, -1);
-        glTexCoord2f(0, 1); glVertex3f(-1, 1, -1);
-    }
-    glEnd();
 
     // restore the GL state that QPainter expects
     glMatrixMode(GL_PROJECTION);
@@ -149,12 +133,12 @@ void GLWidget::draw()
     glPopMatrix();
     glPopAttrib();
 
-    // draw the instruction text
+    // draw the overlayed text using QPainter
     p.setPen(QColor(197, 197, 197, 157));
     p.setBrush(QColor(197, 197, 197, 127));
     p.drawRect(QRect(0, 0, width(), 50));
-    p.setBrush(Qt::NoBrush);
     p.setPen(Qt::black);
+    p.setBrush(Qt::NoBrush);
     const QString str1(tr("A simple OpenGL framebuffer object example."));
     const QString str2(tr("Use the mouse wheel to zoom, press buttons and move mouse to rotate, double-click to flip."));
     QFontMetrics fm(p.font());
@@ -171,9 +155,9 @@ void GLWidget::mouseMoveEvent(QMouseEvent *e)
 {
     QPoint diff = e->pos() - anchor;
     if (e->buttons() & Qt::LeftButton)
-        rot_y += diff.x()/5.0;
+        rot_y += diff.x()/5.0f;
     else if (e->buttons() & Qt::RightButton)
-        rot_z += diff.x()/5.0;
+        rot_z += diff.x()/5.0f;
 
     anchor = e->pos();
     draw();
@@ -181,7 +165,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *e)
 
 void GLWidget::wheelEvent(QWheelEvent *e)
 {
-    e->delta() > 0 ? scale += scale*0.1 : scale -= scale*0.1;
+    e->delta() > 0 ? scale += scale*0.1f : scale -= scale*0.1f;
     draw();
 }
 
