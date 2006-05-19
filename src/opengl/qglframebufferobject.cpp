@@ -577,8 +577,7 @@ QPaintEngine *QGLFramebufferObject::paintEngine() const
 bool QGLFramebufferObject::hasOpenGLFramebufferObjects()
 {
     QGLWidget dmy; // needed to detect and init the QGLExtensions object
-    return ((QGLExtensions::glExtensions & QGLExtensions::FramebufferObject)
-            && qt_resolve_framebufferobject_extensions());
+    return (QGLExtensions::glExtensions & QGLExtensions::FramebufferObject);
 }
 
 extern int qt_defaultDpi();
