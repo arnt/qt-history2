@@ -33,6 +33,7 @@ class Q_GUI_EXPORT QMessageBox : public QDialog
     Q_PROPERTY(Icon icon READ icon WRITE setIcon)
     Q_PROPERTY(QPixmap iconPixmap READ iconPixmap WRITE setIconPixmap)
     Q_PROPERTY(Qt::TextFormat textFormat READ textFormat WRITE setTextFormat)
+    Q_PROPERTY(bool textSelectable READ isTextSelectable WRITE setTextSelectable)
 
 public:
     enum Icon {
@@ -67,6 +68,9 @@ public:
 
     Qt::TextFormat textFormat() const;
     void setTextFormat(Qt::TextFormat);
+
+    bool isTextSelectable() const;
+    void setTextSelectable(bool selectable);
 
     static int information(QWidget *parent, const QString &caption,
                             const QString& text,

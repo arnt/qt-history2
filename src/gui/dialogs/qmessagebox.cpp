@@ -533,7 +533,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
     }
     label = new QLabel(q);
     label->setObjectName(QLatin1String("qt_msgbox_label"));
-
+    label->setTextSelectable(q->style()->styleHint(QStyle::SH_MessageBox_TextSelectable));
     label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
 
     if ((button2 && !button1) || (button1 && !button0)) {
@@ -1588,6 +1588,29 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
     bool wordwrap = format == Qt::RichText
                     || (format == Qt::AutoText && Qt::mightBeRichText(d->label->text()));
     d->label->setWordWrap(wordwrap);
+}
+
+/*!
+    \property QMessageBox::textSelectable
+    \brief the text is selectable using the mouse
+
+    This property enables or disables the selection of the text in the message box 
+    using the mouse.
+
+    By default, the text is selectable on the Mac and not selectable on other platforms.
+
+    \sa QStyle::SH_MessageBox_TextSelectable
+*/
+bool QMessageBox::isTextSelectable() const
+{
+    Q_D(const QMessageBox);
+    return d->label->isTextSelectable();
+}
+
+void QMessageBox::setTextSelectable(bool selectable)
+{
+    Q_D(QMessageBox);
+    d->label->setTextSelectable(selectable);
 }
 
 /*!

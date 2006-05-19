@@ -580,6 +580,7 @@ public:
         SH_TabBar_ElideMode,
         SH_DialogButtonLayoutPolicy,
         SH_ComboBox_PopupFrameStyle,
+        SH_MessageBox_TextSelectable,
 
         // Add new style hint values here
 
