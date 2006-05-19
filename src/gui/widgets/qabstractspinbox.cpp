@@ -821,7 +821,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 #ifdef QT_KEYPAD_NAVIGATION
         if (QApplication::keypadNavigationEnabled()) {
             // Reserve up/down for nav - use left/right for edit.
-            if (e->key() == Qt::Key_Up || e->key() == Qt::Key_Down) {
+            if (!hasEditFocus() && (e->key() == Qt::Key_Up || e->key() == Qt::Key_Down)) {
                 e->ignore();
                 return;
             }

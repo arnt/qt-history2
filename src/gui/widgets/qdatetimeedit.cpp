@@ -729,6 +729,18 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 
     bool forward = true;
     switch (e->key()) {
+#ifdef QT_KEYPAD_NAVIGATION
+    case Qt::Key_Select:
+        if (QApplication::keypadNavigationEnabled()) {
+            // Toggles between left/right moving cursor and inc/dec.
+            setEditFocus(!hasEditFocus());
+            if (!hasEditFocus())
+                selectAll();
+            else
+                d->setSelected(0);
+        }
+        return;
+#endif
     case Qt::Key_Enter:
     case Qt::Key_Return:
         d->interpret(AlwaysEmit);
@@ -740,6 +752,13 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Left:
         forward = false;
     case Qt::Key_Right:
+#ifdef QT_KEYPAD_NAVIGATION
+        // with keypad navigation and not editFocus, left right change the date/time by a fixed amount.
+        if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
+            select = false;
+            break;
+        }
+#endif
 #ifndef Q_WS_QWS
         if (!(e->modifiers() & Qt::ControlModifier)) {
             select = false;
@@ -766,6 +785,11 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         }
 
         const int newSection = d->nextPrevSection(d->currentSectionIndex, forward);
+#ifdef QT_KEYPAD_NAVIGATION
+        // only allow date/time sections to be selected.
+        if (newSection & ~(QDateTimeParser::TimeSectionMask | QDateTimeParser::DateSectionMask))
+            return;
+#endif
         d->edit->deselect();
         d->edit->setCursorPosition(d->sectionPos(newSection));
         QDTEDEBUG << d->sectionPos(newSection);
@@ -909,9 +933,20 @@ bool QDateTimeEdit::focusNextPrevChild(bool next)
 
 void QDateTimeEdit::stepBy(int steps)
 {
+    Q_D(QDateTimeEdit);
+#ifdef QT_KEYPAD_NAVIGATION
+    // with keypad navigation and not editFocus, left right change the date/time by a fixed amount.
+    if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
+        // if date based, shift by day.  else shift by 15min
+        if (d->sections & DateSections_Mask)
+            setDateTime(dateTime().addDays(steps));
+        else
+            setDateTime(dateTime().addSecs(steps*15*60));
+        return;
+    }
+#endif
     // don't optimize away steps == 0. This is the only way to select
     // the currentSection in Qt 4.1.x
-    Q_D(QDateTimeEdit);
     d->setValue(d->stepBy(d->currentSectionIndex, steps, false), EmitIfChanged);
     d->updateCache(d->value, d->displayText());
 
@@ -991,6 +1026,40 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     if (d->specialValue()) {
         return (d->minimum == d->maximum ? StepEnabled(0) : StepEnabled(StepUpEnabled));
     }
+
+    QAbstractSpinBox::StepEnabled ret = 0;
+
+#ifdef QT_KEYPAD_NAVIGATION
+    if (QApplication::keypadNavigationEnabled() && !hasEditFocus()) {
+        if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
+                || d->wrapping)
+            return StepEnabled(StepUpEnabled | StepDownEnabled);
+        // 3 cases.  date, time, datetime.  each case look
+        // at just the relavant component.
+        QVariant max, min, val;
+        if (d->sections & DateSections_Mask == 0) {
+            // time only, no date
+            max = d->maximum.toTime();
+            min = d->minimum.toTime();
+            val = d->value.toTime();
+        } else if (d->sections & TimeSections_Mask == 0) {
+            // date only, no time
+            max = d->maximum.toDate();
+            min = d->minimum.toDate();
+            val = d->value.toDate();
+        } else {
+            // both
+            max = d->maximum;
+            min = d->minimum;
+            val = d->value;
+        }
+        if (val != min)
+            ret |= QAbstractSpinBox::StepDownEnabled;
+        if (val != max)
+            ret |= QAbstractSpinBox::StepUpEnabled;
+        return ret;
+    }
+#endif
     switch (d->sectionType(d->currentSectionIndex)) {
     case QDateTimeParser::NoSection:
     case QDateTimeParser::FirstSection:
@@ -1000,8 +1069,6 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     if (d->wrapping & QDateTimeEditPrivate::WrapOn)
         return StepEnabled(StepDownEnabled|StepUpEnabled);
 
-    QAbstractSpinBox::StepEnabled ret = 0;
-
     QVariant v = d->stepBy(d->currentSectionIndex, 1, true);
     if (v != d->value) {
         ret |= QAbstractSpinBox::StepUpEnabled;
@@ -1010,7 +1077,7 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     if (v != d->value) {
         ret |= QAbstractSpinBox::StepDownEnabled;
     }
-
+    
     return ret;
 }
 
@@ -1167,7 +1234,11 @@ void QDateTimeEditPrivate::updateEdit()
 
     edit->setText(newText);
 
-    if (!specialValue()) {
+    if (!specialValue()
+#ifdef QT_KEYPAD_NAVIGATION
+        && !(QApplication::keypadNavigationEnabled() && !edit->hasEditFocus())
+#endif
+            ) {
         int cursor = sectionPos(currentSectionIndex);
         QDTEDEBUG << "cursor is " << cursor << currentSectionIndex;
         cursor = qBound(0, cursor, displayText().size());
@@ -1193,7 +1264,11 @@ void QDateTimeEditPrivate::updateEdit()
 
 void QDateTimeEditPrivate::setSelected(int sectionIndex, bool forward)
 {
-    if (specialValue()) {
+    if ( specialValue()
+#ifdef QT_KEYPAD_NAVIGATION
+        || (QApplication::keypadNavigationEnabled() && !edit->hasEditFocus())
+#endif
+        ) {
         edit->selectAll();
     } else {
         const SectionNode &node = sectionNode(sectionIndex);
