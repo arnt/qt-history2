@@ -45,8 +45,9 @@ public:
 
     QWidget *cornerWidget() const;
     void setCornerWidget(QWidget *widget, Qt::Corner corner = Qt::BottomRightCorner);
-    
+
     QWidget *viewport() const;
+    void setViewport(QWidget *widget);
     QSize maximumViewportSize() const;
 
     QSize minimumSizeHint() const;
@@ -86,7 +87,7 @@ private:
     Q_DISABLE_COPY(QAbstractScrollArea)
     Q_PRIVATE_SLOT(d_func(), void _q_hslide(int))
     Q_PRIVATE_SLOT(d_func(), void _q_vslide(int))
-    Q_PRIVATE_SLOT(d_func(),void _q_showOrHideScrollBars())
+    Q_PRIVATE_SLOT(d_func(), void _q_showOrHideScrollBars())
 
 };
 

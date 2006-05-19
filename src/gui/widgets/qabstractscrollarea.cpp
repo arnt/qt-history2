@@ -80,22 +80,12 @@
 
 */
 
-inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e)
-{ Q_Q(QAbstractScrollArea); return q->viewportEvent(e); }
-
-bool QAbstractScrollAreaViewport::event(QEvent *e) {
-    if (QAbstractScrollArea* viewport = qobject_cast<QAbstractScrollArea*>(parentWidget()))
-        return ((QAbstractScrollAreaPrivate*)((QAbstractScrollAreaViewport*)viewport)->d_ptr)->viewportEvent(e);
-    return QWidget::event(e);
-}
-
 QAbstractScrollAreaPrivate::QAbstractScrollAreaPrivate()
     :hbar(0), vbar(0), vbarpolicy(Qt::ScrollBarAsNeeded), hbarpolicy(Qt::ScrollBarAsNeeded),
      viewport(0), cornerWidget(0), corner(Qt::BottomRightCorner), left(0), top(0), right(0), bottom(0),
-     xoffset(0), yoffset(0)
+     xoffset(0), yoffset(0), viewportFilter(0)
 {
 }
-
 
 void QAbstractScrollAreaPrivate::init()
 {
@@ -110,9 +100,11 @@ void QAbstractScrollAreaPrivate::init()
     vbar->setVisible(false);
     QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(_q_vslide(int)));
     QObject::connect(vbar, SIGNAL(rangeChanged(int,int)), q, SLOT(_q_showOrHideScrollBars()), Qt::QueuedConnection);
-    viewport = new QAbstractScrollAreaViewport(q);
+    viewportFilter = new QAbstractScrollAreaFilter(this);
+    viewport = new QWidget(q);
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setAutoFillBackground(true);
+    viewport->installEventFilter(viewportFilter);
     viewport->setFocusProxy(q);
     q->setFocusPolicy(Qt::WheelFocus);
     q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
@@ -183,8 +175,8 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 #endif
     QPoint cornerOffset(needv ? vsbExt : 0, needh ? hsbExt : 0);
     QRect controlsRect;
-    QRect viewportRect; 
-    
+    QRect viewportRect;
+
     // In FrameOnlyAroundContents mode the frame is drawn between the controls and
     // the viewport, else the frame rect is equal to the widget rect.
     if (q->style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, &opt, q)) {
@@ -200,7 +192,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         controlsRect = q->contentsRect();
         viewportRect = QRect(controlsRect.topLeft(), controlsRect.bottomRight() - cornerOffset);
     }
-    
+
     // If we have a corner widget and are only showing one scroll bar, we need to move it
     // to make room for the corner widget.
     if (hasCornerWidget && (needv || needh))
@@ -216,17 +208,17 @@ void QAbstractScrollAreaPrivate::layoutChildren()
             horizontalScrollbarRect.adjust(vsbExt, 0, 0, 0);
         hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, horizontalScrollbarRect));
     }
-    
+
     if (needv) {
         const QRect verticalScrollbarRect  (QPoint(cornerPoint.x(), controlsRect.top()),  QPoint(controlsRect.right(), cornerPoint.y() - 1));
         vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, verticalScrollbarRect));
     }
-    
+
     if (cornerWidget) {
         const QRect cornerWidgetRect(cornerPoint, controlsRect.bottomRight());
         cornerWidget->setGeometry(QStyle::visualRect(opt.direction, opt.rect, cornerWidgetRect));
     }
-    
+
     hbar->setVisible(needh);
     vbar->setVisible(needv);
     viewportRect.adjust(left, top, -right, -bottom);
@@ -263,6 +255,29 @@ QAbstractScrollArea::QAbstractScrollArea(QWidget *parent)
  */
 QAbstractScrollArea::~QAbstractScrollArea()
 {
+    Q_D(QAbstractScrollArea);
+    delete d->viewportFilter;
+}
+
+
+/*!
+  \since 4.2
+  Sets the viewport to be the given \a widget.
+  The QAbstractScrollArea will take ownership of the given \a widget.
+
+  \sa viewport()
+*/
+void QAbstractScrollArea::setViewport(QWidget *widget)
+{
+    Q_D(QAbstractScrollArea);
+    if (widget != d->viewport) {
+        delete d->viewport;
+        d->viewport = widget;
+        d->viewport->setParent(this);
+        d->viewport->setFocusProxy(this);
+        d->viewport->installEventFilter(d->viewportFilter);
+        d->layoutChildren();
+    }
 }
 
 /*!
@@ -506,7 +521,6 @@ bool QAbstractScrollArea::event(QEvent *e)
  */
 bool QAbstractScrollArea::viewportEvent(QEvent *e)
 {
-    Q_D(QAbstractScrollArea);
     switch (e->type()) {
     case QEvent::Resize:
     case QEvent::Paint:
@@ -530,7 +544,7 @@ bool QAbstractScrollArea::viewportEvent(QEvent *e)
     default:
         break;
     }
-    return static_cast<QAbstractScrollAreaViewport*>(d->viewport)->QWidget::event(e);
+    return false; // let the viewport widget handle the event
 }
 
 /*!

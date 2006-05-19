@@ -37,6 +37,7 @@ class Q_INTERNAL_EXPORT QAbstractScrollAreaPrivate: public QFramePrivate
 
 public:
     QAbstractScrollAreaPrivate();
+
     QScrollBar *hbar, *vbar;
     Qt::ScrollBarPolicy vbarpolicy, hbarpolicy;
 
@@ -49,22 +50,28 @@ public:
 
     void init();
     void layoutChildren();
-    bool viewportEvent(QEvent *);
 
     void _q_hslide(int);
     void _q_vslide(int);
     void _q_showOrHideScrollBars();
-    
+
     virtual QPoint contentsOffset() const;
+
+    inline bool viewportEvent(QEvent *event)
+    { return q_func()->viewportEvent(event); }
+    QObject *viewportFilter;
 };
 
-class QAbstractScrollAreaViewport : public QWidget
+class QAbstractScrollAreaFilter : public QObject
 {
     Q_OBJECT
 public:
-    QAbstractScrollAreaViewport(QWidget *parent):QWidget(parent){ setObjectName(QLatin1String("qt_scrollarea_viewport")); }
-    bool event(QEvent *e);
-    friend class QAbstractScrollArea;
+    QAbstractScrollAreaFilter(QAbstractScrollAreaPrivate *p) : d(p)
+    { setObjectName(QLatin1String("qt_abstractscrollarea_filter")); }
+    bool eventFilter(QObject *o, QEvent *e)
+    { return (o == d->viewport ? d->viewportEvent(e) : false); }
+private:
+    QAbstractScrollAreaPrivate *d;
 };
 
 #endif // QT_NO_SCROLLAREA

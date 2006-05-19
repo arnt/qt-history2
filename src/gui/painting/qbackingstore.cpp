@@ -22,7 +22,7 @@
 #include <qstack.h>
 #include <qevent.h>
 #include <qabstractscrollarea.h>
-#include <private/qabstractscrollarea_p.h>
+#include "private/qabstractscrollarea_p.h"
 #ifdef Q_WS_X11
 # include "private/qt_x11_p.h"
 #endif
@@ -897,14 +897,11 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
 
                     QPainter p(q);
                     QRect backgroundRect = toBePainted.boundingRect();
-                    if (qobject_cast<QAbstractScrollAreaViewport *>(q)) {
-                        QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(q->parent());
-                        if (scrollArea) {
-                            QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(static_cast<QWidget *>(scrollArea)->d_ptr);
-                            const QPoint offset = priv->contentsOffset();
-                            p.translate(-offset);
-                            backgroundRect.translate(offset);
-                        }
+                    if (QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(q->parent())) {
+                        QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(static_cast<QWidget *>(scrollArea)->d_ptr);
+                        const QPoint offset = priv->contentsOffset();
+                        p.translate(-offset);
+                        backgroundRect.translate(offset);
                     }
                     paintBackground(&p, backgroundRect, asRoot || onScreen);
                 }
