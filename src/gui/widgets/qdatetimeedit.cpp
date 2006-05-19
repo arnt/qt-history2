@@ -1382,7 +1382,7 @@ int QDateTimeEditPrivate::nextPrevSection(int current, bool forward) const
 
 void QDateTimeEditPrivate::clearSection(int index)
 {
-    const char space = ' ';
+    const QLatin1Char space(' ');
     int cursorPos = edit->cursorPosition();
     bool blocked = edit->blockSignals(true);
     QString t = edit->text();
