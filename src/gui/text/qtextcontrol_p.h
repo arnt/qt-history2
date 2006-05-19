@@ -164,7 +164,7 @@ Q_SIGNALS:
     // control signals
     void updateRequest(const QRectF &rect = QRectF());
     void documentSizeChanged(const QSizeF &);
-    void visibilityRequest(const QPointF &pos, int xmargin = 50, int ymargin = 50);
+    void visibilityRequest(const QRectF &rect);
 
 public:
     // control properties
@@ -183,9 +183,6 @@ public:
     virtual void mouseReleaseEvent(QMouseEvent *e);
     virtual void mouseDoubleClickEvent(QMouseEvent *e);
     virtual void contextMenuEvent(QContextMenuEvent *e);
-    
-    // control methods to re-implement
-    virtual void ensureVisible(const QRectF &rectInDocument);
 
 protected:
 //    virtual bool event(QEvent *e);

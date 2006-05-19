@@ -3323,7 +3323,7 @@ public:
     QPointF mapToControl(const QPointF &point) const;
     void _q_updateBoundingRect(const QSizeF &);
     void _q_update(QRectF);
-    void _q_ensureVisible(QPointF p, int xmargin, int ymargin);
+    void _q_ensureVisible(QRectF);
 
     QFont font;
     QPen pen;
@@ -3649,10 +3649,10 @@ void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
 /*!
     \internal
 */
-void QGraphicsTextItemPrivate::_q_ensureVisible(QPointF p, int xmargin, int ymargin)
+void QGraphicsTextItemPrivate::_q_ensureVisible(QRectF rect)
 {
-    p.ry() -= pageNumber * textControl->document()->pageSize().height();
-    qq->ensureVisible(QRectF(p, QSizeF(xmargin, ymargin)));
+    rect.translate(0, -pageNumber * textControl->document()->pageSize().height());
+    qq->ensureVisible(rect, /*xmargin=*/0, /*ymargin=*/0);
 }
 
 /*!
@@ -3673,8 +3673,8 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
             this, SLOT(_q_update(QRectF)));
     connect(dd->textControl, SIGNAL(documentSizeChanged(const QSizeF &)),
             this, SLOT(_q_updateBoundingRect(const QSizeF &)));
-    connect(dd->textControl, SIGNAL(visibilityRequest(const QPointF &, int, int)),
-            this, SLOT(_q_ensureVisible(const QPointF &, int, int)));
+    connect(dd->textControl, SIGNAL(visibilityRequest(const QRectF &)),
+            this, SLOT(_q_ensureVisible(QRectF)));
 
     dd->_q_updateBoundingRect(dd->textControl->document()->documentLayout()->documentSize());
 }

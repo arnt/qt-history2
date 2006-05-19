@@ -585,7 +585,7 @@ void QTextControlPrivate::ensureVisible(int documentPosition)
         return;
 
     Q_Q(QTextControl);
-    emit q->visibilityRequest(QPointF(0, blockY + line.y()));
+    emit q->visibilityRequest(QRectF(0, blockY + line.y(), 1, 1));
 }
 
 void QTextControlPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
@@ -1809,7 +1809,7 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
 
     if (d->readOnly) {
         const QPointF pos = d->mapToContents(e->pos());
-        ensureVisible(QRectF(pos, QSizeF(1, 1)));
+        emit visibilityRequest(QRectF(pos, QSizeF(1, 1)));
         if (d->cursor.position() != oldCursorPos)
             emit cursorPositionChanged();
         d->selectionChanged();
@@ -1897,14 +1897,6 @@ void QTextControl::mouseDoubleClickEvent(QMouseEvent *e)
 
     d->trippleClickPoint = e->globalPos();
     d->trippleClickTimer.start(qApp->doubleClickInterval(), this);
-}
-
-// ##### make private
-void QTextControl::ensureVisible(const QRectF &_rect)
-{
-    const QPointF middle(_rect.left() + _rect.width() / 2,
-                         _rect.top() + _rect.height() / 2);
-    emit visibilityRequest(middle, _rect.width() / 2, _rect.height() / 2);
 }
 
 /*
@@ -2781,7 +2773,7 @@ void QTextControl::ensureCursorVisible()
 {
     Q_D(QTextControl);
     QRectF crect = d->rectForPosition(d->cursor.position());
-    ensureVisible(crect);
+    emit visibilityRequest(crect);
 // ####    updateMicroFocus();
 }
 
