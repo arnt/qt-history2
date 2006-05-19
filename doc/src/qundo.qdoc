@@ -1,9 +1,11 @@
 /*!
-
 \page qundo.html
-\title Overview of Qt's undo framework
+\title Overview of Qt's Undo Framework
 
-Qt's undo Framework is an implementation of the Command pattern, for implementing undo/redo functionality in applications.
+\section1 Introduction
+
+Qt's Undo Framework is an implementation of the Command pattern, for
+implementing undo/redo functionality in applications.
 
 The Command pattern is based on the idea that all editing in
 an application is done by creating instances of command objects.
@@ -16,6 +18,8 @@ traversing the stack downwards and calling undo
 on each command in turn. It is also possible to redo a sequence of
 commands by traversing the stack upwards and calling
 redo on each command.
+
+\section1 Classes
 
 The framework consists of four classes:
 
@@ -30,32 +34,37 @@ The framework consists of four classes:
         document. QUndoGroup provides a single pair of undo/redo slots for all
         the stacks in the group. It forwards undo and redo requests to
         the active stack, which is the stack associated with the document that
-        is currently edited by the user.
-\i \l QUndoView is a widget which shows the contents of an undo stack. Clicking on
-        a command in the view rolls the document's state backwards or forwards to
-        that command.
+        is currently being edited by the user.
+\i \l QUndoView is a widget which shows the contents of an undo stack. Clicking
+        on a command in the view rolls the document's state backwards or
+        forwards to that command.
 \endlist
+
+\section1 Concepts
 
 The following concepts are supported by the framework:
+
 \list
-\i Clean state: used to signal when the document enters and leaves a state that has
-    been saved to disk. This is typically used to disable or enable the save actions
-    and to update the document's titlebar.
-\i Command compression: used to compress sequences of commands into a single command.
-    This is useful f.ex. in a text editor. The commands which insert individual characters
-    into the document can be compressed into a signgle command which inserts whole sections
-    of text. These bigger changes are more convenient to undo and redo.
-\i Command macros: a sequence of commands, all of which are undone or redone in one step.
-    They simplify the task of writing an application, since a set of simpler commands
-    can be composed into more complex commands. For example, a command which moves a set
-    of selected objects in a document can be created by combining a set of commands,
-    each of which moves a single object.
+\i \bold{Clean state:} Used to signal when the document enters and leaves a
+    state that has been saved to disk. This is typically used to disable or
+    enable the save actions, and to update the document's title bar.
+\i \bold{Command compression:} Used to compress sequences of commands into a
+    single command.
+    For example: In a text editor, the commands that insert individual
+    characters into the document can be compressed into a single command that
+    inserts whole sections of text. These bigger changes are more convenient
+    for the user to undo and redo.
+\i \bold{Command macros:} A sequence of commands, all of which are undone or
+    redone in one step.
+    These simplify the task of writing an application, since a set of simpler
+    commands can be composed into more complex commands. For example, a command
+    that moves a set of selected objects in a document can be created by
+    combining a set of commands, each of which moves a single object.
 \endlist
 
-QUndoStack provides convenient undo and redo QAction objects, which
+QUndoStack provides convenient undo and redo QAction objects that
 can be inserted into a menu or a toolbar. The text properties of these
 actions always reflect what command will be undone or redone when
-they are triggered. Simillarly, QUndoGroup provides undo and redo actions
-which always behave like the undo and redo actions of the active stack.
-
+they are triggered. Similarly, QUndoGroup provides undo and redo actions
+that always behave like the undo and redo actions of the active stack.
 */
