@@ -9,10 +9,15 @@ class GraphWidget : public QGraphicsView
 public:
     GraphWidget();
 
+    void itemMoved();
+
 protected:
     void paintBackground(QPainter *painter, const QRectF &rect);
     void timerEvent(QTimerEvent *);
     void wheelEvent(QWheelEvent *event);
+
+private:
+    int timerId;
 };
 
 #endif

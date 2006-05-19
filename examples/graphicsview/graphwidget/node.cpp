@@ -18,8 +18,10 @@
 
 #include "edge.h"
 #include "node.h"
+#include "graphwidget.h"
 
-Node::Node()
+Node::Node(GraphWidget *graphWidget)
+    : graph(graphWidget)
 {
     setFlag(ItemIsMovable);
 }
@@ -81,9 +83,13 @@ void Node::calculateForces()
     newPos.setY(qMin(qMax(newPos.y(), sceneRect.top() + 10), sceneRect.bottom() - 10));
 }
 
-void Node::advance()
+bool Node::advance()
 {
+    if (newPos == pos())
+        return false;
+
     setPos(newPos);
+    return true;
 }
 
 QRectF Node::boundingRect() const
@@ -127,6 +133,7 @@ void Node::itemChange(ItemChange change)
     case ItemPositionChange:
         foreach (Edge *edge, edgeList)
             edge->adjust();
+        graph->itemMoved();
         break;
     default:
         break;

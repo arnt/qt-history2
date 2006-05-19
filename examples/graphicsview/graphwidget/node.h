@@ -18,12 +18,13 @@
 #include <QList>
 
 class Edge;
+class GraphWidget;
 class QGraphicsSceneMouseEvent;
 
 class Node : public QGraphicsItem
 {
 public:
-    Node();
+    Node(GraphWidget *graphWidget);
 
     void addEdge(Edge *edge);
     QList<Edge *> edges() const;
@@ -32,7 +33,7 @@ public:
     int type() const { return Type; }
 
     void calculateForces();
-    void advance();
+    bool advance();
 
     QRectF boundingRect() const;
     QPainterPath shape() const;
@@ -46,6 +47,7 @@ protected:
 private:
     QList<Edge *> edgeList;
     QPointF newPos;
+    GraphWidget *graph;
 };
 
 #endif

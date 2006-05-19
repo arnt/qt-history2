@@ -2,24 +2,26 @@
 #include "edge.h"
 #include "node.h"
 
+#include <QDebug>
 #include <QGraphicsScene>
 #include <QWheelEvent>
 
 GraphWidget::GraphWidget()
+    : timerId(0)
 {
     QGraphicsScene *scene = new QGraphicsScene(this);
     setScene(scene);
     scene->setSceneRect(-200, -200, 400, 400);
 
-    Node *node1 = new Node;
-    Node *node2 = new Node;
-    Node *node3 = new Node;
-    Node *node4 = new Node;
-    Node *node5 = new Node;
-    Node *node6 = new Node;
-    Node *node7 = new Node;
-    Node *node8 = new Node;
-    Node *node9 = new Node;
+    Node *node1 = new Node(this);
+    Node *node2 = new Node(this);
+    Node *node3 = new Node(this);
+    Node *node4 = new Node(this);
+    Node *node5 = new Node(this);
+    Node *node6 = new Node(this);
+    Node *node7 = new Node(this);
+    Node *node8 = new Node(this);
+    Node *node9 = new Node(this);
     scene->addItem(node1);
     scene->addItem(node2);
     scene->addItem(node3);
@@ -52,27 +54,34 @@ GraphWidget::GraphWidget()
     node8->setPos(0, 50);
     node9->setPos(50, 50);
     
-    startTimer(1000 / 25);
     setMinimumSize(400, 400);
     scale(0.8, 0.8);
 
     setSceneRect(scene->sceneRect());
+    itemMoved();
+}
+
+void GraphWidget::itemMoved()
+{
+    if (!timerId)
+        timerId = startTimer(1000 / 25);
 }
 
 void GraphWidget::paintBackground(QPainter *painter, const QRectF &rect)
 {
+    Q_UNUSED(rect);
+    
     // Shadow
-    painter->fillRect(rect.intersect(scene()->sceneRect().adjusted(5, 5, 5, 5))
-                      .adjusted(-1, -1, 1, 1), Qt::darkGray);
+    painter->fillRect(scene()->sceneRect().translated(5, 5), Qt::darkGray);
 
     // Fill
-    QLinearGradient gradient(scene()->sceneRect().topLeft(),
-                             scene()->sceneRect().bottomRight());
+    QRectF sceneRect = scene()->sceneRect();
+    QLinearGradient gradient(sceneRect.topLeft(), sceneRect.bottomRight());
     gradient.setColorAt(0, Qt::white);
     gradient.setColorAt(1, Qt::lightGray);
     painter->setBrush(gradient);
-    painter->drawRect(rect.intersect(scene()->sceneRect()).adjusted(-1, -1, 1, 1));
-
+    painter->drawRect(sceneRect);
+    
     // Text
     QFont font = painter->font();
     font.setPointSize(15);
@@ -80,11 +89,11 @@ void GraphWidget::paintBackground(QPainter *painter, const QRectF &rect)
     painter->setFont(font);
     painter->setPen(Qt::lightGray);
     QString message(tr("Click and drag the nodes around\nor zoom with the mouse wheel"));
-    painter->drawText(scene()->sceneRect().adjusted(2, 2, 0, 0),
-                      Qt::AlignTop | Qt::AlignHCenter, message);
+    painter->drawText(sceneRect.translated(2, 2), Qt::AlignTop | Qt::AlignHCenter,
+                      message);
     painter->setPen(Qt::black);
-    painter->drawText(scene()->sceneRect(),
-                      Qt::AlignTop | Qt::AlignHCenter, message);    
+    painter->drawText(sceneRect, Qt::AlignTop | Qt::AlignHCenter,
+                      message);
 }
 
 void GraphWidget::timerEvent(QTimerEvent *)
@@ -97,8 +106,17 @@ void GraphWidget::timerEvent(QTimerEvent *)
 
     foreach (Node *node, nodes)
         node->calculateForces();
-    foreach (Node *node, nodes)
-        node->advance();
+
+    bool itemsMoved = false;
+    foreach (Node *node, nodes) {
+        if (node->advance())
+            itemsMoved = true;
+    }
+
+    if (!itemsMoved) {
+        killTimer(timerId);
+        timerId = 0;
+    }
 }
 
 void GraphWidget::wheelEvent(QWheelEvent *event)
