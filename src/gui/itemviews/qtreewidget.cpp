@@ -1265,6 +1265,8 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     if (role == Qt::EditRole)
         role = Qt::DisplayRole;
     if (role == Qt::DisplayRole) {
+        if (values.count() <= column)
+            values.resize(column + 1); 
         if (display.count() <= column) {
             for (int i = display.count() - 1; i < column - 1; ++i)
                 display.append(QString());
@@ -1345,7 +1347,7 @@ bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 */
 void QTreeWidgetItem::read(QDataStream &in)
 {
-    in >> values;
+    in >> values >> display;
 }
 
 /*!
@@ -1355,7 +1357,7 @@ void QTreeWidgetItem::read(QDataStream &in)
 */
 void QTreeWidgetItem::write(QDataStream &out) const
 {
-    out << values;
+    out << values << display;
 }
 
 /*!
@@ -1385,6 +1387,7 @@ QTreeWidgetItem::QTreeWidgetItem(const QTreeWidgetItem &other)
 QTreeWidgetItem &QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
 {
     values = other.values;
+    display = other.display; 
     itemFlags = other.itemFlags;
     return *this;
 }
@@ -1412,12 +1415,13 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
     // the user could build up a tree and then insert the root in the view
     if (index < 0 || index > children.count() || child == 0 || child->view != 0 || child->par != 0)
         return;
+    
+    child->par = this;
     if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0)) {
         model->beginInsertItems(this, index, 1);
         int cols = model->columnCount();
         QStack<QTreeWidgetItem*> stack;
         stack.push(child);
-        child->par = this;
         while (!stack.isEmpty()) {
             QTreeWidgetItem *i = stack.pop();
             i->view = view;
