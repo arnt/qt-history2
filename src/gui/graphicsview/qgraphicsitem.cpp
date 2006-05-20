@@ -1709,7 +1709,7 @@ void QGraphicsItem::setData(int key, const QVariant &value)
 */
 int QGraphicsItem::type() const
 {
-    return UserType;
+    return (int)UserType;
 }
 
 /*!

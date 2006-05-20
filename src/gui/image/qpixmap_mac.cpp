@@ -835,7 +835,7 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
     CGContextConcatCTM(ctx, CGAffineTransformIdentity);
 
     ::RGBColor b;
-    b.blue = b.green = b.red = 256*256;
+    b.blue = b.green = b.red = 255*255;
     PlotIconRefInContext(ctx, &rect, kAlignNone, kTransformNone, &b, kPlotIconRefNormalFlags, icon);
     CGContextRelease(ctx);
     return ret;

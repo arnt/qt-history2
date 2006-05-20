@@ -43,7 +43,8 @@ public:
     int		 socket() const;
     virtual void setSocket( int socket, Type type );
 
-    bool	 open( int mode );
+    bool	 open( OpenMode mode );
+    bool	 open( int mode ) { return open((OpenMode)mode); }
     void	 close();
     bool	 flush();
 

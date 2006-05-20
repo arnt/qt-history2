@@ -609,7 +609,7 @@ void Q3Socket::tryConnecting()
     \sa close()
 */
 
-bool Q3Socket::open( int m )
+bool Q3Socket::open( OpenMode m )
 {
     if ( isOpen() ) {
 #if defined(QT_CHECK_STATE)
@@ -617,7 +617,7 @@ bool Q3Socket::open( int m )
 #endif
 	return false;
     }
-    QIODevice::setOpenMode( OpenMode(m & IO_ReadWrite) );
+    QIODevice::setOpenMode( m & ReadWrite );
     return true;
 }
 

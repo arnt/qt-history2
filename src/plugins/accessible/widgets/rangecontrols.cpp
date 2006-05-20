@@ -23,7 +23,9 @@
 #include <qglobal.h>
 
 #ifndef QT_NO_ACCESSIBILITY
-QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
+extern QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
+extern QStyleOptionSlider Q_GUI_EXPORT qt_qscrollbarStyleOption(QScrollBar *scrollBar);
+extern QStyleOptionSlider Q_GUI_EXPORT qt_qsliderStyleOption(QSlider *slider);
 
 #ifndef QT_NO_SPINBOX
 /*!

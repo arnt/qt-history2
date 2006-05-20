@@ -63,6 +63,7 @@ public:
     QTableWidgetItem *horizontalHeaderItem(int section);
     QTableWidgetItem *verticalHeaderItem(int section);
 
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const { return QAbstractTableModel::index(row, column, parent); }
     QModelIndex index(const QTableWidgetItem *item) const;
 
     void setRowCount(int rows);

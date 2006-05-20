@@ -66,7 +66,7 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
 mac {
    CONFIG += explicitlib
    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
-   !macx-xlc: {
+   macx-g++ {
        QMAKE_CFLAGS += -fconstant-cfstrings
        QMAKE_CXXFLAGS += -fconstant-cfstrings
    }

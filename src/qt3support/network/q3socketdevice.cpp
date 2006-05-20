@@ -286,7 +286,7 @@ void Q3SocketDevice::setSocket( int socket, Type type )
     d->protocol = Unknown;
     e = NoError;
     resetStatus();
-    open( IO_ReadWrite );
+    open( ReadWrite );
     fetchConnectionParameters();
 }
 
@@ -298,14 +298,14 @@ void Q3SocketDevice::setSocket( int socket, Type type )
 
     \sa close()
 */
-bool Q3SocketDevice::open( int mode )
+bool Q3SocketDevice::open( OpenMode mode )
 {
     if ( isOpen() || !isValid() )
 	return false;
 #if defined(Q3SOCKETDEVICE_DEBUG)
     qDebug( "Q3SocketDevice::open: mode %x", mode );
 #endif
-    setOpenMode( OpenMode(mode & IO_ReadWrite) );
+    setOpenMode( mode & ReadWrite );
     return true;
 }
 

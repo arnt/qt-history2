@@ -61,7 +61,6 @@ public:
     void drawRects(const QRectF *rects, int rectCount);
     void drawPoints(const QPointF *p, int pointCount);
     void drawEllipse(const QRectF &r);
-
     void drawPath(const QPainterPath &path);
 
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
@@ -80,6 +79,14 @@ public:
     static void cleanup();
 
     QPainter::RenderHints supportedRenderHints() const;
+
+    //avoid partial shadowed overload warnings...
+    void drawLines(const QLine *lines, int lineCount) { QPaintEngine::drawLines(lines, lineCount); }
+    void drawRects(const QRect *rects, int rectCount) { QPaintEngine::drawRects(rects, rectCount); }
+    void drawPoints(const QPoint *p, int pointCount) { QPaintEngine::drawPoints(p, pointCount); }
+    void drawEllipse(const QRect &r) { QPaintEngine::drawEllipse(r); }
+    void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
+    { QPaintEngine::drawPolygon(points, pointCount, mode); }
 
 protected:
     friend class QMacPrintEngine;

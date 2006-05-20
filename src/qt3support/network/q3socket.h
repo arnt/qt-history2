@@ -54,7 +54,8 @@ public:
     QString	 peerName() const;
 
     // Implementation of QIODevice abstract virtual functions
-    bool	 open( int mode );
+    bool	 open( OpenMode mode );
+    bool      open(int mode) { return open((OpenMode)mode); }
     void	 close();
     bool	 flush();
     Offset	 size() const;

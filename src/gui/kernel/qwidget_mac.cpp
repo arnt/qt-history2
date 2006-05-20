@@ -484,7 +484,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         p.setClipRegion(qrgn.translated(redirectionOffset));
 
 
-                        if (qobject_cast<QAbstractScrollAreaViewport *>(widget)) {
+                        if (qobject_cast<QAbstractScrollArea *>(widget)) {
                             QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(widget->parent());
                             if (scrollArea) {
                                 QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(scrollArea->d_ptr);
@@ -2310,15 +2310,15 @@ void QWidgetPrivate::setModal_sys()
 #if 1
     if (q->testAttribute(Qt::WA_WState_Created)) {
         //setup the proper window class
-        WindowClass old_wclass;
         WindowRef window = qt_mac_window_for(HIViewRef(q->winId()));
+        WindowClass old_wclass;
+        GetWindowClass(window, &old_wclass);
 
         if (modal || (primaryWindow && primaryWindow->testAttribute(Qt::WA_ShowModal))) {
             if(old_wclass == kDocumentWindowClass || old_wclass == kFloatingWindowClass || old_wclass == kUtilityWindowClass) {
                 HIWindowChangeClass(window ? window : qt_mac_window_for(q), kMovableModalWindowClass);
             }
         } else if(window) {
-            GetWindowClass(window, &old_wclass);
             if (old_wclass != topData()->wclass)
                 HIWindowChangeClass(qt_mac_window_for(q), topData()->wclass);
         }

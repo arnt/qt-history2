@@ -136,14 +136,14 @@ void QDataWidgetMapperPrivate::_q_commitData(QWidget *w)
 class QFocusHelper: public QWidget
 {
 public:
-    inline void focusNextPrevChildHelper(bool next)
+    bool focusNextPrevChild(bool next)
     {
-        QWidget::focusNextPrevChild(next);
+        return QWidget::focusNextPrevChild(next);
     }
 
     static inline void focusNextPrevChild(QWidget *w, bool next)
     {
-        static_cast<QFocusHelper *>(w)->focusNextPrevChildHelper(next);
+        static_cast<QFocusHelper *>(w)->focusNextPrevChild(next);
     }
 };
 

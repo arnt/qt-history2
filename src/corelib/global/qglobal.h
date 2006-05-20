@@ -621,7 +621,7 @@ typedef unsigned long ulong;
 #define FALSE false
 #endif
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MAC) && !defined(Q_CC_INTEL)
 #define QT_BEGIN_HEADER extern "C++" {
 #define QT_END_HEADER }
 #else

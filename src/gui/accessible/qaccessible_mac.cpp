@@ -435,8 +435,8 @@ public:
         return (elementRef != 0);
     }
 
-    void QAXUIElement::operator=(const QAXUIElement &other);
-    bool QAXUIElement::operator==(const QAXUIElement &other) const;
+    void operator=(const QAXUIElement &other);
+    bool operator==(const QAXUIElement &other) const;
 private:
     AXUIElementRef elementRef;
 };

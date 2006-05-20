@@ -67,6 +67,13 @@ private:
     void populateCursor();
 
     Q3SqlSelectCursorPrivate * d;
+
+protected:
+#if !defined(Q_NO_USING_KEYWORD)
+    using Q3SqlCursor::update;
+#else
+    virtual int update(const QString & filter, bool invalidate = true) { return Q3SqlCursor::update(filter, invalidate); }
+#endif
 };
 
 #endif // QT_NO_SQL

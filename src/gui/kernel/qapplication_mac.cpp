@@ -358,26 +358,27 @@ void qt_mac_update_os_settings()
         QApplication::setFont(fnt);
     }
     { //setup the fonts
-        struct {
+        struct FontMap {
+            FontMap(const char *qc, short fk) : qt_class(qc), font_key(fk) { }
             const char *const qt_class;
             short font_key;
         } mac_widget_fonts[] = {
-            { "QPushButton", kThemePushButtonFont },
-            { "QListView", kThemeViewsFont },
-            { "QListBox", kThemeViewsFont },
-            { "QTitleBar", kThemeWindowTitleFont },
-            { "QMenuBar", kThemeMenuTitleFont },
-            { "QMenu", kThemeMenuItemFont },
-            { "QComboMenuItem", kThemeSystemFont },
-            { "QHeaderView", kThemeSmallSystemFont },
-            { "Q3Header", kThemeSmallSystemFont },
-            { "QTipLabel", kThemeSmallSystemFont },
-            { "QLabel", kThemeSystemFont },
-            { "QToolButton", kThemeSmallSystemFont },
-            { "QMenuItem", kThemeMenuItemCmdKeyFont },  // It doesn't exist, but its unique.
-            { "QComboLineEdit", kThemeViewsFont },  // It doesn't exist, but its unique.
-            { "QMiniPushButton", kThemeMiniSystemFont },  // It doesn't exist, but its unique.
-            { 0, 0 } };
+            FontMap("QPushButton", kThemePushButtonFont),
+            FontMap("QListView", kThemeViewsFont),
+            FontMap("QListBox", kThemeViewsFont),
+            FontMap("QTitleBar", kThemeWindowTitleFont),
+            FontMap("QMenuBar", kThemeMenuTitleFont),
+            FontMap("QMenu", kThemeMenuItemFont),
+            FontMap("QComboMenuItem", kThemeSystemFont),
+            FontMap("QHeaderView", kThemeSmallSystemFont),
+            FontMap("Q3Header", kThemeSmallSystemFont),
+            FontMap("QTipLabel", kThemeSmallSystemFont),
+            FontMap("QLabel", kThemeSystemFont),
+            FontMap("QToolButton", kThemeSmallSystemFont),
+            FontMap("QMenuItem", kThemeMenuItemCmdKeyFont),  // It doesn't exist, but its unique.
+            FontMap("QComboLineEdit", kThemeViewsFont),  // It doesn't exist, but its unique.
+            FontMap("QMiniPushButton", kThemeMiniSystemFont),  // It doesn't exist, but its unique.
+            FontMap(0, 0) };
         Str255 f_name;
         SInt16 f_size;
         Style f_style;
@@ -412,22 +413,24 @@ void qt_mac_update_os_settings()
 void QApplicationPrivate::initializeWidgetPaletteHash()
 {
     { //setup the palette
-        struct {
+        struct PaletteMap {
+            inline PaletteMap(const char *qc, ThemeBrush a, ThemeBrush i) :
+                qt_class(qc), active(a), inactive(i) { }
             const char *const qt_class;
             ThemeBrush active, inactive;
         } mac_widget_colors[] = {
-            { "QToolButton", kThemeTextColorBevelButtonActive, kThemeTextColorBevelButtonInactive },
-            { "QAbstractButton", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
-            { "QHeaderView", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
-            { "Q3Header", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
-            { "QComboBox", kThemeTextColorPopupButtonActive, kThemeTextColorPopupButtonInactive },
-            { "QAbstractItemView", kThemeTextColorListView, kThemeTextColorDialogInactive },
-            { "QMessageBoxLabel", kThemeTextColorAlertActive, kThemeTextColorAlertInactive },
-            { "QTabBar", kThemeTextColorTabFrontActive, kThemeTextColorTabFrontInactive },
-            { "QLabel", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
-            { "QGroupBox", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
-            { "QMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive },
-            { 0, 0, 0 } };
+            PaletteMap("QToolButton", kThemeTextColorBevelButtonActive, kThemeTextColorBevelButtonInactive),
+            PaletteMap("QAbstractButton", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive),
+            PaletteMap("QHeaderView", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive),
+            PaletteMap("Q3Header", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive),
+            PaletteMap("QComboBox", kThemeTextColorPopupButtonActive, kThemeTextColorPopupButtonInactive),
+            PaletteMap("QAbstractItemView", kThemeTextColorListView, kThemeTextColorDialogInactive),
+            PaletteMap("QMessageBoxLabel", kThemeTextColorAlertActive, kThemeTextColorAlertInactive),
+            PaletteMap("QTabBar", kThemeTextColorTabFrontActive, kThemeTextColorTabFrontInactive),
+            PaletteMap("QLabel", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive),
+            PaletteMap("QGroupBox", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive),
+            PaletteMap("QMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive),
+            PaletteMap(0, 0, 0) };
         QColor qc;
         RGBColor c;
         for(int i = 0; mac_widget_colors[i].qt_class; i++) {
