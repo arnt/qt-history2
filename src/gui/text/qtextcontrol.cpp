@@ -556,6 +556,7 @@ void QTextControlPrivate::updateCurrentCharFormatAndSelection()
     selectionChanged();
 }
 
+#ifndef QT_NO_CLIPBOARD
 void QTextControlPrivate::setClipboardSelection()
 {
     QClipboard *clipboard = QApplication::clipboard();
@@ -565,6 +566,7 @@ void QTextControlPrivate::setClipboardSelection()
     QMimeData *data = q->createMimeDataFromSelection();
     clipboard->setMimeData(data, QClipboard::Selection);
 }
+#endif
 
 void QTextControlPrivate::ensureVisible(int documentPosition)
 {
@@ -1989,9 +1991,9 @@ void QTextControl::dropEvent(QDropEvent *e)
         return;
 
     e->acceptProposedAction();
-    
+
     d->repaintSelection();
-    
+
     QTextCursor insertionCursor = cursorForPosition(e->pos());
     insertionCursor.beginEditBlock();
 
@@ -2992,7 +2994,7 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
         ctx.selections.append(selection);
     }
 
-    d->doc->documentLayout()->draw(p, ctx);    
+    d->doc->documentLayout()->draw(p, ctx);
     p->restore();
 }
 

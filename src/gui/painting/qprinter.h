@@ -132,7 +132,7 @@ public:
 
     void setFontEmbeddingEnabled(bool enable);
     bool fontEmbeddingEnabled() const;
-    
+
     void setDoubleSidePrinting(bool enable);
     bool doubleSidePrinting();
 
@@ -166,8 +166,10 @@ public:
     int fromPage() const;
     int toPage() const;
 
+#ifndef QT_NO_PRINTDIALOG
     void setPrintRange(PrintRange range);
-    PrintRange printRange() const;    
+    PrintRange printRange() const;
+#endif
 
 #ifdef QT3_SUPPORT
 #ifdef Q_WS_MAC

@@ -743,6 +743,13 @@ Requires: TEXTSTREAM
 Name: QPrinter
 SeeAlso: ???
 
+Feature: CUPS
+Description Supports the Common UNIX Printing System
+Section: Painting
+Requires: PRINTER
+Name: Common UNIX Printing System
+SeeAlso: ???
+
 # Fonts
 
 Feature: FREETYPE

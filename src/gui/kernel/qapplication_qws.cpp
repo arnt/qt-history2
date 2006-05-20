@@ -534,7 +534,9 @@ void QWSDisplay::Data::reinit()
     sharedRamSize -= sizeof(int);
     qt_last_y = reinterpret_cast<int *>(sharedRam + sharedRamSize);
 
+#ifndef QT_NO_COP
     QCopChannel::reregisterAll();
+#endif
     csocket->flush();
 }
 #endif

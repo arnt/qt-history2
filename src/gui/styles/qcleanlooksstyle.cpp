@@ -1748,11 +1748,13 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             gradient.setColorAt(1, option->palette.button().color().dark(110));
             painter->fillRect(rect, gradient);
 
+#ifndef QT_NO_MAINWINDOW
             if (widget && qobject_cast<const QMainWindow *>(widget->parentWidget())) {
                 QPen oldPen = painter->pen();
                 painter->setPen(QPen(shadow));
                 painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
             }
+#endif // QT_NO_MAINWINDOW
         }
         painter->restore();
         break;

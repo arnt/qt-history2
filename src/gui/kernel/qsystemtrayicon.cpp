@@ -467,7 +467,9 @@ void QBalloonTip::balloon(const QPoint& pos, int msecs, bool showArrow)
     painter.setPen(QPen(Qt::black, border));
     painter.setBrush(palette().color(QPalette::Window));
     painter.drawPath(path);
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
     setMask(pixmap.createHeuristicMask());
+#endif
     if (msecs > 0)
         timerId = startTimer(msecs);
     show();

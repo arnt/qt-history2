@@ -1502,6 +1502,7 @@ void QPrinter::setCollateCopiesEnabled(bool enable)
 }
 #endif // QT3_SUPPORT
 
+#ifndef QT_NO_PRINTDIALOG
 /*!
     \since 4.1
 
@@ -1529,6 +1530,7 @@ QPrinter::PrintRange QPrinter::printRange() const
     d->ensurePrintDialog();
     return PrintRange(d->printDialog->printRange());
 }
+#endif // QT_NO_PRINTDIALOG
 
 #ifdef QT3_SUPPORT
 /*!

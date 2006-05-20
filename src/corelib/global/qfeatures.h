@@ -317,6 +317,11 @@
 #define QT_NO_CONTEXTMENU
 #endif
 
+// Common UNIX Printing System
+#if !defined(QT_NO_CUPS) && (defined(QT_NO_PRINTER))
+#define QT_NO_CUPS
+#endif
+
 // File Transfer Protocol
 #if !defined(QT_NO_FTP) && (defined(QT_NO_URLINFO) || defined(QT_NO_TEXTDATE))
 #define QT_NO_FTP
