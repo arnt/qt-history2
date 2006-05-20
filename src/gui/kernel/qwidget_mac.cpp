@@ -483,19 +483,13 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                             widget->setAttribute(Qt::WA_PaintUnclipped);
                         p.setClipRegion(qrgn.translated(redirectionOffset));
 
-
-                        if (qobject_cast<QAbstractScrollArea *>(widget)) {
-                            QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(widget->parent());
-                            if (scrollArea) {
-                                QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(scrollArea->d_ptr);
-                                const QPoint offset = priv->contentsOffset();
-                                p.translate(-offset);
-                                rr.translate(offset);
-                            }
+                        QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(widget->parent());
+                        if (scrollArea) {
+                            QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(static_cast<QWidget *>(scrollArea)->d_ptr);
+                            const QPoint offset = priv->contentsOffset();
+                            p.translate(-offset);
+                            rr.translate(offset);
                         }
-
-
-
 
                         widget->d_func()->paintBackground(&p, rr, widget->isWindow());
                         if (widget->testAttribute(Qt::WA_TintedBackground)) {
