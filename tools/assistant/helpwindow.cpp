@@ -43,14 +43,11 @@
 
 HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
     : QTextBrowser(parent), mw(w), blockScroll(false),
-      shiftPressed(false), newWindow(false),
-      fwdAvail(false), backAvail(false)
+      shiftPressed(false), newWindow(false)
 {
     QFont f = font();
     f.setPointSizeF(Config::configuration()->fontPointSize());
     setFont(f);
-    connect(this, SIGNAL(forwardAvailable(bool)), this, SLOT(updateForward(bool)));
-    connect(this, SIGNAL(backwardAvailable(bool)), this, SLOT(updateBackward(bool)));
 }
 
 void HelpWindow::setSource(const QUrl &name)
@@ -303,16 +300,6 @@ void HelpWindow::keyPressEvent(QKeyEvent *e)
 		followSelectedLink();
 	else
 		QTextBrowser::keyPressEvent(e);
-}
-
-void HelpWindow::updateForward(bool fwd)
-{
-    fwdAvail = fwd;
-}
-
-void HelpWindow::updateBackward(bool back)
-{
-    backAvail = back;
 }
 
 bool HelpWindow::isKDERunning() const

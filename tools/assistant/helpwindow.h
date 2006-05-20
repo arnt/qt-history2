@@ -36,11 +36,8 @@ public:
     void mousePressEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *);
 
-    bool isBackwardAvailable() const { return backAvail; }
-    bool isForwardAvailable() const { return fwdAvail; }
-
 public slots:
-	void followSelectedLink();
+    void followSelectedLink();
 
 signals:
     void chooseWebBrowser();
@@ -56,8 +53,6 @@ protected slots:
 private slots:
     void openLinkInNewWindow();
     void openLinkInNewPage();
-    void updateForward(bool);
-    void updateBackward(bool);
 
     bool isKDERunning() const;
 
