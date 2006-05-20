@@ -3019,7 +3019,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 #endif
                 // Otherwise, fall through
     case CT_ToolButton:
-        if (qstyleoption_cast<const QStyleOptionToolButton *>(opt)) 
+        if (qstyleoption_cast<const QStyleOptionToolButton *>(opt))
             return sz += QSize(7, 6);
         // Otherwise, fall through
 
@@ -3028,7 +3028,6 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     }
     return sz;
 }
-#endif
 
 QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
                                          const QWidget *widget) const
@@ -3044,3 +3043,5 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
     icon.addPixmap(pressedIconPixmap, QIcon::Normal, QIcon::On);
     return icon;
 }
+
+#endif // QT_NO_STYLE_WINDOWS

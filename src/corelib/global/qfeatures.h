@@ -297,6 +297,11 @@
 #define QT_NO_STYLE_CDE
 #endif
 
+// QCleanLooksStyle
+#if !defined(QT_NO_STYLE_CLEANLOOKS) && (defined(QT_NO_STYLE_WINDOWS))
+#define QT_NO_STYLE_CLEANLOOKS
+#endif
+
 // QWindowsXPStyle
 #if !defined(QT_NO_STYLE_WINDOWSXP) && (defined(QT_NO_STYLE_WINDOWS))
 #define QT_NO_STYLE_WINDOWSXP
@@ -305,6 +310,11 @@
 // SXE
 #if !defined(QT_NO_SXE) && (defined(QT_NO_QWS_MULTIPROCESS))
 #define QT_NO_SXE
+#endif
+
+// Context menu
+#if !defined(QT_NO_CONTEXTMENU) && (defined(QT_NO_MENU))
+#define QT_NO_CONTEXTMENU
 #endif
 
 // File Transfer Protocol
@@ -340,6 +350,11 @@
 // Drag and drop
 #if !defined(QT_NO_DRAGANDDROP) && (defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_IMAGEFORMAT_XPM))
 #define QT_NO_DRAGANDDROP
+#endif
+
+// QGraphicsView
+#if !defined(QT_NO_GRAPHICSVIEW) && (defined(QT_NO_SCROLLAREA))
+#define QT_NO_GRAPHICSVIEW
 #endif
 
 // QSpinBox
@@ -520,11 +535,6 @@
 // QWorkSpace
 #if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_MENU) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_MAINWINDOW) || defined(QT_NO_TOOLBAR) || defined(QT_NO_MENUBAR))
 #define QT_NO_WORKSPACE
-#endif
-
-// Context Menu
-#if !defined(QT_NO_CONTEXTMENU) && (defined(QT_NO_MENU))
-#define QT_NO_CONTEXTMENU
 #endif
 
 // QFileDialog

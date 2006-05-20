@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qcleanlooksstyle.h"
+
 #if !defined(QT_NO_STYLE_CLEANLOOKS) || defined(QT_PLUGIN)
 
-#include "qcleanlooksstyle.h"
 #include "qwindowsstyle_p.h"
 #include <QComboBox>
 
