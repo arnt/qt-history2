@@ -13,6 +13,8 @@
 
 #include "qgraphicsitemanimation.h"
 
+#ifndef QT_NO_GRAPHICSVIEW
+
 #include "qgraphicsitem.h"
 
 #include <QtCore/qtimeline.h>
@@ -33,7 +35,7 @@ public:
 
     QPointF startPos;
     QMatrix startMatrix;
-    
+
     qreal step;
 
     struct Pair {
@@ -296,3 +298,5 @@ void QGraphicsItemAnimation::reset()
     d->startPos = d->item->pos();
     d->startMatrix = d->item->matrix();
 }
+
+#endif // QT_NO_GRAPHICSVIEW

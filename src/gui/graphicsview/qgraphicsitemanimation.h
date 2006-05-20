@@ -16,6 +16,8 @@
 
 #include <QtCore/qobject.h>
 
+#ifndef QT_NO_GRAPHICSVIEW
+
 QT_BEGIN_HEADER
 
 class QGraphicsItem;
@@ -36,19 +38,19 @@ public:
 
     QTimeLine *timeLine() const;
     void setTimeLine(QTimeLine *timeLine);
-    
+
     QPointF posAt(qreal step) const;
     void setPosAt(qreal step, const QPointF &pos);
 
     QMatrix matrixAt(qreal step) const;
-    
+
     qreal rotationAt(qreal step) const;
     void setRotationAt(qreal step, qreal angle);
 
     qreal xTranslationAt(qreal step) const;
     qreal yTranslationAt(qreal step) const;
     void setTranslationAt(qreal step, qreal dx, qreal dy);
-    
+
     qreal verticalScaleAt(qreal step) const;
     qreal horizontalScaleAt(qreal step) const;
     void setScaleAt(qreal step, qreal sx, qreal sy);
@@ -56,7 +58,7 @@ public:
     qreal verticalShearAt(qreal step) const;
     qreal horizontalShearAt(qreal step) const;
     void setShearAt(qreal step, qreal sh, qreal sv);
-    
+
     void clear();
 
 public Q_SLOTS:
@@ -65,7 +67,7 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void newTransformation(const QPointF &pos, const QMatrix &matrix);
-    
+
 private:
     Q_DISABLE_COPY(QGraphicsItemAnimation)
     QGraphicsItemAnimationPrivate *d;
@@ -73,4 +75,5 @@ private:
 
 QT_END_HEADER
 
+#endif // QT_NO_GRAPHICSVIEW
 #endif
