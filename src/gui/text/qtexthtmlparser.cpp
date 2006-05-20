@@ -402,7 +402,7 @@ int QTextHtmlParser::lookupElement(const QString &element)
 static QString quoteNewline(const QString &s)
 {
     QString n = s;
-    n.replace('\n', "\\n");
+    n.replace(QLatin1Char('\n'), QLatin1String("\\n"));
     return n;
 }
 
@@ -489,7 +489,7 @@ QTextBlockFormat QTextHtmlParserNode::blockFormat() const
 void QTextHtmlParser::dumpHtml()
 {
     for (int i = 0; i < count(); ++i) {
-        qDebug().nospace() << qPrintable(QString(depth(i)*4, ' '))
+        qDebug().nospace() << qPrintable(QString(depth(i)*4, QLatin1Char(' ')))
                            << qPrintable(at(i).tag) << ":"
                            << quoteNewline(at(i).text);
             ;
@@ -943,7 +943,7 @@ QString QTextHtmlParser::parseWord()
         while (pos < len) {
             QChar c = txt.at(pos++);
             if (c == QLatin1Char('>')
-                || (c == '/' && hasPrefix(QLatin1Char('>'), 1))
+                || (c == QLatin1Char('/') && hasPrefix(QLatin1Char('>'), 1))
                 || c == QLatin1Char('<')
                 || c == QLatin1Char('=')
                 || c.isSpace()) {
