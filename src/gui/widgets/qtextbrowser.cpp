@@ -1041,6 +1041,22 @@ bool QTextBrowser::isForwardAvailable() const
     return !d->forwardStack.isEmpty();
 }
 
+/*!
+    Clears the history of visited documents and disables the forward and
+    backward navigation.
+    
+    \sa backward(), forward()
+*/
+void QTextBrowser::clearHistory()
+{
+    Q_D(QTextBrowser);
+    d->forwardStack.clear();
+    if (!d->stack.isEmpty())
+        d->stack.resize(1);
+    emit forwardAvailable(false);
+    emit backwardAvailable(false);
+}
+
 /*! \reimp */
 bool QTextBrowser::event(QEvent *e)
 {

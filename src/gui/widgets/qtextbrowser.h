@@ -48,6 +48,7 @@ public:
     
     bool isBackwardAvailable() const;
     bool isForwardAvailable() const;
+    void clearHistory();
     
 public Q_SLOTS:
     virtual void setSource(const QUrl &name);
