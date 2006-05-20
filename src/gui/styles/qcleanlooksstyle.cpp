@@ -987,6 +987,7 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
 
             painter->fillRect(option->rect, tabFrameColor);
         }
+#ifndef QT_NO_TABWIDGET
         if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
             QColor borderColor = option->palette.dark().color();
             QColor alphaCornerColor = mergedColors(borderColor, option->palette.background().color());
@@ -1093,6 +1094,7 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawPoint(leftTopInnerCorner1);
             painter->drawPoint(leftTopInnerCorner2);
         }
+#endif // QT_NO_TABWIDGET
     painter->restore();
     break ;
 #endif // QT_NO_TABBAR
