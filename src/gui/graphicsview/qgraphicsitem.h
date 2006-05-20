@@ -74,11 +74,15 @@ public:
     void setFlag(GraphicsItemFlag flag, bool enabled = true);
     void setFlags(GraphicsItemFlags flags);
 
+#ifndef QT_NO_TOOLTIP
     QString toolTip() const;
     void setToolTip(const QString &toolTip);
+#endif
 
+#ifndef QT_NO_CURSOR
     QCursor cursor() const;
     void setCursor(const QCursor &cursor);
+#endif
 
     bool isVisible() const;
     void setVisible(bool visible);
@@ -97,7 +101,7 @@ public:
 
     bool handlesChildEvents() const;
     void setHandlesChildEvents(bool enabled);
-    
+
     bool hasFocus() const;
     void setFocus(Qt::FocusReason focusReason = Qt::OtherFocusReason);
     void clearFocus();
@@ -188,7 +192,7 @@ protected:
     virtual void inputMethodEvent(QInputMethodEvent *event);
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
-    enum ItemChange { 
+    enum ItemChange {
         ItemPositionChange,
         ItemMatrixChange,
         ItemVisibleChange,
@@ -461,10 +465,10 @@ public:
     int type() const;
 
     void adjustSize();
-    
+
     void setTextControl(QTextControl *control);
     QTextControl *textControl() const;
-    
+
     void setPageNumber(int page);
     int pageNumber() const;
 

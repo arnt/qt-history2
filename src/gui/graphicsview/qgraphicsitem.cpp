@@ -568,6 +568,7 @@ void QGraphicsItem::setFlags(GraphicsItemFlags flags)
     }
 }
 
+#ifndef QT_NO_TOOLTIP
 /*!
     Returns the item's tool tip, or an empty QString if no tool tip has been
     set.
@@ -591,7 +592,9 @@ void QGraphicsItem::setToolTip(const QString &toolTip)
     Q_D(QGraphicsItem);
     d->setExtra(QGraphicsItemPrivate::ExtraToolTip, toolTip);
 }
+#endif // QT_NO_TOOLTIP
 
+#ifndef QT_NO_CURSOR
 /*!
     Returns the current cursor shape for the item. The mouse cursor will
     assume this shape when it's over this item. See the list of predefined
@@ -634,6 +637,7 @@ void QGraphicsItem::setCursor(const QCursor &cursor)
     Q_D(QGraphicsItem);
     d->setExtra(QGraphicsItemPrivate::ExtraCursor, cursor);
 }
+#endif // QT_NO_CURSOR
 
 /*!
    Returns true if the item is visible; otherwise, false is returned.

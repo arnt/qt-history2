@@ -393,10 +393,10 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
 
         option.exposedRect = item->boundingRect();
         option.exposedRect &= neo.inverted().mapRect(QRectF(exposedRegion.boundingRect().adjusted(-1, -1, 1, 1)));
-        
+
         styleOptions << option;
     }
-    
+
     // Draw the items
     painter->save();
     q->paintItems(painter, visibleItems, styleOptions);
@@ -552,11 +552,13 @@ void QGraphicsViewPrivate::mouseMoveEvent(QMouseEvent *event)
     lastMouseMoveScenePoint = mouseEvent.scenePos();
     QApplication::sendEvent(scene, &mouseEvent);
 
+#ifndef QT_NO_CURSOR
     if (QGraphicsItem *item = scene->itemAt(q->mapToScene(event->pos()))) {
         q->setCursor(item->cursor());
     } else {
         q->unsetCursor();
     }
+#endif
 }
 
 /*!
@@ -1766,7 +1768,9 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
         break;
     case QEvent::Leave:
         d->useLastMouseEvent = false;
+#ifndef QT_NO_CURSOR
         unsetCursor();
+#endif
         break;
     case QEvent::FocusIn:
         d->focusInEvent(static_cast<QFocusEvent *>(event));
@@ -1774,9 +1778,11 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
     case QEvent::FocusOut:
         d->focusOutEvent(static_cast<QFocusEvent *>(event));
         break;
+#ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip:
         d->helpEvent(static_cast<QHelpEvent *>(event));
         break;
+#endif
     default:
         break;
     }

@@ -91,7 +91,9 @@ public:
     QTextCursor selection;
     bool selectable;
     bool hasCustomCursor;
+#ifndef QT_NO_CURSOR
     QCursor cursor;
+#endif
     QPoint mousePressPos;
     bool mightBeDrag;
     QString linkToCopy; // for copy link
@@ -312,7 +314,7 @@ QLabel::~QLabel()
 void QLabelPrivate::init()
 {
     Q_Q(QLabel);
-    
+
     valid_hints = false;
     margin = 0;
 #ifndef QT_NO_MOVIE
@@ -770,7 +772,7 @@ void QLabel::mousePressEvent(QMouseEvent *ev)
     Q_D(QLabel);
     if (!d->doc)
         return;
-    
+
     QPoint p = d->layoutPoint(ev->pos());
     d->anchorWhenMousePressed = d->doc->documentLayout()->anchorAt(p);
 
@@ -802,13 +804,17 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
     QString anchor = d->doc->documentLayout()->anchorAt(p);
     if (anchor != d->highlightedAnchor) {
         if (anchor.isEmpty()) { // restore cursor
+#ifndef QT_NO_CURSOR
             setCursor(d->hasCustomCursor ? d->cursor : Qt::ArrowCursor);
+#endif
             emit highlighted(QString());
         } else {
+#ifndef QT_NO_CURSOR
             d->hasCustomCursor = testAttribute(Qt::WA_SetCursor);
             if (d->hasCustomCursor)
                 d->cursor = cursor();
             setCursor(Qt::PointingHandCursor);
+#endif
             emit highlighted(anchor);
         }
         d->highlightedAnchor = anchor; // save it so we dont keep emitting highlighted
@@ -855,7 +861,7 @@ void QLabel::mouseReleaseEvent(QMouseEvent *ev)
     }
 
     if (d->selection.hasSelection()) // user completed a selection
-        return; 
+        return;
 
     // check for link clicks. ensure that the mouse press and release happenned on the same anchor
     QPoint p = d->layoutPoint(ev->pos());
@@ -871,7 +877,7 @@ void QLabel::contextMenuEvent(QContextMenuEvent *ev)
     Q_D(QLabel);
     if (!d->selectable) {
         QFrame::contextMenuEvent(ev);
-    } 
+    }
 #ifndef QT_NO_MENU
     else {
         QMenu *menu = d->createStandardContextMenu();
@@ -951,7 +957,7 @@ void QLabel::paintEvent(QPaintEvent *)
         context.palette = palette();
         if (foregroundRole() != QPalette::Text && isEnabled())
             context.palette.setColor(QPalette::Text, context.palette.color(foregroundRole()));
-        
+
         painter.save();
         painter.translate(lr.topLeft());
         painter.setClipRect(lr.translated(-lr.x(), -lr.y()));
@@ -1097,7 +1103,7 @@ void QLabel::setBuddy(QWidget *buddy)
         releaseShortcut(d->shortcutId);
         d->shortcutId = -1;
         d->doc->setPlainText(d->text); // restore the old text
-        if (buddy)                     
+        if (buddy)
             d->updateShortcut(); // grab new shortcut
         d->updateLabel();
     }
@@ -1359,7 +1365,7 @@ QRect QLabelPrivate::documentRect() const
 }
 
 // Return the layout rect - this is the rect that is given to the layout painting code
-// This may be different from the document rect since vertical alignment is not 
+// This may be different from the document rect since vertical alignment is not
 // done by the text layout code
 QRect QLabelPrivate::layoutRect() const
 {
@@ -1388,7 +1394,7 @@ QMenu *QLabelPrivate::createStandardContextMenu()
     QMenu *popup = new QMenu(q);
     QAction *a = popup->addAction(QLabel::tr("&Copy"), q, SLOT(_q_copy()));
     a->setEnabled(selection.hasSelection());
-    
+
     if (isRichText()) {
         QPoint p = layoutPoint(q->mapFromGlobal(QCursor::pos()));
         linkToCopy = doc->documentLayout()->anchorAt(p);

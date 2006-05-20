@@ -1428,8 +1428,10 @@ bool QGraphicsScene::event(QEvent *event)
         hoverEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
         break;
     case QEvent::Leave:
+#ifndef QT_NO_TOOLTIP
         // Remove any tooltips
         QToolTip::showText(QPoint(), QString());
+#endif
         break;
     case QEvent::GraphicsSceneHelp:
         helpEvent(static_cast<QGraphicsSceneHelpEvent *>(event));
@@ -1487,6 +1489,7 @@ void QGraphicsScene::focusEvent(QFocusEvent *focusEvent)
 */
 void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
 {
+#ifndef QT_NO_TOOLTIP
     // Find the first item that does tooltips
     QList<QGraphicsItem *> itemsAtPos = items(helpEvent->scenePos());
     QGraphicsItem *toolTipItem = 0;
@@ -1506,6 +1509,7 @@ void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
         point = helpEvent->screenPos();
     }
     QToolTip::showText(point, text);
+#endif
 }
 
 /*!

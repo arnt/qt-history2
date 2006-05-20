@@ -2081,7 +2081,9 @@ QRect QTextEditPrivate::rectForPosition(int position) const
     int cursorWidth;
     {
         bool ok = false;
+#ifndef QT_NO_PROPERTIES
         cursorWidth = docLayout->property("cursorWidth").toInt(&ok);
+#endif
         if (!ok)
             cursorWidth = 1;
     }
@@ -2582,9 +2584,9 @@ void QTextEdit::dropEvent(QDropEvent *e)
         return;
 
     e->acceptProposedAction();
-    
+
     d->repaintSelection();
-    
+
     QTextCursor insertionCursor = cursorForPosition(e->pos());
     insertionCursor.beginEditBlock();
 
@@ -2907,7 +2909,7 @@ void QTextEdit::setTabStopWidth(int width)
 /*!
     \since 4.2
     \property QTextEdit::cursorWidth
-    
+
     This property specifies the width of the cursor in pixels. The default value is 1.
 */
 int QTextEdit::cursorWidth() const
