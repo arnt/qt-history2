@@ -1017,6 +1017,30 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
     return data;
 }
 
+/*!
+      Returns true if the text browser can go backward in the document history
+      using backward().
+      
+      \sa backwardAvailable(), backward()
+*/
+bool QTextBrowser::isBackwardAvailable() const
+{
+    Q_D(const QTextBrowser);
+    return d->stack.count() > 1;
+}
+
+/*!
+      Returns true if the text browser can go forward in the document history
+      using forward().
+      
+      \sa forwardAvailable(), forward()
+*/
+bool QTextBrowser::isForwardAvailable() const
+{
+    Q_D(const QTextBrowser);
+    return !d->forwardStack.isEmpty();
+}
+
 /*! \reimp */
 bool QTextBrowser::event(QEvent *e)
 {

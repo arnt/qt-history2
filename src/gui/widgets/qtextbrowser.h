@@ -46,6 +46,9 @@ public:
 
     virtual QVariant loadResource(int type, const QUrl &name);
     
+    bool isBackwardAvailable() const;
+    bool isForwardAvailable() const;
+    
 public Q_SLOTS:
     virtual void setSource(const QUrl &name);
     virtual void backward();
