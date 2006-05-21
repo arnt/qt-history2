@@ -266,6 +266,7 @@ inline void QPainterPath::setElementPositionAt(int i, qreal x, qreal y)
 {
     Q_ASSERT(d_ptr);
     Q_ASSERT(i >= 0 && i < elementCount());
+    detach();
     QPainterPath::Element &e = d_ptr->elements[i];
     e.x = x;
     e.y = y;
