@@ -484,7 +484,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         p.setClipRegion(qrgn.translated(redirectionOffset));
 
                         QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(widget->parent());
-                        if (scrollArea) {
+                        if (scrollArea && scrollArea->viewport() == widget) {
                             QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(static_cast<QWidget *>(scrollArea)->d_ptr);
                             const QPoint offset = priv->contentsOffset();
                             p.translate(-offset);

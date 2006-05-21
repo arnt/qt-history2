@@ -898,10 +898,12 @@ void QWidgetPrivate::drawWidget(QPaintDevice *pdev, const QRegion &rgn, const QP
                     QPainter p(q);
                     QRect backgroundRect = toBePainted.boundingRect();
                     if (QAbstractScrollArea *scrollArea = qobject_cast<QAbstractScrollArea *>(q->parent())) {
-                        QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(static_cast<QWidget *>(scrollArea)->d_ptr);
-                        const QPoint offset = priv->contentsOffset();
-                        p.translate(-offset);
-                        backgroundRect.translate(offset);
+                        if (scrollArea->viewport() == q) {
+                            QAbstractScrollAreaPrivate *priv = static_cast<QAbstractScrollAreaPrivate *>(static_cast<QWidget *>(scrollArea)->d_ptr);
+                            const QPoint offset = priv->contentsOffset();
+                            p.translate(-offset);
+                            backgroundRect.translate(offset);
+                        }
                     }
                     paintBackground(&p, backgroundRect, asRoot || onScreen);
                 }
