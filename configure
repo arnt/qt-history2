@@ -525,6 +525,7 @@ OPT_SHADOW=maybe
 OPT_FAST=auto
 OPT_VERBOSE=no
 OPT_HELP=
+CFG_SILENT=no
 
 # initalize variables used for installation
 QT_INSTALL_PREFIX=
@@ -1395,6 +1396,10 @@ while [ "$#" -gt 0 ]; do
         else
             UNKNOWN_OPT=yes
         fi
+        ;;
+    silent)
+        CFG_SILENT=yes
+        QMAKE_VARS="$QMAKE_VARS CONFIG+=silent"
         ;;
     *)
         UNKNOWN_OPT=yes
@@ -2459,6 +2464,9 @@ Additional options:
     -verbose, -v ....... Print verbose information about each step of the
                          configure process.
 
+    -silent ............ Reduce the build output so that warnings and errors
+                         can be seen more easily.
+
  $NSN  -no-nis ............ Do not compile NIS support.
  $NSY  -nis ............... Compile NIS support.
 
@@ -3069,8 +3077,13 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         EXTRA_CXXFLAGS="\$(QMAKE_CXXFLAGS)"
         EXTRA_LFLAGS="\$(QMAKE_LFLAGS)"
 
-        setBootstrapVariable QMAKE_CC 's,QMAKE_CC,CC,'
-        setBootstrapVariable QMAKE_CXX 's,QMAKE_CXX,CXX,'
+        if [ "$CFG_SILENT" = "yes" ]; then
+            setBootstrapVariable QMAKE_CC 's,QMAKE_CC.*=,CC=\@,'
+            setBootstrapVariable QMAKE_CXX 's,QMAKE_CXX.*=,CXX=\@,'
+        else
+            setBootstrapVariable QMAKE_CC 's,QMAKE_CC,CC,'
+            setBootstrapVariable QMAKE_CXX 's,QMAKE_CXX,CXX,'
+        fi
         setBootstrapVariable QMAKE_CFLAGS
         setBootstrapVariable QMAKE_CXXFLAGS 's,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS),'
         setBootstrapVariable QMAKE_LFLAGS
