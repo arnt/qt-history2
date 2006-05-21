@@ -23,7 +23,8 @@
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QDecorationFactoryInterface_iid, QCoreApplication::libraryPaths(), "/decorations", Qt::CaseInsensitive))
+    (QDecorationFactoryInterface_iid, QCoreApplication::libraryPaths(),
+     QLatin1String("/decorations"), Qt::CaseInsensitive))
 #endif
 
 
@@ -62,17 +63,17 @@ QDecoration *QDecorationFactory::create(const QString& key)
     QDecoration *ret = 0;
     QString decoration = key.toLower();
 #ifndef QT_NO_QWS_DECORATION_DEFAULT
-    if (decoration == "default")
+    if (decoration == QLatin1String("default"))
         ret = new QDecorationDefault;
     else
 #endif
 #ifndef QT_NO_QWS_DECORATION_WINDOWS
-    if (decoration == "windows")
+    if (decoration == QLatin1String("windows"))
         ret = new QDecorationWindows;
     else
 #endif
 #ifndef QT_NO_QWS_DECORATION_STYLED
-    if (decoration == "styled")
+    if (decoration == QLatin1String("styled"))
         ret = new QDecorationStyled;
     else
 #endif
@@ -104,16 +105,16 @@ QStringList QDecorationFactory::keys()
     QStringList list;
 #endif
 #ifndef QT_NO_QWS_DECORATION_DEFAULT
-    if (!list.contains("Default"))
-        list << "Default";
+    if (!list.contains(QLatin1String("Default")))
+        list << QLatin1String("Default");
 #endif
 #ifndef QT_NO_QWS_DECORATION_WINDOWS
-    if (!list.contains("Windows"))
-        list << "Windows";
+    if (!list.contains(QLatin1String("Windows")))
+        list << QLatin1String("Windows");
 #endif
 #ifndef QT_NO_QWS_DECORATION_STYLED
-    if (!list.contains("Styled"))
-        list << "Styled";
+    if (!list.contains(QLatin1String("Styled")))
+        list << QLatin1String("Styled");
 #endif
 
     return list;

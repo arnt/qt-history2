@@ -30,7 +30,8 @@
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QWSKeyboardHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), "/kbddrivers"))
+    (QWSKeyboardHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(),
+     QLatin1String("/kbddrivers")))
 
 #endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
@@ -67,40 +68,42 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
     QString driver = key.toLower();
     Q_UNUSED(device);
 #ifndef QT_NO_QWS_KBD_SL5000
-    if (driver == "sl5000" || driver.isEmpty())
+    if (driver == QLatin1String("sl5000") || driver.isEmpty())
         return new QWSSL5000KeyboardHandler(device);
 #endif
 #ifndef QT_NO_QWS_KBD_YOPY
-    if (driver == "yopy" || driver.isEmpty())
+    if (driver == QLatin1String("yopy") || driver.isEmpty())
         return new QWSYopyKeyboardHandler(device);
 #endif
 #ifndef QT_NO_QWS_KBD_VR41XX
-    if (driver == "vr41xx" || driver.isEmpty())
+    if (driver == QLatin1String("vr41xx") || driver.isEmpty())
         return new QWSVr41xxKeyboardHandler(device);
 #endif
 #ifndef QT_NO_QWS_KEYBOARD
 # ifndef QT_NO_QWS_KBD_TTY
-    if (driver =="tty" || driver.isEmpty())
+    if (driver == QLatin1String("tty") || driver.isEmpty())
         return new QWSTtyKeyboardHandler(device);
 # endif
 # ifndef QT_NO_QWS_KBD_USB
-    if (driver == "usb")
+    if (driver == QLatin1String("usb"))
         return new QWSUsbKeyboardHandler(device);
 # endif
 # ifndef QT_NO_QWS_KBD_UM
-    if (driver == "um" || driver == "qvfbkeyboard" )
+    if (driver == QLatin1String("um") || driver == QLatin1String("qvfbkeyboard"))
         return new QWSUmKeyboardHandler(device);
 # endif
 # ifndef QT_NO_QWS_KBD_QVFB
-    if (driver == "qvfbkbd" || driver == "qvfbkeyboard" || driver == "qvfb")
+    if (driver == QLatin1String("qvfbkbd")
+        || driver == QLatin1String("qvfbkeyboard")
+        || driver == QLatin1String("qvfb"))
         return new QVFbKeyboardHandler(device);
 # endif
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
-        if (QWSKeyboardHandlerFactoryInterface *factory = qobject_cast<QWSKeyboardHandlerFactoryInterface*>(loader()->instance(driver)))
-            return factory->create(driver);
+    if (QWSKeyboardHandlerFactoryInterface *factory = qobject_cast<QWSKeyboardHandlerFactoryInterface*>(loader()->instance(driver)))
+        return factory->create(driver);
 #endif
 #endif
     return 0;
@@ -120,28 +123,22 @@ QStringList QKbdDriverFactory::keys()
     QStringList list;
 
 #ifndef QT_NO_QWS_KBD_SL5000
-    if (!list.contains("SL5000"))
-        list << "SL5000";
+    list << QLatin1String("SL5000");
 #endif
 #ifndef QT_NO_QWS_KBD_YOPY
-    if (!list.contains("YOPY"))
-        list << "YOPY";
+    list << QLatin1String("YOPY");
 #endif
 #ifndef QT_NO_QWS_KBD_VR41XX
-    if (!list.contains("VR41xx"))
-        list << "VR41xx";
+    list << QLatin1String("VR41xx");
 #endif
 #ifndef QT_NO_QWS_KBD_TTY
-    if (!list.contains("TTY"))
-        list << "TTY";
+    list << QLatin1String("TTY");
 #endif
 #ifndef QT_NO_QWS_KBD_USB
-    if (!list.contains("USB"))
-        list << "USB";
+    list << QLatin1String("USB");
 #endif
 #ifndef QT_NO_QWS_KBD_UM
-    if (!list.contains("UM"))
-        list << "UM";
+    list << QLatin1String("UM");
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)

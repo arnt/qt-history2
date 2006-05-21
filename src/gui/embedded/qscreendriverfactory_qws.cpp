@@ -27,7 +27,8 @@
 #ifndef QT_NO_LIBRARY
 
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QScreenDriverFactoryInterface_iid, QCoreApplication::libraryPaths(), "/gfxdrivers"))
+    (QScreenDriverFactoryInterface_iid, QCoreApplication::libraryPaths(),
+     QLatin1String("/gfxdrivers")))
 
 #endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
@@ -64,19 +65,19 @@ QScreen *QScreenDriverFactory::create(const QString& key, int displayId)
 {
     QString driver = key.toLower();
 #ifndef QT_NO_QWS_QVFB
-    if (driver == "qvfb" || driver.isEmpty())
+    if (driver == QLatin1String("qvfb") || driver.isEmpty())
         return new QVFbScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_LINUXFB
-    if (driver == "linuxfb" || driver.isEmpty())
+    if (driver == QLatin1String("linuxfb") || driver.isEmpty())
         return new QLinuxFbScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_TRANSFORMED
-    if (driver == "transformed")
+    if (driver == QLatin1String("transformed"))
         return new QTransformedScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_VNC
-    if (driver == "vnc")
+    if (driver == QLatin1String("vnc"))
         return new QVNCScreen(displayId);
 #endif
 
@@ -107,20 +108,16 @@ QStringList QScreenDriverFactory::keys()
     QStringList list;
 
 #ifndef QT_NO_QWS_QVFB
-    if (!list.contains("QVFb"))
-        list << "QVFb";
+    list << QLatin1String("QVFb");
 #endif
 #ifndef QT_NO_QWS_LINUXFB
-    if (!list.contains("LinuxFb"))
-        list << "LinuxFb";
+    list << QLatin1String("LinuxFb");
 #endif
 #ifndef QT_NO_QWS_TRANSFORMED
-    if (!list.contains("Transformed"))
-        list << "Transformed";
+    list << QLatin1String("Transformed");
 #endif
 #ifndef QT_NO_QWS_VNC
-    if (!list.contains("VNC"))
-        list << "VNC";
+    list << QLatin1String("VNC");
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)

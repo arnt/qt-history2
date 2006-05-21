@@ -30,7 +30,8 @@
 #ifndef QT_NO_LIBRARY
 
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QWSMouseHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), "/mousedrivers"))
+    (QWSMouseHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(),
+     QLatin1String("/mousedrivers")))
 
 #endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
@@ -67,34 +68,37 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
 {
     QString driver = key.toLower();
 #ifndef QT_NO_QWS_MOUSE_LINUXTP
-    if (driver == "linuxtp" || driver.isEmpty())
+    if (driver == QLatin1String("linuxtp") || driver.isEmpty())
         return new QWSLinuxTPMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_YOPY
-    if (driver == "yopy" || driver.isEmpty())
+    if (driver == QLatin1String("yopy") || driver.isEmpty())
         return new QWSYopyMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_VR41XX
-    if (driver == "vr41xx" || driver.isEmpty())
+    if (driver == QLatin1String("vr41xx") || driver.isEmpty())
         return new QWSVr41xxMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_PC
-    if (driver == "auto" || driver == "intellimouse" ||
-         driver == "microsoft" || driver == "mousesystems" ||
-         driver == "mouseman" || driver.isEmpty()) {
+    if (driver == QLatin1String("auto")
+        || driver == QLatin1String("intellimouse")
+        || driver == QLatin1String("microsoft")
+        || driver == QLatin1String("mousesystems")
+        || driver == QLatin1String("mouseman")
+        || driver.isEmpty()) {
         return new QWSPcMouseHandler(key, device);
     }
 #endif
 #ifndef QT_NO_QWS_MOUSE_BUS
-    if (driver == "bus")
+    if (driver == QLatin1String("bus"))
         return new QWSBusMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_TSLIB
-    if (driver == "tslib" || driver.isEmpty())
+    if (driver == QLating1String("tslib") || driver.isEmpty())
         return new QWSTslibMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_QVFB
-    if (driver == "qvfbmouse" || driver == "qvfb")
+    if (driver == QLatin1String("qvfbmouse") || driver == QLatin1String("qvfb"))
         return new QVFbMouseHandler(key, device);
 #endif
 
@@ -122,36 +126,26 @@ QStringList QMouseDriverFactory::keys()
     QStringList list;
 
 #ifndef QT_NO_QWS_MOUSE_LINUXTP
-    if (!list.contains("LinuxTP"))
-        list << "LinuxTP";
+    list << QLatin1String("LinuxTP");
 #endif
 #ifndef QT_NO_QWS_MOUSE_YOPY
-    if (!list.contains("Yopy"))
-        list << "Yopy";
+    list << QLatin1String("Yopy");
 #endif
 #ifndef QT_NO_QWS_MOUSE_VR41XX
-    if (!list.contains("VR41xx"))
-        list << "VR41xx";
+    list << QLatin1String("VR41xx");
 #endif
 #ifndef QT_NO_QWS_MOUSE_PC
-    if (!list.contains("Auto"))
-        list << "Auto";
-    if (!list.contains("IntelliMouse"))
-        list << "IntelliMouse";
-    if (!list.contains("Microsoft"))
-        list << "Microsoft";
-    if (!list.contains("MouseSystems"))
-        list << "MouseSystems";
-    if (!list.contains("MouseMan"))
-        list << "MouseMan";
+    list << QLatin1String("Auto")
+         << QLatin1String("IntelliMouse")
+         << QLatin1String("Microsoft")
+         << QLatin1String("MouseSystems")
+         << QLatin1String("MouseMan");
 #endif
 #ifndef QT_NO_QWS_MOUSE_BUS
-    if (!list.contains("Bus"))
-        list << "Bus";
+    list << QLatin1String("Bus");
 #endif
 #ifndef QT_NO_QWS_MOUSE_TSLIB
-    if (!list.contains("Tslib"))
-        list << "Tslib";
+    list << QLatin1String("Tslib");
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
