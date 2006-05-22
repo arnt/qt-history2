@@ -42,12 +42,13 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
     Q_PROPERTY(QRectF sceneRect READ sceneRect WRITE setSceneRect)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(QPainter::RenderHints renderHints READ renderHints WRITE setRenderHints)
+    Q_PROPERTY(DragMode dragMode READ dragMode WRITE setDragMode)
 
 public:
-    enum SelectionMode {
-        NoSelection,
-        SingleSelection,
-        MultiSelection,
+    enum DragMode {
+        NoDrag,
+        ScrollHandDrag,
+        RubberBandDrag,
         ExtendedSelection
     };
 
@@ -61,9 +62,8 @@ public:
     Qt::Alignment alignment() const;
     void setAlignment(Qt::Alignment alignment);
 
-    // ### Are these necessary?
-    SelectionMode selectionMode() const;
-    void setSelectionMode(SelectionMode mode);
+    DragMode dragMode() const;
+    void setDragMode(DragMode mode);
 
     bool isInteractive() const;    
     void setInteractive(bool allowed);

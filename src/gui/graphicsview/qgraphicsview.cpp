@@ -105,12 +105,21 @@
 */
 
 /*!
-    \enum QGraphicsView::SelectionMode
+    \enum QGraphicsView::DragMode
 
-    \value NoSelection
-    \value SingleSelection
-    \value MultiSelection
-    \value ExtendedSelection
+    This enum describes the default action for the view when pressing and
+    dragging the mouse over the viewport.
+
+    \value NoDrag Nothing happens; the mouse event is ignored.
+    
+    \value ScrollHandDrag The cursor changes into a pointing hand, and
+    dragging the mouse around will scroll the scrolbars.
+    
+    \value RubberBandDrag A rubber band will appear. Dragging the mouse will
+    set the rubber band geometry, and all items covered by the rubber band are
+    selected.
+
+    \sa dragMode, QGraphicsScene::setSelectionArea()
 */
 
 #include "qgraphicsview.h"
@@ -159,7 +168,7 @@ public:
 
     QPainter::RenderHints renderHints;
 
-    QGraphicsView::SelectionMode selectionMode;
+    QGraphicsView::DragMode dragMode;
     bool sceneInteractionAllowed;
     QRectF sceneRect;
     void updateLastCenterPoint();
@@ -191,6 +200,7 @@ public:
     QBrush foregroundBrush;
     QRubberBand *rubberBand;
     bool rubberBanding;
+    bool handScrolling;
 };
 
 /*!
@@ -198,12 +208,13 @@ public:
 */
 QGraphicsViewPrivate::QGraphicsViewPrivate()
     : renderHints(QPainter::TextAntialiasing | QPainter::Antialiasing),
-      selectionMode(QGraphicsView::ExtendedSelection),
+      dragMode(QGraphicsView::NoDrag),
       sceneInteractionAllowed(true), accelerateScrolling(true),
       leftIndent(0), topIndent(0),
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), useLastCenterPoint(false), alignment(Qt::AlignCenter),
-      scene(0), renderWidget(0), rubberBand(0), rubberBanding(false)
+      scene(0), renderWidget(0), rubberBand(0), rubberBanding(false),
+      handScrolling(false)
 {
 }
 
@@ -479,7 +490,7 @@ void QGraphicsViewPrivate::mouseDoubleClickEvent(QMouseEvent *event)
 void QGraphicsViewPrivate::mousePressEvent(QMouseEvent *event)
 {
     Q_Q(QGraphicsView);
-    if (!scene || !sceneInteractionAllowed)
+    if (!sceneInteractionAllowed)
         return;
 
     mousePressViewPoint = event->pos();
@@ -488,11 +499,31 @@ void QGraphicsViewPrivate::mousePressEvent(QMouseEvent *event)
     lastMouseMoveScenePoint = mousePressScenePoint;
     mousePressButton = event->button();
 
-    if ((rubberBanding = !scene->itemAt(mousePressScenePoint)))
-        scene->clearSelection();
-
     storeMouseEvent(event);
+    
+    if (dragMode == QGraphicsView::RubberBandDrag) {
+        if (!scene) {
+            rubberBanding = true;
+        } else if ((rubberBanding = !scene->itemAt(mousePressScenePoint))) {
+            scene->clearSelection();
+        }
+    } else if (dragMode == QGraphicsView::ScrollHandDrag
+               && event->button() == Qt::LeftButton) {
+        if (!scene) {
+            handScrolling = true;
+            q->setCursor(Qt::PointingHandCursor);
+            return;
+        }
+        if ((handScrolling = !scene->itemAt(mousePressScenePoint))) {
+            q->setCursor(Qt::PointingHandCursor);
+            return;
+        }
+        q->unsetCursor();
+    }
 
+    if (!scene)
+        return;
+    
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
     mouseEvent.setWidget(q);
     mouseEvent.setButtonDownScenePos(mousePressButton, mousePressScenePoint);
@@ -513,31 +544,48 @@ void QGraphicsViewPrivate::mousePressEvent(QMouseEvent *event)
 void QGraphicsViewPrivate::mouseMoveEvent(QMouseEvent *event)
 {
     Q_Q(QGraphicsView);
-    if (!scene || !sceneInteractionAllowed)
+    if (!sceneInteractionAllowed)
         return;
 
-    if (rubberBanding) {
-        // Invoke El Rubber
-        if (!rubberBand) {
-            if ((mousePressViewPoint - event->pos()).manhattanLength()
-                < QApplication::startDragDistance())
-                return;
+    if (dragMode == QGraphicsView::RubberBandDrag) {
+        if (rubberBanding) {
+            // Invoke El Rubber
+            if (!rubberBand) {
+                if ((mousePressViewPoint - event->pos()).manhattanLength()
+                    < QApplication::startDragDistance())
+                    return;
 
-            rubberBand = new QRubberBand(QRubberBand::Rectangle, q);
+                rubberBand = new QRubberBand(QRubberBand::Rectangle, q);
+            }
+            QRect selectionRect = QRect(mousePressViewPoint, event->pos()).normalized();
+            rubberBand->setGeometry(selectionRect);
+            QPainterPath selectionArea;
+            selectionArea.addPolygon(q->mapToScene(selectionRect));
+            if (scene)
+                scene->setSelectionArea(selectionArea);
+            if (!rubberBand->isVisible())
+                rubberBand->show();
+            return;
         }
-        QRect selectionRect = QRect(mousePressViewPoint, event->pos()).normalized();
-        rubberBand->setGeometry(selectionRect);
-        QPainterPath selectionArea;
-        selectionArea.addPolygon(q->mapToScene(selectionRect));
-        scene->setSelectionArea(selectionArea);
-        if (!rubberBand->isVisible())
-            rubberBand->show();
-        return;
+    } else if (dragMode == QGraphicsView::ScrollHandDrag) {
+        if (handScrolling) {
+            QScrollBar *hBar = q->horizontalScrollBar();
+            QScrollBar *vBar = q->verticalScrollBar();
+            QPoint delta = event->pos() - lastMouseEvent.pos();
+            hBar->setValue(hBar->value() - delta.x());
+            vBar->setValue(vBar->value() - delta.y());
+        }
     }
 
     if (!useLastMouseEvent)
         storeMouseEvent(event);
 
+    if (handScrolling)
+        return;
+
+    if (!scene)
+        return;
+    
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseMove);
     mouseEvent.setWidget(q);
     mouseEvent.setButtonDownScenePos(mousePressButton, mousePressScenePoint);
@@ -567,19 +615,27 @@ void QGraphicsViewPrivate::mouseMoveEvent(QMouseEvent *event)
 void QGraphicsViewPrivate::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_Q(QGraphicsView);
-    if (!scene || !sceneInteractionAllowed)
+    if (!sceneInteractionAllowed)
         return;
 
-    if (rubberBanding) {
-        // Withdraw El Rubber
-        delete rubberBand;
-        rubberBand = 0;
-        rubberBanding = false;
-        return;
+    if (dragMode == QGraphicsView::RubberBandDrag) {
+        if (rubberBanding) {
+            // Withdraw El Rubber
+            delete rubberBand;
+            rubberBand = 0;
+            rubberBanding = false;
+            return;
+        }
+    } else if (dragMode == QGraphicsView::ScrollHandDrag) {
+        q->unsetCursor();
+        handScrolling = false;
     }
-
+    
     storeMouseEvent(event);
 
+    if (!scene)
+        return;
+    
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseRelease);
     mouseEvent.setWidget(q);
     mouseEvent.setButtonDownScenePos(mousePressButton, mousePressScenePoint);
@@ -821,21 +877,28 @@ void QGraphicsView::setAlignment(Qt::Alignment alignment)
 }
 
 /*!
-    \internal
+    \property QGraphicsView::dragMode
+    \brief the behavior for dragging the mouse over the scene while
+    the left mouse button is pressed.
+
+    This property defines what should happen when the user clicks on the scene
+    background and drags the mouse (e.g., scrolling the viewport contents
+    using a pointing hand cursor, or selecting multiple items with a rubber
+    band). The default value, NoDrag, does nothing.
+
+    This behavior only affects mouse clicks that are not handled by any item.
+    You can define a custom behavior by creating a subclass of QGraphicsView
+    and reimplementing mouseMoveEvent().
 */
-QGraphicsView::SelectionMode QGraphicsView::selectionMode() const
+QGraphicsView::DragMode QGraphicsView::dragMode() const
 {
     Q_D(const QGraphicsView);
-    return d->selectionMode;
+    return d->dragMode;
 }
-
-/*!
-    \internal
-*/
-void QGraphicsView::setSelectionMode(SelectionMode mode)
+void QGraphicsView::setDragMode(DragMode mode)
 {
     Q_D(QGraphicsView);
-    d->selectionMode = mode;
+    d->dragMode = mode;
 }
 
 /*!
@@ -1731,7 +1794,7 @@ bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
         if (event->type() != QEvent::KeyPress && event->type() != QEvent::KeyRelease)
             return false;
     }
-    if (!d->renderWidget || (!d->scene && event->type() != QEvent::Paint))
+    if (!d->renderWidget)
         return false;
 
     switch (event->type()) {
