@@ -22,12 +22,16 @@ class GLWidget : public QGLWidget
 public:
     GLWidget(QWidget *parent);
     ~GLWidget();
+
+    void saveGLState();
+    void restoreGLState();
+
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseDoubleClickEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
+    void timerEvent(QTimerEvent *);
     void wheelEvent(QWheelEvent *);
-
 
 public slots:
     void animate(qreal);
@@ -37,7 +41,9 @@ public slots:
 private:
     QPoint anchor;
     float scale;
-    float rot_y, rot_z;
+    float rot_x, rot_y, rot_z;
+    GLuint tile_list;
+    GLfloat *wave;
 
     QImage logo;
     QTimeLine *anim;

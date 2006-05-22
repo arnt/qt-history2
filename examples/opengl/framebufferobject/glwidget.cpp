@@ -14,13 +14,17 @@
 #include <QtGui/QImage>
 #include "glwidget.h"
 
+#ifndef GL_MULTISAMPLE
+#define GL_MULTISAMPLE  0x809D
+#endif
+
 GLWidget::GLWidget(QWidget *parent)
-    : QGLWidget(parent)
+    : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 {
     setWindowTitle(tr("OpenGL framebuffer objects"));
     makeCurrent();
     fbo = new QGLFramebufferObject(512, 512);
-    rot_y = rot_z = 0.0f;
+    rot_x = rot_y = rot_z = 0.0f;
     scale = 1.2f;
     anim = new QTimeLine(750, this);
     anim->setUpdateInterval(20);
@@ -32,10 +36,28 @@ GLWidget::GLWidget(QWidget *parent)
 
     logo = QImage(":/res/qt4-logo.png");
     logo = logo.convertToFormat(QImage::Format_ARGB32);
+
+    tile_list = glGenLists(1);
+    glNewList(tile_list, GL_COMPILE);
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
+    }
+    glEnd();
+    glEndList();
+
+    wave = new GLfloat[logo.width()*logo.height()];
+    memset(wave, 0, logo.width()*logo.height());
+    startTimer(50); // wave timer
 }
 
 GLWidget::~GLWidget()
 {
+    delete[] wave;
+    glDeleteLists(tile_list, 1);
     delete fbo;
 }
 
@@ -49,11 +71,7 @@ void GLWidget::draw()
     QPainter p(this); // used for text overlay
 
     // save the GL state set for QPainter
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
+    saveGLState();
 
     // render the 'bubbles.svg' file into our framebuffer object
     QPainter fbo_painter(fbo);
@@ -72,53 +90,43 @@ void GLWidget::draw()
 
     glBindTexture(GL_TEXTURE_2D, fbo->texture());
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 
     // draw background
     glPushMatrix();
-    glScalef(1.6f, 1.6f, 1.6f);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.15f);
-    glBegin(GL_QUADS);
-    {
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, -1.0f);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, -1.0f);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, -1.0f);
-    }
-    glEnd();
+    glScalef(1.7f, 1.7f, 1.7f);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.45f);
+    glCallList(tile_list);
     glPopMatrix();
 
+    const int w = logo.width();
+    const int h = logo.height();
+
+    glRotatef(rot_x, 1.0f, 0.0f, 0.0f);
     glRotatef(rot_y, 0.0f, 1.0f, 0.0f);
     glRotatef(rot_z, 0.0f, 0.0f, 1.0f);
-    glScalef(scale/logo.width(), scale/logo.width(), scale/logo.width());
+    glScalef(scale/w, scale/w, scale/w);
 
-    // draw the "Qt"
-    glTranslatef(-logo.width()+1, -logo.height()+1, 0.0f);
-    for (int y=logo.height()-1; y>=0; --y) {
+    // draw the Qt icon
+    glTranslatef(-w+1, -h+1, 0.0f);
+    for (int y=h-1; y>=0; --y) {
         uint *p = (uint*) logo.scanLine(y);
-        uint *end = p + logo.width();
+        uint *end = p + w;
+        int  x = 0;
         while (p < end) {
-            glColor4ub(qRed(*p), qGreen(*p), qBlue(*p), qAlpha(*p));
-            glBegin(GL_QUADS);
-            {
-                glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, 0.0f);
-                glTexCoord2f(1.0f, 0.0f); glVertex3f(1.0f, -1.0f, 0.0f);
-                glTexCoord2f(1.0f, 1.0f); glVertex3f(1.0f, 1.0f, 0.0f);
-                glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f, 1.0f, 0.0f);
-            }
-            glEnd();
+            glColor4ub(qRed(*p), qGreen(*p), qBlue(*p), uchar(qAlpha(*p)*.9));
+            glTranslatef(0.0f, 0.0f, wave[y*w+x]);
+            glCallList(tile_list);
+            glTranslatef(0.0f, 0.0f, -wave[y*w+x]);
             glTranslatef(2.0f, 0.0f, 0.0f);
+            ++x;
             ++p;
         }
-        glTranslatef(-logo.width()*2.0f, 2.0f, 0.0f);
+        glTranslatef(-w*2.0f, 2.0f, 0.0f);
     }
 
     // restore the GL state that QPainter expects
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-    glPopAttrib();
+    restoreGLState();
 
     // draw the overlayed text using QPainter
     p.setPen(QColor(197, 197, 197, 157));
@@ -141,10 +149,12 @@ void GLWidget::mousePressEvent(QMouseEvent *e)
 void GLWidget::mouseMoveEvent(QMouseEvent *e)
 {
     QPoint diff = e->pos() - anchor;
-    if (e->buttons() & Qt::LeftButton)
+    if (e->buttons() & Qt::LeftButton) {
+        rot_x += diff.y()/5.0f;
         rot_y += diff.x()/5.0f;
-    else if (e->buttons() & Qt::RightButton)
+    } else if (e->buttons() & Qt::RightButton) {
         rot_z += diff.x()/5.0f;
+    }
 
     anchor = e->pos();
     draw();
@@ -173,4 +183,50 @@ void GLWidget::animFinished()
         anim->setDirection(QTimeLine::Backward);
     else
         anim->setDirection(QTimeLine::Forward);
+}
+
+void GLWidget::saveGLState()
+{
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+}
+
+void GLWidget::restoreGLState()
+{
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glPopAttrib();
+}
+
+#define PI 3.14159
+
+void GLWidget::timerEvent(QTimerEvent *)
+{
+    int dx, dy; // disturbance point
+    float s, v, W, t;
+    int i, j;
+    static float wt[128][128];
+    const int width = logo.width();
+
+    dx = dy = width >> 1;
+
+    W = .3;
+    v = -4; // wave speed
+
+    for (i = 0; i < width; ++i) {
+	for ( j = 0; j < width; ++j) {
+	    s = sqrt((double) ((j - dx) * (j - dx) + (i - dy) * (i - dy)));
+	    wt[i][j] += 0.1;
+	    t = s / v;
+            if (s != 0)
+                wave[i*width + j] = 10 * sin(2 * PI * W * (wt[i][j] + t)) / (0.2*(s + 2));
+            else
+                wave[i*width + j] = 10 * sin(2 * PI * W * (wt[i][j] + t));
+	}
+    }
 }
