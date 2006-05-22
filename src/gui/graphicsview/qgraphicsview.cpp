@@ -336,7 +336,7 @@ void QGraphicsViewPrivate::paintEvent(QPainter *painter, const QRegion &region)
     QSet<QGraphicsItem *> visibleItemSet;
     if (scene) {
         foreach (QRect rect, exposedRegion.rects()) {
-            QList<QGraphicsItem *> itemsInArea = scene->items(q->mapToScene(rect));
+            QList<QGraphicsItem *> itemsInArea = scene->items(q->mapToScene(rect.adjusted(-1, -1, 1, 1)));
             foreach (QGraphicsItem *item, itemsInArea) {
                 if (!visibleItemSet.contains(item)) {
                     visibleItemSet << item;
