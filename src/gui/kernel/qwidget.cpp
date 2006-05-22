@@ -3200,7 +3200,7 @@ void QWidget::setFont(const QFont &font)
 {
     Q_D(QWidget);
     setAttribute(Qt::WA_SetFont, font.resolve() != 0);
-    d->setFont_helper(font);
+    d->setFont_helper(font.resolve(qt_naturalWidgetFont(this)));
 }
 
 void QWidgetPrivate::resolveFont()
