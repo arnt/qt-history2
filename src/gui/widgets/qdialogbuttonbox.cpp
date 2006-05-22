@@ -21,42 +21,55 @@
 #include "qdialogbuttonbox.h"
 
 /*!
-    \class QDialoButtonBox
-
+    \class QDialogButtonBox
+    \since 4.2
     \brief The QDialogButtonBox class is a widget that presents buttons in a
-    certain layout depending upon the style.
+    layout that is appropriate to the current widget style.
 
-    \ingroup Not sure...
+    \ingroup application
 
     Dialogs and message boxes typically present buttons in a layout that
     conforms to the interface guidelines for that platform. Invariably,
     different platforms have different layouts for their dialogs.
-    QDialogButtonBox allows a user to add buttons to it and have the button box
-    determine the layout for user.
+    QDialogButtonBox allows a developer to add buttons to it and will
+    automatically use the appropriate layout for the user's desktop
+    environment.
 
-    Most buttons for a dialog follow into certain roles. These roles include,
-    accepting or rejecting the dialog, asking for help, doing actions on the
-    dialog itself (such as resetting fields or applying changes). There can
-    also be alternate ways of dismissing the dialog (some with destructive
-    results).
+    Most buttons for a dialog follow certain roles. Such roles include:
+
+    \list
+    \o Accepting or rejecting the dialog.
+    \o Asking for help.
+    \o Performing actions on the dialog itself (such as resetting fields or
+       applying changes).
+    \endlist
+
+    There can also be alternate ways of dismissing the dialog (some with
+    destructive results).
 
     Most dialogs have buttons that can almost considered to be standard (e.g.
-    OK and Cancel buttons). It is sometimes convenient to create these buttons
-    in a standard way.
+    \gui OK and \gui Cancel buttons). It is sometimes convenient to create these
+    buttons in a standard way.
 
     Typically, you create a QDialogButtonBox with the orientation you want and
     then add buttons to it specifying the role for each button.
 
+    \omit
     ### Some quoted example showing this in action
+    \endomit
 
     Currently the buttons are laid out in the following way.
 
+    \omit
     ### Some sort of table indicating the layout style.
+    \endomit
 
     When a button is clicked in the button box, the clicked() signal is emitted
     (once with the ButtonRole and once with the actual button). For
     convenience, if the button has an AcceptRole or a RejectRole the accepted
     and rejected signals are emitted respectively.
+
+    \sa QMessageBox, QPushButton, QDialog
 */
 
 enum { AcceptRole = QDialogButtonBox::AcceptRole, RejectRole = QDialogButtonBox::RejectRole,
@@ -64,7 +77,6 @@ enum { AcceptRole = QDialogButtonBox::AcceptRole, RejectRole = QDialogButtonBox:
        DestructiveRole = QDialogButtonBox::DestructiveRole,
        ActionRole = QDialogButtonBox::ActionRole, HelpRole = QDialogButtonBox::HelpRole,
        Stretch = 0x10000000, MacSpacer = 0x20000000, EOL = 0x40000000 };
-
 
 static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton button)
 {
@@ -313,10 +325,9 @@ void QDialogButtonBoxPrivate::createStandardButtons(QDialogButtonBox::StandardBu
 }
 
 /*!
-    Create a horizontal QDialogButtonBox with \a parent as its parent widget. The
-    QDialogButtonBox will have no buttons.
+    Constructs an empty, horizontal button box with the given \a parent.
 
-    \sa setOrientation() addButton()
+    \sa orientation, addButton()
 */
 QDialogButtonBox::QDialogButtonBox(QWidget *parent)
     : QWidget(*new QDialogButtonBoxPrivate(Qt::Horizontal), parent, 0)
@@ -325,10 +336,9 @@ QDialogButtonBox::QDialogButtonBox(QWidget *parent)
 }
 
 /*!
-    Create a QDialogButtonBox with orientation \a orientation and \a parent as
-    its parent widget.  The QDialogButtonBox will have no buttons.
+    Constructs an empty button box with the given \a orientation and \a parent.
 
-    \sa setOrientiation() addButton()
+    \sa orientation, addButton()
 */
 QDialogButtonBox::QDialogButtonBox(Qt::Orientation orientation, QWidget *parent)
     : QWidget(*new QDialogButtonBoxPrivate(orientation), parent, 0)
@@ -337,10 +347,10 @@ QDialogButtonBox::QDialogButtonBox(Qt::Orientation orientation, QWidget *parent)
 }
 
 /*!
-    Create a QDialogButtonBox with orientation \a orientation, parent \a
-    parent, and create the standard buttons as indicated by \a buttons
+    Constructs a button box with the given \a orientation and \a parent, containing
+    the standard buttons specified by \a buttons.
 
-    \sa setOrientiation() addButton()
+    \sa orientation, addButton()
 */
 QDialogButtonBox::QDialogButtonBox(StandardButtons buttons, Qt::Orientation orientation,
                                    QWidget *parent)
@@ -358,69 +368,98 @@ QDialogButtonBox::~QDialogButtonBox()
 }
 
 /*!
-    enum QDialogButtonBox::ButtonRole
+    \enum QDialogButtonBox::ButtonRole
 
-    This enum describes roles for a button.
+    This enum describes the roles that can be used to describe buttons in
+    the button box. Combinations of these roles are as flags used to
+    describe different aspects of their behavior.
 
-    \value InvalidRole An invalid role.
-    \value AcceptRole  The role for accepting a dialog (e.g. OK).
-    \value RejectRole The role for rejecting a dialog (e.g. Cancel).
-    \value AlternateRole The role for dismissing a dialog in an alternate way
-    \value DestructiveRole The role for dismissing a dialog when dismissing the dialog will cause a destructive change (e.g. for Discarding Changes).
-    \value ActionRole The role for buttons in the dialog that affect elements in the dialog (e.g. reset all the values or read defaults)
-    \value HelpRole The role for asking for help,
+    \value InvalidRole The button is invalid.
+    \value AcceptRole Clicking the button causes the dialog to be accepted
+           (e.g. OK).
+    \value RejectRole Clicking the button causes the dialog to be rejected
+           (e.g. Cancel).
+    \value AlternateRole Clicking the button dismisses the dialog in an
+           alternate way.
+    \value DestructiveRole Clicking the button causes a destructive change
+           (e.g. for Discarding Changes).
+    \value ActionRole Clicking the button causes changes to the elements in
+           the dialog (e.g. reset all the values or read defaults).
+    \value HelpRole The button can be clicked to request help.
     \omitvalue NRoles
 */
 
 /*!
-    enum QDialogButtonBox::StandardButton
+    \enum QDialogButtonBox::StandardButton
 
     These enums describe flags for standard buttons. Each button has a
-    defined ButtonRole.
+    defined \l ButtonRole.
 
-    \value Ok An "OK" button. It has the AcceptRole.
-    \value Open A "Open" button. It has the AcceptRole.
-    \value Save A "Save" button. It has the AcceptRole.
-    \value Cancel A "Cancel" button, It has the RejectRole.
-    \value Close A "Close" button. It has the RejectRole.
-    \value DontSave A "Don't Save" or "Discard" button depending on the platform.
-                    It has the DestructiveRole.
-    \value Apply An "Apply" button. It has the ActionRole.
-    \value Reset A "Reset" button. It has the ActionRole.
-    \value Help A "Help" button. It has the HelpRole.
+    \value Ok An "OK" button defined with the \l AcceptRole.
+    \value Open A "Open" button defined with the \l AcceptRole.
+    \value Save A "Save" button defined with the \l AcceptRole.
+    \value Cancel A "Cancel" button defined with the \l RejectRole.
+    \value Close A "Close" button defined with the \l RejectRole.
+    \value DontSave A "Don't Save" or "Discard" button, depending on the platform,
+                    defined with the \l DestructiveRole.
+    \value Apply An "Apply" button defined with the \l ActionRole.
+    \value Reset A "Reset" button defined with the \l ActionRole.
+    \value Help A "Help" button defined with the \l HelpRole.
 */
 
 /*!
-    \fn QDialogButtonBox::clicked(int buttonRole)
+    \enum QDialogButtonBox::LayoutPolicy
+
+    This enum describes the layout policy to be used when arranging the buttons
+    contained in the button box.
+
+    \value WinLayout Use a policy appropriate for applications on Windows.
+    \value MacLayout Use a policy appropriate for applications on Mac OS X.
+    \value KdeLayout Use a policy appropriate for applications on KDE.
+    \value GnomeLayout Use a policy appropriate for applications on GNOME.
+*/
+
+/*!
+    \fn void QDialogButtonBox::clicked(int buttonRole)
 
     This signal is emitted when a button inside the button box is clicked. The
-    ButtonRole of the button that was clicked is contained \a buttonRole.
+    \l ButtonRole of the button that was clicked is contained \a buttonRole.
+
+    \sa accepted(), rejected()
 */
 
 /*!
-    \fn QDialogButtonBox::clicked(QAbstractButton *button)
+    \fn void QDialogButtonBox::clicked(QAbstractButton *button)
 
     This signal is emitted when a button inside the button box is clicked. The
-    specific button that was pressed is in \a button.
+    specific button that was pressed is specified by \a button.
+
+    \sa accepted(), rejected()
 */
 
 /*!
-    \fn QDialogButtonBox::accepted()
+    \fn void QDialogButtonBox::accepted()
 
-    This signal is emitted by any button that has the AcceptRole and is clicked.
+    This signal is emitted when a button inside the button box is clicked, as long
+    as it was defined with the \l AcceptRole.
+
+    \sa rejected(), clicked()
 */
 
 /*!
-    \fn QDialogButtonBox::rejected()
+    \fn void QDialogButtonBox::rejected()
 
-    This signal is emitted by any button that has the RejectRole and is clicked.
+    This signal is emitted when a button inside the button box is clicked, as long
+    as it was defined with the \l RejectRole.
+
+    \sa accepted()
 */
 
 /*!
     \property QDialogButtonBox::orientation
     \brief the orientation of the button box
 
-    By default the orientation is horzontal (i.e., the buttons are laid out
+    By default, the orientation is horizontal (i.e. the buttons are laid out
     side by side). The possible orientations are Qt::Horizontal and
     Qt::Vertical.
 */
@@ -442,9 +481,9 @@ void QDialogButtonBox::setOrientation(Qt::Orientation orientation)
 }
 
 /*!
-    Delete all buttons from the button box.
+    Clears the button box, deleting all buttons within it.
 
-    \sa removeButton() addButton()
+    \sa removeButton(), addButton()
 */
 void QDialogButtonBox::clear()
 {
@@ -463,13 +502,9 @@ void QDialogButtonBox::clear()
 }
 
 /*!
+    Returns a list of all the buttons that have been added to the button box.
 
-    Return a list of all the buttons that have been added to the
-    QDialogButtonBox. The current order follows the ButtonRoles (i.e. all
-    buttons with the AcceptRole, followed by all buttons with the RejectRole,
-    etc.).
-
-    \sa buttonRole() addButton() removeButton()
+    \sa buttonRole(), addButton(), removeButton()
 
 */
 QList<QAbstractButton *> QDialogButtonBox::buttons() const
@@ -485,10 +520,10 @@ QList<QAbstractButton *> QDialogButtonBox::buttons() const
 }
 
 /*!
-    Returns the button role for \a button. This function returns InvalidRole if
-    \a button is 0 or has not been added to the QDialogButtonBox.
+    Returns the button role for the specified \a button. This function returns
+    \l InvalidRole if \a button is 0 or has not been added to the button box.
 
-    \sa buttons() addButton()
+    \sa buttons(), addButton()
 */
 QDialogButtonBox::ButtonRole QDialogButtonBox::buttonRole(QAbstractButton *button) const
 {
@@ -504,10 +539,10 @@ QDialogButtonBox::ButtonRole QDialogButtonBox::buttonRole(QAbstractButton *butto
 }
 
 /*!
-    Removes \a button from the QDialogButtonBox without deleting it. This is
-    typically done when you want to change the parent of \a button.
+    Removes \a button from the button box without deleting it. This is
+    typically done when you want to change the parent of a button.
 
-    \sa clear() buttons() addButton()
+    \sa clear(), buttons(), addButton()
 */
 void QDialogButtonBox::removeButton(QAbstractButton *button)
 {
@@ -530,11 +565,13 @@ void QDialogButtonBox::removeButton(QAbstractButton *button)
 }
 
 /*!
-    Add \a button to the QDialogButtonBox with ButtonRole \a role. If \a role
-    is invalid, nothing happens. If \a button has already been added, it is
-    removed and added again with the new \a role.
+    Adds the given \a button to the button box with the specified \a role.
+    If the role is invalid, the button is not added.
 
-    \sa removeButton() clear()
+    If the button has already been added, it is removed and added again with the
+    new role.
+
+    \sa removeButton(), clear()
 */
 void QDialogButtonBox::addButton(QAbstractButton *button, ButtonRole role)
 {
@@ -549,10 +586,11 @@ void QDialogButtonBox::addButton(QAbstractButton *button, ButtonRole role)
 }
 
 /*!
-    Creates a QPushButton with text \a text and add it to the QDialogButtonBox
-    with role \a role. The button is returned from the function. If \a role is
-    invalid, no button is created and zero is returned.
-    \sa removeButton() clear()
+    Creates a push button with the given \a text, adds it to the button box for the
+    specified \a role, and returns the corresponding push button. If \a role is
+    invalid, no button is created, and zero is returned.
+
+    \sa removeButton(), clear()
 */
 QAbstractButton *QDialogButtonBox::addButton(const QString &text, ButtonRole role)
 {
@@ -567,12 +605,11 @@ QAbstractButton *QDialogButtonBox::addButton(const QString &text, ButtonRole rol
 }
 
 /*!
-    Add StandardButton \a button to the QDialogButtonBox.
+    Adds a standard \a button to the button box if it is valid to do so, and returns
+    a push button. If \a button is invalid, it is not added to the button box, and
+    zero is returned.
 
-    If \a button is valid, a valid QPushButton pointer is returned, otherwise a
-    null pointer is returned.
-
-    \sa removeButton() clear()
+    \sa removeButton(), clear()
 */
 QAbstractButton *QDialogButtonBox::addButton(StandardButton button)
 {
@@ -582,9 +619,9 @@ QAbstractButton *QDialogButtonBox::addButton(StandardButton button)
 
 /*!
     \property QDialogButtonBox::standardButtons
-    \brief The collection of standard buttons the button box has.
+    \brief collection of standard buttons in the button box
 
-    This property controls which standard buttons the dialog button box has.
+    This property controls which standard buttons are used by the button box.
 
     \sa addButton()
 */
