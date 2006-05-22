@@ -710,12 +710,12 @@ void QTextEditPrivate::ensureVisible(const QRect &rect)
     const int visibleHeight = viewport->height();
 
     if (rect.x() < horizontalOffset())
-        hbar->setValue(rect.x() - rect.width());
+        hbar->setValue(rect.x());
     else if (rect.x() + rect.width() > horizontalOffset() + visibleWidth)
         hbar->setValue(rect.x() + rect.width() - visibleWidth);
 
     if (rect.y() < verticalOffset())
-        vbar->setValue(rect.y() - rect.height());
+        vbar->setValue(rect.y());
     else if (rect.y() + rect.height() > verticalOffset() + visibleHeight)
         vbar->setValue(rect.y() + rect.height() - visibleHeight);
 }
