@@ -57,7 +57,6 @@ GraphWidget::GraphWidget()
     setMinimumSize(400, 400);
     scale(0.8, 0.8);
 
-    setSceneRect(scene->sceneRect());
     itemMoved();
 
     setWindowTitle(tr("Graph Widget"));
