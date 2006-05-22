@@ -393,6 +393,22 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
 
 /*! \internal
  */
+void QObjectPrivate::clearGuards(QObject *object)
+{
+    GuardHash *hash = ::guardHash();
+    if (hash) {
+        QWriteLocker locker(guardHashLock());
+        GuardHash::iterator it = hash->find(object);
+        const GuardHash::iterator end = hash->end();
+        while (it.key() == object && it != end) {
+            *it.value() = 0;
+            it = hash->erase(it);
+        }
+    }
+}
+
+/*! \internal
+ */
 QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender, int nargs, int *types, void **args)
     :QEvent(MetaCall), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
 { }
@@ -639,16 +655,10 @@ QObject::~QObject()
 
     d->blockSig = 0; // unblock signals so we always emit destroyed()
 
-    // set all QPointers for this object to zero
-    GuardHash *hash = ::guardHash();
-    if (hash) {
-        QWriteLocker locker(guardHashLock());
-        GuardHash::iterator it = hash->find(this);
-        const GuardHash::iterator end = hash->end();
-        while (it.key() == this && it != end) {
-            *it.value() = 0;
-            it = hash->erase(it);
-        }
+    if (!d->isWidget) {
+        // set all QPointers for this object to zero - note that
+        // ~QWidget() does this for us, so we don't have to do it twice
+        QObjectPrivate::clearGuards(this);
     }
 
     emit destroyed(this);

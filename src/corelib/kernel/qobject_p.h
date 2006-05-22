@@ -82,6 +82,8 @@ public:
 
     void setParent_helper(QObject *);
 
+    static void clearGuards(QObject *);
+
 #ifndef QT_NO_USERDATA
     QVector<QObjectUserData *> userData;
 #endif

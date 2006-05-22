@@ -1066,9 +1066,14 @@ QWidget::~QWidget()
     if (isWindow() && isVisible() && winId())
         hide();
 
+    // set all QPointers for this object to zero
+    QObjectPrivate::clearGuards(this);
+
     // A parent widget must destroy all its children before destroying itself
-    while (!d->children.isEmpty())
-        delete d->children.takeFirst();
+    if (!d->children.isEmpty()) {
+        qDeleteAll(d->children);
+        d->children.clear();
+    }
 
     QApplication::removePostedEvents(this);
 
