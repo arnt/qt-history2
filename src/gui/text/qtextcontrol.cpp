@@ -2310,15 +2310,15 @@ void QTextControl::setTabStopWidth(int width)
 
     This property specifies the width of the cursor in pixels. The default value is 1.
 */
-int QTextEdit::cursorWidth() const
+int QTextControl::cursorWidth() const
 {
-    Q_D(const QTextEdit);
+    Q_D(const QTextControl);
     return d->doc->documentLayout()->property("cursorWidth").toInt();
 }
 
-void QTextEdit::setCursorWidth(int width)
+void QTextControl::setCursorWidth(int width)
 {
-    Q_D(QTextEdit);
+    Q_D(QTextControl);
     d->doc->documentLayout()->setProperty("cursorWidth", width);
     d->repaintCursor();
 }
