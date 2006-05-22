@@ -2095,10 +2095,8 @@ QTreeWidgetItem *QTreeWidget::headerItem() const
 void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 {
     Q_D(QTreeWidget);
-
-    // FIXME When we by default autogenerate the numbers when NULL then accept this
-    Q_ASSERT(item);
-
+    if (!item)
+        return;
     delete d->model()->header;
     item->view = this;
     d->model()->header = item;
