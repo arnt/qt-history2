@@ -290,7 +290,9 @@ public:
     QRegion mask() const;
     void clearMask();
 
+public Q_SLOTS:
     void setWindowTitle(const QString &);
+public:
     QString windowTitle() const;
     void setWindowIcon(const QIcon &icon);
     QIcon windowIcon() const;
