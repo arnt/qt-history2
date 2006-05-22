@@ -759,14 +759,14 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         return;
     if (hide) {
         int size = sectionSize(logicalIndex);
-        resizeSection(logicalIndex, 0);
+        if (!d->hasAutoResizeSections())
+            resizeSection(logicalIndex, 0);
         d->hiddenSectionSize.insert(logicalIndex, size);
         if (d->sectionHidden.count() < count())
             d->sectionHidden.resize(count());
         d->sectionHidden.setBit(visual, true);
-        // A bit of a hack because resizeSection has to called before hiding FIXME
-//         if (d->hasAutoResizeSections())
-//             resizeSections(); // changes because of the new/old hidden
+        if (d->hasAutoResizeSections())
+            resizeSections();
     } else if (d->isVisualIndexHidden(visual)) {
         int size = d->hiddenSectionSize.value(logicalIndex, d->defaultSectionSize);
         d->hiddenSectionSize.remove(logicalIndex);
