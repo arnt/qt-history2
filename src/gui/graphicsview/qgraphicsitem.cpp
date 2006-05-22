@@ -3326,7 +3326,7 @@ public:
 
     QTextControl *textControl;
 
-    QPointF mapToControl(const QPointF &point) const;
+    QPointF controlOffset() const;
     void _q_updateBoundingRect(const QSizeF &);
     void _q_update(QRectF);
     void _q_ensureVisible(QRectF);
@@ -3339,14 +3339,13 @@ public:
     QGraphicsTextItem *qq;
 };
 
-QPointF QGraphicsTextItemPrivate::mapToControl(const QPointF &point) const
+QPointF QGraphicsTextItemPrivate::controlOffset() const
 {
-    QPointF pageOffset;
+    QPointF offset;
     const QSizeF pageSize = textControl->document()->pageSize();
     if (pageSize.height() != INT_MAX)
-        pageOffset.setY(pageNumber * pageSize.height());
-
-    return point + pageOffset;
+        offset.setY(pageNumber * pageSize.height());
+    return offset;
 }
 
 /*!
@@ -3544,7 +3543,7 @@ void QGraphicsTextItem::mouseEvent(QGraphicsSceneMouseEvent *event)
             break;
         }
 
-        QMouseEvent mouseEvent(type, dd->mapToControl(event->pos()).toPoint(), event->button(),
+        QMouseEvent mouseEvent(type, (dd->controlOffset() + event->pos()).toPoint(), event->button(),
                                event->buttons(), event->modifiers());
 
         switch (event->type()) {
@@ -3596,6 +3595,21 @@ void QGraphicsTextItem::focusEvent(QFocusEvent *event)
     if (dd->textControl)
         dd->textControl->setFocus(event->gotFocus());
     update();
+}
+
+/*!
+    \reimp
+*/
+QVariant QGraphicsTextItem::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    QVariant v;
+    if (dd->textControl)
+        v = dd->textControl->inputMethodQuery(query);
+    if (v.type() == QVariant::Rect)
+        v = v.toRect().translated(-dd->controlOffset().toPoint());
+    else if (v.type() == QVariant::RectF)
+        v = v.toRectF().translated(-dd->controlOffset());
+    return v;
 }
 
 /*!

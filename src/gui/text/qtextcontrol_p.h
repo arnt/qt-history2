@@ -190,6 +190,9 @@ public:
     virtual void mouseDoubleClickEvent(QMouseEvent *e);
     virtual void contextMenuEvent(QContextMenuEvent *e);
 
+    virtual void inputMethodEvent(QInputMethodEvent *);
+    QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
+
 protected:
 //    virtual bool event(QEvent *e);
     virtual void timerEvent(QTimerEvent *e);
@@ -203,9 +206,6 @@ protected:
     virtual QMimeData *createMimeDataFromSelection() const;
     virtual bool canInsertFromMimeData(const QMimeData *source) const;
     virtual void insertFromMimeData(const QMimeData *source);
-
-    virtual void inputMethodEvent(QInputMethodEvent *);
-    QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
 
 private:
     Q_DISABLE_COPY(QTextControl)

@@ -1338,27 +1338,7 @@ void QTextControl::keyPressEvent(QKeyEvent *e)
     }
 
     if (d->readOnly) {
-        /* #######
-        switch (e->key()) {
-            case Qt::Key_Home:
-                e->accept();
-                d->vbar->triggerAction(QAbstractSlider::SliderToMinimum);
-                break;
-            case Qt::Key_End:
-                e->accept();
-                d->vbar->triggerAction(QAbstractSlider::SliderToMaximum);
-                break;
-            case Qt::Key_Space:
-                e->accept();
-                if (e->modifiers() & Qt::ShiftModifier)
-                    d->vbar->triggerAction(QAbstractSlider::SliderPageStepSub);
-                else
-                    d->vbar->triggerAction(QAbstractSlider::SliderPageStepAdd);
-            default:
-                QAbstractScrollArea::keyPressEvent(e);
-                break;
-        }
-        */
+        e->ignore();
         return;
     }
 
@@ -1535,7 +1515,7 @@ process:
                 d->cursor.insertText(text);
                 d->selectionChanged();
             } else {
-// ##########                QAbstractScrollArea::keyPressEvent(e);
+                e->ignore();
                 return;
             }
             break;
@@ -2107,10 +2087,8 @@ QVariant QTextControl::inputMethodQuery(Qt::InputMethodQuery property) const
     Q_D(const QTextControl);
     QTextBlock block = d->cursor.block();
     switch(property) {
-    /* ###### viewport.pos() is obviously wrong for the control
     case Qt::ImMicroFocus:
-        return cursorRect().translated(d->viewport->pos());
-    */
+        return cursorRect();
     case Qt::ImFont:
         return QVariant(d->cursor.charFormat().font());
     case Qt::ImCursorPosition:

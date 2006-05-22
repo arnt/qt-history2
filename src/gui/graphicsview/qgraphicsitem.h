@@ -476,6 +476,7 @@ protected:
     void mouseEvent(QGraphicsSceneMouseEvent *event);
     void keyEvent(QKeyEvent *event);
     void focusEvent(QFocusEvent *event);
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
     bool supportsExtension(Extension extension) const;
     void setExtension(Extension extension, const QVariant &variant);
