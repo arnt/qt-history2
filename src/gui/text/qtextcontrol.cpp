@@ -66,12 +66,28 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
     return layout->lineForTextPosition(relativePos);
 }
 
+QTextControlPrivate::QTextControlPrivate()
+    : doc(0), cursorOn(false),
+      readOnly(false),
+      tabChangesFocus(false),
+#ifndef QT_NO_DRAGANDDROP
+      mousePressed(false), mightStartDrag(false),
+#endif
+      lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
+      lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
+      preferRichText(false),
+      overwriteMode(false),
+      acceptRichText(true),
+      preeditCursor(0), hideCursor(false)
+{}
+
 bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
     Q_Q(QTextControl);
     if (cursor.isNull())
         return false;
 
+    const QTextCursor oldSelection = cursor;
     const int oldCursorPos = cursor.position();
     QTextCursor::MoveMode mode = e->modifiers() & Qt::ShiftModifier
                                    ? QTextCursor::KeepAnchor
@@ -245,7 +261,7 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 
     selectionChanged();
 
-    repaintSelection();
+    repaintOldAndNewSelection(oldSelection);
 
     return true;
 }
@@ -488,7 +504,27 @@ void QTextControlPrivate::repaintCursor()
     emit q->updateRequest(q->cursorRect());
 }
 
-void QTextControlPrivate::selectionChanged()
+void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelection)
+{
+    QRect updateRect = selectionRect() | selectionRect(oldSelection);
+
+    if (cursor.hasSelection()
+        && oldSelection.hasSelection()
+        && cursor.currentFrame() == oldSelection.currentFrame()
+        && !cursor.hasComplexSelection()
+        && !oldSelection.hasComplexSelection()
+        && cursor.anchor() == oldSelection.anchor()) {
+        QTextCursor differenceSelection(doc);
+        differenceSelection.setPosition(oldSelection.position());
+        differenceSelection.setPosition(cursor.position(), QTextCursor::KeepAnchor);
+        updateRect = selectionRect(differenceSelection);
+    }
+
+    Q_Q(QTextControl);
+    emit q->updateRequest(updateRect);
+}
+
+void QTextEditPrivate::selectionChanged()
 {
     Q_Q(QTextControl);
     bool current = cursor.hasSelection();
@@ -1362,12 +1398,6 @@ void QTextControl::keyPressEvent(QKeyEvent *e)
     }
 #endif
 
-    // schedule a repaint of the region of the cursor, as when we move it we
-    // want to make sure the old cursor disappears (not noticable when moving
-    // only a few pixels but noticable when jumping between cells in tables for
-    // example)
-    d->repaintSelection();
-
     if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
         QTextBlockFormat fmt;
         fmt.setLayoutDirection((e->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft);
@@ -1377,6 +1407,12 @@ void QTextControl::keyPressEvent(QKeyEvent *e)
 
     if (d->cursorMoveKeyEvent(e))
         goto accept;
+
+    // schedule a repaint of the region of the cursor, as when we move it we
+    // want to make sure the old cursor disappears (not noticable when moving
+    // only a few pixels but noticable when jumping between cells in tables for
+    // example)
+    d->repaintSelection();
 
     if (e->modifiers() & Qt::ControlModifier) {
         switch( e->key() ) {
@@ -1580,18 +1616,28 @@ QRectF QTextControlPrivate::rectForPosition(int position) const
     }
     QTextLine line = layout->lineForTextPosition(relativePos);
 
+    int cursorWidth;
+    {
+        bool ok = false;
+#ifndef QT_NO_PROPERTIES
+        cursorWidth = docLayout->property("cursorWidth").toInt(&ok);
+#endif
+        if (!ok)
+            cursorWidth = 1;
+    }
+
     QRectF r;
 
     if (line.isValid())
-        r = QRectF(layoutPos.x() + line.cursorToX(relativePos) - 5, layoutPos.y() + line.y(),
-                  10, line.ascent() + line.descent() + 1.);
+        r = QRectF(layoutPos.x() + line.cursorToX(relativePos) - 5 - cursorWidth, layoutPos.y() + line.y(),
+                  2 * cursorWidth + 10, line.ascent() + line.descent()+1.);
     else
-        r = QRectF(layoutPos.x() - 5, layoutPos.y(), 10, 10); // #### correct height
+        r = QRectF(layoutPos.x() - 5 - cursorWidth, layoutPos.y(), 2 * cursorWidth + 10, 10); // #### correct height
 
     return r;
 }
 
-QRectF QTextControlPrivate::selectionRect() const
+QRectF QTextControlPrivate::selectionRect(const QTextCursor &cursor) const
 {
     QRectF r = rectForPosition(cursor.selectionStart());
 
@@ -1648,10 +1694,12 @@ QRectF QTextControlPrivate::selectionRect() const
         if (posBlock == anchorBlock && posBlock.layout()->lineCount()) {
             const QTextLine posLine = posBlock.layout()->lineForTextPosition(position - posBlock.position());
             const QTextLine anchorLine = anchorBlock.layout()->lineForTextPosition(anchor - anchorBlock.position());
-            if (posLine.lineNumber() == anchorLine.lineNumber()) {
-                r = posLine.rect();
-            } else {
-                r = posBlock.layout()->boundingRect();
+
+            const int firstLine = qMin(posLine.lineNumber(), anchorLine.lineNumber());
+            const int lastLine = qMax(posLine.lineNumber(), anchorLine.lineNumber());
+            r = QRectF();
+            for (int i = firstLine; i <= lastLine; ++i) {
+                r |= posBlock.layout()->lineAt(i).rect().toRect();
             }
             r.translate(doc->documentLayout()->blockBoundingRect(posBlock).topLeft());
         } else {
@@ -1675,6 +1723,7 @@ void QTextControl::mousePressEvent(QMouseEvent *e)
     if (!(e->button() & Qt::LeftButton))
         return;
 
+    const QTextCursor oldSelection = d->cursor;
     const int oldCursorPos = d->cursor.position();
 
     const QPointF pos = d->mapToContents(e->pos());
@@ -1683,7 +1732,6 @@ void QTextControl::mousePressEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
 #endif
-    d->repaintSelection();
 
     if (d->trippleClickTimer.isActive()
         && ((e->globalPos() - d->trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
@@ -1750,7 +1798,7 @@ void QTextControl::mousePressEvent(QMouseEvent *e)
             emit cursorPositionChanged();
         d->updateCurrentCharFormatAndSelection();
     }
-    d->repaintSelection();
+    d->repaintOldAndNewSelection(oldSelection);
 }
 
 /* \reimp
@@ -1766,6 +1814,7 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
           || d->selectedLineOnDoubleClick.hasSelection()))
         return;
 
+    const QTextCursor oldSelection = d->cursor;
     const int oldCursorPos = d->cursor.position();
 
 /* ####
@@ -1778,7 +1827,6 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 */
-    d->repaintSelection();
     const QPointF mousePos = d->mapToContents(e->pos());
     const qreal mouseX = qreal(mousePos.x());
 
@@ -1821,7 +1869,7 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
             emit cursorPositionChanged();
         d->updateCurrentCharFormatAndSelection();
     }
-    d->repaintSelection();
+    d->repaintOldAndNewSelection(oldSelection);
 }
 
 /* \reimp
@@ -1834,7 +1882,7 @@ void QTextControl::mouseReleaseEvent(QMouseEvent *e)
 #endif
 
     d->autoScrollTimer.stop();
-    d->repaintSelection();
+    const QTextCursor oldSelection = d->cursor;
 
 #ifndef QT_NO_DRAGANDDROP
     if (d->mightStartDrag) {
@@ -1858,7 +1906,7 @@ void QTextControl::mouseReleaseEvent(QMouseEvent *e)
 #endif
     }
 
-    d->repaintSelection();
+    d->repaintOldAndNewSelection(oldSelection);
 #ifndef QT_NO_DRAGANDDROP
     if (d->dragStartTimer.isActive())
         d->dragStartTimer.stop();
@@ -1883,7 +1931,7 @@ void QTextControl::mouseDoubleClickEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
 #endif
-    d->repaintSelection();
+    const QTextCursor oldSelection = d->cursor;
     d->setCursorPosition(e->pos());
     QTextLine line = currentTextLine(d->cursor);
     if (line.isValid() && line.textLength()) {
@@ -1892,8 +1940,8 @@ void QTextControl::mouseDoubleClickEvent(QMouseEvent *e)
 #ifndef QT_NO_CLIPBOARD
         d->setClipboardSelection();
 #endif
-        d->repaintSelection();
     }
+    d->repaintOldAndNewSelection(oldSelection);
 
     d->selectedWordOnDoubleClick = d->cursor;
 
@@ -2248,16 +2296,32 @@ void QTextControl::setOverwriteMode(bool overwrite)
 int QTextControl::tabStopWidth() const
 {
     Q_D(const QTextControl);
-    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
-        return qRound(layout->tabStopWidth());
-    return 0;
+    return qRound(d->doc->documentLayout()->property("tabStopWidth").toDouble());
 }
 
 void QTextControl::setTabStopWidth(int width)
 {
     Q_D(QTextControl);
-    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
-        layout->setTabStopWidth(qreal(width));
+    d->doc->documentLayout()->setProperty("tabStopWidth", QVariant(double(width)));
+}
+
+/*!
+    \since 4.2
+    \property QTextEdit::cursorWidth
+
+    This property specifies the width of the cursor in pixels. The default value is 1.
+*/
+int QTextEdit::cursorWidth() const
+{
+    Q_D(const QTextEdit);
+    return d->doc->documentLayout()->property("cursorWidth").toInt();
+}
+
+void QTextEdit::setCursorWidth(int width)
+{
+    Q_D(QTextEdit);
+    d->doc->documentLayout()->setProperty("cursorWidth", width);
+    d->repaintCursor();
 }
 
 /*
@@ -2325,11 +2389,33 @@ void QTextControl::setExtraSelections(const QList<ExtraSelection> &selections)
             return;
     }
 
+/* ########
+    for (int i = 0; i < d->extraSelections.count(); ++i) {
+        QRect r = d->selectionRect(d->extraSelections.at(i).cursor);
+        if (d->extraSelections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
+            r.setLeft(0);
+            r.setWidth(d->viewport->width());
+        }
+        d->viewport->update(r);
+    }
+*/
+
     d->extraSelections.resize(selections.count());
     for (int i = 0; i < selections.count(); ++i) {
         d->extraSelections[i].cursor = selections.at(i).cursor;
         d->extraSelections[i].format = selections.at(i).format;
     }
+
+/* ######
+    for (int i = 0; i < d->extraSelections.count(); ++i) {
+        QRect r = d->selectionRect(d->extraSelections.at(i).cursor);
+        if (d->extraSelections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
+            r.setLeft(0);
+            r.setWidth(d->viewport->width());
+        }
+        d->viewport->update(r);
+    }
+*/
     // ### smarter update
     emit updateRequest();
 }
@@ -2974,9 +3060,28 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
         p->setClipRect(rect);
     ctx.clip = rect;
     ctx.selections = d->extraSelections;
+
+/* ######
+    for (int i = 0; i < ctx.selections.count(); ++i)
+        if (ctx.selections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
+            QRectF r = viewport->rect();
+            r.translate(xOffset, yOffset);
+            ctx.selections[i].format.setProperty(QTextFormat::FullWidthSelection, QRectF(r));
+            ctx.clip.setLeft(0);
+            ctx.clip.setWidth(r.width());
+        }
+*/
+
     ctx.palette = d->palette;
-    if (d->cursorOn /* ####### && q->isEnabled()*/)
-        ctx.cursorPosition = d->cursor.position();
+    if (cursorOn /* ###### && q->isEnabled()*/) {
+        if (hideCursor)
+            ctx.cursorPosition = -1;
+        else if (preeditCursor != 0)
+            ctx.cursorPosition = - (preeditCursor + 2);
+        else
+            ctx.cursorPosition = cursor.position();
+    }
+
     if (!d->dndFeedbackCursor.isNull())
         ctx.cursorPosition = d->dndFeedbackCursor.position();
     if (d->cursor.hasSelection()) {

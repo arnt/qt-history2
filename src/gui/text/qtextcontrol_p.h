@@ -36,6 +36,8 @@
 #include <QtGui/qtextlayout.h>
 #endif
 
+QT_BEGIN_HEADER
+
 QT_MODULE(Gui)
 
 class QStyleSheet;
@@ -58,6 +60,7 @@ class Q_INTERNAL_EXPORT QTextControl : public QObject
     Q_PROPERTY(bool overwriteMode READ overwriteMode WRITE setOverwriteMode)
     Q_PROPERTY(int tabStopWidth READ tabStopWidth WRITE setTabStopWidth)
     Q_PROPERTY(bool acceptRichText READ acceptRichText WRITE setAcceptRichText)
+    Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
 public:
     enum LineWrapMode {
         NoWrap,
@@ -103,7 +106,7 @@ public:
     void ensureCursorVisible();
 
     virtual QVariant loadResource(int type, const QUrl &name);
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
     QMenu *createStandardContextMenu();
 #endif
 
@@ -119,6 +122,9 @@ public:
     int tabStopWidth() const;
     void setTabStopWidth(int width);
 
+    int cursorWidth() const;
+    void setCursorWidth(int width);
+    
     bool acceptRichText() const;
     void setAcceptRichText(bool accept);
 
@@ -211,5 +217,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void redo())
     Q_PRIVATE_SLOT(d_func(), void setCursorAfterUndoRedo(int, int, int))
 };
+
+QT_END_HEADER
 
 #endif // QTEXTCONTROL_H

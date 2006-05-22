@@ -42,16 +42,7 @@ class QTextControlPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QTextControl)
 public:
-    inline QTextControlPrivate()
-        : doc(0), cursorOn(false), readOnly(false),
-          mousePressed(false), mightStartDrag(false),
-          lineWrap(QTextControl::WidgetWidth), lineWrapColumnOrWidth(0),
-          lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
-          preferRichText(false),
-          overwriteMode(false),
-          acceptRichText(true),
-          preeditCursor(0), hideCursor(false)
-    {}
+    QTextControlPrivate();
 
     bool cursorMoveKeyEvent(QKeyEvent *e);
 
@@ -79,7 +70,8 @@ public:
 
     void repaintCursor();
     inline void repaintSelection()
-    { emit q_func()->updateRequest(selectionRect()); }
+    { repaintOldAndNewSelection(QTextCursor()); }
+    void repaintOldAndNewSelection(const QTextCursor &oldSelection);
 
     inline QPointF mapToContents(const QPointF &point) const {
         return point; // #########
@@ -94,12 +86,12 @@ public:
     void pageUp(QTextCursor::MoveMode moveMode);
     void pageDown(QTextCursor::MoveMode moveMode);
 
-    void updateCurrentCharFormatAndSelection();
-    
+    void _q_updateCurrentCharFormatAndSelection();
+
     void setClipboardSelection();
     void ensureVisible(int documentPosition);
 
-    void emitCursorPosChanged(const QTextCursor &someCursor);
+    void _q_emitCursorPosChanged(const QTextCursor &someCursor);
 
     void setBlinkingCursorEnabled(bool enable);
 
@@ -107,13 +99,15 @@ public:
     void extendLinewiseSelection(int suggestedNewPosition);
 
     void deleteSelected();
-    
+
     void undo();
     void redo();
     void setCursorAfterUndoRedo(int undoPosition, int charsAdded, int charsRemoved);
-    
+
     QRectF rectForPosition(int position) const;
-    QRectF selectionRect() const;
+    QRectF selectionRect(const QTextCursor &cursor) const;
+    inline QRectF selectionRect() const
+    { return selectionRect(this->cursor); }
 
     QTextDocument *doc;
     bool cursorOn;
@@ -166,10 +160,8 @@ public:
     bool hideCursor; // used to hide the cursor in the preedit area
 
     QVector<QAbstractTextDocumentLayout::Selection> extraSelections;
-    
-    QPalette palette;
 
-    QPointer<QAbstractScrollArea> scrollArea;
+    QPalette palette;
 };
 
 #endif // QTEXTCONTROL_P_H
