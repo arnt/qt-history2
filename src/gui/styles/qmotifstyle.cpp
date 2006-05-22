@@ -2608,7 +2608,7 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
         ret = QPalette::Mid;
         break;
 
-    case SH_DialogButtonLayoutPolicy:
+    case SH_DialogButtonLayout:
         ret = QDialogButtonBox::KdeLayout;
         break;
     default:

@@ -1816,7 +1816,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_TabBar_ElideMode:
         ret = Qt::ElideRight;
         break;
-    case SH_DialogButtonLayoutPolicy:
+    case SH_DialogButtonLayout:
         ret = QDialogButtonBox::MacLayout;
         break;
     case SH_ComboBox_PopupFrameStyle:

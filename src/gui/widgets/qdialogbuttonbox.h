@@ -57,7 +57,7 @@ public:
 
     Q_DECLARE_FLAGS(StandardButtons, StandardButton)
 
-    enum LayoutPolicy {
+    enum ButtonLayout {
         WinLayout,
         MacLayout,
         KdeLayout,

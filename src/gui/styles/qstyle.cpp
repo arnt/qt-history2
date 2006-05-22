@@ -1553,7 +1553,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_TabBar_ElideMode The default eliding style for a tabbar.
 
-    \value SH_DialogButtonLayoutPolicy Controls how buttons are laid out in a QDialogButtonBox
+    \value SH_DialogButtonLayout  Controls how buttons are laid out in a QDialogButtonBox, returns a QDialogButtonBox::ButtonLayout enum.
 
     \value SH_ComboBox_PopupFrameStyle  The frame style used when drawing a combobox popup menu.
 

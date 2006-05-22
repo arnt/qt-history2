@@ -5066,7 +5066,7 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_MainWindow_SpaceBelowMenuBar:
         ret = 0;
         break;
-    case SH_DialogButtonLayoutPolicy:
+    case SH_DialogButtonLayout:
         ret = QDialogButtonBox::KdeLayout;
         break;
     default:

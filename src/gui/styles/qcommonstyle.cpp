@@ -3704,7 +3704,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_TabBar_ElideMode:
         ret = Qt::ElideNone;
         break;
-    case SH_DialogButtonLayoutPolicy:
+    case SH_DialogButtonLayout:
         ret = QDialogButtonBox::WinLayout;
         break;
     case SH_ComboBox_PopupFrameStyle:

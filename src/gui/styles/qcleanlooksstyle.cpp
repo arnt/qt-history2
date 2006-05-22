@@ -3539,7 +3539,7 @@ int QCleanLooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
             mask->region -= QRect(option->rect.right() , option->rect.top() + 3, 1, 2);
         }
         break;
-    case SH_DialogButtonLayoutPolicy:
+    case SH_DialogButtonLayout:
         ret = QDialogButtonBox::GnomeLayout;
         break;
     default:

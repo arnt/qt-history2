@@ -578,7 +578,7 @@ public:
         SH_Slider_PageSetButtons,
         SH_Menu_KeyboardSearch,
         SH_TabBar_ElideMode,
-        SH_DialogButtonLayoutPolicy,
+        SH_DialogButtonLayout,
         SH_ComboBox_PopupFrameStyle,
         SH_MessageBox_TextSelectable,
 

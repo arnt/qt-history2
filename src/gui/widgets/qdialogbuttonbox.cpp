@@ -136,7 +136,7 @@ public:
     QHash<QAbstractButton *, QDialogButtonBox::StandardButton> standardButtonHash;
 
     Qt::Orientation orientation;
-    QDialogButtonBox::LayoutPolicy layoutPolicy;
+    QDialogButtonBox::ButtonLayout layoutPolicy;
     QBoxLayout *buttonLayout;
     bool skipDisconnect;
 
@@ -166,7 +166,7 @@ QDialogButtonBoxPrivate::~QDialogButtonBoxPrivate()
 void QDialogButtonBoxPrivate::initLayout()
 {
     Q_Q(QDialogButtonBox);
-    layoutPolicy = QDialogButtonBox::LayoutPolicy(q->style()->styleHint(QStyle::SH_DialogButtonLayoutPolicy));
+    layoutPolicy = QDialogButtonBox::ButtonLayout(q->style()->styleHint(QStyle::SH_DialogButtonLayout));
     if (orientation == Qt::Horizontal)
         buttonLayout = new QHBoxLayout(q);
     else
