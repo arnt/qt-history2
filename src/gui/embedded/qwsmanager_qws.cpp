@@ -377,6 +377,7 @@ void QWSManagerPrivate::dirtyRegion(int decorationRegion,
     QDecoration &dec = QApplication::qwsDecoration();
     QRegion clipRegion = dec.region(managed, clipRect, decorationRegion);
 
+    clipRegion.translate(-bs->topLevelOffset());
     managed->d_func()->dirtyWidget_sys(clipRegion);
 }
 
