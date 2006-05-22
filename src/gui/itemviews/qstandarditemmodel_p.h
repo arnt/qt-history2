@@ -80,7 +80,7 @@ class QStandardItemModelPrivate : public QAbstractItemModelPrivate
 
 public:
     QStandardItemModelPrivate();
-    ~QStandardItemModelPrivate();
+    virtual ~QStandardItemModelPrivate();
 
     QStandardItem *itemFromIndex(const QModelIndex &index) const;
     QModelIndex indexFromItem(const QStandardItem *item) const;
