@@ -1156,7 +1156,7 @@ void QTextControl::selectAll()
     Q_D(QTextControl);
     d->cursor.select(QTextCursor::Document);
     d->selectionChanged();
-// ########    d->updateViewport();
+    emit updateRequest(QRectF(QPointF(), d->doc->documentLayout()->documentSize()));
 }
 
 /* #######
