@@ -829,6 +829,16 @@ bool QAbstractSocketPrivate::readFromSocket()
     if (bytesToRead > 0) // ### See setSocketDescriptor()
         bytesToRead += addToBytesAvailable;
 #endif
+    if (bytesToRead == 0) {
+        // Under heavy load, certain conditions can trigger read notifications
+        // for socket notifiers on which there is no activity. If we continue
+        // to read 0 bytes from the socket, we will trigger behavior similar
+        // to that which signals a remote close. When we hit this condition,
+        // we try to read 4k of data from the socket, which will give us either
+        // an EAGAIN/EWOULDBLOCK if the connection is alive (i.e., the remote
+        // host has _not_ disappeared).
+        bytesToRead = 4096;
+    }
     if (readBufferMaxSize && bytesToRead > (readBufferMaxSize - readBuffer.size()))
         bytesToRead = readBufferMaxSize - readBuffer.size();
 
