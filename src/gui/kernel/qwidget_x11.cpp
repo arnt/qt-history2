@@ -2081,15 +2081,16 @@ void QWidgetPrivate::setConstraints_sys()
     Scrolls the widget including its children \a dx pixels to the
     right and \a dy downwards. Both \a dx and \a dy may be negative.
 
-    After scrolling, scroll() sends a paint event for the the part
-    that is read but not written. For example, when scrolling 10
-    pixels rightwards, the leftmost ten pixels of the widget need
-    repainting. The paint event may be delivered immediately or later,
-    depending on some heuristics (note that you might have to force
-    processing of paint events using QApplication::sendPostedEvents()
-    when using scroll() and move() in combination).
+    After scrolling, the widgets eventually receives paint events for
+    the areas that need to be repainted. For widgets that Qt knows to
+    be opaque, this is only the newly exposed parts. For example, if
+    an opaque widget is scrolled 8 pixels to the left, only an 8-pixel
+    wide stripe at the right edge needs updating. Widgets are
+    semi-transparent by default. Use setAutoFillBackground(), or set
+    the Qt::WA_OpaquePaintEvent attribute, to make a widget opaque.
 
-    \sa QScrollView bitBlt()
+    For semi-transparent widgets, a scroll will cause an update of the
+    entire scroll area.
 */
 
 void QWidget::scroll(int dx, int dy)
