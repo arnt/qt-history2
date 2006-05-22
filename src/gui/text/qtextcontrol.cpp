@@ -78,7 +78,8 @@ QTextControlPrivate::QTextControlPrivate()
       overwriteMode(false),
       acceptRichText(true),
       preeditCursor(0), hideCursor(false),
-      hasFocus(false)
+      hasFocus(false),
+      layoutDirection(QApplication::layoutDirection())
 {}
 
 bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
@@ -438,10 +439,8 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
         doc->clear();
         cursor.movePosition(QTextCursor::Start);
         QTextBlockFormat blockFmt;
-        /* ####
-        blockFmt.setLayoutDirection(q->layoutDirection());
+        blockFmt.setLayoutDirection(layoutDirection);
         cursor.mergeBlockFormat(blockFmt);
-        */
         cursor.setCharFormat(charFormatForInsertion);
     }
 

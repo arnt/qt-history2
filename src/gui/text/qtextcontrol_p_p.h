@@ -161,6 +161,7 @@ public:
 
     QPalette palette;
     bool hasFocus;
+    Qt::LayoutDirection layoutDirection;
 };
 
 #endif // QTEXTCONTROL_P_H
