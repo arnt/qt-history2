@@ -27,7 +27,7 @@ GLWidget::GLWidget(QWidget *parent)
     makeCurrent();
     fbo = new QGLFramebufferObject(512, 512);
     rot_x = rot_y = rot_z = 0.0f;
-    scale = 1.2f;
+    scale = 0.1f;
     anim = new QTimeLine(750, this);
     anim->setUpdateInterval(20);
     connect(anim, SIGNAL(valueChanged(qreal)), SLOT(animate(qreal)));
@@ -53,7 +53,7 @@ GLWidget::GLWidget(QWidget *parent)
 
     wave = new GLfloat[logo.width()*logo.height()];
     memset(wave, 0, logo.width()*logo.height());
-    startTimer(50); // wave timer
+    startTimer(30); // wave timer
 }
 
 GLWidget::~GLWidget()
@@ -209,11 +209,26 @@ void GLWidget::restoreGLState()
 
 void GLWidget::timerEvent(QTimerEvent *)
 {
+    if (QApplication::mouseButtons() != 0)
+        return;
+
+    static bool scale_in = true;
+
+    if (scale_in && scale > 60.0f)
+        scale_in = false;
+    else if (!scale_in && scale < .5f)
+        scale_in = true;
+
+    scale = scale_in ? scale + scale*0.01f : scale-scale*0.01f;
+    rot_z += 0.3f;
+    rot_x += 0.1f;
+
     int dx, dy; // disturbance point
     float s, v, W, t;
     int i, j;
     static float wt[128][128];
     const int width = logo.width();
+    const int AMP = 5;
 
     dx = dy = width >> 1;
 
@@ -226,9 +241,9 @@ void GLWidget::timerEvent(QTimerEvent *)
 	    wt[i][j] += 0.1;
 	    t = s / v;
             if (s != 0)
-                wave[i*width + j] = 10 * sin(2 * PI * W * (wt[i][j] + t)) / (0.2*(s + 2));
+                wave[i*width + j] = AMP * sin(2 * PI * W * (wt[i][j] + t)) / (0.2*(s + 2));
             else
-                wave[i*width + j] = 10 * sin(2 * PI * W * (wt[i][j] + t));
+                wave[i*width + j] = AMP * sin(2 * PI * W * (wt[i][j] + t));
 	}
     }
 }
