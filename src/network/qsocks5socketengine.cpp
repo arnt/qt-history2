@@ -772,7 +772,10 @@ void QSocks5SocketEnginePrivate::_q_emitPendingReadNotification()
     readNotificationPending = false;
     if (readNotificationEnabled) {
         QSOCKS5_D_DEBUG << "emitting readNotification";
+        QPointer<QSocks5SocketEngine> qq = q;
         emit q->readNotification();
+        if (!qq)
+            return;
         // check if there needs to be a new zero read notifcation
         if (socks5State == ControlSocketError
             && data->controlSocket->error() == QAbstractSocket::RemoteHostClosedError) {
