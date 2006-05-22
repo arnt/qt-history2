@@ -2013,7 +2013,6 @@ void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> &
         // Draw the item
         painter->save();
         painter->setMatrix(item->sceneMatrix(), true);
-        painter->setClipRect(item->boundingRect());
         item->paint(painter, &option, d->renderWidget);
         painter->restore();
     }
