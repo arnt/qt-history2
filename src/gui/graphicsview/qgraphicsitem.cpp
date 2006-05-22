@@ -3631,8 +3631,8 @@ QVariant QGraphicsTextItem::extension(const QVariant &variant) const
 void QGraphicsTextItemPrivate::_q_update(QRectF rect)
 {
     rect.translate(0, - pageNumber * textControl->document()->pageSize().height());
-    // the scene takes care of intersecting it with the bounding rect
-    qq->update(rect);
+    if (rect.intersects(boundingRect))
+        qq->update(rect);
 }
 
 /*!
