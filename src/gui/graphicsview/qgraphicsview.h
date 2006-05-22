@@ -131,6 +131,7 @@ public:
 
 public Q_SLOTS:
     void update(const QList<QRectF> &rects);
+    void updateSceneRect(const QRectF &rect);
 
 protected:
     bool eventFilter(QObject *receiver, QEvent *event);
@@ -141,6 +142,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void scrollContentsBy(int dx, int dy);
+    void showEvent(QShowEvent *event);
 
     virtual void paintBackground(QPainter *painter, const QRectF &rect);
     virtual void paintForeground(QPainter *painter, const QRectF &rect);

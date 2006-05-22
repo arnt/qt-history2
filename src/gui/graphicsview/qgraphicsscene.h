@@ -129,14 +129,14 @@ protected:
 
 Q_SIGNALS:
     void changed(const QList<QRectF> &region);
-    
+    void sceneRectChanged(const QRectF &rect);
+
 private:
     void itemUpdated(QGraphicsItem *item, const QRectF &rect);
 
     Q_DECLARE_PRIVATE(QGraphicsScene)
     Q_PRIVATE_SLOT(d_func(), void generateBspTree())
     Q_PRIVATE_SLOT(d_func(), void emitUpdated())
-    Q_PRIVATE_SLOT(d_func(), void startEmittingUpdates())
     Q_PRIVATE_SLOT(d_func(), void removeItemLater(QGraphicsItem *item))
     friend class QGraphicsItem;
     friend class QGraphicsView;

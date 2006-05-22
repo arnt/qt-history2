@@ -248,8 +248,8 @@ static void qt_itemsForRectCallback(QVector<int> &leaf, const QRectF & /* area *
 */
 QGraphicsScenePrivate::QGraphicsScenePrivate()
     : indexMethod(QGraphicsScene::BspTreeIndex), generatingBspTree(false),
-      calledEmitUpdated(false), emitUpdates(false), hasFocus(false), focusItem(0),
-      lastFocusItem(0), mouseGrabberItem(0)
+      hasSceneRect(false), calledEmitUpdated(false), hasFocus(false),
+      focusItem(0), lastFocusItem(0), mouseGrabberItem(0)
 {
 }
 
@@ -355,8 +355,6 @@ void QGraphicsScenePrivate::generateBspTree()
         return;
     generatingBspTree = false;
 
-    QRectF boundingRect = q->itemsBoundingRect();
-
     // ### newitems
     for (int i = 0; i < allItems.size(); ++i) {
         if (removedItems.contains(allItems.at(i))) {
@@ -388,7 +386,7 @@ void QGraphicsScenePrivate::generateBspTree()
         // quadratic number.
         bspTree.destroy();
         bspTree.create(allItems.size());
-        bspTree.init(boundingRect, QGraphicsSceneBspTree::Node::Both);
+        bspTree.init(q->sceneRect(), QGraphicsSceneBspTree::Node::Both);
 
         for (int i = 0; i < allItems.size(); ++i) {
             if (QGraphicsItem *item = allItems.at(i)) {
@@ -411,10 +409,7 @@ void QGraphicsScenePrivate::generateBspTree()
     }
 
     newItems.clear();
-    emit q->changed(QList<QRectF>() << boundingRect);
-
-    if (sceneRect.isNull())
-        sceneRect = boundingRect;
+    emit q->changed(QList<QRectF>() << q->sceneRect());
 }
 
 /*!
@@ -427,16 +422,6 @@ void QGraphicsScenePrivate::emitUpdated()
     QList<QRectF> oldUpdatedRects = updatedRects;
     updatedRects.clear();
     emit q->changed(oldUpdatedRects);
-}
-
-/*!
-    \internal
-*/
-void QGraphicsScenePrivate::startEmittingUpdates()
-{
-    Q_Q(QGraphicsScene);
-    emitUpdates = true;
-    emit q->changed(QList<QRectF>() << q->itemsBoundingRect());
 }
 
 /*!
@@ -542,7 +527,6 @@ void QGraphicsScenePrivate::sendHoverEvent(QEvent::Type type, QGraphicsItem *ite
 QGraphicsScene::QGraphicsScene(QObject *parent)
     : QObject(*new QGraphicsScenePrivate, parent)
 {
-    QTimer::singleShot(0, this, SLOT(startEmittingUpdates()));
 }
 
 /*!
@@ -577,19 +561,29 @@ QGraphicsScene::~QGraphicsScene()
     \property QGraphicsScene::sceneRect
     \brief the scene rect; the bounding rect of the scene
 
-    The scene rect is used by QGraphicsScene's indexing algorithms. If unset,
-    QGraphicsScene will call itemsBoundingRect() to determine the size of the
-    scene.
+    The scene rect defines the extent of the scene. It is primarily used by
+    QGraphicsView to determine the view's default scrollable area, and by
+    QGraphicsScene to manage item indexing.
+
+    If unset, sceneRect() will return the largest bounding rect of all items
+    on the scene since the scene was created (i.e., a rectangle that grows
+    when items are added to or moved in the scene, but never shrinks).
+
+    \sa QGraphicsView::sceneRect
 */
 QRectF QGraphicsScene::sceneRect() const
 {
     Q_D(const QGraphicsScene);
-    return d->sceneRect;
+    return d->hasSceneRect ? d->sceneRect : d->growingItemsBoundingRect;
 }
 void QGraphicsScene::setSceneRect(const QRectF &rect)
 {
     Q_D(QGraphicsScene);
-    d->sceneRect = rect;
+    if (rect != d->sceneRect) {
+        d->hasSceneRect = !rect.isNull();
+        d->sceneRect = rect;
+        emit sceneRectChanged(rect);
+    }
 }
 
 /*!
@@ -1704,6 +1698,15 @@ void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 */
 
 /*!
+    \fn QGraphicsScene::sceneRectChanged(const QRectF &rect)
+
+    This signal is emitted by QGraphicsScene whenever the scene rect changes.
+    \a rect is the new scene rect.
+
+    \sa QGraphicsView::updateSceneRect()
+*/
+
+/*!
     \internal
 
     This private function is called by QGraphicsItem, which is a friend of
@@ -1717,17 +1720,21 @@ void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
 {
     Q_D(QGraphicsScene);
-    if (!d->emitUpdates || (d->indexMethod == BspTreeIndex && d->generatingBspTree))
-        return;
-
     QRectF boundingRect = item->boundingRect();
     if (!rect.isNull())
         boundingRect &= rect;
-    d->updatedRects << item->sceneMatrix().mapRect(boundingRect);
+    QRectF sceneBoundingRect = item->sceneMatrix().mapRect(boundingRect);
+    d->updatedRects << sceneBoundingRect;
+
     if (!d->calledEmitUpdated) {
         d->calledEmitUpdated = true;
         QTimer::singleShot(0, this, SLOT(emitUpdated()));
     }
+
+    QRectF oldGrowingItemsBoundingRect = d->growingItemsBoundingRect;
+    d->growingItemsBoundingRect |= sceneBoundingRect;
+    if (!d->hasSceneRect && d->growingItemsBoundingRect != oldGrowingItemsBoundingRect)
+        emit sceneRectChanged(d->growingItemsBoundingRect);
 }
 
 #include "moc_qgraphicsscene.cpp"

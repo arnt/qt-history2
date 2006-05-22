@@ -55,13 +55,12 @@ public:
     void generateBspTree();
 
     QRectF sceneRect;
+    bool hasSceneRect;
+    QRectF growingItemsBoundingRect;
     
     void emitUpdated();
     QList<QRectF> updatedRects;
     bool calledEmitUpdated;
-
-    bool emitUpdates;
-    void startEmittingUpdates();
     
     QList<QGraphicsItem *> newItems;
     QList<QGraphicsItem *> selectedItems;

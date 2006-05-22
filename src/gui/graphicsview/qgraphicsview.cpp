@@ -171,6 +171,7 @@ public:
     QGraphicsView::DragMode dragMode;
     bool sceneInteractionAllowed;
     QRectF sceneRect;
+    bool hasSceneRect;
     void updateLastCenterPoint();
 
     QPointF mousePressItemPoint;
@@ -209,7 +210,7 @@ public:
 QGraphicsViewPrivate::QGraphicsViewPrivate()
     : renderHints(QPainter::TextAntialiasing | QPainter::Antialiasing),
       dragMode(QGraphicsView::NoDrag),
-      sceneInteractionAllowed(true), accelerateScrolling(true),
+      sceneInteractionAllowed(true), hasSceneRect(false), accelerateScrolling(true),
       leftIndent(0), topIndent(0),
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), useLastCenterPoint(false), alignment(Qt::AlignCenter),
@@ -224,13 +225,11 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
 void QGraphicsViewPrivate::recalculateContentSize()
 {
     Q_Q(QGraphicsView);
-    if (sceneRect.isNull() && scene)
-        sceneRect = scene->itemsBoundingRect();
 
     int width = renderWidget->width();
     int height = renderWidget->height();
     int margin = 4;
-    QRectF viewRect = matrix.mapRect(sceneRect);
+    QRectF viewRect = matrix.mapRect(q->sceneRect());
 
     // Setting the ranges of these scroll bars can/will cause the values to
     // change, and scrollContentsBy() will be called correspondingly. This
@@ -949,40 +948,57 @@ void QGraphicsView::setScene(QGraphicsScene *scene)
     if (d->scene) {
         disconnect(d->scene, SIGNAL(changed(const QList<QRectF> &)),
                    this, SLOT(update(const QList<QRectF> &)));
+        disconnect(d->scene, SIGNAL(sceneRectChanged(const QRectF &)),
+                   this, SLOT(updateSceneRect(const QRectF &)));
         d->scene->d_func()->views.removeAll(this);
     }
 
     if ((d->scene = scene)) {
         connect(d->scene, SIGNAL(changed(const QList<QRectF> &)),
                 this, SLOT(update(const QList<QRectF> &)));
+        connect(d->scene, SIGNAL(sceneRectChanged(const QRectF &)),
+                this, SLOT(updateSceneRect(const QRectF &)));
         d->scene->d_func()->views << this;
         d->recalculateContentSize();
-        d->lastCenterPoint = d->matrix.map(d->sceneRect.center());
+        if (!d->useLastCenterPoint) {
+            d->updateLastCenterPoint();
+            d->useLastCenterPoint = true;
+        }
+        centerOn(d->lastCenterPoint);
     }
 }
-
 
 /*!
     \property QGraphicsView::sceneRect
     \brief the area of the scene visualized by this view.
 
-    If \a rect is invalid, the view will guess the scene rect by calling
-    QGraphicsScene::itemsBoundingRect().
+    The scene rect defines the extent of the scene, and in the view's case,
+    this means the area of the scene that you can navigate using the scroll
+    bars.
 
-    The maximum size of \a rect is limited by the range of
+    If unset, this property has the same value as QGraphicsScene::sceneRect().
+
+    Note: The maximum size of the view's scene rect is limited by the range of
     QAbstractScrollArea's scrollbars, which operate in integer coordinates.
+
+    \sa QGraphicsScene::sceneRect
 */
 QRectF QGraphicsView::sceneRect() const
 {
     Q_D(const QGraphicsView);
-    return d->sceneRect;
+    if (d->hasSceneRect)
+        return d->sceneRect;
+    if (d->scene)
+        return d->scene->sceneRect();
+    return QRectF();
 }
 void QGraphicsView::setSceneRect(const QRectF &rect)
 {
     Q_D(QGraphicsView);
+    d->hasSceneRect = !rect.isNull();
     d->sceneRect = rect;
     d->recalculateContentSize();
-    d->lastCenterPoint = d->matrix.map(rect.center());
+    d->useLastCenterPoint = false;
 }
 
 /*!
@@ -1785,6 +1801,19 @@ void QGraphicsView::update(const QList<QRectF> &rects)
 }
 
 /*!
+    Notifies QGraphicsView that the scene's scene rect has changed.  \a rect
+    is the new scene rect.
+
+    \sa sceneRect, QGraphicsScene::sceneRectChanged()
+*/
+void QGraphicsView::updateSceneRect(const QRectF &rect)
+{
+    Q_D(QGraphicsView);
+    d->sceneRect = rect;
+    d->recalculateContentSize();
+}
+
+/*!
     \reimp
 */
 bool QGraphicsView::eventFilter(QObject *receiver, QEvent *event)
@@ -1912,6 +1941,16 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
     else
         d->renderWidget->update();
     d->updateLastCenterPoint();
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsView::showEvent(QShowEvent *event)
+{
+    Q_D(QGraphicsView);
+    d->recalculateContentSize();
+    QAbstractScrollArea::showEvent(event);
 }
 
 /*!
