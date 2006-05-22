@@ -240,9 +240,8 @@ QHeaderView *QTreeView::header() const
 */
 void QTreeView::setHeader(QHeaderView *header)
 {
-    Q_ASSERT(header);
     Q_D(QTreeView);
-    if (header == d->header)
+    if (header == d->header || !header)
         return;
     if (d->header && d->header->parent() == this)
         delete d->header;
