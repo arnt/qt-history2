@@ -2122,6 +2122,9 @@ int QTreeViewPrivate::coordinateForItem(int item) const
                 viewItemCoordinate += itemHeight(viewItemIndex);
                 ++viewItemIndex;
             }
+            // below the last item in the view
+            Q_ASSERT(false);
+            return viewItemCoordinate;
         } else {
             // search the area above the viewport
             int viewItemCoordinate = 0;
@@ -2130,13 +2133,12 @@ int QTreeViewPrivate::coordinateForItem(int item) const
                     return viewItemCoordinate;
                 viewItemCoordinate -= itemHeight(viewItemIndex);
             }
+            // above the first item in the view
+            Q_ASSERT(false);
+            return viewItemCoordinate;
         }
-        // below the last item in the view
-        // Q_ASSERT(false);
-        return viewItemCoordinate;
     }
-    Q_ASSERT(false);   // ### the item was not found
-    return 0xDEADBEAF; // ### make the compiler happy
+    return 0;
 }
 
 /*!
