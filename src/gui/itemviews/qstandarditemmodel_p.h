@@ -29,63 +29,67 @@
 
 #ifndef QT_NO_STANDARDITEMMODEL
 
-class  QStdModelItem {
-public:
-    QStdModelItem() {};
-    QVariant value(int role) const
-        {
-            for (int i=0; i<roles.count(); ++i)
-                if (roles.at(i).first == role)
-                    return roles.at(i).second;
-            return QVariant();
-        }
-    void setValue(int role, QVariant value)
-        {
-            for (int i=0; i<roles.count(); ++i)
-                if (roles.at(i).first == role) {
-                    roles[i].second = value;
-                    return;
-                }
-            roles.append(QPair<int, QVariant>(role, value));
-            return;
-        }
+#include <private/qwidgetitemdata_p.h>
+#include <QtCore/qpair.h>
+#include <QtCore/qvariant.h>
+#include <QtCore/qvector.h>
 
-    QVector<QPair<int, QVariant> > roles;
-};
-
-class QStdModelRow {
+class QStandardItemPrivate
+{
+    Q_DECLARE_PUBLIC(QStandardItem)
 public:
-    explicit QStdModelRow(QStdModelRow *parent) : p(parent), childrenColumns(0) {}
-    ~QStdModelRow()
-    {
-        qDeleteAll(items);
-        qDeleteAll(childrenRows);
+    inline QStandardItemPrivate()
+        : type(QStandardItem::Type),
+          model(0),
+          parent(0),
+          flags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable
+                |Qt::ItemIsDragEnabled|Qt::ItemIsDropEnabled),
+          rows(0),
+          columns(0)
+        { }
+    virtual ~QStandardItemPrivate();
+
+    int childIndex(int row, int column) const;
+    inline int childIndex(const QStandardItem *child) const {
+        return children.indexOf(const_cast<QStandardItem*>(child));
     }
+    QPair<int, int> itemPosition(const QStandardItem *item) const;
+    inline int rowCount() const {
+        return rows;
+    }
+    inline int columnCount() const {
+        return columns;
+    }
+    void childDeleted(QStandardItem *child);
 
-    QStdModelRow *p;
-    QVector<QStdModelItem*> items;
-    int childrenColumns;
-    mutable QVector<QStdModelRow*> childrenRows;
+    int type;
+    QStandardItemModel *model;
+    QStandardItem *parent;
+    QVector<QWidgetItemData> values;
+    Qt::ItemFlags flags;
+    QVector<QStandardItem*> children;
+    int rows;
+    int columns;
+
+    QStandardItem *q_ptr;
 };
 
 class QStandardItemModelPrivate : public QAbstractItemModelPrivate
 {
-
     Q_DECLARE_PUBLIC(QStandardItemModel)
 
 public:
-    QStandardItemModelPrivate(int rows, int columns) : topLevelRows(rows), topLevelColumns(columns) {}
-    virtual ~QStandardItemModelPrivate();
+    QStandardItemModelPrivate();
+    ~QStandardItemModelPrivate();
 
-    QStdModelRow *containedRow(const QModelIndex &index, bool createIfMissing) const;
-    void clear();
+    QStandardItem *itemFromIndex(const QModelIndex &index) const;
+    QModelIndex indexFromItem(const QStandardItem *item) const;
+    QStandardItem *createItem() const;
 
-    void sort(QVector<QStdModelRow*> &rows, int columnCount,
-              QStdModelRow *parentRow, int column, Qt::SortOrder order);
-
-    mutable QVector<QStdModelRow*> topLevelRows;
-    QVector<QStdModelItem*> horizontalHeader, verticalHeader;
-    int topLevelColumns;
+    QVector<QStandardItem*> columnHeaderItems;
+    QVector<QStandardItem*> rowHeaderItems;
+    QStandardItem *root;
+    const QStandardItem *itemPrototype;
 };
 
 #endif // QT_NO_STANDARDITEMMODEL
