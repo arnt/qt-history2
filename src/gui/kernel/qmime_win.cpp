@@ -874,16 +874,8 @@ private:
 QBuiltInMimes::QBuiltInMimes()
 : QWindowsMime()
 {
-    outFormats.insert(QWindowsMime::registerMimeType("text/uri-list"), "text/uri-list");
-    inFormats.insert(QWindowsMime::registerMimeType("text/uri-list"), "text/uri-list");
-    outFormats.insert(QWindowsMime::registerMimeType("text/plain"), "text/plain");
-    inFormats.insert(QWindowsMime::registerMimeType("text/plain"), "text/plain");
-    outFormats.insert(QWindowsMime::registerMimeType("text/html"), "text/html");
-    inFormats.insert(QWindowsMime::registerMimeType("text/html"), "text/html");
     outFormats.insert(QWindowsMime::registerMimeType("application/x-color"), "application/x-color");
     inFormats.insert(QWindowsMime::registerMimeType("application/x-color"), "application/x-color");
-    outFormats.insert(QWindowsMime::registerMimeType("application/x-qt-image"), "application/x-qt-image");
-    inFormats.insert(QWindowsMime::registerMimeType("application/x-qt-image"), "application/x-qt-image");
 }
 
 bool QBuiltInMimes::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
