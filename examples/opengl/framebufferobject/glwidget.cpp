@@ -232,13 +232,13 @@ void GLWidget::timerEvent(QTimerEvent *)
 
     dx = dy = width >> 1;
 
-    W = .3;
+    W = .3f;
     v = -4; // wave speed
 
     for (i = 0; i < width; ++i) {
 	for ( j = 0; j < width; ++j) {
 	    s = sqrt((double) ((j - dx) * (j - dx) + (i - dy) * (i - dy)));
-	    wt[i][j] += 0.1;
+	    wt[i][j] += 0.1f;
 	    t = s / v;
             if (s != 0)
                 wave[i*width + j] = AMP * sin(2 * PI * W * (wt[i][j] + t)) / (0.2*(s + 2));
