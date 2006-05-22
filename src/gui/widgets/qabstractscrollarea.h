@@ -44,7 +44,10 @@ public:
     QScrollBar *horizontalScrollBar() const;
 
     QWidget *cornerWidget() const;
-    void setCornerWidget(QWidget *widget, Qt::Corner corner = Qt::BottomRightCorner);
+    void setCornerWidget(QWidget *widget);
+
+    void addScrollBarWidget(QWidget *widget, Qt::Alignment alignment);
+    QWidgetList scrollBarWidgets(Qt::Alignment alignment);
 
     QWidget *viewport() const;
     void setViewport(QWidget *widget);

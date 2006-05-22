@@ -20,6 +20,8 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qevent.h"
+#include "qdebug.h"
+#include "qboxlayout.h"
 
 #include "qabstractscrollarea_p.h"
 #include <qwidget.h>
@@ -87,17 +89,81 @@ QAbstractScrollAreaPrivate::QAbstractScrollAreaPrivate()
 {
 }
 
+QAbstractScrollAreaScrollBarContainer::QAbstractScrollAreaScrollBarContainer(Qt::Orientation orientation, QWidget *parent)
+    :QWidget(parent), scrollBar(new QScrollBar(orientation, this)), orientation(orientation),
+     layout(new QBoxLayout(orientation == Qt::Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom))
+{ 
+    setLayout(layout);
+    layout->setMargin(0);
+    layout->setSpacing(0);
+    layout->addWidget(scrollBar);
+}
+
+/*! \internal
+    Adds a widget to the scroll bar container.
+*/
+void QAbstractScrollAreaScrollBarContainer::addWidget(QWidget *widget, LogicalPosition position)
+{
+    QSizePolicy policy = widget->sizePolicy();
+    if (orientation == Qt::Vertical)
+        policy.setHorizontalPolicy(QSizePolicy::Ignored);
+    else
+        policy.setVerticalPolicy(QSizePolicy::Ignored);
+    widget->setSizePolicy(policy);
+    widget->setParent(this);
+    
+    const int insertIndex = (position & LogicalLeft) ? 0 : scrollBarLayoutIndex() + 1;
+    layout->insertWidget(insertIndex, widget);
+}
+
+/*! \internal
+    Retuns a list of scroll bar widgets for the given position. The scroll bar
+    itself is not returned.
+*/
+QWidgetList QAbstractScrollAreaScrollBarContainer::widgets(LogicalPosition position)
+{
+    QWidgetList list;
+    const int scrollBarIndex = scrollBarLayoutIndex();
+    if (position == LogicalLeft) {
+        for (int i = 0; i < scrollBarIndex; ++i)
+            list.append(layout->itemAt(i)->widget());
+    } else if (position == LogicalRight) {
+        const int layoutItemCount = layout->count();
+        for (int i = scrollBarIndex + 1; i < layoutItemCount; ++i)
+            list.append(layout->itemAt(i)->widget());
+    }
+    return list;
+}
+
+/*! \internal
+    Returns the layout index for the scroll bar. This needs to be 
+    recalculated by a linear search for each use, since items in
+    the layout can be removed at any time (i.e. when a widget is
+    deleted or re-parented).
+*/
+int QAbstractScrollAreaScrollBarContainer::scrollBarLayoutIndex() const
+{
+    const int layoutItemCount = layout->count();
+    for (int i = 0; i < layoutItemCount; ++i) {
+        if (qobject_cast<QScrollBar *>(layout->itemAt(i)->widget()))
+            return i;
+    }
+    return -1;
+}
+
 void QAbstractScrollAreaPrivate::init()
 {
     Q_Q(QAbstractScrollArea);
-    hbar = new QScrollBar(Qt::Horizontal, q);
+    scrollBarContainers[Qt::Horizontal] = new QAbstractScrollAreaScrollBarContainer(Qt::Horizontal, q);
+    hbar = scrollBarContainers[Qt::Horizontal]->scrollBar;
     hbar->setRange(0,0);
-    hbar->setVisible(false);
+    scrollBarContainers[Qt::Horizontal]->setVisible(false);
     QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(_q_hslide(int)));
     QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(_q_showOrHideScrollBars()), Qt::QueuedConnection);
-    vbar = new QScrollBar(Qt::Vertical, q);
+    scrollBarContainers[Qt::Vertical] = new QAbstractScrollAreaScrollBarContainer(Qt::Vertical, q);
+    vbar = scrollBarContainers[Qt::Vertical]->scrollBar;
     vbar->setRange(0,0);
-    vbar->setVisible(false);
+    scrollBarContainers[Qt::Vertical]->setVisible(false);
     QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(_q_vslide(int)));
     QObject::connect(vbar, SIGNAL(rangeChanged(int,int)), q, SLOT(_q_showOrHideScrollBars()), Qt::QueuedConnection);
     viewportFilter = new QAbstractScrollAreaFilter(this);
@@ -206,12 +272,12 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         QRect horizontalScrollbarRect(QPoint(controlsRect.left(), cornerPoint.y()), QPoint(cornerPoint.x() - 1, controlsRect.bottom()));
         if (hasMacReverseCornerWidget)
             horizontalScrollbarRect.adjust(vsbExt, 0, 0, 0);
-        hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, horizontalScrollbarRect));
+        scrollBarContainers[Qt::Horizontal]->setGeometry(QStyle::visualRect(opt.direction, opt.rect, horizontalScrollbarRect));
     }
 
     if (needv) {
         const QRect verticalScrollbarRect  (QPoint(cornerPoint.x(), controlsRect.top()),  QPoint(controlsRect.right(), cornerPoint.y() - 1));
-        vbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, verticalScrollbarRect));
+        scrollBarContainers[Qt::Vertical]->setGeometry(QStyle::visualRect(opt.direction, opt.rect, verticalScrollbarRect));
     }
 
     if (cornerWidget) {
@@ -219,8 +285,8 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         cornerWidget->setGeometry(QStyle::visualRect(opt.direction, opt.rect, cornerWidgetRect));
     }
 
-    hbar->setVisible(needh);
-    vbar->setVisible(needv);
+    scrollBarContainers[Qt::Horizontal]->setVisible(needh);
+    scrollBarContainers[Qt::Vertical]->setVisible(needv);
     viewportRect.adjust(left, top, -right, -bottom);
     viewport->setGeometry(QStyle::visualRect(opt.direction, opt.rect, viewportRect)); // resize the viewport last
 }
@@ -416,9 +482,9 @@ QWidget *QAbstractScrollArea::cornerWidget() const
 
     By default, no corner widget is present.
 
-    \sa setVScrollBarMode(), setHScrollBarMode()
+    \sa horizontalScrollBarPolicy, horizontalScrollBarPolicy
 */
-void QAbstractScrollArea::setCornerWidget(QWidget *widget, Qt::Corner corner)
+void QAbstractScrollArea::setCornerWidget(QWidget *widget)
 {
     Q_D(QAbstractScrollArea);
     QWidget* oldWidget = d->cornerWidget;
@@ -426,19 +492,90 @@ void QAbstractScrollArea::setCornerWidget(QWidget *widget, Qt::Corner corner)
         if (oldWidget)
             oldWidget->hide();
         d->cornerWidget = widget;
-        d->corner = corner;
 
-        if (widget && widget->parentWidget() != this) {
-            widget->setParent( this );
-        }
+        if (widget && widget->parentWidget() != this)
+            widget->setParent(this);
 
         d->layoutChildren();
         if (widget)
             widget->show();
     } else {
-        d->corner = corner;
+        d->cornerWidget = widget;
         d->layoutChildren();
     }
+}
+
+/*
+    Adds \a widget as a scroll bar widget in the location specified 
+    by \a alignment.
+    
+    Scroll bar widgets are shown next to the horizontal or vertical
+    scroll bar, and can be placed on either side of it. If you want
+    the scroll bar widgets to be always visible, set the
+    scrollBarPolicy for the corresponding scroll bar to \c AlwaysOn.
+             
+    \a alignment must be one of Qt::Alignleft and Qt::AlignRight, 
+    which maps to the horizontal scroll bar, or Qt::AlignTop and
+    Qt::AlignBottom, which maps to the vertical scroll bar.
+    
+    A scroll bar widget can be removed by either re-parenting the
+    widget or deleting it. It's also possible to hide a widget with
+    QWidget::hide() 
+
+    The scroll bar widget will be resized to fit the scroll bar
+    geometry for the current style. The following describes the case
+    for scroll bar widgets on the horizontal scroll bar:
+    
+    The height of the widget will be set to match the height of the
+    scroll bar. To control the width of the widget, use
+    QWidget::setMinimumWidth and QWidget::setMaximumWidth, or
+    implement QWidget::sizeHint() and set a horizontal size policy.
+    If you want a square widget, call
+    QStyle::pixelMetric(QStyle::PM_ScrollBarExtent) and set the
+    width to this value.
+
+    \sa scrollBarWidgets()
+*/
+void QAbstractScrollArea::addScrollBarWidget(QWidget *widget, Qt::Alignment alignment)
+{
+    Q_D(QAbstractScrollArea);
+
+    if (widget == 0)
+        return;
+    
+    const Qt::Orientation scrollBarOrientation 
+        = ((alignment & Qt::AlignLeft) || (alignment & Qt::AlignRight)) ? Qt::Horizontal : Qt::Vertical;
+    const QAbstractScrollAreaScrollBarContainer::LogicalPosition position
+        = ((alignment & Qt::AlignRight) || (alignment & Qt::AlignBottom)) 
+          ? QAbstractScrollAreaScrollBarContainer::LogicalRight : QAbstractScrollAreaScrollBarContainer::LogicalLeft;
+    d->scrollBarContainers[scrollBarOrientation]->addWidget(widget, position);
+    d->layoutChildren();
+    if (isHidden() == false)
+        widget->show();
+}
+
+/*
+    Returns a list of the currently set scroll bar widgets. \a aligmnet 
+    can be any combination of the four location flags.
+    
+    \sa addScrollBarWidget()
+*/
+QWidgetList QAbstractScrollArea::scrollBarWidgets(Qt::Alignment alignment)
+{
+    Q_D(QAbstractScrollArea);
+
+    QWidgetList list;
+    
+    if (alignment & Qt::AlignLeft)
+        list += d->scrollBarContainers[Qt::Horizontal]->widgets(QAbstractScrollAreaScrollBarContainer::LogicalLeft);
+    if (alignment & Qt::AlignRight)
+        list += d->scrollBarContainers[Qt::Horizontal]->widgets(QAbstractScrollAreaScrollBarContainer::LogicalRight);
+    if (alignment & Qt::AlignTop)
+        list += d->scrollBarContainers[Qt::Vertical]->widgets(QAbstractScrollAreaScrollBarContainer::LogicalLeft);
+    if (alignment & Qt::AlignBottom)
+        list += d->scrollBarContainers[Qt::Vertical]->widgets(QAbstractScrollAreaScrollBarContainer::LogicalRight);
+
+    return list;
 }
 
 /*!
@@ -812,8 +949,9 @@ QSize QAbstractScrollArea::minimumSizeHint() const
     Q_D(const QAbstractScrollArea);
     int hsbExt = d->hbar->sizeHint().height();
     int vsbExt = d->vbar->sizeHint().width();
-    int f = 2 * d->frameWidth;
-    return QSize(3*vsbExt + f, 3*hsbExt + f);
+    int extra = 2 * d->frameWidth;
+    return QSize(d->scrollBarContainers[Qt::Horizontal]->sizeHint().width() + vsbExt + extra, 
+                 d->scrollBarContainers[Qt::Vertical]->sizeHint().height() + hsbExt + extra);
 }
 
 /*!

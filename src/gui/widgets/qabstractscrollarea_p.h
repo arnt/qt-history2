@@ -31,6 +31,7 @@
 #include "qabstractscrollarea.h"
 
 class QScrollBar;
+class QAbstractScrollAreaScrollBarContainer;
 class Q_INTERNAL_EXPORT QAbstractScrollAreaPrivate: public QFramePrivate
 {
     Q_DECLARE_PUBLIC(QAbstractScrollArea)
@@ -38,6 +39,7 @@ class Q_INTERNAL_EXPORT QAbstractScrollAreaPrivate: public QFramePrivate
 public:
     QAbstractScrollAreaPrivate();
 
+    QAbstractScrollAreaScrollBarContainer *scrollBarContainers[Qt::Vertical + 1];
     QScrollBar *hbar, *vbar;
     Qt::ScrollBarPolicy vbarpolicy, hbarpolicy;
 
@@ -72,6 +74,25 @@ public:
     { return (o == d->viewport ? d->viewportEvent(e) : false); }
 private:
     QAbstractScrollAreaPrivate *d;
+};
+
+class QBoxLayout;
+class QAbstractScrollAreaScrollBarContainer : public QWidget
+{
+public:
+    enum LogicalPosition { LogicalLeft = 1, LogicalRight = 2 };
+    
+    QAbstractScrollAreaScrollBarContainer(Qt::Orientation orientation, QWidget *parent);
+    void addWidget(QWidget *widget, LogicalPosition position);
+    QWidgetList widgets(LogicalPosition position);
+    void removeWidget(QWidget *widget);
+
+    QScrollBar *scrollBar;
+private:
+    int scrollBarLayoutIndex() const;
+    
+    Qt::Orientation orientation;
+    QBoxLayout *layout;
 };
 
 #endif // QT_NO_SCROLLAREA
