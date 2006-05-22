@@ -465,11 +465,11 @@ int QHeaderView::sectionSize(int logicalIndex) const
     Q_D(const QHeaderView);
     if (logicalIndex < 0 || logicalIndex >= count())
         return 0;
-
     if (isSectionHidden(logicalIndex))
         return 0;
     int visual = visualIndex(logicalIndex);
-    Q_ASSERT(visual != -1);
+    if (visual == -1)
+        return 0;
     return d->headerSectionSize(visual);
 }
 
