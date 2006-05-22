@@ -327,7 +327,7 @@ bool QUndoGroup::isClean() const
 
     If \a prefix is empty, the default prefix "Undo" is used.
 
-    \sa createRedoAction() canUndo() QCommand::text()
+    \sa createRedoAction() canUndo() QUndoCommand::text()
 */
 
 QAction *QUndoGroup::createUndoAction(QObject *parent, const QString &prefix) const
@@ -355,7 +355,7 @@ QAction *QUndoGroup::createUndoAction(QObject *parent, const QString &prefix) co
 
     If \a prefix is empty, the default prefix "Undo" is used.
 
-    \sa createUndoAction() canRedo() QCommand::text()
+    \sa createUndoAction() canRedo() QUndoCommand::text()
 */
 
 QAction *QUndoGroup::createRedoAction(QObject *parent, const QString &prefix) const

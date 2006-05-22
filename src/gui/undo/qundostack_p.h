@@ -20,7 +20,7 @@
 #include <QtGui/qaction.h>
 
 #include "qundostack.h"
-class QCommand;
+class QUndoCommand;
 class QUndoGroup;
 
 //
@@ -34,11 +34,11 @@ class QUndoGroup;
 // We mean it.
 //
 
-class QCommandPrivate
+class QUndoCommandPrivate
 {
 public:
-    QCommandPrivate() : id(-1) {}
-    QList<QCommand*> child_list;
+    QUndoCommandPrivate() : id(-1) {}
+    QList<QUndoCommand*> child_list;
     QString text;
     int id;
 };
@@ -49,8 +49,8 @@ class QUndoStackPrivate : public QObjectPrivate
 public:
     QUndoStackPrivate() : index(0), clean_index(0), group(0) {}
 
-    QList<QCommand*> command_list;
-    QList<QCommand*> macro_stack;
+    QList<QUndoCommand*> command_list;
+    QList<QUndoCommand*> macro_stack;
     int index;
     int clean_index;
     QUndoGroup *group;

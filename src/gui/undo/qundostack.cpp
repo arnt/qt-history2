@@ -17,19 +17,19 @@
 #include "qundostack_p.h"
 
 /*!
-    \class QCommand
-    \brief The QCommand class is the base class of all commands stored on a QUndoStack.
+    \class QUndoCommand
+    \brief The QUndoCommand class is the base class of all commands stored on a QUndoStack.
 
     For an overview of the Qt's undo framework, see the
     \link qundo.html overview\endlink.
 
-    A QCommand represents a single editing action on a document, for example,
-    inserting or deleting a block of text in a text editor. QCommand can apply
+    A QUndoCommand represents a single editing action on a document, for example,
+    inserting or deleting a block of text in a text editor. QUndoCommand can apply
     a change to the document with redo() and undo the change with undo(). The
     implementations for these functions must be provided in a derived class.
 
     \code
-    class AppendText : public QCommand
+    class AppendText : public QUndoCommand
     {
     public:
         AppendText(QString *doc, const QString &text)
@@ -44,21 +44,21 @@
     };
     \endcode
 
-    A QCommand has an associated text(). This is a short string
+    A QUndoCommand has an associated text(). This is a short string
     describing what the command does. It is used to update the text
     properties of the stack's undo and redo actions, see QUndoStack::createUndoAction()
     and QUndoStack::createRedoAction().
 
-    To support command compression, QCommand has an id() and the virtual function
+    To support command compression, QUndoCommand has an id() and the virtual function
     mergeWith(). These functions are used by QUndoStack::push().
 
-    To support command macros, a QCommand object can have any number of child
+    To support command macros, a QUndoCommand object can have any number of child
     commands. Undoing or redoing the parent command will cause the child
     commands to be undone or redone. A command can be assigned
     to a parent explicitly in the constructor.
 
     \code
-    QCommand *insertRed = new QCommand(); // an empty command
+    QUndoCommand *insertRed = new QUndoCommand(); // an empty command
     insertRed->setText("insert red text");
 
     new InsertText(document, idx, text, insertRed); // becomes child of insertRed
@@ -72,48 +72,48 @@
 */
 
 /*!
-    Constructs a QCommand object with parent \a parent and text \a text.
+    Constructs a QUndoCommand object with parent \a parent and text \a text.
 
     If \a parent is not 0, this command is appended to parent's child list.
     The parent command then owns this command and will delete it in its
     destructor.
 
-    \sa ~QCommand()
+    \sa ~QUndoCommand()
 */
 
-QCommand::QCommand(const QString &text, QCommand *parent)
+QUndoCommand::QUndoCommand(const QString &text, QUndoCommand *parent)
 {
-    d = new QCommandPrivate;
+    d = new QUndoCommandPrivate;
     if (parent != 0)
         parent->d->child_list.append(this);
     d->text = text;
 }
 
 /*!
-    Constructs a QCommand object with parent \a parent.
+    Constructs a QUndoCommand object with parent \a parent.
 
     If \a parent is not 0, this command is appended to parent's child list.
     The parent command then owns this command and will delete it in its
     destructor.
 
-    \sa ~QCommand()
+    \sa ~QUndoCommand()
 */
 
-QCommand::QCommand(QCommand *parent)
+QUndoCommand::QUndoCommand(QUndoCommand *parent)
 {
-    d = new QCommandPrivate;
+    d = new QUndoCommandPrivate;
     if (parent != 0)
         parent->d->child_list.append(this);
 }
 
 /*!
-    Destroys the QCommand object and all child commands. If the command was in a QUndoGroup,
+    Destroys the QUndoCommand object and all child commands. If the command was in a QUndoGroup,
     removes it grom the group.
 
-    \sa QCommand()
+    \sa QUndoCommand()
 */
 
-QCommand::~QCommand()
+QUndoCommand::~QUndoCommand()
 {
     qDeleteAll(d->child_list);
     delete d;
@@ -134,7 +134,7 @@ QCommand::~QCommand()
     \sa mergeWith() QUndoStack::push()
 */
 
-int QCommand::id() const
+int QUndoCommand::id() const
 {
     return -1;
 }
@@ -152,7 +152,7 @@ int QCommand::id() const
     The default implementation returns false.
 
 \code
-    bool AppendText::mergeWith(const QCommand *other)
+    bool AppendText::mergeWith(const QUndoCommand *other)
     {
         if (other->id() != id()) // make sure other is also an AppendText command
             return false;
@@ -164,7 +164,7 @@ int QCommand::id() const
     \sa id() QUndoStack::push()
 */
 
-bool QCommand::mergeWith(const QCommand *cmd)
+bool QUndoCommand::mergeWith(const QUndoCommand *cmd)
 {
     Q_UNUSED(cmd);
     return false;
@@ -179,7 +179,7 @@ bool QCommand::mergeWith(const QCommand *cmd)
     \sa undo()
 */
 
-void QCommand::redo()
+void QUndoCommand::redo()
 {
     for (int i = 0; i < d->child_list.size(); ++i)
         d->child_list.at(i)->redo();
@@ -195,7 +195,7 @@ void QCommand::redo()
     \sa redo()
 */
 
-void QCommand::undo()
+void QUndoCommand::undo()
 {
     for (int i = d->child_list.size() - 1; i >= 0; --i)
         d->child_list.at(i)->undo();
@@ -208,7 +208,7 @@ void QCommand::undo()
     \sa setText() QUndoStack::createUndoAction() QUndoStack::createRedoAction()
 */
 
-QString QCommand::text() const
+QString QUndoCommand::text() const
 {
     return d->text;
 }
@@ -219,14 +219,14 @@ QString QCommand::text() const
     \sa text() QUndoStack::createUndoAction() QUndoStack::createRedoAction()
 */
 
-void QCommand::setText(const QString &text)
+void QUndoCommand::setText(const QString &text)
 {
     d->text = text;
 }
 
 /*!
     \class QUndoStack
-    \brief The QUndoStack class is a stack of QCommand objects.
+    \brief The QUndoStack class is a stack of QUndoCommand objects.
 
     For an overview of the Qt's undo framework, see the
     \link qundo.html overview\endlink.
@@ -252,14 +252,14 @@ void QCommand::setText(const QString &text)
     whole words, sentences, or paragraphs. Command compression allows
     these single-character commands to be merged into a single command
     which inserts or deletes sections of text. For more information, see
-    QCommand::mergeWith() and push().
+    QUndoCommand::mergeWith() and push().
 
     QUndoStack supports command macros. A command macro is a sequence of
     commands, all of which are undone and redone in one go. Command
     macros are created by giving a command a list of child commands.
     Undoing or redoing the parent command will cause the child commands to
     be undone or redone. Command macros may be created explicitly
-    by specifying a parent in QCommand::QCommand(), or by using the convenience
+    by specifying a parent in QUndoCommand::QUndoCommand(), or by using the convenience
     functions beginMacro() and endMacro().
 
     QUndoStack provides convenient undo and redo QAction objects, which
@@ -374,8 +374,8 @@ void QUndoStack::clear()
 
     If \a cmd's id is not -1, and if the id is the same as that of the
     most recently executed command, QUndoStack will attempt to merge the two
-    commands by calling QCommand::mergeWith() on the most recently executed
-    command. If QCommand::mergeWith() returns true, the \a cmd is deleted.
+    commands by calling QUndoCommand::mergeWith() on the most recently executed
+    command. If QUndoCommand::mergeWith() returns true, the \a cmd is deleted.
 
     In all other cases \a cmd is simply pushed on the stack.
 
@@ -389,19 +389,19 @@ void QUndoStack::clear()
     been executed will almost always lead to corruption of the document's
     state.
 
-    \sa QCommand::id() QCommand::mergeWith()
+    \sa QUndoCommand::id() QUndoCommand::mergeWith()
 */
 
-void QUndoStack::push(QCommand *cmd)
+void QUndoStack::push(QUndoCommand *cmd)
 {
     Q_D(QUndoStack);
     cmd->redo();
 
     bool macro = !d->macro_stack.isEmpty();
 
-    QCommand *cur = 0;
+    QUndoCommand *cur = 0;
     if (macro) {
-        QCommand *macro_cmd = d->macro_stack.last();
+        QUndoCommand *macro_cmd = d->macro_stack.last();
         if (!macro_cmd->d->child_list.isEmpty())
             cur = macro_cmd->d->child_list.last();
     } else {
@@ -491,7 +491,7 @@ int QUndoStack::cleanIndex() const
 }
 
 /*!
-    Undoes the command below the current command by calling QCommand::undo().
+    Undoes the command below the current command by calling QUndoCommand::undo().
     Decrements the current command index.
 
     If the stack is empty, or if the bottom command on the stack has already been
@@ -517,7 +517,7 @@ void QUndoStack::undo()
 }
 
 /*!
-    Redoes the current command by calling QCommand::redo(). Increments the current
+    Redoes the current command by calling QUndoCommand::redo(). Increments the current
     command index.
 
     If the stack is empty, or if the top command on the stack has already been
@@ -639,7 +639,7 @@ bool QUndoStack::canRedo() const
 /*!
     Returns the text of the command which will be undone in the next call to undo().
 
-    \sa  QCommand::text() redoText()
+    \sa  QUndoCommand::text() redoText()
 */
 
 QString QUndoStack::undoText() const
@@ -655,7 +655,7 @@ QString QUndoStack::undoText() const
 /*!
     Returns the text of the command which will be redone in the next call to redo().
 
-    \sa QCommand::text() undoText()
+    \sa QUndoCommand::text() undoText()
 */
 
 QString QUndoStack::redoText() const
@@ -678,7 +678,7 @@ QString QUndoStack::redoText() const
 
     If \a prefix is empty, the default prefix "Undo" is used.
 
-    \sa createRedoAction() canUndo() QCommand::text()
+    \sa createRedoAction() canUndo() QUndoCommand::text()
 */
 
 QAction *QUndoStack::createUndoAction(QObject *parent, const QString &prefix) const
@@ -705,7 +705,7 @@ QAction *QUndoStack::createUndoAction(QObject *parent, const QString &prefix) co
 
     If \a prefix is empty, the default prefix "Redo" is used.
 
-    \sa createUndoAction() canRedo() QCommand::text()
+    \sa createUndoAction() canRedo() QUndoCommand::text()
 */
 
 QAction *QUndoStack::createRedoAction(QObject *parent, const QString &prefix) const
@@ -752,7 +752,7 @@ QAction *QUndoStack::createRedoAction(QObject *parent, const QString &prefix) co
     This code is equivalent to:
 
     \code
-    QCommand *insertRed = new QCommand(); // an empty command
+    QUndoCommand *insertRed = new QUndoCommand(); // an empty command
     insertRed->setText("insert red text");
 
     new InsertText(document, idx, text, insertRed); // becomes child of insertRed
@@ -767,7 +767,7 @@ QAction *QUndoStack::createRedoAction(QObject *parent, const QString &prefix) co
 void QUndoStack::beginMacro(const QString &text)
 {
     Q_D(QUndoStack);
-    QCommand *cmd = new QCommand();
+    QUndoCommand *cmd = new QUndoCommand();
     cmd->setText(text);
 
     if (d->macro_stack.isEmpty()) {

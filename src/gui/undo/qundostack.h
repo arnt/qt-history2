@@ -22,17 +22,17 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 class QAction;
-class QCommandPrivate;
+class QUndoCommandPrivate;
 class QUndoStackPrivate;
 
-class Q_GUI_EXPORT QCommand
+class Q_GUI_EXPORT QUndoCommand
 {
-    QCommandPrivate *d;
+    QUndoCommandPrivate *d;
 
 public:
-    explicit QCommand(QCommand *parent = 0);
-    explicit QCommand(const QString &text, QCommand *parent = 0);
-    virtual ~QCommand();
+    explicit QUndoCommand(QUndoCommand *parent = 0);
+    explicit QUndoCommand(const QString &text, QUndoCommand *parent = 0);
+    virtual ~QUndoCommand();
 
     virtual void undo();
     virtual void redo();
@@ -41,10 +41,10 @@ public:
     void setText(const QString &text);
 
     virtual int id() const;
-    virtual bool mergeWith(const QCommand *other);
+    virtual bool mergeWith(const QUndoCommand *other);
 
 private:
-    Q_DISABLE_COPY(QCommand)
+    Q_DISABLE_COPY(QUndoCommand)
     friend class QUndoStack;
 };
 
@@ -59,7 +59,7 @@ public:
     ~QUndoStack();
     void clear();
 
-    void push(QCommand *cmd);
+    void push(QUndoCommand *cmd);
 
     bool canUndo() const;
     bool canRedo() const;

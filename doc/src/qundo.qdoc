@@ -24,9 +24,9 @@ redo on each command.
 The framework consists of four classes:
 
 \list
-\i \l QCommand is the base class of all commands stored on an
+\i \l QUndoCommand is the base class of all commands stored on an
         undo stack. It can apply (redo) or undo a single change in the document.
-\i \l QUndoStack is a list of QCommand objects. It contains all the
+\i \l QUndoStack is a list of QUndoCommand objects. It contains all the
         commands executed on the document and can roll the document's state
         backwards or forwards by undoing or redoing them.
 \i \l QUndoGroup is a group of undo stacks. It is useful when an application
