@@ -74,7 +74,8 @@ public:
     inline void setSceneRect(qreal x, qreal y, qreal w, qreal h)
     { setSceneRect(QRectF(x, y, w, h)); }
 
-    void drawScene(QPainter *painter, const QRectF &target, const QRectF &source,
+    void drawScene(QPainter *painter, const QRectF &target = QRectF(),
+                   const QRectF &source = QRectF(),
                    Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio,
                    const QMatrix &matrix = QMatrix());
 

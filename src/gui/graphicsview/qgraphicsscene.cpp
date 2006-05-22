@@ -628,8 +628,8 @@ void QGraphicsScene::drawScene(QPainter *painter, const QRectF &target, const QR
         targetRect.setRect(0, 0, painter->device()->width(), painter->device()->height());
 
     // Find the ideal x / y scaling ratio to fit \a source in \a target.
-    qreal xratio = targetRect.width() / source.width();
-    qreal yratio = targetRect.height() / source.height();
+    qreal xratio = targetRect.width() / sourceRect.width();
+    qreal yratio = targetRect.height() / sourceRect.height();
 
     // Respect the aspect ratio mode.
     switch (aspectRatioMode) {
@@ -647,10 +647,13 @@ void QGraphicsScene::drawScene(QPainter *painter, const QRectF &target, const QR
     painter->save();
     painter->setClipRect(targetRect);
     painter->scale(xratio, yratio);
-    painter->translate(-source.topLeft());
+    painter->translate(-sourceRect.topLeft());
     painter->setMatrix(matrix, true);
 
-    foreach (QGraphicsItem *item, items(matrix.inverted().map(source))) {
+    QList<QGraphicsItem *> itemList = items(matrix.inverted().map(sourceRect));
+    for (int i = itemList.size() - 1; i >= 0; --i) {
+        QGraphicsItem *item = itemList.at(i);
+
         // Create the styleoption object
         QStyleOptionGraphicsItem option;
         option.state = QStyle::State_None;
