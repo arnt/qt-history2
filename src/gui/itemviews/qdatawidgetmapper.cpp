@@ -245,7 +245,7 @@ void QDataWidgetMapperPrivate::_q_closeEditor(QWidget *w, QAbstractItemDelegate:
  */
 
 /*!
-    \fn void currentIndexChanged(int index)
+    \fn void QDataWidgetMapper::currentIndexChanged(int index)
 
     This signal is emitted after the current index has changed and all widgets
     were populated with new data.
