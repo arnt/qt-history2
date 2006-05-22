@@ -20,10 +20,10 @@
     \class QUndoCommand
     \brief The QUndoCommand class is the base class of all commands stored on a QUndoStack.
 
-    For an overview of the Qt's undo framework, see the
-    \link qundo.html overview\endlink.
+    For an overview of Qt's Undo Framework, see the
+    \l{Overview of Qt's Undo Framework}{overview document}.
 
-    A QUndoCommand represents a single editing action on a document, for example,
+    A QUndoCommand represents a single editing action on a document; for example,
     inserting or deleting a block of text in a text editor. QUndoCommand can apply
     a change to the document with redo() and undo the change with undo(). The
     implementations for these functions must be provided in a derived class.
@@ -46,8 +46,8 @@
 
     A QUndoCommand has an associated text(). This is a short string
     describing what the command does. It is used to update the text
-    properties of the stack's undo and redo actions, see QUndoStack::createUndoAction()
-    and QUndoStack::createRedoAction().
+    properties of the stack's undo and redo actions; see
+    QUndoStack::createUndoAction() and QUndoStack::createRedoAction().
 
     To support command compression, QUndoCommand has an id() and the virtual function
     mergeWith(). These functions are used by QUndoStack::push().
@@ -69,6 +69,8 @@
 
     Another way to create macros is to use the convenience functions
     QUndoStack::beginMacro() and QUndoStack::endMacro().
+
+    \sa QUndoStack
 */
 
 /*!
@@ -120,18 +122,18 @@ QUndoCommand::~QUndoCommand()
 }
 
 /*!
-    Returns the id of this command.
+    Returns the ID of this command.
 
-    A command id is used in command compression. It must be an integer unique to
+    A command ID is used in command compression. It must be an integer unique to
     this command's class, or -1 if the command doesn't support compression.
 
     If the command supports compression this function must be overriden in the
-    derived class to return the correct id. The base implementation returns -1.
+    derived class to return the correct ID. The base implementation returns -1.
 
-    QUndoStack will only try to merge two commands if they have the same id, and
-    the id is not -1.
+    QUndoStack will only try to merge two commands if they have the same ID, and
+    the ID is not -1.
 
-    \sa mergeWith() QUndoStack::push()
+    \sa mergeWith(), QUndoStack::push()
 */
 
 int QUndoCommand::id() const
@@ -140,18 +142,22 @@ int QUndoCommand::id() const
 }
 
 /*!
-    Attempts to merge this command with \a cmd. Returns true on success; otherwise
-    returns false. If this function returns true, calling this command's redo() must
-    have the same effect as redoing this command and \a cmd.
-    Simmilarly, calling this command's undo() must have the same effect as undoing
-    \a cmd and this command.
+    \fn bool QUndoCommand::mergeWith(const QCommand *command)
 
-    QUndoStack will only try to merge two commands if they have the same id, and the id
-    is not -1.
+    Attempts to merge this command with the specified \a command. Returns true on
+    success; otherwise returns false.
+
+    If this function returns true, calling this command's redo() must have the same
+    effect as redoing both this command and the specified \a command.
+    Similarly, calling this command's undo() must have the same effect as undoing
+    both the specified \a command and this command.
+
+    QUndoStack will only try to merge two commands if they have the same id, and
+    the id is not -1.
 
     The default implementation returns false.
 
-\code
+    \code
     bool AppendText::mergeWith(const QUndoCommand *other)
     {
         if (other->id() != id()) // make sure other is also an AppendText command
@@ -159,7 +165,7 @@ int QUndoCommand::id() const
         m_text += static_cast<const AppendText*>(other)->m_text;
         return true;
     }
-\endcode
+    \endcode
 
     \sa id() QUndoStack::push()
 */
@@ -171,7 +177,7 @@ bool QUndoCommand::mergeWith(const QUndoCommand *cmd)
 }
 
 /*!
-    Applies changes to the document. This function must be implemented in
+    Applies a change to the document. This function must be implemented in
     the derived class.
 
     The default implementation calls redo() on all child commands.
@@ -186,7 +192,7 @@ void QUndoCommand::redo()
 }
 
 /*!
-    Reverts changes to the document. After undo() is called, the state of
+    Reverts a change to the document. After undo() is called, the state of
     the document should be the same as before redo() was called. This function must
     be implemented in the derived class.
 
@@ -214,7 +220,10 @@ QString QUndoCommand::text() const
 }
 
 /*!
-    Sets a short text string describing what this command does to \a text.
+    Sets the command's text to be the \a text specified.
+
+    The specified text should be a short user-readable string describing what this
+    command does.
 
     \sa text() QUndoStack::createUndoAction() QUndoStack::createRedoAction()
 */
@@ -228,39 +237,27 @@ void QUndoCommand::setText(const QString &text)
     \class QUndoStack
     \brief The QUndoStack class is a stack of QUndoCommand objects.
 
-    For an overview of the Qt's undo framework, see the
-    \link qundo.html overview\endlink.
+    For an overview of Qt's Undo Framework, see the
+    \l{Overview of Qt's Undo Framework}{overview document}.
+
+    An undo stack maintains a stack of commands that have been applied to a
+    document.
 
     New commands are pushed on the stack using push(). Commands can be
     undone and redone using undo() and redo(), or by triggering the
     actions returned by createUndoAction() and createRedoAction().
 
-    QUndoStack supports the concept of a clean state. When the
-    document is saved to disk, the stack can be marked as clean using
-    setClean(). Whenever the stack returns to this state through undo/redo
-    of commands, it emits the signal cleanChanged(). This signal is also
-    emitted when the stack leaves the clean state. This signal is usually
-    used to enable and disable the save actions in the application, and
-    to update the document's title to reflect that it contains unsaved changes.
+    QUndoStack keeps track of the \a current command. This is the command
+    which will be executed by the next call to redo(). The index of this
+    command is returned by index(). The state of the edited object can be
+    rolled forward or back using setIndex(). If the top-most command on the
+    stack has already been redone, index() is equal to count().
 
-    QUndoStack supports command compression. This is useful when several
-    commands can be compressed into a single command, which can be undone
-    and redone in one go. When, f.ex., a user types a character in a text
-    editor, a new command is created. This command inserts the
-    character into the document at the cursor position. However, it is
-    more convenient for the user to be able to undo or redo typing of
-    whole words, sentences, or paragraphs. Command compression allows
-    these single-character commands to be merged into a single command
-    which inserts or deletes sections of text. For more information, see
-    QUndoCommand::mergeWith() and push().
+    QUndoStack provides support for undo and redo actions, command
+    compression, command macros, and supports the concept of a
+    \e{clean state}.
 
-    QUndoStack supports command macros. A command macro is a sequence of
-    commands, all of which are undone and redone in one go. Command
-    macros are created by giving a command a list of child commands.
-    Undoing or redoing the parent command will cause the child commands to
-    be undone or redone. Command macros may be created explicitly
-    by specifying a parent in QUndoCommand::QUndoCommand(), or by using the convenience
-    functions beginMacro() and endMacro().
+    \section1 Undo and Redo Actions
 
     QUndoStack provides convenient undo and redo QAction objects, which
     can be inserted into a menu or a toolbar. When commands are undone or
@@ -269,11 +266,47 @@ void QUndoCommand::setText(const QString &text)
     when no command is available for undo or redo. These actions
     are returned by QUndoStack::createUndoAction() and QUndoStack::createRedoAction().
 
-    QUndoStack keeps track of the \a current command. This is the command
-    which will be executed by the next call to redo(). The index of this
-    command is returned by index(). The state of the edited object can be
-    rolled forward or back using setIndex(). If the top-most command on the
-    stack has already been redone, index() is equal to count().
+    \section1 Command Compression and Macros
+
+    Command compression is useful when several commands can be compressed
+    into a single command that can be undone and redone in a single operation.
+    For example, when a user types a character in a text editor, a new command
+    is created. This command inserts the character into the document at the
+    cursor position. However, it is more convenient for the user to be able
+    to undo or redo typing of whole words, sentences, or paragraphs.
+    Command compression allows these single-character commands to be merged
+    into a single command which inserts or deletes sections of text.
+    For more information, see QUndoCommand::mergeWith() and push().
+
+    A command macro is a sequence of commands, all of which are undone and
+    redone in one go. Command macros are created by giving a command a list
+    of child commands.
+    Undoing or redoing the parent command will cause the child commands to
+    be undone or redone. Command macros may be created explicitly
+    by specifying a parent in the QUndoCommand constructor, or by using the
+    convenience functions beginMacro() and endMacro().
+
+    Although command compression and macros appear to have the effect to the
+    user, they often have different uses in an application. Commands that
+    perform small changes to a document may be usefully compressed if there is
+    no need to individually record them, and if only larger changes are relevant
+    to the user.
+    However, for commands that need to be recorded individually, or those that
+    cannot be compressed, it is useful to use macros to provide a more convenient
+    user experience while maintaining a record of each command.
+
+    \section1 Clean State
+
+    QUndoStack supports the concept of a clean state. When the
+    document is saved to disk, the stack can be marked as clean using
+    setClean(). Whenever the stack returns to this state through the use
+    of undo/redo commands, it emits the signal cleanChanged(), which
+    is also emitted when the stack leaves the clean state. This signal is
+    usually used to enable and disable the save actions in the application,
+    and to update the document's title to reflect that it contains unsaved
+    changes.
+
+    \sa QUndoCommand, QUndoView
 */
 
 QUndoAction::QUndoAction(const QString &prefix, QObject *parent)
@@ -324,7 +357,7 @@ void QUndoStackPrivate::setIndex(int idx, bool clean)
     stack will initally be in the clean state. If \a parent is a
     QUndoGroup object, the stack is automatically added to the group.
 
-    \sa ~QUndoStack() push()
+    \sa push()
 */
 
 QUndoStack::QUndoStack(QObject *parent)
@@ -350,10 +383,14 @@ QUndoStack::~QUndoStack()
 }
 
 /*!
-    Deletes all commands and returns the stack to the clean state. Commands
-    are not undone or redone, the state of the edited object remains unchanged.
+    Clears the command stack by deleting all commands on it, and returns the stack
+    to the clean state.
+
+    Commands are not undone or redone; the state of the edited object remains
+    unchanged.
+
     This function is usually used when the contents of the document are
-    abandonned.
+    abandoned.
 
     \sa QUndoStack()
 */
@@ -441,11 +478,11 @@ void QUndoStack::push(QUndoCommand *cmd)
     Marks the stack as clean and emits cleanChanged() if the stack was
     not already clean.
 
-    Whenever the stack returns to this state through undo/redo
-    of commands, it emits the signal cleanChanged(). This signal is also
+    Whenever the stack returns to this state through the use of undo/redo
+    commands, it emits the signal cleanChanged(). This signal is also
     emitted when the stack leaves the clean state.
 
-    \sa isClean() cleanIndex()
+    \sa isClean(), cleanIndex()
 */
 
 void QUndoStack::setClean()
@@ -639,7 +676,7 @@ bool QUndoStack::canRedo() const
 /*!
     Returns the text of the command which will be undone in the next call to undo().
 
-    \sa  QUndoCommand::text() redoText()
+    \sa QUndoCommand::text() redoText()
 */
 
 QString QUndoStack::undoText() const
@@ -669,16 +706,16 @@ QString QUndoStack::redoText() const
 }
 
 /*!
-    Creates an undo QAction object with parent \a parent.
+    Creates an undo QAction object with the given \a parent.
 
     Triggering this action will cause a call to undo(). The text of this action
-    will always be the text of the command which will be undone in the next call to undo(),
-    prefixed by \a prefix. If there is no command available for undo, this action will
-    be disabled.
+    is the text of the command which will be undone in the next call to undo(),
+    prefixed by the specified \a prefix. If there is no command available for undo,
+    this action will be disabled.
 
     If \a prefix is empty, the default prefix "Undo" is used.
 
-    \sa createRedoAction() canUndo() QUndoCommand::text()
+    \sa createRedoAction(), canUndo(), QUndoCommand::text()
 */
 
 QAction *QUndoStack::createUndoAction(QObject *parent, const QString &prefix) const
@@ -696,16 +733,16 @@ QAction *QUndoStack::createUndoAction(QObject *parent, const QString &prefix) co
 }
 
 /*!
-    Creates an redo QAction object with parent \a parent.
+    Creates an redo QAction object with the given \a parent.
 
     Triggering this action will cause a call to redo(). The text of this action
-    will always be text of the command which will be redone in the next call to redo(),
-    prefixed by \a prefix. If there is no command available for redo, this action will
-    be disabled.
+    is the text of the command which will be redone in the next call to redo(),
+    prefixed by the specified \a prefix. If there is no command available for redo,
+    this action will be disabled.
 
     If \a prefix is empty, the default prefix "Redo" is used.
 
-    \sa createUndoAction() canRedo() QUndoCommand::text()
+    \sa createUndoAction(), canRedo(), QUndoCommand::text()
 */
 
 QAction *QUndoStack::createRedoAction(QObject *parent, const QString &prefix) const
@@ -879,8 +916,9 @@ bool QUndoStack::isActive() const
 /*!
     \fn void QUndoStack::cleanChanged(bool clean)
 
-    This signal is emitted whenever the stack enters or leaves the clean state. \a clean
-    specifies the new state.
+    This signal is emitted whenever the stack enters or leaves the clean state.
+    If \a clean is true, the stack is in a clean state; otherwise this signal
+    indicates that it has left the clean state.
 
     \sa isClean() setClean()
 */
