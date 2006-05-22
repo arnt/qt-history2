@@ -14,6 +14,8 @@
 #include <QtGui/QImage>
 #include "glwidget.h"
 
+#include <math.h>
+
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE  0x809D
 #endif
