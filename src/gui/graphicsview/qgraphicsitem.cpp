@@ -105,6 +105,8 @@
     local coordinates). Parent items propagate both their position and their
     transformation to all children.
 
+    \img graphicsview-parentchild.png
+    
     QGraphicsItem supports affine transformations in addition to its base
     position, pos(). To change the item's transformation, you can either pass
     a transformation matrix to setMatrix(), or call one of the convenience
