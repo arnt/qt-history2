@@ -1371,8 +1371,8 @@ void QTreeWidgetItem::write(QDataStream &out) const
     \sa data(), flags()
 */
 QTreeWidgetItem::QTreeWidgetItem(const QTreeWidgetItem &other)
-    : rtti(Type), values(other.values), view(0), par(0),
-      itemFlags(other.itemFlags)
+    : rtti(Type), values(other.values), view(0), display(other.display),
+      par(0), itemFlags(other.itemFlags)
 {
 }
 
