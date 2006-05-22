@@ -77,7 +77,8 @@ QTextControlPrivate::QTextControlPrivate()
       preferRichText(false),
       overwriteMode(false),
       acceptRichText(true),
-      preeditCursor(0), hideCursor(false)
+      preeditCursor(0), hideCursor(false),
+      hasFocus(false)
 {}
 
 bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
@@ -374,12 +375,6 @@ void QTextControlPrivate::createAutoBulletList()
 void QTextControlPrivate::init(const QString &html)
 {
     setContent(Qt::RichText, html);
-
-/* ####
-#ifndef QT_NO_CURSOR
-    viewport->setCursor(Qt::IBeamCursor);
-#endif
-*/
 }
 
 void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text, QTextDocument *document)
@@ -455,7 +450,6 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
     doc->setUndoRedoEnabled(!q->isReadOnly());
     updateCurrentCharFormatAndSelection();
     doc->setModified(false);
-    anchorToScrollToWhenVisible.clear();
     emit q->cursorPositionChanged();
 }
 
@@ -2153,17 +2147,7 @@ void QTextControl::setFocus(bool focus, Qt::FocusReason reason)
         if (reason != Qt::PopupFocusReason)
             d->cursorOn = false;
     }
-}
-
-/* \reimp
-*/
-void QTextControl::showEvent(QShowEvent *)
-{
-    Q_D(QTextControl);
-    if (!d->anchorToScrollToWhenVisible.isEmpty()) {
-        scrollToAnchor(d->anchorToScrollToWhenVisible);
-        d->anchorToScrollToWhenVisible.clear();
-    }
+    d->hasFocus = focus;
 }
 
 #ifndef QT_NO_CONTEXTMENU
@@ -2533,10 +2517,8 @@ void QTextControl::setReadOnly(bool ro)
     d->readOnly = ro;
     d->cursorOn = !ro;
 
-    /* ####
-    if (hasFocus())
+    if (d->hasFocus)
         d->setBlinkingCursorEnabled(!ro);
-    */
 }
 
 /*
@@ -2628,13 +2610,6 @@ void QTextControl::scrollToAnchor(const QString &name)
     Q_D(QTextControl);
     if (name.isEmpty())
         return;
-
-    /* ####
-    if (!isVisible()) {
-        d->anchorToScrollToWhenVisible = name;
-        return;
-    }
-    */
 
     for (QTextBlock block = d->doc->begin(); block.isValid(); block = block.next()) {
         QTextCharFormat format = block.charFormat();

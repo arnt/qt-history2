@@ -141,8 +141,6 @@ public:
     Qt::TextFormat textFormat;
     bool preferRichText;
 
-    QString anchorToScrollToWhenVisible;
-
     QTextCursor selectedWordOnDoubleClick;
     QTextCursor selectedLineOnDoubleClick;
 
@@ -162,6 +160,7 @@ public:
     QVector<QAbstractTextDocumentLayout::Selection> extraSelections;
 
     QPalette palette;
+    bool hasFocus;
 };
 
 #endif // QTEXTCONTROL_P_H

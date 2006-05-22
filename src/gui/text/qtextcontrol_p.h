@@ -124,7 +124,7 @@ public:
 
     int cursorWidth() const;
     void setCursorWidth(int width);
-    
+
     bool acceptRichText() const;
     void setAcceptRichText(bool accept);
 
@@ -157,7 +157,7 @@ public Q_SLOTS:
     void scrollToAnchor(const QString &name);
 
     void adjustSize();
-        
+
 Q_SIGNALS:
     void textChanged();
     void undoAvailable(bool b);
@@ -199,7 +199,6 @@ protected:
     virtual void dragMoveEvent(QDragMoveEvent *e);
     virtual void dropEvent(QDropEvent *e);
 */
-    virtual void showEvent(QShowEvent *);
 
     virtual QMimeData *createMimeDataFromSelection() const;
     virtual bool canInsertFromMimeData(const QMimeData *source) const;
