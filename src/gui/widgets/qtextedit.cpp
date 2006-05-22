@@ -467,11 +467,13 @@ void QTextEditPrivate::setContent(Qt::TextFormat format, const QString &text, QT
         cursor = QTextCursor();
         if (format == Qt::PlainText) {
             doc->setPlainText(text);
+            doc->setUndoRedoEnabled(false);
             QTextCursor formatCursor(doc);
             formatCursor.select(QTextCursor::Document);
             formatCursor.setCharFormat(charFormatForInsertion);
         } else {
             doc->setHtml(text);
+            doc->setUndoRedoEnabled(false);
         }
         cursor = QTextCursor(doc);
     } else if (clearDocument) {
