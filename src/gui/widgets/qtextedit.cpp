@@ -108,6 +108,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     if (cursor.isNull())
         return false;
 
+    const QTextCursor oldSelection = cursor;
     const int oldCursorPos = cursor.position();
     QTextCursor::MoveMode mode = e->modifiers() & Qt::ShiftModifier
                                    ? QTextCursor::KeepAnchor
@@ -281,7 +282,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 
     selectionChanged();
 
-    repaintSelection();
+    repaintOldAndNewSelection(oldSelection);
 
     return true;
 }
@@ -547,6 +548,25 @@ void QTextEditPrivate::repaintCursor()
 {
     Q_Q(const QTextEdit);
     viewport->update(q->cursorRect());
+}
+
+void QTextEditPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelection)
+{
+    QRect updateRect = selectionRect() | selectionRect(oldSelection);
+
+    if (cursor.hasSelection()
+        && oldSelection.hasSelection()
+        && cursor.currentFrame() == oldSelection.currentFrame()
+        && !cursor.hasComplexSelection()
+        && !oldSelection.hasComplexSelection()
+        && cursor.anchor() == oldSelection.anchor()) {
+        QTextCursor differenceSelection(doc);
+        differenceSelection.setPosition(oldSelection.position());
+        differenceSelection.setPosition(cursor.position(), QTextCursor::KeepAnchor);
+        updateRect = selectionRect(differenceSelection);
+    }
+
+    viewport->update(updateRect);
 }
 
 void QTextEditPrivate::selectionChanged()
@@ -1720,12 +1740,6 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     }
 #endif
 
-    // schedule a repaint of the region of the cursor, as when we move it we
-    // want to make sure the old cursor disappears (not noticable when moving
-    // only a few pixels but noticable when jumping between cells in tables for
-    // example)
-    d->repaintSelection();
-
     if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
         QTextBlockFormat fmt;
         fmt.setLayoutDirection((e->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft);
@@ -1735,6 +1749,12 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 
     if (d->cursorMoveKeyEvent(e))
         goto accept;
+
+    // schedule a repaint of the region of the cursor, as when we move it we
+    // want to make sure the old cursor disappears (not noticable when moving
+    // only a few pixels but noticable when jumping between cells in tables for
+    // example)
+    d->repaintSelection();
 
     if (e->modifiers() & Qt::ControlModifier) {
         switch( e->key() ) {
@@ -2248,6 +2268,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
     if (!(e->button() & Qt::LeftButton))
         return;
 
+    const QTextCursor oldSelection = d->cursor;
     const int oldCursorPos = d->cursor.position();
 
     d->ensureViewportLayouted();
@@ -2258,7 +2279,6 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
 #endif
-    d->repaintSelection();
 
     if (d->trippleClickTimer.isActive()
         && ((e->globalPos() - d->trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
@@ -2323,7 +2343,7 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
             emit cursorPositionChanged();
         d->_q_updateCurrentCharFormatAndSelection();
     }
-    d->repaintSelection();
+    d->repaintOldAndNewSelection(oldSelection);
 }
 
 /*! \reimp
@@ -2339,6 +2359,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
           || d->selectedLineOnDoubleClick.hasSelection()))
         return;
 
+    const QTextCursor oldSelection = d->cursor;
     const int oldCursorPos = d->cursor.position();
 
     d->ensureViewportLayouted();
@@ -2353,7 +2374,6 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 #endif
-    d->repaintSelection();
     const QPoint mousePos = d->mapToContents(e->pos());
     const qreal mouseX = qreal(mousePos.x());
 
@@ -2394,7 +2414,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
             emit cursorPositionChanged();
         d->_q_updateCurrentCharFormatAndSelection();
     }
-    d->repaintSelection();
+    d->repaintOldAndNewSelection(oldSelection);
 }
 
 /*! \reimp
@@ -2408,7 +2428,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 
     d->ensureViewportLayouted();
     d->autoScrollTimer.stop();
-    d->repaintSelection();
+    const QTextCursor oldSelection = d->cursor;
 
 #ifndef QT_NO_DRAGANDDROP
     if (d->mightStartDrag) {
@@ -2432,7 +2452,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 #endif
     }
 
-    d->repaintSelection();
+    d->repaintOldAndNewSelection(oldSelection);
 #ifndef QT_NO_DRAGANDDROP
     if (d->dragStartTimer.isActive())
         d->dragStartTimer.stop();
@@ -2458,7 +2478,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
 #endif
-    d->repaintSelection();
+    const QTextCursor oldSelection = d->cursor;
     d->setCursorPosition(e->pos());
     QTextLine line = currentTextLine(d->cursor);
     if (line.isValid() && line.textLength()) {
@@ -2467,8 +2487,8 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 #ifndef QT_NO_CLIPBOARD
         d->setClipboardSelection();
 #endif
-        d->repaintSelection();
     }
+    d->repaintOldAndNewSelection(oldSelection);
 
     d->selectedWordOnDoubleClick = d->cursor;
 

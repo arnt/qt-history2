@@ -73,7 +73,8 @@ public:
     void _q_repaintContents(const QRectF &contentsRect);
     void repaintCursor();
     inline void repaintSelection()
-    { viewport->update(selectionRect()); }
+    { repaintOldAndNewSelection(QTextCursor()); }
+    void repaintOldAndNewSelection(const QTextCursor &oldSelection);
 
     inline QPoint mapToContents(const QPoint &point) const
     { return QPoint(point.x() + horizontalOffset(), point.y() + verticalOffset()); }
@@ -108,12 +109,12 @@ public:
     void undo();
     void redo();
     void _q_setCursorAfterUndoRedo(int undoPosition, int charsAdded, int charsRemoved);
-    
+
     inline int horizontalOffset() const
     { return q_func()->isRightToLeft() ? (hbar->maximum() - hbar->value()) : hbar->value(); }
     inline int verticalOffset() const
     { return vbar->value(); }
-    
+
     QRect rectForPosition(int position) const;
     QRect selectionRect(const QTextCursor &cursor) const;
     inline QRect selectionRect() const
