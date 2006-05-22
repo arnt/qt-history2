@@ -38,7 +38,7 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
     Q_OBJECT
     Q_PROPERTY(QBrush backgroundBrush READ backgroundBrush WRITE setBackgroundBrush)
     Q_PROPERTY(QBrush foregroundBrush READ foregroundBrush WRITE setForegroundBrush)
-    Q_PROPERTY(bool sceneInteractionAllowed READ isSceneInteractionAllowed WRITE setSceneInteractionAllowed)
+    Q_PROPERTY(bool interactive READ isInteractive WRITE setInteractive)
     Q_PROPERTY(QRectF sceneRect READ sceneRect WRITE setSceneRect)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(QPainter::RenderHints renderHints READ renderHints WRITE setRenderHints)
@@ -65,8 +65,8 @@ public:
     SelectionMode selectionMode() const;
     void setSelectionMode(SelectionMode mode);
 
-    bool isSceneInteractionAllowed() const;    
-    void setSceneInteractionAllowed(bool allowed);
+    bool isInteractive() const;    
+    void setInteractive(bool allowed);
     
     QGraphicsScene *scene() const;
     void setScene(QGraphicsScene *scene);

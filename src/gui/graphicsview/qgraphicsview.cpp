@@ -89,8 +89,8 @@
     selected, and it will also redraw itself to display a selection
     rectangle. Similiary, if you click and drag the mouse to move a movable
     item, it's the item that handles the mouse moves and moves itself.  Item
-    interaction is enabled by default, and you can disable it by calling
-    setSceneInteractionEnabled().
+    interaction is enabled by default, and you can toggle it by calling
+    setInteractive().
 
     You can also provide your own custom scene interaction, by creating a
     subclass of QGraphicsView, and reimplementing the mouse and key event
@@ -839,19 +839,19 @@ void QGraphicsView::setSelectionMode(SelectionMode mode)
 }
 
 /*!
-    \property QGraphicsView::sceneInteractionAllowed
+    \property QGraphicsView::interactive
     \brief whether the view allowed scene interaction.
 
     If enabled, this view is set to allow scene interaction. Otherwise, this
     view will not allow interaction, and any mouse or key events are ignored
     (i.e., it will act as a read-only view).
 */
-bool QGraphicsView::isSceneInteractionAllowed() const
+bool QGraphicsView::isInteractive() const
 {
     Q_D(const QGraphicsView);
     return d->sceneInteractionAllowed;
 }
-void QGraphicsView::setSceneInteractionAllowed(bool allowed)
+void QGraphicsView::setInteractive(bool allowed)
 {
     Q_D(QGraphicsView);
     d->sceneInteractionAllowed = allowed;
