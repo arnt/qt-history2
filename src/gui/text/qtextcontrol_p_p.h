@@ -86,12 +86,12 @@ public:
     void pageUp(QTextCursor::MoveMode moveMode);
     void pageDown(QTextCursor::MoveMode moveMode);
 
-    void _q_updateCurrentCharFormatAndSelection();
+    void updateCurrentCharFormatAndSelection();
 
     void setClipboardSelection();
     void ensureVisible(int documentPosition);
 
-    void _q_emitCursorPosChanged(const QTextCursor &someCursor);
+    void emitCursorPosChanged(const QTextCursor &someCursor);
 
     void setBlinkingCursorEnabled(bool enable);
 

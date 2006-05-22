@@ -69,11 +69,10 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 QTextControlPrivate::QTextControlPrivate()
     : doc(0), cursorOn(false),
       readOnly(false),
-      tabChangesFocus(false),
 #ifndef QT_NO_DRAGANDDROP
       mousePressed(false), mightStartDrag(false),
 #endif
-      lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
+      lineWrap(QTextControl::WidgetWidth), lineWrapColumnOrWidth(0),
       lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
       preferRichText(false),
       overwriteMode(false),
@@ -506,7 +505,7 @@ void QTextControlPrivate::repaintCursor()
 
 void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelection)
 {
-    QRect updateRect = selectionRect() | selectionRect(oldSelection);
+    QRectF updateRect = selectionRect() | selectionRect(oldSelection);
 
     if (cursor.hasSelection()
         && oldSelection.hasSelection()
@@ -524,7 +523,7 @@ void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelect
     emit q->updateRequest(updateRect);
 }
 
-void QTextEditPrivate::selectionChanged()
+void QTextControlPrivate::selectionChanged()
 {
     Q_Q(QTextControl);
     bool current = cursor.hasSelection();
@@ -3073,13 +3072,13 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
 */
 
     ctx.palette = d->palette;
-    if (cursorOn /* ###### && q->isEnabled()*/) {
-        if (hideCursor)
+    if (d->cursorOn /* ###### && q->isEnabled()*/) {
+        if (d->hideCursor)
             ctx.cursorPosition = -1;
-        else if (preeditCursor != 0)
-            ctx.cursorPosition = - (preeditCursor + 2);
+        else if (d->preeditCursor != 0)
+            ctx.cursorPosition = - (d->preeditCursor + 2);
         else
-            ctx.cursorPosition = cursor.position();
+            ctx.cursorPosition = d->cursor.position();
     }
 
     if (!d->dndFeedbackCursor.isNull())
