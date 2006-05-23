@@ -256,10 +256,10 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
             break;
 #endif
         case Qt::Key_PageDown:
-            pageDown(mode);
+            pageUpDown(QTextCursor::Down, mode);
             break;
         case Qt::Key_PageUp:
-            pageUp(mode);
+            pageUpDown(QTextCursor::Up, mode);
             break;
     default:
         return false;
@@ -584,42 +584,29 @@ void QTextEditPrivate::selectionChanged()
     q->updateMicroFocus();
 }
 
-void QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
+void QTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextEdit);
     const int oldCursorPos = cursor.position();
-    int targetY = verticalOffset() - viewport->height();
     bool moved = false;
-    qreal y;
-    // move to the targetY using movePosition to keep the cursor's x
+    qreal lastY = q->cursorRect().top();
+    qreal distance = 0;
+    // move using movePosition to keep the cursor's x
     do {
-        const QRect r = q->cursorRect();
-        y = verticalOffset() + r.y() - r.height();
-        moved = cursor.movePosition(QTextCursor::Up, moveMode);
-    } while (moved && y > targetY);
+        qreal y = q->cursorRect().top();
+        distance += qAbs(y - lastY);
+        lastY = y;
+        moved = cursor.movePosition(op, moveMode);
+    } while (moved && distance < viewport->height());
 
     if (moved) {
-        q->ensureCursorVisible();
-        if (cursor.position() != oldCursorPos)
-            emit q->cursorPositionChanged();
-        q->updateMicroFocus();
-    }
-}
-
-void QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
-{
-    Q_Q(QTextEdit);
-    const int oldCursorPos = cursor.position();
-    int targetY = verticalOffset() + 2 * viewport->height();
-    bool moved = false;
-    qreal y;
-    // move to the targetY using movePosition to keep the cursor's x
-    do {
-        y = verticalOffset() + q->cursorRect().bottom();
-        moved = cursor.movePosition(QTextCursor::Down, moveMode);
-    } while (moved && y < targetY);
-
-    if (moved) {
+        if (op == QTextCursor::Up) {
+            cursor.movePosition(QTextCursor::Down, moveMode);
+            vbar->triggerAction(QAbstractSlider::SliderPageStepSub);
+        } else {
+            cursor.movePosition(QTextCursor::Up, moveMode);
+            vbar->triggerAction(QAbstractSlider::SliderPageStepAdd);
+        }
         q->ensureCursorVisible();
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
@@ -3495,10 +3482,10 @@ void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 {
     Q_D(QTextEdit);
     if (action == MovePageUp) {
-        d->pageUp(mode);
+        d->pageUpDown(QTextCursor::Up, mode);
         return;
     } else if (action == MovePageDown) {
-        d->pageDown(mode);
+        d->pageUpDown(QTextCursor::Down, mode);
         return;
     }
 

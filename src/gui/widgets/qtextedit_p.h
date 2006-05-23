@@ -81,8 +81,7 @@ public:
 
     void selectionChanged();
 
-    void pageUp(QTextCursor::MoveMode moveMode);
-    void pageDown(QTextCursor::MoveMode moveMode);
+    void pageUpDown(QTextCursor::MoveOperation op, QTextCursor::MoveMode moveMode);
 
     void _q_updateCurrentCharFormatAndSelection();
 
