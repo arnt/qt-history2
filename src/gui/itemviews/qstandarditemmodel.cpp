@@ -650,11 +650,12 @@ void QStandardItem::setData(int role, const QVariant &value)
     for (it = d->values.begin(); it != d->values.end(); ++it) {
         if ((*it).role == role) {
             (*it).value = value;
+            if (d->model)
+                d->model->d_func()->itemChanged(this);
             return;
         }
     }
     d->values.append(QWidgetItemData(role, value));
-
     if (d->model)
         d->model->d_func()->itemChanged(this);
 }
