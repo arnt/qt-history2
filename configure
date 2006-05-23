@@ -625,7 +625,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install)
+        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -1398,8 +1398,7 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     silent)
-        CFG_SILENT=yes
-        QMAKE_VARS="$QMAKE_VARS CONFIG+=silent"
+        CFG_SILENT="$VAL"
         ;;
     *)
         UNKNOWN_OPT=yes
@@ -1460,6 +1459,10 @@ if [ "$CFG_DEBUG" = "auto" ]; then
 fi
 if [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG build_all"
+fi
+
+if [ "$CFG_SILENT" = "yes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG silent"
 fi
 
 # if the source tree is different from the build tree,
