@@ -3724,7 +3724,7 @@ if [ "$CFG_LIBFREETYPE" = "auto" ]; then
         CFG_LIBFREETYPE=yes
     fi
 fi
-    
+
 
 if [ "$CFG_ENDIAN" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
@@ -4743,6 +4743,11 @@ fi
 echo "zlib support ........ $CFG_ZLIB"
 if [ "$PLATFORM_QWS" = "yes" ]; then
     echo "Embedded support .... $CFG_EMBEDDED"
+    if [ "$CFG_QWS_FREETYPE" = "auto" ]; then
+	echo "Freetype2 support ... $CFG_QWS_FREETYPE ($CFG_LIBFREETYPE)"
+    else
+	echo "Freetype2 support ... $CFG_QWS_FREETYPE"
+    fi
     # Normalize the decoration output first
     CFG_DECORATION_ON=`echo ${CFG_DECORATION_ON}`
     CFG_DECORATION_PLUGIN=`echo ${CFG_DECORATION_PLUGIN}`
