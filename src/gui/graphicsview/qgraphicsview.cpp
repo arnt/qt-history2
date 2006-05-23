@@ -13,6 +13,9 @@
 
 //#define QGRAPHICSVIEW_DEBUG
 
+// Constants
+static const int GraphicsViewRegionRectThreshold = 20;
+
 /*!
     \class QGraphicsView
     \brief The QGraphicsView class provides a widget for displaying the
@@ -1262,19 +1265,24 @@ void QGraphicsView::updateScene(const QList<QRectF> &rects)
     Q_D(QGraphicsView);
     QRect viewportRect = viewport()->rect();
 
+    QRegion updateRegion;
     QRect sumRect;
     foreach (QRectF rect, rects) {
         // Find the item's bounding rect and map it to view coordiates.
         // Adjust with 2 pixels for antialiasing.
         QRect mappedRect = mapFromScene(rect).boundingRect().adjusted(-2, -2, 2, 2);
         if (viewportRect.contains(mappedRect) || viewportRect.intersects(mappedRect)) {
+            if (rects.size() < GraphicsViewRegionRectThreshold)
+                updateRegion += mappedRect;
             sumRect |= mappedRect;
             if (!d->accelerateScrolling)
                 break;
         }
     }
 
-    if (!sumRect.isNull())
+    if (!updateRegion.isEmpty())
+        viewport()->update(!d->accelerateScrolling ? QRegion(viewportRect) : updateRegion);
+    else if (!sumRect.isNull())
         viewport()->update(!d->accelerateScrolling ? viewportRect : sumRect);
 }
 
