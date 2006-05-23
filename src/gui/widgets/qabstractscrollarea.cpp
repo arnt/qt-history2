@@ -25,7 +25,6 @@
 
 #include "qabstractscrollarea_p.h"
 #include <qwidget.h>
-#include <qdebug.h>
 
 #ifdef Q_WS_MAC
 #include <qmacstyle_mac.h>
@@ -331,18 +330,27 @@ QAbstractScrollArea::~QAbstractScrollArea()
   Sets the viewport to be the given \a widget.
   The QAbstractScrollArea will take ownership of the given \a widget.
 
+  If \a widget is 0, QAbstractScrollArea will assign a new QWidget instance
+  for the viewport.
+
   \sa viewport()
 */
 void QAbstractScrollArea::setViewport(QWidget *widget)
 {
     Q_D(QAbstractScrollArea);
     if (widget != d->viewport) {
-        delete d->viewport;
+        QWidget *oldViewport = d->viewport;
+        if (!widget)
+            widget = new QWidget;
         d->viewport = widget;
         d->viewport->setParent(this);
         d->viewport->setFocusProxy(this);
         d->viewport->installEventFilter(d->viewportFilter);
         d->layoutChildren();
+        if (isVisible())
+            d->viewport->show();
+        QMetaObject::invokeMethod(this, "setupViewport", Q_ARG(QWidget *, widget));
+        delete oldViewport;
     }
 }
 
@@ -966,6 +974,18 @@ QSize QAbstractScrollArea::sizeHint() const
     int f = 2 * d->frameWidth;
     return QSize((6 * h) + f, (4 * h) + f);
 #endif
+}
+
+/*!
+    This slot is called by QAbstractScrollArea after setViewport() has been
+    called. Reimplement this function in a subclass of QAbstractScrollArea to
+    initialize the new viewport before it is used.
+
+    \sa setViewport()
+*/
+void QAbstractScrollArea::setupViewport(QWidget *viewport)
+{
+    Q_UNUSED(viewport);
 }
 
 #include "moc_qabstractscrollarea.cpp"

@@ -57,6 +57,9 @@ public:
 
     QSize sizeHint() const;
 
+protected Q_SLOTS:
+    void setupViewport(QWidget *viewport);
+    
 protected:
     QAbstractScrollArea(QAbstractScrollAreaPrivate &dd, QWidget *parent = 0);
     void setViewportMargins(int left, int top, int right, int bottom);
