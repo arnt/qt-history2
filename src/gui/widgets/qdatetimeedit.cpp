@@ -1707,7 +1707,7 @@ void QDateTimeEditPrivate::_q_editorCursorPositionChanged(int oldpos, int newpos
                 edit->setCursorPosition(pos);
             }
         }
-        updateButtons();
+        q->update();
     }
     QDTEDEBUG << "currentSectionIndex is set to" << sectionName(sectionType(s)) << oldpos << newpos
               << "was" << sectionName(sectionType(currentSectionIndex));
