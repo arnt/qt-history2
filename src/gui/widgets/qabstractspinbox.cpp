@@ -362,6 +362,20 @@ QAbstractSpinBox::CorrectionMode QAbstractSpinBox::correctionMode() const
     return d->correctionMode;
 }
 
+
+/*!
+  \property QAbstractSpinBox::acceptableInput
+  \brief whether the input satisfies the current validation
+
+  \sa validate(), fixup()
+*/
+
+bool QAbstractSpinBox::hasAcceptableInput() const
+{
+    Q_D(const QAbstractSpinBox);
+    return d->edit->hasAcceptableInput();
+}
+
 /*!
     \property QAbstractSpinBox::alignment
     \brief the alignment of the spin box

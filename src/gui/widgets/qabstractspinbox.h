@@ -41,6 +41,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(QString text READ text)
     Q_PROPERTY(bool accelerate READ accelerate WRITE setAccelerate)
     Q_PROPERTY(CorrectionMode correctionMode READ correctionMode WRITE setCorrectionMode)
+    Q_PROPERTY(bool acceptableInput READ hasAcceptableInput)
 
 public:
     explicit QAbstractSpinBox(QWidget *parent = 0);
@@ -60,6 +61,7 @@ public:
     void setCorrectionMode(CorrectionMode cm);
     CorrectionMode correctionMode() const;
 
+    bool hasAcceptableInput() const;
     QString text() const;
 
     QString specialValueText() const;
