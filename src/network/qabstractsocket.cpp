@@ -1033,6 +1033,8 @@ void QAbstractSocket::connectToHostImplementation(const QString &hostName, quint
         d->hostLookupId = -1;
     }
 
+    if (!d_func()->isBuffered)
+        openMode |= QAbstractSocket::Unbuffered;
     setOpenMode(openMode);
     emit stateChanged(d->state);
 
