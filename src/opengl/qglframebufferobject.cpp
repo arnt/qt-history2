@@ -411,20 +411,26 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
 
     \sa size(), texture()
 */
-QGLFramebufferObject::QGLFramebufferObject(const QSize &sz, GLenum texture_target)
+QGLFramebufferObject::QGLFramebufferObject(const QSize &size, GLenum target)
     : d_ptr(new QGLFramebufferObjectPrivate)
 {
     Q_D(QGLFramebufferObject);
-    d->init(sz, texture_target);
+    d->init(size, target);
 }
 
 
-/*! \overload */
-QGLFramebufferObject::QGLFramebufferObject(int width, int height, GLenum texture_target)
+/*! \overload
+
+    Constructs an OpenGL framebuffer object and binds a 2D GL texture
+    to the buffer of the width \a width and height \a height.
+
+    \sa size(), texture()
+*/
+QGLFramebufferObject::QGLFramebufferObject(int width, int height, GLenum target)
     : d_ptr(new QGLFramebufferObjectPrivate)
 {
     Q_D(QGLFramebufferObject);
-    d->init(QSize(width, height), texture_target);
+    d->init(QSize(width, height), target);
 }
 
 /*!

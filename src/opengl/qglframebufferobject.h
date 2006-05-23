@@ -27,8 +27,8 @@ class Q_OPENGL_EXPORT QGLFramebufferObject : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QGLFramebufferObject)
 public:
-    QGLFramebufferObject(const QSize &size, GLenum texture_target = GL_TEXTURE_2D);
-    QGLFramebufferObject(int width, int height, GLenum texture_target = GL_TEXTURE_2D);
+    QGLFramebufferObject(const QSize &size, GLenum target = GL_TEXTURE_2D);
+    QGLFramebufferObject(int width, int height, GLenum target = GL_TEXTURE_2D);
     virtual ~QGLFramebufferObject();
 
     bool isValid() const;
