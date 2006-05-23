@@ -2702,7 +2702,7 @@ void QAbstractItemViewPrivate::fetchMore()
 
     QModelIndex index = model->index(last, 0, root);
     QRect rect = q_func()->visualRect(index);
-    if (viewport->rect().contains(rect))
+    if (viewport->rect().intersects(rect))
         model->fetchMore(root);
 }
 
