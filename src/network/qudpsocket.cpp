@@ -315,7 +315,11 @@ qint64 QUdpSocket::pendingDatagramSize() const
     fragmented by the IP layer before arriving at their final
     destination.
 
-    \sa readDatagram()
+    \warning Calling this function on a connected UDP socket may
+    result in error and no packet being sent. If you are using a
+    connected socket, use write() to send datagrams.
+
+    \sa readDatagram(), write()
 */
 qint64 QUdpSocket::writeDatagram(const char *data, qint64 size, const QHostAddress &address,
                                   quint16 port)
