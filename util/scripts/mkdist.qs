@@ -275,12 +275,15 @@ for (var p in validPlatforms) {
 	    print("Copying dist files...");
 	    copyDist(platDir, platform, license);
 
-	    // run qdoc
-	    print("Running qdoc...");
+	    checkLicense(platDir, getFileList(platDir));
+
 	    var tmpTag = new Array();
 	    tmpTag[licenseHeaders[license]] = /\*\* \$LICENSE\$\n/;
 	    replaceTags(platDir + "/examples", getFileList(platDir + "/examples"), tmpTag, false);
 	    replaceTags(platDir + "/demos", getFileList(platDir + "/demos"), tmpTag, false);
+
+	    // run qdoc
+	    print("Running qdoc...");
 	    qdoc(platDir, platform, license);
 
 	    // purge platform and license files
@@ -833,6 +836,34 @@ function defaultTags(platform, license, platName)
     replace[platName] = /\%DISTNAME\%/g;
     replace[licenseHeaders[license]] = /\*\* \$LICENSE\$\n/;
     return replace;
+}
+
+/************************************************************
+ * goes through all source files (except 3rdparty) and checks for $LICENSE$
+ */
+function checkLicense(packageDir, fileList)
+{
+    for (var i in fileList) {
+        fileName = fileList[i];
+        absFileName = packageDir + "/" + fileName;
+        // skip the $QTDIR/include and 3rdparty files
+        if (fileName.find(/\/3rdparty\//) == -1
+            && fileName.find(/^include\//) == -1
+            && fileName.find(/^doc\//) == -1
+            && fileName.find(/^config.tests\//) == -1
+            && fileName.find(/\.cpp$|\.h$|\.c$/) != -1) {
+
+            content = File.read(absFileName);
+            if (content.find(/\*\* \$LICENSE\$/) == -1) {
+                warning(fileName + " doesn't contain $LICENSE$");
+            }
+
+            if (fileName.find(/_p.h$/) != -1
+                && content.find(/\/\/ We mean it./) == -1) {
+                warning(fileName + " doesn't contain \"We mean it\"");
+            }
+        }
+    }
 }
 
 /************************************************************
