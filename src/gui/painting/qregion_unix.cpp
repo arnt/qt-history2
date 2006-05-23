@@ -16,6 +16,7 @@
 #include "qpolygon.h"
 #include "qbuffer.h"
 #include "qimage.h"
+#include <qdebug.h>
 #include "qbitmap.h"
 #include <stdlib.h>
 
@@ -1870,11 +1871,10 @@ static void PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
                 if (pts->x() == pts[1].x())
                     continue;
                 if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom() + 1
-                    && pts[1].x() == rects->right()
-                    && (numRects == 1 || rects[-1].top() != rects->top())
-                    && (i && pts[2].y() > pts[1].y())) {
-                    rects->setBottom(pts[1].y());
-                    continue;
+                    && pts[1].x() == rects->right()+1 && (numRects == 1 || rects[-1].top() != rects->top())
+                                                          && (i && pts[2].y() > pts[1].y())) {
+                        rects->setBottom(pts[1].y());
+                        continue;
                 }
                 ++numRects;
                 ++rects;
