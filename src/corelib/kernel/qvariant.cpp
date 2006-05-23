@@ -697,10 +697,28 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
     }
     case QVariant::ByteArray: {
         QByteArray *ba = static_cast<QByteArray *>(result);
-        if (d->type == QVariant::String)
+        switch (d->type) {
+        case QVariant::String:
             *ba = v_cast<QString>(d)->toAscii();
-        else
+            break;
+        case QVariant::Int:
+            *ba = QByteArray::number(d->data.i);
+            break;
+         case QVariant::UInt:
+            *ba = QByteArray::number(d->data.u);
+            break;
+        case QVariant::LongLong:
+            *ba = QByteArray::number(d->data.ll);
+            break;
+        case QVariant::ULongLong:
+            *ba = QByteArray::number(d->data.ull);
+            break;
+        case QVariant::Double:
+            *ba = QByteArray::number(d->data.d, 'g', DBL_DIG);
+            break;
+        default:
             return false;
+        }          
     }
     break;
     case QVariant::Int: {
@@ -955,26 +973,26 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
         return d->type == QVariant::String || d->type == QVariant::Double
             || d->type == QVariant::Bool || d->type == QVariant::UInt
             || d->type == QVariant::LongLong || d->type == QVariant::ULongLong
-            || d->type == QVariant::Char;
+            || d->type == QVariant::Char || d->type == QVariant::ByteArray;
     case QVariant::UInt:
         return d->type == QVariant::String || d->type == QVariant::Double
             || d->type == QVariant::Bool || d->type == QVariant::Int
             || d->type == QVariant::LongLong || d->type == QVariant::ULongLong
-            || d->type == QVariant::Char;
+            || d->type == QVariant::Char || d->type == QVariant::ByteArray;
     case QVariant::LongLong:
         return d->type == QVariant::String || d->type == QVariant::Double
             || d->type == QVariant::Bool || d->type == QVariant::Int
             || d->type == QVariant::UInt || d->type == QVariant::ULongLong
-            || d->type == QVariant::Char;
+            || d->type == QVariant::Char || d->type == QVariant::ByteArray;
     case QVariant::ULongLong:
         return d->type == QVariant::String || d->type == QVariant::Double
             || d->type == QVariant::Bool || d->type == QVariant::Int
             || d->type == QVariant::UInt || d->type == QVariant::LongLong
-            || d->type == QVariant::Char;
+            || d->type == QVariant::Char || d->type == QVariant::ByteArray;
     case QVariant::Double:
         return d->type == QVariant::String || d->type == QVariant::Int
             || d->type == QVariant::Bool || d->type == QVariant::UInt
-            || d->type == QVariant::LongLong || d->type == QVariant::ULongLong;
+            || d->type == QVariant::LongLong || d->type == QVariant::ByteArray || d->type == QVariant::ULongLong;
     case QVariant::String:
         if (d->type == QVariant::StringList && v_cast<QStringList>(d)->count() == 1)
             return true;
@@ -987,7 +1005,7 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
     case QVariant::Char:
         return d->type == QVariant::Int || d->type == QVariant::UInt;
     case QVariant::ByteArray:
-        return d->type == QVariant::String;
+        return d->type == QVariant::String || d->type == QVariant::Int|| d->type == QVariant::UInt || d->type == QVariant::Double|| d->type == QVariant::LongLong|| d->type == QVariant::ULongLong;
     case QVariant::Date:
         return d->type == QVariant::String || d->type == QVariant::DateTime;
     case QVariant::Time:
