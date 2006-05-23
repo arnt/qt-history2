@@ -290,7 +290,7 @@ void QAbstractSpinBox::setReadOnly(bool enable)
     Q_D(QAbstractSpinBox);
     d->readOnly = enable;
     d->edit->setReadOnly(enable);
-    d->updateButtons();
+    update();
 }
 
 /*!
@@ -1191,7 +1191,7 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), type(QVariant::Invalid), spinClickTimerId(-1),
       spinClickTimerInterval(100), spinClickThresholdTimerId(-1), spinClickThresholdTimerInterval(thresholdTime),
-      buttonState(None), cachedText("\x01"), cachedState(QValidator::Invalid),
+      buttonState(None), cachedText(QLatin1String("\x01")), cachedState(QValidator::Invalid),
       pendingEmit(false), readOnly(false), wrapping(WrapOff),
       ignoreCursorPositionChanged(false), frame(true), accelerate(false),
       correctionMode(QAbstractSpinBox::CorrectToPreviousValue), acceleration(0),
@@ -1206,6 +1206,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
 QAbstractSpinBoxPrivate::~QAbstractSpinBoxPrivate()
 {
 }
+
 /*!
     \internal
     Updates the old and new hover control. Does nothing if the hover
@@ -1403,23 +1404,6 @@ void QAbstractSpinBoxPrivate::init()
 /*!
     \internal
 
-    Calls QWidget::update() on the area where the arrows are painted.
-*/
-
-void QAbstractSpinBoxPrivate::updateButtons()
-{
-    Q_Q(QAbstractSpinBox);
-
-    if (q) {
-        QStyleOptionSpinBox opt = getStyleOption();
-        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxUp, q));
-        q->update(q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxDown, q));
-    }
-}
-
-/*!
-    \internal
-
     Resets the state of the spinbox. E.g. the state is set to
     (Keyboard|Up) if Key up is currently pressed.
 */
@@ -1436,7 +1420,7 @@ void QAbstractSpinBoxPrivate::reset()
             q->killTimer(spinClickThresholdTimerId);
         spinClickTimerId = spinClickThresholdTimerId = -1;
         acceleration = 0;
-        updateButtons();
+        q->update();
     }
 }
 
@@ -1539,13 +1523,14 @@ QVariant QAbstractSpinBoxPrivate::bound(const QVariant &val, const QVariant &old
 void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
                                        bool doUpdate)
 {
+    Q_Q(QAbstractSpinBox);
     const QVariant old = value;
     value = bound(val);
     pendingEmit = false;
     if (doUpdate) {
         updateEdit();
     }
-    updateButtons();
+    q->update();
 
     if (ep == AlwaysEmit || (ep == EmitIfChanged && old != value)) {
         emitSignals(ep, old);
@@ -1560,6 +1545,7 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
 
 void QAbstractSpinBoxPrivate::updateEdit()
 {
+    Q_Q(QAbstractSpinBox);
     const QString newText = specialValue() ? specialValueText : prefix + textFromValue(value) + suffix;
     if (newText == edit->displayText())
         return;
@@ -1580,7 +1566,7 @@ void QAbstractSpinBoxPrivate::updateEdit()
         }
     }
     edit->blockSignals(sb);
-    updateButtons();
+    q->update();
 }
 
 /*!

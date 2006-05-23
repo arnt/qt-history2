@@ -76,7 +76,6 @@ public:
     void setValue(const QVariant &val, EmitPolicy ep, bool updateEdit = true);
     virtual QVariant bound(const QVariant &val, const QVariant &old = QVariant(), int steps = 0) const;
     QLineEdit *lineEdit();
-    void updateButtons();
     virtual void updateEdit();
 
     virtual QStyleOptionSpinBox getStyleOption() const;
