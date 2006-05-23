@@ -1,4 +1,4 @@
-/****************************************************************************
+ /****************************************************************************
  * **
  * ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
  * **
@@ -190,6 +190,8 @@ void QSystemTrayIcon::setVisible(bool visible)
     Q_D(QSystemTrayIcon);
     if (visible == d->visible)
         return;
+    if (d->icon.isNull() && visible)
+        qWarning("QSystemTrayIcon::setVisible: No Icon set");
     d->visible = visible;
     if (d->visible)
         d->install();
@@ -291,7 +293,8 @@ void QSystemTrayIcon::showMessage(const QString& title, const QString& msg,
                             QSystemTrayIcon::MessageIcon icon, int msecs)
 {
     Q_D(QSystemTrayIcon);
-    d->showMessage(title, msg, icon, msecs);
+    if (d->visible)
+        d->showMessage(title, msg, icon, msecs);
 }
 
 //////////////////////////////////////////////////////////////////////
