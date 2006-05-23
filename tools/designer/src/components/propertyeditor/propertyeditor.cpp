@@ -469,6 +469,18 @@ PaletteProperty::PaletteProperty(QDesignerFormEditorInterface *core, const QPale
 void PaletteProperty::setValue(const QVariant &value)
 {
     m_value = qvariant_cast<QPalette>(value);
+    QPalette parentPalette = QPalette();
+    if (m_selectedWidget) {
+        if (m_selectedWidget->isWindow())
+            parentPalette = QApplication::palette(m_selectedWidget);
+        else {
+            if (m_selectedWidget->parentWidget())
+                parentPalette = m_selectedWidget->parentWidget()->palette();
+        }
+    }
+    uint mask = m_value.resolve();
+    m_value = m_value.resolve(parentPalette);
+    m_value.resolve(mask);
 }
 
 QString PaletteProperty::toString() const
@@ -642,7 +654,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new PixmapProperty(m_core, qvariant_cast<QPixmap>(value), pname);
                 break;
             case QVariant::Font:
-                p = new FontProperty(qvariant_cast<QFont>(value), pname);
+                p = new FontProperty(qvariant_cast<QFont>(value), pname, qobject_cast<QWidget *>(object));
                 break;
             case QVariant::Color:
                 p = new ColorProperty(qvariant_cast<QColor>(value), pname);

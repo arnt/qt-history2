@@ -32,6 +32,7 @@ QPropertyEditor::QPropertyEditor(QWidget *parent)
     setModel(m_model);
     m_itemDelegate = new QPropertyEditorDelegate(this);
     setItemDelegate(m_itemDelegate);
+    connect(m_itemDelegate, SIGNAL(resetProperty(const QString &)), m_model, SIGNAL(resetProperty(const QString &)));
     setInitialInput(0);
 
     setAlternatingRowColors(true);

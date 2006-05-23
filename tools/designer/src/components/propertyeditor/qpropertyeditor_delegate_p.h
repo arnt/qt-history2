@@ -18,6 +18,9 @@
 
 namespace qdesigner_internal {
 
+class IProperty;
+class QPropertyEditorModel;
+
 class QPropertyEditorDelegate : public QItemDelegate
 {
     Q_OBJECT
@@ -54,8 +57,11 @@ public:
                                       const QStyleOptionViewItem &option,
                                       const QModelIndex &index) const;
 
+signals:
+    void resetProperty(const QString &propertyName);
 public slots:
     void sync();
+    void resetProperty(const IProperty *property, QPropertyEditorModel *model);
 
 protected:
     virtual void drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,

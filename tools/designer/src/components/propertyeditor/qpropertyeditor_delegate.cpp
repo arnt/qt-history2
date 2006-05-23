@@ -27,6 +27,7 @@
 #include <QtGui/qdrawutil.h>
 
 #include <QtCore/qdebug.h>
+#include <private/qfont_p.h>
 
 #include <limits.h>
 
@@ -38,29 +39,31 @@ class EditorWithReset : public QWidget
 {
     Q_OBJECT
 public:
-    EditorWithReset(const QString &prop_name, QWidget *parent = 0);
+    EditorWithReset(const IProperty *property, QPropertyEditorModel *model, QWidget *parent = 0);
     void setChildEditor(QWidget *child_editor);
     QWidget *childEditor() const { return m_child_editor; }
 private slots:
     void emitResetProperty();
 signals:
     void sync();
-    void resetProperty(const QString &prop_name);
+    void resetProperty(const IProperty *property, QPropertyEditorModel *model);
 private:
     QWidget *m_child_editor;
     QHBoxLayout *m_layout;
-    QString m_prop_name;
+    const IProperty *m_property;
+    QPropertyEditorModel *m_model;
 };
 
-EditorWithReset::EditorWithReset(const QString &prop_name, QWidget *parent)
+EditorWithReset::EditorWithReset(const IProperty *property, QPropertyEditorModel *model, QWidget *parent)
     : QWidget(parent)
 {
     setAutoFillBackground(true);
-    m_prop_name = prop_name;
+    m_property = property;
     m_child_editor = 0;
     m_layout = new QHBoxLayout(this);
     m_layout->setMargin(0);
     m_layout->setSpacing(0);
+    m_model = model;
 
     QToolButton *button = new QToolButton(this);
     button->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -73,7 +76,7 @@ EditorWithReset::EditorWithReset(const QString &prop_name, QWidget *parent)
 
 void EditorWithReset::emitResetProperty()
 {
-    emit resetProperty(m_prop_name);
+    emit resetProperty(m_property, m_model);
 }
 
 void EditorWithReset::setChildEditor(QWidget *child_editor)
@@ -204,7 +207,7 @@ QWidget *QPropertyEditorDelegate::createEditor(QWidget *parent,
 {
     Q_UNUSED(option);
 
-    const QPropertyEditorModel *model = static_cast<const QPropertyEditorModel*>(index.model());
+    QPropertyEditorModel *model = const_cast<QPropertyEditorModel *>(static_cast<const QPropertyEditorModel *>(index.model()));
     const IProperty *property = model->privateData(index);
     if (property == 0)
         return 0;
@@ -214,13 +217,13 @@ QWidget *QPropertyEditorDelegate::createEditor(QWidget *parent,
     if (!isReadOnly() && property->hasEditor()) { // ### always true
         if (property->hasReset()) {
             EditorWithReset *editor_w_reset
-                = new EditorWithReset(property->propertyName(), parent);
+                = new EditorWithReset(property, model, parent);
             QWidget *child_editor
                 = property->createEditor(editor_w_reset, editor_w_reset, SIGNAL(sync()));
             editor_w_reset->setChildEditor(child_editor);
             connect(editor_w_reset, SIGNAL(sync()), this, SLOT(sync()));
-            connect(editor_w_reset, SIGNAL(resetProperty(QString)),
-                        model, SIGNAL(resetProperty(QString)));
+            connect(editor_w_reset, SIGNAL(resetProperty(const IProperty *, QPropertyEditorModel *)),
+                        this, SLOT(resetProperty(const IProperty *, QPropertyEditorModel *)));
 
             editor = editor_w_reset;
             child_editor->installEventFilter(const_cast<QPropertyEditorDelegate *>(this));
@@ -256,6 +259,32 @@ void QPropertyEditorDelegate::setModelData(QWidget *editor,
 
     if (IProperty *property = static_cast<const QPropertyEditorModel*>(model)->privateData(index)) {
         property->updateValue(editor);
+        if (property->propertyName() == QLatin1String("Family") ||
+                property->propertyName() == QLatin1String("Point Size") ||
+                property->propertyName() == QLatin1String("Bold") ||
+                property->propertyName() == QLatin1String("Italic") ||
+                property->propertyName() == QLatin1String("Underline") ||
+                property->propertyName() == QLatin1String("Strikeout")) {
+            QModelIndex parentIndex = index.parent();
+            if (IProperty *fontProperty = static_cast<const QPropertyEditorModel*>(model)->privateData(parentIndex)) {
+                QFont f = qvariant_cast<QFont>(fontProperty->value());
+                if (property->propertyName() == QLatin1String("Family"))
+                    f.setFamily(property->value().toString());
+                else if (property->propertyName() == QLatin1String("Point Size"))
+                    f.setPointSize(property->value().toInt());
+                else if (property->propertyName() == QLatin1String("Bold"))
+                    f.setBold(property->value().toBool());
+                else if (property->propertyName() == QLatin1String("Italic"))
+                    f.setItalic(property->value().toBool());
+                else if (property->propertyName() == QLatin1String("Underline"))
+                    f.setUnderline(property->value().toBool());
+                else if (property->propertyName() == QLatin1String("Strikeout"))
+                    f.setStrikeOut(property->value().toBool());
+                fontProperty->setValue(f);
+                model->setData(parentIndex, f, Qt::EditRole);
+                return;
+            }
+        }
         model->setData(index, property->value(), Qt::EditRole);
     }
 }
@@ -272,6 +301,44 @@ void QPropertyEditorDelegate::sync()
     if (w == 0)
         return;
     emit commitData(w);
+}
+
+void QPropertyEditorDelegate::resetProperty(const IProperty *property, QPropertyEditorModel *model)
+{
+    QString propName = property->propertyName();
+    if (propName == QLatin1String("Family") ||
+            propName == QLatin1String("Point Size") ||
+            propName == QLatin1String("Bold") ||
+            propName == QLatin1String("Italic") ||
+            propName == QLatin1String("Underline") ||
+            propName == QLatin1String("Strikeout")) {
+        IProperty *fontProperty = property->parent();
+        if (fontProperty) {
+            QFont f = qvariant_cast<QFont>(fontProperty->value());
+            uint mask = f.resolve();
+            if (property->propertyName() == QLatin1String("Family"))
+                mask &= ~QFontPrivate::Family;
+            else if (property->propertyName() == QLatin1String("Point Size"))
+                mask &= ~QFontPrivate::Size;
+            else if (property->propertyName() == QLatin1String("Bold"))
+                mask &= ~QFontPrivate::Weight;
+            else if (property->propertyName() == QLatin1String("Italic"))
+                mask &= ~QFontPrivate::Style;
+            else if (property->propertyName() == QLatin1String("Underline"))
+                mask &= ~QFontPrivate::Underline;
+            else if (property->propertyName() == QLatin1String("Strikeout"))
+                mask &= ~QFontPrivate::StrikeOut;
+            f.resolve(mask);
+            if (mask) {
+                QModelIndex fontIndex = model->indexOf(fontProperty);
+                fontProperty->setDirty(true);
+                model->setData(fontIndex, f, Qt::EditRole);
+                return;
+            }
+            propName = fontProperty->propertyName();
+        }
+    }
+    emit resetProperty(propName);
 }
 
 void QPropertyEditorDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const

@@ -24,6 +24,7 @@
 
 #include <QtGui/QCursor>
 #include <QtGui/QPalette>
+#include <QtGui/QFont>
 #include <QtGui/QKeySequence>
 
 class QWidget;
@@ -54,6 +55,8 @@ public:
     // ### pure
     bool changed() const { return m_changed; }
     void setChanged(bool b);
+
+    void setFakeChanged(bool b);
 
     bool dirty() const { return m_dirty; }
     void setDirty(bool b);
@@ -494,12 +497,15 @@ public:
 class QT_PROPERTYEDITOR_EXPORT FontProperty: public AbstractPropertyGroup
 {
 public:
-    FontProperty(const QFont &value, const QString &name);
+    FontProperty(const QFont &value, const QString &name, QWidget *selectedWidget);
 
     QString toString() const;
     QVariant value() const;
     void setValue(const QVariant &value);
     QVariant decoration() const;
+private:
+    QFont m_font;
+    QWidget *m_selectedWidget;
 };
 
 class QT_PROPERTYEDITOR_EXPORT SizePolicyProperty: public AbstractPropertyGroup
