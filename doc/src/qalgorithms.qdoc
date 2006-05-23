@@ -290,6 +290,14 @@
     \sa qCopy(), {forward iterators}
 */
 
+/*! \fn void qFill(Container &container)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qFill(\a{container}.begin(), \a{container}.end(), value);
+*/
+
 /*! \fn InputIterator qFind(InputIterator begin, InputIterator end, const T &value)
     \relates <QtAlgorithms>
 
@@ -319,6 +327,14 @@
     \sa qBinaryFind(), {input iterators}
 */
 
+/*! \fn void qFind(const Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qFind(\a{container}.begin(), \a{container}.end(), value);
+*/
+
 /*! \fn void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
     \relates <QtAlgorithms>
 
@@ -343,6 +359,14 @@
     \c int) to implement \c operator==().
 
     \sa {input iterators}
+*/
+
+/*! \fn void qCount(Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qcount(\a{container}.begin(), \a{container}.end(), value);
 */
 
 /*! \fn void qSwap(T &var1, T &var2)
@@ -588,6 +612,28 @@
     \sa qUpperBound(), qBinaryFind()
 */
 
+/*!
+    \fn RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Uses the \a lessThan function instead of \c operator<() to
+    compare the items.
+
+    Note that the items in the range must be sorted according to the order
+    specified by the \a lessThan object.
+*/
+
+/*! 
+    \fn void qLowerBound(Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qLowerBound(\a{container}.begin(), \a{container}.end(), value);
+*/
+
 /*! \fn RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
     \relates <QtAlgorithms>
 
@@ -638,6 +684,29 @@
     \sa qLowerBound(), qBinaryFind()
 */
 
+/*!
+    \fn RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Uses the \a lessThan function instead of \c operator<() to
+    compare the items.
+
+    Note that the items in the range must be sorted according to the order
+    specified by the \a lessThan object.
+*/
+
+/*! 
+    \fn void qUpperBound(Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qUpperBound(\a{container}.begin(), \a{container}.end(), value);
+*/
+
+
 /*! \fn RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
     \relates <QtAlgorithms>
 
@@ -670,6 +739,28 @@
 
     \sa qLowerBound(), qUpperBound(), {random access iterators}
 */
+
+/*! \fn RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Uses the \a lessThan function instead of \c operator<() to
+    compare the items.
+
+    Note that the items in the range must be sorted according to the order
+    specified by the \a lessThan object.
+*/
+
+/*! 
+    \fn void qBinaryFind(Container &container, const T &value)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qBinaryFind(\a{container}.begin(), \a{container}.end(), value);
+*/
+
 
 /*! \fn void qDeleteAll(ForwardIterator begin, ForwardIterator end)
     \relates <QtAlgorithms>

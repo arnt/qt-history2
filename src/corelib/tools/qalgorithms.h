@@ -36,6 +36,13 @@ Q_OUTOFLINE_TEMPLATE void qStableSortHelper(RandomAccessIterator start, RandomAc
 template <typename RandomAccessIterator, typename T>
 inline void qStableSortHelper(RandomAccessIterator, RandomAccessIterator, const T &);
 
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qLowerBoundHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan);
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qUpperBoundHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan);
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qBinaryFindHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan);
+
 }
 
 template <typename InputIterator, typename OutputIterator>
@@ -70,6 +77,12 @@ inline void qFill(ForwardIterator first, ForwardIterator last, const T &val)
         *first = val;
 }
 
+template <typename Container, typename T>
+inline void qFill(Container &container, const T &val)
+{
+    qFill(container.begin(), container.end(), val);
+}
+
 template <typename InputIterator, typename T>
 inline InputIterator qFind(InputIterator first, InputIterator last, const T &val)
 {
@@ -78,12 +91,24 @@ inline InputIterator qFind(InputIterator first, InputIterator last, const T &val
     return first;
 }
 
+template <typename Container, typename T>
+inline void qFind(const Container &container, const T &val)
+{
+    qFind(container.constBegin(), container.constEnd(), val);
+}
+
 template <typename InputIterator, typename T, typename Size>
 inline void qCount(InputIterator first, InputIterator last, const T &value, Size &n)
 {
     for (; first != last; ++first)
         if (*first == value)
             ++n;
+}
+
+template <typename Container, typename T, typename Size>
+inline void qCount(const Container &container, const T &value, Size &n)
+{
+    qCount(container.constBegin(), container.constEnd(), value, n);
 }
 
 template <typename T>
@@ -186,6 +211,9 @@ inline void qStableSort(Container &c)
 template <typename RandomAccessIterator, typename T>
 Q_OUTOFLINE_TEMPLATE RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
 {
+    // Implementation is duplicated from QAlgorithmsPrivate to keep existing code
+    // compiling. We have to allow using *begin and value with different types, 
+    // and then implementing operator< for those types.
     RandomAccessIterator middle;
     int n = end - begin;
     int half;
@@ -203,9 +231,22 @@ Q_OUTOFLINE_TEMPLATE RandomAccessIterator qLowerBound(RandomAccessIterator begin
     return begin;
 }
 
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+{
+    return QAlgorithmsPrivate::qLowerBoundHelper(begin, end, value, lessThan);
+}
+
+template <typename Container, typename T>
+Q_OUTOFLINE_TEMPLATE typename Container::const_iterator qLowerBound(const Container &container, const T &value)
+{
+    return QAlgorithmsPrivate::qLowerBoundHelper(container.constBegin(), container.constEnd(), value, qLess<T>());
+}
+
 template <typename RandomAccessIterator, typename T>
 Q_OUTOFLINE_TEMPLATE RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
 {
+    // Implementation is duplicated from QAlgorithmsPrivate.
     RandomAccessIterator middle;
     int n = end - begin;
     int half;
@@ -223,9 +264,22 @@ Q_OUTOFLINE_TEMPLATE RandomAccessIterator qUpperBound(RandomAccessIterator begin
     return begin;
 }
 
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+{
+    return QAlgorithmsPrivate::qUpperBoundHelper(begin, end, value, lessThan);
+}
+
+template <typename Container, typename T>
+Q_OUTOFLINE_TEMPLATE typename Container::const_iterator qUpperBound(const Container &container, const T &value)
+{
+    return QAlgorithmsPrivate::qUpperBoundHelper(container.constBegin(), container.constEnd(), value, qLess<T>());
+}
+
 template <typename RandomAccessIterator, typename T>
 Q_OUTOFLINE_TEMPLATE RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
 {
+    // Implementation is duplicated from QAlgorithmsPrivate.
     int l = 0;
     int r = end - begin - 1;
     if (r < 0)
@@ -243,6 +297,18 @@ Q_OUTOFLINE_TEMPLATE RandomAccessIterator qBinaryFind(RandomAccessIterator begin
         return end;
     else
         return begin + i;
+}
+
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+{
+    return QAlgorithmsPrivate::qBinaryFindHelper(begin, end, value, lessThan);
+}
+
+template <typename Container, typename T>
+Q_OUTOFLINE_TEMPLATE typename Container::const_iterator qBinaryFind(const Container &container, const T &value)
+{
+    return QAlgorithmsPrivate::qBinaryFindHelper(container.constBegin(), container.constEnd(), value, qLess<T>());
 }
 
 template <typename ForwardIterator>
@@ -363,6 +429,69 @@ template <typename RandomAccessIterator, typename T>
 inline void qStableSortHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &dummy)
 {
     qStableSortHelper(begin, end, dummy, qLess<T>());
+}
+
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qLowerBoundHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+{
+    RandomAccessIterator middle;
+    int n = end - begin;
+    int half;
+
+    while (n > 0) {
+        half = n >> 1;
+        middle = begin + half;
+        if (lessThan(*middle, value)) {
+            begin = middle + 1;
+            n -= half + 1;
+        } else {
+            n = half;
+        }
+    }
+    return begin;
+}
+
+
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qUpperBoundHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+{
+    RandomAccessIterator middle;
+    int n = end - begin;
+    int half;
+
+    while (n > 0) {
+        half = n >> 1;
+        middle = begin + half;
+        if (lessThan(value, *middle)) {
+            n = half;
+        } else {
+            begin = middle + 1;
+            n -= half + 1;
+        }
+    }
+    return begin;
+}
+
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE RandomAccessIterator qBinaryFindHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan)
+{
+    int l = 0;
+    int r = end - begin - 1;
+    if (r < 0)
+        return end;
+    int i = (l + r + 1) / 2;
+
+    while (r != l) {
+        if (lessThan(value, begin[i]))
+            r = i - 1;
+        else
+            l = i;
+        i = (l + r + 1) / 2;
+    }
+    if (lessThan(begin[i], value) || lessThan(value, begin[i]))
+        return end;
+    else
+        return begin + i;
 }
 
 } //namespace QAlgorithmsPrivate
