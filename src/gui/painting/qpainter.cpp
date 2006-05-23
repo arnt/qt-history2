@@ -146,8 +146,10 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     QRect absPathRect(devMinX, devMinY, devMaxX - devMinX, devMaxY - devMinY);
 
     if (state->clipInfo.size() != 0) {
-        QRegion r = q->clipRegion() * q->deviceMatrix();
-        absPathRect = absPathRect.intersect(r.boundingRect());
+        QPainterPath clipPath = q->clipPath() * q->deviceMatrix();
+        QRectF r = clipPath.boundingRect().intersect(absPathRect);
+        absPathRect.setCoords((int) floor(r.left()), (int) floor(r.top()),
+                              (int) ceil(r.right()), (int) ceil(r.bottom()));
     }
     absPathRect = absPathRect.intersect(QRect(0, 0, device->width(), device->height()));
 
