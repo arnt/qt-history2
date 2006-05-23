@@ -2089,25 +2089,22 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
     if (qApp->activePopupWidget() == widget)
         return false;
 
-    QWidget *groupLeaderForWidget = widget;
-    while (groupLeaderForWidget && !groupLeaderForWidget->testAttribute(Qt::WA_GroupLeader))
-        groupLeaderForWidget = groupLeaderForWidget->parentWidget();
-
-    bool blocked = false;
-    for (int i = 0; !blocked && i < qt_modal_stack->size(); ++i) {
+    for (int i = 0; i < qt_modal_stack->size(); ++i) {
         QWidget *modalWidget = qt_modal_stack->at(i);
 
-        // check if the active modal widget is a parent of our widget
-        QWidget *w = widget->parentWidget();
-        while (w) {
-            if (w == modalWidget)
-                return false;
-            w = w->parentWidget();
-        }
+        {
+            // check if the active modal widget is our widget or a parent of our widget
+            QWidget *w = widget;
+            while (w) {
+                if (w == modalWidget)
+                    return false;
+                w = w->parentWidget();
+            }
 #ifdef Q_WS_WIN
-        if (IsChild(modalWidget->winId(), widget->winId()))
-            return false;
+            if (IsChild(modalWidget->winId(), widget->winId()))
+                return false;
 #endif
+        }
 
         Qt::WindowModality windowModality = modalWidget->windowModality();
         if (windowModality == Qt::NonModal) {
@@ -2115,56 +2112,60 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
             // modalWidget, this normally happens when waiting for a
             // native dialog. use WindowModal if we are the child of a
             // group leader; otherwise use ApplicationModal.
-            w = modalWidget;
-            while (w && !w->testAttribute(Qt::WA_GroupLeader)) {
-                w = w->parentWidget();
-                if (w)
-                    w = w->window();
+            QWidget *m = modalWidget;
+            while (m && !m->testAttribute(Qt::WA_GroupLeader)) {
+                m = m->parentWidget();
+                if (m)
+                    m = m->window();
             }
-            windowModality = (w && w->testAttribute(Qt::WA_GroupLeader))
+            windowModality = (m && m->testAttribute(Qt::WA_GroupLeader))
                              ? Qt::WindowModal
                              : Qt::ApplicationModal;
         }
 
         switch (windowModality) {
         case Qt::ApplicationModal:
-            if (modalWidget == widget) {
-                return false;
-            } else if (groupLeaderForWidget) {
-                // if \a widget has WA_GroupLeader, it can only be blocked by children with ApplicationModal
-                QWidget *p = modalWidget;
-                while (p && p != groupLeaderForWidget && !p->testAttribute(Qt::WA_GroupLeader))
-                    p = p->parentWidget();
-                if (p == groupLeaderForWidget)
-                    blocked = true;
-            } else if (modalWidget != widget) {
-                blocked = true;
+            {
+                QWidget *groupLeaderForWidget = widget;
+                while (groupLeaderForWidget && !groupLeaderForWidget->testAttribute(Qt::WA_GroupLeader))
+                    groupLeaderForWidget = groupLeaderForWidget->parentWidget();
+
+                if (groupLeaderForWidget) {
+                    // if \a widget has WA_GroupLeader, it can only be blocked by ApplicationModal children
+                    QWidget *m = modalWidget;
+                    while (m && m != groupLeaderForWidget && !m->testAttribute(Qt::WA_GroupLeader))
+                        m = m->parentWidget();
+                    if (m == groupLeaderForWidget)
+                        return true;
+                } else if (modalWidget != widget) {
+                    return true;
+                }
+                break;
             }
-            break;
         case Qt::WindowModal:
-            w = widget;
-            do {
-                QWidget *top = modalWidget;
+            {
+                QWidget *w = widget;
                 do {
-                    if (top == w && modalWidget != widget) {
-                        blocked = true;
-                        break;
-                    }
-                    top = top->parentWidget();
-                    if (top)
-                        top = top->window();
-                } while (!blocked && top);
-                w = w->parentWidget();
-                if (w)
-                    w = w->window();
-            } while (!blocked && w);
-            break;
+                    QWidget *m = modalWidget;
+                    do {
+                        if (m == w)
+                            return true;
+                        m = m->parentWidget();
+                        if (m)
+                            m = m->window();
+                    } while (m);
+                    w = w->parentWidget();
+                    if (w)
+                        w = w->window();
+                } while (w);
+                break;
+            }
         default:
             Q_ASSERT_X(false, "QApplication", "internal error, a modal widget cannot be modeless");
             break;
         }
     }
-    return blocked;
+    return false;
 }
 
 /*!\internal
