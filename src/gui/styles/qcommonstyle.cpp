@@ -801,7 +801,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         QStyleOption arrowOpt = *opt;
         arrowOpt.state |= State_Enabled;
         drawPrimitive(((opt->state & State_DownArrow) ? PE_IndicatorArrowDown : PE_IndicatorArrowUp),
-                      &arrowOpt, p, widget);
+                    &arrowOpt, p, widget);
         break; }
     case CE_MenuTearoff:
         if (opt->state & State_Selected)
@@ -1433,10 +1433,10 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         }
         break;
     case CE_FocusFrame:
-        p->fillRect(opt->rect, opt->palette.foreground());
+            p->fillRect(opt->rect, opt->palette.foreground());
         break;
     case CE_HeaderSection:
-        qDrawShadePanel(p, opt->rect, opt->palette,
+            qDrawShadePanel(p, opt->rect, opt->palette,
                         opt->state & State_Sunken, 1,
                         &opt->palette.brush(QPalette::Button));
         break;
@@ -3680,7 +3680,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_ComboBox_LayoutDirection:
-        ret = opt->direction;
+        ret = opt ? opt->direction : Qt::LeftToRight;
         break;
 
     case SH_ItemView_EllipsisLocation:

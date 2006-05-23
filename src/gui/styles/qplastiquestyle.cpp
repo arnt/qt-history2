@@ -5239,7 +5239,8 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
             ret = qMax(widget->fontMetrics().lineSpacing(), 16);
         } else
 #endif
-            ret = qMax(widget ? widget->fontMetrics().lineSpacing() : option->fontMetrics.lineSpacing(), 30);
+            ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 
+                      (option ? option->fontMetrics.lineSpacing() : 0), 30);
         break;
     case PM_MaximumDragDistance:
         return -1;
