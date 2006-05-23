@@ -33,7 +33,7 @@ QVFbKeyboardHandler::QVFbKeyboardHandler(const QString &device)
 {
     terminalName = device;
     if (terminalName.isEmpty())
-        terminalName = "/dev/vkdb";
+        terminalName = QLatin1String("/dev/vkdb");
     kbdFD = -1;
     kbdIdx = 0;
     kbdBufferLen = sizeof(QVFbKeyData) * 5;

@@ -86,7 +86,7 @@ QWSBusMouseHandlerPrivate::QWSBusMouseHandlerPrivate(QWSBusMouseHandler *h,
 {
     QString mouseDev = device;
     if (mouseDev.isEmpty())
-        mouseDev = "/dev/mouse";
+        mouseDev = QLatin1String("/dev/mouse");
     obstate = -1;
     mouseFD = -1;
     mouseFD = open(mouseDev.toLocal8Bit(), O_RDWR | O_NDELAY);

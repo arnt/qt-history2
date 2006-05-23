@@ -81,7 +81,7 @@ QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler
 {
     QString dev = device;
     if (dev.isEmpty())
-        dev = "/dev/vrtpanel";
+        dev = QLatin1String("/dev/vrtpanel");
 
     if ((mouseFD = open(dev.toLocal8Bit().constData(), O_RDONLY)) < 0) {
         qWarning("Cannot open %s (%s)", qPrintable(dev), strerror(errno));

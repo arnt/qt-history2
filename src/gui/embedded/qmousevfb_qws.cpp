@@ -31,7 +31,7 @@ QVFbMouseHandler::QVFbMouseHandler(const QString &driver, const QString &device)
 {
     QString mouseDev = device;
     if (device.isEmpty())
-        mouseDev = "/dev/vmouse";
+        mouseDev = QLatin1String("/dev/vmouse");
 
     mouseFD = -1;
     if ((mouseFD = open(mouseDev.toLatin1().constData(), O_RDWR | O_NDELAY)) < 0) {
