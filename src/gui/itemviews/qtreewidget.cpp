@@ -55,6 +55,7 @@ QTreeModel::QTreeModel(int columns, QObject *parent)
     : QAbstractItemModel(parent), header(new QTreeWidgetItem),
       sorting(Qt::AscendingOrder)
 {
+    header->view = qobject_cast<QTreeWidget*>(parent);
     setColumnCount(columns);
 }
 
@@ -67,7 +68,7 @@ QTreeModel::QTreeModel(QTreeModelPrivate &dd, QObject *parent)
     : QAbstractItemModel(dd, parent), header(new QTreeWidgetItem),
       sorting(Qt::AscendingOrder)
 {
-
+    header->view = qobject_cast<QTreeWidget*>(parent);
 }
 
 /*!
@@ -110,8 +111,10 @@ void QTreeModel::setColumnCount(int columns)
 {
     if (columns < 0)
         return;
-    if (!header)
+    if (!header) {
         header = new QTreeWidgetItem();
+        header->view = qobject_cast<QTreeWidget*>(QObject::parent());
+    }
     int count = header->columnCount();
     if (count == columns)
         return;
