@@ -476,7 +476,15 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent, int column
     in the child table with setChild(). Get a pointer to a child item with
     child().
 
-    \sa QStandardItemModel, {Model/View Programming}
+    \section1 Subclassing
+
+    When subclassing QStandardItem to provide custom items, it is possible to
+    define new types for them so that they can be distinguished from the base
+    class. The constructors for subclasses that require this feature need to
+    call the base class constructor with a new type value equal to or greater
+    than \l UserType.
+
+    \sa QStandardItemModel, {Item View Convenience Classes}, {Model/View Programming}
 */
 
 /*!
