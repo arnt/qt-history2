@@ -1395,7 +1395,6 @@ void QGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 void QGraphicsView::focusInEvent(QFocusEvent *event)
 {
     Q_D(QGraphicsView);
-    QAbstractScrollArea::focusInEvent(event);
     QApplication::sendEvent(d->scene, event);
 }
 
@@ -1405,7 +1404,6 @@ void QGraphicsView::focusInEvent(QFocusEvent *event)
 void QGraphicsView::focusOutEvent(QFocusEvent *event)
 {
     Q_D(QGraphicsView);
-    QAbstractScrollArea::focusOutEvent(event);
     QApplication::sendEvent(d->scene, event);
 }
 
