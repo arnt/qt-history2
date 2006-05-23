@@ -30,6 +30,7 @@
 #ifndef QT_NO_STANDARDITEMMODEL
 
 #include <private/qwidgetitemdata_p.h>
+#include <QtCore/qlist.h>
 #include <QtCore/qpair.h>
 #include <QtCore/qvariant.h>
 #include <QtCore/qvector.h>
@@ -62,6 +63,24 @@ public:
     }
     void childDeleted(QStandardItem *child);
 
+    inline void setModel(QStandardItemModel *mod) {
+        model = mod;
+    }
+
+    inline void setParentAndModel(
+        QStandardItem *par,
+        QStandardItemModel *mod) {
+        parent = par;
+        model = mod;
+    }
+
+    void changeFlags(bool enable, Qt::ItemFlags f);
+    void setItemData(const QMap<int, QVariant> &roles);
+    const QMap<int, QVariant> itemData() const;
+
+    bool insertRows(int row, int count, const QList<QStandardItem*> &items);
+    bool insertColumns(int column, int count, const QList<QStandardItem*> &items);
+
     int type;
     QStandardItemModel *model;
     QStandardItem *parent;
@@ -85,6 +104,17 @@ public:
     QStandardItem *itemFromIndex(const QModelIndex &index) const;
     QModelIndex indexFromItem(const QStandardItem *item) const;
     QStandardItem *createItem() const;
+
+    void sort(QStandardItem *parent, int column, Qt::SortOrder order);
+    void itemChanged(QStandardItem *item);
+    void rowsAboutToBeInserted(QStandardItem *parent, int start, int end);
+    void columnsAboutToBeInserted(QStandardItem *parent, int start, int end);
+    void rowsAboutToBeRemoved(QStandardItem *parent, int start, int end);
+    void columnsAboutToBeRemoved(QStandardItem *parent, int start, int end);
+    void rowsInserted(QStandardItem *parent, int row, int count);
+    void columnsInserted(QStandardItem *parent, int column, int count);
+    void rowsRemoved(QStandardItem *parent, int row, int count);
+    void columnsRemoved(QStandardItem *parent, int column, int count);
 
     QVector<QStandardItem*> columnHeaderItems;
     QVector<QStandardItem*> rowHeaderItems;

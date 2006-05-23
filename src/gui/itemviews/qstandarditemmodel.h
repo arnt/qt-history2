@@ -144,23 +144,17 @@ public:
     void setFlags(Qt::ItemFlags flags);
     Qt::ItemFlags flags() const;
 
-    inline void setEnabled(bool enabled) {
-        changeFlags(enabled, Qt::ItemIsEnabled);
-    }
+    void setEnabled(bool enabled);
     inline bool isEnabled() const {
         return (flags() & Qt::ItemIsEnabled) != 0;
     }
 
-    inline void setEditable(bool editable) {
-        changeFlags(editable, Qt::ItemIsEditable);
-    }
+    void setEditable(bool editable);
     inline bool isEditable() const {
         return (flags() & Qt::ItemIsEditable) != 0;
     }
 
-    inline void setSelectable(bool selectable) {
-        changeFlags(selectable, Qt::ItemIsSelectable);
-    }
+    void setSelectable(bool selectable);
     inline bool isSelectable() const {
         return (flags() & Qt::ItemIsSelectable) != 0;
     }
@@ -170,23 +164,17 @@ public:
         return (flags() & Qt::ItemIsUserCheckable) != 0;
     }
 
-    inline void setTristate(bool tristate) {
-        changeFlags(tristate, Qt::ItemIsTristate);
-    }
+    void setTristate(bool tristate);
     inline bool isTristate() const {
         return (flags() & Qt::ItemIsTristate) != 0;
     }
 
-    inline void setDragEnabled(bool dragEnabled) {
-        changeFlags(dragEnabled, Qt::ItemIsDragEnabled);
-    }
+    void setDragEnabled(bool dragEnabled);
     inline bool isDragEnabled() const {
         return (flags() & Qt::ItemIsDragEnabled) != 0;
     }
 
-    inline void setDropEnabled(bool dropEnabled) {
-        changeFlags(dropEnabled, Qt::ItemIsDropEnabled);
-    }
+    void setDropEnabled(bool dropEnabled);
     inline bool isDropEnabled() const {
         return (flags() & Qt::ItemIsDropEnabled) != 0;
     }
@@ -253,16 +241,8 @@ protected:
     QStandardItemPrivate *d_ptr;
 
 private:
-    void setParent(QStandardItem *parent);
-    void setModel(QStandardItemModel *model);
-    void setItemData(const QMap<int, QVariant> &roles);
-    const QMap<int, QVariant> itemData() const;
-
-    bool insertRows(int row, int count, const QList<QStandardItem*> &items);
-    bool insertColumns(int column, int count, const QList<QStandardItem*> &items);
-    void changeFlags(bool enable, Qt::ItemFlags flags);
-
     Q_DECLARE_PRIVATE(QStandardItem)
+    friend class QStandardItemModelPrivate;
     friend class QStandardItemModel;
 };
 
@@ -333,12 +313,8 @@ public:
     void setRowCount(int rows);
     void setColumnCount(int columns);
 
-    inline void appendRow(const QList<QStandardItem*> &items) {
-        insertItemRow(rowCount(), items);
-    }
-    inline void appendColumn(const QList<QStandardItem*> &items) {
-        insertItemColumn(columnCount(), items);
-    }
+    void appendRow(const QList<QStandardItem*> &items);
+    void appendColumn(const QList<QStandardItem*> &items);
     inline void appendRow(QStandardItem *item) {
         appendRow(QList<QStandardItem*>() << item);
     }
@@ -358,23 +334,7 @@ protected:
     QStandardItemModel(QStandardItemModelPrivate &dd, QObject *parent = 0);
 
 private:
-    void insertItemRow(int row, const QList<QStandardItem*> &items);
-    void insertItemColumn(int column, const QList<QStandardItem*> &items);
-    inline void insertItemRow(int row, QStandardItem *item) {
-        insertItemRow(row, QList<QStandardItem*>() << item);
-    }
-
-    void sort(QStandardItem *parent, int column, Qt::SortOrder order);
-    void itemChanged(QStandardItem *item);
-    void rowsAboutToBeInserted(QStandardItem *parent, int start, int end);
-    void columnsAboutToBeInserted(QStandardItem *parent, int start, int end);
-    void rowsAboutToBeRemoved(QStandardItem *parent, int start, int end);
-    void columnsAboutToBeRemoved(QStandardItem *parent, int start, int end);
-    void rowsInserted(QStandardItem *parent, int row, int count);
-    void columnsInserted(QStandardItem *parent, int column, int count);
-    void rowsRemoved(QStandardItem *parent, int row, int count);
-    void columnsRemoved(QStandardItem *parent, int column, int count);
-
+    friend class QStandardItemPrivate;
     friend class QStandardItem;
     Q_DISABLE_COPY(QStandardItemModel)
     Q_DECLARE_PRIVATE(QStandardItemModel)
