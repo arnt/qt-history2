@@ -2106,17 +2106,19 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
 void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget)
 {
     Q_D(QAbstractItemView);
-    Q_ASSERT(widget);
-    Q_ASSERT(index.isValid());
+    if (!index.isValid())
+        return;
     if (QWidget *oldWidget = indexWidget(index)) {
         d->removeEditor(oldWidget);
         oldWidget->deleteLater();
     }
-    widget->setParent(viewport());
-    widget->setGeometry(visualRect(index));
-    d->persistent.append(widget);
-    d->addEditor(index, widget);
-    widget->show();
+    if (widget) {
+        widget->setParent(viewport());
+        widget->setGeometry(visualRect(index));
+        d->persistent.append(widget);
+        d->addEditor(index, widget);
+        widget->show();
+    }
 }
 
 /*!
@@ -2126,8 +2128,10 @@ void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget
 */
 QWidget* QAbstractItemView::indexWidget(const QModelIndex &index) const
 {
-    Q_ASSERT(index.isValid());
-    return d_func()->editorForIndex(index);
+    Q_D(const QAbstractItemView);
+    if (!index.isValid())
+        return 0;
+    return d->editorForIndex(index);
 }
 
 /*!
