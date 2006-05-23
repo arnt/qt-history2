@@ -253,6 +253,7 @@ bool QListView::isWrapping() const
 void QListView::setResizeMode(ResizeMode mode)
 {
     Q_D(QListView);
+    d->modeProperties |= uint(QListViewPrivate::ResizeMode);
     d->resizeMode = mode;
 }
 
