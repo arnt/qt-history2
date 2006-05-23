@@ -14,7 +14,6 @@
 #include <qt_windows.h>
 #include <commctrl.h>
 #include <shlwapi.h>
-#include <atlbase.h>
 #include <QBitmap>
 #include <QLibrary>
 #include <QApplication>
@@ -423,9 +422,9 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
     if (trayHandle) {
         trayHandle = FindWindowExA(trayHandle, NULL, "TrayNotifyWnd", NULL);
         if (trayHandle) {
-            HWND hwnd = FindWindowEx(trayHandle, NULL, _T("SysPager"), NULL);
+            HWND hwnd = FindWindowEx(trayHandle, NULL, L"SysPager", NULL);
             if (hwnd) {
-                hwnd = FindWindowEx(hwnd, NULL, _T("ToolbarWindow32"), NULL);
+                hwnd = FindWindowEx(hwnd, NULL, L"ToolbarWindow32", NULL);
                 if (hwnd)
                     trayHandle = hwnd;
             }
