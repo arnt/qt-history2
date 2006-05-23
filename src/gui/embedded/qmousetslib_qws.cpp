@@ -109,10 +109,10 @@ QWSTslibMouseHandlerPrivate::QWSTslibMouseHandlerPrivate(QWSTslibMouseHandler *h
     if (devName.isNull()) {
         const char *str = getenv("TSLIB_TSDEVICE");
         if (str)
-            devName = QString(str);
+            devName = QString::fromLocal8Bit(str);
     }
     if (devName.isNull())
-        devName = QString("/dev/ts");
+        devName = QLatin1String("/dev/ts");
 
     open();
     calibrated = true;

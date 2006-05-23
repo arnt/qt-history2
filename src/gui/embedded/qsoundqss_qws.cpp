@@ -146,7 +146,7 @@ QWSSoundServerClient::~QWSSoundServerClient()
 
 static QString getStringTok(QString &in)
 {
-    int pos = in.indexOf(' ');
+    int pos = in.indexOf(QLatin1Char(' '));
     QString ret;
     if (pos > 0) {
 	ret = in.left(pos);
@@ -166,43 +166,43 @@ static int getNumTok(QString &in)
 void QWSSoundServerClient::tryReadCommand()
 {
     while ( socket->canReadLine() ) {
-	QString l = socket->readLine();
+	QString l = QString::fromAscii(socket->readLine());
 	l.truncate(l.length()-1); // chomp
 	QString functionName = getStringTok(l);
 	int soundid = getNumTok(l);
-	if ( functionName == "PLAY" ) {
+	if (functionName == QLatin1String("PLAY")) {
 	    emit play(mCurrentID, soundid, l);
-	} else if ( functionName == "PLAYEXTEND" ) {
+	} else if (functionName == QLatin1String("PLAYEXTEND")) {
 	    int volume = getNumTok(l);
 	    int flags = getNumTok(l);
 	    emit play(mCurrentID, soundid, l, volume, flags);
-	} else if ( functionName == "PLAYRAW" ) {
+	} else if (functionName == QLatin1String("PLAYRAW")) {
 	    int chs = getNumTok(l);
 	    int freq = getNumTok(l);
 	    int bitspersample = getNumTok(l);
 	    int flags = getNumTok(l);
 	    emit playRaw(mCurrentID, soundid, l, chs, freq, bitspersample, flags);
-	} else if ( functionName == "PAUSE" ) {
+	} else if (functionName == QLatin1String("PAUSE")) {
 	    emit pause(mCurrentID, soundid);
-	} else if ( functionName == "STOP" ) {
+	} else if (functionName == QLatin1String("STOP")) {
 	    emit stop(mCurrentID, soundid);
-	} else if ( functionName == "RESUME" ) {
+	} else if (functionName == QLatin1String("RESUME")) {
 	    emit resume(mCurrentID, soundid);
-	} else if ( functionName == "SETVOLUME" ) {
+	} else if (functionName == QLatin1String("SETVOLUME")) {
 	    int left = getNumTok(l);
 	    int right = getNumTok(l);
 	    emit setVolume(mCurrentID, soundid, left, right);
-	} else if ( functionName == "MUTE" ) {
+	} else if (functionName == QLatin1String("MUTE")) {
 	    emit setMute(mCurrentID, soundid, true);
-	} else if ( functionName == "UNMUTE" ) {
+	} else if (functionName == QLatin1String("UNMUTE")) {
 	    emit setMute(mCurrentID, soundid, false);
-	} else if ( functionName == "PRIORITYONLY" ) {
+	} else if (functionName == QLatin1String("PRIORITYONLY")) {
 	    bool sPri = soundid != 0;
 	    if (sPri != priExist) {
 		priExist = sPri;
 		emit playPriorityOnly(sPri);
 	    }
-	} else if( functionName == "SILENT" ) {
+	} else if(functionName == QLatin1String("SILENT")) {
 	    emit setSilent( soundid != 0 );
 	}
     }
@@ -222,23 +222,23 @@ void QWSSoundServerClient::sendClientMessage(QString msg)
 void QWSSoundServerClient::sendSoundCompleted(int gid, int sid)
 {
     if (gid == mCurrentID)
-        sendClientMessage(QString("SOUNDCOMPLETED ")
-            + QString::number(sid) + "\n");
+        sendClientMessage(QLatin1String("SOUNDCOMPLETED ")
+                          + QString::number(sid) + QLatin1Char('\n'));
 }
 
 void QWSSoundServerClient::sendDeviceReady(int gid, int sid)
 {
     if (gid == mCurrentID)
-        sendClientMessage(QString("DEVICEREADY ")
-            + QString::number(sid) + "\n");
+        sendClientMessage(QLatin1String("DEVICEREADY ")
+                          + QString::number(sid) + QLatin1Char('\n'));
 }
 
 void QWSSoundServerClient::sendDeviceError(int gid, int sid, int err)
 {
     if (gid == mCurrentID)
-        sendClientMessage(QString("DEVICEERROR ")
-            + QString::number(sid) + " "
-            + QString::number(err) + "\n");
+        sendClientMessage(QLatin1String("DEVICEERROR ")
+                          + QString::number(sid) + QLatin1Char(' ')
+                          + QString::number(err) + QLatin1Char('\n'));
 }
 #endif
 
@@ -657,7 +657,7 @@ protected:
 
 #ifndef QT_NO_QWS_SOUNDSERVER
 QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent) :
-    QWSServerSocket(QString(SOUND_PIPE).arg(qws_display_id), parent)
+    QWSServerSocket(QString::fromLatin1(SOUND_PIPE).arg(qws_display_id), parent)
 {
     connect(this, SIGNAL(newConnection()), this, SLOT(newConnection()));
 }
@@ -665,7 +665,7 @@ QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent) :
 
 #ifdef QT3_SUPPORT
 QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent, const char *name) :
-    QWSServerSocket(QString(SOUND_PIPE).arg(qws_display_id), parent)
+    QWSServerSocket(QString::fromLatin1(SOUND_PIPE).arg(qws_display_id), parent)
 {
     if (name)
         setObjectName(QString::fromAscii(name));
@@ -1334,7 +1334,7 @@ void QWSSoundServer::translateSoundCompleted( int, int sid )
 QWSSoundClient::QWSSoundClient(QObject* parent) :
     QWSSocket(parent)
 {
-    connectToLocalFile(QString(SOUND_PIPE).arg(qws_display_id));
+    connectToLocalFile(QString::fromLatin1(SOUND_PIPE).arg(qws_display_id));
     QObject::connect(this,SIGNAL(readyRead()),
 	this,SLOT(tryReadCommand()));
     if( state() == QWS_SOCK_BASE::ConnectedState ) QTimer::singleShot(1, this, SIGNAL(connected()));
@@ -1348,7 +1348,7 @@ QWSSoundClient::~QWSSoundClient( )
 
 void QWSSoundClient::reconnect()
 {
-    connectToLocalFile(QString(SOUND_PIPE).arg(qws_display_id));
+    connectToLocalFile(QString::fromLatin1(SOUND_PIPE).arg(qws_display_id));
     if( state() == QWS_SOCK_BASE::ConnectedState ) emit connected();
     else emit error( QTcpSocket::ConnectionRefusedError );
 }
@@ -1367,89 +1367,89 @@ void QWSSoundClient::sendServerMessage(QString msg)
 void QWSSoundClient::play( int id, const QString& filename )
 {
     QFileInfo fi(filename);
-    sendServerMessage(QString("PLAY ")
-        + QString::number(id) + " "
-        + fi.absoluteFilePath() + "\n");
+    sendServerMessage(QLatin1String("PLAY ")
+                      + QString::number(id) + QLatin1Char(' ')
+                      + fi.absoluteFilePath() + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::play( int id, const QString& filename, int volume, int flags)
 {
     QFileInfo fi(filename);
-    sendServerMessage(QString("PLAYEXTEND ")
-        + QString::number(id) + " "
-        + QString::number(volume) + " "
-        + QString::number(flags) + " "
-        + fi.absoluteFilePath() + "\n");
+    sendServerMessage(QLatin1String("PLAYEXTEND ")
+        + QString::number(id) + QLatin1Char(' ')
+        + QString::number(volume) + QLatin1Char(' ')
+        + QString::number(flags) + QLatin1Char(' ')
+        + fi.absoluteFilePath() + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::pause( int id )
 {
-    sendServerMessage(QString("PAUSE ")
-        + QString::number(id) + "\n");
+    sendServerMessage(QLatin1String("PAUSE ")
+        + QString::number(id) + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::stop( int id )
 {
-    sendServerMessage(QString("STOP ")
-        + QString::number(id) + "\n");
+    sendServerMessage(QLatin1String("STOP ")
+        + QString::number(id) + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::resume( int id )
 {
-    sendServerMessage(QString("RESUME ")
-        + QString::number(id) + "\n");
+    sendServerMessage(QLatin1String("RESUME ")
+        + QString::number(id) + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::playRaw( int id, const QString& filename,
 	int freq, int chs, int bitspersample, int flags)
 {
     QFileInfo fi(filename);
-    sendServerMessage(QString("PLAYRAW ")
-        + QString::number(id) + " "
-        + QString::number(chs) + " "
-        + QString::number(freq) + " "
-        + QString::number(bitspersample) + " "
-        + QString::number(flags) + " "
-        + fi.absoluteFilePath() + "\n");
+    sendServerMessage(QLatin1String("PLAYRAW ")
+        + QString::number(id) + QLatin1Char(' ')
+        + QString::number(chs) + QLatin1Char(' ')
+        + QString::number(freq) + QLatin1Char(' ')
+        + QString::number(bitspersample) + QLatin1Char(' ')
+        + QString::number(flags) + QLatin1Char(' ')
+        + fi.absoluteFilePath() + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::setMute( int id, bool m )
 {
-    sendServerMessage(QString(m ? "MUTE " : "UNMUTE ")
-        + QString::number(id) + "\n");
+    sendServerMessage(QLatin1String(m ? "MUTE " : "UNMUTE ")
+        + QString::number(id) + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::setVolume( int id, int leftVol, int rightVol )
 {
-    sendServerMessage(QString("SETVOLUME ")
-        + QString::number(id) + " "
-        + QString::number(leftVol) + " "
-        + QString::number(rightVol) + "\n");
+    sendServerMessage(QLatin1String("SETVOLUME ")
+        + QString::number(id) + QLatin1Char(' ')
+        + QString::number(leftVol) + QLatin1Char(' ')
+        + QString::number(rightVol) + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::playPriorityOnly( bool pri )
 {
-    sendServerMessage(QString("PRIORITYONLY ")
-        + QString::number(pri ? 1 : 0) + "\n");
+    sendServerMessage(QLatin1String("PRIORITYONLY ")
+        + QString::number(pri ? 1 : 0) + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::setSilent( bool enable )
 {
-    sendServerMessage(QString("SILENT ")
-            + QString::number( enable ? 1 : 0 ) + "\n");
+    sendServerMessage(QLatin1String("SILENT ")
+            + QString::number( enable ? 1 : 0 ) + QLatin1Char('\n'));
 }
 
 void QWSSoundClient::tryReadCommand()
 {
     while ( canReadLine() ) {
-	QString l = readLine();
+	QString l = QString::fromAscii(readLine());
 	l.truncate(l.length()-1); // chomp
-	QStringList token = l.split(" ");
-	if ( token[0] == "SOUNDCOMPLETED" ) {
+	QStringList token = l.split(QLatin1Char(' '));
+	if (token[0] == QLatin1String("SOUNDCOMPLETED")) {
 	    emit soundCompleted(token[1].toInt());
-	} else if ( token[0] == "DEVICEREADY" ) {
+	} else if (token[0] == QLatin1String("DEVICEREADY")) {
             emit deviceReady(token[1].toInt());
-	} else if ( token[0] == "DEVICEERROR" ) {
+	} else if (token[0] == QLatin1String("DEVICEERROR")) {
             emit deviceError(token[1].toInt(),(DeviceErrors)token[2].toInt());
 	}
     }

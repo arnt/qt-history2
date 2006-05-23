@@ -148,12 +148,12 @@ QWSLinuxTPMouseHandlerPrivate::QWSLinuxTPMouseHandlerPrivate(QWSLinuxTPMouseHand
     if (device.isEmpty()) {
 #if defined(QT_QWS_IPAQ)
 # ifdef QT_QWS_IPAQ_RAW
-        mousedev = "/dev/h3600_tsraw";
+        mousedev = QLatin1String("/dev/h3600_tsraw");
 # else
-        mousedev = "/dev/h3600_ts";
+        mousedev = QLatin1String("/dev/h3600_ts");
 # endif
 #else
-        mousedev = "/dev/ts";
+        mousedev = QLatin1String("/dev/ts");
 #endif
     } else {
         mousedev = device;

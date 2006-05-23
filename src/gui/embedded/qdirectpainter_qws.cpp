@@ -86,7 +86,9 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
     if (firstTime) {
         firstTime = false;
         ad->directPainterID  = QWidget::qwsDisplay()->takeId();
-        QWidget::qwsDisplay()->nameRegion(ad->directPainterID, "QDirectPainter reserved space", "reserved");
+        QWidget::qwsDisplay()->nameRegion(ad->directPainterID,
+                                          QLatin1String("QDirectPainter reserved space"),
+                                          QLatin1String("reserved"));
     }
 
     QRegion treg = qt_screen->isTransformed() ? qt_screen->mapFromDevice(reg, devS()) : reg;

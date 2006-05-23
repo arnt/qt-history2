@@ -66,7 +66,7 @@ Q_GLOBAL_STATIC(QMutex, qcopClientMapMutex)
 // Determine if a channel name contains wildcard characters.
 static bool containsWildcards( const QString& channel )
 {
-    return channel.contains('*');
+    return channel.contains(QLatin1Char('*'));
 }
 
 class QCopChannelPrivate
@@ -176,10 +176,10 @@ void QCopChannel::init(const QString& channel)
   */
 void QCopChannel::reregisterAll()
 {
-    if(qcopClientMap) 
+    if(qcopClientMap)
         for(QCopClientMap::Iterator iter = qcopClientMap->begin();
             iter != qcopClientMap->end();
-            ++iter) 
+            ++iter)
             qt_fbdpy->registerChannel(iter.key());
 }
 
@@ -203,7 +203,7 @@ QCopChannel::~QCopChannel()
         QDataStream s(&data, QIODevice::WriteOnly);
         s << d->channel;
         if (qt_fbdpy)
-            send("", "detach()", data);
+            send(QLatin1String(""), QLatin1String("detach()"), data);
         qcopClientMap->remove(d->channel);
     }
 
@@ -286,7 +286,7 @@ bool QCopChannel::isRegistered(const QString&  channel)
     QByteArray data;
     QDataStream s(&data, QIODevice::WriteOnly);
     s << channel;
-    if (!send("", "isRegistered()", data))
+    if (!send(QLatin1String(""), QLatin1String("isRegistered()"), data))
         return false;
 
     QWSQCopMessageEvent *e = qt_fbdpy->waitForQCopResponse();
@@ -460,16 +460,16 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
 {
     // internal commands
     if (ch.isEmpty()) {
-        if (msg == "isRegistered()") {
+        if (msg == QLatin1String("isRegistered()")) {
             QString c;
             QDataStream s(data);
             s >> c;
             bool known = qcopServerMap && qcopServerMap->contains(c)
                         && !((*qcopServerMap)[c]).isEmpty();
-            QByteArray ans = known ? "known" : "unkown";
+            QLatin1String ans = QLatin1String(known ? "known" : "unkown");
             QWSServerPrivate::sendQCopEvent(cl, "", ans, data, true);
             return;
-        } else if (msg == "detach()") {
+        } else if (msg == QLatin1String("detach()")) {
             QString c;
             QDataStream s(data);
             s >> c;

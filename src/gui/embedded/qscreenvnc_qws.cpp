@@ -1214,7 +1214,7 @@ bool QVNCScreen::connect(const QString &displaySpec)
 {
     int vsize = 0;
 
-    if (displaySpec.contains("Fb"))
+    if (displaySpec.contains(QLatin1String("Fb")))
         virtualBuffer = false;
     else
         virtualBuffer = true;
@@ -1243,12 +1243,12 @@ bool QVNCScreen::connect(const QString &displaySpec)
         QWSServer::setDefaultMouse("None");
         QWSServer::setDefaultKeyboard("None");
     } else {
-        int next = displaySpec.indexOf (':');
+        int next = displaySpec.indexOf(QLatin1Char(':'));
         QString tmpSpec = displaySpec;
         tmpSpec.remove (0, next + 1);
         VNCSCREEN_BASE::connect(tmpSpec);
     }
-    shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename().append('a'));
+    shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename().append(QLatin1Char('a')));
     if (!shm->create())
         qDebug("QVNCScreen could not create shared memory");
     if (!shm->attach())
