@@ -192,7 +192,7 @@ public:
     }
 
     int type() const;
-    QStandardItem *parentItem() const;
+    QStandardItem *parent() const;
     int row() const;
     int column() const;
     QModelIndex index() const;
@@ -253,7 +253,7 @@ protected:
     QStandardItemPrivate *d_ptr;
 
 private:
-    void setParentItem(QStandardItem *parent);
+    void setParent(QStandardItem *parent);
     void setModel(QStandardItemModel *model);
     void setItemData(const QMap<int, QVariant> &roles);
     const QMap<int, QVariant> itemData() const;
@@ -320,7 +320,7 @@ public:
         setItem(row, 0, item);
     }
     QStandardItem *item(int row, int column = 0) const;
-    QStandardItem *topLevelParentItem() const;
+    QStandardItem *topLevelParent() const;
 
     void setHorizontalHeaderItem(int column, QStandardItem *item);
     QStandardItem *horizontalHeaderItem(int column) const;

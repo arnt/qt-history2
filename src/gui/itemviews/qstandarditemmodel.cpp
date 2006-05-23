@@ -86,7 +86,7 @@
 
     \code
             QStandardItemModel model;
-            QStandardItem *parentItem = model.topLevelParentItem();
+            QStandardItem *parentItem = model.topLevelParent();
             for (int i = 0; i < 4; ++i) {
                 QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
                 parentItem->appendRow(item);
@@ -251,7 +251,7 @@ int QStandardItemPrivate::childIndex(int row, int column) const
 */
 QPair<int, int> QStandardItemPrivate::itemPosition(const QStandardItem *item) const
 {
-    if (QStandardItem *par = item->parentItem()) {
+    if (QStandardItem *par = item->parent()) {
         int idx = par->d_func()->childIndex(item);
         if (idx == -1)
             return QPair<int, int>(-1, -1);
@@ -311,8 +311,8 @@ QStandardItem *QStandardItemModelPrivate::itemFromIndex(const QModelIndex &index
 QModelIndex QStandardItemModelPrivate::indexFromItem(const QStandardItem *item) const
 {
     Q_Q(const QStandardItemModel);
-    if (item && item->parentItem())
-        return q->createIndex(item->row(), item->column(), item->parentItem());
+    if (item && item->parent())
+        return q->createIndex(item->row(), item->column(), item->parent());
     return QModelIndex();
 }
 
@@ -451,7 +451,7 @@ QStandardItem::~QStandardItem()
 /*!
   \internal
 */
-void QStandardItem::setParentItem(QStandardItem *parent)
+void QStandardItem::setParent(QStandardItem *parent)
 {
     Q_D(QStandardItem);
     d->parent = parent;
@@ -462,7 +462,7 @@ void QStandardItem::setParentItem(QStandardItem *parent)
 
   \sa child(), isTopLevelItem()
 */
-QStandardItem *QStandardItem::parentItem() const
+QStandardItem *QStandardItem::parent() const
 {
     Q_D(const QStandardItem);
     return d->parent;
@@ -875,7 +875,7 @@ void QStandardItem::setCheckable(bool checkable)
 /*!
   Returns the row where the item is located in its parent's child table.
 
-  \sa column(), parentItem()
+  \sa column(), parent()
 */
 int QStandardItem::row() const
 {
@@ -887,7 +887,7 @@ int QStandardItem::row() const
 /*!
   Returns the column where the item is located in its parent's child table.
 
-  \sa row(), parentItem()
+  \sa row(), parent()
 */
 int QStandardItem::column() const
 {
@@ -1050,8 +1050,8 @@ bool QStandardItem::insertRows(int row, int count, const QList<QStandardItem*> &
         for (int i = 0; i < limit; ++i) {
             QStandardItem *item = items.at(i);
             if (item) {
-                if (item->parentItem() == 0) {
-                    item->setParentItem(this);
+                if (item->parent() == 0) {
+                    item->setParent(this);
                     item->setModel(d->model);
                 } else {
                     qWarning("QStandardItem::insertRows(): ignoring duplicate insertion of item %p",
@@ -1108,8 +1108,8 @@ bool QStandardItem::insertColumns(int column, int count, const QList<QStandardIt
         for (int i = 0; i < limit; ++i) {
             QStandardItem *item = items.at(i);
             if (item) {
-                if (item->parentItem() == 0) {
-                    item->setParentItem(this);
+                if (item->parent() == 0) {
+                    item->setParent(this);
                     item->setModel(d->model);
                 } else {
                     qWarning("QStandardItem::insertColumns(): ignoring duplicate insertion of item %p",
@@ -1267,8 +1267,8 @@ void QStandardItem::setChild(int row, int column, QStandardItem *item)
     if (item == oldItem)
         return;
     if (item) {
-        if (item->parentItem() == 0) {
-            item->setParentItem(this);
+        if (item->parent() == 0) {
+            item->setParent(this);
             item->setModel(d->model);
         } else {
             qWarning("QStandardItem::setChild(): ignoring duplicate insertion of item %p",
@@ -1293,7 +1293,7 @@ void QStandardItem::setChild(int row, int column, QStandardItem *item)
     Returns the child item at \a(row, column) if one has been set; otherwise
     returns 0.
 
-    \sa setChild(), takeChild(), parentItem()
+    \sa setChild(), takeChild(), parent()
 */
 QStandardItem *QStandardItem::child(int row, int column) const
 {
@@ -1307,13 +1307,13 @@ QStandardItem *QStandardItem::child(int row, int column) const
 /*!
     Returns true if this item is a top-level item; otherwise returns false.
 
-    \sa parentItem(), model()
+    \sa parent(), model()
 */
 bool QStandardItem::isTopLevelItem() const
 {
     Q_D(const QStandardItem);
     if (d->model)
-        return (d->model->topLevelParentItem() == d->parent);
+        return (d->model->topLevelParent() == d->parent);
     return (0 == d->parent);
 }
 
@@ -1331,7 +1331,7 @@ QStandardItem *QStandardItem::takeChild(int row, int column)
         item = d->children.at(index);
         d->children.replace(index, 0);
         if (item) {
-            item->setParentItem(0);
+            item->setParent(0);
             item->setModel(0);
         }
     }
@@ -1354,7 +1354,7 @@ QList<QStandardItem*> QStandardItem::takeRow(int row)
         QStandardItem *ch = d->children.at(index);
         if (ch) {
             d->children.replace(index, 0);
-            ch->setParentItem(0);
+            ch->setParent(0);
             ch->setModel(0);
         }
         items.append(ch);
@@ -1380,7 +1380,7 @@ QList<QStandardItem*> QStandardItem::takeColumn(int column)
         QStandardItem *ch = d->children.at(index);
         if (ch) {
             d->children.replace(index, 0);
-            ch->setParentItem(0);
+            ch->setParent(0);
             ch->setModel(0);
         }
         items.append(ch);
@@ -1405,7 +1405,7 @@ QStandardItem *QStandardItemModel::takeHorizontalHeaderItem(int column)
         return 0;
     QStandardItem *headerItem = d->columnHeaderItems.at(column);
     if (headerItem) {
-        headerItem->setParentItem(0);
+        headerItem->setParent(0);
         headerItem->setModel(0);
         d->columnHeaderItems.replace(column, 0);
     }
@@ -1427,7 +1427,7 @@ QStandardItem *QStandardItemModel::takeVerticalHeaderItem(int row)
         return 0;
     QStandardItem *headerItem = d->rowHeaderItems.at(row);
     if (headerItem) {
-        headerItem->setParentItem(0);
+        headerItem->setParent(0);
         headerItem->setModel(0);
         d->rowHeaderItems.replace(row, 0);
     }
@@ -1741,7 +1741,7 @@ QStandardItem *QStandardItemModel::item(int row, int column) const
     the top-level items of the model (e.g. items accessed with item() and
     setItem()).
 */
-QStandardItem *QStandardItemModel::topLevelParentItem() const
+QStandardItem *QStandardItemModel::topLevelParent() const
 {
     Q_D(const QStandardItemModel);
     return d->root;
@@ -2317,7 +2317,7 @@ void QStandardItemModel::sort(QStandardItem *parent, int column, Qt::SortOrder o
 void QStandardItemModel::itemChanged(QStandardItem *item)
 {
     Q_D(QStandardItemModel);
-    if (item->parentItem() == 0) {
+    if (item->parent() == 0) {
         // Header item
         int idx = d->columnHeaderItems.indexOf(item);
         if (idx != -1) {
