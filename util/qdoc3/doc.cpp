@@ -344,7 +344,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     quoter.reset();
 
     CodeMarker *marker = 0;
-    QString link;
+    Atom *currentLinkAtom = 0;
     QString x;
     QStack<bool> preprocessorSkipping;
     int numPreprocessorSkipping = 0;
@@ -631,6 +631,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			    x = getArgument();
 			    append( Atom::Link, x );
 			    if ( isLeftBraceAhead() ) {
+                                currentLinkAtom = priv->text.lastAtom();
 			        startFormat( ATOM_FORMATTING_LINK, command );
 			    } else {
 			        append(Atom::FormattingLeft, ATOM_FORMATTING_LINK);
@@ -963,8 +964,18 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    appendChar( '}' );
 	        } else {
 		    append( Atom::FormattingRight, *f );
-		    if ( *f == ATOM_FORMATTING_INDEX && indexStartedPara )
-		        skipAllSpaces();
+		    if (*f == ATOM_FORMATTING_INDEX) {
+                        if (indexStartedPara)
+		            skipAllSpaces();
+                    } else if (*f == ATOM_FORMATTING_LINK) {
+                        // hack for C++ to support links like \l{QString::}{count()}
+                        if (currentLinkAtom && currentLinkAtom->string().endsWith("::")) {
+                            QString suffix = Text::subText(currentLinkAtom,
+                                                           priv->text.lastAtom()).toString();
+                            currentLinkAtom->appendString(suffix);
+                        }
+                        currentLinkAtom = 0;
+                    }
 		    pendingFormats.erase( f );
 	        }
             }
@@ -1383,6 +1394,10 @@ void DocParser::parseAlso()
 	    skipSpacesOnLine();
 	    if ( in[pos] == '{' ) {
 		str = getArgument();
+
+                // hack for C++ to support links like \l{QString::}{count()}
+                if (target.endsWith("::"))
+                    target += str;
 	    } else {
 		str = target;
 	    }
@@ -1634,7 +1649,7 @@ QString DocParser::getArgument( bool verbatim )
 
       Also, opening and closing parentheses have to match. Thus,
 
-	  printf( "%d\n", x )
+	  printf("%d\n", x)
 
       is an argument too, although it contains spaces. Finally,
       trailing punctuation is not included in an argument, nor is 's.
