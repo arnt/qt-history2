@@ -1,11 +1,15 @@
-/*
- *  tile.h
- *  qthack
- *
- *  Created by Trenton Schulz on 3/27/05.
- *  Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
- *
- */
+/****************************************************************************
+**
+** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #ifndef TILE_H
 #define TILE_H
