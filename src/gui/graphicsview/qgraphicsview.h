@@ -75,9 +75,6 @@ public:
     void setSceneRect(const QRectF &rect);
     inline void setSceneRect(qreal x, qreal y, qreal w, qreal h);
     
-    QWidget *renderWidget() const;
-    void setRenderWidget(QWidget *widget);
-    
     QBrush backgroundBrush() const;
     void setBackgroundBrush(const QBrush &brush);
     
@@ -130,17 +127,27 @@ public:
     inline QPolygon mapFromScene(qreal x, qreal y, qreal w, qreal h) const;
 
 public Q_SLOTS:
-    void update(const QList<QRectF> &rects);
+    void updateScene(const QList<QRectF> &rects);
     void updateSceneRect(const QRectF &rect);
 
+protected Q_SLOTS:
+    void setupViewport(QWidget *widget);
+
 protected:
-    bool eventFilter(QObject *receiver, QEvent *event);
     bool event(QEvent *event);
+    bool viewportEvent(QEvent *event);
+
+    void contextMenuEvent(QContextMenuEvent *event);
+    void focusInEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void paintEvent(QPaintEvent *event);
+    void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);
     void showEvent(QShowEvent *event);
 
