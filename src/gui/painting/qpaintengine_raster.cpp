@@ -3282,7 +3282,9 @@ static void draw_text_item_win(const QPointF &_pos, const QTextItemInt &ti, HDC 
 
             convertToText = convertToText && ti.num_glyphs == _glyphs.size();
 
-            bool outputEntireItem = QT_WA_INLINE(_glyphs.size() > 0, false);
+            bool outputEntireItem = (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)
+                && QSysInfo::WindowsVersion != QSysInfo::WV_NT 
+                && _glyphs.size() > 0;
 
             if (outputEntireItem) {
                 options |= ETO_PDY;
