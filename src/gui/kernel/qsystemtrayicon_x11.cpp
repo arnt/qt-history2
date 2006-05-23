@@ -284,11 +284,10 @@ bool QSystemTrayIconPrivate::isSystemTrayAvailable()
 void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title,
                                    QSystemTrayIcon::MessageIcon icon, int msecs)
 {
-    if (!sys || !sys->isVisible())
+    if (!sys)
         return;
     QPoint g = sys->mapToGlobal(QPoint(0, 0));
     QBalloonTip::showBalloon(icon, message, title, sys->q,
                              QPoint(g.x() + sys->width()/2, g.y() + sys->height()/2),
                              msecs);
 }
-
