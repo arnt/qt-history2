@@ -4231,13 +4231,13 @@ int QDateTimeParser::findMonth(const QString &str1, int startMonth, int sectionI
     int bestMatch = -1;
     int bestCount = 0;
     if (!str1.isEmpty()) {
-    const SectionNode sn = sectionNode(sectionIndex);
-    Q_ASSERT(sn.type == MonthSection);
-    QString(*nameFunction)(int) = sn.count == 3
-                                  ? &QDate::shortMonthName
-                                  : &QDate::longMonthName;
+        const SectionNode sn = sectionNode(sectionIndex);
+        Q_ASSERT(sn.type == MonthSection);
+        QString(*nameFunction)(int) = sn.count == 3
+                                      ? &QDate::shortMonthName
+                                      : &QDate::longMonthName;
 
-    for (int month=startMonth; month<=12; ++month) {
+        for (int month=startMonth; month<=12; ++month) {
             for (int attempt=0; attempt<(sn.count == 3 ? 2 : 1); ++attempt) {
                 QString str2;
                 if (attempt == 0) {
@@ -4246,42 +4246,42 @@ int QDateTimeParser::findMonth(const QString &str1, int startMonth, int sectionI
                     str2 = QString::fromAscii(qt_shortMonthNames[month - 1]).toLower();
                 }
 
-        if (str1.startsWith(str2)) {
-            if (used) {
-                QDTPDEBUG << "used is set to" << str2.size();
-                *used = str2.size();
-            }
-            if (usedMonth)
-                *usedMonth = nameFunction(month);
-            return month;
-        }
-
-        const int limit = qMin(str1.size(), str2.size());
-
-        QDTPDEBUG << "limit is" << limit << str1 << str2;
-        bool found = true;
-        for (int i=0; i<limit; ++i) {
-            if (str1.at(i) != str2.at(i)) {
-                if (i > bestCount) {
-                    bestCount = i;
-                    bestMatch = month;
+                if (str1.startsWith(str2)) {
+                    if (used) {
+                        QDTPDEBUG << "used is set to" << str2.size();
+                        *used = str2.size();
+                    }
+                    if (usedMonth)
+                        *usedMonth = nameFunction(month);
+                    return month;
                 }
-                found = false;
-                break;
-            }
 
-        }
-        if (found) {
-            if (used) {
-                *used = limit;
-            }
-            if (usedMonth)
-                *usedMonth = nameFunction(month);
-            QDTPDEBUG << "used is set to" << limit << *usedMonth;
+                const int limit = qMin(str1.size(), str2.size());
 
-            return month;
-        }
-    }
+                QDTPDEBUG << "limit is" << limit << str1 << str2;
+                bool found = true;
+                for (int i=0; i<limit; ++i) {
+                    if (str1.at(i) != str2.at(i)) {
+                        if (i > bestCount) {
+                            bestCount = i;
+                            bestMatch = month;
+                        }
+                        found = false;
+                        break;
+                    }
+
+                }
+                if (found) {
+                    if (used) {
+                        *used = limit;
+                    }
+                    if (usedMonth)
+                        *usedMonth = nameFunction(month);
+                    QDTPDEBUG << "used is set to" << limit << *usedMonth;
+
+                    return month;
+                }
+            }
         }
         if (usedMonth && bestMatch != -1)
             *usedMonth = nameFunction(bestMatch);
