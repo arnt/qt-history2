@@ -951,7 +951,6 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
     if (!action || !menu)
         return;
 
-    qDebug("add action to menubar %s", qPrintable(action->action->text()));
     int before_index = actionItems.indexOf(before);
     if (before_index < 0) {
         before = 0;
