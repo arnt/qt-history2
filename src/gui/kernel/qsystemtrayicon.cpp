@@ -91,6 +91,19 @@ QSystemTrayIcon::QSystemTrayIcon(QObject *parent)
 }
 
 /*!
+    Constructs a QSystemTrayIcon object with the given icon and \a parent.
+
+    The icon is initially invisible.
+
+    \sa visible
+*/
+QSystemTrayIcon::QSystemTrayIcon(const QIcon &icon, QObject *parent)
+: QObject(*new QSystemTrayIconPrivate(), parent)
+{
+    setIcon(icon);
+}
+
+/*!
     Removes the icon from the system tray and frees all allocated resources.
 */
 QSystemTrayIcon::~QSystemTrayIcon()

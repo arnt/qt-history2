@@ -38,6 +38,7 @@ class Q_GUI_EXPORT QSystemTrayIcon : public QObject
 
 public:
     QSystemTrayIcon(QObject *parent = 0);
+    QSystemTrayIcon(const QIcon &icon, QObject *parent = 0);
     ~QSystemTrayIcon();
 
     void setContextMenu(QMenu *menu);
