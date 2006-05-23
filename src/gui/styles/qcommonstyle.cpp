@@ -1267,16 +1267,9 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 tr.setLeft(tr.left() + iconSize.width() + 4);
             }
 
-            if (verticalTabs){
-                QPixmap pixmap(tr.size());
-                pixmap.fill(Qt::transparent);
-                QPainter pixPainter(&pixmap);
-                drawItemText(&pixPainter, pixmap.rect(), alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
-                drawItemPixmap(p,tr,alignment,pixmap);
+            drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
+            if (verticalTabs)
                 p->restore();
-            } else {
-                drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
-            }
 
             if (tabV2.state & State_HasFocus) {
                 const int OFFSET = 1 + pixelMetric(PM_DefaultFrameWidth);
