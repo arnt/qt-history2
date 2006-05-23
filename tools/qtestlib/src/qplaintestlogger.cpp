@@ -61,7 +61,7 @@ namespace QTest {
 
 # define COLORED_MSG(prefix, color, msg) colored ? qWinColoredMsg(prefix, color, msg) : msg
 #else
-# define COLORED_MSG(prefix, color, msg) colored ? "\033["#prefix";"#color"m" msg "\033[0m" : msg
+# define COLORED_MSG(prefix, color, msg) colored && QAbstractTestLogger::isTtyOutput() ? "\033["#prefix";"#color"m" msg "\033[0m" : msg
 #endif
 
     static const char *incidentType2String(QAbstractTestLogger::IncidentTypes type)

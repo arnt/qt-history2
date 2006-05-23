@@ -18,6 +18,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef Q_OS_WIN
+#include <unistd.h>
+#endif
+
 namespace QTest
 {
     static FILE *stream = 0;
@@ -29,6 +33,18 @@ void QAbstractTestLogger::outputString(const char *msg)
 
     ::fputs(msg, QTest::stream);
     ::fflush(QTest::stream);
+}
+
+bool QAbstractTestLogger::isTtyOutput()
+{
+    QTEST_ASSERT(QTest::stream);
+
+#ifdef Q_OS_WIN
+    return true;
+#else
+    static bool ttyoutput = isatty(fileno(QTest::stream));
+    return ttyoutput;
+#endif
 }
 
 void QAbstractTestLogger::startLogging()

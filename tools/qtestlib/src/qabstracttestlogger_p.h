@@ -50,6 +50,7 @@ public:
                             const char *file = 0, int line = 0) = 0;
 
     static void outputString(const char *msg);
+    static bool isTtyOutput();
 };
 
 #endif
