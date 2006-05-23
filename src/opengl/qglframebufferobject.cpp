@@ -639,8 +639,9 @@ int QGLFramebufferObject::metric(PaintDeviceMetric metric) const
     \fn GLuint QGLFramebufferObject::handle() const
 
     Returns the GL framebuffer object handle for this framebuffer
-    object. This handle can be used to attach new images or buffers to
-    the framebuffer. The user is responsible for cleaning up and
+    object (returned by the \c{glGenFrameBuffersEXT()} function). This
+    handle can be used to attach new images or buffers to the
+    framebuffer. The user is responsible for cleaning up and
     destroying these objects.
 */
 GLuint QGLFramebufferObject::handle() const
