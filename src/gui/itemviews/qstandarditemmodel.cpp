@@ -304,34 +304,6 @@ QStandardItemModelPrivate::~QStandardItemModelPrivate()
 }
 
 /*!
-  \internal
-*/
-QStandardItem *QStandardItemModelPrivate::itemFromIndex(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return root;
-    QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
-    QStandardItem *child = parent->child(index.row(), index.column());
-    if (child == 0) {
-        // create lazily
-        child = createItem();
-        parent->setChild(index.row(), index.column(), child);
-    }
-    return child;
-}
-
-/*!
-  \internal
-*/
-QModelIndex QStandardItemModelPrivate::indexFromItem(const QStandardItem *item) const
-{
-    Q_Q(const QStandardItemModel);
-    if (item && item->parent())
-        return q->createIndex(item->row(), item->column(), item->parent());
-    return QModelIndex();
-}
-
-/*!
     \internal
 */
 QStandardItem *QStandardItemModelPrivate::createItem() const
@@ -1648,7 +1620,16 @@ void QStandardItemModel::clear()
 QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
 {
     Q_D(const QStandardItemModel);
-    return d->itemFromIndex(index);
+    if (!index.isValid())
+        return d->root;
+    QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
+    QStandardItem *child = parent->child(index.row(), index.column());
+    if (child == 0) {
+        // create lazily
+        child = d->createItem();
+        parent->setChild(index.row(), index.column(), child);
+    }
+    return child;
 }
 
 /*!
@@ -1660,8 +1641,9 @@ QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
 */
 QModelIndex QStandardItemModel::indexFromItem(const QStandardItem *item) const
 {
-    Q_D(const QStandardItemModel);
-    return d->indexFromItem(item);
+    if (item && item->parent())
+        return createIndex(item->row(), item->column(), item->parent());
+    return QModelIndex();
 }
 
 /*!
@@ -2314,7 +2296,7 @@ void QStandardItemModelPrivate::itemChanged(QStandardItem *item)
         }
     } else {
         // Normal item
-        QModelIndex index = indexFromItem(item);
+        QModelIndex index = q->indexFromItem(item);
         emit q->dataChanged(index, index);
     }
 }
@@ -2325,7 +2307,7 @@ void QStandardItemModelPrivate::itemChanged(QStandardItem *item)
 void QStandardItemModelPrivate::rowsAboutToBeInserted(QStandardItem *parent, int start, int end)
 {
     Q_Q(QStandardItemModel);
-    QModelIndex index = indexFromItem(parent);
+    QModelIndex index = q->indexFromItem(parent);
     q->beginInsertRows(index, start, end);
 }
 
@@ -2335,7 +2317,7 @@ void QStandardItemModelPrivate::rowsAboutToBeInserted(QStandardItem *parent, int
 void QStandardItemModelPrivate::columnsAboutToBeInserted(QStandardItem *parent, int start, int end)
 {
     Q_Q(QStandardItemModel);
-    QModelIndex index = indexFromItem(parent);
+    QModelIndex index = q->indexFromItem(parent);
     q->beginInsertColumns(index, start, end);
 }
 
@@ -2345,7 +2327,7 @@ void QStandardItemModelPrivate::columnsAboutToBeInserted(QStandardItem *parent, 
 void QStandardItemModelPrivate::rowsAboutToBeRemoved(QStandardItem *parent, int start, int end)
 {
     Q_Q(QStandardItemModel);
-    QModelIndex index = indexFromItem(parent);
+    QModelIndex index = q->indexFromItem(parent);
     q->beginRemoveRows(index, start, end);
 }
 
@@ -2355,7 +2337,7 @@ void QStandardItemModelPrivate::rowsAboutToBeRemoved(QStandardItem *parent, int 
 void QStandardItemModelPrivate::columnsAboutToBeRemoved(QStandardItem *parent, int start, int end)
 {
     Q_Q(QStandardItemModel);
-    QModelIndex index = indexFromItem(parent);
+    QModelIndex index = q->indexFromItem(parent);
     q->beginRemoveColumns(index, start, end);
 }
 

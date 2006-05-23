@@ -101,8 +101,6 @@ public:
     QStandardItemModelPrivate();
     virtual ~QStandardItemModelPrivate();
 
-    QStandardItem *itemFromIndex(const QModelIndex &index) const;
-    QModelIndex indexFromItem(const QStandardItem *item) const;
     QStandardItem *createItem() const;
 
     void sort(QStandardItem *parent, int column, Qt::SortOrder order);
