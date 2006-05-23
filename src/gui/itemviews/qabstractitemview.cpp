@@ -430,7 +430,8 @@ QAbstractItemView::~QAbstractItemView()
   Sets the \a model for the view to present.
 
   \bold{Note:} This function will also create and set a new selection model,
-  replacing any previously set with setSelectionModel().
+  replacing any previously set with setSelectionModel(), but the old selection
+  model will not be deleted.
 
   \sa selectionModel(), setSelectionModel()
 */
