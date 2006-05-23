@@ -1726,7 +1726,7 @@ static QByteArray xdndObtainData(const char *format)
         atoms.append(qt_xdnd_types[i]);
         ++i;
     }
-    Atom a = X11->xdndMimeAtomForFormat(format, atoms);
+    Atom a = X11->xdndMimeAtomForFormat(QLatin1String(format), atoms);
     if (!a)
         return result;
 
@@ -1758,7 +1758,7 @@ static QByteArray xdndObtainData(const char *format)
     if (!qt_xdnd_current_widget || (qt_xdnd_current_widget->windowType() == Qt::Desktop))
         delete tw;
 
-    return X11->xdndMimeConvertToFormat(a, result, format);
+    return X11->xdndMimeConvertToFormat(a, result, QLatin1String(format));
 }
 
 

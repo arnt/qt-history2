@@ -651,7 +651,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     int width = pageRect.width();
     int height = pageRect.height();
     if (finished && pageCount == 1 && copies == 1 &&
-        ((fullPage && qt_gen_epsf) || (outputFileName.endsWith(".eps")))
+        ((fullPage && qt_gen_epsf) || (outputFileName.endsWith(QLatin1String(".eps"))))
        ) {
         if (!boundingBox.isValid())
             boundingBox.setRect(0, 0, width, height);
@@ -905,19 +905,20 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
 
                 QStringList cupsArgList;
 
-                cupsArgList << "lpr";
+                cupsArgList << QLatin1String("lpr");
 
                 if (!d->printerName.isEmpty()) {
-                    cupsArgList << "-P";
+                    cupsArgList << QLatin1String("-P");
                     cupsArgList << d->printerName;
                 }
 
-                cupsArgList << "-o";
+                cupsArgList << QLatin1String("-o");
                 const ppd_option_t* pageSizes = d->cups.pageSizes();
-                cupsArgList << QString("media=%1").arg(pageSizes->choices[d->pageSize].choice);
+                cupsArgList << QString::fromLatin1("media=%1").arg(
+                    QString::fromLocal8Bit(pageSizes->choices[d->pageSize].choice));
 
                 if (d->copies > 1) {
-                    cupsArgList << "-#";
+                    cupsArgList << QLatin1String("-#");
                     cupsArgList << QString::number(d->copies);
                 }
 
@@ -929,33 +930,33 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
 #endif
 
                 if (d->collate) {
-                    cupsArgList << "-o";
-                    cupsArgList << "Collate=True";
+                    cupsArgList << QLatin1String("-o");
+                    cupsArgList << QLatin1String("Collate=True");
                 }
 
                 if (d->pageOrder == QPrinter::LastPageFirst) {
-                    cupsArgList << "-o";
-                    cupsArgList << "outputorder=reverse";
+                    cupsArgList << QLatin1String("-o");
+                    cupsArgList << QLatin1String("outputorder=reverse");
                 }
 
                 if (d->duplex) {
-                    cupsArgList << "-o";
+                    cupsArgList << QLatin1String("-o");
                     if (d->orientation == QPrinter::Portrait)
-                        cupsArgList << "sides=two-sided-long-edge";
+                        cupsArgList << QLatin1String("sides=two-sided-long-edge");
                     else
-                        cupsArgList << "sides=two-sided-short-edge";
+                        cupsArgList << QLatin1String("sides=two-sided-short-edge");
                 }
 
                 if (d->orientation == QPrinter::Landscape) {
-                    cupsArgList << "-o";
-                    cupsArgList << "landscape";
+                    cupsArgList << QLatin1String("-o");
+                    cupsArgList << QLatin1String("landscape");
                 }
 
                 QStringList list = d->cups.options();
                 QStringList::const_iterator it = list.constBegin();
                 while (it != list.constEnd()) {
-                    cupsArgList << "-o";
-                    cupsArgList << QString("%1=%2").arg(*it).arg(*(it+1));
+                    cupsArgList << QLatin1String("-o");
+                    cupsArgList << QString::fromLatin1("%1=%2").arg(*it).arg(*(it+1));
                     it += 2;
                 }
 
@@ -980,7 +981,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
                 QByteArray media;
                 if (!pr.isEmpty() || !d->selectionOption.isEmpty()) {
                     if (!d->selectionOption.isEmpty()) {
-                        QStringList list = d->selectionOption.split(QChar(' '));
+                        QStringList list = d->selectionOption.split(QLatin1Char(' '));
                         for (int i = 0; i < list.size(); ++i)
                             lprhack.append(list.at(i).toLocal8Bit());
                         lphack = lprhack;
@@ -1450,7 +1451,7 @@ QCUPSSupport* QPSPrintEngine::cupsSupport()
 
 QCUPSSupport::QCUPSSupport(QPSPrintEnginePrivate *qq)
     : q(qq),
-    cupsLib("cups", 2),
+    cupsLib(QLatin1String("cups"), 2),
     _cupsGetDests(0),
     _cupsGetPPD(0),
     _ppdOpenFile(0),
@@ -1529,7 +1530,7 @@ const ppd_file_t* QCUPSSupport::setCurrentPrinter(int index)
     _cupsMarkOptions(currPPD, printers[currPrinterIndex].num_options, printers[currPrinterIndex].options);
 
     // getting pointer to page sizes
-    page_sizes = ppdOption("PageSize");
+    page_sizes = ppdOption(QLatin1String("PageSize"));
 
     return currPPD;
 }
@@ -1671,7 +1672,7 @@ void QCUPSSupport::collectMarkedOptionsHelper(QStringList& list, const ppd_group
     for (int i = 0; i < group->num_options; ++i) {
         for (int j = 0; j < group->options[i].num_choices; ++j) {
             if (group->options[i].choices[j].marked == 1 && strcmp(group->options[i].choices[j].choice, group->options[i].defchoice) != 0)
-                list << group->options[i].keyword << group->options[i].choices[j].choice;
+                list << QString::fromLocal8Bit(group->options[i].keyword) << QString::fromLocal8Bit(group->options[i].choices[j].choice);
         }
     }
 }

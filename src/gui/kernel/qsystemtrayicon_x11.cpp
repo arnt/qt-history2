@@ -71,7 +71,7 @@ Window locateSystemTray()
     Display *display = QX11Info::display();
     if (sysTraySelection == None) {
         int screen = QX11Info::appScreen();
-        QString net_sys_tray = QString("_NET_SYSTEM_TRAY_S%1").arg(screen);
+        QString net_sys_tray = QString::fromLatin1("_NET_SYSTEM_TRAY_S%1").arg(screen);
         sysTraySelection = XInternAtom(display, net_sys_tray.toLatin1(), False);
     }
 

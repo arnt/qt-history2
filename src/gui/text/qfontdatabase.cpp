@@ -81,16 +81,16 @@ static int getFontWeight(const QString &weightString)
     if (s == "light")
         return QFont::Light;
 
-    if (s.contains("bold")) {
-        if (s.contains("demi"))
+    if (s.contains(QLatin1String("bold"))) {
+        if (s.contains(QLatin1String("demi")))
             return (int) QFont::DemiBold;
         return (int) QFont::Bold;
     }
 
-    if (s.contains("light"))
+    if (s.contains(QLatin1String("light")))
         return (int) QFont::Light;
 
-    if (s.contains("black"))
+    if (s.contains(QLatin1String("black")))
         return (int) QFont::Black;
 
     return (int) QFont::Normal;
@@ -225,9 +225,9 @@ QtFontStyle::Key::Key(const QString &styleString)
 {
     weight = getFontWeight(styleString);
 
-    if (styleString.contains("Italic"))
+    if (styleString.contains(QLatin1String("Italic")))
         style = QFont::StyleItalic;
-    else if (styleString.contains("Oblique"))
+    else if (styleString.contains(QLatin1String("Oblique")))
         style = QFont::StyleOblique;
 }
 
@@ -524,11 +524,11 @@ static inline bool scriptRequiresOpenType(int script)
 */
 static void parseFontName(const QString &name, QString &foundry, QString &family)
 {
-    int i = name.indexOf('[');
-    int li = name.lastIndexOf(']');
+    int i = name.indexOf(QLatin1Char('['));
+    int li = name.lastIndexOf(QLatin1Char(']'));
     if (i >= 0 && li >= 0 && i < li) {
         foundry = name.mid(i + 1, li - i - 1);
-        if (name[i - 1] == ' ')
+        if (name[i - 1] == QLatin1Char(' '))
             i--;
         family = name.left(i);
     } else {
@@ -620,11 +620,11 @@ static QStringList familyList(const QFontDef &req)
     if (req.family.isEmpty())
         return family_list;
 
-    QStringList list = req.family.split(',');
+    QStringList list = req.family.split(QLatin1Char(','));
     for (int i = 0; i < list.size(); ++i) {
         QString str = list.at(i).trimmed();
-        if ((str.startsWith('"') && str.endsWith('"'))
-            || (str.startsWith('\'') && str.endsWith('\'')))
+        if ((str.startsWith('"') && str.endsWith(QLatin1Char('"')))
+            || (str.startsWith(QLatin1Char('\'')) && str.endsWith(QLatin1Char('\''))))
             str = str.mid(1, str.length() - 2);
         family_list << str;
     }

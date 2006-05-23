@@ -276,7 +276,7 @@ void QPixmapIconEngine::addFile(const QString &fileName, const QSize &size, QIco
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QIconEngineFactoryInterface_iid, QCoreApplication::libraryPaths(), "/iconengines", Qt::CaseInsensitive))
+    (QIconEngineFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/iconengines"), Qt::CaseInsensitive))
 #endif
 
 

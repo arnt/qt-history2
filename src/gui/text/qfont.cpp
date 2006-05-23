@@ -1566,7 +1566,7 @@ QString QFont::key() const
  */
 QString QFont::toString() const
 {
-    const QChar comma(',');
+    const QChar comma(QLatin1Char(','));
     return family() + comma +
         QString::number(     pointSizeF()) + comma +
         QString::number(      pixelSize()) + comma +
@@ -1589,7 +1589,7 @@ QString QFont::toString() const
  */
 bool QFont::fromString(const QString &descrip)
 {
-    QStringList l(descrip.split(','));
+    QStringList l(descrip.split(QLatin1Char(',')));
 
     int count = l.count();
     if (!count || (count > 2 && count < 9) || count > 11) {
@@ -1710,7 +1710,7 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     if (s.version() == 1) {
         QByteArray fam;
         s >> fam;
-        font.d->request.family = QString(fam);
+        font.d->request.family = QString::fromLatin1(fam);
     } else {
         s >> font.d->request.family;
     }

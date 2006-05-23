@@ -5695,7 +5695,7 @@ void qt_format_text(const QFont &fnt, const QRectF &_r,
     bool has_tab = false;
     while (chr != end) {
         if (*chr == QLatin1Char('\r') || (singleline && *chr == QLatin1Char('\n'))) {
-            *chr = ' ';
+            *chr = QLatin1Char(' ');
         } else if (*chr == QLatin1Char('\n')) {
             *chr = QChar::LineSeparator;
         } else if (*chr == QLatin1Char('&')) {

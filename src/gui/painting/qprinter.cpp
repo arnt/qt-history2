@@ -1368,7 +1368,7 @@ void QPrinter::setOutputToFile(bool f)
 {
     if (f) {
         if (outputFileName().isEmpty())
-            setOutputFileName("untitled_printer_document");
+            setOutputFileName(QLatin1String("untitled_printer_document"));
     } else {
         setOutputFileName(QString());
     }
