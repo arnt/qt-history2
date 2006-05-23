@@ -2283,7 +2283,7 @@ void QMenu::actionEvent(QActionEvent *e)
 #ifdef Q_WS_MAC
     if (d->mac_menu) {
         if (e->type() == QEvent::ActionAdded)
-            d->mac_menu->addAction(e->action(), d->mac_menu->findAction(e->before()));
+            d->mac_menu->addAction(e->action(), d->mac_menu->findAction(e->before()), this);
         else if (e->type() == QEvent::ActionRemoved)
             d->mac_menu->removeAction(e->action());
         else if (e->type() == QEvent::ActionChanged)

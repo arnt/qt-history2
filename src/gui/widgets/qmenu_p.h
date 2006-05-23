@@ -159,8 +159,8 @@ public:
         QMacMenuPrivate();
         ~QMacMenuPrivate();
 
-        void addAction(QAction *, QMacMenuAction* =0);
-        void addAction(QMacMenuAction *, QMacMenuAction* =0);
+        void addAction(QAction *, QMacMenuAction* =0, QMenu *qmenu = 0);
+        void addAction(QMacMenuAction *, QMacMenuAction* =0, QMenu *qmenu = 0);
         void syncAction(QMacMenuAction *);
         inline void syncAction(QAction *a) { syncAction(findAction(a)); }
         void removeAction(QMacMenuAction *);
