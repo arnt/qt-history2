@@ -26,168 +26,6 @@
 #include <qdebug.h>
 
 /*!
-    \class QStandardItemModel
-    \brief The QStandardItemModel class provides a generic model for storing custom data.
-    \ingroup model-view
-
-    QStandardItemModel can be used as a repository for standard Qt
-    data types. It is one of the \l {Model/View Classes} and is part
-    of Qt's \l {Model/View Programming}{model/view} framework.
-
-    Data is written to the model, and read back, using the standard
-    QAbstractItemModel interface. The way each item of information is
-    referenced depends on how the data is inserted into the model. The
-    QStandardItemModel class reimplements several of the
-    QAbstractItemModel class's functions, and implements in addition a
-    clear() function which removes all items from the model and resets
-    both the horizontal and vertical headers.
-
-    Since Qt 4.2, QStandardItemModel also provides an item-based approach to
-    working with the model. The items in a QStandardItemModel are provided by
-    QStandardItem.
-
-    For performance and flexibility, you may want to subclass
-    QAbstractItemModel to provide support for different kinds of
-    repositories. For example, the QDirModel provides a model
-    interface to the underlying file system, and does not actually
-    store file information internally.
-
-    An example usage of QStandardItemModel to create a table (using the
-    QAbstractItemModel interface):
-
-    \quotefromfile itemviews/spinboxdelegate/main.cpp
-    \skipto QStandardItemModel model
-    \printline model
-
-    \skipto for (int row
-    \printuntil }
-    \printline }
-
-    An example of using the item-based approach to create a table:
-
-    \code
-            QStandardItemModel model(4, 4);
-            for (int row = 0; row < 4; ++row) {
-                for (int column = 0; column < 4; ++column) {
-                    QStandardItem *item = new QStandardItem(QString("row %0, column %1").arg(row).arg(column));
-                    model.setItem(i, j, item);
-                }
-            }
-    \endcode
-
-    An example usage of QStandardItemModel to create a tree (using the
-    QAbstractItemModel interface):
-
-    \quotefromfile snippets/qstandarditemmodel/main.cpp
-    \skipto QStandardItemModel
-    \printuntil }
-
-    An example of using the item-based approach to create a tree:
-
-    \code
-            QStandardItemModel model;
-            QStandardItem *parentItem = model.topLevelParent();
-            for (int i = 0; i < 4; ++i) {
-                QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
-                parentItem->appendRow(item);
-                parentItem = item;
-            }
-    \endcode
-
-    The item-based approach hides much of the QModelIndex-based interface of
-    QAbstractItemModel; instead, a more convenient and intuitive interface
-    based on direct manipulation of item objects is provided. When items are
-    manipulated, QStandardItemModel takes care of emitting the proper
-    QAbstractItemModel signals (e.g. dataChanged() and rowsInserted()) behind
-    the scenes, so that the model state observed by other objects (e.g. views)
-    is consistent.
-
-    When using the item-based approach, itemFromIndex() and indexFromItem()
-    provide a bridge between the item-based interface and the
-    QAbstractItemModel/QAbstractItemView interface. Typical usage of
-    itemFromIndex() includes obtaining the item at the current index in a
-    view, and obtaining the item that corresponds to an index carried by a
-    QAbstractItemView signal, such as QAbstractItemView::clicked():
-
-    \code
-        // In constructor or similar
-        QTreeView *treeView = new QTreeView(this);
-        treeView->setModel(myStandardItemModel);
-        connect(treeView, SIGNAL(clicked(const QModelIndex &)),
-                this, SLOT(clicked(const QModelIndex &)));
-        ...
-
-        void MyWidget::clicked(const QModelIndex &index)
-        {
-            QStandardItem *item = myStandardItemModel->itemFromIndex(index);
-            // Do stuff with the item ...
-        }
-    \endcode
-
-    Conversely, you must obtain the QModelIndex of an item when you want to
-    invoke a model/view function that takes an index as argument. You can
-    obtain the index either by using the model's indexFromItem() function, or,
-    equivalently, by calling QStandardItem::index():
-
-    \code
-        treeView->scrollTo(item->index());
-    \endcode
-
-    \sa {Model/View Programming}, QAbstractItemModel,
-    {itemviews/simpletreemodel}{Simple Tree Model example},
-    {Item View Convenience Classes}
-*/
-
-/*!
-    \since 4.2
-
-    \class QStandardItem
-    \brief The QStandardItem class provides an item for use with the
-    QStandardItemModel class.
-
-    \ingroup model-view
-
-    Items usually contain text, icons, or checkboxes.
-
-    Each item can have its own background color which is set with the
-    setBackgroundColor() function. The current background color can be found
-    with backgroundColor().  The text label for each item can be rendered with
-    its own font and text color. These are specified with the setFont() and
-    setTextColor() functions, and read with font() and textColor().
-
-    By default, items are enabled, editable, selectable, checkable, and can be
-    used both as the source of a drag and drop operation and as a drop target.
-    Each item's flags can be changed by calling setFlags(). Checkable items
-    can be checked and unchecked with the setCheckState() function. The
-    corresponding checkState() function indicates whether the item is
-    currently checked.
-
-    Each item can have a table of child items. The dimensions of the child
-    table can be set with setRowCount() and setColumnCount(). Additionally,
-    new rows and columns can be inserted with insertRow() and insertColumn(),
-    or appended with appendRow() and appendColumn(). Items can be positioned
-    in the child table with setChild(). Get a pointer to a child item with
-    child().
-
-    \sa QStandardItemModel, {Model/View Programming}
-*/
-
-/*!
-    \enum QStandardItem::ItemType
-
-    This enum describes the types that are used to describe standard items.
-
-    \value Type     The default type for standard items.
-    \value UserType The minimum value for custom types. Values below UserType are
-                    reserved by Qt.
-
-    You can define new user types in QStandardItem subclasses to ensure that
-    custom items are treated specially; for example, when items are sorted.
-
-    \sa type()
-*/
-
-/*!
     \internal
 */
 class QStandardItemModelLessThan
@@ -289,6 +127,32 @@ void QStandardItemPrivate::childDeleted(QStandardItem *child)
 /*!
   \internal
 */
+void QStandardItemPrivate::setItemData(const QMap<int, QVariant> &roles)
+{
+    values.clear();
+    QMap<int, QVariant>::const_iterator it;
+    for (it = roles.begin(); it != roles.end(); ++it) {
+        int role = it.key();
+        role = (role == Qt::EditRole) ? Qt::DisplayRole : role;
+        values.append(QWidgetItemData(role, it.value()));
+    }
+}
+
+/*!
+  \internal
+*/
+const QMap<int, QVariant> QStandardItemPrivate::itemData() const
+{
+    QMap<int, QVariant> result;
+    QVector<QWidgetItemData>::const_iterator it;
+    for (it = values.begin(); it != values.end(); ++it)
+        result.insert((*it).role, (*it).value);
+    return result;
+}
+
+/*!
+  \internal
+*/
 QStandardItemModelPrivate::QStandardItemModelPrivate()
     : root(new QStandardItem),
       itemPrototype(0)
@@ -310,6 +174,325 @@ QStandardItem *QStandardItemModelPrivate::createItem() const
 {
     return itemPrototype ? itemPrototype->clone() : new QStandardItem;
 }
+
+/*!
+    \internal
+*/
+bool QStandardItemPrivate::insertRows(int row, int count, const QList<QStandardItem*> &items)
+{
+    Q_Q(QStandardItem);
+    if ((count < 1) || (row < 0) || (row > rowCount()))
+        return false;
+    if (model)
+        model->d_func()->rowsAboutToBeInserted(q, row, row + count - 1);
+    if (rowCount() == 0) {
+        children.resize(columnCount() * count);
+        rows = count;
+    } else {
+        rows += count;
+        int index = childIndex(row, 0);
+        if (index != -1)
+            children.insert(index, columnCount() * count, 0);
+    }
+    if (!items.isEmpty()) {
+        int index = childIndex(row, 0);
+        int limit = qMin(items.count(), columnCount() * count);
+        for (int i = 0; i < limit; ++i) {
+            QStandardItem *item = items.at(i);
+            if (item) {
+                if (item->parent() == 0) {
+                    item->d_func()->setParentAndModel(q, model);
+                } else {
+                    qWarning("QStandardItem::insertRows(): ignoring duplicate insertion of item %p",
+                             item);
+                    item = 0;
+                }
+            }
+            children.replace(index, item);
+            ++index;
+        }
+    }
+    if (model)
+        model->d_func()->rowsInserted(q, row, count);
+    return true;
+}
+
+/*!
+    \internal
+*/
+bool QStandardItemPrivate::insertColumns(int column, int count, const QList<QStandardItem*> &items)
+{
+    Q_Q(QStandardItem);
+    if ((count < 1) || (column < 0) || (column > columnCount()))
+        return false;
+    if (model)
+        model->d_func()->columnsAboutToBeInserted(q, column, column + count - 1);
+    if (columnCount() == 0) {
+        children.resize(rowCount() * count);
+        columns = count;
+    } else {
+        columns += count;
+        int index = childIndex(0, column);
+        for (int row = 0; row < rowCount(); ++row) {
+            children.insert(index, count, 0);
+            index += columnCount();
+        }
+    }
+    if (!items.isEmpty()) {
+        int limit = qMin(items.count(), rowCount() * count);
+        for (int i = 0; i < limit; ++i) {
+            QStandardItem *item = items.at(i);
+            if (item) {
+                if (item->parent() == 0) {
+                    item->d_func()->setParentAndModel(q, model);
+                } else {
+                    qWarning("QStandardItem::insertColumns(): ignoring duplicate insertion of item %p",
+                             item);
+                    item = 0;
+                }
+            }
+            int r = i / count;
+            int c = column + (i % count);
+            int index = childIndex(r, c);
+            children.replace(index, item);
+        }
+    }
+    if (model)
+        model->d_func()->columnsInserted(q, column, count);
+    return true;
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::sort(QStandardItem *parent, int column, Qt::SortOrder order)
+{
+    Q_Q(QStandardItemModel);
+    if (!parent || (column >= parent->columnCount()))
+        return;
+
+    QModelIndexList oldPersistentIndexes = q->persistentIndexList();
+
+    QVector<QPair<QStandardItem*, int> > sortable;
+    QVector<int> unsortable;
+
+    sortable.reserve(parent->rowCount());
+    unsortable.reserve(parent->rowCount());
+
+    for (int row = 0; row < parent->rowCount(); ++row) {
+        QStandardItem *itm = parent->child(row, column);
+        if (itm)
+            sortable.append(QPair<QStandardItem*,int>(itm, row));
+        else
+            unsortable.append(row);
+    }
+
+    if (order == Qt::AscendingOrder) {
+        QStandardItemModelLessThan lt;
+        qSort(sortable.begin(), sortable.end(), lt);
+    } else {
+        QStandardItemModelGreaterThan gt;
+        qSort(sortable.begin(), sortable.end(), gt);
+    }
+
+    QVector<QPair<QModelIndex, QModelIndex> > changedPersistentIndexes;
+    QVector<QStandardItem*> sorted_children(parent->d_func()->children.count());
+    for (int i = 0; i < q->rowCount(); ++i) {
+        int r = (i < sortable.count()
+                 ? sortable.at(i).second
+                 : unsortable.at(i - sortable.count()));
+        for (int c = 0; c < q->columnCount(); ++c) {
+            QStandardItem *itm = parent->child(r, c);
+            sorted_children[parent->d_func()->childIndex(i, c)] = itm;
+            QModelIndex from = createIndex(r, c, parent);
+            if (oldPersistentIndexes.contains(from)) {
+                QModelIndex to = createIndex(i, c, parent);
+                changedPersistentIndexes.append(
+                    QPair<QModelIndex, QModelIndex>(from, to));
+            }
+        }
+    }
+
+    parent->d_func()->children = sorted_children;
+
+    QPair<QModelIndex, QModelIndex> indexPair;
+    foreach (indexPair, changedPersistentIndexes)
+        q->changePersistentIndex(indexPair.first, indexPair.second);
+
+    QVector<QStandardItem*>::iterator it;
+    for (it = sorted_children.begin(); it != sorted_children.end(); ++it)
+        sort(*it, column, order);
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::itemChanged(QStandardItem *item)
+{
+    Q_Q(QStandardItemModel);
+    if (item->parent() == 0) {
+        // Header item
+        int idx = columnHeaderItems.indexOf(item);
+        if (idx != -1) {
+            emit q->headerDataChanged(Qt::Horizontal, idx, idx);
+        } else {
+            idx = rowHeaderItems.indexOf(item);
+            if (idx != -1)
+                emit q->headerDataChanged(Qt::Vertical, idx, idx);
+        }
+    } else {
+        // Normal item
+        QModelIndex index = q->indexFromItem(item);
+        emit q->dataChanged(index, index);
+    }
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::rowsAboutToBeInserted(QStandardItem *parent, int start, int end)
+{
+    Q_Q(QStandardItemModel);
+    QModelIndex index = q->indexFromItem(parent);
+    q->beginInsertRows(index, start, end);
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::columnsAboutToBeInserted(QStandardItem *parent, int start, int end)
+{
+    Q_Q(QStandardItemModel);
+    QModelIndex index = q->indexFromItem(parent);
+    q->beginInsertColumns(index, start, end);
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::rowsAboutToBeRemoved(QStandardItem *parent, int start, int end)
+{
+    Q_Q(QStandardItemModel);
+    QModelIndex index = q->indexFromItem(parent);
+    q->beginRemoveRows(index, start, end);
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::columnsAboutToBeRemoved(QStandardItem *parent, int start, int end)
+{
+    Q_Q(QStandardItemModel);
+    QModelIndex index = q->indexFromItem(parent);
+    q->beginRemoveColumns(index, start, end);
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::rowsInserted(QStandardItem *parent, int row, int count)
+{
+    Q_Q(QStandardItemModel);
+    if (parent == root)
+        rowHeaderItems.insert(row, count, 0);
+    q->endInsertRows();
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::columnsInserted(QStandardItem *parent, int column, int count)
+{
+    Q_Q(QStandardItemModel);
+    if (parent == root)
+        columnHeaderItems.insert(column, count, 0);
+    q->endInsertColumns();
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::rowsRemoved(QStandardItem *parent, int row, int count)
+{
+    Q_Q(QStandardItemModel);
+    if (parent == root) {
+        for (int i = row; i < row + count; ++i) {
+            QStandardItem *oldItem = rowHeaderItems.at(i);
+            if (oldItem)
+                oldItem->d_func()->setModel(0);
+            delete oldItem;
+        }
+        rowHeaderItems.remove(row, count);
+    }
+    q->endRemoveRows();
+}
+
+/*!
+  \internal
+*/
+void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent, int column, int count)
+{
+    Q_Q(QStandardItemModel);
+    if (parent == root) {
+        for (int i = column; i < column + count; ++i) {
+            QStandardItem *oldItem = columnHeaderItems.at(i);
+            if (oldItem)
+                oldItem->d_func()->setModel(0);
+            delete oldItem;
+        }
+        columnHeaderItems.remove(column, count);
+    }
+    q->endRemoveColumns();
+}
+
+/*!
+    \since 4.2
+
+    \class QStandardItem
+    \brief The QStandardItem class provides an item for use with the
+    QStandardItemModel class.
+
+    \ingroup model-view
+
+    Items usually contain text, icons, or checkboxes.
+
+    Each item can have its own background color which is set with the
+    setBackgroundColor() function. The current background color can be found
+    with backgroundColor().  The text label for each item can be rendered with
+    its own font and text color. These are specified with the setFont() and
+    setTextColor() functions, and read with font() and textColor().
+
+    By default, items are enabled, editable, selectable, checkable, and can be
+    used both as the source of a drag and drop operation and as a drop target.
+    Each item's flags can be changed by calling setFlags(). Checkable items
+    can be checked and unchecked with the setCheckState() function. The
+    corresponding checkState() function indicates whether the item is
+    currently checked.
+
+    Each item can have a table of child items. The dimensions of the child
+    table can be set with setRowCount() and setColumnCount(). Additionally,
+    new rows and columns can be inserted with insertRow() and insertColumn(),
+    or appended with appendRow() and appendColumn(). Items can be positioned
+    in the child table with setChild(). Get a pointer to a child item with
+    child().
+
+    \sa QStandardItemModel, {Model/View Programming}
+*/
+
+/*!
+    \enum QStandardItem::ItemType
+
+    This enum describes the types that are used to describe standard items.
+
+    \value Type     The default type for standard items.
+    \value UserType The minimum value for custom types. Values below UserType are
+                    reserved by Qt.
+
+    You can define new user types in QStandardItem subclasses to ensure that
+    custom items are treated specially; for example, when items are sorted.
+
+    \sa type()
+*/
 
 /*!
     Constructs an item of the specified \a type.
@@ -1002,48 +1185,6 @@ void QStandardItem::insertRows(int row, int count)
 }
 
 /*!
-    \internal
-*/
-bool QStandardItemPrivate::insertRows(int row, int count, const QList<QStandardItem*> &items)
-{
-    Q_Q(QStandardItem);
-    if ((count < 1) || (row < 0) || (row > rowCount()))
-        return false;
-    if (model)
-        model->d_func()->rowsAboutToBeInserted(q, row, row + count - 1);
-    if (rowCount() == 0) {
-        children.resize(columnCount() * count);
-        rows = count;
-    } else {
-        rows += count;
-        int index = childIndex(row, 0);
-        if (index != -1)
-            children.insert(index, columnCount() * count, 0);
-    }
-    if (!items.isEmpty()) {
-        int index = childIndex(row, 0);
-        int limit = qMin(items.count(), columnCount() * count);
-        for (int i = 0; i < limit; ++i) {
-            QStandardItem *item = items.at(i);
-            if (item) {
-                if (item->parent() == 0) {
-                    item->d_func()->setParentAndModel(q, model);
-                } else {
-                    qWarning("QStandardItem::insertRows(): ignoring duplicate insertion of item %p",
-                             item);
-                    item = 0;
-                }
-            }
-            children.replace(index, item);
-            ++index;
-        }
-    }
-    if (model)
-        model->d_func()->rowsInserted(q, row, count);
-    return true;
-}
-
-/*!
     Inserts \a count columns of child items at column \a column.
 
     \sa insertColumn(), insertRows()
@@ -1056,51 +1197,6 @@ void QStandardItem::insertColumns(int column, int count)
         column = columnCount();
     }
     d->insertColumns(column, count, QList<QStandardItem*>());
-}
-
-/*!
-    \internal
-*/
-bool QStandardItemPrivate::insertColumns(int column, int count, const QList<QStandardItem*> &items)
-{
-    Q_Q(QStandardItem);
-    if ((count < 1) || (column < 0) || (column > columnCount()))
-        return false;
-    if (model)
-        model->d_func()->columnsAboutToBeInserted(q, column, column + count - 1);
-    if (columnCount() == 0) {
-        children.resize(rowCount() * count);
-        columns = count;
-    } else {
-        columns += count;
-        int index = childIndex(0, column);
-        for (int row = 0; row < rowCount(); ++row) {
-            children.insert(index, count, 0);
-            index += columnCount();
-        }
-    }
-    if (!items.isEmpty()) {
-        int limit = qMin(items.count(), rowCount() * count);
-        for (int i = 0; i < limit; ++i) {
-            QStandardItem *item = items.at(i);
-            if (item) {
-                if (item->parent() == 0) {
-                    item->d_func()->setParentAndModel(q, model);
-                } else {
-                    qWarning("QStandardItem::insertColumns(): ignoring duplicate insertion of item %p",
-                             item);
-                    item = 0;
-                }
-            }
-            int r = i / count;
-            int c = column + (i % count);
-            int index = childIndex(r, c);
-            children.replace(index, item);
-        }
-    }
-    if (model)
-        model->d_func()->columnsInserted(q, column, count);
-    return true;
 }
 
 /*!
@@ -1361,48 +1457,6 @@ QList<QStandardItem*> QStandardItem::takeColumn(int column)
 }
 
 /*!
-    \since 4.2
-
-    Removes the horizontal header item at \a column from the header without
-    deleting it. The model releases ownership of the item.
-
-    \sa horizontalHeaderItem(), takeVerticalHeaderItem()
-*/
-QStandardItem *QStandardItemModel::takeHorizontalHeaderItem(int column)
-{
-    Q_D(QStandardItemModel);
-    if ((column < 0) || (column >= columnCount()))
-        return 0;
-    QStandardItem *headerItem = d->columnHeaderItems.at(column);
-    if (headerItem) {
-        headerItem->d_func()->setParentAndModel(0, 0);
-        d->columnHeaderItems.replace(column, 0);
-    }
-    return headerItem;
-}
-
-/*!
-    \since 4.2
-
-    Removes the vertical header item at \a row from the header without
-    deleting it. The model releases ownership of the item.
-
-    \sa verticalHeaderItem(), takeHorizontalHeaderItem()
-*/
-QStandardItem *QStandardItemModel::takeVerticalHeaderItem(int row)
-{
-    Q_D(QStandardItemModel);
-    if ((row < 0) || (row >= rowCount()))
-        return 0;
-    QStandardItem *headerItem = d->rowHeaderItems.at(row);
-    if (headerItem) {
-        headerItem->d_func()->setParentAndModel(0, 0);
-        d->rowHeaderItems.replace(row, 0);
-    }
-    return headerItem;
-}
-
-/*!
     Returns true if this item is less than \a other; otherwise returns false.
 */
 bool QStandardItem::operator<(const QStandardItem &other) const
@@ -1442,32 +1496,6 @@ bool QStandardItem::operator<(const QStandardItem &other) const
 QStandardItem *QStandardItem::clone() const
 {
     return new QStandardItem(*this);
-}
-
-/*!
-  \internal
-*/
-void QStandardItemPrivate::setItemData(const QMap<int, QVariant> &roles)
-{
-    values.clear();
-    QMap<int, QVariant>::const_iterator it;
-    for (it = roles.begin(); it != roles.end(); ++it) {
-        int role = it.key();
-        role = (role == Qt::EditRole) ? Qt::DisplayRole : role;
-        values.append(QWidgetItemData(role, it.value()));
-    }
-}
-
-/*!
-  \internal
-*/
-const QMap<int, QVariant> QStandardItemPrivate::itemData() const
-{
-    QMap<int, QVariant> result;
-    QVector<QWidgetItemData>::const_iterator it;
-    for (it = values.begin(); it != values.end(); ++it)
-        result.insert((*it).role, (*it).value);
-    return result;
 }
 
 #ifndef QT_NO_DATASTREAM
@@ -1531,6 +1559,119 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
 }
 
 #endif // !QT_NO_DATASTREAM
+
+/*!
+    \class QStandardItemModel
+    \brief The QStandardItemModel class provides a generic model for storing custom data.
+    \ingroup model-view
+
+    QStandardItemModel can be used as a repository for standard Qt
+    data types. It is one of the \l {Model/View Classes} and is part
+    of Qt's \l {Model/View Programming}{model/view} framework.
+
+    Data is written to the model, and read back, using the standard
+    QAbstractItemModel interface. The way each item of information is
+    referenced depends on how the data is inserted into the model. The
+    QStandardItemModel class reimplements several of the
+    QAbstractItemModel class's functions, and implements in addition a
+    clear() function which removes all items from the model and resets
+    both the horizontal and vertical headers.
+
+    Since Qt 4.2, QStandardItemModel also provides an item-based approach to
+    working with the model. The items in a QStandardItemModel are provided by
+    QStandardItem.
+
+    For performance and flexibility, you may want to subclass
+    QAbstractItemModel to provide support for different kinds of
+    repositories. For example, the QDirModel provides a model
+    interface to the underlying file system, and does not actually
+    store file information internally.
+
+    An example usage of QStandardItemModel to create a table (using the
+    QAbstractItemModel interface):
+
+    \quotefromfile itemviews/spinboxdelegate/main.cpp
+    \skipto QStandardItemModel model
+    \printline model
+
+    \skipto for (int row
+    \printuntil }
+    \printline }
+
+    An example of using the item-based approach to create a table:
+
+    \code
+            QStandardItemModel model(4, 4);
+            for (int row = 0; row < 4; ++row) {
+                for (int column = 0; column < 4; ++column) {
+                    QStandardItem *item = new QStandardItem(QString("row %0, column %1").arg(row).arg(column));
+                    model.setItem(i, j, item);
+                }
+            }
+    \endcode
+
+    An example usage of QStandardItemModel to create a tree (using the
+    QAbstractItemModel interface):
+
+    \quotefromfile snippets/qstandarditemmodel/main.cpp
+    \skipto QStandardItemModel
+    \printuntil }
+
+    An example of using the item-based approach to create a tree:
+
+    \code
+            QStandardItemModel model;
+            QStandardItem *parentItem = model.topLevelParent();
+            for (int i = 0; i < 4; ++i) {
+                QStandardItem *item = new QStandardItem(QString("item %0").arg(i));
+                parentItem->appendRow(item);
+                parentItem = item;
+            }
+    \endcode
+
+    The item-based approach hides much of the QModelIndex-based interface of
+    QAbstractItemModel; instead, a more convenient and intuitive interface
+    based on direct manipulation of item objects is provided. When items are
+    manipulated, QStandardItemModel takes care of emitting the proper
+    QAbstractItemModel signals (e.g. dataChanged() and rowsInserted()) behind
+    the scenes, so that the model state observed by other objects (e.g. views)
+    is consistent.
+
+    When using the item-based approach, itemFromIndex() and indexFromItem()
+    provide a bridge between the item-based interface and the
+    QAbstractItemModel/QAbstractItemView interface. Typical usage of
+    itemFromIndex() includes obtaining the item at the current index in a
+    view, and obtaining the item that corresponds to an index carried by a
+    QAbstractItemView signal, such as QAbstractItemView::clicked():
+
+    \code
+        // In constructor or similar
+        QTreeView *treeView = new QTreeView(this);
+        treeView->setModel(myStandardItemModel);
+        connect(treeView, SIGNAL(clicked(const QModelIndex &)),
+                this, SLOT(clicked(const QModelIndex &)));
+        ...
+
+        void MyWidget::clicked(const QModelIndex &index)
+        {
+            QStandardItem *item = myStandardItemModel->itemFromIndex(index);
+            // Do stuff with the item ...
+        }
+    \endcode
+
+    Conversely, you must obtain the QModelIndex of an item when you want to
+    invoke a model/view function that takes an index as argument. You can
+    obtain the index either by using the model's indexFromItem() function, or,
+    equivalently, by calling QStandardItem::index():
+
+    \code
+        treeView->scrollTo(item->index());
+    \endcode
+
+    \sa {Model/View Programming}, QAbstractItemModel,
+    {itemviews/simpletreemodel}{Simple Tree Model example},
+    {Item View Convenience Classes}
+*/
 
 /*!
     Constructs a new item model with the given \a parent.
@@ -2005,6 +2146,48 @@ QList<QStandardItem*> QStandardItemModel::takeColumn(int column)
 }
 
 /*!
+    \since 4.2
+
+    Removes the horizontal header item at \a column from the header without
+    deleting it. The model releases ownership of the item.
+
+    \sa horizontalHeaderItem(), takeVerticalHeaderItem()
+*/
+QStandardItem *QStandardItemModel::takeHorizontalHeaderItem(int column)
+{
+    Q_D(QStandardItemModel);
+    if ((column < 0) || (column >= columnCount()))
+        return 0;
+    QStandardItem *headerItem = d->columnHeaderItems.at(column);
+    if (headerItem) {
+        headerItem->d_func()->setParentAndModel(0, 0);
+        d->columnHeaderItems.replace(column, 0);
+    }
+    return headerItem;
+}
+
+/*!
+    \since 4.2
+
+    Removes the vertical header item at \a row from the header without
+    deleting it. The model releases ownership of the item.
+
+    \sa verticalHeaderItem(), takeHorizontalHeaderItem()
+*/
+QStandardItem *QStandardItemModel::takeVerticalHeaderItem(int row)
+{
+    Q_D(QStandardItemModel);
+    if ((row < 0) || (row >= rowCount()))
+        return 0;
+    QStandardItem *headerItem = d->rowHeaderItems.at(row);
+    if (headerItem) {
+        headerItem->d_func()->setParentAndModel(0, 0);
+        d->rowHeaderItems.replace(row, 0);
+    }
+    return headerItem;
+}
+
+/*!
   \reimp
 */
 int QStandardItemModel::columnCount(const QModelIndex &parent) const
@@ -2214,189 +2397,6 @@ void QStandardItemModel::sort(int column, Qt::SortOrder order)
     emit layoutAboutToBeChanged();
     d->sort(d->root, column, order);
     emit layoutChanged();
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::sort(QStandardItem *parent, int column, Qt::SortOrder order)
-{
-    Q_Q(QStandardItemModel);
-    if (!parent || (column >= parent->columnCount()))
-        return;
-
-    QModelIndexList oldPersistentIndexes = q->persistentIndexList();
-
-    QVector<QPair<QStandardItem*, int> > sortable;
-    QVector<int> unsortable;
-
-    sortable.reserve(parent->rowCount());
-    unsortable.reserve(parent->rowCount());
-
-    for (int row = 0; row < parent->rowCount(); ++row) {
-        QStandardItem *itm = parent->child(row, column);
-        if (itm)
-            sortable.append(QPair<QStandardItem*,int>(itm, row));
-        else
-            unsortable.append(row);
-    }
-
-    if (order == Qt::AscendingOrder) {
-        QStandardItemModelLessThan lt;
-        qSort(sortable.begin(), sortable.end(), lt);
-    } else {
-        QStandardItemModelGreaterThan gt;
-        qSort(sortable.begin(), sortable.end(), gt);
-    }
-
-    QVector<QPair<QModelIndex, QModelIndex> > changedPersistentIndexes;
-    QVector<QStandardItem*> sorted_children(parent->d_func()->children.count());
-    for (int i = 0; i < q->rowCount(); ++i) {
-        int r = (i < sortable.count()
-                 ? sortable.at(i).second
-                 : unsortable.at(i - sortable.count()));
-        for (int c = 0; c < q->columnCount(); ++c) {
-            QStandardItem *itm = parent->child(r, c);
-            sorted_children[parent->d_func()->childIndex(i, c)] = itm;
-            QModelIndex from = createIndex(r, c, parent);
-            if (oldPersistentIndexes.contains(from)) {
-                QModelIndex to = createIndex(i, c, parent);
-                changedPersistentIndexes.append(
-                    QPair<QModelIndex, QModelIndex>(from, to));
-            }
-        }
-    }
-
-    parent->d_func()->children = sorted_children;
-
-    QPair<QModelIndex, QModelIndex> indexPair;
-    foreach (indexPair, changedPersistentIndexes)
-        q->changePersistentIndex(indexPair.first, indexPair.second);
-
-    QVector<QStandardItem*>::iterator it;
-    for (it = sorted_children.begin(); it != sorted_children.end(); ++it)
-        sort(*it, column, order);
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::itemChanged(QStandardItem *item)
-{
-    Q_Q(QStandardItemModel);
-    if (item->parent() == 0) {
-        // Header item
-        int idx = columnHeaderItems.indexOf(item);
-        if (idx != -1) {
-            emit q->headerDataChanged(Qt::Horizontal, idx, idx);
-        } else {
-            idx = rowHeaderItems.indexOf(item);
-            if (idx != -1)
-                emit q->headerDataChanged(Qt::Vertical, idx, idx);
-        }
-    } else {
-        // Normal item
-        QModelIndex index = q->indexFromItem(item);
-        emit q->dataChanged(index, index);
-    }
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::rowsAboutToBeInserted(QStandardItem *parent, int start, int end)
-{
-    Q_Q(QStandardItemModel);
-    QModelIndex index = q->indexFromItem(parent);
-    q->beginInsertRows(index, start, end);
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::columnsAboutToBeInserted(QStandardItem *parent, int start, int end)
-{
-    Q_Q(QStandardItemModel);
-    QModelIndex index = q->indexFromItem(parent);
-    q->beginInsertColumns(index, start, end);
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::rowsAboutToBeRemoved(QStandardItem *parent, int start, int end)
-{
-    Q_Q(QStandardItemModel);
-    QModelIndex index = q->indexFromItem(parent);
-    q->beginRemoveRows(index, start, end);
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::columnsAboutToBeRemoved(QStandardItem *parent, int start, int end)
-{
-    Q_Q(QStandardItemModel);
-    QModelIndex index = q->indexFromItem(parent);
-    q->beginRemoveColumns(index, start, end);
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::rowsInserted(QStandardItem *parent, int row, int count)
-{
-    Q_Q(QStandardItemModel);
-    if (parent == root)
-        rowHeaderItems.insert(row, count, 0);
-    q->endInsertRows();
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::columnsInserted(QStandardItem *parent, int column, int count)
-{
-    Q_Q(QStandardItemModel);
-    if (parent == root)
-        columnHeaderItems.insert(column, count, 0);
-    q->endInsertColumns();
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::rowsRemoved(QStandardItem *parent, int row, int count)
-{
-    Q_Q(QStandardItemModel);
-    if (parent == root) {
-        for (int i = row; i < row + count; ++i) {
-            QStandardItem *oldItem = rowHeaderItems.at(i);
-            if (oldItem)
-                oldItem->d_func()->setModel(0);
-            delete oldItem;
-        }
-        rowHeaderItems.remove(row, count);
-    }
-    q->endRemoveRows();
-}
-
-/*!
-  \internal
-*/
-void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent, int column, int count)
-{
-    Q_Q(QStandardItemModel);
-    if (parent == root) {
-        for (int i = column; i < column + count; ++i) {
-            QStandardItem *oldItem = columnHeaderItems.at(i);
-            if (oldItem)
-                oldItem->d_func()->setModel(0);
-            delete oldItem;
-        }
-        columnHeaderItems.remove(column, count);
-    }
-    q->endRemoveColumns();
 }
 
 #endif // QT_NO_STANDARDITEMMODEL
