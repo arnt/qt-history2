@@ -209,7 +209,7 @@ void QEventDispatcherGlib::registerSocketNotifier(QSocketNotifier *socketNotifie
     int type;
     if (!socketNotifier
         || (sockfd = socketNotifier->socket()) < 0
-        || sockfd >= FD_SETSIZE
+        || unsigned(sockfd) >= FD_SETSIZE
         || (type = socketNotifier->type()) < 0
         || type > 2) {
         qWarning("QSocketNotifier: Internal error");
@@ -252,7 +252,7 @@ void QEventDispatcherGlib::unregisterSocketNotifier(QSocketNotifier *socketNotif
     int type;
     if (!socketNotifier
         || (sockfd = socketNotifier->socket()) < 0
-        || sockfd >= FD_SETSIZE
+        || unsigned(sockfd) >= FD_SETSIZE
         || (type = socketNotifier->type()) < 0
         || type > 2) {
         qWarning("QSocketNotifier: Internal error");

@@ -490,7 +490,7 @@ void QEventDispatcherUNIX::registerSocketNotifier(QSocketNotifier *notifier)
     int type;
     if (!notifier
         || (sockfd = notifier->socket()) < 0
-        || sockfd >= FD_SETSIZE
+        || unsigned(sockfd) >= FD_SETSIZE
         || (type = notifier->type()) < 0
         || type > 2) {
         qWarning("QSocketNotifier: Internal error");
@@ -534,7 +534,7 @@ void QEventDispatcherUNIX::unregisterSocketNotifier(QSocketNotifier *notifier)
     int type;
     if (!notifier
         || (sockfd = notifier->socket()) < 0
-        || sockfd >= FD_SETSIZE
+        || unsigned(sockfd) >= FD_SETSIZE
         || (type = notifier->type()) < 0
         || type > 2) {
         qWarning("QSocketNotifier: Internal error");
@@ -716,7 +716,7 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
     Q_D(QEventDispatcherUNIX);
     d->interrupt = false;
-        
+
     // we are awake, broadcast it
     emit awake();
     QCoreApplication::sendPostedEvents(0, (flags & QEventLoop::DeferredDeletion) ? -1 : 0);
