@@ -569,18 +569,6 @@ QStandardItem::QStandardItem(const QList<QStandardItem*> &items, int type)
 }
 
 /*!
-    Constructs a copy of \a other. Note that type() and model() are
-    not copied.
-*/
-QStandardItem::QStandardItem(const QStandardItem &other)
-    : d_ptr(new QStandardItemPrivate)
-{
-    Q_D(QStandardItem);
-    d->q_ptr = this;
-    operator=(other);
-}
-
-/*!
   \internal
 */
 QStandardItem::QStandardItem(QStandardItemPrivate &dd)
@@ -588,18 +576,6 @@ QStandardItem::QStandardItem(QStandardItemPrivate &dd)
 {
     Q_D(QStandardItem);
     d->q_ptr = this;
-}
-
-/*!
-    Assigns \a other's data and flags to this item. Note that
-    type() and model() are not copied.
-*/
-QStandardItem &QStandardItem::operator=(const QStandardItem &other)
-{
-    Q_D(QStandardItem);
-    d->values = other.d_func()->values;
-    d->flags = other.d_func()->flags;
-    return *this;
 }
 
 /*!
@@ -1504,7 +1480,11 @@ bool QStandardItem::operator<(const QStandardItem &other) const
 */
 QStandardItem *QStandardItem::clone() const
 {
-    return new QStandardItem(*this);
+    Q_D(const QStandardItem);
+    QStandardItem *item = new QStandardItem();
+    item->d_func()->setItemData(d->itemData());
+    item->setFlags(d->flags);
+    return item;
 }
 
 #ifndef QT_NO_DATASTREAM

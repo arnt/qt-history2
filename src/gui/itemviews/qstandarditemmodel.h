@@ -40,7 +40,6 @@ public:
     QStandardItem(const QIcon &icon, const QString &text, int type = Type);
     QStandardItem(int rows, int columns, int type = Type);
     QStandardItem(const QList<QStandardItem*> &items, int type = Type);
-    QStandardItem(const QStandardItem &other);
     virtual ~QStandardItem();
 
     virtual void setData(int role, const QVariant &value);
@@ -234,13 +233,13 @@ public:
     virtual void write(QDataStream &out) const;
 #endif
     virtual bool operator<(const QStandardItem &other) const;
-    QStandardItem &operator=(const QStandardItem &other);
 
 protected:
     QStandardItem(QStandardItemPrivate &dd);
     QStandardItemPrivate *d_ptr;
 
 private:
+    Q_DISABLE_COPY(QStandardItem)
     Q_DECLARE_PRIVATE(QStandardItem)
     friend class QStandardItemModelPrivate;
     friend class QStandardItemModel;
