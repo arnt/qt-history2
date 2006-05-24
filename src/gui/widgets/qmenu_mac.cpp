@@ -28,6 +28,7 @@
 #include <private/qapplication_p.h>
 #include <private/qmenu_p.h>
 #include <private/qmenubar_p.h>
+#include <private/qhiviewwidget_mac_p.h>
 
 /*****************************************************************************
   QMenu debug facilities
@@ -57,8 +58,8 @@ enum {
     kMenuPropertyMergeMenu = 'QApP',
     kMenuPropertyMergeList = 'QAmL',
     kHICommandAboutQt = 'AOQT',
-    kMenuPropertyActionWidget = 'QWid',
-    kMenuPropertyWidgetGeometry = 'WGeo'
+    kMenuPropertyWidgetActionWidget = 'QWid',
+    kMenuPropertyWidgetActionGeometry = 'WGeo'
 };
 
 static struct {
@@ -408,16 +409,144 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
     return true;
 }
 
+
+typedef QMultiHash<MenuRef, EventHandlerRef> EventHandlerHash;
+Q_GLOBAL_STATIC(EventHandlerHash, menu_eventHandlers_hash)
+
+static const EventTypeSpec  window_menu_events[] =
+{
+    { kEventClassControl, kEventControlOwningWindowChanged }
+};
+
+static OSStatus qt_mac_window_menu_event(EventHandlerCallRef, EventRef event, void *data)
+{
+    OSStatus    err = eventNotHandledErr;
+    WindowRef   owner;
+
+    GetEventParameter(event, kEventParamControlCurrentOwningWindow, typeWindowRef, 0,
+                      sizeof(owner), 0, &owner);
+    if (owner) {
+        QHIViewWidget *menuWindow = new QHIViewWidget(owner, Qt::Tool);  // Tool works better than Popup for the moment.
+        menuWindow->createQWidgetsFromHIViews();
+        QList<QHIViewWidget *> widgets = menuWindow->findChildren<QHIViewWidget *>();
+        for (int i = 0; i < widgets.count(); ++i) {
+            QWidget *widget = widgets.at(i);
+            if (HIObjectIsOfClass(HIObjectRef(widget->winId()), kHIStandardMenuViewClassID)) {
+                MenuRef menu = static_cast<MenuRef>(data);
+                UInt16 menuCount = CountMenuItems(menu);
+                for (MenuItemIndex j = 1; j <= menuCount; ++j) {
+                    QWidget *actionWidget;
+                    if (GetMenuItemProperty(menu, j, kMenuCreatorQt,
+                                            kMenuPropertyWidgetActionWidget,
+                                            sizeof(actionWidget), 0, &actionWidget) == noErr
+                            && actionWidget) {
+                        QRect geo;
+                        GetMenuItemProperty(menu, j, kMenuCreatorQt, kMenuPropertyWidgetActionGeometry,
+                                            sizeof(QRect), 0, &geo);
+                        actionWidget->setParent(widget);
+                        actionWidget->setGeometry(geo);
+                        actionWidget->show();
+
+                    }
+                }
+                widget->show();
+                menuWindow->show();
+                break;
+            }
+        }
+        err = noErr;
+    }
+    return err;
+}
+
+static EventTypeSpec widget_in_menu_events[] = {
+    { kEventClassMenu, kEventMenuMeasureItemWidth },
+    { kEventClassMenu, kEventMenuMeasureItemHeight },
+    { kEventClassMenu, kEventMenuDrawItem },
+    { kEventClassMenu, kEventMenuCalculateSize }
+};
+
+static OSStatus qt_mac_widget_in_menu_eventHandler(EventHandlerCallRef er, EventRef event, void *)
+{
+    UInt32 ekind = GetEventKind(event);
+    UInt32 eclass = GetEventClass(event);
+    OSStatus result = eventNotHandledErr;
+    switch (eclass) {
+    case kEventClassMenu:
+        switch (ekind) {
+        default:
+            break;
+        case kEventMenuMeasureItemWidth: {
+            MenuItemIndex item;
+            GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
+                              0, sizeof(item), 0, &item);
+            MenuRef menu;
+            GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 0, sizeof(menu), 0, &menu);
+            QWidget *widget;
+            if (GetMenuItemProperty(menu, item, kMenuCreatorQt, kMenuPropertyWidgetActionWidget,
+                                 sizeof(widget), 0, &widget) == noErr) {
+                short width = short(widget->sizeHint().width());
+                SetEventParameter(event, kEventParamMenuItemWidth, typeShortInteger,
+                                  sizeof(short), &width);
+                result = noErr;
+            }
+            break; }
+        case kEventMenuMeasureItemHeight: {
+            MenuItemIndex item;
+            GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
+                              0, sizeof(item), 0, &item);
+            MenuRef menu;
+            GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 0, sizeof(menu), 0, &menu);
+            QWidget *widget;
+            if (GetMenuItemProperty(menu, item, kMenuCreatorQt, kMenuPropertyWidgetActionWidget,
+                                     sizeof(widget), 0, &widget) == noErr && widget) {
+                short height = short(widget->sizeHint().height());
+                SetEventParameter(event, kEventParamMenuItemHeight, typeShortInteger,
+                                  sizeof(short), &height);
+                result = noErr;
+            }
+            break; }
+        case kEventMenuDrawItem:
+            result = noErr;
+            break;
+        case kEventMenuCalculateSize: {
+            result = CallNextEventHandler(er, event);
+            if (result == noErr) {
+                MenuRef menu;
+                GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 0, sizeof(menu), 0, &menu);
+                HIViewRef content;
+                HIMenuGetContentView(menu, kThemeMenuTypePullDown, &content);
+                UInt16 count = CountMenuItems(menu);
+                for (MenuItemIndex i = 1; i <= count; ++i) {
+                    QWidget *widget;
+                    if (GetMenuItemProperty(menu, i, kMenuCreatorQt, kMenuPropertyWidgetActionWidget,
+                            sizeof(widget), 0, &widget) == noErr && widget) {
+                        RgnHandle itemRgn = qt_mac_get_rgn();
+                        GetControlRegion(content, i, itemRgn);
+
+                        Rect bounds;
+                        GetRegionBounds( itemRgn, &bounds );
+                        qt_mac_dispose_rgn(itemRgn);
+
+                        QRect savedGeo(bounds.left, bounds.top,
+                                        bounds.right - bounds.left, bounds.bottom - bounds.top);
+                        SetMenuItemProperty(menu, i, kMenuCreatorQt, kMenuPropertyWidgetActionGeometry,
+                                            sizeof(QRect), &savedGeo);
+                    }
+                }
+            }
+            break; }
+        }
+    }
+    return result;
+}
+
 //handling of events for menurefs created by Qt..
 static EventTypeSpec menu_events[] = {
     { kEventClassCommand, kEventCommandProcess },
     { kEventClassMenu, kEventMenuTargetItem },
     { kEventClassMenu, kEventMenuOpening },
-    { kEventClassMenu, kEventMenuClosed },
-    { kEventClassMenu, kEventMenuMeasureItemWidth },
-    { kEventClassMenu, kEventMenuMeasureItemHeight },
-    { kEventClassMenu, kEventMenuDrawItem },
-    { kEventClassMenu, kEventMenuCalculateSize }
+    { kEventClassMenu, kEventMenuClosed }
 };
 OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
 {
@@ -522,70 +651,6 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
             handled_event = false;
         }
         break; }
-    case kEventMenuMeasureItemWidth: {
-        MenuItemIndex item;
-        GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
-                          0, sizeof(item), 0, &item);
-        MenuRef menu;
-        GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(menu), NULL, &menu);
-        QWidget *widget;
-        GetMenuItemProperty(menu, item, kMenuCreatorQt, kMenuPropertyActionWidget,
-                             sizeof(widget), 0, &widget);
-        if (widget) {
-            int width = widget->sizeHint().width();
-            SetEventParameter(event, kEventParamMenuItemWidth, typeShortInteger,
-                              sizeof(short), &width);
-            handled_event = true;
-        }
-        break; }
-    case kEventMenuMeasureItemHeight: {
-        MenuItemIndex item;
-        GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
-                          0, sizeof(item), 0, &item);
-        MenuRef menu;
-        GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(menu), NULL, &menu);
-        QWidget *widget;
-        GetMenuItemProperty(menu, item, kMenuCreatorQt, kMenuPropertyActionWidget,
-                             sizeof(widget), 0, &widget);
-        if (widget) {
-            int height = widget->sizeHint().height();
-            SetEventParameter(event, kEventParamMenuItemHeight, typeShortInteger,
-                              sizeof(short), &height);
-            handled_event = true;
-        }
-        break; }
-    case kEventMenuDrawItem:
-        handled_event = true;
-        break;
-    case kEventMenuCalculateSize: {
-        OSStatus result = CallNextEventHandler(er, event);
-        if (result == noErr) {
-            MenuRef menu;
-            GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(menu), NULL, &menu);
-            HIViewRef content;
-            HIMenuGetContentView(menu, kThemeMenuTypePullDown, &content);
-            UInt16 count = CountMenuItems(menu);
-            for (UInt16 i = 0; i < count; ++i) {
-                QWidget *widget;
-                GetMenuItemProperty(menu, i, kMenuCreatorQt, kMenuPropertyActionWidget,
-                        sizeof(widget), 0, &widget);
-                if (widget) {
-                    RgnHandle itemRgn = qt_mac_get_rgn();
-                    GetControlRegion(content, i, itemRgn);
-
-                    Rect bounds;
-                    GetRegionBounds( itemRgn, &bounds );
-                    qt_mac_dispose_rgn(itemRgn);
-
-                    QRect savedGeo(bounds.left, bounds.top,
-                                    bounds.right - bounds.left, bounds.bottom - bounds.top);
-                    SetMenuItemProperty(menu, i, kMenuCreatorQt, kMenuPropertyWidgetGeometry,
-                                        sizeof(QRect), &savedGeo);
-                }
-            }
-        }
-        handled_event = true;
-        break; }
     default:
         handled_event = false;
         break;
@@ -658,8 +723,15 @@ QMenuPrivate::QMacMenuPrivate::~QMacMenuPrivate()
         }
         delete action;
     }
-    if (menu)
+    if (menu) {
+        EventHandlerHash::iterator it = menu_eventHandlers_hash()->find(menu);
+        while (it != menu_eventHandlers_hash()->end() && it.key() == menu) {
+            RemoveEventHandler(it.value());
+            ++it;
+        }
+        menu_eventHandlers_hash()->remove(menu);
         ReleaseMenu(menu);
+    }
 }
 
 void
@@ -718,18 +790,34 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
         index = before_index;
         MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
         QWidgetAction *widgetAction = qobject_cast<QWidgetAction *>(action->action);
-        if (widgetAction)
+        if (widgetAction) {
+            ChangeMenuAttributes(action->menu, kMenuAttrDoNotCacheImage, 0);
             attr = kMenuItemAttrCustomDraw;
+        }
 
-        if (before)
+        if (before) {
             InsertMenuItemTextWithCFString(action->menu, 0, qMax(before_index, 0), attr, action->command);
-        else
-            AppendMenuItemTextWithCFString(action->menu, 0, attr, action->command, (MenuItemIndex*)&index);
+        } else {
+            MenuItemIndex tmpIndex;
+            AppendMenuItemTextWithCFString(action->menu, 0, attr, action->command, &tmpIndex);
+            index = tmpIndex;
+        }
 
         if (widgetAction) {
             QWidget *widget = widgetAction->requestWidget(qmenu);
-            SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyActionWidget,
+            SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyWidgetActionWidget,
                                 sizeof(QWidget *), &widget);
+            HIViewRef content;
+            HIMenuGetContentView(action->menu, kThemeMenuTypePullDown, &content);
+            EventHandlerRef eventHandlerRef;
+            InstallControlEventHandler(content, qt_mac_window_menu_event,
+                                       GetEventTypeCount(window_menu_events),
+                                       window_menu_events, action->menu, &eventHandlerRef);
+            menu_eventHandlers_hash()->insert(action->menu, eventHandlerRef);
+            InstallMenuEventHandler(action->menu, qt_mac_widget_in_menu_eventHandler,
+                                    GetEventTypeCount(widget_in_menu_events),
+                                    widget_in_menu_events, 0, &eventHandlerRef);
+            menu_eventHandlers_hash()->insert(action->menu, eventHandlerRef);
         }
     } else {
         qt_mac_command_set_enabled(action->menu, action->command, !QApplicationPrivate::modalState());

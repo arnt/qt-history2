@@ -121,7 +121,11 @@ SOURCES += \
         widgets/qworkspace.cpp
 
 
-!embedded:mac:SOURCES += widgets/qmenu_mac.cpp
+!embedded:mac {
+    HEADERS += widgets/qhiviewwidget_mac_p.h
+    SOURCES += widgets/qmenu_mac.cpp \
+               widgets/qhiviewwidget_mac.cpp
+}
 
 wince-* {
         SOURCES += widgets/ce/qcemainwindow.cpp
