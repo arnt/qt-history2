@@ -84,7 +84,10 @@ bool QSystemTrayIconSys::supportsMessages()
             if (SUCCEEDED(hr)) {
                 if (dvi.dwMajorVersion >= 5) 
                 {
-#if NOTIFYICON_VERSION >= 3 
+#ifndef NOTIFYICONDATAW_V2_SIZE // for mingw which has version>=3 but has this  undefined
+					notifyIconSizeA = sizeof(NOTIFYICONDATA);
+                    notifyIconSizeW = sizeof(NOTIFYICONDATA);
+#elif NOTIFYICON_VERSION >= 3 
                     notifyIconSizeA = NOTIFYICONDATAW_V2_SIZE;
                     notifyIconSizeW = NOTIFYICONDATAW_V2_SIZE;
 #endif
@@ -99,8 +102,8 @@ bool QSystemTrayIconSys::supportsMessages()
 QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *object)
     : hIcon(0), q(object), button(Qt::NoButton)
 {
-    notifyIconSizeA = NOTIFYICONDATAA_V1_SIZE;
-    notifyIconSizeW = NOTIFYICONDATAW_V1_SIZE;
+    notifyIconSizeA = FIELD_OFFSET(NOTIFYICONDATAA, szTip[64]); // NOTIFYICONDATAA_V1_SIZE
+    notifyIconSizeW = FIELD_OFFSET(NOTIFYICONDATAW, szTip[64]); // NOTIFYICONDATAW_V1_SIZE;
 
     // For restoring the tray icon after explorer crashes
     if (!MYWM_TASKBARCREATED) {
@@ -436,7 +439,7 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
 {
     QPoint ret(-1, -1);
     TBBUTTON buttonData;
-    DWORD processID = -1;
+    DWORD processID = 0;
 
     HWND trayHandle = FindWindowA("Shell_TrayWnd", NULL);
 
@@ -474,7 +477,7 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
 
     //search for our icon among all toolbar buttons
     for (int toolbarButton = 0; toolbarButton  < buttonCount; ++toolbarButton ) {
-        SIZE_T numBytes = -1;
+        SIZE_T numBytes = 0;
         DWORD appData[2] = { 0, 0 };
         SendMessage(trayHandle, TB_GETBUTTON, toolbarButton , (LPARAM)data);
 
@@ -502,7 +505,7 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
             }
         }
     }
-    VirtualFreeEx(trayProcess, data, NULL, MEM_RELEASE);
+    VirtualFreeEx(trayProcess, data, 0, MEM_RELEASE);
     CloseHandle(trayProcess);
     return ret;
 }
