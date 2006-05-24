@@ -1662,7 +1662,7 @@ void QWidget::setWindowModality(Qt::WindowModality windowModality)
 {
     data->window_modality = windowModality;
     // setModal_sys() will be called by setAttribute()
-     setAttribute(Qt::WA_ShowModal, (data->window_modality != Qt::NonModal));
+    setAttribute(Qt::WA_ShowModal, (data->window_modality != Qt::NonModal));
 }
 
 /*!
@@ -6691,7 +6691,7 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         break;
     case Qt::WA_ShowModal:
         if (!on) {
-            if (isVisible() && isModal())
+            if (isVisible())
                 QApplicationPrivate::leaveModal(this);
             // reset modality type to Modeless when clearing WA_ShowModal
             data->window_modality = Qt::NonModal;
