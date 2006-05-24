@@ -1844,10 +1844,25 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
                 XSetForeground(d->dpy, d->gc, QColormap::instance(d->scrn).pixel(d->bg_brush.color()));
             XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
         }
-        QRegion bitmap_region(pixmap);
-        bitmap_region.translate(x, y);
-        bitmap_region = bitmap_region & d->crgn;
-        x11SetClipRegion(d->dpy, d->gc, 0, 0, bitmap_region);
+
+        if (!d->crgn.isEmpty()) {
+            Pixmap comb = XCreatePixmap(d->dpy, d->hd, sw, sh, 1);
+            GC cgc = XCreateGC(d->dpy, comb, 0, 0);
+            XSetForeground(d->dpy, cgc, 0);
+            XFillRectangle(d->dpy, comb, cgc, 0, 0, sw, sh);
+            int num;
+            XRectangle *rects = (XRectangle *)qt_getClipRects(d->crgn, num);
+            XSetClipRectangles(d->dpy, cgc, -x, -y, rects, num, Unsorted);
+            XCopyArea(d->dpy, pixmap.handle(), comb, cgc, 0, 0, sw, sh, 0, 0);
+            XFreeGC(d->dpy, cgc);
+
+            XSetClipMask(d->dpy, d->gc, comb);
+            XSetClipOrigin(d->dpy, d->gc, x, y);
+            XFreePixmap(d->dpy, comb);
+        } else {
+            XSetClipMask(d->dpy, d->gc, pixmap.handle());
+            XSetClipOrigin(d->dpy, d->gc, x, y);
+        }
 
         if (mono_dst) {
             XSetBackground(d->dpy, d->gc, qGray(d->bg_brush.color().rgb()) > 127 ? 0 : 1);
