@@ -15,18 +15,18 @@ const validSwitches = ["gzip", "bzip", "zip", "snapshots"]; // these are either 
 const validVars = ["branch", "version"]; // variables with arbitrary values, set by -foo value
 
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
-			  "jpg", "bmp", "any", "pic", "ppm",
-			  "exe", "zip", "qm", "ico", "wav",
-			  "icns", "qpf", "bdf", "pfb", "pfa",
-			  "ttf", "resource"];
+                          "jpg", "bmp", "any", "pic", "ppm",
+                          "exe", "zip", "qm", "ico", "wav",
+                          "icns", "qpf", "bdf", "pfb", "pfa",
+                          "ttf", "resource"];
 
 const user = System.getenv("USER");
 
 var startDate = new Date(); // the start date of the script
-var options = [];	    // list of all package options
-var tmpDir;		    // directory for system temporary files
-var distDir;		    // parent directory for all temp packages and the checkout dir
-var checkoutDir;	    // directory for P4 checkout
+var options = [];            // list of all package options
+var tmpDir;                    // directory for system temporary files
+var distDir;                    // parent directory for all temp packages and the checkout dir
+var checkoutDir;            // directory for P4 checkout
 var licenseHeaders = [];    // license text to put in .cpp and .h headers
 var moduleMap = [];         // maps between directories and module/class/application names
 var p4Port;
@@ -42,132 +42,132 @@ const tabSize = 4;
  */
 
 var checkoutRemove = [ new RegExp("^LICENSE.TROLL"),
-		       new RegExp("^bin/syncqt.bat"),
-		       new RegExp("^mkspecs/features/qttest_p4.prf"),
-		       new RegExp("^pics"),
-		       new RegExp("^src/corelib/eval.pri"),
-		       new RegExp("^src/corelib/kernel/qtcore_eval.cpp"),
-		       new RegExp("^src/gui/painting/makepsheader.pl"),
-		       new RegExp("^src/gui/painting/qpsprinter"),
-		       new RegExp("^src/gui/styles/qmotifplus"),
-		       new RegExp("^src/gui/styles/qplatinum"),
-		       new RegExp("^src/gui/styles/qsgi"),
-		       new RegExp("^src/plugins/styles/motifplus"),
-		       new RegExp("^src/plugins/styles/platinum"),
-		       new RegExp("^src/plugins/styles/sgi"),
-		       new RegExp("^tests"),
-		       new RegExp("^tmake"),
-		       new RegExp("^tools/designer/data"),
-		       new RegExp("^tools/designer/tests"),
-		       new RegExp("^tools/linguist/.*\\.1"),
-		       new RegExp("^tools/makeqpf"),
-		       new RegExp("^tools/mergetr"),
-		       new RegExp("^tools/msg2qm"),
-		       new RegExp("^tools/qembed"),
-		       new RegExp("^tools/qev"),
-		       new RegExp("^util") ];
+                       new RegExp("^bin/syncqt.bat"),
+                       new RegExp("^mkspecs/features/qttest_p4.prf"),
+                       new RegExp("^pics"),
+                       new RegExp("^src/corelib/eval.pri"),
+                       new RegExp("^src/corelib/kernel/qtcore_eval.cpp"),
+                       new RegExp("^src/gui/painting/makepsheader.pl"),
+                       new RegExp("^src/gui/painting/qpsprinter"),
+                       new RegExp("^src/gui/styles/qmotifplus"),
+                       new RegExp("^src/gui/styles/qplatinum"),
+                       new RegExp("^src/gui/styles/qsgi"),
+                       new RegExp("^src/plugins/styles/motifplus"),
+                       new RegExp("^src/plugins/styles/platinum"),
+                       new RegExp("^src/plugins/styles/sgi"),
+                       new RegExp("^tests"),
+                       new RegExp("^tmake"),
+                       new RegExp("^tools/designer/data"),
+                       new RegExp("^tools/designer/tests"),
+                       new RegExp("^tools/linguist/.*\\.1"),
+                       new RegExp("^tools/makeqpf"),
+                       new RegExp("^tools/mergetr"),
+                       new RegExp("^tools/msg2qm"),
+                       new RegExp("^tools/qembed"),
+                       new RegExp("^tools/qev"),
+                       new RegExp("^util") ];
 
 var platformRemove = new Array();
 
 platformRemove["win"] = [ new RegExp("\\.qws"),
-			  new RegExp("^LICENSE.QPL"),
-			  new RegExp("^config.tests"),
-			  new RegExp("^configure$"),
-			  new RegExp("^doc/src"),
-			  new RegExp("^examples/qtopiacore"),
-			  new RegExp("^gif"),
-			  new RegExp("^qmake/Makefile.commercial"),
-			  new RegExp("^qmake/Makefile.unix"),
-			  new RegExp("^src/plugins/decorations"),
-			  new RegExp("^src/plugins/gfxdrivers"),
-			  new RegExp("^src/plugins/mousedrivers"),
-			  new RegExp("^src/plugins/styles/mac"),
+                          new RegExp("^LICENSE.QPL"),
+                          new RegExp("^config.tests"),
+                          new RegExp("^configure$"),
+                          new RegExp("^doc/src"),
+                          new RegExp("^examples/qtopiacore"),
+                          new RegExp("^gif"),
+                          new RegExp("^qmake/Makefile.commercial"),
+                          new RegExp("^qmake/Makefile.unix"),
+                          new RegExp("^src/plugins/decorations"),
+                          new RegExp("^src/plugins/gfxdrivers"),
+                          new RegExp("^src/plugins/mousedrivers"),
+                          new RegExp("^src/plugins/styles/mac"),
                           new RegExp("^src/gui/embedded"),
-			  new RegExp("^tools/qconfig"),
-			  new RegExp("^tools/qtconfig"),
-			  new RegExp("^tools/qvfb"),
-			  new RegExp("_mac"),
-			  new RegExp("_qnx4"),
-			  new RegExp("_qnx6"),
-			  new RegExp("_qws"),
-			  new RegExp("_unix"),
-			  new RegExp("_wce"),
-			  new RegExp("_x11") ];
+                          new RegExp("^tools/qconfig"),
+                          new RegExp("^tools/qtconfig"),
+                          new RegExp("^tools/qvfb"),
+                          new RegExp("_mac"),
+                          new RegExp("_qnx4"),
+                          new RegExp("_qnx6"),
+                          new RegExp("_qws"),
+                          new RegExp("_unix"),
+                          new RegExp("_wce"),
+                          new RegExp("_x11") ];
 
 platformRemove["x11"] = [ new RegExp("\\.qws"),
-			  new RegExp("^configure.exe"),
-			  new RegExp("^doc/src"),
-			  new RegExp("^examples/activeqt"),
-			  new RegExp("^examples/qtopiacore"),
-			  new RegExp("^gif"),
-			  new RegExp("^qmake/Makefile$"),
-			  new RegExp("^qmake/Makefile.win32-g++"),
-			  new RegExp("^src/activeqt"),
-			  new RegExp("^src/plugins/decorations"),
-			  new RegExp("^src/plugins/gfxdrivers"),
-			  new RegExp("^src/plugins/mousedrivers"),
-			  new RegExp("^src/plugins/styles/mac"),
-			  new RegExp("^src/tools/idc"),
-			  new RegExp("^src/winmain"),
+                          new RegExp("^configure.exe"),
+                          new RegExp("^doc/src"),
+                          new RegExp("^examples/activeqt"),
+                          new RegExp("^examples/qtopiacore"),
+                          new RegExp("^gif"),
+                          new RegExp("^qmake/Makefile$"),
+                          new RegExp("^qmake/Makefile.win32-g++"),
+                          new RegExp("^src/activeqt"),
+                          new RegExp("^src/plugins/decorations"),
+                          new RegExp("^src/plugins/gfxdrivers"),
+                          new RegExp("^src/plugins/mousedrivers"),
+                          new RegExp("^src/plugins/styles/mac"),
+                          new RegExp("^src/tools/idc"),
+                          new RegExp("^src/winmain"),
                           new RegExp("^src/gui/embedded"),
-			  new RegExp("^tools/activeqt"),
-			  new RegExp("^tools/configure"),
-			  new RegExp("^tools/designer/src/plugins/activeqt"),
-			  new RegExp("_mac"),
-			  new RegExp("_qnx4"),
-			  new RegExp("_qnx6"),
-			  new RegExp("_qws"),
-			  new RegExp("_wce"),
-			  new RegExp("_win") ];
+                          new RegExp("^tools/activeqt"),
+                          new RegExp("^tools/configure"),
+                          new RegExp("^tools/designer/src/plugins/activeqt"),
+                          new RegExp("_mac"),
+                          new RegExp("_qnx4"),
+                          new RegExp("_qnx6"),
+                          new RegExp("_qws"),
+                          new RegExp("_wce"),
+                          new RegExp("_win") ];
 
 platformRemove["mac"] = [ new RegExp("\\.qws"),
-			  new RegExp("^LICENSE.QPL"),
-			  new RegExp("^configure.exe"),
-			  new RegExp("^doc/src"),
-			  new RegExp("^examples/activeqt"),
-			  new RegExp("^examples/qtopiacore"),
-			  new RegExp("^gif"),
-			  new RegExp("^qmake/Makefile$"),
-			  new RegExp("^qmake/Makefile.win32-g++"),
-			  new RegExp("^src/activeqt"),
-			  new RegExp("^src/plugins/decorations"),
-			  new RegExp("^src/plugins/gfxdrivers"),
-			  new RegExp("^src/plugins/mousedrivers"),
-			  new RegExp("^src/tools/idc"),
-			  new RegExp("^src/winmain"),
+                          new RegExp("^LICENSE.QPL"),
+                          new RegExp("^configure.exe"),
+                          new RegExp("^doc/src"),
+                          new RegExp("^examples/activeqt"),
+                          new RegExp("^examples/qtopiacore"),
+                          new RegExp("^gif"),
+                          new RegExp("^qmake/Makefile$"),
+                          new RegExp("^qmake/Makefile.win32-g++"),
+                          new RegExp("^src/activeqt"),
+                          new RegExp("^src/plugins/decorations"),
+                          new RegExp("^src/plugins/gfxdrivers"),
+                          new RegExp("^src/plugins/mousedrivers"),
+                          new RegExp("^src/tools/idc"),
+                          new RegExp("^src/winmain"),
                           new RegExp("^src/gui/embedded"),
-			  new RegExp("^tools/activeqt"),
-			  new RegExp("^tools/configure"),
-			  new RegExp("^tools/designer/src/plugins/activeqt"),
-			  new RegExp("^tools/qconfig"),
-			  new RegExp("^tools/qvfb"),
-			  new RegExp("_qnx4"),
-			  new RegExp("_qnx6"),
-			  new RegExp("_qws"),
-			  new RegExp("_wce"),
-			  new RegExp("_win"),
-			  new RegExp("_x11") ];
+                          new RegExp("^tools/activeqt"),
+                          new RegExp("^tools/configure"),
+                          new RegExp("^tools/designer/src/plugins/activeqt"),
+                          new RegExp("^tools/qconfig"),
+                          new RegExp("^tools/qvfb"),
+                          new RegExp("_qnx4"),
+                          new RegExp("_qnx6"),
+                          new RegExp("_qws"),
+                          new RegExp("_wce"),
+                          new RegExp("_win"),
+                          new RegExp("_x11") ];
 
 platformRemove["core"] = [ new RegExp("^LICENSE.QPL"),
-			   new RegExp("^configure.exe"),
-			   new RegExp("^doc/src"),
-			   new RegExp("^examples/activeqt"),
-			   new RegExp("^gif"),
-			   new RegExp("^qmake/Makefile$"),
-			   new RegExp("^qmake/Makefile.win32-g++"),
-			   new RegExp("^src/activeqt"),
-			   new RegExp("^src/plugins/styles/mac"),
-			   new RegExp("^src/tools/idc"),
-			   new RegExp("^src/winmain"),
-			   new RegExp("^tools/activeqt"),
-			   new RegExp("^tools/configure"),
-			   new RegExp("^tools/designer/src/plugins/activeqt"),
-			   new RegExp("^tools/qvfb"),
-			   new RegExp("_mac"),
-			   new RegExp("_qnx4"),
-			   new RegExp("_qnx6"),
-			   new RegExp("_wce"),
-			   new RegExp("_win") ];
+                           new RegExp("^configure.exe"),
+                           new RegExp("^doc/src"),
+                           new RegExp("^examples/activeqt"),
+                           new RegExp("^gif"),
+                           new RegExp("^qmake/Makefile$"),
+                           new RegExp("^qmake/Makefile.win32-g++"),
+                           new RegExp("^src/activeqt"),
+                           new RegExp("^src/plugins/styles/mac"),
+                           new RegExp("^src/tools/idc"),
+                           new RegExp("^src/winmain"),
+                           new RegExp("^tools/activeqt"),
+                           new RegExp("^tools/configure"),
+                           new RegExp("^tools/designer/src/plugins/activeqt"),
+                           new RegExp("^tools/qvfb"),
+                           new RegExp("_mac"),
+                           new RegExp("_qnx4"),
+                           new RegExp("_qnx6"),
+                           new RegExp("_wce"),
+                           new RegExp("_win") ];
 
 var licenseRemove = new Array();
 
@@ -176,34 +176,34 @@ licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
 licenseRemove["eval"] = licenseRemove["commercial"];
 
 licenseRemove["opensource"] = [ new RegExp("^README-QT.TXT"),
-				new RegExp("^README.qws"),
-				new RegExp("^examples/activeqt"),
-				new RegExp("^mkspecs/macx-mwerks"),
-				new RegExp("^mkspecs/win32-borland"),
-				new RegExp("^mkspecs/win32-icc"),
-				new RegExp("^mkspecs/win32-msvc"),
-				new RegExp("^mkspecs/win32-msvc.net"),
-				new RegExp("^qmake/Makefile$"),
-				new RegExp("^qmake/Makefile.commercial"),
-				new RegExp("^qmake/generators/mac/metrowerks"),
-				new RegExp("^qmake/generators/win32/borland"),
-				new RegExp("^qmake/generators/win32/msvc"),
-				new RegExp("^src/plugins/sqldrivers/db2"),
-				new RegExp("^src/plugins/sqldrivers/oci"),
-				new RegExp("^src/plugins/sqldrivers/tds"),
-				new RegExp("^src/sql/drivers/db2"),
-				new RegExp("^src/sql/drivers/oci"),
-				new RegExp("^src/sql/drivers/tds"),
-				new RegExp("^src/tools/idc"),
-				new RegExp("^tools/activeqt"),
-				new RegExp("^tools/designer/src/plugins/activeqt"),
-			        new RegExp("^src/activeqt") ];
+                                new RegExp("^README.qws"),
+                                new RegExp("^examples/activeqt"),
+                                new RegExp("^mkspecs/macx-mwerks"),
+                                new RegExp("^mkspecs/win32-borland"),
+                                new RegExp("^mkspecs/win32-icc"),
+                                new RegExp("^mkspecs/win32-msvc"),
+                                new RegExp("^mkspecs/win32-msvc.net"),
+                                new RegExp("^qmake/Makefile$"),
+                                new RegExp("^qmake/Makefile.commercial"),
+                                new RegExp("^qmake/generators/mac/metrowerks"),
+                                new RegExp("^qmake/generators/win32/borland"),
+                                new RegExp("^qmake/generators/win32/msvc"),
+                                new RegExp("^src/plugins/sqldrivers/db2"),
+                                new RegExp("^src/plugins/sqldrivers/oci"),
+                                new RegExp("^src/plugins/sqldrivers/tds"),
+                                new RegExp("^src/sql/drivers/db2"),
+                                new RegExp("^src/sql/drivers/oci"),
+                                new RegExp("^src/sql/drivers/tds"),
+                                new RegExp("^src/tools/idc"),
+                                new RegExp("^tools/activeqt"),
+                                new RegExp("^tools/designer/src/plugins/activeqt"),
+                                new RegExp("^src/activeqt") ];
 
 licenseRemove["preview"] = licenseRemove["opensource"];
 
 var binaryFileList = [ new RegExp("examples/tools/codecs/encodedfiles/utf-16.txt"),
-		       new RegExp("examples/tools/codecs/encodedfiles/utf-16be.txt"),
-		       new RegExp("examples/tools/codecs/encodedfiles/utf-16le.txt"),
+                       new RegExp("examples/tools/codecs/encodedfiles/utf-16be.txt"),
+                       new RegExp("examples/tools/codecs/encodedfiles/utf-16le.txt"),
                        new RegExp("tools/designer/src/designer/extra/names.txt") ];
 
 var finalRemove = [ new RegExp("^dist") ];
@@ -215,7 +215,7 @@ var finalRemove = [ new RegExp("^dist") ];
 // main modules
 moduleMap["Qt3Support module"]           = new RegExp("^src/qt3support");
 moduleMap["QtCore module"]               = new RegExp("^src/core");
-moduleMap["QtGui module"]        	 = new RegExp("^src/gui");
+moduleMap["QtGui module"]                 = new RegExp("^src/gui");
 moduleMap["QtNetwork module"]            = new RegExp("^src/network");
 moduleMap["QtOpenGL module"]             = new RegExp("^src/opengl");
 moduleMap["QtSql module"]                = new RegExp("^src/sql");
@@ -256,73 +256,73 @@ purgeFiles(checkoutDir, getFileList(checkoutDir), checkoutRemove);
 indentation+=tabSize;
 for (var p in validPlatforms) {
     for (var l in validLicenses) {
-	var platform = validPlatforms[p];
-	var license = validLicenses[l];
-	if (options[platform] && options[license] &&
-	    (license != "eval" || (platform == "x11" || platform == "core"))) {
-	    print("Packaging %1-%2...".arg(platform).arg(license));
-	    indentation+=tabSize;
-	    
-	    // copy checkoutDir to platDir and set permissions
-	    print("Copying checkout...");
-	    var platName = "qt-%1-%2-src-%3"
-		.arg(platform)
-		.arg(license)
-		.arg(options["version"]);
-	    if (platform == "core")
-		platName = platName.replace("qt-core", "qtopia-core");
-	    var platDir = distDir + "/" + platName;
-	    execute(["cp", "-r", checkoutDir, platDir]);
-	    
-	    //copying dist files
-	    print("Copying dist files...");
-	    copyDist(platDir, platform, license);
+        var platform = validPlatforms[p];
+        var license = validLicenses[l];
+        if (options[platform] && options[license] &&
+            (license != "eval" || (platform == "x11" || platform == "core"))) {
+            print("Packaging %1-%2...".arg(platform).arg(license));
+            indentation+=tabSize;
+            
+            // copy checkoutDir to platDir and set permissions
+            print("Copying checkout...");
+            var platName = "qt-%1-%2-src-%3"
+                .arg(platform)
+                .arg(license)
+                .arg(options["version"]);
+            if (platform == "core")
+                platName = platName.replace("qt-core", "qtopia-core");
+            var platDir = distDir + "/" + platName;
+            execute(["cp", "-r", checkoutDir, platDir]);
+            
+            //copying dist files
+            print("Copying dist files...");
+            copyDist(platDir, platform, license);
 
-	    checkLicense(platDir, getFileList(platDir));
+            checkLicense(platDir, getFileList(platDir));
 
-	    var tmpTag = new Array();
-	    tmpTag[licenseHeaders[license]] = /\*\* \$TROLLTECH_DUAL_LICENSE\$\n/;
+            var tmpTag = new Array();
+            tmpTag[licenseHeaders[license]] = /\*\* \$TROLLTECH_DUAL_LICENSE\$\n/;
 
-	    // replace tags (like THISYEAR etc.)
-	    print("Traversing all txt files and replacing tags...");
-	    replaceTags(platDir, getFileList(platDir), defaultTags(platform, license, platName));
+            // replace tags (like THISYEAR etc.)
+            print("Traversing all txt files and replacing tags...");
+            replaceTags(platDir, getFileList(platDir), defaultTags(platform, license, platName));
 
-	    // run qdoc
-	    print("Running qdoc...");
-	    qdoc(platDir, platform, license);
+            // run qdoc
+            print("Running qdoc...");
+            qdoc(platDir, platform, license);
 
-	    // purge platform and license files
-	    print("Purging platform and license specific files...");
-	    purgeFiles(platDir, getFileList(platDir),[]
-		       .concat(platformRemove[platform])
-		       .concat(licenseRemove[license]));
+            // purge platform and license files
+            print("Purging platform and license specific files...");
+            purgeFiles(platDir, getFileList(platDir),[]
+                       .concat(platformRemove[platform])
+                       .concat(licenseRemove[license]));
 
-	    // run syncqt
-	    print("Running syncqt...");
-	    syncqt(platDir, platform);
+            // run syncqt
+            print("Running syncqt...");
+            syncqt(platDir, platform);
 
-	    // final package purge
-	    print("Final package purge...");
-	    purgeFiles(platDir, getFileList(platDir), finalRemove);
+            // final package purge
+            print("Final package purge...");
+            purgeFiles(platDir, getFileList(platDir), finalRemove);
 
-	    // package directory
-	    print("Compressing and packaging file(s)...");
-	    compress(platform, platDir, platName);
+            // package directory
+            print("Compressing and packaging file(s)...");
+            compress(platform, platDir, platName);
 
-	    // create eval patches for win and mac
-	    if (options["eval"] && license == "commercial" &&
-		(platform == "win" || platform == "mac")) {
-		// delete and make an empty platDir
-		var dir = new Dir(platDir);
-		if (dir.exists)
-		    dir.rmdirs();
-		dir.mkdir();
-		copyEval(platDir);
+            // create eval patches for win and mac
+            if (options["eval"] && license == "commercial" &&
+                (platform == "win" || platform == "mac")) {
+                // delete and make an empty platDir
+                var dir = new Dir(platDir);
+                if (dir.exists)
+                    dir.rmdirs();
+                dir.mkdir();
+                copyEval(platDir);
                 replaceTags(platDir, getEvalFileList(platDir), defaultTags(platform, license, platName));
-		compress(platform, platDir, platName.replace("commercial", "evalpatches"));
-	    }
-	    indentation-=tabSize;
-	}
+                compress(platform, platDir, platName.replace("commercial", "evalpatches"));
+            }
+            indentation-=tabSize;
+        }
     }
  }
 
@@ -336,38 +336,38 @@ cleanup();
 function parseArgc()
 {
     var validOptions = []
-	.concat(validPlatforms)
-	.concat(validLicenses)
-	.concat(validSwitches)
-	.concat(validVars);
+        .concat(validPlatforms)
+        .concat(validLicenses)
+        .concat(validSwitches)
+        .concat(validVars);
     for (var i=0; i<argc.length; ++i) {
-	var optionKey;
-	var optionValue;
-	if (argc[i].startsWith("-do")) {
-	    optionKey = argc[i].split("-")[2];
-	    optionValue = true;
-	} else if (argc[i].startsWith("-no")) {
-	    optionKey = argc[i].split("-")[2];
-	    optionValue = false;
-	} else if (argc[i].startsWith("-")) {
-	    optionKey = argc[i].split("-")[1];
-	    optionValue = argc[++i];
-	} else {
-	    throw "Invalid option format: %1".arg(argc[i]);
-	}
+        var optionKey;
+        var optionValue;
+        if (argc[i].startsWith("-do")) {
+            optionKey = argc[i].split("-")[2];
+            optionValue = true;
+        } else if (argc[i].startsWith("-no")) {
+            optionKey = argc[i].split("-")[2];
+            optionValue = false;
+        } else if (argc[i].startsWith("-")) {
+            optionKey = argc[i].split("-")[1];
+            optionValue = argc[++i];
+        } else {
+            throw "Invalid option format: %1".arg(argc[i]);
+        }
 
-	var optionOk = false;
-	for (var o in validOptions) {
-	    if (optionKey == validOptions[o]) {
-		optionOk = true;
-		break;
-	    }
-	}
+        var optionOk = false;
+        for (var o in validOptions) {
+            if (optionKey == validOptions[o]) {
+                optionOk = true;
+                break;
+            }
+        }
 
-	if (optionOk)
-	    options[optionKey] = optionValue;
-	else
-	    throw "Unknown option: %1".arg(optionKey);
+        if (optionOk)
+            options[optionKey] = optionValue;
+        else
+            throw "Unknown option: %1".arg(optionKey);
     }
 }
 
@@ -378,69 +378,69 @@ function initialize()
 {
     // checks that all valid vars are specified
     for (var i in validVars)
-	if (!(validVars[i] in options))
-	    throw "%1 was not specified.".arg(validVars[i]);
+        if (!(validVars[i] in options))
+            throw "%1 was not specified.".arg(validVars[i]);
 
     // by default turn off all valid switches that were not defined
     for (var i in validSwitches)
-	if (!(validSwitches[i] in options))
-	    options[validSwitches[i]] = false;
+        if (!(validSwitches[i] in options))
+            options[validSwitches[i]] = false;
 
     // by default turn off all valid platforms that were not defined
     for (var i in validPlatforms)
-	if (!(validPlatforms[i] in options))
-	    options[validPlatforms[i]] = false;
+        if (!(validPlatforms[i] in options))
+            options[validPlatforms[i]] = false;
 
     // by default turn off all valid licenses that were not defined
     for (var i in validLicenses)
-	if (!(validLicenses[i] in options))
-	    options[validLicenses[i]] = false;
+        if (!(validLicenses[i] in options))
+            options[validLicenses[i]] = false;
 
     // make sure platform and license filters are defined
     for (var i in validPlatforms) {
-	if (!(validPlatforms[i] in platformRemove))
-	    platformRemove[validPlatforms[i]] = new Array();
+        if (!(validPlatforms[i] in platformRemove))
+            platformRemove[validPlatforms[i]] = new Array();
     }
     for (var i in validLicenses) {
-	if (!(validLicenses[i] in licenseRemove))
-	    licenseRemove[validLicenses[i]] = new Array();
+        if (!(validLicenses[i] in licenseRemove))
+            licenseRemove[validLicenses[i]] = new Array();
     }
 
     // finds a tmpDir
     if (tmpDir == undefined || !File.exists(tmpDir)) {
-	if (File.exists("/tmp"))
-	    tmpDir = "/tmp";
-	else if (File.exists(System.getenv("HOME") + "/tmp"))
-	    tmpDir = System.getenv("HOME") + "/tmp";
-	else
-	    throw "Unable to find tmp directory";
+        if (File.exists("/tmp"))
+            tmpDir = "/tmp";
+        else if (File.exists(System.getenv("HOME") + "/tmp"))
+            tmpDir = System.getenv("HOME") + "/tmp";
+        else
+            throw "Unable to find tmp directory";
     }
     // creates distDir and sets checkoutDir
     distDir = tmpDir + "/qt-" + options["branch"] + "-" + user + "-" + startDate.getTime();
     var dir = new Dir(distDir);
     if (dir.exists)
-	dir.rmdirs();
+        dir.rmdirs();
     dir.mkdir();
 
     // setting up p4
     if (p4Port == undefined)
-	p4Port = "p4.troll.no:866";
+        p4Port = "p4.troll.no:866";
     if (p4Command == undefined || !File.exists(p4Command))
-	p4Command = System.getenv("which p4");
+        p4Command = System.getenv("which p4");
     if (!File.exists(p4Command))
-	p4Command = "/usr/local/bin/p4";
+        p4Command = "/usr/local/bin/p4";
     if (!File.exists(p4Command))
-	p4Command = "/usr/bin/p4";
+        p4Command = "/usr/bin/p4";
 
     // add "-snapshot-yyyymmdd" to version
     if (options["snapshots"])
-	options["version"] = options["version"] + "-snapshot-%1%2%3"
-	    .arg(startDate.getYear())
-	    .arg(startDate.getMonth() < 10 ? "0" + startDate.getMonth() : startDate.getMonth())
-	    .arg(startDate.getDate() < 10 ? "0" + startDate.getDate() : startDate.getDate());
+        options["version"] = options["version"] + "-snapshot-%1%2%3"
+            .arg(startDate.getYear())
+            .arg(startDate.getMonth() < 10 ? "0" + startDate.getMonth() : startDate.getMonth())
+            .arg(startDate.getDate() < 10 ? "0" + startDate.getDate() : startDate.getDate());
 
 //     for (var i in options)
-// 	print("options[%1] = %2".arg(i).arg(options[i]));
+//         print("options[%1] = %2".arg(i).arg(options[i]));
 }
 
 /************************************************************
@@ -449,16 +449,16 @@ function initialize()
 function checkTools()
 {
     try {
-	execute(["which", qmakeCommand]);
-	execute("zip -help");
-	execute("tar --help");
-	execute("gzip -h");
- 	execute("bzip2 -h");
-	execute("cp --help");
-	execute("which scp");
-	execute(p4Command);
+        execute(["which", qmakeCommand]);
+        execute("zip -help");
+        execute("tar --help");
+        execute("gzip -h");
+         execute("bzip2 -h");
+        execute("cp --help");
+        execute("which scp");
+        execute(p4Command);
     } catch (e) {
-	throw "Tool failed: %1".arg(e);
+        throw "Tool failed: %1".arg(e);
     }
 }
 
@@ -485,16 +485,16 @@ function preparePerforce()
     p4BranchPath = "//depot/qt/" + options["branch"];
     execute([p4Command, "fstat", p4BranchPath + "/configure"]);
     if (Process.stdout.find("depotFile") == -1)
-	throw "Branch: " + p4BranchPath + " does not exist.";
+        throw "Branch: " + p4BranchPath + " does not exist.";
     
     // check that the label exists
     if (options["snapshots"]) {
-	p4Label = startDate.toString().replace(/-/g, "/").replace(/T/g, ":");
+        p4Label = startDate.toString().replace(/-/g, "/").replace(/T/g, ":");
     } else {
-	p4Label = "qt/" + options["version"];
-	execute([p4Command, "labels", p4BranchPath + "/configure"]);
-	if (Process.stdout.find("Label " + p4Label + " ") == -1)
-	    throw "Label: " + p4Label + " does not exist, or not in this branch.";
+        p4Label = "qt/" + options["version"];
+        execute([p4Command, "labels", p4BranchPath + "/configure"]);
+        if (Process.stdout.find("Label " + p4Label + " ") == -1)
+            throw "Label: " + p4Label + " does not exist, or not in this branch.";
     }
 }
 
@@ -512,10 +512,10 @@ function checkout(p4Path, localDir)
     execute([p4Command, "client", "-t", "qt-release-3x", "-o", tmpClient]);
     var clientSpec = Process.stdout.split("\n");
     for (var i in clientSpec) {
-	clientSpec[i] = clientSpec[i].replace(/^Root:.*/, "Root: " + localDir);
-	clientSpec[i] = clientSpec[i].replace(/X.Y.*/, options["branch"] + "/" + p4Path + " " +
-					      "//" + tmpClient + "/...");
-	clientSpec[i] = clientSpec[i].replace(/\bnomodtime\b/, "modtime");
+        clientSpec[i] = clientSpec[i].replace(/^Root:.*/, "Root: " + localDir);
+        clientSpec[i] = clientSpec[i].replace(/X.Y.*/, options["branch"] + "/" + p4Path + " " +
+                                              "//" + tmpClient + "/...");
+        clientSpec[i] = clientSpec[i].replace(/\bnomodtime\b/, "modtime");
     }
     // save clientSpec
     clientSpec = clientSpec.join("\n");
@@ -526,7 +526,7 @@ function checkout(p4Path, localDir)
 
     // test that checkout worked
     if (!File.exists(localDir))
-	throw "Checkout failed, checkout dir %1 does not exist.".arg(checkoutDir);
+        throw "Checkout failed, checkout dir %1 does not exist.".arg(checkoutDir);
     execute(["chmod", "-R", "ug+w", localDir]);
     return localDir;
 }
@@ -542,26 +542,26 @@ function purgeFiles(rootDir, fileList, remove)
     var absFileName = new String();
 
     for (var i in fileList) {
-	doRemove = false;
-	fileName = fileList[i];
-	absFileName = rootDir + "/" + fileName;
-	// check if the file should be removed
-	for (var r in remove) {
-	    if (fileName.find(remove[r]) != -1) {
-		doRemove = true;
-		break;
-	    }
-	}
+        doRemove = false;
+        fileName = fileList[i];
+        absFileName = rootDir + "/" + fileName;
+        // check if the file should be removed
+        for (var r in remove) {
+            if (fileName.find(remove[r]) != -1) {
+                doRemove = true;
+                break;
+            }
+        }
 
-	// remove file
-	if (doRemove && File.exists(absFileName)) {
-	    if (File.isFile(absFileName)) {
-		File.remove(absFileName);
-	    } else if (File.isDir(absFileName)) {
-		var dir = new Dir(absFileName);
-		dir.rmdirs();
-	    }
-	}
+        // remove file
+        if (doRemove && File.exists(absFileName)) {
+            if (File.isFile(absFileName)) {
+                File.remove(absFileName);
+            } else if (File.isDir(absFileName)) {
+                var dir = new Dir(absFileName);
+                dir.rmdirs();
+            }
+        }
     }
 }
 
@@ -577,49 +577,49 @@ function compress(platform, packageDir, packageName)
     dir.setCurrent();
 
     if (platform == "win") {
-	if (options["zip"]) {
-	    var files = getFileList(packageDir);
-	    var binaryFiles = new Array();
-	    var textFiles = new Array();
-	    var fileName = new String();
-	    var absFileName = new String();
-	    var zipFile = outputDir + "/" + packageName + ".zip";
-	    // delete any old zipFile
-	    if (File.exists(zipFile))
-		File.remove(zipFile);
-	    // generate list of binary and text files
-	    for (var i in files) {
-		fileName = files[i];
-		absFileName = packageDir + "/" + fileName;
-		if (File.exists(absFileName) && File.isFile(absFileName)) {
-		    if (binaryFile(absFileName))
-			binaryFiles.push(packageDirName + "/" + fileName);
-		    else
-			textFiles.push(packageDirName + "/" + fileName);
-		}
-	    }
-	    // add the binary and text files to the zip file in in two big goes
-	    dir.setCurrent(); //  current dir is parent of packageDir
-	    if (binaryFiles.length > 0)
-		execute(["zip", "-9q", zipFile, "-@"], binaryFiles.join("\n"));
-	    if (textFiles.length > 0)
-		execute(["zip", "-l9q", zipFile, "-@"], textFiles.join("\n"));
-	}
+        if (options["zip"]) {
+            var files = getFileList(packageDir);
+            var binaryFiles = new Array();
+            var textFiles = new Array();
+            var fileName = new String();
+            var absFileName = new String();
+            var zipFile = outputDir + "/" + packageName + ".zip";
+            // delete any old zipFile
+            if (File.exists(zipFile))
+                File.remove(zipFile);
+            // generate list of binary and text files
+            for (var i in files) {
+                fileName = files[i];
+                absFileName = packageDir + "/" + fileName;
+                if (File.exists(absFileName) && File.isFile(absFileName)) {
+                    if (binaryFile(absFileName))
+                        binaryFiles.push(packageDirName + "/" + fileName);
+                    else
+                        textFiles.push(packageDirName + "/" + fileName);
+                }
+            }
+            // add the binary and text files to the zip file in in two big goes
+            dir.setCurrent(); //  current dir is parent of packageDir
+            if (binaryFiles.length > 0)
+                execute(["zip", "-9q", zipFile, "-@"], binaryFiles.join("\n"));
+            if (textFiles.length > 0)
+                execute(["zip", "-l9q", zipFile, "-@"], textFiles.join("\n"));
+        }
     } else {
-	var tarFile = outputDir + "/" + packageName + ".tar";
-	execute(["tar", "-cf", tarFile, packageDirName]);
-	if (!File.exists(tarFile))
-	    throw "Failed to produce %1.".arg(tarFile);
-	
- 	if (options["bzip"]) {
- 	    execute(["bzip2", "-zkf", tarFile]);
- 	}
- 	if (options["gzip"]) {
- 	    execute(["gzip", "-f", tarFile]);
-	}
-	// remove .tar if we have bzipped or gzipped
-	if ((options["gzip"] || options["bzip"]) && File.exists(tarFile))
-	    File.remove(tarFile);
+        var tarFile = outputDir + "/" + packageName + ".tar";
+        execute(["tar", "-cf", tarFile, packageDirName]);
+        if (!File.exists(tarFile))
+            throw "Failed to produce %1.".arg(tarFile);
+        
+         if (options["bzip"]) {
+             execute(["bzip2", "-zkf", tarFile]);
+         }
+         if (options["gzip"]) {
+             execute(["gzip", "-f", tarFile]);
+        }
+        // remove .tar if we have bzipped or gzipped
+        if ((options["gzip"] || options["bzip"]) && File.exists(tarFile))
+            File.remove(tarFile);
     }
 }
 
@@ -636,32 +636,32 @@ function getFileList(rootDir)
     // add files to result
     var files = dir.entryList("*", Dir.Files | Dir.Hidden | Dir.System, Dir.Name);
     for (var f in files)
-	result.push(files[f]);
+        result.push(files[f]);
 
     // expand dirs to absolute path
     var dirs = new Array();
     var tempDirs = dir.entryList("*", Dir.Dirs | Dir.Hidden | Dir.System, Dir.Name);
     for (var t in tempDirs) {
-	if (tempDirs[t] != "." && tempDirs[t] != "..")
-	    dirs.push(dir.absFilePath(tempDirs[t]));
+        if (tempDirs[t] != "." && tempDirs[t] != "..")
+            dirs.push(dir.absFilePath(tempDirs[t]));
     }
     
     for (var i=0; i<dirs.length; ++i) {
- 	// cd to directory and add directory to result
- 	dir.cd(dirs[i]);
- 	result.push(dirs[i].right(dirs[i].length - rootLength));
+         // cd to directory and add directory to result
+         dir.cd(dirs[i]);
+         result.push(dirs[i].right(dirs[i].length - rootLength));
 
-	// add files
-	var files = dir.entryList("*", Dir.Files | Dir.Hidden | Dir.System, Dir.Name);
-	for (var f in files)
-	    result.push(dir.absFilePath(files[f]).right(dir.absFilePath(files[f]).length - rootLength));
+        // add files
+        var files = dir.entryList("*", Dir.Files | Dir.Hidden | Dir.System, Dir.Name);
+        for (var f in files)
+            result.push(dir.absFilePath(files[f]).right(dir.absFilePath(files[f]).length - rootLength));
 
-	// adds subDirs to dirs
-	tempDirs = dir.entryList("*", Dir.Dirs | Dir.Hidden | Dir.System, Dir.Name);
-	for (var t in tempDirs) {
-	    if (tempDirs[t] != "." && tempDirs[t] != "..")
-		dirs.push(dir.absFilePath(tempDirs[t]));
-	}
+        // adds subDirs to dirs
+        tempDirs = dir.entryList("*", Dir.Dirs | Dir.Hidden | Dir.System, Dir.Name);
+        for (var t in tempDirs) {
+            if (tempDirs[t] != "." && tempDirs[t] != "..")
+                dirs.push(dir.absFilePath(tempDirs[t]));
+        }
     }
     return result;
 }
@@ -676,7 +676,7 @@ function cleanup()
     dir.setCurrent();
     dir = new Dir(distDir);
     if (dir.exists)
-	dir.rmdirs();
+        dir.rmdirs();
 }
 
 
@@ -687,7 +687,7 @@ function cleanup()
 function copyDist(packageDir, platform, license)
 {
     if (platform == "core")
-	platform = "embedded";
+        platform = "embedded";
 
     var platformFiles = getFileList(packageDir + "/dist/" + platform);
     var licenseFiles = getFileList(packageDir + "/dist/" + license);
@@ -695,66 +695,66 @@ function copyDist(packageDir, platform, license)
     //copies changes file to root
     var changesFile = packageDir + "/dist/changes-" + options["version"];
     if (File.exists(changesFile))
-	execute(["cp", changesFile, packageDir]);
+        execute(["cp", changesFile, packageDir]);
     
     //copies default README to root
     var readmeFile = packageDir + "/dist/README";
     if (File.exists(readmeFile))
-	execute(["cp", readmeFile, packageDir]);
+        execute(["cp", readmeFile, packageDir]);
 
     // copies any platform specific files
     for (var i in platformFiles) {
-	var fileName = platformFiles[i];
-	var absFileName = packageDir + "/dist/" + platform + "/" + fileName;
-	if (File.exists(absFileName) && File.isFile(absFileName)) {
-	    var dir = new Dir(new File(packageDir + "/" + fileName).path);
-	    if (!dir.exists)
-		dir.mkdirs();
-	    execute(["cp", absFileName, packageDir + "/" + fileName]);
-	}
+        var fileName = platformFiles[i];
+        var absFileName = packageDir + "/dist/" + platform + "/" + fileName;
+        if (File.exists(absFileName) && File.isFile(absFileName)) {
+            var dir = new Dir(new File(packageDir + "/" + fileName).path);
+            if (!dir.exists)
+                dir.mkdirs();
+            execute(["cp", absFileName, packageDir + "/" + fileName]);
+        }
     }
 
     // copies any license specific files
     for (var i in licenseFiles) {
-	var fileName = licenseFiles[i];
-	var absFileName = packageDir + "/dist/" + license + "/" + fileName;
-	if (File.exists(absFileName) && File.isFile(absFileName)) {
-	    var dir = new Dir(new File(packageDir + "/" + fileName).path);
-	    if (!dir.exists)
-		dir.mkdirs();
-	    if (fileName.startsWith("LICENSE") && (fileName.find(".") == -1))
-		execute(["cp", absFileName, packageDir + "/." + fileName]);
-	    else
-		execute(["cp", absFileName, packageDir + "/" + fileName]);
+        var fileName = licenseFiles[i];
+        var absFileName = packageDir + "/dist/" + license + "/" + fileName;
+        if (File.exists(absFileName) && File.isFile(absFileName)) {
+            var dir = new Dir(new File(packageDir + "/" + fileName).path);
+            if (!dir.exists)
+                dir.mkdirs();
+            if (fileName.startsWith("LICENSE") && (fileName.find(".") == -1))
+                execute(["cp", absFileName, packageDir + "/." + fileName]);
+            else
+                execute(["cp", absFileName, packageDir + "/" + fileName]);
 
-	}
+        }
     }
 
     // populate licenseHeaders with all files found in dist/licenses
     var licenseFiles = getFileList(packageDir + "/dist/licenses");
     for (var i in licenseFiles) {
-	var fileName = licenseFiles[i];
-	var absFileName = packageDir + "/dist/licenses/" + fileName;
-	if (File.exists(absFileName) && File.isFile(absFileName))
-	    licenseHeaders[fileName] = File.read(absFileName);
+        var fileName = licenseFiles[i];
+        var absFileName = packageDir + "/dist/licenses/" + fileName;
+        if (File.exists(absFileName) && File.isFile(absFileName))
+            licenseHeaders[fileName] = File.read(absFileName);
     }
 
     //check that key files are present
     var keyFiles = ["README", "INSTALL"];
     if (!options["snapshots"])
-	keyFiles.push("changes-" + options["version"]);
+        keyFiles.push("changes-" + options["version"]);
     if (license == "opensource") {
-	keyFiles.push("LICENSE.GPL");
-	keyFiles.push("LICENSE.QPL");
+        keyFiles.push("LICENSE.GPL");
+        keyFiles.push("LICENSE.QPL");
     } else if (license == "commercial") {
-	keyFiles.push(".LICENSE");
-	keyFiles.push(".LICENSE-US");
+        keyFiles.push(".LICENSE");
+        keyFiles.push(".LICENSE-US");
     } else if (license == "preview") {
         keyFiles.push("LICENSE.PREVIEW");
     }
     for (var i in keyFiles) {
-	if (!File.exists(packageDir + "/" + keyFiles[i]))
-	    warning("Missing %1 in package.".arg(packageDir + "/" + keyFiles[i]));
+        if (!File.exists(packageDir + "/" + keyFiles[i]))
+            warning("Missing %1 in package.".arg(packageDir + "/" + keyFiles[i]));
     }
 }
 
@@ -781,7 +781,7 @@ function copyEval(packageDir)
     for (var i in evalFiles) {
         var evalFile = evalFiles[i];
         p4Copy(p4BranchPath + evalFile + "@" + p4Label,
-	       packageDir + evalFile);
+               packageDir + evalFile);
     }
 }
 
@@ -795,9 +795,9 @@ function syncqt(packageDir, platform)
     System.setenv("QTDIR", packageDir);
     var syncqtCommand = packageDir + "/bin/syncqt";
     if (platform == "win")
-	execute([syncqtCommand, "-windows"]);
+        execute([syncqtCommand, "-windows"]);
     else
-	execute([syncqtCommand]);
+        execute([syncqtCommand]);
 }
 
 /************************************************************
@@ -811,9 +811,9 @@ function qdoc(packageDir, platform, license)
     var qdocConfigFile = qdocDir + "/test/qt.qdocconf";
     var qdocDefines = "-Dopensourceedition";
     if (license != "opensource")
-	qdocDefines = "-Ddesktopedition";
+        qdocDefines = "-Ddesktopedition";
     if (platform == "core")
-	qdocDefines = "-Dqtopiacore";
+        qdocDefines = "-Dqtopiacore";
 
     execute([qdocCommand, qdocConfigFile, qdocDefines]);
 }
@@ -827,13 +827,13 @@ function defaultTags(platform, license, platName)
     replace[startDate.getYear().toString()] = /\$THISYEAR\$/g;
     replace[options["version"]] = /\%VERSION\%/g;
     if (platform == "core")
-	replace["Qtopia Core (Qt for embedded Linux)"] = /\%PRODUCTLONG\%/g;
+        replace["Qtopia Core (Qt for embedded Linux)"] = /\%PRODUCTLONG\%/g;
     else
-	replace["Qt"] = /\%PRODUCTLONG\%/g;
+        replace["Qt"] = /\%PRODUCTLONG\%/g;
     replace["#define QT_VERSION_STR   \"" + options["version"] + "\""] =
-	/#\s*define\s+QT_VERSION_STR\s+\"([^\"]+)\"*/g;
+        /#\s*define\s+QT_VERSION_STR\s+\"([^\"]+)\"*/g;
     replace["#define QT_PACKAGEDATE_STR \"" + startDate.toString().left(10) + "\""] =
-	/#\s*define\s+QT_PACKAGEDATE_STR\s+\"([^\"]+)\"*/g;
+        /#\s*define\s+QT_PACKAGEDATE_STR\s+\"([^\"]+)\"*/g;
     replace[platName] = /\%DISTNAME\%/g;
     replace[licenseHeaders[license]] = /\*\* \$TROLLTECH_DUAL_LICENSE\$\n/;
     return replace;
@@ -876,28 +876,28 @@ function replaceTags(packageDir, fileList, replace)
     var absFileName = new String();
     var content = new String();
     for (var i in fileList) {
-	fileName = fileList[i];
-	absFileName = packageDir + "/" + fileName;
-	if (File.isFile(absFileName) && !binaryFile(absFileName)) {
-	    //only replace for non binary files
-	    content = File.read(absFileName);
-	    for (var i in replace)
-		content = content.replace(replace[i], i);
-	    // special case for $MODULE$
-	    if (content.find(/\$MODULE\$/) != -1) {
-		var match = false;
-		for (var i in moduleMap) {
-		    if (fileName.find(moduleMap[i]) != -1) {
-			content = content.replace(/\$MODULE\$/, i);
-			match = true;
-			break;
-		    }
-		}
-		if (!match)
-		    warning("No module map for: " + fileName);
-	    }
-	    File.write(absFileName, content);
-	}
+        fileName = fileList[i];
+        absFileName = packageDir + "/" + fileName;
+        if (File.isFile(absFileName) && !binaryFile(absFileName)) {
+            //only replace for non binary files
+            content = File.read(absFileName);
+            for (var i in replace)
+                content = content.replace(replace[i], i);
+            // special case for $MODULE$
+            if (content.find(/\$MODULE\$/) != -1) {
+                var match = false;
+                for (var i in moduleMap) {
+                    if (fileName.find(moduleMap[i]) != -1) {
+                        content = content.replace(/\$MODULE\$/, i);
+                        match = true;
+                        break;
+                    }
+                }
+                if (!match)
+                    warning("No module map for: " + fileName);
+            }
+            File.write(absFileName, content);
+        }
     }
 }
 
@@ -912,7 +912,7 @@ function p4Copy(depotFile, localFile)
 {
     execute([p4Command, "print", "-o", localFile, "-q", depotFile]);
     if (!File.exists(localFile))
-	throw "Failed copying file: %1 to: %2".arg(depotFile).arg(localFile);
+        throw "Failed copying file: %1 to: %2".arg(depotFile).arg(localFile);
     execute(["chmod", "ug+w", localFile]);
     return localFile;
 }
@@ -925,7 +925,7 @@ function print(text)
     var i = indentation;
     var spaces = new String();
     while (i--)
-	spaces += ' ';
+        spaces += ' ';
     System.println(spaces + text);
 }
 
@@ -945,20 +945,20 @@ function binaryFile(fileName)
     if (File.exists(fileName) && File.isFile(fileName)) {
         for (var r in binaryFileList)
             if (fileName.find(binaryFileList[r]) != -1)
-		return true;
-	var file = new File(fileName);
-	if (file.executable) {
-	    file.open(File.ReadOnly);
-	    var isScript = file.readLine().lower().startsWith("#!");
-	    file.close();
-	    if (isScript)
-		return false;
-	    return true;
-	} else {
-	    for (var i in binaryExtensions)
-		if (file.extension.lower() == binaryExtensions[i])
-		    return true;
-	}
+                return true;
+        var file = new File(fileName);
+        if (file.executable) {
+            file.open(File.ReadOnly);
+            var isScript = file.readLine().lower().startsWith("#!");
+            file.close();
+            if (isScript)
+                return false;
+            return true;
+        } else {
+            for (var i in binaryExtensions)
+                if (file.extension.lower() == binaryExtensions[i])
+                    return true;
+        }
     }
     return false;
 }
@@ -971,13 +971,13 @@ function execute(command, stdin) {
     var error = Process.execute(command, stdin);
     var runTime = Math.floor((Date().getTime() - start)/1000);
     if (runTime > 0)
-	print("%1\n   ->took %1 second(s)".arg(command).arg(runTime));
+        print("%1\n   ->took %1 second(s)".arg(command).arg(runTime));
     if (error != 0) {
-	if (Process.stderr.length > 0)	
-	    File.write(outputDir + "/error.log", Process.stderr);
-	throw "Error runnning: %1 stderr: %2".arg(command).arg(Process.stderr.left(1000));
+        if (Process.stderr.length > 0)        
+            File.write(outputDir + "/error.log", Process.stderr);
+        throw "Error runnning: %1 stderr: %2".arg(command).arg(Process.stderr.left(1000));
     } else if (Process.stderr.length > 0
-	       && Process.stderr.left(200).lower().find(/warning|error/) != -1) {
-	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(200)));
+               && Process.stderr.left(200).lower().find(/warning|error/) != -1) {
+        warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(200)));
     }
 }
