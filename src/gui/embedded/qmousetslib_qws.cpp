@@ -132,14 +132,16 @@ void QWSTslibMouseHandlerPrivate::open()
 {
     dev = ts_open(devName.toLocal8Bit().constData(), 1);
     if (!dev) {
-        qWarning("Unable to open touchscreen device '%s': %s",
-                 qPrintable(devName), strerror(errno));
+        qCritical("QWSTslibMouseHandlerPrivate: ts_open() failed"
+                  " with error: '%s'", strerror(errno));
+        qCritical("Please check your tslib installation!");
         return;
     }
 
     if (ts_config(dev)) {
-        qWarning("Unable to configure touchscreen device '%s': %s",
-                 qPrintable(devName), strerror(errno));
+        qCritical("QWSTslibMouseHandlerPrivate: ts_config() failed"
+                  " with error: '%s'", strerror(errno));
+        qCritical("Please check your tslib installation!");
         close();
         return;
     }
