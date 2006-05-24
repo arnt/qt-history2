@@ -142,7 +142,7 @@ Qt::ItemFlags QStringListModel::flags(const QModelIndex &index) const
 
 bool QStringListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (index.isValid() && role == Qt::EditRole) {
+    if (index.row() >= 0 && index.row() < lst.size() && role == Qt::EditRole) {
         lst.replace(index.row(), value.toString());
         emit dataChanged(index, index);
         return true;
