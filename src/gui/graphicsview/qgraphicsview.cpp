@@ -1683,7 +1683,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 
 #if defined QGRAPHICSVIEW_DEBUG
     qDebug() << "**** QGraphicsSceneWidget::paintEvent()";
-    qDebug() << "\tExposed view region:" << region;
+    qDebug() << "\tExposed view region:" << event->region();
     qDebug() << "\tScene bounding rect:" << (d->scene ? d->scene->itemsBoundingRect() : QRectF());
     qDebug() << "\tExposed items: " << visibleItems.size();
     qDebug() << "\tExposed rects: ";
@@ -1693,7 +1693,6 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     qDebug() << "\tTime spent searching for items:"
              << (stopWatch.elapsed() / 1000.0) << "("
              << (1000 / qMax(1, stopWatch.elapsed())) << " iterations/s )";
-    bool doo = false;
 #endif
 
     // Reverse the list to get the closest items last.
