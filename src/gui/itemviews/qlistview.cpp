@@ -971,17 +971,7 @@ void QListView::paintEvent(QPaintEvent *e)
     const bool enabled = (state & QStyle::State_Enabled) != 0;
 
     bool alternateBase = false;
-    if (alternate && !toBeRendered.isEmpty()) {
-        int first = toBeRendered.first().row();
-        if (!d->hiddenRows.isEmpty()) {
-            for (int row = 0; row < first; ++row) {
-                if (!d->hiddenRows.contains(row))
-                    alternateBase = !alternateBase;
-            }
-        } else {
-            alternateBase = (first & 1) != 0;
-        }
-    }
+    int previousRow = -2; // trigger the alternateBase adjustment on first pass
 
     QVector<QModelIndex>::const_iterator end = toBeRendered.constEnd();
     for (QVector<QModelIndex>::const_iterator it = toBeRendered.constBegin(); it != end; ++it) {
@@ -1011,6 +1001,18 @@ void QListView::paintEvent(QPaintEvent *e)
             option.state &= ~QStyle::State_MouseOver;
 
         if (alternate) {
+            int row = (*it).row();
+            if (row != previousRow + 1) {
+                // adjust alternateBase according to rows in the "gap"
+                if (!d->hiddenRows.isEmpty()) {
+                    for (int r = qMax(previousRow + 1, 0); r < row; ++r) {
+                        if (!d->hiddenRows.contains(r))
+                            alternateBase = !alternateBase;
+                    }
+                } else {
+                    alternateBase = (row & 1) != 0;
+                }
+            }
             QBrush fill;
             if (alternateBase) {
                 option.state |= QStyle::State_Alternate;
@@ -1021,6 +1023,7 @@ void QListView::paintEvent(QPaintEvent *e)
             }
             alternateBase = !alternateBase;
             painter.fillRect(option.rect, fill);
+            previousRow = row;
         }
         d->delegateForIndex(*it)->paint(&painter, option, *it);
     }
