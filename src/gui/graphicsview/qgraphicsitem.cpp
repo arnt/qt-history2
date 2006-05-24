@@ -143,11 +143,14 @@
 
     \list
     \o contextMenuEvent() handles context menu events
-    \o focusEvent() handles both focus in and out events
-    \o hoverEvent() handles hover enter, move and leave events
+    \o focusInEvent() and focusOutEvent() handle focus in and out events
+    \o hoverEnterEvent(), hoverMoveEvent(), and hoverLeaveEvent() handles
+    hover enter, move and leave events
     \o inputMethodEvent() handles input events, for accessibility support
-    \o keyEvent() handles key press and release events
-    \o mouseEvent() handles mouse press, move, release, click and doubleclick events
+    \o keyPressEvent() and keyReleaseEvent handle key press and release events
+    \o mousePressEvent(), mouseMoveEvent(), mouseReleaseEvent(), and
+    mouseDoubleClickEvent() handles mouse press, move, release, click and
+    doubleclick events
     \endlist
 
     You can filter events for any other item by installing event filters.
@@ -182,7 +185,7 @@
     children, all children are also moved. If the item is part of a
     selection, all selected items are also moved. This feature is
     provided as a convenience through the base implementation of
-    QGraphicsItem::mouseEvent().
+    QGraphicsItem::mouseMoveEvent().
 
     \value ItemIsSelectable The item supports selection. Enabling this
     feature will enable setSelected() to toggle selection for the
@@ -190,10 +193,10 @@
     result of calling QGraphicsScene::setSelectionArea(), by clicking
     on an item, or by using rubber band selection in QGraphicsView.
 
-    \value ItemIsFocusable The item supports keyboard input focus
-    (i.e., it is an input item). Enabling this flag will allow the
-    item to accept focus, which again allows the delivery of key
-    events to QGraphicsItem::keyEvent().
+    \value ItemIsFocusable The item supports keyboard input focus (i.e., it is
+    an input item). Enabling this flag will allow the item to accept focus,
+    which again allows the delivery of key events to
+    QGraphicsItem::keyPressEvent() and QGraphicsItem::keyReleaseEvent().
 */
 
 /*!
@@ -309,7 +312,6 @@ void QGraphicsItemPrivate::remapItemPos(QEvent *event, QGraphicsItem *item)
     case QEvent::GraphicsSceneMouseMove:
     case QEvent::GraphicsSceneMousePress:
     case QEvent::GraphicsSceneMouseRelease:
-    case QEvent::GraphicsSceneMouseClick:
     case QEvent::GraphicsSceneMouseDoubleClick: {
         QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent *>(event);
         mouseEvent->setPos(item->mapFromItem(q, mouseEvent->pos()));
@@ -1444,7 +1446,8 @@ bool QGraphicsItem::collidesWith(const QPainterPath &path) const
 }
 
 /*!
-    \fn virtual void QGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0
+    \fn virtual void QGraphicsItem::paint(QPainter *painter, const
+    QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0
 
     This function, which is usually called by QGraphicsView, paints the
     contents of an item in local coordinates.
@@ -1712,6 +1715,8 @@ void QGraphicsItem::setData(int key, const QVariant &value)
     Reimplementing this function will enable use of qgraphicsitem_cast() with
     the item. Custom items must return a value larger than UserType
     (0x80000000).
+
+    The default implementation (in QGraphicsItem) returns UserType.
 */
 int QGraphicsItem::type() const
 {
@@ -1827,24 +1832,37 @@ void QGraphicsItem::sceneEvent(QEvent *event)
         contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(event));
         break;
     case QEvent::FocusIn:
+        focusInEvent(static_cast<QFocusEvent *>(event));
+        break;
     case QEvent::FocusOut:
-        focusEvent(static_cast<QFocusEvent *>(event));
+        focusOutEvent(static_cast<QFocusEvent *>(event));
         break;
     case QEvent::GraphicsSceneHoverEnter:
+        hoverEnterEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
+        break;
     case QEvent::GraphicsSceneHoverMove:
+        hoverMoveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
+        break;
     case QEvent::GraphicsSceneHoverLeave:
-        hoverEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
+        hoverLeaveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
         break;
     case QEvent::KeyPress:
+        keyPressEvent(static_cast<QKeyEvent *>(event));
+        break;
     case QEvent::KeyRelease:
-        keyEvent(static_cast<QKeyEvent *>(event));
+        keyReleaseEvent(static_cast<QKeyEvent *>(event));
         break;
     case QEvent::GraphicsSceneMouseMove:
+        mouseMoveEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
+        break;
     case QEvent::GraphicsSceneMousePress:
+        mousePressEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
+        break;
     case QEvent::GraphicsSceneMouseRelease:
-    case QEvent::GraphicsSceneMouseClick:
+        mouseReleaseEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
+        break;
     case QEvent::GraphicsSceneMouseDoubleClick:
-        mouseEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
+        mouseDoubleClickEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
         break;
     default:
         break;
@@ -1865,120 +1883,179 @@ void QGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 }
 
 /*!
-    This event handler, for event \a event, can be reimplemented to
-    receive focus events for this item. The default implementation
-    does nothing.
+    This event handler, for event \a event, can be reimplemented to receive
+    focus in events for this item. The default implementation does nothing.
 
-    \sa contextMenuEvent(), hoverEvent(), keyEvent(), mouseEvent(),
-    inputMethodEvent()
+    \sa focusOutEvent(), sceneEvent()
 */
-void QGraphicsItem::focusEvent(QFocusEvent *event)
+void QGraphicsItem::focusInEvent(QFocusEvent *event)
 {
     Q_UNUSED(event);
 }
 
 /*!
-    This event handler, for event \a event, can be reimplemented to
-    receive hover events for this item. The default implementation
-    calls update() for enter and leave events; otherwise it does
-    nothing.
+    This event handler, for event \a event, can be reimplemented to receive
+    focus out events for this item. The default implementation does nothing.
 
-    \sa contextMenuEvent(), focusEvent(), keyEvent(), mouseEvent(),
-    inputMethodEvent()
+    \sa focusInEvent(), sceneEvent()
 */
-void QGraphicsItem::hoverEvent(QGraphicsSceneHoverEvent *event)
+void QGraphicsItem::focusOutEvent(QFocusEvent *event)
 {
     Q_UNUSED(event);
-    switch (event->type()) {
-    case QEvent::GraphicsSceneHoverEnter:
-    case QEvent::GraphicsSceneHoverLeave:
-        update();
-        break;
-    default:
-        break;
-    }
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    hover enter events for this item. The default implementation calls
+    update(); otherwise it does nothing.
+
+    \sa hoverMoveEvent(), hoverLeaveEvent(), sceneEvent()
+*/
+void QGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+    update();
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    hover move events for this item. The default implementation does nothing.
+
+    \sa hoverEnterEvent(), hoverLeaveEvent(), sceneEvent()
+*/
+void QGraphicsItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    hover leave events for this item. The default implementation calls
+    update(); otherwise it does nothing.
+
+    \sa hoverEnterEvent(), hoverMoveEvent(), sceneEvent()
+*/
+void QGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    Q_UNUSED(event);
+    update();
 }
 
 /*!
     This event handler, for event \a event, can be reimplemented to
-    receive key events for this item. The default implementation
+    receive key press events for this item. The default implementation
     does nothing.
 
     Note that key events are only received for items that set the
     ItemIsFocusable flag, and that have keyboard input focus.
 
-    \sa setFocus(), QGraphicsScene::setFocusItem(),
-    contextMenuEvent(), focusEvent(), hoverEvent(), mouseEvent(),
-    inputMethodEvent()
+    \sa keyReleaseEvent(), setFocus(), QGraphicsScene::setFocusItem(),
+    sceneEvent()
 */
-void QGraphicsItem::keyEvent(QKeyEvent *event)
+void QGraphicsItem::keyPressEvent(QKeyEvent *event)
 {
     Q_UNUSED(event);
 }
 
 /*!
-    This event handler, for event \a event, can be reimplemented to
-    receive mouse events for this item. The default implementation
-    handles basic item interaction, such as selection and moving.
+    This event handler, for event \a event, can be reimplemented to receive
+    key release events for this item. The default implementation does nothing.
 
-    \sa contextMenuEvent(), focusEvent(), hoverEvent(), keyEvent(),
-    inputMethodEvent()
+    Note that key events are only received for items that set the
+    ItemIsFocusable flag, and that have keyboard input focus.
+
+    \sa keyPressEvent(), setFocus(), QGraphicsScene::setFocusItem(),
+    sceneEvent()
 */
-void QGraphicsItem::mouseEvent(QGraphicsSceneMouseEvent *event)
+void QGraphicsItem::keyReleaseEvent(QKeyEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    mouse press events for this item. The default implementation handles basic
+    item interaction, such as selection and moving.
+
+    \sa mouseMoveEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(), sceneEvent()
+*/
+void QGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_D(QGraphicsItem);
-
-    switch (event->type()) {
-    case QEvent::GraphicsSceneMouseMove:
-        if ((event->buttons() & Qt::LeftButton) && (flags() & ItemIsMovable)) {
-            QPointF newPos(mapToParent(event->pos()) - matrix().map(event->buttonDownPos(Qt::LeftButton)));
-            QPointF diff = newPos - pos();
-
-            // Determine the list of selected items
-            QList<QGraphicsItem *> selectedItems;
-            if (d->scene) {
-                selectedItems = d->scene->selectedItems();
-            } else if (QGraphicsItem *parent = parentItem()) {
-                while (parent && parent->isSelected())
-                    selectedItems << parent;
-            }
-            selectedItems << this;
-
-            // Move all selected items
-            foreach (QGraphicsItem *item, selectedItems) {
-                if (!item->parentItem() || !item->parentItem()->isSelected())
-                    item->setPos(item == this ? newPos : item->pos() + diff);
-            }
+    if (event->button() == Qt::LeftButton && (flags() & ItemIsSelectable) && !d->selected) {
+        if (d->scene) {
+            if ((event->modifiers() & Qt::ControlModifier) == 0)
+                d->scene->clearSelection();
+            d->scene->d_func()->selectedItems << this;
         }
-        break;
-    case QEvent::GraphicsSceneMouseDoubleClick:
-    case QEvent::GraphicsSceneMousePress:
-        if (event->button() == Qt::LeftButton && (flags() & ItemIsSelectable) && !d->selected) {
-            if (d->scene) {
-                if ((event->modifiers() & Qt::ControlModifier) == 0)
-                    d->scene->clearSelection();
-                d->scene->d_func()->selectedItems << this;
-            }
+        d->selected = 1;
+        update();
+    }
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    mouse move events for this item. The default implementation handles basic
+    item interaction, such as selection and moving.
+
+    \sa mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(), sceneEvent()
+*/
+void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_D(QGraphicsItem);
+    if ((event->buttons() & Qt::LeftButton) && (flags() & ItemIsMovable)) {
+        QPointF newPos(mapToParent(event->pos()) - matrix().map(event->buttonDownPos(Qt::LeftButton)));
+        QPointF diff = newPos - pos();
+
+        // Determine the list of selected items
+        QList<QGraphicsItem *> selectedItems;
+        if (d->scene) {
+            selectedItems = d->scene->selectedItems();
+        } else if (QGraphicsItem *parent = parentItem()) {
+            while (parent && parent->isSelected())
+                selectedItems << parent;
+        }
+        selectedItems << this;
+
+        // Move all selected items
+        foreach (QGraphicsItem *item, selectedItems) {
+            if (!item->parentItem() || !item->parentItem()->isSelected())
+                item->setPos(item == this ? newPos : item->pos() + diff);
+        }
+    }
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    mouse release events for this item. The default implementation handles
+    basic item interaction, such as selection and moving.
+
+    \sa mousePressEvent(), mouseMoveEvent(), mouseDoubleClickEvent(), sceneEvent()
+*/
+void QGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_D(QGraphicsItem);
+    if (d->selected && !contains(event->buttonDownPos(Qt::LeftButton))) {
+        if (d->scene) {
+            if ((event->modifiers() & Qt::ControlModifier) == 0)
+                d->scene->clearSelection();
+            d->scene->d_func()->selectedItems << this;
             d->selected = 1;
             update();
         }
-        break;
-    case QEvent::GraphicsSceneMouseRelease:
-        if (d->selected && !contains(event->buttonDownPos(Qt::LeftButton))) {
-            if (d->scene) {
-                if ((event->modifiers() & Qt::ControlModifier) == 0)
-                    d->scene->clearSelection();
-                d->scene->d_func()->selectedItems << this;
-                d->selected = 1;
-                update();
-            }
-        }
-        break;
-    case QEvent::GraphicsSceneMouseClick:
-        break;
-    default:
-        break;
     }
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    mouse doubleclick events for this item. The default implementation calls
+    mousePressEvent().
+
+    \sa mousePressEvent(), mouseMoveEvent(), mouseReleaseEvent(), sceneEvent()
+*/
+void QGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    mousePressEvent(event);
 }
 
 /*!
@@ -3521,78 +3598,103 @@ void QGraphicsTextItem::adjustSize()
 /*!
     \reimp
 */
-void QGraphicsTextItem::mouseEvent(QGraphicsSceneMouseEvent *event)
+void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (!dd->textControl)
         return;
+    if (!hasFocus())
+        return QGraphicsItem::mousePressEvent(event);
 
-    if (hasFocus()) {
-        QEvent::Type type = QEvent::None;
-        switch (event->type()) {
-        case QEvent::GraphicsSceneMousePress:
-            type = QEvent::MouseButtonPress;
-            break;
-        case QEvent::GraphicsSceneMouseRelease:
-            type = QEvent::MouseButtonRelease;
-            break;
-        case QEvent::GraphicsSceneMouseMove:
-            type = QEvent::MouseMove;
-            break;
-        case QEvent::GraphicsSceneMouseDoubleClick:
-            type = QEvent::MouseButtonDblClick;
-            break;
-        default:
-            break;
-        }
-
-        QMouseEvent mouseEvent(type, (dd->controlOffset() + event->pos()).toPoint(), event->button(),
-                               event->buttons(), event->modifiers());
-
-        switch (event->type()) {
-        case QEvent::GraphicsSceneMousePress:
-            dd->textControl->mousePressEvent(&mouseEvent);
-            break;
-        case QEvent::GraphicsSceneMouseRelease:
-            dd->textControl->mouseReleaseEvent(&mouseEvent);
-            break;
-        case QEvent::GraphicsSceneMouseMove:
-            dd->textControl->mouseMoveEvent(&mouseEvent);
-            break;
-        case QEvent::GraphicsSceneMouseDoubleClick:
-            dd->textControl->mouseDoubleClickEvent(&mouseEvent);
-            break;
-        default:
-            break;
-        }
-    } else {
-        QGraphicsItem::mouseEvent(event);
-    }
+    QMouseEvent mouseEvent(QEvent::MouseButtonPress,
+                           (dd->controlOffset() + event->pos()).toPoint(),
+                           event->button(), event->buttons(),
+                           event->modifiers());
+    dd->textControl->mousePressEvent(&mouseEvent);
 }
 
 /*!
     \reimp
 */
-void QGraphicsTextItem::keyEvent(QKeyEvent *event)
+void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (!dd->textControl)
         return;
+    if (!hasFocus())
+        return QGraphicsItem::mouseMoveEvent(event);
 
-    switch (event->type()) {
-    case QEvent::KeyPress:
+    QMouseEvent mouseEvent(QEvent::MouseMove,
+                           (dd->controlOffset() + event->pos()).toPoint(),
+                           event->button(), event->buttons(),
+                           event->modifiers());
+    dd->textControl->mouseMoveEvent(&mouseEvent);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (!dd->textControl)
+        return;
+    if (!hasFocus())
+        return QGraphicsItem::mouseReleaseEvent(event);
+
+    QMouseEvent mouseEvent(QEvent::MouseButtonRelease,
+                           (dd->controlOffset() + event->pos()).toPoint(),
+                           event->button(), event->buttons(),
+                           event->modifiers());
+    dd->textControl->mouseReleaseEvent(&mouseEvent);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (!dd->textControl)
+        return;
+    if (!hasFocus())
+        return QGraphicsItem::mouseDoubleClickEvent(event);
+    
+    QMouseEvent mouseEvent(QEvent::MouseButtonDblClick,
+                           (dd->controlOffset() + event->pos()).toPoint(),
+                           event->button(), event->buttons(),
+                           event->modifiers());
+    dd->textControl->mouseDoubleClickEvent(&mouseEvent);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
+{
+    if (dd->textControl)
         dd->textControl->keyPressEvent(event);
-        break;
-    case QEvent::KeyRelease:
-        dd->textControl->keyReleaseEvent(event);
-        break;
-    default:
-        break;
-    }
 }
 
 /*!
     \reimp
 */
-void QGraphicsTextItem::focusEvent(QFocusEvent *event)
+void QGraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
+{
+    if (dd->textControl)
+        dd->textControl->keyReleaseEvent(event);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::focusInEvent(QFocusEvent *event)
+{
+    if (dd->textControl)
+        dd->textControl->setFocus(event->gotFocus());
+    update();
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 {
     if (dd->textControl)
         dd->textControl->setFocus(event->gotFocus());

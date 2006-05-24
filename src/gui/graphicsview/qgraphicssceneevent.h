@@ -46,17 +46,6 @@ public:
     QGraphicsSceneMouseEvent(Type type = None);
     ~QGraphicsSceneMouseEvent();
 
-    inline bool isMousePress() const
-    { return type() == GraphicsSceneMousePress; }
-    inline bool isMouseMove() const
-    { return type() == GraphicsSceneMouseMove; }
-    inline bool isMouseRelease() const
-    { return type() == GraphicsSceneMouseRelease; }
-    inline bool isMouseClick() const
-    { return type() == GraphicsSceneMouseClick; }
-    inline bool isMouseDoubleClick() const
-    { return type() == GraphicsSceneMouseDoubleClick; }
-
     QPointF pos() const;
     void setPos(const QPointF &pos);
 
@@ -126,13 +115,6 @@ class Q_GUI_EXPORT QGraphicsSceneHoverEvent : public QGraphicsSceneEvent
 public:
     QGraphicsSceneHoverEvent(Type type = None);
     ~QGraphicsSceneHoverEvent();
-
-    inline bool isHoverEnter() const
-    { return type() == GraphicsSceneHoverEnter; }
-    inline bool isHoverMove() const
-    { return type() == GraphicsSceneHoverMove; }
-    inline bool isHoverLeave() const
-    { return type() == GraphicsSceneHoverLeave; }
 
     QPointF pos() const;
     void setPos(const QPointF &pos);

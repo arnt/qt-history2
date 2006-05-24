@@ -185,13 +185,12 @@ public:
         GraphicsSceneMouseMove = 155,           // GraphicsView
         GraphicsSceneMousePress = 156,
         GraphicsSceneMouseRelease = 157,
-        GraphicsSceneMouseClick = 158,
-        GraphicsSceneMouseDoubleClick = 159,
-        GraphicsSceneContextMenu = 160,
-        GraphicsSceneHoverEnter = 161,
-        GraphicsSceneHoverMove = 162,
-        GraphicsSceneHoverLeave = 163,
-        GraphicsSceneHelp = 164,
+        GraphicsSceneMouseDoubleClick = 158,
+        GraphicsSceneContextMenu = 159,
+        GraphicsSceneHoverEnter = 160,
+        GraphicsSceneHoverMove = 161,
+        GraphicsSceneHoverLeave = 162,
+        GraphicsSceneHelp = 163,
                 
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id

@@ -185,10 +185,17 @@ protected:
     virtual bool sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent *event);
     virtual void sceneEvent(QEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-    virtual void focusEvent(QFocusEvent *event);
-    virtual void hoverEvent(QGraphicsSceneHoverEvent *event);
-    virtual void keyEvent(QKeyEvent *event);
-    virtual void mouseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void focusInEvent(QFocusEvent *event);
+    virtual void focusOutEvent(QFocusEvent *event);
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
     virtual void inputMethodEvent(QInputMethodEvent *event);
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
@@ -473,9 +480,14 @@ public:
     int pageNumber() const;
 
 protected:
-    void mouseEvent(QGraphicsSceneMouseEvent *event);
-    void keyEvent(QKeyEvent *event);
-    void focusEvent(QFocusEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void focusInEvent(QFocusEvent *event);
+    void focusOutEvent(QFocusEvent *event);
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
     bool supportsExtension(Extension extension) const;

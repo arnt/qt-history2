@@ -122,11 +122,15 @@ public:
 protected:
     bool event(QEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-    virtual void focusEvent(QFocusEvent *event);
+    virtual void focusInEvent(QFocusEvent *event);
+    virtual void focusOutEvent(QFocusEvent *event);
     virtual void helpEvent(QGraphicsSceneHelpEvent *event);
-    virtual void hoverEvent(QGraphicsSceneHoverEvent *event);
-    virtual void keyEvent(QKeyEvent *event);
-    virtual void mouseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 
 Q_SIGNALS:
     void changed(const QList<QRectF> &region);

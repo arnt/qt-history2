@@ -150,7 +150,6 @@
 
 #include <private/qobject_p.h>
 #include <QtCore/qcoreapplication.h>
-#include <QtCore/qdebug.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qrect.h>
 #include <QtCore/qset.h>
@@ -467,6 +466,37 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::validItems() const
 /*!
     \internal
 */
+void QGraphicsScenePrivate::setMouseGrabberItemForEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_Q(QGraphicsScene);
+    foreach (QGraphicsItem *item, q->items(event->scenePos())) {
+        if (item->isVisible() && item->acceptsMouseEvents()) {
+            if (!item->isEnabled()) {
+                // Disabled visible mouse-accepting items discard mouse
+                // events.
+                return;
+            }
+
+            mouseGrabberItem = item;
+
+            for (int i = 0x1; i <= 0x10; i <<= 1) {
+                if (event->buttons() & i) {
+                    mouseGrabberButtonDownPos.insert(Qt::MouseButton(i),
+                                                     item->mapFromScene(event->scenePos()));
+                    mouseGrabberButtonDownScenePos.insert(Qt::MouseButton(i),
+                                                          event->scenePos());
+                    mouseGrabberButtonDownScreenPos.insert(Qt::MouseButton(i),
+                                                           event->screenPos());
+                }
+            }
+            break;
+        }
+    }
+}
+
+/*!
+    \internal
+*/
 void QGraphicsScenePrivate::installEventFilter(QGraphicsItem *watched, QGraphicsItem *filter)
 {
     eventFilters.insert(watched, filter);
@@ -518,6 +548,24 @@ void QGraphicsScenePrivate::sendHoverEvent(QEvent::Type type, QGraphicsItem *ite
     event.setScenePos(hoverEvent->scenePos());
     event.setScreenPos(hoverEvent->screenPos());
     item->sceneEvent(&event);
+}
+
+/*!
+    \internal
+*/
+void QGraphicsScenePrivate::sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+    for (int i = 0x1; i <= 0x10; i <<= 1) {
+        if (mouseEvent->buttons() & i) {
+            Qt::MouseButton button = Qt::MouseButton(i);
+            mouseEvent->setButtonDownPos(button, mouseGrabberButtonDownPos.value(button, mouseGrabberItem->mapFromScene(mouseEvent->scenePos())));
+            mouseEvent->setButtonDownScenePos(button, mouseGrabberButtonDownScenePos.value(button, mouseEvent->scenePos()));
+            mouseEvent->setButtonDownScreenPos(button, mouseGrabberButtonDownScreenPos.value(button, mouseEvent->screenPos()));
+        }
+    }
+    mouseEvent->setPos(mouseGrabberItem->mapFromScene(mouseEvent->scenePos()));
+    mouseEvent->setLastPos(mouseGrabberItem->mapFromScene(mouseEvent->lastScenePos()));
+    mouseGrabberItem->sceneEvent(mouseEvent);
 }
 
 /*!
@@ -1393,12 +1441,14 @@ bool QGraphicsScene::event(QEvent *event)
         contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(event));
         break;
     case QEvent::KeyPress:
+        keyPressEvent(static_cast<QKeyEvent *>(event));
+        break;
     case QEvent::KeyRelease:
-        keyEvent(static_cast<QKeyEvent *>(event));
+        keyReleaseEvent(static_cast<QKeyEvent *>(event));
         break;
     case QEvent::GraphicsSceneMouseMove:
         if (d->mouseGrabberItem) {
-            mouseEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
+            mouseMoveEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
         } else {
             QGraphicsSceneMouseEvent *mouseEvent = static_cast<QGraphicsSceneMouseEvent *>(event);
             QGraphicsSceneHoverEvent hover;
@@ -1406,23 +1456,28 @@ bool QGraphicsScene::event(QEvent *event)
             hover.setPos(mouseEvent->pos());
             hover.setScenePos(mouseEvent->scenePos());
             hover.setScreenPos(mouseEvent->screenPos());
-            hoverEvent(&hover);
+            d->dispatchHoverEvent(&hover);
         }
         break;
     case QEvent::GraphicsSceneMousePress:
+        mousePressEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
+        break;
     case QEvent::GraphicsSceneMouseRelease:
-    case QEvent::GraphicsSceneMouseClick:
+        mouseReleaseEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
+        break;
     case QEvent::GraphicsSceneMouseDoubleClick:
-        mouseEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
+        mouseDoubleClickEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
         break;
     case QEvent::FocusIn:
+        focusInEvent(static_cast<QFocusEvent *>(event));
+        break;
     case QEvent::FocusOut:
-        focusEvent(static_cast<QFocusEvent *>(event));
+        focusOutEvent(static_cast<QFocusEvent *>(event));
         break;
     case QEvent::GraphicsSceneHoverEnter:
     case QEvent::GraphicsSceneHoverLeave:
     case QEvent::GraphicsSceneHoverMove:
-        hoverEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
+        d->dispatchHoverEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
         break;
     case QEvent::Leave:
 #ifndef QT_NO_TOOLTIP
@@ -1456,25 +1511,33 @@ void QGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMen
 
 /*!
     This event handler, for event \a focusEvent, can be reimplemented in a
-    subclass to receive focus events. The default implementation forwards the
-    event to the current focus item.
+    subclass to receive focus in events. The default implementation forwards
+    the event to the current focus item.
+
+    \sa QGraphicsItem::focusInEvent()
+*/
+void QGraphicsScene::focusInEvent(QFocusEvent *focusEvent)
+{
+    Q_D(QGraphicsScene);
+    d->hasFocus = true;
+    if (d->lastFocusItem) {
+        // Set focus on the last focus item
+        setFocusItem(d->lastFocusItem, focusEvent->reason());
+    }
+}
+
+/*!
+    This event handler, for event \a focusEvent, can be reimplemented in a
+    subclass to receive focus out events. The default implementation forwards
+    the event to the current focus item.
 
     \sa QGraphicsItem::focusEvent()
 */
-void QGraphicsScene::focusEvent(QFocusEvent *focusEvent)
+void QGraphicsScene::focusOutEvent(QFocusEvent *focusEvent)
 {
     Q_D(QGraphicsScene);
-
-    if (focusEvent->gotFocus()) {
-        d->hasFocus = true;
-        if (d->lastFocusItem) {
-            // Set focus on the last focus item
-            setFocusItem(d->lastFocusItem, focusEvent->reason());
-        }
-    } else {
-        d->hasFocus = false;
-        setFocusItem(0, focusEvent->reason());
-    }
+    d->hasFocus = false;
+    setFocusItem(0, focusEvent->reason());
 }
 
 /*!
@@ -1511,18 +1574,17 @@ void QGraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent)
 
 /*!
     This event handler, for event \a hoverEvent, can be reimplemented in a
-    subclass to receive hover events. The default implementation forwards the
-    event to the topmost item that accepts hover events at the scene position
-    from the event.
+    subclass to receive hover enter events. The default implementation
+    forwards the event to the topmost item that accepts hover events at the
+    scene position from the event.
 
     \sa QGraphicsItem::hoverEvent(), QGraphicsItem::setAcceptsHoverEvents()
 */
-void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
+void QGraphicsScenePrivate::dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
 {
-    Q_D(QGraphicsScene);
-
+    Q_Q(QGraphicsScene);
     // Find the first item that accepts hover events
-    QList<QGraphicsItem *> itemsAtPos = items(hoverEvent->scenePos());
+    QList<QGraphicsItem *> itemsAtPos = q->items(hoverEvent->scenePos());
     QGraphicsItem *item = 0;
     for (int i = 0; i < itemsAtPos.size(); ++i) {
         QGraphicsItem *tmp = itemsAtPos.at(i);
@@ -1534,22 +1596,22 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
 
     if (!item) {
         // Send HoverLeave events to all existing hover items, topmost first.
-        while (!d->hoverItems.isEmpty()) {
-            QGraphicsItem *lastItem = d->hoverItems.takeLast();
+        while (!hoverItems.isEmpty()) {
+            QGraphicsItem *lastItem = hoverItems.takeLast();
             if (lastItem->acceptsHoverEvents())
-                d->sendHoverEvent(QEvent::GraphicsSceneHoverLeave, lastItem, hoverEvent);
+                sendHoverEvent(QEvent::GraphicsSceneHoverLeave, lastItem, hoverEvent);
         }
         return;
     }
 
-    int itemIndex = d->hoverItems.indexOf(item);
+    int itemIndex = hoverItems.indexOf(item);
     if (itemIndex == -1) {
-        if (d->hoverItems.isEmpty() || !d->hoverItems.last()->isAncestorOf(item)) {
+        if (hoverItems.isEmpty() || !hoverItems.last()->isAncestorOf(item)) {
             // Send HoverLeave events to all existing hover items, topmost first.
-            while (!d->hoverItems.isEmpty()) {
-                QGraphicsItem *lastItem = d->hoverItems.takeLast();
+            while (!hoverItems.isEmpty()) {
+                QGraphicsItem *lastItem = hoverItems.takeLast();
                 if (lastItem->acceptsHoverEvents())
-                    d->sendHoverEvent(QEvent::GraphicsSceneHoverLeave, lastItem, hoverEvent);
+                    sendHoverEvent(QEvent::GraphicsSceneHoverLeave, lastItem, hoverEvent);
             }
         }
 
@@ -1559,35 +1621,48 @@ void QGraphicsScene::hoverEvent(QGraphicsSceneHoverEvent *hoverEvent)
         parents << item;
 
         QGraphicsItem *parent = item->parentItem();
-        while (parent && (d->hoverItems.isEmpty() || parent != d->hoverItems.last())) {
+        while (parent && (hoverItems.isEmpty() || parent != hoverItems.last())) {
             parents.prepend(parent);
             parent = parent->parentItem();
         }
         for (int i = 0; i < parents.size(); ++i) {
             parent = parents.at(i);
-            d->hoverItems << parent;
-            d->sendHoverEvent(QEvent::GraphicsSceneHoverEnter, parent, hoverEvent);
+            hoverItems << parent;
+            sendHoverEvent(QEvent::GraphicsSceneHoverEnter, parent, hoverEvent);
         }
     } else {
         // Known item, generate leave events for any children
-        while (d->hoverItems.size() > itemIndex + 1) {
-            QGraphicsItem *child = d->hoverItems.takeAt(itemIndex + 1);
-            d->sendHoverEvent(QEvent::GraphicsSceneHoverLeave, child, hoverEvent);
+        while (hoverItems.size() > itemIndex + 1) {
+            QGraphicsItem *child = hoverItems.takeAt(itemIndex + 1);
+            sendHoverEvent(QEvent::GraphicsSceneHoverLeave, child, hoverEvent);
         }
 
         // Generate a move event for the item itself
-        d->sendHoverEvent(QEvent::GraphicsSceneHoverMove, item, hoverEvent);
+        sendHoverEvent(QEvent::GraphicsSceneHoverMove, item, hoverEvent);
     }
 }
 
 /*!
     This event handler, for event \a keyEvent, can be reimplemented in a
-    subclass to receive key events. The default implementation forwards the
-    event to current focus item.
+    subclass to receive keypress events. The default implementation forwards
+    the event to current focus item.
 
-    \sa QGraphicsItem::keyEvent(), focusItem()
+    \sa QGraphicsItem::keyPressEvent(), focusItem()
 */
-void QGraphicsScene::keyEvent(QKeyEvent *keyEvent)
+void QGraphicsScene::keyPressEvent(QKeyEvent *keyEvent)
+{
+    if (QGraphicsItem *item = focusItem())
+        item->sceneEvent(keyEvent);
+}
+
+/*!
+    This event handler, for event \a keyEvent, can be reimplemented in a
+    subclass to receive key release events. The default implementation
+    forwards the event to current focus item.
+
+    \sa QGraphicsItem::keyReleaseEvent(), focusItem()
+*/
+void QGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
 {
     if (QGraphicsItem *item = focusItem())
         item->sceneEvent(keyEvent);
@@ -1607,41 +1682,12 @@ void QGraphicsScene::keyEvent(QKeyEvent *keyEvent)
 
     \sa QGraphicsItem::mouseEvent(), QGraphicsItem::setAcceptsMouseEvents()
 */
-void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
+void QGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     Q_D(QGraphicsScene);
-
     if (!d->mouseGrabberItem) {
-        if (mouseEvent->type() != QGraphicsSceneMouseEvent::GraphicsSceneMousePress
-            && mouseEvent->type() != QGraphicsSceneMouseEvent::GraphicsSceneMouseDoubleClick) {
-            // Ignore mouse moves when there is no grabber.
-            return;
-        }
-
         // Find a mouse grabber.
-        foreach (QGraphicsItem *item, items(mouseEvent->scenePos())) {
-            if (item->isVisible() && item->acceptsMouseEvents()) {
-                if (!item->isEnabled()) {
-                    // Disabled visible mouse-accepting items discard mouse
-                    // events.
-                    return;
-                }
-
-                d->mouseGrabberItem = item;
-
-                for (int i = 0x1; i <= 0x10; i <<= 1) {
-                    if (mouseEvent->buttons() & i) {
-                        d->mouseGrabberButtonDownPos.insert(Qt::MouseButton(i),
-                                                            item->mapFromScene(mouseEvent->scenePos()));
-                        d->mouseGrabberButtonDownScenePos.insert(Qt::MouseButton(i),
-                                                                 mouseEvent->scenePos());
-                        d->mouseGrabberButtonDownScreenPos.insert(Qt::MouseButton(i),
-                                                                  mouseEvent->screenPos());
-                    }
-                }
-                break;
-            }
-        }
+        d->setMouseGrabberItemForEvent(mouseEvent);
 
         // Ignore mouse events that nobody wants.
         if (!d->mouseGrabberItem) {
@@ -1659,22 +1705,63 @@ void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     if (d->mouseGrabberItem->flags() & QGraphicsItem::ItemIsFocusable)
         setFocusItem(d->mouseGrabberItem, Qt::MouseFocusReason);
 
-    // Forward the event.
-    for (int i = 0x1; i <= 0x10; i <<= 1) {
-        if (mouseEvent->buttons() & i) {
-            Qt::MouseButton button = Qt::MouseButton(i);
-            mouseEvent->setButtonDownPos(button, d->mouseGrabberButtonDownPos.value(button, d->mouseGrabberItem->mapFromScene(mouseEvent->scenePos())));
-            mouseEvent->setButtonDownScenePos(button, d->mouseGrabberButtonDownScenePos.value(button, mouseEvent->scenePos()));
-            mouseEvent->setButtonDownScreenPos(button, d->mouseGrabberButtonDownScreenPos.value(button, mouseEvent->screenPos()));
-        }
+    // Forward the event to the mouse grabber
+    d->sendMouseEvent(mouseEvent);
+}
+
+/*!
+    This event handler, for event \a mouseEvent, can be reimplemented in a
+    subclass to receive mouse events. The default implementation depends on
+    the state of the scene. If there is a mouse grabber item, then the event
+    is sent to the mouse grabber. Otherwise, if the event is a mouse press, it
+    is forwarded to the topmost item that accepts mouse events at the scene
+    position from the event, and that item promptly becomes the mouse grabber
+    item.
+
+    If there is no mouse grabber, or if the event is a mouse press and there
+    is no item at the given position on the scene, the event is ignored.
+
+    \sa QGraphicsItem::mouseEvent(), QGraphicsItem::setAcceptsMouseEvents()
+*/
+void QGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+    Q_D(QGraphicsScene);
+    if (!d->mouseGrabberItem) {
+        mouseEvent->ignore();
+        return;
     }
-    mouseEvent->setPos(d->mouseGrabberItem->mapFromScene(mouseEvent->scenePos()));
-    mouseEvent->setLastPos(d->mouseGrabberItem->mapFromScene(mouseEvent->lastScenePos()));
-    d->mouseGrabberItem->sceneEvent(mouseEvent);
+
+    // Forward the event to the mouse grabber
+    d->sendMouseEvent(mouseEvent);
+}
+
+/*!
+    This event handler, for event \a mouseEvent, can be reimplemented in a
+    subclass to receive mouse events. The default implementation depends on
+    the state of the scene. If there is a mouse grabber item, then the event
+    is sent to the mouse grabber. Otherwise, if the event is a mouse press, it
+    is forwarded to the topmost item that accepts mouse events at the scene
+    position from the event, and that item promptly becomes the mouse grabber
+    item.
+
+    If there is no mouse grabber, or if the event is a mouse press and there
+    is no item at the given position on the scene, the event is ignored.
+
+    \sa QGraphicsItem::mouseEvent(), QGraphicsItem::setAcceptsMouseEvents()
+*/
+void QGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+    Q_D(QGraphicsScene);
+    if (!d->mouseGrabberItem) {
+        mouseEvent->ignore();
+        return;
+    }
+
+    // Forward the event to the mouse grabber
+    d->sendMouseEvent(mouseEvent);
 
     // Reset the mouse grabber when the last mouse button has been released.
-    if (mouseEvent->type() == QGraphicsSceneEvent::GraphicsSceneMouseRelease
-        && !mouseEvent->buttons()) {
+    if (!mouseEvent->buttons()) {
         d->mouseGrabberItem = 0;
         d->mouseGrabberButtonDownPos.clear();
         d->mouseGrabberButtonDownScenePos.clear();
@@ -1688,6 +1775,43 @@ void QGraphicsScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
         hoverEvent.setScreenPos(mouseEvent->screenPos());
         QCoreApplication::sendEvent(this, &hoverEvent);
     }
+}
+
+/*!
+    This event handler, for event \a mouseEvent, can be reimplemented in a
+    subclass to receive mouse events. The default implementation depends on
+    the state of the scene. If there is a mouse grabber item, then the event
+    is sent to the mouse grabber. Otherwise, if the event is a mouse press, it
+    is forwarded to the topmost item that accepts mouse events at the scene
+    position from the event, and that item promptly becomes the mouse grabber
+    item.
+
+    If there is no mouse grabber, or if the event is a mouse press and there
+    is no item at the given position on the scene, the event is ignored.
+
+    \sa QGraphicsItem::mouseEvent(), QGraphicsItem::setAcceptsMouseEvents()
+*/
+void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+    Q_D(QGraphicsScene);
+    if (!d->mouseGrabberItem) {
+        // Find a mouse grabber.
+        d->setMouseGrabberItemForEvent(mouseEvent);
+
+        // Ignore mouse events that nobody wants.
+        if (!d->mouseGrabberItem) {
+            clearSelection();
+            setFocusItem(0, Qt::MouseFocusReason);
+            return;
+        }
+    } else if (!d->mouseGrabberItem->isVisible()) {
+        // Mouse grabbers that suddenly go invisible lose the grab.
+        d->mouseGrabberItem = 0;
+        return;
+    }
+
+    // Forward the event to the mouse grabber
+    d->sendMouseEvent(mouseEvent);
 }
 
 /*!
