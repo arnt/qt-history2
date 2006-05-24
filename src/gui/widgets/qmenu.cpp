@@ -134,7 +134,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
                 sz = QSize(2, 2);
             } else {
                 QString s = action->text();
-                int t = s.indexOf('\t');
+                int t = s.indexOf(QLatin1Char('\t'));
                 if (t != -1) {
                     tabWidth = qMax(int(tabWidth), qfm.width(s.mid(t+1)));
                     s = s.left(t);
@@ -146,8 +146,8 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     #endif
                 }
                 int w = fm.width(s);
-                w -= s.count('&') * fm.width('&');
-                w += s.count("&&") * fm.width('&');
+                w -= s.count(QLatin1Char('&')) * fm.width(QLatin1Char('&'));
+                w += s.count(QLatin1String("&&")) * fm.width(QLatin1Char('&'));
                 sz.setWidth(w);
                 sz.setHeight(qMax(fm.height(), qfm.height()));
 
@@ -825,10 +825,10 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     opt.icon = action->icon();
     QString textAndAccel = action->text();
 #ifndef QT_NO_SHORTCUT
-    if (textAndAccel.indexOf('\t') == -1) {
+    if (textAndAccel.indexOf(QLatin1Char('\t')) == -1) {
         QKeySequence seq = action->shortcut();
         if (!seq.isEmpty())
-            textAndAccel += '\t' + QString(seq);
+            textAndAccel += QLatin1Char('\t') + QString(seq);
     }
 #endif
     opt.text = textAndAccel;
