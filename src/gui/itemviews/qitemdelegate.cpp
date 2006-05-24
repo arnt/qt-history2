@@ -524,7 +524,7 @@ void QItemDelegate::drawBackground(QPainter *painter,
         painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
     } else {
         QVariant value = index.data(Qt::BackgroundColorRole);
-        QColor color = qvariant_cast<QColor>(value).isValid();
+        QColor color = qvariant_cast<QColor>(value);
         if (value.isValid() && color.isValid())
             painter->fillRect(option.rect, color);
     }
