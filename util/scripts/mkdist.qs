@@ -281,9 +281,11 @@ for (var p in validPlatforms) {
 	    checkLicense(platDir, getFileList(platDir));
 
 	    var tmpTag = new Array();
-	    tmpTag[licenseHeaders[license]] = /\*\* \$LICENSE\$\n/;
-	    replaceTags(platDir + "/examples", getFileList(platDir + "/examples"), tmpTag, false);
-	    replaceTags(platDir + "/demos", getFileList(platDir + "/demos"), tmpTag, false);
+	    tmpTag[licenseHeaders[license]] = /\*\* \$TROLLTECH_DUAL_LICENSE\$\n/;
+
+	    // replace tags (like THISYEAR etc.)
+	    print("Traversing all txt files and replacing tags...");
+	    replaceTags(platDir, getFileList(platDir), defaultTags(platform, license, platName));
 
 	    // run qdoc
 	    print("Running qdoc...");
@@ -303,10 +305,6 @@ for (var p in validPlatforms) {
 	    print("Final package purge...");
 	    purgeFiles(platDir, getFileList(platDir), finalRemove);
 
-	    // replace tags (like THISYEAR etc.)
-	    print("Traversing all txt files and replacing tags...");
-	    replaceTags(platDir, getFileList(platDir), defaultTags(platform, license, platName), true);
-
 	    // package directory
 	    print("Compressing and packaging file(s)...");
 	    compress(platform, platDir, platName);
@@ -320,7 +318,7 @@ for (var p in validPlatforms) {
 		    dir.rmdirs();
 		dir.mkdir();
 		copyEval(platDir);
-                replaceTags(platDir, getEvalFileList(platDir), defaultTags(platform, license, platName), true);
+                replaceTags(platDir, getEvalFileList(platDir), defaultTags(platform, license, platName));
 		compress(platform, platDir, platName.replace("commercial", "evalpatches"));
 	    }
 	    indentation-=tabSize;
@@ -837,12 +835,12 @@ function defaultTags(platform, license, platName)
     replace["#define QT_PACKAGEDATE_STR \"" + startDate.toString().left(10) + "\""] =
 	/#\s*define\s+QT_PACKAGEDATE_STR\s+\"([^\"]+)\"*/g;
     replace[platName] = /\%DISTNAME\%/g;
-    replace[licenseHeaders[license]] = /\*\* \$LICENSE\$\n/;
+    replace[licenseHeaders[license]] = /\*\* \$TROLLTECH_DUAL_LICENSE\$\n/;
     return replace;
 }
 
 /************************************************************
- * goes through all source files (except 3rdparty) and checks for $LICENSE$
+ * goes through all source files (except 3rdparty) and checks for $*_LICENSE$
  */
 function checkLicense(packageDir, fileList)
 {
@@ -857,8 +855,8 @@ function checkLicense(packageDir, fileList)
             && fileName.find(/\.cpp$|\.h$|\.c$/) != -1) {
 
             content = File.read(absFileName);
-            if (content.find(/\*\* \$LICENSE\$/) == -1) {
-                warning(fileName + " doesn't contain $LICENSE$");
+            if (content.find(/\*\* \$TROLLTECH_DUAL_LICENSE\$/) == -1) {
+                warning(fileName + " doesn't contain $TROLLTECH_DUAL_LICENSE$");
             }
 
             if (fileName.find(/_p.h$/) != -1
@@ -872,7 +870,7 @@ function checkLicense(packageDir, fileList)
 /************************************************************
  * goes through all txt files and replaces tags like %VERSION%, %THISYEAR% etc.
  */
-function replaceTags(packageDir, fileList, replace, doMapping)
+function replaceTags(packageDir, fileList, replace)
 {
     var fileName = new String();
     var absFileName = new String();
@@ -886,7 +884,7 @@ function replaceTags(packageDir, fileList, replace, doMapping)
 	    for (var i in replace)
 		content = content.replace(replace[i], i);
 	    // special case for $MODULE$
-	    if (doMapping && content.find(/\$MODULE\$/) != -1) {
+	    if (content.find(/\$MODULE\$/) != -1) {
 		var match = false;
 		for (var i in moduleMap) {
 		    if (fileName.find(moduleMap[i]) != -1) {
