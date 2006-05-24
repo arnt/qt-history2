@@ -94,7 +94,7 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
         return new QWSBusMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_TSLIB
-    if (driver == QLating1String("tslib") || driver.isEmpty())
+    if (driver == QLatin1String("tslib") || driver.isEmpty())
         return new QWSTslibMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_QVFB
