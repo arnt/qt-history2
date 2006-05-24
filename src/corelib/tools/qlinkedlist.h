@@ -179,6 +179,7 @@ public:
     typedef const value_type *const_pointer;
     typedef value_type &reference;
     typedef const value_type &const_reference;
+    typedef ptrdiff_t difference_type;
 
 #ifndef QT_NO_STL
     static inline QLinkedList<T> fromStdList(const std::list<T> &list)

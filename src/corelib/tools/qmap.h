@@ -308,6 +308,10 @@ public:
     QMap<Key, T> &unite(const QMap<Key, T> &other);
 
     // STL compatibility
+    typedef Key key_type;
+    typedef T mapped_type;
+    typedef ptrdiff_t difference_type;
+    typedef int size_type;
     inline bool empty() const { return isEmpty(); }
 
 #ifdef QT_QMAP_DEBUG

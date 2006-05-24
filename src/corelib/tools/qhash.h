@@ -375,6 +375,11 @@ public:
     QHash<Key, T> &unite(const QHash<Key, T> &other);
 
     // STL compatibility
+    typedef T mapped_type;
+    typedef Key key_type;
+    typedef ptrdiff_t difference_type;
+    typedef int size_type;
+
     inline bool empty() const { return isEmpty(); }
 
 #ifdef QT_QHASH_DEBUG

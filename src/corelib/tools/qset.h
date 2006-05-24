@@ -107,6 +107,15 @@ public:
     QSet<T> &subtract(const QSet<T> &other);
 
     // STL compatibility
+    typedef T key_type;
+    typedef T value_type;
+    typedef value_type *pointer;
+    typedef const value_type *const_pointer;
+    typedef value_type &reference;
+    typedef const value_type &const_reference;
+    typedef ptrdiff_t difference_type;
+    typedef int size_type;
+
     inline bool empty() const { return isEmpty(); }
 
     // comfort
