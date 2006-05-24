@@ -410,11 +410,11 @@
 
     \section1 Declaring Qt Libraries
 
-    If you enable qmake's support for Qt with the \c CONFIG variable, it is
-    possible to further specify which of the Qt libraries you will link with
-    your application. This is achieved with the \c QT variable which can be
-    used to declare the required extension modules. For example, we can enable
-    the XML and network modules in the following way:
+    If the \c CONFIG variable contains the \c qt value, qmake's support for Qt
+    applications is enabled. This makes it possible to fine-tune which of the
+    Qt modules are used by your application. This is achieved with the \c QT
+    variable which can be used to declare the required extension modules.
+    For example, we can enable the XML and network modules in the following way:
 
     \code
         CONFIG += qt
@@ -721,6 +721,7 @@
     \o \l{qmake Variable Reference#LIBS}{LIBS}
     \o \l{qmake Variable Reference#MOC_DIR}{MOC_DIR}
     \o \l{qmake Variable Reference#OBJECTS_DIR}{OBJECTS_DIR}
+    \o \l{qmake Variable Reference#QT}{QT}
     \o \l{qmake Variable Reference#RCC_DIR}{RCC_DIR}
     \o \l{qmake Variable Reference#REQUIRES}{REQUIRES}
     \o \l{qmake Variable Reference#SOURCES}{SOURCES}
@@ -795,7 +796,8 @@
     \header \o Option \o Description
     \row \o qt \o The target is a Qt application/library and requires the Qt
          library and header files. The proper include and library paths for the
-         Qt library will automatically be added to the project.
+         Qt library will automatically be added to the project. This is defined
+         by default, and can be fine-tuned with the \c{\l{#qt}{QT}} variable.
     \row \o opengl \o The target requires the OpenGL (or Mesa)
         headers/libraries. The proper include and library paths for
         these libraries will automatically be added to the project.
@@ -823,8 +825,8 @@
          defined; otherwise the contents of \c FORMS will be processed instead.
     \row \o no_lflags_merge \o Ensures that the list of libraries stored in the
          \c LIBS variable is not reduced to a list of unique values before it is used.
-    \row \o resources \o Configures qmake to run rcc on the content of RESOURCES if
-         defined.
+    \row \o resources \o Configures qmake to run rcc on the content of \c RESOURCES
+         if defined.
     \endtable
 
     These options are used to set the compiler flags:
@@ -1905,6 +1907,42 @@
     \code
         QMAKE_UIC = uic -L /path/to/plugin
     \endcode
+
+    \section1 QT
+
+    The values stored in the \c QT variable control which of the Qt modules are
+    used by your project.
+
+    The table below shows the options that can be used with the \c QT variable
+    and the features that are associated with each of them:
+
+    \table
+    \header \o Option                     \o Features
+    \row    \o core (included by default) \o QtCore module
+    \row    \o gui  (included by default) \o QtGui module
+    \row    \o network                    \o QtNetwork module
+    \row    \o opengl                     \o QtOpenGL module
+    \row    \o sql                        \o QtSql module
+    \row    \o svg                        \o QtSvg module
+    \row    \o xml                        \o QtXml module
+    \row    \o qt3support                 \o Qt3Support module
+    \endtable
+
+    By default, \c QT contains both \c core and \c gui, ensuring that standard
+    GUI applications can be built without further configuration.
+
+    If you want to build a project \e without the QtGui module, you need to
+    exclude the \c gui value with the "-=" operator; the following line will
+    result in a minimal Qt project being built:
+
+    \code
+        QT -= gui # Only the core module is used.
+    \endcode
+
+    Note that adding the \c opengl option to the \c QT variable automatically
+    causes the equivalent option to be added to the \c CONFIG variable.
+    Therefore, for Qt applications, it is not necessary to add the \c opengl
+    option to both \c CONFIG and \c{QT}.
 
     \section1 QTPLUGIN
 
