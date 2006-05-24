@@ -554,8 +554,6 @@ void QTextEditPrivate::repaintCursor()
 
 void QTextEditPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelection)
 {
-    QRect updateRect = selectionRect() | selectionRect(oldSelection);
-
     if (cursor.hasSelection()
         && oldSelection.hasSelection()
         && cursor.currentFrame() == oldSelection.currentFrame()
@@ -565,10 +563,11 @@ void QTextEditPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelection
         QTextCursor differenceSelection(doc);
         differenceSelection.setPosition(oldSelection.position());
         differenceSelection.setPosition(cursor.position(), QTextCursor::KeepAnchor);
-        updateRect = selectionRect(differenceSelection);
+        viewport->update(selectionRect(differenceSelection));
+    } else {
+        viewport->update(selectionRect(oldSelection));
+        viewport->update(selectionRect());
     }
-
-    viewport->update(updateRect);
 }
 
 void QTextEditPrivate::selectionChanged()
