@@ -2102,9 +2102,9 @@ QModelIndex QAbstractTableModel::parent(const QModelIndex &) const
 
 bool QAbstractTableModel::hasChildren(const QModelIndex &parent) const
 {
-    if ((parent.row() < 0) || (parent.column() < 0) || (parent.model() != this))
-        return false;
-    return rowCount() > 0 && columnCount() > 0;
+    if (parent.model() == this || !parent.isValid())
+        return rowCount(parent) > 0 && columnCount(parent) > 0;
+    return false;
 }
 
 /*!
