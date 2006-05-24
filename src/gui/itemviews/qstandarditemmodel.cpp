@@ -480,9 +480,8 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent, int column
 
     When subclassing QStandardItem to provide custom items, it is possible to
     define new types for them so that they can be distinguished from the base
-    class. The constructors for subclasses that require this feature need to
-    call the base class constructor with a new type value equal to or greater
-    than \l UserType.
+    class. The type() function should be reimplemented to return a new type
+    value equal to or greater than \l UserType.
 
     \sa QStandardItemModel, {Item View Convenience Classes}, {Model/View Programming}
 */
@@ -503,39 +502,34 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent, int column
 */
 
 /*!
-    Constructs an item of the specified \a type.
-
-    \sa QStandardItem::ItemType
+    Constructs an item.
 */
-QStandardItem::QStandardItem(int type)
+QStandardItem::QStandardItem()
     : d_ptr(new QStandardItemPrivate)
 {
     Q_D(QStandardItem);
     d->q_ptr = this;
-    d->type = type;
 }
 
 /*!
     Constructs an item with the given \a text.
 */
-QStandardItem::QStandardItem(const QString &text, int type)
+QStandardItem::QStandardItem(const QString &text)
     : d_ptr(new QStandardItemPrivate)
 {
     Q_D(QStandardItem);
     d->q_ptr = this;
-    d->type = type;
     setText(text);
 }
 
 /*!
     Constructs an item with the given \a icon and \a text.
 */
-QStandardItem::QStandardItem(const QIcon &icon, const QString &text, int type)
+QStandardItem::QStandardItem(const QIcon &icon, const QString &text)
     : d_ptr(new QStandardItemPrivate)
 {
     Q_D(QStandardItem);
     d->q_ptr = this;
-    d->type = type;
     setIcon(icon);
     setText(text);
 }
@@ -543,12 +537,11 @@ QStandardItem::QStandardItem(const QIcon &icon, const QString &text, int type)
 /*!
    Constructs an item with \a rows rows and \a columns columns of child items.
 */
-QStandardItem::QStandardItem(int rows, int columns, int type)
+QStandardItem::QStandardItem(int rows, int columns)
     : d_ptr(new QStandardItemPrivate)
 {
     Q_D(QStandardItem);
     d->q_ptr = this;
-    d->type = type;
     setRowCount(rows);
     setColumnCount(columns);
 }
@@ -557,12 +550,11 @@ QStandardItem::QStandardItem(int rows, int columns, int type)
    Constructs an item with a single column of child items and adds \a items as
    rows.
 */
-QStandardItem::QStandardItem(const QList<QStandardItem*> &items, int type)
+QStandardItem::QStandardItem(const QList<QStandardItem*> &items)
     : d_ptr(new QStandardItemPrivate)
 {
     Q_D(QStandardItem);
     d->q_ptr = this;
-    d->type = type;
     setColumnCount(1);
     for (int i = 0; i < items.count(); ++i)
         setChild(i, items.at(i));
@@ -576,6 +568,30 @@ QStandardItem::QStandardItem(QStandardItemPrivate &dd)
 {
     Q_D(QStandardItem);
     d->q_ptr = this;
+}
+
+/*!
+  Constructs a copy of \a other. Note that model() is
+  not copied.
+*/
+QStandardItem::QStandardItem(const QStandardItem &other)
+    : d_ptr(new QStandardItemPrivate)
+{
+    Q_D(QStandardItem);
+    d->q_ptr = this;
+    operator=(other);
+}
+
+/*!
+  Assigns \a other's data and flags to this item. Note that
+  type() and model() are not copied.
+*/
+QStandardItem &QStandardItem::operator=(const QStandardItem &other)
+{
+    Q_D(QStandardItem);
+    d->values = other.d_func()->values;
+    d->flags = other.d_func()->flags;
+    return *this;
 }
 
 /*!
@@ -596,17 +612,6 @@ QStandardItem *QStandardItem::parent() const
 {
     Q_D(const QStandardItem);
     return d->parent;
-}
-
-/*!
-    Returns the type passed to the QStandardItem constructor.
-
-    \sa QStandardItem::ItemType
-*/
-int QStandardItem::type() const
-{
-    Q_D(const QStandardItem);
-    return d->type;
 }
 
 /*!
@@ -1480,11 +1485,17 @@ bool QStandardItem::operator<(const QStandardItem &other) const
 */
 QStandardItem *QStandardItem::clone() const
 {
-    Q_D(const QStandardItem);
-    QStandardItem *item = new QStandardItem();
-    item->d_func()->setItemData(d->itemData());
-    item->setFlags(d->flags);
-    return item;
+    return new QStandardItem(*this);
+}
+
+/*!
+    Returns the type of this item.
+
+    \sa QStandardItem::Type
+*/
+int QStandardItem::type() const
+{
+    return Type;
 }
 
 #ifndef QT_NO_DATASTREAM

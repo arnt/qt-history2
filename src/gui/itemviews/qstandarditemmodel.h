@@ -34,12 +34,11 @@ class QStandardItemPrivate;
 class Q_GUI_EXPORT QStandardItem
 {
 public:
-    enum ItemType { Type = 0, UserType = 1000 };
-    QStandardItem(int type = Type);
-    QStandardItem(const QString &text, int type = Type);
-    QStandardItem(const QIcon &icon, const QString &text, int type = Type);
-    QStandardItem(int rows, int columns, int type = Type);
-    QStandardItem(const QList<QStandardItem*> &items, int type = Type);
+    QStandardItem();
+    QStandardItem(const QString &text);
+    QStandardItem(const QIcon &icon, const QString &text);
+    QStandardItem(int rows, int columns = 1);
+    QStandardItem(const QList<QStandardItem*> &items);
     virtual ~QStandardItem();
 
     virtual void setData(int role, const QVariant &value);
@@ -178,7 +177,6 @@ public:
         return (flags() & Qt::ItemIsDropEnabled) != 0;
     }
 
-    int type() const;
     QStandardItem *parent() const;
     int row() const;
     int column() const;
@@ -228,6 +226,9 @@ public:
 
     virtual QStandardItem *clone() const;
 
+    enum ItemType { Type = 0, UserType = 1000 };
+    virtual int type() const;
+
 #ifndef QT_NO_DATASTREAM
     virtual void read(QDataStream &in);
     virtual void write(QDataStream &out) const;
@@ -235,11 +236,12 @@ public:
     virtual bool operator<(const QStandardItem &other) const;
 
 protected:
+    QStandardItem(const QStandardItem &other);
     QStandardItem(QStandardItemPrivate &dd);
+    QStandardItem &operator=(const QStandardItem &other);
     QStandardItemPrivate *d_ptr;
 
 private:
-    Q_DISABLE_COPY(QStandardItem)
     Q_DECLARE_PRIVATE(QStandardItem)
     friend class QStandardItemModelPrivate;
     friend class QStandardItemModel;

@@ -40,8 +40,7 @@ class QStandardItemPrivate
     Q_DECLARE_PUBLIC(QStandardItem)
 public:
     inline QStandardItemPrivate()
-        : type(QStandardItem::Type),
-          model(0),
+        : model(0),
           parent(0),
           flags(Qt::ItemIsSelectable|Qt::ItemIsEnabled|Qt::ItemIsEditable
                 |Qt::ItemIsDragEnabled|Qt::ItemIsDropEnabled),
@@ -81,7 +80,6 @@ public:
     bool insertRows(int row, int count, const QList<QStandardItem*> &items);
     bool insertColumns(int column, int count, const QList<QStandardItem*> &items);
 
-    int type;
     QStandardItemModel *model;
     QStandardItem *parent;
     QVector<QWidgetItemData> values;
