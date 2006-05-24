@@ -102,6 +102,8 @@ public Q_SLOTS:
     void resizeColumnToContents(int column);
     void sortByColumn(int column);
     void selectAll();
+    void expandAll();
+    void collapseAll();
 
 protected Q_SLOTS:
     void columnResized(int column, int oldSize, int newSize);

@@ -534,7 +534,7 @@ void QTreeView::expand(const QModelIndex &index)
         d->expand(i, true);
         if (!d->isAnimating()) {
             updateGeometries();
-            viewport()->update();
+            d->viewport->update();
         }
     } else {
         d->expandedIndexes.append(index);
@@ -1693,6 +1693,37 @@ void QTreeView::selectAll()
     d->select(0, d->viewItems.count() - 1,
               QItemSelectionModel::ClearAndSelect
               |QItemSelectionModel::Rows);
+}
+
+/*!
+  \since 4.2
+  Expands all expandable items.
+
+  \sa collapseAll() expand()  collapse() setExpanded()
+*/
+void QTreeView::expandAll()
+{
+    Q_D(QTreeView);
+    d->executePostedLayout();
+    d->expandedIndexes.clear();
+    for (int i = 0; i < d->viewItems.count(); ++i)
+        if (!d->viewItems.at(i).expanded)
+            d->expand(i, false);
+    updateGeometries();
+    d->viewport->update();
+}
+
+/*!
+  \since 4.2
+  Collpses all expanded items.
+
+  \sa expandAll() expand()  collapse() setExpanded()
+*/
+void QTreeView::collapseAll()
+{
+    Q_D(QTreeView);
+    d->expandedIndexes.clear();
+    doItemsLayout();
 }
 
 /*!
