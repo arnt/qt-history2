@@ -129,6 +129,7 @@ protected:
     void actionEvent(QActionEvent *);
     void timerEvent(QTimerEvent *);
     bool event(QEvent *);
+    bool focusNextPrevChild(bool next);
 
 private Q_SLOTS:
     void internalSetSloppyAction();

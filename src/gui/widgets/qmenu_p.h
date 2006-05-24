@@ -84,9 +84,13 @@ public:
     int motions;
     QAction *currentAction;
     static QBasicTimer menuDelayTimer;
+    enum SelectionReason {
+        SelectedFromKeyboard,
+        SelectedFromElsewhere
+    };
     QAction *actionAt(QPoint p) const;
     void setFirstActionActive();
-    void setCurrentAction(QAction *, int =-1, bool =false);
+    void setCurrentAction(QAction *, int popup = -1, SelectionReason reason = SelectedFromElsewhere, bool activateFirst = false);
     void popupAction(QAction *, int, bool);
 
     //scrolling support

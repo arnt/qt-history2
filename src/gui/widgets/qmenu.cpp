@@ -158,12 +158,12 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
                         sz.setHeight(is_sz.height());
                 }
             }
-
-            //let the style modify the above size..
-            QStyleOptionMenuItem opt = getStyleOption(action);
-            opt.rect = q->rect();
-            sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q);
         }
+
+        //let the style modify the above size..
+        QStyleOptionMenuItem opt = getStyleOption(action);
+        opt.rect = q->rect();
+        sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q);
 
         if (!sz.isEmpty()) {
             max_column_width = qMax(max_column_width, sz.width());
@@ -215,7 +215,7 @@ void QMenuPrivate::updateActions()
          end = widgetItems.constEnd(); item != end; ++item) {
         QAction *action = item.key();
         QWidget *widget = item.value();
-        widget->setGeometry(actionRects.value(action));
+        widget->setGeometry(actionRect(action));
         widget->setVisible(action->isVisible());
     }
     ncols = 1;
@@ -343,14 +343,14 @@ void QMenuPrivate::setFirstActionActive()
 }
 
 // popup == -1 means do not popup, 0 means immediately, others mean use a timer
-void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFirst)
+void QMenuPrivate::setCurrentAction(QAction *action, int popup, SelectionReason reason, bool activateFirst)
 {
     Q_Q(QMenu);
     tearoffHighlighted = 0;
     if (action == currentAction && !(action && action->menu() && action->menu() != activeMenu)) {
         if(QMenu *menu = qobject_cast<QMenu*>(causedPopup.widget)) {
             if(causedPopup.action && menu->d_func()->activeMenu == q)
-                menu->d_func()->setCurrentAction(causedPopup.action, 0, false);
+                menu->d_func()->setCurrentAction(causedPopup.action, 0, reason, false);
         }
         return;
     }
@@ -372,6 +372,12 @@ void QMenuPrivate::setCurrentAction(QAction *action, int popup, bool activateFir
             popupAction(currentAction, popup, activateFirst);
         }
         q->update(actionRect(action));
+        QWidget *widget = widgetItems.value(action);
+        if (reason == SelectedFromKeyboard
+            && widget
+            && widget->focusPolicy() != Qt::NoFocus)
+                widget->setFocus(Qt::TabFocusReason);
+
 #ifndef QT_NO_STATUSTIP
     }  else if (previousAction) {
         QWidget *w = causedPopup.widget;
@@ -1635,7 +1641,8 @@ void QMenu::paintEvent(QPaintEvent *e)
     for (int i = 0; i < d->actionList.count(); ++i) {
         QAction *action = d->actionList.at(i);
         QRect adjustedActionRect = d->actionRect(action);
-        if (!e->rect().intersects(adjustedActionRect))
+        if (!e->rect().intersects(adjustedActionRect)
+            || d->widgetItems.value(action))
            continue;
         //set the clip region to be extra safe (and adjust for the scrollers)
         QRegion adjustedActionReg(adjustedActionRect);
@@ -1851,6 +1858,17 @@ QMenu::event(QEvent *e)
 }
 
 /*!
+    \reimp
+*/
+bool QMenu::focusNextPrevChild(bool next)
+{
+    setFocus();
+    QKeyEvent ev(QEvent::KeyPress, next ? Qt::Key_Tab : Qt::Key_Backtab, Qt::NoModifier);
+    keyPressEvent(&ev);
+    return true;
+}
+
+/*!
   \reimp
 */
 void QMenu::keyPressEvent(QKeyEvent *e)
@@ -1879,7 +1897,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                     if(d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
                         d->scrollMenu(act, QMenuPrivate::QMenuScroller::ScrollTop, true);
                     else
-                        d->setCurrentAction(act);
+                        d->setCurrentAction(act, /*popup*/-1, QMenuPrivate::SelectedFromKeyboard);
                     break;
                 }
             }
@@ -1896,7 +1914,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                     if(d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollDown)
                         d->scrollMenu(act, QMenuPrivate::QMenuScroller::ScrollBottom, true);
                     else
-                        d->setCurrentAction(act);
+                        d->setCurrentAction(act, /*popup*/-1, QMenuPrivate::SelectedFromKeyboard);
                     break;
                 }
             }
@@ -2009,7 +2027,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                     d->scroll->scrollTimer->stop();
                 d->scrollMenu(nextAction, scroll_loc);
             }
-            d->setCurrentAction(nextAction);
+            d->setCurrentAction(nextAction, /*popup*/-1, QMenuPrivate::SelectedFromKeyboard);
         }
         break; }
 
@@ -2038,7 +2056,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                     nextAction = d->actionAt(QPoint(x, actionR.center().y()));
             }
             if (nextAction) {
-                d->setCurrentAction(nextAction);
+                d->setCurrentAction(nextAction, /*popup*/-1, QMenuPrivate::SelectedFromKeyboard);
                 key_consumed = true;
             }
         }
@@ -2185,7 +2203,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 #endif
             if (nextAction) {
                 key_consumed = true;
-                d->setCurrentAction(nextAction, 20, true);
+                d->setCurrentAction(nextAction, 20, QMenuPrivate::SelectedFromElsewhere, true);
                 if (!nextAction->menu() && activateAction)
                     d->activateAction(nextAction, QAction::Trigger);
             }
