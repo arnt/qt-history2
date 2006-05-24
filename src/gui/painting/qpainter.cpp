@@ -4551,24 +4551,24 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &_ti)
 
         const QMatrix &m = d->state->matrix;
         bool isPlain45DegreeRotation =
-                (qFuzzyCompare(m.m11(), 0.0)
-                 && qFuzzyCompare(m.m12(), 1.0)
-                 && qFuzzyCompare(m.m21(), -1.0)
-                 && qFuzzyCompare(m.m22(), 0)
-                 )
-                ||
-                (qFuzzyCompare(m.m11(), -1.0)
-                 && qFuzzyCompare(m.m12(), 0.0)
-                 && qFuzzyCompare(m.m21(), 0.0)
-                 && qFuzzyCompare(m.m22(), -1.0)
+            (qFuzzyCompare(m.m11(), qreal(0))
+             && qFuzzyCompare(m.m12(), qreal(1))
+             && qFuzzyCompare(m.m21(), qreal(-1))
+             && qFuzzyCompare(m.m22(), qreal(0))
                 )
-                ||
-                (qFuzzyCompare(m.m11(), 0.0)
-                 && qFuzzyCompare(m.m12(), -1.0)
-                 && qFuzzyCompare(m.m21(), 1.0)
-                 && qFuzzyCompare(m.m22(), 0.0)
+            ||
+            (qFuzzyCompare(m.m11(), qreal(-1))
+             && qFuzzyCompare(m.m12(), qreal(0))
+             && qFuzzyCompare(m.m21(), qreal(0))
+             && qFuzzyCompare(m.m22(), qreal(-1))
                 )
-               ;
+            ||
+            (qFuzzyCompare(m.m11(), qreal(0.0))
+             && qFuzzyCompare(m.m12(), qreal(-1))
+             && qFuzzyCompare(m.m21(), qreal(1))
+             && qFuzzyCompare(m.m22(), qreal(0))
+                )
+            ;
         if (!isPlain45DegreeRotation)
             setRenderHint(QPainter::Antialiasing, true);
     }
