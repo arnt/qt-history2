@@ -134,6 +134,7 @@ void QSystemTrayIconSys::setIconContentsA(NOTIFYICONDATAA &tnd)
 int iconFlag( QSystemTrayIcon::MessageIcon icon )
 {
     int flag = 0;
+#if NOTIFYICON_VERSION>=3 
     switch (icon) {
         case QSystemTrayIcon::NoIcon:
             break;
@@ -147,11 +148,13 @@ int iconFlag( QSystemTrayIcon::MessageIcon icon )
         default : // fall through
             flag = NIIF_INFO;
     }
+#endif
     return flag;
 }
 
 bool QSystemTrayIconSys::showMessageW(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs)
 {
+#if NOTIFYICON_VERSION>=3 
     NOTIFYICONDATA tnd;
     memset(&tnd, 0, sizeof(NOTIFYICONDATAW));
 
@@ -166,10 +169,14 @@ bool QSystemTrayIconSys::showMessageW(const QString &title, const QString &messa
     tnd.uFlags = NIF_INFO;
     tnd.uVersion = NOTIFYICON_VERSION;
     return ptrShell_NotifyIcon(NIM_MODIFY, &tnd);
+#else
+    return false;
+#endif
 }
 
 bool QSystemTrayIconSys::showMessageA(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs)
 {
+#if NOTIFYICON_VERSION>=3 
     NOTIFYICONDATAA tnd;
     memset(&tnd, 0, sizeof(NOTIFYICONDATAA));
 
@@ -184,6 +191,9 @@ bool QSystemTrayIconSys::showMessageA(const QString &title, const QString &messa
     tnd.uFlags = NIF_INFO;
     tnd.uVersion = NOTIFYICON_VERSION;
     return Shell_NotifyIconA(NIM_MODIFY, &tnd);
+#else
+    return false;
+#endif
 }
 
 bool QSystemTrayIconSys::trayMessageA(DWORD msg)
