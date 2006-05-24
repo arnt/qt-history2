@@ -93,7 +93,7 @@
     \value Stretch Fill all the available visible space.
     \value Custom Don't automatically change the size here, leave it
     to some other object.
-    \value Contents Automatically resize to the contents of the view.
+    \value ResizeToContents Automatically resize to the contents of the view.
 */
 
 /*!
