@@ -167,7 +167,7 @@ QListView::~QListView()
     Setting this property when the view is visible will cause the
     items to be laid out again.
 
-    \sa gridSize
+    \sa gridSize, viewMode
 */
 void QListView::setMovement(Movement movement)
 {
@@ -202,6 +202,8 @@ QListView::Movement QListView::movement() const
 
     Setting this property when the view is visible will cause the
     items to be laid out again.
+
+    \sa viewMode
 */
 void QListView::setFlow(Flow flow)
 {
@@ -227,6 +229,8 @@ QListView::Flow QListView::flow() const
 
     Setting this property when the view is visible will cause the
     items to be laid out again.
+
+    \sa viewMode
 */
 void QListView::setWrapping(bool enable)
 {
@@ -249,6 +253,8 @@ bool QListView::isWrapping() const
     If this property is \l Adjust, the items will be laid out again
     when the view is resized. If the value is \l Fixed, the items will
     not be laid out when the view is resized.
+
+    \sa viewMode
 */
 void QListView::setResizeMode(ResizeMode mode)
 {
@@ -273,6 +279,8 @@ QListView::ResizeMode QListView::resizeMode() const
     items, while processing events. This makes it possible to
     instantly view and interact with the visible items while the rest
     are being laid out.
+
+    \sa viewMode
 */
 void QListView::setLayoutMode(LayoutMode mode)
 {
@@ -295,6 +303,8 @@ QListView::LayoutMode QListView::layoutMode() const
 
     Setting this property when the view is visible will cause the
     items to be laid out again.
+
+    \sa viewMode
 */
 void QListView::setSpacing(int space)
 {
@@ -348,6 +358,8 @@ int QListView::batchSize() const
 
     Setting this property when the view is visible will cause the
     items to be laid out again.
+
+    \sa viewMode
 */
 void QListView::setGridSize(const QSize &size)
 {
@@ -368,8 +380,15 @@ QSize QListView::gridSize() const
     \brief the view mode of the QListView.
 
     This property will change the other unset properties to conform
-    with the set view mode. Properties that have already been set
+    with the set view mode. QListView-specific properties that have already been set
     will not be changed, unless clearPropertyFlags() has been called.
+
+    Setting the view mode will enable or disable drag and drop based on the
+    selected movement. For ListMode, the default movement is \l Static
+    (drag and drop disabled); for IconMode, the default movement is
+    \l Free (drag and drop enabled).
+
+    \sa isWrapping, spacing, gridSize, flow, movement, resizeMode
 */
 void QListView::setViewMode(ViewMode mode)
 {
@@ -419,7 +438,11 @@ QListView::ViewMode QListView::viewMode() const
 }
 
 /*!
-    Clears the property flags. See \l{viewMode}.
+    Clears the QListView-specific property flags. See \l{viewMode}.
+
+    Properties inherited from QAbstractItemView are not covered by the
+    property flags. Specifically, \l{dragEnabled} and \l{acceptDrops} are
+    computed by QListView when calling setMovement() or setViewMode().
 */
 void QListView::clearPropertyFlags()
 {
