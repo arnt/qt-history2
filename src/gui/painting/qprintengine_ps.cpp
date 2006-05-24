@@ -1520,6 +1520,10 @@ const ppd_file_t* QCUPSSupport::setCurrentPrinter(int index)
         _ppdClose(currPPD);
 
     const char *ppdFile = _cupsGetPPD(printers[index].name);
+
+    if (!ppdFile)
+      return 0;
+
     currPPD = _ppdOpenFile(ppdFile);
     unlink(ppdFile);
 
