@@ -798,9 +798,6 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
     gluTessCallback(qgl_tess, GLU_TESS_ERROR,
                     reinterpret_cast<GLvoid (CALLBACK *) ()>(&qgl_tess_error));
 #endif
-
-    if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
-        qt_resolve_frag_program_extensions();
 }
 
 QOpenGLPaintEngine::~QOpenGLPaintEngine()
@@ -821,6 +818,9 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->inverseScale = 1;
     d->opacity = 1;
     d->drawable.makeCurrent();
+    
+    if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
+	qt_resolve_frag_program_extensions();
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glDisable(GL_MULTISAMPLE);
