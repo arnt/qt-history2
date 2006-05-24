@@ -11,6 +11,17 @@
 **
 ****************************************************************************/
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 static const char *const qt_mac_tabnrm_left[]={
 "6 22 71 2",
 "#a c #5f5f5f",

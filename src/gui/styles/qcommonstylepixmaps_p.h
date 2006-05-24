@@ -13,6 +13,17 @@
 
 #ifndef QT_NO_IMAGEFORMAT_XPM
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 static const char * const check_list_controller_xpm[] = {
 "16 16 4 1",
 "        c None",
