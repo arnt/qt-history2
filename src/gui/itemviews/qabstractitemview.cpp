@@ -736,7 +736,8 @@ void QAbstractItemView::reset()
 void QAbstractItemView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QAbstractItemView);
-    Q_ASSERT_X(index.isValid() ? index.model() == model() : true, "QAbstractItemView::setRootIndex", "index must be from the currently set model");
+    Q_ASSERT_X(index.isValid() ? index.model() == model() : true,
+               "QAbstractItemView::setRootIndex", "index must be from the currently set model");
     d->root = index;
     d->doDelayedItemsLayout();
 }
@@ -774,7 +775,8 @@ void QAbstractItemView::selectAll()
 */
 void QAbstractItemView::edit(const QModelIndex &index)
 {
-    if (!index.isValid())
+    Q_D(QAbstractItemView);
+    if (!d->indexValid(index))
         qWarning("edit: index was invalid");
     if (!edit(index, AllEditTriggers, 0))
         qWarning("edit: editing failed");
@@ -1691,7 +1693,7 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
 {
     Q_D(QAbstractItemView);
 
-    if (!model() || !index.isValid())
+    if (!d->indexValid(index))
         return false;
 
     if (trigger == DoubleClicked)
@@ -1992,7 +1994,8 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 */
 QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
 {
-    if (!index.isValid())
+    Q_D(const QAbstractItemView);
+    if (!d->indexValid(index))
         return QSize();
     return itemDelegate()->sizeHint(viewOptions(), index);
 }
@@ -2104,7 +2107,7 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
 void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget)
 {
     Q_D(QAbstractItemView);
-    if (!index.isValid())
+    if (!d->indexValid(index))
         return;
     if (QWidget *oldWidget = indexWidget(index)) {
         d->removeEditor(oldWidget);
@@ -2127,7 +2130,7 @@ void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget
 QWidget* QAbstractItemView::indexWidget(const QModelIndex &index) const
 {
     Q_D(const QAbstractItemView);
-    if (!index.isValid())
+    if (!d->indexValid(index))
         return 0;
     return d->editorForIndex(index);
 }
@@ -2550,7 +2553,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QM
         case NoSelection: // Never update selection model
             return QItemSelectionModel::NoUpdate;
         case SingleSelection: // ClearAndSelect on valid index otherwise NoUpdate
-            if (!index.isValid() || (event && event->type() == QEvent::MouseButtonRelease))
+            if (!d->indexValid(index) || (event && event->type() == QEvent::MouseButtonRelease))
                 return QItemSelectionModel::NoUpdate;
             return QItemSelectionModel::ClearAndSelect|d->selectionBehaviorFlags();
         case MultiSelection:

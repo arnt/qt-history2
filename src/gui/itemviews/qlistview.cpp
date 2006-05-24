@@ -458,10 +458,10 @@ void QListView::setRowHidden(int row, bool hide)
 */
 QRect QListView::visualRect(const QModelIndex &index) const
 {
-    if (!index.isValid() || isIndexHidden(index))
+    Q_D(const QListView);
+    if (!d->indexValid(index) || isIndexHidden(index))
         return QRect();
 
-    Q_D(const QListView);
     d->executePostedLayout();
     return d->mapToViewport(rectForIndex(index));
 }
@@ -1218,7 +1218,7 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 QRect QListView::rectForIndex(const QModelIndex &index) const
 {
     Q_D(const QListView);
-    if (!index.isValid()
+    if (!d->indexValid(index)
         || index.parent() != rootIndex()
         || index.column() != d->column
         || isIndexHidden(index))
@@ -1240,7 +1240,7 @@ void QListView::setPositionForIndex(const QPoint &position, const QModelIndex &i
 {
     Q_D(QListView);
     if (d->movement == Static
-        || !index.isValid()
+        || !d->indexValid(index)
         || index.parent() != rootIndex()
         || index.column() != d->column)
         return;

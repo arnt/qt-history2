@@ -1772,6 +1772,8 @@ QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
     Q_D(const QStandardItemModel);
     if (!index.isValid())
         return d->root;
+    if (index.model() != this)
+        return 0;
     QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
     QStandardItem *child = parent->child(index.row(), index.column());
     if (child == 0) {
@@ -2219,7 +2221,8 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 */
 Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 {
-    if (!index.isValid())
+    Q_D(const QStandardItemModel);
+    if (!d->indexValid(index))
         return Qt::ItemIsDropEnabled;
     QStandardItem *item = itemFromIndex(index);
     return item->flags();
@@ -2300,7 +2303,8 @@ QMap<int, QVariant> QStandardItemModel::itemData(const QModelIndex &index) const
 */
 QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 {
-    if (!child.isValid())
+    Q_D(const QStandardItemModel);
+    if (!d->indexValid(child))
         return QModelIndex();
     QStandardItem *parentItem = static_cast<QStandardItem*>(child.internalPointer());
     return indexFromItem(parentItem);
@@ -2344,7 +2348,8 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
 */
 bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid())
+    Q_D(QStandardItemModel);
+    if (!d->indexValid(index))
         return false;
     QStandardItem *item = itemFromIndex(index);
     item->setData(role, value);

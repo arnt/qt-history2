@@ -1460,7 +1460,8 @@ bool QAbstractItemModel::canFetchMore(const QModelIndex &) const
 */
 Qt::ItemFlags QAbstractItemModel::flags(const QModelIndex &index) const
 {
-    if (!index.isValid())
+    Q_D(const QAbstractItemModel);
+    if (!d->indexValid(index))
         return 0;
 
     return Qt::ItemIsSelectable|Qt::ItemIsEnabled;
@@ -2101,7 +2102,7 @@ QModelIndex QAbstractTableModel::parent(const QModelIndex &) const
 
 bool QAbstractTableModel::hasChildren(const QModelIndex &parent) const
 {
-    if (parent.isValid())
+    if ((parent.row() < 0) || (parent.column() < 0) || (parent.model() != this))
         return false;
     return rowCount() > 0 && columnCount() > 0;
 }

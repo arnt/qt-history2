@@ -527,7 +527,7 @@ void QTreeView::showColumn(int column)
 void QTreeView::expand(const QModelIndex &index)
 {
     Q_D(QTreeView);
-    if (!index.isValid())
+    if (!d->indexValid(index))
         return;
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
@@ -552,7 +552,7 @@ void QTreeView::expand(const QModelIndex &index)
 void QTreeView::collapse(const QModelIndex &index)
 {
     Q_D(QTreeView);
-    if (!index.isValid())
+    if (!d->indexValid(index))
         return;
     int i = d->viewIndex(index);
     if (i != -1) { // is visible
@@ -744,7 +744,7 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
 
-    if (!index.isValid() || isIndexHidden(index))
+    if (!d->indexValid(index) || isIndexHidden(index))
         return QRect();
 
     d->executePostedLayout();
@@ -778,7 +778,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {
     Q_D(QTreeView);
 
-    if (!model() || !index.isValid())
+    if (!d->indexValid(index))
         return;
 
     d->executePostedLayout();
@@ -1241,7 +1241,7 @@ QModelIndex QTreeView::indexAt(const QPoint &point) const
 QModelIndex QTreeView::indexAbove(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (!index.isValid())
+    if (!d->indexValid(index))
         return QModelIndex();
     d->executePostedLayout();
     int i = d->viewIndex(index);
@@ -1256,6 +1256,8 @@ QModelIndex QTreeView::indexAbove(const QModelIndex &index) const
 QModelIndex QTreeView::indexBelow(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
+    if (!d->indexValid(index))
+        return QModelIndex();
     d->executePostedLayout();
     int i = d->viewIndex(index);
     if (++i >= d->viewItems.count())
@@ -1769,7 +1771,7 @@ int QTreeView::sizeHintForColumn(int column) const
 int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (!index.isValid() || !model())
+    if (!d->indexValid(index))
         return -1;
 
     int start = -1;

@@ -1510,7 +1510,7 @@ void QTableView::setGridStyle(Qt::PenStyle style)
 QRect QTableView::visualRect(const QModelIndex &index) const
 {
     Q_D(const QTableView);
-    if (!index.isValid() ||index.parent() != rootIndex() || isIndexHidden(index) )
+    if (!d->indexValid(index) || index.parent() != rootIndex() || isIndexHidden(index) )
         return QRect();
 
     d->executePostedLayout();
@@ -1548,7 +1548,7 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     Q_D(QTableView);
 
     // check if we really need to do anything
-    if (!index.isValid() || !model()
+    if (!d->indexValid(index)
         || (model()->parent(index) != rootIndex())
         || isIndexHidden(index))
         return;
@@ -1940,7 +1940,7 @@ void QTableView::horizontalScrollbarAction(int action)
 bool QTableView::isIndexHidden(const QModelIndex &index) const
 {
     Q_D(const QTableView);
-    Q_ASSERT(index.isValid());
+    Q_ASSERT(d->indexValid(index));
     if (isRowHidden(index.row()) || isColumnHidden(index.column()))
         return true;
     if (d->hasSpans()) {

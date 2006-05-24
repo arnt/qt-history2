@@ -65,6 +65,10 @@ public:
         return q_func()->createIndex(row, column, id);
     }
 
+    inline bool indexValid(const QModelIndex &index) const {
+         return (index.row() >= 0) && (index.column() >= 0) && (index.model() == q_func()); 
+    }
+
     inline void invalidatePersistentIndexes() {
         QList<QPersistentModelIndexData*>::iterator it = persistent.indexes.begin();
         for (; it != persistent.indexes.end(); ++it) {

@@ -1215,9 +1215,9 @@ QModelIndex QSortFilterProxyModel::index(int row, int column, const QModelIndex 
 */
 QModelIndex QSortFilterProxyModel::parent(const QModelIndex &child) const
 {
-    if (!child.isValid())
-        return QModelIndex();
     Q_D(const QSortFilterProxyModel);
+    if (!d->indexValid(child))
+        return QModelIndex();
     IndexMap::const_iterator it = d->index_to_iterator(child);
     Q_ASSERT(it != d->source_index_mapping.end());
     QModelIndex source_parent = it.key();
@@ -1449,7 +1449,7 @@ void QSortFilterProxyModel::fetchMore(const QModelIndex &parent)
 {
     Q_D(QSortFilterProxyModel);
     QModelIndex source_parent;
-    if (parent.isValid())
+    if (d->indexValid(parent))
         source_parent = d->proxy_to_source(parent);
     d->model->fetchMore(source_parent);
 }
@@ -1461,7 +1461,7 @@ bool QSortFilterProxyModel::canFetchMore(const QModelIndex &parent) const
 {
     Q_D(const QSortFilterProxyModel);
     QModelIndex source_parent;
-    if (parent.isValid())
+    if (d->indexValid(parent))
         source_parent = d->proxy_to_source(parent);
     return d->model->canFetchMore(source_parent);
 }
@@ -1473,7 +1473,7 @@ Qt::ItemFlags QSortFilterProxyModel::flags(const QModelIndex &index) const
 {
     Q_D(const QSortFilterProxyModel);
     QModelIndex source_index;
-    if (index.isValid())
+    if (d->indexValid(index))
         source_index = d->proxy_to_source(index);
     return d->model->flags(source_index);
 }
@@ -1484,7 +1484,7 @@ Qt::ItemFlags QSortFilterProxyModel::flags(const QModelIndex &index) const
 QModelIndex QSortFilterProxyModel::buddy(const QModelIndex &index) const
 {
     Q_D(const QSortFilterProxyModel);
-    if (!index.isValid())
+    if (!d->indexValid(index))
         return QModelIndex();
     QModelIndex source_index = d->proxy_to_source(index);
     QModelIndex source_buddy = d->model->buddy(source_index);

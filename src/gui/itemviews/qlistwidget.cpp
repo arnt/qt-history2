@@ -1582,7 +1582,7 @@ QModelIndex QListWidget::indexFromItem(QListWidgetItem *item) const
 QListWidgetItem *QListWidget::itemFromIndex(const QModelIndex &index) const
 {
     Q_D(const QListWidget);
-    if (index.isValid())
+    if (d->indexValid(index))
         return d->model()->at(index.row());
     return 0;
 }
