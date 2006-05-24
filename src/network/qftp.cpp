@@ -992,7 +992,7 @@ bool QFtpPI::processReply()
     } else if (replyCodeInt == 213) {
         // 213 File status.
         if (currentCmd.startsWith("SIZE "))
-            dtp.setBytesTotal(replyText.simplified().toInt());
+            dtp.setBytesTotal(replyText.simplified().toLongLong());
     } else if (replyCode[0]==1 && currentCmd.startsWith("STOR ")) {
         dtp.writeData();
     }
