@@ -4,7 +4,7 @@
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
-** $LICENSE$
+** $TROLLTECH_DUAL_LICENSE$
 **
 ** WARNING:
 **      A separate license from Unisys may be required to use the gif

@@ -1557,7 +1557,7 @@ int main(int, char **)
         "**\n"
         "** This file is part of the $MODULE$ of the Qt Toolkit.\n"
         "**\n"
-        "** $LICENSE$\n"
+        "** $TROLLTECH_DUAL_LICENSE$\n"
         "**\n"
         "** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE\n"
         "** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.\n"

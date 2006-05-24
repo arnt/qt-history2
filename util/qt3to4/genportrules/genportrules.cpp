@@ -807,7 +807,7 @@ void writeLicense(QString &str)
     license << "**" << endl;
     license << "** This file is part of the $MODULE$ of the Qt Toolkit." << endl;
     license << "**" << endl;
-    license << "** $LICENSE$" << endl;
+    license << "** $TROLLTECH_DUAL_LICENSE$" << endl;
     license << "**" << endl;
     license << "** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE" << endl;
     license << "** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE." << endl;
