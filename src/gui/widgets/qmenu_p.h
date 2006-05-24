@@ -29,6 +29,7 @@
 #include "QtGui/qstyleoption.h"
 #include "QtCore/qdatetime.h"
 #include "QtCore/qmap.h"
+#include "QtCore/qhash.h"
 #include "QtCore/qbasictimer.h"
 #include "private/qwidget_p.h"
 
@@ -71,6 +72,7 @@ public:
     QRect actionRect(QAction *) const;
     mutable QMap<QAction*, QRect> actionRects;
     mutable QList<QAction*> actionList;
+    mutable QHash<QAction *, QWidget *> widgetItems;
     void calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const;
     void updateActions();
     QList<QAction *> filterActions(const QList<QAction *> &actions) const;

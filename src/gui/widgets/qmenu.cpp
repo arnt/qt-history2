@@ -35,6 +35,7 @@
 #include "qmenu_p.h"
 #include "qmenubar_p.h"
 #include "qdebug.h"
+#include "qwidgetaction.h"
 #include <private/qaction_p.h>
 #ifdef QT3_SUPPORT
 #include <qmenudata.h>
@@ -105,6 +106,8 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     hasCheckableItems = false;
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
+        if (qobject_cast<QWidgetAction *>(action))
+            continue;
         hasCheckableItems |= action->isCheckable();
         QIcon is = action->icon();
         if (!is.isNull()) {
@@ -121,40 +124,46 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
         QFontMetrics fm(action->font().resolve(q->font()));
         QSize sz;
 
-        //calc what I think the size is..
-        if (action->isSeparator()) {
-            sz = QSize(2, 2);
+        if (qobject_cast<QWidgetAction *>(action)) {
+            QWidget *w = widgetItems.value(action);
+            if (w)
+                sz = w->sizeHint();
         } else {
-            QString s = action->text();
-            int t = s.indexOf('\t');
-            if (t != -1) {
-                tabWidth = qMax(int(tabWidth), qfm.width(s.mid(t+1)));
-                s = s.left(t);
-#ifndef QT_NO_SHORTCUT
+            //calc what I think the size is..
+            if (action->isSeparator()) {
+                sz = QSize(2, 2);
             } else {
-                QKeySequence seq = action->shortcut();
-                if (!seq.isEmpty())
-                    tabWidth = qMax(int(tabWidth), qfm.width(seq));
-#endif
-            }
-            int w = fm.width(s);
-            w -= s.count('&') * fm.width('&');
-            w += s.count("&&") * fm.width('&');
-            sz.setWidth(w);
-            sz.setHeight(qMax(fm.height(), qfm.height()));
+                QString s = action->text();
+                int t = s.indexOf('\t');
+                if (t != -1) {
+                    tabWidth = qMax(int(tabWidth), qfm.width(s.mid(t+1)));
+                    s = s.left(t);
+    #ifndef QT_NO_SHORTCUT
+                } else {
+                    QKeySequence seq = action->shortcut();
+                    if (!seq.isEmpty())
+                        tabWidth = qMax(int(tabWidth), qfm.width(seq));
+    #endif
+                }
+                int w = fm.width(s);
+                w -= s.count('&') * fm.width('&');
+                w += s.count("&&") * fm.width('&');
+                sz.setWidth(w);
+                sz.setHeight(qMax(fm.height(), qfm.height()));
 
-            QIcon is = action->icon();
-            if (!is.isNull()) {
-                QSize is_sz = QSize(icone, icone);
-                if (is_sz.height() > sz.height())
-                    sz.setHeight(is_sz.height());
+                QIcon is = action->icon();
+                if (!is.isNull()) {
+                    QSize is_sz = QSize(icone, icone);
+                    if (is_sz.height() > sz.height())
+                        sz.setHeight(is_sz.height());
+                }
             }
+
+            //let the style modify the above size..
+            QStyleOptionMenuItem opt = getStyleOption(action);
+            opt.rect = q->rect();
+            sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q);
         }
-
-        //let the style modify the above size..
-        QStyleOptionMenuItem opt = getStyleOption(action);
-        opt.rect = q->rect();
-        sz = q->style()->sizeFromContents(QStyle::CT_MenuItem, &opt, sz, q);
 
         if (!sz.isEmpty()) {
             max_column_width = qMax(max_column_width, sz.width());
@@ -202,6 +211,13 @@ void QMenuPrivate::updateActions()
         return;
     sloppyAction = 0;
     calcActionRects(actionRects, actionList);
+    for (QHash<QAction *, QWidget *>::ConstIterator item = widgetItems.constBegin(),
+         end = widgetItems.constEnd(); item != end; ++item) {
+        QAction *action = item.key();
+        QWidget *widget = item.value();
+        widget->setGeometry(actionRects.value(action));
+        widget->setVisible(action->isVisible());
+    }
     ncols = 1;
     int last_left = q->style()->pixelMetric(QStyle::PM_MenuVMargin, 0, q);
     if (!scroll) {
@@ -2293,12 +2309,34 @@ void QMenu::actionEvent(QActionEvent *e)
     if (e->type() == QEvent::ActionAdded) {
         connect(e->action(), SIGNAL(triggered()), this, SLOT(_q_actionTriggered()));
         connect(e->action(), SIGNAL(hovered()), this, SLOT(_q_actionHovered()));
+
+#if defined(Q_WS_MAC)
+        if (!d->mac_menu) {
+#endif
+            if (QWidgetAction *wa = qobject_cast<QWidgetAction *>(e->action())) {
+                QWidget *widget = wa->requestWidget(this);
+                if (widget)
+                    d->widgetItems.insert(wa, widget);
+            }
+#if defined(Q_WS_MAC)
+        }
+#endif
     } else if (e->type() == QEvent::ActionRemoved) {
         d->actionRects.clear();
         d->actionList.clear();
         e->action()->disconnect(this);
         if(e->action() == d->currentAction)
             d->currentAction = 0;
+#if defined(Q_WS_MAC)
+        if (!d->mac_menu) {
+#endif
+            if (QWidgetAction *wa = qobject_cast<QWidgetAction *>(e->action())) {
+                QWidget *widget = d->widgetItems.take(wa);
+                wa->releaseWidget(widget);
+            }
+#if defined(Q_WS_MAC)
+        }
+#endif
     }
 
     if (isVisible()) {
