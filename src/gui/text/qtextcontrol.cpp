@@ -428,11 +428,13 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
         cursor = QTextCursor();
         if (format == Qt::PlainText) {
             doc->setPlainText(text);
+            doc->setUndoRedoEnabled(false);
             QTextCursor formatCursor(doc);
             formatCursor.select(QTextCursor::Document);
             formatCursor.setCharFormat(charFormatForInsertion);
         } else {
             doc->setHtml(text);
+            doc->setUndoRedoEnabled(false);
         }
         cursor = QTextCursor(doc);
     } else if (clearDocument) {
@@ -498,6 +500,7 @@ void QTextControlPrivate::repaintCursor()
 
 void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelection)
 {
+    Q_Q(QTextControl);
     QRectF updateRect = selectionRect() | selectionRect(oldSelection);
 
     if (cursor.hasSelection()
@@ -509,11 +512,11 @@ void QTextControlPrivate::repaintOldAndNewSelection(const QTextCursor &oldSelect
         QTextCursor differenceSelection(doc);
         differenceSelection.setPosition(oldSelection.position());
         differenceSelection.setPosition(cursor.position(), QTextCursor::KeepAnchor);
-        updateRect = selectionRect(differenceSelection);
+        emit q->updateRequest(selectionRect(differenceSelection));
+    } else {
+        emit q->updateRequest(selectionRect(oldSelection));
+        emit q->updateRequest(selectionRect());
     }
-
-    Q_Q(QTextControl);
-    emit q->updateRequest(updateRect);
 }
 
 void QTextControlPrivate::selectionChanged()
