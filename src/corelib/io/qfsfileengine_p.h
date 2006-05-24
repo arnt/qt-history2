@@ -62,6 +62,9 @@ public:
 #endif
     bool doStat() const;
     bool isSymlink() const;
+#if defined (Q_WS_MAC)
+    bool isMacHidden(const QString &path) const;
+#endif
 
     int sysOpen(const QString &, int flags);
 

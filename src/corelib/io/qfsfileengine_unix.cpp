@@ -173,7 +173,8 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 #endif // _POSIX_THREAD_SAFE_FUNCTIONS
     {
         QString fn = QFile::decodeName(QByteArray(file->d_name));
-        fi.setFile(d->file + QLatin1Char('/') + fn);
+        const QString filePath = d->file + QLatin1Char('/') + fn;
+        fi.setFile(filePath);
 
 #ifndef QT_NO_REGEXP
         if(!((filters & QDir::AllDirs) && fi.isDir())) {
@@ -192,7 +193,12 @@ QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &f
 #endif
         if ((filters & QDir::NoDotAndDotDot) && ((fn == QLatin1String(".") || fn == QLatin1String(".."))))
             continue;
-        bool isHidden = (fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String(".."));
+        bool isHidden = (fn.at(0) == QLatin1Char('.') && fn.length() > 1 && fn != QLatin1String("..")
+#if defined(Q_WS_MAC)
+            || d->isMacHidden(filePath)
+#endif
+        );
+
         if (!includeHidden && isHidden)
             continue;
 
@@ -315,6 +321,26 @@ bool QFSFileEnginePrivate::isSymlink() const
     return is_link;
 }
 
+#if defined (Q_WS_MAC)
+bool QFSFileEnginePrivate::isMacHidden(const QString &path) const
+{
+    OSErr err = noErr;
+    FSRef fsRef;
+    err = FSPathMakeRef((const UInt8 *)QFile::encodeName(path).data(), &fsRef, NULL);
+    if (err != noErr)
+        return false;
+
+    FSCatalogInfo catInfo;
+    err = FSGetCatalogInfo(&fsRef, kFSCatInfoFinderInfo, &catInfo, NULL, NULL, NULL);
+    if (err != noErr)
+        return false;
+
+    FileInfo * const fileInfo = reinterpret_cast<FileInfo*>(&catInfo.finderInfo);
+    bool result = (fileInfo->finderFlags & kIsInvisible);
+    return result;
+}
+#endif
+
 QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::FileFlags type) const
 {
     Q_D(const QFSFileEngine);
@@ -383,7 +409,11 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
         ret |= LocalDiskFlag;
         if (exists)
             ret |= ExistsFlag;
-        if(fileName(BaseName)[0] == QLatin1Char('.'))
+        if(fileName(BaseName)[0] == QLatin1Char('.')
+#if defined(Q_WS_MAC)
+            || d->isMacHidden(d->file)
+#endif
+        )
             ret |= HiddenFlag;
         if(d->file == QLatin1String("/"))
             ret |= RootFlag;
