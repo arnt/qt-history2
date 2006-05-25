@@ -1010,19 +1010,27 @@ Qt::TextElideMode QAbstractItemView::textElideMode() const
 /*!
   \reimp
 */
+bool QAbstractItemView::focusNextPrevChild(bool next)
+{
+    Q_D(QAbstractItemView);
+    if (d->tabKeyNavigation) {
+        QKeyEvent event(QEvent::KeyPress, next ? Qt::Key_Tab : Qt::Key_Backtab, Qt::NoModifier);
+        keyPressEvent(&event);
+        return true;
+    }
+    return QAbstractScrollArea::focusNextPrevChild(next);
+}
+
+/*!
+  \reimp
+*/
 bool QAbstractItemView::event(QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress && d_func()->tabKeyNavigation) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if (keyEvent->key() == Qt::Key_Tab || keyEvent->key() == Qt::Key_Backtab) {
-            keyPressEvent(keyEvent);
-            return keyEvent->isAccepted();
-        }
-	} else if (event->type() == QEvent::InputMethod) {
-		if (!edit(currentIndex(), AnyKeyPressed, event))
-			event->ignore();
-		return true;
-	}
+    if (event->type() == QEvent::InputMethod) {
+        if (!edit(currentIndex(), AnyKeyPressed, event))
+            event->ignore();
+        return true;
+    }
     return QAbstractScrollArea::event(event);
 }
 
@@ -1813,6 +1821,8 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
     if (editor && !d->persistent.contains(editor)) {
         setState(NoState);
         d->removeEditor(editor);
+        if (editor->hasFocus())
+            setFocus();
         d->releaseEditor(editor);
     }
 

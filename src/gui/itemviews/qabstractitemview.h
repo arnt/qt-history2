@@ -264,6 +264,7 @@ protected:
     void stopAutoScroll();
     void doAutoScroll();
 
+    bool focusNextPrevChild(bool next);
     bool event(QEvent *event);
     bool viewportEvent(QEvent *event);
     void mousePressEvent(QMouseEvent *event);
