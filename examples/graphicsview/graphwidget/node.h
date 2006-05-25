@@ -42,7 +42,8 @@ public:
 protected:
     void itemChange(ItemChange change);
 
-    void mouseEvent(QGraphicsSceneMouseEvent *event);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     
 private:
     QList<Edge *> edgeList;

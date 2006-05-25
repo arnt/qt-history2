@@ -142,9 +142,14 @@ void Node::itemChange(ItemChange change)
     QGraphicsItem::itemChange(change);
 }
 
-void Node::mouseEvent(QGraphicsSceneMouseEvent *event)
+void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (event->isMousePress() || event->isMouseRelease())
-        update();
-    QGraphicsItem::mouseEvent(event);
+    update();
+    QGraphicsItem::mousePressEvent(event);
+}
+
+void Node::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    update();
+    QGraphicsItem::mouseReleaseEvent(event);
 }
