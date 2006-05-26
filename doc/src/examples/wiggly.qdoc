@@ -134,7 +134,7 @@
     \printline timerEvent
     \printto /^\}/
 
-    The \c timerEvent() function receive all the timer events that
+    The \c timerEvent() function receives all the timer events that
     are generated for this widget. If a timer event is sent from the
     widget's QBasicTimer, we increment \c step to make the text move,
     and call QWidget::update() to refresh the display. Any other

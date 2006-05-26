@@ -152,8 +152,7 @@
     The \c documentWasModified() slot is invoked each time the text
     in the QTextEdit changes because of user edits. We call
     QWidget::setWindowModified() to make the title bar show that the
-    file was modified. How this is done depends varies on the
-    different platforms.
+    file was modified. How this is done varies on each platform.
 
     \printline ::createActions(
     \printuntil SLOT(open())
@@ -213,7 +212,7 @@
     styles (e.g., Windows and Mac OS X styles), but for Motif-based
     styles this makes sure that \menu{Help} is pushed to the right
     side of the menu bar. Try running the application with various
-    styles and see the result:
+    styles and see the results:
 
     \code
         application -style=windows
