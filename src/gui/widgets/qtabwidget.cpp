@@ -556,7 +556,7 @@ void QTabWidget::setTabBar(QTabBar* tb)
     d->tabs = tb;
     setFocusProxy(d->tabs);
     connect(d->tabs, SIGNAL(currentChanged(int)),
-             this,    SLOT(_q_showTab(int)));
+            this, SLOT(_q_showTab(int)));
     setUpLayout();
 }
 
