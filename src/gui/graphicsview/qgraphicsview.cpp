@@ -276,6 +276,10 @@ void QGraphicsViewPrivate::recalculateContentSize()
     // will reset the last center point.
     QPointF savedLastCenterPoint = lastCenterPoint;
 
+    // Remember the former indent settings
+    qreal oldLeftIndent = leftIndent;
+    qreal oldTopIndent = topIndent;
+
     // If the whole scene fits horizontally, we center the scene horizontally,
     // and ignore the horizontal scrollbars.
     if (viewRect.width() < width) {
@@ -328,6 +332,10 @@ void QGraphicsViewPrivate::recalculateContentSize()
 
     // Restore the center point from before the ranges changed.
     lastCenterPoint = savedLastCenterPoint;
+
+    // Issue a full update if the indents change
+    if (oldLeftIndent != leftIndent || oldTopIndent != topIndent)
+        q->viewport()->update();
 }
 
 /*!
