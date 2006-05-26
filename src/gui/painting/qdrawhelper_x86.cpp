@@ -25,12 +25,12 @@
 // A workaround was proposed here: http://gcc.gnu.org/ml/gcc-prs/2002-07/msg00329.html
 #  if __GNUC__ == 3 && __GNUC_MINOR__ >= 1 && __GNUC_MINOR__ < 4
 #    define C_FF volatile unsigned long long mmx_0x00ff_ull = 0x00ff00ff00ff00ffULL; \
-		 const m64 mmx_0x00ff = (__m64)mmx_0x00ff_ull
+		 const m64 mmx_0x00ff = (m64)mmx_0x00ff_ull
 #    define C_80 volatile unsigned long long mmx_0x0080_ull = 0x0080008000800080ULL; \
-                 const m64 mmx_0x0080 = (__m64)mmx_0x0080_ull
+                 const m64 mmx_0x0080 = (m64)mmx_0x0080_ull
 #  else
-#    define C_FF const m64 mmx_0x00ff = (__m64)0x00ff00ff00ff00ffULL
-#    define C_80 const m64 mmx_0x0080 = (__m64)0x0080008000800080ULL
+#    define C_FF const m64 mmx_0x00ff = (m64)0x00ff00ff00ff00ffULL
+#    define C_80 const m64 mmx_0x0080 = (m64)0x0080008000800080ULL
 #  endif
 #  define C_00 const m64 mmx_0x0000 = _mm_setzero_si64()
 #elif defined(Q_CC_INTEL) || defined(Q_OS_WIN)
