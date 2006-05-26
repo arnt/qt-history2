@@ -181,7 +181,7 @@ QImageWriterPrivate::QImageWriterPrivate(QImageWriter *qq)
     quality = -1;
     gamma = 0.0;
     imageWriterError = QImageWriter::UnknownError;
-    errorString = QT_TRANSLATE_NOOP(QImageWriter, "Unknown error");
+    errorString = QT_TRANSLATE_NOOP(QImageWriter, QLatin1String("Unknown error"));
 
     q = qq;
 }
@@ -453,9 +453,16 @@ void QImageWriter::setText(const QString &key, const QString &text)
 */
 bool QImageWriter::canWrite() const
 {
+    if (!d->device || !d->device->isWritable()) {
+        d->imageWriterError = QImageWriter::DeviceError;
+        d->errorString = QT_TRANSLATE_NOOP(QImageWriter,
+                                           QLatin1String("Device not writable"));
+        return false;
+    }
     if (!d->handler && (d->handler = ::createWriteHandler(d->device, d->format)) == 0) {
         d->imageWriterError = QImageWriter::UnsupportedFormatError;
-        d->errorString = QT_TRANSLATE_NOOP(QImageWriter, "Unsupported image format");
+        d->errorString = QT_TRANSLATE_NOOP(QImageWriter,
+                                           QLatin1String("Unsupported image format"));
         return false;
     }
     return true;
@@ -472,9 +479,16 @@ bool QImageWriter::canWrite() const
 */
 bool QImageWriter::write(const QImage &image)
 {
+    if (!d->device || !d->device->isWritable()) {
+        d->imageWriterError = QImageWriter::DeviceError;
+        d->errorString = QT_TRANSLATE_NOOP(QImageWriter,
+                                           QLatin1String("Device not writable"));
+        return false;
+    }
     if (!d->handler && (d->handler = ::createWriteHandler(d->device, d->format)) == 0) {
         d->imageWriterError = QImageWriter::UnsupportedFormatError;
-        d->errorString = QT_TRANSLATE_NOOP(QImageWriter, "Unsupported image format");
+        d->errorString = QT_TRANSLATE_NOOP(QImageWriter,
+                                           QLatin1String("Unsupported image format"));
         return false;
     }
 
