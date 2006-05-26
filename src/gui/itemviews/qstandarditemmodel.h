@@ -41,8 +41,8 @@ public:
     QStandardItem(const QList<QStandardItem*> &items);
     virtual ~QStandardItem();
 
-    virtual void setData(int role, const QVariant &value);
     virtual QVariant data(int role) const;
+    virtual void setData(int role, const QVariant &value);
 
     inline QString text() const {
         return qvariant_cast<QString>(data(Qt::DisplayRole));
@@ -113,43 +113,43 @@ public:
     }
     inline void setAccessibleDescription(const QString &accessibleDescription);
 
-    void setFlags(Qt::ItemFlags flags);
     Qt::ItemFlags flags() const;
+    void setFlags(Qt::ItemFlags flags);
 
-    void setEnabled(bool enabled);
     inline bool isEnabled() const {
         return (flags() & Qt::ItemIsEnabled) != 0;
     }
+    void setEnabled(bool enabled);
 
-    void setEditable(bool editable);
     inline bool isEditable() const {
         return (flags() & Qt::ItemIsEditable) != 0;
     }
+    void setEditable(bool editable);
 
-    void setSelectable(bool selectable);
     inline bool isSelectable() const {
         return (flags() & Qt::ItemIsSelectable) != 0;
     }
+    void setSelectable(bool selectable);
 
-    void setCheckable(bool checkable);
     inline bool isCheckable() const {
         return (flags() & Qt::ItemIsUserCheckable) != 0;
     }
+    void setCheckable(bool checkable);
 
-    void setTristate(bool tristate);
     inline bool isTristate() const {
         return (flags() & Qt::ItemIsTristate) != 0;
     }
+    void setTristate(bool tristate);
 
-    void setDragEnabled(bool dragEnabled);
     inline bool isDragEnabled() const {
         return (flags() & Qt::ItemIsDragEnabled) != 0;
     }
+    void setDragEnabled(bool dragEnabled);
 
-    void setDropEnabled(bool dropEnabled);
     inline bool isDropEnabled() const {
         return (flags() & Qt::ItemIsDropEnabled) != 0;
     }
+    void setDropEnabled(bool dropEnabled);
 
     QStandardItem *parent() const;
     int row() const;
@@ -158,15 +158,15 @@ public:
     QStandardItemModel *model() const;
     bool isTopLevelItem() const;
 
-    void setRowCount(int rows);
     int rowCount() const;
-    void setColumnCount(int columns);
+    void setRowCount(int rows);
     int columnCount() const;
+    void setColumnCount(int columns);
 
     bool hasChildren() const;
+    QStandardItem *child(int row, int column = 0) const;
     void setChild(int row, int column, QStandardItem *item);
     inline void setChild(int row, QStandardItem *item);
-    QStandardItem *child(int row, int column = 0) const;
 
     void insertRow(int row, const QList<QStandardItem*> &items);
     void insertColumn(int column, const QList<QStandardItem*> &items);
@@ -313,15 +313,15 @@ public:
     QStandardItem *itemFromIndex(const QModelIndex &index) const;
     QModelIndex indexFromItem(const QStandardItem *item) const;
 
+    QStandardItem *item(int row, int column = 0) const;
     void setItem(int row, int column, QStandardItem *item);
     inline void setItem(int row, QStandardItem *item);
-    QStandardItem *item(int row, int column = 0) const;
     QStandardItem *topLevelParent() const;
 
-    void setHorizontalHeaderItem(int column, QStandardItem *item);
     QStandardItem *horizontalHeaderItem(int column) const;
-    void setVerticalHeaderItem(int row, QStandardItem *item);
+    void setHorizontalHeaderItem(int column, QStandardItem *item);
     QStandardItem *verticalHeaderItem(int row) const;
+    void setVerticalHeaderItem(int row, QStandardItem *item);
 
     void setHorizontalHeaderLabels(const QStringList &labels);
     void setVerticalHeaderLabels(const QStringList &labels);
@@ -340,8 +340,8 @@ public:
     QStandardItem *takeHorizontalHeaderItem(int column);
     QStandardItem *takeVerticalHeaderItem(int row);
 
-    void setItemPrototype(const QStandardItem *item);
     const QStandardItem *itemPrototype() const;
+    void setItemPrototype(const QStandardItem *item);
 
     QList<QStandardItem*> findItems(const QString &text, Qt::MatchFlags flags, int column = 0) const;
 
