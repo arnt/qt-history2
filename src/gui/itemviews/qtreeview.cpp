@@ -1893,10 +1893,7 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
 
     q->setState(QAbstractItemView::ExpandingState);
     QModelIndex index = viewItems.at(item).index;
-    if (model->canFetchMore(index))
-        model->fetchMore(index);
-
-    expandedIndexes.append(index);
+        expandedIndexes.append(index);
     viewItems[item].expanded = true;
     layout(item);
     if (model->hasChildren(index))
