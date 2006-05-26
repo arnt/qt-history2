@@ -40,6 +40,7 @@
 #include <pwd.h>
 #include <signal.h>
 #include <dlfcn.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -53,6 +54,9 @@
 #ifndef QT_NO_IPV6IFNAME
 #include <net/if.h>
 #endif
+
+// LSB 3.1 defines htonl and friends here
+#include <arpa/inet.h>
 
 #ifdef QT_LARGEFILE_SUPPORT
 #define QT_STATBUF              struct stat64
