@@ -162,7 +162,7 @@ protected:
                const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, index);
         painter->eraseRect(option.rect);
-        mCombo->style()->drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
+        mCombo->style()->drawControl(QStyle::CE_MenuItem, &opt, painter, mCombo);
     }
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const {
@@ -170,7 +170,7 @@ protected:
         QVariant value = index.model()->data(index, Qt::FontRole);
         QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
         return mCombo->style()->sizeFromContents(
-            QStyle::CT_MenuItem, &opt, option.rect.size(), 0);
+            QStyle::CT_MenuItem, &opt, option.rect.size(), mCombo);
     }
 
 private:

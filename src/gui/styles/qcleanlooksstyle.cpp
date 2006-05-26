@@ -17,7 +17,6 @@
 
 #include "qwindowsstyle_p.h"
 #include <QComboBox>
-
 #include <qpainter.h>
 #include <QFile>
 #include <QDir>
@@ -1582,52 +1581,59 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             bool sunken = menuItem->state & State_Sunken;
             bool enabled = menuItem->state & State_Enabled;
 
-            // Check
-            QRect checkRect(option->rect.left() + 7, option->rect.center().y() - 6, 13, 13);
-            checkRect = visualRect(menuItem->direction, menuItem->rect, checkRect);
-            if (checkable) {
-                if (menuItem->checkType & QStyleOptionMenuItem::Exclusive) {
-                    // Radio button
-                    if (checked || sunken) {
-                        painter->setRenderHint(QPainter::Antialiasing);
-                        painter->setPen(Qt::NoPen);
-
-                        QPalette::ColorRole textRole = !enabled ? QPalette::Text:
-                                                       selected ? QPalette::HighlightedText : QPalette::ButtonText;
-                        painter->setBrush(option->palette.brush( option->palette.currentColorGroup(), textRole));
-                        painter->drawEllipse(checkRect.adjusted(4, 4, -4, -4));
-                    }
-                } else {
-                    // Check box
-                    if (menuItem->icon.isNull()) {
+            bool ignoreCheckMark = false;
+            
+            if (qobject_cast<const QComboBox*>(widget))
+                ignoreCheckMark = true; //ignore the checkmarks provided by the QComboMenuDelegate
+                
+            if (!ignoreCheckMark) {
+                // Check
+                QRect checkRect(option->rect.left() + 7, option->rect.center().y() - 6, 13, 13);
+                checkRect = visualRect(menuItem->direction, menuItem->rect, checkRect);
+                if (checkable) {
+                    if (menuItem->checkType & QStyleOptionMenuItem::Exclusive) {
+                        // Radio button
                         if (checked || sunken) {
-                            QImage image(qt_cleanlooks_menuitem_checkbox_checked);
-                            if (menuItem->state & State_Selected) {
-                                image.setColor(1, 0x55ffffff);
-                                image.setColor(2, 0xAAffffff);
-                                image.setColor(3, 0xBBffffff);
-                                image.setColor(4, 0xFFffffff);
-                                image.setColor(5, 0x33ffffff);
-                            } else {
-                                image.setColor(1, 0x55000000);
-                                image.setColor(2, 0xAA000000);
-                                image.setColor(3, 0xBB000000);
-                                image.setColor(4, 0xFF000000);
-                                image.setColor(5, 0x33000000);
-                            }
-                            painter->drawImage(QPoint(checkRect.center().x() - image.width() / 2,
-                                                      checkRect.center().y() - image.height() / 2), image);
-                        }
-                    } else if (checked) {
-                        int iconSize = qMax(menuItem->maxIconWidth, 20);
-                        QRect sunkenRect(option->rect.left() + 2,
-                                         option->rect.top() + (option->rect.height() - iconSize) / 2,
-                                         iconSize, iconSize);
-                        sunkenRect = visualRect(menuItem->direction, menuItem->rect, sunkenRect);
+                            painter->setRenderHint(QPainter::Antialiasing);
+                            painter->setPen(Qt::NoPen);
 
-                        QStyleOption opt = *option;
-                        opt.state |= State_Sunken;
-                        opt.rect = sunkenRect;
+                            QPalette::ColorRole textRole = !enabled ? QPalette::Text:
+                                                        selected ? QPalette::HighlightedText : QPalette::ButtonText;
+                            painter->setBrush(option->palette.brush( option->palette.currentColorGroup(), textRole));
+                            painter->drawEllipse(checkRect.adjusted(4, 4, -4, -4));
+                        }
+                    } else {
+                        // Check box
+                        if (menuItem->icon.isNull()) {
+                            if (checked || sunken) {
+                                QImage image(qt_cleanlooks_menuitem_checkbox_checked);
+                                if (menuItem->state & State_Selected) {
+                                    image.setColor(1, 0x55ffffff);
+                                    image.setColor(2, 0xAAffffff);
+                                    image.setColor(3, 0xBBffffff);
+                                    image.setColor(4, 0xFFffffff);
+                                    image.setColor(5, 0x33ffffff);
+                                } else {
+                                    image.setColor(1, 0x55000000);
+                                    image.setColor(2, 0xAA000000);
+                                    image.setColor(3, 0xBB000000);
+                                    image.setColor(4, 0xFF000000);
+                                    image.setColor(5, 0x33000000);
+                                }
+                                painter->drawImage(QPoint(checkRect.center().x() - image.width() / 2,
+                                                        checkRect.center().y() - image.height() / 2), image);
+                            }
+                        } else if (checked) {
+                            int iconSize = qMax(menuItem->maxIconWidth, 20);
+                            QRect sunkenRect(option->rect.left() + 2,
+                                            option->rect.top() + (option->rect.height() - iconSize) / 2,
+                                            iconSize, iconSize);
+                            sunkenRect = visualRect(menuItem->direction, menuItem->rect, sunkenRect);
+
+                            QStyleOption opt = *option;
+                            opt.state |= State_Sunken;
+                            opt.rect = sunkenRect;
+                        }
                     }
                 }
             }
@@ -1638,6 +1644,10 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             const QStyleOption *opt = option;
             const QStyleOptionMenuItem *menuitem = menuItem;
             int checkcol = qMax(menuitem->maxIconWidth, 20);
+            
+            if( ignoreCheckMark )
+                checkcol = 0;
+            
             QPainter *p = painter;
             QRect vCheckRect = visualRect(opt->direction, menuitem->rect,
                                           QRect(menuitem->rect.x(), menuitem->rect.y(),
@@ -1677,6 +1687,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             }
             int xm = windowsItemFrame + checkcol + windowsItemHMargin;
             int xpos = menuitem->rect.x() + xm;
+            
             QRect textRect(xpos, y + windowsItemVMargin, w - xm - windowsRightBorder - tab + 1, h - 2 * windowsItemVMargin);
             QRect vTextRect = visualRect(opt->direction, menuitem->rect, textRect);
             QString s = menuitem->text;
