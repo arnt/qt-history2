@@ -4889,6 +4889,37 @@ QByteArray QUrl::toAce(const QString &domain)
     return result;
 }
 
+/*!
+    Returns the current whitelist of top-level domains that are allowed
+    to have non-ASCII characters in their compositions.
+
+    See setIdnWhitelist() for the rationale of this list.
+*/
+QStringList QUrl::idnWhitelist()
+{
+    return *::idnWhitelist();
+}
+
+/*!
+    Sets the whitelist of Top-Level Domains (TLDs) that are allowed to have
+    non-ASCII characters in domains to the value of \a list.
+
+    Qt has comes a default list that contains the Internet top-level domains
+    that have published support for Internationalized Domain Names (IDNs)
+    and rules to guarantee that no deception can happen between similarly-looking
+    characters (such as the Latin lowercase letter \c 'a' and the Cyrillic
+    equivalent, which in most fonts are visually identical).
+
+    This list is periodically maintained, as registrars publish new rules.
+
+    This function is provided for those who need to manipulate the list, in
+    order to add or remove a TLD. It is not recommended to change its value
+    for purposes other than testing, as it may expose users to security risks.
+*/
+void QUrl::setIdnWhitelist(const QStringList &list)
+{
+    static_cast<QStringList &>(*::idnWhitelist()) = list;
+}
 
 /*!
     \internal

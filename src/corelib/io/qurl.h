@@ -150,6 +150,8 @@ public:
     static QByteArray toPunycode(const QString &);
     static QString fromAce(const QByteArray &);
     static QByteArray toAce(const QString &);
+    static QStringList idnWhitelist();
+    static void setIdnWhitelist(const QStringList &);
 
 #if defined QT3_SUPPORT
     inline QT3_SUPPORT QString protocol() const { return scheme(); }
