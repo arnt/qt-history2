@@ -1095,9 +1095,8 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         opt.rect = primitive;
 
         const bool expanded = d->viewItems.at(item).expanded;
-        const bool children = (expanded // already layed out
-                               ? d->viewItems.at(item).total // this also covers the hidden items
-                               : d->model->hasChildren(index)); // not layed out yet, so we don't know
+        const bool children = (((expanded && d->viewItems.at(item).total > 0)) // already layed out and has children
+                                || d->model->hasChildren(index)); // not layed out yet, so we don't know
         bool moreSiblings = false;
         if (d->hiddenIndexes.isEmpty())
             moreSiblings = (d->model->rowCount(parent) - 1 > index.row());
@@ -1894,6 +1893,9 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
 
     q->setState(QAbstractItemView::ExpandingState);
     QModelIndex index = viewItems.at(item).index;
+    if (model->canFetchMore(index))
+        model->fetchMore(index);
+
     expandedIndexes.append(index);
     viewItems[item].expanded = true;
     layout(item);
