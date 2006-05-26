@@ -14,7 +14,7 @@
 #ifndef QWSSOCKET_QWS_H
 #define QWSSOCKET_QWS_H
 
-#include <Qt/qconfig.h>
+#include <QtCore/qconfig.h>
 
 #ifndef QT_NO_SXE
 #define QWS_SOCK_BASE QUnixSocket
