@@ -20,6 +20,7 @@ int main(int argc, char **argv)
     }
 
     QGraphicsView view(&scene);
+    view.setDragMode(QGraphicsView::ScrollHandDrag);
     view.setMinimumSize(400, 300);
     view.setBackgroundBrush(QPixmap(":/images/cheese.jpg"));
     view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "Mice"));

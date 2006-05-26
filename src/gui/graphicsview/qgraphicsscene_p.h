@@ -74,11 +74,13 @@ public:
     QGraphicsItem *focusItem;
     QGraphicsItem *lastFocusItem;
     QGraphicsItem *mouseGrabberItem;
+    QGraphicsItem *lastMouseGrabberItem;
     QList<QGraphicsItem *> hoverItems;
     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownPos;
     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownScenePos;
     QMap<Qt::MouseButton, QPoint> mouseGrabberButtonDownScreenPos;
-    void setMouseGrabberItemForEvent(QGraphicsSceneMouseEvent *event);
+    QList<QGraphicsItem *> possibleMouseGrabbersForEvent(QGraphicsSceneMouseEvent *event);
+    void storeMouseButtonsForMouseGrabber(QGraphicsSceneMouseEvent *event);
 
     QList<QGraphicsView *> views;
 
@@ -91,6 +93,7 @@ public:
     void sendHoverEvent(QEvent::Type type, QGraphicsItem *item,
                         QGraphicsSceneHoverEvent *hoverEvent);
     void sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent);
+    void mousePressEventHandler(QGraphicsSceneMouseEvent *mouseEvent);
 };
 
 #endif // QT_NO_GRAPHICSVIEW

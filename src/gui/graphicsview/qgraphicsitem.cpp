@@ -717,7 +717,7 @@ bool QGraphicsItem::isEnabled() const
     Disabled items are visible, but they do not receive any events, and cannot
     take focus nor be selected. Mouse events are discarded; they are not
     propagated unless the item is also invisible, or if it does not accept
-    mouse events (acceptsMouseEvents()). A disabled item cannot become the
+    mouse events (see acceptedMouseButtons()). A disabled item cannot become the
     mouse grabber, and as a result of this, an item loses the grab if it
     becomes disabled when grabbing the mouse, just like it loses focus if it
     had focus when it was disabled.
@@ -811,42 +811,43 @@ void QGraphicsItem::setSelected(bool selected)
 }
 
 /*!
-    Returns true if this item accepts mouse events; otherwise, false is
-    returned.
+    Returns the mouse buttons that this item accepts mouse events for.  By
+    default, all mouse buttons are accepted.
 
-    By default, all items accept mouse events. If the item does not accept
-    mouse events, QGraphicsScene will forward the mouse events to the first
-    item beneith it that does accept mouse events.
+    If an item accepts a mouse button, it will become the mouse grabber item
+    when a mouse press event is delivered. However, if the item does not
+    accept a certain mouse button, QGraphicsScene will forward the mouse
+    events to the first item beneith it that does.
 
-    \sa setAcceptsMouseEvents(), setAcceptsHoverEvents()
+    \sa setAcceptedMouseButtons(), setAcceptsHoverEvents()
 */
-bool QGraphicsItem::acceptsMouseEvents() const
+Qt::MouseButtons QGraphicsItem::acceptedMouseButtons() const
 {
     Q_D(const QGraphicsItem);
-    return d->acceptsMouse;
+    return Qt::MouseButtons(d->acceptedMouseButtons);
 }
 
 /*!
-    If \a enabled is true, this item will accept mouse events; otherwise, it
-    will not accept mouse events.
+    Sets the mouse \a buttons that this item accepts mouse events for.
 
-    If \a enabled is false and this item is the current mouse grabber, it will
-    lose the mouse grab. Setting this value back to true will then not cause
-    the item to regain the grab. To grab the mouse, it must again receive a
-    mouse press event.
+    By default, all mouse buttons are accepted. If an item accepts a mouse
+    button, it will become the mouse grabber item when a mouse press event is
+    delivered. However, if the item does not accept a certain mouse button,
+    QGraphicsScene will forward the mouse events to the first item beneith it
+    that does.
 
-    If the item does not accept mouse events, QGraphicsScene will forward the
-    mouse events to the first item beneith it that does accept mouse events.
+    To disable mouse events for an item (i.e., make it transparent for mouse
+    events), call setAcceptedMouseButtons(0).
 
-    \sa acceptsMouseEvents()
+    \sa acceptedMouseButtons(), acceptsHoverEvents()
 */
-void QGraphicsItem::setAcceptsMouseEvents(bool enabled)
+void QGraphicsItem::setAcceptedMouseButtons(Qt::MouseButtons buttons)
 {
     Q_D(QGraphicsItem);
-    if (d->acceptsMouse != enabled) {
-        if (!enabled && d->scene && d->scene->mouseGrabberItem() == this)
+    if (Qt::MouseButtons(d->acceptedMouseButtons) != buttons) {
+        if (buttons == 0 && d->scene && d->scene->mouseGrabberItem() == this)
             d->scene->d_func()->mouseGrabberItem = 0;
-        d->acceptsMouse = quint32(enabled);
+        d->acceptedMouseButtons = quint32(buttons);
     }
 }
 

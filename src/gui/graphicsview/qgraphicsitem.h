@@ -93,8 +93,8 @@ public:
     bool isSelected() const;
     void setSelected(bool selected);
 
-    bool acceptsMouseEvents() const;
-    void setAcceptsMouseEvents(bool enabled);
+    Qt::MouseButtons acceptedMouseButtons() const;
+    void setAcceptedMouseButtons(Qt::MouseButtons buttons);
 
     bool acceptsHoverEvents() const;
     void setAcceptsHoverEvents(bool enabled);

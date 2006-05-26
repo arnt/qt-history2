@@ -44,10 +44,10 @@ public:
     inline QGraphicsItemPrivate()
         : z(0), scene(0), parent(0), index(-1), q_ptr(0)
     {
+        acceptedMouseButtons = 0x1f;
         visible = 1;
         enabled = 1;
         selected = 0;
-        acceptsMouse = 1;
         acceptsHover = 0;
         isMemberOfGroup = 0;
         handlesChildEvents = 0;
@@ -109,16 +109,16 @@ public:
     QGraphicsItem *parent;
     QList<QGraphicsItem *> children;
     int index;
+    quint32 acceptedMouseButtons : 5;
     quint32 visible : 1;
     quint32 enabled : 1;
     quint32 selected : 1;
-    quint32 acceptsMouse : 1;
     quint32 acceptsHover : 1;
     quint32 isMemberOfGroup : 1;
     quint32 handlesChildEvents : 1;
     quint32 ancestorHandlesChildEvents : 1;
     quint32 flags : 11;
-    quint32 pad : 13;
+    quint32 pad : 9;
 
     QGraphicsItem *q_ptr;
 };

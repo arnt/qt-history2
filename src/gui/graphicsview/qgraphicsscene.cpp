@@ -248,7 +248,8 @@ static void qt_itemsForRectCallback(QVector<int> &leaf, const QRectF & /* area *
 QGraphicsScenePrivate::QGraphicsScenePrivate()
     : indexMethod(QGraphicsScene::BspTreeIndex), generatingBspTree(false),
       hasSceneRect(false), calledEmitUpdated(false), hasFocus(false),
-      focusItem(0), lastFocusItem(0), mouseGrabberItem(0)
+      focusItem(0), lastFocusItem(0), mouseGrabberItem(0),
+      lastMouseGrabberItem(0)
 {
 }
 
@@ -428,8 +429,10 @@ void QGraphicsScenePrivate::emitUpdated()
 */
 void QGraphicsScenePrivate::removeItemLater(QGraphicsItem *item)
 {
-    if (item == mouseGrabberItem)
+    if (item == mouseGrabberItem) {
+        lastMouseGrabberItem = mouseGrabberItem;
         mouseGrabberItem = 0;
+    }
     if (item == focusItem)
         focusItem = 0;
     if (item == lastFocusItem)
@@ -465,31 +468,40 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::validItems() const
 
 /*!
     \internal
+
+    Returns a list of possible mouse grabbers for \a event. The first item in
+    the list is the topmost candidate, and the last item is the bottommost
+    candidate.
 */
-void QGraphicsScenePrivate::setMouseGrabberItemForEvent(QGraphicsSceneMouseEvent *event)
+QList<QGraphicsItem *> QGraphicsScenePrivate::possibleMouseGrabbersForEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_Q(QGraphicsScene);
+    QList<QGraphicsItem *> possibleMouseGrabbers;
     foreach (QGraphicsItem *item, q->items(event->scenePos())) {
-        if (item->isVisible() && item->acceptsMouseEvents()) {
+        if (item->isVisible()
+            && (item->acceptedMouseButtons() & event->button())
+            && item->contains(item->mapFromScene(event->scenePos()))) {
             if (!item->isEnabled()) {
-                // Disabled visible mouse-accepting items discard mouse
-                // events.
-                return;
+                // Disabled mouse-accepting items discard mouse events.
+                break;
             }
+            possibleMouseGrabbers << item;
+        }
+    }
+    return possibleMouseGrabbers;
+}
 
-            mouseGrabberItem = item;
-
-            for (int i = 0x1; i <= 0x10; i <<= 1) {
-                if (event->buttons() & i) {
-                    mouseGrabberButtonDownPos.insert(Qt::MouseButton(i),
-                                                     item->mapFromScene(event->scenePos()));
-                    mouseGrabberButtonDownScenePos.insert(Qt::MouseButton(i),
-                                                          event->scenePos());
-                    mouseGrabberButtonDownScreenPos.insert(Qt::MouseButton(i),
-                                                           event->screenPos());
-                }
-            }
-            break;
+/*!
+    \internal
+*/
+void QGraphicsScenePrivate::storeMouseButtonsForMouseGrabber(QGraphicsSceneMouseEvent *event)
+{
+    for (int i = 0x1; i <= 0x10; i <<= 1) {
+        if (event->buttons() & i) {
+            mouseGrabberButtonDownPos.insert(Qt::MouseButton(i),
+                                             mouseGrabberItem->mapFromScene(event->scenePos()));
+            mouseGrabberButtonDownScenePos.insert(Qt::MouseButton(i), event->scenePos());
+            mouseGrabberButtonDownScreenPos.insert(Qt::MouseButton(i), event->screenPos());
         }
     }
 }
@@ -566,6 +578,81 @@ void QGraphicsScenePrivate::sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     mouseEvent->setPos(mouseGrabberItem->mapFromScene(mouseEvent->scenePos()));
     mouseEvent->setLastPos(mouseGrabberItem->mapFromScene(mouseEvent->lastScenePos()));
     mouseGrabberItem->sceneEvent(mouseEvent);
+}
+
+/*!
+    \internal
+*/
+void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mouseEvent)
+{
+    Q_Q(QGraphicsScene);
+    if (mouseGrabberItem) {
+        // We already have a mouse grabber. This means more than one button is
+        // pressed at the same time. This is just delivered like a normal
+        // event.
+        if (!mouseGrabberItem->isVisible() || !mouseGrabberItem->isEnabled()) {
+            // Mouse grabbers that suddenly go invisible or disabled always
+            // lose the grab. The event then propagates like normal.
+            lastMouseGrabberItem = mouseGrabberItem;
+            mouseGrabberItem = 0;
+        } else {
+            // Forward the event to the mouse grabber
+            sendMouseEvent(mouseEvent);
+            return;
+        }
+    }
+
+    // Ignore by default, unless we find a mouse grabber that accepts it.
+    mouseEvent->ignore();
+
+    // Set focus on the topmost enabled item that can take focus.
+    foreach (QGraphicsItem *item, q->items(mouseEvent->scenePos())) {
+        if (item->isEnabled() && (item->flags() & QGraphicsItem::ItemIsFocusable)) {
+            if (item != q->focusItem())
+                q->setFocusItem(item, Qt::MouseFocusReason);
+            break;
+        }
+    }
+
+    // Find a mouse grabber by sending mouse press events to all mouse grabber
+    // candidates one at a time, until the event is accepted. It's accepted by
+    // default, so the receiver has to explicitly ignore it for it to pass
+    // through.
+    foreach (QGraphicsItem *item, possibleMouseGrabbersForEvent(mouseEvent)) {
+        mouseGrabberItem = item;
+        mouseEvent->accept();
+
+        if (mouseEvent->type() == QEvent::GraphicsSceneMouseDoubleClick && item != lastMouseGrabberItem) {
+            // If this item is different from the item that received the last
+            // mouse event, and mouseEvent is a doubleclick event, then the
+            // event is converted to a press. Known limitation:
+            // Triple-clicking will not generate a doubleclick, though.
+            QGraphicsSceneMouseEvent mousePress(QEvent::GraphicsSceneMousePress);
+            mousePress.setButton(mouseEvent->button());
+            mousePress.setButtons(mouseEvent->buttons());
+            mousePress.setScreenPos(mouseEvent->screenPos());
+            mousePress.setScenePos(mouseEvent->scenePos());
+            mousePress.setModifiers(mouseEvent->modifiers());
+            sendMouseEvent(&mousePress);
+        } else {
+            sendMouseEvent(mouseEvent);
+        }
+        if (mouseEvent->isAccepted()) {
+            storeMouseButtonsForMouseGrabber(mouseEvent);
+            lastMouseGrabberItem = mouseGrabberItem;
+            return;
+        }
+    }
+
+    // Is the event still ignored? Then the mouse press goes to the scene.
+    // Reset the mouse grabber, clear the selection, clear focus, and leave
+    // the event ignored so that it can propagate through the originating
+    // view.
+    if (!mouseEvent->isAccepted()) {
+        lastMouseGrabberItem = mouseGrabberItem;
+        q->clearSelection();
+        q->setFocusItem(0, Qt::MouseFocusReason);
+    }
 }
 
 /*!
@@ -1279,8 +1366,10 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
     } else {
         d->newItems.removeAll(item);
     }
-    if (item == d->mouseGrabberItem)
+    if (item == d->mouseGrabberItem) {
+        d->lastMouseGrabberItem = d->mouseGrabberItem;
         d->mouseGrabberItem = 0;
+    }
     if (item == d->focusItem)
         d->focusItem = 0;
     if (item == d->lastFocusItem)
@@ -1685,28 +1774,7 @@ void QGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
 void QGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     Q_D(QGraphicsScene);
-    if (!d->mouseGrabberItem) {
-        // Find a mouse grabber.
-        d->setMouseGrabberItemForEvent(mouseEvent);
-
-        // Ignore mouse events that nobody wants.
-        if (!d->mouseGrabberItem) {
-            clearSelection();
-            setFocusItem(0, Qt::MouseFocusReason);
-            return;
-        }
-    } else if (!d->mouseGrabberItem->isVisible()) {
-        // Mouse grabbers that suddenly go invisible lose the grab.
-        d->mouseGrabberItem = 0;
-        return;
-    }
-
-    // Set focus on the mouse grabber if it accepts focus
-    if (d->mouseGrabberItem->flags() & QGraphicsItem::ItemIsFocusable)
-        setFocusItem(d->mouseGrabberItem, Qt::MouseFocusReason);
-
-    // Forward the event to the mouse grabber
-    d->sendMouseEvent(mouseEvent);
+    d->mousePressEventHandler(mouseEvent);
 }
 
 /*!
@@ -1731,6 +1799,14 @@ void QGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
         return;
     }
 
+    if (!d->mouseGrabberItem->isVisible() || !d->mouseGrabberItem->isEnabled()) {
+        // Mouse grabbers that suddenly go invisible or disabled lose the
+        // grab.
+        d->lastMouseGrabberItem = d->mouseGrabberItem;
+        d->mouseGrabberItem = 0;
+        return;
+    }
+    
     // Forward the event to the mouse grabber
     d->sendMouseEvent(mouseEvent);
 }
@@ -1757,11 +1833,20 @@ void QGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
         return;
     }
 
+    if (!d->mouseGrabberItem->isVisible() || !d->mouseGrabberItem->isEnabled()) {
+        // Mouse grabbers that suddenly go invisible or disabled lose the
+        // grab.
+        d->lastMouseGrabberItem = d->mouseGrabberItem;
+        d->mouseGrabberItem = 0;
+        return;
+    }
+
     // Forward the event to the mouse grabber
     d->sendMouseEvent(mouseEvent);
 
     // Reset the mouse grabber when the last mouse button has been released.
     if (!mouseEvent->buttons()) {
+        d->lastMouseGrabberItem = d->mouseGrabberItem;
         d->mouseGrabberItem = 0;
         d->mouseGrabberButtonDownPos.clear();
         d->mouseGrabberButtonDownScenePos.clear();
@@ -1794,24 +1879,7 @@ void QGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     Q_D(QGraphicsScene);
-    if (!d->mouseGrabberItem) {
-        // Find a mouse grabber.
-        d->setMouseGrabberItemForEvent(mouseEvent);
-
-        // Ignore mouse events that nobody wants.
-        if (!d->mouseGrabberItem) {
-            clearSelection();
-            setFocusItem(0, Qt::MouseFocusReason);
-            return;
-        }
-    } else if (!d->mouseGrabberItem->isVisible()) {
-        // Mouse grabbers that suddenly go invisible lose the grab.
-        d->mouseGrabberItem = 0;
-        return;
-    }
-
-    // Forward the event to the mouse grabber
-    d->sendMouseEvent(mouseEvent);
+    d->mousePressEventHandler(mouseEvent);
 }
 
 /*!

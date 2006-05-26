@@ -24,7 +24,7 @@ static double TwoPi = 2.0 * Pi;
 Edge::Edge(Node *sourceNode, Node *destNode)
     : arrowSize(10)
 {
-    setAcceptsMouseEvents(false);
+    setAcceptedMouseButtons(0);
     source = sourceNode;
     dest = destNode;
     source->addEdge(this);
