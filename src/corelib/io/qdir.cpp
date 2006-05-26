@@ -2163,9 +2163,47 @@ QDebug operator<<(QDebug debug, QDir::Filters filters)
         if (filters & QDir::System) flags << QLatin1String("System");
         if (filters & QDir::CaseSensitive) flags << QLatin1String("CaseSensitive");
     }
-    debug << "QDir::Filters(" << flags.join(QLatin1String("|")) << ")";
+    debug << "QDir::Filters(" << qPrintable(flags.join(QLatin1String("|"))) << ")";
     return debug;
 }
+
+QDebug operator<<(QDebug debug, QDir::SortFlags sorting)
+{
+    if (sorting == QDir::NoSort) {
+        debug << "QDir::SortFlags(NoSort)";
+    } else {
+        QString type;
+        if ((sorting & 3) == QDir::Name) type = QLatin1String("Name");
+        if ((sorting & 3) == QDir::Time) type = QLatin1String("Time");
+        if ((sorting & 3) == QDir::Size) type = QLatin1String("Size");
+        if ((sorting & 3) == QDir::Unsorted) type = QLatin1String("Unsorted");
+
+        QStringList flags;
+        if (sorting & QDir::DirsFirst) flags << QLatin1String("DirsFirst");
+        if (sorting & QDir::DirsLast) flags << QLatin1String("DirsLars");
+        if (sorting & QDir::IgnoreCase) flags << QLatin1String("IgnoreCase");
+        if (sorting & QDir::LocaleAware) flags << QLatin1String("LocaleAware");
+        if (sorting & QDir::Type) flags << QLatin1String("Type");
+        debug << "QDir::SortFlags(" << qPrintable(type)
+              << "|"
+              << qPrintable(flags.join(QLatin1String("|"))) << ")";
+    }
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, const QDir &dir)
+{
+    debug.maybeSpace() << "QDir(" << dir.path()
+                       << ", nameFilters = {"
+                       << qPrintable(dir.nameFilters().join(QLatin1String(",")))
+                       << "}, "
+                       << dir.sorting()
+                       << ","
+                       << dir.filter()
+                       << ")";
+    return debug.space();
+}
+
 #endif
 
 #endif
