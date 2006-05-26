@@ -164,7 +164,7 @@ static bool qt_farthestItemFirst(const QGraphicsItem *item1, const QGraphicsItem
     const QGraphicsItem *parent1 = item1;
     do {
         if (parent1 == item2)
-            return true;
+            return false;
         ancestors1.prepend(parent1);
     } while ((parent1 = parent1->parentItem()));
 
@@ -174,7 +174,7 @@ static bool qt_farthestItemFirst(const QGraphicsItem *item1, const QGraphicsItem
     const QGraphicsItem *parent2 = item2;
     do {
         if (parent2 == item1)
-            return false;
+            return true;
         ancestors2.prepend(parent2);
     } while ((parent2 = parent2->parentItem()));
 
