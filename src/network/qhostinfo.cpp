@@ -168,14 +168,7 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
     // Support for IDNA by first splitting the name into labels, then
     // running the punycode decoder on each part, then merging
     // together before passing the name to the lookup agent.
-    QString lookup;
-    const unsigned short delimiters[] = {0x2e, 0x3002, 0xff0e, 0xff61, 0};
-    QStringList labels = name.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
-    for (int i = 0; i < labels.count(); ++i) {
-        if (i != 0) lookup += '.';
-        QString label = QUnicodeTables::normalize(labels.at(i), QString::NormalizationForm_KC, QChar::Unicode_3_1);
-        lookup += QString::fromAscii(QUrl::toPunycode(label));
-    }
+    QString lookup = QString::fromLatin1(QUrl::toAce(name));
 
     QHostInfoAgent *agent = ::agent();
 
@@ -227,19 +220,7 @@ QHostInfo QHostInfo::fromName(const QString &name)
     qDebug("QHostInfo::fromName(\"%s\")",name.toLatin1().constData());
 #endif
 
-    // Support for IDNA by first splitting the name into labels, then
-    // running the punycode decoder on each part, then merging
-    // together before passing the name to the lookup agent.
-    QString lookup;
-    const unsigned short delimiters[] = {0x2e, 0x3002, 0xff0e, 0xff61, 0};
-    QStringList labels = name.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
-    for (int i = 0; i < labels.count(); ++i) {
-        if (i != 0) lookup += '.';
-        QString label = QUnicodeTables::normalize(labels.at(i), QString::NormalizationForm_KC, QChar::Unicode_3_1);
-        lookup += QString::fromAscii(QUrl::toPunycode(label));
-    }
-
-    return QHostInfoAgent::fromName(lookup);
+    return QHostInfoAgent::fromName(QLatin1String(QUrl::toAce(name)));
 }
 
 /*!

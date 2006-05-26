@@ -148,6 +148,8 @@ public:
                                         const QByteArray &include = QByteArray());
     static QString fromPunycode(const QByteArray &);
     static QByteArray toPunycode(const QString &);
+    static QString fromAce(const QByteArray &);
+    static QByteArray toAce(const QString &);
 
 #if defined QT3_SUPPORT
     inline QT3_SUPPORT QString protocol() const { return scheme(); }

@@ -2913,6 +2913,57 @@ QString Q_INTERNAL_EXPORT qt_nameprep(const QString &source)
     return mapped;
 }
 
+class QIdnWhitelist: public QStringList
+{
+public:
+    inline QIdnWhitelist()
+    {
+        // keep this list in alphabetical order:
+        *this << QLatin1String("ac") << QLatin1String("at")
+              << QLatin1String("br")
+              << QLatin1String("cat") << QLatin1String("ch") << QLatin1String("cl") << QLatin1String("cn")
+              << QLatin1String("de") << QLatin1String("dk")
+              << QLatin1String("fi")
+              << QLatin1String("hu")
+              << QLatin1String("info") << QLatin1String("io")
+              << QLatin1String("jp")
+              << QLatin1String("kr")
+              << QLatin1String("li") << QLatin1String("lt")
+              << QLatin1String("museum")
+              << QLatin1String("no")
+              << QLatin1String("se") << QLatin1String("sh")
+              << QLatin1String("th") << QLatin1String("tm") << QLatin1String("tw")
+              << QLatin1String("vn");
+    }
+};
+Q_GLOBAL_STATIC(QIdnWhitelist, idnWhitelist)
+
+static bool qt_is_idn_enabled(const QStringList &labels)
+{
+    const QString &tld = labels.last();
+
+    return idnWhitelist()->contains(tld);
+}
+
+static QString qt_from_ACE(const QString &domain)
+{
+    QStringList labels = domain.split(QLatin1Char('.'), QString::SkipEmptyParts);
+    if (!labels.isEmpty() && qt_is_idn_enabled(labels)) {
+        for (int i = 0; i < labels.size(); ++i) {
+            // Nameprep the host. If the labels in the hostname are Punycode
+            // encoded, we decode them immediately, then nameprep them.
+            QString label = labels.at(i);
+            if (label.startsWith(QLatin1String("xn--")))
+                labels[i] = qt_nameprep(QUrl::fromPunycode(label.toLatin1()));
+            else
+                labels[i] = qt_nameprep(label);
+        }
+        return labels.join(QLatin1String("."));
+    } else {
+        return qt_nameprep(domain);
+    }    
+}
+
 
 QUrlPrivate::QUrlPrivate()
 {
@@ -3250,23 +3301,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     if (parseOptions == ParseAndSet) {
         that->scheme = QUrl::fromPercentEncoding(__scheme);
         that->setUserInfo(QUrl::fromPercentEncoding(__userInfo));
-        that->host = QUrl::fromPercentEncoding(__host);
-
-        // Nameprep the host. If the labels in the hostname are Punycode
-        // encoded, we decode them immediately, then nameprep them.
-        QStringList labels = that->host.split(QLatin1Char('.'), QString::SkipEmptyParts);
-        if (!labels.isEmpty()) {
-            for (int i = 0; i < labels.size(); ++i) {
-                QString label = labels.at(i);
-                if (label.startsWith(QLatin1String("xn--")))
-                    labels[i] = qt_nameprep(QUrl::fromPunycode(label.toLatin1()));
-                else
-                    labels[i] = qt_nameprep(label);
-            }
-            that->host = labels.join(QLatin1String("."));
-        } else {
-            that->host = qt_nameprep(that->host);
-        }
+        that->host = qt_from_ACE(QUrl::fromPercentEncoding(__host));
         that->port = __port;
         that->path = QUrl::fromPercentEncoding(__path);
         if (that->hasQuery)
@@ -3344,16 +3379,7 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
             }
         }
 
-        // IDNA / rfc3490 describes these four delimiters used for
-        // separating labels in unicode international domain
-        // names.
-        const unsigned short delimiters[] = {'[', 0x2e, 0x3002, 0xff0e, 0xff61, ']', 0};
-        QStringList labels = host.split(QRegExp(QString::fromUtf16(delimiters)));
-        for (int i = 0; i < labels.count(); ++i) {
-            if (i != 0) url += '.';
-            url += QUrl::toPunycode(qt_nameprep(labels.at(i)));
-        }
-
+        url += QUrl::toAce(host);
         if (!(options & QUrl::RemovePort) && port != -1) {
             url += ":";
             url += QString::number(port).toAscii();
@@ -4638,10 +4664,12 @@ static inline char encodeDigit(uint digit)
 }
 
 /*!
+    \obsolete
     Returns a \a uc in Punycode encoding.
 
     Punycode is a Unicode encoding used for internationalized domain
-    names, as defined in RFC3492.
+    names, as defined in RFC3492. If you want to convert a domain name from
+    Unicode to its ASCII-compatible representation, use toAce().
 */
 QByteArray QUrl::toPunycode(const QString &uc)
 {
@@ -4741,10 +4769,13 @@ QByteArray QUrl::toPunycode(const QString &uc)
 }
 
 /*!
+    \obsolete
     Returns the Punycode decoded representation of \a pc.
 
     Punycode is a Unicode encoding used for internationalized domain
-    names, as defined in RFC3492.
+    names, as defined in RFC3492. If you want to convert a domain from
+    its ASCII-compatible encoding to the Unicode representation, use
+    fromAce().
 */
 QString QUrl::fromPunycode(const QByteArray &pc)
 {
@@ -4813,6 +4844,51 @@ QString QUrl::fromPunycode(const QByteArray &pc)
 
     return output;
 }
+
+/*!
+    Returns the Unicode form of the given domain name
+    \a domain, which is encoded in the ASCII Compatible Encoding (ACE).
+    The result of this function is considered equivalent to \a domain.
+
+    If the value in \a domain cannot be encoded, it will be converted
+    to QString and returned.
+
+    The ASCII Compatible Encoding (ACE) is defined by RFC 3490, RFC 3491
+    and RFC 3492. It is part of the Internationalizing Domain Names in
+    Applications (IDNA) specification, which allows for domain names
+    (like \c "www.trolltech.com") to be written using international
+    characters.
+*/
+QString QUrl::fromAce(const QByteArray &domain)
+{
+    return qt_from_ACE(QString::fromLatin1(domain));
+}
+
+/*!
+    Returns the ASCII Compatible Encoding of the given domain name \a domain.
+    The result of this function is considered equivalent to \a domain.
+    
+    The ASCII-Compatible Encoding (ACE) is defined by RFC 3490, RFC 3491
+    and RFC 3492. It is part of the Internationalizing Domain Names in
+    Applications (IDNA) specification, which allows for domain names
+    (like \c "www.trolltech.com") to be written using international
+    characters.
+*/
+QByteArray QUrl::toAce(const QString &domain)
+{
+    // IDNA / rfc3490 describes these four delimiters used for
+    // separating labels in unicode international domain
+    // names.
+    const unsigned short delimiters[] = {'[', 0x2e, 0x3002, 0xff0e, 0xff61, ']', 0};
+    QStringList labels = domain.split(QRegExp(QString::fromUtf16(delimiters)));
+    QByteArray result;
+    for (int i = 0; i < labels.count(); ++i) {
+        if (i != 0) result += '.';
+        result += toPunycode(qt_nameprep(labels.at(i)));
+    }
+    return result;
+}
+
 
 /*!
     \internal
