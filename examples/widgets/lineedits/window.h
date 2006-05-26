@@ -27,11 +27,11 @@ public:
     Window();
 
 public slots:
-    void slotEchoChanged( int );
-    void slotValidatorChanged( int );
-    void slotAlignmentChanged( int );
-    void slotInputMaskChanged( int );
-    void slotAccessChanged( int );
+    void echoChanged(int);
+    void validatorChanged(int);
+    void alignmentChanged(int);
+    void inputMaskChanged(int);
+    void accessChanged(int);
 
 private:
     QLineEdit *echoLineEdit;
