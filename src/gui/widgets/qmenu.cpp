@@ -2317,7 +2317,7 @@ void QMenu::actionEvent(QActionEvent *e)
 #ifdef Q_WS_MAC
     if (d->mac_menu) {
         if (e->type() == QEvent::ActionAdded)
-            d->mac_menu->addAction(e->action(), d->mac_menu->findAction(e->before()), this);
+            d->mac_menu->addAction(e->action(), d->mac_menu->findAction(e->before()), d);
         else if (e->type() == QEvent::ActionRemoved)
             d->mac_menu->removeAction(e->action());
         else if (e->type() == QEvent::ActionChanged)
@@ -2328,33 +2328,21 @@ void QMenu::actionEvent(QActionEvent *e)
         connect(e->action(), SIGNAL(triggered()), this, SLOT(_q_actionTriggered()));
         connect(e->action(), SIGNAL(hovered()), this, SLOT(_q_actionHovered()));
 
-#if defined(Q_WS_MAC)
-        if (!d->mac_menu) {
-#endif
-            if (QWidgetAction *wa = qobject_cast<QWidgetAction *>(e->action())) {
-                QWidget *widget = wa->requestWidget(this);
-                if (widget)
-                    d->widgetItems.insert(wa, widget);
-            }
-#if defined(Q_WS_MAC)
+        if (QWidgetAction *wa = qobject_cast<QWidgetAction *>(e->action())) {
+            QWidget *widget = wa->requestWidget(this);
+            if (widget)
+                d->widgetItems.insert(wa, widget);
         }
-#endif
     } else if (e->type() == QEvent::ActionRemoved) {
         d->actionRects.clear();
         d->actionList.clear();
         e->action()->disconnect(this);
-        if(e->action() == d->currentAction)
+        if (e->action() == d->currentAction)
             d->currentAction = 0;
-#if defined(Q_WS_MAC)
-        if (!d->mac_menu) {
-#endif
-            if (QWidgetAction *wa = qobject_cast<QWidgetAction *>(e->action())) {
-                QWidget *widget = d->widgetItems.take(wa);
-                wa->releaseWidget(widget);
-            }
-#if defined(Q_WS_MAC)
+        if (QWidgetAction *wa = qobject_cast<QWidgetAction *>(e->action())) {
+            QWidget *widget = d->widgetItems.take(wa);
+            wa->releaseWidget(widget);
         }
-#endif
     }
 
     if (isVisible()) {

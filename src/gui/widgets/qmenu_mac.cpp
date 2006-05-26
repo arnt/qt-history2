@@ -735,7 +735,7 @@ QMenuPrivate::QMacMenuPrivate::~QMacMenuPrivate()
 }
 
 void
-QMenuPrivate::QMacMenuPrivate::addAction(QAction *a, QMacMenuAction *before, QMenu *qmenu)
+QMenuPrivate::QMacMenuPrivate::addAction(QAction *a, QMacMenuAction *before, QMenuPrivate *qmenu)
 {
     QMacMenuAction *action = new QMacMenuAction;
     action->action = a;
@@ -747,7 +747,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QAction *a, QMacMenuAction *before, QMe
 }
 
 void
-QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction *before, QMenu *qmenu)
+QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction *before, QMenuPrivate *qmenu)
 {
     if (!action)
         return;
@@ -789,8 +789,8 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
     if (index == -1) {
         index = before_index;
         MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
-        QWidgetAction *widgetAction = qobject_cast<QWidgetAction *>(action->action);
-        if (widgetAction) {
+        QWidget *widget = qmenu ? qmenu->widgetItems.value(action->action) : 0;
+        if (widget) {
             ChangeMenuAttributes(action->menu, kMenuAttrDoNotCacheImage, 0);
             attr = kMenuItemAttrCustomDraw;
         }
@@ -803,8 +803,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
             index = tmpIndex;
         }
 
-        if (widgetAction) {
-            QWidget *widget = widgetAction->requestWidget(qmenu);
+        if (widget) {
             SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyWidgetActionWidget,
                                 sizeof(QWidget *), &widget);
             HIViewRef content;
@@ -973,7 +972,7 @@ QMenuPrivate::macMenu(MenuRef merge)
 
     QList<QAction*> items = q->actions();
     for(int i = 0; i < items.count(); i++)
-        mac_menu->addAction(items[i]);
+        mac_menu->addAction(items[i], 0, this);
     return mac_menu->menu;
 }
 
