@@ -298,12 +298,13 @@ void MainWindow::torrentError(TorrentClient::Error)
     // Delete the client.
     TorrentClient *client = qobject_cast<TorrentClient *>(sender());
     int row = rowOfClient(client);
+    QString fileName = jobs.at(row).torrentFileName;
     jobs.removeAt(row);
 
     // Display the warning.
     QMessageBox::warning(this, tr("Error"),
                          tr("An error occurred while downloading %0: %1")
-                         .arg(jobs.at(row).torrentFileName)
+                         .arg(fileName)
                          .arg(client->errorString()),
                          tr("&OK"));
 
