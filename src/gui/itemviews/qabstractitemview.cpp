@@ -1821,9 +1821,10 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
     if (editor && !d->persistent.contains(editor)) {
         setState(NoState);
         d->removeEditor(editor);
-        if (editor->hasFocus())
-            setFocus();
+        bool hadFocus = editor->hasFocus();
         d->releaseEditor(editor);
+        if (hadFocus)
+            setFocus();
     }
 
     // The EndEditHint part
