@@ -1445,7 +1445,7 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
         int top = visualRect(leftIndex).top();
         QModelIndex rightIndex = range.bottomRight();
         while (rightIndex.isValid() && isIndexHidden(rightIndex)) {
-            if (leftIndex.column() - 1 >= 0)
+            if (rightIndex.column() - 1 >= 0)
                 rightIndex = model()->index(rightIndex.row(), rightIndex.column() - 1, parent);
             else
                 rightIndex = QModelIndex();
