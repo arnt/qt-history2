@@ -1026,11 +1026,6 @@ bool QAbstractItemView::focusNextPrevChild(bool next)
 */
 bool QAbstractItemView::event(QEvent *event)
 {
-    if (event->type() == QEvent::InputMethod) {
-        if (!edit(currentIndex(), AnyKeyPressed, event))
-            event->ignore();
-        return true;
-    }
     return QAbstractScrollArea::event(event);
 }
 
@@ -1642,6 +1637,15 @@ void QAbstractItemView::timerEvent(QTimerEvent *event)
         d->delayedLayout.stop();
         doItemsLayout();
     }
+}
+
+/*!
+    \reimp
+*/
+void QAbstractItemView::inputMethodEvent(QInputMethodEvent *event)
+{
+    if (!edit(currentIndex(), AnyKeyPressed, event))
+        event->ignore();
 }
 
 #ifndef QT_NO_DRAGANDDROP
