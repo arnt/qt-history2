@@ -10,11 +10,13 @@
     opens the frame buffer and draws a gradient-filled red square:
 
     \code
+    #include <stdlib.h>
     #include <unistd.h>
     #include <stdio.h>
     #include <fcntl.h>
     #include <linux/fb.h>
     #include <sys/mman.h>
+    #include <sys/ioctl.h>
 
     int main()
     {
@@ -28,21 +30,21 @@
 
         // Open the file for reading and writing
         fbfd = open("/dev/fb0", O_RDWR);
-        if (!fbfd) {
-            printf("Error: cannot open framebuffer device.\n");
+        if (fbfd == -1) {
+	    perror("Error: cannot open framebuffer device");
             exit(1);
         }
         printf("The framebuffer device was opened successfully.\n");
 
         // Get fixed screen information
-        if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo)) {
-            printf("Error reading fixed information.\n");
+        if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo) == -1) {
+	    perror("Error reading fixed information");
             exit(2);
         }
 
         // Get variable screen information
-        if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo)) {
-            printf("Error reading variable information.\n");
+        if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) == -1) {
+	    perror("Error reading variable information");
             exit(3);
         }
 
@@ -55,7 +57,7 @@
         fbp = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED,
                            fbfd, 0);
         if ((int)fbp == -1) {
-            printf("Error: failed to map framebuffer device to memory.\n");
+            perror("Error: failed to map framebuffer device to memory");
             exit(4);
         }
         printf("The framebuffer device was mapped to memory successfully.\n");
