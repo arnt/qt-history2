@@ -24,6 +24,7 @@
 #include <iconloader_p.h>
 #include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_utils_p.h>
+#include <qdesigner_command_p.h>
 #include <metadatabase_p.h>
 
 #include "paletteeditorbutton.h"
@@ -854,19 +855,15 @@ void PropertyEditor::resetProperty(const QString &prop_name)
         return;
     }
 
-    QWidget *w = qobject_cast<QWidget*>(m_object);
-    if (w == 0) {
-        qWarning("PropertyEditor::resetProperty(): object is not a widget");
-        return;
-    }
-
-    QDesignerFormWindowInterface *form = QDesignerFormWindowInterface::findFormWindow(w);
+    QDesignerFormWindowInterface *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0) {
         qWarning("PropertyEditor::resetProperty(): widget does not belong to any form");
         return;
     }
 
-    form->cursor()->resetWidgetProperty(w, prop_name);
+    ResetPropertyCommand *cmd = new ResetPropertyCommand(form);
+    cmd->init(m_object, prop_name);
+    form->commandHistory()->push(cmd);
 }
 
 QString PropertyEditor::currentPropertyName() const

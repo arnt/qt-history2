@@ -166,10 +166,10 @@ class QDESIGNER_SHARED_EXPORT ResetPropertyCommand: public QDesignerFormWindowCo
 public:
     ResetPropertyCommand(QDesignerFormWindowInterface *formWindow);
 
-    void init(QWidget *widget, const QString &propertyName);
+    void init(QObject *object, const QString &propertyName);
 
-    QWidget *widget() const;
-    QWidget *parentWidget() const;
+    QObject *object() const;
+    QObject *parentObject() const;
 
     inline QString propertyName() const
     { return m_propertyName; }
@@ -189,8 +189,8 @@ protected:
 private:
     QString m_propertyName;
     int m_index;
-    QPointer<QWidget> m_widget;
-    QPointer<QWidget> m_parentWidget;
+    QPointer<QObject> m_object;
+    QPointer<QObject> m_parentObject;
     QDesignerPropertySheetExtension *m_propertySheet;
     QVariant m_oldValue;
     bool m_changed;

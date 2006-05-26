@@ -289,26 +289,26 @@ ResetPropertyCommand::ResetPropertyCommand(QDesignerFormWindowInterface *formWin
     setCanMerge(true);
 }
 
-QWidget *ResetPropertyCommand::widget() const
+QObject *ResetPropertyCommand::object() const
 {
-    return m_widget;
+    return m_object;
 }
 
-QWidget *ResetPropertyCommand::parentWidget() const
+QObject *ResetPropertyCommand::parentObject() const
 {
-    return m_parentWidget;
+    return m_parentObject;
 }
 
-void ResetPropertyCommand::init(QWidget *widget, const QString &propertyName)
+void ResetPropertyCommand::init(QObject *object, const QString &propertyName)
 {
-    Q_ASSERT(widget);
+    Q_ASSERT(object);
 
-    m_widget = widget;
-    m_parentWidget = widget->parentWidget();
+    m_object = object;
+    m_parentObject = object->parent();
     m_propertyName = propertyName;
 
     QDesignerFormEditorInterface *core = formWindow()->core();
-    m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), widget);
+    m_propertySheet = qt_extension<QDesignerPropertySheetExtension*>(core->extensionManager(), object);
     Q_ASSERT(m_propertySheet);
 
     m_index = m_propertySheet->indexOf(m_propertyName);
@@ -317,7 +317,7 @@ void ResetPropertyCommand::init(QWidget *widget, const QString &propertyName)
     m_changed = m_propertySheet->isChanged(m_index);
     m_oldValue = m_propertySheet->property(m_index);
 
-    setDescription(tr("reset '%1' of '%2'").arg(m_propertyName).arg(m_widget->objectName()));
+    setDescription(tr("reset '%1' of '%2'").arg(m_propertyName).arg(m_object->objectName()));
 }
 
 void ResetPropertyCommand::redo()
@@ -325,7 +325,7 @@ void ResetPropertyCommand::redo()
     Q_ASSERT(m_propertySheet);
     Q_ASSERT(m_index != -1);
 
-    QObject *obj = m_widget;
+    QObject *obj = m_object;
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj))
         obj = promoted->child();
 
@@ -352,15 +352,17 @@ void ResetPropertyCommand::redo()
 
     m_propertySheet->setChanged(m_index, false);
 
-    if (m_propertyName == QLatin1String("geometry")) {
-        checkSelection(m_widget);
-        checkParent(m_widget, m_parentWidget);
+    QWidget *widget = qobject_cast<QWidget *>(m_object);
+    QWidget *parentWidget = qobject_cast<QWidget *>(m_parentObject);
+    if (m_propertyName == QLatin1String("geometry") && widget) {
+        checkSelection(widget);
+        checkParent(widget, parentWidget);
     } else if (m_propertyName == QLatin1String("objectName")) {
-        checkObjectName(m_widget);
+        checkObjectName(m_object);
     }
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == widget())
+        if (propertyEditor->object() == object())
             propertyEditor->setPropertyValue(propertyName(), new_value, false);
     }
 }
@@ -373,15 +375,17 @@ void ResetPropertyCommand::undo()
     m_propertySheet->setProperty(m_index, m_oldValue);
     m_propertySheet->setChanged(m_index, m_changed);
 
-    if (m_propertyName == QLatin1String("geometry")) {
-        checkSelection(m_widget);
-        checkParent(m_widget, m_parentWidget);
+    QWidget *widget = qobject_cast<QWidget *>(m_object);
+    QWidget *parentWidget = qobject_cast<QWidget *>(m_parentObject);
+    if (m_propertyName == QLatin1String("geometry") && widget) {
+        checkSelection(widget);
+        checkParent(widget, parentWidget);
     } else if (m_propertyName == QLatin1String("objectName")) {
-        checkObjectName(m_widget);
+        checkObjectName(m_object);
     }
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
-        if (propertyEditor->object() == widget())
+        if (propertyEditor->object() == object())
             propertyEditor->setPropertyValue(propertyName(), m_oldValue, m_changed);
     }
 }
