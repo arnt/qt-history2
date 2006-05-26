@@ -83,7 +83,7 @@ public:
     void	 setReadBufferSize( Q_ULONG );
     Q_ULONG	 readBufferSize() const;
 
-    inline bool  isSequential() const { return !isOpen(); }
+    inline bool  isSequential() const { return true; }
 
 Q_SIGNALS:
     void	 hostFound();
