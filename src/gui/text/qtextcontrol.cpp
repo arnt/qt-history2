@@ -470,7 +470,7 @@ void QTextControlPrivate::startDrag()
 
 void QTextControlPrivate::setCursorPosition(const QPoint &pos)
 {
-    const int cursorPos = doc->documentLayout()->hitTest(mapToContents(pos), Qt::FuzzyHit);
+    const int cursorPos = doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
     if (cursorPos == -1)
         return;
     cursor.setPosition(cursorPos);
@@ -1646,7 +1646,7 @@ void QTextControl::mousePressEvent(QMouseEvent *e)
     const QTextCursor oldSelection = d->cursor;
     const int oldCursorPos = d->cursor.position();
 
-    const QPointF pos = d->mapToContents(e->pos());
+    const QPointF pos = e->pos();
 
     d->mousePressed = true;
 #ifndef QT_NO_DRAGANDDROP
@@ -1747,7 +1747,7 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 */
-    const QPointF mousePos = d->mapToContents(e->pos());
+    const QPointF mousePos = e->pos();
     const qreal mouseX = qreal(mousePos.x());
 
     /* ###### portme
@@ -1778,7 +1778,7 @@ void QTextControl::mouseMoveEvent(QMouseEvent *e)
         d->setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
 
     if (d->readOnly) {
-        const QPointF pos = d->mapToContents(e->pos());
+        const QPointF pos = e->pos();
         emit visibilityRequest(QRectF(pos, QSizeF(1, 1)));
         if (d->cursor.position() != oldCursorPos)
             emit cursorPositionChanged();
@@ -2136,7 +2136,7 @@ QMenu *QTextControl::createStandardContextMenu()
 QTextCursor QTextControl::cursorForPosition(const QPointF &pos) const
 {
     Q_D(const QTextControl);
-    int cursorPos = d->doc->documentLayout()->hitTest(d->mapToContents(pos), Qt::FuzzyHit);
+    int cursorPos = d->doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
     if (cursorPos == -1)
         cursorPos = 0;
     QTextCursor c(d->doc);
@@ -2175,7 +2175,7 @@ QRectF QTextControl::cursorRect() const
 QString QTextControl::anchorAt(const QPointF &pos) const
 {
     Q_D(const QTextControl);
-    return d->doc->documentLayout()->anchorAt(d->mapToContents(pos));
+    return d->doc->documentLayout()->anchorAt(pos);
 }
 
 /*

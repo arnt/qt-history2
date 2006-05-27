@@ -73,14 +73,6 @@ public:
     { repaintOldAndNewSelection(QTextCursor()); }
     void repaintOldAndNewSelection(const QTextCursor &oldSelection);
 
-    inline QPointF mapToContents(const QPointF &point) const {
-        return point; // #########
-        /*
-        QRectF vp = q_func()->viewport();
-        return QPointF(point.x() + vp.x(), point.y() + vp.y());
-        */
-    }
-
     void selectionChanged();
 
     void updateCurrentCharFormatAndSelection();
