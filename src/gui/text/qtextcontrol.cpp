@@ -1179,11 +1179,9 @@ void QTextControl::timerEvent(QTimerEvent *e)
     if (e->timerId() == d->cursorBlinkTimer.timerId()) {
         d->cursorOn = !d->cursorOn;
 
-        /* ########
         if (d->cursor.hasSelection())
-            d->cursorOn &= (style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)
+            d->cursorOn &= (QApplication::style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected)
                             != 0);
-        */
 
         d->repaintCursor();
 /*
