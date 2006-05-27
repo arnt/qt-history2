@@ -83,9 +83,6 @@ public:
 
     void selectionChanged();
 
-    void pageUp(QTextCursor::MoveMode moveMode);
-    void pageDown(QTextCursor::MoveMode moveMode);
-
     void updateCurrentCharFormatAndSelection();
 
     void setClipboardSelection();

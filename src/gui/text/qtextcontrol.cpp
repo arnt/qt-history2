@@ -235,12 +235,6 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
             }
             break;
 #endif
-        case Qt::Key_PageDown:
-            pageDown(mode);
-            break;
-        case Qt::Key_PageUp:
-            pageUp(mode);
-            break;
     default:
         return false;
     }
@@ -530,55 +524,6 @@ void QTextControlPrivate::selectionChanged()
     emit q->copyAvailable(current);
     emit q->selectionChanged();
 // ####    q->updateMicroFocus();
-}
-
-void QTextControlPrivate::pageUp(QTextCursor::MoveMode moveMode)
-{
-    /* ##################
-    Q_Q(QTextControl);
-    const int oldCursorPos = cursor.position();
-    const QRectF vp = q->viewport();
-    int targetY = int(vp.y() - vp.height());
-    bool moved = false;
-    qreal y;
-    // move to the targetY using movePosition to keep the cursor's x
-    do {
-        const QRectF r = q->cursorRect();
-        y = vp.y() + r.y() - r.height();
-        moved = cursor.movePosition(QTextCursor::Up, moveMode);
-    } while (moved && y > targetY);
-
-    if (moved) {
-        q->ensureCursorVisible();
-        if (cursor.position() != oldCursorPos)
-            emit q->cursorPositionChanged();
-// #####        q->updateMicroFocus();
-    }
-    */
-}
-
-void QTextControlPrivate::pageDown(QTextCursor::MoveMode moveMode)
-{
-    /* #################
-    Q_Q(QTextControl);
-    const int oldCursorPos = cursor.position();
-    const QRectF vp = q->viewport();
-    int targetY = int(vp.y() + 2 * vp.height());
-    bool moved = false;
-    qreal y;
-    // move to the targetY using movePosition to keep the cursor's x
-    do {
-        y = vp.y() + q->cursorRect().bottom();
-        moved = cursor.movePosition(QTextCursor::Down, moveMode);
-    } while (moved && y < targetY);
-
-    if (moved) {
-        q->ensureCursorVisible();
-        if (cursor.position() != oldCursorPos)
-            emit q->cursorPositionChanged();
-// ######        q->updateMicroFocus();
-    }
-    */
 }
 
 void QTextControlPrivate::updateCurrentCharFormatAndSelection()
