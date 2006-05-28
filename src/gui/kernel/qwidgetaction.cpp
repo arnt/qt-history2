@@ -23,7 +23,7 @@
     \brief The QWidgetAction class extends QAction by an interface
     for inserting custom widgets into action based containers, such
     as toolbars.
-    
+
     Most actions in application are represented as items in menus or
     buttons in toolbars. However sometimes more complex widgets are
     necessary. For example a zoom action in a word processor may be
@@ -37,7 +37,7 @@
     If a QWidgetAction is added for example to a QToolBar then
     QWidgetAction::createWidget() is called. Reimplementations of that
     function should create a new custom widget with the specified parent.
-    
+
     If the action is removed from a container widget then QWidgetAction::deleteWidget()
     is called with the previously created custom widget as argument. The default implementation
     hides the widget and deletes it using QObject::deleteLater().
@@ -49,8 +49,6 @@
     added to two toolbars at the same time then the default widget is shown
     only in the first toolbar the action was added to. QWidgetAction takes
     over ownership of the default widget.
-    
-    Currently in Qt only QToolBar supports QWidgetAction.
 
     \ingroup application
     \mainclass
@@ -144,7 +142,7 @@ QWidget *QWidgetAction::requestWidget(QWidget *parent)
 void QWidgetAction::releaseWidget(QWidget *w)
 {
     Q_D(QWidgetAction);
-    
+
     if (w == d->defaultWidget) {
         d->defaultWidget->hide();
         d->defaultWidget->setParent(0);
@@ -154,7 +152,7 @@ void QWidgetAction::releaseWidget(QWidget *w)
 
     if (!d->createdWidgets.contains(w))
         return;
-    
+
     disconnect(w, SIGNAL(destroyed(QObject *)),
                this, SLOT(_q_widgetDestroyed(QObject *)));
     d->createdWidgets.removeAll(w);
