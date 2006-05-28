@@ -1605,8 +1605,10 @@ void QGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMen
 
 /*!
     This event handler, for event \a focusEvent, can be reimplemented in a
-    subclass to receive focus in events. The default implementation forwards
-    the event to the current focus item.
+    subclass to receive focus in events.
+
+    The default implementation sets focus on the scene, and then on the last
+    focus item.
 
     \sa QGraphicsItem::focusOutEvent()
 */
@@ -1622,8 +1624,10 @@ void QGraphicsScene::focusInEvent(QFocusEvent *focusEvent)
 
 /*!
     This event handler, for event \a focusEvent, can be reimplemented in a
-    subclass to receive focus out events. The default implementation forwards
-    the event to the current focus item.
+    subclass to receive focus out events.
+
+    The default implementation removes focus from any focus item, then removes
+    focus from the scene.
 
     \sa QGraphicsItem::focusInEvent()
 */
