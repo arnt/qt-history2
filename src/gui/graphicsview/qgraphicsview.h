@@ -48,8 +48,7 @@ public:
     enum DragMode {
         NoDrag,
         ScrollHandDrag,
-        RubberBandDrag,
-        ExtendedSelection
+        RubberBandDrag
     };
 
     QGraphicsView(QGraphicsScene *scene = 0, QWidget *parent = 0);

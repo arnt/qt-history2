@@ -57,6 +57,14 @@ public:
     };
     Q_DECLARE_FLAGS(GraphicsItemFlags, GraphicsItemFlag)
 
+    enum ItemChange {
+        ItemPositionChange,
+        ItemMatrixChange,
+        ItemVisibleChange,
+        ItemEnabledChange,
+        ItemSelectedChange
+    };
+        
     QGraphicsItem(QGraphicsItem *parent = 0);
     virtual ~QGraphicsItem();
 
@@ -199,13 +207,6 @@ protected:
     virtual void inputMethodEvent(QInputMethodEvent *event);
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
-    enum ItemChange {
-        ItemPositionChange,
-        ItemMatrixChange,
-        ItemVisibleChange,
-        ItemEnabledChange,
-        ItemSelectedChange
-    };
     virtual void itemChange(ItemChange change);
 
     enum Extension {

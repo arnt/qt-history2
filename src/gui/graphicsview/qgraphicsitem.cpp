@@ -185,7 +185,7 @@
     children, all children are also moved. If the item is part of a
     selection, all selected items are also moved. This feature is
     provided as a convenience through the base implementation of
-    QGraphicsItem::mouseMoveEvent().
+    QGraphicsItem's mouse event handlers.
 
     \value ItemIsSelectable The item supports selection. Enabling this
     feature will enable setSelected() to toggle selection for the
@@ -203,25 +203,40 @@
     \enum QGraphicsItem::ItemChange
 
     This enum describes the state changes that are notified by
-    QGraphicsItem::itemChange().
+    QGraphicsItem::itemChange(). The notifications are sent as the state
+    changes.
+
+    Note: Be careful with calling functions on the QGraphicsItem
+    itself inside itemChange(), as certain function calls can lead to
+    unwanted recursion. For example, you cannot call setPos() in
+    itemChange() on an ItemPositionChange notification, as the
+    setPos() function will again call itemChange(ItemPositionChange).
 
     \value ItemEnabledChange The item's enabled state changes. If the item is
-    presently enabled, it will become disabled, and vice verca.
+    presently enabled, it will become disabled, and vice verca. Do not call
+    setEnabled() in itemChange() as this notification is delivered.
 
-    \value ItemMatrixChange The item's matrix changes. This notification is
-    only sent when the item's local matrix changes (i.e., as a result of
-    calling setMatrix(), or one of the convenience transformation functions,
-    such as rotate()).
+    \value ItemMatrixChange The item's matrix changes. This
+    notification is only sent when the item's local matrix changes
+    (i.e., as a result of calling setMatrix(), or one of the
+    convenience transformation functions, such as rotate()). Do not
+    call setMatrix() or any of the transformation convenience
+    functions in itemChange() as this notification is delivered.
 
-    \value ItemPositionChange The item's position changes. This notification
-    is only sent when the item's local position changes, relative to its
-    parent, has changed (i.e., as a result of calling setPos() or moveBy()).
+    \value ItemPositionChange The item's position changes. This
+    notification is only sent when the item's local position changes,
+    relative to its parent, has changed (i.e., as a result of calling
+    setPos() or moveBy()). Do not call setPos() or moveBy() in
+    itemChange() as this notification is delivered.
 
-    \value ItemSelectedChange The item's selected state changes. If the item
-    is presently selected, it will become unselected, and vice verca.
+    \value ItemSelectedChange The item's selected state changes. If
+    the item is presently selected, it will become unselected, and
+    vice verca. Do not call setSelected() in itemChange() as this
+    notification is delivered().
 
     \value ItemVisibleChange The item's visible state changes. If the item
-    is presently visible, it will become invisible, and vice verca.
+    is presently visible, it will become invisible, and vice verca. Do
+    not call setVisible() in itemChange() as this notification is delivered.
 */
 
 /*!
@@ -600,9 +615,10 @@ void QGraphicsItem::setToolTip(const QString &toolTip)
 
 #ifndef QT_NO_CURSOR
 /*!
-    Returns the current cursor shape for the item. The mouse cursor will
-    assume this shape when it's over this item. See the list of predefined
-    cursor objects for a range of useful shapes.
+    Returns the current cursor shape for the item. The mouse cursor
+    will assume this shape when it's over this item. See the \link
+    Qt::CursorShape list of predefined cursor objects\endlink for a
+    range of useful shapes.
 
     An editor item might want to use an I-beam cursor:
 
@@ -814,12 +830,13 @@ void QGraphicsItem::setSelected(bool selected)
     Returns the mouse buttons that this item accepts mouse events for.  By
     default, all mouse buttons are accepted.
 
-    If an item accepts a mouse button, it will become the mouse grabber item
-    when a mouse press event is delivered. However, if the item does not
-    accept a certain mouse button, QGraphicsScene will forward the mouse
-    events to the first item beneith it that does.
+    If an item accepts a mouse button, it will become the mouse
+    grabber item when a mouse press event is delivered for that mouse
+    button. However, if the item does not accept the button,
+    QGraphicsScene will forward the mouse events to the first item
+    beneith it that does.
 
-    \sa setAcceptedMouseButtons(), setAcceptsHoverEvents()
+    \sa setAcceptedMouseButtons(), mousePressEvent()
 */
 Qt::MouseButtons QGraphicsItem::acceptedMouseButtons() const
 {
@@ -830,16 +847,16 @@ Qt::MouseButtons QGraphicsItem::acceptedMouseButtons() const
 /*!
     Sets the mouse \a buttons that this item accepts mouse events for.
 
-    By default, all mouse buttons are accepted. If an item accepts a mouse
-    button, it will become the mouse grabber item when a mouse press event is
-    delivered. However, if the item does not accept a certain mouse button,
-    QGraphicsScene will forward the mouse events to the first item beneith it
-    that does.
+    By default, all mouse buttons are accepted. If an item accepts a
+    mouse button, it will become the mouse grabber item when a mouse
+    press event is delivered for that button. However, if the item
+    does not accept the mouse button, QGraphicsScene will forward the
+    mouse events to the first item beneith it that does.
 
     To disable mouse events for an item (i.e., make it transparent for mouse
     events), call setAcceptedMouseButtons(0).
 
-    \sa acceptedMouseButtons(), acceptsHoverEvents()
+    \sa acceptedMouseButtons(), mousePressEvent()
 */
 void QGraphicsItem::setAcceptedMouseButtons(Qt::MouseButtons buttons)
 {
@@ -852,10 +869,11 @@ void QGraphicsItem::setAcceptedMouseButtons(Qt::MouseButtons buttons)
 }
 
 /*!
-    Returns true if an item accepts hover events (QGraphicsSceneHoverEvent);
-    otherwise, returns false. By default, items do not accept hover events.
+    Returns true if an item accepts hover events
+    (QGraphicsSceneHoverEvent); otherwise, returns false. By default,
+    items do not accept hover events.
 
-    \sa setAcceptsMouseEvents()
+    \sa setAcceptedMouseButtons()
 */
 bool QGraphicsItem::acceptsHoverEvents() const
 {
@@ -864,10 +882,30 @@ bool QGraphicsItem::acceptsHoverEvents() const
 }
 
 /*!
-    If \a enabled is true, this item will accept hover events; otherwise, it
-    will ignore them. By default, items do not accept hover events.
+    If \a enabled is true, this item will accept hover events;
+    otherwise, it will ignore them. By default, items do not accept
+    hover events.
 
-    \sa acceptsHoverEvents()
+    Hover events are delivered when there is no current mouse grabber
+    item.  They are sent when the mouse cursor enters an item, when it
+    moves around inside the item, and when the cursor leaves an
+    item. Hover events are commonly used to highlight an item when
+    it's entered, and for tracking the mouse cursor as it hovers over
+    the item (equivalent to QWidget::mouseTracking).
+
+    Parent items receive hover enter events before their children, and
+    leave events after their children. The parent does not receive a
+    hover leave event if the cursor enters a child, though; the parent
+    stays "hovered" until the cursor leaves its area, including its
+    children's areas.
+
+    If a parent item handles child events (setHandlesChildEvents()),
+    it will receive hover move events as the cursor passes through its
+    children, but it does not receive hover enter and hover leave
+    events on behalf of its children.
+    
+    \sa acceptsHoverEvents(), hoverEnterEvent(), hoverMoveEvent(),
+    hoverLeaveEvent()
 */
 void QGraphicsItem::setAcceptsHoverEvents(bool enabled)
 {
@@ -876,13 +914,13 @@ void QGraphicsItem::setAcceptsHoverEvents(bool enabled)
 }
 
 /*!
-    Returns true if this item handles child events (i.e., all events intented
-    for any of its children are instead sent to this item); otherwise, false
-    is returned.
+    Returns true if this item handles child events (i.e., all events
+    intented for any of its children are instead sent to this item);
+    otherwise, false is returned.
 
-    This property is useful for item groups; it allows one item to handle
-    events on behalf of its children, as opposed to its children handling
-    their events individually.
+    This property is useful for item groups; it allows one item to
+    handle events on behalf of its children, as opposed to its
+    children handling their events individually.
 
     The default is to return false; children handle their own events.
 
@@ -895,14 +933,20 @@ bool QGraphicsItem::handlesChildEvents() const
 }
 
 /*!
-    If \a enabled is true, this item is set to handle all events for all its
-    children (i.e., all events intented for any of its children are instead
-    sent to this item); otherwise, if \a enabled is false, this item will only
-    handle its own events. The default value is false.
+    If \a enabled is true, this item is set to handle all events for
+    all its children (i.e., all events intented for any of its
+    children are instead sent to this item); otherwise, if \a enabled
+    is false, this item will only handle its own events. The default
+    value is false.
 
-    This property is useful for item groups; it allows one item to handle
-    events on behalf of its children, as opposed to its children handling
-    their events individually.
+    This property is useful for item groups; it allows one item to
+    handle events on behalf of its children, as opposed to its
+    children handling their events individually.
+
+    If a child item accepts hover events, its parent will receive
+    hover move events as the cursor passes through the child, but it
+    does not receive hover enter and hover leave events on behalf of
+    its child.
 
     \sa handlesChildEvents()
 */
@@ -977,12 +1021,12 @@ void QGraphicsItem::clearFocus()
     Returns the position of the item in parent coordinates. If the item has no
     parent, its position is given in scene coordinates.
 
-    The position of the item describes its local coordinate (0, 0) in parent
-    coordinates. For this reason, this function always return the same as
+    The position of the item describes its origin (local coordinate
+    (0, 0)) in parent coordinates; this function returns the same as
     mapToParent(0, 0).
 
-    For convenience, you can also call scenePos() to determine the item's
-    position in scene coordinates, regardless of its parent.
+    For convenience, you can also call scenePos() to determine the
+    item's position in scene coordinates, regardless of its parent.
 
     \sa setPos(), matrix()
 */
@@ -993,8 +1037,8 @@ QPointF QGraphicsItem::pos() const
 }
 
 /*!
-    Returns the item's position in scene coordinates. This is equivalent to
-    calling mapToScene(0, 0).
+    Returns the item's position in scene coordinates. This is
+    equivalent to calling mapToScene(0, 0).
 
     \sa pos(), sceneMatrix()
 */
@@ -1004,8 +1048,12 @@ QPointF QGraphicsItem::scenePos() const
 }
 
 /*!
-    Sets the position of the item to \a pos, which is in parent coordinates.
-    For items with no parent, \a pos is in scene coordinates.
+    Sets the position of the item to \a pos, which is in parent
+    coordinates.  For items with no parent, \a pos is in scene
+    coordinates.
+
+    The position of the item describes its origin (local coordinate
+    (0, 0)) in parent coordinates.
 
     \sa pos(), scenePos()
 */
@@ -1046,7 +1094,8 @@ void QGraphicsItem::setPos(const QPointF &pos)
     If this item is part of a scene that is viewed by a QGraphicsView, this
     convenience function will attempt to scroll the view to ensure that \a
     rect is visible inside the view's viewport. If \a rect is a null rect (the
-    default), QGraphicsItem will default to the item's bounding rect.
+    default), QGraphicsItem will default to the item's bounding rect. \a xmargin
+    and \a ymargin are the number of pixels the view should use for margins.
 
     If the specified rect cannot be reached, the contents are scrolled to the
     nearest valid position.
@@ -1199,6 +1248,10 @@ void QGraphicsItem::shear(qreal sh, qreal sv)
 /*!
     Translates the current item transformation by (\a dx, \a dy).
 
+    If all you want is to move an item, you should call moveBy() or
+    setPos() instead; this function changes the item's translation,
+    which is conceptually separate from its position.
+
     \sa setMatrix(), matrix(), rotate(), scale(), shear()
 */
 void QGraphicsItem::translate(qreal dx, qreal dy)
@@ -1229,6 +1282,18 @@ qreal QGraphicsItem::zValue() const
     that share the same Z-value will be drawn in an undefined order, although
     the order will stay the same for as long as the items live.
 
+    Children of different parents are stacked using the Z-value of
+    each item's ancestor which is an immediate children of the two
+    items' closest common ancestor. For example, a robot item might
+    define a torso item as the parent of a head item, two arm items,
+    and two upper-leg items. The upper-leg items would each be parents
+    of one lower-leg item, and each lower-leg item would be parents of
+    one foot item.  The stacking order of the feet is the same as the
+    stacking order of each foot's ancestor that is an immediate child
+    of the two feet's common ancestor (i.e., the torso item); so the
+    feet are stacked in the same order as the upper-leg items,
+    regardless of the feet's Z-values.
+
     The Z-value does not affect the item's size in any way.
 
     The default Z-value is 0.
@@ -1249,10 +1314,13 @@ void QGraphicsItem::setZValue(qreal z)
     their children, etc.) in local coordinates. If the item has no children,
     this function returns an empty QRectF.
 
-    Note that this does not include this item's bounding rect; it only returns
+    This does not include this item's own bounding rect; it only returns
     its descendents' accumulated bounding rect. If you need to include this
     item's bounding rect, you can add boundingRect() to childrenBoundingRect()
     using QRectF::operator|().
+
+    This function is linear in complexity; it determines the size of the
+    returned bounding rect by iterating through all descendents.
 
     \sa boundingRect(), sceneBoundingRect()
 */
@@ -1276,15 +1344,26 @@ QRectF QGraphicsItem::childrenBoundingRect() const
     item requires redrawing.
 
     Although the item's shape can be arbitrary, the bounding rect is
-    always rectangular.
+    always rectangular, and it is unaffected by the items'
+    transformation (scale(), rotate(), etc.).
 
-    Reimplement this function to let QGraphicsView efficiently
-    determine what parts of the widget, if any, need to be redrawn.
+    Reimplement this function to let QGraphicsView determine what
+    parts of the widget, if any, need to be redrawn.
 
     Note: For shapes that paint an outline / stroke, it is important
-    to include half the pen width in the bounding rect. If you are
-    using antialiasing, 2 - two - points must be added to each side of
-    the bounding rectangle to include smooth edges.
+    to include half the pen width in the bounding rect. It is not
+    necessary to compensate for antialiasing, though.
+
+    Example:
+
+    \code
+    QRectF CircleItem::boundingRect() const
+    {
+        qreal penWidth = 1;
+        return QRectF(-radius - penWidth / 2, -radius - penWidth / 2,
+                      diameter + penWidth, diameter + penWidth);
+    }
+    \endcode
 
     \sa shape(), contains()
 */
@@ -1299,8 +1378,10 @@ QRectF QGraphicsItem::sceneBoundingRect() const
 }
 
 /*!
-    Returns the shape of this item as a QPainterPath in local coordinates. The
-    shape is used for collision detection and hit tests.
+    Returns the shape of this item as a QPainterPath in local
+    coordinates. The shape is used for collision detection, hit tests,
+    and for the QGraphicsScene::items() functions that operate on
+    shapes.
 
     The default implementation calls boundingRect() to return a simple '
     rectangular shape, but subclasses can reimplement this function to return
@@ -1797,8 +1878,11 @@ bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent
 /*!
     This virtual function receives events to this item. Reimplement
     this function to intercept events before they are dispatched to
-    the specialized event handlers contextMenuEvent(), focusEvent(),
-    hoverEvent(), keyEvent() and mouseEvent().
+    the specialized event handlers contextMenuEvent(), focusInEvent(),
+    focusOutEvent(), hoverEnterEvent(), hoverMoveEvent(),
+    hoverLeaveEvent(), keyPressEvent(), keyReleaseEvent(),
+    mousePressEvent(), mouseReleaseEvent(), mouseMoveEvent(), and
+    mouseDoubleClickEvent().
 
     \a event is the intercepted event.
 */
@@ -1875,8 +1959,7 @@ void QGraphicsItem::sceneEvent(QEvent *event)
     receive context menu events for this item. The default
     implementation does nothing.
 
-    \sa focusEvent(), hoverEvent(), keyEvent(), mouseEvent(),
-    inputMethodEvent()
+    \sa sceneEvent()
 */
 void QGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
@@ -1910,6 +1993,8 @@ void QGraphicsItem::focusOutEvent(QFocusEvent *event)
     hover enter events for this item. The default implementation calls
     update(); otherwise it does nothing.
 
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
+
     \sa hoverMoveEvent(), hoverLeaveEvent(), sceneEvent()
 */
 void QGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
@@ -1921,6 +2006,8 @@ void QGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 /*!
     This event handler, for event \a event, can be reimplemented to receive
     hover move events for this item. The default implementation does nothing.
+
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
 
     \sa hoverEnterEvent(), hoverLeaveEvent(), sceneEvent()
 */
@@ -1934,6 +2021,8 @@ void QGraphicsItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
     hover leave events for this item. The default implementation calls
     update(); otherwise it does nothing.
 
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
+
     \sa hoverEnterEvent(), hoverMoveEvent(), sceneEvent()
 */
 void QGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
@@ -1946,6 +2035,8 @@ void QGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     This event handler, for event \a event, can be reimplemented to
     receive key press events for this item. The default implementation
     does nothing.
+
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
 
     Note that key events are only received for items that set the
     ItemIsFocusable flag, and that have keyboard input focus.
@@ -1962,6 +2053,8 @@ void QGraphicsItem::keyPressEvent(QKeyEvent *event)
     This event handler, for event \a event, can be reimplemented to receive
     key release events for this item. The default implementation does nothing.
 
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
+
     Note that key events are only received for items that set the
     ItemIsFocusable flag, and that have keyboard input focus.
 
@@ -1974,11 +2067,33 @@ void QGraphicsItem::keyReleaseEvent(QKeyEvent *event)
 }
 
 /*!
-    This event handler, for event \a event, can be reimplemented to receive
-    mouse press events for this item. The default implementation handles basic
-    item interaction, such as selection and moving.
+    This event handler, for event \a event, can be reimplemented to
+    receive mouse press events for this item. Mouse press events are
+    only delivered to items that accept the mouse button that is
+    pressed. By default, an item accepts all mouse buttons, but you
+    can change this by calling setAcceptedMouseButtons().
 
-    \sa mouseMoveEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(), sceneEvent()
+    The mouse press event decides which item should become the mouse
+    grabber (see QGraphicsScene::mouseGrabberItem()). If you do not
+    reimplement this function, the press event will propagate to any
+    topmost item beneith this item, and no other mouse events will be
+    delivered to this item.
+
+    If you do reimplement this function, \a event will by default be
+    accepted (see QEvent::accept()), and this item is then the mouse
+    grabber. This allows the item to receive future move, release and
+    doubleclick events. If you call QEvent::ignore() on \a event, this
+    item will lose the mouse grab, and \a event will propagate to any
+    topmost item beneith. No further mouse events will be delivered to
+    this item unless a new mouse press event is received.
+
+    The default implementation handles basic item interaction, such as
+    selection and moving. If you want to keep the base implementation
+    when reimplementing this function, call
+    QGraphicsItem::mousePressEvent() in your reimplementation.
+
+    \sa mouseMoveEvent(), mouseReleaseEvent(),
+    mouseDoubleClickEvent(), sceneEvent()
 */
 void QGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -1995,16 +2110,27 @@ void QGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 }
 
 /*!
-    This event handler, for event \a event, can be reimplemented to receive
-    mouse move events for this item. The default implementation handles basic
-    item interaction, such as selection and moving.
+    This event handler, for event \a event, can be reimplemented to
+    receive mouse move events for this item. If you do receive this
+    event, you can be certain that this item also received a mouse
+    press event, and that this item is the current mouse grabber.
 
-    \sa mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(), sceneEvent()
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no
+    effect.
+
+    The default implementation handles basic item interaction, such as
+    selection and moving. If you want to keep the base implementation
+    when reimplementing this function, call
+    QGraphicsItem::mouseMoveEvent() in your reimplementation.
+
+    \sa mousePressEvent(), mouseReleaseEvent(),
+    mouseDoubleClickEvent(), sceneEvent()
 */
 void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_D(QGraphicsItem);
     if ((event->buttons() & Qt::LeftButton) && (flags() & ItemIsMovable)) {
+        // Handle ItemIsMovable.        
         QPointF newPos(mapToParent(event->pos()) - matrix().map(event->buttonDownPos(Qt::LeftButton)));
         QPointF diff = newPos - pos();
 
@@ -2027,11 +2153,19 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 }
 
 /*!
-    This event handler, for event \a event, can be reimplemented to receive
-    mouse release events for this item. The default implementation handles
-    basic item interaction, such as selection and moving.
+    This event handler, for event \a event, can be reimplemented to
+    receive mouse release events for this item.
 
-    \sa mousePressEvent(), mouseMoveEvent(), mouseDoubleClickEvent(), sceneEvent()
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no
+    effect.
+
+    The default implementation handles basic item interaction, such as
+    selection and moving. If you want to keep the base implementation
+    when reimplementing this function, call
+    QGraphicsItem::mouseReleaseEvent() in your reimplementation.
+
+    \sa mousePressEvent(), mouseMoveEvent(), mouseDoubleClickEvent(),
+    sceneEvent()
 */
 void QGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -2048,9 +2182,20 @@ void QGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 }
 
 /*!
-    This event handler, for event \a event, can be reimplemented to receive
-    mouse doubleclick events for this item. The default implementation calls
-    mousePressEvent().
+    This event handler, for event \a event, can be reimplemented to
+    receive mouse doubleclick events for this item.
+
+    When doubleclicking an item, the item will first receive a mouse
+    press event, followed by a release event (i.e., a click), then a
+    doubleclick event, and finally a release event.
+
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no
+    effect.
+
+    The default implementation calls mousePressEvent(). If you want to
+    keep the base implementation when reimplementing this function,
+    call QGraphicsItem::mouseDoubleClickEvent() in your
+    reimplementation.
 
     \sa mousePressEvent(), mouseMoveEvent(), mouseReleaseEvent(), sceneEvent()
 */
@@ -2064,8 +2209,7 @@ void QGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
     receive input method events for this item. The default
     implementation does nothing.
 
-    \sa contextMenuEvent(), focusEvent(), hoverEvent(), keyEvent(),
-    mouseEvent()
+    \sa inputMethodQuery(), sceneEvent()
 */
 void QGraphicsItem::inputMethodEvent(QInputMethodEvent *event)
 {
@@ -2096,6 +2240,10 @@ QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
 
     The default implementation does nothing.
 
+    Note: Certain QGraphicsItem functions cannot be called in a
+    reimplementation of this function; see the ItemChange
+    documentation for details.
+    
     \sa ItemChange
 */
 void QGraphicsItem::itemChange(ItemChange change)

@@ -85,8 +85,8 @@
     that inherits QEvent, and then send it using, for example,
     QApplication::sendEvent(). event() is responsible for dispatching
     the event to the individual items. Some common events are handled by
-    convenience event handlers. For example, key events are handled by
-    keyEvent(), and mouse events are handled by mouseEvent().
+    convenience event handlers. For example, key press events are handled by
+    keyPressEvent(), and mouse press events are handled by mousePressEvent().
 
     Key events are delivered to the \e {focus item}. To set the focus item,
     you can either call setFocusItem(), passing an item that accepts focus, or
@@ -590,16 +590,8 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
         // We already have a mouse grabber. This means more than one button is
         // pressed at the same time. This is just delivered like a normal
         // event.
-        if (!mouseGrabberItem->isVisible() || !mouseGrabberItem->isEnabled()) {
-            // Mouse grabbers that suddenly go invisible or disabled always
-            // lose the grab. The event then propagates like normal.
-            lastMouseGrabberItem = mouseGrabberItem;
-            mouseGrabberItem = 0;
-        } else {
-            // Forward the event to the mouse grabber
-            sendMouseEvent(mouseEvent);
-            return;
-        }
+        sendMouseEvent(mouseEvent);
+        return;
     }
 
     // Ignore by default, unless we find a mouse grabber that accepts it.
@@ -628,12 +620,14 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
             // event is converted to a press. Known limitation:
             // Triple-clicking will not generate a doubleclick, though.
             QGraphicsSceneMouseEvent mousePress(QEvent::GraphicsSceneMousePress);
+            mousePress.accept();
             mousePress.setButton(mouseEvent->button());
             mousePress.setButtons(mouseEvent->buttons());
             mousePress.setScreenPos(mouseEvent->screenPos());
             mousePress.setScenePos(mouseEvent->scenePos());
             mousePress.setModifiers(mouseEvent->modifiers());
             sendMouseEvent(&mousePress);
+            mouseEvent->setAccepted(mousePress.isAccepted());
         } else {
             sendMouseEvent(mouseEvent);
         }
@@ -1496,12 +1490,15 @@ void QGraphicsScene::clearFocus()
     grabbing the mouse. The mouse grabber item is the item that receives all
     mouse events sent to the scene.
 
-    An item becomes a mouse grabber when it receives a mouse press, and it
-    stays the mouse grabber until either of the following events occur:
+    An item becomes a mouse grabber when it receives and accepts a
+    mouse press event, and it stays the mouse grabber until either of
+    the following events occur:
 
     \list
-    \o If the item receives a mouse release event, it loses the mouse grab.
+    \o If the item receives a mouse release event when there are no other
+    buttons pressed, it loses the mouse grab.
     \o If the item becomes invisible (i.e., someone calls item->setVisible(false)),
+    or if it becomes disabled (i.e., someone calls item->setEnabled(false)),
     it loses the mouse grab.
     \o If the item is removed from the scene, it loses the mouse grab.
     \endlist
@@ -1517,10 +1514,18 @@ QGraphicsItem *QGraphicsScene::mouseGrabberItem() const
 }
 
 /*!
-    Processes the event \a event, and dispatches it to the respective event handlers.
+    Processes the event \a event, and dispatches it to the respective
+    event handlers.
 
-    \sa contextMenuEvent(), keyEvent(), hoverEvent(), mouseEvent(),
-    focusEvent()
+    In addition to calling the convenience event handlers, this
+    function is responsible for converting mouse move events to hover
+    events for when there is no mouse grabber item. Hover events are
+    delivered directly to items; there is no convenience function for
+    them.
+
+    \sa contextMenuEvent(), keyPressEvent(), keyReleaseEvent(),
+    mousePressEvent(), mouseMoveEvent(), mouseReleaseEvent(),
+    mouseDoubleClickEvent(), focusInEvent(), focusOutEvent()
 */
 bool QGraphicsScene::event(QEvent *event)
 {
@@ -1603,7 +1608,7 @@ void QGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMen
     subclass to receive focus in events. The default implementation forwards
     the event to the current focus item.
 
-    \sa QGraphicsItem::focusInEvent()
+    \sa QGraphicsItem::focusOutEvent()
 */
 void QGraphicsScene::focusInEvent(QFocusEvent *focusEvent)
 {
@@ -1620,7 +1625,7 @@ void QGraphicsScene::focusInEvent(QFocusEvent *focusEvent)
     subclass to receive focus out events. The default implementation forwards
     the event to the current focus item.
 
-    \sa QGraphicsItem::focusEvent()
+    \sa QGraphicsItem::focusInEvent()
 */
 void QGraphicsScene::focusOutEvent(QFocusEvent *focusEvent)
 {
@@ -1758,18 +1763,21 @@ void QGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
 }
 
 /*!
-    This event handler, for event \a mouseEvent, can be reimplemented in a
-    subclass to receive mouse events. The default implementation depends on
-    the state of the scene. If there is a mouse grabber item, then the event
-    is sent to the mouse grabber. Otherwise, if the event is a mouse press, it
-    is forwarded to the topmost item that accepts mouse events at the scene
-    position from the event, and that item promptly becomes the mouse grabber
-    item.
+    This event handler, for event \a mouseEvent, can be reimplemented
+    in a subclass to receive mouse press events for the scene.
 
-    If there is no mouse grabber, or if the event is a mouse press and there
-    is no item at the given position on the scene, the event is ignored.
+    The default implementation depends on the state of the scene. If
+    there is a mouse grabber item, then the event is sent to the mouse
+    grabber. Otherwise, it is forwarded to the topmost item that
+    accepts mouse events at the scene position from the event, and
+    that item promptly becomes the mouse grabber item.
 
-    \sa QGraphicsItem::mouseEvent(), QGraphicsItem::setAcceptsMouseEvents()
+    If there is no item at the given position on the scene, the
+    selection area is reset, any focus item loses its input focus, and
+    the event is then ignored.
+
+    \sa QGraphicsItem::mousePressEvent(),
+    QGraphicsItem::setAcceptedMouseButtons()
 */
 void QGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
@@ -1778,18 +1786,15 @@ void QGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 }
 
 /*!
-    This event handler, for event \a mouseEvent, can be reimplemented in a
-    subclass to receive mouse events. The default implementation depends on
-    the state of the scene. If there is a mouse grabber item, then the event
-    is sent to the mouse grabber. Otherwise, if the event is a mouse press, it
-    is forwarded to the topmost item that accepts mouse events at the scene
-    position from the event, and that item promptly becomes the mouse grabber
-    item.
+    This event handler, for event \a mouseEvent, can be reimplemented
+    in a subclass to receive mouse move events for the scene.
 
-    If there is no mouse grabber, or if the event is a mouse press and there
-    is no item at the given position on the scene, the event is ignored.
+    The default implementation depends on the mouse grabber state. If
+    there is a mouse grabber item, the event is sent to the mouse
+    grabber; otherwise, the event is ignored.
 
-    \sa QGraphicsItem::mouseEvent(), QGraphicsItem::setAcceptsMouseEvents()
+    \sa QGraphicsItem::mousePressEvent(), QGraphicsItem::mouseReleaseEvent(),
+    QGraphicsItem::mouseDoubleClickEvent(), QGraphicsItem::setAcceptedMouseButtons()
 */
 void QGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
@@ -1798,46 +1803,29 @@ void QGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
         mouseEvent->ignore();
         return;
     }
-
-    if (!d->mouseGrabberItem->isVisible() || !d->mouseGrabberItem->isEnabled()) {
-        // Mouse grabbers that suddenly go invisible or disabled lose the
-        // grab.
-        d->lastMouseGrabberItem = d->mouseGrabberItem;
-        d->mouseGrabberItem = 0;
-        return;
-    }
     
     // Forward the event to the mouse grabber
     d->sendMouseEvent(mouseEvent);
 }
 
 /*!
-    This event handler, for event \a mouseEvent, can be reimplemented in a
-    subclass to receive mouse events. The default implementation depends on
-    the state of the scene. If there is a mouse grabber item, then the event
-    is sent to the mouse grabber. Otherwise, if the event is a mouse press, it
-    is forwarded to the topmost item that accepts mouse events at the scene
-    position from the event, and that item promptly becomes the mouse grabber
-    item.
+    This event handler, for event \a mouseEvent, can be reimplemented
+    in a subclass to receive mouse release events for the scene.
 
-    If there is no mouse grabber, or if the event is a mouse press and there
-    is no item at the given position on the scene, the event is ignored.
+    The default implementation depends on the mouse grabber state.  If
+    there is no mouse grabber, the event is ignored.  Otherwise, if
+    there is a mouse grabber item, the event is sent to the mouse
+    grabber. If this mouse release represents the last pressed button
+    on the mouse, the mouse grabber item then loses the mouse grab.
 
-    \sa QGraphicsItem::mouseEvent(), QGraphicsItem::setAcceptsMouseEvents()
+    \sa QGraphicsItem::mousePressEvent(), QGraphicsItem::mouseMoveEvent(),
+    QGraphicsItem::mouseDoubleClickEvent(), QGraphicsItem::setAcceptedMouseButtons()
 */
 void QGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     Q_D(QGraphicsScene);
     if (!d->mouseGrabberItem) {
         mouseEvent->ignore();
-        return;
-    }
-
-    if (!d->mouseGrabberItem->isVisible() || !d->mouseGrabberItem->isEnabled()) {
-        // Mouse grabbers that suddenly go invisible or disabled lose the
-        // grab.
-        d->lastMouseGrabberItem = d->mouseGrabberItem;
-        d->mouseGrabberItem = 0;
         return;
     }
 
@@ -1863,18 +1851,21 @@ void QGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 }
 
 /*!
-    This event handler, for event \a mouseEvent, can be reimplemented in a
-    subclass to receive mouse events. The default implementation depends on
-    the state of the scene. If there is a mouse grabber item, then the event
-    is sent to the mouse grabber. Otherwise, if the event is a mouse press, it
-    is forwarded to the topmost item that accepts mouse events at the scene
-    position from the event, and that item promptly becomes the mouse grabber
-    item.
+    This event handler, for event \a mouseEvent, can be reimplemented
+    in a subclass to receive mouse doubleclick events for the scene.
 
-    If there is no mouse grabber, or if the event is a mouse press and there
-    is no item at the given position on the scene, the event is ignored.
+    If someone doubleclicks on the scene, the scene will first receive
+    a mouse press event, followed by a release event (i.e., a click),
+    then a doubleclick event, and finally a release event. If the
+    doubleclick event is delivered to a different item than the one
+    that received the first press and release, it will be delivered as
+    a press event. However, tripleclick events are not delivered as
+    doubleclick events in this case.
 
-    \sa QGraphicsItem::mouseEvent(), QGraphicsItem::setAcceptsMouseEvents()
+    The default implementation is similar to mousePressEvent().
+
+    \sa QGraphicsItem::mousePressEvent(), QGraphicsItem::mouseMoveEvent(),
+    QGraphicsItem::mouseReleaseEvent(), QGraphicsItem::setAcceptedMouseButtons()
 */
 void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {

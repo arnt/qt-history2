@@ -3965,6 +3965,37 @@ QStyleOptionSizeGrip::QStyleOptionSizeGrip(int version)
 */
 
 /*!
+    \enum QStyleOptionGraphicsItem::StyleOptionType
+
+    This enum is used to hold information about the type of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Type The type of style option provided (\c{SO_GraphicsItem} for this class).
+
+    The type is used internally by QStyleOption, its subclasses, and
+    qstyleoption_cast() to determine the type of style option. In
+    general you do not need to worry about this unless you want to
+    create your own QStyleOption subclass and your own styles.
+
+    \sa StyleOptionVersion
+*/
+
+/*!
+    \enum QStyleOptionGraphicsItem::StyleOptionVersion
+
+    This enum is used to hold information about the version of the style option, and
+    is defined for each QStyleOption subclass.
+
+    \value Version 1
+
+    The version is used by QStyleOption subclasses to implement
+    extensions without breaking compatibility. If you use
+    qstyleoption_cast(), you normally don't need to check it.
+
+    \sa StyleOptionType
+*/
+
+/*!
     Constructs a QStyleOptionGraphicsItem. The levelOfDetail parameter is
     initialized to 1.
 */
@@ -3980,6 +4011,12 @@ QStyleOptionGraphicsItem::QStyleOptionGraphicsItem(int version)
     : QStyleOption(version, Type), levelOfDetail(1)
 {
 }
+
+/*!
+    \fn QStyleOptionGraphicsItem::QStyleOptionGraphicsItem(const QStyleOptionGraphicsItem &other)
+
+    Constructs a copy of \a other.
+*/
 
 /*!
     \variable QStyleOptionGraphicsItem::exposedRect

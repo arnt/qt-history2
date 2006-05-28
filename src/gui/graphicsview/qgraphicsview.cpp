@@ -896,11 +896,12 @@ void QGraphicsView::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
 }
 
 /*!
-    \fn QGraphicsView::ensureVisible(qreal x, qreal y, int xmargin, int ymargin)
+    \fn QGraphicsView::ensureVisible(qreal x, qreal y, qreal w, qreal h,
+    int xmargin, int ymargin)
     \overload
 
     This function is provided for convenience. It's equivalent to calling
-    ensureVisible(QPointF(\a x, \a y), \a xmargin, \a ymargin).
+    ensureVisible(QRectF(\a x, \a y, \a w, \a h), \a xmargin, \a ymargin).
 */
 
 /*!
@@ -1015,7 +1016,7 @@ void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode asp
     what to draw. If \a target is a null rect, the dimensions of \a painter's
     paint device (e.g., for a QPrinter, the page size) will be used.
 
-    The source rect will be transformed according to \a aspectratioMode to fit
+    The source rect will be transformed according to \a aspectRatioMode to fit
     into the target rect. By default, the aspect ratio is ignored, and \a
     source is scaled to fit tightly in \a target.
 
@@ -1363,7 +1364,11 @@ void QGraphicsView::updateSceneRect(const QRectF &rect)
 }
 
 /*!
-    \reimp
+    This slot is called by QAbstractScrollArea after setViewport() has been
+    called. Reimplement this function in a subclass of QGraphicsView to
+    initialize the new viewport \a widget before it is used.
+
+    \sa setViewport()
 */
 void QGraphicsView::setupViewport(QWidget *widget)
 {
@@ -1912,11 +1917,12 @@ void QGraphicsView::paintForeground(QPainter *painter, const QRectF &rect)
 }
 
 /*!
-    Paints the items in \a items using \a painter, after the background has
-    been drawn, and before the foreground has been drawn. Reimplement this
-    function to provide custom painting of all items. The default
-    implementation prepares the painter matrix, and calls
-    QGraphicsItem::paint() on all items.
+    Paints the items in \a items using \a painter, after the
+    background has been drawn, and before the foreground has been
+    drawn. Reimplement this function to provide custom painting of all
+    items. The default implementation prepares the painter matrix, and
+    calls QGraphicsItem::paint() on all items. \a options is the list of
+    style option objects for each item in \a items.
 
     \a painter is pre-transformed with the view matrix; any painting is done
     in \e scene coordinates. Before drawing each item, the painter must be
@@ -1943,7 +1949,7 @@ void QGraphicsView::paintForeground(QPainter *painter, const QRectF &rect)
         }
     \endcode
 
-    \sa styleOptionForItem(), paintBackground(), paintForeground()
+    \sa paintBackground(), paintForeground()
 */
 void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> &items,
                                const QList<QStyleOptionGraphicsItem> &options)
