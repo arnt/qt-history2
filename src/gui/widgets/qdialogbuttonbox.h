@@ -91,6 +91,10 @@ Q_SIGNALS:
     void accepted();
     void rejected();
 
+protected:
+    void changeEvent(QEvent *event);
+    bool event(QEvent *event);
+
 private:
     Q_DISABLE_COPY(QDialogButtonBox)
     Q_DECLARE_PRIVATE(QDialogButtonBox)

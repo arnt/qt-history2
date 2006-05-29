@@ -677,4 +677,33 @@ void QDialogButtonBoxPrivate::_q_handleButtonDestroyed()
     }
 }
 
+
+/*!
+    \reimp
+*/
+void QDialogButtonBox::changeEvent(QEvent *event)
+{
+    Q_D(QDialogButtonBox);
+
+    switch (event->type()) {
+    case QEvent::StyleChange:
+        delete d->buttonLayout;
+        d->initLayout();
+        d->layoutButtons();
+        QWidget::changeEvent(event);
+        break;
+    default:
+        QWidget::changeEvent(event);
+        break;
+    }
+}
+
+/*!
+    \reimp
+*/
+bool QDialogButtonBox::event(QEvent *event)
+{
+    return QWidget::event(event);
+}
+
 #include "moc_qdialogbuttonbox.cpp"
