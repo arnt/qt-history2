@@ -3396,6 +3396,10 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
         }
         // pchar = unreserved / pct-encoded / sub-delims / ":" / "@" ... alos "/"
         url += QUrl::toPercentEncoding(path, "!$&'()*+,;=:@/");
+
+        // check if we need to remove trailing slashes
+        while ((options & QUrl::StripTrailingSlash) && url.right(1) == "/")
+            url.chop(1);
     }
 
     if (!(options & QUrl::RemoveQuery) && hasQuery)
