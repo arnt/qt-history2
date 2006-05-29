@@ -319,16 +319,19 @@ QString QSystemLocale::dateFormat(bool) const
 
 #ifdef Q_OS_WIN
 
-struct QWinSystemLocalePrivate : public QSystemLocale
+struct QWinSystemLocale : public QSystemLocale
 {
 public:
+    QWinSystemLocale() {}
+    virtual ~QWinSystemLocale() {}
+
     const QLocalePrivate *locale() const;
 
     QByteArray name() const;
 
     // default is null string which means use qlocale_data.h
     QString dateToString(const QDate &, bool short_format = false) const;
-    QString timeToString(const QDate &, bool short_format = false) const;
+    QString timeToString(const QTime &, bool short_format = false) const;
 
     QString dayName(int day, bool short_format = false) const;
     QString monthName(int day, bool short_format = false) const;
@@ -378,7 +381,7 @@ static QString getWinLocaleInfo(LCTYPE type)
     return result;
 }
 
-QString QWinSystemLocalePrivate::name() const
+QByteArray QWinSystemLocale::name() const
 {
     QByteArray result = envVarLocale();
     if ( !result.isEmpty() ) {
@@ -463,7 +466,7 @@ QString QWinSystemLocalPrivate::dateToString(const QDate &date, bool short_forma
     return QString();
 }
 
-QString QWinSystemLocalePrivate::timeToString(const QTime &time, QLocale::FormatType) const
+QString QWinSystemLocale::timeToString(const QTime &time, bool) const
 {
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
@@ -611,16 +614,19 @@ QString QWinSystemLocale::toQtFormat(const QString &sys_fmt)
 
 #ifdef Q_OS_MAC
 
-struct QMacSystemLocalePrivate : public QSystemLocale
+struct QMacSystemLocale : public QSystemLocale
 {
 public:
+    QMacSystemLocale() {}
+    virtual ~QMacSystemLocale() {}
+
     const QLocalePrivate *locale() const;
 
     QByteArray name() const;
 
     // default is null string which means use qlocale_data.h
     QString dateToString(const QDate &, bool short_format = false) const;
-    QString timeToString(const QDate &, bool short_format = false) const;
+    QString timeToString(const QTime &, bool short_format = false) const;
 
     QString dayName(int day, bool short_format = false) const;
     QString monthName(int day, bool short_format = false) const;
@@ -631,7 +637,7 @@ public:
     static QString toQtFormat(const QString &sys_fmt);
 };
 
-QString QMacSystemLocalePrivate::name() const
+QByteArray QMacSystemLocale::name() const
 {
     QByteArray result = envVarLocale();
 
@@ -654,7 +660,7 @@ QString QMacSystemLocalePrivate::name() const
     return result;
 }
 
-QString QMacSystemLocalePrivate::monthName(int month, bool short_format) const
+QString QMacSystemLocale::monthName(int month, bool short_format) const
 {
     QStringList monthNames;
     QCFType<CFDateFormatterRef> formatter
@@ -674,7 +680,7 @@ QString QMacSystemLocalePrivate::monthName(int month, bool short_format) const
 }
 
 
-QString QMacSystemLocalePrivate::dayName(int day, bool short_format) const
+QString QMacSystemLocale::dayName(int day, bool short_format) const
 {
     QStringList monthNames;
     QCFType<CFDateFormatterRef> formatter
@@ -693,7 +699,7 @@ QString QMacSystemLocalePrivate::dayName(int day, bool short_format) const
     return QString();
 }
 
-QString QMacSystemLocalePrivate::dateToString(const QDate &date, bool short_format) const
+QString QMacSystemLocale::dateToString(const QDate &date, bool short_format) const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
@@ -719,7 +725,7 @@ QString QMacSystemLocalePrivate::dateToString(const QDate &date, bool short_form
     return QString();
 }
 
-QString QMacSystemLocalePrivate::timeToString(const QTime &time, bool short_format) const
+QString QMacSystemLocale::timeToString(const QTime &time, bool short_format) const
 {
 #  if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
@@ -748,7 +754,7 @@ QString QMacSystemLocalePrivate::timeToString(const QTime &time, bool short_form
     return QString();
 }
 
-QString QMacSystemLocalePrivate::dateFormat(bool short_format) const
+QString QMacSystemLocale::dateFormat(bool short_format) const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
@@ -766,7 +772,7 @@ QString QMacSystemLocalePrivate::dateFormat(bool short_format) const
     return QString();
 }
 
-QString QMacSystemLocalePrivate::timeFormat(bool short_format) const
+QString QMacSystemLocale::timeFormat(bool short_format) const
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
@@ -788,7 +794,7 @@ static QString getCFLocaleValue(CFLocaleRef locale, CFStringRef key)
     CFTypeRef value = CFLocaleGetValue(locale, key);
     return QCFString::toQString(CFStringRef(static_cast<CFTypeRef>(value)));
 }
-const QLocalePrivate *QMacSystemLocalePrivate::locale() const
+const QLocalePrivate *QMacSystemLocale::locale() const
 {
     static QLocalePrivate *result = 0;
     if (result == 0) {
@@ -809,7 +815,7 @@ const QLocalePrivate *QMacSystemLocalePrivate::locale() const
     return result;
 }
 
-QString QMacSystemLocalePrivate::toQtFormat(const QString &sys_fmt)
+QString QMacSystemLocale::toQtFormat(const QString &sys_fmt)
 {
     QString result;
     int i = 0;
