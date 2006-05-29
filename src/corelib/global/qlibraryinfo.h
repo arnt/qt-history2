@@ -44,7 +44,7 @@ public:
         DemosPath,
         ExamplesPath
     };
-    static QString location(LibraryLocation);
+    static QString location(LibraryLocation); // ### Qt 5: consider renaming it to path()
 
 private:
     QLibraryInfo();
