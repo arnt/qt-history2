@@ -303,7 +303,7 @@ public:
     QBasicTimer layoutTimer;
     mutable QBasicTimer sizeChangedTimer;
     bool showLayoutProgress;
-    
+
     int lastPageCount;
 
     qreal indent(QTextBlock bl) const;
@@ -327,7 +327,7 @@ public:
         PointExact
     };
     HitPoint hitTest(QTextFrame *frame, const QPointF &point, int *position, QTextLayout **l) const;
-    HitPoint hitTest(QTextFrame::Iterator it, HitPoint hit, const QPointF &p, 
+    HitPoint hitTest(QTextFrame::Iterator it, HitPoint hit, const QPointF &p,
                      int *position, QTextLayout **l) const;
     HitPoint hitTest(QTextTable *table, const QPointF &point, int *position, QTextLayout **l) const;
     HitPoint hitTest(QTextBlock bl, const QPointF &point, int *position, QTextLayout **l) const;
@@ -476,7 +476,7 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPointF &point, int
 }
 
 QTextDocumentLayoutPrivate::HitPoint
-QTextDocumentLayoutPrivate::hitTest(QTextFrame::Iterator it, HitPoint hit, const QPointF &p, 
+QTextDocumentLayoutPrivate::hitTest(QTextFrame::Iterator it, HitPoint hit, const QPointF &p,
                                     int *position, QTextLayout **l) const
 {
     INC_INDENT;
@@ -512,7 +512,7 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame::Iterator it, HitPoint hit, const
 }
 
 QTextDocumentLayoutPrivate::HitPoint
-QTextDocumentLayoutPrivate::hitTest(QTextTable *table, const QPointF &point, 
+QTextDocumentLayoutPrivate::hitTest(QTextTable *table, const QPointF &point,
                                     int *position, QTextLayout **l) const
 {
     QTextTableData *td = static_cast<QTextTableData *>(data(table));
@@ -1702,7 +1702,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, QLayoutStru
             checkPoints.append(cp);
         }
     }
-                
+
     while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
 
@@ -2239,7 +2239,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     const bool fullLayout = (oldLength == 0 && length == documentLength);
     const bool smallChange = documentLength > 0
                              && (qMax(length, oldLength) * 100 / documentLength) < 5;
-    
+
     // don't show incremental layout progress (avoid scrollbar flicker)
     // if we see only a small change in the document and we're either starting
     // a layout run or we're already in progress for that and we haven't seen
@@ -2249,7 +2249,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
         d->showLayoutProgress = false;
     else
         d->showLayoutProgress = true;
-    
+
     if (fullLayout) {
         d->currentLazyLayoutPosition = 0;
         d->checkPoints.clear();
@@ -2296,7 +2296,7 @@ QRectF QTextDocumentLayout::doLayout(int from, int oldLength, int length)
         layoutFinished();
     else if (d->showLayoutProgress)
         d->sizeChangedTimer.start(0, this);
-    
+
     return updateRect;
 }
 
@@ -2503,6 +2503,8 @@ QTextOption::WrapMode QTextDocumentLayout::wordWrapMode() const
 void QTextDocumentLayout::setTabStopWidth(double width)
 {
     Q_D(QTextDocumentLayout);
+    if (width < 0)
+        return;
     d->tabStopWidth = width;
 }
 
@@ -2539,13 +2541,13 @@ QRectF QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
     while (f) {
         QTextFrameData *fd = data(f);
         pos += fd->position;
-        
+
         if (QTextTable *table = qobject_cast<QTextTable *>(f)) {
             QTextTableCell cell = table->cellAt(framePos);
             if (cell.isValid())
                 pos += static_cast<QTextTableData *>(fd)->cellPosition(cell.row(), cell.column());
         }
-        
+
         f = f->parentFrame();
     }
     return QRectF(pos, data(frame)->size);
@@ -2594,7 +2596,7 @@ void QTextDocumentLayout::timerEvent(QTimerEvent *e)
     } else if (e->timerId() == d->sizeChangedTimer.timerId()) {
         emit documentSizeChanged(dynamicDocumentSize());
         d->sizeChangedTimer.stop();
-        
+
         if (d->currentLazyLayoutPosition == -1) {
             const int newCount = dynamicPageCount();
             if (newCount != d->lastPageCount) {
