@@ -64,7 +64,7 @@ public:
         ItemEnabledChange,
         ItemSelectedChange
     };
-        
+
     QGraphicsItem(QGraphicsItem *parent = 0);
     virtual ~QGraphicsItem();
 
@@ -459,9 +459,6 @@ public:
 
     QFont font() const;
     void setFont(const QFont &font);
-
-    QPen pen() const;
-    void setPen(const QPen &pen);
 
     QRectF boundingRect() const;
     QPainterPath shape() const;

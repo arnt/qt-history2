@@ -108,7 +108,7 @@ public:
     QGraphicsPixmapItem *addPixmap(const QPixmap &pixmap);
     QGraphicsPolygonItem *addPolygon(const QPolygonF &polygon, const QPen &pen = QPen(), const QBrush &brush = QBrush());
     QGraphicsRectItem *addRect(const QRectF &rect, const QPen &pen = QPen(), const QBrush &brush = QBrush());
-    QGraphicsTextItem *addText(const QString &text, const QPen &pen = QPen(), const QFont &font = QFont());
+    QGraphicsTextItem *addText(const QString &text, const QFont &font = QFont());
     void removeItem(QGraphicsItem *item);
 
     QGraphicsItem *focusItem() const;

@@ -1316,8 +1316,8 @@ QGraphicsRectItem *QGraphicsScene::addRect(const QRectF &rect, const QPen &pen, 
 
 /*!
     Creates and adds a text item to the scene, and returns the item
-    pointer. The text string is initialized to \a text, and it's pen
-    and font are initialized to \a pen and \a font.
+    pointer. The text string is initialized to \a text, and it's font
+    is initialized to \a font.
 
     The item's position is initialized to (0, 0).
 
@@ -1327,10 +1327,9 @@ QGraphicsRectItem *QGraphicsScene::addRect(const QRectF &rect, const QPen &pen, 
 
     \sa addEllipse(), addLine(), addPixmap(), addPixmap(), addRect(), addItem()
 */
-QGraphicsTextItem *QGraphicsScene::addText(const QString &text, const QPen &pen, const QFont &font)
+QGraphicsTextItem *QGraphicsScene::addText(const QString &text, const QFont &font)
 {
     QGraphicsTextItem *item = new QGraphicsTextItem(text);
-    item->setPen(pen);
     item->setFont(font);
     addItem(item);
     return item;
@@ -1807,7 +1806,7 @@ void QGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
         mouseEvent->ignore();
         return;
     }
-    
+
     // Forward the event to the mouse grabber
     d->sendMouseEvent(mouseEvent);
 }

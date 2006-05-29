@@ -3559,7 +3559,6 @@ public:
     void _q_update(QRectF);
     void _q_ensureVisible(QRectF);
 
-    QPen pen;
     QRectF boundingRect;
     int pageNumber;
 
@@ -3652,27 +3651,6 @@ void QGraphicsTextItem::setFont(const QFont &font)
     if (!dd->textControl)
         setTextControl(new QTextControl(this));
     dd->textControl->document()->setDefaultFont(font);
-}
-
-/*!
-    Returns the pen used to render the item's text.
-
-    \sa setPen(), font()
-*/
-QPen QGraphicsTextItem::pen() const
-{
-    return dd->pen;
-}
-
-/*!
-    Sets the pen used to render the text item to \a pen.
-
-    \sa pen(), setFont()
-*/
-void QGraphicsTextItem::setPen(const QPen &pen)
-{
-    dd->pen = pen;
-    update();
 }
 
 /*!
