@@ -3575,7 +3575,7 @@ QPointF QGraphicsTextItemPrivate::controlOffset() const
 }
 
 /*!
-    Constructs a QGraphicsTextItem, using \a text as the default text. \a
+    Constructs a QGraphicsTextItem, using \a text as the default plain text. \a
     parent is passed to QGraphicsItem's constructor.
 */
 QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
@@ -3583,7 +3583,7 @@ QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
 {
     dd->qq = this;
     if (!text.isEmpty())
-        setText(text);
+        setPlainText(text);
 }
 
 /*!
@@ -3605,11 +3605,36 @@ QGraphicsTextItem::~QGraphicsTextItem()
 }
 
 /*!
-    Returns the item's text, or an empty QString if no text has been set.
+    Returns the item's text converted to HTML, or an empty QString if no text has been set.
 
-    \sa setText()
+    \sa setHtml()
 */
-QString QGraphicsTextItem::text() const
+QString QGraphicsTextItem::toHtml() const
+{
+    return dd->textControl
+        ? dd->textControl->toHtml()
+        : QString();
+}
+
+/*!
+    Sets the item's text to \a text, assuming that text is HTML formatted.
+
+    \sa toHtml()
+*/
+void QGraphicsTextItem::setHtml(const QString &text)
+{
+    if (!dd->textControl)
+        setTextControl(new QTextControl(this));
+    dd->textControl->setHtml(text);
+    adjustSize();
+}
+
+/*!
+    Returns the item's text converted to plain text, or an empty QString if no text has been set.
+
+    \sa setPlainText()
+*/
+QString QGraphicsTextItem::toPlainText() const
 {
     return dd->textControl
         ? dd->textControl->toPlainText()
@@ -3619,9 +3644,9 @@ QString QGraphicsTextItem::text() const
 /*!
     Sets the item's text to \a text.
 
-    \sa text()
+    \sa toHtml()
 */
-void QGraphicsTextItem::setText(const QString &text)
+void QGraphicsTextItem::setPlainText(const QString &text)
 {
     if (!dd->textControl)
         setTextControl(new QTextControl(this));

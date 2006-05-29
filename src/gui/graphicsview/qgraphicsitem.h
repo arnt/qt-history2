@@ -454,8 +454,11 @@ public:
     QGraphicsTextItem(const QString &text, QGraphicsItem *parent = 0);
     ~QGraphicsTextItem();
 
-    QString text() const;
-    void setText(const QString &text);
+    QString toHtml() const;
+    void setHtml(const QString &html);
+
+    QString toPlainText() const;
+    void setPlainText(const QString &text);
 
     QFont font() const;
     void setFont(const QFont &font);
