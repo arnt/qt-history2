@@ -1703,8 +1703,22 @@ bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &pare
 
     // insert the dragged items into the table, use a bit array to avoid overwriting items,
     // since items from different tables can have the same row and column
-    int dragRowCount = bottom - top + 1 ;
+    int dragRowCount = 0;
     int dragColumnCount = right - left + 1;
+
+    // Compute the number of continuous rows upon insertion and modify the rows to match
+    QVector<int> rowsToInsert(bottom + 1);
+    for (int i = 0; i < rows.count(); ++i)
+        rowsToInsert[rows.at(i)] = 1;
+    for (int i = 0; i < rowsToInsert.count(); ++i) {
+        if (rowsToInsert[i] == 1){
+            rowsToInsert[i] = dragRowCount;
+            ++dragRowCount;
+        }
+    }
+    for (int i = 0; i < rows.count(); ++i)
+        rows[i] = top + rowsToInsert[rows[i]];
+
     QBitArray isWrittenTo(dragRowCount * dragColumnCount);
 
     // make space in the table for the dropped data
