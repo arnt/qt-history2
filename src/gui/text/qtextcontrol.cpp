@@ -1868,38 +1868,6 @@ void QTextControl::mouseDoubleClickEvent(QMouseEvent *e)
 }
 
 /*
-  Shows the standard context menu created with createStandardContextMenu().
-
-  If you do not want the text edit to have a context menu, you can set
-  its \l contextMenuPolicy to Qt::NoContextMenu. If you want to
-  customize the context menu, reimplement this function. If you want
-  to extend the standard context menu, reimplement this function, call
-  createStandardContextMenu() and extend the menu returned.
-
-  Information about the event is passed in \a e.
-
-    \code
-    void TextEdit::contextMenuEvent(QContextMenuEvent * e) {
-            QMenu *menu = createStandardContextMenu();
-            menu->addAction(My Menu Item");
-            //...
-            menu->exec(e->globalPos());
-            delete menu;
-    }
-    \endcode
-*/
-void QTextControl::contextMenuEvent(QContextMenuEvent *e)
-{
-#ifdef QT_NO_CONTEXTMENU
-    Q_UNUSED(e);
-#else
-    QMenu *menu = createStandardContextMenu();
-    menu->exec(e->globalPos());
-    delete menu;
-#endif
-}
-
-/*
 void QTextControl::dragEnterEvent(QDragEnterEvent *e)
 {
     Q_D(QTextControl);
