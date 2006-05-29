@@ -17,23 +17,24 @@
 
 #include "qfontdialog.h"
 
-#include "qdialog_p.h"
-#include "qevent.h"
-#include "qlineedit.h"
-#include "qpushbutton.h"
-#include "qcheckbox.h"
-#include "qcombobox.h"
-#include "qlayout.h"
-#include "qgroupbox.h"
-#include "qlabel.h"
-#include "qapplication.h"
-#include "qfontdatabase.h"
-#include "qstyle.h"
-#include <private/qfont_p.h>
-#include <qvalidator.h>
-#include <qstringlistmodel.h>
-#include <qlistview.h>
+#include <qapplication.h>
+#include <qcheckbox.h>
+#include <qcombobox.h>
+#include <qevent.h>
+#include <qfontdatabase.h>
+#include <qgroupbox.h>
+#include <qlabel.h>
+#include <qlayout.h>
+#include <qlineedit.h>
+#include <qpushbutton.h>
+#include <qstyle.h>
+#include <qdialogbuttonbox.h>
 #include <qheaderview.h>
+#include <qlistview.h>
+#include <qstringlistmodel.h>
+#include <qvalidator.h>
+#include <private/qdialog_p.h>
+#include <private/qfont_p.h>
 
 class QFontListView : public QListView
 {
@@ -147,9 +148,6 @@ public:
 
     QLabel * writingSystemAccel;
     QComboBox * writingSystemCombo;
-
-    QPushButton * ok;
-    QPushButton * cancel;
 
     QBoxLayout * buttonLayout;
     QBoxLayout * effectsLayout;
@@ -316,19 +314,18 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
 
     mainGrid->setRowMinimumHeight(8, margin);
 
-    QHBoxLayout *buttonBox = new QHBoxLayout;
-    mainGrid->addLayout(buttonBox, 9, 0, 1, 5);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
+    mainGrid->addWidget(buttonBox, 9, 0, 1, 5);
 
-    buttonBox->addStretch(1);
-    QString okt = modal ? tr("OK") : tr("Apply");
-    d->ok = new QPushButton(okt, this);
+    QPushButton *button
+            = static_cast<QPushButton *>(buttonBox->addButton(modal ? QDialogButtonBox::Ok
+                                                                    : QDialogButtonBox::Apply));
     if (modal)
-        connect(d->ok, SIGNAL(clicked()), SLOT(accept()));
-    d->ok->setDefault(true);
+        connect(buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    button->setDefault(true);
 
-    QString cancelt = modal ? tr("Cancel") : tr("Close");
-    d->cancel = new QPushButton(cancelt, this);
-    connect(d->cancel, SIGNAL(clicked()), SLOT(reject()));
+    buttonBox->addButton(modal ? QDialogButtonBox::Cancel : QDialogButtonBox::Close);
+    connect(buttonBox, SIGNAL(rejected()), SLOT(reject()));
 
     resize(500, 360);
 
@@ -338,15 +335,6 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->sizeList->installEventFilter(this);
 
     d->familyList->setFocus();
-#ifdef Q_WS_MAC
-    buttonBox->addWidget(d->cancel);
-    buttonBox->addSpacing(spacing);
-    buttonBox->addWidget(d->ok);
-#else
-    buttonBox->addWidget(d->ok);
-    buttonBox->addSpacing(spacing);
-    buttonBox->addWidget(d->cancel);
-#endif
 }
 
 /*!

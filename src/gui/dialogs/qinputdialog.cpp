@@ -15,15 +15,16 @@
 
 #ifndef QT_NO_INPUTDIALOG
 
-#include "qlayout.h"
+#include "qapplication.h"
+#include "qcombobox.h"
+#include "qdialogbuttonbox.h"
 #include "qlabel.h"
+#include "qlayout.h"
 #include "qlineedit.h"
 #include "qpushbutton.h"
 #include "qspinbox.h"
-#include "qcombobox.h"
 #include "qstackedlayout.h"
 #include "qvalidator.h"
-#include "qapplication.h"
 
 #include "qdialog_p.h"
 
@@ -80,29 +81,15 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
 #ifndef QT_NO_SHORTCUT
     label->setBuddy(input);
 #endif
-    
-    QHBoxLayout *hbox = new QHBoxLayout;
-    vbox->addLayout(hbox, Qt::AlignRight);
 
-    ok = new QPushButton(QInputDialog::tr("OK"), q);
-    ok->setDefault(true);
-    QPushButton *cancel = new QPushButton(QInputDialog::tr("Cancel"), q);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel,
+                                                        Qt::Horizontal, q);
+    QPushButton *okButton = static_cast<QPushButton *>(buttonBox->addButton(QDialogButtonBox::Ok));
+    okButton->setDefault(true);
+    vbox->addWidget(buttonBox);
 
-    QSize bs = ok->sizeHint().expandedTo(cancel->sizeHint());
-    ok->setFixedSize(bs);
-    cancel->setFixedSize(bs);
-
-    hbox->addStretch();
-#ifdef Q_WS_MAC
-    hbox->addWidget(cancel);
-    hbox->addWidget(ok);
-#else
-    hbox->addWidget(ok);
-    hbox->addWidget(cancel);
-#endif
-
-    QObject::connect(ok, SIGNAL(clicked()), q, SLOT(accept()));
-    QObject::connect(cancel, SIGNAL(clicked()), q, SLOT(reject()));
+    QObject::connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
+    QObject::connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
 
     q->resize(q->sizeHint());
 }
