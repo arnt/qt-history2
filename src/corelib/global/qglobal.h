@@ -616,9 +616,11 @@ typedef unsigned long ulong;
    Constant bool values
 */
 
-#ifndef TRUE
-#define TRUE true
-#define FALSE false
+#ifndef QT_LSB /* the LSB defines TRUE and FALSE for us */
+#  ifndef TRUE
+#   define TRUE true
+#   define FALSE false
+#  endif
 #endif
 
 #if defined(Q_OS_MAC) && !defined(Q_CC_INTEL)
