@@ -2289,9 +2289,9 @@
 
     \oldcode
         if (pixmap.mask())
-            widget->setMask(*p.mask());
+            widget->setMask(*pixmap.mask());
     \newcode
-        if (pixmap.mask().isNull() == false)
+        if (!pixmap.mask().isNull())
             widget->setMask(pixmap.mask());
     \endcode
 
