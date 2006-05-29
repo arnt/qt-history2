@@ -2375,3 +2375,10 @@ bool QAbstractListModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     Returns true if this model index is smaller than the \a other
     model index; otherwise returns false.
 */
+
+/*!
+    \typedef QModelIndexList
+    \relates QModelIndex
+
+    Synonym for QList<QModelIndex>.
+*/

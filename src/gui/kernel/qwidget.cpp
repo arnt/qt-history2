@@ -7651,5 +7651,11 @@ QWidgetData *qt_qwidget_data(QWidget *widget)
 }
 
 
+/*!
+    \typedef QWidgetList
+    \relates QWidget
+
+    Synonym for QList<QWidget *>.
+*/
 
 #include "moc_qwidget.cpp"

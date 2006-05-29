@@ -3118,7 +3118,7 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
     \typedef QObjectList
     \relates QObject
 
-    Synonym for QList<QObject*>.
+    Synonym for QList<QObject *>.
 */
 
 #include "moc_qobject.cpp"
