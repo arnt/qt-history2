@@ -40,6 +40,48 @@ class QPixmap;
 class QMacWindowChangeEvent;
 #endif
 
+// extension prototypes
+#ifndef Q_WS_MAC
+#ifndef APIENTRYP
+#ifdef APIENTRY
+#define APIENTRYP APIENTRY *
+#else
+#define APIENTRYP *
+#endif
+#endif
+#endif 
+
+// ARB_fragment_program
+typedef void (APIENTRY *_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
+typedef void (APIENTRY *_glBindProgramARB) (GLenum, GLuint);
+typedef void (APIENTRY *_glDeleteProgramsARB) (GLsizei, const GLuint *);
+typedef void (APIENTRY *_glGenProgramsARB) (GLsizei, GLuint *);
+typedef void (APIENTRY *_glProgramLocalParameter4fvARB) (GLenum, GLuint, const GLfloat *);
+
+// EXT_GL_framebuffer_object
+typedef GLboolean (APIENTRYP PFNGLISRENDERBUFFEREXTPROC) (GLuint renderbuffer);
+typedef void (APIENTRYP PFNGLBINDRENDERBUFFEREXTPROC) (GLenum target, GLuint renderbuffer);
+typedef void (APIENTRYP PFNGLDELETERENDERBUFFERSEXTPROC) (GLsizei n, const GLuint *renderbuffers);
+typedef void (APIENTRYP PFNGLGENRENDERBUFFERSEXTPROC) (GLsizei n, GLuint *renderbuffers);
+typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEEXTPROC) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+typedef void (APIENTRYP PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) (GLenum target, GLenum pname, GLint *params);
+typedef GLboolean (APIENTRYP PFNGLISFRAMEBUFFEREXTPROC) (GLuint framebuffer);
+typedef void (APIENTRYP PFNGLBINDFRAMEBUFFEREXTPROC) (GLenum target, GLuint framebuffer);
+typedef void (APIENTRYP PFNGLDELETEFRAMEBUFFERSEXTPROC) (GLsizei n, const GLuint *framebuffers);
+typedef void (APIENTRYP PFNGLGENFRAMEBUFFERSEXTPROC) (GLsizei n, GLuint *framebuffers);
+typedef GLenum (APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) (GLenum target);
+typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget,
+							   GLuint texture, GLint level);
+typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget, 
+							   GLuint texture, GLint level);
+typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget, 
+							   GLuint texture, GLint level, GLint zoffset);
+typedef void (APIENTRYP PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) (GLenum target, GLenum attachment, GLenum renderbuffertarget,
+							      GLuint renderbuffer);
+typedef void (APIENTRYP PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) (GLenum target, GLenum attachment, GLenum pname, 
+									  GLint *params);
+typedef void (APIENTRYP PFNGLGENERATEMIPMAPEXTPROC) (GLenum target);
+
 class QGLFormatPrivate
 {
 public:
@@ -90,7 +132,34 @@ class QGLContextPrivate
 {
     Q_DECLARE_PUBLIC(QGLContext)
 public:
-    explicit QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
+    explicit QGLContextPrivate(QGLContext *context) : q_ptr(context) 
+    {
+#ifdef Q_WS_WIN
+	qt_glProgramStringARB = 0;
+	qt_glBindProgramARB = 0;
+	qt_glDeleteProgramsARB = 0;
+	qt_glGenProgramsARB = 0;
+	qt_glProgramLocalParameter4fvARB = 0;
+
+	qt_glIsRenderbufferEXT = 0;
+	qt_glBindRenderbufferEXT = 0;
+	qt_glDeleteRenderbuffersEXT = 0;
+	qt_glGenRenderbuffersEXT = 0;
+	qt_glRenderbufferStorageEXT = 0;
+	qt_glGetRenderbufferParameterivEXT = 0;
+	qt_glIsFramebufferEXT = 0;
+	qt_glBindFramebufferEXT = 0;
+	qt_glDeleteFramebuffersEXT = 0;
+	qt_glGenFramebuffersEXT = 0;
+	qt_glCheckFramebufferStatusEXT = 0;
+	qt_glFramebufferTexture1DEXT = 0;
+	qt_glFramebufferTexture2DEXT = 0;
+	qt_glFramebufferTexture3DEXT = 0;
+	qt_glFramebufferRenderbufferEXT = 0;
+	qt_glGetFramebufferAttachmentParameterivEXT = 0;
+	qt_glGenerateMipmapEXT = 0;
+#endif
+    }
     ~QGLContextPrivate() {}
     GLuint bindTexture(const QImage &image, GLenum target, GLint format, const QString &key,
                        qint64 qt_id, bool clean = false);
@@ -129,6 +198,32 @@ public:
     QPaintDevice *paintDevice;
     QColor transpColor;
     QGLContext *q_ptr;
+
+#ifdef Q_WS_WIN
+    _glProgramStringARB qt_glProgramStringARB;
+    _glBindProgramARB qt_glBindProgramARB;
+    _glDeleteProgramsARB qt_glDeleteProgramsARB;
+    _glGenProgramsARB qt_glGenProgramsARB;
+    _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB;
+
+    PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
+    PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
+    PFNGLDELETERENDERBUFFERSEXTPROC qt_glDeleteRenderbuffersEXT;
+    PFNGLGENRENDERBUFFERSEXTPROC qt_glGenRenderbuffersEXT;
+    PFNGLRENDERBUFFERSTORAGEEXTPROC qt_glRenderbufferStorageEXT;
+    PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC qt_glGetRenderbufferParameterivEXT;
+    PFNGLISFRAMEBUFFEREXTPROC qt_glIsFramebufferEXT;
+    PFNGLBINDFRAMEBUFFEREXTPROC qt_glBindFramebufferEXT;
+    PFNGLDELETEFRAMEBUFFERSEXTPROC qt_glDeleteFramebuffersEXT;
+    PFNGLGENFRAMEBUFFERSEXTPROC qt_glGenFramebuffersEXT;
+    PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC qt_glCheckFramebufferStatusEXT;
+    PFNGLFRAMEBUFFERTEXTURE1DEXTPROC qt_glFramebufferTexture1DEXT;
+    PFNGLFRAMEBUFFERTEXTURE2DEXTPROC qt_glFramebufferTexture2DEXT;
+    PFNGLFRAMEBUFFERTEXTURE3DEXTPROC qt_glFramebufferTexture3DEXT;
+    PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC qt_glFramebufferRenderbufferEXT;
+    PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC qt_glGetFramebufferAttachmentParameterivEXT;
+    PFNGLGENERATEMIPMAPEXTPROC qt_glGenerateMipmapEXT;
+#endif // Q_WS_WIN
 };
 
 // GL extension definitions

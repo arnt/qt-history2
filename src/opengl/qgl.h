@@ -234,11 +234,18 @@ private:
     friend class QGLDrawable;
     friend class QGLWidgetPrivate;
     friend class QGLGlyphCache;
+    friend class QOpenGLPaintEngine;
+    friend class QOpenGLPaintEnginePrivate;
 #ifdef Q_WS_MAC
     friend class QMacGLWindowChangeEvent;
     void updatePaintDevice();
 #endif
-
+#ifdef Q_WS_WIN
+    friend class QGLFramebufferObject;
+    friend class QGLFramebufferObjectPrivate;
+    friend bool qt_resolve_frag_program_extensions(QGLContext *);
+    friend bool qt_resolve_framebufferobject_extensions(QGLContext *);
+#endif
 private:
     Q_DISABLE_COPY(QGLContext)
 };

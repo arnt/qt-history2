@@ -81,32 +81,9 @@
 #define GL_CLAMP_TO_EDGE                  0x812F
 #endif
 
-#ifndef Q_WS_MAC
-#ifndef APIENTRYP
-#ifdef APIENTRY
-#define APIENTRYP APIENTRY *
-#else
-#define APIENTRYP *
-#endif
-#endif
+#ifdef Q_WS_X11
 
-typedef GLboolean (APIENTRYP PFNGLISRENDERBUFFEREXTPROC) (GLuint renderbuffer);
-typedef void (APIENTRYP PFNGLBINDRENDERBUFFEREXTPROC) (GLenum target, GLuint renderbuffer);
-typedef void (APIENTRYP PFNGLDELETERENDERBUFFERSEXTPROC) (GLsizei n, const GLuint *renderbuffers);
-typedef void (APIENTRYP PFNGLGENRENDERBUFFERSEXTPROC) (GLsizei n, GLuint *renderbuffers);
-typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEEXTPROC) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-typedef void (APIENTRYP PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) (GLenum target, GLenum pname, GLint *params);
-typedef GLboolean (APIENTRYP PFNGLISFRAMEBUFFEREXTPROC) (GLuint framebuffer);
-typedef void (APIENTRYP PFNGLBINDFRAMEBUFFEREXTPROC) (GLenum target, GLuint framebuffer);
-typedef void (APIENTRYP PFNGLDELETEFRAMEBUFFERSEXTPROC) (GLsizei n, const GLuint *framebuffers);
-typedef void (APIENTRYP PFNGLGENFRAMEBUFFERSEXTPROC) (GLsizei n, GLuint *framebuffers);
-typedef GLenum (APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) (GLenum target);
-typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint zoffset);
-typedef void (APIENTRYP PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-typedef void (APIENTRYP PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) (GLenum target, GLenum attachment, GLenum pname, GLint *params);
-typedef void (APIENTRYP PFNGLGENERATEMIPMAPEXTPROC) (GLenum target);
+#define QGL_FUNC_CONTEXT 
 
 PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
 PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
@@ -144,8 +121,7 @@ PFNGLGENERATEMIPMAPEXTPROC qt_glGenerateMipmapEXT;
 #define glGetFramebufferAttachmentParameterivEXT qt_glGetFramebufferAttachmentParameterivEXT
 #define glGenerateMipmapEXT qt_glGenerateMipmapEXT
 
-#if defined(Q_WS_X11)
-static bool qt_resolve_framebufferobject_extensions()
+static bool qt_resolve_framebufferobject_extensions(QGLContext *)
 {
     static bool resolved = false;
     if (resolved && qt_glIsRenderbufferEXT)
@@ -178,45 +154,61 @@ static bool qt_resolve_framebufferobject_extensions()
     return qt_glIsRenderbufferEXT;
 }
 #elif defined(Q_WS_WIN)
-static bool qt_resolve_framebufferobject_extensions()
-{
-    static bool resolved = false;
-    if (resolved && qt_glIsRenderbufferEXT)
-        return true;
-    else if (resolved)
-        return false;
 
-    if (wglGetCurrentContext() == 0) {
+#define QGL_FUNC_CONTEXT QGLContext *ctx = d_ptr->ctx;
+
+#define glIsRenderbufferEXT ctx->d_ptr->qt_glIsRenderbufferEXT
+#define glBindRenderbufferEXT ctx->d_ptr->qt_glBindRenderbufferEXT
+#define glDeleteRenderbuffersEXT ctx->d_ptr->qt_glDeleteRenderbuffersEXT
+#define glGenRenderbuffersEXT ctx->d_ptr->qt_glGenRenderbuffersEXT
+#define glRenderbufferStorageEXT ctx->d_ptr->qt_glRenderbufferStorageEXT
+#define glGetRenderbufferParameterivEXT ctx->d_ptr->qt_glGetRenderbufferParameterivEXT
+#define glIsFramebufferEXT ctx->d_ptr->qt_glIsFramebufferEXT
+#define glBindFramebufferEXT ctx->d_ptr->qt_glBindFramebufferEXT
+#define glDeleteFramebuffersEXT ctx->d_ptr->qt_glDeleteFramebuffersEXT
+#define glGenFramebuffersEXT ctx->d_ptr->qt_glGenFramebuffersEXT
+#define glCheckFramebufferStatusEXT ctx->d_ptr->qt_glCheckFramebufferStatusEXT
+#define glFramebufferTexture1DEXT ctx->d_ptr->qt_glFramebufferTexture1DEXT
+#define glFramebufferTexture2DEXT ctx->d_ptr->qt_glFramebufferTexture2DEXT
+#define glFramebufferTexture3DEXT ctx->d_ptr->qt_glFramebufferTexture3DEXT
+#define glFramebufferRenderbufferEXT ctx->d_ptr->qt_glFramebufferRenderbufferEXT
+#define glGetFramebufferAttachmentParameterivEXT ctx->d_ptr->qt_glGetFramebufferAttachmentParameterivEXT
+#define glGenerateMipmapEXT ctx->d_ptr->qt_glGenerateMipmapEXT
+
+static bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
+{
+    if (glIsRenderbufferEXT != 0)
+	return true;
+    
+    if (ctx == 0) {
 	qWarning("QGLFramebufferObject: Unable to resolve framebuffer object extensions -"
 		 " make sure there is a current context when creating the framebuffer object.");
 	return false;
     }
 
-    qt_glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) wglGetProcAddress("glIsRenderbufferEXT");
-    qt_glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) wglGetProcAddress("glBindRenderbufferEXT");
-    qt_glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) wglGetProcAddress("glDeleteRenderbuffersEXT");
-    qt_glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) wglGetProcAddress("glGenRenderbuffersEXT");
-    qt_glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) wglGetProcAddress("glRenderbufferStorageEXT");
-    qt_glGetRenderbufferParameterivEXT =
+    glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) wglGetProcAddress("glIsRenderbufferEXT");
+    glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) wglGetProcAddress("glBindRenderbufferEXT");
+    glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) wglGetProcAddress("glDeleteRenderbuffersEXT");
+    glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) wglGetProcAddress("glGenRenderbuffersEXT");
+    glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) wglGetProcAddress("glRenderbufferStorageEXT");
+    glGetRenderbufferParameterivEXT =
         (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) wglGetProcAddress("glGetRenderbufferParameterivEXT");
-    qt_glIsFramebufferEXT = (PFNGLISFRAMEBUFFEREXTPROC) wglGetProcAddress("glIsFramebufferEXT");
-    qt_glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) wglGetProcAddress("glBindFramebufferEXT");
-    qt_glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC) wglGetProcAddress("glDeleteFramebuffersEXT");
-    qt_glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) wglGetProcAddress("glGenFramebuffersEXT");
-    qt_glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) wglGetProcAddress("glCheckFramebufferStatusEXT");
-    qt_glFramebufferTexture1DEXT = (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) wglGetProcAddress("glFramebufferTexture1DEXT");
-    qt_glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) wglGetProcAddress("glFramebufferTexture2DEXT");
-    qt_glFramebufferTexture3DEXT = (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) wglGetProcAddress("glFramebufferTexture3DEXT");
-    qt_glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) wglGetProcAddress("glFramebufferRenderbufferEXT");
-    qt_glGetFramebufferAttachmentParameterivEXT =
+    glIsFramebufferEXT = (PFNGLISFRAMEBUFFEREXTPROC) wglGetProcAddress("glIsFramebufferEXT");
+    glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) wglGetProcAddress("glBindFramebufferEXT");
+    glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC) wglGetProcAddress("glDeleteFramebuffersEXT");
+    glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) wglGetProcAddress("glGenFramebuffersEXT");
+    glCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) wglGetProcAddress("glCheckFramebufferStatusEXT");
+    glFramebufferTexture1DEXT = (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) wglGetProcAddress("glFramebufferTexture1DEXT");
+    glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) wglGetProcAddress("glFramebufferTexture2DEXT");
+    glFramebufferTexture3DEXT = (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) wglGetProcAddress("glFramebufferTexture3DEXT");
+    glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) wglGetProcAddress("glFramebufferRenderbufferEXT");
+    glGetFramebufferAttachmentParameterivEXT =
         (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) wglGetProcAddress("glGetFramebufferAttachmentParameterivEXT");
-    qt_glGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) wglGetProcAddress("glGenerateMipmapEXT");
-    resolved = true;
-    return qt_glIsRenderbufferEXT;
+    glGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) wglGetProcAddress("glGenerateMipmapEXT");
+    return glIsRenderbufferEXT;
 }
-#endif
-#else
-static bool qt_resolve_framebufferobject_extensions()
+#elif defined(Q_WS_MAC)
+static bool qt_resolve_framebufferobject_extensions(QGLContext *)
 {
     return true; // assume these are always available on Mac OS X
 }
@@ -234,7 +226,7 @@ static bool qt_resolve_framebufferobject_extensions()
 class QGLFramebufferObjectPrivate
 {
 public:
-    QGLFramebufferObjectPrivate() : valid(false) {}
+    QGLFramebufferObjectPrivate() : valid(false), ctx(0) {}
     ~QGLFramebufferObjectPrivate() {}
 
     void init(const QSize& sz, GLenum texture_target);
@@ -245,11 +237,11 @@ public:
     GLenum target;
     QSize size;
     uint valid : 1;
+    QGLContext *ctx; // for Windows extension ptrs
 };
 
 bool QGLFramebufferObjectPrivate::checkFramebufferStatus() const
 {
-#ifdef GL_FRAMEBUFFER_EXT
     GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
     switch(status) {
     case GL_NO_ERROR:
@@ -284,14 +276,14 @@ bool QGLFramebufferObjectPrivate::checkFramebufferStatus() const
         qDebug() <<"QGLFramebufferObject: An undefined error has occured: "<< status;
         break;
     }
-#endif
     return false;
 }
 
 void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
 {
+    ctx = const_cast<QGLContext *>(QGLContext::currentContext());
     bool ext_detected = (QGLExtensions::glExtensions & QGLExtensions::FramebufferObject);
-    if (!ext_detected || (ext_detected && !qt_resolve_framebufferobject_extensions()))
+    if (!ext_detected || (ext_detected && !qt_resolve_framebufferobject_extensions(ctx)))
         return;
 
     size = sz;
@@ -441,6 +433,7 @@ QGLFramebufferObject::QGLFramebufferObject(int width, int height, GLenum target)
 QGLFramebufferObject::~QGLFramebufferObject()
 {
     Q_D(QGLFramebufferObject);
+    QGL_FUNC_CONTEXT;
 
     if (isValid()) {
 	glDeleteTextures(1, &d->texture);
@@ -480,6 +473,7 @@ bool QGLFramebufferObject::bind()
     if (!isValid())
 	return false;
     Q_D(QGLFramebufferObject);
+    QGL_FUNC_CONTEXT;
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, d->fbo);
     return d->checkFramebufferStatus();
 }
@@ -496,6 +490,7 @@ bool QGLFramebufferObject::release()
     if (!isValid())
 	return false;
     Q_D(QGLFramebufferObject);
+    QGL_FUNC_CONTEXT;
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
     return d->checkFramebufferStatus();
 }

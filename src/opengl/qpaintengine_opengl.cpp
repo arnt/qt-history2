@@ -552,23 +552,24 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
 #define GL_PROGRAM_FORMAT_ASCII_ARB       0x8875
 #endif
 
-typedef void (APIENTRY *_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
-typedef void (APIENTRY *_glBindProgramARB) (GLenum, GLuint);
-typedef void (APIENTRY *_glDeleteProgramsARB) (GLsizei, const GLuint *);
-typedef void (APIENTRY *_glGenProgramsARB) (GLsizei, GLuint *);
-typedef void (APIENTRY *_glProgramLocalParameter4fvARB) (GLenum, GLuint, const GLfloat *);
-
+#ifdef Q_WS_WIN
+#define glProgramStringARB ctx->d_ptr->qt_glProgramStringARB
+#define glBindProgramARB ctx->d_ptr->qt_glBindProgramARB
+#define glDeleteProgramsARB ctx->d_ptr->qt_glDeleteProgramsARB
+#define glGenProgramsARB ctx->d_ptr->qt_glGenProgramsARB
+#define glProgramLocalParameter4fvARB ctx->d_ptr->qt_glProgramLocalParameter4fvARB
+#else
 static _glProgramStringARB qt_glProgramStringARB = 0;
 static _glBindProgramARB qt_glBindProgramARB = 0;
 static _glDeleteProgramsARB qt_glDeleteProgramsARB = 0;
 static _glGenProgramsARB qt_glGenProgramsARB = 0;
 static _glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB = 0;
-
 #define glProgramStringARB qt_glProgramStringARB
 #define glBindProgramARB qt_glBindProgramARB
 #define glDeleteProgramsARB qt_glDeleteProgramsARB
 #define glGenProgramsARB qt_glGenProgramsARB
 #define glProgramLocalParameter4fvARB qt_glProgramLocalParameter4fvARB
+#endif // Q_WS_WIN
 
 /*  radial fragment program
     parameter: 0 = inv_matrix
@@ -655,7 +656,27 @@ static const char *const conical_program =
     "END"
     "\0";
 
-static bool qt_resolve_frag_program_extensions()
+#ifdef Q_WS_WIN
+static bool qt_resolve_frag_program_extensions(QGLContext *ctx)
+{
+    if (glProgramStringARB != 0)
+	return true;
+    
+    // ARB_fragment_program
+    glProgramStringARB = (_glProgramStringARB) wglGetProcAddress("glProgramStringARB");
+    glBindProgramARB = (_glBindProgramARB) wglGetProcAddress("glBindProgramARB");
+    glDeleteProgramsARB = (_glDeleteProgramsARB) wglGetProcAddress("glDeleteProgramsARB");
+    glGenProgramsARB = (_glGenProgramsARB) wglGetProcAddress("glGenProgramsARB");
+    glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) wglGetProcAddress("glProgramLocalParameter4fvARB");
+
+    return glProgramStringARB
+        && glBindProgramARB
+        && glDeleteProgramsARB
+        && glGenProgramsARB
+        && glProgramLocalParameter4fvARB;
+}
+#else
+static bool qt_resolve_frag_program_extensions(QGLContext *)
 {
     static int resolved = false;
 
@@ -679,6 +700,7 @@ static bool qt_resolve_frag_program_extensions()
         && qt_glGenProgramsARB
         && qt_glProgramLocalParameter4fvARB;
 }
+#endif
 
 void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops& s, unsigned int *colorTable, int size)
 {
@@ -819,8 +841,9 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->opacity = 1;
     d->drawable.makeCurrent();
     
+    QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
     if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
-	qt_resolve_frag_program_extensions();
+	qt_resolve_frag_program_extensions(ctx);
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glDisable(GL_MULTISAMPLE);
@@ -845,6 +868,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
+    
     if ((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
         && (pdev != d->shader_dev))
     {
@@ -976,6 +1000,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
     bool has_mirrored_repeat = QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat;
     bool has_frag_program = QGLExtensions::glExtensions & QGLExtensions::FragmentProgram;
     Qt::BrushStyle style = brush.style();
+    QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
 
     if (has_mirrored_repeat && style == Qt::LinearGradientPattern) {
         const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
