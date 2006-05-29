@@ -901,6 +901,28 @@
     The numBitPlanes() function has been replaced by
     QColorMap::depth().
 
+    \table
+    \header \o{4,1} Predefined Qt Colors
+    \row \o Qt::color0 \o Qt::color1 \o Qt::black \o Qt::white
+    \row \o Qt::darkGray \o Qt::gray \o Qt::lightGray \o Qt::red
+    \row \o Qt::green \o Qt::blue \o Qt::cyan \o Qt::magenta
+    \row \o Qt::yellow \o Qt::darkRed \o Qt::darkGreen \o Qt::darkBlue
+    \row \o Qt::darkCyan \o Qt::darkMagenta \o Qt::darkYellow \o Qt::transparent
+    \endtable
+
+    The predefined colors listed in the table above were static
+    QColor objects in Qt 3. In Qt 4, they are enum values of type
+    Qt::GlobalColor. Thanks to the implicit QColor(Qt::GlobalColor)
+    constructor, the enum values are automatically converted to
+    \l{QColor}s in most contexts. Occasionally, you might need a
+    cast.
+
+    \oldcode
+        QColor lightCyan = Qt::cyan.light(180);
+    \newcode
+        QColor lightCyan = QColor(Qt::cyan).light(180);
+    \endcode
+
     \section1 QColorGroup
 
     In Qt 3, a QPalette consisted of three QColorGroup objects. In Qt
