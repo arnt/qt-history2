@@ -21,6 +21,7 @@
 #include "qmainwindow.h"
 #include "qtextdocument.h"
 #include "qdebug.h"
+#include "qabstractslider.h"
 
 #include <private/qt_mac_p.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -148,6 +149,9 @@ struct QAccessibleTextBinding {
       { -1, 0, false }
     },
     { { QAccessible::Link, kAXTextFieldRole, false },
+      { -1, 0, false }
+    },
+    { { QAccessible::Indicator, kAXValueIndicatorRole, false },
       { -1, 0, false }
     },
     { { -1, 0, false } }
@@ -915,6 +919,30 @@ static int textForRoleAndAttribute(QAccessible::Role role, CFStringRef attribute
         return -1;
 }
 
+/*
+    Returns the subrole string constant for the interface if it has one, 
+    else returns an empty string.
+*/
+static QCFString subrole(QInterfaceItem interface)
+{
+    const QInterfaceItem parent = interface.parent();
+    if (parent.isValid() == false)
+        return QCFString();
+    
+    if (parent.role() == QAccessible::ScrollBar) {
+        QCFString subrole;
+        switch(interface.id()) {
+            case 1: subrole = kAXDecrementArrowSubrole; break;
+            case 2: subrole = kAXDecrementPageSubrole; break;
+            case 4: subrole = kAXIncrementPageSubrole; break;
+            case 5: subrole = kAXIncrementArrowSubrole; break;
+            default:
+            break;
+        }
+        return subrole;
+    }
+    return QCFString();
+}
 
 /*
     Returns the label (buddy) interface for interface, or 0 if it has none.
@@ -966,6 +994,10 @@ static bool supportsAttribute(CFStringRef attribute, QInterfaceItem interface)
             return true;
     }
 
+    if (CFStringCompare(attribute, kAXSubroleAttribute,  0) == kCFCompareEqualTo) {
+        return (subrole(interface) != QCFString());
+    }
+
     return false;
 }
 
@@ -1011,6 +1043,7 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
     appendIfSupported(attrs, kAXHelpAttribute, interface);
     appendIfSupported(attrs, kAXTitleUIElementAttribute, interface);
     appendIfSupported(attrs, kAXChildrenAttribute, interface);
+    appendIfSupported(attrs, kAXSubroleAttribute, interface);
 
     // Append attribute names based on the interaface role.
     switch (interface.role())  {
@@ -1030,6 +1063,9 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
         case QAccessible::CheckBox:
             qt_mac_append_cf_uniq(attrs, kAXMinValueAttribute);
             qt_mac_append_cf_uniq(attrs, kAXMaxValueAttribute);
+        break;
+        case QAccessible::ScrollBar:
+            qt_mac_append_cf_uniq(attrs, kAXOrientationAttribute);
         break;
         default:
         break;
@@ -1267,6 +1303,14 @@ static OSStatus handleSizeAttribute(EventHandlerCallRef next_ref, EventRef event
     return noErr;
 }
 
+static OSStatus handleSubroleAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+{
+    const QCFString role = subrole(interface);
+    CFStringRef rolestr = (CFStringRef)role;
+    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, sizeof(rolestr), &rolestr);
+    return noErr;
+}
+
 static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, QInterfaceItem interface)
 {
     CFStringRef var;
@@ -1369,7 +1413,7 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
                               sizeof(val), &val);
         }
     } else if (CFStringCompare(var, kAXSubroleAttribute, 0) == kCFCompareEqualTo) {
-        return CallNextEventHandler(next_ref, event);
+        return handleSubroleAttribute(next_ref, event, interface);
     } else if (CFStringCompare(var, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
         const QAccessible::Role qtRole = interface.role();
@@ -1427,6 +1471,15 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
         } else {
             return CallNextEventHandler(next_ref, event);
         }
+    } else if (CFStringCompare(var, kAXOrientationAttribute, 0) == kCFCompareEqualTo) {
+        QAbstractSlider * const scrollBar = qobject_cast<QAbstractSlider * const>(interface.object());
+        if (!scrollBar)
+            return CallNextEventHandler(next_ref, event);
+
+        const CFStringRef orientation = (scrollBar->orientation() == Qt::Vertical) 
+            ? kAXVerticalOrientationValue : kAXHorizontalOrientationValue;
+        SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
+                          sizeof(orientation), &orientation);
     } else {
         return CallNextEventHandler(next_ref, event);
     }
