@@ -106,7 +106,7 @@
     transformation to all children.
 
     \img graphicsview-parentchild.png
-    
+
     QGraphicsItem supports affine transformations in addition to its base
     position, pos(). To change the item's transformation, you can either pass
     a transformation matrix to setMatrix(), or call one of the convenience
@@ -903,7 +903,7 @@ bool QGraphicsItem::acceptsHoverEvents() const
     it will receive hover move events as the cursor passes through its
     children, but it does not receive hover enter and hover leave
     events on behalf of its children.
-    
+
     \sa acceptsHoverEvents(), hoverEnterEvent(), hoverMoveEvent(),
     hoverLeaveEvent()
 */
@@ -2130,7 +2130,7 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_D(QGraphicsItem);
     if ((event->buttons() & Qt::LeftButton) && (flags() & ItemIsMovable)) {
-        // Handle ItemIsMovable.        
+        // Handle ItemIsMovable.
         QPointF newPos(mapToParent(event->pos()) - matrix().map(event->buttonDownPos(Qt::LeftButton)));
         QPointF diff = newPos - pos();
 
@@ -2243,7 +2243,7 @@ QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
     Note: Certain QGraphicsItem functions cannot be called in a
     reimplementation of this function; see the ItemChange
     documentation for details.
-    
+
     \sa ItemChange
 */
 void QGraphicsItem::itemChange(ItemChange change)
@@ -3559,7 +3559,6 @@ public:
     void _q_update(QRectF);
     void _q_ensureVisible(QRectF);
 
-    QFont font;
     QPen pen;
     QRectF boundingRect;
     int pageNumber;
@@ -3638,7 +3637,9 @@ void QGraphicsTextItem::setText(const QString &text)
 */
 QFont QGraphicsTextItem::font() const
 {
-    return dd->font;
+    if (!dd->textControl)
+        return QFont();
+    return dd->textControl->document()->defaultFont();
 }
 
 /*!
@@ -3648,7 +3649,9 @@ QFont QGraphicsTextItem::font() const
 */
 void QGraphicsTextItem::setFont(const QFont &font)
 {
-    dd->font = font;
+    if (!dd->textControl)
+        setTextControl(new QTextControl(this));
+    dd->textControl->document()->setDefaultFont(font);
 }
 
 /*!
@@ -3804,7 +3807,7 @@ void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
         return;
     if (!hasFocus())
         return QGraphicsItem::mouseDoubleClickEvent(event);
-    
+
     QMouseEvent mouseEvent(QEvent::MouseButtonDblClick,
                            (dd->controlOffset() + event->pos()).toPoint(),
                            event->button(), event->buttons(),
