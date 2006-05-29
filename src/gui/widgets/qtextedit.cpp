@@ -126,7 +126,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
         || ((e->modifiers() & (Qt::AltModifier | Qt::MetaModifier))
             == (Qt::AltModifier | Qt::MetaModifier));
 #else
-    if (e->modifiers() & (Qt::AltModifier | Qt::MetaModifier | Qt::KeypadModifier)) {
+    if (e->modifiers() & (Qt::AltModifier | Qt::MetaModifier)) {
         e->ignore();
         return false;
     }
