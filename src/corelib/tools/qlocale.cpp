@@ -1204,9 +1204,8 @@ const QLocalePrivate *QLocale::systemLocale()
         const QLocalePrivate *res = m_system_locale->locale();
         if (res)
             return res;
-        return findLocale(systemLocaleName());
     }
-    return 0;
+    return findLocale(systemLocaleName());
 }
 
 /*!
@@ -2694,7 +2693,7 @@ QLocale QLocale::system()
     const QByteArray env = envVarLocale();
     if (systemLocaleName() == env || env.isEmpty()) {
         QLocale result(C); // cannot be default constructor, or we go into a recursion loop
-        result.d = systemLocale();
+        //result.d = systemLocale();
         return result;
     }
 #endif
