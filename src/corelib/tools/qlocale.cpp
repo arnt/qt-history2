@@ -324,6 +324,8 @@ QString QSystemLocale::dateFormat(bool) const
 #ifdef Q_OS_WIN
 
 static const char *winLangCodeToIsoName(int code);
+static QString winIso639LangName();
+static QString winIso3116CtryName();
 
 struct QWinSystemLocale : public QSystemLocale
 {
@@ -415,7 +417,7 @@ QByteArray QWinSystemLocale::name() const
     return result;
 }
 
-static const QLocalePrivate *QWinSystemLocalPrivate::locale() const
+static const QLocalePrivate *QWinSystemLocal::locale() const
 {
     static QLocalePrivate *result = 0;
 
@@ -448,7 +450,7 @@ static const QLocalePrivate *QWinSystemLocalPrivate::locale() const
     return result;
 }
 
-QString QWinSystemLocalPrivate::dateToString(const QDate &date, bool short_format) const
+QString QWinSystemLocal::dateToString(const QDate &date, bool short_format) const
 {
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
@@ -496,7 +498,7 @@ QString QWinSystemLocale::timeToString(const QTime &time, bool) const
     return QString();
 }
 
-QString QWinSytemLocalePrivate::dateFormat(bool short_format) const
+QString QWinSystemLocale::dateFormat(bool short_format) const
 {
     LCTYPE type = short_format ? LOCALE_SSHORTDATE : LOCALE_SLONGDATE;
     return getWinLocaleInfo(type);
