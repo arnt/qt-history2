@@ -274,6 +274,8 @@ QModelIndex QSortFilterProxyModelPrivate::source_to_proxy(const QModelIndex &sou
         return QModelIndex();
     int proxy_row = m->proxy_rows.at(source_index.row());
     int proxy_column = m->proxy_columns.at(source_index.column());
+    if (proxy_row == -1 || proxy_column == -1)
+        return QModelIndex();
     return create_index(proxy_row, proxy_column, it);
 }
 
