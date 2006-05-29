@@ -541,7 +541,7 @@ en
     </message>
     <message>
         <source>&amp;Val:</source>
-        <translation>&amp;Luminance :</translation>
+        <translation>&amp;Valeur :</translation>
     </message>
     <message>
         <source>&amp;Red:</source>
