@@ -45,6 +45,9 @@
 
 #ifdef Q_CC_GNU
 #  include <w32api.h>
+#  ifndef TMT_CONTENTMARGINS
+#    define TMT_CONTENTMARGINS 3602
+#  endif
 #  if (__W32API_MAJOR_VERSION >= 3 || (__W32API_MAJOR_VERSION == 2 && __W32API_MINOR_VERSION >= 5))
 #    ifdef _WIN32_WINNT
 #      undef _WIN32_WINNT
