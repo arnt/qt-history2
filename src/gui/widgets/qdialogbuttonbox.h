@@ -32,7 +32,7 @@ class Q_GUI_EXPORT QDialogButtonBox : public QWidget
 
 public:
     enum ButtonRole {
-        InvalidRole,
+        InvalidRole = -1,
         AcceptRole,
         RejectRole,
         AlternateRole,
