@@ -278,6 +278,10 @@ static QByteArray envVarLocale()
 ** Default system locale behavior
 */
 
+QSystemLocale::~QSystemLocale()
+{
+}
+
 /*
   Returns the name of the system locale.  The default implementation returns the value
   from the LANG environment variable for non-unix platforms.  For Unix platforms
