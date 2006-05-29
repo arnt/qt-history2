@@ -504,6 +504,8 @@ QFile::exists(const QString &fileName)
 }
 
 /*!
+    \fn QString QFile::symLinkTarget() const
+    \since 4.2
     \overload
 
     Returns the absolute path of the file or directory a symlink (or shortcut
@@ -516,6 +518,11 @@ QFile::exists(const QString &fileName)
     \sa fileName() setFileName()
 */
 
+/*!
+    \obsolete
+
+    Use symLinkTarget() instead.
+*/
 QString
 QFile::readLink() const
 {
@@ -523,6 +530,9 @@ QFile::readLink() const
 }
 
 /*!
+    \fn QString QFile::symLinkTarget() const
+    \since 4.2
+
     Returns the absolute path of the file or directory referred to by the
     symlink (or shortcut on Windows) specified by \a fileName, or returns an
     empty string if the \a fileName does not correspond to a symbolic link.
@@ -531,6 +541,11 @@ QFile::readLink() const
     QFile::exists() returns true if the symlink points to an existing file.
 */
 
+/*!
+    \obsolete
+
+    Use symLinkTarget() instead.
+*/
 QString
 QFile::readLink(const QString &fileName)
 {

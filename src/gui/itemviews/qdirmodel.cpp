@@ -1327,7 +1327,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent,
         infoList = QDir::drives();
     } else if (parent->info.isDir()) {
         if (parent->info.isSymLink()) {
-            QString link = parent->info.readLink();
+            QString link = parent->info.symLinkTarget();
             if (link.size() > 1 && link.at(link.size() - 1) == QDir::separator())
                 link.chop(1);
             if (stat)
@@ -1485,11 +1485,11 @@ QFileInfo QDirModelPrivate::resolvedInfo(QFileInfo info)
 {
 #ifdef Q_OS_WIN
     // On windows, we cannot create a shortcut to a shortcut.
-    return QFileInfo(info.readLink());
+    return QFileInfo(info.symLinkTarget());
 #else
     QStringList paths;
     do {
-        QFileInfo link(info.readLink());
+        QFileInfo link(info.symLinkTarget());
         if (link.isRelative())
             info.setFile(info.absolutePath(), link.filePath());
         else

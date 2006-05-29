@@ -255,7 +255,7 @@ QDateTime
     every time you request information from it call setCaching(false).
 
     The file's type is obtained with isFile(), isDir() and
-    isSymLink(). The readLink() function provides the name of the file
+    isSymLink(). The symLinkTarget() function provides the name of the file
     the symlink points to.
 
     On Unix (including Mac OS X), the symlink has the same size() has
@@ -270,9 +270,9 @@ QDateTime
         info1.isSymLink();          // returns true
         info1.absoluteFilePath();   // returns "/home/bob/bin/untabify"
         info1.size();               // returns 56201
-        info1.readLink();           // returns "/opt/pretty++/bin/untabify"
+        info1.symLinkTarget();      // returns "/opt/pretty++/bin/untabify"
 
-        QFileInfo info2(info1.readLink());
+        QFileInfo info2(info1.symLinkTarget());
         info1.isSymLink();          // returns false
         info1.absoluteFilePath();   // returns "/opt/pretty++/bin/untabify"
         info1.size();               // returns 56201
@@ -292,9 +292,9 @@ QDateTime
         info1.isSymLink();          // returns true
         info1.absoluteFilePath();   // returns "C:\\Documents and Settings\\Bob\\untabify.lnk"
         info1.size();               // returns 743
-        info1.readLink();           // returns "C:\\Pretty++\\untabify"
+        info1.symLinkTarget();      // returns "C:\\Pretty++\\untabify"
 
-        QFileInfo info2(info1.readLink());
+        QFileInfo info2(info1.symLinkTarget());
         info1.isSymLink();          // returns false
         info1.absoluteFilePath();   // returns "C:\\Pretty++\\untabify"
         info1.size();               // returns 63942
@@ -991,7 +991,7 @@ QFileInfo::isDir() const
     shortcut on Windows); otherwise returns false.
 
     On Unix (including Mac OS X), opening a symlink effectively opens
-    the \l{readLink()}{link's target}. On Windows, it opens the \c
+    the \l{symLinkTarget()}{link's target}. On Windows, it opens the \c
     .lnk file itself.
 
     Example:
@@ -999,10 +999,10 @@ QFileInfo::isDir() const
     \code
         QFileInfo info(fileName);
         if (info.isSymLink())
-            fileName = info.readLink();
+            fileName = info.symLinkTarget();
     \endcode
 
-    \sa isFile(), isDir(), readLink()
+    \sa isFile(), isDir(), symLinkTarget()
 */
 
 bool
@@ -1030,6 +1030,9 @@ QFileInfo::isRoot() const
 }
 
 /*!
+    \fn QString QFileInfo::symLinkTarget()
+    \since 4.2
+
     Returns the absolute path to the file or directory a symlink (or shortcut
     on Windows) points to, or a an empty string if the object isn't a symbolic
     link.
@@ -1041,6 +1044,11 @@ QFileInfo::isRoot() const
     \sa exists(), isSymLink(), isDir(), isFile()
 */
 
+/*!
+    \obsolete
+
+    Use symLinkTarget() instead.
+*/
 QString
 QFileInfo::readLink() const
 {
@@ -1337,4 +1345,18 @@ QFileInfo::setCaching(bool enable)
     \compat
 
     Use permission() instead.
+*/
+
+/*!
+    \typedef QFileInfoList
+    \relates QFileInfo
+
+    Synonym for QList<QFileInfo>.
+*/
+
+/*!
+    \typedef QFileInfoList
+    \relates QFileInfo
+
+    Synonym for QList<QFileInfo>.
 */

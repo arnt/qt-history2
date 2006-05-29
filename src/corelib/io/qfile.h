@@ -95,6 +95,8 @@ public:
 
     QString readLink() const;
     static QString readLink(const QString &fileName);
+    inline QString symLinkTarget() const { return readLink(); }
+    inline static QString symLinkTarget(const QString &fileName) { return readLink(fileName); }
 
     bool remove();
     static bool remove(const QString &fileName);
