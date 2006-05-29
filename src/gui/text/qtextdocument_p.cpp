@@ -165,11 +165,11 @@ QTextDocumentPrivate::QTextDocumentPrivate()
 void QTextDocumentPrivate::init()
 {
     QTextFrameFormat defaultRootFrameFormat;
-    defaultRootFrameFormat.setMargin(4);
+    defaultRootFrameFormat.setMargin(2);
     frame = qobject_cast<QTextFrame *>(createObject(defaultRootFrameFormat));
     framesDirty = false;
 
-    bool undoState = undoEnabled; 
+    bool undoState = undoEnabled;
     undoEnabled = false;
     initialBlockCharFormatIndex = formats.indexForFormat(QTextCharFormat());
     insertBlock(0, formats.indexForFormat(QTextBlockFormat()), formats.indexForFormat(QTextCharFormat()));
@@ -531,7 +531,7 @@ void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operati
 void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode)
 {
     beginEditBlock();
-    
+
     Q_ASSERT(newFormat.isValid());
 
     int newFormatIdx = -1;
