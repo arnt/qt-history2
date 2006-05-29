@@ -531,8 +531,8 @@ template <class T> inline T qgraphicsitem_cast(QGraphicsItem *item)
         || int(static_cast<T>(0)->Type) == item->type() ? static_cast<T>(item) : 0;
 }
 
-#ifndef QT_NO_DEBUG
-Q_CORE_EXPORT QDebug operator<<(QDebug debug, QGraphicsItem *item);
+#ifndef QT_NO_DEBUG_STREAM
+Q_GUI_EXPORT QDebug operator<<(QDebug debug, QGraphicsItem *item);
 #endif
 
 QT_END_HEADER

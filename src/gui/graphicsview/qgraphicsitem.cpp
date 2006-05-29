@@ -3754,8 +3754,10 @@ void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (!dd->textControl)
         return;
-    if (!hasFocus())
-        return QGraphicsItem::mousePressEvent(event);
+    if (!hasFocus()) {
+        QGraphicsItem::mousePressEvent(event);
+        return;
+    }
 
     QMouseEvent mouseEvent(QEvent::MouseButtonPress,
                            (dd->controlOffset() + event->pos()).toPoint(),
@@ -3771,8 +3773,10 @@ void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     if (!dd->textControl)
         return;
-    if (!hasFocus())
-        return QGraphicsItem::mouseMoveEvent(event);
+    if (!hasFocus()) {
+        QGraphicsItem::mouseMoveEvent(event);
+        return;
+    }
 
     QMouseEvent mouseEvent(QEvent::MouseMove,
                            (dd->controlOffset() + event->pos()).toPoint(),
@@ -3788,8 +3792,10 @@ void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (!dd->textControl)
         return;
-    if (!hasFocus())
-        return QGraphicsItem::mouseReleaseEvent(event);
+    if (!hasFocus()) {
+        QGraphicsItem::mouseReleaseEvent(event);
+        return;
+    }
 
     QMouseEvent mouseEvent(QEvent::MouseButtonRelease,
                            (dd->controlOffset() + event->pos()).toPoint(),
@@ -3805,8 +3811,10 @@ void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
     if (!dd->textControl)
         return;
-    if (!hasFocus())
-        return QGraphicsItem::mouseDoubleClickEvent(event);
+    if (!hasFocus()) {
+        QGraphicsItem::mouseDoubleClickEvent(event);
+        return;
+    }
 
     QMouseEvent mouseEvent(QEvent::MouseButtonDblClick,
                            (dd->controlOffset() + event->pos()).toPoint(),
@@ -4099,8 +4107,8 @@ int QGraphicsItemGroup::type() const
     return Type;
 }
 
-#ifndef QT_NO_DEBUG
-Q_GUI_EXPORT QDebug operator<<(QDebug debug, QGraphicsItem *item)
+#ifndef QT_NO_DEBUG_STREAM
+QDebug operator<<(QDebug debug, QGraphicsItem *item)
 {
     if (!item) {
         debug << "QGraphicsItem(0)";
