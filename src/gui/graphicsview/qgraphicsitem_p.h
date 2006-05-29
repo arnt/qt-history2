@@ -49,6 +49,7 @@ public:
         enabled = 1;
         selected = 0;
         acceptsHover = 0;
+        acceptDrops = 0;
         isMemberOfGroup = 0;
         handlesChildEvents = 0;
         ancestorHandlesChildEvents = 0;
@@ -114,11 +115,12 @@ public:
     quint32 enabled : 1;
     quint32 selected : 1;
     quint32 acceptsHover : 1;
+    quint32 acceptDrops : 1;
     quint32 isMemberOfGroup : 1;
     quint32 handlesChildEvents : 1;
     quint32 ancestorHandlesChildEvents : 1;
     quint32 flags : 11;
-    quint32 pad : 9;
+    quint32 pad : 8;
 
     QGraphicsItem *q_ptr;
 };

@@ -127,7 +127,7 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     painter->drawEllipse(-10, -10, 20, 20);
 }
 
-void Node::itemChange(ItemChange change)
+void Node::itemChange(GraphicsItemChange change)
 {
     switch (change) {
     case ItemPositionChange:

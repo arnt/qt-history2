@@ -242,6 +242,11 @@ public:
     QRubberBand *rubberBand;
     bool rubberBanding;
     bool handScrolling;
+
+    QGraphicsSceneDragDropEvent *lastDragDropEvent;
+    void storeDragDropEvent(const QGraphicsSceneDragDropEvent *event);
+    void populateSceneDragDropEvent(QGraphicsSceneDragDropEvent *dest,
+                                    QDropEvent *source);
 };
 
 /*!
@@ -255,7 +260,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), alignment(Qt::AlignCenter),
       scene(0), rubberBand(0), rubberBanding(false),
-      handScrolling(false)
+      handScrolling(false), lastDragDropEvent(0)
 {
 }
 
@@ -330,7 +335,7 @@ void QGraphicsViewPrivate::recalculateContentSize()
         topIndent = 0;
     }
 
-    // Restore the center point from before the ranges changed.
+    // Restorethe center point from before the ranges changed.
     lastCenterPoint = savedLastCenterPoint;
 
     // Issue a full update if the indents change
@@ -372,6 +377,44 @@ void QGraphicsViewPrivate::storeMouseEvent(QMouseEvent *event)
 }
 
 /*!
+    \internal
+*/
+void QGraphicsViewPrivate::storeDragDropEvent(const QGraphicsSceneDragDropEvent *event)
+{
+    delete lastDragDropEvent;
+    lastDragDropEvent = new QGraphicsSceneDragDropEvent(event->type());
+    lastDragDropEvent->setScenePos(event->scenePos());
+    lastDragDropEvent->setScreenPos(event->screenPos());
+    lastDragDropEvent->setButtons(event->buttons());
+    lastDragDropEvent->setModifiers(event->modifiers());
+    lastDragDropEvent->setPossibleActions(event->possibleActions());
+    lastDragDropEvent->setProposedAction(event->proposedAction());
+    lastDragDropEvent->setDropAction(event->dropAction());
+    lastDragDropEvent->setMimeData(event->mimeData());
+    lastDragDropEvent->setWidget(event->widget());
+    lastDragDropEvent->setSource(event->source());
+}
+
+/*!
+    \internal
+*/
+void QGraphicsViewPrivate::populateSceneDragDropEvent(QGraphicsSceneDragDropEvent *dest,
+                                                      QDropEvent *source)
+{
+    Q_Q(QGraphicsView);
+    dest->setScenePos(q->mapToScene(source->pos()));
+    dest->setScreenPos(q->mapToGlobal(source->pos()));
+    dest->setButtons(source->mouseButtons());
+    dest->setModifiers(source->keyboardModifiers());
+    dest->setPossibleActions(source->possibleActions());
+    dest->setProposedAction(source->proposedAction());
+    dest->setDropAction(source->dropAction());
+    dest->setMimeData(source->mimeData());
+    dest->setWidget(q->viewport());
+    dest->setSource(source->source());
+}
+
+/*!
     Constructs a QGraphicsView and sets the visualized scene to \a
     scene. \a parent is passed to QWidget's constructor.
 */
@@ -380,6 +423,7 @@ QGraphicsView::QGraphicsView(QGraphicsScene *scene, QWidget *parent)
 {
     setScene(scene);
     setViewport(0);
+    setAcceptDrops(true);
 }
 
 /*!
@@ -387,6 +431,8 @@ QGraphicsView::QGraphicsView(QGraphicsScene *scene, QWidget *parent)
 */
 QGraphicsView::~QGraphicsView()
 {
+    Q_D(QGraphicsView);
+    delete d->lastDragDropEvent;
 }
 
 /*!
@@ -1455,9 +1501,111 @@ void QGraphicsView::contextMenuEvent(QContextMenuEvent *event)
     QApplication::sendEvent(d->scene, &contextEvent);
 }
 
+/*!
+    \reimp
+*/
+void QGraphicsView::dropEvent(QDropEvent *event)
+{
+    Q_D(QGraphicsView);
+    if (!d->scene || !d->sceneInteractionAllowed)
+        return;
+
+    // Generate a scene event.
+    QGraphicsSceneDragDropEvent sceneEvent(QEvent::GraphicsSceneDrop);
+    d->populateSceneDragDropEvent(&sceneEvent, event);
+    
+    // Send it to the scene.
+    QApplication::sendEvent(d->scene, &sceneEvent);
+
+    // Ignore the originating event if the scene ignored the scene event.
+    event->setAccepted(sceneEvent.isAccepted());
+    event->setDropAction(sceneEvent.dropAction());
+}
 
 /*!
-  
+    \reimp
+*/
+void QGraphicsView::dragEnterEvent(QDragEnterEvent *event)
+{
+    Q_D(QGraphicsView);
+    if (!d->scene || !d->sceneInteractionAllowed)
+        return;
+
+    // Generate a scene event.
+    QGraphicsSceneDragDropEvent sceneEvent(QEvent::GraphicsSceneDragEnter);
+    d->populateSceneDragDropEvent(&sceneEvent, event);
+
+    // Store it for later use.
+    d->storeDragDropEvent(&sceneEvent);
+    
+    // Send it to the scene.
+    QApplication::sendEvent(d->scene, &sceneEvent);
+
+    // Ignore the originating event if the scene ignored the scene event.
+    event->setAccepted(sceneEvent.isAccepted());
+    event->setDropAction(sceneEvent.dropAction());
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsView::dragLeaveEvent(QDragLeaveEvent *event)
+{
+    Q_D(QGraphicsView);
+    if (!d->scene || !d->sceneInteractionAllowed)
+        return;
+    if (!d->lastDragDropEvent) {
+        qWarning("QGraphicsView::dragLeaveEvent: drag leave received before drag enter");
+        return;
+    }
+    
+    // Generate a scene event.
+    QGraphicsSceneDragDropEvent sceneEvent(QEvent::GraphicsSceneDragLeave);
+    sceneEvent.setScenePos(d->lastDragDropEvent->scenePos());
+    sceneEvent.setScreenPos(d->lastDragDropEvent->screenPos());
+    sceneEvent.setButtons(d->lastDragDropEvent->buttons());
+    sceneEvent.setModifiers(d->lastDragDropEvent->modifiers());
+    sceneEvent.setPossibleActions(d->lastDragDropEvent->possibleActions());
+    sceneEvent.setProposedAction(d->lastDragDropEvent->proposedAction());
+    sceneEvent.setDropAction(d->lastDragDropEvent->dropAction());
+    sceneEvent.setMimeData(d->lastDragDropEvent->mimeData());
+    sceneEvent.setWidget(d->lastDragDropEvent->widget());
+    sceneEvent.setSource(d->lastDragDropEvent->source());
+    delete d->lastDragDropEvent;
+    d->lastDragDropEvent = 0;
+
+    // Send it to the scene.
+    QApplication::sendEvent(d->scene, &sceneEvent);
+
+    // Ignore the originating event if the scene ignored the scene event.
+    event->setAccepted(sceneEvent.isAccepted());
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsView::dragMoveEvent(QDragMoveEvent *event)
+{
+    Q_D(QGraphicsView);
+    if (!d->scene || !d->sceneInteractionAllowed)
+        return;
+
+    // Generate a scene event.
+    QGraphicsSceneDragDropEvent sceneEvent(QEvent::GraphicsSceneDragMove);
+    d->populateSceneDragDropEvent(&sceneEvent, event);
+
+    // Store it for later use.
+    d->storeDragDropEvent(&sceneEvent);
+    
+    // Send it to the scene.
+    QApplication::sendEvent(d->scene, &sceneEvent);
+
+    // Ignore the originating event if the scene ignored the scene event.
+    event->setAccepted(sceneEvent.isAccepted());
+    event->setDropAction(sceneEvent.dropAction());
+}
+
+/*!
     \reimp
 */
 void QGraphicsView::focusInEvent(QFocusEvent *event)

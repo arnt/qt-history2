@@ -112,13 +112,12 @@ void QGraphicsSceneEvent::setWidget(QWidget *widget)
 class QGraphicsSceneMouseEventPrivate : public QGraphicsSceneEventPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsSceneMouseEvent)
-        public:
+public:
     inline QGraphicsSceneMouseEventPrivate()
         : button(Qt::NoButton),
-          buttons(0),
-          modifiers(0)
-        { }
-    
+          buttons(0), modifiers(0)
+    { }
+
     QPointF pos;
     QPointF scenePos;
     QPoint screenPos;
@@ -689,4 +688,153 @@ void QGraphicsSceneHelpEvent::setScreenPos(const QPoint &pos)
 {
     Q_D(QGraphicsSceneHelpEvent);
     d->screenPos = pos;
+}
+
+class QGraphicsSceneDragDropEventPrivate : public QGraphicsSceneEventPrivate
+{
+    Q_DECLARE_PUBLIC(QGraphicsSceneDragDropEvent);
+public:
+    inline QGraphicsSceneDragDropEventPrivate()
+        : source(0), mimeData(0)
+    { }
+
+    QPointF pos;
+    QPointF scenePos;
+    QPoint screenPos;
+    Qt::MouseButtons buttons;
+    Qt::KeyboardModifiers modifiers;
+    Qt::DropActions possibleActions;
+    Qt::DropAction proposedAction;
+    Qt::DropAction dropAction;
+    QWidget *source;
+    const QMimeData *mimeData;
+};
+
+QGraphicsSceneDragDropEvent::QGraphicsSceneDragDropEvent(Type type)
+    : QGraphicsSceneEvent(*new QGraphicsSceneDragDropEventPrivate, type)
+{
+}
+
+QGraphicsSceneDragDropEvent::~QGraphicsSceneDragDropEvent()
+{
+}
+
+QPointF QGraphicsSceneDragDropEvent::pos() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->pos;
+}
+
+void QGraphicsSceneDragDropEvent::setPos(const QPointF &pos)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->pos = pos;
+}
+
+QPointF QGraphicsSceneDragDropEvent::scenePos() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->scenePos;
+}
+
+void QGraphicsSceneDragDropEvent::setScenePos(const QPointF &pos)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->scenePos = pos;
+}
+
+QPoint QGraphicsSceneDragDropEvent::screenPos() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->screenPos;
+}
+
+void QGraphicsSceneDragDropEvent::setScreenPos(const QPoint &pos)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->screenPos = pos;
+}
+
+Qt::MouseButtons QGraphicsSceneDragDropEvent::buttons() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->buttons;
+}
+
+void QGraphicsSceneDragDropEvent::setButtons(Qt::MouseButtons buttons)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->buttons = buttons;
+}
+
+Qt::KeyboardModifiers QGraphicsSceneDragDropEvent::modifiers() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->modifiers;
+}
+
+void QGraphicsSceneDragDropEvent::setModifiers(Qt::KeyboardModifiers modifiers)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->modifiers = modifiers;
+}
+
+Qt::DropActions QGraphicsSceneDragDropEvent::possibleActions() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->possibleActions;
+}
+
+void QGraphicsSceneDragDropEvent::setPossibleActions(Qt::DropActions actions)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->possibleActions = actions;
+}
+
+Qt::DropAction QGraphicsSceneDragDropEvent::proposedAction() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->proposedAction;
+}
+
+void QGraphicsSceneDragDropEvent::setProposedAction(Qt::DropAction action)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->proposedAction = action;
+}
+
+Qt::DropAction QGraphicsSceneDragDropEvent::dropAction() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->dropAction;
+}
+
+void QGraphicsSceneDragDropEvent::setDropAction(Qt::DropAction action)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->dropAction = action;
+}
+
+QWidget *QGraphicsSceneDragDropEvent::source() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->source;
+}
+
+void QGraphicsSceneDragDropEvent::setSource(QWidget *source)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->source = source;
+}
+
+const QMimeData *QGraphicsSceneDragDropEvent::mimeData() const
+{
+    Q_D(const QGraphicsSceneDragDropEvent);
+    return d->mimeData;
+}
+
+void QGraphicsSceneDragDropEvent::setMimeData(const QMimeData *data)
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->mimeData = data;
 }

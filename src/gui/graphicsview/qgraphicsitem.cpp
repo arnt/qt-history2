@@ -200,7 +200,7 @@
 */
 
 /*!
-    \enum QGraphicsItem::ItemChange
+    \enum QGraphicsItem::GraphicsItemChange
 
     This enum describes the state changes that are notified by
     QGraphicsItem::itemChange(). The notifications are sent as the state
@@ -827,6 +827,32 @@ void QGraphicsItem::setSelected(bool selected)
 }
 
 /*!
+   Returns true if this item can accept drag and drop events; otherwise,
+   returns false. By default, items do not accept drag and drop events; items
+   are transparent to drag and drop.
+
+   \sa setAcceptDrops()
+*/
+bool QGraphicsItem::acceptDrops() const
+{
+    Q_D(const QGraphicsItem);
+    return d->acceptDrops;
+}
+
+/*!
+    If \a on is true, this item will accept drag and drop events; otherwise,
+    it is transparent for drag and drop events. By default, items do not
+    accept drag and drop events.
+
+    \sa acceptDrops()
+*/
+void QGraphicsItem::setAcceptDrops(bool on)
+{
+    Q_D(QGraphicsItem);
+    d->acceptDrops = on;
+}
+
+/*!
     Returns the mouse buttons that this item accepts mouse events for.  By
     default, all mouse buttons are accepted.
 
@@ -834,7 +860,7 @@ void QGraphicsItem::setSelected(bool selected)
     grabber item when a mouse press event is delivered for that mouse
     button. However, if the item does not accept the button,
     QGraphicsScene will forward the mouse events to the first item
-    beneith it that does.
+    beneath it that does.
 
     \sa setAcceptedMouseButtons(), mousePressEvent()
 */
@@ -851,7 +877,7 @@ Qt::MouseButtons QGraphicsItem::acceptedMouseButtons() const
     mouse button, it will become the mouse grabber item when a mouse
     press event is delivered for that button. However, if the item
     does not accept the mouse button, QGraphicsScene will forward the
-    mouse events to the first item beneith it that does.
+    mouse events to the first item beneath it that does.
 
     To disable mouse events for an item (i.e., make it transparent for mouse
     events), call setAcceptedMouseButtons(0).
@@ -899,10 +925,10 @@ bool QGraphicsItem::acceptsHoverEvents() const
     stays "hovered" until the cursor leaves its area, including its
     children's areas.
 
-    If a parent item handles child events (setHandlesChildEvents()),
-    it will receive hover move events as the cursor passes through its
-    children, but it does not receive hover enter and hover leave
-    events on behalf of its children.
+    If a parent item handles child events (setHandlesChildEvents()), it will
+    receive hover move, drag move, and drop events as the cursor passes
+    through its children, but it does not receive hover enter and hover leave,
+    nor drag enter and drag leave events on behalf of its children.
 
     \sa acceptsHoverEvents(), hoverEnterEvent(), hoverMoveEvent(),
     hoverLeaveEvent()
@@ -1884,16 +1910,20 @@ bool QGraphicsItem::sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent
     mousePressEvent(), mouseReleaseEvent(), mouseMoveEvent(), and
     mouseDoubleClickEvent().
 
+    Returns true if the event was recognized and handled; otherwise, (e.g., if
+    the event type was not recognized,) false is returned.
+
     \a event is the intercepted event.
 */
-void QGraphicsItem::sceneEvent(QEvent *event)
+bool QGraphicsItem::sceneEvent(QEvent *event)
 {
     Q_D(QGraphicsItem);
     if (d->ancestorHandlesChildEvents) {
-        if (event->type() == QEvent::HoverEnter || event->type() == QEvent::HoverLeave) {
+        if (event->type() == QEvent::HoverEnter || event->type() == QEvent::HoverLeave
+            || event->type() == QEvent::DragEnter || event->type() == QEvent::DragLeave) {
             // Hover enter and hover leave events for children are ignored;
             // hover move events are forwarded.
-            return;
+            return true;
         }
 
         QGraphicsItem *handler = this;
@@ -1906,21 +1936,35 @@ void QGraphicsItem::sceneEvent(QEvent *event)
             d->remapItemPos(event, handler);
             handler->sceneEvent(event);
         }
-        return;
+        return true;
     }
 
-    if (!d->enabled || !d->visible)
-        return;
+    if (!d->enabled || !d->visible) {
+        // Eaten
+        return true;
+    }
 
     switch (event->type()) {
-    case QEvent::GraphicsSceneContextMenu:
-        contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(event));
-        break;
     case QEvent::FocusIn:
         focusInEvent(static_cast<QFocusEvent *>(event));
         break;
     case QEvent::FocusOut:
         focusOutEvent(static_cast<QFocusEvent *>(event));
+        break;
+    case QEvent::GraphicsSceneContextMenu:
+        contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(event));
+        break;
+    case QEvent::GraphicsSceneDragEnter:
+        dragEnterEvent(static_cast<QGraphicsSceneDragDropEvent *>(event));
+        break;
+    case QEvent::GraphicsSceneDragMove:
+        dragMoveEvent(static_cast<QGraphicsSceneDragDropEvent *>(event));
+        break;
+    case QEvent::GraphicsSceneDragLeave:
+        dragLeaveEvent(static_cast<QGraphicsSceneDragDropEvent *>(event));
+        break;
+    case QEvent::GraphicsSceneDrop:
+        dropEvent(static_cast<QGraphicsSceneDragDropEvent *>(event));
         break;
     case QEvent::GraphicsSceneHoverEnter:
         hoverEnterEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
@@ -1930,12 +1974,6 @@ void QGraphicsItem::sceneEvent(QEvent *event)
         break;
     case QEvent::GraphicsSceneHoverLeave:
         hoverLeaveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
-        break;
-    case QEvent::KeyPress:
-        keyPressEvent(static_cast<QKeyEvent *>(event));
-        break;
-    case QEvent::KeyRelease:
-        keyReleaseEvent(static_cast<QKeyEvent *>(event));
         break;
     case QEvent::GraphicsSceneMouseMove:
         mouseMoveEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
@@ -1949,9 +1987,17 @@ void QGraphicsItem::sceneEvent(QEvent *event)
     case QEvent::GraphicsSceneMouseDoubleClick:
         mouseDoubleClickEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
         break;
-    default:
+    case QEvent::KeyPress:
+        keyPressEvent(static_cast<QKeyEvent *>(event));
         break;
+    case QEvent::KeyRelease:
+        keyReleaseEvent(static_cast<QKeyEvent *>(event));
+        break;
+    default:
+        return false;
     }
+
+    return true;
 }
 
 /*!
@@ -1962,6 +2008,109 @@ void QGraphicsItem::sceneEvent(QEvent *event)
     \sa sceneEvent()
 */
 void QGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    drag enter events for this item. Drag enter events are generated as the
+    cursor enters the item's area.
+
+    By accepting the event, (i.e., by calling QEvent::accept(),) the item will
+    accept drop events, in addition to receiving drag move and drag
+    leave. Otherwise, the event will be ignored and propagate to the item
+    beneath. If the event is accepted, the item will receive a drag move event
+    before control goes back to the event loop.
+
+    A common implementation of dragEnterEvent accepts or ignores \a event
+    depending on the associated mime data in \a event. Example:
+
+    \code
+        CustomItem::CustomItem()
+        {
+            setAcceptDrops(true);
+            ...
+        }
+    
+        void CustomItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+        {
+            event->setAccepted(event->mimeData()->hasFormat("text/plain"));
+        }
+    \endcode
+
+    Items do not receive drag and drop events by default; to enable this
+    feature, call setAcceptDrops(true).
+
+    The default implementation does nothing.
+
+    \sa dropEvent(), dragMoveEvent(), dragLeaveEvent()
+*/
+void QGraphicsItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    drag leave events for this item. Drag leave events are generated as the
+    cursor leaves the item's area. Most often you will not need to reimplement
+    this function, but it can be useful for resetting state in your item
+    (e.g., highlighting).
+
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
+
+    Items do not receive drag and drop events by default; to enable this
+    feature, call setAcceptDrops(true).
+
+    The default implementation does nothing.
+
+    \sa dragEnterEvent(), dropEvent(), dragMoveEvent()
+*/
+void QGraphicsItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    drag move events for this item. Drag move events are generated as the
+    cursor moves around inside the item's area. Most often you will not need
+    to reimplement this function; it is used to indicate that only parts of
+    the item can accept drops.
+
+    Calling QEvent::ignore() or QEvent::accept() on \a event toggles whether
+    or not the item will accept drops at the position from the event. By
+    default, \a event is accepted, indicating that the item allows drops at
+    the specified position.
+
+    Items do not receive drag and drop events by default; to enable this
+    feature, call setAcceptDrops(true).
+
+    The default implementation does nothing.
+
+    \sa dropEvent(), dragEnterEvent(), dragLeaveEvent()
+*/
+void QGraphicsItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_UNUSED(event);
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    drop events for this item. Items can only receive drop events if the last
+    drag move event was accepted.
+
+    Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
+    
+    Items do not receive drag and drop events by default; to enable this
+    feature, call setAcceptDrops(true).
+
+    The default implementation does nothing.
+
+    \sa dragEnterEvent(), dragMoveEvent(), dragLeaveEvent()
+*/
+void QGraphicsItem::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
     Q_UNUSED(event);
 }
@@ -2076,7 +2225,7 @@ void QGraphicsItem::keyReleaseEvent(QKeyEvent *event)
     The mouse press event decides which item should become the mouse
     grabber (see QGraphicsScene::mouseGrabberItem()). If you do not
     reimplement this function, the press event will propagate to any
-    topmost item beneith this item, and no other mouse events will be
+    topmost item beneath this item, and no other mouse events will be
     delivered to this item.
 
     If you do reimplement this function, \a event will by default be
@@ -2084,7 +2233,7 @@ void QGraphicsItem::keyReleaseEvent(QKeyEvent *event)
     grabber. This allows the item to receive future move, release and
     doubleclick events. If you call QEvent::ignore() on \a event, this
     item will lose the mouse grab, and \a event will propagate to any
-    topmost item beneith. No further mouse events will be delivered to
+    topmost item beneath. No further mouse events will be delivered to
     this item unless a new mouse press event is received.
 
     The default implementation handles basic item interaction, such as
@@ -2241,12 +2390,12 @@ QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
     The default implementation does nothing.
 
     Note: Certain QGraphicsItem functions cannot be called in a
-    reimplementation of this function; see the ItemChange
+    reimplementation of this function; see the GraphicsItemChange
     documentation for details.
 
-    \sa ItemChange
+    \sa GraphicsItemChange
 */
-void QGraphicsItem::itemChange(ItemChange change)
+void QGraphicsItem::itemChange(GraphicsItemChange change)
 {
     Q_UNUSED(change);
 }
@@ -2390,7 +2539,14 @@ QPen QAbstractGraphicsPathItem::pen() const
 void QAbstractGraphicsPathItem::setPen(const QPen &pen)
 {
     Q_D(QAbstractGraphicsPathItem);
+    bool updateGeometry = (pen.widthF() != d->pen.widthF());
+    if (updateGeometry)
+        removeFromIndex();
     d->pen = pen;
+    if (updateGeometry)
+        addToIndex();
+    else
+        update();
 }
 
 /*!
@@ -2415,6 +2571,7 @@ void QAbstractGraphicsPathItem::setBrush(const QBrush &brush)
 {
     Q_D(QAbstractGraphicsPathItem);
     d->brush = brush;
+    update();
 }
 
 /*!

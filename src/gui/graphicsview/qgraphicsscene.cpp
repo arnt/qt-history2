@@ -150,6 +150,7 @@
 
 #include <private/qobject_p.h>
 #include <QtCore/qcoreapplication.h>
+#include <QtCore/qdebug.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qrect.h>
 #include <QtCore/qset.h>
@@ -249,7 +250,7 @@ QGraphicsScenePrivate::QGraphicsScenePrivate()
     : indexMethod(QGraphicsScene::BspTreeIndex), generatingBspTree(false),
       hasSceneRect(false), calledEmitUpdated(false), hasFocus(false),
       focusItem(0), lastFocusItem(0), mouseGrabberItem(0),
-      lastMouseGrabberItem(0)
+      lastMouseGrabberItem(0), dragDropItem(0), lastDropAction(Qt::IgnoreAction)
 {
 }
 
@@ -478,8 +479,7 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::possibleMouseGrabbersForEvent(QGra
     Q_Q(QGraphicsScene);
     QList<QGraphicsItem *> possibleMouseGrabbers;
     foreach (QGraphicsItem *item, q->items(event->scenePos())) {
-        if (item->isVisible()
-            && (item->acceptedMouseButtons() & event->button())
+        if ((item->acceptedMouseButtons() & event->button())
             && item->contains(item->mapFromScene(event->scenePos()))) {
             if (!item->isEnabled()) {
                 // Disabled mouse-accepting items discard mouse events.
@@ -546,6 +546,35 @@ bool QGraphicsScenePrivate::filterEvent(QGraphicsItem *item, QGraphicsSceneEvent
         ++it;
     }
     return false;
+}
+
+/*!
+    \internal
+*/
+void QGraphicsScenePrivate::cloneDragDropEvent(QGraphicsSceneDragDropEvent *dest,
+                                               QGraphicsSceneDragDropEvent *source)
+{
+    dest->setWidget(source->widget());
+    dest->setPos(source->pos());
+    dest->setScenePos(source->scenePos());
+    dest->setScreenPos(source->screenPos());
+    dest->setButtons(source->buttons());
+    dest->setModifiers(source->modifiers());
+    dest->setPossibleActions(source->possibleActions());
+    dest->setProposedAction(source->proposedAction());
+    dest->setDropAction(source->dropAction());
+    dest->setSource(source->source());
+    dest->setMimeData(source->mimeData());
+}
+
+/*!
+    \internal
+*/
+void QGraphicsScenePrivate::sendDragDropEvent(QGraphicsItem *item,
+                                              QGraphicsSceneDragDropEvent *dragDropEvent)
+{
+    dragDropEvent->setPos(item->mapFromScene(dragDropEvent->scenePos()));
+    item->sceneEvent(dragDropEvent);
 }
 
 /*!
@@ -1530,6 +1559,18 @@ bool QGraphicsScene::event(QEvent *event)
 {
     Q_D(QGraphicsScene);
     switch (event->type()) {
+    case QEvent::GraphicsSceneDragEnter:
+        dragEnterEvent(static_cast<QGraphicsSceneDragDropEvent *>(event));
+        break;
+    case QEvent::GraphicsSceneDragMove:
+        dragMoveEvent(static_cast<QGraphicsSceneDragDropEvent *>(event));
+        break;
+    case QEvent::GraphicsSceneDragLeave:
+        dragLeaveEvent(static_cast<QGraphicsSceneDragDropEvent *>(event));
+        break;
+    case QEvent::GraphicsSceneDrop:
+        dropEvent(static_cast<QGraphicsSceneDragDropEvent *>(event));
+        break;
     case QEvent::GraphicsSceneContextMenu:
         contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(event));
         break;
@@ -1599,6 +1640,130 @@ void QGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMen
     if (QGraphicsItem *item = itemAt(contextMenuEvent->scenePos())) {
         contextMenuEvent->setPos(item->mapFromScene(contextMenuEvent->scenePos()));
         item->sceneEvent(contextMenuEvent);
+    }
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented in a subclass
+    to receive drag enter events for the scene.
+
+    The default implementation accepts the event and prepares the scene to
+    accept drag move events.
+
+    \sa QGraphicsItem::dragEnterEvent(), dragMoveEvent(), dragLeaveEvent(),
+    dropEvent()
+*/
+void QGraphicsScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_D(QGraphicsScene);
+    d->dragDropItem = 0;
+    d->lastDropAction = Qt::IgnoreAction;
+    event->accept();
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented in a subclass
+    to receive drag move events for the scene.
+
+    \sa QGraphicsItem::dragMoveEvent(), dragEnterEvent(), dragLeaveEvent(),
+    dropEvent()
+*/
+void QGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_D(QGraphicsScene);
+    event->ignore();
+
+    bool eventDelivered = false;
+    
+    // Find the topmost enabled items under the cursor. They are all
+    // candidates for accepting drag & drop events.
+    foreach (QGraphicsItem *item, items(event->scenePos())) {
+        if (!item->isEnabled() || !item->acceptDrops())
+            continue;
+
+        if (item != d->dragDropItem) {
+            // Enter the new drag drop item. If it accepts the event, we send
+            // the leave to the parent item.
+            QGraphicsSceneDragDropEvent dragEnter(QEvent::GraphicsSceneDragEnter);
+            d->cloneDragDropEvent(event, &dragEnter);
+            dragEnter.setDropAction(event->proposedAction());
+            d->sendDragDropEvent(item, &dragEnter);
+            event->setAccepted(dragEnter.isAccepted());
+            event->setDropAction(dragEnter.dropAction());
+            if (!event->isAccepted()) {
+                // Propagate to the item under
+                continue;
+            }
+
+            if (d->dragDropItem) {
+                // Leave the last drag drop item. A perfect implementation
+                // would set the position of this event to the point where
+                // this event and the last event intersect with the item's
+                // shape, but that's not easy to do. :-)
+                QGraphicsSceneDragDropEvent dragLeave(QEvent::GraphicsSceneDragLeave);
+                d->cloneDragDropEvent(event, &dragLeave);
+                d->sendDragDropEvent(d->dragDropItem, &dragLeave);
+            }
+            
+            // We've got a new drag & drop item
+            d->dragDropItem = item;
+            d->lastDropAction = event->isAccepted() ? event->dropAction() : Qt::IgnoreAction;
+        }
+
+        // Send the move event.
+        event->setDropAction(d->lastDropAction);
+        event->accept();
+        d->sendDragDropEvent(item, event);
+        if (!event->isAccepted())
+            event->setDropAction(Qt::IgnoreAction);
+        d->lastDropAction = event->dropAction();
+        eventDelivered = true;
+        break;
+    }
+
+    if (!eventDelivered) {
+        if (d->dragDropItem) {
+            // Leave the last drag drop item
+            QGraphicsSceneDragDropEvent dragLeave(QEvent::GraphicsSceneDragLeave);
+            d->cloneDragDropEvent(event, &dragLeave);
+            d->sendDragDropEvent(d->dragDropItem, &dragLeave);
+            d->dragDropItem = 0;
+        }
+    }
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented in a subclass
+    to receive drag leave events for the scene.
+
+    \sa QGraphicsItem::dragLeaveEvent(), dragEnterEvent(), dragMoveEvent(),
+    dropEvent()
+*/
+void QGraphicsScene::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_D(QGraphicsScene);
+    if (d->dragDropItem) {
+        // Leave the last drag drop item
+        d->sendDragDropEvent(d->dragDropItem, event);
+        d->dragDropItem = 0;
+    }
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented in a subclass
+    to receive drop events for the scene.
+
+    \sa QGraphicsItem::dropEvent(), dragEnterEvent(), dragMoveEvent(),
+    dragLeaveEvent()
+*/
+void QGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
+{
+    Q_UNUSED(event);
+    Q_D(QGraphicsScene);
+    if (d->dragDropItem) {
+        // Drop on the last drag drop item
+        d->sendDragDropEvent(d->dragDropItem, event);
+        d->dragDropItem = 0;
     }
 }
 

@@ -191,6 +191,10 @@ public:
         GraphicsSceneHoverMove = 161,
         GraphicsSceneHoverLeave = 162,
         GraphicsSceneHelp = 163,
+        GraphicsSceneDragEnter = 164,
+        GraphicsSceneDragMove = 165,
+        GraphicsSceneDragLeave = 166,
+        GraphicsSceneDrop = 167,
                 
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id

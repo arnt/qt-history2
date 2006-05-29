@@ -21,6 +21,7 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
+class QMimeData;
 class QWidget;
 
 class QGraphicsSceneEventPrivate;
@@ -145,6 +146,49 @@ public:
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneHelpEvent)
 };
+
+class QGraphicsSceneDragDropEventPrivate;
+class Q_GUI_EXPORT QGraphicsSceneDragDropEvent : public QGraphicsSceneEvent
+{
+public:
+    QGraphicsSceneDragDropEvent(Type type = None);
+    ~QGraphicsSceneDragDropEvent();
+
+    QPointF pos() const;
+    void setPos(const QPointF &pos);
+
+    QPointF scenePos() const;
+    void setScenePos(const QPointF &pos);
+
+    QPoint screenPos() const;
+    void setScreenPos(const QPoint &pos);
+    
+    Qt::MouseButtons buttons() const;
+    void setButtons(Qt::MouseButtons buttons);
+    
+    Qt::KeyboardModifiers modifiers() const;
+    void setModifiers(Qt::KeyboardModifiers modifiers);
+
+    Qt::DropActions possibleActions() const;
+    void setPossibleActions(Qt::DropActions actions);
+    
+    Qt::DropAction proposedAction() const;
+    void setProposedAction(Qt::DropAction action);
+    void acceptProposedAction();
+
+    Qt::DropAction dropAction() const;
+    void setDropAction(Qt::DropAction action);
+
+    QWidget *source() const;
+    void setSource(QWidget *source);
+    
+    const QMimeData *mimeData() const;
+    void setMimeData(const QMimeData *data);
+
+private:
+    Q_DECLARE_PRIVATE(QGraphicsSceneDragDropEvent)
+};
+
 
 QT_END_HEADER
 

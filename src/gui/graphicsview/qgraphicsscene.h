@@ -40,6 +40,7 @@ class QGraphicsPixmapItem;
 class QGraphicsPolygonItem;
 class QGraphicsRectItem;
 class QGraphicsSceneContextMenuEvent;
+class QGraphicsSceneDragDropEvent;
 class QGraphicsSceneEvent;
 class QGraphicsSceneHelpEvent;
 class QGraphicsSceneHoverEvent;
@@ -122,6 +123,10 @@ public:
 protected:
     bool event(QEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
     virtual void focusInEvent(QFocusEvent *event);
     virtual void focusOutEvent(QFocusEvent *event);
     virtual void helpEvent(QGraphicsSceneHelpEvent *event);

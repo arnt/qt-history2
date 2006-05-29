@@ -75,6 +75,8 @@ public:
     QGraphicsItem *lastFocusItem;
     QGraphicsItem *mouseGrabberItem;
     QGraphicsItem *lastMouseGrabberItem;
+    QGraphicsItem *dragDropItem;
+    Qt::DropAction lastDropAction;
     QList<QGraphicsItem *> hoverItems;
     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownPos;
     QMap<Qt::MouseButton, QPointF> mouseGrabberButtonDownScenePos;
@@ -90,6 +92,11 @@ public:
     bool filterEvent(QGraphicsItem *item, QGraphicsSceneEvent *event);
 
     void dispatchHoverEvent(QGraphicsSceneHoverEvent *hoverEvent);
+
+    void cloneDragDropEvent(QGraphicsSceneDragDropEvent *dest,
+                           QGraphicsSceneDragDropEvent *source);
+    void sendDragDropEvent(QGraphicsItem *item,
+                           QGraphicsSceneDragDropEvent *dragDropEvent);
     void sendHoverEvent(QEvent::Type type, QGraphicsItem *item,
                         QGraphicsSceneHoverEvent *hoverEvent);
     void sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent);

@@ -32,6 +32,7 @@ class QCursor;
 class QFocusEvent;
 class QGraphicsItemGroup;
 class QGraphicsSceneContextMenuEvent;
+class QGraphicsSceneDragDropEvent;
 class QGraphicsSceneEvent;
 class QGraphicsSceneHoverEvent;
 class QGraphicsSceneMouseEvent;
@@ -57,7 +58,7 @@ public:
     };
     Q_DECLARE_FLAGS(GraphicsItemFlags, GraphicsItemFlag)
 
-    enum ItemChange {
+    enum GraphicsItemChange {
         ItemPositionChange,
         ItemMatrixChange,
         ItemVisibleChange,
@@ -100,6 +101,9 @@ public:
 
     bool isSelected() const;
     void setSelected(bool selected);
+
+    bool acceptDrops() const;
+    void setAcceptDrops(bool on);
 
     Qt::MouseButtons acceptedMouseButtons() const;
     void setAcceptedMouseButtons(Qt::MouseButtons buttons);
@@ -191,8 +195,12 @@ public:
 
 protected:
     virtual bool sceneEventFilter(QGraphicsItem *watched, QGraphicsSceneEvent *event);
-    virtual void sceneEvent(QEvent *event);
+    virtual bool sceneEvent(QEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    virtual void dropEvent(QGraphicsSceneDragDropEvent *event);
     virtual void focusInEvent(QFocusEvent *event);
     virtual void focusOutEvent(QFocusEvent *event);
     virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
@@ -207,7 +215,7 @@ protected:
     virtual void inputMethodEvent(QInputMethodEvent *event);
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
-    virtual void itemChange(ItemChange change);
+    virtual void itemChange(GraphicsItemChange change);
 
     enum Extension {
         UserExtension = 0x80000000
