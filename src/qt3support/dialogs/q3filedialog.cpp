@@ -3559,7 +3559,7 @@ void Q3FileDialog::okClicked()
 #if defined(Q_WS_WIN)
     QFileInfo fi(d->url.path() + fn);
     if (fi.isSymLink()) {
-        nameEdit->setText(fi.readLink());
+        nameEdit->setText(fi.symLinkTarget());
     }
 #endif
 
@@ -4026,7 +4026,7 @@ void Q3FileDialog::selectDirectoryOrFile(Q3ListViewItem * newItem)
         QFileInfo fi(d->url.path() + newItem->text(0));
 #if defined(Q_WS_WIN)
         if (fi.isSymLink()) {
-            nameEdit->setText(fi.readLink());
+            nameEdit->setText(fi.symLinkTarget());
             okClicked();
             return;
         }
@@ -5086,7 +5086,7 @@ QWindowsIconProvider::~QWindowsIconProvider()
 const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
 {
     if (fi.isSymLink()) {
-        QString real = fi.readLink();
+        QString real = fi.symLinkTarget();
         if (!real.isEmpty())
             return pixmap(QFileInfo(real));
     }
