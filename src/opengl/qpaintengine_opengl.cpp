@@ -32,6 +32,12 @@
 #include <private/qbezier_p.h>
 #include <qglframebufferobject.h>
 
+#ifdef Q_WS_WIN
+#define QGL_FUNC_CONTEXT QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
+#else
+#define QGL_FUNC_CONTEXT
+#endif
+
 #ifdef Q_OS_MAC
 # include <OpenGL/glu.h>
 #else
@@ -661,7 +667,7 @@ static bool qt_resolve_frag_program_extensions(QGLContext *ctx)
 {
     if (glProgramStringARB != 0)
 	return true;
-    
+
     // ARB_fragment_program
     glProgramStringARB = (_glProgramStringARB) wglGetProcAddress("glProgramStringARB");
     glBindProgramARB = (_glBindProgramARB) wglGetProcAddress("glBindProgramARB");
@@ -840,7 +846,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->inverseScale = 1;
     d->opacity = 1;
     d->drawable.makeCurrent();
-    
+
     QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
     if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
 	qt_resolve_frag_program_extensions(ctx);
@@ -868,7 +874,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-    
+
     if ((QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat)
         && (pdev != d->shader_dev))
     {
@@ -1000,7 +1006,7 @@ void QOpenGLPaintEnginePrivate::updateGradient(const QBrush &brush)
     bool has_mirrored_repeat = QGLExtensions::glExtensions & QGLExtensions::MirroredRepeat;
     bool has_frag_program = QGLExtensions::glExtensions & QGLExtensions::FragmentProgram;
     Qt::BrushStyle style = brush.style();
-    QGLContext *ctx = const_cast<QGLContext *>(drawable.context());
+    QGL_FUNC_CONTEXT;
 
     if (has_mirrored_repeat && style == Qt::LinearGradientPattern) {
         const QLinearGradient *g = static_cast<const QLinearGradient *>(brush.gradient());
