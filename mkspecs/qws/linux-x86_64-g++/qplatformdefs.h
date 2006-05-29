@@ -1,1 +1,0 @@
-../../linux-g++/qplatformdefs.h

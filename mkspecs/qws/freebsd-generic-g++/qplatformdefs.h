@@ -1,1 +1,0 @@
-../../freebsd-g++/qplatformdefs.h
