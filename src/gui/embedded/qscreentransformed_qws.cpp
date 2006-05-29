@@ -29,6 +29,7 @@
 #include <errno.h>
 
 #include <qwindowsystem_qws.h>
+#include <qwsdisplay_qws.h>
 
 //#define QT_REGION_DEBUG
 
@@ -230,43 +231,193 @@ static inline QRect correctNormalized(const QRect &r) {
     return QRect( QPoint(x1,y1), QPoint(x2,y2) );
 }
 
-static inline QMatrix blitMatrix(QTransformedScreen::Transformation t)
+template <class SRC, class DST>
+static inline DST colorConvert(SRC color)
 {
-    QMatrix m;
-    switch(t) {
-    case QTransformedScreen::None:
-        break;
-    case QTransformedScreen::Rot270:
-        m = QMatrix(0,1,-1,0, 0, 0);
-        break;
-    case QTransformedScreen::Rot180:
-        m = QMatrix(-1, 0, 0, -1, 0, 0);
-        break;
-    case QTransformedScreen::Rot90:
-        m = QMatrix(0, -1, 1, 0, 0, 0);
-        break;
-    }
-    return m;
+    return color;
 }
 
-
-void QTransformedScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &region)
+template <>
+static inline quint16 colorConvert(quint32 color)
 {
-    if ( trans == None) {
-        QT_TRANS_SCREEN_BASE::blit(img, topLeft, region);
+    return qt_convRgbTo16(color);
+}
+
+template <>
+static inline quint8 colorConvert(quint32 color)
+{
+    uchar r = (qRed(color) + 0x19) / 0x33;
+    uchar g = (qGreen(color) + 0x19) / 0x33;
+    uchar b = (qBlue(color) + 0x19) / 0x33;
+
+    return r*6*6 + g*6 + b;
+}
+
+template <>
+static inline quint8 colorConvert(quint16 color)
+{
+    return colorConvert<quint32, quint8>(qt_conv16ToRgb(color));
+}
+
+typedef void (*BlitFunc)(const QImage &, const QRect &, const QPoint &);
+
+template <class SRC, class DST>
+static void blit90(const QImage &image, const QRect &rect, const QPoint &topLeft)
+{
+    const int sstride = image.bytesPerLine() / sizeof(SRC);
+    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const SRC *src = reinterpret_cast<const SRC *>(image.bits())
+                     + rect.top() * sstride + rect.left();
+    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+                + topLeft.y() * dstride + topLeft.x();
+    const int h = rect.height();
+    const int w = rect.width();
+
+#if 1
+    // cache-friendly reads
+    for (int y = 0; y < h; ++y) {
+        for (int x = w - 1; x >= 0; --x) {
+            dest[(w - x - 1) * dstride + y] = colorConvert<SRC,DST>(src[x]);
+        }
+        src += sstride;
+    }
+#else
+    // cache-friendly writes
+    for (int x = w - 1; x >= 0; --x) {
+        for (int y = 0; y < h; ++y) {
+            dest[(w - x - 1) * dstride + y] = colorConvert<SRC,DST>(src[x]);
+        }
+        src += sstride;
+    }
+#endif
+}
+
+template <class SRC, class DST>
+static void blit180(const QImage &image, const QRect &rect, const QPoint &topLeft)
+{
+    const int sstride = image.bytesPerLine() / sizeof(SRC);
+    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const SRC *src = reinterpret_cast<const SRC *>(image.bits())
+                      + rect.top() * sstride + rect.left();
+    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+                 + topLeft.y() * dstride + topLeft.x();
+    const int h = rect.height();
+    const int w = rect.width();
+
+    src += (h - 1) * sstride;
+    for (int y = h - 1; y >= 0; --y) {
+        for (int x = w - 1; x >= 0; --x) {
+            dest[(h - y - 1) * dstride + w - x - 1] = colorConvert<SRC,DST>(src[x]);
+        }
+        src -= sstride;
+    }
+}
+
+template <class SRC, class DST>
+static void blit270(const QImage &image, const QRect &rect, const QPoint &topLeft)
+{
+    const int sstride = image.bytesPerLine() / sizeof(SRC);
+    const int dstride = qt_screen->linestep() / sizeof(DST);
+    const SRC *src = reinterpret_cast<const SRC *>(image.bits()) +
+                      rect.top() * sstride + rect.left();
+    DST *dest = reinterpret_cast<DST*>(qt_screen->base())
+                 + topLeft.y() * dstride + topLeft.x();
+    const int h = rect.height();
+    const int w = rect.width();
+
+#if 1
+    // cache-friendly reads
+    src += (h - 1) * sstride;
+    for (int y = h - 1; y >= 0; --y) {
+        for (int x = 0; x < w; ++x) {
+            dest[x * dstride + h - y - 1] = colorConvert<SRC,DST>(src[x]);
+        }
+        src -= sstride;
+    }
+#else
+    // cache-friendly writes
+    for (int x = 0; x < w; ++x)
+        for (int y = h - 1; y >= 0; --y) {
+            dest[x * dstride + h - y - 1] = colorConvert<SRC,DST>(src[y * sstride + x]);
+    }
+#endif
+}
+
+#define SET_BLIT_FUNC(src, dst, rotation, func) \
+do {                                            \
+    switch (rotation) {                         \
+    case Rot90:                                 \
+        func = blit90<src, dst>;                \
+        break;                                  \
+    case Rot180:                                \
+        func = blit180<src, dst>;               \
+        break;                                  \
+    case Rot270:                                \
+        func = blit270<src, dst>;               \
+        break;                                  \
+    default:                                    \
+        break;                                  \
+    }                                           \
+} while (0)
+
+
+void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
+                              const QRegion &region)
+{
+    if (trans == None) {
+        QT_TRANS_SCREEN_BASE::blit(image, topLeft, region);
         return;
     }
-    //### slow but correct implementation; should be optimized later
-    QRegion tr = mapToDevice(region, QSize(w,h));
-    QRect imgRect(topLeft, img.size());
-    QPoint tp = mapToDevice(imgRect, QSize(w,h)).topLeft();
-    QImage ti = img.transformed(blitMatrix(trans));
 
-#ifdef QT_REGION_DEBUG
-    qDebug() << "QTransformedScreen::blit region" << region << "transformed" << tr << "tr img size" << ti.size();;
-#endif
+    const QVector<QRect> rects = region.rects();
+    const QRect bound = QRect(0, 0, QScreen::w, QScreen::h)
+                        & QRect(topLeft, image.size());
 
-    QT_TRANS_SCREEN_BASE::blit(ti, tp, tr);
+    BlitFunc func = 0;
+    switch (qt_screen->depth()) {
+    case 32:
+        SET_BLIT_FUNC(quint32, quint32, trans, func);
+        break;
+    case 16:
+        if (image.depth() == 16)
+            SET_BLIT_FUNC(quint16, quint16, trans, func);
+        else
+            SET_BLIT_FUNC(quint32, quint16, trans, func);
+        break;
+    case 8:
+        if (image.depth() == 16)
+            SET_BLIT_FUNC(quint16, quint8, trans, func);
+        else
+            SET_BLIT_FUNC(quint32, quint8, trans, func);
+        break;
+    default:
+        return;
+    }
+    if (!func)
+        return;
+
+    QWSDisplay::grab();
+    for (int i = 0; i < rects.size(); ++i) {
+        const QRect r = rects.at(i) & bound;
+
+        QPoint dst;
+        switch (trans) {
+        case Rot90:
+            dst = mapToDevice(r.topRight(), QSize(w, h));
+            break;
+        case Rot180:
+            dst = mapToDevice(r.bottomRight(), QSize(w, h));
+            break;
+        case Rot270:
+            dst = mapToDevice(r.bottomLeft(), QSize(w, h));
+            break;
+        default:
+            break;
+        }
+        func(image, r.translated(-topLeft), dst);
+    }
+    QWSDisplay::ungrab();
+
 }
 
 void QTransformedScreen::solidFill(const QColor &color, const QRegion &region)
