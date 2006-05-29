@@ -176,6 +176,7 @@ private:
     InputType minInput;
     InputType maxInput;
     QHash<int, int> backReferenceMap;
+    QString headerFileName;
 public:
     struct TransitionSequence
     {

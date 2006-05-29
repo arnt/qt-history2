@@ -13,6 +13,8 @@
 
 #include "generator.h"
 
+#include <QFile>
+
 void Function::printDeclaration(CodeBlock &block, const QString &funcNamePrefix) const
 {
     block << (iline ? "inline " : "") << signature(funcNamePrefix) << (iline ? QLatin1String(" {") : QLatin1String(";"));
@@ -197,6 +199,8 @@ Generator::Generator(const DFA &_dfa, const Config &config)
                 && !dfa.at(i).symbol.endsWith(QLatin1String("()")))
                 dfa[i].symbol.prepend(tokenPrefix);
     }
+
+    headerFileName = section.value("FileHeader");
 }
 
 static inline bool adjacentKeys(int left, int right) { return left + 1 == right; }
@@ -484,7 +488,17 @@ QString Generator::generate()
     lexFunc.addBody(body);
     
     klass.addMember(Class::PublicMember, lexFunc);
+
+    QString header;
+    QFile headerFile(headerFileName);
+    if (!headerFileName.isEmpty()
+        && headerFile.exists()
+        && headerFile.open(QIODevice::ReadOnly)) {
+        header = QString::fromUtf8(headerFile.readAll());
+    }
+
+    header += QLatin1String("// auto generated. DO NOT EDIT.\n");
     
-    return klass.declaration() + klass.definition();
+    return header + klass.declaration() + klass.definition();
 }
 

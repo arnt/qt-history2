@@ -286,7 +286,6 @@ int main(int argc, char **argv)
     } else {
         Generator gen(machine, cfg);
         QTextStream(stdout) 
-            << "// auto generated. DO NOT EDIT." << endl
             << gen.generate();
     }
 
