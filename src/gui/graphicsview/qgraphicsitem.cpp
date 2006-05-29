@@ -3898,14 +3898,16 @@ void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
 {
     if (!textControl) return; // can't happen
     const QSizeF pageSize = textControl->document()->pageSize();
-    qq->update();
+    if (pageSize == boundingRect.size())
+        return;
+    qq->removeFromIndex();
     if (pageSize.height() != INT_MAX) {
         // ###
         boundingRect.setSize(pageSize);
     } else {
         boundingRect.setSize(size);
     }
-    qq->update();
+    qq->addToIndex();
 }
 
 /*!
