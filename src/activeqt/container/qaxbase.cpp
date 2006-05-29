@@ -1235,14 +1235,46 @@ bool QAxBase::initializeLicensedHelper(void *f, const QString &key, IUnknown **p
     factory->QueryInterface(IID_IClassFactory2, (void**)&factory2);
     if (factory2) {
         BSTR bkey = QStringToBSTR(key);
-        factory2->CreateInstanceLic(0, 0, IID_IUnknown, bkey, (void**)ptr);
+        HRESULT hres = factory2->CreateInstanceLic(0, 0, IID_IUnknown, bkey, (void**)ptr);
         SysFreeString(bkey);
+#ifdef QT_DEBUG
+        LICINFO licinfo;
+        licinfo.cbLicInfo = sizeof(LICINFO);
+        factory2->GetLicInfo(&licinfo);
+
+        if (hres != S_OK) {
+            SetLastError(hres);
+            qErrnoWarning("CreateInstanceLic failed");
+            if (!licinfo.fLicVerified) {
+                qWarning("Wrong license key specified, and machine is not fully licensed.");
+            } else if (licinfo.fRuntimeKeyAvail) {
+                BSTR licenseKey;
+                factory2->RequestLicKey(0, &licenseKey);
+                QString qlicenseKey = QString::fromUtf16(licenseKey);
+                SysFreeString(licenseKey);
+                qWarning("Use license key is '%s' to create object on unlicensed machine.",
+                    qlicenseKey.toLatin1().constData());
+            }
+        } else if (licinfo.fLicVerified) {
+            qWarning("Machine is fully licensed for '%s'", control().toLatin1().constData());
+            if (licinfo.fRuntimeKeyAvail) {
+                BSTR licenseKey;
+                factory2->RequestLicKey(0, &licenseKey);
+                QString qlicenseKey = QString::fromUtf16(licenseKey);
+                SysFreeString(licenseKey);
+
+                if (qlicenseKey != key)
+                    qWarning("Runtime license key is '%s'", qlicenseKey.toLatin1().constData());
+            }
+        }
+#endif
         factory2->Release();
     } else {  // give it a shot without license
         factory->CreateInstance(0, IID_IUnknown, (void**)ptr);
     }
     return *ptr != 0;
 }
+
 
 /*!
     Connects to an active instance running on the current machine, and returns the
