@@ -156,6 +156,7 @@ public:
 
     void layoutButtons();
     void initLayout();
+    void resetLayout();
     QAbstractButton *createButton(QDialogButtonBox::StandardButton button, bool doLayout = true);
     void addButton(QAbstractButton *button, QDialogButtonBox::ButtonRole role, bool doLayout = true);
     void _q_handleButtonDestroyed();
@@ -192,6 +193,13 @@ void QDialogButtonBoxPrivate::initLayout()
         buttonLayout->setMargin(0);
         break;
     }
+}
+
+void QDialogButtonBoxPrivate::resetLayout()
+{
+    delete buttonLayout;
+    initLayout();
+    layoutButtons();
 }
 
 void QDialogButtonBoxPrivate::layoutButtons()
@@ -475,9 +483,7 @@ void QDialogButtonBox::setOrientation(Qt::Orientation orientation)
         return;
 
     d->orientation = orientation;
-    delete d->buttonLayout;
-    d->initLayout();
-    d->layoutButtons();
+    d->resetLayout();
 }
 
 /*!
@@ -687,9 +693,7 @@ void QDialogButtonBox::changeEvent(QEvent *event)
 
     switch (event->type()) {
     case QEvent::StyleChange:
-        delete d->buttonLayout;
-        d->initLayout();
-        d->layoutButtons();
+        d->resetLayout();
         QWidget::changeEvent(event);
         break;
     default:
