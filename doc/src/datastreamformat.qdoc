@@ -210,6 +210,13 @@
             \o right (qint32)
             \o bottom (qint32)
             \endlist
+    \row \o QRegExp
+         \o \list
+            \o The regexp pattern (QString)
+	    \o Case sensitivity (quint8)
+	    \o Regular expression syntax (quint8)
+	    \o Minimal matching (quint8)
+	    \endlist
     \row \o QRegion
          \o \list
             \o The size of the data, i.e. 8 + 16 * (number of rectangles) (quint32)
