@@ -2295,6 +2295,9 @@
             widget->setMask(pixmap.mask());
     \endcode
 
+    The \c QPixmap::setOptimization() and \c QPixmap::setDefaultOptimization()
+    mechanism is no longer available in Qt 4.
+
 \omit
     QPixmap::fromMimeSource(const QString &) -> qPixmapFromMimeSource(const QString &)
 \endomit
