@@ -202,7 +202,7 @@
 
     \section2 Extensive Use of Native Graphics Operations
 
-    In the Qt 4 Paint System we make more use of native graphics
+    Where this makes sense, Qt uses native graphics
     operations. The benefit we gain from this is that these operations
     can potentially be performed in hardware, giving significant
     speed improvements over many pure-software implementations.
