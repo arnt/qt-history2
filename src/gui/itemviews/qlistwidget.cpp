@@ -182,7 +182,7 @@ QModelIndex QListModel::index(QListWidgetItem *item) const
     if (!item)
         return QModelIndex();
     int row = lst.lastIndexOf(item);
-    if (row != -1);
+    if (row != -1)
         return createIndex(row, 0, item);
     return QModelIndex();
 }
