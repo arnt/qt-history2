@@ -49,7 +49,7 @@
 #    include "../../plugins/codecs/jp/qfontjpcodec.h"
 #  endif
 #endif // QT_NO_CODECS
-#include "private/qlocale_p.h"
+#include "qlocale.h"
 #include "private/qmutexpool_p.h"
 
 #include <stdlib.h>
@@ -1048,7 +1048,7 @@ bool QTextCodec::canEncode(const QString& s) const
 */
 const char *QTextCodec::locale()
 {
-    return QLocalePrivate::systemLocaleName();
+    return QLocale::systemLocaleName();
 }
 
 /*!

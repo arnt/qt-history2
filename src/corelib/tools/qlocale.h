@@ -24,6 +24,7 @@ class QDataStream;
 class QDate;
 class QTime;
 struct QLocalePrivate;
+struct QSystemLocale;
 
 class Q_CORE_EXPORT QLocale
 {
@@ -481,9 +482,17 @@ public:
     static QLocale c() { return QLocale(C); }
     static QLocale system();
 
+    /* internal only for now */
+    static void setSystemLocale(QSystemLocale *);
+    static QByteArray systemLocaleName();
 private:
+    QString month(int, bool = false) const;
+    QString day(int, bool = false) const;
+    static const QLocalePrivate *systemLocale();
+
     const QLocalePrivate *d;
     static const QLocalePrivate *default_d;
+    static QSystemLocale *m_system_locale;
 };
 Q_DECLARE_TYPEINFO(QLocale, Q_MOVABLE_TYPE);
 
