@@ -27,7 +27,15 @@ static gboolean socketNotifierSourcePrepare(GSource *, gint *timeout)
 
 static gboolean socketNotifierSourceCheck(GSource *source)
 {
-    return reinterpret_cast<GSocketNotifierSource *>(source)->pollfd.revents != 0;
+    GSocketNotifierSource *src = reinterpret_cast<GSocketNotifierSource *>(source);
+    if (src->pollfd.revents & G_IO_NVAL) {
+        // disable the invalid socket notifier
+        static const char *t[] = { "Read", "Write", "Exception" };
+        qWarning("QSocketNotifier: Invalid socket %d and type '%s', disabling...",
+                 src->pollfd.fd, t[int(src->socketNotifier->type())]);
+        src->socketNotifier->setEnabled(false);
+    }
+    return src->pollfd.revents != 0;
 }
 
 static gboolean socketNotifierSourceDispatch(GSource *source, GSourceFunc callback, gpointer user_data)
