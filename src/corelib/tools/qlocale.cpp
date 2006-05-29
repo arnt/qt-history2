@@ -323,6 +323,8 @@ QString QSystemLocale::dateFormat(bool) const
 
 #ifdef Q_OS_WIN
 
+static const char *winLangCodeToIsoName(int code);
+
 struct QWinSystemLocale : public QSystemLocale
 {
 public:
