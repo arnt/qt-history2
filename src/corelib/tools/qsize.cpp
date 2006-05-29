@@ -54,7 +54,8 @@
 /*!
     \fn QSize::QSize()
 
-    Constructs an invalid size.
+    Constructs a size with an invalid width and height (i.e., isValid()
+    returns false).
 
     \sa isValid()
 */
