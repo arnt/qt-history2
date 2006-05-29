@@ -302,7 +302,7 @@ QVariant QSettingsPrivate::stringListToVariantList(const QStringList &l)
 
 QString &QSettingsPrivate::escapedLeadingAt(QString &s)
 {
-    if (s.length() > 0 && s.at(0) == QLatin1Char('@'))
+    if (s.startsWith(QLatin1Char('@')))
         s.prepend(QLatin1Char('@'));
     return s;
 }
@@ -400,10 +400,7 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
 
 QVariant QSettingsPrivate::stringToVariant(const QString &s)
 {
-    if (s.length() > 3
-            && s.at(0) == QLatin1Char('@')
-            && s.at(s.length() - 1) == QLatin1Char(')')) {
-
+    if (s.startsWith(QLatin1Char('@')) && s.endsWith(QLatin1Char(')'))) {
         if (s.startsWith(QLatin1String("@ByteArray("))) {
             return QVariant(s.toLatin1().mid(11, s.size() - 12));
         } else if (s.startsWith(QLatin1String("@Variant("))) {
@@ -601,10 +598,8 @@ void QSettingsPrivate::iniEscapedString(const QString &str, QByteArray &result)
 
 void QSettingsPrivate::iniChopTrailingSpaces(QString *str)
 {
-    int n = str->size();
-    while (n > 0
-            && (str->at(n - 1) == QLatin1Char(' ') || str->at(n - 1) == QLatin1Char('\t')))
-        str->truncate(--n);
+    while (str->endsWith(QLatin1Char(' ')) || str->endsWith(QLatin1Char('\t')))
+        str->chop(1);
 }
 
 void QSettingsPrivate::iniEscapedStringList(const QStringList &strs, QByteArray &result)
