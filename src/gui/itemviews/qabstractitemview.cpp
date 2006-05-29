@@ -1255,21 +1255,22 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
 
     setState(NoState);
 
-    if (selectionModel())
+    bool click = (index == d_func()->pressedIndex && index.isValid());
+    EditTrigger trigger = (click
+                           && (event->button() & Qt::LeftButton)
+                           && d->pressedAlreadySelected
+                          ? SelectedClicked : NoEditTriggers);
+    bool edited = edit(index, trigger, event);
+
+    if (!edited && selectionModel())
         selectionModel()->select(index, selectionCommand(index, event));
 
-    if (index == d_func()->pressedIndex && index.isValid()) {
-        // signal handlers may change the model
-        EditTrigger trigger = ((event->button() & Qt::LeftButton) && d->pressedAlreadySelected)
-                              ? SelectedClicked : NoEditTriggers;
-        bool edited = edit(index, trigger, event); // send event to delegate
+    if (click) {
         emit clicked(index);
-        if (edited) // if the delegate handled the click, the item is not activated
+        if (edited)
             return;
         if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
             emit activated(index);
-    } else {
-        edit(index, NoEditTriggers, event);
     }
 }
 
