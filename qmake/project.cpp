@@ -445,7 +445,8 @@ static QStringList split_arg_list(QString params)
     return args;
 }
 
-static QStringList split_value_list(const QString &vals, bool do_semicolon=false)
+static QStringList split_value_list(const QString &vals, bool do_semicolon=false,
+                                    bool do_remove_quotes=true)
 {
     QString build;
     QStringList ret;
@@ -487,8 +488,10 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     }
     if(!build.isEmpty())
         ret << build;
-    for(int i = 0; i < ret.count(); i++)
-        ret[i] = remove_quotes(ret[i]);
+    if(do_remove_quotes) {
+        for(int i = 0; i < ret.count(); i++)
+            ret[i] = remove_quotes(ret[i]);
+    }
     return ret;
 }
 
@@ -1006,7 +1009,8 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
         QStringList vallist;
         {
             //doVariableReplace(vals, place);
-            QStringList tmp = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
+            QStringList tmp = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"),
+                                               false);
             for(int i = 0; i < tmp.size(); ++i)
                 vallist += doVariableReplaceExpand(tmp[i], place);
         }
@@ -2490,8 +2494,10 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
     const ushort DOT = '.';
     const ushort SPACE = ' ';
     const ushort TAB = '\t';
+    const ushort SINGLEQUOTE = '\'';
+    const ushort DOUBLEQUOTE = '"';
 
-    ushort unicode;
+    ushort unicode, quote = 0;
     const QChar *str_data = str.data();
     const int str_len = str.length();
 
@@ -2505,7 +2511,7 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
         const int start_var = i;
         if(unicode == SLASH) {
             bool escape = false;
-            const char *symbols = "[]{}()$\\";
+            const char *symbols = "[]{}()$\\'\"";
             for(const char *s = symbols; *s; ++s) {
                 if(*(str_data+i+1) == (ushort)*s) {
                     i++;
@@ -2520,7 +2526,15 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
                 current.append(QChar(unicode));
             continue;
         }
-        if(unicode == SPACE || unicode == TAB) {
+        if(quote && unicode == quote) {
+            unicode = 0;
+            quote = 0;
+        } else if(unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE) {
+            quote = unicode;
+            unicode = 0;
+            if(!(replaced++) && i)
+                current = str.left(i);
+        } else if(!quote && (unicode == SPACE || unicode == TAB)) {
             unicode = 0;
             if(!current.isEmpty()) {
                 ret.append(current);
@@ -2550,6 +2564,7 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
                 while(1) {
                     if(!(unicode & (0xFF<<8)) &&
                        unicode != DOT && unicode != UNDERSCORE &&
+                       //unicode != SINGLEQUOTE && unicode != DOUBLEQUOTE &&
                        (unicode < 'a' || unicode > 'z') && (unicode < 'A' || unicode > 'Z') &&
                        (unicode < '0' || unicode > '9'))
                         break;
@@ -2605,13 +2620,17 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
                 if(!(replaced++) && start_var)
                     current = str.left(start_var);
                 if(!replacement.isEmpty()) {
-                    current += replacement.takeFirst();
-                    if(!replacement.isEmpty()) {
-                        if(!current.isEmpty())
-                            ret.append(current);
-                        current = replacement.takeLast();
-                        if(!replacement.isEmpty())
-                            ret += replacement;
+                    if(quote) {
+                        current += replacement.join(QString(Option::field_sep));
+                    } else {
+                        current += replacement.takeFirst();
+                        if(!replacement.isEmpty()) {
+                            if(!current.isEmpty())
+                                ret.append(current);
+                            current = replacement.takeLast();
+                            if(!replacement.isEmpty())
+                                ret += replacement;
+                        }
                     }
                 }
                 debug_msg(2, "Project Parser [var replace]: %s -> %s",
@@ -2622,6 +2641,10 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
                     current.append("$");
             }
         }
+        if(quote && unicode == quote) {
+            unicode = 0;
+            quote = 0;
+        }
         if(replaced && unicode)
             current.append(QChar(unicode));
     }
@@ -2629,6 +2652,7 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
         ret = QStringList(str);
     else if(!current.isEmpty())
         ret.append(current);
+    //qDebug() << "REPLACE" << str << ret;
     return ret;
 }
 
