@@ -50,9 +50,11 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
         if (QTextImageHandler::externalLoader)
             img = QTextImageHandler::externalLoader(name, context);
 
-        if (img.isNull()) // try direct loading
+        if (img.isNull()) { // try direct loading
+            name = format.name(); // remove qrc:/ prefix again
             if (name.isEmpty() || !img.load(name))
                 return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/file-16.png"));
+        }
         pm = QPixmap::fromImage(img);
         doc->addResource(QTextDocument::ImageResource, name, pm);
     }
