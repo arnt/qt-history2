@@ -154,7 +154,7 @@ public Q_SLOTS:
 
     void append(const QString &text);
 
-    void scrollToAnchor(const QString &name);
+    void ensureAnchorIsVisible(const QString &name);
 
     void adjustSize();
 

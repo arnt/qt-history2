@@ -2496,7 +2496,7 @@ void QTextControl::insertHtml(const QString &text)
     visible; does nothing if the \a name is empty, or is already
     visible, or isn't found.
 */
-void QTextControl::scrollToAnchor(const QString &name)
+void QTextControl::ensureAnchorIsVisible(const QString &name)
 {
     Q_D(QTextControl);
     if (name.isEmpty())
