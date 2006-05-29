@@ -34,13 +34,14 @@ private slots:
 private:
     QLabel *patternLabel;
     QLabel *escapedPatternLabel;
+    QLabel *syntaxLabel;
     QLabel *textLabel;
     QComboBox *patternComboBox;
     QLineEdit *escapedPatternLineEdit;
     QComboBox *textComboBox;
     QCheckBox *caseSensitiveCheckBox;
     QCheckBox *minimalCheckBox;
-    QCheckBox *wildcardCheckBox;
+    QComboBox *syntaxComboBox;
 
     QLabel *indexLabel;
     QLabel *matchedLengthLabel;
