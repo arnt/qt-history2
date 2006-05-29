@@ -20,7 +20,6 @@ Window::Window(QWidget *parent)
 {
     browseButton = createButton(tr("&Browse..."), SLOT(browse()));
     findButton = createButton(tr("&Find"), SLOT(find()));
-    quitButton = createButton(tr("&Quit"), SLOT(close()));
 
     fileComboBox = createComboBox(tr("*"));
     textComboBox = createComboBox();
@@ -36,7 +35,6 @@ Window::Window(QWidget *parent)
     QHBoxLayout *buttonsLayout = new QHBoxLayout;
     buttonsLayout->addStretch();
     buttonsLayout->addWidget(findButton);
-    buttonsLayout->addWidget(quitButton);
 
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addWidget(fileLabel, 0, 0);

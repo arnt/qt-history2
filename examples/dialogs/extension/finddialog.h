@@ -17,6 +17,7 @@
 #include <QDialog>
 
 class QCheckBox;
+class QDialogButtonBox;
 class QGroupBox;
 class QLabel;
 class QLineEdit;
@@ -36,8 +37,8 @@ private:
     QCheckBox *wholeWordsCheckBox;
     QCheckBox *searchSelectionCheckBox;
     QCheckBox *backwardCheckBox;
+    QDialogButtonBox *buttonBox;
     QPushButton *findButton;
-    QPushButton *closeButton;
     QPushButton *moreButton;
     QWidget *extension;
 };

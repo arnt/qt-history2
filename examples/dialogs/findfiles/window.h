@@ -50,7 +50,6 @@ private:
     QLabel *filesFoundLabel;
     QPushButton *browseButton;
     QPushButton *findButton;
-    QPushButton *quitButton;
     QTableWidget *filesTable;
 };
 

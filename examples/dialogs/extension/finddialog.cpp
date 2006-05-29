@@ -29,11 +29,13 @@ FindDialog::FindDialog(QWidget *parent)
     findButton = new QPushButton(tr("&Find"));
     findButton->setDefault(true);
 
-    closeButton = new QPushButton(tr("Close"));
-
     moreButton = new QPushButton(tr("&More"));
     moreButton->setCheckable(true);
     moreButton->setAutoDefault(false);
+
+    buttonBox = new QDialogButtonBox(Qt::Vertical);
+    buttonBox->addButton(findButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(moreButton, QDialogButtonBox::ActionRole);
 
     extension = new QWidget;
 
@@ -41,7 +43,6 @@ FindDialog::FindDialog(QWidget *parent)
     backwardCheckBox = new QCheckBox(tr("Search &backward"));
     searchSelectionCheckBox = new QCheckBox(tr("Search se&lection"));
 
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(moreButton, SIGNAL(toggled(bool)), extension, SLOT(setVisible(bool)));
 
     QVBoxLayout *extensionLayout = new QVBoxLayout;
@@ -61,16 +62,10 @@ FindDialog::FindDialog(QWidget *parent)
     leftLayout->addWidget(fromStartCheckBox);
     leftLayout->addStretch(1);
 
-    QVBoxLayout *rightLayout = new QVBoxLayout;
-    rightLayout->addWidget(findButton);
-    rightLayout->addWidget(closeButton);
-    rightLayout->addWidget(moreButton);
-    rightLayout->addStretch(1);
-
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
     mainLayout->addLayout(leftLayout, 0, 0);
-    mainLayout->addLayout(rightLayout, 0, 1);
+    mainLayout->addWidget(buttonBox, 0, 1);
     mainLayout->addWidget(extension, 1, 0, 1, 2);
     setLayout(mainLayout);
 
