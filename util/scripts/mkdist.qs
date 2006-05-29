@@ -237,6 +237,7 @@ moduleMap["example classes"]             = new RegExp("^examples");
 moduleMap["tools applications"]          = new RegExp("(^src/tools|^tools/)");
 moduleMap["window classes"]              = new RegExp("^src/winmain");
 moduleMap["plugins"]                     = new RegExp("^src/plugins");
+moduleMap["qmake spec"]                  = new RegExp("^mkspec");
 
 /*******************************************************************************
  * Here we go
@@ -278,10 +279,7 @@ for (var p in validPlatforms) {
             print("Copying dist files...");
             copyDist(platDir, platform, license);
 
-            checkLicense(platDir, getFileList(platDir));
-
-            var tmpTag = new Array();
-            tmpTag[licenseHeaders[license]] = /\*\* \$TROLLTECH_DUAL_LICENSE\$\n/;
+            checkLicense(platDir, getFileList(platDir), "first");
 
             // replace tags (like THISYEAR etc.)
             print("Traversing all txt files and replacing tags...");
@@ -296,6 +294,8 @@ for (var p in validPlatforms) {
             purgeFiles(platDir, getFileList(platDir),[]
                        .concat(platformRemove[platform])
                        .concat(licenseRemove[license]));
+
+            checkLicense(platDir, getFileList(platDir), "final");
 
             // run syncqt
             print("Running syncqt...");
@@ -592,7 +592,7 @@ function compress(platform, packageDir, packageName)
                 fileName = files[i];
                 absFileName = packageDir + "/" + fileName;
                 if (File.exists(absFileName) && File.isFile(absFileName)) {
-                    if (binaryFile(absFileName))
+                    if (isBinaryFile(absFileName))
                         binaryFiles.push(packageDirName + "/" + fileName);
                     else
                         textFiles.push(packageDirName + "/" + fileName);
@@ -824,25 +824,33 @@ function qdoc(packageDir, platform, license)
 function defaultTags(platform, license, platName)
 {
     var replace = new Array();
-    replace[startDate.getYear().toString()] = /\$THISYEAR\$/g;
-    replace[options["version"]] = /\%VERSION\%/g;
+
+    replace["\\$THISYEAR\\$"] = startDate.getYear().toString();
+    replace["\\%VERSION\\%"] = options["version"];
     if (platform == "core")
-        replace["Qtopia Core (Qt for embedded Linux)"] = /\%PRODUCTLONG\%/g;
+        replace["\\%PRODUCTLONG\\%"] = "Qtopia Core (Qt for embedded Linux)";
     else
-        replace["Qt"] = /\%PRODUCTLONG\%/g;
-    replace["#define QT_VERSION_STR   \"" + options["version"] + "\""] =
-        /#\s*define\s+QT_VERSION_STR\s+\"([^\"]+)\"*/g;
-    replace["#define QT_PACKAGEDATE_STR \"" + startDate.toString().left(10) + "\""] =
-        /#\s*define\s+QT_PACKAGEDATE_STR\s+\"([^\"]+)\"*/g;
-    replace[platName] = /\%DISTNAME\%/g;
-    replace[licenseHeaders[license]] = /\*\* \$TROLLTECH_DUAL_LICENSE\$\n/;
+        replace["\\%PRODUCTLONG\\%"] = "Qt";
+    replace["#\\s*define\\s+QT_VERSION_STR\\s+\"([^\"]+)\"*"] =
+        "#define QT_VERSION_STR   \"" + options["version"] + "\"";
+    replace["#\\s*define\\s+QT_PACKAGEDATE_STR\\s+\"([^\"]+)\"*"] =
+        "#define QT_PACKAGEDATE_STR \"" + startDate.toString().left(10) + "\"";
+    replace["\\%DISTNAME\\%"] = platName;
+    replace["\\*\\* \\$TROLLTECH_DUAL_LICENSE\\$\\n"] = licenseHeaders[license];
+    replace["\\*\\* \\$TROLLTECH_3RDPARTY_LICENSE\\$\\n"] = licenseHeaders["3rdparty"];
+    if (license == "opensource") {
+        replace["\\*\\* \\$TROLLTECH_GPL_LICENSE\\$\\n"] = licenseHeaders[license];
+    } else if (license == "commercial" || license == "eval") {
+        replace["\\*\\* \\$TROLLTECH_COMMERCIAL_LICENSE\\$\\n"] = licenseHeaders[license];
+    }
+
     return replace;
 }
 
 /************************************************************
  * goes through all source files (except 3rdparty) and checks for $*_LICENSE$
  */
-function checkLicense(packageDir, fileList)
+function checkLicense(packageDir, fileList, checkMode)
 {
     for (var i in fileList) {
         fileName = fileList[i];
@@ -855,13 +863,23 @@ function checkLicense(packageDir, fileList)
             && fileName.find(/\.cpp$|\.h$|\.c$/) != -1) {
 
             content = File.read(absFileName);
-            if (content.find(/\*\* \$TROLLTECH_DUAL_LICENSE\$/) == -1) {
-                warning(fileName + " doesn't contain $TROLLTECH_DUAL_LICENSE$");
-            }
 
-            if (fileName.find(/_p.h$/) != -1
-                && content.find(/\/\/ We mean it./) == -1) {
-                warning(fileName + " doesn't contain \"We mean it\"");
+            if (checkMode == "final") {
+                if (content.find(/\*\* \$TROLLTECH_(DUAL|3RDPARTY|GPL)_LICENSE\$/) != -1) {
+                    throw "%1 contains an invaid license".arg(fileName);
+                }
+            } else if (checkMode == "first") {
+                if (content.find(/\*\* \$TROLLTECH_(DUAL|3RDPARTY|GPL|COMMERCIAL)_LICENSE\$/)
+                    == -1) {
+                    warning(fileName + " doesn't contain a valid $TROLLTECH_*_LICENSE$ tag");
+                }
+
+                if (fileName.find(/_p.h$/) != -1
+                    && content.find(/\/\/ We mean it./) == -1) {
+                    warning(fileName + " doesn't contain \"We mean it\"");
+                }
+            } else {
+                throw "Invalid mode in checkLicense";
             }
         }
     }
@@ -878,11 +896,12 @@ function replaceTags(packageDir, fileList, replace)
     for (var i in fileList) {
         fileName = fileList[i];
         absFileName = packageDir + "/" + fileName;
-        if (File.isFile(absFileName) && !binaryFile(absFileName)) {
+        if (File.isFile(absFileName) && !isBinaryFile(absFileName)) {
             //only replace for non binary files
             content = File.read(absFileName);
-            for (var i in replace)
-                content = content.replace(replace[i], i);
+            for (var i in replace) {
+                content = content.replace(new RegExp(i), replace[i]);
+            }
             // special case for $MODULE$
             if (content.find(/\$MODULE\$/) != -1) {
                 var match = false;
@@ -940,7 +959,7 @@ function warning(text)
 /************************************************************
  * returns true if the file exists, is a file, is executable or has a binary extension
  */
-function binaryFile(fileName)
+function isBinaryFile(fileName)
 {
     if (File.exists(fileName) && File.isFile(fileName)) {
         for (var r in binaryFileList)
