@@ -1113,12 +1113,11 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QAbstractItemView);
     QPoint pos = event->pos();
-    QModelIndex idx = indexAt(pos);
+    QPersistentModelIndex index = indexAt(pos);
 
-    if (!selectionModel() || (d->state == EditingState && d->hasEditor(idx)))
+    if (!selectionModel()
+        || (d->state == EditingState && d->hasEditor(index)))
         return;
-
-    QPersistentModelIndex index = idx;
 
     d->pressedAlreadySelected = selectionModel()->isSelected(index);
     d->pressedIndex = index;
@@ -1130,6 +1129,10 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *event)
 
     if (d->pressedPosition == QPoint(-1, -1))
         d->pressedPosition = visualRect(selectionModel()->currentIndex()).center() + offset;
+
+    if (edit(index, NoEditTriggers, event))
+        return;
+
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalized(), command);
 
@@ -1154,6 +1157,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
 
     if (state() == ExpandingState || state() == CollapsingState)
         return;
+
 #ifndef QT_NO_DRAGANDDROP
     if (state() == DraggingState) {
         topLeft = d->pressedPosition - d->offset();
@@ -1166,15 +1170,16 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
     }
 #endif // QT_NO_DRAGANDDROP
 
+    QModelIndex index = indexAt(bottomRight);
+    QModelIndex buddy = model() ? model()->buddy(d->pressedIndex) : QModelIndex();
+    if (state() == EditingState && d->hasEditor(buddy)
+        || edit(index, NoEditTriggers, event))
+        return;
+
     if (d->selectionMode != SingleSelection)
         topLeft = d->pressedPosition - d->offset();
     else
         topLeft = bottomRight;
-
-    QModelIndex index = indexAt(bottomRight);
-    QModelIndex buddy = model() ? model()->buddy(d->pressedIndex) : QModelIndex();
-    if (state() == EditingState && d->hasEditor(buddy))
-        return;
 
     if (d->enteredIndex != index) {
         // signal handlers may change the model
@@ -1203,7 +1208,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *event)
     }
 
 #ifndef QT_NO_DRAGANDDROP
-    if (index.isValid() && d->dragEnabled && state() != DragSelectingState) {
+    if (index.isValid() && d->dragEnabled
+        && state() != DragSelectingState
+        && event->buttons() != Qt::NoButton) {
         bool dragging = model()->flags(index) & Qt::ItemIsDragEnabled;
         bool selected = selectionModel()->isSelected(index);
         if (dragging && selected) {
@@ -1261,6 +1268,8 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
             return;
         if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
             emit activated(index);
+    } else {
+        edit(index, NoEditTriggers, event);
     }
 }
 
@@ -1711,8 +1720,10 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
     if (trigger == DoubleClicked)
         d->delayedEditing.stop();
 
-    if (d->sendDelegateEvent(index, event))
+    if (d->sendDelegateEvent(index, event)) {
+        d->viewport->update(visualRect(index));
         return true;
+    }
 
     if (!d->shouldEdit(trigger, model()->buddy(index)))
         return false;
