@@ -1953,9 +1953,10 @@ static void err_info_about_objects(const char * func,
     sender's signal.
 
     \warning This function violates the object-oriented principle of
-     modularity. However, getting access to the sender might be useful
-     when many signals are connected to a single slot. The sender is
-     undefined if the slot is called as a normal C++ function.
+    modularity. However, getting access to the sender might be useful
+    when many signals are connected to a single slot.
+
+    \sa QSignalMapper
 */
 
 QObject *QObject::sender() const
