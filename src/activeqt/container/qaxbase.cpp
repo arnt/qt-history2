@@ -2282,14 +2282,15 @@ QByteArray MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *t
 {
     QByteArray prototype;
     QByteArray function(names.at(0));
+    const QByteArray hresult("HRESULT");
     // get function prototype
     type = guessTypes(funcdesc->elemdescFunc.tdesc, typeinfo, function);
-    if (type.isEmpty() && funcdesc->invkind == INVOKE_PROPERTYPUT && funcdesc->lprgelemdescParam) {
+    if ((type.isEmpty() || type == hresult) && funcdesc->invkind == INVOKE_PROPERTYPUT && funcdesc->lprgelemdescParam) {
         type = guessTypes(funcdesc->lprgelemdescParam->tdesc, typeinfo, function);
     }
 
     prototype = function + "(";
-    if (funcdesc->invkind == INVOKE_FUNC && type == "HRESULT")
+    if (funcdesc->invkind == INVOKE_FUNC && type == hresult)
         type = 0;
 
     int p;
