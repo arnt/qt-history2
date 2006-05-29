@@ -113,6 +113,8 @@ class QDate;
 struct QSystemLocale
 {
 public:
+    virtual ~QSystemLocale();
+
     virtual const QLocalePrivate *locale() const;
 
     virtual QByteArray name() const;
