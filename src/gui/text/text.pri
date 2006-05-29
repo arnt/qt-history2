@@ -145,7 +145,7 @@ contains(QT_CONFIG, freetype) {
 	../3rdparty/freetype/include \
 	../3rdparty/freetype/builds/unix
 
-    DEFINES += FT_CONFIG_OPTION_SYSTEM_ZLIB
+    DEFINES += FT2_BUILD_LIBRARY FT_CONFIG_OPTION_SYSTEM_ZLIB
     
     embedded:CONFIG += opentype
 } else:contains(QT_CONFIG, system-freetype) {
