@@ -417,7 +417,7 @@ QByteArray QWinSystemLocale::name() const
     return result;
 }
 
-static const QLocalePrivate *QWinSystemLocal::locale() const
+const QLocalePrivate *QWinSystemLocale::locale() const
 {
     static QLocalePrivate *result = 0;
 
@@ -450,7 +450,7 @@ static const QLocalePrivate *QWinSystemLocal::locale() const
     return result;
 }
 
-QString QWinSystemLocal::dateToString(const QDate &date, bool short_format) const
+QString QWinSystemLocale::dateToString(const QDate &date, bool short_format) const
 {
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
