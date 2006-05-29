@@ -14,6 +14,7 @@
 #ifndef QVARLENGTHARRAY_H
 #define QVARLENGTHARRAY_H
 
+#include <QtCore/qcontainerfwd.h>
 #include <QtCore/qglobal.h>
 #include <new>
 
@@ -21,7 +22,8 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Core)
 
-template<class T, int Prealloc = 256>
+// Prealloc = 256 by default, specified in qcontainerfwd.h
+template<class T, int Prealloc>
 class QVarLengthArray
 {
 public:

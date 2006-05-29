@@ -117,6 +117,11 @@
     otherwise the C++ compiler will misinterpret the two >'s as a
     right-shift operator (>>) and report a syntax error.
 
+    The containers are defined in individual header files with the
+    same name as the container (e.g., \c <QLinkedList>). For
+    convenience, the containers are forward declared in \c
+    <QtContainerFwd>.
+
     \keyword assignable data types
 
     The values stored in the various containers can be of any
