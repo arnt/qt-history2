@@ -26,6 +26,7 @@
 #include "qpainter.h"
 #include "qprinter.h"
 #include "qtextedit.h"
+#include "qtextcontrol_p.h"
 
 #include "qtextdocument_p.h"
 
@@ -898,7 +899,7 @@ static void printPage(int index, QPainter *painter, const QTextDocument *doc, co
 
     painter->setClipRect(view);
     ctx.clip = view;
-    
+
     // don't use the system palette text as default text color, on HP/UX
     // for example that's white, and white text on white paper doesn't
     // look that nice
@@ -1133,6 +1134,10 @@ QVariant QTextDocument::loadResource(int type, const QUrl &name)
     else if (QTextEdit *edit = qobject_cast<QTextEdit *>(parent()))
         r = edit->loadResource(type, name);
 #endif
+#ifndef QT_NO_TEXTCONTROL
+    else if (QTextControl *control = qobject_cast<QTextControl *>(parent()))
+        r = control->loadResource(type, name);
+#endif
     if (!r.isNull()) {
         if (type == ImageResource && r.type() == QVariant::ByteArray) {
             QPixmap pm;
@@ -1171,7 +1176,7 @@ QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
     of HTML.
 */
 QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
-{    
+{
     html = QLatin1String("<html><head><meta name=\"qrichtext\" content=\"1\" />");
     html.reserve(doc->docHandle()->length());
 
@@ -1578,7 +1583,7 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
             || ch == QTextEndOfFrame)
             return;
     }
-    
+
     html += QLatin1Char('\n');
 
     // save and later restore, in case we 'change' the default format by
@@ -1781,7 +1786,7 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
             && frameIt.currentBlock().begin().atEnd())
             return;
     }
-    
+
     for (QTextFrame::Iterator it = frameIt;
          !it.atEnd(); ++it) {
         if (QTextFrame *f = it.currentFrame()) {
