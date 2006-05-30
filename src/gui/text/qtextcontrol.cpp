@@ -1184,6 +1184,53 @@ bool QTextControl::event(QEvent *e)
                 ev->acceptProposedAction();
             break; }
 
+        case QEvent::ShortcutOverride:
+            if (!d->readOnly) {
+                QKeyEvent* ke = static_cast<QKeyEvent *>(e);
+                if (ke->modifiers() == Qt::NoModifier
+                    || ke->modifiers() == Qt::ShiftModifier
+                    || ke->modifiers() == Qt::KeypadModifier) {
+                    if (ke->key() < Qt::Key_Escape) {
+                        ke->accept();
+                    } else {
+                        switch (ke->key()) {
+                            case Qt::Key_Return:
+                            case Qt::Key_Enter:
+                            case Qt::Key_Delete:
+                            case Qt::Key_Home:
+                            case Qt::Key_End:
+                            case Qt::Key_Backspace:
+                            case Qt::Key_Left:
+                            case Qt::Key_Right:
+                            ke->accept();
+                        default:
+                            break;
+                        }
+                    }
+                } else if (ke->modifiers() & Qt::ControlModifier) {
+                    switch (ke->key()) {
+                        case Qt::Key_C:
+                        case Qt::Key_V:
+                        case Qt::Key_X:
+                        case Qt::Key_Y:
+                        case Qt::Key_Z:
+                        case Qt::Key_Left:
+                        case Qt::Key_Right:
+                        case Qt::Key_Up:
+                        case Qt::Key_Down:
+                        case Qt::Key_Home:
+                        case Qt::Key_End:
+#if !defined(Q_WS_MAC)
+                        case Qt::Key_Insert:
+                        case Qt::Key_Delete:
+#endif
+                        ke->accept();
+                    default:
+                        break;
+                    }
+                }
+            }
+            // FALL THROUGH
         default:
             return QObject::event(e);
     }
@@ -1199,51 +1246,6 @@ bool QTextControl::event(QEvent *e)
         const bool result = QAbstractScrollArea::event(&ce);
         e->setAccepted(ce.isAccepted());
         return result;
-    } else if (e->type() == QEvent::ShortcutOverride && !d->readOnly) {
-        QKeyEvent* ke = static_cast<QKeyEvent *>(e);
-        if (ke->modifiers() == Qt::NoModifier
-            || ke->modifiers() == Qt::ShiftModifier
-            || ke->modifiers() == Qt::KeypadModifier) {
-            if (ke->key() < Qt::Key_Escape) {
-                ke->accept();
-            } else {
-                switch (ke->key()) {
-                    case Qt::Key_Return:
-                    case Qt::Key_Enter:
-                    case Qt::Key_Delete:
-                    case Qt::Key_Home:
-                    case Qt::Key_End:
-                    case Qt::Key_Backspace:
-                    case Qt::Key_Left:
-                    case Qt::Key_Right:
-                    ke->accept();
-                default:
-                    break;
-                }
-            }
-        } else if (ke->modifiers() & Qt::ControlModifier) {
-            switch (ke->key()) {
-                case Qt::Key_C:
-                case Qt::Key_V:
-                case Qt::Key_X:
-                case Qt::Key_Y:
-                case Qt::Key_Z:
-                case Qt::Key_Left:
-                case Qt::Key_Right:
-                case Qt::Key_Up:
-                case Qt::Key_Down:
-                case Qt::Key_Home:
-                case Qt::Key_End:
-#if !defined(Q_WS_MAC)
-                case Qt::Key_Insert:
-                case Qt::Key_Delete:
-#endif
-                ke->accept();
-            default:
-                break;
-            }
-        }
-
     }
 */
 }
