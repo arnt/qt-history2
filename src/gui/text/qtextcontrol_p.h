@@ -180,7 +180,7 @@ public:
     // control methods
     void drawContents(QPainter *painter, const QRectF &rect = QRectF());
 
-    virtual void setFocus(bool focus, Qt::FocusReason = Qt::OtherFocusReason);
+    void setFocus(bool focus, Qt::FocusReason = Qt::OtherFocusReason);
 
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
 

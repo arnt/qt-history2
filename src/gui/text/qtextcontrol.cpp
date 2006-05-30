@@ -1140,6 +1140,11 @@ bool QTextControl::event(QEvent *e)
             d->contextMenuEvent(static_cast<QContextMenuEvent *>(e)->globalPos());
             break;
 
+        case QEvent::FocusIn:
+        case QEvent::FocusOut:
+            d->focusEvent(static_cast<QFocusEvent *>(e));
+            break;
+
         case QEvent::GraphicsSceneMousePress: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
             d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers());
@@ -2095,28 +2100,34 @@ QVariant QTextControl::inputMethodQuery(Qt::InputMethodQuery property) const
 
 void QTextControl::setFocus(bool focus, Qt::FocusReason reason)
 {
-    Q_D(QTextControl);
-    if (focus) {
-        if (!d->readOnly) {
-            d->cursorOn = true;
-            d->setBlinkingCursorEnabled(true);
+    QFocusEvent ev(focus ? QEvent::FocusIn : QEvent::FocusOut,
+                   reason);
+    QApplication::sendEvent(this, &ev);
+}
+
+void QTextControlPrivate::focusEvent(QFocusEvent *e)
+{
+    if (e->gotFocus()) {
+        if (!readOnly) {
+            cursorOn = true;
+            setBlinkingCursorEnabled(true);
 #ifdef QT_KEYPAD_NAVIGATION
             if (QApplication::keypadNavigationEnabled()) {
                 if (e->reason() == Qt::TabFocusReason) {
-                    d->cursor.movePosition(QTextCursor::Start);
+                    cursor.movePosition(QTextCursor::Start);
                 } else if (e->reason() == Qt::BacktabFocusReason) {
-                    d->cursor.movePosition(QTextCursor::End);
-                    d->cursor.movePosition(QTextCursor::StartOfLine);
+                    cursor.movePosition(QTextCursor::End);
+                    cursor.movePosition(QTextCursor::StartOfLine);
                 }
             }
 #endif
         }
     } else {
-        d->setBlinkingCursorEnabled(false);
-        if (reason != Qt::PopupFocusReason)
-            d->cursorOn = false;
+        setBlinkingCursorEnabled(false);
+        if (e->reason() != Qt::PopupFocusReason)
+            cursorOn = false;
     }
-    d->hasFocus = focus;
+    hasFocus = e->gotFocus();
 }
 
 #ifndef QT_NO_CONTEXTMENU

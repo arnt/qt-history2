@@ -105,6 +105,7 @@ public:
     void mouseReleaseEvent(Qt::MouseButton button, const QPointF &pos);
     void mouseDoubleClickEvent(QEvent *e, Qt::MouseButton button, const QPointF &pos);
     void contextMenuEvent(const QPoint &pos);
+    void focusEvent(QFocusEvent *e);
 
     bool dragEnterEvent(QEvent *e, const QMimeData *mimeData);
     void dragLeaveEvent();

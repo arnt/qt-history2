@@ -4010,7 +4010,7 @@ void QGraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
 void QGraphicsTextItem::focusInEvent(QFocusEvent *event)
 {
     if (dd->textControl)
-        dd->textControl->setFocus(event->gotFocus());
+        QApplication::sendEvent(dd->textControl, event);
     update();
 }
 
@@ -4020,7 +4020,7 @@ void QGraphicsTextItem::focusInEvent(QFocusEvent *event)
 void QGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 {
     if (dd->textControl)
-        dd->textControl->setFocus(event->gotFocus());
+        QApplication::sendEvent(dd->textControl, event);
     update();
 }
 
