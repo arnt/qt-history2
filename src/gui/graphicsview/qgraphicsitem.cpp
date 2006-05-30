@@ -3910,6 +3910,14 @@ void QGraphicsTextItem::adjustSize()
 /*!
     \reimp
 */
+bool QGraphicsTextItem::sceneEvent(QEvent *event)
+{
+    return QGraphicsItem::sceneEvent(event);
+}
+
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (!dd->textControl)
@@ -3919,11 +3927,9 @@ void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    QMouseEvent mouseEvent(QEvent::MouseButtonPress,
-                           (dd->controlOffset() + event->pos()).toPoint(),
-                           event->button(), event->buttons(),
-                           event->modifiers());
-    QApplication::sendEvent(dd->textControl, &mouseEvent);
+    event->setPos(event->pos() + dd->controlOffset());
+    QApplication::sendEvent(dd->textControl, event);
+    event->setPos(event->pos() - dd->controlOffset());
 }
 
 /*!
@@ -3938,11 +3944,9 @@ void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    QMouseEvent mouseEvent(QEvent::MouseMove,
-                           (dd->controlOffset() + event->pos()).toPoint(),
-                           event->button(), event->buttons(),
-                           event->modifiers());
-    QApplication::sendEvent(dd->textControl, &mouseEvent);
+    event->setPos(event->pos() + dd->controlOffset());
+    QApplication::sendEvent(dd->textControl, event);
+    event->setPos(event->pos() - dd->controlOffset());
 }
 
 /*!
@@ -3957,11 +3961,9 @@ void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    QMouseEvent mouseEvent(QEvent::MouseButtonRelease,
-                           (dd->controlOffset() + event->pos()).toPoint(),
-                           event->button(), event->buttons(),
-                           event->modifiers());
-    QApplication::sendEvent(dd->textControl, &mouseEvent);
+    event->setPos(event->pos() + dd->controlOffset());
+    QApplication::sendEvent(dd->textControl, event);
+    event->setPos(event->pos() - dd->controlOffset());
 }
 
 /*!
@@ -3976,11 +3978,9 @@ void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    QMouseEvent mouseEvent(QEvent::MouseButtonDblClick,
-                           (dd->controlOffset() + event->pos()).toPoint(),
-                           event->button(), event->buttons(),
-                           event->modifiers());
-    QApplication::sendEvent(dd->textControl, &mouseEvent);
+    event->setPos(event->pos() + dd->controlOffset());
+    QApplication::sendEvent(dd->textControl, event);
+    event->setPos(event->pos() - dd->controlOffset());
 }
 
 /*!

@@ -489,6 +489,7 @@ public:
     int pageNumber() const;
 
 protected:
+    bool sceneEvent(QEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);

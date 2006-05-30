@@ -33,6 +33,7 @@
 #include "private/qtextdocument_p.h"
 #include "qtextlist.h"
 #include "private/qtextcontrol_p.h"
+#include "qgraphicssceneevent.h"
 
 #include <qtextformat.h>
 #include <qdatetime.h>
@@ -1135,6 +1136,24 @@ bool QTextControl::event(QEvent *e)
         case QEvent::InputMethod:
             d->inputMethodEvent(static_cast<QInputMethodEvent *>(e));
             break;
+
+        case QEvent::GraphicsSceneMousePress: {
+            QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
+            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers());
+            break; }
+        case QEvent::GraphicsSceneMouseMove: {
+            QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
+            d->mouseMoveEvent(ev->button(), ev->pos());
+            break; }
+        case QEvent::GraphicsSceneMouseRelease: {
+            QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
+            d->mouseMoveEvent(ev->button(), ev->pos());
+            break; }
+        case QEvent::GraphicsSceneMouseDoubleClick: {
+            QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
+            d->mouseDoubleClickEvent(e, ev->button(), ev->pos());
+            break; }
+
         default:
             return QObject::event(e);
     }
