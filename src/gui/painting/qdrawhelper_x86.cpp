@@ -17,7 +17,9 @@
 #if (defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__))) || defined(QT_HAVE_IWMMXT)
 
 #include <mmintrin.h>
-#include <xmmintrin.h>
+#if !defined(__IWMMXT__)
+#  include <xmmintrin.h>
+#endif
 #define C_FF const m64 mmx_0x00ff = _mm_set1_pi16(0xff)
 #define C_80 const m64 mmx_0x0080 = _mm_set1_pi16(0x80)
 #define C_00 const m64 mmx_0x0000 = _mm_setzero_si64()
