@@ -3589,6 +3589,9 @@ int QCleanLooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
     case SH_DialogButtonLayout:
         ret = QDialogButtonBox::GnomeLayout;
         break;
+    case SH_MessageBox_TextSelectable:
+        ret = 1;
+        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
     break;

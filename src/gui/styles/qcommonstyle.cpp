@@ -3703,7 +3703,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_ComboBox_PopupFrameStyle:
         ret = QFrame::StyledPanel | QFrame::Plain;
         break;
-
+    case SH_MessageBox_TextSelectable:
+        ret = 0;
+        break;
     default:
         ret = 0;
         break;
