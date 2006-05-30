@@ -119,7 +119,7 @@ int qRegisterMetaType(const char *typeName
 #endif
 }
 
-#ifndef QT_NO_DATASTRAM
+#ifndef QT_NO_DATASTREAM
 template <typename T>
 void qRegisterMetaTypeStreamOperators(const char *typeName
 #ifndef qdoc
