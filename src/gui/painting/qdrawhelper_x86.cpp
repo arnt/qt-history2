@@ -16,7 +16,7 @@
 
 #if (defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__))) || defined(QT_HAVE_IWMMXT)
 
-#if defined(Q_CC_GNU) && !def`ined(Q_CC_INTEL)
+#if defined(Q_CC_GNU) && !defined(Q_CC_INTEL)
 #  include <mmintrin.h>
 #  if !defined(__IWMMXT__)
 #    include <xmmintrin.h>
