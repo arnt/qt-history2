@@ -70,7 +70,7 @@
     \section1 Dialog Examples
 
     \list
-    \o \l{dialogs/configdialog}{Configuration Dialog}
+    \o \l{dialogs/configdialog}{Config Dialog}
     \o \l{dialogs/extension}{Extension}\raisedaster
     \o \l{dialogs/findfiles}{Find Files}\raisedaster
     \o \l{dialogs/standarddialogs}{Standard Dialogs}

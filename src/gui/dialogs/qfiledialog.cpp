@@ -201,6 +201,8 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
 
   The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
   how to use QFileDialog as well as other built-in Qt dialogs.
+
+  \sa QDir, QFileInfo, QFile, QPrintDialog, QColorDialog, QFontDialog, {Standard Dialogs Example}
 */
 
 /*!

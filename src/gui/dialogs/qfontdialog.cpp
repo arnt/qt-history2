@@ -77,7 +77,7 @@ QFontListView::QFontListView(QWidget *parent)
 }
 
 /*!
-  \class QFontDialog qfontdialog.h
+  \class QFontDialog
   \ingroup dialogs
   \mainclass
   \brief The QFontDialog class provides a dialog widget for selecting a font.
@@ -108,7 +108,8 @@ QFontListView::QFontListView(QWidget *parent)
 
   \image plastique-fontdialog.png A font dialog in the Plastique widget style.
 
-  \sa QFont, QFontInfo, QFontMetrics
+  \sa QFont, QFontInfo, QFontMetrics, QColorDialog, QFileDialog, QPrintDialog,
+      {Standard Dialogs Example}
 */
 
 class QFontDialogPrivate : public QDialogPrivate

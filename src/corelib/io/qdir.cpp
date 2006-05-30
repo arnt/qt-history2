@@ -421,7 +421,7 @@ void QDirPrivate::detach(bool createFileEngine)
         }
     \endcode
 
-    \sa QFileInfo, QFile, QApplication::applicationDirPath()
+    \sa QFileInfo, QFile, QFileDialog, QApplication::applicationDirPath(), {Find Files Example}
 */
 
 /*!

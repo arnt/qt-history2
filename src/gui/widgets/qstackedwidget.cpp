@@ -82,7 +82,7 @@ public:
     widget is removed from the stacked widget, the currentChanged()
     and widgetRemoved() signals are emitted respectively.
 
-    \sa QStackedLayout, QTabWidget
+    \sa QStackedLayout, QTabWidget, {Config Dialog Example}
 */
 
 /*!

@@ -109,7 +109,7 @@ public:
     On Windows and Mac OS X the page setup dialog is implemented using
     the native page setup dialogs.
 
-    \sa QPrinter
+    \sa QPrinter, QPrintDialog
 */
 
 /*!

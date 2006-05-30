@@ -100,7 +100,7 @@ QSize QErrorMessageTextView::sizeHint() const
 
     \img qerrormessage.png
 
-    \sa QMessageBox QStatusBar::showMessage()
+    \sa QMessageBox, QStatusBar::showMessage(), {Standard Dialogs Example}
 */
 
 static QErrorMessage * qtMessageHandler = 0;

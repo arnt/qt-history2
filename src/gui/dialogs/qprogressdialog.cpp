@@ -199,7 +199,8 @@ void QProgressDialogPrivate::layout()
 
   \image plastique-progressdialog.png A progress dialog shown in the Plastique widget style.
 
-  \sa QDialog, QProgressBar, {fowler}{GUI Design Handbook: Progress Indicator}
+  \sa QDialog, QProgressBar, {fowler}{GUI Design Handbook: Progress Indicator},
+      {Find Files Example}, {Pixelator Example}
 */
 
 

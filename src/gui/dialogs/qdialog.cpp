@@ -41,17 +41,18 @@
 
     A dialog window is a top-level window mostly used for short-term
     tasks and brief communications with the user. QDialogs may be
-    modal or modeless. QDialogs support \l extensibility and can
+    modal or modeless. QDialogs can
     provide a \link #return return
-    value\endlink. They can have \link #default default
+    value\endlink, and they can have \link #default default
     buttons\endlink. QDialogs can also have a QSizeGrip in their
     lower-right corner, using setSizeGripEnabled().
 
-    Note that QDialog uses the parent widget slightly differently from
-    other classes in Qt. A dialog is always a top-level widget, but if
-    it has a parent, its default location is centered on top of the
-    parent's top-level widget (if it is not top-level itself). It will
-    also share the parent's taskbar entry.
+    Note that QDialog (an any other widget that has type Qt::Dialog) uses
+    the parent widget slightly differently from other classes in Qt. A
+    dialog is always a top-level widget, but if it has a parent, its
+    default location is centered on top of the parent's top-level widget
+    (if it is not top-level itself). It will also share the parent's
+    taskbar entry.
 
     Use the overload of the QWidget::setParent() function to change
     the ownership of a QDialog widget. This function allows you to
@@ -73,8 +74,8 @@
     exec() function. When the user closes the dialog, exec() will
     provide a useful \link #return return value\endlink. Typically,
     to get the dialog to close and return the appropriate value, we
-    connect a default button, e.g. "OK", to the accept() slot and a
-    "Cancel" button to the reject() slot.
+    connect a default button, e.g. \gui OK, to the accept() slot and a
+    \gui Cancel button to the reject() slot.
     Alternatively you can call the done() slot with \c Accepted or
     \c Rejected.
 
@@ -123,21 +124,16 @@
     partial dialog that shows the most commonly used options, and a
     full dialog that shows all the options. Typically an extensible
     dialog will initially appear as a partial dialog, but with a
-    "More" toggle button. If the user presses the "More" button down,
-    the full dialog will appear. The extension widget will be resized
-    to its sizeHint(). If orientation is Qt::Horizontal the extension
-    widget's height() will be expanded to the height() of the dialog.
-    If the orientation is Qt::Vertical the extension widget's width()
-    will be expanded to the width() of the dialog. Extensibility is
-    controlled with setExtension(), setOrientation() and
-    showExtension().
+    \gui More toggle button. If the user presses the \gui More button down,
+    the dialog is expanded. The \l{Extension Example} shows how to achieve
+    extensible dialogs using Qt.
 
     \target return
     \section1 Return Value (Modal Dialogs)
 
     Modal dialogs are often used in situations where a return value is
-    required, e.g. to indicate whether the user pressed "OK" or
-    "Cancel". A dialog can be closed by calling the accept() or the
+    required, e.g. to indicate whether the user pressed \gui OK or
+    \gui Cancel. A dialog can be closed by calling the accept() or the
     reject() slots, and exec() will return \c Accepted or \c Rejected
     as appropriate. The exec() call returns the result of the dialog.
     The result is also available from result() if the dialog has not
@@ -154,8 +150,9 @@
 
     \quotefunction snippets/dialogs/dialogs.cpp void EditorWindow::find()
 
-    \sa QTabDialog, QWidget, QProgressDialog,
-        {fowler}{GUI Design Handbook: Dialogs, Standard}
+    \sa QDialogButtonBox, QTabDialog, QWidget, QProgressDialog,
+        {fowler}{GUI Design Handbook: Dialogs, Standard}, {Extension Example},
+        {Standard Dialogs Example}
 */
 
 /*! \enum QDialog::DialogCode
@@ -745,12 +742,18 @@ void QDialog::adjustPosition(QWidget* w)
 
 
 /*!
+    \obsolete
+
     If \a orientation is Qt::Horizontal, the extension will be displayed
     to the right of the dialog's main area. If \a orientation is
     Qt::Vertical, the extension will be displayed below the dialog's main
     area.
 
-  \sa orientation(), setExtension()
+    Instead of using this functionality, we recommend that you simply call
+    show() or hide() on the part of the dialog that you want to use as an
+    extension. See the \l{Extension Example} for details.
+
+    \sa setExtension()
 */
 void QDialog::setOrientation(Qt::Orientation orientation)
 {
@@ -759,9 +762,15 @@ void QDialog::setOrientation(Qt::Orientation orientation)
 }
 
 /*!
-  Returns the dialog's extension orientation.
+    \obsolete
 
-  \sa setOrientation()
+    Returns the dialog's extension orientation.
+
+    Instead of using this functionality, we recommend that you simply call
+    show() or hide() on the part of the dialog that you want to use as an
+    extension. See the \l{Extension Example} for details.
+
+    \sa extension()
 */
 Qt::Orientation QDialog::orientation() const
 {
@@ -770,15 +779,19 @@ Qt::Orientation QDialog::orientation() const
 }
 
 /*!
+    \obsolete
+
     Sets the widget, \a extension, to be the dialog's extension,
     deleting any previous extension. The dialog takes ownership of the
     extension. Note that if 0 is passed any existing extension will be
-    deleted.
+    deleted. This function must only be called while the dialog is hidden.
 
-  This function must only be called while the dialog is hidden.
+    Instead of using this functionality, we recommend that you simply call
+    show() or hide() on the part of the dialog that you want to use as an
+    extension. See the \l{Extension Example} for details.
 
-  \sa showExtension(), setOrientation(), extension()
- */
+    \sa showExtension(), setOrientation()
+*/
 void QDialog::setExtension(QWidget* extension)
 {
     Q_D(QDialog);
@@ -794,11 +807,17 @@ void QDialog::setExtension(QWidget* extension)
 }
 
 /*!
-  Returns the dialog's extension or 0 if no extension has been
-  defined.
+    \obsolete
 
-  \sa setExtension()
- */
+    Returns the dialog's extension or 0 if no extension has been
+    defined.
+
+    Instead of using this functionality, we recommend that you simply call
+    show() or hide() on the part of the dialog that you want to use as an
+    extension. See the \l{Extension Example} for details.
+
+    \sa showExtension(), setOrientation()
+*/
 QWidget* QDialog::extension() const
 {
     Q_D(const QDialog);
@@ -807,16 +826,17 @@ QWidget* QDialog::extension() const
 
 
 /*!
-  If \a showIt is true, the dialog's extension is shown; otherwise the
-  extension is hidden.
+    \obsolete
 
-  This slot is usually connected to the \l QPushButton::toggled() signal
-  of a QPushButton.
+    If \a showIt is true, the dialog's extension is shown; otherwise the
+    extension is hidden.
 
-  A dialog with a visible extension is not resizeable.
+    Instead of using this functionality, we recommend that you simply call
+    show() or hide() on the part of the dialog that you want to use as an
+    extension. See the \l{Extension Example} for details.
 
-  \sa show(), setExtension(), setOrientation()
- */
+    \sa show(), setExtension(), setOrientation()
+*/
 void QDialog::showExtension(bool showIt)
 {
     Q_D(QDialog);

@@ -1001,7 +1001,8 @@ void QListWidgetPrivate::_q_sort()
          \o A \l{Plastique Style Widget Gallery}{Plastique style} list widget.
     \endtable
 
-    \sa QListWidgetItem, QListView, QTreeView, {Model/View Programming}
+    \sa QListWidgetItem, QListView, QTreeView, {Model/View Programming},
+        {Config Dialog Example}
 */
 
 /*!

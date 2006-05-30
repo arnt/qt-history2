@@ -121,7 +121,7 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
     how to use QInputDialog as well as other built-in Qt dialogs.
 
-    \sa QMessageBox
+    \sa QMessageBox, {Standard Dialogs Example}
 */
 
 /*!

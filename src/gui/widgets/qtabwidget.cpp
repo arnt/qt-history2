@@ -27,7 +27,7 @@
 #include "qtoolbutton.h"
 
 /*!
-    \class QTabWidget qtabwidget.h
+    \class QTabWidget
     \brief The QTabWidget class provides a stack of tabbed widgets.
 
     \ingroup organizers
@@ -95,7 +95,7 @@
          \o A Plastique style tab widget.
     \endtable
 
-    \sa QTabBar QStackedWidget QToolBox
+    \sa QTabBar, QStackedWidget, QToolBox, {Tab Dialog Example}
 */
 
 /*!
