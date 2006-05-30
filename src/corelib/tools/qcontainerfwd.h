@@ -27,7 +27,7 @@ template <class T> class QList;
 template <class Key, class T> class QMap;
 template <class Key, class T> class QMultiHash;
 template <class Key, class T> class QMultiMap;
-template <class T1, class T2> class QPair;
+template <class T1, class T2> struct QPair;
 template <class T> class QQueue;
 template <class T> class QSet;
 template <class T> class QStack;
