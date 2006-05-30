@@ -478,15 +478,8 @@ Q_INLINE_TEMPLATE void QHash<Key, T>::clear()
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::detach_helper()
 {
-    size_t asize;
-    if (QTypeInfo<T>::isDummy) {
-        asize = reinterpret_cast<char *>(&reinterpret_cast<Node *>(&QHashData::shared_null)->value)
-               - reinterpret_cast<char *>(&QHashData::shared_null);
-    } else {
-        asize = sizeof(Node);
-    }
-
-    QHashData *x = d->detach_helper(duplicateNode, int(asize));
+    QHashData *x = d->detach_helper(duplicateNode,
+        QTypeInfo<T>::isDummy ? sizeof(DummyNode) : sizeof(Node));
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
         freeData(x);
