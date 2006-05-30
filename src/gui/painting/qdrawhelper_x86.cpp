@@ -16,7 +16,7 @@
 
 #if (defined(QT_HAVE_SSE) && (!defined(__APPLE__) || defined(__i386__))) || defined(QT_HAVE_IWMMXT)
 
-#if defined(Q_CC_GNU) && !defined(Q_CC_INTEL)
+#if defined(Q_CC_GNU) && !def`ined(Q_CC_INTEL)
 #  include <mmintrin.h>
 #  if !defined(__IWMMXT__)
 #    include <xmmintrin.h>
@@ -39,7 +39,7 @@
 #  define C_FF const m64 mmx_0x00ff = _mm_set1_pi16(0xff)
 #  define C_80 const m64 mmx_0x0080 = _mm_set1_pi16(0x80)
 #  define C_00 const m64 mmx_0x0000 = _mm_setzero_si64()
-#  if defined (Q_OS_WIN)
+#  if defined(Q_OS_WIN)
 #    pragma warning(disable: 4799) // No EMMS at end of function
 #  endif
 #endif
