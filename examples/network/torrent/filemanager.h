@@ -29,6 +29,7 @@ class QTimerEvent;
 class FileManager : public QThread
 {
     Q_OBJECT
+
 public:
     FileManager(QObject *parent = 0);
     virtual ~FileManager();

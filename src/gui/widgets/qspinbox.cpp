@@ -142,7 +142,7 @@ public:
     See the \l{widgets/icons}{Icons} example for the full source
     code.
 
-    \sa QDoubleSpinBox, QSlider, {fowler}{GUI Design Handbook: Slider}
+    \sa QDoubleSpinBox, QDateTimeEdit, QSlider, {Spin Boxes Example}
 */
 
 /*!
@@ -546,7 +546,7 @@ void QSpinBox::fixup(QString &input) const
     choice in addition to the range of numeric values. See
     setSpecialValueText() for how to do this with QDoubleSpinBox.
 
-    \sa QSpinBox, QSlider, {fowler}{GUI Design Handbook: Slider}
+    \sa QSpinBox, QDateTimeEdit, QSlider, {Spin Boxes Example}
 */
 
 /*!

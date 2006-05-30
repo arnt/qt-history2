@@ -237,7 +237,7 @@
     \o alignedRect() will return a logical rect aligned for the current direction
     \endlist
 
-    \sa QStyleOption, QStylePainter
+    \sa QStyleOption, QStylePainter, {Styles Example}
 */
 
 /*!

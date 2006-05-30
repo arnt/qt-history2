@@ -349,7 +349,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
   \img icon.png QIcon
 
-  \sa {fowler}{GUI Design Handbook: Iconic Label}
+  \sa {fowler}{GUI Design Handbook: Iconic Label}, {Icons Example}
 */
 
 

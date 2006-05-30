@@ -77,8 +77,8 @@
     will decorate the window later. When this happens, the window
     shifts towards the bottom/right corner of the screen depending on
     the size of the decoration frame. Although X provides a way to
-    avoid this shift, our tests have shown that almost all window
-    managers fail to implement this feature.
+    avoid this shift, most window managers fail to implement this
+    feature.
 
     A workaround is to call \l{QWidget::setGeometry()}{setGeometry()}
     after \l{QWidget::show()}{show()}. This has the two disadvantages
@@ -98,6 +98,6 @@
     \skipto ::writeSettings(
     \printuntil /^\}$/
 
-    This method works on both Microsoft Windows and most existing X11
-    window managers.
+    This method works on Windows, Mac OS X, and most X11 window
+    managers.
 */

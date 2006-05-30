@@ -26,9 +26,9 @@
 class GLObjectWindow : public QWidget
 {
     Q_OBJECT
-public:
-    GLObjectWindow(QWidget* parent = 0);
 
+public:
+    GLObjectWindow(QWidget *parent = 0);
 };
 
-#endif // GLOBJWIN_H
+#endif

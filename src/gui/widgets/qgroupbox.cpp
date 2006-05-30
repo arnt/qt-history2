@@ -89,7 +89,7 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
 }
 
 /*!
-    \class QGroupBox qgroupbox.h
+    \class QGroupBox
     \brief The QGroupBox widget provides a group box frame with a title.
 
     \ingroup organizers

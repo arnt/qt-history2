@@ -26,6 +26,7 @@ class QPushButton;
 class FindDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     FindDialog(QWidget *parent = 0);
 

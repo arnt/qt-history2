@@ -181,7 +181,7 @@ int QDialPrivate::valueFromPoint(const QPoint &p) const
          \l{Macintosh Style Widget Gallery}{Macintosh}.
     \endtable
 
-    \sa QScrollBar, QSpinBox, {fowler}{GUI Design Handbook: Slider}
+    \sa QScrollBar, QSpinBox, QSlider, {fowler}{GUI Design Handbook: Slider}, {Sliders Example}
 */
 
 /*!

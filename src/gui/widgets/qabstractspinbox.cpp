@@ -73,6 +73,9 @@ static const int thresholdTime = 500; // ### make this a stylehint in 4.1
     QAbstractSpinBox also provide a virtual function stepEnabled() to
     determine whether stepping up/down is allowed at any point. This
     function returns a bitset of StepEnabled.
+
+    \sa QAbstractSlider, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
+        {Spin Boxes Example}
 */
 
 /*!

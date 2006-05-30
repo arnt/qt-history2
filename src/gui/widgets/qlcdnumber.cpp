@@ -39,7 +39,7 @@ public:
 };
 
 /*!
-    \class QLCDNumber qlcdnumber.h
+    \class QLCDNumber
 
     \brief The QLCDNumber widget displays a number with LCD-like digits.
 
@@ -90,7 +90,7 @@ public:
     \l{Macintosh Style Widget Gallery}{Macintosh}, \l{Plastique Style Widget Gallery}{Plastique}.
     \endtable
 
-    \sa QLabel, QFrame
+    \sa QLabel, QFrame, {Digital Clock Example}, {Tetrix Example}
 */
 
 /*!

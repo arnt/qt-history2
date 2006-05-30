@@ -14,15 +14,16 @@
 #ifndef TICTACTOEPLUGIN_H
 #define TICTACTOEPLUGIN_H
 
-#include <QtDesigner/QDesignerCustomWidgetInterface>
+#include <QDesignerCustomWidgetInterface>
 
 class QIcon;
 class QWidget;
 
-class TicTacToePlugin: public QObject, public QDesignerCustomWidgetInterface
+class TicTacToePlugin : public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
+
 public:
     TicTacToePlugin(QObject *parent = 0);
 

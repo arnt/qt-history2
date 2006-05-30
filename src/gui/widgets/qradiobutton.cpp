@@ -72,7 +72,8 @@ public:
          \o A radio button shown in the \l{Macintosh Style Widget Gallery}{Macintosh widget style}.
     \endtable
 
-    \sa QPushButton, QToolButton, QCheckBox, {fowler}{GUI Design Handbook: Radio Button}
+    \sa QPushButton, QToolButton, QCheckBox, {fowler}{GUI Design Handbook: Radio Button},
+        {Group Box Example}
 */
 
 

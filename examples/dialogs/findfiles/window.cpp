@@ -16,7 +16,7 @@
 #include "window.h"
 
 Window::Window(QWidget *parent)
-    : QWidget(parent)
+    : QDialog(parent)
 {
     browseButton = createButton(tr("&Browse..."), SLOT(browse()));
     findButton = createButton(tr("&Find"), SLOT(find()));

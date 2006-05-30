@@ -49,6 +49,7 @@ public:
 class TorrentClient : public QObject
 {
     Q_OBJECT
+
 public:
     enum State {
         Idle,

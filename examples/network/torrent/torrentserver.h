@@ -16,11 +16,13 @@
 
 #include <QList>
 #include <QTcpServer>
+
 class TorrentClient;
 
 class TorrentServer : public QTcpServer
 {
     Q_OBJECT
+
 public:
     inline TorrentServer() {}
     static TorrentServer *instance();

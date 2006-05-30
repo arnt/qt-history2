@@ -11,13 +11,11 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner>
 
-#include <QAction>
-
-#include "tictactoetaskmenu.h"
 #include "tictactoe.h"
 #include "tictactoedialog.h"
+#include "tictactoetaskmenu.h"
 
 TicTacToeTaskMenu::TicTacToeTaskMenu(TicTacToe *tic, QObject *parent)
     : QObject(parent)
@@ -48,7 +46,8 @@ QList<QAction *> TicTacToeTaskMenu::taskActions() const
 
 TicTacToeTaskMenuFactory::TicTacToeTaskMenuFactory(QExtensionManager *parent)
     : QExtensionFactory(parent)
-{}
+{
+}
 
 QObject *TicTacToeTaskMenuFactory::createExtension(QObject *object,
                                                    const QString &iid,

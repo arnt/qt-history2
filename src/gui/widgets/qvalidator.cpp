@@ -77,6 +77,8 @@
 
     QValidator is typically used with QLineEdit, QSpinBox and
     QComboBox.
+
+    \sa QIntValidator, QDoubleValidator, QRegExpValidator, {Line Edits Example}
 */
 
 
@@ -215,7 +217,7 @@ void QValidator::fixup(QString &) const
     The minimum and maximum values are set in one call with setRange(),
     or individually with setBottom() and setTop().
 
-    \sa QDoubleValidator QRegExpValidator
+    \sa QDoubleValidator, QRegExpValidator, {Line Edits Example}
 */
 
 
@@ -391,7 +393,7 @@ void QIntValidator::setTop(int top)
     with setDecimals(). The validate() function returns the validation
     state.
 
-    \sa QIntValidator QRegExpValidator
+    \sa QIntValidator, QRegExpValidator, {Line Edits Example}
 */
 
 /*!
@@ -651,7 +653,7 @@ void QDoubleValidator::setDecimals(int decimals)
     s = "readm";       v.validate(s, pos); // Returns Intermediate
     \endcode
 
-    \sa QRegExp QIntValidator QDoubleValidator
+    \sa QRegExp, QIntValidator, QDoubleValidator, {Settings Editor Example}
 */
 
 /*!

@@ -28,6 +28,7 @@ class TorrentClient;
 class TrackerClient : public QObject
 {
     Q_OBJECT
+
 public:
     TrackerClient(TorrentClient *downloader, QObject *parent = 0);
 

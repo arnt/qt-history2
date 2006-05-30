@@ -16,14 +16,12 @@
 #include "shapedclock.h"
 
 ShapedClock::ShapedClock(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent, Qt::FramelessWindowHint)
 {
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start(1000);
 
-    setMouseTracking(true);
-    setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
     setWindowTitle(tr("Shaped Analog Clock"));
 }
 
@@ -37,7 +35,7 @@ void ShapedClock::mousePressEvent(QMouseEvent *event)
 
 void ShapedClock::mouseMoveEvent(QMouseEvent *event)
 {
-    if (event->buttons() == Qt::LeftButton) {
+    if (event->buttons() & Qt::LeftButton) {
         move(event->globalPos() - dragPosition);
         event->accept();
     }
@@ -99,11 +97,11 @@ void ShapedClock::paintEvent(QPaintEvent *)
     }
 }
 
-void ShapedClock::resizeEvent(QResizeEvent *event)
+void ShapedClock::resizeEvent(QResizeEvent * /* event */)
 {
     int side = qMin(width(), height());
-    QRegion maskedRegion(width()/2 - side/2, height()/2 - side/2, side, side,
-                         QRegion::Ellipse);
+    QRegion maskedRegion(width() / 2 - side / 2, height() / 2 - side / 2, side,
+                         side, QRegion::Ellipse);
     setMask(maskedRegion);
 }
 

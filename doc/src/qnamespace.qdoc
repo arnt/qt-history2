@@ -699,7 +699,7 @@
 
     \value WA_PendingMoveEvent Indicates that a move event is
     pending, e.g. when a hidden widget was moved. This is set/cleared
-    by the Qt kernel
+    by the Qt kernel.
 
     \value WA_PendingResizeEvent Indicates that a resize event is
     pending, e.g. when a hidden widget was resized. This is
@@ -830,10 +830,10 @@
 
     \value WA_MacMetalStyle Indicates the the widget should be
     drawn in metal style as supported by the windowing system (only
-    meaningfull on Mac OS X). This is set by widget's author.
+    meaningful on Mac OS X). This is set by widget's author.
 
     \value WA_CustomWhatsThis Indicates that the widget wants to
-    continue operating normally in What's This mode This is set by the
+    continue operating normally in "What's This?" mode. This is set by the
     widget's author.
 
     \value WA_LayoutOnEntireRect Indicates that the widget
@@ -1638,6 +1638,8 @@
     \value WStyle_NoBorderEx    Use Qt::FramelessWindowHint instead.
     \value WResizeNoErase       No longer needed.
     \value WMacNoSheet          No longer needed.
+
+    \sa QWidget::windowFlags, {Window Flags Example}
 */
 
 /*!

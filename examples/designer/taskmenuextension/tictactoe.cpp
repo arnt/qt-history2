@@ -16,8 +16,9 @@
 #include "tictactoe.h"
 
 TicTacToe::TicTacToe(QWidget *parent)
-    :QWidget(parent)
-{}
+    : QWidget(parent)
+{
+}
 
 QSize TicTacToe::minimumSizeHint() const
 {
@@ -59,7 +60,6 @@ void TicTacToe::mousePressEvent(QMouseEvent *event)
         update();
     } else {
         for (int position = 0; position < 9; ++position) {
-
             QRect cell = cellRect(position / 3, position % 3);
             if (cell.contains(event->pos())) {
                 if (myState.at(position) == Empty) {
@@ -75,7 +75,7 @@ void TicTacToe::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void TicTacToe::paintEvent(QPaintEvent *)
+void TicTacToe::paintEvent(QPaintEvent * /* event */)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -89,7 +89,6 @@ void TicTacToe::paintEvent(QPaintEvent *)
     painter.setPen(QPen(Qt::darkBlue, 2));
 
     for (int position = 0; position < 9; ++position) {
-
         QRect cell = cellRect(position / 3, position % 3);
 
         if (myState.at(position) == Cross) {

@@ -525,9 +525,11 @@ static void setup()
     (void)new QLatin1Codec;
     (void)new QUtf8Codec;
 
+#if 0
 #if defined(Q_OS_UNIX) && !defined(QT_NO_ICONV) && !defined(QT_BOOTSTRAPPED)
     // QIconvCodec depends on the UTF-16 codec, so it needs to be created last
     (void) new QIconvCodec();
+#endif
 #endif
 
     if (!localeMapper)

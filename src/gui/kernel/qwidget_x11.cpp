@@ -2401,7 +2401,7 @@ void QWidget::setMask(const QRegion& region)
     Masked widgets receive mouse events only on their visible
     portions.
 
-    \sa clearMask(), windowOpacity(), {widgets/shapedclock}{Shaped Clock Example}
+    \sa clearMask(), windowOpacity(), {Shaped Clock Example}
 */
 
 void QWidget::setMask(const QBitmap &bitmap)

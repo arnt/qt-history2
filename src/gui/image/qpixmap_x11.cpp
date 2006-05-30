@@ -1693,7 +1693,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     \warning In general, grabbing an area outside the screen is not
     safe. This depends on the underlying window system.
 
-    \sa grabWidget()
+    \sa grabWidget(), {Screenshot Example}
 */
 
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)

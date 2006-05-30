@@ -91,10 +91,10 @@
     the scroll area.
 
     For a complete example using the QScrollArea class, see the \l
-    {widgets/imageviewer}{ImageViewer example}. The example shows how
+    {widgets/imageviewer}{Image Viewer} example. The example shows how
     to combine QLabel and QScrollArea to display an image.
 
-    \sa QAbstractScrollArea, QScrollBar
+    \sa QAbstractScrollArea, QScrollBar, {Image Viewer Example}
 */
 
 

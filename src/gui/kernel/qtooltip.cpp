@@ -55,7 +55,7 @@
     text you want to display. The \l{widgets/tooltips}{Tooltips}
     example illustrates this technique.
 
-    \sa QWidget::toolTip, QAction::toolTip
+    \sa QWidget::toolTip, QAction::toolTip, {Tooltips Example}
 */
 
 class QTipLabel : public QLabel

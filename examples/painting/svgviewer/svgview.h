@@ -27,6 +27,7 @@ class QWheelEvent;
 class SvgRasterView : public QWidget
 {
     Q_OBJECT
+
 public:
     SvgRasterView(const QString &file, QWidget *parent=0);
 
@@ -47,6 +48,7 @@ private:
 class SvgNativeView : public QWidget
 {
     Q_OBJECT
+
 public:
     SvgNativeView(const QString &file, QWidget *parent=0);
 
@@ -63,6 +65,7 @@ private:
 class SvgGLView : public QGLWidget
 {
     Q_OBJECT
+
 public:
     SvgGLView(const QString &file, QWidget *parent=0);
 

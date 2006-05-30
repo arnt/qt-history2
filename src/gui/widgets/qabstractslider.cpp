@@ -87,6 +87,7 @@
     QStyle::sliderValueFromPosition() help subclasses and styles to map
     screen coordinates to logical range values.
 
+    \sa QAbstractSpinBox, QSlider, QDial, QScrollBar, {Sliders Example}
 */
 
 /*!

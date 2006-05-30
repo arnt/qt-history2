@@ -169,7 +169,7 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
          \o A line edit shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
     \endtable
 
-    \sa QTextEdit, QLabel, QComboBox, {fowler}{GUI Design Handbook: Field, Entry}
+    \sa QTextEdit, QLabel, QComboBox, {fowler}{GUI Design Handbook: Field, Entry}, {Line Edits Example}
 */
 
 

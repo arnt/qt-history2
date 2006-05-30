@@ -1,6 +1,6 @@
 /*!
     \example widgets/imageviewer
-    \title ImageViewer Example
+    \title Image Viewer Example
 
     The example shows how to combine QLabel and QScrollArea to
     display an image. QLabel is typically used for displaying text,
@@ -15,9 +15,9 @@
     can be used to implement zooming and scaling features. In
     addition the example shows how to use QPainter to print an image.
 
-    \image imageviewer-example.png Screenshot of the ImageViewer example
+    \image imageviewer-example.png Screenshot of the Image Viewer example
 
-    With the \c ImageViewer application, the users can view an image of
+    With the Image Viewer application, the users can view an image of
     their choice. The \gui File menu gives the user the possibility
     to:
 
@@ -37,7 +37,7 @@
     \endlist
 
     In addition the \gui Help menu provides the users with information
-    about the ImageViewer example in particular, and about Qt in
+    about the Image Viewer example in particular, and about Qt in
     general.
 
     \section1 ImageViewer Class Definition

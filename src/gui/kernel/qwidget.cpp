@@ -795,6 +795,8 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     X11, Qt can only ask the window manager, and the window manager
     can override the application's settings. On Windows, Qt can set
     whatever flags you want.
+
+    \sa windowFlags
 */
 
 QWidget::QWidget(QWidget *parent, Qt::WFlags f)
@@ -5518,7 +5520,7 @@ void QWidget::tabletEvent(QTabletEvent *event)
     presses Esc. Otherwise the event is ignored.
 
     \sa keyReleaseEvent(), QKeyEvent::ignore(), setFocusPolicy(),
-    focusInEvent(), focusOutEvent(), event(), QKeyEvent
+    focusInEvent(), focusOutEvent(), event(), QKeyEvent, {Tetrix Example}
 */
 
 void QWidget::keyPressEvent(QKeyEvent *event)
@@ -6099,7 +6101,7 @@ void QWidget::ensurePolished() const
     Returns the mask currently set on a widget. If no mask is set the
     return value will be an empty region.
 
-    \sa setMask(), clearMask(), QRegion::isEmpty()
+    \sa setMask(), clearMask(), QRegion::isEmpty(), {Shaped Clock Example}
 */
 QRegion QWidget::mask() const
 {
@@ -6313,7 +6315,7 @@ void QWidget::updateGeometry()
     Qt::Widget or Qt::SubWindow, it is put at position (0, 0)
     relative to its parent widget.
 
-    \sa windowType()
+    \sa windowType(), {Window Flags Example}
 */
 void QWidget::setWindowFlags(Qt::WindowFlags flags)
 {

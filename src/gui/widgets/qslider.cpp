@@ -216,7 +216,7 @@ QStyle::SubControl QSliderPrivate::newHoverControl(const QPoint &pos)
          \o A slider shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
     \endtable
 
-    \sa QScrollBar, QSpinBox, {fowler}{GUI Design Handbook: Slider}
+    \sa QScrollBar, QSpinBox, QDial, {fowler}{GUI Design Handbook: Slider}, {Sliders Example}
 */
 
 

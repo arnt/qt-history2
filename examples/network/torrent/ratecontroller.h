@@ -23,6 +23,7 @@ class PeerWireClient;
 class RateController : public QObject
 {
     Q_OBJECT
+
 public:
     inline RateController(QObject *parent = 0)
         : QObject(parent), transferScheduled(false) { }

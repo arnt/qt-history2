@@ -1246,7 +1246,7 @@ QString QFontDatabase::styleString(const QFontInfo &fontInfo)
 
 
 /*!
-    \class QFontDatabase qfontdatabase.h
+    \class QFontDatabase
     \brief The QFontDatabase class provides information about the fonts available in the underlying window system.
 
     \ingroup environment
@@ -1283,37 +1283,35 @@ QString QFontDatabase::styleString(const QFontInfo &fontInfo)
     characters in a writing system with writingSystemSample().
 
     Example:
-\code
-#include <qapplication.h>
-#include <qfontdatabase.h>
 
-int main(int argc, char **argv)
-{
-    QApplication app(argc, argv);
-    QFontDatabase fdb;
-    QStringList families = fdb.families();
-    for (QStringList::Iterator f = families.begin(); f != families.end(); ++f) {
-        QString family = *f;
-        qDebug(family);
-        QStringList styles = fdb.styles(family);
-        for (QStringList::Iterator s = styles.begin(); s != styles.end(); ++s) {
-            QString style = *s;
-            QString dstyle = "\t" + style + " (";
-            QList<int> smoothies = fdb.smoothSizes(family, style);
-            for (QList<int>::Iterator points = smoothies.begin();
-                  points != smoothies.end(); ++points) {
-                dstyle += QString::number(*points) + " ";
+    \code
+        int main(int argc, char **argv)
+        {
+            QApplication app(argc, argv);
+            QFontDatabase database;
+
+            foreach (QString family, database.families()) {
+                qDebug(family);
+
+                foreach (QString style, database.styles(family)) {
+                    QString dstyle = "\t" + style + " (";
+
+                    foreach (int points, database.smoothSizes(family, style))
+                        dstyle += QString::number(points) + " ";
+
+                    dstyle[dstyle.length() - 1] = ')';
+                    qDebug(dstyle);
+                }
             }
-            dstyle = dstyle.left(dstyle.length() - 1) + ")";
-            qDebug(dstyle);
+            return 0;
         }
-    }
-    return 0;
-}
-\endcode
+    \endcode
+
     This example gets the list of font families, then the list of
     styles for each family and the point sizes that are available for
     each family/style combination.
+
+    \sa QFont, QFontInfo, QFontMetrics, QFontComboBox, {Character Map Example}
 */
 
 /*!
@@ -1575,8 +1573,7 @@ bool QFontDatabase::isBitmapScalable(const QString &family,
 
     \sa isScalable(), isBitmapScalable()
 */
-bool  QFontDatabase::isSmoothlyScalable(const QString &family,
-                                         const QString &style) const
+bool QFontDatabase::isSmoothlyScalable(const QString &family, const QString &style) const
 {
     bool smoothScalable = false;
     QString familyName, foundryName;

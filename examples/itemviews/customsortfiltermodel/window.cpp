@@ -18,7 +18,7 @@
 
 Window::Window()
 {
-    proxyModel = new MySortFilterProxyModel;
+    proxyModel = new MySortFilterProxyModel(this);
     proxyModel->setDynamicSortFilter(true);
 
     sourceGroupBox = new QGroupBox(tr("Original Model"));

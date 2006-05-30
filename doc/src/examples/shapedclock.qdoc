@@ -45,10 +45,7 @@
 
     We inform the window manager that the widget is not to be decorated with a window
     frame by setting the Qt::FramelessWindowHint flag on the widget. As a result, we need
-    to provide a way for the user to move the clock around the screen. We enable mouse
-    tracking to ensure that mouse motion events over the widget will be delivered to
-    the \c mouseMoveEvent() handler. This enables code to be written that will allow the
-    widget to be dragged around.
+    to provide a way for the user to move the clock around the screen.
 
     Mouse button events are delivered to the \c mousePressEvent() handler:
 

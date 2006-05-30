@@ -35,7 +35,7 @@ extern int qt_defaultDpi();
  *****************************************************************************/
 
 /*!
-    \class QFontMetrics qfontmetrics.h
+    \class QFontMetrics
     \brief The QFontMetrics class provides font metrics information.
 
     \ingroup multimedia
@@ -99,7 +99,7 @@ extern int qt_defaultDpi();
     int pixelsHigh = fm.height();
     \endcode
 
-    \sa QFont QFontInfo QFontDatabase
+    \sa QFont, QFontInfo, QFontDatabase, QFontComboBox, {Character Map Example}
 */
 
 /*!

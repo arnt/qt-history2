@@ -39,7 +39,7 @@
     The \l{widgets/wiggly}{Wiggly} example uses QBasicTimer to repaint
     a widget at regular intervals.
 
-    \sa QTimer, QTimerEvent, QObject::timerEvent(), Timers
+    \sa QTimer, QTimerEvent, QObject::timerEvent(), Timers, {Wiggly Example}
 */
 
 

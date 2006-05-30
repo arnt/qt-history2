@@ -213,7 +213,8 @@
     patterns.
     \endtable
 
-    \sa QPainter, QBrush, {demos/pathstroke}{The Path Stroking Demo}
+    \sa QPainter, QBrush, {demos/pathstroke}{Path Stroking Demo},
+        {Scribble Example}
 */
 
 class QPenPrivate {

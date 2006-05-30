@@ -67,7 +67,7 @@
 
     Call supportedFormats() for a list of formats that QMovie supports.
 
-    \sa QLabel, QImageReader
+    \sa QLabel, QImageReader, {Movie Example}
 */
 
 /*! \enum QMovie::MovieState

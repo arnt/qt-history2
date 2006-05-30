@@ -16,13 +16,14 @@
 
 #include <QWidget>
 
-class QSize;
 class QRect;
+class QSize;
 
 class TicTacToe : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString state READ state WRITE setState)
+
 public:
     TicTacToe(QWidget *parent = 0);
 
@@ -37,11 +38,11 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private:
-    enum {Empty = '-', Cross = 'X', Nought = 'O' };
+    enum { Empty = '-', Cross = 'X', Nought = 'O' };
 
     QRect cellRect(int row, int col) const;
-    int cellWidth() const {return width()/ 3;}
-    int cellHeight() const {return height()/ 3;}
+    int cellWidth() const { return width() / 3; }
+    int cellHeight() const { return height() / 3; }
 
     QString myState;
     int turnNumber;

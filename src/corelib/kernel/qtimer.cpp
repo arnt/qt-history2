@@ -82,13 +82,13 @@
 
     Another alternative to using QTimer is to use QBasicTimer. It is
     typically less cumbersome than using QObject::startTimer()
-    directly. See \l{timers.html}{Timers} for an overview of all
-    three approaches.
+    directly. See \l{Timers} for an overview of all three approaches.
 
     Some operating systems limit the number of timers that may be
     used; Qt tries to work around these limitations.
 
-    \sa QBasicTimer, QTimerEvent, QObject::timerEvent(), Timers
+    \sa QBasicTimer, QTimerEvent, QObject::timerEvent(), Timers,
+        {Analog Clock Example}, {Wiggly Example}
 */
 
 

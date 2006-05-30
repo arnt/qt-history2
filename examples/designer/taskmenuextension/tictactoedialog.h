@@ -18,8 +18,8 @@
 
 class QHBoxLayout;
 class QPushButton;
-class TicTacToe;
 class QVBoxLayout;
+class TicTacToe;
 
 class TicTacToeDialog : public QDialog
 {
@@ -27,6 +27,7 @@ class TicTacToeDialog : public QDialog
 
 public:
     TicTacToeDialog(TicTacToe *plugin = 0, QWidget *parent = 0);
+
     QSize sizeHint() const;
 
 private slots:

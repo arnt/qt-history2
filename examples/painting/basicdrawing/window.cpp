@@ -182,7 +182,7 @@ void Window::brushChanged()
         linearGradient.setColorAt(1.0, Qt::black);
         renderArea->setBrush(linearGradient);
     } else if (style == Qt::RadialGradientPattern) {
-        QRadialGradient radialGradient(50, 50, 50, 50, 50);
+        QRadialGradient radialGradient(50, 50, 50, 70, 70);
         radialGradient.setColorAt(0.0, Qt::white);
         radialGradient.setColorAt(0.2, Qt::green);
         radialGradient.setColorAt(1.0, Qt::black);

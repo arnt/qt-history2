@@ -230,7 +230,7 @@ QFontEngineData::~QFontEngineData()
 
 
 /*!
-    \class QFont qfont.h
+    \class QFont
     \brief The QFont class specifies a font used for drawing text.
 
     \ingroup multimedia
@@ -256,9 +256,10 @@ QFontEngineData::~QFontEngineData()
     it does not, QPainter will draw an unfilled square.
 
     Create QFonts like this:
+
     \code
-    QFont serifFont("Times", 10, Bold);
-    QFont sansFont("Helvetica [Cronyx]", 12);
+        QFont serifFont("Times", 10, Bold);
+        QFont sansFont("Helvetica [Cronyx]", 12);
     \endcode
 
     The attributes set in the constructor can also be set later, e.g.
@@ -311,14 +312,14 @@ QFontEngineData::~QFontEngineData()
     \target fontmatching
     The font matching algorithm works as follows:
     \list 1
-    \i The specified font family is searched for.
-    \i If not found, the styleHint() is used to select a replacement
+    \o The specified font family is searched for.
+    \o If not found, the styleHint() is used to select a replacement
        family.
-    \i Each replacement font family is searched for.
-    \i If none of these are found or there was no styleHint(), "helvetica"
+    \o Each replacement font family is searched for.
+    \o If none of these are found or there was no styleHint(), "helvetica"
        will be searched for.
-    \i If "helvetica" isn't found Qt will try the lastResortFamily().
-    \i If the lastResortFamily() isn't found Qt will try the
+    \o If "helvetica" isn't found Qt will try the lastResortFamily().
+    \o If the lastResortFamily() isn't found Qt will try the
        lastResortFont() which will always return a name of some kind.
     \endlist
 
@@ -327,10 +328,10 @@ QFontEngineData::~QFontEngineData()
     Once a font is found, the remaining attributes are matched in order of
     priority:
     \list 1
-    \i fixedPitch()
-    \i pointSize() (see below)
-    \i weight()
-    \i style()
+    \o fixedPitch()
+    \o pointSize() (see below)
+    \o weight()
+    \o style()
     \endlist
 
     If you have a font which matches on family, even if none of the
@@ -352,30 +353,33 @@ QFontEngineData::~QFontEngineData()
     Examples:
 
     \code
-    QFont f("Helvetica");
+        QFont f("Helvetica");
     \endcode
     If you had both an Adobe and a Cronyx Helvetica, you might get
     either.
 
     \code
-    QFont f("Helvetica [Cronyx]");
+        QFont f("Helvetica [Cronyx]");
     \endcode
+
     You can specify the foundry you want in the family name. The font f
     in the above example will be set to "Helvetica
     [Cronyx]".
 
     To determine the attributes of the font actually used in the window
     system, use a QFontInfo object, e.g.
+
     \code
-    QFontInfo info(f1);
-    QString family = info.family();
+        QFontInfo info(f1);
+        QString family = info.family();
     \endcode
 
     To find out font metrics use a QFontMetrics object, e.g.
+
     \code
-    QFontMetrics fm(f1);
-    int textWidthInPixels = fm.width("How many pixels wide is this text?");
-    int textHeightInPixels = fm.height();
+        QFontMetrics fm(f1);
+        int textWidthInPixels = fm.width("How many pixels wide is this text?");
+        int textHeightInPixels = fm.height();
     \endcode
 
     For more general information on fonts, see the
@@ -383,9 +387,7 @@ QFontEngineData::~QFontEngineData()
     Information on encodings can be found from
     \link http://czyborra.com/ Roman Czyborra's\endlink page.
 
-    \sa QFontMetrics QFontInfo QFontDatabase QApplication::setFont()
-    QWidget::setFont() QPainter::setFont() QFont::StyleHint
-    QFont::Weight
+    \sa QFontComboBox, QFontMetrics, QFontInfo, QFontDatabase, {Character Map Example}
 */
 
 /*!
@@ -1755,7 +1757,7 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
  *****************************************************************************/
 
 /*!
-    \class QFontInfo qfontinfo.h
+    \class QFontInfo
 
     \brief The QFontInfo class provides general information about fonts.
 
@@ -1776,7 +1778,7 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
 
     There are three ways to create a QFontInfo object.
     \list 1
-    \i Calling the QFontInfo constructor with a QFont creates a font
+    \o Calling the QFontInfo constructor with a QFont creates a font
     info object for a screen-compatible font, i.e. the font cannot be
     a printer font. If the font is changed later, the font
     info object is \e not updated.
@@ -1785,12 +1787,12 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     inaccurate. Printer fonts are not always accessible so the nearest
     screen font is used if a printer font is supplied.)
 
-    \i QWidget::fontInfo() returns the font info for a widget's font.
+    \o QWidget::fontInfo() returns the font info for a widget's font.
     This is equivalent to calling QFontInfo(widget->font()). If the
     widget's font is changed later, the font info object is \e not
     updated.
 
-    \i QPainter::fontInfo() returns the font info for a painter's
+    \o QPainter::fontInfo() returns the font info for a painter's
     current font. If the painter's font is changed later, the font
     info object is \e not updated.
     \endlist

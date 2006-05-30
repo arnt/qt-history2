@@ -12,11 +12,10 @@
 ****************************************************************************/
 
 #include <QtGui>
-#include <QtDesigner/QDesignerFormWindowInterface>
-#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QtDesigner>
 
-#include "tictactoedialog.h"
 #include "tictactoe.h"
+#include "tictactoedialog.h"
 
 TicTacToeDialog::TicTacToeDialog(TicTacToe *tic, QWidget *parent)
     : QDialog(parent)

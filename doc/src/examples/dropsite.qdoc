@@ -5,7 +5,7 @@
     The example shows how to distinguish the various MIME formats
     available in a drag and drop operation.
 
-    \image dropsite-example.png Screenshot of the Dropsite example
+    \image dropsite-example.png Screenshot of the Drop Site example
 
     The Drop Site example accepts drops from other applications, and
     displays the MIME formats provided by the drag object.

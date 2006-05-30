@@ -11,30 +11,28 @@
 **
 ****************************************************************************/
 
+#include <QtDesigner>
+#include <QtGui>
+#include <QtPlugin>
+
 #include "tictactoe.h"
 #include "tictactoeplugin.h"
 #include "tictactoetaskmenu.h"
 
-#include <QtDesigner/QExtensionManager>
-#include <QtDesigner/QDesignerFormEditorInterface>
-
-#include <QIcon>
-#include <QtPlugin>
-
 TicTacToePlugin::TicTacToePlugin(QObject *parent)
-    :QObject(parent)
+    : QObject(parent)
 {
     initialized = false;
 }
 
 QString TicTacToePlugin::name() const
 {
-    return QString("TicTacToe");
+    return "TicTacToe";
 }
 
 QString TicTacToePlugin::group() const
 {
-    return QString("Display Widgets [Examples]");
+    return "Display Widgets [Examples]";
 }
 
 QString TicTacToePlugin::toolTip() const
@@ -49,7 +47,7 @@ QString TicTacToePlugin::whatsThis() const
 
 QString TicTacToePlugin::includeFile() const
 {
-    return QString("tictactoe.h");
+    return "tictactoe.h";
 }
 
 QIcon TicTacToePlugin::icon() const

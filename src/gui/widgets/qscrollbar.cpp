@@ -167,7 +167,7 @@
          \o A scroll bar shown in the \l{Plastique Style Widget Gallery}{Plastique widget style}.
     \endtable
 
-    \sa QScrollArea, QSlider, QDial, QSpinBox, {fowler}{GUI Design Handbook: Scroll Bar}
+    \sa QScrollArea, QSlider, QDial, QSpinBox, {fowler}{GUI Design Handbook: Scroll Bar}, {Sliders Example}
 */
 
 class QScrollBarPrivate : public QAbstractSliderPrivate

@@ -43,6 +43,7 @@ struct TorrentBlock
 class PeerWireClient : public QTcpSocket
 {
     Q_OBJECT
+
 public:
     enum PeerWireStateFlag {
         ChokingPeer = 0x1,
