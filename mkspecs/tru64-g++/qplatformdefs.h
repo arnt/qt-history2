@@ -26,7 +26,9 @@
 // We are hot - unistd.h should have turned on the specific APIs we requested
 
 
+#ifndef QT_NO_THREAD
 #include <pthread.h>
+#endif
 #include <dirent.h>
 #include <fcntl.h>
 #include <grp.h>
