@@ -123,7 +123,6 @@ public:
     GLXPbuffer pbuf;
     GLXContext ctx;
 #elif defined(Q_WS_WIN)
-    QGLWidget dmy;
     HDC dc;
     HPBUFFERARB pbuf;
     HGLRC ctx;

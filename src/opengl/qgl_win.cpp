@@ -583,6 +583,39 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     return fmt;
 }
 
+
+/*
+   Creates a temporary GL context and makes it current
+   - cleans up when the object is destructed.
+*/
+class QGLTempContext
+{
+public:
+    QGLTempContext() {
+	dmy_pdc = GetDC(dmy.winId());
+	PIXELFORMATDESCRIPTOR dmy_pfd;
+	memset(&dmy_pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+	dmy_pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+	dmy_pfd.nVersion = 1;
+	dmy_pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+	dmy_pfd.iPixelType = PFD_TYPE_RGBA;
+
+	int dmy_pf = ChoosePixelFormat(dmy_pdc, &dmy_pfd);
+	SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
+	HGLRC dmy_rc = wglCreateContext(dmy_pdc);
+	wglMakeCurrent(dmy_pdc, dmy_rc);
+    }
+    ~QGLTempContext() {
+	wglMakeCurrent(dmy_pdc, 0);
+	wglDeleteContext(dmy_rc);
+	ReleaseDC(dmy.winId(), dmy_pdc);
+    }
+    
+    HDC dmy_pdc;
+    HGLRC dmy_rc;
+    QWidget dmy;
+};
+
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
     Q_D(QGLContext);
@@ -597,6 +630,11 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     bool result = true;
     HDC myDc;
 
+    // NB! the QGLTempContext object is needed for the
+    // wglGetProcAddress() calls to succeed and are absolutely
+    // necessary - don't remove!
+    QGLTempContext tmp_ctx;
+    
     if (deviceIsPixmap()) {
         if (d->glFormat.plane())
             return false;                // Pixmaps can't have overlay
@@ -1375,26 +1413,6 @@ void QGLExtensions::init()
     if (init_done)
         return;
     init_done = true;
-
-    // we need a current GL context in order to obtain the API
-    // entries and GL extension strings
-    QWidget dmy(0);
-    HDC dmy_pdc = GetDC(dmy.winId());
-    PIXELFORMATDESCRIPTOR dmy_pfd;
-    memset(&dmy_pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
-    dmy_pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-    dmy_pfd.nVersion = 1;
-    dmy_pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-    dmy_pfd.iPixelType = PFD_TYPE_RGBA;
-
-    int dmy_pf = ChoosePixelFormat(dmy_pdc, &dmy_pfd);
-    SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
-    HGLRC dmy_rc = wglCreateContext(dmy_pdc);
-    wglMakeCurrent(dmy_pdc, dmy_rc);
-
+    QGLTempContext temp_ctx;
     init_extensions();
-
-    wglMakeCurrent(dmy_pdc, 0);
-    wglDeleteContext(dmy_rc);
-    ReleaseDC(dmy.winId(), dmy_pdc);
 }
