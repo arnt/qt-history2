@@ -2392,7 +2392,7 @@ void QHttpPrivate::_q_slotBytesWritten(qint64 written)
         arr.resize(max);
 
         int n = postDevice->read(arr.data(), max);
-        if (n != max) {
+        if (n <= 0) {
             qWarning("Could not read enough bytes from the device");
             closeConn();
             return;
@@ -2401,7 +2401,7 @@ void QHttpPrivate::_q_slotBytesWritten(qint64 written)
             postDevice = 0;
         }
 
-        socket->write(arr, max);
+        socket->write(arr, n);
     }
 }
 
