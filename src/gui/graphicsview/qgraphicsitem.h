@@ -498,6 +498,11 @@ protected:
     void keyReleaseEvent(QKeyEvent *event);
     void focusInEvent(QFocusEvent *event);
     void focusOutEvent(QFocusEvent *event);
+    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    void dropEvent(QGraphicsSceneDragDropEvent *event);
+
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
     bool supportsExtension(Extension extension) const;

@@ -1154,6 +1154,25 @@ bool QTextControl::event(QEvent *e)
             d->mouseDoubleClickEvent(e, ev->button(), ev->pos());
             break; }
 
+        case QEvent::GraphicsSceneDragEnter: {
+            QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
+            if (d->dragEnterEvent(e, ev->mimeData()))
+                ev->acceptProposedAction();
+            break; }
+        case QEvent::GraphicsSceneDragLeave: {
+            d->dragLeaveEvent();
+            break; }
+        case QEvent::GraphicsSceneDragMove: {
+            QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
+            if (d->dragMoveEvent(e, ev->mimeData(), ev->pos()))
+                ev->acceptProposedAction();
+            break; }
+        case QEvent::GraphicsSceneDrop: {
+            QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
+            if (d->dropEvent(ev->mimeData(), ev->pos()))
+                ev->acceptProposedAction();
+            break; }
+
         default:
             return QObject::event(e);
     }
@@ -1911,80 +1930,78 @@ void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton butto
     trippleClickTimer.start(qApp->doubleClickInterval(), q);
 }
 
-/*
-void QTextControl::dragEnterEvent(QDragEnterEvent *e)
+bool QTextControlPrivate::dragEnterEvent(QEvent *e, const QMimeData *mimeData)
 {
-    Q_D(QTextControl);
-    if (d->readOnly || !canInsertFromMimeData(e->mimeData())) {
+    Q_Q(QTextControl);
+    if (readOnly || !q->canInsertFromMimeData(mimeData)) {
         e->ignore();
-        return;
+        return false;
     }
 
-    d->dndFeedbackCursor = QTextCursor();
+    dndFeedbackCursor = QTextCursor();
 
-    e->acceptProposedAction();
+    return true; // accept proposed action
 }
 
-void QTextControl::dragLeaveEvent(QDragLeaveEvent *)
+void QTextControlPrivate::dragLeaveEvent()
 {
-    Q_D(QTextControl);
+    Q_Q(QTextControl);
 
-    const QRect crect = cursorRect(d->dndFeedbackCursor);
-    d->dndFeedbackCursor = QTextCursor();
+    const QRectF crect = q->cursorRect(dndFeedbackCursor);
+    dndFeedbackCursor = QTextCursor();
 
     if (crect.isValid())
-        d->viewport->update(crect);
+        emit q->updateRequest(crect);
 }
 
-void QTextControl::dragMoveEvent(QDragMoveEvent *e)
+bool QTextControlPrivate::dragMoveEvent(QEvent *e, const QMimeData *mimeData, const QPointF &pos)
 {
-    Q_D(QTextControl);
-    if (d->readOnly || !canInsertFromMimeData(e->mimeData())) {
+    Q_Q(QTextControl);
+    if (readOnly || !q->canInsertFromMimeData(mimeData)) {
         e->ignore();
-        return;
+        return false;
     }
 
-    const int cursorPos = d->doc->documentLayout()->hitTest(d->mapToContents(e->pos()), Qt::FuzzyHit);
+    const int cursorPos = doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
     if (cursorPos != -1) {
-        QRect crect = cursorRect(d->dndFeedbackCursor);
+        QRectF crect = q->cursorRect(dndFeedbackCursor);
         if (crect.isValid())
-            d->viewport->update(crect);
+            emit q->updateRequest(crect);
 
-        d->dndFeedbackCursor = d->cursor;
-        d->dndFeedbackCursor.setPosition(cursorPos);
+        dndFeedbackCursor = cursor;
+        dndFeedbackCursor.setPosition(cursorPos);
 
-        crect = cursorRect(d->dndFeedbackCursor);
-        d->viewport->update(crect);
+        crect = q->cursorRect(dndFeedbackCursor);
+        emit q->updateRequest(crect);
     }
 
-    e->acceptProposedAction();
+    return true; // accept proposed action
 }
 
-void QTextControl::dropEvent(QDropEvent *e)
+bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &pos)
 {
-    Q_D(QTextControl);
-    d->dndFeedbackCursor = QTextCursor();
+    Q_Q(QTextControl);
+    dndFeedbackCursor = QTextCursor();
 
-    if (d->readOnly || !canInsertFromMimeData(e->mimeData()))
-        return;
+    if (readOnly || !q->canInsertFromMimeData(mimeData))
+        return false;
 
-    e->acceptProposedAction();
+    repaintSelection();
 
-    d->repaintSelection();
-
-    QTextCursor insertionCursor = cursorForPosition(e->pos());
+    QTextCursor insertionCursor = q->cursorForPosition(pos);
     insertionCursor.beginEditBlock();
 
+    /* ################
     if (e->dropAction() == Qt::MoveAction
         && (e->source() == this || e->source() == d->viewport))
         d->cursor.removeSelectedText();
+    */
 
-    d->cursor = insertionCursor;
-    insertFromMimeData(e->mimeData());
+    cursor = insertionCursor;
+    q->insertFromMimeData(mimeData);
     insertionCursor.endEditBlock();
+    return true; // accept proposed action
 }
-
-*/
 
 /* \reimp
  */

@@ -3741,6 +3741,7 @@ QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent)
     dd->qq = this;
     if (!text.isEmpty())
         setPlainText(text);
+    setAcceptDrops(true);
 }
 
 /*!
@@ -3751,6 +3752,7 @@ QGraphicsTextItem::QGraphicsTextItem(QGraphicsItem *parent)
     : QGraphicsItem(parent), dd(new QGraphicsTextItemPrivate)
 {
     dd->qq = this;
+    setAcceptDrops(true);
 }
 
 /*!
@@ -4019,6 +4021,46 @@ void QGraphicsTextItem::focusOutEvent(QFocusEvent *event)
     if (dd->textControl)
         dd->textControl->setFocus(event->gotFocus());
     update();
+}
+
+void QGraphicsTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if (!dd->textControl)
+        return;
+
+    event->setPos(event->pos() + dd->controlOffset());
+    QApplication::sendEvent(dd->textControl, event);
+    event->setPos(event->pos() - dd->controlOffset());
+}
+
+void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if (!dd->textControl)
+        return;
+
+    event->setPos(event->pos() + dd->controlOffset());
+    QApplication::sendEvent(dd->textControl, event);
+    event->setPos(event->pos() - dd->controlOffset());
+}
+
+void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if (!dd->textControl)
+        return;
+
+    event->setPos(event->pos() + dd->controlOffset());
+    QApplication::sendEvent(dd->textControl, event);
+    event->setPos(event->pos() - dd->controlOffset());
+}
+
+void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if (!dd->textControl)
+        return;
+
+    event->setPos(event->pos() + dd->controlOffset());
+    QApplication::sendEvent(dd->textControl, event);
+    event->setPos(event->pos() - dd->controlOffset());
 }
 
 /*!

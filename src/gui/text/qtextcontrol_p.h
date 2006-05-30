@@ -187,13 +187,7 @@ public:
     virtual bool event(QEvent *e);
 
 protected:
-    void timerEvent(QTimerEvent *e);
-/*
-    virtual void dragEnterEvent(QDragEnterEvent *e);
-    virtual void dragLeaveEvent(QDragLeaveEvent *e);
-    virtual void dragMoveEvent(QDragMoveEvent *e);
-    virtual void dropEvent(QDropEvent *e);
-*/
+    virtual void timerEvent(QTimerEvent *e);
 
     virtual QMimeData *createMimeDataFromSelection() const;
     virtual bool canInsertFromMimeData(const QMimeData *source) const;

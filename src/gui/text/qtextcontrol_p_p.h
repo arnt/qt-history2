@@ -105,6 +105,11 @@ public:
     void mouseReleaseEvent(Qt::MouseButton button, const QPointF &pos);
     void mouseDoubleClickEvent(QEvent *e, Qt::MouseButton button, const QPointF &pos);
 
+    bool dragEnterEvent(QEvent *e, const QMimeData *mimeData);
+    void dragLeaveEvent();
+    bool dragMoveEvent(QEvent *e, const QMimeData *mimeData, const QPointF &pos);
+    bool dropEvent(const QMimeData *mimeData, const QPointF &pos);
+
     void inputMethodEvent(QInputMethodEvent *);
 
     QTextDocument *doc;
