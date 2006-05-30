@@ -40,6 +40,7 @@ public:
     inline QModelIndex sibling(int row, int column) const;
     inline QModelIndex child(int row, int column) const;
     inline QVariant data(int role = Qt::DisplayRole) const;
+    inline Qt::ItemFlags flags() const;
     inline const QAbstractItemModel *model() const { return m; }
     inline bool isValid() const { return (r >= 0) && (c >= 0) && (m != 0); }
     inline bool operator==(const QModelIndex &other) const
@@ -89,6 +90,7 @@ public:
     QModelIndex sibling(int row, int column) const;
     QModelIndex child(int row, int column) const;
     QVariant data(int role = Qt::DisplayRole) const;
+    Qt::ItemFlags flags() const;
     const QAbstractItemModel *model() const;
     bool isValid() const;
 private:
@@ -315,6 +317,9 @@ inline QModelIndex QModelIndex::child(int arow, int acolumn) const
 
 inline QVariant QModelIndex::data(int arole) const
 { return m ? m->data(*this, arole) : QVariant(); }
+
+inline Qt::ItemFlags QModelIndex::flags() const
+{ return m ? m->flags(*this) : Qt::ItemFlags(0); }
 
 inline uint qHash(const QModelIndex &index)
 { return uint((index.row() << 4) + index.column() + index.internalId()); }

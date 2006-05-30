@@ -350,6 +350,18 @@ QVariant QPersistentModelIndex::data(int role) const
 }
 
 /*!
+  \since 4.2
+
+  Returns the flags for the item referred to by the index.
+*/
+Qt::ItemFlags QPersistentModelIndex::flags() const
+{
+    if (d)
+        return d->index.flags();
+    return 0;
+}
+
+/*!
   Returns the model that the index belongs to.
 */
 const QAbstractItemModel *QPersistentModelIndex::model() const
@@ -730,6 +742,13 @@ void QAbstractItemModelPrivate::reset()
     \fn QVariant QModelIndex::data(int role) const
 
     Returns the data for the given \a role for the item referred to by the index.
+*/
+
+/*!
+    \fn Qt::ItemFlags QModelIndex::flags() const
+    \since 4.2
+
+    Returns the flags for the item referred to by the index.
 */
 
 /*!
