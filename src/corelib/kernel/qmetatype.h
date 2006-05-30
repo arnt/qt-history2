@@ -49,6 +49,8 @@ public:
     typedef void (*LoadOperator)(QDataStream &, void *);
     static void registerStreamOperators(const char *typeName, SaveOperator saveOp,
                                         LoadOperator loadOp);
+    static int registerType(const char *typeName, Destructor destructor, Constructor constructor,
+                            SaveOperator saveOp, LoadOperator loadOp);
 #endif
     static int registerType(const char *typeName, Destructor destructor,
                             Constructor constructor);
@@ -78,22 +80,6 @@ void *qMetaTypeConstructHelper(const T *t)
     return new T(*static_cast<const T*>(t));
 }
 
-template <typename T>
-int qRegisterMetaType(const char *typeName
-#ifndef qdoc
-    , T * /* dummy */ = 0
-#endif
-)
-{
-    typedef void*(*ConstructPtr)(const T*);
-    ConstructPtr cptr = qMetaTypeConstructHelper<T>;
-    typedef void(*DeletePtr)(T*);
-    DeletePtr dptr = qMetaTypeDeleteHelper<T>;
-
-    return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
-                                   reinterpret_cast<QMetaType::Constructor>(cptr));
-}
-
 #ifndef QT_NO_DATASTREAM
 template <typename T>
 void qMetaTypeSaveHelper(QDataStream &stream, const T *t)
@@ -106,7 +92,34 @@ void qMetaTypeLoadHelper(QDataStream &stream, T *t)
 {
     stream >> *t;
 }
+#endif // QT_NO_DATASTREAM
 
+#include "qmetatypedetect.h"
+
+template <typename T>
+int qRegisterMetaType(const char *typeName
+#ifndef qdoc
+    , T * /* dummy */ = 0
+#endif
+)
+{
+    typedef void*(*ConstructPtr)(const T*);
+    ConstructPtr cptr = qMetaTypeConstructHelper<T>;
+    typedef void(*DeletePtr)(T*);
+    DeletePtr dptr = qMetaTypeDeleteHelper<T>;
+
+#ifdef QT_NO_DATASTREAM
+    return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
+                                   reinterpret_cast<QMetaType::Constructor>(cptr));
+#else
+    return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
+                                   reinterpret_cast<QMetaType::Constructor>(cptr),
+                                   QtInternal::getSaveOperator<T>(),
+                                   QtInternal::getLoadOperator<T>());
+#endif
+}
+
+#ifndef QT_NO_DATASTRAM
 template <typename T>
 void qRegisterMetaTypeStreamOperators(const char *typeName
 #ifndef qdoc
@@ -139,6 +152,16 @@ inline int qMetaTypeId(
 )
 {
     return QMetaTypeId<T>::qt_metatype_id();
+}
+
+template <typename T>
+inline int qRegisterMetaType(
+#ifndef qdoc
+    T * dummy = 0
+#endif
+)
+{
+    return qMetaTypeId(dummy);
 }
 
 #define Q_DECLARE_METATYPE(TYPE) \

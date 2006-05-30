@@ -30,10 +30,10 @@
     a private header file which has to be included every time that
     type is used in a QVariant.
 
-    Q_DECLARE_METATYPE() doesn't actually register the
-    type; you must still use qRegisterMetaType() for that,
-    particularly if you intend to use the type in signal and
-    slot connections.
+    Adding a Q_DECLARE_METATYPE() makes the type known to all template
+    based functions, including QVariant. In addition to declaring the type,
+    you must call qInitMetaType() if you intend to use the type in
+    queued signal and slot connections.
 
     This example shows a typical use case of Q_DECLARE_METATYPE():
 
@@ -72,7 +72,7 @@
         MyStruct s2 = var.value<MyStruct>();
     \endcode
 
-    \sa qRegisterMetaType()
+    \sa qInitMetaType(), Q_DECLARE_METATYPE()
 */
 
 /*!
@@ -102,7 +102,7 @@
 
     \value User  Base value for user types
 
-    Additional types can be registered using qRegisterMetaType().
+    Additional types can be registered using Q_DECLARE_METATYPE().
 
     \sa type(), typeName()
 */
@@ -117,8 +117,12 @@
     The class is used as a helper to marshall types in QVariant and
     in queued signals and slots connections. It associates a type
     name to a type so that it can be created and destructed
-    dynamically at run-time. Register new types with
-    qRegisterMetaType(). Any class or struct that has a public default
+    dynamically at run-time. Declare new types with Q_DECLARE_METATYPE()
+    to make them available to QVariant and other template-based functions.
+    Call qInitMetaType() to make type available to non-template based
+    functions, such as the queued signal and slot connections.
+
+    Any class or struct that has a public default
     constructor, a public copy constructor, and a public destructor
     can be registered.
 
@@ -135,15 +139,10 @@
         }
     \endcode
 
-    The Q_DECLARE_METATYPE() macro can be used to register a type at
-    compile time. This is required to use the type as custom type in
-    QVariant.
-
     If we want the stream operators \c operator<<() and \c
     operator>>() to work on QVariant objects that store custom types,
     the custom type must provide \c operator<<() and \c operator>>()
-    operators and register them using
-    qRegisterMetaTypeStreamOperators().
+    operators.
 
     \sa Q_DECLARE_METATYPE(), QVariant::setValue(), QVariant::value(), QVariant::fromValue()
 */
@@ -183,14 +182,6 @@ public:
     , saveOp(0), loadOp(0)
 #endif
     {}
-    inline void setData(const char *tname, QMetaType::Constructor cp, QMetaType::Destructor de)
-    { typeName = tname; constr = cp; destr = de; }
-    inline void setData(QMetaType::Constructor cp, QMetaType::Destructor de)
-    { constr = cp; destr = de; }
-#ifndef QT_NO_DATASTREAM
-    inline void setOperators(QMetaType::SaveOperator sOp, QMetaType::LoadOperator lOp)
-    { saveOp = sOp; loadOp = lOp; }
-#endif
 
     QByteArray typeName;
     QMetaType::Constructor constr;
@@ -218,7 +209,9 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
     if (!ct)
         return;
     QWriteLocker locker(customTypesLock());
-    (*ct)[idx - User].setOperators(saveOp, loadOp);
+    QCustomTypeInfo &inf = (*ct)[idx - User];
+    inf.saveOp = saveOp;
+    inf.loadOp = loadOp;
 }
 #endif
 
@@ -294,14 +287,56 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
             qWarning("QMetaType: Cannot re-register basic type '%s'", typeName);
             return -1;
         }
-        (*ct)[idx - User].setData(constructor, destructor);
+        QCustomTypeInfo &inf = (*ct)[idx - User];
+        inf.constr = constructor;
+        inf.destr = destructor;
     } else {
         idx = currentIdx++;
         ct->resize(ct->count() + 1);
-        (*ct)[idx - User].setData(typeName, constructor, destructor);
+        QCustomTypeInfo &inf = (*ct)[idx - User];
+        inf.typeName = typeName;
+        inf.constr = constructor;
+        inf.destr = destructor;
     }
     return idx;
 }
+
+#ifndef QT_NO_DATASTREAM
+/*! \internal */
+int QMetaType::registerType(const char *typeName, Destructor destructor, Constructor constructor,
+                            SaveOperator saveOp, LoadOperator loadOp)
+{
+    QVector<QCustomTypeInfo> *ct = customTypes();
+    if (!ct || !typeName || !destructor || !constructor)
+        return -1;
+
+    QWriteLocker locker(customTypesLock());
+    static int currentIdx = User;
+    int idx = qMetaTypeType_unlocked(typeName);
+
+    if (idx) {
+        if (idx < User) {
+            qWarning("QMetaType: Cannot re-register basic type '%s'", typeName);
+            return -1;
+        }
+        QCustomTypeInfo &inf = (*ct)[idx - User];
+        inf.constr = constructor;
+        inf.destr = destructor;
+        inf.saveOp = saveOp;
+        inf.loadOp = loadOp;
+    } else {
+        idx = currentIdx++;
+        ct->resize(ct->count() + 1);
+        QCustomTypeInfo &inf = (*ct)[idx - User];
+        inf.typeName = typeName;
+        inf.constr = constructor;
+        inf.destr = destructor;
+        inf.saveOp = saveOp;
+        inf.loadOp = loadOp;
+    }
+    return idx;
+}
+#endif // QT_NO_DATASTREAM
 
 /*!
     Returns true if the custom datatype with ID \a type is registered;
@@ -635,6 +670,28 @@ void QMetaType::destroy(int type, void *data)
 /*! \typedef QMetaType::LoadOperator
     \internal
 */
+
+/*! \fn int qRegisterMetaType()
+    \relates QMetaType
+    \threadsafe
+    \since 4.2
+
+    Call this function to register the type \c T. \c T must be declared with
+    Q_DECLARE_METATYPE(). Returns the meta type Id.
+
+    Example:
+
+    \code
+        int id = qRegisterMetaType<MyStruct>();
+    \endcode
+
+    Note: To use the type \c T in QVariant, using Q_DECLARE_METATYPE() is
+    sufficient. To use the type \c T in queued signal and slot connections,
+    \c{qRegisterMetaType<T>()} must be called before the first connection
+    is established.
+
+    \sa Q_DECLARE_METATYPE()
+ */
 
 /*! \fn int qMetaTypeId()
     \relates QMetaType
