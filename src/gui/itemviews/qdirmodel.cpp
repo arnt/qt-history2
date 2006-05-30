@@ -82,21 +82,21 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
 {
     QStyle *style = QApplication::style();
 
-    file = QIcon(style->standardPixmap(QStyle::SP_FileIcon));
-    fileLink = QIcon(style->standardPixmap(QStyle::SP_FileLinkIcon));
+    file = style->standardIcon(QStyle::SP_FileIcon);
+    fileLink = style->standardIcon(QStyle::SP_FileLinkIcon);
 
-    directory = QIcon(style->standardPixmap(QStyle::SP_DirClosedIcon));
-    directory.addPixmap(style->standardPixmap(QStyle::SP_DirOpenIcon), QIcon::Normal, QIcon::On);
-    directoryLink = QIcon(style->standardPixmap(QStyle::SP_DirLinkIcon));
+    directory = style->standardIcon(QStyle::SP_DirClosedIcon);
+//    directory.addPixmap(style->standardPixmap(QStyle::SP_DirOpenIcon), QIcon::Normal, QIcon::On);
+    directoryLink = style->standardIcon(QStyle::SP_DirLinkIcon);
 
-    harddisk = QIcon(style->standardPixmap(QStyle::SP_DriveHDIcon));
-    floppy = QIcon(style->standardPixmap(QStyle::SP_DriveFDIcon));
-    cdrom = QIcon(style->standardPixmap(QStyle::SP_DriveCDIcon));
-    generic = ram = harddisk; // FIXME
-    network = QIcon(style->standardPixmap(QStyle::SP_DriveNetIcon));
-    computer = QIcon(style->standardPixmap(QStyle::SP_ComputerIcon));
-    desktop = QIcon(style->standardPixmap(QStyle::SP_DesktopIcon));
-    trashcan = QIcon(style->standardPixmap(QStyle::SP_TrashIcon));
+    harddisk = style->standardIcon(QStyle::SP_DriveHDIcon);
+    floppy = style->standardIcon(QStyle::SP_DriveFDIcon);
+    cdrom = style->standardIcon(QStyle::SP_DriveCDIcon);
+    generic = ram = harddisk; // for now
+    network = style->standardIcon(QStyle::SP_DriveNetIcon);
+    computer = style->standardIcon(QStyle::SP_ComputerIcon);
+    desktop = style->standardIcon(QStyle::SP_DesktopIcon);
+    trashcan = style->standardIcon(QStyle::SP_TrashIcon);
 }
 
 /*!
