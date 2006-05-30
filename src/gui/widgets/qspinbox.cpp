@@ -1021,7 +1021,7 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &pos,
 {
     if (cachedText == input && !input.isEmpty()) {
         state = cachedState;
-        QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
+        QSBDEBUG() << "cachedText was" << "'" << cachedText << "'" << "state was "
                    << state << " and value was " << cachedValue;
 
         return cachedValue;
@@ -1131,7 +1131,7 @@ bool QDoubleSpinBoxPrivate::isIntermediateValue(const QString &str) const
     for (int i=0; i<decimals; ++i)
         dec *= 10;
 
-    const char dot = '.';
+    const QLatin1Char dot('.');
 
     // I know QString::number() uses CLocale so I use dot
     const QString minstr = QString::number(minimum.toDouble(), 'f', decimals);
@@ -1150,14 +1150,14 @@ bool QDoubleSpinBoxPrivate::isIntermediateValue(const QString &str) const
     if (dotindex == -1) {
         left = str.toLongLong();
         doright = false;
-    } else if (dotindex == 0 || (dotindex == 1 && str.at(0) == '+')) {
+    } else if (dotindex == 0 || (dotindex == 1 && str.at(0) == QLatin1Char('+'))) {
         if (negative) {
             QSBDEBUG() << __FILE__ << __LINE__ << "returns false";
             return false;
         }
         doleft = false;
         right = str.mid(dotindex + 1).toLongLong();
-    } else if (dotindex == 1 && str.at(0) == '-') {
+    } else if (dotindex == 1 && str.at(0) == QLatin1Char('-')) {
         if (!negative) {
             QSBDEBUG() << __FILE__ << __LINE__ << "returns false";
             return false;
@@ -1172,7 +1172,7 @@ bool QDoubleSpinBoxPrivate::isIntermediateValue(const QString &str) const
             right = str.mid(dotindex + 1).toLongLong();
         }
     }
-    if ((left >= 0 && max_left < 0 && !str.startsWith('-')) || (left < 0 && min_left >= 0)) {
+    if ((left >= 0 && max_left < 0 && !str.startsWith(QLatin1Char('-'))) || (left < 0 && min_left >= 0)) {
         QSBDEBUG("returns false 0");
         return false;
     }
@@ -1266,7 +1266,7 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &pos,
 {
     if (cachedText == input && !input.isEmpty()) {
         state = cachedState;
-        QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
+        QSBDEBUG() << "cachedText was" << "'" << cachedText << "'" << "state was "
                    << state << " and value was " << cachedValue;
         return cachedValue;
     }
