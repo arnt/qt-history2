@@ -3711,7 +3711,9 @@ public:
 
     QTextControl *textControl;
 
-    QPointF controlOffset() const;
+    inline QPointF controlOffset() const
+    { return QPointF(0., pageNumber * textControl->document()->pageSize().height()); }
+
     void _q_updateBoundingRect(const QSizeF &);
     void _q_update(QRectF);
     void _q_ensureVisible(QRectF);
@@ -3722,13 +3724,12 @@ public:
     QGraphicsTextItem *qq;
 };
 
-QPointF QGraphicsTextItemPrivate::controlOffset() const
+template <class Event>
+void qGraphicsTextItemSendTranslatedEvent(QGraphicsTextItemPrivate *d, Event *event)
 {
-    QPointF offset;
-    const QSizeF pageSize = textControl->document()->pageSize();
-    if (pageSize.height() != INT_MAX)
-        offset.setY(pageNumber * pageSize.height());
-    return offset;
+    event->setPos(event->pos() + d->controlOffset());
+    QApplication::sendEvent(d->textControl, event);
+    event->setPos(event->pos() - d->controlOffset());
 }
 
 /*!
@@ -3929,9 +3930,7 @@ void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    event->setPos(event->pos() + dd->controlOffset());
-    QApplication::sendEvent(dd->textControl, event);
-    event->setPos(event->pos() - dd->controlOffset());
+    qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
 /*!
@@ -3946,9 +3945,7 @@ void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    event->setPos(event->pos() + dd->controlOffset());
-    QApplication::sendEvent(dd->textControl, event);
-    event->setPos(event->pos() - dd->controlOffset());
+    qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
 /*!
@@ -3963,9 +3960,7 @@ void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    event->setPos(event->pos() + dd->controlOffset());
-    QApplication::sendEvent(dd->textControl, event);
-    event->setPos(event->pos() - dd->controlOffset());
+    qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
 /*!
@@ -3980,9 +3975,7 @@ void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    event->setPos(event->pos() + dd->controlOffset());
-    QApplication::sendEvent(dd->textControl, event);
-    event->setPos(event->pos() - dd->controlOffset());
+    qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
 /*!
@@ -4036,9 +4029,7 @@ void QGraphicsTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
     if (!dd->textControl)
         return;
 
-    event->setPos(event->pos() + dd->controlOffset());
-    QApplication::sendEvent(dd->textControl, event);
-    event->setPos(event->pos() - dd->controlOffset());
+    qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
 void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
@@ -4046,9 +4037,7 @@ void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
     if (!dd->textControl)
         return;
 
-    event->setPos(event->pos() + dd->controlOffset());
-    QApplication::sendEvent(dd->textControl, event);
-    event->setPos(event->pos() - dd->controlOffset());
+    qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
 void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
@@ -4056,9 +4045,7 @@ void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
     if (!dd->textControl)
         return;
 
-    event->setPos(event->pos() + dd->controlOffset());
-    QApplication::sendEvent(dd->textControl, event);
-    event->setPos(event->pos() - dd->controlOffset());
+    qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
 void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
@@ -4066,9 +4053,7 @@ void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
     if (!dd->textControl)
         return;
 
-    event->setPos(event->pos() + dd->controlOffset());
-    QApplication::sendEvent(dd->textControl, event);
-    event->setPos(event->pos() - dd->controlOffset());
+    qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
 /*!
