@@ -519,8 +519,8 @@ Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::unite(const QMap<Key, T> &other)
 {
     QMap<Key, T> copy(other);
     const_iterator it = copy.constEnd();
-    const const_iterator begin = copy.constBegin();
-    while (it != begin) {
+    const const_iterator b = copy.constBegin();
+    while (it != b) {
         --it;
         insertMulti(it.key(), it.value());
     }
@@ -683,12 +683,12 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::uniqueKeys() const
     const_iterator i = begin();
     if (i != end()) {
         for (;;) {
-            const Key &key = i.key();
-            res.append(key);
+            const Key &aKey = i.key();
+            res.append(aKey);
             do {
                 if (++i == end())
                     goto break_out_of_outer_loop;
-            } while (!(key < i.key()));   // loop while (key == i.key())
+            } while (!(aKey < i.key()));   // loop while (key == i.key())
         }
     }
 break_out_of_outer_loop:

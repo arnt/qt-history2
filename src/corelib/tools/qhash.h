@@ -529,12 +529,12 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QHash<Key, T>::uniqueKeys() const
     const_iterator i = begin();
     if (i != end()) {
         for (;;) {
-            const Key &key = i.key();
-            res.append(key);
+            const Key &aKey = i.key();
+            res.append(aKey);
             do {
                 if (++i == end())
                     goto break_out_of_outer_loop;
-            } while (key == i.key());
+            } while (aKey == i.key());
         }
     }
 break_out_of_outer_loop:
