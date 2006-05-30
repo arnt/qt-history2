@@ -21,7 +21,7 @@
 #include <private/qtextengine_p.h>
 
 /*!
-    \class QAbstractItemDelegate qabstractitemdelegate.h
+    \class QAbstractItemDelegate
 
     \brief The QAbstractItemDelegate class is used to display and edit
     data items from a model.
@@ -51,7 +51,8 @@
     The second approach is to handle user events directly by reimplementing
     editorEvent().
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QItemDelegate
+    \sa {model-view-programming}{Model/View Programming}, QItemDelegate,
+        {Pixelator Example}
 */
 
 /*!

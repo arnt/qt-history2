@@ -795,7 +795,7 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
     the margin width for a top-level layout, or to the same as the
     parent layout.
 
-    \sa QBoxLayout, QStackedLayout, {Layout Classes}
+    \sa QBoxLayout, QStackedLayout, {Layout Classes}, {Basic Layouts Example}
 */
 
 

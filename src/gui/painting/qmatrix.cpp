@@ -151,7 +151,7 @@
     \endtable
 
     \sa QPainter, {The Coordinate System}, {demos/affine}{Affine
-    Transformations Demo}
+    Transformations Demo}, {Transformations Example}
 */
 
 

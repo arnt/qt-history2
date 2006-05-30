@@ -117,10 +117,10 @@ public:
     function. Use the isSizeGripEnabled() function to determine the
     current status of the size grip.
 
-    \image plastique-statusbar.png A status bar shown in the Plastique widget style.
+    \image plastique-statusbar.png A status bar shown in the Plastique widget style
 
     \sa QMainWindow, QStatusTipEvent, {fowler}{GUI Design Handbook:
-    Status Bar}
+    Status Bar}, {Application Example}
 */
 
 #ifdef QT3_SUPPORT

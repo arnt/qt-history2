@@ -703,6 +703,8 @@ QSize QWorkspaceTitleBar::sizeHint() const
     If you want your users to be able to work with child windows
     larger than the visible workspace area, set the scrollBarsEnabled
     property to true.
+
+    \sa QDockWindow, {MDI Example}
 */
 
 

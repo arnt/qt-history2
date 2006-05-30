@@ -14,8 +14,8 @@
 
 /*!
     \page coordsys.html
-
     \title The Coordinate System
+
     \ingroup architecture
 
     The coordinate system is controlled by the QPainter
@@ -479,4 +479,6 @@
     because QPainterPath handles painter transformations much better.
     \endtable
     \endomit
+
+    \sa {Analog Clock Example}, {Transformations Example}
 */

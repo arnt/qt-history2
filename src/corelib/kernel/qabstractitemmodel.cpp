@@ -597,7 +597,7 @@ void QAbstractItemModelPrivate::reset()
 }
 
 /*!
-    \class QModelIndex qabstractitemmodel.h
+    \class QModelIndex
 
     \brief The QModelIndex class is used to locate data in a data model.
 
@@ -779,7 +779,7 @@ void QAbstractItemModelPrivate::reset()
 */
 
 /*!
-    \class QAbstractItemModel qabstractitemmodel.h
+    \class QAbstractItemModel
 
     \brief The QAbstractItemModel class provides the abstract interface for
     item model classes.
@@ -906,8 +906,9 @@ void QAbstractItemModelPrivate::reset()
     \bold{If you want selections to be handled properly, you must ensure that
     you call these functions.}
 
-    \sa \link model-view-programming.html Model/View Programming\endlink, QModelIndex,
-        QAbstractItemView, {Using Drag and Drop with Item Views}
+    \sa {Model/View Programming}, QModelIndex, QAbstractItemView,
+        {Using Drag and Drop with Item Views}, {Simple DOM Model Example},
+        {Simple Tree Model Example}
 */
 
 /*!
@@ -2072,8 +2073,8 @@ QModelIndexList QAbstractItemModel::persistentIndexList() const
        call endRemoveColumns() \e{immediately afterwards}.
     \endlist
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractListModel
-
+    \sa {Model/View Programming}, QAbstractItemModel, QAbstractListModel,
+        {Pixelator Example}
 */
 
 /*!
@@ -2197,8 +2198,8 @@ bool QAbstractTableModel::hasChildren(const QModelIndex &parent) const
        call endRemoveRows() \e{immediately afterwards}.
     \endlist
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemView QAbstractTableModel
-
+    \sa {Model/View Programming}, QAbstractItemView, QAbstractTableModel,
+        {Puzzle Example}
 */
 
 /*!

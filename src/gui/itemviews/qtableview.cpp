@@ -302,7 +302,7 @@ void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItem &
 }
 
 /*!
-    \class QTableView qtableview.h
+    \class QTableView
 
     \brief The QTableView class provides a default model/view
     implementation of a table view.
@@ -351,7 +351,8 @@ void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItem &
          \o A \l{Plastique Style Widget Gallery}{Plastique style} table view.
     \endtable
 
-    \sa QTableWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView
+    \sa QTableWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView,
+        {Chart Example}, {Pixelator Example}, {Table Model Example}
 */
 
 /*!

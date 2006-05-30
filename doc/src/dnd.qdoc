@@ -350,6 +350,16 @@
     The \l{QClipboard::selectionChanged()}{selectionChanged()} signal can
     be used on X11 to monitor the mouse selection.
 
+    \section1 Examples
+
+    \list
+    \o \l{draganddrop/draggableicons}{Draggable Icons}
+    \o \l{draganddrop/draggabletext}{Draggable Text}
+    \o \l{draganddrop/dropsite}{Drop Site}
+    \o \l{draganddrop/fridgemagnets}{Fridge Magnets}
+    \o \l{draganddrop/puzzle}{Drag and Drop Puzzle}
+    \endlist
+
     \section1 Interoperating with Other Applications
 
     On X11, the public \l{http://www.newplanetsoftware.com/xdnd/}{XDND protocol}

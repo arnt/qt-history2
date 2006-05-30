@@ -63,7 +63,7 @@
     See \l{How to Create Qt Plugins} for more information about
     how to make your application extensible through plugins.
 
-    \sa QLibrary
+    \sa QLibrary, {Plug & Paint Example}
 */
 
 /*!

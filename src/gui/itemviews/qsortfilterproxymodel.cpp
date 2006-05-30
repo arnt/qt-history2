@@ -1081,7 +1081,8 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &so
     \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
     example.)
 
-    \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}
+    \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}, {Basic Sort/Filter Model Example},
+        {Custom Sort/Filter Model Example}
 */
 
 /*!

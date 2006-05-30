@@ -1000,7 +1000,7 @@ QBoxLayout::Direction QBoxLayout::direction() const
 
     \image qhboxlayout-with-5-children.png Horizontal box layout with five child widgets
 
-    \sa QVBoxLayout, QGridLayout, QStackedLayout, {Layout Classes}
+    \sa QVBoxLayout, QGridLayout, QStackedLayout, {Layout Classes}, {Basic Layouts Example}
 */
 
 
@@ -1120,7 +1120,7 @@ QHBoxLayout::~QHBoxLayout()
 
     \image qvboxlayout-with-5-children.png Horizontal box layout with five child widgets
 
-    \sa QHBoxLayout, QGridLayout, QStackedLayout, {Layout Classes}
+    \sa QHBoxLayout, QGridLayout, QStackedLayout, {Layout Classes}, {Basic Layouts Example}
 */
 
 /*!

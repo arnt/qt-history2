@@ -2103,8 +2103,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
         \endcode
     \endlist
 
-    \sa QVariant, QSessionManager,
-        {tools/settingseditor}{Settings Editor Example}
+    \sa QVariant, QSessionManager, {Settings Editor Example}, {Application Example}
 */
 
 /*! \enum QSettings::Status

@@ -894,13 +894,14 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     some users may not be familiar with it. Consider using a QToolBar
     instead.
 
-    See the \l{mainwindows/menus}{Menus Example} for an example of how
+    See the \l{mainwindows/menus}{Menus} example for an example of how
     to use QMenuBar and QMenu in your application.
 
     Important inherited functions: addAction(), removeAction(), clear(),
     addSeparator(), and addMenu().
 
-    \sa QMenuBar, {fowler}{GUI Design Handbook: Menu, Drop-Down and Pop-Up}
+    \sa QMenuBar, {fowler}{GUI Design Handbook: Menu, Drop-Down and Pop-Up},
+        {Application Example}, {Menus Example}, {Recent Files Example}
 */
 
 

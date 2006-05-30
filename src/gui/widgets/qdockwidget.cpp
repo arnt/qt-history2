@@ -569,7 +569,7 @@ void QDockWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
     The visual appearance of the title bar and buttons is dependent
     on the \l{QStyle}{style} in use.
 
-    \sa QMainWindow
+    \sa QMainWindow, {Dock Widgets Example}
 */
 
 /*!

@@ -176,7 +176,8 @@ public:
     translations.
 
     \sa QApplication::installTranslator(), QApplication::removeTranslator(),
-        QObject::tr(), QApplication::translate()
+        QObject::tr(), QApplication::translate(), {I18N Example},
+	{Hello tr() Example}, {Arrow Pad Example}, {Troll Print Example}
 */
 
 /*!

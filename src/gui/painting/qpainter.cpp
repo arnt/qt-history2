@@ -873,7 +873,7 @@ void QPainterPrivate::updateState(QPainterState *newState)
 
     \endtable
 
-    \sa QPaintDevice, QPaintEngine, {QtSvg Module}
+    \sa QPaintDevice, QPaintEngine, {QtSvg Module}, {Basic Drawing Example}
 */
 
 /*!
@@ -893,7 +893,7 @@ void QPainterPrivate::updateState(QPainterState *newState)
     than nearest neighbor.
 
     \sa renderHints(), setRenderHint(), {QPainter#Rendering
-    Quality}{Rendering Quality}
+    Quality}{Rendering Quality}, {Concentric Circles Example}
 
 */
 
@@ -1513,11 +1513,11 @@ void QPainter::setBrushOrigin(const QPointF &p)
     alpha. CompositionMode_Xor is not the same as the bitwise Xor.
 
     \sa compositionMode(), setCompositionMode(), {QPainter#Composition
-    Modes}{Composition Modes}
+    Modes}{Composition Modes}, {Image Composition Example}
 */
 
 /*!
-    Sets the composition mode to the given  \a mode.
+    Sets the composition mode to the given \a mode.
 
     \warning You can only set the composition mode for QPainter
     objects that operates on a QImage.

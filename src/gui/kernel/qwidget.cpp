@@ -5750,7 +5750,7 @@ void QWidget::actionEvent(QActionEvent *)
     This event handler, for event \a event, can be reimplemented in a
     subclass to receive widget close events.
 
-    \sa event(), hide(), close(), QCloseEvent
+    \sa event(), hide(), close(), QCloseEvent, {Application Example}
 */
 
 void QWidget::closeEvent(QCloseEvent *event)
@@ -6817,7 +6817,7 @@ bool QWidget::testAttribute_helper(Qt::WidgetAttribute attribute) const
     Editor"). If the window isn't modified, the placeholder is simply
     removed.
 
-    \sa windowTitle
+    \sa windowTitle, {Application Example}, {SDI Example}, {MDI Example}
 */
 bool QWidget::isWindowModified() const
 {

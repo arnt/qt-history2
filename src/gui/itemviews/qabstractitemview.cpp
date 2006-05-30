@@ -84,7 +84,7 @@ void QAbstractItemViewPrivate::init()
 }
 
 /*!
-    \class QAbstractItemView qabstractitemview.h
+    \class QAbstractItemView
 
     \brief The QAbstractItemView class provides the basic functionality for
     item view classes.
@@ -144,8 +144,7 @@ void QAbstractItemViewPrivate::init()
     concerned with editing, for example, edit(), and commitData(),
     whilst others are keyboard and mouse event handlers.
 
-    \sa {Model/View Programming}, QAbstractItemModel
-
+    \sa {Model/View Programming}, QAbstractItemModel, {Chart Example}
 */
 
 /*!

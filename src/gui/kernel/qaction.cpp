@@ -172,6 +172,8 @@ void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
     We recommend that actions are created as children of the window
     they are used in. In most cases actions will be children of
     the application's main window.
+
+    \sa QMenu, QToolBar, {Application Example}
 */
 
 /*!

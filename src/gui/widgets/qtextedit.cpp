@@ -1016,8 +1016,7 @@ void QTextEditPrivate::_q_setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     will select the character to the right, and \e{Shift+Ctrl+Right
     Arrow} will select the word to the right, etc.
 
-    \sa QTextDocument QTextCursor document() textCursor() setDocument() setTextCursor()
-
+    \sa QTextDocument, QTextCursor, {Application Example}, {Syntax Highlighter Example}
 */
 
 /*!

@@ -223,7 +223,8 @@ void QMainWindowPrivate::init()
     under the mouse pointer. This indicates that the QDockWidget will
     be floating when the mouse button is released.
 
-    \sa QMenuBar, QToolBar, QStatusBar, QDockWidget
+    \sa QMenuBar, QToolBar, QStatusBar, QDockWidget, {Application Example},
+        {Dock Widgets Example}, {MDI Example}, {SDI Example}
 */
 
 /*!

@@ -755,7 +755,7 @@ void QItemSelectionModelPrivate::_q_layoutChanged()
   selection. All functions operate on both layers; for example,
   selectedItems() will return items from both layers.
 
-  \sa {Model/View Programming}, QAbstractItemModel
+  \sa {Model/View Programming}, QAbstractItemModel, {Chart Example}
 */
 
 /*!

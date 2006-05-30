@@ -278,7 +278,7 @@ static void qt_debug_path(const QPainterPath &path)
     \o \l {demos/deform}{Vector Deformation Demo}
     \endtable
 
-    \sa QPainterPathStroker, QPainter, QRegion
+    \sa QPainterPathStroker, QPainter, QRegion, {Painter Paths Example}
 */
 
 /*!

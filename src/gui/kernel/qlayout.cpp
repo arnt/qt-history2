@@ -57,7 +57,8 @@ static int menuBarHeightForWidth(QWidget *menubar, int w)
 
     Geometry management stops when the layout manager is deleted.
 
-    \sa QLayoutItem, {Layout Classes}
+    \sa QLayoutItem, {Layout Classes}, {Basic Layouts Example},
+        {Border Layout Example}, {Flow Layout Example}
 */
 
 

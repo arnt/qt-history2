@@ -683,7 +683,7 @@ static void setup()
     available as a plugin; see \l{How to Create Qt Plugins} for
     details.
 
-    \sa QTextStream, QTextDecoder, QTextEncoder
+    \sa QTextStream, QTextDecoder, QTextEncoder, {Codecs Example}
 */
 
 /*!

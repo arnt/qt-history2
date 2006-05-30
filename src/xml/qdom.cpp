@@ -6595,6 +6595,8 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
     \l{http://www.w3.org/TR/REC-DOM-Level-1/}{Level 1} and
     \l{http://www.w3.org/TR/DOM-Level-2-Core/}{Level 2 Core}
     Specifications.
+
+    \sa {DOM Bookmarks Example}, {Simple DOM Model Example}
 */
 
 

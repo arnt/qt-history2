@@ -158,7 +158,7 @@ void QSyntaxHighlighterPrivate::reformatBlock(QTextBlock block)
 }
 
 /*!
-    \class QSyntaxHighlighter qsyntaxhighlighter.h
+    \class QSyntaxHighlighter
 
     \brief The QSyntaxHighlighter class allows you to define syntax
     highlighting rules, and in addition you can use the class to query
@@ -280,7 +280,7 @@ void QSyntaxHighlighterPrivate::reformatBlock(QTextBlock block)
     parsing the paragraph's text. For an example, see the
     setCurrentBlockUserData() documentation.
 
-    \sa {richtext/syntaxhighlighter}{the Syntax Highlighter example}
+    \sa QTextEdit, {Syntax Highlighter Example}
 */
 
 /*!

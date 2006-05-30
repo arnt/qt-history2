@@ -390,8 +390,8 @@ void QDirModelPrivate::invalidate()
   Directories can be created and removed using mkdir(), rmdir(), and the
   model will be automatically updated to take the changes into account.
 
-  \sa nameFilters(), setFilter(), filter(), {Model/View Programming}, QListView, QTreeView
-
+  \sa nameFilters(), setFilter(), filter(), {Model/View Programming}, QListView, QTreeView,
+      {Dir View Example}
 */
 
 /*!

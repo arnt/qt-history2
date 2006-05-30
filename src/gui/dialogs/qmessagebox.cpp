@@ -304,7 +304,7 @@ static const char * const qtlogo_xpm[] = {
 
     \image plastique-messagebox.png A message box shown in the Plastique widget style.
 
-    \sa QDialogButtonBox, QErrorMessage, {fowler}{GUI Design Handbook: Message Box}, {Standard Dialogs Example}
+    \sa QDialogButtonBox, QErrorMessage, {fowler}{GUI Design Handbook: Message Box}, {Standard Dialogs Example}, {Application Example}
 */
 
 /*!

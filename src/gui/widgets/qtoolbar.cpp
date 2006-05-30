@@ -327,7 +327,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     as usual, but it will be disabled to indicate that some items in
     the toolbar are currently not visible.
 
-    \sa QToolButton
+    \sa QToolButton, QMenu, QAction, {Application Example}
 */
 
 /*!

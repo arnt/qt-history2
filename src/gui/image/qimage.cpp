@@ -600,7 +600,8 @@ QImageData::~QImageData()
 
     \endtable
 
-    \sa QImageReader, QImageWriter, QPixmap
+    \sa QImageReader, QImageWriter, QPixmap, QSvgRenderer, {Image Composition Example},
+        {Image Viewer Example}, {Scribble Example}, {Pixelator Example}
 */
 
 /*!

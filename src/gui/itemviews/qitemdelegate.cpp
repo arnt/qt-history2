@@ -146,9 +146,10 @@ public:
     Custom editing features for can be added by subclassing QItemDelegate and
     reimplementing createEditor(), setEditorData(), setModelData(), and
     updateEditorGeometry(). This process is described in the
-    \l{Spin Box Delegate Example}{Spin Box Delegate example}.
+    \l{Spin Box Delegate example}.
 
-    \sa {Model/View Programming}, QAbstractItemDelegate
+    \sa {Model/View Programming}, QAbstractItemDelegate, {Spin Box Delegate Example},
+        {Settings Editor Example}, {Icons Example}
 */
 
 /*!

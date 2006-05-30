@@ -28,7 +28,7 @@
 #include <private/qtreeview_p.h>
 
 /*!
-    \class QTreeView qtreeview.h
+    \class QTreeView
     \brief The QTreeView class provides a default model/view implementation of a tree view.
 
     \ingroup model-view
@@ -113,7 +113,8 @@
          \o A \l{Plastique Style Widget Gallery}{Plastique style} tree view.
     \endtable
 
-    \sa QListView, QTreeWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView
+    \sa QListView, QTreeWidget, {Model/View Programming}, QAbstractItemModel, QAbstractItemView,
+        {Dir View Example}
 */
 
 
