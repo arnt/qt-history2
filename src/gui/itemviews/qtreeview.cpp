@@ -1115,7 +1115,21 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
         opt.rect = primitive;
         opt.state = extraFlags;
-        if (d->model->rowCount(ancestor) - 1 > current.row())
+        bool moreSiblings = false;
+        if (d->hiddenIndexes.isEmpty()) {
+            moreSiblings = (d->model->rowCount(ancestor) - 1 > current.row());
+        } else {
+            int successor = item + d->viewItems.at(item).total + 1;
+            while (successor < d->viewItems.size()
+                   && d->viewItems.at(successor).level >= uint(level)) {
+                if (d->viewItems.at(successor).level == uint(level)) {
+                    moreSiblings = true;
+                    break;
+                }
+                successor += d->viewItems.at(successor).total + 1;
+            }
+        }
+        if (moreSiblings)
             opt.state |= QStyle::State_Sibling;
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
         current = ancestor;

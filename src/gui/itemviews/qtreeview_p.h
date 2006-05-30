@@ -34,7 +34,7 @@ struct QTreeViewItem
     QTreeViewItem() : expanded(false), total(0), level(0), height(0) {}
     QModelIndex index; // we remove items whenever the indexes are invalidated (make persistent ?)
     uint expanded : 1;
-    uint total : 30; // total number of children visible (+ hidden children)
+    uint total : 30; // total number of children visible
     uint level : 16; // indentation
     int height : 16; // row height
 };
