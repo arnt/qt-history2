@@ -1753,7 +1753,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
                 d->undo();
             break;
         case Qt::Key_Y:
-            d->doc->redo();
+            d->redo();
             break;
 #ifndef QT_NO_CLIPBOARD
         case Qt::Key_X:
