@@ -810,6 +810,17 @@ public:
         Key_Yes = 0x01010001,
         Key_No = 0x01010002,
 
+        // Newer misc keys
+        Key_Cancel  = 0x01020001,
+        Key_Printer = 0x01020002,
+        Key_Execute = 0x01020003,
+        Key_Sleep   = 0x01020004,
+        Key_Play    = 0x01020005, // Not the same as Key_MediaPlay
+        Key_Zoom    = 0x01020006,
+        //Key_Jisho   = 0x01020007, // IME: Dictionary key
+        //Key_Oyayubi_Left = 0x01020008, // IME: Left Oyayubi key
+        //Key_Oyayubi_Right = 0x01020009, // IME: Right Oyayubi key
+
         // Device keys
         Key_Context1 = 0x01100000,
         Key_Context2 = 0x01100001,
