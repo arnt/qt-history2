@@ -1577,19 +1577,19 @@ static QByteArray charString(const QPainterPath &path, qreal advance, qreal lsb,
 }
 
 #ifndef QT_NO_FREETYPE
-const char *helvetica_styles[4] = {
+static const char *helvetica_styles[4] = {
     "Helvetica",
     "Helvetica-Bold",
     "Helvetica-Oblique",
     "Helvetica-BoldOblique"
 };
-const char *times_styles[4] = {
+static const char *times_styles[4] = {
     "Times-Regular",
     "Times-Bold",
     "Times-Italic",
     "Times-BoldItalic"
 };
-const char *courier_styles[4] = {
+static const char *courier_styles[4] = {
     "Courier",
     "Courier-Bold",
     "Courier-Oblique",
