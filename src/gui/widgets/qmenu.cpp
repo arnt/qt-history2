@@ -1342,6 +1342,17 @@ QSize QMenu::sizeHint() const
 void QMenu::popup(const QPoint &p, QAction *atAction)
 {
     Q_D(QMenu);
+#ifdef Q_WS_MAC
+    if (!strcmp(metaObject()->className(), "QMenu") && d->eventFilters.isEmpty()) {
+        if (!d->mac_menu)
+            d->macMenu(0);
+        if (d->mac_menu->popup(p, atAction, d)) {
+            if (d->eventLoop)
+                d->eventLoop->exit();
+            return;
+        }
+    }
+#endif
     if (d->scroll) { //reset scroll state from last popup
         d->scroll->scrollOffset = 0;
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
@@ -2929,6 +2940,15 @@ int QMenu::findIdForAction(QAction *act) const
     Use setActiveAction() instead.
 */
 
+bool QMenu::isMerged(const QAction *action) const
+{
+#ifdef Q_WS_MAC
+    Q_D(const QMenu);
+    if (d->mac_menu)
+        return d->mac_menu->merged(action);
+#endif
+    return false;
+}
 // for private slots
 
 #include "moc_qmenu.cpp"

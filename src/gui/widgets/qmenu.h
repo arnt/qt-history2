@@ -107,6 +107,8 @@ public:
     bool separatorsCollapsible() const;
     void setSeparatorsCollapsible(bool collapse);
 
+    bool isMerged(const QAction *action) const;
+
 Q_SIGNALS:
     void aboutToShow();
     void aboutToHide();

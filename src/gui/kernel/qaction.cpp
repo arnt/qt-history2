@@ -43,7 +43,8 @@ static QString qt_strippedText(QString s)
 
 
 QActionPrivate::QActionPrivate() : group(0), enabled(1), forceDisabled(0),
-                                   visible(1), forceInvisible(0), checkable(0), checked(0), separator(0), fontSet(false)
+                                   visible(1), forceInvisible(0), checkable(0), checked(0), separator(0), fontSet(false),
+                                   mergePolicy(QAction::MergeText)
 {
 #ifdef QT3_SUPPORT
     static int qt_static_action_id = -1;
@@ -1128,6 +1129,20 @@ void QAction::activate(ActionEvent event)
     Use triggered() instead.
 */
 
+void QAction::setMergePolicy(MergePolicy mergePolicy)
+{
+    Q_D(QAction);
+    if (d->mergePolicy == mergePolicy)
+        return;
+
+    d->mergePolicy = mergePolicy;
+    d->sendDataChanged();
+}
+
+QAction::MergePolicy QAction::mergePolicy() const
+{
+    return d_func()->mergePolicy;
+}
 
 #include "moc_qaction.cpp"
 #endif // QT_NO_ACTION

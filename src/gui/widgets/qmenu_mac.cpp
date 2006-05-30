@@ -39,6 +39,7 @@
  *****************************************************************************/
 bool qt_mac_no_menubar_icons = false;
 bool qt_mac_no_native_menubar = false;
+bool qt_mac_no_native_popup_menus = false;
 bool qt_mac_no_menubar_merge = false;
 
 static uint qt_mac_menu_static_cmd_id = 'QT00';
@@ -58,6 +59,7 @@ enum {
     kMenuPropertyMergeMenu = 'QApP',
     kMenuPropertyMergeList = 'QAmL',
     kHICommandAboutQt = 'AOQT',
+    kHICommandCustomMerge = 'AQt0',
     kMenuPropertyWidgetActionWidget = 'QWid',
     kMenuPropertyWidgetActionGeometry = 'WGeo'
 };
@@ -256,7 +258,8 @@ void qt_mac_clear_menubar()
 
 static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *action)
 {
-    if (qt_mac_no_menubar_merge || action->action->menu() || action->action->isSeparator())
+    if (qt_mac_no_menubar_merge || action->action->menu() || action->action->isSeparator()
+            || action->action->mergePolicy() == QAction::MergeNever)
         return 0;
 
     QString t = qt_mac_no_ampersands(action->action->text().toLower());
@@ -266,21 +269,35 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
     t.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
     //now the fun part
     MenuCommand ret = 0;
+    if (action->action->mergePolicy() == QAction::MergeAlways) {
+        QMenuMergeList *list = 0;
+        if (GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
+                    sizeof(list), 0, &list) == noErr && list) {
+            MenuCommand lastCustom = kHICommandCustomMerge;
+            for(int i = 0; i < list->size(); ++i) {
+                QMenuMergeItem item = list->at(i);
+                if (item.command == lastCustom)
+                    ++lastCustom;
+            }
+            ret = lastCustom;
+        }
+    } else {
 #define MENU_TRANSLATE(x) QCoreApplication::instance()->translate("QMenuBar", x)
-    QString aboutString = MENU_TRANSLATE("About").toLower();
-    if (t.startsWith(aboutString) || t.endsWith(aboutString)) {
-        if (t.indexOf(QRegExp(QString::fromLatin1("qt$"), Qt::CaseInsensitive)) == -1)
-            ret = kHICommandAbout;
-        else
-            ret = kHICommandAboutQt;
-    } else if (t.startsWith(MENU_TRANSLATE("Config").toLower()) || t.startsWith(MENU_TRANSLATE("Preference").toLower()) ||
-              t.startsWith(MENU_TRANSLATE("Options").toLower()) || t.startsWith(MENU_TRANSLATE("Setting").toLower()) ||
-              t.startsWith(MENU_TRANSLATE("Setup").toLower())) {
-        ret = kHICommandPreferences;
-    } else if (t.startsWith(MENU_TRANSLATE("Quit").toLower()) || t.startsWith(MENU_TRANSLATE("Exit").toLower())) {
-        ret = kHICommandQuit;
-    }
+        QString aboutString = MENU_TRANSLATE("About").toLower();
+        if (t.startsWith(aboutString) || t.endsWith(aboutString)) {
+            if (t.indexOf(QRegExp(QString::fromLatin1("qt$"), Qt::CaseInsensitive)) == -1)
+                ret = kHICommandAbout;
+            else
+                ret = kHICommandAboutQt;
+        } else if (t.startsWith(MENU_TRANSLATE("Config").toLower()) || t.startsWith(MENU_TRANSLATE("Preference").toLower()) ||
+                t.startsWith(MENU_TRANSLATE("Options").toLower()) || t.startsWith(MENU_TRANSLATE("Setting").toLower()) ||
+                t.startsWith(MENU_TRANSLATE("Setup").toLower())) {
+            ret = kHICommandPreferences;
+        } else if (t.startsWith(MENU_TRANSLATE("Quit").toLower()) || t.startsWith(MENU_TRANSLATE("Exit").toLower())) {
+            ret = kHICommandQuit;
+        }
 #undef MENU_TRANSLATE
+    }
 
     QMenuMergeList *list = 0;
     if (GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
@@ -304,32 +321,37 @@ static bool qt_mac_auto_apple_menu(MenuCommand cmd)
     return (cmd == kHICommandPreferences || cmd == kHICommandQuit);
 }
 
-static QString qt_mac_menu_merge_text(MenuCommand cmd)
+static QString qt_mac_menu_merge_text(QMacMenuAction *action)
 {
     QString ret;
-    if (cmd == kHICommandAbout)
+    if (action->action->mergePolicy() == QAction::MergeAlways)
+        ret = action->action->text();
+    else if (action->command == kHICommandAbout)
         ret = QLatin1String("About ") + QString(qAppName());
-    else if (cmd == kHICommandAboutQt)
+    else if (action->command == kHICommandAboutQt)
         ret = QLatin1String("About Qt");
-    else if (cmd == kHICommandPreferences)
+    else if (action->command == kHICommandPreferences)
         ret = QLatin1String("Preferences");
-    else if (cmd == kHICommandQuit)
+    else if (action->command == kHICommandQuit)
         ret = QLatin1String("Quit ") + QString(qAppName());
     return ret;
 }
 
-static QKeySequence qt_mac_menu_merge_accel(MenuCommand cmd)
+static QKeySequence qt_mac_menu_merge_accel(QMacMenuAction *action)
 {
     QKeySequence ret;
-    if (cmd == kHICommandPreferences)
+    if (action->action->mergePolicy() == QAction::MergeAlways)
+        ret = action->action->shortcut();
+    else if (action->command == kHICommandPreferences)
         ret = QKeySequence(Qt::CTRL+Qt::Key_Comma);
-    else if (cmd == kHICommandQuit)
+    else if (action->command == kHICommandQuit)
         ret = QKeySequence(Qt::CTRL+Qt::Key_Q);
     return ret;
 }
 
 void Q_GUI_EXPORT qt_mac_set_menubar_icons(bool b) { qt_mac_no_menubar_icons = !b; }
 void Q_GUI_EXPORT qt_mac_set_native_menubar(bool b) { qt_mac_no_native_menubar = !b; }
+void Q_GUI_EXPORT qt_mac_set_native_popup_menus(bool b) { qt_mac_no_native_popup_menus = !b; }
 void Q_GUI_EXPORT qt_mac_set_menubar_merge(bool b) { qt_mac_no_menubar_merge = !b; }
 
 bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent action_e, bool by_accel)
@@ -860,10 +882,10 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         }
     }
     {
-        QString cmd_text = qt_mac_menu_merge_text(action->command);
+        QString cmd_text = qt_mac_menu_merge_text(action);
         if (!cmd_text.isNull()) {
             text = cmd_text;
-            accel = qt_mac_menu_merge_accel(action->command);
+            accel = qt_mac_menu_merge_accel(action);
         }
     }
     if (accel.count() > 1)
@@ -1113,8 +1135,11 @@ void
 QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 {
     Q_Q(QMenuBar);
-    if (!qgetenv("QT_MAC_NO_NATIVE_MENUBAR").isNull())
-        qt_mac_no_native_menubar = true;
+    static int checkEnv = -1;
+    if (checkEnv < 0) {
+        checkEnv = !qgetenv("QT_MAC_NO_NATIVE_MENUBAR").isEmpty();
+        qt_mac_no_native_menubar = checkEnv;
+    }
     if (!qt_mac_no_native_menubar) {
         extern void qt_event_request_menubarupdate(); //qapplication_mac.cpp
         qt_event_request_menubarupdate();
@@ -1265,4 +1290,60 @@ bool QMenuBar::macUpdateMenuBar()
         }
     }
     return ret;
+}
+
+bool QMenuPrivate::QMacMenuPrivate::popup(const QPoint &point, QAction *action, QMenuPrivate *qmenu)
+{
+    return false;
+    static int checkEnv = -1;
+    if (checkEnv < 0) {
+        checkEnv = !qgetenv("QT_MAC_NO_NATIVE_POPUP_MENUS").isEmpty();
+        qt_mac_no_native_popup_menus = checkEnv;
+    }
+    if (qt_mac_no_native_popup_menus)
+        return false;
+    MenuItemIndex popupItem = 0;
+    if (action != 0) {
+        for (int i = 0; i < actionItems.size(); ++i) {
+            if (actionItems.at(i)->action == action) {
+                popupItem = qt_mac_menu_find_action(menu, actionItems.at(i)->command);
+                break;
+            }
+        }
+    }
+
+    long ret = PopUpMenuSelect(menu, point.y(), point.x(), popupItem);
+    if (GetMenuID(menu) == ((ret >> 16) & 0xffff)) {
+        for (int i = 0; i < actionItems.size(); ++i) {
+            int index = qt_mac_menu_find_action(menu, actionItems.at(i)->command);
+            if (index != -1) {
+                if (index == (ret & 0xffff)) {
+                    qmenu->syncAction = actionItems.at(i)->action;
+                    break;
+                }
+            }
+        }
+    } else {
+        qmenu->syncAction = 0;
+    }
+    return true;
+}
+
+bool QMenuPrivate::QMacMenuPrivate::merged(const QAction *action) const
+{
+    MenuRef merge = 0;
+    GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyMergeMenu,
+            sizeof(merge), 0, &merge);
+    if (merge) {
+        QMenuMergeList *list = 0;
+        if (GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
+                    sizeof(list), 0, &list) == noErr && list) {
+            for(int i = 0; i < list->size(); ++i) {
+                QMenuMergeItem item = list->at(i);
+                if (item.action->action == action)
+                    return true;
+            }
+        }
+    }
+    return false;
 }

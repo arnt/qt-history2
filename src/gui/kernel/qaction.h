@@ -35,6 +35,7 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAction)
 
+    Q_ENUMS(MergePolicy)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked NOTIFY toggled)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
@@ -50,8 +51,10 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(Qt::ShortcutContext shortcutContext READ shortcutContext WRITE setShortcutContext)
 #endif
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
+    Q_PROPERTY(MergePolicy mergePolicy READ mergePolicy WRITE setMergePolicy)
 
 public:
+    enum MergePolicy { MergeText = -1, MergeAlways, MergeNever };
     explicit QAction(QObject* parent);
     QAction(const QString &text, QObject* parent);
     QAction(const QIcon &icon, const QString &text, QObject* parent);
@@ -123,6 +126,9 @@ public:
     enum ActionEvent { Trigger, Hover };
     void activate(ActionEvent event);
     bool showStatusText(QWidget *widget=0);
+
+    void setMergePolicy(MergePolicy mergePolicy);
+    MergePolicy mergePolicy() const;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT void setMenuText(const QString &text) { setText(text); }
