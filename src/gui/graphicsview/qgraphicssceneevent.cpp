@@ -55,7 +55,7 @@ public:
 
     inline virtual ~QGraphicsSceneEventPrivate()
     { }
-    
+
     QWidget *widget;
     QGraphicsSceneEvent *q_ptr;
 };
@@ -399,7 +399,7 @@ class QGraphicsSceneContextMenuEventPrivate : public QGraphicsSceneEventPrivate
     inline QGraphicsSceneContextMenuEventPrivate()
         : modifiers(0)
         { }
-    
+
     QPointF pos;
     QPointF scenePos;
     QPoint screenPos;
@@ -801,6 +801,12 @@ void QGraphicsSceneDragDropEvent::setProposedAction(Qt::DropAction action)
 {
     Q_D(QGraphicsSceneDragDropEvent);
     d->proposedAction = action;
+}
+
+void QGraphicsSceneDragDropEvent::acceptProposedAction()
+{
+    Q_D(QGraphicsSceneDragDropEvent);
+    d->dropAction = d->proposedAction;
 }
 
 Qt::DropAction QGraphicsSceneDragDropEvent::dropAction() const
