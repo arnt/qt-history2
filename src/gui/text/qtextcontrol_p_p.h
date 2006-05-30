@@ -59,9 +59,7 @@ public:
     void init(const QString &html = QString());
     void setContent(Qt::TextFormat format = Qt::RichText, const QString &text = QString(),
                     QTextDocument *document = 0);
-/*
     void startDrag();
-*/
 
     void paste(const QMimeData *source);
 

@@ -449,14 +449,13 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
     emit q->cursorPositionChanged();
 }
 
-/*
 void QTextControlPrivate::startDrag()
 {
     Q_Q(QTextControl);
     mousePressed = false;
     QMimeData *data = q->createMimeDataFromSelection();
 
-    QDrag *drag = new QDrag(q);
+    QDrag *drag = new QDrag(/* ######## q*/QApplication::focusWidget());
     drag->setMimeData(data);
 
     Qt::DropActions actions = Qt::CopyAction;
@@ -464,10 +463,11 @@ void QTextControlPrivate::startDrag()
         actions |= Qt::MoveAction;
     Qt::DropAction action = drag->start(actions);
 
+    /* ########
     if (action == Qt::MoveAction && drag->target() != q)
         cursor.removeSelectedText();
+        */
 }
-*/
 
 void QTextControlPrivate::setCursorPosition(const QPointF &pos)
 {
@@ -1262,11 +1262,9 @@ void QTextControl::timerEvent(QTimerEvent *e)
                             != 0);
 
         d->repaintCursor();
-/*
     } else if (e->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
-*/
     } else if (e->timerId() == d->trippleClickTimer.timerId()) {
         d->trippleClickTimer.stop();
     }
@@ -1729,7 +1727,6 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
 
     if (trippleClickTimer.isActive()
         && ((pos - trippleClickPoint).toPoint().manhattanLength() < QApplication::startDragDistance())) {
-// #####        && ((e->globalPos() - trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
 
 #if defined(Q_WS_MAC)
         cursor.select(QTextCursor::LineUnderCursor);
@@ -1813,16 +1810,14 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
     const QTextCursor oldSelection = cursor;
     const int oldCursorPos = cursor.position();
 
-/* ####
-    if (d->mightStartDrag) {
-        d->dragStartTimer.stop();
+    if (mightStartDrag) {
+        dragStartTimer.stop();
 
-        if ((e->globalPos() - d->dragStartPos).manhattanLength() > QApplication::startDragDistance())
-            d->startDrag();
+        if ((mousePos.toPoint() - dragStartPos).manhattanLength() > QApplication::startDragDistance())
+            startDrag();
 
         return;
     }
-*/
     const qreal mouseX = qreal(mousePos.x());
 
     /* ###### portme
@@ -1936,7 +1931,6 @@ void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton butto
 
     selectedWordOnDoubleClick = cursor;
 
-// ####    trippleClickPoint = e->globalPos();
     trippleClickPoint = pos;
     trippleClickTimer.start(qApp->doubleClickInterval(), q);
 }
