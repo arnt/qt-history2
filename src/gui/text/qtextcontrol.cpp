@@ -1136,6 +1136,9 @@ bool QTextControl::event(QEvent *e)
         case QEvent::InputMethod:
             d->inputMethodEvent(static_cast<QInputMethodEvent *>(e));
             break;
+        case QEvent::ContextMenu:
+            d->contextMenuEvent(static_cast<QContextMenuEvent *>(e)->globalPos());
+            break;
 
         case QEvent::GraphicsSceneMousePress: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
@@ -1152,6 +1155,9 @@ bool QTextControl::event(QEvent *e)
         case QEvent::GraphicsSceneMouseDoubleClick: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
             d->mouseDoubleClickEvent(e, ev->button(), ev->pos());
+            break; }
+        case QEvent::GraphicsSceneContextMenu: {
+            d->contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(e)->screenPos());
             break; }
 
         case QEvent::GraphicsSceneDragEnter: {
@@ -1928,6 +1934,18 @@ void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton butto
 // ####    trippleClickPoint = e->globalPos();
     trippleClickPoint = pos;
     trippleClickTimer.start(qApp->doubleClickInterval(), q);
+}
+
+void QTextControlPrivate::contextMenuEvent(const QPoint &pos)
+{
+#ifdef QT_NO_CONTEXTMENU
+    Q_UNUSED(pos);
+#else
+    Q_Q(QTextControl);
+    QMenu *menu = q->createStandardContextMenu();
+    menu->exec(pos);
+    delete menu;
+#endif
 }
 
 bool QTextControlPrivate::dragEnterEvent(QEvent *e, const QMimeData *mimeData)

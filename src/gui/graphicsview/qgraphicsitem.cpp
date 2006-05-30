@@ -3988,6 +3988,14 @@ void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 /*!
     \reimp
 */
+void QGraphicsTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+    QApplication::sendEvent(dd->textControl, event);
+}
+
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
 {
     if (dd->textControl)
