@@ -677,7 +677,7 @@ void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
     if (parent == rootIndex()) {
         int count = (end - start + 1);
         for (int i = d->hiddenRows.count() - 1; i >= 0; --i)
-            if (d->hiddenRows.at(i) > start)
+            if (d->hiddenRows.at(i) >= start)
                 d->hiddenRows[i] += count;
     }
     d->clear();
@@ -696,8 +696,8 @@ void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
     if (parent == rootIndex()) {
         int count = (end - start + 1);
         for (int i = d->hiddenRows.count() - 1; i >= 0; --i) {
-            if (d->hiddenRows.at(i) > start) {
-                if (d->hiddenRows.at(i) < end) {
+            if (d->hiddenRows.at(i) >= start) {
+                if (d->hiddenRows.at(i) <= end) {
                     d->hiddenRows.remove(i);
                 } else {
                     d->hiddenRows[i] -= count;
