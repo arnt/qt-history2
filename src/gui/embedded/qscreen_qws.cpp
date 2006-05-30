@@ -964,6 +964,7 @@ struct blit_data {
 
 typedef void (*blitFunc)(const blit_data *);
 
+#ifdef QT_QWS_DEPTH_32
 static void blit_32_to_32(const blit_data *data)
 {
     const int sbpl = data->img->bytesPerLine() / 4;
@@ -983,7 +984,9 @@ static void blit_32_to_32(const blit_data *data)
         --h;
     }
 }
+#endif // QT_QWS_DEPTH_32
 
+#ifdef QT_QWS_DEPTH_16
 static void blit_32_to_16(const blit_data *data)
 {
     const int sbpl = data->img->bytesPerLine() / 4;
@@ -1022,7 +1025,9 @@ static void blit_16_to_16(const blit_data *data)
         --h;
     }
 }
+#endif // QT_QWS_DEPTH_16
 
+#ifdef QT_QWS_DEPTH_8
 static inline uchar qt_32_to_8(uint rgb)
 {
     uchar r = (qRed(rgb) + 0x19) / 0x33;
@@ -1076,6 +1081,7 @@ static void blit_16_to_8(const blit_data *data)
         --h;
     }
 }
+#endif // QT_QWS_DEPTH_8
 
 /*!
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
@@ -1100,21 +1106,27 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
     data.lineStep = lstep;
     blitFunc func = 0;
     switch(d) {
+#ifdef QT_QWS_DEPTH_32
     case 32:
         func = blit_32_to_32;
         break;
+#endif
+#ifdef QT_QWS_DEPTH_16
     case 16:
         if (img.depth() == 16)
             func = blit_16_to_16;
         else
             func = blit_32_to_16;
         break;
+#endif
+#ifdef QT_QWS_DEPTH_8
     case 8:
         if (img.depth() == 16)
             func = blit_16_to_8;
         else
             func = blit_32_to_8;
         break;
+#endif
     default:
         break;
     }
@@ -1167,6 +1179,7 @@ struct fill_data {
 
 typedef void (*fillFunc)(const fill_data *);
 
+#ifdef QT_QWS_DEPTH_32
 static void fill_32(const fill_data *data)
 {
     const int dbpl = data->lineStep / 4;
@@ -1182,7 +1195,9 @@ static void fill_32(const fill_data *data)
         --h;
     }
 }
+#endif // QT_QWS_DEPTH_32
 
+#ifdef QT_QWS_DEPTH_16
 static void fill_16(const fill_data *data)
 {
     const int dbpl = data->lineStep / 2;
@@ -1199,7 +1214,9 @@ static void fill_16(const fill_data *data)
         --h;
     }
 }
+#endif // QT_QWS_DEPTH_16
 
+#ifdef QT_QWS_DEPTH_8
 static void fill_8(const fill_data *data)
 {
     const int dbpl = data->lineStep;
@@ -1216,7 +1233,7 @@ static void fill_8(const fill_data *data)
         --h;
     }
 }
-
+#endif // QT_QWS_DEPTH_8
 
 /*!
    This virtual function allows subclasses of QScreen to fill the
@@ -1236,14 +1253,20 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
     data.lineStep = lstep;
     fillFunc func = 0;
     switch(d) {
+#ifdef QT_QWS_DEPTH_32
     case 32:
         func = fill_32;
         break;
+#endif
+#ifdef QT_QWS_DEPTH_16
     case 16:
         func = fill_16;
         break;
+#endif
+#ifdef QT_QWS_DEPTH_8
     case 8:
         func = fill_8;
+#endif
     default:
         break;
     }

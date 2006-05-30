@@ -237,12 +237,15 @@ static inline DST colorConvert(SRC color)
     return color;
 }
 
+#ifdef QT_QWS_DEPTH_16
 template <>
 static inline quint16 colorConvert(quint32 color)
 {
     return qt_convRgbTo16(color);
 }
+#endif
 
+#ifdef QT_QWS_DEPTH_8
 template <>
 static inline quint8 colorConvert(quint32 color)
 {
@@ -258,6 +261,7 @@ static inline quint8 colorConvert(quint16 color)
 {
     return colorConvert<quint32, quint8>(qt_conv16ToRgb(color));
 }
+#endif // QT_QWS_DEPTH_8
 
 typedef void (*BlitFunc)(const QImage &, const QRect &, const QPoint &);
 
@@ -375,21 +379,27 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
 
     BlitFunc func = 0;
     switch (qt_screen->depth()) {
+#ifdef QT_QWS_DEPTH_32
     case 32:
         SET_BLIT_FUNC(quint32, quint32, trans, func);
         break;
+#endif
+#ifdef QT_QWS_DEPTH_16
     case 16:
         if (image.depth() == 16)
             SET_BLIT_FUNC(quint16, quint16, trans, func);
         else
             SET_BLIT_FUNC(quint32, quint16, trans, func);
         break;
+#endif
+#ifdef QT_QWS_DEPTH_8
     case 8:
         if (image.depth() == 16)
             SET_BLIT_FUNC(quint16, quint8, trans, func);
         else
             SET_BLIT_FUNC(quint32, quint8, trans, func);
         break;
+#endif
     default:
         return;
     }
