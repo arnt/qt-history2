@@ -1428,9 +1428,9 @@ process:
 #if defined(Q_WS_WIN)
         if (e->modifiers() & Qt::AltModifier) {
             if (e->modifiers() & Qt::ShiftModifier)
-                d->redo();
+                redo();
             else
-                d->undo();
+                undo();
         } else
 #endif
         {
