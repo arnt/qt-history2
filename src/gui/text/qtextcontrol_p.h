@@ -25,7 +25,6 @@
 // We mean it.
 //
 
-#include <QtGui/qevent.h>
 #include <QtGui/qtextdocument.h>
 #include <QtGui/qtextoption.h>
 #include <QtGui/qtextcursor.h>
@@ -46,6 +45,8 @@ class QMenu;
 class QTextControlPrivate;
 class QMimeData;
 class QAbstractScrollArea;
+class QEvent;
+class QTimerEvent;
 
 class Q_AUTOTEST_EXPORT QTextControl : public QObject
 {
