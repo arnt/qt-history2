@@ -44,8 +44,6 @@ extern QString qt_mac_from_pascal_string(const Str255); // qglobal.cpp
 #endif
 
 enum {
-    FIRST_DAY = 2361222,        // Julian day for 1752-09-14
-    FIRST_YEAR = 1752,
     SECS_PER_DAY = 86400,
     MSECS_PER_DAY = 86400000,
     SECS_PER_HOUR = 3600,
@@ -108,12 +106,13 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     there are in this date's month and year, respectively. The
     isLeapYear() function indicates whether this date is in a leap year.
 
-    Note that QDate should not be used for date calculations for
-    dates prior to the introduction of the Gregorian calendar. This
-    calendar was adopted by England from the 14 September 1752 (hence
-    this is the earliest valid QDate), and subsequently by most other
-    Western countries, by 1923. The latest valid date within this
-    scheme is 31 December 7999.
+    Note that the Gregorian calendar was introduced at different dates
+    in different countries and regions: it was first conceived in
+    1580, but its adoption along the centuries was erratic. QDate uses
+    the Gregorian calendar for all dates, including those before its
+    conception ("proleptic Gregorian calendar"). Thus, the year 0 for
+    QDate is the year before 1 A.D. = 1 C.E. (that is 1 B.C.E.), the
+    year -1 is year 2 B.C.E and so forth.
 
     \sa QTime QDateTime QDateEdit QDateTimeEdit
 */
@@ -130,7 +129,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
 /*!
     Constructs a date with year \a y, month \a m and day \a d.
 
-    \a y must be in the range 1752 to 8000, \a m must be in the range
+    \a y must be larger than -4712, \a m must be in the range
     1 to 12, and \a d must be in the range 1 to 31.
 
     \warning If \a y is in the range 0 to 99, it is interpreted as
@@ -164,12 +163,14 @@ QDate::QDate(int y, int m, int d)
 
 bool QDate::isValid() const
 {
-    return jd >= FIRST_DAY;
+    return !isNull();
 }
 
 
 /*!
-    Returns the year (1752 to 8000) of this date.
+    Returns the year of this date. Zero and negative numbers indicate years
+    before 1 A.D. = 1 C.E., such that year 0 is 1 B.C.E., -1 is 2
+    B.C.E. and so forth.
 
     \sa month(), day()
 */
@@ -626,6 +627,10 @@ QString QDate::longDayName(int weekday)
 
     If the datetime is invalid, an empty string will be returned.
 
+    \warning The Qt::ISODate format is only valid for years in the
+    range 0 to 9999. This restriction may apply to Qt::LocalDate as
+    well, depending on the locale settings.
+
     \sa shortDayName(), shortMonthName()
 */
 QString QDate::toString(Qt::DateFormat f) const
@@ -713,6 +718,8 @@ QString QDate::toString(Qt::DateFormat f) const
 #endif
     case Qt::ISODate:
         {
+            if (year() < 0 || year() > 9999)
+                return QString();
             QString month(QString::number(m).rightJustified(2, QLatin1Char('0')));
             QString day(QString::number(d).rightJustified(2, QLatin1Char('0')));
             return QString::number(y) + QLatin1Char('-') + month + QLatin1Char('-') + day;
@@ -745,7 +752,7 @@ QString QDate::toString(Qt::DateFormat f) const
          \i the long localized month name (e.g. 'January' to 'December').
             Uses QDate::longMonthName().
     \row \i yy \i the year as two digit number (00 to 99)
-    \row \i yyyy \i the year as four digit number (1752 to 8000)
+    \row \i yyyy \i the year as four digit number
     \endtable
 
     All other input characters will be ignored. Any sequence of characters that
@@ -764,11 +771,16 @@ QString QDate::toString(Qt::DateFormat f) const
 
     If the datetime is invalid, an empty string will be returned.
 
+    \warning This function is only valid for years in the range 0 to
+    9999.
+    
     \sa QDateTime::toString() QTime::toString()
 
 */
 QString QDate::toString(const QString& format) const
 {
+    if (year() < 0 || year() > 9999)
+        return QString();
     return fmtDateTime(format, 0, this);
 }
 #endif //QT_NO_DATESTRING
@@ -776,7 +788,7 @@ QString QDate::toString(const QString& format) const
 /*!
     Sets the date's year \a y, month \a m, and day \a d.
 
-    \a y must be in the range 1752 to 8000, \a m must be in the range
+    \a y must be larger than -4712, \a m must be in the range
     1 to 12, and \a d must be in the range 1 to 31.
 
     \warning If \a y is in the range 0 to 99, it is interpreted as
@@ -1019,6 +1031,7 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
             */
             int monthPos = s.indexOf(QLatin1Char(' ')) + 1;
             int dayPos = s.indexOf(QLatin1Char(' '), monthPos) + 1;
+            int yearPos = s.indexOf(QLatin1Char(' '), dayPos) + 1;
 
             QString monthName(s.mid(monthPos, dayPos - monthPos - 1));
             int month = -1;
@@ -1046,7 +1059,7 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
                 return d;
             }
             int day = s.mid(dayPos, 2).trimmed().toInt();
-            int year = s.right(4).toInt();
+            int year = s.mid(yearPos).toInt();
             return QDate(year, month, day);
         }
 #else
@@ -1083,7 +1096,7 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
          \i The long localized month name (e.g. 'January' to 'December').
             Uses QDate::longMonthName().
     \row \i yy \i The year as two digit number (00 to 99)
-    \row \i yyyy \i The year as four digit number (1752 to 8000)
+    \row \i yyyy \i The year as four digit number
     \endtable
 
     All other input characters will be treated as text. Any sequence
@@ -1155,7 +1168,10 @@ QDate QDate::fromString(const QString &string, const QString &format)
         QDate::isValid(2002, 5, 17);  // true
         QDate::isValid(2002, 2, 30);  // false (Feb 30 does not exist)
         QDate::isValid(2004, 2, 29);  // true (2004 is a leap year)
-        QDate::isValid(1202, 6, 6);   // false (1202 is pre-Gregorian)
+        QDate::isValid(2000, 2, 29);  // true (2000 is a leap year)
+        QDate::isValid(2006, 2, 29);  // false (2006 is not a leap year)
+        QDate::isValid(2100, 2, 29);  // false (2100 is not a leap year)
+        QDate::isValid(1202, 6, 6);   // true (even though 1202 is pre-Gregorian)
     \endcode
 
     \warning A \a y value in the range 00 to 99 is interpreted as
@@ -1168,8 +1184,6 @@ bool QDate::isValid(int y, int m, int d)
 {
     if (y >= 0 && y <= 99)
         y += 1900;
-    else if (y < FIRST_YEAR || (y == FIRST_YEAR && (m < 9 || (m == 9 && d < 14))))
-        return false;
     return (d > 0 && m > 0 && m <= 12) &&
            (d <= monthDays[m] || (d == 29 && m == 2 && isLeapYear(y)));
 }
@@ -1189,54 +1203,40 @@ bool QDate::isLeapYear(int y)
 /*!
   \internal
   Converts a Gregorian date to a Julian day.
-  This algorithm is taken from Communications of the ACM, Vol 6, No 8.
+  This algorithm is from Henry F. Fliegel and Thomas C. Van Flandern.
   \sa julianToGregorian()
 */
 
 uint QDate::gregorianToJulian(int y, int m, int d)
 {
-    uint c, ya;
-    if (y <= 99)
+    if (y >= 0 && y <= 99)
         y += 1900;
-    if (m > 2) {
-        m -= 3;
-    } else {
-        m += 9;
-        y--;
-    }
-    c = y;                                        // NOTE: Sym C++ 6.0 bug
-    c /= 100;
-    ya = y - 100*c;
-    return 1721119 + d + (146097*c)/4 + (1461*ya)/4 + (153*m+2)/5;
+    return ( 1461 * ( y + 4800 + ( m - 14 ) / 12 ) ) / 4 +
+          ( 367 * ( m - 2 - 12 * ( ( m - 14 ) / 12 ) ) ) / 12 -
+          ( 3 * ( ( y + 4900 + ( m - 14 ) / 12 ) / 100 ) ) / 4 +
+          d - 32075;
 }
 
 /*!
   \internal
   Converts a Julian day to a Gregorian date.
-  This algorithm is taken from Communications of the ACM, Vol 6, No 8.
+  This algorithm is from Henry F. Fliegel and Thomas C. Van Flandern.
   \sa gregorianToJulian()
 */
 
 void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
 {
-    uint x;
-    uint j = jd - 1721119;
-    y = (j*4 - 1)/146097;
-    j = j*4 - 146097*y - 1;
-    x = j/4;
-    j = (x*4 + 3) / 1461;
-    y = 100*y + j;
-    x = (x*4) + 3 - 1461*j;
-    x = (x + 4)/4;
-    m = (5*x - 3)/153;
-    x = 5*x - 3 - 153*m;
-    d = (x + 5)/5;
-    if (m < 10) {
-        m += 3;
-    } else {
-        m -= 9;
-        y++;
-    }
+    qulonglong l, n, i, j;
+    l = qulonglong(jd) + 68569;
+    n = ( 4 * l ) / 146097;
+    l = l - ( 146097 * n + 3 ) / 4;
+    i = ( 4000 * ( l + 1 ) ) / 1461001;
+    l = l - ( 1461 * i ) / 4 + 31;
+    j = ( 80 * l ) / 2447;
+    d = l - ( 2447 * j ) / 80;
+    l = j / 11;
+    m = j + 2 - ( 12 * l );
+    y = 100 * ( n - 49 ) + i + l;
 }
 
 /*! \fn static QDate QDate::fromJulianDay(int jd)
@@ -2230,6 +2230,10 @@ void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
 
     If the datetime is invalid, an empty string will be returned.
 
+    \warning The Qt::ISODate format is only valid for years in the
+    range 0 to 9999. This restriction may apply to Qt::LocalDate as
+    well, depending on the locale settings.
+    
     \sa QDate::toString() QTime::toString() Qt::DateFormat
 */
 
@@ -2241,6 +2245,8 @@ QString QDateTime::toString(Qt::DateFormat f) const
 
     if (f == Qt::ISODate) {
         buf = d->date.toString(Qt::ISODate);
+        if (buf.isEmpty())
+            return QString();   // failed to convert
         buf += QLatin1Char('T');
         buf += d->time.toString(Qt::ISODate);
     }
@@ -2287,6 +2293,8 @@ QString QDateTime::toString(Qt::DateFormat f) const
 #endif
     else if (f == Qt::LocalDate) {
         buf = d->date.toString(Qt::LocalDate);
+        if (buf.isEmpty())
+            return QString();   // failed to convert
         buf += QLatin1Char(' ');
         buf += d->time.toString(Qt::LocalDate);
     }
@@ -2318,7 +2326,7 @@ QString QDateTime::toString(Qt::DateFormat f) const
             \i the long localized month name (e.g. 'January' to 'December').
             Uses QDate::longMonthName().
     \row \i yy \i the year as two digit number (00-99)
-    \row \i yyyy \i the year as four digit number (1752-8000)
+    \row \i yyyy \i the year as four digit number
     \endtable
 
     These expressions may be used for the time:
@@ -2700,7 +2708,8 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
             return QDateTime();
         }
         int day = s.mid(8, 2).simplified().toInt();
-        int year = s.right(4).toInt();
+        int yearPos = s.lastIndexOf(QLatin1Char(' ')) + 1;
+        int year = s.mid(yearPos).toInt();
         QDate date(year, month, day);
         QTime time;
         int hour, minute, second;
@@ -2744,7 +2753,7 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
             \i the long localized month name (e.g. 'January' to 'December').
             Uses QDate::longMonthName().
     \row \i yy \i the year as two digit number (00-99)
-    \row \i yyyy \i the year as four digit number (1752-8000)
+    \row \i yyyy \i the year as four digit number
     \endtable
 
     These expressions may be used for the time part of the format string:
@@ -3452,7 +3461,7 @@ int QDateTimeParser::absoluteMax(int s) const
     case MinuteSection:
     case SecondSection: return 59;
     case MSecSection: return 999;
-    case YearSection: return sn.count == 4 ? 7999 : 99;
+    case YearSection: return sn.count == 2 ? 99 : 9999;
     case MonthSection: return 12;
     case DaySection: return 31;
     case AmPmSection: return 1;
@@ -3478,7 +3487,7 @@ int QDateTimeParser::absoluteMin(int s) const
     case MinuteSection:
     case SecondSection:
     case MSecSection: return 0;
-    case YearSection: return sn.count == 4 ? 1752 : 0;
+    case YearSection: return -4712;
     case MonthSection:
     case DaySection: return 1;
     case AmPmSection: return 0;
@@ -4454,7 +4463,7 @@ int QDateTimeParser::maxChange(int index) const
     case MonthSection: return 365 - 31;
     case YearSection: return sn.count == 2
             ? 100 * 365
-            : (7999 - 1752) * 365;
+            : (9999 - (-4713)) * 365;
     default: qFatal("%s passed to maxChange. This should never happen", sectionName(sectionType(index)).toLatin1().constData());
     }
     return -1;
