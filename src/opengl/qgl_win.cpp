@@ -36,9 +36,6 @@ typedef bool (APIENTRY *PFNWGLCHOOSEPIXELFORMATARB)(HDC hdc,
                                                     uint nMaxFormats,
                                                     int *piFormats,
                                                     UINT *nNumFormats);
-static PFNWGLCHOOSEPIXELFORMATARB wglChoosePixelFormatARB = 0;
-static PFNWGLGETPIXELFORMATATTRIBIVARB wglGetPixelFormatAttribivARB = 0;
-
 #ifndef WGL_ARB_multisample
 #define WGL_SAMPLE_BUFFERS_ARB               0x2041
 #define WGL_SAMPLES_ARB                      0x2042
@@ -517,6 +514,9 @@ static QGLFormat pfdToQGLFormat(const PIXELFORMATDESCRIPTOR* pfd)
     return fmt;
 }
 
+/* 
+   NB! requires a current GL context to work
+*/
 QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
 {
     QGLFormat fmt;
@@ -534,10 +534,13 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB; // 8
     iAttributes[i++] = WGL_SAMPLES_ARB; // 9
     iAttributes[i++] = WGL_NUMBER_OVERLAYS_ARB; // 10
-
-    if (wglGetPixelFormatAttribivARB(hdc, pfi, 0, i,
-                                     iAttributes.constData(),
-                                     iValues.data()))
+    PFNWGLGETPIXELFORMATATTRIBIVARB wglGetPixelFormatAttribivARB =
+        (PFNWGLGETPIXELFORMATATTRIBIVARB) wglGetProcAddress("wglGetPixelFormatAttribivARB");
+    
+    if (wglGetPixelFormatAttribivARB 
+	&& wglGetPixelFormatAttribivARB(hdc, pfi, 0, i,
+					iAttributes.constData(),
+					iValues.data()))
     {
         fmt.setDoubleBuffer(iValues[0]);
         fmt.setDepth(iValues[1]);
@@ -694,7 +697,8 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
         bool overlayRequested = d->glFormat.hasOverlay();
         DescribePixelFormat(myDc, d->pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR), &realPfd);
-        if (wglGetPixelFormatAttribivARB)
+
+        if (wglGetProcAddress("wglGetPixelFormatAttribivARB"))
             d->glFormat = pfiToQGLFormat(myDc, d->pixelFormatId);
         else
             d->glFormat = pfdToQGLFormat(&realPfd);
@@ -778,7 +782,9 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         glGetIntegerv(GL_DEPTH_BITS, &params);
         opengl32dll = true;
     }
-
+    
+    PFNWGLCHOOSEPIXELFORMATARB wglChoosePixelFormatARB =
+        (PFNWGLCHOOSEPIXELFORMATARB) wglGetProcAddress("wglChoosePixelFormatARB");
     int chosenPfi = 0;
     if (!deviceIsPixmap() && wglChoosePixelFormatARB) {
         bool valid;
@@ -1385,11 +1391,6 @@ void QGLExtensions::init()
     SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
     HGLRC dmy_rc = wglCreateContext(dmy_pdc);
     wglMakeCurrent(dmy_pdc, dmy_rc);
-
-    wglChoosePixelFormatARB =
-        (PFNWGLCHOOSEPIXELFORMATARB) wglGetProcAddress("wglChoosePixelFormatARB");
-    wglGetPixelFormatAttribivARB =
-        (PFNWGLGETPIXELFORMATATTRIBIVARB) wglGetProcAddress("wglGetPixelFormatAttribivARB");
 
     init_extensions();
 
