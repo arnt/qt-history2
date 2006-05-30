@@ -600,7 +600,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->win = 0;
         myDc = d->hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
         QPixmap *px = static_cast<QPixmap *>(d->paintDevice);
-	
+
         BITMAPINFO bmi;
         memset(&bmi, 0, sizeof(bmi));
         bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
@@ -1038,9 +1038,10 @@ void QGLContext::makeCurrent()
     }
 
     if (wglMakeCurrent(d->dc, d->rc)) {
-        if (!qgl_context_storage.hasLocalData())
+        if (!qgl_context_storage.hasLocalData() && QThread::currentThread())
             qgl_context_storage.setLocalData(new QGLThreadContext);
-        qgl_context_storage.localData()->context = this;
+        if (qgl_context_storage.hasLocalData())
+            qgl_context_storage.localData()->context = this;
         currentCtx = this;
     } else {
         qwglError("QGLContext::makeCurrent()", "wglMakeCurrent");

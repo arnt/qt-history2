@@ -28,6 +28,7 @@
 #include "QtOpenGL/qgl.h"
 #include "QtOpenGL/qglcolormap.h"
 #include "QtCore/qmap.h"
+#include "QtCore/qthread.h"
 #include "QtCore/qthreadstorage.h"
 #include "QtCore/qhash.h"
 #include "private/qwidget_p.h"

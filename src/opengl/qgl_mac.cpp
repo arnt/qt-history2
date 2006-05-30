@@ -282,9 +282,10 @@ void QGLContext::makeCurrent()
     if (d->update)
 	updatePaintDevice();
     currentCtx = this;
-    if (!qgl_context_storage.hasLocalData())
+    if (!qgl_context_storage.hasLocalData() && QThread::currentThread())
         qgl_context_storage.setLocalData(new QGLThreadContext);
-    qgl_context_storage.localData()->context = this;
+    if (qgl_context_storage.hasLocalData())
+        qgl_context_storage.localData()->context = this;
 }
 
 static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
