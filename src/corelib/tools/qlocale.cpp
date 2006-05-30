@@ -2707,7 +2707,7 @@ QLocale QLocale::system()
     const QByteArray env = envVarLocale();
     if (systemLocaleName() == env || env.isEmpty()) {
         QLocale result(C); // cannot be default constructor, or we go into a recursion loop
-        //result.d = systemLocale();
+        result.d = systemLocale();
         return result;
     }
 #endif
