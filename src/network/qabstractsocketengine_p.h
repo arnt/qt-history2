@@ -31,7 +31,7 @@
 
 class QAbstractSocketEnginePrivate;
 
-class Q_INTERNAL_EXPORT QAbstractSocketEngine : public QObject
+class Q_AUTOTEST_EXPORT QAbstractSocketEngine : public QObject
 {
     Q_OBJECT
 public:
@@ -147,7 +147,7 @@ public:
 };
 
 
-class Q_INTERNAL_EXPORT QSocketEngineHandler
+class Q_AUTOTEST_EXPORT QSocketEngineHandler
 {
 protected:
     QSocketEngineHandler();

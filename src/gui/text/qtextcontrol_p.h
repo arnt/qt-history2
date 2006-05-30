@@ -47,7 +47,7 @@ class QTextControlPrivate;
 class QMimeData;
 class QAbstractScrollArea;
 
-class Q_INTERNAL_EXPORT QTextControl : public QObject
+class Q_AUTOTEST_EXPORT QTextControl : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextControl)

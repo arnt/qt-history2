@@ -975,11 +975,11 @@ class QDataStream;
    symbols that can vanish from version to version, feel free to define QT_BUILD_INTERNAL.
 */
 #if defined(QT_BUILD_INTERNAL) && defined(Q_OS_WIN) && defined(QT_MAKEDLL)
-#    define Q_INTERNAL_EXPORT Q_DECL_EXPORT
+#    define Q_AUTOTEST_EXPORT Q_DECL_EXPORT
 #elif defined(QT_BUILD_INTERNAL) && !defined(Q_OS_WIN) && defined(QT_SHARED)
-#    define Q_INTERNAL_EXPORT Q_DECL_EXPORT
+#    define Q_AUTOTEST_EXPORT Q_DECL_EXPORT
 #else
-#    define Q_INTERNAL_EXPORT
+#    define Q_AUTOTEST_EXPORT
 #endif
 
 /*
