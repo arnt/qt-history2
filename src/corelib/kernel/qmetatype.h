@@ -94,7 +94,7 @@ void qMetaTypeLoadHelper(QDataStream &stream, T *t)
 }
 #endif // QT_NO_DATASTREAM
 
-#include "qmetatypedetect.h"
+#include <QtCore/qmetatypedetect.h>
 
 template <typename T>
 int qRegisterMetaType(const char *typeName
