@@ -624,7 +624,7 @@ void QGLContext::doneCurrent()
 {
     Q_D(QGLContext);
     glXMakeCurrent(qt_x11Info(d->paintDevice)->display(), 0, 0);
-    if (qgl_context_storage.hasLocalData() && QThread::currentThread())
+    if (qgl_context_storage.hasLocalData())
         qgl_context_storage.localData()->context = 0;
     currentCtx = 0;
 }
