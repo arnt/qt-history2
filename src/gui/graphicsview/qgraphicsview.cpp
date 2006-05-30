@@ -1517,9 +1517,11 @@ void QGraphicsView::dropEvent(QDropEvent *event)
     // Send it to the scene.
     QApplication::sendEvent(d->scene, &sceneEvent);
 
-    // Ignore the originating event if the scene ignored the scene event.
-    event->setAccepted(sceneEvent.isAccepted());
-    event->setDropAction(sceneEvent.dropAction());
+    // Accept the originating event if the scene accepted the scene event.
+    if (sceneEvent.isAccepted()) {
+        event->accept();
+        event->setDropAction(sceneEvent.dropAction());
+    }
 }
 
 /*!
@@ -1541,9 +1543,11 @@ void QGraphicsView::dragEnterEvent(QDragEnterEvent *event)
     // Send it to the scene.
     QApplication::sendEvent(d->scene, &sceneEvent);
 
-    // Ignore the originating event if the scene ignored the scene event.
-    event->setAccepted(sceneEvent.isAccepted());
-    event->setDropAction(sceneEvent.dropAction());
+    // Accept the originating event if the scene accepted the scene event.
+    if (sceneEvent.isAccepted()) {
+        event->accept();
+        event->setDropAction(sceneEvent.dropAction());
+    }
 }
 
 /*!
@@ -1577,8 +1581,9 @@ void QGraphicsView::dragLeaveEvent(QDragLeaveEvent *event)
     // Send it to the scene.
     QApplication::sendEvent(d->scene, &sceneEvent);
 
-    // Ignore the originating event if the scene ignored the scene event.
-    event->setAccepted(sceneEvent.isAccepted());
+    // Accept the originating event if the scene accepted the scene event.
+    if (sceneEvent.isAccepted())
+        event->accept();
 }
 
 /*!
@@ -1601,8 +1606,10 @@ void QGraphicsView::dragMoveEvent(QDragMoveEvent *event)
     QApplication::sendEvent(d->scene, &sceneEvent);
 
     // Ignore the originating event if the scene ignored the scene event.
-    event->setAccepted(sceneEvent.isAccepted());
-    event->setDropAction(sceneEvent.dropAction());
+    if (sceneEvent.isAccepted()) {
+        event->accept();
+        event->setDropAction(sceneEvent.dropAction());
+    }
 }
 
 /*!

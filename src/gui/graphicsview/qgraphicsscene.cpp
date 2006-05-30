@@ -1685,7 +1685,7 @@ void QGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
             // Enter the new drag drop item. If it accepts the event, we send
             // the leave to the parent item.
             QGraphicsSceneDragDropEvent dragEnter(QEvent::GraphicsSceneDragEnter);
-            d->cloneDragDropEvent(event, &dragEnter);
+            d->cloneDragDropEvent(&dragEnter, event);
             dragEnter.setDropAction(event->proposedAction());
             d->sendDragDropEvent(item, &dragEnter);
             event->setAccepted(dragEnter.isAccepted());
@@ -1694,38 +1694,42 @@ void QGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
                 // Propagate to the item under
                 continue;
             }
-
+            
+            d->lastDropAction = event->dropAction();
+            
             if (d->dragDropItem) {
                 // Leave the last drag drop item. A perfect implementation
                 // would set the position of this event to the point where
                 // this event and the last event intersect with the item's
                 // shape, but that's not easy to do. :-)
                 QGraphicsSceneDragDropEvent dragLeave(QEvent::GraphicsSceneDragLeave);
-                d->cloneDragDropEvent(event, &dragLeave);
+                d->cloneDragDropEvent(&dragLeave, event);
                 d->sendDragDropEvent(d->dragDropItem, &dragLeave);
             }
             
             // We've got a new drag & drop item
             d->dragDropItem = item;
-            d->lastDropAction = event->isAccepted() ? event->dropAction() : Qt::IgnoreAction;
         }
 
         // Send the move event.
         event->setDropAction(d->lastDropAction);
         event->accept();
         d->sendDragDropEvent(item, event);
-        if (!event->isAccepted())
-            event->setDropAction(Qt::IgnoreAction);
-        d->lastDropAction = event->dropAction();
-        eventDelivered = true;
-        break;
+        if (event->isAccepted()) {
+            d->lastDropAction = event->dropAction();
+            eventDelivered = true;
+            break;
+        }
+
+        // Propagate
+        event->setDropAction(Qt::IgnoreAction);
     }
 
     if (!eventDelivered) {
         if (d->dragDropItem) {
             // Leave the last drag drop item
             QGraphicsSceneDragDropEvent dragLeave(QEvent::GraphicsSceneDragLeave);
-            d->cloneDragDropEvent(event, &dragLeave);
+            d->cloneDragDropEvent(&dragLeave, event);
             d->sendDragDropEvent(d->dragDropItem, &dragLeave);
             d->dragDropItem = 0;
         }
