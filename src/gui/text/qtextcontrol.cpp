@@ -1146,7 +1146,7 @@ bool QTextControl::event(QEvent *e)
             break; }
         case QEvent::GraphicsSceneMouseMove: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mouseMoveEvent(ev->button(), ev->pos());
+            d->mouseMoveEvent(ev->buttons(), ev->pos());
             break; }
         case QEvent::GraphicsSceneMouseRelease: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
