@@ -73,10 +73,10 @@ class QMakeProject
                        QMap<QString, QStringList> &place);
     bool doProjectTest(QString func, QStringList args,
                        QMap<QString, QStringList> &place);
-    QString doProjectExpand(QString func, const QString &params,
-                            QMap<QString, QStringList> &place);
-    QString doProjectExpand(QString func, QStringList args,
-                            QMap<QString, QStringList> &place);
+    QStringList doProjectExpand(QString func, const QString &params,
+                                QMap<QString, QStringList> &place);
+    QStringList doProjectExpand(QString func, QStringList args,
+                                QMap<QString, QStringList> &place);
 
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
     bool doVariableReplace(QString &str, QMap<QString, QStringList> &place);
