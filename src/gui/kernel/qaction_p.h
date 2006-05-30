@@ -37,7 +37,7 @@ class QMenuItemEmitter;
 
 class QShortcutMap;
 
-class Q_INTERNAL_EXPORT QActionPrivate : public QObjectPrivate
+class Q_AUTOTEST_EXPORT QActionPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QAction)
 public:
