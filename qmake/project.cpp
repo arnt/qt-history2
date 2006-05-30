@@ -2486,38 +2486,7 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
     for(int i = 0; i < str_len; ++i) {
         unicode = (str_data+i)->unicode();
         const int start_var = i;
-        if(unicode == SLASH) {
-            bool escape = false;
-            const char *symbols = "[]{}()$\\'\"";
-            for(const char *s = symbols; *s; ++s) {
-                if(*(str_data+i+1) == (ushort)*s) {
-                    i++;
-                    escape = true;
-                    if(!(replaced++))
-                        current = str.left(start_var);
-                    current.append(str.at(i));
-                    break;
-                }
-            }
-            if(!escape && replaced)
-                current.append(QChar(unicode));
-            continue;
-        }
-        if(quote && unicode == quote) {
-            unicode = 0;
-            quote = 0;
-        } else if(unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE) {
-            quote = unicode;
-            unicode = 0;
-            if(!(replaced++) && i)
-                current = str.left(i);
-        } else if(!quote && (unicode == SPACE || unicode == TAB)) {
-            unicode = 0;
-            if(!current.isEmpty()) {
-                ret.append(current);
-                current.clear();
-            }
-        } else if(unicode == DOLLAR && str_len > i+2) {
+        if(unicode == DOLLAR && str_len > i+2) {
             unicode = (str_data+(++i))->unicode();
             if(unicode == DOLLAR) {
                 term = 0;
@@ -2621,6 +2590,32 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
         if(quote && unicode == quote) {
             unicode = 0;
             quote = 0;
+        } else if(unicode == SLASH) {
+            bool escape = false;
+            const char *symbols = "[]{}()$\\'\"";
+            for(const char *s = symbols; *s; ++s) {
+                if(*(str_data+i+1) == (ushort)*s) {
+                    i++;
+                    escape = true;
+                    if(!(replaced++))
+                        current = str.left(start_var);
+                    current.append(str.at(i));
+                    break;
+                }
+            }
+            if(escape || !replaced)
+                unicode =0;
+        } else if(!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
+            quote = unicode;
+            unicode = 0;
+            if(!(replaced++) && i)
+                current = str.left(i);
+        } else if(!quote && (unicode == SPACE || unicode == TAB)) {
+            unicode = 0;
+            if(!current.isEmpty()) {
+                ret.append(current);
+                current.clear();
+            }
         }
         if(replaced && unicode)
             current.append(QChar(unicode));
