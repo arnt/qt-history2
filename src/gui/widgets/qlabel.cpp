@@ -860,8 +860,17 @@ void QLabel::mouseReleaseEvent(QMouseEvent *ev)
         update(contentsRect());
     }
 
-    if (d->selection.hasSelection()) // user completed a selection
+    if (d->selection.hasSelection()) { // user completed a selection
+#ifndef QT_NO_CLIPBOARD
+        QClipboard *clipboard = QApplication::clipboard();
+        if (clipboard->supportsSelection()) {
+            const QTextDocumentFragment fragment(d->selection.selection());
+            QTextEditMimeData *md = new QTextEditMimeData(fragment);
+            clipboard->setMimeData(md, QClipboard::Selection);
+        }
+#endif
         return;
+    }
 
     // check for link clicks. ensure that the mouse press and release happenned on the same anchor
     QPoint p = d->layoutPoint(ev->pos());
