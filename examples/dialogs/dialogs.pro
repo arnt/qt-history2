@@ -1,9 +1,7 @@
 TEMPLATE      = subdirs
-SUBDIRS       = complexwizard \
-                configdialog \
+SUBDIRS       = configdialog \
                 extension \
                 findfiles \
-                simplewizard \
                 standarddialogs \
                 tabdialog
 

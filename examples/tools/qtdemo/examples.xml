@@ -10,11 +10,9 @@
     <example filename="worldtimeclockplugin" name="World Time Clock Plugin" />
   </category>
   <category dirname="dialogs" name="Dialogs">
-    <example filename="complexwizard" name="Complex Wizard" />
     <example filename="configdialog" name="Configuration Dialog" />
     <example filename="extension" name="Extension Dialog" />
     <example filename="findfiles" name="Find Files Dialog" />
-    <example filename="simplewizard" name="Simple Wizard" />
     <example filename="standarddialogs" name="Standard Dialogs" />
     <example filename="tabdialog" name="Tab Dialog" />
   </category>

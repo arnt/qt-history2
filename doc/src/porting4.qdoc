@@ -4052,12 +4052,10 @@
 
     The \c QWizard class is no longer part of the Qt public API. It
     has been renamed Q3Wizard and moved to Qt3Support. In Qt 4 applications,
-    you can easily obtain the same result by combining a QStackedWidget with
-    a QDialog and provide \l{QPushButton}s yourself.
-
-    The \l{dialogs/simplewizard}{Simple Wizard} and
-    \l{dialogs/complexwizard}{Complex Wizard} examples show how to
-    create wizards without using Q3Wizard.
+    you can obtain the same result by combining a QStackedWidget with
+    a QDialog and provide \l{QPushButton}s yourself. There is also
+    a \l{http://www.trolltech.com/products/qt/addon/solutions/catalog/4/Widgets/qtwizard/}{QtWizard}
+    solution available from Trolltech.
 
     \section1 QWorkspace
 
