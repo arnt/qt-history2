@@ -460,11 +460,17 @@ bool QTextStreamPrivate::fillReadBuffer()
     // read raw data into a temporary buffer
     char buf[QTEXTSTREAM_BUFFERSIZE];
     qint64 bytesRead = 0;
-#if defined(Q_OS_WIN) && !defined(QT_NO_QOBJECT)
+#if defined(Q_OS_WIN)
     // On Windows, there is no non-blocking stdin - so we fall back to reading
-    // lines instead.
-    QFile *file = qobject_cast<QFile *>(device);
-    if (file && file->isSequential() && file->handle() == 0) {
+    // lines instead. If there is no QOBJECT, we read lines for all sequential
+    // devices; otherwise, we read lines only for stdin.
+    QFile *file = 0;
+    Q_UNUSED(file);
+    if (device->isSequential()
+#if !defined(QT_NO_QOBJECT)
+        && (file = qobject_cast<QFile *>(device)) && file->handle() == 0
+#endif
+        ) {
         bytesRead = device->readLine(buf, sizeof(buf));
     } else
 #endif
@@ -492,10 +498,10 @@ bool QTextStreamPrivate::fillReadBuffer()
             writeConverterState.flags |= QTextCodec::IgnoreHeader;
         }
     }
-#endif
 #if defined (QTEXTSTREAM_DEBUG)
     qDebug("QTextStreamPrivate::fillReadBuffer(), using %s codec",
            codec->name().constData());
+#endif
 #endif
 
     readBuffer += endOfBufferState;
