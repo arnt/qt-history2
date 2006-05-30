@@ -1947,6 +1947,8 @@ void QTextControlPrivate::contextMenuEvent(const QPoint &pos)
     Q_UNUSED(pos);
 #else
     Q_Q(QTextControl);
+    if (!hasFocus)
+        return;
     QMenu *menu = q->createStandardContextMenu();
     menu->exec(pos);
     delete menu;
