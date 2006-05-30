@@ -182,19 +182,12 @@ public:
 
     virtual void setFocus(bool focus, Qt::FocusReason = Qt::OtherFocusReason);
 
-    virtual void keyPressEvent(QKeyEvent *e);
-    virtual void keyReleaseEvent(QKeyEvent *e);
-    virtual void mousePressEvent(QMouseEvent *e);
-    virtual void mouseMoveEvent(QMouseEvent *e);
-    virtual void mouseReleaseEvent(QMouseEvent *e);
-    virtual void mouseDoubleClickEvent(QMouseEvent *e);
+    virtual QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
 
-    virtual void inputMethodEvent(QInputMethodEvent *);
-    QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
+    virtual bool event(QEvent *e);
 
 protected:
-//    virtual bool event(QEvent *e);
-    virtual void timerEvent(QTimerEvent *e);
+    void timerEvent(QTimerEvent *e);
 /*
     virtual void dragEnterEvent(QDragEnterEvent *e);
     virtual void dragLeaveEvent(QDragLeaveEvent *e);

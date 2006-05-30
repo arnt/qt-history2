@@ -98,6 +98,15 @@ public:
     inline QRectF selectionRect() const
     { return selectionRect(this->cursor); }
 
+    void keyPressEvent(QKeyEvent *e);
+    void keyReleaseEvent(QKeyEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseDoubleClickEvent(QMouseEvent *e);
+
+    void inputMethodEvent(QInputMethodEvent *);
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;

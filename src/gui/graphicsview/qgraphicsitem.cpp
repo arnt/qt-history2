@@ -2032,7 +2032,7 @@ void QGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
             setAcceptDrops(true);
             ...
         }
-    
+
         void CustomItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
         {
             event->setAccepted(event->mimeData()->hasFormat("text/plain"));
@@ -2102,7 +2102,7 @@ void QGraphicsItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
     drag move event was accepted.
 
     Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
-    
+
     Items do not receive drag and drop events by default; to enable this
     feature, call setAcceptDrops(true).
 
@@ -3923,7 +3923,7 @@ void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
                            (dd->controlOffset() + event->pos()).toPoint(),
                            event->button(), event->buttons(),
                            event->modifiers());
-    dd->textControl->mousePressEvent(&mouseEvent);
+    QApplication::sendEvent(dd->textControl, &mouseEvent);
 }
 
 /*!
@@ -3942,7 +3942,7 @@ void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
                            (dd->controlOffset() + event->pos()).toPoint(),
                            event->button(), event->buttons(),
                            event->modifiers());
-    dd->textControl->mouseMoveEvent(&mouseEvent);
+    QApplication::sendEvent(dd->textControl, &mouseEvent);
 }
 
 /*!
@@ -3961,7 +3961,7 @@ void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                            (dd->controlOffset() + event->pos()).toPoint(),
                            event->button(), event->buttons(),
                            event->modifiers());
-    dd->textControl->mouseReleaseEvent(&mouseEvent);
+    QApplication::sendEvent(dd->textControl, &mouseEvent);
 }
 
 /*!
@@ -3980,7 +3980,7 @@ void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
                            (dd->controlOffset() + event->pos()).toPoint(),
                            event->button(), event->buttons(),
                            event->modifiers());
-    dd->textControl->mouseDoubleClickEvent(&mouseEvent);
+    QApplication::sendEvent(dd->textControl, &mouseEvent);
 }
 
 /*!
@@ -3989,7 +3989,7 @@ void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
 {
     if (dd->textControl)
-        dd->textControl->keyPressEvent(event);
+        QApplication::sendEvent(dd->textControl, event);
 }
 
 /*!
@@ -3998,7 +3998,7 @@ void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
 void QGraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
 {
     if (dd->textControl)
-        dd->textControl->keyReleaseEvent(event);
+        QApplication::sendEvent(dd->textControl, event);
 }
 
 /*!
