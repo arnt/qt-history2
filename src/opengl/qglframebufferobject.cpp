@@ -83,7 +83,7 @@
 
 #ifdef Q_WS_X11
 
-#define QGL_FUNC_CONTEXT 
+#define QGL_FUNC_CONTEXT
 
 PFNGLISRENDERBUFFEREXTPROC qt_glIsRenderbufferEXT;
 PFNGLBINDRENDERBUFFEREXTPROC qt_glBindRenderbufferEXT;
@@ -208,6 +208,7 @@ static bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
     return glIsRenderbufferEXT;
 }
 #elif defined(Q_WS_MAC)
+#define QGL_FUNC_CONTEXT
 static bool qt_resolve_framebufferobject_extensions(QGLContext *)
 {
     return true; // assume these are always available on Mac OS X

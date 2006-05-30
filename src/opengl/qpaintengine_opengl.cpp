@@ -531,10 +531,6 @@ static void strokeCurveTo(qfixed c1x, qfixed c1y,
                                                           qt_fixed_to_real(ey)));
 }
 
-#ifndef APIENTRY
-# define APIENTRY
-#endif
-
 #ifndef GL_MULTISAMPLE
 #define GL_MULTISAMPLE  0x809D
 #endif

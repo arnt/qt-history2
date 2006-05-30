@@ -42,14 +42,17 @@ class QMacWindowChangeEvent;
 
 // extension prototypes
 #ifndef Q_WS_MAC
-#ifndef APIENTRYP
-#ifdef APIENTRY
-#define APIENTRYP APIENTRY *
+# ifndef APIENTRYP
+#   ifdef APIENTRY
+#     define APIENTRYP APIENTRY *
+#   else
+#     define APIENTRYP *
+#   endif
+# endif
 #else
-#define APIENTRYP *
+# define APIENTRY
+# define APIENTRYP *
 #endif
-#endif
-#endif 
 
 // ARB_fragment_program
 typedef void (APIENTRY *_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
