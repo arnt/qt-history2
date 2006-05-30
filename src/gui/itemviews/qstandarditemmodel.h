@@ -362,8 +362,8 @@ inline void QStandardItemModel::appendRow(QStandardItem *aitem)
 { appendRow(QList<QStandardItem*>() << aitem); }
 
 #ifndef QT_NO_DATASTREAM
-QDataStream &operator>>(QDataStream &in, QStandardItem &item);
-QDataStream &operator<<(QDataStream &out, const QStandardItem &item);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QStandardItem &item);
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &out, const QStandardItem &item);
 #endif
 
 #endif // QT_NO_STANDARDITEMMODEL
