@@ -468,7 +468,7 @@ void QTextControlPrivate::startDrag()
 }
 */
 
-void QTextControlPrivate::setCursorPosition(const QPoint &pos)
+void QTextControlPrivate::setCursorPosition(const QPointF &pos)
 {
     const int cursorPos = doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
     if (cursorPos == -1)
@@ -1116,18 +1116,22 @@ bool QTextControl::event(QEvent *e)
         case QEvent::KeyRelease:
             d->keyReleaseEvent(static_cast<QKeyEvent *>(e));
             break;
-        case QEvent::MouseButtonPress:
-            d->mousePressEvent(static_cast<QMouseEvent *>(e));
-            break;
-        case QEvent::MouseMove:
-            d->mouseMoveEvent(static_cast<QMouseEvent *>(e));
-            break;
-        case QEvent::MouseButtonRelease:
-            d->mouseReleaseEvent(static_cast<QMouseEvent *>(e));
-            break;
-        case QEvent::MouseButtonDblClick:
-            d->mouseDoubleClickEvent(static_cast<QMouseEvent *>(e));
-            break;
+        case QEvent::MouseButtonPress: {
+            QMouseEvent *ev = static_cast<QMouseEvent *>(e);
+            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers());
+            break; }
+        case QEvent::MouseMove: {
+            QMouseEvent *ev = static_cast<QMouseEvent *>(e);
+            d->mouseMoveEvent(ev->buttons(), ev->pos());
+            break; }
+        case QEvent::MouseButtonRelease: {
+            QMouseEvent *ev = static_cast<QMouseEvent *>(e);
+            d->mouseReleaseEvent(ev->button(), ev->pos());
+            break; }
+        case QEvent::MouseButtonDblClick: {
+            QMouseEvent *ev = static_cast<QMouseEvent *>(e);
+            d->mouseDoubleClickEvent(e, ev->button(), ev->pos());
+            break; }
         case QEvent::InputMethod:
             d->inputMethodEvent(static_cast<QInputMethodEvent *>(e));
             break;
@@ -1659,17 +1663,15 @@ QRectF QTextControlPrivate::selectionRect(const QTextCursor &cursor) const
 
 /* \reimp
 */
-void QTextControlPrivate::mousePressEvent(QMouseEvent *e)
+void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF &pos, Qt::KeyboardModifiers modifiers)
 {
     Q_Q(QTextControl);
 
-    if (!(e->button() & Qt::LeftButton))
+    if (!(button & Qt::LeftButton))
         return;
 
     const QTextCursor oldSelection = cursor;
     const int oldCursorPos = cursor.position();
-
-    const QPointF pos = e->pos();
 
     mousePressed = true;
 #ifndef QT_NO_DRAGANDDROP
@@ -1677,7 +1679,8 @@ void QTextControlPrivate::mousePressEvent(QMouseEvent *e)
 #endif
 
     if (trippleClickTimer.isActive()
-        && ((e->globalPos() - trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
+        && ((pos - trippleClickPoint).toPoint().manhattanLength() < QApplication::startDragDistance())) {
+// #####        && ((e->globalPos() - trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
 
 #if defined(Q_WS_MAC)
         cursor.select(QTextCursor::LineUnderCursor);
@@ -1706,7 +1709,7 @@ void QTextControlPrivate::mousePressEvent(QMouseEvent *e)
         }
         */
 #endif
-        if (e->modifiers() == Qt::ShiftModifier) {
+        if (modifiers == Qt::ShiftModifier) {
             if (selectedWordOnDoubleClick.hasSelection())
                 extendWordwiseSelection(cursorPos, pos.x());
             else if (selectedLineOnDoubleClick.hasSelection())
@@ -1721,7 +1724,8 @@ void QTextControlPrivate::mousePressEvent(QMouseEvent *e)
                 && doc->documentLayout()->hitTest(pos, Qt::ExactHit) != -1) {
 #ifndef QT_NO_DRAGANDDROP
                 mightStartDrag = true;
-                dragStartPos = e->globalPos();
+                // ######## dragStartPos = e->globalPos();
+                dragStartPos = pos.toPoint();
                 dragStartTimer.start(QApplication::startDragTime(), q);
 #endif
                 return;
@@ -1746,10 +1750,10 @@ void QTextControlPrivate::mousePressEvent(QMouseEvent *e)
 
 /* \reimp
 */
-void QTextControlPrivate::mouseMoveEvent(QMouseEvent *e)
+void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF &mousePos)
 {
     Q_Q(QTextControl);
-    if (!(e->buttons() & Qt::LeftButton))
+    if (!(buttons & Qt::LeftButton))
         return;
 
     if (!(mousePressed
@@ -1770,7 +1774,6 @@ void QTextControlPrivate::mouseMoveEvent(QMouseEvent *e)
         return;
     }
 */
-    const QPointF mousePos = e->pos();
     const qreal mouseX = qreal(mousePos.x());
 
     /* ###### portme
@@ -1801,8 +1804,7 @@ void QTextControlPrivate::mouseMoveEvent(QMouseEvent *e)
         setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
 
     if (readOnly) {
-        const QPointF pos = e->pos();
-        emit q->visibilityRequest(QRectF(pos, QSizeF(1, 1)));
+        emit q->visibilityRequest(QRectF(mousePos, QSizeF(1, 1)));
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
         selectionChanged();
@@ -1817,12 +1819,9 @@ void QTextControlPrivate::mouseMoveEvent(QMouseEvent *e)
 
 /* \reimp
 */
-void QTextControlPrivate::mouseReleaseEvent(QMouseEvent *e)
+void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPointF &pos)
 {
     Q_Q(QTextControl);
-#if defined(QT_NO_DRAGANDDROP) && defined(QT_NO_CLIPBOARD)
-    Q_UNUSED(e);
-#endif
 
     autoScrollTimer.stop();
     const QTextCursor oldSelection = cursor;
@@ -1830,7 +1829,7 @@ void QTextControlPrivate::mouseReleaseEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
     if (mightStartDrag) {
         mousePressed = false;
-        setCursorPosition(e->pos());
+        setCursorPosition(pos);
         cursor.clearSelection();
         selectionChanged();
     }
@@ -1839,10 +1838,10 @@ void QTextControlPrivate::mouseReleaseEvent(QMouseEvent *e)
         mousePressed = false;
 #ifndef QT_NO_CLIPBOARD
         setClipboardSelection();
-    } else if (e->button() == Qt::MidButton
+    } else if (button == Qt::MidButton
                && !readOnly
                && QApplication::clipboard()->supportsSelection()) {
-        setCursorPosition(e->pos());
+        setCursorPosition(pos);
         const QMimeData *md = QApplication::clipboard()->mimeData(QClipboard::Selection);
         if (md)
             q->insertFromMimeData(md);
@@ -1858,10 +1857,10 @@ void QTextControlPrivate::mouseReleaseEvent(QMouseEvent *e)
 
 /* \reimp
 */
-void QTextControlPrivate::mouseDoubleClickEvent(QMouseEvent *e)
+void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton button, const QPointF &pos)
 {
     Q_Q(QTextControl);
-    if (e->button() != Qt::LeftButton) {
+    if (button != Qt::LeftButton) {
         e->ignore();
         return;
     }
@@ -1875,7 +1874,7 @@ void QTextControlPrivate::mouseDoubleClickEvent(QMouseEvent *e)
     mightStartDrag = false;
 #endif
     const QTextCursor oldSelection = cursor;
-    setCursorPosition(e->pos());
+    setCursorPosition(pos);
     QTextLine line = currentTextLine(cursor);
     if (line.isValid() && line.textLength()) {
         cursor.select(QTextCursor::WordUnderCursor);
@@ -1888,7 +1887,8 @@ void QTextControlPrivate::mouseDoubleClickEvent(QMouseEvent *e)
 
     selectedWordOnDoubleClick = cursor;
 
-    trippleClickPoint = e->globalPos();
+// ####    trippleClickPoint = e->globalPos();
+    trippleClickPoint = pos;
     trippleClickTimer.start(qApp->doubleClickInterval(), q);
 }
 

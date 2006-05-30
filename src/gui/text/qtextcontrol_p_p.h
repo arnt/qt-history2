@@ -65,7 +65,7 @@ public:
 
     void paste(const QMimeData *source);
 
-    void setCursorPosition(const QPoint &pos);
+    void setCursorPosition(const QPointF &pos);
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     void repaintCursor();
@@ -100,10 +100,10 @@ public:
 
     void keyPressEvent(QKeyEvent *e);
     void keyReleaseEvent(QKeyEvent *e);
-    void mousePressEvent(QMouseEvent *e);
-    void mouseMoveEvent(QMouseEvent *e);
-    void mouseReleaseEvent(QMouseEvent *e);
-    void mouseDoubleClickEvent(QMouseEvent *e);
+    void mousePressEvent(Qt::MouseButton button, const QPointF &pos, Qt::KeyboardModifiers modifiers);
+    void mouseMoveEvent(Qt::MouseButtons buttons, const QPointF &pos);
+    void mouseReleaseEvent(Qt::MouseButton button, const QPointF &pos);
+    void mouseDoubleClickEvent(QEvent *e, Qt::MouseButton button, const QPointF &pos);
 
     void inputMethodEvent(QInputMethodEvent *);
 
@@ -119,7 +119,7 @@ public:
     QBasicTimer cursorBlinkTimer;
     QBasicTimer autoScrollTimer;
     QBasicTimer trippleClickTimer;
-    QPoint trippleClickPoint;
+    QPointF trippleClickPoint;
 
     bool mousePressed;
 
