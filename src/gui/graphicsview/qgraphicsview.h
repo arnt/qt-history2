@@ -28,7 +28,6 @@ class QGraphicsItem;
 class QGraphicsScene;
 class QPainterPath;
 class QPolygonF;
-class QStyleOptionGraphicsItem;
 
 Q_DECLARE_METATYPE(QPainter::RenderHints)
 
@@ -36,8 +35,6 @@ class QGraphicsViewPrivate;
 class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
 {
     Q_OBJECT
-    Q_PROPERTY(QBrush backgroundBrush READ backgroundBrush WRITE setBackgroundBrush)
-    Q_PROPERTY(QBrush foregroundBrush READ foregroundBrush WRITE setForegroundBrush)
     Q_PROPERTY(bool interactive READ isInteractive WRITE setInteractive)
     Q_PROPERTY(QRectF sceneRect READ sceneRect WRITE setSceneRect)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
@@ -74,12 +71,6 @@ public:
     void setSceneRect(const QRectF &rect);
     inline void setSceneRect(qreal x, qreal y, qreal w, qreal h);
     
-    QBrush backgroundBrush() const;
-    void setBackgroundBrush(const QBrush &brush);
-    
-    QBrush foregroundBrush() const;
-    void setForegroundBrush(const QBrush &brush);
-
     QMatrix matrix() const;    
     void setMatrix(const QMatrix &matrix, bool combine = false);
     void resetMatrix();
@@ -100,8 +91,10 @@ public:
     void fitInView(const QGraphicsItem *item,
                    Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio);
 
-    void drawScene(QPainter *painter, const QRectF &target = QRectF(), const QRect &source = QRect(),
-                   Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
+    void render(QPainter *painter, Qt::AspectRatioMode aspectRatioMode,
+                const QRectF &target = QRectF(), const QRect &source = QRect());
+    void render(QPainter *painter, const QRectF &target = QRectF(),
+                const QRect &source = QRect());
     
     QList<QGraphicsItem *> items() const;
     QList<QGraphicsItem *> items(const QPoint &pos) const;
@@ -153,11 +146,6 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);
     void showEvent(QShowEvent *event);
-
-    virtual void paintBackground(QPainter *painter, const QRectF &rect);
-    virtual void paintForeground(QPainter *painter, const QRectF &rect);
-    virtual void paintItems(QPainter *painter, const QList<QGraphicsItem *> &items,
-                            const QList<QStyleOptionGraphicsItem> &options);
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsView)

@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-//#define QGRAPHICSVIEW_DEBUG
-
 // Constants
 static const int GraphicsViewRegionRectThreshold = 20;
 
@@ -58,22 +56,17 @@ static const int GraphicsViewRegionRectThreshold = 20;
     yourself, you can call setSceneRect(). This will adjust the scrollbars'
     ranges appropriately.
 
-    QGraphicsView visualizes the scene by first painting an optional
-    background, then the items, and finally an optional foreground. Call
-    setBackgroundBrush() or setForegroundBrush() to set the background and
-    foreground to a color, pattern, gradient or texture. You can also provide
-    custom background- or foreground painting yourself in a subclass of
-    QGraphicsView, by reimplementing paintBackground() or
-    paintForeground(). It is also possible to provide custom item drawing by
-    reimplementing paintItems(). By default, the items are drawing by using a
-    regular QPainter, and standard render hints. To change the default render
-    hints that QGraphicsView passes to QPainter when painting items, you can
-    call setRenderHints().
+    QGraphicsView visualizes the scene by calling render(). By default, the
+    items are drawn onto the viewport by using a regular QPainter, and using
+    default render hints. To change the default render hints that
+    QGraphicsView passes to QPainter when painting items, you can call
+    setRenderHints().
 
-    By default, QGraphicsView renders its contents onto a viewport widget. You
-    can access this widget by calling viewport(), or you can replace it by
-    calling setViewport(). To render using OpenGL, simply call setViewport(new
-    QGLWidget). QGraphicsView takes ownership of the viewport widget.
+    By default, QGraphicsView provides a regular QWidget for the viewport
+    widget. You can access this widget by calling viewport(), or you can
+    replace it by calling setViewport(). To render using OpenGL, simply call
+    setViewport(new QGLWidget). QGraphicsView takes ownership of the viewport
+    widget.
 
     QGraphicsView supports affine transformations, using QMatrix. You can
     either pass a matrix to setMatrix(), or you can call one of the
@@ -145,61 +138,6 @@ static const int GraphicsViewRegionRectThreshold = 20;
 #include <QtGui/qstyleoption.h>
 #include <private/qabstractscrollarea_p.h>
 
-static inline bool qt_farthestLeaf(const QGraphicsItem *item1, const QGraphicsItem *item2)
-{
-    qreal z1 = item1->zValue();
-    qreal z2 = item2->zValue();
-    return z1 != z2 ? z1 < z2 : item1 < item2;
-}
-
-static bool qt_farthestItemFirst(const QGraphicsItem *item1, const QGraphicsItem *item2)
-{
-    // Siblings? Just check their z-values.
-    if (item1->parentItem() == item2->parentItem())
-        return qt_farthestLeaf(item1, item2);
-
-    // Find item1's ancestors. If item2 is among them, return true (item1 is
-    // above item2).
-    QVector<const QGraphicsItem *> ancestors1;
-    const QGraphicsItem *parent1 = item1;
-    do {
-        if (parent1 == item2)
-            return false;
-        ancestors1.prepend(parent1);
-    } while ((parent1 = parent1->parentItem()));
-
-    // Find item2's ancestors. If item1 is among them, return false (item2 is
-    // above item1).
-    QVector<const QGraphicsItem *> ancestors2;
-    const QGraphicsItem *parent2 = item2;
-    do {
-        if (parent2 == item1)
-            return true;
-        ancestors2.prepend(parent2);
-    } while ((parent2 = parent2->parentItem()));
-
-    // Truncate the largest ancestor list.
-    int size1 = ancestors1.size();
-    int size2 = ancestors2.size();
-    if (size1 > size2) {
-        ancestors1.resize(size2);
-    } else if (size2 > size1) {
-        ancestors2.resize(size1);
-    }
-
-    // Compare items from the two ancestors lists and find a match. Then
-    // compare item1's and item2's toplevels relative to the common ancestor.
-    for (int i = ancestors1.size() - 2; i >= 0; --i) {
-        const QGraphicsItem *a1 = ancestors1.at(i);
-        const QGraphicsItem *a2 = ancestors2.at(i);
-        if (a1 == a2)
-            return qt_farthestLeaf(ancestors1.at(i + 1), ancestors2.at(i + 1));
-    }
-
-    // No common ancestor? Then just compare the items' toplevels directly.
-    return qt_farthestLeaf(ancestors1.first(), ancestors2.first());
-}
-
 class QGraphicsViewPrivate : public QAbstractScrollAreaPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsView)
@@ -237,8 +175,6 @@ public:
     Qt::Alignment alignment;
 
     QGraphicsScene *scene;
-    QBrush backgroundBrush;
-    QBrush foregroundBrush;
     QRubberBand *rubberBand;
     bool rubberBanding;
     bool handScrolling;
@@ -424,6 +360,7 @@ QGraphicsView::QGraphicsView(QGraphicsScene *scene, QWidget *parent)
     setScene(scene);
     setViewport(0);
     setAcceptDrops(true);
+    setBackgroundRole(QPalette::Base);
 }
 
 /*!
@@ -630,96 +567,6 @@ void QGraphicsView::setSceneRect(const QRectF &rect)
     d->hasSceneRect = !rect.isNull();
     d->sceneRect = rect;
     d->recalculateContentSize();
-}
-
-/*!
-    \property QGraphicsView::backgroundBrush
-    \brief the background brush of the view.
-
-    Set this property to changes the view's background to a different color,
-    gradient or texture. The default background brush is Qt::NoBrush. The
-    background is drawn before (behind) the items.
-
-    Example:
-
-    \code
-        QGraphicsView view;
-        view.show();
-
-        // a blue background
-        view.setBackgroundBrush(Qt::blue);
-
-        // a gradient background
-        QRadialGradient gradient(0, 0, 10);
-        gradient.setSpread(QGradient::RepeatSpread);
-        view.setBackgroundBrush(gradient);
-    \endcode
-
-    The background and foreground are drawn using scene coordinates. Any
-    transformations applied on the view also apply to the background
-    brush. For example, if your gradient is centered on the (0, 0) point as in
-    the example above, the center point of the radial gradient will move when
-    you scroll the view.
-
-    QGraphicsView calls paintBackground() to paint its background. For more
-    detailed control over how the background is drawn, you can reimplement
-    paintBackground() in a subclass of QGraphicsView.
-*/
-QBrush QGraphicsView::backgroundBrush() const
-{
-    Q_D(const QGraphicsView);
-    return d->backgroundBrush;
-}
-void QGraphicsView::setBackgroundBrush(const QBrush &brush)
-{
-    Q_D(QGraphicsView);
-    d->backgroundBrush = brush;
-    viewport()->update();
-}
-
-/*!
-    \property QGraphicsView::foregroundBrush
-    \brief the foreground brush of the view.
-
-    Change this property to set the view's foreground to a different color,
-    gradient or texture. If the style of \a brush is Qt::NoBrush (e.g., if
-    you passed QBrush()), the foreground is not drawn.  The foreground is
-    drawn after (on top of) the items. The default foreground brush is
-    Qt::NoBrush.
-
-    Example:
-
-    \code
-        QGraphicsView view;
-        view.show();
-
-        // a white semi-transparent foreground
-        view.setForegroundBrush(QColor(255, 255, 255, 127));
-
-        // a grid foreground
-        view.setForegroundBrush(QBrush(Qt::lightGray, Qt::CrossPattern));
-    \endcode
-
-    The foreground and background are drawn using scene coordinates. Any
-    transformations applied on the view also apply to the foreground
-    brush. For example, if your foreground brush is a gradient, centered on
-    the (0, 0) point as in the example above, the center point of the radial
-    gradient will move when you scroll the view.
-
-    QGraphicsView calls paintForeground() to paint its foreground. For more
-    detailed control over how the foreground is drawn, you can reimplement
-    paintForeground() in a subclass of QGraphicsView.
-*/
-QBrush QGraphicsView::foregroundBrush() const
-{
-    Q_D(const QGraphicsView);
-    return d->foregroundBrush;
-}
-void QGraphicsView::setForegroundBrush(const QBrush &brush)
-{
-    Q_D(QGraphicsView);
-    d->foregroundBrush = brush;
-    viewport()->update();
 }
 
 /*!
@@ -1035,11 +882,11 @@ void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode asp
 }
 
 /*!
-    Draws the \a source rect, which is in view coordinates, from scene into \a
-    target, which is in paint device coordinates, using \a painter. This
-    function is useful for capturing the contents of the view to a paint
-    device, such as a QImage (e.g., to take a "screenshot"), or for printing
-    to QPrinter. For example:
+    Renders the \a source rect, which is in view coordinates, from the scene
+    into \a target, which is in paint device coordinates, using \a
+    painter. This function is useful for capturing the contents of the view
+    onto a paint device, such as a QImage (e.g., to take a screenshot), or for
+    printing to QPrinter. For example:
 
     \code
         QGraphicsScene scene;
@@ -1054,37 +901,66 @@ void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode asp
         printer.setPageSize(QPrinter::A4);
         QPainter painter(&printer);
 
-        view.drawScene(&painter, QRect(0, 0, printer.width(), printer.height()),
-                       view.rect(), Qt::KeepAspectRatio);
+        view.render(&painter);
     \endcode
 
     If \a source is a null rect, this function will use rect() to determine
     what to draw. If \a target is a null rect, the dimensions of \a painter's
     paint device (e.g., for a QPrinter, the page size) will be used.
 
-    The source rect will be transformed according to \a aspectRatioMode to fit
-    into the target rect. By default, the aspect ratio is ignored, and \a
-    source is scaled to fit tightly in \a target.
-
-    \sa QGraphicsScene::drawScene()
+    \sa QGraphicsScene::render()
 */
-void QGraphicsView::drawScene(QPainter *painter, const QRectF &target, const QRect &source,
-                              Qt::AspectRatioMode aspectRatioMode)
+void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect &source)
 {
     Q_D(QGraphicsView);
+    if (!d->scene)
+        return;
 
-    paintBackground(painter, source);
+    painter->save();
+    painter->setClipRect(target);
 
-    QRect sourceRect = source;
-    if (sourceRect.isNull())
-        sourceRect = viewport()->rect();
+    QMatrix moveMatrix;
+    moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
+                         -verticalScrollBar()->value() + d->topIndent);
+    QMatrix painterMatrix = d->matrix * moveMatrix;
+    painter->setMatrix(painterMatrix);
 
-    d->scene->drawScene(painter, target,
-                        sourceRect.translated(horizontalScrollBar()->value(),
-                                              verticalScrollBar()->value()),
-                        aspectRatioMode, matrix());
+    d->scene->render(painter, target,
+                     mapToScene(source).boundingRect().adjusted(-1, -1, 1, 1));
 
-    paintForeground(painter, source);
+    painter->restore();
+}
+
+/*!
+    \overload
+
+    Draws the contents of \a source inside \a target.
+
+    The source rect contents will be transformed according to \a
+    aspectRatioMode to fit into the target rect. By default, the aspect ratio
+    is ignored, and \a source is scaled to fit tightly in \a target.
+
+    \sa QGraphicsScene::render()
+*/
+void QGraphicsView::render(QPainter *painter, Qt::AspectRatioMode aspectRatioMode,
+                           const QRectF &target, const QRect &source)
+{
+    Q_D(QGraphicsView);
+    if (!d->scene)
+        return;
+
+    painter->save();
+
+    QMatrix moveMatrix;
+    moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
+                         -verticalScrollBar()->value() + d->topIndent);
+    QMatrix painterMatrix = d->matrix * moveMatrix;
+    painter->setMatrix(painterMatrix);
+
+    d->scene->render(painter, aspectRatioMode, target,
+                     mapToScene(source).boundingRect().adjusted(-1, -1, 1, 1));
+
+    painter->restore();
 }
 
 /*!
@@ -1858,123 +1734,22 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 void QGraphicsView::paintEvent(QPaintEvent *event)
 {
     Q_D(QGraphicsView);
-    QPainter painter(viewport());
-
-#if defined QGRAPHICSVIEW_DEBUG
-    QTime stopWatch;
-    stopWatch.start();
-#endif
-    painter.setRenderHint(QPainter::Antialiasing, d->renderHints & QPainter::Antialiasing);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform, d->renderHints & QPainter::SmoothPixmapTransform);
-
-    QMatrix moveMatrix;
-    moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
-                         -verticalScrollBar()->value() + d->topIndent);
-    QMatrix painterMatrix = d->matrix * moveMatrix;
-
-    // Set up the painter matrix
-    painter.setMatrix(painterMatrix, true);
 
     // Determine the exposed region
     QRegion exposedRegion = event->region();
     if (!d->accelerateScrolling || !d->scene)
         exposedRegion = viewport()->rect();
 
-    // Draw background
-    foreach (QRect rect, exposedRegion.rects()) {
-        painter.save();
-        QRectF exposedRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
-        painter.setClipRect(exposedRect);
-        paintBackground(&painter, exposedRect);
-        painter.restore();
-    }
+    // Set up the painter
+    QPainter painter(viewport());
+    painter.setRenderHint(QPainter::Antialiasing,
+                          d->renderHints & QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform,
+                          d->renderHints & QPainter::SmoothPixmapTransform);
 
-    // Find all visible items
-    QList<QGraphicsItem *> visibleItems;
-    QSet<QGraphicsItem *> visibleItemSet;
-    if (d->scene) {
-        foreach (QRect rect, exposedRegion.rects()) {
-            QList<QGraphicsItem *> itemsInArea = d->scene->items(mapToScene(rect.adjusted(-1, -1, 1, 1)));
-            foreach (QGraphicsItem *item, itemsInArea) {
-                if (!visibleItemSet.contains(item)) {
-                    visibleItemSet << item;
-                    visibleItems << item;
-                }
-            }
-        }
-    }
-
-#if defined QGRAPHICSVIEW_DEBUG
-    qDebug() << "**** QGraphicsSceneWidget::paintEvent()";
-    qDebug() << "\tExposed view region:" << event->region();
-    qDebug() << "\tScene bounding rect:" << (d->scene ? d->scene->itemsBoundingRect() : QRectF());
-    qDebug() << "\tExposed items: " << visibleItems.size();
-    qDebug() << "\tExposed rects: ";
-    foreach (QRect rect, exposedRegion.rects()) {
-        qDebug() << "\t\t" << mapToScene(rect);
-    }
-    qDebug() << "\tTime spent searching for items:"
-             << (stopWatch.elapsed() / 1000.0) << "("
-             << (1000 / qMax(1, stopWatch.elapsed())) << " iterations/s )";
-#endif
-
-    // Sort the items by stacking order
-    qSort(visibleItems.begin(), visibleItems.end(), qt_farthestItemFirst);
-
-    // Generate the style options
-    QList<QStyleOptionGraphicsItem> styleOptions;
-    for (int i = 0; i < visibleItems.size(); ++i) {
-        QGraphicsItem *item = visibleItems.at(i);
-
-        QStyleOptionGraphicsItem option;
-        option.state = QStyle::State_None;
-        option.rect = item->boundingRect().toRect();
-        if (item->isSelected())
-            option.state |= QStyle::State_Selected;
-        if (item->isEnabled())
-            option.state |= QStyle::State_Enabled;
-        if (item->hasFocus())
-            option.state |= QStyle::State_HasFocus;
-        if (d->scene->d_func()->hoverItems.contains(item))
-            option.state |= QStyle::State_MouseOver;
-        if (item == d->scene->mouseGrabberItem())
-            option.state |= QStyle::State_Sunken;
-
-        // Calculate a simple level-of-detail metric.
-        QMatrix neo = item->sceneMatrix() * painterMatrix;
-        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
-        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
-        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
-        option.levelOfDetail = qMin(dx, dy);
-        option.matrix = neo;
-
-        option.exposedRect = item->boundingRect();
-        option.exposedRect &= neo.inverted().mapRect(QRectF(exposedRegion.boundingRect().adjusted(-1, -1, 1, 1)));
-
-        styleOptions << option;
-    }
-
-    // Draw the items
-    painter.save();
-    paintItems(&painter, visibleItems, styleOptions);
-    painter.restore();
-
-#if defined QGRAPHICSVIEW_DEBUG
-    qDebug() << "\tTime spent drawing:" << (stopWatch.elapsed() / 1000.0) << "("
-             << ((visibleItems.size() * 1000) / (stopWatch.elapsed() + 1.0)) << "items/sec )";
-    qDebug() << "\tEstimated FPS:" << (1000.0 / qMax<double>(1.0, stopWatch.elapsed()));
-#endif
-
-    // Draw foreground
-    foreach (QRect rect, exposedRegion.rects()) {
-        painter.save();
-        QRectF exposedRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
-        painter.setClipRect(exposedRect);
-        paintForeground(&painter, exposedRect);
-        painter.restore();
-    }
-
-    painter.end();
+    // Render scene
+    foreach (QRect rect, exposedRegion.rects())
+        render(&painter, rect, rect);
 
     QAbstractScrollArea::paintEvent(event);
 }
@@ -2019,109 +1794,6 @@ void QGraphicsView::showEvent(QShowEvent *event)
     d->recalculateContentSize();
     centerOn(d->lastCenterPoint);
     QAbstractScrollArea::showEvent(event);
-}
-
-/*!
-    Paints the background of the view using \a painter, before any items are
-    painted. Reimplement this function to provide a custom background for the
-    view.  The default implementation fills the background with the brush from
-    backgroundBrush(). If you simply want to set a background color, gradient
-    or texture, you can call setBackgroundBrush() instead of reimplementing
-    this function.
-
-    \a painter is pre-transformed with the view matrix; any painting is done in
-    \e scene coordinates. \a rect is the exposed rectangle, also in scene
-    coordinates.
-
-    \sa paintForeground(), paintItems()
-*/
-void QGraphicsView::paintBackground(QPainter *painter, const QRectF &rect)
-{
-    if (backgroundBrush().style() != Qt::NoBrush) {
-        painter->save();
-        painter->setBrushOrigin(0, 0);
-        painter->fillRect(rect, backgroundBrush());
-        painter->restore();
-    } else if (viewport()->inherits("QGLWidget")) {
-        painter->fillRect(rect, viewport()->palette().brush(viewport()->backgroundRole()));
-    }
-}
-
-/*!
-    Paints the foreground of the view using \a painter, after the background
-    and all items are painted. Reimplement this function to provide a custom
-    foreground for the view.  The default implementation fills the background
-    with the brush from foregroundBrush(). If you simply want to set a
-    foreground color, gradient or texture, you can call setForegroundBrush()
-    instead of reimplementing this function.
-
-    \a painter is pre-transformed with the view matrix; any painting is done in
-    \e scene coordinates. \a rect is the exposed rectangle, also in scene
-    coordinates.
-
-    \sa paintBackground(), paintItems()
-*/
-void QGraphicsView::paintForeground(QPainter *painter, const QRectF &rect)
-{
-    if (foregroundBrush().style() != Qt::NoBrush) {
-        painter->save();
-        painter->setBrushOrigin(0, 0);
-        painter->fillRect(rect, foregroundBrush());
-        painter->restore();
-    }
-}
-
-/*!
-    Paints the items in \a items using \a painter, after the
-    background has been drawn, and before the foreground has been
-    drawn. Reimplement this function to provide custom painting of all
-    items. The default implementation prepares the painter matrix, and
-    calls QGraphicsItem::paint() on all items. \a options is the list of
-    style option objects for each item in \a items.
-
-    \a painter is pre-transformed with the view matrix; any painting is done
-    in \e scene coordinates. Before drawing each item, the painter must be
-    transformed using QGraphicsItem::sceneMatrix().
-
-    By reimplementing this function, you gain complete control over how each
-    item is drawn, and in some cases this can increase drawing performance
-    significantly.
-
-    Example:
-
-    \code
-        void CustomView::paintItems(QPainter *painter,
-                                    const QList<QGraphicsItem *> &items,
-                                    const QList<QStyleOptionGraphicsItem> &options)
-        {
-            for (int i = 0; i < items.size(); ++i) {
-                // Draw the item
-                painter->save();
-                painter->setMatrix(items.at(i)->sceneMatrix(), true);
-                items.at(i)->paint(painter, options.at(i), viewport());
-                painter->restore();
-            }
-        }
-    \endcode
-
-    \sa paintBackground(), paintForeground()
-*/
-void QGraphicsView::paintItems(QPainter *painter, const QList<QGraphicsItem *> &items,
-                               const QList<QStyleOptionGraphicsItem> &options)
-{
-    QMatrix painterMatrix = painter->deviceMatrix();
-
-    for (int i = 0; i < items.size(); ++i) {
-        // Create the styleoption object
-        QStyleOptionGraphicsItem option = options.at(i);
-        QGraphicsItem *item = items.at(i);
-
-        // Draw the item
-        painter->save();
-        painter->setMatrix(item->sceneMatrix(), true);
-        item->paint(painter, &option, viewport());
-        painter->restore();
-    }
 }
 
 #endif // QT_NO_GRAPHICSVIEW

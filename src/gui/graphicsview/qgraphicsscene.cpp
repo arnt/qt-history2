@@ -150,7 +150,6 @@
 
 #include <private/qobject_p.h>
 #include <QtCore/qcoreapplication.h>
-#include <QtCore/qdebug.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qrect.h>
 #include <QtCore/qset.h>
@@ -509,6 +508,102 @@ void QGraphicsScenePrivate::storeMouseButtonsForMouseGrabber(QGraphicsSceneMouse
 /*!
     \internal
 */
+void QGraphicsScenePrivate::render(QPainter *painter, const QRectF &target,
+                                   const QRectF &source,
+                                   bool fit, Qt::AspectRatioMode aspectRatioMode)
+{
+    Q_Q(QGraphicsScene);
+
+    QRectF sourceRect = source;
+    if (sourceRect.isNull())
+        sourceRect = q->sceneRect();
+
+    QRectF targetRect = target;
+    if (targetRect.isNull())
+        targetRect.setRect(0, 0, painter->device()->width(), painter->device()->height());
+
+    painter->save();
+
+    if (fit) {
+        // Find the ideal x / y scaling ratio to fit \a source in \a target.
+        qreal xratio = targetRect.width() / sourceRect.width();
+        qreal yratio = targetRect.height() / sourceRect.height();
+    
+        // Respect the aspect ratio mode.
+        switch (aspectRatioMode) {
+        case Qt::KeepAspectRatio:
+            xratio = yratio = qMin(xratio, yratio);
+            break;
+        case Qt::KeepAspectRatioByExpanding:
+            xratio = yratio = qMax(xratio, yratio);
+            break;
+        case Qt::IgnoreAspectRatio:
+            break;
+        }
+
+        // Scale the painter
+        painter->scale(xratio, yratio);
+    }
+
+    // ### We should map the target rect to a scene polygon, and intersect
+    // that with the source rect to get a smaller area to search for items to
+    // draw.
+    QList<QGraphicsItem *> itemList = q->items(sourceRect);
+    if (!itemList.isEmpty()) {
+        QGraphicsItem **a = &itemList.first();
+        QGraphicsItem **b = &itemList.last();
+        QGraphicsItem *tmp = 0;
+        while (a < b) {
+            tmp = *a;
+            *a = *b;
+            *b = tmp;
+            ++a; --b;
+        }
+    }
+
+    // Generate the style options
+    QList<QStyleOptionGraphicsItem> styleOptions;
+    for (int i = 0; i < itemList.size(); ++i) {
+        QGraphicsItem *item = itemList.at(i);
+
+        QStyleOptionGraphicsItem option;
+        option.state = QStyle::State_None;
+        option.rect = item->boundingRect().toRect();
+        if (item->isSelected())
+            option.state |= QStyle::State_Selected;
+        if (item->isEnabled())
+            option.state |= QStyle::State_Enabled;
+        if (item->hasFocus())
+            option.state |= QStyle::State_HasFocus;
+        if (hoverItems.contains(item))
+            option.state |= QStyle::State_MouseOver;
+        if (item == q->mouseGrabberItem())
+            option.state |= QStyle::State_Sunken;
+
+        // Calculate a simple level-of-detail metric.
+        QMatrix neo = item->sceneMatrix() * painter->matrix();
+        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
+        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
+        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
+        option.levelOfDetail = qMin(dx, dy);
+        option.matrix = neo;
+
+        option.exposedRect = item->boundingRect();
+        option.exposedRect &= neo.inverted().mapRect(targetRect);
+
+        styleOptions << option;
+    }
+
+    q->drawBackground(painter, source);
+    q->drawItems(painter, itemList, styleOptions);
+    q->drawForeground(painter, source);
+
+    painter->restore();
+}
+
+/*!
+    \internal
+*/
 void QGraphicsScenePrivate::installEventFilter(QGraphicsItem *watched, QGraphicsItem *filter)
 {
     eventFilters.insert(watched, filter);
@@ -745,10 +840,10 @@ void QGraphicsScene::setSceneRect(const QRectF &rect)
 }
 
 /*!
-    Draws the \a source rect from scene into \a target, using \a painter. This
-    function is useful for capturing the contents of the scene to a paint
-    device, such as a QImage (e.g., to take a "screenshot"), or for printing
-    to QPrinter. For example:
+    Renders the \a source rect from scene into \a target, using \a painter. This
+    function is useful for capturing the contents of the scene onto a paint
+    device, such as a QImage (e.g., to take a screenshot), or for printing
+    with QPrinter. For example:
 
     \code
         QGraphicsScene scene;
@@ -758,90 +853,37 @@ void QGraphicsScene::setSceneRect(const QRectF &rect)
         printer.setPageSize(QPrinter::A4);
 
         QPainter painter(&printer);
-        scene.drawScene(&painter, QRect(0, 0, printer.width(), printer.height()),
-                        scene.itemsBoundingRect(), Qt::KeepAspectRatio);
+        scene.render(&painter);
     \endcode
 
     If \a source is a null rect, this function will use sceneRect() to
-    determine what to draw. If \a target is a null rect, the dimensions of \a
+    determine what to render. If \a target is a null rect, the dimensions of \a
     painter's paint device will be used.
 
-    The source rect will be transformed according to \a aspectRatioMode to fit
-    into the target rect. By default, the aspect ratio is ignored, and \a
-    source is scaled to fit tightly in \a target.
-
-    It is also possible to draw the scene transformed by passing a matrix via
-    \a matrix. The source rectangle is then specified in transformed
-    coordinates.
+    \sa QGraphicsView::render()
 */
-void QGraphicsScene::drawScene(QPainter *painter, const QRectF &target, const QRectF &source,
-                               Qt::AspectRatioMode aspectRatioMode, const QMatrix &matrix)
+void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRectF &source)
 {
-    QRectF sourceRect = source;
-    if (sourceRect.isNull())
-        sourceRect = sceneRect();
+    Q_D(QGraphicsScene);
+    d->render(painter, target, source, false);
+}
 
-    QRectF targetRect = target;
-    if (targetRect.isNull())
-        targetRect.setRect(0, 0, painter->device()->width(), painter->device()->height());
+/*!
+    \overload
 
-    // Find the ideal x / y scaling ratio to fit \a source in \a target.
-    qreal xratio = targetRect.width() / sourceRect.width();
-    qreal yratio = targetRect.height() / sourceRect.height();
+    Draws the contents of \a source inside \a target.
 
-    // Respect the aspect ratio mode.
-    switch (aspectRatioMode) {
-    case Qt::KeepAspectRatio:
-        xratio = yratio = qMin(xratio, yratio);
-        break;
-    case Qt::KeepAspectRatioByExpanding:
-        xratio = yratio = qMax(xratio, yratio);
-        break;
-    case Qt::IgnoreAspectRatio:
-        break;
-    }
+    The source rect contents will be transformed according to \a
+    aspectRatioMode to fit into the target rect. By default, the aspect ratio
+    is ignored, and \a source is scaled to fit tightly in \a target.
 
-    // Scale the painter
-    painter->save();
-    painter->setClipRect(targetRect);
-    painter->scale(xratio, yratio);
-    painter->translate(-sourceRect.topLeft());
-    painter->setMatrix(matrix, true);
-
-    QList<QGraphicsItem *> itemList = items(matrix.inverted().map(sourceRect));
-    for (int i = itemList.size() - 1; i >= 0; --i) {
-        QGraphicsItem *item = itemList.at(i);
-
-        // Create the styleoption object
-        QStyleOptionGraphicsItem option;
-        option.state = QStyle::State_None;
-        option.rect = item->boundingRect().toRect();
-        if (item->isSelected())
-            option.state |= QStyle::State_Selected;
-        if (item->isEnabled())
-            option.state |= QStyle::State_Enabled;
-
-        QMatrix itemMatrix = item->sceneMatrix();
-        QMatrix transformationMatrix = itemMatrix * matrix;
-
-        // Calculate a simple level-of-detail metric.
-        QRectF mappedRect = transformationMatrix.mapRect(QRectF(0, 0, 1, 1));
-        qreal dx = transformationMatrix.mapRect(QRectF(0, 0, 1, 1)).size().width();
-        qreal dy = transformationMatrix.mapRect(QRectF(0, 0, 1, 1)).size().height();
-        option.levelOfDetail = qMin(dx, dy);
-
-        // Also pass the device matrix, so the item can do more advanced
-        // level-of-detail calculations.
-        option.matrix = transformationMatrix;
-
-        // Draw the item
-        painter->save();
-        painter->setMatrix(itemMatrix, true);
-        item->paint(painter, &option);
-        painter->restore();
-    }
-
-    painter->restore();
+    \sa QGraphicsView::render()
+*/
+void QGraphicsScene::render(QPainter *painter, Qt::AspectRatioMode aspectRatioMode,
+                            const QRectF &target, const QRectF &source)
+{
+    Q_D(QGraphicsScene);
+    d->render(painter, target, source, true, aspectRatioMode);
 }
 
 /*!
@@ -1542,6 +1584,100 @@ QGraphicsItem *QGraphicsScene::mouseGrabberItem() const
 }
 
 /*!
+    \property QGraphicsScene::backgroundBrush
+    \brief the background brush of the scene.
+
+    Set this property to changes the scene's background to a different color,
+    gradient or texture. The default background brush is Qt::NoBrush. The
+    background is drawn before (behind) the items.
+
+    Example:
+
+    \code
+        QGraphicsScene scene;
+        QGraphicsView view(&scene);
+        view.show();
+
+        // a blue background
+        scene.setBackgroundBrush(Qt::blue);
+
+        // a gradient background
+        QRadialGradient gradient(0, 0, 10);
+        gradient.setSpread(QGradient::RepeatSpread);
+        scene.setBackgroundBrush(gradient);
+    \endcode
+
+    QGraphicsScene::render() calls drawBackground() to draw the scene
+    background. For more detailed control over how the background is drawn,
+    you can reimplement drawBackground() in a subclass of QGraphicsScene.
+*/
+QBrush QGraphicsScene::backgroundBrush() const
+{
+    Q_D(const QGraphicsScene);
+    return d->backgroundBrush;
+}
+void QGraphicsScene::setBackgroundBrush(const QBrush &brush)
+{
+    Q_D(QGraphicsScene);
+    d->backgroundBrush = brush;
+    update();
+}
+
+/*!
+    \property QGraphicsScene::foregroundBrush
+    \brief the foreground brush of the scene.
+
+    Change this property to set the scene's foreground to a different color,
+    gradient or texture. If the style of \a brush is Qt::NoBrush (e.g., if you
+    passed QBrush()), the foreground is not drawn.  The foreground is drawn
+    after (on top of) the items. The default foreground brush is Qt::NoBrush.
+
+    Example:
+
+    \code
+        QGraphicsScene scene;
+        QGraphicsView view(&scene);
+        view.show();
+
+        // a white semi-transparent foreground
+        scene.setForegroundBrush(QColor(255, 255, 255, 127));
+
+        // a grid foreground
+        scene.setForegroundBrush(QBrush(Qt::lightGray, Qt::CrossPattern));
+    \endcode
+
+    QGraphicsScene::render() calls drawForeground() to draw the scene
+    foreground. For more detailed control over how the foreground is drawn,
+    you can reimplement drawForeground() in a subclass of QGraphicsScene.
+*/
+QBrush QGraphicsScene::foregroundBrush() const
+{
+    Q_D(const QGraphicsScene);
+    return d->foregroundBrush;
+}
+void QGraphicsScene::setForegroundBrush(const QBrush &brush)
+{
+    Q_D(QGraphicsScene);
+    d->foregroundBrush = brush;
+    update();
+}
+
+/*!
+    Schedules a redraw of the area \a rect on the scene.
+
+    \sa sceneRect(), changed()
+*/
+void QGraphicsScene::update(const QRectF &rect)
+{
+    Q_D(QGraphicsScene);
+    d->updatedRects << (!rect.isNull() ? rect : sceneRect());
+    if (!d->calledEmitUpdated) {
+        d->calledEmitUpdated = true;
+        QTimer::singleShot(0, this, SLOT(emitUpdated()));
+    }
+}
+
+/*!
     Processes the event \a event, and dispatches it to the respective
     event handlers.
 
@@ -2046,6 +2182,94 @@ void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 }
 
 /*!
+    Draws the background of the scene using \a painter, before any items and
+    the foreground are drawn. Reimplement this function to provide a custom
+    background for the scene.
+
+    All painting is done in \e scene coordinates. \a rect is the exposed
+    rectangle.
+
+    \sa drawForeground(), drawItems()
+*/
+void QGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
+{
+    if (backgroundBrush().style() != Qt::NoBrush) {
+        painter->save();
+        painter->fillRect(rect, backgroundBrush());
+        painter->restore();
+    }/* else if (viewport()->inherits("QGLWidget")) {
+        painter->fillRect(rect, viewport()->palette().brush(viewport()->backgroundRole()));
+        }*/
+}
+
+/*!
+    Draws the foreground of the scene using \a painter, after the background
+    and all items have been drawn. Reimplement this function to provide a
+    custom foreground for the scene.
+
+    All painting is done in \e scene coordinates. \a rect is the exposed
+    rectangle.
+
+    \sa drawBackground(), drawItems()
+*/
+void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
+{
+    if (foregroundBrush().style() != Qt::NoBrush) {
+        painter->save();
+        painter->setBrushOrigin(0, 0);
+        painter->fillRect(rect, foregroundBrush());
+        painter->restore();
+    }
+}
+
+/*!
+    Paints the items \a items using \a painter, after the background has been
+    drawn, and before the foreground has been drawn. Reimplement this function
+    to provide custom painting of all items for the scene. The default
+    implementation prepares the painter matrix, and calls
+    QGraphicsItem::paint() on all items. \a options is the list of style
+    option objects for each item in \a items.
+
+    All painting is done in \e scene coordinates. Before drawing each item,
+    the painter must be transformed using QGraphicsItem::sceneMatrix().
+
+    By reimplementing this function, you gain complete control over how each
+    item is drawn, and in some cases this can increase drawing performance
+    significantly.
+
+    Example:
+
+    \code
+        void CustomScene::drawItems(QPainter *painter,
+                                    const QList<QGraphicsItem *> &items,
+                                    const QList<QStyleOptionGraphicsItem> &options)
+        {
+            for (int i = 0; i < items.size(); ++i) {
+                // Draw the item
+                painter->save();
+                painter->setMatrix(items.at(i)->sceneMatrix(), true);
+                items.at(i)->paint(painter, options.at(i), viewport());
+                painter->restore();
+            }
+        }
+    \endcode
+
+    \sa drawBackground(), drawForeground()
+*/
+void QGraphicsScene::drawItems(QPainter *painter,
+                               const QList<QGraphicsItem *> &items,
+                               const QList<QStyleOptionGraphicsItem> &options)
+{
+    for (int i = 0; i < items.size(); ++i) {
+        QGraphicsItem *item = items.at(i);
+        painter->save();
+        painter->setMatrix(item->sceneMatrix(), true);
+        item->paint(painter, &options.at(i), 0);//viewport());
+        painter->restore();
+    }
+}
+
+/*!
     \fn QGraphicsScene::changed(const QList<QRectF> &region)
 
     This signal is emitted by QGraphicsScene when control reaches the event
@@ -2082,12 +2306,8 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
     if (!rect.isNull())
         boundingRect &= rect;
     QRectF sceneBoundingRect = item->sceneMatrix().mapRect(boundingRect);
-    d->updatedRects << sceneBoundingRect;
 
-    if (!d->calledEmitUpdated) {
-        d->calledEmitUpdated = true;
-        QTimer::singleShot(0, this, SLOT(emitUpdated()));
-    }
+    update(sceneBoundingRect);
 
     QRectF oldGrowingItemsBoundingRect = d->growingItemsBoundingRect;
     d->growingItemsBoundingRect |= sceneBoundingRect;

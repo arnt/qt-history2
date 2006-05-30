@@ -70,6 +70,9 @@ public:
     QList<QGraphicsItem *> validItems() const;
     QSet<QGraphicsItem *> removedItems;
 
+    QBrush backgroundBrush;
+    QBrush foregroundBrush;
+    
     bool hasFocus;
     QGraphicsItem *focusItem;
     QGraphicsItem *lastFocusItem;
@@ -85,6 +88,10 @@ public:
     void storeMouseButtonsForMouseGrabber(QGraphicsSceneMouseEvent *event);
 
     QList<QGraphicsView *> views;
+
+    void render(QPainter *painter, const QRectF &source,
+                const QRectF &target, bool fit,
+                Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
 
     QMultiMap<QGraphicsItem *, QGraphicsItem *> eventFilters;
     void installEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
