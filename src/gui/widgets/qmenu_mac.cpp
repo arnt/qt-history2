@@ -39,7 +39,6 @@
  *****************************************************************************/
 bool qt_mac_no_menubar_icons = false;
 bool qt_mac_no_native_menubar = false;
-bool qt_mac_no_native_popup_menus = false;
 bool qt_mac_no_menubar_merge = false;
 
 static uint qt_mac_menu_static_cmd_id = 'QT00';
@@ -351,7 +350,6 @@ static QKeySequence qt_mac_menu_merge_accel(QMacMenuAction *action)
 
 void Q_GUI_EXPORT qt_mac_set_menubar_icons(bool b) { qt_mac_no_menubar_icons = !b; }
 void Q_GUI_EXPORT qt_mac_set_native_menubar(bool b) { qt_mac_no_native_menubar = !b; }
-void Q_GUI_EXPORT qt_mac_set_native_popup_menus(bool b) { qt_mac_no_native_popup_menus = !b; }
 void Q_GUI_EXPORT qt_mac_set_menubar_merge(bool b) { qt_mac_no_menubar_merge = !b; }
 
 bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent action_e, bool by_accel)
@@ -1290,43 +1288,6 @@ bool QMenuBar::macUpdateMenuBar()
         }
     }
     return ret;
-}
-
-bool QMenuPrivate::QMacMenuPrivate::popup(const QPoint &point, QAction *action, QMenuPrivate *qmenu)
-{
-    return false;
-    static int checkEnv = -1;
-    if (checkEnv < 0) {
-        checkEnv = !qgetenv("QT_MAC_NO_NATIVE_POPUP_MENUS").isEmpty();
-        qt_mac_no_native_popup_menus = checkEnv;
-    }
-    if (qt_mac_no_native_popup_menus)
-        return false;
-    MenuItemIndex popupItem = 0;
-    if (action != 0) {
-        for (int i = 0; i < actionItems.size(); ++i) {
-            if (actionItems.at(i)->action == action) {
-                popupItem = qt_mac_menu_find_action(menu, actionItems.at(i)->command);
-                break;
-            }
-        }
-    }
-
-    long ret = PopUpMenuSelect(menu, point.y(), point.x(), popupItem);
-    if (GetMenuID(menu) == ((ret >> 16) & 0xffff)) {
-        for (int i = 0; i < actionItems.size(); ++i) {
-            int index = qt_mac_menu_find_action(menu, actionItems.at(i)->command);
-            if (index != -1) {
-                if (index == (ret & 0xffff)) {
-                    qmenu->syncAction = actionItems.at(i)->action;
-                    break;
-                }
-            }
-        }
-    } else {
-        qmenu->syncAction = 0;
-    }
-    return true;
 }
 
 bool QMenuPrivate::QMacMenuPrivate::merged(const QAction *action) const

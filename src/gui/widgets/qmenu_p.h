@@ -166,7 +166,6 @@ public:
         ~QMacMenuPrivate();
 
         bool merged(const QAction *action) const;
-        bool popup(const QPoint &point, QAction *action, QMenuPrivate *qmenu);
         void addAction(QAction *, QMacMenuAction* =0, QMenuPrivate *qmenu = 0);
         void addAction(QMacMenuAction *, QMacMenuAction* =0, QMenuPrivate *qmenu = 0);
         void syncAction(QMacMenuAction *);
