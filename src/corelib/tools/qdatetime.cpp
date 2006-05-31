@@ -2157,7 +2157,15 @@ void QDateTime::setTimeSpec(Qt::TimeSpec spec)
 
 static uint toTime_t(const QDate &utcDate, const QTime &utcTime)
 {
-    return (QDate(1970, 1, 1).daysTo(utcDate) * SECS_PER_DAY) + QTime().secsTo(utcTime);
+    int days = QDate(1970, 1, 1).daysTo(utcDate);
+    int secs = QTime().secsTo(utcTime);
+    if (days < 0 || (days == 0 && secs < 0))
+        return uint(-1);
+
+    qlonglong retval = (qlonglong(days) * SECS_PER_DAY) + secs;
+    if (retval >= Q_INT64_C(0xFFFFFFFF))
+        return uint(-1);
+    return uint(retval);
 }
 
 /*!
@@ -2176,10 +2184,7 @@ uint QDateTime::toTime_t() const
     QTime utcTime;
     d->getUTC(utcDate, utcTime);
 
-    int secsSince1Jan1970UTC = ::toTime_t(utcDate, utcTime);
-    if (secsSince1Jan1970UTC < 0)
-        return (uint)-1;
-    return (uint)secsSince1Jan1970UTC;
+    return ::toTime_t(utcDate, utcTime);
 }
 
 /*!
