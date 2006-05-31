@@ -35,8 +35,7 @@ HEADERS += \
 	kernel/qwidget.h \
 	kernel/qwidgetaction.h \
 	kernel/qwidgetaction_p.h \
-	kernel/qwindowdefs.h \
-        kernel/qsystemtrayicon.h
+	kernel/qwindowdefs.h
 
 SOURCES += \
 	kernel/qaction.cpp \
@@ -63,8 +62,7 @@ SOURCES += \
 	kernel/qguivariant.cpp \
 	kernel/qwhatsthis.cpp \
 	kernel/qwidget.cpp \
-	kernel/qwidgetaction.cpp \
-        kernel/qsystemtrayicon.cpp
+	kernel/qwidgetaction.cpp
 
 win32 {
 	SOURCES += \
@@ -76,8 +74,7 @@ win32 {
 		kernel/qmime_win.cpp \
 		kernel/qsound_win.cpp \
 		kernel/qwidget_win.cpp \
-		kernel/qole_win.c \
-                kernel/qsystemtrayicon_win.cpp
+		kernel/qole_win.c
 }
 
 unix:x11 {
@@ -96,8 +93,7 @@ unix:x11 {
 		kernel/qwidget_x11.cpp \
 		kernel/qwidgetcreate_x11.cpp \
 		kernel/qx11embed_x11.cpp \
-		kernel/qx11info_x11.cpp \
-                kernel/qsystemtrayicon_x11.cpp
+		kernel/qx11info_x11.cpp
 
         contains(QT_CONFIG, glib) {
             SOURCES += \
@@ -125,8 +121,7 @@ embedded {
 		kernel/qdnd_qws.cpp \
 		kernel/qeventdispatcher_qws.cpp \
 		kernel/qsound_qws.cpp \
-		kernel/qwidget_qws.cpp \
-		kernel/qsystemtrayicon_qws.cpp
+		kernel/qwidget_qws.cpp
 }
 
 !x11:mac {
@@ -144,7 +139,6 @@ embedded {
 		kernel/qdnd_mac.cpp \
 		kernel/qdesktopwidget_mac.cpp \
 		kernel/qwidget_mac.cpp 
-	OBJECTIVE_SOURCES += kernel/qsystemtrayicon_mac.mm
         HEADERS += \
                 kernel/qeventdispatcher_mac_p.h
         LIBS += -framework AppKit
