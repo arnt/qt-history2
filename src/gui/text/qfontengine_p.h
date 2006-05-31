@@ -433,6 +433,7 @@ public:
     virtual QByteArray getSfntTable(uint tag) const;
     virtual Properties properties() const;
     virtual void getUnscaledGlyph(glyph_t glyph, QPainterPath *path, glyph_metrics_t *metrics);
+    virtual QImage alphaMapForGlyph(glyph_t);
 
 private:
     FMFont fmFont;

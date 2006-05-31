@@ -897,6 +897,72 @@ void QFontEngineMac::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, in
     DisposeATSCubicClosePathUPP(closePath);
 }
 
+QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
+{
+    return QFontEngine::alphaMapForGlyph(glyph);
+    
+    const glyph_metrics_t br = boundingBox(glyph);
+    QImage im(qRound(br.width)+1, qRound(br.height)+1, QImage::Format_RGB32);
+    im.fill(0);    
+
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+    uint cgflags = kCGImageAlphaNoneSkipFirst;
+#ifdef kCGBitmapByteOrder32Host //only needed because CGImage.h added symbols in the minor version
+    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4)
+        cgflags |= kCGBitmapByteOrder32Host;
+#endif
+#else
+    CGImageAlphaInfo cgflags = kCGImageAlphaNoneSkipFirst;
+#endif
+    CGContextRef ctx = CGBitmapContextCreate(im.bits(), im.width(), im.height(),
+                                             8, im.bytesPerLine(), colorspace,
+                                             cgflags);
+    CGColorSpaceRelease(colorspace);
+    CGContextSetFontSize(ctx, fontDef.pixelSize);
+    CGContextSetShouldAntialias(ctx, true);
+    CGAffineTransform oldTextMatrix = CGContextGetTextMatrix(ctx);
+    CGAffineTransform cgMatrix = CGAffineTransformMake(1, 0, 0, 1, 0, 0);
+    CGAffineTransformConcat(cgMatrix, oldTextMatrix);
+
+    if (synthesisFlags & QFontEngine::SynthesizedItalic)
+        cgMatrix = CGAffineTransformConcat(cgMatrix, CGAffineTransformMake(1, 0, tanf(14 * acosf(0) / 90), 1, 0, 0));
+
+    CGContextSetTextMatrix(ctx, cgMatrix);
+    CGContextSetRGBFillColor(ctx, 1, 1, 1, 1);
+    CGContextSetTextDrawingMode(ctx, kCGTextFill);
+    CGContextSetFont(ctx, cgFont);
+
+    qreal pos_x = -br.x.toReal(), pos_y = im.height()+br.y.toReal();
+    CGContextSetTextPosition(ctx, pos_x, pos_y);
+
+    CGSize advance;
+    advance.width = 0;
+    advance.height = 0;
+    CGGlyph cgGlyph = glyph;    
+    CGContextShowGlyphsWithAdvances(ctx, &cgGlyph, &advance, 1);
+
+    if (synthesisFlags & QFontEngine::SynthesizedBold) {
+        CGContextSetTextPosition(ctx, pos_x + 0.5 * lineThickness().toReal(), pos_y);
+        CGContextShowGlyphsWithAdvances(ctx, &cgGlyph, &advance, 1);
+    }
+
+    CGContextRelease(ctx);
+
+    QImage indexed(im.width(), im.height(), QImage::Format_Indexed8);    
+    for (int y=0; y<im.height(); ++y) {
+        uint *src = (uint*) im.scanLine(y);
+        uchar *dst = indexed.scanLine(y);
+        for (int x=0; x<im.width(); ++x) {
+            *dst = qGray(*src);
+            ++dst;
+            ++src;
+        }
+    }
+    
+    return indexed;
+}
+
 bool QFontEngineMac::canRender(const QChar *string, int len)
 {
     Q_ASSERT(false);
