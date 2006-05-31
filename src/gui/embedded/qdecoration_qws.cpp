@@ -231,18 +231,19 @@ int QDecoration::regionAt(const QWidget *w, const QPoint &point)
 */
 void QDecoration::buildSysMenu(QWidget *widget, QMenu *menu)
 {
-    QDecorationAction *act = new QDecorationAction("Restore", menu, Maximize);
+    QDecorationAction *act = new QDecorationAction(QLatin1String("Restore"),
+                                                   menu, Maximize);
     act->setEnabled(widget->windowState() & Qt::WindowMaximized);
     menu->addAction(act);
-    menu->addAction(new QDecorationAction("Move", menu, Move));
-    menu->addAction(new QDecorationAction("Size", menu, Resize));
-    act = new QDecorationAction("Minimize", menu, Minimize);
+    menu->addAction(new QDecorationAction(QLatin1String("Move"), menu, Move));
+    menu->addAction(new QDecorationAction(QLatin1String("Size"), menu, Resize));
+    act = new QDecorationAction(QLatin1String("Minimize"), menu, Minimize);
     menu->addAction(act);
-    act = new QDecorationAction("Maximize", menu, Maximize);
+    act = new QDecorationAction(QLatin1String("Maximize"), menu, Maximize);
     act->setDisabled(widget->windowState() & Qt::WindowMaximized);
     menu->addAction(act);
     menu->addSeparator();
-    menu->addAction(new QDecorationAction("Close", menu, Close));
+    menu->addAction(new QDecorationAction(QLatin1String("Close"), menu, Close));
 }
 
 /*!
