@@ -391,8 +391,8 @@ QString Config::copyFile( const Location& location,
 {
     QFile inFile( sourceFilePath );
     if ( !inFile.open(QFile::ReadOnly) ) {
-	location.fatal( tr("Cannot open input file '%1'")
-			.arg(inFile.fileName()) );
+	location.fatal( tr("Cannot open input file '%1': %2")
+			.arg(inFile.fileName()).arg(inFile.errorString()) );
 	return "";
     }
 
@@ -403,8 +403,8 @@ QString Config::copyFile( const Location& location,
 
     QFile outFile( targetDirPath + "/" + outFileName );
     if ( !outFile.open(QFile::WriteOnly) ) {
-	location.fatal( tr("Cannot open output file '%1'")
-			.arg(outFile.fileName()) );
+	location.fatal( tr("Cannot open output file '%1': %2")
+			.arg(outFile.fileName()).arg(outFile.errorString()) );
 	return "";
     }
 
@@ -479,7 +479,7 @@ void Config::load( Location location, const QString& fileName )
     if ( !fin.open(QFile::ReadOnly | QFile::Text) ) {
 	fin.setFileName(fileName + ".qdoc");
 	if (!fin.open(QFile::ReadOnly | QFile::Text))
-	    location.fatal( tr("Cannot open file '%1'").arg(fileName) );
+	    location.fatal( tr("Cannot open file '%1': %2").arg(fileName).arg(fin.errorString()) );
     }
 
     QString text = fin.readAll();
