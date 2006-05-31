@@ -169,6 +169,7 @@ public:
     explicit QDateTime(const QDate &);
     QDateTime(const QDate &, const QTime &, Qt::TimeSpec spec = Qt::LocalTime);
     QDateTime(const QDateTime &other);
+    QDateTime(uint secsSince1Jan1970UTC);
     ~QDateTime();
 
     QDateTime &operator=(const QDateTime &other);
