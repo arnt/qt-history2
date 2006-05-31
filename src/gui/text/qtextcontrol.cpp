@@ -453,9 +453,11 @@ void QTextControlPrivate::startDrag()
 {
     Q_Q(QTextControl);
     mousePressed = false;
+    if (!dndWidget)
+        return;
     QMimeData *data = q->createMimeDataFromSelection();
 
-    QDrag *drag = new QDrag(/* ######## q*/QApplication::focusWidget());
+    QDrag *drag = new QDrag(dndWidget);
     drag->setMimeData(data);
 
     Qt::DropActions actions = Qt::CopyAction;
@@ -463,10 +465,8 @@ void QTextControlPrivate::startDrag()
         actions |= Qt::MoveAction;
     Qt::DropAction action = drag->start(actions);
 
-    /* ########
-    if (action == Qt::MoveAction && drag->target() != q)
+    if (action == Qt::MoveAction && drag->target() != dndWidget)
         cursor.removeSelectedText();
-        */
 }
 
 void QTextControlPrivate::setCursorPosition(const QPointF &pos)
@@ -1110,6 +1110,28 @@ void QTextControl::selectAll()
 bool QTextControl::event(QEvent *e)
 {
     Q_D(QTextControl);
+
+    switch (e->type()) {
+        case QEvent::GraphicsSceneMouseMove:
+        case QEvent::GraphicsSceneMousePress:
+        case QEvent::GraphicsSceneMouseRelease:
+        case QEvent::GraphicsSceneMouseDoubleClick:
+        case QEvent::GraphicsSceneContextMenu:
+        case QEvent::GraphicsSceneHoverEnter:
+        case QEvent::GraphicsSceneHoverMove:
+        case QEvent::GraphicsSceneHoverLeave:
+        case QEvent::GraphicsSceneHelp:
+        case QEvent::GraphicsSceneDragEnter:
+        case QEvent::GraphicsSceneDragMove:
+        case QEvent::GraphicsSceneDragLeave:
+        case QEvent::GraphicsSceneDrop: {
+            QGraphicsSceneEvent *ev = static_cast<QGraphicsSceneEvent *>(e);
+            d->dndWidget = ev->widget();
+            break;
+        }
+        default: break;
+    };
+
     switch (e->type()) {
         case QEvent::KeyPress:
             d->keyPressEvent(static_cast<QKeyEvent *>(e));
@@ -1180,7 +1202,7 @@ bool QTextControl::event(QEvent *e)
             break; }
         case QEvent::GraphicsSceneDrop: {
             QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
-            if (d->dropEvent(ev->mimeData(), ev->pos()))
+            if (d->dropEvent(ev->mimeData(), ev->pos(), ev->proposedAction(), ev->source()))
                 ev->acceptProposedAction();
             break; }
 
@@ -1999,7 +2021,7 @@ bool QTextControlPrivate::dragMoveEvent(QEvent *e, const QMimeData *mimeData, co
     return true; // accept proposed action
 }
 
-bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &pos)
+bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &pos, Qt::DropAction dropAction, QWidget *source)
 {
     Q_Q(QTextControl);
     dndFeedbackCursor = QTextCursor();
@@ -2012,11 +2034,8 @@ bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &po
     QTextCursor insertionCursor = q->cursorForPosition(pos);
     insertionCursor.beginEditBlock();
 
-    /* ################
-    if (e->dropAction() == Qt::MoveAction
-        && (e->source() == this || e->source() == d->viewport))
-        d->cursor.removeSelectedText();
-    */
+    if (dropAction == Qt::MoveAction && source == dndWidget)
+        cursor.removeSelectedText();
 
     cursor = insertionCursor;
     q->insertFromMimeData(mimeData);

@@ -108,7 +108,7 @@ public:
     bool dragEnterEvent(QEvent *e, const QMimeData *mimeData);
     void dragLeaveEvent();
     bool dragMoveEvent(QEvent *e, const QMimeData *mimeData, const QPointF &pos);
-    bool dropEvent(const QMimeData *mimeData, const QPointF &pos);
+    bool dropEvent(const QMimeData *mimeData, const QPointF &pos, Qt::DropAction dropAction, QWidget *source);
 
     void inputMethodEvent(QInputMethodEvent *);
 
@@ -131,6 +131,7 @@ public:
     bool mightStartDrag;
     QPoint dragStartPos;
     QBasicTimer dragStartTimer;
+    QPointer<QWidget> dndWidget;
 
     QTextControl::LineWrapMode lineWrap;
     int lineWrapColumnOrWidth;
