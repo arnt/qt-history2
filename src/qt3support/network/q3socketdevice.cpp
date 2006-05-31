@@ -305,7 +305,7 @@ bool Q3SocketDevice::open( OpenMode mode )
 #if defined(Q3SOCKETDEVICE_DEBUG)
     qDebug( "Q3SocketDevice::open: mode %x", mode );
 #endif
-    setOpenMode( mode & ReadWrite );
+    setOpenMode( (mode & ReadWrite) | Unbuffered );
     return true;
 }
 

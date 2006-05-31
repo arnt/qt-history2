@@ -648,7 +648,7 @@ qint64 Q3SocketDevice::bytesAvailable() const
     // gives shorter than true amounts on Unix domain sockets.
     if ( ::ioctl(fd, FIONREAD, (char*)&nbytes) < 0 )
 	return -1;
-    return (Q_LONG) *((int *) &nbytes);
+    return (Q_LONG) *((int *) &nbytes) + QIODevice::bytesAvailable();
 }
 
 
@@ -750,7 +750,7 @@ qint64 Q3SocketDevice::readData( char *data, qint64 maxlen )
 	done = true;
         if ( r == 0 && t == Stream && maxlen > 0 ) {
             // connection closed
-            close();
+            // do nothing
         } else if ( r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK ) {
 	    // nothing
 	} else if ( errno == EINTR ) {
