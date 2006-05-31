@@ -297,7 +297,7 @@ bool qt_mac_add_socket_to_runloop(const CFSocketRef socket)
     if (!loopSource)
         return false;
 
-    CFRunLoopAddSource(CFRunLoopGetCurrent(), loopSource, kCFRunLoopDefaultMode);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), loopSource, kCFRunLoopCommonModes);
     CFRelease(loopSource);
     return true;
 }
@@ -311,7 +311,7 @@ bool qt_mac_remove_socket_from_runloop(const CFSocketRef socket)
     if (!loopSource)
         return false;
 
-    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), loopSource, kCFRunLoopDefaultMode);
+    CFRunLoopRemoveSource(CFRunLoopGetCurrent(), loopSource, kCFRunLoopCommonModes);
     CFRelease(loopSource);
     return true;
 }
