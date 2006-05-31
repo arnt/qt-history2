@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <QtDesigner>
+#include <QtGui>
 
 #include "tictactoe.h"
 #include "tictactoedialog.h"
