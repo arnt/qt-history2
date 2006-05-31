@@ -1298,6 +1298,8 @@ void QVNCScreen::shutdownDevice()
     delete vncServer;
     if (!virtualBuffer)
         VNCSCREEN_BASE::shutdownDevice();
+    if (shm)
+        shm->destroy();
 }
 
 
