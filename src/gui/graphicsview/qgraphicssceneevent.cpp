@@ -397,13 +397,14 @@ class QGraphicsSceneContextMenuEventPrivate : public QGraphicsSceneEventPrivate
     Q_DECLARE_PUBLIC(QGraphicsSceneContextMenuEvent)
         public:
     inline QGraphicsSceneContextMenuEventPrivate()
-        : modifiers(0)
+        : modifiers(0), reason(QGraphicsSceneContextMenuEvent::Other)
         { }
 
     QPointF pos;
     QPointF scenePos;
     QPoint screenPos;
     Qt::KeyboardModifiers modifiers;
+    QGraphicsSceneContextMenuEvent::Reason reason;
 };
 
 /*!
@@ -516,6 +517,24 @@ void QGraphicsSceneContextMenuEvent::setModifiers(Qt::KeyboardModifiers modifier
 {
     Q_D(QGraphicsSceneContextMenuEvent);
     d->modifiers = modifiers;
+}
+
+/*!
+    Sets the reason for the context menu event.
+*/
+void QGraphicsSceneContextMenuEvent::setReason(Reason reason)
+{
+    Q_D(QGraphicsSceneContextMenuEvent);
+    d->reason = reason;
+}
+
+/*!
+    Returns the reason for the context menu event.
+*/
+QGraphicsSceneContextMenuEvent::Reason QGraphicsSceneContextMenuEvent::reason() const
+{
+    Q_D(const QGraphicsSceneContextMenuEvent);
+    return d->reason;
 }
 
 class QGraphicsSceneHoverEventPrivate : public QGraphicsSceneEventPrivate

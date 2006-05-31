@@ -108,10 +108,10 @@ static const int GraphicsViewRegionRectThreshold = 20;
     dragging the mouse over the viewport.
 
     \value NoDrag Nothing happens; the mouse event is ignored.
-    
+
     \value ScrollHandDrag The cursor changes into a pointing hand, and
     dragging the mouse around will scroll the scrolbars.
-    
+
     \value RubberBandDrag A rubber band will appear. Dragging the mouse will
     set the rubber band geometry, and all items covered by the rubber band are
     selected.
@@ -931,7 +931,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
                          -verticalScrollBar()->value() + d->topIndent);
     QMatrix painterMatrix = d->matrix * moveMatrix;
     painter->setMatrix(painterMatrix);
-    
+
     d->scene->render(painter, target.adjusted(-1, -1, 1, 1),
                      mapToScene(source).boundingRect().adjusted(-1, -1, 1, 1),
                      aspectRatioMode);
@@ -1077,7 +1077,7 @@ QGraphicsItem *QGraphicsView::itemAt(const QPoint &pos) const
 QPointF QGraphicsView::mapToScene(const QPoint &point) const
 {
     Q_D(const QGraphicsView);
-    QPointF p = point;    
+    QPointF p = point;
     p.rx() += horizontalScrollBar()->value() - d->leftIndent;
     p.ry() += verticalScrollBar()->value() - d->topIndent;
     return d->matrix.inverted().map(p);
@@ -1278,7 +1278,7 @@ void QGraphicsView::setupViewport(QWidget *widget)
     }
 
     d->accelerateScrolling = !widget->inherits("QGLWidget");
-    
+
     widget->setFocusPolicy(Qt::StrongFocus);
 
     // autoFillBackground enables scroll acceleration.
@@ -1350,6 +1350,7 @@ void QGraphicsView::contextMenuEvent(QContextMenuEvent *event)
     contextEvent.setScenePos(d->mousePressScenePoint);
     contextEvent.setScreenPos(d->mousePressScreenPoint);
     contextEvent.setModifiers(event->modifiers());
+    contextEvent.setReason(static_cast<QGraphicsSceneContextMenuEvent::Reason>(event->reason()));
     QApplication::sendEvent(d->scene, &contextEvent);
 }
 
@@ -1365,7 +1366,7 @@ void QGraphicsView::dropEvent(QDropEvent *event)
     // Generate a scene event.
     QGraphicsSceneDragDropEvent sceneEvent(QEvent::GraphicsSceneDrop);
     d->populateSceneDragDropEvent(&sceneEvent, event);
-    
+
     // Send it to the scene.
     QApplication::sendEvent(d->scene, &sceneEvent);
 
@@ -1391,7 +1392,7 @@ void QGraphicsView::dragEnterEvent(QDragEnterEvent *event)
 
     // Store it for later use.
     d->storeDragDropEvent(&sceneEvent);
-    
+
     // Send it to the scene.
     QApplication::sendEvent(d->scene, &sceneEvent);
 
@@ -1414,7 +1415,7 @@ void QGraphicsView::dragLeaveEvent(QDragLeaveEvent *event)
         qWarning("QGraphicsView::dragLeaveEvent: drag leave received before drag enter");
         return;
     }
-    
+
     // Generate a scene event.
     QGraphicsSceneDragDropEvent sceneEvent(QEvent::GraphicsSceneDragLeave);
     sceneEvent.setScenePos(d->lastDragDropEvent->scenePos());
@@ -1453,7 +1454,7 @@ void QGraphicsView::dragMoveEvent(QDragMoveEvent *event)
 
     // Store it for later use.
     d->storeDragDropEvent(&sceneEvent);
-    
+
     // Send it to the scene.
     QApplication::sendEvent(d->scene, &sceneEvent);
 
@@ -1552,7 +1553,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
     d->mousePressButton = event->button();
 
     d->storeMouseEvent(event);
-    
+
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         if (!d->scene) {
             d->rubberBanding = true;
@@ -1575,7 +1576,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
 
     if (!d->scene)
         return;
-    
+
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
     mouseEvent.setWidget(viewport());
     mouseEvent.setButtonDownScenePos(d->mousePressButton, d->mousePressScenePoint);
@@ -1637,7 +1638,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
 
     if (!d->scene)
         return;
-    
+
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseMove);
     mouseEvent.setWidget(viewport());
     mouseEvent.setButtonDownScenePos(d->mousePressButton, d->mousePressScenePoint);
@@ -1684,12 +1685,12 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 #endif
         d->handScrolling = false;
     }
-    
+
     d->storeMouseEvent(event);
 
     if (!d->scene)
         return;
-    
+
     QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMouseRelease);
     mouseEvent.setWidget(viewport());
     mouseEvent.setButtonDownScenePos(d->mousePressButton, d->mousePressScenePoint);
@@ -1819,7 +1820,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 #ifdef QGRAPHICSVIEW_DEBUG
     int itemsTime = stopWatch.elapsed() - exposedTime - backgroundTime;
 #endif
-    
+
     // Foreground
     foreach (QPolygonF polygon, exposedAreas) {
         painter.save();

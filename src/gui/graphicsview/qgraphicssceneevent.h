@@ -55,7 +55,7 @@ public:
 
     QPoint screenPos() const;
     void setScreenPos(const QPoint &pos);
-    
+
     QPointF buttonDownPos(Qt::MouseButton button) const;
     void setButtonDownPos(Qt::MouseButton button, const QPointF &pos);
 
@@ -82,7 +82,7 @@ public:
 
     Qt::KeyboardModifiers modifiers() const;
     void setModifiers(Qt::KeyboardModifiers modifiers);
-    
+
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneMouseEvent)
 };
@@ -91,21 +91,26 @@ class QGraphicsSceneContextMenuEventPrivate;
 class Q_GUI_EXPORT QGraphicsSceneContextMenuEvent : public QGraphicsSceneEvent
 {
 public:
+    enum Reason { Mouse, Keyboard, Other };
+
     QGraphicsSceneContextMenuEvent(Type type = None);
     ~QGraphicsSceneContextMenuEvent();
-    
+
     QPointF pos() const;
     void setPos(const QPointF &pos);
 
     QPointF scenePos() const;
     void setScenePos(const QPointF &pos);
-    
+
     QPoint screenPos() const;
     void setScreenPos(const QPoint &pos);
 
     Qt::KeyboardModifiers modifiers() const;
     void setModifiers(Qt::KeyboardModifiers modifiers);
-    
+
+    void setReason(Reason reason);
+    Reason reason() const;
+
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneContextMenuEvent)
 };
@@ -122,7 +127,7 @@ public:
 
     QPointF scenePos() const;
     void setScenePos(const QPointF &pos);
-    
+
     QPoint screenPos() const;
     void setScreenPos(const QPoint &pos);
 
@@ -139,7 +144,7 @@ public:
 
     QPointF scenePos() const;
     void setScenePos(const QPointF &pos);
-    
+
     QPoint screenPos() const;
     void setScreenPos(const QPoint &pos);
 
@@ -162,16 +167,16 @@ public:
 
     QPoint screenPos() const;
     void setScreenPos(const QPoint &pos);
-    
+
     Qt::MouseButtons buttons() const;
     void setButtons(Qt::MouseButtons buttons);
-    
+
     Qt::KeyboardModifiers modifiers() const;
     void setModifiers(Qt::KeyboardModifiers modifiers);
 
     Qt::DropActions possibleActions() const;
     void setPossibleActions(Qt::DropActions actions);
-    
+
     Qt::DropAction proposedAction() const;
     void setProposedAction(Qt::DropAction action);
     void acceptProposedAction();
@@ -181,7 +186,7 @@ public:
 
     QWidget *source() const;
     void setSource(QWidget *source);
-    
+
     const QMimeData *mimeData() const;
     void setMimeData(const QMimeData *data);
 
