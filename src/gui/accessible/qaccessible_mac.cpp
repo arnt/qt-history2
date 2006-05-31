@@ -22,6 +22,7 @@
 #include "qtextdocument.h"
 #include "qdebug.h"
 #include "qabstractslider.h"
+#include "qsplitter.h"
 
 #include <private/qt_mac_p.h>
 #include <CoreFoundation/CoreFoundation.h>
@@ -152,6 +153,9 @@ struct QAccessibleTextBinding {
       { -1, 0, false }
     },
     { { QAccessible::Indicator, kAXValueIndicatorRole, false },
+      { -1, 0, false }
+    },
+    { { QAccessible::Splitter, kAXSplitGroupRole, false },
       { -1, 0, false }
     },
     { { -1, 0, false } }
@@ -293,7 +297,7 @@ public:
     { return (base != 0); }
 
     QInterfaceItem parent() const
-    { return navigate(QAccessible::Ancestor, 0); }
+    { return navigate(QAccessible::Ancestor, 1); }
 
 protected:
     QInterfaceItemBase *base;
@@ -390,11 +394,12 @@ QInterfaceItem QInterfaceItem::navigate(RelationFlag relation, int entry) const
         if (relation == QAccessible::Child)
             return QInterfaceItem();
     }
-
     QAccessibleInterface *child_iface = 0;
     const int status = base->interface->navigate(relation, entry, &child_iface);
+
     if (status == -1)
         return QInterfaceItem(); // not found;
+
 
     // Check if target is a child of this interface.
     if (!child_iface) {
@@ -859,15 +864,24 @@ static QString getValue(QInterfaceItem interface)
 }
 
 /*
-    Translates a QAccessible::Role into a mac accessibility role
-    using the text_bindings table.
+    Translates a QAccessible::Role into a mac accessibility role.
 */
-static CFStringRef macRoleForQtRole(QAccessible::Role role)
+static CFStringRef macRole(QInterfaceItem interface)
 {
+    const QAccessible::Role qtRole = interface.role();
+
+    // Qt accessibility:  QAccessible::Splitter contains QAccessible::Grip.
+    // Mac accessibility: AXSplitGroup contains AXSplitter. 
+    if (qtRole == QAccessible::Grip) {
+        const QInterfaceItem parent = interface.parent();
+        if (parent.isValid() && parent.role() == QAccessible::Splitter)
+            return kAXSplitterRole;
+    }
+
     int i = 0;
     int testRole = text_bindings[i][0].qt;
     while (testRole != -1) {
-        if (testRole == role)
+        if (testRole == qtRole)
             return text_bindings[i][0].mac;
         ++i;
         testRole = text_bindings[i][0].qt;
@@ -1067,8 +1081,19 @@ static OSStatus getAllAttributeNames(EventRef event, QInterfaceItem interface, E
         case QAccessible::ScrollBar:
             qt_mac_append_cf_uniq(attrs, kAXOrientationAttribute);
         break;
+        case QAccessible::Splitter:
+            qt_mac_append_cf_uniq(attrs, kAXSplittersAttribute);
+        break;
         default:
         break;
+    }
+
+    // Append attribute names based on the mac accessibility role.
+    const QCFString mac_role = macRole(interface);
+    if (mac_role == kAXSplitterRole) {
+        qt_mac_append_cf_uniq(attrs, kAXPreviousContentsAttribute);
+        qt_mac_append_cf_uniq(attrs, kAXNextContentsAttribute);
+        qt_mac_append_cf_uniq(attrs, kAXOrientationAttribute);
     }
 
     return noErr;
@@ -1303,11 +1328,77 @@ static OSStatus handleSizeAttribute(EventHandlerCallRef next_ref, EventRef event
     return noErr;
 }
 
-static OSStatus handleSubroleAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+static OSStatus handleSubroleAttribute(EventHandlerCallRef, EventRef event, const QInterfaceItem interface)
 {
     const QCFString role = subrole(interface);
     CFStringRef rolestr = (CFStringRef)role;
     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, sizeof(rolestr), &rolestr);
+    return noErr;
+}
+
+static OSStatus handleOrientationAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+{
+    QObject *const object = interface.object();
+    Qt::Orientation orientation;
+    if (QAbstractSlider * const scrollBar = qobject_cast<QAbstractSlider * const>(object)) {
+        orientation = scrollBar->orientation();
+    } else if (QSplitterHandle * const splitter = qobject_cast<QSplitterHandle * const>(object)) {
+        // Qt reports the layout orientation, but we want the splitter handle orientation.
+        orientation = (splitter->orientation() == Qt::Horizontal) ? Qt::Vertical : Qt::Horizontal;
+    } else {
+        return CallNextEventHandler(next_ref, event);
+    }
+    const CFStringRef orientationString = (orientation == Qt::Vertical) 
+        ? kAXVerticalOrientationValue : kAXHorizontalOrientationValue;
+    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, sizeof(orientationString), &orientationString);
+    return noErr;
+}
+
+/*
+    Figures out the next or previous contents for a splitter.
+*/
+static OSStatus handleSplitterContentsAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface, QCFString nextOrPrev)
+{
+    const QInterfaceItem parent = interface.parent();
+    if (parent.isValid() == false)
+        return CallNextEventHandler(next_ref, event);
+
+    if (parent.role() != QAccessible::Splitter)
+        return CallNextEventHandler(next_ref, event);
+    
+    const QSplitter * const splitter = qobject_cast<const QSplitter * const>(parent.object());
+    if (splitter == 0)
+        return CallNextEventHandler(next_ref, event);
+       
+    QWidget * const splitterHandle = qobject_cast<QWidget * const>(interface.object());
+    const int splitterHandleIndex = splitter->indexOf(splitterHandle);
+    const int widgetIndex = (nextOrPrev == QCFString(kAXPreviousContentsAttribute)) ? splitterHandleIndex - 1 : splitterHandleIndex;
+    const AXUIElementRef contentsElement = accessibleHierarchyManager()->lookup(splitter->widget(widgetIndex), 0).element();
+
+    QCFType<CFArrayRef> cfList = CFArrayCreate(0, (const void **)&contentsElement, 1, 0);
+    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, sizeof(cfList), &cfList);
+
+    return noErr;
+}
+
+/*
+    Creates a list of all splitter handles the splitter contains.
+*/
+static OSStatus handleSplittersAttribute(EventHandlerCallRef next_ref, EventRef event, const QInterfaceItem interface)
+{
+    const QSplitter * const splitter = qobject_cast<const QSplitter * const>(interface.object());
+    if (splitter == 0)
+        return CallNextEventHandler(next_ref, event);
+
+    mapChildrenForInterface(interface);
+    QAccessibleHierarchyManager * const manager = accessibleHierarchyManager();
+    const int visibleSplitterCount = splitter->count() -1; // skip first handle, it's always invisible.
+
+    CFMutableArrayRef cfList = CFArrayCreateMutable(0, 0, &kCFTypeArrayCallBacks);
+    for (int i = 0; i < visibleSplitterCount; ++ i)
+        CFArrayAppendValue(cfList, manager->lookup(splitter->handle(i + 1), 0).element());
+
+    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, sizeof(cfList), &cfList);
     return noErr;
 }
 
@@ -1332,7 +1423,7 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
     } else if (CFStringCompare(var, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
         return handleSizeAttribute(next_ref, event, interface);
     } else  if (CFStringCompare(var, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
-        CFStringRef role = macRoleForQtRole(interface.role());
+        CFStringRef role = macRole(interface);
         QWidget * const widget = qobject_cast<QWidget *>(interface.object());
         if (role == kAXUnknownRole && widget && widget->isWindow())
             role = kAXWindowRole;
@@ -1416,10 +1507,8 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
         return handleSubroleAttribute(next_ref, event, interface);
     } else if (CFStringCompare(var, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
-        const QAccessible::Role qtRole = interface.role();
-        const CFStringRef macRole = macRoleForQtRole(qtRole);
         if (HICopyAccessibilityRoleDescription) {
-            const CFStringRef roleDescription = HICopyAccessibilityRoleDescription(macRole, 0);
+            const CFStringRef roleDescription = HICopyAccessibilityRoleDescription(macRole(interface), 0);
             SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
                           sizeof(roleDescription), &roleDescription);
         } else
@@ -1472,14 +1561,13 @@ static OSStatus getNamedAttribute(EventHandlerCallRef next_ref, EventRef event, 
             return CallNextEventHandler(next_ref, event);
         }
     } else if (CFStringCompare(var, kAXOrientationAttribute, 0) == kCFCompareEqualTo) {
-        QAbstractSlider * const scrollBar = qobject_cast<QAbstractSlider * const>(interface.object());
-        if (!scrollBar)
-            return CallNextEventHandler(next_ref, event);
-
-        const CFStringRef orientation = (scrollBar->orientation() == Qt::Vertical) 
-            ? kAXVerticalOrientationValue : kAXHorizontalOrientationValue;
-        SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
-                          sizeof(orientation), &orientation);
+        return handleOrientationAttribute(next_ref, event, interface);
+    } else if (CFStringCompare(var, kAXPreviousContentsAttribute, 0) == kCFCompareEqualTo) {
+        return handleSplitterContentsAttribute(next_ref, event, interface, kAXPreviousContentsAttribute);
+    } else if (CFStringCompare(var, kAXNextContentsAttribute, 0) == kCFCompareEqualTo) {
+        return handleSplitterContentsAttribute(next_ref, event, interface, kAXNextContentsAttribute);
+    } else if (CFStringCompare(var, kAXSplittersAttribute, 0) == kCFCompareEqualTo) {
+        return handleSplittersAttribute(next_ref, event, interface);
     } else {
         return CallNextEventHandler(next_ref, event);
     }
