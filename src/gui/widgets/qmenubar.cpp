@@ -332,8 +332,8 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
             QString s = action->text();
             if(!s.isEmpty()) {
                 int w = fm.width(s);
-                w -= s.count('&') * fm.width('&');
-                w += s.count("&&") * fm.width('&');
+                w -= s.count(QLatin1Char('&')) * fm.width(QLatin1Char('&'));
+                w += s.count(QLatin1String("&&")) * fm.width(QLatin1Char('&'));
                 sz = QSize(w, fm.height());
             }
 
@@ -977,7 +977,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
                 register QAction *act = d->actionList.at(i);
                 QString s = act->text();
                 if(!s.isEmpty()) {
-                    int ampersand = s.indexOf('&');
+                    int ampersand = s.indexOf(QLatin1Char('&'));
                     if(ampersand >= 0) {
                         if(s[ampersand+1].toUpper() == c) {
                             clashCount++;

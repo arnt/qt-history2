@@ -475,27 +475,27 @@ static QStringList fontPath()
         if (((font_path[i])[0] != '/') && !xfsconfig_read) {
             // We're using xfs -> read its config
             bool finished = false;
-            QFile f("/etc/X11/fs/config");
+            QFile f(QLatin1String("/etc/X11/fs/config"));
             if (!f.exists())
-                f.setFileName("/usr/X11R6/lib/X11/fs/config");
+                f.setFileName(QLatin1String("/usr/X11R6/lib/X11/fs/config"));
             if (!f.exists())
-                f.setFileName("/usr/X11/lib/X11/fs/config");
+                f.setFileName(QLatin1String("/usr/X11/lib/X11/fs/config"));
             if (f.exists()) {
                 f.open(QIODevice::ReadOnly);
                 while (f.error()==QFile::NoError && !finished) {
                     QString fs = f.readLine(1024);
                     fs=fs.trimmed();
-                    if (fs.left(9)=="catalogue" && fs.contains('=')) {
-                        fs = fs.mid(fs.indexOf('=') + 1).trimmed();
+                    if (fs.left(9)==QLatin1String("catalogue") && fs.contains(QLatin1Char('='))) {
+                        fs = fs.mid(fs.indexOf(QLatin1Char('=')) + 1).trimmed();
                         bool end = false;
                         while (f.error()==QFile::NoError && !end) {
-                            if (fs[int(fs.length())-1] == ',')
+                            if (fs[int(fs.length())-1] == QLatin1Char(','))
                                 fs = fs.left(fs.length()-1);
                             else
                                 end = true;
 
-                            fs = fs.left(fs.indexOf(":unscaled"));
-                            if (fs[0] != '#')
+                            fs = fs.left(fs.indexOf(QLatin1String(":unscaled")));
+                            if (fs[0] != QLatin1Char('#'))
                                 fontpath += fs;
                             fs = f.readLine(1024);
                             fs = fs.trimmed();
@@ -510,7 +510,7 @@ static QStringList fontPath()
             xfsconfig_read = true;
         } else {
             QString fs = QString::fromLatin1(font_path[i]);
-            fontpath += fs.left(fs.indexOf(":unscaled"));
+            fontpath += fs.left(fs.indexOf(QLatin1String(":unscaled")));
         }
     }
     XFreeFontPath(font_path);

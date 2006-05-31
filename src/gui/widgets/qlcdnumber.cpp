@@ -175,11 +175,11 @@ static QString int2string(int num, int base, int ndigits, bool *oflow)
     }
     if (negative) {
         for (int i=0; i<(int)s.length(); i++) {
-            if (s[i] != ' ') {
+            if (s[i] != QLatin1Char(' ')) {
                 if (i != 0) {
-                    s[i-1] = '-';
+                    s[i-1] = QLatin1Char('-');
                 } else {
-                    s.insert(0, '-');
+                    s.insert(0, QLatin1Char('-'));
                 }
                 break;
             }
@@ -206,10 +206,10 @@ static QString double2string(double num, int base, int ndigits, bool *oflow)
         int nd = ndigits;
         do {
             s.sprintf("%*.*g", ndigits, nd, num);
-            int i = s.indexOf('e');
-            if (i > 0 && s[i+1]=='+') {
-                s[i] = ' ';
-                s[i+1] = 'e';
+            int i = s.indexOf(QLatin1Char('e'));
+            if (i > 0 && s[i+1]==QLatin1Char('+')) {
+                s[i] = QLatin1Char(' ');
+                s[i+1] = QLatin1Char('e');
             }
         } while (nd-- && (int)s.length() > ndigits);
     }
@@ -436,7 +436,7 @@ void QLCDNumber::setNumDigits(int numDigits)
     }
     if (d->digitStr.isNull()) {                  // from constructor
         d->ndigits = numDigits;
-        d->digitStr.fill(' ', d->ndigits);
+        d->digitStr.fill(QLatin1Char(' '), d->ndigits);
         d->points.fill(0, d->ndigits);
         d->digitStr[d->ndigits - 1] = '0';            // "0" is the default number
     } else {
@@ -448,7 +448,7 @@ void QLCDNumber::setNumDigits(int numDigits)
         if (numDigits > d->ndigits) {            // expand
             dif = numDigits - d->ndigits;
             QString buf;
-            buf.fill(' ', dif);
+            buf.fill(QLatin1Char(' '), dif);
             d->digitStr.insert(0, buf);
             d->points.resize(numDigits);
             for (i=numDigits-1; i>=dif; i--)
@@ -739,13 +739,13 @@ void QLCDNumberPrivate::internalSetString(const QString& s)
         if (len == ndigits)
             buffer = s;
         else
-            buffer = s.right(ndigits).rightJustified(ndigits, ' ');
+            buffer = s.right(ndigits).rightJustified(ndigits, QLatin1Char(' '));
     } else {
         int  index = -1;
         bool lastWasPoint = true;
         newPoints.clearBit(0);
         for (i=0; i<len; i++) {
-            if (s[i] == '.') {
+            if (s[i] == QLatin1Char('.')) {
                 if (lastWasPoint) {           // point already set for digit?
                     if (index == ndigits - 1) // no more digits
                         break;

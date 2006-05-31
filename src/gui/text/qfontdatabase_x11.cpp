@@ -485,7 +485,7 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
     fd->style = (slant == 'o' ? QFont::StyleOblique : (slant == 'i' ? QFont::StyleItalic : QFont::StyleNormal));
     char fixed = tolower((uchar) tokens[Spacing][0]);
     fd->fixedPitch = (fixed == 'm' || fixed == 'c');
-    fd->weight = getFontWeight(tokens[Weight]);
+    fd->weight = getFontWeight(QLatin1String(tokens[Weight]));
 
     int r = atoi(tokens[ResolutionY]);
     fd->pixelSize = atoi(tokens[PixelSize]);
@@ -542,7 +542,7 @@ static QtFontStyle::Key getStyle(char ** tokens)
     else if (slant0 == 'i')
         key.style = QFont::StyleItalic;
 
-    key.weight = getFontWeight(tokens[Weight]);
+    key.weight = getFontWeight(QLatin1String(tokens[Weight]));
 
     if (qstrcmp(tokens[Width], "normal") == 0) {
         key.stretch = 100;
@@ -565,7 +565,7 @@ static unsigned char encodingLoaded[numEncodings];
 static void loadXlfds(const char *reqFamily, int encoding_id)
 {
     QFontDatabasePrivate *db = privateDb();
-    QtFontFamily *fontFamily = reqFamily ? db->family(reqFamily) : 0;
+    QtFontFamily *fontFamily = reqFamily ? db->family(QLatin1String(reqFamily)) : 0;
 
     // make sure we don't load twice
     if ((encoding_id == -1 && xlfdsFullyLoaded)
@@ -632,10 +632,10 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
             continue;
         }
 
-        QtFontFamily *family = fontFamily ? fontFamily : db->family(familyName, true);
+        QtFontFamily *family = fontFamily ? fontFamily : db->family(QLatin1String(familyName), true);
         family->fontFileIndex = -1;
         family->symbol_checked = true;
-        QtFontFoundry *foundry = family->foundry(foundryName, true);
+        QtFontFoundry *foundry = family->foundry(QLatin1String(foundryName), true);
         QtFontStyle *style = foundry->style(styleKey, true);
 
         delete [] style->weightName;
@@ -706,8 +706,8 @@ QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &request)
     FcChar8 *value = 0;
     if (FcPatternGetString(pattern, FC_FAMILY, 0, &value) == FcResultMatch) {
         fontDef.family = QString::fromUtf8(reinterpret_cast<const char *>(value));
-        fontDef.family.replace('-', ' ');
-        fontDef.family.replace("/", "");
+        fontDef.family.replace(QLatin1Char('-'), QLatin1Char(' '));
+        fontDef.family.replace(QLatin1Char('/'), "");
     }
 
     double dpi;
@@ -987,8 +987,8 @@ static void loadFontConfig()
             continue;
         //         capitalize(value);
         rawName = familyName = QString::fromUtf8((const char *)value);
-        familyName.replace('-', ' ');
-        familyName.replace("/", "");
+        familyName.replace(QLatin1Char('-'), QLatin1Char(' '));
+        familyName.replace(QLatin1Char('/'), "");
         slant_value = FC_SLANT_ROMAN;
         weight_value = FC_WEIGHT_MEDIUM;
         spacing_value = FC_PROPORTIONAL;
@@ -1116,7 +1116,7 @@ static void loadFontConfig()
     };
     const FcDefaultFont *f = defaults;
     while (f->qtname) {
-        QtFontFamily *family = db->family(f->qtname, true);
+        QtFontFamily *family = db->family(QLatin1String(f->qtname), true);
         family->fixedPitch = f->fixed;
         family->rawName = f->rawname;
         family->synthetic = true;

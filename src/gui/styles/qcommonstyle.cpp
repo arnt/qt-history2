@@ -3465,7 +3465,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                 if (!mi->icon.isNull())
                     h = qMax(h, mi->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).height() + 4);
             }
-            if (mi->text.contains('\t'))
+            if (mi->text.contains(QLatin1Char('\t')))
                 w += 12;
             if (maxpmw > 0)
                 w += maxpmw + 6;

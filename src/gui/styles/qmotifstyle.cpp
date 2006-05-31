@@ -1198,7 +1198,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
             QString s = menuitem->text;
             if (!s.isNull()) {                        // draw text
-                int t = s.indexOf('\t');
+                int t = s.indexOf(QLatin1Char('\t'));
                 int m = motifItemVMargin;
                 int text_flags = Qt::AlignVCenter|Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 text_flags |= Qt::AlignLeft;
@@ -1991,7 +1991,7 @@ QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             // a little bit of border can never harm
             w += 2*motifItemHMargin + 2*motifItemFrame;
 
-            if (!mi->text.isNull() && mi->text.indexOf('\t') >= 0)
+            if (!mi->text.isNull() && mi->text.indexOf(QLatin1Char('\t')) >= 0)
                 // string contains tab
                 w += motifTabSpacing;
             else if (mi->menuItemType == QStyleOptionMenuItem::SubMenu)
@@ -2073,7 +2073,7 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
             int textw = 0;
             if (pb->textVisible)
-                textw = pb->fontMetrics.width("100%") + 6;
+                textw = pb->fontMetrics.width(QLatin1String("100%")) + 6;
 
             if (pb->textAlignment == Qt::AlignLeft || pb->textAlignment == Qt::AlignCenter) {
                 rect = opt->rect;

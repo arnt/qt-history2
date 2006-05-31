@@ -1289,7 +1289,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 rect.adjust(2, 0, -2, 0);
         }
 #endif
-        QString pixmapName = uniqueName("toolbarhandle", option, rect.size());
+        QString pixmapName = uniqueName(QLatin1String("toolbarhandle"), option, rect.size());
         if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
             cache = QPixmap(rect.size());
             cache.fill(Qt::blue);
@@ -1350,7 +1350,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             QRect rect = option->rect;
 
             QPixmap cache;
-            QString pixmapName = uniqueName("panelbuttoncommand", option, rect.size());
+            QString pixmapName = uniqueName(QLatin1String("panelbuttoncommand"), option, rect.size());
             if (isDefault)
                 pixmapName += QLatin1String("-") + QString::number(int(button->features), 16);
 
@@ -1532,7 +1532,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             QRect rect = option->rect;
 
             QPixmap cache;
-            QString pixmapName = uniqueName("checkbox", option, option->rect.size());
+            QString pixmapName = uniqueName(QLatin1String("checkbox"), option, option->rect.size());
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(rect.size());
                 cache.fill(Qt::white);
@@ -1622,7 +1622,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             bool hover = (button->state & State_Enabled) && (button->state & State_MouseOver);
             QRect rect = option->rect;
             QPixmap cache;
-            QString pixmapName = uniqueName("radiobutton", option, rect.size());
+            QString pixmapName = uniqueName(QLatin1String("radiobutton"), option, rect.size());
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(rect.size());
                 cache.fill(Qt::white);
@@ -2592,7 +2592,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         // Draws the header in tables.
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
             QPixmap cache;
-            QString pixmapName = uniqueName("headersection", option, option->rect.size());
+            QString pixmapName = uniqueName(QLatin1String("headersection"), option, option->rect.size());
             pixmapName += QLatin1String("-") + QString::number(int(header->position));
             pixmapName += QLatin1String("-") + QString::number(int(header->orientation));
 
@@ -2805,7 +2805,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             QString s = menuitem->text;
             if (!s.isEmpty()) {                     // draw text
                 p->save();
-                int t = s.indexOf('\t');
+                int t = s.indexOf(QLatin1Char('\t'));
                 int text_flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, menuitem, widget))
                     text_flags |= Qt::TextHideMnemonic;
@@ -2861,7 +2861,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         // Draws a menu bar item; File, Edit, Help etc..
         if ((option->state & State_Selected) && (option->state & State_Enabled)) {
             QPixmap cache;
-            QString pixmapName = uniqueName("menubaritem", option, option->rect.size());
+            QString pixmapName = uniqueName(QLatin1String("menubaritem"), option, option->rect.size());
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(option->rect.size());
                 cache.fill(Qt::white);
@@ -3181,7 +3181,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             bool reverse = scrollBar->direction == Qt::RightToLeft;
             bool sunken = scrollBar->state & State_Sunken;
 
-            QString addLinePixmapName = uniqueName("scrollbar_addline", option, option->rect.size());
+            QString addLinePixmapName = uniqueName(QLatin1String("scrollbar_addline"), option, option->rect.size());
             QPixmap cache;
             if (!UsePixmapCache || !QPixmapCache::find(addLinePixmapName, cache)) {
                 cache = QPixmap(option->rect.size());
@@ -3258,7 +3258,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             bool sunken = scrollBar->state & State_Sunken;
             bool horizontal = scrollBar->orientation == Qt::Horizontal;
 
-            QString groovePixmapName = uniqueName("scrollbar_groove", option, option->rect.size());
+            QString groovePixmapName = uniqueName(QLatin1String("scrollbar_groove"), option, option->rect.size());
             if (sunken)
                 groovePixmapName += "-sunken";
 
@@ -3314,7 +3314,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 button2.setRect(scrollBarSubLine.left(), scrollBarSubLine.bottom() - 15, scrollBarExtent, 16);
             }
 
-            QString subLinePixmapName = uniqueName("scrollbar_subline", option, button1.size());
+            QString subLinePixmapName = uniqueName(QLatin1String("scrollbar_subline"), option, button1.size());
             QPixmap cache;
             if (!UsePixmapCache || !QPixmapCache::find(subLinePixmapName, cache)) {
                 cache = QPixmap(button1.size());
@@ -3394,7 +3394,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             // The slider
             if (option->rect.isValid()) {
-                QString sliderPixmapName = uniqueName("scrollbar_slider", option, option->rect.size());
+                QString sliderPixmapName = uniqueName(QLatin1String("scrollbar_slider"), option, option->rect.size());
                 if (horizontal)
                     sliderPixmapName += QLatin1String("-horizontal");
 
@@ -3515,7 +3515,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             QPixmap cache;
 
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
-                QString groovePixmapName = uniqueName("slider_groove", option, groove.size());
+                QString groovePixmapName = uniqueName(QLatin1String("slider_groove"), option, groove.size());
                 if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
                     cache = QPixmap(groove.size());
                     cache.fill(Qt::white);
@@ -3563,7 +3563,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             }
 
             if ((option->subControls & SC_SliderHandle) && handle.isValid()) {
-                QString handlePixmapName = uniqueName("slider_handle", option, handle.size());
+                QString handlePixmapName = uniqueName(QLatin1String("slider_handle"), option, handle.size());
                 if (ticksAbove && !ticksBelow)
                     handlePixmapName += QLatin1String("-flipped");
                 if ((option->activeSubControls & SC_SliderHandle) && (option->state & State_Sunken))
@@ -3726,7 +3726,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             QPixmap cache;
-            QString pixmapName = uniqueName("spinbox", spinBox, spinBox->rect.size());
+            QString pixmapName = uniqueName(QLatin1String("spinbox"), spinBox, spinBox->rect.size());
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(spinBox->rect.size());
                 cache.fill(Qt::white);
@@ -4046,7 +4046,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                          && (comboBox->activeSubControls == SC_ComboBoxArrow);
 
             QPixmap cache;
-            QString pixmapName = uniqueName("combobox", option, comboBox->rect.size());
+            QString pixmapName = uniqueName(QLatin1String("combobox"), option, comboBox->rect.size());
             if (sunken)
                 pixmapName += "-sunken";
             if (comboBox->editable)

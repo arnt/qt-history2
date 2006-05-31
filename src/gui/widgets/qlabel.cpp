@@ -656,7 +656,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         int m = indent;
 
         if (m < 0 && q->frameWidth()) // no indent, but we do have a frame
-            m = fm.width('x') - margin*2;
+            m = fm.width(QLatin1Char('x')) - margin*2;
         if (m > 0) {
             int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
             if ((align & Qt::AlignLeft) || (align & Qt::AlignRight))
@@ -1361,7 +1361,7 @@ QRect QLabelPrivate::documentRect() const
     const int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(this->align));
     int m = indent;
     if (m < 0 && q->frameWidth()) // no indent, but we do have a frame
-        m = q->fontMetrics().width('x') / 2 - margin;
+        m = q->fontMetrics().width(QLatin1Char('x')) / 2 - margin;
     if (m > 0) {
         if (align & Qt::AlignLeft)
             cr.setLeft(cr.left() + m);

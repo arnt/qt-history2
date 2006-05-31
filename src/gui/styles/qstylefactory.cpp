@@ -53,7 +53,7 @@ QString qt_mac_get_style_name()
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QStyleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/styles", Qt::CaseInsensitive))
+    (QStyleFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/styles"), Qt::CaseInsensitive))
 #endif
 
 /*!
@@ -154,31 +154,31 @@ QStringList QStyleFactory::keys()
     QStringList list;
 #endif
 #ifndef QT_NO_STYLE_WINDOWS
-    if (!list.contains("Windows"))
-        list << "Windows";
+    if (!list.contains(QLatin1String("Windows")))
+        list << QLatin1String("Windows");
 #endif
 #ifndef QT_NO_STYLE_WINDOWSXP
-    if (!list.contains("WindowsXP"))
-        list << "WindowsXP";
+    if (!list.contains(QLatin1String("WindowsXP")))
+        list << QLatin1String("WindowsXP");
 #endif
 #ifndef QT_NO_STYLE_MOTIF
-    if (!list.contains("Motif"))
-        list << "Motif";
+    if (!list.contains(QLatin1String("Motif")))
+        list << QLatin1String("Motif");
 #endif
 #ifndef QT_NO_STYLE_CDE
-    if (!list.contains("CDE"))
-        list << "CDE";
+    if (!list.contains(QLatin1String("CDE")))
+        list << QLatin1String("CDE");
 #endif
 #ifndef QT_NO_STYLE_PLASTIQUE
-    if (!list.contains("Plastique"))
-        list << "Plastique";
+    if (!list.contains(QLatin1String("Plastique")))
+        list << QLatin1String("Plastique");
 #endif
 #ifndef QT_NO_STYLE_CLEANLOOKS
-    if (!list.contains("CleanLooks"))
-        list << "CleanLooks";
+    if (!list.contains(QLatin1String("CleanLooks")))
+        list << QLatin1String("CleanLooks");
 #endif
 #ifndef QT_NO_STYLE_MAC
-    QString mstyle = "Macintosh";
+    QString mstyle = QLatin1String("Macintosh");
 # ifdef Q_WS_MAC
     mstyle += " (" + qt_mac_get_style_name() + ")";
 # endif
