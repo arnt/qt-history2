@@ -33,7 +33,6 @@ class Q_GUI_EXPORT QMessageBox : public QDialog
     Q_PROPERTY(Icon icon READ icon WRITE setIcon)
     Q_PROPERTY(QPixmap iconPixmap READ iconPixmap WRITE setIconPixmap)
     Q_PROPERTY(Qt::TextFormat textFormat READ textFormat WRITE setTextFormat)
-    Q_PROPERTY(bool textSelectable READ isTextSelectable WRITE setTextSelectable)
 
 public:
     enum Icon {

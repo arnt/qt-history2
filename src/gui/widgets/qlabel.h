@@ -33,7 +33,6 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
-    Q_PROPERTY(bool textSelectable READ isTextSelectable WRITE setTextSelectable)
 
 public:
     explicit QLabel(QWidget *parent=0, Qt::WFlags f=0);
@@ -86,9 +85,6 @@ public Q_SLOTS:
     void setNum(int);
     void setNum(double);
     void clear();
-  
-    bool isTextSelectable() const;
-    void setTextSelectable(bool selectable);
 
 Q_SIGNALS:
     void anchorClicked(const QString& link);
@@ -96,6 +92,7 @@ Q_SIGNALS:
 
 protected:
     bool event(QEvent *e);
+    void keyPressEvent(QKeyEvent *ev);
     void paintEvent(QPaintEvent *);
     void changeEvent(QEvent *);
     void mousePressEvent(QMouseEvent *ev);

@@ -89,7 +89,6 @@ public:
     void _q_selectAll();
 
     QTextCursor selection;
-    bool selectable;
     bool hasCustomCursor;
 #ifndef QT_NO_CURSOR
     QCursor cursor;
@@ -337,7 +336,6 @@ void QLabelPrivate::init()
 
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 
-    selectable = false;
     hasCustomCursor = false;
     mightBeDrag = false;
 }
@@ -628,28 +626,6 @@ void QLabel::setMargin(int margin)
     d->updateLabel();
 }
 
-
-/*!
-    \property QLabel::textSelectable
-    \brief the text is selectable using the mouse
-
-    If the label displays text, this property enables or disables the selection of the text
-    using the mouse.
-
-    By default, the text is not selectable.
-*/
-bool QLabel::isTextSelectable() const
-{
-    Q_D(const QLabel);
-    return d->selectable;
-}
-
-void QLabel::setTextSelectable(bool selectable)
-{
-    Q_D(QLabel);
-    d->selectable = selectable;
-}
-
 /*!
     Returns the size that will be used if the width of the label is \a
     w. If \a w is -1, the sizeHint() is returned. If \a w is 0 minimumSizeHint() is returned
@@ -776,7 +752,7 @@ void QLabel::mousePressEvent(QMouseEvent *ev)
     QPoint p = d->layoutPoint(ev->pos());
     d->anchorWhenMousePressed = d->doc->documentLayout()->anchorAt(p);
 
-    if (!d->selectable || !(ev->button() & Qt::LeftButton))
+    if (!hasFocus() || !(ev->button() & Qt::LeftButton))
         return;
 
     d->mousePressPos = ev->pos();
@@ -820,7 +796,7 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
         d->highlightedAnchor = anchor; // save it so we dont keep emitting highlighted
     }
 
-    if (!d->selectable || !(ev->buttons() & Qt::LeftButton))
+    if (!hasFocus() || !(ev->buttons() & Qt::LeftButton))
         return;
 
     if (d->mightBeDrag) {
@@ -884,7 +860,7 @@ void QLabel::mouseReleaseEvent(QMouseEvent *ev)
 void QLabel::contextMenuEvent(QContextMenuEvent *ev)
 {
     Q_D(QLabel);
-    if (!d->selectable) {
+    if (!hasFocus()) {
         QFrame::contextMenuEvent(ev);
     }
 #ifndef QT_NO_MENU
@@ -894,6 +870,32 @@ void QLabel::contextMenuEvent(QContextMenuEvent *ev)
         delete menu;
     }
 #endif
+}
+
+/*!\reimp
+*/
+void QLabel::keyPressEvent(QKeyEvent *ev)
+{
+    Q_D(QLabel);
+    if (ev->modifiers() & Qt::ControlModifier) {
+        switch (ev->key()) {
+        case Qt::Key_A:
+            d->_q_selectAll();
+            break;
+        case Qt::Key_C:
+#if !defined(Q_WS_MAC)
+        case Qt::Key_Insert:
+#endif
+            d->_q_copy();
+            break;
+        default:
+            ev->ignore();
+            break;
+        }
+    } else if (ev->key() == Qt::Key_F16 && ev->modifiers() == Qt::NoModifier) {
+        d->_q_copy(); // Copy key on Sun keyboards
+    } else
+        ev->ignore();
 }
 
 /*!\reimp
@@ -1433,7 +1435,7 @@ void QLabelPrivate::_q_copyLink()
 void QLabelPrivate::_q_selectAll()
 {
     Q_Q(QLabel);
-    if (!doc || !selectable)
+    if (!doc)
         return;
     selection = QTextCursor(doc);
     selection.select(QTextCursor::Document);
