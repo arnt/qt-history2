@@ -860,7 +860,7 @@ qint64 Q3Socket::bytesAvailable() const
     Q3Socket * that = (Q3Socket *)this;
     if ( that->d->socket->bytesAvailable() ) // a little slow, perhaps...
 	(void)that->sn_read();
-    return that->d->rba.size();
+    return that->d->rba.size() + QIODevice::bytesAvailable();
 }
 
 
