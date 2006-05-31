@@ -1675,8 +1675,11 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
     case QHeaderViewPrivate::NoState:
         if (d->clickableSections) {
             int section = logicalIndexAt(pos);
-            if (section != -1 && section == d->pressed)
+            if (section != -1 && section == d->pressed) {
+                if (d->sortIndicatorShown)
+                    d->flipSortIndicator(section);
                 emit sectionClicked(logicalIndexAt(pos));
+            }
             if (d->pressed != -1)
                 updateSection(d->pressed);
         }
@@ -2560,6 +2563,14 @@ void QHeaderViewPrivate::clear()
     sectionHidden.clear();
     hiddenSectionSize.clear();
     sectionSpans.clear();
+}
+
+void QHeaderViewPrivate::flipSortIndicator(int section)
+{
+    Q_Q(QHeaderView);
+    bool ascending = (sortIndicatorSection != section
+                      || sortIndicatorOrder == Qt::DescendingOrder);
+    q->setSortIndicator(section, ascending ? Qt::AscendingOrder : Qt::DescendingOrder);
 }
 
 int QHeaderViewPrivate::headerSectionSize(int visual) const

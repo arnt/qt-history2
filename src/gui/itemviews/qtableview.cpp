@@ -1912,11 +1912,7 @@ void QTableView::sortByColumn(int column)
     Q_D(QTableView);
     if (!d->model || column == -1)
         return;
-    bool ascending = (horizontalHeader()->sortIndicatorSection() != column
-                      || horizontalHeader()->sortIndicatorOrder() == Qt::DescendingOrder);
-    Qt::SortOrder order = ascending ? Qt::AscendingOrder : Qt::DescendingOrder;
-    horizontalHeader()->setSortIndicator(column, order);
-    d->model->sort(column, order);
+    d->model->sort(column, d->horizontalHeader->sortIndicatorOrder());
 }
 
 /*!

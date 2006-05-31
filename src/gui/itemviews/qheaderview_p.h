@@ -134,6 +134,7 @@ public:
         { cachedSizeHint = QSize(); }
 
     void clear();
+    void flipSortIndicator(int section);
 
     enum State { NoState, ResizeSection, MoveSection } state;
 
