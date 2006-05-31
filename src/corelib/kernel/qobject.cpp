@@ -1188,12 +1188,14 @@ void QObject::moveToThread(QThread *targetThread)
     d->moveToThread_helper(targetThread);
 
     QWriteLocker locker(QObjectPrivate::readWriteLock());
-    QThreadData *currentData = QThreadData::get(currentThread);
+    QThreadData *currentData = 0;
+    if (currentThread)
+        currentData = QThreadData::get(currentThread);
     QThreadData *targetData =
         QThreadData::get(targetThread ? targetThread : QCoreApplicationPrivate::mainThread());
     if (currentData != targetData) {
         targetData->postEventList.mutex.lock();
-        while (!currentData->postEventList.mutex.tryLock()) {
+        while (currentData && !currentData->postEventList.mutex.tryLock()) {
             targetData->postEventList.mutex.unlock();
             targetData->postEventList.mutex.lock();
         }
@@ -1202,7 +1204,8 @@ void QObject::moveToThread(QThread *targetThread)
                                  targetThread ? QThreadData::get(targetThread)->id : -1);
     if (currentData != targetData) {
         targetData->postEventList.mutex.unlock();
-        currentData->postEventList.mutex.unlock();
+        if (currentData)
+            currentData->postEventList.mutex.unlock();
     }
 }
 
@@ -1222,7 +1225,7 @@ void QObjectPrivate::setThreadId_helper(QThreadData *currentData, QThreadData *t
 {
     Q_Q(QObject);
 
-    if (currentData != targetData) {
+    if (currentData && currentData != targetData) {
         // move posted events
         int eventsMoved = 0;
         for (int i = 0; i < currentData->postEventList.size(); ++i) {
