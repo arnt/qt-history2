@@ -899,8 +899,6 @@ void QFontEngineMac::addGlyphsToPath(glyph_t *glyphs, QFixedPoint *positions, in
 
 QImage QFontEngineMac::alphaMapForGlyph(glyph_t glyph)
 {
-    return QFontEngine::alphaMapForGlyph(glyph);
-    
     const glyph_metrics_t br = boundingBox(glyph);
     QImage im(qRound(br.width)+1, qRound(br.height)+1, QImage::Format_RGB32);
     im.fill(0);    
