@@ -70,7 +70,6 @@ public:
     HICON hIcon;
     QPoint globalPos;
     QSystemTrayIcon *q;
-    Qt::MouseButton button;
 private:
     uint notifyIconSizeW;
     uint notifyIconSizeA;
@@ -113,7 +112,7 @@ bool QSystemTrayIconSys::supportsMessages()
 }
 
 QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *object)
-    : hIcon(0), q(object), button(Qt::NoButton)
+    : hIcon(0), q(object)
 {
     notifyIconSizeA = FIELD_OFFSET(NOTIFYICONDATAA, szTip[64]); // NOTIFYICONDATAA_V1_SIZE
     notifyIconSizeW = FIELD_OFFSET(NOTIFYICONDATAW, szTip[64]); // NOTIFYICONDATAW_V1_SIZE;
@@ -339,51 +338,25 @@ bool QSystemTrayIconSys::winEvent( MSG *m, long *result )
             RECT r;
             GetWindowRect(winId(), &r);
 	    QEvent *e = 0;
-            Qt::MouseButtons buttons = QApplication::mouseButtons();
             Qt::KeyboardModifiers keys = QApplication::keyboardModifiers();
 	    QPoint gpos = QCursor::pos();
 
             switch (m->lParam) {
 // LeftButton
             case WM_LBUTTONDBLCLK:
-                button = Qt::NoButton;
-	        emit q->doubleClicked(gpos);
-		break;
-
-	    case WM_LBUTTONDOWN:
-                button = Qt::LeftButton;
-                emit q->activated(gpos);
+                emit q->activated(QSystemTrayIcon::DoubleClick);
                 break;
 
             case WM_LBUTTONUP:
-                if (button == Qt::LeftButton) {
-                    emit q->clicked(gpos, button);
-                }
+                emit q->activated(QSystemTrayIcon::Trigger);
                 break;
 // Right Button
-	    case WM_RBUTTONDOWN:
-                button = Qt::RightButton;
-                break;
-
 	    case WM_RBUTTONUP:
                 if (q->contextMenu()) {
                     q->contextMenu()->popup(gpos);
                     q->contextMenu()->activateWindow(); //this ensures correct popup behaviour:
                 }
-                if (button == Qt::RightButton) {
-                    emit q->clicked(gpos, button);
-                }
-                break;
-
-// Middle Button
-            case WM_MBUTTONDOWN:
-                button = Qt::MidButton;
-                break;
-
-	    case WM_MBUTTONUP:
-                if (button == Qt::MidButton) {
-                    emit q->clicked(gpos, button);
-                }
+                emit q->activated(QSystemTrayIcon::Context);
                 break;
 
             case NIN_BALLOONUSERCLICK:
