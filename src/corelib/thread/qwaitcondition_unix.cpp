@@ -131,7 +131,7 @@ struct QWaitConditionPrivate {
     controlling access to a circular buffer shared by a producer
     thread and a consumer thread.
 
-    \sa QMutex, QSemaphore, QThread
+    \sa QMutex, QSemaphore, QThread, {Wait Conditions Example}
 */
 
 /*!

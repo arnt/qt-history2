@@ -80,14 +80,11 @@
     Qt's regexp language, some code examples, and finally the
     function documentation itself. QRegExp is modeled on Perl's
     regexp language, and also fully supports Unicode. QRegExp can
-    also be used in the weaker wildcard, mode which works in a
+    also be used in the weaker wildcard mode that works in a
     similar way to command shells. It can even be feed with fixed
     strings (see setPatternSyntax()). A good text on regexps is \e
     {Mastering Regular Expressions: Powerful Techniques for Perl and
     Other Tools} by Jeffrey E. Friedl, ISBN 1565922573.
-
-    Experienced regexp users may prefer to skip the introduction and
-    go directly to the relevant information.
 
     \tableofcontents
 
@@ -712,7 +709,8 @@
     the position in the string where the match was made (or -1 if
     there was no match).
 
-    \sa QString, QStringList, QRegExpValidator, QSortFilterProxyModel
+    \sa QString, QStringList, QRegExpValidator, QSortFilterProxyModel,
+        {tools/regexp}{Regular Expression Example}
 */
 
 const int NumBadChars = 64;

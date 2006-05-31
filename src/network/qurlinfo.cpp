@@ -51,7 +51,7 @@ public:
 
 
 /*!
-    \class QUrlInfo qurlinfo.h
+    \class QUrlInfo
     \brief The QUrlInfo class stores information about URLs.
 
     \ingroup io
@@ -70,7 +70,7 @@ public:
     if you call setWritable(true) on a read-only resource the only
     thing changed is the QUrlInfo object, not the resource.
 
-    \sa QUrl
+    \sa QUrl, {FTP Example}
 */
 
 /*!

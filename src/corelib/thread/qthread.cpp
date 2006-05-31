@@ -197,7 +197,8 @@ QAdoptedThread::~QAdoptedThread()
     msleep() for millisecond resolution, and usleep() for microsecond
     resolution.
 
-    \sa {threads.html}{Thread Support in Qt}, QThreadStorage, QMutex, QSemaphore, QWaitCondition
+    \sa {Thread Support in Qt}, QThreadStorage, QMutex, QSemaphore, QWaitCondition,
+        {Mandelbrot Example}, {Semaphores Example}, {Wait Conditions Example}
 */
 
 /*!

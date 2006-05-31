@@ -1713,7 +1713,7 @@ void QTreeWidgetPrivate::_q_sort()
 }
 
 /*!
-  \class QTreeWidget qtreewidget.h
+  \class QTreeWidget
 
   \brief The QTreeWidget class provides a tree view that uses a predefined
   tree model.
@@ -1769,7 +1769,7 @@ void QTreeWidgetPrivate::_q_sort()
        \o A \l{Plastique Style Widget Gallery}{Plastique style} tree widget.
   \endtable
 
-  \sa QTreeWidgetItem, QTreeView, {Model/View Programming}
+  \sa QTreeWidgetItem, QTreeView, {Model/View Programming}, {Settings Editor Example}
 */
 
 /*!

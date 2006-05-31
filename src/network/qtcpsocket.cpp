@@ -29,14 +29,12 @@
     allows you to establish a TCP connection and transfer streams of
     data. See the QAbstractSocket documentation for details.
 
-    The \l{network/fortuneserver}{Fortune Server},
-    \l{network/fortuneclient}{Fortune Client},
-    \l{network/threadedfortuneserver}{Threaded Fortune Server}, and
-    \l{network/blockingfortuneclient}{Blocking Fortune Client}
-    examples illustrate how to use QTcpSocket in applications.
-
-    \sa QTcpServer, QUdpSocket, QFtp, QHttp
+    \sa QTcpServer, QUdpSocket, QFtp, QHttp, {Fortune Server Example},
+        {Fortune Client Example}, {Threaded Fortune Server Example},
+	{Blocking Fortune Client Example}, {Loopback Example},
+	{Torrent Example}
 */
+
 #include "qlist.h"
 #include "qabstractsocket_p.h"
 #include "qtcpsocket.h"

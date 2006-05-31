@@ -963,7 +963,7 @@ public:
     code ("reason phrase"). This class allows you to get the status
     code and the reason phrase.
 
-    \sa QHttpRequestHeader QHttp
+    \sa QHttpRequestHeader, QHttp, {HTTP Example}
 */
 
 /*!
@@ -1485,10 +1485,7 @@ QString QHttpRequestHeader::toString() const
     The functions hasPendingRequests() and clearPendingRequests()
     allow you to query and clear the list of pending requests.
 
-    The \l{network/http}{HTTP} example illustrates how to write HTTP
-    clients using QHttp.
-
-    \sa QFtp
+    \sa QFtp, {HTTP Example}, {Torrent Example}
 */
 
 /*!

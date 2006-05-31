@@ -51,10 +51,8 @@
     use waitForNewConnection(), which blocks until either a
     connection is available or a timeout expires.
 
-    The \l network/fortuneserver example illustrates how to use
-    QTcpServer in an application.
-
-    \sa QTcpSocket
+    \sa QTcpSocket, {Fortune Server Example}, {Threaded Fortune Server Example},
+        {Loopback Example}, {Torrent Example}
 */
 
 /*! \fn void QTcpServer::newConnection()

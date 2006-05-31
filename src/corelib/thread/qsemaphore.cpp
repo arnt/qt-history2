@@ -74,7 +74,7 @@
     seated (taking the available seats to 5, making the party of 10
     people wait longer).
 
-    \sa QMutex, QWaitCondition, QThread
+    \sa QMutex, QWaitCondition, QThread, {Semaphores Example}
 */
 
 class QSemaphorePrivate {
