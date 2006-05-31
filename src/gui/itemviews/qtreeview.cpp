@@ -422,9 +422,13 @@ void QTreeView::setColumnHidden(int column, bool hide)
 bool QTreeView::isRowHidden(int row, const QModelIndex &parent) const
 {
     Q_D(const QTreeView);
-    if (d->hiddenIndexes.isEmpty())
+    if (!model() || d->hiddenIndexes.isEmpty())
         return false;
-    return d->hiddenIndexes.contains(model()->index(row, 0, parent));
+    QModelIndex index = d->model->index(row, 0, parent);
+    for (int i = 0; i < d->hiddenIndexes.count(); ++i)
+        if (d->hiddenIndexes.at(i) == index)
+            return true;
+    return false;
 }
 
 /*!
@@ -441,10 +445,11 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
     if (!index.isValid())
         return;
 
-    QPersistentModelIndex persistent(index);
     if (hide) {
+        QPersistentModelIndex persistent(index);
         if (!d->hiddenIndexes.contains(persistent)) d->hiddenIndexes.append(persistent);
     } else {
+        QPersistentModelIndex persistent(index);
         int i = d->hiddenIndexes.indexOf(persistent);
         if (i >= 0) d->hiddenIndexes.remove(i);
     }
