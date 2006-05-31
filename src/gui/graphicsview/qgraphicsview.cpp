@@ -906,9 +906,10 @@ void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode asp
         view.render(&painter);
     \endcode
 
-    If \a source is a null rect, this function will use rect() to determine
-    what to draw. If \a target is a null rect, the dimensions of \a painter's
-    paint device (e.g., for a QPrinter, the page size) will be used.
+    If \a source is a null rect, this function will use viewport()->rect() to
+    determine what to draw. If \a target is a null rect, the full dimensions
+    of \a painter's paint device (e.g., for a QPrinter, the page size) will be
+    used.
 
     The source rect contents will be transformed according to \a
     aspectRatioMode to fit into the target rect. By default, the aspect ratio
@@ -923,8 +924,15 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     if (!d->scene)
         return;
 
+    QRect sourceRect = !source.isNull()
+                       ? source
+                       : viewport()->rect();
+    QRectF targetRect = !target.isNull()
+                        ? target
+                        : QRect(0, 0, painter->device()->width(), painter->device()->height());
+
     painter->save();
-    painter->setClipRect(target);
+    painter->setClipRect(targetRect);
 
     QMatrix moveMatrix;
     moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
@@ -932,9 +940,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     QMatrix painterMatrix = d->matrix * moveMatrix;
     painter->setMatrix(painterMatrix);
 
-    d->scene->render(painter, target.adjusted(-1, -1, 1, 1),
-                     mapToScene(source).boundingRect().adjusted(-1, -1, 1, 1),
-                     aspectRatioMode);
+    d->scene->render(painter, targetRect, sourceRect, aspectRatioMode);
 
     painter->restore();
 }

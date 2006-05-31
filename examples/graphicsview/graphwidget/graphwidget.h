@@ -13,7 +13,6 @@ public:
     void itemMoved();
 
 protected:
-    void paintBackground(QPainter *painter, const QRectF &rect);
     void timerEvent(QTimerEvent *);
     void wheelEvent(QWheelEvent *event);
 

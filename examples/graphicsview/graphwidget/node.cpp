@@ -24,6 +24,7 @@ Node::Node(GraphWidget *graphWidget)
     : graph(graphWidget)
 {
     setFlag(ItemIsMovable);
+    setZValue(1);
 }
 
 void Node::addEdge(Edge *edge)

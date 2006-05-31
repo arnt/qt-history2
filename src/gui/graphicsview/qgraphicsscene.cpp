@@ -800,8 +800,6 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     if (targetRect.isNull())
         targetRect.setRect(0, 0, painter->device()->width(), painter->device()->height());
 
-    painter->save();
-
     // Find the ideal x / y scaling ratio to fit \a source in \a target.
     qreal xratio = targetRect.width() / sourceRect.width();
     qreal yratio = targetRect.height() / sourceRect.height();
@@ -818,13 +816,9 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
         break;
     }
 
-    // Scale the painter
-    painter->scale(xratio, yratio);
-
-    // ### We could map the target rect to a scene polygon, and intersect
-    // that with the source rect to get a smaller area to search for items to
-    // draw.
-    QList<QGraphicsItem *> itemList = items(sourceRect);
+    // Find all items to draw, and reverse the list (we want to draw
+    // in reverse order).
+    QList<QGraphicsItem *> itemList = items(painter->matrix().inverted().map(sourceRect));
     if (!itemList.isEmpty()) {
         QGraphicsItem **a = &itemList.first();
         QGraphicsItem **b = &itemList.last();
@@ -870,6 +864,20 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
         styleOptions << option;
     }
 
+    /*
+    QMatrix viewportMatrix;
+    viewportMatrix.translate(targetRect.left(), targetRect.top());
+    viewportMatrix.scale(xratio, yratio);
+    viewportMatrix.translate(-sourceRect.left(), -sourceRect.top());
+    painter->setMatrix(painter->matrix() * viewportMatrix);
+    */
+    painter->save();
+    painter->setClipRect(painter->matrix().inverted().mapRect(targetRect));
+    painter->setMatrix(painter->matrix()
+                       * QMatrix().translate(-sourceRect.left(), -sourceRect.top())
+                       * QMatrix().scale(xratio, yratio)
+                       * QMatrix().translate(targetRect.left(), targetRect.top()));
+    
     drawBackground(painter, source);
     drawItems(painter, itemList, styleOptions);
     drawForeground(painter, source);
