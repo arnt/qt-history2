@@ -386,5 +386,5 @@
     associated \l{tools/plugandpaintplugin/basictools}{Basic Tools}
     plugin for details on how to do this.
 
-    \sa QPluginLoader, QLibrary
+    \sa QPluginLoader, QLibrary, {Plug & Paint Example}
 */

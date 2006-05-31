@@ -120,8 +120,7 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     help tool for your application using the QAssistantClient class
     combined with a Qt Assistant Document Profile.
 
-    \sa {Qt Assistant Manual}, {assistant/simpletextviewer}{Simple
-    Text Viewer}
+    \sa {Qt Assistant Manual}, {Simple Text Viewer Example}
 */
 
 /*!

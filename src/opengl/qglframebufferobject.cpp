@@ -383,7 +383,7 @@ void QGLFramebufferObjectPrivate::init(const QSize &sz, GLenum texture_target)
     ARB (\c{GL_EXT_framebuffer_multisample}), and will most likely be
     available in the near future.
 
-    \sa {opengl/framebufferobject}{Framebuffer Object example}
+    \sa {Framebuffer Object Example}
 */
 
 

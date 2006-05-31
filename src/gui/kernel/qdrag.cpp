@@ -69,7 +69,9 @@
     \l{QWidget::mouseMoveEvent()}{mouseMoveEvent()} to check whether a QDrag is
     required.
 
-    \sa \link dnd.html Drag and Drop\endlink QClipboard QMimeData
+    \sa {Drag and Drop}, QClipboard, QMimeData,
+        {Draggable Icons Example}, {Draggable Text Example}, {Drop Site Example},
+	{Fridge Magnets Example}
 */
 
 /*!

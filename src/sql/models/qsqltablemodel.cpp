@@ -241,7 +241,8 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
     the QSqlRelationalTableModel and QSqlRelationalDelegate if you
     want to resolve foreign keys.
 
-    \sa QSqlRelationalTableModel, QSqlQuery, {Model/View Programming}
+    \sa QSqlRelationalTableModel, QSqlQuery, {Model/View Programming},
+        {Table Model Example}, {Cached Table Example}
 */
 
 /*!

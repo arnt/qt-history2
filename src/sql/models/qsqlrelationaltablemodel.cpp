@@ -35,7 +35,8 @@
     QSqlRelationalTableModel::setRelation() and
     QSqlRelationalTableModel::relation() for details.
 
-    \sa QSqlRelationalTableModel, QSqlRelationalDelegate
+    \sa QSqlRelationalTableModel, QSqlRelationalDelegate,
+        {Relational Table Model Example}
 */
 
 /*!
@@ -213,7 +214,8 @@ void QSqlRelationalTableModelPrivate::clearEditBuffer()
        database is responsible for keeping referential integrity.
     \endlist
 
-    \sa QSqlRelation, QSqlRelationalDelegate
+    \sa QSqlRelation, QSqlRelationalDelegate,
+        {Relational Table Model Example}
 */
 
 

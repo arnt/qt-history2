@@ -110,7 +110,7 @@ QSqlQueryModelPrivate::~QSqlQueryModelPrivate()
     See fetchMore() for more information.
 
     \sa QSqlTableModel, QSqlRelationalTableModel, QSqlQuery,
-        {Model/View Programming}
+        {Model/View Programming}, {Query Model Example}
 */
 
 /*!

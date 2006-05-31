@@ -102,6 +102,8 @@ static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
     \value IndirectRendering
     \value NoOverlay
     \value NoSampleBuffers
+
+    \sa {Sample Buffers Example}
 */
 
 /*****************************************************************************
@@ -1970,6 +1972,9 @@ const QGLContext* QGLContext::currentContext()
 
     \e{OpenGL is a trademark of Silicon Graphics, Inc. in the United States and other
     countries.}
+
+    \sa QGLPixelBuffer, {Hello GL Example}, {2D Painting Example}, {Overpainting Example},
+        {Grabber Example}
 */
 
 /*!
@@ -1992,7 +1997,7 @@ const QGLContext* QGLContext::currentContext()
     by overriding the initializeGL() function, rather than in the
     constructor of your QGLWidget subclass.
 
-    \sa QGLFormat::defaultFormat()
+    \sa QGLFormat::defaultFormat(), {Textures Example}
 */
 
 QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f)
