@@ -69,7 +69,7 @@ public:
     uint checked : 1;
     uint separator : 1;
     uint fontSet : 1;
-    QAction::MergePolicy mergePolicy;
+    QAction::MenuRole menuRole;
     QList<QWidget *> widgets;
 #ifndef QT_NO_SHORTCUT
     void redoGrab(QShortcutMap &map);

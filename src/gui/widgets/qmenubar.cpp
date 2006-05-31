@@ -542,6 +542,8 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
             created to call QApplication::quit()
     \endtable
 
+    You can override this behavior by using the QAction::menuRole() property.
+
     The \l{mainwindows/menus}{Menus} example shows how to use
     QMenuBar and QMenu.
 

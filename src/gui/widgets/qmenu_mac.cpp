@@ -258,7 +258,7 @@ void qt_mac_clear_menubar()
 static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *action)
 {
     if (qt_mac_no_menubar_merge || action->action->menu() || action->action->isSeparator()
-            || action->action->mergePolicy() == QAction::MergeNever)
+            || action->action->menuRole() == QAction::NoRole)
         return 0;
 
     QString t = qt_mac_no_ampersands(action->action->text().toLower());
@@ -268,7 +268,8 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
     t.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
     //now the fun part
     MenuCommand ret = 0;
-    if (action->action->mergePolicy() == QAction::MergeAlways) {
+    switch (action->action->menuRole()) {
+    case QAction::ApplicationSpecificRole: {
         QMenuMergeList *list = 0;
         if (GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
                     sizeof(list), 0, &list) == noErr && list) {
@@ -280,7 +281,21 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
             }
             ret = lastCustom;
         }
-    } else {
+        break;
+    }
+    case QAction::AboutRole:
+        ret = kHICommandAbout;
+        break;
+    case QAction::AboutQtRole:
+        ret = kHICommandAboutQt;
+        break;
+    case QAction::QuitRole:
+        ret = kHICommandQuit;
+        break;
+    case QAction::PreferencesRole:
+        ret = kHICommandPreferences;
+        break;
+    case QAction::TextHeuristicRole: {
 #define MENU_TRANSLATE(x) QCoreApplication::instance()->translate("QMenuBar", x)
         QString aboutString = MENU_TRANSLATE("About").toLower();
         if (t.startsWith(aboutString) || t.endsWith(aboutString)) {
@@ -288,14 +303,19 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
                 ret = kHICommandAbout;
             else
                 ret = kHICommandAboutQt;
-        } else if (t.startsWith(MENU_TRANSLATE("Config").toLower()) || t.startsWith(MENU_TRANSLATE("Preference").toLower()) ||
-                t.startsWith(MENU_TRANSLATE("Options").toLower()) || t.startsWith(MENU_TRANSLATE("Setting").toLower()) ||
-                t.startsWith(MENU_TRANSLATE("Setup").toLower())) {
+        } else if (t.startsWith(MENU_TRANSLATE("Config").toLower())
+                   || t.startsWith(MENU_TRANSLATE("Preference").toLower())
+                   || t.startsWith(MENU_TRANSLATE("Options").toLower())
+                   || t.startsWith(MENU_TRANSLATE("Setting").toLower())
+                   || t.startsWith(MENU_TRANSLATE("Setup").toLower())) {
             ret = kHICommandPreferences;
-        } else if (t.startsWith(MENU_TRANSLATE("Quit").toLower()) || t.startsWith(MENU_TRANSLATE("Exit").toLower())) {
+        } else if (t.startsWith(MENU_TRANSLATE("Quit").toLower())
+                   || t.startsWith(MENU_TRANSLATE("Exit").toLower())) {
             ret = kHICommandQuit;
         }
 #undef MENU_TRANSLATE
+    }
+        break;
     }
 
     QMenuMergeList *list = 0;
@@ -323,7 +343,7 @@ static bool qt_mac_auto_apple_menu(MenuCommand cmd)
 static QString qt_mac_menu_merge_text(QMacMenuAction *action)
 {
     QString ret;
-    if (action->action->mergePolicy() == QAction::MergeAlways)
+    if (action->action->menuRole() == QAction::ApplicationSpecificRole)
         ret = action->action->text();
     else if (action->command == kHICommandAbout)
         ret = QLatin1String("About ") + QString(qAppName());
@@ -339,7 +359,7 @@ static QString qt_mac_menu_merge_text(QMacMenuAction *action)
 static QKeySequence qt_mac_menu_merge_accel(QMacMenuAction *action)
 {
     QKeySequence ret;
-    if (action->action->mergePolicy() == QAction::MergeAlways)
+    if (action->action->menuRole() == QAction::ApplicationSpecificRole)
         ret = action->action->shortcut();
     else if (action->command == kHICommandPreferences)
         ret = QKeySequence(Qt::CTRL+Qt::Key_Comma);

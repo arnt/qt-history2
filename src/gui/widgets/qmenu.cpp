@@ -2930,15 +2930,6 @@ int QMenu::findIdForAction(QAction *act) const
     Use setActiveAction() instead.
 */
 
-bool QMenu::isMerged(const QAction *action) const
-{
-#ifdef Q_WS_MAC
-    Q_D(const QMenu);
-    if (d->mac_menu)
-        return d->mac_menu->merged(action);
-#endif
-    return false;
-}
 // for private slots
 
 #include "moc_qmenu.cpp"

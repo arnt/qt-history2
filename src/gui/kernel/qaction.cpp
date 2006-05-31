@@ -44,7 +44,7 @@ static QString qt_strippedText(QString s)
 
 QActionPrivate::QActionPrivate() : group(0), enabled(1), forceDisabled(0),
                                    visible(1), forceInvisible(0), checkable(0), checked(0), separator(0), fontSet(false),
-                                   mergePolicy(QAction::MergeText)
+                                   menuRole(QAction::TextHeuristicRole)
 {
 #ifdef QT3_SUPPORT
     static int qt_static_action_id = -1;
@@ -186,6 +186,21 @@ void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
     \fn void QAction::hover()
 
     This is a convenience slot that calls activate(Hover).
+*/
+
+/*!
+    \enum QAction::MenuRole
+
+    This enum describes how an action should be moved into the application menu on Mac OS X.
+
+    \value NoRole This action should not be put into the application menu
+    \value TextHeuristicRole This action should be put in the application menu based on the action's text
+           as described in the QMenuBar documentation.
+    \value ApplicationSpecificRole This action should be put in the application menu with an application specific role
+    \value AboutQtRole This action matches handles the "About Qt" menu item.
+    \value AboutRole This action should be placed where the "About" menu item is in the application menu.
+    \value PreferencesRole This action should be placed where the  "Preferences..." menu item is in the application menu.
+    \value QuitRole This action should be placed where the Quit menu item is in the application menu.
 */
 
 /*!
@@ -1131,19 +1146,32 @@ void QAction::activate(ActionEvent event)
     Use triggered() instead.
 */
 
-void QAction::setMergePolicy(MergePolicy mergePolicy)
+
+/*!
+    \property QAction::menuRole
+    \brief The action's menu role.
+
+    This indicates what role the action serves in the application menu on Mac
+    OS X. By default all action have the TextHeuristicRole, which means that
+    the action is added based on it's text, see QMenuBar for more information.
+    The menu role can only be changed before the actions are put into the menu
+    bar in Mac OS X (usually just before the first application window is
+    shown).
+*/
+void QAction::setMenuRole(MenuRole menuRole)
 {
     Q_D(QAction);
-    if (d->mergePolicy == mergePolicy)
+    if (d->menuRole == menuRole)
         return;
 
-    d->mergePolicy = mergePolicy;
+    d->menuRole = menuRole;
     d->sendDataChanged();
 }
 
-QAction::MergePolicy QAction::mergePolicy() const
+QAction::MenuRole QAction::menuRole() const
 {
-    return d_func()->mergePolicy;
+    Q_D(const QAction);
+    return d->menuRole;
 }
 
 #include "moc_qaction.cpp"
