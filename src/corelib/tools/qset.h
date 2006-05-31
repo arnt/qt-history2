@@ -55,6 +55,42 @@ public:
 
     inline bool contains(const T &value) const { return q_hash.contains(value); }
 
+    class const_iterator;
+
+    class iterator
+    {
+        typedef QHash<T, QHashDummyValue> Hash;
+        typename Hash::iterator i;
+
+    public:
+        typedef std::bidirectional_iterator_tag iterator_category;
+        typedef ptrdiff_t difference_type;
+        typedef T value_type;
+        typedef const T *pointer;
+        typedef const T &reference;
+
+        inline iterator() {}
+        inline iterator(typename Hash::iterator o) : i(o) {}
+        inline iterator(const iterator &o) : i(o.i) {}
+        inline iterator &operator=(const iterator &o) { i = o.i; return *this; }
+        inline const T &operator*() const { return i.key(); }
+        inline const T *operator->() const { return &i.key(); }
+        inline bool operator==(const iterator &o) const { return i == o.i; }
+        inline bool operator!=(const iterator &o) const { return i != o.i; }
+        inline bool operator==(const const_iterator &o) const
+            { return i == reinterpret_cast<const iterator &>(o).i; }
+        inline bool operator!=(const const_iterator &o) const
+            { return i != reinterpret_cast<const iterator &>(o).i; }
+        inline iterator &operator++() { ++i; return *this; }
+        inline iterator operator++(int) { iterator r = *this; ++i; return r; }
+        inline iterator &operator--() { --i; return *this; }
+        inline iterator operator--(int) { iterator r = *this; --i; return r; }
+        inline iterator operator+(int j) const { return i + j; }
+        inline iterator operator-(int j) const { return i - j; }
+        inline iterator &operator+=(int j) { i += j; return *this; }
+        inline iterator &operator-=(int j) { i -= j; return *this; }
+    };
+
     class const_iterator
     {
         typedef QHash<T, QHashDummyValue> Hash;
@@ -70,6 +106,8 @@ public:
         inline const_iterator() {}
         inline const_iterator(typename Hash::const_iterator o) : i(o) {}
         inline const_iterator(const const_iterator &o) : i(o.i) {}
+        inline const_iterator(const iterator &o)
+            : i(reinterpret_cast<const const_iterator &>(o).i) {}
         inline const_iterator &operator=(const const_iterator &o) { i = o.i; return *this; }
         inline const T &operator*() const { return i.key(); }
         inline const T *operator->() const { return &i.key(); }
@@ -86,20 +124,23 @@ public:
     };
 
     // STL style
+    inline iterator begin() { return q_hash.begin(); }
     inline const_iterator begin() const { return q_hash.begin(); }
     inline const_iterator constBegin() const { return q_hash.constBegin(); }
+    inline iterator end() { return q_hash.end(); }
     inline const_iterator end() const { return q_hash.end(); }
     inline const_iterator constEnd() const { return q_hash.constEnd(); }
-    const_iterator erase(const_iterator i)
-        { return typename Hash::const_iterator(
-                         q_hash.erase(reinterpret_cast<const typename Hash::iterator &>(i))); }
+    iterator erase(iterator i)
+        { return q_hash.erase(reinterpret_cast<typename Hash::iterator &>(i)); }
 
     // more Qt
+    typedef iterator Iterator;
     typedef const_iterator ConstIterator;
     inline int count() const { return q_hash.count(); }
-    inline const_iterator insert(const T &value)
+    inline const_iterator insert(const T &value) // ### should return an 'iterator' in Qt 5
         { return static_cast<typename Hash::const_iterator>(q_hash.insert(value,
                                                                           QHashDummyValue())); }
+    iterator find(const T &value) { return q_hash.find(value); }
     const_iterator find(const T &value) const { return q_hash.find(value); }
     inline const_iterator constFind(const T &value) const { return find(value); }
     QSet<T> &unite(const QSet<T> &other);
@@ -229,9 +270,9 @@ Q_DECLARE_SEQUENTIAL_ITERATOR(Set)
 template <typename T>
 class QMutableSetIterator
 {
-    typedef typename QSet<T>::const_iterator const_iterator;
+    typedef typename QSet<T>::iterator iterator;
     QSet<T> *c;
-    const_iterator i, n;
+    iterator i, n;
     inline bool item_exists() const { return n != c->constEnd(); }
 
 public:
@@ -250,7 +291,7 @@ public:
     inline const T &peekNext() const { return *i; }
     inline bool hasPrevious() const { return c->constBegin() != i; }
     inline const T &previous() { n = --i; return *n; }
-    inline const T &peekPrevious() const { const_iterator p = i; return *--p; }
+    inline const T &peekPrevious() const { iterator p = i; return *--p; }
     inline void remove()
     { if (c->constEnd() != n) { i = c->erase(n); n = c->end(); } }
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; }

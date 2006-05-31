@@ -883,7 +883,7 @@ void QHashData::checkSanity()
 
 /*! \fn QHash::iterator QHash::begin()
 
-    Returns a \l{STL-style iterator} pointing to the first item in
+    Returns an \l{STL-style iterator} pointing to the first item in
     the hash.
 
     \sa constBegin(), end()
@@ -904,7 +904,7 @@ void QHashData::checkSanity()
 
 /*! \fn QHash::iterator QHash::end()
 
-    Returns a \l{STL-style iterator} pointing to the imaginary item
+    Returns an \l{STL-style iterator} pointing to the imaginary item
     after the last item in the hash.
 
     \sa begin(), constEnd()

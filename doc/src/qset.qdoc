@@ -39,8 +39,9 @@
 
     If you want to navigate through all the values stored in a QSet,
     you can use an iterator. QSet supports both \l{Java-style
-    iterators} (QSetIterator and QMutableSetIterator) and \l{STL-style iterators}
-    (QSet::const_iterator). Here's how to iterate over a QSet<QWidget
+    iterators} (QSetIterator and QMutableSetIterator) and
+    \l{STL-style iterators} (QSet::iterator and
+    QSet::const_iterator). Here's how to iterate over a QSet<QWidget
     *> using a Java-style iterator:
 
     \code
@@ -52,8 +53,8 @@
     Here's the same code, but using an STL-style iterator:
 
     \code
-        QSet<QWidget *>::const_iterator i = set.begin();
-        while (i != set.end()) {
+        QSet<QWidget *>::const_iterator i = set.constBegin();
+        while (i != set.constEnd()) {
             qDebug() << *i;
             ++i;
         }
@@ -261,7 +262,8 @@
 */
 
 /*!
-    \fn QSet::const_iterator QSet::erase(const_iterator pos)
+    \fn QSet::iterator QSet::erase(iterator pos)
+    \since 4.2
 
     Removes the item associated with the iterator \a pos from the
     set, and returns an iterator to the next item in the set.
@@ -275,18 +277,33 @@
 
 /*! \fn QSet::const_iterator QSet::find(const T &value) const
 
-    Returns an iterator pointing to the item \a value in the set.
+    Returns a const iterator pointing to the item \a value in the set.
+
+    If the set contains no item \a value, the function returns
+    constEnd().
+
+    \sa constFind(), contains()
+*/
+
+/*! \fn QSet::iterator QSet::find(const T &value)
+    \since 4.2
+    \overload
+
+    Returns a non-const iterator pointing to the item \a value in the
+    set.
 
     If the set contains no item \a value, the function returns end().
-
-    \sa contains()
 */
 
 /*! \fn QSet::const_iterator QSet::constFind(const T &value) const
 
-    Same as find(\a value).
+    Returns a const iterator pointing to the item \a value in the
+    set.
 
-    \sa contains()
+    If the set contains no item \a value, the function returns
+    constEnd().
+
+    \sa find(), contains()
 */
 
 /*!
@@ -298,40 +315,59 @@
     \sa insert(), remove(), find()
 */
 
-/*!
-    \fn QSet::const_iterator QSet::begin() const
+/*! \fn QSet::const_iterator QSet::begin() const
 
     Returns a const \l{STL-style iterator} pointing to the first item
     in the set.
 
-    \sa end()
+    \sa constBegin(), end()
+*/
+
+/*! \fn QSet::iterator QSet::begin()
+    \since 4.2
+    \overload
+
+    Returns a non-const \l{STL-style iterator} pointing to the first
+    item in the set.
+*/
+
+/*! \fn QSet::const_iterator QSet::constBegin() const
+
+    Returns a const \l{STL-style iterator} pointing to the first item
+    in the set.
+
+    \sa begin(), constEnd()
+*/
+
+/*! \fn QSet::const_iterator QSet::end() const
+
+    Returns a const \l{STL-style iterator} pointing to the imaginary
+    item after the last item in the set.
+
+    \sa constEnd(), begin()
+*/
+
+/*! \fn QSet::iterator QSet::end()
+    \since 4.2
+    \overload
+
+    Returns a non-const \l{STL-style iterator} pointing to the
+    imaginary item after the last item in the set.
+*/
+
+/*! \fn QSet::const_iterator QSet::constEnd() const
+
+    Returns a const \l{STL-style iterator} pointing to the imaginary
+    item after the last item in the set.
+
+    \sa constBegin(), end()
 */
 
 /*!
-    \fn QSet::const_iterator QSet::end() const
+    \typedef QSet::Iterator
+    \since 4.2
 
-    Returns a \l{STL-style iterator} pointing to the imaginary item
-    after the last item in the set.
-
-    \sa begin()
-*/
-
-/*!
-    \fn QSet::const_iterator QSet::constBegin() const
-
-    Same as begin(). Provided for consistency with other container
-    classes.
-
-    \sa constEnd()
-*/
-
-/*!
-    \fn QSet::const_iterator QSet::constEnd() const
-
-    Same as end(). Provided for consistency with other container
-    classes.
-
-    \sa constBegin()
+    Qt-style synonym for QSet::iterator.
 */
 
 /*!
@@ -345,6 +381,9 @@
 
     Inserts a new item \a value. If \a value already exists in the
     set, nothing happens.
+
+    For historical reasons, the return type is a non-const iterator.
+    This might change in a future version.
 
     \sa operator<<(), remove(), contains()
 */
@@ -469,6 +508,80 @@
 */
 
 /*!
+    \class QSet::iterator
+    \since 4.2
+    \brief The QSet::iterator class provides an STL-style non-const iterator for QSet.
+
+    QSet features both \l{STL-style iterators} and
+    \l{Java-style iterators}. The STL-style iterators are more
+    low-level and more cumbersome to use; on the other hand, they are
+    slightly faster and, for developers who already know STL, have
+    the advantage of familiarity.
+
+    QSet<T>::iterator allows you to iterate over a QSet and to remove
+    items (using QSet::erase()) while you iterate. (QSet doesn't let
+    you \e modify a value through an iterator, because that
+    would potentially require moving the value in the internal hash
+    table used by QSet.) If you want to iterate over a const QSet,
+    you should use QSet::const_iterator. It is generally good
+    practice to use QSet::const_iterator on a non-const QSet as well,
+    unless you need to change the QSet through the iterator. Const
+    iterators are slightly faster, and can improve code readability.
+
+    QSet\<T\>::iterator allows you to iterate over a QSet\<T\> and
+    modify it as you go (using QSet::erase()). However, 
+
+    The default QSet::iterator constructor creates an uninitialized
+    iterator. You must initialize it using a function like
+    QSet::begin(), QSet::end(), or QSet::insert() before you can
+    start iterating. Here's a typical loop that prints all the items
+    stored in a set:
+
+    \code
+        QSet<QString> set;
+        set << "January" << "February" << ... << "December";
+
+        QSet<QString>::iterator i;
+        for (i = set.begin(); i != set.end(); ++i)
+            qDebug() << *i;
+    \endcode
+
+    Here's a loop that removes certain items (all those that start
+    with 'J') from a set while iterating:
+
+    \code
+        QSet<QString> set;
+        set << "January" << "February" << ... << "December";
+
+        QSet<QString>::iterator i = set.begin();
+        while (i != set.end()) {
+            if ((*i).startsWith('J')) {
+                i = set.erase(i);
+            } else {
+                ++i;
+            }
+        }
+    \endcode
+
+    STL-style iterators can be used as arguments to \l{generic
+    algorithms}. For example, here's how to find an item in the set
+    using the qFind() algorithm:
+
+    \code
+        QSet<QString> set;
+        ...
+        QSet<QString>::iterator it = qFind(set.begin(), set.end(), "Jeanette");
+        if (it != set.end())
+            cout << "Found Jeanette" << endl;
+    \endcode
+
+    Multiple iterators can be used on the same set. However, you may
+    not attempt to modify the container while iterating on it.
+
+    \sa QSet::const_iterator, QMutableSetIterator
+*/
+
+/*!
     \class QSet::const_iterator
     \brief The QSet::const_iterator class provides an STL-style const iterator for QSet.
 
@@ -478,10 +591,12 @@
     slightly faster and, for developers who already know STL, have
     the advantage of familiarity.
 
-    QSet\<T\>::const_iterator allows you to iterate over a QSet\<T\>.
-    There is no corresponding non-const iterators, because changing a
-    value stored in a QSet would potentially require moving the value
-    in the internal hash table used by QSet.
+    QSet\<Key, T\>::const_iterator allows you to iterate over a QSet.
+    If you want to modify the QSet as you iterate over it, you must
+    use QSet::iterator instead. It is generally good practice to use
+    QSet::const_iterator on a non-const QSet as well, unless you need
+    to change the QSet through the iterator. Const iterators are
+    slightly faster, and can improve code readability.
 
     The default QSet::const_iterator constructor creates an
     uninitialized iterator. You must initialize it using a function
@@ -513,75 +628,105 @@
     Multiple iterators can be used on the same set. However, you may
     not attempt to modify the container while iterating on it.
 
-    \sa QSetIterator, QMutableSetIterator
+    \sa QSet::iterator, QSetIterator
 */
 
-/*! \fn QSet::const_iterator::const_iterator()
+/*!
+    \fn QSet::iterator::iterator()
+    \fn QSet::const_iterator::const_iterator()
 
     Constructs an uninitialized iterator.
 
     Functions like operator*() and operator++() should not be called
-    on an uninitialized iterartor. Use operator=() to assign a value
+    on an uninitialized iterator. Use operator=() to assign a value
     to it before using it.
 
-    \sa QSet::constBegin() QSet::constEnd()
+    \sa QSet::begin(), QSet::end()
 */
 
-/*! \fn QSet::const_iterator::const_iterator(typename Hash::const_iterator i)
+/*! 
+    \fn QSet::iterator::iterator(typename Hash::iterator i)
+    \fn QSet::const_iterator::const_iterator(typename Hash::const_iterator i)
 
     \internal
 */
 
-/*! \typedef QSet::const_iterator::iterator_category
+/*!
+    \typedef QSet::iterator::iterator_category
+    \typedef QSet::const_iterator::iterator_category
 
     \internal
 */
 
-/*! \typedef QSet::const_iterator::difference_type
+/*!
+    \typedef QSet::iterator::difference_type
+    \typedef QSet::const_iterator::difference_type
 
     \internal
 */
 
-/*! \typedef QSet::const_iterator::value_type
+/*!
+    \typedef QSet::iterator::value_type
+    \typedef QSet::const_iterator::value_type
 
     \internal
 */
 
-/*! \typedef QSet::const_iterator::pointer
+/*!
+    \typedef QSet::iterator::pointer
+    \typedef QSet::const_iterator::pointer
 
     \internal
 */
 
-/*! \typedef QSet::const_iterator::reference
+/*!
+    \typedef QSet::iterator::reference
+    \typedef QSet::const_iterator::reference
 
     \internal
 */
 
-/*! \fn QSet::const_iterator::const_iterator(const const_iterator &other)
+/*!
+    \fn QSet::iterator::iterator(const iterator &other)
+    \fn QSet::const_iterator::const_iterator(const const_iterator &other)
 
     Constructs a copy of \a other.
 */
 
-/*! \fn QSet::const_iterator &QSet::const_iterator::operator=(const const_iterator &other)
+/*!
+    \fn QSet::iterator::const_iterator(const iterator &other)
+    \since 4.2
+    \overload
+*/
+
+/*!
+    \fn QSet::iterator &QSet::iterator::operator=(const iterator &other)
+    \fn QSet::const_iterator &QSet::const_iterator::operator=(const const_iterator &other)
 
     Assigns \a other to this iterator.
 */
 
-/*! \fn const T &QSet::const_iterator::operator*() const
+/*!
+    \fn const T &QSet::iterator::operator*() const
+    \fn const T &QSet::const_iterator::operator*() const
 
     Returns a reference to the current item.
 
     \sa operator->()
 */
 
-/*! \fn const T *QSet::const_iterator::operator->() const
+/*!
+    \fn const T *QSet::iterator::operator->() const
+    \fn const T *QSet::const_iterator::operator->() const
 
     Returns a pointer to the current item.
 
     \sa operator*()
 */
 
-/*! \fn bool QSet::const_iterator::operator==(const const_iterator &other) const
+/*!
+    \fn bool QSet::iterator::operator==(const iterator &other) const
+    \fn bool QSet::const_iterator::operator==(const const_iterator &other) const
 
     Returns true if \a other points to the same item as this
     iterator; otherwise returns false.
@@ -589,7 +734,16 @@
     \sa operator!=()
 */
 
-/*! \fn bool QSet::const_iterator::operator!=(const const_iterator &other) const
+/*!
+    \fn bool QSet::iterator::operator==(const const_iterator &other) const
+    \fn bool QSet::iterator::operator!=(const const_iterator &other) const
+
+    \overload
+*/
+
+/*!
+    \fn bool QSet::iterator::operator!=(const iterator &other) const
+    \fn bool QSet::const_iterator::operator!=(const const_iterator &other) const
 
     Returns true if \a other points to a different item than this
     iterator; otherwise returns false.
@@ -597,7 +751,9 @@
     \sa operator==()
 */
 
-/*! \fn QSet::const_iterator &QSet::const_iterator::operator++()
+/*!
+    \fn QSet::iterator &QSet::iterator::operator++()
+    \fn QSet::const_iterator &QSet::const_iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the set and returns an iterator to the new current
@@ -609,7 +765,9 @@
     \sa operator--()
 */
 
-/*! \fn QSet::const_iterator QSet::const_iterator::operator++(int)
+/*!
+    \fn QSet::iterator QSet::iterator::operator++(int)
+    \fn QSet::const_iterator QSet::const_iterator::operator++(int)
 
     \overload
 
@@ -618,7 +776,9 @@
     current item.
 */
 
-/*! \fn QSet::const_iterator &QSet::const_iterator::operator--()
+/*!
+    \fn QSet::iterator &QSet::iterator::operator--()
+    \fn QSet::const_iterator &QSet::const_iterator::operator--()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator to the new current item.
@@ -629,7 +789,9 @@
     \sa operator++()
 */
 
-/*! \fn QSet::const_iterator QSet::const_iterator::operator--(int)
+/*!
+    \fn QSet::iterator QSet::iterator::operator--(int)
+    \fn QSet::const_iterator QSet::const_iterator::operator--(int)
 
     \overload
 
@@ -637,7 +799,9 @@
     current and returns an iterator to the previously current item.
 */
 
-/*! \fn QSet::const_iterator QSet::const_iterator::operator+(int j) const
+/*!
+    \fn QSet::iterator QSet::iterator::operator+(int j) const
+    \fn QSet::const_iterator QSet::const_iterator::operator+(int j) const
 
     Returns an iterator to the item at \a j positions forward from
     this iterator. (If \a j is negative, the iterator goes backward.)
@@ -647,7 +811,9 @@
     \sa operator-()
 */
 
-/*! \fn QSet::const_iterator QSet::const_iterator::operator-(int j) const
+/*!
+    \fn QSet::iterator QSet::iterator::operator-(int j) const
+    \fn QSet::const_iterator QSet::const_iterator::operator-(int j) const
 
     Returns an iterator to the item at \a j positions backward from
     this iterator. (If \a j is negative, the iterator goes forward.)
@@ -657,7 +823,9 @@
     \sa operator+()
 */
 
-/*! \fn QSet::const_iterator &QSet::const_iterator::operator+=(int j)
+/*!
+    \fn QSet::iterator &QSet::iterator::operator+=(int j)
+    \fn QSet::const_iterator &QSet::const_iterator::operator+=(int j)
 
     Advances the iterator by \a j items. (If \a j is negative, the
     iterator goes backward.)
@@ -667,7 +835,9 @@
     \sa operator-=(), operator+()
 */
 
-/*! \fn QSet::const_iterator &QSet::const_iterator::operator-=(int j)
+/*!
+    \fn QSet::iterator &QSet::iterator::operator-=(int j)
+    \fn QSet::const_iterator &QSet::const_iterator::operator-=(int j)
 
     Makes the iterator go back by \a j items. (If \a j is negative,
     the iterator goes forward.)

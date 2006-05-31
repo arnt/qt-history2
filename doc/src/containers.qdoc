@@ -476,7 +476,7 @@
     \row    \o QVector<T>, QStack<T>              \o QVector<T>::const_iterator
                                                   \o QVector<T>::iterator
     \row    \o QSet<T>                            \o QSet<T>::const_iterator
-                                                  \o N/A
+                                                  \o QSet<T>::iterator
     \row    \o QMap<Key, T>, QMultiMap<Key, T>    \o QMap<Key, T>::const_iterator
                                                   \o QMap<Key, T>::iterator
     \row    \o QHash<Key, T>, QMultiHash<Key, T>  \o QHash<Key, T>::const_iterator

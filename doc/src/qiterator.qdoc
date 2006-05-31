@@ -557,7 +557,7 @@
     iterator), since this could invalidate the iterator and lead to
     undefined behavior.
 
-    \sa QSetIterator, QSet::const_iterator
+    \sa QSetIterator, QSet::iterator
 */
 
 /*!
