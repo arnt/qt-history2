@@ -94,7 +94,7 @@ void qMetaTypeLoadHelper(QDataStream &stream, T *t)
 }
 #endif // QT_NO_DATASTREAM
 
-#include <QtCore/qmetatypedetect.h>
+//#include <QtCore/qmetatypedetect.h>
 
 template <typename T>
 int qRegisterMetaType(const char *typeName
@@ -108,7 +108,7 @@ int qRegisterMetaType(const char *typeName
     typedef void(*DeletePtr)(T*);
     DeletePtr dptr = qMetaTypeDeleteHelper<T>;
 
-#ifdef QT_NO_DATASTREAM
+#if 1 // ### FIXME
     return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
                                    reinterpret_cast<QMetaType::Constructor>(cptr));
 #else
