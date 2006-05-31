@@ -16,9 +16,7 @@
 
 #include <QDialog>
 
-class QHBoxLayout;
-class QPushButton;
-class QVBoxLayout;
+class QDialogButtonBox;
 class TicTacToe;
 
 class TicTacToeDialog : public QDialog
@@ -37,13 +35,7 @@ private slots:
 private:
     TicTacToe *editor;
     TicTacToe *ticTacToe;
-
-    QPushButton *cancelButton;
-    QPushButton *okButton;
-    QPushButton *resetButton;
-
-    QHBoxLayout *buttonLayout;
-    QVBoxLayout *mainLayout;
+    QDialogButtonBox *buttonBox;
 };
 
 #endif

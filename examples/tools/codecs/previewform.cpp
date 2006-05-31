@@ -27,25 +27,19 @@ PreviewForm::PreviewForm(QWidget *parent)
     textEdit->setLineWrapMode(QTextEdit::NoWrap);
     textEdit->setReadOnly(true);
 
-    okButton = new QPushButton(tr("OK"));
-    cancelButton = new QPushButton(tr("Cancel"));
-    okButton->setDefault(true);
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                    | QDialogButtonBox::Cancel);
 
     connect(encodingComboBox, SIGNAL(activated(int)),
             this, SLOT(updateTextEdit()));
-    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
-    buttonLayout->addWidget(okButton);
-    buttonLayout->addWidget(cancelButton);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addWidget(encodingLabel, 0, 0);
     mainLayout->addWidget(encodingComboBox, 0, 1);
     mainLayout->addWidget(textEdit, 1, 0, 1, 2);
-    mainLayout->addLayout(buttonLayout, 2, 0, 1, 2);
+    mainLayout->addWidget(buttonBox, 2, 0, 1, 2);
     setLayout(mainLayout);
 
     setWindowTitle(tr("Choose Encoding"));

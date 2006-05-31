@@ -18,6 +18,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
+class QDialogButtonBox;
 class QLabel;
 class QProgressBar;
 class QPushButton;
@@ -46,6 +47,7 @@ private:
     QLabel *serverStatusLabel;
     QPushButton *startButton;
     QPushButton *quitButton;
+    QDialogButtonBox *buttonBox;
 
     QTcpServer tcpServer;
     QTcpSocket tcpClient;

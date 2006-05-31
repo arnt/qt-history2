@@ -18,12 +18,12 @@
 #include <QAssistantClient>
 
 class QComboBox;
+class QDialogButtonBox;
 class QLabel;
-class QPushButton;
-class QTableWidget;
-class QTableWidgetItem;
 class QTextEdit;
 class QToolButton;
+class QTreeWidget;
+class QTreeWidgetItem;
 
 class FindFileDialog : public QDialog
 {
@@ -36,10 +36,8 @@ public:
 private slots:
     void browse();
     void help();
-    void openFile(int row = -1, int column = -1);
+    void openFile(QTreeWidgetItem *item = 0);
     void update();
-    void select(QTableWidgetItem *current,
-                QTableWidgetItem *previous = 0);
 
 private:
     void findFiles();
@@ -47,13 +45,13 @@ private:
 
     void createButtons();
     void createComboBoxes();
-    void createFilesTable();
+    void createFilesTree();
     void createLabels();
     void createLayout();
 
     QAssistantClient *currentAssistantClient;
     QTextEdit *currentEditor;
-    QTableWidget *filesFoundTable;
+    QTreeWidget *foundFilesTree;
 
     QComboBox *directoryComboBox;
     QComboBox *fileNameComboBox;
@@ -61,9 +59,7 @@ private:
     QLabel *directoryLabel;
     QLabel *fileNameLabel;
 
-    QPushButton *cancelButton;
-    QPushButton *helpButton;
-    QPushButton *openButton;
+    QDialogButtonBox *buttonBox;
 
     QToolButton *browseButton;
 };

@@ -17,6 +17,7 @@
 #include <QDialog>
 
 class QAction;
+class QDialogButtonBox;
 class QGroupBox;
 class QLabel;
 class QLineEdit;
@@ -47,8 +48,7 @@ private:
     QLabel *labels[NumGridRows];
     QLineEdit *lineEdits[NumGridRows];
     QPushButton *buttons[NumButtons];
-    QPushButton *okButton;
-    QPushButton *cancelButton;
+    QDialogButtonBox *buttonBox;
 
     QMenu *fileMenu;
     QAction *exitAction;

@@ -18,9 +18,9 @@
 #include <QSettings>
 
 class QComboBox;
+class QDialogButtonBox;
 class QGroupBox;
 class QLabel;
-class QPushButton;
 class QTableWidget;
 
 class LocationDialog : public QDialog
@@ -49,8 +49,7 @@ private:
     QComboBox *applicationComboBox;
     QGroupBox *locationsGroupBox;
     QTableWidget *locationsTable;
-    QPushButton *okButton;
-    QPushButton *cancelButton;
+    QDialogButtonBox *buttonBox;
 };
 
 #endif

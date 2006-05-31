@@ -37,27 +37,25 @@ DropSiteWindow::DropSiteWindow()
     formatsTable->setHorizontalHeaderLabels(labels);
     formatsTable->horizontalHeader()->setStretchLastSection(true);
 
-    quitButton = new QPushButton(tr("Quit"));
-    connect(quitButton, SIGNAL(pressed()), this, SLOT(close()));
-
     clearButton = new QPushButton(tr("Clear"));
-    connect(clearButton, SIGNAL(pressed()), dropArea, SLOT(clear()));
+    quitButton = new QPushButton(tr("Quit"));
 
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch();
-    buttonLayout->addWidget(clearButton);
-    buttonLayout->addWidget(quitButton);
-    buttonLayout->addStretch();
+    buttonBox = new QDialogButtonBox;
+    buttonBox->addButton(clearButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(quitButton, QDialogButtonBox::RejectRole);
+
+    connect(quitButton, SIGNAL(pressed()), this, SLOT(close()));
+    connect(clearButton, SIGNAL(pressed()), dropArea, SLOT(clear()));
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(abstractLabel);
     mainLayout->addWidget(dropArea);
     mainLayout->addWidget(formatsTable);
-    mainLayout->addLayout(buttonLayout);
+    mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
-    setMinimumSize(350, 500);
     setWindowTitle(tr("Drop Site"));
+    setMinimumSize(350, 500);
 }
 
 void DropSiteWindow::updateFormatsTable(const QMimeData *mimeData)

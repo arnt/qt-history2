@@ -31,14 +31,18 @@ FtpWindow::FtpWindow(QWidget *parent)
     connectButton = new QPushButton(tr("Connect"));
     connectButton->setDefault(true);
     
-    downloadButton = new QPushButton(tr("Download"));
-    downloadButton->setEnabled(false);
-
     cdToParentButton = new QPushButton;
     cdToParentButton->setIcon(QPixmap(":/images/cdtoparent.png"));
     cdToParentButton->setEnabled(false);
 
+    downloadButton = new QPushButton(tr("Download"));
+    downloadButton->setEnabled(false);
+
     quitButton = new QPushButton(tr("Quit"));
+
+    buttonBox = new QDialogButtonBox;
+    buttonBox->addButton(downloadButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(quitButton, QDialogButtonBox::RejectRole);
 
     progressDialog = new QProgressDialog(this);
 
@@ -58,16 +62,11 @@ FtpWindow::FtpWindow(QWidget *parent)
     topLayout->addWidget(cdToParentButton);
     topLayout->addWidget(connectButton);
     
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
-    buttonLayout->addWidget(downloadButton);
-    buttonLayout->addWidget(quitButton);
-
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(fileList);
     mainLayout->addWidget(statusLabel);
-    mainLayout->addLayout(buttonLayout);
+    mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
     setWindowTitle(tr("FTP"));

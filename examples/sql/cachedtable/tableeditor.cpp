@@ -36,19 +36,18 @@ TableEditor::TableEditor(const QString &tableName, QWidget *parent)
     revertButton = new QPushButton(tr("&Revert"));
     quitButton = new QPushButton(tr("Quit"));
 
+    buttonBox = new QDialogButtonBox(Qt::Vertical);
+    buttonBox->addButton(submitButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(revertButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(quitButton, QDialogButtonBox::RejectRole);
+
     connect(submitButton, SIGNAL(clicked()), this, SLOT(submit()));
     connect(revertButton, SIGNAL(clicked()), model, SLOT(revertAll()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    QVBoxLayout *buttonLayout = new QVBoxLayout;
-    buttonLayout->addWidget(submitButton);
-    buttonLayout->addWidget(revertButton);
-    buttonLayout->addWidget(quitButton);
-    buttonLayout->addStretch(1);
-
     QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->addWidget(view);
-    mainLayout->addLayout(buttonLayout);
+    mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
     setWindowTitle(tr("Cached Table"));

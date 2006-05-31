@@ -17,6 +17,7 @@
 #include <QDialog>
 #include <QTcpSocket>
 
+class QDialogButtonBox;
 class QLabel;
 class QLineEdit;
 class QPushButton;
@@ -43,6 +44,7 @@ private:
     QLabel *statusLabel;
     QPushButton *getFortuneButton;
     QPushButton *quitButton;
+    QDialogButtonBox *buttonBox;
 
     QTcpSocket *tcpSocket;
     QString currentFortune;

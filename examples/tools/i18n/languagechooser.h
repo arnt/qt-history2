@@ -18,9 +18,10 @@
 #include <QMap>
 #include <QStringList>
 
+class QAbstractButton;
 class QCheckBox;
+class QDialogButtonBox;
 class QGroupBox;
-class QPushButton;
 class MainWindow;
 
 class LanguageChooser : public QDialog
@@ -45,9 +46,9 @@ private:
     QColor colorForLanguage(const QString &language);
 
     QGroupBox *groupBox;
-    QPushButton *showAllButton;
-    QPushButton *hideAllButton;
-    QPushButton *closeButton;
+    QDialogButtonBox *buttonBox;
+    QAbstractButton *showAllButton;
+    QAbstractButton *hideAllButton;
     QMap<QCheckBox *, QString> qmFileForCheckBoxMap;
     QMap<QCheckBox *, MainWindow *> mainWindowForCheckBoxMap;
 };

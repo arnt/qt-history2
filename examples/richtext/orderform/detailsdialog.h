@@ -20,6 +20,8 @@
 #include <QString>
 
 class QCheckBox;
+class QDialogButtonBox;
+class QLabel;
 class QLineEdit;
 class QTableWidget;
 class QTextEdit;
@@ -36,7 +38,7 @@ public slots:
     void verify();
 
 public:
-    QList<QPair<QString,int> > orderItems();
+    QList<QPair<QString, int> > orderItems();
     QString senderName() const;
     QString senderAddress() const;
     bool sendOffers();
@@ -44,11 +46,14 @@ public:
 private:
     void setupItemsTable();
 
+    QLabel *nameLabel;
+    QLabel *addressLabel;
     QCheckBox *offersCheckBox;
     QLineEdit *nameEdit;
     QStringList items;
     QTableWidget *itemsTable;
     QTextEdit *addressEdit;
+    QDialogButtonBox *buttonBox;
 };
 
 #endif

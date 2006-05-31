@@ -18,39 +18,32 @@
 DetailsDialog::DetailsDialog(const QString &title, QWidget *parent)
     : QDialog(parent)
 {
-    QLabel *nameLabel = new QLabel(tr("Name:"));
-    QLabel *addressLabel = new QLabel(tr("Address:"));
+    nameLabel = new QLabel(tr("Name:"));
+    addressLabel = new QLabel(tr("Address:"));
+    addressLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     nameEdit = new QLineEdit;
     addressEdit = new QTextEdit;
-    addressEdit->setPlainText("");
-    offersCheckBox = new QCheckBox(tr("Send offers:"));
+
+    offersCheckBox = new QCheckBox(tr("Send information about products and "
+                                      "special offers"));
 
     setupItemsTable();
 
-    QPushButton *okButton = new QPushButton(tr("OK"));
-    QPushButton *cancelButton = new QPushButton(tr("Cancel"));
-    okButton->setDefault(true);
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                     | QDialogButtonBox::Cancel);
 
-    connect(okButton, SIGNAL(clicked()), this, SLOT(verify()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(verify()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    QGridLayout *detailsLayout = new QGridLayout;
-    detailsLayout->addWidget(nameLabel, 0, 0);
-    detailsLayout->addWidget(nameEdit, 0, 1);
-    detailsLayout->addWidget(addressLabel, 1, 0);
-    detailsLayout->addWidget(addressEdit, 1, 1);
-    detailsLayout->addWidget(itemsTable, 0, 2, 2, 2);
-    detailsLayout->addWidget(offersCheckBox, 2, 1, 1, 4);
-
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
-    buttonLayout->addWidget(okButton);
-    buttonLayout->addWidget(cancelButton);
-
-    QVBoxLayout *mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(detailsLayout);
-    mainLayout->addLayout(buttonLayout);
+    QGridLayout *mainLayout = new QGridLayout;
+    mainLayout->addWidget(nameLabel, 0, 0);
+    mainLayout->addWidget(nameEdit, 0, 1);
+    mainLayout->addWidget(addressLabel, 1, 0);
+    mainLayout->addWidget(addressEdit, 1, 1);
+    mainLayout->addWidget(itemsTable, 0, 2, 2, 1);
+    mainLayout->addWidget(offersCheckBox, 2, 1, 1, 2);
+    mainLayout->addWidget(buttonBox, 3, 0, 1, 3);
     setLayout(mainLayout);
 
     setWindowTitle(title);
@@ -72,12 +65,12 @@ void DetailsDialog::setupItemsTable()
     }
 }
 
-QList<QPair<QString,int> > DetailsDialog::orderItems()
+QList<QPair<QString, int> > DetailsDialog::orderItems()
 {
-    QList<QPair<QString,int> > orderList;
+    QList<QPair<QString, int> > orderList;
 
     for (int row = 0; row < items.count(); ++row) {
-        QPair<QString,int> item;
+        QPair<QString, int> item;
         item.first = itemsTable->item(row, 0)->text();
         int quantity = itemsTable->item(row, 1)->data(Qt::DisplayRole).toInt();
         item.second = qMax(0, quantity);

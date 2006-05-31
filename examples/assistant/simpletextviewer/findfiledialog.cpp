@@ -16,7 +16,7 @@
 #include "findfiledialog.h"
 
 FindFileDialog::FindFileDialog(QTextEdit *editor, QAssistantClient *assistant,
-                       QWidget *parent)
+                               QWidget *parent)
     : QDialog(parent)
 {
     currentAssistantClient = assistant;
@@ -24,8 +24,8 @@ FindFileDialog::FindFileDialog(QTextEdit *editor, QAssistantClient *assistant,
 
     createButtons();
     createComboBoxes();
+    createFilesTree();
     createLabels();
-    createFilesTable();
     createLayout();
 
     directoryComboBox->addItem(QDir::currentPath() + QDir::separator());
@@ -53,26 +53,25 @@ void FindFileDialog::help()
             QDir::separator() +  "assistant/simpletextviewer/documentation/filedialog.html");
 }
 
-void FindFileDialog::openFile(int row, int column)
+void FindFileDialog::openFile(QTreeWidgetItem *item)
 {
-    QTableWidgetItem *item = filesFoundTable->item(row, column);
-    if (!item)
-        item = filesFoundTable->currentItem();
+    if (!item) {
+        item = foundFilesTree->currentItem();
+        if (!item)
+            return;
+    }
 
-    QString fileName = item->text();
+    QString fileName = item->text(0);
+    QString path = directoryComboBox->currentText();
 
-    if (!fileName.isEmpty()) {
-        QString path = directoryComboBox->currentText();
-        QFile file(path + fileName);
+    QFile file(path + fileName);
+    if (file.open(QIODevice::ReadOnly)) {
+        QString data(file.readAll());
 
-        if (file.open(QIODevice::ReadOnly)) {
-            QString data(file.readAll());
-
-            if (fileName.endsWith(".html"))
-                currentEditor->setHtml(data);
-            else
-                currentEditor->setPlainText(data);
-        }
+        if (fileName.endsWith(".html"))
+            currentEditor->setHtml(data);
+        else
+            currentEditor->setPlainText(data);
     }
     close();
 }
@@ -80,17 +79,8 @@ void FindFileDialog::openFile(int row, int column)
 void FindFileDialog::update()
 {
     findFiles();
-    openButton->setEnabled(!(filesFoundTable->rowCount() == 0));
-}
-
-void FindFileDialog::select(QTableWidgetItem *current,
-                        QTableWidgetItem *previous)
-{
-    openButton->setEnabled(true);
-
-    current->setBackgroundColor(palette().alternateBase().color());
-    if (previous)
-        previous->setBackgroundColor(palette().base().color());
+    buttonBox->button(QDialogButtonBox::Open)->setEnabled(
+            foundFilesTree->topLevelItemCount() > 0);
 }
 
 void FindFileDialog::findFiles()
@@ -112,37 +102,30 @@ void FindFileDialog::findFiles()
 
 void FindFileDialog::showFiles(const QStringList &files)
 {
-    filesFoundTable->setRowCount(0);
+    foundFilesTree->clear();
 
     for (int i = 0; i < files.count(); ++i) {
-        QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);
-        fileNameItem->setFlags(Qt::ItemIsEnabled);
-
-        int row = filesFoundTable->rowCount();
-        filesFoundTable->insertRow(row);
-        filesFoundTable->setItem(row, 0, fileNameItem);
+        QTreeWidgetItem *item = new QTreeWidgetItem(foundFilesTree);
+        item->setText(0, files[i]);
     }
 
     if (files.count() > 0)
-        filesFoundTable->setCurrentItem(filesFoundTable->item(0,0));
+        foundFilesTree->setCurrentItem(foundFilesTree->topLevelItem(0));
 }
 
 void FindFileDialog::createButtons()
 {
-    cancelButton = new QPushButton(tr("&Cancel"));
-    openButton = new QPushButton(tr("&Open"));
-    helpButton = new QPushButton(tr("&Help"));
-
-    browseButton = new QToolButton();
-    browseButton->setText("...");
-
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
+    browseButton = new QToolButton;
+    browseButton->setText(tr("..."));
     connect(browseButton, SIGNAL(clicked()), this, SLOT(browse()));
-    connect(openButton, SIGNAL(clicked()), this, SLOT(openFile()));
-    connect(helpButton, SIGNAL(clicked()), this, SLOT(help()));
 
-    openButton->setDefault(true);
-    openButton->setEnabled(false);
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Open
+                                     | QDialogButtonBox::Cancel
+                                     | QDialogButtonBox::Help);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(openFile()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(buttonBox->button(QDialogButtonBox::Help), SIGNAL(clicked()),
+            this, SLOT(help()));
 }
 
 void FindFileDialog::createComboBoxes()
@@ -160,29 +143,22 @@ void FindFileDialog::createComboBoxes()
     directoryComboBox->setSizePolicy(QSizePolicy::Expanding,
                                      QSizePolicy::Preferred);
 
-
     connect(fileNameComboBox, SIGNAL(editTextChanged(const QString &)),
             this, SLOT(update()));
     connect(directoryComboBox, SIGNAL(currentIndexChanged(const QString &)),
             this, SLOT(update()));
 }
 
-void FindFileDialog::createFilesTable()
+void FindFileDialog::createFilesTree()
 {
-    filesFoundTable = new QTableWidget(0, 1);
-    QStringList labels;
-    labels << tr("Matching Files");
-    filesFoundTable->setHorizontalHeaderLabels(labels);
-    filesFoundTable->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
-    filesFoundTable->verticalHeader()->hide();
-    filesFoundTable->setShowGrid(false);
+    foundFilesTree = new QTreeWidget;
+    foundFilesTree->setColumnCount(1);
+    foundFilesTree->setHeaderLabels(QStringList(tr("Matching Files")));
+    foundFilesTree->setRootIsDecorated(false);
+    foundFilesTree->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    connect(filesFoundTable, SIGNAL(cellDoubleClicked(int, int)),
-            this, SLOT(openFile(int, int)));
-    connect(filesFoundTable,
-            SIGNAL(currentItemChanged(QTableWidgetItem *, QTableWidgetItem *)),
-            this,
-            SLOT(select(QTableWidgetItem *, QTableWidgetItem *)));
+    connect(foundFilesTree, SIGNAL(itemActivated(QTreeWidgetItem *, int)),
+            this, SLOT(openFile(QTreeWidgetItem *)));
 }
 
 void FindFileDialog::createLabels()
@@ -202,17 +178,11 @@ void FindFileDialog::createLayout()
     directoryLayout->addWidget(directoryComboBox);
     directoryLayout->addWidget(browseButton);
 
-    QHBoxLayout *buttons = new QHBoxLayout;
-    buttons->addWidget(helpButton);
-    buttons->addStretch();
-    buttons->addWidget(openButton);
-    buttons->addWidget(cancelButton);
-
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(fileLayout);
     mainLayout->addLayout(directoryLayout);
-    mainLayout->addWidget(filesFoundTable);
+    mainLayout->addWidget(foundFilesTree);
     mainLayout->addStretch();
-    mainLayout->addLayout(buttons);
+    mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 }

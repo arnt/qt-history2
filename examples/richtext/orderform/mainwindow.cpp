@@ -155,7 +155,7 @@ void MainWindow::createLetter(const QString &name, const QString &address,
 void MainWindow::createSample()
 {
     DetailsDialog dialog("Dialog with default values", this);
-    createLetter("Mr Smith", "12 High Street\nSmall Town\nThis country",
+    createLetter("Mr. Smith", "12 High Street\nSmall Town\nThis country",
                  dialog.orderItems(), true);
 }
 

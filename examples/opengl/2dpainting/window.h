@@ -14,8 +14,8 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <QString>
 #include <QWidget>
+
 #include "helper.h"
 
 class QLabel;

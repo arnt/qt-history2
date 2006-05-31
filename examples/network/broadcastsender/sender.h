@@ -16,6 +16,7 @@
 
 #include <QDialog>
 
+class QDialogButtonBox;
 class QLabel;
 class QPushButton;
 class QTimer;
@@ -36,6 +37,7 @@ private:
     QLabel *statusLabel;
     QPushButton *startButton;
     QPushButton *quitButton;
+    QDialogButtonBox *buttonBox;
     QUdpSocket *udpSocket;
     QTimer *timer;
     int messageNo;

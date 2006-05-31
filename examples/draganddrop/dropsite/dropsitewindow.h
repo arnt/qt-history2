@@ -16,6 +16,7 @@
 
 #include <QWidget>
 
+class QDialogButtonBox;
 class QLabel;
 class QMimeData;
 class QPushButton;
@@ -39,6 +40,7 @@ private:
 
     QPushButton *clearButton;
     QPushButton *quitButton;
+    QDialogButtonBox *buttonBox;
 };
 
 #endif

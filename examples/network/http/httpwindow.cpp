@@ -26,9 +26,13 @@ HttpWindow::HttpWindow(QWidget *parent)
     statusLabel = new QLabel(tr("Please enter the URL of a file you want to "
                                 "download."));
 
-    quitButton = new QPushButton(tr("Quit"));
     downloadButton = new QPushButton(tr("Download"));
+    quitButton = new QPushButton(tr("Quit"));
     downloadButton->setDefault(true);
+
+    buttonBox = new QDialogButtonBox;
+    buttonBox->addButton(downloadButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(quitButton, QDialogButtonBox::RejectRole);
 
     progressDialog = new QProgressDialog(this);
 
@@ -50,15 +54,10 @@ HttpWindow::HttpWindow(QWidget *parent)
     topLayout->addWidget(urlLabel);
     topLayout->addWidget(urlLineEdit);
 
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
-    buttonLayout->addWidget(downloadButton);
-    buttonLayout->addWidget(quitButton);
-
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(statusLabel);
-    mainLayout->addLayout(buttonLayout);
+    mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
     setWindowTitle(tr("HTTP"));

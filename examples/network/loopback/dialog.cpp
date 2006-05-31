@@ -30,6 +30,10 @@ Dialog::Dialog(QWidget *parent)
     startButton = new QPushButton(tr("&Start"));
     quitButton = new QPushButton(tr("&Quit"));
 
+    buttonBox = new QDialogButtonBox;
+    buttonBox->addButton(startButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(quitButton, QDialogButtonBox::RejectRole);
+
     connect(startButton, SIGNAL(clicked()), this, SLOT(start()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(&tcpServer, SIGNAL(newConnection()),
@@ -40,17 +44,14 @@ Dialog::Dialog(QWidget *parent)
     connect(&tcpClient, SIGNAL(error(QAbstractSocket::SocketError)),
             this, SLOT(displayError(QAbstractSocket::SocketError)));
 
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
-    buttonLayout->addWidget(startButton);
-    buttonLayout->addWidget(quitButton);
-
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(clientProgressBar);
     mainLayout->addWidget(clientStatusLabel);
     mainLayout->addWidget(serverProgressBar);
     mainLayout->addWidget(serverStatusLabel);
-    mainLayout->addLayout(buttonLayout);
+    mainLayout->addStretch(1);
+    mainLayout->addSpacing(10);
+    mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
     setWindowTitle(tr("Loopback"));

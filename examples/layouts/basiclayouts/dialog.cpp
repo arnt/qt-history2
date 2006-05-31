@@ -25,24 +25,18 @@ Dialog::Dialog()
     bigEditor->setPlainText(tr("This widget takes up all the remaining space "
                                "in the top-level layout."));
 
-    okButton = new QPushButton(tr("OK"));
-    cancelButton = new QPushButton(tr("Cancel"));
-    okButton->setDefault(true);
+    buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                     | QDialogButtonBox::Cancel);
 
-    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
-    buttonLayout->addWidget(okButton);
-    buttonLayout->addWidget(cancelButton);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->setMenuBar(menuBar);
     mainLayout->addWidget(horizontalGroupBox);
     mainLayout->addWidget(gridGroupBox);
     mainLayout->addWidget(bigEditor);
-    mainLayout->addLayout(buttonLayout);
+    mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
     setWindowTitle(tr("Basic Layouts"));

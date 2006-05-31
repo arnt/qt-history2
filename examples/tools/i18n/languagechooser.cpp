@@ -36,24 +36,19 @@ LanguageChooser::LanguageChooser(QWidget *parent)
     }
     groupBox->setLayout(groupBoxLayout);
 
-    showAllButton = new QPushButton("Show All");
-    hideAllButton = new QPushButton("Hide All");
-    closeButton = new QPushButton("Close");
-    closeButton->setDefault(true);
+    buttonBox = new QDialogButtonBox;
+
+    showAllButton = buttonBox->addButton("Show All",
+                                         QDialogButtonBox::ActionRole);
+    hideAllButton = buttonBox->addButton("Hide All",
+                                         QDialogButtonBox::ActionRole);
 
     connect(showAllButton, SIGNAL(clicked()), this, SLOT(showAll()));
     connect(hideAllButton, SIGNAL(clicked()), this, SLOT(hideAll()));
-    connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
-
-    QHBoxLayout *buttonLayout = new QHBoxLayout;
-    buttonLayout->addStretch(1);
-    buttonLayout->addWidget(showAllButton);
-    buttonLayout->addWidget(hideAllButton);
-    buttonLayout->addWidget(closeButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(groupBox);
-    mainLayout->addLayout(buttonLayout);
+    mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
 #ifdef Q_WS_MAC
