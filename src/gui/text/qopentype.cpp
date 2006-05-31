@@ -302,7 +302,7 @@ bool QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 
     if (gsub) {
         uint error = HB_GSUB_Apply_String(gsub, hb_buffer);
-        if (error && error != TTO_Err_Not_Covered)
+        if (error && error != HB_Err_Not_Covered)
             return false;
     }
 
