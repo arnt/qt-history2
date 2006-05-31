@@ -273,7 +273,7 @@ static void dump_string(HB_Buffer buffer)
 
 extern void qt_heuristicPosition(QShaperItem *item);
 
-void QOpenType::shape(QShaperItem *item, const unsigned int *properties)
+bool QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 {
     length = item->num_glyphs;
 
@@ -300,8 +300,11 @@ void QOpenType::shape(QShaperItem *item, const unsigned int *properties)
 
     loadFlags = item->flags & QTextEngine::DesignMetrics ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
 
-    if (gsub)
-        HB_GSUB_Apply_String(gsub, hb_buffer);
+    if (gsub) {
+        uint error = HB_GSUB_Apply_String(gsub, hb_buffer);
+        if (error && error != TTO_Err_Not_Covered)
+            return false;
+    }
 
 #ifdef OT_DEBUG
 //     qDebug("log clusters before shaping:");
@@ -313,6 +316,8 @@ void QOpenType::shape(QShaperItem *item, const unsigned int *properties)
     qDebug("-----------------------------------------");
 //     dump_string(hb_buffer);
 #endif
+
+    return true;
 }
 
 bool QOpenType::positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLogClusters)

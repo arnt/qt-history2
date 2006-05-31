@@ -1443,8 +1443,10 @@ static const QOpenType::Features syriac_features[] = {
     {0, 0}
 };
 
-static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
+static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item, bool *ot_ok)
 {
+    *ot_ok = true;
+
     openType->selectScript(item->script, item->script == QUnicodeTables::Arabic ? arabic_features : syriac_features);
     const int nglyphs = item->num_glyphs;
     if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
@@ -1482,7 +1484,10 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
             apply[i] |= IsolProperty|MediProperty|FinaProperty;
     }
 
-    openType->shape(item, apply.data());
+    if (!openType->shape(item, apply.data())) {
+        *ot_ok = false;
+        return false;
+    }
     return openType->positionAndAdd(item, nglyphs);
 }
 
@@ -1497,8 +1502,14 @@ static bool arabic_shape(QShaperItem *item)
 #ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
 
-    if (openType && openType->supportsScript(QUnicodeTables::Arabic))
-        return arabicSyriacOpenTypeShape(openType, item);
+    if (openType && openType->supportsScript(QUnicodeTables::Arabic)) {
+        bool ot_ok;
+        if (arabicSyriacOpenTypeShape(openType, item, &ot_ok))
+            return true;
+        if (ot_ok)
+            return false;
+            // fall through to the non OT code
+    }
 #endif
 
     QVarLengthArray<ushort> shapedChars(item->length);
@@ -1534,7 +1545,12 @@ static bool syriac_shape(QShaperItem *item)
 #ifndef QT_NO_OPENTYPE
     QOpenType *openType = item->font->openType();
     if (openType && openType->supportsScript(QUnicodeTables::Syriac)) {
-        return arabicSyriacOpenTypeShape(openType, item);
+        bool ot_ok;
+        if (arabicSyriacOpenTypeShape(openType, item, &ot_ok))
+            return true;
+        if (ot_ok)
+            return false;
+            // fall through to the non OT code
     }
 #endif
     return basic_shape(item);

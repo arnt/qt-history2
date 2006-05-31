@@ -53,7 +53,7 @@ public:
     }
     void selectScript(unsigned int script, const Features *features = 0);
 
-    void shape(QShaperItem *item, const unsigned int *properties = 0);
+    bool shape(QShaperItem *item, const unsigned int *properties = 0);
     bool positionAndAdd(QShaperItem *item, int availableGlyphs, bool doLogClusters = true);
 
     HB_GlyphItem glyphs() const { return hb_buffer->in_string; }
