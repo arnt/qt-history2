@@ -394,7 +394,6 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
         QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(QSizeF)), q, SIGNAL(documentSizeChanged(QSizeF)));
         cursor = QTextCursor(doc);
 
-// ###        doc->setDefaultFont(q->font());
 // ####        doc->documentLayout()->setPaintDevice(viewport);
 
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(updateCurrentCharFormatAndSelection()));
