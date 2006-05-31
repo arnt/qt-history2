@@ -22,6 +22,7 @@ QT_MODULE(Gui)
 
 class QAbstractButton;
 class QDialogButtonBoxPrivate;
+
 class Q_GUI_EXPORT QDialogButtonBox : public QWidget
 {
     Q_OBJECT
@@ -84,6 +85,7 @@ public:
 
     void setStandardButtons(StandardButtons buttons);
     StandardButtons standardButtons() const;
+    QAbstractButton *button(StandardButton which) const;
 
 Q_SIGNALS:
     void clicked(QAbstractButton *button);

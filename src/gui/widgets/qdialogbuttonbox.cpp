@@ -671,6 +671,22 @@ QDialogButtonBox::StandardButtons QDialogButtonBox::standardButtons() const
     return standardButtons;
 }
 
+/*!
+    Returns a pointer corresponding to the standard button \a which,
+    or 0 if the standard button doesn't exist in this button box.
+
+    If there are several occurrences of \a which in the box (which
+    happens if you call addButton(\a which) several times), it is not
+    specified which button is returned.
+
+    \sa standardButton, buttons()
+*/
+QAbstractButton *QDialogButtonBox::button(StandardButton which) const
+{
+    Q_D(const QDialogButtonBox);
+    return d->standardButtonHash.key(which);
+}
+
 void QDialogButtonBoxPrivate::_q_handleButtonClicked()
 {
     Q_Q(QDialogButtonBox);
@@ -699,7 +715,6 @@ void QDialogButtonBoxPrivate::_q_handleButtonDestroyed()
         q->removeButton(static_cast<QAbstractButton *>(object));
     }
 }
-
 
 /*!
     \reimp
