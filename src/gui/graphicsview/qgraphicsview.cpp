@@ -903,7 +903,17 @@ void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode asp
         printer.setPageSize(QPrinter::A4);
         QPainter painter(&printer);
 
+        // print, fitting the viewport contents into a full page
         view.render(&painter);
+
+        // print the upper half of the viewport into the lower.
+        // half of the page.
+        QRect viewport = view.viewport()->rect();
+        view.render(&painter,
+                    QRectF(0, printer.height() / 2,
+                           printer.width(), printer.height() / 2),
+                    viewport.adjusted(0, 0, 0, -viewport.height() / 2));
+                    
     \endcode
 
     If \a source is a null rect, this function will use viewport()->rect() to
