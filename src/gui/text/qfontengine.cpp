@@ -223,7 +223,7 @@ QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
     if (glyph_width <= 0 || glyph_height <= 0)
         return QImage();
     QFixedPoint pt;
-    pt.x = 0;
+    pt.x = -glyph_x;
     pt.y = -glyph_y; // the baseline
     QPainterPath path;
     QImage im(glyph_width + glyph_x, glyph_height, QImage::Format_ARGB32_Premultiplied);
