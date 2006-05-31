@@ -458,9 +458,9 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
         int p = d->viewIndex(parent);
         if (p >= 0) {
             for (uint i = 0; i < d->viewItems.at(p).total; ++i) {
-                if (d->viewItems.at(p + i).index == index) {
+                if (d->viewItems.at(p + 1 + i).index == index) {
                     d->viewItems[p].total--;
-                    d->viewItems.remove(i);
+                    d->viewItems.remove(p + 1 + i);
                     break;
                 }
             }
