@@ -51,13 +51,11 @@ protected:
     void resizeEvent(QResizeEvent *re);
     bool x11Event(XEvent *event);
     void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
     void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
     QSystemTrayIcon *q;
     QPixmap cachedPixmap;
-    bool doubleClicked;
 };
 
 Window QSystemTrayIconSys::sysTrayWindow = None;
@@ -116,7 +114,7 @@ bool QSystemTrayIconSys::sysTrayTracker(void *message, long *result)
 
 QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *q)
     : QWidget(0, Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint),
-      q(q), doubleClicked(false)
+      q(q)
 {
     setAttribute(Qt::WA_AlwaysShowToolTips);
     static bool eventFilterAdded = false;
@@ -212,24 +210,15 @@ void QSystemTrayIconSys::mousePressEvent(QMouseEvent *ev)
         q->contextMenu()->popup(globalPos);
 
     if (ev->button() == Qt::LeftButton)
-	emit q->activated(globalPos);
-}
-
-void QSystemTrayIconSys::mouseReleaseEvent(QMouseEvent *ev)
-{
-    if (doubleClicked && ev->button() == Qt::LeftButton) {
-        doubleClicked = false;
-        return;
-    }
-    emit q->clicked(ev->globalPos(), ev->button());
+        emit q->activated(QSystemTrayIcon::Trigger);
+    else if (ev->button() == Qt::RightButton)
+        emit q->activated(QSystemTrayIcon::Context);
 }
 
 void QSystemTrayIconSys::mouseDoubleClickEvent(QMouseEvent *ev)
 {
-    if (ev->button() == Qt::LeftButton) {
-	doubleClicked = true;
-        emit q->doubleClicked(ev->globalPos());
-    }
+    if (ev->button() == Qt::LeftButton)
+        emit q->activated(QSystemTrayIcon::DoubleClick);
 }
 
 bool QSystemTrayIconSys::x11Event(XEvent *event)

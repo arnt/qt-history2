@@ -41,6 +41,13 @@ public:
     QSystemTrayIcon(const QIcon &icon, QObject *parent = 0);
     ~QSystemTrayIcon();
 
+    enum ActivationReason {
+        Unknown,
+        Context,
+        DoubleClick,
+        Trigger
+    };
+
     void setContextMenu(QMenu *menu);
     QMenu *contextMenu() const;
 
@@ -64,9 +71,7 @@ public Q_SLOTS:
     inline void hide() { setVisible(false); }
 
 Q_SIGNALS:
-    void clicked(const QPoint &globalPos, Qt::MouseButton button);
-    void activated(const QPoint &globalPos);
-    void doubleClicked(const QPoint &globalPos);
+    void activated(int reason);
     void messageClicked();
 
 protected:

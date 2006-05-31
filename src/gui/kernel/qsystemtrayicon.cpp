@@ -62,7 +62,7 @@
     becomes available later, QSystemTrayIcon will automatically add an entry for the
     application in the system tray if the icon is \l visible.
 
-    The activated() signal is emitted when the user clicks on the icon.
+    The activated() signal is emitted when the user activates the icon.
 */
 
 /*!
@@ -227,41 +227,26 @@ bool QSystemTrayIcon::event(QEvent *e)
 }
 
 /*!
-    \fn void QSystemTrayIcon::activated(const QPoint &globalPos)
+    \enum QSystemTrayIcon::ActivationReason
 
-    This signal is emitted when the user activates the system tray icon.
-    The global mouse position on the desktop at that moment is specified by \a globalPos.
+     This enum describes the reason the system tray was activated.
 
-    \bold{Note:} The mouse button that activates a system tray entry is dependent on
-    the platform. On Windows, this signal is emitted when the left mouse button is
-    released when the cursor is still inside the icon; on X11, it is emitted when the
-    left mouse button is pressed.
+     \value Unknown     Unknown reason
+     \value Context     The context menu for the system tray entry was requested
+     \value DoubleClick The system tray entry was double clicked
+     \value Trigger     The system tray entray was clicked
 
-    \sa clicked(), doubleClicked()
+     \sa activated()
 */
 
 /*!
-    \fn void QSystemTrayIcon::clicked(const QPoint &globalPos, Qt::MouseButton button)
+    \fn void QSystemTrayIcon::activated(int reason)
 
-    This signal is emitted when the icon is clicked with the specified \a button.
-    The global mouse position on the desktop at that moment is specified by
-    \a globalPos.
-
-    \bold{Note:} On Windows, this signal is emitted when the left mouse button is
-    released when the cursor is still inside the icon; on X11, it is emitted when the
-    left mouse button is pressed.
-
-    \sa activated(), doubleClicked(), messageClicked()
-*/
-
-/*!
-    \fn void QSystemTrayIcon::doubleClicked(const QPoint &globalPos)
-
-    This signal is emitted when the user double clicks the system tray
-    icon with the left mouse button. The global mouse position on the desktop at
-    that moment is specified by \a globalPos.
-
-    \sa clicked(), activated()
+    This signal is emitted when the user activates the system tray icon. \a reason
+    specifies the reason for activation. QSystemTrayIcon::ActivationReason enumerates
+    the various reasons.
+    
+    \sa QSystemTrayIcon::ActivationReason
 */
 
 /*!
@@ -270,7 +255,7 @@ bool QSystemTrayIcon::event(QEvent *e)
     This signal is emitted when the message displayed using showMessage()
     was clicked by the user.
 
-    \sa clicked()
+    \sa activated()
 */
 
 
