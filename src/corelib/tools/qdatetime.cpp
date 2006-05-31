@@ -2030,20 +2030,6 @@ QDateTime::QDateTime(const QDate &date, const QTime &time, Qt::TimeSpec spec)
 }
 
 /*!
-    Constructs a datetime and sets its date and time to the number of \a seconds
-    that have passed since 1970-01-01T00:00:00, Coordinated Universal Time
-    (Qt::UTC). On systems that do not support timezones, the time
-    will be set as if local time were Qt::UTC.
-
-    \sa toTime_t(), setTime_t()
-*/
-QDateTime::QDateTime(uint seconds)
-{
-    d = new QDateTimePrivate;
-    setTime_t(seconds);
-}
-
-/*!
     Constructs a copy of the \a other datetime.
 */
 
@@ -2669,6 +2655,21 @@ QDateTime QDateTime::currentDateTime()
     dt.setTime(t);
     return dt;
 #endif
+}
+
+/*!
+    Returns a datetime whose date and time are the number of \a seconds
+    that have passed since 1970-01-01T00:00:00, Coordinated Universal Time
+    (Qt::UTC). On systems that do not support timezones, the time
+    will be set as if local time were Qt::UTC.
+
+    \sa toTime_t(), setTime_t()
+*/
+QDateTime QDateTime::fromTime_t(uint seconds)
+{
+    QDateTime d;
+    d.setTime_t(seconds);
+    return d;
 }
 
 #ifndef QT_NO_DATESTRING

@@ -169,7 +169,6 @@ public:
     explicit QDateTime(const QDate &);
     QDateTime(const QDate &, const QTime &, Qt::TimeSpec spec = Qt::LocalTime);
     QDateTime(const QDateTime &other);
-    QDateTime(uint secsSince1Jan1970UTC);
     ~QDateTime();
 
     QDateTime &operator=(const QDateTime &other);
@@ -212,6 +211,7 @@ public:
     static QDateTime fromString(const QString &s, Qt::DateFormat f = Qt::TextDate);
 #endif
     static QDateTime fromString(const QString &s, const QString &format);
+    static QDateTime fromTime_t(uint secsSince1Jan1970UTC);
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT void setTime_t(uint secsSince1Jan1970UTC, Qt::TimeSpec spec) {
