@@ -133,9 +133,6 @@ public:
     QBasicTimer dragStartTimer;
     QPointer<QWidget> dndWidget;
 
-    QTextControl::LineWrapMode lineWrap;
-    int lineWrapColumnOrWidth;
-
     bool lastSelectionState;
 
     bool ignoreAutomaticScrollbarAdjustement;

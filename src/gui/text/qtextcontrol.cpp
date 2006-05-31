@@ -73,7 +73,6 @@ QTextControlPrivate::QTextControlPrivate()
 #ifndef QT_NO_DRAGANDDROP
       mousePressed(false), mightStartDrag(false),
 #endif
-      lineWrap(QTextControl::WidgetWidth), lineWrapColumnOrWidth(0),
       lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
       preferRichText(false),
       overwriteMode(false),
@@ -2639,61 +2638,6 @@ void QTextControl::adjustSize()
     \property QTextControl::documentTitle
     \brief the title of the document parsed from the text.
 */
-
-/*
-    \property QTextControl::lineWrapMode
-    \brief the line wrap mode
-
-    The default mode is WidgetWidth which causes words to be
-    wrapped at the right edge of the text edit. Wrapping occurs at
-    whitespace, keeping whole words intact. If you want wrapping to
-    occur within words use setWrapPolicy(). If you set a wrap mode of
-    FixedPixelWidth or FixedColumnWidth you should also call
-    setWrapColumnOrWidth() with the width you want.
-
-    \sa lineWrapColumnOrWidth
-*/
-
-QTextControl::LineWrapMode QTextControl::lineWrapMode() const
-{
-    Q_D(const QTextControl);
-    return d->lineWrap;
-}
-
-void QTextControl::setLineWrapMode(LineWrapMode wrap)
-{
-    Q_D(QTextControl);
-    if (d->lineWrap == wrap)
-        return;
-    d->lineWrap = wrap;
-// ####    d->relayoutDocument();
-}
-
-/*
-    \property QTextControl::lineWrapColumnOrWidth
-    \brief the position (in pixels or columns depending on the wrap mode) where text will be wrapped
-
-    If the wrap mode is FixedPixelWidth, the value is the number of
-    pixels from the left edge of the text edit at which text should be
-    wrapped. If the wrap mode is FixedColumnWidth, the value is the
-    column number (in character columns) from the left edge of the
-    text edit at which text should be wrapped.
-
-    \sa lineWrapMode
-*/
-
-int QTextControl::lineWrapColumnOrWidth() const
-{
-    Q_D(const QTextControl);
-    return d->lineWrapColumnOrWidth;
-}
-
-void QTextControl::setLineWrapColumnOrWidth(int w)
-{
-    Q_D(QTextControl);
-    d->lineWrapColumnOrWidth = w;
-// #####    d->relayoutDocument();
-}
 
 /*
     \property QTextControl::wordWrapMode

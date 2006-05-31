@@ -52,10 +52,7 @@ class Q_AUTOTEST_EXPORT QTextControl : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextControl)
-    Q_ENUMS(LineWrapMode)
-    Q_PROPERTY(LineWrapMode lineWrapMode READ lineWrapMode WRITE setLineWrapMode)
     QDOC_PROPERTY(QTextOption::WrapMode wordWrapMode READ wordWrapMode WRITE setWordWrapMode)
-    Q_PROPERTY(int lineWrapColumnOrWidth READ lineWrapColumnOrWidth WRITE setLineWrapColumnOrWidth)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(QString html READ toHtml WRITE setHtml NOTIFY textChanged USER true)
     Q_PROPERTY(bool overwriteMode READ overwriteMode WRITE setOverwriteMode)
@@ -63,13 +60,6 @@ class Q_AUTOTEST_EXPORT QTextControl : public QObject
     Q_PROPERTY(bool acceptRichText READ acceptRichText WRITE setAcceptRichText)
     Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
 public:
-    enum LineWrapMode {
-        NoWrap,
-        WidgetWidth,
-        FixedPixelWidth,
-        FixedColumnWidth
-    };
-
     explicit QTextControl(QObject *parent = 0);
     explicit QTextControl(const QString &text, QObject *parent = 0);
     virtual ~QTextControl();
@@ -87,12 +77,6 @@ public:
 
     void setCurrentCharFormat(const QTextCharFormat &format);
     QTextCharFormat currentCharFormat() const;
-
-    LineWrapMode lineWrapMode() const;
-    void setLineWrapMode(LineWrapMode mode);
-
-    int lineWrapColumnOrWidth() const;
-    void setLineWrapColumnOrWidth(int w);
 
     QTextOption::WrapMode wordWrapMode() const;
     void setWordWrapMode(QTextOption::WrapMode policy);
