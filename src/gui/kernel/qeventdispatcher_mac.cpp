@@ -31,7 +31,6 @@
 extern void qt_event_request_timer(MacTimerInfo *); //qapplication_mac.cpp
 extern MacTimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
 extern void qt_event_request_select(QEventDispatcherMac *); //qapplication_mac.cpp
-extern void qt_event_request_sockact(QEventDispatcherMac *); //qapplication_mac.cpp
 extern void qt_event_request_updates(); //qapplication_mac.cpp
 extern bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =0); //qapplication_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp

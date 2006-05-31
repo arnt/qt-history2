@@ -540,23 +540,6 @@ void qt_event_request_select(QEventDispatcherMac *loop) {
                       kEventParamQEventDispatcherMac, typeQEventDispatcherMac, sizeof(loop), &loop);
     PostEventToQueue(GetMainEventQueue(), request_select_pending, kEventPriorityStandard);
 }
-static EventRef request_sockact_pending = 0;
-void qt_event_request_sockact(QEventDispatcherMac *loop) {
-    if(request_sockact_pending) {
-        if(IsEventInQueue(GetMainEventQueue(), request_sockact_pending))
-            return;
-#ifdef DEBUG_DROPPED_EVENTS
-        qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
-#endif
-    }
-
-    CreateEvent(0, kEventClassQt, kEventQtRequestSocketAct, GetCurrentEventTime(),
-                kEventAttributeUserEvent, &request_sockact_pending);
-    SetEventParameter(request_sockact_pending,
-                      kEventParamQEventDispatcherMac, typeQEventDispatcherMac, sizeof(loop), &loop);
-    PostEventToQueue(GetMainEventQueue(), request_sockact_pending, kEventPriorityStandard);
-}
-
 /* sheets */
 static EventRef request_showsheet_pending = 0;
 void qt_event_request_showsheet(QWidget *w)
@@ -767,7 +750,6 @@ static EventTypeSpec app_events[] = {
     { kEventClassQt, kEventQtRequestContext },
     { kEventClassQt, kEventQtRequestActivate },
     { kEventClassQt, kEventQtRequestMenubarUpdate },
-    { kEventClassQt, kEventQtRequestSocketAct },
 
     { kEventClassWindow, kEventWindowInit },
     { kEventClassWindow, kEventWindowDispose },
@@ -866,11 +848,11 @@ void qt_init(QApplicationPrivate *priv, int)
             }
             QByteArray arg(argv[i]);
 #if defined(QT_DEBUG)
-            if(arg == "-nograb")
+            if(arg == QLatin1String("-nograb"))
                 appNoGrab = !appNoGrab;
             else
 #endif // QT_DEBUG
-                if(arg.left(5) == "-psn_") {
+                if(arg.left(5) == QLatin1String("-psn_")) {
                     passed_psn = arg.mid(6);
                 } else {
                     argv[j++] = argv[i];
@@ -882,7 +864,7 @@ void qt_init(QApplicationPrivate *priv, int)
         }
 
         //special hack to change working directory (for an app bundle) when running from finder
-        if(!passed_psn.isNull() && QDir::currentPath() == "/") {
+        if(!passed_psn.isNull() && QDir::currentPath() == QLatin1String("/")) {
             QCFType<CFURLRef> bundleURL(CFBundleCopyBundleURL(CFBundleGetMainBundle()));
             QString qbundlePath = QCFString(CFURLCopyFileSystemPath(bundleURL,
                                             kCFURLPOSIXPathStyle));
@@ -1652,7 +1634,7 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
         if(flags & QEventLoop::ExcludeSocketNotifiers) {
             switch(eclass) {
             case kEventClassQt:
-                if(ekind == kEventQtRequestSelect || ekind == kEventQtRequestSocketAct)
+                if(ekind == kEventQtRequestSelect)
                     return false;
                 break;
             }
@@ -1852,11 +1834,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             timeval tm;
             memset(&tm, '\0', sizeof(tm));
             l->d_func()->doSelect(QEventLoop::AllEvents, &tm);
-        } else if(ekind == kEventQtRequestSocketAct) {
-            qt_mac_event_release(request_sockact_pending);
-            QEventDispatcherMac *l = 0;
-            GetEventParameter(event, kEventParamQEventDispatcherMac, typeQEventDispatcherMac, 0, sizeof(l), 0, &l);
-            l->activateSocketNotifiers();
         } else if(ekind == kEventQtRequestActivate) {
             qt_mac_event_release(request_activate_pending.event);
             if(request_activate_pending.widget) {
@@ -2458,7 +2435,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 /* This is actually wrong - but unfortunatly it is the best that can be
                    done for now because of the Control/Meta mapping problems */
                 if(modifiers & (Qt::ControlModifier | Qt::MetaModifier)) {
-                    asString = "";
+                    asString = QString();
                 }
                 QKeyEvent ke(etype, qtKey, modifiers,
                              asString, ekind == kEventRawKeyRepeat,
