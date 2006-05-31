@@ -498,7 +498,7 @@ static bool read_dib_body(QDataStream &s, const BMP_INFOHDR &bi, int offset, int
 }
 
 // this is also used in qmime_win.cpp
-bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
+bool qt_write_dib(QDataStream &s, QImage image)
 {
     int        nbits;
     int        bpl_bmp;
@@ -618,7 +618,7 @@ bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
 }
 
 // this is also used in qmime_win.cpp
-bool Q_GUI_EXPORT qt_read_dib(QDataStream &s, QImage &image)
+bool qt_read_dib(QDataStream &s, QImage &image)
 {
     BMP_INFOHDR bi;
     if (!read_dib_infoheader(s, bi))
@@ -683,7 +683,7 @@ bool QBmpHandler::read(QImage *image)
 {
     if (state == Error)
         return false;
-    
+
     if (state == Ready && !readHeader()) {
         state = Error;
         return false;

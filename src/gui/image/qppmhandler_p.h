@@ -30,7 +30,7 @@
 #ifndef QT_NO_IMAGEFORMAT_PPM
 
 class QByteArray;
-class Q_GUI_EXPORT QPpmHandler : public QImageIOHandler
+class QPpmHandler : public QImageIOHandler
 {
 public:
     QPpmHandler();

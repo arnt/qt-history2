@@ -51,14 +51,14 @@ struct BMP_INFOHDR {                     // BMP information header
     qint32  biClrImportant;              // number of important colors
 };
 
-class Q_GUI_EXPORT QBmpHandler : public QImageIOHandler
+class QBmpHandler : public QImageIOHandler
 {
 public:
     QBmpHandler();
     bool canRead() const;
     bool read(QImage *image);
     bool write(const QImage &image);
-    
+
     QByteArray name() const;
 
     static bool canRead(QIODevice *device);
