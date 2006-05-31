@@ -80,7 +80,7 @@ namespace QtInternal
                 SavePtr op = ::qMetaTypeSaveHelper<T>;
                 return reinterpret_cast<QMetaType::SaveOperator>(op);
             }
-            static QMetaType::SaveOperator loadOp()
+            static QMetaType::LoadOperator loadOp()
             {
                 typedef void(*LoadPtr)(QDataStream &, T *);
                 LoadPtr op = ::qMetaTypeLoadHelper<T>;
