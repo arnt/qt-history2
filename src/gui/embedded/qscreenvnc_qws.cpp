@@ -1248,7 +1248,8 @@ bool QVNCScreen::connect(const QString &displaySpec)
         tmpSpec.remove (0, next + 1);
         VNCSCREEN_BASE::connect(tmpSpec);
     }
-    shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename().append(QLatin1Char('a')));
+
+    shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename(), 'a');
     if (!shm->create())
         qDebug("QVNCScreen could not create shared memory");
     if (!shm->attach())
