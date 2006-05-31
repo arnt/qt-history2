@@ -115,10 +115,10 @@ class QMap
         T value;
         QMapData::Node *backward;
     };
-    enum { Payload = sizeof(PayloadNode) - sizeof(QMapData::Node *) };
 
+    static inline int payload() { return sizeof(PayloadNode) - sizeof(QMapData::Node *); }
     static inline Node *concrete(QMapData::Node *node) {
-        return reinterpret_cast<Node *>(reinterpret_cast<char *>(node) - Payload);
+        return reinterpret_cast<Node *>(reinterpret_cast<char *>(node) - payload());
     }
 public:
     inline QMap() : d(&QMapData::shared_null) { d->ref.ref(); }
@@ -363,7 +363,7 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMapData::Node *
 QMap<Key, T>::node_create(QMapData *adt, QMapData::Node *aupdate[], const Key &akey, const T &avalue)
 {
-    QMapData::Node *abstractNode = adt->node_create(aupdate, Payload);
+    QMapData::Node *abstractNode = adt->node_create(aupdate, payload());
     Node *concreteNode = concrete(abstractNode);
     new (&concreteNode->key) Key(akey);
     new (&concreteNode->value) T(avalue);
@@ -542,7 +542,7 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *x)
             concreteNode->value.~T();
         }
     }
-    x->continueFreeData(Payload);
+    x->continueFreeData(payload());
 }
 
 template <class Key, class T>
@@ -569,7 +569,7 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &akey)
             deleteNext = (next != e && !qMapLessThanKey<Key>(concrete(cur)->key, concrete(next)->key));
             concrete(cur)->key.~Key();
             concrete(cur)->value.~T();
-            d->node_delete(update, Payload, cur);
+            d->node_delete(update, payload(), cur);
         } while (deleteNext);
     }
     return oldSize - d->size;
@@ -594,7 +594,7 @@ Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &akey)
         T t = concrete(next)->value;
         concrete(next)->key.~Key();
         concrete(next)->value.~T();
-        d->node_delete(update, Payload, next);
+        d->node_delete(update, payload(), next);
         return t;
     }
     return T();
@@ -622,7 +622,7 @@ Q_OUTOFLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::erase(iterato
         if (cur == it) {
             concrete(cur)->key.~Key();
             concrete(cur)->value.~T();
-            d->node_delete(update, Payload, cur);
+            d->node_delete(update, payload(), cur);
             return iterator(next);
         }
 
