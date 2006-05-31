@@ -1666,6 +1666,10 @@ QVariant QGraphicsScene::inputMethodQuery(Qt::InputMethodQuery query) const
         value = matrix.mapRect(value.toRectF());
     else if (value.type() == QVariant::PointF)
         value = matrix.map(value.toPointF());
+    else if (value.type() == QVariant::Rect)
+        value = matrix.mapRect(value.toRect());
+    else if (value.type() == QVariant::Point)
+        value = matrix.map(value.toPoint());
     return value;
 }
 

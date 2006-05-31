@@ -1225,9 +1225,16 @@ QVariant QGraphicsView::inputMethodQuery(Qt::InputMethodQuery query) const
     Q_D(const QGraphicsView);
     QVariant value = d->scene->inputMethodQuery(query);
     if (value.type() == QVariant::RectF)
-        value = mapFromScene(value.toRectF());
+        // deliberately only /translate/ the rectangle and also turn it into
+        // a plain QRect since input methods don't deal with floating point
+        // precision usually :-)
+        value = value.toRectF().translated(mapFromScene(QPointF())).toRect();
     else if (value.type() == QVariant::PointF)
         value = mapFromScene(value.toPointF());
+    else if (value.type() == QVariant::Rect)
+        value = value.toRectF().translated(mapFromScene(QPointF()));
+    else if (value.type() == QVariant::Point)
+        value = mapFromScene(value.toPoint());
     return value;
 }
 
