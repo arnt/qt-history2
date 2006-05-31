@@ -53,6 +53,7 @@ public:
         isMemberOfGroup = 0;
         handlesChildEvents = 0;
         ancestorHandlesChildEvents = 0;
+        itemDiscovered = 0;
         flags = 0;
         pad = 0;
     }
@@ -119,8 +120,9 @@ public:
     quint32 isMemberOfGroup : 1;
     quint32 handlesChildEvents : 1;
     quint32 ancestorHandlesChildEvents : 1;
+    quint32 itemDiscovered : 1;
     quint32 flags : 11;
-    quint32 pad : 8;
+    quint32 pad : 7;
 
     QGraphicsItem *q_ptr;
 };

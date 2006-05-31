@@ -89,10 +89,6 @@ public:
 
     QList<QGraphicsView *> views;
 
-    void render(QPainter *painter, const QRectF &source,
-                const QRectF &target, bool fit,
-                Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
-
     QMultiMap<QGraphicsItem *, QGraphicsItem *> eventFilters;
     void installEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
     void removeEventFilter(QGraphicsItem *watched, QGraphicsItem *filter);
@@ -108,6 +104,8 @@ public:
                         QGraphicsSceneHoverEvent *hoverEvent);
     void sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mousePressEventHandler(QGraphicsSceneMouseEvent *mouseEvent);
+
+    static bool sortItems(QList<QGraphicsItem *> *itemList);
 };
 
 #endif // QT_NO_GRAPHICSVIEW

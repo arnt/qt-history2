@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+//#define QGRAPHICSVIEW_DEBUG
+
 // Constants
 static const int GraphicsViewRegionRectThreshold = 20;
 
@@ -908,9 +910,14 @@ void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode asp
     what to draw. If \a target is a null rect, the dimensions of \a painter's
     paint device (e.g., for a QPrinter, the page size) will be used.
 
+    The source rect contents will be transformed according to \a
+    aspectRatioMode to fit into the target rect. By default, the aspect ratio
+    is ignored, and \a source is scaled to fit tightly in \a target.
+
     \sa QGraphicsScene::render()
 */
-void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect &source)
+void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect &source,
+                           Qt::AspectRatioMode aspectRatioMode)
 {
     Q_D(QGraphicsView);
     if (!d->scene)
@@ -924,41 +931,10 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
                          -verticalScrollBar()->value() + d->topIndent);
     QMatrix painterMatrix = d->matrix * moveMatrix;
     painter->setMatrix(painterMatrix);
-
-    d->scene->render(painter, target,
-                     mapToScene(source).boundingRect().adjusted(-1, -1, 1, 1));
-
-    painter->restore();
-}
-
-/*!
-    \overload
-
-    Draws the contents of \a source inside \a target.
-
-    The source rect contents will be transformed according to \a
-    aspectRatioMode to fit into the target rect. By default, the aspect ratio
-    is ignored, and \a source is scaled to fit tightly in \a target.
-
-    \sa QGraphicsScene::render()
-*/
-void QGraphicsView::render(QPainter *painter, Qt::AspectRatioMode aspectRatioMode,
-                           const QRectF &target, const QRect &source)
-{
-    Q_D(QGraphicsView);
-    if (!d->scene)
-        return;
-
-    painter->save();
-
-    QMatrix moveMatrix;
-    moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
-                         -verticalScrollBar()->value() + d->topIndent);
-    QMatrix painterMatrix = d->matrix * moveMatrix;
-    painter->setMatrix(painterMatrix);
-
-    d->scene->render(painter, aspectRatioMode, target,
-                     mapToScene(source).boundingRect().adjusted(-1, -1, 1, 1));
+    
+    d->scene->render(painter, target.adjusted(-1, -1, 1, 1),
+                     mapToScene(source).boundingRect().adjusted(-1, -1, 1, 1),
+                     aspectRatioMode);
 
     painter->restore();
 }
@@ -1734,6 +1710,10 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 void QGraphicsView::paintEvent(QPaintEvent *event)
 {
     Q_D(QGraphicsView);
+    if (!d->scene) {
+        QAbstractScrollArea::paintEvent(event);
+        return;
+    }
 
     // Determine the exposed region
     QRegion exposedRegion = event->region();
@@ -1746,10 +1726,124 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
                           d->renderHints & QPainter::Antialiasing);
     painter.setRenderHint(QPainter::SmoothPixmapTransform,
                           d->renderHints & QPainter::SmoothPixmapTransform);
+    QMatrix moveMatrix;
+    moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
+                         -verticalScrollBar()->value() + d->topIndent);
+    QMatrix painterMatrix = d->matrix * moveMatrix;
+    painter.setMatrix(painterMatrix);
 
-    // Render scene
+#ifdef QGRAPHICSVIEW_DEBUG
+    QTime stopWatch;
+    stopWatch.start();
+    qDebug() << "QGraphicsView::paintEvent()";
+#endif
+
+    // Transform the exposed viewport rects to scene polygons
+    QList<QPolygonF> exposedAreas;
     foreach (QRect rect, exposedRegion.rects())
-        render(&painter, rect, rect);
+        exposedAreas << mapToScene(rect.adjusted(-1, -1, 1, 1));
+
+    // Find all exposed items
+    QPolygonF exposedPolygon;
+    foreach (QPolygonF polygon, exposedAreas)
+        exposedPolygon += polygon;
+    QList<QGraphicsItem *> itemList = d->scene->items(exposedPolygon);
+
+    // Reverse the item; we want to draw them in reverse order
+    if (!itemList.isEmpty()) {
+        QGraphicsItem **a = &itemList.first();
+        QGraphicsItem **b = &itemList.last();
+        QGraphicsItem *tmp = 0;
+        while (a < b) {
+            tmp = *a;
+            *a = *b;
+            *b = tmp;
+            ++a; --b;
+        }
+    }
+
+#ifdef QGRAPHICSVIEW_DEBUG
+    int exposedTime = stopWatch.elapsed();
+#endif
+
+    // Background
+    foreach (QPolygonF polygon, exposedAreas) {
+        painter.save();
+        painter.setClipRect(polygon.boundingRect());
+        d->scene->drawBackground(&painter, polygon.boundingRect());
+        painter.restore();
+    }
+
+#ifdef QGRAPHICSVIEW_DEBUG
+    int backgroundTime = stopWatch.elapsed() - exposedTime;
+#endif
+
+    // Generate the style options
+    QList<QStyleOptionGraphicsItem> styleOptions;
+    for (int i = 0; i < itemList.size(); ++i) {
+        QGraphicsItem *item = itemList.at(i);
+
+        QStyleOptionGraphicsItem option;
+        option.state = QStyle::State_None;
+        option.rect = item->boundingRect().toRect();
+        if (item->isSelected())
+            option.state |= QStyle::State_Selected;
+        if (item->isEnabled())
+            option.state |= QStyle::State_Enabled;
+        if (item->hasFocus())
+            option.state |= QStyle::State_HasFocus;
+        if (d->scene->d_func()->hoverItems.contains(item))
+            option.state |= QStyle::State_MouseOver;
+        if (item == d->scene->mouseGrabberItem())
+            option.state |= QStyle::State_Sunken;
+
+        // Calculate a simple level-of-detail metric.
+        QMatrix neo = item->sceneMatrix() * painter.matrix();
+        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
+        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
+        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
+        option.levelOfDetail = qMin(dx, dy);
+        option.matrix = neo;
+
+        option.exposedRect = item->boundingRect();
+        QMatrix reverseMap = neo.inverted();
+        foreach (QRect rect, exposedRegion.rects())
+            option.exposedRect &= reverseMap.mapRect(rect.adjusted(-1, -1, 1, 1));
+
+        styleOptions << option;
+    }
+
+    // Items
+    d->scene->drawItems(&painter, itemList, styleOptions);
+
+#ifdef QGRAPHICSVIEW_DEBUG
+    int itemsTime = stopWatch.elapsed() - exposedTime - backgroundTime;
+#endif
+    
+    // Foreground
+    foreach (QPolygonF polygon, exposedAreas) {
+        painter.save();
+        painter.setClipRect(polygon.boundingRect());
+        d->scene->drawForeground(&painter, polygon.boundingRect());
+        painter.restore();
+    }
+
+#ifdef QGRAPHICSVIEW_DEBUG
+    int foregroundTime = stopWatch.elapsed() - exposedTime - backgroundTime - itemsTime;
+#endif
+
+    painter.end();
+
+#ifdef QGRAPHICSVIEW_DEBUG
+    qDebug() << "\tItem discovery....... " << exposedTime << "msecs (" << itemList.size() << "items,"
+             << (exposedTime > 0 ? (itemList.size() * 1000.0 / exposedTime) : -1) << "/ sec )";
+    qDebug() << "\tDrawing background... " << backgroundTime << "msecs (" << exposedAreas.size() << "segments )";
+    qDebug() << "\tDrawing items........ " << itemsTime << "msecs ("
+             << (itemsTime > 0 ? (itemList.size() * 1000.0 / itemsTime) : -1) << "/ sec )";
+    qDebug() << "\tDrawing foreground... " << foregroundTime << "msecs (" << exposedAreas.size() << "segments )";
+    qDebug() << "\tTotal rendering time: " << stopWatch.elapsed() << "msecs ("
+             << (stopWatch.elapsed() > 0 ? (1000.0 / stopWatch.elapsed()) : -1.0) << "fps )";
+#endif
 
     QAbstractScrollArea::paintEvent(event);
 }

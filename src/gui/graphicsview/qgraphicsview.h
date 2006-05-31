@@ -91,10 +91,8 @@ public:
     void fitInView(const QGraphicsItem *item,
                    Qt::AspectRatioMode aspectRadioMode = Qt::IgnoreAspectRatio);
 
-    void render(QPainter *painter, Qt::AspectRatioMode aspectRatioMode,
-                const QRectF &target = QRectF(), const QRect &source = QRect());
-    void render(QPainter *painter, const QRectF &target = QRectF(),
-                const QRect &source = QRect());
+    void render(QPainter *painter, const QRectF &target = QRectF(), const QRect &source = QRect(),
+                Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
     
     QList<QGraphicsItem *> items() const;
     QList<QGraphicsItem *> items(const QPoint &pos) const;

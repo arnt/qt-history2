@@ -161,68 +161,14 @@
 #include <QtGui/qstyleoption.h>
 #include <QtGui/qtooltip.h>
 #include <math.h>
+#include <qdebug.h>
 
 static bool qt_rectInPoly(const QPolygonF &poly, const QRectF &rect)
 {
     QPainterPath path;
     path.addPolygon(poly);
-    return path.intersects(rect) || path.contains(rect);
+    return path.contains(rect)|| path.intersects(rect);
 };
-
-static inline bool qt_closestLeaf(const QGraphicsItem *item1, const QGraphicsItem *item2)
-{
-    qreal z1 = item1->zValue();
-    qreal z2 = item2->zValue();
-    return z1 != z2 ? z1 > z2 : item1 > item2;
-}
-
-static bool qt_closestItemFirst(const QGraphicsItem *item1, const QGraphicsItem *item2)
-{
-    // Siblings? Just check their z-values.
-    if (item1->parentItem() == item2->parentItem())
-        return qt_closestLeaf(item1, item2);
-
-    // Find item1's ancestors. If item2 is among them, return true (item1 is
-    // above item2).
-    QVector<const QGraphicsItem *> ancestors1;
-    const QGraphicsItem *parent1 = item1;
-    do {
-        if (parent1 == item2)
-            return true;
-        ancestors1.prepend(parent1);
-    } while ((parent1 = parent1->parentItem()));
-
-    // Find item2's ancestors. If item1 is among them, return false (item2 is
-    // above item1).
-    QVector<const QGraphicsItem *> ancestors2;
-    const QGraphicsItem *parent2 = item2;
-    do {
-        if (parent2 == item1)
-            return false;
-        ancestors2.prepend(parent2);
-    } while ((parent2 = parent2->parentItem()));
-
-    // Truncate the largest ancestor list.
-    int size1 = ancestors1.size();
-    int size2 = ancestors2.size();
-    if (size1 > size2) {
-        ancestors1.resize(size2);
-    } else if (size2 > size1) {
-        ancestors2.resize(size1);
-    }
-
-    // Compare items from the two ancestors lists and find a match. Then
-    // compare item1's and item2's toplevels relative to the common ancestor.
-    for (int i = ancestors1.size() - 2; i >= 0; --i) {
-        const QGraphicsItem *a1 = ancestors1.at(i);
-        const QGraphicsItem *a2 = ancestors2.at(i);
-        if (a1 == a2)
-            return qt_closestLeaf(ancestors1.at(i + 1), ancestors2.at(i + 1));
-    }
-
-    // No common ancestor? Then just compare the items' toplevels directly.
-    return qt_closestLeaf(ancestors1.first(), ancestors2.first());
-}
 
 static int closestPowerOf2(int input)
 {
@@ -265,15 +211,17 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::estimateItemsInRect(const QRectF &
         that->generateBspTree();
         QVector<int> itemIndexes;
         that->bspTree.climbTree(rect.toRect(), &qt_itemsForRectCallback, QGraphicsSceneBspTree::Data(&itemIndexes));
-        QSet<int> done;
 
         for (int i = 0; i < itemIndexes.size(); ++i) {
             int itemIndex = itemIndexes.at(i);
-            if (!done.contains(itemIndex)) {
-                done << itemIndex;
+            QGraphicsItem *item = allItems.at(itemIndexes.at(i));
+            if (!item->d_func()->itemDiscovered) {
+                item->d_func()->itemDiscovered = 1;
                 itemsInRect << allItems.at(itemIndex);
             }
         }
+        for (int i = 0; i < itemIndexes.size(); ++i)
+            allItems.at(itemIndexes.at(i))->d_func()->itemDiscovered = 0;
     } else {
         foreach (QGraphicsItem *item, validItems()) {
             QRectF boundingRect = item->sceneBoundingRect();
@@ -508,102 +456,6 @@ void QGraphicsScenePrivate::storeMouseButtonsForMouseGrabber(QGraphicsSceneMouse
 /*!
     \internal
 */
-void QGraphicsScenePrivate::render(QPainter *painter, const QRectF &target,
-                                   const QRectF &source,
-                                   bool fit, Qt::AspectRatioMode aspectRatioMode)
-{
-    Q_Q(QGraphicsScene);
-
-    QRectF sourceRect = source;
-    if (sourceRect.isNull())
-        sourceRect = q->sceneRect();
-
-    QRectF targetRect = target;
-    if (targetRect.isNull())
-        targetRect.setRect(0, 0, painter->device()->width(), painter->device()->height());
-
-    painter->save();
-
-    if (fit) {
-        // Find the ideal x / y scaling ratio to fit \a source in \a target.
-        qreal xratio = targetRect.width() / sourceRect.width();
-        qreal yratio = targetRect.height() / sourceRect.height();
-    
-        // Respect the aspect ratio mode.
-        switch (aspectRatioMode) {
-        case Qt::KeepAspectRatio:
-            xratio = yratio = qMin(xratio, yratio);
-            break;
-        case Qt::KeepAspectRatioByExpanding:
-            xratio = yratio = qMax(xratio, yratio);
-            break;
-        case Qt::IgnoreAspectRatio:
-            break;
-        }
-
-        // Scale the painter
-        painter->scale(xratio, yratio);
-    }
-
-    // ### We should map the target rect to a scene polygon, and intersect
-    // that with the source rect to get a smaller area to search for items to
-    // draw.
-    QList<QGraphicsItem *> itemList = q->items(sourceRect);
-    if (!itemList.isEmpty()) {
-        QGraphicsItem **a = &itemList.first();
-        QGraphicsItem **b = &itemList.last();
-        QGraphicsItem *tmp = 0;
-        while (a < b) {
-            tmp = *a;
-            *a = *b;
-            *b = tmp;
-            ++a; --b;
-        }
-    }
-
-    // Generate the style options
-    QList<QStyleOptionGraphicsItem> styleOptions;
-    for (int i = 0; i < itemList.size(); ++i) {
-        QGraphicsItem *item = itemList.at(i);
-
-        QStyleOptionGraphicsItem option;
-        option.state = QStyle::State_None;
-        option.rect = item->boundingRect().toRect();
-        if (item->isSelected())
-            option.state |= QStyle::State_Selected;
-        if (item->isEnabled())
-            option.state |= QStyle::State_Enabled;
-        if (item->hasFocus())
-            option.state |= QStyle::State_HasFocus;
-        if (hoverItems.contains(item))
-            option.state |= QStyle::State_MouseOver;
-        if (item == q->mouseGrabberItem())
-            option.state |= QStyle::State_Sunken;
-
-        // Calculate a simple level-of-detail metric.
-        QMatrix neo = item->sceneMatrix() * painter->matrix();
-        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
-        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
-        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
-        option.levelOfDetail = qMin(dx, dy);
-        option.matrix = neo;
-
-        option.exposedRect = item->boundingRect();
-        option.exposedRect &= neo.inverted().mapRect(targetRect);
-
-        styleOptions << option;
-    }
-
-    q->drawBackground(painter, source);
-    q->drawItems(painter, itemList, styleOptions);
-    q->drawForeground(painter, source);
-
-    painter->restore();
-}
-
-/*!
-    \internal
-*/
 void QGraphicsScenePrivate::installEventFilter(QGraphicsItem *watched, QGraphicsItem *filter)
 {
     eventFilters.insert(watched, filter);
@@ -774,6 +626,75 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
 }
 
 /*!
+    \internal
+*/
+static inline bool qt_closestLeaf(const QGraphicsItem *item1, const QGraphicsItem *item2)
+{
+    qreal z1 = item1->zValue();
+    qreal z2 = item2->zValue();
+    return z1 != z2 ? z1 > z2 : item1 > item2;
+}
+
+/*!
+    \internal
+*/
+static bool qt_closestItemFirst(const QGraphicsItem *item1, const QGraphicsItem *item2)
+{
+    // Siblings? Just check their z-values.
+    if (item1->parentItem() == item2->parentItem())
+        return qt_closestLeaf(item1, item2);
+
+    // Find item1's ancestors. If item2 is among them, return true (item1 is
+    // above item2).
+    QVector<const QGraphicsItem *> ancestors1;
+    const QGraphicsItem *parent1 = item1;
+    do {
+        if (parent1 == item2)
+            return true;
+        ancestors1.prepend(parent1);
+    } while ((parent1 = parent1->parentItem()));
+
+    // Find item2's ancestors. If item1 is among them, return false (item2 is
+    // above item1).
+    QVector<const QGraphicsItem *> ancestors2;
+    const QGraphicsItem *parent2 = item2;
+    do {
+        if (parent2 == item1)
+            return false;
+        ancestors2.prepend(parent2);
+    } while ((parent2 = parent2->parentItem()));
+
+    // Truncate the largest ancestor list.
+    int size1 = ancestors1.size();
+    int size2 = ancestors2.size();
+    if (size1 > size2) {
+        ancestors1.resize(size2);
+    } else if (size2 > size1) {
+        ancestors2.resize(size1);
+    }
+
+    // Compare items from the two ancestors lists and find a match. Then
+    // compare item1's and item2's toplevels relative to the common ancestor.
+    for (int i = ancestors1.size() - 2; i >= 0; --i) {
+        const QGraphicsItem *a1 = ancestors1.at(i);
+        const QGraphicsItem *a2 = ancestors2.at(i);
+        if (a1 == a2)
+            return qt_closestLeaf(ancestors1.at(i + 1), ancestors2.at(i + 1));
+    }
+
+    // No common ancestor? Then just compare the items' toplevels directly.
+    return qt_closestLeaf(ancestors1.first(), ancestors2.first());
+}
+
+/*!
+    \internal
+*/
+bool QGraphicsScenePrivate::sortItems(QList<QGraphicsItem *> *itemList)
+{
+    qSort(itemList->begin(), itemList->end(), qt_closestItemFirst);
+}
+
+/*!
     Constructs a QGraphicsScene object. \a parent is passed to
     QObject's constructor.
 */
@@ -860,30 +781,100 @@ void QGraphicsScene::setSceneRect(const QRectF &rect)
     determine what to render. If \a target is a null rect, the dimensions of \a
     painter's paint device will be used.
 
-    \sa QGraphicsView::render()
-*/
-void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRectF &source)
-{
-    Q_D(QGraphicsScene);
-    d->render(painter, target, source, false);
-}
-
-/*!
-    \overload
-
-    Draws the contents of \a source inside \a target.
-
     The source rect contents will be transformed according to \a
     aspectRatioMode to fit into the target rect. By default, the aspect ratio
     is ignored, and \a source is scaled to fit tightly in \a target.
 
     \sa QGraphicsView::render()
 */
-void QGraphicsScene::render(QPainter *painter, Qt::AspectRatioMode aspectRatioMode,
-                            const QRectF &target, const QRectF &source)
+void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRectF &source,
+                            Qt::AspectRatioMode aspectRatioMode)
 {
     Q_D(QGraphicsScene);
-    d->render(painter, target, source, true, aspectRatioMode);
+
+    QRectF sourceRect = source;
+    if (sourceRect.isNull())
+        sourceRect = sceneRect();
+
+    QRectF targetRect = target;
+    if (targetRect.isNull())
+        targetRect.setRect(0, 0, painter->device()->width(), painter->device()->height());
+
+    painter->save();
+
+    // Find the ideal x / y scaling ratio to fit \a source in \a target.
+    qreal xratio = targetRect.width() / sourceRect.width();
+    qreal yratio = targetRect.height() / sourceRect.height();
+    
+    // Respect the aspect ratio mode.
+    switch (aspectRatioMode) {
+    case Qt::KeepAspectRatio:
+        xratio = yratio = qMin(xratio, yratio);
+        break;
+    case Qt::KeepAspectRatioByExpanding:
+        xratio = yratio = qMax(xratio, yratio);
+        break;
+    case Qt::IgnoreAspectRatio:
+        break;
+    }
+
+    // Scale the painter
+    painter->scale(xratio, yratio);
+
+    // ### We could map the target rect to a scene polygon, and intersect
+    // that with the source rect to get a smaller area to search for items to
+    // draw.
+    QList<QGraphicsItem *> itemList = items(sourceRect);
+    if (!itemList.isEmpty()) {
+        QGraphicsItem **a = &itemList.first();
+        QGraphicsItem **b = &itemList.last();
+        QGraphicsItem *tmp = 0;
+        while (a < b) {
+            tmp = *a;
+            *a = *b;
+            *b = tmp;
+            ++a; --b;
+        }
+    }
+
+    // Generate the style options
+    QList<QStyleOptionGraphicsItem> styleOptions;
+    for (int i = 0; i < itemList.size(); ++i) {
+        QGraphicsItem *item = itemList.at(i);
+
+        QStyleOptionGraphicsItem option;
+        option.state = QStyle::State_None;
+        option.rect = item->boundingRect().toRect();
+        if (item->isSelected())
+            option.state |= QStyle::State_Selected;
+        if (item->isEnabled())
+            option.state |= QStyle::State_Enabled;
+        if (item->hasFocus())
+            option.state |= QStyle::State_HasFocus;
+        if (d->hoverItems.contains(item))
+            option.state |= QStyle::State_MouseOver;
+        if (item == mouseGrabberItem())
+            option.state |= QStyle::State_Sunken;
+
+        // Calculate a simple level-of-detail metric.
+        QMatrix neo = item->sceneMatrix() * painter->matrix();
+        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
+        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
+        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
+        option.levelOfDetail = qMin(dx, dy);
+        option.matrix = neo;
+
+        option.exposedRect = item->boundingRect();
+        option.exposedRect &= neo.inverted().mapRect(targetRect);
+
+        styleOptions << option;
+    }
+
+    drawBackground(painter, source);
+    drawItems(painter, itemList, styleOptions);
+    drawForeground(painter, source);
+
+    painter->restore();
 }
 
 /*!
@@ -984,7 +975,7 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QRectF &rect) const
                 itemsInRect << item;
         }
     }
-    qSort(itemsInRect.begin(), itemsInRect.end(), qt_closestItemFirst);
+    d->sortItems(&itemsInRect);
     return itemsInRect;
 }
 
@@ -1047,7 +1038,6 @@ QList<QGraphicsItem *> QGraphicsScene::collidingItems(QGraphicsItem *item) const
         if (item->collidesWith(itemInVicinity))
             tmp << itemInVicinity;
     }
-    qSort(tmp.begin(), tmp.end(), qt_closestItemFirst);
     return tmp;
 }
 

@@ -78,10 +78,9 @@ public:
     inline void setSceneRect(qreal x, qreal y, qreal w, qreal h)
     { setSceneRect(QRectF(x, y, w, h)); }
 
-    void render(QPainter *painter, Qt::AspectRatioMode aspectRatioMode,
-                const QRectF &target = QRectF(), const QRectF &source = QRectF());
-    void render(QPainter *painter, const QRectF &target = QRectF(),
-                const QRectF &source = QRectF());
+    void render(QPainter *painter,
+                const QRectF &target = QRectF(), const QRectF &source = QRectF(),
+                Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
 
     ItemIndexMethod itemIndexMethod() const;
     void setItemIndexMethod(ItemIndexMethod method);
