@@ -1257,19 +1257,6 @@ bool QTextControl::event(QEvent *e)
             return QObject::event(e);
     }
     return true;
-/* #######
-    if (e->type() == QEvent::ContextMenu
-        && static_cast<QContextMenuEvent *>(e)->reason() == QContextMenuEvent::Keyboard) {
-        Q_D(QTextControl);
-        ensureCursorVisible();
-        const QPoint cursorPos = cursorRect().center();
-        QContextMenuEvent ce(QContextMenuEvent::Keyboard, cursorPos, d->viewport->mapToGlobal(cursorPos));
-        ce.setAccepted(e->isAccepted());
-        const bool result = QAbstractScrollArea::event(&ce);
-        e->setAccepted(ce.isAccepted());
-        return result;
-    }
-*/
 }
 
 /* \internal
