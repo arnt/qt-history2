@@ -449,11 +449,23 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
         if (i >= 0) d->hiddenIndexes.remove(i);
     }
 
-    if (isVisible())
-        d->relayout(parent);
-    else
+    if (isVisible()) {
+        int p = d->viewIndex(parent);
+        if (p >= 0) {
+            for (uint i = 0; i < d->viewItems.at(p).total; ++i) {
+                if (d->viewItems.at(p + i).index == index) {
+                    d->viewItems[p].total--;
+                    d->viewItems.remove(i);
+                    break;
+                }
+            }
+            d->viewport->update();
+        }
+        else
+            d->doDelayedItemsLayout();
+    } else {
         d->doDelayedItemsLayout();
-
+    }
 }
 
 /*!
