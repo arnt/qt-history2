@@ -172,6 +172,7 @@ Q_SIGNALS:
     void updateRequest(const QRectF &rect = QRectF());
     void documentSizeChanged(const QSizeF &);
     void visibilityRequest(const QRectF &rect);
+    void microFocusChanged();
 
 public:
     // control properties

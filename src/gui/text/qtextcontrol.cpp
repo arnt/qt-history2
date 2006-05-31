@@ -246,7 +246,7 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
     if (moved) {
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
-// ####        q->updateMicroFocus();
+        emit q->microFocusChanged();
     }
 #ifdef QT_KEYPAD_NAVIGATION
     else if (QApplication::keypadNavigationEnabled()
@@ -272,7 +272,7 @@ void QTextControlPrivate::updateCurrentCharFormat()
     lastCharFormat = fmt;
 
     emit q->currentCharFormatChanged(fmt);
-// ####    q->updateMicroFocus();
+    emit q->microFocusChanged();
 }
 
 void QTextControlPrivate::indent()
@@ -524,7 +524,7 @@ void QTextControlPrivate::selectionChanged()
     lastSelectionState = current;
     emit q->copyAvailable(current);
     emit q->selectionChanged();
-// ####    q->updateMicroFocus();
+    emit q->microFocusChanged();
 }
 
 void QTextControlPrivate::updateCurrentCharFormatAndSelection()
@@ -572,7 +572,7 @@ void QTextControlPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
     Q_Q(QTextControl);
     if (someCursor.isCopyOf(cursor)) {
         emit q->cursorPositionChanged();
-// #####        q->updateMicroFocus();
+        emit q->microFocusChanged();
     }
 }
 
@@ -1781,7 +1781,6 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
                 && doc->documentLayout()->hitTest(pos, Qt::ExactHit) != -1) {
 #ifndef QT_NO_DRAGANDDROP
                 mightStartDrag = true;
-                // ######## dragStartPos = e->globalPos();
                 dragStartPos = pos.toPoint();
                 dragStartTimer.start(QApplication::startDragTime(), q);
 #endif
@@ -2820,7 +2819,7 @@ void QTextControl::ensureCursorVisible()
     Q_D(QTextControl);
     QRectF crect = d->rectForPosition(d->cursor.position());
     emit visibilityRequest(crect);
-// ####    updateMicroFocus();
+    emit microFocusChanged();
 }
 
 
