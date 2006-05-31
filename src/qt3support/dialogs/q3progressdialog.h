@@ -32,6 +32,7 @@ class Q_COMPAT_EXPORT Q3ProgressDialog : public QDialog
 {
     Q_OBJECT
     Q_PROPERTY(bool wasCanceled READ wasCanceled)
+    Q_PROPERTY(bool wasCancelled READ wasCancelled DESIGNABLE false STORED false)
     Q_PROPERTY(int totalSteps READ totalSteps WRITE setTotalSteps)
     Q_PROPERTY(int progress READ progress WRITE setProgress)
     Q_PROPERTY(bool autoReset READ autoReset WRITE setAutoReset)
@@ -56,6 +57,7 @@ public:
     void setBar(Q3ProgressBar *);
 
     bool wasCanceled() const;
+    bool wasCancelled() const;
 
     int totalSteps() const;
     int progress()   const;
@@ -84,6 +86,7 @@ public:
 
 Q_SIGNALS:
     void canceled();
+    void cancelled();
 
 protected:
     void resizeEvent(QResizeEvent *);

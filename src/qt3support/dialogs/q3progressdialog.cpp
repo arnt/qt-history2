@@ -346,6 +346,7 @@ void Q3ProgressDialog::init(QWidget *creator,
     d->autoReset = true;
     d->forceHide = false;
     setCancelButtonText(canc);
+    connect(this, SIGNAL(canceled()), this, SIGNAL(cancelled()));
     connect(this, SIGNAL(canceled()), this, SLOT(cancel()));
     forceTimer = new QTimer(this);
     connect(forceTimer, SIGNAL(timeout()), this, SLOT(forceShow()));
@@ -361,6 +362,13 @@ void Q3ProgressDialog::init(QWidget *creator,
   \sa wasCanceled()
 */
 
+/*!
+  \fn void QProgressDialog::cancelled()
+
+  \obsolete
+
+  Use canceled() instead.
+*/
 
 /*!
   Sets the label to \a label. The progress dialog resizes to fit. The
@@ -498,6 +506,18 @@ bool Q3ProgressDialog::wasCanceled() const
     return d->cancellation_flag;
 }
 
+/*!
+  \property QProgressDialog::wasCancelled
+  \brief whether the dialog was canceled
+
+  \obsolete
+
+  Use \l wasCanceled instead.
+*/
+bool Q3ProgressDialog::wasCancelled() const
+{
+    return d->cancellation_flag;
+}
 
 /*!
   \property Q3ProgressDialog::totalSteps
