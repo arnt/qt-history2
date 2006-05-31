@@ -43,13 +43,13 @@ class QGraphicsScenePrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QGraphicsScene)
 public:
     QGraphicsScenePrivate();
-    
+
     QGraphicsScene::ItemIndexMethod indexMethod;
     QList<QGraphicsItem *> estimateItemsInRect(const QRectF &rect) const;
     void addToIndex(QGraphicsItem *item);
     void removeFromIndex(QGraphicsItem *item);
     void resetIndex();
-    
+
     QGraphicsSceneBspTree bspTree;
     mutable bool generatingBspTree;
     void generateBspTree();
@@ -57,11 +57,11 @@ public:
     QRectF sceneRect;
     bool hasSceneRect;
     QRectF growingItemsBoundingRect;
-    
+
     void emitUpdated();
     QList<QRectF> updatedRects;
     bool calledEmitUpdated;
-    
+
     QList<QGraphicsItem *> newItems;
     QList<QGraphicsItem *> selectedItems;
     QList<QGraphicsItem *> allItems;
@@ -72,7 +72,7 @@ public:
 
     QBrush backgroundBrush;
     QBrush foregroundBrush;
-    
+
     bool hasFocus;
     QGraphicsItem *focusItem;
     QGraphicsItem *lastFocusItem;
@@ -105,7 +105,7 @@ public:
     void sendMouseEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mousePressEventHandler(QGraphicsSceneMouseEvent *mouseEvent);
 
-    static bool sortItems(QList<QGraphicsItem *> *itemList);
+    static void sortItems(QList<QGraphicsItem *> *itemList);
 };
 
 #endif // QT_NO_GRAPHICSVIEW

@@ -124,13 +124,15 @@ public:
 
     QBrush backgroundBrush() const;
     void setBackgroundBrush(const QBrush &brush);
-    
+
     QBrush foregroundBrush() const;
     void setForegroundBrush(const QBrush &brush);
 
+    virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
+
 public slots:
     void update(const QRectF &rect = QRectF());
-    
+
 protected:
     bool event(QEvent *event);
     virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
@@ -152,7 +154,7 @@ protected:
     virtual void drawForeground(QPainter *painter, const QRectF &rect);
     virtual void drawItems(QPainter *painter, const QList<QGraphicsItem *> &items,
                            const QList<QStyleOptionGraphicsItem> &options);
-    
+
 Q_SIGNALS:
     void changed(const QList<QRectF> &region);
     void sceneRectChanged(const QRectF &rect);

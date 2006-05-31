@@ -4064,10 +4064,10 @@ QVariant QGraphicsTextItem::inputMethodQuery(Qt::InputMethodQuery query) const
     QVariant v;
     if (dd->textControl)
         v = dd->textControl->inputMethodQuery(query);
-    if (v.type() == QVariant::Rect)
-        v = v.toRect().translated(-dd->controlOffset().toPoint());
-    else if (v.type() == QVariant::RectF)
+    if (v.type() == QVariant::RectF)
         v = v.toRectF().translated(-dd->controlOffset());
+    else if (v.type() == QVariant::PointF)
+        v = v.toPointF() + -dd->controlOffset();
     return v;
 }
 

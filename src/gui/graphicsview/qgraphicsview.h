@@ -21,7 +21,7 @@
 QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
-    
+
 #ifndef QT_NO_GRAPHICSVIEW
 
 class QGraphicsItem;
@@ -61,17 +61,17 @@ public:
     DragMode dragMode() const;
     void setDragMode(DragMode mode);
 
-    bool isInteractive() const;    
+    bool isInteractive() const;
     void setInteractive(bool allowed);
-    
+
     QGraphicsScene *scene() const;
     void setScene(QGraphicsScene *scene);
 
     QRectF sceneRect() const;
     void setSceneRect(const QRectF &rect);
     inline void setSceneRect(qreal x, qreal y, qreal w, qreal h);
-    
-    QMatrix matrix() const;    
+
+    QMatrix matrix() const;
     void setMatrix(const QMatrix &matrix, bool combine = false);
     void resetMatrix();
     void rotate(qreal angle);
@@ -93,7 +93,7 @@ public:
 
     void render(QPainter *painter, const QRectF &target = QRectF(), const QRect &source = QRect(),
                 Qt::AspectRatioMode aspectRatioMode = Qt::IgnoreAspectRatio);
-    
+
     QList<QGraphicsItem *> items() const;
     QList<QGraphicsItem *> items(const QPoint &pos) const;
     inline QList<QGraphicsItem *> items(int x, int y) const;
@@ -115,6 +115,8 @@ public:
     inline QPolygonF mapToScene(int x, int y, int w, int h) const;
     inline QPoint mapFromScene(qreal x, qreal y) const;
     inline QPolygon mapFromScene(qreal x, qreal y, qreal w, qreal h) const;
+
+    QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
 public Q_SLOTS:
     void updateScene(const QList<QRectF> &rects);

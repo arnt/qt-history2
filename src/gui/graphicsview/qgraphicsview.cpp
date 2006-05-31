@@ -1218,6 +1218,20 @@ QPainterPath QGraphicsView::mapFromScene(const QPainterPath &path) const
 }
 
 /*!
+    \reimp
+*/
+QVariant QGraphicsView::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    Q_D(const QGraphicsView);
+    QVariant value = d->scene->inputMethodQuery(query);
+    if (value.type() == QVariant::RectF)
+        value = mapFromScene(value.toRectF());
+    else if (value.type() == QVariant::PointF)
+        value = mapFromScene(value.toPointF());
+    return value;
+}
+
+/*!
     Schedules an update of the scene rectangles \a rects.
 
     \sa QGraphicsScene::changed()

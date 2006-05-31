@@ -689,7 +689,7 @@ static bool qt_closestItemFirst(const QGraphicsItem *item1, const QGraphicsItem 
 /*!
     \internal
 */
-bool QGraphicsScenePrivate::sortItems(QList<QGraphicsItem *> *itemList)
+void QGraphicsScenePrivate::sortItems(QList<QGraphicsItem *> *itemList)
 {
     qSort(itemList->begin(), itemList->end(), qt_closestItemFirst);
 }
@@ -805,7 +805,7 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     // Find the ideal x / y scaling ratio to fit \a source in \a target.
     qreal xratio = targetRect.width() / sourceRect.width();
     qreal yratio = targetRect.height() / sourceRect.height();
-    
+
     // Respect the aspect ratio mode.
     switch (aspectRatioMode) {
     case Qt::KeepAspectRatio:
@@ -1653,6 +1653,23 @@ void QGraphicsScene::setForegroundBrush(const QBrush &brush)
 }
 
 /*!
+    \internal
+*/
+QVariant QGraphicsScene::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    Q_D(const QGraphicsScene);
+    if (!d->focusItem)
+        return QVariant();
+    const QMatrix matrix = d->focusItem->sceneMatrix();
+    QVariant value = d->focusItem->inputMethodQuery(query);
+    if (value.type() == QVariant::RectF)
+        value = matrix.mapRect(value.toRectF());
+    else if (value.type() == QVariant::PointF)
+        value = matrix.map(value.toPointF());
+    return value;
+}
+
+/*!
     Schedules a redraw of the area \a rect on the scene.
 
     \sa sceneRect(), changed()
@@ -1800,7 +1817,7 @@ void QGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
     event->ignore();
 
     bool eventDelivered = false;
-    
+
     // Find the topmost enabled items under the cursor. They are all
     // candidates for accepting drag & drop events.
     foreach (QGraphicsItem *item, items(event->scenePos())) {
@@ -1820,9 +1837,9 @@ void QGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
                 // Propagate to the item under
                 continue;
             }
-            
+
             d->lastDropAction = event->dropAction();
-            
+
             if (d->dragDropItem) {
                 // Leave the last drag drop item. A perfect implementation
                 // would set the position of this event to the point where
@@ -1832,7 +1849,7 @@ void QGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
                 d->cloneDragDropEvent(&dragLeave, event);
                 d->sendDragDropEvent(d->dragDropItem, &dragLeave);
             }
-            
+
             // We've got a new drag & drop item
             d->dragDropItem = item;
         }
