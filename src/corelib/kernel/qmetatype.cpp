@@ -301,43 +301,6 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
     return idx;
 }
 
-#ifndef QT_NO_DATASTREAM
-/*! \internal */
-int QMetaType::registerType(const char *typeName, Destructor destructor, Constructor constructor,
-                            SaveOperator saveOp, LoadOperator loadOp)
-{
-    QVector<QCustomTypeInfo> *ct = customTypes();
-    if (!ct || !typeName || !destructor || !constructor)
-        return -1;
-
-    QWriteLocker locker(customTypesLock());
-    static int currentIdx = User;
-    int idx = qMetaTypeType_unlocked(typeName);
-
-    if (idx) {
-        if (idx < User) {
-            qWarning("QMetaType: Cannot re-register basic type '%s'", typeName);
-            return -1;
-        }
-        QCustomTypeInfo &inf = (*ct)[idx - User];
-        inf.constr = constructor;
-        inf.destr = destructor;
-        inf.saveOp = saveOp;
-        inf.loadOp = loadOp;
-    } else {
-        idx = currentIdx++;
-        ct->resize(ct->count() + 1);
-        QCustomTypeInfo &inf = (*ct)[idx - User];
-        inf.typeName = typeName;
-        inf.constr = constructor;
-        inf.destr = destructor;
-        inf.saveOp = saveOp;
-        inf.loadOp = loadOp;
-    }
-    return idx;
-}
-#endif // QT_NO_DATASTREAM
-
 /*!
     Returns true if the custom datatype with ID \a type is registered;
     otherwise returns false.

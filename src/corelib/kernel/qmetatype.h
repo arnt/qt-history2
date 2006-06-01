@@ -49,8 +49,6 @@ public:
     typedef void (*LoadOperator)(QDataStream &, void *);
     static void registerStreamOperators(const char *typeName, SaveOperator saveOp,
                                         LoadOperator loadOp);
-    static int registerType(const char *typeName, Destructor destructor, Constructor constructor,
-                            SaveOperator saveOp, LoadOperator loadOp);
 #endif
     static int registerType(const char *typeName, Destructor destructor,
                             Constructor constructor);
@@ -94,8 +92,6 @@ void qMetaTypeLoadHelper(QDataStream &stream, T *t)
 }
 #endif // QT_NO_DATASTREAM
 
-//#include <QtCore/qmetatypedetect.h>
-
 template <typename T>
 int qRegisterMetaType(const char *typeName
 #ifndef qdoc
@@ -108,15 +104,8 @@ int qRegisterMetaType(const char *typeName
     typedef void(*DeletePtr)(T*);
     DeletePtr dptr = qMetaTypeDeleteHelper<T>;
 
-#if 1 // ### FIXME
     return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
                                    reinterpret_cast<QMetaType::Constructor>(cptr));
-#else
-    return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
-                                   reinterpret_cast<QMetaType::Constructor>(cptr),
-                                   QtInternal::getSaveOperator<T>(),
-                                   QtInternal::getLoadOperator<T>());
-#endif
 }
 
 #ifndef QT_NO_DATASTREAM
