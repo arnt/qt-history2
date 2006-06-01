@@ -864,6 +864,26 @@ void QMapData::dump()
     Qt-style synonym for QMap::const_iterator.
 */
 
+/*! \typedef QMap::difference_type
+
+    Typedef for ptrdiff_t. Provided for STL compatibility.
+*/
+
+/*! \typedef QMap::key_type
+
+    Typedef for Key. Provided for STL compatibility.
+*/
+
+/*! \typedef QMap::mapped_type
+
+    Typedef for T. Provided for STL compatibility.
+*/
+
+/*! \typedef QMap::size_type
+
+    Typedef for int. Provided for STL compatibility.
+*/
+
 /*! \fn bool QMap::empty() const
 
     This function is provided for STL compatibility. It is equivalent

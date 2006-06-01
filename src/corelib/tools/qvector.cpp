@@ -876,37 +876,37 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
 
 /*! \typedef QVector::const_pointer
 
-    \internal
+    Typedef for const T *. Provided for STL compatibility.
 */
 
 /*! \typedef QVector::const_reference
 
-    \internal
+    Typedef for T &. Provided for STL compatibility.
 */
 
 /*! \typedef QVector::difference_type
 
-    \internal
+    Typedef for ptrdiff_t. Provided for STL compatibility.
 */
 
 /*! \typedef QVector::pointer
 
-    \internal
+    Typedef for T *. Provided for STL compatibility.
 */
 
 /*! \typedef QVector::reference
 
-    \internal
+    Typedef for T &. Provided for STL compatibility.
 */
 
 /*! \typedef QVector::size_type
 
-    \internal
+    Typedef for int. Provided for STL compatibility.
 */
 
 /*! \typedef QVector::value_type
 
-    \internal
+    Typedef for T. Provided for STL compatibility.
 */
 
 /*! \fn QList<T> QVector<T>::toList() const

@@ -848,6 +848,12 @@ void **QListData::erase(void **xi)
 */
 
 /*!
+    \typedef QList::difference_type
+
+    Typedef for ptrdiff_t. Provided for STL compatibility.
+*/
+
+/*!
     \typedef QList::pointer
 
     Typedef for T *. Provided for STL compatibility.

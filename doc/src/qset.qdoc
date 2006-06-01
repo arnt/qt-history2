@@ -377,6 +377,54 @@
 */
 
 /*!
+    \typedef QSet::const_pointer
+
+    Typedef for const T *. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QSet::const_reference
+
+    Typedef for const T &. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QSet::difference_type
+
+    Typedef for const ptrdiff_t. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QSet::key_type
+
+    Typedef for T. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QSet::pointer
+
+    Typedef for T *. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QSet::reference
+
+    Typedef for T &. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QSet::size_type
+
+    Typedef for int. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QSet::value_type
+
+    Typedef for T. Provided for STL compatibility.
+*/
+
+/*!
     \fn QSet::const_iterator QSet::insert(const T &value)
 
     Inserts a new item \a value. If \a value already exists in the

@@ -1044,6 +1044,26 @@ void QHashData::checkSanity()
     Qt-style synonym for QHash::iterator.
 */
 
+/*! \typedef QHash::difference_type
+
+    Typedef for ptrdiff_t. Provided for STL compatibility.
+*/
+
+/*! \typedef QHash::key_type
+
+    Typedef for Key. Provided for STL compatibility.
+*/
+
+/*! \typedef QHash::mapped_type
+
+    Typedef for T. Provided for STL compatibility.
+*/
+
+/*! \typedef QHash::size_type
+
+    Typedef for int. Provided for STL compatibility.
+*/
+
 /*! \typedef QHash::iterator::difference_type
     \internal
 */

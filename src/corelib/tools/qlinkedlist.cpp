@@ -380,6 +380,12 @@ QLinkedListData QLinkedListData::shared_null = {
     Typedef for const T &. Provided for STL compatibility.
 */
 
+/*!
+    \typedef QLinkedList::difference_type
+
+    Typedef for ptrdiff_t. Provided for STL compatibility.
+*/
+
 /*! \fn int QLinkedList::count() const
 
     Same as size().
