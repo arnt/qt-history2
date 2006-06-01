@@ -1045,15 +1045,26 @@ QAbstractItemModel::~QAbstractItemModel()
 
 
 /*!
-    \fn int QAbstractItemModel::rowCount(const QModelIndex &parent) const = 0
+    \fn int QAbstractItemModel::rowCount(const QModelIndex &parent) const
 
     Returns the number of rows under the given \a parent.
+
+    \sa columnCount()
 */
 
-
 /*!
-    \fn int QAbstractItemModel::columnCount(const QModelIndex &parent) const = 0;
-    Returns the number of columns for the given \a parent.
+    \fn int QAbstractItemModel::columnCount(const QModelIndex &parent) const
+
+    Returns the number of columns for the children of the given \a parent.
+
+    In most subclasses, the number of columns is independent of the
+    \a parent. For example:
+
+    \quotefromfile itemviews/simpledommodel/dommodel.cpp
+    \skipto ::columnCount
+    \printuntil /^\}$/
+
+    \sa rowCount()
 */
 
 /*!
