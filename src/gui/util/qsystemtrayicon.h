@@ -60,7 +60,7 @@ public:
     static bool isSystemTrayAvailable();
 
     enum MessageIcon { NoIcon, Information, Warning, Critical };
-    void showMessage(const QString &title, const QString &msg, 
+    void showMessage(const QString &title, const QString &msg,
                      MessageIcon icon = Information, int msecs = 10000);
 
     bool isVisible() const;
@@ -83,6 +83,7 @@ private:
 
     friend class QSystemTrayIconSys;
     friend class QBalloonTip;
+    friend void sendActivated(QSystemTrayIcon *, int);
 };
 
 QT_END_HEADER

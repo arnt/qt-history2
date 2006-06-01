@@ -245,7 +245,7 @@ bool QSystemTrayIcon::event(QEvent *e)
     This signal is emitted when the user activates the system tray icon. \a reason
     specifies the reason for activation. QSystemTrayIcon::ActivationReason enumerates
     the various reasons.
-    
+
     \sa QSystemTrayIcon::ActivationReason
 */
 
@@ -346,7 +346,7 @@ QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title
     msgLabel->setTextFormat(Qt::PlainText);
     msgLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
-    QStyle::StandardPixmap p;
+    QStyle::StandardPixmap p=QStyle::SP_MessageBoxWarning;
     switch (icon) {
     case QSystemTrayIcon::Warning:
         p = QStyle::SP_MessageBoxWarning;
@@ -501,3 +501,4 @@ bool QBalloonTip::eventFilter(QObject *o, QEvent *e)
     return QWidget::eventFilter(o, e);
 }
 
+void sendActivated(QSystemTrayIcon *i, int r) { emit i->activated(r); }

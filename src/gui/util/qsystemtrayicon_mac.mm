@@ -4,11 +4,19 @@
 #include <private/qt_mac_p.h>
 #import <AppKit/AppKit.h>
 
+extern void sendActivated(QSystemTrayIcon *i, int r); //qsystemtrayicon.cpp
 extern void qt_mac_get_accel(quint32 accel_key, quint32 *modif, quint32 *key); //qmenu_mac.cpp
 extern QString qt_mac_no_ampersands(QString str); //qmenu_mac.cpp
 
-@interface NSStatusItem (Qt)
-- (void)clickSelector:(id)sender;
+
+@interface QNSStatusItem : NSObject {
+    NSStatusItem *item;
+    QSystemTrayIcon *icon;
+}
+-(id)initWithIcon:(QSystemTrayIcon*)icon;
+-(void)free;
+-(NSStatusItem*)item;
+- (void)triggerSelector:(id)sender;
 - (void)doubleClickSelector:(id)sender;
 @end
 
@@ -45,25 +53,23 @@ NSImage *qt_mac_create_ns_image(const QPixmap &pm)
 class QSystemTrayIconSys
 {
 public:
-    QSystemTrayIconSys() { 
+    QSystemTrayIconSys(QSystemTrayIcon *icon) { 
         QMacCocoaAutoReleasePool pool;
-        item = [[[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength] retain];
-        [item setTarget:item];
-        [item setAction:@selector(clickSelector:)];
-        [item setDoubleAction:@selector(doubleClickSelector:)];
+        item = [[QNSStatusItem alloc] initWithIcon:icon];
     }
     ~QSystemTrayIconSys() { 
         QMacCocoaAutoReleasePool pool;
-        [[NSStatusBar systemStatusBar] removeStatusItem:item];
+        [item free];
         [item release]; 
     }
-    NSStatusItem *item;
+    QNSStatusItem *item;
 };
 
 void QSystemTrayIconPrivate::install()
 {
+    Q_Q(QSystemTrayIcon);
     if (!sys) {
-        sys = new QSystemTrayIconSys;
+        sys = new QSystemTrayIconSys(q);
         updateIcon();
         updateMenu();
         updateToolTip();
@@ -81,7 +87,7 @@ void QSystemTrayIconPrivate::updateIcon()
     if(sys && !icon.isNull()) {
         QMacCocoaAutoReleasePool pool;
         const short scale = GetMBarHeight()-4;
-        [sys->item setImage:qt_mac_create_ns_image(icon.pixmap(QSize(scale, scale)))];
+        [[sys->item item] setImage:qt_mac_create_ns_image(icon.pixmap(QSize(scale, scale)))];
     }
 }
 
@@ -90,12 +96,9 @@ void QSystemTrayIconPrivate::updateMenu()
     if(sys) {
         QMacCocoaAutoReleasePool pool;
         if(menu && !menu->isEmpty()) {
-            [sys->item setHighlightMode:YES];
-            NSMenu *m = [[QNSMenu alloc] initWithQMenu:menu];
-            [sys->item setMenu:m];
-            [m release];
+            [[sys->item item] setHighlightMode:YES];
         } else {
-            [sys->item setHighlightMode:NO];
+            [[sys->item item] setHighlightMode:NO];
         }
     }
 }
@@ -104,7 +107,7 @@ void QSystemTrayIconPrivate::updateToolTip()
 {
     if(sys) {
         QMacCocoaAutoReleasePool pool;
-        [sys->item setToolTip:(NSString*)QCFString::toCFStringRef(toolTip)];
+        [[sys->item item] setToolTip:(NSString*)QCFString::toCFStringRef(toolTip)];
     }
 }
 
@@ -119,12 +122,12 @@ void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &
     if(sys) {
         QMacCocoaAutoReleasePool pool;
 #if 0        
-        //[sys->item setTitle:(NSString*)QCFString::toCFStringRef(message)];
+        //[[sys->item item:] setTitle:(NSString*)QCFString::toCFStringRef(message)];
 #elif 0
         Q_Q(QSystemTrayIcon);
-        NSView *v = [sys->item view];
+        NSView *v = [[sys->item item] view];
         NSWindow *w = [v window];
-        w = [sys->item window];
+        w = [[sys->item item] window];
         qDebug() << w << v;
         QPoint p(qRound([w frame].origin.x), qRound([w frame].origin.y));
         qDebug() << p;
@@ -136,11 +139,41 @@ void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &
 }
 
 @implementation NSStatusItem (Qt)
-- (void)clickSelector:(id)sender {
-    printf("hi\n");
+@end
+
+@implementation QNSStatusItem
+-(id)initWithIcon:(QSystemTrayIcon*)i {
+    self = [super init];
+    if(self) {
+        icon = i;
+        item = [[[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength] retain];
+        [item setTarget:self];
+        [item setAction:@selector(triggerSelector:)];
+        [item setDoubleAction:@selector(doubleClickSelector:)];
+    }
+    return self;
+}
+-(void)free {
+    [[NSStatusBar systemStatusBar] removeStatusItem:item];
+    [item release];
+}
+-(NSStatusItem*)item {
+    return item;
+}
+- (void)triggerSelector:(id)sender {
+    if(!icon)
+        return;
+    sendActivated(icon, QSystemTrayIcon::Trigger);
+    if(icon->contextMenu()) {
+        NSMenu *m = [[QNSMenu alloc] initWithQMenu:icon->contextMenu()];
+        [item popUpStatusItemMenu:m];
+        [m release];
+    }
 }
 - (void)doubleClickSelector:(id)sender {
-    printf("double hi\n");
+    if(!icon)
+        return;
+    sendActivated(icon, QSystemTrayIcon::DoubleClick);
 }
 @end
 
@@ -177,7 +210,7 @@ void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &
                 }
             }
             if(accel.count() > 1)
-                text += " (****)"; //just to denote a multi stroke shortcut
+                text += QString(" (****)"); //just to denote a multi stroke shortcut
 
             [item setTitle:(NSString*)QCFString::toCFStringRef(qt_mac_no_ampersands(text))];
             [item setEnabled:action->isEnabled()];
