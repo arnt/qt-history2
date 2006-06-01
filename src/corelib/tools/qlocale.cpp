@@ -913,16 +913,6 @@ QSystemLocale *QLocale::m_system_locale = 0;
 
 const QLocalePrivate *QLocale::default_d = 0;
 
-QString QLocalePrivate::infinity() const
-{
-    return QString::fromLatin1("inf");
-}
-
-QString QLocalePrivate::nan() const
-{
-    return QString::fromLatin1("nan");
-}
-
 QString QLocalePrivate::month(int index, bool short_format) const
 {
     // range of index already checked in QLocale::month(...)
@@ -2952,11 +2942,11 @@ QString QLocalePrivate::doubleToString(double d,
 
     // Detect special numbers (nan, +/-inf)
     if (qIsInf(d)) {
-        num_str = infinity();
+        num_str = QString::fromLatin1("inf");
         special_number = true;
         negative = d < 0;
     } else if (qIsNan(d)) {
-        num_str = nan();
+        num_str = QString::fromLatin1("nan");
         special_number = true;
     }
 
