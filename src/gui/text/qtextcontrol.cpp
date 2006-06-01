@@ -702,11 +702,12 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     // be the case in QTextControl::undo() after calling undo() on the document.
 }
 
-/*
+/*!
     \class QTextControl
     \brief The QTextControl class provides a widget that is used to edit and display
     both plain and rich text.
 
+    \since 4.2
     \ingroup text
     \mainclass
 
@@ -868,7 +869,7 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
 
 */
 
-/*
+/*!
     \property QTextControl::undoRedoEnabled
     \brief whether undo and redo are enabled
 
@@ -876,7 +877,7 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     true, and if there is an action that can be undone (or redone).
 */
 
-/*
+/*!
     \enum QTextControl::LineWrapMode
 
     \value NoWrap
@@ -885,7 +886,7 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     \value FixedColumnWidth
 */
 
-/*
+/*!
     \enum QTextControl::CursorAction
 
     \value MoveBackward
@@ -905,7 +906,7 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     \omitvalue MovePgDown
 */
 
-/*
+/*!
     Constructs an empty QTextControl with parent \a
     parent.
 */
@@ -916,7 +917,7 @@ QTextControl::QTextControl(QObject *parent)
     d->init();
 }
 
-/*
+/*!
     Constructs a QTextControl with parent \a parent. The text edit will display
     the text \a text. The text is interpreted as html.
 */
@@ -927,14 +928,14 @@ QTextControl::QTextControl(const QString &text, QObject *parent)
     d->init(text);
 }
 
-/*
+/*!
     Destructor.
 */
 QTextControl::~QTextControl()
 {
 }
 
-/*
+/*!
     Makes \a document the new document of the text editor.
 
     The parent QObject of the provided document remains the owner
@@ -961,7 +962,7 @@ void QTextControl::setDocument(QTextDocument *document)
 // ########    d->relayoutDocument();
 }
 
-/*
+/*!
     Returns a pointer to the underlying document.
 
     \sa setDocument()
@@ -972,7 +973,7 @@ QTextDocument *QTextControl::document() const
     return d->doc;
 }
 
-/*
+/*!
     Sets the visible \a cursor.
 */
 void QTextControl::setTextCursor(const QTextCursor &cursor)
@@ -988,7 +989,7 @@ void QTextControl::setTextCursor(const QTextCursor &cursor)
         emit cursorPositionChanged();
 }
 
-/*
+/*!
     Returns a copy of the QTextCursor that represents the currently visible cursor.
     Note that changes on the returned cursor do not affect QTextControl's cursor; use
     setTextCursor() to update the visible cursor.
@@ -999,7 +1000,7 @@ QTextCursor QTextControl::textCursor() const
     return d->cursor;
 }
 
-/*
+/*!
     \fn void QTextControl::undo() const
 
     Undoes the last operation.
@@ -1010,7 +1011,7 @@ QTextCursor QTextControl::textCursor() const
     \sa redo()
 */
 
-/*
+/*!
     \fn void QTextControl::redo() const
 
     Redoes the last operation.
@@ -1022,7 +1023,7 @@ QTextCursor QTextControl::textCursor() const
 */
 
 #ifndef QT_NO_CLIPBOARD
-/*
+/*!
     Copies the selected text to the clipboard and deletes it from
     the text edit.
 
@@ -1040,7 +1041,7 @@ void QTextControl::cut()
     d->cursor.removeSelectedText();
 }
 
-/*
+/*!
     Copies any selected text to the clipboard.
 
     \sa copyAvailable()
@@ -1055,7 +1056,7 @@ void QTextControl::copy()
     QApplication::clipboard()->setMimeData(data);
 }
 
-/*
+/*!
     Pastes the text from the clipboard into the text edit at the
     current cursor position.
 
@@ -1077,7 +1078,7 @@ void QTextControl::paste()
 }
 #endif
 
-/*
+/*!
     Deletes all the text in the text edit.
 
     Note that the undo/redo history is cleared by this function.
@@ -1092,7 +1093,7 @@ void QTextControl::clear()
 }
 
 
-/*
+/*!
     Selects all text.
 
     \sa copy() cut() textCursor()
@@ -1257,7 +1258,7 @@ bool QTextControl::event(QEvent *e)
     return true;
 }
 
-/* \internal
+/*! \internal
 */
 
 void QTextControl::timerEvent(QTimerEvent *e)
@@ -1293,7 +1294,7 @@ void QTextControl::timerEvent(QTimerEvent *e)
 #endif
 }
 
-/*
+/*!
     Changes the text of the text edit to the string \a text.
     Any previous text is removed.
 
@@ -1311,7 +1312,7 @@ void QTextControl::setPlainText(const QString &text)
     d->preferRichText = false;
 }
 
-/*
+/*!
     \fn QString QTextControl::toPlainText() const
 
     Returns the text of the text edit as plain text.
@@ -1320,7 +1321,7 @@ void QTextControl::setPlainText(const QString &text)
  */
 
 
-/*
+/*!
     \property QTextControl::html
 
     This property provides an HTML interface to the text of the text edit.
@@ -1342,7 +1343,7 @@ void QTextControl::setHtml(const QString &text)
     d->preferRichText = true;
 }
 
-/* \reimp
+/*! \reimp
 */
 void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
 {
@@ -1561,7 +1562,7 @@ process:
     updateCurrentCharFormat();
 }
 
-/* \reimp
+/*! \reimp
 */
 void QTextControlPrivate::keyReleaseEvent(QKeyEvent * /* e */)
 {
@@ -1587,7 +1588,7 @@ void QTextControlPrivate::keyReleaseEvent(QKeyEvent * /* e */)
 #endif
 }
 
-/*
+/*!
     Loads the resource specified by the given \a type and \a name.
 
     This function is an extension of QTextDocument::loadResource().
@@ -1717,7 +1718,7 @@ QRectF QTextControlPrivate::selectionRect(const QTextCursor &cursor) const
     return r;
 }
 
-/* \reimp
+/*! \reimp
 */
 void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF &pos, Qt::KeyboardModifiers modifiers)
 {
@@ -1802,7 +1803,7 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
     repaintOldAndNewSelection(oldSelection);
 }
 
-/* \reimp
+/*! \reimp
 */
 void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF &mousePos)
 {
@@ -1869,7 +1870,7 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
     repaintOldAndNewSelection(oldSelection);
 }
 
-/* \reimp
+/*! \reimp
 */
 void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPointF &pos)
 {
@@ -1907,7 +1908,7 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
 #endif
 }
 
-/* \reimp
+/*! \reimp
 */
 void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton button, const QPointF &pos)
 {
@@ -2027,7 +2028,7 @@ bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &po
     return true; // accept proposed action
 }
 
-/* \reimp
+/*! \reimp
  */
 void QTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
 {
@@ -2077,7 +2078,7 @@ void QTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
     cursor.endEditBlock();
 }
 
-/*\reimp
+/*! \reimp
 */
 QVariant QTextControl::inputMethodQuery(Qt::InputMethodQuery property) const
 {
@@ -2132,7 +2133,8 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
 }
 
 #ifndef QT_NO_CONTEXTMENU
-/*  This function creates the standard context menu which is shown
+/*!
+  This function creates the standard context menu which is shown
   when the user clicks on the line edit with the right mouse
   button. It is called from the default contextMenuEvent() handler.
   The popup menu's ownership is transferred to the caller.
@@ -2186,8 +2188,8 @@ QMenu *QTextControl::createStandardContextMenu()
 }
 #endif // QT_NO_CONTEXTMENU
 
-/*
-  returns a QTextCursor at position \a pos (in viewport coordinates).
+/*!
+  Returns a QTextCursor at position \a pos (in viewport coordinates).
 */
 QTextCursor QTextControl::cursorForPosition(const QPointF &pos) const
 {
@@ -2200,8 +2202,8 @@ QTextCursor QTextControl::cursorForPosition(const QPointF &pos) const
     return c;
 }
 
-/*
-  returns a rectangle (in viewport coordinates) that includes the
+/*!
+  Returns a rectangle (in viewport coordinates) that includes the
   \a cursor.
  */
 QRectF QTextControl::cursorRect(const QTextCursor &cursor) const
@@ -2213,8 +2215,8 @@ QRectF QTextControl::cursorRect(const QTextCursor &cursor) const
    return d->rectForPosition(cursor.position());
 }
 
-/*
-  returns a rectangle (in viewport coordinates) that includes the
+/*!
+  Returns a rectangle (in viewport coordinates) that includes the
   cursor of the text edit.
  */
 QRectF QTextControl::cursorRect() const
@@ -2224,7 +2226,7 @@ QRectF QTextControl::cursorRect() const
 }
 
 
-/*
+/*!
     Returns the reference of the anchor at position \a pos, or an
     empty string if no anchor exists at that point.
 */
@@ -2234,7 +2236,7 @@ QString QTextControl::anchorAt(const QPointF &pos) const
     return d->doc->documentLayout()->anchorAt(pos);
 }
 
-/*
+/*!
    \property QTextControl::overwriteMode
    \since 4.1
 */
@@ -2251,7 +2253,7 @@ void QTextControl::setOverwriteMode(bool overwrite)
     d->overwriteMode = overwrite;
 }
 
-/*
+/*!
     \property QTextControl::tabStopWidth
     \brief the tab stop width in pixels
     \since 4.1
@@ -2271,7 +2273,7 @@ void QTextControl::setTabStopWidth(int width)
 
 /*!
     \since 4.2
-    \property QTextEdit::cursorWidth
+    \property QTextControl::cursorWidth
 
     This property specifies the width of the cursor in pixels. The default value is 1.
 */
@@ -2288,7 +2290,7 @@ void QTextControl::setCursorWidth(int width)
     d->repaintCursor();
 }
 
-/*
+/*!
     \property QTextControl::acceptRichText
     \brief whether the text edit accepts rich text insertions by the user
     \since 4.1
@@ -2311,25 +2313,25 @@ void QTextControl::setAcceptRichText(bool accept)
     d->acceptRichText = accept;
 }
 
-/*
+/*!
     \class QTextControl::ExtraSelection
     \since 4.2
     \brief The QTextControl::ExtraSelection structure provides a way of specifying a
            character format for a given selection in a document
 */
 
-/*
+/*!
     \variable QTextControl::ExtraSelection::cursor
     A cursor that contains a selection in a QTextDocument
 */
 
-/*
+/*!
     \variable QTextControl::ExtraSelection::format
     A format that is used to specify a foreground or background brush/color
     for the selection.
 */
 
-/*
+/*!
     \since 4.2
     This function allows temporarily marking certain regions in the document
     with a given color, specified as \a selections. This can be useful for
@@ -2384,7 +2386,7 @@ void QTextControl::setExtraSelections(const QList<ExtraSelection> &selections)
     emit updateRequest();
 }
 
-/*
+/*!
     \since 4.2
     Returns previously set extra selections.
 
@@ -2403,7 +2405,7 @@ QList<QTextControl::ExtraSelection> QTextControl::extraSelections() const
     return selections;
 }
 
-/*
+/*!
     This function returns a new MIME data object to represent the contents
     of the text edit's current selection. It is called when the selection needs
     to be encapsulated into a new QMimeData object; for example, when a drag
@@ -2420,12 +2422,12 @@ QMimeData *QTextControl::createMimeDataFromSelection() const
     return new QTextEditMimeData(fragment);
 }
 
-/*
+/*!
     This function returns true if the contents of the MIME data object, specified
     by \a source, can be decoded and inserted into the document. It is called
     for example when during a drag operation the mouse enters this widget and it
     is necessary to determine whether it is possible to accept the drag.
- */
+*/
 bool QTextControl::canInsertFromMimeData(const QMimeData *source) const
 {
     Q_D(const QTextControl);
@@ -2438,7 +2440,7 @@ bool QTextControl::canInsertFromMimeData(const QMimeData *source) const
         return source->hasText();
 }
 
-/*
+/*!
     This function inserts the contents of the MIME data object, specified
     by \a source, into the text edit at the current cursor position. It is
     called whenever text is inserted as the result of a clipboard paste
@@ -2473,7 +2475,7 @@ void QTextControl::insertFromMimeData(const QMimeData *source)
     ensureCursorVisible();
 }
 
-/*
+/*!
     \property QTextControl::readOnly
     \brief whether the text edit is read-only
 
@@ -2502,14 +2504,14 @@ void QTextControl::setReadOnly(bool ro)
         d->setBlinkingCursorEnabled(!ro);
 }
 
-/*
+/*!
     If the editor has a selection then the properties of \a modifier are
     applied to the selection. Without a selection the properties are applied
     to the word under the cursor. In addition they are always merged into
     the current char format.
 
     \sa QTextCursor::mergeCharFormat()
- */
+*/
 void QTextControl::mergeCurrentCharFormat(const QTextCharFormat &modifier)
 {
     Q_D(QTextControl);
@@ -2527,10 +2529,10 @@ void QTextControl::mergeCurrentCharFormat(const QTextCharFormat &modifier)
     d->lastCharFormat = d->cursor.charFormat();
 }
 
-/*
+/*!
     Sets the char format that is be used when inserting new text to
     \a format .
- */
+*/
 void QTextControl::setCurrentCharFormat(const QTextCharFormat &format)
 {
     Q_D(QTextControl);
@@ -2538,16 +2540,16 @@ void QTextControl::setCurrentCharFormat(const QTextCharFormat &format)
     d->lastCharFormat = format;
 }
 
-/*
+/*!
     Returns the char format that is used when inserting new text.
- */
+*/
 QTextCharFormat QTextControl::currentCharFormat() const
 {
     Q_D(const QTextControl);
     return d->cursor.charFormat();
 }
 
-/*
+/*!
     Convenience slot that inserts \a text at the current
     cursor position.
 
@@ -2563,7 +2565,7 @@ void QTextControl::insertPlainText(const QString &text)
     d->cursor.insertText(text);
 }
 
-/*
+/*!
     Convenience slot that inserts \a text which is assumed to be of
     html formatting at the current cursor position.
 
@@ -2581,7 +2583,7 @@ void QTextControl::insertHtml(const QString &text)
     d->cursor.insertFragment(fragment);
 }
 
-/*
+/*!
     Scrolls the text edit so that the anchor with the given \a name is
     visible; does nothing if the \a name is empty, or is already
     visible, or isn't found.
@@ -2634,12 +2636,12 @@ void QTextControl::adjustSize()
     }
 }
 
-/*
+/*!
     \property QTextControl::documentTitle
     \brief the title of the document parsed from the text.
 */
 
-/*
+/*!
     \property QTextControl::wordWrapMode
     \brief the mode QTextControl will use when wrapping text by words
 
@@ -2661,7 +2663,7 @@ void QTextControl::setWordWrapMode(QTextOption::WrapMode mode)
         layout->setWordWrapMode(mode);
 }
 
-/*
+/*!
     Finds the next occurrence of the string, \a exp, using the given
     \a options. Returns true if \a exp was found and changes the
     cursor to select the match; otherwise returns false.
@@ -2677,7 +2679,7 @@ bool QTextControl::find(const QString &exp, QTextDocument::FindFlags options)
     return true;
 }
 
-/*
+/*!
     \fn void QTextControl::copyAvailable(bool yes)
 
     This signal is emitted when text is selected or de-selected in the
@@ -2693,7 +2695,7 @@ bool QTextControl::find(const QString &exp, QTextDocument::FindFlags options)
     \sa selectionChanged()
 */
 
-/*
+/*!
     \fn void QTextControl::currentCharFormatChanged(const QTextCharFormat &f)
 
     This signal is emitted if the current character format has changed, for
@@ -2704,7 +2706,7 @@ bool QTextControl::find(const QString &exp, QTextDocument::FindFlags options)
     \sa setCurrentCharFormat()
 */
 
-/*
+/*!
     \fn void QTextControl::selectionChanged()
 
     This signal is emitted whenever the selection changes.
@@ -2712,14 +2714,14 @@ bool QTextControl::find(const QString &exp, QTextDocument::FindFlags options)
     \sa copyAvailable()
 */
 
-/*
+/*!
     \fn void QTextControl::cursorPositionChanged()
 
     This signal is emitted whenever the position of the
     cursor changed.
 */
 
-/*
+/*!
     Appends a new paragraph with \a text to the end of the text edit.
 */
 void QTextControl::append(const QString &text)
@@ -2753,7 +2755,7 @@ void QTextControl::append(const QString &text)
     cursor.endEditBlock();
 }
 
-/*
+/*!
     Ensures that the cursor is visible by scrolling the text edit if
     necessary.
 */
@@ -2766,7 +2768,7 @@ void QTextControl::ensureCursorVisible()
 }
 
 
-/*
+/*!
     \enum QTextControl::KeyboardAction
 
     \compat
@@ -2779,161 +2781,161 @@ void QTextControl::ensureCursorVisible()
     \value ActionWordDelete
 */
 
-/*
+/*!
     \fn bool QTextControl::find(const QString &exp, bool cs, bool wo)
 
     Use the find() overload that takes a QTextDocument::FindFlags
     argument.
 */
 
-/*
+/*!
     \fn void QTextControl::sync()
 
     Does nothing.
 */
 
-/*
+/*!
     \fn void QTextControl::setBold(bool b)
 
     Use setFontWeight() instead.
 */
 
-/*
+/*!
     \fn void QTextControl::setUnderline(bool b)
 
     Use setFontUnderline() instead.
 */
 
-/*
+/*!
     \fn void QTextControl::setItalic(bool i)
 
     Use setFontItalic() instead.
 */
 
-/*
+/*!
     \fn void QTextControl::setFamily(const QString &family)
 
     Use setFontFamily() instead.
 */
 
-/*
+/*!
     \fn void QTextControl::setPointSize(int size)
 
     Use setFontPointSize() instead.
 */
 
-/*
+/*!
     \fn bool QTextControl::italic() const
 
     Use fontItalic() instead.
 */
 
-/*
+/*!
     \fn bool QTextControl::bold() const
 
     Use fontWeight() >= QFont::Bold instead.
 */
 
-/*
+/*!
     \fn bool QTextControl::underline() const
 
     Use fontUnderline() instead.
 */
 
-/*
+/*!
     \fn QString QTextControl::family() const
 
     Use fontFamily() instead.
 */
 
-/*
+/*!
     \fn int QTextControl::pointSize() const
 
     Use int(fontPointSize()+0.5) instead.
 */
 
-/*
+/*!
     \fn bool QTextControl::hasSelectedText() const
 
     Use textCursor().hasSelection() instead.
 */
 
-/*
+/*!
     \fn QString QTextControl::selectedText() const
 
     Use textCursor().selectedText() instead.
 */
 
-/*
+/*!
     \fn bool QTextControl::isUndoAvailable() const
 
     Use document()->isUndoAvailable() instead.
 */
 
-/*
+/*!
     \fn bool QTextControl::isRedoAvailable() const
 
     Use document()->isRedoAvailable() instead.
 */
 
-/*
+/*!
     \fn void QTextControl::insert(const QString &text)
 
     Use insertPlainText() instead.
 */
 
-/*
+/*!
     \fn bool QTextControl::isModified() const
 
     Use document()->isModified() instead.
 */
 
-/*
+/*!
     \fn QColor QTextControl::color() const
 
     Use textColor() instead.
 */
 
-/*
+/*!
     \fn void QTextControl::textChanged()
 
     This signal is emitted whenever the document's content changes; for
     example, when text is inserted or deleted, or when formatting is applied.
 */
 
-/*
+/*!
     \fn void QTextControl::undoAvailable(bool available)
 
     This signal is emitted whenever undo operations become available
     (\a available is true) or unavailable (\a available is false).
 */
 
-/*
+/*!
     \fn void QTextControl::redoAvailable(bool available)
 
     This signal is emitted whenever redo operations become available
     (\a available is true) or unavailable (\a available is false).
 */
 
-/*
+/*!
     \fn void QTextControl::currentFontChanged(const QFont &font)
 
     Use currentCharFormatChanged() instead.
 */
 
-/*
+/*!
     \fn void QTextControl::currentColorChanged(const QColor &color)
 
     Use currentCharFormatChanged() instead.
 */
 
-/*
+/*!
     \fn void QTextControl::setModified(bool m)
 
     Use document->setModified() instead.
 */
 
-/*
+/*!
     \fn void QTextControl::setColor(const QColor &color)
 
     Use setTextColor() instead.
