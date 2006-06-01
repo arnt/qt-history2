@@ -628,7 +628,7 @@ static void parsePen(QSvgNode *node,
     QString width      = attributes.value(QLatin1String("stroke-width"));
     QString myId       = attributes.value(QLatin1String("id"));
 
-    //qDebug()<<"Attrs are "<<attributes;
+    //qDebug()<<"Node "<<node->type()<<", attrs are "<<value<<width;
     if (opacity.isEmpty())
         opacity = attributes.value(QLatin1String("opacity"));
 
@@ -1444,17 +1444,6 @@ static bool parseDefaultTextStyle(QSvgNode *node,
     return true;
 }
 
-static bool parseCSSStyle(QSvgNode *node,
-                          const QString &css,
-                          QSvgHandler *handler)
-{
-    QXmlAttributes attributes;
-    if (parseCSStoXMLAttrs(css, attributes))
-        parseStyle(node, attributes, handler);
-
-    return true;
-}
-
 static inline QStringList stringToList(const QString &str)
 {
     QStringList lst = str.split(QLatin1Char(','), QString::SkipEmptyParts);
@@ -1486,20 +1475,21 @@ static bool parseCoreNode(QSvgNode *node,
 }
 
 static bool parseStyle(QSvgNode *node,
-                       const QXmlAttributes &attributes,
+                       const QXmlAttributes &attrs,
                        QSvgHandler *handler)
 {
-    if (!attributes.value(QLatin1String("style")).isEmpty()) {
-        parseCSSStyle(node, attributes.value(QLatin1String("style")), handler);
+    QXmlAttributes attributes = attrs;
+    if (!attrs.value(QLatin1String("style")).isEmpty()) {
+        parseCSStoXMLAttrs(attributes.value(QLatin1String("style")),
+                           attributes);
     }
+
     parseColor(node, attributes, handler);
     parseBrush(node, attributes, handler);
     parsePen(node, attributes, handler);
     parseFont(node, attributes, handler);
     parseTransform(node, attributes, handler);
     parseVisibility(node, attributes, handler);
-
-
 #if 0
     value = attributes.value("audio-level");
 
