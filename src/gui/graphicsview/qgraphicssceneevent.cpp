@@ -711,7 +711,7 @@ void QGraphicsSceneHelpEvent::setScreenPos(const QPoint &pos)
 
 class QGraphicsSceneDragDropEventPrivate : public QGraphicsSceneEventPrivate
 {
-    Q_DECLARE_PUBLIC(QGraphicsSceneDragDropEvent);
+    Q_DECLARE_PUBLIC(QGraphicsSceneDragDropEvent)
 public:
     inline QGraphicsSceneDragDropEventPrivate()
         : source(0), mimeData(0)
