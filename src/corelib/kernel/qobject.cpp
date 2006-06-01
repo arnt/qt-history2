@@ -721,16 +721,60 @@ QObject::~QObject()
 /*!
     \fn QMetaObject *QObject::metaObject() const
 
-    Returns a pointer to the meta object of this object.
+    Returns a pointer to the meta-object of this object.
 
-    A meta object contains information about a class that inherits
+    A meta-object contains information about a class that inherits
     QObject, e.g. class name, superclass name, properties, signals and
     slots. Every class that contains the Q_OBJECT macro will also have
-    a meta object.
+    a meta-object.
 
-    The meta object information is required by the signal/slot
+    The meta-object information is required by the signal/slot
     connection mechanism and the property system. The inherits()
-    function also makes use of the meta object.
+    function also makes use of the meta-object.
+
+    If you have no pointer to an actual object instance but still
+    want to access the meta-object of a class, you can use \l
+    staticMetaObject.
+
+    Example:
+
+    \code
+        QObject *obj = new QPushButton;
+        obj->metaObject()->className();             // returns "QPushButton"
+
+        QPushButton::staticMetaObject.className();  // returns "QPushButton"
+    \endcode
+
+    \sa staticMetaObject
+*/
+
+/*!
+    \variable QObject::staticMetaObject
+
+    This variable stores the meta-object for the class.
+
+    A meta-object contains information about a class that inherits
+    QObject, e.g. class name, superclass name, properties, signals and
+    slots. Every class that contains the Q_OBJECT macro will also have
+    a meta-object.
+
+    The meta-object information is required by the signal/slot
+    connection mechanism and the property system. The inherits()
+    function also makes use of the meta-object.
+
+    If you have a pointer to an object, you can use metaObject() to
+    retrieve the meta-object associated with that object.
+
+    Example:
+
+    \code
+        QPushButton::staticMetaObject.className();  // returns "QPushButton"
+
+        QObject *obj = new QPushButton;
+        obj->metaObject()->className();             // returns "QPushButton"
+    \endcode
+
+    \sa metaObject()
 */
 
 /*! \fn T *qobject_cast<T *>(QObject *object)

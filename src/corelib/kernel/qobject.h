@@ -101,6 +101,7 @@ public:
     static QString tr(const char *, const char *);
     static QString trUtf8(const char *, const char *);
     virtual const QMetaObject *metaObject() const;
+    static const QMetaObject staticMetaObject;
 #endif
 #ifdef QT_NO_TRANSLATION
     static QString tr(const char *sourceText, const char * = 0)
