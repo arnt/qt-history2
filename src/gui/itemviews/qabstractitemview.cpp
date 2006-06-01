@@ -1084,9 +1084,11 @@ bool QAbstractItemView::viewportEvent(QEvent *event)
         QHelpEvent *he = static_cast<QHelpEvent*>(event);
         QModelIndex index = indexAt(he->pos());
         if (index.isValid()) {
-            QString whatsthis = model()->data(index, Qt::WhatsThisRole).toString();
-            QWhatsThis::showText(he->globalPos(), whatsthis, this);
-            return true;
+            QVariant whatsthis = model()->data(index, Qt::WhatsThisRole);
+            if (whatsthis.isValid()) {
+                QWhatsThis::showText(he->globalPos(), whatsthis.toString(), this);
+                return true;
+            }
         }
         break ; }
 #endif

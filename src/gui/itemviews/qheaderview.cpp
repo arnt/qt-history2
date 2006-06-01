@@ -1755,10 +1755,12 @@ bool QHeaderView::viewportEvent(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {
-             QString whatsthis = model()->headerData(logical, orientation(),
-                                                     Qt::WhatsThisRole).toString();
-             QWhatsThis::showText(he->globalPos(), whatsthis, this);
-             return true;
+             QVariant whatsthis = model()->headerData(logical, orientation(),
+                                                      Qt::WhatsThisRole);
+             if (whatsthis.isValid()) {
+                 QWhatsThis::showText(he->globalPos(), whatsthis.toString(), this);
+                 return true;
+             }
         }
         break; }
 #endif // QT_NO_WHATSTHIS
