@@ -83,7 +83,7 @@
 
 QAbstractScrollAreaPrivate::QAbstractScrollAreaPrivate()
     :hbar(0), vbar(0), vbarpolicy(Qt::ScrollBarAsNeeded), hbarpolicy(Qt::ScrollBarAsNeeded),
-     viewport(0), cornerWidget(0), corner(Qt::BottomRightCorner), left(0), top(0), right(0), bottom(0),
+     viewport(0), cornerWidget(0), left(0), top(0), right(0), bottom(0),
      xoffset(0), yoffset(0), viewportFilter(0)
 {
 }
@@ -186,15 +186,16 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     bool needv = (vbarpolicy == Qt::ScrollBarAlwaysOn
                   || (vbarpolicy == Qt::ScrollBarAsNeeded && vbar->minimum() < vbar->maximum()));
 
-    int hsbExt = hbar->sizeHint().height();
-    int vsbExt = vbar->sizeHint().width();
+    const int hsbExt = hbar->sizeHint().height();
+    const int vsbExt = vbar->sizeHint().width();
+    const QPoint extPoint(vsbExt, hsbExt);
+    const QSize extSize(vsbExt, hsbExt);
 
     const QRect widgetRect = q->rect();
     QStyleOption opt(0);
     opt.init(q);
 
-    bool hasCornerWidget = (cornerWidget != 0);
-    bool hasMacReverseCornerWidget = false;
+    const bool hasCornerWidget = (cornerWidget != 0);
 
 // If the scrollbars are at the very right and bottom of the window we
 // move their positions to be alligned with the size grip.
@@ -202,7 +203,9 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     // Use small scrollbars for tool windows.
     const QMacStyle::WidgetSizePolicy hpolicy = QMacStyle::widgetSizePolicy(hbar);
     const QMacStyle::WidgetSizePolicy vpolicy = QMacStyle::widgetSizePolicy(vbar);
-    if (q->window()->windowType() == Qt::Tool) {
+    QWidget * const window = q->window();
+    const Qt::WindowType windowType = window->windowType();
+    if (windowType == Qt::Tool) {
         if (hpolicy != QMacStyle::SizeSmall)
             QMacStyle::setWidgetSizePolicy(hbar, QMacStyle::SizeSmall);
         if (vpolicy != QMacStyle::SizeSmall)
@@ -215,27 +218,21 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     }
 
     // Check if a native sizegrip is present.
+    bool hasMacReverseSizeGrip = false;
+    bool hasMacSizeGrip = false;
     HIViewRef nativeSizeGrip;
     HIViewFindByID(HIViewGetRoot(HIViewGetWindow(HIViewRef(q->winId()))), kHIViewWindowGrowBoxID, &nativeSizeGrip);
     if (nativeSizeGrip) {
-
-        // Get the size of the size-grip from the style.
-        const int sizeGripSize = q->style()->pixelMetric(QStyle::PM_SizeGripSize, &opt, q);
-
         // Look for a native size grip at the visual window bottom right and at the
         // absolute window bottom right. In reverse mode, the native size grip does not
-        // swich side, so me need to check if it is on the "wrong side".
-        const QPoint scrollAreaBottomRight = q->mapTo(q->window(), widgetRect.bottomRight());
-        const QPoint windowBottomRight = q->window()->rect().bottomRight();
+        // swich side, so we need to check if it is on the "wrong side".
+        const QPoint scrollAreaBottomRight = q->mapTo(window, widgetRect.bottomRight() - QPoint(frameWidth, frameWidth));
+        const QPoint windowBottomRight = window->rect().bottomRight();
         const QPoint visualWindowBottomRight = QStyle::visualPos(opt.direction, opt.rect, windowBottomRight);
-        const QPoint visalOffset = visualWindowBottomRight - scrollAreaBottomRight;
-        const bool hasMacCornerWidget = (visalOffset.manhattanLength() < sizeGripSize);
-        if (hasMacCornerWidget) {
-            hasCornerWidget = true;
-        } else {
-            const QPoint offset = windowBottomRight - scrollAreaBottomRight;
-            hasMacReverseCornerWidget = (offset.manhattanLength() < sizeGripSize);
-        }
+        const QPoint offset = windowBottomRight - scrollAreaBottomRight;
+        const QPoint visualOffset = visualWindowBottomRight - scrollAreaBottomRight;
+        hasMacSizeGrip = (visualOffset.manhattanLength() < vsbExt);
+        hasMacReverseSizeGrip = (hasMacSizeGrip == false && (offset.manhattanLength() < hsbExt));
     }
 #endif
     QPoint cornerOffset(needv ? vsbExt : 0, needh ? hsbExt : 0);
@@ -250,7 +247,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         const QPoint cornerExtra(needv ? extra : 0, needh ? extra : 0);
         QRect frameRect = widgetRect;
         frameRect.adjust(0, 0, -cornerOffset.x() - cornerExtra.x(), -cornerOffset.y() - cornerExtra.y());
-        q->setFrameRect(QStyle::visualRect(opt.direction, opt.rect, frameRect));
+        q->setFrameRect(frameRect);
         viewportRect = q->contentsRect();
     } else {
         q->setFrameRect(QStyle::visualRect(opt.direction, opt.rect, widgetRect));
@@ -261,16 +258,44 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     // If we have a corner widget and are only showing one scroll bar, we need to move it
     // to make room for the corner widget.
     if (hasCornerWidget && (needv || needh))
-        cornerOffset =  QPoint(vsbExt, hsbExt);
+        cornerOffset =  extPoint;
+
+#ifdef Q_WS_MAC
+    // Also move the scrollbars if they are covered by the native Mac size grip. 
+    if (hasMacSizeGrip)
+        cornerOffset =  extPoint;
+#endif    
 
     // The corner point is where the scrollbar rects, the corner widget rect and the
     // viewport rect meets.
     const QPoint cornerPoint(controlsRect.bottomRight() + QPoint(1, 1) - cornerOffset);
 
+    // Some styles paints the corner if both scorllbars are showing and there is
+    // no corner widget. Also, on the Mac we paint if there is a native
+    // (transparent) sizegrip in the area where a corner widget would be. 
+    if (needv && needh && hasCornerWidget == false
+#ifdef Q_WS_MAC
+        || ((needv || needh) && hasMacSizeGrip)
+#endif    
+    ) {
+        cornerPaintingRect = QStyle::visualRect(opt.direction, opt.rect, QRect(cornerPoint, extSize));
+    } else {
+        cornerPaintingRect = QRect();
+    }
+
+#ifdef Q_WS_MAC
+    if (hasMacReverseSizeGrip) 
+        reverseCornerPaintingRect = QRect(controlsRect.bottomRight() + QPoint(1, 1) - extPoint, extSize);
+    else 
+        reverseCornerPaintingRect = QRect();
+#endif
+
     if (needh) {
         QRect horizontalScrollbarRect(QPoint(controlsRect.left(), cornerPoint.y()), QPoint(cornerPoint.x() - 1, controlsRect.bottom()));
-        if (hasMacReverseCornerWidget)
+#ifdef Q_WS_MAC
+        if (hasMacReverseSizeGrip)
             horizontalScrollbarRect.adjust(vsbExt, 0, 0, 0);
+#endif
         scrollBarContainers[Qt::Horizontal]->setGeometry(QStyle::visualRect(opt.direction, opt.rect, horizontalScrollbarRect));
     }
 
@@ -623,6 +648,20 @@ bool QAbstractScrollArea::event(QEvent *e)
             d->layoutChildren();
             break;
     case QEvent::Paint:
+        if (d->cornerPaintingRect.isValid()) {
+            QStyleOption option;
+            option.rect = d->cornerPaintingRect;
+            QPainter p(this);
+            style()->drawPrimitive(QStyle::PE_PanelScrollAreaCorner, &option, &p, this);
+        }
+#ifdef Q_WS_MAC
+        if (d->reverseCornerPaintingRect.isValid()) {
+            QStyleOption option;
+            option.rect = d->reverseCornerPaintingRect;
+            QPainter p(this);
+            style()->drawPrimitive(QStyle::PE_PanelScrollAreaCorner, &option, &p, this);
+        }
+#endif
         QFrame::paintEvent((QPaintEvent*)e);
         break;
     case QEvent::ContextMenu:

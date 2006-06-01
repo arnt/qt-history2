@@ -2291,6 +2291,13 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             }
         }
         break;
+    case PE_PanelScrollAreaCorner: {
+        const QBrush brush = w ? w->palette().brush(QPalette::Base) : QBrush();
+        p->fillRect(opt->rect, brush);
+        p->setPen(QPen(QColor(217, 217, 217)));
+        p->drawLine(opt->rect.topLeft(), opt->rect.topRight());
+        p->drawLine(opt->rect.topLeft(), opt->rect.bottomLeft());
+        } break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;

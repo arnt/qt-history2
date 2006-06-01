@@ -45,7 +45,10 @@ public:
 
     QWidget *viewport;
     QWidget *cornerWidget;
-    Qt::Corner corner;
+    QRect cornerPaintingRect;
+#ifdef Q_WS_MAC
+    QRect reverseCornerPaintingRect;
+#endif
     int left, top, right, bottom; // viewport margin
 
     int xoffset, yoffset;
