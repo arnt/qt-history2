@@ -1895,15 +1895,42 @@ QString HtmlGenerator::registerRef( const QString& ref )
 
 QString HtmlGenerator::protect( const QString& string )
 {
-    if (string.isEmpty())
-        return string;
+#define APPEND(x) \
+    if (html.isEmpty()) { \
+        html = string; \
+        html.truncate(i); \
+    } \
+    html += (x);
 
-    QString html = string;
-    html.replace( "&", "&amp;" );
-    html.replace( "<", "&lt;" );
-    html.replace( ">", "&gt;" );
-    html.replace( "\"", "&quot;" );
-    return html;
+    QString html;
+    int n = string.length();
+
+    for (int i = 0; i < n; ++i) {
+        QChar ch = string.at(i);
+
+        if (ch == '&') {
+            APPEND("&amp;");
+        } else if (ch == '<') {
+            APPEND("&lt;");
+        } else if (ch == '>') {
+            APPEND("&gt;");
+        } else if (ch == '"') {
+            APPEND("&quot;");        
+        } else if (ch.unicode() > 0x00FF) {
+            APPEND("&#x");
+            html += QString::number(ch.unicode(), 16);
+            html += QChar(';');
+        } else {
+            if (!html.isEmpty())
+                html += ch;
+        }
+    }
+
+    if (!html.isEmpty())
+        return html;
+    return string;
+
+#undef APPEND
 }
 
 QString HtmlGenerator::protectPreformatted(const QString &string)

@@ -379,7 +379,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    }
 	        } else {
 		    int command = commandHash()->value(commandStr, UNKNOWN_COMMAND);
-                    qCritical("commandStr = %s", qPrintable(commandStr));
 
 		    switch ( command ) {
 		    case CMD_A:
