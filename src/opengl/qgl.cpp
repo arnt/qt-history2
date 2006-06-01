@@ -2006,6 +2006,7 @@ QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f
     Q_D(QGLWidget);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
+    setAutoFillBackground(true); // for compatibility
     d->init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
 }
 
@@ -2045,6 +2046,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* 
     Q_D(QGLWidget);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
+    setAutoFillBackground(true); // for compatibility
     d->init(new QGLContext(format, this), shareWidget);
 }
 
@@ -2080,6 +2082,7 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent, const QGLWidget *shar
     Q_D(QGLWidget);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
+    setAutoFillBackground(true); // for compatibility
     d->init(context, shareWidget);
 }
 
@@ -3107,6 +3110,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
         setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
+    setAutoFillBackground(true); // for compatibility
     d->init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
 }
 
@@ -3124,6 +3128,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
         setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
+    setAutoFillBackground(true); // for compatibility
     d->init(new QGLContext(format, this), shareWidget);
 }
 
@@ -3140,6 +3145,7 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
         setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
+    setAutoFillBackground(true); // for compatibility
     d->init(context, shareWidget);
 }
 

@@ -183,6 +183,7 @@ public:
     inline GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
     inline QColor backgroundColor() const;
     inline QGLContext *context() const;
+    inline bool autoFillBackground() const;
 
 private:
     QGLWidget *widget;
@@ -293,6 +294,13 @@ inline QGLContext *QGLDrawable::context() const
     else if (fbo)
         return const_cast<QGLContext *>(QGLContext::currentContext());
     return 0;
+}
+
+inline bool QGLDrawable::autoFillBackground() const
+{
+    if (widget)
+        return widget->autoFillBackground();
+    return false;
 }
 
 #ifndef CALLBACK // for Windows
@@ -859,7 +867,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
     const QColor &c = d->drawable.backgroundColor();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
+    if (d->drawable.autoFillBackground())
+        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ACCUM_BUFFER_BIT);
     QSize sz(d->drawable.size());
     glViewport(0, 0, sz.width(), sz.height());
     glMatrixMode(GL_PROJECTION);
