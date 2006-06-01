@@ -334,6 +334,13 @@ void QTableViewPrivate::drawCell(QPainter *painter, const QStyleOptionViewItem &
     and selectColumn(). The table will show a grid depending on the
     \l showGrid property.
 
+    The items shown in a table view, like those in the other item views, are
+    rendered and edited using standard \l{QItemDelegate}{delegates}. However,
+    for some tasks it is sometimes useful to be able to insert widgets in a
+    table instead. Widgets are set for particular indexes with the
+    \l{QAbstractItemView::}{setIndexWidget()} function, and
+    later retrieved with \l{QAbstractItemView::}{indexWidget()}.
+
     For some specialized forms of tables it is useful to be able to
     convert between row and column indexes and widget coordinates.
     The rowAt() function provides the y-coordinate within the view of the

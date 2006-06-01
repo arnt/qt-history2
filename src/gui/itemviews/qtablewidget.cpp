@@ -1527,9 +1527,9 @@ void QTableWidgetPrivate::_q_sort()
 /*!
     \fn QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const
 
-    Returns the item at the position (\a{ax}, \a{ay}) in the table
-    widget's coordinate system, or returns 0 if the specified point is not
-    covered by an item in the table widget.
+    Returns the item at the position equivalent to QPoint(\a{ax}, \a{ay}) in
+    the table widget's coordinate system, or returns 0 if the specified point
+    is not covered by an item in the table widget.
 
     \sa item()
 */
