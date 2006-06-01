@@ -28,6 +28,10 @@
 #include <ctype.h>
 #include <sys/types.h>
 
+#ifdef Q_OS_WIN
+#include <process.h>
+#endif
+
 /*
  * Copyright (c) 1987, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -61,7 +65,11 @@ static int _gettemp(char *path, int *doopen, int domkdir, int slen)
 	char *start, *trv, *suffp;
 	struct stat sbuf;
 	int rval;
+#ifdef Q_OS_WIN
+    int pid;
+#else
 	pid_t pid;
+#endif
 
 	if (doopen && domkdir) {
 		errno = EINVAL;
