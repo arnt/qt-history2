@@ -1990,11 +1990,6 @@ void QTextEditPrivate::relayoutDocument()
     QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout)) {
-        if (lineWrap == QTextEdit::NoWrap)
-            tlayout->setBlockTextFlags(tlayout->blockTextFlags() | Qt::TextSingleLine);
-        else
-            tlayout->setBlockTextFlags(tlayout->blockTextFlags() & ~Qt::TextSingleLine);
-
         if (lineWrap == QTextEdit::FixedColumnWidth)
             tlayout->setFixedColumnWidth(lineWrapColumnOrWidth);
         else
@@ -2016,7 +2011,7 @@ void QTextEditPrivate::relayoutDocument()
     int width = 0;
     switch (lineWrap) {
         case QTextEdit::NoWrap:
-            width = 0;
+            width = -1;
             break;
         case QTextEdit::WidgetWidth:
             width = viewport->width();

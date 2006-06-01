@@ -1543,7 +1543,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     QTextFrame *parent = f->parentFrame();
     const QTextFrameData *pd = parent ? data(parent) : 0;
 
-    const qreal maximumWidth = pd ? pd->contentsWidth : q_func()->document()->pageSize().width();
+    const qreal maximumWidth = qMax(qreal(0), pd ? pd->contentsWidth : q_func()->document()->pageSize().width());
 
     const qreal width = fformat.width().value(maximumWidth);
 
@@ -1875,6 +1875,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
 {
     Q_Q(QTextDocumentLayout);
 
+    const QTextDocument *doc = q->document();
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
 
@@ -1892,12 +1893,14 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, QLayoutStruct
     }
     QTextOption option(align);
     option.setTextDirection(dir);
-    if (blockTextFlags & Qt::TextSingleLine || blockFormat.nonBreakableLines())
+    if (blockTextFlags & Qt::TextSingleLine
+        || blockFormat.nonBreakableLines()
+        || doc->pageSize().width() < 0)
         option.setWrapMode(QTextOption::ManualWrap);
     else
         option.setWrapMode(wordWrapMode);
     option.setTabStop(tabStopWidth);
-    option.setUseDesignMetrics(q->document()->useDesignMetrics());
+    option.setUseDesignMetrics(doc->useDesignMetrics());
     tl->setTextOption(option);
 
     const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -2225,7 +2228,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     Q_D(QTextDocumentLayout);
 
     const QSizeF pageSize = document()->pageSize();
-    if (pageSize.isNull() || !pageSize.isValid())
+    if (pageSize.isNull())
         return;
 
     QRectF updateRect;
@@ -2395,8 +2398,11 @@ void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTex
 
 int QTextDocumentLayout::dynamicPageCount() const
 {
+    const QSizeF pgSize = document()->pageSize();
+    if (pgSize.height() < 0)
+        return 1;
     return (int)(dynamicDocumentSize().height()
-                 / document()->pageSize().height()) + 1;
+                 / pgSize.height()) + 1;
 }
 
 QSizeF QTextDocumentLayout::dynamicDocumentSize() const
