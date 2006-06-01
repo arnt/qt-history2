@@ -501,22 +501,15 @@ QRegion PieView::visualRegionForSelection(const QItemSelection &selection) const
     if (ranges == 0)
         return QRect();
 
-    // Note that we use the top and bottom functions of the selection range
-    // since the data is stored in rows.
-
-    int firstRow = selection.at(0).top();
-    int lastRow = selection.at(0).top();
-
+    QRegion region;
     for (int i = 0; i < ranges; ++i) {
-        firstRow = qMin(firstRow, selection.at(i).top());
-        lastRow = qMax(lastRow, selection.at(i).bottom());
+        QItemSelectionRange range = selection.at(i);
+        for (int row = range.top(); row <= range.bottom(); ++row) {
+            for (int col = range.left(); col <= range.right(); ++col) {
+                QModelIndex index = model()->index(row, col, rootIndex());
+                region += visualRect(index);
+            }
+        }
     }
-
-    QModelIndex firstItem = model()->index(qMin(firstRow, lastRow), 0, rootIndex());
-    QModelIndex lastItem = model()->index(qMax(firstRow, lastRow), 0, rootIndex());
-
-    QRect firstRect = visualRect(firstItem);
-    QRect lastRect = visualRect(lastItem);
-
-    return firstRect.unite(lastRect);
+    return region;
 }
