@@ -2540,7 +2540,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             switch (qt_aqua_size_constrain(w)) {
             case QAquaSizeUnknown:
             case QAquaSizeLarge:
-                bdi.kind = kThemePushButtonNormal;
+                bdi.kind = kThemePushButton;
                 break;
             case QAquaSizeMini:
                 bdi.kind = kThemePushButtonMini;
@@ -2552,7 +2552,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 
             if ((btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
                 || ((btn->rect.width() < 50 || btn->rect.height() < 30)
-                      && bdi.kind == kThemePushButtonNormal))
+                      && bdi.kind == kThemePushButton))
                 bdi.kind = kThemeBevelButton;
 
             if (btn->state & State_HasFocus
