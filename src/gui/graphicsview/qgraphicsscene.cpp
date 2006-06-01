@@ -1658,7 +1658,9 @@ void QGraphicsScene::setForegroundBrush(const QBrush &brush)
 }
 
 /*!
-    \internal
+    This function is the equivalent of QWidget::inputMethodQuery() for a graphics scene.
+
+    \sa QWidget::inputMethodQuery()
 */
 QVariant QGraphicsScene::inputMethodQuery(Qt::InputMethodQuery query) const
 {
@@ -1789,20 +1791,9 @@ bool QGraphicsScene::event(QEvent *event)
 */
 void QGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMenuEvent)
 {
-    switch (contextMenuEvent->reason()) {
-    case QGraphicsSceneContextMenuEvent::Mouse:
-    case QGraphicsSceneContextMenuEvent::Other:
-        if (QGraphicsItem *item = itemAt(contextMenuEvent->scenePos())) {
-            contextMenuEvent->setPos(item->mapFromScene(contextMenuEvent->scenePos()));
-            item->sceneEvent(contextMenuEvent);
-        }
-        break;
-    case QGraphicsSceneContextMenuEvent::Keyboard:
-        if (QGraphicsItem *item = focusItem()) {
-            contextMenuEvent->setPos(QPointF(0, 0));
-            item->sceneEvent(contextMenuEvent);
-        }
-        break;
+    if (QGraphicsItem *item = itemAt(contextMenuEvent->scenePos())) {
+        contextMenuEvent->setPos(item->mapFromScene(contextMenuEvent->scenePos()));
+        item->sceneEvent(contextMenuEvent);
     }
 }
 

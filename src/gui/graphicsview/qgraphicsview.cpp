@@ -913,7 +913,7 @@ void QGraphicsView::fitInView(const QGraphicsItem *item, Qt::AspectRatioMode asp
                     QRectF(0, printer.height() / 2,
                            printer.width(), printer.height() / 2),
                     viewport.adjusted(0, 0, 0, -viewport.height() / 2));
-                    
+
     \endcode
 
     If \a source is a null rect, this function will use viewport()->rect() to
@@ -980,7 +980,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
                          -verticalScrollBar()->value() + d->topIndent);
     QMatrix painterMatrix = d->matrix * moveMatrix;
-    
+
     // Generate the style options
     QList<QStyleOptionGraphicsItem> styleOptions;
     for (int i = 0; i < itemList.size(); ++i) {
@@ -1321,14 +1321,11 @@ QVariant QGraphicsView::inputMethodQuery(Qt::InputMethodQuery query) const
     Q_D(const QGraphicsView);
     QVariant value = d->scene->inputMethodQuery(query);
     if (value.type() == QVariant::RectF)
-        // deliberately only /translate/ the rectangle and also turn it into
-        // a plain QRect since input methods don't deal with floating point
-        // precision usually :-)
-        value = value.toRectF().translated(mapFromScene(QPointF())).toRect();
+        value = mapFromScene(value.toRectF()).boundingRect().toRect();
     else if (value.type() == QVariant::PointF)
         value = mapFromScene(value.toPointF());
     else if (value.type() == QVariant::Rect)
-        value = value.toRectF().translated(mapFromScene(QPointF()));
+        value = mapFromScene(value.toRect()).boundingRect().toRect();
     else if (value.type() == QVariant::Point)
         value = mapFromScene(value.toPoint());
     return value;
