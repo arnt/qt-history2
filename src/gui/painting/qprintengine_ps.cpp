@@ -952,6 +952,11 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
                     cupsArgList << QLatin1String("landscape");
                 }
 
+                if (!d->title.isEmpty()) {
+                    cupsArgList << QLatin1String("-J");
+                    cupsArgList << d->title;
+                }
+
                 QStringList list = d->cups.options();
                 QStringList::const_iterator it = list.constBegin();
                 while (it != list.constEnd()) {
@@ -1534,7 +1539,7 @@ const ppd_file_t* QCUPSSupport::setCurrentPrinter(int index)
     _cupsMarkOptions(currPPD, printers[currPrinterIndex].num_options, printers[currPrinterIndex].options);
 
     // getting pointer to page sizes
-    page_sizes = ppdOption(QLatin1String("PageSize"));
+    page_sizes = ppdOption("PageSize");
 
     return currPPD;
 }
@@ -1559,7 +1564,7 @@ bool QCUPSSupport::isAvailable() const
         _cupsAddOption;
 }
 
-const ppd_option_t* QCUPSSupport::ppdOption(const QString &key) const
+const ppd_option_t* QCUPSSupport::ppdOption(const char *key) const
 {
     for (int gr = 0; gr < currPPD->num_groups; ++gr) {
         for (int opt = 0; opt < currPPD->groups[gr].num_options; ++opt) {
@@ -1570,6 +1575,7 @@ const ppd_option_t* QCUPSSupport::ppdOption(const QString &key) const
     return 0;
 }
 
+#if 0
 const cups_option_t* QCUPSSupport::printerOption(const QString &key) const
 {
     for (int i = 0; i < printers[currPrinterIndex].num_options; ++i) {
@@ -1578,6 +1584,7 @@ const cups_option_t* QCUPSSupport::printerOption(const QString &key) const
     }
     return 0;
 }
+#endif
 
 const ppd_option_t* QCUPSSupport::pageSizes() const
 {

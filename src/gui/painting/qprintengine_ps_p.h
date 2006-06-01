@@ -111,9 +111,9 @@ public:
     const ppd_file_t* setCurrentPrinter(int index);
 
     const ppd_file_t* currentPPD() const;
-    const ppd_option_t* ppdOption(const QString &key) const;
+    const ppd_option_t* ppdOption(const char *key) const;
 
-    const cups_option_t* printerOption(const QString &key) const;
+//     const cups_option_t* printerOption(const QString &key) const;
     const ppd_option_t* pageSizes() const;
 
     int markOption(const char* name, const char* value);
