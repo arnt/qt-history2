@@ -2231,6 +2231,7 @@ void QGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
 {
     if (backgroundBrush().style() != Qt::NoBrush) {
         painter->save();
+        painter->setBrushOrigin(0, 0);
         painter->fillRect(rect, backgroundBrush());
         painter->restore();
     }/* else if (viewport()->inherits("QGLWidget")) {

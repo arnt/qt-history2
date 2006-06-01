@@ -1310,6 +1310,7 @@ void QGraphicsItem::translate(qreal dx, qreal dy)
 */
 void QGraphicsItem::advance(int phase)
 {
+    Q_UNUSED(phase);
 }
 
 /*!

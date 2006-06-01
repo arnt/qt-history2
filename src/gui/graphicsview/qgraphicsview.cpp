@@ -182,6 +182,9 @@ public:
     bool rubberBanding;
     bool handScrolling;
 
+    QBrush backgroundBrush;
+    QBrush foregroundBrush;
+    
     QGraphicsSceneDragDropEvent *lastDragDropEvent;
     void storeDragDropEvent(const QGraphicsSceneDragDropEvent *event);
     void populateSceneDragDropEvent(QGraphicsSceneDragDropEvent *dest,
@@ -1348,6 +1351,52 @@ QVariant QGraphicsView::inputMethodQuery(Qt::InputMethodQuery query) const
 }
 
 /*!
+    \property QGraphicsView::backgroundBrush
+    \brief the background brush of the scene.
+
+    This property sets the background brush for the scene in this view. It is
+    used to override the scene's own background, and defines the behavior of
+    drawBackground(). To provide custom background drawing for this view, you
+    can reimplement drawBackground() instead.
+
+    \sa QGraphicsScene::backgroundBrush, foregroundBrush
+*/
+QBrush QGraphicsView::backgroundBrush() const
+{
+    Q_D(const QGraphicsView);
+    return d->backgroundBrush;
+}
+void QGraphicsView::setBackgroundBrush(const QBrush &brush)
+{
+    Q_D(QGraphicsView);
+    d->backgroundBrush = brush;
+    update();
+}
+
+/*!
+    \property QGraphicsView::foregroundBrush
+    \brief the foreground brush of the scene.
+
+    This property sets the foreground brush for the scene in this view. It is
+    used to override the scene's own foreground, and defines the behavior of
+    drawForeground(). To provide custom background drawing for this view, you
+    can reimplement foreBackground() instead.
+
+    \sa QGraphicsScene::foregroundBrush, backgroundBrush
+*/
+QBrush QGraphicsView::foregroundBrush() const
+{
+    Q_D(const QGraphicsView);
+    return d->foregroundBrush;
+}
+void QGraphicsView::setForegroundBrush(const QBrush &brush)
+{
+    Q_D(QGraphicsView);
+    d->foregroundBrush = brush;
+    viewport()->update();
+}
+
+/*!
     Schedules an update of the scene rectangles \a rects.
 
     \sa QGraphicsScene::changed()
@@ -1870,16 +1919,24 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 #endif
 
     // Transform the exposed viewport rects to scene polygons
-    QList<QPolygonF> exposedAreas;
+    QList<QRectF> exposedRects;
     foreach (QRect rect, exposedRegion.rects())
-        exposedAreas << mapToScene(rect.adjusted(-1, -1, 1, 1));
+        exposedRects << mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
 
     // Find all exposed items
-    QPolygonF exposedPolygon;
-    foreach (QPolygonF polygon, exposedAreas)
-        exposedPolygon += polygon;
-    QList<QGraphicsItem *> itemList = d->scene->items(exposedPolygon);
-
+    QList<QGraphicsItem *> itemList;
+    QSet<QGraphicsItem *> tmp;
+    foreach (QRectF rect, exposedRects) {
+        foreach (QGraphicsItem *item, d->scene->items(rect)) {
+            if (!tmp.contains(item)) {
+                tmp << item;
+                itemList << item;
+            }
+        }
+    }
+    tmp.clear();
+    QGraphicsScenePrivate::sortItems(&itemList);
+    
     // Reverse the item; we want to draw them in reverse order
     if (!itemList.isEmpty()) {
         QGraphicsItem **a = &itemList.first();
@@ -1898,10 +1955,10 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 #endif
 
     // Background
-    foreach (QPolygonF polygon, exposedAreas) {
+    foreach (QRectF rect, exposedRects) {
         painter.save();
-        painter.setClipRect(polygon.boundingRect());
-        d->scene->drawBackground(&painter, polygon.boundingRect());
+        painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
+        drawBackground(&painter, rect);
         painter.restore();
     }
 
@@ -1945,17 +2002,17 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     }
 
     // Items
-    d->scene->drawItems(&painter, itemList, styleOptions);
+    drawItems(&painter, itemList, styleOptions);
 
 #ifdef QGRAPHICSVIEW_DEBUG
     int itemsTime = stopWatch.elapsed() - exposedTime - backgroundTime;
 #endif
 
     // Foreground
-    foreach (QPolygonF polygon, exposedAreas) {
+    foreach (QRectF rect, exposedRects) {
         painter.save();
-        painter.setClipRect(polygon.boundingRect());
-        d->scene->drawForeground(&painter, polygon.boundingRect());
+        painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
+        drawForeground(&painter, rect);
         painter.restore();
     }
 
@@ -1968,10 +2025,10 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 #ifdef QGRAPHICSVIEW_DEBUG
     qDebug() << "\tItem discovery....... " << exposedTime << "msecs (" << itemList.size() << "items,"
              << (exposedTime > 0 ? (itemList.size() * 1000.0 / exposedTime) : -1) << "/ sec )";
-    qDebug() << "\tDrawing background... " << backgroundTime << "msecs (" << exposedAreas.size() << "segments )";
+    qDebug() << "\tDrawing background... " << backgroundTime << "msecs (" << exposedRects.size() << "segments )";
     qDebug() << "\tDrawing items........ " << itemsTime << "msecs ("
              << (itemsTime > 0 ? (itemList.size() * 1000.0 / itemsTime) : -1) << "/ sec )";
-    qDebug() << "\tDrawing foreground... " << foregroundTime << "msecs (" << exposedAreas.size() << "segments )";
+    qDebug() << "\tDrawing foreground... " << foregroundTime << "msecs (" << exposedRects.size() << "segments )";
     qDebug() << "\tTotal rendering time: " << stopWatch.elapsed() << "msecs ("
              << (stopWatch.elapsed() > 0 ? (1000.0 / stopWatch.elapsed()) : -1.0) << "fps )";
 #endif
@@ -2019,6 +2076,79 @@ void QGraphicsView::showEvent(QShowEvent *event)
     d->recalculateContentSize();
     centerOn(d->lastCenterPoint);
     QAbstractScrollArea::showEvent(event);
+}
+
+/*!
+    Draws the background of the scene using \a painter, before any items and
+    the foreground are drawn. Reimplement this function to provide a custom
+    background for this view.
+
+    If all you want is to define a color, texture or gradient for the
+    background, you can call setBackgroundBrush() instead.
+
+    All painting is done in \e scene coordinates. \a rect is the exposed
+    rectangle.
+
+    The default implementation fills \a rect using the view's backgroundBrush.
+    If no such brush is defined (the default), the scene's drawBackground()
+    function is called instead.
+
+    \sa drawForeground(), QGraphicsScene::drawForeground()
+*/
+void QGraphicsView::drawBackground(QPainter *painter, const QRectF &rect)
+{
+    Q_D(QGraphicsView);
+    if (d->scene && d->backgroundBrush.style() == Qt::NoBrush) {
+        d->scene->drawBackground(painter, rect);
+        return;
+    }
+
+    painter->fillRect(rect, d->backgroundBrush);
+}
+
+/*!
+    Draws the foreground of the scene using \a painter, after the background
+    and all items are drawn. Reimplement this function to provide a custom
+    foreground for this view.
+
+    If all you want is to define a color, texture or gradient for the
+    foreground, you can call setForegroundBrush() instead.
+
+    All painting is done in \e scene coordinates. \a rect is the exposed
+    rectangle.
+
+    The default implementation fills \a rect using the view's foregroundBrush.
+    If no such brush is defined (the default), the scene's drawForeground()
+    function is called instead.
+
+    \sa drawBackground(), QGraphicsScene::drawBackground()
+*/
+void QGraphicsView::drawForeground(QPainter *painter, const QRectF &rect)
+{
+    Q_D(QGraphicsView);
+    if (d->scene && d->foregroundBrush.style() == Qt::NoBrush) {
+        d->scene->drawForeground(painter, rect);
+        return;
+    }
+
+    painter->fillRect(rect, d->foregroundBrush);
+}
+
+/*!
+    Draws the items in the scene using \a painter, after the background and
+    before the foreground are drawn. Reimplement this function to provide
+    custom item drawing for this view.
+
+    The default implementation calls the scene's drawItems() function.
+    
+    \sa drawForeground(), drawBackground(), QGraphicsScene::drawItems()
+*/
+void QGraphicsView::drawItems(QPainter *painter, const QList<QGraphicsItem *> &items,
+                              const QList<QStyleOptionGraphicsItem> &options)
+{
+    Q_D(QGraphicsView);
+    if (d->scene)
+        d->scene->drawItems(painter, items, options);
 }
 
 #endif // QT_NO_GRAPHICSVIEW

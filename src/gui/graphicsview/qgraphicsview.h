@@ -28,6 +28,7 @@ class QGraphicsItem;
 class QGraphicsScene;
 class QPainterPath;
 class QPolygonF;
+class QStyleOptionGraphicsItem;
 
 Q_DECLARE_METATYPE(QPainter::RenderHints)
 
@@ -35,6 +36,8 @@ class QGraphicsViewPrivate;
 class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
 {
     Q_OBJECT
+    Q_PROPERTY(QBrush backgroundBrush READ backgroundBrush WRITE setBackgroundBrush)
+    Q_PROPERTY(QBrush foregroundBrush READ foregroundBrush WRITE setForegroundBrush)
     Q_PROPERTY(bool interactive READ isInteractive WRITE setInteractive)
     Q_PROPERTY(QRectF sceneRect READ sceneRect WRITE setSceneRect)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
@@ -120,6 +123,12 @@ public:
 
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
+    QBrush backgroundBrush() const;
+    void setBackgroundBrush(const QBrush &brush);
+
+    QBrush foregroundBrush() const;
+    void setForegroundBrush(const QBrush &brush);
+
 public Q_SLOTS:
     void updateScene(const QList<QRectF> &rects);
     void updateSceneRect(const QRectF &rect);
@@ -149,6 +158,11 @@ protected:
     void scrollContentsBy(int dx, int dy);
     void showEvent(QShowEvent *event);
 
+    virtual void drawBackground(QPainter *painter, const QRectF &rect);
+    virtual void drawForeground(QPainter *painter, const QRectF &rect);
+    virtual void drawItems(QPainter *painter, const QList<QGraphicsItem *> &items,
+                           const QList<QStyleOptionGraphicsItem> &options);
+    
 private:
     Q_DECLARE_PRIVATE(QGraphicsView)
     friend class QGraphicsSceneWidget;
