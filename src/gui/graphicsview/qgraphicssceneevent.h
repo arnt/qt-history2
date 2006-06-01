@@ -108,8 +108,8 @@ public:
     Qt::KeyboardModifiers modifiers() const;
     void setModifiers(Qt::KeyboardModifiers modifiers);
 
-    void setReason(Reason reason);
     Reason reason() const;
+    void setReason(Reason reason);
 
 private:
     Q_DECLARE_PRIVATE(QGraphicsSceneContextMenuEvent)

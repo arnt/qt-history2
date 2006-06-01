@@ -520,21 +520,21 @@ void QGraphicsSceneContextMenuEvent::setModifiers(Qt::KeyboardModifiers modifier
 }
 
 /*!
-    Sets the reason for the context menu event.
-*/
-void QGraphicsSceneContextMenuEvent::setReason(Reason reason)
-{
-    Q_D(QGraphicsSceneContextMenuEvent);
-    d->reason = reason;
-}
-
-/*!
     Returns the reason for the context menu event.
 */
 QGraphicsSceneContextMenuEvent::Reason QGraphicsSceneContextMenuEvent::reason() const
 {
     Q_D(const QGraphicsSceneContextMenuEvent);
     return d->reason;
+}
+
+/*!
+    Sets the reason for the context menu event.
+*/
+void QGraphicsSceneContextMenuEvent::setReason(Reason reason)
+{
+    Q_D(QGraphicsSceneContextMenuEvent);
+    d->reason = reason;
 }
 
 class QGraphicsSceneHoverEventPrivate : public QGraphicsSceneEventPrivate
