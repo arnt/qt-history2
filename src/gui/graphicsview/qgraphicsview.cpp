@@ -934,23 +934,103 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     if (!d->scene)
         return;
 
-    QRect sourceRect = !source.isNull()
-                       ? source
-                       : viewport()->rect();
-    QRectF targetRect = !target.isNull()
-                        ? target
-                        : QRect(0, 0, painter->device()->width(), painter->device()->height());
+    // Default source rect = viewport rect
+    QRect sourceRect = source;
+    if (source.isNull())
+        sourceRect = viewport()->rect();
 
-    painter->save();
-    painter->setClipRect(targetRect);
+    // Default target rect = device rect
+    QRectF targetRect = target;
+    if (target.isNull())
+        targetRect.setRect(0, 0, painter->device()->width(), painter->device()->height());
 
+    // Find the ideal x / y scaling ratio to fit \a source into \a target.
+    qreal xratio = targetRect.width() / sourceRect.width();
+    qreal yratio = targetRect.height() / sourceRect.height();
+
+    // Scale according to the aspect ratio mode.
+    switch (aspectRatioMode) {
+    case Qt::KeepAspectRatio:
+        xratio = yratio = qMin(xratio, yratio);
+        break;
+    case Qt::KeepAspectRatioByExpanding:
+        xratio = yratio = qMax(xratio, yratio);
+        break;
+    case Qt::IgnoreAspectRatio:
+        break;
+    }
+
+    // Find all items to draw, and reverse the list (we want to draw
+    // in reverse order).
+    QList<QGraphicsItem *> itemList = d->scene->items(mapToScene(sourceRect));
+    if (!itemList.isEmpty()) {
+        QGraphicsItem **a = &itemList.first();
+        QGraphicsItem **b = &itemList.last();
+        QGraphicsItem *tmp = 0;
+        while (a < b) {
+            tmp = *a;
+            *a = *b;
+            *b = tmp;
+            ++a; --b;
+        }
+    }
+
+    // Setup painter
     QMatrix moveMatrix;
     moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
                          -verticalScrollBar()->value() + d->topIndent);
     QMatrix painterMatrix = d->matrix * moveMatrix;
-    painter->setMatrix(painterMatrix);
+    
+    // Generate the style options
+    QList<QStyleOptionGraphicsItem> styleOptions;
+    for (int i = 0; i < itemList.size(); ++i) {
+        QGraphicsItem *item = itemList.at(i);
 
-    d->scene->render(painter, targetRect, sourceRect, aspectRatioMode);
+        QStyleOptionGraphicsItem option;
+        option.state = QStyle::State_None;
+        option.rect = item->boundingRect().toRect();
+        if (item->isSelected())
+            option.state |= QStyle::State_Selected;
+        if (item->isEnabled())
+            option.state |= QStyle::State_Enabled;
+        if (item->hasFocus())
+            option.state |= QStyle::State_HasFocus;
+        if (d->scene->d_func()->hoverItems.contains(item))
+            option.state |= QStyle::State_MouseOver;
+        if (item == d->scene->mouseGrabberItem())
+            option.state |= QStyle::State_Sunken;
+
+        // Calculate a simple level-of-detail metric.
+        QMatrix neo = item->sceneMatrix() * painterMatrix;
+        QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
+        qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
+        qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
+        option.levelOfDetail = qMin(dx, dy);
+        option.matrix = neo;
+
+        option.exposedRect = item->boundingRect();
+        option.exposedRect &= neo.inverted().mapRect(targetRect);
+
+        styleOptions << option;
+    }
+
+    painter->save();
+
+    // Transform the painter.
+    painter->setClipRect(targetRect);
+    painter->setMatrix(painterMatrix
+                       * QMatrix().translate(targetRect.left(), targetRect.top())
+                       * QMatrix().scale(xratio, yratio)
+                       * QMatrix().translate(-sourceRect.left(), -sourceRect.top()));
+
+    QPainterPath path;
+    path.addPolygon(mapToScene(sourceRect));
+    painter->setClipPath(path);
+
+    // Render the scene.
+    d->scene->drawBackground(painter, sourceRect);
+    d->scene->drawItems(painter, itemList, styleOptions);
+    d->scene->drawForeground(painter, sourceRect);
 
     painter->restore();
 }
