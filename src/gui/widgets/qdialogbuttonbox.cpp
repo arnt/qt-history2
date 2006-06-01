@@ -44,19 +44,29 @@
        applying changes).
     \endlist
 
-    There can also be alternate ways of dismissing the dialog (some with
-    destructive results).
+    There can also be alternate ways of dismissing the dialog which may cause
+    destructive results.
 
     Most dialogs have buttons that can almost considered to be standard (e.g.
     \gui OK and \gui Cancel buttons). It is sometimes convenient to create these
     buttons in a standard way.
 
-    Typically, you create a QDialogButtonBox with the orientation you want and
-    then add buttons to it specifying the role for each button.
+    There are a couple ways of using QDialogButtonBox. One ways is to create
+    the buttons (or button texts) your self and add them to the button box,
+    specifying their role.
 
-    \omit
-    ### Some quoted example showing this in action
-    \endomit
+    \quotefromfile exawples/dialogs/finddialog/finddialog.cpp
+    \skipto findButton
+    \printuntil buttonBox->addButton(moreButton, QDialogButtonBox::ActionRole);
+
+    Alternatively, QDialogButtonBox provides several standard buttons (e.g. OK, Cancel, Save)
+    that you can use. They exist as flags so you can OR them together in the constructor.
+
+    \quotefromfile exawples/dialogs/tabdialog/tabdialog.cpp
+    \skipto buttonBox
+    \printuntil connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    You can mix and match normal buttons and standard buttons.
 
     Currently the buttons are laid out in the following way.
 
@@ -66,16 +76,15 @@
 
     When a button is clicked in the button box, the clicked() signal is emitted
     (once with the ButtonRole and once with the actual button). For
-    convenience, if the button has an AcceptRole or a RejectRole the accepted
-    and rejected signals are emitted respectively.
+    convenience, if the button has an AcceptRole, RejectRole, or HelpRole, the accepted(),
+    rejected(), or helpRequested() signals are emitted respectively.
 
     \sa QMessageBox, QPushButton, QDialog
 */
 
 enum { AcceptRole = QDialogButtonBox::AcceptRole, RejectRole = QDialogButtonBox::RejectRole,
-       AlternateRole = QDialogButtonBox::AlternateRole,
        DestructiveRole = QDialogButtonBox::DestructiveRole,
-       ActionRole = QDialogButtonBox::ActionRole, HelpRole = QDialogButtonBox::HelpRole,
+       ActionRole = QDialogButtonBox::ActionRole, HelpRole = QDialogButtonBox::HelpRole, AlternateRole,
        Stretch = 0x10000000, MacSpacer = 0x20000000, EOL = 0x40000000, Reverse = 0x80000000 };
 
 static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton button)
@@ -151,7 +160,7 @@ public:
     ~QDialogButtonBoxPrivate();
 
     QList<QAbstractButton *> buttonLists[QDialogButtonBox::NRoles];
-    QHash<QAbstractButton *, QDialogButtonBox::StandardButton> standardButtonHash;
+    QHash<QPushButton *, QDialogButtonBox::StandardButton> standardButtonHash;
 
     Qt::Orientation orientation;
     QDialogButtonBox::ButtonLayout layoutPolicy;
@@ -163,10 +172,11 @@ public:
     void layoutButtons();
     void initLayout();
     void resetLayout();
-    QAbstractButton *createButton(QDialogButtonBox::StandardButton button, bool doLayout = true);
+    QPushButton *createButton(QDialogButtonBox::StandardButton button, bool doLayout = true);
     void addButton(QAbstractButton *button, QDialogButtonBox::ButtonRole role, bool doLayout = true);
     void _q_handleButtonDestroyed();
     void _q_handleButtonClicked();
+    void addButtonsToLayout(int start, int stop, int dir, const QList<QAbstractButton *> buttonList);
 };
 
 QDialogButtonBoxPrivate::QDialogButtonBoxPrivate(Qt::Orientation orient)
@@ -208,6 +218,17 @@ void QDialogButtonBoxPrivate::resetLayout()
     layoutButtons();
 }
 
+void QDialogButtonBoxPrivate::addButtonsToLayout(int start, int stop, int dir,
+                                                 const QList<QAbstractButton *> buttonList)
+{
+    while (start != stop) {
+        QAbstractButton *button = buttonList.at(start);
+        buttonLayout->addWidget(button);
+        button->show();
+        start += dir;
+    }
+}
+
 void QDialogButtonBoxPrivate::layoutButtons()
 {
     for (int i = buttonLayout->count() - 1; i >= 0; --i) {
@@ -219,9 +240,8 @@ void QDialogButtonBoxPrivate::layoutButtons()
 
     int tmpPolicy = layoutPolicy;
 
-    static const int M = 4;
-    static int ModalRoles[M] = { QDialogButtonBox::AcceptRole, QDialogButtonBox::RejectRole,
-                                 QDialogButtonBox::DestructiveRole, QDialogButtonBox::AlternateRole };
+    static const int M = 3;
+    static int ModalRoles[M] = { AcceptRole, RejectRole, DestructiveRole };
     if (tmpPolicy == QDialogButtonBox::MacLayout) {
         bool hasModalButton = false;
         for (int i = 0; i < M; ++i)
@@ -244,31 +264,52 @@ void QDialogButtonBoxPrivate::layoutButtons()
         case MacSpacer:
             buttonLayout->addSpacing(19);
             break;
-        case QDialogButtonBox::AcceptRole:
-        case QDialogButtonBox::RejectRole:
-        case QDialogButtonBox::AlternateRole:
-        case QDialogButtonBox::DestructiveRole:
-        case QDialogButtonBox::ActionRole:
-        case QDialogButtonBox::HelpRole: {
+        case AcceptRole: {
+            const QList<QAbstractButton *> &list = buttonLists[AcceptRole];
+            if (list.isEmpty())
+                break;
+            // Only the first one
+            QAbstractButton *button = list.at((*currentLayout & Reverse) ? list.size() - 1 : 0);
+            buttonLayout->addWidget(button);
+            button->show();
+        }
+            break;
+        case AlternateRole: {
+            const QList<QAbstractButton *> &list = buttonLists[AcceptRole];
+            if (list.size() < 2)
+                break;
+            int start,
+                stop,
+                dir;
+            if (*currentLayout & Reverse) {
+                start = list.size() - 2;
+                stop = dir = -1;
+            } else {
+                start = dir = 1;
+                stop = list.size();
+            }
+            addButtonsToLayout(start, stop, dir, list);
+        }
+            break;
+        case RejectRole:
+        case DestructiveRole:
+        case ActionRole:
+        case HelpRole: {
             const QList<QAbstractButton *> &list = buttonLists[*currentLayout & ~Reverse];
             int start,
                 stop,
                 dir;
             if (*currentLayout & Reverse) {
-                start = list.count() - 1;
+                start = list.size() - 1;
                 stop = dir = -1;
             } else {
                 start = 0;
-                stop = list.count();
+                stop = list.size();
                 dir = 1;
             }
-            while (start != stop) {
-                QAbstractButton *button = list.at(start);
-                buttonLayout->addWidget(button);
-                button->show();
-                start += dir;
-            }
+            addButtonsToLayout(start, stop, dir, list);
         }
+            break;
         default:
             break;
         }
@@ -276,8 +317,8 @@ void QDialogButtonBoxPrivate::layoutButtons()
     }
 }
 
-QAbstractButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardButton sbutton,
-                                                       bool doLayout)
+QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardButton sbutton,
+                                                   bool doLayout)
 {
     Q_Q(QDialogButtonBox);
     QString buttonText;
@@ -404,8 +445,6 @@ QDialogButtonBox::~QDialogButtonBox()
            (e.g. OK).
     \value RejectRole Clicking the button causes the dialog to be rejected
            (e.g. Cancel).
-    \value AlternateRole Clicking the button dismisses the dialog in an
-           alternate way.
     \value DestructiveRole Clicking the button causes a destructive change
            (e.g. for Discarding Changes).
     \value ActionRole Clicking the button causes changes to the elements in
@@ -450,7 +489,7 @@ QDialogButtonBox::~QDialogButtonBox()
     This signal is emitted when a button inside the button box is clicked. The
     \l ButtonRole of the button that was clicked is contained \a buttonRole.
 
-    \sa accepted(), rejected()
+    \sa accepted(), rejected() helpRequested()
 */
 
 /*!
@@ -459,7 +498,7 @@ QDialogButtonBox::~QDialogButtonBox()
     This signal is emitted when a button inside the button box is clicked. The
     specific button that was pressed is specified by \a button.
 
-    \sa accepted(), rejected()
+    \sa accepted(), rejected() helpRequested()
 */
 
 /*!
@@ -468,7 +507,7 @@ QDialogButtonBox::~QDialogButtonBox()
     This signal is emitted when a button inside the button box is clicked, as long
     as it was defined with the \l AcceptRole.
 
-    \sa rejected(), clicked()
+    \sa rejected(), clicked() helpRequested()
 */
 
 /*!
@@ -477,7 +516,16 @@ QDialogButtonBox::~QDialogButtonBox()
     This signal is emitted when a button inside the button box is clicked, as long
     as it was defined with the \l RejectRole.
 
-    \sa accepted()
+    \sa accepted() helpRequested() clicked()
+*/
+
+/*!
+    \fn void QDialogButtonBox::helpRequested()
+
+    This signal is emitted when a button inside the button box is clicked, as long
+    as it was defined with the \l HelpRole.
+
+    \sa accepted() rejected() clicked()
 */
 
 /*!
@@ -571,7 +619,8 @@ void QDialogButtonBox::removeButton(QAbstractButton *button)
 {
     Q_D(QDialogButtonBox);
     // Remove it from the standard button hash first and then from the roles
-    d->standardButtonHash.remove(button);
+    if (QPushButton *pushButton = qobject_cast<QPushButton *>(button))
+        d->standardButtonHash.remove(pushButton);
     for (int i = 0; i < NRoles; ++i) {
         QList<QAbstractButton *> &list = d->buttonLists[i];
         for (int j = 0; j < list.count(); ++j) {
@@ -615,7 +664,7 @@ void QDialogButtonBox::addButton(QAbstractButton *button, ButtonRole role)
 
     \sa removeButton(), clear()
 */
-QAbstractButton *QDialogButtonBox::addButton(const QString &text, ButtonRole role)
+QPushButton *QDialogButtonBox::addButton(const QString &text, ButtonRole role)
 {
     Q_D(QDialogButtonBox);
     if (role <= InvalidRole || role >= NRoles) {
@@ -634,7 +683,7 @@ QAbstractButton *QDialogButtonBox::addButton(const QString &text, ButtonRole rol
 
     \sa removeButton(), clear()
 */
-QAbstractButton *QDialogButtonBox::addButton(StandardButton button)
+QPushButton *QDialogButtonBox::addButton(StandardButton button)
 {
     Q_D(QDialogButtonBox);
     return d->createButton(button);
@@ -662,8 +711,7 @@ QDialogButtonBox::StandardButtons QDialogButtonBox::standardButtons() const
 {
     Q_D(const QDialogButtonBox);
     StandardButtons standardButtons = NoButtons;
-    QHash<QAbstractButton *, StandardButton>::const_iterator it
-                                                            = d->standardButtonHash.constBegin();
+    QHash<QPushButton *, StandardButton>::const_iterator it = d->standardButtonHash.constBegin();
     while (it != d->standardButtonHash.constEnd()) {
         standardButtons |= it.value();
         ++it;
@@ -681,7 +729,7 @@ QDialogButtonBox::StandardButtons QDialogButtonBox::standardButtons() const
 
     \sa standardButton, buttons()
 */
-QAbstractButton *QDialogButtonBox::button(StandardButton which) const
+QPushButton *QDialogButtonBox::button(StandardButton which) const
 {
     Q_D(const QDialogButtonBox);
     return d->standardButtonHash.key(which);
@@ -700,6 +748,9 @@ void QDialogButtonBoxPrivate::_q_handleButtonClicked()
             break;
         case RejectRole:
             emit q->rejected();
+            break;
+        case HelpRole:
+            emit q->helpRequested();
             break;
         default:
             break;

@@ -21,8 +21,8 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 class QAbstractButton;
+class QPushButton;
 class QDialogButtonBoxPrivate;
-
 class Q_GUI_EXPORT QDialogButtonBox : public QWidget
 {
     Q_OBJECT
@@ -36,7 +36,6 @@ public:
         InvalidRole = -1,
         AcceptRole,
         RejectRole,
-        AlternateRole,
         DestructiveRole,
         ActionRole,
         HelpRole,
@@ -75,8 +74,8 @@ public:
     Qt::Orientation orientation() const;
 
     void addButton(QAbstractButton *button, ButtonRole role);
-    QAbstractButton *addButton(const QString &text, ButtonRole role);
-    QAbstractButton *addButton(StandardButton button);
+    QPushButton *addButton(const QString &text, ButtonRole role);
+    QPushButton *addButton(StandardButton button);
     void removeButton(QAbstractButton *button);
     void clear();
 
@@ -85,12 +84,13 @@ public:
 
     void setStandardButtons(StandardButtons buttons);
     StandardButtons standardButtons() const;
-    QAbstractButton *button(StandardButton which) const;
+    QPushButton *button(StandardButton which) const;
 
 Q_SIGNALS:
     void clicked(QAbstractButton *button);
     void clicked(int buttonRole);
     void accepted();
+    void helpRequested();
     void rejected();
 
 protected:
