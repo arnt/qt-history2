@@ -1321,11 +1321,11 @@ QVariant QGraphicsView::inputMethodQuery(Qt::InputMethodQuery query) const
     Q_D(const QGraphicsView);
     QVariant value = d->scene->inputMethodQuery(query);
     if (value.type() == QVariant::RectF)
-        value = mapFromScene(value.toRectF()).boundingRect().toRect();
+        value = mapFromScene(value.toRectF()).boundingRect();
     else if (value.type() == QVariant::PointF)
         value = mapFromScene(value.toPointF());
     else if (value.type() == QVariant::Rect)
-        value = mapFromScene(value.toRect()).boundingRect().toRect();
+        value = mapFromScene(value.toRect()).boundingRect();
     else if (value.type() == QVariant::Point)
         value = mapFromScene(value.toPoint());
     return value;
