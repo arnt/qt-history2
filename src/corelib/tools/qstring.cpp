@@ -2911,21 +2911,25 @@ bool QString::endsWith(const QChar &c, Qt::CaseSensitivity cs) const
 }
 
 /*! \fn const char *QString::ascii() const
+    \nonreentrant
 
     Use toAscii() instead.
 */
 
 /*! \fn const char *QString::latin1() const
+    \nonreentrant
 
     Use toLatin1() instead.
 */
 
 /*! \fn const char *QString::utf8() const
+    \nonreentrant
 
     Use toUtf8() instead.
 */
 
 /*! \fn const char *QString::local8Bit() const
+    \nonreentrant
 
     Use toLocal8Bit() instead.
 */
