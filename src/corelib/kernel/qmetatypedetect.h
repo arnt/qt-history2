@@ -16,6 +16,10 @@
 
 #include <QtCore/qmetatype.h>
 
+QT_BEGIN_HEADER
+
+QT_MODULE(Core)
+
 #ifdef QT_NO_DATASTREAM_DETECTION
 
 namespace QtInternal
@@ -106,5 +110,7 @@ namespace QtInternal
 #endif // QT_NO_DATASTREAM
 
 #endif // QT_NO_DATASTREAM_DETECTION
+
+QT_END_HEADER
 
 #endif
