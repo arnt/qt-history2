@@ -44,7 +44,7 @@ enum {
     CMD_QUOTATION, CMD_QUOTEFILE, CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SA,
     CMD_SECTION1, CMD_SECTION2, CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO,
     CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE, CMD_TABLEOFCONTENTS, CMD_TARGET, CMD_TT,
-    CMD_UNDERLINE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
+    CMD_UNDERLINE, CMD_UNICODE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
 };
 
 static struct {
@@ -130,6 +130,7 @@ static struct {
     { "target", CMD_TARGET, 0 },
     { "tt", CMD_TT, 0 },
     { "underline", CMD_UNDERLINE, 0 },
+    { "unicode", CMD_UNICODE, 0 },
     { "value", CMD_VALUE, 0 },
     { "warning", CMD_WARNING, 0 },
     { 0, 0, 0 }
@@ -378,6 +379,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    }
 	        } else {
 		    int command = commandHash()->value(commandStr, UNKNOWN_COMMAND);
+                    qCritical("commandStr = %s", qPrintable(commandStr));
 
 		    switch ( command ) {
 		    case CMD_A:
@@ -873,6 +875,21 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    case CMD_UNDERLINE:
 		        startFormat( ATOM_FORMATTING_UNDERLINE, command );
 		        break;
+                    case CMD_UNICODE:
+                        enterPara();
+                        x = getArgument();
+                        {
+                            bool ok;
+                            uint unicodeChar = x.toUInt(&ok, 0);
+                            if (!ok || unicodeChar == 0x0000 || unicodeChar > 0xFFFE) {
+                                location().warning(tr("Invalid Unicode character '%1' specified "
+                                                      "with '%2'")
+                                                   .arg(x, commandName(CMD_UNICODE)));
+                            } else {
+                                append(Atom::String, QChar(unicodeChar));
+                            }
+                        }
+                        break;
 		    case CMD_VALUE:
 		        leaveValue();
 		        if ( openedLists.top().style() == OpenedList::Value ) {
