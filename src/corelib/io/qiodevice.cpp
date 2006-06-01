@@ -773,6 +773,10 @@ qint64 QIODevice::read(char *data, qint64 maxSize)
                 readSoFar += readFromDevice;
                 d->pos += readFromDevice;
                 d->devicePos += readFromDevice;
+
+                // see if we read as much data as we asked for
+                if (readFromDevice < maxSize - readSoFar)
+                    moreToRead = false;
             }
         } else {
             moreToRead = false;
@@ -876,14 +880,13 @@ QByteArray QIODevice::read(qint64 maxSize)
 */
 QByteArray QIODevice::readAll()
 {
-    Q_D(QIODevice);
-    QByteArray tmp;
 #if defined QIODEVICE_DEBUG
+    Q_D(QIODevice);
     printf("%p QIODevice::readAll(), d->pos = %d, d->buffer.size() = %d\n",
            this, int(d->pos), int(d->buffer.size()));
-#else
-    Q_UNUSED(d);
 #endif
+
+    QByteArray tmp;
     if (isSequential() || size() == 0) {
         // Read it in chunks, bytesAvailable() is unreliable for sequential
         // devices.
@@ -893,7 +896,7 @@ QByteArray QIODevice::readAll()
             tmp.resize(tmp.size() + chunkSize);
             qint64 readBytes = read(tmp.data() + totalRead, chunkSize);
             tmp.chop(chunkSize - (readBytes < 0 ? 0 : readBytes));
-            if (readBytes < chunkSize)
+            if (readBytes <= 0)
                 return tmp;
             totalRead += readBytes;
         }
