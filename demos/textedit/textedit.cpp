@@ -432,13 +432,14 @@ void TextEdit::filePrintPreview()
 void TextEdit::filePrintPdf()
 {
 #ifndef QT_NO_PRINTER
-    QString fileName = QFileDialog::getSaveFileName(this, "Export PDF", QString(), "*.pdf");
-    if (fileName.isEmpty())
-        return;
-    QPrinter printer(QPrinter::HighResolution);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(fileName);
-    textEdit->document()->print(&printer);
+    QString fileName = QFileDialog::getSaveFileName(this, "Export PDF",
+                                                    QString(), "*.pdf");
+    if (!fileName.isEmpty()) {
+        QPrinter printer(QPrinter::HighResolution);
+        printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(fileName);
+        textEdit->document()->print(&printer);
+    }
 #endif
 }
 

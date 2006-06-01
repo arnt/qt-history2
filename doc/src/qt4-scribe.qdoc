@@ -209,9 +209,9 @@
     the appropriate print engine:
 
     \quotefromfile demos/textedit/textedit.cpp
-    \skipto filePrintPdf
-    \skipto QPrinter
-    \printuntil textEdit->document()->print
+    \skipto TextEdit::filePrintPdf()
+    \skipto QFileDialog
+    \printuntil }
 
     \section1 Comparison with Qt 3
 
