@@ -1,10 +1,13 @@
 # Qt util module
 
 HEADERS += \
-        util/qsystemtrayicon.h
+        util/qsystemtrayicon.h \
+		util/qcompleter.h \
+		util/qcompleter_p.h
 		
 SOURCES += \
-        util/qsystemtrayicon.cpp
+        util/qsystemtrayicon.cpp \
+		util/qcompleter.cpp
 		
 win32 {
 		SOURCES += \
