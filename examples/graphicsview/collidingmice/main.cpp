@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     QGraphicsView view(&scene);
     view.setDragMode(QGraphicsView::ScrollHandDrag);
     view.setMinimumSize(400, 300);
-    view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "Mice"));
+    view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "Colliding Mice"));
     view.show();
 
     return app.exec();

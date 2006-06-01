@@ -24,8 +24,8 @@
     <example filename="puzzle" name="Puzzle" />
   </category>
   <category dirname="graphicsview" name="Graphics View">
-    <example filename="graphwidget" name="Graph Widget" />
-    <example filename="mice" name="Colliding Mice" />
+    <example filename="elasticnodes" name="Elastic Nodes" />
+    <example filename="collidingmice" name="Colliding Mice" />
   </category>
   <category dirname="itemviews" name="Item Views">
     <example filename="basicsortfiltermodel" name="Basic Sort/Filter Model" />

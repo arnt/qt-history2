@@ -1,5 +1,5 @@
 TEMPLATE      = subdirs
-SUBDIRS       = graphwidget mice
+SUBDIRS       = elasticnodes collidingmice
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/graphicsview

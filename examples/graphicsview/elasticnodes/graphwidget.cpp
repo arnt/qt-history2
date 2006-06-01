@@ -31,7 +31,7 @@ protected:
 
         // Text
         QFont font = painter->font();
-        font.setPointSize(15);
+        font.setPointSize(14);
         font.setBold(true);
         painter->setFont(font);
         painter->setPen(Qt::lightGray);
@@ -97,7 +97,7 @@ GraphWidget::GraphWidget()
 
     itemMoved();
 
-    setWindowTitle(tr("Graph Widget"));
+    setWindowTitle(tr("Elastic Nodes"));
 }
 
 void GraphWidget::itemMoved()
