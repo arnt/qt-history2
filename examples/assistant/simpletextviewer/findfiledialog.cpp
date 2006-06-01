@@ -124,8 +124,7 @@ void FindFileDialog::createButtons()
                                      | QDialogButtonBox::Help);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(openFile()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(buttonBox->button(QDialogButtonBox::Help), SIGNAL(clicked()),
-            this, SLOT(help()));
+    connect(buttonBox, SIGNAL(helpRequested()), this, SLOT(help()));
 }
 
 void FindFileDialog::createComboBoxes()
