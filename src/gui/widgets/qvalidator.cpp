@@ -320,7 +320,7 @@ QIntValidator::~QIntValidator()
 
 QValidator::State QIntValidator::validate(QString & input, int &) const
 {
-    if (input.contains(' '))
+    if (input.contains(QLatin1Char(' ')))
         return Invalid;
     if (input.isEmpty() || (b < 0 && input == "-"))
         return Intermediate;
@@ -492,7 +492,7 @@ QDoubleValidator::~QDoubleValidator()
 QValidator::State QDoubleValidator::validate(QString & input, int &) const
 {
     QRegExp empty(QString::fromLatin1("-?\\.?"));
-    if (input.contains(' '))
+    if (input.contains(QLatin1Char(' ')))
         return Invalid;
     if (b >= 0 && input.startsWith(QLatin1Char('-')))
         return Invalid;
@@ -500,7 +500,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
         return Intermediate;
     bool ok = true;
     double entered = input.toDouble(&ok);
-    int nume = input.count('e', Qt::CaseInsensitive);
+    int nume = input.count(QLatin1Char('e'), Qt::CaseInsensitive);
     if (!ok) {
         // explicit exponent regexp
         QRegExp expexpexp(QString::fromLatin1("[Ee][+-]?(\\d*)$"));
@@ -519,7 +519,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
         }
     }
 
-    int i = input.indexOf('.');
+    int i = input.indexOf(QLatin1Char('.'));
     if (i >= 0 && nume == 0) {
         // has decimal point (but no E), now count digits after that
         i++;

@@ -409,7 +409,7 @@ QDirModel::QDirModel(const QStringList &nameFilters,
 {
     Q_D(QDirModel);
     // we always start with QDir::drives()
-    d->nameFilters = nameFilters.isEmpty() ? QStringList("*") : nameFilters;
+    d->nameFilters = nameFilters.isEmpty() ? QStringList(QLatin1String("*")) : nameFilters;
     d->filters = filters;
     d->sort = sort;
     d->root.parent = 0;
@@ -1034,7 +1034,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
     }
 #endif
 
-    QStringList pathElements = absolutePath.split(QChar('/'), QString::SkipEmptyParts);
+    QStringList pathElements = absolutePath.split(QLatin1Char('/'), QString::SkipEmptyParts);
     if ((pathElements.isEmpty() || !QFileInfo(path).exists())
 #ifndef Q_OS_WIN
         && path != QLatin1String("/")
@@ -1424,9 +1424,9 @@ QString QDirModelPrivate::size(const QModelIndex &index) const
     const QDirNode *n = node(index);
     if (n->info.isDir()) {
 #ifdef Q_OS_MAC
-        return "--";
+        return QLatin1String("--");
 #else
-        return "";
+        return QLatin1String("");
 #endif
     // Windows   - ""
     // OS X      - "--"
@@ -1436,12 +1436,12 @@ QString QDirModelPrivate::size(const QModelIndex &index) const
 
     quint64 bytes = n->info.size();
     if (bytes >= 1000000000)
-        return QLocale().toString(bytes / 1000000000) + QString(" GB");
+        return QLocale().toString(bytes / 1000000000) + QString(QLatin1String(" GB"));
     if (bytes >= 1000000)
-        return QLocale().toString(bytes / 1000000) + QString(" MB");
+        return QLocale().toString(bytes / 1000000) + QString(QLatin1String(" MB"));
     if (bytes >= 1000)
-        return QLocale().toString(bytes / 1000) + QString(" KB");
-    return QLocale().toString(bytes) + QString(" bytes");
+        return QLocale().toString(bytes / 1000) + QString(QLatin1String(" KB"));
+    return QLocale().toString(bytes) + QString(QLatin1String(" bytes"));
 }
 
 QString QDirModelPrivate::type(const QModelIndex &index) const

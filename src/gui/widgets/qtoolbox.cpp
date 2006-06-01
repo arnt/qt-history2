@@ -206,7 +206,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         txt = text;
     } else {
         txt = text.left(1);
-        int ew = p->fontMetrics().width("...");
+        int ew = p->fontMetrics().width(QLatin1String("..."));
         int i = 1;
         while (p->fontMetrics().width(txt) + ew +
                 p->fontMetrics().width(text[i])  < tr.width())

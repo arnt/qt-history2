@@ -25,7 +25,7 @@
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QAccessibleBridgeFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessiblebridge"))
+    (QAccessibleBridgeFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/accessiblebridge")))
 #endif
 Q_GLOBAL_STATIC(QVector<QAccessibleBridge *>, bridges)
 static bool isInit = false;

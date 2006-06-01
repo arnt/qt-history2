@@ -536,7 +536,7 @@ QSize QLineEdit::sizeHint() const
     ensurePolished();
     QFontMetrics fm(font());
     int h = qMax(fm.lineSpacing(), 14) + 2*verticalMargin;
-    int w = fm.width('x') * 17 + 2*horizontalMargin; // "some"
+    int w = fm.width(QLatin1Char('x')) * 17 + 2*horizontalMargin; // "some"
     int m = d->frame ? style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
     QStyleOptionFrame opt;
     opt.rect = rect();
@@ -2153,7 +2153,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
 void QLineEdit::dragMoveEvent(QDragMoveEvent *e)
 {
     Q_D(QLineEdit);
-    if (!d->readOnly && e->mimeData()->hasFormat("text/plain")) {
+    if (!d->readOnly && e->mimeData()->hasFormat(QLatin1String("text/plain"))) {
         e->acceptProposedAction();
         d->cursor = d->xToPos(e->pos().x());
         d->cursorVisible = true;
@@ -2654,7 +2654,7 @@ void QLineEditPrivate::removeSelectedText()
 
 void QLineEditPrivate::parseInputMask(const QString &maskFields)
 {
-    int delimiter = maskFields.indexOf(';');
+    int delimiter = maskFields.indexOf(QLatin1Char(';'));
     if (maskFields.isEmpty() || delimiter == 0) {
         if (maskData) {
             delete [] maskData;
@@ -2666,11 +2666,11 @@ void QLineEditPrivate::parseInputMask(const QString &maskFields)
     }
 
     if (delimiter == -1) {
-        blank = ' ';
+        blank = QLatin1Char(' ');
         inputMask = maskFields;
     } else {
         inputMask = maskFields.left(delimiter);
-        blank = (delimiter + 1 < maskFields.length()) ? maskFields[delimiter + 1] : QChar(' ');
+        blank = (delimiter + 1 < maskFields.length()) ? maskFields[delimiter + 1] : QLatin1Char(' ');
     }
 
     // calculate maxLength / maskData length
@@ -2678,14 +2678,14 @@ void QLineEditPrivate::parseInputMask(const QString &maskFields)
     QChar c = 0;
     for (int i=0; i<inputMask.length(); i++) {
         c = inputMask.at(i);
-        if (i > 0 && inputMask.at(i-1) == '\\') {
+        if (i > 0 && inputMask.at(i-1) == QLatin1Char('\\')) {
             maxLength++;
             continue;
         }
-        if (c != '\\' && c != '!' &&
-             c != '<' && c != '>' &&
-             c != '{' && c != '}' &&
-             c != '[' && c != ']')
+        if (c != QLatin1Char('\\') && c != QLatin1Char('!') &&
+             c != QLatin1Char('<') && c != QLatin1Char('>') &&
+             c != QLatin1Char('{') && c != QLatin1Char('}') &&
+             c != QLatin1Char('[') && c != QLatin1Char(']'))
             maxLength++;
     }
 
@@ -2706,13 +2706,13 @@ void QLineEditPrivate::parseInputMask(const QString &maskFields)
             maskData[index].caseMode = m;
             index++;
             escape = false;
-        } else if (c == '<') {
+        } else if (c == QLatin1Char('<')) {
                 m = MaskInputData::Lower;
-        } else if (c == '>') {
+        } else if (c == QLatin1Char('>')) {
             m = MaskInputData::Upper;
-        } else if (c == '!') {
+        } else if (c == QLatin1Char('!')) {
             m = MaskInputData::NoCaseMode;
-        } else if (c != '{' && c != '}' && c != '[' && c != ']') {
+        } else if (c != QLatin1Char('{') && c != QLatin1Char('}') && c != QLatin1Char('[') && c != QLatin1Char(']')) {
             switch (c.unicode()) {
             case 'A':
             case 'a':
@@ -2795,23 +2795,23 @@ bool QLineEditPrivate::isValidInput(QChar key, QChar mask) const
             return true;
         break;
     case '#':
-        if (key.isNumber() || key == '+' || key == '-' || key == blank)
+        if (key.isNumber() || key == QLatin1Char('+') || key == QLatin1Char('-') || key == blank)
             return true;
         break;
     case 'B':
-        if (key == '0' || key == '1')
+        if (key == QLatin1Char('0') || key == QLatin1Char('1'))
             return true;
         break;
     case 'b':
-        if (key == '0' || key == '1' || key == blank)
+        if (key == QLatin1Char('0') || key == QLatin1Char('1') || key == blank)
             return true;
         break;
     case 'H':
-        if (key.isNumber() || (key >= 'a' && key <= 'f') || (key >= 'A' && key <= 'F'))
+        if (key.isNumber() || (key >= QLatin1Char('a') && key <= QLatin1Char('f')) || (key >= QLatin1Char('A') && key <= QLatin1Char('F')))
             return true;
         break;
     case 'h':
-        if (key.isNumber() || (key >= 'a' && key <= 'f') || (key >= 'A' && key <= 'F') || key == blank)
+        if (key.isNumber() || (key >= QLatin1Char('a') && key <= QLatin1Char('f')) || (key >= QLatin1Char('A') && key <= QLatin1Char('F')) || key == blank)
             return true;
         break;
     default:

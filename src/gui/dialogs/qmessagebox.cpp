@@ -528,7 +528,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
                    "<p>Please see <tt>http://www.trolltech.com/company/model.html</tt> "
                    "for an overview of Qt licensing.</p>"))
 #endif
-           .arg(QT_VERSION_STR);
+           .arg(QLatin1String(QT_VERSION_STR));
 #endif
     }
     label = new QLabel(q);
@@ -593,7 +593,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
             pb[i] = 0;
         } else {
             pb[i] = new QPushButton(QMessageBox::tr(mb_texts[button[i]]), q);
-            pb[i]->setObjectName(mb_texts[button[i]]);
+            pb[i]->setObjectName(QLatin1String(mb_texts[button[i]]));
             if (defButton == i) {
                 pb[i]->setDefault(true);
                 pb[i]->setFocus();

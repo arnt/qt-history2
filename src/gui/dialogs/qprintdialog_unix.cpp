@@ -183,19 +183,19 @@ static void parsePrinterDesc(QString printerDesc, QList<QPrinterDescription> *pr
         return;
 
     printerDesc = printerDesc.simplified();
-    int i = printerDesc.indexOf(':');
+    int i = printerDesc.indexOf(QLatin1Char(':'));
     QString printerName, printerComment, printerHost;
     QStringList aliases;
 
     if (i >= 0) {
         // have ':' want '|'
-        int j = printerDesc.indexOf('|');
+        int j = printerDesc.indexOf(QLatin1Char('|'));
         if (j > 0 && j < i) {
             printerName = printerDesc.left(j);
-            aliases = printerDesc.mid(j + 1, i - j - 1).split('|');
+            aliases = printerDesc.mid(j + 1, i - j - 1).split(QLatin1Char('|'));
             // try extracting a comment from the aliases
             printerComment = QPrintDialog::tr("Aliases: %1")
-                             .arg(aliases.join(", "));
+                             .arg(aliases.join(QLatin1String(", ")));
         } else {
             printerName = printerDesc.left(i);
         }
@@ -207,12 +207,12 @@ static void parsePrinterDesc(QString printerDesc, QList<QPrinterDescription> *pr
         i = printerDesc.indexOf(QRegExp(QLatin1String(": *rm *=")));
         if (i >= 0) {
             // point k at the end of remote host name
-            while (printerDesc[i] != '=')
+            while (printerDesc[i] != QLatin1Char('='))
                 i++;
-            while (printerDesc[i] == '=' || printerDesc[i].isSpace())
+            while (printerDesc[i] == QLatin1Char('=') || printerDesc[i].isSpace())
                 i++;
             j = i;
-            while (j < (int)printerDesc.length() && printerDesc[j] != ':')
+            while (j < (int)printerDesc.length() && printerDesc[j] != QLatin1Char(':'))
                 j++;
 
             // and stuff that into the string
@@ -241,12 +241,12 @@ static int parsePrintcap(QList<QPrinterDescription> *printers, const QString& fi
             atEnd = true;
         QString line = line_ascii;
         line = line.trimmed();
-        if (line.length() >= 1 && line[int(line.length()) - 1] == '\\')
+        if (line.length() >= 1 && line[int(line.length()) - 1] == QLatin1Char('\\'))
             line.chop(1);
-        if (line[0] == '#') {
+        if (line[0] == QLatin1Char('#')) {
             if (!atEnd)
                 continue;
-        } else if (line[0] == '|' || line[0] == ':') {
+        } else if (line[0] == QLatin1Char('|') || line[0] == QLatin1Char(':')) {
             printerDesc += line;
             if (!atEnd)
                 continue;
@@ -363,25 +363,25 @@ static char *parsePrintersConf(QList<QPrinterDescription> *printers, bool *found
         } else {
             printerDesc += QString::fromLocal8Bit(line);
             printerDesc = printerDesc.simplified();
-            int i = printerDesc.indexOf(':');
+            int i = printerDesc.indexOf(QLatin1Char(':'));
             QString printerName, printerHost, printerComment;
             QStringList aliases;
             if (i >= 0) {
                 // have : want |
-                int j = printerDesc.indexOf('|');
+                int j = printerDesc.indexOf(QLatin1Char('|'));
                 if (j >= i)
                     j = -1;
                 printerName = printerDesc.mid(0, j < 0 ? i : j);
                 if (printerName == QLatin1String("_default")) {
                     i = printerDesc.indexOf(
                         QRegExp(QLatin1String(": *use *=")));
-                    while (printerDesc[i] != '=')
+                    while (printerDesc[i] != QLatin1Char('='))
                         i++;
-                    while (printerDesc[i] == '=' || printerDesc[i].isSpace())
+                    while (printerDesc[i] == QLatin1Char('=') || printerDesc[i].isSpace())
                         i++;
                     j = i;
                     while (j < (int)printerDesc.length() &&
-                            printerDesc[j] != ':' && printerDesc[j] != ',')
+                            printerDesc[j] != QLatin1Char(':') && printerDesc[j] != QLatin1Char(','))
                         j++;
                     // that's our default printer
                     defaultPrinter =
@@ -396,33 +396,33 @@ static char *parsePrintersConf(QList<QPrinterDescription> *printers, bool *found
 
                 if (j > 0) {
                     // try extracting a comment from the aliases
-                    aliases = printerDesc.mid(j + 1, i - j - 1).split('|');
+                    aliases = printerDesc.mid(j + 1, i - j - 1).split(QLatin1Char('|'));
                     printerComment = QPrintDialog::tr("Aliases: %1")
-                                     .arg(aliases.join(", "));
+                                     .arg(aliases.join(QLatin1String(", ")));
                 }
                 // look for signs of this being a remote printer
                 i = printerDesc.indexOf(
                     QRegExp(QLatin1String(": *bsdaddr *=")));
                 if (i >= 0) {
                     // point k at the end of remote host name
-                    while (printerDesc[i] != '=')
+                    while (printerDesc[i] != QLatin1Char('='))
                         i++;
-                    while (printerDesc[i] == '=' || printerDesc[i].isSpace())
+                    while (printerDesc[i] == QLatin1Char('=') || printerDesc[i].isSpace())
                         i++;
                     j = i;
                     while (j < (int)printerDesc.length() &&
-                            printerDesc[j] != ':' && printerDesc[j] != ',')
+                            printerDesc[j] != QLatin1Char(':') && printerDesc[j] != QLatin1Char(','))
                         j++;
                     // and stuff that into the string
                     printerHost = printerDesc.mid(i, j-i);
                     // maybe stick the remote printer name into the comment
-                    if (printerDesc[j] == ',') {
+                    if (printerDesc[j] == QLatin1Char(',')) {
                         i = ++j;
                         while (printerDesc[i].isSpace())
                             i++;
                         j = i;
                         while (j < (int)printerDesc.length() &&
-                                printerDesc[j] != ':' && printerDesc[j] != ',')
+                                printerDesc[j] != QLatin1Char(':') && printerDesc[j] != QLatin1Char(','))
                             j++;
                         if (printerName != printerDesc.mid(i, j-i)) {
                             printerComment =
@@ -469,7 +469,7 @@ static int retrieveNisPrinters(QList<QPrinterDescription> *printers)
     char *domain;
     int err;
 
-    QLibrary lib("nsl");
+    QLibrary lib(QLatin1String("nsl"));
     typedef int (*ypGetDefaultDomain)(char **);
     ypGetDefaultDomain _ypGetDefaultDomain = (ypGetDefaultDomain)lib.resolve("yp_get_default_domain");
     typedef int (*ypAll)(const char *, const char *, const struct ypall_callback *);
@@ -656,7 +656,7 @@ static void parseSpoolInterface(QList<QPrinterDescription> *printers)
 
         while (!configFile.atEnd() &&
                 (configFile.readLine(line.data(), 1024)) > 0) {
-            QString uline = line;
+            QString uline = QString::fromLocal8Bit(line);
             if (uline.startsWith(typeKey) ) {
                 printerType = line.mid(nameKey.length());
                 printerType = printerType.simplified();
@@ -674,11 +674,11 @@ static void parseSpoolInterface(QList<QPrinterDescription> *printers)
         configFile.close();
 
         printerType = printerType.trimmed();
-        if (printerType.indexOf("postscript", 0, Qt::CaseInsensitive) < 0)
+        if (printerType.indexOf(QLatin1String("postscript"), 0, Qt::CaseInsensitive) < 0)
             continue;
 
         int ii = 0;
-        while ((ii = namePrinter.indexOf('"', ii)) >= 0)
+        while ((ii = namePrinter.indexOf(QLatin1Char('"'), ii)) >= 0)
             namePrinter.remove(ii, 1);
 
         if (hostName.isEmpty() || hostPrinter.isEmpty()) {
@@ -727,7 +727,7 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
         bool indented = line[0].isSpace();
         line = line.simplified();
 
-        int i = line.indexOf('=');
+        int i = line.indexOf(QLatin1Char('='));
         if (indented && i != -1) { // line in stanza
             QString variable = line.left(i).simplified();
             QString value=line.mid(i+1, line.length()).simplified();
@@ -737,7 +737,7 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
                 remoteHost = value;
             else if (variable == QLatin1String("up"))
                 up = !(value.toLower() == QLatin1String("false"));
-        } else if (line[0] == '*') { // comment
+        } else if (line[0] == QLatin1Char('*')) { // comment
             // nothing to do
         } else if (ts.atEnd() || // end of file, or beginning of new stanza
                     (!indented && line.contains(newStanza))) {
@@ -985,9 +985,9 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
         if (fileName.isEmpty()) {
             QString home = QString::fromLocal8Bit(::qgetenv("HOME").constData());
             QString cur = QDir::currentPath();
-            if (home.at(home.length()-1) != '/')
+            if (home.at(home.length()-1) != QLatin1Char('/'))
                 home += '/';
-            if (cur.at(cur.length()-1) != '/')
+            if (cur.at(cur.length()-1) != QLatin1Char('/'))
                 cur += '/';
             if (cur.left(home.length()) != home)
                 cur = home;
@@ -1027,7 +1027,7 @@ void QPrintDialogPrivate::_q_printerChanged(int index)
         cupsPPD = cups->currentPPD();
 
         // set printer info line
-        QString info = QString(cupsPPD->manufacturer) + " - " + QString(cupsPPD->modelname);
+        QString info = QString(cupsPPD->manufacturer) + QLatin1String(" - ") + QString(cupsPPD->modelname);
         ui.lbPrinterInfo->setText(info);
     } else {
 #endif

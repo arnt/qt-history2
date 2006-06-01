@@ -133,11 +133,11 @@ static void jump(QtMsgType t, const char * m)
     case QtFatalMsg:
         rich = QErrorMessage::tr("Fatal Error:");
     }
-    rich = QString("<p><b>%1</b></p>").arg(rich);
+    rich = QString(QLatin1String("<p><b>%1</b></p>")).arg(rich);
     rich += Qt::convertFromPlainText(m, Qt::WhiteSpaceNormal);
 
     // ### work around text engine quirk
-    if (rich.endsWith("</p>"))
+    if (rich.endsWith(QLatin1String("</p>")))
         rich.chop(4);
 
     if (!metFatal) {

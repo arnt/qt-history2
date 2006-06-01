@@ -332,7 +332,7 @@ QSize QProgressBar::sizeHint() const
     QFontMetrics fm = fontMetrics();
     QStyleOptionProgressBarV2 opt = d_func()->getStyleOption();
     int cw = style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
-    QSize size = QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8);
+    QSize size = QSize(cw * 7 + fm.width(QLatin1Char('0')) * 4, fm.height() + 8);
     if (opt.orientation == Qt::Vertical)
         size.transpose();
     return style()->sizeFromContents(QStyle::CT_ProgressBar, &opt, size, this);

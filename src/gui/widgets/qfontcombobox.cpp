@@ -86,8 +86,8 @@ public:
 QFontFamilyDelegate::QFontFamilyDelegate(QObject *parent)
     : QAbstractItemDelegate(parent)
 {
-    truetype = QIcon(":/trolltech/styles/commonstyle/images/fonttruetype-16.png");
-    bitmap = QIcon(":/trolltech/styles/commonstyle/images/fontbitmap-16.png");
+    truetype = QIcon(QLatin1String(":/trolltech/styles/commonstyle/images/fonttruetype-16.png"));
+    bitmap = QIcon(QLatin1String(":/trolltech/styles/commonstyle/images/fontbitmap-16.png"));
     writingSystem = QFontDatabase::Any;
 }
 
@@ -382,7 +382,7 @@ QSize QFontComboBox::sizeHint() const
 {
     QSize sz = QComboBox::sizeHint();
     QFontMetrics fm(font());
-    sz.setWidth(fm.width("m")*14);
+    sz.setWidth(fm.width(QLatin1Char('m'))*14);
     return sz;
 }
 

@@ -168,7 +168,7 @@ static QString int2string(int num, int base, int ndigits, bool *oflow)
                 } while (n != 0);
                 len = ndigits - len;
                 if (len > 0)
-                s.fill(' ', len);
+                s.fill(QLatin1Char(' '), len);
                 s += QString::fromLatin1(p);
             }
             break;

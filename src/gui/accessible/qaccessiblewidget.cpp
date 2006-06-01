@@ -70,7 +70,7 @@ QString Q_GUI_EXPORT qt_accStripAmp(const QString &text)
     int length = text.length();
     QString str;
     while (length > 0) {
-        if (*ch == '&') {
+        if (*ch == QLatin1Char('&')) {
             ++ch;
             --length;
             if (!ch)
@@ -91,8 +91,8 @@ QString Q_GUI_EXPORT qt_accHotKey(const QString &text)
 
     int fa = 0;
     QChar ac;
-    while ((fa = text.indexOf('&', fa)) != -1) {
-        if (fa == text.length() - 1 || text.at(fa+1) != '&') {
+    while ((fa = text.indexOf(QLatin1Char('&'), fa)) != -1) {
+        if (fa == text.length() - 1 || text.at(fa+1) != QLatin1Char('&')) {
             ac = text.at(fa+1);
             break;
         }

@@ -483,7 +483,7 @@ static QStringList fontPath()
             if (f.exists()) {
                 f.open(QIODevice::ReadOnly);
                 while (f.error()==QFile::NoError && !finished) {
-                    QString fs = f.readLine(1024);
+                    QString fs = QString::fromLocal8Bit(f.readLine(1024));
                     fs=fs.trimmed();
                     if (fs.left(9)==QLatin1String("catalogue") && fs.contains(QLatin1Char('='))) {
                         fs = fs.mid(fs.indexOf(QLatin1Char('=')) + 1).trimmed();
@@ -509,7 +509,7 @@ static QStringList fontPath()
             }
             xfsconfig_read = true;
         } else {
-            QString fs = QString::fromLatin1(font_path[i]);
+            QString fs = QString::fromLocal8Bit(font_path[i]);
             fontpath += fs.left(fs.indexOf(QLatin1String(":unscaled")));
         }
     }

@@ -352,7 +352,7 @@
 
 #ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QAccessibleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessible"))
+    (QAccessibleFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/accessible")))
 #endif
 
 Q_GLOBAL_STATIC(QList<QAccessible::InterfaceFactory>, qAccessibleFactories);

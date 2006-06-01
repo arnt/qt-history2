@@ -61,10 +61,10 @@ QStringList qt_make_filter_list(const QString &filter)
     if (f.isEmpty())
         return QStringList();
 
-    QString sep(";;");
+    QString sep(QLatin1String(";;"));
     int i = f.indexOf(sep, 0);
     if (i == -1) {
-        if (f.indexOf("\n", 0) != -1) {
+        if (f.indexOf(QLatin1Char('\n'), 0) != -1) {
             sep = "\n";
             i = f.indexOf(sep, 0);
         }
@@ -81,7 +81,7 @@ static QStringList qt_clean_filter_list(const QString &filter)
     int i = regexp.indexIn(f);
     if (i >= 0)
         f = regexp.cap(2);
-    return f.split(' ', QString::SkipEmptyParts);
+    return f.split(QLatin1Char(' '), QString::SkipEmptyParts);
 }
 
 class QFileDialogLineEdit : public QLineEdit
@@ -444,17 +444,17 @@ QStringList QFileDialog::selectedFiles() const
     // if we have no selected items, use the name(s) in the lineedit
     if (files.isEmpty() && !d->fileNameEdit->text().isEmpty()) {
         QString editText = d->fileNameEdit->text();
-        if (editText.contains('"')) {
+        if (editText.contains(QLatin1Char('"'))) {
             // " is used to separate files like so: "file1" "file2" "file3" ...
             // ### need escape character for filenames with quotes (")
-            QStringList tokens = editText.split("\"");
+            QStringList tokens = editText.split(QLatin1Char('\"'));
             for (int i = 0; i < tokens.size(); ++i) {
                 if ((i % 2) == 0)
                     continue; // Every even token is a separator
                 QString name = d->toInternal(tokens.at(i));
                 QFileInfo info(name);
                 // if the filename has no suffix, add the default suffix
-                if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf('.') == -1)
+                if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf(QLatin1Char('.')) == -1)
                     name += "." + d->defaultSuffix;
                 // a new filename
                 if ((d->fileMode == ExistingFiles) || files.isEmpty()) {
@@ -469,7 +469,7 @@ QStringList QFileDialog::selectedFiles() const
             QString name = editText;
             QFileInfo info(name);
             // if the filename has no suffix, add the default suffix
-            if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf('.') == -1)
+            if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf(QLatin1Char('.')) == -1)
                 name += "." + d->defaultSuffix;
             if (info.isAbsolute())
                 files.append(name);
@@ -1269,7 +1269,7 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text)
         if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
             if (typedPath == "/")
                 completed = "/" + completed;
-            else if (typedPath.endsWith("/")) // required on windows since drives have trailing / in path
+            else if (typedPath.endsWith(QLatin1Char('/'))) // required on windows since drives have trailing / in path
                 completed = typedPath + completed;
             else
                 completed = typedPath + "/" + completed;
@@ -1384,13 +1384,13 @@ void QFileDialogPrivate::_q_createDirectory()
     QModelIndex parent = rootIndex();
     listView->clearSelection();
 
-    QString folderName = "New Folder";
+    QString folderName = QLatin1String("New Folder");
     QString prefix = q_func()->directory().absolutePath() + QDir::separator();
     QModelIndex existingIndex = model->index(prefix + folderName);
     if (existingIndex.isValid()) {
         qlonglong suffix = 2;
         while (existingIndex.isValid()) {
-            folderName = "New Folder " + QString::number(suffix++);
+            folderName = QLatin1String("New Folder ") + QString::number(suffix++);
             existingIndex = model->index(prefix + folderName);
         }
     }
@@ -1686,7 +1686,7 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
 
 #ifndef QT_NO_SHORTCUT
     QShortcut *shortcut = new QShortcut(listView);
-    shortcut->setKey(QKeySequence("Delete"));
+    shortcut->setKey(QKeySequence(QLatin1String("Delete")));
     QObject::connect(shortcut, SIGNAL(activated()), q, SLOT(_q_deleteCurrent()));
 #endif
 }
@@ -1722,7 +1722,7 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
 
 #ifndef QT_NO_SHORTCUT
     QShortcut *shortcut = new QShortcut(treeView);
-    shortcut->setKey(QKeySequence("Delete"));
+    shortcut->setKey(QKeySequence(QLatin1String("Delete")));
     QObject::connect(shortcut, SIGNAL(activated()), q, SLOT(_q_deleteCurrent()));
 #endif
 }

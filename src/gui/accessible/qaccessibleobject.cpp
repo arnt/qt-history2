@@ -157,7 +157,7 @@ QString QAccessibleObject::actionText(int action, Text t, int child) const
     if (child || action > FirstStandardAction || action < LastStandardAction || t > Accelerator)
         return QString();
 
-    return QString(action_text[-(action - FirstStandardAction)][t]);
+    return QString::fromLatin1(action_text[-(action - FirstStandardAction)][t]);
 }
 
 

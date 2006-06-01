@@ -421,7 +421,7 @@ void QXIMInputContext::create_xim()
 */
 void QXIMInputContext::close_xim()
 {
-    QString errMsg("QXIMInputContext::close_xim() has been called");
+    QString errMsg(QLatin1String("QXIMInputContext::close_xim() has been called"));
 
     // ###clean up ximData!
     ximData.clear();
@@ -455,7 +455,7 @@ QString QXIMInputContext::identifierName()
 {
     // the name should be "xim" rather than "XIM" to be consistent
     // with corresponding immodule of GTK+
-    return "xim";
+    return QLatin1String("xim");
 }
 
 

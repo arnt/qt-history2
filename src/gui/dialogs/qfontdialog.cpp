@@ -236,7 +236,7 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->sampleEdit->setAlignment(Qt::AlignCenter);
     // Note that the sample text is *not* translated with tr(), as the
     // characters used depend on the charset encoding.
-    d->sampleEdit->setText("AaBbYyZz");
+    d->sampleEdit->setText(QLatin1String("AaBbYyZz"));
     hbox->addWidget(d->sampleEdit);
 
     d->writingSystemCombo = new QComboBox(this);
@@ -586,12 +586,12 @@ void QFontDialog::updateStyles()
                  }
             }
             if (!found && first) {
-                if (cstyle.contains("Italic")) {
-                    cstyle.replace("Italic", "Oblique");
+                if (cstyle.contains(QLatin1String("Italic"))) {
+                    cstyle.replace(QLatin1String("Italic"), QLatin1String("Oblique"));
                     first = false;
                     goto redo;
-                } else if (cstyle.contains("Oblique")) {
-                    cstyle.replace("Oblique", "Italic");
+                } else if (cstyle.contains(QLatin1String("Oblique"))) {
+                    cstyle.replace(QLatin1String("Oblique"), QLatin1String("Italic"));
                     first = false;
                     goto redo;
                 }
