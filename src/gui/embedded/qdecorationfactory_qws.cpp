@@ -99,23 +99,26 @@ QDecoration *QDecorationFactory::create(const QString& key)
 */
 QStringList QDecorationFactory::keys()
 {
-#ifndef QT_NO_LIBRARY
-    QStringList list = loader()->keys();
-#else
     QStringList list;
-#endif
 #ifndef QT_NO_QWS_DECORATION_DEFAULT
-    if (!list.contains(QLatin1String("Default")))
-        list << QLatin1String("Default");
+    list << QLatin1String("Default");
 #endif
 #ifndef QT_NO_QWS_DECORATION_WINDOWS
-    if (!list.contains(QLatin1String("Windows")))
-        list << QLatin1String("Windows");
+    list << QLatin1String("Windows");
 #endif
 #ifndef QT_NO_QWS_DECORATION_STYLED
-    if (!list.contains(QLatin1String("Styled")))
-        list << QLatin1String("Styled");
+    list << QLatin1String("Styled");
 #endif
+
+#if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
+#ifndef QT_NO_LIBRARY
+    QStringList plugins = loader()->keys();
+    for (int i = 0; i < plugins.size(); ++i) {
+        if (!list.contains(plugins.at(i)))
+            list += plugins.at(i);
+    }
+#endif //QT_NO_LIBRARY
+#endif //QT_MAKEDLL
 
     return list;
 }

@@ -122,7 +122,11 @@ QStringList QScreenDriverFactory::keys()
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_LIBRARY
-     list += loader()->keys();
+    QStringList plugins = loader()->keys();
+    for (int i = 0; i < plugins.size(); ++i) {
+        if (!list.contains(plugins.at(i)))
+            list += plugins.at(i);
+    }
 #endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
 
