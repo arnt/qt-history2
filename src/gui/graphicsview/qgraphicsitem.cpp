@@ -4149,7 +4149,7 @@ void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
     if (pageSize == boundingRect.size())
         return;
     qq->removeFromIndex();
-    if (pageSize.height() != INT_MAX) {
+    if (pageSize.height() != -1) {
         // ###
         boundingRect.setSize(pageSize);
     } else {

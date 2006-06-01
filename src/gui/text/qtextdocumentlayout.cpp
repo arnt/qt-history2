@@ -1629,6 +1629,8 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
 
     if (!f->parentFrame()) {
         layoutStruct.pageHeight = q->document()->pageSize().height();
+        if (layoutStruct.pageHeight < 0)
+            layoutStruct.pageHeight = INT_MAX;
         layoutStruct.pageBottom = layoutStruct.pageHeight - fd->margin;
         layoutStruct.pageMargin = fd->margin;
     }
@@ -2468,16 +2470,16 @@ void QTextDocumentLayout::adjustSize()
     int mw =  fm.width(QLatin1Char('x')) * 80;
     int w = mw;
     QTextDocument *doc = document();
-    doc->setPageSize(QSizeF(w, INT_MAX));
+    doc->setPageSize(QSizeF(w, -1));
     QSizeF size = documentSize();
     if (size.width() != 0) {
         w = qt_int_sqrt((uint)(5 * size.height() * size.width() / 3));
-        doc->setPageSize(QSizeF(qMin(w, mw), INT_MAX));
+        doc->setPageSize(QSizeF(qMin(w, mw), -1));
 
         size = documentSize();
         if (w*3 < 5*size.height()) {
             w = qt_int_sqrt((uint)(2 * size.height() * size.width()));
-            doc->setPageSize(QSizeF(qMin(w, mw), INT_MAX));
+            doc->setPageSize(QSizeF(qMin(w, mw), -1));
         }
     }
 }

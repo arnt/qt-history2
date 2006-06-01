@@ -2622,16 +2622,16 @@ void QTextControl::adjustSize()
     QFontMetrics fm(f);
     int mw =  fm.width(QLatin1Char('x')) * 80;
     int w = mw;
-    d->doc->setPageSize(QSizeF(w, INT_MAX));
+    d->doc->setPageSize(QSizeF(w, -1));
     QSizeF size = d->doc->documentLayout()->documentSize();
     if (size.width() != 0) {
         w = qt_int_sqrt((uint)(5 * size.height() * size.width() / 3));
-        d->doc->setPageSize(QSizeF(qMin(w, mw), INT_MAX));
+        d->doc->setPageSize(QSizeF(qMin(w, mw), -1));
 
         size = d->doc->documentLayout()->documentSize();
         if (w*3 < 5*size.height()) {
             w = qt_int_sqrt((uint)(2 * size.height() * size.width()));
-            d->doc->setPageSize(QSizeF(qMin(w, mw), INT_MAX));
+            d->doc->setPageSize(QSizeF(qMin(w, mw), -1));
         }
     }
 }
