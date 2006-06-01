@@ -546,9 +546,7 @@ qint64 QFSFileEngine::write(const char *data, qint64 len)
 #endif
         if (d->fh) {
             do {
-                result = QT_FTELL(d->fh);
-                fwrite(data + written, 1, size_t(bytesToWrite), d->fh);
-                result = QT_FTELL(d->fh) - result;
+                result = qint64(fwrite(data + written, 1, size_t(bytesToWrite), d->fh));
             } while (result == 0 && errno == EINTR);
             if (bytesToWrite > 0 && result == 0)
                 result = -1;
@@ -611,9 +609,6 @@ QAbstractFileEngine::Iterator *QFSFileEngine::endEntryList()
 bool QFSFileEngine::seek(qint64 pos)
 {
     Q_D(QFSFileEngine);
-    if (d->lastIOCommand != QFSFileEnginePrivate::IOFlushCommand)
-        flush();
-
     if (d->fh) {
         if (QT_FSEEK(d->fh, QT_OFF_T(pos), SEEK_SET) == -1) {
             setError(QFile::ReadError, qt_error_string(int(errno)));

@@ -1182,8 +1182,8 @@ bool QFile::seek(qint64 off)
         return false;
     }
 
-    fileEngine()->seek(off);
-    if (!QIODevice::seek(off)) {
+    QIODevice::seek(off);
+    if (!fileEngine()->seek(off)) {
         QFile::FileError err = fileEngine()->error();
         if(err == QFile::UnspecifiedError)
             err = QFile::PositionError;
