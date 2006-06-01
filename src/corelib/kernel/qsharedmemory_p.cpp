@@ -129,7 +129,7 @@ QSharedMemory::QSharedMemory (int size, const QString &filename, char c)
 bool QSharedMemory::create ()
 {
   shmId = shmget (key, shmSize, IPC_CREAT | 0666);
-  return (shmId != -1)
+  return (shmId != -1);
 }
 
 void QSharedMemory::destroy ()
