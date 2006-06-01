@@ -1918,7 +1918,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     QVarLengthArray<QFixedPoint> positions;
     QVarLengthArray<glyph_t> glyphs;
     QMatrix matrix;
-    matrix.translate(p.x(), p.y());
+    matrix.translate(qRound(p.x()), qRound(p.y()));
     ti.fontEngine->getGlyphPositions(ti.glyphs, ti.num_glyphs, matrix, ti.flags, glyphs, positions);
 
     // make sure the glyphs we want to draw are in the cache
