@@ -111,6 +111,22 @@ inline void qCount(const Container &container, const T &value, Size &n)
     qCount(container.constBegin(), container.constEnd(), value, n);
 }
 
+template <typename InputIterator, typename T>
+inline int qCount(InputIterator first, InputIterator last, const T &value)
+{
+    int n = 0;
+    for (; first != last; ++first)
+        if (*first == value)
+            ++n;
+    return n;
+}
+
+template <typename Container, typename T>
+inline int qCount(const Container &container, const T &value)
+{
+    return qCount(container.constBegin(), container.constEnd(), value);
+}
+
 template <typename T>
 inline void qSwap(T &value1, T &value2)
 {

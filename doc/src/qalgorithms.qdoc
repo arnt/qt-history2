@@ -335,24 +335,21 @@
     This is the same as qFind(\a{container}.begin(), \a{container}.end(), value);
 */
 
-/*! \fn void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
+/*!
+    \fn int qCount(InputIterator begin, InputIterator end, const T &value)
     \relates <QtAlgorithms>
 
-    Sets \a n to the number of occurrences of \a value in the range
-    [\a begin, \a end).
+    Returns the number of occurrences of \a value in the range [\a
+    begin, \a end).
 
     Example:
+
     \code
 	QList<int> list;
         list << 3 << 3 << 6 << 6 << 6 << 8;
 
-	int countOf6;
-        qCount(list.begin(), list.end(), 6, countOf6);
-        // countOf6 == 3
-
-	int countOf7;
-        qCount(list.begin(), list.end(), 7, countOf7);
-        // countOf7 == 0
+        qCount(list.begin(), list.end(), 6);    // returns 3
+        qCount(list.begin(), list.end(), 7);    // returns 0
     \endcode
 
     This function requires the item type (in the example above,
@@ -361,12 +358,47 @@
     \sa {input iterators}
 */
 
-/*! \fn void qCount(Container &container, const T &value)
+/*!
+    \fn int qCount(const Container &container, const T &value)
     \relates <QtAlgorithms>
 
     \overload
 
-    This is the same as qcount(\a{container}.begin(), \a{container}.end(), value);
+    Returns the number of occurrences of \a value in the given \a
+    container.
+
+    Example:
+
+    \code
+	QList<int> list;
+        list << 3 << 3 << 6 << 6 << 6 << 8;
+
+        qCount(list, 6);    // returns 3
+        qCount(list, 7);    // returns 0
+    \endcode
+
+    This function requires the item type (in the example above,
+    \c int) to implement \c operator==().
+
+    \sa {input iterators}
+*/
+
+// ### The next two functions should be obsolete, but qdoc doesn't like that.
+
+/*! \fn void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Use \a n = qCount(\a begin, \a end, \a value) instead.
+*/
+
+/*! \fn void qCount(Container &container, const T &value, Size &n)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Use \a n = qCount(\a{container}, \a value) instead.
 */
 
 /*! \fn void qSwap(T &var1, T &var2)
