@@ -180,7 +180,7 @@ public:
     { return mapFromScene(QPointF(x, y));  }
 
     bool isAncestorOf(const QGraphicsItem *child) const;
-    
+
     // Custom data
     QVariant data(int key) const;
     void setData(int key, const QVariant &value);
@@ -229,6 +229,7 @@ protected:
     QGraphicsItem(QGraphicsItemPrivate &dd, QGraphicsItem *parent);
     QGraphicsItemPrivate *d_ptr;
 
+    void init(QGraphicsItem *parent);
     void addToIndex();
     void removeFromIndex();
 

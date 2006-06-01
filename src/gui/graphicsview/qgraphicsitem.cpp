@@ -361,14 +361,7 @@ void QGraphicsItemPrivate::remapItemPos(QEvent *event, QGraphicsItem *item)
 QGraphicsItem::QGraphicsItem(QGraphicsItem *parent)
     : d_ptr(new QGraphicsItemPrivate)
 {
-    Q_D(QGraphicsItem);
-    d->q_ptr = this;
-    if ((d->parent = parent)) {
-        d->parent->d_func()->children << this;
-        if ((d->scene = parent->scene())) {
-            // ### Add item later?
-        }
-    }
+    init(parent);
 }
 
 /*!
@@ -377,10 +370,23 @@ QGraphicsItem::QGraphicsItem(QGraphicsItem *parent)
 QGraphicsItem::QGraphicsItem(QGraphicsItemPrivate &dd, QGraphicsItem *parent)
     : d_ptr(&dd)
 {
+    init(parent);
+}
+
+
+/*!
+    \internal
+*/
+void QGraphicsItem::init(QGraphicsItem *parent)
+{
     Q_D(QGraphicsItem);
     d->q_ptr = this;
-    if ((d->parent = parent))
+    if ((d->parent = parent)) {
         d->parent->d_func()->children << this;
+        if ((d->scene = parent->scene())) {
+            // ### Add item later?
+        }
+    }
 }
 
 /*!
