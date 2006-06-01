@@ -547,7 +547,7 @@ qint64 QFSFileEngine::write(const char *data, qint64 len)
         if (d->fh) {
             do {
                 result = QT_FTELL(d->fh);
-                qint64(fwrite(data + written, 1, size_t(bytesToWrite), d->fh));
+                fwrite(data + written, 1, size_t(bytesToWrite), d->fh);
                 result = QT_FTELL(d->fh) - result;
             } while (result == 0 && errno == EINTR);
             if (bytesToWrite > 0 && result == 0)
