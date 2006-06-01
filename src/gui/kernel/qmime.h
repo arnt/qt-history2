@@ -78,21 +78,49 @@ private:
 
 /*
   Encapsulation of conversion between MIME and Mac flavor.
-  Not need on X11, as the underlying protocol uses the MIME standard
+  Not needed on X11, as the underlying protocol uses the MIME standard
   directly.
 */
 
-class Q_GUI_EXPORT QMacMime {
+class Q_GUI_EXPORT QMacMime { //Obsolete
     char type;
 public:
-    enum QMacMimeType { MIME_DND=0x01, MIME_CLIP=0x02, MIME_QT_CONVERTOR=0x04, MIME_QT3_CONVERTOR=0x08, MIME_ALL=MIME_DND|MIME_CLIP };
-    explicit QMacMime(char);
-    virtual ~QMacMime();
+    enum QMacMimeType { MIME_DND=0x01, MIME_CLIP=0x02, MIME_QT_CONVERTOR=0x04, MIME_ALL=MIME_DND|MIME_CLIP };
+    explicit QMacMime(char) { }
+    virtual ~QMacMime() { }
+
+    static void initialize() { }
+
+    static QList<QMacMime*> all(QMacMimeType) { return QList<QMacMime*>(); }
+    static QMacMime *convertor(QMacMimeType, const QString &, int) { return 0; }
+    static QString flavorToMime(QMacMimeType, int) { return QString(); }
+
+    virtual QString convertorName()=0;
+    virtual int countFlavors()=0;
+    virtual int flavor(int index)=0;
+    virtual bool canConvert(const QString &mime, int flav)=0;
+    virtual QString mimeFor(int flav)=0;
+    virtual int flavorFor(const QString &mime)=0;
+    virtual QVariant convertToMime(const QString &mime, QList<QByteArray> data, int flav)=0;
+    virtual QList<QByteArray> convertFromMime(const QString &mime, QVariant data, int flav)=0;
+};
+
+class Q_GUI_EXPORT QMacPasteBoardMime {
+    char type;
+public:
+    enum QMacPasteBoardMimeType { MIME_DND=0x01,
+                                  MIME_CLIP=0x02,
+                                  MIME_QT_CONVERTOR=0x04,
+                                  MIME_QT3_CONVERTOR=0x08,
+                                  MIME_ALL=MIME_DND|MIME_CLIP
+    };
+    explicit QMacPasteBoardMime(char);
+    virtual ~QMacPasteBoardMime();
 
     static void initialize();
 
-    static QList<QMacMime*> all(uchar);
-    static QMacMime *convertor(uchar, const QString &mime, QString flav);
+    static QList<QMacPasteBoardMime*> all(uchar);
+    static QMacPasteBoardMime *convertor(uchar, const QString &mime, QString flav);
     static QString flavorToMime(uchar, QString flav);
 
     virtual QString convertorName() = 0;

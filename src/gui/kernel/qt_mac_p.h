@@ -156,14 +156,14 @@ public:
     }
 };
 
-class QMacMime;
+class QMacPasteBoardMime;
 class QMimeData;
 
 class QMacPasteBoard
 {
     struct Promise {
-        Promise(QMacMime *c, QString m, QVariant d) : convertor(c), mime(m), data(d) { }
-        QMacMime *convertor;
+        Promise(QMacPasteBoardMime *c, QString m, QVariant d) : convertor(c), mime(m), data(d) { }
+        QMacPasteBoardMime *convertor;
         QString mime;
         QVariant data;
     };

@@ -873,7 +873,7 @@ void qt_init(QApplicationPrivate *priv, int)
         }
     }
 
-    QMacMime::initialize();
+    QMacPasteBoardMime::initialize();
 
     qApp->setObjectName(priv->appName());
     if(qt_is_gui_used) {

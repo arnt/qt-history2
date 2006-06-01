@@ -190,7 +190,7 @@ bool QDropData::hasFormat_sys(const QString &mime) const
         qDebug("DnD: Cannot get PasteBoard!");
         return false;
     }
-    return QMacPasteBoard(board, QMacMime::MIME_DND).hasFormat(mime);
+    return QMacPasteBoard(board, QMacPasteBoardMime::MIME_DND).hasFormat(mime);
 }
 
 QVariant QDropData::retrieveData_sys(const QString &mime, QVariant::Type type) const
@@ -200,7 +200,7 @@ QVariant QDropData::retrieveData_sys(const QString &mime, QVariant::Type type) c
         qDebug("DnD: Cannot get PasteBoard!");
         return QVariant();
     }
-    return QMacPasteBoard(board, QMacMime::MIME_DND).retrieveData(mime, type);
+    return QMacPasteBoard(board, QMacPasteBoardMime::MIME_DND).retrieveData(mime, type);
 }
 
 QStringList QDropData::formats_sys() const
@@ -210,7 +210,7 @@ QStringList QDropData::formats_sys() const
         qDebug("DnD: Cannot get PasteBoard!");
         return QStringList();
     }
-    return QMacPasteBoard(board, QMacMime::MIME_DND).formats();
+    return QMacPasteBoard(board, QMacPasteBoardMime::MIME_DND).formats();
 }
 
 void QDragManager::timerEvent(QTimerEvent*)
@@ -436,7 +436,7 @@ Qt::DropAction QDragManager::drag(QDrag *o)
 #endif
 
     //setup the data
-    QMacPasteBoard dragBoard(QMacMime::MIME_DND);
+    QMacPasteBoard dragBoard(QMacPasteBoardMime::MIME_DND);
     dragBoard.setMimeData(dragPrivate()->data);
 
     //create the drag
