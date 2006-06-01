@@ -1270,18 +1270,18 @@ void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
     minutes, seconds, and milliseconds since midnight. It can read the
     current time from the system clock and measure a span of elapsed
     time. It provides functions for comparing times and for
-    manipulating a time by adding a number of (milli)seconds.
+    manipulating a time by adding a number of milliseconds.
 
     QTime uses the 24-hour clock format; it has no concept of AM/PM.
-    It operates in local time; it knows nothing about time zones or
-    daylight savings time.
+    Unlike QDateTime, QTime knows nothing about time zones or
+    daylight savings time (DST).
 
-    A QTime object is typically created either by giving the number of
-    hours, minutes, seconds, and milliseconds explicitly, or by using
-    the static function currentTime(), which creates a QTime object
-    that contains the system's clock time. Note that the accuracy
-    depends on the accuracy of the underlying operating system; not
-    all systems provide 1-millisecond accuracy.
+    A QTime object is typically created either by giving the number
+    of hours, minutes, seconds, and milliseconds explicitly, or by
+    using the static function currentTime(), which creates a QTime
+    object that contains the system's local time. Note that the
+    accuracy depends on the accuracy of the underlying operating
+    system; not all systems provide 1-millisecond accuracy.
 
     The hour(), minute(), second(), and msec() functions provide
     access to the number of hours, minutes, seconds, and milliseconds
@@ -1294,8 +1294,8 @@ void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
 
     The time a given number of seconds or milliseconds later than a
     given time can be found using the addSecs() or addMSecs()
-    functions. Correspondingly, the number of (milli)seconds between
-    two times can be found using the secsTo() or msecsTo() functions.
+    functions. Correspondingly, the number of seconds or milliseconds
+    between two times can be found using secsTo() or msecsTo().
 
     QTime can be used to measure a span of elapsed time using the
     start(), restart(), and elapsed() functions.
@@ -1306,9 +1306,11 @@ void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
 /*!
     \fn QTime::QTime()
 
-    Constructs a null time object.
+    Constructs a null time object. A null time is identical to a
+    QTime(0, 0, 0, 0) (i.e., midnight), except that isNull() and
+    isValid() return false.
 
-    \sa isValid()
+    \sa isNull(), isValid()
 */
 
 /*!
@@ -1330,8 +1332,9 @@ QTime::QTime(int h, int m, int s, int ms)
 /*!
     \fn bool QTime::isNull() const
 
-    Returns true if the time is null; otherwise returns false. A null time
-    is also an invalid time.
+    Returns true if the time is null (i.e., the QTime object was
+    constructed using the default constructor); otherwise returns
+    false. A null time is also an invalid time.
 
     \sa isValid()
 */
