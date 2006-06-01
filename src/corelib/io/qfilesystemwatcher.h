@@ -18,6 +18,8 @@
 
 QT_BEGIN_HEADER
 
+QT_MODULE(Core)
+
 class QFileSystemWatcherPrivate;
 
 class Q_CORE_EXPORT QFileSystemWatcher : public QObject
