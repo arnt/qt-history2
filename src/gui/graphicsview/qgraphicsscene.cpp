@@ -792,19 +792,21 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
 {
     Q_D(QGraphicsScene);
 
+    // Default source rect = scene rect
     QRectF sourceRect = source;
     if (sourceRect.isNull())
         sourceRect = sceneRect();
 
+    // Default target rect = device rect
     QRectF targetRect = target;
     if (targetRect.isNull())
         targetRect.setRect(0, 0, painter->device()->width(), painter->device()->height());
 
-    // Find the ideal x / y scaling ratio to fit \a source in \a target.
+    // Find the ideal x / y scaling ratio to fit \a source into \a target.
     qreal xratio = targetRect.width() / sourceRect.width();
     qreal yratio = targetRect.height() / sourceRect.height();
 
-    // Respect the aspect ratio mode.
+    // Scale according to the aspect ratio mode.
     switch (aspectRatioMode) {
     case Qt::KeepAspectRatio:
         xratio = yratio = qMin(xratio, yratio);
@@ -818,7 +820,7 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
 
     // Find all items to draw, and reverse the list (we want to draw
     // in reverse order).
-    QList<QGraphicsItem *> itemList = items(painter->matrix().inverted().map(sourceRect));
+    QList<QGraphicsItem *> itemList = items(sourceRect);
     if (!itemList.isEmpty()) {
         QGraphicsItem **a = &itemList.first();
         QGraphicsItem **b = &itemList.last();
@@ -864,20 +866,15 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
         styleOptions << option;
     }
 
-    /*
-    QMatrix viewportMatrix;
-    viewportMatrix.translate(targetRect.left(), targetRect.top());
-    viewportMatrix.scale(xratio, yratio);
-    viewportMatrix.translate(-sourceRect.left(), -sourceRect.top());
-    painter->setMatrix(painter->matrix() * viewportMatrix);
-    */
     painter->save();
-    painter->setClipRect(painter->matrix().inverted().mapRect(targetRect));
-    painter->setMatrix(painter->matrix()
-                       * QMatrix().translate(-sourceRect.left(), -sourceRect.top())
-                       * QMatrix().scale(xratio, yratio)
-                       * QMatrix().translate(targetRect.left(), targetRect.top()));
-    
+
+    // Transform the painter.
+    painter->setClipRect(targetRect);
+    painter->translate(targetRect.left(), targetRect.top());
+    painter->scale(xratio, yratio);
+    painter->translate(-sourceRect.left(), -sourceRect.top());
+
+    // Render the scene.
     drawBackground(painter, source);
     drawItems(painter, itemList, styleOptions);
     drawForeground(painter, source);
