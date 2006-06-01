@@ -1573,6 +1573,13 @@ static QByteArray charString(const QPainterPath &path, qreal advance, qreal lsb,
     if (openpath)
         charstring += closepath;
     charstring += endchar;
+    if (charstring.length() > 240) {
+        int pos = 240;
+        while (pos < charstring.length()) {
+            charstring.insert(pos, '\n');
+            pos += 241;
+        }
+    }
     return charstring;
 }
 
@@ -1658,7 +1665,7 @@ QByteArray QFontSubset::toType1() const
             QByteArray charstring = ::charString(path, metric.xoff.toReal(), metric.x.toReal(),
                                                  properties.emSquare.toReal());
             s << glyphName(i, reverseMap)
-              << " <" << charstring << ">\n";
+              << "\n<" << charstring << ">\n";
         }
         s << ">>\n"
             ">> def\n";
