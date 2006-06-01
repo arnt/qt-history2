@@ -697,7 +697,7 @@ QString QDir::relativeFilePath(const QString &fileName) const
     QString file = cleanPath(fileName);
 
     if (isRelativePath(file) || isRelativePath(dir))
-        return convertSeparators(file);
+        return file;
 
     QString dirDrive = driveSpec(dir);
     QString fileDrive = driveSpec(file);
@@ -713,7 +713,7 @@ QString QDir::relativeFilePath(const QString &fileName) const
 #else
     if (fileDrive != dirDrive)
 #endif
-        return convertSeparators(file);
+        return file;
 
     dir.remove(0, dirDrive.size());
     if (!fileDriveMissing)
@@ -741,7 +741,7 @@ QString QDir::relativeFilePath(const QString &fileName) const
             result += QLatin1Char('/');
     }
 
-    return convertSeparators(result);
+    return result;
 }
 
 /*!
