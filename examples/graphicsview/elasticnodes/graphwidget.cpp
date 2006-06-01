@@ -6,50 +6,12 @@
 #include <QGraphicsScene>
 #include <QWheelEvent>
 
-class Scene : public QGraphicsScene
-{
-public:
-    Scene(QObject *parent)
-        : QGraphicsScene(parent)
-    { }
-
-protected:
-    void drawBackground(QPainter *painter, const QRectF &rect)
-    {
-        Q_UNUSED(rect);
-
-        // Shadow
-        QRectF sceneRect = this->sceneRect();
-        painter->fillRect(sceneRect.translated(5, 5), Qt::darkGray);
-
-        // Fill
-        QLinearGradient gradient(sceneRect.topLeft(), sceneRect.bottomRight());
-        gradient.setColorAt(0, Qt::white);
-        gradient.setColorAt(1, Qt::lightGray);
-        painter->setBrush(gradient);
-        painter->drawRect(sceneRect);
-
-        // Text
-        QFont font = painter->font();
-        font.setPointSize(14);
-        font.setBold(true);
-        painter->setFont(font);
-        painter->setPen(Qt::lightGray);
-        QString message(tr("Click and drag the nodes around\nor zoom with the mouse wheel"));
-        painter->drawText(sceneRect.translated(2, 2), Qt::AlignTop | Qt::AlignHCenter,
-                          message);
-        painter->setPen(Qt::black);
-        painter->drawText(sceneRect, Qt::AlignTop | Qt::AlignHCenter,
-                          message);
-    }
-};
-
 GraphWidget::GraphWidget()
     : timerId(0)
 {
-    Scene *scene = new Scene(this);
-    setScene(scene);
+    QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setSceneRect(-200, -200, 400, 400);
+    setScene(scene);
 
     Node *node1 = new Node(this);
     Node *node2 = new Node(this);
@@ -132,4 +94,42 @@ void GraphWidget::timerEvent(QTimerEvent *)
 void GraphWidget::wheelEvent(QWheelEvent *event)
 {
     scale(1 + event->delta() / 1200.0, 1 + event->delta() / 1200.0);
+}
+
+void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
+{
+    Q_UNUSED(rect);
+
+    // Shadow
+    QRectF sceneRect = this->sceneRect();
+    QRectF rightShadow(sceneRect.right(), sceneRect.top() + 5, 5, sceneRect.height());
+    QRectF bottomShadow(sceneRect.left() + 5, sceneRect.bottom(), sceneRect.width(), 5);
+    if (rightShadow.intersects(rect) || rightShadow.contains(rect))
+	painter->fillRect(rightShadow, Qt::darkGray);
+    if (bottomShadow.intersects(rect) || bottomShadow.contains(rect))
+	painter->fillRect(bottomShadow, Qt::darkGray);
+
+    // Fill
+    QLinearGradient gradient(sceneRect.topLeft(), sceneRect.bottomRight());
+    gradient.setColorAt(0, Qt::white);
+    gradient.setColorAt(1, Qt::lightGray);
+    painter->fillRect(rect.intersect(sceneRect), gradient);
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(sceneRect);
+
+    // Text
+    QRectF textRect(sceneRect.left(), sceneRect.top(), sceneRect.width(), 70);
+    if (textRect.intersects(rect) || textRect.contains(rect)) {
+	QFont font = painter->font();
+	font.setPointSize(14);
+	font.setBold(true);
+	painter->setFont(font);
+	painter->setPen(Qt::lightGray);
+	QString message(tr("Click and drag the nodes around\nor zoom with the mouse wheel"));
+	painter->drawText(sceneRect.translated(2, 2), Qt::AlignTop | Qt::AlignHCenter,
+			  message);
+	painter->setPen(Qt::black);
+	painter->drawText(sceneRect, Qt::AlignTop | Qt::AlignHCenter,
+			  message);
+    }
 }

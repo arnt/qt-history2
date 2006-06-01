@@ -15,6 +15,7 @@ public:
 protected:
     void timerEvent(QTimerEvent *);
     void wheelEvent(QWheelEvent *event);
+    void drawBackground(QPainter *painter, const QRectF &rect);
 
 private:
     int timerId;
