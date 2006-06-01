@@ -2270,7 +2270,7 @@ if [ "$OPT_HELP" = "yes" ]; then
         CIN="*"
     else
         CIY="*"
-        CIN="*"
+        CIN=" "
     fi
     if [ "$CFG_LARGEFILE" = "no" ]; then
         LFSY=" "
