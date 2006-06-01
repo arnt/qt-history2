@@ -238,7 +238,7 @@
     \row \i \bold{\\S}
          \i This matches a non-whitespace.
     \row \i \bold{\\w}
-         \i This matches a word character (QChar::isLetterOrNumber() or '_').
+         \i This matches a word character (QChar::isLetterOrNumber(), QChar::isMark(), or '_').
     \row \i \bold{\\W}
          \i This matches a non-word character.
     \row \i \bold{\\\e{n}}
@@ -724,7 +724,7 @@ const int EOS = -1;
 
 static bool isWord(QChar ch)
 {
-    return ch.isLetterOrNumber() || ch == QLatin1Char('_');
+    return ch.isLetterOrNumber() || ch.isMark() || ch == QLatin1Char('_');
 }
 
 /*
@@ -2699,8 +2699,8 @@ int QRegExpEngine::getEscape()
         yyCharClass->addRange(0x007f, 0x009f);
         return Tok_CharClass;
     case 'W':
-        // see QChar::isLetterOrNumber()
-        yyCharClass->addCategories(0x7fe07f8f);
+        // see QChar::isLetterOrNumber() and QChar::isMark()
+        yyCharClass->addCategories(0x7fe07f81);
         yyCharClass->addRange(0x203f, 0x2040);
         yyCharClass->addSingleton(0x2040);
         yyCharClass->addSingleton(0x2054);
@@ -2726,8 +2726,8 @@ int QRegExpEngine::getEscape()
         yyCharClass->addRange(0x0009, 0x000d);
         return Tok_CharClass;
     case 'w':
-        // see QChar::isLetterOrNumber()
-        yyCharClass->addCategories(0x000f8070);
+        // see QChar::isLetterOrNumber() and QChar::isMark()
+        yyCharClass->addCategories(0x000f807e);
         yyCharClass->addSingleton(0x005f); // '_'
         return Tok_CharClass;
 #endif
