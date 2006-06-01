@@ -599,6 +599,7 @@ my $class_lib_map_contents = "";
 my @ignore_for_master_contents = ( "qt.h", "qpaintdevicedefs.h" );
 my @ignore_for_include_check = ( "qatomic.h" );
 my @ignore_for_qt_begin_header_check = ( "qiconset.h", "qconfig.h", "qconfig-dist.h", "qconfig-large.h", "qconfig-medium.h", "qconfig-minimal.h", "qconfig-small.h", "qfeatures.h" );
+my @ignore_for_qt_module_check = ( "$modules{QtCore}/arch", "$modules{QtCore}/global", "$modules{QtSql}/drivers", "$modules{QtTest}", "$modules{QtAssistant}", "$modules{QtDesigner}", "$modules{QtUiTools}" );
 
 foreach (@modules_to_sync) {
     #iteration info
@@ -848,6 +849,12 @@ if($check_includes) {
 
 	    foreach (@subdirs) {
 		my $subdir = "$_";
+                my $header_skip_qt_module_test = 0;
+                foreach(@ignore_for_qt_module_check) {
+                    foreach (split(/;/, $_)) {
+                        $header_skip_qt_module_test = 1 if ("$subdir" =~ /^$_/);
+                    }
+                }
 		my @headers = findFiles("$subdir", "^[-a-z0-9_]*\\.h\$" , 0);
 		foreach (@headers) {
 		    my $header = "$_";
@@ -877,6 +884,7 @@ if($check_includes) {
 			my $iheader = $subdir . "/" . $header;
 			if($public_header) {
 			    if(open(F, "<$iheader")) {
+                                my $qt_module_found = 0;
 				my $qt_begin_header_found = 0;
 				my $qt_end_header_found = 0;
 				my $line;
@@ -906,7 +914,9 @@ if($check_includes) {
 					$qt_begin_header_found = 1;
 				    } elsif ($header_skip_qt_begin_test == 0 and $line =~ /^QT_END_HEADER\s*$/) {
 					$qt_end_header_found = 1;
-				    }
+                                    } elsif ($header_skip_qt_module_test == 0 and $line =~ /^QT_MODULE\(.*\)\s*$/) {
+                                        $qt_module_found = 1;
+                                    }
 				}
                                 if ($header_skip_qt_begin_test == 0) {
                                     if ($qt_begin_header_found == 0) {
@@ -915,6 +925,11 @@ if($check_includes) {
 
                                     if ($qt_begin_header_found && $qt_end_header_found == 0) {
                                         print "WARNING: $iheader has QT_BEGIN_HEADER but no QT_END_HEADER\n";
+                                    }
+                                }
+                                if ($header_skip_qt_module_test == 0) {
+                                    if ($qt_module_found == 0) {
+                                        print "WARNING: $iheader does not include QT_MODULE\n";
                                     }
                                 }
 				close(F);
