@@ -875,9 +875,9 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     painter->translate(-sourceRect.left(), -sourceRect.top());
 
     // Render the scene.
-    drawBackground(painter, source);
+    drawBackground(painter, sourceRect);
     drawItems(painter, itemList, styleOptions);
-    drawForeground(painter, source);
+    drawForeground(painter, sourceRect);
 
     painter->restore();
 }
