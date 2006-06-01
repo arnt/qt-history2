@@ -1789,9 +1789,20 @@ bool QGraphicsScene::event(QEvent *event)
 */
 void QGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMenuEvent)
 {
-    if (QGraphicsItem *item = itemAt(contextMenuEvent->scenePos())) {
-        contextMenuEvent->setPos(item->mapFromScene(contextMenuEvent->scenePos()));
-        item->sceneEvent(contextMenuEvent);
+    switch (contextMenuEvent->reason()) {
+    case QGraphicsSceneContextMenuEvent::Mouse:
+    case QGraphicsSceneContextMenuEvent::Other:
+        if (QGraphicsItem *item = itemAt(contextMenuEvent->scenePos())) {
+            contextMenuEvent->setPos(item->mapFromScene(contextMenuEvent->scenePos()));
+            item->sceneEvent(contextMenuEvent);
+        }
+        break;
+    case QGraphicsSceneContextMenuEvent::Keyboard:
+        if (QGraphicsItem *item = focusItem()) {
+            contextMenuEvent->setPos(QPointF(0, 0));
+            item->sceneEvent(contextMenuEvent);
+        }
+        break;
     }
 }
 
