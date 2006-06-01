@@ -107,10 +107,19 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
     \l checkable; child widgets in checkable group boxes are enabled or
     disabled depending on whether or not the group box is \l checked.
 
-    You can minimize the space consumption of a group box by enabling the
-    \l flat property. Although the visual appearance of a flattened group box
-    depends on the widget style in use, enabling this property usually
-    results in the removal of the left, right and bottom edges of the frame.
+    You can minimize the space consumption of a group box by enabling
+    the \l flat property. In most \l{QStyle}{styles}, enabling this
+    property results in the removal of the left, right and bottom
+    edges of the frame.
+
+    QGroupBox doesn't automatically lay out the child widgets (which
+    are often \l{QCheckBox}es or \l{QRadioButton}s but can be any
+    widgets). The following example shows how we can set up a
+    QGroupBox with a layout:
+
+    \quotefromfile widgets/groupbox/window.cpp
+    \skipto = new QGroupBox
+    \printuntil setLayout(
 
     \table 100%
     \row \o \inlineimage windowsxp-groupbox.png Screenshot of a Windows XP style group box
