@@ -1040,7 +1040,7 @@ QList<QGraphicsItem *> QGraphicsScene::collidingItems(QGraphicsItem *item) const
 
     QList<QGraphicsItem *> tmp;
     foreach (QGraphicsItem *itemInVicinity, items(item->sceneBoundingRect())) {
-        if (item->collidesWith(itemInVicinity))
+        if (item != itemInVicinity && item->collidesWith(itemInVicinity))
             tmp << itemInVicinity;
     }
     return tmp;
@@ -1692,6 +1692,24 @@ void QGraphicsScene::update(const QRectF &rect)
     if (!d->calledEmitUpdated) {
         d->calledEmitUpdated = true;
         QTimer::singleShot(0, this, SLOT(emitUpdated()));
+    }
+}
+
+/*!
+    This slot \e advances the scene by one step, by calling
+    QGraphicsItem::advance() for all items on the scene. This is done in two
+    phases: in the first phase, all items are notified that the scene is about
+    to change, and in the second phase all items are notified that they can
+    move. In the first phase, QGraphicsItem::advance() is called passing a
+    value of 0 as an argument, and 1 is passed in the second phase.
+
+    \sa QGraphicsItem::advance(), QGraphicsItemAnimation(), QTimeLine()
+*/
+void QGraphicsScene::advance()
+{
+    for (int i = 0; i < 2; ++i) {
+        foreach (QGraphicsItem *item, items())
+            item->advance(i);
     }
 }
 

@@ -131,6 +131,7 @@ static const int GraphicsViewRegionRectThreshold = 20;
 #include <QtCore/qdatetime.h>
 #include <QtCore/qdebug.h>
 #include <QtGui/qapplication.h>
+#include <QtGui/qdesktopwidget.h>
 #include <QtGui/qevent.h>
 #include <QtGui/qlayout.h>
 #include <QtGui/qmatrix.h>
@@ -372,6 +373,21 @@ QGraphicsView::~QGraphicsView()
 {
     Q_D(QGraphicsView);
     delete d->lastDragDropEvent;
+}
+
+/*!
+    \reimp
+*/
+QSize QGraphicsView::sizeHint() const
+{
+    Q_D(const QGraphicsView);
+    if (d->scene) {
+        return d->matrix.inverted().mapRect(sceneRect())
+            .size()
+            .boundedTo((3 * QApplication::desktop()->size()) / 4)
+            .toSize();
+    }
+    return QAbstractScrollArea::sizeHint();
 }
 
 /*!

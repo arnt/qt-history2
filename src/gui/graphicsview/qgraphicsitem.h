@@ -138,6 +138,7 @@ public:
     void scale(qreal sx, qreal sy);
     void shear(qreal sh, qreal sv);
     void translate(qreal dx, qreal dy);
+    virtual void advance(int phase);
 
     // Stacking order
     qreal zValue() const;
@@ -179,7 +180,7 @@ public:
     { return mapFromScene(QPointF(x, y));  }
 
     bool isAncestorOf(const QGraphicsItem *child) const;
-
+    
     // Custom data
     QVariant data(int key) const;
     void setData(int key, const QVariant &value);

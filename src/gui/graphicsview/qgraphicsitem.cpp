@@ -1286,6 +1286,27 @@ void QGraphicsItem::translate(qreal dx, qreal dy)
 }
 
 /*!
+    This virtual function is called twice for all items by the
+    QGraphicsScene::advance() slot. In the first phase, all items are called
+    with \a phase == 0, indicating that items on the scene are about to
+    advance, and then all items are called with \a phase == 1. Reimplement
+    this function to update your item if you need simple scene-controlled
+    animation.
+
+    The default implementation does nothing.
+
+    For individual item animation, an alternative to this function is to
+    either use QGraphicsItemAnimation, or to multiple-inherit from QObject and
+    QGraphicsItem, and animate your item using QObject::startTimer() and
+    QObject::timerEvent().
+
+    \sa QGraphicsItemAnimation(), QTimeLine()
+*/
+void QGraphicsItem::advance(int phase)
+{
+}
+
+/*!
     Returns the Z-value, or the elevation, of the item. The Z-value decides
     the stacking order of sibling (neighboring) items.
 

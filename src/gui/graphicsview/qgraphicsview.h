@@ -51,6 +51,8 @@ public:
     QGraphicsView(QGraphicsScene *scene = 0, QWidget *parent = 0);
     ~QGraphicsView();
 
+    QSize sizeHint() const;
+
     QPainter::RenderHints renderHints() const;
     void setRenderHint(QPainter::RenderHint hint, bool enabled = true);
     void setRenderHints(QPainter::RenderHints hints);

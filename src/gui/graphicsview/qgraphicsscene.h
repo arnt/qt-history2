@@ -129,9 +129,10 @@ public:
     void setForegroundBrush(const QBrush &brush);
 
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
-
+    
 public slots:
     void update(const QRectF &rect = QRectF());
+    void advance();
 
 protected:
     bool event(QEvent *event);
