@@ -22,6 +22,7 @@
 #include "qevent.h"
 #include "qdebug.h"
 #include "qboxlayout.h"
+#include "qpainter.h"
 
 #include "qabstractscrollarea_p.h"
 #include <qwidget.h>
