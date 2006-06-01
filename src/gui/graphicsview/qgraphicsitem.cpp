@@ -4265,7 +4265,7 @@ void QGraphicsItemGroup::addToGroup(QGraphicsItem *item)
     QPointF oldPos = mapFromItem(item, 0, 0);
     item->setParentItem(this);
     item->setPos(oldPos);
-    item->d_func()->setIsMemberOfGroup(1);
+    item->d_func()->setIsMemberOfGroup(true);
     d->itemsBoundingRect |= (item->matrix() * QMatrix().translate(oldPos.x(), oldPos.y()))
                             .mapRect(item->boundingRect() | item->childrenBoundingRect());
     update();
