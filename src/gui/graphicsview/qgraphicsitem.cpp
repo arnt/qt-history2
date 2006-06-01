@@ -4146,15 +4146,11 @@ void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
 {
     if (!textControl) return; // can't happen
     const QSizeF pageSize = textControl->document()->pageSize();
-    if (pageSize == boundingRect.size())
+    // paged items have a constant (page) size
+    if (size == boundingRect.size() || pageSize.height() != -1)
         return;
     qq->removeFromIndex();
-    if (pageSize.height() != -1) {
-        // ###
-        boundingRect.setSize(pageSize);
-    } else {
-        boundingRect.setSize(size);
-    }
+    boundingRect.setSize(size);
     qq->addToIndex();
 }
 
@@ -4188,7 +4184,14 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
     connect(dd->textControl, SIGNAL(visibilityRequest(const QRectF &)),
             this, SLOT(_q_ensureVisible(QRectF)));
 
-    dd->_q_updateBoundingRect(dd->textControl->document()->documentLayout()->documentSize());
+    const QSizeF pgSize = dd->textControl->document()->pageSize();
+    if (pgSize.height() != -1) {
+        removeFromIndex();
+        dd->boundingRect.setSize(pgSize);
+        addToIndex();
+    } else {
+        dd->_q_updateBoundingRect(dd->textControl->document()->documentLayout()->documentSize());
+    }
 }
 
 /*!
