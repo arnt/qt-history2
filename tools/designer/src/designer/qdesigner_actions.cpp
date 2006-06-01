@@ -331,15 +331,11 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     connect(m_whatsNewAction, SIGNAL(triggered()), this, SLOT(showWhatsNew()));
     m_helpActions->addAction(m_whatsNewAction);
 
-    // On Mac OS X, the about items are merged in so this separator is redundant.
-#ifndef Q_WS_MAC
     sep = new QAction(this);
     sep->setSeparator(true);
     m_helpActions->addAction(sep);
     m_aboutPluginsAction = new QAction(tr("About Plugins"), this);
-#else
-    m_aboutPluginsAction = new QAction(tr("Plugin Information"), this);
-#endif
+    m_aboutPluginsAction->setMenuRole(QAction::ApplicationSpecificRole);
     connect(m_aboutPluginsAction, SIGNAL(triggered()), this, SLOT(aboutPlugins()));
     m_helpActions->addAction(m_aboutPluginsAction);
 
