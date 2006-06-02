@@ -29,6 +29,7 @@
 #include <QtGui/qtextoption.h>
 #include <QtGui/qtextcursor.h>
 #include <QtGui/qtextformat.h>
+#include <QtCore/qrect.h>
 
 #ifdef QT3_SUPPORT
 #include <QtGui/qtextobject.h>
