@@ -959,7 +959,6 @@ void QTextControl::setDocument(QTextDocument *document)
 
     d->doc = 0;
     d->setContent(Qt::RichText, QString(), document);
-// ########    d->relayoutDocument();
 }
 
 /*!
