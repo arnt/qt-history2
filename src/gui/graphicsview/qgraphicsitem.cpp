@@ -3961,11 +3961,8 @@ qreal QGraphicsTextItem::textWidth() const
 */
 void QGraphicsTextItem::adjustSize()
 {
-    if (dd->textControl) {
-        removeFromIndex();
+    if (dd->textControl)
         dd->textControl->adjustSize();
-        addToIndex();
-    }
 }
 
 /*!
