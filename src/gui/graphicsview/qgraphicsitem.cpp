@@ -3814,7 +3814,6 @@ void QGraphicsTextItem::setHtml(const QString &text)
     if (!dd->textControl)
         setTextControl(new QTextControl(this));
     dd->textControl->setHtml(text);
-    adjustSize();
 }
 
 /*!
@@ -3839,7 +3838,6 @@ void QGraphicsTextItem::setPlainText(const QString &text)
     if (!dd->textControl)
         setTextControl(new QTextControl(this));
     dd->textControl->setPlainText(text);
-    adjustSize();
 }
 
 /*!
@@ -3924,6 +3922,38 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 int QGraphicsTextItem::type() const
 {
     return Type;
+}
+
+/*!
+    Sets the preferred width for the item's text. If the actual text
+    is wider than the specified width then it will be broken into
+    multiple lines, each at most \a width pixels wide.
+
+    If \a width is -1 then the text will not be broken into multiple
+    lines unless the it is enforced through an explicit line break or
+    a new paragraph.
+
+    The default value is -1.
+*/
+void QGraphicsTextItem::setTextWidth(qreal width)
+{
+    if (!dd->textControl)
+        setTextControl(new QTextControl(this));
+    QSizeF pgSize = dd->textControl->document()->pageSize();
+    pgSize.setWidth(width);
+    dd->textControl->document()->setPageSize(pgSize);
+}
+
+/*!
+    Returns the text width.
+
+    \sa setTextWidth()
+*/
+qreal QGraphicsTextItem::textWidth() const
+{
+    if (!dd->textControl)
+        return -1;
+    return dd->textControl->document()->pageSize().width();
 }
 
 /*!

@@ -482,6 +482,9 @@ public:
     enum { Type = 8 };
     int type() const;
 
+    void setTextWidth(qreal width);
+    qreal textWidth() const;
+
     void adjustSize();
 
     void setTextControl(QTextControl *control);
