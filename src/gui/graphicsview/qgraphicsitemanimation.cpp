@@ -11,6 +11,12 @@
 **
 ****************************************************************************/
 
+/*!
+    \class QGraphicsItemAnimation
+    \brief The QGraphicsItemAnimation class provides simple animation
+    support for QGraphicsItem.
+*/
+
 #include "qgraphicsitemanimation.h"
 
 #ifndef QT_NO_GRAPHICSVIEW

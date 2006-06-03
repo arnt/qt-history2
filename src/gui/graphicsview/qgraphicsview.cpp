@@ -2135,9 +2135,10 @@ void QGraphicsView::drawForeground(QPainter *painter, const QRectF &rect)
 }
 
 /*!
-    Draws the items in the scene using \a painter, after the background and
-    before the foreground are drawn. Reimplement this function to provide
-    custom item drawing for this view.
+    Draws the items \a items in the scene using \a painter, after the
+    background and before the foreground are drawn. Reimplement this function
+    to provide custom item drawing for this view. \a options is a list of
+    styleoptions; one for each item.
 
     The default implementation calls the scene's drawItems() function.
     

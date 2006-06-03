@@ -74,6 +74,8 @@ public:
     virtual ~QGraphicsScene();
 
     QRectF sceneRect() const;
+    inline qreal width() const { return sceneRect().width(); }
+    inline qreal height() const { return sceneRect().height(); }
     void setSceneRect(const QRectF &rect);
     inline void setSceneRect(qreal x, qreal y, qreal w, qreal h)
     { setSceneRect(QRectF(x, y, w, h)); }

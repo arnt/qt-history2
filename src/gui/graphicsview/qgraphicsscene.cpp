@@ -743,7 +743,7 @@ QGraphicsScene::~QGraphicsScene()
     on the scene since the scene was created (i.e., a rectangle that grows
     when items are added to or moved in the scene, but never shrinks).
 
-    \sa QGraphicsView::sceneRect
+    \sa width(), height(), QGraphicsView::sceneRect
 */
 QRectF QGraphicsScene::sceneRect() const
 {
@@ -759,6 +759,22 @@ void QGraphicsScene::setSceneRect(const QRectF &rect)
         emit sceneRectChanged(rect);
     }
 }
+
+/*!
+     \fn qreal QGraphicsScene::width() const
+
+     This convenience function is equivalent to calling sceneRect().width().
+
+     \sa height()
+*/
+
+/*!
+     \fn qreal QGraphicsScene::height() const
+
+     This convenience function is equivalent to calling sceneRect().height().
+
+     \sa width()
+*/
 
 /*!
     Renders the \a source rect from scene into \a target, using \a painter. This
@@ -1658,9 +1674,13 @@ void QGraphicsScene::setForegroundBrush(const QBrush &brush)
 }
 
 /*!
-    This function is the equivalent of QWidget::inputMethodQuery() for a graphics scene.
+    This method is used by input methods to query a set of properties of
+    the scene to be able to support complex input method operations as support
+    for surrounding text and reconversions.
 
-    \sa QWidget::inputMethodQuery()
+    \a query specifies which property is queried.
+
+    \sa inputMethodEvent(), QWidget::inputMethodQuery()
 */
 QVariant QGraphicsScene::inputMethodQuery(Qt::InputMethodQuery query) const
 {
@@ -1703,7 +1723,7 @@ void QGraphicsScene::update(const QRectF &rect)
     move. In the first phase, QGraphicsItem::advance() is called passing a
     value of 0 as an argument, and 1 is passed in the second phase.
 
-    \sa QGraphicsItem::advance(), QGraphicsItemAnimation(), QTimeLine()
+    \sa QGraphicsItem::advance(), QGraphicsItemAnimation, QTimeLine
 */
 void QGraphicsScene::advance()
 {

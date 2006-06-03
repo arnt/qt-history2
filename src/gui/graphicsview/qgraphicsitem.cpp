@@ -1060,13 +1060,29 @@ void QGraphicsItem::clearFocus()
     For convenience, you can also call scenePos() to determine the
     item's position in scene coordinates, regardless of its parent.
 
-    \sa setPos(), matrix()
+    \sa x(), y(), setPos(), matrix()
 */
 QPointF QGraphicsItem::pos() const
 {
     Q_D(const QGraphicsItem);
     return d->pos;
 }
+
+/*!
+    \fn QGraphicsItem::x() const
+
+    This convenience function is equivalent to calling pos().x().
+
+    \sa y()
+*/
+
+/*!
+    \fn QGraphicsItem::y() const
+
+    This convenience function is equivalent to calling pos().y().
+
+    \sa x()
+*/
 
 /*!
     Returns the item's position in scene coordinates. This is
@@ -1306,7 +1322,7 @@ void QGraphicsItem::translate(qreal dx, qreal dy)
     QGraphicsItem, and animate your item using QObject::startTimer() and
     QObject::timerEvent().
 
-    \sa QGraphicsItemAnimation(), QTimeLine()
+    \sa QGraphicsItemAnimation, QTimeLine
 */
 void QGraphicsItem::advance(int phase)
 {
@@ -3843,7 +3859,7 @@ void QGraphicsTextItem::setPlainText(const QString &text)
 /*!
     Returns the item's font, which is used to render the text.
 
-    \sa setFont(), setPen()
+    \sa setFont()
 */
 QFont QGraphicsTextItem::font() const
 {
@@ -4079,6 +4095,9 @@ void QGraphicsTextItem::focusOutEvent(QFocusEvent *event)
     update();
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
     if (!dd->textControl)
@@ -4087,6 +4106,9 @@ void QGraphicsTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
     qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
 {
     if (!dd->textControl)
@@ -4095,6 +4117,9 @@ void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
     qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
     if (!dd->textControl)
@@ -4103,6 +4128,9 @@ void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
     qGraphicsTextItemSendTranslatedEvent(dd, event);
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
     if (!dd->textControl)

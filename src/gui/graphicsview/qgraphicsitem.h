@@ -120,6 +120,8 @@ public:
 
     // Positioning in scene coordinates
     QPointF pos() const;
+    inline qreal x() const { return pos().x(); }
+    inline qreal y() const { return pos().y(); }
     QPointF scenePos() const;
     void setPos(const QPointF &pos);
     inline void setPos(qreal x, qreal y) { setPos(QPointF(x, y)); }
