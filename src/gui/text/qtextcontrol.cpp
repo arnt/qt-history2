@@ -106,7 +106,7 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
         || ((e->modifiers() & (Qt::AltModifier | Qt::MetaModifier))
             == (Qt::AltModifier | Qt::MetaModifier));
 #else
-    if (e->modifiers() & (Qt::AltModifier | Qt::MetaModifier | Qt::KeypadModifier)) {
+    if (e->modifiers() & (Qt::AltModifier | Qt::MetaModifier)) {
         e->ignore();
         return false;
     }
@@ -865,8 +865,7 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     will select the character to the right, and \e{Shift+Ctrl+Right
     Arrow} will select the word to the right, etc.
 
-    \sa QTextDocument QTextCursor document() textCursor() setDocument() setTextCursor()
-
+    \sa QTextDocument, QTextCursor, {Application Example}, {Syntax Highlighter Example}
 */
 
 /*!
