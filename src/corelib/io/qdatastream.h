@@ -265,8 +265,7 @@ template<typename T>
 QDataStream& operator<<(QDataStream& s, const QVector<T>& v)
 {
     s << quint32(v.size());
-    const T* it = v.begin();
-    for(; it != v.end(); ++it)
+    for (typename QVector<T>::const_iterator it = v.begin(); it != v.end(); ++it)
         s << *it;
     return s;
 }

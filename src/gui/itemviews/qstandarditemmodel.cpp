@@ -63,7 +63,7 @@ public:
 QStandardItemPrivate::~QStandardItemPrivate()
 {
     QVector<QStandardItem*>::const_iterator it;
-    for (it = children.begin(); it != children.end(); ++it) {
+    for (it = children.constBegin(); it != children.constEnd(); ++it) {
         QStandardItem *child = *it;
         if (child)
             child->d_func()->setModel(0);

@@ -517,22 +517,22 @@ QTextDocumentLayoutPrivate::hitTest(QTextTable *table, const QPointF &point,
 {
     QTextTableData *td = static_cast<QTextTableData *>(data(table));
 
-    QVector<qreal>::ConstIterator rowIt = qLowerBound(td->rowPositions.begin(), td->rowPositions.end(), point.y());
-    if (rowIt == td->rowPositions.end()) {
-        rowIt = td->rowPositions.end() - 1;
-    } else if (rowIt != td->rowPositions.begin()) {
+    QVector<qreal>::ConstIterator rowIt = qLowerBound(td->rowPositions.constBegin(), td->rowPositions.constEnd(), point.y());
+    if (rowIt == td->rowPositions.constEnd()) {
+        rowIt = td->rowPositions.constEnd() - 1;
+    } else if (rowIt != td->rowPositions.constBegin()) {
         --rowIt;
     }
 
-    QVector<qreal>::ConstIterator colIt = qLowerBound(td->columnPositions.begin(), td->columnPositions.end(), point.x());
-    if (colIt == td->columnPositions.end()) {
-        colIt = td->columnPositions.end() - 1;
-    } else if (colIt != td->columnPositions.begin()) {
+    QVector<qreal>::ConstIterator colIt = qLowerBound(td->columnPositions.constBegin(), td->columnPositions.constEnd(), point.x());
+    if (colIt == td->columnPositions.constEnd()) {
+        colIt = td->columnPositions.constEnd() - 1;
+    } else if (colIt != td->columnPositions.constBegin()) {
         --colIt;
     }
 
-    QTextTableCell cell = table->cellAt(rowIt - td->rowPositions.begin(),
-                                        colIt - td->columnPositions.begin());
+    QTextTableCell cell = table->cellAt(rowIt - td->rowPositions.constBegin(),
+                                        colIt - td->columnPositions.constBegin());
     if (!cell.isValid())
         return PointBefore;
 
@@ -774,16 +774,16 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
         int lastRow = rows;
 
         if (context.clip.isValid()) {
-            QVector<qreal>::ConstIterator rowIt = qLowerBound(td->rowPositions.begin(), td->rowPositions.end(), context.clip.top() - off.y());
-            if (rowIt != td->rowPositions.end() && rowIt != td->rowPositions.begin()) {
+            QVector<qreal>::ConstIterator rowIt = qLowerBound(td->rowPositions.constBegin(), td->rowPositions.constEnd(), context.clip.top() - off.y());
+            if (rowIt != td->rowPositions.constEnd() && rowIt != td->rowPositions.constBegin()) {
                 --rowIt;
-                firstRow = rowIt - td->rowPositions.begin();
+                firstRow = rowIt - td->rowPositions.constBegin();
             }
 
-            rowIt = qUpperBound(td->rowPositions.begin(), td->rowPositions.end(), context.clip.bottom() - off.y());
-            if (rowIt != td->rowPositions.end()) {
+            rowIt = qUpperBound(td->rowPositions.constBegin(), td->rowPositions.constEnd(), context.clip.bottom() - off.y());
+            if (rowIt != td->rowPositions.constEnd()) {
                 ++rowIt;
-                lastRow = rowIt - td->rowPositions.begin();
+                lastRow = rowIt - td->rowPositions.constBegin();
             }
         }
 

@@ -749,7 +749,7 @@ void QTextHtmlParser::parseTag()
         p = at(p).parent;
 
     QTextHtmlParserNode *node = newNode(p);
-    const int nodeIndex = int(node - nodes.constBegin());
+    const int nodeIndex = int(QVector<QTextHtmlParserNode>::const_iterator(node) - nodes.constBegin());
 
     // parse tag name
     node->tag = parseWord().toLower();
