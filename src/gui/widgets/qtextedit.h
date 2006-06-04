@@ -285,9 +285,7 @@ public:
     inline QT3_SUPPORT void sync() {}
 
     QT3_SUPPORT void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
-    inline QT3_SUPPORT void moveCursor(CursorAction action, bool select) {
-        moveCursor(action, select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
-    }
+    QT3_SUPPORT void moveCursor(CursorAction action, bool select);
 
     enum KeyboardAction {
         ActionBackspace,

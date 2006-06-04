@@ -3502,6 +3502,14 @@ void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 }
 
 /*!
+    Use the QTextCursor() class instead.
+*/
+void QTextEdit::moveCursor(CursorAction action, bool select)
+{
+    moveCursor(action, select ? QTextCursor::KeepAnchor : QTextCursor::MoveAnchor);
+}
+
+/*!
     \fn void QTextEdit::moveCursor(CursorAction action, bool select)
 
     Use the QTextCursor() class instead.
