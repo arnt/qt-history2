@@ -1680,7 +1680,7 @@ void QGraphicsScene::setForegroundBrush(const QBrush &brush)
 
     \a query specifies which property is queried.
 
-    \sa inputMethodEvent(), QWidget::inputMethodQuery()
+    \sa QWidget::inputMethodQuery()
 */
 QVariant QGraphicsScene::inputMethodQuery(Qt::InputMethodQuery query) const
 {

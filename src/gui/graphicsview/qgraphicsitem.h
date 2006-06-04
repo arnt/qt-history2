@@ -165,9 +165,28 @@ public:
     QPointF mapToItem(QGraphicsItem *item, const QPointF &point) const;
     QPointF mapToParent(const QPointF &point) const;
     QPointF mapToScene(const QPointF &point) const;
+    QPolygonF mapToItem(QGraphicsItem *item, const QRectF &rect) const;
+    QPolygonF mapToParent(const QRectF &rect) const;
+    QPolygonF mapToScene(const QRectF &rect) const;
+    QPolygonF mapToItem(QGraphicsItem *item, const QPolygonF &polygon) const;
+    QPolygonF mapToParent(const QPolygonF &polygon) const;
+    QPolygonF mapToScene(const QPolygonF &polygon) const;
+    QPainterPath mapToItem(QGraphicsItem *item, const QPainterPath &path) const;
+    QPainterPath mapToParent(const QPainterPath &path) const;
+    QPainterPath mapToScene(const QPainterPath &path) const;
     QPointF mapFromItem(QGraphicsItem *item, const QPointF &point) const;
     QPointF mapFromParent(const QPointF &point) const;
     QPointF mapFromScene(const QPointF &point) const;
+    QPolygonF mapFromItem(QGraphicsItem *item, const QRectF &rect) const;
+    QPolygonF mapFromParent(const QRectF &rect) const;
+    QPolygonF mapFromScene(const QRectF &rect) const;
+    QPolygonF mapFromItem(QGraphicsItem *item, const QPolygonF &polygon) const;
+    QPolygonF mapFromParent(const QPolygonF &polygon) const;
+    QPolygonF mapFromScene(const QPolygonF &polygon) const;
+    QPainterPath mapFromItem(QGraphicsItem *item, const QPainterPath &path) const;
+    QPainterPath mapFromParent(const QPainterPath &path) const;
+    QPainterPath mapFromScene(const QPainterPath &path) const;
+
     inline QPointF mapToItem(QGraphicsItem *item, qreal x, qreal y) const
     { return mapToItem(item, QPointF(x, y)); }
     inline QPointF mapToParent(qreal x, qreal y) const
@@ -303,10 +322,13 @@ class Q_GUI_EXPORT QGraphicsRectItem : public QAbstractGraphicsPathItem
 public:
     QGraphicsRectItem(QGraphicsItem *parent = 0);
     QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent = 0);
+    QGraphicsRectItem(qreal x, qreal y, qreal w, qreal h, QGraphicsItem *parent = 0);
     ~QGraphicsRectItem();
 
     QRectF rect() const;
     void setRect(const QRectF &rect);
+    inline void setRect(qreal x, qreal y, qreal w, qreal h)
+    { setRect(QRectF(x, y, w, h)); }
 
     QRectF boundingRect() const;
     QPainterPath shape() const;

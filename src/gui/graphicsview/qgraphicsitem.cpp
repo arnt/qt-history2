@@ -1723,6 +1723,117 @@ QPointF QGraphicsItem::mapToScene(const QPointF &point) const
 */
 
 /*!
+    Maps the rectangle \a rect, which is in this item's coordinate system, to
+    \a item's coordinate system, and returns the mapped rectangle as a polygon.
+
+    If \a item is 0, this function returns the same as mapToScene().
+
+    \sa mapToParent(), mapToScene(), mapFromItem()
+*/
+QPolygonF QGraphicsItem::mapToItem(QGraphicsItem *item, const QRectF &rect) const
+{
+    return item ? item->mapFromScene(mapToScene(rect)) : mapToScene(rect);
+}
+
+/*!
+    Maps the rectangle \a rect, which is in this item's coordinate system, to
+    its parent's coordinate system, and returns the mapped rectangle as a
+    polygon. If the item has no parent, \a rect will be mapped to the scene's
+    coordinate system.
+
+    \sa mapToScene(), mapToItem(), mapFromParent()
+*/
+QPolygonF QGraphicsItem::mapToParent(const QRectF &rect) const
+{
+    return mapToItem(parentItem(), rect);
+}
+
+/*!
+    Maps the rectangle \a rect, which is in this item's coordinate system, to
+    the scene's coordinate system, and returns the mapped rectangle as a polygon.
+
+    \sa mapToParent(), mapToItem(), mapFromScene()
+*/
+QPolygonF QGraphicsItem::mapToScene(const QRectF &rect) const
+{
+    return sceneMatrix().map(rect);
+}
+
+/*!
+    Maps the polygon \a polygon, which is in this item's coordinate system, to
+    \a item's coordinate system, and returns the mapped polygon.
+
+    If \a item is 0, this function returns the same as mapToScene().
+
+    \sa mapToParent(), mapToScene(), mapFromItem()
+*/
+QPolygonF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPolygonF &polygon) const
+{
+    return item ? item->mapFromScene(mapToScene(polygon)) : mapToScene(polygon);
+}
+
+/*!
+    Maps the polygon \a polygon, which is in this item's coordinate system, to
+    its parent's coordinate system, and returns the mapped polygon. If the
+    item has no parent, \a polygon will be mapped to the scene's coordinate
+    system.
+
+    \sa mapToScene(), mapToItem(), mapFromParent()
+*/
+QPolygonF QGraphicsItem::mapToParent(const QPolygonF &polygon) const
+{
+    return mapToItem(parentItem(), polygon);
+}
+
+/*!
+    Maps the polygon \a polygon, which is in this item's coordinate system, to
+    the scene's coordinate system, and returns the mapped polygon.
+
+    \sa mapToParent(), mapToItem(), mapFromScene()
+*/
+QPolygonF QGraphicsItem::mapToScene(const QPolygonF &polygon) const
+{
+    return sceneMatrix().map(polygon);
+}
+
+/*!
+    Maps the path \a path, which is in this item's coordinate system, to
+    \a item's coordinate system, and returns the mapped path.
+
+    If \a item is 0, this function returns the same as mapToScene().
+
+    \sa mapToParent(), mapToScene(), mapFromItem()
+*/
+QPainterPath QGraphicsItem::mapToItem(QGraphicsItem *item, const QPainterPath &path) const
+{
+    return item ? item->mapFromScene(mapToScene(path)) : mapToScene(path);
+}
+
+/*!
+    Maps the path \a path, which is in this item's coordinate system, to
+    its parent's coordinate system, and returns the mapped path. If the
+    item has no parent, \a path will be mapped to the scene's coordinate
+    system.
+
+    \sa mapToScene(), mapToItem(), mapFromParent()
+*/
+QPainterPath QGraphicsItem::mapToParent(const QPainterPath &path) const
+{
+    return mapToItem(parentItem(), path);
+}
+
+/*!
+    Maps the path \a path, which is in this item's coordinate system, to
+    the scene's coordinate system, and returns the mapped path.
+
+    \sa mapToParent(), mapToItem(), mapFromScene()
+*/
+QPainterPath QGraphicsItem::mapToScene(const QPainterPath &path) const
+{
+    return sceneMatrix().map(path);
+}
+
+/*!
     Maps the point \a point, which is in \a item's coordinate system, to this
     item's coordinate system, and returns the mapped coordinate.
 
@@ -1784,6 +1895,102 @@ QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
     This convenience function is equivalent to calling mapFromScene(QPointF(\a
     x, \a y)).
 */
+
+/*!
+    Maps the rectangle \a rect, which is in \a item's coordinate system, to
+    this item's coordinate system, and returns the mapped rectangle as a
+    polygon.
+
+    If \a item is 0, this function returns the same as mapFromScene().
+*/
+QPolygonF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QRectF &rect) const
+{
+    return mapFromScene(item ? item->mapToScene(rect) : rect);
+}
+
+/*!
+    Maps the rectangle \a rect, which is in this item's parent's coordinate
+    system, to this item's coordinate system, and returns the mapped rectangle
+    as a polygon.
+*/
+QPolygonF QGraphicsItem::mapFromParent(const QRectF &rect) const
+{
+    return mapFromItem(parentItem(), rect);
+}
+
+/*!
+    Maps the rectangle \a rect, which is in this item's scene's coordinate
+    system, to this item's coordinate system, and returns the mapped rectangle
+    as a polygon.
+*/
+QPolygonF QGraphicsItem::mapFromScene(const QRectF &rect) const
+{
+    return sceneMatrix().inverted().map(rect);
+}
+
+/*!
+    Maps the polygon \a polygon, which is in \a item's coordinate system, to
+    this item's coordinate system, and returns the mapped polygon.
+
+    If \a item is 0, this function returns the same as mapFromScene().
+*/
+QPolygonF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPolygonF &polygon) const
+{
+    return mapFromScene(item ? item->mapToScene(polygon) : polygon);
+}
+
+/*!
+    Maps the polygon \a polygon, which is in this item's parent's coordinate
+    system, to this item's coordinate system, and returns the mapped polygon.
+*/
+QPolygonF QGraphicsItem::mapFromParent(const QPolygonF &polygon) const
+{
+    return mapFromItem(parentItem(), polygon);
+}
+
+/*!
+    Maps the polygon \a polygon, which is in this item's scene's coordinate
+    system, to this item's coordinate system, and returns the mapped polygon.
+*/
+QPolygonF QGraphicsItem::mapFromScene(const QPolygonF &polygon) const
+{
+    return sceneMatrix().inverted().map(polygon);
+}
+
+/*!
+    Maps the path \a path, which is in \a item's coordinate system, to
+    this item's coordinate system, and returns the mapped path.
+
+    If \a item is 0, this function returns the same as mapFromScene().
+
+    \sa mapFromParent(), mapFromScene(), mapToItem()
+*/
+QPainterPath QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPainterPath &path) const
+{
+    return mapFromScene(item ? item->mapToScene(path) : path);
+}
+
+/*!
+    Maps the path \a path, which is in this item's parent's coordinate
+    system, to this item's coordinate system, and returns the mapped path.
+
+    \sa mapFromScene(), mapFromItem(), mapToParent()
+*/
+QPainterPath QGraphicsItem::mapFromParent(const QPainterPath &path) const
+{
+    return mapFromItem(parentItem(), path);
+}
+
+/*!
+    Maps the path \a path, which is in this item's scene's coordinate
+    system, to this item's coordinate system, and returns the mapped path.
+
+    \sa mapFromParent(), mapFromItem(), mapToScene()
+*/
+QPainterPath QGraphicsItem::mapFromScene(const QPainterPath &path) const
+{
+    return sceneMatrix().inverted().map(path);
+}
 
 /*!
     Returns true if this item is an ancestor of \a child (i.e., if this item
@@ -2817,6 +3024,19 @@ QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent)
 }
 
 /*!
+    Constructs a QGraphicsRectItem with a default rectangle defined
+    by \a x, \a y, \a w and \a h.
+
+    \a parent is passed to QAbstractGraphicsPathItem's constructor.
+*/
+QGraphicsRectItem::QGraphicsRectItem(qreal x, qreal y, qreal w, qreal h,
+                                     QGraphicsItem *parent)
+    : QAbstractGraphicsPathItem(*new QGraphicsRectItemPrivate, parent)
+{
+    setRect(QRectF(x, y, w, h));
+}
+
+/*!
     Constructs a QGraphicsRectItem. \a parent is passed to
     QAbstractGraphicsPathItem's constructor.
 */
@@ -2857,12 +3077,21 @@ void QGraphicsRectItem::setRect(const QRectF &rect)
 }
 
 /*!
+    \fn void QGraphicsRectItem::setRect(qreal x, qreal y, qreal w, qreal h)
+
+    This convenience function is equivalent to calling
+    setRect(QRectF(\a x, \a y, \a w, \a h));
+
+    \sa rect()
+*/
+
+/*!
     \reimp
 */
 QRectF QGraphicsRectItem::boundingRect() const
 {
     Q_D(const QGraphicsRectItem);
-    qreal penWidth = d->pen.widthF() / 2.0;
+    qreal penWidth = d->pen.widthF() / 2.0;    
     return d->rect.adjusted(-penWidth, -penWidth,
                             penWidth, penWidth);
 }
@@ -3871,7 +4100,7 @@ QFont QGraphicsTextItem::font() const
 /*!
     Sets the font used to render the text item to \a font.
 
-    \sa font(), setPen()
+    \sa font()
 */
 void QGraphicsTextItem::setFont(const QFont &font)
 {
