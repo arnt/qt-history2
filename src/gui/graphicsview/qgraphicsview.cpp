@@ -1986,17 +1986,19 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
             option.state |= QStyle::State_Sunken;
 
         // Calculate a simple level-of-detail metric.
-        QMatrix neo = item->sceneMatrix() * painter.matrix();
+        QMatrix itemSceneMatrix = item->sceneMatrix();
+        QMatrix neo = itemSceneMatrix * painter.matrix();
         QRectF mappedRect = neo.mapRect(QRectF(0, 0, 1, 1));
         qreal dx = neo.mapRect(QRectF(0, 0, 1, 1)).size().width();
         qreal dy = neo.mapRect(QRectF(0, 0, 1, 1)).size().height();
         option.levelOfDetail = qMin(dx, dy);
         option.matrix = neo;
 
-        option.exposedRect = item->boundingRect();
-        QMatrix reverseMap = neo.inverted();
-        foreach (QRect rect, exposedRegion.rects())
-            option.exposedRect &= reverseMap.mapRect(rect.adjusted(-1, -1, 1, 1));
+        // Determine the item's exposed area
+        QMatrix reverseMap = itemSceneMatrix.inverted();
+        foreach (QRectF rect, exposedRects)
+            option.exposedRect |= reverseMap.mapRect(rect);
+        option.exposedRect &= item->boundingRect();
 
         styleOptions << option;
     }
@@ -2032,8 +2034,6 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     qDebug() << "\tTotal rendering time: " << stopWatch.elapsed() << "msecs ("
              << (stopWatch.elapsed() > 0 ? (1000.0 / stopWatch.elapsed()) : -1.0) << "fps )";
 #endif
-
-    QAbstractScrollArea::paintEvent(event);
 }
 
 /*!
