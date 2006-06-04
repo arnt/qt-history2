@@ -23,7 +23,7 @@ Mouse::Mouse()
       color(rand() % 256, rand() % 256, rand() % 256)
 {
     rotate(rand() % (360 * 16));
-    startTimer(1000 / 25);
+    startTimer(1000 / 33);
 }
 
 QRectF Mouse::boundingRect() const
@@ -60,7 +60,7 @@ void Mouse::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *
     painter->drawEllipse(QRectF(4.0 + mouseEyeDirection, -17, 4, 4));
 
     // Ears
-    painter->setBrush(scene()->collidingItems(this).size() == 1 ? Qt::darkYellow : Qt::red);
+    painter->setBrush(scene()->collidingItems(this).isEmpty() ? Qt::darkYellow : Qt::red);
     painter->drawEllipse(-17, -12, 16, 16);
     painter->drawEllipse(1, -12, 16, 16);
 
