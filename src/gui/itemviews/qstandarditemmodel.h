@@ -216,8 +216,10 @@ inline void QStandardItem::setText(const QString &atext)
 inline void QStandardItem::setIcon(const QIcon &aicon)
 { setData(Qt::DecorationRole, aicon); }
 
+#ifndef QT_NO_TOOLTIP
 inline void QStandardItem::setToolTip(const QString &atoolTip)
 { setData(Qt::ToolTipRole, atoolTip); }
+#endif
 
 inline void QStandardItem::setStatusTip(const QString &astatusTip)
 { setData(Qt::StatusTipRole, astatusTip); }
