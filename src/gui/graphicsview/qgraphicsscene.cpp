@@ -2111,6 +2111,8 @@ void QGraphicsScene::keyPressEvent(QKeyEvent *keyEvent)
 {
     if (QGraphicsItem *item = focusItem())
         item->sceneEvent(keyEvent);
+    else
+        keyEvent->ignore();
 }
 
 /*!
@@ -2124,6 +2126,8 @@ void QGraphicsScene::keyReleaseEvent(QKeyEvent *keyEvent)
 {
     if (QGraphicsItem *item = focusItem())
         item->sceneEvent(keyEvent);
+    else
+        keyEvent->ignore();
 }
 
 /*!

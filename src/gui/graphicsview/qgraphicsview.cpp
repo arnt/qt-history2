@@ -1692,10 +1692,12 @@ void QGraphicsView::keyPressEvent(QKeyEvent *event)
     if (!d->scene || !d->sceneInteractionAllowed)
         return;
     QApplication::sendEvent(d->scene, event);
+    if (!event->isAccepted())
+        QAbstractScrollArea::keyPressEvent(event);
 }
 
 /*!
-    \internal
+    \reimp
 */
 void QGraphicsView::keyReleaseEvent(QKeyEvent *event)
 {
@@ -1703,10 +1705,12 @@ void QGraphicsView::keyReleaseEvent(QKeyEvent *event)
     if (!d->scene || !d->sceneInteractionAllowed)
         return;
     QApplication::sendEvent(d->scene, event);
+    if (!event->isAccepted())
+        QAbstractScrollArea::keyReleaseEvent(event);
 }
 
 /*!
-    \internal
+    \reimp
 */
 void QGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 {
@@ -1738,7 +1742,7 @@ void QGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 }
 
 /*!
-    \internal
+    \reimp
 */
 void QGraphicsView::mousePressEvent(QMouseEvent *event)
 {
@@ -1942,7 +1946,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 #ifdef QGRAPHICSVIEW_DEBUG
     QTime stopWatch;
     stopWatch.start();
-    qDebug() << "QGraphicsView::paintEvent()";
+    qDebug() << "QGraphicsView::paintEvent(" << event->region() << ")";
 #endif
 
     // Transform the exposed viewport rects to scene polygons

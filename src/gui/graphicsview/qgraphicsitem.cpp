@@ -2434,7 +2434,8 @@ void QGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 /*!
     This event handler, for event \a event, can be reimplemented to
     receive key press events for this item. The default implementation
-    does nothing.
+    ignores the event. If you reimplement this handler, the event will by
+    default be accepted.
 
     Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
 
@@ -2446,12 +2447,14 @@ void QGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 */
 void QGraphicsItem::keyPressEvent(QKeyEvent *event)
 {
-    Q_UNUSED(event);
+    event->ignore();
 }
 
 /*!
     This event handler, for event \a event, can be reimplemented to receive
-    key release events for this item. The default implementation does nothing.
+    key release events for this item. The default implementation
+    ignores the event. If you reimplement this handler, the event will by
+    default be accepted.
 
     Calling QEvent::ignore() or QEvent::accept() on \a event has no effect.
 
@@ -2463,7 +2466,7 @@ void QGraphicsItem::keyPressEvent(QKeyEvent *event)
 */
 void QGraphicsItem::keyReleaseEvent(QKeyEvent *event)
 {
-    Q_UNUSED(event);
+    event->ignore();
 }
 
 /*!
