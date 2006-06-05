@@ -412,8 +412,6 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
 
     doc->setUndoRedoEnabled(false);
 
-// ###    q->setAttribute(Qt::WA_InputMethodEnabled);
-
     // avoid multiple textChanged() signals being emitted
     QObject::disconnect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
 
