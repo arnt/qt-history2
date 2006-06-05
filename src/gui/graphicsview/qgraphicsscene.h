@@ -132,7 +132,7 @@ public:
 
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
     
-public slots:
+public Q_SLOTS:
     void update(const QRectF &rect = QRectF());
     void advance();
 
