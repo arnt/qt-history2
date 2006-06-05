@@ -44,6 +44,7 @@
 #include "qinputcontext.h"
 #include "qlist.h"
 #endif
+#include "qabstractitemview.h"
 
 #ifndef QT_NO_SHORTCUT
 #include "qkeysequence.h"
@@ -522,6 +523,99 @@ void QLineEdit::setValidator(const QValidator *v)
     d->validator = const_cast<QValidator*>(v);
 }
 #endif // QT_NO_VALIDATOR
+
+/*!
+    Sets this line edit to provide auto completions from the completer, \a c.
+    The completion mode is set using QCompleter::setCompletionMode().
+
+    Using a QCompleter with a QValidator or QLineEdit::inputMask is not supported.
+
+    If \a c == 0, setCompleter() removes the current completer, effectively
+    disabling auto completion.
+
+    \sa QCompleter
+*/
+void QLineEdit::setCompleter(QCompleter *c)
+{
+    Q_D(QLineEdit);
+    if (c == d->completer)
+        return;
+    if (d->completer) {
+        QObject::disconnect(d->completer, SIGNAL(activated(const QString&)),
+                            this, SLOT(setText(QString)));
+        QObject::disconnect(d->completer, SIGNAL(highlighted(const QString&)),
+                         this, SLOT(_q_completionHighlighted(QString)));
+        d->completer->setWidget(0);
+        if (d->completer->parent() == this)
+            delete d->completer;
+    }
+    d->completer = c;
+    if (!c)
+        return;
+    c->setWidget(this);
+    QObject::connect(c, SIGNAL(activated(const QString&)),
+                     this, SLOT(setText(QString)));
+    QObject::connect(c, SIGNAL(highlighted(const QString&)),
+                     this, SLOT(_q_completionHighlighted(QString)));
+}
+
+/*!
+    Returns the current QCompleter that provides completions.
+*/
+QCompleter *QLineEdit::completer() const
+{
+    Q_D(const QLineEdit);
+    return d->completer;
+}
+
+bool QLineEditPrivate::complete(int key)
+{
+    if (!completer || readOnly || echoMode != QLineEdit::Normal)
+        return false;
+
+    if (completer->completionMode() == QCompleter::InlineCompletion) {
+        if (key == Qt::Key_Backspace)
+            return true;
+        if (key == Qt::Key_Up || key == Qt::Key_Down || key == Qt::Key_PageUp 
+            || key == Qt::Key_PageDown) {
+            if (selend != 0 && selend != text.length())
+                return false;
+            QString prefix = text.left(cursor);
+            int row = completer->currentRow();
+            if (prefix != completer->completionPrefix()) {
+                completer->setCompletionPrefix(text.left(cursor));
+                row = 0;
+            } else if (key == Qt::Key_Up || key == Qt::Key_PageUp)
+                --row;
+            else
+                ++row;
+            if (!completer->setCurrentRow(row))
+                return false;
+        } else
+            completer->setCompletionPrefix(text);
+    } else {
+        if (text.isEmpty()) {
+            completer->popup()->hide();
+            return true;
+        }
+        completer->setCompletionPrefix(text);
+    }
+
+    completer->complete();
+    return true;
+}
+
+void QLineEditPrivate::_q_completionHighlighted(QString newText)
+{
+    Q_Q(QLineEdit);
+    if (completer->completionMode() != QCompleter::InlineCompletion)
+        q->setText(newText);
+    else {
+        int c = cursor;
+        q->setText(text.left(c) + newText.mid(c));
+        q->setSelection(text.length(), c - newText.length());
+    }
+}
 
 /*!
     Returns a recommended size for the widget.
@@ -1750,8 +1844,10 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
                 (event->modifiers() & Qt::ShiftModifier) ? redo() : undo();
             else
 #endif
-            if (!d->readOnly)
+            if (!d->readOnly) {
                 backspace();
+                d->complete(Qt::Key_Backspace);
+            }
             break;
         case Qt::Key_Home:
 #ifdef Q_WS_MAC
@@ -1829,6 +1925,16 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             }
             break;
 #endif
+
+#ifndef Q_WS_MAC
+        case Qt::Key_Up:
+        case Qt::Key_Down:
+#endif
+        case Qt::Key_PageUp:
+        case Qt::Key_PageDown:
+            unknown = !d->complete(event->key());
+            break;
+
         default:
             unknown = true;
         }
@@ -1844,6 +1950,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
         QString t = event->text();
         if (!t.isEmpty() && t.at(0).isPrint()) {
             insert(t);
+            d->complete(event->key());
             event->accept();
             return;
         }
@@ -2518,6 +2625,8 @@ void QLineEditPrivate::finishChange(int validateFromState, bool update, bool edi
                 emit q->textEdited(actualText);
             q->updateMicroFocus();
             emit q->textChanged(actualText);
+            if (edited && completer && completer->completionMode() != QCompleter::InlineCompletion)
+                complete(-1); // update the popup on cut/paste/del
         }
 #ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(q, 0, QAccessible::ValueChanged);

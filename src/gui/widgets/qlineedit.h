@@ -26,6 +26,7 @@ QT_MODULE(Gui)
 class QValidator;
 class QMenu;
 class QLineEditPrivate;
+class QCompleter;
 
 class Q_GUI_EXPORT QLineEdit : public QWidget
 {
@@ -80,6 +81,9 @@ public:
     void setValidator(const QValidator *);
     const QValidator * validator() const;
 #endif
+    
+    void setCompleter(QCompleter *completer);
+    QCompleter *completer() const;
     
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -200,6 +204,7 @@ private:
     Q_DECLARE_PRIVATE(QLineEdit)
     Q_PRIVATE_SLOT(d_func(), void _q_clipboardChanged())
     Q_PRIVATE_SLOT(d_func(), void _q_deleteSelected())
+    Q_PRIVATE_SLOT(d_func(), void _q_completionHighlighted(QString))
 };
 
 #endif // QT_NO_LINEEDIT
