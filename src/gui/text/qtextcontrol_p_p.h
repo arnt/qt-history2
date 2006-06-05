@@ -122,7 +122,6 @@ public:
     bool readOnly; /* ### move to document? */
 
     QBasicTimer cursorBlinkTimer;
-    QBasicTimer autoScrollTimer;
     QBasicTimer trippleClickTimer;
     QPointF trippleClickPoint;
 

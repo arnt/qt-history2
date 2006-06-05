@@ -1284,14 +1284,6 @@ void QTextControl::timerEvent(QTimerEvent *e)
     } else if (e->timerId() == d->trippleClickTimer.timerId()) {
         d->trippleClickTimer.stop();
     }
-/* #####
-    else if (e->timerId() == d->autoScrollTimer.timerId()) {
-        const QPoint globalPos = QCursor::pos();
-        const QPoint pos = d->viewport->mapFromGlobal(globalPos);
-        QMouseEvent ev(QEvent::MouseMove, pos, globalPos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-        mouseMoveEvent(&ev);
-    }
-*/
 #ifdef QT_KEYPAD_NAVIGATION
     else if (e->timerId() == d->deleteAllTimer.timerId()) {
         d->deleteAllTimer.stop();
@@ -1835,16 +1827,6 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
     }
     const qreal mouseX = qreal(mousePos.x());
 
-    /* ###### portme
-    if (d->autoScrollTimer.isActive()) {
-        if (d->viewport->rect().contains(e->pos()))
-            d->autoScrollTimer.stop();
-    } else {
-        if (!d->viewport->rect().contains(e->pos()))
-            d->autoScrollTimer.start(100, this);
-    }
-    */
-
 #if !defined(QT_NO_IM)
     QTextLayout *layout = cursor.block().layout();
     if (layout && !layout->preeditAreaText().isEmpty())
@@ -1882,7 +1864,6 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
 {
     Q_Q(QTextControl);
 
-    autoScrollTimer.stop();
     const QTextCursor oldSelection = cursor;
 
 #ifndef QT_NO_DRAGANDDROP
