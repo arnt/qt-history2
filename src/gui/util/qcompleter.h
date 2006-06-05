@@ -51,10 +51,13 @@ public:
         CaseInsensitivelySortedModel
     };
 
-    QCompleter(QWidget *parent);
-    QCompleter(QAbstractItemModel *model, QWidget *parent);
-    QCompleter(const QStringList& completions, QWidget *parent);
+    QCompleter(QObject *parent = 0);
+    QCompleter(QAbstractItemModel *model, QObject *parent = 0);
+    QCompleter(const QStringList& completions, QObject *parent = 0);
     ~QCompleter();
+
+    void setWidget(QWidget *widget);
+    QWidget *widget() const;
 
     void setModel(QAbstractItemModel *c);
     QAbstractItemModel *model() const;
@@ -86,12 +89,11 @@ public:
 
     const QAbstractProxyModel *completionModel() const;
 
-public:
     QString completionPrefix() const;
+
 public Q_SLOTS:
     void setCompletionPrefix(const QString &prefix);
-
-    void complete(const QPoint& globalPos = QPoint());
+    void complete(const QRect& rect = QRect());
 
 public:
     virtual QString pathFromIndex(const QModelIndex& index) const;
@@ -99,6 +101,7 @@ public:
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);
+    bool event(QEvent *);
 
 Q_SIGNALS:
     void activated(const QString&);
@@ -110,9 +113,8 @@ private:
     Q_DISABLE_COPY(QCompleter)
     Q_DECLARE_PRIVATE(QCompleter)
     
-    Q_PRIVATE_SLOT(d_func(), void _q_completionActivated(QModelIndex))
-    Q_PRIVATE_SLOT(d_func(), void _q_completionHighlighted(QModelIndex))
-    Q_PRIVATE_SLOT(d_func(), void _q_selectIndex(const QModelIndex& index))
+    Q_PRIVATE_SLOT(d_func(), void _q_complete(QModelIndex))
+    Q_PRIVATE_SLOT(d_func(), void _q_completionSelected(const QItemSelection&))
 };
 
 QT_END_HEADER

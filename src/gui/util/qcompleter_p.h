@@ -29,15 +29,9 @@
 #include "private/qobject_p.h"
 #include "QtGui/qtreeview.h"
 #include "QtGui/qabstractproxymodel.h"
-#include "QtGui/qstringlistmodel.h"
 #include "qcompleter.h"
-#include "QtGui/qapplication.h"
-#include "QtGui/qevent.h"
-#include "QtGui/qheaderview.h"
-#include "QtGui/qdesktopwidget.h"
-#include "QtGui/qtreeview.h"
-#include "QtGui/qdirmodel.h"
-#include "QtGui/qheaderview.h"
+#include "QtGui/qitemdelegate.h"
+#include "QtGui/qpainter.h"
 
 class QCompletionModel;
 
@@ -47,8 +41,8 @@ class QCompleterPrivate : public QObjectPrivate
 
 public:
     QCompleterPrivate();
-    ~QCompleterPrivate() { }
-    void init(QWidget *widget, QAbstractItemModel *model = 0);
+    ~QCompleterPrivate() { delete popup; }
+    void init(QAbstractItemModel *model = 0);
 
     QWidget *widget;
     QCompletionModel *proxy;
@@ -61,12 +55,10 @@ public:
     int column;
     QCompleter::ModelSorting sorting;
 
-    bool blockCompletion;
-
-    void showPopup(QPoint);
-    void _q_completionActivated(QModelIndex);
-    void _q_completionHighlighted(QModelIndex);
-    void _q_selectIndex(const QModelIndex&);
+    void showPopup(const QRect&);
+    void _q_complete(QModelIndex, bool = false);
+    void _q_completionSelected(const QItemSelection&);
+    void setCurrentIndex(const QModelIndex&, bool = true);
 };
 
 class IndexMapper
@@ -85,6 +77,7 @@ public:
     inline int last() const { return v ? vector.last() : t; }
     inline int from() const { Q_ASSERT(!v); return f; }
     inline int to() const { Q_ASSERT(!v); return t; }
+    inline int cost() const { return vector.count()+2; }
 
 private:
     bool v;
@@ -108,12 +101,13 @@ public:
     typedef QMap<QString, MatchData> CacheItem;
     typedef QMap<QModelIndex, CacheItem> Cache;
 
-    QCompletionEngine(QCompleterPrivate *c) : c(c), curRow(-1) { }
+    QCompletionEngine(QCompleterPrivate *c) : c(c), curRow(-1), cost(0) { }
     virtual ~QCompletionEngine() { }
 
     void filter(const QStringList &parts);
 
-    MatchData matchHint(QString, const QModelIndex&, bool);
+    MatchData filterHistory();
+    bool matchHint(QString, const QModelIndex&, MatchData*);
 
     void saveInCache(QString, const QModelIndex&, const MatchData&);
     bool lookupCache(QString part, const QModelIndex& parent, MatchData *m);
@@ -121,15 +115,16 @@ public:
     virtual void filterOnDemand(int) { }
     virtual MatchData filter(const QString&, const QModelIndex&, int) = 0;
 
-    int matchCount() const { return curMatch.indices.count() + rootMatch.indices.count(); }
+    int matchCount() const { return curMatch.indices.count() + historyMatch.indices.count(); }
 
-    MatchData curMatch, rootMatch;
+    MatchData curMatch, historyMatch;
     QCompleterPrivate *c;
     QStringList curParts;
     QModelIndex curParent;
     int curRow;
 
     Cache cache;
+    int cost;
 };
 
 class SortedModelEngine : public QCompletionEngine
@@ -137,6 +132,7 @@ class SortedModelEngine : public QCompletionEngine
 public:
     SortedModelEngine(QCompleterPrivate *c) : QCompletionEngine(c) { }
     MatchData filter(const QString&, const QModelIndex&, int);
+    IndexMapper indexHint(QString part, const QModelIndex& parent);
 };
 
 class UnsortedModelEngine : public QCompletionEngine
@@ -151,14 +147,30 @@ private:
                      const IndexMapper& iv, MatchData* m);
 };
 
+class QCompleterItemDelegate : public QItemDelegate
+{
+public:
+    QCompleterItemDelegate(QAbstractItemView *view)
+        : QItemDelegate(view), view(view) { }
+    void paint(QPainter *p, const QStyleOptionViewItem& opt, const QModelIndex& idx) const {
+        QStyleOptionViewItem optCopy = opt;
+        if (view->currentIndex() == idx)
+            optCopy.state |= QStyle::State_HasFocus;
+        QItemDelegate::paint(p, optCopy, idx);
+    }
+
+private:
+    QAbstractItemView *view;
+};
+
 class QCompletionModel : public QAbstractProxyModel
 {
     Q_OBJECT
 
 public:
     QCompletionModel(QCompleterPrivate *c, QObject *parent) : 
-        QAbstractProxyModel(parent), c(c), model(0), engine(0), showAll(false) 
-    { createEngine(); }
+        QAbstractProxyModel(parent), c(c), engine(0), showAll(false) 
+    { model = sourceModel(); createEngine(); }
     ~QCompletionModel() { delete engine; }
 
     void createEngine();

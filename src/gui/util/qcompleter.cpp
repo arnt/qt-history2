@@ -16,58 +16,44 @@
     \brief The QCompleter class provides completions based on a item model.
 
     You can use QCompleter to provide autocompletions in any Qt
-    widget (e.g. QLineEdit, QTextEdit, or QComboBox). When the user
+    widget (e.g. QLineEdit, QComboBox or QTextEdit). When the user
     starts typing a word, QCompleter suggests possible ways of
     completing the word, based on a word list. The word list is
     provided as a QAbstractItemModel. (For simple applications, where
     the word list is static, you can use QStringListModel.)
 
-    Topics:
-
-    \tableofcontents
-
-    \section1 Using QCompleter with Qt widgets
-    The QLineEdit and QComboBox can provide autocompletions by setting a QCompleter using
-    QLineEdit::setCompleter() and QComboBox::setCompleter().
-
-    For example, to provide completions for a QComboBox from a word list,
-
+    A QCompleter is used typically with a QLineEdit, QComboBox or a
+    QTextEdit. For example,
+    
     \code
-        QComboBox *combo = new combo;
-        QStringList wordList;
-        wordList << "alpha" << "omega" << "omicron" << "zeta";
-        QCompleter *completer = new QCompleter(wordList, combo);
-        completer->setCompletionMode(QCompleter::InlineCompletion);
-        combo->setCompleter(completer);
-        combo->show();
-    \endcode
-
-    You can also set a QDirModel to provide autocompletion of filenames in a QLineEdit.
-    For example,
-
-    \code
+        QStringList completions;
+        completions << "alpha" << "omega" << "omicron" << "zeta";
         QLineEdit *lineEdit = new QLineEdit(this);
-        QDirModel *dirModel = new QDirModel(this);
-        QCompleter *completer = new QCompleter(dirModel, lineEdit);
-        completer->setCompletionMode(QCompleter::PopupCompletion);
-        lineEdit->setCompleter(completer);
-        lineEdit->show();
+        QCompleter *completer = new QCompleter(completions, this);
+        completer->setCaseSensitivity(Qt::CaseInsensitive);
+        completer->setCompleter(completer);
     \endcode
 
-    \section2 Setting the Model
+    A QDirModel can be used to provide autocompletion of filenames. For
+    example,
 
+    \code
+        QCompleter *completer = new QCompleter;
+        completer->setModel(new QDirModel(completer));
+        lineEdit->setCompleter(completer);
+    \endcode
+    
     To set the model on which QCompleter should operate, call
-    setModel(). By default, QCompleter will attempt to match a
-    given string against the Qt::EditRole data stored in column 0 in
-    the model case sensitively. This can be changed using
-    setCompletionRole(), setCompletionColumn(), and setCaseSensitivity().
+    setModel(). By default, QCompleter will attempt to match the completionPrefix()
+    against the Qt::EditRole data stored in column 0 in the model case sensitively. 
+    This can be changed using setCompletionRole(), setCompletionColumn(), 
+    and setCaseSensitivity().
 
     If the model is sorted on the column and role that are used for completion,
     you can call setModelSorting() with either QtCompletor::CaseSensitivelySortedModel
-    or QCompleter::CaseInsensitivelySortedModel as the argument.
-    On large models, this can lead to significant performance
-    improvements, because QCompleter can then use binary search
-    instead of linear search.
+    or QCompleter::CaseInsensitivelySortedModel as the argument. On large models, 
+    this can lead to significant performance improvements, because QCompleter can 
+    then use binary search instead of linear search.
 
     The model can be a \l{QAbstractListModel}{list model},
     a \l{QAbstractTableModel}{table model}, or a
@@ -75,104 +61,33 @@
     is slightly more involved and is covered in the \l{Handling
     Tree Models} section below.
 
-    \section1 Finding Completions
+    The completionMode() determines the mode used to provide completions to the user.
 
-    For the user, there are two main types of completion, sometimes used
-    concurrently:
-
-    \list
-    \o \bold{The program suggests the most likely completion to the
-       user.} This can happen automatically or be triggered by a
-       shortcut key (e.g. \key Tab). Also, some programs let the user
-       iterate through the list of candidates using a shortcut key.
-    \o \bold{The program lists all the possible completions and lets
-       the user choose among them.} The completions are typically
-       shown in a QListView popup.
-    \endlist
-
-    QCompleter supports both modes of operation. The prefix to be used to
-    look for completions is first set using setCompletionPrefix(). You can
-    then interate through the completions using setCurrentRow() and currentCompletion().
-    Alternatively, you can set up a QListView to display the completionModel()
-    provided by QCompleter, and call setCompletionPrefix() to refresh the model.
-    We will review both approaches in the following subsections.
-
-    \section2 Getting the Matches One at a Time
+    \tableofcontents
+    \section1 Iterating through completions
 
     To retrieve a single candidate string, call setCompletionPrefix() with the text
-    that needs to be completed and then use currentCompletion().
-
-    Example:
-
-    \code
-        QStringList wordList;
-        wordList << "alpha" << "omega" << "omicron" << "zeta";
-        QStringListModel *wordListModel = new QStringListModel(wordList, this);
-
-        QCompleter *completer = new QCompleter(this);
-        completer->setModel(wordListModel);
-        completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-        completor->setCaseSensitivity(Qt::CaseInsensitive);
-
-        completer->setCompletionPrefix("OM");
-        if (completer->currentIndex().isValid())
-            qDebug() << completer->currentCompletion() << "is omega";
-    \endcode
-
-    In the above example, we set up a case-insensitive QCompleter
-    based on a word list consisting of four words. The setCompletionPrefix() call
-    sets up the completer to look for words starting with "OM". In this case,
-    the first match is "omega". We can continue iterating using the
-    setCurrentRow(). For example:
+    that needs to be completed and then use currentCompletion(). You can use setCurrentRow() 
+    and currentCompletion() to navigate to and access any completion.  You can iterate 
+    through the list of completions as below:
 
     \code
-        int i = 0;
-        while (completer->setCurrentRow(i)) {
+        for (int i = 0; completer->setCurrentRow(i); i++)
             qDebug() << completer->currentCompletion() << " is match number " << i;
-            ++i;
-        }
     \endcode
 
-    In the above example, we use setCurrentRow() to navigate to the i'th completion and
-    obtain the same using currentCompletion(). Note that completionCount() can be used
-    to obtain the number of completions (rows). However, for large unsorted models, this
-    could be slow since QCompleter needs to iterate through the entire model and find all
-    the completions. The above approach uses the incremental building capability of
-    QCompleter.
-
-    \section2 Using the Completion Model
-
+    completionCount() returns the total number of completions for the current prefix.
+    Using completionCount() must be avoided, if posible, since it requires a scan of
+    the entire model.
+    
+    \section1 The completion model
+    
     completionModel() return a list model that contains all possible
     completions for the current completion prefix, in the order in which
-    they appear in the model.
+    they appear in the model. Calling setCompletionPrefix() automatically 
+    refreshes the completion model.
 
-    Example:
-
-    \code
-        QStringList wordList;
-        wordList << "alpha" << "omega" << "omicron" << "zeta";
-
-        QCompleter *completor = new QCompleter(wordList, this);
-        completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-        completer->setCaseSensitivity(Qt::CaseInsensitive);
-
-        QListView *completionView = new QListView(this);
-        completionView->setModel(completor->completionModel());
-
-        completor->setCompletionPrefix("OM");
-        qDebug() << completor->completionModel()->rowCount() << "is 2";
-    \endcode
-
-    The example sets up a QListView that displays the completion
-    model (the list of all candidates). After the call to setCompletionPrefix(),
-    the completion model is updated to contain all the words that
-    start with "om" ("omega" and "omicron"). As the completion model
-    changes, the QListView is automatically updated. In practice, we
-    would normally call setCompletionPrefix() every time the user edits the current
-    word that is being completed, to update the completion model (and
-    the view).
-
-    \section3 Handling Tree Models
+    \section1 Handling Tree Models
 
     QCompleter can look for completions in tree models, assuming
     that any item (or sub-item or sub-sub-item) can be unambiguously
@@ -188,13 +103,26 @@
 
     For this kind of completion to work, QCompleter needs to be able to
     split the path into a list of strings that are matched at each level.
-    For C:\Windows\Sy, it needs to be split as "C:", "Windows" and "Sy".
+    For \c C:\Windows\Sy, it needs to be split as "C:", "Windows" and "Sy".
     The default implementation of splitPath(), splits the completionPrefix
-    using QDir::separator() if the model is a QDirModel. The completion
-    text itself is provided by pathFromIndex().
+    using QDir::separator() if the model is a QDirModel. 
+    
+    To provide completions, QCompleter needs to know the path from an index. This
+    is provided by pathFromIndex().The default implementation, returns the data for
+    the completionRole() for list models and the absolute file path if the mode 
+    is a QDirModel.
 */
 
 #include "qcompleter_p.h"
+#include "QtGui/qscrollbar.h"
+#include "QtGui/qstringlistmodel.h"
+#include "QtGui/qdirmodel.h"
+#include "QtGui/qheaderview.h"
+#include "QtGui/qlistview.h"
+#include "QtGui/qapplication.h"
+#include "QtGui/qevent.h"
+#include "QtGui/qheaderview.h"
+#include "QtGui/qdesktopwidget.h"
 
 void QCompletionModel::setSourceModel(QAbstractItemModel *source)
 {
@@ -249,7 +177,7 @@ QModelIndex QCompletionModel::mapToSource(const QModelIndex& index) const
         if (!engine->matchCount())
             return QModelIndex();
         Q_ASSERT(index.row() < engine->matchCount());
-        IndexMapper& rootIndices = engine->rootMatch.indices;
+        IndexMapper& rootIndices = engine->historyMatch.indices;
         if (index.row() < rootIndices.count()) {
             row = rootIndices[index.row()];
             parent = QModelIndex();
@@ -273,7 +201,7 @@ QModelIndex QCompletionModel::mapFromSource(const QModelIndex& idx) const
         if (!engine->matchCount())
             return QModelIndex();
 
-        IndexMapper& rootIndices = engine->rootMatch.indices;
+        IndexMapper& rootIndices = engine->historyMatch.indices;
         if (idx.parent().isValid()) {
             if (idx.parent() != engine->curParent)
                 return QModelIndex();
@@ -320,15 +248,14 @@ QModelIndex QCompletionModel::currentIndex(bool sourceIndex) const
     if (!engine->matchCount())
         return QModelIndex();
 
-    if (sourceIndex) {
-        QModelIndex idx = createIndex(engine->curRow, c->column);
-        return mapToSource(idx);
-    }
-
     int row = engine->curRow;
     if (showAll)
         row = engine->curMatch.indices[engine->curRow];
-    return createIndex(row, c->column);
+
+    QModelIndex idx = createIndex(row, c->column);
+    if (!sourceIndex)
+        return idx;
+    return mapToSource(idx);
 }
 
 QModelIndex QCompletionModel::index(int row, int column, const QModelIndex& parent) const
@@ -339,8 +266,10 @@ QModelIndex QCompletionModel::index(int row, int column, const QModelIndex& pare
     if (!showAll) {
         if (!engine->matchCount())
             return QModelIndex();
-        if (row >= engine->rootMatch.indices.count()) {
-            engine->filterOnDemand(row + 1 - engine->matchCount());
+        if (row >= engine->historyMatch.indices.count()) {
+            int want = row + 1 - engine->matchCount();
+            if (want > 0)
+                engine->filterOnDemand(want);
             if (row >= engine->matchCount())
                 return QModelIndex();
         }
@@ -367,8 +296,7 @@ int QCompletionModel::rowCount(const QModelIndex &parent) const
         return 0;
 
     if (showAll) {
-        // Show all items below the current parent, even if we have no
-        // valid matches
+        // Show all items below current parent, even if we have no valid matches
         if (engine->curParts.count() != 1  && !engine->matchCount()
             && !engine->curParent.isValid())
             return 0;
@@ -408,7 +336,7 @@ QVariant QCompletionModel::data(const QModelIndex& index, int role) const
 void QCompletionModel::invalidate()
 {
     engine->cache.clear();
-    engine->filter(engine->curParts); // refilter
+    engine->filter(engine->curParts);
     reset();
 }
 
@@ -418,7 +346,7 @@ void QCompletionModel::filter(const QStringList& parts)
     reset();
 }
 
-///////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 void QCompletionEngine::filter(const QStringList& parts)
 {
     const QAbstractItemModel *model = c->proxy->sourceModel();
@@ -428,12 +356,8 @@ void QCompletionEngine::filter(const QStringList& parts)
 
     curRow = -1;
     curParent = QModelIndex();
-    curMatch = rootMatch = MatchData();
-
-//     if (curParts.count() > 1 && !c->showAll)
-//         // when matching on tree models, match the entire text on the root
-//         // this is useful when storing histories on the root index
-//         rootMatch = filter(c->prefix, QModelIndex(), INT_MAX);
+    curMatch = MatchData();
+    historyMatch = filterHistory();
 
     QModelIndex parent;
     for (int i = 0; i < curParts.count() - 1; i++) {
@@ -454,7 +378,86 @@ void QCompletionEngine::filter(const QStringList& parts)
     curRow = curMatch.isValid() ? 0 : -1;
 }
 
-MatchData QCompletionEngine::matchHint(QString part, const QModelIndex& parent, bool sorted)
+MatchData QCompletionEngine::filterHistory()
+{
+    if (curParts.count() <= 1 || c->proxy->showAll)
+        return MatchData();
+    QAbstractItemModel *source = c->proxy->model;
+    bool dirModel = (qobject_cast<QDirModel *>(source) != 0);
+    QVector<int> v;
+    IndexMapper im(v);
+    MatchData m(im, -1, true);
+
+    for (int i = 0; i < source->rowCount(); i++) {
+        QString str = source->index(i, c->column).data().toString();
+        if (str.startsWith(c->prefix, c->cs)
+#ifndef Q_OS_WIN
+            && (!dirModel || str != QDir::separator())
+#endif
+            )
+            m.indices.append(i);
+    }
+    return m;
+}
+
+// Returns a match hint from the cache by chopping the search string
+bool QCompletionEngine::matchHint(QString part, const QModelIndex& parent, MatchData *hint)
+{
+    if (c->cs == Qt::CaseInsensitive)
+        part = part.toLower();
+
+    const CacheItem& map = cache[parent];
+
+    QString key = part;
+    while (!key.isEmpty()) {
+        key.chop(1);
+        if (map.contains(key)) {
+            *hint = map[key];
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool QCompletionEngine::lookupCache(QString part, const QModelIndex& parent, MatchData *m)
+{
+   if (c->cs == Qt::CaseInsensitive)
+        part = part.toLower();
+   const CacheItem& map = cache[parent];
+   if (!map.contains(part))
+       return false;
+   *m = map[part];
+   return true;
+}
+
+// When the cache size exceeds 1MB, it clears out about 1/2 of the cache.
+void QCompletionEngine::saveInCache(QString part, const QModelIndex& parent, const MatchData& m)
+{
+    MatchData old = cache[parent].take(part);
+    cost = cost + m.indices.cost() - old.indices.cost();
+    if (cost * sizeof(int) > 1024 * 1024) {
+        QMap<QModelIndex, CacheItem>::iterator it1 ;
+        for (it1 = cache.begin(); it1 != cache.end(); it1++) {
+            CacheItem& ci = it1.value();
+            int sz = ci.count()/2;
+            QMap<QString, MatchData>::iterator it2 = ci.begin();
+            for (int i = 0; it2 != ci.end() && i < sz; i++, ++it2) {
+                cost -= it2.value().indices.cost();
+                ci.erase(it2);
+            }
+            if (ci.count() == 0)
+                cache.erase(it1);
+        }
+    }
+
+    if (c->cs == Qt::CaseInsensitive)
+        part = part.toLower();
+    cache[parent][part] = m;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+IndexMapper SortedModelEngine::indexHint(QString part, const QModelIndex& parent)
 {
     const QAbstractItemModel *model = c->proxy->sourceModel();
 
@@ -463,21 +466,8 @@ MatchData QCompletionEngine::matchHint(QString part, const QModelIndex& parent, 
 
     const CacheItem& map = cache[parent];
 
-    // Try chopping the search string and look them up in the cache
-    // (i.e) the matches for 'abcd' will be subset of 'abc', or 'ab' or 'a'
-    QString key = part;
-    while (!key.isEmpty()) {
-        key.chop(1);
-        if (map.contains(key))
-            return map[key];
-    }
-
-    int to = model->rowCount(parent) - 1;
-
-    if (!sorted || part.isEmpty())
-        return MatchData(IndexMapper(0, to), -1, false);
-
     // Try to find a lower and upper bound for the search from previous results
+    int to = model->rowCount(parent) - 1;
     int from = 0;
     const CacheItem::const_iterator it = map.lowerBound(part);
 
@@ -499,46 +489,28 @@ MatchData QCompletionEngine::matchHint(QString part, const QModelIndex& parent, 
         }
     }
 
-    return MatchData(IndexMapper(from, to), -1, false);
+    return IndexMapper(from, to);
 }
 
-bool QCompletionEngine::lookupCache(QString part, const QModelIndex& parent, MatchData *m)
-{
-   if (c->cs == Qt::CaseInsensitive)
-        part = part.toLower();
-   const CacheItem& map = cache[parent];
-   if (!map.contains(part))
-       return false;
-   *m = map[part];
-   return true;
-}
-
-void QCompletionEngine::saveInCache(QString part, const QModelIndex& parent, const MatchData& m)
-{
-    // FIXME: Need to regulate the size of cache
-    if (c->cs == Qt::CaseInsensitive)
-        part = part.toLower();
-    cache[parent][part] = m;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
 MatchData SortedModelEngine::filter(const QString& part, const QModelIndex& parent, int)
 {
-    // binary search the model within 'range' for 'part' under 'parent'
     const QAbstractItemModel *model = c->proxy->sourceModel();
 
     MatchData hint;
     if (lookupCache(part, parent, &hint))
         return hint;
 
-    hint = matchHint(part, parent, true);
-    if (!hint.isValid())
-        return MatchData();
+    IndexMapper indices;
 
-    IndexMapper indices(0, model->rowCount(parent) - 1); // scan entire model
-    if (hint.isValid())
-        indices = hint.indices; // just scan the hint
+    if (matchHint(part, parent, &hint)) {
+        if (!hint.isValid())
+            return MatchData();
+        indices = hint.indices;
+    } else {
+        indices = indexHint(part, parent);
+    }
 
+    // binary search the model within 'indices' for 'part' under 'parent'
     int high = indices.to() + 1;
     int low = indices.from() - 1;
     int probe;
@@ -592,7 +564,7 @@ MatchData SortedModelEngine::filter(const QString& part, const QModelIndex& pare
 
 ////////////////////////////////////////////////////////////////////////////////////////
 int UnsortedModelEngine::buildIndices(const QString& str, const QModelIndex& parent, int n,
-                                     const IndexMapper& indices, MatchData* m)
+                                      const IndexMapper& indices, MatchData* m)
 {
     Q_ASSERT(m->partial);
     Q_ASSERT(n != -1 || m->exactMatchIndex == -1);
@@ -620,6 +592,7 @@ void UnsortedModelEngine::filterOnDemand(int n)
     Q_ASSERT(matchCount());
     if (!curMatch.partial)
         return;
+    Q_ASSERT(n >= -1);
     const QAbstractItemModel *model = c->proxy->sourceModel();
     int lastRow = model->rowCount(curParent) - 1;
     IndexMapper im(curMatch.indices.last() + 1, lastRow);
@@ -640,13 +613,12 @@ MatchData UnsortedModelEngine::filter(const QString& part, const QModelIndex& pa
     bool foundInCache = lookupCache(part, parent, &m);
 
     if (!foundInCache) {
-        hint = matchHint(part, parent, false);
-        if (!hint.isValid())
+        if (matchHint(part, parent, &hint) && !hint.isValid())
             return MatchData();
     }
 
     if (!foundInCache && !hint.isValid()) {
-        const int lastRow = model->rowCount(curParent) - 1;
+        const int lastRow = model->rowCount(parent) - 1;
         IndexMapper all(0, lastRow);
         int lastIndex = buildIndices(part, parent, n, all, &m);
         m.partial = (lastIndex != lastRow);
@@ -657,7 +629,7 @@ MatchData UnsortedModelEngine::filter(const QString& part, const QModelIndex& pa
         }
         if (m.partial && ((n == -1 && m.exactMatchIndex == -1) || (m.indices.count() < n))) {
             // need more and have more
-            const int lastRow = model->rowCount(curParent) - 1;
+            const int lastRow = model->rowCount(parent) - 1;
             IndexMapper rest(hint.indices.last() + 1, lastRow);
             int want = n == -1 ? -1 : n - m.indices.count();
             int lastIndex = buildIndices(part, parent, want, rest, &m);
@@ -671,86 +643,105 @@ MatchData UnsortedModelEngine::filter(const QString& part, const QModelIndex& pa
 
 ///////////////////////////////////////////////////////////////////////////////
 QCompleterPrivate::QCompleterPrivate()
-   : widget(0), proxy(0), popup(0), mode(QCompleter::InlineCompletion),
-     cs(Qt::CaseSensitive), role(Qt::EditRole), column(0),
-     sorting(QCompleter::UnsortedModel), blockCompletion(false)
+: widget(0), proxy(0), popup(0), cs(Qt::CaseSensitive), role(Qt::EditRole), column(0),
+  sorting(QCompleter::UnsortedModel)
 {
 }
 
-void QCompleterPrivate::init(QWidget *w, QAbstractItemModel *m)
+void QCompleterPrivate::init(QAbstractItemModel *m)
 {
     Q_Q(QCompleter);
-    Q_ASSERT(w);
-    widget = w;
     proxy = new QCompletionModel(this, q);
     q->setModel(m);
+    QListView *listView = new QListView;
+    listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    listView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    listView->setSelectionMode(QAbstractItemView::SingleSelection);
+    listView->setModelColumn(column);
+    q->setPopup(listView);
     q->setCompletionMode(QCompleter::PopupCompletion);
 }
 
-void QCompleterPrivate::_q_selectIndex(const QModelIndex& index)
+void QCompleterPrivate::setCurrentIndex(const QModelIndex& index, bool select)
 {
-    Q_ASSERT(popup != 0);
-    blockCompletion = true;
-    if (index.isValid()) {
-        popup->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect
-                                              | QItemSelectionModel::Rows);
-        popup->setCurrentIndex(index);
-        popup->scrollTo(index);
-    } else
-        popup->selectionModel()->clear();
-    blockCompletion = false;
+    if (!select)
+        popup->selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+    else {
+        if (!index.isValid())
+            popup->selectionModel()->clear();
+        else
+            popup->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Select
+                                                            | QItemSelectionModel::Rows);
+    }
+    if (!index.isValid())
+        popup->scrollToTop();
+    else
+        popup->scrollTo(index, QAbstractItemView::PositionAtTop);
 }
 
-void QCompleterPrivate::_q_completionActivated(QModelIndex index)
+void QCompleterPrivate::_q_completionSelected(const QItemSelection& selection)
+{
+    QModelIndex index;
+    if (!selection.indexes().isEmpty())
+        index = selection.indexes().first();
+    
+    _q_complete(index, true);
+}
+
+void QCompleterPrivate::_q_complete(QModelIndex index, bool highlighted)
 {
     Q_Q(QCompleter);
     QString completion;
-
     if (!index.isValid())
         completion = prefix;
     else {
         index = proxy->mapToSource(index);
         index = index.sibling(index.row(), column); // for clicked()
         completion = q->pathFromIndex(index);
+        // add a trailing separator in inline
+        if (mode == QCompleter::InlineCompletion) {
+            if (qobject_cast<QDirModel *>(proxy->sourceModel()) && QFileInfo(completion).isDir())
+                completion += QDir::separator();
+        }
     }
 
-    emit q->activated(index);
-    emit q->activated(completion);
-}
-
-void QCompleterPrivate::_q_completionHighlighted(QModelIndex index)
-{
-    Q_Q(QCompleter);
-    if (blockCompletion)
-        return;
-
-    QString completion;
-    if (!index.isValid())
-        completion = prefix;
-    else {
-        index = proxy->mapToSource(index);
-        completion = q->pathFromIndex(index);
+    if (highlighted) {
+        emit q->highlighted(index);
+        emit q->highlighted(completion);
+    } else {
+        emit q->activated(index);
+        emit q->activated(completion);
     }
-
-    emit q->highlighted(index);
-    emit q->highlighted(completion);
 }
 
-void QCompleterPrivate::showPopup(QPoint pos)
+// FIXME: Does not work for RTL
+void QCompleterPrivate::showPopup(const QRect& rect)
 {
     const QRect screen = QApplication::desktop()->availableGeometry(widget);
+    Qt::LayoutDirection dir = widget->layoutDirection();
+    QPoint pos;
+    int rw, rh, w;
     int h = (popup->sizeHintForRow(0) * qMin(7, popup->model()->rowCount()) + 3) + 3;
-    int w = widget->width();
+    if (rect.isValid()) {
+        int sbw = popup->horizontalScrollBar()->sizeHint().width();
+        w = popup->sizeHintForColumn(column) + sbw;
+        rh = rect.height();
+        rw = rect.width() + w;
+        pos = widget->mapToGlobal(dir == Qt::RightToLeft ? rect.bottomRight() : rect.bottomLeft());
+    } else {
+        rh = widget->height();
+        rw = widget->width();
+        pos = widget->mapToGlobal(QPoint(0, widget->height() - 2));
+        w = widget->width();
+    }
 
-    if (pos.isNull())
-        pos =  widget->mapToGlobal(QPoint(0, widget->height() - 2));
-    if ((pos.x() + w) > (screen.x() + screen.width()))
+    if ((pos.x() + rw) > (screen.x() + screen.width()))
         pos.setX(screen.x() + screen.width() - w);
     if (pos.x() < screen.x())
         pos.setX(screen.x());
-    if (((pos.y() + h) > (screen.y() + screen.height()))
-        && ((pos.y() - h - widget->height()) >= 0))
-        pos.setY(pos.y() - qMax(h, popup->minimumHeight()) - widget->height());
+    if (((pos.y() + rh) > (screen.y() + screen.height())) && ((pos.y() - h - rh) >= 0))
+        pos.setY(pos.y() - qMax(h, popup->minimumHeight()) - rh + 2);
 
     popup->setGeometry(pos.x(), pos.y(), w, h);
 
@@ -761,33 +752,33 @@ void QCompleterPrivate::showPopup(QPoint pos)
 /*!
     Constructs a QCompleter object with the given \a parent.
 */
-QCompleter::QCompleter(QWidget *parent)
+QCompleter::QCompleter(QObject *parent)
 : QObject(*new QCompleterPrivate(), parent)
 {
     Q_D(QCompleter);
-    d->init(parent);
+    d->init();
 }
 
 /*!
-    Constructs a QCompleter object that completes from \a model
+    Constructs a QCompleter object that provides completions from \a model
     and with the given \a parent.
 */
-QCompleter::QCompleter(QAbstractItemModel *model, QWidget *parent)
+QCompleter::QCompleter(QAbstractItemModel *model, QObject *parent)
     : QObject(*new QCompleterPrivate(), parent)
 {
     Q_D(QCompleter);
-    d->init(parent, model);
+    d->init(model);
 }
 
 /*!
-    Constructs a QCompleter object that completes from the \a completions
-    and with the given \a parent.
+    Constructs a QCompleter object with provides \a list as the possible
+    completions and with the given \a parent.
 */
-QCompleter::QCompleter(const QStringList& completions, QWidget *parent)
+QCompleter::QCompleter(const QStringList& list, QObject *parent)
 : QObject(*new QCompleterPrivate(), parent)
 {
     Q_D(QCompleter);
-    d->init(parent, new QStringListModel(completions, this));
+    d->init(new QStringListModel(list, this));
 }
 
 /*!
@@ -798,9 +789,32 @@ QCompleter::~QCompleter()
 }
 
 /*!
-    Sets the model from which completions are obtained to \a model.
+    Sets the widget for which completion are provided for to \a widget. The 
+    widget is set automatically when a QCompleter is set on a QLineEdit using 
+    QLineEdit::setCompleter(). The widget needs to be set explicity when
+    providing completions for custom widgets.
+ */
+void QCompleter::setWidget(QWidget *widget)
+{
+    Q_D(QCompleter);
+    d->widget = widget;
+    setCompletionMode(d->mode); // will install event filter depending on mode
+}
 
-    \sa completionModel(), modelSorting
+/*!
+    Returns the widget for which QCompleter is providing completions.
+ */
+QWidget *QCompleter::widget() const
+{
+    Q_D(const QCompleter);
+    return d->widget;
+}
+
+/*!
+    Sets the model which provides completions to \a model. The \a model can
+    be list model or a tree model.
+
+    \sa completionModel(), modelSorting, {Handling Tree Models}
 */
 void QCompleter::setModel(QAbstractItemModel *model)
 {
@@ -814,7 +828,7 @@ void QCompleter::setModel(QAbstractItemModel *model)
 }
 
 /*!
-    Returns the model from which completions are obtained.
+    Returns the model that provides completion strings.
 
     \sa completionModel()
 */
@@ -824,13 +838,13 @@ QAbstractItemModel *QCompleter::model() const
     return d->proxy->sourceModel();
 }
 
-/*
+/*!
     \enum QCompleter::CompletionMode
 
     This enum specifies how completions are provided to the user.
 
     \value PopupCompletion                Displays a popup contains the current completions
-    \value InlineCompletion               Completions appear inline (as selected text)
+    \value InlineCompletion               Completions appear inline
     \value UnfilteredPopupCompletion      Displays a popup containing all the possible completions \
                                           with the most likely suggestion selected in the popup.
 */
@@ -840,39 +854,22 @@ QAbstractItemModel *QCompleter::model() const
     \brief how the completions are provided to the user
 
     The default value is QCompleter::PopupCompletion.
-
-    \sa QCompleter::CompletionMode
 */
 void QCompleter::setCompletionMode(QCompleter::CompletionMode mode)
 {
     Q_D(QCompleter);
 
-    if (d->mode == mode)
-        return;
-
     d->mode = mode;
-    d->proxy->setFiltered(d->mode != QCompleter::UnfilteredPopupCompletion);
+    d->proxy->setFiltered(mode != QCompleter::UnfilteredPopupCompletion);
 
-    if (d->mode == QCompleter::InlineCompletion) {
-        delete d->popup;
-        d->popup = 0;
-        d->widget->removeEventFilter(this);
+    if (mode == QCompleter::InlineCompletion) {
+        if (d->widget)
+            d->widget->removeEventFilter(this);
         return;
     }
 
-    d->widget->installEventFilter(this);
-
-    if (!d->popup) { // create default popup
-        QTreeView *treeView = new QTreeView;
-        treeView->header()->hide();
-        treeView->setRootIsDecorated(false);
-        treeView->setItemsExpandable(false);
-        treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
-        treeView->setSelectionMode(QAbstractItemView::SingleSelection);
-        treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setPopup(treeView);
-    }
+    if (d->widget)
+        d->widget->installEventFilter(this);
 }
 
 QCompleter::CompletionMode QCompleter::completionMode() const
@@ -882,17 +879,16 @@ QCompleter::CompletionMode QCompleter::completionMode() const
 }
 
 /*!
-    Sets the popup used to display completions to \a popup. QCompleter reparents the
-    view to be a child of the widget for which completions are being provided.
+    Sets the popup used to display completions to \a popup. QCompleter takes ownership
+    of the view.
 
-    A popup is automatically created when the completionMode() is set to QCompleter::PopupCompletion
-    or QCompleter::UnfilteredPopupCompletion. The default popup display all the columns
-    in the model. This function can be used to set a custom view that displays selected
-    columns in the model (or reorders them).
+    A QListView is automatically created when the completionMode() is set to 
+    QCompleter::PopupCompletion or QCompleter::UnfilteredPopupCompletion. The default 
+    popup displays the completionColumn().
 
     Ensure that this function is called before the view settings are modified. This is
     required since view's properties may require that a model has been set on the view
-    (for example, hiding certain columns in the view).
+    (for example, hiding columns in the view requires a model to be set on the view).
 */
 void QCompleter::setPopup(QAbstractItemView *popup)
 {
@@ -902,30 +898,40 @@ void QCompleter::setPopup(QAbstractItemView *popup)
         QObject::disconnect(d->popup, 0, this, 0);
     if (d->popup != popup)
         delete d->popup;
+    if (popup->model() != d->proxy)
+        popup->setModel(d->proxy);
     popup->hide();
-    popup->setParent(d->widget, Qt::Popup);
+    popup->setParent(0, Qt::Popup);
     popup->setFocusPolicy(Qt::NoFocus);
     popup->installEventFilter(this);
-    popup->setModel(d->proxy);
-    popup->setMouseTracking(true); // required for entered()
+    popup->setItemDelegate(new QCompleterItemDelegate(popup));
 
     QObject::connect(popup, SIGNAL(clicked(const QModelIndex&)),
-                     this, SLOT(_q_completionActivated(QModelIndex)));
+                     this, SLOT(_q_complete(QModelIndex)));
     QObject::connect(popup, SIGNAL(clicked(const QModelIndex&)), popup, SLOT(hide()));
-    QObject::connect(popup, SIGNAL(entered(const QModelIndex&)),
-                     this, SLOT(_q_selectIndex(const QModelIndex&)));
-    QObject::connect(popup->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-                     this, SLOT(_q_completionHighlighted(QModelIndex)));
+ 
+    QObject::connect(popup->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+                     this, SLOT(_q_completionSelected(const QItemSelection&)));
     d->popup = popup;
 }
 
 /*!
     Returns the popup used to display completions.
+
+    \sa setPopup()
 */
 QAbstractItemView *QCompleter::popup() const
 {
     Q_D(const QCompleter);
     return d->popup;
+}
+
+/*!
+  \reimp
+*/
+bool QCompleter::event(QEvent *ev)
+{
+    return QObject::event(ev);
 }
 
 /*!
@@ -937,7 +943,7 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
 
     if (o == d->widget && e->type() == QEvent::FocusOut) {
         if (d->popup && d->popup->isVisible())
-                return true;
+            return true;
     }
 
     if (o != d->popup)
@@ -947,18 +953,28 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
     case QEvent::KeyPress: {
         QKeyEvent *ke = static_cast<QKeyEvent *>(e);
         QModelIndex curIndex = d->popup->currentIndex();
-        switch (ke->key()) {
+        QModelIndexList selList = d->popup->selectionModel()->selectedIndexes();
+
+        const int key = ke->key();
+        if ((key == Qt::Key_Up || key == Qt::Key_Down) && selList.isEmpty() && curIndex.isValid()
+            && d->mode == QCompleter::UnfilteredPopupCompletion) {
+              d->setCurrentIndex(curIndex);
+              return true;
+        }
+
+        switch (key) {
         case Qt::Key_Return:
         case Qt::Key_Enter:
             d->popup->hide();
-            d->_q_completionActivated(curIndex);
-            return true;
+            if (curIndex.isValid())
+                d->_q_complete(curIndex);
+            break; // propagate the event
 
         case Qt::Key_Tab:
             d->popup->hide();
-            if (d->mode == QCompleter::PopupCompletion)
+            d->_q_complete(curIndex);
+            if (d->mode == QCompleter::PopupCompletion || !selList.isEmpty())
                 break;
-            d->_q_completionActivated(curIndex);
             return true;
 
         case Qt::Key_Backtab:
@@ -986,12 +1002,10 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
             if (!curIndex.isValid()) {
                 int rowCount = d->proxy->rowCount();
                 QModelIndex lastIndex = d->proxy->index(rowCount - 1, 0);
-                d->_q_selectIndex(lastIndex);
-                d->_q_completionHighlighted(lastIndex);
+                d->setCurrentIndex(lastIndex);
                 return true;
             } else if (curIndex.row() == 0) {
-                d->_q_selectIndex(QModelIndex());
-                d->_q_completionHighlighted(QModelIndex());
+                d->setCurrentIndex(QModelIndex());
                 return true;
             }
             return false;
@@ -999,12 +1013,10 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_Down:
             if (!curIndex.isValid()) {
                 QModelIndex firstIndex = d->proxy->index(0, 0);
-                d->_q_selectIndex(firstIndex);
-                d->_q_completionHighlighted(firstIndex);
+                d->setCurrentIndex(firstIndex);
                 return true;
             } else if (curIndex.row() == d->proxy->rowCount() - 1) {
-                d->_q_selectIndex(QModelIndex());
-                d->_q_completionHighlighted(QModelIndex());
+                d->setCurrentIndex(QModelIndex());
                 return true;
             }
             return false;
@@ -1034,34 +1046,42 @@ bool QCompleter::eventFilter(QObject *o, QEvent *e)
 }
 
 /*!
-    Triggers auto completions. The point \a globalPos can be specified to
-    indicate the position of the popup for QCompleter::UnfilteredPopupCompletion
-    and QCompleter::PopupCompletion. If \a globalPos is invalid, QCompleter
-    positions the popup at the bottom of the widget.
+    For QCompleter::PopupCompletion andr QCompletion::UnfilteredPopupCompletion modes,
+    calling this function displays the popup displaying the current completions. By default,
+    if \a rect is not specified, the popup is displayed on the bottom of the widget().
+    If \a rect is specified the popup is displayed on the left edge of the rectangle.
+    
+    For QCompleter::InlineCompletion mode, the highlighted() signal is fired with
+    the current completion.
 */
-void QCompleter::complete(const QPoint& globalPos)
+void QCompleter::complete(const QRect& rect)
 {
     Q_D(QCompleter);
     QModelIndex idx = d->proxy->currentIndex(false);
     if (d->mode == QCompleter::InlineCompletion) {
         if (idx.isValid())
-            d->_q_completionHighlighted(idx);
+            d->_q_complete(idx, true);
         return;
     }
 
+    Q_ASSERT(d->widget != 0);
     if ((d->mode == QCompleter::PopupCompletion && !idx.isValid())
         || (d->mode == QCompleter::UnfilteredPopupCompletion && d->proxy->rowCount() == 0)) {
         d->popup->hide(); // no suggestion, hide
-    } else {
-        if (d->mode == QCompleter::UnfilteredPopupCompletion)
-            d->_q_selectIndex(idx); // select the probable completion
-        d->showPopup(globalPos);
+        return;
     }
+
+    if (d->mode == QCompleter::UnfilteredPopupCompletion)
+        d->setCurrentIndex(idx, false);
+
+    d->showPopup(rect);
 }
 
 /*!
     Sets the current row to \a row. This function may be used along with
     currentCompletion() to iterate through all the possible completions.
+
+    \sa currentCompletion(), completionCount()
 */
 bool QCompleter::setCurrentRow(int row)
 {
@@ -1070,9 +1090,9 @@ bool QCompleter::setCurrentRow(int row)
 }
 
 /*!
-    Returns the current row
+    Returns the current row.
 
-    \sa setCurrentRow
+    \sa setCurrentRow()
 */
 int QCompleter::currentRow() const
 {
@@ -1081,8 +1101,9 @@ int QCompleter::currentRow() const
 }
 
 /*!
-  Returns the number of completions for the current prefix. For an unsorted model with
-  a large number of items this call can be expensive.
+    Returns the number of completions for the current prefix. For an unsorted model with
+    a large number of items this can be expensive. Use setCurrentRow() and 
+    currentCompletion() to iterate through all the completions.
 */
 int QCompleter::completionCount() const
 {
@@ -1093,21 +1114,21 @@ int QCompleter::completionCount() const
 /*!
     \enum QCompleter::ModelSorting
 
-    This enum specifies how the items in the model is sorted
+    This enum specifies how the items in the model is sorted.
 
-    \value UnsortedModel                    The model is unsorted
-    \value CaseSensitivelySortedModel       The model is sorted case sensitively
-    \value CaseInsensitivelySortedModel     The model is sorted case insensitively
+    \value UnsortedModel                    The model is unsorted.
+    \value CaseSensitivelySortedModel       The model is sorted case sensitively.
+    \value CaseInsensitivelySortedModel     The model is sorted case insensitively.
 
     \sa completionRole, completionColumn
 */
 
 /*!
-    \property QCompleter::sourceModelSorting
+    \property QCompleter::modelSorting
     \brief whether and how the model is sorted
 
     By default, no assumptions are made about the order of the items
-    in the model from which completions are obtained. If the model's data
+    in the model that provides the completions. If the model's data
     for the matchColumn() and matchRole() is sorted in ascending order, you
     can set this property to CaseSensitivelySortedModel or
     CaseInsensitivelySortedModel. On large models, this can lead to
@@ -1137,7 +1158,10 @@ QCompleter::ModelSorting QCompleter::modelSorting() const
 
 /*!
     \property QCompleter::completionColumn
-    \brief the column in the model in which completions are searched for
+    \brief the column in the model in which completions are searched for.
+
+    If the popup() is a QListView, it is automatically setup to display
+    this column.
 
     By default, the match column is 0.
 
@@ -1148,6 +1172,8 @@ void QCompleter::setCompletionColumn(int column)
     Q_D(QCompleter);
     if (d->column == column)
         return;
+    if (QListView *listView = qobject_cast<QListView *>(d->popup))
+        listView->setModelColumn(column);
     d->column = column;
     d->proxy->invalidate();
 }
@@ -1207,9 +1233,9 @@ Qt::CaseSensitivity QCompleter::caseSensitivity() const
 
 /*!
     \property QCompleter::completionPrefix
-    \brief the completion prefix used to provide completions
+    \brief the completion prefix used to provide completions.
 
-    The completion model is updated to reflect the list of possible
+    The completionModel() is updated to reflect the list of possible
     matches for \a prefix.
 */
 void QCompleter::setCompletionPrefix(const QString &prefix)
@@ -1228,7 +1254,7 @@ QString QCompleter::completionPrefix() const
 /*!
     Returns the current completion index.
 
-    \sa setCurrentRow()
+    \sa setCurrentRow(), currentCompletion()
 */
 QModelIndex QCompleter::currentIndex() const
 {
@@ -1241,7 +1267,7 @@ QModelIndex QCompleter::currentIndex() const
     When used alongside setCurrentRow(), it can be used to iterate through
     all the matches.
 
-    \sa setCurrentRow()
+    \sa setCurrentRow(), currentIndex()
 */
 QString QCompleter::currentCompletion() const
 {
@@ -1249,9 +1275,9 @@ QString QCompleter::currentCompletion() const
 }
 
 /*!
-    Returns the completion model. The completion model is a list
-    model that contains all the possible matches for the current
-    completion prefix.
+    Returns the completion model. The completion model is a list model that 
+    contains all the possible matches for the current completion prefix. 
+    The completion model is auto-updated to reflect the current completions.
 
     \sa completionPrefix, model()
 */
@@ -1262,12 +1288,11 @@ const QAbstractProxyModel *QCompleter::completionModel() const
 }
 
 /*!
-    Returns the path from index \a index. QCompleter uses this
-    to provide the completion text for the index \a index.
+    Returns the path from index \a index. QCompleter uses this to provide 
+    the completion text for the index \a index.
 
-    The default implementation returns the Qt::Edit role of the
-    item for list models. It returns the absolute file path
-    if the model is a QDirModel.
+    The default implementation returns the Qt::Edit role of the item for 
+    list models. It returns the absolute file path if the model is a QDirModel.
 
     \sa splitPath()
 */
@@ -1282,10 +1307,7 @@ QString QCompleter::pathFromIndex(const QModelIndex& index) const
     QDirModel *dirModel = qobject_cast<QDirModel *>(sourceModel);
     if (!dirModel)
 #endif
-        return sourceModel->data(index, Qt::EditRole).toString();
-
-    // FIXME: Investigate bug in QDirModel returning wrong filePath
-    // return QDir::convertSeparators(dirModel->filePath(index));
+        return sourceModel->data(index, d->role).toString();
 
     QModelIndex idx = index;
     QStringList list;
@@ -1306,11 +1328,10 @@ QString QCompleter::pathFromIndex(const QModelIndex& index) const
 }
 
 /*!
-    Splits \a path into strings that are used to match at each level in the source model.
+    Splits \a path into strings that are used to match at each level in the model().
     The default implementation of splitPath() splits a file system path based on
     QDir::separator() when the sourceModel() is a QDirModel.
 
-    Note that the \a path can be modified in any way (for example it can be capitalized).
     When used with list models, the first item in the returned list is used for matching.
 
     \sa pathFromIndex(), {Handling Tree Models}
@@ -1333,11 +1354,11 @@ QStringList QCompleter::splitPath(const QString& path) const
     sep += QLatin1Char('/');
 #endif
 
-    QRegExp re("[" + QRegExp::escape(sep) + "]");
+    QRegExp re(QLatin1String("[") + QRegExp::escape(sep) + QLatin1String("]"));
     QStringList parts = path.split(re);
 
 #ifndef Q_OS_WIN
-    if (path[0] == sep[0]) // readd the "/" at the beginning as the split would have removed it
+    if (path[0] == sep[0]) // readd the "/" at the beginning as the split removed it
         parts[0] = sep[0];
 #else
     if (path.startsWith(QLatin1String("\\\\"))) { // network share
@@ -1350,5 +1371,37 @@ QStringList QCompleter::splitPath(const QString& path) const
 
     return parts;
 }
+
+/*!
+    \fn void QCompleter::activated(const QModelIndex& index)
+
+    This signal is sent when an item in the popup() is activated by the user.
+    (by clicking or pressing return). The item's \a index is given.
+
+*/
+
+/*!
+    \fn void QCompleter::activated(const QString &text)
+
+    This signal is sent when an item in the popup() is activated by the user (by
+    clicking or pressing return). The item's \a text is given.
+
+*/
+
+/*!
+    \fn void QCompleter::highlighted(const QModelIndex& index)
+
+    This signal is sent when an item in the popup() is highlighted by
+    the user. It is also sent if complete() is called with the completionMode()
+    set to QCompleter::InlineCompletion. The item's \a index is given. 
+*/
+
+/*!
+    \fn void QCompleter::highlighted(const QString &text)
+
+    This signal is sent when an item in the popup() is highlighted by
+    the user. It is also sent if complete() is called with the completionMode()
+    set to QCOmpleter::InlineCompletion. The item's \a text is given.
+*/
 
 #include "moc_qcompleter.cpp"
