@@ -799,6 +799,7 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
     if (!hasFocus() || !(ev->buttons() & Qt::LeftButton))
         return;
 
+#ifndef QT_NO_DRAGANDDROP
     if (d->mightBeDrag) {
         if ((ev->pos() - d->mousePressPos).manhattanLength() < QApplication::startDragDistance())
             return;
@@ -808,7 +809,9 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
         drag->setMimeData(md);
         drag->start();
         d->mightBeDrag = false;
-    } else {
+    } else
+#endif
+    {
         if (!d->selection.hasSelection()) {
             // Lazy marking of the start of selection
             QPoint docPos = d->layoutPoint(d->mousePressPos);
