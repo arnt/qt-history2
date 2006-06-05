@@ -2518,6 +2518,7 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
                     if(++i == str_len)
                         break;
                     unicode = (str_data+i)->unicode();
+                    // at this point, i points to either the 'term' or 'next' character (which is in unicode)
                 }
                 if(var_type == VAR && unicode == LPAREN) {
                     var_type = FUNCTION;
@@ -2535,22 +2536,26 @@ QMakeProject::doVariableReplaceExpand(const QString &str, QMap<QString, QStringL
                         }
                         args.append(QChar(unicode));
                     }
-                    if(i < str_len-1)
-                        unicode = (str_data+(++i))->unicode();
+                    if(++i < str_len)
+                        unicode = (str_data+(i))->unicode();
                     else
                         unicode = 0;
+                    // at this point i is pointing to the 'next' character (which is in unicode)
+                    // this might actually be a term character since you can do $${func()}
                 }
                 if(term) {
                     if(unicode != term) {
-                        qmake_error_msg("Missing " + QString(term) + " terminator [found " + QString(unicode) + "]");
+                        qmake_error_msg("Missing " + QString(term) + " terminator [found " + (unicode?QString(unicode):QString("end-of-line")) + "]");
                         if(ok)
                             *ok = false;
                         return QStringList();
                     }
-                    unicode = 0;
-                } else if(i > str_len-1) {
-                    unicode = 0;
+                } else {
+                    // move the 'cursor' back to the last char of the thing we were looking at
+                    --i;
                 }
+                // since i never points to the 'next' character, there is no reason for this to be set
+                unicode = 0;
 
                 QStringList replacement;
                 if(var_type == ENVIRON) {
