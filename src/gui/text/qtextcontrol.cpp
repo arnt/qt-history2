@@ -52,6 +52,12 @@
 #define ACCEL_KEY(k) QString("\tCtrl+" #k)
 #endif
 
+#ifdef QT_KEYPAD_NAVIGATION
+// FIXME this is a temporary hack to get this compiling.
+// The code inside QT_KEYPAD_NAVIGATION must be moved somewhere else as it's not useful here.
+#undef QT_KEYPAD_NAVIGATION
+#endif
+
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)
 {
@@ -449,6 +455,7 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
 
 void QTextControlPrivate::startDrag()
 {
+#ifndef QT_NO_DRAGANDDROP
     Q_Q(QTextControl);
     mousePressed = false;
     if (!dndWidget)
@@ -465,6 +472,7 @@ void QTextControlPrivate::startDrag()
 
     if (action == Qt::MoveAction && drag->target() != dndWidget)
         cursor.removeSelectedText();
+#endif
 }
 
 void QTextControlPrivate::setCursorPosition(const QPointF &pos)
