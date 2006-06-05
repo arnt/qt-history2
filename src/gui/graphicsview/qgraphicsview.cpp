@@ -343,6 +343,7 @@ void QGraphicsViewPrivate::storeDragDropEvent(const QGraphicsSceneDragDropEvent 
 void QGraphicsViewPrivate::populateSceneDragDropEvent(QGraphicsSceneDragDropEvent *dest,
                                                       QDropEvent *source)
 {
+#ifndef QT_NO_DRAGANDDROP
     Q_Q(QGraphicsView);
     dest->setScenePos(q->mapToScene(source->pos()));
     dest->setScreenPos(q->mapToGlobal(source->pos()));
@@ -354,6 +355,10 @@ void QGraphicsViewPrivate::populateSceneDragDropEvent(QGraphicsSceneDragDropEven
     dest->setMimeData(source->mimeData());
     dest->setWidget(q->viewport());
     dest->setSource(source->source());
+#else
+    Q_UNUSED(dest)
+    Q_UNUSED(source)
+#endif
 }
 
 /*!
@@ -1538,6 +1543,7 @@ void QGraphicsView::contextMenuEvent(QContextMenuEvent *event)
 */
 void QGraphicsView::dropEvent(QDropEvent *event)
 {
+#ifndef QT_NO_DRAGANDDROP
     Q_D(QGraphicsView);
     if (!d->scene || !d->sceneInteractionAllowed)
         return;
@@ -1551,9 +1557,12 @@ void QGraphicsView::dropEvent(QDropEvent *event)
 
     // Accept the originating event if the scene accepted the scene event.
     if (sceneEvent.isAccepted()) {
-        event->accept();
+        event->setAccepted(true);
         event->setDropAction(sceneEvent.dropAction());
     }
+#else
+    Q_UNUSED(event)
+#endif
 }
 
 /*!
@@ -1561,6 +1570,7 @@ void QGraphicsView::dropEvent(QDropEvent *event)
 */
 void QGraphicsView::dragEnterEvent(QDragEnterEvent *event)
 {
+#ifndef QT_NO_DRAGANDDROP
     Q_D(QGraphicsView);
     if (!d->scene || !d->sceneInteractionAllowed)
         return;
@@ -1577,9 +1587,12 @@ void QGraphicsView::dragEnterEvent(QDragEnterEvent *event)
 
     // Accept the originating event if the scene accepted the scene event.
     if (sceneEvent.isAccepted()) {
-        event->accept();
+        event->setAccepted(true);
         event->setDropAction(sceneEvent.dropAction());
     }
+#else
+    Q_UNUSED(event)
+#endif
 }
 
 /*!
@@ -1587,6 +1600,7 @@ void QGraphicsView::dragEnterEvent(QDragEnterEvent *event)
 */
 void QGraphicsView::dragLeaveEvent(QDragLeaveEvent *event)
 {
+#ifndef QT_NO_DRAGANDDROP
     Q_D(QGraphicsView);
     if (!d->scene || !d->sceneInteractionAllowed)
         return;
@@ -1615,7 +1629,10 @@ void QGraphicsView::dragLeaveEvent(QDragLeaveEvent *event)
 
     // Accept the originating event if the scene accepted the scene event.
     if (sceneEvent.isAccepted())
-        event->accept();
+        event->setAccepted(true);
+#else
+    Q_UNUSED(event)
+#endif
 }
 
 /*!
@@ -1623,6 +1640,7 @@ void QGraphicsView::dragLeaveEvent(QDragLeaveEvent *event)
 */
 void QGraphicsView::dragMoveEvent(QDragMoveEvent *event)
 {
+#ifndef QT_NO_DRAGANDDROP
     Q_D(QGraphicsView);
     if (!d->scene || !d->sceneInteractionAllowed)
         return;
@@ -1639,9 +1657,12 @@ void QGraphicsView::dragMoveEvent(QDragMoveEvent *event)
 
     // Ignore the originating event if the scene ignored the scene event.
     if (sceneEvent.isAccepted()) {
-        event->accept();
+        event->setAccepted(true);
         event->setDropAction(sceneEvent.dropAction());
     }
+#else
+    Q_UNUSED(event)
+#endif
 }
 
 /*!
@@ -1743,14 +1764,20 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
                && event->button() == Qt::LeftButton) {
         if (!d->scene) {
             d->handScrolling = true;
+#ifndef QT_NO_CURSOR
             viewport()->setCursor(Qt::PointingHandCursor);
+#endif
             return;
         }
         if ((d->handScrolling = !d->scene->itemAt(d->mousePressScenePoint))) {
+#ifndef QT_NO_CURSOR
             viewport()->setCursor(Qt::PointingHandCursor);
+#endif
             return;
         }
+#ifndef QT_NO_CURSOR
         viewport()->unsetCursor();
+#endif
     }
 
     if (!d->scene)
