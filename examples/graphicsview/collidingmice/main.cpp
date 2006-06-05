@@ -11,7 +11,7 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 
     QGraphicsScene scene;
-    scene.setBackgroundBrush(QPixmap(":/images/cheese.jpg"));
+    scene.setSceneRect(-300, -300, 600, 600);
 
     for (int i = 0; i < MouseCount; ++i) {
         Mouse *mouse = new Mouse;
@@ -21,9 +21,10 @@ int main(int argc, char **argv)
     }
 
     QGraphicsView view(&scene);
+    view.setBackgroundBrush(QPixmap(":/images/cheese.jpg"));
     view.setDragMode(QGraphicsView::ScrollHandDrag);
-    view.setMinimumSize(400, 300);
     view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "Colliding Mice"));
+    view.resize(400, 300);
     view.show();
 
     return app.exec();

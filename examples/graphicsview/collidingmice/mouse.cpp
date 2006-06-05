@@ -28,7 +28,7 @@ Mouse::Mouse()
 
 QRectF Mouse::boundingRect() const
 {
-    qreal adjust = 2;
+    qreal adjust = 0.5;
     return QRectF(-20 - adjust, -22 - adjust,
                   40 + adjust, 83 + adjust);
 }
@@ -112,12 +112,12 @@ void Mouse::timerEvent(QTimerEvent *)
             angleToMouse = TwoPi - angleToMouse;
         angleToMouse = normalizeAngle((Pi - angleToMouse) + Pi / 2);
 
-        if (angleToMouse < Pi && angleToMouse > Pi / 4) {
+        if (angleToMouse >= 0 && angleToMouse < Pi / 2) {
             // Rotate right
-            angle += (angle < Pi / 2) ? 0.5 : -0.5;
-        } else if (angleToMouse >= Pi && angleToMouse < (Pi + Pi / 2 + Pi / 4)) {
+            angle += 0.5;
+        } else if (angleToMouse <= TwoPi && angleToMouse > (TwoPi - Pi / 2)) {
             // Rotate left
-            angle += (angle < -Pi / 2) ? 0.5 : -0.5;
+            angle -= 0.5;
         }
     }
 
