@@ -1278,8 +1278,10 @@ QString QCompleter::pathFromIndex(const QModelIndex& index) const
         return QString();
 
     QAbstractItemModel *sourceModel = d->proxy->sourceModel();
+#ifndef QT_NO_DIRMODEL
     QDirModel *dirModel = qobject_cast<QDirModel *>(sourceModel);
     if (!dirModel)
+#endif
         return sourceModel->data(index, Qt::EditRole).toString();
 
     // FIXME: Investigate bug in QDirModel returning wrong filePath
@@ -1316,7 +1318,12 @@ QString QCompleter::pathFromIndex(const QModelIndex& index) const
 QStringList QCompleter::splitPath(const QString& path) const
 {
     Q_D(const QCompleter);
-    bool isDirModel = qobject_cast<QDirModel *>(d->proxy->sourceModel()) != 0;
+    bool isDirModel;
+#ifndef QT_NO_DIRMODEL
+    isDirModel = qobject_cast<QDirModel *>(d->proxy->sourceModel()) != 0;
+#else
+    isDirModel = false;
+#endif
 
     if (!isDirModel || path.isEmpty())
         return QStringList(completionPrefix());
