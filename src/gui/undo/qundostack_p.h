@@ -63,7 +63,7 @@ class QUndoAction : public QAction
     Q_OBJECT
 public:
     QUndoAction(const QString &prefix, QObject *parent = 0);
-public slots:
+public Q_SLOTS:
     void setPrefixedText(const QString &text);
 private:
     QString m_prefix;

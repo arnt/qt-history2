@@ -138,7 +138,7 @@ public:
     void setEditorData(QWidget* editor, const QModelIndex& index) const;
     void setModelData( QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const;
 
-private Q_SLOTS:
+private slots:
     void cbChanged(int index);
 
 };
@@ -155,7 +155,7 @@ public:
 private:
     void addItemToOptions(OptionTreeItem *parent, QList<const ppd_option_t*>& options, QList<const char*>& markedOptions);
 
-private Q_SLOTS:
+private slots:
     void btnSaveClicked();
 };
 #endif

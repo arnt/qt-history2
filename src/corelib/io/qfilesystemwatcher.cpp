@@ -46,7 +46,7 @@ public:
 
     void stop();
 
-private Q_SLOTS:
+private slots:
     void timeout();
 };
 

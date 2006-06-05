@@ -33,7 +33,7 @@ public:
     QVFbKeyboardHandler(const QString &device);
     virtual ~QVFbKeyboardHandler();
 
-private slots:
+private Q_SLOTS:
     void readKeyboardData();
 
 private:

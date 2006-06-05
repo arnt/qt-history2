@@ -41,7 +41,7 @@ private:
     uchar mouseBuf[mouseBufSize];
     QSocketNotifier *mouseNotifier;
 
-private slots:
+private Q_SLOTS:
     void readMouseData();
 };
 #endif // QT_NO_QWS_MOUSE_QVFB

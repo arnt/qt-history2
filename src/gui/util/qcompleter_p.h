@@ -185,7 +185,7 @@ public:
     QCompletionEngine *engine;
     bool showAll;
 
-public slots:
+public Q_SLOTS:
     void invalidate();
 };
 

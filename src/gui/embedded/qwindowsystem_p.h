@@ -159,7 +159,7 @@ private:
 
     void resetEngine();
 
-//private slots:
+//private Q_SLOTS:
 
 #ifndef QT_NO_QWS_MULTIPROCESS
     void _q_clientClosed();

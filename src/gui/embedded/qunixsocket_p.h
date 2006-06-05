@@ -153,7 +153,7 @@ public:
     virtual bool waitForReadyRead(int msec = 300);
     virtual bool waitForBytesWritten(int msec = 300);
 
-signals:
+Q_SIGNALS:
     void stateChanged(SocketState socketState);
 
 protected:
