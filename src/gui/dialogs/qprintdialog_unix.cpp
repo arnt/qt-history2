@@ -53,6 +53,8 @@
 #  undef Success
 #endif
 
+#include <ctype.h>
+
 class OptionTreeItem;
 
 struct QPrinterDescription {
@@ -202,7 +204,7 @@ static void parsePrinterDesc(QString printerDesc, QList<QPrinterDescription> *pr
         // look for lprng pseudo all printers entry
         i = printerDesc.indexOf(QRegExp(QLatin1String(": *all *=")));
         if (i >= 0)
-            printerName = "";
+            printerName = QString();
         // look for signs of this being a remote printer
         i = printerDesc.indexOf(QRegExp(QLatin1String(": *rm *=")));
         if (i >= 0) {
