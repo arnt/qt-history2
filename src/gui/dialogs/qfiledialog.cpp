@@ -65,7 +65,7 @@ QStringList qt_make_filter_list(const QString &filter)
     int i = f.indexOf(sep, 0);
     if (i == -1) {
         if (f.indexOf(QLatin1Char('\n'), 0) != -1) {
-            sep = "\n";
+            sep = QLatin1Char('\n');
             i = f.indexOf(sep, 0);
         }
     }
@@ -455,7 +455,7 @@ QStringList QFileDialog::selectedFiles() const
                 QFileInfo info(name);
                 // if the filename has no suffix, add the default suffix
                 if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf(QLatin1Char('.')) == -1)
-                    name += "." + d->defaultSuffix;
+                    name += QLatin1Char('.') + d->defaultSuffix;
                 // a new filename
                 if ((d->fileMode == ExistingFiles) || files.isEmpty()) {
                     if (info.isAbsolute())
@@ -470,7 +470,7 @@ QStringList QFileDialog::selectedFiles() const
             QFileInfo info(name);
             // if the filename has no suffix, add the default suffix
             if (!d->defaultSuffix.isEmpty() && !info.isDir() && name.lastIndexOf(QLatin1Char('.')) == -1)
-                name += "." + d->defaultSuffix;
+                name += QLatin1Char('.') + d->defaultSuffix;
             if (info.isAbsolute())
                 files.append(name);
             else
@@ -864,7 +864,7 @@ void QFileDialog::accept()
     QString fn = d->fileNameEdit->text();
 
     // special case for ".."
-    if (fn == "..") {
+    if (fn == QLatin1String("..")) {
         d->_q_navigateToParent();
         bool block = d->fileNameEdit->blockSignals(true);
         d->fileNameEdit->setText(fn);
@@ -1195,9 +1195,9 @@ void QFileDialogPrivate::_q_updateFileName(const QItemSelection &selection)
         QString name = model->data(indexes.at(i)).toString();
         if (stripDirs && model->isDir(indexes[i]))
             continue;
-        if (addQuotes) text.append("\"");
+        if (addQuotes) text.append(QLatin1String("\""));
         text.append(name);
-        if (addQuotes) text.append("\" ");
+        if (addQuotes) text.append(QLatin1String("\" "));
     }
     if (!text.isEmpty())
         fileNameEdit->setText(text);
@@ -1251,7 +1251,7 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text)
     // If the user has typed a local path that goes beyond the current directory, for example
     // ../foo or foo/bar, we treat that as an absolute path by prepending the path from lookInEdit.
     if (!info.isAbsolute() && typedPath != QLatin1String("."))
-        info.setFile(toInternal(lookInEdit->text() + "/" + text));
+        info.setFile(toInternal(lookInEdit->text() + QLatin1Char('/') + text));
 
     // do autocompletion
     QModelIndex first;
@@ -1267,12 +1267,12 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text)
         treeView->setCurrentIndex(result);
         QString completed = model->data(result).toString();
         if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
-            if (typedPath == "/")
-                completed = "/" + completed;
+            if (typedPath == QLatin1String("/"))
+                completed = QLatin1Char('/') + completed;
             else if (typedPath.endsWith(QLatin1Char('/'))) // required on windows since drives have trailing / in path
                 completed = typedPath + completed;
             else
-                completed = typedPath + "/" + completed;
+                completed = typedPath + QLatin1Char('/') + completed;
         }
         int start = completed.length();
         int length = text.length() - start; // negative length
@@ -1311,7 +1311,7 @@ void QFileDialogPrivate::_q_autoCompleteDirectory(const QString &text)
         return;
     // do autocompletion; text is the local path format (on windows separator is '\\')
     int indexOfLastSeparator = text.lastIndexOf(QDir::separator()); // this will only trigger on unix
-    QString path = toInternal(indexOfLastSeparator == 0 ? "/" : text.left(indexOfLastSeparator));
+    QString path = toInternal(indexOfLastSeparator == 0 ? QLatin1String("/") : text.left(indexOfLastSeparator));
     QString name = text.section(QDir::separator(), -1);
     QModelIndex parent = model->index(path);
     QModelIndex result = matchDir(name, model->index(0, 0, parent));
@@ -1432,7 +1432,7 @@ void QFileDialogPrivate::_q_deleteCurrent()
     index = index.sibling(index.row(), 0);
     if (!index.isValid() || model->isReadOnly())
         return;
-    
+
     QString fileName = model->fileName(index);
     if (!model->fileInfo(index).isWritable()
         && (QMessageBox::warning(q_func(), q_func()->windowTitle(),
@@ -2316,8 +2316,8 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     delete dlg;
 //    qt_working_dir = directory;
 
-    if (!result.isEmpty() && result.right(1) != "/")
-        result += "/";
+    if (!result.isEmpty() && result.right(1) != QLatin1String("/"))
+        result += QLatin1Char('/');
 
     return result;
 }

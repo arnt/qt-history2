@@ -154,7 +154,7 @@ static const uchar base_dither_matrix[DITHER_SIZE][DITHER_SIZE] = {
 static QPixmap qt_patternForAlpha(uchar alpha)
 {
     QPixmap pm;
-    QString key = "$qt-alpha-brush$" + QString::number(alpha);
+    QString key = QLatin1String("$qt-alpha-brush$") + QString::number(alpha);
     if (!QPixmapCache::find(key, pm)) {
         // #### why not use a mono image here????
         QImage pattern(DITHER_SIZE, DITHER_SIZE, QImage::Format_ARGB32);
@@ -2250,7 +2250,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &ti)
         QFixed yp = positions[0].y;
 
         // better return instead of crashing the X server
-        if (xp.toInt() < t_min || xp.toInt() > t_max 
+        if (xp.toInt() < t_min || xp.toInt() > t_max
             || yp.toInt() < t_min || yp.toInt() > t_max)
             return;
 

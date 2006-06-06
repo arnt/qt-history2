@@ -497,7 +497,7 @@ static QStringList fontPath()
                             fs = fs.left(fs.indexOf(QLatin1String(":unscaled")));
                             if (fs[0] != QLatin1Char('#'))
                                 fontpath += fs;
-                            fs = f.readLine(1024);
+                            fs = QLatin1String(f.readLine(1024));
                             fs = fs.trimmed();
                             if (fs.isEmpty())
                                 end = true;
@@ -547,16 +547,16 @@ static QFontEngine::FaceId fontFile(const QByteArray &_xname, QFreetypeFace **fr
     QByteArray best_mapping;
 
     for (QStringList::ConstIterator it = fontpath.constBegin(); it != fontpath.constEnd(); ++it) {
-        if ((*it).left(1) != "/")
+        if ((*it).left(1) != QLatin1String("/"))
             continue; // not a path name, a font server
         QString fontmapname;
         int num = 0;
         // search font.dir and font.scale for the right file
         while (num < 2) {
             if (num == 0)
-                fontmapname = (*it) + "/fonts.scale";
+                fontmapname = (*it) + QLatin1String("/fonts.scale");
             else
-                fontmapname = (*it) + "/fonts.dir";
+                fontmapname = (*it) + QLatin1String("/fonts.dir");
             ++num;
             //qWarning(fontmapname);
             QFile fontmap(fontmapname);
@@ -573,7 +573,7 @@ static QFontEngine::FaceId fontFile(const QByteArray &_xname, QFreetypeFace **fr
                 int index = mapping.indexOf(' ');
                 QByteArray ffn = mapping.mid(0,index);
                 // remove bitmap formats freetype can't handle
-                if(ffn.contains(".spd") || ffn.contains(".phont"))
+                if (ffn.contains(".spd") || ffn.contains(".phont"))
                     continue;
                 bool best_match = false;
                 if (!best_mapping.isEmpty()) {

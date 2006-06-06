@@ -438,7 +438,7 @@ void QLCDNumber::setNumDigits(int numDigits)
         d->ndigits = numDigits;
         d->digitStr.fill(QLatin1Char(' '), d->ndigits);
         d->points.fill(0, d->ndigits);
-        d->digitStr[d->ndigits - 1] = '0';            // "0" is the default number
+        d->digitStr[d->ndigits - 1] = QLatin1Char('0');            // "0" is the default number
     } else {
         bool doDisplay = d->ndigits == 0;
         if (numDigits == d->ndigits)             // no change
@@ -750,7 +750,7 @@ void QLCDNumberPrivate::internalSetString(const QString& s)
                     if (index == ndigits - 1) // no more digits
                         break;
                     index++;
-                    buffer[index] = ' ';        // 2 points in a row, add space
+                    buffer[index] = QLatin1Char(' ');        // 2 points in a row, add space
                 }
                 newPoints.setBit(index);        // set decimal point
                 lastWasPoint = true;
@@ -770,7 +770,7 @@ void QLCDNumberPrivate::internalSetString(const QString& s)
                                    newPoints.testBit(i));
             }
             for(i=0; i<ndigits-index-1; i++) {
-                buffer[i] = ' ';
+                buffer[i] = QLatin1Char(' ');
                 newPoints.clearBit(i);
             }
         }

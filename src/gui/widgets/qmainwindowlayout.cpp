@@ -167,7 +167,7 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
       , save_tb_layout_info(0)
 #endif
 {
-    setObjectName(mainwindow->objectName() + "_layout");
+    setObjectName(mainwindow->objectName() + QLatin1String("_layout"));
 
     corners[Qt::TopLeftCorner]     = Qt::TopDockWidgetArea;
     corners[Qt::TopRightCorner]    = Qt::TopDockWidgetArea;
@@ -376,7 +376,7 @@ QDockWidgetLayout *QMainWindowLayout::layoutForArea(Qt::DockWidgetArea area)
 
         l = new QDockWidgetLayout(area, orientations[pos]);
         l->setParent(this);
-        l->setObjectName(objectName() + "_dockwidgetLayout" + QString::number(area, 16));
+        l->setObjectName(objectName() + QLatin1String("_dockwidgetLayout") + QString::number(area, 16));
 
         info.item = l;
 
@@ -2253,7 +2253,7 @@ bool QMainWindowLayout::contains(QWidget *widget) const
         }
     }
 #endif
-    
+
 #ifndef QT_NO_DOCKWIDGET
     // is it a dock widget?
     for (int pos = 0; pos < NPOSITIONS - 1; ++pos) {
@@ -2263,7 +2263,7 @@ bool QMainWindowLayout::contains(QWidget *widget) const
             return true;
     }
 #endif //QT_NO_DOCKWIDGET
-    
+
     return false;
 }
 

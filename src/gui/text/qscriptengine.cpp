@@ -3414,7 +3414,7 @@ static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *
 #ifndef QT_NO_LIBRARY
     /* load libthai dynamically */
     if (!th_brk && thaiCodec) {
-        th_brk = (th_brk_def)QLibrary::resolve("thai", "th_brk");
+        th_brk = (th_brk_def)QLibrary::resolve(QLatin1String("thai"), "th_brk");
         if (!th_brk)
             thaiCodec = 0;
     }

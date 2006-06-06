@@ -820,8 +820,8 @@ static QTtfTable generateName(const qttf_name_table &name)
     list.append(rec);
     rec.nameId = 4;
     rec.value = name.family;
-    if (name.subfamily != "Regular")
-        rec.value += " " + name.subfamily;
+    if (name.subfamily != QLatin1String("Regular"))
+        rec.value += QLatin1Char(' ') + name.subfamily;
     list.append(rec);
     rec.nameId = 6;
     rec.value = name.postscript_name;
@@ -1431,12 +1431,12 @@ QByteArray QFontSubset::toTruetype() const
     if (name_table.data.isEmpty()) {
         qttf_name_table name;
         if (noEmbed)
-            name.copyright = "Fake font";
+            name.copyright = QLatin1String("Fake font");
         else
-            name.copyright = properties.copyright;
+            name.copyright = QLatin1String(properties.copyright);
         name.family = fontEngine->fontDef.family;
         name.subfamily = QLatin1String("Regular"); // ######
-        name.postscript_name = properties.postscriptName;
+        name.postscript_name = QLatin1String(properties.postscriptName);
         name_table = generateName(name);
     }
     tables.append(name_table);

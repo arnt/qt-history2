@@ -1349,7 +1349,7 @@ bool QGLContextPrivate::textureCacheLookup(const QString &key, GLuint *id, qint6
 GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint format, bool clean)
 {
     Q_Q(QGLContext);
-    const QString key = QString("%1_%2_%3").arg(QString().sprintf("i%08x",image.serialNumber())).arg(target).arg(format);
+    const QString key = QString::fromAscii("%1_%2_%3").arg(QString().sprintf("i%08x",image.serialNumber())).arg(target).arg(format);
     GLuint id;
     qint64 qt_id;
     if (textureCacheLookup(key, &id, &qt_id)) {
@@ -1367,7 +1367,7 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
 GLuint QGLContextPrivate::bindTexture(const QPixmap &pixmap, GLenum target, GLint format, bool clean)
 {
     Q_Q(QGLContext);
-    const QString key = QString("%1_%2_%3").arg(QString().sprintf("p%08x",pixmap.serialNumber())).arg(target).arg(format);
+    const QString key = QString::fromAscii("%1_%2_%3").arg(QString().sprintf("p%08x",pixmap.serialNumber())).arg(target).arg(format);
     GLuint id;
     qint64 qt_id;
     if (textureCacheLookup(key, &id, &qt_id)) {
@@ -3107,7 +3107,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
 {
     Q_D(QGLWidget);
     if (name)
-        setObjectName(name);
+        setObjectName(QLatin1String(name));
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     setAutoFillBackground(true); // for compatibility
@@ -3125,7 +3125,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
 {
     Q_D(QGLWidget);
     if (name)
-        setObjectName(name);
+        setObjectName(QLatin1String(name));
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     setAutoFillBackground(true); // for compatibility
@@ -3142,7 +3142,7 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
 {
     Q_D(QGLWidget);
     if (name)
-        setObjectName(name);
+        setObjectName(QLatin1String(name));
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     setAutoFillBackground(true); // for compatibility
@@ -3153,24 +3153,24 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
 
 void QGLExtensions::init_extensions()
 {
-    QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
-    if (extensions.contains("texture_rectangle"))
+    QString extensions = QLatin1String(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
+    if (extensions.contains(QLatin1String("texture_rectangle")))
         glExtensions |= TextureRectangle;
-    if (extensions.contains("multisample"))
+    if (extensions.contains(QLatin1String("multisample")))
         glExtensions |= SampleBuffers;
-    if (extensions.contains("generate_mipmap"))
+    if (extensions.contains(QLatin1String("generate_mipmap")))
         glExtensions |= GenerateMipmap;
-    if (extensions.contains("texture_compression_s3tc"))
+    if (extensions.contains(QLatin1String("texture_compression_s3tc")))
         glExtensions |= TextureCompression;
-    if (extensions.contains("ARB_fragment_program"))
+    if (extensions.contains(QLatin1String("ARB_fragment_program")))
         glExtensions |= FragmentProgram;
-    if (extensions.contains("mirrored_repeat"))
+    if (extensions.contains(QLatin1String("mirrored_repeat")))
         glExtensions |= MirroredRepeat;
-    if (extensions.contains("EXT_framebuffer_object"))
+    if (extensions.contains(QLatin1String("EXT_framebuffer_object")))
         glExtensions |= FramebufferObject;
 
     QGLContext cx(QGLFormat::defaultFormat());
     if (glExtensions & TextureCompression) {
-        qt_glCompressedTexImage2DARB = (pfn_glCompressedTexImage2DARB) cx.getProcAddress("glCompressedTexImage2DARB");
+        qt_glCompressedTexImage2DARB = (pfn_glCompressedTexImage2DARB) cx.getProcAddress(QLatin1String("glCompressedTexImage2DARB"));
     }
 }

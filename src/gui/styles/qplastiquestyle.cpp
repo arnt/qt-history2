@@ -3260,7 +3260,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             QString groovePixmapName = uniqueName(QLatin1String("scrollbar_groove"), option, option->rect.size());
             if (sunken)
-                groovePixmapName += "-sunken";
+                groovePixmapName += QLatin1String("-sunken");
 
             QPixmap cache;
             if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
@@ -4048,11 +4048,11 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             QPixmap cache;
             QString pixmapName = uniqueName(QLatin1String("combobox"), option, comboBox->rect.size());
             if (sunken)
-                pixmapName += "-sunken";
+                pixmapName += QLatin1String("-sunken");
             if (comboBox->editable)
-                pixmapName += "-editable";
+                pixmapName += QLatin1String("-editable");
             if (isEnabled)
-                pixmapName += "-enabled";
+                pixmapName += QLatin1String("-enabled");
 
             if (!UsePixmapCache || !QPixmapCache::find(pixmapName, cache)) {
                 cache = QPixmap(comboBox->rect.size());
@@ -5242,7 +5242,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
             ret = qMax(widget->fontMetrics().lineSpacing(), 16);
         } else
 #endif
-            ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 
+            ret = qMax(widget ? widget->fontMetrics().lineSpacing() :
                       (option ? option->fontMetrics.lineSpacing() : 0), 30);
         break;
     case PM_MaximumDragDistance:

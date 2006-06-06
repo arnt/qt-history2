@@ -707,7 +707,7 @@ QFontDef qt_FcPatternToQFontDef(FcPattern *pattern, const QFontDef &request)
     if (FcPatternGetString(pattern, FC_FAMILY, 0, &value) == FcResultMatch) {
         fontDef.family = QString::fromUtf8(reinterpret_cast<const char *>(value));
         fontDef.family.replace(QLatin1Char('-'), QLatin1Char(' '));
-        fontDef.family.replace(QLatin1Char('/'), "");
+        fontDef.family.remove(QLatin1Char('/'));
     }
 
     double dpi;
@@ -988,7 +988,7 @@ static void loadFontConfig()
         //         capitalize(value);
         rawName = familyName = QString::fromUtf8((const char *)value);
         familyName.replace(QLatin1Char('-'), QLatin1Char(' '));
-        familyName.replace(QLatin1Char('/'), "");
+        familyName.remove(QLatin1Char('/'));
         slant_value = FC_SLANT_ROMAN;
         weight_value = FC_WEIGHT_MEDIUM;
         spacing_value = FC_PROPORTIONAL;
@@ -1118,7 +1118,7 @@ static void loadFontConfig()
     while (f->qtname) {
         QtFontFamily *family = db->family(QLatin1String(f->qtname), true);
         family->fixedPitch = f->fixed;
-        family->rawName = f->rawname;
+        family->rawName = QLatin1String(f->rawname);
         family->synthetic = true;
         QtFontFoundry *foundry = family->foundry(QString(), true);
 

@@ -90,41 +90,41 @@ QStyle *QStyleFactory::create(const QString& key)
     QStyle *ret = 0;
     QString style = key.toLower();
 #ifndef QT_NO_STYLE_WINDOWS
-    if (style == "windows")
+    if (style == QLatin1String("windows"))
         ret = new QWindowsStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_WINDOWSXP
-    if (style == "windowsxp")
+    if (style == QLatin1String("windowsxp"))
         ret = new QWindowsXPStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_MOTIF
-    if (style == "motif")
+    if (style == QLatin1String("motif"))
         ret = new QMotifStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_CDE
-    if (style == "cde")
+    if (style == QLatin1String("cde"))
         ret = new QCDEStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_PLASTIQUE
-    if (style == "plastique")
+    if (style == QLatin1String("plastique"))
         ret = new QPlastiqueStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_CLEANLOOKS
-    if (style == "cleanlooks")
+    if (style == QLatin1String("cleanlooks"))
         ret = new QCleanLooksStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_MAC
-    if(style.left(9) == "macintosh") {
+    if (style.left(9) == QLatin1String("macintosh")) {
         ret = new QMacStyle;
 #  ifdef Q_WS_MAC
-        if(style == "macintosh")
-            style +=" (" + qt_mac_get_style_name() + ")";
+        if (style == QLatin1String("macintosh"))
+            style += QLatin1String(" (") + qt_mac_get_style_name() + QLatin1Char(')');
 #  endif
     } else
 #endif

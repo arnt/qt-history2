@@ -69,16 +69,16 @@ static int getFontWeight(const QString &weightString)
     QString s = weightString.toLower();
 
     // Test in decreasing order of commonness
-    if (s == "medium" ||
-        s == "normal")
+    if (s == QLatin1String("medium") ||
+        s == QLatin1String("normal"))
         return QFont::Normal;
-    if (s == "bold")
+    if (s == QLatin1String("bold"))
         return QFont::Bold;
-    if (s == "demibold" || s == "demi bold")
+    if (s == QLatin1String("demibold") || s == QLatin1String("demi bold"))
         return QFont::DemiBold;
-    if (s == "black")
+    if (s == QLatin1String("black"))
         return QFont::Black;
-    if (s == "light")
+    if (s == QLatin1String("light"))
         return QFont::Light;
 
     if (s.contains(QLatin1String("bold"))) {
@@ -1205,21 +1205,21 @@ static QString styleString(int weight, QFont::Style style)
 {
     QString result;
     if (weight >= QFont::Black)
-        result = "Black";
+        result = QLatin1String("Black");
     else if (weight >= QFont::Bold)
-        result = "Bold";
+        result = QLatin1String("Bold");
     else if (weight >= QFont::DemiBold)
-        result = "Demi Bold";
+        result = QLatin1String("Demi Bold");
     else if (weight < QFont::Normal)
-        result = "Light";
+        result = QLatin1String("Light");
 
     if (style == QFont::StyleItalic)
-        result += " Italic";
+        result += QLatin1String(" Italic");
     else if (style == QFont::StyleOblique)
-        result += " Oblique";
+        result += QLatin1String(" Oblique");
 
     if (result.isEmpty())
-        result = "Normal";
+        result = QLatin1String("Normal");
 
     return result.simplified();
 }
@@ -1456,9 +1456,9 @@ QStringList QFontDatabase::families(WritingSystem writingSystem) const
                 QString str = f->name;
                 QString foundry = f->foundries[j]->name;
                 if (!foundry.isEmpty()) {
-                    str += " [";
+                    str += QLatin1String(" [");
                     str += foundry;
-                    str += "]";
+                    str += QLatin1String("]");
                 }
                 flist.append(str);
             }
@@ -2026,7 +2026,7 @@ QString QFontDatabase::writingSystemSample(WritingSystem writingSystem)
         sample = QLatin1String("Aa");
         sample += QChar(0x00C3);
         sample += QChar(0x00E1);
-        sample += "Zz";
+        sample += QLatin1String("Zz");
         break;
     case Greek:
         sample += QChar(0x0393);

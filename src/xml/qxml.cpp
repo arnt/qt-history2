@@ -2925,13 +2925,13 @@ bool QXmlSimpleReader::feature(const QString& name, bool *ok) const
 
     if (ok != 0)
         *ok = true;
-    if (name == "http://xml.org/sax/features/namespaces") {
+    if (name == QLatin1String("http://xml.org/sax/features/namespaces")) {
         return d->useNamespaces;
-    } else if (name == "http://xml.org/sax/features/namespace-prefixes") {
+    } else if (name == QLatin1String("http://xml.org/sax/features/namespace-prefixes")) {
         return d->useNamespacePrefixes;
-    } else if (name == "http://trolltech.com/xml/features/report-whitespace-only-CharData") {
+    } else if (name == QLatin1String("http://trolltech.com/xml/features/report-whitespace-only-CharData")) {
         return d->reportWhitespaceCharData;
-    } else if (name == "http://trolltech.com/xml/features/report-start-end-entity") {
+    } else if (name == QLatin1String("http://trolltech.com/xml/features/report-start-end-entity")) {
         return d->reportEntities;
     } else {
         qWarning("Unknown feature %s", name.toLatin1().data());
@@ -2976,13 +2976,13 @@ bool QXmlSimpleReader::feature(const QString& name, bool *ok) const
 void QXmlSimpleReader::setFeature(const QString& name, bool enable)
 {
     Q_D(QXmlSimpleReader);
-    if (name == "http://xml.org/sax/features/namespaces") {
+    if (name == QLatin1String("http://xml.org/sax/features/namespaces")) {
         d->useNamespaces = enable;
-    } else if (name == "http://xml.org/sax/features/namespace-prefixes") {
+    } else if (name == QLatin1String("http://xml.org/sax/features/namespace-prefixes")) {
         d->useNamespacePrefixes = enable;
-    } else if (name == "http://trolltech.com/xml/features/report-whitespace-only-CharData") {
+    } else if (name == QLatin1String("http://trolltech.com/xml/features/report-whitespace-only-CharData")) {
         d->reportWhitespaceCharData = enable;
-    } else if (name == "http://trolltech.com/xml/features/report-start-end-entity") {
+    } else if (name == QLatin1String("http://trolltech.com/xml/features/report-start-end-entity")) {
         d->reportEntities = enable;
     } else {
         qWarning("Unknown feature %s", name.toLatin1().data());
@@ -2993,10 +2993,10 @@ void QXmlSimpleReader::setFeature(const QString& name, bool enable)
 */
 bool QXmlSimpleReader::hasFeature(const QString& name) const
 {
-    if (name == "http://xml.org/sax/features/namespaces"
-            || name == "http://xml.org/sax/features/namespace-prefixes"
-            || name == "http://trolltech.com/xml/features/report-whitespace-only-CharData"
-            || name == "http://trolltech.com/xml/features/report-start-end-entity") {
+    if (name == QLatin1String("http://xml.org/sax/features/namespaces")
+        || name == QLatin1String("http://xml.org/sax/features/namespace-prefixes")
+        || name == QLatin1String("http://trolltech.com/xml/features/report-whitespace-only-CharData")
+        || name == QLatin1String("http://trolltech.com/xml/features/report-start-end-entity")) {
         return true;
     } else {
         return false;
@@ -3467,16 +3467,16 @@ bool QXmlSimpleReaderPrivate::parseProlog()
                     if (xmldecl_possible && !xmlVersion.isEmpty()) {
                         QString value(QLatin1String("version='"));
                         value += xmlVersion;
-                        value += "'";
+                        value += QLatin1Char('\'');
                         if (!encoding.isEmpty()) {
-                            value += " encoding='";
+                            value += QLatin1String(" encoding='");
                             value += encoding;
-                            value += "'";
+                            value += QLatin1Char('\'');
                         }
                         if (standalone == QXmlSimpleReaderPrivate::Yes) {
-                            value += " standalone='yes'";
+                            value += QLatin1String(" standalone='yes'");
                         } else if (standalone == QXmlSimpleReaderPrivate::No) {
-                            value += " standalone='no'";
+                            value += QLatin1String(" standalone='no'");
                         }
                         if (!contentHnd->processingInstruction(QLatin1String("xml"), value)) {
                             reportParseError(contentHnd->errorString());
@@ -4201,7 +4201,7 @@ bool QXmlSimpleReaderPrivate::parseContent()
                 }
                 break;
             case CDS:
-                parseString_s = "[CDATA[";
+                parseString_s = QLatin1String("[CDATA[");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseContent, state);
                     return false;
@@ -4458,8 +4458,8 @@ bool QXmlSimpleReaderPrivate::parsePI()
             case Name:
                 // test what name was read and determine the next state
                 // (not very beautiful, I admit)
-                if (name().toLower() == "xml") {
-                    if (parsePI_xmldecl && name()=="xml") {
+                if (name().toLower() == QLatin1String("xml")) {
+                    if (parsePI_xmldecl && name() == QLatin1String("xml")) {
                         state = XMLDecl;
                     } else {
                         reportParseError(QLatin1String(XMLERR_INVALIDNAMEFORPI));
@@ -4472,7 +4472,7 @@ bool QXmlSimpleReaderPrivate::parsePI()
                 break;
             case Version:
                 // get version (syntax like an attribute)
-                if (name() != "version") {
+                if (name() != QLatin1String("version")) {
                     reportParseError(QLatin1String(XMLERR_VERSIONEXPECTED));
                     return false;
                 }
@@ -4480,16 +4480,16 @@ bool QXmlSimpleReaderPrivate::parsePI()
                 break;
             case EorSD:
                 // get the EDecl or SDDecl (syntax like an attribute)
-                if        (name() == "standalone") {
-                    if (string()=="yes") {
+                if (name() == QLatin1String("standalone")) {
+                    if (string()== QLatin1String("yes")) {
                         standalone = QXmlSimpleReaderPrivate::Yes;
-                    } else if (string()=="no") {
+                    } else if (string() == QLatin1String("no")) {
                         standalone = QXmlSimpleReaderPrivate::No;
                     } else {
                         reportParseError(QLatin1String(XMLERR_WRONGVALUEFORSDECL));
                         return false;
                     }
-                } else if (name() == "encoding") {
+                } else if (name() == QLatin1String("encoding")) {
                     encoding = string();
                 } else {
                     reportParseError(QLatin1String(XMLERR_EDECLORSDDECLEXPECTED));
@@ -4497,13 +4497,13 @@ bool QXmlSimpleReaderPrivate::parsePI()
                 }
                 break;
             case SD:
-                if (name() != "standalone") {
+                if (name() != QLatin1String("standalone")) {
                     reportParseError(QLatin1String(XMLERR_SDDECLEXPECTED));
                     return false;
                 }
-                if (string()=="yes") {
+                if (string() == QLatin1String("yes")) {
                     standalone = QXmlSimpleReaderPrivate::Yes;
-                } else if (string()=="no") {
+                } else if (string() == QLatin1String("no")) {
                     standalone = QXmlSimpleReaderPrivate::No;
                 } else {
                     reportParseError(QLatin1String(XMLERR_WRONGVALUEFORSDECL));
@@ -4733,7 +4733,7 @@ bool QXmlSimpleReaderPrivate::parseDoctype()
 
         switch (state) {
             case Doctype:
-                parseString_s = "DOCTYPE";
+                parseString_s = QLatin1String("DOCTYPE");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseDoctype, state);
                     return false;
@@ -4925,7 +4925,7 @@ bool QXmlSimpleReaderPrivate::parseExternalID()
 
         switch (state) {
             case Sys:
-                parseString_s = "SYSTEM";
+                parseString_s = QLatin1String("SYSTEM");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseExternalID, state);
                     return false;
@@ -4948,7 +4948,7 @@ bool QXmlSimpleReaderPrivate::parseExternalID()
                 next();
                 break;
             case Pub:
-                parseString_s = "PUBLIC";
+                parseString_s = QLatin1String("PUBLIC");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseExternalID, state);
                     return false;
@@ -5420,7 +5420,7 @@ bool QXmlSimpleReaderPrivate::parseAttlistDecl()
 
         switch (state) {
             case Attlist:
-                parseString_s = "ATTLIST";
+                parseString_s = QLatin1String("ATTLIST");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttlistDecl, state);
                     return false;
@@ -5459,21 +5459,21 @@ bool QXmlSimpleReaderPrivate::parseAttlistDecl()
                 next();
                 break;
             case DefReq:
-                parseString_s = "REQUIRED";
+                parseString_s = QLatin1String("REQUIRED");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttlistDecl, state);
                     return false;
                 }
                 break;
             case DefImp:
-                parseString_s = "IMPLIED";
+                parseString_s = QLatin1String("IMPLIED");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttlistDecl, state);
                     return false;
                 }
                 break;
             case DefFix:
-                parseString_s = "FIXED";
+                parseString_s = QLatin1String("FIXED");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttlistDecl, state);
                     return false;
@@ -5644,21 +5644,21 @@ bool QXmlSimpleReaderPrivate::parseAttType()
 
         switch (state) {
             case ST:
-                parseString_s = "CDATA";
+                parseString_s = QLatin1String("CDATA");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttType, state);
                     return false;
                 }
                 break;
             case TTI:
-                parseString_s = "ID";
+                parseString_s = QLatin1String("ID");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttType, state);
                     return false;
                 }
                 break;
             case TTI2:
-                parseString_s = "REF";
+                parseString_s = QLatin1String("REF");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttType, state);
                     return false;
@@ -5668,7 +5668,7 @@ bool QXmlSimpleReaderPrivate::parseAttType()
                 next(); // S
                 break;
             case TTE:
-                parseString_s = "ENTIT";
+                parseString_s = QLatin1String("ENTIT");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttType, state);
                     return false;
@@ -5678,7 +5678,7 @@ bool QXmlSimpleReaderPrivate::parseAttType()
                 next(); // Y
                 break;
             case TTEI:
-                parseString_s = "IES";
+                parseString_s = QLatin1String("IES");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttType, state);
                     return false;
@@ -5688,7 +5688,7 @@ bool QXmlSimpleReaderPrivate::parseAttType()
                 next(); // N
                 break;
             case TTNM:
-                parseString_s = "MTOKEN";
+                parseString_s = QLatin1String("MTOKEN");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttType, state);
                     return false;
@@ -5698,7 +5698,7 @@ bool QXmlSimpleReaderPrivate::parseAttType()
                 next(); // S
                 break;
             case NO:
-                parseString_s = "OTATION";
+                parseString_s = QLatin1String("OTATION");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseAttType, state);
                     return false;
@@ -6002,7 +6002,7 @@ bool QXmlSimpleReaderPrivate::parseElementDecl()
 
         switch (state) {
             case Elem:
-                parseString_s = "LEMENT";
+                parseString_s = QLatin1String("LEMENT");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseElementDecl, state);
                     return false;
@@ -6028,14 +6028,14 @@ bool QXmlSimpleReaderPrivate::parseElementDecl()
                 }
                 break;
             case Empty:
-                parseString_s = "EMPTY";
+                parseString_s = QLatin1String("EMPTY");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseElementDecl, state);
                     return false;
                 }
                 break;
             case Any:
-                parseString_s = "ANY";
+                parseString_s = QLatin1String("ANY");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseElementDecl, state);
                     return false;
@@ -6048,7 +6048,7 @@ bool QXmlSimpleReaderPrivate::parseElementDecl()
                 }
                 break;
             case Mix:
-                parseString_s = "#PCDATA";
+                parseString_s = QLatin1String("#PCDATA");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseElementDecl, state);
                     return false;
@@ -6204,7 +6204,7 @@ bool QXmlSimpleReaderPrivate::parseNotationDecl()
 
         switch (state) {
             case Not:
-                parseString_s = "NOTATION";
+                parseString_s = QLatin1String("NOTATION");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseNotationDecl, state);
                     return false;
@@ -6566,7 +6566,7 @@ bool QXmlSimpleReaderPrivate::parseEntityDecl()
 
         switch (state) {
             case Ent:
-                parseString_s = "NTITY";
+                parseString_s = QLatin1String("NTITY");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseEntityDecl, state);
                     return false;
@@ -6612,7 +6612,7 @@ bool QXmlSimpleReaderPrivate::parseEntityDecl()
                 }
                 break;
             case Ndata:
-                parseString_s = "NDATA";
+                parseString_s = QLatin1String("NDATA");
                 if (!parseString()) {
                     parseFailed(&QXmlSimpleReaderPrivate::parseEntityDecl, state);
                     return false;
@@ -7374,7 +7374,7 @@ bool QXmlSimpleReaderPrivate::parseReference()
 bool QXmlSimpleReaderPrivate::processReference()
 {
     QString reference = ref();
-    if (reference == "amp") {
+    if (reference == QLatin1String("amp")) {
         if (parseReference_context == InEntityValue) {
             // Bypassed
             stringAddC(QLatin1Char('&')); stringAddC(QLatin1Char('a')); stringAddC(QLatin1Char('m')); stringAddC(QLatin1Char('p')); stringAddC(QLatin1Char(';'));
@@ -7383,7 +7383,7 @@ bool QXmlSimpleReaderPrivate::processReference()
             stringAddC(QLatin1Char('&'));
         }
         parseReference_charDataRead = true;
-    } else if (reference == "lt") {
+    } else if (reference == QLatin1String("lt")) {
         if (parseReference_context == InEntityValue) {
             // Bypassed
             stringAddC(QLatin1Char('&')); stringAddC(QLatin1Char('l')); stringAddC(QLatin1Char('t')); stringAddC(QLatin1Char(';'));
@@ -7392,7 +7392,7 @@ bool QXmlSimpleReaderPrivate::processReference()
             stringAddC(QLatin1Char('<'));
         }
         parseReference_charDataRead = true;
-    } else if (reference == "gt") {
+    } else if (reference == QLatin1String("gt")) {
         if (parseReference_context == InEntityValue) {
             // Bypassed
             stringAddC(QLatin1Char('&')); stringAddC(QLatin1Char('g')); stringAddC(QLatin1Char('t')); stringAddC(QLatin1Char(';'));
@@ -7401,7 +7401,7 @@ bool QXmlSimpleReaderPrivate::processReference()
             stringAddC(QLatin1Char('>'));
         }
         parseReference_charDataRead = true;
-    } else if (reference == "apos") {
+    } else if (reference == QLatin1String("apos")) {
         if (parseReference_context == InEntityValue) {
             // Bypassed
             stringAddC(QLatin1Char('&')); stringAddC(QLatin1Char('a')); stringAddC(QLatin1Char('p')); stringAddC(QLatin1Char('o')); stringAddC(QLatin1Char('s')); stringAddC(QLatin1Char(';'));
@@ -7410,7 +7410,7 @@ bool QXmlSimpleReaderPrivate::processReference()
             stringAddC(QLatin1Char('\''));
         }
         parseReference_charDataRead = true;
-    } else if (reference == "quot") {
+    } else if (reference == QLatin1String("quot")) {
         if (parseReference_context == InEntityValue) {
             // Bypassed
             stringAddC(QLatin1Char('&')); stringAddC(QLatin1Char('q')); stringAddC(QLatin1Char('u')); stringAddC(QLatin1Char('o')); stringAddC(QLatin1Char('t')); stringAddC(QLatin1Char(';'));

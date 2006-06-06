@@ -48,9 +48,9 @@
 
 #ifndef QT_NO_SHORTCUT
 #include "qkeysequence.h"
-#define ACCEL_KEY(k) "\t" + QString(QKeySequence(Qt::CTRL | Qt::Key_ ## k))
+#define ACCEL_KEY(k) QLatin1String("\t") + QString(QKeySequence(Qt::CTRL | Qt::Key_ ## k))
 #else
-#define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
+#define ACCEL_KEY(k) QLatin1String("\t") + QString("Ctrl+" #k)
 #endif
 
 #ifdef Q_WS_MAC
@@ -450,7 +450,7 @@ void QLineEdit::setFrame(bool enable)
                     password should be kept secret.
     \value Password  Display asterisks instead of the characters
                     actually entered.
-    \value PasswordEchoOnEdit Display characters as they are entered  
+    \value PasswordEchoOnEdit Display characters as they are entered
                     while editing otherwise display asterisks.
 
     \sa setEchoMode() echoMode()
@@ -576,7 +576,7 @@ bool QLineEditPrivate::complete(int key)
     if (completer->completionMode() == QCompleter::InlineCompletion) {
         if (key == Qt::Key_Backspace)
             return true;
-        if (key == Qt::Key_Up || key == Qt::Key_Down || key == Qt::Key_PageUp 
+        if (key == Qt::Key_Up || key == Qt::Key_Down || key == Qt::Key_PageUp
             || key == Qt::Key_PageDown) {
             if (selend != 0 && selend != text.length())
                 return false;
@@ -1179,7 +1179,7 @@ bool QLineEdit::hasAcceptableInput() const
 QString QLineEdit::inputMask() const
 {
     Q_D(const QLineEdit);
-    return (d->maskData ? d->inputMask + ';' + d->blank : QString());
+    return (d->maskData ? d->inputMask + QLatin1Char(';') + d->blank : QString());
 }
 
 void QLineEdit::setInputMask(const QString &inputMask)
@@ -2451,7 +2451,6 @@ void QLineEditPrivate::_q_deleteSelected()
     separate();
     finishChange(priorState);
 }
-
 void QLineEditPrivate::init(const QString& txt)
 {
     Q_Q(QLineEdit);

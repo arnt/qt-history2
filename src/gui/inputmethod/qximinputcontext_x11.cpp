@@ -467,10 +467,10 @@ QString QXIMInputContext::language()
 
         if (locale.startsWith("zh")) {
             // Chinese language should be formed as "zh_CN", "zh_TW", "zh_HK"
-            language = locale.left(5);
+            language = QLatin1String(locale.left(5));
         } else {
             // other languages should be two-letter ISO 639 language code
-            language = locale.left(2);
+            language = QLatin1String(locale.left(2));
         }
     }
     return language;

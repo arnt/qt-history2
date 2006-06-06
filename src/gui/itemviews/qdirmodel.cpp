@@ -201,18 +201,18 @@ QString QFileIconProvider::type(const QFileInfo &info) const
         return QApplication::translate("QFileDialog", "Drive");
     if (info.isFile()) {
         if (!info.suffix().isEmpty())
-            return info.suffix() + " " + QApplication::translate("QFileDialog", "File");
+            return info.suffix() + QLatin1Char(' ') + QApplication::translate("QFileDialog", "File");
         return QApplication::translate("QFileDialog", "File");
     }
 
     if (info.isDir())
         return QApplication::translate("QFileDialog",
 #ifdef Q_OS_WIN
-                                                      "File Folder", "Match Windows Explorer"
+                                       "File Folder", "Match Windows Explorer"
 #else
-                                                      "Folder", "All other platforms"
+                                       "Folder", "All other platforms"
 #endif
-                );
+            );
     // Windows   - "File Folder"
     // OS X      - "Folder"
     // Konqueror - "Folder"
@@ -221,11 +221,11 @@ QString QFileIconProvider::type(const QFileInfo &info) const
     if (info.isSymLink())
         return QApplication::translate("QFileDialog",
 #ifdef Q_OS_MAC
-                                                      "Alias", "Match OS X Finder"
+                                       "Alias", "Match OS X Finder"
 #else
-                                                      "Shortcut", "All other platforms"
+                                       "Shortcut", "All other platforms"
 #endif
-                                                      );
+            );
     // OS X      - "Alias"
     // Windows   - "Shortcut"
     // Konqueror - "Folder" or "TXT File" i.e. what it is pointing to
@@ -786,7 +786,7 @@ bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
     if (success)
         refresh(parent);
-    
+
     return success;
 }
 
@@ -1090,7 +1090,7 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 
         // we couldn't find the path element, we create a new node since we _know_ that the path is valid
         if (row == -1) {
-            QString newPath = parent->info.absoluteFilePath() + "/" + element;
+            QString newPath = parent->info.absoluteFilePath() + QLatin1Char('/') + element;
             if (!d->allowAppendChild || !QFileInfo(newPath).isDir())
                 return QModelIndex();
             d->appendChild(parent, newPath);

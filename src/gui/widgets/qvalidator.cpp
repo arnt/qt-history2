@@ -322,7 +322,7 @@ QValidator::State QIntValidator::validate(QString & input, int &) const
 {
     if (input.contains(QLatin1Char(' ')))
         return Invalid;
-    if (input.isEmpty() || (b < 0 && input == "-"))
+    if (input.isEmpty() || (b < 0 && input == QLatin1String("-")))
         return Intermediate;
     bool ok;
     int entered = input.toInt(&ok);

@@ -200,30 +200,30 @@ QSvgNode::Type QSvgSwitch::type() const
 void QSvgSwitch::init()
 {
     if (m_features.isEmpty()) {
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#SVG", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#SVG-static", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#CoreAttribute", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Structure", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#ConditionalProcessing", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#ConditionalProcessingAttribute", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Image", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Prefetch", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Shape", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Text", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#PaintAttribute", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#OpacityAttribute", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#GraphicsAttribute", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Gradient", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#SolidColor", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#XlinkAttribute", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#ExternalResourcesRequiredAttribute", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Font", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Hyperlinking", true);
-        m_features.insert("http://www.w3.org/Graphics/SVG/feature/1.2/#Extensibility", true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#SVG"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#SVG-static"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#CoreAttribute"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#Structure"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#ConditionalProcessing"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#ConditionalProcessingAttribute"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#Image"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#Prefetch"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#Shape"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#Text"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#PaintAttribute"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#OpacityAttribute"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#GraphicsAttribute"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#Gradient"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#SolidColor"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#XlinkAttribute"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#ExternalResourcesRequiredAttribute"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#Font"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#Hyperlinking"), true);
+        m_features.insert(QLatin1String("http://www.w3.org/Graphics/SVG/feature/1.2/#Extensibility"), true);
     }
 
     QLocale locale;
-    m_systemLanguage = locale.name().replace("_", "-");
-    int idx = m_systemLanguage.indexOf('-');
+    m_systemLanguage = locale.name().replace(QLatin1Char('_'), QLatin1Char('-'));
+    int idx = m_systemLanguage.indexOf(QLatin1Char('-'));
     m_systemLanguagePrefix = m_systemLanguage.mid(0, idx);
 }

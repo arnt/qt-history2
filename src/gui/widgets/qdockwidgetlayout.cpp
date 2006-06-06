@@ -1476,7 +1476,7 @@ void QDockWidgetLayout::split(QDockWidgetLayout *layout,
                                    ? Qt::Vertical
                                    : Qt::Horizontal));
         nestedLayout->setParent(layout);
-        nestedLayout->setObjectName(layout->objectName() + "_nestedLayout");
+        nestedLayout->setObjectName(layout->objectName() + QLatin1String("_nestedLayout"));
 
         int save_size = info.cur_size;
         layout->removeWidget(existing);

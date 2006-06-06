@@ -695,11 +695,11 @@ static bool qt_resolve_frag_program_extensions(QGLContext *)
         QGLContext cx(QGLFormat::defaultFormat());
 
         // ARB_fragment_program
-        qt_glProgramStringARB = (_glProgramStringARB) cx.getProcAddress("glProgramStringARB");
-        qt_glBindProgramARB = (_glBindProgramARB) cx.getProcAddress("glBindProgramARB");
-        qt_glDeleteProgramsARB = (_glDeleteProgramsARB) cx.getProcAddress("glDeleteProgramsARB");
-        qt_glGenProgramsARB = (_glGenProgramsARB) cx.getProcAddress("glGenProgramsARB");
-        qt_glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) cx.getProcAddress("glProgramLocalParameter4fvARB");
+        qt_glProgramStringARB = (_glProgramStringARB) cx.getProcAddress(QLatin1String("glProgramStringARB"));
+        qt_glBindProgramARB = (_glBindProgramARB) cx.getProcAddress(QLatin1String("glBindProgramARB"));
+        qt_glDeleteProgramsARB = (_glDeleteProgramsARB) cx.getProcAddress(QLatin1String("glDeleteProgramsARB"));
+        qt_glGenProgramsARB = (_glGenProgramsARB) cx.getProcAddress(QLatin1String("glGenProgramsARB"));
+        qt_glProgramLocalParameter4fvARB = (_glProgramLocalParameter4fvARB) cx.getProcAddress(QLatin1String("glProgramLocalParameter4fvARB"));
 
         resolved = true;
     }

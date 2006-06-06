@@ -83,7 +83,7 @@ static QString s5RequestErrorToString(int s5_r_error)
 
 static QString makeErrorString(const QString & e)
 {
-    return "Socks 5 - " + e;
+    return QLatin1String("Socks 5 - ") + e;
 }
 
 static QAbstractSocket::SocketError s5RAsSocketError(int s5_r_error)
@@ -106,36 +106,36 @@ static QAbstractSocket::SocketError s5RAsSocketError(int s5_r_error)
 static QString s5StateToString(QSocks5SocketEnginePrivate::Socks5State s)
 {
     switch (s) {
-    case QSocks5SocketEnginePrivate::unInitialized : return "unInitialized";
-    case QSocks5SocketEnginePrivate::AuthenticationMethodsSent : return "AuthenticationMethodsSent";
-    case QSocks5SocketEnginePrivate::Authenticating : return "Authenticating";
-    case QSocks5SocketEnginePrivate::RequestMethodSent : return "RequestMethodSent";
-    case QSocks5SocketEnginePrivate::RequestSuccess : return "RequestSuccess";
-    case QSocks5SocketEnginePrivate::RequestError : return "RequestError";
-    case QSocks5SocketEnginePrivate::Connected : return "Connected";
-    case QSocks5SocketEnginePrivate::ConnectError : return "BindSuccess";
-    case QSocks5SocketEnginePrivate::BindSuccess : return "unInitialized";
-    case QSocks5SocketEnginePrivate::BindError : return "BindError";
-    case QSocks5SocketEnginePrivate::ControlSocketError : return "ControlSocketError";
-    case QSocks5SocketEnginePrivate::SocksError : return "SocksError";
-    default : break;
+    case QSocks5SocketEnginePrivate::unInitialized: return QLatin1String("unInitialized");
+    case QSocks5SocketEnginePrivate::AuthenticationMethodsSent: return QLatin1String("AuthenticationMethodsSent");
+    case QSocks5SocketEnginePrivate::Authenticating: return QLatin1String("Authenticating");
+    case QSocks5SocketEnginePrivate::RequestMethodSent: return QLatin1String("RequestMethodSent");
+    case QSocks5SocketEnginePrivate::RequestSuccess: return QLatin1String("RequestSuccess");
+    case QSocks5SocketEnginePrivate::RequestError: return QLatin1String("RequestError");
+    case QSocks5SocketEnginePrivate::Connected: return QLatin1String("Connected");
+    case QSocks5SocketEnginePrivate::ConnectError: return QLatin1String("BindSuccess");
+    case QSocks5SocketEnginePrivate::BindSuccess: return QLatin1String("unInitialized");
+    case QSocks5SocketEnginePrivate::BindError: return QLatin1String("BindError");
+    case QSocks5SocketEnginePrivate::ControlSocketError: return QLatin1String("ControlSocketError");
+    case QSocks5SocketEnginePrivate::SocksError: return QLatin1String("SocksError");
+    default: break;
     }
-    return "unknown state";
+    return QLatin1String("unknown state");
 }
 
 static QString dump(const QByteArray &buf)
 {
     QString data;
     for (int i = 0; i < qMin<int>(MAX_DATA_DUMP, buf.size()); ++i) {
-        if (i) data += " ";
+        if (i) data += QLatin1Char(' ');
         uint val = (unsigned char)buf.at(i);
        // data += QString("0x%1").arg(val, 3, 16, QLatin1Char('0'));
         data += QString::number(val);
     }
     if (buf.size() > MAX_DATA_DUMP)
-        data += " ...";
+        data += QLatin1String(" ...");
 
-    return QString("size: %1 data: { %2 }").arg(buf.size()).arg(data);
+    return QString::fromAscii("size: %1 data: { %2 }").arg(buf.size()).arg(data);
 }
 
 /*
@@ -483,7 +483,7 @@ bool QSocks5PasswordAuthenticator::continueAuthenticate(QTcpSocket *socket, bool
 
 QString QSocks5PasswordAuthenticator::errorString()
 {
-    return "Socks5 user name or password incorrect";
+    return QLatin1String("Socks5 user name or password incorrect");
 }
 
 
@@ -567,7 +567,7 @@ void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
     if (data->controlSocket->read(buf.data(), 2) != 2) {
         QSOCKS5_D_DEBUG << "Control socket read failure";
         socks5State = AuthenticatingError;
-        q->setError(QAbstractSocket::NetworkError, "Socks5 read error on control socket");
+        q->setError(QAbstractSocket::NetworkError, QLatin1String("Socks5 read error on control socket"));
         data->controlSocket->close();
         emitWriteNotification();
         return;
@@ -575,7 +575,7 @@ void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
     if (buf.at(0) != S5_VERSION_5) {
         QSOCKS5_D_DEBUG << "Socks5 version incorrect";
         socks5State = AuthenticatingError;
-        q->setError(QAbstractSocket::NetworkError, "Socks5 version incorrect");
+        q->setError(QAbstractSocket::NetworkError, QLatin1String("Socks5 version incorrect"));
         data->controlSocket->close();
         emitWriteNotification();
         return;
@@ -583,14 +583,14 @@ void QSocks5SocketEnginePrivate::parseAuthenticationMethodReply()
     if (uchar(buf.at(1)) == 0xFF) {
         QSOCKS5_D_DEBUG << "Authentication method not supported";
         socks5State = AuthenticatingError;
-        q->setError(QAbstractSocket::SocketAccessError, "Socks5 host did not support authentication method.");
+        q->setError(QAbstractSocket::SocketAccessError, QLatin1String("Socks5 host did not support authentication method."));
         emitWriteNotification();
         return;
     }
     if (buf.at(1) != data->authenticator->methodId()) {
         QSOCKS5_D_DEBUG << "Authentication method was not what we sent";
         socks5State = AuthenticatingError;
-        q->setError(QAbstractSocket::SocketAccessError, "Socks5 host did not support authentication method.");
+        q->setError(QAbstractSocket::SocketAccessError, QLatin1String("Socks5 host did not support authentication method."));
         emitWriteNotification();
         return;
     }
@@ -951,7 +951,7 @@ bool QSocks5SocketEngine::connectToHost(const QHostAddress &address, quint16 por
         } else if (socketType() == QAbstractSocket::UdpSocket) {
             d->initialize(QSocks5SocketEnginePrivate::UdpAssociateMode);
             // all udp needs to be bound
-            if (!bind(QHostAddress("0.0.0.0"), 0))
+            if (!bind(QHostAddress(QLatin1String("0.0.0.0")), 0))
                 return false;
             d->peerAddress = address;
             d->peerPort = port;
@@ -1328,7 +1328,7 @@ qint64 QSocks5SocketEngine::read(char *data, qint64 maxlen)
             //imitate remote closed
             close();
             setError(QAbstractSocket::RemoteHostClosedError,
-                        "Remote host closed connection###");
+                     QLatin1String("Remote host closed connection###"));
             setState(QAbstractSocket::UnconnectedState);
             return -1;
         }
@@ -1427,7 +1427,7 @@ qint64 QSocks5SocketEngine::writeDatagram(const char *data, qint64 len, const QH
     if (!d->data) {
         d->initialize(QSocks5SocketEnginePrivate::UdpAssociateMode);
         // all udp needs to be bound
-        if (!bind(QHostAddress("0.0.0.0"), 0)) {
+        if (!bind(QHostAddress(QLatin1String("0.0.0.0")), 0)) {
             //### set error
             return -1;
         }

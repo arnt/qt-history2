@@ -129,7 +129,7 @@ static bool qt_resolve_framebufferobject_extensions(QGLContext *)
     else if (resolved)
         return false;
 
-    QLibrary lib("GL");
+    QLibrary lib(QLatin1String("GL"));
 
     qt_glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) lib.resolve("glIsRenderbufferEXT");
     qt_glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) lib.resolve("glBindRenderbufferEXT");
@@ -179,7 +179,7 @@ static bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
 {
     if (glIsRenderbufferEXT != 0)
 	return true;
-    
+
     if (ctx == 0) {
 	qWarning("QGLFramebufferObject: Unable to resolve framebuffer object extensions -"
 		 " make sure there is a current context when creating the framebuffer object.");

@@ -74,7 +74,7 @@ static void qt_split_namespace(QString& prefix, QString& name, const QString& qN
     int i = qName.indexOf(QLatin1Char(':'));
     if (i == -1) {
         if (hasURI)
-            prefix = "";
+            prefix = QLatin1String("");
         else
             prefix.clear();
         name = qName;
@@ -1156,8 +1156,8 @@ QDomImplementation::~QDomImplementation()
 */
 bool QDomImplementation::hasFeature(const QString& feature, const QString& version) const
 {
-    if (feature == "XML") {
-        if (version.isEmpty() || version == "1.0") {
+    if (feature == QLatin1String("XML")) {
+        if (version.isEmpty() || version == QLatin1String("1.0")) {
             return true;
         }
     }
@@ -2268,7 +2268,7 @@ QString QDomNode::nodeName() const
         return QString();
 
     if (!IMPL->prefix.isEmpty())
-        return IMPL->prefix + ":" + IMPL->name;
+        return IMPL->prefix + QLatin1Char(':') + IMPL->name;
     return IMPL->name;
 }
 
@@ -3868,7 +3868,7 @@ QString QDomDocumentType::internalSubset() const
 QDomDocumentFragmentPrivate::QDomDocumentFragmentPrivate(QDomDocumentPrivate* doc, QDomNodePrivate* parent)
     : QDomNodePrivate(doc, parent)
 {
-    name = "#document-fragment";
+    name = QLatin1String("#document-fragment");
 }
 
 QDomDocumentFragmentPrivate::QDomDocumentFragmentPrivate(QDomNodePrivate* n, bool deep)
@@ -3974,7 +3974,7 @@ QDomCharacterDataPrivate::QDomCharacterDataPrivate(QDomDocumentPrivate* d, QDomN
     : QDomNodePrivate(d, p)
 {
     value = data;
-    name = "#character-data";
+    name = QLatin1String("#character-data");
 }
 
 QDomCharacterDataPrivate::QDomCharacterDataPrivate(QDomCharacterDataPrivate* n, bool deep)
@@ -4256,7 +4256,7 @@ static QString encodeAttr(const QString& str, bool encodeQuotes = true)
             tmp.replace(i, 1, QLatin1String("&amp;"));
             len += 4;
             i += 5;
-        } else if (tmp[(int)i] == QLatin1Char('>') && i>=2 && tmp[(int)i-1]==QLatin1Char(']') && tmp[(int)i-2]==QLatin1Char(']')) {
+        } else if (tmp[(int)i] == QLatin1Char('>') && i>=2 && tmp[(int)i-1] == QLatin1Char(']') && tmp[(int)i-2] == QLatin1Char(']')) {
             tmp.replace(i, 1, QLatin1String("&gt;"));
             len += 3;
             i += 4;
@@ -4623,12 +4623,12 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
         // startPrefixMapping()/endPrefixMapping() and use them (you have to
         // take care if the DOM tree is modified, though)
         if (prefix.isEmpty()) {
-            nsDecl = " xmlns";
+            nsDecl = QLatin1String(" xmlns");
         } else {
-            qName = prefix + ":" + name;
-            nsDecl = " xmlns:" + prefix;
+            qName = prefix + QLatin1Char(':') + name;
+            nsDecl = QLatin1String(" xmlns:") + prefix;
         }
-        nsDecl += "=\"" + encodeAttr(namespaceURI) + "\"";
+        nsDecl += QLatin1String("=\"") + encodeAttr(namespaceURI) + QLatin1String("\"");
     }
     s << "<" << qName << nsDecl;
 
@@ -5178,7 +5178,7 @@ QString QDomElement::text() const
 QDomTextPrivate::QDomTextPrivate(QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& val)
     : QDomCharacterDataPrivate(d, parent, val)
 {
-    name = "#text";
+    name = QLatin1String("#text");
 }
 
 QDomTextPrivate::QDomTextPrivate(QDomTextPrivate* n, bool deep)
@@ -5314,7 +5314,7 @@ QDomText QDomText::splitText(int offset)
 QDomCommentPrivate::QDomCommentPrivate(QDomDocumentPrivate* d, QDomNodePrivate* parent, const QString& val)
     : QDomCharacterDataPrivate(d, parent, val)
 {
-    name = "#comment";
+    name = QLatin1String("#comment");
 }
 
 QDomCommentPrivate::QDomCommentPrivate(QDomCommentPrivate* n, bool deep)
@@ -5424,7 +5424,7 @@ QDomCDATASectionPrivate::QDomCDATASectionPrivate(QDomDocumentPrivate* d, QDomNod
                                                     const QString& val)
     : QDomTextPrivate(d, parent, val)
 {
-    name = "#cdata-section";
+    name = QLatin1String("#cdata-section");
 }
 
 QDomCDATASectionPrivate::QDomCDATASectionPrivate(QDomCDATASectionPrivate* n, bool deep)
@@ -6162,7 +6162,7 @@ QDomDocumentPrivate::QDomDocumentPrivate()
     impl = new QDomImplementationPrivate;
     type = new QDomDocumentTypePrivate(this, this);
 
-    name = "#document";
+    name = QLatin1String("#document");
 }
 
 QDomDocumentPrivate::QDomDocumentPrivate(const QString& aname)
@@ -6172,7 +6172,7 @@ QDomDocumentPrivate::QDomDocumentPrivate(const QString& aname)
     type = new QDomDocumentTypePrivate(this, this);
     type->name = aname;
 
-    name = "#document";
+    name = QLatin1String("#document");
 }
 
 QDomDocumentPrivate::QDomDocumentPrivate(QDomDocumentTypePrivate* dt)
@@ -6186,7 +6186,7 @@ QDomDocumentPrivate::QDomDocumentPrivate(QDomDocumentTypePrivate* dt)
         type = new QDomDocumentTypePrivate(this, this);
     }
 
-    name = "#document";
+    name = QLatin1String("#document");
 }
 
 QDomDocumentPrivate::QDomDocumentPrivate(QDomDocumentPrivate* n, bool deep)
@@ -6450,7 +6450,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
 
     QDomNodePrivate* n = first;
 #ifndef QT_NO_TEXTCODEC
-    if (n && n->isProcessingInstruction() && n->nodeName()=="xml") {
+    if (n && n->isProcessingInstruction() && n->nodeName() == QLatin1String("xml")) {
         // we have an XML declaration
         QString data = n->nodeValue();
         QRegExp encoding(QString::fromLatin1("encoding\\s*=\\s*((\"([^\"]*)\")|('([^']*)'))"));
@@ -6469,7 +6469,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
     s.setAutoDetectUnicode(true);
 #endif
     while (n) {
-        if (!doc && !(n->isProcessingInstruction()&&n->nodeName()=="xml")) {
+        if (!doc && !(n->isProcessingInstruction()&&n->nodeName() == QLatin1String("xml"))) {
             // save doctype after XML declaration
             type->save(s, 0, indent);
             doc = true;

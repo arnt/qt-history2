@@ -67,7 +67,7 @@ static bool qt_resolve_pbuffer_extensions()
     else if (resolved)
         return false;
 
-    QLibrary gl("GL");
+    QLibrary gl(QLatin1String("GL"));
     qt_glXChooseFBConfig = (_glXChooseFBConfig) gl.resolve("glXChooseFBConfig");
     qt_glXCreateNewContext = (_glXCreateNewContext) gl.resolve("glXCreateNewContext");
     qt_glXCreatePbuffer = (_glXCreatePbuffer) gl.resolve("glXCreatePbuffer");

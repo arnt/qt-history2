@@ -141,7 +141,7 @@ QSvgStyleProperty * QSvgNode::styleProperty(QSvgStyleProperty::Type type) const
 QSvgStyleProperty * QSvgNode::styleProperty(const QString &id) const
 {
     QString rid = id;
-    if (rid.startsWith("#"))
+    if (rid.startsWith(QLatin1Char('#')))
         rid.remove(0, 1);
     const QSvgNode *node = this;
     while (node) {
