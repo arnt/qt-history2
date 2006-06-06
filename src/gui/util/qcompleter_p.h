@@ -61,12 +61,12 @@ public:
     void setCurrentIndex(const QModelIndex&, bool = true);
 };
 
-class IndexMapper
+class QIndexMapper
 {
 public:
-    IndexMapper() : v(false), f(0), t(-1) { }
-    IndexMapper(int f, int t) : v(false), f(f), t(t) { }
-    IndexMapper(QVector<int> vec) : v(true), vector(vec), f(-1), t(-1) { }
+    QIndexMapper() : v(false), f(0), t(-1) { }
+    QIndexMapper(int f, int t) : v(false), f(f), t(t) { }
+    QIndexMapper(QVector<int> vec) : v(true), vector(vec), f(-1), t(-1) { }
 
     inline int count() const { return v ? vector.count() : t - f + 1; }
     inline int operator[] (int index) const { return v ? vector[index] : f + index; }
@@ -85,11 +85,11 @@ private:
     int f, t;
 };
 
-struct MatchData {
-    MatchData() : exactMatchIndex(-1) { }
-    MatchData(const IndexMapper& indices, int em, bool p) : 
+struct QMatchData {
+    QMatchData() : exactMatchIndex(-1) { }
+    QMatchData(const QIndexMapper& indices, int em, bool p) :
         indices(indices), exactMatchIndex(em), partial(p) { }
-    IndexMapper indices;
+    QIndexMapper indices;
     inline bool isValid() const { return indices.isValid(); }
     int  exactMatchIndex;
     bool partial;
@@ -98,7 +98,7 @@ struct MatchData {
 class QCompletionEngine
 {
 public:
-    typedef QMap<QString, MatchData> CacheItem;
+    typedef QMap<QString, QMatchData> CacheItem;
     typedef QMap<QModelIndex, CacheItem> Cache;
 
     QCompletionEngine(QCompleterPrivate *c) : c(c), curRow(-1), cost(0) { }
@@ -106,18 +106,18 @@ public:
 
     void filter(const QStringList &parts);
 
-    MatchData filterHistory();
-    bool matchHint(QString, const QModelIndex&, MatchData*);
+    QMatchData filterHistory();
+    bool matchHint(QString, const QModelIndex&, QMatchData*);
 
-    void saveInCache(QString, const QModelIndex&, const MatchData&);
-    bool lookupCache(QString part, const QModelIndex& parent, MatchData *m);
+    void saveInCache(QString, const QModelIndex&, const QMatchData&);
+    bool lookupCache(QString part, const QModelIndex& parent, QMatchData *m);
 
     virtual void filterOnDemand(int) { }
-    virtual MatchData filter(const QString&, const QModelIndex&, int) = 0;
+    virtual QMatchData filter(const QString&, const QModelIndex&, int) = 0;
 
     int matchCount() const { return curMatch.indices.count() + historyMatch.indices.count(); }
 
-    MatchData curMatch, historyMatch;
+    QMatchData curMatch, historyMatch;
     QCompleterPrivate *c;
     QStringList curParts;
     QModelIndex curParent;
@@ -127,24 +127,24 @@ public:
     int cost;
 };
 
-class SortedModelEngine : public QCompletionEngine
+class QSortedModelEngine : public QCompletionEngine
 {
 public:
-    SortedModelEngine(QCompleterPrivate *c) : QCompletionEngine(c) { }
-    MatchData filter(const QString&, const QModelIndex&, int);
-    IndexMapper indexHint(QString part, const QModelIndex& parent);
+    QSortedModelEngine(QCompleterPrivate *c) : QCompletionEngine(c) { }
+    QMatchData filter(const QString&, const QModelIndex&, int);
+    QIndexMapper indexHint(QString part, const QModelIndex& parent);
 };
 
-class UnsortedModelEngine : public QCompletionEngine
+class QUnsortedModelEngine : public QCompletionEngine
 {
 public:
-    UnsortedModelEngine(QCompleterPrivate *c) : QCompletionEngine(c) { }
+    QUnsortedModelEngine(QCompleterPrivate *c) : QCompletionEngine(c) { }
 
     void filterOnDemand(int);
-    MatchData filter(const QString&, const QModelIndex&, int);
+    QMatchData filter(const QString&, const QModelIndex&, int);
 private:
-    int buildIndices(const QString& str, const QModelIndex& parent, int n, 
-                     const IndexMapper& iv, MatchData* m);
+    int buildIndices(const QString& str, const QModelIndex& parent, int n,
+                     const QIndexMapper& iv, QMatchData* m);
 };
 
 class QCompleterItemDelegate : public QItemDelegate
@@ -168,8 +168,8 @@ class QCompletionModel : public QAbstractProxyModel
     Q_OBJECT
 
 public:
-    QCompletionModel(QCompleterPrivate *c, QObject *parent) : 
-        QAbstractProxyModel(parent), c(c), engine(0), showAll(false) 
+    QCompletionModel(QCompleterPrivate *c, QObject *parent) :
+        QAbstractProxyModel(parent), c(c), engine(0), showAll(false)
     { model = sourceModel(); createEngine(); }
     ~QCompletionModel() { delete engine; }
 
