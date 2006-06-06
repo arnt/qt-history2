@@ -119,7 +119,7 @@ static inline void qt_socket_getPortAndAddress(struct sockaddr *sa, quint16 *por
 #ifndef QT_NO_IPV6IFNAME
             char scopeid[IFNAMSIZ];
             if (::if_indextoname(sa6->sin6_scope_id, scopeid) > 0) {
-                addr->setScopeId(scopeid);
+                addr->setScopeId(QLatin1String(scopeid));
             } else
 #endif
             addr->setScopeId(QString::number(sa6->sin6_scope_id));
@@ -248,7 +248,7 @@ void QNativeSocketEnginePrivate::setErrorFromNative()
     case ENOMEM:
         setError(QAbstractSocket::SocketResourceError, ResourceErrorString);
         break;
- 
+
     case EBADF:
         setError(QAbstractSocket::UnsupportedSocketOperationError, InvalidSocketErrorString);
         break;
@@ -266,11 +266,11 @@ void QNativeSocketEnginePrivate::setErrorFromNative()
     case EHOSTUNREACH:
         setError(QAbstractSocket::NetworkError, HostUnreachableErrorString);
         break;
- 
+
     case EINVAL:
         setError(QAbstractSocket::UnsupportedSocketOperationError, OperationUnsupportedErrorString);
         break;
- 
+
     case EMSGSIZE:
         setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
         break;

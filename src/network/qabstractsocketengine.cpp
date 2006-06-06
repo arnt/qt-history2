@@ -24,7 +24,7 @@ public:
 Q_GLOBAL_STATIC(QSocketEngineHandlerList, socketHandlers);
 
 QSocketEngineHandler::QSocketEngineHandler()
-{   
+{
     if (!socketHandlers())
         return;
     QMutexLocker locker(&socketHandlers()->mutex);
@@ -41,7 +41,7 @@ QSocketEngineHandler::~QSocketEngineHandler()
 
 QAbstractSocketEnginePrivate::QAbstractSocketEnginePrivate()
     : socketError(QAbstractSocket::UnknownSocketError)
-    , socketErrorString(QT_TRANSLATE_NOOP(QSocketLayer, "Unknown error"))
+    , socketErrorString(QLatin1String(QT_TRANSLATE_NOOP(QSocketLayer, "Unknown error")))
     , socketState(QAbstractSocket::UnconnectedState)
     , socketType(QAbstractSocket::UnknownSocketType)
     , socketProtocol(QAbstractSocket::UnknownNetworkLayerProtocol)

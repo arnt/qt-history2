@@ -662,7 +662,7 @@ void QAbstractSocketPrivate::_q_startConnecting(const QHostInfo &hostInfo)
 #endif
         state = QAbstractSocket::UnconnectedState;
         socketError = QAbstractSocket::HostNotFoundError;
-        q->setErrorString(QT_TRANSLATE_NOOP("QAbstractSocket", "Host not found"));
+        q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP("QAbstractSocket", "Host not found")));
         emit q->stateChanged(state);
         emit q->error(QAbstractSocket::HostNotFoundError);
         return;
@@ -708,8 +708,8 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
                 q->setErrorString(socketEngine->errorString());
             } else {
                 socketError = QAbstractSocket::ConnectionRefusedError;
-                q->setErrorString(QT_TRANSLATE_NOOP("QAbstractSocket",
-                                                    "Connection refused"));
+                q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP("QAbstractSocket",
+                                                                  "Connection refused")));
             }
             emit q->error(QAbstractSocket::ConnectionRefusedError);
             return;
@@ -860,7 +860,7 @@ bool QAbstractSocketPrivate::readFromSocket()
     qDebug("QAbstractSocketPrivate::readFromSocket() got %d bytes, buffer size = %d",
            int(readBytes), readBuffer.size());
 #endif
-    
+
     if (!socketEngine->isValid()) {
         socketError = socketEngine->error();
         q->setErrorString(socketEngine->errorString());
@@ -901,7 +901,7 @@ void QAbstractSocketPrivate::fetchConnectionParameters()
     qDebug("QAbstractSocketPrivate::fetchConnectionParameters() connection to %s:%i established",
            host.toString().toLatin1().constData(), port);
 #endif
-}        
+}
 
 /*! \internal
 
@@ -1695,7 +1695,7 @@ qint64 QAbstractSocket::writeData(const char *data, qint64 size)
         setErrorString(tr("Socket is not connected"));
         return -1;
     }
-    
+
     if (!d->isBuffered) {
         qint64 written = d->socketEngine->write(data, size);
         if (written < 0) {
