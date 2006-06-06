@@ -71,7 +71,7 @@
 */
 static void qt_split_namespace(QString& prefix, QString& name, const QString& qName, bool hasURI)
 {
-    int i = qName.indexOf(':');
+    int i = qName.indexOf(QLatin1Char(':'));
     if (i == -1) {
         if (hasURI)
             prefix = "";
@@ -4244,20 +4244,20 @@ static QString encodeAttr(const QString& str, bool encodeQuotes = true)
     uint len = tmp.length();
     uint i = 0;
     while (i < len) {
-        if (tmp[(int)i] == '<') {
-            tmp.replace(i, 1, "&lt;");
+        if (tmp[(int)i] == QLatin1Char('<')) {
+            tmp.replace(i, 1, QLatin1String("&lt;"));
             len += 3;
             i += 4;
-        } else if (encodeQuotes && (tmp[(int)i] == '"')) {
-            tmp.replace(i, 1, "&quot;");
+        } else if (encodeQuotes && (tmp[(int)i] == QLatin1Char('"'))) {
+            tmp.replace(i, 1, QLatin1String("&quot;"));
             len += 5;
             i += 6;
-        } else if (tmp[(int)i] == '&') {
-            tmp.replace(i, 1, "&amp;");
+        } else if (tmp[(int)i] == QLatin1Char('&')) {
+            tmp.replace(i, 1, QLatin1String("&amp;"));
             len += 4;
             i += 5;
-        } else if (tmp[(int)i] == '>' && i>=2 && tmp[(int)i-1]==']' && tmp[(int)i-2]==']') {
-            tmp.replace(i, 1, "&gt;");
+        } else if (tmp[(int)i] == QLatin1Char('>') && i>=2 && tmp[(int)i-1]==QLatin1Char(']') && tmp[(int)i-2]==QLatin1Char(']')) {
+            tmp.replace(i, 1, QLatin1String("&gt;"));
             len += 3;
             i += 4;
         } else {
@@ -4594,7 +4594,7 @@ bool QDomElementPrivate::hasAttributeNS(const QString& nsURI, const QString& loc
 
 QString QDomElementPrivate::text()
 {
-    QString t("");
+    QString t(QLatin1String(""));
 
     QDomNodePrivate* p = first;
     while (p) {
@@ -4615,7 +4615,7 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
             s << " ";
 
     QString qName(name);
-    QString nsDecl("");
+    QString nsDecl(QLatin1String(""));
     if (!namespaceURI.isNull()) {
         // ### optimize this, so that you only declare namespaces that are not
         // yet declared -- we lose default namespace mappings, so maybe we
@@ -6223,9 +6223,9 @@ void QDomDocumentPrivate::clear()
 bool QDomDocumentPrivate::setContent(QXmlInputSource *source, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn)
 {
     QXmlSimpleReader reader;
-    reader.setFeature("http://xml.org/sax/features/namespaces", namespaceProcessing);
-    reader.setFeature("http://xml.org/sax/features/namespace-prefixes", !namespaceProcessing);
-    reader.setFeature("http://trolltech.com/xml/features/report-whitespace-only-CharData", false);
+    reader.setFeature(QLatin1String("http://xml.org/sax/features/namespaces"), namespaceProcessing);
+    reader.setFeature(QLatin1String("http://xml.org/sax/features/namespace-prefixes"), !namespaceProcessing);
+    reader.setFeature(QLatin1String("http://trolltech.com/xml/features/report-whitespace-only-CharData"), false);
 
     return setContent(source, &reader, errorMsg, errorLine, errorColumn);
 }
@@ -6236,8 +6236,8 @@ bool QDomDocumentPrivate::setContent(QXmlInputSource *source, QXmlReader *reader
     impl = new QDomImplementationPrivate;
     type = new QDomDocumentTypePrivate(this, this);
 
-    bool namespaceProcessing = reader->feature("http://xml.org/sax/features/namespaces")
-        && !reader->feature("http://xml.org/sax/features/namespace-prefixes");
+    bool namespaceProcessing = reader->feature(QLatin1String("http://xml.org/sax/features/namespaces"))
+        && !reader->feature(QLatin1String("http://xml.org/sax/features/namespace-prefixes"));
 
     QDomHandler hnd(this, namespaceProcessing);
     reader->setContentHandler(&hnd);
