@@ -1212,6 +1212,9 @@ QThread *QObject::thread() const
 void QObject::moveToThread(QThread *targetThread)
 {
     Q_D(QObject);
+    QThread *objectThread = thread();
+    if (objectThread == targetThread)
+        return;
     Q_ASSERT_X(d->parent == 0, "QObject::moveToThread",
                "Cannot move objects with a parent");
     if (d->parent != 0)
@@ -1220,13 +1223,10 @@ void QObject::moveToThread(QThread *targetThread)
                "Widgets cannot be moved to a new thread");
     if (d->isWidget)
         return;
-    QThread *objectThread = thread();
     QThread *currentThread = QThread::currentThread();
     Q_ASSERT_X(d->thread == -1 || objectThread == currentThread, "QObject::moveToThread",
                "Current thread is not the object's thread");
     if (d->thread != -1 && objectThread != currentThread)
-        return;
-    if (objectThread == targetThread)
         return;
 
     d->moveToThread_helper(targetThread);
