@@ -383,7 +383,10 @@ MatchData QCompletionEngine::filterHistory()
     if (curParts.count() <= 1 || c->proxy->showAll)
         return MatchData();
     QAbstractItemModel *source = c->proxy->model;
-    bool dirModel = (qobject_cast<QDirModel *>(source) != 0);
+    bool dirModel = false;
+#ifndef QT_NO_DIRMODEL
+    dirModel = (qobject_cast<QDirModel *>(source) != 0);
+#endif
     QVector<int> v;
     IndexMapper im(v);
     MatchData m(im, -1, true);
@@ -699,11 +702,13 @@ void QCompleterPrivate::_q_complete(QModelIndex index, bool highlighted)
         index = proxy->mapToSource(index);
         index = index.sibling(index.row(), column); // for clicked()
         completion = q->pathFromIndex(index);
+#ifndef QT_NO_DIRMODEL
         // add a trailing separator in inline
         if (mode == QCompleter::InlineCompletion) {
             if (qobject_cast<QDirModel *>(proxy->sourceModel()) && QFileInfo(completion).isDir())
                 completion += QDir::separator();
         }
+#endif
     }
 
     if (highlighted) {
@@ -1339,11 +1344,9 @@ QString QCompleter::pathFromIndex(const QModelIndex& index) const
 QStringList QCompleter::splitPath(const QString& path) const
 {
     Q_D(const QCompleter);
-    bool isDirModel;
+    bool isDirModel = false;
 #ifndef QT_NO_DIRMODEL
     isDirModel = qobject_cast<QDirModel *>(d->proxy->sourceModel()) != 0;
-#else
-    isDirModel = false;
 #endif
 
     if (!isDirModel || path.isEmpty())
