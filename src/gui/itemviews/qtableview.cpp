@@ -1176,7 +1176,7 @@ void QTableView::updateGeometries()
 
     QRect vg = d->viewport->geometry();
 
-    int verticalLeft = reverse ? vg.right() : (vg.left() - width);
+    int verticalLeft = reverse ? vg.right() + 1 : (vg.left() - width);
     d->verticalHeader->setGeometry(verticalLeft, vg.top(), width, vg.height());
     if (d->verticalHeader->isHidden())
         QMetaObject::invokeMethod(d->verticalHeader, "updateGeometries");
