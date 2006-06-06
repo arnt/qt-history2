@@ -52,12 +52,6 @@
 #define ACCEL_KEY(k) QString("\tCtrl+" #k)
 #endif
 
-#ifdef QT_KEYPAD_NAVIGATION
-// FIXME this is a temporary hack to get this compiling.
-// The code inside QT_KEYPAD_NAVIGATION must be moved somewhere else as it's not useful here.
-#undef QT_KEYPAD_NAVIGATION
-#endif
-
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)
 {
@@ -1138,9 +1132,6 @@ bool QTextControl::event(QEvent *e)
         case QEvent::KeyPress:
             d->keyPressEvent(static_cast<QKeyEvent *>(e));
             break;
-        case QEvent::KeyRelease:
-            d->keyReleaseEvent(static_cast<QKeyEvent *>(e));
-            break;
         case QEvent::MouseButtonPress: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
             d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers());
@@ -1303,12 +1294,6 @@ void QTextControl::timerEvent(QTimerEvent *e)
     } else if (e->timerId() == d->trippleClickTimer.timerId()) {
         d->trippleClickTimer.stop();
     }
-#ifdef QT_KEYPAD_NAVIGATION
-    else if (e->timerId() == d->deleteAllTimer.timerId()) {
-        d->deleteAllTimer.stop();
-        clear();
-    }
-#endif
 }
 
 /*!
@@ -1521,32 +1506,6 @@ process:
     q->ensureCursorVisible();
 
     updateCurrentCharFormat();
-}
-
-/*! \reimp
-*/
-void QTextControlPrivate::keyReleaseEvent(QKeyEvent * /* e */)
-{
-#ifdef QT_KEYPAD_NAVIGATION
-    Q_D(QTextControl);
-    if (QApplication::keypadNavigationEnabled()) {
-        if (!e->isAutoRepeat() && e->key() == Qt::Key_Back
-            && d->deleteAllTimer.isActive()) {
-            d->deleteAllTimer.stop();
-            QTextBlockFormat blockFmt = d->cursor.blockFormat();
-
-            QTextList *list = d->cursor.currentList();
-            if (list && d->cursor.atBlockStart()) {
-                list->remove(d->cursor.block());
-            } else if (d->cursor.atBlockStart() && blockFmt.indent() > 0) {
-                blockFmt.setIndent(blockFmt.indent() - 1);
-                d->cursor.setBlockFormat(blockFmt);
-            } else {
-                d->cursor.deletePreviousChar();
-            }
-        }
-    }
-#endif
 }
 
 /*!
@@ -1986,10 +1945,6 @@ void QTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
         e->ignore();
         return;
     }
-#ifdef QT_KEYPAD_NAVIGATION
-    if (QApplication::keypadNavigationEnabled() && !hasEditFocus())
-        setEditFocus(true);
-#endif
     cursor.beginEditBlock();
 
     cursor.removeSelectedText();

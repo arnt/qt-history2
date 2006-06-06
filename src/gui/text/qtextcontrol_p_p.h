@@ -95,7 +95,6 @@ public:
     { return selectionRect(this->cursor); }
 
     void keyPressEvent(QKeyEvent *e);
-    void keyReleaseEvent(QKeyEvent *e);
     void mousePressEvent(Qt::MouseButton button, const QPointF &pos, Qt::KeyboardModifiers modifiers);
     void mouseMoveEvent(Qt::MouseButtons buttons, const QPointF &pos);
     void mouseReleaseEvent(Qt::MouseButton button, const QPointF &pos);
@@ -139,10 +138,6 @@ public:
 
     // for QTextBrowser:
     QTextCursor focusIndicator;
-
-#ifdef QT_KEYPAD_NAVIGATION
-    QBasicTimer deleteAllTimer;
-#endif
 
     bool overwriteMode;
     bool acceptRichText;
