@@ -74,7 +74,7 @@ win32 {
 		kernel/qmime_win.cpp \
 		kernel/qsound_win.cpp \
 		kernel/qwidget_win.cpp \
-		kernel/qole_win.c
+		kernel/qole_win.cpp
 }
 
 unix:x11 {

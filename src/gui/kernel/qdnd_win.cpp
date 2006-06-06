@@ -153,20 +153,6 @@ private:
     DWORD lastKeyState;
 };
 
-
-/***********************************************************
- * Standard implementation of IEnumFormatEtc. This code
- * is from \ole2\samp\ole2ui\enumfetc.c in the OLE 2 SDK.
- ***********************************************************/
-STDAPI_(LPVOID) OleStdMalloc(ULONG ulSize);
-STDAPI_(void) OleStdFree(LPVOID pmem);
-STDAPI_(BOOL) OleStdCopyFormatEtc(LPFORMATETC petcDest, LPFORMATETC petcSrc);
-STDAPI_(DVTARGETDEVICE FAR*) OleStdCopyTargetDevice(DVTARGETDEVICE FAR* ptdSrc);
-STDAPI_(LPENUMFORMATETC)
-  OleStdEnumFmtEtc_Create(ULONG nCount, LPFORMATETC lpEtc);
-
-
-
 QOleDropSource::QOleDropSource()
 {
     m_refs = 1;
@@ -475,24 +461,25 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
 
     SCODE sc = S_OK;
 
+    QVector<FORMATETC> fmtetcs;
     if (dwDirection == DATADIR_GET) {
-
-        QVector<FORMATETC> fmtetcs = QWindowsMime::allFormatsForMime(data);
-        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(fmtetcs.size(), fmtetcs.data());
-        if (*ppenumFormatEtc == NULL)
-            sc = E_OUTOFMEMORY;
-
+        fmtetcs = QWindowsMime::allFormatsForMime(data);
     } else {
-
         FORMATETC formatetc;
         formatetc.cfFormat = CF_PERFORMEDDROPEFFECT;
         formatetc.dwAspect = DVASPECT_CONTENT;
         formatetc.lindex = -1;
         formatetc.ptd = NULL;
         formatetc.tymed = TYMED_HGLOBAL;
-        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(1, &formatetc);
-        if (*ppenumFormatEtc == NULL)
-            sc = E_OUTOFMEMORY;
+        fmtetcs.append(formatetc);
+    }
+
+    QOleEnumFmtEtc *enumFmtEtc = new QOleEnumFmtEtc(fmtetcs);
+    *ppenumFormatEtc = enumFmtEtc;
+    if (enumFmtEtc->isNull()) {
+        delete enumFmtEtc;
+        *ppenumFormatEtc = NULL;
+        sc = E_OUTOFMEMORY;
     }
 
     return ResultFromScode(sc);

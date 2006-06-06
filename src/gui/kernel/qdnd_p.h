@@ -204,6 +204,36 @@ private:
     DWORD performedEffect;
 };
 
+
+class QOleEnumFmtEtc : public IEnumFORMATETC
+{
+public:
+    explicit QOleEnumFmtEtc(const QVector<FORMATETC> &fmtetcs);
+    explicit QOleEnumFmtEtc(const QVector<LPFORMATETC> &lpfmtetcs);
+    virtual ~QOleEnumFmtEtc();
+
+    bool isNull() const;
+
+    // IUnknown methods
+    STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
+    STDMETHOD_(ULONG,AddRef)(void);
+    STDMETHOD_(ULONG,Release)(void);
+
+    // IEnumFORMATETC methods
+    STDMETHOD(Next)(ULONG celt, LPFORMATETC rgelt, ULONG FAR* pceltFetched);
+    STDMETHOD(Skip)(ULONG celt);
+    STDMETHOD(Reset)(void);
+    STDMETHOD(Clone)(LPENUMFORMATETC FAR* newEnum);
+
+private:
+    bool copyFormatEtc(LPFORMATETC dest, LPFORMATETC src) const;
+
+    ULONG m_dwRefs;
+    ULONG m_nIndex;
+    QVector<LPFORMATETC> m_lpfmtetcs;
+    bool m_isNull;
+};
+
 #endif
 
 #endif // QT_NO_DRAGANDDROP
