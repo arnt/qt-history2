@@ -2308,16 +2308,14 @@ void QTextControl::setExtraSelections(const QList<ExtraSelection> &selections)
             return;
     }
 
-/* ########
     for (int i = 0; i < d->extraSelections.count(); ++i) {
-        QRect r = d->selectionRect(d->extraSelections.at(i).cursor);
+        QRectF r = d->selectionRect(d->extraSelections.at(i).cursor);
         if (d->extraSelections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
             r.setLeft(0);
-            r.setWidth(d->viewport->width());
+            r.setWidth(INT_MAX);
         }
-        d->viewport->update(r);
+        emit updateRequest(r);
     }
-*/
 
     d->extraSelections.resize(selections.count());
     for (int i = 0; i < selections.count(); ++i) {
@@ -2325,18 +2323,14 @@ void QTextControl::setExtraSelections(const QList<ExtraSelection> &selections)
         d->extraSelections[i].format = selections.at(i).format;
     }
 
-/* ######
     for (int i = 0; i < d->extraSelections.count(); ++i) {
-        QRect r = d->selectionRect(d->extraSelections.at(i).cursor);
+        QRectF r = d->selectionRect(d->extraSelections.at(i).cursor);
         if (d->extraSelections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
             r.setLeft(0);
-            r.setWidth(d->viewport->width());
+            r.setWidth(INT_MAX);
         }
-        d->viewport->update(r);
+        emit updateRequest(r);
     }
-*/
-    // ### smarter update
-    emit updateRequest();
 }
 
 /*!
