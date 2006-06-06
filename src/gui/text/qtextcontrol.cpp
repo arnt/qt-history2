@@ -2336,6 +2336,19 @@ QList<QTextControl::ExtraSelection> QTextControl::extraSelections() const
     return selections;
 }
 
+// #### reconsider
+void QTextControl::setDragAndDropSource(QWidget *w)
+{
+    Q_D(QTextControl);
+    d->dndWidget = w;
+}
+
+QWidget *QTextControl::dragAndDropSource() const
+{
+    Q_D(const QTextControl);
+    return d->dndWidget;
+}
+
 /*!
     This function returns a new MIME data object to represent the contents
     of the text edit's current selection. It is called when the selection needs

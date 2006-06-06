@@ -122,6 +122,9 @@ public:
     void setExtraSelections(const QList<ExtraSelection> &selections);
     QList<ExtraSelection> extraSelections() const;
 
+    void setDragAndDropSource(QWidget *w);
+    QWidget *dragAndDropSource() const;
+
 public Q_SLOTS:
     void setPlainText(const QString &text);
     void setHtml(const QString &text);
