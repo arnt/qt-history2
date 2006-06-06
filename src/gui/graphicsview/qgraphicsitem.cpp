@@ -204,39 +204,66 @@
 
     This enum describes the state changes that are notified by
     QGraphicsItem::itemChange(). The notifications are sent as the state
-    changes.
+    changes, and in some cases, adjustments can be made (see the documentation
+    for each change for details).
 
-    Note: Be careful with calling functions on the QGraphicsItem
-    itself inside itemChange(), as certain function calls can lead to
-    unwanted recursion. For example, you cannot call setPos() in
-    itemChange() on an ItemPositionChange notification, as the
-    setPos() function will again call itemChange(ItemPositionChange).
+    Note: Be careful with calling functions on the QGraphicsItem itself inside
+    itemChange(), as certain function calls can lead to unwanted
+    recursion. For example, you cannot call setPos() in itemChange() on an
+    ItemPositionChange notification, as the setPos() function will again call
+    itemChange(ItemPositionChange). Instead, you can return the new, adjusted
+    position from itemChange().
 
     \value ItemEnabledChange The item's enabled state changes. If the item is
-    presently enabled, it will become disabled, and vice verca. Do not call
-    setEnabled() in itemChange() as this notification is delivered.
+    presently enabled, it will become disabled, and vice verca. The value
+    argument is the new enabled state (i.e., true or false). Do not call
+    setEnabled() in itemChange() as this notification is delivered. Instead,
+    you can return the new state from itemChange().
 
-    \value ItemMatrixChange The item's matrix changes. This
-    notification is only sent when the item's local matrix changes
-    (i.e., as a result of calling setMatrix(), or one of the
-    convenience transformation functions, such as rotate()). Do not
-    call setMatrix() or any of the transformation convenience
-    functions in itemChange() as this notification is delivered.
+    \value ItemMatrixChange The item's matrix changes. This notification is
+    only sent when the item's local matrix changes (i.e., as a result of
+    calling setMatrix(), or one of the convenience transformation functions,
+    such as rotate()). The value argument is the new matrix (i.e., a QMatrix);
+    to get the old matrix, call matrix(). Do not call setMatrix() or any of
+    the transformation convenience functions in itemChange() as this
+    notification is delivered; instead, you can return the new matrix from
+    itemChange().
 
-    \value ItemPositionChange The item's position changes. This
-    notification is only sent when the item's local position changes,
-    relative to its parent, has changed (i.e., as a result of calling
-    setPos() or moveBy()). Do not call setPos() or moveBy() in
-    itemChange() as this notification is delivered.
+    \value ItemPositionChange The item's position changes. This notification
+    is only sent when the item's local position changes, relative to its
+    parent, has changed (i.e., as a result of calling setPos() or
+    moveBy()). The value argument is the new position (i.e., a QPointF).
+    can call pos() to get the original position. Do not call setPos() or
+    moveBy() in itemChange() as this notification is delivered; instead, you
+    can return the new, adjusted position from itemChange().
 
-    \value ItemSelectedChange The item's selected state changes. If
-    the item is presently selected, it will become unselected, and
-    vice verca. Do not call setSelected() in itemChange() as this
-    notification is delivered().
+    \value ItemSelectedChange The item's selected state changes. If the item
+    is presently selected, it will become unselected, and vice verca. The
+    value argument is the new selected state (i.e., true or false). Do not
+    call setSelected() in itemChange() as this notification is delivered();
+    instead, you can return the new selected state from itemChange().
 
-    \value ItemVisibleChange The item's visible state changes. If the item
-    is presently visible, it will become invisible, and vice verca. Do
-    not call setVisible() in itemChange() as this notification is delivered.
+    \value ItemVisibleChange The item's visible state changes. If the item is
+    presently visible, it will become invisible, and vice verca. The value
+    argument is the new visible state (i.e., true or false). Do not call
+    setVisible() in itemChange() as this notification is delivered; instead,
+    you can return the new visible state from itemChange().
+
+    \value ItemParentChange The item's parent changes. The value argument is
+    the new parent item (i.e., a QGraphicsItem pointer).  Do not call
+    setParentItem() in itemChange() as this notification is delivered;
+    instead, you can return the new parent from itemChange().
+
+    \value ItemChildAddedChange A child is added to this item. The value
+    argument is the new child item (i.e., a QGraphicsItem pointer). Do not
+    pass this item to any item's setParentItem() function as this notification
+    is delivered. The return value is unused; you cannot adjust anything in
+    this notification.
+
+    \value ItemChildRemovedChange A child is removed from this item. The value
+    argument is the child item that is about to be removed (i.e., a
+    QGraphicsItem pointer). The return value is unused; you cannot adjust
+    anything in this notification.
 */
 
 /*!
@@ -272,6 +299,7 @@
 
 #include <math.h>
 
+Q_DECLARE_METATYPE(QGraphicsItem *)
 Q_DECLARE_METATYPE(QMatrix)
 
 /*!
@@ -398,11 +426,21 @@ QGraphicsItem::~QGraphicsItem()
 {
     Q_D(QGraphicsItem);
 
-    qDeleteAll(d->children);
+    QVariant variant;
+    foreach (QGraphicsItem *child, d->children) {
+        if (QGraphicsItem *parent = child->parentItem()) {
+            qVariantSetValue<QGraphicsItem *>(variant, child);
+            parent->itemChange(ItemChildRemovedChange, variant);
+        }
+        delete child;
+    }
     d->children.clear();
 
-    if (QGraphicsItem *parent = parentItem())
+    if (QGraphicsItem *parent = parentItem()) {
+        qVariantSetValue<QGraphicsItem *>(variant, this);
+        parent->itemChange(ItemChildRemovedChange, variant);
         parent->d_func()->children.removeAll(this);
+    }
     if (d->scene)
         d->scene->d_func()->removeItemLater(this);
 
@@ -502,16 +540,25 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
     }
     if (parent == d->parent)
         return;
+    QVariant variant;
+    qVariantSetValue<QGraphicsItem *>(variant, parent);
+    parent = qVariantValue<QGraphicsItem *>(itemChange(ItemParentChange, variant));
+    if (parent == d->parent)
+        return;
 
     if (d->parent) {
         // Remove from current parent
         removeFromIndex();
         d->parent->d_func()->children.removeAll(this);
+        qVariantSetValue<QGraphicsItem *>(variant, this);
+        d->parent->itemChange(ItemChildRemovedChange, variant);
         d->parent->update();
     }
 
     if ((d->parent = parent)) {
         d->parent->d_func()->children << this;
+        qVariantSetValue<QGraphicsItem *>(variant, this);
+        d->parent->itemChange(ItemChildAddedChange, variant);
         addToIndex();
         d->parent->update();
 
@@ -704,22 +751,22 @@ bool QGraphicsItem::isVisible() const
 void QGraphicsItem::setVisible(bool visible)
 {
     Q_D(QGraphicsItem);
-    if (d->visible != quint32(visible)) {
-        if (!visible) {
-            if (d->scene && d->scene->mouseGrabberItem() == this)
-                d->scene->d_func()->mouseGrabberItem = 0;
-            if (hasFocus())
-                clearFocus();
-            if (isSelected())
-                setSelected(false);
-        }
-        d->visible = quint32(visible);
-        itemChange(ItemVisibleChange);
-        update();
-
-        foreach (QGraphicsItem *child, children())
-            child->setVisible(visible);
+    if (d->visible == quint32(visible))
+        return;
+    if (!visible) {
+        if (d->scene && d->scene->mouseGrabberItem() == this)
+            d->scene->d_func()->mouseGrabberItem = 0;
+        if (hasFocus())
+            clearFocus();
+        if (isSelected())
+            setSelected(false);
     }
+    d->visible = quint32(visible);
+    d->visible = itemChange(ItemVisibleChange, d->visible).toBool();
+    update();
+
+    foreach (QGraphicsItem *child, children())
+        child->setVisible(visible);
 }
 
 /*!
@@ -754,22 +801,22 @@ bool QGraphicsItem::isEnabled() const
 void QGraphicsItem::setEnabled(bool enabled)
 {
     Q_D(QGraphicsItem);
-    if (d->enabled != quint32(enabled)) {
-        if (!enabled) {
-            if (d->scene && d->scene->mouseGrabberItem() == this)
-                d->scene->d_func()->mouseGrabberItem = 0;
-            if (hasFocus())
-                clearFocus();
-            if (isSelected())
-                setSelected(false);
-        }
-        d->enabled = quint32(enabled);
-        itemChange(ItemEnabledChange);
-        update();
-
-        foreach (QGraphicsItem *child, children())
-            child->setEnabled(enabled);
+    if (d->enabled == quint32(enabled))
+        return;
+    if (!enabled) {
+        if (d->scene && d->scene->mouseGrabberItem() == this)
+            d->scene->d_func()->mouseGrabberItem = 0;
+        if (hasFocus())
+            clearFocus();
+        if (isSelected())
+            setSelected(false);
     }
+    d->enabled = quint32(enabled);
+    d->enabled = itemChange(ItemEnabledChange, d->enabled).toBool();
+    update();
+    
+    foreach (QGraphicsItem *child, children())
+        child->setEnabled(enabled);
 }
 
 /*!
@@ -823,13 +870,15 @@ void QGraphicsItem::setSelected(bool selected)
     Q_D(QGraphicsItem);
     if (!(d->flags & ItemIsSelectable) || !d->enabled || !d->visible)
         selected = false;
-    if (d->selected != selected) {
-        d->selected = quint32(selected);
-        itemChange(ItemSelectedChange);
-        update();
-        if (selected && d->scene)
-            d->scene->d_func()->selectedItems << this;
-    }
+    if (d->selected == selected)
+        return;
+    
+    d->selected = quint32(selected);
+    d->selected = itemChange(ItemSelectedChange, d->selected).toBool();
+
+    update();
+    if (selected && d->scene)
+        d->scene->d_func()->selectedItems << this;
 }
 
 /*!
@@ -1115,7 +1164,7 @@ void QGraphicsItem::setPos(const QPointF &pos)
         removeFromIndex();
     }
     d->pos = pos;
-    itemChange(ItemPositionChange);
+    d->pos = itemChange(ItemPositionChange, d->pos).toPointF();
     if (d->scene) {
         qt_graphicsItem_fullUpdate(this);
         addToIndex();
@@ -1241,13 +1290,13 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
         newMatrix = matrix * oldMatrix;
     if (oldMatrix == newMatrix)
         return;
-
     qt_graphicsItem_fullUpdate(this);
     removeFromIndex();
     QVariant variant;
     qVariantSetValue<QMatrix>(variant, newMatrix);
     d->setExtra(QGraphicsItemPrivate::ExtraMatrix, variant);
-    itemChange(ItemMatrixChange);
+    d->setExtra(QGraphicsItemPrivate::ExtraMatrix,
+                itemChange(ItemMatrixChange, variant));
     addToIndex();
     qt_graphicsItem_fullUpdate(this);
 }
@@ -2636,12 +2685,34 @@ QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
 
 /*!
     This virtual function is called by QGraphicsItem to notify custom items
-    that some part of the item's state has changed. By reimplementing this
-    function, your can react to a change.
+    that some part of the item's state changes. By reimplementing this
+    function, your can react to a change, and in some cases, (depending on \a
+    change,) adjustments can be made.
 
-    \a change is the parameter of the item that is changing.
+    \a change is the parameter of the item that is changing. \a value is the
+    new value; the type of the value depends on \a change.
 
-    The default implementation does nothing.
+    Example:
+
+    \code
+        QVariant Component::itemChange(GraphicsItemChange change, const QVariant &value)
+        {
+            if (change == ItemPositionChange && scene()) {
+                // value is the new position.
+                QPointF newPos = value.toPointF();
+                QRectF rect = scene()->sceneRect();
+                if (!rect.contains(newPos)) {
+                    // Keep the item inside the scene rect.
+                    newPos.setX(qMin(rect.right(), qMax(newPos.x(), rect.left())));
+                    newPos.setY(qMin(rect.bottom(), qMax(newPos.y(), rect.top())));
+                    return newPos;
+                }
+            }
+            return QGraphicsItem::itemChange(change, value);
+        }
+    \endcode
+
+    The default implementation does nothing, and returns \a value.
 
     Note: Certain QGraphicsItem functions cannot be called in a
     reimplementation of this function; see the GraphicsItemChange
@@ -2649,9 +2720,10 @@ QVariant QGraphicsItem::inputMethodQuery(Qt::InputMethodQuery query) const
 
     \sa GraphicsItemChange
 */
-void QGraphicsItem::itemChange(GraphicsItemChange change)
+QVariant QGraphicsItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
     Q_UNUSED(change);
+    return value;
 }
 
 /*!

@@ -163,6 +163,8 @@
 #include <math.h>
 #include <qdebug.h>
 
+Q_DECLARE_METATYPE(QGraphicsItem *)
+
 static bool qt_rectInPoly(const QPolygonF &poly, const QRectF &rect)
 {
     QPainterPath path;
@@ -388,6 +390,9 @@ void QGraphicsScenePrivate::removeItemLater(QGraphicsItem *item)
     if (removedItems.isEmpty())
         resetIndex();
     if (QGraphicsItem *parent = item->d_func()->parent) {
+        QVariant variant;
+        qVariantSetValue<QGraphicsItem *>(variant, item);
+        parent->itemChange(QGraphicsItem::ItemChildRemovedChange, item);
         parent->d_func()->children.removeAll(item);
         item->d_func()->parent = 0;
         item->d_func()->scene = 0;
@@ -1239,6 +1244,9 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
         item->d_func()->scene->removeItem(item);
     if (QGraphicsItem *itemParent = item->d_func()->parent) {
         if (itemParent->scene() != this) {
+            QVariant variant;
+            qVariantSetValue<QGraphicsItem *>(variant, item);
+            itemParent->itemChange(QGraphicsItem::ItemChildRemovedChange, variant);
             itemParent->d_func()->children.removeAll(item);
             item->d_func()->parent = 0;
         }

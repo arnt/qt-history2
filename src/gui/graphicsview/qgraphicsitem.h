@@ -63,7 +63,10 @@ public:
         ItemMatrixChange,
         ItemVisibleChange,
         ItemEnabledChange,
-        ItemSelectedChange
+        ItemSelectedChange,
+        ItemParentChange,
+        ItemChildAddedChange,
+        ItemChildRemovedChange
     };
 
     QGraphicsItem(QGraphicsItem *parent = 0);
@@ -237,7 +240,7 @@ protected:
     virtual void inputMethodEvent(QInputMethodEvent *event);
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
-    virtual void itemChange(GraphicsItemChange change);
+    virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
     enum Extension {
         UserExtension = 0x80000000
