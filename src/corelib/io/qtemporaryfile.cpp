@@ -179,7 +179,7 @@ static int _gettemp(char *path, int *doopen, int domkdir, int slen)
 	/*NOTREACHED*/
 }
 
-static int mkstemps(char *path, int slen)
+static int qt_mkstemps(char *path, int slen)
 {
 	int fd;
 	return (_gettemp(path, &fd, 0, slen) ? fd : -1);
@@ -214,7 +214,7 @@ bool QTemporaryFileEngine::open(QIODevice::OpenMode)
     d->closeFileHandle = true;
     char *filename = qstrdup(qfilename.toLocal8Bit());
 
-    d->fd = mkstemps(filename, suffixLength);
+    d->fd = qt_mkstemps(filename, suffixLength);
 
     if(d->fd != -1) {
         d->file = QString::fromLocal8Bit(filename); //changed now!
