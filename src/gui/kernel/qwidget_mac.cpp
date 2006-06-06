@@ -160,11 +160,6 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 
 Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(const QWidget *w)
 {
-#if 0
-    extern WId foo;
-    if(foo == w->winId())
-        qDebug("DOINK %d [%s]", foo, w->className());
-#endif
     return (HIViewRef)w->winId();
 }
 Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(WindowPtr w)
