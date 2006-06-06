@@ -42,6 +42,9 @@
         functionality represented by the icon is available and
         the user is interacting with the icon, for example, moving the
         mouse over it or clicking it.
+   \value Selected
+        Display the pixmap when the item represented by the icon is
+        selected.
 */
 
 /*!
@@ -155,16 +158,21 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
     QPixmapIconEngineEntry *pe = tryMatch(size, mode, state);
     while (!pe){
         QIcon::State oppositeState = (state == QIcon::On) ? QIcon::Off : QIcon::On;
-        if (mode == QIcon::Disabled) {
+        if (mode == QIcon::Disabled || mode == QIcon::Selected) {
+            QIcon::Mode oppositeMode = (mode == QIcon::Disabled) ? QIcon::Selected : QIcon::Disabled;
             if ((pe = tryMatch(size, QIcon::Normal, state)))
                 break;
             if ((pe = tryMatch(size, QIcon::Active, state)))
                 break;
-            if ((pe = tryMatch(size, QIcon::Disabled, oppositeState)))
+            if ((pe = tryMatch(size, oppositeMode, state)))
+                break;
+            if ((pe = tryMatch(size, mode, oppositeState)))
                 break;
             if ((pe = tryMatch(size, QIcon::Normal, oppositeState)))
                 break;
             if ((pe = tryMatch(size, QIcon::Active, oppositeState)))
+                break;
+            if ((pe = tryMatch(size, oppositeMode, oppositeState)))
                 break;
         } else {
             QIcon::Mode oppositeMode = (mode == QIcon::Normal) ? QIcon::Active : QIcon::Normal;
@@ -177,6 +185,10 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
             if ((pe = tryMatch(size, QIcon::Disabled, state)))
                 break;
             if ((pe = tryMatch(size, QIcon::Disabled, oppositeState)))
+                break;
+            if ((pe = tryMatch(size, QIcon::Selected, state)))
+                break;
+            if ((pe = tryMatch(size, QIcon::Selected, oppositeState)))
                 break;
         }
 
@@ -228,7 +240,8 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
     }
 
     if (!QPixmapCache::find(key + QString::number(mode), pm)) {
-        if (pe->mode != mode && mode != QIcon::Normal && pe->mode != QIcon::Disabled) {
+        if (pe->mode != mode && mode != QIcon::Normal
+            && (pe->mode != QIcon::Disabled || pe->mode != QIcon::Selected)) {
             QStyleOption opt(0);
             opt.palette = QApplication::palette();
             QPixmap generated = QApplication::style()->generatedIconPixmap(mode, pm, &opt);

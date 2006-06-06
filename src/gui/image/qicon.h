@@ -28,7 +28,7 @@ class QIconEngine;
 class Q_GUI_EXPORT QIcon
 {
 public:
-    enum Mode { Normal, Disabled, Active };
+    enum Mode { Normal, Disabled, Active, Selected };
     enum State { On, Off };
 
     QIcon();
