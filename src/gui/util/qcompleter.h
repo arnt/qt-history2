@@ -18,6 +18,7 @@
 #include <QtCore/qpoint.h>
 #include <QtCore/qstring.h>
 #include <QtCore/qabstractitemmodel.h>
+#include <QtCore/qrect.h>
 
 QT_BEGIN_HEADER
 
