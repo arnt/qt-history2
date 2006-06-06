@@ -57,10 +57,11 @@ enum {
     kMenuPropertyCausedQWidget = 'QCAU',
     kMenuPropertyMergeMenu = 'QApP',
     kMenuPropertyMergeList = 'QAmL',
-    kHICommandAboutQt = 'AOQT',
-    kHICommandCustomMerge = 'AQt0',
     kMenuPropertyWidgetActionWidget = 'QWid',
-    kMenuPropertyWidgetActionGeometry = 'WGeo'
+    kMenuPropertyWidgetMenu = 'QWMe',
+
+    kHICommandAboutQt = 'AOQT',
+    kHICommandCustomMerge = 'AQt0'
 };
 
 static struct {
@@ -71,6 +72,8 @@ static struct {
 /*****************************************************************************
   Externals
  *****************************************************************************/
+extern HIViewRef qt_mac_hiview_for(const QWidget *w); //qwidget_mac.cpp
+extern HIViewRef qt_mac_hiview_for(WindowPtr w); //qwidget_mac.cpp
 extern IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
 extern QWidget * mac_keyboard_grabber; //qwidget_mac.cpp
 extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); //qapplication_xxx.cpp
@@ -269,6 +272,9 @@ static MenuCommand qt_mac_menu_merge_action(MenuRef merge, QMacMenuAction *actio
     //now the fun part
     MenuCommand ret = 0;
     switch (action->action->menuRole()) {
+    case QAction::NoRole: {
+        ret = 0;
+        break; }
     case QAction::ApplicationSpecificRole: {
         QMenuMergeList *list = 0;
         if (GetMenuItemProperty(merge, 0, kMenuCreatorQt, kMenuPropertyMergeList,
@@ -449,55 +455,8 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
     return true;
 }
 
-
 typedef QMultiHash<MenuRef, EventHandlerRef> EventHandlerHash;
 Q_GLOBAL_STATIC(EventHandlerHash, menu_eventHandlers_hash)
-
-static const EventTypeSpec  window_menu_events[] =
-{
-    { kEventClassControl, kEventControlOwningWindowChanged }
-};
-
-static OSStatus qt_mac_window_menu_event(EventHandlerCallRef, EventRef event, void *data)
-{
-    OSStatus    err = eventNotHandledErr;
-    WindowRef   owner;
-
-    GetEventParameter(event, kEventParamControlCurrentOwningWindow, typeWindowRef, 0,
-                      sizeof(owner), 0, &owner);
-    if (owner) {
-        QHIViewWidget *menuWindow = new QHIViewWidget(owner, Qt::Tool);  // Tool works better than Popup for the moment.
-        menuWindow->createQWidgetsFromHIViews();
-        QList<QHIViewWidget *> widgets = menuWindow->findChildren<QHIViewWidget *>();
-        for (int i = 0; i < widgets.count(); ++i) {
-            QWidget *widget = widgets.at(i);
-            if (HIObjectIsOfClass(HIObjectRef(widget->winId()), kHIStandardMenuViewClassID)) {
-                MenuRef menu = static_cast<MenuRef>(data);
-                UInt16 menuCount = CountMenuItems(menu);
-                for (MenuItemIndex j = 1; j <= menuCount; ++j) {
-                    QWidget *actionWidget;
-                    if (GetMenuItemProperty(menu, j, kMenuCreatorQt,
-                                            kMenuPropertyWidgetActionWidget,
-                                            sizeof(actionWidget), 0, &actionWidget) == noErr
-                            && actionWidget) {
-                        QRect geo;
-                        GetMenuItemProperty(menu, j, kMenuCreatorQt, kMenuPropertyWidgetActionGeometry,
-                                            sizeof(QRect), 0, &geo);
-                        actionWidget->setParent(widget);
-                        actionWidget->setGeometry(geo);
-                        actionWidget->show();
-
-                    }
-                }
-                widget->show();
-                menuWindow->show();
-                break;
-            }
-        }
-        err = noErr;
-    }
-    return err;
-}
 
 static EventTypeSpec widget_in_menu_events[] = {
     { kEventClassMenu, kEventMenuMeasureItemWidth },
@@ -567,11 +526,8 @@ static OSStatus qt_mac_widget_in_menu_eventHandler(EventHandlerCallRef er, Event
                         Rect bounds;
                         GetRegionBounds( itemRgn, &bounds );
                         qt_mac_dispose_rgn(itemRgn);
-
-                        QRect savedGeo(bounds.left, bounds.top,
-                                        bounds.right - bounds.left, bounds.bottom - bounds.top);
-                        SetMenuItemProperty(menu, i, kMenuCreatorQt, kMenuPropertyWidgetActionGeometry,
-                                            sizeof(QRect), &savedGeo);
+                        widget->setGeometry(bounds.left, bounds.top,
+                                            bounds.right - bounds.left, bounds.bottom - bounds.top);
                     }
                 }
             }
@@ -848,15 +804,24 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
                                 sizeof(QWidget *), &widget);
             HIViewRef content;
             HIMenuGetContentView(action->menu, kThemeMenuTypePullDown, &content);
+
             EventHandlerRef eventHandlerRef;
-            InstallControlEventHandler(content, qt_mac_window_menu_event,
-                                       GetEventTypeCount(window_menu_events),
-                                       window_menu_events, action->menu, &eventHandlerRef);
-            menu_eventHandlers_hash()->insert(action->menu, eventHandlerRef);
             InstallMenuEventHandler(action->menu, qt_mac_widget_in_menu_eventHandler,
                                     GetEventTypeCount(widget_in_menu_events),
                                     widget_in_menu_events, 0, &eventHandlerRef);
             menu_eventHandlers_hash()->insert(action->menu, eventHandlerRef);
+
+            QWidget *menuWidget = 0;
+            GetMenuItemProperty(action->menu, 0, kMenuCreatorQt, kMenuPropertyWidgetMenu,
+                                sizeof(menuWidget), 0, &menuWidget);
+            if(!menuWidget) {
+                menuWidget = new QHIViewWidget(content, false);
+                SetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyWidgetMenu,
+                                    sizeof(menuWidget), &menuWidget);
+                menuWidget->show();
+            }
+            widget->setParent(menuWidget);
+            widget->show();
         }
     } else {
         qt_mac_command_set_enabled(action->menu, action->command, !QApplicationPrivate::modalState());

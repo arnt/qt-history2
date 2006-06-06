@@ -33,20 +33,13 @@ class QHIViewWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QHIViewWidget(WindowRef windowref, Qt::WFlags flags = 0);
-    QHIViewWidget(HIViewRef hiviewref, QWidget *parent);
+    QHIViewWidget(WindowRef windowref, bool createSubs=true, QWidget *parent=0, Qt::WFlags flags = 0);
+    QHIViewWidget(HIViewRef hiviewref, bool createSubs=true, QWidget *parent=0, Qt::WFlags flags = 0);
     ~QHIViewWidget();
 
-    void createQWidgetsFromHIViews();
-
 private:
+    void createQWidgetsFromHIViews();
     void addViews_recursive(HIViewRef child, QWidget *parent);
-    static OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
-    static WindowRef findWindow(WindowRef window);
-
-
-    static const EventHandlerUPP make_win_eventUPP();
-    EventHandlerRef window_event;
 };
 
 #endif // QHIVIEWWIDGET_P_H

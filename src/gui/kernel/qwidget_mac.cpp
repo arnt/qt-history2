@@ -61,8 +61,8 @@ const UInt32 kWidgetCreatorQt = 'cute';
 enum {
     kWidgetPropertyQWidget = 'QWId' //QWidget *
 };
+static CFStringRef kObjectQWidget = CFSTR("com.trolltech.qt.widget");
 Q_GUI_EXPORT QPoint qt_mac_posInWindow(const QWidget *w);
-
 
 /*****************************************************************************
   Externals
@@ -158,17 +158,37 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 #endif
 }
 
-//find a WindowPtr from a QWidget/HIView
+Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(const QWidget *w)
+{
+#if 0
+    extern WId foo;
+    if(foo == w->winId())
+        qDebug("DOINK %d [%s]", foo, w->className());
+#endif
+    return (HIViewRef)w->winId();
+}
+Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(WindowPtr w)
+{
+    HIViewRef ret = 0;
+    OSStatus err = HIViewFindByID(HIViewGetRoot(w), kHIViewWindowContentID, &ret);
+    if(err == errUnknownControl)
+        ret = HIViewGetRoot(w);
+    else if(err != noErr)
+        qWarning("That cannot happen! %d [%ld]", __LINE__, err);
+    return ret;
+}
+
 Q_GUI_EXPORT WindowPtr qt_mac_window_for(HIViewRef hiview)
 {
     return HIViewGetWindow(hiview);
 }
 Q_GUI_EXPORT WindowPtr qt_mac_window_for(const QWidget *w)
 {
-    WindowPtr window = qt_mac_window_for((HIViewRef)w->winId());
-    if (window == 0) {  // The window hasn't been created yet
+    HIViewRef hiview = qt_mac_hiview_for(w);
+    WindowPtr window = qt_mac_window_for(hiview);
+    if(!window && HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget)) {
         w->window()->d_func()->createWindow_sys();
-        window = qt_mac_window_for((HIViewRef)w->winId());
+        window = qt_mac_window_for(hiview);
     }
     return window;
 }
@@ -203,7 +223,7 @@ void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
         HIViewFeatures bits;
-        HIViewRef hiview = HIViewRef(w->winId());
+        HIViewRef hiview = qt_mac_hiview_for(w);
         HIViewGetFeatures(hiview, &bits);
         if ((bits & kHIViewIsOpaque) == o)
             return;
@@ -215,7 +235,7 @@ void qt_mac_set_widget_is_opaque(QWidget *w, bool o)
     }
 #endif
     if (w->isVisible())
-        HIViewReshapeStructure((HIViewRef)w->winId());
+        HIViewReshapeStructure(qt_mac_hiview_for(w));
 }
 
 void qt_mac_update_ignore_mouseevents(QWidget *w)
@@ -352,7 +372,6 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
 
 // widget events
 static HIObjectClassRef widget_class = 0;
-static CFStringRef kObjectQWidget = CFSTR("com.trolltech.qt.widget");
 static EventTypeSpec widget_events[] = {
     { kEventClassHIObject, kEventHIObjectConstruct },
     { kEventClassHIObject, kEventHIObjectDestruct },
@@ -365,7 +384,8 @@ static EventTypeSpec widget_events[] = {
     { kEventClassControl, kEventControlDragEnter },
     { kEventClassControl, kEventControlDragWithin },
     { kEventClassControl, kEventControlDragLeave },
-    { kEventClassControl, kEventControlDragReceive }
+    { kEventClassControl, kEventControlDragReceive },
+    { kEventClassControl, kEventControlOwningWindowChanged }
 };
 static EventHandlerUPP mac_widget_eventUPP = 0;
 static void cleanup_widget_eventUPP()
@@ -385,18 +405,22 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
     bool handled_event = true;
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass) {
-    case kEventClassHIObject:
+    case kEventClassHIObject: {
+        HIViewRef view = 0;
+        GetEventParameter(event, kEventParamHIObjectInstance, typeHIObjectRef,
+                          0, sizeof(view), 0, &view);
         if(ekind == kEventHIObjectConstruct) {
-            HIViewRef view;
-            if(GetEventParameter(event, kEventParamHIObjectInstance, typeHIObjectRef,
-                                 0, sizeof(view), 0, &view) == noErr)
+            if(view) {
                 HIViewChangeFeatures(view, kHIViewAllowsSubviews, 0);
+                SetEventParameter(event, kEventParamHIObjectInstance,
+                                  typeVoidPtr, sizeof(view), &view);
+            }
         } else if(ekind == kEventHIObjectDestruct) {
             //nothing to really do.. or is there?
         } else {
             handled_event = false;
         }
-        break;
+        break; }
     case kEventClassControl: {
         QWidget *widget = 0;
         HIViewRef hiview = 0;
@@ -434,7 +458,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 #ifdef DEBUG_WIDGET_PAINT
                 qDebug("asked to draw %p [%s::%s] %p [%d]", hiview, widget->metaObject()->className(),
                        widget->objectName().local8Bit().data(),
-                       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1),
+                       (HIViewRef)(widget->parentWidget() ? qt_mac_hiview_for(widget->parentWidget()) : (WId)-1),
                        HIViewIsCompositingEnabled(hiview));
 #if 0
                 QVector<QRect> region_rects = qrgn.rects();
@@ -572,6 +596,13 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         handled_event = true;
                     }
                 }
+            }
+        } else if(ekind == kEventControlOwningWindowChanged) {
+            if(widget && qt_mac_window_for(hiview)) {
+                WindowRef foo = 0;
+                GetEventParameter(event, kEventParamControlCurrentOwningWindow, typeWindowRef, 0,
+                                  sizeof(foo), 0, &foo);
+                widget->d_func()->initWindowPtr();
             }
         } else if(ekind == kEventControlDragEnter || ekind == kEventControlDragWithin ||
                   ekind == kEventControlDragLeave || ekind == kEventControlDragReceive) {
@@ -965,6 +996,26 @@ void QWidgetPrivate::determineWindowClass()
     topData()->wattr = wattr;
 }
 
+void QWidgetPrivate::initWindowPtr()
+{
+    Q_Q(QWidget);
+    WindowPtr windowRef = qt_mac_window_for(qt_mac_hiview_for(q)); //do not create!
+    if(!windowRef)
+        return;
+    QWidget *window = q->window(), *oldWindow = 0;
+    if(GetWindowProperty(windowRef, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(oldWindow), 0, &oldWindow) == noErr) {
+        Q_ASSERT(window == oldWindow);
+        return;
+    }
+
+    if(SetWindowProperty(windowRef, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(window), &window) != noErr)
+        qWarning("Qt:Internal error (%s:%d)", __FILE__, __LINE__); //no real way to recover
+    if(!q->windowType() != Qt::Desktop) { //setup an event callback handler on the window
+        InstallWindowEventHandler(windowRef, make_win_eventUPP(), GetEventTypeCount(window_events),
+                window_events, static_cast<void *>(qApp), &window_event);
+    }
+}
+
 void QWidgetPrivate::createWindow_sys()
 {
     Q_Q(QWidget);
@@ -987,14 +1038,8 @@ void QWidgetPrivate::createWindow_sys()
     if(OSStatus ret = qt_mac_create_window(topData()->wclass, wattr, &r, &windowRef))
         qWarning("QWidget: Internal error: %s:%d: If you reach this error please contact Trolltech and include the\n"
                 "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
-    QWidget *me = q;
-    if(SetWindowProperty(windowRef, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(me), &me) != noErr)
-        qWarning("Qt:Internal error (%s:%d)", __FILE__, __LINE__); //no real way to recover
-    if(!desktop) { //setup an event callback handler on the window
+    if(!desktop)
         SetAutomaticControlDragTrackingEnabledForWindow(windowRef, true);
-        InstallWindowEventHandler(windowRef, make_win_eventUPP(), GetEventTypeCount(window_events),
-                window_events, static_cast<void *>(qApp), &window_event);
-    }
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
         HIWindowChangeFeatures(windowRef, kWindowCanCollapse, 0);
@@ -1068,12 +1113,7 @@ void QWidgetPrivate::createWindow_sys()
     else if(qt_mac_is_macdrawer(q))
         SetDrawerOffsets(windowRef, 0.0, 25.0);
     data.fstrut_dirty = true; // when we create a toplevel widget, the frame strut should be dirty
-    HIViewRef window_hiview = 0;
-    OSStatus err = HIViewFindByID(HIViewGetRoot(windowRef), kHIViewWindowContentID, &window_hiview);
-    if(err == errUnknownControl)
-        window_hiview = HIViewGetRoot(windowRef);
-    else if(err != noErr)
-        qWarning("QWidget: Internal error: %d [%ld]", __LINE__, err);
+    HIViewRef window_hiview = qt_mac_hiview_for(windowRef);
     if(HIViewRef hiview = qt_mac_create_widget(window_hiview)) {
         Rect win_rect;
         GetWindowBounds(qt_mac_window_for(window_hiview), kWindowContentRgn, &win_rect);
@@ -1083,8 +1123,9 @@ void QWidgetPrivate::createWindow_sys()
         QCFType<HIViewRef> oldRef = HIViewRef(data.winid);
         setWinId((WId)hiview);
         transferChildren();
-        HIViewRemoveFromSuperview(oldRef);
+        //HIViewRemoveFromSuperview(oldRef);
     }
+    initWindowPtr();
     if(qt_mac_is_macsheet(q))
         q->setWindowOpacity(0.95);
     qt_mac_update_opaque_sizegrip(q);
@@ -1094,7 +1135,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 {
     Q_Q(QWidget);
     window_event = 0;
-    WId destroyid = 0;
+    HIViewRef destroyid = 0;
 
     Qt::WindowType type = q->windowType();
     Qt::WindowFlags &flags = data.window_flags;
@@ -1170,41 +1211,38 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     cg_hd = 0;
     if(window) {                                // override the old window
         HIViewRef hiview = (HIViewRef)window, parent = 0;
-        HIViewRef oldhiview = HIViewRef(q->winId());
+        CFRetain(hiview);
+        if(destroyOldWindow)
+            destroyid = qt_mac_hiview_for(q);
+        bool transfer = false;
         if(topLevel) {
-            WindowRef windowref = qt_mac_window_for(oldhiview);
-            if (windowref) {
-                OSStatus err = HIViewFindByID(HIViewGetRoot(windowref), kHIViewWindowContentID, &parent);
-                if(err == errUnknownControl)
-                    parent = HIViewGetRoot(windowref);
-                else if(err != noErr)
-                    qWarning("That cannot happen! %d [%ld]", __LINE__, err);
+            if(WindowRef windowref = qt_mac_window_for(hiview)) {
+                RetainWindow(windowref);
+                parent = qt_mac_hiview_for(windowref);
             } else {
-                // I should be empty...
-                destroyid = q->winId();
-                setWinId(window);
-                transferChildren();
-                q->setAttribute(Qt::WA_WState_Visible, HIViewIsVisible(hiview));
+                transfer = true;
             }
         } else if(parentWidget) {
-            parent = (HIViewRef)parentWidget->winId();
+            parent = qt_mac_hiview_for(parentWidget);
         }
-        if(parent) {
+        setWinId((WId)hiview);
+        if(parent)
             HIViewAddSubview(parent, hiview);
-            if(destroyOldWindow)
-                destroyid = q->winId();
-            setWinId((WId)hiview);
-
-            data.fstrut_dirty = true; // we'll re calculate this later
-            q->setAttribute(Qt::WA_WState_Visible, HIViewIsVisible(hiview));
+        if(transfer)
+            transferChildren();
+        data.fstrut_dirty = true; // we'll re calculate this later
+        q->setAttribute(Qt::WA_WState_Visible, HIViewIsVisible(hiview));
+        if(initializeWindow) {
             HIRect bounds = CGRectMake(data.crect.x(), data.crect.y(), data.crect.width(), data.crect.height());
             HIViewSetFrame(hiview, &bounds);
+            q->setAttribute(Qt::WA_WState_Visible, HIViewIsVisible(hiview));
         }
+        initWindowPtr();
     } else if(desktop) {                        // desktop widget
         if(!qt_root_win)
             QWidgetPrivate::qt_create_root_win();
         if(HIViewRef hiview = HIViewGetRoot(qt_root_win)) {
-            CFRetain((HIViewRef)hiview);
+            CFRetain(hiview);
             setWinId((WId)hiview);
         }
     } else if(topLevel) {
@@ -1217,16 +1255,16 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         }
     } else {
         data.fstrut_dirty = false; // non-toplevel widgets don't have a frame, so no need to update the strut
-        if(HIViewRef hiview = qt_mac_create_widget((HIViewRef)parentWidget->winId())) {
+        if(HIViewRef hiview = qt_mac_create_widget(qt_mac_hiview_for(parentWidget))) {
             HIRect bounds = CGRectMake(data.crect.x(), data.crect.y(), data.crect.width(), data.crect.height());
             HIViewSetFrame(hiview, &bounds);
             setWinId((WId)hiview);
         }
     }
 
-    if(HIViewRef destroy_hiview = (HIViewRef)destroyid) {
-        HIViewRemoveFromSuperview(destroy_hiview);
-        CFRelease(destroy_hiview);
+    if(destroyid) {
+        //HIViewRemoveFromSuperview(destroyid);
+        CFRelease(destroyid);
     }
 }
 
@@ -1257,19 +1295,19 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         if(destroyWindow) {
             if(d->window_event)
                 RemoveEventHandler(d->window_event);
-            if(HIViewRef hiview = (HIViewRef)winId()) {
+            if(HIViewRef hiview = qt_mac_hiview_for(this)) {
                 WindowPtr window = isWindow() ? qt_mac_window_for(hiview) : 0;
                 if(window) {
                     RemoveWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget);
                     ReleaseWindow(window);
                 } else {
-                   HIViewRemoveFromSuperview(hiview);
-                   CFRelease(hiview);
+                    //HIViewRemoveFromSuperview(hiview);
+                    CFRelease(hiview);
                 }
             }
         }
+        d->setWinId(0);
     }
-    d->setWinId(0);
 }
 
 void QWidgetPrivate::transferChildren()
@@ -1283,7 +1321,7 @@ void QWidgetPrivate::transferChildren()
             if(!w->isWindow()) {
                 if (!topData()->caption.isEmpty())
                     setWindowTitle_sys(extra->topextra->caption);
-                HIViewAddSubview((HIViewRef)q->winId(), (HIViewRef)w->winId());
+                HIViewAddSubview(qt_mac_hiview_for(q), qt_mac_hiview_for(w));
             }
         }
     }
@@ -1302,7 +1340,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     EventHandlerRef old_window_event = 0;
     HIViewRef old_id = 0;
     if(!(q->windowType() == Qt::Desktop)) {
-        old_id = (HIViewRef)q->winId();
+        old_id = qt_mac_hiview_for(q);
         old_window_event = window_event;
     }
     QWidget* oldtlw = q->window();
@@ -1323,7 +1361,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     q->setAttribute(Qt::WA_WState_Created, false);
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
-    q->create();
+    q->create(0, true, false);
     if(q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
@@ -1355,9 +1393,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if(old_id) { //don't need old window anymore
         WindowPtr window = (oldtlw == q) ? qt_mac_window_for(old_id) : 0;
         if(window) {
+            RemoveWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget);
             ReleaseWindow(window);
         } else {
-            HIViewRemoveFromSuperview(old_id);
             CFRelease(old_id);
         }
     }
@@ -1369,7 +1407,7 @@ QPoint QWidget::mapToGlobal(const QPoint &pos) const
     Q_D(const QWidget);
     QPoint tmp = d->mapToWS(pos);
     HIPoint hi_pos = CGPointMake(tmp.x(), tmp.y());
-    HIViewConvertPoint(&hi_pos, (HIViewRef)winId(), 0);
+    HIViewConvertPoint(&hi_pos, qt_mac_hiview_for(this), 0);
     Rect win_rect;
     GetWindowBounds(qt_mac_window_for(this), kWindowStructureRgn, &win_rect);
     return QPoint((int)hi_pos.x+win_rect.left, (int)hi_pos.y+win_rect.top);
@@ -1381,7 +1419,7 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     Rect win_rect;
     GetWindowBounds(qt_mac_window_for(this), kWindowStructureRgn, &win_rect);
     HIPoint hi_pos = CGPointMake(pos.x()-win_rect.left, pos.y()-win_rect.top);
-    HIViewConvertPoint(&hi_pos, 0, (HIViewRef)winId());
+    HIViewConvertPoint(&hi_pos, 0, qt_mac_hiview_for(this));
     return d->mapFromWS(QPoint((int)hi_pos.x, (int)hi_pos.y));
 }
 
@@ -1573,7 +1611,7 @@ void QWidget::update(const QRect &r)
             if (testAttribute(Qt::WA_WState_InPaintEvent)) {
                 QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
             } else {
-                HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
+                HIViewSetNeedsDisplayInRegion(qt_mac_hiview_for(this), rgn.handle(true), true);
             }
         }
     }
@@ -1585,7 +1623,7 @@ void QWidget::update(const QRegion &rgn)
         if (testAttribute(Qt::WA_WState_InPaintEvent))
             QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
         else
-            HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
+            HIViewSetNeedsDisplayInRegion(qt_mac_hiview_for(this), rgn.handle(true), true);
 }
 
 void QWidget::repaint(const QRegion &rgn)
@@ -1593,11 +1631,11 @@ void QWidget::repaint(const QRegion &rgn)
     if(rgn.isEmpty())
         return;
 
-    HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
+    HIViewSetNeedsDisplayInRegion(qt_mac_hiview_for(this), rgn.handle(true), true);
 #if 0 && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     OSStatus (*HIViewRender_ptr)(HIViewRef) = HIViewRender; // workaround for gcc warning
     if(HIViewRender_ptr)
-        (*HIViewRender_ptr)((HIViewRef)window()->winId()); //yes the top level!!
+        (*HIViewRender_ptr)(qt_mac_hiview_for(window())); //yes the top level!!
 #endif
 }
 
@@ -1645,7 +1683,7 @@ void QWidgetPrivate::show_sys()
             CollapseWindow(window, true);
         qt_event_request_activate(q);
     } else if(!q->parentWidget() || q->parentWidget()->isVisible()) {
-        HIViewSetVisible((HIViewRef)q->winId(), true);
+        HIViewSetVisible(qt_mac_hiview_for(q), true);
     }
     qt_event_request_window_change();
 }
@@ -1690,7 +1728,7 @@ void QWidgetPrivate::hide_sys()
                 qt_event_request_activate(w);
         }
     } else {
-        HIViewSetVisible((HIViewRef)q->winId(), false);
+        HIViewSetVisible(qt_mac_hiview_for(q), false);
     }
     qt_event_request_window_change();
     deactivateWidgetCleanup();
@@ -1835,7 +1873,7 @@ void QWidgetPrivate::raise_sys()
         GetCurrentProcess(&psn);
         SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
     } else if(q->parentWidget()) {
-        HIViewSetZOrder((HIViewRef)q->winId(), kHIViewZOrderAbove, 0);
+        HIViewSetZOrder(qt_mac_hiview_for(q), kHIViewZOrderAbove, 0);
         qt_event_request_window_change();
     }
 }
@@ -1848,7 +1886,7 @@ void QWidgetPrivate::lower_sys()
     if(q->isWindow()) {
         SendBehind(qt_mac_window_for(q), 0);
     } else if(q->parentWidget()) {
-        HIViewSetZOrder((HIViewRef)q->winId(), kHIViewZOrderBelow, 0);
+        HIViewSetZOrder(qt_mac_hiview_for(q), kHIViewZOrderBelow, 0);
         qt_event_request_window_change();
     }
 }
@@ -1862,7 +1900,7 @@ void QWidgetPrivate::stackUnder_sys(QWidget *w)
     QWidget *p = q->parentWidget();
     if(!p || p != w->parentWidget())
         return;
-    HIViewSetZOrder((HIViewRef)q->winId(), kHIViewZOrderBelow, (HIViewRef)w->winId());
+    HIViewSetZOrder(qt_mac_hiview_for(q), kHIViewZOrderBelow, qt_mac_hiview_for(w));
     qt_event_request_window_change();
 }
 
@@ -1927,7 +1965,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
                 xrect.translate(data.crect.topLeft());
                 HIRect bounds = CGRectMake(xrect.x(), xrect.y(),
                                            xrect.width(), xrect.height());
-                HIViewSetFrame((HIViewRef)q->winId(), &bounds);
+                HIViewSetFrame(qt_mac_hiview_for(q), &bounds);
                 return;
             }
         }
@@ -1949,7 +1987,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
     if (q->testAttribute(Qt::WA_OutsideWSRange) != outsideRange) {
         q->setAttribute(Qt::WA_OutsideWSRange, outsideRange);
         if (outsideRange) {
-            HIViewSetVisible((HIViewRef)q->winId(), false);
+            HIViewSetVisible(qt_mac_hiview_for(q), false);
             q->setAttribute(Qt::WA_Mapped, false);
         } else if (!q->isHidden()) {
             mapWindow = true;
@@ -1977,11 +2015,9 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
     // move ourselves to the new position and map (if necessary) after
     // the movement. Rationale: moving unmapped windows is much faster
     // than moving mapped windows
-    //if (jump) //avoid flicker when jumping
-    //    XSetWindowBackgroundPixmap(dpy, data.winid, XNone);
     HIRect bounds = CGRectMake(xrect.x(), xrect.y(),
                                xrect.width(), xrect.height());
-    HIViewSetFrame((HIViewRef)q->winId(), &bounds);
+    HIViewSetFrame(qt_mac_hiview_for(q), &bounds);
 
     if  (jump) {
         updateSystemBackground();
@@ -1989,7 +2025,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
     }
     if (mapWindow && !dontShow) {
         q->setAttribute(Qt::WA_Mapped);
-        HIViewSetVisible((HIViewRef)q->winId(), true);
+        HIViewSetVisible(qt_mac_hiview_for(q), true);
     }
 }
 
@@ -2049,12 +2085,12 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     if(q->isWindow()) {
         //update the widget also..
         HIRect bounds = CGRectMake(0, 0, w, h);
-        HIViewSetFrame((HIViewRef)q->winId(), &bounds);
+        HIViewSetFrame(qt_mac_hiview_for(q), &bounds);
 
         Rect r; SetRect(&r, x, y, x+w, y+h);
-        HIViewSetDrawingEnabled((HIViewRef)q->winId(), false);
+        HIViewSetDrawingEnabled(qt_mac_hiview_for(q), false);
         SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
-        HIViewSetDrawingEnabled((HIViewRef)q->winId(), true);
+        HIViewSetDrawingEnabled(qt_mac_hiview_for(q), true);
     } else {
         setWSGeometry();
     }
@@ -2094,7 +2130,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     if(!updatesEnabled() &&  (valid_rect || children().isEmpty()))
         return;
 
-    if (HIViewGetNeedsDisplay((HIViewRef)winId())) {
+    if (HIViewGetNeedsDisplay(qt_mac_hiview_for(this))) {
         update(valid_rect ? r : rect());
         return;
     }
@@ -2110,7 +2146,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
                     w->data->crect = QRect(w->pos() + pd, w->size());
                     HIRect bounds = CGRectMake(w->data->crect.x(), w->data->crect.y(),
                                                w->data->crect.width(), w->data->crect.height());
-                    HIViewSetFrame((HIViewRef)w->winId(), &bounds);
+                    HIViewSetFrame(qt_mac_hiview_for(w), &bounds);
                     moved.append(w);
                 }
             }
@@ -2123,7 +2159,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         }
     }
     HIRect scrollrect = CGRectMake(r.x(), r.y(), r.width(), r.height());
-    HIViewScrollRect((HIViewRef)winId(), valid_rect ? &scrollrect : 0, dx, dy);
+    HIViewScrollRect(qt_mac_hiview_for(this), valid_rect ? &scrollrect : 0, dx, dy);
 }
 
 int QWidget::metric(PaintDeviceMetric m) const
@@ -2136,7 +2172,7 @@ int QWidget::metric(PaintDeviceMetric m) const
     case PdmHeight:
     case PdmWidth: {
         HIRect rect;
-        HIViewGetFrame((HIViewRef)winId(), &rect);
+        HIViewGetFrame(qt_mac_hiview_for(this), &rect);
         if(m == PdmWidth)
             return (int)rect.size.width;
         return (int)rect.size.height; }
@@ -2212,7 +2248,7 @@ void QWidgetPrivate::updateFrameStrut() const
 void QWidgetPrivate::registerDropSite(bool on)
 {
     Q_Q(QWidget);
-    SetControlDragTrackingEnabled((HIViewRef)q->winId(), on);
+    SetControlDragTrackingEnabled(qt_mac_hiview_for(q), on);
 }
 
 void QWidget::setMask(const QRegion &region)
@@ -2226,7 +2262,7 @@ void QWidget::setMask(const QRegion &region)
     if(isWindow())
         ReshapeCustomWindow(qt_mac_window_for(this));
     else
-        HIViewReshapeStructure((HIViewRef)winId());
+        HIViewReshapeStructure(qt_mac_hiview_for(this));
 }
 
 void QWidget::setMask(const QBitmap &bitmap)
@@ -2295,6 +2331,7 @@ QPaintEngine *QWidget::paintEngine() const
 
 void QWidgetPrivate::setModal_sys()
 {
+    return;
     Q_Q(QWidget);
     const WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
     const QWidget *windowParent = q->window()->parentWidget();
@@ -2304,7 +2341,7 @@ void QWidgetPrivate::setModal_sys()
 #if 1
     if (q->testAttribute(Qt::WA_WState_Created)) {
         //setup the proper window class
-        WindowRef window = qt_mac_window_for(HIViewRef(q->winId()));
+        WindowRef window = qt_mac_window_for(qt_mac_hiview_for(q));
         WindowClass old_wclass;
         GetWindowClass(window, &old_wclass);
 

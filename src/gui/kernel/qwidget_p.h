@@ -272,6 +272,7 @@ public:
     void setWindowModified_sys(bool b);
     void createWindow_sys();
     void determineWindowClass();
+    void initWindowPtr();
     void transferChildren();
 #endif
     void setWindowTitle_helper(const QString &cap);
