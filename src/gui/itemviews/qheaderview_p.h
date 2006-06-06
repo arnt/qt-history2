@@ -191,6 +191,11 @@ public:
     void createSectionSpan(int start, int end, int size, QHeaderView::ResizeMode mode);
     void removeSectionsFromSpans(int start, int end);
 
+    inline void resizeSectionSpan(int visual, int size) {
+        QHeaderView::ResizeMode mode = headerSectionResizeMode(visual);
+        createSectionSpan(visual, visual, size, mode);
+    }
+
     inline int headerSectionCount() const { // for debugging
         int count = 0;
         for (int i = 0; i < sectionSpans.count(); ++i)

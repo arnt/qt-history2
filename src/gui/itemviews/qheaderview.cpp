@@ -635,48 +635,92 @@ void QHeaderView::moveSection(int from, int to)
     \sa sectionResized()
 */
 
-void QHeaderView::resizeSection(int logicalIndex, int size)
+void QHeaderView::resizeSection(int logical, int size)
 {
     Q_D(QHeaderView);
-    if (logicalIndex < 0 || logicalIndex >= count())
+    if (logical < 0 || logical >= count())
         return;
 
-    if (isSectionHidden(logicalIndex))
+    if (isSectionHidden(logical))
         return;
 
-    int oldSize = sectionSize(logicalIndex);
+    int oldSize = sectionSize(logical);
+    int minimumSize = minimumSectionSize();
     if (oldSize == size)
         return;
 
     d->executePostedLayout();
     d->invalidateCachedSizeHint();
 
-    int visual = visualIndex(logicalIndex);
+    int visual = visualIndex(logical);
     Q_ASSERT(visual != -1);
 
+    int newSize = qMax(size, minimumSize);
     if (stretchLastSection() && visual == count() - 1)
-        d->lastSectionSize = size;
+        d->lastSectionSize = newSize;
 
-    ResizeMode mode = d->headerSectionResizeMode(visual);
-    d->createSectionSpan(visual, visual, size, mode);
+    if (newSize != oldSize)
+        d->resizeSectionSpan(visual, newSize);
+#if 0
+    if (/*mode == Local && */true) {
+        int sectionSizeDelta = newSize - oldSize;
+        if (sectionSizeDelta > 0) {
+            int nextSize = minimumSize;
+            int nextVisual = visual + 1;
+            while (nextSize == minimumSize && nextVisual < count() - 1) {
+                nextSize = qMax(d->headerSectionSize(nextVisual) - sectionSizeDelta, minimumSize);
+                d->resizeSectionSpan(nextVisual, nextSize);
+                ++nextVisual;
+            }
+        } else {
+            //int inputSizeDelta = size - newSize;
+            //qDebug() << "inputSizeDelta" << inputSizeDelta << inputSizeDelta;
+//             qDebug() << "sizeDelta" << newSize - d->originalSize;
+//             qDebug() << "pressDelta" << size - d->originalSize; //d->lastPos - d->firstPos;
+            int delta = size - newSize;
+            int oldSectionSize = oldSize;
+            int prevVisual = visual;
+            int accumulatedMinimums = 0;
+             while (oldSectionSize == minimumSize && prevVisual > 0 && delta < -minimumSize) {
+                 --prevVisual;
+                 int currentSectionSize = sectionSize(prevVisual);
+                 accumulatedMinimums += minimumSize;
+                 if (currentSectionSize > minimumSize) {
+                     int newSectionSize = qMax(currentSectionSize + delta,
+                                                minimumSize);
+                      delta -= (newSectionSize - currentSectionSize);
+                      qDebug() << "resizing" << prevVisual
+                               << "to" << newSectionSize + accumulatedMinimums
+                               << "delta" << delta;
+//                      d->resizeSectionSpan(prevVisual, newSectionSize);
+                      oldSectionSize = newSectionSize;
+                 }
+             }
+
+             int nextSize = d->headerSectionSize(visual + 1) - sectionSizeDelta;
+             d->resizeSectionSpan(visual + 1, nextSize);
+        }
+    }
+#endif
 
     int w = d->viewport->width();
     int h = d->viewport->height();
-    int pos = sectionViewportPosition(logicalIndex);
+    int pos = sectionViewportPosition(logical);
     QRect r;
     if (orientation() == Qt::Horizontal)
         if (isRightToLeft())
-            r.setRect(0, 0, pos + size, h);
+            r.setRect(0, 0, pos + newSize, h);
         else
             r.setRect(pos, 0, w - pos, h);
     else
         r.setRect(0, pos, w, h - pos);
+
     if (d->hasAutoResizeSections()) {
         resizeSections();
         r = d->viewport->rect();
     }
     d->viewport->update(r.normalized());
-    emit sectionResized(logicalIndex, oldSize, size);
+    emit sectionResized(logical, oldSize, newSize);
 }
 
 /*!
@@ -1191,13 +1235,8 @@ void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirs
     if (d->orientation != orientation)
         return;
 
-    if (count() == 0)
+    if (logicalFirst < 0 || logicalLast < 0 || logicalFirst >= count() || logicalLast >= count())
         return;
-
-    Q_ASSERT(logicalFirst >= 0);
-    Q_ASSERT(logicalLast >= 0);
-    Q_ASSERT(logicalFirst < count());
-    Q_ASSERT(logicalLast < count());
 
     d->invalidateCachedSizeHint();
 
@@ -1611,10 +1650,10 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
             Q_ASSERT(d->originalSize != -1);
             int delta = d->reverse() ? d->firstPos - pos : pos - d->firstPos;
             int newSize = d->originalSize + delta;
-            if (newSize > minimumSectionSize()) {
-                resizeSection(d->section, newSize);
-                d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
-            }
+            //if (newSize > minimumSectionSize()) {
+            d->lastPos = pos;
+            resizeSection(d->section, newSize);
+            // }
             return;
         }
         case QHeaderViewPrivate::MoveSection: {
