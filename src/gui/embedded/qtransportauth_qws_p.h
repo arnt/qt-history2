@@ -41,8 +41,16 @@
 void hexstring( char *buf, const unsigned char* key, size_t sz );
 #endif
 
-// Keys expire after this many seconds
-#define QSXE_KEY_PERIOD 86400
+// Rekeying is scheduled every this many seconds, note this should be not a multiple
+// of 24hrs to avoid it happening at the same time every day
+#define QSXE_KEY_PERIOD 200000
+
+/*!
+  \internal
+  memset for security purposes, guaranteed not to be optimized away
+  http://www.faqs.org/docs/Linux-HOWTO/Secure-Programs-HOWTO.html
+*/
+void *guaranteed_memset(void *v,int c,size_t n);
 
 class QUnixSocketMessage;
 

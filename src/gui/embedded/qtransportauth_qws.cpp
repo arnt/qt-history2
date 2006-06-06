@@ -24,6 +24,7 @@
 #include "qbuffer.h"
 #include "qthread.h"
 #include "qabstractsocket.h"
+#include "qlibraryinfo.h"
 #include "qfile.h"
 #include "qdebug.h"
 
@@ -32,10 +33,21 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/file.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <time.h>
+
+/*!
+  \internal
+  memset for security purposes, guaranteed not to be optimized away
+  http://www.faqs.org/docs/Linux-HOWTO/Secure-Programs-HOWTO.html
+*/
+void *guaranteed_memset(void *v,int c,size_t n)
+{
+    volatile char *p = (char *)v; while (n--) *p++=c; return v;
+}
 
 /*!
   \class QTransportAuth
@@ -107,7 +119,7 @@ static int hmac_md5(
 
 
 
-#define KEY_CACHE_SIZE 10
+#define KEY_CACHE_SIZE 30
 
 const char * const errorStrings[] = {
     "pending identity verification",
@@ -176,6 +188,75 @@ void QTransportAuth::setProcessKey( const char *authdata )
 
 
 /*!
+  Apply \a key as the process key for the currently running application.
+
+  First checks if a file exists in $QPEDIR/etc/rekey/ with the same name as
+  this app, and if it does, the key from that file is used instead.
+
+  Will try to use qApp->applicationName() to get the name of this app, if that
+  won't work (since the QApplication hasn't been set up yet) pass the name in
+  \a prog instead.
+*/
+void QTransportAuth::setProcessKey( const char *key, const char *prog )
+{
+    static QString qtPrefix;
+
+    if ( qtPrefix.isEmpty() )
+        qtPrefix = QLibraryInfo::location(QLibraryInfo::PrefixPath);
+
+    QString appName;
+    if ( prog )
+    {
+        appName = prog;
+    }
+    else
+    {
+        if ( qApp )
+            appName = qApp->applicationName();
+    }
+    if ( appName.isEmpty() )
+    {
+        qWarning( "QTransportAuth::setProcessKey() - No application name!" );
+        QTransportAuth::getInstance()->setProcessKey( key );
+        return;
+    }
+    QString rekey = qtPrefix + "/etc/rekey/" + appName;
+    QFile rekeyFile( rekey );
+    if ( rekeyFile.open( QIODevice::ReadOnly ))
+    {
+        int rekeyFd = rekeyFile.handle();
+        if ( flock( rekeyFd, LOCK_EX ) == -1 )
+            qWarning( "Couldn't lock %s : %s", qPrintable( rekey ), strerror( errno ));
+        unsigned int keyOffset = 0;
+        AuthCookie ac;
+        ::memcpy( &ac, key, QSXE_KEY_LEN+2 ); // keep progId
+        int rc = ::read( rekeyFd, &keyOffset, sizeof( keyOffset ));
+        if ( rc != sizeof( keyOffset ))
+            qWarning( "Error reading key offset: result %d ( expecting %d bytes )",
+                    rc, sizeof( keyOffset ));
+        rc = ::read( rekeyFd, &ac, QSXE_KEY_LEN );
+        if ( rc != QSXE_KEY_LEN )
+            qWarning( "Error reading key: result %d ( expecting %d bytes )",
+                rc, QSXE_KEY_LEN );
+        setProcessKey( (const char *)&ac );
+#ifdef QTRANSPORTAUTH_DEBUG
+        char displaybuf[1024];
+        hexstring( displaybuf, (const unsigned char *)&ac, QSXE_HEADER_LEN );
+        qDebug() << "new key" << displaybuf << "set from" << rekey << "for prog id" << ac.progId;
+#endif
+    }
+    else
+    {
+        setProcessKey( key );
+#ifdef QTRANSPORTAUTH_DEBUG
+        char displaybuf2[1024];
+        hexstring( displaybuf2, (const unsigned char *)key, QSXE_HEADER_LEN );
+        qDebug() << "existing key" << displaybuf2 << "set" << appName;
+#endif
+    }
+}
+
+/*!
   Register \a pr as a policy handler object.  The object pointed to
   by \a pr should have a slot as follows
   \code
@@ -193,6 +274,8 @@ void QTransportAuth::registerPolicyReceiver( QObject *pr )
     if ( d->policyReceivers.contains( guard ))
         return;
     d->policyReceivers.append(guard);
+    // not every policy reciever needs setup - no error if this fails
+    QMetaObject::invokeMethod( pr, "setupPolicyCheck" );
     if ( d->buffers.count() > 0 )
     {
         QHash<QTransportAuth::Data*,QAuthDevice*>::iterator it = d->buffers.begin();
@@ -225,6 +308,8 @@ void QTransportAuth::unregisterPolicyReceiver( QObject *pr )
             ++it;
         }
     }
+    // not every policy reciever needs tear down - no error if this fails
+    QMetaObject::invokeMethod( pr, "teardownPolicyCheck" );
 }
 
 /*!

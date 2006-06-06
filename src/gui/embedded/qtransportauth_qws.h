@@ -115,6 +115,7 @@ public:
     QString logFilePath() const;
     bool isDiscoveryMode() const;
     void setProcessKey( const char * );
+    void setProcessKey( const char *, const char * );
     void registerPolicyReceiver( QObject * );
     void unregisterPolicyReceiver( QObject * );
 
