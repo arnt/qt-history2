@@ -16,7 +16,6 @@
 
 #include <QtCore/qiterator.h>
 #include <QtCore/qatomic.h>
-#include <QtCore/qalgorithms.h>
 
 #ifndef QT_NO_STL
 #include <iterator>
@@ -627,6 +626,8 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::count(const T &t) const
 
 Q_DECLARE_SEQUENTIAL_ITERATOR(List)
 Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(List)
+
+#include <QtCore/qalgorithms.h>
 
 QT_END_HEADER
 
