@@ -1170,6 +1170,28 @@ bool QTextControl::event(QEvent *e)
             d->focusEvent(static_cast<QFocusEvent *>(e));
             break;
 
+        case QEvent::DragEnter: {
+            QDragEnterEvent *ev = static_cast<QDragEnterEvent *>(e);
+            if (d->dragEnterEvent(e, ev->mimeData()))
+                ev->acceptProposedAction();
+            break;
+        }
+        case QEvent::DragLeave:
+            d->dragLeaveEvent();
+            break;
+        case QEvent::DragMove: {
+            QDragMoveEvent *ev = static_cast<QDragMoveEvent *>(e);
+            if (d->dragMoveEvent(e, ev->mimeData(), ev->pos()))
+                ev->acceptProposedAction();
+            break;
+        }
+        case QEvent::Drop: {
+            QDropEvent *ev = static_cast<QDropEvent *>(e);
+            if (d->dropEvent(ev->mimeData(), ev->pos(), ev->proposedAction(), ev->source()))
+                ev->acceptProposedAction();
+            break;
+        }
+
         case QEvent::GraphicsSceneMousePress: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
             d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers());
@@ -1195,9 +1217,9 @@ bool QTextControl::event(QEvent *e)
             if (d->dragEnterEvent(e, ev->mimeData()))
                 ev->acceptProposedAction();
             break; }
-        case QEvent::GraphicsSceneDragLeave: {
+        case QEvent::GraphicsSceneDragLeave:
             d->dragLeaveEvent();
-            break; }
+            break;
         case QEvent::GraphicsSceneDragMove: {
             QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
             if (d->dragMoveEvent(e, ev->mimeData(), ev->pos()))
