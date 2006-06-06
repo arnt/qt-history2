@@ -34,7 +34,7 @@ private:
     QLabel *createPixmapLabel();
     void updatePixmapLabels();
 
-    enum { NumModes = 3, NumStates = 2 };
+    enum { NumModes = 4, NumStates = 2 };
 
     QIcon icon;
     QSize size;

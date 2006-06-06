@@ -28,7 +28,8 @@ IconPreviewArea::IconPreviewArea(QWidget *parent)
     modeLabels[0] = createHeaderLabel(tr("Normal"));
     modeLabels[1] = createHeaderLabel(tr("Active"));
     modeLabels[2] = createHeaderLabel(tr("Disabled"));
-    Q_ASSERT(NumModes == 3);
+    modeLabels[3] = createHeaderLabel(tr("Selected"));
+    Q_ASSERT(NumModes == 4);
 
     for (int j = 0; j < NumStates; ++j)
         mainLayout->addWidget(stateLabels[j], j + 1, 0);
@@ -84,8 +85,10 @@ void IconPreviewArea::updatePixmapLabels()
             mode = QIcon::Normal;
         } else if (i == 1) {
             mode = QIcon::Active;
-        } else {
+        } else if (i == 2) {
             mode = QIcon::Disabled;
+        } else {
+            mode = QIcon::Selected;
         }
 
         for (int j = 0; j < NumStates; ++j) {

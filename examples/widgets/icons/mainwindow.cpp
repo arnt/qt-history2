@@ -120,8 +120,10 @@ void MainWindow::changeIcon()
                 mode = QIcon::Normal;
             } else if (item1->text() == tr("Active")) {
                 mode = QIcon::Active;
-            } else {
+            } else if (item1->text() == tr("Disabled")) {
                 mode = QIcon::Disabled;
+            } else {
+                mode = QIcon::Selected;
             }
 
             QIcon::State state;
@@ -165,6 +167,8 @@ void MainWindow::addImage()
                     item1->setText(tr("Active"));
                 } else if (fileName.contains("_dis")) {
                     item1->setText(tr("Disabled"));
+                } else if (fileName.contains("_sel")) {
+                    item1->setText(tr("Selected"));
                 }
 
                 if (fileName.contains("_on"))

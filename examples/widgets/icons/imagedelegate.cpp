@@ -29,6 +29,7 @@ QWidget *ImageDelegate::createEditor(QWidget *parent,
         comboBox->addItem(tr("Normal"));
         comboBox->addItem(tr("Active"));
         comboBox->addItem(tr("Disabled"));
+        comboBox->addItem(tr("Selected"));
     } else if (index.column() == 2) {
         comboBox->addItem(tr("Off"));
         comboBox->addItem(tr("On"));
