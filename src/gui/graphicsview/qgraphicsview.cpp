@@ -184,7 +184,10 @@ public:
 
     QBrush backgroundBrush;
     QBrush foregroundBrush;
-    
+
+    QCursor viewCursor;
+    bool hasViewCursor;
+
     QGraphicsSceneDragDropEvent *lastDragDropEvent;
     void storeDragDropEvent(const QGraphicsSceneDragDropEvent *event);
     void populateSceneDragDropEvent(QGraphicsSceneDragDropEvent *dest,
@@ -202,7 +205,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), alignment(Qt::AlignCenter),
       scene(0), rubberBand(0), rubberBanding(false),
-      handScrolling(false), lastDragDropEvent(0)
+      handScrolling(false), hasViewCursor(false), lastDragDropEvent(0)
 {
 }
 
@@ -1495,7 +1498,10 @@ bool QGraphicsView::viewportEvent(QEvent *event)
     case QEvent::Leave:
         d->useLastMouseEvent = false;
 #ifndef QT_NO_CURSOR
-        viewport()->unsetCursor();
+        if (d->hasViewCursor) {
+            d->hasViewCursor = false;
+            viewport()->setCursor(d->viewCursor);
+        }
 #endif
         break;
 #ifndef QT_NO_TOOLTIP
@@ -1769,18 +1775,29 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
         if (!d->scene) {
             d->handScrolling = true;
 #ifndef QT_NO_CURSOR
+            if (!d->hasViewCursor) {
+                d->hasViewCursor = true;
+                d->viewCursor = viewport()->cursor();
+            }
             viewport()->setCursor(Qt::PointingHandCursor);
 #endif
             return;
         }
         if ((d->handScrolling = !d->scene->itemAt(d->mousePressScenePoint))) {
 #ifndef QT_NO_CURSOR
+            if (!d->hasViewCursor) {
+                d->hasViewCursor = true;
+                d->viewCursor = viewport()->cursor();
+            }
             viewport()->setCursor(Qt::PointingHandCursor);
 #endif
             return;
         }
 #ifndef QT_NO_CURSOR
-        viewport()->unsetCursor();
+        if (d->hasViewCursor) {
+            d->hasViewCursor = false;
+            viewport()->setCursor(d->viewCursor);
+        }
 #endif
     }
 
@@ -1865,9 +1882,16 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
 
 #ifndef QT_NO_CURSOR
     if (QGraphicsItem *item = d->scene->itemAt(mapToScene(event->pos()))) {
+        if (!d->hasViewCursor) {
+            d->hasViewCursor = true;
+            d->viewCursor = viewport()->cursor();
+        }
         viewport()->setCursor(item->cursor());
     } else {
-        viewport()->unsetCursor();
+        if (d->hasViewCursor) {
+            d->hasViewCursor = false;
+            viewport()->setCursor(d->viewCursor);
+        }
     }
 #endif
 }
@@ -1891,7 +1915,10 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
         }
     } else if (d->dragMode == QGraphicsView::ScrollHandDrag) {
 #ifndef QT_NO_CURSOR
-        viewport()->unsetCursor();
+        if (d->hasViewCursor) {
+            d->hasViewCursor = false;
+            viewport()->setCursor(d->viewCursor);
+        }
 #endif
         d->handScrolling = false;
     }
