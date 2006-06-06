@@ -910,7 +910,7 @@ QWorkspacePrivate::init()
     actions[QWorkspacePrivate::CloseAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarCloseButton)),
                                                           QWorkspace::tr("&Close")
 #ifndef QT_NO_SHORTCUT
-                                                          +"\t"+(QString)QKeySequence(Qt::CTRL+Qt::Key_F4)
+                                                          +QLatin1Char('\t')+(QString)QKeySequence(Qt::CTRL+Qt::Key_F4)
 #endif
                                                           ,q);
     QObject::connect(actions[QWorkspacePrivate::CloseAct], SIGNAL(triggered()), q, SLOT(closeActiveWindow()));
