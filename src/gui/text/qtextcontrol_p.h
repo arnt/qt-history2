@@ -179,12 +179,12 @@ public:
 
     virtual bool event(QEvent *e);
 
-protected:
-    virtual void timerEvent(QTimerEvent *e);
-
     virtual QMimeData *createMimeDataFromSelection() const;
     virtual bool canInsertFromMimeData(const QMimeData *source) const;
     virtual void insertFromMimeData(const QMimeData *source);
+
+protected:
+    virtual void timerEvent(QTimerEvent *e);
 
 private:
     Q_DISABLE_COPY(QTextControl)
