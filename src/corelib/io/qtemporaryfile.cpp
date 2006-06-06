@@ -346,7 +346,7 @@ QTemporaryFile::QTemporaryFile()
 /*!
     Constructs a QTemporaryFile with a template filename of \a
     templateName. Upon opening the temporary file this will be used to create
-    a unique filename. If the \a templateName does not contains XXXXXX it will
+    a unique filename. If the \a templateName does not contain XXXXXX it will
     automatically be appended and used as the dynamic portion of the filename.
 
     \sa open(), fileTemplate()
