@@ -750,6 +750,7 @@ QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
 bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                              int /* row */, int /* column */, const QModelIndex &parent)
 {
+    Q_D(QDirModel);
     if (!d->indexValid(parent) || isReadOnly())
         return false;
 
