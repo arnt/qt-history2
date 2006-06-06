@@ -59,7 +59,7 @@ elif [ $os_major -eq 7 -a $os_minor -eq 9 ]; then
     esac
 
     case $licenseTypeTest in
-    F)
+    F|T|3)
         licenseTest=Commercial
         ;;
     Z|R|Q)
