@@ -179,7 +179,7 @@ static int _gettemp(char *path, int *doopen, int domkdir, int slen)
 	/*NOTREACHED*/
 }
 
-int mkstemps(char *path, int slen)
+static int mkstemps(char *path, int slen)
 {
 	int fd;
 	return (_gettemp(path, &fd, 0, slen) ? fd : -1);
