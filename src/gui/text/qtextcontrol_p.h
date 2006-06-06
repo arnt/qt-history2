@@ -132,6 +132,9 @@ public Q_SLOTS:
     void paste();
 #endif
 
+    void undo();
+    void redo();
+
     void clear();
     void selectAll();
 
@@ -185,8 +188,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void updateCurrentCharFormatAndSelection())
     Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
     Q_PRIVATE_SLOT(d_func(), void deleteSelected())
-    Q_PRIVATE_SLOT(d_func(), void undo())
-    Q_PRIVATE_SLOT(d_func(), void redo())
     Q_PRIVATE_SLOT(d_func(), void setCursorAfterUndoRedo(int, int, int))
 };
 

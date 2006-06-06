@@ -87,8 +87,6 @@ public:
 
     void deleteSelected();
 
-    void undo();
-    void redo();
     void setCursorAfterUndoRedo(int undoPosition, int charsAdded, int charsRemoved);
 
     QRectF rectForPosition(int position) const;

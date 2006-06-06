@@ -676,26 +676,26 @@ void QTextControlPrivate::deleteSelected()
     cursor.removeSelectedText();
 }
 
-void QTextControlPrivate::undo()
+void QTextControl::undo()
 {
-    Q_Q(QTextControl);
-    QObject::connect(doc, SIGNAL(contentsChange(int, int, int)),
-                     q, SLOT(setCursorAfterUndoRedo(int, int, int)));
-    doc->undo();
-    QObject::disconnect(doc, SIGNAL(contentsChange(int, int, int)),
-                        q, SLOT(setCursorAfterUndoRedo(int, int, int)));
-    q->ensureCursorVisible();
+    Q_D(QTextControl);
+    QObject::connect(d->doc, SIGNAL(contentsChange(int, int, int)),
+                     this, SLOT(setCursorAfterUndoRedo(int, int, int)));
+    d->doc->undo();
+    QObject::disconnect(d->doc, SIGNAL(contentsChange(int, int, int)),
+                        this, SLOT(setCursorAfterUndoRedo(int, int, int)));
+    ensureCursorVisible();
 }
 
-void QTextControlPrivate::redo()
+void QTextControl::redo()
 {
-    Q_Q(QTextControl);
-    QObject::connect(doc, SIGNAL(contentsChange(int, int, int)),
-                     q, SLOT(setCursorAfterUndoRedo(int, int, int)));
-    doc->redo();
-    QObject::disconnect(doc, SIGNAL(contentsChange(int, int, int)),
-                        q, SLOT(setCursorAfterUndoRedo(int, int, int)));
-    q->ensureCursorVisible();
+    Q_D(QTextControl);
+    QObject::connect(d->doc, SIGNAL(contentsChange(int, int, int)),
+                     this, SLOT(setCursorAfterUndoRedo(int, int, int)));
+    d->doc->redo();
+    QObject::disconnect(d->doc, SIGNAL(contentsChange(int, int, int)),
+                        this, SLOT(setCursorAfterUndoRedo(int, int, int)));
+    ensureCursorVisible();
 }
 
 void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRemoved*/, int charsAdded)
@@ -1389,12 +1389,12 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
         switch( e->key() ) {
         case Qt::Key_Z:
             if (e->modifiers() & Qt::ShiftModifier)
-                redo();
+                q->redo();
             else
-                undo();
+                q->undo();
             break;
         case Qt::Key_Y:
-            redo();
+            q->redo();
             break;
 #ifndef QT_NO_CLIPBOARD
         case Qt::Key_X:
