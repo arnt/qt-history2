@@ -1209,7 +1209,7 @@ const QLocalePrivate *QLocale::systemLocale()
         if (res)
             return res;
     }
-    return findLocale(systemLocaleName());
+    return findLocale(QString::fromAscii(systemLocaleName()));
 }
 
 /*!
