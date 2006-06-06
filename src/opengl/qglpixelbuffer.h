@@ -29,6 +29,8 @@ class Q_OPENGL_EXPORT QGLPixelBuffer : public QPaintDevice
 public:
     QGLPixelBuffer(const QSize &size, const QGLFormat &format = QGLFormat::defaultFormat(),
                    QGLWidget *shareWidget = 0);
+    QGLPixelBuffer(int width, int height, const QGLFormat &format = QGLFormat::defaultFormat(),
+                   QGLWidget *shareWidget = 0);
     virtual ~QGLPixelBuffer();
 
     bool isValid() const;

@@ -108,6 +108,7 @@ public:
 #endif
     }
     bool init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget);
+    void common_init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget);
     bool cleanup();
 
     bool invalid;

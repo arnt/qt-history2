@@ -54,6 +54,20 @@
 #include <qimage.h>
 
 
+void QGLPixelBufferPrivate::common_init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+{
+    Q_Q(QGLPixelBuffer);
+    if(init(size, f, shareWidget)) {
+        req_size = size;
+        req_format = f;
+        req_shareWidget = shareWidget;
+        invalid = false;
+        qctx = new QGLContext(f);
+        qctx->d_func()->sharing = (shareWidget != 0);
+        qctx->d_func()->paintDevice = q;
+    }
+}
+
 /*! \fn QGLPixelBuffer::QGLPixelBuffer(const QSize &size,
                                        const QGLFormat &format,
                                        QGLWidget *shareWidget)
@@ -74,16 +88,31 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
     : d_ptr(new QGLPixelBufferPrivate)
 {
     Q_D(QGLPixelBuffer);
-    if(d->init(size, f, shareWidget)) {
-        d->req_size = size;
-        d->req_format = f;
-        d->req_shareWidget = shareWidget;
-        d->invalid = false;
-        d->qctx = new QGLContext(f);
-        d->qctx->d_func()->sharing = (shareWidget != 0);
-        d->qctx->d_func()->paintDevice = this;
-    }
+    d->common_init(size, f, shareWidget);
 }
+
+
+/*! \overload
+
+    Constructs an OpenGL pbuffer with the \a width and \a height. If
+    no \a format is specified, the
+    \l{QGLFormat::defaultFormat()}{default format} is used. If the \a
+    shareWidget parameter points to a valid QGLWidget, the pbuffer
+    will share its context with \a shareWidget.
+
+    If you intend to bind this pbuffer as a dynamic texture, the width
+    and height components of \c size must be powers of two (e.g., 512
+    x 128). On Mac OS X, the size must be a power of two.
+
+    \sa size(), format()
+*/
+QGLPixelBuffer::QGLPixelBuffer(int width, int height, const QGLFormat &f, QGLWidget *shareWidget)
+    : d_ptr(new QGLPixelBufferPrivate)
+{
+    Q_D(QGLPixelBuffer);
+    d->common_init(QSize(width, height), f, shareWidget);
+}
+
 
 /*! \fn QGLPixelBuffer::~QGLPixelBuffer()
 
