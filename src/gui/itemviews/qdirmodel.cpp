@@ -748,22 +748,16 @@ QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
 */
 
 bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
-                             int row, int /* column */, const QModelIndex &parent)
+                             int /* row */, int /* column */, const QModelIndex &parent)
 {
-    Q_D(QDirModel);
     if (!d->indexValid(parent) || isReadOnly())
         return false;
-
-    QDirModelPrivate::QDirNode *p = d->node(parent);
 
     bool success = true;
     QString to = filePath(parent) + QDir::separator();
 
     QList<QUrl> urls = data->urls();
     QList<QUrl>::const_iterator it = urls.begin();
-
-    int last = row + urls.count() - 1;
-    beginInsertRows(parent, row, last);
 
     switch (action) {
     case Qt::CopyAction:
@@ -789,9 +783,9 @@ bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
         return false;
     }
 
-    d->populate(p);
-    endInsertRows();
-
+    if (success)
+        refresh(parent);
+    
     return success;
 }
 
