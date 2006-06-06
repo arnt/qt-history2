@@ -241,7 +241,7 @@ static int parsePrintcap(QList<QPrinterDescription> *printers, const QString& fi
     while (!atEnd) {
         if (printcap.atEnd() || printcap.readLine(line_ascii, 1024) <= 0)
             atEnd = true;
-        QString line = line_ascii;
+        QString line = QString::fromLocal8Bit(line_ascii);
         line = line.trimmed();
         if (line.length() >= 1 && line[int(line.length()) - 1] == QLatin1Char('\\'))
             line.chop(1);
@@ -388,12 +388,12 @@ static char *parsePrintersConf(QList<QPrinterDescription> *printers, bool *found
                     // that's our default printer
                     defaultPrinter =
                         qstrdup(printerDesc.mid(i, j-i).toAscii().data());
-                    printerName = "";
-                    printerDesc = "";
+                    printerName = QString();
+                    printerDesc = QString();
                 } else if (printerName == QLatin1String("_all")) {
                     // skip it.. any other cases we want to skip?
-                    printerName = "";
-                    printerDesc = "";
+                    printerName = QString();
+                    printerDesc = QString();
                 }
 
                 if (j > 0) {
@@ -434,13 +434,13 @@ static char *parsePrintersConf(QList<QPrinterDescription> *printers, bool *found
                     }
                 }
             }
-            if (printerComment == ":")
-                printerComment = ""; // for cups
+            if (printerComment == QLatin1String(":"))
+                printerComment = QString(); // for cups
             if (printerName.length())
                 perhapsAddPrinter(printers, printerName, printerHost,
                                    printerComment, aliases);
             // chop away the line, for processing the next one
-            printerDesc = "";
+            printerDesc = QString();
         }
     }
     delete[] line;
@@ -553,7 +553,7 @@ static char *parseNsswitchPrintersEntry(QList<QPrinterDescription> *printers, ch
 
             if (source == "user") {
                 lastStatus = parsePrintcap(printers,
-                        QDir::homePath() + "/.printers");
+                        QDir::homePath() + QLatin1String("/.printers"));
             } else if (source == "files") {
                 bool found;
                 defaultPrinter = parsePrintersConf(printers, &found);
@@ -660,16 +660,16 @@ static void parseSpoolInterface(QList<QPrinterDescription> *printers)
                 (configFile.readLine(line.data(), 1024)) > 0) {
             QString uline = QString::fromLocal8Bit(line);
             if (uline.startsWith(typeKey) ) {
-                printerType = line.mid(nameKey.length());
+                printerType = uline.mid(nameKey.length());
                 printerType = printerType.simplified();
             } else if (uline.startsWith(hostKey)) {
-                hostName = line.mid(hostKey.length());
+                hostName = uline.mid(hostKey.length());
                 hostName = hostName.simplified();
             } else if (uline.startsWith(hostPrinterKey)) {
-                hostPrinter = line.mid(hostPrinterKey.length());
+                hostPrinter = uline.mid(hostPrinterKey.length());
                 hostPrinter = hostPrinter.simplified();
             } else if (uline.startsWith(nameKey)) {
-                namePrinter = line.mid(nameKey.length());
+                namePrinter = uline.mid(nameKey.length());
                 namePrinter = namePrinter.simplified();
             }
         }
@@ -689,9 +689,9 @@ static void parseSpoolInterface(QList<QPrinterDescription> *printers)
         } else {
             QString comment;
             comment = namePrinter;
-            comment += " (";
+            comment += QLatin1String(" (");
             comment += hostPrinter;
-            comment += ")";
+            comment += QLatin1Char(')');
             perhapsAddPrinter(printers, printer.fileName(),
                                hostName, comment);
         }
@@ -909,7 +909,7 @@ void QPrintDialogPrivate::init()
         cupsPrinters = cups->availablePrinters();
 
         for (int i = 0; i < cupsPrinterCount; ++i) {
-            ui.cbPrinters->addItem(cupsPrinters[i].name);
+            ui.cbPrinters->addItem(QString::fromLocal8Bit(cupsPrinters[i].name));
             if (cupsPrinters[i].is_default)
                 ui.cbPrinters->setCurrentIndex(i);
         }
@@ -988,13 +988,13 @@ void QPrintDialogPrivate::_q_printToFileChanged(int state)
             QString home = QString::fromLocal8Bit(::qgetenv("HOME").constData());
             QString cur = QDir::currentPath();
             if (home.at(home.length()-1) != QLatin1Char('/'))
-                home += '/';
+                home += QLatin1Char('/');
             if (cur.at(cur.length()-1) != QLatin1Char('/'))
-                cur += '/';
+                cur += QLatin1Char('/');
             if (cur.left(home.length()) != home)
                 cur = home;
 #ifdef Q_WS_X11
-            cur += "print.ps";
+            cur += QLatin1String("print.ps");
 #endif
             ui.leFile->setText(cur);
         } else {
@@ -1029,14 +1029,14 @@ void QPrintDialogPrivate::_q_printerChanged(int index)
         cupsPPD = cups->currentPPD();
 
         // set printer info line
-        QString info = QString(cupsPPD->manufacturer) + QLatin1String(" - ") + QString(cupsPPD->modelname);
+        QString info = QString::fromLocal8Bit(cupsPPD->manufacturer) + QLatin1String(" - ") + QString::fromLocal8Bit(cupsPPD->modelname);
         ui.lbPrinterInfo->setText(info);
     } else {
 #endif
         if (lprPrinters.count() > 0) {
-            QString info = lprPrinters.at(index).name + "@" + lprPrinters.at(index).host;
+            QString info = lprPrinters.at(index).name + QLatin1String("@") + lprPrinters.at(index).host;
             if (!lprPrinters.at(index).comment.isEmpty())
-            info += ", " + lprPrinters.at(index).comment;
+            info += QLatin1String(", ") + lprPrinters.at(index).comment;
             ui.lbPrinterInfo->setText(info);
         }
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
@@ -1064,7 +1064,7 @@ void QPrintDialogPrivate::refreshPageSizes()
         const ppd_option_t* pageSizes = cups->pageSizes();
 
         for (int i = 0; i < pageSizes->num_choices; ++i) {
-            ui.cbPaperSize->addItem(pageSizes->choices[i].text, pageSizes->choices[i].choice);
+            ui.cbPaperSize->addItem(QString::fromLocal8Bit(pageSizes->choices[i].text), QString::fromLocal8Bit(pageSizes->choices[i].choice));
             if (static_cast<int>(pageSizes->choices[i].marked) == 1) {
                 ui.cbPaperSize->setCurrentIndex(i);
             }
@@ -1320,9 +1320,9 @@ QVariant PPDOptionsModel::data(const QModelIndex& index, int role) const
                 itm = reinterpret_cast<OptionTreeItem*>(index.internalPointer());
 
             if (index.column() == 0)
-                return QVariant(itm->description);
+                return QVariant(QString::fromLocal8Bit(itm->description));
             else if (itm->type == OptionTreeItem::Option && itm->selected > -1)
-                return QVariant(itm->selDescription);
+                return QVariant(QString::fromLocal8Bit(itm->selDescription));
             else
                 return QVariant();
         }
@@ -1467,7 +1467,7 @@ void PPDOptionsEditor::setEditorData(QWidget* editor, const QModelIndex& index) 
         cb->addItem(QString::null);
 
     for (int i = 0; i < itm->childItems.count(); ++i)
-        cb->addItem(itm->childItems.at(i)->description);
+        cb->addItem(QString::fromLocal8Bit(itm->childItems.at(i)->description));
 
     if (itm->selected > -1)
         cb->setCurrentIndex(itm->selected);
