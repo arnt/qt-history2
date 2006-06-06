@@ -134,11 +134,6 @@ public:
 
     bool ignoreAutomaticScrollbarAdjustement;
 
-    // Qt3 COMPAT only
-    // ### non-compat'ed append needs it, too
-    Qt::TextFormat textFormat;
-    bool preferRichText;
-
     QTextCursor selectedWordOnDoubleClick;
     QTextCursor selectedLineOnDoubleClick;
 

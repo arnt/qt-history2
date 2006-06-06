@@ -79,8 +79,7 @@ QTextControlPrivate::QTextControlPrivate()
 #ifndef QT_NO_DRAGANDDROP
       mousePressed(false), mightStartDrag(false),
 #endif
-      lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
-      preferRichText(false),
+      lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false),
       overwriteMode(false),
       acceptRichText(true),
       preeditCursor(0), hideCursor(false),
@@ -1327,7 +1326,6 @@ void QTextControl::setPlainText(const QString &text)
 {
     Q_D(QTextControl);
     d->setContent(Qt::PlainText, text);
-    d->preferRichText = false;
 }
 
 /*!
@@ -1358,7 +1356,6 @@ void QTextControl::setHtml(const QString &text)
 {
     Q_D(QTextControl);
     d->setContent(Qt::RichText, text);
-    d->preferRichText = true;
 }
 
 /*! \reimp
@@ -2687,14 +2684,6 @@ bool QTextControl::find(const QString &exp, QTextDocument::FindFlags options)
 void QTextControl::append(const QString &text)
 {
     Q_D(QTextControl);
-    Qt::TextFormat f = d->textFormat;
-    if (f == Qt::AutoText) {
-        if (Qt::mightBeRichText(text))
-            f = Qt::RichText;
-        else
-            f = Qt::PlainText;
-    }
-
     QTextCursor cursor(d->doc);
     cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::End);
@@ -2704,10 +2693,10 @@ void QTextControl::append(const QString &text)
 
     // preserve the char format
     QTextCharFormat oldCharFormat = d->cursor.charFormat();
-    if (f == Qt::PlainText) {
-        cursor.insertText(text);
-    } else {
+    if (Qt::mightBeRichText(text)) {
         cursor.insertFragment(QTextDocumentFragment::fromHtml(text));
+    } else {
+        cursor.insertText(text);
     }
     if (!d->cursor.hasSelection())
         d->cursor.setCharFormat(oldCharFormat);
