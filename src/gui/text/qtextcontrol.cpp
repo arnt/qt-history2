@@ -1369,35 +1369,6 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
         return;
     }
 
-#ifdef QT_KEYPAD_NAVIGATION
-    switch (e->key()) {
-        case Qt::Key_Select:
-            if (QApplication::keypadNavigationEnabled())
-                setEditFocus(!hasEditFocus());
-            break;
-        case Qt::Key_Back:
-        case Qt::Key_No:
-            if (!QApplication::keypadNavigationEnabled()
-                    || (QApplication::keypadNavigationEnabled() && !hasEditFocus())) {
-                e->ignore();
-                return;
-            }
-            break;
-        default:
-            if (QApplication::keypadNavigationEnabled()) {
-                if (!hasEditFocus() && !(e->modifiers() & Qt::ControlModifier)) {
-                    if (e->text()[0].isPrint()) {
-                        setEditFocus(true);
-                        clear();
-                    } else {
-                        e->ignore();
-                        return;
-                    }
-                }
-            }
-    }
-#endif
-
     if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
         QTextBlockFormat fmt;
         fmt.setLayoutDirection((e->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft);
@@ -1502,31 +1473,6 @@ process:
         else
             cursor.insertBlock();
         break;
-#ifdef QT_KEYPAD_NAVIGATION
-    case Qt::Key_Up:
-    case Qt::Key_Down:
-        if (QApplication::keypadNavigationEnabled()) {
-            // Cursor position didn't change, so we want to leave
-            // these keys to change focus.
-            e->ignore();
-            return;
-        }
-        break;
-    case Qt::Key_Back:
-        if (!e->isAutoRepeat()) {
-            if (QApplication::keypadNavigationEnabled()) {
-                if (document()->isEmpty()) {
-                    setEditFocus(false);
-                } else if (!d->deleteAllTimer.isActive()) {
-                    d->deleteAllTimer.start(750, this);
-                }
-            } else {
-                e->ignore();
-                return;
-            }
-        }
-        break;
-#endif
     default:
         {
             QString text = e->text();
