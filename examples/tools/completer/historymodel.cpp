@@ -1,8 +1,21 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <QtGui>
 #include "historymodel.h"
 
 HistoryCompleter::HistoryCompleter(QObject *parent)
-: QCompleter(parent)
+    : QCompleter(parent)
 {
 }
 
@@ -14,7 +27,7 @@ QStringList HistoryCompleter::splitPath(const QString& filter) const
 }
 
 HistoryModel::HistoryModel(QObject *parent) 
-: QDirModel(parent)
+    : QDirModel(parent)
 {  
 }
 
@@ -87,7 +100,7 @@ void HistoryModel::addToHistory(const QString& display, QString edit)
 {
     if (edit.isNull())
         edit = display;
-    qDebug() << "Adding " << display << " to history";
+
     history.append(QPair<QString, QString>(display, edit));
     reset();
 }
@@ -96,9 +109,10 @@ void HistoryModel::addToHistory()
 {
     if (!sender())
         return;
+
     QLineEdit *le = qobject_cast<QLineEdit *>(sender());
     if (!le)
         return;
+
     addToHistory(le->text());
 }
-

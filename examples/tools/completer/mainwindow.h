@@ -1,13 +1,27 @@
+/****************************************************************************
+**
+** Copyright (C) 2006-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+
+class QAbstractItemModel;
 class QComboBox;
-class QProgressBar;
+class QCompleter;
 class QLabel;
 class QLineEdit;
-class QCompleter;
-class QAbstractItemModel;
+class QProgressBar;
 
 class MainWindow : public QMainWindow
 {
@@ -17,24 +31,23 @@ public:
     MainWindow(QWidget *parent = 0);
 
 private slots:
+    void about();
+    void changeCase(int);
     void changeMode(int);
     void updateCompletionModel();
-    void changeCase(int);
-    void about();
 
 private:
     void createMenu();
     QAbstractItemModel *modelFromFile(const QString& fileName);
 
-    QCompleter *completer;
-    QLineEdit *lineEdit;
-    QComboBox *comboBox;
     QComboBox *caseCombo;
+    QComboBox *comboBox;
     QComboBox *modelCombo;
-    QLabel *progressLabel;
+    QCompleter *completer;
     QLabel *contentsLabel;
+    QLabel *progressLabel;
+    QLineEdit *lineEdit;
     QProgressBar *progressBar;
 };
 
 #endif // MAINWINDOW_H
-

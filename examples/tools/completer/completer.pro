@@ -1,6 +1,8 @@
-HEADERS   = mainwindow.h \
-            historymodel.h
-SOURCES   = historymodel.cpp \
+HEADERS   = dirmodel.h \
+            historymodel.h \
+            mainwindow.h
+SOURCES   = dirmodel.cpp \
+            historymodel.cpp \
             main.cpp \
             mainwindow.cpp
 RESOURCES = completer.qrc

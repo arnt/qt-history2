@@ -96,8 +96,8 @@ attributes
 authors
 auto-detect
 auto-detecting
-available
 availability
+available
 avoid
 away
 back
@@ -280,11 +280,11 @@ continue
 continued
 contributors
 control
-controls
 controlled
 controller
 controller
 controlling
+controls
 controls
 conventions
 cook
@@ -395,8 +395,8 @@ Duff
 during
 DVD
 dynamic
-dynamics
 dynamically
+dynamics
 each
 earlier
 easily
