@@ -940,8 +940,34 @@ void QDateTimeEdit::stepBy(int steps)
         // if date based, shift by day.  else shift by 15min
         if (d->sections & DateSections_Mask)
             setDateTime(dateTime().addDays(steps));
-        else
-            setDateTime(dateTime().addSecs(steps*15*60));
+        else {
+            int minutes = time().hour()*60 + time().minute();
+            int blocks = minutes/15;
+            blocks += steps;
+            /* rounding involved */
+            if (minutes % 15) {
+                if (steps < 0) {
+                    blocks += 1; // do one less step;
+                }
+            }
+
+            minutes = blocks * 15;
+
+            /* need to take wrapping into account */
+            if (!d->wrapping) {
+                int max_minutes = d->maximum.toTime().hour()*60 + d->maximum.toTime().minute();
+                int min_minutes = d->minimum.toTime().hour()*60 + d->minimum.toTime().minute();
+
+                if (minutes >= max_minutes) {
+                    setTime(maximumTime());
+                    return;
+                } else if (minutes <= min_minutes) {
+                    setTime(minimumTime());
+                    return;
+                }
+            }
+            setTime(QTime(minutes/60, minutes%60));
+        }
         return;
     }
 #endif
