@@ -48,6 +48,16 @@ public:
     inline const QItemEditorFactory *editorFactory() const
         { return f ? f : QItemEditorFactory::defaultFactory(); }
 
+    inline QIcon::Mode iconMode(QStyle::State state) const
+        {
+            if (!(state & QStyle::State_Enabled)) return QIcon::Disabled;
+            if (state & QStyle::State_Selected) return QIcon::Selected;
+            return QIcon::Normal;
+        }
+
+    inline QIcon::State iconState(QStyle::State state) const
+        { return state & QStyle::State_Open ? QIcon::On : QIcon::Off; }
+
     QItemEditorFactory *f;
 };
 
@@ -199,19 +209,34 @@ void QItemDelegate::paint(QPainter *painter,
                           const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
+    Q_D(const QItemDelegate);
     Q_ASSERT(index.isValid());
     QStyleOptionViewItem opt = setOptions(index, option);
+
+    // prepare
+    painter->save();
+    painter->setClipRect(opt.rect);
 
     // get the data and the rectangles
 
     QVariant value;
 
+    QIcon icon;
+    QIcon::Mode iconMode = d->iconMode(option.state);
+    QIcon::State iconState = d->iconState(option.state);
+
     QPixmap pixmap;
     QRect decorationRect;
     value = index.data(Qt::DecorationRole);
     if (value.isValid()) {
-        pixmap = decoration(opt, value);
-        decorationRect = QRect(QPoint(0, 0), option.decorationSize);
+        if (value.type() == QVariant::Icon) {
+            icon = qvariant_cast<QIcon>(value);
+            decorationRect = QRect(QPoint(0, 0),
+                                   icon.actualSize(option.decorationSize, iconMode, iconState));
+        } else {
+            pixmap = decoration(opt, value);
+            decorationRect = QRect(QPoint(0, 0), option.decorationSize).intersect(pixmap.rect());
+        }
     }
 
     QString text;
@@ -238,9 +263,15 @@ void QItemDelegate::paint(QPainter *painter,
 
     drawBackground(painter, opt, index);
     drawCheck(painter, opt, checkRect, checkState);
-    drawDecoration(painter, opt, decorationRect, pixmap);
+    if (!icon.isNull())
+        icon.paint(painter, decorationRect, option.decorationAlignment, iconMode, iconState);
+    else
+        drawDecoration(painter, opt, decorationRect, pixmap);
     drawDisplay(painter, opt, displayRect, text);
     drawFocus(painter, opt, displayRect);
+
+    // done
+    painter->restore();
 }
 
 /*!
@@ -444,8 +475,7 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
     QPoint p = QStyle::alignedRect(option.direction, option.decorationAlignment,
                                    pixmap.size(), rect).topLeft();
     if (option.state & QStyle::State_Selected) {
-        bool enabled = option.state & QStyle::State_Enabled;
-        QPixmap *pm = selected(pixmap, option.palette, enabled);
+        QPixmap *pm = selected(pixmap, option.palette, option.state & QStyle::State_Enabled);
         painter->drawPixmap(p, *pm);
     } else {
         painter->drawPixmap(p, pixmap);
@@ -552,7 +582,7 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
 
     QSize pm(0, 0);
     if (pixmapRect->isValid()) {
-        pm = option.decorationSize;
+        pm = pixmapRect->size();
         pm.rwidth() += 2 * textMargin;
     }
     if (hint) {
@@ -653,7 +683,6 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     }
 }
 
-
 /*!
     \internal
 
@@ -664,13 +693,12 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
 
 QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVariant &variant) const
 {
+    Q_D(const QItemDelegate);
     switch (variant.type()) {
-    case QVariant::Icon:
-        return qvariant_cast<QIcon>(variant).pixmap(option.decorationSize,
-                                       option.state & QStyle::State_Enabled
-                                       ? QIcon::Normal : QIcon::Disabled,
-                                       option.state & QStyle::State_Open
-                                       ? QIcon::On : QIcon::Off);
+    case QVariant::Icon: {
+        QIcon::Mode mode = d->iconMode(option.state);
+        QIcon::State state = d->iconState(option.state);
+        return qvariant_cast<QIcon>(variant).pixmap(option.decorationSize, mode, state); }
     case QVariant::Color: {
         static QPixmap pixmap(option.decorationSize);
         pixmap.fill(qvariant_cast<QColor>(variant));
@@ -678,6 +706,7 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
     default:
         break;
     }
+
     return qvariant_cast<QPixmap>(variant);
 }
 
@@ -699,6 +728,9 @@ static QString qPixmapSerial(quint64 i, bool enabled)
 
 /*!
   \internal
+  Returns the selected version of the given \a pixmap using the given \a palette.
+  The \a enabled argument decides whether the normal or disabled highlight color of
+  the palette is used.
 */
 QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const
 {
@@ -730,6 +762,7 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
 QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
                           const QModelIndex &index, int role) const
 {
+    Q_D(const QItemDelegate);
     QVariant value = index.data(role);
     if (role == Qt::CheckStateRole)
         return check(option, option.rect, value);
@@ -739,12 +772,18 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
             QString text = value.toString();
             value = index.data(Qt::FontRole);
             QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
+            fnt.setBold(true);
             return textRectangle(0, option.rect, fnt, text); }
         case QVariant::Pixmap:
             return QRect(QPoint(0, 0), qvariant_cast<QPixmap>(value).size());
         case QVariant::Image:
             return QRect(QPoint(0, 0), qvariant_cast<QImage>(value).size());
-        case QVariant::Icon:
+        case QVariant::Icon: {
+            QIcon::Mode mode = d->iconMode(option.state);
+            QIcon::State state = d->iconState(option.state);
+            QIcon icon = qvariant_cast<QIcon>(value);
+            QSize size = icon.actualSize(option.decorationSize, mode, state);
+            return QRect(QPoint(0, 0), size); }
         case QVariant::Color:
             return QRect(QPoint(0, 0), option.decorationSize);
         default: break;
