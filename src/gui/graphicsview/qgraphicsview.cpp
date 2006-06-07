@@ -506,6 +506,13 @@ void QGraphicsView::setDragMode(DragMode mode)
 {
     Q_D(QGraphicsView);
     d->dragMode = mode;
+    if (d->dragMode == ScrollHandDrag) {
+        d->hasViewCursor = true;
+        d->viewCursor = QCursor(Qt::OpenHandCursor);
+        viewport()->setCursor(d->viewCursor);
+    } else {
+        unsetCursor();
+    }
 }
 
 /*!
@@ -1055,7 +1062,6 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
                        * QMatrix().translate(targetRect.left(), targetRect.top())
                        * QMatrix().scale(xratio, yratio)
                        * QMatrix().translate(-sourceRect.left(), -sourceRect.top()));
-
     QPainterPath path;
     path.addPolygon(mapToScene(sourceRect));
     painter->setClipPath(path);
@@ -1502,9 +1508,8 @@ bool QGraphicsView::viewportEvent(QEvent *event)
 
     switch (event->type()) {
     case QEvent::Leave:
-        d->useLastMouseEvent = false;
 #ifndef QT_NO_CURSOR
-        if (d->hasViewCursor) {
+        if (d->hasViewCursor && !d->scene->mouseGrabberItem()) {
             d->hasViewCursor = false;
             viewport()->setCursor(d->viewCursor);
         }
@@ -1785,7 +1790,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
                 d->hasViewCursor = true;
                 d->viewCursor = viewport()->cursor();
             }
-            viewport()->setCursor(Qt::PointingHandCursor);
+            viewport()->setCursor(Qt::ClosedHandCursor);
 #endif
             return;
         }
@@ -1795,7 +1800,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
                 d->hasViewCursor = true;
                 d->viewCursor = viewport()->cursor();
             }
-            viewport()->setCursor(Qt::PointingHandCursor);
+            viewport()->setCursor(Qt::ClosedHandCursor);
 #endif
             return;
         }
