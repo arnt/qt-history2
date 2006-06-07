@@ -3032,15 +3032,16 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
                                          const QWidget *widget) const
 {
-    QPixmap iconPixmap = standardPixmap(standardIcon, option, widget);
-    QIcon icon(iconPixmap);
+    QIcon icon = QCommonStyle::standardIconImplementation(standardIcon, option, widget);
 
+    for (int s = 16; s <= 32; s += 16) {
     //Include a translated icon for use with pressed buttons
-    QPixmap pressedIconPixmap(iconPixmap.size());
-    pressedIconPixmap.fill(Qt::transparent);
-    QPainter p(&pressedIconPixmap);
-    p.drawPixmap(1, 1, iconPixmap.size().width(), iconPixmap.size().height(), iconPixmap);
-    icon.addPixmap(pressedIconPixmap, QIcon::Normal, QIcon::On);
+        QPixmap pressedIconPixmap(s, s);
+        pressedIconPixmap.fill(Qt::transparent);
+        QPainter p(&pressedIconPixmap);
+        p.drawPixmap(1, 1, s, s, icon.pixmap(s, s));
+        icon.addPixmap(pressedIconPixmap, QIcon::Normal, QIcon::On);
+    }
     return icon;
 }
 

@@ -3804,19 +3804,19 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
     QIcon icon(standardPixmap(standardIcon, opt, widget));
     switch (standardIcon) {
     case SP_ComputerIcon:
-        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/computer-32.png")));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/computer-32.png"));
         break;
     case SP_DriveCDIcon:
-        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/cdr-32.png")));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/cdr-32.png"));
         break;
     case SP_DesktopIcon:
-        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/desktop-32.png")));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/desktop-32.png"));
         break;
     case SP_DirOpenIcon:
-        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/diropen-32.png")));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/diropen-32.png"));
         break;
     case SP_DirClosedIcon:
-        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/dirclosed-32.png")));
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/dirclosed-32.png"));
         break;
     default:
         break;
