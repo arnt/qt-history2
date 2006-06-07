@@ -42,11 +42,18 @@ class QMacWindowChangeEvent;
 #endif
 
 // extension prototypes
-#ifndef APIENTRY
-#define APIENTRY
-#endif
-#ifndef APIENTRYP
-#define APIENTRYP *
+#ifndef Q_WS_MAC
+# ifndef APIENTRYP
+#   ifdef APIENTRY
+#     define APIENTRYP APIENTRY *
+#   else
+#     define APIENTRY
+#     define APIENTRYP *
+#   endif
+# endif
+#else
+# define APIENTRY
+# define APIENTRYP *
 #endif
 
 // ARB_fragment_program
