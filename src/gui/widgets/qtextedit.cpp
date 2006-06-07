@@ -122,7 +122,7 @@ void QTextEditPrivate::init(const QString &html)
 {
     Q_Q(QTextEdit);
     control = new QTextEditControl(q);
-    control->setDragAndDropSource(viewport);
+    control->setContextWidget(viewport);
 
     QObject::connect(control, SIGNAL(microFocusChanged()), q, SLOT(_q_updateMicroFocus()));
     QObject::connect(control, SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(_q_adjustScrollbars()));
@@ -1876,7 +1876,7 @@ void QTextEdit::scrollToAnchor(const QString &name)
     }
 
     QPointF p = d->control->findAnchor(name);
-    d->vbar->setValue(p.y());
+    d->vbar->setValue(qRound(p.y()));
 }
 
 /*!

@@ -450,11 +450,11 @@ void QTextControlPrivate::startDrag()
 #ifndef QT_NO_DRAGANDDROP
     Q_Q(QTextControl);
     mousePressed = false;
-    if (!dndWidget)
+    if (!contextWidget)
         return;
     QMimeData *data = q->createMimeDataFromSelection();
 
-    QDrag *drag = new QDrag(dndWidget);
+    QDrag *drag = new QDrag(contextWidget);
     drag->setMimeData(data);
 
     Qt::DropActions actions = Qt::CopyAction;
@@ -462,7 +462,7 @@ void QTextControlPrivate::startDrag()
         actions |= Qt::MoveAction;
     Qt::DropAction action = drag->start(actions);
 
-    if (action == Qt::MoveAction && drag->target() != dndWidget)
+    if (action == Qt::MoveAction && drag->target() != contextWidget)
         cursor.removeSelectedText();
 #endif
 }
@@ -1101,7 +1101,7 @@ bool QTextControl::event(QEvent *e)
         case QEvent::GraphicsSceneDragLeave:
         case QEvent::GraphicsSceneDrop: {
             QGraphicsSceneEvent *ev = static_cast<QGraphicsSceneEvent *>(e);
-            d->dndWidget = ev->widget();
+            d->contextWidget = ev->widget();
             break;
         }
         default: break;
@@ -1113,7 +1113,8 @@ bool QTextControl::event(QEvent *e)
             break;
         case QEvent::MouseButtonPress: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers(), ev->buttons());
+            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers(),
+                               ev->buttons(), ev->globalPos());
             break; }
         case QEvent::MouseMove: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
@@ -1664,12 +1665,12 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
 
 #if !defined(QT_NO_IM)
         QTextLayout *layout = cursor.block().layout();
-        if (dndWidget && layout && !layout->preeditAreaText().isEmpty()) {
-            QInputContext *ctx = dndWidget->inputContext();
-            if (!ctx && dndWidget->parentWidget())
-                ctx = dndWidget->parentWidget()->inputContext();
+        if (contextWidget && layout && !layout->preeditAreaText().isEmpty()) {
+            QInputContext *ctx = contextWidget->inputContext();
+            if (!ctx && contextWidget->parentWidget())
+                ctx = contextWidget->parentWidget()->inputContext();
             if (ctx) {
-                QMouseEvent ev(QEvent::MouseButtonPress, dndWidget->mapFromGlobal(globalPos), globalPos,
+                QMouseEvent ev(QEvent::MouseButtonPress, contextWidget->mapFromGlobal(globalPos), globalPos,
                                button, buttons, modifiers);
                 ctx->mouseHandler(cursorPos - cursor.position(), &ev);
             }
@@ -1920,7 +1921,7 @@ bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &po
     QTextCursor insertionCursor = q->cursorForPosition(pos);
     insertionCursor.beginEditBlock();
 
-    if (dropAction == Qt::MoveAction && source == dndWidget)
+    if (dropAction == Qt::MoveAction && source == contextWidget)
         cursor.removeSelectedText();
 
     cursor = insertionCursor;
@@ -2296,17 +2297,16 @@ QList<QTextControl::ExtraSelection> QTextControl::extraSelections() const
     return selections;
 }
 
-// #### reconsider
-void QTextControl::setDragAndDropSource(QWidget *w)
+void QTextControl::setContextWidget(QWidget *w)
 {
     Q_D(QTextControl);
-    d->dndWidget = w;
+    d->contextWidget = w;
 }
 
-QWidget *QTextControl::dragAndDropSource() const
+QWidget *QTextControl::contextWidget() const
 {
     Q_D(const QTextControl);
-    return d->dndWidget;
+    return d->contextWidget;
 }
 
 /*!

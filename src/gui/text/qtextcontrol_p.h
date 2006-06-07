@@ -123,8 +123,8 @@ public:
     void setExtraSelections(const QList<ExtraSelection> &selections);
     QList<ExtraSelection> extraSelections() const;
 
-    void setDragAndDropSource(QWidget *w);
-    QWidget *dragAndDropSource() const;
+    void setContextWidget(QWidget *w);
+    QWidget *contextWidget() const;
 
 public Q_SLOTS:
     void setPlainText(const QString &text);
