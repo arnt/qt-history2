@@ -161,6 +161,10 @@ void QTextEditPrivate::init(const QString &html)
 
 void QTextEditPrivate::_q_repaintContents(const QRectF &contentsRect)
 {
+    if (!contentsRect.isValid()) {
+        viewport->update();
+        return;
+    }
     const int xOffset = horizontalOffset();
     const int yOffset = verticalOffset();
     const QRect visibleRect(xOffset, yOffset, viewport->width(), viewport->height());
@@ -1282,7 +1286,6 @@ void QTextEditPrivate::sendTranslatedMouseEvent(QMouseEvent *e)
 void QTextEdit::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
-    // ### IM,
     d->sendTranslatedMouseEvent(e);
 }
 
@@ -1292,7 +1295,6 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
     const QPoint pos = e->pos();
-    // ### IM
     d->sendTranslatedMouseEvent(e);
     if (!(e->buttons() & Qt::LeftButton))
         return;
@@ -1311,7 +1313,6 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
     d->autoScrollTimer.stop();
-    // ### IM
     d->sendTranslatedMouseEvent(e);
 }
 
@@ -1320,7 +1321,6 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
-    // ### IM
     d->sendTranslatedMouseEvent(e);
 }
 

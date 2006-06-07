@@ -4507,7 +4507,11 @@ QVariant QGraphicsTextItem::extension(const QVariant &variant) const
 */
 void QGraphicsTextItemPrivate::_q_update(QRectF rect)
 {
-    rect.translate(0, - pageNumber * textControl->document()->pageSize().height());
+    if (rect.isValid()) {
+        rect.translate(0, - pageNumber * textControl->document()->pageSize().height());
+    } else {
+        rect = boundingRect;
+    }
     if (rect.intersects(boundingRect))
         qq->update(rect);
 }
