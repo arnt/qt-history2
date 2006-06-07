@@ -86,6 +86,8 @@
     \row \o Qt::PointingHandCursor      \o \c pointing_hand
     \row \o Qt::ForbiddenCursor         \o \c forbidden
     \row \o Qt::WhatsThisCursor         \o \c whats_this
+    \row \o Qt::OpenHandCursor          \o \c openhand
+    \row \o Qt::ClosedHandCursor        \o \c closedhand
     \endtable
 
     \sa QWidget, {fowler}{GUI Design Handbook: Cursors}

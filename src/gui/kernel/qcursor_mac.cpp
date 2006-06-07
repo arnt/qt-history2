@@ -457,6 +457,14 @@ void QCursorData::update()
         memcpy(curs.cp.hcurs->data, cur_up_arrow_bits, sizeof(cur_up_arrow_bits));
         memcpy(curs.cp.hcurs->mask, mcur_up_arrow_bits, sizeof(mcur_up_arrow_bits));
         break; }
+    case Qt::OpenHandCursor:
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemeOpenHandCursor;
+        break;
+    case Qt::ClosedHandCursor:
+        type = QCursorData::TYPE_ThemeCursor;
+        curs.tc.curs = kThemeClosedHandCursor;
+        break;
 #endif
     default:
         qWarning("Qt: QCursor::update: Invalid cursor shape %d", cshape);

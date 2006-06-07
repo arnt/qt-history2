@@ -248,7 +248,9 @@ void QCursorData::update()
         "pointing_hand",
         "forbidden",
         "whats_this",
-        "left_ptr_watch"
+        "left_ptr_watch",
+        "openhand",
+        "closedhand"
     };
 
 #ifndef QT_NO_XCURSOR
@@ -416,12 +418,29 @@ void QCursorData::update()
         0x0f,0x1f,0x0f,0x0f,0x3e,0x0f,0x1f,0xfc,0x0f,0x1e,0xf8,0x07,0x3e,0xf0,0x07,
         0xfc,0xe0,0x03,0xf8,0xff,0x01,0xf0,0xff,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00};
 
+    static const char openhand_bits[] = {
+        0x80,0x01,0x58,0x0e,0x64,0x12,0x64,0x52,0x48,0xb2,0x48,0x92,
+        0x16,0x90,0x19,0x80,0x11,0x40,0x02,0x40,0x04,0x40,0x04,0x20,
+        0x08,0x20,0x10,0x10,0x20,0x10,0x00,0x00};
+    static const char openhandm_bits[] = {
+       0x80,0x01,0xd8,0x0f,0xfc,0x1f,0xfc,0x5f,0xf8,0xff,0xf8,0xff,
+       0xfe,0xff,0xff,0xff,0xff,0x7f,0xfe,0x7f,0xfc,0x7f,0xfc,0x3f,
+       0xf8,0x3f,0xf0,0x1f,0xe0,0x1f,0x00,0x00};
+    static const char closehandd_bits[] = {
+        0x00,0x00,0x00,0x00,0x00,0x00,0xb0,0x0d,0x48,0x32,0x08,0x50,
+        0x10,0x40,0x18,0x40,0x04,0x40,0x04,0x20,0x08,0x20,0x10,0x10,
+        0x20,0x10,0x20,0x10,0x00,0x00,0x00,0x00};
+    static const char closedhandm_bits[] = {
+        0x00,0x00,0x00,0x00,0x00,0x00,0xb0,0x0d,0xf8,0x3f,0xf8,0x7f,
+        0xf0,0x7f,0xf8,0x7f,0xfc,0x7f,0xfc,0x3f,0xf8,0x3f,0xf0,0x1f,
+        0xe0,0x1f,0xe0,0x1f,0x00,0x00,0x00,0x00};
+
     static const char * const cursor_bits20[] = {
         forbidden_bits, forbiddenm_bits
     };
 
     if (cshape >= Qt::SizeVerCursor && cshape < Qt::SizeAllCursor
-            || cshape == Qt::BlankCursor) {
+        || cshape == Qt::BlankCursor) {
         XColor bg, fg;
         bg.red   = 255 << 8;
         bg.green = 255 << 8;
@@ -433,9 +452,8 @@ void QCursorData::update()
         pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits16[i], 16, 16);
         pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits16[i + 1], 16, 16);
         hcurs = XCreatePixmapCursor(dpy, pm, pmm, &fg, &bg, 8, 8);
-    }
-    else if ((cshape >= Qt::SplitVCursor && cshape <= Qt::SplitHCursor)
-            || cshape == Qt::WhatsThisCursor || cshape == Qt::BusyCursor) {
+    } else if ((cshape >= Qt::SplitVCursor && cshape <= Qt::SplitHCursor)
+               || cshape == Qt::WhatsThisCursor || cshape == Qt::BusyCursor) {
         XColor bg, fg;
         bg.red   = 255 << 8;
         bg.green = 255 << 8;
@@ -449,8 +467,7 @@ void QCursorData::update()
         int hs = (cshape == Qt::PointingHandCursor || cshape == Qt::WhatsThisCursor
                   || cshape == Qt::BusyCursor) ? 0 : 16;
         hcurs = XCreatePixmapCursor(dpy, pm, pmm, &fg, &bg, hs, hs);
-    }
-    else if (cshape == Qt::ForbiddenCursor) {
+    } else if (cshape == Qt::ForbiddenCursor) {
         XColor bg, fg;
         bg.red   = 255 << 8;
         bg.green = 255 << 8;
@@ -462,6 +479,18 @@ void QCursorData::update()
         pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits20[i], 20, 20);
         pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits20[i + 1], 20, 20);
         hcurs = XCreatePixmapCursor(dpy, pm, pmm, &fg, &bg, 10, 10);
+    } else if (cshape == Qt::OpenHandCursor || cshape == Qt::ClosedHandCursor) {
+        XColor bg, fg;
+        bg.red   = 255 << 8;
+        bg.green = 255 << 8;
+        bg.blue  = 255 << 8;
+        fg.red   = 0;
+        fg.green = 0;
+        fg.blue  = 0;
+        bool open = cshape == Qt::OpenHandCursor;
+        pm  = XCreateBitmapFromData(dpy, rootwin, open ? openhand_bits : closedhand_bits, 16, 16);
+        pmm = XCreateBitmapFromData(dpy, rootwin, open ? openhandm_bits : closedhandm_bits, 16, 16);
+        hcurs = XCreatePixmapCursor(dpy, pm, pmm, &fg, &bg, 8, 8);
     }
 
     if (hcurs)

@@ -978,7 +978,9 @@ public:
         ForbiddenCursor,
         WhatsThisCursor,
         BusyCursor,
-        LastCursor = BusyCursor,
+        OpenHandCursor,
+        ClosedHandCursor,
+        LastCursor = ClosedHandCursor,
         BitmapCursor = 24,
         CustomCursor = 25
 
