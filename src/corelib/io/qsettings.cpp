@@ -672,8 +672,15 @@ StNormal:
             } else if (ch >= '0' && ch <= '7') {
                 escapeVal = ch - '0';
                 goto StOctEscape;
+            } else if (ch == '\n' || ch == '\r') {
+                if (i < to) {
+                    char ch2 = str.at(i);
+                    // \n, \r, \r\n, and \n\r are legitimate line terminators in INI files
+                    if ((ch2 == '\n' || ch2 == '\r') && ch2 != ch)
+                        ++i;
+                }
             } else {
-                // the character is skipped; this includes the trailing \ case
+                // the character is skipped
             }
             break;
         case '"':
@@ -1334,11 +1341,6 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
             {
                 if (format <= QSettings::IniFormat) {
                     QByteArray data = file.readAll();
-#if 0
-                    data.replace("\r\n", "\n"); // ###
-                    data.replace("\n\r", "\n"); // ###
-                    data.replace("\r", "\n"); // ###
-#endif
                     ok = readIniFile(data, &newKeys);
                 } else {
                     if (readFunc) {
@@ -1441,7 +1443,8 @@ bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
     valueStart = -1;
 
     lineStart = dataPos;
-    while (lineStart < dataLen && ((ch = line.at(lineStart)) == ' ' || ch == '\t' || ch == '\n'))
+    while (lineStart < dataLen
+           && ((ch = line.at(lineStart)) == ' ' || ch == '\t' || ch == '\n' || ch == '\r'))
         ++lineStart;
 
     int i = lineStart;
@@ -1449,6 +1452,7 @@ bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
         ch = line.at(i++);
 
         switch (ch) {
+        case '\r':
         case '\n':
             if (i == lineStart + 1) {
                 ++lineStart;
@@ -1462,7 +1466,7 @@ bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
             break;
         case ';':
             if (i == lineStart + 1) {
-                while (i < dataLen && line.at(i) != '\n')
+                while (i < dataLen && ((ch = line.at(i) != '\n') && ch != '\r'))
                     ++i;
                 lineStart = i;
             } else if (!inQuotes) {
@@ -1471,8 +1475,15 @@ bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
             }
             break;
         case '\\':
-            if (i < dataLen)
-                ++i;
+            if (i < dataLen) {
+                ch = line.at(i++);
+                if (i < dataLen) {
+                    char ch2 = line.at(i);
+                    // \n, \r, \r\n, and \n\r are legitimate line terminators in INI files
+                    if ((ch == '\n' && ch2 == '\r') || (ch == '\r' && ch2 == '\n'))
+                        ++i;
+                }
+            }
             break;
         case '=':
             if (!inQuotes && valueStart == -1) {
