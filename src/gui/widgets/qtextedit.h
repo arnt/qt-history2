@@ -157,7 +157,7 @@ public:
 #ifndef QT_NO_CONTEXTMENU
     QMenu *createStandardContextMenu();
 #endif
-    
+
     QTextCursor cursorForPosition(const QPoint &pos) const;
     QRect cursorRect(const QTextCursor &cursor) const;
     QRect cursorRect() const;
@@ -169,10 +169,10 @@ public:
 
     int tabStopWidth() const;
     void setTabStopWidth(int width);
-    
+
     int cursorWidth() const;
     void setCursorWidth(int width);
-    
+
     bool acceptRichText() const;
     void setAcceptRichText(bool accept);
 
@@ -202,7 +202,10 @@ public Q_SLOTS:
     void copy();
     void paste();
 #endif
-    
+
+    void undo();
+    void redo();
+
     void clear();
     void selectAll();
 
@@ -229,9 +232,7 @@ protected:
     virtual bool event(QEvent *e);
     virtual void timerEvent(QTimerEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
-#ifdef QT_KEYPAD_NAVIGATION
     virtual void keyReleaseEvent(QKeyEvent *e);
-#endif
     virtual void resizeEvent(QResizeEvent *e);
     virtual void paintEvent(QPaintEvent *e);
     virtual void mousePressEvent(QMouseEvent *e);
@@ -253,7 +254,7 @@ protected:
 #ifndef QT_NO_WHEELEVENT
     virtual void wheelEvent(QWheelEvent *e);
 #endif
-    
+
     virtual QMimeData *createMimeDataFromSelection() const;
     virtual bool canInsertFromMimeData(const QMimeData *source) const;
     virtual void insertFromMimeData(const QMimeData *source);
@@ -352,15 +353,11 @@ public Q_SLOTS:
 private:
     Q_DISABLE_COPY(QTextEdit)
     Q_PRIVATE_SLOT(d_func(), void _q_repaintContents(const QRectF &r))
-    Q_PRIVATE_SLOT(d_func(), void _q_updateCurrentCharFormatAndSelection())
+    Q_PRIVATE_SLOT(d_func(), void _q_currentCharFormatChanged(const QTextCharFormat &))
     Q_PRIVATE_SLOT(d_func(), void _q_adjustScrollbars())
-    Q_PRIVATE_SLOT(d_func(), void _q_emitCursorPosChanged(const QTextCursor &))
-    Q_PRIVATE_SLOT(d_func(), void _q_deleteSelected())
-    // undo and redo are semi-public slots to keep Qt3 code working, don't use _q_ prefix.
-    // Will be made public in a later release
-    Q_PRIVATE_SLOT(d_func(), void undo())
-    Q_PRIVATE_SLOT(d_func(), void redo())
-    Q_PRIVATE_SLOT(d_func(), void _q_setCursorAfterUndoRedo(int, int, int))
+    Q_PRIVATE_SLOT(d_func(), void _q_updateMicroFocus())
+    Q_PRIVATE_SLOT(d_func(), void _q_ensureVisible(const QRectF &))
+    friend class QTextEditControl;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEdit::AutoFormatting)

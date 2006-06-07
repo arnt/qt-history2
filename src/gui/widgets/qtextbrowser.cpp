@@ -83,6 +83,7 @@ public:
     void keypadMove(bool next);
     int lastPos;
 #endif
+    QTextCursor focusIndicator; // #########
 };
 
 static bool isAbsoluteFileName(const QString &name)
@@ -217,6 +218,7 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
 
 bool QTextBrowserPrivate::findNextPrevAnchor(bool next, int &start, int &end)
 {
+    QTextDocument *doc = control->document();
     if (!focusIndicator.hasSelection()) {
         focusIndicator = QTextCursor(doc);
         if (next)
@@ -888,12 +890,14 @@ void QTextBrowser::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QTextBrowser);
     d->anchorOnMousePress = anchorAt(e->pos());
-    if (!d->cursor.hasSelection() && !d->anchorOnMousePress.isEmpty())
-        d->setCursorPosition(e->pos());
+    if (!d->control->textCursor().hasSelection() && !d->anchorOnMousePress.isEmpty()) {
+        QTextCursor cursor = cursorForPosition(e->pos());
+        setTextCursor(cursor);
+    }
 
     QTextEdit::mousePressEvent(e);
 
-    d->hadSelectionOnMousePress = d->cursor.hasSelection();
+    d->hadSelectionOnMousePress = d->control->textCursor().hasSelection();
 }
 
 /*!
@@ -912,7 +916,7 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *e)
     if (anchor.isEmpty())
         return;
 
-    if (!d->cursor.hasSelection()
+    if (!d->control->textCursor().hasSelection()
         || (anchor == d->anchorOnMousePress && d->hadSelectionOnMousePress))
         d->activateAnchor(anchor);
 }
@@ -929,7 +933,7 @@ void QTextBrowser::focusOutEvent(QFocusEvent *ev)
         d->viewport->update();
     }
 #ifndef QT_NO_CURSOR
-    d->viewport->setCursor(d->readOnly ? d->oldCursor : Qt::IBeamCursor);
+    d->viewport->setCursor(d->control->isReadOnly() ? d->oldCursor : Qt::IBeamCursor);
 #endif
     QTextEdit::focusOutEvent(ev);
 }
@@ -941,7 +945,7 @@ bool QTextBrowser::focusNextPrevChild(bool next)
 {
     Q_D(QTextBrowser);
 
-    if (!d->readOnly)
+    if (!d->control->isReadOnly())
         return QTextEdit::focusNextPrevChild(next);
 
     int anchorStart, anchorEnd;
@@ -953,10 +957,12 @@ bool QTextBrowser::focusNextPrevChild(bool next)
     }
 
     if (d->focusIndicator.hasSelection()) {
+        /* ################
         qSwap(d->focusIndicator, d->cursor);
         ensureCursorVisible();
         qSwap(d->focusIndicator, d->cursor);
         d->viewport->update();
+        */
         return true;
     } else {
         d->viewport->update();
