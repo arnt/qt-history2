@@ -47,7 +47,7 @@
     There can also be alternate ways of dismissing the dialog which may cause
     destructive results.
 
-    Most dialogs have buttons that can almost considered to be standard (e.g.
+    Most dialogs have buttons that can almost be considered standard (e.g.
     \gui OK and \gui Cancel buttons). It is sometimes convenient to create these
     buttons in a standard way.
 
@@ -55,24 +55,53 @@
     the buttons (or button texts) your self and add them to the button box,
     specifying their role.
 
-    \quotefromfile exawples/dialogs/finddialog/finddialog.cpp
+    \quotefromfile dialogs/extension/finddialog.cpp
     \skipto findButton
     \printuntil buttonBox->addButton(moreButton, QDialogButtonBox::ActionRole);
 
     Alternatively, QDialogButtonBox provides several standard buttons (e.g. OK, Cancel, Save)
     that you can use. They exist as flags so you can OR them together in the constructor.
 
-    \quotefromfile exawples/dialogs/tabdialog/tabdialog.cpp
+    \quotefromfile dialogs/tabdialog/tabdialog.cpp
     \skipto buttonBox
     \printuntil connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
     You can mix and match normal buttons and standard buttons.
 
-    Currently the buttons are laid out in the following way.
+    Currently the buttons are laid out in the following way if the button box is horizontal:
+    \table 100%
+    \row \o \inlineimage buttonbox-gnomelayout-horizontal.png GnomeLayout Horizontal
+         \o Button box laid out in horizontal GnomeLayout
+    \row \o \inlineimage buttonbox-kdelayout-horizontal.png KdeLayout Horizontal
+         \o Button box laid out in horizontal KdeLayout
+    \row \o \inlineimage buttonbox-maclayout-horizontal.png MacLayout Horizontal
+         \o Button box laid out in horizontal MacLayout
+    \row \o \inlineimage buttonbox-winlayout-horizontal.png  WinLayout Horizontal
+         \o Button box laid out in horizontal WinLayout
+    \endtable
 
-    \omit
-    ### Some sort of table indicating the layout style.
-    \endomit
+    The buttons are laid out the following way if the button box is vertical:
+
+    \table 100%
+    \row \o \inlineimage buttonbox-gnomelayout-vertical.png GnomeLayout Vertical
+         \o Button box laid out in vertical GnomeLayout
+    \row \o \inlineimage buttonbox-kdelayout-vertical.png KdeLayout Vertical
+         \o Button box laid out in vertical KdeLayout
+    \row \o \inlineimage buttonbox-maclayout-vertical.png MacLayout Vertical
+         \o Button box laid out in vertical MacLayout
+    \row \o \inlineimage buttonbox-winlayout-vertical.png WinLayout Vertical
+         \o Button box laid out in vertical WinLayout
+    \endtable
+
+    Additionally, button boxes that contain only buttons with ActionRole or
+    HelpRole can be considered modeless and have an alternate look on the mac:
+
+    \table 100%
+    \row \o \inlineimage buttonbox-mac-modeless-horizontal.png Screenshot of modeless horizontal MacLayout
+         \o modeless horizontal MacLayout
+    \row \o \inlineimage buttonbox-mac-modeless-vertical.png Screenshot of modeless vertical MacLayout
+         \o modeless vertical MacLayout
+    \endtable
 
     When a button is clicked in the button box, the clicked() signal is emitted
     (once with the ButtonRole and once with the actual button). For
@@ -469,10 +498,11 @@ QDialogButtonBox::~QDialogButtonBox()
     \value Apply An "Apply" button defined with the \l ActionRole.
     \value Reset A "Reset" button defined with the \l ActionRole.
     \value Help A "Help" button defined with the \l HelpRole.
+    \omitvalue NoButtons
 */
 
 /*!
-    \enum QDialogButtonBox::LayoutPolicy
+    \enum QDialogButtonBox::ButtonLayout
 
     This enum describes the layout policy to be used when arranging the buttons
     contained in the button box.
@@ -727,7 +757,7 @@ QDialogButtonBox::StandardButtons QDialogButtonBox::standardButtons() const
     happens if you call addButton(\a which) several times), it is not
     specified which button is returned.
 
-    \sa standardButton, buttons()
+    \sa standardButtons, buttons()
 */
 QPushButton *QDialogButtonBox::button(StandardButton which) const
 {

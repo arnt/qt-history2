@@ -26,7 +26,6 @@ class QDialogButtonBoxPrivate;
 class Q_GUI_EXPORT QDialogButtonBox : public QWidget
 {
     Q_OBJECT
-    Q_ENUMS(LayoutPolicy)
     Q_FLAGS(StandardButtons)
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
     Q_PROPERTY(StandardButtons standardButtons READ standardButtons WRITE setStandardButtons)
