@@ -814,7 +814,7 @@ void QGraphicsItem::setEnabled(bool enabled)
     d->enabled = quint32(enabled);
     d->enabled = itemChange(ItemEnabledChange, d->enabled).toBool();
     update();
-    
+
     foreach (QGraphicsItem *child, children())
         child->setEnabled(enabled);
 }
@@ -872,7 +872,7 @@ void QGraphicsItem::setSelected(bool selected)
         selected = false;
     if (d->selected == selected)
         return;
-    
+
     d->selected = quint32(selected);
     d->selected = itemChange(ItemSelectedChange, d->selected).toBool();
 
@@ -2293,6 +2293,9 @@ bool QGraphicsItem::sceneEvent(QEvent *event)
     case QEvent::KeyRelease:
         keyReleaseEvent(static_cast<QKeyEvent *>(event));
         break;
+    case QEvent::InputMethod:
+        inputMethodEvent(static_cast<QInputMethodEvent *>(event));
+        break;
     default:
         return false;
     }
@@ -3166,7 +3169,7 @@ void QGraphicsRectItem::setRect(const QRectF &rect)
 QRectF QGraphicsRectItem::boundingRect() const
 {
     Q_D(const QGraphicsRectItem);
-    qreal penWidth = d->pen.widthF() / 2.0;    
+    qreal penWidth = d->pen.widthF() / 2.0;
     return d->rect.adjusted(-penWidth, -penWidth,
                             penWidth, penWidth);
 }
@@ -4441,6 +4444,16 @@ void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
         return;
 
     qGraphicsTextItemSendTranslatedEvent(dd, event);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::inputMethodEvent(QInputMethodEvent *event)
+{
+    if (!dd->textControl)
+        return;
+    QApplication::sendEvent(dd->textControl, event);
 }
 
 /*!

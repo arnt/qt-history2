@@ -535,6 +535,7 @@ protected:
     void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
     void dropEvent(QGraphicsSceneDragDropEvent *event);
+    void inputMethodEvent(QInputMethodEvent *event);
 
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 

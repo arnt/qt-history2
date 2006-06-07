@@ -381,6 +381,7 @@ QGraphicsView::QGraphicsView(QGraphicsScene *scene, QWidget *parent)
     setViewport(0);
     setAcceptDrops(true);
     setBackgroundRole(QPalette::Base);
+    setAttribute(Qt::WA_InputMethodEnabled);
 }
 
 /*!
@@ -2005,7 +2006,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     }
     tmp.clear();
     QGraphicsScenePrivate::sortItems(&itemList);
-    
+
     // Reverse the item; we want to draw them in reverse order
     if (!itemList.isEmpty()) {
         QGraphicsItem **a = &itemList.first();
@@ -2148,6 +2149,15 @@ void QGraphicsView::showEvent(QShowEvent *event)
 }
 
 /*!
+    \reimp
+*/
+void QGraphicsView::inputMethodEvent(QInputMethodEvent *event)
+{
+    Q_D(QGraphicsView);
+    QApplication::sendEvent(d->scene, event);
+}
+
+/*!
     Draws the background of the scene using \a painter, before any items and
     the foreground are drawn. Reimplement this function to provide a custom
     background for this view.
@@ -2210,7 +2220,7 @@ void QGraphicsView::drawForeground(QPainter *painter, const QRectF &rect)
     styleoptions; one for each item.
 
     The default implementation calls the scene's drawItems() function.
-    
+
     \sa drawForeground(), drawBackground(), QGraphicsScene::drawItems()
 */
 void QGraphicsView::drawItems(QPainter *painter, const QList<QGraphicsItem *> &items,

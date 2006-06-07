@@ -55,6 +55,7 @@ class QPolygonF;
 class QRectF;
 class QSizeF;
 class QStyleOptionGraphicsItem;
+class QInputMethodEvent;
 
 class QGraphicsScenePrivate;
 class Q_GUI_EXPORT QGraphicsScene : public QObject
@@ -131,7 +132,7 @@ public:
     void setForegroundBrush(const QBrush &brush);
 
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
-    
+
 public Q_SLOTS:
     void update(const QRectF &rect = QRectF());
     void advance();
@@ -152,6 +153,7 @@ protected:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+    virtual void inputMethodEvent(QInputMethodEvent *event);
 
     virtual void drawBackground(QPainter *painter, const QRectF &rect);
     virtual void drawForeground(QPainter *painter, const QRectF &rect);

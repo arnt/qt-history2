@@ -157,12 +157,13 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void scrollContentsBy(int dx, int dy);
     void showEvent(QShowEvent *event);
+    void inputMethodEvent(QInputMethodEvent *event);
 
     virtual void drawBackground(QPainter *painter, const QRectF &rect);
     virtual void drawForeground(QPainter *painter, const QRectF &rect);
     virtual void drawItems(QPainter *painter, const QList<QGraphicsItem *> &items,
                            const QList<QStyleOptionGraphicsItem> &options);
-    
+
 private:
     Q_DECLARE_PRIVATE(QGraphicsView)
     friend class QGraphicsSceneWidget;

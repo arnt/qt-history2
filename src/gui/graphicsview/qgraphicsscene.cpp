@@ -2249,6 +2249,14 @@ void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
     d->mousePressEventHandler(mouseEvent);
 }
 
+void QGraphicsScene::inputMethodEvent(QInputMethodEvent *event)
+{
+    Q_D(QGraphicsScene);
+    if (!d->focusItem)
+        return;
+    d->focusItem->sceneEvent(event);
+}
+
 /*!
     Draws the background of the scene using \a painter, before any items and
     the foreground are drawn. Reimplement this function to provide a custom
