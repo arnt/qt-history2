@@ -1281,7 +1281,7 @@ FT_Face QFontEngineFT::lockFace() const
 {
     freetype->lock();
     FT_Face face = freetype->face;
-    if (freetype->xsize != xsize && freetype->ysize != ysize) {
+    if (freetype->xsize != xsize || freetype->ysize != ysize) {
         FT_Set_Char_Size(face, xsize, ysize, 0, 0);
         freetype->xsize = xsize;
         freetype->ysize = ysize;
