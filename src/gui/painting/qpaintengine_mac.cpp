@@ -474,7 +474,10 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
                 CGMutablePathRef path = qt_mac_compose_path(p);
                 CGContextBeginPath(d->hd);
                 CGContextAddPath(d->hd, path);
-                CGContextClip(d->hd);
+                if(p.fillRule() == Qt::WindingFill)
+                    CGContextClip(d->hd);
+                else
+                    CGContextEOClip(d->hd);
                 CGPathRelease(path);
             }
         } else if(op == Qt::IntersectClip) {
