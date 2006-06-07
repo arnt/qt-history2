@@ -1772,11 +1772,13 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         }
         break; }
     case E_SPLIT: {
-        if(args.count() != 2) {
+        if(args.count() < 1 || args.count() > 2) {
             fprintf(stderr, "%s:%d split(var, sep) requires three arguments\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         } else {
-            QString sep = args[1];
+            QString sep = QString(Option::field_sep), join = QString(Option::field_sep);
+            if(args.count() >= 2)
+                sep = args[1];
             QStringList var = values(args.first(), place);
             for(QStringList::ConstIterator vit = var.begin(); vit != var.end(); ++vit) {
                 QStringList lst = (*vit).split(sep);
