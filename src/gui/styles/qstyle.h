@@ -282,6 +282,9 @@ public:
 
         SE_TreeViewDisclosureItem,
 
+        SE_LineEditContents,
+        SE_FrameContents,
+
         // do not add any values below/greater than this
         SE_CustomBase = 0xf0000000
     };

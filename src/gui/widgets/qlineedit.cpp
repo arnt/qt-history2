@@ -631,12 +631,8 @@ QSize QLineEdit::sizeHint() const
     QFontMetrics fm(font());
     int h = qMax(fm.lineSpacing(), 14) + 2*verticalMargin;
     int w = fm.width(QLatin1Char('x')) * 17 + 2*horizontalMargin; // "some"
-    int m = d->frame ? style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
-    QStyleOptionFrame opt;
-    opt.rect = rect();
-    opt.palette = palette();
-    opt.state = QStyle::State_None;
-    return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w + (2 * m), h + (2 * m)).
+    QStyleOptionFrame opt = d->getStyleOption();
+    return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
                                       expandedTo(QApplication::globalStrut()), this));
 }
 
@@ -654,8 +650,9 @@ QSize QLineEdit::minimumSizeHint() const
     QFontMetrics fm = fontMetrics();
     int h = fm.height() + qMax(2*horizontalMargin, fm.leading());
     int w = fm.maxWidth();
-    int m = d->frame ? style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
-    return QSize(w + (2 * m), h + (2 * m));
+    QStyleOptionFrame opt = d->getStyleOption();
+    return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
+                                      expandedTo(QApplication::globalStrut()), this));
 }
 
 
@@ -2172,12 +2169,8 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
     QStyleOptionFrame panel = d->getStyleOption();
     style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
-
-    if (d->frame) {
-        int frameWidth = panel.lineWidth;
-        r.adjust(frameWidth, frameWidth, -frameWidth, -frameWidth);
-        p.setClipRect(r);
-    }
+    r = style()->subElementRect(QStyle::SE_LineEditContents, &panel, this);
+    p.setClipRect(r);
 
     QFontMetrics fm = fontMetrics();
     QRect lineRect(r.x() + horizontalMargin, r.y() + (r.height() - fm.height() + 1) / 2,

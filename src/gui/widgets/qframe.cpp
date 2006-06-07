@@ -339,6 +339,28 @@ int QFrame::midLineWidth() const
     return d->midLineWidth;
 }
 
+/*!
+  \internal
+  Gets the frame widths from the style. Returns the maximum of the borders
+*/
+int QFramePrivate::getStyledFrameWidth(int *l, int *t, int *r, int *b) const
+{
+    Q_Q(const QFrame);
+    QStyleOptionFrameV2 opt;
+    opt.initFrom(q);
+    QRect cr = q->style()->subElementRect(QStyle::SE_FrameContents, &opt, q);
+    int left = cr.left() - opt.rect.left(), 
+        top = cr.top() - opt.rect.top(),
+        right = opt.rect.right() - cr.right(), 
+        bottom = opt.rect.bottom() - cr.bottom();
+    if (l) {
+        *l = left;
+        *t = top;
+        *r = right;
+        *b = bottom;
+    }
+    return qMax(qMax(left, right), qMax(top, bottom));
+}
 
 /*!
   \internal
@@ -376,7 +398,7 @@ void QFramePrivate::updateFrameWidth()
         break;
 
     case QFrame::StyledPanel:
-        frameWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, q);
+        frameWidth = getStyledFrameWidth();
         break;
 
     case QFrame::WinPanel:
@@ -438,7 +460,12 @@ QRect QFrame::frameRect() const
 {
     Q_D(const QFrame);
     QRect fr = contentsRect();
-    fr.adjust(-d->frameWidth, -d->frameWidth, d->frameWidth, d->frameWidth);
+    if ((d->frameStyle & QFrame::Shape_Mask) == QFrame::StyledPanel) {
+        int l, t, r, b;
+        d->getStyledFrameWidth(&l, &t, &r, &b);
+        fr.adjust(-l, -t, r, b);
+    } else
+        fr.adjust(-d->frameWidth, -d->frameWidth, d->frameWidth, d->frameWidth);
     return fr;
 }
 
@@ -446,7 +473,12 @@ void QFrame::setFrameRect(const QRect &r)
 {
     Q_D(QFrame);
     QRect cr = r.isValid() ? r : rect();
-    cr.adjust(d->frameWidth, d->frameWidth, -d->frameWidth, -d->frameWidth);
+    if ((d->frameStyle & QFrame::Shape_Mask) == StyledPanel) {
+        int l, t, r, b;
+        d->getStyledFrameWidth(&l, &t, &r, &b);
+        cr.adjust(l, t, -r, -b);
+    } else
+        cr.adjust(d->frameWidth, d->frameWidth, -d->frameWidth, -d->frameWidth);
     setContentsMargins(cr.left(), cr.top(), rect().right() - cr.right(), rect().bottom() - cr.bottom());
 }
 

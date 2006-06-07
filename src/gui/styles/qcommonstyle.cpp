@@ -1919,6 +1919,19 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
     case SE_TreeViewDisclosureItem:
         r = opt->rect;
         break;
+    case SE_LineEditContents:
+        if (const QStyleOptionFrame *f = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            r = f->rect.adjusted(f->lineWidth, f->lineWidth, -f->lineWidth, -f->lineWidth);
+            r = visualRect(opt->direction, opt->rect, r);
+        }
+        break;
+    case SE_FrameContents:
+        if (const QStyleOptionFrameV2 *f = qstyleoption_cast<const QStyleOptionFrameV2 *>(opt)) {
+            int fw = pixelMetric(PM_DefaultFrameWidth, f, widget);
+            r = opt->rect.adjusted(fw, fw, -fw, -fw);
+            r = visualRect(opt->direction, opt->rect, r);
+        }
+        break;
     default:
         break;
     }
@@ -3505,11 +3518,14 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     case CT_TabWidget:
         sz += QSize(4, 4);
         break;
+    case CT_LineEdit:
+        if (const QStyleOptionFrame *f = qstyleoption_cast<const QStyleOptionFrame *>(opt))
+            sz += QSize(2*f->lineWidth, 2*f->lineWidth);
+        break;
     case CT_ScrollBar:
     case CT_MenuBar:
     case CT_Menu:
     case CT_MenuBarItem:
-    case CT_LineEdit:
     case CT_Q3Header:
     case CT_Slider:
     case CT_ProgressBar:
