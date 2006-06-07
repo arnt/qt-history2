@@ -243,7 +243,7 @@ public:
     static bool readIniSection(const QSettingsKey &section, const QByteArray &data,
                                ParsedSettingsMap *settingsMap);
     static bool readIniLine(const QByteArray &data, int &dataPos, int &lineStart, int &lineLen,
-                            int &keyEnd, int &valueStart);
+                            int &equalsPos);
 
 private:
     void initFormat();

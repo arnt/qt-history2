@@ -1445,6 +1445,95 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
 #endif
 }
 
+enum { Space = 0x1, Special = 0x2 };
+
+static const char charTraits[256] =
+{
+    // Space: '\t', '\n', '\r', ' '
+    // Special: '\n', '\r', '"', ';', '=', '\\'
+
+    0, 0, 0, 0, 0, 0, 0, 0, 0, Space, Space | Special, 0, 0, Space | Special, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    Space, 0, Special, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Special, 0, Special, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Special, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
+                                           int &lineStart, int &lineLen, int &equalsPos)
+{
+    int dataLen = data.length();
+    bool inQuotes = false;
+
+    equalsPos = -1;
+
+    lineStart = dataPos;
+    while (lineStart < dataLen && (charTraits[uint(uchar(data.at(lineStart)))] & Space))
+        ++lineStart;
+
+    int i = lineStart;
+    while (i < dataLen) {
+        while (!(charTraits[uint(uchar(data.at(i)))] & Special)) {
+            if (++i == dataLen)
+                goto break_out_of_outer_loop;
+        }
+
+        char ch = data.at(i++);
+        if (ch == '=') {
+            if (!inQuotes && equalsPos == -1)
+                equalsPos = i - 1;
+        } else if (ch == '\n' || ch == '\r') {
+            if (i == lineStart + 1) {
+                ++lineStart;
+            } else if (!inQuotes) {
+                --i;
+                goto break_out_of_outer_loop;
+            }
+        } else if (ch == '\\') {
+            if (i < dataLen) {
+                char ch = data.at(i++);
+                if (i < dataLen) {
+                    char ch2 = data.at(i);
+                    // \n, \r, \r\n, and \n\r are legitimate line terminators in INI files
+                    if ((ch == '\n' && ch2 == '\r') || (ch == '\r' && ch2 == '\n'))
+                        ++i;
+                }
+            }
+        } else if (ch == '"') {
+            inQuotes = !inQuotes;
+        } else {
+            Q_ASSERT(ch == ';');
+
+            if (i == lineStart + 1) {
+                char ch;
+                while (i < dataLen && ((ch = data.at(i) != '\n') && ch != '\r'))
+                    ++i;
+                lineStart = i;
+            } else if (!inQuotes) {
+                --i;
+                goto break_out_of_outer_loop;
+            }
+        }
+    }
+
+break_out_of_outer_loop:
+    dataPos = i;
+    lineLen = i - lineStart;
+    return lineLen > 0;
+}
+
 /*
     Returns false on parse error. However, as many keys are read as
     possible, so if the user doesn't check the status he will get the
@@ -1467,11 +1556,10 @@ bool QConfFileSettingsPrivate::readIniFile(const QByteArray &data,
     int dataPos = 0;
     int lineStart;
     int lineLen;
-    int keyEnd;
-    int valueStart;
+    int equalsPos;
     bool ok = true;
 
-    while (readIniLine(data, dataPos, lineStart, lineLen, keyEnd, valueStart)) {
+    while (readIniLine(data, dataPos, lineStart, lineLen, equalsPos)) {
         char ch = data.at(lineStart);
         if (ch == '[') {
             FLUSH_CURRENT_SECTION();
@@ -1516,23 +1604,27 @@ bool QConfFileSettingsPrivate::readIniSection(const QSettingsKey &section, const
 {
     QStringList strListValue;
     bool sectionIsLowercase = (section == section.originalCaseKey());
-    int keyEnd;
-    int valueStart;
+    int equalsPos;
 
     bool ok = true;
     int dataPos = 0;
     int lineStart;
     int lineLen;
 
-    while (readIniLine(data, dataPos, lineStart, lineLen, keyEnd, valueStart)) {
+    while (readIniLine(data, dataPos, lineStart, lineLen, equalsPos)) {
         char ch = data.at(lineStart);
         Q_ASSERT(ch != '[');
 
-        if (valueStart < 1) {
+        if (equalsPos == -1) {
             if (ch != ';')
                 ok = false;
             continue;
         }
+
+        int keyEnd = equalsPos;
+        while (keyEnd > lineStart && ((ch = data.at(keyEnd - 1)) == ' ' || ch == '\t'))
+            --keyEnd;
+        int valueStart = equalsPos + 1;
 
         QString key = section.originalCaseKey();
         bool keyIsLowercase = (iniUnescapedKey(data, lineStart, keyEnd, key) && sectionIsLowercase);
@@ -1559,75 +1651,6 @@ bool QConfFileSettingsPrivate::readIniSection(const QSettingsKey &section, const
     }
 
     return ok;
-}
-
-bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
-                                           int &lineStart, int &lineLen, int &keyEnd,
-                                           int &valueStart)
-{
-    int dataLen = data.length();
-    bool inQuotes = false;
-    char ch;
-
-    valueStart = -1;
-
-    lineStart = dataPos;
-    while (lineStart < dataLen
-           && ((ch = data.at(lineStart)) == ' ' || ch == '\t' || ch == '\n' || ch == '\r'))
-        ++lineStart;
-
-    int i = lineStart;
-    while (i < dataLen) {
-        ch = data.at(i++);
-
-        switch (ch) {
-        case '\r':
-        case '\n':
-            if (i == lineStart + 1) {
-                ++lineStart;
-            } else if (!inQuotes) {
-                --i;
-                goto break_out_of_loop;
-            }
-            break;
-        case '"':
-            inQuotes = !inQuotes;
-            break;
-        case ';':
-            if (i == lineStart + 1) {
-                while (i < dataLen && ((ch = data.at(i) != '\n') && ch != '\r'))
-                    ++i;
-                lineStart = i;
-            } else if (!inQuotes) {
-                --i;
-                goto break_out_of_loop;
-            }
-            break;
-        case '\\':
-            if (i < dataLen) {
-                ch = data.at(i++);
-                if (i < dataLen) {
-                    char ch2 = data.at(i);
-                    // \n, \r, \r\n, and \n\r are legitimate line terminators in INI files
-                    if ((ch == '\n' && ch2 == '\r') || (ch == '\r' && ch2 == '\n'))
-                        ++i;
-                }
-            }
-            break;
-        case '=':
-            if (!inQuotes && valueStart == -1) {
-                keyEnd = i - 1;
-                while (keyEnd > lineStart && ((ch = data.at(keyEnd - 1)) == ' ' || ch == '\t'))
-                    --keyEnd;
-                valueStart = i;
-            }
-        }
-    }
-
-break_out_of_loop:
-    dataPos = i;
-    lineLen = i - lineStart;
-    return lineLen > 0;
 }
 
 bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const ParsedSettingsMap &map)
