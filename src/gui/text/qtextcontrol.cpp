@@ -1113,7 +1113,7 @@ bool QTextControl::event(QEvent *e)
             break;
         case QEvent::MouseButtonPress: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers());
+            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers(), ev->buttons());
             break; }
         case QEvent::MouseMove: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
@@ -1169,7 +1169,8 @@ bool QTextControl::event(QEvent *e)
 
         case QEvent::GraphicsSceneMousePress: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers());
+            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers(), ev->buttons(),
+                               ev->screenPos(), ev->widget());
             break; }
         case QEvent::GraphicsSceneMouseMove: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
@@ -1627,7 +1628,8 @@ QRectF QTextControlPrivate::selectionRect(const QTextCursor &cursor) const
 
 /*! \reimp
 */
-void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF &pos, Qt::KeyboardModifiers modifiers)
+void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF &pos, Qt::KeyboardModifiers modifiers,
+                                          Qt::MouseButtons buttons, const QPoint &globalPos, QWidget *widget)
 {
     Q_Q(QTextControl);
 
@@ -1661,16 +1663,17 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
             return;
 
 #if !defined(QT_NO_IM)
-        /* #########
-        QTextLayout *layout = d->cursor.block().layout();
-        if (layout && !layout->preeditAreaText().isEmpty()) {
-            QInputContext *ctx = inputContext();
-            if (ctx)
-                ctx->mouseHandler(cursorPos - d->cursor.position(), e);
+        QTextLayout *layout = cursor.block().layout();
+        if (widget && layout && !layout->preeditAreaText().isEmpty()) {
+            QInputContext *ctx = widget->inputContext();
+            if (ctx) {
+                QMouseEvent ev(QEvent::MouseButtonPress, widget->mapFromGlobal(globalPos), globalPos,
+                               button, buttons, modifiers);
+                ctx->mouseHandler(cursorPos - cursor.position(), &ev);
+            }
             if (!layout->preeditAreaText().isEmpty())
                 return;
         }
-        */
 #endif
         if (modifiers == Qt::ShiftModifier) {
             if (selectedWordOnDoubleClick.hasSelection())
