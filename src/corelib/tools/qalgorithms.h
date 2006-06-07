@@ -15,7 +15,6 @@
 #define QALGORITHMS_H
 
 #include <QtCore/qglobal.h>
-#include <QtCore/qlist.h>
 
 QT_BEGIN_HEADER
 
@@ -27,15 +26,15 @@ QT_MODULE(Core)
 */
 namespace QAlgorithmsPrivate {
 
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan);
-template <typename BiIterator, typename T>
-inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy);
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qSortHelper(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan);
+template <typename RandomAccessIterator, typename T>
+inline void qSortHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &dummy);
 
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan);
-template <typename BiIterator, typename T>
-inline void qStableSortHelper(BiIterator, BiIterator, const T &);
+template <typename RandomAccessIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan);
+template <typename RandomAccessIterator, typename T>
+inline void qStableSortHelper(RandomAccessIterator, RandomAccessIterator, const T &);
 
 template <typename RandomAccessIterator, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE RandomAccessIterator qLowerBoundHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan);
@@ -45,8 +44,6 @@ template <typename RandomAccessIterator, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE RandomAccessIterator qBinaryFindHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &value, LessThan lessThan);
 
 }
-
-namespace std { struct bidirectional_iterator_tag; struct random_access_iterator_tag; }
 
 template <typename InputIterator, typename OutputIterator>
 inline OutputIterator qCopy(InputIterator begin, InputIterator end, OutputIterator dest)
@@ -177,15 +174,15 @@ public:
 };
 #endif
 
-template <typename BiIterator>
-inline void qSort(BiIterator start, BiIterator end)
+template <typename RandomAccessIterator>
+inline void qSort(RandomAccessIterator start, RandomAccessIterator end)
 {
     if (start != end)
         QAlgorithmsPrivate::qSortHelper(start, end, *start);
 }
 
-template <typename BiIterator, typename LessThan>
-inline void qSort(BiIterator start, BiIterator end, LessThan lessThan)
+template <typename RandomAccessIterator, typename LessThan>
+inline void qSort(RandomAccessIterator start, RandomAccessIterator end, LessThan lessThan)
 {
     if (start != end)
         QAlgorithmsPrivate::qSortHelper(start, end, *start, lessThan);
@@ -202,15 +199,15 @@ inline void qSort(Container &c)
         QAlgorithmsPrivate::qSortHelper(c.begin(), c.end(), *c.begin());
 }
 
-template <typename BiIterator>
-inline void qStableSort(BiIterator start, BiIterator end)
+template <typename RandomAccessIterator>
+inline void qStableSort(RandomAccessIterator start, RandomAccessIterator end)
 {
     if (start != end)
         QAlgorithmsPrivate::qStableSortHelper(start, end, *start);
 }
 
-template <typename BiIterator, typename LessThan>
-inline void qStableSort(BiIterator start, BiIterator end, LessThan lessThan)
+template <typename RandomAccessIterator, typename LessThan>
+inline void qStableSort(RandomAccessIterator start, RandomAccessIterator end, LessThan lessThan)
 {
     if (start != end)
         QAlgorithmsPrivate::qStableSortHelper(start, end, *start, lessThan);
@@ -351,20 +348,8 @@ inline void qDeleteAll(const Container &c)
 */
 namespace QAlgorithmsPrivate {
 
-template <typename T>
-Q_OUTOFLINE_TEMPLATE std::random_access_iterator_tag *qIteratorCategory(T *)
-{
-    return 0;
-};
-
-template <typename Iterator>
-Q_OUTOFLINE_TEMPLATE typename Iterator::iterator_category *qIteratorCategory(Iterator)
-{
-    return 0;
-};
-
 template <typename RandomAccessIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qSortImplementation(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan)
+Q_OUTOFLINE_TEMPLATE void qSortHelper(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan)
 {
 top:
     int span = end - start;
@@ -409,49 +394,21 @@ top:
         ++low;
 
     qSwap(*end, *low);
-    qSortImplementation(start, low, t, lessThan);
+    qSortHelper(start, low, t, lessThan);
 
     start = low + 1;
     ++end;
     goto top;
 }
 
-/*
-    Sort containers that only have bidirectional iterators by making a copy of the container
-    and then sorting that.
-*/
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator begin, BiIterator end, const T &t, LessThan lessThan, std::bidirectional_iterator_tag*)
-{
-    QList<T> tmp;
-    BiIterator it = begin;
-    while (it != end)
-        tmp.append(*it++);
-
-    qSortImplementation(tmp.begin(), tmp.end(), t, lessThan);
-    qCopy(tmp.begin(), tmp.end(), begin);
-}
-
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator begin, BiIterator end, const T &t, LessThan lessThan, std::random_access_iterator_tag*)
-{
-    qSortImplementation(begin, end, t, lessThan);
-}
-
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator begin, BiIterator end, const T &t, LessThan lessThan)
-{
-    qSortHelper(begin, end, t, lessThan, qIteratorCategory(begin));
-}
-
-template <typename BiIterator, typename T>
-inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy)
+template <typename RandomAccessIterator, typename T>
+inline void qSortHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &dummy)
 {
     qSortHelper(begin, end, dummy, qLess<T>());
 }
 
 template <typename RandomAccessIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortImplementation(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan)
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper(RandomAccessIterator start, RandomAccessIterator end, const T &t, LessThan lessThan)
 {
     const int span = end - start;
     if (span < 2)
@@ -459,8 +416,8 @@ Q_OUTOFLINE_TEMPLATE void qStableSortImplementation(RandomAccessIterator start, 
         
     // Split in half and sort halves.
     RandomAccessIterator middle = start + span / 2;
-    qStableSortImplementation(start, middle, t, lessThan);
-    qStableSortImplementation(middle, end, t, lessThan);
+    qStableSortHelper(start, middle, t, lessThan);
+    qStableSortHelper(middle, end, t, lessThan);
     
     // Merge
     RandomAccessIterator lo = start;
@@ -484,36 +441,8 @@ Q_OUTOFLINE_TEMPLATE void qStableSortImplementation(RandomAccessIterator start, 
     }
 }
 
-/*
-    Sort containers that only have bidirectional iterators by making a copy of the container
-    and then sorting that.
-*/
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator begin, BiIterator end, const T &t, LessThan lessThan, std::bidirectional_iterator_tag*)
-{
-    QList<T> tmp;
-    BiIterator it = begin;
-    while (it != end)
-        tmp.append(*it++);
-
-    qStableSortImplementation(tmp.begin(), tmp.end(), t, lessThan);
-    qCopy(tmp.begin(), tmp.end(), begin);
-}
-
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator begin, BiIterator end, const T &t, LessThan lessThan, std::random_access_iterator_tag*)
-{
-    qStableSortImplementation(begin, end, t, lessThan);
-}
-
-template <typename BiIterator, typename T, typename LessThan>
-Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator begin, BiIterator end, const T &t, LessThan lessThan)
-{
-    qStableSortHelper(begin, end, t, lessThan, qIteratorCategory(begin));
-}
-
-template <typename BiIterator, typename T>
-inline void qStableSortHelper(BiIterator begin, BiIterator end, const T &dummy)
+template <typename RandomAccessIterator, typename T>
+inline void qStableSortHelper(RandomAccessIterator begin, RandomAccessIterator end, const T &dummy)
 {
     qStableSortHelper(begin, end, dummy, qLess<T>());
 }
