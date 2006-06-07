@@ -83,7 +83,7 @@ private:
 
     friend class QSystemTrayIconSys;
     friend class QBalloonTip;
-    friend void sendActivated(QSystemTrayIcon *, int);
+    friend void qtsystray_sendActivated(QSystemTrayIcon *, int);
 };
 
 QT_END_HEADER

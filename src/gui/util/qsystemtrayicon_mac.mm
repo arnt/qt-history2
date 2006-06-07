@@ -4,7 +4,7 @@
 #include <private/qt_mac_p.h>
 #import <AppKit/AppKit.h>
 
-extern void sendActivated(QSystemTrayIcon *i, int r); //qsystemtrayicon.cpp
+extern void qtsystray_sendActivated(QSystemTrayIcon *i, int r); //qsystemtrayicon.cpp
 extern void qt_mac_get_accel(quint32 accel_key, quint32 *modif, quint32 *key); //qmenu_mac.cpp
 extern QString qt_mac_no_ampersands(QString str); //qmenu_mac.cpp
 
@@ -163,7 +163,7 @@ void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &
 - (void)triggerSelector:(id)sender {
     if(!icon)
         return;
-    sendActivated(icon, QSystemTrayIcon::Trigger);
+    qtsystray_sendActivated(icon, QSystemTrayIcon::Trigger);
     if(icon->contextMenu()) {
         NSMenu *m = [[QNSMenu alloc] initWithQMenu:icon->contextMenu()];
         [item popUpStatusItemMenu:m];
@@ -173,7 +173,7 @@ void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &
 - (void)doubleClickSelector:(id)sender {
     if(!icon)
         return;
-    sendActivated(icon, QSystemTrayIcon::DoubleClick);
+    qtsystray_sendActivated(icon, QSystemTrayIcon::DoubleClick);
 }
 @end
 

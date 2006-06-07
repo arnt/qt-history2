@@ -501,4 +501,4 @@ bool QBalloonTip::eventFilter(QObject *o, QEvent *e)
     return QWidget::eventFilter(o, e);
 }
 
-void sendActivated(QSystemTrayIcon *i, int r) { emit i->activated(r); }
+void qtsystray_sendActivated(QSystemTrayIcon *i, int r) { emit i->activated(r); }
