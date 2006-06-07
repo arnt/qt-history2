@@ -827,12 +827,13 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<FormatRang
         l.draw(p, position);
         for (int i = 0; i < selections.size(); ++i) {
             FormatRange selection = selections.at(i);
-            QVariant fullWidthProp = selection.format.property(QTextFormat::FullWidthSelection);
-            if (fullWidthProp.type() == QVariant::RectF
+            if (selection.format.boolProperty(QTextFormat::FullWidthSelection)
                 && selection.start >= sl.from
                 && (selection.start < sl.from + sl.length || !sl.length)
                ) {
-                QRectF selectionRect = fullWidthProp.toRectF();
+                QRectF selectionRect;
+                selectionRect.setLeft(0);
+                selectionRect.setWidth(INT_MAX);
                 selectionRect.setY(position.y() + l.y());
                 selectionRect.setHeight(l.height());
                 QBrush bg = selection.format.background();
@@ -1270,7 +1271,7 @@ void QTextLine::layout_helper(int maxGlyphs)
                 }
             } while (pos < end);
             minw = qMax(tmpData.textWidth, minw);
-            
+
             QFixed softHyphenWidth;
             if (pos && eng->layoutData->string.at(pos - 1) == 0x00ad) {
                 // if we are splitting up a word because of
@@ -1288,7 +1289,7 @@ void QTextLine::layout_helper(int maxGlyphs)
                 //     switch to break-anywhere mode, in which we
                 //     want the soft-hyphen to slip into the next line
                 //     and thus become invisible again.
-                // 
+                //
                 if (line.length)
                     softHyphenWidth = glyphs[logClusters[pos - 1]].advance.x;
                 else if (breakany)

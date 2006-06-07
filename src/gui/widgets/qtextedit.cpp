@@ -1246,8 +1246,6 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     p->translate(-xOffset, -yOffset);
     r.translate(xOffset, yOffset);
 
-    // #### verify extra selections and
-    // isEnabled
     control->drawContents(p, r);
 }
 

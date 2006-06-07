@@ -2874,16 +2874,11 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
     ctx.clip = rect;
     ctx.selections = d->extraSelections;
 
-/* ######
     for (int i = 0; i < ctx.selections.count(); ++i)
         if (ctx.selections.at(i).format.boolProperty(QTextFormat::FullWidthSelection)) {
-            QRectF r = viewport->rect();
-            r.translate(xOffset, yOffset);
-            ctx.selections[i].format.setProperty(QTextFormat::FullWidthSelection, QRectF(r));
             ctx.clip.setLeft(0);
-            ctx.clip.setWidth(r.width());
+            ctx.clip.setWidth(INT_MAX);
         }
-*/
 
     ctx.palette = d->palette;
     if (d->cursorOn && d->isEnabled) {
