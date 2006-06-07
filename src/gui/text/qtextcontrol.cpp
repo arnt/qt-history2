@@ -1666,6 +1666,8 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
         QTextLayout *layout = cursor.block().layout();
         if (dndWidget && layout && !layout->preeditAreaText().isEmpty()) {
             QInputContext *ctx = dndWidget->inputContext();
+            if (!ctx && dndWidget->parentWidget())
+                ctx = dndWidget->parentWidget()->inputContext();
             if (ctx) {
                 QMouseEvent ev(QEvent::MouseButtonPress, dndWidget->mapFromGlobal(globalPos), globalPos,
                                button, buttons, modifiers);
