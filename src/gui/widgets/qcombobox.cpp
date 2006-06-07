@@ -96,7 +96,7 @@ void QComboBoxPrivate::_q_modelReset()
 {
     Q_Q(QComboBox);
     if (lineEdit) {
-        lineEdit->setText("");
+        lineEdit->setText(QString());
         updateLineEditGeometry();
     }
     q->update();
@@ -222,9 +222,9 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     } else {
         setLineWidth(1);
     }
-    
+
     setFrameStyle(style()->styleHint(QStyle::SH_ComboBox_PopupFrameStyle, &opt, this));
-    
+
     if (top) {
         layout->insertWidget(0, top);
         connect(top, SIGNAL(doScroll(int)), this, SLOT(scrollItemView(int)));
