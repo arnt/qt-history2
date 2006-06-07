@@ -1822,6 +1822,9 @@ bool QGraphicsScene::event(QEvent *event)
     case QEvent::GraphicsSceneHelp:
         helpEvent(static_cast<QGraphicsSceneHelpEvent *>(event));
         break;
+    case QEvent::InputMethod:
+        inputMethodEvent(static_cast<QInputMethodEvent *>(event));
+        break;
     default:
         return false;
     }
