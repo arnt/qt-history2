@@ -57,7 +57,7 @@
 
     By default, resources are accessible in the application under the
     same name as they have in the source tree, with a \c :/ prefix.
-    For example, the path \c :/image/cut.png would give access to the
+    For example, the path \c :/images/cut.png would give access to the
     \c cut.png file, whose location in the application's source tree
     is \c images/cut.png. This can be changed using the \c file tag's
     \c alias attribute:
