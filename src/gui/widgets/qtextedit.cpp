@@ -1382,6 +1382,9 @@ void QTextEdit::dragLeaveEvent(QDragLeaveEvent *e)
 class QPublicDropEvent : public QDropEvent
 {
 public:
+    QPublicDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data,
+                     Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type = Drop)
+        : QDropEvent(pos, actions, data, buttons, modifiers, type) {}
     inline void setPos(const QPoint &pos)
     { p = pos; }
 };
