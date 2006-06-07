@@ -3430,8 +3430,6 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
             spans[index].coverage = 255;
             spans[index].x = x;
             spans[index].y = y;
-            if (ordered) // only incremented when y changes in the 0-45 case
-                ++current;
         }
 
         if (y2 > y1) { // 315 -> 360 and 135 -> 180 (unit circle degrees)
@@ -3446,10 +3444,21 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 
             while (x < x2) {
                 if (d > 0) {
+                    ++current;
+                    if (current == NSPANS) {
+                        span_func(NSPANS, spans, data);
+                        current = 0;
+                    }
+
                     ++y;
                     d += incrNE;
                     if (y > y2)
                         goto flush_and_return;
+
+                    spans[current].len = 0;
+                    spans[current].coverage = 255;
+                    spans[current].x = x;
+                    spans[current].y = y;
                 } else {
                     d += incrE;
                 }
@@ -3460,14 +3469,10 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 
                 Q_ASSERT(x<devRect.width());
                 Q_ASSERT(y<devRect.height());
-                if (current == NSPANS) {
-                    span_func(NSPANS, spans, data);
-                    current = 0;
-                }
-                spans[current].len = 1;
-                spans[current].coverage = 255;
-                spans[current].x = x;
-                spans[current].y = y;
+                Q_ASSERT(spans[current].y == y);
+                spans[current].len++;
+            }
+            if (spans[current].len > 0) {
                 ++current;
             }
         } else {  // 0-45 and 180->225 (unit circle degrees)
@@ -3491,15 +3496,14 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 
                     --y;
                     d += incrNE;
+                    if (y < 0)
+                        goto flush_and_return;
 
                     const int index = NSPANS - 1 - current;
                     spans[index].len = 0;
                     spans[index].coverage = 255;
                     spans[index].x = x;
                     spans[index].y = y;
-
-                    if (y < 0)
-                        goto flush_and_return;
                 } else {
                     d += incrE;
                 }
