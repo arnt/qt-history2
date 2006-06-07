@@ -535,6 +535,16 @@ qint64 QFSFileEngine::write(const char *data, qint64 len)
 
     qint64 result;
     qint64 written = 0;
+#ifdef Q_OS_WIN
+    qint64 posbefore;
+    if (!d->sequential) {
+        posbefore = pos();
+        if (posbefore == -1) {
+            setError(QFile::WriteError, qt_error_string(errno));
+            return qint64(-1);
+        }
+    }
+#endif
     do {
         qint64 bytesToWrite = len - written;
 #ifdef Q_OS_WIN
@@ -559,6 +569,16 @@ qint64 QFSFileEngine::write(const char *data, qint64 len)
             written += qint64(result);
     } while (written < len && ((result > 0 || (result == 0 && errno == EINTR))));
 
+#ifdef Q_OS_WIN
+    if (!d->sequential) {
+        qint64 currentpos = pos();
+        if (currentpos == -1) {
+            result = -1;
+        } else {
+            written = currentpos - posbefore;
+        }
+    }
+#endif
     if (result > 0)
         return written;
     setError(errno == ENOSPC ? QFile::ResourceError : QFile::WriteError, qt_error_string(errno));
@@ -609,6 +629,9 @@ QAbstractFileEngine::Iterator *QFSFileEngine::endEntryList()
 bool QFSFileEngine::seek(qint64 pos)
 {
     Q_D(QFSFileEngine);
+    if (d->lastIOCommand != QFSFileEnginePrivate::IOFlushCommand && !flush())
+        return false;
+
     if (d->fh) {
         if (QT_FSEEK(d->fh, QT_OFF_T(pos), SEEK_SET) == -1) {
             setError(QFile::ReadError, qt_error_string(int(errno)));
