@@ -1170,7 +1170,7 @@ bool QTextControl::event(QEvent *e)
         case QEvent::GraphicsSceneMousePress: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
             d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers(), ev->buttons(),
-                               ev->screenPos(), ev->widget());
+                               ev->screenPos());
             break; }
         case QEvent::GraphicsSceneMouseMove: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
@@ -1629,7 +1629,7 @@ QRectF QTextControlPrivate::selectionRect(const QTextCursor &cursor) const
 /*! \reimp
 */
 void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF &pos, Qt::KeyboardModifiers modifiers,
-                                          Qt::MouseButtons buttons, const QPoint &globalPos, QWidget *widget)
+                                          Qt::MouseButtons buttons, const QPoint &globalPos)
 {
     Q_Q(QTextControl);
 
@@ -1664,10 +1664,10 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
 
 #if !defined(QT_NO_IM)
         QTextLayout *layout = cursor.block().layout();
-        if (widget && layout && !layout->preeditAreaText().isEmpty()) {
-            QInputContext *ctx = widget->inputContext();
+        if (dndWidget && layout && !layout->preeditAreaText().isEmpty()) {
+            QInputContext *ctx = dndWidget->inputContext();
             if (ctx) {
-                QMouseEvent ev(QEvent::MouseButtonPress, widget->mapFromGlobal(globalPos), globalPos,
+                QMouseEvent ev(QEvent::MouseButtonPress, dndWidget->mapFromGlobal(globalPos), globalPos,
                                button, buttons, modifiers);
                 ctx->mouseHandler(cursorPos - cursor.position(), &ev);
             }
