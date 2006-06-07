@@ -1540,8 +1540,8 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     const int width = d->viewport->width();
     const int height = d->viewport->height();
     const bool active = isActiveWindow();
-    const QFont fnt(painter.font()); // save the painter font
     for (int i = start; i <= end; ++i) {
+        painter.save();
         if (d->isVisualIndexHidden(i))
             continue;
         logical = logicalIndex(i);
@@ -1557,28 +1557,27 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         }
         rect.translate(offset);
 
-        QFont sectionFont;
         QVariant variant = d->model->headerData(logical, orientation(),
                                                 Qt::FontRole);
-        if (variant.isValid() && qVariantCanConvert<QFont>(variant))
-            sectionFont = qvariant_cast<QFont>(variant);
-        else
-            sectionFont = fnt;
-        if (highlight)
-            sectionFont.setBold(true);
-        painter.setFont(sectionFont);
-
+        if (variant.isValid() && qVariantCanConvert<QFont>(variant)) {
+            QFont sectionFont = qvariant_cast<QFont>(variant);
+            if (highlight)
+                sectionFont.setBold(true);
+            painter.setFont(sectionFont);
+        }
         paintSection(&painter, rect, logical);
+        painter.restore();
     }
-    painter.setFont(fnt);
 
+    // Paint the area beyond where there are indexes
     if (d->reverse()) {
         if (rect.left() > area.left())
             painter.fillRect(area.left(), 0, rect.left() - area.left(), height,
                              palette().background());
     } else if (rect.right() < area.right()) {
+        // paint to the right
         painter.fillRect(rect.right() + 1, 0,
-                         width - rect.right() - 1, height,
+                         area.right() - rect.right(), height,
                          palette().background());
     } else if (rect.bottom() < area.bottom()) {
         painter.fillRect(0, rect.bottom() + 1,
