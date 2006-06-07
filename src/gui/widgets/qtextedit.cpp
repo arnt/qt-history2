@@ -1379,22 +1379,12 @@ void QTextEdit::dragLeaveEvent(QDragLeaveEvent *e)
     d->control->event(e);
 }
 
-class QPublicDropEvent : public QDropEvent
-{
-public:
-    QPublicDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data,
-                     Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type = Drop)
-        : QDropEvent(pos, actions, data, buttons, modifiers, type) {}
-    inline void setPos(const QPoint &pos)
-    { p = pos; }
-};
-
 /*! \reimp
 */
 void QTextEdit::dragMoveEvent(QDragMoveEvent *e)
 {
     Q_D(QTextEdit);
-    reinterpret_cast<QPublicDropEvent *>(e)->setPos(d->mapToContents(e->pos()));
+    e->setPos(d->mapToContents(e->pos()));
     d->control->event(e);
 }
 
@@ -1403,7 +1393,7 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *e)
 void QTextEdit::dropEvent(QDropEvent *e)
 {
     Q_D(QTextEdit);
-    static_cast<QPublicDropEvent *>(e)->setPos(d->mapToContents(e->pos()));
+    e->setPos(d->mapToContents(e->pos()));
     d->control->event(e);
 }
 

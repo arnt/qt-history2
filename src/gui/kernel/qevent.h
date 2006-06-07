@@ -419,6 +419,7 @@ public:
                Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type = Drop);
     ~QDropEvent();
 
+    inline void setPos(const QPoint &pos) { p = pos; }
     inline const QPoint &pos() const { return p; }
     inline Qt::MouseButtons mouseButtons() const { return mouseState; }
     inline Qt::KeyboardModifiers keyboardModifiers() const { return modState; }
