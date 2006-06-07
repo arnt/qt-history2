@@ -56,6 +56,7 @@ public:
           clickableSections(false),
           highlightSelected(false),
           stretchLastSection(false),
+          cascadingResizing(false),
           stretchSections(0),
           contentsSections(0),
           minimumSectionSize(-1),
@@ -135,6 +136,7 @@ public:
 
     void clear();
     void flipSortIndicator(int section);
+    void cascadingResize(int visual, int newSize);
 
     enum State { NoState, ResizeSection, MoveSection } state;
 
@@ -164,6 +166,7 @@ public:
     bool clickableSections;
     bool highlightSelected;
     bool stretchLastSection;
+    bool cascadingResizing;
     int stretchSections;
     int contentsSections;
     int defaultSectionSize;
