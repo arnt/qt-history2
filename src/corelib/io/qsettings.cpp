@@ -99,10 +99,10 @@ QConfFile::QConfFile(const QString &fileName, bool _userPerms)
     usedHashFunc()->insert(name, this);
 }
 
-InternalSettingsMap QConfFile::mergedKeyMap() const
+ParsedSettingsMap QConfFile::mergedKeyMap() const
 {
-    InternalSettingsMap result = originalKeys;
-    InternalSettingsMap::const_iterator i;
+    ParsedSettingsMap result = originalKeys;
+    ParsedSettingsMap::const_iterator i;
 
     for (i = removedKeys.begin(); i != removedKeys.end(); ++i)
         result.remove(i.key());
@@ -241,7 +241,7 @@ void QSettingsPrivate::beginGroupOrArray(const QSettingsGroup &group)
     first error that occurred. We always allow clearing errors.
 */
 
-void QSettingsPrivate::setStatus(QSettings::Status status)
+void QSettingsPrivate::setStatus(QSettings::Status status) const
 {
     if (status == QSettings::NoError || this->status == QSettings::NoError)
         this->status = status;
@@ -845,12 +845,10 @@ void QConfFileSettingsPrivate::initFormat()
     extension = (format == QSettings::NativeFormat) ? QLatin1String(".conf") : QLatin1String(".ini");
     readFunc = 0;
     writeFunc = 0;
-#if defined(QT_QSETTINGS_ALWAYS_CASE_SENSITIVE)
-    caseSensitivity = Qt::CaseSensitive;
-#elif defined(Q_OS_MAC)
+#if defined(Q_OS_MAC)
     caseSensitivity = (format == QSettings::NativeFormat) ? Qt::CaseSensitive : Qt::CaseInsensitive;
 #else
-    caseSensitivity = Qt::CaseInsensitive;
+    caseSensitivity = IniCaseSensitivity;
 #endif
 
     if (format > QSettings::IniFormat) {
@@ -1078,6 +1076,7 @@ QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
             if (confFiles[i]->size == 0) {
                 delete confFiles[i];
             } else if (unusedCache) {
+                // ### compute a better size
                 unusedCache->insert(confFiles[i]->name, confFiles[i],
                                     10 + (confFiles[i]->originalKeys.size() / 4));
             }
@@ -1095,12 +1094,15 @@ void QConfFileSettingsPrivate::remove(const QString &key)
     QSettingsKey prefix(key + QLatin1Char('/'), caseSensitivity);
     QMutexLocker locker(&confFile->mutex);
 
-    InternalSettingsMap::iterator i = confFile->addedKeys.lowerBound(prefix);
+    ensureSectionParsed(confFile, theKey);
+    ensureSectionParsed(confFile, prefix);
+
+    ParsedSettingsMap::iterator i = confFile->addedKeys.lowerBound(prefix);
     while (i != confFile->addedKeys.end() && i.key().startsWith(prefix))
         i = confFile->addedKeys.erase(i);
     confFile->addedKeys.remove(theKey);
 
-    InternalSettingsMap::const_iterator j = confFile->originalKeys.lowerBound(prefix);
+    ParsedSettingsMap::const_iterator j = confFile->originalKeys.lowerBound(prefix);
     while (j != confFile->originalKeys.constEnd() && j.key().startsWith(prefix)) {
         confFile->removedKeys.insert(j.key(), QVariant());
         ++j;
@@ -1124,7 +1126,7 @@ void QConfFileSettingsPrivate::set(const QString &key, const QVariant &value)
 bool QConfFileSettingsPrivate::get(const QString &key, QVariant *value) const
 {
     QSettingsKey theKey(key, caseSensitivity);
-    InternalSettingsMap::const_iterator j;
+    ParsedSettingsMap::const_iterator j;
     bool found = false;
 
     for (int i = 0; i < NumConfFiles; ++i) {
@@ -1136,6 +1138,7 @@ bool QConfFileSettingsPrivate::get(const QString &key, QVariant *value) const
                 found = (j != confFile->addedKeys.constEnd());
             }
             if (!found) {
+                ensureSectionParsed(confFile, theKey);
                 j = confFile->originalKeys.find(theKey);
                 found = (j != confFile->originalKeys.constEnd()
                          && !confFile->removedKeys.contains(theKey));
@@ -1156,7 +1159,7 @@ bool QConfFileSettingsPrivate::get(const QString &key, QVariant *value) const
 QStringList QConfFileSettingsPrivate::children(const QString &prefix, ChildSpec spec) const
 {
     QMap<QString, QString> result;
-    InternalSettingsMap::const_iterator j;
+    ParsedSettingsMap::const_iterator j;
 
     QSettingsKey thePrefix(prefix, caseSensitivity);
     int startPos = prefix.size();
@@ -1165,16 +1168,22 @@ QStringList QConfFileSettingsPrivate::children(const QString &prefix, ChildSpec 
         if (QConfFile *confFile = confFiles[i]) {
             QMutexLocker locker(&confFile->mutex);
 
+            if (thePrefix.isEmpty()) {
+                ensureAllSectionsParsed(confFile);
+            } else {
+                ensureSectionParsed(confFile, thePrefix);
+            }
+
             j = confFile->originalKeys.lowerBound(thePrefix);
             while (j != confFile->originalKeys.constEnd() && j.key().startsWith(thePrefix)) {
                 if (!confFile->removedKeys.contains(j.key()))
-                    processChild(j.key().realKey().mid(startPos), spec, result);
+                    processChild(j.key().originalCaseKey().mid(startPos), spec, result);
                 ++j;
             }
 
             j = confFile->addedKeys.lowerBound(thePrefix);
             while (j != confFile->addedKeys.constEnd() && j.key().startsWith(thePrefix)) {
-                processChild(j.key().realKey().mid(startPos), spec, result);
+                processChild(j.key().originalCaseKey().mid(startPos), spec, result);
                 ++j;
             }
 
@@ -1192,6 +1201,7 @@ void QConfFileSettingsPrivate::clear()
         return;
 
     QMutexLocker locker(&confFile->mutex);
+    ensureAllSectionsParsed(confFile);
     confFile->addedKeys.clear();
     confFile->removedKeys = confFile->originalKeys;
 }
@@ -1326,7 +1336,8 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
     }
 
     if (mustReadFile) {
-        InternalSettingsMap newKeys;
+        confFile->unparsedIniSections.clear();
+        confFile->originalKeys.clear();
 
         /*
             Files that we can't read (because of permissions or
@@ -1335,13 +1346,13 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
         if (file.isReadable() && fileInfo.size() != 0) {
 #ifdef Q_OS_MAC
             if (format == QSettings::NativeFormat) {
-                ok = readPlistFile(confFile->name, &newKeys);
+                ok = readPlistFile(confFile->name, &confFile->originalKeys);
             } else
 #endif
             {
                 if (format <= QSettings::IniFormat) {
                     QByteArray data = file.readAll();
-                    ok = readIniFile(data, &newKeys);
+                    ok = readIniFile(data, &confFile->unparsedIniSections);
                 } else {
                     if (readFunc) {
                         QSettings::SettingsMap tempNewKeys;
@@ -1350,7 +1361,9 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
                         if (ok) {
                             QSettings::SettingsMap::const_iterator i = tempNewKeys.constBegin();
                             while (i != tempNewKeys.constEnd()) {
-                                newKeys.insert(QSettingsKey(i.key(), caseSensitivity), i.value());
+                                confFile->originalKeys.insert(QSettingsKey(i.key(),
+                                                                           caseSensitivity),
+                                                              i.value());
                                 ++i;
                             }
                         }
@@ -1364,7 +1377,6 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
                 setStatus(QSettings::FormatError);
         }
 
-        confFile->originalKeys = newKeys;
         confFile->size = fileInfo.size();
         confFile->timeStamp = fileInfo.lastModified();
     }
@@ -1374,7 +1386,8 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
         so everything is under control.
     */
     if (!readOnly) {
-        InternalSettingsMap mergedKeys = confFile->mergedKeyMap();
+        ensureAllSectionsParsed(confFile);
+        ParsedSettingsMap mergedKeys = confFile->mergedKeyMap();
 
         if (file.isWritable()) {
 #ifdef Q_OS_MAC
@@ -1392,7 +1405,7 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
                     if (writeFunc) {
                         QSettings::SettingsMap tempOriginalKeys;
 
-                        InternalSettingsMap::const_iterator i = mergedKeys.constBegin();
+                        ParsedSettingsMap::const_iterator i = mergedKeys.constBegin();
                         while (i != mergedKeys.constEnd()) {
                             tempOriginalKeys.insert(i.key(), i.value());
                             ++i;
@@ -1408,6 +1421,7 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
         }
 
         if (ok) {
+            confFile->unparsedIniSections.clear();
             confFile->originalKeys = mergedKeys;
             confFile->addedKeys.clear();
             confFile->removedKeys.clear();
@@ -1431,7 +1445,123 @@ void QConfFileSettingsPrivate::syncConfFile(int confFileNo)
 #endif
 }
 
-bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos, QByteArray &line,
+/*
+    Returns false on parse error. However, as many keys are read as
+    possible, so if the user doesn't check the status he will get the
+    most out of the file anyway.
+*/
+bool QConfFileSettingsPrivate::readIniFile(const QByteArray &data,
+                                           UnparsedSettingsMap *unparsedIniSections)
+{
+#define FLUSH_CURRENT_SECTION() \
+    { \
+        QByteArray &sectionData = (*unparsedIniSections)[QSettingsKey(currentSection, \
+                                                                      IniCaseSensitivity)]; \
+        if (!sectionData.isEmpty()) \
+            sectionData.append('\n'); \
+        sectionData += data.mid(currentSectionStart, lineStart - currentSectionStart); \
+    }
+
+    QString currentSection;
+    int currentSectionStart = 0;
+    int dataPos = 0;
+    int lineStart;
+    int lineLen;
+    int keyEnd;
+    int valueStart;
+    bool ok = true;
+
+    while (readIniLine(data, dataPos, lineStart, lineLen, keyEnd, valueStart)) {
+        char ch = data.at(lineStart);
+        if (ch == '[') {
+            FLUSH_CURRENT_SECTION();
+
+            // this is a section
+            QByteArray iniSection;
+            int idx = data.indexOf(']', lineStart);
+            if (idx == -1 || idx >= lineStart + lineLen) {
+                ok = false;
+                iniSection = data.mid(lineStart + 1, lineLen - 1);
+            } else {
+                iniSection = data.mid(lineStart + 1, idx - lineStart - 1);
+            }
+
+            iniSection = iniSection.trimmed();
+
+            if (qstricmp(iniSection, "general") == 0) {
+                currentSection.clear();
+            } else {
+                if (qstricmp(iniSection, "%general") == 0) {
+                    currentSection = QLatin1String(iniSection.constData() + 1);
+                } else {
+                    currentSection.clear();
+                    iniUnescapedKey(iniSection, 0, iniSection.size(), currentSection);
+                }
+                currentSection += QLatin1Char('/');
+            }
+            currentSectionStart = dataPos;
+        }
+    }
+
+    Q_ASSERT(lineStart == data.length());
+    FLUSH_CURRENT_SECTION();
+
+    return ok;
+
+#undef FLUSH_CURRENT_SECTION
+}
+
+bool QConfFileSettingsPrivate::readIniSection(const QSettingsKey &section, const QByteArray &data,
+                                              ParsedSettingsMap *settingsMap)
+{
+    QStringList strListValue;
+    bool sectionIsLowercase = (section == section.originalCaseKey());
+    int keyEnd;
+    int valueStart;
+
+    bool ok = true;
+    int dataPos = 0;
+    int lineStart;
+    int lineLen;
+
+    while (readIniLine(data, dataPos, lineStart, lineLen, keyEnd, valueStart)) {
+        char ch = data.at(lineStart);
+        Q_ASSERT(ch != '[');
+
+        if (valueStart < 1) {
+            if (ch != ';')
+                ok = false;
+            continue;
+        }
+
+        QString key = section.originalCaseKey();
+        bool keyIsLowercase = (iniUnescapedKey(data, lineStart, keyEnd, key) && sectionIsLowercase);
+
+        QString strValue;
+        strValue.reserve(lineLen - (valueStart - lineStart));
+        bool isStringList = iniUnescapedStringList(data, valueStart, lineStart + lineLen,
+                                                   strValue, strListValue);
+        QVariant variant;
+        if (isStringList) {
+            variant = stringListToVariantList(strListValue);
+        } else {
+            variant = stringToVariant(strValue);
+        }
+
+        /*
+            We try to avoid the expensive toLower() call in
+            QSettingsKey by passing Qt::CaseSensitive when the
+            key is already in lowercase.
+        */
+        settingsMap->insert(QSettingsKey(key, keyIsLowercase ? Qt::CaseSensitive
+                                                             : IniCaseSensitivity),
+                            variant);
+    }
+
+    return ok;
+}
+
+bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
                                            int &lineStart, int &lineLen, int &keyEnd,
                                            int &valueStart)
 {
@@ -1439,17 +1569,16 @@ bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
     bool inQuotes = false;
     char ch;
 
-    line = data;
     valueStart = -1;
 
     lineStart = dataPos;
     while (lineStart < dataLen
-           && ((ch = line.at(lineStart)) == ' ' || ch == '\t' || ch == '\n' || ch == '\r'))
+           && ((ch = data.at(lineStart)) == ' ' || ch == '\t' || ch == '\n' || ch == '\r'))
         ++lineStart;
 
     int i = lineStart;
     while (i < dataLen) {
-        ch = line.at(i++);
+        ch = data.at(i++);
 
         switch (ch) {
         case '\r':
@@ -1466,7 +1595,7 @@ bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
             break;
         case ';':
             if (i == lineStart + 1) {
-                while (i < dataLen && ((ch = line.at(i) != '\n') && ch != '\r'))
+                while (i < dataLen && ((ch = data.at(i) != '\n') && ch != '\r'))
                     ++i;
                 lineStart = i;
             } else if (!inQuotes) {
@@ -1476,9 +1605,9 @@ bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
             break;
         case '\\':
             if (i < dataLen) {
-                ch = line.at(i++);
+                ch = data.at(i++);
                 if (i < dataLen) {
-                    char ch2 = line.at(i);
+                    char ch2 = data.at(i);
                     // \n, \r, \r\n, and \n\r are legitimate line terminators in INI files
                     if ((ch == '\n' && ch2 == '\r') || (ch == '\r' && ch2 == '\n'))
                         ++i;
@@ -1488,7 +1617,7 @@ bool QConfFileSettingsPrivate::readIniLine(const QByteArray &data, int &dataPos,
         case '=':
             if (!inQuotes && valueStart == -1) {
                 keyEnd = i - 1;
-                while (keyEnd > lineStart && ((ch = line.at(keyEnd - 1)) == ' ' || ch == '\t'))
+                while (keyEnd > lineStart && ((ch = data.at(keyEnd - 1)) == ' ' || ch == '\t'))
                     --keyEnd;
                 valueStart = i;
             }
@@ -1501,87 +1630,7 @@ break_out_of_loop:
     return lineLen > 0;
 }
 
-/*
-    Returns false on parse error. However, as many keys are read as
-    possible, so if the user doesn't check the status he will get the
-    most out of the file anyway.
-*/
-bool QConfFileSettingsPrivate::readIniFile(const QByteArray &data, InternalSettingsMap *map)
-{
-    QStringList strListValue;
-    QString currentSection;
-    bool currentSectionIsLowercase = true;
-    QByteArray line;
-    int keyEnd;
-    int valueStart;
-
-    bool ok = true;
-    int dataPos = 0;
-    int lineStart;
-    int lineLen;
-
-    while (readIniLine(data, dataPos, line, lineStart, lineLen, keyEnd, valueStart)) {
-        char ch = line.at(lineStart);
-        if (ch == '[') {
-            // this is a section
-            QByteArray iniSection;
-            int idx = line.indexOf(']', lineStart);
-            if (idx == -1 || idx >= lineStart + lineLen) {
-                ok = false;
-                iniSection = line.mid(lineStart + 1, lineLen - 1);
-            } else {
-                iniSection = line.mid(lineStart + 1, idx - lineStart - 1);
-            }
-
-            iniSection = iniSection.trimmed();
-
-            if (qstricmp(iniSection, "general") == 0) {
-                currentSection.clear();
-            } else if (qstricmp(iniSection, "%general") == 0) {
-                currentSection = QLatin1String(iniSection.constData() + 1);
-                currentSection += QLatin1Char('/');
-            } else {
-                currentSection.clear();
-                currentSectionIsLowercase = iniUnescapedKey(iniSection, 0, iniSection.size(),
-                                                            currentSection);
-                currentSection += QLatin1Char('/');
-            }
-        } else {
-            if (valueStart < 1) {
-                if (ch != ';')
-                    ok = false;
-                continue;
-            }
-
-            QString key = currentSection;
-            bool keyIsLowercase = (iniUnescapedKey(line, lineStart, keyEnd, key)
-                                   && currentSectionIsLowercase);
-
-            QString strValue;
-            strValue.reserve(lineLen - (valueStart - lineStart));
-            bool isStringList = iniUnescapedStringList(line, valueStart, lineStart + lineLen,
-                                                       strValue, strListValue);
-            QVariant variant;
-            if (isStringList) {
-                variant = stringListToVariantList(strListValue);
-            } else {
-                variant = stringToVariant(strValue);
-            }
-
-            /*
-                We try to avoid the expensive toLower() call in
-                QSettingsKey by passing Qt::CaseSensitive when the
-                key is already in lowercase.
-            */
-            map->insert(QSettingsKey(key, keyIsLowercase ? Qt::CaseSensitive : caseSensitivity),
-                        variant);
-        }
-    }
-
-    return ok;
-}
-
-bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSettingsMap &map)
+bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const ParsedSettingsMap &map)
 {
     typedef QMap<QString, QVariantMap> IniMap;
     IniMap iniMap;
@@ -1593,9 +1642,9 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
     const char eol = '\n';
 #endif
 
-    for (InternalSettingsMap::const_iterator j = map.constBegin(); j != map.constEnd(); ++j) {
+    for (ParsedSettingsMap::const_iterator j = map.constBegin(); j != map.constEnd(); ++j) {
         QString section;
-        QString key = j.key().realKey();
+        QString key = j.key().originalCaseKey();
         int slashPos;
 
         if ((slashPos = key.indexOf(QLatin1Char('/'))) != -1) {
@@ -1653,6 +1702,45 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const InternalSet
         }
     }
     return !writeError;
+}
+
+void QConfFileSettingsPrivate::ensureAllSectionsParsed(QConfFile *confFile) const
+{
+    UnparsedSettingsMap::const_iterator i = confFile->unparsedIniSections.constBegin();
+    const UnparsedSettingsMap::const_iterator end = confFile->unparsedIniSections.constEnd();
+
+    for (; i != end; ++i) {
+        if (!QConfFileSettingsPrivate::readIniSection(i.key(), i.value(), &confFile->originalKeys))
+            setStatus(QSettings::FormatError);
+    }
+    confFile->unparsedIniSections.clear();
+}
+
+void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
+                                                   const QSettingsKey &key) const
+{
+    if (confFile->unparsedIniSections.isEmpty())
+        return;
+
+    UnparsedSettingsMap::iterator i;
+
+    int indexOfSlash = key.indexOf(QLatin1Char('/'));
+    if (indexOfSlash != -1) {
+        i = confFile->unparsedIniSections.lowerBound(key);
+        if (i == confFile->unparsedIniSections.constBegin())
+            return;
+        --i;
+        if (i.key().isEmpty() || !key.startsWith(i.key()))
+            return;
+    } else {
+        i = confFile->unparsedIniSections.begin();
+        if (i == confFile->unparsedIniSections.constEnd() || !i.key().isEmpty())
+            return;
+    }
+
+    if (!QConfFileSettingsPrivate::readIniSection(i.key(), i.value(), &confFile->originalKeys))
+        setStatus(QSettings::FormatError);
+    confFile->unparsedIniSections.erase(i);
 }
 
 /*!

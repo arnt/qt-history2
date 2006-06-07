@@ -47,33 +47,38 @@
 #define QSETTINGS_P_H_VERSION 2
 
 #ifdef QT_QSETTINGS_ALWAYS_CASE_SENSITIVE
+static const Qt::CaseSensitivity IniCaseSensitivity = Qt::CaseSensitive;
+
 class QSettingsKey : public QString
 {
 public:
     inline QSettingsKey(const QString &key, Qt::CaseSensitivity cs)
         : QString(key) { Q_ASSERT(cs == Qt::CaseSensitive); }
 
-    inline QString realKey() const { return *this; }
+    inline QString originalCaseKey() const { return *this; }
 };
 #else
+static const Qt::CaseSensitivity IniCaseSensitivity = Qt::CaseInsensitive;
+
 class QSettingsKey : public QString
 {
 public:
     inline QSettingsKey(const QString &key, Qt::CaseSensitivity cs)
-         : QString(key), theRealKey(key)
+         : QString(key), theOriginalKey(key)
     {
         if (cs == Qt::CaseInsensitive)
             QString::operator=(toLower());
     }
 
-    inline QString realKey() const { return theRealKey; }
+    inline QString originalCaseKey() const { return theOriginalKey; }
 
 private:
-    QString theRealKey;
+    QString theOriginalKey;
 };
 #endif
 
-typedef QMap<QSettingsKey, QVariant> InternalSettingsMap;
+typedef QMap<QSettingsKey, QByteArray> UnparsedSettingsMap;
+typedef QMap<QSettingsKey, QVariant> ParsedSettingsMap;
 
 class QSettingsGroup
 {
@@ -111,7 +116,7 @@ inline QString QSettingsGroup::toString() const
 class Q_CORE_EXPORT QConfFile
 {
 public:
-    InternalSettingsMap mergedKeyMap() const;
+    ParsedSettingsMap mergedKeyMap() const;
 
     static QConfFile *fromName(const QString &name, bool _userPerms);
     static void clearCache();
@@ -119,9 +124,10 @@ public:
     QString name;
     QDateTime timeStamp;
     qint64 size;
-    InternalSettingsMap originalKeys;
-    InternalSettingsMap addedKeys;
-    InternalSettingsMap removedKeys;
+    UnparsedSettingsMap unparsedIniSections;
+    ParsedSettingsMap originalKeys;
+    ParsedSettingsMap addedKeys;
+    ParsedSettingsMap removedKeys;
     QAtomic ref;
     QMutex mutex;
     bool userPerms;
@@ -132,6 +138,7 @@ private:
     QConfFile &operator=(const QConfFile &);
 #endif
     QConfFile(const QString &name, bool _userPerms);
+
     friend class QConfFile_createsItself; // supress compiler warning
 };
 
@@ -164,7 +171,7 @@ public:
 
     QString actualKey(const QString &key) const;
     void beginGroupOrArray(const QSettingsGroup &group);
-    void setStatus(QSettings::Status status);
+    void setStatus(QSettings::Status status) const;
     void requestUpdate();
     void update();
 
@@ -209,7 +216,7 @@ protected:
     int spec;
     bool fallbacks;
     bool pendingChanges;
-    QSettings::Status status;
+    mutable QSettings::Status status;
 };
 
 class QConfFileSettingsPrivate : public QSettingsPrivate
@@ -232,19 +239,23 @@ public:
     bool isWritable() const;
     QString fileName() const;
 
-    static bool readIniLine(const QByteArray &data, int &dataPos, QByteArray &line, int &lineStart,
-                            int &lineLen, int &keyEnd, int &valueStart);
-    bool readIniFile(const QByteArray &data, InternalSettingsMap *map);
+    static bool readIniFile(const QByteArray &data, UnparsedSettingsMap *unparsedIniSections);
+    static bool readIniSection(const QSettingsKey &section, const QByteArray &data,
+                               ParsedSettingsMap *settingsMap);
+    static bool readIniLine(const QByteArray &data, int &dataPos, int &lineStart, int &lineLen,
+                            int &keyEnd, int &valueStart);
 
 private:
     void initFormat();
     void initAccess();
     void syncConfFile(int confFileNo);
-    bool writeIniFile(QIODevice &device, const InternalSettingsMap &map);
+    bool writeIniFile(QIODevice &device, const ParsedSettingsMap &map);
 #ifdef Q_OS_MAC
-    bool readPlistFile(const QString &fileName, InternalSettingsMap *map) const;
-    bool writePlistFile(const QString &fileName, const InternalSettingsMap &map) const;
+    bool readPlistFile(const QString &fileName, ParsedSettingsMap *map) const;
+    bool writePlistFile(const QString &fileName, const ParsedSettingsMap &map) const;
 #endif
+    void ensureAllSectionsParsed(QConfFile *confFile) const;
+    void ensureSectionParsed(QConfFile *confFile, const QSettingsKey &key) const;
 
     QConfFile *confFiles[NumConfFiles];
     QSettings::Format format;
