@@ -1349,7 +1349,7 @@ bool QGLContextPrivate::textureCacheLookup(const QString &key, GLuint *id, qint6
 GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint format, bool clean)
 {
     Q_Q(QGLContext);
-    const QString key = QString::fromAscii("%1_%2_%3").arg(QString().sprintf("i%08x",image.serialNumber())).arg(target).arg(format);
+    const QString key = QString(QLatin1String("%1_%2_%3")).arg(QString().sprintf("i%08x",image.serialNumber())).arg(target).arg(format);
     GLuint id;
     qint64 qt_id;
     if (textureCacheLookup(key, &id, &qt_id)) {
@@ -1367,7 +1367,7 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
 GLuint QGLContextPrivate::bindTexture(const QPixmap &pixmap, GLenum target, GLint format, bool clean)
 {
     Q_Q(QGLContext);
-    const QString key = QString::fromAscii("%1_%2_%3").arg(QString().sprintf("p%08x",pixmap.serialNumber())).arg(target).arg(format);
+    const QString key = QString(QLatin1String("%1_%2_%3")).arg(QString().sprintf("p%08x",pixmap.serialNumber())).arg(target).arg(format);
     GLuint id;
     qint64 qt_id;
     if (textureCacheLookup(key, &id, &qt_id)) {
