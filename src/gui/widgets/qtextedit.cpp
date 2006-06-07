@@ -1875,7 +1875,8 @@ void QTextEdit::scrollToAnchor(const QString &name)
         return;
     }
 
-    d->control->ensureAnchorIsVisible(name);
+    QPointF p = d->control->findAnchor(name);
+    d->vbar->setValue(p.y());
 }
 
 /*!

@@ -101,6 +101,7 @@ public:
     QRectF cursorRect() const;
 
     QString anchorAt(const QPointF &pos) const;
+    QPointF findAnchor(const QString &name) const;
 
     bool overwriteMode() const;
     void setOverwriteMode(bool overwrite);
@@ -145,8 +146,6 @@ public Q_SLOTS:
     void insertHtml(const QString &text);
 
     void append(const QString &text);
-
-    void ensureAnchorIsVisible(const QString &name);
 
     void adjustSize();
 

@@ -76,7 +76,6 @@ public:
     void updateCurrentCharFormatAndSelection();
 
     void setClipboardSelection();
-    void ensureVisible(int documentPosition);
 
     void emitCursorPosChanged(const QTextCursor &someCursor);
 

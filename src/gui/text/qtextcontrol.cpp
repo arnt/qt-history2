@@ -543,28 +543,6 @@ void QTextControlPrivate::setClipboardSelection()
 }
 #endif
 
-void QTextControlPrivate::ensureVisible(int documentPosition)
-{
-    // don't check for the visibility of the vertical scrollbar here,
-    // always scroll to the position. we might have a layoutChildren
-    // in QAbstractScrollArea pending, which will make things visible later on
-    // then, for example when initially showing the widget and right
-    // after that calling scrollToAnchor, which calls us. the vbar
-    // isn't visible then, but that's okay.
-
-    QTextBlock block = doc->findBlock(documentPosition);
-    QTextLayout *layout = block.layout();
-    const qreal blockY = doc->documentLayout()->blockBoundingRect(block).top();
-
-    const int relativePos = documentPosition - block.position();
-    QTextLine line = layout->lineForTextPosition(relativePos);
-    if (!line.isValid())
-        return;
-
-    Q_Q(QTextControl);
-    emit q->visibilityRequest(QRectF(0, blockY + line.y(), 1, 1));
-}
-
 void QTextControlPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
 {
     Q_Q(QTextControl);
@@ -2504,33 +2482,33 @@ void QTextControl::insertHtml(const QString &text)
     d->cursor.insertFragment(fragment);
 }
 
-/*!
-    Scrolls the text edit so that the anchor with the given \a name is
-    visible; does nothing if the \a name is empty, or is already
-    visible, or isn't found.
-*/
-void QTextControl::ensureAnchorIsVisible(const QString &name)
+QPointF QTextControl::findAnchor(const QString &name) const
 {
-    Q_D(QTextControl);
+    Q_D(const QTextControl);
     if (name.isEmpty())
-        return;
+        return QPointF();
 
+    QRectF r;
     for (QTextBlock block = d->doc->begin(); block.isValid(); block = block.next()) {
         QTextCharFormat format = block.charFormat();
         if (format.isAnchor() && format.anchorName() == name) {
-            d->ensureVisible(block.position());
-            return;
+            r = d->rectForPosition(block.position());
+            break;
         }
 
         for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); ++it) {
             QTextFragment fragment = it.fragment();
             format = fragment.charFormat();
             if (format.isAnchor() && format.anchorName() == name) {
-                d->ensureVisible(fragment.position());
-                return;
+                r = d->rectForPosition(fragment.position());
+                block = QTextBlock();
+                break;
             }
         }
     }
+    if (!r.isValid())
+        return QPointF();
+    return QPointF(0, r.top());
 }
 
 void QTextControl::adjustSize()
