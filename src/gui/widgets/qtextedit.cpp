@@ -175,14 +175,13 @@ void QTextEditPrivate::_q_repaintContents(const QRectF &contentsRect)
 
 void QTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor::MoveMode moveMode)
 {
-    Q_Q(QTextEdit);
     QTextCursor cursor = control->textCursor();
     bool moved = false;
-    qreal lastY = q->cursorRect(cursor).top();
+    qreal lastY = control->cursorRect(cursor).top();
     qreal distance = 0;
     // move using movePosition to keep the cursor's x
     do {
-        qreal y = q->cursorRect(cursor).top();
+        qreal y = control->cursorRect(cursor).top();
         distance += qAbs(y - lastY);
         lastY = y;
         moved = cursor.movePosition(op, moveMode);
@@ -196,8 +195,8 @@ void QTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor::Mo
             cursor.movePosition(QTextCursor::Up, moveMode);
             vbar->triggerAction(QAbstractSlider::SliderPageStepAdd);
         }
-        q->setTextCursor(cursor);
     }
+    control->setTextCursor(cursor);
 }
 
 #ifndef QT_NO_SCROLLBAR
