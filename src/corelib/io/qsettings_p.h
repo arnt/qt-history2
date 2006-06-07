@@ -39,6 +39,23 @@
 #include "QtCore/qt_windows.h"
 #endif
 
+#if defined(Q_WS_QWS)
+#define QT_QSETTINGS_ALWAYS_CASE_SENSITIVE
+#endif
+
+// used in testing framework
+#define QSETTINGS_P_H_VERSION 2
+
+#ifdef QT_QSETTINGS_ALWAYS_CASE_SENSITIVE
+class QSettingsKey : public QString
+{
+public:
+    inline QSettingsKey(const QString &key, Qt::CaseSensitivity cs)
+        : QString(key) { Q_ASSERT(cs == Qt::CaseSensitive); }
+
+    inline QString realKey() const { return *this; }
+};
+#else
 class QSettingsKey : public QString
 {
 public:
@@ -54,6 +71,7 @@ public:
 private:
     QString theRealKey;
 };
+#endif
 
 typedef QMap<QSettingsKey, QVariant> InternalSettingsMap;
 
@@ -162,17 +180,14 @@ public:
     static QVariant stringListToVariantList(const QStringList &l);
 
     // parser functions
-    static QString &escapedLeadingAt(QString &s);
-    static QString &unescapedLeadingAt(QString &s);
     static QString variantToString(const QVariant &v);
     static QVariant stringToVariant(const QString &s);
     static void iniEscapedKey(const QString &key, QByteArray &result);
     static bool iniUnescapedKey(const QByteArray &key, int from, int to, QString &result);
     static void iniEscapedString(const QString &str, QByteArray &result);
-    static void iniChopTrailingSpaces(QString *str);
     static void iniEscapedStringList(const QStringList &strs, QByteArray &result);
-    static QStringList *iniUnescapedStringList(const QByteArray &str, int from, int to,
-                                                QString &result);
+    static bool iniUnescapedStringList(const QByteArray &str, int from, int to,
+                                       QString &stringResult, QStringList &stringListResult);
     static QStringList splitArgs(const QString &s, int idx);
 
     /*
@@ -217,8 +232,9 @@ public:
     bool isWritable() const;
     QString fileName() const;
 
-    static bool readIniLine(QIODevice &device, QByteArray &line, int &len, int &equalsCharPos);
-    static bool readIniFile(QIODevice &device, InternalSettingsMap *map);
+    static bool readIniLine(const QByteArray &data, int &dataPos, QByteArray &line, int &lineStart,
+                            int &lineLen, int &keyEnd, int &valueStart);
+    bool readIniFile(const QByteArray &data, InternalSettingsMap *map);
 
 private:
     void initFormat();

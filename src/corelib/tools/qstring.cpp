@@ -67,14 +67,10 @@ static int ucstrcmp(const QString &as, const QString &bs)
     const QChar *b = bs.unicode();
     if (a == b)
         return 0;
-    if (a == 0)
-        return 1;
-    if (b == 0)
-        return -1;
-    int l=qMin(as.length(),bs.length());
+    int l = qMin(as.length(),bs.length());
     while (l-- && *a == *b)
         a++,b++;
-    if (l==-1)
+    if (l == -1)
         return (as.length()-bs.length());
     return a->unicode() - b->unicode();
 }
