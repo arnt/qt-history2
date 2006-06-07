@@ -1344,6 +1344,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_PanelButtonCommand:
         if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             bool down = (button->state & State_Sunken) || (button->state & State_On);
+            if ((button->features & QStyleOptionButton::Flat) && !down)
+                break;
+
             bool hover = (button->state & State_Enabled) && (button->state & State_MouseOver);
             bool isDefault = (button->features & QStyleOptionButton::DefaultButton);
             bool isEnabled = (button->state & State_Enabled);
