@@ -514,7 +514,7 @@ static QGLFormat pfdToQGLFormat(const PIXELFORMATDESCRIPTOR* pfd)
     return fmt;
 }
 
-/* 
+/*
    NB! requires a current GL context to work
 */
 QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
@@ -536,11 +536,11 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     iAttributes[i++] = WGL_NUMBER_OVERLAYS_ARB; // 10
     PFNWGLGETPIXELFORMATATTRIBIVARB wglGetPixelFormatAttribivARB =
         (PFNWGLGETPIXELFORMATATTRIBIVARB) wglGetProcAddress("wglGetPixelFormatAttribivARB");
-    
-    if (wglGetPixelFormatAttribivARB 
-	&& wglGetPixelFormatAttribivARB(hdc, pfi, 0, i,
-					iAttributes.constData(),
-					iValues.data()))
+
+    if (wglGetPixelFormatAttribivARB
+        && wglGetPixelFormatAttribivARB(hdc, pfi, 0, i,
+                                        iAttributes.constData(),
+                                        iValues.data()))
     {
         fmt.setDoubleBuffer(iValues[0]);
         fmt.setDepth(iValues[1]);
@@ -557,10 +557,10 @@ QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
         if (fmt.stencil())
             fmt.setStencilBufferSize(iValues[5]);
         fmt.setStereo(iValues[6]);
-	if (iValues[7] == WGL_FULL_ACCELERATION_ARB)
-	    fmt.setDirectRendering(true);
-	else
-	    fmt.setDirectRendering(false);
+        if (iValues[7] == WGL_FULL_ACCELERATION_ARB)
+            fmt.setDirectRendering(true);
+        else
+            fmt.setDirectRendering(false);
         fmt.setSampleBuffers(iValues[8]);
         if (fmt.sampleBuffers())
             fmt.setSamples(iValues[9]);
@@ -592,25 +592,25 @@ class QGLTempContext
 {
 public:
     QGLTempContext() {
-	dmy_pdc = GetDC(dmy.winId());
-	PIXELFORMATDESCRIPTOR dmy_pfd;
-	memset(&dmy_pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
-	dmy_pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-	dmy_pfd.nVersion = 1;
-	dmy_pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-	dmy_pfd.iPixelType = PFD_TYPE_RGBA;
+        dmy_pdc = GetDC(dmy.winId());
+        PIXELFORMATDESCRIPTOR dmy_pfd;
+        memset(&dmy_pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
+        dmy_pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+        dmy_pfd.nVersion = 1;
+        dmy_pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+        dmy_pfd.iPixelType = PFD_TYPE_RGBA;
 
-	int dmy_pf = ChoosePixelFormat(dmy_pdc, &dmy_pfd);
-	SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
-	HGLRC dmy_rc = wglCreateContext(dmy_pdc);
-	wglMakeCurrent(dmy_pdc, dmy_rc);
+        int dmy_pf = ChoosePixelFormat(dmy_pdc, &dmy_pfd);
+        SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
+        HGLRC dmy_rc = wglCreateContext(dmy_pdc);
+        wglMakeCurrent(dmy_pdc, dmy_rc);
     }
     ~QGLTempContext() {
-	wglMakeCurrent(dmy_pdc, 0);
-	wglDeleteContext(dmy_rc);
-	ReleaseDC(dmy.winId(), dmy_pdc);
+        wglMakeCurrent(dmy_pdc, 0);
+        wglDeleteContext(dmy_rc);
+        ReleaseDC(dmy.winId(), dmy_pdc);
     }
-    
+
     HDC dmy_pdc;
     HGLRC dmy_rc;
     QWidget dmy;
@@ -634,7 +634,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     // wglGetProcAddress() calls to succeed and are absolutely
     // necessary - don't remove!
     QGLTempContext tmp_ctx;
-    
+
     if (deviceIsPixmap()) {
         if (d->glFormat.plane())
             return false;                // Pixmaps can't have overlay
@@ -820,7 +820,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         glGetIntegerv(GL_DEPTH_BITS, &params);
         opengl32dll = true;
     }
-    
+
     PFNWGLCHOOSEPIXELFORMATARB wglChoosePixelFormatARB =
         (PFNWGLCHOOSEPIXELFORMATARB) wglGetProcAddress("wglChoosePixelFormatARB");
     int chosenPfi = 0;
@@ -831,10 +831,10 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         QVarLengthArray<int> iAttributes(40);
         int i = 0;
         iAttributes[i++] = WGL_ACCELERATION_ARB;
-	if (d->glFormat.directRendering())
-	    iAttributes[i++] = WGL_FULL_ACCELERATION_ARB;
-	else
-	    iAttributes[i++] = WGL_NO_ACCELERATION_ARB;
+        if (d->glFormat.directRendering())
+            iAttributes[i++] = WGL_FULL_ACCELERATION_ARB;
+        else
+            iAttributes[i++] = WGL_NO_ACCELERATION_ARB;
         iAttributes[i++] = WGL_SUPPORT_OPENGL_ARB;
         iAttributes[i++] = TRUE;
         iAttributes[i++] = WGL_DRAW_TO_WINDOW_ARB;
@@ -905,8 +905,8 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
             p->dwFlags |= PFD_DRAW_TO_BITMAP;
         else
             p->dwFlags |= PFD_DRAW_TO_WINDOW;
-	if (!d->glFormat.directRendering())
-	    p->dwFlags |= PFD_GENERIC_FORMAT;
+        if (!d->glFormat.directRendering())
+            p->dwFlags |= PFD_GENERIC_FORMAT;
         if (d->glFormat.doubleBuffer() && !deviceIsPixmap())
             p->dwFlags |= PFD_DOUBLEBUFFER;
         if (d->glFormat.stereo())
@@ -1321,8 +1321,14 @@ void QGLWidget::setContext(QGLContext *context,
         move(pos);
     }
 
-    if (!d->glcx->isValid())
+    if (!d->glcx->isValid()) {
         d->glcx->create(shareContext ? shareContext : oldcx);
+        // the above is a trick to keep disp lists etc when a
+        // QGLWidget has been reparented, so remove the sharing
+        // flag if we don't actually have a sharing context.
+        if (!shareContext)
+            d->glcx->d_ptr->sharing = false;
+    }
 
     if (deleteOldContext)
         delete oldcx;
