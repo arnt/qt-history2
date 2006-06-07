@@ -27,18 +27,7 @@ private:
 class KeyDecoder
 {
 private:
-    // Magic values
-    enum {
-        ProductMagic = 0xB292,
-        PlatformMagic = 0x5C7E,
-        LicenseSchemaMagic = 0xE3B,
-        LicenseIDMagic = 0xCE57,
-        FeatureMagic = 0x4D5
-    };
-
     static const ushort crc_tbl[16];
-    static const char Xalphabet[];
-    static const int XAlphabetSize;
     static const CDate StartDate;
     static const uint MaxDays;
 
@@ -59,6 +48,18 @@ private:
     bool m_valid;
 
 public:
+    // Magic values
+    enum {
+        ProductMagic = 0xB292,
+        PlatformMagic = 0x5C7E,
+        LicenseSchemaMagic = 0xE3B,
+        LicenseIDMagic = 0xCE57,
+        FeatureMagic = 0x4D5,
+        ExpiryDateMagic = 0x5B7EC4
+    };
+    static const char Xalphabet[];
+    static const int XAlphabetSize;
+
     // Products
     enum {
         // the first 10 bits are reserved for Qt editions
@@ -124,7 +125,8 @@ public:
 
     // License Feature
     enum {
-        USCustomer = 0x0001
+        USCustomer = 0x0001,
+        FloatingLicense = 0x0002
     };
     static const char *LicenseFeatures[];
 

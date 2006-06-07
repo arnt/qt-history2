@@ -7,24 +7,24 @@ int main(int argc, char **argv)
         printf("usage: %s product platform license-schema license-features license-id expiry-date\n", argv[0]);
 
         printf("\nproduct:\n");
-        for (int i = 0; i < NumberOfProducts; ++i)
-            if (Products[i])
-                printf("\t\t%s\n", Products[i]);
+        for (int i = 0; i < KeyDecoder::NumberOfProducts; ++i)
+            if (KeyDecoder::Products[i])
+                printf("\t\t%s\n", KeyDecoder::Products[i]);
 
         printf("\nplatform:\n ");
-        for (int i = 0; i < NumberOfPlatforms; ++i)
-            if (Platforms[i])
-                printf("\t\t%s\n", Platforms[i]);
+        for (int i = 0; i < KeyDecoder::NumberOfPlatforms; ++i)
+            if (KeyDecoder::Platforms[i])
+                printf("\t\t%s\n", KeyDecoder::Platforms[i]);
 
         printf("\nlicense schema:\n");
-        for (int i = 0; i < NumberOfLicenseSchemas; ++i)
-            if (LicenseSchemas[i])
-                printf("\t\t%s\n", LicenseSchemas[i]);
+        for (int i = 0; i < KeyDecoder::NumberOfLicenseSchemas; ++i)
+            if (KeyDecoder::LicenseSchemas[i])
+                printf("\t\t%s\n", KeyDecoder::LicenseSchemas[i]);
 
         printf("\nlicense feature:\n");
-        for (int i = 0; i < NumberOfLicenseFeatures; ++i)
-            if (LicenseFeatures[i])
-                printf("\t\t%s\n", LicenseFeatures[i]);
+        for (int i = 0; i < KeyDecoder::NumberOfLicenseFeatures; ++i)
+            if (KeyDecoder::LicenseFeatures[i])
+                printf("\t\t%s\n", KeyDecoder::LicenseFeatures[i]);
         printf("\t\tnone\n");
 
         printf("\nlicense id: integer\n");

@@ -4,24 +4,12 @@
 
 #include <stdio.h>
 
-enum {
-    ProductMagic       = 0xB292,
-    PlatformMagic      = 0x5C7E,
-    LicenseSchemaMagic = 0xE3B,
-    LicenseIDMagic     = 0xCE57,
-    FeatureMagic       = 0x4D5,
-    ExpiryDateMagic    = 0x5B7EC4
-};
-
-static const char Xalphabet[] = "WX9MUEC7AJH3KS6DB4YFG2L5PQRT8VNZ";
-static const int XAlphabetSize = sizeof(Xalphabet) - 1;
-
 static QByteArray encodeBaseX(uint k)
 {
     QByteArray str;
     do {
-	str += Xalphabet[ k % XAlphabetSize ];
-	k /= XAlphabetSize;
+	str += KeyDecoder::Xalphabet[ k % KeyDecoder::XAlphabetSize ];
+	k /= KeyDecoder::XAlphabetSize;
     } while (k > 0u);
     return str;
 }
@@ -29,7 +17,7 @@ static QByteArray encodeBaseX(uint k)
 static QByteArray encodedExpiryDateExt(const QDate& date)
 {
     uint day = date.toJulianDay();
-    return encodeBaseX(day ^ ExpiryDateMagic);
+    return encodeBaseX(day ^ KeyDecoder::ExpiryDateMagic);
 }
 
 QByteArray generateLicenseKey(uint products,
@@ -39,11 +27,11 @@ QByteArray generateLicenseKey(uint products,
                               uint licenseID,
                               QDate expiryDate)
 {
-    QByteArray productPart = encodeBaseX(products ^ ProductMagic);
-    QByteArray platformPart = encodeBaseX(platforms ^ PlatformMagic);
-    QByteArray licenseSchemaPart = encodeBaseX(licenseSchema ^ LicenseSchemaMagic);
-    QByteArray licenseFeaturePart = encodeBaseX(licenseFeatures ^ FeatureMagic);
-    QByteArray licenseIDPart = encodeBaseX(licenseID ^ LicenseIDMagic);
+    QByteArray productPart = encodeBaseX(products ^ KeyDecoder::ProductMagic);
+    QByteArray platformPart = encodeBaseX(platforms ^ KeyDecoder::PlatformMagic);
+    QByteArray licenseSchemaPart = encodeBaseX(licenseSchema ^ KeyDecoder::LicenseSchemaMagic);
+    QByteArray licenseFeaturePart = encodeBaseX(licenseFeatures ^ KeyDecoder::FeatureMagic);
+    QByteArray licenseIDPart = encodeBaseX(licenseID ^ KeyDecoder::LicenseIDMagic);
     QByteArray expiryPart = encodedExpiryDateExt(expiryDate);
     QByteArray keyPart = productPart
                          + '-' + platformPart
@@ -75,7 +63,7 @@ static uint processMultiple(const char *str, const char *list[], int listSize)
         }
         int p = 0;
         for (int i = 0; i < listSize; ++i) {
-            if (arg == list[i]) {
+            if (arg.size() && arg == list[i]) {
                 p = 1 << i;
                 break;
             }
@@ -104,8 +92,8 @@ QByteArray generateLicenseKey(const QByteArray &products,
                               const QByteArray &expiryDate)
 {
     uint _products = processMultiple(products.constData(),
-                                     Products,
-                                     NumberOfProducts);
+                                     KeyDecoder::Products,
+                                     KeyDecoder::NumberOfProducts);
     if (_products == 0u) {
         fprintf(stderr,
                 "generateLicenseKey: invalid products '%s'\n",
@@ -113,8 +101,8 @@ QByteArray generateLicenseKey(const QByteArray &products,
         return QByteArray();
     }
     uint _platforms = processMultiple(platforms.constData(),
-                                      Platforms,
-                                      NumberOfPlatforms);
+                                      KeyDecoder::Platforms,
+                                      KeyDecoder::NumberOfPlatforms);
     if (_platforms == 0u) {
         fprintf(stderr,
                 "generateLicenseKey: invalid platforms '%s'\n",
@@ -122,8 +110,8 @@ QByteArray generateLicenseKey(const QByteArray &products,
         return QByteArray();
     }
     uint _licenseSchema = processSingle(licenseSchema.constData(),
-                                        LicenseSchemas,
-                                        NumberOfLicenseSchemas);
+                                        KeyDecoder::LicenseSchemas,
+                                        KeyDecoder::NumberOfLicenseSchemas);
     if (_licenseSchema == 0u) {
         fprintf(stderr,
                 "generateLicenseKey: invalid licenseSchema '%s'\n",
@@ -131,8 +119,8 @@ QByteArray generateLicenseKey(const QByteArray &products,
         return QByteArray();
     }
     uint _licenseFeatures = processMultiple(licenseFeatures.constData(),
-                                            LicenseFeatures,
-                                            NumberOfLicenseFeatures);
+                                            KeyDecoder::LicenseFeatures,
+                                            KeyDecoder::NumberOfLicenseFeatures);
     // note: license features can be zero
     uint _licenseID = licenseID.toInt();
     if (_licenseID == 0u) {

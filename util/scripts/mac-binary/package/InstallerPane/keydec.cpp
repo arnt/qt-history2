@@ -74,7 +74,7 @@ const char *KeyDecoder::LicenseSchemas[] = {
 
 const char *KeyDecoder::LicenseFeatures[] = {
     "US Customer",
-    0,
+    "Floating License",
     0,
     0
 };
@@ -116,7 +116,7 @@ int CDate::month() const
     julianToGregorian(m_jd, y, m, d);
     return m;
 }
-    
+
 int CDate::day() const
 {
     int y, m, d;
@@ -190,16 +190,16 @@ uint KeyDecoder::decodeBaseX(const char *str)
 }
 
 void KeyDecoder::encodedExpiryDate(const CDate &date, char *str)
-{    
-    encodeBaseX(date.julianDate() ^ 0x5B7EC4, str);
+{
+    encodeBaseX(date.julianDate() ^ ExpiryDateMagic, str);
 }
 
 CDate KeyDecoder::decodedExpiryDate(const char *encodedDate)
 {
     uint y = decodeBaseX(encodedDate);
-    uint x = y ^ 0x5B7EC4;
-    
-    CDate date(x); 
+    uint x = y ^ ExpiryDateMagic;
+
+    CDate date(x);
 
     char str[MAX_STRSIZE];
     encodedExpiryDate(date, str);
@@ -235,7 +235,7 @@ KeyDecoder::KeyDecoder(const char *clicenseKey)
 
     for (char *part = strtok(buffer, SEP); part != 0; part = strtok(0, SEP))
         licenseParts[partNumber++] = part;
-    
+
     if (partNumber < (NUMBER_OF_PARTS-1)) {
         free(buffer);
         return; //invalid key
