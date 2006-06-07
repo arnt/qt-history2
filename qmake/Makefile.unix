@@ -44,13 +44,14 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   $(SOURCE_PATH)/src/corelib/io/qsettings.cpp $(SOURCE_PATH)/src/corelib/kernel/qvariant.cpp \
 	   $(QTSRCS) $(COMMERCIAL_DEPEND_SRC)
 
-CXXFLAGS = @QMAKE_CXXFLAGS@ \
-	   -I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
+CPPFLAGS = -I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
 	   -I$(SOURCE_PATH)/src/corelib/arch/generic -I$(BUILD_PATH)/include -I$(BUILD_PATH)/include/QtCore \
 	   -I$(SOURCE_PATH)/include -I$(SOURCE_PATH)/include/QtCore -I$(BUILD_PATH)/src/corelib/global \
 	   -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_NO_COMPONENT -DQT_NO_STL -DQT_BUILD_QMAKE \
 	   -DQT_NO_COMPRESS -I$(QMAKESPEC) -DHAVE_QCONFIG_CPP -DQT_NO_THREAD -DQT_NO_QOBJECT \
            -DQT_NO_GEOM_VARIANT $(OPENSOURCE_CXXFLAGS)
+
+CXXFLAGS = @QMAKE_CXXFLAGS@ $(CPPFLAGS)
 
 first all: $(BUILD_PATH)/bin/qmake
 qmake: $(BUILD_PATH)/bin/qmake
@@ -65,7 +66,7 @@ distclean:: clean
 	rm -rf $(BUILD_PATH)/bin/qmake .deps
 
 depend:
-	makedepend -D__MAKEDEPEND__ $(DEPEND_SRC)
+	makedepend -D__MAKEDEPEND__ $(CPPFLAGS) $(DEPEND_SRC)
 
 # don't use optimization for these
 qtextstream.o: $(SOURCE_PATH)/src/corelib/io/qtextstream.cpp
