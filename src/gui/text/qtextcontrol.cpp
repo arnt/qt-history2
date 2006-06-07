@@ -1160,6 +1160,7 @@ bool QTextControl::event(QEvent *e)
             d->focusEvent(static_cast<QFocusEvent *>(e));
             break;
 
+#ifndef QT_NO_DRAGANDDROP
         case QEvent::DragEnter: {
             QDragEnterEvent *ev = static_cast<QDragEnterEvent *>(e);
             if (d->dragEnterEvent(e, ev->mimeData()))
@@ -1181,6 +1182,7 @@ bool QTextControl::event(QEvent *e)
                 ev->acceptProposedAction();
             break;
         }
+#endif
 
         case QEvent::GraphicsSceneMousePress: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
