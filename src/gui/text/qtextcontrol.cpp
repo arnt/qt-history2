@@ -1640,6 +1640,8 @@ QRectF QTextControlPrivate::selectionRect(const QTextCursor &cursor) const
             r.setLeft(frameRect.left());
             r.setRight(frameRect.right());
         }
+        if (r.isValid())
+            r.adjust(-1, -1, 1, 1);
     }
 
     return r;

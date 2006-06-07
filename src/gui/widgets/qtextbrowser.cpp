@@ -83,8 +83,26 @@ public:
     void keypadMove(bool next);
     int lastPos;
 #endif
-    QTextCursor focusIndicator; // #########
+    QTextCursor focusIndicator;
+    void updateFocusIndicator();
 };
+
+void QTextBrowserPrivate::updateFocusIndicator()
+{
+    Q_Q(QTextBrowser);
+
+    QList<QTextEdit::ExtraSelection> sels;
+
+    if (focusIndicator.hasSelection()) {
+        QTextEdit::ExtraSelection selection;
+        selection.cursor = focusIndicator;
+        QPen outline(q->palette().color(QPalette::Text), 1, Qt::DotLine);
+        selection.format.setProperty(QTextFormat::OutlinePen, outline);
+        sels.append(selection);
+    }
+
+    q->setExtraSelections(sels);
+}
 
 static bool isAbsoluteFileName(const QString &name)
 {
@@ -444,16 +462,7 @@ void QTextBrowserPrivate::keypadMove(bool next)
         emit q->highlighted(QString());
     }
 
-    if (focusIndicator.hasSelection()) {
-        /* ###########
-        qSwap(focusIndicator, cursor);
-        q->ensureCursorVisible();
-        qSwap(focusIndicator, cursor);
-        viewport->update();
-        */
-    } else {
-        viewport->update();
-    }
+    updateFocusIndicator();
 }
 #endif
 
@@ -957,16 +966,10 @@ bool QTextBrowser::focusNextPrevChild(bool next)
         d->focusIndicator.clearSelection();
     }
 
+    d->updateFocusIndicator();
     if (d->focusIndicator.hasSelection()) {
-        /* ################
-        qSwap(d->focusIndicator, d->cursor);
-        ensureCursorVisible();
-        qSwap(d->focusIndicator, d->cursor);
-        d->viewport->update();
-        */
         return true;
     } else {
-        d->viewport->update();
         return QTextEdit::focusNextPrevChild(next);
     }
 }
