@@ -307,6 +307,8 @@ static void qt_create_pipe(int *pipe)
                  pipe, qPrintable(qt_error_string(errno)));
     }
 #endif
+    ::fcntl(pipe[0], F_SETFD, FD_CLOEXEC);
+    ::fcntl(pipe[1], F_SETFD, FD_CLOEXEC);
 }
 
 void QProcessPrivate::destroyPipe(int *pipe)
@@ -318,6 +320,116 @@ void QProcessPrivate::destroyPipe(int *pipe)
     if (pipe[0] != -1) {
         ::close(pipe[0]);
         pipe[0] = -1;
+    }
+}
+
+/*
+    Create the pipes to a QProcessPrivate::Channel.
+
+    This function must be called in order: stdin, stdout, stderr
+*/
+bool QProcessPrivate::createChannel(Channel &channel)
+{
+    Q_Q(QProcess);
+
+    if (&channel == &stderrChannel && processChannelMode == QProcess::MergedChannels) {
+        channel.pipe[0] = -1;
+        channel.pipe[1] = -1;
+        return true;
+    }
+
+    if (channel.type == Channel::Normal) {
+        // we're piping this channel to our own process
+        qt_create_pipe(channel.pipe);
+
+        // create the socket notifiers
+        if (QAbstractEventDispatcher::instance(q->thread())) {
+            if (&channel == &stdinChannel) {
+                channel.notifier = new QSocketNotifier(channel.pipe[1],
+                                                       QSocketNotifier::Write, q);
+                channel.notifier->setEnabled(false);
+                QObject::connect(channel.notifier, SIGNAL(activated(int)),
+                                 q, SLOT(_q_canWrite()));
+            } else {
+                channel.notifier = new QSocketNotifier(channel.pipe[0],
+                                                       QSocketNotifier::Read, q);
+                const char *receiver;
+                if (&channel == &stdoutChannel)
+                    receiver = SLOT(_q_canReadStandardOutput());
+                else
+                    receiver = SLOT(_q_canReadStandardError());
+                QObject::connect(channel.notifier, SIGNAL(activated(int)),
+                                 q, receiver);
+            }
+        }
+        
+        return true;
+    } else if (channel.type == Channel::Redirect) {
+        // we're redirecting the channel to/from a file
+        QByteArray fname = QFile::encodeName(channel.file);
+
+        if (&channel == &stdinChannel) {
+            // try to open in read-only mode
+            channel.pipe[1] = -1;
+            if ( (channel.pipe[0] = open(fname, O_RDONLY)) != -1)
+                return true;    // success
+
+            q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Could not open input redirection for reading")));
+        } else {
+            int mode = O_WRONLY | O_CREAT;
+            if (channel.append)
+                mode |= O_APPEND;
+            else
+                mode |= O_TRUNC;
+            
+            channel.pipe[0] = -1;
+            if ( (channel.pipe[1] = open(fname, mode, 0666)) != -1)
+                return true; // success
+
+            q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Could not open output redirection for writing")));
+        }
+
+        // could not open file
+        processError = QProcess::FailedToStart;
+        emit q->error(processError);
+        cleanup();
+        return false;
+    } else {
+        Q_ASSERT_X(channel.process, "QProcess::start", "Internal error");
+
+        Channel *source;
+        Channel *sink;
+
+        if (channel.type == Channel::PipeSource) {
+            // we are the source
+            source = &channel;
+            sink = &channel.process->stdinChannel;
+
+            Q_ASSERT(source == &stdoutChannel);
+            Q_ASSERT(sink->process == this && sink->type == Channel::PipeSink);
+        } else {
+            // we are the sink;
+            source = &channel.process->stdoutChannel;
+            sink = &channel;
+
+            Q_ASSERT(sink == &stdinChannel);
+            Q_ASSERT(source->process == this && source->type == Channel::PipeSource);
+        }
+
+        if (source->pipe[1] != INVALID_Q_PIPE || sink->pipe[0] != INVALID_Q_PIPE) {
+            // already created, do nothing
+            return true;
+        } else {
+            Q_ASSERT(source->pipe[0] == INVALID_Q_PIPE && source->pipe[1] == INVALID_Q_PIPE);
+            Q_ASSERT(sink->pipe[0] == INVALID_Q_PIPE && sink->pipe[1] == INVALID_Q_PIPE);
+
+            Q_PIPE pipe[2] = { -1, -1 };
+            qt_create_pipe(pipe);
+            sink->pipe[0] = pipe[0];
+            source->pipe[1] = pipe[1];
+
+            return true;
+        }
     }
 }
 
@@ -350,31 +462,10 @@ void QProcessPrivate::startProcess()
                          q, SLOT(_q_processDied()));
     }
 
-    qt_create_pipe(writePipe);
-    if (QAbstractEventDispatcher::instance(q->thread())) {
-        writeSocketNotifier = new QSocketNotifier(writePipe[1],
-                                                  QSocketNotifier::Write, q);
-        QObject::connect(writeSocketNotifier, SIGNAL(activated(int)),
-                         q, SLOT(_q_canWrite()));
-        writeSocketNotifier->setEnabled(false);
-    }
-
-    qt_create_pipe(standardReadPipe);
-    qt_create_pipe(errorReadPipe);
-
-    if (QAbstractEventDispatcher::instance(q->thread())) {
-        standardReadSocketNotifier = new QSocketNotifier(standardReadPipe[0],
-                                                         QSocketNotifier::Read,
-                                                         q);
-        QObject::connect(standardReadSocketNotifier, SIGNAL(activated(int)),
-                         q, SLOT(_q_canReadStandardOutput()));
-
-        errorReadSocketNotifier = new QSocketNotifier(errorReadPipe[0],
-                                                      QSocketNotifier::Read,
-                                                      q);
-        QObject::connect(errorReadSocketNotifier, SIGNAL(activated(int)),
-                         q, SLOT(_q_canReadStandardError()));
-    }
+    if (!createChannel(stdinChannel) ||
+        !createChannel(stdoutChannel) || 
+        !createChannel(stderrChannel))
+        return;
 
     // Start the process (platform dependent)
     processState = QProcess::Starting;
@@ -404,21 +495,33 @@ void QProcessPrivate::startProcess()
     processManager()->unlock();
 
     // parent
-    ::close(childStartedPipe[1]);
-    ::close(standardReadPipe[1]);
-    ::close(errorReadPipe[1]);
-    ::close(writePipe[0]);
-
-    childStartedPipe[1] = -1;
-    standardReadPipe[1] = -1;
-    errorReadPipe[1] = -1;
-    writePipe[0] = -1;
-
-    // make all pipes non-blocking
+    // close the ends we don't use and make all pipes non-blocking
     ::fcntl(deathPipe[0], F_SETFL, ::fcntl(deathPipe[0], F_GETFL) | O_NONBLOCK);
-    ::fcntl(standardReadPipe[0], F_SETFL, ::fcntl(standardReadPipe[0], F_GETFL) | O_NONBLOCK);
-    ::fcntl(errorReadPipe[0], F_SETFL, ::fcntl(errorReadPipe[0], F_GETFL) | O_NONBLOCK);
-    ::fcntl(writePipe[1], F_SETFL, ::fcntl(writePipe[1], F_GETFL) | O_NONBLOCK);
+    ::close(childStartedPipe[1]);
+    childStartedPipe[1] = -1;
+
+    if (stdinChannel.pipe[0] != -1) {
+        ::close(stdinChannel.pipe[0]);
+        stdinChannel.pipe[0] = -1;
+    }
+
+    if (stdinChannel.pipe[1] != -1)
+        ::fcntl(stdinChannel.pipe[1], F_SETFL, ::fcntl(stdinChannel.pipe[1], F_GETFL) | O_NONBLOCK);
+
+    if (stdoutChannel.pipe[1] != -1) {
+        ::close(stdoutChannel.pipe[1]);
+        stdoutChannel.pipe[1] = -1;
+    }
+
+    if (stdoutChannel.pipe[0] != -1)
+        ::fcntl(stdoutChannel.pipe[0], F_SETFL, ::fcntl(stdoutChannel.pipe[0], F_GETFL) | O_NONBLOCK);
+
+    if (stderrChannel.pipe[1] != -1) {
+        ::close(stderrChannel.pipe[1]);
+        stderrChannel.pipe[1] = -1;
+    }
+    if (stderrChannel.pipe[0] != -1)
+        ::fcntl(stderrChannel.pipe[0], F_SETFL, ::fcntl(stderrChannel.pipe[0], F_GETFL) | O_NONBLOCK);
 }
 
 void QProcessPrivate::execChild(const QByteArray &programName)
@@ -462,25 +565,19 @@ void QProcessPrivate::execChild(const QByteArray &programName)
 #endif
     }
 
-    // on all pipes, close the end that we don't use
-    ::close(standardReadPipe[0]);
-    ::close(errorReadPipe[0]);
-    ::close(writePipe[1]);
-
     // copy the stdin socket
-    ::dup2(writePipe[0], fileno(stdin));
-    ::close(writePipe[0]);
+    ::dup2(stdinChannel.pipe[0], fileno(stdin));
 
     // copy the stdout and stderr if asked to
     if (processChannelMode != QProcess::ForwardedChannels) {
-        ::dup2(standardReadPipe[1], fileno(stdout));
-        ::dup2(errorReadPipe[1], fileno(stderr));
-        ::close(standardReadPipe[1]);
-        ::close(errorReadPipe[1]);
+        ::dup2(stdoutChannel.pipe[1], fileno(stdout));
 
         // merge stdout and stderr if asked to
-        if (processChannelMode == QProcess::MergedChannels)
+        if (processChannelMode == QProcess::MergedChannels) {
             ::dup2(fileno(stdout), fileno(stderr));
+        } else {
+            ::dup2(stderrChannel.pipe[1], fileno(stderr));
+        }
     }
 
     // make sure this fd is closed if execvp() succeeds
@@ -579,7 +676,7 @@ qint64 QProcessPrivate::bytesAvailableFromStdout() const
 {
     size_t nbytes = 0;
     qint64 available = 0;
-    if (::ioctl(standardReadPipe[0], FIONREAD, (char *) &nbytes) >= 0)
+    if (::ioctl(stdoutChannel.pipe[0], FIONREAD, (char *) &nbytes) >= 0)
         available = (qint64) *((int *) &nbytes);
 #if defined (QPROCESS_DEBUG)
     qDebug("QProcessPrivate::bytesAvailableFromStdout() == %lld", available);
@@ -591,7 +688,7 @@ qint64 QProcessPrivate::bytesAvailableFromStderr() const
 {
     size_t nbytes = 0;
     qint64 available = 0;
-    if (::ioctl(errorReadPipe[0], FIONREAD, (char *) &nbytes) >= 0)
+    if (::ioctl(stderrChannel.pipe[0], FIONREAD, (char *) &nbytes) >= 0)
         available = (qint64) *((int *) &nbytes);
 #if defined (QPROCESS_DEBUG)
     qDebug("QProcessPrivate::bytesAvailableFromStderr() == %lld", available);
@@ -601,7 +698,7 @@ qint64 QProcessPrivate::bytesAvailableFromStderr() const
 
 qint64 QProcessPrivate::readFromStdout(char *data, qint64 maxlen)
 {
-    qint64 bytesRead = qt_native_read(standardReadPipe[0], data, maxlen);
+    qint64 bytesRead = qt_native_read(stdoutChannel.pipe[0], data, maxlen);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::readFromStdout(%p \"%s\", %lld) == %lld",
            data, qt_prettyDebug(data, bytesRead, 16).constData(), maxlen, bytesRead);
@@ -611,7 +708,7 @@ qint64 QProcessPrivate::readFromStdout(char *data, qint64 maxlen)
 
 qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
 {
-    qint64 bytesRead = qt_native_read(errorReadPipe[0], data, maxlen);
+    qint64 bytesRead = qt_native_read(stderrChannel.pipe[0], data, maxlen);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::readFromStderr(%p \"%s\", %lld) == %lld",
            data, qt_prettyDebug(data, bytesRead, 16).constData(), maxlen, bytesRead);
@@ -635,7 +732,7 @@ qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
 {
     qt_ignore_sigpipe();
 
-    qint64 written = qt_native_write(writePipe[1], data, maxlen);
+    qint64 written = qt_native_write(stdinChannel.pipe[1], data, maxlen);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::writeToStdin(%p \"%s\", %lld) == %lld",
            data, qt_prettyDebug(data, maxlen, 16).constData(), maxlen, written);
@@ -739,15 +836,15 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
         if (processState == QProcess::Starting)
             FD_SET(childStartedPipe[0], &fdread);
 
-        if (standardReadPipe[0] != -1)
-            FD_SET(standardReadPipe[0], &fdread);
-        if (errorReadPipe[0] != -1)
-            FD_SET(errorReadPipe[0], &fdread);
+        if (stdoutChannel.pipe[0] != -1)
+            FD_SET(stdoutChannel.pipe[0], &fdread);
+        if (stderrChannel.pipe[0] != -1)
+            FD_SET(stderrChannel.pipe[0], &fdread);
 
         FD_SET(deathPipe[0], &fdread);
 
-        if (!writeBuffer.isEmpty() && writePipe[1] != -1)
-            FD_SET(writePipe[1], &fdwrite);
+        if (!writeBuffer.isEmpty() && stdinChannel.pipe[1] != -1)
+            FD_SET(stdinChannel.pipe[1], &fdwrite);
 
         int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
         int ret = qt_native_select(&fdread, &fdwrite, timeout);
@@ -768,12 +865,12 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 	}
 
         bool readyReadEmitted = false;
-	if (standardReadPipe[0] != -1 && FD_ISSET(standardReadPipe[0], &fdread)) {
+	if (stdoutChannel.pipe[0] != -1 && FD_ISSET(stdoutChannel.pipe[0], &fdread)) {
 	    bool canRead = _q_canReadStandardOutput();
             if (processChannel == QProcess::StandardOutput && canRead)
                 readyReadEmitted = true;
 	}
-	if (errorReadPipe[0] != -1 && FD_ISSET(errorReadPipe[0], &fdread)) {
+	if (stderrChannel.pipe[0] != -1 && FD_ISSET(stderrChannel.pipe[0], &fdread)) {
 	    bool canRead = _q_canReadStandardError();
             if (processChannel == QProcess::StandardError && canRead)
                 readyReadEmitted = true;
@@ -781,7 +878,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
         if (readyReadEmitted)
             return true;
 
-	if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
+	if (stdinChannel.pipe[1] != -1 && FD_ISSET(stdinChannel.pipe[1], &fdwrite))
 	    _q_canWrite();
 
 	if (FD_ISSET(deathPipe[0], &fdread)) {
@@ -812,15 +909,15 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
         if (processState == QProcess::Starting)
             FD_SET(childStartedPipe[0], &fdread);
 
-        if (standardReadPipe[0] != -1)
-            FD_SET(standardReadPipe[0], &fdread);
-        if (errorReadPipe[0] != -1)
-            FD_SET(errorReadPipe[0], &fdread);
+        if (stdoutChannel.pipe[0] != -1)
+            FD_SET(stdoutChannel.pipe[0], &fdread);
+        if (stderrChannel.pipe[0] != -1)
+            FD_SET(stderrChannel.pipe[0], &fdread);
 
         FD_SET(deathPipe[0], &fdread);
 
-        if (!writeBuffer.isEmpty() && writePipe[1] != -1)
-            FD_SET(writePipe[1], &fdwrite);
+        if (!writeBuffer.isEmpty() && stdinChannel.pipe[1] != -1)
+            FD_SET(stdinChannel.pipe[1], &fdwrite);
 
 	int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
 	int ret = qt_native_select(&fdread, &fdwrite, timeout);
@@ -841,13 +938,13 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 		return false;
 	}
 
-	if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
+	if (stdinChannel.pipe[1] != -1 && FD_ISSET(stdinChannel.pipe[1], &fdwrite))
 	    return _q_canWrite();
 
-	if (standardReadPipe[0] != -1 && FD_ISSET(standardReadPipe[0], &fdread))
+	if (stdoutChannel.pipe[0] != -1 && FD_ISSET(stdoutChannel.pipe[0], &fdread))
 	    _q_canReadStandardOutput();
 
-	if (errorReadPipe[0] != -1 && FD_ISSET(errorReadPipe[0], &fdread))
+	if (stderrChannel.pipe[0] != -1 && FD_ISSET(stderrChannel.pipe[0], &fdread))
 	    _q_canReadStandardError();
 
 	if (FD_ISSET(deathPipe[0], &fdread)) {
@@ -879,16 +976,16 @@ bool QProcessPrivate::waitForFinished(int msecs)
         if (processState == QProcess::Starting)
             FD_SET(childStartedPipe[0], &fdread);
 
-        if (standardReadPipe[0] != -1)
-            FD_SET(standardReadPipe[0], &fdread);
-        if (errorReadPipe[0] != -1)
-            FD_SET(errorReadPipe[0], &fdread);
+        if (stdoutChannel.pipe[0] != -1)
+            FD_SET(stdoutChannel.pipe[0], &fdread);
+        if (stderrChannel.pipe[0] != -1)
+            FD_SET(stderrChannel.pipe[0], &fdread);
 
         if (processState == QProcess::Running)
             FD_SET(deathPipe[0], &fdread);
 
-        if (!writeBuffer.isEmpty() && writePipe[1] != -1)
-            FD_SET(writePipe[1], &fdwrite);
+        if (!writeBuffer.isEmpty() && stdinChannel.pipe[1] != -1)
+            FD_SET(stdinChannel.pipe[1], &fdwrite);
 
 	int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
 	int ret = qt_native_select(&fdread, &fdwrite, timeout);
@@ -907,13 +1004,13 @@ bool QProcessPrivate::waitForFinished(int msecs)
 	    if (!_q_startupNotification())
 		return false;
 	}
-	if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
+	if (stdinChannel.pipe[1] != -1 && FD_ISSET(stdinChannel.pipe[1], &fdwrite))
 	    _q_canWrite();
 
-	if (standardReadPipe[0] != -1 && FD_ISSET(standardReadPipe[0], &fdread))
+	if (stdoutChannel.pipe[0] != -1 && FD_ISSET(stdoutChannel.pipe[0], &fdread))
 	    _q_canReadStandardOutput();
 
-	if (errorReadPipe[0] != -1 && FD_ISSET(errorReadPipe[0], &fdread))
+	if (stderrChannel.pipe[0] != -1 && FD_ISSET(stderrChannel.pipe[0], &fdread))
 	    _q_canReadStandardError();
 
 	if (FD_ISSET(deathPipe[0], &fdread)) {
@@ -928,7 +1025,7 @@ bool QProcessPrivate::waitForWrite(int msecs)
 {
     fd_set fdwrite;
     FD_ZERO(&fdwrite);
-    FD_SET(writePipe[1], &fdwrite);
+    FD_SET(stdinChannel.pipe[1], &fdwrite);
 
     int ret;
     do {

@@ -25,6 +25,8 @@
 #include <qabstracteventdispatcher.h>
 #include <qdebug.h>
 
+#include "private/qfsfileengine_p.h" // for longFileName and win95FileName
+
 #ifndef QT_NO_PROCESS
 //#define QPROCESS_DEBUG
 
@@ -187,7 +189,7 @@ void QWindowsPipeWriter::run()
     }
 }
 
-static void qt_create_pipes(QProcessPrivate *that)
+static void qt_create_pipe(Q_PIPE *pipe, bool in)
 {
     // Open the pipes.  Make non-inheritable copies of input write and output
     // read handles to avoid non-closable handles (this is done by the
@@ -195,40 +197,182 @@ static void qt_create_pipes(QProcessPrivate *that)
 
     SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
 
-    HANDLE tmpStdin, tmpStdout, tmpStderr;
-    if (!CreatePipe(&that->writePipe[0], &tmpStdin, &secAtt, 0))
-        return;
-    if (!DuplicateHandle(GetCurrentProcess(), tmpStdin, GetCurrentProcess(),
-                         &that->writePipe[1], 0, FALSE, DUPLICATE_SAME_ACCESS))
-        return;
-    if (!CloseHandle(tmpStdin))
-        return;
-    if (!CreatePipe(&tmpStdout, &that->standardReadPipe[1], &secAtt, 0))
-        return;
-    if (!DuplicateHandle(GetCurrentProcess(), tmpStdout, GetCurrentProcess(),
-                     &that->standardReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
-    return;
-    if (!CloseHandle(tmpStdout))
-        return;
+    HANDLE tmpHandle;
+    if (in) {                   // stdin
+        if (!CreatePipe(&pipe[0], &tmpHandle, &secAtt, 0))
+            return;
+        if (!DuplicateHandle(GetCurrentProcess(), tmpHandle, GetCurrentProcess(),
+                             &pipe[1], 0, FALSE, DUPLICATE_SAME_ACCESS))
+            return;
+    } else {                    // stdout or stderr
+        if (!CreatePipe(&tmpHandle, &pipe[1], &secAtt, 0))
+            return;
+        if (!DuplicateHandle(GetCurrentProcess(), tmpHandle, GetCurrentProcess(),
+                             &pipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
+            return;
+    }
 
-    if (that->processChannelMode == QProcess::MergedChannels) {
-        if (!DuplicateHandle(GetCurrentProcess(), that->standardReadPipe[1], GetCurrentProcess(),
-                     &that->errorReadPipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS))
-        return;
+    CloseHandle(tmpHandle);
+}
+
+/*
+    Create the pipes to a QProcessPrivate::Channel.
+
+    This function must be called in order: stdin, stdout, stderr
+*/
+bool QProcessPrivate::createChannel(Channel &channel)
+{
+    Q_Q(QProcess);
+
+    if (&channel == &stderrChannel && processChannelMode == QProcess::MergedChannels) {
+        return DuplicateHandle(GetCurrentProcess(), stdoutChannel.pipe[1], GetCurrentProcess(),
+                               &stderrChannel.pipe[1], 0, TRUE, DUPLICATE_SAME_ACCESS);
+    }
+
+    if (channel.type == Channel::Normal) {
+        // we're piping this channel to our own process
+        qt_create_pipe(channel.pipe, &channel == &stdinChannel);
+
+        return true;
+    } else if (channel.type == Channel::Redirect) {
+        // we're redirecting the channel to/from a file
+        SECURITY_ATTRIBUTES secAtt = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+
+        if (&channel == &stdinChannel) {
+            // try to open in read-only mode
+            channel.pipe[1] = INVALID_Q_PIPE;
+            QT_WA({
+                channel.pipe[0] =
+                    CreateFileW((TCHAR*)QFSFileEnginePrivate::longFileName(channel.file).utf16(),
+                                GENERIC_READ,
+                                FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                &secAtt,
+                                OPEN_EXISTING,
+                                FILE_ATTRIBUTE_NORMAL,
+                                NULL);
+            }, {
+                channel.pipe[0] =
+                    CreateFileA(QFSFileEnginePrivate::win95Name(channel.file),
+                                GENERIC_READ,
+                                FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                &secAtt,
+                                OPEN_EXISTING,
+                                FILE_ATTRIBUTE_NORMAL,
+                                NULL);
+            });
+            if (channel.pipe[0] != INVALID_Q_PIPE)
+                return true;
+
+            q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Could not open input redirection for reading")));
+        } else {
+            // open in write mode
+            channel.pipe[0] = INVALID_Q_PIPE;
+            DWORD creation;
+            if (channel.append)
+                creation = OPEN_ALWAYS;
+            else
+                creation = CREATE_ALWAYS;
+            
+            QT_WA({
+                channel.pipe[1] =
+                    CreateFileW((TCHAR*)QFSFileEnginePrivate::longFileName(channel.file).utf16(),
+                                GENERIC_WRITE,
+                                FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                &secAtt,
+                                creation,
+                                FILE_ATTRIBUTE_NORMAL,
+                                NULL);
+            }, {
+                channel.pipe[1] =
+                    CreateFileA(QFSFileEnginePrivate::win95Name(channel.file),
+                                GENERIC_WRITE,
+                                FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                &secAtt,
+                                creation,
+                                FILE_ATTRIBUTE_NORMAL,
+                                NULL);
+            });
+            if (channel.pipe[1] != INVALID_Q_PIPE) {
+                if (channel.append) {
+                    LARGE_INTEGER zero;
+                    zero.QuadPart = 0;
+                    SetFilePointerEx(channel.pipe[1], zero, NULL, FILE_END);
+                }
+                return true;
+            }
+
+            q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP(QProcess, "Could not open output redirection for writing")));
+        }
+
+        // could not open file
+        processError = QProcess::FailedToStart;
+        emit q->error(processError);
+        cleanup();
+        return false;
     } else {
-        if (!CreatePipe(&tmpStderr, &that->errorReadPipe[1], &secAtt, 0))
-            return;
-        if (!DuplicateHandle(GetCurrentProcess(), tmpStderr, GetCurrentProcess(),
-                     &that->errorReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS))
-            return;
-        if (!CloseHandle(tmpStderr))
-            return;
+        Q_ASSERT_X(channel.process, "QProcess::start", "Internal error");
+
+        Channel *source;
+        Channel *sink;
+
+        if (channel.type == Channel::PipeSource) {
+            // we are the source
+            source = &channel;
+            sink = &channel.process->stdinChannel;
+
+            if (source->pipe[1] != INVALID_Q_PIPE) {
+                // already constructed by the sink
+                // make it inheritable
+                HANDLE tmpHandle = source->pipe[1];
+                if (!DuplicateHandle(GetCurrentProcess(), tmpHandle,
+                                     GetCurrentProcess(), &source->pipe[1],
+                                     0, TRUE, DUPLICATE_SAME_ACCESS))
+                    return false;
+
+                CloseHandle(tmpHandle);
+                return true;
+            }
+                
+            Q_ASSERT(source == &stdoutChannel);
+            Q_ASSERT(sink->process == this && sink->type == Channel::PipeSink);
+
+            qt_create_pipe(source->pipe, /* in = */ false); // source is stdout
+            sink->pipe[0] = source->pipe[0];
+            source->pipe[0] = INVALID_Q_PIPE;
+
+            return true;
+        } else {
+            // we are the sink;
+            source = &channel.process->stdoutChannel;
+            sink = &channel;
+ 
+            if (sink->pipe[0] != INVALID_Q_PIPE) {
+                // already constructed by the source
+                // make it inheritable
+                HANDLE tmpHandle = sink->pipe[0];
+                if (!DuplicateHandle(GetCurrentProcess(), tmpHandle,
+                                     GetCurrentProcess(), &sink->pipe[0],
+                                     0, TRUE, DUPLICATE_SAME_ACCESS))
+                    return false;
+
+                CloseHandle(tmpHandle);
+                return true;
+            }
+            Q_ASSERT(sink == &stdinChannel);
+            Q_ASSERT(source->process == this && source->type == Channel::PipeSource);
+
+            qt_create_pipe(sink->pipe, /* in = */ true); // sink is stdin
+            source->pipe[1] = sink->pipe[1];
+            sink->pipe[1] = INVALID_Q_PIPE;
+
+            return true;
+        }
     }
 }
 
 void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
 {
-    if (pipe[0] == writePipe[0] && pipe[1] == writePipe[1] && pipeWriter) {
+    if (pipe[0] == stdinChannel.pipe[0] && pipe[1] == stdinChannel.pipe[1] && pipeWriter) {
         pipeWriter->waitForWrite(ULONG_MAX);
         delete pipeWriter;
         pipeWriter = 0;
@@ -349,7 +493,11 @@ void QProcessPrivate::startProcess()
     processState = QProcess::Starting;
     emit q->stateChanged(processState);
 
-    qt_create_pipes(this);
+    if (!createChannel(stdinChannel) ||
+        !createChannel(stdoutChannel) || 
+        !createChannel(stderrChannel))
+        return;
+
     QString args = qt_create_commandline(program, arguments);
     QByteArray envlist = qt_create_environment(environment);
 
@@ -373,7 +521,7 @@ void QProcessPrivate::startProcess()
                                          0, 0, 0,
                                          STARTF_USESTDHANDLES,
                                          0, 0, 0,
-                                         writePipe[0], standardReadPipe[1], errorReadPipe[1]
+                                         stdinChannel.pipe[0], stdoutChannel.pipe[1], stderrChannel.pipe[1]
         };
         success = CreateProcessW(0, (WCHAR*)args.utf16(),
                                  0, 0, TRUE, dwCreationFlags,
@@ -391,7 +539,7 @@ void QProcessPrivate::startProcess()
                                          0, 0, 0,
                                          STARTF_USESTDHANDLES,
                                          0, 0, 0,
-                                         writePipe[0], standardReadPipe[1], errorReadPipe[1]
+                                         stdinChannel.pipe[0], stdoutChannel.pipe[1], stderrChannel.pipe[1]
 	    };
 
 	    success = CreateProcessA(0, args.toLocal8Bit().data(),
@@ -402,12 +550,18 @@ void QProcessPrivate::startProcess()
 #endif // Q_OS_TEMP
     }
 #ifndef Q_OS_TEMP
-    CloseHandle(writePipe[0]);
-    writePipe[0] = INVALID_Q_PIPE;
-    CloseHandle(standardReadPipe[1]);
-    standardReadPipe[1] = INVALID_Q_PIPE;
-    CloseHandle(errorReadPipe[1]);
-    errorReadPipe[1] = INVALID_Q_PIPE;
+    if (stdinChannel.pipe[0] != INVALID_Q_PIPE) {
+        CloseHandle(stdinChannel.pipe[0]);
+        stdinChannel.pipe[0] = INVALID_Q_PIPE;
+    }
+    if (stdoutChannel.pipe[1] != INVALID_Q_PIPE) {
+        CloseHandle(stdoutChannel.pipe[1]);
+        stdoutChannel.pipe[1] = INVALID_Q_PIPE;
+    }
+    if (stderrChannel.pipe[1] != INVALID_Q_PIPE) {
+        CloseHandle(stderrChannel.pipe[1]);
+        stderrChannel.pipe[1] = INVALID_Q_PIPE;
+    }
 #endif
 
     if (!success) {
@@ -449,15 +603,18 @@ bool QProcessPrivate::processStarted()
 
 qint64 QProcessPrivate::bytesAvailableFromStdout() const
 {
+    if (stdoutChannel.pipe[0] == INVALID_Q_PIPE)
+        return 0;
+
     DWORD bytesAvail = 0;
-    PeekNamedPipe(standardReadPipe[0], 0, 0, 0, &bytesAvail, 0);
+    PeekNamedPipe(stdoutChannel.pipe[0], 0, 0, 0, &bytesAvail, 0);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::bytesAvailableFromStdout() == %d", bytesAvail);
 #endif
     if (processChannelMode == QProcess::ForwardedChannels && bytesAvail > 0) {
         QByteArray buf(bytesAvail, 0);
         DWORD bytesRead = 0;
-        if (ReadFile(standardReadPipe[0], buf.data(), buf.size(), &bytesRead, 0) && bytesRead > 0) {
+        if (ReadFile(stdoutChannel.pipe[0], buf.data(), buf.size(), &bytesRead, 0) && bytesRead > 0) {
             HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
             if (hStdout) {
                 DWORD bytesWritten = 0;
@@ -471,15 +628,18 @@ qint64 QProcessPrivate::bytesAvailableFromStdout() const
 
 qint64 QProcessPrivate::bytesAvailableFromStderr() const
 {
+    if (stderrChannel.pipe[0] == INVALID_Q_PIPE)
+        return 0;
+
     DWORD bytesAvail = 0;
-    PeekNamedPipe(errorReadPipe[0], 0, 0, 0, &bytesAvail, 0);
+    PeekNamedPipe(stderrChannel.pipe[0], 0, 0, 0, &bytesAvail, 0);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::bytesAvailableFromStderr() == %d", bytesAvail);
 #endif
     if (processChannelMode == QProcess::ForwardedChannels && bytesAvail > 0) {
         QByteArray buf(bytesAvail, 0);
         DWORD bytesRead = 0;
-        if (ReadFile(errorReadPipe[0], buf.data(), buf.size(), &bytesRead, 0) && bytesRead > 0) {
+        if (ReadFile(stderrChannel.pipe[0], buf.data(), buf.size(), &bytesRead, 0) && bytesRead > 0) {
             HANDLE hStderr = GetStdHandle(STD_ERROR_HANDLE);
             if (hStderr) {
                 DWORD bytesWritten = 0;
@@ -496,7 +656,7 @@ qint64 QProcessPrivate::readFromStdout(char *data, qint64 maxlen)
     DWORD read = qMin(maxlen, bytesAvailableFromStdout());
     DWORD bytesRead = 0;
 
-    if (read > 0 && !ReadFile(standardReadPipe[0], data, read, &bytesRead, 0))
+    if (read > 0 && !ReadFile(stdoutChannel.pipe[0], data, read, &bytesRead, 0))
         return -1;
     return bytesRead;
 }
@@ -506,7 +666,7 @@ qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
     DWORD read = qMin(maxlen, bytesAvailableFromStderr());
     DWORD bytesRead = 0;
 
-    if (read > 0 && !ReadFile(errorReadPipe[0], data, read, &bytesRead, 0))
+    if (read > 0 && !ReadFile(stderrChannel.pipe[0], data, read, &bytesRead, 0))
         return -1;
     return bytesRead;
 }
@@ -693,7 +853,7 @@ qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
     Q_Q(QProcess);
 
     if (!pipeWriter) {
-        pipeWriter = new QWindowsPipeWriter(writePipe[1], q);
+        pipeWriter = new QWindowsPipeWriter(stdinChannel.pipe[1], q);
         pipeWriter->start();
     }
 

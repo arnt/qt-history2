@@ -70,12 +70,19 @@ public:
 
     ProcessChannelMode readChannelMode() const;
     void setReadChannelMode(ProcessChannelMode mode);
+    ProcessChannelMode processChannelMode() const;
+    void setProcessChannelMode(ProcessChannelMode mode);
 
     ProcessChannel readChannel() const;
     void setReadChannel(ProcessChannel channel);
 
     void closeReadChannel(ProcessChannel channel);
     void closeWriteChannel();
+
+    void setStandardInputFile(const QString &fileName);
+    void setStandardOutputFile(const QString &fileName, OpenMode mode = Truncate);
+    void setStandardErrorFile(const QString &fileName, OpenMode mode = Truncate);
+    void setStandardOutputProcess(QProcess *destination);
 
     QString workingDirectory() const;
     void setWorkingDirectory(const QString &dir);

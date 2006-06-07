@@ -51,6 +51,73 @@ class QProcessPrivate : public QIODevicePrivate
 public:
     Q_DECLARE_PUBLIC(QProcess)
 
+    struct Channel {
+        enum ProcessChannelType {
+            Normal = 0,
+            PipeSource = 1,
+            PipeSink = 2,
+            Redirect = 3
+            // if you add "= 4" here, increase the number of bits below
+        };
+
+        Channel() : process(0), notifier(0), type(Normal), closed(false), append(false)
+        {
+            pipe[0] = INVALID_Q_PIPE;
+            pipe[1] = INVALID_Q_PIPE;
+        }
+        
+        void clear()
+        {
+            switch (type) {
+            case PipeSource:
+                Q_ASSERT(process);
+                process->stdinChannel.type = Normal;
+                process->stdinChannel.process = 0;
+                break;
+            case PipeSink:
+                Q_ASSERT(process);
+                process->stdoutChannel.type = Normal;
+                process->stdoutChannel.process = 0;
+                break;
+            }
+
+            type = Normal;
+            file.clear();
+            process = 0;
+        }
+
+        Channel &operator=(const QString &fileName)
+        {
+            clear();
+            file = fileName;
+            type = fileName.isEmpty() ? Normal : Redirect;
+            return *this;
+        }
+
+        void pipeTo(QProcessPrivate *other)
+        {
+            clear();
+            process = other;
+            type = PipeSource;
+        }
+
+        void pipeFrom(QProcessPrivate *other)
+        {
+            clear();
+            process = other;
+            type = PipeSink;
+        }
+
+        QString file;
+        QProcessPrivate *process;
+        QSocketNotifier *notifier;
+        Q_PIPE pipe[2];
+
+        unsigned type : 2;
+        bool closed : 1;
+        bool append : 1;
+    };
+
     QProcessPrivate();
     virtual ~QProcessPrivate();
 
@@ -70,13 +137,13 @@ public:
     Q_PID pid;
     int sequenceNumber;
 
-    bool standardOutputClosed;
-    bool standardErrorClosed;
-
     bool emittedReadyRead;
     bool emittedBytesWritten;
 
-    bool writeChannelClosing;
+    Channel stdinChannel;
+    Channel stdoutChannel;
+    Channel stderrChannel;
+    bool createChannel(Channel &channel);
     void closeWriteChannel();
 
     QString program;
@@ -87,16 +154,10 @@ public:
     QRingBuffer errorReadBuffer;
     QRingBuffer writeBuffer;
 
-    Q_PIPE standardReadPipe[2];
-    Q_PIPE errorReadPipe[2];
-    Q_PIPE writePipe[2];
     Q_PIPE childStartedPipe[2];
     Q_PIPE deathPipe[2];
     void destroyPipe(Q_PIPE pipe[2]);
 
-    QSocketNotifier *standardReadSocketNotifier;
-    QSocketNotifier *errorReadSocketNotifier;
-    QSocketNotifier *writeSocketNotifier;
     QSocketNotifier *startupSocketNotifier;
     QSocketNotifier *deathNotifier;
 
