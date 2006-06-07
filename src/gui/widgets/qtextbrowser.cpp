@@ -33,7 +33,7 @@ class QTextBrowserPrivate : public QTextEditPrivate
 {
     Q_DECLARE_PUBLIC(QTextBrowser)
 public:
-    QTextBrowserPrivate() 
+    QTextBrowserPrivate()
         : textOrSourceChanged(false), forceLoadOnSourceChange(false),
           hadSelectionOnMousePress(false) {}
 
@@ -58,7 +58,7 @@ public:
     bool textOrSourceChanged;
     QString highlightedAnchor; // Anchor below cursor
     bool forceLoadOnSourceChange;
-    
+
 #ifndef QT_NO_CURSOR
     QCursor oldCursor;
 #endif
@@ -138,7 +138,7 @@ void QTextBrowserPrivate::activateAnchor(const QString &href)
 
     if (textOrSourceChanged)
         return;
-    
+
     q->setSource(url);
 }
 
@@ -359,7 +359,7 @@ bool QTextBrowserPrivate::findNextPrevAnchor(bool next, int &start, int &end)
         end = anchorEnd;
         return true;
     }
-    
+
     return false;
 }
 
@@ -371,7 +371,7 @@ void QTextBrowserPrivate::keypadMove(bool next)
     const int height = viewport->height();
     int anchorStart, anchorEnd;
     if (findNextPrevAnchor(next, anchorStart, anchorEnd)) {
-        QTextBlock block = doc->findBlock(next ? anchorEnd : anchorStart);
+        QTextBlock block = control->document()->findBlock(next ? anchorEnd : anchorStart);
         const int yOffset = vbar->value();
         const int cursYOffset = (int)block.layout()->position().y();
         const int overlap = 20;
@@ -393,7 +393,6 @@ void QTextBrowserPrivate::keypadMove(bool next)
                 return;
             }
         } else {
-            qDebug("found anchor");
             if (cursYOffset < yOffset) {
                 qDebug("1");
                 vbar->setValue(yOffset - height + overlap);
@@ -414,15 +413,15 @@ void QTextBrowserPrivate::keypadMove(bool next)
             }
         }
         focusIndicator.setPosition(anchorStart);
-        
+
         if(next)
             focusIndicator.setPosition(anchorEnd, QTextCursor::KeepAnchor);
-        
+
         QTextCharFormat charFmt;
         charFmt = focusIndicator.charFormat();
         emit q->highlighted(QUrl(charFmt.anchorHref()));
         emit q->highlighted(charFmt.anchorHref());
-        
+
         if(!next)
             focusIndicator.setPosition(anchorEnd, QTextCursor::KeepAnchor);
     } else {
@@ -440,16 +439,18 @@ void QTextBrowserPrivate::keypadMove(bool next)
                 vbar->setValue(yOffset - height + overlap);
         }
         focusIndicator.clearSelection();
-        
+
         emit q->highlighted(QUrl());
         emit q->highlighted(QString());
     }
 
     if (focusIndicator.hasSelection()) {
+        /* ###########
         qSwap(focusIndicator, cursor);
         q->ensureCursorVisible();
         qSwap(focusIndicator, cursor);
         viewport->update();
+        */
     } else {
         viewport->update();
     }
@@ -638,9 +639,9 @@ void QTextBrowser::setSource(const QUrl &url)
         entry.hpos = 0;
         entry.vpos = 0;
         d->stack.push(entry);
-        
+
         emit backwardAvailable(d->stack.count() > 1);
-        
+
         if (!d->forwardStack.isEmpty() && d->forwardStack.top().url == url) {
             d->forwardStack.pop();
             emit forwardAvailable(d->forwardStack.count() > 0);
@@ -870,7 +871,7 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
         emit highlighted(QUrl());
         emit highlighted(QString());
     } else {
-#ifndef QT_NO_CURSOR        
+#ifndef QT_NO_CURSOR
         d->viewport->setCursor(Qt::PointingHandCursor);
 #endif
 
@@ -1026,7 +1027,7 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
 /*!
       Returns true if the text browser can go backward in the document history
       using backward().
-      
+
       \sa backwardAvailable(), backward()
 */
 bool QTextBrowser::isBackwardAvailable() const
@@ -1038,7 +1039,7 @@ bool QTextBrowser::isBackwardAvailable() const
 /*!
       Returns true if the text browser can go forward in the document history
       using forward().
-      
+
       \sa forwardAvailable(), forward()
 */
 bool QTextBrowser::isForwardAvailable() const
@@ -1050,7 +1051,7 @@ bool QTextBrowser::isForwardAvailable() const
 /*!
     Clears the history of visited documents and disables the forward and
     backward navigation.
-    
+
     \sa backward(), forward()
 */
 void QTextBrowser::clearHistory()
