@@ -2998,27 +2998,28 @@
     \l{qmake-project-files.html#GeneralConfiguration}{\c CONFIG variable}
     are treated specially by \c qmake. Each of the possible values can be
     used as the condition for a scope. For example, the list of values
-    held by \c CONFIG can be extended with the \c debug value:
+    held by \c CONFIG can be extended with the \c opengl value:
 
     \quotefromfile snippets/qmake/configscopes.pro
-    \skipto CONFIG += debug
-    \printuntil CONFIG += debug
+    \skipto CONFIG +=
+    \printuntil CONFIG +=
 
-    As a result of this operation, any scopes that test for \c debug will
+    As a result of this operation, any scopes that test for \c opengl will
     be processed. We can use this feature to give the final executable an
     appropriate name:
 
-    \skipto debug {
-    \printuntil release {
+    \skipto opengl {
+    \printuntil else {
+    \printuntil TARGET
     \printuntil }
 
     This feature makes it easy to change the configuration for a project
     without losing all the custom settings that might be needed for a specific
     configuration. In the above code, the declarations in the first scope are
-    processed, and the final executable will be called \c application-debug.
-    However, if \c release is specified instead of \c debug, the declarations
-    in the second scope are processed instead, and the final executable will
-    be called \c application.
+    processed, and the final executable will be called \c application-gl.
+    However, if \c opengl is not specified, the declarations in the second
+    scope are processed instead, and the final executable will be called
+    \c application.
 
     Since it is possible to put your own values on the \c CONFIG
     line, this provides you with a convenient way to customize project files

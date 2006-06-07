@@ -1,11 +1,9 @@
 SOURCES = main.cpp
-CONFIG += debug
+CONFIG += opengl
 
-debug {
-    TARGET = application-debug
-}
-
-release {
+opengl {
+    TARGET = application-gl
+} else {
     TARGET = application
 }
 
