@@ -658,7 +658,7 @@ void QHeaderView::resizeSection(int logical, int size)
         d->lastSectionSize = size;
 
     if (size != oldSize)
-        d->resizeSectionSpan(visual, size);
+        d->createSectionSpan(visual, visual, size, d->headerSectionResizeMode(visual));
 
     int w = d->viewport->width();
     int h = d->viewport->height();
@@ -2580,29 +2580,43 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
     int minimumSize = q->minimumSectionSize();
     int oldSize = headerSectionSize(visual);
     int delta = newSize - oldSize;
-    resizeSectionSpan(visual, qMax(newSize, minimumSize));
+    resizeSectionSpan(visual, oldSize, qMax(newSize, minimumSize));
     if (delta > 0) {
         int s = minimumSize;
         int v = visual + 1;
         while (s == minimumSize && v < q->count()) {
-            s = qMax(headerSectionSize(v) - delta, minimumSize);
-            resizeSectionSpan(v, s);
+            int o = headerSectionSize(v);
+            s = qMax(o - delta, minimumSize);
+            resizeSectionSpan(v, o, s);
             ++v;
         }
     } else if (delta < 0 && newSize < minimumSize) {
         for (int v = visual - 1; v >= 0; --v) {
             int sectionSize = headerSectionSize(v);
             if (sectionSize > minimumSize) {
-                resizeSectionSpan(v, qMax(sectionSize + delta, minimumSize));
+                resizeSectionSpan(v, sectionSize, qMax(sectionSize + delta, minimumSize));
                 if (visual + 1 < q->count()) {
-                    int s = qMax(headerSectionSize(visual + 1) - delta, minimumSize);
-                    resizeSectionSpan(visual + 1, s);
+                    int o = headerSectionSize(visual + 1);
+                    int n = qMax(o - delta, minimumSize);
+                    resizeSectionSpan(visual + 1, o, n);
                 }
                 break;
             }
         }
+    } else {
+        int oldSize = headerSectionSize(visual + 1);
+        int newSize = qMax(oldSize - delta, minimumSize);
+        resizeSectionSpan(visual + 1, oldSize, newSize);
     }
     viewport->update();
+}
+
+void QHeaderViewPrivate::resizeSectionSpan(int visualIndex, int oldSize, int newSize)
+{
+    Q_Q(QHeaderView);
+    QHeaderView::ResizeMode mode = headerSectionResizeMode(visualIndex);
+    createSectionSpan(visualIndex, visualIndex, newSize, mode);
+    emit q->sectionResized(logicalIndex(visualIndex), oldSize, newSize);
 }
 
 int QHeaderViewPrivate::headerSectionSize(int visual) const

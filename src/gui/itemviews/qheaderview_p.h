@@ -122,7 +122,7 @@ public:
     }
 
     inline QHeaderView::ResizeMode visualIndexResizeMode(int visual) const {
-        return headerSectionResizeMode(visual); // ### remove this
+        return headerSectionResizeMode(visual);
     }
 
     inline bool hasAutoResizeSections() const {
@@ -151,6 +151,7 @@ public:
     mutable QBitArray sectionSelected;
     mutable QBitArray sectionHidden;
     mutable QHash<int, int> hiddenSectionSize; // from logical index to section size
+    mutable QHash<int, int> cascadingSectionSize; // from logical index to section size
     mutable QSize cachedSizeHint;
 
     int lastPos;
@@ -193,11 +194,7 @@ public:
 
     void createSectionSpan(int start, int end, int size, QHeaderView::ResizeMode mode);
     void removeSectionsFromSpans(int start, int end);
-
-    inline void resizeSectionSpan(int visual, int size) {
-        QHeaderView::ResizeMode mode = headerSectionResizeMode(visual);
-        createSectionSpan(visual, visual, size, mode);
-    }
+    void resizeSectionSpan(int visualIndex, int oldSize, int newSize);
 
     inline int headerSectionCount() const { // for debugging
         int count = 0;
