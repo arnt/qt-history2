@@ -226,8 +226,8 @@
     QObject is reentrant. Most of its non-GUI subclasses, such as
     QTimer, QTcpSocket, QUdpSocket, QHttp, QFtp, and QProcess, are
     also reentrant, making it possible to use these classes from
-    multiple threads simultaneously. There are two constraints to
-    be aware of:
+    multiple threads simultaneously. There are three constraints to be
+    aware of:
 
     \list
     \o \e{The child of a QObject must always be created in the thread
@@ -235,6 +235,12 @@
        things, that you should never pass the QThread object (\c
        this) as the parent of an object created in the thread (since
        the QThread object itself was created in another thread).
+
+    \o \e{Event driven objects may only be used in a single thread.}
+       Specifically, this applies to the \l{timers.html}{timer
+       mechanism} and the \l{QtNetwork}{network module.} For example,
+       you cannot start a timer or connect a socket in a thread that
+       is not the \l{QObject::thread}{object's thread}.
 
     \o \e{You must ensure that all objects created in a thread are
        deleted before you delete the QThread.} This can be done

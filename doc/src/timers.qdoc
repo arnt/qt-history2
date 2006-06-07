@@ -18,6 +18,14 @@
     busy doing something else. In other words: the accuracy of timers
     depends on the granularity of your application.
 
+    In multithreaded applications, you can use the timer mechanism in
+    any thread that has an event loop. To start an event loop from a
+    non-GUI thread, use QThread::exec(). Qt uses the the object's
+    \l{QObject::thread()}{thread affinity} to determine which thread
+    will deliver the QTimerEvent. Because of this, you must start and
+    stop all timers in the object's thread; it is not possible to
+    start timers for objects in another thread.
+
     There is practically no upper limit for the interval value (more
     than one year is possible). The accuracy depends on the
     underlying operating system. Windows 98 has 55 millisecond
@@ -52,9 +60,15 @@
     For QTimer to work, you must have an event loop in your
     application; that is, you must call QCoreApplication::exec()
     somewhere. Timer events will be delivered only while the event
-    loop is running. In multithreaded applications, you can use timer
-    events in any thread that has an event loop. To start an event
-    loop from a non-GUI thread, use QThread::exec().
+    loop is running.
+
+    In multithreaded applications, you can use QTimer in any thread
+    that has an event loop. To start an event loop from a non-GUI
+    thread, use QThread::exec(). Qt uses the the timer's
+    \l{QObject::thread()}{thread affinity} to determine which thread
+    will emit the \l{QTimer::}{timeout()} signal. Because of this, you
+    must start and stop the timer in its thread; it is not possible to
+    start a timer from another thread.
 
     The \l{widgets/analogclock}{Analog Clock} example shows how to use
     QTimer to redraw a widget at regular intervals. From \c{AnalogClock}'s
