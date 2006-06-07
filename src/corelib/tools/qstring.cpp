@@ -3076,6 +3076,30 @@ QString::Data *QString::fromLatin1_helper(const char *str, int size)
     return d;
 }
 
+QString::Data *QString::fromAscii_helper(const char *str, int size)
+{
+#ifndef QT_NO_TEXTCODEC
+    if (codecForCStrings) {
+        Data *d;
+        if (!str) {
+            d = &shared_null;
+            d->ref.ref();
+        } else if (size == 0 || (!*str && size < 0)) {
+            d = &shared_empty;
+            d->ref.ref();
+        } else {
+            if (size < 0)
+                size = qstrlen(str);
+            QString s = codecForCStrings->toUnicode(str, size);
+            d = s.d;
+            d->ref.ref();
+        }
+        return d;
+    }
+#endif
+    return fromLatin1_helper(str, size);
+}
+
 /*!
     Returns a QString initialized with the first \a size characters
     of the Latin-1 string \a str.
@@ -3262,18 +3286,7 @@ QString QString::fromLocal8Bit(const char *str, int size)
 */
 QString QString::fromAscii(const char *str, int size)
 {
-#ifndef QT_NO_TEXTCODEC
-    if (codecForCStrings) {
-        if (!str)
-            return QString();
-        if (size == 0 || (!*str && size < 0))
-            return QLatin1String("");
-        if (size < 0)
-            size = qstrlen(str);
-        return codecForCStrings->toUnicode(str, size);
-    }
-#endif
-    return fromLatin1(str, size);
+    return QString(fromAscii_helper(str, size), 0);
 }
 
 static ushort *addOne(ushort *qch, QString &str)

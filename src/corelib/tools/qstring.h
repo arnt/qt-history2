@@ -322,10 +322,10 @@ public:
 
     // ASCII compatibility
 #ifndef QT_NO_CAST_FROM_ASCII
-    inline QT_ASCII_CAST_WARN_CONSTRUCTOR QString(const char *ch) : d(&shared_null)
-    { d->ref.ref(); *this = fromAscii(ch); }
-    inline QT_ASCII_CAST_WARN_CONSTRUCTOR QString(const QByteArray &a) : d(&shared_null)
-    { d->ref.ref(); *this = fromAscii(a.constData(), a.size()); }
+    inline QT_ASCII_CAST_WARN_CONSTRUCTOR QString(const char *ch) : d(fromAscii_helper(ch))
+    {}
+    inline QT_ASCII_CAST_WARN_CONSTRUCTOR QString(const QByteArray &a) : d(fromAscii_helper(a.constData()))
+    {}
     inline QT_ASCII_CAST_WARN QString &operator=(const char *ch)
     { return (*this = fromAscii(ch)); }
     inline QT_ASCII_CAST_WARN QString &operator=(const QByteArray &a)
@@ -526,6 +526,7 @@ private:
     static QString fromWCharArray(const wchar_t *, int);
 #endif
     static Data *fromLatin1_helper(const char *str, int size = -1);
+    static Data *fromAscii_helper(const char *str, int size = -1);
     friend class QCharRef;
     friend class QTextCodec;
     friend inline bool qStringComparisonHelper(const QString &s1, const char *s2);
