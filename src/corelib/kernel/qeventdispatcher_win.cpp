@@ -144,7 +144,7 @@ QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
     CloseHandle(wakeUpNotifier.handle());
     if (m_internalHwnd)
         DestroyWindow(m_internalHwnd);
-    QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number((Q_LLONG)qt_internal_proc);
+    QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number(quint64(qt_internal_proc));
     UnregisterClassA(className.constData(), qWinAppInst());
     DeleteCriticalSection(&fastTimerCriticalSection);
 }
@@ -310,7 +310,7 @@ static HWND qt_create_internal_window(const QEventDispatcherWin32 *eventDispatch
     wc.lpszMenuName = NULL;
 
     // make sure that multiple Qt's can coexist in the same process
-    QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number((Q_LLONG)qt_internal_proc);
+    QByteArray className = "QEventDispatcherWin32_Internal_Widget" + QByteArray::number(quint64(qt_internal_proc));
     wc.lpszClassName = className.constData();
     RegisterClassA(&wc);
 

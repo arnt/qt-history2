@@ -1385,7 +1385,7 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
                         stateId = PBS_PRESSED;
                     else if (option->state & State_MouseOver)
                         stateId = PBS_HOT;
-                    else if (option->state & State_Default)
+                    else if (btn->features & QStyleOptionButton::DefaultButton)
                         stateId = PBS_DEFAULTED;
                     else
                         stateId = PBS_NORMAL;
@@ -2337,7 +2337,7 @@ case CE_DockWidgetTitle:
             int indent = fw;
             if (hasIcon) {
                 QPixmap pxIco = ico.pixmap(titleHeight);
-                if(qApp->reverseLayout())
+                if (QApplication::layoutDirection() == Qt::RightToLeft)
                     p->drawPixmap(rect.width() - indent - pxIco.width(), rect.bottom() - titleHeight - 2, pxIco);
                 else
                     p->drawPixmap(indent, rect.bottom() - titleHeight - 2, pxIco);
