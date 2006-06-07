@@ -78,7 +78,8 @@ QTextControlPrivate::QTextControlPrivate()
       acceptRichText(true),
       preeditCursor(0), hideCursor(false),
       hasFocus(false),
-      layoutDirection(QApplication::layoutDirection())
+      layoutDirection(QApplication::layoutDirection()),
+      isEnabled(true)
 {}
 
 bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
@@ -1158,6 +1159,10 @@ bool QTextControl::event(QEvent *e)
         case QEvent::FocusIn:
         case QEvent::FocusOut:
             d->focusEvent(static_cast<QFocusEvent *>(e));
+            break;
+
+        case QEvent::EnabledChange:
+            d->isEnabled = e->isAccepted();
             break;
 
 #ifndef QT_NO_DRAGANDDROP
@@ -2881,7 +2886,7 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
 */
 
     ctx.palette = d->palette;
-    if (d->cursorOn /* ###### && q->isEnabled()*/) {
+    if (d->cursorOn && d->isEnabled) {
         if (d->hideCursor)
             ctx.cursorPosition = -1;
         else if (d->preeditCursor != 0)

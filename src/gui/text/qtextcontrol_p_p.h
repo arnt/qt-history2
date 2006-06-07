@@ -150,6 +150,7 @@ public:
     QPalette palette;
     bool hasFocus;
     Qt::LayoutDirection layoutDirection;
+    bool isEnabled;
 };
 
 #endif // QTEXTCONTROL_P_H
