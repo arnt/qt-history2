@@ -3155,8 +3155,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
             -e "s,@QMAKE_QTOBJS@,$EXTRA_OBJS,g" -e "s,@QMAKE_QTSRCS@,$EXTRA_SRCS,g" \
 	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" "$in_mkfile" >>"$mkfile"
 
-        if [ "$Edition" = "Trolltech" ] &&
-            "$WHICH" makedepend >/dev/null 2>&1 && grep 'depend:' "$mkfile" >/dev/null 2>&1; then
+        if "$WHICH" makedepend >/dev/null 2>&1 && grep 'depend:' "$mkfile" >/dev/null 2>&1; then
             (cd "$outpath/qmake" && "$MAKE" -f "$mkfile" depend) >/dev/null 2>&1
 	    sed "s,^.*/\([^/]*.o\):,\1:,g" "$mkfile" >"${mkfile}.tmp"
 	    mv "${mkfile}.tmp" "${mkfile}"
