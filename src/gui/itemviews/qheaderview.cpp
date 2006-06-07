@@ -1508,17 +1508,17 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 
     QPainter painter(d->viewport);
     const QPoint offset = d->scrollDelayOffset;
-    QRect area = e->rect();
-    area.translate(offset);
+    QRect translatedEventRect = e->rect();
+    translatedEventRect.translate(offset);
 
     int start = -1;
     int end = -1;
     if (orientation() == Qt::Horizontal) {
-        start = visualIndexAt(area.left());
-        end = visualIndexAt(area.right());
+        start = visualIndexAt(translatedEventRect.left());
+        end = visualIndexAt(translatedEventRect.right());
     } else {
-        start = visualIndexAt(area.top());
-        end = visualIndexAt(area.bottom());
+        start = visualIndexAt(translatedEventRect.top());
+        end = visualIndexAt(translatedEventRect.bottom());
     }
 
     if (d->reverse()) {
@@ -1535,7 +1535,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 
     d->prepareSectionSelected(); // clear and resize the bit array
 
-    QRect rect;
+    QRect currentSectionRect;
     int logical;
     const int width = d->viewport->width();
     const int height = d->viewport->height();
@@ -1547,15 +1547,15 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         logical = logicalIndex(i);
         bool highlight = false;
         if (orientation() == Qt::Horizontal) {
-            rect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
+            currentSectionRect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
             if (d->highlightSelected && active)
                 highlight = d->columnIntersectsSelection(logical);
         } else {
-            rect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
+            currentSectionRect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
             if (d->highlightSelected && active)
                 highlight = d->rowIntersectsSelection(logical);
         }
-        rect.translate(offset);
+        currentSectionRect.translate(offset);
 
         QVariant variant = d->model->headerData(logical, orientation(),
                                                 Qt::FontRole);
@@ -1565,23 +1565,24 @@ void QHeaderView::paintEvent(QPaintEvent *e)
                 sectionFont.setBold(true);
             painter.setFont(sectionFont);
         }
-        paintSection(&painter, rect, logical);
+        paintSection(&painter, currentSectionRect, logical);
         painter.restore();
     }
 
     // Paint the area beyond where there are indexes
     if (d->reverse()) {
-        if (rect.left() > area.left())
-            painter.fillRect(area.left(), 0, rect.left() - area.left(), height,
+        if (currentSectionRect.left() > translatedEventRect.left())
+            painter.fillRect(translatedEventRect.left(), 0,
+                             currentSectionRect.left() - translatedEventRect.left(), height,
                              palette().background());
-    } else if (rect.right() < area.right()) {
+    } else if (currentSectionRect.right() < translatedEventRect.right()) {
         // paint to the right
-        painter.fillRect(rect.right() + 1, 0,
-                         area.right() - rect.right(), height,
+        painter.fillRect(currentSectionRect.right() + 1, 0,
+                         translatedEventRect.right() - currentSectionRect.right(), height,
                          palette().background());
-    } else if (rect.bottom() < area.bottom()) {
-        painter.fillRect(0, rect.bottom() + 1,
-                         width, height - rect.bottom() - 1,
+    } else if (currentSectionRect.bottom() < translatedEventRect.bottom()) {
+        painter.fillRect(0, currentSectionRect.bottom() + 1,
+                         width, height - currentSectionRect.bottom() - 1,
                          palette().background());
     }
 
