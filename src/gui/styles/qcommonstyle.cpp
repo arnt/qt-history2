@@ -3798,6 +3798,32 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
     return QPixmap();
 }
 
+QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt,
+                                              const QWidget *widget) const
+{
+    QIcon icon(standardPixmap(standardIcon, opt, widget));
+    switch (standardIcon) {
+    case SP_ComputerIcon:
+        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/computer-32.png")));
+        break;
+    case SP_DriveCDIcon:
+        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/cdr-32.png")));
+        break;
+    case SP_DesktopIcon:
+        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/desktop-32.png")));
+        break;
+    case SP_DirOpenIcon:
+        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/diropen-32.png")));
+        break;
+    case SP_DirClosedIcon:
+        icon.addPixmap(QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/dirclosed-32.png")));
+        break;
+    default:
+        break;
+    }
+    return icon;
+}
+
 static inline uint qt_intensity(uint r, uint g, uint b)
 {
     // 30% red, 59% green, 11% blue

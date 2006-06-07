@@ -54,9 +54,13 @@ public:
 
     QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
                                 const QStyleOption *opt) const;
+protected Q_SLOTS:
+    QIcon standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *opt = 0,
+                                     const QWidget *widget = 0) const;
+
 protected:
     QCommonStyle(QCommonStylePrivate &dd);
-    
+
 private:
     Q_DECLARE_PRIVATE(QCommonStyle)
     Q_DISABLE_COPY(QCommonStyle)

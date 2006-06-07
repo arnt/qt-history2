@@ -1,12 +1,18 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/trolltech/styles/commonstyle">
 <file>images/back-16.png</file>
+<file>images/back-32.png</file>
 <file>images/cdr-16.png</file>
+<file>images/cdr-32.png</file>
 <file>images/computer-16.png</file>
+<file>images/computer-32.png</file>
 <file>images/desktop-16.png</file>
+<file>images/desktop-32.png</file>
 <file>images/dirclosed-16.png</file>
+<file>images/dirclosed-32.png</file>
 <file>images/dirlink-16.png</file>
 <file>images/diropen-16.png</file>
+<file>images/diropen-32.png</file>
 <file>images/dvd-16.png</file>
 <file>images/file-16.png</file>
 <file>images/filecontents-16.png</file>
