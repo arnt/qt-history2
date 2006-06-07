@@ -1934,6 +1934,8 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
         else
             emit q->expanded(index);
     }
+    if (model->canFetchMore(index))
+        model->fetchMore(index);
 }
 
 void QTreeViewPrivate::collapse(int item, bool emitSignal)
