@@ -185,8 +185,10 @@ public:
     QBrush backgroundBrush;
     QBrush foregroundBrush;
 
+#ifndef QT_NO_CURSOR
     QCursor viewCursor;
     bool hasViewCursor;
+#endif
 
     QGraphicsSceneDragDropEvent *lastDragDropEvent;
     void storeDragDropEvent(const QGraphicsSceneDragDropEvent *event);
@@ -205,7 +207,11 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), alignment(Qt::AlignCenter),
       scene(0), rubberBand(0), rubberBanding(false),
-      handScrolling(false), hasViewCursor(false), lastDragDropEvent(0)
+      handScrolling(false),
+#ifndef QT_NO_CURSOR
+      hasViewCursor(false),
+#endif
+      lastDragDropEvent(0)
 {
 }
 
