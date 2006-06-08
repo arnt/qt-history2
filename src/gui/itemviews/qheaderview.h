@@ -30,6 +30,7 @@ class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
     Q_PROPERTY(bool showSortIndicator READ isSortIndicatorShown WRITE setSortIndicatorShown)
     Q_PROPERTY(bool highlightSections READ highlightSections WRITE setHighlightSections)
     Q_PROPERTY(bool stretchLastSection READ stretchLastSection WRITE setStretchLastSection)
+    Q_PROPERTY(bool cascadingSectionResizes READ cascadingSectionResizes WRITE setCascadingResizes)
     Q_PROPERTY(int defaultSectionSize READ defaultSectionSize WRITE setDefaultSectionSize)
     Q_PROPERTY(int minimumSectionSize READ minimumSectionSize WRITE setMinimumSectionSize)
     Q_PROPERTY(Qt::Alignment defaultAlignment READ defaultAlignment WRITE setDefaultAlignment)
@@ -105,6 +106,9 @@ public:
 
     bool stretchLastSection() const;
     void setStretchLastSection(bool stretch);
+
+    bool cascadingSectionResizes() const;
+    void setCascadingResizes(bool enable);
 
     int defaultSectionSize() const;
     void setDefaultSectionSize(int size);

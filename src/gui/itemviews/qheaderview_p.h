@@ -56,7 +56,7 @@ public:
           clickableSections(false),
           highlightSelected(false),
           stretchLastSection(false),
-          cascadingResizing(false),
+          cascadingResizing(true),
           stretchSections(0),
           contentsSections(0),
           minimumSectionSize(-1),
@@ -147,10 +147,24 @@ public:
         }
     }
 
-    inline void saveCascadingSectionSize(int visual, int size) {
-        if (!cascadingSectionSize.contains(visual))
-            cascadingSectionSize.insert(visual, size);
+    inline void clearCascadingSections() {
+        firstCascadingSection = sectionCount;
+        lastCascadingSection = 0;
+        cascadingSectionSize.clear();
     }
+
+    inline void saveCascadingSectionSize(int visual, int size) {
+        if (!cascadingSectionSize.contains(visual)) {
+            cascadingSectionSize.insert(visual, size);
+            firstCascadingSection = qMin(firstCascadingSection, visual);
+            lastCascadingSection = qMax(lastCascadingSection, visual);
+        }
+    }
+
+    inline bool sectionIsCascadable(int visual) {
+        return visualIndexResizeMode(visual) == QHeaderView::Interactive;
+    }
+
 
     void clear();
     void flipSortIndicator(int section);
@@ -171,6 +185,9 @@ public:
     mutable QHash<int, int> hiddenSectionSize; // from logical index to section size
     mutable QHash<int, int> cascadingSectionSize; // from visual index to section size
     mutable QSize cachedSizeHint;
+
+    int firstCascadingSection;
+    int lastCascadingSection;
 
     int lastPos;
     int firstPos;
