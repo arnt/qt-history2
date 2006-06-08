@@ -236,6 +236,7 @@ protected:
 
 private:
     void setModel(QAbstractItemModel *model);
+    Qt::SortOrder sortOrder() const;
 
     Q_DECLARE_PRIVATE(QListWidget)
     Q_DISABLE_COPY(QListWidget)
@@ -248,6 +249,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_emitItemChanged(const QModelIndex &index))
     Q_PRIVATE_SLOT(d_func(), void _q_emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
     Q_PRIVATE_SLOT(d_func(), void _q_sort())
+    Q_PRIVATE_SLOT(d_func(), void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight))
 };
 
 inline void QListWidget::addItem(QListWidgetItem *aitem)

@@ -29,6 +29,20 @@ public:
     QList<QListWidgetItem*> items;
 };
 
+class QListModelLessThan
+{
+public:
+    inline bool operator()(QListWidgetItem *i1, QListWidgetItem *i2) const
+        { return *i1 < *i2; }
+};
+
+class QListModelGreaterThan
+{
+public:
+    inline bool operator()(QListWidgetItem *i1, QListWidgetItem *i2) const
+        { return *i2 < *i1; }
+};
+
 class QListModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -57,6 +71,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
+    void ensureSorted(int column, Qt::SortOrder order, int start, int end);
     static bool itemLessThan(const QPair<QListWidgetItem*,int> &left,
                              const QPair<QListWidgetItem*,int> &right);
     static bool itemGreaterThan(const QPair<QListWidgetItem*,int> &left,
@@ -131,10 +146,20 @@ void QListModel::insert(int row, QListWidgetItem *item)
 
     item->model = this;
     item->view = ::qobject_cast<QListWidget*>(QObject::parent());
-    if (row < 0)
-        row = 0;
-    else if (row > lst.count())
-        row = lst.count();
+    if (item->view && item->view->isSortingEnabled()) {
+        // sorted insertion
+        QList<QListWidgetItem*>::iterator it;
+        if (item->view->sortOrder() == Qt::AscendingOrder)
+            it = qLowerBound(lst.begin(), lst.end(), item, QListModelLessThan());
+        else
+            it = qLowerBound(lst.begin(), lst.end(), item, QListModelGreaterThan());
+        row = qMax(it - lst.begin(), 0);
+    } else {
+        if (row < 0)
+            row = 0;
+        else if (row > lst.count())
+            row = lst.count();
+    }
     beginInsertRows(QModelIndex(), row, row);
     lst.insert(row, item);
     endInsertRows();
@@ -145,18 +170,27 @@ void QListModel::insert(int row, const QStringList &labels)
     const int count = labels.count();
     if (count <= 0)
         return;
-    if (row < 0)
-        row = 0;
-    else if (row > lst.count())
-        row = lst.count();
-    beginInsertRows(QModelIndex(), row, row + count - 1);
-    for (int i = 0; i < count; ++i) {
-        QListWidgetItem *item = new QListWidgetItem(labels.at(i));
-        item->model = this;
-        item->view = ::qobject_cast<QListWidget*>(QObject::parent());
-        lst.insert(row++, item);
+    QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
+    if (view && view->isSortingEnabled()) {
+        // sorted insertion
+        for (int i = 0; i < count; ++i) {
+            QListWidgetItem *item = new QListWidgetItem(labels.at(i));
+            insert(row, item);
+        }
+    } else {
+        if (row < 0)
+            row = 0;
+        else if (row > lst.count())
+            row = lst.count();
+        beginInsertRows(QModelIndex(), row, row + count - 1);
+        for (int i = 0; i < count; ++i) {
+            QListWidgetItem *item = new QListWidgetItem(labels.at(i));
+            item->model = this;
+            item->view = ::qobject_cast<QListWidget*>(QObject::parent());
+            lst.insert(row++, item);
+        }
+        endInsertRows();
     }
-    endInsertRows();
 }
 
 QListWidgetItem *QListModel::take(int row)
@@ -286,6 +320,64 @@ void QListModel::sort(int column, Qt::SortOrder order)
         QModelIndex to = createIndex(r, 0, item);
         changePersistentIndex(from, to);
     }
+
+    emit layoutChanged();
+}
+
+void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int end)
+{
+    if (column != 0)
+        return;
+
+    emit layoutAboutToBeChanged();
+
+    int count = end - start + 1;
+    QVector < QPair<QListWidgetItem*,int> > sorting(count);
+    for (int i = 0; i < count; ++i) {
+        sorting[i].first = lst.at(start + i);
+        sorting[i].second = start + i;
+    }
+
+    LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
+    qSort(sorting.begin(), sorting.end(), compare);
+
+    QModelIndexList oldPersistentIndexes = persistentIndexList();
+    QModelIndexList newPersistentIndexes = oldPersistentIndexes;
+    QList<QListWidgetItem*>::iterator lit = lst.begin();
+    for (int i = 0; i < count; ++i) {
+        int oldRow = sorting.at(i).second;
+        QListWidgetItem *item = lst.takeAt(oldRow);
+        if (order == Qt::AscendingOrder)
+            lit = qLowerBound(lit, lst.end(), item, QListModelLessThan());
+        else
+            lit = qLowerBound(lit, lst.end(), item, QListModelGreaterThan());
+        int newRow = qMax(lit - lst.begin(), 0);
+        lst.insert(lit, item);
+        if (newRow != oldRow) {
+            for (int j = i + 1; j < count; ++j) {
+                int otherRow = sorting.at(j).second;
+                if (oldRow < otherRow && newRow >= otherRow)
+                    --sorting[j].second;
+                else if (oldRow > otherRow && newRow <= otherRow)
+                    ++sorting[j].second;
+            }
+            for (int k = 0; k < newPersistentIndexes.count(); ++k) {
+                QModelIndex pi = newPersistentIndexes.at(k);
+                int oldPersistentRow = pi.row();
+                int newPersistentRow = oldPersistentRow;
+                if (oldPersistentRow == oldRow)
+                    newPersistentRow = newRow;
+                else if (oldRow < oldPersistentRow && newRow >= oldPersistentRow)
+                    newPersistentRow = oldPersistentRow - 1;
+                else if (oldRow > oldPersistentRow && newRow <= oldPersistentRow)
+                    newPersistentRow = oldPersistentRow + 1;
+                if (newPersistentRow != oldPersistentRow)
+                    newPersistentIndexes[k] = index(newPersistentRow,
+                                                    pi.column(), pi.parent());
+            }
+        }
+    }
+    changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
 
     emit layoutChanged();
 }
@@ -861,6 +953,7 @@ public:
     void _q_emitItemChanged(const QModelIndex &index);
     void _q_emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     void _q_sort();
+    void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     Qt::SortOrder sortOrder;
     bool sortingEnabled;
 };
@@ -882,8 +975,8 @@ void QListWidgetPrivate::setup()
                      q, SLOT(_q_emitCurrentItemChanged(QModelIndex,QModelIndex)));
     QObject::connect(q->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      q, SIGNAL(itemSelectionChanged()));
-    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), q, SLOT(_q_sort()));
-    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)), q, SLOT(_q_sort()));
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
     QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)), q, SLOT(_q_sort()));
 }
 
@@ -937,6 +1030,13 @@ void QListWidgetPrivate::_q_sort()
 {
     if (sortingEnabled)
         model()->sort(0, sortOrder);
+}
+
+void QListWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
+                                        const QModelIndex &bottomRight)
+{
+    if (sortingEnabled)
+        model()->ensureSorted(topLeft.column(), sortOrder, topLeft.row(), bottomRight.row());
 }
 
 /*!
@@ -1332,6 +1432,15 @@ bool QListWidget::isSortingEnabled() const
 {
     Q_D(const QListWidget);
     return d->sortingEnabled;
+}
+
+/*!
+  \internal
+*/
+Qt::SortOrder QListWidget::sortOrder() const
+{
+    Q_D(const QListWidget);
+    return d->sortOrder;
 }
 
 /*!
