@@ -551,17 +551,7 @@ void QHeaderView::moveSection(int from, int to)
     }
 
     //int oldHeaderLength = length(); // ### for debugging; remove later
-
-    // if we haven't moved anything previously, initialize the indices array
-    int count = d->sectionCount;
-    if (d->visualIndices.count() != count || d->logicalIndices.count() != count) {
-        d->visualIndices.resize(count);
-        d->logicalIndices.resize(count);
-        for (int s = 0; s < count; ++s) {
-            d->visualIndices[s] = s;
-            d->logicalIndices[s] = s;
-        }
-    }
+    d->initializeIndexMapping();
 
     QBitArray sectionHidden = d->sectionHidden;
     int *visualIndices = d->visualIndices.data();
@@ -627,6 +617,53 @@ void QHeaderView::moveSection(int from, int to)
 
     d->viewport->update();
     emit sectionMoved(logical, from, to);
+}
+
+/*!
+  \since 4.2
+  Swaps the section at visual index \a first with the section at visual index \a second.
+
+  \sa moveSection
+*/
+void QHeaderView::swapSections(int first, int second)
+{
+    Q_D(QHeaderView);
+
+    if (first == second)
+        return;
+    d->executePostedLayout();
+    if (first < 0 || first >= d->sectionCount || second < 0 || second >= d->sectionCount)
+        return;
+
+    int firstSize = d->headerSectionSize(first);
+    ResizeMode firstMode = d->headerSectionResizeMode(first);
+    int firstLogical = d->logicalIndex(first);
+
+    int secondSize = d->headerSectionSize(second);
+    ResizeMode secondMode = d->headerSectionResizeMode(second);
+    int secondLogical = d->logicalIndex(second);
+
+    d->createSectionSpan(second, second, firstSize, firstMode);
+    d->createSectionSpan(first, first, secondSize, secondMode);
+
+    d->initializeIndexMapping();
+
+    d->visualIndices[firstLogical] = second;
+    d->logicalIndices[second] = firstLogical;
+
+    d->visualIndices[secondLogical] = first;
+    d->logicalIndices[first] = secondLogical;
+
+    if (!d->sectionHidden.isEmpty()) {
+        bool firstHidden = d->sectionHidden.testBit(first);
+        bool secondHidden = d->sectionHidden.testBit(second);
+        d->sectionHidden.setBit(first, secondHidden);
+        d->sectionHidden.setBit(second, firstHidden);
+    }
+
+    d->viewport->update();
+    emit sectionMoved(firstLogical, first, second);
+    emit sectionMoved(secondLogical, second, first);
 }
 
 /*!
@@ -2584,7 +2621,7 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
     if (delta > 0) {
         int s = minimumSize;
         int v = visual + 1;
-        while (s == minimumSize && v < q->count()) {
+        while (s == minimumSize && v < sectionCount) {
             int o = headerSectionSize(v);
             s = qMax(o - delta, minimumSize);
             resizeSectionSpan(v, o, s);
@@ -2595,7 +2632,7 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
             int sectionSize = headerSectionSize(v);
             if (sectionSize > minimumSize) {
                 resizeSectionSpan(v, sectionSize, qMax(sectionSize + delta, minimumSize));
-                if (visual + 1 < q->count()) {
+                if (visual + 1 < sectionCount) {
                     int o = headerSectionSize(visual + 1);
                     int n = qMax(o - delta, minimumSize);
                     resizeSectionSpan(visual + 1, o, n);

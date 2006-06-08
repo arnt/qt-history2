@@ -131,8 +131,21 @@ public:
 
     QStyleOptionHeader getStyleOption() const;
 
-    inline void invalidateCachedSizeHint() const
-        { cachedSizeHint = QSize(); }
+    inline void invalidateCachedSizeHint() const {
+        cachedSizeHint = QSize();
+    }
+
+    inline void initializeIndexMapping() const {
+        if (visualIndices.count() != sectionCount
+            || logicalIndices.count() != sectionCount) {
+            visualIndices.resize(sectionCount);
+            logicalIndices.resize(sectionCount);
+            for (int s = 0; s < sectionCount; ++s) {
+                visualIndices[s] = s;
+                logicalIndices[s] = s;
+            }
+        }
+    }
 
     void clear();
     void flipSortIndicator(int section);

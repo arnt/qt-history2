@@ -67,6 +67,7 @@ public:
     int sectionViewportPosition(int logicalIndex) const;
 
     void moveSection(int from, int to);
+    void swapSections(int first, int second);
     void resizeSection(int logicalIndex, int size);
     void resizeSections(QHeaderView::ResizeMode mode);
 
@@ -185,10 +186,8 @@ private:
 
 inline int QHeaderView::logicalIndexAt(int ax, int ay) const
 { return orientation() == Qt::Horizontal ? logicalIndexAt(ax) : logicalIndexAt(ay); }
-
 inline int QHeaderView::logicalIndexAt(const QPoint &apos) const
 { return logicalIndexAt(apos.x(), apos.y()); }
-
 inline void QHeaderView::hideSection(int alogicalIndex)
 { setSectionHidden(alogicalIndex, true); }
 inline void QHeaderView::showSection(int alogicalIndex)
