@@ -608,12 +608,21 @@ void Tree::readIndexSection(const QDomElement &element,
         section = fakeNode;
 
     } else if (element.nodeName() == "enum") {
-        section = new EnumNode(parent, name);
+        EnumNode *enumNode = new EnumNode(parent, name);
 
         if (!indexUrl.isEmpty())
             location = Location(indexUrl + "/" + parent->name().toLower() + ".html");
         else if (!indexUrl.isNull())
             location = Location(parent->name().toLower() + ".html");
+
+        QDomElement child = element.firstChildElement("value");
+        while (!child.isNull()) {
+            EnumItem item(child.attribute("name"), child.attribute("value"));
+            enumNode->addItem(item);
+            child = child.nextSiblingElement("value");
+        }
+
+        section = enumNode;
 
     } else if (element.nodeName() == "typedef") {
         section = new TypedefNode(parent, name);
@@ -1052,6 +1061,16 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
                 + " right=\"" + HtmlGenerator::protect(parameter.rightType()) + "\""
                 + " name=\"" + HtmlGenerator::protect(parameter.name()) + "\""
 //                + " default=\"" + HtmlGenerator::protect(parameter.defaultValue())
+                + " />\n";
+        }
+
+    } else if (node->type() == Node::Enum) {
+
+        const EnumNode *enumNode = static_cast<const EnumNode*>(node);
+        foreach (EnumItem item, enumNode->items()) {
+            childNodes += indent + " <value"
+                + " name=\"" + HtmlGenerator::protect(item.name()) + "\""
+                + " value=\"" + HtmlGenerator::protect(item.value()) + "\""
                 + " />\n";
         }
     }
