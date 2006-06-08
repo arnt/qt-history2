@@ -31,7 +31,7 @@
 #include "qmenu.h"
 #include "qclipboard.h"
 #include "../text/qtextdocumentlayout_p.h"
-#include "qtextedit_p.h"
+#include "private/qtextcontrol_p.h"
 #include <qdebug.h>
 
 class QLabelPrivate : public QFramePrivate
@@ -77,24 +77,23 @@ public:
     uint scaledcontents :1;
     Qt::TextFormat textformat;
     QTextDocument* doc;
+    QTextControl *control;
+
+    void ensureTextControl();
+    void sendControlEvent(QEvent *e);
 
     QRect layoutRect() const;
     QRect documentRect() const;
     QPoint layoutPoint(const QPoint& p) const;
 #ifndef QT_NO_MENU
-    QMenu *createStandardContextMenu();
+    QMenu *createStandardContextMenu(const QPoint &pos);
 #endif
-    void _q_copy();
     void _q_copyLink();
-    void _q_selectAll();
 
-    QTextCursor selection;
     bool hasCustomCursor;
 #ifndef QT_NO_CURSOR
     QCursor cursor;
 #endif
-    QPoint mousePressPos;
-    bool mightBeDrag;
     QString linkToCopy; // for copy link
     QString highlightedAnchor;
     QString anchorWhenMousePressed;
@@ -333,11 +332,11 @@ void QLabelPrivate::init()
     scaledcontents = false;
     textformat = Qt::AutoText;
     doc = 0;
+    control = 0;
 
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 
     hasCustomCursor = false;
-    mightBeDrag = false;
 }
 
 
@@ -373,12 +372,17 @@ void QLabel::setText(const QString &text)
     Q_D(QLabel);
     if (d->text == text)
         return;
+    const bool hadControl = d->control;
     d->clearContents();
     d->text = text;
     if (!d->doc) {
         d->doc = new QTextDocument(this);
         d->doc->setUndoRedoEnabled(false);
         d->doc->setDefaultFont(font());
+        if (hadControl) {
+            d->ensureTextControl();
+            d->control->setDocument(d->doc);
+        }
     }
 
     if (d->isRichText()) {
@@ -752,19 +756,7 @@ void QLabel::mousePressEvent(QMouseEvent *ev)
     QPoint p = d->layoutPoint(ev->pos());
     d->anchorWhenMousePressed = d->doc->documentLayout()->anchorAt(p);
 
-    if (!hasFocus() || !(ev->button() & Qt::LeftButton))
-        return;
-
-    d->mousePressPos = ev->pos();
-    int docPos = d->doc->documentLayout()->hitTest(p, Qt::FuzzyHit);
-    // check if user clicked on a selection. dont clear selection since it might be a drag
-    d->mightBeDrag = d->selection.hasSelection() && (d->selection.selectionStart() <= docPos)
-                     && (d->selection.selectionEnd() >= docPos);
-
-    if (!d->mightBeDrag) {
-        d->selection = QTextCursor(); // clear the selection since its not a drag
-        update(contentsRect());
-    }
+    d->sendControlEvent(ev);
 }
 
 /*!\reimp
@@ -774,6 +766,8 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
     Q_D(QLabel);
     if (!d->doc)
         return;
+
+    d->sendControlEvent(ev);
 
     QPoint p = d->layoutPoint(mapFromGlobal(ev->globalPos()));
     // check for links below mouse and change cursor
@@ -795,34 +789,6 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
         }
         d->highlightedAnchor = anchor; // save it so we dont keep emitting highlighted
     }
-
-    if (!hasFocus() || !(ev->buttons() & Qt::LeftButton))
-        return;
-
-#ifndef QT_NO_DRAGANDDROP
-    if (d->mightBeDrag) {
-        if ((ev->pos() - d->mousePressPos).manhattanLength() < QApplication::startDragDistance())
-            return;
-        QDrag *drag = new QDrag(this);
-        const QTextDocumentFragment fragment(d->selection.selection());
-        QTextEditMimeData *md = new QTextEditMimeData(fragment);
-        drag->setMimeData(md);
-        drag->start();
-        d->mightBeDrag = false;
-    } else
-#endif
-    {
-        if (!d->selection.hasSelection()) {
-            // Lazy marking of the start of selection
-            QPoint docPos = d->layoutPoint(d->mousePressPos);
-            int startPos = d->doc->documentLayout()->hitTest(docPos, Qt::FuzzyHit);
-            d->selection = QTextCursor(d->doc);
-            d->selection.setPosition(startPos);
-        }
-        int end = d->doc->documentLayout()->hitTest(p, Qt::FuzzyHit);
-        d->selection.setPosition(end, QTextCursor::KeepAnchor);
-        update(contentsRect());
-    }
 }
 
 /*!\reimp
@@ -830,26 +796,7 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
 void QLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
     Q_D(QLabel);
-    if (!d->doc || !(ev->button() & Qt::LeftButton))
-        return;
-
-    if (d->mightBeDrag) { // a drag was detected but never started
-        d->mightBeDrag = false;
-        d->selection = QTextCursor();
-        update(contentsRect());
-    }
-
-    if (d->selection.hasSelection()) { // user completed a selection
-#ifndef QT_NO_CLIPBOARD
-        QClipboard *clipboard = QApplication::clipboard();
-        if (clipboard->supportsSelection()) {
-            const QTextDocumentFragment fragment(d->selection.selection());
-            QTextEditMimeData *md = new QTextEditMimeData(fragment);
-            clipboard->setMimeData(md, QClipboard::Selection);
-        }
-#endif
-        return;
-    }
+    d->sendControlEvent(ev);
 
     // check for link clicks. ensure that the mouse press and release happenned on the same anchor
     QPoint p = d->layoutPoint(ev->pos());
@@ -862,17 +809,34 @@ void QLabel::mouseReleaseEvent(QMouseEvent *ev)
 */
 void QLabel::contextMenuEvent(QContextMenuEvent *ev)
 {
-    Q_D(QLabel);
-    if (!hasFocus()) {
-        QFrame::contextMenuEvent(ev);
-    }
 #ifndef QT_NO_MENU
-    else {
-        QMenu *menu = d->createStandardContextMenu();
-        menu->exec(ev->globalPos());
-        delete menu;
+    Q_D(QLabel);
+    QMenu *menu = d->createStandardContextMenu(ev->pos());
+    if (!menu) {
+        ev->ignore();
+        return;
     }
+    ev->accept();
+    menu->exec(ev->globalPos());
+    delete menu;
 #endif
+}
+
+void QLabel::focusInEvent(QFocusEvent *ev)
+{
+    Q_D(QLabel);
+    if (d->doc) {
+        d->ensureTextControl();
+        d->sendControlEvent(ev);
+    }
+    QFrame::focusInEvent(ev);
+}
+
+void QLabel::focusOutEvent(QFocusEvent *ev)
+{
+    Q_D(QLabel);
+    d->sendControlEvent(ev);
+    QFrame::focusOutEvent(ev);
 }
 
 /*!\reimp
@@ -880,25 +844,7 @@ void QLabel::contextMenuEvent(QContextMenuEvent *ev)
 void QLabel::keyPressEvent(QKeyEvent *ev)
 {
     Q_D(QLabel);
-    if (ev->modifiers() & Qt::ControlModifier) {
-        switch (ev->key()) {
-        case Qt::Key_A:
-            d->_q_selectAll();
-            break;
-        case Qt::Key_C:
-#if !defined(Q_WS_MAC)
-        case Qt::Key_Insert:
-#endif
-            d->_q_copy();
-            break;
-        default:
-            ev->ignore();
-            break;
-        }
-    } else if (ev->key() == Qt::Key_F16 && ev->modifiers() == Qt::NoModifier) {
-        d->_q_copy(); // Copy key on Sun keyboards
-    } else
-        ev->ignore();
+    d->sendControlEvent(ev);
 }
 
 /*!\reimp
@@ -975,13 +921,18 @@ void QLabel::paintEvent(QPaintEvent *)
         painter.save();
         painter.translate(lr.topLeft());
         painter.setClipRect(lr.translated(-lr.x(), -lr.y()));
-        if (d->selection.hasSelection()) {
+        QTextCursor cursor;
+        if (d->control)
+            cursor= d->control->textCursor();
+        if (cursor.hasSelection()) {
             QAbstractTextDocumentLayout::Selection s;
-            s.cursor = d->selection;
+            s.cursor = cursor;
             s.format.setBackground(palette().brush(QPalette::Highlight));
             s.format.setForeground(palette().brush(QPalette::HighlightedText));
             context.selections.append(s);
         }
+        if (!cursor.isNull() && hasFocus())
+            context.cursorPosition = cursor.position();
         layout->draw(&painter, context);
         painter.restore();
     } else
@@ -1224,6 +1175,8 @@ void QLabel::setMovie(QMovie *movie)
 
 void QLabelPrivate::clearContents()
 {
+    delete control;
+    control = 0;
     delete doc;
     doc = 0;
 
@@ -1304,11 +1257,13 @@ void QLabel::setTextFormat(Qt::TextFormat format)
 void QLabel::changeEvent(QEvent *ev)
 {
     Q_D(QLabel);
-    if(ev->type() == QEvent::FontChange) {
+    if(ev->type() == QEvent::FontChange || ev->type() == QEvent::ApplicationFontChange) {
         if (d->doc) {
             d->doc->setDefaultFont(font());
             d->updateLabel();
         }
+    } else if (ev->type() == QEvent::PaletteChange && d->control) {
+        d->control->setPalette(palette());
     }
     QFrame::changeEvent(ev);
 }
@@ -1378,6 +1333,28 @@ QRect QLabelPrivate::documentRect() const
     return cr;
 }
 
+void QLabelPrivate::ensureTextControl()
+{
+    Q_Q(QLabel);
+    if (control || !doc)
+        return;
+    control = new QTextControl(q);
+    control->setDocument(doc);
+    control->setReadOnly(true);
+    control->setPalette(q->palette());
+    control->setFocus(q->hasFocus());
+    QObject::connect(control, SIGNAL(updateRequest(const QRectF &)),
+                     q, SLOT(update()));
+}
+
+void QLabelPrivate::sendControlEvent(QEvent *e)
+{
+    Q_Q(QLabel);
+    if (!control || !q->hasFocus())
+        return;
+    control->processEvent(e, -layoutRect().topLeft(), q);
+}
+
 // Return the layout rect - this is the rect that is given to the layout painting code
 // This may be different from the document rect since vertical alignment is not
 // done by the text layout code
@@ -1402,47 +1379,46 @@ QPoint QLabelPrivate::layoutPoint(const QPoint& p) const
 }
 
 #ifndef QT_NO_MENU
-QMenu *QLabelPrivate::createStandardContextMenu()
+QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
 {
     Q_Q(QLabel);
-    QMenu *popup = new QMenu(q);
-    QAction *a = popup->addAction(QLabel::tr("&Copy"), q, SLOT(_q_copy()));
-    a->setEnabled(selection.hasSelection());
-
+    linkToCopy = QString();
     if (isRichText()) {
-        QPoint p = layoutPoint(q->mapFromGlobal(QCursor::pos()));
+        QPoint p = layoutPoint(pos);
         linkToCopy = doc->documentLayout()->anchorAt(p);
-        if (!linkToCopy.isEmpty())
-            popup->addAction(QLabel::tr("Copy &Link Location"), q, SLOT(_q_copyLink()));
     }
-    popup->addAction(QLabel::tr("Select &All"), q, SLOT(_q_selectAll()));
+
+    if (linkToCopy.isEmpty() && !control)
+        return 0;
+
+    QMenu *popup = 0;
+    QAction *beforeCopyLinkAction = 0;
+    if (control) {
+        popup = control->createStandardContextMenu();
+        // insert the copy link location between 'Copy' and the
+        // separator
+        QList<QAction *> actions = popup->actions();
+        if (actions.count() >= 2)
+            beforeCopyLinkAction = actions.at(1);
+    } else {
+        popup = new QMenu;
+    }
+
+    QAction *a = new QAction(popup);
+    a->setText(QLabel::tr("Copy &Link Location"));
+    a->setEnabled(!linkToCopy.isEmpty());
+    QObject::connect(a, SIGNAL(triggered()), q, SLOT(_q_copyLink()));
+    popup->insertAction(beforeCopyLinkAction, a);
 
     return popup;
 }
 #endif
-
-void QLabelPrivate::_q_copy()
-{
-    const QTextDocumentFragment fragment(selection.selection());
-    QTextEditMimeData *md = new QTextEditMimeData(fragment);
-    QApplication::clipboard()->setMimeData(md);
-}
 
 void QLabelPrivate::_q_copyLink()
 {
     QMimeData *md = new QMimeData;
     md->setText(linkToCopy);
     QApplication::clipboard()->setMimeData(md);
-}
-
-void QLabelPrivate::_q_selectAll()
-{
-    Q_Q(QLabel);
-    if (!doc)
-        return;
-    selection = QTextCursor(doc);
-    selection.select(QTextCursor::Document);
-    q->update(q->contentsRect());
 }
 
 

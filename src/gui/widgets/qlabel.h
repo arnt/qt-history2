@@ -99,6 +99,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
     void contextMenuEvent(QContextMenuEvent *ev);
+    void focusInEvent(QFocusEvent *ev);
+    void focusOutEvent(QFocusEvent *ev);
 
 #ifdef QT3_SUPPORT
 public:
@@ -121,9 +123,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_movieResized(const QSize&))
 #endif
 
-    Q_PRIVATE_SLOT(d_func(), void _q_copy())
     Q_PRIVATE_SLOT(d_func(), void _q_copyLink())
-    Q_PRIVATE_SLOT(d_func(), void _q_selectAll())
 
     friend class QTipLabel;
 };
