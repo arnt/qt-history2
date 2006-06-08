@@ -729,7 +729,7 @@ QT_BEGIN_HEADER
 #  define QT_MOC_COMPAT
 #endif
 
-#ifdef QT_ASCII_CAST_WARNINGS
+#if 0 //#ifdef QT_ASCII_CAST_WARNINGS
 #  define QT_ASCII_CAST_WARN Q_DECL_DEPRECATED
 #  if defined(Q_CC_GNU) && __GNUC__ < 4
      /* gcc < 4 doesn't like Q_DECL_DEPRECATED in front of constructors */
