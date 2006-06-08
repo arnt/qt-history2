@@ -1804,7 +1804,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
         font_cache = new QGLFontGlyphHash;
 //         qDebug() << "new context" << context << font_cache;
         qt_context_cache.insert(context, font_cache);
-        if (context->device()->devType() == QInternal::Widget) {
+        if (context->isValid() && context->device()->devType() == QInternal::Widget) {
             QWidget *widget = static_cast<QWidget *>(context->device());
             connect(widget, SIGNAL(destroyed(QObject *)), SLOT(widgetDestroyed(QObject *)));
         }
