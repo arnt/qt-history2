@@ -1922,6 +1922,15 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 {
     Q_D(QOpenGLPaintEngine);
 
+    // fall back to drawing a polygon if the scale factor is large, or
+    // we use a gradient pen
+    qreal det = d->matrix.det();
+    if ((det > 1.25) || (d->pen_brush_style >= Qt::LinearGradientPattern
+                         && d->pen_brush_style <= Qt::ConicalGradientPattern)) {
+        QPaintEngine::drawTextItem(p, textItem);
+        return;
+    }
+
     // add the glyphs used to the glyph texture cache
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
     QVarLengthArray<QFixedPoint> positions;
