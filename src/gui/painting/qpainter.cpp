@@ -3907,9 +3907,9 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 #if defined QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawPixmap(), target=[%.2f,%.2f,%.2f,%.2f], pix=[%d,%d], source=[%.2f,%.2f,%.2f,%.2f]\n",
-           r.x(), r.y(), r.width(), r.height(),
-           pm.width(), pm.height(),
-           sr.x(), sr.y(), sr.width(), sr.height());
+               r.x(), r.y(), r.width(), r.height(),
+               pm.width(), pm.height(),
+               sr.x(), sr.y(), sr.width(), sr.height());
 #endif
 
     Q_D(QPainter);
@@ -3955,45 +3955,20 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 
     if (d->state->txop > QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)
-        || (d->state->opacity != 1.0 && !d->engine->hasFeature(QPaintEngine::ConstantOpacity))) {
+        || (d->state->opacity != 1.0 && !d->engine->hasFeature(QPaintEngine::ConstantOpacity)))
+    {
+        double scalex = w / sw;
+        double scaley = h / sh;
+        save();
+        translate(x, y);
+        scale(scalex, scaley);
 
-        QRectF new_rect = d->state->matrix.mapRect(QRectF(x, y, w, h));
+        setPen(Qt::NoPen);
+        setBrush(QPixmap(pm));
+        setBrushOrigin(QPointF(-sx, -sy));
 
-        int xmin = (int) floor(new_rect.x());
-        int ymin = (int) floor(new_rect.y());
-        int xmax = (int) ceil(new_rect.x() + new_rect.width());
-        int ymax = (int) ceil(new_rect.y() + new_rect.height());
-
-        QImage::Format format = (d->state->txop > QPainterPrivate::TxScale
-                                 || pm.hasAlpha()
-                                 || pm.depth() == 1)
-                                ? QImage::Format_ARGB32_Premultiplied
-                                : QImage::Format_RGB32;
-
-        QImage source(xmax - xmin, ymax - ymin, format);
-        source.fill(0);
-
-        QPainter ip(&source);
-        // set required properties
-        ip.setOpacity(d->state->opacity);
-        ip.setBackgroundMode(d->state->bgMode);
-        ip.setPen(d->state->pen);
-        ip.setBackground(d->state->bgBrush);
-        ip.setRenderHint(QPainter::SmoothPixmapTransform,
-                         d->state->renderHints & QPainter::SmoothPixmapTransform);
-
-        // Pixel align
-        ip.translate(new_rect.x() - xmin, new_rect.y() - ymin);
-
-        // Set the current world matrix, combined with pixel alignment.
-        ip.setMatrix(QImage::trueMatrix(d->state->matrix, (int) w, (int) h), true);
-
-        ip.drawPixmap(QRectF(0, 0, w, h), pm, QRectF(sx, sy, sw, sh));
-        ip.end();
-
-        d->engine->drawPixmap(QRectF(xmin, ymin, source.width(), source.height()),
-                              QPixmap::fromImage(source, Qt::OrderedAlphaDither | Qt::DiffuseDither),
-                              QRectF(0, 0, source.width(), source.height()));
+        drawRect(QRectF(0, 0, w / scalex, h / scaley));
+        restore();
     } else {
         if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
             x += qRound(d->state->matrix.dx());
