@@ -1569,7 +1569,7 @@ static __inline__ int q_atomic_swp(volatile unsigned int *ptr,
 {
     register int ret;
     asm volatile("swp %0,%1,[%2]"
-                 : "=r"(ret)
+                 : "=&r"(ret)
                  : "r"(newval), "r"(ptr)
                  : "cc", "memory");
     return ret;
