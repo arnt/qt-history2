@@ -400,7 +400,7 @@ void QFileDialog::selectFile(const QString &filename)
         QStringList entries = directory().entryList(d->model->filter(), d->model->sorting());
 
         // The model does not contain ".." and ".", remove those from entries so the indexes match.
-        int i = entries.indexOf(QLatin1Char('.'));
+        int i = entries.indexOf(QLatin1String("."));
         if (i != -1)
             entries.removeAt(i);
         i = entries.indexOf(QLatin1String(".."));
@@ -1250,7 +1250,7 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text)
 
     // If the user has typed a local path that goes beyond the current directory, for example
     // ../foo or foo/bar, we treat that as an absolute path by prepending the path from lookInEdit.
-    if (!info.isAbsolute() && typedPath != QLatin1Char('.'))
+    if (!info.isAbsolute() && typedPath != QLatin1String("."))
         info.setFile(toInternal(lookInEdit->text() + QLatin1Char('/') + text));
 
     // do autocompletion
@@ -1267,7 +1267,7 @@ void QFileDialogPrivate::_q_autoCompleteFileName(const QString &text)
         treeView->setCurrentIndex(result);
         QString completed = model->data(result).toString();
         if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
-            if (typedPath == QLatin1Char('/'))
+            if (typedPath == QLatin1String("/"))
                 completed = QLatin1Char('/') + completed;
             else if (typedPath.endsWith(QLatin1Char('/'))) // required on windows since drives have trailing / in path
                 completed = typedPath + completed;
@@ -2316,7 +2316,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     delete dlg;
 //    qt_working_dir = directory;
 
-    if (!result.isEmpty() && result.right(1) != QLatin1Char('/'))
+    if (!result.isEmpty() && result.right(1) != QLatin1String("/"))
         result += QLatin1Char('/');
 
     return result;
