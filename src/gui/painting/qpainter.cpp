@@ -3957,17 +3957,15 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)
         || (d->state->opacity != 1.0 && !d->engine->hasFeature(QPaintEngine::ConstantOpacity)))
     {
-        double scalex = w / sw;
-        double scaley = h / sh;
         save();
         translate(x, y);
-        scale(scalex, scaley);
+        scale(w / sw, h / sh);
 
         setPen(Qt::NoPen);
         setBrush(QPixmap(pm));
         setBrushOrigin(QPointF(-sx, -sy));
 
-        drawRect(QRectF(0, 0, w / scalex, h / scaley));
+        drawRect(QRectF(0, 0, sw, sh));
         restore();
     } else {
         if (!d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
