@@ -12,6 +12,7 @@ GraphWidget::GraphWidget()
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setSceneRect(-200, -200, 400, 400);
     setScene(scene);
+    setCacheMode(CacheBackground);
 
     Node *node1 = new Node(this);
     Node *node2 = new Node(this);

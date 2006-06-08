@@ -102,6 +102,22 @@ static const int GraphicsViewRegionRectThreshold = 20;
 */
 
 /*!
+    \enum QGraphicsView::CacheModeFlag
+
+    This enum describes the flags that you can set for a QGraphicsView's cache
+    mode.
+    
+    \value CacheNone All painting is done directly onto the viewport.
+
+    \value CacheBackground The background is cached. This affects both custom
+    backgrounds, and backgrounds based on the backgroundBrush property. When
+    this flag is enabled, QGraphicsView will allocate one pixmap with the full
+    size of the viewport.
+
+    \sa cacheMode
+*/
+
+/*!
     \enum QGraphicsView::DragMode
 
     This enum describes the default action for the view when pressing and
@@ -182,8 +198,13 @@ public:
     bool rubberBanding;
     bool handScrolling;
 
+    QGraphicsView::CacheMode cacheMode;
+
     QBrush backgroundBrush;
     QBrush foregroundBrush;
+    QPixmap backgroundPixmap;
+    bool mustResizeBackgroundPixmap;
+    QRegion backgroundPixmapExposed;
 
 #ifndef QT_NO_CURSOR
     QCursor viewCursor;
@@ -207,7 +228,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), alignment(Qt::AlignCenter),
       scene(0), rubberBand(0), rubberBanding(false),
-      handScrolling(false),
+      handScrolling(false), cacheMode(0), mustResizeBackgroundPixmap(true),
 #ifndef QT_NO_CURSOR
       hasViewCursor(false),
 #endif
@@ -292,6 +313,11 @@ void QGraphicsViewPrivate::recalculateContentSize()
     // Issue a full update if the indents change
     if (oldLeftIndent != leftIndent || oldTopIndent != topIndent)
         q->viewport()->update();
+
+    if (cacheMode & QGraphicsView::CacheBackground) {
+        // Invalidate the background pixmap
+        mustResizeBackgroundPixmap = true;
+    }
 }
 
 /*!
@@ -516,6 +542,56 @@ void QGraphicsView::setDragMode(DragMode mode)
         unsetCursor();
     }
 #endif
+}
+
+/*!
+    \property QGraphicsView::cacheMode
+    \brief which parts of the view are cached
+
+    QGraphicsView can cache pre-rendered content in a QPixmap, which is then
+    drawn onto the viewport. The purpose of such cacheing is to speed up the
+    total rendering time for areas that are slow to render.  Texture, gradient
+    and alpha blended backgrounds, for example, can be notibly slow to render;
+    especially with a transformed view. The CacheBackground flag enables
+    cacheing of the view's background. For example:
+
+    \code
+        QGraphicsView view;
+        view.setBackgroundBrush(":/images/backgroundtile.png");
+        view.setCacheMode(QGraphicsView::CacheBackground);
+    \endcode
+
+    The cache is invalidated every time the view is transformed. However, when
+    scrolling, only partial invalidation is required.
+
+    By default, nothing is cached.
+
+    \sa QPixmapCache
+*/
+QGraphicsView::CacheMode QGraphicsView::cacheMode() const
+{
+    Q_D(const QGraphicsView);
+    return d->cacheMode;
+}
+void QGraphicsView::setCacheMode(CacheMode mode)
+{
+    Q_D(QGraphicsView);
+    CacheMode oldCacheMode = d->cacheMode;
+    d->cacheMode = mode;
+    if (d->cacheMode & CacheBackground) {
+        if (!(oldCacheMode & CacheBackground)) {
+            // Background cacheing is enabled.
+            d->mustResizeBackgroundPixmap = true;
+        }
+    } else {
+        if (oldCacheMode & CacheBackground) {
+            // Background cacheing is disabled.
+            // Cleanup, free some resources.
+            d->mustResizeBackgroundPixmap = false;
+            d->backgroundPixmap = QPixmap();
+            d->backgroundPixmapExposed = QRegion();
+        }
+    }
 }
 
 /*!
@@ -2026,12 +2102,43 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     int exposedTime = stopWatch.elapsed();
 #endif
 
-    // Background
-    foreach (QRectF rect, exposedRects) {
-        painter.save();
-        painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
-        drawBackground(&painter, rect);
-        painter.restore();
+    if (d->cacheMode & CacheBackground) {
+        if (d->mustResizeBackgroundPixmap) {
+            // Recreate the background pixmap, and flag the whole background as
+            // exposed.
+            d->backgroundPixmap = QPixmap(viewport()->size());
+            QPainter p(&d->backgroundPixmap);
+            p.fillRect(0, 0, d->backgroundPixmap.width(), d->backgroundPixmap.height(),
+                       viewport()->palette().brush(viewport()->backgroundRole()));
+            d->backgroundPixmapExposed = QRegion(event->rect());
+            d->mustResizeBackgroundPixmap = false;
+        }
+
+        // Redraw exposed areas
+        QPainter backgroundPainter(&d->backgroundPixmap);
+        backgroundPainter.setMatrix(painterMatrix);
+        foreach (QRect rect, d->backgroundPixmapExposed.rects()) {
+            backgroundPainter.save();
+            QRectF exposedSceneRect = mapToScene(rect.adjusted(-1, -1, 1, 1)).boundingRect();
+            backgroundPainter.setClipRect(exposedSceneRect.adjusted(-1, -1, 1, 1));
+            drawBackground(&backgroundPainter, exposedSceneRect);
+            backgroundPainter.restore();
+        }
+        d->backgroundPixmapExposed = QRegion();
+    
+        // Blit the background from the background pixmap
+        painter.setMatrixEnabled(false);
+        foreach (QRect rect, event->region().rects())
+            painter.drawPixmap(rect, d->backgroundPixmap, rect);
+        painter.setMatrixEnabled(true);
+    } else {
+        // Draw the background directly
+        foreach (QRectF rect, exposedRects) {
+            painter.save();
+            painter.setClipRect(rect.adjusted(-1, -1, 1, 1));
+            drawBackground(&painter, rect);
+            painter.restore();
+        }
     }
 
 #ifdef QGRAPHICSVIEW_DEBUG
@@ -2124,6 +2231,11 @@ void QGraphicsView::resizeEvent(QResizeEvent *event)
     // Restore the center point again.
     d->lastCenterPoint = oldLastCenterPoint;
     centerOn(d->lastCenterPoint);
+
+    if (d->cacheMode & CacheBackground) {
+        // Invalidate the background pixmap
+        d->mustResizeBackgroundPixmap = true;
+    }
 }
 
 /*!
@@ -2137,6 +2249,36 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
     else
         viewport()->update();
     d->updateLastCenterPoint();
+
+    if (d->cacheMode & CacheBackground) {
+        // Invalidate the background pixmap
+        d->backgroundPixmapExposed.translate(dx, 0);
+        if (dx > 0) {
+            d->backgroundPixmapExposed += QRect(0, 0, dx, viewport()->height());
+        } else if (dx < 0) {
+            d->backgroundPixmapExposed += QRect(viewport()->width() + dx, 0,
+                                                -dx, viewport()->height());
+        }
+        d->backgroundPixmapExposed.translate(0, dy);
+        if (dy > 0) {
+            d->backgroundPixmapExposed += QRect(0, 0, viewport()->width(), dy);
+        } else if (dy < 0) {
+            d->backgroundPixmapExposed += QRect(0, viewport()->height() + dy - 1,
+                                                viewport()->width(), -dy + 1);
+        }
+
+        // Scroll the background pixmap
+        if (!d->backgroundPixmap.isNull()) {
+#ifdef Q_OS_WIN
+            QPixmap tmp = d->backgroundPixmap;
+            QPainter painter(&d->backgroundPixmap);
+            painter.drawPixmap(dx, dy, tmp);
+#else
+            QPainter painter(&d->backgroundPixmap);
+            painter.drawPixmap(dx, dy, d->backgroundPixmap);
+#endif
+        }
+    }
 }
 
 /*!

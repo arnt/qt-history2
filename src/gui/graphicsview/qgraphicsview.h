@@ -43,8 +43,15 @@ class Q_GUI_EXPORT QGraphicsView : public QAbstractScrollArea
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
     Q_PROPERTY(QPainter::RenderHints renderHints READ renderHints WRITE setRenderHints)
     Q_PROPERTY(DragMode dragMode READ dragMode WRITE setDragMode)
+    Q_PROPERTY(CacheMode cacheMode READ cacheMode WRITE setCacheMode)
 
 public:
+    enum CacheModeFlag {
+        CacheNone = 0x0,
+        CacheBackground = 0x1
+    };
+    Q_DECLARE_FLAGS(CacheMode, CacheModeFlag)
+    
     enum DragMode {
         NoDrag,
         ScrollHandDrag,
@@ -65,6 +72,9 @@ public:
 
     DragMode dragMode() const;
     void setDragMode(DragMode mode);
+
+    CacheMode cacheMode() const;
+    void setCacheMode(CacheMode mode);
 
     bool isInteractive() const;
     void setInteractive(bool allowed);
@@ -168,6 +178,8 @@ private:
     Q_DECLARE_PRIVATE(QGraphicsView)
     friend class QGraphicsSceneWidget;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsView::CacheMode)
 
 inline void QGraphicsView::setSceneRect(qreal ax, qreal ay, qreal aw, qreal ah)
 { setSceneRect(QRectF(ax, ay, aw, ah)); }
