@@ -272,7 +272,7 @@ static QByteArray envVarLocale()
 }
 
 
-#if 0 //defined(Q_OS_WIN)
+#if defined(Q_OS_WIN)
 /******************************************************************************
 ** Wrappers for Windows locale system functions
 */
@@ -291,7 +291,7 @@ static QString getWinLocaleInfo(LCTYPE type)
     });
 
     if (cnt == 0) {
-        qWarning("QLocale: empty windows locale info (%d)", type);
+        qWarning("QLocale: empty windows locale info (%d)", (int)type);
         return QString();
     }
 
@@ -307,7 +307,7 @@ static QString getWinLocaleInfo(LCTYPE type)
     });
 
     if (cnt == 0) {
-        qWarning("QLocale: empty windows locale info (%d)", type);
+        qWarning("QLocale: empty windows locale info (%d)", (int)type);
         return QString();
     }
 
@@ -320,7 +320,7 @@ static QString getWinLocaleInfo(LCTYPE type)
     return result;
 }
 
-QByteArray getWinLocaleName() const
+QByteArray getWinLocaleName()
 {
     QByteArray result = envVarLocale();
     if ( !result.isEmpty() ) {
@@ -414,7 +414,7 @@ static QString winToQtFormat(const QString &sys_fmt)
 
 
 
-static QString winDateToString(const QDate &date, DWORD flags) const
+static QString winDateToString(const QDate &date, DWORD flags) 
 {
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
@@ -435,7 +435,7 @@ static QString winDateToString(const QDate &date, DWORD flags) const
     return QString();
 }
 
-static QString winTimeToString(const QTime &time) const
+static QString winTimeToString(const QTime &time) 
 {
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
@@ -459,7 +459,7 @@ static QString winTimeToString(const QTime &time) const
     return QString();
 }
 
-static QString winDayName(int day, bool short_format) const
+static QString winDayName(int day, bool short_format) 
 {
     static const LCTYPE short_day_map[]
         = { LOCALE_SABBREVDAYNAME1, LOCALE_SABBREVDAYNAME2,
@@ -471,15 +471,14 @@ static QString winDayName(int day, bool short_format) const
             LOCALE_SDAYNAME3, LOCALE_SDAYNAME4, LOCALE_SDAYNAME5,
             LOCALE_SDAYNAME6, LOCALE_SDAYNAME7 };
 
-    if (day < 0 || day > 6)
-    return QString();
-
+    day -= 1;
+    
     LCTYPE type = short_format
                     ? short_day_map[day] : long_day_map[day];
     return getWinLocaleInfo(type);
 }
 
-static QString winMonthName(int month, bool short_format) const
+static QString winMonthName(int month, bool short_format) 
 {
     static const LCTYPE short_month_map[]
         = { LOCALE_SABBREVMONTHNAME1, LOCALE_SABBREVMONTHNAME2, LOCALE_SABBREVMONTHNAME3,
@@ -774,7 +773,7 @@ static QString winIso3116CtryName()
 }
 
 
-#elsif 0//defined(Q_OS_MAC)
+#elif 0//defined(Q_OS_MAC)
 /******************************************************************************
 ** Wrappers for Mac locale system functions
 */
@@ -1069,10 +1068,10 @@ static QLocalePrivate *system_lp = 0;
 
   \value LanguageId a uint specifying the language.
   \value CountryId a uint specifying the country.
-  \value DecimalPoint a QChar specifying the decimal point.
-  \value GroupSeparator a QChar specifying the group separator.
-  \value ZeroDigit a QChar specifying the zero digit.
-  \value NegativeSign a QChar specifying the minus sign.
+  \value DecimalPoint a QString specifying the decimal point.
+  \value GroupSeparator a QString specifying the group separator.
+  \value ZeroDigit a QString specifying the zero digit.
+  \value NegativeSign a QString specifying the minus sign.
   \value DateFormatLong a QString specifying the long date format
   \value DateFormatShort a QString specifying the short date format
   \value TimeFormatLong a QString specifying the long time format
@@ -1136,19 +1135,19 @@ void QLocalePrivate::updateSystemPrivate()
 
     res = _systemLocale->query(QSystemLocale::DecimalPoint, QVariant());
     if (!res.isNull())
-        system_lp->m_decimal = res.toChar().unicode();
+        system_lp->m_decimal = res.toString().at(0).unicode();
 
     res = _systemLocale->query(QSystemLocale::GroupSeparator, QVariant());
     if (!res.isNull())
-        system_lp->m_group = res.toChar().unicode();
+        system_lp->m_group = res.toString().at(0).unicode();
 
     res = _systemLocale->query(QSystemLocale::ZeroDigit, QVariant());
     if (!res.isNull())
-        system_lp->m_zero = res.toChar().unicode();
+        system_lp->m_zero = res.toString().at(0).unicode();
 
     res = _systemLocale->query(QSystemLocale::NegativeSign, QVariant());
     if (!res.isNull())
-        system_lp->m_minus = res.toChar().unicode();
+        system_lp->m_minus = res.toString().at(0).unicode();
 }
 #endif
 

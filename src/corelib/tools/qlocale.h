@@ -521,10 +521,10 @@ public:
     enum QueryType {
         LanguageId, // uint
         CountryId, // uint
-        DecimalPoint, // QChar
-        GroupSeparator, // QChar
-        ZeroDigit, // QChar
-        NegativeSign, // QChar
+        DecimalPoint, // QString
+        GroupSeparator, // QString
+        ZeroDigit, // QString
+        NegativeSign, // QString
         DateFormatLong, // QString
         DateFormatShort, // QString
         TimeFormatLong, // QString
