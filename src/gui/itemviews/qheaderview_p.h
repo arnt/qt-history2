@@ -147,6 +147,11 @@ public:
         }
     }
 
+    inline void saveCascadingSectionSize(int visual, int size) {
+        if (!cascadingSectionSize.contains(visual))
+            cascadingSectionSize.insert(visual, size);
+    }
+
     void clear();
     void flipSortIndicator(int section);
     void cascadingResize(int visual, int newSize);
@@ -164,7 +169,7 @@ public:
     mutable QBitArray sectionSelected;
     mutable QBitArray sectionHidden;
     mutable QHash<int, int> hiddenSectionSize; // from logical index to section size
-    mutable QHash<int, int> cascadingSectionSize; // from logical index to section size
+    mutable QHash<int, int> cascadingSectionSize; // from visual index to section size
     mutable QSize cachedSizeHint;
 
     int lastPos;
