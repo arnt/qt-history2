@@ -1749,7 +1749,7 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
 
     int indexOfSlash = key.indexOf(QLatin1Char('/'));
     if (indexOfSlash != -1) {
-        i = confFile->unparsedIniSections.lowerBound(key);
+        i = confFile->unparsedIniSections.upperBound(key);
         if (i == confFile->unparsedIniSections.constBegin())
             return;
         --i;
