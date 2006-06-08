@@ -99,6 +99,8 @@ public:
     QStandardItemModelPrivate();
     virtual ~QStandardItemModelPrivate();
 
+    void init();
+
     QStandardItem *createItem() const;
 
     void sort(QStandardItem *parent, int column, Qt::SortOrder order);
@@ -111,6 +113,9 @@ public:
     void columnsInserted(QStandardItem *parent, int column, int count);
     void rowsRemoved(QStandardItem *parent, int row, int count);
     void columnsRemoved(QStandardItem *parent, int column, int count);
+
+    void _q_emitItemChanged(const QModelIndex &topLeft,
+                            const QModelIndex &bottomRight);
 
     QVector<QStandardItem*> columnHeaderItems;
     QVector<QStandardItem*> rowHeaderItems;

@@ -347,6 +347,9 @@ public:
 
     QList<QStandardItem*> findItems(const QString &text, Qt::MatchFlags flags, int column = 0) const;
 
+Q_SIGNALS:
+    void itemChanged(QStandardItem *item);
+    
 protected:
     QStandardItemModel(QStandardItemModelPrivate &dd, QObject *parent = 0);
 
@@ -355,6 +358,9 @@ private:
     friend class QStandardItem;
     Q_DISABLE_COPY(QStandardItemModel)
     Q_DECLARE_PRIVATE(QStandardItemModel)
+
+    Q_PRIVATE_SLOT(d_func(), void _q_emitItemChanged(const QModelIndex &topLeft,
+                                                     const QModelIndex &bottomRight))
 };
 
 inline void QStandardItemModel::setItem(int arow, QStandardItem *aitem)

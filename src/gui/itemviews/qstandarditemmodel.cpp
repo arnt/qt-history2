@@ -168,11 +168,38 @@ QStandardItemModelPrivate::~QStandardItemModelPrivate()
 }
 
 /*!
+  \internal
+*/
+void QStandardItemModelPrivate::init()
+{
+    Q_Q(QStandardItemModel);
+    QObject::connect(q, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(_q_emitItemChanged(QModelIndex,QModelIndex)));
+}
+
+/*!
     \internal
 */
 QStandardItem *QStandardItemModelPrivate::createItem() const
 {
     return itemPrototype ? itemPrototype->clone() : new QStandardItem;
+}
+
+/*!
+    \internal
+*/
+void QStandardItemModelPrivate::_q_emitItemChanged(const QModelIndex &topLeft,
+                                                   const QModelIndex &bottomRight)
+{
+    Q_Q(QStandardItemModel);
+    QModelIndex parent = topLeft.parent();
+    for (int row = topLeft.row(); row <= bottomRight.row(); ++row) {
+        for (int column = topLeft.column(); column <= bottomRight.column(); ++column) {
+            QModelIndex index = q->index(row, column, parent);
+            if (QStandardItem *item = q->itemFromIndex(index))
+                emit q->itemChanged(item);
+        }
+    }
 }
 
 /*!
@@ -1674,12 +1701,19 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
 */
 
 /*!
+    \fn void QStandardItemModel::itemChanged(QStandardItem *item)
+
+    This signal is emitted whenever the data of \a item has changed.
+*/
+
+/*!
     Constructs a new item model with the given \a parent.
 */
 QStandardItemModel::QStandardItemModel(QObject *parent)
     : QAbstractItemModel(*new QStandardItemModelPrivate, parent)
 {
     Q_D(QStandardItemModel);
+    d->init();
     d->root->d_func()->setModel(this);
 }
 
@@ -1691,6 +1725,7 @@ QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent)
     : QAbstractItemModel(*new QStandardItemModelPrivate, parent)
 {
     Q_D(QStandardItemModel);
+    d->init();
     d->root->d_func()->setModel(this);
     d->root->setRowCount(rows);
     d->root->setColumnCount(columns);
@@ -1706,6 +1741,7 @@ QStandardItemModel::QStandardItemModel(const QList<QStandardItem*> &items, QObje
     : QAbstractItemModel(*new QStandardItemModelPrivate, parent)
 {
     Q_D(QStandardItemModel);
+    d->init();
     d->root->d_func()->setModel(this); 
     d->root->setColumnCount(1);
     d->root->setRowCount(items.count());
@@ -1719,6 +1755,8 @@ QStandardItemModel::QStandardItemModel(const QList<QStandardItem*> &items, QObje
 QStandardItemModel::QStandardItemModel(QStandardItemModelPrivate &dd, QObject *parent)
     : QAbstractItemModel(dd, parent)
 {
+    Q_D(QStandardItemModel);
+    d->init();
 }
 
 /*!
@@ -2070,7 +2108,6 @@ QList<QStandardItem*> QStandardItemModel::findItems(const QString &text, Qt::Mat
 
 /*!
     \since 4.2
-    \fn void QStandardItemModel::appendRow(const QList<QStandardItem*> &items)
 
     Appends a row containing \a items. If necessary, the column count is
     increased to the size of \a items.
@@ -2084,7 +2121,6 @@ void QStandardItemModel::appendRow(const QList<QStandardItem*> &items)
 
 /*!
     \since 4.2
-    \fn void QStandardItemModel::appendColumn(const QList<QStandardItem*> &items)
 
     Appends a column containing \a items. If necessary, the row count is
     increased to the size of \a items.
@@ -2403,5 +2439,7 @@ void QStandardItemModel::sort(int column, Qt::SortOrder order)
     d->sort(d->root, column, order);
     emit layoutChanged();
 }
+
+#include "moc_qstandarditemmodel.cpp"
 
 #endif // QT_NO_STANDARDITEMMODEL
