@@ -388,35 +388,7 @@ QString QDate::shortMonthName(int month)
         qWarning("QDate::shortMonthName: Parameter out ouf range");
         month = 1;
     }
-#ifndef Q_WS_WIN
-    char buffer[255];
-    tm tt;
-    memset(&tt, 0, sizeof(tm));
-    tt.tm_mon = month - 1;
-    const QByteArray lctime(setlocale(LC_TIME, ""));
-    if (strftime(buffer, sizeof(buffer), "%b", &tt)) {
-        setlocale(LC_TIME, lctime.data());
-        return QString::fromLocal8Bit(buffer);
-    }
-    setlocale(LC_TIME, lctime.data());
-#else
-    SYSTEMTIME st;
-    memset(&st, 0, sizeof(SYSTEMTIME));
-    st.wYear = 2000;
-    st.wMonth = month;
-    st.wDay = 1;
-    QT_WA({
-        const wchar_t mmm_t[] = L"MMM"; // workaround for Borland
-        TCHAR buf[255];
-        if (GetDateFormat(GetThreadLocale(), 0, &st, mmm_t, buf, 255))
-            return QString::fromUtf16((ushort*)buf);
-    } , {
-        char buf[255];
-        if (GetDateFormatA(GetThreadLocale(), 0, &st, "MMM", (char*)&buf, 255))
-            return QString::fromLocal8Bit(buf);
-    });
-#endif
-    return QString();
+    return QLocale().monthName(month, QLocale::ShortFormat);
 }
 
 /*!
@@ -450,35 +422,7 @@ QString QDate::longMonthName(int month)
         qWarning("QDate::longMonthName: Parameter out ouf range");
         month = 1;
     }
-#ifndef Q_WS_WIN
-    char buffer[255];
-    tm tt;
-    memset(&tt, 0, sizeof(tm));
-    tt.tm_mon = month - 1;
-    const QByteArray lctime(setlocale(LC_TIME, ""));
-    if (strftime(buffer, sizeof(buffer), "%B", &tt)) {
-        setlocale(LC_TIME, lctime.data());
-        return QString::fromLocal8Bit(buffer);
-    }
-    setlocale(LC_TIME, lctime.data());
-#else
-    SYSTEMTIME st;
-    memset(&st, 0, sizeof(SYSTEMTIME));
-    st.wYear = 2000;
-    st.wMonth = month;
-    st.wDay = 1;
-    QT_WA({
-        const wchar_t mmmm_t[] = L"MMMM"; // workaround for Borland
-        TCHAR buf[255];
-        if (GetDateFormat(GetThreadLocale(), 0, &st, mmmm_t, buf, 255))
-            return QString::fromUtf16((ushort*)buf);
-    } , {
-        char buf[255];
-        if (GetDateFormatA(GetThreadLocale(), 0, &st, "MMMM", (char*)&buf, 255))
-            return QString::fromLocal8Bit(buf);
-    })
-#endif
-    return QString();
+    return QLocale().monthName(month, QLocale::LongFormat);
 }
 
 /*!
@@ -507,37 +451,7 @@ QString QDate::shortDayName(int weekday)
         qWarning("QDate::shortDayName: Parameter out of range");
         weekday = 1;
     }
-#ifndef Q_WS_WIN
-    char buffer[255];
-    tm tt;
-    memset(&tt, 0, sizeof(tm));
-    tt.tm_wday = (weekday == 7) ? 0 : weekday;
-    const QByteArray lctime(setlocale(LC_TIME, ""));
-    if (strftime(buffer, sizeof(buffer), "%a", &tt)) {
-        setlocale(LC_TIME, lctime.data());
-        return QString::fromLocal8Bit(buffer);
-    }
-    setlocale(LC_TIME, lctime.data());
-
-#else
-    SYSTEMTIME st;
-    memset(&st, 0, sizeof(SYSTEMTIME));
-    st.wYear = 2001;
-    st.wMonth = 10;
-    st.wDayOfWeek = (weekday == 7) ? 0 : weekday;
-    st.wDay = 21 + st.wDayOfWeek;
-    QT_WA({
-        const wchar_t ddd_t[] = L"ddd"; // workaround for Borland
-        TCHAR buf[255];
-        if (GetDateFormat(GetThreadLocale(), 0, &st, ddd_t, buf, 255))
-            return QString::fromUtf16((ushort*)buf);
-    } , {
-        char buf[255];
-        if (GetDateFormatA(GetThreadLocale(), 0, &st, "ddd", (char*)&buf, 255))
-            return QString::fromLocal8Bit(buf);
-    });
-#endif
-    return QString();
+    return QLocale().dayName(weekday, QLocale::ShortFormat);
 }
 
 /*!
@@ -566,36 +480,7 @@ QString QDate::longDayName(int weekday)
         qWarning("QDate::longDayName: Parameter out of range");
         weekday = 1;
     }
-#ifndef Q_WS_WIN
-    char buffer[255];
-    tm tt;
-    memset(&tt, 0, sizeof(tm));
-    tt.tm_wday = (weekday == 7) ? 0 : weekday;
-    const QByteArray lctime(setlocale(LC_TIME, ""));
-    if (strftime(buffer, sizeof(buffer), "%A", &tt)) {
-        setlocale(LC_TIME, lctime.data());
-        return QString::fromLocal8Bit(buffer);
-    }
-    setlocale(LC_TIME, lctime.data());
-#else
-    SYSTEMTIME st;
-    memset(&st, 0, sizeof(SYSTEMTIME));
-    st.wYear = 2001;
-    st.wMonth = 10;
-    st.wDayOfWeek = (weekday == 7) ? 0 : weekday;
-    st.wDay = 21 + st.wDayOfWeek;
-    QT_WA({
-        const wchar_t dddd_t[] = L"dddd"; // workaround for Borland
-        TCHAR buf[255];
-        if (GetDateFormat(GetThreadLocale(), 0, &st, dddd_t, buf, 255))
-            return QString::fromUtf16((ushort*)buf);
-    } , {
-        char buf[255];
-        if (GetDateFormatA(GetThreadLocale(), 0, &st, "dddd", (char*)&buf, 255))
-            return QString::fromLocal8Bit(buf);
-    });
-#endif
-    return QString();
+    return QLocale().dayName(weekday, QLocale::LongFormat);
 }
 #endif //QT_NO_TEXTDATE
 
@@ -622,8 +507,7 @@ QString QDate::longDayName(int weekday)
     the day of the month between 01 and 31.
 
     If the \a format is Qt::LocalDate, the string format depends on the locale
-    settings of the system. On Mac OS X, an assumption is made that the
-    date is in the local time zone.
+    settings of the system.
 
     If the datetime is invalid, an empty string will be returned.
 
@@ -641,70 +525,7 @@ QString QDate::toString(Qt::DateFormat f) const
     julianToGregorian(jd, y, m, d);
     switch (f) {
     case Qt::LocalDate:
-        {
-#ifdef Q_WS_WIN
-            SYSTEMTIME st;
-            memset(&st, 0, sizeof(SYSTEMTIME));
-            st.wYear = year();
-            st.wMonth = month();
-            st.wDay = day();
-            QT_WA({
-                TCHAR buf[255];
-                if (GetDateFormat(GetThreadLocale(), 0, &st, 0, buf, 255))
-                    return QString::fromUtf16((ushort*)buf);
-            } , {
-                char buf[255];
-                if (GetDateFormatA(GetThreadLocale(), 0, &st, 0, (char*)&buf, 255))
-                    return QString::fromLocal8Bit(buf);
-            });
-#elif defined(Q_WS_MAC)
-            CFGregorianDate macGDate;
-            macGDate.year = year();
-            macGDate.month = month();
-            macGDate.day = day();
-            macGDate.hour = 0;
-            macGDate.minute = 0;
-            macGDate.second = 0.0;
-            QCFType<CFTimeZoneRef> myTZ = CFTimeZoneCopyDefault();
-
-            QCFType<CFDateRef> myDate = CFDateCreate(0,
-                                            CFGregorianDateGetAbsoluteTime(macGDate, myTZ));
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
-                QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
-                                                                                mylocale, kCFDateFormatterLongStyle,
-                                                                                kCFDateFormatterNoStyle);
-                return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
-            } else
-#endif
-            {
-                Handle intlHandle = GetIntlResource(1);
-                LongDateTime oldDate;
-                UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, 0),
-                                                      &oldDate);
-                Str255 pString;
-                LongDateString(&oldDate, longDate, pString, intlHandle);
-                return qt_mac_from_pascal_string(pString);
-            }
-#else
-            tm tt;
-            memset(&tt, 0, sizeof(tm));
-            char buf[255];
-            tt.tm_mday = day();
-            tt.tm_mon = month() - 1;
-            tt.tm_year = year() - 1900;
-
-            const char *avoidEgcsWarning = "%x";
-            const QByteArray lctime(setlocale(LC_TIME, ""));
-            if (strftime(buf, sizeof(buf), avoidEgcsWarning, &tt)) {
-                setlocale(LC_TIME, lctime.data());
-                return QString::fromLocal8Bit(buf);
-            }
-            setlocale(LC_TIME, lctime.data());
-#endif
-            return QString();
-        }
+        return QLocale().toString(*this, QLocale::LongFormat);
     default:
 #ifndef QT_NO_TEXTDATE
     case Qt::TextDate:
@@ -773,7 +594,7 @@ QString QDate::toString(Qt::DateFormat f) const
 
     \warning This function is only valid for years in the range 0 to
     9999.
-    
+
     \sa QDateTime::toString() QTime::toString()
 
 */
@@ -966,7 +787,7 @@ int QDate::daysTo(const QDate &d) const
 QDate QDate::currentDate()
 {
     QDate d;
-#if defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN)
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
     GetLocalTime(&st);
@@ -1423,75 +1244,7 @@ QString QTime::toString(Qt::DateFormat f) const
 
     switch (f) {
     case Qt::LocalDate:
-        {
-#ifdef Q_WS_WIN
-            SYSTEMTIME st;
-            memset(&st, 0, sizeof(SYSTEMTIME));
-            st.wHour = hour();
-            st.wMinute = minute();
-            st.wSecond = second();
-            st.wMilliseconds = 0;
-            QT_WA({
-                TCHAR buf[255];
-                if (GetTimeFormat(LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255))
-                    return QString::fromUtf16((ushort*)buf);
-            } , {
-                char buf[255];
-                if (GetTimeFormatA(LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255))
-                    return QString::fromLocal8Bit(buf);
-            });
-#elif defined (Q_WS_MAC)
-            CFGregorianDate macGDate;
-            // Assume this is local time and the current date
-            QDate dt = QDate::currentDate();
-            macGDate.year = dt.year();
-            macGDate.month = dt.month();
-            macGDate.day = dt.day();
-            macGDate.hour = hour();
-            macGDate.minute = minute();
-            macGDate.second = second();
-            QCFType<CFTimeZoneRef> myTz = CFTimeZoneCopyDefault();
-            QCFType<CFDateRef> myDate = CFDateCreate(0,
-                                                     CFGregorianDateGetAbsoluteTime(macGDate,
-                                                                                    myTz));
-#  if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-
-                QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
-                QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
-                                                                       mylocale,
-                                                                       kCFDateFormatterNoStyle,
-                                                                       kCFDateFormatterMediumStyle);
-                return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
-            } else
-#  endif
-            {
-                // For Jaguar, must use the older non-recommended Stuff
-                Handle intlHandle = GetIntlResource(0);
-                LongDateTime oldDate;
-                UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, myTz),
-                                                      &oldDate);
-                Str255 pString;
-                LongTimeString(&oldDate, true, pString, intlHandle);
-                return qt_mac_from_pascal_string(pString);
-            }
-#else
-            tm tt;
-            memset(&tt, 0, sizeof(tm));
-            char buf[255];
-            tt.tm_sec = second();
-            tt.tm_min = minute();
-            tt.tm_hour = hour();
-
-            const QByteArray lctime(setlocale(LC_TIME, ""));
-            if (strftime(buf, sizeof(buf), "%X", &tt)) {
-                setlocale(LC_TIME, lctime.data());
-                return QString::fromLocal8Bit(buf);
-            }
-            setlocale(LC_TIME, lctime.data());
-#endif
-            return QString();
-        }
+        return QLocale().toString(*this, QLocale::LongFormat);
     default:
     case Qt::ISODate:
     case Qt::TextDate:
@@ -1707,7 +1460,7 @@ QTime QTime::currentTime()
 {
     QTime ct;
 
-#if defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN)
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
     GetLocalTime(&st);
@@ -2241,7 +1994,7 @@ void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
     \warning The Qt::ISODate format is only valid for years in the
     range 0 to 9999. This restriction may apply to Qt::LocalDate as
     well, depending on the locale settings.
-    
+
     \sa QDate::toString() QTime::toString() Qt::DateFormat
 */
 
@@ -2638,7 +2391,7 @@ bool QDateTime::operator<(const QDateTime &other) const
 
 QDateTime QDateTime::currentDateTime()
 {
-#if defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN)
     QDate d;
     QTime t;
     SYSTEMTIME st;
