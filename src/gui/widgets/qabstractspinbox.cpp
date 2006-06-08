@@ -184,25 +184,24 @@ QString QAbstractSpinBox::text() const
     value whenever the current value is equal to minimum(). Typical use
     is to indicate that this choice has a special (default) meaning.
 
-    For example, if your spin box allows the user to choose the margin
-    width in a print dialog and your application is able to
-    automatically choose a good margin width, you can set up the spin
-    box like this:
+    For example, if your spin box allows the user to choose a scale factor
+    (or zoom level) for displaying an image, and your application is able
+    to automatically choose one that will enable the image to fit completely
+    within the display window, you can set up the spin box like this:
 
-    \code
-        QSpinBox marginBox(-1, 20, 1, parent);
-        marginBox.setSuffix(" mm");
-        marginBox.setSpecialValueText("Auto");
-    \endcode
+    \quotefromfile widgets/spinboxes/window.cpp
+    \skipto zoomSpinBox
+    \printuntil setValue
 
-    The user will then be able to choose a margin width from 0-20
-    millimeters or select "Auto" to leave it to the application to
-    choose. Your code must then interpret the spin box value of -1 as
-    the user requesting automatic margin width.
+    The user will then be able to choose a scale from 1% to 1000%
+    or select "Auto" to leave it up to the application to choose. Your code
+    must then interpret the spin box value of 0 as a request from the user
+    to scale the image to fit inside the window.
 
     All values are displayed with the prefix and suffix (if set), \e
     except for the special value, which only shows the special value
-    text.
+    text. This special text is passed in the QSpinBox::valueChanged()
+    signal that passes a QString.
 
     To turn off the special-value text display, call this function
     with an empty string. The default is no special-value text, i.e.
