@@ -100,7 +100,7 @@
     The slots respond to signals emitted when the comboboxes are changed by the
     user.
 
-    When the combobox for the \gui{Echo} group box is changed, the echoChanged()
+    When the combobox for the \gui{Echo} group box is changed, the \c echoChanged()
     slot is called:
 
     \skipto echoChanged
@@ -110,7 +110,7 @@
     corresponds to the entry described in the combobox.
 
     When the combobox for the \gui{Validator} group box is changed, the
-    validatorChanged() slot is called:
+    \c validatorChanged() slot is called:
 
     \skipto validatorChanged
     \printuntil /^\}/
@@ -121,7 +121,7 @@
     initially given valid input to work with.
 
     When the combobox for the \gui{Alignment} group box is changed, the
-    alignmentChanged() slot is called:
+    \c alignmentChanged() slot is called:
 
     \skipto alignmentChanged
     \printuntil /^\}/
@@ -129,7 +129,7 @@
     This changes the way that text is displayed in the line edit to correspond with
     the description selected in the combobox.
 
-    The inputMaskChanged() slot handles changes to the combobox in the
+    The \c inputMaskChanged() slot handles changes to the combobox in the
     \gui{Input Mask} group box:
 
     \skipto inputMaskChanged
@@ -139,7 +139,7 @@
     a new mask by calling the QLineEdit::setMask() function with a suitable string;
     the mask is disabled if an empty string is used.
 
-    The accessChanged() slot handles changes to the combobox in the
+    The \c accessChanged() slot handles changes to the combobox in the
     \gui{Access} group box:
 
     \skipto accessChanged
