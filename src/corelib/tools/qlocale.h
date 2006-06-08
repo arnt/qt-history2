@@ -486,7 +486,7 @@ public:
     static QLocale system();
 
 private:
-    friend class QLocalePrivate;
+    friend struct QLocalePrivate;
     const QLocalePrivate *d;
 };
 Q_DECLARE_TYPEINFO(QLocale, Q_MOVABLE_TYPE);
