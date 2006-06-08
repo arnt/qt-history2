@@ -2012,7 +2012,7 @@ void QTextControl::setFocus(bool focus, Qt::FocusReason reason)
 {
     QFocusEvent ev(focus ? QEvent::FocusIn : QEvent::FocusOut,
                    reason);
-    QApplication::sendEvent(this, &ev);
+    processEvent(&ev);
 }
 
 void QTextControlPrivate::focusEvent(QFocusEvent *e)
