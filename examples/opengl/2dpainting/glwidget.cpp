@@ -32,6 +32,7 @@ void GLWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter;
     painter.begin(this);
+    painter.setRenderHint(QPainter::Antialiasing);
     helper->paint(&painter, event, elapsed);
     painter.end();
 }
