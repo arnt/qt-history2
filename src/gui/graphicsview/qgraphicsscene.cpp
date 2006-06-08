@@ -1063,7 +1063,7 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPainterPath &path) const
 
     \sa items(), itemAt(), QGraphicsItem::collidesWith()
 */
-QList<QGraphicsItem *> QGraphicsScene::collidingItems(QGraphicsItem *item) const
+QList<QGraphicsItem *> QGraphicsScene::collidingItems(const QGraphicsItem *item) const
 {
     if (!item) {
         qWarning("QGraphicsScene::collidingItems: cannot find collisions for null item");

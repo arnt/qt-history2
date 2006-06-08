@@ -1667,6 +1667,17 @@ bool QGraphicsItem::collidesWith(const QPainterPath &path) const
 }
 
 /*!
+    Returns a list of all items that collide with this item.
+
+    \sa QGraphicsScene::collidingItems(), collidesWith()
+*/
+QList<QGraphicsItem *> QGraphicsItem::collidingItems() const
+{
+    Q_D(const QGraphicsItem);
+    return d->scene ? d->scene->collidingItems(this) : QList<QGraphicsItem *>();
+}
+
+/*!
     \fn virtual void QGraphicsItem::paint(QPainter *painter, const
     QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0
 

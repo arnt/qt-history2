@@ -95,7 +95,7 @@ public:
     QList<QGraphicsItem *> items(const QRectF &rect) const;
     QList<QGraphicsItem *> items(const QPolygonF &polygon) const;
     QList<QGraphicsItem *> items(const QPainterPath &path) const;
-    QList<QGraphicsItem *> collidingItems(QGraphicsItem *item) const;
+    QList<QGraphicsItem *> collidingItems(const QGraphicsItem *item) const;
     QGraphicsItem *itemAt(const QPointF &pos) const;
     inline QGraphicsItem *itemAt(qreal x, qreal y) const
     { return itemAt(QPointF(x, y)); }

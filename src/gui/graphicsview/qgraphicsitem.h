@@ -159,6 +159,7 @@ public:
     virtual bool contains(const QPointF &point) const;
     virtual bool collidesWith(QGraphicsItem *other) const;
     virtual bool collidesWith(const QPainterPath &path) const;
+    QList<QGraphicsItem *> collidingItems() const;
 
     // Drawing
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0) = 0;
