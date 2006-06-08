@@ -35,15 +35,16 @@ public:
     QFramePrivate();
 
     void        updateFrameWidth();
-    int         getStyledFrameWidth(int *l = 0, int *t = 0, int *r = 0, int *b = 0) const;
-
+    void        updateStyledFrameWidths();
 
     QRect       frect;
     int         frameStyle;
     short       lineWidth;
     short       midLineWidth;
     short       frameWidth;
-
+    short       leftFrameWidth, rightFrameWidth;
+    short       topFrameWidth, bottomFrameWidth;
+    short       oldFrameStyle;
 };
 
 #endif // QFRAME_P_H

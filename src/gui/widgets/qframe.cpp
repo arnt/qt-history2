@@ -27,7 +27,10 @@ QFramePrivate::QFramePrivate()
       frameStyle(QFrame::NoFrame | QFrame::Plain),
       lineWidth(1),
       midLineWidth(0),
-      frameWidth(0)
+      frameWidth(0),
+      leftFrameWidth(0), rightFrameWidth(0), 
+      topFrameWidth(0), bottomFrameWidth(0),
+      oldFrameStyle(QFrame::NoFrame | QFrame::Plain)
 {
 }
 
@@ -290,6 +293,7 @@ void QFrame::setFrameStyle(int style)
     d->frameStyle = (short)style;
     update();
     d->updateFrameWidth();
+    d->oldFrameStyle = (short)style;
 }
 
 /*!
@@ -341,25 +345,20 @@ int QFrame::midLineWidth() const
 
 /*!
   \internal
-  Gets the frame widths from the style. Returns the maximum of the borders
+  Updates the frame widths from the style.
 */
-int QFramePrivate::getStyledFrameWidth(int *l, int *t, int *r, int *b) const
+void QFramePrivate::updateStyledFrameWidths()
 {
     Q_Q(const QFrame);
     QStyleOptionFrameV2 opt;
     opt.initFrom(q);
     QRect cr = q->style()->subElementRect(QStyle::SE_FrameContents, &opt, q);
-    int left = cr.left() - opt.rect.left(), 
-        top = cr.top() - opt.rect.top(),
-        right = opt.rect.right() - cr.right(), 
-        bottom = opt.rect.bottom() - cr.bottom();
-    if (l) {
-        *l = left;
-        *t = top;
-        *r = right;
-        *b = bottom;
-    }
-    return qMax(qMax(left, right), qMax(top, bottom));
+    leftFrameWidth = cr.left() - opt.rect.left();
+    topFrameWidth = cr.top() - opt.rect.top();
+    rightFrameWidth = opt.rect.right() - cr.right(), 
+    bottomFrameWidth = opt.rect.bottom() - cr.bottom();
+    frameWidth = qMax(qMax(leftFrameWidth, rightFrameWidth), 
+                      qMax(topFrameWidth, bottomFrameWidth));
 }
 
 /*!
@@ -398,7 +397,7 @@ void QFramePrivate::updateFrameWidth()
         break;
 
     case QFrame::StyledPanel:
-        frameWidth = getStyledFrameWidth();
+        updateStyledFrameWidths();
         break;
 
     case QFrame::WinPanel:
@@ -460,10 +459,8 @@ QRect QFrame::frameRect() const
 {
     Q_D(const QFrame);
     QRect fr = contentsRect();
-    if ((d->frameStyle & QFrame::Shape_Mask) == QFrame::StyledPanel) {
-        int l, t, r, b;
-        d->getStyledFrameWidth(&l, &t, &r, &b);
-        fr.adjust(-l, -t, r, b);
+    if ((d->oldFrameStyle & QFrame::Shape_Mask) == QFrame::StyledPanel) {
+        fr.adjust(-d->leftFrameWidth, -d->topFrameWidth, d->rightFrameWidth, d->bottomFrameWidth);
     } else
         fr.adjust(-d->frameWidth, -d->frameWidth, d->frameWidth, d->frameWidth);
     return fr;
@@ -474,9 +471,7 @@ void QFrame::setFrameRect(const QRect &r)
     Q_D(QFrame);
     QRect cr = r.isValid() ? r : rect();
     if ((d->frameStyle & QFrame::Shape_Mask) == StyledPanel) {
-        int l, t, r, b;
-        d->getStyledFrameWidth(&l, &t, &r, &b);
-        cr.adjust(l, t, -r, -b);
+        cr.adjust(d->leftFrameWidth, d->topFrameWidth, -d->rightFrameWidth, -d->bottomFrameWidth);
     } else
         cr.adjust(d->frameWidth, d->frameWidth, -d->frameWidth, -d->frameWidth);
     setContentsMargins(cr.left(), cr.top(), rect().right() - cr.right(), rect().bottom() - cr.bottom());
