@@ -830,6 +830,7 @@ void qt_init(QApplicationPrivate *priv, int)
                 DMRegisterExtendedNotifyProc(mac_display_changeUPP, 0, 0, &psn);
             }
 #ifdef Q_WS_MAC
+            TransformProcessType(&psn, kProcessTransformToForegroundApplication);
             SetFrontProcess(&psn);
 #endif
         }
