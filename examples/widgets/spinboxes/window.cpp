@@ -73,14 +73,14 @@ void Window::createDateTimeEdits()
     editsGroup = new QGroupBox(tr("Date and time spin boxes"));
 
     QLabel *dateLabel = new QLabel;
-    QDateTimeEdit *dateEdit = new QDateTimeEdit(QDate::currentDate());
+    QDateEdit *dateEdit = new QDateEdit(QDate::currentDate());
     dateEdit->setDateRange(QDate(2005, 1, 1), QDate(2010, 12, 31));
     dateLabel->setText(tr("Appointment date (between %0 and %1):")
                        .arg(dateEdit->minimumDate().toString(Qt::ISODate))
                        .arg(dateEdit->maximumDate().toString(Qt::ISODate)));
 
     QLabel *timeLabel = new QLabel;
-    QDateTimeEdit *timeEdit = new QDateTimeEdit(QTime::currentTime());
+    QTimeEdit *timeEdit = new QTimeEdit(QTime::currentTime());
     timeEdit->setTimeRange(QTime(9, 0, 0, 0), QTime(16, 30, 0, 0));
     timeLabel->setText(tr("Appointment time (between %0 and %1):")
                        .arg(timeEdit->minimumTime().toString(Qt::ISODate))
