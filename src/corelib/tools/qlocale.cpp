@@ -2239,10 +2239,10 @@ QString QLocale::toString(const QDate &date, const QString &format) const
                         result.append(d->longLongToString(date.month(), -1, 10, 2, QLocalePrivate::ZeroPadded));
                         break;
                     case 3:
-                        result.append(month(date.month(), QLocale::ShortFormat));
+                        result.append(monthName(date.month(), QLocale::ShortFormat));
                         break;
                     case 4:
-                        result.append(month(date.month(), QLocale::LongFormat));
+                        result.append(monthName(date.month(), QLocale::LongFormat));
                         break;
                 }
                 break;
@@ -2258,10 +2258,10 @@ QString QLocale::toString(const QDate &date, const QString &format) const
                         result.append(d->longLongToString(date.day(), -1, 10, 2, QLocalePrivate::ZeroPadded));
                         break;
                     case 3:
-                        result.append(day(date.dayOfWeek(), QLocale::ShortFormat));
+                        result.append(dayName(date.dayOfWeek(), QLocale::ShortFormat));
                         break;
                     case 4:
-                        result.append(day(date.dayOfWeek(), QLocale::LongFormat));
+                        result.append(dayName(date.dayOfWeek(), QLocale::LongFormat));
                         break;
                 }
                 break;
@@ -2694,8 +2694,10 @@ QLocale QLocale::system()
     return result;
 }
 
-
-QString QLocale::month(int month, QLocale::FormatType type) const
+/*!
+  returns the localized name of \a month, in the format specified by \a type.
+*/
+QString QLocale::monthName(int month, QLocale::FormatType type) const
 {
     if (month < 1 || month > 12)
         return QString();
@@ -2714,7 +2716,10 @@ QString QLocale::month(int month, QLocale::FormatType type) const
     return getLocaleListData(months_data + idx, month - 1);
 }
 
-QString QLocale::day(int day, QLocale::FormatType type) const
+/*!
+  returns the localized name of \a day, in the format specified by \a type.
+*/
+QString QLocale::dayName(int day, QLocale::FormatType type) const
 {
     if (day < 1 || day > 7)
         return QString();

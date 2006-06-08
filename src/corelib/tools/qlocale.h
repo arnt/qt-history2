@@ -472,8 +472,8 @@ public:
     QChar negativeSign() const;
     QChar exponential() const;
 
-    QString month(int, FormatType format = LongFormat) const;
-    QString day(int, FormatType format = LongFormat) const;
+    QString monthName(int, FormatType format = LongFormat) const;
+    QString dayName(int, FormatType format = LongFormat) const;
 
     inline bool operator==(const QLocale &other) const;
     inline bool operator!=(const QLocale &other) const;
