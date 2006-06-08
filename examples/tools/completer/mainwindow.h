@@ -34,14 +34,14 @@ private slots:
     void about();
     void changeCase(int);
     void changeMode(int);
-    void updateCompletionModel();
+    void updateModel();
 
 private:
     void createMenu();
     QAbstractItemModel *modelFromFile(const QString& fileName);
 
     QComboBox *caseCombo;
-    QComboBox *comboBox;
+    QComboBox *modeCombo;
     QComboBox *modelCombo;
     QCompleter *completer;
     QLabel *contentsLabel;

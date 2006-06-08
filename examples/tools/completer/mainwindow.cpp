@@ -13,7 +13,6 @@
 
 #include <QtGui>
 #include "dirmodel.h"
-#include "historymodel.h"
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -30,15 +29,13 @@ MainWindow::MainWindow(QWidget *parent)
     modelCombo = new QComboBox;
     modelCombo->addItem(tr("QDirModel"));
     modelCombo->addItem(tr("QDirModel that shows full path"));
-    modelCombo->addItem(tr("QDirModel with history"));
     modelCombo->addItem(tr("Country list"));
     modelCombo->addItem(tr("Word list"));
-    modelCombo->addItem(tr("Very big Word list"));
     modelCombo->setCurrentIndex(0);
 
     QLabel *modeLabel = new QLabel;
     modeLabel->setText(tr("Completion Mode"));
-    QComboBox *modeCombo = new QComboBox;
+    modeCombo = new QComboBox;
     modeCombo->addItem(tr("Inline"));
     modeCombo->addItem(tr("Filtered Popup"));
     modeCombo->addItem(tr("Unfiltered Popup"));
@@ -49,7 +46,11 @@ MainWindow::MainWindow(QWidget *parent)
     caseCombo = new QComboBox;
     caseCombo->addItem(tr("Case Insensitive"));
     caseCombo->addItem(tr("Case Sensitive"));
+#ifdef Q_OS_WIN
     caseCombo->setCurrentIndex(0);
+#else
+    caseCombo->setCurrentIndex(1);
+#endif
 
     contentsLabel = new QLabel;
     contentsLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -59,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
     progressBar->setMinimum(0);
     progressBar->hide();
 
-    connect(modelCombo, SIGNAL(activated(int)), this, SLOT(updateCompletionModel()));
+    connect(modelCombo, SIGNAL(activated(int)), this, SLOT(updateModel()));
     connect(modeCombo, SIGNAL(activated(int)), this, SLOT(changeMode(int)));
     connect(caseCombo, SIGNAL(activated(int)), this, SLOT(changeCase(int)));
 
@@ -75,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
-    updateCompletionModel();
+    updateModel();
     changeCase(caseCombo->currentIndex());
     changeMode(modeCombo->currentIndex());
 
@@ -122,7 +123,7 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
     int sz = file.size();
     int est_words = sz/10; 
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    progressLabel->setText(tr("Reading word list"));
+    progressLabel->setText(tr("Reading model data"));
     progressBar->setMinimum(0);
     progressBar->setMaximum(est_words);
     progressBar->setValue(0);
@@ -146,13 +147,11 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
     progressBar->hide();
     QApplication::restoreOverrideCursor();
 
-    if (fileName.compare(QLatin1String("countries.txt")) != 0)
+    if (!fileName.contains(QLatin1String("countries.txt")))
         return new QStringListModel(words, completer);
 
     // The last two chars of the countries.txt file indicate the country
     // symbol. We put that in column 2 of a standard item model
-    // To make this model really cool, you can add the country flag
-    // as the decoration role of column 0 ;)
     QStandardItemModel *m = new QStandardItemModel(words.count(), 2, completer);
     for (int i = 0; i < words.count(); ++i) {
         QModelIndex countryIdx = m->index(i, 0);
@@ -166,15 +165,14 @@ QAbstractItemModel *MainWindow::modelFromFile(const QString& fileName)
     return m;
 }
 
-void MainWindow::updateCompletionModel()
+void MainWindow::updateModel()
 {
-    if (modelCombo->currentIndex() == 2)
-        completer = new HistoryCompleter(lineEdit);
-    else
-        completer = new QCompleter(lineEdit);
-
+    if (completer) {
+        lineEdit->setCompleter(0);
+        delete completer;
+    }
+    completer = new QCompleter(this);
     lineEdit->setCompleter(completer);
-    lineEdit->setFocus();
 
     switch (modelCombo->currentIndex()) {
     default:
@@ -182,7 +180,6 @@ void MainWindow::updateCompletionModel()
         { // Unsorted QDirModel
             QDirModel *dirModel = new QDirModel(completer);
             completer->setModel(dirModel);
-            completer->setModelSorting(QCompleter::UnsortedModel);
             contentsLabel->setText(tr("Enter file path"));
         }
         break;
@@ -190,29 +187,21 @@ void MainWindow::updateCompletionModel()
         { // DirModel that shows full paths
             DirModel *dirModel = new DirModel(completer);
             completer->setModel(dirModel);
-            completer->setModelSorting(QCompleter::UnsortedModel);
             contentsLabel->setText(tr("Enter file path"));
         }
         break;
     case 2:
-        { // DirModel that stores previous paths (history model)
-            HistoryModel *historyModel = new HistoryModel(completer);
-            completer->setModel(historyModel);
-            lineEdit->setCompleter(completer);
-            QObject::connect(lineEdit, SIGNAL(returnPressed()), historyModel, SLOT(addToHistory()));
-            completer->setModelSorting(QCompleter::UnsortedModel);
-            contentsLabel->setText(tr("Enter file path or url or previously typed path"));
-        }
-        break;
-
-    case 3:
         { // Country List
             completer->setModel(modelFromFile(":/resources/countries.txt"));
-            completer->setModelSorting(QCompleter::UnsortedModel);
+            QTreeView *treeView = new QTreeView;
+            completer->setPopup(treeView);
+            treeView->setRootIsDecorated(false);
+            treeView->header()->hide();
+            treeView->resizeColumnToContents(0);
             contentsLabel->setText(tr("Enter name of your country"));
         }
         break;
-    case 4:
+    case 3:
         { // Word list
             completer->setModel(modelFromFile(":/resources/wordlist.txt"));
             completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
@@ -220,6 +209,9 @@ void MainWindow::updateCompletionModel()
         }
         break;
     }
+
+    changeCase(caseCombo->currentIndex());
+    changeMode(modeCombo->currentIndex());
 }
 
 void MainWindow::about()
