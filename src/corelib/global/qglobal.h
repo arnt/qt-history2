@@ -744,7 +744,11 @@ QT_BEGIN_HEADER
 
 #ifdef __i386__
 #  if defined(Q_CC_GNU)
+#if !defined(Q_CC_INTEL) && ((100*(__GNUC__ - 0) + 10*(__GNUC_MINOR__ - 0) + __GNUC_PATCHLEVEL__) >= 332)
 #    define QT_FASTCALL __attribute__((regparm(3)))
+#else
+#    define QT_FASTCALL
+#endif
 #  elif defined(Q_CC_MSVC)
 #    define QT_FASTCALL __fastcall
 #  else
