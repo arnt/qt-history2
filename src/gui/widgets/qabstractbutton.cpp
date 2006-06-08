@@ -24,7 +24,7 @@
 #endif
 
 #define AUTO_REPEAT_DELAY  300
-#define AUTO_REPEAT_PERIOD 100
+#define AUTO_REPEAT_INTERVAL 100
 
 
 /*!
@@ -89,7 +89,8 @@ checkable buttons can be checked and unchecked (see below).
 user.
 
 \i setAutoRepeat() sets whether the button will auto-repeat if the
-user holds it down.
+user holds it down. \l autoRepeatDelay and \l autoRepeatInterval
+define how auto-repetition is done.
 
 \i setCheckable() sets whether the button is a toggle button or not.
 
@@ -137,10 +138,12 @@ QAbstractButtonPrivate::QAbstractButtonPrivate()
     shortcutId(0),
 #endif
     checkable(false), checked(false), autoRepeat(false), autoExclusive(false),
-    down(false), blockRefresh(false)
+    down(false), blockRefresh(false),
 #ifndef QT_NO_BUTTONGROUP
-    , group(0)
+    group(0),
 #endif
+    autoRepeatDelay(AUTO_REPEAT_DELAY),
+    autoRepeatInterval(AUTO_REPEAT_INTERVAL)
 {}
 
 #ifndef QT_NO_BUTTONGROUP
@@ -677,7 +680,7 @@ void QAbstractButton::setDown(bool down)
     d->down = down;
     d->refresh();
     if (d->autoRepeat && d->down)
-        d->repeatTimer.start(AUTO_REPEAT_DELAY, this);
+        d->repeatTimer.start(d->autoRepeatDelay, this);
     else
         d->repeatTimer.stop();
 }
@@ -693,8 +696,10 @@ bool QAbstractButton::isDown() const
 \brief whether autoRepeat is enabled
 
 If autoRepeat is enabled then the clicked() signal is emitted at
-regular intervals when the button is down. This property has no
-effect on toggle buttons. autoRepeat is off by default.
+regular intervals when the button is down. This property has no effect
+on toggle buttons. autoRepeat is off by default. The initial delay and
+the repetition interval are defined in milliseconds by \l
+autoRepeatDelay and \l autoRepeatInterval.
 */
 
 void QAbstractButton::setAutoRepeat(bool autoRepeat)
@@ -704,7 +709,7 @@ void QAbstractButton::setAutoRepeat(bool autoRepeat)
         return;
     d->autoRepeat = autoRepeat;
     if (d->autoRepeat && d->down)
-        d->repeatTimer.start(AUTO_REPEAT_DELAY, this);
+        d->repeatTimer.start(d->autoRepeatDelay, this);
     else
         d->repeatTimer.stop();
 }
@@ -714,6 +719,52 @@ bool QAbstractButton::autoRepeat() const
     Q_D(const QAbstractButton);
     return d->autoRepeat;
 }
+
+/*!
+\property QAbstractButton::autoRepeatDelay
+\brief the initial delay of auto-repetition
+
+If \l autoRepeat is enabled, then autoRepeatDelay defines the initial
+delay in milliseconds before auto-repetition kicks in.
+
+\sa autoRepeatInterval
+*/
+
+void QAbstractButton::setAutoRepeatDelay(int autoRepeatDelay)
+{
+    Q_D(QAbstractButton);
+    d->autoRepeatDelay = autoRepeatDelay;
+}
+
+int QAbstractButton::autoRepeatDelay() const
+{
+    Q_D(const QAbstractButton);
+    return d->autoRepeatDelay;
+}
+
+/*!
+\property QAbstractButton::autoRepeatInterval
+\brief the interval of auto-repetition
+
+If \l autoRepeat is enabled, then autoRepeatInterval defines the
+length of the auto-repetition interval in millisecons.
+
+\sa autoRepeatInterval
+*/
+
+void QAbstractButton::setAutoRepeatInterval(int autoRepeatInterval)
+{
+    Q_D(QAbstractButton);
+    d->autoRepeatInterval = autoRepeatInterval;
+}
+
+int QAbstractButton::autoRepeatInterval() const
+{
+    Q_D(const QAbstractButton);
+    return d->autoRepeatInterval;
+}
+
+
 
 /*!
 \property QAbstractButton::autoExclusive
@@ -1052,7 +1103,7 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
 {
     Q_D(QAbstractButton);
     if (e->timerId() == d->repeatTimer.timerId()) {
-        d->repeatTimer.start(AUTO_REPEAT_PERIOD, this);
+        d->repeatTimer.start(d->autoRepeatInterval, this);
         if (d->down) {
             QPointer<QAbstractButton> guard(this);
             emit released();
