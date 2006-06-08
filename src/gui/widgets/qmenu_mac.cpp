@@ -815,7 +815,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
             GetMenuItemProperty(action->menu, 0, kMenuCreatorQt, kMenuPropertyWidgetMenu,
                                 sizeof(menuWidget), 0, &menuWidget);
             if(!menuWidget) {
-                menuWidget = new QHIViewWidget(content, false);
+                menuWidget = new QHIViewWidget(content, false, 0, Qt::ToolTip);
                 SetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyWidgetMenu,
                                     sizeof(menuWidget), &menuWidget);
                 menuWidget->show();

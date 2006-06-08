@@ -563,8 +563,8 @@ void QEventDispatcherMac::flush()
 {
     QMacWindowChangeEvent::exec(true);
 
-//    sendPostedEvents();
     if(qApp) {
+        qApp->sendPostedEvents();
         QWidgetList tlws = QApplication::topLevelWidgets();
         for(int i = 0; i < tlws.size(); i++) {
             QWidget *tlw = tlws.at(i);
