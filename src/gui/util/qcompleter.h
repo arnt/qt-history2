@@ -43,7 +43,7 @@ public:
     enum CompletionMode {
         PopupCompletion,
         UnfilteredPopupCompletion,
-        InlineCompletion,
+        InlineCompletion
     };
 
     enum ModelSorting {
