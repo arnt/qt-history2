@@ -2035,6 +2035,25 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 /*!
     \reimp
 */
+void QGraphicsView::wheelEvent(QWheelEvent *event)
+{
+    Q_D(QGraphicsView);
+    if (!d->scene || !d->sceneInteractionAllowed)
+        return;
+
+    QGraphicsSceneWheelEvent wheelEvent(QEvent::GraphicsSceneWheel);
+    wheelEvent.setWidget(viewport());
+    wheelEvent.setScenePos(mapToScene(event->pos()));
+    wheelEvent.setScreenPos(event->globalPos());
+    wheelEvent.setButtons(event->buttons());
+    wheelEvent.setModifiers(event->modifiers());
+    wheelEvent.setDelta(event->delta());
+    QApplication::sendEvent(d->scene, &wheelEvent);
+}
+
+/*!
+    \reimp
+*/
 void QGraphicsView::paintEvent(QPaintEvent *event)
 {
     Q_D(QGraphicsView);

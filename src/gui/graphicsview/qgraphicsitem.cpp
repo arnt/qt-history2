@@ -367,6 +367,11 @@ void QGraphicsItemPrivate::remapItemPos(QEvent *event, QGraphicsItem *item)
         }
         break;
     }
+    case QEvent::GraphicsSceneWheel: {
+        QGraphicsSceneWheelEvent *wheelEvent = static_cast<QGraphicsSceneWheelEvent *>(event);
+        wheelEvent->setPos(item->mapFromItem(q, wheelEvent->pos()));
+        break;
+    }
     case QEvent::GraphicsSceneContextMenu: {
         QGraphicsSceneContextMenuEvent *contextEvent = static_cast<QGraphicsSceneContextMenuEvent *>(event);
         contextEvent->setPos(item->mapFromItem(q, contextEvent->pos()));
@@ -2311,6 +2316,9 @@ bool QGraphicsItem::sceneEvent(QEvent *event)
     case QEvent::GraphicsSceneMouseDoubleClick:
         mouseDoubleClickEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
         break;
+    case QEvent::GraphicsSceneWheel:
+        wheelEvent(static_cast<QGraphicsSceneWheelEvent *>(event));
+        break;
     case QEvent::KeyPress:
         keyPressEvent(static_cast<QKeyEvent *>(event));
         break;
@@ -2684,9 +2692,28 @@ void QGraphicsItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 }
 
 /*!
-    This event handler, for event \a event, can be reimplemented to
-    receive input method events for this item. The default
-    implementation does nothing.
+    This event handler, for event \a event, can be reimplemented to receive
+    wheel events for this item. If you reimplement this function, \a event
+    will be accepted by default.
+
+    If you ignore the event, (i.e., by calling QEvent::ignore(),) it will
+    propagate to any item beneath this item. If no items accept the event, it
+    will be ignored by the scene, and propagate to the view (e.g., the view's
+    vertical scroll bar).
+
+    The default implementation ignores the event.
+
+    \sa sceneEvent()
+*/
+void QGraphicsItem::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+    event->ignore();
+}
+
+/*!
+    This event handler, for event \a event, can be reimplemented to receive
+    input method events for this item. The default implementation ignores the
+    event.
 
     \sa inputMethodQuery(), sceneEvent()
 */

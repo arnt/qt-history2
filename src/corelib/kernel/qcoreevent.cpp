@@ -102,6 +102,7 @@
     \value GraphicsSceneMouseMove           Move mouse in a graphics scene (QGraphicsSceneMouseEvent).
     \value GraphicsSceneMousePress          Mouse press in a graphics scene (QGraphicsSceneMouseEvent).
     \value GraphicsSceneMouseRelease        Mouse release in a graphics scene (QGraphicsSceneMouseEvent).
+    \value GraphicsSceneWheel               Mouse wheel rolled in a graphics scene (QGraphicsSceneWheelEvent).
     \value Hide                             Widget was hidden (QHideEvent).
     \value HideToParent                     A child widget has been hidden.
     \value HoverEnter                       The mouse cursor enters a hover widget (QHoverEvent).

@@ -87,6 +87,35 @@ private:
     Q_DECLARE_PRIVATE(QGraphicsSceneMouseEvent)
 };
 
+class QGraphicsSceneWheelEventPrivate;
+class Q_GUI_EXPORT QGraphicsSceneWheelEvent : public QGraphicsSceneEvent
+{
+public:
+    QGraphicsSceneWheelEvent(Type type = None);
+    ~QGraphicsSceneWheelEvent();
+
+    QPointF pos() const;
+    void setPos(const QPointF &pos);
+
+    QPointF scenePos() const;
+    void setScenePos(const QPointF &pos);
+
+    QPoint screenPos() const;
+    void setScreenPos(const QPoint &pos);
+
+    Qt::MouseButtons buttons() const;
+    void setButtons(Qt::MouseButtons buttons);
+
+    Qt::KeyboardModifiers modifiers() const;
+    void setModifiers(Qt::KeyboardModifiers modifiers);
+
+    int delta() const;
+    void setDelta(int delta);
+
+private:
+    Q_DECLARE_PRIVATE(QGraphicsSceneWheelEvent)
+};
+
 class QGraphicsSceneContextMenuEventPrivate;
 class Q_GUI_EXPORT QGraphicsSceneContextMenuEvent : public QGraphicsSceneEvent
 {

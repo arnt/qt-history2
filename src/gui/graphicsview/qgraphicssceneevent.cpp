@@ -26,6 +26,12 @@
 */
 
 /*!
+    \class QGraphicsSceneWheelEvent
+    \since 4.2
+    \ingroup multimedia
+*/
+
+/*!
     \class QGraphicsSceneContextMenuEvent
     \since 4.2
     \ingroup multimedia
@@ -390,6 +396,183 @@ void QGraphicsSceneMouseEvent::setModifiers(Qt::KeyboardModifiers modifiers)
 {
     Q_D(QGraphicsSceneMouseEvent);
     d->modifiers = modifiers;
+}
+
+class QGraphicsSceneWheelEventPrivate : public QGraphicsSceneEventPrivate
+{
+    Q_DECLARE_PUBLIC(QGraphicsSceneWheelEvent)
+public:
+    inline QGraphicsSceneWheelEventPrivate()
+        : buttons(0), modifiers(0), delta(0)
+    { }
+
+    QPointF pos;
+    QPointF scenePos;
+    QPoint screenPos;
+    Qt::MouseButtons buttons;
+    Qt::KeyboardModifiers modifiers;
+    int delta;
+};
+
+/*!
+    Constructs a QGraphicsSceneWheelEvent of type \a type.
+*/
+QGraphicsSceneWheelEvent::QGraphicsSceneWheelEvent(Type type)
+    : QGraphicsSceneEvent(*new QGraphicsSceneWheelEventPrivate, type)
+{
+}
+
+/*!
+    Destroys the QGraphicsSceneWheelEvent.
+*/
+QGraphicsSceneWheelEvent::~QGraphicsSceneWheelEvent()
+{
+}
+
+/*!
+    Returns the position of the cursor in item coordinates when the wheel
+    event occurred.
+
+    \sa setPos(), scenePos(), screenPos()
+*/
+QPointF QGraphicsSceneWheelEvent::pos() const
+{
+    Q_D(const QGraphicsSceneWheelEvent);
+    return d->pos;
+}
+
+/*!
+    Sets the position of the cursor in item coordinates when the wheel
+    event occurred.
+
+    \sa pos(), setScenePos(), setScreenPos()
+*/
+void QGraphicsSceneWheelEvent::setPos(const QPointF &pos)
+{
+    Q_D(QGraphicsSceneWheelEvent);
+    d->pos = pos;
+}
+
+/*!
+    Returns the position of the cursor in item coordinates when the wheel
+    event occurred.
+
+    \sa setScenePos(), pos(), screenPos()
+*/
+QPointF QGraphicsSceneWheelEvent::scenePos() const
+{
+    Q_D(const QGraphicsSceneWheelEvent);
+    return d->scenePos;
+}
+
+/*!
+    Sets the position of the cursor in scene coordinates when the wheel
+    event occurred.
+
+    \sa scenePos(), setPos(), setScreenPos()
+*/
+void QGraphicsSceneWheelEvent::setScenePos(const QPointF &pos)
+{
+    Q_D(QGraphicsSceneWheelEvent);
+    d->scenePos = pos;
+}
+
+/*!
+    Returns the position of the cursor in screen coordinates when the wheel
+    event occurred.
+
+    \sa setScreenPos(), pos(), scenePos()
+*/
+QPoint QGraphicsSceneWheelEvent::screenPos() const
+{
+    Q_D(const QGraphicsSceneWheelEvent);
+    return d->screenPos;
+}
+
+/*!
+    Sets the position of the cursor in screen coordinates when the wheel event
+    occurred.
+
+    \sa screenPos(), setPos(), setScenePos()
+*/
+void QGraphicsSceneWheelEvent::setScreenPos(const QPoint &pos)
+{
+    Q_D(QGraphicsSceneWheelEvent);
+    d->screenPos = pos;
+}
+
+/*!
+    Returns the mouse buttons that were pressed when the wheel event occurred.
+
+    \sa setButtons(), modifiers()
+*/
+Qt::MouseButtons QGraphicsSceneWheelEvent::buttons() const
+{
+    Q_D(const QGraphicsSceneWheelEvent);
+    return d->buttons;
+}
+
+/*!
+    Sets the mouse buttons that were pressed when the wheel event occurred.
+
+    \sa buttons(), setModifiers()
+*/
+void QGraphicsSceneWheelEvent::setButtons(Qt::MouseButtons buttons)
+{
+    Q_D(QGraphicsSceneWheelEvent);
+    d->buttons = buttons;
+}
+
+/*!
+    Returns the keyboard modifiers that were active when the wheel event
+    occurred.
+
+    \sa setModifiers(), buttons()
+*/
+Qt::KeyboardModifiers QGraphicsSceneWheelEvent::modifiers() const
+{
+    Q_D(const QGraphicsSceneWheelEvent);
+    return d->modifiers;
+}
+
+/*!
+    Sets the keyboard modifiers that were active when the wheel event
+    occurred.
+
+    \sa modifiers(), setButtons()
+*/
+void QGraphicsSceneWheelEvent::setModifiers(Qt::KeyboardModifiers modifiers)
+{
+    Q_D(QGraphicsSceneWheelEvent);
+    d->modifiers = modifiers;
+}
+
+/*!
+    Returns the distance that the wheel is rotated, in eights of a degree. A
+    positive value indicates that the wheel was rotated forwards away from the
+    user; a negative value indicates that the wheel was rotated backwards
+    toward the user.
+
+    Most mouse types work in steps of 15 degrees, in which case the delta
+    value is a multiple of 120 (== 15 * 8).
+
+    \sa setDelta()
+*/
+int QGraphicsSceneWheelEvent::delta() const
+{
+    Q_D(const QGraphicsSceneWheelEvent);
+    return d->delta;
+}
+
+/*!
+    Sets the distance that the wheel is rotated.
+
+    \sa delta()
+*/
+void QGraphicsSceneWheelEvent::setDelta(int delta)
+{
+    Q_D(QGraphicsSceneWheelEvent);
+    d->delta = delta;
 }
 
 class QGraphicsSceneContextMenuEventPrivate : public QGraphicsSceneEventPrivate

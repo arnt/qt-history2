@@ -1917,6 +1917,9 @@ bool QGraphicsScene::event(QEvent *event)
     case QEvent::GraphicsSceneMouseDoubleClick:
         mouseDoubleClickEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
         break;
+    case QEvent::GraphicsSceneWheel:
+        wheelEvent(static_cast<QGraphicsSceneWheelEvent *>(event));
+        break;
     case QEvent::FocusIn:
         focusInEvent(static_cast<QFocusEvent *>(event));
         break;
@@ -2365,6 +2368,28 @@ void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     Q_D(QGraphicsScene);
     d->mousePressEventHandler(mouseEvent);
+}
+
+/*!
+    This event handler, for event \a wheelEvent, can be reimplemented in a
+    subclass to receive mouse wheel events for the scene.
+
+    By default, the event is delivered to the topmost visible item under the
+    cursor. If ignored, the event propagates to the item beneath, and again
+    until the event is accepted, or it reaches the scene. If no items accept
+    the event, it is ignored.
+
+    \sa QGraphicsItem::wheelEvent()
+*/
+void QGraphicsScene::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+    foreach (QGraphicsItem *item, items(event->scenePos())) {
+        event->setPos(item->mapFromScene(event->scenePos()));
+        event->accept();
+        item->sceneEvent(event);
+        if (event->isAccepted())
+            break;
+    }
 }
 
 void QGraphicsScene::inputMethodEvent(QInputMethodEvent *event)

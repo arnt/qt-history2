@@ -45,6 +45,7 @@ class QGraphicsSceneEvent;
 class QGraphicsSceneHelpEvent;
 class QGraphicsSceneHoverEvent;
 class QGraphicsSceneMouseEvent;
+class QGraphicsSceneWheelEvent;
 class QGraphicsTextItem;
 class QHelpEvent;
 class QLineF;
@@ -155,6 +156,7 @@ protected:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+    virtual void wheelEvent(QGraphicsSceneWheelEvent *event);
     virtual void inputMethodEvent(QInputMethodEvent *event);
 
     virtual void drawBackground(QPainter *painter, const QRectF &rect);

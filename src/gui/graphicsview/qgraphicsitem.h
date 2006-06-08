@@ -36,6 +36,7 @@ class QGraphicsSceneDragDropEvent;
 class QGraphicsSceneEvent;
 class QGraphicsSceneHoverEvent;
 class QGraphicsSceneMouseEvent;
+class QGraphicsSceneWheelEvent;
 class QGraphicsScene;
 class QInputMethodEvent;
 class QKeyEvent;
@@ -240,6 +241,7 @@ protected:
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
+    virtual void wheelEvent(QGraphicsSceneWheelEvent *event);
     virtual void inputMethodEvent(QInputMethodEvent *event);
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
 
