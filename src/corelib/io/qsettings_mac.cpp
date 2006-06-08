@@ -523,7 +523,7 @@ static QCFType<CFURLRef> urlFromFileName(const QString &fileName)
                                          kCFURLPOSIXPathStyle, false);
 }
 
-bool QConfFileSettingsPrivate::readPlistFile(const QString &fileName, InternalSettingsMap *map) const
+bool QConfFileSettingsPrivate::readPlistFile(const QString &fileName, ParsedSettingsMap *map) const
 {
     QCFType<CFDataRef> resource;
     SInt32 code;
@@ -556,12 +556,12 @@ bool QConfFileSettingsPrivate::readPlistFile(const QString &fileName, InternalSe
 }
 
 bool QConfFileSettingsPrivate::writePlistFile(const QString &fileName,
-                                              const InternalSettingsMap &map) const
+                                              const ParsedSettingsMap &map) const
 {
     QVarLengthArray<QCFType<CFStringRef> > cfkeys(map.size());
     QVarLengthArray<QCFType<CFPropertyListRef> > cfvalues(map.size());
     int i = 0;
-    InternalSettingsMap::const_iterator j;
+    ParsedSettingsMap::const_iterator j;
     for (j = map.constBegin(); j != map.constEnd(); ++j) {
         cfkeys[i] = macKey(j.key());
         cfvalues[i] = macValue(j.value());
