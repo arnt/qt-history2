@@ -168,11 +168,11 @@ static const QLocalePrivate *findLocale(QLocale::Language language, QLocale::Cou
     return locale_data + idx;
 }
 
-static const QLocalePrivate *findLocale(const QString &name)
+static void getLangAndCountry(const QString &name, QLocale::Language &lang, QLocale::Country &cntry)
 {
-    QLocale::Language lang = QLocale::C;
-    QLocale::Country cntry = QLocale::AnyCountry;
-
+    lang = QLocale::C;
+    cntry = QLocale::AnyCountry;
+    
     uint l = name.length();
 
     do {
@@ -209,6 +209,14 @@ static const QLocalePrivate *findLocale(const QString &name)
 
         cntry = codeToCountry(uc + 3);
     } while (false);
+
+}
+
+static const QLocalePrivate *findLocale(const QString &name)
+{
+    QLocale::Language lang;
+    QLocale::Country cntry;
+    getLangAndCountry(name, lang, cntry);
 
     return findLocale(lang, cntry);
 }
@@ -544,8 +552,19 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
         return winTimeToString(in.toTime());
 
     case ZeroDigit:
+        locale_info = LOCALE_SNATIVEDIGITS;
+        break;
+        
     case LanguageId:
-    case CountryId:
+    case CountryId: {
+            QString locale = getWinLocaleName();
+            QLocale::Language lang;
+            QLocale::Country cntry;
+            getLangAndCountry(locale, lang, cntry);
+            if (type == LanguageId)
+                return lang;
+            return cntry;
+        }
             default:
                 break;
         }
