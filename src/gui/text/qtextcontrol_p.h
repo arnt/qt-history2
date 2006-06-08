@@ -123,9 +123,6 @@ public:
     void setExtraSelections(const QList<ExtraSelection> &selections);
     QList<ExtraSelection> extraSelections() const;
 
-    void setContextWidget(QWidget *w);
-    QWidget *contextWidget() const;
-
 public Q_SLOTS:
     void setPlainText(const QString &text);
     void setHtml(const QString &text);
@@ -169,6 +166,8 @@ public:
     QPalette palette() const;
     void setPalette(const QPalette &pal);
 
+    void processEvent(QEvent *e, const QPointF &coordinateOffset = QPointF(), QWidget *contextWidget = 0);
+
     // control methods
     void drawContents(QPainter *painter, const QRectF &rect = QRectF());
 
@@ -176,14 +175,14 @@ public:
 
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
 
-    virtual bool event(QEvent *e);
-
     virtual QMimeData *createMimeDataFromSelection() const;
     virtual bool canInsertFromMimeData(const QMimeData *source) const;
     virtual void insertFromMimeData(const QMimeData *source);
 
 protected:
     virtual void timerEvent(QTimerEvent *e);
+
+    virtual bool event(QEvent *e);
 
 private:
     Q_DISABLE_COPY(QTextControl)

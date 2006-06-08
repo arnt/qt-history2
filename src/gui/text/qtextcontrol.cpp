@@ -1082,30 +1082,35 @@ void QTextControl::selectAll()
     emit updateRequest(QRectF(QPointF(), d->doc->documentLayout()->documentSize()));
 }
 
-bool QTextControl::event(QEvent *e)
+void QTextControl::processEvent(QEvent *e, const QPointF &coordinateOffset, QWidget *contextWidget)
 {
+
     Q_D(QTextControl);
 
-    switch (e->type()) {
-        case QEvent::GraphicsSceneMouseMove:
-        case QEvent::GraphicsSceneMousePress:
-        case QEvent::GraphicsSceneMouseRelease:
-        case QEvent::GraphicsSceneMouseDoubleClick:
-        case QEvent::GraphicsSceneContextMenu:
-        case QEvent::GraphicsSceneHoverEnter:
-        case QEvent::GraphicsSceneHoverMove:
-        case QEvent::GraphicsSceneHoverLeave:
-        case QEvent::GraphicsSceneHelp:
-        case QEvent::GraphicsSceneDragEnter:
-        case QEvent::GraphicsSceneDragMove:
-        case QEvent::GraphicsSceneDragLeave:
-        case QEvent::GraphicsSceneDrop: {
-            QGraphicsSceneEvent *ev = static_cast<QGraphicsSceneEvent *>(e);
-            d->contextWidget = ev->widget();
-            break;
-        }
-        default: break;
-    };
+    d->contextWidget = contextWidget;
+
+    if (!d->contextWidget) {
+        switch (e->type()) {
+            case QEvent::GraphicsSceneMouseMove:
+            case QEvent::GraphicsSceneMousePress:
+            case QEvent::GraphicsSceneMouseRelease:
+            case QEvent::GraphicsSceneMouseDoubleClick:
+            case QEvent::GraphicsSceneContextMenu:
+            case QEvent::GraphicsSceneHoverEnter:
+            case QEvent::GraphicsSceneHoverMove:
+            case QEvent::GraphicsSceneHoverLeave:
+            case QEvent::GraphicsSceneHelp:
+            case QEvent::GraphicsSceneDragEnter:
+            case QEvent::GraphicsSceneDragMove:
+            case QEvent::GraphicsSceneDragLeave:
+            case QEvent::GraphicsSceneDrop: {
+                QGraphicsSceneEvent *ev = static_cast<QGraphicsSceneEvent *>(e);
+                d->contextWidget = ev->widget();
+                break;
+            }
+            default: break;
+        };
+    }
 
     switch (e->type()) {
         case QEvent::KeyPress:
@@ -1113,20 +1118,20 @@ bool QTextControl::event(QEvent *e)
             break;
         case QEvent::MouseButtonPress: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers(),
+            d->mousePressEvent(ev->button(), coordinateOffset + ev->pos(), ev->modifiers(),
                                ev->buttons(), ev->globalPos());
             break; }
         case QEvent::MouseMove: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mouseMoveEvent(ev->buttons(), ev->pos());
+            d->mouseMoveEvent(ev->buttons(), coordinateOffset + ev->pos());
             break; }
         case QEvent::MouseButtonRelease: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mouseReleaseEvent(ev->button(), ev->pos());
+            d->mouseReleaseEvent(ev->button(), coordinateOffset + ev->pos());
             break; }
         case QEvent::MouseButtonDblClick: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mouseDoubleClickEvent(e, ev->button(), ev->pos());
+            d->mouseDoubleClickEvent(e, ev->button(), coordinateOffset + ev->pos());
             break; }
         case QEvent::InputMethod:
             d->inputMethodEvent(static_cast<QInputMethodEvent *>(e));
@@ -1156,13 +1161,13 @@ bool QTextControl::event(QEvent *e)
             break;
         case QEvent::DragMove: {
             QDragMoveEvent *ev = static_cast<QDragMoveEvent *>(e);
-            if (d->dragMoveEvent(e, ev->mimeData(), ev->pos()))
+            if (d->dragMoveEvent(e, ev->mimeData(), coordinateOffset + ev->pos()))
                 ev->acceptProposedAction();
             break;
         }
         case QEvent::Drop: {
             QDropEvent *ev = static_cast<QDropEvent *>(e);
-            if (d->dropEvent(ev->mimeData(), ev->pos(), ev->proposedAction(), ev->source()))
+            if (d->dropEvent(ev->mimeData(), coordinateOffset + ev->pos(), ev->proposedAction(), ev->source()))
                 ev->acceptProposedAction();
             break;
         }
@@ -1170,20 +1175,20 @@ bool QTextControl::event(QEvent *e)
 
         case QEvent::GraphicsSceneMousePress: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mousePressEvent(ev->button(), ev->pos(), ev->modifiers(), ev->buttons(),
+            d->mousePressEvent(ev->button(), coordinateOffset + ev->pos(), ev->modifiers(), ev->buttons(),
                                ev->screenPos());
             break; }
         case QEvent::GraphicsSceneMouseMove: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mouseMoveEvent(ev->buttons(), ev->pos());
+            d->mouseMoveEvent(ev->buttons(), coordinateOffset + ev->pos());
             break; }
         case QEvent::GraphicsSceneMouseRelease: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mouseMoveEvent(ev->button(), ev->pos());
+            d->mouseMoveEvent(ev->button(), coordinateOffset + ev->pos());
             break; }
         case QEvent::GraphicsSceneMouseDoubleClick: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mouseDoubleClickEvent(e, ev->button(), ev->pos());
+            d->mouseDoubleClickEvent(e, ev->button(), coordinateOffset + ev->pos());
             break; }
         case QEvent::GraphicsSceneContextMenu: {
             d->contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(e)->screenPos());
@@ -1199,12 +1204,12 @@ bool QTextControl::event(QEvent *e)
             break;
         case QEvent::GraphicsSceneDragMove: {
             QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
-            if (d->dragMoveEvent(e, ev->mimeData(), ev->pos()))
+            if (d->dragMoveEvent(e, ev->mimeData(), coordinateOffset + ev->pos()))
                 ev->acceptProposedAction();
             break; }
         case QEvent::GraphicsSceneDrop: {
             QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
-            if (d->dropEvent(ev->mimeData(), ev->pos(), ev->proposedAction(), ev->source()))
+            if (d->dropEvent(ev->mimeData(), coordinateOffset + ev->pos(), ev->proposedAction(), ev->source()))
                 ev->acceptProposedAction();
             break; }
 
@@ -1256,14 +1261,19 @@ bool QTextControl::event(QEvent *e)
             }
             // FALL THROUGH
         default:
-            return QObject::event(e);
+            break;
     }
-    return true;
+}
+
+/*! \reimp
+*/
+bool QTextControl::event(QEvent *e)
+{
+    return QObject::event(e);
 }
 
 /*! \internal
 */
-
 void QTextControl::timerEvent(QTimerEvent *e)
 {
     Q_D(QTextControl);
@@ -2295,18 +2305,6 @@ QList<QTextControl::ExtraSelection> QTextControl::extraSelections() const
         selections.append(sel);
     }
     return selections;
-}
-
-void QTextControl::setContextWidget(QWidget *w)
-{
-    Q_D(QTextControl);
-    d->contextWidget = w;
-}
-
-QWidget *QTextControl::contextWidget() const
-{
-    Q_D(const QTextControl);
-    return d->contextWidget;
 }
 
 /*!

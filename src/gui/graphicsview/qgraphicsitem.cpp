@@ -4064,6 +4064,8 @@ public:
 
     inline QPointF controlOffset() const
     { return QPointF(0., pageNumber * textControl->document()->pageSize().height()); }
+    inline void sendControlEvent(QEvent *e)
+    { textControl->processEvent(e, controlOffset()); }
 
     void _q_updateBoundingRect(const QSizeF &);
     void _q_update(QRectF);
@@ -4074,14 +4076,6 @@ public:
 
     QGraphicsTextItem *qq;
 };
-
-template <class Event>
-void qGraphicsTextItemSendTranslatedEvent(QGraphicsTextItemPrivate *d, Event *event)
-{
-    event->setPos(event->pos() + d->controlOffset());
-    QApplication::sendEvent(d->textControl, event);
-    event->setPos(event->pos() - d->controlOffset());
-}
 
 /*!
     Constructs a QGraphicsTextItem, using \a text as the default plain text. \a
@@ -4308,7 +4302,7 @@ void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    qGraphicsTextItemSendTranslatedEvent(dd, event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4323,7 +4317,7 @@ void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    qGraphicsTextItemSendTranslatedEvent(dd, event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4338,7 +4332,7 @@ void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    qGraphicsTextItemSendTranslatedEvent(dd, event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4353,7 +4347,7 @@ void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    qGraphicsTextItemSendTranslatedEvent(dd, event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4361,7 +4355,7 @@ void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
-    QApplication::sendEvent(dd->textControl, event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4370,7 +4364,7 @@ void QGraphicsTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
 {
     if (dd->textControl)
-        QApplication::sendEvent(dd->textControl, event);
+        dd->sendControlEvent(event);
 }
 
 /*!
@@ -4379,7 +4373,7 @@ void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
 void QGraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
 {
     if (dd->textControl)
-        QApplication::sendEvent(dd->textControl, event);
+        dd->sendControlEvent(event);
 }
 
 /*!
@@ -4388,7 +4382,7 @@ void QGraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
 void QGraphicsTextItem::focusInEvent(QFocusEvent *event)
 {
     if (dd->textControl)
-        QApplication::sendEvent(dd->textControl, event);
+        dd->sendControlEvent(event);
     update();
 }
 
@@ -4398,7 +4392,7 @@ void QGraphicsTextItem::focusInEvent(QFocusEvent *event)
 void QGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 {
     if (dd->textControl)
-        QApplication::sendEvent(dd->textControl, event);
+        dd->sendControlEvent(event);
     update();
 }
 
@@ -4410,7 +4404,7 @@ void QGraphicsTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
     if (!dd->textControl)
         return;
 
-    qGraphicsTextItemSendTranslatedEvent(dd, event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4421,7 +4415,7 @@ void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
     if (!dd->textControl)
         return;
 
-    qGraphicsTextItemSendTranslatedEvent(dd, event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4432,7 +4426,7 @@ void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
     if (!dd->textControl)
         return;
 
-    qGraphicsTextItemSendTranslatedEvent(dd, event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4443,7 +4437,7 @@ void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
     if (!dd->textControl)
         return;
 
-    qGraphicsTextItemSendTranslatedEvent(dd, event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4453,7 +4447,8 @@ void QGraphicsTextItem::inputMethodEvent(QInputMethodEvent *event)
 {
     if (!dd->textControl)
         return;
-    QApplication::sendEvent(dd->textControl, event);
+
+    dd->sendControlEvent(event);
 }
 
 /*!

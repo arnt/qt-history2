@@ -122,7 +122,6 @@ void QTextEditPrivate::init(const QString &html)
 {
     Q_Q(QTextEdit);
     control = new QTextEditControl(q);
-    control->setContextWidget(viewport);
 
     QObject::connect(control, SIGNAL(microFocusChanged()), q, SLOT(_q_updateMicroFocus()));
     QObject::connect(control, SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(_q_adjustScrollbars()));
@@ -906,7 +905,7 @@ bool QTextEdit::event(QEvent *e)
         e->setAccepted(ce.isAccepted());
         return result;
     } else if (e->type() == QEvent::ShortcutOverride) {
-        d->control->event(e);
+        d->sendControlEvent(e);
     }
     return QAbstractScrollArea::event(e);
 }
@@ -1003,7 +1002,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
                 else
                     d->vbar->triggerAction(QAbstractSlider::SliderPageStepAdd);
             default:
-                d->control->event(e);
+                d->sendControlEvent(e);
                 if (!e->isAccepted()) {
                     QAbstractScrollArea::keyPressEvent(e);
                 }
@@ -1070,7 +1069,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    d->control->event(e);
+    d->sendControlEvent(e);
 #ifdef QT_KEYPAD_NAVIGATION
     if (!e->isAccepted()) {
         switch (e->key()) {
@@ -1272,21 +1271,12 @@ void QTextEditPrivate::_q_currentCharFormatChanged(const QTextCharFormat &fmt)
 #endif
 }
 
-void QTextEditPrivate::sendTranslatedMouseEvent(QMouseEvent *e)
-{
-    const QPoint translatedOffset(e->pos().x() + horizontalOffset(),
-                                  e->pos().y() + verticalOffset());
-    QMouseEvent translatedEvent(e->type(), translatedOffset,
-                                e->globalPos(), e->button(), e->buttons(), e->modifiers());
-    control->event(&translatedEvent);
-}
-
 /*! \reimp
 */
 void QTextEdit::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
-    d->sendTranslatedMouseEvent(e);
+    d->sendControlEvent(e);
 }
 
 /*! \reimp
@@ -1295,7 +1285,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
     const QPoint pos = e->pos();
-    d->sendTranslatedMouseEvent(e);
+    d->sendControlEvent(e);
     if (!(e->buttons() & Qt::LeftButton))
         return;
     if (d->autoScrollTimer.isActive()) {
@@ -1313,7 +1303,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
     d->autoScrollTimer.stop();
-    d->sendTranslatedMouseEvent(e);
+    d->sendControlEvent(e);
 }
 
 /*! \reimp
@@ -1321,7 +1311,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
-    d->sendTranslatedMouseEvent(e);
+    d->sendControlEvent(e);
 }
 
 /*! \reimp
@@ -1358,8 +1348,7 @@ bool QTextEdit::focusNextPrevChild(bool next)
 void QTextEdit::contextMenuEvent(QContextMenuEvent *e)
 {
     Q_D(QTextEdit);
-    QContextMenuEvent translatedEvent(e->reason(), d->mapToContents(e->pos()), e->globalPos());
-    d->control->event(&translatedEvent);
+    d->sendControlEvent(e);
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -1368,7 +1357,7 @@ void QTextEdit::contextMenuEvent(QContextMenuEvent *e)
 void QTextEdit::dragEnterEvent(QDragEnterEvent *e)
 {
     Q_D(QTextEdit);
-    d->control->event(e);
+    d->sendControlEvent(e);
 }
 
 /*! \reimp
@@ -1376,7 +1365,7 @@ void QTextEdit::dragEnterEvent(QDragEnterEvent *e)
 void QTextEdit::dragLeaveEvent(QDragLeaveEvent *e)
 {
     Q_D(QTextEdit);
-    d->control->event(e);
+    d->sendControlEvent(e);
 }
 
 /*! \reimp
@@ -1384,8 +1373,7 @@ void QTextEdit::dragLeaveEvent(QDragLeaveEvent *e)
 void QTextEdit::dragMoveEvent(QDragMoveEvent *e)
 {
     Q_D(QTextEdit);
-    e->setPos(d->mapToContents(e->pos()));
-    d->control->event(e);
+    d->sendControlEvent(e);
 }
 
 /*! \reimp
@@ -1393,8 +1381,7 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *e)
 void QTextEdit::dropEvent(QDropEvent *e)
 {
     Q_D(QTextEdit);
-    e->setPos(d->mapToContents(e->pos()));
-    d->control->event(e);
+    d->sendControlEvent(e);
 }
 
 #endif // QT_NO_DRAGANDDROP
@@ -1410,7 +1397,7 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
         && !hasEditFocus())
         setEditFocus(true);
 #endif
-    d->control->event(e);
+    d->sendControlEvent(e);
 }
 
 /*!\reimp
@@ -1446,7 +1433,7 @@ QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 void QTextEdit::focusInEvent(QFocusEvent *e)
 {
     Q_D(QTextEdit);
-    d->control->event(e);
+    d->sendControlEvent(e);
 }
 
 /*! \reimp
@@ -1454,7 +1441,7 @@ void QTextEdit::focusInEvent(QFocusEvent *e)
 void QTextEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QTextEdit);
-    d->control->event(e);
+    d->sendControlEvent(e);
 }
 
 /*! \reimp
@@ -1482,7 +1469,7 @@ void QTextEdit::changeEvent(QEvent *e)
             d->autoScrollTimer.stop();
     } else if (e->type() == QEvent::EnabledChange) {
         e->setAccepted(isEnabled());
-        d->control->event(e);
+        d->sendControlEvent(e);
     }
 }
 

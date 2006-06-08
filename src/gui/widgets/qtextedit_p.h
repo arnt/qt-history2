@@ -69,7 +69,8 @@ public:
     inline void _q_updateMicroFocus()
     { q_func()->updateMicroFocus(); }
 
-    void sendTranslatedMouseEvent(QMouseEvent *e);
+    inline void sendControlEvent(QEvent *e)
+    { control->processEvent(e, QPointF(horizontalOffset(), verticalOffset()), viewport); }
 
     void _q_currentCharFormatChanged(const QTextCharFormat &format);
 
