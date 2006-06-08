@@ -68,9 +68,6 @@ public:
     Qt::TextFormat textFormat() const;
     void setTextFormat(Qt::TextFormat);
 
-    bool isTextSelectable() const;
-    void setTextSelectable(bool selectable);
-
     static int information(QWidget *parent, const QString &caption,
                             const QString& text,
                             int button0, int button1=0, int button2=0);
