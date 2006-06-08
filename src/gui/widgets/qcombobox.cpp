@@ -2154,6 +2154,8 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
                 e->ignore();
             else if (d->lineEdit && hasEditFocus())
                 d->skipCompletion = true;
+        } else {
+            e->ignore(); // let the surounding dialog have it
         }
         break;
 #endif
