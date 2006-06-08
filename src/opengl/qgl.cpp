@@ -3107,7 +3107,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
 {
     Q_D(QGLWidget);
     if (name)
-        setObjectName(QLatin1String(name));
+        setObjectName(QString::fromAscii(name));
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     setAutoFillBackground(true); // for compatibility
@@ -3125,7 +3125,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
 {
     Q_D(QGLWidget);
     if (name)
-        setObjectName(QLatin1String(name));
+        setObjectName(QString::fromAscii(name));
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     setAutoFillBackground(true); // for compatibility
@@ -3142,7 +3142,7 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
 {
     Q_D(QGLWidget);
     if (name)
-        setObjectName(QLatin1String(name));
+        setObjectName(QString::fromAscii(name));
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
     setAutoFillBackground(true); // for compatibility
