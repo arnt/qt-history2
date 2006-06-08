@@ -921,7 +921,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
             needShow = false;
         } else if (newstate & Qt::WindowFullScreen) {
             d->topData()->savedFlags = windowFlags();
-            setParent(0, Qt::FramelessWindowHint);
+            setParent(0, Qt::FramelessWindowHint | (windowFlags() & Qt::WindowStaysOnTopHint));
             const QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this));
             move(screen.topLeft());
             resize(screen.size());
