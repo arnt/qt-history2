@@ -884,6 +884,9 @@ bool QAbstractButton::event(QEvent *e)
         case QEvent::MouseButtonRelease:
         case QEvent::MouseButtonDblClick:
         case QEvent::MouseMove:
+        case QEvent::HoverMove:
+        case QEvent::HoverEnter:
+        case QEvent::HoverLeave:
         case QEvent::ContextMenu:
 #ifndef QT_NO_WHEELEVENT
         case QEvent::Wheel:
