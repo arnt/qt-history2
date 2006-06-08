@@ -746,7 +746,7 @@ bool QGraphicsItem::isVisible() const
     Items are visible by default; it is unnecessary to call setVisible(true)
     on a new item.
 
-    \sa isVisible()
+    \sa isVisible(), show(), hide()
 */
 void QGraphicsItem::setVisible(bool visible)
 {
@@ -768,6 +768,26 @@ void QGraphicsItem::setVisible(bool visible)
     foreach (QGraphicsItem *child, children())
         child->setVisible(visible);
 }
+
+/*!
+    \fn void QGraphicsItem::hide()
+
+    Hides the item. (Items are visible by default.)
+
+    This convenience function is equivalent to calling setVisible(false).
+
+    \sa show(), setVisible()
+*/
+
+/*!
+    \fn void QGraphicsItem::show()
+
+    Shows the item. (Items are visible by default.)
+
+    This convenience function is equivalent to calling setVisible(true).
+
+    \sa hide(), setVisible()
+*/
 
 /*!
     Returns true if the item is enabled; otherwise, false is returned.

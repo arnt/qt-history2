@@ -98,6 +98,8 @@ public:
 
     bool isVisible() const;
     void setVisible(bool visible);
+    inline void hide() { setVisible(false); }
+    inline void show() { setVisible(true); }
 
     bool isEnabled() const;
     void setEnabled(bool enabled);
