@@ -122,6 +122,7 @@ void QTextEditPrivate::init(const QString &html)
 {
     Q_Q(QTextEdit);
     control = new QTextEditControl(q);
+    control->setPalette(q->palette());
 
     QObject::connect(control, SIGNAL(microFocusChanged()), q, SLOT(updateMicroFocus()));
     QObject::connect(control, SIGNAL(documentSizeChanged(QSizeF)), q, SLOT(_q_adjustScrollbars()));
@@ -1470,6 +1471,8 @@ void QTextEdit::changeEvent(QEvent *e)
     } else if (e->type() == QEvent::EnabledChange) {
         e->setAccepted(isEnabled());
         d->sendControlEvent(e);
+    } else if (e->type() == QEvent::PaletteChange) {
+        d->control->setPalette(palette());
     }
 }
 
