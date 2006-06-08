@@ -2360,7 +2360,7 @@ void QHttpPrivate::_q_slotError(QAbstractSocket::SocketError err)
             finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "Connection refused")), QHttp::ConnectionRefused);
             break;
         case QTcpSocket::HostNotFoundError:
-            finishedWithError(QString::fromAscii(QT_TRANSLATE_NOOP("QHttp", "Host %1 not found"))
+            finishedWithError(QString::fromLatin1(QT_TRANSLATE_NOOP("QHttp", "Host %1 not found"))
                               .arg(socket->peerName()), QHttp::HostNotFound);
             break;
         case QTcpSocket::RemoteHostClosedError:

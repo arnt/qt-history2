@@ -135,7 +135,7 @@ static QString dump(const QByteArray &buf)
     if (buf.size() > MAX_DATA_DUMP)
         data += QLatin1String(" ...");
 
-    return QString::fromAscii("size: %1 data: { %2 }").arg(buf.size()).arg(data);
+    return QString::fromLatin1("size: %1 data: { %2 }").arg(buf.size()).arg(data);
 }
 
 /*
