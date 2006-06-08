@@ -24,7 +24,7 @@ class QDataStream;
 class QDate;
 class QTime;
 struct QLocalePrivate;
-struct QSystemLocale;
+class QVariant;
 
 class Q_CORE_EXPORT QLocale
 {
@@ -472,6 +472,9 @@ public:
     QChar negativeSign() const;
     QChar exponential() const;
 
+    QString month(int, FormatType format = LongFormat) const;
+    QString day(int, FormatType format = LongFormat) const;
+
     inline bool operator==(const QLocale &other) const;
     inline bool operator!=(const QLocale &other) const;
 
@@ -482,17 +485,9 @@ public:
     static QLocale c() { return QLocale(C); }
     static QLocale system();
 
-    /* internal only for now */
-    static void setSystemLocale(QSystemLocale *);
-    static QByteArray systemLocaleName();
 private:
-    QString month(int, bool = false) const;
-    QString day(int, bool = false) const;
-    static const QLocalePrivate *systemLocale();
-
+    friend class QLocalePrivate;
     const QLocalePrivate *d;
-    static const QLocalePrivate *default_d;
-    static QSystemLocale *m_system_locale;
 };
 Q_DECLARE_TYPEINFO(QLocale, Q_MOVABLE_TYPE);
 
@@ -515,6 +510,38 @@ inline bool QLocale::operator!=(const QLocale &other) const
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QLocale &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QLocale &);
 #endif
+
+class QSystemLocale
+{
+public:
+    QSystemLocale();
+    virtual ~QSystemLocale();
+
+    enum QueryType {
+        LanguageId, // uint
+        CountryId, // uint
+        DecimalPoint, // QChar
+        GroupSeparator, // QChar
+        ZeroDigit, // QChar
+        NegativeSign, // QChar
+        DateFormatLong, // QString
+        DateFormatShort, // QString
+        TimeFormatLong, // QString
+        TimeFormatShort, // QString
+        DayNameLong, // QString, in: int
+        DayNameShort, // QString, in: int
+        MonthNameLong, // QString, in: int
+        MonthNameShort, // QString, in: int
+        DateToStringLong, // QString, in: QDate
+        DateToStringShort, // QString in: QDate
+        TimeToStringLong, // QString in: QTime
+        TimeToStringShort // QString in: QTime
+    };
+    virtual QVariant query(QueryType type, QVariant in) const;
+    virtual QLocale fallbackLocale() const;
+};
+
+
 
 QT_END_HEADER
 

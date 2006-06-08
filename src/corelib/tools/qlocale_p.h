@@ -93,8 +93,7 @@ public:
     	    	    	  GroupSeparatorMode group_sep_mode,
                           CharBuff *result) const;
 
-    QString month(int index, bool short_format = false) const;
-    QString day(int index, bool short_format = false) const;
+    static void updateSystemPrivate();
 
     quint32 m_language_id, m_country_id;
 
@@ -105,26 +104,6 @@ public:
     quint32 m_short_time_format_idx, m_long_time_format_idx;
     quint32 m_short_month_names_idx, m_long_month_names_idx;
     quint32 m_short_day_names_idx, m_long_day_names_idx;
-};
-
-class QDate;
-struct QSystemLocale
-{
-public:
-    virtual ~QSystemLocale();
-
-    virtual const QLocalePrivate *locale() const;
-
-    virtual QByteArray name() const;
-    // default is null string which means use qlocale_data.h
-    virtual QString dateToString(const QDate &, bool short_format = false) const;
-    virtual QString timeToString(const QTime &, bool short_format = false) const;
-
-    virtual QString dayName(int day, bool short_format = false) const;
-    virtual QString monthName(int day, bool short_format = false) const;
-
-    virtual QString timeFormat(bool short_format = false) const;
-    virtual QString dateFormat(bool short_format = false) const;
 };
 
 #endif // QLOCALE_P_H

@@ -1050,7 +1050,13 @@ bool QTextCodec::canEncode(const QString& s) const
 */
 const char *QTextCodec::locale()
 {
-    return QLocale::systemLocaleName();
+    static char locale[6];
+    QByteArray l = QLocale::system().name().toLatin1();
+    int len = qMin(l.length(), 5);
+    memcpy(locale, l.constData(), len);
+    locale[len+1] = '\0';
+
+    return locale;
 }
 
 /*!
