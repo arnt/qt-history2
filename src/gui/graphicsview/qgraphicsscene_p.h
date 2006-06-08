@@ -60,6 +60,7 @@ public:
 
     void emitUpdated();
     QList<QRectF> updatedRects;
+    bool updateAll;
     bool calledEmitUpdated;
 
     QList<QGraphicsItem *> newItems;
@@ -67,8 +68,8 @@ public:
     QList<QGraphicsItem *> allItems;
     QList<int> freeItemIndexes;
     void removeItemLater(QGraphicsItem *item);
-    QList<QGraphicsItem *> validItems() const;
-    QSet<QGraphicsItem *> removedItems;
+    QSet<int> removedItemsIndexes;
+    void purgeRemovedItems();
 
     QBrush backgroundBrush;
     QBrush foregroundBrush;

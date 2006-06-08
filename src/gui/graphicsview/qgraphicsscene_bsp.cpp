@@ -99,6 +99,18 @@ void QGraphicsSceneBspTree::init(const QRectF &area, int depth, NodeType type, i
     }
 }
 
+void QGraphicsSceneBspTree::removeIndexes(const QSet<int> &indexes)
+{
+    for (int i = 0; i < leaves.size(); ++i) {
+        QVector<int> newLeaf;
+        foreach (int index, leaves.at(i)) {
+            if (!indexes.contains(index))
+                newLeaf << index;
+        }
+        leaves[i] = newLeaf;
+    }
+}
+
 void QGraphicsSceneBspTree::insert(QVector<int> &leaf, const QRectF &, uint, QGraphicsSceneBspTreeData data)
 {
     leaf.append(data.i);

@@ -27,6 +27,7 @@
 
 #include <qvector.h>
 #include <qrect.h>
+#include <qset.h>
 
 class QGraphicsSceneBspTree
 {
@@ -66,6 +67,8 @@ public:
     inline QVector<int> &leaf(int i) { return leaves[i]; }
     inline void insertLeaf(const QRectF &r, int i) { climbTree(r, &insert, i, 0); }
     inline void removeLeaf(const QRectF &r, int i) { climbTree(r, &remove, i, 0); }
+
+    void removeIndexes(const QSet<int> &indexes);
 
 protected:
     void init(const QRectF &area, int depth, NodeType type, int index);
