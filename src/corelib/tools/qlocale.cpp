@@ -792,12 +792,12 @@ static QString winIso3116CtryName()
 }
 
 
-#elif 0//defined(Q_OS_MAC)
+#elif defined(Q_OS_MAC)
 /******************************************************************************
 ** Wrappers for Mac locale system functions
 */
 
-static QByteArray getMacLocaleName() const
+static QByteArray getMacLocaleName()
 {
     QByteArray result = envVarLocale();
 
@@ -809,7 +809,7 @@ static QByteArray getMacLocaleName() const
     return result;
 }
 
-static QString macMonthName(int month, bool short_format) const
+static QString macMonthName(int month, bool short_format)
 {
     month -= 1;
     if (month < 0 || month > 11)
@@ -829,21 +829,24 @@ static QString macMonthName(int month, bool short_format) const
 }
 
 
-static QString macDayName(int day, bool short_format) const
+static QString macDayName(int day, bool short_format)
 {
+    if (day < 1 || day > 7)
+        return QString();
+
     QCFType<CFDateFormatterRef> formatter
         = CFDateFormatterCreate(0, QCFType<CFLocaleRef>(CFLocaleCopyCurrent()),
                                 kCFDateFormatterNoStyle,  kCFDateFormatterNoStyle);
     QCFType<CFArrayRef> values = static_cast<CFArrayRef>(CFDateFormatterCopyProperty(formatter,
                 short_format ? kCFDateFormatterShortWeekdaySymbols : kCFDateFormatterWeekdaySymbols));
     if (values != 0) {
-        CFStringRef cfstring = static_cast<CFStringRef>(CFArrayGetValueAtIndex(values, day));
+        CFStringRef cfstring = static_cast<CFStringRef>(CFArrayGetValueAtIndex(values, day % 7));
         return QCFString::toQString(cfstring);
     }
     return QString();
 }
 
-static QString macDateToString(const QDate &date, bool short_format) const
+static QString macDateToString(const QDate &date, bool short_format)
 {
     CFGregorianDate macGDate;
     macGDate.year = date.year();
@@ -864,7 +867,7 @@ static QString macDateToString(const QDate &date, bool short_format) const
     return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
 }
 
-static QString macTimeToString(const QTime &time, bool short_format) const
+static QString macTimeToString(const QTime &time, bool short_format)
 {
     CFGregorianDate macGDate;
     // Assume this is local time and the current date
@@ -966,7 +969,7 @@ static QString macToQtFormat(const QString &sys_fmt)
     return result;
 }
 
-QString getMacDateFormat(CFDateFormatterStyle style) const
+QString getMacDateFormat(CFDateFormatterStyle style)
 {
     QCFType<CFLocaleRef> l = CFLocaleCopyCurrent();
     QCFType<CFDateFormatterRef> formatter = CFDateFormatterCreate(kCFAllocatorDefault,
@@ -974,7 +977,7 @@ QString getMacDateFormat(CFDateFormatterStyle style) const
     return macToQtFormat(QCFString::toQString(CFDateFormatterGetFormat(formatter)));
 }
 
-static QString getMacTimeFormat(CFDateFormatterStyle style) const
+static QString getMacTimeFormat(CFDateFormatterStyle style)
 {
     QCFType<CFLocaleRef> l = CFLocaleCopyCurrent();
     QCFType<CFDateFormatterRef> formatter = CFDateFormatterCreate(kCFAllocatorDefault,
@@ -1000,9 +1003,9 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
 //     case Name:
 //         return getMacLocaleName();
     case DecimalPoint:
-        return getCFLocaleValue(cflocale, kCFLocaleDecimalSeparator);
+        return getCFLocaleValue(kCFLocaleDecimalSeparator);
     case GroupSeparator:
-        return getCFLocaleValue(cflocale, kCFLocaleGroupingSeparator);
+        return getCFLocaleValue(kCFLocaleGroupingSeparator);
     case DateFormatLong:
     case DateFormatShort:
         return getMacDateFormat(type == DateFormatShort ? kCFDateFormatterShortStyle : kCFDateFormatterLongStyle);
