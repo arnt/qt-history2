@@ -583,7 +583,9 @@ public:
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery) const;
 protected:
     void resetInputContext();
+protected Q_SLOTS:
     void updateMicroFocus();
+protected:
 
     void create(WId = 0, bool initializeWindow = true,
                          bool destroyOldWindow = true);

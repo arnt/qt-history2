@@ -355,7 +355,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_repaintContents(const QRectF &r))
     Q_PRIVATE_SLOT(d_func(), void _q_currentCharFormatChanged(const QTextCharFormat &))
     Q_PRIVATE_SLOT(d_func(), void _q_adjustScrollbars())
-    Q_PRIVATE_SLOT(d_func(), void _q_updateMicroFocus())
     Q_PRIVATE_SLOT(d_func(), void _q_ensureVisible(const QRectF &))
     friend class QTextEditControl;
 };

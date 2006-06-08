@@ -66,9 +66,6 @@ public:
     inline int verticalOffset() const
     { return vbar->value(); }
 
-    inline void _q_updateMicroFocus()
-    { q_func()->updateMicroFocus(); }
-
     inline void sendControlEvent(QEvent *e)
     { control->processEvent(e, QPointF(horizontalOffset(), verticalOffset()), viewport); }
 
