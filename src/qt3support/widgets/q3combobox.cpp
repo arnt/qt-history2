@@ -358,7 +358,7 @@ void Q3ComboBoxPopupItem::paint( QPainter* p, const QColorGroup&, bool,
 class Q3ComboBoxData
 {
 public:
-    Q3ComboBoxData( Q3ComboBox *cb ): current( 0 ), ed( 0 ), usingLBox( false ), pop( 0 ), lBox( 0 ), combo( cb )
+    Q3ComboBoxData( Q3ComboBox *cb ): current( 0 ), arrowDown(false), ed( 0 ), usingLBox( false ), pop( 0 ), lBox( 0 ), combo( cb )
     {
 	duplicatesEnabled = true;
 	cb->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
