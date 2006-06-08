@@ -511,6 +511,7 @@ Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QLocale &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QLocale &);
 #endif
 
+#ifndef QT_NO_SYSTEMLOCALE
 class QSystemLocale
 {
 public:
@@ -540,7 +541,7 @@ public:
     virtual QVariant query(QueryType type, QVariant in) const;
     virtual QLocale fallbackLocale() const;
 };
-
+#endif
 
 
 QT_END_HEADER

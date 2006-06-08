@@ -255,7 +255,9 @@ static int repeatCount(const QString &s, int i)
     return j - i;
 }
 
-#ifndef QT_USE_DATABASE
+static const QLocalePrivate *default_lp = 0;
+
+#ifndef QT_NO_SYSTEMLOCALE
 static QByteArray envVarLocale()
 {
     static QByteArray lang = 0;
@@ -268,7 +270,6 @@ static QByteArray envVarLocale()
         lang = qgetenv("LANG");
     return lang;
 }
-#endif
 
 
 #if 0 //defined(Q_OS_WIN)
@@ -1042,7 +1043,6 @@ QVariant QSystemLocale::query(QueryType, QVariant) const
 
 static QSystemLocale *_systemLocale = 0;
 static QLocalePrivate *system_lp = 0;
-static const QLocalePrivate *default_lp = 0;
 
 /******************************************************************************
 ** Default system locale behavior
@@ -1150,15 +1150,20 @@ void QLocalePrivate::updateSystemPrivate()
     if (!res.isNull())
         system_lp->m_minus = res.toChar().unicode();
 }
+#endif
 
 static const QLocalePrivate *systemPrivate()
 {
+#ifndef QT_NO_SYSTEMLOCALE
     // copy over the information from the fallback locale and modify
     if (!system_lp || system_lp->m_language_id == 0) {
         (void) systemLocale();
         QLocalePrivate::updateSystemPrivate();
     }
     return system_lp;
+#else
+    return locale_data;
+#endif
 }
 
 static const QLocalePrivate *defaultPrivate()
@@ -2279,6 +2284,7 @@ QString QLocale::toString(const QDate &date, const QString &format) const
 */
 QString QLocale::toString(const QDate &date, FormatType format) const
 {
+#ifndef QT_NO_SYSTEMLOCALE
     if (d == systemPrivate()) {
         QVariant res = systemLocale()->query(format == ShortFormat
                                              ? QSystemLocale::DateToStringShort : QSystemLocale::DateToStringLong,
@@ -2286,6 +2292,7 @@ QString QLocale::toString(const QDate &date, FormatType format) const
         if (!res.isNull())
             return res.toString();
     }
+#endif
 
     QString format_str = dateFormat(format);
     return toString(date, format_str);
@@ -2481,6 +2488,7 @@ QString QLocale::toString(const QTime &time, const QString &format) const
 */
 QString QLocale::toString(const QTime &time, FormatType format) const
 {
+#ifndef QT_NO_SYSTEMLOCALE
     if (d == systemPrivate()) {
         QVariant res = systemLocale()->query(format == ShortFormat
                                              ? QSystemLocale::TimeToStringShort : QSystemLocale::TimeToStringLong,
@@ -2488,6 +2496,7 @@ QString QLocale::toString(const QTime &time, FormatType format) const
         if (!res.isNull())
             return res.toString();
     }
+#endif
 
     QString format_str = timeFormat(format);
     return toString(time, format_str);
@@ -2506,6 +2515,7 @@ QString QLocale::toString(const QTime &time, FormatType format) const
 
 QString QLocale::dateFormat(FormatType format) const
 {
+#ifndef QT_NO_SYSTEMLOCALE
     if (d == systemPrivate()) {
         QVariant res = systemLocale()->query(format == ShortFormat
                                              ? QSystemLocale::DateFormatShort : QSystemLocale::DateFormatLong,
@@ -2513,6 +2523,7 @@ QString QLocale::dateFormat(FormatType format) const
         if (!res.isNull())
             return res.toString();
     }
+#endif
 
     const quint32 idx =
         format == ShortFormat
@@ -2534,6 +2545,7 @@ QString QLocale::dateFormat(FormatType format) const
 
 QString QLocale::timeFormat(FormatType format) const
 {
+#ifndef QT_NO_SYSTEMLOCALE
     if (d == systemPrivate()) {
         QVariant res = systemLocale()->query(format == ShortFormat
                                              ? QSystemLocale::TimeFormatShort : QSystemLocale::TimeFormatLong,
@@ -2541,6 +2553,7 @@ QString QLocale::timeFormat(FormatType format) const
         if (!res.isNull())
             return res.toString();
     }
+#endif
 
     const quint32 idx
         = format == ShortFormat
@@ -2688,7 +2701,7 @@ QString QLocale::month(int month, QLocale::FormatType type) const
     if (month < 1 || month > 12)
         return QString();
 
-#ifndef QT_USE_DATABASE
+#ifndef QT_NO_SYSTEMLOCALE
     if (d == systemPrivate()) {
         QVariant res = systemLocale()->query(type == LongFormat
                                              ? QSystemLocale::MonthNameLong : QSystemLocale::MonthNameShort,
@@ -2707,7 +2720,7 @@ QString QLocale::day(int day, QLocale::FormatType type) const
     if (day < 1 || day > 7)
         return QString();
 
-#ifndef QT_USE_DATABASE
+#ifndef QT_NO_SYSTEMLOCALE
     if (d == systemPrivate()) {
         QVariant res = systemLocale()->query(type == LongFormat
                                              ? QSystemLocale::DayNameLong : QSystemLocale::DayNameShort,
