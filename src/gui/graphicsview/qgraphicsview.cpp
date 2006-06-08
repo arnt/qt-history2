@@ -507,6 +507,7 @@ void QGraphicsView::setDragMode(DragMode mode)
 {
     Q_D(QGraphicsView);
     d->dragMode = mode;
+#ifndef QT_NO_CURSOR
     if (d->dragMode == ScrollHandDrag) {
         d->hasViewCursor = true;
         d->viewCursor = QCursor(Qt::OpenHandCursor);
@@ -514,6 +515,7 @@ void QGraphicsView::setDragMode(DragMode mode)
     } else {
         unsetCursor();
     }
+#endif
 }
 
 /*!
