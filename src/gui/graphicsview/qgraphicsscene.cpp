@@ -954,7 +954,18 @@ QRectF QGraphicsScene::itemsBoundingRect() const
 QList<QGraphicsItem *> QGraphicsScene::items() const
 {
     Q_D(const QGraphicsScene);
-    return d->allItems + d->newItems;
+    if (d->freeItemIndexes.isEmpty() && d->removedItems.isEmpty()) {
+        if (d->newItems.isEmpty())
+            return d->allItems;
+        return d->allItems + d->newItems;
+    }
+    
+    QList<QGraphicsItem *> itemList;
+    foreach (QGraphicsItem *item, d->allItems + d->newItems) {
+        if (item && !d->removedItems.contains(item))
+            itemList << item;
+    }
+    return itemList;
 }
 
 /*!
