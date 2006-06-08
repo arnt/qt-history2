@@ -40,7 +40,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
 protected:
-    void itemChange(GraphicsItemChange change);
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
