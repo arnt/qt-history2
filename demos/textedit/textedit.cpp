@@ -50,6 +50,12 @@ TextEdit::TextEdit(QWidget *parent)
     setupEditActions();
     setupTextActions();
 
+    {
+        QMenu *helpMenu = new QMenu(tr("Help"), this);
+        menuBar()->addMenu(helpMenu);
+        helpMenu->addAction(tr("About &Qt"), qApp, SLOT(aboutQt()));
+    }
+
     textEdit = new QTextEdit(this);
     connect(textEdit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)),
             this, SLOT(currentCharFormatChanged(const QTextCharFormat &)));
