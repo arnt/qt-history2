@@ -72,6 +72,8 @@ public:
     };
 
     QGraphicsScene(QObject *parent = 0);
+    QGraphicsScene(const QRectF &sceneRect, QObject *parent = 0);
+    QGraphicsScene(qreal x, qreal y, qreal width, qreal height, QObject *parent = 0);
     virtual ~QGraphicsScene();
 
     QRectF sceneRect() const;

@@ -709,6 +709,30 @@ QGraphicsScene::QGraphicsScene(QObject *parent)
 }
 
 /*!
+    Constructs a QGraphicsScene object, using \a sceneRect for its scene
+    rect. \a parent is passed to QObject's constructor.
+
+    \sa sceneRect
+*/
+QGraphicsScene::QGraphicsScene(const QRectF &sceneRect, QObject *parent)
+    : QObject(*new QGraphicsScenePrivate, parent)
+{
+    setSceneRect(sceneRect);
+}
+
+/*!
+    Constructs a QGraphicsScene object, using \a x, \a y, \a width, \a height
+    for its scene rect. \a parent is passed to QObject's constructor.
+
+    \sa sceneRect
+*/
+QGraphicsScene::QGraphicsScene(qreal x, qreal y, qreal width, qreal height, QObject *parent)
+    : QObject(*new QGraphicsScenePrivate, parent)
+{
+    setSceneRect(x, y, width, height);
+}
+
+/*!
     Destroys the QGraphicsScene object.
 */
 QGraphicsScene::~QGraphicsScene()
