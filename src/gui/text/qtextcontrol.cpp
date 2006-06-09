@@ -2321,21 +2321,19 @@ QList<QTextControl::ExtraSelection> QTextControl::extraSelections() const
 void QTextControl::setTextWidth(qreal width)
 {
     Q_D(QTextControl);
-    QSizeF pgSize = d->doc->pageSize();
-    pgSize.setWidth(width);
-    d->doc->setPageSize(pgSize);
+    d->doc->setTextWidth(width);
 }
 
 qreal QTextControl::textWidth() const
 {
     Q_D(const QTextControl);
-    return d->doc->pageSize().width();
+    return d->doc->textWidth();
 }
 
 QSizeF QTextControl::size() const
 {
     Q_D(const QTextControl);
-    return d->doc->documentLayout()->documentSize();
+    return d->doc->size();
 }
 
 /*!
@@ -2537,26 +2535,8 @@ QPointF QTextControl::anchorPosition(const QString &name) const
 
 void QTextControl::adjustSize()
 {
-    // Pull this private function in from qglobal.cpp
-    Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
-
     Q_D(QTextControl);
-    QFont f = d->doc->defaultFont();
-    QFontMetrics fm(f);
-    int mw =  fm.width(QLatin1Char('x')) * 80;
-    int w = mw;
-    d->doc->setPageSize(QSizeF(w, -1));
-    QSizeF size = d->doc->documentLayout()->documentSize();
-    if (size.width() != 0) {
-        w = qt_int_sqrt((uint)(5 * size.height() * size.width() / 3));
-        d->doc->setPageSize(QSizeF(qMin(w, mw), -1));
-
-        size = d->doc->documentLayout()->documentSize();
-        if (w*3 < 5*size.height()) {
-            w = qt_int_sqrt((uint)(2 * size.height() * size.width()));
-            d->doc->setPageSize(QSizeF(qMin(w, mw), -1));
-        }
-    }
+    d->doc->adjustSize();
 }
 
 /*!

@@ -2459,31 +2459,6 @@ void QTextDocumentLayoutPrivate::layoutStep() const
     lazyLayoutStepSize = qMin(200000, lazyLayoutStepSize * 2);
 }
 
-// Pull this private function in from qglobal.cpp
-Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
-
-/* used from QLabel */
-void QTextDocumentLayout::adjustSize()
-{
-    QFont f = document()->defaultFont();
-    QFontMetrics fm(f);
-    int mw =  fm.width(QLatin1Char('x')) * 80;
-    int w = mw;
-    QTextDocument *doc = document();
-    doc->setPageSize(QSizeF(w, -1));
-    QSizeF size = documentSize();
-    if (size.width() != 0) {
-        w = qt_int_sqrt((uint)(5 * size.height() * size.width() / 3));
-        doc->setPageSize(QSizeF(qMin(w, mw), -1));
-
-        size = documentSize();
-        if (w*3 < 5*size.height()) {
-            w = qt_int_sqrt((uint)(2 * size.height() * size.width()));
-            doc->setPageSize(QSizeF(qMin(w, mw), -1));
-        }
-    }
-}
-
 void QTextDocumentLayout::setBlockTextFlags(int flags)
 {
     Q_D(QTextDocumentLayout);

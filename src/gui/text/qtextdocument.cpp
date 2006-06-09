@@ -415,6 +415,75 @@ bool QTextDocument::useDesignMetrics() const
     return d->useDesignMetrics;
 }
 
+void QTextDocument::drawContents(QPainter *p, const QRectF &rect)
+{
+    p->save();
+    QAbstractTextDocumentLayout::PaintContext ctx;
+    if (rect.isValid()) {
+        p->setClipRect(rect);
+        ctx.clip = rect;
+    }
+    documentLayout()->draw(p, ctx);
+    p->restore();
+}
+
+void QTextDocument::setTextWidth(qreal width)
+{
+    Q_D(QTextDocument);
+    QSizeF sz = d->pageSize;
+    sz.setWidth(width);
+    setPageSize(sz);
+}
+
+qreal QTextDocument::textWidth() const
+{
+    Q_D(const QTextDocument);
+    return d->pageSize.width();
+}
+
+/*!
+    Adjusts the document to a reasonable size.
+*/
+void QTextDocument::adjustSize()
+{
+    // Pull this private function in from qglobal.cpp
+    Q_CORE_EXPORT unsigned int qt_int_sqrt(unsigned int n);
+
+    QFont f = defaultFont();
+    QFontMetrics fm(f);
+    int mw =  fm.width(QLatin1Char('x')) * 80;
+    int w = mw;
+    setPageSize(QSizeF(w, -1));
+    QSizeF size = documentLayout()->documentSize();
+    if (size.width() != 0) {
+        w = qt_int_sqrt((uint)(5 * size.height() * size.width() / 3));
+        setPageSize(QSizeF(qMin(w, mw), -1));
+
+        size = documentLayout()->documentSize();
+        if (w*3 < 5*size.height()) {
+            w = qt_int_sqrt((uint)(2 * size.height() * size.width()));
+            setPageSize(QSizeF(qMin(w, mw), -1));
+        }
+    }
+}
+
+/*!
+    \property QTextDocument::size
+    \since 4.2
+
+    Returns the actual size of the document.
+    This is equivalent to documentLayout()->documentSize();
+
+    The size of the document can be changed either by setting
+    a text width or setting an entire page size.
+
+    \sa setTextWidth(), setPageSize()
+*/
+QSizeF QTextDocument::size() const
+{
+    return documentLayout()->documentSize();
+}
+
 /*!
     \fn void QTextDocument::contentsChanged()
 

@@ -174,11 +174,11 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
         doc->setUndoRedoEnabled(false);
         doc->setDefaultFont(QApplication::font(this));
         doc->setHtml(text);
-        QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
-        layout->adjustSize();
+        doc->setUndoRedoEnabled(false);
+        doc->adjustSize();
         r.setTop(0);
         r.setLeft(0);
-        r.setSize(layout->documentSize().toSize());
+        r.setSize(doc->size().toSize());
     }
     else
     {

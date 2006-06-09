@@ -16,6 +16,7 @@
 
 #include <QtCore/qobject.h>
 #include <QtCore/qsize.h>
+#include <QtCore/qrect.h>
 #include <QtGui/qfont.h>
 
 QT_BEGIN_HEADER
@@ -83,6 +84,7 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_PROPERTY(QSizeF pageSize READ pageSize WRITE setPageSize)
     Q_PROPERTY(QFont defaultFont READ defaultFont WRITE setDefaultFont)
     Q_PROPERTY(bool useDesignMetrics READ useDesignMetrics WRITE setUseDesignMetrics)
+    Q_PROPERTY(QSizeF size READ size)
 
 public:
     explicit QTextDocument(QObject *parent = 0);
@@ -149,7 +151,7 @@ public:
 #ifndef QT_NO_PRINTER
     void print(QPrinter *printer) const;
 #endif
-    
+
     enum ResourceType {
         HtmlResource  = 1,
         ImageResource = 2,
@@ -167,6 +169,14 @@ public:
 
     void setUseDesignMetrics(bool b);
     bool useDesignMetrics() const;
+
+    void drawContents(QPainter *painter, const QRectF &rect = QRectF());
+
+    void setTextWidth(qreal width);
+    qreal textWidth() const;
+
+    void adjustSize();
+    QSizeF size() const;
 
 Q_SIGNALS:
     void contentsChange(int from, int charsRemoves, int charsAdded);

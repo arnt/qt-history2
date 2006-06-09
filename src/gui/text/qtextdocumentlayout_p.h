@@ -50,8 +50,6 @@ public:
     int pageCount() const;
     QSizeF documentSize() const;
 
-    void adjustSize();
-
     enum { LTR = 0x40000000, RTL = 0x80000000 };
     // flags passed to QTextLayout objects of blocks
     void setBlockTextFlags(int flags);
@@ -61,7 +59,7 @@ public:
 
     void setTabStopWidth(double width);
     double tabStopWidth() const;
-    
+
     void setCursorWidth(int width);
     int cursorWidth() const;
 

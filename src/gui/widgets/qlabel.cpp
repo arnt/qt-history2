@@ -676,9 +676,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
                 w = qMax(w-hextra-contentsMargin.width(), 0); // strip margin and indent
                 doc->setPageSize(QSize(w, INT_MAX));
             } else {
-                QTextDocumentLayout *l = qobject_cast<QTextDocumentLayout *>(doc->documentLayout());
-                Q_ASSERT(l != 0);
-                l->adjustSize();
+                doc->adjustSize();
             }
         } else {
             doc->setPageSize(QSize(0, INT_MAX));
