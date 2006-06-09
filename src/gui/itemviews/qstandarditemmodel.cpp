@@ -2284,6 +2284,14 @@ QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation
 }
 
 /*!
+    QStandardItemModel supports both copy and move
+  */
+Qt::DropActions QStandardItemModel::supportedDropActions () const
+{
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
+/*!
   \reimp
 */
 QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &parent) const

@@ -298,6 +298,7 @@ public:
     bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex());
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
+    Qt::DropActions supportedDropActions() const;
 
     QMap<int, QVariant> itemData(const QModelIndex &index) const;
     bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
