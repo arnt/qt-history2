@@ -50,6 +50,18 @@
     only in the first toolbar the action was added to. QWidgetAction takes
     over ownership of the default widget.
 
+    \bold {Mac OS X}: If you add widgets to a menu in the application's menu
+    bar on Mac OS X, the widget will be added and function but there are some
+    limitations:
+    \list 1
+        \o Focus/Keyboard handling of the widget is not possible
+        \o Mouse tracking on the widget currently does not work
+        \o Connecting the triggered() signal to a slot that opens a modal
+        dialog will cause a crash in Mac OS X 10.4 (known bug acknowledged by
+        Apple), a workaround is to use a QueuedConnection instead fo a
+        DirectConnection.
+    \endlist
+
     \ingroup application
     \mainclass
 */
