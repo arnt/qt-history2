@@ -315,8 +315,8 @@ void QGraphicsScenePrivate::generateBspTree()
         }
     }
 
-    int oldDepth = qMax(int(::log(oldItemCount)), 5);
-    int newDepth = qMax(int(::log(allItems.size())), 5);
+    int oldDepth = qMax(int(::log(float(oldItemCount))), 5);
+    int newDepth = qMax(int(::log(float(allItems.size()))), 5);
     QRectF newItemsBoundingRect;
     if (bspTree.leafCount() == 0 || oldDepth != newDepth) {
         // Recreate the bsptree if the depth has changed.
@@ -1526,7 +1526,7 @@ void QGraphicsScene::removeItem(QGraphicsItem *item)
 
     // Clear its background
     item->update();
-    
+
     // Note: This will access item's sceneBoundingRect(), which (as this is
     // C++) is why we cannot call removeItem() from QGraphicsItem's
     // destructor.
@@ -1825,7 +1825,7 @@ void QGraphicsScene::update(const QRectF &rect)
     Q_D(QGraphicsScene);
     if (d->updateAll)
         return;
-    
+
     if (rect.isNull()) {
         d->updateAll = true;
         d->updatedRects.clear();
@@ -2528,7 +2528,7 @@ void QGraphicsScene::itemUpdated(QGraphicsItem *item, const QRectF &rect)
     QRectF sceneBoundingRect = item->sceneMatrix().mapRect(boundingRect);
 
     update(sceneBoundingRect);
-    
+
     QRectF oldGrowingItemsBoundingRect = d->growingItemsBoundingRect;
     d->growingItemsBoundingRect |= sceneBoundingRect;
     if (!d->hasSceneRect && d->growingItemsBoundingRect != oldGrowingItemsBoundingRect)
