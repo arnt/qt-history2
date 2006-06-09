@@ -154,6 +154,7 @@ public:
         : QItemDelegate(view), view(view) { }
     void paint(QPainter *p, const QStyleOptionViewItem& opt, const QModelIndex& idx) const {
         QStyleOptionViewItem optCopy = opt;
+        optCopy.showDecorationSelected = true;
         if (view->currentIndex() == idx)
             optCopy.state |= QStyle::State_HasFocus;
         QItemDelegate::paint(p, optCopy, idx);

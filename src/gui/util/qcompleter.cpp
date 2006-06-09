@@ -336,8 +336,7 @@ QVariant QCompletionModel::data(const QModelIndex& index, int role) const
 void QCompletionModel::invalidate()
 {
     engine->cache.clear();
-    engine->filter(engine->curParts);
-    reset();
+    filter(engine->curParts);
 }
 
 void QCompletionModel::filter(const QStringList& parts)
@@ -817,7 +816,12 @@ QWidget *QCompleter::widget() const
 
 /*!
     Sets the model which provides completions to \a model. The \a model can
-    be list model or a tree model.
+    be list model or a tree model. If a model has been already previously set 
+    and it has the QCompleter as its parent, it is deleted.
+
+    For convenience, if \a model is a QDirModel, QCompleter switches its 
+    caseSensitivity to Qt::CaseInsensitive on Windows and Qt::CaseSensitive
+    on other platforms.
 
     \sa completionModel(), modelSorting, {Handling Tree Models}
 */
@@ -830,6 +834,13 @@ void QCompleter::setModel(QAbstractItemModel *model)
         setPopup(d->popup); // set the model and make new connections
     if (oldModel && oldModel->QObject::parent() == this)
         delete oldModel;
+    if (qobject_cast<QDirModel *>(model)) {
+#ifdef Q_OS_WIN
+        setCaseSensitivity(Qt::CaseInsensitive);
+#else
+        setCaseSensitivity(Qt::CaseSensitive);
+#endif
+    }
 }
 
 /*!
@@ -1352,24 +1363,27 @@ QStringList QCompleter::splitPath(const QString& path) const
     if (!isDirModel || path.isEmpty())
         return QStringList(completionPrefix());
 
+    QString pathCopy = QDir::convertSeparators(path);
     QString sep = QDir::separator();
 #ifdef Q_OS_WIN
-    sep += QLatin1Char('/');
+    if (pathCopy == QLatin1String("\\") || pathCopy == QLatin1String("\\\\"))
+        return QStringList(pathCopy);
+    QString doubleSlash(QLatin1String("\\\\"));
+    if (pathCopy.startsWith(doubleSlash))
+        pathCopy = pathCopy.mid(2);
+    else
+        doubleSlash.clear();
 #endif
 
     QRegExp re(QLatin1String("[") + QRegExp::escape(sep) + QLatin1String("]"));
-    QStringList parts = path.split(re);
+    QStringList parts = pathCopy.split(re);
 
-#ifndef Q_OS_WIN
+#ifdef Q_OS_WIN
+    if (!doubleSlash.isEmpty())
+        parts[0].prepend(doubleSlash);
+#else
     if (path[0] == sep[0]) // readd the "/" at the beginning as the split removed it
         parts[0] = sep[0];
-#else
-    if (path.startsWith(QLatin1String("\\\\"))) { // network share
-        if (parts.isEmpty())
-            parts[0] = QLatin1String("\\\\");
-        else
-            parts[0].prepend(QLatin1String("\\\\"));
-    }
 #endif
 
     return parts;
