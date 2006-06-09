@@ -2051,7 +2051,12 @@ QObject *QObject::sender() const
 }
 
 /*!
-    Returns the number of receivers connect to the \a signal.
+    Returns the number of receivers connected to the \a signal.
+
+    Since both slots and signals can be used as receivers for signals,
+    and the same connections can be made many times, the number of
+    receivers is the same as the number of connections made from this
+    signal.
 
     When calling this function, you can use the \c SIGNAL() macro to
     pass a specific signal:
