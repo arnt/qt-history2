@@ -70,6 +70,11 @@
 # error "This architecture is not supported. Please talk to qt-bugs@trolltech.com"
 #endif
 
+#ifdef QT_LSB
+// ### the LSB doesn't standardize syscall, need to wait until glib2.4 is standardized
+static inline int syscall(...) { return -1; }
+#endif
+
 static inline int inotify_init()
 {
     return syscall(__NR_inotify_init);
