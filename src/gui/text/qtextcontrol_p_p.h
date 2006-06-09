@@ -118,7 +118,7 @@ public:
 
     QTextCursor dndFeedbackCursor;
 
-    bool readOnly; /* ### move to document? */
+    Qt::TextInteractionFlags interactionFlags;
 
     QBasicTimer cursorBlinkTimer;
     QBasicTimer trippleClickTimer;

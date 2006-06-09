@@ -69,7 +69,7 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 
 QTextControlPrivate::QTextControlPrivate()
     : doc(0), cursorOn(false),
-      readOnly(false),
+      interactionFlags(Qt::TextEditorInteraction),
 #ifndef QT_NO_DRAGANDDROP
       mousePressed(false), mightStartDrag(false),
 #endif
@@ -439,7 +439,7 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
 
     QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
     emit q->textChanged();
-    doc->setUndoRedoEnabled(!q->isReadOnly());
+    doc->setUndoRedoEnabled(interactionFlags & Qt::TextEditable);
     updateCurrentCharFormatAndSelection();
     doc->setModified(false);
     emit q->cursorPositionChanged();
@@ -458,7 +458,7 @@ void QTextControlPrivate::startDrag()
     drag->setMimeData(data);
 
     Qt::DropActions actions = Qt::CopyAction;
-    if (!readOnly)
+    if (interactionFlags & Qt::TextEditable)
         actions |= Qt::MoveAction;
     Qt::DropAction action = drag->start(actions);
 
@@ -643,7 +643,7 @@ void QTextControlPrivate::extendLinewiseSelection(int suggestedNewPosition)
 
 void QTextControlPrivate::deleteSelected()
 {
-    if (readOnly || !cursor.hasSelection())
+    if (!(interactionFlags & Qt::TextEditable) || !cursor.hasSelection())
 	return;
     cursor.removeSelectedText();
 }
@@ -1011,7 +1011,7 @@ QTextCursor QTextControl::textCursor() const
 void QTextControl::cut()
 {
     Q_D(QTextControl);
-    if (d->readOnly || !d->cursor.hasSelection())
+    if (!(d->interactionFlags & Qt::TextEditable) || !d->cursor.hasSelection())
 	return;
     copy();
     d->cursor.removeSelectedText();
@@ -1086,6 +1086,8 @@ void QTextControl::processEvent(QEvent *e, const QPointF &coordinateOffset, QWid
 {
 
     Q_D(QTextControl);
+    if (d->interactionFlags & Qt::NoTextInteraction)
+        return;
 
     d->contextWidget = contextWidget;
 
@@ -1214,7 +1216,7 @@ void QTextControl::processEvent(QEvent *e, const QPointF &coordinateOffset, QWid
             break; }
 
         case QEvent::ShortcutOverride:
-            if (!d->readOnly) {
+            if (d->interactionFlags & Qt::TextEditable) {
                 QKeyEvent* ke = static_cast<QKeyEvent *>(e);
                 if (ke->modifiers() == Qt::NoModifier
                     || ke->modifiers() == Qt::ShiftModifier
@@ -1365,7 +1367,11 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    if (readOnly) {
+    if (interactionFlags & Qt::TextSelectableByKeyboard
+        && cursorMoveKeyEvent(e))
+        goto accept;
+
+    if (!(interactionFlags & Qt::TextEditable)) {
         e->ignore();
         return;
     }
@@ -1376,9 +1382,6 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
         cursor.mergeBlockFormat(fmt);
         goto accept;
     }
-
-    if (cursorMoveKeyEvent(e))
-        goto accept;
 
     // schedule a repaint of the region of the cursor, as when we move it we
     // want to make sure the old cursor disappears (not noticable when moving
@@ -1713,15 +1716,15 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
         }
     }
 
-    if (readOnly) {
-        if (cursor.position() != oldCursorPos)
-            emit q->cursorPositionChanged();
-        selectionChanged();
-    } else {
+    if (interactionFlags & Qt::TextEditable) {
         q->ensureCursorVisible();
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
         updateCurrentCharFormatAndSelection();
+    } else {
+        if (cursor.position() != oldCursorPos)
+            emit q->cursorPositionChanged();
+        selectionChanged();
     }
     repaintOldAndNewSelection(oldSelection);
 }
@@ -1769,16 +1772,16 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
     else
         setCursorPosition(newCursorPos, QTextCursor::KeepAnchor);
 
-    if (readOnly) {
-        emit q->visibilityRequest(QRectF(mousePos, QSizeF(1, 1)));
-        if (cursor.position() != oldCursorPos)
-            emit q->cursorPositionChanged();
-        selectionChanged();
-    } else {
+    if (interactionFlags & Qt::TextEditable) {
         q->ensureCursorVisible();
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
         updateCurrentCharFormatAndSelection();
+    } else {
+        emit q->visibilityRequest(QRectF(mousePos, QSizeF(1, 1)));
+        if (cursor.position() != oldCursorPos)
+            emit q->cursorPositionChanged();
+        selectionChanged();
     }
     repaintOldAndNewSelection(oldSelection);
 }
@@ -1804,7 +1807,7 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
 #ifndef QT_NO_CLIPBOARD
         setClipboardSelection();
     } else if (button == Qt::MidButton
-               && !readOnly
+               && (interactionFlags & Qt::TextEditable)
                && QApplication::clipboard()->supportsSelection()) {
         setCursorPosition(pos);
         const QMimeData *md = QApplication::clipboard()->mimeData(QClipboard::Selection);
@@ -1873,7 +1876,7 @@ void QTextControlPrivate::contextMenuEvent(const QPoint &pos)
 bool QTextControlPrivate::dragEnterEvent(QEvent *e, const QMimeData *mimeData)
 {
     Q_Q(QTextControl);
-    if (readOnly || !q->canInsertFromMimeData(mimeData)) {
+    if (!(interactionFlags & Qt::TextEditable) || !q->canInsertFromMimeData(mimeData)) {
         e->ignore();
         return false;
     }
@@ -1897,7 +1900,7 @@ void QTextControlPrivate::dragLeaveEvent()
 bool QTextControlPrivate::dragMoveEvent(QEvent *e, const QMimeData *mimeData, const QPointF &pos)
 {
     Q_Q(QTextControl);
-    if (readOnly || !q->canInsertFromMimeData(mimeData)) {
+    if (!(interactionFlags & Qt::TextEditable) || !q->canInsertFromMimeData(mimeData)) {
         e->ignore();
         return false;
     }
@@ -1923,7 +1926,7 @@ bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &po
     Q_Q(QTextControl);
     dndFeedbackCursor = QTextCursor();
 
-    if (readOnly || !q->canInsertFromMimeData(mimeData))
+    if (!(interactionFlags & Qt::TextEditable) || !q->canInsertFromMimeData(mimeData))
         return false;
 
     repaintSelection();
@@ -1944,7 +1947,7 @@ bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &po
  */
 void QTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
 {
-    if (readOnly || cursor.isNull()) {
+    if (!(interactionFlags & Qt::TextEditable) || cursor.isNull()) {
         e->ignore();
         return;
     }
@@ -2018,8 +2021,9 @@ void QTextControl::setFocus(bool focus, Qt::FocusReason reason)
 void QTextControlPrivate::focusEvent(QFocusEvent *e)
 {
     if (e->gotFocus()) {
-        if (!readOnly) {
+        if (interactionFlags & Qt::TextSelectableByKeyboard)
             cursorOn = true;
+        if (interactionFlags & Qt::TextEditable) {
             setBlinkingCursorEnabled(true);
 #ifdef QT_KEYPAD_NAVIGATION
             if (QApplication::keypadNavigationEnabled()) {
@@ -2055,7 +2059,7 @@ QMenu *QTextControl::createStandardContextMenu()
     QMenu *menu = new QMenu;
     QAction *a;
 
-    if (!d->readOnly) {
+    if (d->interactionFlags & Qt::TextEditable) {
         a = menu->addAction(tr("&Undo") + ACCEL_KEY(Z), this, SLOT(undo()));
         a->setEnabled(d->doc->isUndoAvailable());
         a = menu->addAction(tr("&Redo") + ACCEL_KEY(Y), this, SLOT(redo()));
@@ -2070,7 +2074,7 @@ QMenu *QTextControl::createStandardContextMenu()
     a->setEnabled(d->cursor.hasSelection());
 
 
-    if (!d->readOnly) {
+    if (d->interactionFlags & Qt::TextEditable) {
 #if !defined(QT_NO_CLIPBOARD)
         a = menu->addAction(tr("&Paste") + ACCEL_KEY(V), this, SLOT(paste()));
         const QMimeData *md = QApplication::clipboard()->mimeData();
@@ -2086,7 +2090,7 @@ QMenu *QTextControl::createStandardContextMenu()
 
     a->setEnabled(!d->doc->isEmpty());
 
-    if (!d->readOnly) {
+    if (d->interactionFlags & Qt::TextEditable) {
         menu->addSeparator();
         QUnicodeControlCharacterMenu *ctrlCharacterMenu = new QUnicodeControlCharacterMenu(this, menu);
         menu->addMenu(ctrlCharacterMenu);
@@ -2352,7 +2356,7 @@ bool QTextControl::canInsertFromMimeData(const QMimeData *source) const
 void QTextControl::insertFromMimeData(const QMimeData *source)
 {
     Q_D(QTextControl);
-    if (d->readOnly || !source)
+    if (!(d->interactionFlags & Qt::TextEditable) || !source)
 	return;
 
     bool hasData = false;
@@ -2377,33 +2381,23 @@ void QTextControl::insertFromMimeData(const QMimeData *source)
     ensureCursorVisible();
 }
 
-/*!
-    \property QTextControl::readOnly
-    \brief whether the text edit is read-only
-
-    In a read-only text edit the user can only navigate through the
-    text and select text; modifying the text is not possible.
-
-    This property's default is false.
-*/
-
-bool QTextControl::isReadOnly() const
-{
-    Q_D(const QTextControl);
-    return d->readOnly;
-}
-
-void QTextControl::setReadOnly(bool ro)
+void QTextControl::setTextInteractionFlags(Qt::TextInteractionFlags flags)
 {
     Q_D(QTextControl);
-    if (d->readOnly == ro)
+    if (flags == d->interactionFlags)
         return;
+    d->interactionFlags = flags;
 
-    d->readOnly = ro;
-    d->cursorOn = !ro;
+    d->cursorOn = (flags & Qt::TextSelectableByKeyboard) || (flags & Qt::TextEditable);
 
     if (d->hasFocus)
-        d->setBlinkingCursorEnabled(!ro);
+        d->setBlinkingCursorEnabled(flags & Qt::TextEditable);
+}
+
+Qt::TextInteractionFlags QTextControl::textInteractionFlags() const
+{
+    Q_D(const QTextControl);
+    return d->interactionFlags;
 }
 
 /*!

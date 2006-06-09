@@ -54,12 +54,12 @@ class Q_AUTOTEST_EXPORT QTextControl : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextControl)
     QDOC_PROPERTY(QTextOption::WrapMode wordWrapMode READ wordWrapMode WRITE setWordWrapMode)
-    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(QString html READ toHtml WRITE setHtml NOTIFY textChanged USER true)
     Q_PROPERTY(bool overwriteMode READ overwriteMode WRITE setOverwriteMode)
     Q_PROPERTY(int tabStopWidth READ tabStopWidth WRITE setTabStopWidth)
     Q_PROPERTY(bool acceptRichText READ acceptRichText WRITE setAcceptRichText)
     Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
+    Q_PROPERTY(Qt::TextInteractionFlags textInteractionFlags READ textInteractionFlags WRITE setTextInteractionFlags)
 public:
     explicit QTextControl(QObject *parent = 0);
     explicit QTextControl(const QString &text, QObject *parent = 0);
@@ -71,8 +71,8 @@ public:
     void setTextCursor(const QTextCursor &cursor);
     QTextCursor textCursor() const;
 
-    bool isReadOnly() const;
-    void setReadOnly(bool ro);
+    void setTextInteractionFlags(Qt::TextInteractionFlags flags);
+    Qt::TextInteractionFlags textInteractionFlags() const;
 
     void mergeCurrentCharFormat(const QTextCharFormat &modifier);
 

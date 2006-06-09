@@ -4188,9 +4188,7 @@ QString QGraphicsTextItem::toHtml() const
 */
 void QGraphicsTextItem::setHtml(const QString &text)
 {
-    if (!dd->textControl)
-        setTextControl(new QTextControl(this));
-    dd->textControl->setHtml(text);
+    textControl()->setHtml(text);
 }
 
 /*!
@@ -4212,9 +4210,7 @@ QString QGraphicsTextItem::toPlainText() const
 */
 void QGraphicsTextItem::setPlainText(const QString &text)
 {
-    if (!dd->textControl)
-        setTextControl(new QTextControl(this));
-    dd->textControl->setPlainText(text);
+    textControl()->setPlainText(text);
 }
 
 /*!
@@ -4236,9 +4232,7 @@ QFont QGraphicsTextItem::font() const
 */
 void QGraphicsTextItem::setFont(const QFont &font)
 {
-    if (!dd->textControl)
-        setTextControl(new QTextControl(this));
-    dd->textControl->document()->setDefaultFont(font);
+    textControl()->document()->setDefaultFont(font);
 }
 
 /*!
@@ -4314,11 +4308,10 @@ int QGraphicsTextItem::type() const
 */
 void QGraphicsTextItem::setTextWidth(qreal width)
 {
-    if (!dd->textControl)
-        setTextControl(new QTextControl(this));
-    QSizeF pgSize = dd->textControl->document()->pageSize();
+    QTextControl *control = textControl();
+    QSizeF pgSize = control->document()->pageSize();
     pgSize.setWidth(width);
-    dd->textControl->document()->setPageSize(pgSize);
+    control->document()->setPageSize(pgSize);
 }
 
 /*!
@@ -4633,7 +4626,9 @@ QTextControl *QGraphicsTextItem::textControl() const
 {
     if (!dd->textControl) {
         QGraphicsTextItem *that = const_cast<QGraphicsTextItem *>(this);
-        that->setTextControl(new QTextControl(that));
+        QTextControl *ctrl = new QTextControl(that);
+        ctrl->setTextInteractionFlags(Qt::NoTextInteraction);
+        that->setTextControl(ctrl);
     }
     return dd->textControl;
 }
@@ -4652,6 +4647,22 @@ void QGraphicsTextItem::setPageNumber(int page)
 int QGraphicsTextItem::pageNumber() const
 {
     return dd->pageNumber;
+}
+
+void QGraphicsTextItem::setTextInteractionFlags(Qt::TextInteractionFlags flags)
+{
+    if (flags & Qt::NoTextInteraction)
+        setFlags(this->flags() & ~QGraphicsItem::ItemIsFocusable);
+    else
+        setFlags(this->flags() | QGraphicsItem::ItemIsFocusable);
+    textControl()->setTextInteractionFlags(flags);
+}
+
+Qt::TextInteractionFlags QGraphicsTextItem::textInteractionFlags() const
+{
+    if (!dd->textControl)
+        return Qt::NoTextInteraction;
+    return dd->textControl->textInteractionFlags();
 }
 
 /*!

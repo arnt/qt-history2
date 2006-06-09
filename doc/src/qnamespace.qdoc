@@ -2046,3 +2046,20 @@
 
     \sa QWidget::windowModality, QDialog
 */
+
+/*!
+    \enum Qt::TextInteractionFlags
+
+    This enum specifies how a text displaying widget reacts to user input.
+
+    \value NoTextInteraction          No interaction with the text is possible.
+    \value TextSelectableByMouse      Text can be selected with the mouse and copied to the clipboard using
+                                      a context menu or standard keyboard shortcuts.
+    \value TextSelectableByKeyboard   Text can be selected with the cursor keys on the keyboard. A text cursor is shown.
+    \value LinksAccessibleByMouse     Links can be highlighted and activated with the mouse.
+    \value LinksAccessibleByKeyboard  Links can be focused using tab and activated with enter.
+    \value TextEditable               The text is fully editable.
+
+    \value TextEditorInteraction      The default for a text editor.
+    \value TextBrowserInteraction     The default for QTextBrowser.
+*/

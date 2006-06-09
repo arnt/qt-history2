@@ -986,7 +986,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
     Q_D(QTextEdit);
 
-    if (d->control->isReadOnly()) {
+    if (!(d->control->textInteractionFlags() & Qt::TextEditable)) {
         switch (e->key()) {
             case Qt::Key_Home:
                 e->accept();
@@ -1320,7 +1320,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 bool QTextEdit::focusNextPrevChild(bool next)
 {
     Q_D(const QTextEdit);
-    if (!d->tabChangesFocus && !d->control->isReadOnly())
+    if (!d->tabChangesFocus && d->control->textInteractionFlags() & Qt::TextEditable)
         return false;
     return QAbstractScrollArea::focusNextPrevChild(next);
 }
@@ -1393,7 +1393,7 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 {
     Q_D(QTextEdit);
 #ifdef QT_KEYPAD_NAVIGATION
-    if (!d->control->isReadOnly()
+    if (d->control->textInteractionFlags() & Qt::TextContentsEditable
         && QApplication::keypadNavigationEnabled()
         && !hasEditFocus())
         setEditFocus(true);
@@ -1482,7 +1482,7 @@ void QTextEdit::changeEvent(QEvent *e)
 void QTextEdit::wheelEvent(QWheelEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->control->isReadOnly()) {
+    if (!(d->control->textInteractionFlags() & Qt::TextEditable)) {
         if (e->modifiers() & Qt::ControlModifier) {
             const int delta = e->delta();
             if (delta > 0)
@@ -1750,13 +1750,16 @@ void QTextEdit::insertFromMimeData(const QMimeData *source)
 bool QTextEdit::isReadOnly() const
 {
     Q_D(const QTextEdit);
-    return d->control->isReadOnly();
+    return !(d->control->textInteractionFlags() & Qt::TextEditable);
 }
 
 void QTextEdit::setReadOnly(bool ro)
 {
     Q_D(QTextEdit);
-    d->control->setReadOnly(ro);
+    if (ro)
+        d->control->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    else
+        d->control->setTextInteractionFlags(Qt::TextEditorInteraction);
 }
 
 /*!

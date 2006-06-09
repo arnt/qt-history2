@@ -525,6 +525,7 @@ void QTextBrowserPrivate::keypadMove(bool next)
 void QTextBrowserPrivate::init()
 {
     Q_Q(QTextBrowser);
+    control->setTextInteractionFlags(Qt::TextBrowserInteraction);
     q->setReadOnly(true);
 #ifndef QT_NO_CURSOR
     viewport->setCursor(oldCursor);
@@ -943,7 +944,7 @@ void QTextBrowser::focusOutEvent(QFocusEvent *ev)
         d->viewport->update();
     }
 #ifndef QT_NO_CURSOR
-    d->viewport->setCursor(d->control->isReadOnly() ? d->oldCursor : Qt::IBeamCursor);
+    d->viewport->setCursor((!(d->control->textInteractionFlags() & Qt::TextEditable)) ? d->oldCursor : Qt::IBeamCursor);
 #endif
     QTextEdit::focusOutEvent(ev);
 }
@@ -955,7 +956,7 @@ bool QTextBrowser::focusNextPrevChild(bool next)
 {
     Q_D(QTextBrowser);
 
-    if (!d->control->isReadOnly())
+    if (!(d->control->textInteractionFlags() & Qt::LinksAccessibleByKeyboard))
         return QTextEdit::focusNextPrevChild(next);
 
     int anchorStart, anchorEnd;

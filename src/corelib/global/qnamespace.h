@@ -36,6 +36,7 @@ Qt {
     Q_FLAGS(DockWidgetAreas)
     Q_ENUMS(DockWidgetArea)
     Q_ENUMS(TextElideMode)
+    Q_ENUMS(TextInteractionFlags)
 public:
 #endif
     enum GlobalColor {
@@ -1303,6 +1304,18 @@ public:
         ApplicationModal
     };
 
+    enum TextInteractionFlag {
+        NoTextInteraction         = 0,
+        TextSelectableByMouse     = 1,
+        TextSelectableByKeyboard  = 2,
+        LinksAccessibleByMouse    = 4,
+        LinksAccessibleByKeyboard = 8,
+        TextEditable              = 16,
+
+        TextEditorInteraction     = TextSelectableByMouse | TextSelectableByKeyboard | TextEditable,
+        TextBrowserInteraction    = TextSelectableByMouse | LinksAccessibleByMouse | LinksAccessibleByKeyboard
+    };
+    Q_DECLARE_FLAGS(TextInteractionFlags, TextInteractionFlag)
 }
 #ifdef Q_MOC_RUN
  ;
@@ -1321,6 +1334,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowStates)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DropActions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ItemFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MatchFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::TextInteractionFlags)
 
 class Q_CORE_EXPORT QInternal {
 public:

@@ -527,6 +527,9 @@ public:
     void setPageNumber(int page);
     int pageNumber() const;
 
+    void setTextInteractionFlags(Qt::TextInteractionFlags flags);
+    Qt::TextInteractionFlags textInteractionFlags() const;
+
 protected:
     bool sceneEvent(QEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);

@@ -1340,7 +1340,7 @@ void QLabelPrivate::ensureTextControl()
         return;
     control = new QTextControl(q);
     control->setDocument(doc);
-    control->setReadOnly(true);
+    control->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard | Qt::LinksAccessibleByMouse);
     control->setPalette(q->palette());
     control->setFocus(q->hasFocus());
     QObject::connect(control, SIGNAL(updateRequest(const QRectF &)),
