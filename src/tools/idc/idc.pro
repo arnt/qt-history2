@@ -2,18 +2,18 @@ TEMPLATE        = app
 TARGET          = idc
 
 CONFIG         += console warn_off qtinc
-CONFIG	       -= qt
+CONFIG         -= qt
 DESTDIR         = ../../../bin
 
 DEFINES        += QT_NO_THREAD QT_LITE_UNICODE QT_NO_CODECS QT_NO_LIBRARY QT_NO_STL QT_NODLL QT_NO_DATASTREAM \
-                  QT_NO_REGEXP QT_NO_COMPRESS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_NO_QOBJECT QT_NO_TEXTSTREAM QT_BOOTSTRAPPED
-                  
+                  QT_NO_REGEXP QT_NO_COMPRESS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_NO_QOBJECT QT_NO_TEXTSTREAM QT_BOOTSTRAPPED QT_NO_SYSTEMLOCALE
+
 INCLUDEPATH     = ../../corelib/arch/generic $$QT_BUILD_TREE/include $$QT_BUILD_TREE/include/QtCore
 DEPENDPATH      += $$INCLUDEPATH ../../corelib/base ../../corelib/tools ../../corelib/io
 
 SOURCES         = main.cpp
 
-SOURCES		+= ../../../../src/corelib/global/qglobal.cpp \
+SOURCES         += ../../../../src/corelib/global/qglobal.cpp \
                ../../../../src/corelib/tools/qbytearray.cpp \
                ../../../../src/corelib/tools/qbytearraymatcher.cpp \
                ../../../../src/corelib/tools/qchar.cpp \
@@ -28,7 +28,7 @@ SOURCES		+= ../../../../src/corelib/global/qglobal.cpp \
                ../../../../src/corelib/tools/qvector.cpp \
                ../../../../src/corelib/tools/qvsnprintf.cpp
 
-SOURCES		+= \
+SOURCES         += \
                ../../../../src/corelib/io/qdir.cpp \
                ../../../../src/corelib/io/qfile.cpp \
                ../../../../src/corelib/io/qfileinfo.cpp \
