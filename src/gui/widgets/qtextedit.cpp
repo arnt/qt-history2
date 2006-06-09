@@ -1664,15 +1664,7 @@ void QTextEdit::setAcceptRichText(bool accept)
 void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
 {
     Q_D(QTextEdit);
-    // ######
-    QList<QTextControl::ExtraSelection> sels;
-    for (int i = 0; i < selections.count(); ++i) {
-        QTextControl::ExtraSelection s;
-        s.cursor = selections.at(i).cursor;
-        s.format = selections.at(i).format;
-        sels.append(s);
-    }
-    d->control->setExtraSelections(sels);
+    d->control->setExtraSelections(selections);
 }
 
 /*!
@@ -1684,16 +1676,7 @@ void QTextEdit::setExtraSelections(const QList<ExtraSelection> &selections)
 QList<QTextEdit::ExtraSelection> QTextEdit::extraSelections() const
 {
     Q_D(const QTextEdit);
-    // ############
-    QList<QTextControl::ExtraSelection> sels = d->control->extraSelections();
-    QList<QTextEdit::ExtraSelection> selections;
-    for (int i = 0; i < sels.count(); ++i) {
-        QTextEdit::ExtraSelection s;
-        s.cursor = sels.at(i).cursor;
-        s.format = sels.at(i).format;
-        selections.append(s);
-    }
-    return selections;
+    return d->control->extraSelections();
 }
 
 /*!

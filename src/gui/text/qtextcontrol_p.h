@@ -29,6 +29,7 @@
 #include <QtGui/qtextoption.h>
 #include <QtGui/qtextcursor.h>
 #include <QtGui/qtextformat.h>
+#include <QtGui/qtextedit.h>
 #include <QtCore/qrect.h>
 
 #ifdef QT3_SUPPORT
@@ -115,13 +116,8 @@ public:
     bool acceptRichText() const;
     void setAcceptRichText(bool accept);
 
-    struct ExtraSelection
-    {
-        QTextCursor cursor;
-        QTextCharFormat format;
-    };
-    void setExtraSelections(const QList<ExtraSelection> &selections);
-    QList<ExtraSelection> extraSelections() const;
+    void setExtraSelections(const QList<QTextEdit::ExtraSelection> &selections);
+    QList<QTextEdit::ExtraSelection> extraSelections() const;
 
     void setTextWidth(qreal width);
     qreal textWidth() const;
