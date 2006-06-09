@@ -243,6 +243,23 @@ extern "C" Q_CORE_EXPORT void qt_removeObject(QObject *object)
         set->remove(object);
 }
 
+extern "C" Q_CORE_EXPORT QList<QObject *> qt_allTopLevelWidgets()
+{
+    QList<QObject *> list;
+
+    QReadLocker locker(QObjectPrivate::readWriteLock());
+    const QObjectSet *set = allObjects();
+    if (!set)
+        return list;
+
+    for (QSet<QObject *>::const_iterator it = set->constBegin(); it != set->constEnd(); ++it) {
+        if ((*it)->isWidgetType() && !(*it)->parent())
+            list << *it;
+    }
+
+    return list;
+}
+
 bool QObjectPrivate::isValidObject(QObject *object)
 {
     QObjectSet *set = allObjects();
