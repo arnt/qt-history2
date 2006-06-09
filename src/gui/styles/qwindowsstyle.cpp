@@ -3033,7 +3033,9 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
                                          const QWidget *widget) const
 {
     QIcon icon = QCommonStyle::standardIconImplementation(standardIcon, option, widget);
-
+    if (standardIcon == QStyle::SP_DirIcon)
+        return icon; // SP_DirIcon already has an On pixmap
+    // ### this should _only_ be done if the icon doesn't have a pixmap for QIcon::Normal, QIcon::On
     for (int s = 16; s <= 32; s += 16) {
     //Include a translated icon for use with pressed buttons
         QPixmap pressedIconPixmap(s, s);

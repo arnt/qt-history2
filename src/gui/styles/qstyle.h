@@ -639,7 +639,7 @@ public:
         SP_FileDialogContentsView,
         SP_FileDialogListView,
         SP_FileDialogBack,
-
+        SP_DirIcon,
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000
     };

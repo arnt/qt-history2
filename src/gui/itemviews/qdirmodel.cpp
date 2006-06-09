@@ -85,8 +85,7 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
     file = style->standardIcon(QStyle::SP_FileIcon);
     fileLink = style->standardIcon(QStyle::SP_FileLinkIcon);
 
-    directory = style->standardIcon(QStyle::SP_DirClosedIcon);
-//    directory.addPixmap(style->standardPixmap(QStyle::SP_DirOpenIcon), QIcon::Normal, QIcon::On);
+    directory = style->standardIcon(QStyle::SP_DirIcon);
     directoryLink = style->standardIcon(QStyle::SP_DirLinkIcon);
 
     harddisk = style->standardIcon(QStyle::SP_DriveHDIcon);

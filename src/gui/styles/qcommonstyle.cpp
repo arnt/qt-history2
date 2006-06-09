@@ -3783,6 +3783,7 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/dvd-16.png"));
     case SP_DirOpenIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/diropen-16.png"));
+    case SP_DirIcon:
     case SP_DirClosedIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/dirclosed-16.png"));
     case SP_DirLinkIcon:
@@ -3817,6 +3818,16 @@ QIcon QCommonStyle::standardIconImplementation(StandardPixmap standardIcon, cons
         break;
     case SP_DirClosedIcon:
         icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/dirclosed-32.png"));
+        break;
+    case SP_DirIcon:
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/dirclosed-16.png"),
+                     QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/diropen-16.png"),
+                     QSize(), QIcon::Normal, QIcon::On);
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/dirclosed-32.png"),
+                     QSize(), QIcon::Normal, QIcon::Off);
+        icon.addFile(QLatin1String(":/trolltech/styles/commonstyle/images/diropen-32.png"),
+                     QSize(), QIcon::Normal, QIcon::On);
         break;
     default:
         break;
