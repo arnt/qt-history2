@@ -655,6 +655,7 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         br = movie->currentPixmap().rect();
 #endif
     else if (doc) {
+        const qreal oldTextWidth = doc->textWidth();
         // Add indentation
         QFontMetrics fm(q->fontMetrics());
         int m = indent;
@@ -670,18 +671,20 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         }
 
         // Calculate the length of document if w is the width
-        QAbstractTextDocumentLayout *layout = doc->documentLayout();
         if (align & Qt::TextWordWrap) {
             if (w >= 0) {
                 w = qMax(w-hextra-contentsMargin.width(), 0); // strip margin and indent
-                doc->setPageSize(QSize(w, INT_MAX));
+                doc->setTextWidth(w);
             } else {
                 doc->adjustSize();
             }
         } else {
-            doc->setPageSize(QSize(0, INT_MAX));
+            doc->setTextWidth(-1);
         }
-        br = QRect(QPoint(0, 0), layout->documentSize().toSize());
+        br = QRect(QPoint(0, 0), doc->size().toSize());
+
+        // restore state
+        doc->setTextWidth(oldTextWidth);
     }
 
     const QSize contentsSize(br.width() + hextra, br.height() + vextra);
@@ -865,6 +868,8 @@ bool QLabel::event(QEvent *e)
                 window()->setAttribute(Qt::WA_KeyboardFocusChange);
             return true;
         }
+    } else if (e->type() == QEvent::Resize && d->doc) {
+        d->doc->setTextWidth(d->documentRect().width());
     }
 #endif
     return QFrame::event(e);
@@ -893,8 +898,6 @@ void QLabel::paintEvent(QPaintEvent *)
 #endif
     if (d->doc) {
         QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
-        QRect dr = d->documentRect();
-        d->doc->setPageSize(QSizeF(dr.size().width(), INT_MAX));
         QRect lr = d->layoutRect();
 
         QAbstractTextDocumentLayout::PaintContext context;
@@ -1017,6 +1020,7 @@ void QLabelPrivate::updateLabel()
         QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
         fmt.setMargin(0);
         doc->rootFrame()->setFrameFormat(fmt);
+        doc->setTextWidth(documentRect().width());
     }
     q->updateGeometry();
     q->update(q->contentsRect());
