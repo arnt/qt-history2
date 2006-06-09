@@ -109,6 +109,7 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
 	case 4:
 	case 8:
 	case 16:
+	case 18:
 	case 24:
 	case 32:
 	    break;
@@ -152,6 +153,8 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
     int bpl;
     if ( d == 1 )
 	bpl = (w*d+7)/8;
+    else if ( d == 18 )
+        bpl = ((w*24+31)/32)*4;
     else
 	bpl = ((w*actualdepth+31)/32)*4;
 

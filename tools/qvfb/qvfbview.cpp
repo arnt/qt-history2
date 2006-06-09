@@ -25,6 +25,7 @@
 #include <QPaintEvent>
 #include <QScrollArea>
 #include <QFile>
+#include <QDebug>
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -118,6 +119,14 @@ void QVFbView::setGamma(double gr, double gg, double gb)
 	gmax = 63;
 	bmax = 31;
 	break;
+      case 18:
+        rsh = 12;
+        gsh = 6;
+        bsh = 0;
+        rmax = 63;
+        gmax = 63;
+        bmax = 63;
+        break;
       case 24:
       case 32:
 	rsh = 16;
@@ -309,6 +318,32 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 	leading = 0;
 	return img;
     }
+    case 18: {
+         // packed into 24 bpp
+        if (requiredSize > buffer.size())
+            buffer.resize(requiredSize);
+        uchar *b = reinterpret_cast<uchar*>(buffer.data());
+	QImage img(b, r.width(), r.height(), QImage::Format_RGB32);
+        const int rsh = 12;
+        const int gsh = 6;
+        const int bsh = 0;
+        const int rmax = 63;
+        const int gmax = 63;
+        const int bmax = 63;
+	for ( int row = 0; row < r.height(); row++ ) {
+	    QRgb *dptr = (QRgb*)img.scanLine( row );
+            uchar *sptr = (uchar*)(mView->data() + (r.y()+row)*mView->linestep());
+	    sptr += r.x()*3;
+	    for ( int col=0; col < r.width(); col++ ) {
+                uint s = *(reinterpret_cast<uint*>(sptr));
+                s &= 0x00ffffff;
+                sptr += 3;
+                *dptr++ = qRgb(qRed(gammatable[(s>>rsh)&rmax]),qGreen(gammatable[(s>>gsh)&gmax]),qBlue(gammatable[(s>>bsh)&bmax]));
+	    }
+	}
+	leading = 0;
+	return img;
+     }
     case 24: {
         static unsigned char *imgData = 0;
         if (!imgData) {
