@@ -101,7 +101,7 @@ public:
     QRectF cursorRect() const;
 
     QString anchorAt(const QPointF &pos) const;
-    QPointF findAnchor(const QString &name) const;
+    QPointF anchorPosition(const QString &name) const;
 
     bool overwriteMode() const;
     void setOverwriteMode(bool overwrite);
@@ -170,6 +170,7 @@ public:
     QPalette palette() const;
     void setPalette(const QPalette &pal);
 
+    virtual void processEvent(QEvent *e, const QMatrix &matrix, QWidget *contextWidget = 0);
     void processEvent(QEvent *e, const QPointF &coordinateOffset = QPointF(), QWidget *contextWidget = 0);
 
     // control methods

@@ -1084,6 +1084,13 @@ void QTextControl::selectAll()
 
 void QTextControl::processEvent(QEvent *e, const QPointF &coordinateOffset, QWidget *contextWidget)
 {
+    QMatrix m;
+    m.translate(coordinateOffset.x(), coordinateOffset.y());
+    processEvent(e, m, contextWidget);
+}
+
+void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *contextWidget)
+{
 
     Q_D(QTextControl);
     if (d->interactionFlags & Qt::NoTextInteraction)
@@ -1120,20 +1127,20 @@ void QTextControl::processEvent(QEvent *e, const QPointF &coordinateOffset, QWid
             break;
         case QEvent::MouseButtonPress: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mousePressEvent(ev->button(), coordinateOffset + ev->pos(), ev->modifiers(),
+            d->mousePressEvent(ev->button(), matrix.map(ev->pos()), ev->modifiers(),
                                ev->buttons(), ev->globalPos());
             break; }
         case QEvent::MouseMove: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mouseMoveEvent(ev->buttons(), coordinateOffset + ev->pos());
+            d->mouseMoveEvent(ev->buttons(), matrix.map(ev->pos()));
             break; }
         case QEvent::MouseButtonRelease: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mouseReleaseEvent(ev->button(), coordinateOffset + ev->pos());
+            d->mouseReleaseEvent(ev->button(), matrix.map(ev->pos()));
             break; }
         case QEvent::MouseButtonDblClick: {
             QMouseEvent *ev = static_cast<QMouseEvent *>(e);
-            d->mouseDoubleClickEvent(e, ev->button(), coordinateOffset + ev->pos());
+            d->mouseDoubleClickEvent(e, ev->button(), matrix.map(ev->pos()));
             break; }
         case QEvent::InputMethod:
             d->inputMethodEvent(static_cast<QInputMethodEvent *>(e));
@@ -1163,13 +1170,13 @@ void QTextControl::processEvent(QEvent *e, const QPointF &coordinateOffset, QWid
             break;
         case QEvent::DragMove: {
             QDragMoveEvent *ev = static_cast<QDragMoveEvent *>(e);
-            if (d->dragMoveEvent(e, ev->mimeData(), coordinateOffset + ev->pos()))
+            if (d->dragMoveEvent(e, ev->mimeData(), matrix.map(ev->pos())))
                 ev->acceptProposedAction();
             break;
         }
         case QEvent::Drop: {
             QDropEvent *ev = static_cast<QDropEvent *>(e);
-            if (d->dropEvent(ev->mimeData(), coordinateOffset + ev->pos(), ev->proposedAction(), ev->source()))
+            if (d->dropEvent(ev->mimeData(), matrix.map(ev->pos()), ev->proposedAction(), ev->source()))
                 ev->acceptProposedAction();
             break;
         }
@@ -1177,20 +1184,20 @@ void QTextControl::processEvent(QEvent *e, const QPointF &coordinateOffset, QWid
 
         case QEvent::GraphicsSceneMousePress: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mousePressEvent(ev->button(), coordinateOffset + ev->pos(), ev->modifiers(), ev->buttons(),
+            d->mousePressEvent(ev->button(), matrix.map(ev->pos()), ev->modifiers(), ev->buttons(),
                                ev->screenPos());
             break; }
         case QEvent::GraphicsSceneMouseMove: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mouseMoveEvent(ev->buttons(), coordinateOffset + ev->pos());
+            d->mouseMoveEvent(ev->buttons(), matrix.map(ev->pos()));
             break; }
         case QEvent::GraphicsSceneMouseRelease: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mouseMoveEvent(ev->button(), coordinateOffset + ev->pos());
+            d->mouseMoveEvent(ev->button(), matrix.map(ev->pos()));
             break; }
         case QEvent::GraphicsSceneMouseDoubleClick: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mouseDoubleClickEvent(e, ev->button(), coordinateOffset + ev->pos());
+            d->mouseDoubleClickEvent(e, ev->button(), matrix.map(ev->pos()));
             break; }
         case QEvent::GraphicsSceneContextMenu: {
             d->contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(e)->screenPos());
@@ -1206,12 +1213,12 @@ void QTextControl::processEvent(QEvent *e, const QPointF &coordinateOffset, QWid
             break;
         case QEvent::GraphicsSceneDragMove: {
             QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
-            if (d->dragMoveEvent(e, ev->mimeData(), coordinateOffset + ev->pos()))
+            if (d->dragMoveEvent(e, ev->mimeData(), matrix.map(ev->pos())))
                 ev->acceptProposedAction();
             break; }
         case QEvent::GraphicsSceneDrop: {
             QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
-            if (d->dropEvent(ev->mimeData(), coordinateOffset + ev->pos(), ev->proposedAction(), ev->source()))
+            if (d->dropEvent(ev->mimeData(), matrix.map(ev->pos()), ev->proposedAction(), ev->source()))
                 ev->acceptProposedAction();
             break; }
 
@@ -2499,7 +2506,7 @@ void QTextControl::insertHtml(const QString &text)
     d->cursor.insertFragment(fragment);
 }
 
-QPointF QTextControl::findAnchor(const QString &name) const
+QPointF QTextControl::anchorPosition(const QString &name) const
 {
     Q_D(const QTextControl);
     if (name.isEmpty())
