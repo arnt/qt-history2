@@ -53,15 +53,14 @@
     \o \l{widgets/groupbox}{Group Box}\raisedaster
     \o \l{widgets/icons}{Icons}\raisedaster
     \o \l{widgets/imageviewer}{Image Viewer}\raisedaster
-    \o \l{widgets/lineedits}{Line Edits}
+    \o \l{widgets/lineedits}{Line Edits}\raisedaster
     \o \l{widgets/movie}{Movie}
-    \o \l{widgets/screenshot}{Screenshot}\raisedaster
     \o \l{widgets/scribble}{Scribble}\raisedaster
     \o \l{widgets/shapedclock}{Shaped Clock}\raisedaster
     \o \l{widgets/sliders}{Sliders}\raisedaster
-    \o \l{widgets/spinboxes}{Spin Boxes}
+    \o \l{widgets/spinboxes}{Spin Boxes}\raisedaster
     \o \l{widgets/styles}{Styles}\raisedaster
-    \o \l{widgets/tetrix}{Tetrix}
+    \o \l{widgets/tetrix}{Tetrix}\raisedaster
     \o \l{widgets/tooltips}{Tooltips}\raisedaster
     \o \l{widgets/wiggly}{Wiggly}\raisedaster
     \o \l{widgets/windowflags}{Window Flags}\raisedaster
@@ -127,6 +126,13 @@
     \o \l{richtext/calendar}{Calendar}
     \o \l{richtext/orderform}{Order Form}
     \o \l{richtext/syntaxhighlighter}{Syntax Highlighter}\raisedaster
+    \endlist
+
+    \section1 Desktop Examples
+
+    \list
+    \o \l{desktop/screenshot}{Screenshot}\raisedaster
+    \o \l{desktop/systray}{System Tray}
     \endlist
 
     \section1 Tool Examples
