@@ -352,7 +352,7 @@ void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int en
         else
             lit = qLowerBound(lit, lst.end(), item, QListModelGreaterThan());
         int newRow = qMax(lit - lst.begin(), 0);
-        lst.insert(lit, item);
+        lit = lst.insert(lit, item);
         if (newRow != oldRow) {
             for (int j = i + 1; j < count; ++j) {
                 int otherRow = sorting.at(j).second;
