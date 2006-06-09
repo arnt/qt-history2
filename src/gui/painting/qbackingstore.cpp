@@ -37,7 +37,7 @@
 #endif
 
 #ifdef QT_WINDOW_SURFACE
-#include "qwindowsurface_p.h"
+#include "qwindowsurface_raster_p.h"
 #ifdef Q_WS_X11
 #include "qwindowsurface_x11_p.h"
 #endif
