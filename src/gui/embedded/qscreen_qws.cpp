@@ -791,6 +791,10 @@ bool QScreen::supportsDepth(int d) const
     } else if(d==16) {
         return true;
 #endif
+#ifdef QT_QWS_DEPTH_18
+    } else if(d==18 || d==19) {
+        return true;
+#endif
 #ifdef QT_QWS_DEPTH_24
     } else if(d==24) {
         return true;
@@ -1083,6 +1087,7 @@ static void blit_16_to_8(const blit_data *data)
 }
 #endif // QT_QWS_DEPTH_8
 
+#ifdef QT_QWS_DEPTH_24
 static void blit_32_to_24(const blit_data *data)
 {
     const int sbpl = data->img->bytesPerLine() / 4;
@@ -1108,7 +1113,9 @@ static void blit_32_to_24(const blit_data *data)
         --h;
     }
 }
+#endif // QT_QWS_DEPTH_24
 
+#ifdef QT_QWS_DEPTH_18
 static void blit_32_to_18(const blit_data *data)
 {
     const int sbpl = data->img->bytesPerLine() / 4;
@@ -1138,6 +1145,7 @@ static void blit_32_to_18(const blit_data *data)
         --h;
     }
 }
+#endif // QT_QWS_DEPTH_18
 
 /*!
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
@@ -1167,13 +1175,17 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
         func = blit_32_to_32;
         break;
 #endif
+#ifdef QT_QWS_DEPTH_24
     case 24:
         func = blit_32_to_24;
         break;
+#endif
+#ifdef QT_QWS_DEPTH_18
     case 18:
     case 19:
         func = blit_32_to_18;
         break;
+#endif
 #ifdef QT_QWS_DEPTH_16
     case 16:
         if (img.depth() == 16)
@@ -1260,6 +1272,7 @@ static void fill_32(const fill_data *data)
 }
 #endif // QT_QWS_DEPTH_32
 
+#ifdef QT_QWS_DEPTH_18
 static void fill_18(const fill_data *data)
 {
     const int dbpl = data->lineStep;
@@ -1286,7 +1299,9 @@ static void fill_18(const fill_data *data)
         --h;
     }
 }
+#endif // QT_QWS_DEPTH_18
 
+#ifdef QT_QWS_DEPTH_24
 static void fill_24(const fill_data *data)
 {
     const int dbpl = data->lineStep;
@@ -1309,6 +1324,7 @@ static void fill_24(const fill_data *data)
         --h;
     }
 }
+#endif // QT_QWS_DEPTH_24
 
 #ifdef QT_QWS_DEPTH_16
 static void fill_16(const fill_data *data)
@@ -1371,13 +1387,17 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
         func = fill_32;
         break;
 #endif
+#ifdef QT_QWS_DEPTH_24
     case 24:
         func = fill_24;
         break;
+#endif
+#ifdef QT_QWS_DEPTH_18
     case 18:
     case 19:
         func = fill_18;
         break;
+#endif
 #ifdef QT_QWS_DEPTH_16
     case 16:
         func = fill_16;
