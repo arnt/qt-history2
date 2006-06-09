@@ -93,7 +93,7 @@ QPaintDevice *QRasterWindowSurface::paintDevice()
 
 void QRasterWindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoint &offset)
 {
-#if Q_WS_WIN
+#ifdef Q_WS_WIN
     QPoint wOffset = qt_qwidget_data(widget)->wrect.topLeft();
 
     QRasterPaintEngine *engine = d_ptr->device.paintEngine();
@@ -134,7 +134,7 @@ void QRasterWindowSurface::release()
 
 void QRasterWindowSurface::scroll(const QRegion &area, int dx, int dy)
 {
-#if Q_WS_WIN
+#ifdef Q_WS_WIN
     QRect rect = area.boundingRect();
 
     QRasterPaintEngine *engine = d_ptr->device.paintEngine();
