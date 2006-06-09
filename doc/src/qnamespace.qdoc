@@ -1434,7 +1434,13 @@
     This enum type defines the various policies a widget can have with
     respect to showing a context menu.
 
-    \value NoContextMenu  the widget does not feature a context menu.
+    \value NoContextMenu the widget does not feature a context menu,
+    context menu handling is deferred to the widget's parent.
+    \value PreventContextMenu the widget does not feature a context
+    menu, and in contrast to \c NoContextMenu, the handling is \e not
+    deferred to the widget's parent. This means that all right mouse
+    button events are guaranteed to be delivered to the widget itself
+    through mousePressEvent(), and mouseReleaseEvent().
     \value DefaultContextMenu  the widget's QWidget::contextMenuEvent() handler is called.
     \value ActionsContextMenu  the widget displays its QWidget::actions() as context menu.
     \value CustomContextMenu  the widget emits the QWidget::customContextMenuRequested() signal.

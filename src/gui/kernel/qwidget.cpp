@@ -4165,9 +4165,10 @@ QRect QWidget::contentsRect() const
 
     The default value of this property is Qt::DefaultContextMenu,
     which means the contextMenuEvent() handler is called. Other values
-    are Qt::NoContextMenu, Qt::ActionsContextMenu, and
-    Qt::CustomContextMenu. With Qt::CustomContextMenu, the signal
-    customContextMenuRequested() is emitted.
+    are Qt::NoContextMenu, Qt::PreventContextMenu,
+    Qt::ActionsContextMenu, and Qt::CustomContextMenu. With
+    Qt::CustomContextMenu, the signal customContextMenuRequested() is
+    emitted.
 
     \sa contextMenuEvent() customContextMenuRequested()
 */
@@ -5128,6 +5129,8 @@ bool QWidget::event(QEvent *event)
 
     case QEvent::ContextMenu:
         switch (data->context_menu_policy) {
+        case Qt::PreventContextMenu:
+            break;
         case Qt::DefaultContextMenu:
             contextMenuEvent(static_cast<QContextMenuEvent *>(event));
             break;

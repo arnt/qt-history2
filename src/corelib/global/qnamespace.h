@@ -1201,7 +1201,8 @@ public:
         NoContextMenu,
         DefaultContextMenu,
         ActionsContextMenu,
-        CustomContextMenu
+        CustomContextMenu,
+        PreventContextMenu
     };
 
     enum InputMethodQuery {
