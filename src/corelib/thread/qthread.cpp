@@ -104,18 +104,21 @@ QThread *QThreadPrivate::threadForId(int id)
 /*
   QAdoptedThread
 */
-Q_GLOBAL_STATIC(QMutex, qthread_adopt_mutex);
+Q_GLOBAL_STATIC_WITH_ARGS(QMutex, qthread_adopt_mutex, (QMutex::Recursive));
 
 bool QThreadPrivate::adoptCurrentThreadEnabled = false;
 
 QThread *QThreadPrivate::adoptCurrentThread()
 {
     QMutexLocker locker(qthread_adopt_mutex());
-    adoptCurrentThreadEnabled = false;
+    static bool recursing;
+    if (recursing)
+        return 0;
+    recursing = true;
     QThread *current = new QAdoptedThread();
     setCurrentThread(current);
-    adoptCurrentThreadEnabled = true;
     createEventDispatcher(QThreadData::get(current));
+    recursing = false;
     return current;
 }
 
