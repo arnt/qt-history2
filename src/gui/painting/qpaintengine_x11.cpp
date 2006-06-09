@@ -1764,6 +1764,32 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
         d->matrix = old_matrix;
 }
 
+void QX11PaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr, Qt::ImageConversionFlags flags)
+{
+    Q_D(QX11PaintEngine);
+
+    if (!image.hasAlphaChannel()
+        && d->pdev_depth >= 24 && image.depth() == 32
+        && r.size() == sr.size() && r.size() == image.size())
+    {
+        int sx = qRound(sr.x());
+        int sy = qRound(sr.y());
+        int x = qRound(r.x());
+        int y = qRound(r.y());
+        int w = qRound(r.width());
+        int h = qRound(r.height());
+        XImage *xi;
+
+        xi = XCreateImage(d->dpy, (Visual *) d->xinfo->visual(), d->pdev_depth, ZPixmap,
+                          0, (char *) image.bits(), w, h, 32, image.bytesPerLine());
+        XPutImage(d->dpy, d->hd, d->gc, xi, sx, sy, x, y, w, h);
+        xi->data = 0; // QImage owns these bits
+        XDestroyImage(xi);
+    } else {
+        QPaintEngine::drawImage(r, image, sr, flags);
+    }
+}
+
 void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &_sr)
 {
     Q_D(QX11PaintEngine);

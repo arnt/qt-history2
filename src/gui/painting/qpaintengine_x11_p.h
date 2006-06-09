@@ -83,6 +83,8 @@ public:
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
     void drawPath(const QPainterPath &path);
     void drawTextItem(const QPointF &p, const QTextItem &textItem);
+    void drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
+                   Qt::ImageConversionFlags flags = Qt::AutoColor);
 
     virtual Qt::HANDLE handle() const;
     inline Type type() const { return QPaintEngine::X11; }
