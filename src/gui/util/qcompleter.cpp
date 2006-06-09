@@ -834,6 +834,7 @@ void QCompleter::setModel(QAbstractItemModel *model)
         setPopup(d->popup); // set the model and make new connections
     if (oldModel && oldModel->QObject::parent() == this)
         delete oldModel;
+#ifndef QT_NO_DIRMODEL
     if (qobject_cast<QDirModel *>(model)) {
 #ifdef Q_OS_WIN
         setCaseSensitivity(Qt::CaseInsensitive);
@@ -841,6 +842,7 @@ void QCompleter::setModel(QAbstractItemModel *model)
         setCaseSensitivity(Qt::CaseSensitive);
 #endif
     }
+#endif // QT_NO_DIRMODEL
 }
 
 /*!
