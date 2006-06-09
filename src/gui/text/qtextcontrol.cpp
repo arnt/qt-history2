@@ -2311,6 +2311,26 @@ QList<QTextControl::ExtraSelection> QTextControl::extraSelections() const
     return selections;
 }
 
+void QTextControl::setTextWidth(qreal width)
+{
+    Q_D(QTextControl);
+    QSizeF pgSize = d->doc->pageSize();
+    pgSize.setWidth(width);
+    d->doc->setPageSize(pgSize);
+}
+
+qreal QTextControl::textWidth() const
+{
+    Q_D(const QTextControl);
+    return d->doc->pageSize().width();
+}
+
+QSizeF QTextControl::size() const
+{
+    Q_D(const QTextControl);
+    return d->doc->documentLayout()->documentSize();
+}
+
 /*!
     This function returns a new MIME data object to represent the contents
     of the text edit's current selection. It is called when the selection needs

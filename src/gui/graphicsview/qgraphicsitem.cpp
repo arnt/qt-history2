@@ -292,7 +292,6 @@
 #include <QtGui/qpainter.h>
 #include <QtGui/qpainterpath.h>
 #include <QtGui/qstyleoption.h>
-#include <QtGui/qabstracttextdocumentlayout.h>
 
 #include <private/qgraphicsitem_p.h>
 #include <private/qtextcontrol_p.h>
@@ -4308,10 +4307,7 @@ int QGraphicsTextItem::type() const
 */
 void QGraphicsTextItem::setTextWidth(qreal width)
 {
-    QTextControl *control = textControl();
-    QSizeF pgSize = control->document()->pageSize();
-    pgSize.setWidth(width);
-    control->document()->setPageSize(pgSize);
+    textControl()->setTextWidth(width);
 }
 
 /*!
@@ -4323,7 +4319,7 @@ qreal QGraphicsTextItem::textWidth() const
 {
     if (!dd->textControl)
         return -1;
-    return dd->textControl->document()->pageSize().width();
+    return dd->textControl->textWidth();
 }
 
 /*!
@@ -4615,7 +4611,7 @@ void QGraphicsTextItem::setTextControl(QTextControl *control)
         dd->boundingRect.setSize(pgSize);
         addToIndex();
     } else {
-        dd->_q_updateBoundingRect(dd->textControl->document()->documentLayout()->documentSize());
+        dd->_q_updateBoundingRect(dd->textControl->size());
     }
 }
 

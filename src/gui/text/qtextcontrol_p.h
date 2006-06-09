@@ -123,6 +123,10 @@ public:
     void setExtraSelections(const QList<ExtraSelection> &selections);
     QList<ExtraSelection> extraSelections() const;
 
+    void setTextWidth(qreal width);
+    qreal textWidth() const;
+    QSizeF size() const;
+
 public Q_SLOTS:
     void setPlainText(const QString &text);
     void setHtml(const QString &text);
