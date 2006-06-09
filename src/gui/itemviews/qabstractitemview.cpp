@@ -2887,7 +2887,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger
 bool QAbstractItemViewPrivate::shouldForwardEvent(QAbstractItemView::EditTrigger trigger,
                                                   const QEvent *event) const
 {
-    if ((trigger & editTriggers) != QAbstractItemView::AnyKeyPressed)
+    if (!event || (trigger & editTriggers) != QAbstractItemView::AnyKeyPressed)
         return false;
     return (event->type() == QEvent::KeyPress) || (event->type() == QEvent::InputMethod);
 }
