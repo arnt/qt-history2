@@ -1,6 +1,7 @@
 TEMPLATE      = subdirs
 CONFIG       += ordered
 SUBDIRS       = codecs \
+                completer \
                 i18n \
                 plugandpaintplugins \
                 plugandpaint \

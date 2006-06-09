@@ -9,6 +9,10 @@
     <example filename="worldtimeclockbuilder" name="World Time Clock Builder" />
     <example filename="worldtimeclockplugin" name="World Time Clock Plugin" />
   </category>
+  <category dirname="desktop" name="Desktop">
+    <example filename="systray" name="System Tray" />
+    <example filename="screenshot" name="Screenshot" />
+  </category>
   <category dirname="dialogs" name="Dialogs">
     <example filename="configdialog" name="Configuration Dialog" />
     <example filename="extension" name="Extension Dialog" />
@@ -102,6 +106,7 @@
     <example filename="waitconditions" name="Wait Conditions" executable="false" />
   </category>
   <category dirname="tools" name="Tools">
+    <example filename="completer" name="Completer" />
     <example filename="codecs" name="Codecs" />
     <example filename="i18n" name="Internationalization" />
     <example filename="plugandpaint" name="Plug and Paint" />
@@ -119,7 +124,6 @@
     <example filename="imageviewer" name="Image Viewer" />
     <example filename="lineedits" name="Line Edits" />
     <example filename="movie" name="Movie Player" />
-    <example filename="screenshot" name="Screenshot" />
     <example filename="scribble" name="Scribble" />
     <example filename="shapedclock" name="Shaped Clock" />
     <example filename="sliders" name="Sliders" />

@@ -8,7 +8,6 @@ SUBDIRS       = analogclock \
                 imageviewer \
                 lineedits \
                 movie \
-                screenshot \
                 scribble \
                 shapedclock \
                 sliders \
