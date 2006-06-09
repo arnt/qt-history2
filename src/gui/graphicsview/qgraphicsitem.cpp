@@ -4115,15 +4115,16 @@ class QGraphicsTextItemPrivate
 {
 public:
     QGraphicsTextItemPrivate()
-        : textControl(0), pageNumber(0)
+        : control(0), pageNumber(0)
     { }
 
-    QTextControl *textControl;
+    mutable QTextControl *control;
+    QTextControl *textControl() const;
 
     inline QPointF controlOffset() const
-    { return QPointF(0., pageNumber * textControl->document()->pageSize().height()); }
+    { return QPointF(0., pageNumber * control->document()->pageSize().height()); }
     inline void sendControlEvent(QEvent *e)
-    { textControl->processEvent(e, controlOffset()); }
+    { control->processEvent(e, controlOffset()); }
 
     void _q_updateBoundingRect(const QSizeF &);
     void _q_update(QRectF);
@@ -4175,8 +4176,8 @@ QGraphicsTextItem::~QGraphicsTextItem()
 */
 QString QGraphicsTextItem::toHtml() const
 {
-    return dd->textControl
-        ? dd->textControl->toHtml()
+    return dd->control
+        ? dd->control->toHtml()
         : QString();
 }
 
@@ -4187,7 +4188,7 @@ QString QGraphicsTextItem::toHtml() const
 */
 void QGraphicsTextItem::setHtml(const QString &text)
 {
-    textControl()->setHtml(text);
+    dd->textControl()->setHtml(text);
 }
 
 /*!
@@ -4197,8 +4198,8 @@ void QGraphicsTextItem::setHtml(const QString &text)
 */
 QString QGraphicsTextItem::toPlainText() const
 {
-    return dd->textControl
-        ? dd->textControl->toPlainText()
+    return dd->control
+        ? dd->control->toPlainText()
         : QString();
 }
 
@@ -4209,7 +4210,7 @@ QString QGraphicsTextItem::toPlainText() const
 */
 void QGraphicsTextItem::setPlainText(const QString &text)
 {
-    textControl()->setPlainText(text);
+    dd->textControl()->setPlainText(text);
 }
 
 /*!
@@ -4219,9 +4220,9 @@ void QGraphicsTextItem::setPlainText(const QString &text)
 */
 QFont QGraphicsTextItem::font() const
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return QFont();
-    return dd->textControl->document()->defaultFont();
+    return dd->control->document()->defaultFont();
 }
 
 /*!
@@ -4231,7 +4232,7 @@ QFont QGraphicsTextItem::font() const
 */
 void QGraphicsTextItem::setFont(const QFont &font)
 {
-    textControl()->document()->setDefaultFont(font);
+    dd->textControl()->document()->setDefaultFont(font);
 }
 
 /*!
@@ -4247,7 +4248,7 @@ QRectF QGraphicsTextItem::boundingRect() const
 */
 QPainterPath QGraphicsTextItem::shape() const
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return QPainterPath();
     QPainterPath path;
     path.addRect(dd->boundingRect);
@@ -4269,13 +4270,12 @@ void QGraphicsTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
                               QWidget *widget)
 {
     Q_UNUSED(widget);
-    if (dd->textControl) {
+    if (dd->control) {
         painter->save();
         QRectF r = option->exposedRect;
-        const qreal yOffset = dd->pageNumber * dd->textControl->document()->pageSize().height();
-        painter->translate(0, -yOffset);
-        r.translate(0, yOffset);
-        dd->textControl->drawContents(painter, r);
+        painter->translate(-dd->controlOffset());
+        r.translate(dd->controlOffset());
+        dd->control->drawContents(painter, r);
         painter->restore();
     }
 
@@ -4307,7 +4307,7 @@ int QGraphicsTextItem::type() const
 */
 void QGraphicsTextItem::setTextWidth(qreal width)
 {
-    textControl()->setTextWidth(width);
+    dd->textControl()->setTextWidth(width);
 }
 
 /*!
@@ -4317,9 +4317,9 @@ void QGraphicsTextItem::setTextWidth(qreal width)
 */
 qreal QGraphicsTextItem::textWidth() const
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return -1;
-    return dd->textControl->textWidth();
+    return dd->control->textWidth();
 }
 
 /*!
@@ -4327,8 +4327,19 @@ qreal QGraphicsTextItem::textWidth() const
 */
 void QGraphicsTextItem::adjustSize()
 {
-    if (dd->textControl)
-        dd->textControl->adjustSize();
+    if (dd->control)
+        dd->control->adjustSize();
+}
+
+void QGraphicsTextItem::setDocument(QTextDocument *document)
+{
+    dd->textControl()->setDocument(document);
+    dd->_q_updateBoundingRect(dd->control->size());
+}
+
+QTextDocument *QGraphicsTextItem::document() const
+{
+    return dd->textControl()->document();
 }
 
 /*!
@@ -4344,7 +4355,7 @@ bool QGraphicsTextItem::sceneEvent(QEvent *event)
 */
 void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return;
     if (!hasFocus()) {
         QGraphicsItem::mousePressEvent(event);
@@ -4359,7 +4370,7 @@ void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return;
     if (!hasFocus()) {
         QGraphicsItem::mouseMoveEvent(event);
@@ -4374,7 +4385,7 @@ void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return;
     if (!hasFocus()) {
         QGraphicsItem::mouseReleaseEvent(event);
@@ -4389,7 +4400,7 @@ void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return;
     if (!hasFocus()) {
         QGraphicsItem::mouseDoubleClickEvent(event);
@@ -4412,7 +4423,7 @@ void QGraphicsTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 */
 void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
 {
-    if (dd->textControl)
+    if (dd->control)
         dd->sendControlEvent(event);
 }
 
@@ -4421,7 +4432,7 @@ void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
 */
 void QGraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
 {
-    if (dd->textControl)
+    if (dd->control)
         dd->sendControlEvent(event);
 }
 
@@ -4430,7 +4441,7 @@ void QGraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
 */
 void QGraphicsTextItem::focusInEvent(QFocusEvent *event)
 {
-    if (dd->textControl)
+    if (dd->control)
         dd->sendControlEvent(event);
     update();
 }
@@ -4440,7 +4451,7 @@ void QGraphicsTextItem::focusInEvent(QFocusEvent *event)
 */
 void QGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 {
-    if (dd->textControl)
+    if (dd->control)
         dd->sendControlEvent(event);
     update();
 }
@@ -4450,7 +4461,7 @@ void QGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 */
 void QGraphicsTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return;
 
     dd->sendControlEvent(event);
@@ -4461,7 +4472,7 @@ void QGraphicsTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 */
 void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return;
 
     dd->sendControlEvent(event);
@@ -4472,7 +4483,7 @@ void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
 */
 void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return;
 
     dd->sendControlEvent(event);
@@ -4483,7 +4494,7 @@ void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 */
 void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return;
 
     dd->sendControlEvent(event);
@@ -4494,7 +4505,7 @@ void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
 */
 void QGraphicsTextItem::inputMethodEvent(QInputMethodEvent *event)
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return;
 
     dd->sendControlEvent(event);
@@ -4506,8 +4517,8 @@ void QGraphicsTextItem::inputMethodEvent(QInputMethodEvent *event)
 QVariant QGraphicsTextItem::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     QVariant v;
-    if (dd->textControl)
-        v = dd->textControl->inputMethodQuery(query);
+    if (dd->control)
+        v = dd->control->inputMethodQuery(query);
     if (v.type() == QVariant::RectF)
         v = v.toRectF().translated(-dd->controlOffset());
     else if (v.type() == QVariant::PointF)
@@ -4552,7 +4563,7 @@ QVariant QGraphicsTextItem::extension(const QVariant &variant) const
 void QGraphicsTextItemPrivate::_q_update(QRectF rect)
 {
     if (rect.isValid()) {
-        rect.translate(0, - pageNumber * textControl->document()->pageSize().height());
+        rect.translate(-controlOffset());
     } else {
         rect = boundingRect;
     }
@@ -4565,8 +4576,8 @@ void QGraphicsTextItemPrivate::_q_update(QRectF rect)
 */
 void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
 {
-    if (!textControl) return; // can't happen
-    const QSizeF pageSize = textControl->document()->pageSize();
+    if (!control) return; // can't happen
+    const QSizeF pageSize = control->document()->pageSize();
     // paged items have a constant (page) size
     if (size == boundingRect.size() || pageSize.height() != -1)
         return;
@@ -4580,69 +4591,34 @@ void QGraphicsTextItemPrivate::_q_updateBoundingRect(const QSizeF &size)
 */
 void QGraphicsTextItemPrivate::_q_ensureVisible(QRectF rect)
 {
-    rect.translate(0, -pageNumber * textControl->document()->pageSize().height());
+    rect.translate(-controlOffset());
     qq->ensureVisible(rect, /*xmargin=*/0, /*ymargin=*/0);
 }
 
-/*!
-    \internal
-*/
-void QGraphicsTextItem::setTextControl(QTextControl *control)
+QTextControl *QGraphicsTextItemPrivate::textControl() const
 {
-    if (!control) return;
+    if (!control) {
+        QGraphicsTextItem *that = const_cast<QGraphicsTextItem *>(qq);
+        control = new QTextControl(that);
+        control->setTextInteractionFlags(Qt::NoTextInteraction);
 
-    if (dd->textControl) {
-        dd->textControl->disconnect(this);
-        if (dd->textControl->parent() == this)
-            delete dd->textControl;
+        QObject::connect(control, SIGNAL(updateRequest(const QRectF &)),
+                         qq, SLOT(_q_update(QRectF)));
+        QObject::connect(control, SIGNAL(documentSizeChanged(const QSizeF &)),
+                         qq, SLOT(_q_updateBoundingRect(const QSizeF &)));
+        QObject::connect(control, SIGNAL(visibilityRequest(const QRectF &)),
+                         qq, SLOT(_q_ensureVisible(QRectF)));
+
+        const QSizeF pgSize = control->document()->pageSize();
+        if (pgSize.height() != -1) {
+            qq->removeFromIndex();
+            that->dd->boundingRect.setSize(pgSize);
+            qq->addToIndex();
+        } else {
+            that->dd->_q_updateBoundingRect(control->size());
+        }
     }
-
-    dd->textControl = control;
-    connect(dd->textControl, SIGNAL(updateRequest(const QRectF &)),
-            this, SLOT(_q_update(QRectF)));
-    connect(dd->textControl, SIGNAL(documentSizeChanged(const QSizeF &)),
-            this, SLOT(_q_updateBoundingRect(const QSizeF &)));
-    connect(dd->textControl, SIGNAL(visibilityRequest(const QRectF &)),
-            this, SLOT(_q_ensureVisible(QRectF)));
-
-    const QSizeF pgSize = dd->textControl->document()->pageSize();
-    if (pgSize.height() != -1) {
-        removeFromIndex();
-        dd->boundingRect.setSize(pgSize);
-        addToIndex();
-    } else {
-        dd->_q_updateBoundingRect(dd->textControl->size());
-    }
-}
-
-/*!
-    \internal
-*/
-QTextControl *QGraphicsTextItem::textControl() const
-{
-    if (!dd->textControl) {
-        QGraphicsTextItem *that = const_cast<QGraphicsTextItem *>(this);
-        QTextControl *ctrl = new QTextControl(that);
-        ctrl->setTextInteractionFlags(Qt::NoTextInteraction);
-        that->setTextControl(ctrl);
-    }
-    return dd->textControl;
-}
-
-/*!
-    \internal
-*/
-void QGraphicsTextItem::setPageNumber(int page)
-{
-    dd->pageNumber = page;
-}
-
-/*!
-    \internal
-*/
-int QGraphicsTextItem::pageNumber() const
-{
-    return dd->pageNumber;
+    return control;
 }
 
 void QGraphicsTextItem::setTextInteractionFlags(Qt::TextInteractionFlags flags)
@@ -4651,14 +4627,14 @@ void QGraphicsTextItem::setTextInteractionFlags(Qt::TextInteractionFlags flags)
         setFlags(this->flags() & ~QGraphicsItem::ItemIsFocusable);
     else
         setFlags(this->flags() | QGraphicsItem::ItemIsFocusable);
-    textControl()->setTextInteractionFlags(flags);
+    dd->textControl()->setTextInteractionFlags(flags);
 }
 
 Qt::TextInteractionFlags QGraphicsTextItem::textInteractionFlags() const
 {
-    if (!dd->textControl)
+    if (!dd->control)
         return Qt::NoTextInteraction;
-    return dd->textControl->textInteractionFlags();
+    return dd->control->textInteractionFlags();
 }
 
 /*!

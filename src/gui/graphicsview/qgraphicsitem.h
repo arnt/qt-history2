@@ -489,7 +489,7 @@ private:
 };
 
 class QGraphicsTextItemPrivate;
-class QTextControl;
+class QTextDocument;
 class Q_GUI_EXPORT QGraphicsTextItem : public QObject, public QGraphicsItem
 {
     Q_OBJECT
@@ -521,11 +521,8 @@ public:
 
     void adjustSize();
 
-    void setTextControl(QTextControl *control);
-    QTextControl *textControl() const;
-
-    void setPageNumber(int page);
-    int pageNumber() const;
+    void setDocument(QTextDocument *document);
+    QTextDocument *document() const;
 
     void setTextInteractionFlags(Qt::TextInteractionFlags flags);
     Qt::TextInteractionFlags textInteractionFlags() const;
