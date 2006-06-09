@@ -76,6 +76,10 @@ public:
                              const QPair<QListWidgetItem*,int> &right);
     static bool itemGreaterThan(const QPair<QListWidgetItem*,int> &left,
                                 const QPair<QListWidgetItem*,int> &right);
+    static QList<QListWidgetItem*>::iterator sortedInsertionIterator(
+        const QList<QListWidgetItem*>::iterator &begin,
+        const QList<QListWidgetItem*>::iterator &end,
+        Qt::SortOrder order, QListWidgetItem *item);
 
     void itemChanged(QListWidgetItem *item);
 
@@ -149,10 +153,8 @@ void QListModel::insert(int row, QListWidgetItem *item)
     if (item->view && item->view->isSortingEnabled()) {
         // sorted insertion
         QList<QListWidgetItem*>::iterator it;
-        if (item->view->sortOrder() == Qt::AscendingOrder)
-            it = qLowerBound(lst.begin(), lst.end(), item, QListModelLessThan());
-        else
-            it = qLowerBound(lst.begin(), lst.end(), item, QListModelGreaterThan());
+        it = sortedInsertionIterator(lst.begin(), lst.end(),
+                                     item->view->sortOrder(), item);
         row = qMax(it - lst.begin(), 0);
     } else {
         if (row < 0)
@@ -347,10 +349,7 @@ void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int en
     for (int i = 0; i < count; ++i) {
         int oldRow = sorting.at(i).second;
         QListWidgetItem *item = lst.takeAt(oldRow);
-        if (order == Qt::AscendingOrder)
-            lit = qLowerBound(lit, lst.end(), item, QListModelLessThan());
-        else
-            lit = qLowerBound(lit, lst.end(), item, QListModelGreaterThan());
+        lit = sortedInsertionIterator(lit, lst.end(), order, item);
         int newRow = qMax(lit - lst.begin(), 0);
         lit = lst.insert(lit, item);
         if (newRow != oldRow) {
@@ -392,6 +391,16 @@ bool QListModel::itemGreaterThan(const QPair<QListWidgetItem*,int> &left,
                                  const QPair<QListWidgetItem*,int> &right)
 {
     return !((*left.first) < (*right.first));
+}
+
+QList<QListWidgetItem*>::iterator QListModel::sortedInsertionIterator(
+    const QList<QListWidgetItem*>::iterator &begin,
+    const QList<QListWidgetItem*>::iterator &end,
+    Qt::SortOrder order, QListWidgetItem *item)
+{
+    if (order == Qt::AscendingOrder)
+        return qLowerBound(begin, end, item, QListModelLessThan());
+    return qLowerBound(begin, end, item, QListModelGreaterThan());
 }
 
 void QListModel::itemChanged(QListWidgetItem *item)
