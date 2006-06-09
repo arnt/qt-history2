@@ -1044,8 +1044,9 @@ void QListWidgetPrivate::_q_sort()
 void QListWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
                                         const QModelIndex &bottomRight)
 {
-    if (sortingEnabled)
-        model()->ensureSorted(topLeft.column(), sortOrder, topLeft.row(), bottomRight.row());
+    if (sortingEnabled && topLeft.isValid() && bottomRight.isValid())
+        model()->ensureSorted(topLeft.column(), sortOrder,
+                              topLeft.row(), bottomRight.row());
 }
 
 /*!
