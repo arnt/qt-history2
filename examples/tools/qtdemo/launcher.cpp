@@ -289,17 +289,20 @@ QString Launcher::findExecutable(const QDir &dir) const
             return path;
     }
 
-    foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs | QDir::Files)) {
-        if (info.isFile() && info.isExecutable())
+    foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs)) {
+        if (info.fileName().endsWith(".app"))
             return info.absoluteFilePath();
-        else if (info.isDir()) {
-            QDir currentDir(info.absoluteFilePath());
-            if (currentDir != dir && currentDir != parentDir) {
-                QString path = findExecutable(currentDir);
-                if (!path.isNull())
-                    return path;
-            }
+        QDir currentDir(info.absoluteFilePath());
+        if (currentDir != dir && currentDir != parentDir) {
+            QString path = findExecutable(currentDir);
+            if (!path.isNull())
+                return path;
         }
+    }
+        
+    foreach (QFileInfo info, dir.entryInfoList(QDir::Files)) {
+        if (info.isExecutable())
+            return info.absoluteFilePath();
     }
     return QString();
 }
