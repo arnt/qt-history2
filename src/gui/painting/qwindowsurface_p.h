@@ -50,18 +50,5 @@ public:
     virtual void endPaint(const QRegion &) { };
 
 };
-// class QWindowSurface
-// {
-//     virtual QPaintDevice *paintDevice() = 0;
-//     virtual void flush(QWidget *widget, const QRegion &region) = 0;
-
-//     virtual void resize(const QSize &size) = 0;
-//     virtual void release();
-
-//     virtual void clear(const QRegion &region) = 0;
-//     virtual void drawOverlay(const QRegion &region) = 0;
-
-//     virtual void scroll(const QRegion &area, int dx, int dy);
-// }
 
 #endif // QWINDOWSURFACE_P_H
