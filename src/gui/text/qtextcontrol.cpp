@@ -680,213 +680,6 @@ void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRe
     // be the case in QTextControl::undo() after calling undo() on the document.
 }
 
-/*!
-    \class QTextControl
-    \brief The QTextControl class provides a widget that is used to edit and display
-    both plain and rich text.
-
-    \since 4.2
-    \ingroup text
-    \mainclass
-
-    \tableofcontents
-
-    \section1 Introduction and Concepts
-
-    QTextControl is an advanced WYSIWYG viewer/editor supporting rich
-    text formatting using HTML-style tags. It is optimized to handle
-    large documents and to respond quickly to user input.
-
-    QTextControl works on paragraphs and characters. A paragraph is a
-    formatted string which is word-wrapped to fit into the width of
-    the widget. By default when reading plain text, one newline
-    signifies a paragraph. A document consists of zero or more
-    paragraphs. The words in the paragraph are aligned in accordance
-    with the paragraph's alignment. Paragraphs are separated by hard
-    line breaks. Each character within a paragraph has its own
-    attributes, for example, font and color.
-
-    QTextControl can display images, lists and tables. If the text is
-    too large to view within the text edit's viewport, scrollbars will
-    appear. The text edit can load both plain text and HTML files (a
-    subset of HTML 3.2 and 4).
-
-    If you just need to display a small piece of rich text use QLabel.
-
-    Note that we do not intend to add a full-featured web browser
-    widget to Qt (because that would easily double Qt's size and only
-    a few applications would benefit from it). The rich
-    text support in Qt is designed to provide a fast, portable and
-    efficient way to add reasonable online help facilities to
-    applications, and to provide a basis for rich text editors.
-
-    \section1 Using QTextControl as a Display Widget
-
-    QTextControl can display a large HTML subset, including tables and
-    images.
-
-    The text is set or replaced using setHtml() which deletes any
-    existing text and replaces it with the text passed in the
-    setHtml() call. If you call setHtml() with legacy HTML, and then
-    call text(), the text that is returned may have different markup,
-    but will render the same. The entire text can be deleted with clear().
-
-    Text itself can be inserted using the QTextCursor class or using the
-    convenience functions insertHtml(), insertPlainText(), append() or
-    paste(). QTextCursor is also able to insert complex objects like tables
-    or lists into the document, and it deals with creating selections
-    and applying changes to selected text.
-
-    By default the text edit wraps words at whitespace to fit within
-    the text edit widget. The setLineWrapMode() function is used to
-    specify the kind of line wrap you want, or \l NoWrap if you don't
-    want any wrapping. Call setLineWrapMode() to set a fixed pixel width
-    \l FixedPixelWidth, or character column (e.g. 80 column) \l
-    FixedColumnWidth with the pixels or columns specified with
-    setLineWrapColumnOrWidth(). If you use word wrap to the widget's width
-    \l WidgetWidth, you can specify whether to break on whitespace or
-    anywhere with setWordWrapMode().
-
-    The find() function can be used to find and select a given string
-    within the text.
-
-    \section2 Read-only Key Bindings
-
-    When QTextControl is used read-only the key-bindings are limited to
-    navigation, and text may only be selected with the mouse:
-    \table
-    \header \i Keypresses \i Action
-    \row \i Qt::UpArrow        \i Moves one line up.
-    \row \i Qt::DownArrow        \i Moves one line down.
-    \row \i Qt::LeftArrow        \i Moves one character to the left.
-    \row \i Qt::RightArrow        \i Moves one character to the right.
-    \row \i PageUp        \i Moves one (viewport) page up.
-    \row \i PageDown        \i Moves one (viewport) page down.
-    \row \i Home        \i Moves to the beginning of the text.
-    \row \i End                \i Moves to the end of the text.
-    \row \i Alt+Wheel
-         \i Scrolls the page horizontally (the Wheel is the mouse wheel).
-    \row \i Ctrl+Wheel        \i Zooms the text.
-    \row \i Ctrl+A            \i Selects all text.
-    \endtable
-
-    The text edit may be able to provide some meta-information. For
-    example, the documentTitle() function will return the text from
-    within HTML \c{<title>} tags.
-
-    \section1 Using QTextControl as an Editor
-
-    All the information about using QTextControl as a display widget also
-    applies here.
-
-    The current char format's attributes are set with setFontItalic(),
-    setFontWeight(), setFontUnderline(), setFontFamily(),
-    setFontPointSize(), setTextColor() and setCurrentFont(). The current
-    paragraph's alignment is set with setAlignment().
-
-    Selection of text is handled by the QTextCursor class, which provides
-    functionality for creating selections, retrieving the text contents or
-    deleting selections. You can retrieve the object that corresponds with
-    the user-visible cursor using the textCursor() method. If you want to set
-    a selection in QTextControl just create one on a QTextCursor object and
-    then make that cursor the visible cursor using setCursor(). The selection
-    can be copied to the clipboard with copy(), or cut to the clipboard with
-    cut(). The entire text can be selected using selectAll().
-
-    When the cursor is moved and the underlying formatting attributes change,
-    the currentCharFormatChanged() signal is emitted to reflect the new attributes
-    at the new cursor position.
-
-    QTextControl holds a QTextDocument object which can be retrieved using the
-    document() method. You can also set your own document object using setDocument().
-    QTextDocument emits a textChanged() signal if the text changes and it also
-    provides a isModified() function which will return true if the text has been
-    modified since it was either loaded or since the last call to setModified
-    with false as argument. In addition it provides methods for undo and redo.
-
-    \section2 Editing Key Bindings
-
-    The list of key bindings which are implemented for editing:
-    \table
-    \header \i Keypresses \i Action
-    \row \i Backspace \i Deletes the character to the left of the cursor.
-    \row \i Delete \i Deletes the character to the right of the cursor.
-    \row \i Ctrl+C \i Copy the selected text to the clipboard.
-    \row \i Ctrl+Insert \i Copy the selected text to the clipboard.
-    \row \i Ctrl+K \i Deletes to the end of the line.
-    \row \i Ctrl+V \i Pastes the clipboard text into text edit.
-    \row \i Shift+Insert \i Pastes the clipboard text into text edit.
-    \row \i Ctrl+X \i Deletes the selected text and copies it to the clipboard.
-    \row \i Shift+Delete \i Deletes the selected text and copies it to the clipboard.
-    \row \i Ctrl+Z \i Undoes the last operation.
-    \row \i Ctrl+Y \i Redoes the last operation.
-    \row \i LeftArrow \i Moves the cursor one character to the left.
-    \row \i Ctrl+LeftArrow \i Moves the cursor one word to the left.
-    \row \i RightArrow \i Moves the cursor one character to the right.
-    \row \i Ctrl+RightArrow \i Moves the cursor one word to the right.
-    \row \i UpArrow \i Moves the cursor one line up.
-    \row \i Ctrl+UpArrow \i Moves the cursor one word up.
-    \row \i DownArrow \i Moves the cursor one line down.
-    \row \i Ctrl+Down Arrow \i Moves the cursor one word down.
-    \row \i PageUp \i Moves the cursor one page up.
-    \row \i PageDown \i Moves the cursor one page down.
-    \row \i Home \i Moves the cursor to the beginning of the line.
-    \row \i Ctrl+Home \i Moves the cursor to the beginning of the text.
-    \row \i End \i Moves the cursor to the end of the line.
-    \row \i Ctrl+End \i Moves the cursor to the end of the text.
-    \row \i Alt+Wheel \i Scrolls the page horizontally (the Wheel is the mouse wheel).
-    \row \i Ctrl+Wheel \i Zooms the text.
-    \endtable
-
-    To select (mark) text hold down the Shift key whilst pressing one
-    of the movement keystrokes, for example, \e{Shift+Right Arrow}
-    will select the character to the right, and \e{Shift+Ctrl+Right
-    Arrow} will select the word to the right, etc.
-
-    \sa QTextDocument, QTextCursor, {Application Example}, {Syntax Highlighter Example}
-*/
-
-/*!
-    \property QTextControl::undoRedoEnabled
-    \brief whether undo and redo are enabled
-
-    Users are only able to undo or redo actions if this property is
-    true, and if there is an action that can be undone (or redone).
-*/
-
-/*!
-    \enum QTextControl::LineWrapMode
-
-    \value NoWrap
-    \value WidgetWidth
-    \value FixedPixelWidth
-    \value FixedColumnWidth
-*/
-
-/*!
-    \enum QTextControl::CursorAction
-
-    \value MoveBackward
-    \value MoveForward
-    \value MoveWordBackward
-    \value MoveWordForward
-    \value MoveUp
-    \value MoveDown
-    \value MoveLineStart
-    \value MoveLineEnd
-    \value MoveHome
-    \value MoveEnd
-    \value MovePageUp
-    \value MovePageDown
-
-    \omitvalue MovePgUp
-    \omitvalue MovePgDown
-*/
-
-/*!
-    Constructs an empty QTextControl with parent \a
-    parent.
-*/
 QTextControl::QTextControl(QObject *parent)
     : QObject(*new QTextControlPrivate, parent)
 {
@@ -894,10 +687,6 @@ QTextControl::QTextControl(QObject *parent)
     d->init();
 }
 
-/*!
-    Constructs a QTextControl with parent \a parent. The text edit will display
-    the text \a text. The text is interpreted as html.
-*/
 QTextControl::QTextControl(const QString &text, QObject *parent)
     : QObject(*new QTextControlPrivate, parent)
 {
@@ -905,22 +694,10 @@ QTextControl::QTextControl(const QString &text, QObject *parent)
     d->init(text);
 }
 
-/*!
-    Destructor.
-*/
 QTextControl::~QTextControl()
 {
 }
 
-/*!
-    Makes \a document the new document of the text editor.
-
-    The parent QObject of the provided document remains the owner
-    of the object. If the current document is a child of the text
-    editor, then it is deleted.
-
-    \sa document()
-*/
 void QTextControl::setDocument(QTextDocument *document)
 {
     Q_D(QTextControl);
@@ -938,20 +715,12 @@ void QTextControl::setDocument(QTextDocument *document)
     d->setContent(Qt::RichText, QString(), document);
 }
 
-/*!
-    Returns a pointer to the underlying document.
-
-    \sa setDocument()
-*/
 QTextDocument *QTextControl::document() const
 {
     Q_D(const QTextControl);
     return d->doc;
 }
 
-/*!
-    Sets the visible \a cursor.
-*/
 void QTextControl::setTextCursor(const QTextCursor &cursor)
 {
     Q_D(QTextControl);
@@ -965,48 +734,13 @@ void QTextControl::setTextCursor(const QTextCursor &cursor)
         emit cursorPositionChanged();
 }
 
-/*!
-    Returns a copy of the QTextCursor that represents the currently visible cursor.
-    Note that changes on the returned cursor do not affect QTextControl's cursor; use
-    setTextCursor() to update the visible cursor.
- */
 QTextCursor QTextControl::textCursor() const
 {
     Q_D(const QTextControl);
     return d->cursor;
 }
 
-/*!
-    \fn void QTextControl::undo() const
-
-    Undoes the last operation.
-
-    If there is no operation to undo, i.e. there is no undo step in
-    the undo/redo history, nothing happens.
-
-    \sa redo()
-*/
-
-/*!
-    \fn void QTextControl::redo() const
-
-    Redoes the last operation.
-
-    If there is no operation to redo, i.e. there is no redo step in
-    the undo/redo history, nothing happens.
-
-    \sa undo()
-*/
-
 #ifndef QT_NO_CLIPBOARD
-/*!
-    Copies the selected text to the clipboard and deletes it from
-    the text edit.
-
-    If there is no selected text nothing happens.
-
-    \sa copy() paste()
-*/
 
 void QTextControl::cut()
 {
@@ -1017,12 +751,6 @@ void QTextControl::cut()
     d->cursor.removeSelectedText();
 }
 
-/*!
-    Copies any selected text to the clipboard.
-
-    \sa copyAvailable()
-*/
-
 void QTextControl::copy()
 {
     Q_D(QTextControl);
@@ -1032,20 +760,6 @@ void QTextControl::copy()
     QApplication::clipboard()->setMimeData(data);
 }
 
-/*!
-    Pastes the text from the clipboard into the text edit at the
-    current cursor position.
-
-    If there is no text in the clipboard nothing happens.
-
-    To change the behavior of this function, i.e. to modify what
-    QTextControl can paste and how it is being pasted, reimplement the
-    virtual canInsertFromMimeData() and insertFromMimeData()
-    functions.
-
-    \sa cut() copy()
-*/
-
 void QTextControl::paste()
 {
     const QMimeData *md = QApplication::clipboard()->mimeData();
@@ -1054,13 +768,6 @@ void QTextControl::paste()
 }
 #endif
 
-/*!
-    Deletes all the text in the text edit.
-
-    Note that the undo/redo history is cleared by this function.
-
-    \sa cut() setPlainText() setHtml()
-*/
 void QTextControl::clear()
 {
     Q_D(QTextControl);
@@ -1069,11 +776,6 @@ void QTextControl::clear()
 }
 
 
-/*!
-    Selects all text.
-
-    \sa copy() cut() textCursor()
- */
 void QTextControl::selectAll()
 {
     Q_D(QTextControl);
@@ -1274,15 +976,11 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
     }
 }
 
-/*! \reimp
-*/
 bool QTextControl::event(QEvent *e)
 {
     return QObject::event(e);
 }
 
-/*! \internal
-*/
 void QTextControl::timerEvent(QTimerEvent *e)
 {
     Q_D(QTextControl);
@@ -1302,46 +1000,11 @@ void QTextControl::timerEvent(QTimerEvent *e)
     }
 }
 
-/*!
-    Changes the text of the text edit to the string \a text.
-    Any previous text is removed.
-
-    \a text is interpreted as plain text.
-
-    Note that the undo/redo history is cleared by this function.
-
-    \sa toPlainText()
-*/
-
 void QTextControl::setPlainText(const QString &text)
 {
     Q_D(QTextControl);
     d->setContent(Qt::PlainText, text);
 }
-
-/*!
-    \fn QString QTextControl::toPlainText() const
-
-    Returns the text of the text edit as plain text.
-
-    \sa QTextControl::setPlainText()
- */
-
-
-/*!
-    \property QTextControl::html
-
-    This property provides an HTML interface to the text of the text edit.
-
-    toHtml() returns the text of the text edit as html.
-
-    setHtml() changes the text of the text edit.  Any previous text is
-    removed. The input text is interpreted as rich text in html format.
-
-    Note that the undo/redo history is cleared by calling setHtml().
-
-    \sa {Supported HTML Subset}
-*/
 
 void QTextControl::setHtml(const QString &text)
 {
@@ -1349,8 +1012,6 @@ void QTextControl::setHtml(const QString &text)
     d->setContent(Qt::RichText, text);
 }
 
-/*! \reimp
-*/
 void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
 {
     Q_Q(QTextControl);
@@ -1515,13 +1176,6 @@ process:
     updateCurrentCharFormat();
 }
 
-/*!
-    Loads the resource specified by the given \a type and \a name.
-
-    This function is an extension of QTextDocument::loadResource().
-
-    \sa QTextDocument::loadResource()
-*/
 QVariant QTextControl::loadResource(int type, const QUrl &name)
 {
     Q_UNUSED(type);
@@ -1647,8 +1301,6 @@ QRectF QTextControlPrivate::selectionRect(const QTextCursor &cursor) const
     return r;
 }
 
-/*! \reimp
-*/
 void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF &pos, Qt::KeyboardModifiers modifiers,
                                           Qt::MouseButtons buttons, const QPoint &globalPos)
 {
@@ -1736,8 +1388,6 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
     repaintOldAndNewSelection(oldSelection);
 }
 
-/*! \reimp
-*/
 void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF &mousePos)
 {
     Q_Q(QTextControl);
@@ -1793,8 +1443,6 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
     repaintOldAndNewSelection(oldSelection);
 }
 
-/*! \reimp
-*/
 void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPointF &pos)
 {
     Q_Q(QTextControl);
@@ -1950,8 +1598,6 @@ bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &po
     return true; // accept proposed action
 }
 
-/*! \reimp
- */
 void QTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
 {
     if (!(interactionFlags & Qt::TextEditable) || cursor.isNull()) {
@@ -1996,8 +1642,6 @@ void QTextControlPrivate::inputMethodEvent(QInputMethodEvent *e)
     cursor.endEditBlock();
 }
 
-/*! \reimp
-*/
 QVariant QTextControl::inputMethodQuery(Qt::InputMethodQuery property) const
 {
     Q_D(const QTextControl);
@@ -2052,13 +1696,6 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
 }
 
 #ifndef QT_NO_CONTEXTMENU
-/*!
-  This function creates the standard context menu which is shown
-  when the user clicks on the line edit with the right mouse
-  button. It is called from the default contextMenuEvent() handler.
-  The popup menu's ownership is transferred to the caller.
-*/
-
 QMenu *QTextControl::createStandardContextMenu()
 {
     Q_D(QTextControl);
@@ -2107,9 +1744,6 @@ QMenu *QTextControl::createStandardContextMenu()
 }
 #endif // QT_NO_CONTEXTMENU
 
-/*!
-  Returns a QTextCursor at position \a pos (in viewport coordinates).
-*/
 QTextCursor QTextControl::cursorForPosition(const QPointF &pos) const
 {
     Q_D(const QTextControl);
@@ -2121,10 +1755,6 @@ QTextCursor QTextControl::cursorForPosition(const QPointF &pos) const
     return c;
 }
 
-/*!
-  Returns a rectangle (in viewport coordinates) that includes the
-  \a cursor.
- */
 QRectF QTextControl::cursorRect(const QTextCursor &cursor) const
 {
     Q_D(const QTextControl);
@@ -2134,31 +1764,17 @@ QRectF QTextControl::cursorRect(const QTextCursor &cursor) const
    return d->rectForPosition(cursor.position());
 }
 
-/*!
-  Returns a rectangle (in viewport coordinates) that includes the
-  cursor of the text edit.
- */
 QRectF QTextControl::cursorRect() const
 {
     Q_D(const QTextControl);
     return cursorRect(d->cursor);
 }
 
-
-/*!
-    Returns the reference of the anchor at position \a pos, or an
-    empty string if no anchor exists at that point.
-*/
 QString QTextControl::anchorAt(const QPointF &pos) const
 {
     Q_D(const QTextControl);
     return d->doc->documentLayout()->anchorAt(pos);
 }
-
-/*!
-   \property QTextControl::overwriteMode
-   \since 4.1
-*/
 
 bool QTextControl::overwriteMode() const
 {
@@ -2172,12 +1788,6 @@ void QTextControl::setOverwriteMode(bool overwrite)
     d->overwriteMode = overwrite;
 }
 
-/*!
-    \property QTextControl::tabStopWidth
-    \brief the tab stop width in pixels
-    \since 4.1
-*/
-
 int QTextControl::tabStopWidth() const
 {
     Q_D(const QTextControl);
@@ -2190,12 +1800,6 @@ void QTextControl::setTabStopWidth(int width)
     d->doc->documentLayout()->setProperty("tabStopWidth", QVariant(double(width)));
 }
 
-/*!
-    \since 4.2
-    \property QTextControl::cursorWidth
-
-    This property specifies the width of the cursor in pixels. The default value is 1.
-*/
 int QTextControl::cursorWidth() const
 {
     Q_D(const QTextControl);
@@ -2209,17 +1813,6 @@ void QTextControl::setCursorWidth(int width)
     d->repaintCursor();
 }
 
-/*!
-    \property QTextControl::acceptRichText
-    \brief whether the text edit accepts rich text insertions by the user
-    \since 4.1
-
-    When this propery is set to false text edit will accept only
-    plain text input from the user. For example through clipboard or drag and drop.
-
-    This property's default is true.
-*/
-
 bool QTextControl::acceptRichText() const
 {
     Q_D(const QTextControl);
@@ -2232,33 +1825,6 @@ void QTextControl::setAcceptRichText(bool accept)
     d->acceptRichText = accept;
 }
 
-/*!
-    \class QTextControl::ExtraSelection
-    \since 4.2
-    \brief The QTextControl::ExtraSelection structure provides a way of specifying a
-           character format for a given selection in a document
-*/
-
-/*!
-    \variable QTextControl::ExtraSelection::cursor
-    A cursor that contains a selection in a QTextDocument
-*/
-
-/*!
-    \variable QTextControl::ExtraSelection::format
-    A format that is used to specify a foreground or background brush/color
-    for the selection.
-*/
-
-/*!
-    \since 4.2
-    This function allows temporarily marking certain regions in the document
-    with a given color, specified as \a selections. This can be useful for
-    example in a programming editor to mark a whole line of text with a given
-    background color to indicate the existance of a breakpoint.
-
-    \sa QTextControl::ExtraSelection, extraSelections()
-*/
 void QTextControl::setExtraSelections(const QList<ExtraSelection> &selections)
 {
     Q_D(QTextControl);
@@ -2299,12 +1865,6 @@ void QTextControl::setExtraSelections(const QList<ExtraSelection> &selections)
     }
 }
 
-/*!
-    \since 4.2
-    Returns previously set extra selections.
-
-    \sa setExtraSelections()
-*/
 QList<QTextControl::ExtraSelection> QTextControl::extraSelections() const
 {
     Q_D(const QTextControl);
@@ -2336,16 +1896,6 @@ QSizeF QTextControl::size() const
     return d->doc->size();
 }
 
-/*!
-    This function returns a new MIME data object to represent the contents
-    of the text edit's current selection. It is called when the selection needs
-    to be encapsulated into a new QMimeData object; for example, when a drag
-    and drop operation is started, or when data is copyied to the clipboard.
-
-    If you reimplement this function, note that the ownership of the returned
-    QMimeData object is passed to the caller. The selection can be retrieved
-    by using the textCursor() function.
-*/
 QMimeData *QTextControl::createMimeDataFromSelection() const
 {
     Q_D(const QTextControl);
@@ -2353,12 +1903,6 @@ QMimeData *QTextControl::createMimeDataFromSelection() const
     return new QTextEditMimeData(fragment);
 }
 
-/*!
-    This function returns true if the contents of the MIME data object, specified
-    by \a source, can be decoded and inserted into the document. It is called
-    for example when during a drag operation the mouse enters this widget and it
-    is necessary to determine whether it is possible to accept the drag.
-*/
 bool QTextControl::canInsertFromMimeData(const QMimeData *source) const
 {
     Q_D(const QTextControl);
@@ -2371,13 +1915,6 @@ bool QTextControl::canInsertFromMimeData(const QMimeData *source) const
         return source->hasText();
 }
 
-/*!
-    This function inserts the contents of the MIME data object, specified
-    by \a source, into the text edit at the current cursor position. It is
-    called whenever text is inserted as the result of a clipboard paste
-    operation, or when the text edit accepts data from a drag and drop
-    operation.
-*/
 void QTextControl::insertFromMimeData(const QMimeData *source)
 {
     Q_D(QTextControl);
@@ -2425,14 +1962,6 @@ Qt::TextInteractionFlags QTextControl::textInteractionFlags() const
     return d->interactionFlags;
 }
 
-/*!
-    If the editor has a selection then the properties of \a modifier are
-    applied to the selection. Without a selection the properties are applied
-    to the word under the cursor. In addition they are always merged into
-    the current char format.
-
-    \sa QTextCursor::mergeCharFormat()
-*/
 void QTextControl::mergeCurrentCharFormat(const QTextCharFormat &modifier)
 {
     Q_D(QTextControl);
@@ -2450,10 +1979,6 @@ void QTextControl::mergeCurrentCharFormat(const QTextCharFormat &modifier)
     d->lastCharFormat = d->cursor.charFormat();
 }
 
-/*!
-    Sets the char format that is be used when inserting new text to
-    \a format .
-*/
 void QTextControl::setCurrentCharFormat(const QTextCharFormat &format)
 {
     Q_D(QTextControl);
@@ -2461,42 +1986,18 @@ void QTextControl::setCurrentCharFormat(const QTextCharFormat &format)
     d->lastCharFormat = format;
 }
 
-/*!
-    Returns the char format that is used when inserting new text.
-*/
 QTextCharFormat QTextControl::currentCharFormat() const
 {
     Q_D(const QTextControl);
     return d->cursor.charFormat();
 }
 
-/*!
-    Convenience slot that inserts \a text at the current
-    cursor position.
-
-    It is equivalent to
-
-    \code
-    edit->textCursor().insertText(text);
-    \endcode
- */
 void QTextControl::insertPlainText(const QString &text)
 {
     Q_D(QTextControl);
     d->cursor.insertText(text);
 }
 
-/*!
-    Convenience slot that inserts \a text which is assumed to be of
-    html formatting at the current cursor position.
-
-    It is equivalent to:
-
-    \code
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
-    edit->textCursor().insertFragment(fragment);
-    \endcode
- */
 void QTextControl::insertHtml(const QString &text)
 {
     Q_D(QTextControl);
@@ -2539,18 +2040,6 @@ void QTextControl::adjustSize()
     d->doc->adjustSize();
 }
 
-/*!
-    \property QTextControl::documentTitle
-    \brief the title of the document parsed from the text.
-*/
-
-/*!
-    \property QTextControl::wordWrapMode
-    \brief the mode QTextControl will use when wrapping text by words
-
-    \sa QTextOption::WrapMode
-*/
-
 QTextOption::WrapMode QTextControl::wordWrapMode() const
 {
     Q_D(const QTextControl);
@@ -2566,11 +2055,6 @@ void QTextControl::setWordWrapMode(QTextOption::WrapMode mode)
         layout->setWordWrapMode(mode);
 }
 
-/*!
-    Finds the next occurrence of the string, \a exp, using the given
-    \a options. Returns true if \a exp was found and changes the
-    cursor to select the match; otherwise returns false.
-*/
 bool QTextControl::find(const QString &exp, QTextDocument::FindFlags options)
 {
     Q_D(QTextControl);
@@ -2582,51 +2066,6 @@ bool QTextControl::find(const QString &exp, QTextDocument::FindFlags options)
     return true;
 }
 
-/*!
-    \fn void QTextControl::copyAvailable(bool yes)
-
-    This signal is emitted when text is selected or de-selected in the
-    text edit.
-
-    When text is selected this signal will be emitted with \a yes set
-    to true. If no text has been selected or if the selected text is
-    de-selected this signal is emitted with \a yes set to false.
-
-    If \a yes is true then copy() can be used to copy the selection to
-    the clipboard. If \a yes is false then copy() does nothing.
-
-    \sa selectionChanged()
-*/
-
-/*!
-    \fn void QTextControl::currentCharFormatChanged(const QTextCharFormat &f)
-
-    This signal is emitted if the current character format has changed, for
-    example caused by a change of the cursor position.
-
-    The new format is \a f.
-
-    \sa setCurrentCharFormat()
-*/
-
-/*!
-    \fn void QTextControl::selectionChanged()
-
-    This signal is emitted whenever the selection changes.
-
-    \sa copyAvailable()
-*/
-
-/*!
-    \fn void QTextControl::cursorPositionChanged()
-
-    This signal is emitted whenever the position of the
-    cursor changed.
-*/
-
-/*!
-    Appends a new paragraph with \a text to the end of the text edit.
-*/
 void QTextControl::append(const QString &text)
 {
     Q_D(QTextControl);
@@ -2650,10 +2089,6 @@ void QTextControl::append(const QString &text)
     cursor.endEditBlock();
 }
 
-/*!
-    Ensures that the cursor is visible by scrolling the text edit if
-    necessary.
-*/
 void QTextControl::ensureCursorVisible()
 {
     Q_D(QTextControl);
@@ -2661,180 +2096,6 @@ void QTextControl::ensureCursorVisible()
     emit visibilityRequest(crect);
     emit microFocusChanged();
 }
-
-
-/*!
-    \enum QTextControl::KeyboardAction
-
-    \compat
-
-    \value ActionBackspace
-    \value ActionDelete
-    \value ActionReturn
-    \value ActionKill
-    \value ActionWordBackspace
-    \value ActionWordDelete
-*/
-
-/*!
-    \fn bool QTextControl::find(const QString &exp, bool cs, bool wo)
-
-    Use the find() overload that takes a QTextDocument::FindFlags
-    argument.
-*/
-
-/*!
-    \fn void QTextControl::sync()
-
-    Does nothing.
-*/
-
-/*!
-    \fn void QTextControl::setBold(bool b)
-
-    Use setFontWeight() instead.
-*/
-
-/*!
-    \fn void QTextControl::setUnderline(bool b)
-
-    Use setFontUnderline() instead.
-*/
-
-/*!
-    \fn void QTextControl::setItalic(bool i)
-
-    Use setFontItalic() instead.
-*/
-
-/*!
-    \fn void QTextControl::setFamily(const QString &family)
-
-    Use setFontFamily() instead.
-*/
-
-/*!
-    \fn void QTextControl::setPointSize(int size)
-
-    Use setFontPointSize() instead.
-*/
-
-/*!
-    \fn bool QTextControl::italic() const
-
-    Use fontItalic() instead.
-*/
-
-/*!
-    \fn bool QTextControl::bold() const
-
-    Use fontWeight() >= QFont::Bold instead.
-*/
-
-/*!
-    \fn bool QTextControl::underline() const
-
-    Use fontUnderline() instead.
-*/
-
-/*!
-    \fn QString QTextControl::family() const
-
-    Use fontFamily() instead.
-*/
-
-/*!
-    \fn int QTextControl::pointSize() const
-
-    Use int(fontPointSize()+0.5) instead.
-*/
-
-/*!
-    \fn bool QTextControl::hasSelectedText() const
-
-    Use textCursor().hasSelection() instead.
-*/
-
-/*!
-    \fn QString QTextControl::selectedText() const
-
-    Use textCursor().selectedText() instead.
-*/
-
-/*!
-    \fn bool QTextControl::isUndoAvailable() const
-
-    Use document()->isUndoAvailable() instead.
-*/
-
-/*!
-    \fn bool QTextControl::isRedoAvailable() const
-
-    Use document()->isRedoAvailable() instead.
-*/
-
-/*!
-    \fn void QTextControl::insert(const QString &text)
-
-    Use insertPlainText() instead.
-*/
-
-/*!
-    \fn bool QTextControl::isModified() const
-
-    Use document()->isModified() instead.
-*/
-
-/*!
-    \fn QColor QTextControl::color() const
-
-    Use textColor() instead.
-*/
-
-/*!
-    \fn void QTextControl::textChanged()
-
-    This signal is emitted whenever the document's content changes; for
-    example, when text is inserted or deleted, or when formatting is applied.
-*/
-
-/*!
-    \fn void QTextControl::undoAvailable(bool available)
-
-    This signal is emitted whenever undo operations become available
-    (\a available is true) or unavailable (\a available is false).
-*/
-
-/*!
-    \fn void QTextControl::redoAvailable(bool available)
-
-    This signal is emitted whenever redo operations become available
-    (\a available is true) or unavailable (\a available is false).
-*/
-
-/*!
-    \fn void QTextControl::currentFontChanged(const QFont &font)
-
-    Use currentCharFormatChanged() instead.
-*/
-
-/*!
-    \fn void QTextControl::currentColorChanged(const QColor &color)
-
-    Use currentCharFormatChanged() instead.
-*/
-
-/*!
-    \fn void QTextControl::setModified(bool m)
-
-    Use document->setModified() instead.
-*/
-
-/*!
-    \fn void QTextControl::setColor(const QColor &color)
-
-    Use setTextColor() instead.
-*/
 
 QPalette QTextControl::palette() const
 {
