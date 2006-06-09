@@ -140,3 +140,30 @@ embedded {
     SOURCES += painting/qdrawhelper_x86.cpp
     DEFINES += QT_HAVE_SSE
 }
+
+win32|x11 {
+	DEFINES += QT_WINDOW_SURFACE
+	HEADERS += painting/qwindowsurface_p.h \
+		   painting/qwindowsurface_raster_p.h
+	SOURCES += painting/qwindowsurface_raster.cpp
+
+	x11 {
+		HEADERS += painting/qwindowsurface_x11_p.h
+		SOURCES += painting/qwindowsurface_x11.cpp
+	}
+}
+
+#embedded {
+#	HEADERS += \
+#		$$QWINDOWSURFACE_DIR/qwindowsurface_qws.h \
+#		$$QWINDOWSURFACE_DIR/qwindowsurface_mem_qws.h \
+#		$$QWINDOWSURFACE_DIR/qwindowsurface_shm_qws.h \
+#		$$QWINDOWSURFACE_DIR/qwindowsurface_yellow_qws.h
+#
+#	SOURCES += \
+#		$$QWINDOWSURFACE_DIR/qwindowsurface_qws.cpp \
+#		$$QWINDOWSURFACE_DIR/qwindowsurface_mem_qws.cpp \
+#		$$QWINDOWSURFACE_DIR/qwindowsurface_shm_qws.cpp \
+#		$$QWINDOWSURFACE_DIR/qwindowsurface_yellow_qws.cpp
+#}
+
