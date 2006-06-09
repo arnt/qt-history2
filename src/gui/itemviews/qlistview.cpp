@@ -1108,11 +1108,23 @@ int QListView::verticalOffset() const
     Q_D(const QListView);
     if (verticalScrollMode() == QAbstractItemView::ScrollPerItem && d->movement == Static) {
         if (d->wrap) {
-            if (d->flow == LeftToRight && !d->segmentPositions.isEmpty())
-                return d->segmentPositions.at(verticalScrollBar()->value());
+            if (d->flow == LeftToRight && !d->segmentPositions.isEmpty()) {
+                int value = verticalScrollBar()->value();
+                if (value >= d->segmentPositions.count()) {
+                    qWarning("QListView: Vertical scrollbar is out of bounds");
+                    return 0;
+                }
+                return d->segmentPositions.at(value);
+            }
         } else {
-            if (d->flow == TopToBottom && !d->flowPositions.isEmpty())
-                return d->flowPositions.at(verticalScrollBar()->value());
+            if (d->flow == TopToBottom && !d->flowPositions.isEmpty()) {
+                int value = verticalScrollBar()->value();
+                if (value >= d->flowPositions.count()) {
+                    qWarning("QListView: Vertical scrollbar is out of bounds");
+                    return 0;
+                }
+                return d->flowPositions.at(value);
+            }
         }
     }
     return verticalScrollBar()->value();
