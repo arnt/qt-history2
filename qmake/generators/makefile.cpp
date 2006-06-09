@@ -2284,15 +2284,18 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                             break;
                         }
                     }
-                    if(!found)
-                        st->depends += depends.at(depend);
+                    if(!found) {
+                        QString depend_str = depends.at(depend);
+                        qDebug() << fixedSubdir << depend_str;
+                        st->depends += depend_str.replace('/','_').replace('.', '_');
+                    }
                 }
             }
             if(!project->isEmpty(fixedSubdir + ".target")) {
                 st->target = project->first(fixedSubdir + ".target");
             } else {
                 st->target = "sub-" + file;
-                st->target.replace('/', '-');
+                st->target.replace('/', '_');
                 st->target.replace('.', '_');
             }
         }
@@ -2459,6 +2462,9 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                   << cdout << endl;
             }
             t << subtarget->target << "-" << targetSuffixes.at(suffix) << ": " << mkfile;
+            if(!subtarget->depends.isEmpty())
+                t << " " << valGlue(subtarget->depends, QString(), "-" + targetSuffixes.at(suffix) + " ",
+                                    "-"+targetSuffixes.at(suffix));
             if(project->isEmpty("QMAKE_NOFORCE"))
                 t <<  " FORCE";
             t << cdin
