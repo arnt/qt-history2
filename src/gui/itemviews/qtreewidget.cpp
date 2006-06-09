@@ -423,8 +423,8 @@ QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int ro
 bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
                                const QVariant &value, int role)
 {
-   if (section < 0 || (orientation == Qt::Horizontal && header->columnCount() <= section))
-    return false;
+    if (section < 0 || (orientation == Qt::Horizontal && header->columnCount() <= section))
+        return false;
 
     if (orientation == Qt::Horizontal && header) {
         header->setData(section, role, value);
@@ -1268,7 +1268,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         role = Qt::DisplayRole;
     if (role == Qt::DisplayRole) {
         if (values.count() <= column)
-            values.resize(column + 1); 
+            values.resize(column + 1);
         if (display.count() <= column) {
             for (int i = display.count() - 1; i < column - 1; ++i)
                 display.append(QString());
@@ -1389,7 +1389,7 @@ QTreeWidgetItem::QTreeWidgetItem(const QTreeWidgetItem &other)
 QTreeWidgetItem &QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
 {
     values = other.values;
-    display = other.display; 
+    display = other.display;
     itemFlags = other.itemFlags;
     return *this;
 }
@@ -1417,7 +1417,7 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
     // the user could build up a tree and then insert the root in the view
     if (index < 0 || index > children.count() || child == 0 || child->view != 0 || child->par != 0)
         return;
-    
+
     child->par = this;
     if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0)) {
         model->beginInsertItems(this, index, 1);
@@ -2552,7 +2552,7 @@ bool QTreeWidget::dropMimeData(QTreeWidgetItem *parent, int index,
 */
 Qt::DropActions QTreeWidget::supportedDropActions() const
 {
-    return model()->QAbstractItemModel::supportedDropActions();
+    return model()->QAbstractItemModel::supportedDropActions() | Qt::MoveAction;
 }
 
 /*!
@@ -2590,6 +2590,68 @@ QTreeWidgetItem *QTreeWidget::itemFromIndex(const QModelIndex &index) const
     Q_D(const QTreeWidget);
     return d->model()->item(index);
 }
+
+/*! \reimp */
+void QTreeWidget::dropEvent(QDropEvent *event) {
+    Q_D(QTreeWidget);
+    if (event->source() == this && (event->proposedAction() == Qt::MoveAction ||
+                                    dragDropMode() == QAbstractItemView::InternalMove)) {
+        QModelIndex topIndex;
+        int col = -1;
+        int row = -1;
+        if (d->dropOn(event, &row, &col, &topIndex)) {
+            QList<QModelIndex> idxs = selectedIndexes();
+            QList<QPersistentModelIndex> indexes;
+            for(int i = 0; i < idxs.count(); i++)
+                indexes.append(idxs.at(i));
+
+            if (indexes.contains(topIndex))
+                return;
+
+            // When removing items the drop location could shift
+            QPersistentModelIndex dropRow = model()->index(row, col, topIndex);
+
+            // Remove the items
+            QList<QTreeWidgetItem *> taken;
+            for (int i = indexes.count()-1; i >=0; --i) {
+                QTreeWidgetItem *parent = itemFromIndex(indexes.at(i));
+                if (!parent || !parent->parent()) {
+                    taken.append(takeTopLevelItem(indexes.at(i).row()));
+                } else {
+                    taken.append(parent->parent()->takeChild(indexes.at(i).row()));
+                }
+            }
+
+            // insert them back in at their new positions
+            for (int i = 0; i < indexes.count(); ++i) {
+                // Either at a specific point or appended
+                if (row == -1) {
+                    if (topIndex.isValid()) {
+                        QTreeWidgetItem *parent = itemFromIndex(topIndex);
+                        parent->insertChild(parent->childCount(), taken.takeFirst());
+                    } else {
+                        insertTopLevelItem(topLevelItemCount(), taken.takeFirst());
+                    }
+                } else {
+                    int r = dropRow.row() >= 0 ? dropRow.row() : row;
+                    if (topIndex.isValid()) {
+                        QTreeWidgetItem *parent = itemFromIndex(topIndex);
+                        parent->insertChild(qMin(r, parent->childCount()), taken.takeFirst());
+                    } else {
+                        insertTopLevelItem(qMin(r, topLevelItemCount()), taken.takeFirst());
+                    }
+                }
+            }
+
+            event->accept();
+            // Don't want QAbstractItemView to delete it because it was "moved" we already did it
+            event->setDropAction(Qt::CopyAction);
+        }
+    }
+
+    QTreeView::dropEvent(event);
+}
+
 
 /*!
   \reimp

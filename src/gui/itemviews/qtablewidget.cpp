@@ -105,7 +105,7 @@ public:
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
     bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-                      int row, int column, const QModelIndex &parent);
+            int row, int column, const QModelIndex &parent);
     Qt::DropActions supportedDropActions() const;
 
     QMimeData *internalMimeData()  const;
@@ -2178,9 +2178,9 @@ void QTableWidget::removeColumn(int column)
 }
 
 /*!
-  Removes all items in the view.
-  This will also remove all selections.
-  The table dimentions stay the same.
+   Removes all items in the view.
+   This will also remove all selections.
+   The table dimentions stay the same.
 */
 
 void QTableWidget::clear()
@@ -2191,9 +2191,9 @@ void QTableWidget::clear()
 }
 
 /*!
-  Removes all items not in the headers from the view.
-  This will also remove all selections.
-  The table dimentions stay the same.
+    Removes all items not in the headers from the view.
+    This will also remove all selections.
+    The table dimentions stay the same.
 */
 void QTableWidget::clearContents()
 {
@@ -2253,7 +2253,7 @@ bool QTableWidget::dropMimeData(int row, int column, const QMimeData *data, Qt::
 */
 Qt::DropActions QTableWidget::supportedDropActions() const
 {
-    return d_func()->model()->QAbstractTableModel::supportedDropActions();
+    return d_func()->model()->QAbstractTableModel::supportedDropActions() | Qt::MoveAction;
 }
 
 /*!
@@ -2304,5 +2304,41 @@ bool QTableWidget::event(QEvent *e)
     return QTableView::event(e);
 }
 
+/*! \reimp */
+void QTableWidget::dropEvent(QDropEvent *event) {
+    Q_D(QTableWidget);
+    if (event->source() == this && (event->proposedAction() == Qt::MoveAction ||
+                                    dragDropMode() == QAbstractItemView::InternalMove)) {
+        QModelIndex topIndex;
+        int col = -1;
+        int row = -1;
+        if (d->dropOn(event, &row, &col, &topIndex)) {
+            QModelIndexList indexes = selectedIndexes();
+            int top = INT_MAX;
+            int left = INT_MAX;
+            for (int i = 0; i < indexes.count(); ++i) {
+                top = qMin(indexes.at(i).row(), top);
+                left = qMin(indexes.at(i).column(), left);
+            }
+
+            QList<QTableWidgetItem *> taken;
+            for (int i = 0; i < indexes.count(); ++i)
+                taken.append(takeItem(indexes.at(i).row(), indexes.at(i).column()));
+
+            for (int i = 0; i < indexes.count(); ++i) {
+                QModelIndex index = indexes.at(i);
+                int r = index.row() - top + topIndex.row();
+                int c = index.column() - left + topIndex.column();
+                setItem(r, c, taken.takeFirst());
+            }
+
+            event->accept();
+            // Don't want QAbstractItemView to delete it because it was "moved" we already did it
+            event->setDropAction(Qt::CopyAction);
+        }
+    }
+
+    QTableView::dropEvent(event);
+}
 #include "moc_qtablewidget.cpp"
 #endif // QT_NO_TABLEWIDGET

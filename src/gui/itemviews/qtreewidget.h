@@ -278,6 +278,7 @@ protected:
 
     QModelIndex indexFromItem(QTreeWidgetItem *item, int column = 0) const;
     QTreeWidgetItem *itemFromIndex(const QModelIndex &index) const;
+    void QTreeWidget::dropEvent(QDropEvent *event);
 
 private:
     void setModel(QAbstractItemModel *model);

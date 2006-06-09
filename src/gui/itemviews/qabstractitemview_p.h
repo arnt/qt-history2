@@ -64,6 +64,8 @@ public:
     bool shouldAutoScroll(const QPoint &pos) const;
     void doDelayedItemsLayout();
 
+    bool dropOn(QDropEvent *event, int *row, int *col, QModelIndex *index);
+
     QWidget *editor(const QModelIndex &index, const QStyleOptionViewItem &options);
     bool sendDelegateEvent(const QModelIndex &index, QEvent *event) const;
     bool openEditor(const QModelIndex &index, QEvent *event);
@@ -85,6 +87,7 @@ public:
     }
 
 #ifndef QT_NO_DRAGANDDROP
+    QAbstractItemView::DropIndicatorPosition position(const QPoint &pos, const QRect &rect) const;
     inline bool canDecode(QDropEvent *e) const {
         if (!model)
             return false;
@@ -103,15 +106,6 @@ public:
             if (dropIndicatorRect.height() == 0) // FIXME: should be painted by style
                 painter->drawLine(dropIndicatorRect.topLeft(), dropIndicatorRect.topRight());
             else painter->drawRect(dropIndicatorRect);
-    }
-
-    inline QAbstractItemView::DropIndicatorPosition position(const QPoint &pos,
-                                                             const QRect &rect,
-                                                             int margin) const {
-        if (pos.y() - rect.top() < margin) return QAbstractItemView::AboveItem;
-        if (rect.bottom() - pos.y() < margin) return QAbstractItemView::BelowItem;
-        if (rect.contains(pos, true)) return QAbstractItemView::OnItem;
-        return QAbstractItemView::OnViewport;
     }
 #endif
 
@@ -154,11 +148,11 @@ public:
         updateRegion = QRegion();
     }
 
-    void removeSelectedRows();
+    void clearOrRemove();
     QPixmap renderToPixmap(const QModelIndexList &indexes, QRect *r = 0) const;
 
     inline bool indexValid(const QModelIndex &index) const {
-         return (index.row() >= 0) && (index.column() >= 0) && (index.model() == model); 
+         return (index.row() >= 0) && (index.column() >= 0) && (index.model() == model);
     }
 
     virtual bool selectionAllowed(const QModelIndex &index) const {
@@ -241,6 +235,8 @@ public:
     bool showDropIndicator;
     QRect dropIndicatorRect;
     bool dragEnabled;
+    QAbstractItemView::DragDropMode dragDropMode;
+    bool overwrite;
     QAbstractItemView::DropIndicatorPosition dropIndicatorPosition;
 #endif
 

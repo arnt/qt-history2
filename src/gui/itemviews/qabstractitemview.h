@@ -41,7 +41,8 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
 #ifndef QT_NO_DRAGANDDROP
     Q_PROPERTY(bool showDropIndicator READ showDropIndicator WRITE setDropIndicatorShown)
     Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
-    Q_PROPERTY(bool dragDropEnabled READ dragDropEnabled WRITE setDragDropEnabled)
+    Q_PROPERTY(bool dragDropOverwriteMode READ dragDropOverwriteMode WRITE setDragDropOverwriteMode)
+    Q_PROPERTY(QAbstractItemView::DragDropMode dragDropMode READ dragDropMode WRITE setDragDropMode)
 #endif
     Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
@@ -133,8 +134,19 @@ public:
     void setDragEnabled(bool enable);
     bool dragEnabled() const;
 
-    void setDragDropEnabled(bool enable);
-    bool dragDropEnabled();
+    void setDragDropOverwriteMode(bool overwrite);
+    bool dragDropOverwriteMode();
+
+    enum DragDropMode {
+        NoDragDrop,
+        DragOnly,
+        DropOnly,
+        DragDrop,
+        InternalMove
+    };
+
+    void setDragDropMode(DragDropMode behavior);
+    DragDropMode dragDropMode();
 #endif
     void setAlternatingRowColors(bool enable);
     bool alternatingRowColors() const;

@@ -40,8 +40,10 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         editTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
         tabKeyNavigation(false),
 #ifndef QT_NO_DRAGANDDROP
-        showDropIndicator(false),
+        showDropIndicator(true),
         dragEnabled(false),
+        dragDropMode(QAbstractItemView::NoDragDrop),
+        overwrite(false),
         dropIndicatorPosition(QAbstractItemView::OnItem),
 #endif
         autoScroll(true),
@@ -863,6 +865,35 @@ QAbstractItemView::ScrollMode QAbstractItemView::horizontalScrollMode() const
 }
 
 /*!
+    \since 4.2
+    \property QAbstractItemView::dragDropOverwriteMode
+    \brief how the view behaves during drag and drop
+
+    Describes the actions performed onto the model structure (row count) when
+    moving indexes in a view. false by default.
+
+    In QTableView this property is set to true by default.
+    In QListView and QTreeView this property is set to false by default.
+
+    \value false    In a drop event when moving the indexes the view will insert
+    new rows.  In the drag event when the data is moved the view will remove the indexes/rows.
+
+    \value true     In a drop event when moving the indexes the view will overwrite
+    existing indexes.  In the drag event when the data is moved the view will clear the indexes.
+
+    \sa setDragDropMode
+*/
+void QAbstractItemView::setDragDropOverwriteMode(bool overwrite)
+{
+    d_func()->overwrite = overwrite;
+}
+
+bool QAbstractItemView::dragDropOverwriteMode()
+{
+    return d_func()->overwrite;
+}
+
+/*!
     \property QAbstractItemView::autoScroll
     \brief whether autoscrolling in drag move events is enabled
 
@@ -872,6 +903,7 @@ QAbstractItemView::ScrollMode QAbstractItemView::horizontalScrollMode() const
     the viewport accepts drops. Autoscroll is switched off by setting
     this property to false.
 */
+
 void QAbstractItemView::setAutoScroll(bool enable)
 {
     d_func()->autoScroll = enable;
@@ -902,7 +934,7 @@ bool QAbstractItemView::tabKeyNavigation() const
   \property QAbstractItemView::showDropIndicator
   \brief whether the drop indicator is shown when dragging items and dropping.
 
-  \sa dragEnabled acceptDrops
+  \sa dragEnabled DragDropMode dragDropOverwriteMode acceptDrops
 */
 
 void QAbstractItemView::setDropIndicatorShown(bool enable)
@@ -919,7 +951,7 @@ bool QAbstractItemView::showDropIndicator() const
   \property QAbstractItemView::dragEnabled
   \brief whether the view supports dragging of its own items
 
-  \sa showDropIndicator acceptDrops
+  \sa showDropIndicator DragDropMode dragDropOverwriteMode acceptDrops
 */
 
 void QAbstractItemView::setDragEnabled(bool enable)
@@ -933,21 +965,54 @@ bool QAbstractItemView::dragEnabled() const
 }
 
 /*!
-  \property QAbstractItemView::dragDropEnabled
-  \brief whether the view supports drag and drop
+  \since 4.2
+  \enum QAbstractItemView::DragDropMode
+  Describes what drag and drop events the view will act upon.  By default
+  the value is NoDragDrop.
+
+  \value NoDragDrop Does not support dragging or dropping.
+  \value DragOnly The view supports dragging of its own items
+  \value DropOnly The view accepts drops
+  \value DragDrop The view supports both draging and dropping
+  \value InternalMove only accepts move operations only from itself.
+*/
+
+/*!
+  \property QAbstractItemView::setDragDropMode
+  \brief allows for setting what drag and drop events the view responds to.
 
   \sa showDropIndicator acceptDrops dragEnabled
+  \since 4.2
+
+  \sa showDropIndicator dragDropOverwriteMode
 */
-void QAbstractItemView::setDragDropEnabled(bool enable)
+void QAbstractItemView::setDragDropMode(DragDropMode behavior)
 {
-    setDragEnabled(enable);
-    setDropIndicatorShown(enable);
-    setAcceptDrops(enable);
+    d_func()->dragDropMode = behavior;
+    setDragEnabled(behavior == DragOnly || behavior == DragDrop || behavior == InternalMove);
+    setAcceptDrops(behavior == DropOnly || behavior == DragDrop || behavior == InternalMove);
 }
 
-bool QAbstractItemView::dragDropEnabled()
+QAbstractItemView::DragDropMode QAbstractItemView::dragDropMode()
 {
-    return (dragEnabled() && showDropIndicator() && acceptDrops());
+    DragDropMode setBehavior = d_func()->dragDropMode;
+    if (!dragEnabled() && !acceptDrops())
+        return NoDragDrop;
+
+    if (dragEnabled() && !acceptDrops())
+        return DragOnly;
+
+    if (!dragEnabled() && acceptDrops())
+        return DropOnly;
+
+    if (dragEnabled() && acceptDrops()) {
+        if (setBehavior == InternalMove)
+            return setBehavior;
+        else
+            return DragDrop;
+    }
+
+    return NoDragDrop;
 }
 
 #endif // QT_NO_DRAGANDDROP
@@ -1304,6 +1369,9 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *event)
 */
 void QAbstractItemView::dragEnterEvent(QDragEnterEvent *event)
 {
+    if (dragDropMode() == InternalMove && (event->source() != this || !(event->possibleActions() & Qt::MoveAction)))
+        return;
+
     if (d_func()->canDecode(event)) {
         event->accept();
         setState(DraggingState);
@@ -1323,17 +1391,20 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *event)
 void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
 {
     Q_D(QAbstractItemView);
-    // the ignore by default
-    event->ignore();
-
     if (!model())
         return;
 
+    if (dragDropMode() == InternalMove && (event->source() != this || !(event->possibleActions() & Qt::MoveAction)))
+        return;
+
+    // the ignore by default
+    event->ignore();
+
     QModelIndex index = indexAt(event->pos());
-    if (d->canDecode(event)) {
+    if (!(event->source() == this && selectedIndexes().contains(index)) && d->canDecode(event)) {
         if (index.isValid() && d->showDropIndicator) {
             QRect rect = visualRect(index);
-            d->dropIndicatorPosition = d->position(event->pos(), rect, 2);
+            d->dropIndicatorPosition = d->position(event->pos(), rect);
             switch (d->dropIndicatorPosition) {
             case AboveItem:
                 d->dropIndicatorRect = QRect(rect.left(), rect.top(), rect.width(), 0);
@@ -1348,9 +1419,9 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *event)
                     d->dropIndicatorRect = rect;
                     event->accept();
                 }
-		break;
-	    case OnViewport:
-	        break;
+                break;
+            case OnViewport:
+                break;
             }
             d->viewport->update();
         } else {
@@ -1387,46 +1458,101 @@ void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 void QAbstractItemView::dropEvent(QDropEvent *event)
 {
     Q_D(QAbstractItemView);
-    QModelIndex index;
-    // rootIndex() (i.e. the viewport) might be a valid index
-    if (d->viewport->rect().contains(event->pos())) {
-        index = indexAt(event->pos());
-        if (!index.isValid())
-            index = rootIndex();
+    if (dragDropMode() == InternalMove) {
+        if (event->source() != this || !(event->possibleActions() & Qt::MoveAction))
+            return;
     }
 
-    // if we are allowed to do the drop
-    if (model()->supportedDropActions() & event->proposedAction()) {
-        int row = -1;
-        int col = -1;
-        if (index.isValid() &&
-            (model()->flags(index) & Qt::ItemIsDropEnabled
-             || model()->flags(index.parent()) & Qt::ItemIsDropEnabled)) {
-            d->dropIndicatorPosition = d->position(event->pos(), visualRect(index), 2);
-            switch (d->dropIndicatorPosition) {
-            case AboveItem:
-                row = index.row();
-                col = index.column();
-                index = index.parent();
-                break;
-            case BelowItem:
-                row = index.row() + 1;
-                col = index.column();
-                index = index.parent();
-                break;
-            case OnItem:
-            case OnViewport:
-                break;
+    QModelIndex index;
+    int col = -1;
+    int row = -1;
+    if (d->dropOn(event, &row, &col, &index)) {
+        if (model()->dropMimeData(event->mimeData(),
+                    dragDropMode() == InternalMove ? Qt::MoveAction : event->proposedAction(), row, col, index)) {
+            if (dragDropMode() == InternalMove) {
+                event->setDropAction(Qt::MoveAction);
+                event->accept();
+            } else {
+                event->acceptProposedAction();
             }
-        } else {
-            d->dropIndicatorPosition = QAbstractItemView::OnViewport;
         }
-        if (model()->dropMimeData(event->mimeData(), event->proposedAction(), row, col, index))
-            event->acceptProposedAction();
     }
     stopAutoScroll();
     setState(NoState);
     d->viewport->update();
+}
+
+/*!
+    If the event hasn't already been accepted, determines the index to drop on.
+
+    if (row == -1 && col == -1)
+        // append to this drop index
+    else
+        // place at row, col in drop index
+
+    \internal
+  */
+bool QAbstractItemViewPrivate::dropOn(QDropEvent *event, int *dropRow, int *dropCol, QModelIndex *dropIndex)
+{
+    Q_Q(QAbstractItemView);
+    if (event->isAccepted())
+        return false;
+
+    QModelIndex index;
+    // rootIndex() (i.e. the viewport) might be a valid index
+    if (viewport->rect().contains(event->pos())) {
+        index = q->indexAt(event->pos());
+        if (!index.isValid())
+            index = root;
+    }
+
+    // If we are allowed to do the drop
+    if (model->supportedDropActions() & event->proposedAction()) {
+        int row = -1;
+        int col = -1;
+        if (index.isValid() &&
+            (model->flags(index) & Qt::ItemIsDropEnabled
+            || model->flags(index.parent()) & Qt::ItemIsDropEnabled)) {
+            dropIndicatorPosition = position(event->pos(), q->visualRect(index));
+            switch (dropIndicatorPosition) {
+            case QAbstractItemView::AboveItem:
+                row = index.row();
+                col = index.column();
+                index = index.parent();
+                break;
+            case QAbstractItemView::BelowItem:
+                row = index.row() + 1;
+                col = index.column();
+                index = index.parent();
+                break;
+            case QAbstractItemView::OnItem:
+            case QAbstractItemView::OnViewport:
+                break;
+            }
+        } else {
+            dropIndicatorPosition = QAbstractItemView::OnViewport;
+        }
+        *dropIndex = index;
+        *dropRow = row;
+        *dropCol = col;
+        return true;
+    }
+    return false;
+}
+
+QAbstractItemView::DropIndicatorPosition QAbstractItemViewPrivate::position(const QPoint &pos,
+                                                         const QRect &rect) const {
+    if (!overwrite) {
+        const int margin = 2;
+        if (pos.y() - rect.top() < margin) return QAbstractItemView::AboveItem;
+        if (rect.bottom() - pos.y() < margin) return QAbstractItemView::BelowItem;
+        if (rect.contains(pos, true)) return QAbstractItemView::OnItem;
+    } else {
+        QRect touchingRect = rect;
+        touchingRect.adjust(-1, -1, 1, 1);
+        if (touchingRect.contains(pos, false)) return QAbstractItemView::OnItem;
+    }
+    return QAbstractItemView::OnViewport;
 }
 
 #endif // QT_NO_DRAGANDDROP
@@ -1476,7 +1602,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
         return;
 
 #ifdef QT_KEYPAD_NAVIGATION
-    switch(event->key()) {
+    switch (event->key()) {
     case Qt::Key_Select:
         if (QApplication::keypadNavigationEnabled()) {
             if (!hasEditFocus()) {
@@ -2041,7 +2167,7 @@ int QAbstractItemView::sizeHintForRow(int row) const
 {
     Q_D(const QAbstractItemView);
 
-    if(!model() || row < 0 || row >= model()->rowCount())
+    if (!model() || row < 0 || row >= model()->rowCount())
         return -1;
 
     QStyleOptionViewItem option = viewOptions();
@@ -2070,7 +2196,7 @@ int QAbstractItemView::sizeHintForColumn(int column) const
 {
     Q_D(const QAbstractItemView);
 
-    if(!model() || column < 0 || column >= model()->columnCount())
+    if (!model() || column < 0 || column >= model()->columnCount())
         return -1;
 
     QStyleOptionViewItem option = viewOptions();
@@ -2390,7 +2516,7 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
         drag->setMimeData(model()->mimeData(indexes));
         drag->setHotSpot(d->viewport->mapFromGlobal(QCursor::pos()) - rect.topLeft());
         if (drag->start(supportedActions) == Qt::MoveAction)
-            d->removeSelectedRows();
+            d->clearOrRemove();
     }
 }
 #endif // QT_NO_DRAGANDDROP
@@ -2809,18 +2935,40 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
     return w;
 }
 
-void QAbstractItemViewPrivate::removeSelectedRows()
+/*!
+    \internal
+
+    In DND if something has been moved then this is called.
+    Typically this means you should "remove" the selected item or row,
+    but the behavior is view dependant (table just clears the selected indexes for example).
+
+    Either remove the selected rows or clear them
+  */
+void QAbstractItemViewPrivate::clearOrRemove()
 {
     const QItemSelection selection = selectionModel->selection();
     QList<QItemSelectionRange>::const_iterator it = selection.begin();
-    for (; it != selection.end(); ++it) {
-        QModelIndex parent = (*it).parent();
-        if ((*it).left() != 0)
-            continue;
-        if ((*it).right() != (model->columnCount(parent) - 1))
-            continue;
-        int count = (*it).bottom() - (*it).top() + 1;
-        model->removeRows((*it).top(), count, parent);
+
+    if (!overwrite) {
+        for (; it != selection.end(); ++it) {
+            QModelIndex parent = (*it).parent();
+            if ((*it).left() != 0)
+                continue;
+            if ((*it).right() != (model->columnCount(parent) - 1))
+                continue;
+            int count = (*it).bottom() - (*it).top() + 1;
+            model->removeRows((*it).top(), count, parent);
+        }
+    } else {
+        // we can't remove the rows so reset the items (i.e. the view is like a table)
+        QModelIndexList list = selection.indexes();
+        for (int i=0; i < list.size(); ++i) {
+            QModelIndex index = list.at(i);
+            QMap<int, QVariant> roles = model->itemData(index);
+            for (QMap<int, QVariant>::Iterator it = roles.begin(); it != roles.end(); ++it)
+                it.value() = QVariant();
+            model->setItemData(index, roles);
+        }
     }
 }
 

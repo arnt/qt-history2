@@ -1660,6 +1660,54 @@ bool QListWidget::dropMimeData(int index, const QMimeData *data, Qt::DropAction 
     return d_func()->model()->QAbstractListModel::dropMimeData(data, action , row, column, idx);
 }
 
+/*! \reimp */
+void QListWidget::dropEvent(QDropEvent *event) {
+    Q_D(QListWidget);
+    if (event->source() == this && d->movement != Static) {
+        QListView::dropEvent(event);
+        return;
+    }
+
+    if (event->source() == this && (event->proposedAction() == Qt::MoveAction ||
+                                    dragDropMode() == QAbstractItemView::InternalMove)) {
+        QModelIndex topIndex;
+        int col = -1;
+        int row = -1;
+        if (d->dropOn(event, &row, &col, &topIndex)) {
+            QList<QModelIndex> idxs = selectedIndexes();
+            QList<QPersistentModelIndex> indexes;
+            for(int i = 0; i < idxs.count(); i++)
+                indexes.append(idxs.at(i));
+
+            if (indexes.contains(topIndex))
+                return;
+
+            QPersistentModelIndex dropRow = model()->index(row, col, topIndex);
+
+            QList<QListWidgetItem *> taken;
+            for (int i = 0; i < indexes.count(); ++i)
+                taken.append(takeItem(indexes.at(i).row()));
+
+            // insert them back in at their new positions
+            for (int i = 0; i < indexes.count(); ++i) {
+                // Either at a specific point or appended
+                if (row == -1) {
+                    insertItem(count(), taken.takeFirst());
+                } else {
+                    int r = dropRow.row() >= 0 ? dropRow.row() : row;
+                    insertItem(qMin(r, count()), taken.takeFirst());
+                }
+            }
+
+            event->accept();
+            // Don't want QAbstractItemView to delete it because it was "moved" we already did it
+            event->setDropAction(Qt::CopyAction);
+        }
+    }
+
+    QListView::dropEvent(event);
+}
+
 /*!
   Returns the drop actions supported by this view.
 
@@ -1667,7 +1715,7 @@ bool QListWidget::dropMimeData(int index, const QMimeData *data, Qt::DropAction 
 */
 Qt::DropActions QListWidget::supportedDropActions() const
 {
-    return d_func()->model()->QAbstractListModel::supportedDropActions();
+    return d_func()->model()->QAbstractListModel::supportedDropActions() | Qt::MoveAction;
 }
 #endif // QT_NO_DRAGANDDROP
 

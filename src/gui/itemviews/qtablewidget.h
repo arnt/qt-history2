@@ -280,6 +280,7 @@ protected:
 
     QModelIndex indexFromItem(QTableWidgetItem *item) const;
     QTableWidgetItem *itemFromIndex(const QModelIndex &index) const;
+    void dropEvent(QDropEvent *event);
 
 private:
     void setModel(QAbstractItemModel *model);

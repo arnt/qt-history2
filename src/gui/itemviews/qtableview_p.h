@@ -38,7 +38,12 @@ public:
           rowSectionAnchor(0), columnSectionAnchor(0),
           columnResizeTimerID(0), rowResizeTimerID(0),
           horizontalHeader(0), verticalHeader(0),
-          sortingEnabled(false) {}
+          sortingEnabled(false)
+ {
+#ifndef QT_NO_DRAGANDDROP
+    overwrite = true;
+#endif
+ }
     void init();
     void trimHiddenSelections(QItemSelectionRange *range) const;
 

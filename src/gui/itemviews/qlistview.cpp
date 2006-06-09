@@ -832,13 +832,13 @@ void QListView::dragLeaveEvent(QDragLeaveEvent *e)
 /*!
   \reimp
 */
-void QListView::dropEvent(QDropEvent *e)
+void QListView::dropEvent(QDropEvent *event)
 {
     Q_D(QListView);
-    if (e->source() == this && d->movement != Static)
-        internalDrop(e);
+    if (event->source() == this && d->movement != Static)
+        internalDrop(event);
     else
-        QAbstractItemView::dropEvent(e);
+        QAbstractItemView::dropEvent(event);
 }
 
 /*!
@@ -906,7 +906,7 @@ void QListView::internalDrag(Qt::DropActions supportedActions)
         Qt::DropAction action = drag->start(supportedActions);
         d->draggedItems.clear();
         if (action == Qt::MoveAction)
-            d->removeSelectedRows();
+            d->clearOrRemove();
     }
 }
 
