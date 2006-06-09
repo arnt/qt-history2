@@ -2086,6 +2086,7 @@ void VCFilter::outputFileConfig(XmlOutput &xml, const QString &filename)
     CompilerTool.ProgramDataBaseFileName.clear();
     CompilerTool.RuntimeLibrary = rtUnknown;
     CompilerTool.WarningLevel = warningLevelUnknown;
+    CompilerTool.config = Config;
 
     bool inBuild = false;
     VCFilterFile info;
