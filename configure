@@ -2663,7 +2663,7 @@ Qtopia Core only:
                          default ($CFG_QCONFIG).
 
     -depths list ....... Comma-separated list of supported bit-per-pixel
-                         depths, from:  4, 8, 16, 24, and 32.
+                         depths, from:  4, 8, 16, 18, 24, and 32.
                          (8bpp is required by the VGA16 driver)
 
     -qt-decoration-<style> ....Enable a decoration <style> in the QtGui library,
@@ -3839,13 +3839,11 @@ if [ "$CFG_QWS_DEPTHS" = "prompted" -a "$PLATFORM_QWS" = "yes" ]; then
     echo
     echo "Choose pixel-depths to support:"
     echo
-    echo "   4. 4bpp grayscale - also enables 8bpp"
     echo "   8. 8bpp"
     echo "  16. 16bpp"
-    echo "  24. 24bpp - also enables 32bpp"
+    echo "  18. 18bpp"
+    echo "  24. 24bpp"
     echo "  32. 32bpp"
-    echo
-    echo "Each depth adds around 100Kb on 80386."
     echo
     echo "Your choices (default 8,16,32):"
     read CFG_QWS_DEPTHS
@@ -3856,11 +3854,7 @@ fi
 if [ -n "$CFG_QWS_DEPTHS" -a "$PLATFORM_QWS" = "yes" ]; then
     for D in `echo "$CFG_QWS_DEPTHS" | sed -e 's/,/ /g'`; do
 	case $D in
-	    4)  QCONFIG_FLAGS="$QCONFIG_FLAGS QT_QWS_DEPTH_8";;
-	    24) QCONFIG_FLAGS="$QCONFIG_FLAGS QT_QWS_DEPTH_32";;
-	esac
-	case $D in
-	    4|8|16|24|32) QCONFIG_FLAGS="$QCONFIG_FLAGS QT_QWS_DEPTH_$D";;
+	    4|8|16|18|24|32) QCONFIG_FLAGS="$QCONFIG_FLAGS QT_QWS_DEPTH_$D";;
 	esac
     done
 fi
