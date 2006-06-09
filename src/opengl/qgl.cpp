@@ -2330,7 +2330,8 @@ void QGLWidget::setFormat(const QGLFormat &format)
 
 void QGLWidget::updateGL()
 {
-    glDraw();
+    if (updatesEnabled())
+        glDraw();
 }
 
 
@@ -2459,8 +2460,10 @@ void QGLWidget::resizeOverlayGL(int, int)
 
 void QGLWidget::paintEvent(QPaintEvent *)
 {
-    glDraw();
-    updateOverlayGL();
+    if (updatesEnabled()) {
+        glDraw();
+        updateOverlayGL();
+    }
 }
 
 
