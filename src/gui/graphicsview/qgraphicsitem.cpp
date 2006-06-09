@@ -4331,12 +4331,18 @@ void QGraphicsTextItem::adjustSize()
         dd->control->adjustSize();
 }
 
+/*!
+    Sets a new text document on the item.
+*/
 void QGraphicsTextItem::setDocument(QTextDocument *document)
 {
     dd->textControl()->setDocument(document);
     dd->_q_updateBoundingRect(dd->control->size());
 }
 
+/*!
+    Returns the item's text document.
+*/
 QTextDocument *QGraphicsTextItem::document() const
 {
     return dd->textControl()->document();
@@ -4621,6 +4627,13 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
     return control;
 }
 
+/*!
+    Sets the flags to specify how the text item should react to user input.
+
+    The default for a QGraphicsTextItem is Qt::NoTextInteraction. Setting a
+    value different to Qt::NoTextInteraction will also set the ItemIsFocusable
+    QGraphicsItem flag.
+*/
 void QGraphicsTextItem::setTextInteractionFlags(Qt::TextInteractionFlags flags)
 {
     if (flags & Qt::NoTextInteraction)
@@ -4630,6 +4643,11 @@ void QGraphicsTextItem::setTextInteractionFlags(Qt::TextInteractionFlags flags)
     dd->textControl()->setTextInteractionFlags(flags);
 }
 
+/*!
+    Returns the current text interaction flags.
+
+    \sa setTextInteractionFlags()
+*/
 Qt::TextInteractionFlags QGraphicsTextItem::textInteractionFlags() const
 {
     if (!dd->control)
