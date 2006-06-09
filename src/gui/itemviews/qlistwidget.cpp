@@ -1424,19 +1424,18 @@ void QListWidget::sortItems(Qt::SortOrder order)
 }
 
 /*!
-  \since 4.2
-  If \a enable is true, the items in the widget will be sorted if the contents changes.
+    \since Qt 4.2
+    \property QListWidget::sortingEnabled
+    \brief whether sorting is enabled
+
+    If this property is true, sorting is enabled for the list; if the
+    property is false, sorting is not enabled. The default value is false.
 */
 void QListWidget::setSortingEnabled(bool enable)
 {
     Q_D(QListWidget);
     d->sortingEnabled = enable;
 }
-
-/*!
-  \since 4.2
-  Returns true if sorting is enabled; otherwise returns false.
-*/
 
 bool QListWidget::isSortingEnabled() const
 {
