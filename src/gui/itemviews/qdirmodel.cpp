@@ -758,23 +758,23 @@ bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     QString to = filePath(parent) + QDir::separator();
 
     QList<QUrl> urls = data->urls();
-    QList<QUrl>::const_iterator it = urls.begin();
+    QList<QUrl>::const_iterator it = urls.constBegin();
 
     switch (action) {
     case Qt::CopyAction:
-        for (; it != urls.end(); ++it) {
+        for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
             success = QFile::copy(path, to + QFileInfo(path).fileName()) && success;
         }
         break;
     case Qt::LinkAction:
-        for (; it != urls.end(); ++it) {
+        for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
             success = QFile::link(path, to + QFileInfo(path).fileName()) && success;
         }
         break;
     case Qt::MoveAction:
-        for (; it != urls.end(); ++it) {
+        for (; it != urls.constEnd(); ++it) {
             QString path = (*it).toLocalFile();
             success = QFile::copy(path, to + QFileInfo(path).fileName())
                       && QFile::remove(path) && success;

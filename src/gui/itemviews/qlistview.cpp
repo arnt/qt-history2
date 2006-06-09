@@ -897,8 +897,8 @@ void QListView::internalDrag(Qt::DropActions supportedActions)
     Q_D(QListView);
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     if (indexes.count() > 0 ) {
-        QModelIndexList::ConstIterator it = indexes.begin();
-        for (; it != indexes.end(); ++it)
+        QModelIndexList::ConstIterator it = indexes.constBegin();
+        for (; it != indexes.constEnd(); ++it)
             if (model()->flags(*it) & Qt::ItemIsDragEnabled)
                 d->draggedItems.push_back(*it);
         QDrag *drag = new QDrag(this);

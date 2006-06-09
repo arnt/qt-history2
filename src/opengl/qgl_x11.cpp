@@ -122,7 +122,7 @@ static Colormap choose_cmap(Display *dpy, XVisualInfo *vi)
     }
 
     CMapEntryHash *hash = cmap_handler()->cmap_hash;
-    CMapEntryHash::ConstIterator it = hash->find((long) vi->visualid + (vi->screen * 256));
+    CMapEntryHash::ConstIterator it = hash->constFind((long) vi->visualid + (vi->screen * 256));
     if (it != hash->constEnd())
         return it.value()->cmap; // found colormap for visual
 
@@ -686,7 +686,8 @@ uint QGLContext::colorIndex(const QColor& c) const
 
         XVisualInfo *info = (XVisualInfo *) d->vi;
         CMapEntryHash *hash = cmap_handler()->cmap_hash;
-        CMapEntryHash::ConstIterator it = hash->find((long) info->visualid + (info->screen * 256));
+        CMapEntryHash::ConstIterator it = hash->constFind(long(info->visualid)
+                + (info->screen * 256));
         QCMapEntry *x = 0;
         if (it != hash->constEnd())
             x = it.value();

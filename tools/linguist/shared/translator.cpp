@@ -848,21 +848,21 @@ TranslatorMessage Translator::findMessage(const char *context, const char *sourc
 
         // Either we want to find an item that matches context, sourcetext (and optionally comment)
         // Or we want to find an item that matches context, filename, linenumber (and optionally comment)
-        it = d->messages.find(TranslatorMessage(context, sourceText, comment, myFilename, myLineNumber));
+        it = d->messages.constFind(TranslatorMessage(context, sourceText, comment, myFilename, myLineNumber));
         if (it != d->messages.constEnd())
             return it.key();
 
         if (comment[0]) {
-            it = d->messages.find(TranslatorMessage(context, sourceText, "", myFilename, myLineNumber));
+            it = d->messages.constFind(TranslatorMessage(context, sourceText, "", myFilename, myLineNumber));
             if (it != d->messages.constEnd())
                 return it.key();
         }
         
-        it = d->messages.find(TranslatorMessage(context, "", comment, myFilename, myLineNumber));
+        it = d->messages.constFind(TranslatorMessage(context, "", comment, myFilename, myLineNumber));
         if (it != d->messages.constEnd())
             return it.key();
         if (comment[0]) {
-            it = d->messages.find(TranslatorMessage(context, "", "", myFilename, myLineNumber));
+            it = d->messages.constFind(TranslatorMessage(context, "", "", myFilename, myLineNumber));
             if (it != d->messages.constEnd())
                 return it.key();
         }

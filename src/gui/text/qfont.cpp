@@ -2327,8 +2327,8 @@ void QFontCache::timerEvent(QTimerEvent *)
         const uint engine_data_cost =
             sizeof(QFontEngineData) > 1024 ? sizeof(QFontEngineData) : 1024;
 
-        EngineDataCache::ConstIterator it = engineDataCache.begin(),
-                                      end = engineDataCache.end();
+        EngineDataCache::ConstIterator it = engineDataCache.constBegin(),
+                                      end = engineDataCache.constEnd();
         for (; it != end; ++it) {
 #ifdef QFONTCACHE_DEBUG
             FC_DEBUG("    %p: ref %2d", it.value(), int(it.value()->ref));
@@ -2351,8 +2351,8 @@ void QFontCache::timerEvent(QTimerEvent *)
     {
         FC_DEBUG("  SWEEP engine:");
 
-        EngineCache::ConstIterator it = engineCache.begin(),
-                                  end = engineCache.end();
+        EngineCache::ConstIterator it = engineCache.constBegin(),
+                                  end = engineCache.constEnd();
         for (; it != end; ++it) {
             FC_DEBUG("    %p: timestamp %4u hits %2u ref %2d/%2d, cost %u bytes",
                       it.value().data, it.value().timestamp, it.value().hits,

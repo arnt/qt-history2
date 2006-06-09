@@ -187,10 +187,12 @@ public:
         inline T *operator->() const { return &concrete(i)->value; }
         inline bool operator==(const iterator &o) const { return i == o.i; }
         inline bool operator!=(const iterator &o) const { return i != o.i; }
+#ifndef QT_STRICT_ITERATORS
         inline bool operator==(const const_iterator &o) const
             { return i == reinterpret_cast<const iterator &>(o).i; }
         inline bool operator!=(const const_iterator &o) const
             { return i != reinterpret_cast<const iterator &>(o).i; }
+#endif
 
         inline iterator &operator++() {
             i = i->forward[0];
@@ -231,7 +233,11 @@ public:
         inline operator QMapData::Node *() const { return i; }
         inline const_iterator() : i(0) { }
         inline const_iterator(QMapData::Node *node) : i(node) { }
+#ifdef QT_STRICT_ITERATORS
+        explicit inline const_iterator(const iterator &o)
+#else
         inline const_iterator(const iterator &o)
+#endif
         { i = reinterpret_cast<const const_iterator &>(o).i; }
 
         inline const Key &key() const { return concrete(i)->key; }

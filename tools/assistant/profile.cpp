@@ -93,8 +93,8 @@ void Profile::removeDocFileEntry( const QString &docfile )
         }
     }
 
-    for( QStringList::ConstIterator title = titles.begin();
-         title != titles.end(); ++title ) {
+    for( QStringList::ConstIterator title = titles.constBegin();
+         title != titles.constEnd(); ++title ) {
 
         dcfTitles.remove( *title );
     }

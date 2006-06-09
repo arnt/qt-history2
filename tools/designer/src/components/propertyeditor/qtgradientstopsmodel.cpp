@@ -99,7 +99,7 @@ QColor QtGradientStopsModel::color(qreal pos) const
         return gradStops[pos]->color();
 
     gradStops[pos] = 0;
-    QMap<double, QtGradientStop *>::ConstIterator itStop = gradStops.find(pos);
+    QMap<double, QtGradientStop *>::ConstIterator itStop = gradStops.constFind(pos);
     if (itStop == gradStops.constBegin()) {
         itStop++;
         return itStop.value()->color();

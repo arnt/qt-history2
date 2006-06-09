@@ -540,11 +540,11 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             break;
         case QPicturePrivate::PdcDrawText:
             s >> p >> str1;
-            painter->drawText(p, QLatin1String(str1));
+            painter->drawText(p, str1);
             break;
         case QPicturePrivate::PdcDrawTextFormatted:
             s >> r >> i_16 >> str1;
-            painter->drawText(r, i_16, QLatin1String(str1));
+            painter->drawText(r, i_16, str1);
             break;
         case QPicturePrivate::PdcDrawText2:
             s >> p >> str;

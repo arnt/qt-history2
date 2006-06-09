@@ -224,13 +224,13 @@ void DocuParser320::addTo(Profile *p)
 {
     QMap<QString,QString>::ConstIterator it;
 
-    for (it = prof->dcfTitles.begin(); it != prof->dcfTitles.end(); ++it)
+    for (it = prof->dcfTitles.constBegin(); it != prof->dcfTitles.constEnd(); ++it)
         p->dcfTitles[it.key()] = *it;
 
-    for (it = prof->icons.begin(); it != prof->icons.end(); ++it)
+    for (it = prof->icons.constBegin(); it != prof->icons.constEnd(); ++it)
         p->icons[it.key()] = *it;
 
-    for (it = prof->indexPages.begin(); it != prof->indexPages.end(); ++it)
+    for (it = prof->indexPages.constBegin(); it != prof->indexPages.constEnd(); ++it)
         p->indexPages[it.key()] = *it;
 }
 

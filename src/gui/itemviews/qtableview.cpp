@@ -239,7 +239,7 @@ void QTableViewPrivate::drawSpans(const QRect &area, QPainter *painter, const QS
     Q_Q(QTableView);
     bool alternateBase = false;
     QList<Span>::const_iterator it;
-    for (it = spans.begin(); it != spans.end(); ++it) {
+    for (it = spans.constBegin(); it != spans.constEnd(); ++it) {
         Span span = *it;
         int row = span.top();
         int col = span.left();
@@ -976,7 +976,7 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
         do {
             expanded = false;
             QList<QTableViewPrivate::Span>::const_iterator it;
-            for (it = d->spans.begin(); it != d->spans.end(); ++it) {
+            for (it = d->spans.constBegin(); it != d->spans.constEnd(); ++it) {
                 QTableViewPrivate::Span span = *it;
                 int t = verticalHeader()->visualIndex(span.top());
                 int l = horizontalHeader()->visualIndex(span.left());

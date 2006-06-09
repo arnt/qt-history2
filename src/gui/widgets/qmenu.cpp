@@ -1304,7 +1304,7 @@ QSize QMenu::sizeHint() const
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::State_None;
-    for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
+    for (QMap<QAction*, QRect>::const_iterator i = actionRects.constBegin();
          i != actionRects.constEnd(); ++i) {
         if (i.value().bottom() > s.height())
             s.setHeight(i.value().y()+i.value().height());

@@ -370,9 +370,9 @@ void QtGradientStopsWidget::mousePressEvent(QMouseEvent *e)
             QtGradientStop *oldCurrent = d_ptr->m_model->currentStop();
             if (oldCurrent) {
                 QMap<double, QtGradientStop *> stops = d_ptr->m_model->stops();
-                QMap<double, QtGradientStop *>::ConstIterator itSt = stops.find(oldCurrent->position());
+                QMap<double, QtGradientStop *>::ConstIterator itSt = stops.constFind(oldCurrent->position());
                 if (itSt != stops.constEnd()) {
-                    while (itSt != stops.find(stop->position())) {
+                    while (itSt != stops.constFind(stop->position())) {
                         d_ptr->m_model->selectStop(itSt.value(), true);
                         if (oldCurrent->position() < stop->position())
                             itSt++;

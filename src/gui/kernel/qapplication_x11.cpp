@@ -570,8 +570,8 @@ bool QApplicationPrivate::x11_apply_settings()
         .arg((QT_VERSION & 0xff00) >> 8);
     QStringList pathlist = settings.value(libpathkey).toString().split(QLatin1Char(':'));
     if (! pathlist.isEmpty()) {
-        QStringList::ConstIterator it = pathlist.begin();
-        while (it != pathlist.end())
+        QStringList::ConstIterator it = pathlist.constBegin();
+        while (it != pathlist.constEnd())
             QApplication::addLibraryPath(*it++);
     }
 
@@ -2001,8 +2001,8 @@ void qt_init(QApplicationPrivate *priv, int,
             QStringList pathlist =
                 settings.value(libpathkey).toString().split(QLatin1Char(':'));
             if (! pathlist.isEmpty()) {
-                QStringList::ConstIterator it = pathlist.begin();
-                while (it != pathlist.end())
+                QStringList::ConstIterator it = pathlist.constBegin();
+                while (it != pathlist.constEnd())
                     QApplication::addLibraryPath(*it++);
             }
 

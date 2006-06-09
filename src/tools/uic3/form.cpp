@@ -150,17 +150,17 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         }
     }
 
-    QStringList::Iterator it;
+    QStringList::ConstIterator it;
 
     globalIncludes = unique(globalIncludes);
-    for (it = globalIncludes.begin(); it != globalIncludes.end(); ++it) {
+    for (it = globalIncludes.constBegin(); it != globalIncludes.constEnd(); ++it) {
         if (!(*it).isEmpty()) {
             QString header = fixHeaderName(*it);
             out << "#include <" << header << ">" << endl;
         }
     }
     localIncludes = unique(localIncludes);
-    for (it = localIncludes.begin(); it != localIncludes.end(); ++it) {
+    for (it = localIncludes.constBegin(); it != localIncludes.constEnd(); ++it) {
         if (!(*it).isEmpty()) {
             QString header = fixHeaderName(*it);
             out << "#include \"" << header << "\"" << endl;
@@ -174,7 +174,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     if (dbForms[QLatin1String("(default)")].count())
         dbForm = true;
     bool subDbForms = false;
-    for (it = dbConnections.begin(); it != dbConnections.end(); ++it) {
+    for (it = dbConnections.constBegin(); it != dbConnections.constEnd(); ++it) {
         if (!(*it).isEmpty() && (*it) != QLatin1String("(default)")) {
             if (dbForms[(*it)].count()) {
                 subDbForms = true;
@@ -185,7 +185,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
 
     // some typedefs, maybe
     typeDefs = unique(typeDefs);
-    for (it = typeDefs.begin(); it != typeDefs.end(); ++it) {
+    for (it = typeDefs.constBegin(); it != typeDefs.constEnd(); ++it) {
         if (!(*it).isEmpty())
             out << "typedef " << *it << ";" << endl;
     }
@@ -199,15 +199,15 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         exportMacro = nl.item(0).firstChild().toText().data();
 
     forwardDecl = unique(forwardDecl);
-    for (it = forwardDecl.begin(); it != forwardDecl.end(); ++it) {
+    for (it = forwardDecl.constBegin(); it != forwardDecl.constEnd(); ++it) {
         if (!(*it).isEmpty() && (*it) != objClass) {
             QString forwardName = *it;
             QStringList forwardNamespaces = forwardName.split(QLatin1String("::"));
             forwardName = forwardNamespaces.last();
             forwardNamespaces.removeAt(forwardNamespaces.size()-1);
 
-            QStringList::ConstIterator ns = forwardNamespaces.begin();
-            while (ns != forwardNamespaces.end()) {
+            QStringList::ConstIterator ns = forwardNamespaces.constBegin();
+            while (ns != forwardNamespaces.constEnd()) {
                 out << "namespace " << *ns << " {" << endl;
                 ++ns;
             }
@@ -217,7 +217,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         }
     }
 
-    for (it = forwardDecl2.begin(); it != forwardDecl2.end(); ++it) {
+    for (it = forwardDecl2.constBegin(); it != forwardDecl2.constEnd(); ++it) {
         QString fd = *it;
         fd = fd.trimmed();
         if (!fd.endsWith(QLatin1String(";")))
@@ -236,8 +236,8 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     d.uic(fileName, ui, &out);
     delete ui;
 
-    QStringList::ConstIterator ns = namespaces.begin();
-    while (ns != namespaces.end()) {
+    QStringList::ConstIterator ns = namespaces.constBegin();
+    while (ns != namespaces.constEnd()) {
         out << "namespace " << *ns << " {" << endl;
         ++ns;
     }
@@ -271,7 +271,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     // database connections
     dbConnections = unique(dbConnections);
     bool hadOutput = false;
-    for (it = dbConnections.begin(); it != dbConnections.end(); ++it) {
+    for (it = dbConnections.constBegin(); it != dbConnections.constEnd(); ++it) {
         if (!(*it).isEmpty()) {
             // only need pointers to non-default connections
             if ((*it) != QLatin1String("(default)") && !(*it).isEmpty()) {
@@ -369,7 +369,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     }
 
     if (!publicVars.isEmpty()) {
-        for (it = publicVars.begin(); it != publicVars.end(); ++it)
+        for (it = publicVars.constBegin(); it != publicVars.constEnd(); ++it)
             out << indent << *it << endl;
         out << endl;
     }
@@ -401,14 +401,14 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     // create signals
     if (!extraSignals.isEmpty()) {
         out << "signals:" << endl;
-        for (it = extraSignals.begin(); it != extraSignals.end(); ++it)
+        for (it = extraSignals.constBegin(); it != extraSignals.constEnd(); ++it)
             out << "    void " << (*it) << ";" << endl;
         out << endl;
     }
 
     if (!protectedVars.isEmpty()) {
         out << "protected:" << endl;
-        for (it = protectedVars.begin(); it != protectedVars.end(); ++it)
+        for (it = protectedVars.constBegin(); it != protectedVars.constEnd(); ++it)
             out << indent << *it << endl;
         out << endl;
     }
@@ -433,7 +433,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     if (!privateFuncts.isEmpty() || !privateVars.isEmpty()) {
         out << "private:" << endl;
         if (!privateVars.isEmpty()) {
-            for (it = privateVars.begin(); it != privateVars.end(); ++it)
+            for (it = privateVars.constBegin(); it != privateVars.constEnd(); ++it)
                 out << indent << *it << endl;
             out << endl;
         }

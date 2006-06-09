@@ -1102,7 +1102,7 @@ void QConfFileSettingsPrivate::remove(const QString &key)
         i = confFile->addedKeys.erase(i);
     confFile->addedKeys.remove(theKey);
 
-    ParsedSettingsMap::const_iterator j = confFile->originalKeys.lowerBound(prefix);
+    ParsedSettingsMap::const_iterator j = const_cast<const ParsedSettingsMap *>(&confFile->originalKeys)->lowerBound(prefix);
     while (j != confFile->originalKeys.constEnd() && j.key().startsWith(prefix)) {
         confFile->removedKeys.insert(j.key(), QVariant());
         ++j;
@@ -1134,12 +1134,12 @@ bool QConfFileSettingsPrivate::get(const QString &key, QVariant *value) const
             QMutexLocker locker(&confFile->mutex);
 
             if (!confFile->addedKeys.isEmpty()) {
-                j = confFile->addedKeys.find(theKey);
+                j = confFile->addedKeys.constFind(theKey);
                 found = (j != confFile->addedKeys.constEnd());
             }
             if (!found) {
                 ensureSectionParsed(confFile, theKey);
-                j = confFile->originalKeys.find(theKey);
+                j = confFile->originalKeys.constFind(theKey);
                 found = (j != confFile->originalKeys.constEnd()
                          && !confFile->removedKeys.contains(theKey));
             }
@@ -1174,14 +1174,16 @@ QStringList QConfFileSettingsPrivate::children(const QString &prefix, ChildSpec 
                 ensureSectionParsed(confFile, thePrefix);
             }
 
-            j = confFile->originalKeys.lowerBound(thePrefix);
+            j = const_cast<const ParsedSettingsMap *>(
+                    &confFile->originalKeys)->lowerBound( thePrefix);
             while (j != confFile->originalKeys.constEnd() && j.key().startsWith(thePrefix)) {
                 if (!confFile->removedKeys.contains(j.key()))
                     processChild(j.key().originalCaseKey().mid(startPos), spec, result);
                 ++j;
             }
 
-            j = confFile->addedKeys.lowerBound(thePrefix);
+            j = const_cast<const ParsedSettingsMap *>(
+                    &confFile->addedKeys)->lowerBound(thePrefix);
             while (j != confFile->addedKeys.constEnd() && j.key().startsWith(thePrefix)) {
                 processChild(j.key().originalCaseKey().mid(startPos), spec, result);
                 ++j;

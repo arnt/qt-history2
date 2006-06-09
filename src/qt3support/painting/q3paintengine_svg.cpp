@@ -1167,8 +1167,8 @@ void Q3SVGPaintEnginePrivate::setStyle(const QString &s, QPainter *pt)
     QPen pen = pt->pen();
     QFont font = pt->font();
 
-    QStringList::ConstIterator it = rules.begin();
-    for (; it != rules.end(); it++) {
+    QStringList::ConstIterator it = rules.constBegin();
+    for (; it != rules.constEnd(); it++) {
         int col = (*it).indexOf(':');
         if (col > 0) {
             QString prop = (*it).left(col).simplified();

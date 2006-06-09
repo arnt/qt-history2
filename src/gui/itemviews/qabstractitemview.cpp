@@ -718,8 +718,8 @@ QModelIndex QAbstractItemView::currentIndex() const
 void QAbstractItemView::reset()
 {
     Q_D(QAbstractItemView);
-    _q_abstractitemview_editor_const_iterator it = d->editors.begin();
-    for (; it != d->editors.end(); ++it)
+    _q_abstractitemview_editor_const_iterator it = d->editors.constBegin();
+    for (; it != d->editors.constEnd(); ++it)
         d->releaseEditor(d->editorForIterator(it));
     d->editors.clear();
     d->persistent.clear();

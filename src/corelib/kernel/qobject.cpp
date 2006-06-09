@@ -285,8 +285,8 @@ bool QObjectPrivate::isSender(const QObject *receiver, const char *signal) const
         return false;
     QConnectionList *list = ::connectionList();
     QReadLocker locker(&list->lock);
-    QConnectionList::Hash::const_iterator it = list->sendersHash.find(q);
-    while (it != list->sendersHash.end() && it.key() == q) {
+    QConnectionList::Hash::const_iterator it = list->sendersHash.constFind(q);
+    while (it != list->sendersHash.constEnd() && it.key() == q) {
         const QConnection &c = list->connections.at(it.value());
         if (c.signal == signal_index && c.receiver == receiver)
             return true;
@@ -2014,7 +2014,7 @@ QObject *QObject::sender() const
         return 0;
 
     QReadLocker locker(&list->lock);
-    QConnectionList::Hash::const_iterator it = list->sendersHash.find(d->currentSender);
+    QConnectionList::Hash::const_iterator it = list->sendersHash.constFind(d->currentSender);
     const QConnectionList::Hash::const_iterator end = list->sendersHash.constEnd();
 
     // Return 0 if d->currentSender isn't in the senders hash (it has been destroyed?)
@@ -2077,7 +2077,7 @@ int QObject::receivers(const char *signal) const
         }
         QConnectionList *list = ::connectionList();
         QReadLocker locker(&list->lock);
-        QHash<const QObject *, int>::const_iterator i = list->sendersHash.find(this);
+        QHash<const QObject *, int>::const_iterator i = list->sendersHash.constFind(this);
         while (i != list->sendersHash.constEnd() && i.key() == this) {
             if (list->connections.at(i.value()).signal == signal_index)
                 ++receivers;
@@ -2676,7 +2676,7 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         locker.relock();
     }
 
-    QConnectionList::Hash::const_iterator it = list->sendersHash.find(sender);
+    QConnectionList::Hash::const_iterator it = list->sendersHash.constFind(sender);
     const QConnectionList::Hash::const_iterator end = list->sendersHash.constEnd();
 
     if (it == end) {

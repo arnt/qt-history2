@@ -51,7 +51,7 @@ void QSyntaxHighlighterPrivate::applyFormatChanges()
     const int preeditAreaLength = layout->preeditAreaText().length();
 
     QList<QTextLayout::FormatRange>::Iterator it = ranges.begin();
-    while (it != ranges.constEnd()) {
+    while (it != ranges.end()) {
         if (it->start >= preeditAreaStart
             && it->start + it->length <= preeditAreaStart + preeditAreaLength)
             ++it;

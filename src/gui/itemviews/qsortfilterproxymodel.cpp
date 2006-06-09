@@ -212,8 +212,8 @@ IndexMap::const_iterator QSortFilterProxyModelPrivate::create_mapping(
 {
     Q_Q(const QSortFilterProxyModel);
 
-    IndexMap::const_iterator it = source_index_mapping.find(source_parent);
-    if (it != source_index_mapping.end()) // was mapped already
+    IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
+    if (it != source_index_mapping.constEnd()) // was mapped already
         return it;
 
     Mapping *m = new Mapping;
@@ -235,7 +235,7 @@ IndexMap::const_iterator QSortFilterProxyModelPrivate::create_mapping(
     m->proxy_columns.resize(source_cols);
     build_source_to_proxy_mapping(m->source_columns, m->proxy_columns);
 
-    it = source_index_mapping.insert(source_parent, m);
+    it = IndexMap::const_iterator(source_index_mapping.insert(source_parent, m));
 
     if (source_parent.isValid()) {
         QModelIndex source_grand_parent = source_parent.parent();
@@ -244,7 +244,7 @@ IndexMap::const_iterator QSortFilterProxyModelPrivate::create_mapping(
         it2.value()->mapped_children.append(source_parent);
     }
 
-    Q_ASSERT(it != source_index_mapping.end());
+    Q_ASSERT(it != source_index_mapping.constEnd());
     Q_ASSERT(it.value());
 
     return it;
@@ -534,7 +534,7 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
     const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
 {
     Q_Q(QSortFilterProxyModel);
-    IndexMap::const_iterator it = source_index_mapping.find(source_parent);
+    IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
     if (it == source_index_mapping.end()) {
         // Don't care, since we don't have mapping for this index
         return;
@@ -583,7 +583,7 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
 void QSortFilterProxyModelPrivate::source_items_removed(
     const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
 {
-    IndexMap::const_iterator it = source_index_mapping.find(source_parent);
+    IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
     if (it == source_index_mapping.end()) {
         // Don't care, since we don't have mapping for this index
         return;
@@ -797,7 +797,7 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
 {
     Q_Q(QSortFilterProxyModel);
     QModelIndex source_parent = source_top_left.parent();
-    IndexMap::const_iterator it = source_index_mapping.find(source_parent);
+    IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
     if (it == source_index_mapping.end()) {
         // Don't care, since we don't have mapping for this index
         return;

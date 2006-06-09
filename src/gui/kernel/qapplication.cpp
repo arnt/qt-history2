@@ -1306,7 +1306,7 @@ QPalette QApplication::palette(const QWidget* w)
 {
     PaletteHash *hash = app_palettes();
     if (w && hash && hash->size()) {
-        QHash<QByteArray, QPalette>::ConstIterator it = hash->find(w->metaObject()->className());
+        QHash<QByteArray, QPalette>::ConstIterator it = hash->constFind(w->metaObject()->className());
         if (it != hash->constEnd())
             return *it;
         for (it = hash->constBegin(); it != hash->constEnd(); ++it) {
@@ -1330,7 +1330,7 @@ QPalette QApplication::palette(const char *className)
         palette();
     PaletteHash *hash = app_palettes();
     if (className && hash && hash->size()) {
-        QHash<QByteArray, QPalette>::ConstIterator it = hash->find(className);
+        QHash<QByteArray, QPalette>::ConstIterator it = hash->constFind(className);
         if (it != hash->constEnd())
             return *it;
     }
@@ -1442,11 +1442,10 @@ QFont QApplication::font(const QWidget *w)
 {
     FontHash *hash = app_fonts();
     if (w && hash  && hash->size()) {
-        QHash<QByteArray, QFont>::ConstIterator it =
-            hash->find(w->metaObject()->className());
+        QHash<QByteArray, QFont>::ConstIterator it = hash->constFind(w->metaObject()->className());
         if (it != hash->constEnd())
             return it.value();
-        for (it = hash->begin(); it != hash->end(); ++it) {
+        for (it = hash->constBegin(); it != hash->constEnd(); ++it) {
             if (w->inherits(it.key()))
                 return it.value();
         }

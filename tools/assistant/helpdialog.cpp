@@ -387,10 +387,10 @@ void HelpDialog::loadIndexFile()
 quint32 HelpDialog::getFileAges()
 {
     QStringList addDocuFiles = Config::configuration()->docFiles();
-    QStringList::const_iterator i = addDocuFiles.begin();
+    QStringList::const_iterator i = addDocuFiles.constBegin();
 
     quint32 fileAges = 0;
-    for(; i != addDocuFiles.end(); ++i) {
+    for(; i != addDocuFiles.constEnd(); ++i) {
         QFileInfo fi(*i);
         if (fi.exists())
             fileAges += fi.lastModified().toTime_t();
@@ -829,7 +829,7 @@ void HelpDialog::insertContents()
             lastItem[j] = 0;
 
         ContentList lst = (*it).second;
-        for (ContentList::ConstIterator it = lst.begin(); it != lst.end(); ++it) {
+        for (ContentList::ConstIterator it = lst.constBegin(); it != lst.constEnd(); ++it) {
             ContentItem item = *it;
             if (item.depth == 0) {
                 newEntry = new QTreeWidgetItem(ui.listContents, 0);
@@ -936,8 +936,8 @@ void HelpDialog::setupFullTextIndex()
     if (!f.exists()) {
         QString doc;
         QSet<QString> documentSet;
-        QMap<QString, QString>::ConstIterator it = titleMap.begin();
-        for (; it != titleMap.end(); ++it) {
+        QMap<QString, QString>::ConstIterator it = titleMap.constBegin();
+        for (; it != titleMap.constEnd(); ++it) {
             doc = HelpDialog::removeAnchorFromLink(it.key());
             if (!doc.isEmpty())
                 documentSet.insert(doc);            

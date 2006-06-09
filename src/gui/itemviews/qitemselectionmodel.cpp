@@ -642,10 +642,10 @@ void QItemSelectionModelPrivate::_q_layoutAboutToBeChanged()
     savedPersistentCurrentIndexes.clear();
     QModelIndexList indexes = ranges.indexes();
     QModelIndexList::const_iterator it;
-    for (it = indexes.begin(); it != indexes.end(); ++it)
+    for (it = indexes.constBegin(); it != indexes.constEnd(); ++it)
         savedPersistentIndexes.append(QPersistentModelIndex(*it));
     indexes = currentSelection.indexes();
-    for (it = indexes.begin(); it != indexes.end(); ++it)
+    for (it = indexes.constBegin(); it != indexes.constEnd(); ++it)
         savedPersistentCurrentIndexes.append(QPersistentModelIndex(*it));
 }
 
@@ -1103,12 +1103,12 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
         joined += d->currentSelection;
     int colCount = model()->columnCount(parent);
     for (int column = 0; column < colCount; ++column) {
-        for (it = joined.begin(); it != joined.end(); ++it)
+        for (it = joined.constBegin(); it != joined.constEnd(); ++it)
             if ((*it).contains(row, column, parent)) {
-                column = qMax(column, (*it).right()); 
+                column = qMax(column, (*it).right());
                 break;
             }
-        if (it == joined.end())
+        if (it == joined.constEnd())
             return false;
     }
     return colCount > 0; // no columns means no selected items
@@ -1159,13 +1159,13 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
         joined += d->currentSelection;
     int rowCount = model()->rowCount(parent);
     for (int row = 0; row < rowCount; ++row) {
-         for (it = joined.begin(); it != joined.end(); ++it) {
+         for (it = joined.constBegin(); it != joined.constEnd(); ++it) {
              if ((*it).contains(row, column, parent)) {
                  row = qMax(row, (*it).bottom());
                  break;
              }
          }
-         if (it == joined.end())
+         if (it == joined.constEnd())
              return false;
     }
     return rowCount > 0; // no rows means no selected items

@@ -125,7 +125,7 @@ void QtBrushEditorPrivate::slotRemoveClicked()
     QString newCurrent;
 
     QMap<QString, QBrush> brushes = m_brushManager->brushes();
-    QMap<QString, QBrush>::ConstIterator it = brushes.find(name);
+    QMap<QString, QBrush>::ConstIterator it = brushes.constFind(name);
     if (it == brushes.constEnd())
         return; // not possible
 

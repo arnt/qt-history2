@@ -56,9 +56,10 @@ template <class T> \
 class QMutable##C##Iterator \
 { \
     typedef typename Q##C<T>::iterator iterator; \
+    typedef typename Q##C<T>::const_iterator const_iterator; \
     Q##C<T> *c; \
     iterator i, n; \
-    inline bool item_exists() const { return n != c->constEnd(); } \
+    inline bool item_exists() const { return const_iterator(n) != c->constEnd(); } \
 public: \
     inline QMutable##C##Iterator(Q##C<T> &container) \
         : c(&container) \
@@ -70,22 +71,22 @@ public: \
       i = c->begin(); n = c->end(); return *this; } \
     inline void toFront() { i = c->begin(); n = c->end(); } \
     inline void toBack() { i = c->end(); n = i; } \
-    inline bool hasNext() const { return c->constEnd() != i; } \
+    inline bool hasNext() const { return c->constEnd() != const_iterator(i); } \
     inline T &next() { n = i++; return *n; } \
     inline T &peekNext() const { return *i; } \
-    inline bool hasPrevious() const { return c->constBegin() != i; } \
+    inline bool hasPrevious() const { return c->constBegin() != const_iterator(i); } \
     inline T &previous() { n = --i; return *n; } \
     inline T &peekPrevious() const { iterator p = i; return *--p; } \
     inline void remove() \
-    { if (c->constEnd() != n) { i = c->erase(n); n = c->end(); } } \
-    inline void setValue(const T &t) const { if (c->constEnd() != n) *n = t; } \
+    { if (c->constEnd() != const_iterator(n)) { i = c->erase(n); n = c->end(); } } \
+    inline void setValue(const T &t) const { if (c->constEnd() != const_iterator(n)) *n = t; } \
     inline T &value() { Q_ASSERT(item_exists()); return *n; } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline void insert(const T &t) { n = i = c->insert(i, t); ++i; } \
     inline bool findNext(const T &t) \
-    { while (c->constEnd() != (n = i)) if (*i++ == t) return true; return false; } \
+    { while (c->constEnd() != const_iterator(n = i)) if (*i++ == t) return true; return false; } \
     inline bool findPrevious(const T &t) \
-    { while (c->constBegin() != i) if (*(n = --i) == t) return true; \
+    { while (c->constBegin() != const_iterator(i)) if (*(n = --i) == t) return true; \
       n = c->end(); return false;  } \
 };
 

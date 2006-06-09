@@ -57,7 +57,7 @@ template <typename Item>
 Item ResourceCache<Item>::keyToItem(const QString &filePath, const QString &qrcPath)
 {
     Key key = qMakePair(filePath, qrcPath);
-    typename KeyToItemMap::const_iterator it = m_key_to_item.find(key);
+    typename KeyToItemMap::const_iterator it = m_key_to_item.constFind(key);
     if (it != m_key_to_item.end())
         return *it;
 

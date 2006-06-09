@@ -1611,7 +1611,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
             if (!hasPrefix(doc, length, pos+1, QChar('/'))) {
                 // open tag
                 QMap<QString, QString> attr;
-                QMap<QString, QString>::ConstIterator it, end = attr.end();
+                QMap<QString, QString>::ConstIterator it, end = attr.constEnd();
                 bool emptyTag = false;
                 QString tagname = parseOpenTag(doc, length, pos, attr, emptyTag);
                 if (tagname.isEmpty())
@@ -1694,12 +1694,12 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                         custom = parseTable(attr, format, doc, length, pos, curpar);
 #endif
                     } else if (tagname == "qt" || tagname == "body") {
-                        it = attr.find("bgcolor");
+                        it = attr.constFind("bgcolor");
                         if (it != end) {
                             QBrush *b = new QBrush(QColor(*it));
                             setPaper(b);
                         }
-                        it = attr.find("background");
+                        it = attr.constFind("background");
                         if (it != end) {
 #ifndef QT_NO_MIME
                             QImage img;
@@ -1720,22 +1720,22 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                             }
 #endif
                         }
-                        it = attr.find("text");
+                        it = attr.constFind("text");
                         if (it != end) {
                             QColor c(*it);
                             initag.format.setColor(c);
                             curtag.format.setColor(c);
                             bodyText = c;
                         }
-                        it = attr.find("link");
+                        it = attr.constFind("link");
                         if (it != end)
                             linkColor = QColor(*it);
-                        it = attr.find("title");
+                        it = attr.constFind("title");
                         if (it != end)
                             attribs.insert("title", *it);
 
                         if (textEditMode) {
-                            it = attr.find("style");
+                            it = attr.constFind("style");
                             if (it != end) {
                                 QString a = *it;
                                 int count = a.count(';') + 1;
@@ -1873,7 +1873,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                         if (nstyle->name() == "ul")
                             curtag.style = sheet_->item("ol");
 
-                        it = attr.find("align");
+                        it = attr.constFind("align");
                         if (it != end) {
                             QString align = (*it).toLower();
                             if (align == "center")
@@ -1883,7 +1883,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                             else if (align == "justify")
                                 curtag.alignment = Qt::AlignJustify;
                         }
-                        it = attr.find("dir");
+                        it = attr.constFind("dir");
                         if (it != end) {
                             QString dir = (*it).toLower();
                             if (dir == "rtl")
@@ -1895,12 +1895,12 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                         NEWPAR;
 
                         if (curtag.style->displayMode() == Q3StyleSheetItem::DisplayListItem) {
-                            it = attr.find("value");
+                            it = attr.constFind("value");
                             if (it != end)
                                 curpar->setListValue((*it).toInt());
                         }
 
-                        it = attr.find("style");
+                        it = attr.constFind("style");
                         if (it != end) {
                             QString a = *it;
                             bool ok = true;
@@ -2881,8 +2881,8 @@ QString Q3TextDocument::selectedText(int id, bool asRichText) const
 
 void Q3TextDocument::setFormat(int id, Q3TextFormat *f, int flags)
 {
-    QMap<int, Q3TextDocumentSelection>::ConstIterator it = selections.find(id);
-    if (it == selections.end())
+    QMap<int, Q3TextDocumentSelection>::ConstIterator it = selections.constFind(id);
+    if (it == selections.constEnd())
         return;
 
     Q3TextDocumentSelection sel = *it;
@@ -4697,7 +4697,7 @@ void Q3TextParagraph::paint(QPainter &painter, const QPalette &pal, Q3TextCursor
                 else if (chr->customItem()->placement() == Q3TextCustomItem::PlaceInline) {
                     bool inSelection = false;
                     if (drawSelections) {
-                        QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->find(Q3TextDocument::Standard);
+                        QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->constFind(Q3TextDocument::Standard);
                         inSelection = (it != mSelections->end() && (*it).start <= i && (*it).end > i);
                     }
                     chr->customItem()->draw(&painter, chr->x, y,
@@ -4796,7 +4796,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
 
     bool allSelected = false;
     if (drawSelections) {
-        QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->find(Q3TextDocument::Standard);
+        QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->constFind(Q3TextDocument::Standard);
         allSelected = (it != mSelections->end() && (*it).start <= start && (*it).end >= start+len);
     }
     if (!allSelected)
@@ -4819,7 +4819,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
 
     // check if we are in a selection and draw it
     if (drawSelections) {
-        QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->end();
+        QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->constEnd();
         while (it != mSelections->begin()) {
             --it;
             int selStart = (*it).start;
@@ -5128,7 +5128,7 @@ QString Q3TextParagraph::richText() const
 	    lastAnchorName = c->anchorName();
             if (c->anchorName().contains('#')) {
                 QStringList l = c->anchorName().split('#');
-                for (QStringList::ConstIterator it = l.begin(); it != l.end(); ++it)
+                for (QStringList::ConstIterator it = l.constBegin(); it != l.constEnd(); ++it)
                     s += "<a name=\"" + *it + "\"></a>";
             } else {
                 s += "<a name=\"" + c->anchorName() + "\"></a>";
@@ -7662,8 +7662,8 @@ QString Q3TextTable::richText() const
             needEnd = true;
         }
         s += "<td";
-        it = cell->attributes.begin();
-        for (; it != cell->attributes.end(); ++it)
+        it = cell->attributes.constBegin();
+        for (; it != cell->attributes.constEnd(); ++it)
             s += " " + it.key() + "=" + *it;
         s += ">";
         s += cell->richText()->richText();

@@ -190,12 +190,12 @@ void Config::loadDefaultProfile()
     QStringList imgDirLst = settings.value( profKey + QLatin1String("ImageDirs") ).toStringList();
     QStringList dcfs = settings.value( profKey + QLatin1String("DocFiles") ).toStringList();
 
-    QStringList::ConstIterator it = titles.begin();
-    QStringList::ConstIterator iconIt = iconLst.begin();
-    QStringList::ConstIterator indexIt = indexLst.begin();
-    QStringList::ConstIterator imageIt = imgDirLst.begin();
-    QStringList::ConstIterator dcfIt = dcfs.begin();
-    for( ; it != titles.end();
+    QStringList::ConstIterator it = titles.constBegin();
+    QStringList::ConstIterator iconIt = iconLst.constBegin();
+    QStringList::ConstIterator indexIt = indexLst.constBegin();
+    QStringList::ConstIterator imageIt = imgDirLst.constBegin();
+    QStringList::ConstIterator dcfIt = dcfs.constBegin();
+    for( ; it != titles.constEnd();
         ++it, ++iconIt, ++indexIt, ++imageIt, ++dcfIt )
     {
         profil->addDCFIcon( *it, *iconIt );
@@ -226,8 +226,8 @@ void Config::saveProfile( Profile *profile )
 
     QStringList indexes, icons, imgDirs, dcfs;
     QStringList titles = profile->dcfTitles.keys();
-    QStringList::ConstIterator it = titles.begin();
-    for ( ; it != titles.end(); ++it ) {
+    QStringList::ConstIterator it = titles.constBegin();
+    for ( ; it != titles.constEnd(); ++it ) {
         indexes << profile->indexPages[*it];
         icons << profile->icons[*it];
         imgDirs << profile->imageDirs[*it];
@@ -256,8 +256,8 @@ QStringList Config::mimePaths()
     if( lst.count() > 0 )
         return lst;
 
-    for (QMap<QString,QString>::ConstIterator it = profil->dcfTitles.begin();
-         it != profil->dcfTitles.end(); ++it ) {
+    for (QMap<QString,QString>::ConstIterator it = profil->dcfTitles.constBegin();
+         it != profil->dcfTitles.constEnd(); ++it ) {
 
         // Mime source for .dcf file path
         QFileInfo info( *it );

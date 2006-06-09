@@ -1400,7 +1400,7 @@ QSize QMenuBar::sizeHint() const
         QList<QAction*> actionList;
         const int w = parentWidget() ? parentWidget()->width() : QApplication::desktop()->width();
         d->calcActionRects(w - (2 * fw), 0, actionRects, actionList);
-        for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
+        for (QMap<QAction*, QRect>::const_iterator i = actionRects.constBegin();
              i != actionRects.constEnd(); ++i) {
             QRect actionRect(i.value());
             if(actionRect.x() + actionRect.width() > ret.width())

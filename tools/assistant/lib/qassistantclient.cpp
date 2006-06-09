@@ -241,8 +241,8 @@ void QAssistantClient::openAssistant()
 
     QAssistantClientPrivate *d = data( this );
     if( d ) {
-        QStringList::ConstIterator it = d->arguments.begin();
-        while( it!=d->arguments.end() ) {
+        QStringList::ConstIterator it = d->arguments.constBegin();
+        while( it!=d->arguments.constEnd() ) {
             args.append( *it );
             ++it;
         }

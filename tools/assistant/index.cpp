@@ -120,8 +120,8 @@ void Index::setupDocumentList()
     QStringList filters;
     filters.append(QLatin1String("*.html"));
     QStringList lst = d.entryList(filters);
-    QStringList::ConstIterator it = lst.begin();
-    for ( ; it != lst.end(); ++it )
+    QStringList::ConstIterator it = lst.constBegin();
+    for ( ; it != lst.constEnd(); ++it )
         docList.append( "file:" + docPath + QLatin1String("/") + *it );
 }
 
@@ -301,7 +301,7 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
         QVector<Document> docs = t->documents;
         for(QVector<Document>::Iterator minDoc_it = minDocs.begin(); minDoc_it != minDocs.end(); ) {
             bool found = false;
-            for (QVector<Document>::ConstIterator doc_it = docs.begin(); doc_it != docs.end(); ++doc_it ) {
+            for (QVector<Document>::ConstIterator doc_it = docs.constBegin(); doc_it != docs.constEnd(); ++doc_it ) {
                 if ( (*minDoc_it).docNumber == (*doc_it).docNumber ) {
                     (*minDoc_it).frequency += (*doc_it).frequency;
                     found = true;
