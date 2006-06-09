@@ -388,6 +388,12 @@ void QLinuxFbScreen::createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_f
             gbits=6;
             bbits=5;
             break;
+        case 18:
+        case 19:
+            rbits=6;
+            gbits=6;
+            bbits=6;
+            break;
         case 24: case 32:
             rbits=gbits=bbits=8;
             break;

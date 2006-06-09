@@ -1083,6 +1083,62 @@ static void blit_16_to_8(const blit_data *data)
 }
 #endif // QT_QWS_DEPTH_8
 
+static void blit_32_to_24(const blit_data *data)
+{
+    const int sbpl = data->img->bytesPerLine() / 4;
+    const int dbpl = data->lineStep;
+
+    const uint *src = (const uint *)data->img->bits();
+    src += data->sy * sbpl + data->sx;
+    uchar *dest = (uchar *)data->data;
+    dest += data->dy * dbpl + data->dx*3;
+
+    int h = data->h;
+    while (h) {
+        uchar *d = dest;
+        for (int i = 0; i < data->w; ++i) {
+            uint s = src[i];
+            *d = s & 0xff;
+            *(d+1) = (s >> 8) & 0xff;
+            *(d+2) = (s >> 16) & 0xff;
+            d+=3;
+        }
+        src += sbpl;
+        dest += dbpl;
+        --h;
+    }
+}
+
+static void blit_32_to_18(const blit_data *data)
+{
+    const int sbpl = data->img->bytesPerLine() / 4;
+    const int dbpl = data->lineStep;
+
+    const uint *src = (const uint *)data->img->bits();
+    src += data->sy * sbpl + data->sx;
+    uchar *dest = (uchar *)data->data;
+    dest += data->dy * dbpl + data->dx*3;
+
+    int h = data->h;
+    while (h) {
+        uchar *d = dest;
+        for (int i = 0; i < data->w; ++i) {
+            uint s = src[i];
+            uchar b = s & 0xff;
+            uchar g = (s >> 8) & 0xff;
+            uchar r = (s >> 16) & 0xff;
+            uint p = (b>>2) | ((g>>2) << 6) | ((r>>2) << 12);
+            *d = p & 0xff;
+            *(d+1) = (p >> 8) & 0xff;
+            *(d+2) = (p >> 16) & 0xff;
+            d+=3;
+        }
+        src += sbpl;
+        dest += dbpl;
+        --h;
+    }
+}
+
 /*!
     \fn void QScreen::blit(const QImage &image, const QPoint &topLeft, const QRegion &region)
 
@@ -1111,6 +1167,13 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
         func = blit_32_to_32;
         break;
 #endif
+    case 24:
+        func = blit_32_to_24;
+        break;
+    case 18:
+    case 19:
+        func = blit_32_to_18;
+        break;
 #ifdef QT_QWS_DEPTH_16
     case 16:
         if (img.depth() == 16)
@@ -1197,6 +1260,56 @@ static void fill_32(const fill_data *data)
 }
 #endif // QT_QWS_DEPTH_32
 
+static void fill_18(const fill_data *data)
+{
+    const int dbpl = data->lineStep;
+    uchar r = data->color & 0xff;
+    uchar g = (data->color >> 8) & 0xff;
+    uchar b = (data->color >> 16) & 0xff;
+    uint p = (b>>2) | ((g>>2) << 6) | ((r>>2) << 12);
+    uchar b0 = p & 0xff;
+    uchar b1 = (p >> 8) & 0xff;
+    uchar b2 = (p >> 16) & 0xff;
+
+    uchar *dest = (uchar *)data->data;
+    dest += data->y * dbpl + data->x*3;
+
+    int h = data->h;
+    while (h) {
+        uchar *d = dest;
+        for (int i = 0; i < data->w; ++i) {
+            *d++ = b0;
+            *d++ = b1;
+            *d++ = b2;
+        }
+        dest += dbpl;
+        --h;
+    }
+}
+
+static void fill_24(const fill_data *data)
+{
+    const int dbpl = data->lineStep;
+    uchar r = data->color & 0xff;
+    uchar g = (data->color >> 8) & 0xff;
+    uchar b = (data->color >> 16) & 0xff;
+
+    uchar *dest = (uchar *)data->data;
+    dest += data->y * dbpl + data->x*3;
+
+    int h = data->h;
+    while (h) {
+        uchar *d = dest;
+        for (int i = 0; i < data->w; ++i) {
+            *d++ = r;
+            *d++ = g;
+            *d++ = b;
+        }
+        dest += dbpl;
+        --h;
+    }
+}
+
 #ifdef QT_QWS_DEPTH_16
 static void fill_16(const fill_data *data)
 {
@@ -1258,6 +1371,13 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
         func = fill_32;
         break;
 #endif
+    case 24:
+        func = fill_24;
+        break;
+    case 18:
+    case 19:
+        func = fill_18;
+        break;
 #ifdef QT_QWS_DEPTH_16
     case 16:
         func = fill_16;
