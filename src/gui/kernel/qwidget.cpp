@@ -1923,7 +1923,7 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
 
     A QWidget should only have one of each action.
 
-    \sa removeAction() QMenu
+    \sa removeAction(), insertAction(), actions(), QMenu
 */
 void QWidget::addAction(QAction *action)
 {
@@ -1933,7 +1933,7 @@ void QWidget::addAction(QAction *action)
 /*!
     Appends the actions \a actions to this widget's list of actions.
 
-    \sa removeAction() QMenu addAction()
+    \sa removeAction(), QMenu, addAction()
 */
 void QWidget::addActions(QList<QAction*> actions)
 {
@@ -1948,7 +1948,7 @@ void QWidget::addActions(QList<QAction*> actions)
 
     A QWidget should only have one of each action.
 
-    \sa addAction()
+    \sa removeAction(), addAction(), QMenu, ContextMenuPolicy, actions()
 */
 void QWidget::insertAction(QAction *before, QAction *action)
 {
@@ -1982,7 +1982,7 @@ void QWidget::insertAction(QAction *before, QAction *action)
 
     A QWidget should only have one of each action.
 
-    \sa removeAction() QMenu insertAction()
+    \sa removeAction(), QMenu, insertAction(), insertActions(), ContextMenuPolicy
 */
 void QWidget::insertActions(QAction *before, QList<QAction*> actions)
 {
@@ -1992,6 +1992,8 @@ void QWidget::insertActions(QAction *before, QList<QAction*> actions)
 
 /*!
     Removes the action \a action from this widget's list of actions.
+    
+    \sa insertAction(), actions(), insertAction()
 */
 void QWidget::removeAction(QAction *action)
 {
@@ -2011,6 +2013,8 @@ void QWidget::removeAction(QAction *action)
 
 /*!
     Returns the (possibly empty) list of this widget's actions.
+    
+    \sa ContextMenuPolicy, insertAction(), removeAction()
 */
 QList<QAction*> QWidget::actions() const
 {
@@ -4170,7 +4174,7 @@ QRect QWidget::contentsRect() const
     Qt::CustomContextMenu, the signal customContextMenuRequested() is
     emitted.
 
-    \sa contextMenuEvent() customContextMenuRequested()
+    \sa contextMenuEvent(), customContextMenuRequested(), actions()
 */
 
 Qt::ContextMenuPolicy QWidget::contextMenuPolicy() const
