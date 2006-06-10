@@ -106,7 +106,7 @@ static const int GraphicsViewRegionRectThreshold = 20;
 
     This enum describes the flags that you can set for a QGraphicsView's cache
     mode.
-    
+
     \value CacheNone All painting is done directly onto the viewport.
 
     \value CacheBackground The background is cached. This affects both custom
@@ -2038,8 +2038,10 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 void QGraphicsView::wheelEvent(QWheelEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->scene || !d->sceneInteractionAllowed)
+    if (!d->scene || !d->sceneInteractionAllowed) {
+        QAbstractScrollArea::wheelEvent(event);
         return;
+    }
 
     QGraphicsSceneWheelEvent wheelEvent(QEvent::GraphicsSceneWheel);
     wheelEvent.setWidget(viewport());
@@ -2048,7 +2050,11 @@ void QGraphicsView::wheelEvent(QWheelEvent *event)
     wheelEvent.setButtons(event->buttons());
     wheelEvent.setModifiers(event->modifiers());
     wheelEvent.setDelta(event->delta());
+    wheelEvent.setAccepted(event->isAccepted());
     QApplication::sendEvent(d->scene, &wheelEvent);
+    event->setAccepted(wheelEvent.isAccepted());
+    if (!event->isAccepted())
+        QAbstractScrollArea::wheelEvent(event);
 }
 
 /*!
@@ -2144,7 +2150,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
             backgroundPainter.restore();
         }
         d->backgroundPixmapExposed = QRegion();
-    
+
         // Blit the background from the background pixmap
         painter.setMatrixEnabled(false);
         foreach (QRect rect, event->region().rects())
