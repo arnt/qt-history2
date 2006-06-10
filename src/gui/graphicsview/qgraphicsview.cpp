@@ -1785,8 +1785,10 @@ void QGraphicsView::focusOutEvent(QFocusEvent *event)
 void QGraphicsView::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->scene || !d->sceneInteractionAllowed)
+    if (!d->scene || !d->sceneInteractionAllowed) {
+        QAbstractScrollArea::keyPressEvent(event);
         return;
+    }
     QApplication::sendEvent(d->scene, event);
     if (!event->isAccepted())
         QAbstractScrollArea::keyPressEvent(event);
