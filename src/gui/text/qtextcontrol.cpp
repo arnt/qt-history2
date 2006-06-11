@@ -1950,8 +1950,6 @@ void QTextControl::setTextInteractionFlags(Qt::TextInteractionFlags flags)
         return;
     d->interactionFlags = flags;
 
-    d->cursorOn = (flags & Qt::TextSelectableByKeyboard) || (flags & Qt::TextEditable);
-
     if (d->hasFocus)
         d->setBlinkingCursorEnabled(flags & Qt::TextEditable);
 }
