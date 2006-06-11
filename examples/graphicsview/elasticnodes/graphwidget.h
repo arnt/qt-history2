@@ -3,6 +3,8 @@
 
 #include <QtGui/QGraphicsView>
 
+class Node;
+
 class GraphWidget : public QGraphicsView
 {
     Q_OBJECT
@@ -13,12 +15,14 @@ public:
     void itemMoved();
 
 protected:
-    void timerEvent(QTimerEvent *);
+    void keyPressEvent(QKeyEvent *event);
+    void timerEvent(QTimerEvent *event);
     void wheelEvent(QWheelEvent *event);
     void drawBackground(QPainter *painter, const QRectF &rect);
 
 private:
     int timerId;
+    Node *centerNode;
 };
 
 #endif
