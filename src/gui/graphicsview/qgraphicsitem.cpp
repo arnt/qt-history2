@@ -1420,7 +1420,7 @@ qreal QGraphicsItem::zValue() const
     the order will stay the same for as long as the items live.
 
     Children of different parents are stacked using the Z-value of
-    each item's ancestor which is an immediate children of the two
+    each item's ancestor which is an immediate child of the two
     items' closest common ancestor. For example, a robot item might
     define a torso item as the parent of a head item, two arm items,
     and two upper-leg items. The upper-leg items would each be parents
