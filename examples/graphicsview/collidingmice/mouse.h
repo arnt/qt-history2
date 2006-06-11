@@ -21,6 +21,7 @@ protected:
 
 private:
     qreal angle;
+    qreal speed;
     qreal mouseEyeDirection;
     QColor color;
 };

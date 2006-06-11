@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-static const int MouseCount = 5;
+static const int MouseCount = 7;
 
 int main(int argc, char **argv)
 {

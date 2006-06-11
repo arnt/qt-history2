@@ -19,7 +19,7 @@ static qreal normalizeAngle(qreal angle)
 }
 
 Mouse::Mouse()
-    : angle(0), mouseEyeDirection(0),
+    : angle(0), speed(0), mouseEyeDirection(0),
       color(rand() % 256, rand() % 256, rand() % 256)
 {
     rotate(rand() % (360 * 16));
@@ -85,11 +85,10 @@ void Mouse::timerEvent(QTimerEvent *)
 
         if (angleToCenter < Pi && angleToCenter > Pi / 4) {
             // Rotate left
-            angle += (angle < -Pi / 2) ? 0.5 : -0.5;
+            angle += (angle < -Pi / 2) ? 0.25 : -0.25;
         } else if (angleToCenter >= Pi && angleToCenter < (Pi + Pi / 2 + Pi / 4)) {
             // Rotate right
-            angle += (angle < Pi / 2) ? 0.5 : -0.5;
-        } else {
+            angle += (angle < Pi / 2) ? 0.25 : -0.25;
         }
     } else if (::sin(angle) < 0) {
         angle += 0.25;
@@ -124,14 +123,16 @@ void Mouse::timerEvent(QTimerEvent *)
     // Add some random movement
     if (dangerMice.size() > 1 && (rand() % 10) == 0) {
         if (rand() % 1)
-            angle += (rand() % 100) / 1000.0;
+            angle += (rand() % 100) / 500.0;
         else
-            angle -= (rand() % 100) / 1000.0;
+            angle -= (rand() % 100) / 500.0;
     }
+
+    speed += (-50 + rand() % 100) / 100.0;
 
     qreal dx = ::sin(angle) * 10;
     mouseEyeDirection = (qAbs(dx / 5) < 1) ? 0 : dx / 5;
 
     rotate(dx);
-    setPos(mapToParent(0, -3));
+    setPos(mapToParent(0, -(3 + sin(speed) * 3)));
 }
