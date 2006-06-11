@@ -1051,6 +1051,8 @@ void QPrintDialogPrivate::_q_paperSizeChanged(int index)
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     const ppd_option_t* pageSizes = cups->pageSizes();
     cups->markOption(pageSizes->keyword, pageSizes->choices[index].choice);
+#else
+    Q_UNUSED(index);
 #endif
 }
 

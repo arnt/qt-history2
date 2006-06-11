@@ -1276,7 +1276,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
     Q_D(const QDirModel);
     Q_ASSERT(d->indexValid(index));
 
-    QDirModelPrivate::QDirNode *node = d_func()->node(index);
+    QDirModelPrivate::QDirNode *node = d->node(index);
     return node->info;
 }
 

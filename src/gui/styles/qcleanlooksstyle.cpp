@@ -1582,10 +1582,10 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             bool enabled = menuItem->state & State_Enabled;
 
             bool ignoreCheckMark = false;
-            
+
             if (qobject_cast<const QComboBox*>(widget))
                 ignoreCheckMark = true; //ignore the checkmarks provided by the QComboMenuDelegate
-                
+
             if (!ignoreCheckMark) {
                 // Check
                 QRect checkRect(option->rect.left() + 7, option->rect.center().y() - 6, 13, 13);
@@ -1644,10 +1644,10 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             const QStyleOption *opt = option;
             const QStyleOptionMenuItem *menuitem = menuItem;
             int checkcol = qMax(menuitem->maxIconWidth, 20);
-            
+
             if( ignoreCheckMark )
                 checkcol = 0;
-            
+
             QPainter *p = painter;
             QRect vCheckRect = visualRect(opt->direction, menuitem->rect,
                                           QRect(menuitem->rect.x(), menuitem->rect.y(),
@@ -1687,7 +1687,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             }
             int xm = windowsItemFrame + checkcol + windowsItemHMargin;
             int xpos = menuitem->rect.x() + xm;
-            
+
             QRect textRect(xpos, y + windowsItemVMargin, w - xm - windowsRightBorder - tab + 1, h - 2 * windowsItemVMargin);
             QRect vTextRect = visualRect(opt->direction, menuitem->rect, textRect);
             QString s = menuitem->text;
@@ -3525,7 +3525,7 @@ QStyle::SubControl QCleanLooksStyle::hitTestComplexControl(ComplexControl cc, co
 {
     return QWindowsStyle::hitTestComplexControl(cc, opt, pt, w);
 }
-    
+
 /*!
   \reimp
 */
@@ -3703,8 +3703,11 @@ QPixmap QCleanLooksStylePrivate::resolveIcon(int size, const QString &name) cons
     if (!pixmap.isNull())
         QPixmapCache::insert(pixmapName, pixmap);
     return pixmap;
-#endif
+#else
+    Q_UNUSED(size);
+    Q_UNUSED(name);
     return QPixmap();
+#endif
 }
 
 

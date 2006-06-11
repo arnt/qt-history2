@@ -53,7 +53,7 @@ class QSettingsKey : public QString
 {
 public:
     inline QSettingsKey(const QString &key, Qt::CaseSensitivity cs)
-        : QString(key) { Q_ASSERT(cs == Qt::CaseSensitive); }
+        : QString(key) { Q_ASSERT(cs == Qt::CaseSensitive); Q_UNUSED(cs); }
 
     inline QString originalCaseKey() const { return *this; }
 };
