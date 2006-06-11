@@ -1413,8 +1413,8 @@ qreal QGraphicsItem::zValue() const
 /*!
     Sets the Z-value, or the elevation, of the item, to \a z. The elevation
     decides the stacking order of sibling (neighboring) items. An item of high
-    Z-value will be drawn on top of an item with a lower Z-value if their
-    parent is identical. In addition, children of an item will always be drawn
+    Z-value will be drawn on top of an item with a lower Z-value if they
+    share the same parent item. In addition, children of an item will always be drawn
     on top of the parent, regardless of the child's Z-value. Sibling items
     that share the same Z-value will be drawn in an undefined order, although
     the order will stay the same for as long as the items live.
