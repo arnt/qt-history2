@@ -388,8 +388,11 @@ void QGraphicsItemPrivate::remapItemPos(QEvent *event, QGraphicsItem *item)
 }
 
 /*!
-    Constructs a QGraphicsItem with the parent \a parent. If \a parent is 0,
-    the item will be a top-level.
+    Constructs a QGraphicsItem with the parent \a parent on \a scene. If \a
+    parent is 0, the item will be a top-level. If \a scene is 0, the item
+    will not be associated with a scene.
+
+    \sa QGraphicsScene::addItem()
 */
 QGraphicsItem::QGraphicsItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : d_ptr(new QGraphicsItemPrivate)
@@ -2875,8 +2878,8 @@ public:
 };
 
 /*!
-    Constructs a QAbstractGraphicsPathItem. \a parent is passed to
-    QGraphicsItem's constructor.
+    Constructs a QAbstractGraphicsPathItem. \a parent and \a scene are
+    passed to QGraphicsItem's constructor.
 */
 QAbstractGraphicsPathItem::QAbstractGraphicsPathItem(QGraphicsItem *parent,
                                                      QGraphicsScene *scene)
@@ -2985,7 +2988,8 @@ public:
 
 /*!
     Constructs a QGraphicsPath item using \a path as the default path.
-    \a parent is passed to QAbstractGraphicsPathItem's constructor.
+    \a parent and \a scene are passed to QAbstractGraphicsPathItem's
+    constructor.
 */
 QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path,
                                      QGraphicsItem *parent, QGraphicsScene *scene)
@@ -2996,7 +3000,7 @@ QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path,
 }
 
 /*!
-    Constructs a QGraphicsPath. \a parent is passed to
+    Constructs a QGraphicsPath. \a parent and \a scene are passed to
     QAbstractGraphicsPathItem's constructor.
 */
 QGraphicsPathItem::QGraphicsPathItem(QGraphicsItem *parent, QGraphicsScene *scene)
@@ -3147,7 +3151,8 @@ public:
 
 /*!
     Constructs a QGraphicsRectItem, using \a rect as the default rectangle.
-    \a parent is passed to QAbstractGraphicsPathItem's constructor.
+    \a parent and \a scene are passed to
+    QAbstractGraphicsPathItem's constructor.
 */
 QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent,
                                      QGraphicsScene *scene)
@@ -3170,8 +3175,8 @@ QGraphicsRectItem::QGraphicsRectItem(qreal x, qreal y, qreal w, qreal h,
 }
 
 /*!
-    Constructs a QGraphicsRectItem. \a parent is passed to
-    QAbstractGraphicsPathItem's constructor.
+    Constructs a QGraphicsRectItem. \a parent and \a scene are
+    passed to QAbstractGraphicsPathItem's constructor.
 */
 QGraphicsRectItem::QGraphicsRectItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QAbstractGraphicsPathItem(*new QGraphicsRectItemPrivate, parent, scene)
@@ -3332,7 +3337,8 @@ public:
 
 /*!
     Constructs a QGraphicsEllipseItem using \a rect as the default rectangle.
-    \a parent is passed to QAbstractGraphicsPathItem's constructor.
+    \a parent and \a scene are passed to QAbstractGraphicsPathItem's
+    constructor.
 */
 QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *parent,
                                            QGraphicsScene *scene)
@@ -3342,7 +3348,7 @@ QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *pa
 }
 
 /*!
-    Constructs a QGraphicsEllipseItem. \a parent is passed to
+    Constructs a QGraphicsEllipseItem. \a parent and \a scene are passed to
     QAbstractGraphicsPathItem's constructor.
 */
 QGraphicsEllipseItem::QGraphicsEllipseItem(QGraphicsItem *parent, QGraphicsScene *scene)
@@ -3497,7 +3503,8 @@ public:
 
 /*!
     Constructs a QGraphicsPolygonItem with \a polygon as the default
-    polygon. \a parent is passed to QAbstractGraphicsPathItem's constructor.
+    polygon. \a parent and \a scene are passed to
+    QAbstractGraphicsPathItem's constructor.
 */
 QGraphicsPolygonItem::QGraphicsPolygonItem(const QPolygonF &polygon,
                                            QGraphicsItem *parent, QGraphicsScene *scene)
@@ -3507,7 +3514,7 @@ QGraphicsPolygonItem::QGraphicsPolygonItem(const QPolygonF &polygon,
 }
 
 /*!
-    Constructs a QGraphicsPolygonItem. \a parent is passed to
+    Constructs a QGraphicsPolygonItem. \a parent and \a scene are passed to
     QAbstractGraphicsPathItem's constructor.
 */
 QGraphicsPolygonItem::QGraphicsPolygonItem(QGraphicsItem *parent, QGraphicsScene *scene)
@@ -3659,7 +3666,7 @@ public:
 
 /*!
     Constructs a QGraphicsLineItem, using \a line as the default line.  \a
-    parent is passed to QGraphicsItem's constructor.
+    parent and \a scene are passed to QGraphicsItem's constructor.
 */
 QGraphicsLineItem::QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent,
                                      QGraphicsScene *scene)
@@ -3669,8 +3676,8 @@ QGraphicsLineItem::QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent,
 }
 
 /*!
-    Constructs a QGraphicsLineItem.  \a parent is passed to QGraphicsItem's
-    constructor.
+    Constructs a QGraphicsLineItem.  \a parent and \a scene are
+    passed to QGraphicsItem's constructor.
 */
 QGraphicsLineItem::QGraphicsLineItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsLineItemPrivate, parent, scene)
@@ -3891,7 +3898,7 @@ public:
 
 /*!
     Constructs a QGraphicsPixmapItem, using \a pixmap as the default pixmap.
-    \a parent is passed to QGraphicsItem's constructor.
+    \a parent and \a scene are passed to QGraphicsItem's constructor.
 */
 QGraphicsPixmapItem::QGraphicsPixmapItem(const QPixmap &pixmap,
                                          QGraphicsItem *parent, QGraphicsScene *scene)
@@ -3901,8 +3908,8 @@ QGraphicsPixmapItem::QGraphicsPixmapItem(const QPixmap &pixmap,
 }
 
 /*!
-    Constructs a QGraphicsPixmapItem.  \a parent is passed to QGraphicsItem's
-    constructor.
+    Constructs a QGraphicsPixmapItem.  \a parent and \a scene are passed to
+    QGraphicsItem's constructor.
 */
 QGraphicsPixmapItem::QGraphicsPixmapItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsPixmapItemPrivate, parent, scene)
@@ -4139,7 +4146,7 @@ public:
 
 /*!
     Constructs a QGraphicsTextItem, using \a text as the default plain text. \a
-    parent is passed to QGraphicsItem's constructor.
+    parent and \a scene are passed to QGraphicsItem's constructor.
 */
 QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent,
                                      QGraphicsScene *scene)
@@ -4152,8 +4159,8 @@ QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent,
 }
 
 /*!
-    Constructs a QGraphicsTextItem. \a parent is passed to QGraphicsItem's
-    constructor.
+    Constructs a QGraphicsTextItem. \a parent and \a scene are passed to
+    QGraphicsItem's constructor.
 */
 QGraphicsTextItem::QGraphicsTextItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsItem(parent, scene), dd(new QGraphicsTextItemPrivate)
@@ -4333,7 +4340,7 @@ void QGraphicsTextItem::adjustSize()
 }
 
 /*!
-    Sets a new text document on the item.
+    Sets the text document \a document on the item.
 */
 void QGraphicsTextItem::setDocument(QTextDocument *document)
 {
@@ -4629,7 +4636,8 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
 }
 
 /*!
-    Sets the flags to specify how the text item should react to user input.
+    Sets the flags \a flags to specify how the text item should react to user
+    input.
 
     The default for a QGraphicsTextItem is Qt::NoTextInteraction. Setting a
     value different to Qt::NoTextInteraction will also set the ItemIsFocusable
@@ -4670,8 +4678,8 @@ public:
 };
 
 /*!
-    Constructs a QGraphicsItemGroup. \a parent is passed to QGraphicsItem's
-    constructor.
+    Constructs a QGraphicsItemGroup. \a parent and \a scene are
+    passed to QGraphicsItem's constructor.
 */
 QGraphicsItemGroup::QGraphicsItemGroup(QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsItemGroupPrivate, parent, scene)

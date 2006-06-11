@@ -2381,17 +2381,26 @@ void QGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
     \sa QGraphicsItem::wheelEvent()
 */
-void QGraphicsScene::wheelEvent(QGraphicsSceneWheelEvent *event)
+void QGraphicsScene::wheelEvent(QGraphicsSceneWheelEvent *wheelEvent)
 {
-    foreach (QGraphicsItem *item, items(event->scenePos())) {
-        event->setPos(item->mapFromScene(event->scenePos()));
-        event->accept();
-        item->sceneEvent(event);
-        if (event->isAccepted())
+    foreach (QGraphicsItem *item, items(wheelEvent->scenePos())) {
+        wheelEvent->setPos(item->mapFromScene(wheelEvent->scenePos()));
+        wheelEvent->accept();
+        item->sceneEvent(wheelEvent);
+        if (wheelEvent->isAccepted())
             break;
     }
 }
 
+/*!
+    This event handler, for event \a event, can be reimplemented in a
+    subclass to receive input method events for the scene.
+
+    The default implementation forwards the event to the focusItem().
+    If no item currently has focus, this function does nothing.
+
+    \sa QGraphicsItem::inputMethodEvent()
+*/
 void QGraphicsScene::inputMethodEvent(QInputMethodEvent *event)
 {
     Q_D(QGraphicsScene);

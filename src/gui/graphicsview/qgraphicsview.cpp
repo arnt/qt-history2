@@ -98,6 +98,8 @@ static const int GraphicsViewRegionRectThreshold = 20;
     view coordinates and scene coordinates, and to find items on the scene
     using view coordinates.
 
+    \img graphicsview-view.png
+
     \sa QGraphicsScene, QGraphicsItem, QGraphicsSceneEvent
 */
 

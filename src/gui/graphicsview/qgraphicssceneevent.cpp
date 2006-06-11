@@ -38,6 +38,21 @@
 */
 
 /*!
+    \enum QGraphicsSceneContextMenuEvent::Reason
+
+    This enum describes the reason why the context event was sent.
+
+    \value Mouse The mouse caused the event to be sent. Normally this means
+    the right mouse button was clicked, but this is platform dependent.
+    
+    \value Keyboard The keyboard caused this event to be sent. On Windows,
+    this means the menu button was pressed.
+    
+    \value Other The event was sent by some other means (i.e. not by the mouse
+    or keyboard).
+*/
+
+/*!
     \class QGraphicsSceneHoverEvent
     \since 4.2
     \ingroup multimedia
@@ -443,7 +458,7 @@ QPointF QGraphicsSceneWheelEvent::pos() const
 
 /*!
     Sets the position of the cursor in item coordinates when the wheel
-    event occurred.
+    event occurred to \a pos.
 
     \sa pos(), setScenePos(), setScreenPos()
 */
@@ -467,7 +482,7 @@ QPointF QGraphicsSceneWheelEvent::scenePos() const
 
 /*!
     Sets the position of the cursor in scene coordinates when the wheel
-    event occurred.
+    event occurred to \a pos.
 
     \sa scenePos(), setPos(), setScreenPos()
 */
@@ -491,7 +506,7 @@ QPoint QGraphicsSceneWheelEvent::screenPos() const
 
 /*!
     Sets the position of the cursor in screen coordinates when the wheel event
-    occurred.
+    occurred to \a pos.
 
     \sa screenPos(), setPos(), setScenePos()
 */
@@ -513,7 +528,8 @@ Qt::MouseButtons QGraphicsSceneWheelEvent::buttons() const
 }
 
 /*!
-    Sets the mouse buttons that were pressed when the wheel event occurred.
+    Sets the mouse buttons that were pressed when the wheel event occurred
+    to \a buttons.
 
     \sa buttons(), setModifiers()
 */
@@ -537,7 +553,7 @@ Qt::KeyboardModifiers QGraphicsSceneWheelEvent::modifiers() const
 
 /*!
     Sets the keyboard modifiers that were active when the wheel event
-    occurred.
+    occurred to \a modifiers.
 
     \sa modifiers(), setButtons()
 */
@@ -565,7 +581,7 @@ int QGraphicsSceneWheelEvent::delta() const
 }
 
 /*!
-    Sets the distance that the wheel is rotated.
+    Sets the distance that the wheel is rotated to \a delta.
 
     \sa delta()
 */
@@ -704,6 +720,8 @@ void QGraphicsSceneContextMenuEvent::setModifiers(Qt::KeyboardModifiers modifier
 
 /*!
     Returns the reason for the context menu event.
+
+    \sa setReason()
 */
 QGraphicsSceneContextMenuEvent::Reason QGraphicsSceneContextMenuEvent::reason() const
 {
@@ -712,7 +730,9 @@ QGraphicsSceneContextMenuEvent::Reason QGraphicsSceneContextMenuEvent::reason() 
 }
 
 /*!
-    Sets the reason for the context menu event.
+    Sets the reason for the context menu event to \a reason.
+
+    \sa reason()
 */
 void QGraphicsSceneContextMenuEvent::setReason(Reason reason)
 {
