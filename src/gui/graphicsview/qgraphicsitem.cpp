@@ -1419,8 +1419,8 @@ qreal QGraphicsItem::zValue() const
     that share the same Z-value will be drawn in an undefined order, although
     the order will stay the same for as long as the items live.
 
-    Children of different parents are stacked using the Z-value of
-    each item's ancestor which is an immediate child of the two
+    Children of different parents are stacked according to the Z-value of
+    each item's ancestor item which is an immediate child of the two
     items' closest common ancestor. For example, a robot item might
     define a torso item as the parent of a head item, two arm items,
     and two upper-leg items. The upper-leg items would each be parents
@@ -1429,7 +1429,7 @@ qreal QGraphicsItem::zValue() const
     stacking order of each foot's ancestor that is an immediate child
     of the two feet's common ancestor (i.e., the torso item); so the
     feet are stacked in the same order as the upper-leg items,
-    regardless of the feet's Z-values.
+    regardless of each foot's Z-value.
 
     The Z-value does not affect the item's size in any way.
 
