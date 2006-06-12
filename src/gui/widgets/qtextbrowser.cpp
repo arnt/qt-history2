@@ -33,9 +33,9 @@ class QTextBrowserPrivate : public QTextEditPrivate
 {
     Q_DECLARE_PUBLIC(QTextBrowser)
 public:
-    QTextBrowserPrivate()
-        : textOrSourceChanged(false), forceLoadOnSourceChange(false),
-          hadSelectionOnMousePress(false) {}
+    inline QTextBrowserPrivate()
+        : textOrSourceChanged(false), forceLoadOnSourceChange(false)
+    {}
 
     void init();
 
@@ -56,7 +56,6 @@ public:
       semantics when somebody connected to it calls setText() or
       setSource() */
     bool textOrSourceChanged;
-    QString highlightedAnchor; // Anchor below cursor
     bool forceLoadOnSourceChange;
 
 #ifndef QT_NO_CURSOR
@@ -72,11 +71,9 @@ public:
     }
 
     void _q_activateAnchor(const QString &href);
+    void _q_highlightLink(const QString &href);
 
     void setSource(const QUrl &url);
-
-    QString anchorOnMousePress;
-    bool hadSelectionOnMousePress;
 
 #ifdef QT_KEYPAD_NAVIGATION
     void keypadMove(bool next);
@@ -137,6 +134,30 @@ void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
         return;
 
     q->setSource(url);
+}
+
+void QTextBrowserPrivate::_q_highlightLink(const QString &anchor)
+{
+    Q_Q(QTextBrowser);
+    if (anchor.isEmpty()) {
+#ifndef QT_NO_CURSOR
+        if (viewport->cursor().shape() != Qt::PointingHandCursor)
+            oldCursor = viewport->cursor();
+        viewport->setCursor(oldCursor);
+#endif
+        emit q->highlighted(QUrl());
+        emit q->highlighted(QString());
+    } else {
+#ifndef QT_NO_CURSOR
+        viewport->setCursor(Qt::PointingHandCursor);
+#endif
+
+        const QUrl url = isAbsoluteFileName(currentURL.toLocalFile())
+                         ? currentURL.resolved(anchor) : QUrl(anchor);
+        emit q->highlighted(url);
+        // convenience to ease connecting to QStatusBar::showMessage(const QString &)
+        emit q->highlighted(url.toString());
+    }
 }
 
 void QTextBrowserPrivate::setSource(const QUrl &url)
@@ -358,6 +379,8 @@ void QTextBrowserPrivate::init()
     QObject::connect(q->document(), SIGNAL(contentsChanged()), q, SLOT(_q_documentModified()));
     QObject::connect(control, SIGNAL(activateLinkRequest(const QString &)),
                      q, SLOT(_q_activateAnchor(const QString &)));
+    QObject::connect(control, SIGNAL(linkHighlighted(const QString &)),
+                     q, SLOT(_q_highlightLink(const QString &)));
 }
 
 /*!
@@ -672,33 +695,7 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
 */
 void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
 {
-    Q_D(QTextBrowser);
     QTextEdit::mouseMoveEvent(e);
-
-    QString anchor = anchorAt(e->pos());
-    if (anchor == d->highlightedAnchor)
-        return;
-
-    if (anchor.isEmpty()) {
-#ifndef QT_NO_CURSOR
-        if (d->viewport->cursor().shape() != Qt::PointingHandCursor)
-            d->oldCursor = d->viewport->cursor();
-        d->viewport->setCursor(d->oldCursor);
-#endif
-        emit highlighted(QUrl());
-        emit highlighted(QString());
-    } else {
-#ifndef QT_NO_CURSOR
-        d->viewport->setCursor(Qt::PointingHandCursor);
-#endif
-
-        const QUrl url = isAbsoluteFileName(d->currentURL.toLocalFile())
-                         ? d->currentURL.resolved(anchor) : QUrl(anchor);
-        emit highlighted(url);
-        // convenience to ease connecting to QStatusBar::showMessage(const QString &)
-        emit highlighted(url.toString());
-    }
-    d->highlightedAnchor = anchor;
 }
 
 /*!
@@ -706,16 +703,7 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
 */
 void QTextBrowser::mousePressEvent(QMouseEvent *e)
 {
-    Q_D(QTextBrowser);
-    d->anchorOnMousePress = anchorAt(e->pos());
-    if (!d->control->textCursor().hasSelection() && !d->anchorOnMousePress.isEmpty()) {
-        QTextCursor cursor = cursorForPosition(e->pos());
-        setTextCursor(cursor);
-    }
-
     QTextEdit::mousePressEvent(e);
-
-    d->hadSelectionOnMousePress = d->control->textCursor().hasSelection();
 }
 
 /*!
@@ -723,20 +711,7 @@ void QTextBrowser::mousePressEvent(QMouseEvent *e)
 */
 void QTextBrowser::mouseReleaseEvent(QMouseEvent *e)
 {
-    Q_D(QTextBrowser);
     QTextEdit::mouseReleaseEvent(e);
-
-    if (!(e->button() & Qt::LeftButton))
-        return;
-
-    const QString anchor = anchorAt(e->pos());
-
-    if (anchor.isEmpty())
-        return;
-
-    if (!d->control->textCursor().hasSelection()
-        || (anchor == d->anchorOnMousePress && d->hadSelectionOnMousePress))
-        d->_q_activateAnchor(anchor);
 }
 
 /*!

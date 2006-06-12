@@ -122,6 +122,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_movieUpdated(const QRect&))
     Q_PRIVATE_SLOT(d_func(), void _q_movieResized(const QSize&))
 #endif
+    Q_PRIVATE_SLOT(d_func(), void _q_highlightLink(const QString &))
 
     Q_PRIVATE_SLOT(d_func(), void _q_copyLink())
 

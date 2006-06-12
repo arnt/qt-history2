@@ -79,7 +79,8 @@ QTextControlPrivate::QTextControlPrivate()
       preeditCursor(0), hideCursor(false),
       hasFocus(false),
       layoutDirection(QApplication::layoutDirection()),
-      isEnabled(true)
+      isEnabled(true),
+      hadSelectionOnMousePress(false)
 {}
 
 bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
@@ -1327,6 +1328,9 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
 {
     Q_Q(QTextControl);
 
+    if (interactionFlags & Qt::LinksAccessibleByMouse) {
+        anchorOnMousePress = q->anchorAt(pos);
+    }
     if (!(button & Qt::LeftButton))
         return;
 
@@ -1407,11 +1411,21 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
         selectionChanged();
     }
     repaintOldAndNewSelection(oldSelection);
+    hadSelectionOnMousePress = cursor.hasSelection();
 }
 
 void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF &mousePos)
 {
     Q_Q(QTextControl);
+
+    if (interactionFlags & Qt::LinksAccessibleByMouse) {
+        QString anchor = q->anchorAt(mousePos);
+        if (anchor != highlightedAnchor) {
+            highlightedAnchor = anchor;
+            emit q->linkHighlighted(anchor);
+        }
+    }
+
     if (!(buttons & Qt::LeftButton))
         return;
 
@@ -1497,6 +1511,20 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
     if (dragStartTimer.isActive())
         dragStartTimer.stop();
 #endif
+
+    if (interactionFlags & Qt::LinksAccessibleByMouse) {
+        if (!(button & Qt::LeftButton))
+            return;
+
+        const QString anchor = q->anchorAt(pos);
+
+        if (anchor.isEmpty())
+            return;
+
+        if (!cursor.hasSelection()
+            || (anchor == anchorOnMousePress && hadSelectionOnMousePress))
+            emit q->activateLinkRequest(anchor);
+    }
 }
 
 /*! \reimp

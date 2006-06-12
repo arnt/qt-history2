@@ -152,6 +152,10 @@ public:
     bool hasFocus;
     Qt::LayoutDirection layoutDirection;
     bool isEnabled;
+
+    QString highlightedAnchor; // Anchor below cursor
+    QString anchorOnMousePress;
+    bool hadSelectionOnMousePress;
 };
 
 #endif // QTEXTCONTROL_P_H

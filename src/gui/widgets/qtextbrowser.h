@@ -85,6 +85,7 @@ private:
     Q_DECLARE_PRIVATE(QTextBrowser)
     Q_PRIVATE_SLOT(d_func(), void _q_documentModified())
     Q_PRIVATE_SLOT(d_func(), void _q_activateAnchor(const QString &))
+    Q_PRIVATE_SLOT(d_func(), void _q_highlightLink(const QString &))
 };
 
 #endif // QT_NO_TEXTBROWSER

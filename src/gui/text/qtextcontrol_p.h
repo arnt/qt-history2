@@ -161,6 +161,7 @@ Q_SIGNALS:
     void visibilityRequest(const QRectF &rect);
     void microFocusChanged();
     void activateLinkRequest(const QString &link);
+    void linkHighlighted(const QString &);
 
 public:
     // control properties

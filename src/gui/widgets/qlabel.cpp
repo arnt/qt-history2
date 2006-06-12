@@ -82,6 +82,8 @@ public:
     void ensureTextControl();
     void sendControlEvent(QEvent *e);
 
+    void _q_highlightLink(const QString &link);
+
     QRect layoutRect() const;
     QRect documentRect() const;
     QPoint layoutPoint(const QPoint& p) const;
@@ -95,8 +97,6 @@ public:
     QCursor cursor;
 #endif
     QString linkToCopy; // for copy link
-    QString highlightedAnchor;
-    QString anchorWhenMousePressed;
 };
 
 /*!
@@ -372,22 +372,18 @@ void QLabel::setText(const QString &text)
     Q_D(QLabel);
     if (d->text == text)
         return;
-    const bool hadControl = d->control;
     d->clearContents();
     d->text = text;
     if (!d->doc) {
         d->doc = new QTextDocument(this);
         d->doc->setUndoRedoEnabled(false);
         d->doc->setDefaultFont(font());
-        if (hadControl) {
-            d->ensureTextControl();
-            d->control->setDocument(d->doc);
-        }
     }
 
     if (d->isRichText()) {
         d->doc->setHtml(text);
         setMouseTracking(true);
+        d->ensureTextControl();
     } else {
         d->doc->setPlainText(text);
         setMouseTracking(false);
@@ -754,9 +750,6 @@ void QLabel::mousePressEvent(QMouseEvent *ev)
     if (!d->doc)
         return;
 
-    QPoint p = d->layoutPoint(ev->pos());
-    d->anchorWhenMousePressed = d->doc->documentLayout()->anchorAt(p);
-
     d->sendControlEvent(ev);
 }
 
@@ -769,27 +762,6 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
         return;
 
     d->sendControlEvent(ev);
-
-    QPoint p = d->layoutPoint(mapFromGlobal(ev->globalPos()));
-    // check for links below mouse and change cursor
-    QString anchor = d->doc->documentLayout()->anchorAt(p);
-    if (anchor != d->highlightedAnchor) {
-        if (anchor.isEmpty()) { // restore cursor
-#ifndef QT_NO_CURSOR
-            setCursor(d->hasCustomCursor ? d->cursor : Qt::ArrowCursor);
-#endif
-            emit highlighted(QString());
-        } else {
-#ifndef QT_NO_CURSOR
-            d->hasCustomCursor = testAttribute(Qt::WA_SetCursor);
-            if (d->hasCustomCursor)
-                d->cursor = cursor();
-            setCursor(Qt::PointingHandCursor);
-#endif
-            emit highlighted(anchor);
-        }
-        d->highlightedAnchor = anchor; // save it so we dont keep emitting highlighted
-    }
 }
 
 /*!\reimp
@@ -801,12 +773,6 @@ void QLabel::mouseReleaseEvent(QMouseEvent *ev)
         return;
 
     d->sendControlEvent(ev);
-
-    // check for link clicks. ensure that the mouse press and release happenned on the same anchor
-    QPoint p = d->layoutPoint(ev->pos());
-    QString anchor = d->doc->documentLayout()->anchorAt(p);
-    if (!anchor.isEmpty() && anchor == d->anchorWhenMousePressed)
-        emit anchorClicked(anchor);
 }
 
 /*!\reimp
@@ -1354,14 +1320,36 @@ void QLabelPrivate::ensureTextControl()
     control->setFocus(q->hasFocus());
     QObject::connect(control, SIGNAL(updateRequest(const QRectF &)),
                      q, SLOT(update()));
+    QObject::connect(control, SIGNAL(linkHighlighted(const QString &)),
+                     q, SLOT(_q_highlightLink(const QString &)));
+    QObject::connect(control, SIGNAL(activateLinkRequest(const QString &)),
+                     q, SIGNAL(anchorClicked(const QString &)));
 }
 
 void QLabelPrivate::sendControlEvent(QEvent *e)
 {
     Q_Q(QLabel);
-    if (!control || !q->hasFocus())
+    if (!control)
         return;
     control->processEvent(e, -layoutRect().topLeft(), q);
+}
+
+void QLabelPrivate::_q_highlightLink(const QString &anchor)
+{
+    Q_Q(QLabel);
+    if (anchor.isEmpty()) { // restore cursor
+#ifndef QT_NO_CURSOR
+        q->setCursor(hasCustomCursor ? cursor : Qt::ArrowCursor);
+#endif
+    } else {
+#ifndef QT_NO_CURSOR
+        hasCustomCursor = q->testAttribute(Qt::WA_SetCursor);
+        if (hasCustomCursor)
+            cursor = q->cursor();
+        q->setCursor(Qt::PointingHandCursor);
+#endif
+    }
+    emit q->highlighted(anchor);
 }
 
 // Return the layout rect - this is the rect that is given to the layout painting code
