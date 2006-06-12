@@ -1125,6 +1125,7 @@ void QTextEdit::keyReleaseEvent(QKeyEvent *e)
             } else {
                 cursor.deletePreviousChar();
             }
+            setTextCursor(cursor);
         }
     }
 #else
