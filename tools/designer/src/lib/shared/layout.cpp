@@ -234,6 +234,10 @@ bool Layout::prepareLayout(bool &needMove, bool &needReparent)
             baseWidgetClassName = QLatin1String("QSplitter");
 
         layoutBase = widgetFactory->createWidget(baseWidgetClassName, widgetFactory->containerOfWidget(m_parentWidget));
+        if (useSplitter) {
+            layoutBase->setObjectName("splitter");
+            formWindow->ensureUniqueObjectName(layoutBase);
+        }
     } else {
         LayoutInfo::deleteLayout(formWindow->core(), layoutBase);
     }
