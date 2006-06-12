@@ -155,7 +155,7 @@ void QDesktopWidget::resizeEvent(QResizeEvent *)
     int newScreenCount;
     QDesktopWidgetPrivate::readScreenInformation(newDevs, newRects, newScreenCount);
     for (int i = 0; i < newScreenCount; ++i) {
-        if (i > oldScreenCount || newRects.at(i) != oldRects.at(i))
+        if (i >= oldScreenCount || newRects.at(i) != oldRects.at(i))
             emit resized(i);
     }
     d->screenCount = newScreenCount;
