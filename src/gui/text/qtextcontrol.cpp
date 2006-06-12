@@ -1571,7 +1571,7 @@ void QTextControlPrivate::contextMenuEvent(const QPoint &pos)
     Q_Q(QTextControl);
     if (!hasFocus)
         return;
-    QMenu *menu = q->createStandardContextMenu();
+    QMenu *menu = q->createStandardContextMenu(pos);
     menu->exec(pos);
     delete menu;
 #endif
@@ -1753,7 +1753,7 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
 }
 
 #ifndef QT_NO_CONTEXTMENU
-QMenu *QTextControl::createStandardContextMenu()
+QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
 {
     Q_D(QTextControl);
 
@@ -1774,6 +1774,14 @@ QMenu *QTextControl::createStandardContextMenu()
     a = menu->addAction(tr("&Copy") + ACCEL_KEY(C), this, SLOT(copy()));
     a->setEnabled(d->cursor.hasSelection());
 
+    d->linkToCopy = QString();
+    if (!pos.isNull())
+        d->linkToCopy = anchorAt(pos);
+    if ((d->interactionFlags & Qt::LinksAccessibleByKeyboard)
+            || (d->interactionFlags & Qt::LinksAccessibleByMouse)) {
+        a = menu->addAction(tr("Copy &Link Location"), this, SLOT(copyLink()));
+        a->setEnabled(!d->linkToCopy.isEmpty());
+    }
 
     if (d->interactionFlags & Qt::TextEditable) {
 #if !defined(QT_NO_CLIPBOARD)
@@ -2381,6 +2389,13 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
 
     d->doc->documentLayout()->draw(p, ctx);
     p->restore();
+}
+
+void QTextControlPrivate::copyLink()
+{
+    QMimeData *md = new QMimeData;
+    md->setText(linkToCopy);
+    QApplication::clipboard()->setMimeData(md);
 }
 
 #endif // QT_NO_TEXTCONTROL

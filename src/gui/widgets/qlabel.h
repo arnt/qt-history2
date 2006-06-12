@@ -124,8 +124,6 @@ private:
 #endif
     Q_PRIVATE_SLOT(d_func(), void _q_highlightLink(const QString &))
 
-    Q_PRIVATE_SLOT(d_func(), void _q_copyLink())
-
     friend class QTipLabel;
 };
 

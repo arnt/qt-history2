@@ -156,6 +156,9 @@ public:
     QString highlightedAnchor; // Anchor below cursor
     QString anchorOnMousePress;
     bool hadSelectionOnMousePress;
+
+    QString linkToCopy;
+    void copyLink();
 };
 
 #endif // QTEXTCONTROL_P_H

@@ -94,7 +94,7 @@ public:
 
     virtual QVariant loadResource(int type, const QUrl &name);
 #ifndef QT_NO_CONTEXTMENU
-    QMenu *createStandardContextMenu();
+    QMenu *createStandardContextMenu(const QPointF &pos = QPoint());
 #endif
 
     QTextCursor cursorForPosition(const QPointF &pos) const;
@@ -195,6 +195,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
     Q_PRIVATE_SLOT(d_func(), void deleteSelected())
     Q_PRIVATE_SLOT(d_func(), void setCursorAfterUndoRedo(int, int, int))
+    Q_PRIVATE_SLOT(d_func(), void copyLink())
 };
 
 QT_END_HEADER

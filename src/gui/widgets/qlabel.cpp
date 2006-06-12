@@ -90,13 +90,11 @@ public:
 #ifndef QT_NO_CONTEXTMENU
     QMenu *createStandardContextMenu(const QPoint &pos);
 #endif
-    void _q_copyLink();
 
     bool hasCustomCursor;
 #ifndef QT_NO_CURSOR
     QCursor cursor;
 #endif
-    QString linkToCopy; // for copy link
 };
 
 /*!
@@ -1378,46 +1376,19 @@ QPoint QLabelPrivate::layoutPoint(const QPoint& p) const
 #ifndef QT_NO_CONTEXTMENU
 QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
 {
-    Q_Q(QLabel);
-    linkToCopy = QString();
+    QString linkToCopy;
+    QPoint p;
     if (isRichText()) {
-        QPoint p = layoutPoint(pos);
+        p = layoutPoint(pos);
         linkToCopy = doc->documentLayout()->anchorAt(p);
     }
 
     if (linkToCopy.isEmpty() && !control)
         return 0;
 
-    QMenu *popup = 0;
-    QAction *beforeCopyLinkAction = 0;
-    if (control) {
-        popup = control->createStandardContextMenu();
-        // insert the copy link location between 'Copy' and the
-        // separator
-        QList<QAction *> actions = popup->actions();
-        if (actions.count() >= 2)
-            beforeCopyLinkAction = actions.at(1);
-    } else {
-        popup = new QMenu;
-    }
-
-    QAction *a = new QAction(popup);
-    a->setText(QLabel::tr("Copy &Link Location"));
-    a->setEnabled(!linkToCopy.isEmpty());
-    QObject::connect(a, SIGNAL(triggered()), q, SLOT(_q_copyLink()));
-    popup->insertAction(beforeCopyLinkAction, a);
-
-    return popup;
+    return control->createStandardContextMenu(p);
 }
 #endif
-
-void QLabelPrivate::_q_copyLink()
-{
-    QMimeData *md = new QMimeData;
-    md->setText(linkToCopy);
-    QApplication::clipboard()->setMimeData(md);
-}
-
 
 /*!  \fn void QLabel::highlighted(const QString &link)
      \overload
