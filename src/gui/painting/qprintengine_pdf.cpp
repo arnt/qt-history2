@@ -1065,7 +1065,7 @@ void QPdfEnginePrivate::embedFont(QFontSubset *font)
 
 void QPdfEnginePrivate::writeFonts()
 {
-    for (QHash<QFontEngine::FaceId, QFontSubset *>::iterator it = fonts.begin(); it != fonts.constEnd(); ++it) {
+    for (QHash<QFontEngine::FaceId, QFontSubset *>::iterator it = fonts.begin(); it != fonts.end(); ++it) {
         embedFont(*it);
         delete *it;
     }

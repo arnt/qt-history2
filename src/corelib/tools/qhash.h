@@ -273,12 +273,6 @@ public:
         inline T *operator->() const { return &concrete(i)->value; }
         inline bool operator==(const iterator &o) const { return i == o.i; }
         inline bool operator!=(const iterator &o) const { return i != o.i; }
-#ifndef QT_STRICT_ITERATORS
-        inline bool operator==(const const_iterator &o) const
-            { return i == reinterpret_cast<const iterator &>(o).i; }
-        inline bool operator!=(const const_iterator &o) const
-            { return i != reinterpret_cast<const iterator &>(o).i; }
-#endif
 
         inline iterator &operator++() {
             i = QHashData::nextNode(i);
@@ -303,6 +297,14 @@ public:
         inline iterator operator-(int j) const { return operator+(-j); }
         inline iterator &operator+=(int j) { return *this = *this + j; }
         inline iterator &operator-=(int j) { return *this = *this - j; }
+
+#ifdef QT_STRICT_ITERATORS
+    private: // must make them private to prevent implicit conversion to Node*
+#endif
+        inline bool operator==(const const_iterator &o) const
+            { return i == reinterpret_cast<const iterator &>(o).i; }
+        inline bool operator!=(const const_iterator &o) const
+            { return i != reinterpret_cast<const iterator &>(o).i; }
     };
     friend class iterator;
 
@@ -357,6 +359,13 @@ public:
         inline const_iterator operator-(int j) const { return operator+(-j); }
         inline const_iterator &operator+=(int j) { return *this = *this + j; }
         inline const_iterator &operator-=(int j) { return *this = *this - j; }
+#ifdef QT_STRICT_ITERATORS
+    private:
+        // need to make these operators explicitely private, otherwise operator Node*
+        // is used for comparison
+        inline bool operator==(const iterator &o) const { return operator==(const_iterator(o)); }
+        inline bool operator!=(const iterator &o) const { return operator!=(const_iterator(o)); }
+#endif
     };
     friend class const_iterator;
 

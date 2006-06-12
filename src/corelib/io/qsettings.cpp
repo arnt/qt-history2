@@ -1752,14 +1752,14 @@ void QConfFileSettingsPrivate::ensureSectionParsed(QConfFile *confFile,
     int indexOfSlash = key.indexOf(QLatin1Char('/'));
     if (indexOfSlash != -1) {
         i = confFile->unparsedIniSections.upperBound(key);
-        if (i == confFile->unparsedIniSections.constBegin())
+        if (i == confFile->unparsedIniSections.begin())
             return;
         --i;
         if (i.key().isEmpty() || !key.startsWith(i.key()))
             return;
     } else {
         i = confFile->unparsedIniSections.begin();
-        if (i == confFile->unparsedIniSections.constEnd() || !i.key().isEmpty())
+        if (i == confFile->unparsedIniSections.end() || !i.key().isEmpty())
             return;
     }
 

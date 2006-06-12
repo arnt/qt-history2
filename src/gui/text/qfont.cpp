@@ -1380,7 +1380,7 @@ QString QFont::substitute(const QString &familyName)
 
     QFontSubst *fontSubst = globalFontSubst();
     Q_ASSERT(fontSubst != 0);
-    QFontSubst::Iterator it = fontSubst->find(familyName.toLower());
+    QFontSubst::ConstIterator it = fontSubst->constFind(familyName.toLower());
     if (it != fontSubst->constEnd() && !(*it).isEmpty())
         return (*it).first();
 

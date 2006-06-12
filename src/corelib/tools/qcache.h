@@ -45,7 +45,7 @@ class QCache
     }
     inline T *relink(const Key &key) {
         typename QHash<Key, Node>::iterator i = hash.find(key);
-        if (i == hash.constEnd())
+        if (typename QHash<Key, Node>::const_iterator(i) == hash.constEnd())
             return 0;
 
         Node &n = *i;
@@ -124,7 +124,7 @@ template <class Key, class T>
 inline bool QCache<Key,T>::remove(const Key &key)
 {
     typename QHash<Key, Node>::iterator i = hash.find(key);
-    if (i == hash.constEnd()) {
+    if (typename QHash<Key, Node>::const_iterator(i) == hash.constEnd()) {
         return false;
     } else {
         unlink(*i);
@@ -136,7 +136,7 @@ template <class Key, class T>
 inline T *QCache<Key,T>::take(const Key &key)
 {
     typename QHash<Key, Node>::iterator i = hash.find(key);
-    if (i == hash.constEnd())
+    if (i == hash.end())
         return 0;
 
     Node &n = *i;

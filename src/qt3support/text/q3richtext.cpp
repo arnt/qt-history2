@@ -4698,7 +4698,7 @@ void Q3TextParagraph::paint(QPainter &painter, const QPalette &pal, Q3TextCursor
                     bool inSelection = false;
                     if (drawSelections) {
                         QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->constFind(Q3TextDocument::Standard);
-                        inSelection = (it != mSelections->end() && (*it).start <= i && (*it).end > i);
+                        inSelection = (it != mSelections->constEnd() && (*it).start <= i && (*it).end > i);
                     }
                     chr->customItem()->draw(&painter, chr->x, y,
                                              clipx == -1 ? clipx : (clipx - r.x()),
@@ -4797,7 +4797,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
     bool allSelected = false;
     if (drawSelections) {
         QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->constFind(Q3TextDocument::Standard);
-        allSelected = (it != mSelections->end() && (*it).start <= start && (*it).end >= start+len);
+        allSelected = (it != mSelections->constEnd() && (*it).start <= start && (*it).end >= start+len);
     }
     if (!allSelected)
         painter.drawText(xstart, y + baseLine, str.mid(start, len));
@@ -4820,7 +4820,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
     // check if we are in a selection and draw it
     if (drawSelections) {
         QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->constEnd();
-        while (it != mSelections->begin()) {
+        while (it != mSelections->constBegin()) {
             --it;
             int selStart = (*it).start;
             int selEnd = (*it).end;

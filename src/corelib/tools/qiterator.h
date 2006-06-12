@@ -128,10 +128,11 @@ template <class Key, class T> \
 class QMutable##C##Iterator \
 { \
     typedef typename Q##C<Key,T>::iterator iterator; \
+    typedef typename Q##C<Key,T>::const_iterator const_iterator; \
     typedef iterator Item; \
     Q##C<Key,T> *c; \
     iterator i, n; \
-    inline bool item_exists() const { return n != c->constEnd(); } \
+    inline bool item_exists() const { return const_iterator(n) != c->constEnd(); } \
 public: \
     inline QMutable##C##Iterator(Q##C<Key,T> &container) \
         : c(&container) \
@@ -142,22 +143,22 @@ public: \
     { c->setSharable(true); c = &container; c->setSharable(false); i = c->begin(); n = c->end(); return *this; } \
     inline void toFront() { i = c->begin(); n = c->end(); } \
     inline void toBack() { i = c->end(); n = c->end(); } \
-    inline bool hasNext() const { return i != c->constEnd(); } \
+    inline bool hasNext() const { return const_iterator(i) != c->constEnd(); } \
     inline Item next() { n = i++; return n; } \
     inline Item peekNext() const { return i; } \
-    inline bool hasPrevious() const { return i != c->constBegin(); } \
+    inline bool hasPrevious() const { return const_iterator(i) != c->constBegin(); } \
     inline Item previous() { n = --i; return n; } \
     inline Item peekPrevious() const { iterator p = i; return --p; } \
     inline void remove() \
-    { if (n != c->constEnd()) { i = c->erase(n); n = c->end(); } } \
-    inline void setValue(const T &t) { if (n != c->constEnd()) *n = t; } \
+    { if (const_iterator(n) != c->constEnd()) { i = c->erase(n); n = c->end(); } } \
+    inline void setValue(const T &t) { if (const_iterator(n) != c->constEnd()) *n = t; } \
     inline T &value() { Q_ASSERT(item_exists()); return *n; } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline const Key &key() const { Q_ASSERT(item_exists()); return n.key(); } \
     inline bool findNext(const T &t) \
-    { while ((n = i) != c->constEnd()) if (*i++ == t) return true; return false; } \
+    { while (const_iterator(n = i) != c->constEnd()) if (*i++ == t) return true; return false; } \
     inline bool findPrevious(const T &t) \
-    { while (i != c->constBegin()) if (*(n = --i) == t) return true; \
+    { while (const_iterator(i) != c->constBegin()) if (*(n = --i) == t) return true; \
       n = c->end(); return false; } \
 };
 

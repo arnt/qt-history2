@@ -110,7 +110,7 @@ public:
         Q_ASSERT(p);
         QMap<QModelIndex, Mapping *>::const_iterator it =
             reinterpret_cast<QMap<QModelIndex, Mapping *>::const_iterator & >(p);
-        Q_ASSERT(it != source_index_mapping.end());
+        Q_ASSERT(it != source_index_mapping.constEnd());
         Q_ASSERT(it.value());
         return it;
     }
@@ -240,7 +240,7 @@ IndexMap::const_iterator QSortFilterProxyModelPrivate::create_mapping(
     if (source_parent.isValid()) {
         QModelIndex source_grand_parent = source_parent.parent();
         IndexMap::const_iterator it2 = create_mapping(source_grand_parent);
-        Q_ASSERT(it2 != source_index_mapping.end());
+        Q_ASSERT(it2 != source_index_mapping.constEnd());
         it2.value()->mapped_children.append(source_parent);
     }
 
@@ -535,7 +535,7 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
 {
     Q_Q(QSortFilterProxyModel);
     IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
-    if (it == source_index_mapping.end()) {
+    if (it == source_index_mapping.constEnd()) {
         // Don't care, since we don't have mapping for this index
         return;
     }
@@ -584,7 +584,7 @@ void QSortFilterProxyModelPrivate::source_items_removed(
     const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
 {
     IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
-    if (it == source_index_mapping.end()) {
+    if (it == source_index_mapping.constEnd()) {
         // Don't care, since we don't have mapping for this index
         return;
     }
@@ -798,7 +798,7 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
     Q_Q(QSortFilterProxyModel);
     QModelIndex source_parent = source_top_left.parent();
     IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
-    if (it == source_index_mapping.end()) {
+    if (it == source_index_mapping.constEnd()) {
         // Don't care, since we don't have mapping for this index
         return;
     }
@@ -1221,7 +1221,7 @@ QModelIndex QSortFilterProxyModel::parent(const QModelIndex &child) const
     if (!d->indexValid(child))
         return QModelIndex();
     IndexMap::const_iterator it = d->index_to_iterator(child);
-    Q_ASSERT(it != d->source_index_mapping.end());
+    Q_ASSERT(it != d->source_index_mapping.constEnd());
     QModelIndex source_parent = it.key();
     QModelIndex proxy_parent = d->source_to_proxy(source_parent);
     return proxy_parent;
