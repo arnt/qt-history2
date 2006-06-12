@@ -29,6 +29,8 @@
 static const bool simple_8bpp_alloc = true; //### 8bpp support not done
 static const int max_lock_time = -1; // infinite
 
+// #define QT_USE_MEMCPY_DUFF
+
 #ifndef QT_NO_QWS_CURSOR
 bool qt_sw_cursor=false;
 Q_GUI_EXPORT QScreenCursor * qt_screencursor = 0;
@@ -1023,7 +1025,11 @@ static void blit_16_to_16(const blit_data *data)
 
     int h = data->h;
     while (h) {
+#ifdef QT_USE_MEMCPY_DUFF
         QT_MEMCPY_USHORT(dest, src, data->w);
+#else
+        memcpy(dest, src, data->w * 2);
+#endif
         src += sbpl;
         dest += dbpl;
         --h;
