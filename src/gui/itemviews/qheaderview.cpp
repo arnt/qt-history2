@@ -1558,9 +1558,9 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     const int height = d->viewport->height();
     const bool active = isActiveWindow();
     for (int i = start; i <= end; ++i) {
-        painter.save();
         if (d->isVisualIndexHidden(i))
             continue;
+        painter.save();
         logical = logicalIndex(i);
         bool highlight = false;
         if (orientation() == Qt::Horizontal) {
