@@ -13,9 +13,10 @@
 
 /*!
     \class QGraphicsScene
-
     \brief The QGraphicsScene class provides a surface for managing a large
     number of 2D graphical items.
+    \since 4.2
+    \ingroup multimedia
 
     The class serves as a container for QGraphicsItems. It is used together
     with QGraphicsView for visualizing graphical items, such as lines,

@@ -4664,9 +4664,10 @@ Qt::TextInteractionFlags QGraphicsTextItem::textInteractionFlags() const
 
 /*!
     \class QGraphicsItemGroup
-
     \brief The QGraphicsItemGroup class provides treating a group of items as
     one.
+    \since 4.2
+    \ingroup multimedia
 */
 
 class QGraphicsItemGroupPrivate : public QGraphicsItemPrivate

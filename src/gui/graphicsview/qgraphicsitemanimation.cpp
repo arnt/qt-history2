@@ -15,6 +15,8 @@
     \class QGraphicsItemAnimation
     \brief The QGraphicsItemAnimation class provides simple animation
     support for QGraphicsItem.
+    \since 4.2
+    \ingroup multimedia
 */
 
 #include "qgraphicsitemanimation.h"
