@@ -506,6 +506,7 @@ CFG_ENDIAN=auto
 CFG_IWMMXT=no
 CFG_GETADDRINFO=auto
 CFG_IPV6IFNAME=auto
+CFG_GETIFADDRS=auto
 CFG_RPATH=yes
 CFG_FRAMEWORK=auto
 CFG_UNIVERSAL_BINARY=auto
@@ -3813,6 +3814,23 @@ if [ "$CFG_IPV6IFNAME" != "no" ]; then
     fi
 fi
 
+# find if the platform provides getifaddrs (network interface enumeration)
+if [ "$CFG_GETIFADDRS" != "no" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/getifaddrs "getifaddrs" $L_FLAGS $I_FLAGS $l_FLAGS; then
+        CFG_GETIFADDRS=yes
+    else
+        if [ "$CFG_GETIFADDRS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+            echo "getifaddrs support cannot be enabled due to functionality tests!"
+            echo " Turn on verbose messaging (-v) to $0 to see the final report."
+            echo " If you believe this message is in error you may use the continue"
+            echo " switch (-continue) to $0 to continue."
+            exit 101
+        else
+	    CFG_GETIFADDRS=no
+	fi
+    fi
+fi
+
 # find if the platform supports X/Open Large File compilation environment
 if [ "$CFG_LARGEFILE" != "no" ]; then
     if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/largefile "X/Open Large File" $L_FLAGS $I_FLAGS $l_FLAGS; then
@@ -3948,6 +3966,9 @@ if [ "$CFG_GETADDRINFO" = "yes" ]; then
 fi
 if [ "$CFG_IPV6IFNAME" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG ipv6ifname"
+fi
+if [ "$CFG_GETIFADDRS" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG getifaddrs"
 fi
 if [ "$CFG_LIBJPEG" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-jpeg"
@@ -4409,6 +4430,7 @@ QMakeVar set sql-plugins "$SQL_PLUGINS"
 [ "$CFG_GLIB" != "yes" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GLIB"
 [ "$CFG_GETADDRINFO" = "no" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETADDRINFO"
 [ "$CFG_IPV6IFNAME" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6IFNAME"
+[ "$CFG_GETIFADDRS" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETIFADDRS"
 [ "$CFG_NAS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NAS"
 [ "$CFG_NIS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NIS"
 [ "$CFG_SM" = "no" ]         && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SESSIONMANAGER"
@@ -4711,6 +4733,7 @@ echo "MMX/SSE support ..... $CFG_HAVE_SSE"
 echo "IPv6 support ........ $CFG_IPV6"
 echo "IPv6 ifname support . $CFG_IPV6IFNAME"
 echo "getaddrinfo support . $CFG_GETADDRINFO"
+echo "getifaddrs support... $CFG_GETIFADDRS"
 echo "Accessibility ....... $CFG_ACCESSIBILITY"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
