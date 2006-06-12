@@ -72,10 +72,11 @@ void QActionGroupPrivate::_q_actionHovered()
     \ingroup application
 
     In some situations it is useful to group actions together. For
-    example, if you have a left justify action, a right justify action
-    and a center action, only one of these actions should be active at
-    any one time. One simple way of achieving this is to group the
-    actions together in an action group.
+    example, if you have a \gui{Left Align} action, a \l{Right Right}
+    action, a \gui{Justify} action, and a \gui{Center} action, only
+    one of these actions should be active at any one time. One simple
+    way of achieving this is to group the actions together in an
+    action group.
 
     An action group can also be added to a menu or a toolbar as a
     single unit, with all the actions within the action group
@@ -87,12 +88,14 @@ void QActionGroupPrivate::_q_actionHovered()
     \skipto new QActionGroup
     \printuntil leftAlignAct->setChecked
 
-    Here we create a new action group. Since the action group is exclusive
-    by default, only one of the actions in the group is ever active at any
-    one time.
+    Here we create a new action group. Since the action group is
+    exclusive by default, only one of the actions in the group is
+    checked at any one time.
 
-    A QActionGroup emits an triggered() signal when one of its actions
-    is activated. Each action in an action group emits its
+    \img qactiongroup-align.png Alignment options in a QMenu
+
+    A QActionGroup emits an triggered() signal when one of its
+    actions is chosen. Each action in an action group emits its
     triggered() signal as usual.
 
     As stated above, an action group is \l exclusive by default; it
