@@ -39,6 +39,7 @@
 #include <QPushButton>
 #include <QTextStream>
 #include <QFile>
+#include <QDebug>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -441,7 +442,7 @@ void QVFb::findSkins(const QString &currentSkin)
 {
     skinnames.clear();
     skinfiles.clear();
-    QDir dir(".","*.skin");
+    QDir dir(":/skins/","*.skin");
     const QFileInfoList l = dir.entryInfoList();
     int i = 1; // "None" is already in list at index 0
     for (QFileInfoList::const_iterator it = l.begin(); it != l.end(); ++it) {

@@ -44,4 +44,17 @@ contains(QT_CONFIG, system-zlib) {
 	INCLUDEPATH     += $$QT_SOURCE_TREE/src/3rdparty/zlib
 }
 
-RESOURCES	+= qvfb.qrc
+RESOURCES	+= qvfb.qrc \
+                   ClamshellPhone.qrc \
+                   PDAPhone.qrc \
+                   pda.qrc \
+                   QtopiaPDA.qrc \
+                   QtopiaPhone-Advanced.qrc \
+                   QtopiaPhone-Simple.qrc \
+                   SmartPhone2.qrc \
+                   SmartPhone.qrc \
+                   SmartPhoneWithButtons.qrc \
+                   TouchscreenPhone.qrc \
+                   Trolltech-Keypad.qrc \
+                   Trolltech-Touchscreen.qrc
+
