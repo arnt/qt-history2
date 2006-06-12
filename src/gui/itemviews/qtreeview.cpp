@@ -1062,8 +1062,13 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
             painter->fillRect(opt.rect, fill);
             QRect branches(reverse ? position + width - i : position, y, i, height);
+            QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
+                              ? QPalette::Normal : QPalette::Disabled;
+            if (cg == QPalette::Normal && !(option.state & QStyle::State_Active))
+                cg = QPalette::Inactive;
+
             if ((opt.state & QStyle::State_Selected) && option.showDecorationSelected)
-                painter->fillRect(branches, opt.palette.brush(QPalette::Highlight));
+                painter->fillRect(branches, opt.palette.brush(cg, QPalette::Highlight));
             else
                 painter->fillRect(branches, fill);
             drawBranches(painter, branches, index);
