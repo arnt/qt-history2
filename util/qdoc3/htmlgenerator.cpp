@@ -902,7 +902,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     if (!fake->groupMembers().isEmpty()) {
         QMap<QString, const Node *> groupMembersMap;
         foreach (Node *node, fake->groupMembers()) {
-            if (node->type() == Node::Class)
+            if (node->type() == Node::Class || node->type() == Node::Namespace)
                 groupMembersMap[node->name()] = node;
         }
         generateAnnotatedList(fake, marker, groupMembersMap);
