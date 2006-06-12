@@ -1,11 +1,11 @@
 Qt COMMERCIAL LICENSE AGREEMENT
-Agreement version 3.1
+Agreement version 3.2
 
 IMPORTANT-READ CAREFULLY: 
 
 1. This Trolltech End-User License Agreement ("Agreement") is a legal
 agreement between you (either an individual or a legal entity)
-("Licensee") and Trolltech AS ("Trolltech") for the Trolltech software
+("Licensee") and Trolltech ASA ("Trolltech") for the Trolltech software
 product(s) accompanying this Agreement, which include(s) computer
 software and may include "online" or electronic documentation,
 associated media, and printed materials, including the source code,
@@ -33,9 +33,9 @@ a full refund. In addition, by installing, copying, or otherwise using
 any updates or other components of the Licensed Software that Licensee
 receives separately as part of the Licensed Software ("Updates"),
 Licensee agrees to be bound by any additional license terms that
-accompany such Updates. If Licensee does not agree to the additional
-license terms that accompany such Updates, Licensee may not install,
-copy, or otherwise use such Updates. 
+accompany such Updates, if any. If Licensee does not agree to the
+additional license terms that accompany such Updates, Licensee may not
+install, copy, or otherwise use such Updates. 
 
 5. Upon Licensee's acceptance of the terms and conditions of this
 Agreement, Trolltech grants Licensee the right to use the Licensed
@@ -136,6 +136,7 @@ distribution license agreement.
 d) In all instances not covered above, Licensee shall contact Trolltech
 or one of Trolltech's authorized distributors to obtain a distribution
 license agreement. 
+
 
 11. The license granted in this Agreement for Licensee to create
 Applications and distribute them and the Redistributables (if any) to
@@ -301,17 +302,17 @@ in this Agreement.
  
 Appendix 1:
 
-1. Parts of the Licensed Software that are permitted for distribution
-("Redistributables"):
+1.	Parts of the Licensed Software that are permitted for
+distribution ("Redistributables"): 
 
 - The Licensed Software's main and plug-in libraries in object code form
 - The Licensed Software's configuration tool ("qtconfig")
 - The Licensed Software's help tool in object code/executable form ("Qt
 Assistant")
 - The Licensed Software's internationalization tools in object
-code/executable form ("Qt Linguist", "lupdate", "lrelease")
+code/executable form ("Qt Linguist", "lupdate", "lrelease") 
 
-2. Parts of the Licensed Software that are not permitted for
+2.	Parts of the Licensed Software that are not permitted for
 distribution include, but are not limited to: 
 
 - The Licensed Software's source code and header files

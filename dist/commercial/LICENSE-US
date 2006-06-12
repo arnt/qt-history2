@@ -1,5 +1,5 @@
 Qt COMMERCIAL LICENSE AGREEMENT
-Agreement version 3.1
+Agreement version 3.2
 
 IMPORTANT-READ CAREFULLY: 
 
@@ -33,9 +33,9 @@ a full refund. In addition, by installing, copying, or otherwise using
 any updates or other components of the Licensed Software that Licensee
 receives separately as part of the Licensed Software ("Updates"),
 Licensee agrees to be bound by any additional license terms that
-accompany such Updates. If Licensee does not agree to the additional
-license terms that accompany such Updates, Licensee may not install,
-copy, or otherwise use such Updates. 
+accompany such Updates, if any. If Licensee does not agree to the
+additional license terms that accompany such Updates, Licensee may not
+install, copy, or otherwise use such Updates. 
 
 5. Upon Licensee's acceptance of the terms and conditions of this
 Agreement, Trolltech grants Licensee the right to use the Licensed
@@ -212,6 +212,7 @@ according to section 15 below.
 Support and Updates following the Initial Term at Trolltech's terms and
 conditions applicable at the time of renewal. 
 
+
 GENERAL PROVISIONS
 16. Marketing: Trolltech may include Licensee's company name and logo in
 a publicly available list of Trolltech customers. 
@@ -315,24 +316,30 @@ Receiving Party under this Section shall continue as long as such
 information remains a trade secret under applicable law. 
 
 24. Governing law, legal venue: This Agreement shall be construed,
-interpreted and governed by the laws of Norway, the legal venue to be
-Oslo City Court. Trolltech reserves all rights not specifically granted
-in this Agreement. 
+interpreted and governed by the laws of the State of California, USA.
+Any action or proceeding arising from or relating to this Agreement
+shall be brought in a federal court in the Northern District of
+California or in the State Court in Santa Clara County, California, and
+each party irrevocably submits to the personal jurisdiction of any such
+court in any such action or proceeding. The Agreement gives Licensee
+specific legal rights; Licensee may have others, which vary from state
+to state and from country to country. Trolltech reserves all rights not
+specifically granted in this Agreement. 
 
  
 Appendix 1:
 
 1. Parts of the Licensed Software that are permitted for distribution
-("Redistributables"):
+("Redistributables"): 
 
 - The Licensed Software's main and plug-in libraries in object code form
 - The Licensed Software's configuration tool ("qtconfig")
 - The Licensed Software's help tool in object code/executable form ("Qt
 Assistant")
 - The Licensed Software's internationalization tools in object
-code/executable form ("Qt Linguist", "lupdate", "lrelease")
+code/executable form ("Qt Linguist", "lupdate", "lrelease") 
 
-2. Parts of the Licensed Software that are not permitted for
+2.	Parts of the Licensed Software that are not permitted for
 distribution include, but are not limited to: 
 
 - The Licensed Software's source code and header files
