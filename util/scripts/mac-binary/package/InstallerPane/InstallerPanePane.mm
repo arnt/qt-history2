@@ -74,10 +74,38 @@
     [nameField selectText:self];
 }
 
+- (void)manipulateEditorString:(NSTextField *) textField
+{
+    NSString *string = [[textField currentEditor] string];
+    NSRange range = [string rangeOfString:@"-"];
+    if (range.location == NSNotFound) {
+        return;
+    } else {
+        NSString *theBeginning = [string substringToIndex:range.location];
+        NSString *theRest = [string substringFromIndex:range.location + 1];
+        NSText *ed = [textField currentEditor];
+        [ed setString:theBeginning];
+        NSView *nextView = [textField nextValidKeyView];
+        if (nextView != nil && [nextView class] == [textField class]) {
+            NSTextField *nextTextField = (NSTextField *)nextView;
+            [[nextTextField window] makeFirstResponder: nextTextField];
+            ed = [nextTextField currentEditor];
+            [ed setString:theRest];
+            // Bubble this along to catch extra dashes
+            [self manipulateEditorString:nextTextField];
+        }
+    }
+}
+
 - (void)controlTextDidChange:(NSNotification *)aNotification
 {
-    [self checkName];
-    [self checkLicense];
+    NSTextField *itemThatChanged = [aNotification object];
+    if (itemThatChanged == nameField) {
+        [self checkName];
+    } else if (itemThatChanged != nil) {
+        [self manipulateEditorString: itemThatChanged];
+        [self checkLicense];
+    }
 }
 
 

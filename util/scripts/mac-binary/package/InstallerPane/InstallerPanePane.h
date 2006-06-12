@@ -21,4 +21,5 @@
 - (void)checkLicense;
 - (void)checkName;
 - (void)tryEnable;
+- (void)manipulateEditorString:(NSTextField *)TextField;
 @end
