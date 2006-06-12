@@ -85,7 +85,7 @@ public:
     QRect layoutRect() const;
     QRect documentRect() const;
     QPoint layoutPoint(const QPoint& p) const;
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
     QMenu *createStandardContextMenu(const QPoint &pos);
 #endif
     void _q_copyLink();
@@ -810,7 +810,7 @@ void QLabel::mouseReleaseEvent(QMouseEvent *ev)
 */
 void QLabel::contextMenuEvent(QContextMenuEvent *ev)
 {
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
     Q_D(QLabel);
     QMenu *menu = d->createStandardContextMenu(ev->pos());
     if (!menu) {
@@ -1380,7 +1380,7 @@ QPoint QLabelPrivate::layoutPoint(const QPoint& p) const
     return p - lr.topLeft();
 }
 
-#ifndef QT_NO_MENU
+#ifndef QT_NO_CONTEXTMENU
 QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
 {
     Q_Q(QLabel);
