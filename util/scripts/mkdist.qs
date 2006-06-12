@@ -824,7 +824,7 @@ function qdoc(packageDir, platform, license)
 function defaultTags(platform, license, platName)
 {
     var replace = new Array();
-
+    replace["\\$TROLLTECH\\$"] = "Trolltech ASA";
     replace["\\$THISYEAR\\$"] = startDate.getYear().toString();
     replace["\\%VERSION\\%"] = options["version"];
     if (platform == "core")
