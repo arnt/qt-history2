@@ -411,7 +411,6 @@ void QTextBrowserPrivate::keypadMove(bool next)
             }
         } else {
             if (cursYOffset < yOffset) {
-                qDebug("1");
                 vbar->setValue(yOffset - height + overlap);
                 if (cursYOffset < vbar->value()) {
                     emit q->highlighted(QUrl());
@@ -419,7 +418,6 @@ void QTextBrowserPrivate::keypadMove(bool next)
                     return;
                 }
             } else if (cursYOffset > yOffset + height) {
-                qDebug("2");
                 if (yOffset > 0)
                     vbar->setValue(yOffset - height + overlap);
                 else
