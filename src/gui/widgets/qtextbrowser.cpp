@@ -71,10 +71,9 @@ public:
         forceLoadOnSourceChange = true;
     }
 
-    void activateAnchor(const QString &href);
+    void _q_activateAnchor(const QString &href);
 
     void setSource(const QUrl &url);
-    bool findNextPrevAnchor(bool next, int &start, int &end);
 
     QString anchorOnMousePress;
     bool hadSelectionOnMousePress;
@@ -82,26 +81,7 @@ public:
 #ifdef QT_KEYPAD_NAVIGATION
     void keypadMove(bool next);
 #endif
-    QTextCursor focusIndicator;
-    void updateFocusIndicator();
 };
-
-void QTextBrowserPrivate::updateFocusIndicator()
-{
-    Q_Q(QTextBrowser);
-
-    QList<QTextEdit::ExtraSelection> sels;
-
-    if (focusIndicator.hasSelection()) {
-        QTextEdit::ExtraSelection selection;
-        selection.cursor = focusIndicator;
-        QPen outline(q->palette().color(QPalette::Text), 1, Qt::DotLine);
-        selection.format.setProperty(QTextFormat::OutlinePen, outline);
-        sels.append(selection);
-    }
-
-    q->setExtraSelections(sels);
-}
 
 static bool isAbsoluteFileName(const QString &name)
 {
@@ -141,7 +121,7 @@ QString QTextBrowserPrivate::findFile(const QUrl &name) const
     return path.absoluteFilePath();
 }
 
-void QTextBrowserPrivate::activateAnchor(const QString &href)
+void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
 {
     if (href.isEmpty())
         return;
@@ -233,164 +213,15 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
     emit q->sourceChanged(url);
 }
 
-bool QTextBrowserPrivate::findNextPrevAnchor(bool next, int &start, int &end)
-{
-    QTextDocument *doc = control->document();
-    if (!focusIndicator.hasSelection()) {
-        focusIndicator = QTextCursor(doc);
-        if (next)
-            focusIndicator.movePosition(QTextCursor::Start);
-        else
-            focusIndicator.movePosition(QTextCursor::End);
-    }
-
-    Q_ASSERT(!focusIndicator.isNull());
-
-    int anchorStart = -1;
-    int anchorEnd = -1;
-
-    if (next) {
-        const int startPos = focusIndicator.selectionEnd();
-
-        QTextBlock block = doc->findBlock(startPos);
-        QTextBlock::Iterator it = block.begin();
-
-        while (!it.atEnd() && it.fragment().position() < startPos)
-            ++it;
-
-        while (block.isValid()) {
-            anchorStart = -1;
-
-            // find next anchor
-            for (; !it.atEnd(); ++it) {
-                const QTextFragment fragment = it.fragment();
-                const QTextCharFormat fmt = fragment.charFormat();
-
-                if (fmt.isAnchor() && fmt.hasProperty(QTextFormat::AnchorHref)) {
-                    anchorStart = fragment.position();
-                    break;
-                }
-            }
-
-            if (anchorStart != -1) {
-                anchorEnd = -1;
-
-                // find next non-anchor fragment
-                for (; !it.atEnd(); ++it) {
-                    const QTextFragment fragment = it.fragment();
-                    const QTextCharFormat fmt = fragment.charFormat();
-
-                    if (!fmt.isAnchor()) {
-                        anchorEnd = fragment.position();
-                        break;
-                    }
-                }
-
-                if (anchorEnd == -1)
-                    anchorEnd = block.position() + block.length() - 1;
-
-                // make found selection
-                break;
-            }
-
-            block = block.next();
-            it = block.begin();
-        }
-    } else {
-        int startPos = focusIndicator.selectionStart();
-        if (startPos > 0)
-            --startPos;
-
-        QTextBlock block = doc->findBlock(startPos);
-        QTextBlock::Iterator blockStart = block.begin();
-        QTextBlock::Iterator it = block.end();
-
-        if (startPos == block.position()) {
-            it = block.begin();
-        } else {
-            do {
-                if (it == blockStart) {
-                    it = QTextBlock::Iterator();
-                    block = QTextBlock();
-                } else {
-                    --it;
-                }
-            } while (!it.atEnd() && it.fragment().position() + it.fragment().length() - 1 > startPos);
-        }
-
-        while (block.isValid()) {
-            anchorStart = -1;
-
-            if (!it.atEnd()) {
-                do {
-                    const QTextFragment fragment = it.fragment();
-                    const QTextCharFormat fmt = fragment.charFormat();
-
-                    if (fmt.isAnchor() && fmt.hasProperty(QTextFormat::AnchorHref)) {
-                        anchorStart = fragment.position() + fragment.length();
-                        break;
-                    }
-
-                    if (it == blockStart)
-                        it = QTextBlock::Iterator();
-                    else
-                        --it;
-                } while (!it.atEnd());
-            }
-
-            if (anchorStart != -1 && !it.atEnd()) {
-                anchorEnd = -1;
-
-                do {
-                    const QTextFragment fragment = it.fragment();
-                    const QTextCharFormat fmt = fragment.charFormat();
-
-                    if (!fmt.isAnchor()) {
-                        anchorEnd = fragment.position() + fragment.length();
-                        break;
-                    }
-
-                    if (it == blockStart)
-                        it = QTextBlock::Iterator();
-                    else
-                        --it;
-                } while (!it.atEnd());
-
-                if (anchorEnd == -1)
-                    anchorEnd = qMax(0, block.position());
-
-                break;
-            }
-
-            block = block.previous();
-            it = block.end();
-            if (it != block.begin())
-                --it;
-            blockStart = block.begin();
-        }
-
-    }
-
-    if (anchorStart != -1 && anchorEnd != -1) {
-        start = anchorStart;
-        end = anchorEnd;
-        return true;
-    }
-
-    return false;
-}
-
 #ifdef QT_KEYPAD_NAVIGATION
 void QTextBrowserPrivate::keypadMove(bool next)
 {
     Q_Q(QTextBrowser);
 
     const int height = viewport->height();
-    int anchorStart, anchorEnd;
-    if (findNextPrevAnchor(next, anchorStart, anchorEnd)) {
-        QTextBlock block = control->document()->findBlock(next ? anchorEnd : anchorStart);
-        const int yOffset = vbar->value();
-        const int cursYOffset = qRound(control->document()->documentLayout()->blockBoundingRect(block).top());
+    const int yOffset = vbar->value();
+    if (control->setFocusToNextOrPreviousAnchor(next)) {
+        const int cursYOffset = qRound(control->cursorRect().top());
         const int overlap = 20;
         if (next) {
             if (cursYOffset > yOffset + height) {
@@ -427,18 +258,14 @@ void QTextBrowserPrivate::keypadMove(bool next)
                 return;
             }
         }
-        focusIndicator.setPosition(anchorStart);
 
-        if(next)
-            focusIndicator.setPosition(anchorEnd, QTextCursor::KeepAnchor);
-
-        QTextCharFormat charFmt;
-        charFmt = focusIndicator.charFormat();
+        QTextCursor cursor = control->textCursor();
+        if (cursor.selectionStart() != cursor.position())
+            cursor.setPosition(cursor.selectionStart());
+        cursor.movePosition(QTextCursor::NextCharacter);
+        QTextCharFormat charFmt = cursor.charFormat();
         emit q->highlighted(QUrl(charFmt.anchorHref()));
         emit q->highlighted(charFmt.anchorHref());
-
-        if(!next)
-            focusIndicator.setPosition(anchorEnd, QTextCursor::KeepAnchor);
     } else {
         const int yOffset = vbar->value();
         const int overlap = 20;
@@ -453,13 +280,13 @@ void QTextBrowserPrivate::keypadMove(bool next)
             else
                 vbar->setValue(yOffset - height + overlap);
         }
-        focusIndicator.clearSelection();
+        QTextCursor cursor = control->textCursor();
+        cursor.clearSelection();
+        control->setTextCursor(cursor);
 
         emit q->highlighted(QUrl());
         emit q->highlighted(QString());
     }
-
-    updateFocusIndicator();
 }
 #endif
 
@@ -523,13 +350,14 @@ void QTextBrowserPrivate::init()
 {
     Q_Q(QTextBrowser);
     control->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    q->setReadOnly(true);
 #ifndef QT_NO_CURSOR
     viewport->setCursor(oldCursor);
 #endif
     q->setUndoRedoEnabled(false);
     viewport->setMouseTracking(true);
     QObject::connect(q->document(), SIGNAL(contentsChanged()), q, SLOT(_q_documentModified()));
+    QObject::connect(control, SIGNAL(activateLinkRequest(const QString &)),
+                     q, SLOT(_q_activateAnchor(const QString &)));
 }
 
 /*!
@@ -782,8 +610,6 @@ void QTextBrowser::home()
 */
 void QTextBrowser::keyPressEvent(QKeyEvent *ev)
 {
-    Q_D(QTextBrowser);
-
 #ifdef QT_KEYPAD_NAVIGATION
     switch (ev->key()) {
     case Qt::Key_Select:
@@ -825,26 +651,10 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
             ev->accept();
             return;
         }
-    } else if ((ev->key() == Qt::Key_Return
-#ifdef QT_KEYPAD_NAVIGATION
-                || ev->key() == Qt::Key_Select
-#endif
-                || ev->key() == Qt::Key_Enter)
-               && d->focusIndicator.hasSelection()) {
-
-        QTextCursor cursor = d->focusIndicator;
-        if (cursor.selectionStart() != cursor.position())
-            cursor.setPosition(cursor.selectionStart());
-        cursor.movePosition(QTextCursor::NextCharacter);
-
-        ev->accept();
-
-        const QString href = cursor.charFormat().anchorHref();
-        d->activateAnchor(href);
-        return;
     }
 #ifdef QT_KEYPAD_NAVIGATION
     else if (QApplication::keypadNavigationEnabled()) {
+        Q_D(QTextBrowser);
         if (ev->key() == Qt::Key_Up) {
             d->keypadMove(false);
             return;
@@ -926,7 +736,7 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *e)
 
     if (!d->control->textCursor().hasSelection()
         || (anchor == d->anchorOnMousePress && d->hadSelectionOnMousePress))
-        d->activateAnchor(anchor);
+        d->_q_activateAnchor(anchor);
 }
 
 /*!
@@ -935,11 +745,6 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *e)
 void QTextBrowser::focusOutEvent(QFocusEvent *ev)
 {
     Q_D(QTextBrowser);
-    if (ev->reason() != Qt::ActiveWindowFocusReason
-        && ev->reason() != Qt::PopupFocusReason) {
-        d->focusIndicator.clearSelection();
-        d->viewport->update();
-    }
 #ifndef QT_NO_CURSOR
     d->viewport->setCursor((!(d->control->textInteractionFlags() & Qt::TextEditable)) ? d->oldCursor : Qt::IBeamCursor);
 #endif
@@ -952,24 +757,9 @@ void QTextBrowser::focusOutEvent(QFocusEvent *ev)
 bool QTextBrowser::focusNextPrevChild(bool next)
 {
     Q_D(QTextBrowser);
-
-    if (!(d->control->textInteractionFlags() & Qt::LinksAccessibleByKeyboard))
-        return QTextEdit::focusNextPrevChild(next);
-
-    int anchorStart, anchorEnd;
-    if (d->findNextPrevAnchor(next, anchorStart, anchorEnd)) {
-        d->focusIndicator.setPosition(anchorStart);
-        d->focusIndicator.setPosition(anchorEnd, QTextCursor::KeepAnchor);
-    } else {
-        d->focusIndicator.clearSelection();
-    }
-
-    d->updateFocusIndicator();
-    if (d->focusIndicator.hasSelection()) {
+    if (d->control->setFocusToNextOrPreviousAnchor(next))
         return true;
-    } else {
-        return QTextEdit::focusNextPrevChild(next);
-    }
+    return QTextEdit::focusNextPrevChild(next);
 }
 
 /*!

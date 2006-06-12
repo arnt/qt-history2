@@ -111,6 +111,8 @@ public:
 
     void inputMethodEvent(QInputMethodEvent *);
 
+    bool findNextPrevAnchor(bool next, int &start, int &end);
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
@@ -137,9 +139,6 @@ public:
 
     QTextCursor selectedWordOnDoubleClick;
     QTextCursor selectedLineOnDoubleClick;
-
-    // for QTextBrowser:
-    QTextCursor focusIndicator;
 
     bool overwriteMode;
     bool acceptRichText;

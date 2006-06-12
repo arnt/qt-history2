@@ -208,10 +208,7 @@ void HelpWindow::mousePressEvent(QMouseEvent *e)
 void HelpWindow::keyPressEvent(QKeyEvent *e)
 {
     shiftPressed = e->modifiers() & Qt::ShiftModifier;
-	if (e->key() == Qt::Key_Return)
-		followSelectedLink();
-	else
-		QTextBrowser::keyPressEvent(e);
+    QTextBrowser::keyPressEvent(e);
 }
 
 bool HelpWindow::isKDERunning() const

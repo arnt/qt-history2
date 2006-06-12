@@ -45,11 +45,11 @@ public:
     void setSearchPaths(const QStringList &paths);
 
     virtual QVariant loadResource(int type, const QUrl &name);
-    
+
     bool isBackwardAvailable() const;
     bool isForwardAvailable() const;
     void clearHistory();
-    
+
 public Q_SLOTS:
     virtual void setSource(const QUrl &name);
     virtual void backward();
@@ -84,6 +84,7 @@ private:
     Q_DISABLE_COPY(QTextBrowser)
     Q_DECLARE_PRIVATE(QTextBrowser)
     Q_PRIVATE_SLOT(d_func(), void _q_documentModified())
+    Q_PRIVATE_SLOT(d_func(), void _q_activateAnchor(const QString &))
 };
 
 #endif // QT_NO_TEXTBROWSER

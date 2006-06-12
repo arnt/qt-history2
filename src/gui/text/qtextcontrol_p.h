@@ -160,6 +160,7 @@ Q_SIGNALS:
     void documentSizeChanged(const QSizeF &);
     void visibilityRequest(const QRectF &rect);
     void microFocusChanged();
+    void activateLinkRequest(const QString &link);
 
 public:
     // control properties
@@ -179,6 +180,8 @@ public:
     virtual QMimeData *createMimeDataFromSelection() const;
     virtual bool canInsertFromMimeData(const QMimeData *source) const;
     virtual void insertFromMimeData(const QMimeData *source);
+
+    bool setFocusToNextOrPreviousAnchor(bool next);
 
 protected:
     virtual void timerEvent(QTimerEvent *e);
