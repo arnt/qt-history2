@@ -415,6 +415,12 @@ bool QTextDocument::useDesignMetrics() const
     return d->useDesignMetrics;
 }
 
+/*!
+    \since 4.2
+
+    Draws the content of the document with painter \a p, clipped to \a rect.
+    If \a rect is a null rectangle (default) then the document is painted unclipped.
+*/
 void QTextDocument::drawContents(QPainter *p, const QRectF &rect)
 {
     p->save();
@@ -427,11 +433,31 @@ void QTextDocument::drawContents(QPainter *p, const QRectF &rect)
     p->restore();
 }
 
+/*!
+    \property QTextDocument::textWidth
+    \since 4.2
+
+    The text width specifies the preferred width for text in the document. If
+    the text (or content in general) is wider than the specified with it is broken
+    into multiple lines and grows vertically.
+
+    If the text width is set to -1 then the text will not be broken into multiple lines
+    unless it is enforced through an explicit line break or a new paragraph.
+
+    The default value is -1.
+
+    Setting the text width will also set the page height to -1, causing the document to
+    grow or shrink vertically in a continuous way. If you want the document layout to break
+    the text into multiple pages then you have to set the pageSize property instead.
+
+    \sa size(), pageSize()
+*/
 void QTextDocument::setTextWidth(qreal width)
 {
     Q_D(QTextDocument);
     QSizeF sz = d->pageSize;
     sz.setWidth(width);
+    sz.setHeight(-1);
     setPageSize(sz);
 }
 

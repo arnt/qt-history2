@@ -4305,11 +4305,10 @@ int QGraphicsTextItem::type() const
 /*!
     Sets the preferred width for the item's text. If the actual text
     is wider than the specified width then it will be broken into
-    multiple lines, each at most \a width pixels wide.
+    multiple lines.
 
-    If \a width is -1 then the text will not be broken into multiple
-    lines unless the it is enforced through an explicit line break or
-    a new paragraph.
+    If \a width is set to -1 then the text will not be broken into multiple
+    lines unless it is enforced through an explicit line break or a new paragraph.
 
     The default value is -1.
 */

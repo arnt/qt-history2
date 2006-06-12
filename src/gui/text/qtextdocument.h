@@ -85,6 +85,7 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_PROPERTY(QFont defaultFont READ defaultFont WRITE setDefaultFont)
     Q_PROPERTY(bool useDesignMetrics READ useDesignMetrics WRITE setUseDesignMetrics)
     Q_PROPERTY(QSizeF size READ size)
+    Q_PROPERTY(qreal textWidth READ textWidth WRITE setTextWidth)
 
 public:
     explicit QTextDocument(QObject *parent = 0);
