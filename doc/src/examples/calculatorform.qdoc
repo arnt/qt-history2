@@ -8,9 +8,7 @@
     auto-connection} feature to automatically connect signals from widgets on the
     form to slots in our code.
 
-    \omit
     \image calculatorform-example.png Screenshot of the Calculator Form example
-    \endomit
 
     The example presents two spin boxes that are used to input integer values
     and a label that shows their sum. Whenever either of the spin boxes are
