@@ -1786,7 +1786,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
     QGLFontGlyphHash *font_cache = 0;
     QGLContext *context_key = 0;
 
-    if (dev_it == qt_context_cache.end()) {
+    if (dev_it == qt_context_cache.constEnd()) {
         // check for shared contexts
         QList<QGLContext *> contexts = qt_context_cache.keys();
         for (int i=0; i<contexts.size(); ++i) {
@@ -1799,7 +1799,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
         }
     }
 
-    if (dev_it == qt_context_cache.end()) {
+    if (dev_it == qt_context_cache.constEnd()) {
         // no shared contexts either - create a new entry
         font_cache = new QGLFontGlyphHash;
 //         qDebug() << "new context" << context << font_cache;
@@ -1815,7 +1815,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
 
     QGLFontGlyphHash::const_iterator cache_it = font_cache->constFind(ti.fontEngine);
     QGLGlyphHash *cache = 0;
-    if (cache_it == font_cache->end()) {
+    if (cache_it == font_cache->constEnd()) {
         cache = new QGLGlyphHash;
         font_cache->insert(ti.fontEngine, cache);
         connect(ti.fontEngine, SIGNAL(destroyed(QObject *)), SLOT(fontEngineDestroyed(QObject *)));
@@ -1828,7 +1828,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                        | reinterpret_cast<quint64>(ti.fontEngine);
     QGLFontTexHash::const_iterator it = qt_font_textures.constFind(font_key);
     QGLFontTexture *font_tex;
-    if (it == qt_font_textures.end()) {
+    if (it == qt_font_textures.constEnd()) {
         GLuint font_texture;
         glGenTextures(1, &font_texture);
         uchar *tex_data = (uchar *) malloc(glyph_tex_width*glyph_tex_height*2);
