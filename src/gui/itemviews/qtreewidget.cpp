@@ -1336,7 +1336,7 @@ QVariant QTreeWidgetItem::data(int column, int role) const
 
 bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 {
-    int column = view->sortColumn();
+    int column = view ? view->sortColumn() : 0;
     return text(column) < other.text(column);
 }
 
