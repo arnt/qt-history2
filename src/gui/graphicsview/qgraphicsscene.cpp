@@ -625,7 +625,8 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
             sendMouseEvent(mouseEvent);
         }
         if (mouseEvent->isAccepted()) {
-            storeMouseButtonsForMouseGrabber(mouseEvent);
+            if (mouseGrabberItem)
+                storeMouseButtonsForMouseGrabber(mouseEvent);
             lastMouseGrabberItem = mouseGrabberItem;
             return;
         }
@@ -1993,6 +1994,15 @@ void QGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
     Q_D(QGraphicsScene);
     event->ignore();
+
+    if (d->mouseGrabberItem) {
+        // Mouse grabbers that start drag events lose the mouse grab.
+        d->lastMouseGrabberItem = d->mouseGrabberItem;
+        d->mouseGrabberItem = 0;
+        d->mouseGrabberButtonDownPos.clear();
+        d->mouseGrabberButtonDownScenePos.clear();
+        d->mouseGrabberButtonDownScreenPos.clear();
+    }
 
     bool eventDelivered = false;
 

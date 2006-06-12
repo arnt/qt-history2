@@ -1654,10 +1654,13 @@ void QGraphicsView::dropEvent(QDropEvent *event)
     QApplication::sendEvent(d->scene, &sceneEvent);
 
     // Accept the originating event if the scene accepted the scene event.
-    if (sceneEvent.isAccepted()) {
-        event->setAccepted(true);
+    event->setAccepted(sceneEvent.isAccepted());
+    if (sceneEvent.isAccepted())
         event->setDropAction(sceneEvent.dropAction());
-    }
+
+    delete d->lastDragDropEvent;
+    d->lastDragDropEvent = 0;
+
 #else
     Q_UNUSED(event)
 #endif
@@ -1754,10 +1757,9 @@ void QGraphicsView::dragMoveEvent(QDragMoveEvent *event)
     QApplication::sendEvent(d->scene, &sceneEvent);
 
     // Ignore the originating event if the scene ignored the scene event.
-    if (sceneEvent.isAccepted()) {
-        event->setAccepted(true);
+    event->setAccepted(sceneEvent.isAccepted());
+    if (sceneEvent.isAccepted())
         event->setDropAction(sceneEvent.dropAction());
-    }
 #else
     Q_UNUSED(event)
 #endif
