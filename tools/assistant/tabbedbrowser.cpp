@@ -117,8 +117,6 @@ HelpWindow *TabbedBrowser::createHelpWindow()
     ui.tab->addTab(win, tr("..."));
     connect(win, SIGNAL(highlighted(QString)),
              (const QObject*) (mainWin->statusBar()), SLOT(showMessage(QString)));
-    connect(win, SIGNAL(chooseWebBrowser()), mainWin, SLOT(showWebBrowserSettings()));
-    connect(win, SIGNAL(choosePDFReader()), mainWin, SLOT(showPDFReaderSettings()));
     connect(win, SIGNAL(backwardAvailable(bool)),
              mainWin, SLOT(backwardAvailable(bool)));
     connect(win, SIGNAL(forwardAvailable(bool)),

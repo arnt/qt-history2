@@ -474,16 +474,6 @@ void MainWindow::on_actionSettings_triggered()
     showSettingsDialog(-1);
 }
 
-void MainWindow::showPDFReaderSettings()
-{
-    showSettingsDialog(2);
-}
-
-void MainWindow::showWebBrowserSettings()
-{
-    showSettingsDialog(1);
-}
-
 void MainWindow::showSettingsDialog(int page)
 {
     if (!settingsDia){

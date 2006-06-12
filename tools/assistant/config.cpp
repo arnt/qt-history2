@@ -101,9 +101,7 @@ void Config::load()
 
     QSettings settings;
 
-    webBrows = settings.value( key + QLatin1String("Webbrowser") ).toString();
     home = settings.value( profkey + QLatin1String("Homepage") ).toString();
-    pdfApp = settings.value( key + QLatin1String("PDFApplication") ).toString();
     src = settings.value( profkey + QLatin1String("Source") ).toStringList();
     sideBar = settings.value( key + QLatin1String("SideBarPage") ).toInt();
     if (qApp->type() != QApplication::Tty) {
@@ -140,9 +138,7 @@ void Config::saveSettings()
 
     QSettings settings;
 
-    settings.setValue( key + QLatin1String("Webbrowser"), webBrows );
     settings.setValue( profkey + QLatin1String("Homepage"), home );
-    settings.setValue( key + QLatin1String("PDFApplication"), pdfApp );
     settings.setValue( profkey + QLatin1String("Source"), src );
     settings.setValue( key + QLatin1String("SideBarPage"), sideBarPage() );
     if (qApp->type() != QApplication::Tty) {

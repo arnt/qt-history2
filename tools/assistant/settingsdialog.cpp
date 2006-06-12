@@ -42,20 +42,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 void SettingsDialog::init()
 {
     Config *config = Config::configuration();
-
-    ui.browserApp->setText(config->webBrowser());
     ui.homePage->setText(config->homePage());
-    ui.pdfApp->setText(config->pdfReader());
-}
-
-void SettingsDialog::on_buttonBrowse_clicked()
-{
-    setFile(ui.browserApp, tr("Qt Assistant - Set Web Browser"));
-}
-
-void SettingsDialog::on_buttonPDF_clicked()
-{
-    setFile(ui.pdfApp, tr("Qt Assistant - Set PDF Browser"));
 }
 
 void SettingsDialog::on_buttonHome_clicked()
@@ -67,15 +54,13 @@ void SettingsDialog::setFile(QLineEdit *le, const QString &caption)
 {
     QString fileName = QFileDialog::getOpenFileName(this, caption);
     if (!fileName.isEmpty())
-        le->setText(fileName);    
+        le->setText(fileName);
 }
 
 void SettingsDialog::on_buttonOk_clicked()
 {
     Config *config = Config::configuration();
-    config->setWebBrowser(ui.browserApp->text());
     config->setHomePage(ui.homePage->text());
-    config->setPdfReader(ui.pdfApp->text());
     accept();
 }
 
@@ -83,3 +68,4 @@ void SettingsDialog::on_buttonCancel_clicked()
 {
     reject();
 }
+

@@ -46,9 +46,12 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
-       <string>&amp;Web</string>
+       <string>General</string>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="margin" >
@@ -57,50 +60,6 @@
        <property name="spacing" >
         <number>6</number>
        </property>
-       <item>
-        <widget class="QLabel" name="TextLabel1_3" >
-         <property name="text" >
-          <string>Web &amp;Browser Application:</string>
-         </property>
-         <property name="buddy" >
-          <cstring>browserApp</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>1</number>
-         </property>
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <item>
-          <widget class="QLineEdit" name="browserApp" />
-         </item>
-         <item>
-          <widget class="QPushButton" name="buttonBrowse" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>1</hsizetype>
-             <vsizetype>0</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize" >
-            <size>
-             <width>30</width>
-             <height>32767</height>
-            </size>
-           </property>
-           <property name="text" >
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
        <item>
         <widget class="QLabel" name="TextLabel1_3_3" >
          <property name="text" >
@@ -163,79 +122,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="pdfTab" >
-      <attribute name="title" >
-       <string>&amp;PDF</string>
-      </attribute>
-      <layout class="QVBoxLayout" >
-       <property name="margin" >
-        <number>9</number>
-       </property>
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <item>
-        <widget class="QLabel" name="TextLabel1_3_2" >
-         <property name="text" >
-          <string>PDF &amp;Application</string>
-         </property>
-         <property name="buddy" >
-          <cstring>pdfApp</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>1</number>
-         </property>
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <item>
-          <widget class="QLineEdit" name="pdfApp" />
-         </item>
-         <item>
-          <widget class="QPushButton" name="buttonPDF" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>1</hsizetype>
-             <vsizetype>0</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize" >
-            <size>
-             <width>30</width>
-             <height>32767</height>
-            </size>
-           </property>
-           <property name="text" >
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType" >
-          <enum>QSizePolicy::Expanding</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>20</width>
-           <height>81</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
    <item>
@@ -292,12 +178,8 @@
  <pixmapfunction></pixmapfunction>
  <tabstops>
   <tabstop>settingsTab</tabstop>
-  <tabstop>browserApp</tabstop>
-  <tabstop>buttonBrowse</tabstop>
   <tabstop>homePage</tabstop>
   <tabstop>buttonHome</tabstop>
-  <tabstop>pdfApp</tabstop>
-  <tabstop>buttonPDF</tabstop>
   <tabstop>buttonOk</tabstop>
   <tabstop>buttonCancel</tabstop>
  </tabstops>

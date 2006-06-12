@@ -52,14 +52,8 @@ public:
     QPixmap applicationIcon() const;
 
     // From QSettings, read / write
-    QString webBrowser() const { return webBrows; }
-    void setWebBrowser( const QString &cmd ) { webBrows = cmd; }
-
     QString homePage() const;
     void setHomePage( const QString &hom ) { home = hom; }
-
-    QString pdfReader() const { return pdfApp; }
-    void setPdfReader( const QString &cmd ) { pdfApp = cmd; }
 
     QStringList source() const;
     void setSource( const QStringList &s ) { src = s; }
@@ -78,7 +72,7 @@ public:
 
     qreal fontPointSize() const { return pointFntSize; }
     void setFontPointSize(qreal size) { pointFntSize = size; }
-    
+
     QString assistantDocPath() const;
 
     bool docRebuild() const { return rebuildDocs; }
@@ -100,9 +94,7 @@ private:
     Profile *profil;
 
     QStringList profileNames;
-    QString webBrows;
     QString home;
-    QString pdfApp;
     QStringList src;
     QByteArray mainWinState;
     qreal pointFntSize;

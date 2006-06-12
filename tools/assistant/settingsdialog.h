@@ -32,12 +32,10 @@ public:
 private slots:
     void on_buttonOk_clicked();
     void on_buttonCancel_clicked();
-    void on_buttonBrowse_clicked();
     void on_buttonHome_clicked();
-    void on_buttonPDF_clicked();
 
     void init();
-    
+
 private:
     void setFile(QLineEdit *le, const QString &caption);
 
