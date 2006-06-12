@@ -1702,6 +1702,7 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
 
 /*!
     \fn void QStandardItemModel::itemChanged(QStandardItem *item)
+    \since 4.2
 
     This signal is emitted whenever the data of \a item has changed.
 */
