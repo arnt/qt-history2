@@ -109,6 +109,19 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
             comment = n.firstChild().toText().data();
         } else if (tagName == QLatin1String("exportMacro")) {
             exportMacro = n.firstChild().toText().data();
+        } else if ( n.tagName() == "includehints" ) {
+            QDomElement n2 = n.firstChild().toElement();
+            while ( !n2.isNull() ) {
+                if ( n2.tagName() == "includehint" ) {
+                    QString name = n2.firstChild().toText().data();
+
+                    DomInclude *incl = new DomInclude();
+                    incl->setText(fixHeaderName(name));
+                    incl->setAttributeLocation(n.attribute(QLatin1String("location"), QLatin1String("local")));
+                    ui_includes.append(incl);
+                }
+                n2 = n2.nextSibling().toElement();
+            }
         } else if (tagName == QLatin1String("includes")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
