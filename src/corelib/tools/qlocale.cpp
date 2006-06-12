@@ -1069,10 +1069,11 @@ static QLocalePrivate *system_lp = 0;
 ** Default system locale behavior
 */
 
-/*! \class QSystemLocale
+/*! 
+    \class QSystemLocale
     \brief The QSystemLocale class can be used to finetune the system locale
     of the user.
-
+    \since 4.2
     \ingroup i18n
 
     \warning This class is only useful in very rare cases. Usually QLocale offers
