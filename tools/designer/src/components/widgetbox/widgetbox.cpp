@@ -556,6 +556,8 @@ WidgetBoxTreeView::CategoryList WidgetBoxTreeView::loadCustomCategoryList() cons
         QString cat_name = c->group();
         if (cat_name.isEmpty())
             cat_name = tr("Custom Widgets");
+        else if (cat_name == QLatin1String("[invisible]"))
+            continue;
 
         int idx = findCategory(cat_name, result);
         if (idx == -1) {
