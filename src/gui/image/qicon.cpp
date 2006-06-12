@@ -240,8 +240,7 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
     }
 
     if (!QPixmapCache::find(key + QString::number(mode), pm)) {
-        if (pe->mode != mode && mode != QIcon::Normal
-            && (pe->mode != QIcon::Disabled || pe->mode != QIcon::Selected)) {
+        if (pe->mode != mode && mode != QIcon::Normal) {
             QStyleOption opt(0);
             opt.palette = QApplication::palette();
             QPixmap generated = QApplication::style()->generatedIconPixmap(mode, pm, &opt);
