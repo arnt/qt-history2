@@ -1561,7 +1561,7 @@ public:
     inline QTextHtmlStyleSelector(const QTextHtmlParser *parser)
         : parser(parser) {}
 
-    virtual QString nodeName(NodePtr node) const;
+    virtual bool hasNodeName(NodePtr node, const QString& name) const;
     virtual QString attribute(NodePtr node, const QString &name) const;
     virtual bool hasAttribute(NodePtr node, const QString &name) const;
     virtual bool hasAttributes(NodePtr node) const;
@@ -1575,9 +1575,9 @@ private:
     const QTextHtmlParser *parser;
 };
 
-QString QTextHtmlStyleSelector::nodeName(NodePtr node) const
+bool QTextHtmlStyleSelector::hasNodeName(NodePtr node, const QString& name) const
 {
-    return parser->at(node.id).tag;
+    return parser->at(node.id).tag == name;
 }
 
 static inline int findAttribute(const QStringList &attributes, const QString &name)
@@ -1693,7 +1693,7 @@ QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(int node) const
 
     QCss::StyleSelector::NodePtr n;
     n.id = node;
-    decls = selector.declarationsForNode(n);
+    decls = selector.declarationsForNode(n).value(QCss::Enabled);
 
     return decls;
 }

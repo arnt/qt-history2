@@ -112,6 +112,16 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
     { "xx-large", Value_XXLarge }
 };
 
+static const QCssKnownValue pseudos[NumPseudos - 1] = {
+    { "active", Active },
+    { "checked", Checked },
+    { "disabled", Disabled },
+    { "enabled", Enabled },
+    { "focus", Focus },
+    { "hover", Hover },
+    { "indeterminate" , Indeterminate }
+};
+
 static bool operator<(const QString &name, const QCssKnownValue &prop)
 {
     return QString::compare(name, QLatin1String(prop.name), Qt::CaseInsensitive) < 0;
@@ -382,7 +392,8 @@ QStringList StyleSelector::nodeIds(NodePtr node) const
 
 bool StyleSelector::selectorMatches(const Selector &selector, NodePtr node)
 {
-    if (selector.basicSelectors.isEmpty()) return false;
+    if (selector.basicSelectors.isEmpty()) 
+        return false;
 
     if (selector.basicSelectors.first().relationToNext == BasicSelector::NoRelation) {
         if (selector.basicSelectors.count() != 1)
@@ -464,15 +475,12 @@ bool StyleSelector::basicSelectorMatches(const BasicSelector &sel, NodePtr node)
     }
 
     if (!sel.elementName.isEmpty()
-        && sel.elementName != nodeName(node))
+        && !hasNodeName(node, sel.elementName))
             return false;
 
     if (!sel.ids.isEmpty()
         && sel.ids != nodeIds(node))
             return false;
-
-    if (!sel.pseudoClasses.isEmpty())
-        return false;
 
     return true;
 }
@@ -482,53 +490,84 @@ static inline bool qcss_selectorLessThan(const QPair<int, QCss::StyleRule> &lhs,
     return lhs.first < rhs.first;
 }
 
-void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, QVector<QPair<int, StyleRule> > *matchingRules)
+static inline int pseudoStateForSelector(const Selector& selector)
+{
+    const BasicSelector& bs = selector.basicSelectors.last();
+    if (bs.pseudoClasses.isEmpty())
+        return Enabled; // default
+    int state = Unknown /* 0 */;
+    for (int i = 0; i < bs.pseudoClasses.count(); i++) {
+        state |= bs.pseudoClasses.at(i).type;
+    }
+    return state;
+}
+
+void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, QHash<int, QVector<QPair<int, StyleRule> > > *matchingRules)
 {
     for (int i = 0; i < rules.count(); ++i) {
         const StyleRule &rule = rules.at(i);
-        int maxSpecificity = -1;
+        QHash<int, int> maxSpecificities; // (state, specificity)
         for (int j = 0; j < rule.selectors.count(); ++j) {
-            if (selectorMatches(rule.selectors.at(j), node)) {
-                maxSpecificity = qMax(maxSpecificity, rule.selectors.at(j).specificity());
+            const Selector& selector = rule.selectors.at(j);
+            if (selectorMatches(selector, node)) {
+                int state = pseudoStateForSelector(selector);
+                int specificity = selector.specificity();
+                if (!maxSpecificities.contains(state))
+                    maxSpecificities[state] = specificity;
+                else
+                    maxSpecificities[state] = qMax(maxSpecificities[state], specificity);
             }
         }
-        if (maxSpecificity != -1) {
+        if (maxSpecificities.isEmpty())
+            continue;
+        const QList<int>& states = maxSpecificities.keys();
+        const QList<int>& specificities = maxSpecificities.values();
+        for (int k = 0; k < states.count(); k++) {
             QPair<int, StyleRule> r;
-            r.first = maxSpecificity;
+            r.first = specificities[k]; // vaue for key
             r.second = rule;
-            matchingRules->append(r);
+            QVector<QPair<int, StyleRule> > rs = matchingRules->value(states[k]);
+            rs.append(r);
+            (*matchingRules)[states[k]] = rs;
         }
     }
 }
 
-QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
+QHash<int, QVector<Declaration> > StyleSelector::declarationsForNode(NodePtr node)
 {
-    QVector<Declaration> decls;
+    QHash<int, QVector<Declaration> > declsHash;
     if (styleSheets.isEmpty())
-        return decls;
+        return declsHash;
 
-    QVector<QPair<int, StyleRule> > matchingRules;
+    QHash<int, QVector<QPair<int, StyleRule> > > matchingRulesHash;
 
     for (int sheetIdx = 0; sheetIdx < styleSheets.count(); ++sheetIdx) {
         const StyleSheet &styleSheet = styleSheets.at(sheetIdx);
 
-        matchRules(node, styleSheet.styleRules, &matchingRules);
+        matchRules(node, styleSheet.styleRules, &matchingRulesHash);
         if (!medium.isEmpty()) {
             for (int i = 0; i < styleSheet.mediaRules.count(); ++i) {
                 if (styleSheet.mediaRules.at(i).media.contains(medium, Qt::CaseInsensitive)) {
-                    matchRules(node, styleSheet.mediaRules.at(i).styleRules, &matchingRules);
+                    matchRules(node, styleSheet.mediaRules.at(i).styleRules, &matchingRulesHash);
                 }
             }
         }
     }
 
-    // sort by specificity
-    qSort(matchingRules.begin(), matchingRules.end(), qcss_selectorLessThan);
+    const QList<int> pseudoStates = matchingRulesHash.keys();
+    const QList<QVector<QPair<int, StyleRule> > > matchingRulesList = matchingRulesHash.values();
+    for (int i = 0; i < pseudoStates.count(); i++) {
+        QVector<QPair<int, StyleRule> > matchingRules = matchingRulesList.at(i);
+        qSort(matchingRules.begin(), matchingRules.end(), qcss_selectorLessThan);
 
-    for (int i = 0; i < matchingRules.count(); ++i)
-        decls += matchingRules.at(i).second.declarations;
+        QVector<Declaration> decls;
+        for (int j = 0; j < matchingRules.count(); ++j)
+            decls += matchingRules.at(j).second.declarations;
 
-    return decls;
+        declsHash[pseudoStates.at(i)] = decls;
+    }
+
+    return declsHash;
 }
 
 static inline bool isHexDigit(const char c)
@@ -955,6 +994,7 @@ bool Parser::parsePseudo(PseudoClass *pseudo)
 {
     if (test(IDENT)) {
         pseudo->name = lexem();
+        pseudo->type = static_cast<PseudoType>(findKnownValue(pseudo->name, pseudos, NumPseudos));
         return true;
     }
     if (!next(FUNCTION)) return false;

@@ -107,8 +107,22 @@ struct Q_AUTOTEST_EXPORT Declaration
     bool intValue(int *value, const char *unit = 0) const;
 };
 
+enum PseudoType
+{
+    Unknown         = 0x00000000,
+    Active          = 0x00000001,
+    Focus           = 0x00000002,
+    Hover           = 0x00000004,
+    Enabled         = 0x00000008,
+    Disabled        = 0x00000010,
+    Checked         = 0x00000020,
+    Indeterminate   = 0x00000040,
+    NumPseudos = 8
+};
+
 struct Q_AUTOTEST_EXPORT PseudoClass
 {
+    PseudoType type;
     QString name;
     QString function;
 };
@@ -203,9 +217,9 @@ public:
         int id;
     };
     
-    QVector<Declaration> declarationsForNode(NodePtr node);
+    QHash<int, QVector<Declaration> > declarationsForNode(NodePtr node);
     
-    virtual QString nodeName(NodePtr node) const = 0;
+    virtual bool hasNodeName(NodePtr node, const QString& nodeName) const = 0;
     virtual QString attribute(NodePtr node, const QString &name) const = 0;
     virtual bool hasAttribute(NodePtr node, const QString &name) const = 0;
     virtual bool hasAttributes(NodePtr node) const = 0;
@@ -219,7 +233,7 @@ public:
     QList<StyleSheet> styleSheets;
     QString medium;
 private:
-    void matchRules(NodePtr node, const QVector<StyleRule> &rules, QVector<QPair<int, StyleRule> > *matchingRules);
+    void matchRules(NodePtr node, const QVector<StyleRule> &rules, QHash<int, QVector<QPair<int, StyleRule> > > *matchingRules);
     bool selectorMatches(const Selector &rule, NodePtr node);
     bool basicSelectorMatches(const BasicSelector &rule, NodePtr node);
 };
