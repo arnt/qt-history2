@@ -473,12 +473,10 @@ void QStandardItemModelPrivate::columnsRemoved(QStandardItem *parent, int column
 }
 
 /*!
-    \since 4.2
-
     \class QStandardItem
     \brief The QStandardItem class provides an item for use with the
     QStandardItemModel class.
-
+    \since 4.2
     \ingroup model-view
 
     Items usually contain text, icons, or checkboxes.
