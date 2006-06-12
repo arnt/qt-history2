@@ -61,7 +61,7 @@ public:
     inline virtual ~QGraphicsItemPrivate()
     { }
 
-    void setHandlesChildEvents(bool enabled);
+    void setAncestorHandlesChildEvents(bool enabled);
     void setIsMemberOfGroup(bool enabled);
     void remapItemPos(QEvent *event, QGraphicsItem *item);
     

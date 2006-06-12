@@ -319,12 +319,12 @@ static void qt_graphicsItem_fullUpdate(QGraphicsItem *item)
 
     Propagates child event handling for this item and all its children.
 */
-void QGraphicsItemPrivate::setHandlesChildEvents(bool enabled)
+void QGraphicsItemPrivate::setAncestorHandlesChildEvents(bool enabled)
 {
     if (!handlesChildEvents) {
         ancestorHandlesChildEvents = enabled;
         foreach (QGraphicsItem *child, children)
-            child->d_func()->setHandlesChildEvents(enabled);
+            child->d_func()->setAncestorHandlesChildEvents(enabled);
     }
 }
 
@@ -565,9 +565,8 @@ void QGraphicsItem::setParentItem(QGraphicsItem *parent)
 
         // Optionally inherit ancestor event handling from the new parent
         if (!d->handlesChildEvents) {
-            d->ancestorHandlesChildEvents = parent->d_func()->ancestorHandlesChildEvents;
-            foreach (QGraphicsItem *child, d->children)
-                child->d_func()->setHandlesChildEvents(d->ancestorHandlesChildEvents);
+            d->setAncestorHandlesChildEvents(parent->handlesChildEvents()
+                                             || parent->d_func()->ancestorHandlesChildEvents);
         }
     }
 }
@@ -1060,7 +1059,7 @@ void QGraphicsItem::setHandlesChildEvents(bool enabled)
 
     d->handlesChildEvents = enabled;
     foreach (QGraphicsItem *item, d->children)
-        item->d_func()->setHandlesChildEvents(enabled);
+        item->d_func()->setAncestorHandlesChildEvents(enabled);
 }
 
 /*!
