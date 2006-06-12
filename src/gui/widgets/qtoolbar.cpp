@@ -1042,6 +1042,17 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                     if (QToolButton *tb = qobject_cast<QToolButton *>(item.widget)) {
                         QAction *ac = pop->addAction(tb->icon(), tb->text());
                         connect(ac, SIGNAL(triggered()), tb, SIGNAL(clicked()));
+                    } else {
+                        QList<QAbstractButton *> children = qFindChildren<QAbstractButton *>(item.widget);
+                        QList<QAbstractButton *>::const_iterator it = children.constBegin();
+                        while (it != children.constEnd()) {
+                            QAction *ac = pop->addAction((*it)->icon(), (*it)->text());
+                            ac->setCheckable((*it)->isCheckable());
+                            ac->setChecked((*it)->isChecked());
+                            ac->setEnabled((*it)->isEnabled());
+                            connect(ac, SIGNAL(triggered()), *it, SLOT(click()));
+                            ++it;
+                        }
                     }
             }
         }
