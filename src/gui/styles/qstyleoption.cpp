@@ -3949,9 +3949,10 @@ QStyleOptionSizeGrip::QStyleOptionSizeGrip(int version)
 
 /*!
     \class QStyleOptionGraphicsItem
-
     \brief The QStyleOptionGraphicsItem class is used to describe
     the parameters needed to draw a QGraphicsItem.
+    \since 4.2
+    \ingroup multimedia
 
     For performance reasons, the access to the member variables is
     direct (i.e., using the . or -> operator). This low-level feel
