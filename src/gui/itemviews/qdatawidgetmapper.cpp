@@ -186,12 +186,9 @@ void QDataWidgetMapperPrivate::_q_closeEditor(QWidget *w, QAbstractItemDelegate:
 
 /*!
     \class QDataWidgetMapper qdatawidgetmapper.h
-
     \brief The QDataWidgetMapper class provides mapping between a section
     of a data model to widgets.
-
     \since 4.2
-
     \ingroup model-view
 
     QDataWidgetMapper can be used to create data-aware widgets by mapping

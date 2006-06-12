@@ -303,7 +303,8 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     \sa QMetaProperty::userProperty(), QItemEditorFactory::registerEditor()
 */
 
-/*! \class QStandardItemEditorCreator
+/*! 
+    \class QStandardItemEditorCreator
     \since 4.2
     \ingroup model-view
 
