@@ -585,6 +585,7 @@ public:
         SH_DialogButtonLayout,
         SH_ComboBox_PopupFrameStyle,
         SH_MessageBox_TextSelectable,
+        SH_DialogButtonBox_ButtonsHaveIcons,
 
         // Add new style hint values here
 
@@ -640,6 +641,16 @@ public:
         SP_FileDialogListView,
         SP_FileDialogBack,
         SP_DirIcon,
+        SP_StandardButtonOk,
+        SP_StandardButtonCancel,
+        SP_StandardButtonHelp,
+        SP_StandardButtonOpen,
+        SP_StandardButtonSave,
+        SP_StandardButtonClose,
+        SP_StandardButtonApply,
+        SP_StandardButtonReset,
+        SP_StandardButtonDiscard,
+
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000
     };

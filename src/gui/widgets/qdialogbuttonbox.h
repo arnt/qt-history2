@@ -48,7 +48,7 @@ public:
         Save               = 0x00000004,
         Cancel             = 0x00000008,
         Close              = 0x00000010,
-        DontSave           = 0x00000020,
+        Discard            = 0x00000020,
         Apply              = 0x00000040,
         Reset              = 0x00000080,
         Help               = 0x00000100

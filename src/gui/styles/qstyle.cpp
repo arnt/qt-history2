@@ -1557,6 +1557,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value SH_ComboBox_PopupFrameStyle  The frame style used when drawing a combobox popup menu.
 
+    \value SH_DialogButton_ButtonsHaveIcons Indicates whether or not StandardButtons in QDialogButtonBox should have icons or not.
+
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()
@@ -1621,6 +1623,15 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_DockWidgetCloseButton  Close button on dock windows (see also QDockWidget).
     \value SP_ToolBarHorizontalExtensionButton Extension button for horizontal toolbars.
     \value SP_ToolBarVerticalExtensionButton Extension button for vertical toolbars.
+    \value SP_StandardButtonOk Icon for a standard OK button in a QDialogButtonBox.
+    \value SP_StandardButtonCancel Icon for a standard Cancel button in a QDialogButtonBox.
+    \value SP_StandardButtonHelp Icon for a standard Help button in a QDialogButtonBox.
+    \value SP_StandardButtonOpen Icon for a standard Open button in a QDialogButtonBox.
+    \value SP_StandardButtonSave Icon for a standard Save button in a QDialogButtonBox.
+    \value SP_StandardButtonClose Icon for a standard Close button in a QDialogButtonBox.
+    \value SP_StandardButtonApply Icon for a standard Apply button in a QDialogButtonBox.
+    \value SP_StandardButtonReset Icon for a standard Reset button in a QDialogButtonBox.
+    \value SP_StandardButtonDiscard Icon for a standard Discard button in a QDialogButtonBox.
     \value SP_CustomBase  Base value for custom standard pixmaps;
     custom values must be greater than this value.
 

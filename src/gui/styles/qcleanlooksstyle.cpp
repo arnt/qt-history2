@@ -3592,9 +3592,12 @@ int QCleanLooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
     case SH_MessageBox_TextSelectable:
         ret = 1;
         break;
+    case SH_DialogButtonBox_ButtonsHaveIcons:
+        ret = 0; // Wait until we have new icons...
+        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
-    break;
+        break;
     }
     return ret;
 }

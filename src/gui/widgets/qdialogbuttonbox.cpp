@@ -129,7 +129,7 @@ static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton but
         return QDialogButtonBox::RejectRole;
     case QDialogButtonBox::Close:
         return QDialogButtonBox::RejectRole;
-    case QDialogButtonBox::DontSave:
+    case QDialogButtonBox::Discard:
         return QDialogButtonBox::DestructiveRole;
     case QDialogButtonBox::Help:
         return QDialogButtonBox::HelpRole;
@@ -351,39 +351,50 @@ QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardBut
 {
     Q_Q(QDialogButtonBox);
     QString buttonText;
+    int icon;
 
     switch (sbutton) {
     case QDialogButtonBox::Ok:
+        icon = QStyle::SP_StandardButtonOk;
         buttonText = QDialogButtonBox::tr("OK"); // Well, at least I can kill "Ok" buttons.
         break;
     case QDialogButtonBox::Save:
+        icon = QStyle::SP_StandardButtonSave;
         buttonText = QDialogButtonBox::tr("Save");
         break;
     case QDialogButtonBox::Open:
+        icon = QStyle::SP_StandardButtonOpen;
         buttonText = QDialogButtonBox::tr("Open");
         break;
     case QDialogButtonBox::Cancel:
+        icon = QStyle::SP_StandardButtonCancel;
         buttonText = QDialogButtonBox::tr("Cancel");
         break;
     case QDialogButtonBox::Close:
+        icon = QStyle::SP_StandardButtonClose;
         buttonText = QDialogButtonBox::tr("Close");
         break;
     case QDialogButtonBox::Apply:
+        icon = QStyle::SP_StandardButtonApply;
         buttonText = QDialogButtonBox::tr("Apply");
         break;
     case QDialogButtonBox::Reset:
+        icon = QStyle::SP_StandardButtonReset;
         buttonText = QDialogButtonBox::tr("Reset");
         break;
     case QDialogButtonBox::Help:
+        icon = QStyle::SP_StandardButtonHelp;
         buttonText = QDialogButtonBox::tr("Help");
         break;
-    case QDialogButtonBox::DontSave:
+    case QDialogButtonBox::Discard:
+        icon = QStyle::SP_StandardButtonDiscard;
         if (layoutPolicy == QDialogButtonBox::MacLayout)
             buttonText = QDialogButtonBox::tr("Don't Save");
         else
             buttonText = QDialogButtonBox::tr("Discard");
         break;
     default:
+        icon = 0;
         break;
     }
 
@@ -391,6 +402,8 @@ QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardBut
         return 0;
 
     QPushButton *button = new QPushButton(buttonText, q);
+    if (q->style()->styleHint(QStyle::SH_DialogButtonBox_ButtonsHaveIcons, 0, q) && icon != 0)
+        button->setIcon(q->style()->standardIcon(QStyle::StandardPixmap(icon), 0, q));
     standardButtonHash.insert(button, sbutton);
     addButton(button, roleFor(sbutton), doLayout);
     return button;
@@ -493,7 +506,7 @@ QDialogButtonBox::~QDialogButtonBox()
     \value Save A "Save" button defined with the \l AcceptRole.
     \value Cancel A "Cancel" button defined with the \l RejectRole.
     \value Close A "Close" button defined with the \l RejectRole.
-    \value DontSave A "Don't Save" or "Discard" button, depending on the platform,
+    \value Discard A "Discard" or "Don't Save" button, depending on the platform,
                     defined with the \l DestructiveRole.
     \value Apply An "Apply" button defined with the \l ActionRole.
     \value Reset A "Reset" button defined with the \l ActionRole.

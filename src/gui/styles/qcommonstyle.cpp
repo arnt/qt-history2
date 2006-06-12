@@ -3722,6 +3722,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
     case SH_MessageBox_TextSelectable:
         ret = 0;
         break;
+    case SH_DialogButtonBox_ButtonsHaveIcons:
+        ret = 0;
+        break;
     default:
         ret = 0;
         break;
@@ -3793,6 +3796,17 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
     case SP_FileLinkIcon:
         return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/filelink-16.png"));
 #endif // QT_NO_IMAGEFORMAT_PNG
+    case SP_StandardButtonOk:
+    case SP_StandardButtonCancel:
+    case SP_StandardButtonHelp:
+    case SP_StandardButtonOpen:
+    case SP_StandardButtonSave:
+    case SP_StandardButtonClose:
+    case SP_StandardButtonApply:
+    case SP_StandardButtonReset:
+    case SP_StandardButtonDiscard:
+        // Nothing for the moment, until we get new icons
+        break;
     default:
         break;
     }
