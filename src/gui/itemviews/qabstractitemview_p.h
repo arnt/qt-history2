@@ -176,13 +176,13 @@ public:
     void removeEditor(QWidget *editor);
 
     inline QModelIndex indexForIterator(const _q_abstractitemview_editor_iterator &it) const {
-        return (*it).first;
+        return (*it).first.operator const QModelIndex&();
     }
     inline QWidget *editorForIterator(const _q_abstractitemview_editor_iterator &it) const {
         return (*it).second;
     }
     inline QModelIndex indexForIterator(const _q_abstractitemview_editor_const_iterator &it) const {
-        return (*it).first;
+        return (*it).first.operator const QModelIndex&();
     }
     inline QWidget *editorForIterator(const _q_abstractitemview_editor_const_iterator &it) const {
         return (*it).second;
