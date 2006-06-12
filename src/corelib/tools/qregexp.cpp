@@ -657,7 +657,7 @@
     their component fields.
 
     \code
-        str = "Trolltech AS\twww.trolltech.com\tNorway";
+        str = "Trolltech ASA\twww.trolltech.com\tNorway";
         QString company, web, country;
         rx.setPattern("^([^\t]+)\t([^\t]+)\t([^\t]+)$");
         if (rx.indexIn(str) != -1) {

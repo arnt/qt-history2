@@ -36,7 +36,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 /* Only requires Xlib layer - not MT safe */
 /* Author: Daniel Dardailler, daniel@x.org */
 /* Adapted by: Matt Koss, koss@napri.sk */
-/* Further adaptions by: Trolltech AS */
+/* Further adaptions by: Trolltech ASA */
 /***********************************************************/
 
 #include "qplatformdefs.h"

@@ -7,7 +7,7 @@
 
 static const char * const dont_mess_with_me =
     "\nQt %1 Evaluation License\n"
-    "Copyright (C) 1992-$THISYEAR$ Trolltech AS.\n"
+    "Copyright (C) 1992-$THISYEAR$ Trolltech ASA.\n"
     "All rights reserved.\n\n"
     "This trial version may only be used for evaluation purposes\n"
     "and will shut down after 120 minutes.\n"
@@ -18,7 +18,7 @@ static const char * const dont_mess_with_me =
 
 static const char * const dont_mess_with_supported =
     "\nQt %1 Evaluation License\n"
-    "Copyright (C) 1992-$THISYEAR$ Trolltech AS.\n"
+    "Copyright (C) 1992-$THISYEAR$ Trolltech ASA.\n"
     "All rights reserved.\n\n"
     "This trial version may only be used for evaluation purposes\n"
     "Registered to:\n"
