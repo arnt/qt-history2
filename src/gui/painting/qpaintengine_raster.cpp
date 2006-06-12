@@ -720,9 +720,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             ;
 #endif
         } else {
-            qWarning("QRasterPaintEngine::begin(), unsupported image format (%d)\n"
-                     "Supported image formats: Format_RGB32 and Format_ARGB32_Premultiplied",
-                     format);
+            qWarning("QRasterPaintEngine::begin: Unsupported image format (%d)", format);
             return false;
         }
     } else {
@@ -1281,7 +1279,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
                                           : LineDrawNormal);
             int dashOffset = 0;
 
-            // Draw the all the line segments.
+            // Draw all the line segments.
             for (int i=1; i<pointCount; ++i) {
                 QPointF lp1 = points[i-1] * d->matrix;
                 QPointF lp2 = points[i] * d->matrix;
@@ -1397,7 +1395,7 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
 
         int dashOffset = 0;
 
-        // Draw the all the line segments.
+        // Draw all the line segments.
         for (int i=1; i<pointCount; ++i) {
             if (d->pen.style() == Qt::SolidLine)
                 drawLine_midpoint_i(points[i-1].x() * m11 + dx, points[i-1].y() * m22 + dy,

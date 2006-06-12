@@ -652,7 +652,10 @@ QImageData::~QImageData()
                             ARGB format (0xAARRGGBB), i.e. the red,
                             green, and blue channels are multiplied
                             by the alpha component divided by 255. (If RR, GG, or BB
-                            has a higher value than the alpha channel, the results are undefined.)
+                            has a higher value than the alpha channel, the results are
+                            undefined.) Certain operations (such as image composition
+                            using alpha blending) are faster using premultiplied ARGB32
+                            than with plain ARGB32.
 
     The following image format is specific to \l{Qtopia Core}:
 
@@ -713,7 +716,7 @@ static QImage::Format formatFor(int depth, QImage::Endian bitOrder)
     } else if (depth == 16) {
         format = QImage::Format_RGB16;
     } else {
-        qWarning("QImage: depth %d not supported", depth);
+        qWarning("QImage: Depth %d not supported", depth);
         format = QImage::Format_Invalid;
     }
     return format;
@@ -2952,7 +2955,7 @@ bool QImage::valid(int x, int y) const
 int QImage::pixelIndex(int x, int y) const
 {
     if (!d || x < 0 || x >= d->width) {
-        qWarning("QImage::pixel: x=%d out of range", x);
+        qWarning("QImage::pixel: X coordinate %d out of range", x);
         return -12345;
     }
     const uchar * s = scanLine(y);
@@ -2982,7 +2985,7 @@ int QImage::pixelIndex(int x, int y) const
 QRgb QImage::pixel(int x, int y) const
 {
     if (!d || x < 0 || x >= d->width) {
-        qWarning("QImage::pixel: x=%d out of range", x);
+        qWarning("QImage::pixel: X coordinate %d out of range", x);
         return 12345;
     }
     const uchar * s = scanLine(y);
@@ -3019,7 +3022,7 @@ QRgb QImage::pixel(int x, int y) const
 void QImage::setPixel(int x, int y, uint index_or_rgb)
 {
     if (!d || x < 0 || x >= width()) {
-        qWarning("QImage::setPixel: x=%d out of range", x);
+        qWarning("QImage::setPixel: X coordinate %d out of range", x);
         return;
     }
     detach();
@@ -3028,7 +3031,7 @@ void QImage::setPixel(int x, int y, uint index_or_rgb)
     case Format_Mono:
     case Format_MonoLSB:
         if (index_or_rgb > 1) {
-            qWarning("QImage::setPixel: index=%d out of range", index_or_rgb);
+            qWarning("QImage::setPixel: Index %d out of range", index_or_rgb);
         } else if (format() == Format_MonoLSB) {
             if (index_or_rgb==0)
                 *(s + (x >> 3)) &= ~(1 << (x & 7));
@@ -3043,7 +3046,7 @@ void QImage::setPixel(int x, int y, uint index_or_rgb)
         break;
     case Format_Indexed8:
         if (index_or_rgb > (uint)d->colortable.size()) {
-            qWarning("QImage::setPixel: index=%d out of range", index_or_rgb);
+            qWarning("QImage::setPixel: Index %d out of range", index_or_rgb);
             return;
         }
         s[x] = index_or_rgb;
@@ -3968,7 +3971,7 @@ bool QImage::save(QIODevice* device, const char* format, int quality) const
 bool QImageData::doImageIO(const QImage *image, QImageWriter *writer, int quality) const
 {
     if (quality > 100  || quality < -1)
-        qWarning("QPixmap::save: quality out of range [-1,100]");
+        qWarning("QPixmap::save: Quality out of range [-1, 100]");
     if (quality >= 0)
         writer->setQuality(qMin(quality,100));
     return writer->write(*image);
@@ -4515,7 +4518,7 @@ int QImage::metric(PaintDeviceMetric metric) const
         break;
 
     default:
-        qWarning("QImage::metric(), Unhandled metric type: %d\n", metric);
+        qWarning("QImage::metric(): Unhandled metric type %d", metric);
         break;
     }
     return 0;
@@ -4778,8 +4781,8 @@ void QImage::setAlphaChannel(const QImage &alphaChannel)
     int h = d->height;
 
     if (w != alphaChannel.d->width || h != alphaChannel.d->height) {
-        qWarning("QImage::setAlphaChannel(), "
-                 "alpha channel must have same dimensions as the target image.");
+        qWarning("QImage::setAlphaChannel: "
+                 "Alpha channel must have same dimensions as the target image");
         return;
     }
 
