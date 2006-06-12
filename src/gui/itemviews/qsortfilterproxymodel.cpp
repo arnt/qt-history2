@@ -982,11 +982,10 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &so
     mapFromSource(), mapSelectionToSource(), and
     mapSelectionFromSource().
 
-    By default, sorting and filtering isn't dynamically reapplied
+    In Qt 4.1, sorting and filtering isn't dynamically reapplied
     whenever the data of the original model changes, as an
-    optimization. To enable dynamic sorting and filtering, call
-    setDynamicSortFilter(true). At any time, you can call clear() to
-    resort/refilter the data.
+    optimization. Qt 4.2 is expected to offer a mechanism to enable
+    dynamic sorting and filtering.
 
     The \l{itemviews/basicsortfiltermodel}{Basic Sort/Filter Model}
     and \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
