@@ -150,24 +150,24 @@ QColor Declaration::colorValue() const
     QStringList lst = v.variant.toStringList();
     if (lst.count() != 2)
         return QColor();
-    
+
     // function name
     if (lst.at(0).compare(QLatin1String("rgb"), Qt::CaseInsensitive) != 0)
         return QColor();
-    
+
     Parser p(lst.at(1));
     if (!p.testExpr())
         return QColor();
-    
+
     QVector<Value> colorDigits;
     if (!p.parseExpr(&colorDigits))
         return QColor();
-    
+
     if (colorDigits.count() != 5
         || colorDigits.at(1).type != Value::TermOperatorComma
         || colorDigits.at(3).type != Value::TermOperatorComma)
         return QColor();
-    
+
     for (int i = 0; i < 5; i += 2)
         if (colorDigits.at(i).type == Value::Percentage) {
             colorDigits[i].variant = colorDigits.at(i).variant.toDouble() * 255. / 100.;
@@ -175,7 +175,7 @@ QColor Declaration::colorValue() const
         }
 
     return QColor(colorDigits.at(0).variant.toInt(),
-                  colorDigits.at(2).variant.toInt(), 
+                  colorDigits.at(2).variant.toInt(),
                   colorDigits.at(4).variant.toInt());
 }
 
@@ -235,7 +235,7 @@ static bool setFontSizeFromValue(Value value, QFont *font, int *fontSizeAdjustme
     }
     if (value.type != Value::Length)
         return false;
-    
+
     bool valid = false;
     QString s = value.variant.toString();
     if (s.endsWith(QLatin1String("pt"), Qt::CaseInsensitive)) {
@@ -324,12 +324,12 @@ static void parseShorthandFontProperty(const QVector<Value> &values, QFont *font
         else
             break;
     }
-    
+
     if (i < values.count()) {
         setFontSizeFromValue(values.at(i), font, fontSizeAdjustment);
         ++i;
     }
-    
+
     if (i < values.count()) {
         setFontFamilyFromValue(values.at(i), font);
     }
@@ -339,7 +339,7 @@ void QCss::extractFontProperties(const QVector<Declaration> &declarations, QFont
 {
     *font = QFont();
     *fontSizeAdjustment = -255;
-    
+
     for (int i = 0; i < declarations.count(); ++i) {
         const Declaration &decl = declarations.at(i);
         if (decl.values.isEmpty())
@@ -364,7 +364,7 @@ int Selector::specificity() const
         const BasicSelector &sel = basicSelectors.at(i);
         if (!sel.elementName.isEmpty())
             val += 1;
-        
+
         val += (sel.pseudoClasses.count() + sel.attributeSelectors.count()) * 0x10;
         val += sel.ids.count() * 0x100;
     }
@@ -391,7 +391,7 @@ bool StyleSelector::selectorMatches(const Selector &selector, NodePtr node)
     }
     if (selector.basicSelectors.count() <= 1)
         return false;
-    
+
     int i = selector.basicSelectors.count() - 1;
     node = duplicateNode(node);
     bool match = true;
@@ -400,7 +400,8 @@ bool StyleSelector::selectorMatches(const Selector &selector, NodePtr node)
     do {
         match = basicSelectorMatches(sel, node);
         if (!match) {
-            if (sel.relationToNext == BasicSelector::MatchNextSelectorIfParent)
+            if (sel.relationToNext == BasicSelector::MatchNextSelectorIfParent
+                || i == selector.basicSelectors.count() - 1) // first element must always match!
                 break;
         }
 
@@ -409,11 +410,11 @@ bool StyleSelector::selectorMatches(const Selector &selector, NodePtr node)
 
         if (i < 0)
             break;
-        
+
         sel = selector.basicSelectors.at(i);
         if (sel.relationToNext == BasicSelector::MatchNextSelectorIfAncestor
             || sel.relationToNext == BasicSelector::MatchNextSelectorIfParent) {
-            
+
             NodePtr nextParent = parentNode(node);
             freeNode(node);
             node = nextParent;
@@ -427,7 +428,7 @@ bool StyleSelector::selectorMatches(const Selector &selector, NodePtr node)
             break;
         }
    } while (i >= 0 && (match || sel.relationToNext == BasicSelector::MatchNextSelectorIfAncestor));
-    
+
     freeNode(node);
 
     return match;
@@ -461,7 +462,7 @@ bool StyleSelector::basicSelectorMatches(const BasicSelector &sel, NodePtr node)
                 return false;
         }
     }
-    
+
     if (!sel.elementName.isEmpty()
         && sel.elementName != nodeName(node))
             return false;
@@ -505,7 +506,7 @@ QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
     QVector<Declaration> decls;
     if (styleSheets.isEmpty())
         return decls;
-    
+
     QVector<QPair<int, StyleRule> > matchingRules;
 
     for (int sheetIdx = 0; sheetIdx < styleSheets.count(); ++sheetIdx) {
@@ -526,7 +527,7 @@ QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
 
     for (int i = 0; i < matchingRules.count(); ++i)
         decls += matchingRules.at(i).second.declarations;
-    
+
     return decls;
 }
 
@@ -536,7 +537,7 @@ static inline bool isHexDigit(const char c)
            || (c >= 'a' && c <= 'f')
            || (c >= 'A' && c <= 'F')
            ;
-}         
+}
 
 QString Scanner::preprocess(const QString &input)
 {
