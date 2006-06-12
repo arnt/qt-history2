@@ -1853,7 +1853,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
 
     for (int i=0; i< glyphs.size(); ++i) {
         QGLGlyphHash::const_iterator it = cache->constFind(glyphs[i]);
-        if (it == cache->end()) {
+        if (it == cache->constEnd()) {
             // render new glyph and put it in the cache
             glyph_metrics_t metrics = ti.fontEngine->boundingBox(glyphs[i]);
             int glyph_width = qRound(metrics.width.toReal())+2;
