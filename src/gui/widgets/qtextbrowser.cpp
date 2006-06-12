@@ -81,7 +81,6 @@ public:
 
 #ifdef QT_KEYPAD_NAVIGATION
     void keypadMove(bool next);
-    int lastPos;
 #endif
     QTextCursor focusIndicator;
     void updateFocusIndicator();
@@ -391,7 +390,7 @@ void QTextBrowserPrivate::keypadMove(bool next)
     if (findNextPrevAnchor(next, anchorStart, anchorEnd)) {
         QTextBlock block = control->document()->findBlock(next ? anchorEnd : anchorStart);
         const int yOffset = vbar->value();
-        const int cursYOffset = (int)block.layout()->position().y();
+        const int cursYOffset = qRound(control->document()->documentLayout()->blockBoundingRect(block).top());
         const int overlap = 20;
         if (next) {
             if (cursYOffset > yOffset + height) {
