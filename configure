@@ -4281,7 +4281,7 @@ full)
 *)
     tmpconfig="$outpath/src/corelib/global/qconfig.h.new"
     echo "#ifndef QT_BOOTSTRAPPED" >"$tmpconfig"
-    cat "$outpath/include/QtCore/qconfig-$CFG_QCONFIG.h" >>"$tmpconfig"
+    cat "$outpath/src/corelib/global/qconfig-$CFG_QCONFIG.h" >>"$tmpconfig"
     echo "#endif" >>"$tmpconfig"
     ;;
 esac
