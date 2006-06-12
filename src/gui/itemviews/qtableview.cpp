@@ -22,8 +22,30 @@
 #include <qsize.h>
 #include <qevent.h>
 #include <qscrollbar.h>
-#include <qtoolbutton.h>
+#include <qabstractbutton.h>
 #include <private/qtableview_p.h>
+
+class QTableCornerButton : public QAbstractButton
+{
+public:
+    QTableCornerButton(QWidget *parent) : QAbstractButton(parent) {}
+    void paintEvent(QPaintEvent*) {
+        QStyleOptionHeader opt;
+        opt.init(this);
+        QStyle::State state = QStyle::State_None;
+        if (isEnabled())
+            state |= QStyle::State_Enabled;
+        if (isActiveWindow())
+            state |= QStyle::State_Active;
+        if (isDown())
+            state |= QStyle::State_Sunken;
+        opt.state = state;
+        opt.rect = rect();
+        opt.position = QStyleOptionHeader::OnlyOneSection;
+        QPainter painter(this);
+        style()->drawControl(QStyle::CE_Header, &opt, &painter, this);
+    }
+};
 
 void QTableViewPrivate::init()
 {
@@ -43,7 +65,7 @@ void QTableViewPrivate::init()
 
     tabKeyNavigation = true;
 
-    cornerWidget = new QToolButton(q);
+    cornerWidget = new QTableCornerButton(q);
     QObject::connect(cornerWidget, SIGNAL(clicked()), q, SLOT(selectAll()));
 }
 
