@@ -472,11 +472,15 @@ QIcon::operator QVariant() const
 }
 
 /*!
-    Returns a number that uniquely identifies the contents of this
-    QIcon object. This means that multiple QIcon objects can have
-    the same serial number as long as they refer to the same contents.
+    Returns a number that identifies the contents of this
+    QIcon object. Distinct QIcon objects can have
+    the same serial number if they refer to the same contents
+    (but they don't have to). Also, the serial number of
+    a QIcon object may change during its lifetime.
 
     A null icon always has a serial number of 0.
+
+    Serial numbers are mostly useful in conjunction with cacheing.
 
     \sa QPixmap::serialNumber()
 */

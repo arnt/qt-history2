@@ -4723,16 +4723,17 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
 */
 
 /*!
-    Returns a number that uniquely identifies the contents of this
-    QImage object.
+    Returns a number that identifies the contents of this
+    QImage object. Distinct QImage objects can only have the same
+    serial number if they refer to the same contents (but they don't
+    have to). Also, the serial number of a QImage may change during
+    the lifetime of the object.
 
-    This means that multiple QImage objects can only have the same
-    serial number as long as they refer to the same contents. A null
-    image has always a serial number of 0.
+    A null image has always a serial number of 0.
 
-    The serial number is useful is when caching QImages.
+    Serial numbers are moslty useful in conjunction with cacheing.
 
-    \sa {QImage#Image Information}{Image Information}
+    \sa {QImage#Image Information}{Image Information}, operator==()
 */
 
 int QImage::serialNumber() const
