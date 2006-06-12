@@ -889,6 +889,14 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
         }
     }
 
+    painter->save();
+
+    // Transform the painter.
+    painter->setClipRect(targetRect);
+    painter->translate(targetRect.left(), targetRect.top());
+    painter->scale(xratio, yratio);
+    painter->translate(-sourceRect.left(), -sourceRect.top());
+
     // Generate the style options
     QList<QStyleOptionGraphicsItem> styleOptions;
     for (int i = 0; i < itemList.size(); ++i) {
@@ -921,14 +929,6 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
 
         styleOptions << option;
     }
-
-    painter->save();
-
-    // Transform the painter.
-    painter->setClipRect(targetRect);
-    painter->translate(targetRect.left(), targetRect.top());
-    painter->scale(xratio, yratio);
-    painter->translate(-sourceRect.left(), -sourceRect.top());
 
     // Render the scene.
     drawBackground(painter, sourceRect);
