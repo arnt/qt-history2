@@ -481,6 +481,7 @@ void QVFb::configure()
     config->skin->insertItems(config->skin->count(), skinnames);
     if (currentSkinIndex > 0)
 	config->skin->setCurrentIndex(currentSkinIndex);
+    config->skin->addItem(tr("Browse..."));
     config->touchScreen->setChecked(view->touchScreenEmulation());
     config->lcdScreen->setChecked(view->lcdScreenEmulation());
     config->depth_1->setChecked(view->displayDepth()==1);
@@ -579,6 +580,21 @@ void QVFb::chooseSize(const QSize& sz)
 
 void QVFb::skinConfigChosen(int i)
 {
+    if (i == config->skin->count() - 1) { // Browse... ?
+        QFileDialog dlg(this);
+        dlg.setFileMode(QFileDialog::DirectoryOnly);
+        dlg.setWindowTitle(tr("Load Custom Skin..."));
+        dlg.setFilter(tr("All QVFB Skins (*.skin)"));
+        dlg.setDirectory(QDir::current());
+        if (dlg.exec() && dlg.selectedFiles().count() == 1) {
+            skinfiles.append(dlg.selectedFiles().first());
+            i = skinfiles.count();
+            config->skin->insertItem(i, QFileInfo(skinfiles.last()).baseName());
+            config->skin->setCurrentIndex(i);
+        } else {
+            i = 0;
+        }
+    }
     if ( i ) {
 	chooseSize(Skin::screenSize(skinfiles[i-1]));
     }
