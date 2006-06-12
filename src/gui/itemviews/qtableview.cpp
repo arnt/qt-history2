@@ -22,6 +22,7 @@
 #include <qsize.h>
 #include <qevent.h>
 #include <qscrollbar.h>
+#include <qtoolbutton.h>
 #include <private/qtableview_p.h>
 
 void QTableViewPrivate::init()
@@ -41,6 +42,9 @@ void QTableViewPrivate::init()
     q->setHorizontalHeader(horizontal);
 
     tabKeyNavigation = true;
+
+    cornerWidget = new QToolButton(q);
+    QObject::connect(cornerWidget, SIGNAL(clicked()), q, SLOT(selectAll()));
 }
 
 /*!
@@ -652,7 +656,9 @@ void QTableView::paintEvent(QPaintEvent *event)
             alternateBase = (top & 1) && alternate;
         }
 
-        Q_ASSERT(top >= 0 && top <= bottom);
+        if (top > bottom)
+            return;
+        //Q_ASSERT(top >= 0 && top <= bottom);
 
         // do the actual painting
         for (int v = top; v <= bottom; ++v) {
@@ -1185,6 +1191,12 @@ void QTableView::updateGeometries()
     d->horizontalHeader->setGeometry(vg.left(), horizontalTop, vg.width(), height);
     if (d->horizontalHeader->isHidden())
         QMetaObject::invokeMethod(d->horizontalHeader, "updateGeometries");
+
+    // update cornerWidget
+    if (d->horizontalHeader->isHidden() || d->verticalHeader->isHidden())
+        d->cornerWidget->setHidden(true);
+    else
+        d->cornerWidget->setGeometry(verticalLeft, horizontalTop, width, height);
 
     // update scrollbars
 

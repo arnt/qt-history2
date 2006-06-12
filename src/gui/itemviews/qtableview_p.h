@@ -84,6 +84,7 @@ public:
     QList<int> rowsToUpdate;
     QHeaderView *horizontalHeader;
     QHeaderView *verticalHeader;
+    QWidget *cornerWidget;
     bool sortingEnabled;
 
     struct Span
