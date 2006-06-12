@@ -36,9 +36,6 @@ public:
     void mousePressEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *);
 
-public slots:
-    void followSelectedLink();
-
 signals:
     void chooseWebBrowser();
     void choosePDFReader();
