@@ -116,6 +116,7 @@ public:
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
+    bool cursorIsFocusIndicator;
     QTextCharFormat lastCharFormat;
 
     QTextCursor dndFeedbackCursor;

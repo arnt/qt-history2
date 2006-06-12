@@ -68,7 +68,7 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 }
 
 QTextControlPrivate::QTextControlPrivate()
-    : doc(0), cursorOn(false),
+    : doc(0), cursorOn(false), cursorIsFocusIndicator(false),
       interactionFlags(Qt::TextEditorInteraction),
 #ifndef QT_NO_DRAGANDDROP
       mousePressed(false), mightStartDrag(false),
@@ -1016,6 +1016,7 @@ void QTextControl::setHtml(const QString &text)
 void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
 {
     Q_Q(QTextControl);
+    cursorIsFocusIndicator = false;
 
     if (e->modifiers() & Qt::ControlModifier) {
         switch( e->key() ) {
@@ -1108,6 +1109,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
             goto process;
         case Qt::Key_K: {
             QTextBlock block = cursor.block();
+
             if (cursor.position() == block.position() + block.length() - 2)
                 cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
             else
@@ -1327,6 +1329,7 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
                                           Qt::MouseButtons buttons, const QPoint &globalPos)
 {
     Q_Q(QTextControl);
+    cursorIsFocusIndicator = false;
 
     if (interactionFlags & Qt::LinksAccessibleByMouse) {
         anchorOnMousePress = q->anchorAt(pos);
@@ -2168,6 +2171,7 @@ bool QTextControl::setFocusToNextOrPreviousAnchor(bool next)
     if (d->findNextPrevAnchor(next, anchorStart, anchorEnd)) {
         d->cursor.setPosition(anchorStart);
         d->cursor.setPosition(anchorEnd, QTextCursor::KeepAnchor);
+        d->cursorIsFocusIndicator = true;
     } else {
         d->cursor.clearSelection();
     }
@@ -2377,7 +2381,7 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
     if (d->cursor.hasSelection()) {
         QAbstractTextDocumentLayout::Selection selection;
         selection.cursor = d->cursor;
-        if (d->interactionFlags & Qt::LinksAccessibleByKeyboard) {
+        if (d->cursorIsFocusIndicator) {
             QPen outline(ctx.palette.color(QPalette::Text), 1, Qt::DotLine);
             selection.format.setProperty(QTextFormat::OutlinePen, outline);
         } else {
