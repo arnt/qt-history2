@@ -797,6 +797,9 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
 void QLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
     Q_D(QLabel);
+    if (!d->doc)
+        return;
+
     d->sendControlEvent(ev);
 
     // check for link clicks. ensure that the mouse press and release happenned on the same anchor
@@ -812,6 +815,10 @@ void QLabel::contextMenuEvent(QContextMenuEvent *ev)
 {
 #ifndef QT_NO_CONTEXTMENU
     Q_D(QLabel);
+    if (!d->doc) {
+        ev->ignore();
+        return;
+    }
     QMenu *menu = d->createStandardContextMenu(ev->pos());
     if (!menu) {
         ev->ignore();
