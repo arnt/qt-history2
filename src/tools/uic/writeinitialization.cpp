@@ -1414,11 +1414,14 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
 
-    refreshOut << option.indent << varName << "->clear();\n";
     // columns
     QList<DomColumn *> columns = w->elementColumn();
-    refreshOut << option.indent << varName << "->setColumnCount("
-                << columns.size() << ");\n";
+
+    if (columns.size() != 0) {
+        refreshOut << option.indent << "if (" << varName << "->columnCount() < " << columns.size() << ")\n"
+                << option.indent << option.indent << varName << "->setColumnCount(" << columns.size() << ");\n";
+    }
+
     for (int i = 0; i < columns.size(); ++i) {
         DomColumn *column = columns.at(i);
 
@@ -1445,8 +1448,12 @@ void WriteInitialization::initializeTableWidget(DomWidget *w)
 
     // rows
     QList<DomRow *> rows = w->elementRow();
-    refreshOut << option.indent << varName << "->setRowCount("
-                << rows.size() << ");\n";
+
+    if (rows.size() != 0) {
+        refreshOut << option.indent << "if (" << varName << "->rowCount() < " << rows.size() << ")\n"
+                << option.indent << option.indent << varName << "->setRowCount(" << rows.size() << ");\n";
+    }
+
     for (int i = 0; i < rows.size(); ++i) {
         DomRow *row = rows.at(i);
 
