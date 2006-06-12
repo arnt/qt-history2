@@ -78,8 +78,8 @@ QFont QTextItem::font() const
   paint engine that is a fallback for when an engine does not support a certain
   capability.
 
-  If one wants to use QPainter to draw to a different backend, such as
-  PDF, one must subclass QPaintEngine and reimplement all its virtual
+  If one wants to use QPainter to draw to a different backend,
+  one must subclass QPaintEngine and reimplement all its virtual
   functions. The QPaintEngine implementation is then made available by
   subclassing QPaintDevice and reimplementing the virtual function
   QPaintDevice::paintEngine().
