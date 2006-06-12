@@ -225,6 +225,7 @@ void QDesktopWidgetPrivate::cleanup()
     \brief The QDesktopWidget class provides access to screen information on multi-head systems.
 
     \ingroup advanced
+    \ingroup desktop
     \ingroup environment
     \mainclass
 
