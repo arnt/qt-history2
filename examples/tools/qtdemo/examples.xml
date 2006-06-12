@@ -30,6 +30,7 @@
   <category dirname="graphicsview" name="Graphics View">
     <example filename="elasticnodes" name="Elastic Nodes" />
     <example filename="collidingmice" name="Colliding Mice" />
+    <example filename="dragdroprobot" name="Drag and Drop Robot" />
   </category>
   <category dirname="itemviews" name="Item Views">
     <example filename="basicsortfiltermodel" name="Basic Sort/Filter Model" />

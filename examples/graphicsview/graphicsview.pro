@@ -1,5 +1,5 @@
 TEMPLATE      = subdirs
-SUBDIRS       = elasticnodes collidingmice
+SUBDIRS       = elasticnodes collidingmice dragdroprobot
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/graphicsview

@@ -1,0 +1,10 @@
+/*!
+    \example graphicsview/dragdroprobot
+    \title Drag and Drop Robot Example
+
+    This GraphicsView example shows how to implement drag and drop in
+    a QGraphicsItem subclass, as well as how to animate items using
+    QGraphicsItemAnimation and QTimeLine.
+
+    \image dragdroprobot-example.png
+*/
