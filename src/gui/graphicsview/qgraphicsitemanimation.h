@@ -20,6 +20,8 @@
 
 QT_BEGIN_HEADER
 
+QT_MODULE(Gui)
+
 class QGraphicsItem;
 class QMatrix;
 class QPointF;

@@ -293,8 +293,17 @@ void QGraphicsItemAnimation::setStep(qreal x)
     if (!d->item)
         return;
 
-    d->item->setPos(posAt(x));
-    d->item->setMatrix(d->startMatrix * matrixAt(x));
+    if (!d->xPosition.isEmpty() || !d->yPosition.isEmpty())
+	d->item->setPos(posAt(x));
+    if (!d->rotation.isEmpty()
+	|| !d->verticalScale.isEmpty()
+	|| !d->horizontalScale.isEmpty()
+	|| !d->verticalShear.isEmpty()
+	|| !d->horizontalShear.isEmpty()
+	|| !d->xTranslation.isEmpty()
+	|| !d->yTranslation.isEmpty()) {
+	d->item->setMatrix(d->startMatrix * matrixAt(x));
+    }
 }
 
 void QGraphicsItemAnimation::reset()
