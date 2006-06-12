@@ -68,10 +68,16 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
+    void ensureSorted(int column, Qt::SortOrder order,
+                      int start, int end, const QModelIndex &parent);
     static bool itemLessThan(const QPair<QTreeWidgetItem*,int> &left,
                              const QPair<QTreeWidgetItem*,int> &right);
     static bool itemGreaterThan(const QPair<QTreeWidgetItem*,int> &left,
                                 const QPair<QTreeWidgetItem*,int> &right);
+    static QList<QTreeWidgetItem*>::iterator sortedInsertionIterator(
+        const QList<QTreeWidgetItem*>::iterator &begin,
+        const QList<QTreeWidgetItem*>::iterator &end,
+        Qt::SortOrder order, QTreeWidgetItem *item);
 
     void insertInTopLevel(int row, QTreeWidgetItem *item);
 

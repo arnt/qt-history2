@@ -34,6 +34,20 @@ public:
     QList<QTreeWidgetItem*> items;
 };
 
+class QTreeModelLessThan
+{
+public:
+    inline bool operator()(QTreeWidgetItem *i1, QTreeWidgetItem *i2) const
+        { return *i1 < *i2; }
+};
+
+class QTreeModelGreaterThan
+{
+public:
+    inline bool operator()(QTreeWidgetItem *i1, QTreeWidgetItem *i2) const
+        { return *i2 < *i1; }
+};
+
 #include "qtreewidget.moc"
 
 /*
@@ -476,6 +490,70 @@ void QTreeModel::sort(int column, Qt::SortOrder order)
 
 /*!
   \internal
+*/
+void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
+                              int start, int end, const QModelIndex &parent)
+{
+    if (header && (column < 0 || column >= header->columnCount()))
+        return;
+
+    emit layoutAboutToBeChanged();
+
+    QTreeWidgetItem *itm = item(parent);
+    QList<QTreeWidgetItem*> &lst = itm ? itm->children : tree;
+
+    int count = end - start + 1;
+    QVector < QPair<QTreeWidgetItem*,int> > sorting(count);
+    for (int i = 0; i < count; ++i) {
+        sorting[i].first = lst.at(start + i);
+        sorting[i].second = start + i;
+    }
+
+    LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
+    qSort(sorting.begin(), sorting.end(), compare);
+
+    QModelIndexList oldPersistentIndexes = persistentIndexList();
+    QModelIndexList newPersistentIndexes = oldPersistentIndexes;
+    QList<QTreeWidgetItem*>::iterator lit = lst.begin();
+    for (int i = 0; i < count; ++i) {
+        int oldRow = sorting.at(i).second;
+        QTreeWidgetItem *item = lst.takeAt(oldRow);
+        lit = sortedInsertionIterator(lit, lst.end(), order, item);
+        int newRow = qMax(lit - lst.begin(), 0);
+        lit = lst.insert(lit, item);
+        if (newRow != oldRow) {
+            for (int j = i + 1; j < count; ++j) {
+                int otherRow = sorting.at(j).second;
+                if (oldRow < otherRow && newRow >= otherRow)
+                    --sorting[j].second;
+                else if (oldRow > otherRow && newRow <= otherRow)
+                    ++sorting[j].second;
+            }
+            for (int k = 0; k < newPersistentIndexes.count(); ++k) {
+                QModelIndex pi = newPersistentIndexes.at(k);
+                if (pi.parent() != parent)
+                    continue;
+                int oldPersistentRow = pi.row();
+                int newPersistentRow = oldPersistentRow;
+                if (oldPersistentRow == oldRow)
+                    newPersistentRow = newRow;
+                else if (oldRow < oldPersistentRow && newRow >= oldPersistentRow)
+                    newPersistentRow = oldPersistentRow - 1;
+                else if (oldRow > oldPersistentRow && newRow <= oldPersistentRow)
+                    newPersistentRow = oldPersistentRow + 1;
+                if (newPersistentRow != oldPersistentRow)
+                    newPersistentIndexes[k] = index(newPersistentRow,
+                                                    pi.column(), pi.parent());
+            }
+        }
+    }
+    changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
+
+    emit layoutChanged();
+}
+
+/*!
+  \internal
 
   Returns true if the value of the \a left item is
   less than the value of the \a right item.
@@ -506,12 +584,32 @@ bool QTreeModel::itemGreaterThan(const QPair<QTreeWidgetItem*,int> &left,
 
 /*!
   \internal
+*/
+QList<QTreeWidgetItem*>::iterator QTreeModel::sortedInsertionIterator(
+    const QList<QTreeWidgetItem*>::iterator &begin,
+    const QList<QTreeWidgetItem*>::iterator &end,
+    Qt::SortOrder order, QTreeWidgetItem *item)
+{
+    if (order == Qt::AscendingOrder)
+        return qLowerBound(begin, end, item, QTreeModelLessThan());
+    return qLowerBound(begin, end, item, QTreeModelGreaterThan());
+}
+
+/*!
+  \internal
 
   Inserts the tree view \a item to the tree model as a  toplevel item.
 */
 
 void QTreeModel::insertInTopLevel(int row, QTreeWidgetItem *item)
 {
+    QTreeWidget *view = qobject_cast<QTreeWidget*>(QObject::parent());
+    if (view && view->isSortingEnabled()) {
+        Qt::SortOrder order = view->header()->sortIndicatorOrder();
+        QList<QTreeWidgetItem*>::iterator it;
+        it = sortedInsertionIterator(tree.begin(), tree.end(), order, item);
+        row = qMax(it - tree.begin(), 0);
+    }
     beginInsertRows(QModelIndex(), row, row);
     tree.insert(row, item);
     endInsertRows();
@@ -525,10 +623,17 @@ void QTreeModel::insertInTopLevel(int row, QTreeWidgetItem *item)
 
 void QTreeModel::insertListInTopLevel(int row, const QList<QTreeWidgetItem*> &items)
 {
-    beginInsertRows(QModelIndex(), row, row + items.count() - 1);
-    for (int n = 0; n < items.count(); ++n)
-        tree.insert(row, items.at(n));
-    endInsertRows();
+    QTreeWidget *view = qobject_cast<QTreeWidget*>(QObject::parent());
+    if (view && view->isSortingEnabled()) {
+        // sorted insertion
+        for (int n = 0; n < items.count(); ++n)
+            insertInTopLevel(row, items.at(n));
+    } else {
+        beginInsertRows(QModelIndex(), row, row + items.count() - 1);
+        for (int n = 0; n < items.count(); ++n)
+            tree.insert(row, items.at(n));
+        endInsertRows();
+    }
 }
 
 QStringList QTreeModel::mimeTypes() const
@@ -1420,6 +1525,13 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 
     child->par = this;
     if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0)) {
+        if (view->isSortingEnabled()) {
+            Qt::SortOrder order = view->header()->sortIndicatorOrder();
+            QList<QTreeWidgetItem*>::iterator it;
+            it = model->sortedInsertionIterator(children.begin(), children.end(),
+                                                order, child);
+            index = qMax(it - children.begin(), 0);
+        }
         model->beginInsertItems(this, index, 1);
         int cols = model->columnCount();
         QStack<QTreeWidgetItem*> stack;
@@ -1485,6 +1597,11 @@ void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &c
 {
     // FIXME: here we have a problem;
     // the user could build up a tree and then insert the root in the view
+    if (view && view->isSortingEnabled()) {
+        for (int n = 0; n < children.count(); ++n)
+            insertChild(index, children.at(n));
+        return;
+    }
     QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
     if (model) model->beginInsertItems(this, index, children.count());
     for (int n = 0; n < children.count(); ++n) {
@@ -1643,6 +1760,7 @@ public:
     void _q_emitItemCollapsed(const QModelIndex &index);
     void _q_emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &index);
     void _q_sort();
+    void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
 void QTreeWidgetPrivate::_q_emitItemPressed(const QModelIndex &index)
@@ -1709,6 +1827,20 @@ void QTreeWidgetPrivate::_q_sort()
         int column = q->header()->sortIndicatorSection();
         Qt::SortOrder order = q->header()->sortIndicatorOrder();
         model()->sort(column, order);
+    }
+}
+
+void QTreeWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
+                                        const QModelIndex &bottomRight)
+{
+    Q_Q(QTreeWidget);
+    if (sortingEnabled && topLeft.isValid() && bottomRight.isValid()) {
+        int column = q->header()->sortIndicatorSection();
+        if (column >= topLeft.column() && column <= bottomRight.column()) {
+            Qt::SortOrder order = q->header()->sortIndicatorOrder();
+            model()->ensureSorted(column, order, topLeft.row(),
+                                  bottomRight.row(), topLeft.parent());
+        }
     }
 }
 
@@ -1888,8 +2020,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             this, SIGNAL(itemSelectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(_q_emitItemChanged(QModelIndex)));
-    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(_q_sort()));
-    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(_q_sort()));
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
     QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)), this, SLOT(_q_sort()));
 
     header()->setClickable(false);
