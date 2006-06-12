@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2004-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
 ** This file is part of an example program for Qt.
 ** EDITIONS: NOLIMITS

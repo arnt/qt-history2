@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
@@ -909,7 +909,7 @@ void QPdfEnginePrivate::writeInfo()
             "/Title (%s)\n"
             "/Author (%s)\n"
             "/Creator (%s)\n"
-            "/Producer (Qt %s (C) 1992-%s Trolltech ASA)\n",
+            "/Producer (Qt %s (C) 1992-%s $TROLLTECH$)\n",
             title.toUtf8().constData(), author.toUtf8().constData(), creator.toUtf8().constData(),
             qVersion(), y.constData());
 

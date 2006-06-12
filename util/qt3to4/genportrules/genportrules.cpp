@@ -803,7 +803,7 @@ void writeLicense(QString &str)
     license << endl;
     license <<"<!--************************************************************************" << endl;
     license << "**" << endl;
-    license << "** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved." << endl;
+    license << "** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved." << endl;
     license << "**" << endl;
     license << "** This file is part of the $MODULE$ of the Qt Toolkit." << endl;
     license << "**" << endl;

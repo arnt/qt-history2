@@ -202,7 +202,7 @@ void QEnvironment::recordUninstall( const QString &displayName, const QString &c
     settings.insertSearchPath(QSettings::Windows, "/Microsoft/Windows/CurrentVersion/Uninstall");
     settings.beginGroup("/" + displayName);
     settings.writeEntry("/DisplayName", displayName);
-    settings.writeEntry("/Publisher", "Trolltech AS");
+    settings.writeEntry("/Publisher", "Trolltech ASA");
     settings.writeEntry("/URLInfoAbout", "http://www.trolltech.com");
     settings.writeEntry("/HelpLink", "http://www.trolltech.com/support");
     settings.writeEntry("/UninstallString", cmdString);

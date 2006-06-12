@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2005-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
@@ -532,7 +532,7 @@ void Launcher::addVersionAndCopyright(const QRectF &rect)
     display->appendShape(versionCaption);
 
     DisplayShape *copyrightCaption = new TitleShape(
-        QString("Copyright \xa9 2005-$THISYEAR$ Trolltech AS"), font(),
+        QString("Copyright \xa9 2005-$THISYEAR$ $TROLLTECH$"), font(),
         QPen(QColor(0,0,0,0)),
         rect.topLeft(), QSizeF(0.5*rect.width(), rect.height()),
         Qt::AlignLeft | Qt::AlignVCenter);

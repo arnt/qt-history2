@@ -1553,7 +1553,7 @@ int main(int, char **)
     QByteArray header =
         "/****************************************************************************\n"
         "**\n"
-        "** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.\n"
+        "** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.\n"
         "**\n"
         "** This file is part of the $MODULE$ of the Qt Toolkit.\n"
         "**\n"

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2004-$THISYEAR$ $TROLLTECH$. All rights reserved.
 ** Copyright (C) 2001-2004 Roberto Raggi
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.

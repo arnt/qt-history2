@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
@@ -36,7 +36,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 /* Only requires Xlib layer - not MT safe */
 /* Author: Daniel Dardailler, daniel@x.org */
 /* Adapted by: Matt Koss, koss@napri.sk */
-/* Further adaptions by: Trolltech ASA */
+/* Further adaptions by: $TROLLTECH$ */
 /***********************************************************/
 
 #include "qplatformdefs.h"
