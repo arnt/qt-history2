@@ -1393,7 +1393,7 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
 {
     Q_D(QTextEdit);
 #ifdef QT_KEYPAD_NAVIGATION
-    if (d->control->textInteractionFlags() & Qt::TextContentsEditable
+    if (d->control->textInteractionFlags() & Qt::TextEditable
         && QApplication::keypadNavigationEnabled()
         && !hasEditFocus())
         setEditFocus(true);
