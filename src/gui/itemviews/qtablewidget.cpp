@@ -2119,9 +2119,6 @@ void QTableWidget::scrollToItem(const QTableWidgetItem *item, QAbstractItemView:
 /*!
     Returns the item prototype used by the table.
 
-    Copies of the item prototype are returned by the createItem()
-    function.
-
     \sa setItemPrototype()
 */
 const QTableWidgetItem *QTableWidget::itemPrototype() const
@@ -2132,6 +2129,12 @@ const QTableWidgetItem *QTableWidget::itemPrototype() const
 
 /*!
     Sets the item prototype for the table to the specified \a item.
+
+    The table widget will use the item prototype clone function when it needs
+    to create a new table item.  For example when the user is editing
+    editing in an empty cell.  This is usefull when you have a QTableWidgetItem
+    subclass and want to make sure that QTableWidget creates instances of
+    your subclass.
 
     \sa itemPrototype()
 */
