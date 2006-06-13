@@ -123,7 +123,7 @@ void GLWidget::paintEvent(QPaintEvent *event)
     static GLfloat lightPosition[4] = { 0.5, 5.0, 7.0, 1.0 };
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
-    resizeGL(width(), height());
+    setupViewport(width(), height());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -139,8 +139,6 @@ void GLWidget::paintEvent(QPaintEvent *event)
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 
-    glDisable(GL_CULL_FACE); // ### not required if begin() also does it
-
     foreach (Bubble *bubble, bubbles) {
         if (bubble->rect().intersects(event->rect()))
             bubble->drawBubble(&painter);
@@ -150,16 +148,20 @@ void GLWidget::paintEvent(QPaintEvent *event)
     painter.end();
 }
 
-void GLWidget::resizeGL(int width, int height)
+void GLWidget::setupViewport(int width, int height)
 {
-    int side = qMin(width, height);
+   int side = qMin(width, height);
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(-0.5, +0.5, +0.5, -0.5, 4.0, 15.0);
     glMatrixMode(GL_MODELVIEW);
+}
 
+void GLWidget::resizeGL(int width, int height)
+{
+    setupViewport(width, height);
     formatInstructions(width, height);
 }
 

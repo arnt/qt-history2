@@ -67,6 +67,7 @@ private:
     void normalizeAngle(int *angle);
     void quad(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2,
               GLdouble x3, GLdouble y3, GLdouble x4, GLdouble y4);
+    void setupViewport(int width, int height);
 
     GLuint object;
     int xRot;
