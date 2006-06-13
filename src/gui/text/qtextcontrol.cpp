@@ -728,11 +728,11 @@ void QTextControl::setTextCursor(const QTextCursor &cursor)
 {
     Q_D(QTextControl);
     const bool posChanged = cursor.position() != d->cursor.position();
+    const QTextCursor oldSelection = d->cursor;
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
-    // ### be smarter, repaint only cursor/selector
-    emit updateRequest();
+    d->repaintOldAndNewSelection(oldSelection);
     if (posChanged)
         emit cursorPositionChanged();
 }
@@ -1970,9 +1970,11 @@ QSizeF QTextControl::size() const
 void QTextControl::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
 {
     Q_D(QTextControl);
+    const QTextCursor oldSelection = d->cursor;
     const bool moved = d->cursor.movePosition(op, mode);
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
+    d->repaintOldAndNewSelection(oldSelection);
     if (moved)
         emit cursorPositionChanged();
 }
