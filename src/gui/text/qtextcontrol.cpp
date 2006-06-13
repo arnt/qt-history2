@@ -1649,6 +1649,7 @@ bool QTextControlPrivate::dropEvent(const QMimeData *mimeData, const QPointF &po
     cursor = insertionCursor;
     q->insertFromMimeData(mimeData);
     insertionCursor.endEditBlock();
+    q->ensureCursorVisible();
     return true; // accept proposed action
 }
 
