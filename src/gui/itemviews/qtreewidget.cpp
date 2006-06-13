@@ -875,6 +875,59 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 */
 
 /*!
+  \fn void QTreeWidgetItem::setSelected(bool select)
+  \since 4.2
+
+  Sets the selected state of the item to \a select.
+
+  \sa isSelected()
+*/
+
+/*!
+  \fn bool QTreeWidgetItem::isSelected() const
+  \since 4.2
+
+  Returns true if the item is selected, otherwise returns false.
+
+  \sa setSelected()
+*/
+
+/*!
+  \fn void QTreeWidgetItem::setHidden(bool hide)
+  \since 4.2
+
+  Hides the item if \a hide is true, otherwise shows the item.
+
+  \sa isHidden()
+*/
+
+/*!
+  \fn bool QTreeWidgetItem::isHidden() const
+  \since 4.2
+
+  Returns true if the item is hidden, otherwise returns false.
+
+  \sa setHidden()
+*/
+/*!
+  \fn void QTreeWidgetItem::setExpanded(bool expand)
+  \since 4.2
+
+  Expands the item if \a expand is true, otherwise collapses the item.
+
+  \sa isExpanded()
+*/
+
+/*!
+  \fn bool QTreeWidgetItem::isExpanded() const
+  \since 4.2
+
+  Returns true if the item is expanded, otherwise returns false.
+
+  \sa setExpanded()
+*/
+
+/*!
     \fn Qt::ItemFlags QTreeWidgetItem::flags() const
 
     Returns the flags used to describe the item. These determine whether

@@ -63,6 +63,12 @@ public:
 
     inline QTableWidget *tableWidget() const { return view; }
 
+    inline int row() const;
+    inline int column() const;
+
+    inline void setSelected(bool select);
+    inline bool isSelected() const;
+
     inline Qt::ItemFlags flags() const { return itemFlags; }
     void setFlags(Qt::ItemFlags flags);
 
@@ -300,6 +306,18 @@ private:
 
 inline QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }
+
+inline int QTableWidgetItem::row() const
+{ return (view ? view->row(this) : -1); }
+
+inline int QTableWidgetItem::column() const
+{ return (view ? view->column(this) : -1); }
+
+inline void QTableWidgetItem::setSelected(bool aselect)
+{ if (view) view->setItemSelected(this, aselect); }
+
+inline bool QTableWidgetItem::isSelected() const
+{ return (view ? view->isItemSelected(this) : false); }
 
 #endif // QT_NO_TABLEWIDGET
 

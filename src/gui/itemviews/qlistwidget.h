@@ -44,6 +44,12 @@ public:
 
     inline QListWidget *listWidget() const { return view; }
 
+    inline void setSelected(bool select);
+    inline bool isSelected() const;
+
+    inline void setHidden(bool hide);
+    inline bool isHidden() const;
+
     inline Qt::ItemFlags flags() const { return itemFlags; }
     void setFlags(Qt::ItemFlags flags);
 
@@ -258,6 +264,18 @@ inline void QListWidget::addItem(QListWidgetItem *aitem)
 
 inline QListWidgetItem *QListWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }
+
+inline void QListWidgetItem::setSelected(bool aselect)
+{ if (view) view->setItemSelected(this, aselect); }
+
+inline bool QListWidgetItem::isSelected() const
+{ return (view ? view->isItemSelected(this) : false); }
+
+inline void QListWidgetItem::setHidden(bool ahide)
+{ if (view) view->setItemHidden(this, ahide); }
+
+inline bool QListWidgetItem::isHidden() const
+{ return (view ? view->isItemHidden(this) : false); }
 
 #endif // QT_NO_LISTWIDGET
 

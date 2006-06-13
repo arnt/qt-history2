@@ -51,6 +51,15 @@ public:
 
     inline QTreeWidget *treeWidget() const { return view; }
 
+    inline void setSelected(bool select);
+    inline bool isSelected() const;
+
+    inline void setHidden(bool hide);
+    inline bool isHidden() const;
+
+    inline void setExpanded(bool expand);
+    inline bool isExpanded() const;
+
     inline Qt::ItemFlags flags() const { return itemFlags; }
     inline void setFlags(Qt::ItemFlags flags);
 
@@ -302,6 +311,24 @@ private:
 
 inline QTreeWidgetItem *QTreeWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }
+
+inline void QTreeWidgetItem::setSelected(bool aselect)
+{ if (view) view->setItemSelected(this, aselect); }
+
+inline bool QTreeWidgetItem::isSelected() const
+{ return (view ? view->isItemSelected(this) : false); }
+
+inline void QTreeWidgetItem::setHidden(bool ahide)
+{ if (view) view->setItemHidden(this, ahide); }
+
+inline bool QTreeWidgetItem::isHidden() const
+{ return (view ? view->isItemHidden(this) : false); }
+
+inline void QTreeWidgetItem::setExpanded(bool aexpand)
+{ if (view) view->setItemExpanded(this, aexpand); }
+
+inline bool QTreeWidgetItem::isExpanded() const
+{ return (view ? view->isItemExpanded(this) : false); }
 
 #endif // QT_NO_TREEWIDGET
 

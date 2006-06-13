@@ -539,6 +539,42 @@ Qt::DropActions QListModel::supportedDropActions() const
 */
 
 /*!
+  \fn void QListWidgetItem::setSelected(bool select)
+  \since 4.2
+
+  Sets the selected state of the item to \a select.
+
+  \sa isSelected()
+*/
+
+/*!
+  \fn bool QListWidgetItem::isSelected() const
+  \since 4.2
+
+  Returns true if the item is selected, otherwise returns false.
+
+  \sa setSelected()
+*/
+
+/*!
+  \fn void QListWidgetItem::setHidden(bool hide)
+  \since 4.2
+
+  Hides the item if \a hide is true, otherwise shows the item.
+
+  \sa isHidden()
+*/
+
+/*!
+  \fn bool QListWidgetItem::isHidden() const
+  \since 4.2
+
+  Returns true if the item is hidden, otherwise returns false.
+
+  \sa setHidden()
+*/
+
+/*!
     \fn QListWidgetItem::QListWidgetItem(QListWidget *parent, int type)
 
     Constructs an empty list widget item of the specified \a type with the

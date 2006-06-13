@@ -800,6 +800,44 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 */
 
 /*!
+  \fn int QTableWidgetItem::row() const
+  \since 4.2
+
+  Returns the row of the item in the table.
+  If the item is not in a table, this function will return -1.
+
+  \sa column()
+*/
+
+/*!
+  \fn int QTableWidgetItem::column() const
+  \since 4.2
+
+  Returns the column of the item in the table.
+  If the item is not in a table, this function will return -1.
+
+  \sa row()
+*/
+
+/*!
+  \fn void QTableWidgetItem::setSelected(bool select)
+  \since 4.2
+
+  Sets the selected state of the item to \a select.
+
+  \sa isSelected()
+*/
+
+/*!
+  \fn bool QTableWidgetItem::isSelected() const
+  \since 4.2
+
+  Returns true if the item is selected, otherwise returns false.
+
+  \sa setSelected()
+*/
+
+/*!
   \fn QSize QTableWidgetItem::sizeHint() const
   \since 4.1
 
