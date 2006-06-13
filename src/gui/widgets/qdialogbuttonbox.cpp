@@ -104,9 +104,9 @@
     \endtable
 
     When a button is clicked in the button box, the clicked() signal is emitted
-    (once with the ButtonRole and once with the actual button). For
-    convenience, if the button has an AcceptRole, RejectRole, or HelpRole, the accepted(),
-    rejected(), or helpRequested() signals are emitted respectively.
+    for the actual button is that is pressed. For convenience, if the button
+    has an AcceptRole, RejectRole, or HelpRole, the accepted(), rejected(), or
+    helpRequested() signals are emitted respectively.
 
     \sa QMessageBox, QPushButton, QDialog
 */
@@ -527,15 +527,6 @@ QDialogButtonBox::~QDialogButtonBox()
 */
 
 /*!
-    \fn void QDialogButtonBox::clicked(int buttonRole)
-
-    This signal is emitted when a button inside the button box is clicked. The
-    \l ButtonRole of the button that was clicked is contained \a buttonRole.
-
-    \sa accepted(), rejected() helpRequested()
-*/
-
-/*!
     \fn void QDialogButtonBox::clicked(QAbstractButton *button)
 
     This signal is emitted when a button inside the button box is clicked. The
@@ -783,9 +774,7 @@ void QDialogButtonBoxPrivate::_q_handleButtonClicked()
     Q_Q(QDialogButtonBox);
     if (QAbstractButton *button = qobject_cast<QAbstractButton *>(q->sender())) {
         emit q->clicked(button);
-        QDialogButtonBox::ButtonRole role = q->buttonRole(button);
-        emit q->clicked(role);
-        switch (role) {
+        switch (q->buttonRole(button)) {
         case AcceptRole:
             emit q->accepted();
             break;

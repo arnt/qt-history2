@@ -87,7 +87,6 @@ public:
 
 Q_SIGNALS:
     void clicked(QAbstractButton *button);
-    void clicked(int buttonRole);
     void accepted();
     void helpRequested();
     void rejected();
