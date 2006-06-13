@@ -515,7 +515,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
             "Linux, and all major commercial Unix variants. Qt is also"
             " available for embedded devices as Qtopia Core.</p>"
             "<p>Qt is a Trolltech product. See "
-            "<tt>http://www.trolltech.com/qt/</tt> for more information.</p>"
+            "<tt><a href=\"http://www.trolltech.com/qt/\">http://www.trolltech.com/qt/</a></tt> for more information.</p>"
            )
 #if QT_EDITION != QT_EDITION_OPENSOURCE
            .arg(QMessageBox::tr("<p>This program uses Qt version %1.</p>"))
@@ -525,7 +525,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
                    "of Open Source applications. You need a commercial Qt "
                    "license for development of proprietary (closed source) "
                    "applications.</p>"
-                   "<p>Please see <tt>http://www.trolltech.com/company/model.html</tt> "
+                   "<p>Please see <tt><a href=\"http://www.trolltech.com/company/model.html\">http://www.trolltech.com/company/model.html</a></tt> "
                    "for an overview of Qt licensing.</p>"))
 #endif
            .arg(QLatin1String(QT_VERSION_STR));
@@ -1506,7 +1506,7 @@ int QMessageBox::critical(QWidget *parent, const QString &caption,
 #ifndef QT_NO_IMAGEFORMAT_XPM
 // helper
 extern void qt_read_xpm_image_or_array(QImageReader *, const char * const *, QImage &);
-#endif 
+#endif
 
 /*!
     Displays a simple message box about Qt, with caption \a caption
@@ -1530,6 +1530,7 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
         c = tr("About Qt");
     mb.setWindowTitle(c);
     mb.setText(*translatedTextAboutQt);
+    mb.d_func()->label->setOpenExternalLinks(true);
 #ifndef QT_NO_IMAGEFORMAT_XPM
     QImage logo(qtlogo_xpm);
 #else
