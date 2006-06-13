@@ -900,8 +900,11 @@ void QRasterPaintEngine::updateMatrix(const QMatrix &matrix)
                            qreal(0.0001));
 
     d->outlineMapper->setMatrix(d->matrix, d->txop);
-    d->penData.setupMatrix(d->matrix, d->txop, d->bilinear);
-    d->brushData.setupMatrix(d->brushMatrix(), d->txop, d->bilinear);
+    QMatrix penMatrix = (d->matrix.inverted()*d->pen.brush().transform().inverted()).inverted();
+    d->penData.setupMatrix(penMatrix,
+                           d->txop, d->bilinear);
+    QMatrix brushMatrix = (d->brushMatrix().inverted() * d->brush.transform().inverted()).inverted();
+    d->brushData.setupMatrix(brushMatrix, d->txop, d->bilinear);
 }
 
 void QRasterPaintEngine::updateState(const QPaintEngineState &state)
@@ -971,15 +974,13 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->penData.setup(pen_style == Qt::NoPen ? QBrush() : d->pen.brush(), d->opacity);
     }
 
-    if (flags & DirtyBrush) {
+    if (flags & (DirtyBrush|DirtyBrushOrigin)) {
         QBrush brush = state.brush();
         d->brush = brush;
-        d->brushData.setup(d->brush, d->opacity);
-    }
-
-    if (flags & DirtyBrushOrigin) {
         d->brushOffset = state.brushOrigin();
-        d->brushData.setupMatrix(d->brushMatrix(), d->txop, d->bilinear);
+        d->brushData.setup(d->brush, d->opacity);
+        d->brushData.setupMatrix((d->brushMatrix().inverted() * d->brush.transform().inverted()).inverted(),
+                                 d->txop, d->bilinear);
     }
 
     if (flags & (DirtyClipPath | DirtyClipRegion)) {
@@ -3056,7 +3057,7 @@ void QSpanData::setup(const QBrush &brush, int alpha)
             type = Texture;
             extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert);
             QPixmap texture = brushStyle == Qt::TexturePattern
-                              ? brush.texture() : qt_pixmapForBrush(brushStyle, true);
+                          ? brush.texture() : qt_pixmapForBrush(brushStyle, true);
             if (texture.depth() == 1) {
                 rasterBuffer->tempImage = rasterBuffer->colorizeBitmap(texture.toImage(),
                                                                        brush.color());

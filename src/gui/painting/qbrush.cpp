@@ -649,6 +649,29 @@ bool QBrush::isOpaque() const
 
 
 /*!
+    \fn void QBrush::setTransform(const QMatrix &matrix)
+
+    Sets an explicit transformation matrix on the current brush.
+    The brush transformation matrix is merged with QPainter
+    transformation matrix to produce the final result.
+
+    \sa transform()
+*/
+void QBrush::setTransform(const QMatrix &mat)
+{
+    d->transform = mat;
+}
+
+
+/*!
+    \fn void QBrush::transform()
+
+    Returns the current transformation for the gradient.
+
+    \sa setTransform()
+*/
+
+/*!
     \fn bool QBrush::operator!=(const QBrush &brush) const
 
     Returns true if the brush is different from the given \a brush;

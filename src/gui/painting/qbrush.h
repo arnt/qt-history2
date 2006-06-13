@@ -18,6 +18,7 @@
 #include <QtCore/qpoint.h>
 #include <QtCore/qvector.h>
 #include <QtGui/qcolor.h>
+#include <QtGui/qmatrix.h>
 
 QT_BEGIN_HEADER
 
@@ -50,6 +51,9 @@ public:
 
     inline Qt::BrushStyle style() const;
     void setStyle(Qt::BrushStyle);
+
+    inline const QMatrix &transform() const;
+    void setTransform(const QMatrix &mat);
 
     QPixmap texture() const;
     void setTexture(const QPixmap &pixmap);
@@ -105,10 +109,12 @@ struct QBrushData
     QAtomic ref;
     Qt::BrushStyle style;
     QColor color;
+    QMatrix transform;
 };
 
 inline Qt::BrushStyle QBrush::style() const { return d->style; }
 inline const QColor &QBrush::color() const { return d->color; }
+inline const QMatrix &QBrush::transform() const { return d->transform; }
 
 #ifdef QT3_SUPPORT
 inline QBrush::operator const QColor&() const { return d->color; }
