@@ -467,7 +467,8 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
             bool known = qcopServerMap && qcopServerMap->contains(c)
                         && !((*qcopServerMap)[c]).isEmpty();
             QLatin1String ans = QLatin1String(known ? "known" : "unkown");
-            QWSServerPrivate::sendQCopEvent(cl, "", ans, data, true);
+            QWSServerPrivate::sendQCopEvent(cl, QLatin1String(""),
+                                            ans, data, true);
             return;
         } else if (msg == QLatin1String("detach()")) {
             QString c;
@@ -501,7 +502,8 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
             return;
         }
         qWarning("QCopChannel: unknown internal command %s", qPrintable(msg));
-        QWSServerPrivate::sendQCopEvent(cl, "", "bad", data);
+        QWSServerPrivate::sendQCopEvent(cl, QLatin1String(""),
+                                        QLatin1String("bad"), data);
         return;
     }
 
@@ -527,7 +529,7 @@ void QCopChannel::answer(QWSClient *cl, const QString& ch,
 		}
 		QWSServerPrivate::sendQCopEvent
 		    ((*it).client, (*it).channel,
-		     "forwardedMessage(QString,QString,QByteArray)",
+		     QLatin1String("forwardedMessage(QString,QString,QByteArray)"),
 		     newData);
 	    }
 	}
