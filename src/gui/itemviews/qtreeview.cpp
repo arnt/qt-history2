@@ -87,8 +87,11 @@
          of the sibling that follows the parent.
     \row \o LeftArrow  \o Hides the children of the current item (if present)
          by collapsing a branch.
+    \row \o Minus  \o Same as LeftArrow.
     \row \o RightArrow \o Reveals the children of the current item (if present)
          by expanding a branch.
+    \row \o Plus  \o Same as RightArrow.
+    \row \o Asterisk  \o Expands all children of the current item (if present).
     \row \o PageUp   \o Moves the cursor up one page.
     \row \o PageDown \o Moves the cursor down one page.
     \row \o Home \o Moves the cursor to an item in the same column of the first
@@ -1253,6 +1256,42 @@ void QTreeView::mouseMoveEvent(QMouseEvent *event)
     Q_D(QTreeView);
     if (d->itemDecorationAt(event->pos()) == -1) // ### what about expanding/collapsing state ?
         QAbstractItemView::mouseMoveEvent(event);
+}
+
+/*!
+  \reimp
+*/
+void QTreeView::keyPressEvent(QKeyEvent *event)
+{
+    Q_D(QTreeView);
+    QModelIndex current = currentIndex();
+    if (d->indexValid(current) && d->model) {
+        switch (event->key()) {
+        case Qt::Key_Asterisk: {
+            QStack<QModelIndex> parents;
+            parents.push(current);
+            while (!parents.isEmpty()) {
+                QModelIndex parent = parents.pop();
+                for (int row = 0; row < d->model->rowCount(parent); ++row) {
+                    QModelIndex child = d->model->index(row, 0, parent);
+                    if (!d->indexValid(child))
+                        break;
+                    parents.push(child);
+                    expand(child);
+                }
+            }
+            expand(current);
+            break; }
+        case Qt::Key_Plus:
+            expand(current);
+            break;
+        case Qt::Key_Minus:
+            collapse(current);
+            break;
+        }
+    }
+
+    QAbstractItemView::keyPressEvent(event);
 }
 
 /*!
