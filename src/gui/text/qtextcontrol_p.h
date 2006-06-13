@@ -124,6 +124,8 @@ public:
     qreal textWidth() const;
     QSizeF size() const;
 
+    void moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+
 public Q_SLOTS:
     void setPlainText(const QString &text);
     void setHtml(const QString &text);

@@ -1890,6 +1890,22 @@ void QTextEdit::zoomOut(int range)
     setFont(f);
 }
 
+/*!
+    \since 4.2
+    Moves the cursor by performing the given \a operation.
+
+    If \a mode is QTextCursor::KeepAnchor, the cursor selects the text it moves over.
+    This is the same effect that the user achieves when they hold down the Shift key
+    and move the cursor with the cursor keys.
+
+    \sa QTextCursor::movePosition()
+*/
+void QTextEdit::moveCursor(QTextCursor::MoveOperation operation, QTextCursor::MoveMode mode)
+{
+    Q_D(QTextEdit);
+    d->control->moveCursor(operation, mode);
+}
+
 /*! \property QTextEdit::tabChangesFocus
   \brief whether \gui Tab changes focus or is accepted as input
 

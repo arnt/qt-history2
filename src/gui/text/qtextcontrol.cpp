@@ -1967,6 +1967,16 @@ QSizeF QTextControl::size() const
     return d->doc->size();
 }
 
+void QTextControl::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
+{
+    Q_D(QTextControl);
+    const bool moved = d->cursor.movePosition(op, mode);
+    d->updateCurrentCharFormatAndSelection();
+    ensureCursorVisible();
+    if (moved)
+        emit cursorPositionChanged();
+}
+
 QMimeData *QTextControl::createMimeDataFromSelection() const
 {
     Q_D(const QTextControl);

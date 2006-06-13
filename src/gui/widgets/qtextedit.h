@@ -219,6 +219,8 @@ public Q_SLOTS:
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
 
+    void moveCursor(QTextCursor::MoveOperation operation, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+
 Q_SIGNALS:
     void textChanged();
     void undoAvailable(bool b);
