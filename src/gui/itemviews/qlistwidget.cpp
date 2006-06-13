@@ -331,8 +331,6 @@ void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int en
     if (column != 0)
         return;
 
-    emit layoutAboutToBeChanged();
-
     int count = end - start + 1;
     QVector < QPair<QListWidgetItem*,int> > sorting(count);
     for (int i = 0; i < count; ++i) {
@@ -345,14 +343,17 @@ void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int en
 
     QModelIndexList oldPersistentIndexes = persistentIndexList();
     QModelIndexList newPersistentIndexes = oldPersistentIndexes;
-    QList<QListWidgetItem*>::iterator lit = lst.begin();
+    QList<QListWidgetItem*> tmp = lst;
+    QList<QListWidgetItem*>::iterator lit = tmp.begin();
+    bool changed = false;
     for (int i = 0; i < count; ++i) {
         int oldRow = sorting.at(i).second;
-        QListWidgetItem *item = lst.takeAt(oldRow);
-        lit = sortedInsertionIterator(lit, lst.end(), order, item);
-        int newRow = qMax(lit - lst.begin(), 0);
-        lit = lst.insert(lit, item);
+        QListWidgetItem *item = tmp.takeAt(oldRow);
+        lit = sortedInsertionIterator(lit, tmp.end(), order, item);
+        int newRow = qMax(lit - tmp.begin(), 0);
+        lit = tmp.insert(lit, item);
         if (newRow != oldRow) {
+            changed = true;
             for (int j = i + 1; j < count; ++j) {
                 int otherRow = sorting.at(j).second;
                 if (oldRow < otherRow && newRow >= otherRow)
@@ -376,9 +377,13 @@ void QListModel::ensureSorted(int column, Qt::SortOrder order, int start, int en
             }
         }
     }
-    changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
 
-    emit layoutChanged();
+    if (changed) {
+        emit layoutAboutToBeChanged();
+        lst = tmp;
+        changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
+        emit layoutChanged();
+    }
 }
 
 bool QListModel::itemLessThan(const QPair<QListWidgetItem*,int> &left,
