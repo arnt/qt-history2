@@ -181,6 +181,8 @@ public:
 
     QAbstractItemDelegate *itemDelegate(const QModelIndex &index) const;
 
+    virtual QVariant inputMethodQuery(Qt::InputMethodQuery query) const;
+
 public Q_SLOTS:
     virtual void reset();
     virtual void setRootIndex(const QModelIndex &index);

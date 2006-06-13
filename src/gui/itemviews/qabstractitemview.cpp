@@ -579,6 +579,17 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
 }
 
 /*!
+    \reimp
+*/
+QVariant QAbstractItemView::inputMethodQuery(Qt::InputMethodQuery query) const
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid() || query != Qt::ImMicroFocus)
+        return QAbstractScrollArea::inputMethodQuery(query);
+    return visualRect(current);
+}
+
+/*!
     Sets the given item \a delegate used by this view and model for
     the given \a row.
 */
