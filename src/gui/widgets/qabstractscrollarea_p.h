@@ -39,6 +39,8 @@ class Q_AUTOTEST_EXPORT QAbstractScrollAreaPrivate: public QFramePrivate
 public:
     QAbstractScrollAreaPrivate();
 
+    void replaceScrollBar(QScrollBar *scrollBar, Qt::Orientation orientation);
+
     QAbstractScrollAreaScrollBarContainer *scrollBarContainers[Qt::Vertical + 1];
     QScrollBar *hbar, *vbar;
     Qt::ScrollBarPolicy vbarpolicy, hbarpolicy;
@@ -91,11 +93,11 @@ public:
     void removeWidget(QWidget *widget);
 
     QScrollBar *scrollBar;
+    QBoxLayout *layout;
 private:
     int scrollBarLayoutIndex() const;
     
     Qt::Orientation orientation;
-    QBoxLayout *layout;
 };
 
 #endif // QT_NO_SCROLLAREA

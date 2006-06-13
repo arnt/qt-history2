@@ -38,10 +38,12 @@ public:
     Qt::ScrollBarPolicy verticalScrollBarPolicy() const;
     void setVerticalScrollBarPolicy(Qt::ScrollBarPolicy);
     QScrollBar *verticalScrollBar() const;
+    void setVerticalScrollBar(QScrollBar *scrollbar);
 
     Qt::ScrollBarPolicy horizontalScrollBarPolicy() const;
     void setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy);
     QScrollBar *horizontalScrollBar() const;
+    void setHorizontalScrollBar(QScrollBar *scrollbar);
 
     QWidget *cornerWidget() const;
     void setCornerWidget(QWidget *widget);
