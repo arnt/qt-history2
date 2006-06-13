@@ -15,36 +15,14 @@
 
 #ifndef QT_NO_DESKTOPSERVICES
 
-#include <QtGui/QtGui>
-#include <qtextstream.h>
 #include <qprocess.h>
-#include <qdir.h>
 #include <qurl.h>
-#include <qstringlist.h>
-#include <qx11info_x11.h>
 #include <private/qt_x11_p.h>
-#include <qdebug.h>
-#include <qlocale.h>
-#ifdef Q_WS_X11
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-#include <X11/SM/SMlib.h>
-#endif
 #include <stdlib.h>
 
-static bool launch(const QUrl &url, const QStringList &clients)
+inline static bool launch(const QUrl &url, const QString &client)
 {
-    if (!url.isValid())
-        return false;
-
-    // TODO use dbus when it is ready else fall back to the following
-
-    for (int i = 0; i < clients.size(); ++i) {
-        if (QProcess::startDetached(clients.at(i) + " " + url.toEncoded()))
-            return true;
-    }
-    return false;
+    return (QProcess::startDetached(client + " " + url.toEncoded()));
 }
 
 /*!
@@ -62,37 +40,65 @@ static bool launch(const QUrl &url, const QStringList &clients)
 */
 bool QDesktopServices::launchWebBrowser(const QUrl &url)
 {
+    if (!url.isValid())
+        return false;
     if (url.scheme() == "mailto")
         return openDocument(url);
 
-    QStringList clients;
-    clients << "firefox" << "mozilla" << "netscape" << "opera";
-    if (X11->desktopEnvironment == DE_GNOME)
-        clients.prepend("gnome-open");
-    else if (X11->desktopEnvironment == DE_KDE)
-        clients.prepend("kfmclient openURL");
+    if (launch(url, "xdg-open"))
+        return true;
+    if (launch(url, getenv("DEFAULT_BROWSER")))
+        return true;
+    if (launch(url, getenv("BROWSER")))
+        return true;
 
-    clients.prepend(getenv("BROWSER"));
-    clients.prepend(getenv("DEFAULT_BROWSER")); // AIX
-    clients.prepend("xdg-open");
-    return launch(url, clients);
+    if (X11->desktopEnvironment == DE_GNOME && launch(url, "gnome-open")) {
+        return true;
+    } else {
+        if (X11->desktopEnvironment == DE_KDE && launch(url, "kfmclient openURL"))
+            return true;
+    }
+
+    if (launch(url, "firefox"))
+        return true;
+    if (launch(url, "mozilla"))
+        return true;
+    if (launch(url, "netscape"))
+        return true;
+    if (launch(url, "opera"))
+        return true;
+    return false;
 }
 
 /*!
     Opens the \a file using the system to determine what application should handle it.
     Returns true on success otherwise false.
  */
-bool QDesktopServices::openDocument(const QUrl &file)
+bool QDesktopServices::openDocument(const QUrl &url)
 {
-    QStringList clients;
-    clients << "firefox" << "mozilla" << "netscape" << "opera";
-    if (X11->desktopEnvironment == DE_GNOME)
-        clients.prepend("gnome-open");
-    else if (X11->desktopEnvironment == DE_KDE)
-        clients.prepend("kfmclient exec");
+    if (!url.isValid())
+        return false;
 
-    clients.prepend("xdg-open");
-    return launch(file, clients);
+    if (launch(url, "xdg-open"))
+        return true;
+
+    if (X11->desktopEnvironment == DE_GNOME && launch(url, "gnome-open")) {
+        return true;
+    } else {
+        if (X11->desktopEnvironment == DE_KDE && launch(url, "kfmclient exec"))
+            return true;
+    }
+
+    if (launch(url, "firefox"))
+        return true;
+    if (launch(url, "mozilla"))
+        return true;
+    if (launch(url, "netscape"))
+        return true;
+    if (launch(url, "opera"))
+        return true;
+
+    return false;
 }
 
 /*
