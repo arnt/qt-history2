@@ -1391,7 +1391,7 @@ QPrinter::PrintRange QPrinter::printRange() const
     return PrintRange(d->printDialog->printRange());
 }
 
-#if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
+#if defined(QT3_SUPPORT)
 
 void QPrinter::setOutputToFile(bool f)
 {
@@ -1529,8 +1529,6 @@ void QPrinter::setCollateCopiesEnabled(bool enable)
         opt &= ~QPrintDialog::PrintCollateCopies;
     d->printDialog->setEnabledOptions(opt);
 }
-
-#ifndef QT_NO_PRINTDIALOG
 
 /*!
     Use QPrintDialog instead.
