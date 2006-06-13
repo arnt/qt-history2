@@ -1362,6 +1362,35 @@ void QPrinter::setFromTo(int from, int to)
 #endif
 }
 
+
+/*!
+    \since 4.1
+
+    Sets the print range option in to be \a range.
+*/
+void QPrinter::setPrintRange( PrintRange range )
+{
+    Q_D(QPrinter);
+    d->ensurePrintDialog();
+    d->printDialog->setPrintRange(QPrintDialog::PrintRange(range));
+}
+
+/*!
+    \since 4.1
+
+    Returns the page renge of the QPrinter. After the print setup
+    dialog has been opened, this function returns the value selected
+    by the user.
+
+    \sa setPrintRange()
+*/
+QPrinter::PrintRange QPrinter::printRange() const
+{
+    Q_D(const QPrinter);
+    d->ensurePrintDialog();
+    return PrintRange(d->printDialog->printRange());
+}
+
 #if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
 
 void QPrinter::setOutputToFile(bool f)
@@ -1500,39 +1529,9 @@ void QPrinter::setCollateCopiesEnabled(bool enable)
         opt &= ~QPrintDialog::PrintCollateCopies;
     d->printDialog->setEnabledOptions(opt);
 }
-#endif // QT3_SUPPORT
 
 #ifndef QT_NO_PRINTDIALOG
-/*!
-    \since 4.1
 
-    Sets the print range option in to be \a range.
-*/
-void QPrinter::setPrintRange( PrintRange range )
-{
-    Q_D(QPrinter);
-    d->ensurePrintDialog();
-    d->printDialog->setPrintRange(QPrintDialog::PrintRange(range));
-}
-
-/*!
-    \since 4.1
-
-    Returns the page renge of the QPrinter. After the print setup
-    dialog has been opened, this function returns the value selected
-    by the user.
-
-    \sa setPrintRange()
-*/
-QPrinter::PrintRange QPrinter::printRange() const
-{
-    Q_D(const QPrinter);
-    d->ensurePrintDialog();
-    return PrintRange(d->printDialog->printRange());
-}
-#endif // QT_NO_PRINTDIALOG
-
-#ifdef QT3_SUPPORT
 /*!
     Use QPrintDialog instead.
 */
