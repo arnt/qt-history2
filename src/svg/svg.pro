@@ -17,8 +17,7 @@ HEADERS += \
         qsvgfont_p.h            \
 	qsvgtinydocument_p.h    \
 	qsvgrenderer.h          \
-        qsvgwidget.h            \
-        qsvgiconengine.h
+        qsvgwidget.h  
 
 
 SOURCES += \
@@ -30,6 +29,5 @@ SOURCES += \
         qsvgfont.cpp            \
 	qsvgtinydocument.cpp    \
 	qsvgrenderer.cpp        \
-        qsvgwidget.cpp          \
-        qsvgiconengine.cpp
+        qsvgwidget.cpp
 

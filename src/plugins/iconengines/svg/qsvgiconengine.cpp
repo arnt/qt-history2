@@ -10,7 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "qsvgiconengine_p.h"
+#include "qsvgiconengine.h"
 
 #include "qpainter.h"
 #include "qpixmap.h"
