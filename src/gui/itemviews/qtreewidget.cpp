@@ -2723,6 +2723,7 @@ QTreeWidgetItem *QTreeWidget::itemFromIndex(const QModelIndex &index) const
     return d->model()->item(index);
 }
 
+#ifndef QT_NO_DRAGANDDROP
 /*! \reimp */
 void QTreeWidget::dropEvent(QDropEvent *event) {
     Q_D(QTreeWidget);
@@ -2783,7 +2784,7 @@ void QTreeWidget::dropEvent(QDropEvent *event) {
 
     QTreeView::dropEvent(event);
 }
-
+#endif
 
 /*!
   \reimp

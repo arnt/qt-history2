@@ -2307,6 +2307,7 @@ bool QTableWidget::event(QEvent *e)
     return QTableView::event(e);
 }
 
+#ifndef QT_NO_DRAGANDDROP
 /*! \reimp */
 void QTableWidget::dropEvent(QDropEvent *event) {
     Q_D(QTableWidget);
@@ -2343,5 +2344,7 @@ void QTableWidget::dropEvent(QDropEvent *event) {
 
     QTableView::dropEvent(event);
 }
+#endif
+
 #include "moc_qtablewidget.cpp"
 #endif // QT_NO_TABLEWIDGET

@@ -46,6 +46,10 @@ public:
 #endif
 #endif // QT_WINDOW_SURFACE
 
+#ifdef QT_WINDOW_SURFACE
+class QWindowSurface;
+#endif
+
 class QWidgetBackingStore
 {
 public:

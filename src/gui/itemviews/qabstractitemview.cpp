@@ -864,6 +864,7 @@ QAbstractItemView::ScrollMode QAbstractItemView::horizontalScrollMode() const
     return d_func()->horizontalScrollMode;
 }
 
+#ifndef QT_NO_DRAGANDDROP
 /*!
     \since 4.2
     \property QAbstractItemView::dragDropOverwriteMode
@@ -892,6 +893,7 @@ bool QAbstractItemView::dragDropOverwriteMode()
 {
     return d_func()->overwrite;
 }
+#endif
 
 /*!
     \property QAbstractItemView::autoScroll
@@ -2946,6 +2948,7 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
   */
 void QAbstractItemViewPrivate::clearOrRemove()
 {
+#ifndef QT_NO_DRAGANDDROP
     const QItemSelection selection = selectionModel->selection();
     QList<QItemSelectionRange>::const_iterator it = selection.begin();
 
@@ -2970,6 +2973,7 @@ void QAbstractItemViewPrivate::clearOrRemove()
             model->setItemData(index, roles);
         }
     }
+#endif
 }
 
 QWidget *QAbstractItemViewPrivate::editorForIndex(const QModelIndex &index) const
