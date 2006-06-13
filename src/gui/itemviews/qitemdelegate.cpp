@@ -58,8 +58,17 @@ public:
     inline QIcon::State iconState(QStyle::State state) const
         { return state & QStyle::State_Open ? QIcon::On : QIcon::Off; }
 
+    void _q_commitDataAndCloseEditor(QWidget *editor);
+
     QItemEditorFactory *f;
 };
+
+void QItemDelegatePrivate::_q_commitDataAndCloseEditor(QWidget *editor)
+{
+    Q_Q(QItemDelegate);
+    emit q->commitData(editor);
+    emit q->closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
+}
 
 /*!
     \class QItemDelegate
@@ -863,9 +872,12 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             return true;
         case Qt::Key_Enter:
         case Qt::Key_Return:
-            emit commitData(editor);
-            emit closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
-            break;
+            // We want the editor to be able to process the key press
+            // before committing the data (e.g. so it can do
+            // validation/fixup of the input).
+            QMetaObject::invokeMethod(this, "_q_commitDataAndCloseEditor",
+                                      Qt::QueuedConnection, Q_ARG(QWidget*, editor));
+            return false;
         case Qt::Key_Escape:
             // don't commit data
             emit closeEditor(editor, QAbstractItemDelegate::RevertModelCache);
@@ -971,5 +983,7 @@ QStyleOptionViewItem QItemDelegate::setOptions(const QModelIndex &index,
 
     return opt;
 }
+
+#include "moc_qitemdelegate.cpp"
 
 #endif // QT_NO_ITEMVIEWS
