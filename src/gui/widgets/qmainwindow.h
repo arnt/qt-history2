@@ -49,6 +49,9 @@ public:
 #ifndef QT_NO_MENUBAR
     QMenuBar *menuBar() const;
     void setMenuBar(QMenuBar *menubar);
+
+    QWidget  *menuWidget() const;
+    void setMenuWidget(QWidget *menubar);
 #endif
 
 #ifndef QT_NO_STATUSBAR
@@ -74,7 +77,7 @@ public:
 
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
 #endif
-#ifndef QT_NO_DOCKWIDGET    
+#ifndef QT_NO_DOCKWIDGET
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget);
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                        Qt::Orientation orientation);
@@ -83,7 +86,7 @@ public:
     void removeDockWidget(QDockWidget *dockwidget);
 
     Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
-#endif // QT_NO_DOCKWIDGET    
+#endif // QT_NO_DOCKWIDGET
 
     QByteArray saveState(int version = 0) const;
     bool restoreState(const QByteArray &state, int version = 0);

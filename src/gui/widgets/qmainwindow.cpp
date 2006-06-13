@@ -356,6 +356,34 @@ void QMainWindow::setMenuBar(QMenuBar *menuBar)
         delete d->layout->menuBar();
     d->layout->setMenuBar(menuBar);
 }
+
+/*!
+    Returns the menu bar for the main window. This function returns
+    null if a menubar hasn't been constructed yet.
+
+    \sa setMenuWidget()
+*/
+QWidget *QMainWindow::menuWidget() const
+{
+    QWidget *menuBar = d_func()->layout->menuBar();
+    return menuBar;
+}
+
+/*!
+    Sets the menu bar for the main window to \a menuBar.
+
+    Note: QMainWindow takes ownership of the \a menuBar pointer and
+    deletes it at the appropriate time.
+
+    \sa menuWidget()
+*/
+void QMainWindow::setMenuWidget(QWidget *menuBar)
+{
+    Q_D(QMainWindow);
+    if (d->layout->menuBar() && d->layout->menuBar() != menuBar)
+        delete d->layout->menuBar();
+    d->layout->setMenuBar(menuBar);
+}
 #endif // QT_NO_MENUBAR
 
 #ifndef QT_NO_STATUSBAR
