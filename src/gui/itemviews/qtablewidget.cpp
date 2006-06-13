@@ -32,6 +32,20 @@ public:
     QList<QTableWidgetItem*> items;
 };
 
+class QTableModelLessThan
+{
+public:
+    inline bool operator()(QTableWidgetItem *i1, QTableWidgetItem *i2) const
+        { return (*i1 < *i2); }
+};
+
+class QTableModelGreaterThan
+{
+public:
+    inline bool operator()(QTableWidgetItem *i1, QTableWidgetItem *i2) const
+        { return (*i2 < *i1); }
+};
+
 class QTableModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -85,6 +99,14 @@ public:
                              const QPair<QTableWidgetItem*,int> &right);
     static bool itemGreaterThan(const QPair<QTableWidgetItem*,int> &left,
                                 const QPair<QTableWidgetItem*,int> &right);
+
+    void ensureSorted(int column, Qt::SortOrder order, int start, int end);
+    QVector<QTableWidgetItem*> columnItems(int column) const;
+    void updateRowIndexes(QModelIndexList &indexes, int movedFrom, int movedTo);
+    static QVector<QTableWidgetItem*>::iterator sortedInsertionIterator(
+        const QVector<QTableWidgetItem*>::iterator &begin,
+        const QVector<QTableWidgetItem*>::iterator &end,
+        Qt::SortOrder order, QTableWidgetItem *item);
 
     bool isValid(const QModelIndex &index) const;
     inline long tableIndex(int row, int column) const
@@ -241,6 +263,49 @@ void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
     if (item)
         item->model = this;
     table[i] = item;
+
+    QTableWidget *view = qobject_cast<QTableWidget*>(QObject::parent());
+    if (view && view->isSortingEnabled()
+        && view->horizontalHeader()->sortIndicatorSection() == column) {
+        // sorted insertion
+        Qt::SortOrder order = view->horizontalHeader()->sortIndicatorOrder();
+        QVector<QTableWidgetItem*> colItems = columnItems(column);
+        if (row < colItems.count())
+            colItems.remove(row);
+        int sortedRow;
+        if (item == 0) {
+            // move to after all non-0 (sortable) items
+            sortedRow = colItems.count();
+        } else {
+            QVector<QTableWidgetItem*>::iterator it;
+            it = sortedInsertionIterator(colItems.begin(), colItems.end(), order, item);
+            sortedRow = qMax(it - colItems.begin(), 0);
+        }
+        if (sortedRow != row) {
+            emit layoutAboutToBeChanged();
+            // move the items @ row to sortedRow
+            int cc = columnCount();
+            QVector<QTableWidgetItem*> rowItems(cc);
+            for (int j = 0; j < cc; ++j)
+                rowItems[j] = table.at(tableIndex(row, j));
+            table.remove(tableIndex(row, 0), cc);
+            table.insert(tableIndex(sortedRow, 0), cc, 0);
+            for (int j = 0; j < cc; ++j)
+                table[tableIndex(sortedRow, j)] = rowItems.at(j);
+            QTableWidgetItem *header = vertical.at(row);
+            vertical.remove(row);
+            vertical.insert(sortedRow, header);
+            // update persistent indexes
+            QModelIndexList oldPersistentIndexes = persistentIndexList();
+            QModelIndexList newPersistentIndexes = oldPersistentIndexes;
+            updateRowIndexes(newPersistentIndexes, row, sortedRow);
+            changePersistentIndexList(oldPersistentIndexes,
+                                      newPersistentIndexes);
+
+            emit layoutChanged();
+            return;
+        }
+    }
     QModelIndex idx = QAbstractTableModel::index(row, column);
     emit dataChanged(idx, idx);
 }
@@ -497,6 +562,147 @@ void QTableModel::sort(int column, Qt::SortOrder order)
     changePersistentIndexList(from, to); // ### slow
 
     emit layoutChanged();
+}
+
+/*
+  \internal
+
+  Ensures that rows in the interval [start, end] are
+  sorted according to the contents of column \a column
+  and the given sort \a order.
+*/
+void QTableModel::ensureSorted(int column, Qt::SortOrder order,
+                               int start, int end)
+{
+    int count = end - start + 1;
+    QVector < QPair<QTableWidgetItem*,int> > sorting;
+    sorting.reserve(count);
+    for (int row = start; row <= end; ++row) {
+        QTableWidgetItem *itm = item(row, column);
+        if (itm == 0) {
+            // no more sortable items (all 0-items are
+            // at the end of the table when it is sorted)
+            break;
+        }
+        sorting.append(QPair<QTableWidgetItem*,int>(itm, row));
+    }
+
+    LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
+    qSort(sorting.begin(), sorting.end(), compare);
+
+    QModelIndexList oldPersistentIndexes = persistentIndexList();
+    QModelIndexList newPersistentIndexes = oldPersistentIndexes;
+    QVector<QTableWidgetItem*> newTable = table;
+    QVector<QTableWidgetItem*> newVertical = vertical;
+    QVector<QTableWidgetItem*> colItems = columnItems(column);
+    QVector<QTableWidgetItem*>::iterator vit = colItems.begin();
+    bool changed = false;
+    for (int i = 0; i < sorting.count(); ++i) {
+        int oldRow = sorting.at(i).second;
+        QTableWidgetItem *item = colItems.at(oldRow);
+        colItems.remove(oldRow);
+        vit = sortedInsertionIterator(vit, colItems.end(), order, item);
+        int newRow = qMax(vit - colItems.begin(), 0);
+        vit = colItems.insert(vit, item);
+        if (newRow != oldRow) {
+            changed = true;
+            // move the items @ oldRow to newRow
+            int cc = columnCount();
+            QVector<QTableWidgetItem*> rowItems(cc);
+            for (int j = 0; j < cc; ++j)
+                rowItems[j] = newTable.at(tableIndex(oldRow, j));
+            newTable.remove(tableIndex(oldRow, 0), cc);
+            newTable.insert(tableIndex(newRow, 0), cc, 0);
+            for (int j = 0; j < cc; ++j)
+                newTable[tableIndex(newRow, j)] = rowItems.at(j);
+            QTableWidgetItem *header = newVertical.at(oldRow);
+            newVertical.remove(oldRow);
+            newVertical.insert(newRow, header);
+            // update persistent indexes
+            updateRowIndexes(newPersistentIndexes, oldRow, newRow);
+            // the index of the remaining rows may have changed
+            for (int j = i + 1; j < sorting.count(); ++j) {
+                int otherRow = sorting.at(j).second;
+                if (oldRow < otherRow && newRow >= otherRow)
+                    --sorting[j].second;
+                else if (oldRow > otherRow && newRow <= otherRow)
+                    ++sorting[j].second;
+            }
+        }
+    }
+
+    if (changed) {
+        emit layoutAboutToBeChanged();
+        table = newTable;
+        vertical = newVertical;
+        changePersistentIndexList(oldPersistentIndexes,
+                                  newPersistentIndexes);
+        emit layoutChanged();
+    }
+}
+
+/*
+  \internal
+
+  Returns the non-0 items in column \a column.
+*/
+QVector<QTableWidgetItem*> QTableModel::columnItems(int column) const
+{
+    QVector<QTableWidgetItem*> items;
+    int rc = rowCount();
+    items.reserve(rc);
+    for (int row = 0; row < rc; ++row) {
+        QTableWidgetItem *itm = item(row, column);
+        if (itm == 0) {
+            // no more sortable items (all 0-items are
+            // at the end of the table when it is sorted)
+            break;
+        }
+        items.append(itm);
+    }
+    return items;
+}
+
+/*
+  \internal
+
+  Adjusts the row of each index in \a indexes if necessary, given
+  that a row of items has been moved from row \a movedFrom to row
+  \a movedTo.
+*/
+void QTableModel::updateRowIndexes(QModelIndexList &indexes,
+                                   int movedFrom, int movedTo)
+{
+    QModelIndexList::iterator it;
+    for (it = indexes.begin(); it != indexes.end(); ++it) {
+        int oldRow = (*it).row();
+        int newRow = oldRow;
+        if (oldRow == movedFrom)
+            newRow = movedTo;
+        else if (movedFrom < oldRow && movedTo >= oldRow)
+            newRow = oldRow - 1;
+        else if (movedFrom > oldRow && movedTo <= oldRow)
+            newRow = oldRow + 1;
+        if (newRow != oldRow)
+            *it = index(newRow, (*it).column(), (*it).parent());
+    }
+}
+
+/*
+  \internal
+
+  Returns an iterator to the item where \a item should be
+  inserted in the interval (\a begin, \a end) according to
+  the given sort \a order.
+*/
+QVector<QTableWidgetItem*>::iterator QTableModel::sortedInsertionIterator(
+    const QVector<QTableWidgetItem*>::iterator &begin,
+    const QVector<QTableWidgetItem*>::iterator &end,
+    Qt::SortOrder order, QTableWidgetItem *item)
+{
+    if (order == Qt::AscendingOrder)
+        return qLowerBound(begin, end, item, QTableModelLessThan());
+    return qLowerBound(begin, end, item, QTableModelGreaterThan());
 }
 
 bool QTableModel::itemLessThan(const QPair<QTableWidgetItem*,int> &left,
@@ -1345,6 +1551,7 @@ public:
     void _q_emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
     // sorting
     void _q_sort();
+    void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 };
 
 void QTableWidgetPrivate::setup()
@@ -1366,8 +1573,8 @@ void QTableWidgetPrivate::setup()
     QObject::connect(q->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      q, SIGNAL(itemSelectionChanged()));
     // sorting
-    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), q, SLOT(_q_sort()));
-    QObject::connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)), q, SLOT(_q_sort()));
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
     QObject::connect(model(), SIGNAL(columnsRemoved(QModelIndex,int,int)), q, SLOT(_q_sort()));
 }
 
@@ -1436,6 +1643,19 @@ void QTableWidgetPrivate::_q_sort()
         int column = q->horizontalHeader()->sortIndicatorSection();
         Qt::SortOrder order = q->horizontalHeader()->sortIndicatorOrder();
         model()->sort(column, order);
+    }
+}
+
+void QTableWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
+                                         const QModelIndex &bottomRight)
+{
+    Q_Q(QTableWidget);
+    if (sortingEnabled && topLeft.isValid() && bottomRight.isValid()) {
+        int column = q->horizontalHeader()->sortIndicatorSection();
+        if (column >= topLeft.column() && column <= bottomRight.column()) {
+            Qt::SortOrder order = q->horizontalHeader()->sortIndicatorOrder();
+            model()->ensureSorted(column, order, topLeft.row(), bottomRight.row());
+        }
     }
 }
 
