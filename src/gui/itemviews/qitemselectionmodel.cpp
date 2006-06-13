@@ -434,7 +434,7 @@ void QItemSelection::split(const QItemSelectionRange &range,
 {
     if (range.parent() != other.parent())
         return;
-    
+
     QModelIndex parent = other.parent();
     int top = range.top();
     int left = range.left();
@@ -523,7 +523,7 @@ void QItemSelectionModelPrivate::_q_rowsAboutToBeRemoved(const QModelIndex &pare
         QModelIndex old = currentIndex;
         if (start > 0) // there are rows left above the change
             currentIndex = model->index(start - 1, old.column(), parent);
-        else if (model && end < model->rowCount() - 1) // there are rows left below the change
+        else if (model && end < model->rowCount(parent) - 1) // there are rows left below the change
             currentIndex = model->index(end + 1, old.column(), parent);
         else // there are no rows left in the table
             currentIndex = QModelIndex();
@@ -563,7 +563,7 @@ void QItemSelectionModelPrivate::_q_columnsAboutToBeRemoved(const QModelIndex &p
             emit q->currentRowChanged(currentIndex, old);
         emit q->currentColumnChanged(currentIndex, old);
     }
-    
+
     // update selections
     QModelIndex tl = model->index(0, start, parent);
     QModelIndex br = model->index(model->rowCount(parent) - 1, end, parent);
