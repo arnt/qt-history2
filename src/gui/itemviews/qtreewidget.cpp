@@ -702,7 +702,7 @@ void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
     if (signalsBlocked())
         return;
 
-    if (header == item) {
+    if (header == item && column < item->columnCount()) {
         emit headerDataChanged(Qt::Horizontal, column, column);
         return;
     }
@@ -1375,6 +1375,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
             }
         }
     }
+    QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
     // set the item data
     if (role == Qt::EditRole)
         role = Qt::DisplayRole;
@@ -1401,11 +1402,14 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         if (!found)
             values[column].append(QWidgetItemData(role, value));
     } else {
-        values.resize(column + 1);
+        if (this == model->header)
+            model->setColumnCount(column + 1);
+        else
+            values.resize(column + 1);
         values[column].append(QWidgetItemData(role, value));
     }
 
-    if (QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0)) {
+    if (model) {
         model->emitDataChanged(this, column);
         if (role == Qt::CheckStateRole) {
             QTreeWidgetItem *p;
