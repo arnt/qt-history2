@@ -7,7 +7,8 @@ HEADERS += \
 	text/q3multilineedit.h \
 	text/q3richtext_p.h \
 	text/q3simplerichtext.h \
-        text/q3stylesheet.h
+	text/q3stylesheet.h \
+	text/q3textstream.h
 
 SOURCES += \
 	text/q3syntaxhighlighter.cpp \
@@ -18,4 +19,5 @@ SOURCES += \
 	text/q3richtext.cpp \
 	text/q3richtext_p.cpp \
 	text/q3simplerichtext.cpp \
-        text/q3stylesheet.cpp
+	text/q3stylesheet.cpp \
+	text/q3textstream.cpp
