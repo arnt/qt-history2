@@ -170,7 +170,7 @@ void ManGenerator::generateHeader( const QString& name )
     out() << ".TH " << protectArg( name )
 	  << " " << protectArg( "3qt" )
 	  << " " << protectArg( date )
-	  << " " << protectArg( "Trolltech AS" )
+	  << " " << protectArg( "Trolltech ASA" )
 	  << " " << protectArg( "Qt Toolkit" ) << "\n";
 }
 
