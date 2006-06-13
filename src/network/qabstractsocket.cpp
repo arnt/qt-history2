@@ -711,6 +711,7 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
                 q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP("QAbstractSocket",
                                                                   "Connection refused")));
             }
+            emit q->stateChanged(state);
             emit q->error(QAbstractSocket::ConnectionRefusedError);
             return;
         }
