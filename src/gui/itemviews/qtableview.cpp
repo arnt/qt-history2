@@ -555,7 +555,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
                     dx -= d->horizontalHeader->sectionSize(l);
                 }
             } else if (previousScrollbarValue > currentScrollbarValue) { // scrolling left
-                for (int c = previousScrollbarValue; c >= currentScrollbarValue; --c) {
+                for (int c = previousScrollbarValue; c > currentScrollbarValue; --c) {
                     int l = d->horizontalHeader->logicalIndex(c);
                     dx += d->horizontalHeader->sectionSize(l);
                 }
@@ -576,7 +576,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
                     dy -= d->verticalHeader->sectionSize(l);
                 }
             } else if (previousScrollbarValue > currentScrollbarValue) { // scrolling up
-                for (int r = previousScrollbarValue; r >= currentScrollbarValue; --r) {
+                for (int r = previousScrollbarValue; r > currentScrollbarValue; --r) {
                     int l = d->verticalHeader->logicalIndex(r);
                     dy += d->verticalHeader->sectionSize(l);
                 }
