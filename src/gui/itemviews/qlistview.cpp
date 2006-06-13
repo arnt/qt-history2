@@ -469,11 +469,17 @@ bool QListView::isRowHidden(int row) const
 void QListView::setRowHidden(int row, bool hide)
 {
     Q_D(QListView);
-    if (hide && !isRowHidden(row))
+    if (hide && !isRowHidden(row)) {
+        d->removeItem(row);
         d->hiddenRows.append(row);
-    else if (!hide && isRowHidden(row))
+    } else if (!hide && isRowHidden(row)) {
         d->hiddenRows.remove(d->hiddenRows.indexOf(row));
-    d->doDelayedItemsLayout();
+        d->insertItem(row);
+    }
+    if (d->movement == Static)
+        d->doDelayedItemsLayout();
+    else
+        d->viewport->update();
 }
 
 /*!
@@ -2052,8 +2058,10 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
 int QListViewPrivate::itemIndex(const QListViewItem &item) const
 {
     int i = item.indexHint;
-    if (movement == QListView::Static || i >= items.count() || items.at(i) == item)
+    if (movement == QListView::Static || items.at(i) == item)
         return i;
+    if (i >= items.count())
+        i = items.count() - 1;
 
     int j = i;
     int c = items.count();
@@ -2086,7 +2094,7 @@ void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
     QListViewPrivate *_this = static_cast<QListViewPrivate *>(data.ptr);
     for (int i = 0; i < leaf.count(); ++i) {
         int idx = leaf.at(i);
-        if (idx < 0)
+        if (idx < 0 || idx >= _this->items.count())
             continue;
         vi = &_this->items[idx];
         Q_ASSERT(vi);
@@ -2099,16 +2107,16 @@ void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
     }
 }
 
-void QListViewPrivate::insertItem(int index, QListViewItem &item)
+void QListViewPrivate::insertItem(int index)
 {
-    items.insert(index + 1, 1, item); // insert after idx
-    tree.insertLeaf(item.rect(), index);
+    if (index >= 0 && index < items.count())
+        tree.insertLeaf(items.at(index).rect(), index);
 }
 
 void QListViewPrivate::removeItem(int index)
 {
-    tree.removeLeaf(items.at(index).rect(), index);
-    items.remove(index, 1);
+    if (index >= 0 && index < items.count())
+        tree.removeLeaf(items.at(index).rect(), index);
 }
 
 void QListViewPrivate::moveItem(int index, const QPoint &dest)

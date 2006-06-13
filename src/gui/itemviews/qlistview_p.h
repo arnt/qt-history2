@@ -117,7 +117,7 @@ public:
     static void addLeaf(QVector<int> &leaf, const QRect &area,
                         uint visited, QBspTree::Data data);
 
-    void insertItem(int index, QListViewItem &item);
+    void insertItem(int index);
     void removeItem(int index);
     void moveItem(int index, const QPoint &dest);
 
