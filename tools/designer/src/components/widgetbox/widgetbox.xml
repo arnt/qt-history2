@@ -132,7 +132,7 @@
                 <string notr="true">checkBox</string>
             </property>
         </widget>
-        <widget class="QDialogButtonBox" name="Buton Box" icon="widgets/frame.png">
+        <widget class="QDialogButtonBox" name="Button Box" icon="widgets/frame.png">
             <property name="standardButtons" >
                 <set>QDialogButtonBox::Ok|QDialogButtonBox::Cancel</set>
             </property>
