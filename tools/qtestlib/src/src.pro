@@ -32,7 +32,7 @@ isEmpty(QT_MAJOR_VERSION) {
 QMAKE_TARGET_COMPANY = Trolltech ASA
 QMAKE_TARGET_PRODUCT = QTestLib
 QMAKE_TARGET_DESCRIPTION = Qt Unit Testing Library
-QMAKE_TARGET_COPYRIGHT = Copyright (C) 2003-2006 Trolltech AS
+QMAKE_TARGET_COPYRIGHT = Copyright (C) 2003-2006 Trolltech ASA
 
 unix {
    CONFIG     += create_libtool create_pc explicitlib
