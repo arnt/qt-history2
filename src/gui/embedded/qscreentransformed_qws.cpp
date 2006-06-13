@@ -286,9 +286,63 @@ static inline quint8 colorConvert(quint16 color)
 }
 #endif // QT_QWS_DEPTH_8
 
+#ifdef QT_QWS_DEPTH_24
+
+// XXX: endianess??
+class quint24
+{
+public:
+    quint24(quint32 v)
+    {
+        data[0] = v & 0xff;
+        data[1] = (v >> 8) & 0xff;
+        data[2] = (v >> 16) & 0xff;
+    }
+
+private:
+    uchar data[3];
+} Q_PACKED;
+
+template<>
+static inline quint24 colorConvert(quint32 color)
+{
+    return quint24(color);
+}
+
+#endif // QT_QWS_DEPTH_24
+
+#ifdef QT_QWS_DEPTH_18
+
+// XXX: endianess??
+class quint18
+{
+public:
+    quint18(quint32 v)
+    {
+        uchar b = v & 0xff;
+        uchar g = (v >> 8) & 0xff;
+        uchar r = (v >> 16) & 0xff;
+        uint p = (b>>2) | ((g>>2) << 6) | ((r>>2) << 12);
+        data[0] = p & 0xff;
+        data[1] = (p >> 8) & 0xff;
+        data[2] = (p >> 16) & 0xff;
+    }
+
+private:
+    uchar data[3];
+} Q_PACKED;
+
+template<>
+static inline quint18 colorConvert(quint32 color)
+{
+    return quint18(color);
+}
+
+#endif // QT_QWS_DEPTH_18
+
 typedef void (*BlitFunc)(const QImage &, const QRect &, const QPoint &);
 
-#if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD
+#if QT_ROTATION_ALGORITHM == QT_ROTATION_CACHEDREAD || defined(QT_QWS_DEPTH_18) || defined(QT_QWS_DEPTH_24)
 
 template <class SRC, class DST>
 static inline void blit90_cachedRead(const QImage &image, const QRect &rect,
@@ -699,6 +753,39 @@ do {                                            \
     }                                           \
 } while (0)
 
+#define SET_BLIT_FUNC18(rotation, func)              \
+do {                                                 \
+    switch (rotation) {                              \
+    case Rot90:                                      \
+        func = blit90_cachedRead<quint32, quint18>;  \
+        break;                                       \
+    case Rot180:                                     \
+        func = blit180<quint32, quint18>;            \
+        break;                                       \
+    case Rot270:                                     \
+        func = blit270_cachedRead<quint32, quint18>; \
+        break;                                       \
+    default:                                         \
+        break;                                       \
+    }                                                \
+} while (0)
+
+#define SET_BLIT_FUNC24(rotation, func)            \
+do {                                               \
+    switch (rotation) {                            \
+    case Rot90:                                    \
+        func = blit90_cachedRead<quint32, quint24>;\
+        break;                                  \
+    case Rot180:                                \
+        func = blit180<quint32, quint24>;       \
+        break;                                  \
+    case Rot270:                                \
+        func = blit270_cachedRead<quint32, quint24>; \
+        break;                                  \
+    default:                                    \
+        break;                                  \
+    }                                           \
+} while (0)
 
 void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
                               const QRegion &region)
@@ -717,6 +804,16 @@ void QTransformedScreen::blit(const QImage &image, const QPoint &topLeft,
 #ifdef QT_QWS_DEPTH_32
     case 32:
         SET_BLIT_FUNC(quint32, quint32, trans, func);
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_24
+    case 24:
+        SET_BLIT_FUNC24(trans, func);
+        break;
+#endif
+#ifdef QT_QWS_DEPTH_18
+    case 18:
+        SET_BLIT_FUNC18(trans, func);
         break;
 #endif
 #ifdef QT_QWS_DEPTH_16
