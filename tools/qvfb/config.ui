@@ -200,6 +200,20 @@
          </widget>
         </item>
         <item>
+         <widget class="QRadioButton" name="depth_18" >
+          <property name="text" >
+           <string>18 bit</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="depth_24" >
+          <property name="text" >
+           <string>24 bit</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QRadioButton" name="depth_32" >
           <property name="text" >
            <string>32 bit</string>
