@@ -1311,8 +1311,7 @@ void QLabelPrivate::ensureTextControl()
     Q_Q(QLabel);
     if (control || !doc)
         return;
-    control = new QTextControl(q);
-    control->setDocument(doc);
+    control = new QTextControl(doc, q);
     control->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard | Qt::LinksAccessibleByMouse);
     control->setPalette(q->palette());
     control->setFocus(q->hasFocus());

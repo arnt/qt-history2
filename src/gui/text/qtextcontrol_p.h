@@ -64,6 +64,7 @@ class Q_GUI_EXPORT QTextControl : public QObject
 public:
     explicit QTextControl(QObject *parent = 0);
     explicit QTextControl(const QString &text, QObject *parent = 0);
+    explicit QTextControl(QTextDocument *doc, QObject *parent = 0);
     virtual ~QTextControl();
 
     void setDocument(QTextDocument *document);

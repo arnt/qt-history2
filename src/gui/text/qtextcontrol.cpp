@@ -368,11 +368,6 @@ void QTextControlPrivate::createAutoBulletList()
     cursor.endEditBlock();
 }
 
-void QTextControlPrivate::init(const QString &html)
-{
-    setContent(Qt::RichText, html);
-}
-
 void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text, QTextDocument *document)
 {
     Q_Q(QTextControl);
@@ -685,14 +680,21 @@ QTextControl::QTextControl(QObject *parent)
     : QObject(*new QTextControlPrivate, parent)
 {
     Q_D(QTextControl);
-    d->init();
+    d->setContent(); // init
 }
 
 QTextControl::QTextControl(const QString &text, QObject *parent)
     : QObject(*new QTextControlPrivate, parent)
 {
     Q_D(QTextControl);
-    d->init(text);
+    d->setContent(Qt::RichText, text); // init
+}
+
+QTextControl::QTextControl(QTextDocument *doc, QObject *parent)
+    : QObject(*new QTextControlPrivate, parent)
+{
+    Q_D(QTextControl);
+    d->setContent(Qt::RichText, QString(), doc); // init
 }
 
 QTextControl::~QTextControl()
