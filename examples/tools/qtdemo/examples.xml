@@ -46,6 +46,7 @@
   <category dirname="layouts" name="Layouts">
     <example filename="basiclayouts" name="Basic Layouts" />
     <example filename="borderlayout" name="Border Layout" />
+    <example filename="dynamiclayouts" name="Dynamic Layouts" />
     <example filename="flowlayout" name="Flow Layout" />
   </category>
   <category dirname="linguist" name="Qt Linguist">
