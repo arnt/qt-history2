@@ -198,15 +198,14 @@ static const char * const qtlogo_xpm[] = {
     \skipto switch(QMessageBox::warning(this, "Application name",
     \printuntil }
 
-    The text part of all message box messages can be either rich text
-    or plain text. If you specify a rich text formatted string, it
-    will be rendered using the default stylesheet. See
-    QStyleSheet::defaultSheet() for details. With certain strings that
-    contain XML meta characters, the auto-rich text detection may
-    fail, interpreting plain text incorrectly as rich text. In these
-    rare cases, use QStyleSheet::convertFromPlainText() to convert
-    your plain text string to a visually equivalent rich text string
-    or set the text format explicitly with setTextFormat().
+    The text part of all message box messages can be either rich text or plain
+    text. With certain strings that contain XML meta characters, the auto-rich
+    text detection may fail, interpreting plain text incorrectly as rich text.
+    In these rare cases, use Qt::convertFromPlainText() to convert your plain
+    text string to a visually equivalent rich text string or set the text
+    format explicitly with setTextFormat().
+
+    Links in messageboxes are opened automatically using QDesktopServices::launchWebBrowser.
 
     Note that the Microsoft Windows User Interface Guidelines
     recommend using the application name as the window's caption.
@@ -536,6 +535,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
     if (q->style()->styleHint(QStyle::SH_MessageBox_TextSelectable))
         label->setFocusPolicy(Qt::ClickFocus);
     label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
+    label->setOpenExternalLinks(true);
 
     if ((button2 && !button1) || (button1 && !button0)) {
         qWarning("QMessageBox: Inconsistent button parameters");
@@ -1530,7 +1530,6 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
         c = tr("About Qt");
     mb.setWindowTitle(c);
     mb.setText(*translatedTextAboutQt);
-    mb.d_func()->label->setOpenExternalLinks(true);
 #ifndef QT_NO_IMAGEFORMAT_XPM
     QImage logo(qtlogo_xpm);
 #else
