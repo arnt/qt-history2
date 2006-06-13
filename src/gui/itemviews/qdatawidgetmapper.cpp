@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
@@ -205,7 +205,7 @@ void QDataWidgetMapperPrivate::_q_closeEditor(QWidget *w, QAbstractItemDelegate:
     Let us assume that we have an item model named \c{model} with the following contents:
 
     \table
-    \row \o 1 \o Trolltech AS    \o Oslo
+    \row \o 1 \o $TROLLTECH$    \o Oslo
     \row \o 2 \o Trolltech Pty   \o Brisbane
     \row \o 3 \o Trolltech Inc   \o Palo Alto
     \row \o 4 \o Trolltech China \o Beijing
@@ -225,7 +225,7 @@ void QDataWidgetMapperPrivate::_q_closeEditor(QWidget *w, QAbstractItemDelegate:
     \endcode
 
     After the call to first(), \c mySpinBox displays the value \c{1}, \c myLineEdit
-    displays \c {Trolltech AS} and \c myCountryChooser displays \c{Oslo}. The
+    displays \c {$TROLLTECH$} and \c myCountryChooser displays \c{Oslo}. The
     navigational functions first(), next(), previous(), last() and setCurrentIndex()
     can be used to navigate in the model and update the widgets with contents from
     the model.
@@ -645,7 +645,7 @@ void QDataWidgetMapper::clearMapping()
     Use horizontal orientation on tabular data like follows:
 
     \table
-    \row \o 1 \o Trolltech AS    \o Oslo
+    \row \o 1 \o $TROLLTECH$    \o Oslo
     \row \o 2 \o Trolltech Pty   \o Brisbane
     \row \o 3 \o Trolltech Inc   \o Palo Alto
     \row \o 4 \o Trolltech China \o Beijing
@@ -661,7 +661,7 @@ void QDataWidgetMapper::clearMapping()
 
     \table
     \row \o 1 \o 2 \o 3 \o 4 \o 5
-    \row \o Trolltech AS \o Trolltech Pty \o Trolltech Inc \o Trolltech China \o Trolltech GmbH
+    \row \o $TROLLTECH$ \o Trolltech Pty \o Trolltech Inc \o Trolltech China \o Trolltech GmbH
     \row \o Oslo \o Brisbane \o Palo Alto \o Beijing \i Berlin
     \endtable
 
