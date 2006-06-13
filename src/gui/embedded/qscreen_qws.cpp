@@ -1282,9 +1282,9 @@ static void fill_32(const fill_data *data)
 static void fill_18(const fill_data *data)
 {
     const int dbpl = data->lineStep;
-    uchar r = data->color & 0xff;
+    uchar b = data->color & 0xff;
     uchar g = (data->color >> 8) & 0xff;
-    uchar b = (data->color >> 16) & 0xff;
+    uchar r = (data->color >> 16) & 0xff;
     uint p = (b>>2) | ((g>>2) << 6) | ((r>>2) << 12);
     uchar b0 = p & 0xff;
     uchar b1 = (p >> 8) & 0xff;
