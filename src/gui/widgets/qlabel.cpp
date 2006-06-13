@@ -33,6 +33,8 @@
 #include "../text/qtextdocumentlayout_p.h"
 #include "private/qtextcontrol_p.h"
 #include <qdebug.h>
+#include <qurl.h>
+#include <qdesktopservices.h>
 
 class QLabelPrivate : public QFramePrivate
 {
@@ -83,6 +85,7 @@ public:
     void sendControlEvent(QEvent *e);
 
     void _q_highlightLink(const QString &link);
+    void _q_activateLink(const QString &link);
 
     QRect layoutRect() const;
     QRect documentRect() const;
@@ -90,6 +93,8 @@ public:
 #ifndef QT_NO_CONTEXTMENU
     QMenu *createStandardContextMenu(const QPoint &pos);
 #endif
+
+    bool openExternalLinks;
 
     bool hasCustomCursor;
 #ifndef QT_NO_CURSOR
@@ -335,6 +340,7 @@ void QLabelPrivate::init()
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 
     hasCustomCursor = false;
+    openExternalLinks = false;
 }
 
 
@@ -698,6 +704,27 @@ int QLabel::heightForWidth(int w) const
     return QWidget::heightForWidth(w);
 }
 
+/*!
+    \property QLabel::openExternalLinks
+    \since 4.2
+
+    Specifies whether QLabel should automatically open links using
+    QDesktopServices::launchWebBrowser() instead of emitting the
+    anchorClicked signal.
+
+    The default value is false.
+*/
+bool QLabel::openExternalLinks() const
+{
+    Q_D(const QLabel);
+    return d->openExternalLinks;
+}
+
+void QLabel::setOpenExternalLinks(bool open)
+{
+    Q_D(QLabel);
+    d->openExternalLinks = open;
+}
 
 
 /*!\reimp
@@ -1320,7 +1347,7 @@ void QLabelPrivate::ensureTextControl()
     QObject::connect(control, SIGNAL(linkHighlighted(const QString &)),
                      q, SLOT(_q_highlightLink(const QString &)));
     QObject::connect(control, SIGNAL(activateLinkRequest(const QString &)),
-                     q, SIGNAL(anchorClicked(const QString &)));
+                     q, SLOT(_q_activateLink(const QString &)));
 }
 
 void QLabelPrivate::sendControlEvent(QEvent *e)
@@ -1347,6 +1374,15 @@ void QLabelPrivate::_q_highlightLink(const QString &anchor)
 #endif
     }
     emit q->highlighted(anchor);
+}
+
+void QLabelPrivate::_q_activateLink(const QString &link)
+{
+    if (openExternalLinks) {
+        QDesktopServices::launchWebBrowser(QUrl(link));
+    } else {
+        emit q_func()->anchorClicked(link);
+    }
 }
 
 // Return the layout rect - this is the rect that is given to the layout painting code

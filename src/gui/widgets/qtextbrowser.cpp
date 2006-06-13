@@ -28,13 +28,14 @@
 #include <qdir.h>
 #include <qwhatsthis.h>
 #include <qtextobject.h>
+#include <qdesktopservices.h>
 
 class QTextBrowserPrivate : public QTextEditPrivate
 {
     Q_DECLARE_PUBLIC(QTextBrowser)
 public:
     inline QTextBrowserPrivate()
-        : textOrSourceChanged(false), forceLoadOnSourceChange(false)
+        : textOrSourceChanged(false), forceLoadOnSourceChange(false), openExternalLinks(false)
     {}
 
     void init();
@@ -57,6 +58,8 @@ public:
       setSource() */
     bool textOrSourceChanged;
     bool forceLoadOnSourceChange;
+
+    bool openExternalLinks;
 
 #ifndef QT_NO_CURSOR
     QCursor oldCursor;
@@ -128,6 +131,14 @@ void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
 
     const QUrl url = isAbsoluteFileName(currentURL.toLocalFile())
                      ? currentURL.resolved(href) : QUrl(href);
+
+    if (openExternalLinks
+        && url.scheme() != QLatin1String("file")
+        && url.scheme() != QLatin1String("qrc")) {
+        QDesktopServices::launchWebBrowser(url);
+        return;
+    }
+
     emit q->anchorClicked(url);
 
     if (textOrSourceChanged)
@@ -828,6 +839,29 @@ void QTextBrowser::clearHistory()
         d->stack.resize(1);
     emit forwardAvailable(false);
     emit backwardAvailable(false);
+}
+
+/*!
+    \property QTextBrowser::openExternalLinks
+    \since 4.2
+
+    Specifies whether QTextBrowser should automatically open links to external
+    sources using QDesktopServices::launchWebBrowser() instead of emitting the
+    anchorClicked signal. Links are considered external if their scheme is
+    neither file or qrc.
+
+    The default value is false.
+*/
+bool QTextBrowser::openExternalLinks() const
+{
+    Q_D(const QTextBrowser);
+    return d->openExternalLinks;
+}
+
+void QTextBrowser::setOpenExternalLinks(bool open)
+{
+    Q_D(QTextBrowser);
+    d->openExternalLinks = open;
 }
 
 /*! \reimp */

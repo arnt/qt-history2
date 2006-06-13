@@ -33,6 +33,7 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
+    Q_PROPERTY(bool openExternalLinks READ openExternalLinks WRITE setOpenExternalLinks)
 
 public:
     explicit QLabel(QWidget *parent=0, Qt::WFlags f=0);
@@ -72,6 +73,9 @@ public:
     QWidget *buddy() const;
 #endif
     int heightForWidth(int) const;
+
+    bool openExternalLinks() const;
+    void setOpenExternalLinks(bool open);
 
 public Q_SLOTS:
     void setText(const QString &);
@@ -123,6 +127,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_movieResized(const QSize&))
 #endif
     Q_PRIVATE_SLOT(d_func(), void _q_highlightLink(const QString &))
+    Q_PRIVATE_SLOT(d_func(), void _q_activateLink(const QString &))
 
     friend class QTipLabel;
 };

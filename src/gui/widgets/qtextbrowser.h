@@ -34,6 +34,7 @@ class Q_GUI_EXPORT QTextBrowser : public QTextEdit
     Q_OVERRIDE(bool readOnly DESIGNABLE false SCRIPTABLE false)
     Q_OVERRIDE(bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false)
     Q_PROPERTY(QStringList searchPaths READ searchPaths WRITE setSearchPaths)
+    Q_PROPERTY(bool openExternalLinks READ openExternalLinks WRITE setOpenExternalLinks)
 
 public:
     explicit QTextBrowser(QWidget* parent = 0);
@@ -49,6 +50,9 @@ public:
     bool isBackwardAvailable() const;
     bool isForwardAvailable() const;
     void clearHistory();
+
+    bool openExternalLinks() const;
+    void setOpenExternalLinks(bool open);
 
 public Q_SLOTS:
     virtual void setSource(const QUrl &name);
