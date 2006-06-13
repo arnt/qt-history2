@@ -297,12 +297,12 @@ void QVFb::createMenu(T *menu)
 QMenu* QVFb::createFileMenu()
 {
     QMenu *file = new QMenu( "&File", this );
-    file->addAction( "&Configure...", this, SLOT(configure()), Qt::ALT+Qt::CTRL+Qt::Key_C );
+    file->addAction( "Configure...", this, SLOT(configure()), 0 );
     file->addSeparator();
-    file->addAction( "&Save image...", this, SLOT(saveImage()), Qt::ALT+Qt::CTRL+Qt::Key_S );
-    file->addAction( "&Animation...", this, SLOT(toggleAnimation()), Qt::ALT+Qt::CTRL+Qt::Key_A );
+    file->addAction( "Save image...", this, SLOT(saveImage()), 0 );
+    file->addAction( "Animation...", this, SLOT(toggleAnimation()), 0 );
     file->addSeparator();
-    file->addAction( "&Quit", qApp, SLOT(quit()) );
+    file->addAction( "Quit", qApp, SLOT(quit()) );
     return file;
 }
 
