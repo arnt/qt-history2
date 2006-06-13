@@ -33,8 +33,7 @@ class QTextListFormat;
 
 class QTextDocumentLayoutPrivate;
 
-// ### remove the export again, for the non-public class
-class Q_GUI_EXPORT QTextDocumentLayout : public QAbstractTextDocumentLayout
+class Q_AUTOTEST_EXPORT QTextDocumentLayout : public QAbstractTextDocumentLayout
 {
     Q_DECLARE_PRIVATE(QTextDocumentLayout)
     Q_OBJECT
