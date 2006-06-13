@@ -321,7 +321,7 @@ QIODevice::QIODevice()
 #if defined QIODEVICE_DEBUG
     QFile *file = qobject_cast<QFile *>(this);
     printf("%p QIODevice::QIODevice(\"%s\") %s\n", this, className(),
-           qPrintable(file ? QString() : file->fileName()));
+           qPrintable(file ? file->fileName() : QString()));
 #endif
 }
 
