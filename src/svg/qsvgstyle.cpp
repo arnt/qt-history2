@@ -199,6 +199,7 @@ void QSvgGradientStyle::apply(QPainter *p, const QRectF &rect, QSvgNode *)
             r  = rect.width() * grad->radius();
             fx = rect.width() * grad->focalPoint().x();
             fy = rect.width() * grad->focalPoint().y();
+            //qDebug()<<cx << cy << r << fx << fy;
             QRadialGradient gradient(cx, cy,
                                      r, fx, fy);
             gradient.setStops(m_gradient->stops());

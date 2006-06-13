@@ -298,19 +298,8 @@ static bool createSvgGlyph(QSvgFont *font, const QXmlAttributes &attributes)
 
 // this should really be called convertToDefaultCoordinateSystem
 // and convert when type != QSvgHandler::defaultCoordinateSystem
-static qreal convertToPixels(qreal len, bool isX, QSvgHandler::LengthType type)
+static qreal convertToPixels(qreal len, bool , QSvgHandler::LengthType type)
 {
-    QWidgetList widgets = QApplication::topLevelWidgets();
-    QWidget *sampleWidget = widgets.isEmpty() ? 0 : widgets.first();
-
-    if (!sampleWidget) {
-        qWarning("can't produce matrics without some widget");
-        return len;
-    }
-
-    qreal dpi    = isX ? sampleWidget->logicalDpiX() : sampleWidget->logicalDpiY();
-    qreal mm     = isX ? sampleWidget->widthMM() : sampleWidget->heightMM();
-    qreal screen = isX ? sampleWidget->width() : sampleWidget->height();
 
     switch (type) {
     case QSvgHandler::PERCENT:
@@ -320,17 +309,16 @@ static qreal convertToPixels(qreal len, bool isX, QSvgHandler::LengthType type)
     case QSvgHandler::PC:
         break;
     case QSvgHandler::PT:
-        //### inkscape exports it as inkscape:export-[x,y]dpi
-        len *= (90/72.0);
+        return len * 1.25;
         break;
     case QSvgHandler::MM:
-        len *= screen/mm;
+        return len * 3.543307;
         break;
     case QSvgHandler::CM:
-        len *= dpi/2.54;
+        return len * 35.43307;
         break;
     case QSvgHandler::IN:
-        len *= dpi;
+        return len * 90;
         break;
     case QSvgHandler::OTHER:
         break;
