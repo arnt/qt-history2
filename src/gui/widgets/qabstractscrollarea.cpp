@@ -539,7 +539,7 @@ void QAbstractScrollArea::setCornerWidget(QWidget *widget)
     }
 }
 
-/*
+/*!
     Adds \a widget as a scroll bar widget in the location specified 
     by \a alignment.
     
