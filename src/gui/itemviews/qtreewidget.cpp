@@ -497,10 +497,8 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
     if (header && (column < 0 || column >= header->columnCount()))
         return;
 
-    emit layoutAboutToBeChanged();
-
     QTreeWidgetItem *itm = item(parent);
-    QList<QTreeWidgetItem*> &lst = itm ? itm->children : tree;
+    QList<QTreeWidgetItem*> lst = itm ? itm->children : tree;
 
     int count = end - start + 1;
     QVector < QPair<QTreeWidgetItem*,int> > sorting(count);
@@ -515,6 +513,7 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
     QModelIndexList oldPersistentIndexes = persistentIndexList();
     QModelIndexList newPersistentIndexes = oldPersistentIndexes;
     QList<QTreeWidgetItem*>::iterator lit = lst.begin();
+    bool changed = false;
     for (int i = 0; i < count; ++i) {
         int oldRow = sorting.at(i).second;
         QTreeWidgetItem *item = lst.takeAt(oldRow);
@@ -522,6 +521,7 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
         int newRow = qMax(lit - lst.begin(), 0);
         lit = lst.insert(lit, item);
         if (newRow != oldRow) {
+            changed = true;
             for (int j = i + 1; j < count; ++j) {
                 int otherRow = sorting.at(j).second;
                 if (oldRow < otherRow && newRow >= otherRow)
@@ -547,9 +547,16 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
             }
         }
     }
-    changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
 
-    emit layoutChanged();
+    if (changed) {
+        emit layoutAboutToBeChanged();
+        if (itm)
+            itm->children = lst;
+        else
+            tree = lst;
+        changePersistentIndexList(oldPersistentIndexes, newPersistentIndexes);
+        emit layoutChanged();
+    }
 }
 
 /*!
