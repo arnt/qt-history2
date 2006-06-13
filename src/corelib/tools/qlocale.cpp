@@ -1272,7 +1272,7 @@ QDataStream &operator>>(QDataStream &ds, QLocale &l)
     The following example illustrates how to use QLocale directly:
 
     \code
-        QLocale::setDefault(QLocale::Hebrew, QLocale::Israel);
+        QLocale::setDefault(QLocale(QLocale::Hebrew, QLocale::Israel));
         QLocale hebrew; // Constructs a default QLocale
         QString s1 = hebrew.toString(15714.3, 'e');
 
@@ -1287,7 +1287,7 @@ QDataStream &operator>>(QDataStream &ds, QLocale &l)
         d = QString("1234,56").toDouble(&ok);   // ok == true, d == 1234.56
         d = QString("1234.56").toDouble(&ok);   // ok == true, d == 1234.56
 
-        QLocale::setDefault(QLocale::English, QLocale::UnitedStates);
+        QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
         str = QString("%1 %L2 %L3")
               .arg(12345).arg(12345).arg(12345, 0, 16);
         // str == "12345 12,345 3039"
