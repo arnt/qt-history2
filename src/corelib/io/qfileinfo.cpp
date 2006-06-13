@@ -247,6 +247,16 @@ QDateTime
     later with setFile(). Use exists() to see if the file exists and
     size() to get its size.
 
+    Some of QFileInfo's functions query the file system, but for
+    performance reasons, some functions only operate on the
+    file name itself. For example: To return the absolute path of
+    a relative file name, absolutePath() has to query the file system.
+    The path() function, however, can work on the file name directly,
+    and so it is faster. By convention, QFileInfo interprets any path that
+    ends with a slash '/' as a directory (e.g., "C:/WINDOWS/"), and
+    those without a trailing slash (e.g., "C:/WINDOWS/hosts.txt")
+    are treated as files.
+    
     To speed up performance, QFileInfo caches information about the
     file. Because files can be changed by other users or programs, or
     even by other parts of the same program, there is a function that
