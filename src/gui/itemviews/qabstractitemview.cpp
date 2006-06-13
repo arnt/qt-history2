@@ -214,7 +214,7 @@ void QAbstractItemViewPrivate::init()
   \value CurrentChanged  Editing start whenever current item changes.
   \value DoubleClicked   Editing starts when an item is double clicked.
   \value SelectedClicked Editing starts when clicking on an already selected item.
-  \value EditKeyPressed  Editing starts when an edit key has been pressed over an item.
+  \value EditKeyPressed  Editing starts when the platform edit key has been pressed over an item.
   \value AnyKeyPressed   Editing starts when any key is pressed over an item.
   \value AllEditTriggers Editing starts for all above actions.
 */
