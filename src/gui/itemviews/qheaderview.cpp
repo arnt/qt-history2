@@ -2643,7 +2643,7 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
     Q_Q(QHeaderView);
     const int minimumSize = q->minimumSectionSize();
     const int oldSize = headerSectionSize(visual);
-    const int delta = newSize - oldSize;
+    int delta = newSize - oldSize;
 
     if (delta > 0) { // larger
         bool sectionResized = false;
@@ -2656,7 +2656,7 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
                 if (currentSectionSize < originalSectionSize) {
                     int newSectionSize = currentSectionSize + delta;
                     resizeSectionSpan(i, currentSectionSize, newSectionSize);
-                    if (newSectionSize >= originalSectionSize)
+                    if (newSectionSize >= originalSectionSize && false)
                         cascadingSectionSize.remove(i); // the section is now restored
                     sectionResized = true;
                     break;
@@ -2666,38 +2666,48 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
         }
 
         // resize the section
-        if (!sectionResized)
-            resizeSectionSpan(visual, oldSize, qMax(newSize, minimumSize));
+        if (!sectionResized) {
+            newSize = qMax(newSize, minimumSize);
+            if (oldSize != newSize)
+                resizeSectionSpan(visual, oldSize, newSize);
+        }
 
         // cascade the section size change
         for (int i = visual + 1; i < sectionCount; ++i) {
-            if (sectionIsCascadable(i)) {
-                int currentSectionSize = headerSectionSize(i);
-                int newSectionSize = qMax(currentSectionSize - delta, minimumSize);
-                resizeSectionSpan(i, currentSectionSize, newSectionSize);
-                saveCascadingSectionSize(i, currentSectionSize);
-                if (newSectionSize != minimumSize)
-                    break;
-            }
+            if (!sectionIsCascadable(i))
+                continue;
+            int currentSectionSize = headerSectionSize(i);
+            if (currentSectionSize <= minimumSize)
+                continue;
+            int newSectionSize = qMax(currentSectionSize - delta, minimumSize);
+            //qDebug() << "### cascading to" << i << newSectionSize - currentSectionSize << delta;
+            resizeSectionSpan(i, currentSectionSize, newSectionSize);
+            saveCascadingSectionSize(i, currentSectionSize);
+            delta = delta - (currentSectionSize - newSectionSize);
+            //qDebug() << "new delta" << delta;
+            //if (newSectionSize != minimumSize)
+            if (delta <= 0)
+                break;
         }
     } else { // smaller
         bool sectionResized = false;
 
         // restore old section sizes
         for (int i = lastCascadingSection; i > visual; --i) {
-            if (cascadingSectionSize.contains(i)) {
-                int currentSectionSize = headerSectionSize(i);
-                int originalSectionSize = cascadingSectionSize.value(i);
-                if (currentSectionSize < originalSectionSize) {
-                    int newSectionSize = currentSectionSize - delta;
-                    resizeSectionSpan(i, currentSectionSize, newSectionSize);
-                    if (newSectionSize >= originalSectionSize)
-                        cascadingSectionSize.remove(i); // the section is now restored
-                    sectionResized = true;
-                    break;
-                }
+            if (!cascadingSectionSize.contains(i))
+                continue;
+            int currentSectionSize = headerSectionSize(i);
+            int originalSectionSize = cascadingSectionSize.value(i);
+            if (currentSectionSize >= originalSectionSize)
+                continue;
+            int newSectionSize = currentSectionSize - delta;
+            resizeSectionSpan(i, currentSectionSize, newSectionSize);
+            if (newSectionSize >= originalSectionSize && false) {
+                //qDebug() << "section" << i << "restored to" << originalSectionSize;
+                cascadingSectionSize.remove(i); // the section is now restored
             }
-
+            sectionResized = true;
+            break;
         }
 
         // resize the section
@@ -2706,20 +2716,22 @@ void QHeaderViewPrivate::cascadingResize(int visual, int newSize)
         // cascade the section size change
         if (delta < 0 && newSize < minimumSize) {
             for (int i = visual - 1; i >= 0; --i) {
-                if (sectionIsCascadable(i)) {
-                    int sectionSize = headerSectionSize(i);
-                    if (sectionSize > minimumSize) {
-                        resizeSectionSpan(i, sectionSize, qMax(sectionSize + delta, minimumSize));
-                        saveCascadingSectionSize(i, sectionSize);
-                        break;
-                    }
-                }
+                if (!sectionIsCascadable(i))
+                    continue;
+                int sectionSize = headerSectionSize(i);
+                if (sectionSize <= minimumSize)
+                    continue;
+                resizeSectionSpan(i, sectionSize, qMax(sectionSize + delta, minimumSize));
+                saveCascadingSectionSize(i, sectionSize);
+                break;
             }
         }
 
         // let the next section get the space from the resized section
-        for (int i = visual + 1; i < sectionCount; ++i) {
-            if (!sectionResized && sectionIsCascadable(i)) {
+        if (!sectionResized) {
+            for (int i = visual + 1; i < sectionCount; ++i) {
+                if (!sectionIsCascadable(i))
+                    continue;
                 int currentSectionSize = headerSectionSize(i);
                 int newSectionSize = qMax(currentSectionSize - delta, minimumSize);
                 resizeSectionSpan(i, currentSectionSize, newSectionSize);
