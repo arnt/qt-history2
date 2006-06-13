@@ -670,7 +670,7 @@ static const char *const conical_program =
 static bool qt_resolve_frag_program_extensions(QGLContext *ctx)
 {
     if (glProgramStringARB != 0)
-	return true;
+        return true;
 
     // ARB_fragment_program
     glProgramStringARB = (_glProgramStringARB) wglGetProcAddress("glProgramStringARB");
@@ -736,11 +736,11 @@ void QOpenGLPaintEnginePrivate::generateGradientColorTable(const QGradientStops&
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
             colorTable[pos] = INTERPOLATE_PIXEL_256(colors[i], idist, colors[i+1], dist);
 #else
-	    uint c = INTERPOLATE_PIXEL_256(colors[i], idist, colors[i+1], dist);
-	    colorTable[pos] = ((c << 24) & 0xff000000)
-	                      | ((c >> 24) & 0x000000ff)
-	                      | ((c << 8) & 0x00ff0000)
-	                      | ((c >> 8) & 0x0000ff00);
+            uint c = INTERPOLATE_PIXEL_256(colors[i], idist, colors[i+1], dist);
+            colorTable[pos] = ((c << 24) & 0xff000000)
+                              | ((c >> 24) & 0x000000ff)
+                              | ((c << 8) & 0x00ff0000)
+                              | ((c >> 8) & 0x0000ff00);
 #endif // Q_BYTE_ORDER
             ++pos;
             fpos += incr;
@@ -853,7 +853,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
     QGLContext *ctx = const_cast<QGLContext *>(d->drawable.context());
     if (QGLExtensions::glExtensions & QGLExtensions::FragmentProgram)
-	qt_resolve_frag_program_extensions(ctx);
+        qt_resolve_frag_program_extensions(ctx);
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glDisable(GL_MULTISAMPLE);
@@ -1694,7 +1694,7 @@ struct QGLGlyphCoord {
 };
 
 struct QGLFontTexture {
-    int x_offset;
+    int x_offset; // glyph offset within the
     int y_offset;
     GLuint texture;
 };
@@ -1749,8 +1749,10 @@ void QGLGlyphCache::fontEngineDestroyed(QObject *o)
 
     quint64 font_key = (reinterpret_cast<quint64>(ctx) << 32) | reinterpret_cast<quint64>(fe);
     QGLFontTexture *tex = qt_font_textures.take(font_key);
-    glDeleteTextures(1, &tex->texture);
-    delete tex;
+    if (tex) {
+        glDeleteTextures(1, &tex->texture);
+        delete tex;
+    }
 }
 
 void QGLGlyphCache::widgetDestroyed(QObject *)
