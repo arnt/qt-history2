@@ -709,7 +709,7 @@ int QLabel::heightForWidth(int w) const
     \since 4.2
 
     Specifies whether QLabel should automatically open links using
-    QDesktopServices::launchWebBrowser() instead of emitting the
+    QDesktopServices::openUrl() instead of emitting the
     anchorClicked signal.
 
     The default value is false.
@@ -1379,7 +1379,7 @@ void QLabelPrivate::_q_highlightLink(const QString &anchor)
 void QLabelPrivate::_q_activateLink(const QString &link)
 {
     if (openExternalLinks) {
-        QDesktopServices::launchWebBrowser(QUrl(link));
+        QDesktopServices::openUrl(QUrl(link));
     } else {
         emit q_func()->anchorClicked(link);
     }

@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qdesktopservices.h"
 #include <qsettings.h>
 #include <qdir.h>
 #include <qurl.h>
@@ -82,7 +81,21 @@ HRESULT CreateInternetShortcut(LPTSTR pszShortcut, LPTSTR pszURL)
    return hr;
 }
 
-bool QDesktopServices::launchWebBrowser(const QUrl &url)
+static bool openDocument(const QUrl &file)
+{
+    if (!file.isValid())
+        return false;
+
+    QT_WA({
+                ShellExecute(0, 0, (TCHAR*)QString(file.toEncoded()).utf16(), 0, 0, SW_SHOWNORMAL);
+            } , {
+                ShellExecuteA(0, 0, QString(file.toEncoded()).toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
+            });
+
+    return true;
+}
+
+static bool launchWebBrowser(const QUrl &url)
 {
     if (url.scheme() == "mailto" && url.toEncoded().length() >= 2083){
         QTemporaryFile temp(QDir::tempPath() + "/" + "qt_XXXXXX.url");
@@ -107,19 +120,6 @@ bool QDesktopServices::launchWebBrowser(const QUrl &url)
     return openDocument(url);
 }
 
-bool QDesktopServices::openDocument(const QUrl &file)
-{
-    if (!file.isValid())
-        return false;
-
-    QT_WA({
-                ShellExecute(0, 0, (TCHAR*)QString(file.toEncoded()).utf16(), 0, 0, SW_SHOWNORMAL);
-            } , {
-                ShellExecuteA(0, 0, QString(file.toEncoded()).toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
-            });
-
-    return true;
-}
 /*
 QString QDesktopServices::storageLocation(const Location type)
 {

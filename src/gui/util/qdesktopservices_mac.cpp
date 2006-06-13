@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qdesktopservices.h"
-
 #ifndef QT_NO_DESKTOPSERVICES
 
 #include <Carbon/Carbon.h>
@@ -98,12 +96,12 @@ static bool lsOpen(const QUrl &url)
     return (err == noErr);
 }
 
-bool QDesktopServices::launchWebBrowser(const QUrl &url)
+static bool launchWebBrowser(const QUrl &url)
 {
     return lsOpen(url);
 }
 
-bool QDesktopServices::openDocument(const QUrl &file)
+static bool openDocument(const QUrl &file)
 {
     if (!file.isValid())
         return false;

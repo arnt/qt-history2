@@ -24,10 +24,10 @@ QT_MODULE(Gui)
 
 #ifndef QT_NO_DESKTOPSERVICES
 
-namespace QDesktopServices
+class Q_GUI_EXPORT QDesktopServices
 {
-    bool Q_GUI_EXPORT launchWebBrowser(const QUrl &url);
-    bool Q_GUI_EXPORT openDocument(const QUrl &file);
+public:
+    static bool openUrl(const QUrl &url);
 };
 
 #endif // QT_NO_DESKTOPSERVICES

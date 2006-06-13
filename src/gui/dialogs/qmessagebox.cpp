@@ -205,7 +205,7 @@ static const char * const qtlogo_xpm[] = {
     text string to a visually equivalent rich text string or set the text
     format explicitly with setTextFormat().
 
-    Links in messageboxes are opened automatically using QDesktopServices::launchWebBrowser.
+    Links in messageboxes are opened automatically using QDesktopServices::openUrl().
 
     Note that the Microsoft Windows User Interface Guidelines
     recommend using the application name as the window's caption.

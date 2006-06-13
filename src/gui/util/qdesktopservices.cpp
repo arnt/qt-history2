@@ -11,3 +11,10 @@
 #include "qdesktopservices_mac.cpp"
 #endif
 
+bool QDesktopServices::openUrl(const QUrl &url)
+{
+    if (url.scheme() == QLatin1String("file"))
+        return openDocument(url);
+    else
+        return launchWebBrowser(url);
+}

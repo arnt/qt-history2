@@ -135,7 +135,7 @@ void QTextBrowserPrivate::_q_activateAnchor(const QString &href)
     if (openExternalLinks
         && url.scheme() != QLatin1String("file")
         && url.scheme() != QLatin1String("qrc")) {
-        QDesktopServices::launchWebBrowser(url);
+        QDesktopServices::openUrl(url);
         return;
     }
 
@@ -846,7 +846,7 @@ void QTextBrowser::clearHistory()
     \since 4.2
 
     Specifies whether QTextBrowser should automatically open links to external
-    sources using QDesktopServices::launchWebBrowser() instead of emitting the
+    sources using QDesktopServices::openUrl() instead of emitting the
     anchorClicked signal. Links are considered external if their scheme is
     neither file or qrc.
 

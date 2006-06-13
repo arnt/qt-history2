@@ -11,17 +11,15 @@
 **
 ****************************************************************************/
 
-#include "qdesktopservices.h"
-
 #ifndef QT_NO_DESKTOPSERVICES
 
-bool QDesktopServices::launchWebBrowser(const QUrl &url)
+static bool launchWebBrowser(const QUrl &url)
 {
     qWarning("QDesktopServices::launchWebBrowser not implemented");
     return false;
 }
 
-bool QDesktopServices::openDocument(const QUrl &file)
+static bool openDocument(const QUrl &file)
 {
     qWarning("QDesktopServices::openDocument not implemented");
     return false;

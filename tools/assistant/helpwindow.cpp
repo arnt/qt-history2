@@ -76,21 +76,12 @@ void HelpWindow::setSource(const QUrl &name)
         return;
     }
 
-    if (name.scheme() == QLatin1String("http") || name.scheme() == QLatin1String("ftp") || name.scheme() == QLatin1String("mailto")) {
-        bool launched = QDesktopServices::launchWebBrowser(name);
+    if (name.scheme() == QLatin1String("http") || name.scheme() == QLatin1String("ftp") || name.scheme() == QLatin1String("mailto")
+        || name.path().endsWith(QLatin1String("pdf"))) {
+        bool launched = QDesktopServices::openUrl(name);
         if (!launched) {
             QMessageBox::information(mw, tr("Help"),
                          tr("Unable to launch web browser.\n"),
-                         tr("Ok"));
-        }
-        return;
-    }
-
-    if (name.path().right(3) == QLatin1String("pdf")) {
-        bool launched = QDesktopServices::openDocument(name);
-        if (!launched) {
-            QMessageBox::information(mw, tr("Help"),
-                         tr("Unable to open pdf file.\n"),
                          tr("Ok"));
         }
         return;
