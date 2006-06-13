@@ -485,6 +485,7 @@ QScrollBar *QAbstractScrollArea::horizontalScrollBar() const
 }
 
 /*!
+    \since 4.2
     Returns the widget in the corner between the two scroll bars.
 
     By default, no corner widget is present.
@@ -496,6 +497,7 @@ QWidget *QAbstractScrollArea::cornerWidget() const
 }
 
 /*!
+    \since 4.2
     Sets the widget in the \a corner between the two scroll bars.
 
     You will probably also want to set at least one of the scroll bar
@@ -540,6 +542,7 @@ void QAbstractScrollArea::setCornerWidget(QWidget *widget)
 }
 
 /*!
+    \since 4.2
     Adds \a widget as a scroll bar widget in the location specified 
     by \a alignment.
     
@@ -589,6 +592,7 @@ void QAbstractScrollArea::addScrollBarWidget(QWidget *widget, Qt::Alignment alig
 }
 
 /*
+    \since 4.2
     Returns a list of the currently set scroll bar widgets. \a aligmnet 
     can be any combination of the four location flags.
     
