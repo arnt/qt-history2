@@ -76,15 +76,15 @@ typedef void (APIENTRYP PFNGLDELETEFRAMEBUFFERSEXTPROC) (GLsizei n, const GLuint
 typedef void (APIENTRYP PFNGLGENFRAMEBUFFERSEXTPROC) (GLsizei n, GLuint *framebuffers);
 typedef GLenum (APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) (GLenum target);
 typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget,
-							   GLuint texture, GLint level);
+                                                           GLuint texture, GLint level);
 typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget,
-							   GLuint texture, GLint level);
+                                                           GLuint texture, GLint level);
 typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) (GLenum target, GLenum attachment, GLenum textarget,
-							   GLuint texture, GLint level, GLint zoffset);
+                                                           GLuint texture, GLint level, GLint zoffset);
 typedef void (APIENTRYP PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) (GLenum target, GLenum attachment, GLenum renderbuffertarget,
-							      GLuint renderbuffer);
+                                                              GLuint renderbuffer);
 typedef void (APIENTRYP PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) (GLenum target, GLenum attachment, GLenum pname,
-									  GLint *params);
+                                                                          GLint *params);
 typedef void (APIENTRYP PFNGLGENERATEMIPMAPEXTPROC) (GLenum target);
 
 class QGLFormatPrivate
@@ -95,6 +95,7 @@ public:
         pln = 0;
         depthSize = accumSize = stencilSize = alphaSize = -1;
         numSamples = -1;
+        swapInterval = -1;
     }
     QGL::FormatOptions opts;
     int pln;
@@ -103,6 +104,7 @@ public:
     int stencilSize;
     int alphaSize;
     int numSamples;
+    int swapInterval;
 };
 
 class QGLWidgetPrivate : public QWidgetPrivate
@@ -140,29 +142,29 @@ public:
     explicit QGLContextPrivate(QGLContext *context) : q_ptr(context)
     {
 #ifdef Q_WS_WIN
-	qt_glProgramStringARB = 0;
-	qt_glBindProgramARB = 0;
-	qt_glDeleteProgramsARB = 0;
-	qt_glGenProgramsARB = 0;
-	qt_glProgramLocalParameter4fvARB = 0;
+        qt_glProgramStringARB = 0;
+        qt_glBindProgramARB = 0;
+        qt_glDeleteProgramsARB = 0;
+        qt_glGenProgramsARB = 0;
+        qt_glProgramLocalParameter4fvARB = 0;
 
-	qt_glIsRenderbufferEXT = 0;
-	qt_glBindRenderbufferEXT = 0;
-	qt_glDeleteRenderbuffersEXT = 0;
-	qt_glGenRenderbuffersEXT = 0;
-	qt_glRenderbufferStorageEXT = 0;
-	qt_glGetRenderbufferParameterivEXT = 0;
-	qt_glIsFramebufferEXT = 0;
-	qt_glBindFramebufferEXT = 0;
-	qt_glDeleteFramebuffersEXT = 0;
-	qt_glGenFramebuffersEXT = 0;
-	qt_glCheckFramebufferStatusEXT = 0;
-	qt_glFramebufferTexture1DEXT = 0;
-	qt_glFramebufferTexture2DEXT = 0;
-	qt_glFramebufferTexture3DEXT = 0;
-	qt_glFramebufferRenderbufferEXT = 0;
-	qt_glGetFramebufferAttachmentParameterivEXT = 0;
-	qt_glGenerateMipmapEXT = 0;
+        qt_glIsRenderbufferEXT = 0;
+        qt_glBindRenderbufferEXT = 0;
+        qt_glDeleteRenderbuffersEXT = 0;
+        qt_glGenRenderbuffersEXT = 0;
+        qt_glRenderbufferStorageEXT = 0;
+        qt_glGetRenderbufferParameterivEXT = 0;
+        qt_glIsFramebufferEXT = 0;
+        qt_glBindFramebufferEXT = 0;
+        qt_glDeleteFramebuffersEXT = 0;
+        qt_glGenFramebuffersEXT = 0;
+        qt_glCheckFramebufferStatusEXT = 0;
+        qt_glFramebufferTexture1DEXT = 0;
+        qt_glFramebufferTexture2DEXT = 0;
+        qt_glFramebufferTexture3DEXT = 0;
+        qt_glFramebufferRenderbufferEXT = 0;
+        qt_glGetFramebufferAttachmentParameterivEXT = 0;
+        qt_glGenerateMipmapEXT = 0;
 #endif
     }
     ~QGLContextPrivate() {}

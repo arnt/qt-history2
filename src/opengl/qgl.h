@@ -113,6 +113,9 @@ public:
     void setSamples(int numSamples);
     int  samples() const;
 
+    void setSwapInterval(int interval);
+    int  swapInterval() const;
+
     bool doubleBuffer() const;
     void setDoubleBuffer(bool enable);
     bool depth() const;
@@ -181,9 +184,9 @@ public:
     virtual void swapBuffers() const;
 
     GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D,
-		       GLint format = GL_RGBA8);
+                       GLint format = GL_RGBA8);
     GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D,
-		       GLint format = GL_RGBA8);
+                       GLint format = GL_RGBA8);
     GLuint bindTexture(const QString &fileName);
 
     void deleteTexture(GLuint tx_id);
@@ -312,9 +315,9 @@ public:
     QPaintEngine *paintEngine() const;
 
     GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D,
-		       GLint format = GL_RGBA8);
+                       GLint format = GL_RGBA8);
     GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D,
-		       GLint format = GL_RGBA8);
+                       GLint format = GL_RGBA8);
     GLuint bindTexture(const QString &fileName);
     void deleteTexture(GLuint tx_id);
 

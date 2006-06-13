@@ -750,7 +750,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         }
 
         if (deviceIsPixmap() &&
-             (((QPixmap*)d->paintDevice)->depth() != realPfd.cColorBits)) {
+            (((QPixmap*)d->paintDevice)->depth() != realPfd.cColorBits)) {
             qWarning("QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth.");
             result = false;
             goto end;
@@ -785,6 +785,18 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     }
 
 end:
+    // vblanking
+    wglMakeCurrent(myDc, d->rc);
+    typedef BOOL (APIENTRYP PFNWGLSWAPINTERVALEXT) (int interval);
+    typedef int (APIENTRYP PFNWGLGETSWAPINTERVALEXT) (void);
+    PFNWGLSWAPINTERVALEXT wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXT) wglGetProcAddress("wglSwapIntervalEXT");
+    PFNWGLGETSWAPINTERVALEXT wglGetSwapIntervalEXT = (PFNWGLGETSWAPINTERVALEXT) wglGetProcAddress("wglGetSwapIntervalEXT");
+    if (wglSwapIntervalEXT && wglGetSwapIntervalEXT) {
+        if (d->reqFormat.swapInterval() != -1)
+            wglSwapIntervalEXT(d->reqFormat.swapInterval());
+        d->glFormat.setSwapInterval(wglGetSwapIntervalEXT());
+    }
+
     if (d->win)
         ReleaseDC(d->win, myDc);
     return result;

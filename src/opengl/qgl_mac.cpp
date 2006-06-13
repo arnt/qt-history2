@@ -150,13 +150,17 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     }
     if(deviceIsPixmap())
         updatePaintDevice();
+
 #if 0
-    { //sync the vrefresh
-        const GLint sync = 1;
-        aglSetInteger((AGLContext)d->cx, AGL_SWAP_INTERVAL, &sync);
+    // vblank syncing
+    GLint interval = d->reqFormat.swapInterval();
+    if (interval != -1) {
+        aglSetInteger((AGLContext)d->cx, AGL_SWAP_INTERVAL, &interval);
         if(!aglIsEnabled((AGLContext)d->cx, AGL_SWAP_INTERVAL))
             aglEnable((AGLContext)d->cx, AGL_SWAP_INTERVAL);
     }
+    aglGetInteger((AGLContext)d->cx, AGL_SWAP_INTERVAL, &interval);
+    d->glFormat.setSwapInterval(interval);
 #endif
     return true;
 }
@@ -280,7 +284,7 @@ void QGLContext::makeCurrent()
     }
     aglSetCurrentContext((AGLContext)d->cx);
     if (d->update)
-	updatePaintDevice();
+        updatePaintDevice();
     currentCtx = this;
     if (!qgl_context_storage.hasLocalData() && QThread::currentThread())
         qgl_context_storage.setLocalData(new QGLThreadContext);
