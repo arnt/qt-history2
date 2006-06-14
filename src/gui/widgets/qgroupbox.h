@@ -55,6 +55,7 @@ public Q_SLOTS:
     void setChecked(bool checked);
 
 Q_SIGNALS:
+    void clicked(bool checked = false);
     void toggled(bool);
 
 protected:

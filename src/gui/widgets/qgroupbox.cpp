@@ -43,6 +43,7 @@ public:
 
     void _q_fixFocus();
     void _q_setChildrenEnabled(bool b);
+    void click();
     bool flat;
     bool checkable;
     bool checked;
@@ -86,6 +87,17 @@ QStyleOptionGroupBox QGroupBoxPrivate::getStyleOption() const
         option.subControls |= QStyle::SC_GroupBoxLabel;
 
     return option;
+}
+
+void QGroupBoxPrivate::click()
+{
+    Q_Q(QGroupBox);
+
+    QPointer<QGroupBox> guard(q);
+    q->setChecked(!checked);
+    if (!guard)
+        return;
+    emit q->clicked(checked);
 }
 
 /*!
@@ -286,7 +298,7 @@ bool QGroupBox::event(QEvent *e)
             if (!isCheckable()) {
                 d->_q_fixFocus();
             } else {
-                setChecked(!d->checked);
+                d->click();
                 setFocus(Qt::ShortcutFocusReason);
             }
             return true;
@@ -300,7 +312,7 @@ bool QGroupBox::event(QEvent *e)
         QStyle::SubControl control = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
                                                                     static_cast<QHoverEvent *>(e)->pos(),
                                                                     this);
-        bool oldHover = d->hover;        
+        bool oldHover = d->hover;
         d->hover = d->checkable && (control == QStyle::SC_GroupBoxLabel || control == QStyle::SC_GroupBoxCheckBox);
         if (oldHover != d->hover) {
             QRect rect = style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxCheckBox, this)
@@ -333,7 +345,7 @@ bool QGroupBox::event(QEvent *e)
                            || d->pressedControl == QStyle::SC_GroupBoxCheckBox);
             d->pressedControl = QStyle::SC_None;
             if (toggle)
-                setChecked(!d->checked);
+                d->click();
             return true;
         }
         break;
@@ -554,6 +566,21 @@ bool QGroupBox::isChecked() const
     \sa checkable
 */
 
+
+/*!
+    \fn void QGroupBox::clicked(bool checked)
+
+    This signal is emitted when the check box is activated (i.e. pressed down
+    then released while the mouse cursor is inside the button), or when the
+    shortcut key is typed, Notably, this signal is \e not emitted if you call
+    setChecked().
+
+    If the check box is checked \a checked is true; it is false if the check
+    box is unchecked.
+
+    \sa checkable, toggled(), checked
+*/
+
 /*!
     \property QGroupBox::checked
     \brief whether the group box is checked
@@ -632,7 +659,7 @@ void QGroupBox::mousePressEvent(QMouseEvent *event)
     QStyleOptionGroupBox box = d->getStyleOption();
     d->pressedControl = style()->hitTestComplexControl(QStyle::CC_GroupBox, &box,
                                                        event->pos(), this);
-    if (d->pressedControl & (QStyle::SC_GroupBoxCheckBox | QStyle::SC_GroupBoxLabel))
+    if (d->checkable && (d->pressedControl & (QStyle::SC_GroupBoxCheckBox | QStyle::SC_GroupBoxLabel)))
         update(style()->subControlRect(QStyle::CC_GroupBox, &box, QStyle::SC_GroupBoxCheckBox, this));
 }
 
@@ -652,11 +679,11 @@ void QGroupBox::mouseReleaseEvent(QMouseEvent *)
 {
     Q_D(QGroupBox);
     QStyleOptionGroupBox box = d->getStyleOption();
-    bool toggle = (d->pressedControl == QStyle::SC_GroupBoxLabel
+    bool toggle = d->checkable && (d->pressedControl == QStyle::SC_GroupBoxLabel
                    || d->pressedControl == QStyle::SC_GroupBoxCheckBox);
     d->pressedControl = QStyle::SC_None;
     if (toggle)
-        setChecked(!d->checked);
+        d->click();
 }
 
 #ifdef QT3_SUPPORT
