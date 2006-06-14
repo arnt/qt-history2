@@ -78,6 +78,7 @@ private:
     bool ownsMemory : 1;
 
     int _windowType;
+    QRegion windowRgn;
 
     QWSLock *memLock;
 };

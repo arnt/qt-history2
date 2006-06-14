@@ -690,12 +690,15 @@ bool QWSBackingStore::createIfNecessary(QWidget *tlw)
     else
         doCreate = _windowType != NonBuffered;
 
-    if (doCreate) {
+    if (doCreate)
         create(tlwSize, imageFormat, useBS ? int(opaque) : int(NonBuffered));
-         QWidget::qwsDisplay()->requestRegion(tlw->data->winid,
-                                              memoryId(),
-                                              _windowType, tlwRegion, imageFormat);
-         offs = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
+
+    if (doCreate || windowRgn != tlwRegion) {
+        QWidget::qwsDisplay()->requestRegion(tlw->data->winid,
+            memoryId(),
+            _windowType, tlwRegion, imageFormat);
+        offs = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
+        windowRgn = tlwRegion;
     }
 
     if (windowType() == QWSBackingStore::NonBuffered)
