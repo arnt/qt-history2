@@ -1275,7 +1275,7 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
         return;
 
     d_ptr->hasMatrix = !newMatrix.isIdentity();
-    
+
     qt_graphicsItem_fullUpdate(this);
     removeFromIndex();
     QVariant variant;
@@ -4575,6 +4575,10 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
                          qq, SLOT(_q_updateBoundingRect(const QSizeF &)));
         QObject::connect(control, SIGNAL(visibilityRequest(const QRectF &)),
                          qq, SLOT(_q_ensureVisible(QRectF)));
+        QObject::connect(control, SIGNAL(linkActivated(const QString &)),
+                         qq, SIGNAL(linkActivated(const QString &)));
+        QObject::connect(control, SIGNAL(linkHovered(const QString &)),
+                         qq, SIGNAL(linkHovered(const QString &)));
 
         const QSizeF pgSize = control->document()->pageSize();
         if (pgSize.height() != -1) {
@@ -4587,6 +4591,18 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
     }
     return control;
 }
+
+/*!
+    \fn QGraphicsTextItem::linkActivated(const QString &)
+
+    This signal is emitted when the user clicks on a link.
+*/
+
+/*!
+    \fn QGraphicsTextItem:linkHovered(const QString &)
+
+    This signal is emitted when the user hovers over a link.
+*/
 
 /*!
     Sets the flags \a flags to specify how the text item should react to user

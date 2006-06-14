@@ -163,8 +163,8 @@ Q_SIGNALS:
     void documentSizeChanged(const QSizeF &);
     void visibilityRequest(const QRectF &rect);
     void microFocusChanged();
-    void activateLinkRequest(const QString &link);
-    void linkHighlighted(const QString &);
+    void linkActivated(const QString &link);
+    void linkHovered(const QString &);
 
 public:
     // control properties

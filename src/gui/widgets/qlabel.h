@@ -95,8 +95,8 @@ public Q_SLOTS:
     void clear();
 
 Q_SIGNALS:
-    void anchorClicked(const QString& link);
-    void highlighted(const QString& link);
+    void linkActivated(const QString& link);
+    void linkHovered(const QString& link);
 
 protected:
     bool event(QEvent *e);
@@ -130,8 +130,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_movieUpdated(const QRect&))
     Q_PRIVATE_SLOT(d_func(), void _q_movieResized(const QSize&))
 #endif
-    Q_PRIVATE_SLOT(d_func(), void _q_highlightLink(const QString &))
-    Q_PRIVATE_SLOT(d_func(), void _q_activateLink(const QString &))
+    Q_PRIVATE_SLOT(d_func(), void _q_linkHovered(const QString &))
+    Q_PRIVATE_SLOT(d_func(), void _q_linkActivated(const QString &))
 
     friend class QTipLabel;
 };

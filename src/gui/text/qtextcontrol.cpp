@@ -1062,7 +1062,7 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
                 tmp.setPosition(tmp.selectionStart());
             tmp.movePosition(QTextCursor::NextCharacter);
             const QString href = tmp.charFormat().anchorHref();
-            emit q->activateLinkRequest(href);
+            emit q->linkActivated(href);
             return;
         }
     }
@@ -1433,7 +1433,7 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
         QString anchor = q->anchorAt(mousePos);
         if (anchor != highlightedAnchor) {
             highlightedAnchor = anchor;
-            emit q->linkHighlighted(anchor);
+            emit q->linkHovered(anchor);
         }
     }
 
@@ -1538,7 +1538,7 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
 
         if (!cursor.hasSelection()
             || (anchor == anchorOnMousePress && hadSelectionOnMousePress))
-            emit q->activateLinkRequest(anchor);
+            emit q->linkActivated(anchor);
     }
 }
 

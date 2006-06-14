@@ -85,8 +85,8 @@ public:
     void ensureTextControl();
     void sendControlEvent(QEvent *e);
 
-    void _q_highlightLink(const QString &link);
-    void _q_activateLink(const QString &link);
+    void _q_linkHovered(const QString &link);
+    void _q_linkActivated(const QString &link);
 
     QRect layoutRect() const;
     QRect documentRect() const;
@@ -1373,10 +1373,10 @@ void QLabelPrivate::ensureTextControl()
     control->setFocus(q->hasFocus());
     QObject::connect(control, SIGNAL(updateRequest(const QRectF &)),
                      q, SLOT(update()));
-    QObject::connect(control, SIGNAL(linkHighlighted(const QString &)),
-                     q, SLOT(_q_highlightLink(const QString &)));
-    QObject::connect(control, SIGNAL(activateLinkRequest(const QString &)),
-                     q, SLOT(_q_activateLink(const QString &)));
+    QObject::connect(control, SIGNAL(linkHovered(const QString &)),
+                     q, SLOT(_q_linkHovered(const QString &)));
+    QObject::connect(control, SIGNAL(linkActivated(const QString &)),
+                     q, SLOT(_q_linkActivated(const QString &)));
 }
 
 void QLabelPrivate::sendControlEvent(QEvent *e)
@@ -1387,7 +1387,7 @@ void QLabelPrivate::sendControlEvent(QEvent *e)
     control->processEvent(e, -layoutRect().topLeft(), q);
 }
 
-void QLabelPrivate::_q_highlightLink(const QString &anchor)
+void QLabelPrivate::_q_linkHovered(const QString &anchor)
 {
     Q_Q(QLabel);
     if (anchor.isEmpty()) { // restore cursor
@@ -1402,15 +1402,15 @@ void QLabelPrivate::_q_highlightLink(const QString &anchor)
         q->setCursor(Qt::PointingHandCursor);
 #endif
     }
-    emit q->highlighted(anchor);
+    emit q->linkHovered(anchor);
 }
 
-void QLabelPrivate::_q_activateLink(const QString &link)
+void QLabelPrivate::_q_linkActivated(const QString &link)
 {
     if (openExternalLinks) {
         QDesktopServices::openUrl(QUrl(link));
     } else {
-        emit q_func()->anchorClicked(link);
+        emit q_func()->linkActivated(link);
     }
 }
 
@@ -1454,19 +1454,16 @@ QMenu *QLabelPrivate::createStandardContextMenu(const QPoint &pos)
 }
 #endif
 
-/*!  \fn void QLabel::highlighted(const QString &link)
-     \overload
+/*!  \fn void QLabel::linkHovered(const QString &link)
 
-     Convenience signal that allows connecting to a slot
-     that takes just a QString, like for example QStatusBar's
-     message().
+     This signal is emitted when the user hovers over a link.
 */
 
 
 /*!
-    \fn void QLabel::anchorClicked(const QString &link)
+    \fn void QLabel::linkActivated(const QString &link)
 
-    This signal is emitted when the user clicks an anchor. The
+    This signal is emitted when the user clicks a link. The
     URL referred to by the anchor is passed in \a link.
 */
 
