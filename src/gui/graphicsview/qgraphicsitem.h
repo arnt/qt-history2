@@ -158,8 +158,8 @@ public:
     QRectF sceneBoundingRect() const;
     virtual QPainterPath shape() const;
     virtual bool contains(const QPointF &point) const;
-    virtual bool collidesWith(QGraphicsItem *other) const;
-    virtual bool collidesWith(const QPainterPath &path) const;
+    virtual bool collidesWithItem(QGraphicsItem *other) const;
+    virtual bool collidesWithPath(const QPainterPath &path) const;
     QList<QGraphicsItem *> collidingItems() const;
 
     // Drawing

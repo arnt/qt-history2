@@ -78,7 +78,7 @@
     culling invisible items, and for determining the area that needs to be
     recomposed when drawing overlapping items. In addition, QGraphicsItem's
     collision detection mechanisms use boundingRect() to provide an efficient
-    cut-off. The fine grained collision algorithm in collidesWith() is based
+    cut-off. The fine grained collision algorithm in collidesWithItem() is based
     on calling shape(), which returns an accurate outline of the item's shape
     as a QPainterPath.
 
@@ -87,10 +87,10 @@
     \list 1
 
     \o Reimplement shape() to return an accurate shape for your item, and rely
-    on the default implementation of collidesWith() to do shape-shape
+    on the default implementation of collidesWithItem() to do shape-shape
     intersection. This can be rather expensive if the shapes are complex.
 
-    \o Reimplement collidesWith() to provide your own custom item and shape
+    \o Reimplement collidesWithItem() to provide your own custom item and shape
     collision algorithm.
 
     \endlist
@@ -1538,7 +1538,7 @@ QRectF QGraphicsItem::sceneBoundingRect() const
     \endcode
 
     This function is called by the default implementations of contains() and
-    collidesWith().
+    collidesWithPath().
 
     \sa boundingRect(), contains()
 */
@@ -1559,7 +1559,7 @@ QPainterPath QGraphicsItem::shape() const
     By default, this function calls shape(), but you can reimplement it in a
     subclass to provide a (perhaps more efficient) implementation.
 
-    \sa shape(), boundingRect(), collidesWith()
+    \sa shape(), boundingRect(), collidesWithPath()
 */
 bool QGraphicsItem::contains(const QPointF &point) const
 {
@@ -1588,7 +1588,7 @@ bool QGraphicsItem::contains(const QPointF &point) const
 
     \sa contains(), shape()
 */
-bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
+bool QGraphicsItem::collidesWithItem(QGraphicsItem *other) const
 {
     if (other == this)
         return true;
@@ -1606,7 +1606,7 @@ bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
         return false;
     }
 
-    return collidesWith(matrixA.inverted().map(matrixB.map(other->shape())));
+    return collidesWithPath(matrixA.inverted().map(matrixB.map(other->shape())));
 }
 
 /*!
@@ -1617,7 +1617,7 @@ bool QGraphicsItem::collidesWith(QGraphicsItem *other) const
 
     \sa contains(), shape()
 */
-bool QGraphicsItem::collidesWith(const QPainterPath &path) const
+bool QGraphicsItem::collidesWithPath(const QPainterPath &path) const
 {
     QMatrix matrix = sceneMatrix();
 
@@ -1669,7 +1669,7 @@ bool QGraphicsItem::collidesWith(const QPainterPath &path) const
 /*!
     Returns a list of all items that collide with this item.
 
-    \sa QGraphicsScene::collidingItems(), collidesWith()
+    \sa QGraphicsScene::collidingItems(), collidesWithItem()
 */
 QList<QGraphicsItem *> QGraphicsItem::collidingItems() const
 {

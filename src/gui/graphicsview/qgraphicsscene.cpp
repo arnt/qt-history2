@@ -1087,7 +1087,7 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPainterPath &path) const
 {
     QList<QGraphicsItem *> tmp;
     foreach (QGraphicsItem *item, items(path.controlPointRect())) {
-        if (item->collidesWith(item->sceneMatrix().inverted().map(path)))
+        if (item->collidesWithPath(item->sceneMatrix().inverted().map(path)))
             tmp << item;
     }
     return tmp;
@@ -1095,14 +1095,14 @@ QList<QGraphicsItem *> QGraphicsScene::items(const QPainterPath &path) const
 
 /*!
     Returns a list of all items that collide with \a item. Collisions are
-    determined by calling QGraphicsItem::collidesWith(). By default, two items
+    determined by calling QGraphicsItem::collidesWithItem(). By default, two items
     collide if their shapes intersect, or if one item's shape contains another
     item's shape. The items' Z values are ignored.
 
     The items are returned in descending Z order (i.e., the first item in the
     list is the top-most item, and the last item is the bottom-most item).
 
-    \sa items(), itemAt(), QGraphicsItem::collidesWith()
+    \sa items(), itemAt(), QGraphicsItem::collidesWithItem()
 */
 QList<QGraphicsItem *> QGraphicsScene::collidingItems(const QGraphicsItem *item) const
 {
@@ -1113,7 +1113,7 @@ QList<QGraphicsItem *> QGraphicsScene::collidingItems(const QGraphicsItem *item)
 
     QList<QGraphicsItem *> tmp;
     foreach (QGraphicsItem *itemInVicinity, items(item->sceneBoundingRect())) {
-        if (item != itemInVicinity && item->collidesWith(itemInVicinity))
+        if (item != itemInVicinity && item->collidesWithItem(itemInVicinity))
             tmp << itemInVicinity;
     }
     return tmp;
