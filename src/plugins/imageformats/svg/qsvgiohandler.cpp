@@ -97,3 +97,9 @@ bool QSvgIOHandler::supportsOption(ImageOption option) const
     }
     return false;
 }
+
+bool QSvgIOHandler::canRead(QIODevice *device)
+{
+    QSvgRenderer render;
+    return render.load(device->readAll());
+}

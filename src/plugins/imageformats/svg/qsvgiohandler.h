@@ -24,25 +24,18 @@ class QSvgIOHandlerPrivate;
 
 class QSvgIOHandler : public QImageIOHandler
 {
-    public:
+public:
     QSvgIOHandler();
     ~QSvgIOHandler();
     virtual bool canRead() const;
     virtual QByteArray name() const;
     virtual bool read(QImage *image);
-    virtual bool write(const QImage &image);
-    virtual int currentImageNumber() const;
-    virtual int imageCount() const;
-    virtual bool jumpToImage(int imageNumber);
-    virtual bool jumpToNextImage();
-    virtual int loopCount() const;
-    virtual int nextImageDelay() const;
     static bool canRead(QIODevice *device);
     virtual QVariant option(ImageOption option) const;
     virtual void setOption(ImageOption option, const QVariant & value);
     virtual bool supportsOption(ImageOption option) const;
 
-    private:
+private:
     QSvgIOHandlerPrivate *d;
 };
 
