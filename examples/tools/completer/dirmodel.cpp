@@ -20,8 +20,12 @@ DirModel::DirModel(QObject *parent)
 
 QVariant DirModel::data(const QModelIndex &index, int role) const
 {
-    if (role == Qt::DisplayRole && index.column() == 0)
-        return QDir::convertSeparators(filePath(index));
+    if (role == Qt::DisplayRole && index.column() == 0) {
+        QString path  = QDir::convertSeparators(filePath(index));
+        if (path.endsWith(QDir::separator()))
+            path.chop(1);
+        return path;
+    }
 
     return QDirModel::data(index, role);
 }
