@@ -269,6 +269,8 @@ private:
     friend class QGraphicsScene;
     friend class QGraphicsScenePrivate;
     friend class QGraphicsView;
+    friend bool qt_closestLeaf(const QGraphicsItem *, const QGraphicsItem *);
+    friend bool qt_closestItemFirst(const QGraphicsItem *, const QGraphicsItem *);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsItem::GraphicsItemFlags)

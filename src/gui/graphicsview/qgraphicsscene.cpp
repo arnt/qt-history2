@@ -648,20 +648,20 @@ void QGraphicsScenePrivate::mousePressEventHandler(QGraphicsSceneMouseEvent *mou
 /*!
     \internal
 */
-static inline bool qt_closestLeaf(const QGraphicsItem *item1, const QGraphicsItem *item2)
+inline bool qt_closestLeaf(const QGraphicsItem *item1, const QGraphicsItem *item2)
 {
-    qreal z1 = item1->zValue();
-    qreal z2 = item2->zValue();
+    qreal z1 = item1->d_ptr->z;
+    qreal z2 = item2->d_ptr->z;
     return z1 != z2 ? z1 > z2 : item1 > item2;
 }
 
 /*!
     \internal
 */
-static bool qt_closestItemFirst(const QGraphicsItem *item1, const QGraphicsItem *item2)
+bool qt_closestItemFirst(const QGraphicsItem *item1, const QGraphicsItem *item2)
 {
     // Siblings? Just check their z-values.
-    if (item1->parentItem() == item2->parentItem())
+    if (item1->d_ptr->parent == item2->d_ptr->parent)
         return qt_closestLeaf(item1, item2);
 
     // Find item1's ancestors. If item2 is among them, return true (item1 is
@@ -672,7 +672,7 @@ static bool qt_closestItemFirst(const QGraphicsItem *item1, const QGraphicsItem 
         if (parent1 == item2)
             return true;
         ancestors1.prepend(parent1);
-    } while ((parent1 = parent1->parentItem()));
+    } while ((parent1 = parent1->d_ptr->parent));
 
     // Find item2's ancestors. If item1 is among them, return false (item2 is
     // above item1).
@@ -682,7 +682,7 @@ static bool qt_closestItemFirst(const QGraphicsItem *item1, const QGraphicsItem 
         if (parent2 == item1)
             return false;
         ancestors2.prepend(parent2);
-    } while ((parent2 = parent2->parentItem()));
+    } while ((parent2 = parent2->d_ptr->parent));
 
     // Truncate the largest ancestor list.
     int size1 = ancestors1.size();
