@@ -222,7 +222,6 @@ public:
     uint shownOnce : 1;
     uint autoCompletion : 1;
     uint duplicatesEnabled : 1;
-    uint skipCompletion : 1;
     uint frame : 1;
     uint padding : 26;
     int maxVisibleItems;
@@ -235,8 +234,7 @@ public:
     QRect hoverRect;
     QPersistentModelIndex currentIndex;
     QPersistentModelIndex root;
-    Qt::CaseSensitivity caseSensitivity;
-    bool caseSensitivitySet;
+    Qt::CaseSensitivity autoCompletionCaseSensitivity;
     int indexBeforeChange;
 };
 

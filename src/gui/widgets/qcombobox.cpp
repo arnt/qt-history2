@@ -30,6 +30,7 @@
 #endif
 #include <private/qcombobox_p.h>
 #include <qdebug.h>
+#include <qcompleter.h>
 
 QComboBoxPrivate::QComboBoxPrivate()
     : QWidgetPrivate(),
@@ -42,15 +43,13 @@ QComboBoxPrivate::QComboBoxPrivate()
       shownOnce(false),
       autoCompletion(true),
       duplicatesEnabled(false),
-      skipCompletion(false),
       frame(true),
       maxVisibleItems(10),
       maxCount(INT_MAX),
       modelColumn(0),
       arrowState(QStyle::State_None),
       hoverControl(QStyle::SC_None),
-      caseSensitivity(Qt::CaseInsensitive),
-      caseSensitivitySet(false),
+      autoCompletionCaseSensitivity(Qt::CaseInsensitive),
       indexBeforeChange(-1)
 {
 }
@@ -639,7 +638,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
     returned by count(); the maximum number of items can be set with
     setMaxCount(). You can allow editing using setEditable(). For
     editable comboboxes you can set auto-completion using
-    setAutoCompletion() and whether or not the user can add duplicates
+    setCompleter() and whether or not the user can add duplicates
     is set with setDuplicatesEnabled().
 
     \image qstyle-comboboxes.png Comboboxes in the different built-in styles.
@@ -832,8 +831,6 @@ void QComboBoxPrivate::_q_returnPressed()
         int index = -1;
         if (!duplicatesEnabled) {
             Qt::MatchFlags flags = Qt::MatchFixedString;
-            if (q->caseSensitivity() == Qt::CaseSensitive)
-                flags |= Qt::MatchCaseSensitive;
             index = q->findText(text, flags);
             if (index != -1) {
                 q->setCurrentIndex(index);
@@ -869,32 +866,6 @@ void QComboBoxPrivate::_q_returnPressed()
             q->setCurrentIndex(index);
             emitActivated(currentIndex);
         }
-    }
-}
-
-/*
-    Handles auto completion.
-*/
-void QComboBoxPrivate::_q_complete()
-{
-    Q_Q(QComboBox);
-    if (skipCompletion || !lineEdit || !autoCompletion) {
-        skipCompletion = false;
-        return;
-    }
-    QString text = lineEdit->text();
-    if (!text.isEmpty()) {
-        Qt::MatchFlags flags(Qt::MatchWrap|Qt::MatchStartsWith);
-        if (q->caseSensitivity() == Qt::CaseSensitive)
-            flags |= Qt::MatchCaseSensitive;
-        QModelIndexList list = model->match(currentIndex, itemRole(), text, 1, flags);
-        if (!list.count())
-            return;
-        QString completed = model->data(list.first(), itemRole()).toString();
-        QString extra = completed.mid(text.length());
-        skipCompletion = true; // avoid recursion
-        lineEdit->setText(text + extra);
-        lineEdit->setSelection(text.length() + extra.length(), -extra.length());
     }
 }
 
@@ -1026,7 +997,10 @@ int QComboBox::maxCount() const
     \property QComboBox::autoCompletion
     \brief whether the combobox provides auto-completion for editable items
     \since 4.1
+    \obsolete
 
+    Use setCompleter() instead. 
+    
     \sa editable
 */
 
@@ -1040,6 +1014,20 @@ void QComboBox::setAutoCompletion(bool enable)
 {
     Q_D(QComboBox);
     d->autoCompletion = enable;
+    if (!d->lineEdit)
+        return;
+    if (enable) {
+        if (d->lineEdit->completer())
+            return;
+        QCompleter *completer = new QCompleter(d->lineEdit);
+        completer->setCaseSensitivity(d->autoCompletionCaseSensitivity);
+        completer->setCompletionMode(QCompleter::InlineCompletion);
+        completer->setModel(d->model);
+        completer->setCompletionColumn(d->modelColumn);
+        d->lineEdit->setCompleter(completer);
+    } else {
+        d->lineEdit->setCompleter(0);
+    }
 }
 
 /*!
@@ -1049,7 +1037,8 @@ void QComboBox::setAutoCompletion(bool enable)
 
     By default, this property is Qt::CaseInsensitive.
 
-    Use caseSensitivity instead.
+    Use setCompleter() instead. Case sensitivity of the auto completion can be
+    changed using QCompleter::setCaseSensitivity()
 
     \sa autoCompletion
 */
@@ -1057,49 +1046,15 @@ void QComboBox::setAutoCompletion(bool enable)
 Qt::CaseSensitivity QComboBox::autoCompletionCaseSensitivity() const
 {
     Q_D(const QComboBox);
-    return d->caseSensitivity;
+    return d->autoCompletionCaseSensitivity;
 }
 
 void QComboBox::setAutoCompletionCaseSensitivity(Qt::CaseSensitivity sensitivity)
 {
     Q_D(QComboBox);
-    d->caseSensitivity = sensitivity;
-}
-
-/*!
-    \property QComboBox::caseSensitivity
-    \brief whether string comparisons are case-sensitive or case-insensitive
-    \since 4.2
-
-    Case sensitivity affects both auto-completion and duplicate handling.
-
-    For compatibility with previous versions of Qt, the default value of the property
-    depends on whether auto-completion is enabled. If autoCompletion is true, this
-    property has the same value as the (obsolete) autoCompletionCaseSensitivity property
-    (Qt::CaseInsensitive by default); if autoCompletion is false, this property defaults
-    to Qt::CaseSensitive.
-
-    \sa autoCompletion, duplicatesEnabled
-*/
-
-Qt::CaseSensitivity QComboBox::caseSensitivity() const
-{
-    Q_D(const QComboBox);
-    if (!d->caseSensitivitySet) {
-        // Compute default to best match pre-4.2 behaviour
-        if (d->autoCompletion && d->caseSensitivity == Qt::CaseInsensitive)
-            return Qt::CaseInsensitive;
-        else
-            return Qt::CaseSensitive;
-    }
-    return d->caseSensitivity;
-}
-
-void QComboBox::setCaseSensitivity(Qt::CaseSensitivity sensitivity)
-{
-    Q_D(QComboBox);
-    d->caseSensitivity = sensitivity;
-    d->caseSensitivitySet = true;
+    d->autoCompletionCaseSensitivity = sensitivity;
+    if (d->lineEdit && d->lineEdit->completer())
+        d->lineEdit->completer()->setCaseSensitivity(sensitivity);
 }
 
 /*!
@@ -1309,8 +1264,8 @@ void QComboBox::setLineEdit(QLineEdit *edit)
 {
     Q_D(QComboBox);
     if (!edit) {
-	Q_ASSERT(edit != 0);
-	return;
+        Q_ASSERT(edit != 0);
+        return;
     }
 
     if (edit == d->lineEdit)
@@ -1323,7 +1278,6 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     if (d->lineEdit->parent() != this)
 	d->lineEdit->setParent(this);
     connect(d->lineEdit, SIGNAL(returnPressed()), this, SLOT(_q_returnPressed()));
-    connect(d->lineEdit, SIGNAL(textChanged(QString)), this, SLOT(_q_complete()));
     connect(d->lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(editTextChanged(QString)));
 #ifdef QT3_SUPPORT
     connect(d->lineEdit, SIGNAL(textChanged(QString)), this, SIGNAL(textChanged(QString)));
@@ -1331,11 +1285,12 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     d->lineEdit->setFrame(false);
     d->lineEdit->setContextMenuPolicy(Qt::NoContextMenu);
     d->lineEdit->setFocusProxy(this);
+    setAutoCompletion(d->autoCompletion);
     setAttribute(Qt::WA_InputMethodEnabled);
     d->updateLineEditGeometry();
 
     if (isVisible())
-	d->lineEdit->show();
+        d->lineEdit->show();
 
     update();
 }
@@ -1379,6 +1334,35 @@ const QValidator *QComboBox::validator() const
     return d->lineEdit ? d->lineEdit->validator() : 0;
 }
 #endif // QT_NO_VALIDATOR
+
+/*!
+    \fn void QComboBox::setCompleter(QCompleter *completer)
+
+    Sets the \a completer to use instead of the current completer.
+    If \a completer is 0, auto completion is disabled.
+
+    By default, for an editable combo box, a QCompleter that 
+    performs case insensitive inline completion is automatically created.
+*/
+void QComboBox::setCompleter(QCompleter *c)
+{
+    Q_D(QComboBox);
+    if (!d->lineEdit)
+        return;
+    d->lineEdit->setCompleter(c);
+}
+
+/*!
+    Returns the completer that is used to auto complete text input for the
+    combobox.
+
+    \sa editable
+*/
+QCompleter *QComboBox::completer() const
+{
+    Q_D(const QComboBox);
+    return d->lineEdit ? d->lineEdit->completer() : 0;
+}
 
 /*!
     Returns the item delegate used by the popup list view.
@@ -1427,6 +1411,10 @@ void QComboBox::setModel(QAbstractItemModel *model)
     Q_ASSERT(model);
     if (!model)
         return;
+
+    if (d->lineEdit && d->lineEdit->completer()
+        && d->lineEdit->completer()->model() == model)
+        d->lineEdit->completer()->setModel(model);
 
     if (d->model) {
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -2077,13 +2065,10 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
     Q_D(QComboBox);
     int newIndex = currentIndex();
     switch (e->key()) {
-    case Qt::Key_Delete:
-    case Qt::Key_Backspace:
-        // skip autoCompletion if Delete or Backspace has been pressed
-        d->skipCompletion = true;
-        break;
-    case Qt::Key_PageUp:
     case Qt::Key_Up:
+        if (e->modifiers() & Qt::ControlModifier)
+            break; // pass to line edit for auto completion
+    case Qt::Key_PageUp:
 #ifdef QT_KEYPAD_NAVIGATION
         if (QApplication::keypadNavigationEnabled())
             e->ignore();
@@ -2095,7 +2080,8 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         if (e->modifiers() & Qt::AltModifier) {
             showPopup();
             return;
-        }
+        } else if (e->modifiers() & Qt::ControlModifier)
+            break; // pass to line edit for auto completion
         // fall through
     case Qt::Key_PageDown:
 #ifdef QT_KEYPAD_NAVIGATION
@@ -2152,8 +2138,6 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
         if (QApplication::keypadNavigationEnabled()) {
             if (!hasEditFocus() || !d->lineEdit)
                 e->ignore();
-            else if (d->lineEdit && hasEditFocus())
-                d->skipCompletion = true;
         } else {
             e->ignore(); // let the surounding dialog have it
         }
