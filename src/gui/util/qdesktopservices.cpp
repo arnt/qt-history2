@@ -28,6 +28,7 @@
 #include <qhash.h>
 #include <qobject.h>
 #include <qcoreapplication.h>
+#include <qurl.h>
 
 class QOpenUrlHandlerRegistry : public QObject
 {
