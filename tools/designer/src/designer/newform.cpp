@@ -96,8 +96,9 @@ void NewForm::on_treeWidget_itemActivated(QTreeWidgetItem *item)
         createButton->animateClick(0);
 }
 
-void NewForm::on_buttonBox_clicked(int role)
+void NewForm::on_buttonBox_clicked(QAbstractButton *btn)
 {
+    int role = ui.buttonBox->buttonRole(btn);
     switch (role) {
     case QDialogButtonBox::RejectRole:
         close();
