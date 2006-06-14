@@ -279,7 +279,7 @@ void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
         } else {
             QVector<QTableWidgetItem*>::iterator it;
             it = sortedInsertionIterator(colItems.begin(), colItems.end(), order, item);
-            sortedRow = qMax(it - colItems.begin(), 0);
+            sortedRow = qMax((int)(it - colItems.begin()), 0);
         }
         if (sortedRow != row) {
             emit layoutAboutToBeChanged();
@@ -602,7 +602,7 @@ void QTableModel::ensureSorted(int column, Qt::SortOrder order,
         QTableWidgetItem *item = colItems.at(oldRow);
         colItems.remove(oldRow);
         vit = sortedInsertionIterator(vit, colItems.end(), order, item);
-        int newRow = qMax(vit - colItems.begin(), 0);
+        int newRow = qMax((int)(vit - colItems.begin()), 0);
         vit = colItems.insert(vit, item);
         if (newRow != oldRow) {
             changed = true;
