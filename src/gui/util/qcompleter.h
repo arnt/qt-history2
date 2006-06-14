@@ -97,7 +97,7 @@ public Q_SLOTS:
     void complete(const QRect& rect = QRect());
 
 public:
-    virtual QString pathFromIndex(const QModelIndex& index) const;
+    virtual QString pathFromIndex(const QModelIndex &index) const;
     virtual QStringList splitPath(const QString &path) const;
 
 protected:
@@ -105,10 +105,10 @@ protected:
     bool event(QEvent *);
 
 Q_SIGNALS:
-    void activated(const QString&);
-    void activated(const QModelIndex&);
-    void highlighted(const QString&);
-    void highlighted(const QModelIndex&);
+    void activated(const QString &text);
+    void activated(const QModelIndex &index);
+    void highlighted(const QString &text);
+    void highlighted(const QModelIndex &index);
 
 private:
     Q_DISABLE_COPY(QCompleter)
