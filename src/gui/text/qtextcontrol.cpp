@@ -42,7 +42,7 @@
 #include <qtexttable.h>
 #include <qvariant.h>
 #include <qurl.h>
-
+#include <qdesktopservices.h>
 #include <qinputcontext.h>
 
 #ifndef QT_NO_SHORTCUT
@@ -80,7 +80,8 @@ QTextControlPrivate::QTextControlPrivate()
       hasFocus(false),
       layoutDirection(QApplication::layoutDirection()),
       isEnabled(true),
-      hadSelectionOnMousePress(false)
+      hadSelectionOnMousePress(false),
+      openExternalLinks(false)
 {}
 
 bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
@@ -1062,7 +1063,10 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
                 tmp.setPosition(tmp.selectionStart());
             tmp.movePosition(QTextCursor::NextCharacter);
             const QString href = tmp.charFormat().anchorHref();
-            emit q->linkActivated(href);
+            if (openExternalLinks)
+                QDesktopServices::openUrl(href);
+            else
+                emit q->linkActivated(href);
             return;
         }
     }
@@ -1538,7 +1542,10 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
 
         if (!cursor.hasSelection()
             || (anchor == anchorOnMousePress && hadSelectionOnMousePress))
-            emit q->linkActivated(anchor);
+            if (openExternalLinks)
+                QDesktopServices::openUrl(anchor);
+            else
+                emit q->linkActivated(anchor);
     }
 }
 
@@ -1972,6 +1979,18 @@ QSizeF QTextControl::size() const
 {
     Q_D(const QTextControl);
     return d->doc->size();
+}
+
+void QTextControl::setOpenExternalLinks(bool open)
+{
+    Q_D(QTextControl);
+    d->openExternalLinks = open;
+}
+
+bool QTextControl::openExternalLinks() const
+{
+    Q_D(const QTextControl);
+    return d->openExternalLinks;
 }
 
 void QTextControl::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)

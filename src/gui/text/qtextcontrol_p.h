@@ -61,6 +61,7 @@ class Q_GUI_EXPORT QTextControl : public QObject
     Q_PROPERTY(bool acceptRichText READ acceptRichText WRITE setAcceptRichText)
     Q_PROPERTY(int cursorWidth READ cursorWidth WRITE setCursorWidth)
     Q_PROPERTY(Qt::TextInteractionFlags textInteractionFlags READ textInteractionFlags WRITE setTextInteractionFlags)
+    Q_PROPERTY(bool openExternalLinks READ openExternalLinks WRITE setOpenExternalLinks)
 public:
     explicit QTextControl(QObject *parent = 0);
     explicit QTextControl(const QString &text, QObject *parent = 0);
@@ -123,6 +124,9 @@ public:
     void setTextWidth(qreal width);
     qreal textWidth() const;
     QSizeF size() const;
+
+    void setOpenExternalLinks(bool open);
+    bool openExternalLinks() const;
 
     void moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 

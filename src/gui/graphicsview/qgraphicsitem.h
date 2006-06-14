@@ -529,6 +529,9 @@ public:
     void setTextInteractionFlags(Qt::TextInteractionFlags flags);
     Qt::TextInteractionFlags textInteractionFlags() const;
 
+    void setOpenExternalLinks(bool open);
+    bool openExternalLinks() const;
+
 Q_SIGNALS:
     void linkActivated(const QString &);
     void linkHovered(const QString &);

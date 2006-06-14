@@ -4634,6 +4634,27 @@ Qt::TextInteractionFlags QGraphicsTextItem::textInteractionFlags() const
 }
 
 /*!
+    \property QGraphicsTextItem::openExternalLinks
+
+    Specifies whether QGraphicsTextItem should automatically open links using
+    QDesktopServices::openUrl() instead of emitting the
+    anchorClicked signal.
+
+    The default value is false.
+*/
+void QGraphicsTextItem::setOpenExternalLinks(bool open)
+{
+    dd->textControl()->setOpenExternalLinks(open);
+}
+
+bool QGraphicsTextItem::openExternalLinks() const
+{
+    if (!dd->control)
+        return false;
+    return dd->control->openExternalLinks();
+}
+
+/*!
     \class QGraphicsItemGroup
     \brief The QGraphicsItemGroup class provides treating a group of items as
     one.

@@ -157,6 +157,8 @@ public:
     QString anchorOnMousePress;
     bool hadSelectionOnMousePress;
 
+    bool openExternalLinks;
+
     QString linkToCopy;
     void copyLink();
 };

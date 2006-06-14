@@ -131,7 +131,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_movieResized(const QSize&))
 #endif
     Q_PRIVATE_SLOT(d_func(), void _q_linkHovered(const QString &))
-    Q_PRIVATE_SLOT(d_func(), void _q_linkActivated(const QString &))
 
     friend class QTipLabel;
 };

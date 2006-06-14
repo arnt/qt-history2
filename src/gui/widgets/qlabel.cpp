@@ -34,7 +34,6 @@
 #include "private/qtextcontrol_p.h"
 #include <qdebug.h>
 #include <qurl.h>
-#include <qdesktopservices.h>
 
 class QLabelPrivate : public QFramePrivate
 {
@@ -86,7 +85,6 @@ public:
     void sendControlEvent(QEvent *e);
 
     void _q_linkHovered(const QString &link);
-    void _q_linkActivated(const QString &link);
 
     QRect layoutRect() const;
     QRect documentRect() const;
@@ -726,6 +724,8 @@ void QLabel::setOpenExternalLinks(bool open)
 {
     Q_D(QLabel);
     d->openExternalLinks = open;
+    if (d->control)
+        d->control->setOpenExternalLinks(open);
 }
 
 /*!
@@ -1369,6 +1369,7 @@ void QLabelPrivate::ensureTextControl()
         return;
     control = new QTextControl(doc, q);
     control->setTextInteractionFlags(textInteractionFlags);
+    control->setOpenExternalLinks(openExternalLinks);
     control->setPalette(q->palette());
     control->setFocus(q->hasFocus());
     QObject::connect(control, SIGNAL(updateRequest(const QRectF &)),
@@ -1376,7 +1377,7 @@ void QLabelPrivate::ensureTextControl()
     QObject::connect(control, SIGNAL(linkHovered(const QString &)),
                      q, SLOT(_q_linkHovered(const QString &)));
     QObject::connect(control, SIGNAL(linkActivated(const QString &)),
-                     q, SLOT(_q_linkActivated(const QString &)));
+                     q, SIGNAL(linkActivated(const QString &)));
 }
 
 void QLabelPrivate::sendControlEvent(QEvent *e)
@@ -1403,15 +1404,6 @@ void QLabelPrivate::_q_linkHovered(const QString &anchor)
 #endif
     }
     emit q->linkHovered(anchor);
-}
-
-void QLabelPrivate::_q_linkActivated(const QString &link)
-{
-    if (openExternalLinks) {
-        QDesktopServices::openUrl(QUrl(link));
-    } else {
-        emit q_func()->linkActivated(link);
-    }
 }
 
 // Return the layout rect - this is the rect that is given to the layout painting code
