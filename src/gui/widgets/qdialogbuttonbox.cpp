@@ -137,6 +137,22 @@ static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton but
         return QDialogButtonBox::ActionRole;
     case QDialogButtonBox::Reset:
         return QDialogButtonBox::ActionRole;
+    case QDialogButtonBox::Yes:
+        return QDialogButtonBox::AcceptRole;
+    case QDialogButtonBox::YesToAll:
+        return QDialogButtonBox::AcceptRole;
+    case QDialogButtonBox::No:
+        return QDialogButtonBox::RejectRole;
+    case QDialogButtonBox::NoToAll:
+        return QDialogButtonBox::RejectRole;
+    case QDialogButtonBox::SaveAll:
+        return QDialogButtonBox::AcceptRole;
+    case QDialogButtonBox::Abort:
+        return QDialogButtonBox::RejectRole;
+    case QDialogButtonBox::Retry:
+        return QDialogButtonBox::ActionRole;
+    case QDialogButtonBox::Ignore:
+        return QDialogButtonBox::ActionRole;
     default:
         return QDialogButtonBox::InvalidRole;
     }
@@ -351,7 +367,7 @@ QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardBut
 {
     Q_Q(QDialogButtonBox);
     QString buttonText;
-    int icon;
+    int icon = 0;
 
     switch (sbutton) {
     case QDialogButtonBox::Ok:
@@ -393,6 +409,30 @@ QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardBut
         else
             buttonText = QDialogButtonBox::tr("Discard");
         break;
+    case QDialogButtonBox::Yes:
+        buttonText = QDialogButtonBox::tr("&Yes");
+        break;
+    case QDialogButtonBox::YesToAll:
+        buttonText = QDialogButtonBox::tr("Yes to &All");
+        break;
+    case QDialogButtonBox::No:
+        buttonText = QDialogButtonBox::tr("&No");
+        break;
+    case QDialogButtonBox::NoToAll:
+        buttonText = QDialogButtonBox::tr("N&o to All");
+        break;
+    case QDialogButtonBox::SaveAll:
+        buttonText = QDialogButtonBox::tr("Save All");
+        break;
+    case QDialogButtonBox::Abort:
+        buttonText = QDialogButtonBox::tr("Abort");
+        break;
+    case QDialogButtonBox::Retry:
+        buttonText = QDialogButtonBox::tr("Retry");
+        break;
+    case QDialogButtonBox::Ignore:
+        buttonText = QDialogButtonBox::tr("Ignore");
+        break;
     default:
         icon = 0;
         break;
@@ -423,7 +463,7 @@ void QDialogButtonBoxPrivate::addButton(QAbstractButton *button, QDialogButtonBo
 void QDialogButtonBoxPrivate::createStandardButtons(QDialogButtonBox::StandardButtons buttons)
 {
     uint i = QDialogButtonBox::Ok;
-    while (i <= QDialogButtonBox::Help) {
+    while (i <= QDialogButtonBox::Reset) {
         if (i & buttons) {
             createButton(QDialogButtonBox::StandardButton(i), false);
         }
@@ -511,6 +551,14 @@ QDialogButtonBox::~QDialogButtonBox()
     \value Apply An "Apply" button defined with the \l ActionRole.
     \value Reset A "Reset" button defined with the \l ActionRole.
     \value Help A "Help" button defined with the \l HelpRole.
+    \value SaveAll A "SaveAll" button defined with the \l AcceptRole
+    \value Yes A "Yes" button defined with the \l AcceptRole
+    \value YesToAll A "Yes to All" button defined with the \l AcceptRole
+    \value No A "No" button defined with the \l RejectRole
+    \value NoToAll A "No to All" button defined with the \l RejectRole
+    \value Abort A "Abort" button defined with the \l RejectRole
+    \value Retry A "Retry" button defined with the \l ActionRole
+    \value Ignore A "Ignore" button defined with the \l ActionRole
     \omitvalue NoButtons
 */
 
@@ -744,7 +792,7 @@ void QDialogButtonBox::setStandardButtons(StandardButtons buttons)
 QDialogButtonBox::StandardButtons QDialogButtonBox::standardButtons() const
 {
     Q_D(const QDialogButtonBox);
-    StandardButtons standardButtons = NoButtons;
+    StandardButtons standardButtons = NoButton;
     QHash<QPushButton *, StandardButton>::const_iterator it = d->standardButtonHash.constBegin();
     while (it != d->standardButtonHash.constEnd()) {
         standardButtons |= it.value();

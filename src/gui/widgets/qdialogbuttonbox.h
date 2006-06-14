@@ -42,16 +42,24 @@ public:
     };
 
     enum StandardButton {
-        NoButtons          = 0x00000000,
+        NoButton           = 0x00000000,
         Ok                 = 0x00000001,
-        Open               = 0x00000002,
-        Save               = 0x00000004,
-        Cancel             = 0x00000008,
-        Close              = 0x00000010,
-        Discard            = 0x00000020,
-        Apply              = 0x00000040,
-        Reset              = 0x00000080,
-        Help               = 0x00000100
+        Save               = 0x00000002,
+        SaveAll            = 0x00000004,
+        Open               = 0x00000008,
+        Yes                = 0x00000010,
+        YesToAll           = 0x00000020,
+        No                 = 0x00000040,
+        NoToAll            = 0x00000080,
+        Abort              = 0x00000100,
+        Retry              = 0x00000200,
+        Ignore             = 0x00000400,
+        Close              = 0x00000800,
+        Cancel             = 0x00001000,
+        Discard            = 0x00002000,
+        Help               = 0x00004000,
+        Apply              = 0x00008000,
+        Reset              = 0x00010000
     };
 
     Q_DECLARE_FLAGS(StandardButtons, StandardButton)
