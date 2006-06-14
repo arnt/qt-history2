@@ -75,11 +75,11 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     e-mail client similar to when a user clicks on a mailto link in a web browser.
 
     Example mailto url:
-    <code>
+    \code
     "mailto:user@foo.com?subject=Test&body=Just a test"
-    </code>
+    \endcode
 
-    Note: Only some e-mail clients support @attachement and can handle unicode.
+    Note: Only some e-mail clients support @attachment and can handle unicode.
 
     \sa setUrlHandler()
 */
