@@ -124,10 +124,10 @@
     compatibility function is called. (This works only with GCC 3.2+
     and MSVC 7.)
 
-    If you get stuck, ask on the \link
-    http://lists.trolltech.com/qt4-preview-feedback/
-    qt4-preview-feedback \endlink mailing list. If you are a licensed
-    customer, you can also contact Trolltech support.
+    If you get stuck, ask on the
+    \l{http://lists.trolltech.com/qt-interest/}{qt-interest}
+    mailing list. If you are a licensed customer, you can also contact
+    Trolltech support.
 
 \omit
     ### what to do with slots that aren't slots anymore
