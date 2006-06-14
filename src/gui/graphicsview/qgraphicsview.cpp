@@ -1861,7 +1861,7 @@ void QGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 void QGraphicsView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->scene || !d->sceneInteractionAllowed)
+    if (!d->sceneInteractionAllowed)
         return;
 
     d->mousePressViewPoint = event->pos();
@@ -1932,7 +1932,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
 void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->scene || !d->sceneInteractionAllowed)
+    if (!d->sceneInteractionAllowed)
         return;
 
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
@@ -2010,7 +2010,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
 void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->scene || !d->sceneInteractionAllowed)
+    if (!d->sceneInteractionAllowed)
         return;
 
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
