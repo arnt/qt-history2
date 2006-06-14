@@ -1966,7 +1966,7 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
         prepareAnimatedOperation(item, AnimatedOperation::Expand);
 
     q->setState(QAbstractItemView::ExpandingState);
-    QModelIndex index = viewItems.at(item).index;
+    const QModelIndex &index = viewItems.at(item).index;
         expandedIndexes.append(index);
     viewItems[item].expanded = true;
     layout(item);
@@ -1992,7 +1992,7 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
         return;
 
     int total = viewItems.at(item).total;
-    QModelIndex modelIndex = viewItems.at(item).index;
+    const QModelIndex &modelIndex = viewItems.at(item).index;
     int index = expandedIndexes.indexOf(modelIndex);
     if (index == -1 || viewItems.at(item).expanded == false)
         return; // nothing to do
@@ -2181,7 +2181,7 @@ int QTreeViewPrivate::itemHeight(int item) const
         return defaultItemHeight;
     if (viewItems.isEmpty())
         return 0;
-    const QModelIndex index = viewItems.at(item).index;
+    const QModelIndex &index = viewItems.at(item).index;
     int height = viewItems.at(item).height;
     if (height <= 0 && index.isValid()) {
         height = q_func()->indexRowSizeHint(index);
@@ -2310,7 +2310,7 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
     int start = lastViewedItem > 2 ? lastViewedItem - 2 : 0;
     int end = lastViewedItem < totalCount - 2 ? lastViewedItem + 2 : totalCount;
     for (int i = start; i < end; ++i) {
-        const QModelIndex idx = viewItems.at(i).index;
+        const QModelIndex &idx = viewItems.at(i).index;
         if (idx.row() == index.row()) {
             if (idx.internalId() == index.internalId() || idx.parent() == parent) {// ignore column
                 lastViewedItem = i;
@@ -2325,7 +2325,7 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
     t = t > 100 ? t - 100 : 0; // start 100 items above the visible area
 
     for (int i = t; i < totalCount; ++i) {
-        const QModelIndex idx = viewItems.at(i).index;
+        const QModelIndex &idx = viewItems.at(i).index;
         if (idx.row() == index.row()) {
             if (idx.internalId() == index.internalId() || idx.parent() == parent) {// ignore column
                 lastViewedItem = i;
@@ -2335,7 +2335,7 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
     }
     // search from top to first visible
     for (int j = 0; j < t; ++j) {
-        const QModelIndex idx = viewItems.at(j).index;
+        const QModelIndex &idx = viewItems.at(j).index;
         if (idx.row() == index.row()) {
             if (idx.internalId() == index.internalId() || idx.parent() == parent) { // ignore column
                 lastViewedItem = j;
