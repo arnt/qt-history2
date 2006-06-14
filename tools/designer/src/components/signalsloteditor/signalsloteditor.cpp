@@ -15,6 +15,7 @@
 #include "signalsloteditor.h"
 #include "default_membersheet.h"
 #include "signalsloteditor_p.h"
+#include "ui4_p.h"
 
 #include <QtDesigner/QtDesigner>
 

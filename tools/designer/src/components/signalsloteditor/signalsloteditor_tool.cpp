@@ -13,6 +13,7 @@
 
 #include "signalsloteditor_tool.h"
 #include "signalsloteditor.h"
+#include "ui4_p.h"
 
 #include <QtDesigner/QtDesigner>
 

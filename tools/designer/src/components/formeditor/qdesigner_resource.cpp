@@ -20,6 +20,7 @@
 #include "qdesigner_dockwidget_p.h"
 #include "qdesigner_menu_p.h"
 #include "qdesigner_menubar_p.h"
+#include "ui4_p.h"
 
 // shared
 #include <widgetdatabase_p.h>
@@ -34,6 +35,7 @@
 #include <qlayout_widget_p.h>
 #include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_utils_p.h>
+#include <ui4_p.h>
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -1302,7 +1304,7 @@ void QDesignerResource::createResources(DomResources *resources)
 
     QList<DomResource*> dom_include = resources->elementInclude();
     foreach (DomResource *res, dom_include) {
-        QString path = m_formWindow->absoluteDir().absoluteFilePath(res->attributeLocation());        
+        QString path = m_formWindow->absoluteDir().absoluteFilePath(res->attributeLocation());
         while (!QFile::exists(path)) {
             if (QMessageBox::warning(m_formWindow, QObject::tr("Loading qrc file"),
                 QObject::tr("The specified qrc file <p><b>%1</b></p><p>could not be found. "

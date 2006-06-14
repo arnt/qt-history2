@@ -1,6 +1,8 @@
 #include "qtbrushmanager.h"
 #include "brushmanagerproxy.h"
 #include "qsimpleresource_p.h"
+#include "ui4_p.h"
+
 #include <QDomDocument>
 
 namespace qdesigner_internal {
