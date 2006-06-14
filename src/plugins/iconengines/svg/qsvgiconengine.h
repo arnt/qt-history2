@@ -16,13 +16,9 @@
 #include <QtGui/qiconengine.h>
 #include <QtCore/qshareddata.h>
 
-QT_BEGIN_HEADER
-
-QT_MODULE(Svg)
-
 class QSvgIconEnginePrivate;
 
-class Q_SVG_EXPORT QSvgIconEngine : public QIconEngine
+class QSvgIconEngine : public QIconEngine
 {
 public:
     QSvgIconEngine();
@@ -41,7 +37,5 @@ public:
 private:
     QSharedDataPointer<QSvgIconEnginePrivate> d;
 };
-
-QT_END_HEADER
 
 #endif
