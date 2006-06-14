@@ -23,7 +23,9 @@ HEADERS += qftp.h \
            qhostinfo.h \
            qhostinfo_p.h \
            qurlinfo.h \
-           qnetworkproxy.h
+           qnetworkproxy.h \
+	   qnetworkinterface.h \
+	   qnetworkinterface_p.h
 
 SOURCES	= qftp.cpp \
           qhttp.cpp \
@@ -37,10 +39,11 @@ SOURCES	= qftp.cpp \
           qtcpserver.cpp \
           qhostinfo.cpp \
           qurlinfo.cpp \
-          qnetworkproxy.cpp
+          qnetworkproxy.cpp \
+	  qnetworkinterface.cpp
 
-unix:SOURCES += qhostinfo_unix.cpp qnativesocketengine_unix.cpp
-win32:SOURCES += qhostinfo_win.cpp qnativesocketengine_win.cpp
+unix:SOURCES += qhostinfo_unix.cpp qnativesocketengine_unix.cpp qnetworkinterface_unix.cpp
+win32:SOURCES += qhostinfo_win.cpp qnativesocketengine_win.cpp qnetworkinterface_win.cpp
 
 
 mac:INCLUDEPATH += ../3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)
