@@ -16,7 +16,7 @@
 
 #include "trwindow.h"
 #include "phrase.h"
-
+#include "messagemodel.h"
 #include <QString>
 #include <QPixmap>
 #include <QBitmap>
@@ -201,10 +201,10 @@ class MessageEditor : public QScrollArea
 {
     Q_OBJECT
 public:
-    MessageEditor(MetaTranslator *t, QMainWindow *parent = 0);
+    MessageEditor(MessageModel *model, QMainWindow *parent = 0);
     QTreeView *sourceTextView() const;
     QTreeView *phraseView() const;
-    inline QDockWidget *sourceDockWnd() const {return topDockWnd;}
+    //inline QDockWidget *sourceDockWnd() const {return topDockWnd;}
     inline QDockWidget *phraseDockWnd() const {return bottomDockWnd;}
 
     void showNothing();
@@ -263,9 +263,9 @@ private:
     void setTranslation(const QString &translation, bool emitt);
     void setEditionEnabled(bool enabled);
 
-    QTreeView *srcTextView;
+    //QTreeView *srcTextView;
     MessageModel *srcMdl;
-    QDockWidget *topDockWnd, *bottomDockWnd;
+    QDockWidget /* *topDockWnd, */*bottomDockWnd;
     EditorPage *editorPage;
 
     QLabel * phraseLbl;
@@ -275,7 +275,7 @@ private:
 
     ShadowWidget *sw;
 
-    MetaTranslator *tor;
+    MessageModel *m_contextModel;
     QString sourceText;
 
     bool cutAvail;

@@ -115,31 +115,31 @@ struct CoMatrix
 
     CoMatrix() { memset( b, 0, 52 ); }
     CoMatrix( const char *text ) {
-    char c = '\0', d;
-    memset( b, 0, 52 );
-    /*
-      The Knuth books are not in the office only for show; they help make
-      loops 30% faster and 20% as readable.
-    */
-    while ( (d = *text) != '\0' ) {
-        setCoocc( c, d );
-        if ( (c = *++text) != '\0' ) {
-        setCoocc( d, c );
-        text++;
+        char c = '\0', d;
+        memset( b, 0, 52 );
+        /*
+          The Knuth books are not in the office only for show; they help make
+          loops 30% faster and 20% as readable.
+        */
+        while ( (d = *text) != '\0' ) {
+            setCoocc( c, d );
+            if ( (c = *++text) != '\0' ) {
+                setCoocc( d, c );
+                text++;
+            }
         }
-    }
     }
 
     void setCoocc( char c, char d ) {
-    int k = indexOf[(uchar) c] + 20 * indexOf[(uchar) d];
-    b[k >> 3] |= k & 0x7;
+        int k = indexOf[(uchar) c] + 20 * indexOf[(uchar) d];
+        b[k >> 3] |= k & 0x7;
     }
 
     int worth() const {
-    int w = 0;
-    for ( int i = 0; i < 50; i++ )
-        w += bitCount[b[i]];
-    return w;
+        int w = 0;
+        for ( int i = 0; i < 50; i++ )
+            w += bitCount[b[i]];
+        return w;
     }
 };
 
@@ -159,10 +159,30 @@ static inline CoMatrix intersection( const CoMatrix& m, const CoMatrix& n )
     return p;
 }
 
+StringSimilarityMatcher::StringSimilarityMatcher(const QString &stringToMatch)
+{
+    m_cm = new CoMatrix( stringToMatch.toLatin1().constData() );
+    m_length = stringToMatch.length();
+}
+
+int StringSimilarityMatcher::getSimilarityScore(const QString &strCandidate)
+{
+    CoMatrix cmTarget( strCandidate.toLatin1().constData() );
+    int targetLen = strCandidate.length();
+    int delta = qAbs( m_length - targetLen );
+    
+    int score = ( (intersection(*m_cm, cmTarget).worth() + 1) << 10 ) /
+        ( reunion(*m_cm, cmTarget).worth() + (delta << 1) + 1 );
+
+    return score;
+}
+
+
 /**
  * Checks how similar two strings are.
  * The return value is the score, and a higher score is more similar than one with a low score.
  * Linguist considers a score over 190 to be a good match.
+ * \sa StringSimilarityMatcher
  */
 int getSimilarityScore(const QString &str1, const char* str2)
 {
@@ -176,7 +196,6 @@ int getSimilarityScore(const QString &str1, const char* str2)
 
     return score;
 }
-
 
 CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
                         const char *text,
@@ -203,10 +222,10 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 
             int i;
             for ( i = 0; i < (int) candidates.size(); i++ ) {
-            if ( score >= scores.at(i) ) {
-                if ( score == scores.at(i) ) {
-                    if ( candidates.at(i) == cand )
-                        goto continue_outer_loop;
+                if ( score >= scores.at(i) ) {
+                    if ( score == scores.at(i) ) {
+                        if ( candidates.at(i) == cand )
+                            goto continue_outer_loop;
                     } else {
                         break;
                     }

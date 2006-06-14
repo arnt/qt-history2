@@ -90,7 +90,6 @@ int main( int argc, char **argv )
     bool verbose = true; // the default is true starting with Qt 4.2
     bool ignoreUnfinished = false;
     bool trimmed = false; // the default is false starting with Qt 4.2
-    bool metTranslations = false;
     MetaTranslator tor;
     QString outputFile;
     int numFiles = 0;
@@ -174,28 +173,21 @@ int main( int argc, char **argv )
         } else {
             QString oldDir = QDir::currentPath();
             QDir::setCurrent( QFileInfo(argv[i]).path() );
-
-            QMap<QString, QString> tagMap;
-            if (proFileTagMap( fullText, &tagMap )) {
-                QMap<QString, QString>::Iterator it;
-
-                for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-                    QStringList toks = it.value().split(' ');
-                    QStringList::Iterator t;
-
-                    for ( t = toks.begin(); t != toks.end(); ++t ) {
-                        if ( it.key() == QString("TRANSLATIONS") ) {
-                            metTranslations = true;
-                            releaseTsFile( *t, verbose, ignoreUnfinished,
-                                           trimmed );
-                        }
-                    }
-                }
-                if ( !metTranslations )
+            QMap<QByteArray, QStringList> varMap;
+            bool ok = evaluateProFile(QString::fromAscii(argv[i]), verbose, &varMap);
+            if (ok) {
+                QStringList translations = varMap.value("TRANSLATIONS");
+                if (translations.isEmpty()) {
                     fprintf( stderr,
                              "lrelease warning: Met no 'TRANSLATIONS' entry in"
                              " project file '%s'\n",
                              argv[i] );
+                } else {
+                    for (QStringList::iterator it = translations.begin(); it != translations.end(); ++it) {
+                        releaseTsFile(*it, verbose, ignoreUnfinished, trimmed);
+                    }
+                }
+
                 QDir::setCurrent( oldDir );
             } else {
                 fprintf( stderr, "error: lrelease encountered project file functionality that is currently not supported.\n"

@@ -15,10 +15,12 @@
 #define TRWINDOW_H
 
 #include "phrase.h"
-#include "metatranslator.h"
+#include "messagestreeview.h"
+#include "ui_mainwindow.h"
 #include <QMainWindow>
 #include <QHash>
 #include <QPrinter>
+#include <QtCore/QPointer>
 
 class QModelIndex;
 class QStringList;
@@ -31,18 +33,21 @@ class QAssistantClient;
 template <typename T> class QList;
 class QIcon;
 
+class TrPreviewTool;
+class QTemporaryFile;
+
 class QTreeView;
 class PhraseModel;
 class PhraseItem;
 class MessageModel;
 class MessageItem;
-class ContextModel;
+class MessageModel;
 class ContextItem;
 class FindDialog;
+class TranslateDialog;
+class BatchTranslationDialog;
 class MessageEditor;
 class Statistics;
-
-#define TREEVIEW_ODD_COLOR QColor(235,245,255)
 
 class TrWindow : public QMainWindow
 {
@@ -68,9 +73,6 @@ protected:
     void writeConfig();
     void closeEvent(QCloseEvent *);
 
-signals:
-    void statsChanged(int w, int c, int cs, int w2, int c2, int cs2);
-
 private slots:
     void doneAndNext();
     void prev();
@@ -81,9 +83,15 @@ private slots:
     void save();
     void saveAs();
     void release();
+    void releaseAs();
+    void releaseToTempFile();
     void print();
     void find();
     void findAgain();
+    void showTranslateDialog();
+    void showBatchTranslateDialog();
+    void translateAndFindNext(const QString& findWhat, const QString &translateTo, int matchOption, int mode, bool markFinished);
+    void translate(int mode);
     void newPhraseBook();
     void openPhraseBook();
     void closePhraseBook(QAction *action);
@@ -98,10 +106,16 @@ private slots:
     void setupPhrase();
     bool maybeSave();
     void updateCaption();
-    void showNewScope(const QModelIndex &current, const QModelIndex &old);
     void showNewCurrent(const QModelIndex &current, const QModelIndex &old);
+    
+    // To synchronize from the contextmodel to the MetaTranslator...
+    // Operates on the selected item
     void updateTranslation(const QString &translation);
     void updateFinished(bool finished);
+    // Operates on the given item
+    void updateTranslation(int context, int message, const QString &translation);
+    void updateFinished(int context, int message, bool finished);
+
     void toggleFinished(const QModelIndex &index);
     void prevUnfinished();
     void nextUnfinished();
@@ -113,6 +127,8 @@ private slots:
     void toggleStatistics();
     void updateStatistics();
     void onWhatsThis();
+    void finishedBatchTranslation();
+    void previewForm();
 
 private:
 
@@ -121,22 +137,21 @@ private:
     static QString friendlyString(const QString &str);
 
     int findCurrentContextRow();
-    int findCurrentMessageRow();
-    bool setNextMessage(int *currentrow, bool checkUnfinished);
-    bool setPrevMessage(int *currentrow, bool checkUnfinished);
+    //bool setNextMessage(int *currentrow, bool checkUnfinished);
+    bool setNextMessage(QModelIndex *currentIndex, bool checkUnfinished);
+    bool setPrevMessage(QModelIndex *currentIndex, bool checkUnfinished);
     bool setNextContext(int *currentrow, bool checkUnfinished);
     bool setPrevContext(int *currentrow, bool checkUnfinished);
     bool next(bool checkUnfinished);
     bool prev(bool checkUnfinished);
+    QStringList findFormFilesInCurrentTranslationFile();
 
     void addRecentlyOpenedFile(const QString &fn, QStringList &lst);
     void setupMenuBar();
     void setupToolBars();
     void setCurrentContextRow(int row);
-    void setCurrentMessageRow(int row);
     void setCurrentContext(const QModelIndex &indx);
     void setCurrentMessage(const QModelIndex &indx);
-    QString friendlyPhraseBookName(const PhraseBook &pb) const;
     PhraseBook phraseBookFromFileName(QString name) const;
     bool openPhraseBook(const QString &name);
     bool phraseBooksContains(QString name);
@@ -147,28 +162,20 @@ private:
     bool danger(const QString &source, const QString &translation,
         bool verbose = false);
 
-    void insertMessage(MessageItem *m);
     void printDanger(MessageItem *m);
     bool updateDanger(MessageItem *m, bool verbose = false);
 
     bool searchItem(const QString &searchWhat, int c, int m);
-    void doCharCounting( const QString& text, int& trW, int& trC, int& trCS );
 
     QAssistantClient *ac;
-    QTreeView *tv;
-    ContextModel *cmdl;
+    MessagesTreeView *tv;
+    MessageModel *cmdl;
     QTreeView *stv;
-    MessageModel *mmdl;
     QTreeView *ptv;
     PhraseModel *pmdl;
     MessageEditor * me;
     QLabel        * progress;
     QLabel        * modified;
-    MetaTranslator tor;
-    bool dirty;
-    int  numFinished;
-    int  numNonobsolete;
-    int  numMessages;
     QStringList recentFiles;
     QString     filename;
     PBD phraseDict;
@@ -181,58 +188,19 @@ private:
     bool findMatchCase;
     int foundWhere;
     int foundOffset;
+    TranslateDialog *m_translatedlg;
+    BatchTranslationDialog *m_batchTranslateDlg;
+    QString m_translateTo;
+    bool m_findMatchSubstring;
+    bool m_markFinished;
+    
+    // used by the preview tool
+    QTemporaryFile *m_tmpPreviewFile;
+    QPointer<TrPreviewTool> m_previewTool;
 
     QDockWidget *dwScope;
-
-    QMenu *phrasep;
-    QMenu *closePhraseBookp;
-    QMenu *editPhraseBookp;
-    QMenu *printPhraseBookp;
-    QMenu *recentFilesMenu;
-    QMenu *tbMenu;
-
-    QAction *closePhraseBookId;
-    QAction *editPhraseBookId;
-    QAction *printPhraseBookId;
-    QAction *openAct;
-    QAction *saveAct;
-    QAction *saveAsAct;
-    QAction *releaseAct;
-    QAction *printAct;
-    QAction *exitAct;
-    QAction *undoAct;
-    QAction *redoAct;
-    QAction *cutAct;
-    QAction *copyAct;
-    QAction *pasteAct;
-    QAction *selectAllAct;
-    QAction *findAct;
-    QAction *findAgainAct;
-    QAction *replaceAct;
-    QAction *newPhraseBookAct;
-    QAction *openPhraseBookAct;
-    QAction *acceleratorsAct;
-    QAction *endingPunctuationAct;
-    QAction *phraseMatchesAct;
-    QAction *placeMarkersAct;
-    QAction *revertSortingAct;
-    QAction *aboutAct;
-    QAction *aboutQtAct;
-    QAction *manualAct;
-    QAction *whatsThisAct;
-    QAction *beginFromSourceAct;
-    QAction *prevAct;
-    QAction *nextAct;
-    QAction *prevUnfinishedAct;
-    QAction *nextUnfinishedAct;
-    QAction *doneAndNextAct;
-    QAction *doneAndNextAlt;
-    QAction *doGuessesAct;
-    QAction *toggleStats;
+    Ui::MainWindow m_ui;    // menus and actions
     Statistics *stats;
-    int  srcWords;
-    int  srcChars;
-    int  srcCharsSpc;
 };
 
 #endif

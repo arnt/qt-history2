@@ -52,6 +52,9 @@ public:
     bool load(const QString &filename);
     bool save(const QString &filename) const;
     QString fileName() const {return fn;}
+
+    QString friendlyPhraseBookName() const;
+
 private:
     QString fn;
 };

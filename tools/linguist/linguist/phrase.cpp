@@ -167,3 +167,10 @@ bool PhraseBook::save(const QString &filename) const
     f.close();
     return true;
 }
+
+QString PhraseBook::friendlyPhraseBookName() const
+{
+    return QFileInfo(fileName()).fileName();
+}
+
+

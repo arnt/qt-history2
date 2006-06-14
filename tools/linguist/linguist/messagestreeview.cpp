@@ -1,0 +1,70 @@
+#include "messagestreeview.h"
+
+#include <QtGui/QFontMetrics>
+#include <QtGui/QHeaderView>
+#include <QtGui/QItemDelegate>
+
+class MessagesItemDelegate : public QItemDelegate 
+{
+public:
+    MessagesItemDelegate(QObject *parent) : QItemDelegate(parent) {}
+
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        const QAbstractItemModel *model = index.model();
+        Q_ASSERT(model);
+
+        if (!model->parent(index).isValid()) {
+            if (index.column() == 1) {
+                QStyleOptionViewItem opt = option;
+                opt.font.setBold(true);
+                QItemDelegate::paint(painter, opt, index);
+                return;
+            } 
+        } 
+        QItemDelegate::paint(painter, option, index);
+    }
+};
+
+MessagesTreeView::MessagesTreeView(QWidget *parent) : QTreeView(parent)
+{
+    setRootIsDecorated(true);
+    setItemsExpandable(true);
+    setUniformRowHeights(true);
+    setAlternatingRowColors(true);
+    QPalette pal = palette();
+    pal.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
+    setPalette(pal);
+
+    setSelectionBehavior(QAbstractItemView::SelectRows);
+    setSelectionMode(QAbstractItemView::SingleSelection);
+
+    setItemDelegate(new MessagesItemDelegate(this));
+    header()->setSortIndicatorShown(true);
+    header()->setMovable(false);
+    
+    connect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortSection(int)));
+}
+
+
+void MessagesTreeView::sortSection(int section)
+{
+    Qt::SortOrder so = Qt::AscendingOrder;
+    if (header()->sortIndicatorSection() == section 
+        && header()->sortIndicatorOrder() == Qt::AscendingOrder) {
+        so = Qt::DescendingOrder;
+    }
+
+    header()->setSortIndicator(section, so);
+    model()->sort(section, so);
+}
+
+void MessagesTreeView::setModel(QAbstractItemModel * model)
+{
+    QTreeView::setModel(model);
+    QFontMetrics fm(font());
+    header()->resizeSection(0, qMax(fm.width(tr("Done")), 64) );
+    header()->setResizeMode(1, QHeaderView::Interactive);
+    header()->setResizeMode(2, QHeaderView::Stretch);
+    header()->setClickable(true);
+}

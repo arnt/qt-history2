@@ -20,6 +20,8 @@
 #include <QTextCodec>
 #include <QTextStream>
 #include <QtXml>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 
 static bool encodingIsUtf8( const QXmlAttributes& atts )
 {
@@ -373,6 +375,9 @@ bool MetaTranslator::load( const QString& filename )
     bool ok = reader.parse( in );
     reader.setContentHandler( 0 );
     reader.setErrorHandler( 0 );
+
+    makeFileNamesAbsolute(QFileInfo(filename).absoluteDir());
+
     delete hand;
     f.close();
     return ok;
@@ -433,8 +438,11 @@ bool MetaTranslator::save( const QString& filename) const
             if ( msg.utf8() )
                 t << " encoding=\"UTF-8\"";
             t << ">\n";
-            if (!msg.fileName().isEmpty() && msg.lineNumber() >= 0) 
-                t << "        <location filename=\"" << msg.fileName() << "\" line=\"" << msg.lineNumber() << "\"/>\n";
+            if (!msg.fileName().isEmpty() && msg.lineNumber() >= 0) {
+                QDir tsPath = QFileInfo(filename).absoluteDir();
+                QString fn = tsPath.relativeFilePath(msg.fileName()).replace('\\','/');
+                t << "        <location filename=\"" << fn << "\" line=\"" << msg.lineNumber() << "\"/>\n";
+            }
             t  << "        <source>" << evilBytes( (*i).sourceText(), (*i).utf8() )
               << "</source>\n";
             if ( !QByteArray((*i).comment()).isEmpty() )
@@ -459,6 +467,19 @@ bool MetaTranslator::save( const QString& filename) const
 bool MetaTranslator::release( const QString& filename, bool verbose,
                               bool ignoreUnfinished,
                               Translator::SaveMode mode ) const
+{
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly)) {
+        bool ok = release(&file, verbose, ignoreUnfinished, mode);
+        file.close();
+        return ok;
+    }
+    return false;
+}
+
+bool MetaTranslator::release( QIODevice *iod, bool verbose /*= false*/,
+              bool ignoreUnfinished /*= false*/,
+              Translator::SaveMode mode /*= Translator::Stripped */) const
 {
     Translator tor( 0 );
     int finished = 0;
@@ -506,7 +527,7 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
         }
     }
 
-    bool saved = tor.save( filename, mode );
+    bool saved = tor.save( iod, mode );
     if ( saved && verbose ) {
         int generatedCount = finished + unfinished;
         fprintf( stderr,
@@ -610,6 +631,23 @@ void MetaTranslator::stripEmptyContexts()
             newmm.insert( m.key(), *m );
         }
         ++m;
+    }
+    mm = newmm;
+}
+
+void MetaTranslator::makeFileNamesAbsolute(const QDir &oldPath)
+{
+    TMM newmm;
+    for (TMM::iterator m = mm.begin(); m != mm.end(); ++m) {
+        MetaTranslatorMessage msg = m.key();
+        QString fileName = m.key().fileName();
+        QFileInfo fi (fileName);
+        if (fi.isRelative()) {
+            fileName = oldPath.absoluteFilePath(fileName);
+        }
+        
+        msg.setFileName(fileName);
+        newmm.insert(msg, m.value());
     }
     mm = newmm;
 }

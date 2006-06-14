@@ -18,7 +18,9 @@
 #include <QMap>
 #include <QString>
 #include <QList>
+#include <QtCore/QDir>
 
+class QIODevice;
 class QTextCodec;
 
 class MetaTranslatorMessage : public TranslatorMessage
@@ -70,6 +72,9 @@ public:
     bool release( const QString& filename, bool verbose = false,
                   bool ignoreUnfinished = false,
                   Translator::SaveMode mode = Translator::Stripped ) const;
+    bool release( QIODevice *iod, bool verbose = false,
+                  bool ignoreUnfinished = false,
+                  Translator::SaveMode mode = Translator::Stripped ) const;
 
     bool contains( const char *context, const char *sourceText,
                    const char *comment ) const;
@@ -94,6 +99,8 @@ public:
     QList<MetaTranslatorMessage> translatedMessages() const;
 
 private:
+    void makeFileNamesAbsolute(const QDir &oldPath);
+
     typedef QMap<MetaTranslatorMessage, int> TMM;       // int stores the sequence position.
     typedef QMap<int, MetaTranslatorMessage> TMMInv;    // Used during save operation. Seems to use the map only the get the sequence order right.
 

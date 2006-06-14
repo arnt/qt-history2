@@ -18,6 +18,7 @@
 #include <QByteArray>
 #include <QTranslator>
 
+class QIODevice;
 class TranslatorPrivate;
 template <typename T> class QList;
 
@@ -110,6 +111,7 @@ public:
     enum SaveMode { Everything, Stripped };
 
     bool save(const QString & filename, SaveMode mode = Everything);
+    bool save(QIODevice *iod, SaveMode mode = Everything);
 
     void insert(const TranslatorMessage&);
     inline void insert(const char *context, const char *sourceText, const QString &fileName, int lineNo, const QString &translation) {

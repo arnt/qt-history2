@@ -23,6 +23,7 @@
 
 #include <errno.h>
 #include <string.h>
+#include <QtCore/QDebug>
 
 // defined in fetchtr.cpp
 extern void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
@@ -74,6 +75,7 @@ static void updateTsFiles( const MetaTranslator& fetchedTor,
         if ( noObsolete )
             out.stripObsoleteMessages();
         out.stripEmptyContexts();
+        
 	    if ( !out.save(*t) ) {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
 	        char buf[100];
@@ -105,6 +107,16 @@ void recursiveFileInfoList(const QDir &dir, const QStringList &nameFilters, QDir
             }
         }
     }
+}
+
+
+static QStringList convertAbsoluteFileNamesToRelativeFileNames(const QStringList &fileNames, const QDir &rootPath)
+{
+    QStringList relativeFileNames;
+    for (QStringList::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
+        relativeFileNames.append(rootPath.relativeFilePath(*it));
+    }
+    return relativeFileNames;
 }
 
 int main( int argc, char **argv )
@@ -161,6 +173,8 @@ int main( int argc, char **argv )
         }
 
         numFiles++;
+        
+        QStringList sourceFiles;
 
         QString fullText;
 
@@ -178,136 +192,107 @@ int main( int argc, char **argv )
 #endif
                 return 1;
             }
-
-            QTextStream t( &f );
-            fullText = t.readAll();
             f.close();
         }
 
         QString oldDir = QDir::currentPath();
 
-        if ( standardSyntax ) {
-            QDir::setCurrent( QFileInfo(argv[i]).path() );
-            fetchedTor = MetaTranslator();
-            codecForTr.clear();
-			codecForSource.clear();
-            tsFileNames.clear();
+        codecForTr.clear();
+		codecForSource.clear();
 
-            QMap<QString, QString> tagMap;
-            if (proFileTagMap( fullText, &tagMap )) {
-                QMap<QString, QString>::Iterator it;
-
-                for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-                    QStringList toks = tokenizeFileNames(it.value());
-                    QStringList::Iterator t;
-
-                    for ( t = toks.begin(); t != toks.end(); ++t ) {
-                        if ( it.key() == "HEADERS" || it.key() == "SOURCES" ) {
-                            fetchtr_cpp( (*t).toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
-                            metSomething = true;
-                        } else if ( it.key() == "INTERFACES" || it.key() == "FORMS" || it.key() == "FORMS3" ) {
-                            fetchtr_ui( (*t).toAscii(), &fetchedTor, defaultContext.toAscii(), true );
-                            fetchtr_cpp( (*t).toAscii() + ".h", &fetchedTor, defaultContext.toAscii(), false, codecForSource );
-                            metSomething = true;
-                        } else if ( it.key() == "TRANSLATIONS" ) {
-                            tsFileNames.append( *t );
-                            metSomething = true;
-                        } else if ( it.key() == "CODEC" ||
-                                    it.key() == "DEFAULTCODEC" ||
-                                    it.key() == "CODECFORTR" ) {
-                            codecForTr = (*t).toLatin1();
-                        } else if ( it.key() == "CODECFORSRC" ) {
-                            codecForSource = (*t).toLatin1();
-                        }
-                    }
-                }
-
-                updateTsFiles( fetchedTor, tsFileNames, codecForTr, noObsolete, verbose );
-
-                if ( !metSomething ) {
-                    fprintf( stderr,
-                             "lupdate warning: File '%s' does not look like a"
-                             " project file\n",
-                             argv[i] );
-                } else if ( tsFileNames.isEmpty() ) {
-                    fprintf( stderr,
-                             "lupdate warning: Met no 'TRANSLATIONS' entry in"
-                             " project file '%s'\n",
-                             argv[i] );
-                }
-            } else {
-                fprintf( stderr, "error: lupdate encountered project file functionality that is currently not supported.\n"
-                    "You might want to consider using directories as input instead of a project file.\n"
-                    "Try the following syntax:\n"
-                    "    lupdate [options] [source-file|path]... -ts ts-files\n");
-            }
-        } else {
-            if ( metTsFlag ) {
-                if ( QString(argv[i]).toLower().endsWith(".ts") ) {
-                    QFileInfo fi( argv[i] );
-                    if ( !fi.exists() || fi.isWritable() ) {
-                        tsFileNames.append( argv[i] );
-                    } else {
-                        fprintf( stderr,
-                                 "lupdate warning: For some reason, I cannot"
-                                 " save '%s'\n",
-                                 argv[i] );
-                    }
+        if (metTsFlag) {
+            if ( QString(argv[i]).endsWith(".ts", Qt::CaseInsensitive) ) {
+                QFileInfo fi( argv[i] );
+                if ( !fi.exists() || fi.isWritable() ) {
+                    tsFileNames.append( argv[i] );
                 } else {
                     fprintf( stderr,
-                             "lupdate error: File '%s' lacks .ts extension\n",
+                             "lupdate warning: For some reason, I cannot"
+                             " save '%s'\n",
                              argv[i] );
                 }
             } else {
-                QFileInfo fi(argv[i]);
-                if (fi.isDir()) {
-                    if ( verbose ) fprintf(stderr, "Scanning directory '%s'...\n", argv[i]);
-                    QDir dir = QDir(fi.filePath());
-                    if (extensionsNameFilters.isEmpty()) {
-                        extensions = extensions.trimmed();
-                        // Remove the potential dot in front of each extension
-                        if (extensions.startsWith('.'))
-                            extensions.remove(0,1);
-                        extensions.replace(",.", ",");
+                fprintf( stderr,
+                         "lupdate error: File '%s' lacks .ts extension\n",
+                         argv[i] );
+            }
+        } else if (QString(argv[i]).endsWith(".pro", Qt::CaseInsensitive)) {
+            bool ok;
 
-                        extensions.insert(0, QLatin1String("*."));
-                        extensions.replace(',', QLatin1String(",*."));
-                        extensionsNameFilters = extensions.split(',');
-                    }
-                    QDir::Filters filters = QDir::Files | QDir::NoSymLinks;
-                    QFileInfoList fileinfolist;
-                    recursiveFileInfoList(dir, extensionsNameFilters, filters, true, &fileinfolist);
-                    QFileInfoList::iterator ii;
-                    QByteArray fn;
-                    QDir baseDir(oldDir);
-                    for (ii = fileinfolist.begin(); ii != fileinfolist.end(); ++ii) {
-                        // Make sure the path separator is stored with '/' in the ts file
-                        fn = baseDir.relativeFilePath(ii->filePath()).replace('\\','/').toLatin1();
-#ifdef LINGUIST_DEBUG
-                        fprintf(stderr, "%s\n", fn.data());
-#endif
-                        if (fn.toLower().endsWith(".ui") ) {
-                            fetchtr_ui( fn, &fetchedTor, defaultContext.toAscii(), true );
-                        } else {
-                            fetchtr_cpp( fn, &fetchedTor, defaultContext.toAscii(), true, codecForSource );
-                        }
-                    }
-                }else{
-                    if ( QString(argv[i]).toLower().endsWith(".ui") ) {
-                        fetchtr_ui( fi.filePath().toAscii(), &fetchedTor, defaultContext.toAscii(), true );
-                        fetchtr_cpp( fi.filePath().toAscii() + ".h", &fetchedTor,
-                                     defaultContext.toAscii(), false, codecForSource );
-                    } else {
-                        fetchtr_cpp( fi.filePath().toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
-                    }
+            QMap<QByteArray, QStringList> variables;
+
+            ok = evaluateProFile(QLatin1String(argv[i]), verbose, &variables);
+            sourceFiles = variables.value("SOURCES");
+            metSomething |= !sourceFiles.isEmpty();
+
+            QStringList tmp = variables.value("CODECFORTR");
+            if (!tmp.isEmpty()) {
+                metSomething = true;
+                codecForTr = tmp.first().toAscii();
+            }
+            tmp = variables.value("CODECFORSRC");
+            if (!tmp.isEmpty()) {
+                metSomething = true;
+                codecForSource = tmp.first().toAscii();
+            }
+
+            tsFileNames = variables.value("TRANSLATIONS");
+            metSomething |= !tsFileNames.isEmpty();
+        } else {
+            QFileInfo fi(argv[i]);
+            if (fi.isDir()) {
+                if ( verbose ) fprintf(stderr, "Scanning directory '%s'...\n", argv[i]);
+                QDir dir = QDir(fi.filePath());
+                if (extensionsNameFilters.isEmpty()) {
+                    extensions = extensions.trimmed();
+                    // Remove the potential dot in front of each extension
+                    if (extensions.startsWith('.'))
+                        extensions.remove(0,1);
+                    extensions.replace(",.", ",");
+
+                    extensions.insert(0, QLatin1String("*."));
+                    extensions.replace(',', QLatin1String(",*."));
+                    extensionsNameFilters = extensions.split(',');
                 }
+                QDir::Filters filters = QDir::Files | QDir::NoSymLinks;
+                QFileInfoList fileinfolist;
+                recursiveFileInfoList(dir, extensionsNameFilters, filters, true, &fileinfolist);
+                QFileInfoList::iterator ii;
+                QString fn;
+                QDir baseDir(oldDir);
+                for (ii = fileinfolist.begin(); ii != fileinfolist.end(); ++ii) {
+                    // Make sure the path separator is stored with '/' in the ts file
+                    fn = ii->canonicalFilePath().replace('\\','/');
+#ifdef LINGUIST_DEBUG
+                    fprintf(stderr, "%s\n", fn.data());
+#endif
+                    sourceFiles << fn;
+                }
+            }else{
+                sourceFiles << fi.canonicalFilePath().replace('\\','/');
+            }            
+        }
+        for (QStringList::iterator it = sourceFiles.begin(); it != sourceFiles.end(); ++it) {
+#ifdef LINGUIST_DEBUG
+            qDebug() << "  " << (*it);
+#endif
+            if ( (*it).endsWith(QLatin1String(".ui"), Qt::CaseInsensitive) ) {
+#ifdef LINGUIST_DEBUG
+                qDebug() << "  " << (*it) + ".h";
+#endif
+                fetchtr_ui( (*it).toAscii(), &fetchedTor, defaultContext.toAscii(), true );
+                fetchtr_cpp( QString((*it) + ".h").toAscii(), &fetchedTor,
+                             defaultContext.toAscii(), false, codecForSource );
+            }else{
+                fetchtr_cpp( (*it).toAscii(), &fetchedTor, defaultContext.toAscii(), true, codecForSource );
             }
         }
-        QDir::setCurrent( oldDir );
-    }
+    }   //for
 
-    if ( !standardSyntax )
+    removeDuplicates(&tsFileNames, false);
+    if ( tsFileNames.count() > 0) {
         updateTsFiles( fetchedTor, tsFileNames, codecForTr, noObsolete, verbose );
+    }
 
     if ( numFiles == 0 ) {
         printUsage();

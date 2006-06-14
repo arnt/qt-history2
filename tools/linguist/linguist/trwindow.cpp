@@ -18,15 +18,19 @@
 
 #include "trwindow.h"
 #include "finddialog.h"
+#include "translatedialog.h"
+#include "batchtranslationdialog.h"
 #include "msgedit.h"
 #include "phrasebookbox.h"
 #include "printout.h"
 #include "about.h"
 #include "statistics.h"
-#include "contextmodel.h"
 #include "messagemodel.h"
 #include "phrasemodel.h"
 
+#include "previewtool/trpreviewtool.h"
+
+#include <QtCore/QTemporaryFile>
 #include <QAction>
 #include <QApplication>
 #include <QBitmap>
@@ -49,6 +53,7 @@
 #include <QDesktopWidget>
 #include <QPrintDialog>
 #include <QLibraryInfo>
+#include <QUiLoader>
 
 #define pagecurl_mask_width 53
 #define pagecurl_mask_height 51
@@ -83,8 +88,6 @@ static const uchar pagecurl_mask_bits[] = {
    0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08,
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00,
    0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08 };
-
-typedef QList<MetaTranslatorMessage> TML;
 
 static const int ErrorMS = 600000; // for error messages
 static const int MessageMS = 2500;
@@ -166,6 +169,9 @@ TrWindow::TrWindow()
     setWindowIcon(QPixmap(":/images/appicon.png" ));
 #endif
 
+    m_previewTool = 0;
+    m_tmpPreviewFile = 0;
+
     // Create the application global listview symbols
     pxOn  = new QPixmap(":/images/s_check_on.png");
     pxOff = new QPixmap(":/images/s_check_off.png");
@@ -186,58 +192,46 @@ TrWindow::TrWindow()
     dwScope->setFeatures(QDockWidget::AllDockWidgetFeatures);
     dwScope->setWindowTitle(tr("Context"));
 
-    tv = new QTreeView(dwScope);
-    cmdl = new ContextModel(dwScope);
+    tv = new MessagesTreeView(dwScope);
+    cmdl = new MessageModel(dwScope);
     tv->setModel(cmdl);
-    tv->setAlternatingRowColors(true);
-    QPalette tvp = tv->palette();
-    tvp.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
-    tv->setPalette(tvp);
-
-    tv->setSelectionBehavior(QAbstractItemView::SelectRows);
-    tv->setSelectionMode(QAbstractItemView::SingleSelection);
-    tv->setRootIsDecorated(false);
     dwScope->setWidget(tv);
     addDockWidget(Qt::LeftDockWidgetArea, dwScope);
 
-    QFontMetrics fm(font());
-    tv->header()->setResizeMode(1, QHeaderView::Stretch);
-    tv->header()->resizeSection(0, fm.width(ContextModel::tr("Done")) + 20);
-    tv->header()->resizeSection(2, 55);
-    tv->header()->setClickable(true);
-
-    me = new MessageEditor(&tor, this);
-    setCentralWidget(me);
-    stv = me->sourceTextView();
-    mmdl = qobject_cast<MessageModel *>(stv->model());
+    me = new MessageEditor(cmdl, this);
+    //setCentralWidget(me);
     ptv = me->phraseView();
     pmdl = qobject_cast<PhraseModel *>(ptv->model());
 
-    setupMenuBar();
-    setupToolBars();
+    connect(tv->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+             this, SLOT(showNewCurrent(QModelIndex,QModelIndex)));
 
-    progress = new QLabel(statusBar());
-    statusBar()->addPermanentWidget(progress);
-    modified = new QLabel(QString(" %1 ").arg(tr("MOD")), statusBar());
-    statusBar()->addPermanentWidget(modified);
-
-    numFinished = 0;
-    numNonobsolete = 0;
-    numMessages = 0;
-    updateProgress();
-
-    dirty = false;
-    updateCaption();
-
+    m_translatedlg = new TranslateDialog(this);
+    m_batchTranslateDlg = new BatchTranslationDialog(cmdl, this);
     finddlg = new FindDialog(this);
     findMatchCase = false;
     findWhere = 0;
     foundWhere = 0;
     foundOffset = 0;
 
-    connect(tv->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-        this, SLOT(showNewScope(QModelIndex,QModelIndex)));
-    connect(stv, SIGNAL(clicked(QModelIndex)),
+    setupMenuBar();
+    setupToolBars();
+    // We can't call setCentralWidget(me), since it is already called in m_ui.setupUi()
+    QBoxLayout *lout = new QBoxLayout(QBoxLayout::TopToBottom, m_ui.centralwidget);
+    lout->addWidget(me);
+    lout->setMargin(0);
+    m_ui.centralwidget->setLayout(lout);
+
+    progress = new QLabel(statusBar());
+    statusBar()->addPermanentWidget(progress);
+    modified = new QLabel(QString(" %1 ").arg(tr("MOD")), statusBar());
+    statusBar()->addPermanentWidget(modified);
+
+    updateProgress();
+    updateCaption();
+
+
+    connect(tv, SIGNAL(clicked(QModelIndex)),
         this, SLOT(toggleFinished(QModelIndex)));
     connect(me, SIGNAL(translationChanged(QString)),
         this, SLOT(updateTranslation(QString)));
@@ -248,28 +242,21 @@ TrWindow::TrWindow()
     connect(me, SIGNAL(focusPhraseList()), this, SLOT(focusPhraseList()));
     connect(finddlg, SIGNAL(findNext(QString,int,bool)),
         this, SLOT(findNext(QString,int,bool)));
+    connect(m_translatedlg, SIGNAL( translateAndFindNext(QString,QString,int,int,bool) ),
+        this, SLOT( translateAndFindNext(QString,QString,int,int,bool) ));
 
     connect(tv->header(), SIGNAL(sectionClicked(int)),
         tv, SLOT(clearSelection()));
-    connect(stv->header(), SIGNAL(sectionClicked(int)),
-        stv, SLOT(clearSelection()));
 
     tv->setWhatsThis(tr("This panel lists the source contexts."));
-    stv->setWhatsThis(tr("This panel lists the source texts. "
-        "Items that violate validation rules "
-        "are marked with a warning."));
 
     QSize as( qApp->desktop()->size() );
     as -= QSize( 30, 30 );
     resize( QSize( 1000, 800 ).boundedTo( as ) );
     readConfig();
     stats = 0;
-    srcWords = 0;
-    srcChars = 0;
-    srcCharsSpc = 0;
 
     QWidget::setTabOrder(ptv, tv);
-    QWidget::setTabOrder(tv, stv);
 }
 
 TrWindow::~TrWindow()
@@ -277,6 +264,8 @@ TrWindow::~TrWindow()
     writeConfig();
     cmdl->clearContextList();
     delete stats;
+    delete m_previewTool;
+    delete m_tmpPreviewFile;
 }
 
 void TrWindow::openFile( const QString& name )
@@ -286,79 +275,36 @@ void TrWindow::openFile( const QString& name )
 
     statusBar()->showMessage(tr("Loading..."));
     qApp->processEvents();
-    tor.clear();
 
-    if (!tor.load(name)) {
+    if (!cmdl->load(name)) {
         statusBar()->clearMessage();
         QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot open '%1'.").arg(name));
         return;
     }
-
-    tv->clearSelection();
-
-    mmdl->setContextItem(0);
-    cmdl->clearContextList();
-    numFinished = 0;
-    numNonobsolete = 0;
-    numMessages = 0;
-//    foundScope = 0;
-
-    TML all = tor.messages();
-    QHash<QString, ContextItem*> contexts;
-
-    srcWords = 0;
-    srcChars = 0;
-    srcCharsSpc = 0;
-
-    foreach (MetaTranslatorMessage mtm, all) {
-        qApp->processEvents();
-        ContextItem *c;
-        if (contexts.contains(QString(mtm.context()))) {
-            c = contexts.value( QString(mtm.context()));
-        }
-        else {
-            c = new ContextItem(tor.toUnicode(mtm.context(), mtm.utf8()));
-            cmdl->appendContextItem(c);
-            contexts.insert(QString(mtm.context()), c);
-        }
-        if (QByteArray(mtm.sourceText()) == ContextComment) {
-            c->appendToComment(tor.toUnicode(mtm.comment(), mtm.utf8()));
-        }
-        else {
-            MessageItem *tmp = new MessageItem(mtm, tor.toUnicode(mtm.sourceText(),
-                mtm.utf8()), tor.toUnicode(mtm.comment(), mtm.utf8()), c);
-            c->appendMessageItem(tmp);
-            updateDanger(tmp);
-            if (mtm.type() != MetaTranslatorMessage::Obsolete) {
-                numNonobsolete++;
-                if (mtm.type() == MetaTranslatorMessage::Finished)
-                    numFinished++;
-                doCharCounting(tmp->sourceText(), srcWords, srcChars, srcCharsSpc);
-            }
-            else {
-                c->incrementObsoleteCount();
-            }
-            numMessages++;
-        }
+    for (MessageModel::iterator it = cmdl->begin(); MessageItem *m = it.current();++it) {
+        updateDanger(m);
     }
 
-    cmdl->updateAll();
+    tv->clearSelection();
 
     setEnabled(true);
     updateProgress();
     filename = name;
-    dirty = false;
+    
     updateCaption();
+
     me->showNothing();
-    doneAndNextAct->setEnabled(false);
-    doneAndNextAlt->setEnabled(false);
-    statusBar()->showMessage(tr("%1 source phrase(s) loaded.").arg(numMessages), MessageMS);
+    m_ui.actionDoneAndNext->setEnabled(false);
+    m_ui.actionDoneAndNextAlt->setEnabled(false);
+    m_ui.actionPreviewForm->setEnabled(true);
+
+    statusBar()->showMessage(tr("%1 source phrase(s) loaded.").arg(cmdl->getMessageCount()), MessageMS);
     foundWhere = 0;
     foundOffset = 0;
 
     if (cmdl->contextsInList() > 0) {
-        findAct->setEnabled(true);
-        findAgainAct->setEnabled(false);
+        m_ui.actionFind->setEnabled(true);
+        m_ui.actionFindNext->setEnabled(false);
     }
 
     addRecentlyOpenedFile(name, recentFiles);
@@ -379,8 +325,7 @@ void TrWindow::save()
     if (filename.isEmpty())
         return;
 
-    if (tor.save(filename)) {
-        dirty = false;
+    if (cmdl->save(filename)) {
         updateCaption();
         statusBar()->showMessage(tr("File saved."), MessageMS);
     } else {
@@ -399,7 +344,20 @@ void TrWindow::saveAs()
     }
 }
 
-void TrWindow::release()
+// only used be the preview tool
+void TrWindow::releaseToTempFile()
+{
+    if (m_tmpPreviewFile) {
+        QString newFilename = m_tmpPreviewFile->fileName();
+        if (cmdl->release(newFilename, false, false, Translator::Everything)) {
+            m_previewTool->reloadTranslations();
+        } else {
+            QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot save '%1'.").arg(newFilename));        
+        } 
+    }
+}
+
+void TrWindow::releaseAs()
 {
     QString newFilename = filename;
     newFilename.replace(QRegExp(".ts$"), "");
@@ -408,7 +366,22 @@ void TrWindow::release()
     newFilename = QFileDialog::getSaveFileName(this, tr("Release"), newFilename,
         tr("Qt message files for released applications (*.qm)\nAll files (*)"));
     if (!newFilename.isEmpty()) {
-        if (tor.release(newFilename, false, false, Translator::Everything))
+        if (cmdl->release(newFilename, false, false, Translator::Everything))
+            statusBar()->showMessage(tr("File created."), MessageMS);
+        else
+            QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot save '%1'.").arg(newFilename));
+    }
+}
+
+// No-question
+void TrWindow::release()
+{
+    QString newFilename = filename;
+    newFilename.replace(QRegExp(".ts$"), "");
+    newFilename += QString(".qm");
+
+    if (!newFilename.isEmpty()) {
+        if (cmdl->release(newFilename, false, false, Translator::Everything))
             statusBar()->showMessage(tr("File created."), MessageMS);
         else
             QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot save '%1'.").arg(newFilename));
@@ -506,10 +479,11 @@ void TrWindow::findAgain()
     int scopeNo = 0;
     int itemNo = 0;
 
-    QModelIndex indxItem = stv->currentIndex();
+
+    QModelIndex indxItem = tv->currentIndex();
     if (indxItem.isValid())
         itemNo = indxItem.row();
-    QModelIndex indxScope = tv->currentIndex();
+    QModelIndex indxScope = tv->currentIndex().parent();
     if (indxScope.isValid())
         scopeNo = indxScope.row();
 
@@ -583,11 +557,6 @@ void TrWindow::findAgain()
         c = cmdl->contextItem(cmdl->index(scopeNo, 1));
     }
 
-    // This is just to keep the current scope and source text item
-    // selected if a search failed.
-/*    setCurrentContextRow(oldScope.row());
-    setCurrentMessageRow(oldItemNo.row()); */
-
     qApp->beep();
     QMessageBox::warning( finddlg, tr("Qt Linguist"),
                           QString( tr("Cannot find the string '%1'.") ).arg(findText));
@@ -596,16 +565,128 @@ void TrWindow::findAgain()
     foundOffset = 0;
 }
 
+void TrWindow::showTranslateDialog()
+{
+    m_translatedlg->show();
+    m_translatedlg->activateWindow();
+    m_translatedlg->raise();
+}
+
+void TrWindow::showBatchTranslateDialog()
+{
+    QList<PhraseBook> frasebooks = phraseBooks[PhraseEditMenu].values();
+    m_batchTranslateDlg->setPhraseBooks(frasebooks);
+    m_batchTranslateDlg->exec();
+    
+}
+
+void TrWindow::translateAndFindNext(const QString& findWhat, const QString &translateTo, 
+                                    int matchOption, int mode, bool markFinished)
+{
+    findText = findWhat;
+    m_translateTo = translateTo;
+    findMatchCase = matchOption & TranslateDialog::MatchCase;
+    m_markFinished = markFinished;
+    m_findMatchSubstring = false;
+
+    translate(mode);
+}
+
+void TrWindow::translate(int mode)
+{
+    int itemNo = 0;
+    int scopeNo = 0;
+    QModelIndex indxItem = tv->currentIndex();
+    if (indxItem.isValid())
+        itemNo = indxItem.row();      // The for-loop condition for the ContextItem will rule this potential overflow on itemNo
+    QModelIndex indxScope = tv->currentIndex().parent();
+    if (indxScope.isValid()) {
+        scopeNo = indxScope.row();
+    }else{
+        scopeNo = itemNo;
+        itemNo = 0;
+    }
+
+    int translatedCount = 0;
+    bool found = false;
+
+
+    MessageModel::iterator it = cmdl->Iterator(scopeNo, itemNo);
+    switch (mode) {
+    case TranslateDialog::TranslateAll:
+        {
+            int passes = cmdl->getMessageCount();
+            while (passes > 0) {
+                MessageItem *m = it.current();
+                if (!m) {
+                    it.reset();
+                    m = it.current();
+                }
+                if (m && m->compare(findText, m_findMatchSubstring, findMatchCase ? Qt::CaseSensitive : Qt::CaseInsensitive)) {
+                    m->setTranslation(m_translateTo);
+                    updateFinished(it.contextNo(), it.messageNo(), m_markFinished);
+                    ++translatedCount;
+                }
+                ++it;
+                --passes;
+            }
+            found = translatedCount == 0 ? false : true;
+            if (found) {
+                QMessageBox::warning( m_translatedlg, tr("Translate"),
+                                  QString( tr("Translated %1 entries to '%2'") ).arg(translatedCount).arg(m_translateTo) );
+            }
+        }
+        break;
+    case TranslateDialog::Translate:
+        {
+            MessageItem *m = it.current();
+            if (m && m->compare(findText, m_findMatchSubstring, findMatchCase ? Qt::CaseSensitive : Qt::CaseInsensitive)) {
+                m->setTranslation(m_translateTo);
+                updateFinished(it.contextNo(), it.messageNo(), m_markFinished);
+                ++translatedCount;
+            }
+        }
+    case TranslateDialog::Skip:
+        {
+            ++it;
+            int passes = cmdl->getMessageCount() - 1;
+            while (passes > 0) {
+                MessageItem *m = it.current();
+                if (!m) {
+                    it.reset();
+                    m = it.current();
+                }
+                if (m && m->compare(findText, m_findMatchSubstring, findMatchCase ? Qt::CaseSensitive : Qt::CaseInsensitive)) {
+                    found = true;
+                    break;
+                }
+                ++it;
+                --passes;
+            }
+        }
+        break;
+    }
+
+    if (found) {
+        QModelIndex cidx = cmdl->index(it.contextNo(),0);
+        if (cidx.isValid()) {
+            setCurrentMessage(cmdl->index(it.messageNo(),0, cidx));
+        }
+    } else {
+        qApp->beep();
+        QMessageBox::warning( m_translatedlg, tr("Qt Linguist"),
+                              QString( tr("Cannot find the string '%1'.") ).arg(findText) );
+    }
+}
+
 bool TrWindow::searchItem(const QString &searchWhat, int c, int m)
 {
     if ((findWhere & foundWhere) != 0) {
         foundOffset = searchWhat.indexOf(findText, foundOffset,
             findMatchCase ? Qt::CaseSensitive : Qt::CaseInsensitive);
         if (foundOffset >= 0) {
-            //foundItem = m;
-            //foundScope = c;
-            setCurrentContextRow(c);
-            setCurrentMessageRow(m);
+            QModelIndex cidx = cmdl->index(c,0);
+            setCurrentMessage(cmdl->index(m,0, cidx));
             return true;
         }
     }
@@ -662,6 +743,7 @@ void TrWindow::openPhraseBook()
     QString phrasebooks(QLibraryInfo::location(QLibraryInfo::DataPath));
     QString name = QFileDialog::getOpenFileName(this, tr("Open Phrase Book"),
         phrasebooks + "/phrasebooks", tr("Qt phrase books (*.qph)\nAll files (*)"));
+    //### The phrasebooks are not stored here!!
     if (!name.isEmpty() && !phraseBooksContains(name)) {
         if (openPhraseBook(name)) {
             int n = phraseBookFromFileName(name).count();
@@ -674,17 +756,17 @@ void TrWindow::closePhraseBook(QAction *action)
 {
     PhraseBook pb = phraseBooks[PhraseCloseMenu].value(action);
     phraseBooks[PhraseCloseMenu].remove(action);
-    closePhraseBookp->removeAction(action);
+    m_ui.menuClosePhraseBook->removeAction(action);
 
     QAction *act = phraseBooks[PhraseEditMenu].key(pb);
     phraseBooks[PhraseEditMenu].remove(act);
-    editPhraseBookp->removeAction(act);
+    m_ui.menuEditPhraseBook->removeAction(act);
 
     act = phraseBooks[PhrasePrintMenu].key(pb);
-    qDebug("Remove: %d", phraseBooks[PhrasePrintMenu].remove(act));
-    printPhraseBookp->removeAction(act);
+    m_ui.menuPrintPhraseBook->removeAction(act);
 
     updatePhraseDict();
+    m_ui.actionBatchTranslation->setEnabled(phraseBooks[PhraseCloseMenu].count() > 0);
 }
 
 void TrWindow::editPhraseBook(QAction *action)
@@ -692,7 +774,7 @@ void TrWindow::editPhraseBook(QAction *action)
     PhraseBook pb = phraseBooks[PhraseEditMenu].value(action);
     PhraseBookBox box(pb.fileName(), pb, this);
     box.setWindowTitle(tr("%1 - %2").arg(tr("Qt Linguist"))
-        .arg(friendlyPhraseBookName(pb)));
+        .arg(pb.friendlyPhraseBookName()));
     box.resize(500, 300);
     box.exec();
 
@@ -755,13 +837,11 @@ void TrWindow::revertSorting()
     tv->header()->setSortIndicator(1, Qt::AscendingOrder);
     tv->header()->setSortIndicatorShown(true);
     cmdl->sort(1, Qt::AscendingOrder);
-    mmdl->setContextItem(0);
+    //mmdl->setContextItem(0);
 
     foreach(ContextItem *c, cmdl->contextList()) {
         c->sortMessages(1, Qt::AscendingOrder);
     }
-    stv->header()->setSortIndicator(1, Qt::AscendingOrder);
-    stv->header()->setSortIndicatorShown(true);
 }
 
 void TrWindow::manual()
@@ -813,22 +893,25 @@ void TrWindow::aboutQt()
 void TrWindow::setupPhrase()
 {
     bool enabled = !phraseBooks[PhraseCloseMenu].isEmpty();
-    closePhraseBookId->setEnabled(enabled);
-    editPhraseBookId->setEnabled(enabled);
-    printPhraseBookId->setEnabled(enabled);
+    m_ui.menuClosePhraseBook->setEnabled(enabled);
+    m_ui.menuEditPhraseBook->setEnabled(enabled);
+    m_ui.menuPrintPhraseBook->setEnabled(enabled);
 }
 
 void TrWindow::closeEvent(QCloseEvent *e)
 {
-    if (maybeSave())
+    if (maybeSave()) {
         e->accept();
-    else
+        delete m_previewTool;
+        m_previewTool = 0;
+    } else {
         e->ignore();
+    }
 }
 
 bool TrWindow::maybeSave()
 {
-    if (dirty) {
+    if (cmdl->isModified()) {
         switch (QMessageBox::information(this, tr("Qt Linguist"),
             tr("Do you want to save '%1'?").arg(filename),
             QMessageBox::Yes | QMessageBox::Default,
@@ -839,7 +922,7 @@ bool TrWindow::maybeSave()
                 return false;
             case QMessageBox::Yes:
                 save();
-                return !dirty;
+                return !cmdl->isModified();
             case QMessageBox::No:
                 break;
         }
@@ -851,139 +934,141 @@ void TrWindow::updateCaption()
 {
     QString cap;
     bool enable = !filename.isEmpty();
-    saveAct->setEnabled(enable);
-    saveAsAct->setEnabled(enable);
-    releaseAct->setEnabled(enable);
-    printAct->setEnabled(enable);
-    acceleratorsAct->setEnabled(enable);
-    endingPunctuationAct->setEnabled(enable);
-    phraseMatchesAct->setEnabled(enable);
-    placeMarkersAct->setEnabled(enable);
-    revertSortingAct->setEnabled(enable);
+    m_ui.actionSave->setEnabled(enable);
+    m_ui.actionSaveAs->setEnabled(enable);
+    m_ui.actionRelease->setEnabled(enable);
+    m_ui.actionReleaseAs->setEnabled(enable);
+    m_ui.actionPrint->setEnabled(enable);
+    m_ui.actionAccelerators->setEnabled(enable);
+    m_ui.actionEndingPunctuation->setEnabled(enable);
+    m_ui.actionPhraseMatches->setEnabled(enable);
+    m_ui.actionPlaceMarkerMatches->setEnabled(enable);
+    m_ui.actionRevertSorting->setEnabled(enable);
 
     if (filename.isEmpty())
         cap = tr("Qt Linguist by Trolltech");
     else
-        cap = tr("%1 - %2").arg( tr("Qt Linguist by Trolltech"))
-        .arg(filename);
+        cap = tr("%1 - %2%3").arg( tr("Qt Linguist by Trolltech"))
+        .arg(filename).arg(cmdl->isModified() ? "*" : "");
     setWindowTitle(cap);
-    modified->setEnabled(dirty);
-}
-
-//
-// New scope selected - select a new list of source text items
-// for that scope.
-//
-void TrWindow::showNewScope(const QModelIndex &current, const QModelIndex &old)
-{
-    stv->clearSelection();
-    statusBar()->clearMessage();
-
-    if (current.isValid()) {
-        ContextItem *c = cmdl->contextItem(current);
-        mmdl->setContextItem(c);
-        Qt::SortOrder sortOrder;
-        int sortColumn;
-
-        if (c->sortParameters(sortOrder, sortColumn)) {
-            stv->header()->setSortIndicator(sortColumn, sortOrder);
-            stv->header()->setSortIndicatorShown(true);
-        }
-        else {
-            stv->header()->setSortIndicatorShown(false);
-        }
-    }
-
-    Q_UNUSED(old);
+    modified->setEnabled(cmdl->isModified());
 }
 
 void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old)
 {
-    ContextItem *c = mmdl->contextItem();
-
     if (current.isValid()) {
-        MessageItem *m = c->messageItem(current.row());
+        MessageItem *m = cmdl->messageItem(current);
+        ContextItem *c = cmdl->contextItem(current);
+        if (m && c) {
+            me->showMessage(m->sourceText(), m->comment(), c->fullContext(),
+                m->translation(), m->message().type(), getPhrases(m->sourceText()));
+            if (m->danger())
+                printDanger(m);
+            else
+                statusBar()->clearMessage();
 
-        me->showMessage(m->sourceText(), m->comment(), c->fullContext(),
-            m->translation(), m->message().type(), getPhrases(m->sourceText()));
-        if (m->danger())
-            printDanger(m);
-        else
-            statusBar()->clearMessage();
-
-        doneAndNextAct->setEnabled(m->message().type() !=
-            MetaTranslatorMessage::Obsolete);
+            m_ui.actionDoneAndNext->setEnabled(m->message().type() !=
+                MetaTranslatorMessage::Obsolete);
+        } else {
+            me->showNothing();
+        }
     }
     else {
         me->showNothing();
-        doneAndNextAct->setEnabled(false);
+        m_ui.actionDoneAndNext->setEnabled(false);
     }
 
-    doneAndNextAlt->setEnabled(doneAndNextAct->isEnabled());
-    //selectAllAct->setEnabled(doneAndNextAct->isEnabled());
+    m_ui.actionDoneAndNextAlt->setEnabled(m_ui.actionDoneAndNext->isEnabled());
+    m_ui.actionSelectAll->setEnabled(m_ui.actionDoneAndNext->isEnabled());
 
     Q_UNUSED(old);
 }
 
-void TrWindow::insertMessage(MessageItem *m)
-{
-    if (!dirty) {
-        dirty = true;
-        updateCaption();
-    }
-
-    tor.insert(m->message());
-}
-
 void TrWindow::updateTranslation(const QString &translation)
 {
-    QModelIndex item = stv->currentIndex();
+    QModelIndex item = tv->currentIndex();
     if (!item.isValid())
         return;
 
-    ContextItem *c = mmdl->contextItem();
-    MessageItem *m = c->messageItem(item.row());
+    MessageItem *m = cmdl->messageItem(item);
+    if (m) {
+        if (translation != m->translation()) {
+            m->setTranslation(translation);
 
-    if (translation != m->translation()) {
+            updateDanger(m, true);
+            cmdl->updateItem(item);
+
+            if (m->finished()) {
+                updateFinished(false);
+            } else {
+                cmdl->setModified(true);
+                updateCaption();
+            }
+        }
+    }
+}
+
+/**
+ * Updates the translation in *both* the MessageModel and in the flat MetaTranslator 'model'.
+ */
+void TrWindow::updateTranslation(int context, int message, const QString &translation)
+{
+    MessageItem *m = cmdl->messageItem(context, message);
+
+    if (m && translation != m->translation()) {
         m->setTranslation(translation);
 
         updateDanger(m, true);
-        mmdl->updateItem(item);
 
         if (m->finished())
             updateFinished(false);
         else
-            insertMessage(m);
+            updateCaption();
+
+        // Notify the view(s)
+        QModelIndex idx = cmdl->modelIndex(context, message);
+        cmdl->updateItem(idx);
     }
 }
 
+void TrWindow::updateFinished(int context, int message, bool finished)
+{
+    MessageItem *m = cmdl->messageItem(context, message);
+    if (finished != m->finished()) {
+        m->setFinished(finished);
+        updateProgress();
+        updateCaption();
+        updateStatistics();
+
+        // Notify the view(s)
+        QModelIndex idx = cmdl->modelIndex(context, message);
+        cmdl->updateItem(idx);
+    }
+}
+
+
 void TrWindow::updateFinished(bool finished)
 {
-    QModelIndex item = stv->currentIndex();
+    QModelIndex item = tv->currentIndex();
     if (!item.isValid())
         return;
-
-    ContextItem *c = mmdl->contextItem();
-    MessageItem *m = c->messageItem(item.row());
-
+    MessageItem *m = cmdl->messageItem(item);
     if (finished != m->finished()) {
-        numFinished += finished ? +1 : -1;
-        updateProgress();
         m->setFinished(finished);
-        mmdl->updateItem(item);
-        insertMessage(m);
-        cmdl->updateItem(tv->currentIndex());
+        updateProgress();
+        updateCaption();
         updateStatistics();
+
+        cmdl->updateItem(item);
     }
 }
 
 void TrWindow::doneAndNext()
 {
-    if (!stv->currentIndex().isValid())
+    if (!tv->currentIndex().isValid())
         return;
 
-    ContextItem *c = mmdl->contextItem();
-    MessageItem *m = c->messageItem(stv->currentIndex().row());
+    MessageItem *m = cmdl->messageItem(tv->currentIndex());
 
     if (!m->danger()) {
         updateFinished(true);
@@ -997,11 +1082,10 @@ void TrWindow::doneAndNext()
 
 void TrWindow::toggleFinished(const QModelIndex &index)
 {
-    if (!index.isValid() || (index.column() != 0))
+    if ( !index.isValid() || (index.column() != 0) || (index.parent() == QModelIndex()) )
         return;
 
-    ContextItem *c = mmdl->contextItem();
-    MessageItem *m = c->messageItem(index.row());
+    MessageItem *m = cmdl->messageItem(index);
 
     if (m->message().type() == MetaTranslatorMessage::Obsolete)
         return;
@@ -1026,25 +1110,6 @@ int TrWindow::findCurrentContextRow()
     return 0;
 }
 
-int TrWindow::findCurrentMessageRow()
-{
-    ContextItem *cntxt = mmdl->contextItem();
-
-    if (cntxt == 0)
-        return -2;
-
-    QModelIndex index = stv->selectionModel()->currentIndex();
-    if (index.isValid())
-        return index.row();
-
-    //if no message is selected, select the first one.. if it exists
-    if (cntxt->messageItemsInList() <= 0)
-        return -2; //no messages in this context
-
-    setCurrentMessageRow(0);
-    return -1; // so that the next message will be 0
-}
-
 bool TrWindow::setNextContext(int *currentrow, bool checkUnfinished)
 {
     QModelIndex mindx;
@@ -1057,7 +1122,7 @@ bool TrWindow::setNextContext(int *currentrow, bool checkUnfinished)
         }
 
         mindx = cmdl->index(*currentrow, 0);
-        if (cmdl->contextItem(mindx)->unfinished() > 0) {
+        if (cmdl->contextItem(mindx)->unFinishedCount() > 0) {
             setCurrentContext(mindx);
             return true; // found a unfinished context
         }
@@ -1078,7 +1143,7 @@ bool TrWindow::setPrevContext(int *currentrow, bool checkUnfinished)
         }
 
         mindx = cmdl->index(*currentrow, 0);
-        if (cmdl->contextItem(mindx)->unfinished() > 0) {
+        if (cmdl->contextItem(mindx)->unFinishedCount() > 0) {
             setCurrentContext(mindx);
             return true; // found a unfinished context
         }
@@ -1087,51 +1152,80 @@ bool TrWindow::setPrevContext(int *currentrow, bool checkUnfinished)
     return false; // done
 }
 
-bool TrWindow::setNextMessage(int *currentrow, bool checkUnfinished)
+bool TrWindow::setNextMessage(QModelIndex *currentIndex, bool checkUnfinished)
 {
-    ContextItem *cntxt = mmdl->contextItem();
-    ++(*currentrow);
+    bool found = false;
+    if (currentIndex->isValid()) {
+        QModelIndex idx = *currentIndex;
+        do {
+            int row = 0;
+            QModelIndex par = idx.parent();
+            if (par.isValid()) {
+                row = idx.row() + 1;
+            } else {        //In case we are located on a top-level node
+                par = idx;
+            }
 
-    for (; *currentrow < cntxt->messageItemsInList(); ++(*currentrow)) {
-        if (!checkUnfinished) {
-            setCurrentMessageRow(*currentrow);
-            return true; //it is one more item
-        }
+            if (row >= cmdl->rowCount(par)) {
+                int toprow = par.row() + 1;
+                if (toprow >= cmdl->rowCount()) toprow = 0;
+                par = cmdl->index(toprow, 0);
+                row = 0;
+                idx = cmdl->index(row, 1, par);
+            } else {
+                idx = cmdl->index(row, 1, par);
+            }
+            found = checkUnfinished ? !cmdl->finished(idx) : true;
+            if (idx == *currentIndex) break;
+        } while(!found);
 
-        if (!cntxt->messageItem(*currentrow)->finished())
-        {
-            setCurrentMessageRow(*currentrow);
-            return true; // found a unfinished message
+        if (found) {
+            *currentIndex = idx;
+            tv->setCurrentIndex(*currentIndex);
         }
     }
-
-    return false; // done in this context
+    return found;
 }
 
-bool TrWindow::setPrevMessage(int *currentrow, bool checkUnfinished)
+bool TrWindow::setPrevMessage(QModelIndex *currentIndex, bool checkUnfinished)
 {
-    ContextItem *cntxt = mmdl->contextItem();
-    --(*currentrow);
+    bool found = false;
+    if (currentIndex->isValid()) {
+        QModelIndex idx = *currentIndex;
+        do {
+            int row = idx.row() - 1;
+            QModelIndex par = idx.parent();
+            if (par.isValid()) {
+                row = idx.row() - 1;
+            } else {        //In case we are located on a top-level node
+                par = cmdl->index(row, 0);
+                row = cmdl->rowCount(par) - 1;
+            }
 
-    for (; *currentrow >= 0; --(*currentrow)) {
-        if (!checkUnfinished) {
-            setCurrentMessageRow(*currentrow);
-            return true; //it is one more item
-        }
+            if (row < 0) {
+                int toprow = par.row() - 1;
+                if (toprow < 0) toprow = cmdl->rowCount() - 1;
+                par = cmdl->index(toprow, 0);
+                row = cmdl->rowCount(par) - 1;
+                idx = cmdl->index(row, 1, par);
+            } else {
+                idx = cmdl->index(row, 1, par);
+            }
+            found = checkUnfinished ? !cmdl->finished(idx) : true;
+            if (idx == *currentIndex) break;
+        } while(!found);
 
-        if (!cntxt->messageItem(*currentrow)->finished())
-        {
-            setCurrentMessageRow(*currentrow);
-            return true; // found a unfinished message
+        if (found) {
+            *currentIndex = idx;
+            tv->setCurrentIndex(*currentIndex);
         }
     }
-
-    return false; // done in this context
+    return found;
 }
 
 void TrWindow::nextUnfinished()
 {
-    if (nextUnfinishedAct->isEnabled()) {
+    if (m_ui.actionNextUnfinished->isEnabled()) {
         if (!next(true)) {
             // If no Unfinished message is left, the user has finished the job.  We
             // congratulate on a job well done with this ringing bell.
@@ -1143,7 +1237,7 @@ void TrWindow::nextUnfinished()
 
 void TrWindow::prevUnfinished()
 {
-    if (nextUnfinishedAct->isEnabled()) {
+    if (m_ui.actionNextUnfinished->isEnabled()) {
         if (!prev(true)) {
             // If no Unfinished message is left, the user has finished the job.  We
             // congratulate on a job well done with this ringing bell.
@@ -1155,60 +1249,19 @@ void TrWindow::prevUnfinished()
 
 void TrWindow::prev()
 {
-    if(prev(false))
-        stv->scrollTo(stv->currentIndex());
+    prev(false);
 }
 
 bool TrWindow::prev(bool checkUnfinished)
 {
-    int curContext = findCurrentContextRow();
-    int curMessage = findCurrentMessageRow();
-
-    if ((curMessage != -2) && setPrevMessage(&curMessage, checkUnfinished))
-        return true; // found it!
-
-    // search the other contexts
-    while (setPrevContext(&curContext, checkUnfinished)) {
-        curMessage = mmdl->contextItem()->messageItemsInList();
-        if (setPrevMessage(&curMessage, checkUnfinished))
-            return true; // found it!
-    }
-
-    // search all the messages in all the contexts, from bottom
-    curContext = cmdl->contextsInList();
-    while (setPrevContext(&curContext, checkUnfinished)) {
-        curMessage = mmdl->contextItem()->messageItemsInList();
-        if (setPrevMessage(&curMessage, checkUnfinished))
-            return true; // found it!
-    }
-
-    return false;
+    QModelIndex current = tv->currentIndex();
+    return setPrevMessage(&current, checkUnfinished);    
 }
 
 bool TrWindow::next(bool checkUnfinished)
 {
-    int curContext = findCurrentContextRow();
-    int curMessage = findCurrentMessageRow();
-
-    if ((curMessage != -2) && setNextMessage(&curMessage, checkUnfinished))
-        return true; // found it!
-
-    // search the other contexts
-    while (setNextContext(&curContext, checkUnfinished)) {
-        curMessage = -1;
-        if (setNextMessage(&curMessage, checkUnfinished))
-            return true; // found it!
-    }
-
-    // search all the messages in all the contexts, from top
-    curContext = -1;
-    while (setNextContext(&curContext, checkUnfinished)) {
-        curMessage = -1;
-        if (setNextMessage(&curMessage, checkUnfinished))
-            return true; // found it!
-    }
-
-    return false;
+    QModelIndex current = tv->currentIndex();
+    return setNextMessage(&current, checkUnfinished);
 }
 
 void TrWindow::next()
@@ -1224,7 +1277,7 @@ void TrWindow::findNext(const QString &text, int where, bool matchCase)
     findText = text;
     findWhere = where;
     findMatchCase = matchCase;
-    findAgainAct->setEnabled(true);
+    m_ui.actionFindNext->setEnabled(true);
     findAgain();
 }
 
@@ -1241,8 +1294,8 @@ void TrWindow::revalidate()
         for (int mi=0; mi<c->messageItemsInList(); ++mi) {
             m = c->messageItem(mi);
             updateDanger(m);
-            if (mmdl->contextItem() == c)
-                mmdl->updateItem(mmdl->index(mi, 0));
+            //if (cmdl->contextItem() == c)
+            //    cmdl->updateItem(cmdl->index(mi, 0));
         }
         cmdl->updateItem(cmdl->index(ci, 0));
     }
@@ -1258,262 +1311,127 @@ QString TrWindow::friendlyString(const QString& str)
     return f;
 }
 
+
 void TrWindow::setupMenuBar()
 {
-    QMenuBar *m = menuBar();
-    QMenu *filep = new QMenu(this);
-    QMenu *editp  = new QMenu(this);
-    QMenu *translationp = new QMenu(this);
-    QMenu *validationp = new QMenu(this);
-    phrasep = new QMenu(this);
-    closePhraseBookp = new QMenu(this);
-    editPhraseBookp = new QMenu(this);
-    printPhraseBookp = new QMenu(this);
-    QMenu *viewp = new QMenu(this);
-    QMenu *helpp = new QMenu(this);
-
-    m->addMenu(filep)->setText(tr("&File"));
-    m->addMenu(editp)->setText(tr("&Edit"));
-    m->addMenu(translationp)->setText(tr("&Translation"));
-    m->addMenu(validationp)->setText(tr("V&alidation"));
-    m->addMenu(phrasep)->setText(tr("&Phrases"));
-    m->addMenu(viewp)->setText(tr("&View"));
-    m->addMenu(helpp)->setText(tr("&Help"));
-
-    connect(closePhraseBookp, SIGNAL(triggered(QAction*)),
-        this, SLOT(closePhraseBook(QAction*)));
-    connect(editPhraseBookp, SIGNAL(triggered(QAction*)),
-        this, SLOT(editPhraseBook(QAction*)));
-    connect(printPhraseBookp, SIGNAL(triggered(QAction*)),
-        this, SLOT(printPhraseBook(QAction*)));
+    m_ui.setupUi(this);
+    m_ui.actionAccelerators->setIcon(QIcon(rsrcString + "/accelerator.png"));
+    m_ui.actionOpenPhraseBook->setIcon(QIcon(rsrcString + "/book.png"));
+    m_ui.actionDoneAndNext->setIcon(QIcon(rsrcString + "/doneandnext.png"));
+    m_ui.actionCopy->setIcon(QIcon(rsrcString + "/editcopy.png"));
+    m_ui.actionCut->setIcon(QIcon(rsrcString + "/editcut.png"));
+    m_ui.actionPaste->setIcon(QIcon(rsrcString + "/editpaste.png"));
+    m_ui.actionOpen->setIcon(QIcon(rsrcString + "/fileopen.png"));
+    m_ui.actionSave->setIcon(QIcon(rsrcString + "/filesave.png"));
+    m_ui.actionNext->setIcon(QIcon(rsrcString + "/next.png"));
+    m_ui.actionNextUnfinished->setIcon(QIcon(rsrcString + "/nextunfinished.png"));
+    m_ui.actionPhraseMatches->setIcon(QIcon(rsrcString + "/phrase.png"));
+    m_ui.actionEndingPunctuation->setIcon(QIcon(rsrcString + "/punctuation.png"));
+    m_ui.actionPrev->setIcon(QIcon(rsrcString + "/prev.png"));
+    m_ui.actionPrevUnfinished->setIcon(QIcon(rsrcString + "/prevunfinished.png"));
+    m_ui.actionPrint->setIcon(QIcon(rsrcString + "/print.png"));
+    m_ui.actionRedo->setIcon(QIcon(rsrcString + "/redo.png"));
+    m_ui.actionFind->setIcon(QIcon(rsrcString + "/searchfind.png"));
+    m_ui.actionUndo->setIcon(QIcon(rsrcString + "/undo.png"));
+    m_ui.actionPlaceMarkerMatches->setIcon(QIcon(rsrcString + "/validateplacemarkers.png"));
+    m_ui.actionWhatsThis->setIcon(QIcon(rsrcString + "/whatsthis.png"));
+    
 
     // File menu
-    openAct = filep->addAction(QIcon(rsrcString + "/fileopen.png"),
-        tr("&Open..."), this, SLOT(open()));
-    openAct->setShortcut(QKeySequence("Ctrl+O"));
-    filep->addSeparator();
-    saveAct = filep->addAction(QIcon(rsrcString + "/filesave.png"),
-        tr("&Save"), this, SLOT(save()));
-    saveAct->setShortcut(QKeySequence("Ctrl+S"));
-    saveAsAct = filep->addAction(tr("Save &As..."), this, SLOT(saveAs()));
-    releaseAct = filep->addAction(tr("&Release..."), this, SLOT(release()));
-    filep->addSeparator();
-    printAct = filep->addAction(QIcon(rsrcString + "/print.png"),
-        tr("&Print..."), this, SLOT(print()));
-    printAct->setShortcut(QKeySequence("Ctrl+P"));
-    filep->addSeparator();
+    connect(m_ui.actionOpen, SIGNAL(triggered()), this, SLOT(open()));
+    connect(m_ui.actionSave, SIGNAL(triggered()), this, SLOT(save()));
+    connect(m_ui.actionSaveAs, SIGNAL(triggered()), this, SLOT(saveAs()));
+    connect(m_ui.actionRelease, SIGNAL(triggered()), this, SLOT(release()));
+    connect(m_ui.actionReleaseAs, SIGNAL(triggered()), this, SLOT(releaseAs()));
+    connect(m_ui.actionPrint, SIGNAL(triggered()), this, SLOT(print()));
+    connect(m_ui.actionExit, SIGNAL(triggered()), this, SLOT(close()));
 
-    recentFilesMenu = new QMenu(this);
-    filep->addMenu(recentFilesMenu)->setText(tr("Re&cently opened files"));
-    connect(filep, SIGNAL(aboutToShow()), this,
-        SLOT(setupRecentFilesMenu()));
-    connect(recentFilesMenu, SIGNAL(triggered(QAction*)), this,
-        SLOT(recentFileActivated(QAction*)));
-
-    filep->addSeparator();
-
-    exitAct = filep->addAction(tr("E&xit"), this, SLOT(close()));
-    exitAct->setShortcut(QKeySequence("Ctrl+Q"));
     // Edit menu
-    undoAct = editp->addAction(QIcon(rsrcString + "/undo.png"), tr("&Undo"), me, SLOT(undo()));
-    undoAct->setShortcut(QKeySequence("Ctrl+Z"));
-    undoAct->setEnabled(false);
-    connect(me, SIGNAL(undoAvailable(bool)), undoAct, SLOT(setEnabled(bool)));
-    redoAct = editp->addAction(QIcon(rsrcString + "/redo.png"), tr("&Redo"), me, SLOT(redo()));
-    redoAct->setShortcut(QKeySequence("Ctrl+Y"));
-    redoAct->setEnabled(false);
-    connect(me, SIGNAL(redoAvailable(bool)), redoAct, SLOT(setEnabled(bool)));
-    editp->addSeparator();
-    cutAct = editp->addAction(QIcon(rsrcString + "/editcut.png"), tr("Cu&t"), me, SLOT(cut()));
-    cutAct->setShortcut(QKeySequence("Ctrl+X"));
-    cutAct->setEnabled(false);
-    connect(me, SIGNAL(cutAvailable(bool)), cutAct, SLOT(setEnabled(bool)));
-    copyAct = editp->addAction(QIcon(rsrcString + "/editcopy.png"), tr("&Copy"), me, SLOT(copy()));
-    copyAct->setShortcut(QKeySequence("Ctrl+C"));
-    copyAct->setEnabled(false);
-    connect(me, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)));
-    pasteAct = editp->addAction(QIcon(rsrcString + "/editpaste.png"), tr("&Paste"), me, SLOT(paste()));
-    pasteAct->setShortcut(QKeySequence("Ctrl+V"));
-    pasteAct->setEnabled(false);
-    connect(me, SIGNAL(pasteAvailable(bool)), pasteAct, SLOT(setEnabled(bool)));
-    selectAllAct = editp->addAction(tr("Select &All"), me, SLOT(selectAll()));
-    selectAllAct->setShortcut(QKeySequence("Ctrl+A"));
-    selectAllAct->setEnabled(false);
-    editp->addSeparator();
-    findAct = editp->addAction(QIcon(rsrcString + "/searchfind.png"), tr("&Find..."), this, SLOT(find()));
-    findAct->setShortcut(QKeySequence("Ctrl+F"));
-    findAct->setEnabled(false);
-    findAgainAct = editp->addAction(tr("Find &Next"), this, SLOT(findAgain()));
-    findAgainAct->setShortcut(Qt::Key_F3);
-    findAgainAct->setEnabled(false);
+    connect(m_ui.actionUndo, SIGNAL(triggered()), me, SLOT(undo()));
+    connect(me, SIGNAL(undoAvailable(bool)), m_ui.actionUndo, SLOT(setEnabled(bool)));
 
+    connect(m_ui.actionRedo, SIGNAL(triggered()), me, SLOT(redo()));
+    connect(me, SIGNAL(redoAvailable(bool)), m_ui.actionRedo, SLOT(setEnabled(bool)));
+
+    connect(m_ui.actionCopy, SIGNAL(triggered()), me, SLOT(copy()));
+    connect(me, SIGNAL(copyAvailable(bool)), m_ui.actionCopy, SLOT(setEnabled(bool)));
+
+    connect(me, SIGNAL(cutAvailable(bool)), m_ui.actionCut, SLOT(setEnabled(bool)));
+    connect(m_ui.actionCut, SIGNAL(triggered()), me, SLOT(cut()));
+
+    connect(me, SIGNAL(pasteAvailable(bool)), m_ui.actionPaste, SLOT(setEnabled(bool)));
+    connect(m_ui.actionPaste, SIGNAL(triggered()), me, SLOT(paste()));
+
+    connect(m_ui.actionSelectAll, SIGNAL(triggered()), me, SLOT(selectAll()));
+    connect(m_ui.actionFind, SIGNAL(triggered()), this, SLOT(find()));
+    connect(m_ui.actionFindNext, SIGNAL(triggered()), this, SLOT(findAgain()));
+    connect(m_ui.actionSearchAndTranslate, SIGNAL(triggered()), this, SLOT(showTranslateDialog()));
+    connect(m_ui.actionBatchTranslation, SIGNAL(triggered()), this, SLOT(showBatchTranslateDialog()));
+    
     // Translation menu
     // when updating the accelerators, remember the status bar
-    prevUnfinishedAct = translationp->addAction(QIcon(rsrcString + "/prevunfinished.png"),
-        tr("&Prev Unfinished"), this, SLOT(prevUnfinished()));
-    prevUnfinishedAct->setShortcut(QKeySequence("Ctrl+K"));
-    nextUnfinishedAct = translationp->addAction(QIcon(rsrcString + "/nextunfinished.png"),
-        tr("&Next Unfinished"), this, SLOT(nextUnfinished()));
-    nextUnfinishedAct->setShortcut(QKeySequence("Ctrl+L"));
-
-    prevAct = translationp->addAction(QIcon(rsrcString + "/prev.png"), tr("P&rev"),
-                          this, SLOT(prev()));
-    prevAct->setShortcut(QKeySequence("Ctrl+Shift+K"));
-    nextAct = translationp->addAction(QIcon(rsrcString + "/next.png"), tr("Ne&xt"),
-                          this, SLOT(next()));
-    nextAct->setShortcut(QKeySequence("Ctrl+Shift+L"));
-    doneAndNextAct = translationp->addAction(QIcon(rsrcString + "/doneandnext.png"), tr("Done and &Next"),
-                                 this, SLOT(doneAndNext()));
-    doneAndNextAct->setShortcut(QKeySequence("Ctrl+Enter"));
-    doneAndNextAct->setEnabled(false);
-
-    doneAndNextAlt = new QAction(this);
-    doneAndNextAlt->setShortcut(QKeySequence("Ctrl+Return"));
-    doneAndNextAlt->setEnabled(false);
-    connect(doneAndNextAlt, SIGNAL(triggered()), this, SLOT(doneAndNext()));
-    addAction(doneAndNextAlt);
-
-    beginFromSourceAct = translationp->addAction(tr("&Begin from Source"),
-        me, SLOT(beginFromSource()));
-    beginFromSourceAct->setShortcut(QKeySequence("Ctrl+B"));
-    beginFromSourceAct->setEnabled(false);
-    connect(me, SIGNAL(updateActions(bool)), beginFromSourceAct, SLOT(setEnabled(bool)));
+    connect(m_ui.actionPrevUnfinished, SIGNAL(triggered()), this, SLOT(prevUnfinished()));
+    connect(m_ui.actionNextUnfinished, SIGNAL(triggered()), this, SLOT(nextUnfinished()));
+    connect(m_ui.actionNext, SIGNAL(triggered()), this, SLOT(next()));
+    connect(m_ui.actionPrev, SIGNAL(triggered()), this, SLOT(prev()));
+    connect(m_ui.actionPrev, SIGNAL(triggered()), this, SLOT(prev()));
+    connect(m_ui.actionDoneAndNext, SIGNAL(triggered()), this, SLOT(doneAndNext()));
+    connect(m_ui.actionBeginFromSource, SIGNAL(triggered()), me, SLOT(beginFromSource()));
+    connect(me, SIGNAL(updateActions(bool)), m_ui.actionBeginFromSource, SLOT(setEnabled(bool)));
 
     // Phrasebook menu
-    newPhraseBookAct = phrasep->addAction(tr("&New Phrase Book..."),
-        this, SLOT(newPhraseBook()));
-    newPhraseBookAct->setShortcut(QKeySequence("Ctrl+N"));
-    openPhraseBookAct = phrasep->addAction(QIcon(rsrcString + "/book.png"), tr("&Open Phrase Book..."),
-        this, SLOT(openPhraseBook()));
-    openPhraseBookAct->setShortcut(QKeySequence("Ctrl+H"));
-    closePhraseBookId = phrasep->addMenu(closePhraseBookp);
-    closePhraseBookId->setText(tr("&Close Phrase Book"));
-    phrasep->addSeparator();
-    editPhraseBookId = phrasep->addMenu(editPhraseBookp);
-    editPhraseBookId->setText(tr("&Edit Phrase Book..."));
-    printPhraseBookId = phrasep->addMenu(printPhraseBookp);
-    printPhraseBookId->setText(tr("&Print Phrase Book..."));
-    connect(phrasep, SIGNAL(aboutToShow()), this, SLOT(setupPhrase()));
+    connect(m_ui.actionNewPhraseBook, SIGNAL(triggered()), this, SLOT(newPhraseBook()));
+    connect(m_ui.actionOpenPhraseBook, SIGNAL(triggered()), this, SLOT(openPhraseBook()));
+    connect(m_ui.menuClosePhraseBook, SIGNAL(triggered(QAction*)),
+        this, SLOT(closePhraseBook(QAction*)));
+    connect(m_ui.menuEditPhraseBook, SIGNAL(triggered(QAction*)),
+        this, SLOT(editPhraseBook(QAction*)));
+    connect(m_ui.menuPrintPhraseBook, SIGNAL(triggered(QAction*)),
+        this, SLOT(printPhraseBook(QAction*)));
 
     // Validation menu
-    acceleratorsAct = validationp->addAction(QIcon(rsrcString + "/accelerator.png"), tr("&Accelerators"),
-        this, SLOT(revalidate()));
-    acceleratorsAct->setCheckable(true);
-    acceleratorsAct->setChecked(true);
-    endingPunctuationAct = validationp->addAction(QIcon(rsrcString + "/punctuation.png"), tr("&Ending Punctuation"),
-        this, SLOT(revalidate()));
-    endingPunctuationAct->setCheckable(true);
-    endingPunctuationAct->setChecked(true);
-    phraseMatchesAct = validationp->addAction(QIcon(rsrcString + "/phrase.png"), tr("&Phrase Matches"),
-        this, SLOT(revalidate()));
-    phraseMatchesAct->setCheckable(true);
-    phraseMatchesAct->setChecked(true);
-    placeMarkersAct = validationp->addAction(QIcon(rsrcString + "/validateplacemarkers.png"), tr("&Place marker matches"),
-        this, SLOT(revalidate()));
-    placeMarkersAct->setCheckable(true);
-    placeMarkersAct->setChecked(true);
+    connect(m_ui.actionAccelerators, SIGNAL(triggered()), this, SLOT(revalidate()));
+    connect(m_ui.actionEndingPunctuation, SIGNAL(triggered()), this, SLOT(revalidate()));
+    connect(m_ui.actionPhraseMatches, SIGNAL(triggered()), this, SLOT(revalidate()));
+    connect(m_ui.actionPlaceMarkerMatches, SIGNAL(triggered()), this, SLOT(revalidate()));
 
     // View menu
-    revertSortingAct = viewp->addAction(tr("&Revert Sorting"),
-                                   this, SLOT(revertSorting()));
-    doGuessesAct = viewp->addAction(tr("&Display guesses"),
-                               this, SLOT(toggleGuessing()));
-    doGuessesAct->setCheckable(true);
-    doGuessesAct->setChecked(true);
-    toggleStats = viewp->addAction(tr("&Statistics"), this, SLOT(toggleStatistics()));
-    toggleStats->setCheckable(true);
-    viewp->addSeparator();
+    connect(m_ui.actionRevertSorting, SIGNAL(triggered()), this, SLOT(revertSorting()));
+    connect(m_ui.actionDisplayGuesses, SIGNAL(triggered()), this, SLOT(toggleGuessing()));
+    connect(m_ui.actionStatistics, SIGNAL(triggered()), this, SLOT(toggleStatistics()));
+    connect(m_ui.menuView, SIGNAL(aboutToShow()), this, SLOT(updateViewMenu()));
+    m_ui.menuViewViews->addAction( dwScope->toggleViewAction() );
+    m_ui.menuViewViews->addAction( me->phraseDockWnd()->toggleViewAction() );
 
-    tbMenu = new QMenu(this);
-    QMenu *dwMenu = new QMenu(this);
-    dwMenu->addAction(dwScope->toggleViewAction());
-    dwMenu->addAction(me->sourceDockWnd()->toggleViewAction());
-    dwMenu->addAction(me->phraseDockWnd()->toggleViewAction());
-
-    viewp->addMenu(tbMenu)->setText(tr("&Toolbars"));
-    viewp->addMenu(dwMenu)->setText(tr("Vie&ws"));
-
-    connect(viewp, SIGNAL(aboutToShow()), this,
-        SLOT(updateViewMenu()));
+    // Tools menu
+    connect(m_batchTranslateDlg, SIGNAL(finished()), this, SLOT(finishedBatchTranslation()));
+    connect(m_ui.actionPreviewForm, SIGNAL(triggered()), this, SLOT(previewForm()));
 
     // Help
-    manualAct = helpp->addAction(tr("&Manual"), this, SLOT(manual()));
-    manualAct->setShortcut(Qt::Key_F1);
-    helpp->addSeparator();
-    aboutAct = helpp->addAction(tr("&About"), this, SLOT(about()));
-    aboutQtAct = helpp->addAction(tr("About &Qt"), this, SLOT(aboutQt()));
-    helpp->addSeparator();
+    connect(m_ui.actionManual, SIGNAL(triggered()), this, SLOT(manual()));
+    connect(m_ui.actionAbout, SIGNAL(triggered()), this, SLOT(about()));
+    connect(m_ui.actionAboutQt, SIGNAL(triggered()), this, SLOT(aboutQt()));
+    connect(m_ui.actionWhatsThis, SIGNAL(triggered()), this, SLOT(onWhatsThis()));
 
-    whatsThisAct = helpp->addAction(QIcon(rsrcString + "/whatsthis.png"), tr("&What's This?"),
-                               this, SLOT(onWhatsThis()));
+    connect(m_ui.menuFile, SIGNAL(aboutToShow()), this,
+        SLOT(setupRecentFilesMenu()));
+    connect(m_ui.menuRecentlyOpenedFiles, SIGNAL(triggered(QAction*)), this,
+        SLOT(recentFileActivated(QAction*)));
 
-    whatsThisAct->setShortcut(Qt::SHIFT + Qt::Key_F1);
+    m_ui.actionManual->setWhatsThis(tr("Display the manual for %1.").arg(tr("Qt Linguist")));
+    m_ui.actionAbout->setWhatsThis(tr("Display information about %1.").arg(tr("Qt Linguist")));
+    m_ui.actionDoneAndNextAlt->setWhatsThis(m_ui.actionDoneAndNext->whatsThis());
 
-    openAct->setWhatsThis(tr("Open a Qt translation source file (TS file) for"
-        " editing."));
-    saveAct->setWhatsThis(tr("Save changes made to this Qt translation "
-        "source file."));
-    saveAsAct->setWhatsThis(tr("Save changes made to this Qt translation"
-        "source file into a new file."));
-    releaseAct->setWhatsThis(tr("Create a Qt message file suitable for"
-        " released applications"
-        " from the current message file."));
-    printAct->setWhatsThis(tr("Print a list of all the phrases in the current"
-        " Qt translation source file."));
-    exitAct->setWhatsThis(tr("Close this window and exit."));
-
-    undoAct->setWhatsThis(tr("Undo the last editing operation performed on the"
-        " translation."));
-    redoAct->setWhatsThis(tr("Redo an undone editing operation performed on"
-        " the translation."));
-    cutAct->setWhatsThis(tr("Copy the selected translation text to the"
-        " clipboard and deletes it."));
-    copyAct->setWhatsThis(tr("Copy the selected translation text to the"
-        " clipboard."));
-    pasteAct->setWhatsThis(tr("Paste the clipboard text into the"
-        " translation.") );
-    selectAllAct->setWhatsThis( tr("Select the whole translation text."));
-    findAct->setWhatsThis(tr("Search for some text in the translation "
-        "source file.") );
-    findAgainAct->setWhatsThis(tr("Continue the search where it was left."));
-
-    newPhraseBookAct->setWhatsThis(tr("Create a new phrase book."));
-    openPhraseBookAct->setWhatsThis(tr("Open a phrase book to assist"
-        " translation."));
-    acceleratorsAct->setWhatsThis(tr("Toggle validity checks of"
-        " accelerators."));
-    endingPunctuationAct->setWhatsThis(tr("Toggle validity checks"
-        " of ending punctuation."));
-    phraseMatchesAct->setWhatsThis(tr("Toggle checking that phrase"
-        " suggestions are used."));
-    placeMarkersAct->setWhatsThis(tr("Toggle validity checks of place markers."));
-    revertSortingAct->setWhatsThis(tr("Sort the items back in the same order"
-        " as in the message file."));
-
-    doGuessesAct->setWhatsThis(tr("Set whether or not to display translation guesses."));
-    manualAct->setWhatsThis(tr("Display the manual for %1.").arg(tr("Qt Linguist")));
-    aboutAct->setWhatsThis(tr("Display information about %1.").arg(tr("Qt Linguist")));
-    aboutQtAct->setWhatsThis(tr("Display information about the Qt toolkit by"
-        " Trolltech."));
-    whatsThisAct->setWhatsThis(tr("Enter What's This? mode."));
-
-    beginFromSourceAct->setWhatsThis(tr("Copies the source text into"
-        " the translation field."));
-    nextAct->setWhatsThis(tr("Moves to the next item."));
-    prevAct->setWhatsThis(tr("Moves to the previous item."));
-    nextUnfinishedAct->setWhatsThis(tr("Moves to the next unfinished item."));
-    prevUnfinishedAct->setWhatsThis(tr("Moves to the previous unfinished item."));
-    doneAndNextAct->setWhatsThis(tr("Marks this item as done and moves to the"
-        " next unfinished item."));
-    doneAndNextAlt->setWhatsThis(doneAndNextAct->whatsThis());
+    // Disable the Close/Edit/Print phrasebook menuitems if they are not loaded
+    connect(m_ui.menuPhrases, SIGNAL(aboutToShow()), this, SLOT(setupPhrase()));
 }
 
 void TrWindow::updateViewMenu()
 {
     if (stats)
-        toggleStats->setChecked(stats->isVisible());
+        m_ui.actionStatistics->setChecked(stats->isVisible());
     else
-        toggleStats->setChecked(false);
+        m_ui.actionStatistics->setChecked(false);
 }
 
 void TrWindow::onWhatsThis()
@@ -1527,61 +1445,63 @@ void TrWindow::setupToolBars()
     filet->setObjectName("FileToolbar");
     filet->setWindowTitle(tr("File"));
 	this->addToolBar(filet);
-    tbMenu->addAction(filet->toggleViewAction());
+    m_ui.menuToolbars->addAction(filet->toggleViewAction());
 
     QToolBar *editt = new QToolBar(this);
-    editt->setEnabled(false);
+    //editt->setEnabled(false);
     editt->setObjectName("EditToolbar");
     editt->setWindowTitle(tr("Edit"));
     this->addToolBar(editt);
-    tbMenu->addAction(editt->toggleViewAction());
+    m_ui.menuToolbars->addAction(editt->toggleViewAction());
 
     QToolBar *translationst = new QToolBar(this);
     translationst->setObjectName("TranslationToolbar");
     translationst->setWindowTitle(tr("Translation"));
 	this->addToolBar(translationst);
-    tbMenu->addAction(translationst->toggleViewAction());
+    m_ui.menuToolbars->addAction(translationst->toggleViewAction());
 
     QToolBar *validationt = new QToolBar(this);
     validationt->setObjectName("ValidationToolbar");
     validationt->setWindowTitle(tr("Validation"));
 	this->addToolBar(validationt);
-    tbMenu->addAction(validationt->toggleViewAction());
+    m_ui.menuToolbars->addAction(validationt->toggleViewAction());
 
     QToolBar *helpt = new QToolBar(this);
     helpt->setEnabled(false);
     helpt->setObjectName("HelpToolbar");
     helpt->setWindowTitle(tr("Help"));
 	this->addToolBar(helpt);
-    tbMenu->addAction(helpt->toggleViewAction());
+    m_ui.menuToolbars->addAction(helpt->toggleViewAction());
 
-    filet->addAction(openAct);
-    filet->addAction(saveAct);
-    filet->addAction(printAct);
+
+    filet->addAction(m_ui.actionOpen);
+    filet->addAction(m_ui.actionSave);
+    filet->addAction(m_ui.actionPrint);
     filet->addSeparator();
-    filet->addAction(openPhraseBookAct);
+    filet->addAction(m_ui.actionOpenPhraseBook);
 
-    editt->addAction(undoAct);
-    editt->addAction(redoAct);
+    editt->addAction(m_ui.actionUndo);
+    editt->addAction(m_ui.actionRedo);
     editt->addSeparator();
-    editt->addAction(cutAct);
-    editt->addAction(copyAct);
-    editt->addAction(pasteAct);
+    editt->addAction(m_ui.actionCut);
+    editt->addAction(m_ui.actionCopy);
+    editt->addAction(m_ui.actionPaste);
     editt->addSeparator();
-    editt->addAction(findAct);
+    editt->addAction(m_ui.actionFind);
 
-    translationst->addAction(prevAct);
-    translationst->addAction(nextAct);
-    translationst->addAction(prevUnfinishedAct);
-    translationst->addAction(nextUnfinishedAct);
-    translationst->addAction(doneAndNextAct);
+    translationst->addAction(m_ui.actionPrev);
+    translationst->addAction(m_ui.actionNext);
+    translationst->addAction(m_ui.actionPrevUnfinished);
+    translationst->addAction(m_ui.actionNextUnfinished);
+    translationst->addAction(m_ui.actionDoneAndNext);
 
-    validationt->addAction(acceleratorsAct);
-    validationt->addAction(endingPunctuationAct);
-    validationt->addAction(phraseMatchesAct);
-    validationt->addAction(placeMarkersAct);
+    validationt->addAction(m_ui.actionAccelerators);
+    validationt->addAction(m_ui.actionEndingPunctuation);
+    validationt->addAction(m_ui.actionPhraseMatches);
+    validationt->addAction(m_ui.actionPlaceMarkerMatches);
 
-    helpt->addAction(whatsThisAct);
+    helpt->addAction(m_ui.actionWhatsThis);
+
 }
 
 void TrWindow::setCurrentContext(const QModelIndex &indx)
@@ -1599,20 +1519,8 @@ void TrWindow::setCurrentContextRow(int row)
 
 void TrWindow::setCurrentMessage(const QModelIndex &indx)
 {
-    stv->setCurrentIndex(indx);
-    stv->scrollTo(indx);
-}
-
-void TrWindow::setCurrentMessageRow(int row)
-{
-    QModelIndex mdlI = mmdl->index(row,1);
-    stv->setCurrentIndex(mdlI);
-    stv->scrollTo(mdlI);
-}
-
-QString TrWindow::friendlyPhraseBookName(const PhraseBook &pb) const
-{
-    return QFileInfo(pb.fileName()).fileName();
+    tv->setCurrentIndex(indx);
+    tv->scrollTo(indx);
 }
 
 bool TrWindow::openPhraseBook(const QString& name)
@@ -1624,19 +1532,22 @@ bool TrWindow::openPhraseBook(const QString& name)
         return false;
     }
 
-    QAction *a = closePhraseBookp->addAction(friendlyPhraseBookName(pb));
+    QAction *a = m_ui.menuClosePhraseBook->addAction(pb.friendlyPhraseBookName());
     phraseBooks[PhraseCloseMenu].insert(a, pb);
     a->setWhatsThis(tr("Close this phrase book."));
 
-    a = editPhraseBookp->addAction(friendlyPhraseBookName(pb));
+    a = m_ui.menuEditPhraseBook->addAction(pb.friendlyPhraseBookName());
     phraseBooks[PhraseEditMenu].insert(a, pb);
     a->setWhatsThis(tr("Allow you to add, modify, or delete"
         " phrases of this phrase book."));
-    a = printPhraseBookp->addAction(friendlyPhraseBookName(pb));
+
+    a = m_ui.menuPrintPhraseBook->addAction(pb.friendlyPhraseBookName());
     phraseBooks[PhrasePrintMenu].insert(a, pb);
     a->setWhatsThis(tr("Print the entries of the phrase"
         " book."));
+    
     updatePhraseDict();
+    m_ui.actionBatchTranslation->setEnabled(phraseBooks[PhraseCloseMenu].count() > 0);
     return true;
 }
 
@@ -1655,16 +1566,18 @@ bool TrWindow::savePhraseBook(QString &name, const PhraseBook &pb)
 
 void TrWindow::updateProgress()
 {
+    int numNonobsolete = cmdl->getNumNonobsolete();
+    int numFinished = cmdl->getNumFinished();
     if (numNonobsolete == 0)
         progress->setText(QString("    " "    "));
     else
         progress->setText(QString(" %1/%2 ").arg(numFinished)
         .arg(numNonobsolete));
-    prevUnfinishedAct->setEnabled(numFinished != numNonobsolete);
-    nextUnfinishedAct->setEnabled(numFinished != numNonobsolete);
+    m_ui.actionPrevUnfinished->setEnabled(numFinished != numNonobsolete);
+    m_ui.actionNextUnfinished->setEnabled(numFinished != numNonobsolete);
 
-    prevAct->setEnabled(cmdl->contextsInList() > 0);
-    nextAct->setEnabled(cmdl->contextsInList() > 0);
+    m_ui.actionPrev->setEnabled(cmdl->contextsInList() > 0);
+    m_ui.actionNext->setEnabled(cmdl->contextsInList() > 0);
 }
 
 void TrWindow::updatePhraseDict()
@@ -1723,7 +1636,7 @@ bool TrWindow::updateDanger(MessageItem *m, bool verbose)
 bool TrWindow::danger( const QString& source, const QString& translation,
                        bool verbose )
 {
-    if (acceleratorsAct->isChecked()) {
+    if (m_ui.actionAccelerators->isChecked()) {
         bool sk = source.contains(Qt::Key_Ampersand);
         bool tk = translation.contains(Qt::Key_Ampersand);
 
@@ -1739,7 +1652,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
             return true;
         }
     }
-    if (endingPunctuationAct->isChecked()) {
+    if (m_ui.actionEndingPunctuation->isChecked()) {
         if (ending(source) != ending(translation)) {
             if (verbose)
                 statusBar()->showMessage(tr("Translation does not end with the"
@@ -1747,7 +1660,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
             return true;
         }
     }
-    if (phraseMatchesAct->isChecked()) {
+    if (m_ui.actionPhraseMatches->isChecked()) {
         QString fsource = friendlyString(source);
         QString ftranslation = friendlyString(translation);
         QStringList lookupWords = fsource.split(QChar(' '));
@@ -1774,7 +1687,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
         }
     }
 
-    if (placeMarkersAct->isChecked()) {
+    if (m_ui.actionPlaceMarkerMatches->isChecked()) {
         // Stores the occurence count of the place markers in the vector placeMarkerIndexes.
         // i.e. the occurence count of %1 is stored at placeMarkerIndexes[1], 
         // count of %2 is stored at placeMarkerIndexes[2] etc.
@@ -1846,10 +1759,10 @@ void TrWindow::readConfig()
 
     restoreState(config.value(keybase + "MainWindowState").toByteArray());
 
-    acceleratorsAct->setChecked(config.value(keybase+ "Validators/Accelerator", true).toBool());
-    endingPunctuationAct->setChecked(config.value(keybase+ "Validators/EndingPunctuation", true).toBool());
-    phraseMatchesAct->setChecked(config.value(keybase+ "Validators/PhraseMatch", true).toBool());
-    placeMarkersAct->setChecked(config.value(keybase+ "Validators/PlaceMarkers", true).toBool());
+    m_ui.actionAccelerators->setChecked(config.value(keybase+ "Validators/Accelerator", true).toBool());
+    m_ui.actionEndingPunctuation->setChecked(config.value(keybase+ "Validators/EndingPunctuation", true).toBool());
+    m_ui.actionPhraseMatches->setChecked(config.value(keybase+ "Validators/PhraseMatch", true).toBool());
+    m_ui.actionPlaceMarkerMatches->setChecked(config.value(keybase+ "Validators/PlaceMarkers", true).toBool());
 
     QApplication::sendPostedEvents();
 }
@@ -1866,25 +1779,25 @@ void TrWindow::writeConfig()
     config.setValue(keybase + "Geometry/MainwindowWidth", normalGeometry().width());
     config.setValue(keybase + "Geometry/MainwindowHeight", normalGeometry().height());
  
-    config.setValue(keybase+ "Validators/Accelerator", acceleratorsAct->isChecked());
-    config.setValue(keybase+ "Validators/EndingPunctuation", endingPunctuationAct->isChecked());
-    config.setValue(keybase+ "Validators/PhraseMatch", phraseMatchesAct->isChecked());
-    config.setValue(keybase+ "Validators/PlaceMarkers", placeMarkersAct->isChecked());
+    config.setValue(keybase+ "Validators/Accelerator", m_ui.actionAccelerators->isChecked());
+    config.setValue(keybase+ "Validators/EndingPunctuation", m_ui.actionEndingPunctuation->isChecked());
+    config.setValue(keybase+ "Validators/PhraseMatch", m_ui.actionPhraseMatches->isChecked());
+    config.setValue(keybase+ "Validators/PlaceMarkers", m_ui.actionPlaceMarkerMatches->isChecked());
     config.setValue(keybase + "MainWindowState", saveState());
 }
 
 void TrWindow::setupRecentFilesMenu()
 {
-    recentFilesMenu->clear();
+    m_ui.menuRecentlyOpenedFiles->clear();
 
     if (recentFiles.count() > 0) {
-        recentFilesMenu->setEnabled(true);
+        m_ui.menuRecentlyOpenedFiles->setEnabled(true);
         QStringList::Iterator it = recentFiles.begin();
         for (; it != recentFiles.end(); ++it) {
-            recentFilesMenu->addAction(*it);
+            m_ui.menuRecentlyOpenedFiles->addAction(*it);
         }
     } else {
-        recentFilesMenu->setEnabled(false);
+        m_ui.menuRecentlyOpenedFiles->setEnabled(false);
     }
 }
 
@@ -1924,10 +1837,10 @@ void TrWindow::focusPhraseList()
 
 void TrWindow::toggleStatistics()
 {
-    if (toggleStats->isChecked()) {
+    if (m_ui.actionStatistics->isChecked()) {
         if (!stats) {
             stats = new Statistics(this);
-            connect(this, SIGNAL(statsChanged(int,int,int,int,int,int)), stats,
+            connect(cmdl, SIGNAL(statsChanged(int,int,int,int,int,int)), stats,
                 SLOT(updateStats(int,int,int,int,int,int)));
         }
         stats->show();
@@ -1945,41 +1858,68 @@ void TrWindow::updateStatistics()
     if (!stats || !stats->isVisible())
         return;
 
-    QList<ContextItem *> ctxtList;
-    QList<MessageItem *> msgList;
-    const MessageItem *mi;
-    int trW = 0;
-    int trC = 0;
-    int trCS = 0;
-
-    ctxtList = cmdl->contextList();
-
-    for (int i=0; i<ctxtList.count(); i++) {
-        msgList = ctxtList.at(i)->messageItemList();
-        for (int j=0; j<msgList.count(); j++) {
-            mi = msgList.at(j);
-            if (mi->finished() && !(mi->message().type() == MetaTranslatorMessage::Obsolete))
-                doCharCounting(mi->translation(), trW, trC, trCS);
-        }
-    }
-
-    emit statsChanged(srcWords, srcChars, srcCharsSpc, trW, trC, trCS);
+    cmdl->updateStatistics();
 }
 
-void TrWindow::doCharCounting(const QString& text, int& trW, int& trC, int& trCS)
+void TrWindow::finishedBatchTranslation()
 {
-    trCS += text.length();
-    bool inWord = false;
-    for (int i=0; i<(int)text.length(); ++i) {
-        if (text[i].isLetterOrNumber() || text[i] == QChar('_')) {
-            if (!inWord) {
-                ++trW;
-                inWord = true;
+    updateStatistics();
+    updateProgress();
+    updateCaption();
+}
+
+QStringList TrWindow::findFormFilesInCurrentTranslationFile()
+{
+    QStringList ret;
+    for (MessageModel::iterator it = cmdl->begin(); it != cmdl->end(); ++it) {
+        QString fileName = (*it)->message().fileName();
+        if (fileName.endsWith(QLatin1String(".ui"))) {
+            if (!ret.contains(fileName)) {
+                ret+=fileName;
             }
-        } else {
-            inWord = false;
         }
-        if (!text[i].isSpace())
-            trC++;
     }
+    return ret;
+}
+
+void TrWindow::previewForm()
+{
+    if (m_previewTool.isNull()) {
+        m_previewTool = new TrPreviewTool();
+        connect(m_previewTool, SIGNAL(prepareReloadTranslations()), this, SLOT(releaseToTempFile()));
+
+        QStringList fileNames = findFormFilesInCurrentTranslationFile();
+        bool ok = true;
+        for (QStringList::iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
+            QString fileName = *it;
+            if (!fileName.isEmpty() && QFileInfo(fileName).exists()) {
+                if (!m_previewTool->addFormFile(fileName)) {
+                    ok = false;
+                    break;
+                }
+            }
+        }
+        if (ok) {
+            if (!m_tmpPreviewFile) {
+                m_tmpPreviewFile = new QTemporaryFile(QLatin1String("linguist.tmp.XXXXXX"));
+                ok = m_tmpPreviewFile->open();
+            }
+            if (ok) {
+                m_tmpPreviewFile->seek(0);
+                if (cmdl->release(m_tmpPreviewFile, false, false, Translator::Everything)) {
+                    m_tmpPreviewFile->flush();
+                    ok = m_previewTool->loadTranslation(m_tmpPreviewFile->fileName(), QFileInfo(filename).fileName());
+                    if (ok) {
+                        m_previewTool->cascade();
+                    } else {
+                        QMessageBox::warning(this, tr("Qt Linguist"), tr("There was a problem in the preparation of form preview."));
+                    }
+                }
+            }
+        }
+    } else {
+        // Only do a refresh if it is already open
+        releaseToTempFile();
+    }
+    m_previewTool->show();
 }

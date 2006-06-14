@@ -1,0 +1,70 @@
+#ifndef TRPREVIEWTOOL_H
+#define TRPREVIEWTOOL_H
+
+#include <QMainWindow>
+#include <QWorkspace>
+#include <QHash>
+#include <QComboBox>
+#include <QUiLoader>
+#include <QTranslator>
+#include <QLayout>
+
+#include "ui_trpreviewtool.h"
+
+class FormHolder : public QWidget
+{
+    Q_OBJECT
+
+public:
+    FormHolder(QWidget *parent = 0, Qt::WFlags flags = 0);
+
+    bool loadFormFile(const QString& path);
+    void retranslate();
+    QString formFilePath();
+
+private:
+    static QUiLoader* uiLoader;
+    QString formPath;
+    QWidget* form;
+    QHBoxLayout* layout;
+};
+
+class QStandardItemModel;
+
+class TrPreviewTool : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    TrPreviewTool(QWidget *parent = 0, Qt::WFlags flags = 0);
+    ~TrPreviewTool();
+    bool addFormFile(const QString &path);
+    bool loadTranslation(const QString &path, const QString &displayName = QString());
+    void reloadTranslations();
+    void cascade();
+
+signals:
+    void prepareReloadTranslations();
+
+public slots:
+    void openForm();
+    void loadTranslation();
+    void translationSelected(int idx);
+    void showAboutBox();
+    void on_viewForms_doubleClicked(const QModelIndex &);
+
+private:
+    virtual bool event(QEvent *e);  // override from QWidget
+    FormHolder* createFormFromFile(const QString& path);
+    void recreateForms();
+    void showWarning(const QString& warning);
+    Ui::TrPreviewToolClass ui;
+    QWorkspace* workspace;
+    QComboBox* trCombo;
+    QTranslator* currentTr;
+    QHash<QString,QTranslator*> trDict;
+    QStandardItemModel *m_uiFilesModel;
+};
+
+
+#endif // TRPREVIEWTOOL_H

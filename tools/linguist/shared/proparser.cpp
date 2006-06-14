@@ -12,250 +12,114 @@
 ****************************************************************************/
 
 #include "proparser.h"
+#include "findsourcesvisitor.h"
+#include <stdio.h>
+#include <proreader.h>
 
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QRegExp>
-#include <QStringList>
-#include <QTextStream>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
+#include <QtCore/QStringList>
 
-#ifdef Q_OS_UNIX
-#include <unistd.h>
-#endif
-
-#ifdef Q_OS_WIN32
-#define QT_POPEN _popen
-#else
-#define QT_POPEN popen
-#endif
-
-QString loadFile( const QString &fileName )
+// assumes that the list is sorted (or more correctly, that all equal elements are grouped together).
+void removeDuplicates(QStringList *strings, bool alreadySorted /*= true*/)
 {
-    QFile file( fileName );
-    if ( !file.open(QIODevice::ReadOnly) ) {
-        fprintf( stderr, "error: Cannot load '%s': %s\n",
-                 file.fileName().toLatin1().constData(),
-                 file.errorString().toLatin1().constData() );
-        return QString();
+    if (!alreadySorted) {
+        strings->sort();
     }
-
-    QTextStream in( &file );
-    return in.readAll();
+    QString prev;
+    QStringList::iterator it = strings->begin();
+    while (it != strings->end()) {
+        if (*it == prev) {
+            it = strings->erase(it);
+        }else{
+            prev = *it;
+            ++it;
+        }
+    }
 }
 
-bool proFileTagMap( const QString& text, QMap<QString, QString> *ret )
+bool evaluateProFile(const QString &fileName, bool verbose,QMap<QByteArray, QStringList> *varMap)
 {
-    QString t = text;
+    bool ok = true;
 
-    QMap<QString, QString> tagMap;
-    bool stillProcess = true; // If include() has a $$tag then we need to reprocess
+    QStringList sourceFiles;
+    QString codecForTr;
+    QString codecForSource;
+    QStringList tsFileNames;
 
-    while (stillProcess) {
-        /*
-            Strip any commments before we try to include.  We
-            still need to do it after we include to make sure the
-            included file does not have comments
-        */
-        t.replace( QRegExp(QString("#[^\n]*\n")), QString(" ") );
-
-        /*
-            Process include() commands.
-            $$PWD is a special case so we have to change it while
-            we know where the included file is.
-        */
-        QRegExp callToInclude("include\\s*\\(\\s*([^()\\s]+)\\s*\\)");
-        int i = 0;
-        while ( (i = callToInclude.indexIn(t, i)) != -1 ) {
-            bool doneWithVar = false;
-            QString fileName = callToInclude.cap(1);
-            QString after = fileName.replace("$$PWD", QDir::currentPath());
-            if (!tagMap.isEmpty() && after.contains("$$")) {
-                QRegExp var( "\\$\\$[({]?([a-zA-Z0-9_]+)[)}]?" );
-                int ii = 0;
-                while ((ii = after.indexOf(var, ii)) != -1) {
-                    if (tagMap.contains(var.cap(1))) {
-                        after.replace(ii, var.cap(0).length(), tagMap[var.cap(1)]);
-                    } else { // Couldn't find it
-                        doneWithVar = true;
-                        break;
-                    }
-                }
-
-            }
-            if (doneWithVar || !after.contains("$$")) {
-                after = loadFile(after);
-                QFileInfo fi(callToInclude.cap(1));
-                after.replace("$$PWD", fi.path());
-                t.replace( i, callToInclude.matchedLength(), after );
-            }
-            i += after.length();
-        }
-
-        /*
-            Strip comments, merge lines ending with backslash, add
-            spaces around '=' and '+=', replace '\n' with ';', and
-            simplify white spaces.
-        */
-        t.replace( QRegExp(QString("#[^\n]*\n")), QString(" ") );
-        t.replace( QRegExp(QString("\\\\[^\n\\S]*\n")), QString(" ") );
-        t.replace( "=", QString(" = ") );
-        t.replace( "+ =", QString(" += ") );
-        t.replace( "\n", QString(";") );
-        t.replace( "\r", QString("") ); // remove carriage return
-        t = t.simplified();
-
-        /*
-            Populate tagMap with 'key = value' entries.
-        */
-        QStringList lines = t.split(';', QString::SkipEmptyParts);
-        QStringList::Iterator line;
-        for ( line = lines.begin(); line != lines.end(); ++line ) {
-            QStringList toks = (*line).split(' ', QString::SkipEmptyParts);
-
-            if ( toks.count() >= 3 &&
-                (toks[1] == QString("=") || toks[1] == QString("+=") ||
-                toks[1] == QString("*=")) ) {
-                QString tag = toks.first();
-                int k = tag.lastIndexOf( QChar(':') ); // as in 'unix:'
-                if ( k != -1 )
-                    tag = tag.mid( k + 1 );
-                toks.erase( toks.begin() );
-
-                QString action = toks.first();
-                toks.erase( toks.begin() );
-
-                if ( tagMap.contains(tag) ) {
-                    if ( action == QString("=") )
-                        tagMap.insert( tag, toks.join(" ") );
-                    else
-                        tagMap[tag] += QChar( ' ' ) + toks.join( " " );
-                } else {
-                    tagMap[tag] = toks.join( " " );
-                }
-            }
-        }
-        /*
-            Expand $$variables within the 'value' part of a 'key = value'
-            pair.
-        */
-        QRegExp var( "\\$\\$[({]?([a-zA-Z0-9_]+)[)}]?" );
-        QMap<QString, QString>::Iterator it;
-        for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-            int i = 0;
-            while ( (i = var.indexIn((*it), i)) != -1 ) {
-                int len = var.matchedLength();
-                QString invocation = var.cap(1);
-                QString after;
-
-                if ( invocation == "system" ) {
-                    // skip system(); it will be handled in the next pass
-                    ++i;
-                } else {
-                    if ( tagMap.contains(invocation) )
-                        after = tagMap[invocation];
-                    else if (invocation.toLower() == "pwd")
-                        after = QDir::currentPath();
-                    else {// Probably an environment variable
-                        after = qgetenv(invocation.toLocal8Bit().constData());
-                        if (after.isEmpty())
-                            return false;
-                    }
-                    (*it).replace( i, len, after );
-                    i += after.length();
-                }
-            }
-        }
-
-        /*
-            Expand environment variables within the 'value' part of a 'key = value'
-            pair.
-        */
-        QRegExp envvar("\\$\\(([a-zA-Z0-9_]+)\\)");
-        for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-            int i = 0;
-            while ( (i = envvar.indexIn((*it), i)) != -1 ) {
-                int len = envvar.matchedLength();
-                QString invocation = envvar.cap(1);
-                QString after;
-                after = qgetenv(invocation.toLocal8Bit().constData());
-                (*it).replace( i, len, after );
-                i += after.length();
-            }
-        }
-
-        /*
-          Execute system() calls.
-        */
-        QRegExp callToSystem( "\\$\\$system\\s*\\(([^()]*)\\)" );
-        for ( it = tagMap.begin(); it != tagMap.end(); ++it ) {
-            int i = 0;
-            while ( (i = callToSystem.indexIn((*it), i)) != -1 ) {
-                /*
-                  This code is stolen from qmake's project.cpp file.
-                  Ideally we would use the same parser, so we wouldn't
-                  have this code duplication.
-                */
-                QString after;
-                char buff[256];
-                FILE *proc = QT_POPEN( callToSystem.cap(1).toLatin1().constData(), "r" );
-                while ( proc && !feof(proc) ) {
-                    int read_in = int(fread( buff, 1, 255, proc ));
-                    if ( !read_in )
-                        break;
-                    for ( int i = 0; i < read_in; i++ ) {
-                        if ( buff[i] == '\n' || buff[i] == '\t' )
-                            buff[i] = ' ';
-                    }
-                    buff[read_in] = '\0';
-                    after += buff;
-                }
-                (*it).replace( i, callToSystem.matchedLength(), after );
-                i += after.length();
-            }
-        }
-        stillProcess = callToInclude.indexIn(t) != -1;
+    ProReader pr;
+    ProFileTranslationsScanner *visitor = new ProFileTranslationsScanner(verbose);
+    QFileInfo fi(fileName);
+    QDir rootPath;
+    ok = fi.exists();
+    if (ok) {
+        rootPath.setPath(fi.absolutePath());
+        ProFile *pro = pr.read(fi.absoluteFilePath());
+        ok = pro->Accept(visitor);
     }
-    if (ret) *ret = tagMap;
-    return true;
-}
+    if (ok) {
+        if (visitor->getTemplateType() == FindSourcesVisitor::TT_Subdirs) {
+            QString oldPath = QDir::currentPath();
+            QFileInfo fi(fileName);
+            QDir::setCurrent(fi.absolutePath());
+            QStringList subdirs = visitor->getVariable("SUBDIRS");
+            for (int is = 0; is < subdirs.count() && ok; ++is) {
+                QString subdir = subdirs[is];
+                QDir dir( subdir );
+                QStringList profiles = dir.entryList(QStringList() << "*.pro");
+                if (profiles.count()) {
+                    ProReader subreader;
+                    ProFileTranslationsScanner *subvisitor = new ProFileTranslationsScanner(verbose);
+                    QString profile = subdir + QLatin1Char('/') + profiles[0];
+                    fi.setFile(profile);
+                    ProFile *pro = subreader.read(fi.absoluteFilePath());
+                    QString tmpPath = QDir::currentPath();
+                    ok = pro->Accept(subvisitor);
+                    if (ok) {
+                        sourceFiles += subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("SOURCES"), profile);
+                        sourceFiles += subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("HEADERS"), profile);
 
-/*
-    Tokenizes a string containing file names separated with spaces, taking into
-    account that file names may be quoted and contain internal spaces.
-    (like this: file1.cpp "my clever file name.cpp" file2.cpp)
-*/
-QStringList tokenizeFileNames(const QString &text)
-{
-    QStringList fileNames;
-    int position = 0;
-    const int textLenght = text.count();
-    bool inQuote = false;
-    QString currentWord;
-
-    while (position < textLenght) {
-        const QChar currentCharacter = text.at(position);
-        const QChar space(' ');
-        const QChar quote('"');
-
-        // Break words on spaces unless we are in quotes
-        if (currentCharacter == space) {
-            if (inQuote) {
-                currentWord.append(currentCharacter);
-            } else {
-                fileNames.append(currentWord);
-                currentWord.clear();
+                        QStringList forms = subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("INTERFACES"), profile)
+                            + subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("FORMS"), profile)
+                            + subvisitor->expandVariableToAbsoluteFileNames(QLatin1String("FORMS3"), profile);
+                        sourceFiles << forms;
+                    }
+                    delete subvisitor;
+                }
             }
-        } else if (currentCharacter == quote) {
-            inQuote = !inQuote; 
+            QDir::setCurrent(oldPath);
         } else {
-            currentWord.append(currentCharacter);
+            // app/lib template
+            sourceFiles += visitor->expandVariableToAbsoluteFileNames(QLatin1String("SOURCES"), fileName);
+            sourceFiles += visitor->expandVariableToAbsoluteFileNames(QLatin1String("HEADERS"), fileName);
+
+            tsFileNames << visitor->getVariable("TRANSLATIONS");
+
+            QStringList trcodec = visitor->getVariable(QLatin1String("CODEC"))
+                + visitor->getVariable(QLatin1String("DEFAULTCODEC"))
+                + visitor->getVariable(QLatin1String("CODECFORTR"));
+            if (!trcodec.isEmpty())
+                codecForTr = trcodec.last().toLatin1();
+
+            QStringList srccodec = visitor->getVariable(QLatin1String("CODECFORSRC"));
+            if (!srccodec.isEmpty()) 
+                codecForSource = srccodec.last().toLatin1();
+            
+            QStringList forms = visitor->expandVariableToAbsoluteFileNames(QLatin1String("INTERFACES"), fileName)
+                + visitor->expandVariableToAbsoluteFileNames(QLatin1String("FORMS"), fileName)
+                + visitor->expandVariableToAbsoluteFileNames(QLatin1String("FORMS3"), fileName);
+            sourceFiles << forms;
         }
-        ++position;
-    };
-    
-    // Append the last file name.
-    fileNames.append(currentWord); 
-    
-    return fileNames;
+    }
+    if (ok) {
+        removeDuplicates(&sourceFiles, false);
+        removeDuplicates(&tsFileNames, false);
+
+        varMap->insert("SOURCES", sourceFiles);
+        varMap->insert("CODECFORTR", QStringList() << codecForTr);
+        varMap->insert("CODECFORSRC", QStringList() << codecForSource);
+        varMap->insert("TRANSLATIONS", tsFileNames);
+    }
+    return ok;
+
 }

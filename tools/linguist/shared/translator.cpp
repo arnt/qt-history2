@@ -528,38 +528,40 @@ bool TranslatorPrivate::do_load(const uchar *data, int len)
 
     \sa load()
 */
-
 bool Translator::save(const QString & filename, SaveMode mode)
 {
     QFile file(filename);
-    if (file.open(QIODevice::WriteOnly)) {
-        squeeze(mode);
+    if (!file.open(QIODevice::WriteOnly)) return false;
+    return save(&file, mode);
+}
 
-        QDataStream s(&file);
-        s.writeRawData((const char *)magic, MagicLength);
-        quint8 tag;
+bool Translator::save(QIODevice *iod, SaveMode mode)
+{
+    squeeze(mode);
 
-        if (!d->offsetArray.isEmpty()) {
-            tag = (quint8)TranslatorPrivate::Hashes;
-            quint32 oas = (quint32)d->offsetArray.size();
-            s << tag << oas;
-            s.writeRawData(d->offsetArray, oas);
-        }
-        if (!d->messageArray.isEmpty()) {
-            tag = (quint8)TranslatorPrivate::Messages;
-            quint32 mas = (quint32)d->messageArray.size();
-            s << tag << mas;
-            s.writeRawData(d->messageArray, mas);
-        }
-        if (!d->contextArray.isEmpty()) {
-            tag = (quint8)TranslatorPrivate::Contexts;
-            quint32 cas = (quint32)d->contextArray.size();
-            s << tag << cas;
-            s.writeRawData(d->contextArray, cas);
-        }
-        return true;
+    QDataStream s(iod);
+    s.writeRawData((const char *)magic, MagicLength);
+    quint8 tag;
+
+    if (!d->offsetArray.isEmpty()) {
+        tag = (quint8)TranslatorPrivate::Hashes;
+        quint32 oas = (quint32)d->offsetArray.size();
+        s << tag << oas;
+        s.writeRawData(d->offsetArray, oas);
     }
-    return false;
+    if (!d->messageArray.isEmpty()) {
+        tag = (quint8)TranslatorPrivate::Messages;
+        quint32 mas = (quint32)d->messageArray.size();
+        s << tag << mas;
+        s.writeRawData(d->messageArray, mas);
+    }
+    if (!d->contextArray.isEmpty()) {
+        tag = (quint8)TranslatorPrivate::Contexts;
+        quint32 cas = (quint32)d->contextArray.size();
+        s << tag << cas;
+        s.writeRawData(d->contextArray, cas);
+    }
+    return true;
 }
 
 #endif

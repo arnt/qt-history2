@@ -12,9 +12,16 @@
 ****************************************************************************/
 
 #include "messagemodel.h"
-#include "contextmodel.h"
 #include "trwindow.h"
 
+static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
+static int sSortColumn = 1;
+
+/******************************************************************************
+ *
+ * MessageItem IMPLEMENTATION
+ *
+ **************************************************************************** */
 MessageItem::MessageItem(const MetaTranslatorMessage &message,
                          const QString &text, const QString &comment, ContextItem *ctxtI)
                          : m(message), tx(text), com(comment), cntxtItem(ctxtI)
@@ -24,88 +31,286 @@ MessageItem::MessageItem(const MetaTranslatorMessage &message,
         m.setTranslation(t);
     }
 
-    fini = true;
-    d = false;
+    if (m.type() == MetaTranslatorMessage::Finished) {
+        cntxtItem->incrementFinishedCount();
+    }
+    m_danger = false;
+}
 
-    if (m.type() == MetaTranslatorMessage::Unfinished)
-         setFinished(false);
+void MessageItem::setTranslation(const QString &translation) 
+{
+    if (translation != m.translation()) {
+        m.setTranslation(translation);
+        cntxtItem->model()->setModified(true);
+    }
 }
 
 void MessageItem::setFinished(bool finished)
 {
-    if (!fini && finished) {
+    MetaTranslatorMessage::Type ty = m.type();
+    if (ty == MetaTranslatorMessage::Unfinished && finished) {
         m.setType(MetaTranslatorMessage::Finished);
-        cntxtItem->decrementUnfinishedCount();
-    } else if (fini && !finished) {
+        cntxtItem->incrementFinishedCount();
+    } else if (ty == MetaTranslatorMessage::Finished && !finished) {
         m.setType(MetaTranslatorMessage::Unfinished);
-        cntxtItem->incrementUnfinishedCount();
+        cntxtItem->decrementFinishedCount();
     }
-    fini = finished;
+    cntxtItem->model()->setModified(ty != m.type());
 }
 
 void MessageItem::setDanger(bool danger)
 {
-    if (!d && danger) {
+    if (!m_danger && danger) {
         cntxtItem->incrementDangerCount();
-    } else if (d && !danger) {
+    } else if (m_danger && !danger) {
         cntxtItem->decrementDangerCount();
     }
-    d = danger;
+    m_danger = danger;
 }
 
+
+/******************************************************************************
+ *
+ * ContextItem IMPLEMENTATION
+ *
+ **************************************************************************** */
+ContextItem::ContextItem(QString c, MessageModel *model)
+: sortColumn(-1), com(""), ctxt(c)
+{
+    m_finishedCount = 0;
+    dangerCount   = 0;
+    obsoleteCount = 0;
+    m_model = model;
+}
+
+ContextItem::~ContextItem()
+{
+    // delete all the message items
+    for (int i=0; i<msgItemList.count(); ++i)
+    {
+        delete msgItemList[i];
+    }
+}
+
+void ContextItem::appendToComment(const QString& x)
+{
+    if (!com.isEmpty())
+        com += QString("\n\n");
+    com += x;
+}
+
+void ContextItem::incrementFinishedCount() {
+    ++m_finishedCount;
+    m_model->incrementFinishedCount();
+}
+
+void ContextItem::decrementFinishedCount() {
+    --m_finishedCount;
+    m_model->decrementFinishedCount();
+}
+
+MessageItem *ContextItem::messageItem(int i)
+{
+    if ((i >= msgItemList.count()) || (i < 0))
+        return 0;
+
+    return msgItemList[i];
+}
+
+bool ContextItem::sortParameters(Qt::SortOrder &so, int &sc) const
+{
+    if (sortColumn == -1)
+        return false;
+
+    so = sortOrder;
+    sc = sortColumn;
+
+    return true;
+}
+
+void ContextItem::sortMessages(int column, Qt::SortOrder order)
+{
+    sortOrder = sSortOrder = order;
+    sortColumn = sSortColumn = column;
+
+    qSort(msgItemList.begin(), msgItemList.end(), ContextItem::compare);
+}
+
+bool ContextItem::compare(const MessageItem *left, const MessageItem *right)
+{
+    int res, nleft, nright;
+    if (sSortColumn == 0) {
+        nleft = left->danger() + left->finished() + left->translation().isEmpty();
+        nright = right->danger() + right->finished() + right->translation().isEmpty();
+        if ((sSortOrder == Qt::AscendingOrder) ? (nleft < nright) : !(nleft < nright))
+            return true;
+    }
+    else if (sSortColumn == 1) {
+        res = QString::localeAwareCompare(left->sourceText().remove('&'),
+            right->sourceText().remove('&'));
+        if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
+            return true;
+    }
+    else if (sSortColumn == 2) {
+        res = QString::localeAwareCompare(left->translation().remove('&'),
+            right->translation().remove('&'));
+        if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
+            return true;
+    }
+
+    return false;
+}
+
+
+
+/******************************************************************************
+ *
+ * MessageModel IMPLEMENTATION
+ *
+ **************************************************************************** */
 MessageModel::MessageModel(QObject *parent)
-: QAbstractTableModel(parent), cntxtItem(0)
+: QAbstractItemModel(parent), sortColumn(-1)
 {
+    m_srcWords = 0;
+    m_srcChars = 0;
+    m_srcCharsSpc = 0;
 
+    m_numFinished = 0;
+    m_numNonobsolete = 0;
+    m_numMessages = 0;
 }
 
-void MessageModel::setContextItem(ContextItem *ctxtI)
+ContextItem *MessageModel::contextItem(const QModelIndex &indx) const
 {
-    if (ctxtI == cntxtItem)
-        return;
-    cntxtItem = ctxtI;
-    reset();
-}
-
-void MessageModel::updateItem(QModelIndex indx)
-{
-    QModelIndex strtindx = createIndex(indx.row(), 0);
-    QModelIndex endindx = createIndex(indx.row(), 2);
-
-    emit dataChanged(strtindx, endindx);
-}
-
-int MessageModel::rowCount(const QModelIndex &) const
-{
-    if (cntxtItem != 0)
-        return cntxtItem->messageItemsInList();
+    if (indx.isValid()) {
+        int row = indx.row();
+        if (indx.internalPointer()) row = indx.parent().row();
+        return cntxtList.at(row);
+    }
 
     return 0;
 }
 
-int MessageModel::columnCount(const QModelIndex &) const
+MessageItem *MessageModel::messageItem(const QModelIndex &indx) const
 {
+    if (indx.isValid()) {
+        ContextItem *c = static_cast<ContextItem *>(indx.internalPointer());
+        if (c) return c->messageItem(indx.row());
+    }
+
+    return 0;
+}
+
+QModelIndex MessageModel::index(int row, int column, const QModelIndex &parent /*= QModelIndex()*/) const
+{
+    if (row < 0 || column < 0) return QModelIndex();
+    if (!parent.isValid()) {
+        // The context items
+        if (row >= rowCount() || column >= columnCount()) {
+            return QModelIndex();
+        }
+        return createIndex(row, column, 0);   //internalpointer points to the 'owner' object
+    } else {
+        // The message items
+        if (parent.internalPointer()) return QModelIndex();
+        int toprow = parent.row();
+        ContextItem *c = cntxtList.at(toprow);
+        if (row > c->messageItemsInList()) return QModelIndex();
+        return createIndex(row, column, c);
+    }
+}
+
+QModelIndex MessageModel::parent(const QModelIndex& index) const
+{
+    if (ContextItem *cntxtItem = static_cast<ContextItem *>(index.internalPointer())) {
+        int idx = cntxtList.indexOf(cntxtItem);
+        Q_ASSERT(idx != -1);
+        return createIndex(idx, 0, 0);
+    }
+    return QModelIndex();
+}
+
+bool MessageModel::sortParameters(Qt::SortOrder &so, int &sc) const
+{
+    if (sortColumn == -1)
+        return false;
+
+    so = sortOrder;
+    sc = sortColumn;
+
+    return true;
+}
+
+void MessageModel::updateItem(QModelIndex indx)
+{
+    QModelIndex top = indx.parent();
+    QModelIndex tl = index(indx.row(), 0, top);
+    QModelIndex br = index(indx.row(), 2, top);
+    emit dataChanged(tl, br);
+}
+
+void MessageModel::clearContextList()
+{
+    int r = cntxtList.count();
+
+    if (r <= 0) // no items
+        return;
+
+    for (int i=0; i<r; ++i)
+        delete cntxtList[i];
+
+    cntxtList.clear();
+
+    reset();
+}
+
+// since we don't add or remove single rows, update all at once...
+void MessageModel::updateAll()
+{
+    reset();
+}
+
+QModelIndex MessageModel::modelIndex(int context, int message)
+{
+    QModelIndex idx = index(context, 0);
+    if (idx.isValid()) idx = index(message, 0, idx);
+    return idx;
+}
+
+int MessageModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid()) {
+        ContextItem *c = static_cast<ContextItem *>(parent.internalPointer());
+        if (c) return -1;
+        return cntxtList[parent.row()]->messageItemsInList();
+    }
+    return cntxtList.count();
+}
+
+int MessageModel::columnCount(const QModelIndex &parent) const
+{
+    if (parent.internalPointer()) {
+        return 3;
+    }
     return 3;
 }
 
 QVariant MessageModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if ((role == Qt::DisplayRole) && (orientation == Qt::Horizontal)) {
-        switch(section)
-        {
+        switch(section)    {
         case 0:
             return tr("Done");
         case 1:
-            return tr("Source text");
+            return tr("Context");
         case 2:
-            return tr("Translation");
+            return tr("Items");
         }
 
         return "Error";
     }
-    else {
-        return QVariant();
-    }
+
+    return QVariant();
 }
 
 QVariant MessageModel::data(const QModelIndex &index, int role) const
@@ -113,47 +318,419 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
     int row = index.row();
     int column = index.column();
 
-    if (cntxtItem == 0)
-        return QVariant();
-
-    if (row >= cntxtItem->messageItemsInList() || !index.isValid())
-        return QVariant();
-
-    MessageItem *msgItem = cntxtItem->messageItem(row);
-
-    if (role == Qt::DisplayRole) {
-        switch(column) {
-        case 0: // done
+    ContextItem *cntxtItem = static_cast<ContextItem *>(index.internalPointer());
+    if (cntxtItem) {
+        if (row >= cntxtItem->messageItemsInList() || !index.isValid())
             return QVariant();
-        case 1: // source text
-			return msgItem->sourceText().simplified();
-        case 2: // translation
-            return msgItem->translation().simplified();
+
+        MessageItem *msgItem = cntxtItem->messageItem(row);
+
+        if (role == Qt::DisplayRole) {
+            switch(column) {
+            case 0: // done
+                return QVariant();
+            case 1: // source text
+			    return msgItem->sourceText().simplified();
+            case 2: // translation
+                return msgItem->translation().simplified();
+            }
+        }
+        else if ((role == Qt::DecorationRole) && (column == 0)) {
+            if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->translation().isEmpty())
+                return qVariantFromValue(*TrWindow::pxEmpty);
+            else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->danger())
+                return qVariantFromValue(*TrWindow::pxDanger);
+            else if (msgItem->message().type() == MetaTranslatorMessage::Finished && msgItem->danger())
+                return qVariantFromValue(*TrWindow::pxWarning);
+            else if (msgItem->message().type() == MetaTranslatorMessage::Finished)
+                return qVariantFromValue(*TrWindow::pxOn);
+            else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished)
+                return qVariantFromValue(*TrWindow::pxOff);
+            else if (msgItem->message().type() == MetaTranslatorMessage::Obsolete)
+                return qVariantFromValue(*TrWindow::pxObsolete);
+        }
+    } else {
+        if (row >= cntxtList.count() || !index.isValid())
+            return QVariant();
+
+        ContextItem *cntxtItem = cntxtList.at(row);
+
+        if (role == Qt::DisplayRole) {
+            switch(column) {
+            case 0: // done
+                return QVariant();
+            case 1: // context
+                return cntxtItem->context().simplified();
+            case 2: // items
+                QString s;
+                int itemCount = cntxtItem->messageItemsInList();
+                int obsoleteCount = cntxtItem->obsolete();
+                int finishedCount = cntxtItem->finishedCount();
+                s.sprintf("%d/%d", finishedCount,
+                    itemCount - obsoleteCount);
+                return s;
+            }
+        }
+        else if ((role == Qt::DecorationRole) && (column == 0)) {
+            if (cntxtItem->isContextObsolete())
+                return qVariantFromValue(*TrWindow::pxObsolete);
+            else if (cntxtItem->isFinished())
+                return qVariantFromValue(*TrWindow::pxOn);
+            else
+                return qVariantFromValue(*TrWindow::pxOff);
         }
     }
-    else if ((role == Qt::DecorationRole) && (column == 0)) {
-        if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->translation().isEmpty())
-            return qVariantFromValue(*TrWindow::pxEmpty);
-        else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->danger())
-            return qVariantFromValue(*TrWindow::pxDanger);
-        else if (msgItem->message().type() == MetaTranslatorMessage::Finished && msgItem->danger())
-            return qVariantFromValue(*TrWindow::pxWarning);
-        else if (msgItem->message().type() == MetaTranslatorMessage::Finished)
-            return qVariantFromValue(*TrWindow::pxOn);
-        else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished)
-            return qVariantFromValue(*TrWindow::pxOff);
-        else if (msgItem->message().type() == MetaTranslatorMessage::Obsolete)
-            return qVariantFromValue(*TrWindow::pxObsolete);
-    }
-
     return QVariant();
+}
+
+bool MessageModel::finished(const QModelIndex &index)
+{
+    MessageItem *m = messageItem(index);
+    return m->finished();
 }
 
 void MessageModel::sort(int column, Qt::SortOrder order)
 {
-    if (cntxtItem != 0) {
-        cntxtItem->sortMessages(column, order);
-        emit dataChanged(index(0,0),
-            index(cntxtItem->messageItemsInList()-1, 2));
+    if (cntxtList.count() <= 0)
+        return;
+
+    sortOrder = sSortOrder = order;
+    sortColumn = sSortColumn = column;
+
+    qSort(cntxtList.begin(), cntxtList.end(), MessageModel::compare);
+    emit dataChanged(index(0,0), index(cntxtList.count()-1, 2));
+}
+
+bool MessageModel::compare(const ContextItem *left, const ContextItem *right)
+{
+    int res;
+    int nleft, nright;
+
+    Qt::SortOrder sortOrder = sSortOrder;
+    switch (sSortColumn)
+    {
+    case 0: {
+        nleft =  (100 * left->finishedCount())/left->messageItemsInList();      //percent
+        nright = (100 * right->finishedCount())/right->messageItemsInList();    //percent
+
+        if ((sortOrder == Qt::AscendingOrder) ? (nleft < nright) : (nleft > nright))
+            return true;
+        break; }
+    case 2:
+        nleft = left->finishedCount();
+        nright = right->finishedCount();
+
+        if ((sortOrder == Qt::AscendingOrder) ? (nleft < nright) : (nleft > nright))
+            return true;
+        break;
+    default:
+        break;
     }
+
+    if (sSortColumn != 1 && nleft == nright) {
+        sortOrder = Qt::AscendingOrder;
+    }
+    if (sSortColumn == 1 || nleft == nright) {
+        res = QString::localeAwareCompare(left->context(), right->context());
+        if ((sortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
+            return true;
+    }
+    return false;
+}
+
+ContextItem *MessageModel::contextItem(int context) const
+{
+    if (context >= 0 && context < cntxtList.count()) return cntxtList[context];
+    return 0;
+}
+
+MessageItem *MessageModel::messageItem(int context, int message) const
+{
+    ContextItem *c = contextItem(context);
+    if (c && message >= 0 && message < c->messageItemsInList()) return c->messageItem(message);
+    return 0;
+}
+
+bool MessageModel::findMessage(int *contextNo, int *itemNo, const QString &findText, int findWhere, 
+    bool matchSubstring, Qt::CaseSensitivity cs)
+{
+    bool found = false;
+    if (contextsInList() <= 0)
+        return false;
+
+    int pass = 0;
+    int scopeNum = *contextNo;
+    int itemNum = *itemNo;
+
+    MessageItem *m = 0;
+
+    // We want to search the scope we started from *again*, since we did not necessarily search that *completely* when we started.
+    // (Problaby we started somewhere in the middle of it.)
+    // Therefore, "pass <=" and not "pass < " 
+    while (!found && pass <= contextsInList()) {
+        ContextItem *c = contextList().at(scopeNum);
+        for (int mit = itemNum; mit < c->messageItemsInList() ; ++mit) {
+            m = c->messageItem(mit);
+            QString searchText;
+            switch (findWhere) {
+                case SourceText:
+                    searchText = m->sourceText();
+                    break;
+                case Translations:
+                    searchText = m->translation();
+                    break;
+                case Comments:
+                    searchText = c->fullContext();
+                    break;
+            }
+            if (matchSubstring) {
+                if (searchText.indexOf(findText,0, cs) >= 0) {
+                    found = true;
+                    break;
+                }
+            } else {
+                if (cs == Qt::CaseInsensitive) {
+                    if (findText.toLower() == searchText.toLower()) {
+                        found = true;
+                        break;
+                    }
+                } else {
+                    if ( findText == searchText ) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+        }
+        itemNum = 0;
+        ++pass;
+
+        ++scopeNum;
+        if (scopeNum >= contextsInList()) {
+            scopeNum = 0;
+            //delayedMsg = tr("Search wrapped.");
+        }
+    }
+
+    if (found) {
+        *itemNo = itemNum;
+        *contextNo = scopeNum;
+    }
+    return found;
+}
+
+bool MessageModel::load(const QString &fileName)
+{
+    MetaTranslator tor;
+    bool ok = tor.load(fileName);
+    if (ok) {
+        int messageCount = 0;
+        clearContextList();
+        m_numFinished = 0;
+        m_numNonobsolete = 0;
+
+        TML all = tor.messages();
+        QHash<QString, ContextItem*> contexts;
+
+        m_srcWords = 0;
+        m_srcChars = 0;
+        m_srcCharsSpc = 0;
+
+        foreach(MetaTranslatorMessage mtm, all) {
+            QCoreApplication::processEvents();
+            ContextItem *c;
+            if (contexts.contains(QString(mtm.context()))) {
+                c = contexts.value( QString(mtm.context()));
+            }
+            else {
+                c = createContextItem(tor.toUnicode(mtm.context(), mtm.utf8()));;
+                appendContextItem(c);
+                contexts.insert(QString(mtm.context()), c);
+            }
+            if (QByteArray(mtm.sourceText()) == ContextComment) {
+                c->appendToComment(tor.toUnicode(mtm.comment(), mtm.utf8()));
+            }
+            else {
+                MessageItem *tmp = new MessageItem(mtm, tor.toUnicode(mtm.sourceText(),
+                    mtm.utf8()), tor.toUnicode(mtm.comment(), mtm.utf8()), c);
+                if (mtm.type() != MetaTranslatorMessage::Obsolete) {
+                    m_numNonobsolete++;
+                    //if (mtm.type() == MetaTranslatorMessage::Finished)
+                        //tmp->setFinished(true);
+                        //++m_numFinished;
+                    doCharCounting(tmp->sourceText(), m_srcWords, m_srcChars, m_srcCharsSpc);
+                }
+                else {
+                    c->incrementObsoleteCount();
+                }
+                c->appendMessageItem(tmp);
+                ++messageCount;
+            }
+        }
+        m_numMessages = messageCount;
+        updateAll();
+        setModified(false);
+    }
+    return ok;
+}
+
+bool MessageModel::save(const QString &fileName)
+{
+    MetaTranslator tor;
+    for (iterator it = begin(); MessageItem *m = it.current(); ++it) {
+        tor.insert(m->message());
+    }
+    bool ok = tor.save(fileName);
+    if (ok) setModified(false);
+    return ok;
+}
+
+bool MessageModel::release(const QString& fileName, 
+                bool verbose /*= false*/, bool ignoreUnfinished /*= false*/,
+                Translator::SaveMode mode /*= Translator::Stripped */)
+{
+    QFile file(fileName);
+    if (file.open(QIODevice::WriteOnly)) {
+        bool ok =  release(&file, verbose, ignoreUnfinished, mode);
+        file.close();
+        return ok;
+    }
+    return false;
+}
+
+bool MessageModel::release(QIODevice *iod, 
+                bool verbose /*= false*/, bool ignoreUnfinished /*= false*/,
+                Translator::SaveMode mode  /*= Translator::Stripped */)
+{
+    MetaTranslator tor;
+    for (MessageModel::iterator it = begin(); MessageItem *m = it.current(); ++it) {
+        tor.insert(m->message());
+    }
+    return tor.release(iod, verbose, ignoreUnfinished, mode);
+}
+
+
+void MessageModel::doCharCounting(const QString& text, int& trW, int& trC, int& trCS)
+{
+    trCS += text.length();
+    bool inWord = false;
+    for (int i=0; i<(int)text.length(); ++i) {
+        if (text[i].isLetterOrNumber() || text[i] == QChar('_')) {
+            if (!inWord) {
+                ++trW;
+                inWord = true;
+            }
+        } else {
+            inWord = false;
+        }
+        if (!text[i].isSpace())
+            trC++;
+    }
+}
+
+void MessageModel::updateStatistics()
+{
+    QList<ContextItem *> ctxtList;
+    QList<MessageItem *> msgList;
+    const MessageItem *mi;
+    int trW = 0;
+    int trC = 0;
+    int trCS = 0;
+
+    for (MessageModel::iterator it = begin(); mi = it.current(); ++it) {
+        if (mi->finished() && !(mi->message().type() == MetaTranslatorMessage::Obsolete))
+            doCharCounting(mi->translation(), trW, trC, trCS);
+    }
+
+    emit statsChanged(m_srcWords, m_srcChars, m_srcCharsSpc, trW, trC, trCS);
+}
+
+/******************************************************************************
+ *
+ * MessageModel::iterator IMPLEMENTATION
+ *
+ **************************************************************************** */
+MessageModel::iterator::iterator(ContextList *contextList, int contextNo /*= 0*/, int itemNo /*=0*/) 
+: m_contextList(contextList), m_contextNo(contextNo), m_itemNo(itemNo)
+{
+}
+
+
+MessageModel::iterator::iterator(MessageModel *model, int contextNo /*= 0*/, int itemNo /*=0*/) 
+: m_contextList(&model->cntxtList), m_contextNo(contextNo), m_itemNo(itemNo)
+{
+}
+
+MessageModel::iterator::iterator(const MessageModel::iterator& other)
+{
+    *this = other;
+}
+
+MessageModel::iterator &MessageModel::iterator::operator=(const MessageModel::iterator& other)
+{
+    m_contextList = other.m_contextList;
+    m_contextNo = other.m_contextNo;
+    m_itemNo = other.m_itemNo;
+    return *this;
+}
+
+MessageModel::iterator &MessageModel::iterator::operator++()
+{
+    ++m_itemNo;
+    if (m_itemNo >= m_contextList->at(m_contextNo)->messageItemsInList()) {
+        ++m_contextNo;
+        if (m_contextNo != m_contextList->count())
+            m_itemNo = 0;
+    }
+    return *this;
+}
+
+MessageItem *MessageModel::iterator::current() const
+{
+    if (m_contextNo >= 0 && m_contextNo < m_contextList->count()) {
+        if (m_itemNo >= 0 && m_itemNo < m_contextList->at(m_contextNo)->messageItemsInList()) {
+            return m_contextList->at(m_contextNo)->messageItem(m_itemNo);
+        }
+    }
+    return 0;
+}
+
+MessageItem *MessageModel::iterator::operator*() const
+{
+    return current();
+}
+
+void MessageModel::iterator::reset()
+{
+    m_contextNo = 0;
+    m_itemNo = 0;
+}
+
+/******************************************************************************
+ *
+ * ContextList IMPLEMENTATION
+ *
+ **************************************************************************** */
+ContextList::ContextList()
+{
+    m_modified = false;
+}
+
+bool ContextList::isModified()
+{
+    return m_modified;
+}
+
+ContextItem *ContextList::contextItem(int context) const
+{
+    if (context >= 0 && context < count()) return at(context);
+    return 0;
+}
+
+MessageItem *ContextList::messageItem(int context, int message) const
+{
+    ContextItem *c = contextItem(context);
+    if (c && message >= 0 && message < c->messageItemsInList()) return c->messageItem(message);
+    return 0;
 }

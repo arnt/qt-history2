@@ -17,7 +17,6 @@
 */
 
 #include "msgedit.h"
-
 #include "trwindow.h"
 #include "simtexth.h"
 #include "messagemodel.h"
@@ -470,40 +469,13 @@ void EditorPage::fontChange(const QFont &)
 
    Handle layout of dock windows and the editor page.
 */
-MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
-    : QScrollArea(parent), tor(t)
+MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
+    : QScrollArea(parent), m_contextModel(model)
 {
-    cutAvail = true;
-    copyAvail = true;
+    cutAvail = false;
+    copyAvail = false;
     doGuesses = true;
     canPaste = false;
-    topDockWnd = new QDockWidget(parent);
-    topDockWnd->setObjectName("SourceDockWindow");    
-    topDockWnd->setAllowedAreas(Qt::AllDockWidgetAreas);
-    topDockWnd->setFeatures(QDockWidget::AllDockWidgetFeatures);
-    topDockWnd->setWindowTitle(tr("Source text"));
-
-    srcTextView = new QTreeView(topDockWnd);
-    srcMdl = new MessageModel(topDockWnd);
-    srcTextView->setModel(srcMdl);
-    srcTextView->setAlternatingRowColors(true);
-    srcTextView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    srcTextView->setSelectionMode(QAbstractItemView::SingleSelection);
-    srcTextView->setRootIsDecorated(false);
-    srcTextView->setUniformRowHeights(true);
-    QPalette pal = srcTextView->palette();
-    pal.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
-    srcTextView->setPalette(pal);
-
-    QFontMetrics fm(font());
-    srcTextView->header()->setResizeMode(1, QHeaderView::Stretch);
-    srcTextView->header()->resizeSection(0, fm.width(MessageModel::tr("Done")) + 20);
-    srcTextView->header()->resizeSection(2, 300);
-    srcTextView->header()->setClickable(true);
-
-    topDockWnd->setWidget(srcTextView);
-    parent->addDockWidget(Qt::TopDockWidgetArea, topDockWnd);
-
     bottomDockWnd = new QDockWidget(parent);
     bottomDockWnd->setObjectName("PhrasesDockwidget");
     bottomDockWnd->setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -525,7 +497,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     phraseTv->setSelectionBehavior(QAbstractItemView::SelectRows);
     phraseTv->setSelectionMode(QAbstractItemView::SingleSelection);
     phraseTv->setRootIsDecorated(false);
-    pal = phraseTv->palette();
+    QPalette pal = phraseTv->palette();
     pal.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
     phraseTv->setPalette(pal);
 
@@ -580,9 +552,6 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
         this, SLOT(insertPhraseInTranslation(QModelIndex)));
 
     phraseTv->installEventFilter(this);
-
-    connect(srcTextView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-             parent, SLOT(showNewCurrent(QModelIndex,QModelIndex)));
 
     // What's this
     this->setWhatsThis(tr("This whole panel allows you to view and edit "
@@ -650,7 +619,7 @@ void MessageEditor::resizeEvent(QResizeEvent *e)
 
 QTreeView *MessageEditor::sourceTextView() const
 {
-    return srcTextView;
+    return 0;//srcTextView;
 }
 
 QTreeView *MessageEditor::phraseView() const
@@ -671,6 +640,52 @@ void MessageEditor::showNothing()
     editorPage->handleTranslationChanges();
     editorPage->updateCommentField();
 }
+
+static CandidateList similarTextHeuristicCandidates( MessageModel::iterator it,
+                        const char *text,
+                        int maxCandidates )
+{
+    QList<int> scores;
+    CandidateList candidates;
+
+    StringSimilarityMatcher stringmatcher(QString::fromLatin1(text));
+
+    for (; MessageItem *m = it.current(); ++it) {
+        MetaTranslatorMessage mtm = m->message();
+        if ( mtm.type() == MetaTranslatorMessage::Unfinished ||
+             mtm.translation().isEmpty() )
+            continue;
+
+        QString s = m->sourceText();
+
+        int score = stringmatcher.getSimilarityScore(s);
+
+        if ( (int) candidates.count() == maxCandidates &&
+             score > scores[maxCandidates - 1] )
+            candidates.removeAt( candidates.size()-1 );
+        if ( (int) candidates.count() < maxCandidates && score >= textSimilarityThreshold ) {
+            Candidate cand( s, mtm.translation() );
+
+            int i;
+            for ( i = 0; i < (int) candidates.size(); i++ ) {
+                if ( score >= scores.at(i) ) {
+                    if ( score == scores.at(i) ) {
+                        if ( candidates.at(i) == cand )
+                            goto continue_outer_loop;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            scores.insert( i, score );
+            candidates.insert( i, cand );
+        }
+        continue_outer_loop:
+        ;
+    }
+    return candidates;
+}
+
 
 void MessageEditor::showMessage(const QString &text,
                                 const QString &comment,
@@ -705,7 +720,7 @@ void MessageEditor::showMessage(const QString &text,
     }
 
     if (doGuesses && !sourceText.isEmpty()) {
-        CandidateList cl = similarTextHeuristicCandidates(tor,
+        CandidateList cl = similarTextHeuristicCandidates(m_contextModel->begin(),
             sourceText.toLatin1(), MaxCandidates);
         int n = 0;
         QList<Candidate>::Iterator it = cl.begin();

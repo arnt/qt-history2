@@ -14,10 +14,32 @@
 #ifndef PROPARSER_H
 #define PROPARSER_H
 
-#include <QMap>
-#include <QString>
+#include "findsourcesvisitor.h"
 
-bool proFileTagMap( const QString& text, QMap<QString, QString> *ret );
-QStringList tokenizeFileNames(const QString &fileNames);
+// Subclass it to intercept the logMessage method
+class ProFileTranslationsScanner : public FindSourcesVisitor {
+public:
+    ProFileTranslationsScanner(bool verbose) : FindSourcesVisitor() 
+    {
+        m_verbose = verbose;
+    }
+
+private:
+    /* reimp */
+    void logMessage(const QString &message, FindSourcesVisitor::MessageType mt) {
+        if (m_verbose && (mt == FindSourcesVisitor::MT_DebugLevel1)) {
+            Q_UNUSED(message);
+            Q_UNUSED(mt);
+            FindSourcesVisitor::logMessage(message, mt);
+        }
+    }
+
+private:
+    bool m_verbose;
+};
 
 #endif
+
+void removeDuplicates(QStringList *strings, bool alreadySorted = true);
+
+bool evaluateProFile(const QString &fileName, bool verbose, QMap<QByteArray, QStringList> *varMap);
