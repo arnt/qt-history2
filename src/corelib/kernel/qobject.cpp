@@ -678,7 +678,7 @@ QObject::~QObject()
         // set all QPointers for this object to zero - note that
         // ~QWidget() does this for us, so we don't have to do it twice
         QObjectPrivate::clearGuards(this);
-    }
+     }
 
     emit destroyed(this);
 
@@ -2684,42 +2684,46 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
 {
     if (sender->d_func()->blockSig)
         return;
+
     QConnectionList * const list = ::connectionList();
     if (!list)
         return;
 
-    QReadLocker locker(&list->lock);
-
     void *empty_argv[] = { 0 };
     if (qt_signal_spy_callback_set.signal_begin_callback != 0) {
-        locker.unlock();
         qt_signal_spy_callback_set.signal_begin_callback(sender, from_signal_index,
                                                          argv ? argv : empty_argv);
-        locker.relock();
     }
 
+    QReadLocker locker(&list->lock);
+
     QConnectionList::Hash::const_iterator it = list->sendersHash.constFind(sender);
+    const QConnectionList::Hash::const_iterator start = it;
     const QConnectionList::Hash::const_iterator end = list->sendersHash.constEnd();
 
-    if (it == end) {
-        if (qt_signal_spy_callback_set.signal_end_callback != 0) {
-            locker.unlock();
+    if (start == end) {
+        locker.unlock();
+        if (qt_signal_spy_callback_set.signal_end_callback != 0)
             qt_signal_spy_callback_set.signal_end_callback(sender, from_signal_index);
-            locker.relock();
-        }
         return;
     }
 
     QThread * const currentThread = QThread::currentThread();
     const int currentQThreadId = currentThread ? QThreadData::get(currentThread)->id : -1;
 
-    QVarLengthArray<int> connections;
-    for (; it != end && it.key() == sender; ++it) {
-        connections.append(it.value());
+    // QVarLengthArray doesn't use the same growth strategy as the rest of the Tulip classes, so we need to
+    // determine the exact number of connections
+    int i = 0;
+    for (it = start; it != end && it.key() == sender; ++it) {
+        ++i;
+    }
+    QVarLengthArray<int> connections(i);
+    for (i = 0, it = start; it != end && it.key() == sender; ++i, ++it) {
+        connections.data()[i] = it.value();
         list->connections[it.value()].inUse = 1;
     }
 
-    for (int i = 0; i < connections.size(); ++i) {
+    for (i = 0; i < connections.size(); ++i) {
         const int at = connections.constData()[connections.size() - (i + 1)];
         QConnectionList * const list = ::connectionList();
         QConnection &c = list->connections[at];
@@ -2740,7 +2744,7 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         const int method = c.method;
         QObject * const previousSender = c.receiver->d_func()->currentSender;
         c.receiver->d_func()->currentSender = sender;
-        list->lock.unlock();
+        locker.unlock();
 
         if (qt_signal_spy_callback_set.slot_begin_callback != 0)
             qt_signal_spy_callback_set.slot_begin_callback(c.receiver, method, argv ? argv : empty_argv);
@@ -2751,7 +2755,6 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         try {
             c.receiver->qt_metacall(QMetaObject::InvokeMetaMethod, method, argv ? argv : empty_argv);
         } catch (...) {
-            list->lock.lockForRead();
             if (c.receiver)
                 c.receiver->d_func()->currentSender = previousSender;
             throw;
@@ -2761,16 +2764,15 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         if (qt_signal_spy_callback_set.slot_end_callback != 0)
             qt_signal_spy_callback_set.slot_end_callback(c.receiver, method);
 
-        list->lock.lockForRead();
+        locker.relock();
         if (c.receiver)
             c.receiver->d_func()->currentSender = previousSender;
     }
 
-    if (qt_signal_spy_callback_set.signal_end_callback != 0) {
-        locker.unlock();
+    locker.unlock();
+
+    if (qt_signal_spy_callback_set.signal_end_callback != 0)
         qt_signal_spy_callback_set.signal_end_callback(sender, from_signal_index);
-        locker.relock();
-    }
 }
 
 
