@@ -29,15 +29,20 @@
 #include <qobject.h>
 #include <qcoreapplication.h>
 #include <qurl.h>
+#include <qmutex.h>
 
 class QOpenUrlHandlerRegistry : public QObject
 {
     Q_OBJECT
 public:
+    inline QOpenUrlHandlerRegistry() : mutex(QMutex::Recursive) {}
+
+    QMutex mutex;
+
     struct Handler
     {
         QObject *receiver;
-        const char *name;
+        QByteArray name;
     };
     typedef QHash<QString, Handler> HandlerHash;
     HandlerHash handlers;
@@ -86,14 +91,16 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
 */
 bool QDesktopServices::openUrl(const QUrl &url)
 {
-    static bool insideHandlerCall = false;
+    QOpenUrlHandlerRegistry *registry = handlerRegistry();
+    QMutexLocker locker(&registry->mutex);
+    static bool insideOpenUrlHandler = false;
 
-    if (!insideHandlerCall) {
-        QOpenUrlHandlerRegistry::HandlerHash::ConstIterator handler = handlerRegistry()->handlers.find(url.scheme());
-        if (handler != handlerRegistry()->handlers.end()) {
-            insideHandlerCall = true;
+    if (!insideOpenUrlHandler) {
+        QOpenUrlHandlerRegistry::HandlerHash::ConstIterator handler = registry->handlers.find(url.scheme());
+        if (handler != registry->handlers.constEnd()) {
+            insideOpenUrlHandler = true;
             bool result = QMetaObject::invokeMethod(handler->receiver, handler->name, Qt::DirectConnection, Q_ARG(QUrl, url));
-            insideHandlerCall = false;
+            insideOpenUrlHandler = false;
             return result; // ### support bool slot return type
         }
     }
@@ -130,19 +137,21 @@ bool QDesktopServices::openUrl(const QUrl &url)
     QDesktopServices::registerUrlHandler("help", helpInstance, "showHelp");
     \endcode
 
+    If inside the handler you decide that you can't open the requested url you can just call QDesktopServices::openUrl
+    and it will try to open the url using the operating system.
+
+    Note that the handler will always be called from within the same thread that calls QDesktopServices::openUrl.
+
     \sa openUrl()
 */
 void QDesktopServices::setUrlHandler(const QString &scheme, QObject *receiver, const char *method)
 {
-    if (!receiver) {
-        handlerRegistry()->handlers.remove(scheme);
-        return;
-    }
-    if (receiver->thread() != QCoreApplication::instance()->thread()) {
-        qWarning("QDesktopServices::setUrlHandler: handler for scheme '%s' does not live in the GUI thread, not registering.", qPrintable(scheme));
-        return;
-    }
     QOpenUrlHandlerRegistry *registry = handlerRegistry();
+    QMutexLocker locker(&registry->mutex);
+    if (!receiver) {
+        registry->handlers.remove(scheme);
+        return;
+    }
     QOpenUrlHandlerRegistry::Handler h;
     h.receiver = receiver;
     h.name = method;
