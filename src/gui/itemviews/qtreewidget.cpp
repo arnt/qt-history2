@@ -1416,23 +1416,11 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
 */
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
-    // special case for check state in tristate
-    if ((role == Qt::CheckStateRole) && (itemFlags & Qt::ItemIsTristate)) {
-        for (int i = 0; i < children.count(); ++i) {
-            QTreeWidgetItem *child = children.at(i);
-            if (child->data(column, role).isValid()) {// has a CheckState
-                Qt::ItemFlags f = itemFlags; // a little hack to avoid multiple dataChanged signals
-                itemFlags &= ~Qt::ItemIsTristate;
-                child->setData(column, role, value);
-                itemFlags = f;
-            }
-        }
-    }
     QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
-    // set the item data
-    if (role == Qt::EditRole)
-        role = Qt::DisplayRole;
-    if (role == Qt::DisplayRole) {
+
+    switch(role) {
+    case Qt::EditRole:
+    case Qt::DisplayRole:
         if (values.count() <= column)
             values.resize(column + 1);
         if (display.count() <= column) {
@@ -1442,24 +1430,40 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         } else {
             display[column] = value.toString();
         }
-    } else if (column < values.count()) {
-        bool found = false;
-        QVector<QWidgetItemData> column_values = values.at(column);
-        for (int i = 0; i < column_values.count(); ++i) {
-            if (column_values.at(i).role == role) {
-                values[column][i].value = value;
-                found = true;
-                break;
+        break;
+    case Qt::CheckStateRole:
+        if (itemFlags & Qt::ItemIsTristate) {
+            for (int i = 0; i < children.count(); ++i) {
+                QTreeWidgetItem *child = children.at(i);
+                if (child->data(column, role).isValid()) {// has a CheckState
+                    Qt::ItemFlags f = itemFlags; // a little hack to avoid multiple dataChanged signals
+                    itemFlags &= ~Qt::ItemIsTristate;
+                    child->setData(column, role, value);
+                    itemFlags = f;
+                }
             }
         }
-        if (!found)
+        break;
+    default:
+        if (column < values.count()) {
+            bool found = false;
+            QVector<QWidgetItemData> column_values = values.at(column);
+            for (int i = 0; i < column_values.count(); ++i) {
+                if (column_values.at(i).role == role) {
+                    values[column][i].value = value;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                values[column].append(QWidgetItemData(role, value));
+        } else {
+            if (this == model->header)
+                model->setColumnCount(column + 1);
+            else
+                values.resize(column + 1);
             values[column].append(QWidgetItemData(role, value));
-    } else {
-        if (this == model->header)
-            model->setColumnCount(column + 1);
-        else
-            values.resize(column + 1);
-        values[column].append(QWidgetItemData(role, value));
+        }
     }
 
     if (model) {
@@ -1477,23 +1481,24 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 */
 QVariant QTreeWidgetItem::data(int column, int role) const
 {
-    // special case for check state in tristate
-    if (role == Qt::CheckStateRole
-        && (itemFlags & Qt::ItemIsTristate) && children.count()) {
-        return childrenCheckState(column);
-    }
-    // return the item data
-    if (role == Qt::EditRole)
-        role = Qt::DisplayRole;
-
-    if (role == Qt::DisplayRole) {
+    switch (role) {
+    case Qt::EditRole:
+    case Qt::DisplayRole:
         if (column >= 0 && column < display.count())
             return display.at(column);
-    } else if (column >= 0 && column < values.size()) {
-        const QVector<QWidgetItemData> &column_values = values.at(column);
-        for (int i = 0; i < column_values.count(); ++i)
-            if (column_values.at(i).role == role)
-                return column_values.at(i).value;
+        break;
+    case Qt::CheckStateRole:
+        // special case for check state in tristate
+        if(children.count() && itemFlags & Qt::ItemIsTristate)
+            return childrenCheckState(column);
+        break;
+   default:
+        if (column >= 0 && column < values.size()) {
+            const QVector<QWidgetItemData> &column_values = values.at(column);
+            for (int i = 0; i < column_values.count(); ++i)
+                if (column_values.at(i).role == role)
+                    return column_values.at(i).value;
+        }
     }
     return QVariant();
 }
