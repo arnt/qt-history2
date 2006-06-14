@@ -303,8 +303,10 @@ void QGraphicsScenePrivate::generateBspTree()
     int oldItemCount = allItems.size();
 
     // Add newItems to allItems
+    QRectF newItemsBoundingRect;
     for (int i = 0; i < newItems.size(); ++i) {
         if (QGraphicsItem *item = newItems.at(i)) {
+            newItemsBoundingRect |= item->sceneBoundingRect();
             if (!freeItemIndexes.isEmpty()) {
                 int freeIndex = freeItemIndexes.takeFirst();
                 item->d_func()->index = freeIndex;
@@ -316,13 +318,15 @@ void QGraphicsScenePrivate::generateBspTree()
         }
     }
 
-    int oldDepth = qMax(int(::log(float(oldItemCount))), 5);
-    int newDepth = qMax(int(::log(float(allItems.size()))), 5);
-    QRectF newItemsBoundingRect;
+    QRectF oldGrowingItemsBoundingRect = growingItemsBoundingRect;
+    growingItemsBoundingRect |= newItemsBoundingRect;
+    
+    int oldDepth = qMax(int(::log(float(oldItemCount))), 15);
+    int newDepth = qMax(int(::log(float(allItems.size()))), 15);
     if (bspTree.leafCount() == 0 || oldDepth != newDepth) {
         // Recreate the bsptree if the depth has changed.
         bspTree.destroy();
-        bspTree.create(allItems.size(), newDepth);
+        bspTree.create(allItems.size(), newDepth);        
         bspTree.init(q->sceneRect(), QGraphicsSceneBspTree::Node::Both);
         newItems = allItems;
     }
@@ -331,13 +335,10 @@ void QGraphicsScenePrivate::generateBspTree()
         if (QGraphicsItem *item = newItems.at(i)) {
             QRectF boundingRect = item->sceneBoundingRect();
             bspTree.insertLeaf(boundingRect, item->d_func()->index);
-            newItemsBoundingRect |= boundingRect;
         }
     }
     newItems.clear();
 
-    QRectF oldGrowingItemsBoundingRect = growingItemsBoundingRect;
-    growingItemsBoundingRect |= newItemsBoundingRect;
     if (!hasSceneRect && growingItemsBoundingRect != oldGrowingItemsBoundingRect)
         emit q->sceneRectChanged(growingItemsBoundingRect);
 
