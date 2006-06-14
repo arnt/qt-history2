@@ -109,16 +109,6 @@ void recursiveFileInfoList(const QDir &dir, const QStringList &nameFilters, QDir
     }
 }
 
-
-static QStringList convertAbsoluteFileNamesToRelativeFileNames(const QStringList &fileNames, const QDir &rootPath)
-{
-    QStringList relativeFileNames;
-    for (QStringList::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
-        relativeFileNames.append(rootPath.relativeFilePath(*it));
-    }
-    return relativeFileNames;
-}
-
 int main( int argc, char **argv )
 {
     QString defaultContext = "@default";

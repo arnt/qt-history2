@@ -4,6 +4,7 @@
 #include "proitems.h"
 
 struct AbstractProItemVisitor {
+    virtual ~AbstractProItemVisitor() {}
     virtual bool visitBeginProBlock(ProBlock *block) = 0;
     virtual bool visitEndProBlock(ProBlock *block) = 0;
 
