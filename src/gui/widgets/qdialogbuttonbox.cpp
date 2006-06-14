@@ -410,12 +410,14 @@ QPushButton *QDialogButtonBoxPrivate::createButton(QDialogButtonBox::StandardBut
             buttonText = QDialogButtonBox::tr("Discard");
         break;
     case QDialogButtonBox::Yes:
+        icon = QStyle::SP_StandardButtonYes;
         buttonText = QDialogButtonBox::tr("&Yes");
         break;
     case QDialogButtonBox::YesToAll:
         buttonText = QDialogButtonBox::tr("Yes to &All");
         break;
     case QDialogButtonBox::No:
+        icon = QStyle::SP_StandardButtonNo;
         buttonText = QDialogButtonBox::tr("&No");
         break;
     case QDialogButtonBox::NoToAll:
@@ -551,14 +553,14 @@ QDialogButtonBox::~QDialogButtonBox()
     \value Apply An "Apply" button defined with the \l ActionRole.
     \value Reset A "Reset" button defined with the \l ActionRole.
     \value Help A "Help" button defined with the \l HelpRole.
-    \value SaveAll A "SaveAll" button defined with the \l AcceptRole
+    \value SaveAll A "Save All" button defined with the \l AcceptRole
     \value Yes A "Yes" button defined with the \l AcceptRole
     \value YesToAll A "Yes to All" button defined with the \l AcceptRole
     \value No A "No" button defined with the \l RejectRole
     \value NoToAll A "No to All" button defined with the \l RejectRole
-    \value Abort A "Abort" button defined with the \l RejectRole
+    \value Abort An "Abort" button defined with the \l RejectRole
     \value Retry A "Retry" button defined with the \l ActionRole
-    \value Ignore A "Ignore" button defined with the \l ActionRole
+    \value Ignore An "Ignore" button defined with the \l ActionRole
     \omitvalue NoButtons
 */
 

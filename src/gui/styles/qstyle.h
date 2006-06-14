@@ -650,6 +650,8 @@ public:
         SP_StandardButtonApply,
         SP_StandardButtonReset,
         SP_StandardButtonDiscard,
+        SP_StandardButtonYes,
+        SP_StandardButtonNo,
 
         // do not add any values below/greater than this
         SP_CustomBase = 0xf0000000

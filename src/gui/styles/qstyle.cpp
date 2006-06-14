@@ -1632,6 +1632,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_StandardButtonApply Icon for a standard Apply button in a QDialogButtonBox.
     \value SP_StandardButtonReset Icon for a standard Reset button in a QDialogButtonBox.
     \value SP_StandardButtonDiscard Icon for a standard Discard button in a QDialogButtonBox.
+    \value SP_StandardButtonYes Icon for a standard Yes button in a QDialogButtonBox.
+    \value SP_StandardButtonNo Icon for a standard No button in a QDialogButtonBox.
     \value SP_CustomBase  Base value for custom standard pixmaps;
     custom values must be greater than this value.
 

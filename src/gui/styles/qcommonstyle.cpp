@@ -3805,6 +3805,8 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
     case SP_StandardButtonApply:
     case SP_StandardButtonReset:
     case SP_StandardButtonDiscard:
+    case SP_StandardButtonYes:
+    case SP_StandardButtonNo:
         // Nothing for the moment, until we get new icons
         break;
     default:
