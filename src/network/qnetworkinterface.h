@@ -14,7 +14,9 @@
 #ifndef QNETWORKINTERFACE_H
 #define QNETWORKINTERFACE_H
 
-//QT_MODULE(Network)
+QT_BEGIN_HEADER
+
+QT_MODULE(Network)
 
 #include <QtNetwork/qhostaddress.h>
 
@@ -86,5 +88,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QNetworkInterface::InterfaceFlags)
 #include <QtCore/QDebug>
 QDebug operator<<(QDebug debug, const QNetworkInterface &interface);
 #endif
+
+QT_END_HEADER
 
 #endif
