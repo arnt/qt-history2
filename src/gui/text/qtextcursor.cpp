@@ -1863,6 +1863,12 @@ void QTextCursor::insertImage(const QTextImageFormat &format)
 
     Convenience method for inserting the image with the given \a name at the
     current position().
+
+    \code
+    QImage img = ...
+    textDocument->addResource(QTextDocument::ImageResource, QUrl("myimage"), img);
+    cursor.insertImage("myimage");
+    \endcode
 */
 void QTextCursor::insertImage(const QString &name)
 {
