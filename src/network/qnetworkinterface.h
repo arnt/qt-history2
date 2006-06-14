@@ -14,11 +14,11 @@
 #ifndef QNETWORKINTERFACE_H
 #define QNETWORKINTERFACE_H
 
+#include <QtNetwork/qhostaddress.h>
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Network)
-
-#include <QtNetwork/qhostaddress.h>
 
 template<typename T> class QList;
 
