@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QDesktopServices
 {
 public:
     static bool openUrl(const QUrl &url);
-    static void setUrlHandler(const QString &scheme, QObject *receiver, const char *slot);
+    static void setUrlHandler(const QString &scheme, QObject *receiver, const char *method);
 };
 
 #endif // QT_NO_DESKTOPSERVICES

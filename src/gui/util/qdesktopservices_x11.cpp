@@ -25,10 +25,6 @@ inline static bool launch(const QUrl &url, const QString &client)
     return (QProcess::startDetached(client + " " + url.toEncoded()));
 }
 
-/*!
-    Opens the \a file using the system to determine what application should handle it.
-    Returns true on success otherwise false.
- */
 static bool openDocument(const QUrl &url)
 {
     if (!url.isValid())
@@ -56,19 +52,6 @@ static bool openDocument(const QUrl &url)
     return false;
 }
 
-/*!
-    Opens the \a url in the default web browser and returns true on success otherwise false.
-
-    Passing a mailto url will result in a e-mail composer window opening in the default
-    e-mail client similar to when a user clicks on a mailto link in a web browser.
-
-    Example mailto url:
-    <code>
-    "mailto:user@foo.com?subject=Test&body=Just a test"
-    </code>
-
-    Note: Only some e-mail clients support @attachement and can handle unicode.
-*/
 static bool launchWebBrowser(const QUrl &url)
 {
     if (!url.isValid())

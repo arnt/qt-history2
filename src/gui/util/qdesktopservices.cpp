@@ -60,6 +60,29 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     }
 }
 
+/*!
+    \class QDesktopServices
+    \brief The QDesktopServices class provides access to system wide services such as opening document and launching a web browser
+    \since 4.2
+    \ingroup application
+*/
+
+/*!
+    Opens the \a url in either the default web browser or an application that can handle it
+    and returns true on success otherwise false.
+
+    Passing a mailto url will result in a e-mail composer window opening in the default
+    e-mail client similar to when a user clicks on a mailto link in a web browser.
+
+    Example mailto url:
+    <code>
+    "mailto:user@foo.com?subject=Test&body=Just a test"
+    </code>
+
+    Note: Only some e-mail clients support @attachement and can handle unicode.
+
+    \sa setUrlHandler()
+*/
 bool QDesktopServices::openUrl(const QUrl &url)
 {
     static bool insideHandlerCall = false;
@@ -83,7 +106,32 @@ bool QDesktopServices::openUrl(const QUrl &url)
     return result;
 }
 
-void QDesktopServices::setUrlHandler(const QString &scheme, QObject *receiver, const char *slot)
+/*!
+    This function provides a way to customize the behavior of QDesktopServices::openUrl(). If openUrl is called
+    with a url that has the specified \a scheme then the given \a method on the \a receiver object is called instead
+    of QDesktopServices launching an external application.
+
+    The provided method must be marked as a slot and take a QUrl as single argument.
+
+    This makes it easy for example to implement your own help system. Help could be provided in labels and text browsers
+    using help://myapplication/mytopic URLs and by registering a handler it becomes possible to display the help text
+    inside the application:
+    \code
+    class MyHelpHandler : public QObject
+    {
+        Q_OBJECT
+    public:
+        ...
+    public slots:
+        void showHelp(const QUrl &url);
+    };
+
+    QDesktopServices::registerUrlHandler("help", helpInstance, "showHelp");
+    \endcode
+
+    \sa openUrl()
+*/
+void QDesktopServices::setUrlHandler(const QString &scheme, QObject *receiver, const char *method)
 {
     if (!receiver) {
         handlerRegistry()->handlers.remove(scheme);
@@ -96,7 +144,7 @@ void QDesktopServices::setUrlHandler(const QString &scheme, QObject *receiver, c
     QOpenUrlHandlerRegistry *registry = handlerRegistry();
     QOpenUrlHandlerRegistry::Handler h;
     h.receiver = receiver;
-    h.name = slot;
+    h.name = method;
     registry->handlers.insert(scheme, h);
     QObject::connect(receiver, SIGNAL(destroyed(QObject *)),
                      registry, SLOT(handlerDestroyed(QObject *)));
