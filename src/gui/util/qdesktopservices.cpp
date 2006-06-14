@@ -68,7 +68,7 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
 
 /*!
     \class QDesktopServices
-    \brief The QDesktopServices namespace provides methods for accessing common desktop services.
+    \brief The QDesktopServices class provides methods for accessing common desktop services.
     \since 4.2
     \ingroup desktop
 
@@ -76,7 +76,7 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     perform common tasks, such as opening a web page, in a way that is both consistent
     and takes into account the user's application preferences.
 
-    This namespace contains functions that provide simple interfaces to these services
+    This class contains functions that provide simple interfaces to these services
     that indicate whether they succeeded or failed.
 
     The launchWebBrowser() function is used to open arbitrary URLs 
@@ -109,7 +109,7 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     subject (\c{Test}), and a message body (\c{Just a test}):
 
     \code
-    "mailto:user@foo.com?subject=Test&body=Just a test"
+    mailto:user@foo.com?subject=Test&body=Just a test
     \endcode
 
     \bold{Note:} Although many e-mail clients can send attachments and are
