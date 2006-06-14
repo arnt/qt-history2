@@ -1935,7 +1935,7 @@ void QTreeWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
     treeWidget->setColumnCount(1);
     QList<QTreeWidgetItem *> items;
     for (int i = 0; i < 10; ++i)
-        items.append(new QTreeWidgetItem(0, QStringList(QString("item: %1").arg(i))));
+        items.append(new QTreeWidgetItem((QTreeWidget*)0, QStringList(QString("item: %1").arg(i))));
     treeWidget->insertTopLevelItems(0, items);
   \endcode
 
