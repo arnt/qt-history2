@@ -1249,6 +1249,8 @@ void QGraphicsItem::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
 QMatrix QGraphicsItem::matrix() const
 {
     Q_D(const QGraphicsItem);
+    if (!d->hasMatrix)
+        return QMatrix();
     return qVariantValue<QMatrix>(d->extra(QGraphicsItemPrivate::ExtraMatrix));
 }
 
@@ -1310,6 +1312,9 @@ void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
         newMatrix = matrix * oldMatrix;
     if (oldMatrix == newMatrix)
         return;
+
+    d->hasMatrix = !newMatrix.isIdentity();
+    
     qt_graphicsItem_fullUpdate(this);
     removeFromIndex();
     QVariant variant;
@@ -1513,7 +1518,10 @@ QRectF QGraphicsItem::childrenBoundingRect() const
 */
 QRectF QGraphicsItem::sceneBoundingRect() const
 {
-    return sceneMatrix().mapRect(boundingRect());
+    Q_D(const QGraphicsItem);
+    if (d->parent || d->hasMatrix)
+        return sceneMatrix().mapRect(boundingRect());
+    return boundingRect().translated(d->pos);
 }
 
 /*!
@@ -3747,7 +3755,10 @@ QRectF QGraphicsLineItem::boundingRect() const
     Q_D(const QGraphicsLineItem);
     qreal penWidth = d->pen.widthF() / 2.0;
 
-    return shape().controlPointRect()
+    QPointF p1 = d->line.p1();
+    QPointF p2 = d->line.p2();
+
+    return QRectF(p1, QSizeF(p2.x() - p1.x(), p2.y() - p1.y())).normalized()
         .adjusted(-penWidth, -penWidth, penWidth, penWidth);
 }
 
@@ -3760,7 +3771,8 @@ QPainterPath QGraphicsLineItem::shape() const
     QPainterPath path;
     if (d->line.isNull())
         return path;
-    path.addPolygon(QPolygonF() << d->line.p1() << d->line.p2());
+    path.moveTo(d->line.p1());
+    path.lineTo(d->line.p2());
     return path;
 }
 
