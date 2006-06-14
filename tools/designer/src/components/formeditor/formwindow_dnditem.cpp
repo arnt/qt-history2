@@ -14,7 +14,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPixmap>
 
-#include <QtDesigner/ui4.h>
+#include "ui4_p.h"
 #include <qdesigner_resource.h>
 
 #include "formwindow_dnditem.h"

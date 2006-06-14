@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/ui4.h>
+#include "ui4_p.h"
 #include <spacer_widget_p.h>
 #include <qdesigner_formbuilder_p.h>
 

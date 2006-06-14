@@ -210,6 +210,27 @@ private:
     DomResources* m_resources;
     DomConnections* m_connections;
 
+    union {
+        uint bits;
+
+        struct {
+            uint author: 1;
+            uint comment: 1;
+            uint exportMacro: 1;
+            uint klass: 1;
+            uint widget: 1;
+            uint layoutDefault: 1;
+            uint layoutFunction: 1;
+            uint pixmapFunction: 1;
+            uint customWidgets: 1;
+            uint tabStops: 1;
+            uint images: 1;
+            uint includes: 1;
+            uint resources: 1;
+            uint connections: 1;
+        } bit;
+    };
+
     DomUI(const DomUI &other);
     void operator = (const DomUI&other);
 };
@@ -236,6 +257,14 @@ private:
     // attribute data
     // child element data
     QList<DomInclude*> m_include;
+
+    union {
+        uint bits;
+
+        struct {
+            uint include: 1;
+        } bit;
+    };
 
     DomIncludes(const DomIncludes &other);
     void operator = (const DomIncludes&other);
@@ -275,6 +304,9 @@ private:
     bool m_has_attr_impldecl;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomInclude(const DomInclude &other);
     void operator = (const DomInclude&other);
@@ -311,6 +343,14 @@ private:
     // child element data
     QList<DomResource*> m_include;
 
+    union {
+        uint bits;
+
+        struct {
+            uint include: 1;
+        } bit;
+    };
+
     DomResources(const DomResources &other);
     void operator = (const DomResources&other);
 };
@@ -341,6 +381,9 @@ private:
     bool m_has_attr_location;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomResource(const DomResource &other);
     void operator = (const DomResource&other);
@@ -389,6 +432,17 @@ private:
     QList<DomProperty*> m_property;
     QList<DomProperty*> m_attribute;
 
+    union {
+        uint bits;
+
+        struct {
+            uint action: 1;
+            uint actionGroup: 1;
+            uint property: 1;
+            uint attribute: 1;
+        } bit;
+    };
+
     DomActionGroup(const DomActionGroup &other);
     void operator = (const DomActionGroup&other);
 };
@@ -436,6 +490,16 @@ private:
     QList<DomProperty*> m_property;
     QList<DomProperty*> m_attribute;
 
+
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+            uint attribute: 1;
+        } bit;
+    };
+
     DomAction(const DomAction &other);
     void operator = (const DomAction&other);
 };
@@ -467,6 +531,10 @@ private:
 
     // child element data
 
+    union {
+        uint bits;
+    };
+
     DomActionRef(const DomActionRef &other);
     void operator = (const DomActionRef&other);
 };
@@ -493,6 +561,15 @@ private:
     // attribute data
     // child element data
     QList<DomImage*> m_image;
+
+
+    union {
+        uint bits;
+
+        struct {
+            uint image: 1;
+        } bit;
+    };
 
     DomImages(const DomImages &other);
     void operator = (const DomImages&other);
@@ -528,6 +605,14 @@ private:
 
     // child element data
     DomImageData* m_data;
+
+    union {
+        uint bits;
+
+        struct {
+            uint data: 1;
+        } bit;
+    };
 
     DomImage(const DomImage &other);
     void operator = (const DomImage&other);
@@ -568,6 +653,10 @@ private:
 
     // child element data
 
+    union {
+        uint bits;
+    };
+
     DomImageData(const DomImageData &other);
     void operator = (const DomImageData&other);
 };
@@ -594,6 +683,14 @@ private:
     // attribute data
     // child element data
     QList<DomCustomWidget*> m_customWidget;
+
+    union {
+        uint bits;
+
+        struct {
+            uint customWidget: 1;
+        } bit;
+    };
 
     DomCustomWidgets(const DomCustomWidgets &other);
     void operator = (const DomCustomWidgets&other);
@@ -625,6 +722,10 @@ private:
     bool m_has_attr_location;
 
     // child element data
+
+    union {
+        uint bits;
+    };
 
     DomHeader(const DomHeader &other);
     void operator = (const DomHeader&other);
@@ -681,6 +782,21 @@ private:
     QString m_pixmap;
     DomProperties* m_properties;
 
+    union {
+        uint bits;
+
+        struct {
+            uint klass: 1;
+            uint extends: 1;
+            uint header: 1;
+            uint sizeHint: 1;
+            uint container: 1;
+            uint sizePolicy: 1;
+            uint pixmap: 1;
+            uint properties: 1;
+        } bit;
+    };
+
     DomCustomWidget(const DomCustomWidget &other);
     void operator = (const DomCustomWidget&other);
 };
@@ -707,6 +823,14 @@ private:
     // attribute data
     // child element data
     QList<DomPropertyData*> m_property;
+
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+        } bit;
+    };
 
     DomProperties(const DomProperties &other);
     void operator = (const DomProperties&other);
@@ -739,6 +863,10 @@ private:
 
     // child element data
 
+    union {
+        uint bits;
+    };
+
     DomPropertyData(const DomPropertyData &other);
     void operator = (const DomPropertyData&other);
 };
@@ -769,6 +897,15 @@ private:
     // child element data
     int m_horData;
     int m_verData;
+
+    union {
+        uint bits;
+
+        struct {
+            uint horData: 1;
+            uint verData: 1;
+        } bit;
+    };
 
     DomSizePolicyData(const DomSizePolicyData &other);
     void operator = (const DomSizePolicyData&other);
@@ -808,6 +945,9 @@ private:
     bool m_has_attr_margin;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomLayoutDefault(const DomLayoutDefault &other);
     void operator = (const DomLayoutDefault&other);
@@ -847,6 +987,9 @@ private:
     bool m_has_attr_margin;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomLayoutFunction(const DomLayoutFunction &other);
     void operator = (const DomLayoutFunction&other);
@@ -874,6 +1017,14 @@ private:
     // attribute data
     // child element data
     QStringList m_tabStop;
+
+    union {
+        uint bits;
+
+        struct {
+            uint tabStop: 1;
+        } bit;
+    };
 
     DomTabStops(const DomTabStops &other);
     void operator = (const DomTabStops&other);
@@ -917,6 +1068,16 @@ private:
     QList<DomProperty*> m_property;
     QList<DomProperty*> m_attribute;
     QList<DomLayoutItem*> m_item;
+
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+            uint attribute: 1;
+            uint item: 1;
+        } bit;
+    };
 
     DomLayout(const DomLayout &other);
     void operator = (const DomLayout&other);
@@ -1016,6 +1177,14 @@ private:
     // child element data
     QList<DomProperty*> m_property;
 
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+        } bit;
+    };
+
     DomRow(const DomRow &other);
     void operator = (const DomRow&other);
 };
@@ -1042,6 +1211,14 @@ private:
     // attribute data
     // child element data
     QList<DomProperty*> m_property;
+
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+        } bit;
+    };
 
     DomColumn(const DomColumn &other);
     void operator = (const DomColumn&other);
@@ -1089,6 +1266,15 @@ private:
     // child element data
     QList<DomProperty*> m_property;
     QList<DomItem*> m_item;
+
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+            uint item: 1;
+        } bit;
+    };
 
     DomItem(const DomItem &other);
     void operator = (const DomItem&other);
@@ -1173,6 +1359,24 @@ private:
     QList<DomActionGroup*> m_actionGroup;
     QList<DomActionRef*> m_addAction;
 
+    union {
+        uint bits;
+
+        struct {
+            uint klass: 1;
+            uint property: 1;
+            uint attribute: 1;
+            uint row: 1;
+            uint column: 1;
+            uint item: 1;
+            uint layout: 1;
+            uint widget: 1;
+            uint action: 1;
+            uint actionGroup: 1;
+            uint addAction: 1;
+        } bit;
+    };
+
     DomWidget(const DomWidget &other);
     void operator = (const DomWidget&other);
 };
@@ -1207,6 +1411,14 @@ private:
 
     // child element data
     QList<DomProperty*> m_property;
+
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+        } bit;
+    };
 
     DomSpacer(const DomSpacer &other);
     void operator = (const DomSpacer&other);
@@ -1251,6 +1463,16 @@ private:
     int m_green;
     int m_blue;
 
+    union {
+        uint bits;
+
+        struct {
+            uint red: 1;
+            uint green: 1;
+            uint blue: 1;
+        } bit;
+    };
+
     DomColor(const DomColor &other);
     void operator = (const DomColor&other);
 };
@@ -1285,6 +1507,14 @@ private:
 
     // child element data
     DomColor* m_color;
+
+    union {
+        uint bits;
+
+        struct {
+            uint color: 1;
+        } bit;
+    };
 
     DomGradientStop(const DomGradientStop &other);
     void operator = (const DomGradientStop&other);
@@ -1417,6 +1647,14 @@ private:
     // child element data
     QList<DomGradientStop*> m_gradientStop;
 
+    union {
+        uint bits;
+
+        struct {
+            uint gradientStop: 1;
+        } bit;
+    };
+
     DomGradient(const DomGradient &other);
     void operator = (const DomGradient&other);
 };
@@ -1499,6 +1737,14 @@ private:
     // child element data
     DomBrush* m_brush;
 
+    union {
+        uint bits;
+
+        struct {
+            uint brush: 1;
+        } bit;
+    };
+
     DomColorRole(const DomColorRole &other);
     void operator = (const DomColorRole&other);
 };
@@ -1529,6 +1775,15 @@ private:
     // child element data
     QList<DomColorRole*> m_colorRole;
     QList<DomColor*> m_color;
+
+    union {
+        uint bits;
+
+        struct {
+            uint colorRole: 1;
+            uint color: 1;
+        } bit;
+    };
 
     DomColorGroup(const DomColorGroup &other);
     void operator = (const DomColorGroup&other);
@@ -1564,6 +1819,16 @@ private:
     DomColorGroup* m_active;
     DomColorGroup* m_inactive;
     DomColorGroup* m_disabled;
+
+    union {
+        uint bits;
+
+        struct {
+            uint active: 1;
+            uint inactive: 1;
+            uint disabled: 1;
+        } bit;
+    };
 
     DomPalette(const DomPalette &other);
     void operator = (const DomPalette&other);
@@ -1616,6 +1881,20 @@ private:
     bool m_underline;
     bool m_strikeOut;
 
+    union {
+        uint bits;
+
+        struct {
+            uint family: 1;
+            uint pointSize: 1;
+            uint weight: 1;
+            uint italic: 1;
+            uint bold: 1;
+            uint underline: 1;
+            uint strikeOut: 1;
+        } bit;
+    };
+
     DomFont(const DomFont &other);
     void operator = (const DomFont&other);
 };
@@ -1646,6 +1925,15 @@ private:
     // child element data
     int m_x;
     int m_y;
+
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+        } bit;
+    };
 
     DomPoint(const DomPoint &other);
     void operator = (const DomPoint&other);
@@ -1686,6 +1974,17 @@ private:
     int m_width;
     int m_height;
 
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+            uint width: 1;
+            uint height: 1;
+        } bit;
+    };
+
     DomRect(const DomRect &other);
     void operator = (const DomRect&other);
 };
@@ -1725,6 +2024,17 @@ private:
     int m_horStretch;
     int m_verStretch;
 
+    union {
+        uint bits;
+
+        struct {
+            uint hSizeType: 1;
+            uint vSizeType: 1;
+            uint horStretch: 1;
+            uint verStretch: 1;
+        } bit;
+    };
+
     DomSizePolicy(const DomSizePolicy &other);
     void operator = (const DomSizePolicy&other);
 };
@@ -1755,6 +2065,15 @@ private:
     // child element data
     int m_width;
     int m_height;
+
+    union {
+        uint bits;
+
+        struct {
+            uint width: 1;
+            uint height: 1;
+        } bit;
+    };
 
     DomSize(const DomSize &other);
     void operator = (const DomSize&other);
@@ -1791,6 +2110,16 @@ private:
     int m_month;
     int m_day;
 
+    union {
+        uint bits;
+
+        struct {
+            uint year: 1;
+            uint month: 1;
+            uint day: 1;
+        } bit;
+    };
+
     DomDate(const DomDate &other);
     void operator = (const DomDate&other);
 };
@@ -1825,6 +2154,16 @@ private:
     int m_hour;
     int m_minute;
     int m_second;
+
+    union {
+        uint bits;
+
+        struct {
+            uint hour: 1;
+            uint minute: 1;
+            uint second: 1;
+        } bit;
+    };
 
     DomTime(const DomTime &other);
     void operator = (const DomTime&other);
@@ -1873,6 +2212,19 @@ private:
     int m_month;
     int m_day;
 
+    union {
+        uint bits;
+
+        struct {
+            uint hour: 1;
+            uint minute: 1;
+            uint second: 1;
+            uint year: 1;
+            uint month: 1;
+            uint day: 1;
+        } bit;
+    };
+
     DomDateTime(const DomDateTime &other);
     void operator = (const DomDateTime&other);
 };
@@ -1899,6 +2251,14 @@ private:
     // attribute data
     // child element data
     QStringList m_string;
+
+    union {
+        uint bits;
+
+        struct {
+            uint string: 1;
+        } bit;
+    };
 
     DomStringList(const DomStringList &other);
     void operator = (const DomStringList&other);
@@ -1938,6 +2298,9 @@ private:
     bool m_has_attr_alias;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomResourcePixmap(const DomResourcePixmap &other);
     void operator = (const DomResourcePixmap&other);
@@ -1977,6 +2340,9 @@ private:
     bool m_has_attr_comment;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomString(const DomString &other);
     void operator = (const DomString&other);
@@ -2008,6 +2374,15 @@ private:
     // child element data
     double m_x;
     double m_y;
+
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+        } bit;
+    };
 
     DomPointF(const DomPointF &other);
     void operator = (const DomPointF&other);
@@ -2048,6 +2423,17 @@ private:
     double m_width;
     double m_height;
 
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+            uint width: 1;
+            uint height: 1;
+        } bit;
+    };
+
     DomRectF(const DomRectF &other);
     void operator = (const DomRectF&other);
 };
@@ -2079,6 +2465,15 @@ private:
     double m_width;
     double m_height;
 
+    union {
+        uint bits;
+
+        struct {
+            uint height: 1;
+            uint width: 1;
+        } bit;
+    };
+
     DomSizeF(const DomSizeF &other);
     void operator = (const DomSizeF&other);
 };
@@ -2106,6 +2501,14 @@ private:
     // child element data
     int m_unicode;
 
+    union {
+        uint bits;
+
+        struct {
+            uint unicode: 1;
+        } bit;
+    };
+
     DomChar(const DomChar &other);
     void operator = (const DomChar&other);
 };
@@ -2132,6 +2535,14 @@ private:
     // attribute data
     // child element data
     DomString* m_string;
+
+    union {
+        uint bits;
+
+        struct {
+            uint string: 1;
+        } bit;
+    };
 
     DomUrl(const DomUrl &other);
     void operator = (const DomUrl&other);
@@ -2315,6 +2726,14 @@ private:
     // child element data
     QList<DomConnection*> m_connection;
 
+    union {
+        uint bits;
+
+        struct {
+            uint connection: 1;
+        } bit;
+    };
+
     DomConnections(const DomConnections &other);
     void operator = (const DomConnections&other);
 };
@@ -2358,6 +2777,18 @@ private:
     QString m_slot;
     DomConnectionHints* m_hints;
 
+    union {
+        uint bits;
+
+        struct {
+            uint sender: 1;
+            uint signal: 1;
+            uint receiver: 1;
+            uint slot: 1;
+            uint hints: 1;
+        } bit;
+    };
+
     DomConnection(const DomConnection &other);
     void operator = (const DomConnection&other);
 };
@@ -2384,6 +2815,13 @@ private:
     // attribute data
     // child element data
     QList<DomConnectionHint*> m_hint;
+    union {
+        uint bits;
+
+        struct {
+            uint hint: 1;
+        } bit;
+    };
 
     DomConnectionHints(const DomConnectionHints &other);
     void operator = (const DomConnectionHints&other);
@@ -2423,6 +2861,15 @@ private:
     // child element data
     int m_x;
     int m_y;
+
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+        } bit;
+    };
 
     DomConnectionHint(const DomConnectionHint &other);
     void operator = (const DomConnectionHint&other);

@@ -15,7 +15,7 @@
 
 #include <QtDesigner/QDesignerIconCacheInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
-#include <QtDesigner/ui4.h>
+#include <QtDesigner/private/ui4_p.h>
 
 #include <Qt3Support/Q3ListBox>
 

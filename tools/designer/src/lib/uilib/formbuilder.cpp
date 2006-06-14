@@ -13,7 +13,7 @@
 
 #include "customwidget.h"
 #include "formbuilder.h"
-#include "ui4.h"
+#include "ui4_p.h"
 
 #include <QtGui/QtGui>
 

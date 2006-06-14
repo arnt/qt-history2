@@ -15,7 +15,7 @@
 
 #include <QtDesigner/QDesignerIconCacheInterface>
 #include <QtDesigner/QDesignerFormEditorInterface>
-#include <QtDesigner/ui4.h>
+#include "ui4_p.h"
 
 QAxWidgetExtraInfo::QAxWidgetExtraInfo(QActiveXPluginObject *widget, QDesignerFormEditorInterface *core, QObject *parent)
     : QObject(parent), m_widget(widget), m_core(core)

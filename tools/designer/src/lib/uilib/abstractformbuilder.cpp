@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "abstractformbuilder.h"
-#include "ui4.h"
+#include "ui4_p.h"
 
 #include <QtCore/QVariant>
 #include <QtCore/QMetaProperty>

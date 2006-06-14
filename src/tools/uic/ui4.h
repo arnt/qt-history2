@@ -34,6 +34,21 @@ QT_BEGIN_HEADER
 class QDomDocument;
 class QDomElement;
 
+#define QDESIGNER_UILIB_EXTERN Q_DECL_EXPORT
+#define QDESIGNER_UILIB_IMPORT Q_DECL_IMPORT
+
+#if defined (QT_DESIGNER_STATIC) || defined (QT_UIC)
+#  define QDESIGNER_UILIB_EXPORT
+#elif defined(QDESIGNER_UILIB_LIBRARY)
+#  define QDESIGNER_UILIB_EXPORT QDESIGNER_UILIB_EXTERN
+#else
+#  define QDESIGNER_UILIB_EXPORT QDESIGNER_UILIB_IMPORT
+#endif
+
+#ifndef QDESIGNER_UILIB_EXPORT
+#    define QDESIGNER_UILIB_EXPORT
+#endif
+
 #ifdef QFORMINTERNAL_NAMESPACE
 namespace QFormInternal
 {
@@ -104,7 +119,7 @@ class DomConnectionHint;
 ** Declarations
 */
 
-class DomUI {
+class QDESIGNER_UILIB_EXPORT DomUI {
 public:
     DomUI();
     ~DomUI();
@@ -195,11 +210,32 @@ private:
     DomResources* m_resources;
     DomConnections* m_connections;
 
+    union {
+        uint bits;
+
+        struct {
+            uint author: 1;
+            uint comment: 1;
+            uint exportMacro: 1;
+            uint klass: 1;
+            uint widget: 1;
+            uint layoutDefault: 1;
+            uint layoutFunction: 1;
+            uint pixmapFunction: 1;
+            uint customWidgets: 1;
+            uint tabStops: 1;
+            uint images: 1;
+            uint includes: 1;
+            uint resources: 1;
+            uint connections: 1;
+        } bit;
+    };
+
     DomUI(const DomUI &other);
     void operator = (const DomUI&other);
 };
 
-class DomIncludes {
+class QDESIGNER_UILIB_EXPORT DomIncludes {
 public:
     DomIncludes();
     ~DomIncludes();
@@ -222,11 +258,19 @@ private:
     // child element data
     QList<DomInclude*> m_include;
 
+    union {
+        uint bits;
+
+        struct {
+            uint include: 1;
+        } bit;
+    };
+
     DomIncludes(const DomIncludes &other);
     void operator = (const DomIncludes&other);
 };
 
-class DomInclude {
+class QDESIGNER_UILIB_EXPORT DomInclude {
 public:
     DomInclude();
     ~DomInclude();
@@ -260,12 +304,15 @@ private:
     bool m_has_attr_impldecl;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomInclude(const DomInclude &other);
     void operator = (const DomInclude&other);
 };
 
-class DomResources {
+class QDESIGNER_UILIB_EXPORT DomResources {
 public:
     DomResources();
     ~DomResources();
@@ -296,11 +343,19 @@ private:
     // child element data
     QList<DomResource*> m_include;
 
+    union {
+        uint bits;
+
+        struct {
+            uint include: 1;
+        } bit;
+    };
+
     DomResources(const DomResources &other);
     void operator = (const DomResources&other);
 };
 
-class DomResource {
+class QDESIGNER_UILIB_EXPORT DomResource {
 public:
     DomResource();
     ~DomResource();
@@ -326,12 +381,15 @@ private:
     bool m_has_attr_location;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomResource(const DomResource &other);
     void operator = (const DomResource&other);
 };
 
-class DomActionGroup {
+class QDESIGNER_UILIB_EXPORT DomActionGroup {
 public:
     DomActionGroup();
     ~DomActionGroup();
@@ -374,11 +432,22 @@ private:
     QList<DomProperty*> m_property;
     QList<DomProperty*> m_attribute;
 
+    union {
+        uint bits;
+
+        struct {
+            uint action: 1;
+            uint actionGroup: 1;
+            uint property: 1;
+            uint attribute: 1;
+        } bit;
+    };
+
     DomActionGroup(const DomActionGroup &other);
     void operator = (const DomActionGroup&other);
 };
 
-class DomAction {
+class QDESIGNER_UILIB_EXPORT DomAction {
 public:
     DomAction();
     ~DomAction();
@@ -421,11 +490,21 @@ private:
     QList<DomProperty*> m_property;
     QList<DomProperty*> m_attribute;
 
+
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+            uint attribute: 1;
+        } bit;
+    };
+
     DomAction(const DomAction &other);
     void operator = (const DomAction&other);
 };
 
-class DomActionRef {
+class QDESIGNER_UILIB_EXPORT DomActionRef {
 public:
     DomActionRef();
     ~DomActionRef();
@@ -452,11 +531,15 @@ private:
 
     // child element data
 
+    union {
+        uint bits;
+    };
+
     DomActionRef(const DomActionRef &other);
     void operator = (const DomActionRef&other);
 };
 
-class DomImages {
+class QDESIGNER_UILIB_EXPORT DomImages {
 public:
     DomImages();
     ~DomImages();
@@ -479,11 +562,20 @@ private:
     // child element data
     QList<DomImage*> m_image;
 
+
+    union {
+        uint bits;
+
+        struct {
+            uint image: 1;
+        } bit;
+    };
+
     DomImages(const DomImages &other);
     void operator = (const DomImages&other);
 };
 
-class DomImage {
+class QDESIGNER_UILIB_EXPORT DomImage {
 public:
     DomImage();
     ~DomImage();
@@ -514,11 +606,19 @@ private:
     // child element data
     DomImageData* m_data;
 
+    union {
+        uint bits;
+
+        struct {
+            uint data: 1;
+        } bit;
+    };
+
     DomImage(const DomImage &other);
     void operator = (const DomImage&other);
 };
 
-class DomImageData {
+class QDESIGNER_UILIB_EXPORT DomImageData {
 public:
     DomImageData();
     ~DomImageData();
@@ -553,11 +653,15 @@ private:
 
     // child element data
 
+    union {
+        uint bits;
+    };
+
     DomImageData(const DomImageData &other);
     void operator = (const DomImageData&other);
 };
 
-class DomCustomWidgets {
+class QDESIGNER_UILIB_EXPORT DomCustomWidgets {
 public:
     DomCustomWidgets();
     ~DomCustomWidgets();
@@ -580,11 +684,19 @@ private:
     // child element data
     QList<DomCustomWidget*> m_customWidget;
 
+    union {
+        uint bits;
+
+        struct {
+            uint customWidget: 1;
+        } bit;
+    };
+
     DomCustomWidgets(const DomCustomWidgets &other);
     void operator = (const DomCustomWidgets&other);
 };
 
-class DomHeader {
+class QDESIGNER_UILIB_EXPORT DomHeader {
 public:
     DomHeader();
     ~DomHeader();
@@ -611,11 +723,15 @@ private:
 
     // child element data
 
+    union {
+        uint bits;
+    };
+
     DomHeader(const DomHeader &other);
     void operator = (const DomHeader&other);
 };
 
-class DomCustomWidget {
+class QDESIGNER_UILIB_EXPORT DomCustomWidget {
 public:
     DomCustomWidget();
     ~DomCustomWidget();
@@ -666,11 +782,26 @@ private:
     QString m_pixmap;
     DomProperties* m_properties;
 
+    union {
+        uint bits;
+
+        struct {
+            uint klass: 1;
+            uint extends: 1;
+            uint header: 1;
+            uint sizeHint: 1;
+            uint container: 1;
+            uint sizePolicy: 1;
+            uint pixmap: 1;
+            uint properties: 1;
+        } bit;
+    };
+
     DomCustomWidget(const DomCustomWidget &other);
     void operator = (const DomCustomWidget&other);
 };
 
-class DomProperties {
+class QDESIGNER_UILIB_EXPORT DomProperties {
 public:
     DomProperties();
     ~DomProperties();
@@ -693,11 +824,19 @@ private:
     // child element data
     QList<DomPropertyData*> m_property;
 
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+        } bit;
+    };
+
     DomProperties(const DomProperties &other);
     void operator = (const DomProperties&other);
 };
 
-class DomPropertyData {
+class QDESIGNER_UILIB_EXPORT DomPropertyData {
 public:
     DomPropertyData();
     ~DomPropertyData();
@@ -724,11 +863,15 @@ private:
 
     // child element data
 
+    union {
+        uint bits;
+    };
+
     DomPropertyData(const DomPropertyData &other);
     void operator = (const DomPropertyData&other);
 };
 
-class DomSizePolicyData {
+class QDESIGNER_UILIB_EXPORT DomSizePolicyData {
 public:
     DomSizePolicyData();
     ~DomSizePolicyData();
@@ -755,11 +898,20 @@ private:
     int m_horData;
     int m_verData;
 
+    union {
+        uint bits;
+
+        struct {
+            uint horData: 1;
+            uint verData: 1;
+        } bit;
+    };
+
     DomSizePolicyData(const DomSizePolicyData &other);
     void operator = (const DomSizePolicyData&other);
 };
 
-class DomLayoutDefault {
+class QDESIGNER_UILIB_EXPORT DomLayoutDefault {
 public:
     DomLayoutDefault();
     ~DomLayoutDefault();
@@ -793,12 +945,15 @@ private:
     bool m_has_attr_margin;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomLayoutDefault(const DomLayoutDefault &other);
     void operator = (const DomLayoutDefault&other);
 };
 
-class DomLayoutFunction {
+class QDESIGNER_UILIB_EXPORT DomLayoutFunction {
 public:
     DomLayoutFunction();
     ~DomLayoutFunction();
@@ -832,12 +987,15 @@ private:
     bool m_has_attr_margin;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomLayoutFunction(const DomLayoutFunction &other);
     void operator = (const DomLayoutFunction&other);
 };
 
-class DomTabStops {
+class QDESIGNER_UILIB_EXPORT DomTabStops {
 public:
     DomTabStops();
     ~DomTabStops();
@@ -860,11 +1018,19 @@ private:
     // child element data
     QStringList m_tabStop;
 
+    union {
+        uint bits;
+
+        struct {
+            uint tabStop: 1;
+        } bit;
+    };
+
     DomTabStops(const DomTabStops &other);
     void operator = (const DomTabStops&other);
 };
 
-class DomLayout {
+class QDESIGNER_UILIB_EXPORT DomLayout {
 public:
     DomLayout();
     ~DomLayout();
@@ -903,11 +1069,21 @@ private:
     QList<DomProperty*> m_attribute;
     QList<DomLayoutItem*> m_item;
 
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+            uint attribute: 1;
+            uint item: 1;
+        } bit;
+    };
+
     DomLayout(const DomLayout &other);
     void operator = (const DomLayout&other);
 };
 
-class DomLayoutItem {
+class QDESIGNER_UILIB_EXPORT DomLayoutItem {
 public:
     DomLayoutItem();
     ~DomLayoutItem();
@@ -978,7 +1154,7 @@ private:
     void operator = (const DomLayoutItem&other);
 };
 
-class DomRow {
+class QDESIGNER_UILIB_EXPORT DomRow {
 public:
     DomRow();
     ~DomRow();
@@ -1001,11 +1177,19 @@ private:
     // child element data
     QList<DomProperty*> m_property;
 
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+        } bit;
+    };
+
     DomRow(const DomRow &other);
     void operator = (const DomRow&other);
 };
 
-class DomColumn {
+class QDESIGNER_UILIB_EXPORT DomColumn {
 public:
     DomColumn();
     ~DomColumn();
@@ -1028,11 +1212,19 @@ private:
     // child element data
     QList<DomProperty*> m_property;
 
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+        } bit;
+    };
+
     DomColumn(const DomColumn &other);
     void operator = (const DomColumn&other);
 };
 
-class DomItem {
+class QDESIGNER_UILIB_EXPORT DomItem {
 public:
     DomItem();
     ~DomItem();
@@ -1075,11 +1267,20 @@ private:
     QList<DomProperty*> m_property;
     QList<DomItem*> m_item;
 
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+            uint item: 1;
+        } bit;
+    };
+
     DomItem(const DomItem &other);
     void operator = (const DomItem&other);
 };
 
-class DomWidget {
+class QDESIGNER_UILIB_EXPORT DomWidget {
 public:
     DomWidget();
     ~DomWidget();
@@ -1158,11 +1359,29 @@ private:
     QList<DomActionGroup*> m_actionGroup;
     QList<DomActionRef*> m_addAction;
 
+    union {
+        uint bits;
+
+        struct {
+            uint klass: 1;
+            uint property: 1;
+            uint attribute: 1;
+            uint row: 1;
+            uint column: 1;
+            uint item: 1;
+            uint layout: 1;
+            uint widget: 1;
+            uint action: 1;
+            uint actionGroup: 1;
+            uint addAction: 1;
+        } bit;
+    };
+
     DomWidget(const DomWidget &other);
     void operator = (const DomWidget&other);
 };
 
-class DomSpacer {
+class QDESIGNER_UILIB_EXPORT DomSpacer {
 public:
     DomSpacer();
     ~DomSpacer();
@@ -1193,11 +1412,19 @@ private:
     // child element data
     QList<DomProperty*> m_property;
 
+    union {
+        uint bits;
+
+        struct {
+            uint property: 1;
+        } bit;
+    };
+
     DomSpacer(const DomSpacer &other);
     void operator = (const DomSpacer&other);
 };
 
-class DomColor {
+class QDESIGNER_UILIB_EXPORT DomColor {
 public:
     DomColor();
     ~DomColor();
@@ -1236,11 +1463,21 @@ private:
     int m_green;
     int m_blue;
 
+    union {
+        uint bits;
+
+        struct {
+            uint red: 1;
+            uint green: 1;
+            uint blue: 1;
+        } bit;
+    };
+
     DomColor(const DomColor &other);
     void operator = (const DomColor&other);
 };
 
-class DomGradientStop {
+class QDESIGNER_UILIB_EXPORT DomGradientStop {
 public:
     DomGradientStop();
     ~DomGradientStop();
@@ -1271,11 +1508,19 @@ private:
     // child element data
     DomColor* m_color;
 
+    union {
+        uint bits;
+
+        struct {
+            uint color: 1;
+        } bit;
+    };
+
     DomGradientStop(const DomGradientStop &other);
     void operator = (const DomGradientStop&other);
 };
 
-class DomGradient {
+class QDESIGNER_UILIB_EXPORT DomGradient {
 public:
     DomGradient();
     ~DomGradient();
@@ -1402,11 +1647,19 @@ private:
     // child element data
     QList<DomGradientStop*> m_gradientStop;
 
+    union {
+        uint bits;
+
+        struct {
+            uint gradientStop: 1;
+        } bit;
+    };
+
     DomGradient(const DomGradient &other);
     void operator = (const DomGradient&other);
 };
 
-class DomBrush {
+class QDESIGNER_UILIB_EXPORT DomBrush {
 public:
     DomBrush();
     ~DomBrush();
@@ -1453,7 +1706,7 @@ private:
     void operator = (const DomBrush&other);
 };
 
-class DomColorRole {
+class QDESIGNER_UILIB_EXPORT DomColorRole {
 public:
     DomColorRole();
     ~DomColorRole();
@@ -1484,11 +1737,19 @@ private:
     // child element data
     DomBrush* m_brush;
 
+    union {
+        uint bits;
+
+        struct {
+            uint brush: 1;
+        } bit;
+    };
+
     DomColorRole(const DomColorRole &other);
     void operator = (const DomColorRole&other);
 };
 
-class DomColorGroup {
+class QDESIGNER_UILIB_EXPORT DomColorGroup {
 public:
     DomColorGroup();
     ~DomColorGroup();
@@ -1515,11 +1776,20 @@ private:
     QList<DomColorRole*> m_colorRole;
     QList<DomColor*> m_color;
 
+    union {
+        uint bits;
+
+        struct {
+            uint colorRole: 1;
+            uint color: 1;
+        } bit;
+    };
+
     DomColorGroup(const DomColorGroup &other);
     void operator = (const DomColorGroup&other);
 };
 
-class DomPalette {
+class QDESIGNER_UILIB_EXPORT DomPalette {
 public:
     DomPalette();
     ~DomPalette();
@@ -1550,11 +1820,21 @@ private:
     DomColorGroup* m_inactive;
     DomColorGroup* m_disabled;
 
+    union {
+        uint bits;
+
+        struct {
+            uint active: 1;
+            uint inactive: 1;
+            uint disabled: 1;
+        } bit;
+    };
+
     DomPalette(const DomPalette &other);
     void operator = (const DomPalette&other);
 };
 
-class DomFont {
+class QDESIGNER_UILIB_EXPORT DomFont {
 public:
     DomFont();
     ~DomFont();
@@ -1601,11 +1881,25 @@ private:
     bool m_underline;
     bool m_strikeOut;
 
+    union {
+        uint bits;
+
+        struct {
+            uint family: 1;
+            uint pointSize: 1;
+            uint weight: 1;
+            uint italic: 1;
+            uint bold: 1;
+            uint underline: 1;
+            uint strikeOut: 1;
+        } bit;
+    };
+
     DomFont(const DomFont &other);
     void operator = (const DomFont&other);
 };
 
-class DomPoint {
+class QDESIGNER_UILIB_EXPORT DomPoint {
 public:
     DomPoint();
     ~DomPoint();
@@ -1632,11 +1926,20 @@ private:
     int m_x;
     int m_y;
 
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+        } bit;
+    };
+
     DomPoint(const DomPoint &other);
     void operator = (const DomPoint&other);
 };
 
-class DomRect {
+class QDESIGNER_UILIB_EXPORT DomRect {
 public:
     DomRect();
     ~DomRect();
@@ -1671,11 +1974,22 @@ private:
     int m_width;
     int m_height;
 
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+            uint width: 1;
+            uint height: 1;
+        } bit;
+    };
+
     DomRect(const DomRect &other);
     void operator = (const DomRect&other);
 };
 
-class DomSizePolicy {
+class QDESIGNER_UILIB_EXPORT DomSizePolicy {
 public:
     DomSizePolicy();
     ~DomSizePolicy();
@@ -1710,11 +2024,22 @@ private:
     int m_horStretch;
     int m_verStretch;
 
+    union {
+        uint bits;
+
+        struct {
+            uint hSizeType: 1;
+            uint vSizeType: 1;
+            uint horStretch: 1;
+            uint verStretch: 1;
+        } bit;
+    };
+
     DomSizePolicy(const DomSizePolicy &other);
     void operator = (const DomSizePolicy&other);
 };
 
-class DomSize {
+class QDESIGNER_UILIB_EXPORT DomSize {
 public:
     DomSize();
     ~DomSize();
@@ -1741,11 +2066,20 @@ private:
     int m_width;
     int m_height;
 
+    union {
+        uint bits;
+
+        struct {
+            uint width: 1;
+            uint height: 1;
+        } bit;
+    };
+
     DomSize(const DomSize &other);
     void operator = (const DomSize&other);
 };
 
-class DomDate {
+class QDESIGNER_UILIB_EXPORT DomDate {
 public:
     DomDate();
     ~DomDate();
@@ -1776,11 +2110,21 @@ private:
     int m_month;
     int m_day;
 
+    union {
+        uint bits;
+
+        struct {
+            uint year: 1;
+            uint month: 1;
+            uint day: 1;
+        } bit;
+    };
+
     DomDate(const DomDate &other);
     void operator = (const DomDate&other);
 };
 
-class DomTime {
+class QDESIGNER_UILIB_EXPORT DomTime {
 public:
     DomTime();
     ~DomTime();
@@ -1811,11 +2155,21 @@ private:
     int m_minute;
     int m_second;
 
+    union {
+        uint bits;
+
+        struct {
+            uint hour: 1;
+            uint minute: 1;
+            uint second: 1;
+        } bit;
+    };
+
     DomTime(const DomTime &other);
     void operator = (const DomTime&other);
 };
 
-class DomDateTime {
+class QDESIGNER_UILIB_EXPORT DomDateTime {
 public:
     DomDateTime();
     ~DomDateTime();
@@ -1858,11 +2212,24 @@ private:
     int m_month;
     int m_day;
 
+    union {
+        uint bits;
+
+        struct {
+            uint hour: 1;
+            uint minute: 1;
+            uint second: 1;
+            uint year: 1;
+            uint month: 1;
+            uint day: 1;
+        } bit;
+    };
+
     DomDateTime(const DomDateTime &other);
     void operator = (const DomDateTime&other);
 };
 
-class DomStringList {
+class QDESIGNER_UILIB_EXPORT DomStringList {
 public:
     DomStringList();
     ~DomStringList();
@@ -1885,11 +2252,19 @@ private:
     // child element data
     QStringList m_string;
 
+    union {
+        uint bits;
+
+        struct {
+            uint string: 1;
+        } bit;
+    };
+
     DomStringList(const DomStringList &other);
     void operator = (const DomStringList&other);
 };
 
-class DomResourcePixmap {
+class QDESIGNER_UILIB_EXPORT DomResourcePixmap {
 public:
     DomResourcePixmap();
     ~DomResourcePixmap();
@@ -1923,12 +2298,15 @@ private:
     bool m_has_attr_alias;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomResourcePixmap(const DomResourcePixmap &other);
     void operator = (const DomResourcePixmap&other);
 };
 
-class DomString {
+class QDESIGNER_UILIB_EXPORT DomString {
 public:
     DomString();
     ~DomString();
@@ -1962,12 +2340,15 @@ private:
     bool m_has_attr_comment;
 
     // child element data
+    union {
+        uint bits;
+    };
 
     DomString(const DomString &other);
     void operator = (const DomString&other);
 };
 
-class DomPointF {
+class QDESIGNER_UILIB_EXPORT DomPointF {
 public:
     DomPointF();
     ~DomPointF();
@@ -1994,11 +2375,20 @@ private:
     double m_x;
     double m_y;
 
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+        } bit;
+    };
+
     DomPointF(const DomPointF &other);
     void operator = (const DomPointF&other);
 };
 
-class DomRectF {
+class QDESIGNER_UILIB_EXPORT DomRectF {
 public:
     DomRectF();
     ~DomRectF();
@@ -2033,11 +2423,22 @@ private:
     double m_width;
     double m_height;
 
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+            uint width: 1;
+            uint height: 1;
+        } bit;
+    };
+
     DomRectF(const DomRectF &other);
     void operator = (const DomRectF&other);
 };
 
-class DomSizeF {
+class QDESIGNER_UILIB_EXPORT DomSizeF {
 public:
     DomSizeF();
     ~DomSizeF();
@@ -2064,11 +2465,20 @@ private:
     double m_width;
     double m_height;
 
+    union {
+        uint bits;
+
+        struct {
+            uint height: 1;
+            uint width: 1;
+        } bit;
+    };
+
     DomSizeF(const DomSizeF &other);
     void operator = (const DomSizeF&other);
 };
 
-class DomChar {
+class QDESIGNER_UILIB_EXPORT DomChar {
 public:
     DomChar();
     ~DomChar();
@@ -2091,11 +2501,19 @@ private:
     // child element data
     int m_unicode;
 
+    union {
+        uint bits;
+
+        struct {
+            uint unicode: 1;
+        } bit;
+    };
+
     DomChar(const DomChar &other);
     void operator = (const DomChar&other);
 };
 
-class DomUrl {
+class QDESIGNER_UILIB_EXPORT DomUrl {
 public:
     DomUrl();
     ~DomUrl();
@@ -2118,11 +2536,19 @@ private:
     // child element data
     DomString* m_string;
 
+    union {
+        uint bits;
+
+        struct {
+            uint string: 1;
+        } bit;
+    };
+
     DomUrl(const DomUrl &other);
     void operator = (const DomUrl&other);
 };
 
-class DomProperty {
+class QDESIGNER_UILIB_EXPORT DomProperty {
 public:
     DomProperty();
     ~DomProperty();
@@ -2277,7 +2703,7 @@ private:
     void operator = (const DomProperty&other);
 };
 
-class DomConnections {
+class QDESIGNER_UILIB_EXPORT DomConnections {
 public:
     DomConnections();
     ~DomConnections();
@@ -2300,11 +2726,19 @@ private:
     // child element data
     QList<DomConnection*> m_connection;
 
+    union {
+        uint bits;
+
+        struct {
+            uint connection: 1;
+        } bit;
+    };
+
     DomConnections(const DomConnections &other);
     void operator = (const DomConnections&other);
 };
 
-class DomConnection {
+class QDESIGNER_UILIB_EXPORT DomConnection {
 public:
     DomConnection();
     ~DomConnection();
@@ -2343,11 +2777,23 @@ private:
     QString m_slot;
     DomConnectionHints* m_hints;
 
+    union {
+        uint bits;
+
+        struct {
+            uint sender: 1;
+            uint signal: 1;
+            uint receiver: 1;
+            uint slot: 1;
+            uint hints: 1;
+        } bit;
+    };
+
     DomConnection(const DomConnection &other);
     void operator = (const DomConnection&other);
 };
 
-class DomConnectionHints {
+class QDESIGNER_UILIB_EXPORT DomConnectionHints {
 public:
     DomConnectionHints();
     ~DomConnectionHints();
@@ -2369,12 +2815,19 @@ private:
     // attribute data
     // child element data
     QList<DomConnectionHint*> m_hint;
+    union {
+        uint bits;
+
+        struct {
+            uint hint: 1;
+        } bit;
+    };
 
     DomConnectionHints(const DomConnectionHints &other);
     void operator = (const DomConnectionHints&other);
 };
 
-class DomConnectionHint {
+class QDESIGNER_UILIB_EXPORT DomConnectionHint {
 public:
     DomConnectionHint();
     ~DomConnectionHint();
@@ -2408,6 +2861,15 @@ private:
     // child element data
     int m_x;
     int m_y;
+
+    union {
+        uint bits;
+
+        struct {
+            uint x: 1;
+            uint y: 1;
+        } bit;
+    };
 
     DomConnectionHint(const DomConnectionHint &other);
     void operator = (const DomConnectionHint&other);

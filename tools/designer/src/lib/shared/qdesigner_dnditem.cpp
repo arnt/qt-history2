@@ -18,7 +18,7 @@
 #include <QtGui/QLabel>
 #include <QtCore/qdebug.h>
 
-#include <QtDesigner/ui4.h>
+#include "ui4_p.h"
 
 namespace qdesigner_internal {
 

@@ -23,7 +23,7 @@
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstracticoncache.h>
-#include <QtDesigner/ui4.h>
+#include "ui4_p.h"
 
 // shared
 #include <resourcefile_p.h>

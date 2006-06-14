@@ -6,7 +6,7 @@ DEFINES += \
 
 # Input
 HEADERS += \
-    $$PWD/ui4.h \
+    $$PWD/ui4_p.h \
     $$PWD/abstractformbuilder.h \
     $$PWD/formbuilder.h \
     $$PWD/container.h \
