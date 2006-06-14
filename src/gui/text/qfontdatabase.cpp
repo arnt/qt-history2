@@ -1284,32 +1284,15 @@ QString QFontDatabase::styleString(const QFontInfo &fontInfo)
 
     Example:
 
-    \code
-        int main(int argc, char **argv)
-        {
-            QApplication app(argc, argv);
-            QFontDatabase database;
+    \quotefromfile snippets/qfontdatabase/main.cpp
+    \skipto QFontDatabase database;
+    \printuntil }
+    \printuntil }
 
-            foreach (QString family, database.families()) {
-                qDebug(family);
-
-                foreach (QString style, database.styles(family)) {
-                    QString dstyle = "\t" + style + " (";
-
-                    foreach (int points, database.smoothSizes(family, style))
-                        dstyle += QString::number(points) + " ";
-
-                    dstyle[dstyle.length() - 1] = ')';
-                    qDebug(dstyle);
-                }
-            }
-            return 0;
-        }
-    \endcode
-
-    This example gets the list of font families, then the list of
-    styles for each family and the point sizes that are available for
-    each family/style combination.
+    This example gets the list of font families, the list of
+    styles for each family, and the point sizes that are available for
+    each combination of family and style, displaying this information
+    in a tree view.
 
     \sa QFont, QFontInfo, QFontMetrics, QFontComboBox, {Character Map Example}
 */
