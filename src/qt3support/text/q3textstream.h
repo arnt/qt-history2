@@ -14,13 +14,14 @@
 #ifndef Q3TEXTSTREAM_H
 #define Q3TEXTSTREAM_H
 
-#include <qiodevice.h>
-#include <qstring.h>
-#include <stdio.h>
+#include <QtCore/qiodevice.h>
+#include <QtCore/qstring.h>
 #ifndef QT_NO_TEXTCODEC
-#include <qtextcodec.h>
+#include <QtCore/qtextcodec.h>
 #endif
-#include <q3cstring.h>
+#include <Qt3Support/q3cstring.h>
+
+#include <stdio.h>
 
 QT_BEGIN_HEADER
 
