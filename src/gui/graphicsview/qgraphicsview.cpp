@@ -1591,6 +1591,8 @@ bool QGraphicsView::event(QEvent *event)
 bool QGraphicsView::viewportEvent(QEvent *event)
 {
     Q_D(QGraphicsView);
+    if (!d->scene)
+        return QAbstractScrollArea::viewportEvent(event);
 
     switch (event->type()) {
     case QEvent::Leave:
@@ -1776,7 +1778,8 @@ void QGraphicsView::dragMoveEvent(QDragMoveEvent *event)
 void QGraphicsView::focusInEvent(QFocusEvent *event)
 {
     Q_D(QGraphicsView);
-    QApplication::sendEvent(d->scene, event);
+    if (d->scene)
+        QApplication::sendEvent(d->scene, event);
 }
 
 /*!
@@ -1785,7 +1788,8 @@ void QGraphicsView::focusInEvent(QFocusEvent *event)
 void QGraphicsView::focusOutEvent(QFocusEvent *event)
 {
     Q_D(QGraphicsView);
-    QApplication::sendEvent(d->scene, event);
+    if (d->scene)
+        QApplication::sendEvent(d->scene, event);
 }
 
 /*!
@@ -1854,7 +1858,7 @@ void QGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
 void QGraphicsView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->sceneInteractionAllowed)
+    if (!d->scene || !d->sceneInteractionAllowed)
         return;
 
     d->mousePressViewPoint = event->pos();
@@ -1925,7 +1929,7 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
 void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->sceneInteractionAllowed)
+    if (!d->scene || !d->sceneInteractionAllowed)
         return;
 
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
@@ -2003,7 +2007,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
 void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_D(QGraphicsView);
-    if (!d->sceneInteractionAllowed)
+    if (!d->scene || !d->sceneInteractionAllowed)
         return;
 
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
@@ -2336,7 +2340,8 @@ void QGraphicsView::showEvent(QShowEvent *event)
 void QGraphicsView::inputMethodEvent(QInputMethodEvent *event)
 {
     Q_D(QGraphicsView);
-    QApplication::sendEvent(d->scene, event);
+    if (d->scene)
+        QApplication::sendEvent(d->scene, event);
 }
 
 /*!
