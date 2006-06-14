@@ -1825,6 +1825,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_MessageBox_TextInteractionFlags:
         ret = Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::TextSelectableByKeyboard;
         break;
+    case SH_SpellCheckUnderlineStyle:
+        ret = QTextCharFormat::DashUnderline;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;

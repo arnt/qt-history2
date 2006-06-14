@@ -586,6 +586,7 @@ public:
         SH_ComboBox_PopupFrameStyle,
         SH_MessageBox_TextInteractionFlags,
         SH_DialogButtonBox_ButtonsHaveIcons,
+        SH_SpellCheckUnderlineStyle,
 
         // Add new style hint values here
 

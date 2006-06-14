@@ -34,6 +34,7 @@
 #include <private/qcommonstylepixmaps_p.h>
 #include <private/qmath_p.h>
 #include <qdebug.h>
+#include <qtextformat.h>
 
 #include <limits.h>
 
@@ -3724,6 +3725,9 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
     case SH_DialogButtonBox_ButtonsHaveIcons:
         ret = 0;
+        break;
+    case SH_SpellCheckUnderlineStyle:
+        ret = QTextCharFormat::WaveUnderline;
         break;
     default:
         ret = 0;
