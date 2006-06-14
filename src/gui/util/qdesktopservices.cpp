@@ -68,26 +68,53 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
 
 /*!
     \class QDesktopServices
-    \brief The QDesktopServices class provides access to system wide services such as opening document and launching a web browser
+    \brief The QDesktopServices namespace provides methods for accessing common desktop services.
     \since 4.2
-    \ingroup application
+    \ingroup desktop
+
+    Many desktop environments provide services that can be used by applications to
+    perform common tasks, such as opening a web page, in a way that is both consistent
+    and takes into account the user's application preferences.
+
+    This namespace contains functions that provide simple interfaces to these services
+    that indicate whether they succeeded or failed.
+
+    The launchWebBrowser() function is used to open arbitrary URLs in the user's
+    web browser, and is typically most useful when you need to display the contents
+    of external documents.
+
+    The openDocument() function is used to execute files located at arbitrary URLs.
+    The user's desktop settings control whether certain executable file types are
+    opened for browsing, or if they are executed instead. Some desktop environments
+    are configured to prevent users from executing files obtained from non-local URLs,
+    or to ask the user's permission before doing so.
+
+    \sa QSystemTrayIcon, QProcess
 */
 
 /*!
-    Opens the \a url in either the default web browser or an application that can handle it
-    and returns true on success otherwise false.
+    Opens the given \a url in the appropriate web browser for the user's desktop
+    environment, and returns true if successful; otherwise returns false.
 
-    Passing a mailto url will result in a e-mail composer window opening in the default
-    e-mail client similar to when a user clicks on a mailto link in a web browser.
+    If the \a url is a reference to a local file (i.e. the url scheme is "file") then
+    it will be opened with a suitable application instead of a web browser.
 
-    Example mailto url:
+    If a \c mailto URL is specified, the user's e-mail client will be used to open a
+    composer window containing the options specified in the URL, similar to the way
+    \c mailto links are handled by a web browser.
+
+    For example, the following URL contains a recipient (\c{user@foo.com}), a
+    subject (\c{Test}), and a message body (\c{Just a test}):
+
     \code
     "mailto:user@foo.com?subject=Test&body=Just a test"
     \endcode
 
-    Note: Only some e-mail clients support @attachment and can handle unicode.
+    \bold{Note:} Although many e-mail clients can send attachments and are
+    unicode-aware, the user may have configured their client without these features.
 
     \sa setUrlHandler()
+
 */
 bool QDesktopServices::openUrl(const QUrl &url)
 {
