@@ -25,6 +25,41 @@ inline static bool launch(const QUrl &url, const QString &client)
     return (QProcess::startDetached(client + " " + url.toEncoded()));
 }
 
+/*!
+    \namespace QDesktopServices
+    \brief The QDesktopServices namespace provides methods for accessing common desktop services.
+    \since 4.2
+    \ingroup desktop
+
+    Many desktop environments provide services that can be used by applications to
+    perform common tasks, such as opening a web page, in a way that is both consistent
+    and takes into account the user's application preferences.
+
+    This namespace contains functions that provide simple interfaces to these services
+    that indicate whether they succeeded or failed.
+
+    The launchWebBrowser() function is used to open arbitrary URLs in the user's
+    web browser, and is typically most useful when you need to display the contents
+    of external documents.
+
+    The openDocument() function is used to execute files located at arbitrary URLs.
+    The user's desktop settings control whether certain executable file types are
+    opened for browsing, or if they are executed instead. Some desktop environments
+    are configured to prevent users from executing files obtained from non-local URLs,
+    or to ask the user's permission before doing so.
+
+    \sa QSystemTrayIcon, QProcess
+*/
+
+/*!
+    \fn bool QDesktopServices::openDocument(const QUrl &url)
+
+    Opens the specified \a file by asking the desktop environment to open it in a
+    suitable application. Returns true if the file is handled successfully; otherwise
+    returns false.
+
+    \sa launchWebBrowser()
+ */
 static bool openDocument(const QUrl &url)
 {
     if (!url.isValid())
@@ -52,6 +87,28 @@ static bool openDocument(const QUrl &url)
     return false;
 }
 
+/*!
+    \fn bool QDesktopServices::launchWebBrowser(const QUrl &url)
+    
+    Opens the given \a url in the appropriate web browser for the user's desktop
+    environment, and returns true if successful; otherwise returns false.
+
+    If a \c mailto URL is specified, the user's e-mail client will be used to open a
+    composer window containing the options specified in the URL, similar to the way
+    \c mailto links are handled by a web browser.
+
+    For example, the following URL contains a recipient (\c{user@foo.com}), a
+    subject (\c{Test}), and a message body (\c{Just a test}):
+
+    \code
+    "mailto:user@foo.com?subject=Test&body=Just a test"
+    \endcode
+
+    \bold{Note:} Although many e-mail clients can send attachments and are
+    unicode-aware, the user may have configured their client without these features.
+
+    \sa openDocument()
+*/
 static bool launchWebBrowser(const QUrl &url)
 {
     if (!url.isValid())
