@@ -3872,10 +3872,6 @@ fi
 if [ -n "$CFG_QWS_DEPTHS" -a "$PLATFORM_QWS" = "yes" ]; then
     for D in `echo "$CFG_QWS_DEPTHS" | sed -e 's/,/ /g'`; do
 	case $D in
-	    4)  QCONFIG_FLAGS="$QCONFIG_FLAGS QT_QWS_DEPTH_8";;
-	    24) QCONFIG_FLAGS="$QCONFIG_FLAGS QT_QWS_DEPTH_32";;
-	esac
-	case $D in
 	    4|8|16|18|24|32) QCONFIG_FLAGS="$QCONFIG_FLAGS QT_QWS_DEPTH_$D";;
 	esac
     done
