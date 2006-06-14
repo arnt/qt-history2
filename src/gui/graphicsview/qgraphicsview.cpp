@@ -399,6 +399,18 @@ void QGraphicsViewPrivate::populateSceneDragDropEvent(QGraphicsSceneDragDropEven
 }
 
 /*!
+    Constructs a QGraphicsView. \a parent is passed to QWidget's constructor.
+*/
+QGraphicsView::QGraphicsView(QWidget *parent)
+    : QAbstractScrollArea(*new QGraphicsViewPrivate, parent)
+{
+    setViewport(0);
+    setAcceptDrops(true);
+    setBackgroundRole(QPalette::Base);
+    setAttribute(Qt::WA_InputMethodEnabled);
+}
+
+/*!
     Constructs a QGraphicsView and sets the visualized scene to \a
     scene. \a parent is passed to QWidget's constructor.
 */
