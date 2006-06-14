@@ -79,8 +79,6 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     This class contains functions that provide simple interfaces to these services
     that indicate whether they succeeded or failed.
 
-    The launchWebBrowser() function is used to open arbitrary URLs
-
     The openUrl() function is used to open files located at arbitrary URLs in external
     applications. For URLs that correspond to resources on the local filing system
     (where the URL scheme is "file"), a suitable application will be used to open the
@@ -90,6 +88,42 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     opened for browsing, or if they are executed instead. Some desktop environments
     are configured to prevent users from executing files obtained from non-local URLs,
     or to ask the user's permission before doing so.
+
+    \section1 URL Handlers
+
+    The behavior of the openUrl() function can be customized for individual URL
+    schemes to allow applications to override the default handling behavior for
+    certain types of URLs.
+
+    The dispatch mechanism allows only one custom handler to be used for each URL
+    scheme; this is set using the setUrlHandler() function. Each handler is
+    implemented as a slot which accepts only a single QUrl argument.
+
+    The existing handlers for each scheme can be removed with the
+    unsetUrlHandler() function. This returns the handling behavior for the given
+    scheme to the default behavior.
+
+    This system makes it easy to implement a help system, for example. Help could be
+    provided in labels and text browsers using \gui{help://myapplication/mytopic}
+    URLs, and by registering a handler it becomes possible to display the help text
+    inside the application:
+
+    \code
+    class MyHelpHandler : public QObject
+    {
+        Q_OBJECT
+    public:
+        ...
+    public slots:
+        void showHelp(const QUrl &url);
+    };
+
+    QDesktopServices::setUrlHandler("help", helpInstance, "showHelp");
+    \endcode
+
+    If inside the handler you decide that you can't open the requested URL, you can
+    just call QDesktopServices::openUrl() without arguments, and it will try to open
+    the URL using the appropriate mechanism for the user's desktop environment.
 
     \sa QSystemTrayIcon, QProcess
 */
@@ -143,33 +177,21 @@ bool QDesktopServices::openUrl(const QUrl &url)
 }
 
 /*!
-    This function provides a way to customize the behavior of QDesktopServices::openUrl(). If openUrl is called
-    with a url that has the specified \a scheme then the given \a method on the \a receiver object is called instead
-    of QDesktopServices launching an external application.
+    Sets the handler for the given \a scheme to be the handler \a method provided by
+    the \a receiver object.
 
-    The provided method must be marked as a slot and accept a QUrl as single argument.
+    This function provides a way to customize the behavior of openUrl(). If openUrl()
+    is called with a URL with the specified \a scheme then the given \a method on the
+    \a receiver object is called instead of QDesktopServices launching an external
+    application.
 
-    This makes it easy for example to implement your own help system. Help could be
-    provided in labels and text browsers using \gui{help://myapplication/mytopic} URLs
-    and by registering a handler it becomes possible to display the help text
-    inside the application:
+    The provided method must be implemented as a slot that only accepts a single QUrl
+    argument.
 
-    \code
-    class MyHelpHandler : public QObject
-    {
-        Q_OBJECT
-    public:
-        ...
-    public slots:
-        void showHelp(const QUrl &url);
-    };
-
-    QDesktopServices::registerUrlHandler("help", helpInstance, "showHelp");
-    \endcode
-
-    If inside the handler you decide that you can't open the requested URL you can
-    just call QDesktopServices::openUrl() and it will try to open the URL using the
-    appropriate mechanism for the user's desktop environment.
+    If setUrlHandler() is used to set a new handler for a scheme which already
+    has a handler, the existing handler is simply replaced with the new one.
+    Since QDesktopServices does not take ownership of handlers, no objects are
+    deleted when a handler is replaced.
 
     Note that the handler will always be called from within the same thread that
     calls QDesktopServices::openUrl().
