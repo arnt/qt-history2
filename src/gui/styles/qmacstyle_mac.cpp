@@ -1822,8 +1822,8 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_ComboBox_PopupFrameStyle:
         ret = QFrame::NoFrame | QFrame::Plain;
         break;
-    case SH_MessageBox_TextSelectable:
-        ret = true;
+    case SH_MessageBox_TextInteractionFlags:
+        ret = Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::TextSelectableByKeyboard;
         break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);

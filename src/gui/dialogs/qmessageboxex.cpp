@@ -50,8 +50,7 @@ void QMessageBoxExPrivate::init()
     Q_Q(QMessageBoxEx);
     label = new QLabel;
     label->setObjectName(QLatin1String("qt_msgboxex_label"));
-    if (q->style()->styleHint(QStyle::SH_MessageBox_TextSelectable))
-        label->setFocusPolicy(Qt::ClickFocus);
+    label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
     label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
 
     icon = QMessageBoxEx::NoIcon;
@@ -68,7 +67,7 @@ void QMessageBoxExPrivate::init()
     defaultButtonId = -1;
 
     QGridLayout *grid = new QGridLayout;
-    grid->addWidget(iconLabel, 0, 0, 1, 1); 
+    grid->addWidget(iconLabel, 0, 0, 1, 1);
     grid->addWidget(label, 0, 1, 1, 1);
     grid->addWidget(buttonBox, 1, 0, 1, 2);
     q->setLayout(grid);
@@ -83,26 +82,26 @@ void QMessageBoxExPrivate::_q_buttonClicked(QAbstractButton *button)
 /*!
     \class QMessageBoxEx
     \since 4.2
-    \brief The QMessageBoxEx class provides a modal dialog with a short message, 
+    \brief The QMessageBoxEx class provides a modal dialog with a short message,
            an icon, and buttons laid out depending on the current style.
     \ingroup dialogs
     \mainclass
 
     Message boxes are used to provide informative messages and to ask simple questions.
-    QMessageBoxEx provides all the functionality of QMessageBox. In addition, 
+    QMessageBoxEx provides all the functionality of QMessageBox. In addition,
     QMessageBoxEx has the capability to add any number of buttons to the message box.
     The buttons in the box are laid out depending on the platform.
 
     Like QMessageBox, QMessageBoxEx provides a range of different messages depending on
     the severity of the message. The message box has a different icon for each of
-    the severity levels.You can use the static functions, QMessageBox::information(), 
-    QMessageBox::question(), QMessageBox::critical and QMessageBox::warning() 
+    the severity levels.You can use the static functions, QMessageBox::information(),
+    QMessageBox::question(), QMessageBox::critical and QMessageBox::warning()
     for the most common cases.
 
     The text part of all message box messages can be either rich text
-    or plain text. With certain strings that contain XML meta characters, 
-    the auto-rich text detection may fail, interpreting plain text 
-    incorrectly as rich text. In these rare cases, use Qt::convertFromPlainText() 
+    or plain text. With certain strings that contain XML meta characters,
+    the auto-rich text detection may fail, interpreting plain text
+    incorrectly as rich text. In these rare cases, use Qt::convertFromPlainText()
     to convert your plain text string to a visually equivalent rich text string
     or set the text format explicitly with setTextFormat().
 
@@ -112,8 +111,8 @@ void QMessageBoxExPrivate::_q_buttonClicked(QAbstractButton *button)
     If none of the standard message boxes is suitable, you can create a
     QMessageBoxEx from scratch. You can use QMessageBoxEx::addButton() to add
     the standard buttons in QMessageBox::StandardButton. QMessageBoxEx::addButton()
-    has an additional overload, that takes a custom text and the button role 
-    as an argument. The button role is used to automatically determine the 
+    has an additional overload, that takes a custom text and the button role
+    as an argument. The button role is used to automatically determine the
     position of the button within the dialog box.
 
     The text(), icon() and iconPixmap() functions provide access to the
@@ -163,7 +162,7 @@ QMessageBoxEx::QMessageBoxEx(QWidget *parent)
 
     \sa setWindowTitle(), setText(), setIcon()
 */
-QMessageBoxEx::QMessageBoxEx(const QString &caption, const QString &text, 
+QMessageBoxEx::QMessageBoxEx(const QString &caption, const QString &text,
                              Icon icon, QWidget *parent, Qt::WFlags f)
 : QDialog(*new QMessageBoxExPrivate, parent, f | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
@@ -261,8 +260,8 @@ int QMessageBoxEx::addButton(const QString& text, ButtonRole role)
 */
 
 /*!
-    Adds a standard \a button to the message  box if it is valid to do so, and 
-    returns the button id. If \a button is invalid, it is not added to the 
+    Adds a standard \a button to the message  box if it is valid to do so, and
+    returns the button id. If \a button is invalid, it is not added to the
     button box, and -1 is returned.
 */
 int QMessageBoxEx::addButton(StandardButton button)
@@ -287,7 +286,7 @@ QPushButton *QMessageBoxEx::button(int id) const
 }
 
 /*!
-    Returns the button id that gets activated when escape is presed.  Returns -1 
+    Returns the button id that gets activated when escape is presed.  Returns -1
     if no escape button was set.
 
     \sa addButton(), setEscapeButton()
@@ -312,7 +311,7 @@ void QMessageBoxEx::setEscapeButton(int id)
 }
 
 /*!
-    Returns the button id that gets activated by default.  Returns -1 if no 
+    Returns the button id that gets activated by default.  Returns -1 if no
     default button was set.
 
     \sa addButton(), setDefaultButton()
@@ -550,7 +549,7 @@ void QMessageBoxEx::showEvent(QShowEvent *e)
 static QMessageBoxEx::StandardButton showMessageBoxEx(QWidget *parent,
     QMessageBoxEx::Icon icon,
     const QString& caption, const QString& text,
-    QMessageBoxEx::StandardButtons buttons, 
+    QMessageBoxEx::StandardButtons buttons,
     QMessageBoxEx::StandardButton defaultButton)
 {
     QMessageBoxEx msgBox(caption, text, icon, parent);
@@ -583,7 +582,7 @@ static QMessageBoxEx::StandardButton showMessageBoxEx(QWidget *parent,
     message box. \a defaultButton specifies the button be used as the
     defaultButton. If the \a defaultButton is set to QMessageBoxEx::NoButton,
     QMessageBoxEx picks a suitable default automatically.
-  
+
     Returns the identity of the standard button that was activated. If escape
     was pressed, returns QMessageBoxEx::Cancel.
 
@@ -597,7 +596,7 @@ QMessageBoxEx::StandardButton QMessageBoxEx::information(QWidget *parent, const 
                                const QString& text, StandardButtons buttons,
                                StandardButton defaultButton)
 {
-    return showMessageBoxEx(parent, Information, caption, text, buttons, 
+    return showMessageBoxEx(parent, Information, caption, text, buttons,
                             defaultButton);
 }
 
@@ -607,7 +606,7 @@ QMessageBoxEx::StandardButton QMessageBoxEx::information(QWidget *parent, const 
     message box. \a defaultButton specifies the button be used as the
     defaultButton. If the \a defaultButton is set to QMessageBoxEx::NoButton,
     QMessageBoxEx picks a suitable default automatically.
-   
+
     Returns the identity of the standard button that was activated. If escape
     was pressed, returns QMessageBoxEx::Cancel.
 
@@ -630,7 +629,7 @@ QMessageBoxEx::StandardButton QMessageBoxEx::question(QWidget *parent, const QSt
     message box. \a defaultButton specifies the button be used as the
     defaultButton.  If the \a defaultButton is set to QMessageBoxEx::NoButton,
     QMessageBoxEx picks a suitable default automatically.
-   
+
     Returns the identity of the standard button that was activated. If escape
     was pressed, returns QMessageBoxEx::Cancel.
 

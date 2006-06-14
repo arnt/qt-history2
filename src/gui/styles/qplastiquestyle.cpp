@@ -5072,8 +5072,8 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_DialogButtonLayout:
         ret = QDialogButtonBox::KdeLayout;
         break;
-    case SH_MessageBox_TextSelectable:
-        ret = 1;
+    case SH_MessageBox_TextInteractionFlags:
+        ret = Qt::TextBrowserInteraction;
         break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);

@@ -34,6 +34,7 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
     Q_PROPERTY(bool openExternalLinks READ openExternalLinks WRITE setOpenExternalLinks)
+    Q_PROPERTY(Qt::TextInteractionFlags textInteractionFlags READ textInteractionFlags WRITE setTextInteractionFlags)
 
 public:
     explicit QLabel(QWidget *parent=0, Qt::WFlags f=0);
@@ -76,6 +77,9 @@ public:
 
     bool openExternalLinks() const;
     void setOpenExternalLinks(bool open);
+
+    void setTextInteractionFlags(Qt::TextInteractionFlags flags);
+    Qt::TextInteractionFlags textInteractionFlags() const;
 
 public Q_SLOTS:
     void setText(const QString &);

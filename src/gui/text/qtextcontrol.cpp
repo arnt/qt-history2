@@ -551,10 +551,13 @@ void QTextControlPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
 void QTextControlPrivate::setBlinkingCursorEnabled(bool enable)
 {
     Q_Q(QTextControl);
-    if (enable && QApplication::cursorFlashTime() > 0)
+    if (enable && QApplication::cursorFlashTime() > 0) {
         cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
-    else
+        cursorOn = true;
+    } else {
         cursorBlinkTimer.stop();
+        cursorOn = false;
+    }
     repaintCursor();
 }
 
@@ -1727,8 +1730,7 @@ void QTextControl::setFocus(bool focus, Qt::FocusReason reason)
 void QTextControlPrivate::focusEvent(QFocusEvent *e)
 {
     if (e->gotFocus()) {
-        if (interactionFlags & Qt::TextSelectableByKeyboard)
-            cursorOn = true;
+        cursorOn = (interactionFlags & Qt::TextSelectableByKeyboard);
         if (interactionFlags & Qt::TextEditable) {
             setBlinkingCursorEnabled(true);
 #ifdef QT_KEYPAD_NAVIGATION
@@ -1744,8 +1746,6 @@ void QTextControlPrivate::focusEvent(QFocusEvent *e)
         }
     } else {
         setBlinkingCursorEnabled(false);
-        if (e->reason() != Qt::PopupFocusReason)
-            cursorOn = false;
 
         if (interactionFlags & Qt::LinksAccessibleByKeyboard
             && e->reason() != Qt::ActiveWindowFocusReason

@@ -80,6 +80,7 @@ public:
     Qt::TextFormat textformat;
     QTextDocument* doc;
     QTextControl *control;
+    Qt::TextInteractionFlags textInteractionFlags;
 
     void ensureTextControl();
     void sendControlEvent(QEvent *e);
@@ -336,6 +337,7 @@ void QLabelPrivate::init()
     textformat = Qt::AutoText;
     doc = 0;
     control = 0;
+    textInteractionFlags = Qt::NoTextInteraction;
 
     q->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 
@@ -726,6 +728,32 @@ void QLabel::setOpenExternalLinks(bool open)
     d->openExternalLinks = open;
 }
 
+/*!
+    \property QLabel::TextInteractionFlags
+
+    Specifies how the label should interact with user input if it displays text.
+
+    If the flags contain either Qt::LinksAccessibleByKeyboard or Qt::TextSelectableByKeyboard
+    then the focus policy is also automatically set to Qt::ClickFocus.
+*/
+void QLabel::setTextInteractionFlags(Qt::TextInteractionFlags flags)
+{
+    Q_D(QLabel);
+    d->textInteractionFlags = flags;
+    if ((flags & Qt::LinksAccessibleByKeyboard)
+        || (flags & Qt::TextSelectableByKeyboard))
+        setFocusPolicy(Qt::ClickFocus);
+    else
+        setFocusPolicy(Qt::NoFocus);
+    if (d->control)
+        d->control->setTextInteractionFlags(flags);
+}
+
+Qt::TextInteractionFlags QLabel::textInteractionFlags() const
+{
+    Q_D(const QLabel);
+    return d->textInteractionFlags;
+}
 
 /*!\reimp
 */
@@ -930,7 +958,8 @@ void QLabel::paintEvent(QPaintEvent *)
             s.format.setForeground(palette().brush(QPalette::HighlightedText));
             context.selections.append(s);
         }
-        if (!cursor.isNull() && hasFocus())
+        if (!cursor.isNull() && hasFocus()
+            && (d->control->textInteractionFlags() & Qt::TextSelectableByKeyboard))
             context.cursorPosition = cursor.position();
         layout->draw(&painter, context);
         painter.restore();
@@ -1339,7 +1368,7 @@ void QLabelPrivate::ensureTextControl()
     if (control || !doc)
         return;
     control = new QTextControl(doc, q);
-    control->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard | Qt::LinksAccessibleByMouse);
+    control->setTextInteractionFlags(textInteractionFlags);
     control->setPalette(q->palette());
     control->setFocus(q->hasFocus());
     QObject::connect(control, SIGNAL(updateRequest(const QRectF &)),

@@ -532,8 +532,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
     }
     label = new QLabel(q);
     label->setObjectName(QLatin1String("qt_msgbox_label"));
-    if (q->style()->styleHint(QStyle::SH_MessageBox_TextSelectable))
-        label->setFocusPolicy(Qt::ClickFocus);
+    label->setTextInteractionFlags(Qt::TextInteractionFlags(q->style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags)));
     label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
     label->setOpenExternalLinks(true);
 
