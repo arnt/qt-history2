@@ -1,7 +1,7 @@
 TEMPLATE      = subdirs
 SUBDIRS       = basiclayouts \
                 borderlayout \
-                dynamiclayout \
+                dynamiclayouts \
                 flowlayout
 
 # install
