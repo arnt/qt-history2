@@ -1170,8 +1170,10 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
 void QTreeView::mousePressEvent(QMouseEvent *event)
 {
     Q_D(QTreeView);
-    if (state() != NoState || !d->viewport->rect().contains(event->pos()))
+    // we want to handle mousePress in EditingState (persistent editors)
+    if ((state() != NoState && state() != EditingState) || !d->viewport->rect().contains(event->pos())) {
         return;
+    }
     int i = d->itemDecorationAt(event->pos());
     if (i == -1) {
         QAbstractItemView::mousePressEvent(event);
