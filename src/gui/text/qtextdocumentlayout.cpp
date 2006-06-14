@@ -47,10 +47,7 @@ struct QLayoutStruct;
 class QTextFrameData : public QTextFrameLayoutData
 {
 public:
-    QTextFrameData()
-        : minimumWidth(0), maximumWidth(INT_MAX), currentLayoutStruct(0),
-          sizeDirty(true), layoutDirty(true)
-        {}
+    QTextFrameData();
 
     // relative to parent frame
     QPointF position;
@@ -76,6 +73,13 @@ public:
 
     QList<QPointer<QTextFrame> > floats;
 };
+
+QTextFrameData::QTextFrameData()
+    : margin(0), border(0), padding(0), contentsWidth(0), contentsHeight(0),
+      minimumWidth(0), maximumWidth(INT_MAX), currentLayoutStruct(0),
+      sizeDirty(true), layoutDirty(true)
+{
+}
 
 struct QLayoutStruct {
     QLayoutStruct() : contentsWidth(0), minimumWidth(0), maximumWidth(INT_MAX),
@@ -1561,6 +1565,8 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
 //     qDebug("layouting frame (%d--%d), parent=%p", f->firstPosition(), f->lastPosition(), f->parentFrame());
 
     QTextFrameData *fd = data(f);
+    const qreal oldContentsWidth = fd->contentsWidth;
+    qreal newContentsWidth;
 
     {
         QTextFrameFormat fformat = f->frameFormat();
@@ -1569,7 +1575,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
         fd->border = fformat.border();
         fd->padding = fformat.padding();
 
-        fd->contentsWidth = frameWidth - 2*(fd->margin + fd->border + fd->padding);
+        newContentsWidth = frameWidth - 2*(fd->margin + fd->border + fd->padding);
 
         if (frameHeight != -1) {
             fd->contentsHeight = frameHeight - 2*(fd->margin + fd->border + fd->padding);
@@ -1583,6 +1589,7 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     int startPos = f->firstPosition();
     int endPos = f->lastPosition();
     if (startPos > endPos) {
+        fd->contentsWidth = newContentsWidth;
         // inline image
         QTextCharFormat format = q->format(startPos - 1);
         QTextObjectInterface *iface = q->handlerForObject(format.objectType());
@@ -1593,13 +1600,11 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     }
 
     if (QTextTable *table = qobject_cast<QTextTable *>(f)) {
+        fd->contentsWidth = newContentsWidth;
         return layoutTable(table, layoutFrom, layoutTo);
     }
 
-    // needed for child frames with a minimum width that is
-    // more than what we can offer
-    qreal newContentsWidth = fd->contentsWidth;
-
+    qreal maxChildFrameWidth = 0;
     // layout child frames
     QList<QTextFrame *> children = f->childFrames();
     for (int i = 0; i < children.size(); ++i) {
@@ -1608,24 +1613,22 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
         if (cd->sizeDirty) {
             layoutFrame(c, layoutFrom, layoutTo);
         }
-        newContentsWidth = qMax(newContentsWidth, cd->size.width());
+        maxChildFrameWidth = qMax(maxChildFrameWidth, cd->size.width());
     }
 
     qreal margin = fd->margin + fd->border;
     QLayoutStruct layoutStruct;
     layoutStruct.frame = f;
     layoutStruct.x_left = margin + fd->padding;
-    layoutStruct.x_right = margin + fd->contentsWidth - fd->padding;
+    layoutStruct.x_right = margin + newContentsWidth - fd->padding;
     layoutStruct.y = margin + fd->padding;
     layoutStruct.contentsWidth = 0;
     layoutStruct.minimumWidth = 0;
     layoutStruct.maximumWidth = INT_MAX;
-    layoutStruct.fullLayout = fd->contentsWidth != newContentsWidth;
+    layoutStruct.fullLayout = oldContentsWidth != newContentsWidth;
     layoutStruct.updateRect = QRectF(QPointF(0, 0), QSizeF(INT_MAX, INT_MAX));
     LDEBUG << "layoutStruct: x_left" << layoutStruct.x_left << "x_right" << layoutStruct.x_right
            << "fullLayout" << layoutStruct.fullLayout;
-
-    fd->contentsWidth = newContentsWidth;
 
     if (!f->parentFrame()) {
         layoutStruct.pageHeight = q->document()->pageSize().height();
@@ -1638,7 +1641,10 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     QTextFrame::Iterator it = f->begin();
     layoutFlow(it, &layoutStruct, layoutFrom, layoutTo);
 
-    fd->contentsWidth = qMax(fd->contentsWidth, layoutStruct.contentsWidth);
+    fd->contentsWidth = qMax(maxChildFrameWidth, layoutStruct.contentsWidth);
+    if (f->parentFrame())
+        fd->contentsWidth = qMax(fd->contentsWidth, newContentsWidth);
+
     fd->minimumWidth = layoutStruct.minimumWidth;
     fd->maximumWidth = layoutStruct.maximumWidth;
 
