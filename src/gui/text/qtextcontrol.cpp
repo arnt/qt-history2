@@ -1342,6 +1342,9 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
     if (!(button & Qt::LeftButton))
         return;
 
+    if (!((interactionFlags & Qt::TextSelectableByMouse) || (interactionFlags & Qt::TextEditable)))
+        return;
+
     const QTextCursor oldSelection = cursor;
     const int oldCursorPos = cursor.position();
 
@@ -1437,6 +1440,9 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
     if (!(buttons & Qt::LeftButton))
         return;
 
+    if (!((interactionFlags & Qt::TextSelectableByMouse) || (interactionFlags & Qt::TextEditable)))
+        return;
+
     if (!(mousePressed
           || selectedWordOnDoubleClick.hasSelection()
           || selectedLineOnDoubleClick.hasSelection()))
@@ -1503,7 +1509,8 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
     if (mousePressed) {
         mousePressed = false;
 #ifndef QT_NO_CLIPBOARD
-        setClipboardSelection();
+        if (interactionFlags & Qt::TextSelectableByMouse)
+            setClipboardSelection();
     } else if (button == Qt::MidButton
                && (interactionFlags & Qt::TextEditable)
                && QApplication::clipboard()->supportsSelection()) {
