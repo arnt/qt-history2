@@ -1439,6 +1439,9 @@ QPainterPath QGraphicsView::mapFromScene(const QPainterPath &path) const
 QVariant QGraphicsView::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     Q_D(const QGraphicsView);
+    if (!d->scene)
+        return QVariant();
+
     QVariant value = d->scene->inputMethodQuery(query);
     if (value.type() == QVariant::RectF)
         value = mapFromScene(value.toRectF()).boundingRect();
