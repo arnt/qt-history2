@@ -3720,7 +3720,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = QFrame::StyledPanel | QFrame::Plain;
         break;
     case SH_MessageBox_TextInteractionFlags:
-        ret = Qt::NoTextInteraction;
+        ret = Qt::LinksAccessibleByMouse;
         break;
     case SH_DialogButtonBox_ButtonsHaveIcons:
         ret = 0;
