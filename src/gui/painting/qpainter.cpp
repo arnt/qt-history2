@@ -4464,8 +4464,7 @@ static void drawTextItemDecoration(QPainter *painter, const QPointF &pos, const 
         if (ti.underlineColor.isValid())
             pen.setColor(ti.underlineColor);
 
-        Qt::PenStyle underlineStyle = (Qt::PenStyle)(underlineStyle);
-        pen.setStyle(underlineStyle);
+        pen.setStyle((Qt::PenStyle)(underlineStyle));
         painter->setPen(pen);
         painter->drawLine(underLine);
     }
