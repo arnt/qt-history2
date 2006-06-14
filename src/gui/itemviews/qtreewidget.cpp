@@ -1416,8 +1416,10 @@ QTreeWidgetItem *QTreeWidgetItem::clone() const
 */
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
-    QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
+    if (column < 0)
+        return;
 
+    QTreeModel *model = (view ? ::qobject_cast<QTreeModel*>(view->model()) : 0);
     switch(role) {
     case Qt::EditRole:
     case Qt::DisplayRole:
