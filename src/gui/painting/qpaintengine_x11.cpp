@@ -614,20 +614,15 @@ void QX11PaintEnginePrivate::resetAdaptedOrigin()
         XSetTSOrigin(dpy, gc_brush, 0, 0);
 }
 
-void QX11PaintEnginePrivate::clipPolygon(const QPolygonF &poly, QPolygonF *clipped_poly)
+void QX11PaintEnginePrivate::clipPolygon_dev(const QPolygonF &poly, QPolygonF *clipped_poly)
 {
     int clipped_count = 0;
     qt_float_point *clipped_points = 0;
-    QRect old_clip = polygonClipper.boundingRect();
-    QRect logic_rect(matrix.inverted().mapRect(old_clip));
-    polygonClipper.setBoundingRect(logic_rect);
     polygonClipper.clipPolygon((qt_float_point *) poly.data(), poly.size(),
                                &clipped_points, &clipped_count);
-    polygonClipper.setBoundingRect(old_clip);
     clipped_poly->resize(clipped_count);
     for (int i=0; i<clipped_count; ++i)
         (*clipped_poly)[i] = *((QPointF *)(&clipped_points[i]));
-
 }
 
 static QPaintEngine::PaintEngineFeatures qt_decide_features()
@@ -1109,22 +1104,23 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
 
     if (state.state() & DirtyClipEnabled) {
         if (state.isClipEnabled()) {
-            QPolygonF clipped_poly;
-            d->clipPolygon(painter()->clipPath().toFillPolygon(), &clipped_poly);
-            updateClipRegion(QRegion(clipped_poly.toPolygon()), Qt::ReplaceClip);
+            QPolygonF clip_poly_dev(d->matrix.map(painter()->clipPath().toFillPolygon()));
+            QPolygonF clipped_poly_dev;
+            d->clipPolygon_dev(clip_poly_dev, &clipped_poly_dev);
+            updateClipRegion_dev(QRegion(clipped_poly_dev.toPolygon()), Qt::ReplaceClip);
         } else {
-            updateClipRegion(QRegion(), Qt::NoClip);
+            updateClipRegion_dev(QRegion(), Qt::NoClip);
         }
     }
 
     if (flags & DirtyClipPath) {
-        QPolygonF clipped_poly;
-        d->clipPolygon(state.clipPath().toFillPolygon(), &clipped_poly);
-        updateClipRegion(QRegion(clipped_poly.toPolygon(),
-                                 state.clipPath().fillRule()),
-                         state.clipOperation());
+        QPolygonF clip_poly_dev(d->matrix.map(state.clipPath().toFillPolygon()));
+        QPolygonF clipped_poly_dev;
+        d->clipPolygon_dev(clip_poly_dev, &clipped_poly_dev);
+        updateClipRegion_dev(QRegion(clipped_poly_dev.toPolygon(), state.clipPath().fillRule()),
+                             state.clipOperation());
     } else if (flags & DirtyClipRegion) {
-        updateClipRegion(state.clipRegion(), state.clipOperation());
+        updateClipRegion_dev(d->matrix.map(state.clipRegion()), state.clipOperation());
     }
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
 #if !defined(QT_NO_XRENDER)
@@ -1968,7 +1964,10 @@ void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
     d->has_complex_xform = (d->txop > QPainterPrivate::TxTranslate);
 }
 
-void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
+/*
+   NB! the clip region is expected to be in dev coordinates
+*/
+void QX11PaintEngine::updateClipRegion_dev(const QRegion &clipRegion, Qt::ClipOperation op)
 {
     Q_D(QX11PaintEngine);
     QRegion sysClip = systemClip();
@@ -1983,22 +1982,21 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
         return;
     }
 
-    QRegion region = clipRegion * d->matrix;
     switch (op) {
     case Qt::IntersectClip:
         if (d->has_clipping) {
-            d->crgn &= region;
+            d->crgn &= clipRegion;
             break;
         }
         // fall through
     case Qt::ReplaceClip:
         if (!sysClip.isEmpty())
-            d->crgn = region.intersect(sysClip);
+            d->crgn = clipRegion.intersect(sysClip);
         else
-            d->crgn = region;
+            d->crgn = clipRegion;
         break;
     case Qt::UniteClip:
-        d->crgn |= region;
+        d->crgn |= clipRegion;
         if (!sysClip.isEmpty())
             d->crgn = d->crgn.intersect(sysClip);
         break;
