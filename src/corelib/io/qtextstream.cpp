@@ -364,11 +364,12 @@ public:
     inline bool putString(const QString &ch);
 
     // buffers
-    bool fillReadBuffer();
+    bool fillReadBuffer(qint64 maxBytes = -1);
     bool flushWriteBuffer();
     QString writeBuffer;
     QString readBuffer;
     int readBufferOffset;
+    qint64 readBufferStartDevicePos;
     QString endOfBufferState;
 
     // streaming parameters
@@ -431,6 +432,7 @@ void QTextStreamPrivate::reset()
     stringOpenMode = QIODevice::NotOpen;
 
     readBufferOffset = 0;
+    readBufferStartDevicePos = 0;
     endOfBufferState.clear();
     lastTokenSize = 0;
 
@@ -445,7 +447,7 @@ void QTextStreamPrivate::reset()
 
 /*! \internal
 */
-bool QTextStreamPrivate::fillReadBuffer()
+bool QTextStreamPrivate::fillReadBuffer(qint64 maxBytes)
 {
     // no buffer next to the QString itself; this function should only
     // be called internally, for devices.
@@ -457,6 +459,11 @@ bool QTextStreamPrivate::fillReadBuffer()
     if (textModeEnabled)
         device->setTextModeEnabled(false);
 
+    // Record the device position corresponding to the start of the read
+    // buffer.
+    if (readBuffer.isEmpty() && endOfBufferState.isEmpty())
+        readBufferStartDevicePos = device->pos();
+    
     // read raw data into a temporary buffer
     char buf[QTEXTSTREAM_BUFFERSIZE];
     qint64 bytesRead = 0;
@@ -471,11 +478,17 @@ bool QTextStreamPrivate::fillReadBuffer()
         && (file = qobject_cast<QFile *>(device)) && file->handle() == 0
 #endif
         ) {
-        bytesRead = device->readLine(buf, sizeof(buf));
+        if (maxBytes != -1)
+            bytesRead = device->readLine(buf, qMin<qint64>(sizeof(buf), maxBytes));
+        else
+            bytesRead = device->readLine(buf, sizeof(buf));
     } else
 #endif
     {
-        bytesRead = device->read(buf, sizeof(buf));
+        if (maxBytes != -1)
+            bytesRead = device->read(buf, qMin<qint64>(sizeof(buf), maxBytes));
+        else
+            bytesRead = device->read(buf, sizeof(buf));
     }
 
 #if defined (QTEXTSTREAM_DEBUG)
@@ -504,6 +517,7 @@ bool QTextStreamPrivate::fillReadBuffer()
 #endif
 #endif
 
+    int oldReadBufferSize = readBuffer.size();
     readBuffer += endOfBufferState;
 #ifndef QT_NO_TEXTCODEC
     // convert to unicode
@@ -513,7 +527,7 @@ bool QTextStreamPrivate::fillReadBuffer()
 #endif
 
     // reset the Text flag.
-    if (textModeEnabled) {
+    if (readBuffer.size() > oldReadBufferSize && textModeEnabled) {
         device->setTextModeEnabled(true);
 
         // remove all '\r\n' in the string.
@@ -755,6 +769,7 @@ inline void QTextStreamPrivate::consume(int size)
 inline bool QTextStreamPrivate::write(const QString &data)
 {
     if (string) {
+        // ### What about seek()??
         string->append(data);
     } else {
         writeBuffer += data;
@@ -1053,11 +1068,57 @@ bool QTextStream::seek(qint64 pos)
     }
 
     // string
-    if (d->string && pos < d->string->size()) {
+    if (d->string && pos <= d->string->size()) {
         d->stringOffset = int(pos);
         return true;
     }
     return false;
+}
+
+/*!
+    Returns the device position corresponding to the current position of the
+    stream, or -1 if an error occurs (e.g., if there is no device or string,
+    or if there's a device error).
+
+    Because QTextStream is buffered, this function may have to rewind the
+    device to reconstruct a valid device position. This operation can be
+    expensive, so you may want to avoid calling this function in a tight loop.
+
+    \sa seek()
+*/
+qint64 QTextStream::pos() const
+{
+    Q_D(const QTextStream);
+    if (d->device) {
+        // Cutoff
+        if (d->readBuffer.isEmpty() && d->endOfBufferState.isEmpty())
+            return d->device->pos();
+        if (d->device->isSequential())
+            return 0;
+
+        // Seek the device
+        if (!d->device->seek(d->readBufferStartDevicePos))
+            return qint64(-1);
+
+        // Reset the read buffer
+        QTextStreamPrivate *thatd = const_cast<QTextStreamPrivate *>(d);
+        thatd->readBuffer.clear();
+
+        // Rewind the device to get to the current position
+        while (d->readBuffer.size() < d->readBufferOffset) {
+            if (!thatd->fillReadBuffer(1))
+                return qint64(-1);
+        }
+
+        // Return the device position.
+        return d->device->pos();
+    }
+
+    if (d->string)
+        return d->stringOffset;
+
+    qWarning("QTextStream::pos: no device");
+    return qint64(-1);
 }
 
 /*!

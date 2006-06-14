@@ -100,6 +100,7 @@ public:
     void reset();
     void flush();
     bool seek(qint64 pos);
+    qint64 pos() const;
 
     void skipWhiteSpace();
 
