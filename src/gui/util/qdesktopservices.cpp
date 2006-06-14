@@ -79,11 +79,13 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     This namespace contains functions that provide simple interfaces to these services
     that indicate whether they succeeded or failed.
 
-    The launchWebBrowser() function is used to open arbitrary URLs in the user's
-    web browser, and is typically most useful when you need to display the contents
-    of external documents.
+    The launchWebBrowser() function is used to open arbitrary URLs 
 
-    The openDocument() function is used to execute files located at arbitrary URLs.
+    The openUrl() function is used to open files located at arbitrary URLs in external
+    applications. For URLs that correspond to resources on the local filing system
+    (where the URL scheme is "file"), a suitable application will be used to open the
+    file; otherwise, a web browser will be used to fetch and display the file.
+
     The user's desktop settings control whether certain executable file types are
     opened for browsing, or if they are executed instead. Some desktop environments
     are configured to prevent users from executing files obtained from non-local URLs,
@@ -96,7 +98,7 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     Opens the given \a url in the appropriate web browser for the user's desktop
     environment, and returns true if successful; otherwise returns false.
 
-    If the \a url is a reference to a local file (i.e. the url scheme is "file") then
+    If the \a url is a reference to a local file (i.e. the URL scheme is "file") then
     it will be opened with a suitable application instead of a web browser.
 
     If a \c mailto URL is specified, the user's e-mail client will be used to open a
@@ -114,7 +116,6 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     unicode-aware, the user may have configured their client without these features.
 
     \sa setUrlHandler()
-
 */
 bool QDesktopServices::openUrl(const QUrl &url)
 {
@@ -146,11 +147,13 @@ bool QDesktopServices::openUrl(const QUrl &url)
     with a url that has the specified \a scheme then the given \a method on the \a receiver object is called instead
     of QDesktopServices launching an external application.
 
-    The provided method must be marked as a slot and take a QUrl as single argument.
+    The provided method must be marked as a slot and accept a QUrl as single argument.
 
-    This makes it easy for example to implement your own help system. Help could be provided in labels and text browsers
-    using help://myapplication/mytopic URLs and by registering a handler it becomes possible to display the help text
+    This makes it easy for example to implement your own help system. Help could be
+    provided in labels and text browsers using \gui{help://myapplication/mytopic} URLs
+    and by registering a handler it becomes possible to display the help text
     inside the application:
+
     \code
     class MyHelpHandler : public QObject
     {
@@ -164,10 +167,12 @@ bool QDesktopServices::openUrl(const QUrl &url)
     QDesktopServices::registerUrlHandler("help", helpInstance, "showHelp");
     \endcode
 
-    If inside the handler you decide that you can't open the requested url you can just call QDesktopServices::openUrl
-    and it will try to open the url using the operating system.
+    If inside the handler you decide that you can't open the requested URL you can
+    just call QDesktopServices::openUrl() and it will try to open the URL using the
+    appropriate mechanism for the user's desktop environment.
 
-    Note that the handler will always be called from within the same thread that calls QDesktopServices::openUrl.
+    Note that the handler will always be called from within the same thread that
+    calls QDesktopServices::openUrl().
 
     \sa openUrl()
 */
