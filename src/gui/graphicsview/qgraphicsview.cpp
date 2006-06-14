@@ -1471,7 +1471,12 @@ void QGraphicsView::setBackgroundBrush(const QBrush &brush)
 {
     Q_D(QGraphicsView);
     d->backgroundBrush = brush;
-    update();
+    viewport()->update();
+
+    if (d->cacheMode & CacheBackground) {
+        // Invalidate the background pixmap
+        d->mustResizeBackgroundPixmap = true;
+    }
 }
 
 /*!
