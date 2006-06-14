@@ -11,7 +11,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 **************************************************************************-->
-<widgetbox version="4.0">
+<widgetbox version="4.2">
     <category name="Layouts">
         <widget class="QWidget"  name="Vertical Layout" icon="win/editvlayout.png">
             <property name="objectName">
@@ -344,7 +344,6 @@
 
     <category name="Input Widgets">
 
-
         <widget class="QComboBox" name="Combo Box" icon="widgets/combobox.png">
             <property name="geometry" >
                 <rect>
@@ -356,6 +355,20 @@
             </property>
             <property name="objectName">
                 <string notr="true">comboBox</string>
+            </property>
+        </widget>
+
+        <widget class="QFontComboBox" name="Font Combo Box" icon="widgets/combobox.png">
+            <property name="geometry" >
+                <rect>
+                    <x>119</x>
+                    <y>28</y>
+                    <width>41</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">fontComboBox</string>
             </property>
         </widget>
 
@@ -556,6 +569,20 @@
         <widget class="QTextBrowser" name="Text Browser" icon="widgets/textedit.png">
             <property name="objectName">
                 <string notr="true">textBrowser</string>
+            </property>
+        </widget>
+
+        <widget class="QGraphicsView" name="Graphics View" icon="widgets/frame.png">
+            <property name="objectName">
+                <string notr="true">graphicsView</string>
+            </property>
+            <property name="geometry" >
+                <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>104</width>
+                    <height>64</height>
+                </rect>
             </property>
         </widget>
 

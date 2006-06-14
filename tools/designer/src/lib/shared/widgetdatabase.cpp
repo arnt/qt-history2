@@ -182,6 +182,7 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
 #undef DECLARE_COMPAT_WIDGET
 #undef DECLARE_LAYOUT
 #undef DECLARE_WIDGET
+#undef DECLARE_WIDGET_1
 
     append(new WidgetDataBaseItem(QString::fromUtf8("Line")));
     append(new WidgetDataBaseItem(QString::fromUtf8("Spacer")));

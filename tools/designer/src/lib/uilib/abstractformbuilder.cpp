@@ -1737,7 +1737,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             dom->setElementYear(dateTime.date().year());
             dom->setElementMonth(dateTime.date().month());
             dom->setElementDay(dateTime.date().day());
-            
+
             dom_prop->setElementDateTime(dom);
         } break;
 

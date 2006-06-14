@@ -264,6 +264,7 @@ void QUiLoaderPrivate::setupWidgetMap() const
 #include "widgets.table"
 
 #undef DECLARE_WIDGET
+#undef DECLARE_WIDGET_1
 #undef DECLARE_LAYOUT
 }
 

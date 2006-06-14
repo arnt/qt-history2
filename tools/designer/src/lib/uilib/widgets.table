@@ -1,4 +1,8 @@
 
+#ifndef DECLARE_WIDGET_1
+#  define DECLARE_WIDGET_1(a,b) DECLARE_WIDGET(a,b)
+#endif
+
 // widgets
 DECLARE_WIDGET(QCheckBox, "text")
 DECLARE_WIDGET(QComboBox, "")
@@ -41,6 +45,9 @@ DECLARE_WIDGET(QSplitter, "")
 DECLARE_WIDGET(QStackedWidget, "")
 DECLARE_WIDGET(QStatusBar, "")
 DECLARE_WIDGET(QDialogButtonBox, "")
+DECLARE_WIDGET(QFontComboBox, "")
+
+DECLARE_WIDGET_1(QGraphicsView, "")
 
 // layouts
 DECLARE_LAYOUT(QGridLayout, "")
