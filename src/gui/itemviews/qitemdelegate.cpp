@@ -43,7 +43,7 @@ class QItemDelegatePrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QItemDelegate)
 
 public:
-    QItemDelegatePrivate() : f(0) {}
+    QItemDelegatePrivate() : f(0), clipPainting(false) {}
 
     inline const QItemEditorFactory *editorFactory() const
         { return f ? f : QItemEditorFactory::defaultFactory(); }
@@ -61,6 +61,7 @@ public:
     void _q_commitDataAndCloseEditor(QWidget *editor);
 
     QItemEditorFactory *f;
+    bool clipPainting;
 };
 
 void QItemDelegatePrivate::_q_commitDataAndCloseEditor(QWidget *editor)
@@ -190,6 +191,27 @@ QItemDelegate::~QItemDelegate()
 }
 
 /*!
+  \property QItemDelegate::clipping
+  \brief if the delegate should clip the paint events.
+
+  This property will set the paint clip to the size of the item.
+  The default value is off.  It is useful for cases such
+  as when images are larger then the size of the item.
+*/
+
+bool QItemDelegate::hasClipping() const
+{
+    Q_D(const QItemDelegate);
+    return d->clipPainting;
+}
+
+void QItemDelegate::setClipping(bool clip)
+{
+    Q_D(QItemDelegate);
+    d->clipPainting = clip;
+}
+
+/*!
     Renders the delegate using the given \a painter and style \a option for
     the item specified by \a index.
 
@@ -224,7 +246,8 @@ void QItemDelegate::paint(QPainter *painter,
 
     // prepare
     painter->save();
-    painter->setClipRect(opt.rect);
+    if (d->clipPainting)
+        painter->setClipRect(opt.rect);
 
     // get the data and the rectangles
 
@@ -257,7 +280,7 @@ void QItemDelegate::paint(QPainter *painter,
     }
 
     QRect checkRect;
-    Qt::CheckState checkState;
+    Qt::CheckState checkState = Qt::Unchecked;
     value = index.data(Qt::CheckStateRole);
     if (value.isValid()) {
         checkState = static_cast<Qt::CheckState>(value.toInt());
