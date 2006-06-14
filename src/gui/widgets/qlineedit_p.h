@@ -32,6 +32,7 @@
 #include "QtGui/qstyleoption.h"
 #include "QtCore/qbasictimer.h"
 #include "QtGui/qcompleter.h"
+#include "QtCore/qpointer.h"
 
 class QLineEditPrivate : public QWidgetPrivate
 {
@@ -186,8 +187,8 @@ public:
 
     bool resumePassword;
 
-    QCompleter *completer;
-    bool complete(int key = -1);
+    QPointer<QCompleter> completer;
+    void complete(int key = -1);
     void _q_completionHighlighted(QString);
 };
 

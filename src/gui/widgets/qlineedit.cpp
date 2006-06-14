@@ -568,41 +568,39 @@ QCompleter *QLineEdit::completer() const
     return d->completer;
 }
 
-bool QLineEditPrivate::complete(int key)
+void QLineEditPrivate::complete(int key)
 {
     if (!completer || readOnly || echoMode != QLineEdit::Normal)
-        return false;
+        return;
 
     if (completer->completionMode() == QCompleter::InlineCompletion) {
         if (key == Qt::Key_Backspace)
-            return true;
-        if (key == Qt::Key_Up || key == Qt::Key_Down || key == Qt::Key_PageUp
-            || key == Qt::Key_PageDown) {
+            return;
+        if (key == Qt::Key_Up || key == Qt::Key_Down) {
             if (selend != 0 && selend != text.length())
-                return false;
+                return;
             QString prefix = text.left(cursor);
             int row = completer->currentRow();
             if (prefix != completer->completionPrefix()) {
                 completer->setCompletionPrefix(text.left(cursor));
                 row = 0;
-            } else if (key == Qt::Key_Up || key == Qt::Key_PageUp)
+            } else if (key == Qt::Key_Up)
                 --row;
             else
                 ++row;
             if (!completer->setCurrentRow(row))
-                return false;
+                return;
         } else
             completer->setCompletionPrefix(text);
     } else {
         if (text.isEmpty()) {
             completer->popup()->hide();
-            return true;
+            return;
         }
         completer->setCompletionPrefix(text);
     }
 
     completer->complete();
-    return true;
 }
 
 void QLineEditPrivate::_q_completionHighlighted(QString newText)
@@ -1806,6 +1804,11 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             if (!d->readOnly)
                 redo();
             break;
+        case Qt::Key_Up:
+        case Qt::Key_Down:
+            d->complete(event->key());
+            break;
+
         default:
             unknown = true;
         }
@@ -1922,15 +1925,6 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             }
             break;
 #endif
-
-#ifndef Q_WS_MAC
-        case Qt::Key_Up:
-        case Qt::Key_Down:
-#endif
-        case Qt::Key_PageUp:
-        case Qt::Key_PageDown:
-            unknown = !d->complete(event->key());
-            break;
 
         default:
             unknown = true;
