@@ -22,6 +22,10 @@
 #endif
 #include <q3cstring.h>
 
+QT_BEGIN_HEADER
+
+QT_MODULE(Qt3SupportLight)
+
 class Q3TextStreamPrivate;
 
 class Q_COMPAT_EXPORT Q3TextStream				// text stream class
@@ -254,5 +258,7 @@ Q_COMPAT_EXPORT Q3TextStream &endl( Q3TextStream &s );	// insert EOL ('\n')
 Q_COMPAT_EXPORT Q3TextStream &flush( Q3TextStream &s );	// flush output
 Q_COMPAT_EXPORT Q3TextStream &ws( Q3TextStream &s );	// eat whitespace on input
 Q_COMPAT_EXPORT Q3TextStream &reset( Q3TextStream &s );	// set default flags
+
+QT_END_HEADER
 
 #endif // Q3TEXTSTREAM_H
