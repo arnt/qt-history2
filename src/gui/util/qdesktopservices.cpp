@@ -79,7 +79,7 @@ void QOpenUrlHandlerRegistry::handlerDestroyed(QObject *handler)
     This class contains functions that provide simple interfaces to these services
     that indicate whether they succeeded or failed.
 
-    The launchWebBrowser() function is used to open arbitrary URLs 
+    The launchWebBrowser() function is used to open arbitrary URLs
 
     The openUrl() function is used to open files located at arbitrary URLs in external
     applications. For URLs that correspond to resources on the local filing system
@@ -190,6 +190,14 @@ void QDesktopServices::setUrlHandler(const QString &scheme, QObject *receiver, c
     registry->handlers.insert(scheme, h);
     QObject::connect(receiver, SIGNAL(destroyed(QObject *)),
                      registry, SLOT(handlerDestroyed(QObject *)));
+}
+
+/*!
+    Removes a previously set url handler for the specified \a scheme.
+*/
+void QDesktopServices::unsetUrlHandler(const QString &scheme)
+{
+    setUrlHandler(scheme, 0, 0);
 }
 
 #include "qdesktopservices.moc"
