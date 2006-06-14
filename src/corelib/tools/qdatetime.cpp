@@ -44,6 +44,9 @@ extern QString qt_mac_from_pascal_string(const Str255); // qglobal.cpp
 #endif
 
 enum {
+    FIRST_YEAR = -4713,
+    FIRST_MONTH = 11,
+    FIRST_DAY = 25,
     SECS_PER_DAY = 86400,
     MSECS_PER_DAY = 86400000,
     SECS_PER_HOUR = 3600,
@@ -1005,6 +1008,9 @@ bool QDate::isValid(int y, int m, int d)
 {
     if (y >= 0 && y <= 99)
         y += 1900;
+    if (y < FIRST_YEAR ||
+        (y == FIRST_YEAR && (m < FIRST_MONTH || m == FIRST_MONTH && d < FIRST_DAY)))
+        return false;
     return (d > 0 && m > 0 && m <= 12) &&
            (d <= monthDays[m] || (d == 29 && m == 2 && isLeapYear(y)));
 }
