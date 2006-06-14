@@ -2245,18 +2245,22 @@ int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item) const
 void QTreeWidget::insertTopLevelItems(int index, const QList<QTreeWidgetItem*> &items)
 {
     Q_D(QTreeWidget);
+    QStack<QTreeWidgetItem*> stack;
     for (int n = 0; n < items.count(); ++n) {
         QTreeWidgetItem *item = items.at(n);
         if (item->view || item->par)
             continue;
-        QStack<QTreeWidgetItem*> stack;
-        stack.push(item);
-        while (!stack.isEmpty()) {
-            QTreeWidgetItem *i = stack.pop();
-            i->view = this;
-            for (int c = 0; c < i->children.count(); ++c)
-                stack.push(i->children.at(c));
+        if (item->children.count() == 0) {
+            item->view = this;
+        } else {
+            stack.push(item);
         }
+    }
+    while (!stack.isEmpty()) {
+        QTreeWidgetItem *i = stack.pop();
+        i->view = this;
+        for (int c = 0; c < i->children.count(); ++c)
+            stack.push(i->children.at(c));
     }
     d->model()->insertListInTopLevel(index, items);
 }
