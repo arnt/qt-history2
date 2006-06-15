@@ -316,7 +316,7 @@ qint64 QUdpSocket::pendingDatagramSize() const
     destination.
 
     \warning Calling this function on a connected UDP socket may
-    result in error and no packet being sent. If you are using a
+    result in an error and no packet being sent. If you are using a
     connected socket, use write() to send datagrams.
 
     \sa readDatagram(), write()
@@ -341,7 +341,8 @@ qint64 QUdpSocket::writeDatagram(const char *data, qint64 size, const QHostAddre
     return sent;
 }
 
-/*! \fn qint64 QUdpSocket::writeDatagram(const QByteArray &datagram,
+/*! 
+    \fn qint64 QUdpSocket::writeDatagram(const QByteArray &datagram,
                                              const QHostAddress &host, quint16 port)
     \overload
 
