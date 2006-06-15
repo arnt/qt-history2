@@ -57,6 +57,7 @@ public:
     void addMapping(QWidget *widget, int section);
     void removeMapping(QWidget *widget);
     int mappedSection(QWidget *widget) const;
+    QWidget *mappedWidgetAt(int section) const;
     void clearMapping();
 
     int currentIndex() const;
@@ -65,10 +66,10 @@ public Q_SLOTS:
     void revert();
     bool submit();
 
-    void first();
-    void last();
-    void next();
-    void previous();
+    void toFirst();
+    void toLast();
+    void toNext();
+    void toPrevious();
     virtual void setCurrentIndex(int index);
     void setCurrentModelIndex(const QModelIndex &index);
 

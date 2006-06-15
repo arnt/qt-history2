@@ -235,7 +235,7 @@ void QDataWidgetMapperPrivate::_q_modelDestroyed()
 
     After the call to first(), \c mySpinBox displays the value \c{1}, \c myLineEdit
     displays \c {$TROLLTECH$} and \c myCountryChooser displays \c{Oslo}. The
-    navigational functions first(), next(), previous(), last() and setCurrentIndex()
+    navigational functions toFirst(), toNext(), toPrevious(), toLast() and setCurrentIndex()
     can be used to navigate in the model and update the widgets with contents from
     the model.
 
@@ -469,6 +469,22 @@ int QDataWidgetMapper::mappedSection(QWidget *widget) const
 }
 
 /*!
+    Returns the \a widget that is mapped at \a section, or
+    0 if no widget is mapped at that section.
+
+    \sa addMapping(), removeMapping()
+ */
+QWidget *QDataWidgetMapper::mappedWidgetAt(int section) const
+{
+    Q_D(const QDataWidgetMapper);
+
+    if (section < 0 || section > d->widgetMap.count())
+        return 0;
+
+    return d->widgetMap.at(section).widget;
+}
+
+/*!
     Repopulates all widgets with the current data of the model.
     All unsubmitted changes will be lost.
 
@@ -518,9 +534,9 @@ bool QDataWidgetMapper::submit()
 
     This is equivalent to calling setCurrentIndex(0).
 
-    \sa last(), setCurrentIndex()
+    \sa toLast(), setCurrentIndex()
  */
-void QDataWidgetMapper::first()
+void QDataWidgetMapper::toFirst()
 {
     setCurrentIndex(0);
 }
@@ -532,9 +548,9 @@ void QDataWidgetMapper::first()
 
     Calls setCurrentIndex() internally.
 
-    \sa last(), setCurrentIndex()
+    \sa toLast(), setCurrentIndex()
  */
-void QDataWidgetMapper::last()
+void QDataWidgetMapper::toLast()
 {
     Q_D(QDataWidgetMapper);
     setCurrentIndex(d->itemCount() - 1);
@@ -549,9 +565,9 @@ void QDataWidgetMapper::last()
     Calls setCurrentIndex() internally. Does nothing if there is
     no next row in the model.
 
-    \sa previous(), setCurrentIndex()
+    \sa toPrevious(), setCurrentIndex()
  */
-void QDataWidgetMapper::next()
+void QDataWidgetMapper::toNext()
 {
     Q_D(QDataWidgetMapper);
     setCurrentIndex(d->currentIdx() + 1);
@@ -565,9 +581,9 @@ void QDataWidgetMapper::next()
     Calls setCurrentIndex() internally. Does nothing if there is
     no previous row in the model.
 
-    \sa next(), setCurrentIndex()
+    \sa toNext(), setCurrentIndex()
  */
-void QDataWidgetMapper::previous()
+void QDataWidgetMapper::toPrevious()
 {
     Q_D(QDataWidgetMapper);
     setCurrentIndex(d->currentIdx() - 1);
@@ -580,13 +596,13 @@ void QDataWidgetMapper::previous()
 
     Does nothing if no such row/column exists.
 
-    \sa setCurrentModelIndex(), first(), next(), previous(), last()
+    \sa setCurrentModelIndex(), toFirst(), toNext(), toPrevious(), toLast()
  */
 void QDataWidgetMapper::setCurrentIndex(int index)
 {
     Q_D(QDataWidgetMapper);
 
-    if (index >= d->itemCount())
+    if (index < 0 || index >= d->itemCount())
         return;
     d->currentTopLeft = d->orientation == Qt::Horizontal
                             ? d->model->index(index, 0, d->rootIndex)
