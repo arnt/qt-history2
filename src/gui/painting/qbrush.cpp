@@ -649,26 +649,26 @@ bool QBrush::isOpaque() const
 
 
 /*!
-    \fn void QBrush::setTransform(const QMatrix &matrix)
+    \fn void QBrush::setMatrix(const QMatrix &matrix)
 
     Sets an explicit transformation matrix on the current brush.
     The brush transformation matrix is merged with QPainter
     transformation matrix to produce the final result.
 
-    \sa transform()
+    \sa matrix()
 */
-void QBrush::setTransform(const QMatrix &mat)
+void QBrush::setMatrix(const QMatrix &mat)
 {
     d->transform = mat;
 }
 
 
 /*!
-    \fn void QBrush::transform()
+    \fn void QBrush::matrix()
 
-    Returns the current transformation for the gradient.
+    Returns the current transformation matrix for the brush.
 
-    \sa setTransform()
+    \sa setMatrix()
 */
 
 /*!

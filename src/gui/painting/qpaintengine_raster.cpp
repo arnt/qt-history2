@@ -900,10 +900,10 @@ void QRasterPaintEngine::updateMatrix(const QMatrix &matrix)
                            qreal(0.0001));
 
     d->outlineMapper->setMatrix(d->matrix, d->txop);
-    QMatrix penMatrix = (d->matrix.inverted()*d->pen.brush().transform().inverted()).inverted();
+    QMatrix penMatrix = (d->matrix.inverted()*d->pen.brush().matrix().inverted()).inverted();
     d->penData.setupMatrix(penMatrix,
                            d->txop, d->bilinear);
-    QMatrix brushMatrix = (d->brushMatrix().inverted() * d->brush.transform().inverted()).inverted();
+    QMatrix brushMatrix = (d->brushMatrix().inverted() * d->brush.matrix().inverted()).inverted();
     d->brushData.setupMatrix(brushMatrix, d->txop, d->bilinear);
 }
 
@@ -979,7 +979,7 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->brush = brush;
         d->brushOffset = state.brushOrigin();
         d->brushData.setup(d->brush, d->opacity);
-        d->brushData.setupMatrix((d->brushMatrix().inverted() * d->brush.transform().inverted()).inverted(),
+        d->brushData.setupMatrix((d->brushMatrix().inverted() * d->brush.matrix().inverted()).inverted(),
                                  d->txop, d->bilinear);
     }
 

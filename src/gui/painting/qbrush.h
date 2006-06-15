@@ -52,8 +52,8 @@ public:
     inline Qt::BrushStyle style() const;
     void setStyle(Qt::BrushStyle);
 
-    inline const QMatrix &transform() const;
-    void setTransform(const QMatrix &mat);
+    inline const QMatrix &matrix() const;
+    void setMatrix(const QMatrix &mat);
 
     QPixmap texture() const;
     void setTexture(const QPixmap &pixmap);
@@ -114,7 +114,7 @@ struct QBrushData
 
 inline Qt::BrushStyle QBrush::style() const { return d->style; }
 inline const QColor &QBrush::color() const { return d->color; }
-inline const QMatrix &QBrush::transform() const { return d->transform; }
+inline const QMatrix &QBrush::matrix() const { return d->transform; }
 
 #ifdef QT3_SUPPORT
 inline QBrush::operator const QColor&() const { return d->color; }
