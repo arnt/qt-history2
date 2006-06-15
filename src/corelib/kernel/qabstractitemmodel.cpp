@@ -410,6 +410,25 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 }
 #endif
 
+class QEmptyItemModel : public QAbstractItemModel
+{
+public:
+    explicit QEmptyItemModel(QObject *parent = 0) : QAbstractItemModel(parent) {}
+    QModelIndex index(int, int, const QModelIndex &) const { return QModelIndex(); }
+    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
+    int rowCount(const QModelIndex &) const { return 0; }
+    int columnCount(const QModelIndex &) const { return 0; }
+    bool hasChildren(const QModelIndex &) const { return false; }
+    QVariant data(const QModelIndex &, int) const { return QVariant(); }
+};
+
+Q_GLOBAL_STATIC(QEmptyItemModel, qEmptyModel)
+
+QAbstractItemModel *QAbstractItemModelPrivate::staticEmptyModel()
+{
+    return qEmptyModel();
+}
+
 void QAbstractItemModelPrivate::removePersistentIndexData(QPersistentModelIndexData *data)
 {
     int data_index = persistent.indexes.indexOf(data);

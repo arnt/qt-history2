@@ -56,11 +56,12 @@ public:
     void columnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
     void columnsRemoved(const QModelIndex &parent, int first, int last);
     void reset();
+    static QAbstractItemModel *staticEmptyModel();
 
     inline QModelIndex createIndex(int row, int column, void *data = 0) const {
         return q_func()->createIndex(row, column, data);
     }
-    
+
     inline QModelIndex createIndex(int row, int column, int id) const {
         return q_func()->createIndex(row, column, id);
     }
