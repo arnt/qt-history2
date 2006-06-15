@@ -2586,11 +2586,11 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 //write the commands
                 if(have_dir) {
                     t << cdin
-                      << "$(MAKE)" << makefilein << " " << (*qut_it)
+                      << "$(MAKE)" << makefilein << " " << targ
                       << cdout << endl;
                 } else {
                     t << "\n\t"
-                      << "$(MAKE)" << makefilein << " " << (*qut_it) << endl;
+                      << "$(MAKE)" << makefilein << " " << targ << endl;
                 }
             }
         }
