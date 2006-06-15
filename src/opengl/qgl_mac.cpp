@@ -151,17 +151,17 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if(deviceIsPixmap())
         updatePaintDevice();
 
-#if 0
     // vblank syncing
     GLint interval = d->reqFormat.swapInterval();
     if (interval != -1) {
         aglSetInteger((AGLContext)d->cx, AGL_SWAP_INTERVAL, &interval);
-        if(!aglIsEnabled((AGLContext)d->cx, AGL_SWAP_INTERVAL))
+        if (interval != 0)
             aglEnable((AGLContext)d->cx, AGL_SWAP_INTERVAL);
+        else
+            aglDisable((AGLContext)d->cx, AGL_SWAP_INTERVAL);
     }
     aglGetInteger((AGLContext)d->cx, AGL_SWAP_INTERVAL, &interval);
     d->glFormat.setSwapInterval(interval);
-#endif
     return true;
 }
 

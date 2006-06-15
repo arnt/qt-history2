@@ -570,18 +570,21 @@ void QGLFormat::setSamples(int numSamples)
     d->numSamples = numSamples;
 }
 
-/*!
-    Set the preferred swap interval. The \a interval parameter
-    specifies the minimum number of video frames that are displayed
-    before a buffer swap will occur. In effect, setting an interval
-    value of 0 will turn off vertical syncing, setting it to 1 turn on
-    vertical syncing. Setting it to higher values than 1, for instance
-    10, means there will be 10 vertical retraces between every buffer
-    swap.
+/*!  
+    Set the preferred swap interval. This can be used to sync the GL
+    drawing into a system window to the vertical refresh of the screen.
+    Setting an \a interval value of 0 will turn the vertical refresh syncing
+    off, any value higher than 0 will turn the vertical syncing on.
 
-    Note that this is only supported under Windows and on Mac OS X.
-    Under Windows the \c{WGL_EXT_swap_control} extension needs to be
-    present.
+    Under Windows, where the \c{WGL_EXT_swap_control} extension is
+    used, the \a interval parameter can be used to set the minimum
+    number of video frames that are displayed before a buffer swap
+    will occur. In effect, setting the \a interval to 10, means there
+    will be 10 vertical retraces between every buffer swap.
+
+    Note that setting the swap interval is only supported under
+    Windows and on Mac OS X. Under Windows the
+    \c{WGL_EXT_swap_control} extension has to be present.
 */
 void QGLFormat::setSwapInterval(int interval)
 {
