@@ -1370,15 +1370,19 @@ void QPrinter::setFromTo(int from, int to)
 */
 void QPrinter::setPrintRange( PrintRange range )
 {
+#ifndef QT_NO_PRINTDIALOG
     Q_D(QPrinter);
     d->ensurePrintDialog();
     d->printDialog->setPrintRange(QPrintDialog::PrintRange(range));
+#else
+    Q_UNUSED(range);
+#endif
 }
 
 /*!
     \since 4.1
 
-    Returns the page renge of the QPrinter. After the print setup
+    Returns the page range of the QPrinter. After the print setup
     dialog has been opened, this function returns the value selected
     by the user.
 
@@ -1386,9 +1390,13 @@ void QPrinter::setPrintRange( PrintRange range )
 */
 QPrinter::PrintRange QPrinter::printRange() const
 {
+#ifndef QT_NO_PRINTDIALOG
     Q_D(const QPrinter);
     d->ensurePrintDialog();
     return PrintRange(d->printDialog->printRange());
+#else
+    return AllPages;
+#endif
 }
 
 #if defined(QT3_SUPPORT)
