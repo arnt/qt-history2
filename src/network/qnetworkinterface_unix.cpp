@@ -68,7 +68,7 @@ static const int STORAGEBUFFER_GROWTH = 256;
 static QSet<QByteArray> interfaceNames(int socket)
 {
     QSet<QByteArray> result;
-#ifndef QT_NO_IPV6IFNAME
+#ifdef QT_NO_IPV6IFNAME
     QByteArray storageBuffer;
     ifconf interfaceList;
 
