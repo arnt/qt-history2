@@ -905,6 +905,7 @@ while [ "$#" -gt 0 ]; do
 	    QMakeVar add QMAKE_CFLAGS -pg
 	    QMakeVar add QMAKE_CXXFLAGS -pg
 	    QMakeVar add QMAKE_LFLAGS -pg
+            QMAKE_VARS="$QMAKE_VARS CONFIG+=nostrip"
         else
             UNKNOWN_OPT=yes
         fi

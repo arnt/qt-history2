@@ -1366,7 +1366,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                     QString cmd =  QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " " +
                                    wild + " " + dst_file + "\n";
                     target += cmd;
-                    if(!project->isActiveConfig("debug") &&
+                    if(!project->isActiveConfig("debug") && !project->isActiveConfig("nostrip") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
                         target += QString("\t-") + var("QMAKE_STRIP") + " " +
                                   filePrefixRoot(root, fileFixify(dst + filestr, FileFixifyAbsolute, false)) + "\n";
@@ -1407,7 +1407,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                     QString cmd = QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " " +
                                   dirstr + file + " " + dst_file + "\n";
                     target += cmd;
-                    if(!project->isActiveConfig("debug") &&
+                    if(!project->isActiveConfig("debug") && !project->isActiveConfig("nostrip") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
                         target += QString("\t-") + var("QMAKE_STRIP") + " " +
                                   filePrefixRoot(root, fileFixify(dst + file, FileFixifyAbsolute, false)) +
