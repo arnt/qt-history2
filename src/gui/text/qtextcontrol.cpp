@@ -854,9 +854,10 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
         case QEvent::InputMethod:
             d->inputMethodEvent(static_cast<QInputMethodEvent *>(e));
             break;
-        case QEvent::ContextMenu:
-            d->contextMenuEvent(static_cast<QContextMenuEvent *>(e)->globalPos());
-            break;
+        case QEvent::ContextMenu: {
+            QContextMenuEvent *ev = static_cast<QContextMenuEvent *>(e);
+            d->contextMenuEvent(ev->globalPos(), matrix.map(ev->pos()));
+            break; }
 
         case QEvent::FocusIn:
         case QEvent::FocusOut:
@@ -909,7 +910,8 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
             d->mouseDoubleClickEvent(e, ev->button(), matrix.map(ev->pos()));
             break; }
         case QEvent::GraphicsSceneContextMenu: {
-            d->contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(e)->screenPos());
+            QGraphicsSceneContextMenuEvent *ev = static_cast<QGraphicsSceneContextMenuEvent *>(e);
+            d->contextMenuEvent(ev->screenPos(), matrix.map(ev->pos()));
             break; }
 
         case QEvent::GraphicsSceneHoverMove: {
@@ -1590,16 +1592,17 @@ void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton butto
     trippleClickTimer.start(qApp->doubleClickInterval(), q);
 }
 
-void QTextControlPrivate::contextMenuEvent(const QPoint &pos)
+void QTextControlPrivate::contextMenuEvent(const QPoint &screenPos, const QPointF &docPos)
 {
 #ifdef QT_NO_CONTEXTMENU
-    Q_UNUSED(pos);
+    Q_UNUSED(screenPos);
+    Q_UNUSED(docPos);
 #else
     Q_Q(QTextControl);
     if (!hasFocus)
         return;
-    QMenu *menu = q->createStandardContextMenu(pos);
-    menu->exec(pos);
+    QMenu *menu = q->createStandardContextMenu(docPos);
+    menu->exec(screenPos);
     delete menu;
 #endif
 }
