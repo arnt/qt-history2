@@ -3942,6 +3942,7 @@ fi
 QMakeVar set OBJECTS_DIR ".obj/$QMAKE_OUTDIR"
 QMakeVar set MOC_DIR ".moc/$QMAKE_OUTDIR"
 QMakeVar set RCC_DIR ".rcc/$QMAKE_OUTDIR"
+QMakeVar set UI_DIR ".uic/$QMAKE_OUTDIR"
 if [ "$CFG_LARGEFILE" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG largefile"
 fi
