@@ -200,6 +200,7 @@ public:
 
 public Q_SLOTS:
     void invalidate();
+    void modelDestroyed();
 };
 
 #endif // QCOMPLETER_P_H

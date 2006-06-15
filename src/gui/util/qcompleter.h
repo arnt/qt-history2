@@ -88,7 +88,7 @@ public:
     QModelIndex currentIndex() const;
     QString currentCompletion() const;
 
-    const QAbstractProxyModel *completionModel() const;
+    QAbstractItemModel *completionModel() const;
 
     QString completionPrefix() const;
 

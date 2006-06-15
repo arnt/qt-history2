@@ -134,6 +134,7 @@ void QCompletionModel::setSourceModel(QAbstractItemModel *source)
 
     // TODO: Optimize updates in the source model
     connect(model, SIGNAL(modelReset()), this, SLOT(invalidate()));
+    connect(model, SIGNAL(destroyed()), this, SLOT(modelDestroyed()));
     connect(model, SIGNAL(layoutChanged()), this, SLOT(invalidate()));
     connect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)), this, SLOT(invalidate()));
     connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)), this, SLOT(invalidate()));
@@ -331,6 +332,14 @@ bool QCompletionModel::hasChildren(const QModelIndex &parent) const
 QVariant QCompletionModel::data(const QModelIndex& index, int role) const
 {
     return model->data(mapToSource(index), role);
+}
+
+void QCompletionModel::modelDestroyed()
+{
+    engine->cache.clear();
+    QAbstractProxyModel::setSourceModel(0); // switch to empty model
+    model = sourceModel();
+    reset();
 }
 
 void QCompletionModel::invalidate()
@@ -1293,13 +1302,13 @@ QString QCompleter::currentCompletion() const
 }
 
 /*!
-    Returns the completion model. The completion model is a list model that
+    Returns the completion model. The completion model is a read-only list model that
     contains all the possible matches for the current completion prefix.
     The completion model is auto-updated to reflect the current completions.
 
     \sa completionPrefix, model()
 */
-const QAbstractProxyModel *QCompleter::completionModel() const
+QAbstractItemModel *QCompleter::completionModel() const
 {
     Q_D(const QCompleter);
     return d->proxy;
