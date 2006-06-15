@@ -14,14 +14,14 @@
 #ifndef QCALENDARWIDGET_H
 #define QCALENDARWIDGET_H
 
+#include <QtGui/QWidget>
+#include <QtCore/QDate>
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
 #ifndef QT_NO_CALENDARWIDGET
-
-#include <QtGui/QWidget>
-#include <QtCore/QDate>
 
 class QDate;
 class QTextCharFormat;
