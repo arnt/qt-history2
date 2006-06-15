@@ -142,7 +142,8 @@ static QStringList split_arg_list(QString params)
             quote = 0;
         } else if(!quote && (unicode == SINGLEQUOTE || unicode == DOUBLEQUOTE)) {
             quote = unicode;
-        } else if(!parens && !quote && unicode == COMMA) {
+        }
+        if(!parens && !quote && unicode == COMMA) {
             QString mid = params.mid(last, x - last).trimmed();
             args << mid;
             last = x+1;
@@ -151,8 +152,6 @@ static QStringList split_arg_list(QString params)
                 ++last;
         }
     }
-    for(int i = 0; i < args.count(); i++)
-        args[i] = remove_quotes(args[i]);
     return args;
 }
 
@@ -247,16 +246,16 @@ struct FunctionBlock : public ParsableBlock
 
     QMap<QString, QStringList> vars;
     QMap<QString, QStringList> *calling_place;
-    QString return_value;
+    QStringList return_value;
     int scope_level;
     bool cause_return;
 
-    bool exec(const QStringList &args,
+    bool exec(const QList<QStringList> &args,
               QMakeProject *p, QMap<QString, QStringList> &place, QStringList &functionReturn);
     virtual bool continueBlock() { return !cause_return; }
 };
 
-bool FunctionBlock::exec(const QStringList &args,
+bool FunctionBlock::exec(const QList<QStringList> &args,
                          QMakeProject *proj, QMap<QString, QStringList> &place,
                          QStringList &functionReturn)
 {
@@ -266,7 +265,7 @@ bool FunctionBlock::exec(const QStringList &args,
 #else
     calling_place = &proj->variables();
 #endif
-    return_value = "";
+    return_value.clear();
     cause_return = false;
 
     //execute
@@ -275,11 +274,13 @@ bool FunctionBlock::exec(const QStringList &args,
 #else
     vars = place;
 #endif
-    vars["ARGS"] = args;
-    for(int i = 0; i < args.count(); i++)
-        vars[QString::number(i+1)] = QStringList(args[i]);
+    vars["ARGS"].clear();
+    for(int i = 0; i < args.count(); i++) {
+        vars["ARGS"] += args[i];
+        vars[QString::number(i+1)] = args[i];
+    }
     bool ret = ParsableBlock::eval(proj, vars);
-    functionReturn = split_value_list(return_value);
+    functionReturn = return_value;
 
     //restore state
     calling_place = 0;
@@ -732,8 +733,6 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                         }
                         QString func = comp_scope.left(lparen);
                         QStringList args = split_arg_list(comp_scope.mid(lparen+1, rparen - lparen - 1));
-                        for(int i = 0; i < args.size(); ++i)
-                            args[i] = remove_quotes(args[i].trimmed());
                         if(function) {
                             fprintf(stderr, "%s:%d: No tests can come after a function definition!\n",
                                     parser.file.toLatin1().constData(), parser.line_no);
@@ -1557,6 +1556,23 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
                               QMap<QString, QStringList> &place)
 {
     func = func.trimmed();
+    QList<QStringList> args_list;
+    for(int i = 0; i < args.size(); ++i) {
+        QStringList arg = split_value_list(args[i]), tmp;
+        for(int i = 0; i < arg.size(); ++i)
+            tmp += doVariableReplaceExpand(arg[i], place);;
+        args_list += tmp;
+    }
+
+    if(replaceFunctions.contains(func)) {
+        FunctionBlock *defined = replaceFunctions[func];
+        function_blocks.push(defined);
+        QStringList ret;
+        defined->exec(args_list, this, place, ret);
+        Q_ASSERT(function_blocks.pop() == defined);
+        return ret;
+    }
+
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
         doVariableReplace((*arit), place);
 
@@ -2000,16 +2016,9 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         }
         break; }
     default: {
-        if(replaceFunctions.contains(func)) {
-            FunctionBlock *defined = replaceFunctions[func];
-            function_blocks.push(defined);
-            defined->exec(args, this, place, ret);
-            Q_ASSERT(function_blocks.pop() == defined);
-        } else {
             fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
                     parser.file.toLatin1().constData(), parser.line_no,
                     func.toLatin1().constData());
-        }
         break; }
     }
     return ret;
@@ -2019,6 +2028,43 @@ bool
 QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStringList> &place)
 {
     func = func.trimmed();
+    QList<QStringList> args_list;
+    for(int i = 0; i < args.size(); ++i) {
+        QStringList arg = split_value_list(args[i]), tmp;
+        for(int i = 0; i < arg.size(); ++i)
+            tmp += doVariableReplaceExpand(arg[i], place);;
+        args_list += tmp;
+    }
+
+    if(testFunctions.contains(func)) {
+        FunctionBlock *defined = testFunctions[func];
+        QStringList ret;
+        function_blocks.push(defined);
+        defined->exec(args_list, this, place, ret);
+        Q_ASSERT(function_blocks.pop() == defined);
+
+        if(ret.isEmpty()) {
+            return true;
+        } else {
+            if(ret.first() == "true") {
+                return true;
+            } else if(ret.first() == "false") {
+                return false;
+            } else {
+                bool ok;
+                int val = ret.first().toInt(&ok);
+                if(ok)
+                    return val;
+                fprintf(stderr, "%s:%d Unexpected return value from test %s [%s].\n",
+                        parser.file.toLatin1().constData(),
+                        parser.line_no, func.toLatin1().constData(),
+                        ret.join("::").toLatin1().constData());
+            }
+            return false;
+        }
+        return false;
+    }
+
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
         (*arit) = (*arit).trimmed(); // blah, get rid of space
         doVariableReplace((*arit), place);
@@ -2154,8 +2200,8 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         } else {
             FunctionBlock *f = function_blocks.top();
             f->cause_return = true;
-            if(args.count() >= 1)
-                f->return_value = args[0];
+            if(args_list.count() >= 1)
+                f->return_value += args_list[0];
         }
         return true;
     } else if(func == "break") {
@@ -2369,33 +2415,6 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
             exit(2);
 #endif
         return true;
-    } else if(testFunctions.contains(func)) {
-        FunctionBlock *defined = testFunctions[func];
-        QStringList ret;
-        function_blocks.push(defined);
-        defined->exec(args, this, place, ret);
-        Q_ASSERT(function_blocks.pop() == defined);
-
-        if(ret.isEmpty()) {
-            return true;
-        } else {
-            if(ret.first() == "true") {
-                return true;
-            } else if(ret.first() == "false") {
-                return false;
-            } else {
-                bool ok;
-                int val = ret.first().toInt(&ok);
-                if(ok)
-                    return val;
-                fprintf(stderr, "%s:%d Unexpected return value from test %s [%s].\n",
-                        parser.file.toLatin1().constData(),
-                        parser.line_no, func.toLatin1().constData(),
-                        ret.join("::").toLatin1().constData());
-            }
-            return false;
-        }
-        return false;
     } else {
         fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.toLatin1().constData(), parser.line_no,
                 func.toLatin1().constData());
