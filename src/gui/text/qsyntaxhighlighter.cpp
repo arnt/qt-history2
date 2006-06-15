@@ -465,6 +465,9 @@ void QSyntaxHighlighter::setFormat(int start, int count, const QTextCharFormat &
     The specified \a color is applied to the current text block from
     the \a start position for a length of \a count characters.
 
+    The other attributes of the current text block, e.g. the font and
+    background color, are reset to default values.
+
     \sa format(), highlightBlock()
 */
 void QSyntaxHighlighter::setFormat(int start, int count, const QColor &color)
@@ -479,6 +482,9 @@ void QSyntaxHighlighter::setFormat(int start, int count, const QColor &color)
 
     The specified \a font is applied to the current text block from
     the \a start position for a length of \a count characters.
+
+    The other attributes of the current text block, e.g. the font and
+    background color, are reset to default values.
 
     \sa format(), highlightBlock()
 */
