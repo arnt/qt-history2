@@ -344,19 +344,6 @@ void TrWindow::saveAs()
     }
 }
 
-// only used be the preview tool
-void TrWindow::releaseToTempFile()
-{
-    if (m_tmpPreviewFile) {
-        QString newFilename = m_tmpPreviewFile->fileName();
-        if (cmdl->release(newFilename, false, false, Translator::Everything)) {
-            m_previewTool->reloadTranslations();
-        } else {
-            QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot save '%1'.").arg(newFilename));        
-        } 
-    }
-}
-
 void TrWindow::releaseAs()
 {
     QString newFilename = filename;
@@ -1886,8 +1873,6 @@ void TrWindow::previewForm()
 {
     if (m_previewTool.isNull()) {
         m_previewTool = new TrPreviewTool();
-        connect(m_previewTool, SIGNAL(prepareReloadTranslations()), this, SLOT(releaseToTempFile()));
-
         QStringList fileNames = findFormFilesInCurrentTranslationFile();
         bool ok = true;
         for (QStringList::iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
@@ -1900,26 +1885,16 @@ void TrWindow::previewForm()
             }
         }
         if (ok) {
-            if (!m_tmpPreviewFile) {
-                m_tmpPreviewFile = new QTemporaryFile(QLatin1String("linguist.tmp.XXXXXX"));
-                ok = m_tmpPreviewFile->open();
-            }
+            ok = m_previewTool->addTranslator(cmdl->translator(), QFileInfo(filename).fileName());
             if (ok) {
-                m_tmpPreviewFile->seek(0);
-                if (cmdl->release(m_tmpPreviewFile, false, false, Translator::Everything)) {
-                    m_tmpPreviewFile->flush();
-                    ok = m_previewTool->loadTranslation(m_tmpPreviewFile->fileName(), QFileInfo(filename).fileName());
-                    if (ok) {
-                        m_previewTool->cascade();
-                    } else {
-                        QMessageBox::warning(this, tr("Qt Linguist"), tr("There was a problem in the preparation of form preview."));
-                    }
-                }
+                m_previewTool->cascade();
+            } else {
+                QMessageBox::warning(this, tr("Qt Linguist"), tr("There was a problem in the preparation of form preview."));
             }
         }
     } else {
         // Only do a refresh if it is already open
-        releaseToTempFile();
+        m_previewTool->reloadTranslations();
     }
     m_previewTool->show();
 }

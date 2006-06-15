@@ -40,11 +40,8 @@ public:
     ~TrPreviewTool();
     bool addFormFile(const QString &path);
     bool loadTranslation(const QString &path, const QString &displayName = QString());
-    void reloadTranslations();
+    bool addTranslator(QTranslator *translator, const QString &displayName);
     void cascade();
-
-signals:
-    void prepareReloadTranslations();
 
 public slots:
     void openForm();
@@ -52,9 +49,11 @@ public slots:
     void translationSelected(int idx);
     void showAboutBox();
     void on_viewForms_doubleClicked(const QModelIndex &);
+    void reloadTranslations();
 
 private:
     virtual bool event(QEvent *e);  // override from QWidget
+    bool addTranslator(QTranslator *translator, const QString &path, const QString &displayName);
     FormHolder* createFormFromFile(const QString& path);
     void recreateForms();
     void showWarning(const QString& warning);

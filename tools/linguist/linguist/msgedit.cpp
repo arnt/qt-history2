@@ -617,11 +617,6 @@ void MessageEditor::resizeEvent(QResizeEvent *e)
     QScrollArea::resizeEvent(e);
 }
 
-QTreeView *MessageEditor::sourceTextView() const
-{
-    return 0;//srcTextView;
-}
-
 QTreeView *MessageEditor::phraseView() const
 {
     return phraseTv;

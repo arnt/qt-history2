@@ -132,8 +132,6 @@ private:
     MessageModel *m_model;
 };
 
-class ContextList;
-
 class ContextList : public QList<ContextItem *> {
 public:
     ContextList();
@@ -145,7 +143,6 @@ public:
     { 
         m_modified = isModified;
     }
-
 private:
     bool m_modified;
 };
@@ -194,7 +191,9 @@ public:
 
     iterator end()
     {
-        return Iterator(cntxtList.count(), cntxtList.last()->messageItemsInList());
+        // both contextNo and itemNo points to the item behind the last item for end()
+        // remember to make sure that begin() == end() for an empty model
+        return Iterator(cntxtList.count(), cntxtList.count() ? cntxtList.last()->messageItemsInList() : 0);
     }
 
     iterator Iterator(int contextNo = 0, int itemNo = 0)
@@ -249,6 +248,11 @@ public:
         return m_numMessages;
     }
 
+    bool isEmpty() const
+    {
+        return m_numMessages == 0;
+    }
+
     bool isModified() 
     {
         return cntxtList.isModified();
@@ -267,6 +271,10 @@ public:
     bool release(QIODevice *iod, 
                     bool verbose = false, bool ignoreUnfinished = false,
                     Translator::SaveMode mode = Translator::Stripped );
+    
+    QTranslator *translator();
+    MessageItem *findMessage(const char *context, const char *sourcetext, const char *comment = 0) const;
+
     void doCharCounting(const QString& text, int& trW, int& trC, int& trCS);
     void updateStatistics();
 
@@ -287,7 +295,6 @@ public:
             --m_numFinished;
     }
 
-
 signals:
     void statsChanged(int words, int characters, int cs, int words2, int characters2, int cs2);
     void progressChanged(int finishedCount, int oldFinishedCount);
@@ -296,6 +303,7 @@ private:
     Qt::SortOrder sortOrder;
     int sortColumn;
 
+    QTranslator *m_translator;
     ContextList cntxtList;
 
     int m_numFinished;

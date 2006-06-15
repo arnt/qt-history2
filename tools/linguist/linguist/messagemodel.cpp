@@ -178,6 +178,8 @@ MessageModel::MessageModel(QObject *parent)
     m_numFinished = 0;
     m_numNonobsolete = 0;
     m_numMessages = 0;
+
+    m_translator = 0;
 }
 
 ContextItem *MessageModel::contextItem(const QModelIndex &indx) const
@@ -444,6 +446,38 @@ ContextItem *MessageModel::contextItem(int context) const
     return 0;
 }
 
+/**
+ * class MessageModelTranslator
+ *
+ *
+ */
+class MessageModelTranslator : public QTranslator
+{
+public:
+    MessageModelTranslator(MessageModel *msgmodel): QTranslator(msgmodel)
+    {
+        //m_msgModel = msgmodel;
+    }
+    virtual ~MessageModelTranslator() {}
+    virtual bool isEmpty() const;
+    virtual QString translate(const char *context, const char *sourcetext, const char *comment = 0) const;
+private:
+    MessageModel *messageModel() const { return static_cast<MessageModel*>(parent()); }
+};
+
+bool MessageModelTranslator::isEmpty() const
+{
+    return messageModel()->isEmpty();
+}
+
+QString MessageModelTranslator::translate(const char *context, const char *sourcetext, const char *comment /*= 0*/) const
+{
+    MessageItem *m = messageModel()->findMessage(context, sourcetext, comment);
+    return m ? m->translation() : QString();
+}
+
+
+
 MessageItem *MessageModel::messageItem(int context, int message) const
 {
     ContextItem *c = contextItem(context);
@@ -646,6 +680,34 @@ void MessageModel::updateStatistics()
     emit statsChanged(m_srcWords, m_srcChars, m_srcCharsSpc, trW, trC, trCS);
 }
 
+MessageItem *MessageModel::findMessage(const char *context, const char *sourcetext, const char *comment /*= 0*/) const
+{
+    for (int c = 0; c < cntxtList.count(); ++c) {
+        ContextItem *ctx = cntxtList.at(c);
+        if (ctx->context() == QLatin1String(context)) {
+            QList<MessageItem*> items = ctx->messageItemList();
+            for (int i = 0; i < items.count(); ++i) {
+                MessageItem *mi = items.at(i);
+                if (mi->sourceText() == QLatin1String(sourcetext)) {
+                    if (comment) {
+                        if (mi->comment() != QLatin1String(comment)) continue;
+                    }
+                    return mi;
+                }
+            }
+            break;
+        }
+    }
+    return 0;
+}
+
+QTranslator *MessageModel::translator()
+{
+    if (!m_translator) m_translator = static_cast<QTranslator*>(new MessageModelTranslator(this));
+    return m_translator;
+}
+
+
 /******************************************************************************
  *
  * MessageModel::iterator IMPLEMENTATION
@@ -734,3 +796,4 @@ MessageItem *ContextList::messageItem(int context, int message) const
     if (c && message >= 0 && message < c->messageItemsInList()) return c->messageItem(message);
     return 0;
 }
+

@@ -36,7 +36,7 @@ TrPreviewTool::TrPreviewTool(QWidget *parent, Qt::WFlags flags)
     connect(trCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(translationSelected(int)));
     connect(ui.actionOpenForm, SIGNAL(triggered()), this, SLOT(openForm()));
     connect(ui.actionLoadTranslation, SIGNAL(triggered()), this, SLOT(loadTranslation()));
-    connect(ui.actionReloadTranslations, SIGNAL(triggered()), this, SIGNAL(prepareReloadTranslations()));
+    connect(ui.actionReloadTranslations, SIGNAL(triggered()), this, SLOT(reloadTranslations()));
     connect(ui.actionAbout, SIGNAL(triggered()), this, SLOT(showAboutBox()));
     connect(ui.actionAbout_Qt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(ui.actionClose, SIGNAL(triggered()), this, SLOT(close()));
@@ -159,9 +159,9 @@ void TrPreviewTool::recreateForms()
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     foreach(QWidget* window,workspace->windowList()) {
-	FormHolder* holder = qobject_cast<FormHolder*>(window);
-	if(holder)
-	    holder->retranslate();
+	    FormHolder* holder = qobject_cast<FormHolder*>(window);
+	    if(holder)
+	        holder->retranslate();
     }
     QApplication::restoreOverrideCursor();
 }
@@ -170,8 +170,6 @@ void TrPreviewTool::recreateForms()
 void TrPreviewTool::translationSelected(int idx)
 {
     QTranslator* newTr = trDict.value(trCombo->itemData(idx).toString());
-    if(newTr == currentTr)
-	    return;
     trCombo->setCurrentIndex(idx);	// If we're called programmatically
     // currentTr out of sync during resulting language change events; fix here if necessary
     if(currentTr)
@@ -208,6 +206,33 @@ bool TrPreviewTool::loadTranslation(const QString &path, const QString &displayN
     return true;
 }
 
+bool TrPreviewTool::addTranslator(QTranslator *translator, const QString &path, const QString &displayName)
+{
+    if (!trDict.contains(path)) {
+        trDict.insert(path, translator);
+        QString trName = displayName;
+        int idx = trCombo->findText(trName);
+        if (idx != -1)
+            trName += QString::fromAscii("(%1)").arg(idx);  // Uniqify!
+        trCombo->addItem(trName, path);
+        trCombo->setCurrentIndex(trCombo->count() - 1);
+    } else {
+        int idx = trCombo->findData(path);
+        if(idx >= 0)			// Should always be true
+	        translationSelected(idx);
+    }
+    return true;
+}
+
+bool TrPreviewTool::addTranslator(QTranslator *translator, const QString &displayName)
+{
+    Q_ASSERT(translator);
+    QString path;
+    path.sprintf("#:%p", translator);   // the "path" here is a just the string value of the pointer, 
+                                        // which is always unique, and always start with '#:'.
+    return addTranslator(translator, path, displayName);
+}
+
 void TrPreviewTool::loadTranslation()
 {
     //### Handle .ts files as well
@@ -230,22 +255,25 @@ void TrPreviewTool::reloadTranslations()
     QString noGoodPaths;
     QList<QTranslator*> oldTrs;			
     foreach(path,trDict.keys()) {
-	    QTranslator* newTr = new QTranslator(this); // ### check if we can just reload on the old translator object instead 
-	    if(newTr->load(path)) {
-	        oldTrs.append(trDict.value(path));
-	        trDict.insert(path, newTr);
-	    }
-	    else {
-	        noGoodPaths += QDir::convertSeparators(path) + QLatin1Char('\n');
-	    }
+        if (!path.startsWith("#:")) {
+	        QTranslator* newTr = new QTranslator(this); // ### check if we can just reload on the old translator object instead 
+	        if(newTr->load(path)) {
+	            oldTrs.append(trDict.value(path));
+	            trDict.insert(path, newTr);
+	        }
+	        else {
+	            noGoodPaths += QDir::convertSeparators(path) + QLatin1Char('\n');
+	        }
+        }
     }
     if(!noGoodPaths.isEmpty())
 	    showWarning(tr("Could not reload translation file(s):\n") + noGoodPaths);
     // Refresh
     translationSelected(trCombo->currentIndex());
     // Clean up now when we are sure it's not in use any longer
-    foreach(QTranslator* oldTr,oldTrs)
+    foreach(QTranslator* oldTr,oldTrs) {
 	    delete oldTr;
+    }
 }
 
 void TrPreviewTool::showWarning(const QString& warning)
@@ -313,7 +341,6 @@ bool FormHolder::loadFormFile(const QString& path)
     QWidget* newForm = uiLoader->load(&file,this);
     if (!newForm)
 	return false;
-
     delete form;
     form = newForm;
     form->setWindowFlags(Qt::Widget);

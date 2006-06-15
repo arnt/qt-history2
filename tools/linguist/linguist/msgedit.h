@@ -202,9 +202,7 @@ class MessageEditor : public QScrollArea
     Q_OBJECT
 public:
     MessageEditor(MessageModel *model, QMainWindow *parent = 0);
-    QTreeView *sourceTextView() const;
     QTreeView *phraseView() const;
-    //inline QDockWidget *sourceDockWnd() const {return topDockWnd;}
     inline QDockWidget *phraseDockWnd() const {return bottomDockWnd;}
 
     void showNothing();

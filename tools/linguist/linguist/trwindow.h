@@ -41,7 +41,6 @@ class PhraseModel;
 class PhraseItem;
 class MessageModel;
 class MessageItem;
-class MessageModel;
 class ContextItem;
 class FindDialog;
 class TranslateDialog;
@@ -84,7 +83,6 @@ private slots:
     void saveAs();
     void release();
     void releaseAs();
-    void releaseToTempFile();
     void print();
     void find();
     void findAgain();
