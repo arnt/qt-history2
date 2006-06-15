@@ -563,8 +563,7 @@ void QListView::reset()
 void QListView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QListView);
-    if (d->model)
-        d->column = qBound(0, d->column, d->model->columnCount(index) - 1);
+    d->column = qBound(0, d->column, d->model->columnCount(index) - 1);
     QAbstractItemView::setRootIndex(index);
 }
 
@@ -584,6 +583,8 @@ void QListView::scrollContentsBy(int dx, int dy)
         const bool vertical = verticalScrollMode() == QAbstractItemView::ScrollPerItem;
         const bool horizontal = horizontalScrollMode() == QAbstractItemView::ScrollPerItem;
         if (d->wrap) {
+            if (d->segmentPositions.isEmpty())
+                return;
             const int max = d->segmentPositions.count() - 1;
             if (horizontal && d->flow == TopToBottom && dx != 0) {
                 int currentValue = qBound(0, horizontalScrollBar()->value(), max);
@@ -599,6 +600,8 @@ void QListView::scrollContentsBy(int dx, int dy)
                 dy = previousCoordinate - currentCoordinate;
             }
         } else {
+            if (d->flowPositions.isEmpty())
+                return;
             const int max = d->flowPositions.count() - 1;
             if (vertical && d->flow == TopToBottom && dy != 0) {
                 int currentValue = qBound(0, verticalScrollBar()->value(), max);
@@ -951,12 +954,6 @@ void QListView::paintEvent(QPaintEvent *e)
     QPainter painter(d->viewport);
     QRect area = e->rect();
 
-    // if there's nothing to do, clear the area and return
-    if (!d->model) {
-        painter.fillRect(area, option.palette.brush(QPalette::Base));
-        return;
-    }
-
     QVector<QModelIndex> toBeRendered;
 //     QVector<QRect> rects = e->region().rects();
 //     for (int i = 0; i < rects.size(); ++i) {
@@ -1143,9 +1140,6 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 {
     Q_D(QListView);
     Q_UNUSED(modifiers);
-
-    if (!d->model)
-        return QModelIndex();
 
     QModelIndex current = currentIndex();
     if (!current.isValid()) {
@@ -1385,7 +1379,7 @@ void QListView::doItemsLayout()
     Q_D(QListView);
     d->layoutChildren(); // make sure the viewport has the right size
     d->prepareItemsLayout();
-    if (d->model && d->model->columnCount(d->root) > 0) { // no columns means no contents
+    if (d->model->columnCount(d->root) > 0) { // no columns means no contents
         if (layoutMode() == SinglePass)
             d->doItemsLayout(d->model->rowCount(d->root)); // layout everything
         else if (!d->batchLayoutTimer.isActive())
@@ -1400,9 +1394,7 @@ void QListView::doItemsLayout()
 void QListView::updateGeometries()
 {
     Q_D(QListView);
-    if (!d->model
-        || d->model->rowCount(d->root) <= 0
-        || d->model->columnCount(d->root) <= 0) {
+    if (d->model->rowCount(d->root) <= 0 || d->model->columnCount(d->root) <= 0) {
         horizontalScrollBar()->setRange(0, 0);
         verticalScrollBar()->setRange(0, 0);
     } else {
@@ -1501,7 +1493,7 @@ bool QListView::isIndexHidden(const QModelIndex &index) const
 void QListView::setModelColumn(int column)
 {
     Q_D(QListView);
-    if (column < 0 || !d->model || column >= d->model->columnCount(d->root))
+    if (column < 0 || column >= d->model->columnCount(d->root))
         return;
     d->column = column;
     d->doDelayedItemsLayout();
@@ -1580,8 +1572,8 @@ void QListViewPrivate::prepareItemsLayout()
     int horizontalMargin = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q->horizontalScrollBar());
     layoutBounds.adjust(0, 0, -verticalMargin, -horizontalMargin);
 
-    int rowCount = model ? model->rowCount(root) : 0;
-    int colCount = model ? model->columnCount(root) : 0;
+    int rowCount = model->rowCount(root);
+    int colCount = model->columnCount(root);
     if (colCount <= 0)
         rowCount = 0; // no contents
     if (movement == QListView::Static) {
@@ -1932,9 +1924,6 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
 
 void QListViewPrivate::intersectingStaticSet(const QRect &area) const
 {
-    if (!model)
-        return;
-
     intersectVector.clear();
     int segStartPosition;
     int segEndPosition;

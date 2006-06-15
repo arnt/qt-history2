@@ -236,25 +236,23 @@ void QHeaderView::initialize()
 void QHeaderView::setModel(QAbstractItemModel *model)
 {
     Q_D(QHeaderView);
-    if (d->model) {
-        if (d->orientation == Qt::Horizontal) {
-            QObject::disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                                this, SLOT(sectionsInserted(QModelIndex,int,int)));
-            QObject::disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-                                this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
-            QObject::disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                                this, SLOT(_q_sectionsRemoved(QModelIndex,int,int)));
-        } else {
-            QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                                this, SLOT(sectionsInserted(QModelIndex,int,int)));
-            QObject::disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                                this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
-            QObject::disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                                this, SLOT(_q_sectionsRemoved(QModelIndex,int,int)));
-         }
-        QObject::disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
-                            this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
+    if (d->orientation == Qt::Horizontal) {
+        QObject::disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+                            this, SLOT(sectionsInserted(QModelIndex,int,int)));
+        QObject::disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                            this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
+        QObject::disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                            this, SLOT(_q_sectionsRemoved(QModelIndex,int,int)));
+    } else {
+        QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                            this, SLOT(sectionsInserted(QModelIndex,int,int)));
+        QObject::disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                            this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
+        QObject::disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                            this, SLOT(_q_sectionsRemoved(QModelIndex,int,int)));
     }
+    QObject::disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
+                        this, SLOT(headerDataChanged(Qt::Orientation,int,int)));
 
     if (model) {
         if (d->orientation == Qt::Horizontal) {
@@ -371,7 +369,7 @@ int QHeaderView::length() const
 QSize QHeaderView::sizeHint() const
 {
     Q_D(const QHeaderView);
-    if (d->model == 0 || count() < 1)
+    if (count() < 1)
         return QSize(0, 0);
     if (d->cachedSizeHint.isValid())
         return d->cachedSizeHint;
@@ -404,10 +402,10 @@ QSize QHeaderView::sizeHint() const
 int QHeaderView::sectionSizeHint(int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (d->model == 0 || logicalIndex < 0 || logicalIndex >= count())
+    if (logicalIndex < 0 || logicalIndex >= count())
         return -1;
     QSize size = sectionSizeFromContents(logicalIndex);
-    int hint = orientation() == Qt::Horizontal ? size.width() : size.height();
+    int hint = d->orientation == Qt::Horizontal ? size.width() : size.height();
     return qMax(minimumSectionSize(), hint);
 }
 
@@ -1309,7 +1307,7 @@ void QHeaderView::resizeSections()
 void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, int)
 {
     Q_D(QHeaderView);
-    if (parent != d->root || !d->model)
+    if (parent != d->root)
         return; // we only handle changes in the top level
     int lastSection;
     if (d->orientation == Qt::Horizontal)
@@ -1336,10 +1334,10 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
 }
 
 void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
-                                           int logicalFirst, int logicalLast)
+                                            int logicalFirst, int logicalLast)
 {
     Q_Q(QHeaderView);
-    if (parent != root || !model)
+    if (parent != root)
         return; // we only handle changes in the top level
     if (qMin(logicalFirst, logicalLast) < 0
         || qMax(logicalLast, logicalFirst) >= sectionCount)
@@ -1387,10 +1385,6 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
 void QHeaderView::initializeSections()
 {
     Q_D(QHeaderView);
-    if (!d->model) {
-        d->clear();
-        return;
-    }
     if (d->orientation == Qt::Horizontal) {
         int c = d->model->columnCount(d->root);
         if (c == 0) {
@@ -1520,7 +1514,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 {
     Q_D(QHeaderView);
 
-    if (d->model == 0 || count() == 0)
+    if (count() == 0)
         return;
 
     QPainter painter(d->viewport);
@@ -1865,7 +1859,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
 void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (!d->model || !rect.isValid())
+    if (!rect.isValid())
         return;
     // get the state of the section
     QStyleOptionHeader opt = d->getStyleOption();
@@ -1951,9 +1945,7 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
 {
     Q_D(const QHeaderView);
     Q_ASSERT(logicalIndex >= 0);
-    if (!d->model)
-        return QSize();
-    QSize size(100, 30);
+    QSize size(100, 30); // ### make this depend on the font size
 
     // use SizeHintRole
     QVariant variant = d->model->headerData(logicalIndex, orientation(), Qt::SizeHintRole);
@@ -2145,8 +2137,6 @@ void QHeaderView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags
 QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) const
 {
     Q_D(const QHeaderView);
-    if (!d->model)
-        return QRegion();
     if (orientation() == Qt::Horizontal) {
         int left = d->model->columnCount(d->root) - 1;
         int right = 0;

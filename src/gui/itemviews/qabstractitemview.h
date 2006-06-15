@@ -135,7 +135,7 @@ public:
     bool dragEnabled() const;
 
     void setDragDropOverwriteMode(bool overwrite);
-    bool dragDropOverwriteMode();
+    bool dragDropOverwriteMode() const;
 
     enum DragDropMode {
         NoDragDrop,
@@ -146,7 +146,7 @@ public:
     };
 
     void setDragDropMode(DragDropMode behavior);
-    DragDropMode dragDropMode();
+    DragDropMode dragDropMode() const;
 #endif
     void setAlternatingRowColors(bool enable);
     bool alternatingRowColors() const;

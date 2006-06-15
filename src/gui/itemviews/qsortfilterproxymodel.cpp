@@ -1119,77 +1119,73 @@ void QSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
     Q_D(QSortFilterProxyModel);
 
-    if (d->model && d->model != &d->empty) {
-        disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                   this, SLOT(_q_sourceDataChanged(QModelIndex,QModelIndex)));
+    disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+               this, SLOT(_q_sourceDataChanged(QModelIndex,QModelIndex)));
 
-        disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
-                   this, SLOT(_q_sourceHeaderDataChanged(Qt::Orientation,int,int)));
+    disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
+               this, SLOT(_q_sourceHeaderDataChanged(Qt::Orientation,int,int)));
 
-        disconnect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-                   this, SLOT(_q_sourceRowsAboutToBeInserted(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+               this, SLOT(_q_sourceRowsAboutToBeInserted(QModelIndex,int,int)));
 
-        disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                   this, SLOT(_q_sourceRowsInserted(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+               this, SLOT(_q_sourceRowsInserted(QModelIndex,int,int)));
 
-        disconnect(d->model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
-                   this, SLOT(_q_sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
+               this, SLOT(_q_sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
 
-        disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                   this, SLOT(_q_sourceColumnsInserted(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+               this, SLOT(_q_sourceColumnsInserted(QModelIndex,int,int)));
 
-        disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                   this, SLOT(_q_sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+               this, SLOT(_q_sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
 
-        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                   this, SLOT(_q_sourceRowsRemoved(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+               this, SLOT(_q_sourceRowsRemoved(QModelIndex,int,int)));
 
-        disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-                   this, SLOT(_q_sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+               this, SLOT(_q_sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
 
-        disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                   this, SLOT(_q_sourceColumnsRemoved(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+               this, SLOT(_q_sourceColumnsRemoved(QModelIndex,int,int)));
 
-        disconnect(d->model, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
-        disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
-    }
+    disconnect(d->model, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
+    disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
 
     QAbstractProxyModel::setSourceModel(sourceModel);
 
-    if (sourceModel) {
-        connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                this, SLOT(_q_sourceDataChanged(QModelIndex,QModelIndex)));
+    connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(_q_sourceDataChanged(QModelIndex,QModelIndex)));
 
-        connect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
-                this, SLOT(_q_sourceHeaderDataChanged(Qt::Orientation,int,int)));
+    connect(d->model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)),
+            this, SLOT(_q_sourceHeaderDataChanged(Qt::Orientation,int,int)));
 
-        connect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-                this, SLOT(_q_sourceRowsAboutToBeInserted(QModelIndex,int,int)));
+    connect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+            this, SLOT(_q_sourceRowsAboutToBeInserted(QModelIndex,int,int)));
 
-        connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-              this, SLOT(_q_sourceRowsInserted(QModelIndex,int,int)));
+    connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this, SLOT(_q_sourceRowsInserted(QModelIndex,int,int)));
 
-        connect(d->model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
-                this, SLOT(_q_sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
+    connect(d->model, SIGNAL(columnsAboutToBeInserted(QModelIndex,int,int)),
+            this, SLOT(_q_sourceColumnsAboutToBeInserted(QModelIndex,int,int)));
 
-        connect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                this, SLOT(_q_sourceColumnsInserted(QModelIndex,int,int)));
+    connect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+            this, SLOT(_q_sourceColumnsInserted(QModelIndex,int,int)));
 
-        connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                this, SLOT(_q_sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
+    connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+            this, SLOT(_q_sourceRowsAboutToBeRemoved(QModelIndex,int,int)));
 
-        connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SLOT(_q_sourceRowsRemoved(QModelIndex,int,int)));
+    connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+            this, SLOT(_q_sourceRowsRemoved(QModelIndex,int,int)));
 
-        connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-                this, SLOT(_q_sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
+    connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+            this, SLOT(_q_sourceColumnsAboutToBeRemoved(QModelIndex,int,int)));
 
-        connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                this, SLOT(_q_sourceColumnsRemoved(QModelIndex,int,int)));
+    connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+            this, SLOT(_q_sourceColumnsRemoved(QModelIndex,int,int)));
 
-        connect(d->model, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
-        connect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
-    }
+    connect(d->model, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
+    connect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
 
     d->clear_mapping();
     reset();

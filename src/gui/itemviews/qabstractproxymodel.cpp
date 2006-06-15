@@ -47,7 +47,7 @@ QAbstractProxyModel::QAbstractProxyModel(QObject *parent)
     :QAbstractItemModel(*new QAbstractProxyModelPrivate, parent)
 {
     Q_D(QAbstractProxyModel);
-    setSourceModel(&d->empty);
+    setSourceModel(QAbstractItemModelPrivate::staticEmptyModel());
 }
 
 /*!
@@ -58,7 +58,7 @@ QAbstractProxyModel::QAbstractProxyModel(QAbstractProxyModelPrivate &dd, QObject
     : QAbstractItemModel(dd, parent)
 {
     Q_D(QAbstractProxyModel);
-    setSourceModel(&d->empty);
+    setSourceModel(QAbstractItemModelPrivate::staticEmptyModel());
 }
 
 /*!
@@ -78,7 +78,7 @@ void QAbstractProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     if (sourceModel)
         d->model = sourceModel;
     else
-        d->model = &d->empty;
+        d->model = QAbstractItemModelPrivate::staticEmptyModel();
 }
 
 /*!

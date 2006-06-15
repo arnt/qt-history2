@@ -170,7 +170,7 @@ QTreeView::~QTreeView()
 void QTreeView::setModel(QAbstractItemModel *model)
 {
     Q_D(QTreeView);
-    if (d->selectionModel && d->model) { // support row editing
+    if (d->selectionModel) { // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
         disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
@@ -181,14 +181,13 @@ void QTreeView::setModel(QAbstractItemModel *model)
     d->hiddenIndexes.clear();
     d->header->setModel(model);
     QAbstractItemView::setModel(model);
-    if (d->model) {
-        // QAbstractItemView connects to a private slot
-        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
-                   this, SLOT(rowsRemoved(QModelIndex, int, int)));
-        // QTreeView has a public slot for this
-        connect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
-                this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
-    }
+
+    // QAbstractItemView connects to a private slot
+    disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex, int, int)),
+               this, SLOT(rowsRemoved(QModelIndex, int, int)));
+    // QTreeView has a public slot for this
+    connect(d->model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
+            this, SLOT(rowsRemoved(const QModelIndex &, int, int)));
 
     if (d->sortingEnabled)
         sortByColumn(header()->sortIndicatorSection());
@@ -211,14 +210,14 @@ void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     Q_D(QTreeView);
     Q_ASSERT(selectionModel);
-    if (d->model && d->selectionModel) // support row editing
+    if (d->selectionModel) // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
 
     d->header->setSelectionModel(selectionModel);
     QAbstractItemView::setSelectionModel(selectionModel);
 
-    if (d->model && d->selectionModel) // support row editing
+    if (d->selectionModel) // support row editing
         connect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                 d->model, SLOT(submit()));
 }
@@ -484,7 +483,7 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
     Q_D(QTreeView);
 
     // if we are going to do a complete realyout anyway, there is no need to update
-    if (!d->model || d->delayedLayout.isActive())
+    if (d->delayedLayout.isActive())
         return;
 
     // refresh the height cache here; we don't really lose anything by getting the size hint,
@@ -679,7 +678,7 @@ bool QTreeView::isAnimationsEnabled() const
 void QTreeView::keyboardSearch(const QString &search)
 {
     Q_D(QTreeView);
-    if (!d->model || !d->model->rowCount(rootIndex()) || !d->model->columnCount(rootIndex()))
+    if (!d->model->rowCount(rootIndex()) || !d->model->columnCount(rootIndex()))
         return;
 
     QModelIndex start;
@@ -1356,7 +1355,7 @@ void QTreeView::doItemsLayout()
     Q_D(QTreeView);
     d->viewItems.clear(); // prepare for new layout
     QModelIndex parent = rootIndex();
-    if (d->model && d->model->hasChildren(parent)) {
+    if (d->model->hasChildren(parent)) {
         QModelIndex index = d->model->index(0, 0, parent);
         d->defaultItemHeight = indexRowSizeHint(index);
         d->layout(-1);
@@ -1756,7 +1755,7 @@ void QTreeView::resizeColumnToContents(int column)
 void QTreeView::sortByColumn(int column)
 {
     Q_D(QTreeView);
-    if (!d->model || column == -1)
+    if (column == -1)
         return;
     d->model->sort(column, d->header->sortIndicatorOrder());
 }
@@ -1965,7 +1964,7 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
 {
     Q_Q(QTreeView);
 
-    if (!model || item == -1 || viewItems.at(item).expanded)
+    if (item == -1 || viewItems.at(item).expanded)
         return;
 
     if (emitSignal && animationsEnabled)
@@ -1994,7 +1993,7 @@ void QTreeViewPrivate::collapse(int item, bool emitSignal)
 {
     Q_Q(QTreeView);
 
-    if (!model || item == -1 || expandedIndexes.isEmpty())
+    if (item == -1 || expandedIndexes.isEmpty())
         return;
 
     int total = viewItems.at(item).total;
