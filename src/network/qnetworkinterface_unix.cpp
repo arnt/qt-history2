@@ -14,6 +14,7 @@
 #include "qset.h"
 #include "qnetworkinterface.h"
 #include "qnetworkinterface_p.h"
+#include "qalgorithms.h"
 
 #define IP_MULTICAST    // make AIX happy and define IFF_MULTICAST
 
@@ -367,11 +368,7 @@ static QList<QNetworkInterfacePrivate *> interfaceListing()
 }
 #endif
 
-void QNetworkInterfaceManager::scan()
+QList<QNetworkInterfacePrivate *> QNetworkInterfaceManager::scan()
 {
-    // don't scan if we're already scanning
-    if (lock.tryLockForWrite()) {
-        interfaceList = interfaceListing();
-        lock.unlock();
-    }
+    return interfaceListing();
 }

@@ -252,11 +252,7 @@ static QList<QNetworkInterfacePrivate *> interfaceListing()
     return QList<QNetworkInterfacePrivate *>();
 }
 
-void QNetworkInterfaceManager::scan()
+QList<QNetworkInterfacePrivate *> QNetworkInterfaceManager::scan()
 {
-    // don't scan if we're already scanning
-    if (lock.tryLockForWrite()) {
-        interfaceList = interfaceListing();
-        lock.unlock();
-    }
+    return interfaceListing();
 }

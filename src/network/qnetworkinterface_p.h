@@ -28,15 +28,14 @@ public:
     QHostAddress broadcast;
 };
 
-class QNetworkInterfacePrivate
+class QNetworkInterfacePrivate: public QSharedData
 {
 public:
-    QNetworkInterfacePrivate() : ref(1), index(0), flags(0)
+    QNetworkInterfacePrivate() : index(0), flags(0)
     { }
     ~QNetworkInterfacePrivate()
     { }
 
-    QAtomic ref;
     int index;                  // interface index, if know
     QNetworkInterface::InterfaceFlags flags;
 
@@ -46,6 +45,11 @@ public:
     QList<QNetworkAddressEntry> addressEntries;
 
     static QString makeHwAddress(int len, uchar *data);
+
+private:
+    // disallow copying -- avoid detaching
+    QNetworkInterfacePrivate &operator=(const QNetworkInterfacePrivate &other);
+    QNetworkInterfacePrivate(const QNetworkInterfacePrivate &other);
 };
 
 class QNetworkInterfaceManager
@@ -54,18 +58,15 @@ public:
     QNetworkInterfaceManager();
     ~QNetworkInterfaceManager();
 
-    QNetworkInterfacePrivate* interfaceFromName(const QString &name);
-    QNetworkInterfacePrivate* interfaceFromIndex(int index);
-    QList<QNetworkInterfacePrivate *> allInterfaces();
+    QSharedDataPointer<QNetworkInterfacePrivate> interfaceFromName(const QString &name);
+    QSharedDataPointer<QNetworkInterfacePrivate> interfaceFromIndex(int index);
+    QList<QSharedDataPointer<QNetworkInterfacePrivate> > allInterfaces();
 
     // convenience:
     QNetworkInterfacePrivate empty;
 
 private:
-    QReadWriteLock lock;
-    QList<QNetworkInterfacePrivate *> interfaceList;
-
-    void scan();
+    QList<QNetworkInterfacePrivate *> scan();
 };
 
 

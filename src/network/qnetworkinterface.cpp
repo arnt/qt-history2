@@ -26,38 +26,37 @@ QNetworkInterfaceManager::~QNetworkInterfaceManager()
 {
 }
 
-QNetworkInterfacePrivate *QNetworkInterfaceManager::interfaceFromName(const QString &name)
+QSharedDataPointer<QNetworkInterfacePrivate> QNetworkInterfaceManager::interfaceFromName(const QString &name)
 {
-    scan();
-
-    QReadLocker locker(&lock);
-    QList<QNetworkInterfacePrivate *>::ConstIterator it = interfaceList.constBegin();
+    QList<QSharedDataPointer<QNetworkInterfacePrivate> > interfaceList = allInterfaces();
+    QList<QSharedDataPointer<QNetworkInterfacePrivate> >::ConstIterator it = interfaceList.constBegin();
     for ( ; it != interfaceList.constEnd(); ++it)
         if ((*it)->name == name)
             return *it;
 
-    return &empty;
+    return QSharedDataPointer<QNetworkInterfacePrivate>(&empty);
 }
 
-QNetworkInterfacePrivate *QNetworkInterfaceManager::interfaceFromIndex(int index)
+QSharedDataPointer<QNetworkInterfacePrivate> QNetworkInterfaceManager::interfaceFromIndex(int index)
 {
-    scan();
-
-    QReadLocker locker(&lock);
-    QList<QNetworkInterfacePrivate *>::ConstIterator it = interfaceList.constBegin();
+    QList<QSharedDataPointer<QNetworkInterfacePrivate> > interfaceList = allInterfaces();
+    QList<QSharedDataPointer<QNetworkInterfacePrivate> >::ConstIterator it = interfaceList.constBegin();
     for ( ; it != interfaceList.constEnd(); ++it)
         if ((*it)->index == index)
             return *it;
 
-    return &empty;
+    return QSharedDataPointer<QNetworkInterfacePrivate>(&empty);
 }
 
-QList<QNetworkInterfacePrivate *> QNetworkInterfaceManager::allInterfaces()
+QList<QSharedDataPointer<QNetworkInterfacePrivate> > QNetworkInterfaceManager::allInterfaces()
 {
-    scan();
+    QList<QNetworkInterfacePrivate *> list = scan();
+    QList<QSharedDataPointer<QNetworkInterfacePrivate> > result;
 
-    QReadLocker locker(&lock);
-    return interfaceList;
+    foreach (QNetworkInterfacePrivate *ptr, list)
+        result << QSharedDataPointer<QNetworkInterfacePrivate>(ptr);
+
+    return result;
 }
 
 QString QNetworkInterfacePrivate::makeHwAddress(int len, uchar *data)
@@ -248,7 +247,7 @@ void QNetworkAddressEntry::setBroadcast(const QHostAddress &newBroadcast)
     Constructs an empty QNetworkInterface object.
 */
 QNetworkInterface::QNetworkInterface()
-    : d(&manager()->empty)
+    : d(0)
 {
 }
 
@@ -257,8 +256,6 @@ QNetworkInterface::QNetworkInterface()
 */
 QNetworkInterface::~QNetworkInterface()
 {
-    if (!d->ref.deref())
-        delete d;
 }
 
 /*!
@@ -268,16 +265,6 @@ QNetworkInterface::~QNetworkInterface()
 QNetworkInterface::QNetworkInterface(const QNetworkInterface &other)
     : d(other.d)
 {
-    d->ref.ref();
-}
-
-/*!
-    \internal
-*/
-QNetworkInterface::QNetworkInterface(QNetworkInterfacePrivate *p)
-    : d(p)
-{
-    d->ref.ref();
 }
 
 /*!
@@ -286,7 +273,7 @@ QNetworkInterface::QNetworkInterface(QNetworkInterfacePrivate *p)
 */
 QNetworkInterface &QNetworkInterface::operator=(const QNetworkInterface &other)
 {
-    qAtomicAssign(d, other.d);
+    d = other.d;
     return *this;
 }
 
@@ -296,7 +283,7 @@ QNetworkInterface &QNetworkInterface::operator=(const QNetworkInterface &other)
 */
 bool QNetworkInterface::isValid() const
 {
-    return !d->name.isEmpty();
+    return !name().isEmpty();
 }
 
 /*!
@@ -307,7 +294,7 @@ bool QNetworkInterface::isValid() const
 */
 QString QNetworkInterface::name() const
 {
-    return d->name;
+    return d ? d->name : QString();
 }
 
 /*!
@@ -315,7 +302,7 @@ QString QNetworkInterface::name() const
 */
 QNetworkInterface::InterfaceFlags QNetworkInterface::flags() const
 {
-    return d->flags;
+    return d ? d->flags : InterfaceFlags(0);
 }
 
 /*!
@@ -329,7 +316,7 @@ QNetworkInterface::InterfaceFlags QNetworkInterface::flags() const
 */
 QString QNetworkInterface::hardwareAddress() const
 {
-    return d->hardwareAddress;
+    return d ? d->hardwareAddress : QString();
 }
 
 /*!
@@ -342,7 +329,7 @@ QString QNetworkInterface::hardwareAddress() const
 */
 QList<QNetworkAddressEntry> QNetworkInterface::addressEntries() const
 {
-    return d->addressEntries;
+    return d ? d->addressEntries : QList<QNetworkAddressEntry>();
 }
 
 /*!
@@ -354,7 +341,9 @@ QList<QNetworkAddressEntry> QNetworkInterface::addressEntries() const
 */
 QNetworkInterface QNetworkInterface::interfaceFromName(const QString &name)
 {
-    return QNetworkInterface(manager()->interfaceFromName(name));
+    QNetworkInterface result;
+    result.d = manager()->interfaceFromName(name);
+    return result;
 }
 
 /*!
@@ -369,7 +358,9 @@ QNetworkInterface QNetworkInterface::interfaceFromName(const QString &name)
 */
 QNetworkInterface QNetworkInterface::interfaceFromIndex(int index)
 {
-    return QNetworkInterface(manager()->interfaceFromIndex(index));
+    QNetworkInterface result;
+    result.d = manager()->interfaceFromIndex(index);
+    return result;
 }
 
 /*!
@@ -378,10 +369,13 @@ QNetworkInterface QNetworkInterface::interfaceFromIndex(int index)
 */
 QList<QNetworkInterface> QNetworkInterface::allInterfaces()
 {
-    QList<QNetworkInterfacePrivate *> privs = manager()->allInterfaces();
+    QList<QSharedDataPointer<QNetworkInterfacePrivate> > privs = manager()->allInterfaces();
     QList<QNetworkInterface> result;
-    foreach (QNetworkInterfacePrivate *p, privs)
-        result << QNetworkInterface(p);
+    foreach (QSharedDataPointer<QNetworkInterfacePrivate> p, privs) {
+        QNetworkInterface item;
+        item.d = p;
+        result << item;
+    }
 
     return result;
 }
@@ -393,9 +387,9 @@ QList<QNetworkInterface> QNetworkInterface::allInterfaces()
 */
 QList<QHostAddress> QNetworkInterface::allAddresses()
 {
-    QList<QNetworkInterfacePrivate *> privs = manager()->allInterfaces();
+    QList<QSharedDataPointer<QNetworkInterfacePrivate> > privs = manager()->allInterfaces();
     QList<QHostAddress> result;
-    foreach (QNetworkInterfacePrivate *p, privs) {
+    foreach (const QSharedDataPointer<QNetworkInterfacePrivate> p, privs) {
         foreach (const QNetworkAddressEntry &entry, p->addressEntries)
             result += entry.ip();
     }

@@ -14,6 +14,7 @@
 #ifndef QNETWORKINTERFACE_H
 #define QNETWORKINTERFACE_H
 
+#include <QtCore/qshareddata.h>
 #include <QtNetwork/qhostaddress.h>
 
 QT_BEGIN_HEADER
@@ -76,10 +77,8 @@ public:
     static QList<QHostAddress> allAddresses();
 
 private:
-    QNetworkInterface(QNetworkInterfacePrivate *);
-
     friend class QNetworkInterfacePrivate;
-    QNetworkInterfacePrivate *d;
+    QSharedDataPointer<QNetworkInterfacePrivate> d;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QNetworkInterface::InterfaceFlags)
