@@ -2581,16 +2581,18 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
 }
 
 /*!
-    Searches recursively for all child objects of \a o and connects matching signals
-    to slots of \a o that follow the following form:
+    \fn void QMetaObject::connectSlotsByName(QObject *object)
+
+    Searches recursively for all child objects of the given \a object, and connects
+    matching signals from them to slots of \a object that follow the following form:
 
     \code
     void on_<widget name>_<signal name>(<signal parameters>);
     \endcode
 
     Let's assume our object has a child object of type QPushButton with
-    the object name \c{button1}. The slot to catch the button's \c{clicked()}
-    signal would be:
+    the \l{QObject::objectName}{object name} \c{button1}. The slot to catch the
+    button's \c{clicked()} signal would be:
 
     \code
     void on_button1_clicked();
