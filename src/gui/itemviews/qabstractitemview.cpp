@@ -1330,11 +1330,14 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *event)
     Q_D(QAbstractItemView);
     d->pressedPosition = QPoint(-1, -1);
 
-    if (state() == EditingState)
-        return;
-
     QPoint pos = event->pos();
     QPersistentModelIndex index = indexAt(pos);
+
+    if (state() == EditingState) {
+        if (d->indexValid(index) && d->sendDelegateEvent(index, event))
+            d->viewport->update(visualRect(index));
+        return;
+    }
 
     setState(NoState);
 
