@@ -34,7 +34,6 @@ template <typename T> class QList;
 class QIcon;
 
 class TrPreviewTool;
-class QTemporaryFile;
 
 class QTreeView;
 class PhraseModel;
@@ -193,7 +192,6 @@ private:
     bool m_markFinished;
     
     // used by the preview tool
-    QTemporaryFile *m_tmpPreviewFile;
     QPointer<TrPreviewTool> m_previewTool;
 
     QDockWidget *dwScope;

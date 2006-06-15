@@ -30,7 +30,6 @@
 
 #include "previewtool/trpreviewtool.h"
 
-#include <QtCore/QTemporaryFile>
 #include <QAction>
 #include <QApplication>
 #include <QBitmap>
@@ -170,7 +169,6 @@ TrWindow::TrWindow()
 #endif
 
     m_previewTool = 0;
-    m_tmpPreviewFile = 0;
 
     // Create the application global listview symbols
     pxOn  = new QPixmap(":/images/s_check_on.png");
@@ -265,7 +263,6 @@ TrWindow::~TrWindow()
     cmdl->clearContextList();
     delete stats;
     delete m_previewTool;
-    delete m_tmpPreviewFile;
 }
 
 void TrWindow::openFile( const QString& name )
