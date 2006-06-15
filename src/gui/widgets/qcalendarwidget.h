@@ -103,7 +103,7 @@ public:
     QTextCharFormat dateTextFormat(const QDate &date) const;
     void setDateTextFormat(const QDate &date, const QTextCharFormat &color);
 
-public slots:
+public Q_SLOTS:
     void setSelectedDate(const QDate &date);
     void setDateRange(const QDate &min, const QDate &max);
     void setCurrentPage(int year, int month);
@@ -114,7 +114,7 @@ public slots:
     void showSelectedDate();
     void showToday();
 
-signals:
+Q_SIGNALS:
     void selectionChanged();
     void activated(const QDate &date);
     void currentPageChanged(int year, int month);
