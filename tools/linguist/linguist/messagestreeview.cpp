@@ -41,22 +41,9 @@ MessagesTreeView::MessagesTreeView(QWidget *parent) : QTreeView(parent)
 
     setItemDelegate(new MessagesItemDelegate(this));
     header()->setSortIndicatorShown(true);
+    header()->setClickable(true);
     header()->setMovable(false);
-    
-    connect(header(), SIGNAL(sectionClicked(int)), this, SLOT(sortSection(int)));
-}
-
-
-void MessagesTreeView::sortSection(int section)
-{
-    Qt::SortOrder so = Qt::AscendingOrder;
-    if (header()->sortIndicatorSection() == section 
-        && header()->sortIndicatorOrder() == Qt::AscendingOrder) {
-        so = Qt::DescendingOrder;
-    }
-
-    header()->setSortIndicator(section, so);
-    model()->sort(section, so);
+    setSortingEnabled(true);
 }
 
 void MessagesTreeView::setModel(QAbstractItemModel * model)
