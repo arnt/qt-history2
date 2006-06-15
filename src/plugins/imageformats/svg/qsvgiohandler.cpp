@@ -1,13 +1,35 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qsvgiohandler.h"
 #include "qsvgrenderer.h"
 #include "qimage.h"
 #include "qpixmap.h"
 #include "qpainter.h"
 #include "qvariant.h"
+#include "qdebug.h"
 
 class QSvgIOHandlerPrivate
 {
 public:
+    QSvgIOHandlerPrivate()
+        : r(new QSvgRenderer())
+    {}
+    ~QSvgIOHandlerPrivate()
+    {
+        delete r;
+    }
+
     QSvgRenderer *r;
     QSize         defaultSize;
     QSize         currentSize;
@@ -46,7 +68,8 @@ bool QSvgIOHandler::read(QImage *image)
 
     d->r->load(device()->readAll());
     d->defaultSize = QSize(d->r->viewBox().width(), d->r->viewBox().height());
-    d->currentSize = d->defaultSize;
+    if (d->currentSize.isEmpty())
+        d->currentSize = d->defaultSize;
     if (!d->r->isValid())
         return false;
     *image = QImage(d->currentSize, QImage::Format_ARGB32_Premultiplied);
@@ -106,6 +129,5 @@ bool QSvgIOHandler::canRead(QIODevice *device)
 {
     QByteArray contents = device->readAll();
     device->seek(0);
-
     return contents.contains("<svg");
 }
