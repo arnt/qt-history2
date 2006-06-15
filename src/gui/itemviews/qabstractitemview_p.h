@@ -82,6 +82,7 @@ public:
     QWidget *editor(const QModelIndex &index, const QStyleOptionViewItem &options);
     bool sendDelegateEvent(const QModelIndex &index, QEvent *event) const;
     bool openEditor(const QModelIndex &index, QEvent *event);
+    void updateEditorData(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
     QItemSelectionModel::SelectionFlags multiSelectionCommand(const QModelIndex &index,
                                                               const QEvent *event) const;

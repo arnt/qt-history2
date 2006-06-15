@@ -1931,11 +1931,7 @@ bool QAbstractItemView::edit(const QModelIndex &index, EditTrigger trigger, QEve
 void QAbstractItemView::updateEditorData()
 {
     Q_D(QAbstractItemView);
-    _q_abstractitemview_editor_iterator it = d->editors.begin();
-    for (; it != d->editors.end(); ++it) {
-        if (d->editorForIterator(it) && d->indexForIterator(it).isValid())
-            d->itemDelegate->setEditorData(d->editorForIterator(it), d->indexForIterator(it));
-    }
+    d->updateEditorData(QModelIndex(), QModelIndex());
 }
 
 /*!
@@ -1970,8 +1966,9 @@ void QAbstractItemView::updateEditorGeometries()
 */
 void QAbstractItemView::updateGeometries()
 {
+    Q_D(QAbstractItemView);
     updateEditorGeometries();
-    d_func()->fetchMore();
+    d->fetchMore();
 }
 
 /*!
@@ -2390,7 +2387,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
             d->viewport->update(visualRect(topLeft));
         return;
     }
-    updateEditorData(); // we are counting on having relatively few editors
+    d->updateEditorData(topLeft, bottomRight);
     if (!isVisible() || d->delayedLayout.isActive())
         return; // no need to update
     d->viewport->update();
@@ -3009,6 +3006,25 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
         }
     }
     return w;
+}
+
+void QAbstractItemViewPrivate::updateEditorData(const QModelIndex &tl, const QModelIndex &br)
+{
+    // we are counting on having relatively few editors
+    const bool checkIndexes = tl.isValid() && br.isValid();
+    const QModelIndex parent = tl.parent();
+    _q_abstractitemview_editor_iterator it = editors.begin();
+    for (; it != editors.end(); ++it) {
+        QWidget *editor = editorForIterator(it);
+        const QModelIndex index = indexForIterator(it);
+        if (editor && index.isValid()
+            && (!checkIndexes
+                || (index.row() >= tl.row() && index.row() <= br.row()
+                    && index.column() >= tl.column() && index.column() <= br.column()
+                    && index.parent() == parent))) {
+            itemDelegate->setEditorData(editor, index);
+        }
+    }
 }
 
 /*!
