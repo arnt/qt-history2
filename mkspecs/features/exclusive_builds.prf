@@ -31,7 +31,18 @@ defineTest(addExclusiveBuilds) {
     secondBuild = $$3
     secondBuildName = $$4
 
-    !build_pass {
+    contains(TEMPLATE, subdirs) {
+        eval(sub_$${firstBuildName}.target = $$firstBuild)
+	export(sub_$${firstBuildName}.target)
+        eval(sub_$${firstBuildName}.CONFIG = recursive)
+	export(sub_$${firstBuildName}.CONFIG)
+        eval(sub_$${secondBuildName}.target = $$secondBuild)
+	export(sub_$${secondBuildName}.target)
+        eval(sub_$${secondBuildName}.CONFIG = recursive)
+	export(sub_$${secondBuildName}.CONFIG)
+	QMAKE_EXTRA_TARGETS += sub_$${firstBuildName} sub_$${secondBuildName}
+	export(QMAKE_EXTRA_TARGETS)
+    } else:!build_pass {
         first_BUILDS  =
         second_BUILDS =
         suffix_BUILDS = Build
