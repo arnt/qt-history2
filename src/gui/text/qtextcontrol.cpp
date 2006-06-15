@@ -902,7 +902,7 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
             break; }
         case QEvent::GraphicsSceneMouseRelease: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
-            d->mouseMoveEvent(ev->button(), matrix.map(ev->pos()));
+            d->mouseReleaseEvent(ev->button(), matrix.map(ev->pos()));
             break; }
         case QEvent::GraphicsSceneMouseDoubleClick: {
             QGraphicsSceneMouseEvent *ev = static_cast<QGraphicsSceneMouseEvent *>(e);
