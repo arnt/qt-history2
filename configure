@@ -2883,7 +2883,7 @@ elif [ "$Edition" != "Trolltech" ]; then
             esac
         fi
     fi
-    TheLicense=`head -n 1 LICENSE`
+    TheLicense=`head -n 1 "$outpath/LICENSE"`
     while true; do
         if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
 	    echo "You have already accepted the terms of the $TheLicense."
@@ -2911,7 +2911,7 @@ elif [ "$Edition" != "Trolltech" ]; then
             echo
             exit 1
         else [ "$acceptance" = "?" ]
-            more "$relpath/LICENSE"
+            more "$outpath/LICENSE"
         fi
     done
 fi
