@@ -4086,7 +4086,7 @@ public:
     inline QPointF controlOffset() const
     { return QPointF(0., pageNumber * control->document()->pageSize().height()); }
     inline void sendControlEvent(QEvent *e)
-    { control->processEvent(e, controlOffset()); }
+    { if (control) control->processEvent(e, controlOffset()); }
 
     void _q_updateBoundingRect(const QSizeF &);
     void _q_update(QRectF);
@@ -4110,6 +4110,7 @@ QGraphicsTextItem::QGraphicsTextItem(const QString &text, QGraphicsItem *parent,
     if (!text.isEmpty())
         setPlainText(text);
     setAcceptDrops(true);
+    setAcceptsHoverEvents(true);
 }
 
 /*!
@@ -4121,6 +4122,7 @@ QGraphicsTextItem::QGraphicsTextItem(QGraphicsItem *parent, QGraphicsScene *scen
 {
     dd->qq = this;
     setAcceptDrops(true);
+    setAcceptsHoverEvents(true);
 }
 
 /*!
@@ -4322,8 +4324,6 @@ bool QGraphicsTextItem::sceneEvent(QEvent *event)
 */
 void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!dd->control)
-        return;
     if (!hasFocus()) {
         QGraphicsItem::mousePressEvent(event);
         return;
@@ -4337,8 +4337,6 @@ void QGraphicsTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!dd->control)
-        return;
     if (!hasFocus()) {
         QGraphicsItem::mouseMoveEvent(event);
         return;
@@ -4352,8 +4350,6 @@ void QGraphicsTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!dd->control)
-        return;
     if (!hasFocus()) {
         QGraphicsItem::mouseReleaseEvent(event);
         return;
@@ -4367,8 +4363,6 @@ void QGraphicsTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 */
 void QGraphicsTextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!dd->control)
-        return;
     if (!hasFocus()) {
         QGraphicsItem::mouseDoubleClickEvent(event);
         return;
@@ -4390,8 +4384,7 @@ void QGraphicsTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 */
 void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
 {
-    if (dd->control)
-        dd->sendControlEvent(event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4399,8 +4392,7 @@ void QGraphicsTextItem::keyPressEvent(QKeyEvent *event)
 */
 void QGraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
 {
-    if (dd->control)
-        dd->sendControlEvent(event);
+    dd->sendControlEvent(event);
 }
 
 /*!
@@ -4408,8 +4400,7 @@ void QGraphicsTextItem::keyReleaseEvent(QKeyEvent *event)
 */
 void QGraphicsTextItem::focusInEvent(QFocusEvent *event)
 {
-    if (dd->control)
-        dd->sendControlEvent(event);
+    dd->sendControlEvent(event);
     update();
 }
 
@@ -4418,8 +4409,7 @@ void QGraphicsTextItem::focusInEvent(QFocusEvent *event)
 */
 void QGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 {
-    if (dd->control)
-        dd->sendControlEvent(event);
+    dd->sendControlEvent(event);
     update();
 }
 
@@ -4428,9 +4418,6 @@ void QGraphicsTextItem::focusOutEvent(QFocusEvent *event)
 */
 void QGraphicsTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!dd->control)
-        return;
-
     dd->sendControlEvent(event);
 }
 
@@ -4439,9 +4426,6 @@ void QGraphicsTextItem::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 */
 void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!dd->control)
-        return;
-
     dd->sendControlEvent(event);
 }
 
@@ -4450,9 +4434,6 @@ void QGraphicsTextItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *event)
 */
 void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!dd->control)
-        return;
-
     dd->sendControlEvent(event);
 }
 
@@ -4461,9 +4442,6 @@ void QGraphicsTextItem::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 */
 void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!dd->control)
-        return;
-
     dd->sendControlEvent(event);
 }
 
@@ -4472,9 +4450,30 @@ void QGraphicsTextItem::dropEvent(QGraphicsSceneDragDropEvent *event)
 */
 void QGraphicsTextItem::inputMethodEvent(QInputMethodEvent *event)
 {
-    if (!dd->control)
-        return;
+    dd->sendControlEvent(event);
+}
 
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    dd->sendControlEvent(event);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+{
+    dd->sendControlEvent(event);
+}
+
+/*!
+    \reimp
+*/
+void QGraphicsTextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
     dd->sendControlEvent(event);
 }
 

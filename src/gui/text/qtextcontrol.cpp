@@ -912,6 +912,11 @@ void QTextControl::processEvent(QEvent *e, const QMatrix &matrix, QWidget *conte
             d->contextMenuEvent(static_cast<QGraphicsSceneContextMenuEvent *>(e)->screenPos());
             break; }
 
+        case QEvent::GraphicsSceneHoverMove: {
+            QGraphicsSceneHoverEvent *ev = static_cast<QGraphicsSceneHoverEvent *>(e);
+            d->mouseMoveEvent(Qt::NoButton, matrix.map(ev->pos()));
+            break; }
+
         case QEvent::GraphicsSceneDragEnter: {
             QGraphicsSceneDragDropEvent *ev = static_cast<QGraphicsSceneDragDropEvent *>(e);
             if (d->dragEnterEvent(e, ev->mimeData()))
