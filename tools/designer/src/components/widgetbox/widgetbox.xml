@@ -586,6 +586,12 @@
             </property>
         </widget>
 
+        <widget class="QCalendarWidget" name="Calendar" icon="widgets/frame.png">
+            <property name="objectName">
+                <string notr="true">calendarWidget</string>
+            </property>
+        </widget>
+
         <widget class="QLCDNumber" name="LCD Number" icon="widgets/lcdnumber.png">
             <property name="objectName">
                 <string notr="true">lcdNumber</string>
