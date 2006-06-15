@@ -113,7 +113,7 @@ public:
         if (editor) {
             QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
                                 q_func(), SLOT(editorDestroyed(QObject*)));
-            editor->removeEventFilter(delegate);
+            editor->removeEventFilter(itemDelegate);
             QTimer::singleShot(0, editor, SLOT(deleteLater())); // delete even later
         }
     }
@@ -196,7 +196,7 @@ public:
 	QAbstractItemDelegate *del;
 	if ((del = rowDelegates.value(index.row(), 0))) return del;
 	if ((del = columnDelegates.value(index.column(), 0))) return del;
-	return delegate;
+	return itemDelegate;
     }
 
     // reimplemented from QAbstractScrollAreaPrivate
@@ -206,7 +206,7 @@ public:
     }
 
     QPointer<QAbstractItemModel> model;
-    QPointer<QAbstractItemDelegate> delegate;
+    QPointer<QAbstractItemDelegate> itemDelegate;
     QMap<int, QPointer<QAbstractItemDelegate> > rowDelegates;
     QMap<int, QPointer<QAbstractItemDelegate> > columnDelegates;
     QPointer<QItemSelectionModel> selectionModel;

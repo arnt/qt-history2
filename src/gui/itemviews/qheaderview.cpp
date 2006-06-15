@@ -227,7 +227,7 @@ void QHeaderView::initialize()
     setFrameStyle(NoFrame);
     d->viewport->setMouseTracking(true);
     d->viewport->setBackgroundRole(QPalette::Button);
-    delete d->delegate;
+    delete d->itemDelegate;
 }
 
 /*!
@@ -1309,13 +1309,13 @@ void QHeaderView::resizeSections()
 void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, int)
 {
     Q_D(QHeaderView);
-    if (parent != rootIndex() || !d->model)
+    if (parent != d->root || !d->model)
         return; // we only handle changes in the top level
     int lastSection;
     if (d->orientation == Qt::Horizontal)
-        lastSection = qMax(d->model->columnCount(rootIndex()) - 1, 0);
+        lastSection = qMax(d->model->columnCount(d->root) - 1, 0);
     else
-        lastSection = qMax(d->model->rowCount(rootIndex()) -  1, 0);
+        lastSection = qMax(d->model->rowCount(d->root) -  1, 0);
     initializeSections(logicalFirst, lastSection);
     d->invalidateCachedSizeHint();
 }
@@ -1339,7 +1339,7 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
                                            int logicalFirst, int logicalLast)
 {
     Q_Q(QHeaderView);
-    if (parent != q->rootIndex() || !model)
+    if (parent != root || !model)
         return; // we only handle changes in the top level
     if (qMin(logicalFirst, logicalLast) < 0
         || qMax(logicalLast, logicalFirst) >= sectionCount)
@@ -1387,12 +1387,12 @@ void QHeaderViewPrivate::_q_sectionsRemoved(const QModelIndex &parent,
 void QHeaderView::initializeSections()
 {
     Q_D(QHeaderView);
-    if (!model()) {
+    if (!d->model) {
         d->clear();
         return;
     }
     if (d->orientation == Qt::Horizontal) {
-        int c = model()->columnCount(rootIndex());
+        int c = d->model->columnCount(d->root);
         if (c == 0) {
             int oldCount = count();
             d->clear();
@@ -1401,7 +1401,7 @@ void QHeaderView::initializeSections()
             initializeSections(0, c - 1);
         }
     } else {
-        int r = model()->rowCount(rootIndex());
+        int r = d->model->rowCount(d->root);
         if (r == 0) {
             int oldCount = count();
             d->clear();
@@ -1458,17 +1458,17 @@ void QHeaderView::currentChanged(const QModelIndex &current, const QModelIndex &
     Q_D(QHeaderView);
 
     if (d->orientation == Qt::Horizontal && current.column() != old.column()) {
-        if (old.isValid() && old.parent() == rootIndex())
+        if (old.isValid() && old.parent() == d->root)
             d->setDirtyRegion(QRect(sectionViewportPosition(old.column()), 0,
                                     sectionSize(old.column()), d->viewport->height()));
-        if (current.isValid() && current.parent() == rootIndex())
+        if (current.isValid() && current.parent() == d->root)
             d->setDirtyRegion(QRect(sectionViewportPosition(current.column()), 0,
                                     sectionSize(current.column()), d->viewport->height()));
     } else if (d->orientation == Qt::Vertical && current.row() != old.row()) {
-        if (old.isValid() && old.parent() == rootIndex())
+        if (old.isValid() && old.parent() == d->root)
             d->setDirtyRegion(QRect(0, sectionViewportPosition(old.row()),
                                     d->viewport->width(), sectionSize(old.row())));
-        if (current.isValid() && current.parent() == rootIndex())
+        if (current.isValid() && current.parent() == d->root)
             d->setDirtyRegion(QRect(0, sectionViewportPosition(current.row()),
                                     d->viewport->width(), sectionSize(current.row())));
     }
@@ -1798,7 +1798,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {
-            QVariant variant = model()->headerData(logical, orientation(), Qt::ToolTipRole);
+            QVariant variant = d->model->headerData(logical, orientation(), Qt::ToolTipRole);
             if (variant.isValid()) {
                 QToolTip::showText(he->globalPos(), variant.toString(), this);
                 return true;
@@ -1811,14 +1811,14 @@ bool QHeaderView::viewportEvent(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1
-            && model()->headerData(logical, orientation(), Qt::WhatsThisRole).isValid())
+            && d->model->headerData(logical, orientation(), Qt::WhatsThisRole).isValid())
             return true;
         break; }
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {
-             QVariant whatsthis = model()->headerData(logical, orientation(),
+             QVariant whatsthis = d->model->headerData(logical, orientation(),
                                                       Qt::WhatsThisRole);
              if (whatsthis.isValid()) {
                  QWhatsThis::showText(he->globalPos(), whatsthis.toString(), this);
@@ -1832,7 +1832,7 @@ bool QHeaderView::viewportEvent(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         int logical = logicalIndexAt(he->pos());
         if (logical != -1) {
-            QString statustip = model()->headerData(logical, orientation(),
+            QString statustip = d->model->headerData(logical, orientation(),
                                                     Qt::StatusTipRole).toString();
             if (!statustip.isEmpty())
                 setStatusTip(statustip);
@@ -2148,7 +2148,7 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
     if (!d->model)
         return QRegion();
     if (orientation() == Qt::Horizontal) {
-        int left = d->model->columnCount(rootIndex()) - 1;
+        int left = d->model->columnCount(d->root) - 1;
         int right = 0;
         int rangeLeft, rangeRight;
 
@@ -2182,7 +2182,7 @@ QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) c
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
     // orientation() == Qt::Vertical
-    int top = d->model->rowCount(rootIndex()) - 1;
+    int top = d->model->rowCount(d->root) - 1;
     int bottom = 0;
     int rangeTop, rangeBottom;
 
