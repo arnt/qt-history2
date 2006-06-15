@@ -18,6 +18,7 @@
 #include "qmetaobject.h"
 #include "qwidget.h"
 #include "private/qobject_p.h"
+#include "private/qabstractitemmodel_p.h"
 
 class QDataWidgetMapperPrivate: public QObjectPrivate
 {
@@ -25,11 +26,12 @@ public:
     Q_DECLARE_PUBLIC(QDataWidgetMapper)
 
     QDataWidgetMapperPrivate()
-        : delegate(0), orientation(Qt::Horizontal), submitPolicy(QDataWidgetMapper::AutoSubmit)
+        : model(QAbstractItemModelPrivate::staticEmptyModel()), delegate(0),
+          orientation(Qt::Horizontal), submitPolicy(QDataWidgetMapper::AutoSubmit)
     {
     }
 
-    QPointer<QAbstractItemModel> model;
+    QAbstractItemModel *model;
     QAbstractItemDelegate *delegate;
     Qt::Orientation orientation;
     QDataWidgetMapper::SubmitPolicy submitPolicy;
@@ -73,6 +75,7 @@ public:
     void _q_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void _q_commitData(QWidget *);
     void _q_closeEditor(QWidget *, QAbstractItemDelegate::EndEditHint);
+    void _q_modelDestroyed();
 
     struct WidgetMapper
     {
@@ -109,8 +112,6 @@ void QDataWidgetMapperPrivate::populate(WidgetMapper &m)
 
 void QDataWidgetMapperPrivate::populate()
 {
-    Q_ASSERT(!model.isNull());
-
     for (int i = 0; i < widgetMap.count(); ++i)
         populate(widgetMap[i]);
 }
@@ -182,6 +183,14 @@ void QDataWidgetMapperPrivate::_q_closeEditor(QWidget *w, QAbstractItemDelegate:
         // nothing
         break;
     }
+}
+
+void QDataWidgetMapperPrivate::_q_modelDestroyed()
+{
+    Q_Q(QDataWidgetMapper);
+
+    model = 0;
+    q->setModel(QAbstractItemModelPrivate::staticEmptyModel());
 }
 
 /*!
@@ -296,9 +305,12 @@ void QDataWidgetMapper::setModel(QAbstractItemModel *model)
     if (d->model == model)
         return;
 
-    if (d->model)
+    if (d->model) {
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this,
                    SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
+        disconnect(d->model, SIGNAL(destroyed()), this,
+                   SLOT(_q_modelDestroyed()));
+    }
     clearMapping();
     d->rootIndex = QModelIndex();
     d->currentTopLeft = QModelIndex();
@@ -307,6 +319,7 @@ void QDataWidgetMapper::setModel(QAbstractItemModel *model)
 
     connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
+    connect(model, SIGNAL(destroyed()), SLOT(_q_modelDestroyed()));
 }
 
 /*!
@@ -317,7 +330,9 @@ void QDataWidgetMapper::setModel(QAbstractItemModel *model)
 QAbstractItemModel *QDataWidgetMapper::model() const
 {
     Q_D(const QDataWidgetMapper);
-    return d->model;
+    return d->model == QAbstractItemModelPrivate::staticEmptyModel()
+            ? static_cast<QAbstractItemModel *>(0)
+            : d->model;
 }
 
 /*!
@@ -463,8 +478,6 @@ void QDataWidgetMapper::revert()
 {
     Q_D(QDataWidgetMapper);
 
-    if (d->model.isNull())
-        return;
     d->populate();
 }
 
@@ -485,9 +498,6 @@ void QDataWidgetMapper::revert()
 bool QDataWidgetMapper::submit()
 {
     Q_D(QDataWidgetMapper);
-
-    if (d->model.isNull())
-        return false;
 
     for (int i = 0; i < d->widgetMap.count(); ++i) {
         const QDataWidgetMapperPrivate::WidgetMapper &m = d->widgetMap.at(i);
@@ -576,7 +586,7 @@ void QDataWidgetMapper::setCurrentIndex(int index)
 {
     Q_D(QDataWidgetMapper);
 
-    if (d->model.isNull() || index >= d->itemCount())
+    if (index >= d->itemCount())
         return;
     d->currentTopLeft = d->orientation == Qt::Horizontal
                             ? d->model->index(index, 0, d->rootIndex)
@@ -612,7 +622,7 @@ void QDataWidgetMapper::setCurrentModelIndex(const QModelIndex &index)
     Q_D(QDataWidgetMapper);
 
     if (!index.isValid()
-        || index.model() != static_cast<QAbstractItemModel *>(d->model)
+        || index.model() != d->model
         || index.parent() != d->rootIndex)
         return;
 

@@ -81,6 +81,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_dataChanged(const QModelIndex &, const QModelIndex &))
     Q_PRIVATE_SLOT(d_func(), void _q_commitData(QWidget *))
     Q_PRIVATE_SLOT(d_func(), void _q_closeEditor(QWidget *, QAbstractItemDelegate::EndEditHint))
+    Q_PRIVATE_SLOT(d_func(), void _q_modelDestroyed())
 };
 
 QT_END_HEADER
