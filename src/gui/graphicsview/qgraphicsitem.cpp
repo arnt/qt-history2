@@ -296,6 +296,7 @@
 
 #include <private/qgraphicsitem_p.h>
 #include <private/qtextcontrol_p.h>
+#include <private/qtextengine_p.h>
 
 #include <math.h>
 
@@ -4062,12 +4063,11 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
     \ingroup multimedia
 
     To set the item's text, pass a QString to QGraphicsTextItem's
-    constructor, or call setText(). text() returns the current text.
+    constructor, or call setHtml()/setPlainText().
 
     QGraphicsTextItem uses the text's formatted size and the associated font
-    and pen width to provide a reasonable implementation of boundingRect(),
-    shape(), and contains(). You can set the font and pen by calling setFont()
-    or setPen().
+    to provide a reasonable implementation of boundingRect(), shape(),
+    and contains(). You can set the font by calling setFont().
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsPixmapItem, QGraphicsPolygonItem, QGraphicsLineItem
@@ -4669,6 +4669,179 @@ QTextCursor QGraphicsTextItem::textCursor() const
     if (!dd->control)
         return QTextCursor();
     return dd->control->textCursor();
+}
+
+class QGraphicsSimpleTextItemPrivate : public QGraphicsItemPrivate
+{
+    Q_DECLARE_PUBLIC(QGraphicsSimpleTextItem)
+public:
+    QString text;
+    QPen pen;
+    QFont font;
+    QRectF boundingRect;
+
+    void updateBoundingRect();
+};
+
+static QRectF setupTextLayout(QTextLayout *layout)
+{
+    layout->setCacheEnabled(true);
+    layout->beginLayout();
+    while (layout->createLine().isValid())
+        ;
+    layout->endLayout();
+    qreal maxWidth = 0;
+    qreal y = 0;
+    for (int i = 0; i < layout->lineCount(); ++i) {
+        QTextLine line = layout->lineAt(i);
+        maxWidth = qMax(maxWidth, line.naturalTextWidth());
+        line.setPosition(QPointF(0, y));
+        y += line.height();
+    }
+    return QRectF(0, 0, maxWidth, y);
+}
+
+void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
+{
+    Q_Q(QGraphicsSimpleTextItem);
+    q->removeFromIndex();
+    if (text.isEmpty()) {
+        boundingRect = QRectF();
+    } else {
+        QString tmp = text;
+        tmp.replace(QLatin1Char('\n'), QChar::LineSeparator);
+        QStackTextEngine engine(tmp, font);
+        QTextLayout layout(&engine);
+        boundingRect = setupTextLayout(&layout);
+    }
+    q->addToIndex();
+}
+
+QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent, QGraphicsScene *scene)
+    : QGraphicsItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
+{
+}
+
+QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(const QString &text, QGraphicsItem *parent , QGraphicsScene *scene)
+    : QGraphicsItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
+{
+    setText(text);
+}
+
+QGraphicsSimpleTextItem::~QGraphicsSimpleTextItem()
+{
+}
+
+void QGraphicsSimpleTextItem::setText(const QString &text)
+{
+    Q_D(QGraphicsSimpleTextItem);
+    d->text = text;
+    d->updateBoundingRect();
+}
+
+QString QGraphicsSimpleTextItem::text() const
+{
+    Q_D(const QGraphicsSimpleTextItem);
+    return d->text;
+}
+
+void QGraphicsSimpleTextItem::setFont(const QFont &font)
+{
+    Q_D(QGraphicsSimpleTextItem);
+    d->font = font;
+    d->updateBoundingRect();
+}
+
+QFont QGraphicsSimpleTextItem::font() const
+{
+    Q_D(const QGraphicsSimpleTextItem);
+    return d->font;
+}
+
+void QGraphicsSimpleTextItem::setPen(const QPen &pen)
+{
+    Q_D(QGraphicsSimpleTextItem);
+    d->pen = pen;
+    update();
+}
+
+QPen QGraphicsSimpleTextItem::pen() const
+{
+    Q_D(const QGraphicsSimpleTextItem);
+    return d->pen;
+}
+
+QRectF QGraphicsSimpleTextItem::boundingRect() const
+{
+    Q_D(const QGraphicsSimpleTextItem);
+    return d->boundingRect;
+}
+
+QPainterPath QGraphicsSimpleTextItem::shape() const
+{
+    Q_D(const QGraphicsSimpleTextItem);
+    QPainterPath path;
+    path.addRect(d->boundingRect);
+    return path;
+}
+
+bool QGraphicsSimpleTextItem::contains(const QPointF &point) const
+{
+    Q_D(const QGraphicsSimpleTextItem);
+    return d->boundingRect.contains(point);
+}
+
+void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Q_UNUSED(widget);
+    Q_D(QGraphicsSimpleTextItem);
+    painter->setPen(d->pen);
+    painter->setFont(d->font);
+
+    QString tmp = d->text;
+    tmp.replace(QLatin1Char('\n'), QChar::LineSeparator);
+    QStackTextEngine engine(tmp, d->font);
+    QTextLayout layout(&engine);
+    setupTextLayout(&layout);
+    layout.draw(painter, QPointF(0, 0));
+
+    if (option->state & (QStyle::State_Selected | QStyle::State_HasFocus)) {
+        painter->setPen(QPen(Qt::black, 1));
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(d->boundingRect);
+    }
+}
+
+int QGraphicsSimpleTextItem::type() const
+{
+    return Type;
+}
+
+/*!
+    \internal
+*/
+bool QGraphicsSimpleTextItem::supportsExtension(Extension extension) const
+{
+    Q_UNUSED(extension);
+    return false;
+}
+
+/*!
+    \internal
+*/
+void QGraphicsSimpleTextItem::setExtension(Extension extension, const QVariant &variant)
+{
+    Q_UNUSED(extension);
+    Q_UNUSED(variant);
+}
+
+/*!
+    \internal
+*/
+QVariant QGraphicsSimpleTextItem::extension(const QVariant &variant) const
+{
+    Q_UNUSED(variant);
+    return QVariant();
 }
 
 /*!

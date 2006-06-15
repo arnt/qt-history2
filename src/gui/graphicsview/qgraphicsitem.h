@@ -575,6 +575,42 @@ private:
     friend class QGraphicsTextItemPrivate;
 };
 
+class QGraphicsSimpleTextItemPrivate;
+class Q_GUI_EXPORT QGraphicsSimpleTextItem : public QGraphicsItem
+{
+public:
+    QGraphicsSimpleTextItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
+    QGraphicsSimpleTextItem(const QString &text, QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
+    ~QGraphicsSimpleTextItem();
+
+    void setText(const QString &text);
+    QString text() const;
+
+    void setFont(const QFont &font);
+    QFont font() const;
+
+    void setPen(const QPen &pen);
+    QPen pen() const;
+
+    QRectF boundingRect() const;
+    QPainterPath shape() const;
+    bool contains(const QPointF &point) const;
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+    enum { Type = 9 };
+    int type() const;
+
+protected:
+    bool supportsExtension(Extension extension) const;
+    void setExtension(Extension extension, const QVariant &variant);
+    QVariant extension(const QVariant &variant) const;
+
+private:
+    Q_DISABLE_COPY(QGraphicsSimpleTextItem)
+    Q_DECLARE_PRIVATE(QGraphicsSimpleTextItem)
+};
+
 class QGraphicsItemGroupPrivate;
 class Q_GUI_EXPORT QGraphicsItemGroup : public QGraphicsItem
 {
@@ -588,7 +624,7 @@ public:
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
 
-    enum { Type = 9 };
+    enum { Type = 10 };
     int type() const;
 
 private:
