@@ -9,6 +9,7 @@ HEADERS += \
         widgets/qabstractslider_p.h \
         widgets/qabstractspinbox.h \
         widgets/qabstractspinbox_p.h \
+        widgets/qcalendarwidget.h \
         widgets/qcheckbox.h \
         widgets/qcombobox.h \
         widgets/qcombobox_p.h \
@@ -70,6 +71,7 @@ SOURCES += \
         widgets/qabstractbutton.cpp \
         widgets/qabstractslider.cpp \
         widgets/qabstractspinbox.cpp \
+        widgets/qcalendarwidget.cpp \
         widgets/qcheckbox.cpp \
         widgets/qcombobox.cpp \
         widgets/qdatetimeedit.cpp \
