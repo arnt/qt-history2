@@ -28,10 +28,10 @@
 #include "qsystemtrayicon.h"
 #include "private/qobject_p.h"
 
-#include "QtGui/QMenu"
-#include "QtCore/QString"
-#include "QtCore/QPointer"
-#include "QtGui/QPixmap"
+#include "QtGui/qmenu.h"
+#include "QtGui/qpixmap.h"
+#include "QtCore/qstring.h"
+#include "QtCore/qpointer.h"
 
 class QSystemTrayIconSys;
 class QToolButton;

@@ -14,8 +14,8 @@
 #ifndef QHIVIEWWIDGET_P_H
 #define QHIVIEWWIDGET_P_H
 
-#include <QtGui/QApplication>
-#include <QtGui/QWidget>
+#include <QtGui/qapplication.h>
+#include <QtGui/qwidget.h>
 #include <private/qt_mac_p.h>
 
 //

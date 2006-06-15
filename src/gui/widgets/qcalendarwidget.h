@@ -14,8 +14,8 @@
 #ifndef QCALENDARWIDGET_H
 #define QCALENDARWIDGET_H
 
-#include <QtGui/QWidget>
-#include <QtCore/QDate>
+#include <QtGui/qwidget.h>
+#include <QtCore/qdatetime.h>
 
 QT_BEGIN_HEADER
 

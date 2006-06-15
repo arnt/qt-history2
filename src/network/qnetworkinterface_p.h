@@ -14,11 +14,11 @@
 #ifndef QNETWORKINTERFACEPRIVATE_H
 #define QNETWORKINTERFACEPRIVATE_H
 
-#include <QtCore/QAtomic>
-#include <QtCore/QList>
-#include <QtCore/QReadWriteLock>
-#include <QtCore/QString>
-#include <QtNetwork/QHostAddress>
+#include <QtCore/qatomic.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qreadwritelock.h>
+#include <QtCore/qstring.h>
+#include <QtNetwork/qhostaddress.h>
 
 class QNetworkAddressEntryPrivate
 {

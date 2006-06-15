@@ -14,6 +14,8 @@
 #include "qnetworkinterface.h"
 #include "qnetworkinterface_p.h"
 
+#include "qdebug.h"
+
 Q_GLOBAL_STATIC(QNetworkInterfaceManager, manager)
 
 QNetworkInterfaceManager::QNetworkInterfaceManager()
@@ -401,8 +403,8 @@ QList<QHostAddress> QNetworkInterface::allAddresses()
     return result;
 }
 
-#ifndef QT_NO_DEBUG
-inline QDebug flagsDebug(QDebug debug, QNetworkInterface::InterfaceFlags flags)
+#ifndef QT_NO_DEBUG_STREAM
+static inline QDebug flagsDebug(QDebug debug, QNetworkInterface::InterfaceFlags flags)
 {
     if (flags & QNetworkInterface::IsUp)
         debug.nospace() << "IsUp ";
@@ -419,7 +421,7 @@ inline QDebug flagsDebug(QDebug debug, QNetworkInterface::InterfaceFlags flags)
     return debug.nospace();
 }
 
-inline QDebug operator<<(QDebug debug, const QNetworkAddressEntry &entry)
+static inline QDebug operator<<(QDebug debug, const QNetworkAddressEntry &entry)
 {
     debug.nospace() << "(address = " << entry.ip();
     if (!entry.netmask().isNull())

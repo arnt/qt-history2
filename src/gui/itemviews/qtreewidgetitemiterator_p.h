@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <QtCore/QStack>
+#include <QtCore/qstack.h>
 
 #ifndef QT_NO_TREEWIDGET
 #include "qtreewidgetitemiterator.h"

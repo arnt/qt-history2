@@ -25,9 +25,9 @@
 #ifndef UI4_H
 #define UI4_H
 
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QtCore/qlist.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
 
 QT_BEGIN_HEADER
 

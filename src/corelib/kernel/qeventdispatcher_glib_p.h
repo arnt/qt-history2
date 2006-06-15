@@ -17,7 +17,7 @@
 #include "qabstracteventdispatcher.h"
 #include "qabstracteventdispatcher_p.h"
 
-#include <QtCore/QHash>
+#include <QtCore/qhash.h>
 
 class QEventDispatcherGlibPrivate;
 
