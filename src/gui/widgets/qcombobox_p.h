@@ -40,6 +40,8 @@
 #include "QtCore/qpair.h"
 #include "QtCore/qtimer.h"
 #include "private/qwidget_p.h"
+#include "QtCore/qpointer.h"
+#include "QtGui/qcompleter.h"
 
 #include <limits.h>
 
@@ -236,6 +238,7 @@ public:
     QPersistentModelIndex root;
     Qt::CaseSensitivity autoCompletionCaseSensitivity;
     int indexBeforeChange;
+    QPointer<QCompleter> completer;
 };
 
 #endif // QT_NO_COMBOBOX

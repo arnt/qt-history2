@@ -30,7 +30,6 @@
 #endif
 #include <private/qcombobox_p.h>
 #include <qdebug.h>
-#include <qcompleter.h>
 
 QComboBoxPrivate::QComboBoxPrivate()
     : QWidgetPrivate(),
@@ -50,7 +49,8 @@ QComboBoxPrivate::QComboBoxPrivate()
       arrowState(QStyle::State_None),
       hoverControl(QStyle::SC_None),
       autoCompletionCaseSensitivity(Qt::CaseInsensitive),
-      indexBeforeChange(-1)
+      indexBeforeChange(-1),
+      completer(0)
 {
 }
 
@@ -1019,12 +1019,12 @@ void QComboBox::setAutoCompletion(bool enable)
     if (enable) {
         if (d->lineEdit->completer())
             return;
-        QCompleter *completer = new QCompleter(d->lineEdit);
-        completer->setCaseSensitivity(d->autoCompletionCaseSensitivity);
-        completer->setCompletionMode(QCompleter::InlineCompletion);
-        completer->setModel(d->model);
-        completer->setCompletionColumn(d->modelColumn);
-        d->lineEdit->setCompleter(completer);
+        d->completer = new QCompleter(d->lineEdit);
+        d->completer->setCaseSensitivity(d->autoCompletionCaseSensitivity);
+        d->completer->setCompletionMode(QCompleter::InlineCompletion);
+        d->completer->setModel(d->model);
+        d->completer->setCompletionColumn(d->modelColumn);
+        d->lineEdit->setCompleter(d->completer);
     } else {
         d->lineEdit->setCompleter(0);
     }
@@ -1413,7 +1413,7 @@ void QComboBox::setModel(QAbstractItemModel *model)
         return;
 
     if (d->lineEdit && d->lineEdit->completer()
-        && d->lineEdit->completer()->model() == model)
+        && d->lineEdit->completer() == d->completer)
         d->lineEdit->completer()->setModel(model);
 
     if (d->model) {
@@ -2402,6 +2402,9 @@ void QComboBox::setModelColumn(int visibleColumn)
     QListView *lv = qobject_cast<QListView *>(d->viewContainer()->itemView());
     if (lv)
         lv->setModelColumn(visibleColumn);
+    if (d->lineEdit && d->lineEdit->completer()
+        && d->lineEdit->completer() == d->completer)
+        d->lineEdit->completer()->setCompletionColumn(visibleColumn);
 }
 
 /*!
