@@ -203,7 +203,7 @@ QList<QGraphicsItem *> QGraphicsScenePrivate::estimateItemsInRect(const QRectF &
 
     if (indexMethod == QGraphicsScene::BspTreeIndex) {
         QGraphicsScenePrivate *that = const_cast<QGraphicsScenePrivate *>(this);
-        that->generateBspTree();
+        that->_q_generateBspTree();
         QVector<int> itemIndexes;
         that->bspTree.climbTree(rect.toRect(), &qt_itemsForRectCallback, QGraphicsSceneBspTree::Data(&itemIndexes));
         for (int i = 0; i < itemIndexes.size(); ++i) {
@@ -245,7 +245,7 @@ void QGraphicsScenePrivate::addToIndex(QGraphicsItem *item)
             // size.
             if (!generatingBspTree) {
                 generatingBspTree = true;
-                QTimer::singleShot(0, q, SLOT(generateBspTree()));
+                QTimer::singleShot(0, q, SLOT(_q_generateBspTree()));
             }
         }
     }
@@ -282,7 +282,7 @@ void QGraphicsScenePrivate::resetIndex()
 
         if (!generatingBspTree) {
             generatingBspTree = true;
-            QTimer::singleShot(0, q, SLOT(generateBspTree()));
+            QTimer::singleShot(0, q, SLOT(_q_generateBspTree()));
         }
     }
 }
@@ -290,7 +290,7 @@ void QGraphicsScenePrivate::resetIndex()
 /*!
     \internal
 */
-void QGraphicsScenePrivate::generateBspTree()
+void QGraphicsScenePrivate::_q_generateBspTree()
 {
     Q_Q(QGraphicsScene);
 
@@ -348,7 +348,7 @@ void QGraphicsScenePrivate::generateBspTree()
 /*!
     \internal
 */
-void QGraphicsScenePrivate::emitUpdated()
+void QGraphicsScenePrivate::_q_emitUpdated()
 {
     Q_Q(QGraphicsScene);
     calledEmitUpdated = false;
@@ -371,7 +371,7 @@ void QGraphicsScenePrivate::emitUpdated()
     as boundingRect()). Also, it is unnecessary to update the item's own state
     in any way.
 */
-void QGraphicsScenePrivate::removeItemLater(QGraphicsItem *item)
+void QGraphicsScenePrivate::_q_removeItemLater(QGraphicsItem *item)
 {
     Q_Q(QGraphicsScene);
     if (QGraphicsItem *parent = item->d_func()->parent) {
@@ -405,7 +405,7 @@ void QGraphicsScenePrivate::removeItemLater(QGraphicsItem *item)
 
     // Remove all children recursively.
     foreach (QGraphicsItem *child, item->children())
-        removeItemLater(child);
+        _q_removeItemLater(child);
 
     // We have no locality information; all we can do is update everything.
     q->update();
@@ -790,7 +790,7 @@ QGraphicsScene::~QGraphicsScene()
 QRectF QGraphicsScene::sceneRect() const
 {
     Q_D(const QGraphicsScene);
-    const_cast<QGraphicsScenePrivate *>(d)->generateBspTree();
+    const_cast<QGraphicsScenePrivate *>(d)->_q_generateBspTree();
     return d->hasSceneRect ? d->sceneRect : d->growingItemsBoundingRect;
 }
 void QGraphicsScene::setSceneRect(const QRectF &rect)
@@ -1325,7 +1325,7 @@ void QGraphicsScene::addItem(QGraphicsItem *item)
         item->d_func()->index = -1;
         if (!d->generatingBspTree) {
             d->generatingBspTree = true;
-            QTimer::singleShot(0, this, SLOT(generateBspTree()));
+            QTimer::singleShot(0, this, SLOT(_q_generateBspTree()));
         }
     } else {
         // No index: We can insert the item directly.
@@ -1837,7 +1837,7 @@ void QGraphicsScene::update(const QRectF &rect)
     }
     if (!d->calledEmitUpdated) {
         d->calledEmitUpdated = true;
-        QTimer::singleShot(0, this, SLOT(emitUpdated()));
+        QTimer::singleShot(0, this, SLOT(_q_emitUpdated()));
     }
 }
 

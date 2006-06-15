@@ -392,8 +392,8 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
 
 // ####        doc->documentLayout()->setPaintDevice(viewport);
 
-        QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(updateCurrentCharFormatAndSelection()));
-        QObject::connect(doc, SIGNAL(cursorPositionChanged(QTextCursor)), q, SLOT(emitCursorPosChanged(QTextCursor)));
+        QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(_q_updateCurrentCharFormatAndSelection()));
+        QObject::connect(doc, SIGNAL(cursorPositionChanged(QTextCursor)), q, SLOT(_q_emitCursorPosChanged(QTextCursor)));
 
         // convenience signal forwards
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
@@ -437,7 +437,7 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
     QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
     emit q->textChanged();
     doc->setUndoRedoEnabled(interactionFlags & Qt::TextEditable);
-    updateCurrentCharFormatAndSelection();
+    _q_updateCurrentCharFormatAndSelection();
     doc->setModified(false);
     emit q->cursorPositionChanged();
 }
@@ -522,7 +522,7 @@ void QTextControlPrivate::selectionChanged()
     emit q->microFocusChanged();
 }
 
-void QTextControlPrivate::updateCurrentCharFormatAndSelection()
+void QTextControlPrivate::_q_updateCurrentCharFormatAndSelection()
 {
     updateCurrentCharFormat();
     selectionChanged();
@@ -540,7 +540,7 @@ void QTextControlPrivate::setClipboardSelection()
 }
 #endif
 
-void QTextControlPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
+void QTextControlPrivate::_q_emitCursorPosChanged(const QTextCursor &someCursor)
 {
     Q_Q(QTextControl);
     if (someCursor.isCopyOf(cursor)) {
@@ -641,7 +641,7 @@ void QTextControlPrivate::extendLinewiseSelection(int suggestedNewPosition)
     }
 }
 
-void QTextControlPrivate::deleteSelected()
+void QTextControlPrivate::_q_deleteSelected()
 {
     if (!(interactionFlags & Qt::TextEditable) || !cursor.hasSelection())
 	return;
@@ -652,10 +652,10 @@ void QTextControl::undo()
 {
     Q_D(QTextControl);
     QObject::connect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                     this, SLOT(setCursorAfterUndoRedo(int, int, int)));
+                     this, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
     d->doc->undo();
     QObject::disconnect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                        this, SLOT(setCursorAfterUndoRedo(int, int, int)));
+                        this, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
     ensureCursorVisible();
 }
 
@@ -663,14 +663,14 @@ void QTextControl::redo()
 {
     Q_D(QTextControl);
     QObject::connect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                     this, SLOT(setCursorAfterUndoRedo(int, int, int)));
+                     this, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
     d->doc->redo();
     QObject::disconnect(d->doc, SIGNAL(contentsChange(int, int, int)),
-                        this, SLOT(setCursorAfterUndoRedo(int, int, int)));
+                        this, SLOT(_q_setCursorAfterUndoRedo(int, int, int)));
     ensureCursorVisible();
 }
 
-void QTextControlPrivate::setCursorAfterUndoRedo(int undoPosition, int /*charsRemoved*/, int charsAdded)
+void QTextControlPrivate::_q_setCursorAfterUndoRedo(int undoPosition, int /*charsRemoved*/, int charsAdded)
 {
     if (cursor.isNull())
         return;
@@ -734,7 +734,7 @@ void QTextControl::setTextCursor(const QTextCursor &cursor)
     const bool posChanged = cursor.position() != d->cursor.position();
     const QTextCursor oldSelection = d->cursor;
     d->cursor = cursor;
-    d->updateCurrentCharFormatAndSelection();
+    d->_q_updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
     d->repaintOldAndNewSelection(oldSelection);
     if (posChanged)
@@ -1426,7 +1426,7 @@ void QTextControlPrivate::mousePressEvent(Qt::MouseButton button, const QPointF 
         q->ensureCursorVisible();
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
-        updateCurrentCharFormatAndSelection();
+        _q_updateCurrentCharFormatAndSelection();
     } else {
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
@@ -1493,7 +1493,7 @@ void QTextControlPrivate::mouseMoveEvent(Qt::MouseButtons buttons, const QPointF
         q->ensureCursorVisible();
         if (cursor.position() != oldCursorPos)
             emit q->cursorPositionChanged();
-        updateCurrentCharFormatAndSelection();
+        _q_updateCurrentCharFormatAndSelection();
     } else {
         emit q->visibilityRequest(QRectF(mousePos, QSizeF(1, 1)));
         if (cursor.position() != oldCursorPos)
@@ -1805,7 +1805,7 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
         d->linkToCopy = anchorAt(pos);
     if ((d->interactionFlags & Qt::LinksAccessibleByKeyboard)
             || (d->interactionFlags & Qt::LinksAccessibleByMouse)) {
-        a = menu->addAction(tr("Copy &Link Location"), this, SLOT(copyLink()));
+        a = menu->addAction(tr("Copy &Link Location"), this, SLOT(_q_copyLink()));
         a->setEnabled(!d->linkToCopy.isEmpty());
     }
 
@@ -1815,7 +1815,7 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
         const QMimeData *md = QApplication::clipboard()->mimeData();
         a->setEnabled(md && canInsertFromMimeData(md));
 #endif
-        a = menu->addAction(tr("Delete"), this, SLOT(deleteSelected()));
+        a = menu->addAction(tr("Delete"), this, SLOT(_q_deleteSelected()));
         a->setEnabled(d->cursor.hasSelection());
     }
 
@@ -2004,7 +2004,7 @@ void QTextControl::moveCursor(QTextCursor::MoveOperation op, QTextCursor::MoveMo
     Q_D(QTextControl);
     const QTextCursor oldSelection = d->cursor;
     const bool moved = d->cursor.movePosition(op, mode);
-    d->updateCurrentCharFormatAndSelection();
+    d->_q_updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
     d->repaintOldAndNewSelection(oldSelection);
     if (moved)
@@ -2442,7 +2442,7 @@ void QTextControl::drawContents(QPainter *p, const QRectF &rect)
     p->restore();
 }
 
-void QTextControlPrivate::copyLink()
+void QTextControlPrivate::_q_copyLink()
 {
     QMimeData *md = new QMimeData;
     md->setText(linkToCopy);

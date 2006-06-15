@@ -198,11 +198,11 @@ protected:
 
 private:
     Q_DISABLE_COPY(QTextControl)
-    Q_PRIVATE_SLOT(d_func(), void updateCurrentCharFormatAndSelection())
-    Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
-    Q_PRIVATE_SLOT(d_func(), void deleteSelected())
-    Q_PRIVATE_SLOT(d_func(), void setCursorAfterUndoRedo(int, int, int))
-    Q_PRIVATE_SLOT(d_func(), void copyLink())
+    Q_PRIVATE_SLOT(d_func(), void _q_updateCurrentCharFormatAndSelection())
+    Q_PRIVATE_SLOT(d_func(), void _q_emitCursorPosChanged(const QTextCursor &))
+    Q_PRIVATE_SLOT(d_func(), void _q_deleteSelected())
+    Q_PRIVATE_SLOT(d_func(), void _q_setCursorAfterUndoRedo(int, int, int))
+    Q_PRIVATE_SLOT(d_func(), void _q_copyLink())
 };
 
 QT_END_HEADER

@@ -52,13 +52,13 @@ public:
 
     QGraphicsSceneBspTree bspTree;
     mutable bool generatingBspTree;
-    void generateBspTree();
+    void _q_generateBspTree();
 
     QRectF sceneRect;
     bool hasSceneRect;
     QRectF growingItemsBoundingRect;
 
-    void emitUpdated();
+    void _q_emitUpdated();
     QList<QRectF> updatedRects;
     bool updateAll;
     bool calledEmitUpdated;
@@ -67,7 +67,7 @@ public:
     QList<QGraphicsItem *> selectedItems;
     QList<QGraphicsItem *> allItems;
     QList<int> freeItemIndexes;
-    void removeItemLater(QGraphicsItem *item);
+    void _q_removeItemLater(QGraphicsItem *item);
     QSet<int> removedItemsIndexes;
     void purgeRemovedItems();
 

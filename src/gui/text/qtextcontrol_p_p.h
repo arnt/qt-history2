@@ -72,20 +72,20 @@ public:
 
     void selectionChanged();
 
-    void updateCurrentCharFormatAndSelection();
+    void _q_updateCurrentCharFormatAndSelection();
 
     void setClipboardSelection();
 
-    void emitCursorPosChanged(const QTextCursor &someCursor);
+    void _q_emitCursorPosChanged(const QTextCursor &someCursor);
 
     void setBlinkingCursorEnabled(bool enable);
 
     void extendWordwiseSelection(int suggestedNewPosition, qreal mouseXPosition);
     void extendLinewiseSelection(int suggestedNewPosition);
 
-    void deleteSelected();
+    void _q_deleteSelected();
 
-    void setCursorAfterUndoRedo(int undoPosition, int charsAdded, int charsRemoved);
+    void _q_setCursorAfterUndoRedo(int undoPosition, int charsAdded, int charsRemoved);
 
     QRectF rectForPosition(int position) const;
     QRectF selectionRect(const QTextCursor &cursor) const;
@@ -160,7 +160,7 @@ public:
     bool openExternalLinks;
 
     QString linkToCopy;
-    void copyLink();
+    void _q_copyLink();
 };
 
 #endif // QTEXTCONTROL_P_H

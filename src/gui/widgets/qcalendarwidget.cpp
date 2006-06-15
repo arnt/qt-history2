@@ -649,8 +649,8 @@ public:
 
     void slotCurrentChanged(const QModelIndex &current,
                     const QModelIndex &previous);
-    void slotChangeDate(const QDate &date, bool changeMonth);
-    void editingFinished();
+    void _q_slotChangeDate(const QDate &date, bool changeMonth);
+    void _q_editingFinished();
 
     QCalendarModel *m_model;
     QCalendarView *m_view;
@@ -692,7 +692,7 @@ void QCalendarWidgetPrivate::update()
     }
 }
 
-void QCalendarWidgetPrivate::slotChangeDate(const QDate &date, bool changeMonth)
+void QCalendarWidgetPrivate::_q_slotChangeDate(const QDate &date, bool changeMonth)
 {
     QDate oldDate = m_model->date;
     m_model->setDate(date);
@@ -705,7 +705,7 @@ void QCalendarWidgetPrivate::slotChangeDate(const QDate &date, bool changeMonth)
     }
 }
 
-void QCalendarWidgetPrivate::editingFinished()
+void QCalendarWidgetPrivate::_q_editingFinished()
 {
     Q_Q(QCalendarWidget);
     emit q->activated(m_model->date);
@@ -818,9 +818,9 @@ QCalendarWidget::QCalendarWidget(QWidget *parent)
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     connect(d->m_view, SIGNAL(changeDate(const QDate &, bool)),
-            this, SLOT(slotChangeDate(const QDate &, bool)));
+            this, SLOT(_q_slotChangeDate(const QDate &, bool)));
     connect(d->m_view, SIGNAL(editingFinished()),
-            this, SLOT(editingFinished()));
+            this, SLOT(_q_editingFinished()));
 
     layoutV->addWidget(d->m_view);
 }

@@ -172,9 +172,9 @@ private:
     void itemUpdated(QGraphicsItem *item, const QRectF &rect);
 
     Q_DECLARE_PRIVATE(QGraphicsScene)
-    Q_PRIVATE_SLOT(d_func(), void generateBspTree())
-    Q_PRIVATE_SLOT(d_func(), void emitUpdated())
-    Q_PRIVATE_SLOT(d_func(), void removeItemLater(QGraphicsItem *item))
+    Q_PRIVATE_SLOT(d_func(), void _q_generateBspTree())
+    Q_PRIVATE_SLOT(d_func(), void _q_emitUpdated())
+    Q_PRIVATE_SLOT(d_func(), void _q_removeItemLater(QGraphicsItem *item))
     friend class QGraphicsItem;
     friend class QGraphicsView;
     friend class QGraphicsViewPrivate;

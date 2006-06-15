@@ -439,7 +439,7 @@ QGraphicsItem::~QGraphicsItem()
         parent->d_func()->children.removeAll(this);
     }
     if (d_ptr->scene)
-        d_ptr->scene->d_func()->removeItemLater(this);
+        d_ptr->scene->d_func()->_q_removeItemLater(this);
 
     delete d_ptr;
 }
