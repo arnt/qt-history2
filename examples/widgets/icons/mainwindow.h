@@ -66,6 +66,7 @@ private:
     QRadioButton *toolBarRadioButton;
     QRadioButton *listViewRadioButton;
     QRadioButton *iconViewRadioButton;
+    QRadioButton *tabBarRadioButton;
     QRadioButton *otherRadioButton;
     IconSizeSpinBox *otherSpinBox;
 
