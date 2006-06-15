@@ -573,13 +573,17 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             }
         } else if (qVariantCanConvert<EnumType>(value)) {
             QStringList keys;
-            const int index = object->metaObject()->indexOfProperty(qPrintable(pname));
+            const QMetaObject *meta = object->metaObject();
+            const int index = meta->indexOfProperty(qPrintable(pname));
             if (index != -1) {
-                QMetaEnum en = object->metaObject()->property(index).enumerator();
-                const QString className = QString::fromLatin1(object->metaObject()->className()) + "::";
-                for (int j=0; j<en.keyCount(); ++j) {
-                    keys << (className + QString::fromLatin1(en.key(j)));
-                }
+                // make a list of keys in enum-declared order
+                // (don't want alphabetical order when editing)
+                QMetaEnum en = meta->property(index).enumerator();
+                QString scope = QString::fromUtf8(en.scope());
+                if (!scope.isEmpty())
+                    scope += QString::fromUtf8("::");
+                for (int j = 0; j < en.keyCount(); ++j)
+                    keys << (scope + QString::fromLatin1(en.key(j)));
             }
 
             EnumType e = qvariant_cast<EnumType>(value);
