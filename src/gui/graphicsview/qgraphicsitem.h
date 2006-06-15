@@ -492,6 +492,7 @@ private:
 
 class QGraphicsTextItemPrivate;
 class QTextDocument;
+class QTextCursor;
 class Q_GUI_EXPORT QGraphicsTextItem : public QObject, public QGraphicsItem
 {
     Q_OBJECT
@@ -531,6 +532,9 @@ public:
 
     void setOpenExternalLinks(bool open);
     bool openExternalLinks() const;
+
+    void setTextCursor(const QTextCursor &cursor);
+    QTextCursor textCursor() const;
 
 Q_SIGNALS:
     void linkActivated(const QString &);

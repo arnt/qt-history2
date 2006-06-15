@@ -4654,6 +4654,24 @@ bool QGraphicsTextItem::openExternalLinks() const
 }
 
 /*!
+    \property QGraphicsTextItem::textCursor
+
+    This property represents the visible text cursor in an editable
+    text item.
+*/
+void QGraphicsTextItem::setTextCursor(const QTextCursor &cursor)
+{
+    dd->textControl()->setTextCursor(cursor);
+}
+
+QTextCursor QGraphicsTextItem::textCursor() const
+{
+    if (!dd->control)
+        return QTextCursor();
+    return dd->control->textCursor();
+}
+
+/*!
     \class QGraphicsItemGroup
     \brief The QGraphicsItemGroup class provides treating a group of items as
     one.
