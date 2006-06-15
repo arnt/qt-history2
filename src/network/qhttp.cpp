@@ -57,7 +57,8 @@ class QHttpPrivate : public QObjectPrivate
 public:
     Q_DECLARE_PUBLIC(QHttp)
 
-    inline QHttpPrivate() : socket(0), deleteSocket(0), state(QHttp::Unconnected),
+    inline QHttpPrivate() : socket(0), reconnectAttempts(2),
+          deleteSocket(0), state(QHttp::Unconnected),
           error(QHttp::NoError), port(0), toDevice(0),
           postDevice(0), bytesDone(0), chunkedSize(-1)
     {
@@ -80,9 +81,9 @@ public:
     void _q_slotClosed();
     void _q_slotBytesWritten(qint64 numBytes);
     void _q_slotDoFinished();
+    void _q_slotSendRequest();
 
     int addRequest(QHttpRequest *);
-    void sendRequest();
     void finishedWithSuccess();
     void finishedWithError(const QString &detail, int errorCode);
 
@@ -92,6 +93,7 @@ public:
     void setSock(QTcpSocket *sock);
 
     QTcpSocket *socket;
+    int reconnectAttempts;
     bool deleteSocket;
     QList<QHttpRequest *> pending;
 
@@ -225,7 +227,8 @@ void QHttpNormalRequest::start(QHttp *http)
     else
         http->d_func()->toDevice = 0;
 
-    http->d_func()->sendRequest();
+    http->d_func()->reconnectAttempts = 2;
+    http->d_func()->_q_slotSendRequest();
 }
 
 bool QHttpNormalRequest::hasRequestHeader()
@@ -2212,7 +2215,7 @@ void QHttpPrivate::_q_startNextRequest()
     r->start(q);
 }
 
-void QHttpPrivate::sendRequest()
+void QHttpPrivate::_q_slotSendRequest()
 {
     // Proxy support. Insert the Proxy-Authorization item into the
     // header before it's sent off to the proxy.
@@ -2352,6 +2355,7 @@ void QHttpPrivate::_q_slotConnected()
 
 void QHttpPrivate::_q_slotError(QAbstractSocket::SocketError err)
 {
+    Q_Q(QHttp);
     postDevice = 0;
 
     if (state == QHttp::Connecting || state == QHttp::Reading || state == QHttp::Sending) {
@@ -2364,6 +2368,15 @@ void QHttpPrivate::_q_slotError(QAbstractSocket::SocketError err)
                               .arg(socket->peerName()), QHttp::HostNotFound);
             break;
         case QTcpSocket::RemoteHostClosedError:
+            if (state == QHttp::Sending && reconnectAttempts--) {
+                setState(QHttp::Closing);
+                setState(QHttp::Unconnected);
+                socket->blockSignals(true);
+                socket->abort();
+                socket->blockSignals(false);
+                QMetaObject::invokeMethod(q, "_q_slotSendRequest", Qt::QueuedConnection);
+                return;
+            }
             break;
         default:
             finishedWithError(QLatin1String(QT_TRANSLATE_NOOP("QHttp", "HTTP request failed")), QHttp::UnknownError);

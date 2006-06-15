@@ -228,6 +228,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_slotClosed())
     Q_PRIVATE_SLOT(d_func(), void _q_slotBytesWritten(qint64 numBytes))
     Q_PRIVATE_SLOT(d_func(), void _q_slotDoFinished())
+    Q_PRIVATE_SLOT(d_func(), void _q_slotSendRequest())
 
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;
