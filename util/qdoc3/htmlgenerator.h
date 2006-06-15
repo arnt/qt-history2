@@ -51,7 +51,7 @@ private:
     const Node *findNodeForTarget(const QString &target, const Node *relative,
                                   CodeMarker *marker, const Atom *atom = 0);
     void generateHeader(const QString& title, const Node *node = 0,
-                        CodeMarker *marker = 0);
+                        CodeMarker *marker = 0, bool mainPage = true);
     void generateTitle(const QString& title, const Text &subTitle, SubTitleSize subTitleSize,
                        const Node *relative, CodeMarker *marker);
     void generateFooter( const Node *node = 0 );
@@ -111,6 +111,7 @@ private:
                      DcfSection &dcfRoot);
     void generateIndex(const QString &fileBase, const QString &url,
                        const QString &title);
+    void generateMacRef(const Node *node, CodeMarker *marker);
 
 #if 0
     NavigationBar currentNavigationBar;
@@ -136,6 +137,7 @@ private:
     QString postHeader;
     QString footer;
     QString address;
+    bool pleaseGenerateMacRef;
     QString project;
     QString projectDescription;
     QString projectUrl;
@@ -155,6 +157,7 @@ private:
 
 #define HTMLGENERATOR_ADDRESS           "address"
 #define HTMLGENERATOR_FOOTER            "footer"
+#define HTMLGENERATOR_GENERATEMACREFS    "generatemacrefs" // ### document me
 #define HTMLGENERATOR_POSTHEADER        "postheader"
 #define HTMLGENERATOR_STYLE             "style"
 #define HTMLGENERATOR_STYLESHEETS       "stylesheets"

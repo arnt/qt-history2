@@ -40,6 +40,7 @@ public:
     void setModuleName(const QString &module) { mod = module; }
     void setLink(LinkType linkType, const QString &link, const QString &desc);
     void setUrl(const QString &url);
+    void setTemplateStuff(const QString &templateStuff) { tpl = templateStuff; }
 
     virtual bool isInnerNode() const = 0;
     Type type() const { return typ; }
@@ -58,6 +59,7 @@ public:
     ThreadSafeness threadSafeness() const;
     ThreadSafeness inheritedThreadSafeness() const;
     QString since() const { return sinc; }
+    QString templateStuff() const { return tpl; }
 
     void clearRelated() { rel = 0; }
 
@@ -85,6 +87,7 @@ private:
     QString mod;
     QString u;
     QString sinc;
+    QString tpl;
 };
 
 class FunctionNode;

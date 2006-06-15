@@ -11,6 +11,7 @@ edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtXml \
 edition.DesktopLight    = QtCore QtGui Qt3SupportLight QtTest
 
 language                = Cpp
+
 headerdirs              = $QTDIR/src \
                           $QTDIR/extensions/activeqt \
                           $QTDIR/tools/assistant/lib \
@@ -161,3 +162,5 @@ HTML.footer             = "<p /><address><hr /><div align=\"center\">\n" \
                           "<td width=\"40%\" align=\"center\"><a href=\"trademarks.html\">Trademarks</a></td>\n" \
                           "<td width=\"30%\" align=\"right\"><div align=\"right\">Qt \\version</div></td>\n" \
                           "</tr></table></div></address>"
+
+#HTML.generatemacrefs       = "true"

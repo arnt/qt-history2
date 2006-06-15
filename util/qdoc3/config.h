@@ -23,6 +23,7 @@ public:
     const QString& programName() const { return prog; }
     const Location& location() const { return loc; }
     const Location& lastLocation() const { return lastLoc; }
+    bool getBool( const QString& var ) const;
     int getInt( const QString& var ) const;
     QString getString( const QString& var ) const;
     QSet<QString> getStringSet( const QString& var ) const;

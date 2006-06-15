@@ -1,3 +1,4 @@
+#include <QMetaObject>
 #include "codemarker.h"
 #include "config.h"
 #include "node.h"
@@ -290,3 +291,136 @@ void CodeMarker::append(QList<Section>& sectionList, const FastSection& fastSect
 	sectionList.append( section );
     }
 }
+
+static QString encode(const QString &string)
+{
+#if 0
+    QString result = string;
+
+    for (int i = string.size() - 1; i >= 0; --i) {
+        uint ch = string.at(i).unicode();
+        if (ch > 0xFF)
+            ch = '?';
+        if ((ch - '0') >= 10 && (ch - 'a') >= 26 && (ch - 'A') >= 26
+                && ch != '/' && ch != '(' && ch != ')' && ch != ',' && ch != '*'
+                && ch != '&' && ch != '_' && ch != '<' && ch != '>' && ch != ':' && ch != '~')
+            result.replace(i, 1, QString("%") + QString("%1").arg(ch, 2, 16));
+    }
+    return result;
+#else
+    return string;
+#endif
+}
+
+QStringList CodeMarker::macRefsForNode(const Node *node)
+{
+    QString result = "cpp/";
+    switch (node->type()) {
+    case Node::Class:
+        {
+            const ClassNode *classe = static_cast<const ClassNode *>(node);
+#if 0
+            if (!classe->templateStuff().isEmpty()) {
+                 result += "tmplt/";
+            } else
+#endif
+            {
+                 result += "cl/";
+            }
+            result += macName(classe); // ### Maybe plainName?
+        }
+        break;
+    case Node::Enum:
+        {
+            QStringList stringList;
+            stringList << encode(result + "tag/" + macName(node));
+            foreach (QString enumName, node->doc().enumItemNames()) {
+                // ### Write a plainEnumValue() and use it here
+                stringList << encode(result + "econst/" + macName(node->parent(), enumName));
+            }
+            return stringList;
+        }
+    case Node::Typedef:
+        result += "tdef/" + macName(node);
+        break;
+    case Node::Function:
+        {
+            bool isMacro = false;
+            const FunctionNode *func = static_cast<const FunctionNode *>(node);
+
+            if (func->isOverload()) // overloads are too clever for the Xcode documentation browser
+                return QStringList();
+
+            if (func->metaness() == FunctionNode::MacroWithParams
+                || func->metaness() == FunctionNode::MacroWithoutParams) {
+                result += "macro/";
+                isMacro = true;
+#if 0
+            } else if (!func->templateStuff().isEmpty()) {
+                result += "ftmplt/";
+#endif
+            } else if (func->isStatic()) {
+                result += "clm/";
+            } else if (!func->parent()->name().isEmpty()) {
+                result += "instm/";
+            } else {
+                result += "func/";
+            }
+
+            result += macName(func);
+            if (result.endsWith("()"))
+                result.chop(2);
+#if 0
+            // this code is too clever for the Xcode documentation browser and/or pbhelpindexer
+            if (!isMacro) {
+                result += "/" + QLatin1String(QMetaObject::normalizedSignature(func->returnType().toLatin1().constData())) + "/(";
+                const QList<Parameter> &params = func->parameters();
+                for (int i = 0; i < params.count(); ++i) {
+                    QString type = params.at(i).leftType() + params.at(i).rightType();
+                    type = QLatin1String(QMetaObject::normalizedSignature(type.toLatin1().constData()));
+                    if (i != 0)
+                        result += ",";
+                    result += type;
+                }
+                result += ")";
+            }
+#endif
+        }
+        break;
+    case Node::Variable:
+         result += "data/" + macName(node);
+         break;
+    case Node::Property:
+         {
+             NodeList list = static_cast<const PropertyNode *>(node)->functions();
+             QStringList stringList;
+             foreach (Node *node, list) {
+                stringList += macRefsForNode(node);
+             }
+             return stringList;
+         }
+    case Node::Namespace:
+    case Node::Fake:
+    case Node::Target:
+    default:
+        return QStringList();
+    }
+
+    return QStringList(encode(result));
+}
+
+QString CodeMarker::macName(const Node *node, const QString &name)
+{
+    QString myName = name;
+    if (myName.isEmpty()) {
+        myName = node->name();
+        node = node->parent();
+    }
+
+    if (node->name().isEmpty()) {
+        return "/" + myName;
+    } else {
+        return plainFullName(node) + "/" + myName;
+    }
+}
+

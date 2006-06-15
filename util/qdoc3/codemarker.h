@@ -73,6 +73,7 @@ public:
     virtual QList<Section> sections(const InnerNode *inner, SynopsisStyle style, Status status) = 0;
     virtual const Node *resolveTarget(const QString& target, const Tree *tree,
 		                      const Node *relative) = 0;
+    virtual QStringList macRefsForNode(const Node *node);
 
     static void initialize( const Config& config );
     static void terminate();
@@ -92,6 +93,8 @@ protected:
     void append( QList<Section>& sectionList, const FastSection& fastSection );
 
 private:
+    QString macName(const Node *parent, const QString &name = QString());
+
     QRegExp amp;
     QRegExp lt;
     QRegExp gt;

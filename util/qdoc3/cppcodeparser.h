@@ -60,10 +60,10 @@ private:
     bool matchDataType( CodeChunk *type, QString *var = 0 );
     bool matchParameter( FunctionNode *func );
     bool matchFunctionDecl( InnerNode *parent, QStringList *parentPathPtr = 0,
-			    FunctionNode **funcPtr = 0 );
+			    FunctionNode **funcPtr = 0, const QString &templateStuff = QString() );
     bool matchBaseSpecifier( ClassNode *classe, bool isClass );
     bool matchBaseList( ClassNode *classe, bool isClass );
-    bool matchClassDecl( InnerNode *parent );
+    bool matchClassDecl( InnerNode *parent, const QString &templateStuff = QString() );
     bool matchNamespaceDecl(InnerNode *parent);
     bool matchEnumItem( InnerNode *parent, EnumNode *enume );
     bool matchEnumDecl( InnerNode *parent );

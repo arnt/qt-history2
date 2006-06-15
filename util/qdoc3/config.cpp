@@ -161,6 +161,13 @@ void Config::setStringList( const QString& var, const QStringList& values )
 }
 
 /*!
+*/
+bool Config::getBool( const QString& var ) const
+{
+    return QVariant(getString(var)).toBool();
+}
+
+/*!
   Returns the value of the \a var configuration variable as an
   integer.
 */

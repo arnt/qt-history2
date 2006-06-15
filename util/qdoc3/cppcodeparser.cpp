@@ -673,7 +673,7 @@ bool CppCodeParser::matchParameter( FunctionNode *func )
 }
 
 bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPathPtr,
-				      FunctionNode **funcPtr)
+				      FunctionNode **funcPtr, const QString &templateStuff)
 {
     CodeChunk returnType;
     QStringList parentPath;
@@ -774,6 +774,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
     func->setAccess(access);
     func->setLocation(location());
     func->setReturnType(returnType.toString());
+    func->setTemplateStuff(templateStuff);
     if (compat)
         func->setStatus(Node::Compat);
 
@@ -867,7 +868,7 @@ bool CppCodeParser::matchBaseList( ClassNode *classe, bool isClass )
     }
 }
 
-bool CppCodeParser::matchClassDecl( InnerNode *parent )
+bool CppCodeParser::matchClassDecl( InnerNode *parent, const QString &templateStuff )
 {
     bool isClass = ( tok == Tok_class );
     readToken();
@@ -892,6 +893,7 @@ bool CppCodeParser::matchClassDecl( InnerNode *parent )
         classe->setStatus(Node::Compat);
     if (!moduleName.isEmpty())
         classe->setModuleName(moduleName);
+    classe->setTemplateStuff(templateStuff);
 
     if ( match(Tok_Colon) && !matchBaseList(classe, isClass) )
 	return false;
@@ -1097,6 +1099,7 @@ bool CppCodeParser::matchProperty(InnerNode *parent)
 
 bool CppCodeParser::matchDeclList( InnerNode *parent )
 {
+    QString templateStuff;
     int braceDepth0 = tokenizer->braceDepth();
     if ( tok == Tok_RightBrace ) // prevents failure on empty body
 	braceDepth0++;
@@ -1109,14 +1112,14 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
 	case Tok_class:
 	case Tok_struct:
 	case Tok_union:
-	    matchClassDecl( parent );
+	    matchClassDecl( parent, templateStuff );
 	    break;
         case Tok_namespace:
             matchNamespaceDecl(parent);
             break;
 	case Tok_template:
-	    matchTemplateHeader();
-	    break;
+	    templateStuff = matchTemplateHeader();
+	    continue;
 	case Tok_enum:
 	    matchEnumDecl( parent );
 	    break;
@@ -1207,7 +1210,7 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
             match(Tok_RightParen);
             break;
 	default:
-	    if ( !matchFunctionDecl(parent) ) {
+	    if ( !matchFunctionDecl(parent, 0, 0, templateStuff) ) {
 		while (tok != Tok_Eoi &&
 		       (tokenizer->braceDepth() > braceDepth0 ||
 			(!match(Tok_Semicolon) && tok != Tok_public && tok != Tok_protected
@@ -1215,6 +1218,7 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
 		    readToken();
 	    }
 	}
+        templateStuff.clear();
     }
     return true;
 }
