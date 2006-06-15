@@ -1041,9 +1041,9 @@ QModelIndex QItemSelectionModel::currentIndex() const
 bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 {
     Q_D(const QItemSelectionModel);
-    if (model() != index.model() || !index.isValid()
-        || (model()->flags(index) & Qt::ItemIsSelectable) == 0)
+    if (d->model != index.model() || !index.isValid())
         return false;
+
     bool selected = false;
     // check  currentSelection
     if (d->currentSelection.count()) {
@@ -1054,12 +1054,20 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
         else if (d->currentCommand & Select && !selected)
             selected = d->currentSelection.contains(index);
     }
+
     //  search model ranges
     QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
-    for (; !selected && it != d->ranges.end(); ++it)
-        if ((*it).contains(index))
+    for (; it != d->ranges.end(); ++it) {
+        if ((*it).contains(index)) {
             selected = true;
-    return selected;
+            break;
+        }
+    }
+
+    if (selected && (d->model->flags(index) & Qt::ItemIsSelectable))
+        return true;
+
+    return false;
 }
 
 /*!
@@ -1073,7 +1081,7 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) const
 {
     Q_D(const QItemSelectionModel);
-    if (parent.isValid() && model() != parent.model())
+    if (parent.isValid() && d->model != parent.model())
         return false;
 
     // return false if row exist in currentSelection (Deselect)
@@ -1101,7 +1109,7 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
     QList<QItemSelectionRange> joined = d->ranges;
     if (d->currentSelection.count())
         joined += d->currentSelection;
-    int colCount = model()->columnCount(parent);
+    int colCount = d->model->columnCount(parent);
     for (int column = 0; column < colCount; ++column) {
         for (it = joined.constBegin(); it != joined.constEnd(); ++it)
             if ((*it).contains(row, column, parent)) {
@@ -1125,7 +1133,7 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
 bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent) const
 {
     Q_D(const QItemSelectionModel);
-    if (parent.isValid() && model() != parent.model())
+    if (parent.isValid() && d->model != parent.model())
         return false;
 
     // return false if column exist in currentSelection (Deselect)
@@ -1157,7 +1165,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
     QList<QItemSelectionRange> joined = d->ranges;
     if (d->currentSelection.count())
         joined += d->currentSelection;
-    int rowCount = model()->rowCount(parent);
+    int rowCount = d->model->rowCount(parent);
     for (int row = 0; row < rowCount; ++row) {
          for (it = joined.constBegin(); it != joined.constEnd(); ++it) {
              if ((*it).contains(row, column, parent)) {
@@ -1178,7 +1186,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
 bool QItemSelectionModel::rowIntersectsSelection(int row, const QModelIndex &parent) const
 {
     Q_D(const QItemSelectionModel);
-    if (parent.isValid() && model() != parent.model())
+    if (parent.isValid() && d->model != parent.model())
          return false;
     // check current selection
     for (int i = 0; i < d->currentSelection.count(); ++i)
@@ -1200,7 +1208,7 @@ bool QItemSelectionModel::rowIntersectsSelection(int row, const QModelIndex &par
 bool QItemSelectionModel::columnIntersectsSelection(int column, const QModelIndex &parent) const
 {
     Q_D(const QItemSelectionModel);
-    if (parent.isValid() && model() != parent.model())
+    if (parent.isValid() && d->model != parent.model())
         return false;
     // check current selection
     for (int i = 0; i < d->currentSelection.count(); ++i)
