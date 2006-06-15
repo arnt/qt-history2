@@ -37,7 +37,6 @@ QStringList QSvgPlugin::keys() const
 
 QImageIOPlugin::Capabilities QSvgPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
-    qDebug()<<"svgplugin calling capabilities";
     if (format == "svg")
         return Capabilities(CanRead);
     if (!format.isEmpty())
