@@ -215,7 +215,7 @@ public:
 
     enum {
         Type = 1,
-        UserType = 0x80000000
+        UserType = 65536
     };
     virtual int type() const;
 
