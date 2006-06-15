@@ -19,8 +19,21 @@
 #include <private/qgl_p.h>
 #include <qdebug.h>
 
-bool
-QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
+static int nearest_gl_texture_size(int v)
+{
+    int n = 0, last = 0;
+    for (int s = 0; s < 32; ++s) {
+        if (((v>>s) & 1) == 1) {
+            ++n;
+            last = s;
+        }
+    }
+    if (n > 1)
+        return 1 << (last+1);
+    return 1 << last;
+}
+
+bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *shareWidget)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     GLint attribs[40], i=0;
@@ -111,7 +124,15 @@ QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidget *sh
 	return false;
     }
 
-    if (!aglCreatePBuffer(size.width(), size.height(), GL_TEXTURE_2D, GL_RGBA, 0, &pbuf)) {
+    GLenum target = GL_TEXTURE_2D;
+
+    if (size.width() != nearest_gl_texture_size(size.width())
+        || size.height() != nearest_gl_texture_size(size.height()))
+    {
+        target = GL_TEXTURE_RECTANGLE_EXT;
+    }
+    
+    if (!aglCreatePBuffer(size.width(), size.height(), target, GL_RGBA, 0, &pbuf)) {
 	qWarning("QGLPixelBuffer: Unable to create a pbuffer (AGL error %d).",
 		 (int) aglGetError());
 	return false;

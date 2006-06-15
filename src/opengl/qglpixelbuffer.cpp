@@ -80,7 +80,7 @@ void QGLPixelBufferPrivate::common_init(const QSize &size, const QGLFormat &f, Q
 
     If you intend to bind this pbuffer as a dynamic texture, the width
     and height components of \c size must be powers of two (e.g., 512
-    x 128). On Mac OS X, the size must be a power of two.
+    x 128).
 
     \sa size(), format()
 */
@@ -102,7 +102,7 @@ QGLPixelBuffer::QGLPixelBuffer(const QSize &size, const QGLFormat &f, QGLWidget 
 
     If you intend to bind this pbuffer as a dynamic texture, the width
     and height components of \c size must be powers of two (e.g., 512
-    x 128). On Mac OS X, the size must be a power of two.
+    x 128).
 
     \sa size(), format()
 */
