@@ -144,8 +144,6 @@ int QUndoCommand::id() const
 }
 
 /*!
-    \fn bool QUndoCommand::mergeWith(const QCommand *command)
-
     Attempts to merge this command with the specified \a command. Returns true on
     success; otherwise returns false.
 
@@ -172,9 +170,9 @@ int QUndoCommand::id() const
     \sa id() QUndoStack::push()
 */
 
-bool QUndoCommand::mergeWith(const QUndoCommand *cmd)
+bool QUndoCommand::mergeWith(const QUndoCommand *command)
 {
-    Q_UNUSED(cmd);
+    Q_UNUSED(command);
     return false;
 }
 

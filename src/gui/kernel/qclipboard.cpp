@@ -494,13 +494,13 @@ bool QClipboard::ownsFindBuffer() const
 }
 
 /*! \internal
-    \fn bool supportsMode(Mode mode) const;
+    \fn bool QClipboard::supportsMode(Mode mode) const;
     Returns true if the clipboard supports the clipboard mode speacified by \a mode;
     otherwise returns false.
 */
 
 /*! \internal
-    \fn bool ownsMode(Mode mode) const;
+    \fn bool QClipboard::ownsMode(Mode mode) const;
     Returns true if the clipboard supports the clipboard data speacified by \a mode;
     otherwise returns false.
 */

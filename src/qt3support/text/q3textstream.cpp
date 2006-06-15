@@ -42,7 +42,7 @@ static void resetCodecConverterState(QTextCodec::ConverterState *state) {
 #endif
 
 /*!
-    \class Q3TextStream q3textstream.h
+    \class Q3TextStream
     \compat
     \reentrant
     \brief The Q3TextStream class provides basic functions for reading
@@ -114,55 +114,8 @@ static void resetCodecConverterState(QTextCodec::ConverterState *state) {
 
 /*
   \class QTSManip
-
-  \brief The QTSManip class is an internal helper class for the
-  Q3TextStream.
-
-  It is generally a very bad idea to use this class directly in
-  application programs.
-
   \internal
-
-  This class makes it possible to give the Q3TextStream function objects
-  with arguments, like this:
-  \code
-    Q3TextStream cout( stdout, IO_WriteOnly );
-    cout << setprecision( 8 );		// QTSManip used here!
-    cout << 3.14159265358979323846;
-  \endcode
-
-  The setprecision() function returns a QTSManip object.
-  The QTSManip object contains a pointer to a member function in
-  Q3TextStream and an integer argument.
-  When serializing a QTSManip into a Q3TextStream, the function
-  is executed with the argument.
 */
-
-/*! \fn QTSManip::QTSManip( QTSMFI m, int a )
-
-  Constructs a QTSManip object which will call \a m (a member function
-  in Q3TextStream which accepts a single int) with argument \a a when
-  QTSManip::exec() is called. Used internally in e.g. endl:
-
-  \code
-    s << "some text" << endl << "more text";
-  \endcode
-*/
-
-/*! \fn void QTSManip::exec( Q3TextStream& s )
-
-  Calls the member function specified in the constructor, for object
-  \a s. Used internally in e.g. endl:
-
-  \code
-    s << "some text" << endl << "more text";
-  \endcode
-*/
-
-
-/*****************************************************************************
-  Q3TextStream member functions
- *****************************************************************************/
 
 #if defined(QT_CHECK_STATE)
 #undef  CHECK_STREAM_PRECOND
@@ -2214,10 +2167,6 @@ Q3TextStream &Q3TextStream::operator<<( void *ptr )
     Sets the precision to \a p. Returns the previous precision setting.
 */
 
-
- /*****************************************************************************
-  Q3TextStream manipulators
- *****************************************************************************/
 
 Q3TextStream &bin( Q3TextStream &s )
 {

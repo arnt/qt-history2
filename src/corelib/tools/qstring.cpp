@@ -3963,20 +3963,28 @@ QString& QString::fill(QChar ch, int size)
 
     \overload
 
-    Performs a case sensitive compare of \a s1 and \a s2
+    Performs a case sensitive compare of \a s1 and \a s2.
 */
 
 /*!
-    \fn int compare(const QString& s1, const QLatin1String &s2,
-                    Qt::CaseSensitivity cs = Qt::caseeSensitive)
+    \fn int QString::compare(const QString &s1, const QLatin1String &s2,
+                             Qt::CaseSensitivity cs)
     \since 4.2
+    \overload
+
+    Performs a comparison of \a s1 and \a s2, using the case
+    sensitivity setting \a cs.    
 */
 
 /*!
-    \fn int compare(const QLatin1String& s1, const QString &s2,
-                    Qt::CaseSensitivity cs = Qt::CaseSensitive)
+    \fn int QString::compare(const QLatin1String &s1, const QString &s2,
+                             Qt::CaseSensitivity cs = Qt::CaseSensitive)
 
     \since 4.2
+    \overload
+
+    Performs a comparison of \a s1 and \a s2, using the case
+    sensitivity setting \a cs.    
 */
 
 /*!

@@ -387,7 +387,7 @@ QModelIndex QDataWidgetMapper::rootIndex() const
 }
 
 /*!
-    Adds a mapping between a \a widget and a \section from the model.
+    Adds a mapping between a \a widget and a \a section from the model.
     The \a section is a column in the model if the orientation is
     horizontal (the default), otherwise a row.
 

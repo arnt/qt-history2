@@ -864,7 +864,7 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
 }
 
 /*!
-  \fn void QTextLayout::drawCursor(QPainter *painter, const QPointF &position, int cursorPosition, qreal width) const
+  \fn void QTextLayout::drawCursor(QPainter *painter, const QPointF &position, int cursorPosition, int width) const
 
   Draws a text cursor with the current pen and the specified \a width at the given \a position using the
   \a painter specified.

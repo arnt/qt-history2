@@ -2057,7 +2057,7 @@
 */
 
 /*!
-    \enum Qt::TextInteractionFlags
+    \enum Qt::TextInteractionFlag
 
     This enum specifies how a text displaying widget reacts to user input.
 

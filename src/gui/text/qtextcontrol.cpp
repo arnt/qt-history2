@@ -1556,8 +1556,6 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
     }
 }
 
-/*! \reimp
-*/
 void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton button, const QPointF &pos)
 {
     Q_Q(QTextControl);

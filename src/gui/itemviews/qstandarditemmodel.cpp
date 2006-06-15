@@ -25,9 +25,6 @@
 #include <private/qstandarditemmodel_p.h>
 #include <qdebug.h>
 
-/*!
-    \internal
-*/
 class QStandardItemModelLessThan
 {
 public:
@@ -41,9 +38,6 @@ public:
     }
 };
 
-/*!
-    \internal
-*/
 class QStandardItemModelGreaterThan
 {
 public:
@@ -840,7 +834,7 @@ Qt::ItemFlags QStandardItem::flags() const
 */
 
 /*!
-    \fn void QStandardItem::setTextAlignment(int alignment)
+    \fn void QStandardItem::setTextAlignment(Qt::Alignment alignment)
 
     Sets the text alignment for the item's text to the \a alignment
     specified.
@@ -1241,7 +1235,7 @@ void QStandardItem::insertColumns(int column, int count)
 */
 
 /*!
-    \fn QStandardItem::appendRow(int row, QStandardItem *item)
+    \fn QStandardItem::appendRow(QStandardItem *item)
     \overload
 
     When building a list or a tree that has only one column, this function
@@ -2133,7 +2127,7 @@ void QStandardItemModel::appendColumn(const QList<QStandardItem*> &items)
 
 /*!
     \since 4.2
-    \fn QStandardItemModel::appendRow(int row, QStandardItem *item)
+    \fn QStandardItemModel::appendRow(QStandardItem *item)
     \overload
 
     When building a list or a tree that has only one column, this function

@@ -1525,12 +1525,6 @@ QTableWidgetItem &QTableWidgetItem::operator=(const QTableWidgetItem &other)
     \brief the number of columns in the table
 */
 
-/*!
-    \property QTableWidget::sortingEnabled
-    \brief whether the items in the table can be sorted
-    by clicking on the horizontal header.
-*/
-
 class QTableWidgetPrivate : public QTableViewPrivate
 {
     Q_DECLARE_PUBLIC(QTableWidget)
@@ -2139,7 +2133,7 @@ void QTableWidget::sortItems(int column, Qt::SortOrder order)
 }
 
 /*!
-  \reimp
+    \internal
 */
 void QTableWidget::setSortingEnabled(bool enable)
 {
@@ -2147,7 +2141,7 @@ void QTableWidget::setSortingEnabled(bool enable)
 }
 
 /*!
-  \reimp
+    \internal
 */
 bool QTableWidget::isSortingEnabled() const
 {

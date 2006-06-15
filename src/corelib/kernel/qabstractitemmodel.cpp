@@ -2258,14 +2258,12 @@ QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &pa
 }
 
 /*!
-    \fn QModelIndex QAbstractListModel::parent(const QModelIndex &index) const
-
     Returns the parent of the model item with the given \a index.
 
     \sa index() hasChildren()
 */
 
-QModelIndex QAbstractListModel::parent(const QModelIndex &) const
+QModelIndex QAbstractListModel::parent(const QModelIndex & /* index */) const
 {
     return QModelIndex();
 }

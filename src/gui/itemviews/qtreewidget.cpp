@@ -1981,12 +1981,6 @@ void QTreeWidgetPrivate::_q_dataChanged(const QModelIndex &topLeft,
 */
 
 /*!
-    \property QTreeWidget::sortingEnabled
-    \brief whether the items in the tree widget can be sorted
-    by clicking on the header
-*/
-
-/*!
     \fn void QTreeWidget::itemActivated(QTreeWidgetItem *item, int column)
 
     This signal is emitted when the user activates an item by single-
@@ -2220,8 +2214,8 @@ QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 }
 
 /*!
-  \depricated
- */
+    \internal
+*/
 int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
 {
     Q_D(QTreeWidget);
@@ -2439,9 +2433,7 @@ void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 }
 
 /*!
-  \reimp
-
-  \sa sortItems(), sortColumn()
+    \internal
 */
 void QTreeWidget::setSortingEnabled(bool enable)
 {
@@ -2449,9 +2441,8 @@ void QTreeWidget::setSortingEnabled(bool enable)
 }
 
 /*!
-  \reimp
+    \internal
 */
-
 bool QTreeWidget::isSortingEnabled() const
 {
     return QTreeView::isSortingEnabled();

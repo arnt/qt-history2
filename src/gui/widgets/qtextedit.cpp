@@ -2061,7 +2061,7 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
 
 #ifdef QT3_SUPPORT
 /*!
-    Use the QTextCursor() class instead.
+    Use the QTextCursor class instead.
 */
 void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 {
@@ -2094,7 +2094,7 @@ void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 }
 
 /*!
-    Use the QTextCursor() class instead.
+    Use the QTextCursor class instead.
 */
 void QTextEdit::moveCursor(CursorAction action, bool select)
 {
@@ -2102,15 +2102,9 @@ void QTextEdit::moveCursor(CursorAction action, bool select)
 }
 
 /*!
-    \fn void QTextEdit::moveCursor(CursorAction action, bool select)
-
-    Use the QTextCursor() class instead.
-*/
-
-/*!
     Executes keyboard action \a action.
 
-    Use the QTextCursor API instead.
+    Use the QTextCursor class instead.
 
     \sa textCursor()
 */

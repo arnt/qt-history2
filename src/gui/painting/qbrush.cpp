@@ -650,6 +650,7 @@ bool QBrush::isOpaque() const
 
 /*!
     \fn void QBrush::setMatrix(const QMatrix &matrix)
+    \since 4.2
 
     Sets an explicit transformation matrix on the current brush.
     The brush transformation matrix is merged with QPainter
@@ -665,6 +666,7 @@ void QBrush::setMatrix(const QMatrix &mat)
 
 /*!
     \fn void QBrush::matrix()
+    \since 4.2
 
     Returns the current transformation matrix for the brush.
 

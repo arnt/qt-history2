@@ -69,7 +69,7 @@ public:
         Sunken = 0x0030 // sunken shadow effect
     };
 
-    enum FrameFlags {
+    enum StyleMask {
         Shadow_Mask = 0x00f0, // mask for the shadow
         Shape_Mask = 0x000f // mask for the shape
 #if defined(QT3_SUPPORT)

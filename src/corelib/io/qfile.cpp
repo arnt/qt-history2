@@ -530,7 +530,7 @@ QFile::readLink() const
 }
 
 /*!
-    \fn QString QFile::symLinkTarget() const
+    \fn QString QFile::symLinkTarget(const QString &fileName) const
     \since 4.2
 
     Returns the absolute path of the file or directory referred to by the

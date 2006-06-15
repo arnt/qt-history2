@@ -1040,7 +1040,7 @@ QFileInfo::isRoot() const
 }
 
 /*!
-    \fn QString QFileInfo::symLinkTarget()
+    \fn QString QFileInfo::symLinkTarget() const
     \since 4.2
 
     Returns the absolute path to the file or directory a symlink (or shortcut
@@ -1355,13 +1355,6 @@ QFileInfo::setCaching(bool enable)
     \compat
 
     Use permission() instead.
-*/
-
-/*!
-    \typedef QFileInfoList
-    \relates QFileInfo
-
-    Synonym for QList<QFileInfo>.
 */
 
 /*!

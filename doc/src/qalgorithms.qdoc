@@ -290,12 +290,12 @@
     \sa qCopy(), {forward iterators}
 */
 
-/*! \fn void qFill(Container &container)
+/*! \fn void qFill(Container &container, const T &value)
     \relates <QtAlgorithms>
 
     \overload
 
-    This is the same as qFill(\a{container}.begin(), \a{container}.end(), value);
+    This is the same as qFill(\a{container}.begin(), \a{container}.end(), \a value);
 */
 
 /*! \fn InputIterator qFind(InputIterator begin, InputIterator end, const T &value)
@@ -393,7 +393,7 @@
     Use \a n = qCount(\a begin, \a end, \a value) instead.
 */
 
-/*! \fn void qCount(Container &container, const T &value, Size &n)
+/*! \fn void qCount(const Container &container, const T &value, Size &n)
     \relates <QtAlgorithms>
 
     \overload
@@ -658,7 +658,7 @@
 */
 
 /*! 
-    \fn void qLowerBound(Container &container, const T &value)
+    \fn void qLowerBound(const Container &container, const T &value)
     \relates <QtAlgorithms>
 
     \overload
@@ -730,7 +730,7 @@
 */
 
 /*! 
-    \fn void qUpperBound(Container &container, const T &value)
+    \fn void qUpperBound(const Container &container, const T &value)
     \relates <QtAlgorithms>
 
     \overload
@@ -785,7 +785,7 @@
 */
 
 /*! 
-    \fn void qBinaryFind(Container &container, const T &value)
+    \fn void qBinaryFind(const Container &container, const T &value)
     \relates <QtAlgorithms>
 
     \overload

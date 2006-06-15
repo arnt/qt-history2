@@ -742,7 +742,7 @@
 */
 
 /*!
-    \fn QSet::iterator::const_iterator(const iterator &other)
+    \fn QSet::const_iterator::const_iterator(const iterator &other)
     \since 4.2
     \overload
 */

@@ -363,11 +363,11 @@ void Q3ProgressDialog::init(QWidget *creator,
 */
 
 /*!
-  \fn void QProgressDialog::cancelled()
+    \fn void Q3ProgressDialog::cancelled()
 
-  \obsolete
+    \obsolete
 
-  Use canceled() instead.
+    Use canceled() instead.
 */
 
 /*!
@@ -507,8 +507,9 @@ bool Q3ProgressDialog::wasCanceled() const
 }
 
 /*!
-  \property QProgressDialog::wasCancelled
+  \property Q3ProgressDialog::wasCancelled
   \brief whether the dialog was canceled
+  \since 4.2
 
   \obsolete
 

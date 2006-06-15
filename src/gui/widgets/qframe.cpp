@@ -151,19 +151,19 @@ QFramePrivate::QFramePrivate()
 */
 
 /*!
-    \variable QFrame::Shadow_Mask
+    \enum QFrame::StyleMask
 
-    The mask of the QFrame's shadow.
+    This enum defines two constants that can be used to extract the
+    two components of frameStyle():
 
-    \sa QFrame::frameShadow
-*/
+    \value Shadow_Mask The \l Shadow part of frameStyle()
+    \value Shape_Mask  The \l Shape part of frameStyle()
 
-/*!
-    \variable QFrame::Shape_Mask
+    Normally, you don't need to use these, since frameShadow() and
+    frameShape() already extract the \l Shadow and the \l Shape parts
+    of frameStyle().
 
-    The mask of the QFrame's shape.
-
-    \sa QFrame::frameShape
+    \sa frameStyle(), setFrameStyle()
 */
 
 /*!

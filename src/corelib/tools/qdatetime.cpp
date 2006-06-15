@@ -2777,15 +2777,37 @@ QDataStream &operator>>(QDataStream &in, QDateTime &dateTime)
 /*!
     \fn QDate QDate::currentDate(Qt::TimeSpec spec)
 
-    Use the currentDate() overload that takes no parameters; or
-    extract from currentDateTime() instead.
+    If \a spec is Qt::LocalTime, use the currentDate() overload that
+    takes no parameters instead; otherwise, use
+    QDateTime::currentDateTime().
+
+    \oldcode
+        QDate localDate = QDate::currentDate(Qt::LocalTime);
+        QDate utcDate = QDate::currentDate(Qt::UTC);
+    \newcode
+        QDate localDate = QDate::currentDate();
+        QDate utcDate = QDateTime::currentDateTime().toUtc().date();
+    \endcode
+
+    \sa QDateTime::toUtc()
 */
 
 /*!
-    \fn QDate QTime::currentDate(Qt::TimeSpec spec)
+    \fn QTime QTime::currentTime(Qt::TimeSpec spec)
 
-    Use the currentDate() overload that takes no parameters; or
-    extract from currentDateTime() instead.
+    If \a spec is Qt::LocalTime, use the currentDate() overload that
+    takes no parameters instead; otherwise, use
+    QDateTime::currentDateTime().
+
+    \oldcode
+        QTime localTime = QTime::currentTime(Qt::LocalTime);
+        QTime utcTime = QTime::currentTime(Qt::UTC);
+    \newcode
+        QTime localTime = QTime::currentTime();
+        QTime utcTime = QTimeTime::currentDateTime().toUtc().time();
+    \endcode
+
+    \sa QDateTime::toUtc()
 */
 
 /*!
