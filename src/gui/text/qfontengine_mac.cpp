@@ -504,6 +504,8 @@ bool QFontEngineMacMulti::canRender(const QChar *string, int len)
                                  &changeCount);
         if (e == kATSUFontsMatched) {
             pos = changedOffset + changeCount;
+        } else if (e == kATSUFontsNotMatched) {
+            break;
         }
     } while (pos < len && e != noErr);
 
