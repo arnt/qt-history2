@@ -269,7 +269,7 @@ void QPropertyEditorDelegate::setModelData(QWidget *editor,
             if (IProperty *fontProperty = static_cast<const QPropertyEditorModel*>(model)->privateData(parentIndex)) {
                 QFont f = qvariant_cast<QFont>(fontProperty->value());
                 if (property->propertyName() == QLatin1String("Family"))
-                    f.setFamily(property->value().toString());
+                    f.setFamily(property->toString());
                 else if (property->propertyName() == QLatin1String("Point Size"))
                     f.setPointSize(property->value().toInt());
                 else if (property->propertyName() == QLatin1String("Bold"))
