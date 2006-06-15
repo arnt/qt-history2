@@ -1017,8 +1017,9 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     int headerSection;
     QModelIndex modelIndex;
 
+    QBrush fill;
     for (int headerIndex = left; headerIndex <= right; ++headerIndex) {
-        headerSection = d->header->logicalIndex(headerIndex);
+        headerSection = header->logicalIndex(headerIndex);
         if (header->isSectionHidden(headerSection))
             continue;
         position = columnViewportPosition(headerSection) + offset.x();
@@ -1030,6 +1031,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             painter->fillRect(opt.rect, palette().brush(QPalette::Base));
             continue;
         }
+
         if (selectionModel()->isSelected(modelIndex))
             opt.state |= QStyle::State_Selected;
         if (focus && current == modelIndex)
@@ -1038,6 +1040,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             opt.state |= QStyle::State_MouseOver;
         else
             opt.state &= ~QStyle::State_MouseOver;
+
         if (enabled) {
             QPalette::ColorGroup cg;
             if ((d->model->flags(index) & Qt::ItemIsEnabled) == 0) {
@@ -1048,7 +1051,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             }
             opt.palette.setCurrentColorGroup(cg);
         }
-        QBrush fill;
+
         if (alternate) {
             if (d->current & 1) {
                 opt.state |= QStyle::State_Alternate;
@@ -1060,6 +1063,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         } else {
             fill = opt.palette.brush(QPalette::Base);
         }
+
         if (headerSection == 0) {
             int i = d->indentationForItem(d->current);
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
@@ -1096,7 +1100,8 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
     const int indent = d->indent;
     const int outer = d->rootDecoration ? 0 : 1;
     const int item = d->current;
-    int level = d->viewItems.at(item).level;
+    const QTreeViewItem &viewItem = d->viewItems.at(item);
+    int level = viewItem.level;
     QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
 
     QModelIndex parent = index.parent();
@@ -1120,8 +1125,8 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
 
-        const bool expanded = d->viewItems.at(item).expanded;
-        const bool children = (((expanded && d->viewItems.at(item).total > 0)) // already layed out and has children
+        const bool expanded = viewItem.expanded;
+        const bool children = (((expanded && viewItem.total > 0)) // already layed out and has children
                                 || d->model->hasChildren(index)); // not layed out yet, so we don't know
         bool moreSiblings = false;
         if (d->hiddenIndexes.isEmpty())
@@ -1145,14 +1150,15 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         if (d->hiddenIndexes.isEmpty()) {
             moreSiblings = (d->model->rowCount(ancestor) - 1 > current.row());
         } else {
-            int successor = item + d->viewItems.at(item).total + 1;
+            int successor = item + viewItem.total + 1;
             while (successor < d->viewItems.size()
                    && d->viewItems.at(successor).level >= uint(level)) {
-                if (d->viewItems.at(successor).level == uint(level)) {
+                const QTreeViewItem &successorItem = d->viewItems.at(successor);
+                if (successorItem.level == uint(level)) {
                     moreSiblings = true;
                     break;
                 }
-                successor += d->viewItems.at(successor).total + 1;
+                successor += successorItem.total + 1;
             }
         }
         if (moreSiblings)
@@ -1215,7 +1221,7 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *event)
             return; // user clicked outside the items
 
         // signal handlers may change the model
-        QModelIndex index = d->viewItems.at(i).index;
+        const QModelIndex &index = d->viewItems.at(i).index;
         int column = d->header->logicalIndexAt(event->x());
         QPersistentModelIndex persistent = index.sibling(index.row(), column);
         emit doubleClicked(persistent);
