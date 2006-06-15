@@ -512,7 +512,7 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QLocale &);
 #endif
 
 #ifndef QT_NO_SYSTEMLOCALE
-class QSystemLocale
+class Q_CORE_EXPORT QSystemLocale
 {
 public:
     QSystemLocale();
