@@ -259,6 +259,8 @@ void HelpDialog::initialize()
     itemPopup->addAction(actionOpenLinkInNewWindow);
     itemPopup->addAction(actionOpenLinkInNewTab);
 
+    ui.tabWidget->setElideMode(Qt::ElideNone);
+
     contentList.clear();
 
     initDoneMsgShown = false;
