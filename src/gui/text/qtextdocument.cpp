@@ -511,6 +511,18 @@ QSizeF QTextDocument::size() const
 }
 
 /*!
+    \property QTextDocument::blockCount
+    \since 4.2
+
+    Returns the number of text blocks in the document.
+*/
+int QTextDocument::blockCount() const
+{
+    Q_D(const QTextDocument);
+    return d->blockMap().numNodes();
+}
+
+/*!
     \fn void QTextDocument::contentsChanged()
 
     This signal is emitted whenever the document's content changes; for
