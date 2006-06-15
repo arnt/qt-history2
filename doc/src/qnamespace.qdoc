@@ -488,6 +488,7 @@
     \value TopToolBarArea
     \value BottomToolBarArea
     \value AllToolBarAreas
+    \value NoToolBarArea
 
     \omitvalue ToolBarArea_Mask
 */
@@ -500,6 +501,7 @@
     \value TopDockWidgetArea
     \value BottomDockWidgetArea
     \value AllDockWidgetAreas
+    \value NoDockWidgetArea
 
     \omitvalue DockWidgetArea_Mask
 */

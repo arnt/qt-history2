@@ -1040,7 +1040,8 @@ public:
         BottomDockWidgetArea = 0x8,
 
         DockWidgetArea_Mask = 0xf,
-        AllDockWidgetAreas = DockWidgetArea_Mask
+        AllDockWidgetAreas = DockWidgetArea_Mask,
+        NoDockWidgetArea = 0
     };
     enum DockWidgetAreaSizes {
         NDockWidgetAreas = 4
@@ -1055,7 +1056,8 @@ public:
         BottomToolBarArea = 0x8,
 
         ToolBarArea_Mask = 0xf,
-        AllToolBarAreas = ToolBarArea_Mask
+        AllToolBarAreas = ToolBarArea_Mask,
+        NoToolBarArea = 0
     };
 
     enum ToolBarAreaSizes {
