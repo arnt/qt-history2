@@ -28,10 +28,10 @@ QSvgIOHandler::~QSvgIOHandler()
 
 bool QSvgIOHandler::canRead() const
 {
-    d->r->load(device()->readAll());
-    d->defaultSize = QSize(d->r->viewBox().width(), d->r->viewBox().height());
-    d->currentSize = d->defaultSize;
-    return d->r->isValid();
+    QByteArray contents = device()->readAll();
+    device()->seek(0);
+
+    return contents.contains("<svg");
 }
 
 
@@ -43,6 +43,10 @@ QByteArray QSvgIOHandler::name() const
 
 bool QSvgIOHandler::read(QImage *image)
 {
+
+    d->r->load(device()->readAll());
+    d->defaultSize = QSize(d->r->viewBox().width(), d->r->viewBox().height());
+    d->currentSize = d->defaultSize;
     if (!d->r->isValid())
         return false;
     *image = QImage(d->currentSize, QImage::Format_ARGB32_Premultiplied);
@@ -100,6 +104,8 @@ bool QSvgIOHandler::supportsOption(ImageOption option) const
 
 bool QSvgIOHandler::canRead(QIODevice *device)
 {
-    QSvgRenderer render;
-    return render.load(device->readAll());
+    QByteArray contents = device->readAll();
+    device->seek(0);
+
+    return contents.contains("<svg");
 }
