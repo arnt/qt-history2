@@ -687,7 +687,7 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
         }
     }
 #ifdef QT_KEYPAD_NAVIGATION
-    else if (QApplication::keypadNavigationEnabled()) {
+    else {
         Q_D(QTextBrowser);
         if (ev->key() == Qt::Key_Up) {
             d->keypadMove(false);
