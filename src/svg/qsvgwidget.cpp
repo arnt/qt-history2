@@ -57,12 +57,17 @@ public:
     {
         Q_Q(QSvgWidget);
         renderer = new QSvgRenderer(q);
+        QObject::connect(renderer, SIGNAL(repaintNeeded()),
+                         q, SLOT(update()));
     }
     QSvgWidgetPrivate(const QString &file)
         : QWidgetPrivate()
     {
         Q_Q(QSvgWidget);
         renderer = new QSvgRenderer(file, q);
+
+        QObject::connect(renderer, SIGNAL(repaintNeeded()),
+                         q, SLOT(update()));
     }
     QSvgRenderer *renderer;
 };

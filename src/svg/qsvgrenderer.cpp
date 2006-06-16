@@ -257,6 +257,9 @@ bool QSvgRenderer::load(const QString &filename)
         d->timer->stop();
     }
 
+    //force first update
+    repaintNeeded();
+
     return d->render;
 }
 
@@ -278,6 +281,8 @@ bool QSvgRenderer::load(const QByteArray &contents)
     } else if (d->timer) {
         d->timer->stop();
     }
+    //force first update
+    emit repaintNeeded();
 
     return d->render;
 }
