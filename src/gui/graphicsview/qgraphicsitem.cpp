@@ -22,7 +22,7 @@
     This includes defining the item's geometry, collision detection, its
     painting implementation and item interaction through its event handlers.
     QGraphicsItem is part of \l{The Graphics View Framework}
-    
+
     For convenience, Qt provides a set of standard graphics items for the most
     common shapes. These are:
 
@@ -4104,7 +4104,7 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
 /*!
     \class QGraphicsTextItem
     \brief The QGraphicsTextItem class provides a text item that you can add to
-    a QGraphicsScene.
+    a QGraphicsScene to display formatted text.
     \since 4.2
     \ingroup multimedia
 
@@ -4764,21 +4764,57 @@ void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
     q->addToIndex();
 }
 
+/*!
+    \class QGraphicsSimpleTextItem
+    \brief The QGraphicsSimpleTextItem class provides a text item that you can add to
+    a QGraphicsScene.
+    \since 4.2
+    \ingroup multimedia
+
+    To set the item's text, pass a QString to QGraphicsSimpleTextItem's
+    constructor, or call setText().
+
+    QGraphicsTextItem uses the text's formatted size and the associated font
+    to provide a reasonable implementation of boundingRect(), shape(),
+    and contains(). You can set the font by calling setFont().
+
+    QGraphicsSimpleText does not display rich text. It is optimized for drawing
+    plain text fast and with low memory overhead.
+
+    \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
+    QGraphicsPixmapItem, QGraphicsPolygonItem, QGraphicsLineItem, \l{The
+    Graphics View Framework}
+*/
+
+/*!
+    Constructs a QGraphicsSimpleTextItem. parent and scene are passed to QGraphicsItem's constructor.
+*/
 QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(QGraphicsItem *parent, QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
 {
 }
 
+/*!
+    Constructs a QGraphicsSimpleTextItem, using text as the default plain text. parent and scene are passed to QGraphicsItem's constructor.
+*/
 QGraphicsSimpleTextItem::QGraphicsSimpleTextItem(const QString &text, QGraphicsItem *parent , QGraphicsScene *scene)
     : QGraphicsItem(*new QGraphicsSimpleTextItemPrivate, parent, scene)
 {
     setText(text);
 }
 
+/*!
+    Destroys the QGraphicsSimpleTextItem.
+*/
 QGraphicsSimpleTextItem::~QGraphicsSimpleTextItem()
 {
 }
 
+/*!
+    Sets the item's text to \a text. The text will be displayed as plain text.
+    Newlines characters ('\n') as well as characters of type QChar::LineSeparator
+    will cause item to break the text into multiple lines.
+*/
 void QGraphicsSimpleTextItem::setText(const QString &text)
 {
     Q_D(QGraphicsSimpleTextItem);
@@ -4786,12 +4822,18 @@ void QGraphicsSimpleTextItem::setText(const QString &text)
     d->updateBoundingRect();
 }
 
+/*!
+    Returns the item's text.
+*/
 QString QGraphicsSimpleTextItem::text() const
 {
     Q_D(const QGraphicsSimpleTextItem);
     return d->text;
 }
 
+/*!
+    Sets the font that is used to draw the item's text.
+*/
 void QGraphicsSimpleTextItem::setFont(const QFont &font)
 {
     Q_D(QGraphicsSimpleTextItem);
@@ -4799,12 +4841,18 @@ void QGraphicsSimpleTextItem::setFont(const QFont &font)
     d->updateBoundingRect();
 }
 
+/*!
+    Returns the font that is used to draw the item's text.
+*/
 QFont QGraphicsSimpleTextItem::font() const
 {
     Q_D(const QGraphicsSimpleTextItem);
     return d->font;
 }
 
+/*!
+    Sets the pen that is used to draw the item's text.
+*/
 void QGraphicsSimpleTextItem::setPen(const QPen &pen)
 {
     Q_D(QGraphicsSimpleTextItem);
@@ -4812,18 +4860,27 @@ void QGraphicsSimpleTextItem::setPen(const QPen &pen)
     update();
 }
 
+/*!
+    Returns the pen that is used to draw the item's text.
+*/
 QPen QGraphicsSimpleTextItem::pen() const
 {
     Q_D(const QGraphicsSimpleTextItem);
     return d->pen;
 }
 
+/*!
+    \reimp
+*/
 QRectF QGraphicsSimpleTextItem::boundingRect() const
 {
     Q_D(const QGraphicsSimpleTextItem);
     return d->boundingRect;
 }
 
+/*!
+    \reimp
+*/
 QPainterPath QGraphicsSimpleTextItem::shape() const
 {
     Q_D(const QGraphicsSimpleTextItem);
@@ -4832,12 +4889,18 @@ QPainterPath QGraphicsSimpleTextItem::shape() const
     return path;
 }
 
+/*!
+    \reimp
+*/
 bool QGraphicsSimpleTextItem::contains(const QPointF &point) const
 {
     Q_D(const QGraphicsSimpleTextItem);
     return d->boundingRect.contains(point);
 }
 
+/*!
+    \reimp
+*/
 void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     Q_UNUSED(widget);
@@ -4859,6 +4922,9 @@ void QGraphicsSimpleTextItem::paint(QPainter *painter, const QStyleOptionGraphic
     }
 }
 
+/*!
+    \reimp
+*/
 int QGraphicsSimpleTextItem::type() const
 {
     return Type;
