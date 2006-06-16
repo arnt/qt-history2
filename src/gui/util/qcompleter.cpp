@@ -336,10 +336,9 @@ QVariant QCompletionModel::data(const QModelIndex& index, int role) const
 
 void QCompletionModel::modelDestroyed()
 {
-    engine->cache.clear();
-    QAbstractProxyModel::setSourceModel(0); // switch to empty model
+    QAbstractProxyModel::setSourceModel(0); // switch to static empty model
     model = sourceModel();
-    reset();
+    invalidate();
 }
 
 void QCompletionModel::invalidate()
