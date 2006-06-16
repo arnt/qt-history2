@@ -553,7 +553,7 @@ static QMessageBoxEx::StandardButton showMessageBoxEx(QWidget *parent,
     QMessageBoxEx::StandardButton defaultButton)
 {
     QMessageBoxEx msgBox(caption, text, icon, parent);
-    QDialogButtonBox *buttonBox = msgBox.findChild<QDialogButtonBox *>();
+    QDialogButtonBox *buttonBox = qFindChild<QDialogButtonBox*>(&msgBox);
     Q_ASSERT(buttonBox != 0);
 
     int mask = 1;
