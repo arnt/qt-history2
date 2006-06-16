@@ -1141,8 +1141,10 @@ void QGLWidget::setContext(QGLContext *context,
     a.background_pixel = colmap.pixel(palette().color(backgroundRole()));
     a.border_pixel = colmap.pixel(Qt::black);
     Window p = RootWindow(X11->display, vi->screen);
-    if (parentWidget())
+    if (parentWidget()) {
+        parentWidget()->createWinId();
         p = parentWidget()->winId();
+    }
 
     Window w = XCreateWindow(X11->display, p, x(), y(), width(), height(),
                               0, vi->depth, InputOutput, vi->visual,
@@ -1151,6 +1153,7 @@ void QGLWidget::setContext(QGLContext *context,
     Window *cmw;
     Window *cmwret;
     int count;
+    window()->createWinId();
     if (XGetWMColormapWindows(X11->display, window()->winId(),
                                 &cmwret, &count)) {
         cmw = new Window[count+1];
