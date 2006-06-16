@@ -1604,6 +1604,10 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
         return layoutTable(table, layoutFrom, layoutTo);
     }
 
+    // set fd->contentsWidth temporarily, so that layoutFrame for the children
+    // picks the right width. We'll initialize it properly at the end of this
+    // function.
+    fd->contentsWidth = newContentsWidth;
     qreal maxChildFrameWidth = 0;
     // layout child frames
     QList<QTextFrame *> children = f->childFrames();
