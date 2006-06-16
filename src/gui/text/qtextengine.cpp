@@ -1418,7 +1418,6 @@ QTextEngine::LayoutData::LayoutData(const QString &str, void **stack_memory, int
         glyphPtr = 0;
     } else {
         num_glyphs = str.length();
-        allocated = str.length();
         
         memory_on_stack = true;
         memory = stack_memory;
