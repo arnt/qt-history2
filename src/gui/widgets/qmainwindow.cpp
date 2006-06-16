@@ -25,6 +25,7 @@
 #include <qevent.h>
 #include <qstyle.h>
 #include <qdebug.h>
+#include <qpainter.h>
 
 #include <private/qwidget_p.h>
 #include "qtoolbar_p.h"
@@ -41,6 +42,8 @@ public:
     bool explicitIconSize;
     Qt::ToolButtonStyle toolButtonStyle;
     void init();
+    QList<int> hoverSeparator;
+    QPoint hoverPos;
 };
 
 void QMainWindowPrivate::init()
@@ -50,6 +53,8 @@ void QMainWindowPrivate::init()
     const int metric = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
     iconSize = QSize(metric, metric);
     explicitIconSize = false;
+
+    q->setAttribute(Qt::WA_Hover);
 }
 
 /*
@@ -471,9 +476,10 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWidgetArea area)
         valid = (area == Qt::BottomDockWidgetArea || area == Qt::RightDockWidgetArea);
         break;
     }
-    Q_ASSERT_X(valid, "QMainWindow::setCorner", "'area' is not valid for 'corner'");
-    if (valid)
-        d_func()->layout->corners[corner] = area;
+    if (!valid)
+        qWarning("QMainWindow::setCorner(): 'area' is not valid for 'corner'");
+    else
+        d_func()->layout->setCorner(corner, area);
 }
 
 /*!
@@ -483,7 +489,7 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWidgetArea area)
     \sa setCorner()
 */
 Qt::DockWidgetArea QMainWindow::corner(Qt::Corner corner) const
-{ return d_func()->layout->corners[corner]; }
+{ return d_func()->layout->corner(corner); }
 
 #ifndef QT_NO_TOOLBAR
 /*!
@@ -612,7 +618,8 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
 
 /*!
     Returns the Qt::ToolBarArea for \a toolbar. If \a toolbar has not
-    been added to the main window, this function returns zero.
+    been added to the main window, this function returns \c
+    Qt::NoToolBarArea.
 
     \sa addToolBar() addToolBarBreak() Qt::ToolBarArea
 */
@@ -622,6 +629,51 @@ Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 #endif // QT_NO_TOOLBAR
 
 #ifndef QT_NO_DOCKWIDGET
+
+/*! \property QMainWindow::animationEnabled
+    \brief whether manipulating dock widgets is animated
+
+    When a dock widget is dragged over the main window, other dock widgets in the
+    window will adjust themselves to make space for the dragged widget. If this
+    property is set to true, their movement will be animated. The default value
+    is true.
+*/
+
+bool QMainWindow::isAnimationEnabled() const
+{
+    return d_func()->layout->animationEnabled;
+}
+
+void QMainWindow::setAnimationEnabled(bool enabled)
+{
+    d_func()->layout->animationEnabled = enabled;
+}
+
+/*! \property QMainWindow::dockNestingEnabled
+    \brief whether docks can be nested
+
+    If this property is set to false, dock areas can only contain a single row
+    (horizontal or vertical) of dock widgets. If this property is set to true,
+    the area occupied by a dock widget can be split in either direction to contain
+    more dock widgets.
+
+    Dock nesting is only necessary in applications that contain a lot of
+    dock widgets. It gives the user greater freedom in organizing their main window.
+    However, dock nesting leads to more complex (and less intuitive) behavior when
+    a dock widget is dragged over the main window, since there are more ways in which
+    a dropped dock widget may be placed in the dock area.
+*/
+
+bool QMainWindow::isDockNestingEnabled() const
+{
+    return d_func()->layout->dockNestingEnabled;
+}
+
+void QMainWindow::setDockNestingEnabled(bool enabled)
+{
+    d_func()->layout->dockNestingEnabled = enabled;
+}
+
 /*!
     Adds the given \a dockwidget to the specified \a area.
 */
@@ -700,14 +752,15 @@ void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
 void QMainWindow::removeDockWidget(QDockWidget *dockwidget)
 {
     if (dockwidget) {
-        d_func()->layout->removeRecursive(dockwidget);
+        d_func()->layout->removeWidget(dockwidget);
         dockwidget->hide();
     }
 }
 
 /*!
     Returns the Qt::DockWidgetArea for \a dockwidget. If \a dockwidget
-    has not been added to the main window, this function returns zero.
+    has not been added to the main window, this function returns \c
+    Qt::NoDockWidgetArea.
 
     \sa addDockWidget() splitDockWidget() Qt::DockWidgetArea
 */
@@ -770,6 +823,54 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
 bool QMainWindow::event(QEvent *event)
 {
     Q_D(QMainWindow);
+    if (event->type() == QEvent::HoverMove) {
+        if (d->layout->savedDockWidgetLayout.isValid()) {
+            d->hoverSeparator.clear();
+            d->hoverPos = QPoint(0, 0);
+            return true;
+        }
+        QHoverEvent *e = static_cast<QHoverEvent *>(event);
+        QList<int> pathToSeparator
+            = d->layout->dockWidgetLayout.findSeparator(e->pos());
+        if (pathToSeparator != d->hoverSeparator) {
+            if (!d->hoverSeparator.isEmpty())
+                update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
+            d->hoverSeparator = pathToSeparator;
+            if (!d->hoverSeparator.isEmpty())
+                update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
+        }
+        d->hoverPos = e->pos();
+        return true;
+    } else if (event->type() == QEvent::HoverLeave) {
+        if (d->layout->savedDockWidgetLayout.isValid()) {
+            d->hoverSeparator.clear();
+            d->hoverPos = QPoint(0, 0);
+            return true;
+        }
+        if (!d->hoverSeparator.isEmpty())
+            update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
+        d->hoverSeparator.clear();
+        d->hoverPos = QPoint(0, 0);
+        return true;
+    } else if (event->type() == QEvent::Paint) {
+        QPainter p(this);
+        d->layout->dockWidgetLayout.paintSeparators(&p, this,
+                        static_cast<QPaintEvent*>(event)->region(),
+                        d->hoverPos);
+        return true;
+    } else if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *e = static_cast<QMouseEvent*>(event);
+        d->layout->startSeparatorMove(e->pos());
+        return true;
+    } else if (event->type() == QEvent::MouseMove) {
+        QMouseEvent *e = static_cast<QMouseEvent*>(event);
+        d->layout->separatorMove(e->pos());
+        return true;
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *e = static_cast<QMouseEvent*>(event);
+        d->layout->endSeparatorMove(e->pos());
+        return true;
+    } else
 #ifndef QT_NO_TOOLBAR
     if (event->type() == QEvent::ToolBarChange) {
         QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);

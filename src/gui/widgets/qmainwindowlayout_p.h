@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMAINWINDOWLAYOUT_P_H
-#define QMAINWINDOWLAYOUT_P_H
+#ifndef QDYNAMICMAINWINDOWLAYOUT_P_H
+#define QDYNAMICMAINWINDOWLAYOUT_P_H
 
 //
 //  W A R N I N G
@@ -25,16 +25,18 @@
 // We mean it.
 //
 
-#include "QtGui/qmainwindow.h"
+#include "qmainwindow.h"
 
 #ifndef QT_NO_MAINWINDOW
 
 #include "QtGui/qlayout.h"
 #include "QtCore/qvector.h"
+#include "private/qlayoutengine_p.h"
+
+#include "qdockwidgetlayout_p.h"
 
 class QToolBar;
-class QDockWidget;
-class QDockWidgetLayout;
+class QWidgetAnimator;
 
 class QMainWindowLayout : public QLayout
 {
@@ -62,13 +64,18 @@ public:
 #endif
 
 #ifndef QT_NO_DOCKWIDGET
-    QDockWidgetLayout *layoutForArea(Qt::DockWidgetArea area);
-    void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
+    void setCorner(Qt::Corner corner, Qt::DockWidgetArea area);
+    Qt::DockWidgetArea corner(Qt::Corner corner) const;
+
+    void addDockWidget(Qt::DockWidgetArea area,
+                       QDockWidget *dockwidget,
                        Qt::Orientation orientation);
-    void splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
+    void splitDockWidget(QDockWidget *after,
+                         QDockWidget *dockwidget,
                          Qt::Orientation orientation);
     Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
 #endif
+
     enum { // sentinel values used to validate state data
         VersionMarker = 0xff,
         ToolBarStateMarker = 0xfe,
@@ -94,27 +101,39 @@ public:
 
     // returns true if \a widget is a toolbar or dockwidget that we know about
     bool contains(QWidget *widget) const;
-#ifndef QT_NO_DOCKWIDGET
-    void removeRecursive(QDockWidget *dockwidget);
-#endif
 
     // utility functions
-
-    QInternal::RelayoutType relayout_type;
-    void relayout(QInternal::RelayoutType type = QInternal::RelayoutNormal);
+    void relayout();
     void updateToolbarsInArea(Qt::ToolBarArea area);
-    void saveLayoutInfo();
-    void resetLayoutInfo();
-    void discardLayoutInfo();
 
-    void beginConstrain();
-    void endConstrain();
 #ifndef QT_NO_DOCKWIDGET
-    int constrain(QDockWidgetLayout *dock, int delta);
+    QWidgetAnimator *widgetAnimator;
+    bool dockNestingEnabled;
+    bool animationEnabled;
+    QDockWidgetLayout dockWidgetLayout, savedDockWidgetLayout;
 
-    Qt::DockWidgetArea locateDockWidget(QDockWidget *dockwidget, const QPoint &mouse) const;
-    QRect placeDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
-    void dropDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
+    void applyDockWidgetLayout(QDockWidgetLayout &newLayout, bool animate = true);
+
+    QWidgetItem *unplug(QDockWidget *dockWidget);
+    QList<int> hover(QWidgetItem *dockWidgetItem, const QPoint &mousePos);
+    void plug(QWidgetItem *dockWidgetItem, const QList<int> &pathToGap);
+    void restore();
+    QList<int> currentGapPos;
+    QDockWidget *pluggingWidget;
+    QRect pluggingRect;
+
+    bool startSeparatorMove(const QPoint &pos);
+    void separatorMove(const QPoint &pos);
+    void endSeparatorMove(const QPoint &pos);
+    QList<int> movingSeparator;
+    QPoint movingSeparatorOrigin, movingSeparatorPos;
+    QTimer *separatorMoveTimer;
+    QVector<QLayoutStruct> separatorMoveCache;
+private slots:
+    void animationFinished(QWidget *widget);
+    void allAnimationsFinished();
+    void doSeparatorMove();
+public:
 #endif
 
 #ifndef QT_NO_TOOLBAR
@@ -122,20 +141,7 @@ public:
     bool dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
 
     void removeToolBarInfo(QToolBar *toolbar);
-#endif
 
-    // dock/center-widget layout data
-    Qt::DockWidgetArea corners[4];
-    struct QMainWindowLayoutInfo
-    {
-	QLayoutItem *item;
-	QLayoutItem *sep;
-	QSize size;
-	uint is_dummy : 1;
-    };
-    QVector<QMainWindowLayoutInfo> layout_info, *save_layout_info;
-
-#ifndef QT_NO_TOOLBAR
     // toolbar layout data
     struct ToolBarLayoutInfo
     {
@@ -165,4 +171,4 @@ public:
 
 #endif // QT_NO_MAINWINDOW
 
-#endif // QMAINWINDOWLAYOUT_P_H
+#endif // QDYNAMICMAINWINDOWLAYOUT_P_H

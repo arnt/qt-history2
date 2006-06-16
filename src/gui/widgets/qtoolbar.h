@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTOOLBAR_H
-#define QTOOLBAR_H
+#ifndef QDYNAMICTOOLBAR_H
+#define QDYNAMICTOOLBAR_H
 
 #include <QtGui/qwidget.h>
 
@@ -140,4 +140,4 @@ inline QAction *QToolBar::actionAt(int ax, int ay) const
 
 QT_END_HEADER
 
-#endif // QTOOLBAR_H
+#endif // QDYNAMICTOOLBAR_H

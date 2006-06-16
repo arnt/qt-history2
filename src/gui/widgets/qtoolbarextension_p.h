@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTOOLBAREXTENSION_P_H
-#define QTOOLBAREXTENSION_P_H
+#ifndef QDYNAMICTOOLBAREXTENSION_P_H
+#define QDYNAMICTOOLBAREXTENSION_P_H
 
 //
 //  W A R N I N G
@@ -45,4 +45,4 @@ public Q_SLOTS:
 
 #endif // QT_NO_TOOLBUTTON
 
-#endif // QTOOLBAREXTENSION_P_H
+#endif // QDYNAMICTOOLBAREXTENSION_P_H

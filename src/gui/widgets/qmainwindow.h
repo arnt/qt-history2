@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMAINWINDOW_H
-#define QMAINWINDOW_H
+#ifndef QDYNAMICMAINWINDOW_H
+#define QDYNAMICMAINWINDOW_H
 
 #include <QtGui/qwidget.h>
 
@@ -35,6 +35,8 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
 
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
+    Q_PROPERTY(bool animationEnabled READ isAnimationEnabled WRITE setAnimationEnabled)
+    Q_PROPERTY(bool dockNestingEnabled READ isDockNestingEnabled WRITE setDockNestingEnabled)
 
 public:
     explicit QMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
@@ -45,6 +47,9 @@ public:
 
     Qt::ToolButtonStyle toolButtonStyle() const;
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
+
+    bool isAnimationEnabled() const;
+    bool isDockNestingEnabled() const;
 
 #ifndef QT_NO_MENUBAR
     QMenuBar *menuBar() const;
@@ -99,6 +104,10 @@ public:
     QT3_SUPPORT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
 #endif
 
+public Q_SLOTS:
+    void setAnimationEnabled(bool enabled);
+    void setDockNestingEnabled(bool enabled);
+
 Q_SIGNALS:
     void iconSizeChanged(const QSize &iconSize);
     void toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle);
@@ -116,4 +125,4 @@ private:
 
 QT_END_HEADER
 
-#endif // QMAINWINDOW_H
+#endif // QDYNAMICMAINWINDOW_H

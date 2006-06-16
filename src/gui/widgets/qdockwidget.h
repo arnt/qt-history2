@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDOCKWIDGET_H
-#define QDOCKWIDGET_H
+#ifndef QDYNAMICDOCKWIDGET_H
+#define QDYNAMICDOCKWIDGET_H
 
 #include <QtGui/qwidget.h>
 
@@ -92,6 +92,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_toggleTopLevel())
     friend class QDockWidgetLayout;
     friend class QDockWidgetItem;
+    friend class QMainWindowLayout;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)
@@ -100,4 +101,4 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWidget::DockWidgetFeatures)
 
 QT_END_HEADER
 
-#endif // QDOCKWIDGET_H
+#endif // QDYNAMICDOCKWIDGET_H

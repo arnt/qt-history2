@@ -2,7 +2,6 @@
 
 HEADERS += \
         widgets/qbuttongroup.h \
-        widgets/qdockseparator_p.h \
         widgets/qabstractbutton.h \
         widgets/qabstractbutton_p.h \
         widgets/qabstractslider.h \
@@ -19,7 +18,6 @@ HEADERS += \
         widgets/qdockwidget.h \
         widgets/qdockwidget_p.h \
         widgets/qdockwidgetlayout_p.h \
-        widgets/qdockwidgetseparator_p.h \
         widgets/qfontcombobox.h \
         widgets/qframe.h \
         widgets/qframe_p.h \
@@ -65,7 +63,8 @@ HEADERS += \
         widgets/qwidgetresizehandler_p.h \
         widgets/qfocusframe.h \
         widgets/qscrollarea.h \
-        widgets/qworkspace.h
+        widgets/qworkspace.h \
+        widgets/qwidgetanimator_p.h
 
 SOURCES += \
         widgets/qabstractbutton.cpp \
@@ -77,10 +76,8 @@ SOURCES += \
         widgets/qdatetimeedit.cpp \
         widgets/qdial.cpp \
         widgets/qdialogbuttonbox.cpp \
-        widgets/qdockseparator.cpp \
         widgets/qdockwidget.cpp \
         widgets/qdockwidgetlayout.cpp \
-        widgets/qdockwidgetseparator.cpp \
         widgets/qeffects.cpp \
         widgets/qfontcombobox.cpp \
         widgets/qframe.cpp \
@@ -120,7 +117,8 @@ SOURCES += \
         widgets/qwidgetresizehandler.cpp \
         widgets/qfocusframe.cpp \
         widgets/qscrollarea.cpp \
-        widgets/qworkspace.cpp
+        widgets/qworkspace.cpp \
+        widgets/qwidgetanimator.cpp
 
 
 !embedded:mac {

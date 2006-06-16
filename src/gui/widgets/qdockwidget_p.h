@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDOCKWIDGET_P_H
-#define QDOCKWIDGET_P_H
+#ifndef QDYNAMICDOCKWIDGET_P_H
+#define QDYNAMICDOCKWIDGET_P_H
 
 //
 //  W A R N I N G
@@ -56,11 +56,10 @@ class QDockWidgetPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QDockWidget)
 
     struct DragState {
-        QRubberBand *rubberband;
-        QRect origin;   // starting position
-        QRect current;  // current size of the dockwidget (can be either placed or floating)
-        QPoint offset;
-        bool canDrop;
+        QPoint pressPos;
+        bool dragging;
+        QWidgetItem *widgetItem;
+        QList<int> pathToGap;
     };
 
 public:
@@ -106,40 +105,11 @@ public:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
-};
 
-//This class adds the margin space to dockwidgets when they are not floating.
-//We do this to ensure that the minimum sizeHint does not change when floating
-class QDockWidgetItem : public QWidgetItem
-{
-public:
-    inline QDockWidgetItem(QWidget *w)
-        : QWidgetItem(w)
-    { }
-
-    QSize adjusted(QSize s) const
-    {
-        QDockWidgetItem *w = const_cast<QDockWidgetItem *>(this);
-        QDockWidget * dockWidget = qobject_cast<QDockWidget *>(w->widget()->parentWidget());
-        Q_ASSERT_X(dockWidget != 0, "QDockWidget", "Internal error");
-        if(!dockWidget->isFloating() || (dockWidget->d_func()->state && dockWidget->d_func()->state->canDrop )) {
-            int fw = dockWidget->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth);
-            s += QSize(fw*2, fw*2);
-        }
-        return s;
-    }
-
-    inline QSize sizeHint() const
-    {
-        return adjusted(QWidgetItem::sizeHint());
-    }
-
-    inline QSize minimumSize() const
-    {
-        return adjusted(QWidgetItem::minimumSize());
-    }
+    void unplug(const QRect &rect);
+    void plug(const QRect &rect);
 };
 
 #endif // QT_NO_DOCKWIDGET
 
-#endif // QDOCKWIDGET_P_H
+#endif // QDYNAMICDOCKWIDGET_P_H
