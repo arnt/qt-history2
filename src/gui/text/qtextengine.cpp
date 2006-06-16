@@ -1405,7 +1405,7 @@ QTextEngine::LayoutData::LayoutData(const QString &str, void **stack_memory, int
 
     int space_charAttributes = sizeof(QCharAttributes)*string.length()/sizeof(void*) + 1;
     int space_logClusters = sizeof(unsigned short)*string.length()/sizeof(void*) + 1;
-    available_glyphs = ((int)allocated - space_charAttributes - space_logClusters)*(int)sizeof(void*)/(int)sizeof(QGlyphLayout) - 2;
+    available_glyphs = ((int)allocated - space_charAttributes - space_logClusters)*(int)sizeof(void*)/(int)sizeof(QGlyphLayout);
 
     if (available_glyphs < str.length()) {
         // need to allocate on the heap
@@ -1453,6 +1453,7 @@ void QTextEngine::LayoutData::reallocate(int totalGlyphs)
     int space_glyphs = sizeof(QGlyphLayout)*totalGlyphs/sizeof(void*) + 2;
 
     int newAllocated = space_charAttributes + space_glyphs + space_logClusters;
+    Q_ASSERT(newAllocated >= allocated);
     void **old_mem = memory;
     memory = (void **)::realloc(memory_on_stack ? 0 : old_mem, newAllocated*sizeof(void *));
     if (memory_on_stack && memory)
