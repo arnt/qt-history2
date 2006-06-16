@@ -467,11 +467,6 @@ void MainWindow::showQtHelp()
 
 void MainWindow::on_actionSettings_triggered()
 {
-    showSettingsDialog(-1);
-}
-
-void MainWindow::showSettingsDialog(int page)
-{
     if (!settingsDia){
         settingsDia = new SettingsDialog(this);
     }

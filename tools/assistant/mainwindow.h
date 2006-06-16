@@ -66,7 +66,6 @@ private slots:
     void showBookmark(QAction *action);
     void showLinkFromClient(const QString &link);
     void showQtHelp();
-    void showSettingsDialog(int page);
     void showSearchLink(const QString &link, const QStringList &terms);
     void showGoActionLink();
     void updateProfileSettings();
