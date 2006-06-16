@@ -39,12 +39,15 @@ public:
         SYSTEM_TRAY_CANCEL_MESSAGE =2
     };
 
+    void addToTray();
+    void updateIcon();
+
     static Window sysTrayWindow;
     static QList<QSystemTrayIconSys *> trayIcons;
     static QCoreApplication::EventFilter oldEventFilter;
     static bool sysTrayTracker(void *message, long *result);
-    void addToTray();
-    void updateIcon();
+    static Window locateSystemTray();
+    static Atom sysTraySelection;
 
 protected:
     void paintEvent(QPaintEvent *pe);
@@ -61,10 +64,10 @@ private:
 Window QSystemTrayIconSys::sysTrayWindow = None;
 QList<QSystemTrayIconSys *> QSystemTrayIconSys::trayIcons;
 QCoreApplication::EventFilter QSystemTrayIconSys::oldEventFilter = 0;
-Atom sysTraySelection = None;
+Atom QSystemTrayIconSys::sysTraySelection = None;
 
 // Locate the system tray
-Window locateSystemTray()
+Window QSystemTrayIconSys::locateSystemTray()
 {
     Display *display = QX11Info::display();
     if (sysTraySelection == None) {
@@ -267,7 +270,7 @@ void QSystemTrayIconPrivate::updateToolTip()
 
 bool QSystemTrayIconPrivate::isSystemTrayAvailable()
 {
-    return locateSystemTray() != None;
+    return QSystemTrayIconSys::locateSystemTray() != None;
 }
 
 void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title,
