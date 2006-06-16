@@ -96,6 +96,42 @@ QPair<int, int> QStandardItemPrivate::itemPosition(const QStandardItem *item) co
 /*!
   \internal
 */
+void QStandardItemPrivate::setChild(int row, int column, QStandardItem *item,
+                                    bool emitChanged)
+{
+    Q_Q(QStandardItem);
+    if ((row < 0) || (column < 0))
+        return;
+    if (rows <= row)
+        q->setRowCount(row + 1);
+    if (columns <= column)
+        q->setColumnCount(column + 1);
+    int index = childIndex(row, column);
+    Q_ASSERT(index != -1);
+    QStandardItem *oldItem = children.at(index);
+    if (item == oldItem)
+        return;
+    if (item) {
+        if (item->parent() == 0) {
+            item->d_func()->setParentAndModel(q, model);
+        } else {
+            qWarning("QStandardItem::setChild(): ignoring duplicate insertion of item %p",
+                     item);
+            return;
+        }
+    }
+    if (oldItem)
+        oldItem->d_func()->setModel(0);
+    delete oldItem;
+    children.replace(index, item);
+    if (emitChanged && model)
+        model->d_func()->itemChanged(item);
+}
+
+
+/*!
+  \internal
+*/
 void QStandardItemPrivate::changeFlags(bool enable, Qt::ItemFlags f)
 {
     Q_Q(QStandardItem);
@@ -177,6 +213,29 @@ void QStandardItemModelPrivate::init()
 QStandardItem *QStandardItemModelPrivate::createItem() const
 {
     return itemPrototype ? itemPrototype->clone() : new QStandardItem;
+}
+
+/*!
+    \internal
+*/
+QStandardItem *QStandardItemModelPrivate::itemFromIndexWithLazyCreation(
+    const QModelIndex &index) const
+{
+    Q_Q(const QStandardItemModel);
+    if (!index.isValid())
+        return root;
+    if (index.model() != q)
+        return 0;
+    QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
+    if (parent == 0)
+        return 0;
+    QStandardItem *item = parent->child(index.row(), index.column());
+    // lazy part
+    if (item == 0) {
+        item = createItem();
+        parent->d_func()->setChild(index.row(), index.column(), item);
+    }
+    return item;
 }
 
 /*!
@@ -1335,32 +1394,7 @@ bool QStandardItem::hasChildren() const
 void QStandardItem::setChild(int row, int column, QStandardItem *item)
 {
     Q_D(QStandardItem);
-    if ((row < 0) || (column < 0))
-        return;
-    if (rowCount() <= row)
-        setRowCount(row + 1);
-    if (columnCount() <= column)
-        setColumnCount(column + 1);
-    int index = d->childIndex(row, column);
-    Q_ASSERT(index != -1);
-    QStandardItem *oldItem = d->children.at(index);
-    if (item == oldItem)
-        return;
-    if (item) {
-        if (item->parent() == 0) {
-            item->d_func()->setParentAndModel(this, d->model);
-        } else {
-            qWarning("QStandardItem::setChild(): ignoring duplicate insertion of item %p",
-                     item);
-            return;
-        }
-    }
-    if (oldItem)
-        oldItem->d_func()->setModel(0);
-    delete oldItem;
-    d->children.replace(index, item);
-    if (d->model)
-        d->model->d_func()->itemChanged(item);
+    d->setChild(row, column, item, true);
 }
 
 /*!
@@ -1783,10 +1817,6 @@ void QStandardItemModel::clear()
 
     Returns a pointer to the QStandardItem associated with the given \a index.
 
-    Note that this function will lazily create an item for the index if no
-    item already exists at the index (but only if the index's row and column
-    are without the parent item's bounds).
-
     \sa indexFromItem()
 */
 QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
@@ -1797,13 +1827,9 @@ QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
     if (index.model() != this)
         return 0;
     QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
-    QStandardItem *child = parent->child(index.row(), index.column());
-    if (child == 0) {
-        // create lazily
-        child = d->createItem();
-        parent->setChild(index.row(), index.column(), child);
-    }
-    return child;
+    if (parent == 0)
+        return 0;
+    return parent->child(index.row(), index.column());
 }
 
 /*!
@@ -1862,7 +1888,7 @@ void QStandardItemModel::setColumnCount(int columns)
 void QStandardItemModel::setItem(int row, int column, QStandardItem *item)
 {
     Q_D(QStandardItemModel);
-    d->root->setChild(row, column, item);
+    d->root->d_func()->setChild(row, column, item, true);
 }
 
 /*!
@@ -2224,7 +2250,7 @@ QStandardItem *QStandardItemModel::takeVerticalHeaderItem(int row)
 int QStandardItemModel::columnCount(const QModelIndex &parent) const
 {
     QStandardItem *item = itemFromIndex(parent);
-    return item->columnCount();
+    return item ? item->columnCount() : 0;
 }
 
 /*!
@@ -2233,7 +2259,7 @@ int QStandardItemModel::columnCount(const QModelIndex &parent) const
 QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 {
     QStandardItem *item = itemFromIndex(index);
-    return item->data(role);
+    return item ? item->data(role) : QVariant();
 }
 
 /*!
@@ -2245,7 +2271,13 @@ Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
     if (!d->indexValid(index))
         return Qt::ItemIsDropEnabled;
     QStandardItem *item = itemFromIndex(index);
-    return item->flags();
+    if (item)
+        return item->flags();
+    return Qt::ItemIsSelectable
+        |Qt::ItemIsEnabled
+        |Qt::ItemIsEditable
+        |Qt::ItemIsDragEnabled
+        |Qt::ItemIsDropEnabled;
 }
 
 /*!
@@ -2254,7 +2286,7 @@ Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 {
     QStandardItem *item = itemFromIndex(parent);
-    return item->hasChildren();
+    return item ? item->hasChildren() : false;
 }
 
 /*!
@@ -2273,7 +2305,8 @@ QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation
         headerItem = d->columnHeaderItems.at(section);
     else if (orientation == Qt::Vertical)
         headerItem = d->rowHeaderItems.at(section);
-    return headerItem ? headerItem->data(role) : QAbstractItemModel::headerData(section, orientation, role);
+    return headerItem ? headerItem->data(role)
+        : QAbstractItemModel::headerData(section, orientation, role);
 }
 
 /*!
@@ -2290,7 +2323,8 @@ Qt::DropActions QStandardItemModel::supportedDropActions () const
 QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &parent) const
 {
     QStandardItem *parentItem = itemFromIndex(parent);
-    if ((row < 0)
+    if ((parentItem == 0)
+        || (row < 0)
         || (column < 0)
         || (row >= parentItem->rowCount())
         || (column >= parentItem->columnCount())) {
@@ -2304,7 +2338,10 @@ QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &pa
 */
 bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
-    QStandardItem *item = itemFromIndex(parent);
+    Q_D(QStandardItemModel);
+    QStandardItem *item = d->itemFromIndexWithLazyCreation(parent);
+    if (item == 0)
+        return false;
     return item->d_func()->insertColumns(column, count, QList<QStandardItem*>());
 }
 
@@ -2313,7 +2350,10 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
 */
 bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    QStandardItem *item = itemFromIndex(parent);
+    Q_D(QStandardItemModel);
+    QStandardItem *item = d->itemFromIndexWithLazyCreation(parent);
+    if (item == 0)
+        return false;
     return item->d_func()->insertRows(row, count, QList<QStandardItem*>());
 }
 
@@ -2323,7 +2363,7 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
 QMap<int, QVariant> QStandardItemModel::itemData(const QModelIndex &index) const
 {
     QStandardItem *item = itemFromIndex(index);
-    return item->d_func()->itemData();
+    return item ? item->d_func()->itemData() : QMap<int, QVariant>();
 }
 
 /*!
@@ -2344,7 +2384,7 @@ QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
     QStandardItem *item = itemFromIndex(parent);
-    if ((count < 1) || (column < 0) || ((column + count) > item->columnCount()))
+    if ((item == 0) || (count < 1) || (column < 0) || ((column + count) > item->columnCount()))
         return false;
     item->removeColumns(column, count);
     return true;
@@ -2356,7 +2396,7 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
 bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     QStandardItem *item = itemFromIndex(parent);
-    if ((count < 1) || (row < 0) || ((row + count) > item->rowCount()))
+    if ((item == 0) || (count < 1) || (row < 0) || ((row + count) > item->rowCount()))
         return false;
     item->removeRows(row, count);
     return true;
@@ -2368,7 +2408,7 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
 int QStandardItemModel::rowCount(const QModelIndex &parent) const
 {
     QStandardItem *item = itemFromIndex(parent);
-    return item->rowCount();
+    return item ? item->rowCount() : 0;
 }
 
 /*!
@@ -2377,9 +2417,9 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
 bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_D(QStandardItemModel);
-    if (!d->indexValid(index))
+    QStandardItem *item = d->itemFromIndexWithLazyCreation(index);
+    if (item == 0)
         return false;
-    QStandardItem *item = itemFromIndex(index);
     item->setData(role, value);
     return true;
 }
@@ -2423,7 +2463,10 @@ bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
 */
 bool QStandardItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
 {
-    QStandardItem *item = itemFromIndex(index);
+    Q_D(QStandardItemModel);
+    QStandardItem *item = d->itemFromIndexWithLazyCreation(index);
+    if (item == 0)
+        return false;
     item->d_func()->setItemData(roles);
     return true;
 }

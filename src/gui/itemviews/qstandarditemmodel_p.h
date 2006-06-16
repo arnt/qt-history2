@@ -54,6 +54,8 @@ public:
         return children.indexOf(const_cast<QStandardItem*>(child));
     }
     QPair<int, int> itemPosition(const QStandardItem *item) const;
+    void setChild(int row, int column, QStandardItem *item,
+                  bool emitChanged = false);
     inline int rowCount() const {
         return rows;
     }
@@ -102,6 +104,7 @@ public:
     void init();
 
     QStandardItem *createItem() const;
+    QStandardItem *itemFromIndexWithLazyCreation(const QModelIndex &index) const;
 
     void sort(QStandardItem *parent, int column, Qt::SortOrder order);
     void itemChanged(QStandardItem *item);
