@@ -25,7 +25,7 @@ static const int GraphicsViewRegionRectThreshold = 20;
 
     QGraphicsView visualizes the contents of a QGraphicsScene in a scrollable
     viewport. To create a scene with geometrical items, see QGraphicsScene's
-    documentation.
+    documentation. QGraphicsView is part of \l{The Graphics View Framework}.
 
     To visualize a scene, you start by constructing a QGraphicsView object,
     passing the address of the scene you want to visualize to QGraphicsView's

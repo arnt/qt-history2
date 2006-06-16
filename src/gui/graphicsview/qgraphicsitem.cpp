@@ -21,7 +21,8 @@
     It provides a light-weight foundation for writing your own custom items.
     This includes defining the item's geometry, collision detection, its
     painting implementation and item interaction through its event handlers.
-
+    QGraphicsItem is part of \l{The Graphics View Framework}
+    
     For convenience, Qt provides a set of standard graphics items for the most
     common shapes. These are:
 
@@ -38,7 +39,8 @@
     All of an item's geometric information is based on its local coordinate
     system. The item's position, pos(), is the only function that does not
     operate in local coordinates, as it returns a position in parent
-    coordinates.
+    coordinates. {The Graphics View Coordinate System} describes the coordinate
+    system in detail.
 
     You can set whether an item should be visible (i.e., drawn, and accepting
     events), by calling setVisible(). Hiding an item will also hide its
@@ -168,7 +170,7 @@
     functionality is completely untouched by Qt itself; it is provided for the
     user's convenience.
 
-    \sa QGraphicsScene, QGraphicsView
+    \sa QGraphicsScene, QGraphicsView, {The Graphics View Framework}
 */
 
 /*!
@@ -1098,7 +1100,7 @@ void QGraphicsItem::clearFocus()
     For convenience, you can also call scenePos() to determine the
     item's position in scene coordinates, regardless of its parent.
 
-    \sa x(), y(), setPos(), matrix()
+    \sa x(), y(), setPos(), matrix(), {The Graphics View Coordinate System}
 */
 QPointF QGraphicsItem::pos() const
 {
@@ -1125,7 +1127,7 @@ QPointF QGraphicsItem::pos() const
     Returns the item's position in scene coordinates. This is
     equivalent to calling mapToScene(0, 0).
 
-    \sa pos(), sceneMatrix()
+    \sa pos(), sceneMatrix(), {The Graphics View Coordinate System}
 */
 QPointF QGraphicsItem::scenePos() const
 {
@@ -1140,7 +1142,7 @@ QPointF QGraphicsItem::scenePos() const
     The position of the item describes its origin (local coordinate
     (0, 0)) in parent coordinates.
 
-    \sa pos(), scenePos()
+    \sa pos(), scenePos(), {The Graphics View Coordinate System}
 */
 void QGraphicsItem::setPos(const QPointF &pos)
 {
@@ -1241,7 +1243,7 @@ QMatrix QGraphicsItem::matrix() const
     Unlike matrix(), which returns only an item's local transformation, this
     function includes the item's (and any parents') position.
 
-    \sa matrix(), setMatrix(), scenePos()
+    \sa matrix(), setMatrix(), scenePos(), {The Graphics View Coordinate System}
 */
 QMatrix QGraphicsItem::sceneMatrix() const
 {
@@ -1262,7 +1264,7 @@ QMatrix QGraphicsItem::sceneMatrix() const
     to map an item coordiate to a scene coordinate, or mapFromScene() to map
     from scene coordinates to item coordinates.
 
-    \sa matrix(), rotate(), scale(), shear(), translate()
+    \sa matrix(), rotate(), scale(), shear(), translate(), {The Graphics View Coordinate System}
 */
 void QGraphicsItem::setMatrix(const QMatrix &matrix, bool combine)
 {
@@ -1469,12 +1471,14 @@ QRectF QGraphicsItem::childrenBoundingRect() const
     }
     \endcode
 
-    \sa shape(), contains()
+    \sa shape(), contains(), {The Graphics View Coordinate System}
 */
 
 /*!
     Returns the bounding rect of this item in scene coordinates, by combining
     sceneMatrix() with boundingRect().
+
+    \sa boundingRect(), {The Graphics View Coordinate System}
 */
 QRectF QGraphicsItem::sceneBoundingRect() const
 {
@@ -1711,7 +1715,8 @@ void QGraphicsItem::update(const QRectF &rect)
 
     If \a item is 0, this function returns the same as mapToScene().
 
-    \sa mapToParent(), mapToScene(), matrix(), mapFromItem()
+    \sa mapToParent(), mapToScene(), matrix(), mapFromItem(), {The Graphics
+    View Coordinate System}
 */
 QPointF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPointF &point) const
 {
@@ -1731,7 +1736,8 @@ QPointF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPointF &point) cons
     parent's coordinate system, and returns the mapped coordinate. If the item
     has no parent, \a point will be mapped to the scene's coordinate system.
 
-    \sa mapToItem(), mapToScene(), matrix(), mapFromParent()
+    \sa mapToItem(), mapToScene(), matrix(), mapFromParent(), {The Graphics
+    View Coordinate System}
 */
 QPointF QGraphicsItem::mapToParent(const QPointF &point) const
 {
@@ -1750,7 +1756,8 @@ QPointF QGraphicsItem::mapToParent(const QPointF &point) const
     Maps the point \a point, which is in this item's coordinate system, to the
     scene's coordinate system, and returns the mapped coordinate.
 
-    \sa mapToItem(), mapToParent(), matrix(), mapFromScene()
+    \sa mapToItem(), mapToParent(), matrix(), mapFromScene(), {The Graphics
+    View Coordinate System}
 */
 QPointF QGraphicsItem::mapToScene(const QPointF &point) const
 {
@@ -1771,7 +1778,8 @@ QPointF QGraphicsItem::mapToScene(const QPointF &point) const
 
     If \a item is 0, this function returns the same as mapToScene().
 
-    \sa mapToParent(), mapToScene(), mapFromItem()
+    \sa mapToParent(), mapToScene(), mapFromItem(), {The Graphics View
+    Coordinate System}
 */
 QPolygonF QGraphicsItem::mapToItem(QGraphicsItem *item, const QRectF &rect) const
 {
@@ -1784,7 +1792,8 @@ QPolygonF QGraphicsItem::mapToItem(QGraphicsItem *item, const QRectF &rect) cons
     polygon. If the item has no parent, \a rect will be mapped to the scene's
     coordinate system.
 
-    \sa mapToScene(), mapToItem(), mapFromParent()
+    \sa mapToScene(), mapToItem(), mapFromParent(), {The Graphics View
+    Coordinate System}
 */
 QPolygonF QGraphicsItem::mapToParent(const QRectF &rect) const
 {
@@ -1795,7 +1804,8 @@ QPolygonF QGraphicsItem::mapToParent(const QRectF &rect) const
     Maps the rectangle \a rect, which is in this item's coordinate system, to
     the scene's coordinate system, and returns the mapped rectangle as a polygon.
 
-    \sa mapToParent(), mapToItem(), mapFromScene()
+    \sa mapToParent(), mapToItem(), mapFromScene(), {The Graphics View
+    Coordinate System}
 */
 QPolygonF QGraphicsItem::mapToScene(const QRectF &rect) const
 {
@@ -1808,7 +1818,8 @@ QPolygonF QGraphicsItem::mapToScene(const QRectF &rect) const
 
     If \a item is 0, this function returns the same as mapToScene().
 
-    \sa mapToParent(), mapToScene(), mapFromItem()
+    \sa mapToParent(), mapToScene(), mapFromItem(), {The Graphics View
+    Coordinate System}
 */
 QPolygonF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPolygonF &polygon) const
 {
@@ -1821,7 +1832,8 @@ QPolygonF QGraphicsItem::mapToItem(QGraphicsItem *item, const QPolygonF &polygon
     item has no parent, \a polygon will be mapped to the scene's coordinate
     system.
 
-    \sa mapToScene(), mapToItem(), mapFromParent()
+    \sa mapToScene(), mapToItem(), mapFromParent(), {The Graphics View
+    Coordinate System}
 */
 QPolygonF QGraphicsItem::mapToParent(const QPolygonF &polygon) const
 {
@@ -1832,7 +1844,8 @@ QPolygonF QGraphicsItem::mapToParent(const QPolygonF &polygon) const
     Maps the polygon \a polygon, which is in this item's coordinate system, to
     the scene's coordinate system, and returns the mapped polygon.
 
-    \sa mapToParent(), mapToItem(), mapFromScene()
+    \sa mapToParent(), mapToItem(), mapFromScene(), {The Graphics View
+    Coordinate System}
 */
 QPolygonF QGraphicsItem::mapToScene(const QPolygonF &polygon) const
 {
@@ -1845,7 +1858,8 @@ QPolygonF QGraphicsItem::mapToScene(const QPolygonF &polygon) const
 
     If \a item is 0, this function returns the same as mapToScene().
 
-    \sa mapToParent(), mapToScene(), mapFromItem()
+    \sa mapToParent(), mapToScene(), mapFromItem(), {The Graphics View
+    Coordinate System}
 */
 QPainterPath QGraphicsItem::mapToItem(QGraphicsItem *item, const QPainterPath &path) const
 {
@@ -1858,7 +1872,8 @@ QPainterPath QGraphicsItem::mapToItem(QGraphicsItem *item, const QPainterPath &p
     item has no parent, \a path will be mapped to the scene's coordinate
     system.
 
-    \sa mapToScene(), mapToItem(), mapFromParent()
+    \sa mapToScene(), mapToItem(), mapFromParent(), {The Graphics View
+    Coordinate System}
 */
 QPainterPath QGraphicsItem::mapToParent(const QPainterPath &path) const
 {
@@ -1869,7 +1884,8 @@ QPainterPath QGraphicsItem::mapToParent(const QPainterPath &path) const
     Maps the path \a path, which is in this item's coordinate system, to
     the scene's coordinate system, and returns the mapped path.
 
-    \sa mapToParent(), mapToItem(), mapFromScene()
+    \sa mapToParent(), mapToItem(), mapFromScene(), {The Graphics View
+    Coordinate System}
 */
 QPainterPath QGraphicsItem::mapToScene(const QPainterPath &path) const
 {
@@ -1882,7 +1898,8 @@ QPainterPath QGraphicsItem::mapToScene(const QPainterPath &path) const
 
     If \a item is 0, this function returns the same as mapFromScene().
 
-    \sa mapFromParent(), mapFromScene(), matrix(), mapToItem()
+    \sa mapFromParent(), mapFromScene(), matrix(), mapToItem(), {The Graphics
+    View Coordinate System}
 */
 QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPointF &point) const
 {
@@ -1902,7 +1919,8 @@ QPointF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPointF &point) co
     system, to this item's coordinate system, and returns the mapped
     coordinate.
 
-    \sa mapFromItem(), mapFromScene(), matrix(), mapToParent()
+    \sa mapFromItem(), mapFromScene(), matrix(), mapToParent(), {The Graphics
+    View Coordinate System}
 */
 QPointF QGraphicsItem::mapFromParent(const QPointF &point) const
 {
@@ -1922,7 +1940,8 @@ QPointF QGraphicsItem::mapFromParent(const QPointF &point) const
     system, to this item's coordinate system, and returns the mapped
     coordinate.
 
-    \sa mapFromItem(), mapFromParent(), matrix(), mapToScene()
+    \sa mapFromItem(), mapFromParent(), matrix(), mapToScene(), {The Graphics
+    View Coordinate System}
 */
 QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
 {
@@ -1942,7 +1961,10 @@ QPointF QGraphicsItem::mapFromScene(const QPointF &point) const
     this item's coordinate system, and returns the mapped rectangle as a
     polygon.
 
-    If \a item is 0, this function returns the same as mapFromScene().
+    If \a item is 0, this function returns the same as mapFromScene()
+
+    \sa mapToItem(), mapFromParent(), matrix(), {The Graphics View Coordinate
+    System}
 */
 QPolygonF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QRectF &rect) const
 {
@@ -1953,6 +1975,9 @@ QPolygonF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QRectF &rect) co
     Maps the rectangle \a rect, which is in this item's parent's coordinate
     system, to this item's coordinate system, and returns the mapped rectangle
     as a polygon.
+
+    \sa mapToParent(), mapFromItem(), matrix(), {The Graphics View Coordinate
+    System}
 */
 QPolygonF QGraphicsItem::mapFromParent(const QRectF &rect) const
 {
@@ -1963,6 +1988,9 @@ QPolygonF QGraphicsItem::mapFromParent(const QRectF &rect) const
     Maps the rectangle \a rect, which is in this item's scene's coordinate
     system, to this item's coordinate system, and returns the mapped rectangle
     as a polygon.
+
+    \sa mapToScene(), mapFromItem(), matrix(), {The Graphics View Coordinate
+    System}
 */
 QPolygonF QGraphicsItem::mapFromScene(const QRectF &rect) const
 {
@@ -1974,6 +2002,9 @@ QPolygonF QGraphicsItem::mapFromScene(const QRectF &rect) const
     this item's coordinate system, and returns the mapped polygon.
 
     If \a item is 0, this function returns the same as mapFromScene().
+
+    \sa mapToItem(), mapFromParent(), matrix(), {The Graphics View Coordinate
+    System}
 */
 QPolygonF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPolygonF &polygon) const
 {
@@ -1983,6 +2014,9 @@ QPolygonF QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPolygonF &polyg
 /*!
     Maps the polygon \a polygon, which is in this item's parent's coordinate
     system, to this item's coordinate system, and returns the mapped polygon.
+
+    \sa mapToParent(), mapToItem(), matrix(), {The Graphics View Coordinate
+    System}
 */
 QPolygonF QGraphicsItem::mapFromParent(const QPolygonF &polygon) const
 {
@@ -1992,6 +2026,9 @@ QPolygonF QGraphicsItem::mapFromParent(const QPolygonF &polygon) const
 /*!
     Maps the polygon \a polygon, which is in this item's scene's coordinate
     system, to this item's coordinate system, and returns the mapped polygon.
+
+    \sa mapToScene(), mapFromParent(), matrix(), {The Graphics View Coordinate
+    System}
 */
 QPolygonF QGraphicsItem::mapFromScene(const QPolygonF &polygon) const
 {
@@ -2004,7 +2041,8 @@ QPolygonF QGraphicsItem::mapFromScene(const QPolygonF &polygon) const
 
     If \a item is 0, this function returns the same as mapFromScene().
 
-    \sa mapFromParent(), mapFromScene(), mapToItem()
+    \sa mapFromParent(), mapFromScene(), mapToItem(), {The Graphics View
+    Coordinate System}
 */
 QPainterPath QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPainterPath &path) const
 {
@@ -2015,7 +2053,8 @@ QPainterPath QGraphicsItem::mapFromItem(QGraphicsItem *item, const QPainterPath 
     Maps the path \a path, which is in this item's parent's coordinate
     system, to this item's coordinate system, and returns the mapped path.
 
-    \sa mapFromScene(), mapFromItem(), mapToParent()
+    \sa mapFromScene(), mapFromItem(), mapToParent(), {The Graphics View
+    Coordinate System}
 */
 QPainterPath QGraphicsItem::mapFromParent(const QPainterPath &path) const
 {
@@ -2026,7 +2065,8 @@ QPainterPath QGraphicsItem::mapFromParent(const QPainterPath &path) const
     Maps the path \a path, which is in this item's scene's coordinate
     system, to this item's coordinate system, and returns the mapped path.
 
-    \sa mapFromParent(), mapFromItem(), mapToScene()
+    \sa mapFromParent(), mapFromItem(), mapToScene(), {The Graphics View
+    Coordinate System}
 */
 QPainterPath QGraphicsItem::mapFromScene(const QPainterPath &path) const
 {
@@ -2816,7 +2856,7 @@ void QGraphicsItem::removeFromIndex()
 
     \sa QGraphicsRectItem, QGraphicsEllipseItem, QGraphicsPathItem,
     QGraphicsPolygonItem, QGraphicsTextItem, QGraphicsLineItem,
-    QGraphicsPixmapItem
+    QGraphicsPixmapItem, \l{The Graphics View Framework}
 */
 
 class QAbstractGraphicsPathItemPrivate : public QGraphicsItemPrivate
@@ -2926,7 +2966,8 @@ void QAbstractGraphicsPathItem::setBrush(const QBrush &brush)
     calling setPen() and setBrush().
 
     \sa QGraphicsRectItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
-    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
+    View Framework}
 */
 
 class QGraphicsPathItemPrivate : public QAbstractGraphicsPathItemPrivate
@@ -3090,7 +3131,8 @@ QVariant QGraphicsPathItem::extension(const QVariant &variant) const
     which you can set by calling setPen() and setBrush().
 
     \sa QGraphicsPathItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
-    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
+    View Framework}
 */
 
 class QGraphicsRectItemPrivate : public QAbstractGraphicsPathItemPrivate
@@ -3276,7 +3318,8 @@ QVariant QGraphicsRectItem::extension(const QVariant &variant) const
     brush, which you can set by calling setPen() and setBrush().
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsPolygonItem,
-    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
+    View Framework}
 */
 
 class QGraphicsEllipseItemPrivate : public QAbstractGraphicsPathItemPrivate
@@ -3442,7 +3485,8 @@ QVariant QGraphicsEllipseItem::extension(const QVariant &variant) const
     brush, which you can set by calling setPen() and setBrush().
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
-    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
+    View Framework}
 */
 
 class QGraphicsPolygonItemPrivate : public QAbstractGraphicsPathItemPrivate
@@ -3604,7 +3648,8 @@ QVariant QGraphicsPolygonItem::extension(const QVariant &variant) const
     by calling setPen().
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
-    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsPixmapItem
+    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsPixmapItem, \l{The
+    Graphics View Framework}
 */
 
 class QGraphicsLineItemPrivate : public QGraphicsItemPrivate
@@ -3835,7 +3880,8 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     current transformation mode for the item.
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
-    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem
+    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem, \l{The
+    Graphics View Framework}
 */
 
 class QGraphicsPixmapItemPrivate : public QGraphicsItemPrivate
@@ -4070,7 +4116,8 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
     and contains(). You can set the font by calling setFont().
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
-    QGraphicsPixmapItem, QGraphicsPolygonItem, QGraphicsLineItem
+    QGraphicsPixmapItem, QGraphicsPolygonItem, QGraphicsLineItem, \l{The
+    Graphics View Framework}
 */
 
 class QGraphicsTextItemPrivate
@@ -4850,6 +4897,8 @@ QVariant QGraphicsSimpleTextItem::extension(const QVariant &variant) const
     one.
     \since 4.2
     \ingroup multimedia
+
+    \sa \l{The Graphics View Framework}
 */
 
 class QGraphicsItemGroupPrivate : public QGraphicsItemPrivate

@@ -14,8 +14,8 @@
 
     The framework includes an event propagation architecture that allows
     precise double-precision interaction capabilities for the items on the
-    scene. Items can handle mouse press, move, release and doubleclick events,
-    and they can also track mouse movement.
+    scene. Items can handle key events, mouse press, move, release and
+    doubleclick events, and they can also track mouse movement.
 
     Graphics View uses a BSP (Binary Space Partitioning) tree to provide very
     fast item discovery, and as a result of this, it can visualize large
@@ -128,7 +128,6 @@
 	hover events, wheel events, and context menu events.
 	\o Keyboard input focus, and key events
         \o Drag and drop
-        \o Accessibility, through complete input method support
         \o Grouping, both through parent-child relationships, and with
         QGraphicsItemGroup
         \o Collision detection
@@ -155,7 +154,7 @@
 	to provide your own collision detection, however, you can reimplement
 	QGraphicsItem::collidesWith().
 
-    \section1 The Coordinate System
+    \section1 The Graphics View Coordinate System
 
       Graphics View is based on the Cartesian coordinate system; items'
       position and geometry on the scene are represented by sets of two
@@ -168,6 +167,11 @@
       your implementation, Graphics View provides convenience functions that
       allow you to map between the three coordinate systems.
 
+      When rendering, Graphics View's scene coordinates correspond to
+      QPainter's \e logical coordinates, and view coordinates are the same as
+      \e device coordinates.  In \l{The Coordinate System}, you can read about
+      the relationship between logical coordinates and device coordinates.
+
       \section2 Item Coordinates
 
           Items live in their own local coordinate system. Their coordinates
@@ -176,10 +180,21 @@
           item coordinate system are often referred to as item points, item
           lines, or item rectangles.
 
-          At item's position is the coordinate of the item's center point in
-          its parent's coordinate system; sometimes referred to as \e parent
-          coordinates. The scene is in this sense regarded as all parentless
-          items' "parent". Top level items' position are in scene coordinates.
+          When creating a custom item, item coordinates are all you need to
+          worry about; QGraphicsScene and QGraphicsView will perform all
+          transformations for you. This makes it very easy to implement custom
+          items. For example, if you receive a mouse press or a drag enter
+          event, the event position is given in item coordinates. The
+          QGraphicsItem::contains() virtual function, which returns true if a
+          certain point is inside your item, and false otherwise, takes a
+          point argument in item coordinates. Similarily, an item's bounding
+          rect and shape are in item coordinates.
+
+          At item's \e position is the coordinate of the item's center point
+          in its parent's coordinate system; sometimes referred to as \e
+          parent coordinates. The scene is in this sense regarded as all
+          parentless items' "parent". Top level items' position are in scene
+          coordinates.
 
           Child coordinates are relative to the parent's coordinates. If the
           child is untransformed, the difference between a child coordinate
@@ -270,7 +285,7 @@
         Graphics View provides single-line printing through its rendering
         functions, QGraphicsScene::render() and QGraphicsView::render().  The
         functions provide the same API: You can have the scene or the view
-        render all of parts of their contents into any paint device by passing
+        render all or parts of their contents into any paint device by passing
         a QPainter to either of the rendering functions. This example shows
         how to print the whole scene into a full page, using QPrinter.
 
@@ -312,12 +327,30 @@
         scene takes over scheduling of this event, and sends it to the first
         item under the mouse cursor that accepts drops.
 
-        To intercept drag and drop events for the scene, you start by creating
-        a subclass of QGraphicsScene, and then reimplement
+        To start a drag from an item, create a QDrag object, passing a pointer
+        to the widget that starts the drag. Items can be observed by many
+        views at the same time, but only one view can start the drag. Drags
+        are in most cases started as a result of pressing or moving the mouse,
+        so in mousePressEvent() or mouseMoveEvent(), you can get the
+        originating widget pointer from the event. For example:
+
+        \code
+            void CustomItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+            {
+                QMimeData *data = new QMimeData;
+                data->setColor(Qt::green);
+
+                QDrag drag(event->widget());
+                drag.setMimeData(data);
+                drag.start();
+            }
+        \endcode
+
+        To intercept drag and drop events for the scene, you reimplement
         QGraphicsScene::dragEnterEvent() and whichever event handlers your
-        particular scene needs. You can read more about drag and drop in
-        Graphics View in the documentation for each of QGraphicsScene's event
-        handlers.
+        particular scene needs, in a QGraphicsItem subclass. You can read more
+        about drag and drop in Graphics View in the documentation for each of
+        QGraphicsScene's event handlers.
 
         Items can enable drag and drop support by calling
         QGraphicsItem::setAcceptDrops(). To handle the incoming drag,

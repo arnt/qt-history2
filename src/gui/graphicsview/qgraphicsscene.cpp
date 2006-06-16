@@ -20,11 +20,14 @@
 
     The class serves as a container for QGraphicsItems. It is used together
     with QGraphicsView for visualizing graphical items, such as lines,
-    rectangles, text, or even custom items, on a 2D surface. It also provides
-    functionality that lets you efficiently determine both the location of
-    items, and for determining what items are visible within an arbitrary area
-    on the scene. With the QGraphicsView widget, you can either visualize the
-    whole scene, or zoom in and view only parts of the scene.
+    rectangles, text, or even custom items, on a 2D surface. QGraphicsScene is
+    part of \l{The Graphics View Framework}.
+
+    QGraphicsScene also provides functionality that lets you efficiently
+    determine both the location of items, and for determining what items are
+    visible within an arbitrary area on the scene. With the QGraphicsView
+    widget, you can either visualize the whole scene, or zoom in and view only
+    parts of the scene.
 
     Example:
 
