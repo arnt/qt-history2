@@ -172,8 +172,6 @@ class QGLDrawable {
 public:
     QGLDrawable() : widget(0), buffer(0), fbo(0) {}
     inline void setDevice(QPaintDevice *pdev);
-    inline void setAutoBufferSwap(bool);
-    inline bool autoBufferSwap() const;
     inline void swapBuffers();
     inline void makeCurrent();
     inline void doneCurrent();
@@ -201,20 +199,9 @@ void QGLDrawable::setDevice(QPaintDevice *pdev)
         fbo = static_cast<QGLFramebufferObject *>(pdev);
 }
 
-inline void QGLDrawable::setAutoBufferSwap(bool enable)
-{
-    if (widget)
-        widget->setAutoBufferSwap(enable);
-}
-
-inline bool QGLDrawable::autoBufferSwap() const
-{
-    return widget && widget->autoBufferSwap();
-}
-
 inline void QGLDrawable::swapBuffers()
 {
-    if (widget)
+    if (widget && widget->autoBufferSwap())
         widget->swapBuffers();
 }
 
@@ -391,7 +378,6 @@ public:
     uint has_clipping : 1;
     uint has_pen : 1;
     uint has_brush : 1;
-    uint has_autoswap : 1;
     uint has_fast_pen : 1;
 
     QMatrix matrix;
@@ -845,8 +831,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     d->drawable.setDevice(pdev);
     d->has_clipping = false;
     d->has_fast_pen = false;
-    d->has_autoswap = d->drawable.autoBufferSwap();
-    d->drawable.setAutoBufferSwap(false);
     d->inverseScale = 1;
     d->opacity = 1;
     d->drawable.makeCurrent();
@@ -931,7 +915,6 @@ bool QOpenGLPaintEngine::end()
     glPopAttrib();
     glFlush();
     d->drawable.swapBuffers();
-    d->drawable.setAutoBufferSwap(d->has_autoswap);
     d->drawable.doneCurrent();
     return true;
 }
