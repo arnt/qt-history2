@@ -14,7 +14,6 @@ DESTDIR            = ../../bin
 
 FORMS += helpdialog.ui \
         mainwindow.ui \
-        settingsdialog.ui \
         tabbedbrowser.ui \
         topicchooser.ui
 
@@ -22,7 +21,6 @@ SOURCES += main.cpp \
         helpwindow.cpp \
         topicchooser.cpp \
         docuparser.cpp \
-        settingsdialog.cpp \
         index.cpp \
         profile.cpp \
         config.cpp \
@@ -33,7 +31,6 @@ SOURCES += main.cpp \
 HEADERS        += helpwindow.h \
         topicchooser.h \
         docuparser.h \
-        settingsdialog.h \
         index.h \
         profile.h \
         helpdialog.h \

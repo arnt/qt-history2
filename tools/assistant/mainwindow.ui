@@ -127,8 +127,6 @@
     <addaction name="actionEditFind" />
     <addaction name="actionEditFindNext" />
     <addaction name="actionEditFindPrev" />
-    <addaction name="separator" />
-    <addaction name="actionSettings" />
    </widget>
    <addaction name="fileMenu" />
    <addaction name="editMenu" />
@@ -287,14 +285,6 @@
    </property>
    <property name="shortcut" >
     <string>Ctrl+-</string>
-   </property>
-  </action>
-  <action name="actionSettings" >
-   <property name="text" >
-    <string>&amp;Settings...</string>
-   </property>
-   <property name="whatsThis" >
-    <string>Open the settings dialog.</string>
    </property>
   </action>
   <action name="actionNewWindow" >

@@ -14,7 +14,6 @@
 #include "mainwindow.h"
 #include "tabbedbrowser.h"
 #include "helpdialog.h"
-#include "settingsdialog.h"
 #include "config.h"
 
 #include <QDockWidget>
@@ -60,7 +59,6 @@ MainWindow::MainWindow()
     windows.append(this);
     tabs = new TabbedBrowser(this);
     setCentralWidget(tabs);
-    settingsDia = 0;
 
     Config *config = Config::configuration();
 
@@ -463,15 +461,6 @@ void MainWindow::showQtHelp()
 {
     showLink(QLibraryInfo::location(QLibraryInfo::DocumentationPath) +
              QLatin1String("/html/index.html"));
-}
-
-void MainWindow::on_actionSettings_triggered()
-{
-    if (!settingsDia){
-        settingsDia = new SettingsDialog(this);
-    }
-
-    settingsDia->exec();
 }
 
 MainWindow* MainWindow::newWindow()

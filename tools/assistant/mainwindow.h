@@ -20,7 +20,6 @@
 
 class TabbedBrowser;
 class HelpDialog;
-class SettingsDialog;
 class HelpWindow;
 class QMenu;
 class QDockWidget;
@@ -53,7 +52,6 @@ private slots:
     void on_actionNewWindow_triggered();
     void on_actionGoHome_triggered();
     void on_actionFilePrint_triggered();
-    void on_actionSettings_triggered();
     void on_actionClose_triggered();
     void on_actionHelpWhatsThis_triggered();
     void on_actionHelpAssistant_triggered();
@@ -88,7 +86,6 @@ private:
     QList<QAction*> goActions;
     uint setupCompleted:1;
     TabbedBrowser *tabs;
-    SettingsDialog *settingsDia;
     QMap<QAction*, QString> bookmarks;
     HelpDialog *helpDock;
     QDockWidget *dw;
