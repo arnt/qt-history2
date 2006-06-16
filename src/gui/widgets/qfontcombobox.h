@@ -19,6 +19,8 @@
 
 QT_BEGIN_HEADER
 
+QT_MODULE(Gui)
+
 class QFontComboBoxPrivate;
 
 class Q_GUI_EXPORT QFontComboBox : public QComboBox

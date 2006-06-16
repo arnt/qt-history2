@@ -22,9 +22,11 @@
 
 #include <QtCore/qglobal.h>
 
-class QIODevice;
-
 QT_BEGIN_HEADER
+
+QT_MODULE(Gui)
+
+class QIODevice;
 
 struct QWSProtocolItem
 {

@@ -29,6 +29,8 @@
 
 QT_BEGIN_HEADER
 
+QT_MODULE(Gui)
+
 union QWSMemId
 {
     QWSMemId() {}
