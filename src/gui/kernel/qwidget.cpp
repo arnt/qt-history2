@@ -6528,7 +6528,7 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
             d->setEnabled_helper(parent ? parent->isEnabled() : true);
         // propgate updates enabled state
         if (!testAttribute(Qt::WA_ForceUpdatesDisabled))
-            d->setUpdatesEnabled_helper(parent ? parent->isUpdatesEnabled() : true);
+            d->setUpdatesEnabled_helper(parent ? parent->updatesEnabled() : true);
 
 
 //### already hidden above ---> must probably do something smart on the mac
