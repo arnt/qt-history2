@@ -4148,6 +4148,138 @@ void QWidget::setGeometry(const QRect &r)
         data->crect = r;
 }
 
+/*!
+    \since 4.2
+    Saves the current geometry and state for top-level widgets.
+
+    To save the geometry when the window closes, you can 
+    implement a close event like this:
+
+    \code
+    void MyWidget::closeEvent(QCloseEvent *event)
+    {
+        QSettings settings("MyCompany", "MyApp");
+        settings.setValue("geometry", saveGeometry());
+        QWidget::closeEvent(event);
+    }
+    \endcode
+
+    See the \link geometry.html Window Geometry documentation\endlink
+    for an overview of geometry issues with windows.
+
+    \sa restoreGeometry()
+*/
+QByteArray QWidget::saveGeometry() const
+{
+    QByteArray array;
+    QDataStream stream(&array, QIODevice::WriteOnly);
+    quint32 version = 1;
+    stream << version;
+
+    stream << frameGeometry();
+    stream << normalGeometry();
+    stream << QApplication::desktop()->screenNumber(this);
+    stream << bool(windowState() & Qt::WindowMaximized);
+    stream << bool(windowState() & Qt::WindowFullScreen);
+    return array;
+}
+
+/*!
+    \since 4.2
+    Restores the geometry and state top-level widgets.
+
+    If the restored geometry is off screen, it will be modified to be
+    inside the the available screen geometry.
+
+    This function returns true if the restore was successful, false otherwise.
+
+    To restore geometry saved with QSettings, you can use code like this:
+    \code
+    QSettings settings("MyCompany", "MyApp");
+    const QVariant geometry = settings.value("geometry");
+    restoreGeometry(geometry);
+    \endcode
+
+    See the \link geometry.html Window Geometry documentation\endlink
+    for an overview of geometry issues with windows.
+
+    \sa saveGeometry()
+*/
+bool QWidget::restoreGeometry(const QByteArray &geometry)
+{
+    if (geometry.isEmpty())
+        return false;
+
+    QByteArray b = geometry;
+    QDataStream stream(&b, QIODevice::ReadOnly);
+    quint32 currentVersion = 1;
+    quint32 dataVersion;
+    stream >> dataVersion;
+    if (dataVersion != currentVersion)
+        return false;
+
+    QRect restoredFrameGeometry;
+    stream >> restoredFrameGeometry;
+    QRect restoredNormalGeometry;
+    stream >> restoredNormalGeometry;
+    int restoredScreenNumber;
+    stream >> restoredScreenNumber;
+    bool maximized;
+    stream >> maximized;
+    bool fullScreen;
+    stream >> fullScreen;
+
+    const int frameHeight = 20;
+    if (restoredFrameGeometry.isValid() == false)
+        restoredFrameGeometry = QRect(QPoint(0,0), sizeHint());
+
+    if (restoredNormalGeometry.isValid() == false)
+        restoredNormalGeometry = QRect(QPoint(0, frameHeight), sizeHint());
+
+    const QDesktopWidget * const desktop = QApplication::desktop();
+    if (restoredScreenNumber < desktop->numScreens())
+        restoredScreenNumber = desktop->primaryScreen();
+
+    const QRect availableGeometry = desktop->isVirtualDesktop() ?
+        desktop->availableGeometry() : desktop->availableGeometry(restoredScreenNumber);
+
+    // Modify the restored geometry if we are about to restore to coordinates
+    // that would make the window "lost". This happens if:
+    // - The restored geometry is completely oustside the available geometry
+    // - The title bar is outside the available geometry.
+    // - (Mac only) The window is higher than the available geometry. It must
+    //   be possible to bring the size grip on screen by moving the window.
+#ifdef Q_WS_MAC
+    restoredFrameGeometry.setHeight(qMin(restoredFrameGeometry.height(), availableGeometry.height()));
+    restoredNormalGeometry.setHeight(qMin(restoredNormalGeometry.height(), availableGeometry.height() - frameHeight));
+#endif
+
+    if (restoredFrameGeometry.intersects(availableGeometry) == false) {
+        restoredFrameGeometry.moveBottom(qMin(restoredFrameGeometry.bottom(), availableGeometry.bottom()));
+        restoredFrameGeometry.moveLeft(qMax(restoredFrameGeometry.left(), availableGeometry.left()));
+        restoredFrameGeometry.moveRight(qMin(restoredFrameGeometry.right(), availableGeometry.right()));
+     }
+    restoredFrameGeometry.moveTop(qMax(restoredFrameGeometry.top(), availableGeometry.top()));
+
+    if (restoredNormalGeometry.intersects(availableGeometry) == false) {
+        restoredNormalGeometry.moveBottom(qMin(restoredNormalGeometry.bottom(), availableGeometry.bottom()));
+        restoredNormalGeometry.moveLeft(qMax(restoredNormalGeometry.left(), availableGeometry.left()));
+        restoredNormalGeometry.moveRight(qMin(restoredNormalGeometry.right(), availableGeometry.right()));
+     }
+    restoredNormalGeometry.moveTop(qMax(restoredNormalGeometry.top(), availableGeometry.top() + frameHeight));
+
+    if (maximized || fullScreen) {
+        setGeometry(restoredNormalGeometry);
+        if (maximized)
+            setWindowState(windowState() | Qt::WindowMaximized);
+        if (fullScreen)
+            setWindowState(windowState() | Qt::WindowFullScreen);
+    } else {
+        move(restoredFrameGeometry.topLeft());
+        resize(restoredNormalGeometry.size());
+    }
+    return true;
+}
 
 /*!\fn void QWidget::setGeometry(int x, int y, int w, int h)
     \overload

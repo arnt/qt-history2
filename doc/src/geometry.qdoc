@@ -68,9 +68,16 @@
 
     \section1 Restoring a Window's Geometry
 
-    A common task in modern applications is to restore a window's
-    geometry in a later session. On Windows, this is basically
-    storing the result of QWidget::geometry() and calling
+    Since version 4.2, Qt provides functions that saves and restores a
+    window's geometry and state for you. QWidget::saveGeometry()
+    saves the window geometry and maximized/fullscreen state, while
+    QWidget::restoreGeometry() restores it. The restore function also
+    checks if the restored geometry is outside the available screen
+    geometry, and modifies it as appropriate if it is.
+
+    The rest of this document describes how to save and restore the 
+    geometry using the geometry properties. On Windows, this is 
+    basically storing the result of QWidget::geometry() and calling
     QWidget::setGeometry() in the next session before calling
     \l{QWidget::show()}{show()}. On X11, this won't work because an
     invisible window doesn't have a frame yet. The window manager

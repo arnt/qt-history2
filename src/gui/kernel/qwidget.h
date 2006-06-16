@@ -414,6 +414,8 @@ public:
     void resize(const QSize &);
     inline void setGeometry(int x, int y, int w, int h);
     void setGeometry(const QRect &);
+    QByteArray saveGeometry() const;
+    bool restoreGeometry(const QByteArray &geometry);
     void adjustSize();
     bool isVisible() const;
     bool isVisibleTo(QWidget*) const;
