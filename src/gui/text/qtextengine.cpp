@@ -761,7 +761,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
         int category = prop->category;
         if (category == QChar::Mark_NonSpacing)
             goto nsm;
-        
+
         if (category == QChar::Other_Surrogate) {
             // char stop only on first pair
             if (uc[i].unicode() >= 0xd800 && uc[i].unicode() < 0xdc00 && i < len-1
@@ -872,7 +872,7 @@ const QCharAttributes *QTextEngine::attributes() const
 
     itemize();
     ensureSpace(layoutData->string.length());
-    
+
     calcLineBreaks(layoutData->string, (QCharAttributes *) layoutData->memory);
 
     for (int i = 0; i < layoutData->items.size(); i++) {
@@ -892,7 +892,7 @@ const QCharAttributes *QTextEngine::attributes() const
         int len = length(i);
         attributes(script, layoutData->string, from, len, (QCharAttributes *) layoutData->memory);
     }
-    
+
     layoutData->haveCharAttributes = true;
     return (QCharAttributes *) layoutData->memory;
 }
@@ -987,7 +987,7 @@ QFixed QTextEngine::width(int from, int len) const
         if (pos + ilen > from) {
             if (!si->num_glyphs)
                 shape(i);
-            
+
             if (si->isObject) {
                 w += si->width;
                 continue;
@@ -1116,7 +1116,7 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
         script = scriptForWinLanguage(script_prop->langid);
     }
 #endif
-    
+
     if (!hasFormats()) {
         engine = fnt.d->engineForScript(script);
 #if defined(Q_WS_WIN)
@@ -1154,7 +1154,7 @@ QFontEngine *QTextEngine::fontEngine(const QScriptItem &si, QFixed *ascent, QFix
         *ascent = engine->ascent();
         *descent = engine->descent();
     }
-    
+
     if (scaledEngine)
         return scaledEngine;
     return engine;
@@ -1402,7 +1402,7 @@ QTextEngine::LayoutData::LayoutData(const QString &str, void **stack_memory, int
     : string(str)
 {
     allocated = _allocated;
-    
+
     int space_charAttributes = sizeof(QCharAttributes)*string.length()/sizeof(void*) + 1;
     int space_logClusters = sizeof(unsigned short)*string.length()/sizeof(void*) + 1;
     available_glyphs = ((int)allocated - space_charAttributes - space_logClusters)*(int)sizeof(void*)/(int)sizeof(QGlyphLayout) - 2;
@@ -1418,7 +1418,7 @@ QTextEngine::LayoutData::LayoutData(const QString &str, void **stack_memory, int
         glyphPtr = 0;
     } else {
         num_glyphs = str.length();
-        
+
         memory_on_stack = true;
         memory = stack_memory;
         logClustersPtr = (unsigned short *)(memory + space_charAttributes);
@@ -1447,7 +1447,7 @@ void QTextEngine::LayoutData::reallocate(int totalGlyphs)
         num_glyphs = totalGlyphs;
         return;
     }
-    
+
     int space_charAttributes = sizeof(QCharAttributes)*string.length()/sizeof(void*) + 1;
     int space_logClusters = sizeof(unsigned short)*string.length()/sizeof(void*) + 1;
     int space_glyphs = sizeof(QGlyphLayout)*totalGlyphs/sizeof(void*) + 2;
@@ -1630,6 +1630,8 @@ QString QTextEngine::elidedText(Qt::TextElideMode mode, const QFixed &width, int
                 }
         }
     }
+
+    validate();
 
     if (mode == Qt::ElideNone
         || this->width(0, layoutData->string.length()) <= width
@@ -1853,11 +1855,11 @@ void QTextItemInt::initFontAttributes(const QScriptItem &si, QFont *font, const 
     if (si.analysis.bidiLevel %2)
         flags |= QTextItem::RightToLeft;
     ascent = si.ascent;
-    descent = si.descent;    
+    descent = si.descent;
     f = font;
     fontEngine = f->d->engineForScript(si.analysis.script);
     Q_ASSERT(fontEngine);
-    
+
     underlineColor = format.underlineColor();
     underlineStyle = QTextCharFormat::NoUnderline;
 
@@ -1867,11 +1869,11 @@ void QTextItemInt::initFontAttributes(const QScriptItem &si, QFont *font, const 
                || f->d->underline) {
         underlineStyle = QTextCharFormat::SingleUnderline;
     }
-    
+
     // compat
     if (underlineStyle == QTextCharFormat::SingleUnderline)
         flags |= QTextItem::Underline;
-    
+
     if (f->d->overline || format.fontOverline())
         flags |= QTextItem::Overline;
     if (f->d->strikeOut || format.fontStrikeOut())
