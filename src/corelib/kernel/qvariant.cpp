@@ -641,7 +641,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         }
         break;
     }
-
+#ifndef QT_NO_GEOM_VARIANT
     case QVariant::Size: {
         QSize *s = static_cast<QSize *>(result);
         switch (d->type) {
@@ -689,7 +689,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         }
         break;
     }
-
+#endif
     case QVariant::StringList:
         if (d->type == QVariant::List) {
             QStringList *slst = static_cast<QStringList *>(result);
