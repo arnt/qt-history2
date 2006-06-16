@@ -177,7 +177,7 @@ public:
 #endif
         AcceptDropsChange = 152,
 
-        MenubarUpdated = 153,                    // Support event for Q3MainWindow, which needs to 
+        MenubarUpdated = 153,                    // Support event for Q3MainWindow, which needs to
                                                  // knwow when QMenubar is updated.
 
         ZeroTimerEvent = 154,                   // Used for Windows Zero timer events
@@ -196,7 +196,9 @@ public:
         GraphicsSceneDragLeave = 166,
         GraphicsSceneDrop = 167,
         GraphicsSceneWheel = 168,
-                
+
+        KeyboardLayoutChange = 169,             // keyboard layout changed
+
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
     };

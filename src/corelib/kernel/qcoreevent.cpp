@@ -164,6 +164,7 @@
     \value WindowTitleChange                The window title has changed.
     \value WindowUnblocked                  The window is unblocked after a modal dialog exited.
     \value ZOrderChange                     The widget's z-order has changed. This event is never sent to top level windows.
+    \value KeyboardLayoutChange             The keyboard layout has changed.
 
     User events should have values between \c User and \c{MaxUser}:
 
