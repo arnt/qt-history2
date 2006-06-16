@@ -856,10 +856,12 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
         qt_resolve_frag_program_extensions(ctx);
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glDisable(GL_MULTISAMPLE);
+    if (QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
+        glDisable(GL_MULTISAMPLE);
     glDisable(GL_TEXTURE_1D);
     glDisable(GL_TEXTURE_2D);
-    glDisable(GL_TEXTURE_RECTANGLE_NV);
+    if (QGLExtensions::glExtensions & QGLExtensions::TextureRectangle)
+        glDisable(GL_TEXTURE_RECTANGLE_NV);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
     glDisable(GL_CULL_FACE);
@@ -1272,6 +1274,8 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
 
 void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
+    if (!QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
+        return;
     if (hints & QPainter::Antialiasing)
         glEnable(GL_MULTISAMPLE);
     else
