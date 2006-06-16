@@ -51,7 +51,7 @@ HRESULT CreateInternetShortcut(LPTSTR pszShortcut, LPTSTR pszURL)
 
       if(SUCCEEDED(hr))
          {
-         hr = purl->SetURL(pszURL, 0);
+         hr = purl->SetURL((const char *)pszURL, (DWORD)0);
 
          if(SUCCEEDED(hr))
             {
@@ -105,7 +105,7 @@ static bool launchWebBrowser(const QUrl &url)
         temp.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
         QString encUrl = QString(url.toEncoded());
         QString fileName = temp.fileName();
-        CreateInternetShortcut((TCHAR *)(fileName.utf16()), (TCHAR *)(encUrl.utf16()));
+        CreateInternetShortcut((TCHAR *)(fileName.utf16()), (TCHAR *)(encUrl.toLocal8Bit().data()));
         QT_WA({
             ShellExecute(0, 0,(TCHAR *)(fileName.utf16()), 0, 0, SW_SHOWNORMAL);
         } , {
