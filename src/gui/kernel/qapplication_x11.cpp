@@ -135,7 +135,6 @@ static const char * x11_atomnames = {
 
     "_QT_SCROLL_DONE\0"
     "_QT_INPUT_ENCODING\0"
-    "_QT_SIZEGRIP\0"
 
     "_MOTIF_WM_HINTS\0"
 
@@ -1105,6 +1104,7 @@ static void qt_get_net_virtual_roots()
 
 static void qt_net_update_user_time(QWidget *tlw)
 {
+    Q_ASSERT(tlw->testAttribute(Qt::WA_WState_Created));
     XChangeProperty(X11->display, tlw->winId(), ATOM(_NET_WM_USER_TIME),
                     XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &X11->userTime, 1);
 }
@@ -2245,6 +2245,7 @@ void QApplicationPrivate::applyX11SpecificCommandLineArguments(QWidget *main_wid
     if (beenHereDoneThat)
         return;
     beenHereDoneThat = true;
+    Q_ASSERT(main_widget->testAttribute(Qt::WA_WState_Created));
     XSetWMProperties(X11->display, main_widget->winId(), 0, 0, qApp->d_func()->argv, qApp->d_func()->argc, 0, 0, 0);
     if (mwTitle) {
         XStoreName(X11->display, main_widget->winId(), (char*)mwTitle);
@@ -2424,6 +2425,7 @@ QWidget *QApplication::topLevelAt(const QPoint &p)
                 QWidget *widget = list.at(i);
                 Window ctarget = target;
                 if (widget->isVisible() && !(widget->windowType() == Qt::Desktop)) {
+                    Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
                     Window wid = widget->winId();
                     while (ctarget && !w) {
                         XTranslateCoordinates(X11->display,
@@ -2956,6 +2958,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
     case UnmapNotify:                                // window hidden
         if (widget->isWindow()) {
+            Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
             widget->d_func()->topData()->waitingForMapNotify = 0;
 
             if (widget->windowType() != Qt::Popup) {
@@ -2972,6 +2975,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 int idx = X11->deferred_map.indexOf(widget);
                 if (idx != -1) {
                     X11->deferred_map.removeAt(idx);
+                    Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
                     XMapWindow(X11->display, widget->winId());
                 }
             }
@@ -3272,6 +3276,7 @@ void QApplicationPrivate::openPopup(QWidget *popup)
     QApplicationPrivate::popupWidgets->append(popup);                // add to end of list
     Display *dpy = X11->display;
     if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
+        Q_ASSERT(popup->testAttribute(Qt::WA_WState_Created));
         int r = XGrabKeyboard(dpy, popup->winId(), false,
                               GrabModeAsync, GrabModeAsync, X11->time);
         if ((popupGrabOk = (r == GrabSuccess))) {
@@ -3346,6 +3351,7 @@ void QApplicationPrivate::closePopup(QWidget *popup)
         // regrab the keyboard and mouse in case 'popup' lost the grab
         if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
             Display *dpy = X11->display;
+            Q_ASSERT(aw->testAttribute(Qt::WA_WState_Created));
             int r = XGrabKeyboard(dpy, aw->winId(), false,
                                   GrabModeAsync, GrabModeAsync, X11->time);
             if ((popupGrabOk = (r == GrabSuccess))) {

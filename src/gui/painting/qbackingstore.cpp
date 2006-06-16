@@ -216,8 +216,8 @@ static bool qt_flushUpdate(QWidget *widget, const QRegion &rgn)
 void qt_syncBackingStore(QRegion rgn, QWidget *widget, bool recursive)
 {
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
-        QWidget *tlw = widget->window();
-        tlw->d_func()->topData()->backingStore->cleanRegion(rgn, widget, recursive);
+        if (QWidgetBackingStore *bs = widget->d_func()->maybeBackingStore())
+            bs->cleanRegion(rgn, widget, recursive);
     } else {
         widget->repaint(rgn);
     }
@@ -264,6 +264,7 @@ void QWidgetBackingStore::blitToScreen(const QRegion &rgn, QWidget *widget)
         if (!bs || bs->buffer.size() != tlwSize)
             return;
         QRasterPaintEngine *engine = (QRasterPaintEngine*) bs->buffer.paintEngine();
+        Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
         HDC engine_dc = engine->getDC();
         HDC widget_dc = (HDC) widget->d_func()->hd;
         bool tmp_widget_dc = false;
@@ -559,6 +560,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
 {
     if (rgn.isEmpty())
         return;
+    Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
 #ifdef Q_WS_QWS
     Q_UNUSED(offset);
     Q_UNUSED(recursive);
@@ -965,11 +967,8 @@ void QWidgetPrivate::invalidateBuffer(const QRegion &rgn)
     if(qApp && qApp->closingDown())
         return;
     Q_Q(QWidget);
-    QWidget *tlw = q->window();
-
-    QTLWExtra *x = tlw->d_func()->topData();
-    if (x->backingStore)
-        x->backingStore->dirtyRegion(rgn, q);
+    if (QWidgetBackingStore *bs = maybeBackingStore())
+        bs->dirtyRegion(rgn, q);
 }
 
 void QWidget::repaint(const QRegion& rgn)
@@ -982,14 +981,15 @@ void QWidget::repaint(const QRegion& rgn)
     if (!isVisible() || !updatesEnabled() || rgn.isEmpty())
         return;
     Q_D(QWidget);
+    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
 //    qDebug() << "repaint" << this << rgn;
     if (!QWidgetBackingStore::paintOnScreen(this)) {
-        QWidget *tlw = window();
-        QTLWExtra* x = tlw->d_func()->topData();
-        QRegion wrgn(rgn);
-        d->subtractOpaqueChildren(wrgn, rect(), QPoint());
-        x->backingStore->dirtyRegion(wrgn, this);
-        x->backingStore->cleanRegion(wrgn, this);
+        if (QWidgetBackingStore *bs = d->maybeBackingStore()) {
+            QRegion wrgn(rgn);
+            d->subtractOpaqueChildren(wrgn, rect(), QPoint());
+            bs->dirtyRegion(wrgn, this);
+            bs->cleanRegion(wrgn, this);
+        }
     }
 #ifndef Q_WS_QWS
 // QWS doesn't support paint-on-screen
@@ -1053,15 +1053,15 @@ void QWidget::update(const QRegion& rgn)
     if(!isVisible() || !updatesEnabled() || rgn.isEmpty())
         return;
 
+    Q_D(QWidget);
     if (testAttribute(Qt::WA_WState_InPaintEvent)) {
         QApplication::postEvent(this, new QUpdateLaterEvent(rgn));
     } else {
-        QWidget *tlw = window();
-        QTLWExtra* x = tlw->d_func()->topData();
-        QRegion wrgn(rgn);
-        d_func()->subtractOpaqueChildren(wrgn, rect(), QPoint());
-
-        x->backingStore->dirtyRegion(wrgn, this);
+        if (QWidgetBackingStore *bs = d->maybeBackingStore()) {
+            QRegion wrgn(rgn);
+            d->subtractOpaqueChildren(wrgn, rect(), QPoint());
+            bs->dirtyRegion(wrgn, this);
+        }
     }
 }
 

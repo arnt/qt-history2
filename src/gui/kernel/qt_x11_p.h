@@ -457,7 +457,6 @@ struct QX11Data
 
         _QT_SCROLL_DONE,
         _QT_INPUT_ENCODING,
-        _QT_SIZEGRIP,
 
         _MOTIF_WM_HINTS,
 

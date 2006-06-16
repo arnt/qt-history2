@@ -182,6 +182,8 @@ public:
     int devType() const;
 
     WId winId() const;
+    void createWinId();
+
     // GUI style setting
     QStyle *style() const;
     void setStyle(QStyle *);

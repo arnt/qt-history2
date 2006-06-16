@@ -379,6 +379,7 @@ void QWinInputContext::update()
     if(!w)
         return;
 
+    Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
     HIMC imc = getContext(w->winId());
 
     if (!imc)
@@ -422,7 +423,7 @@ void QWinInputContext::update()
     candf.rcArea.right = r.x() + r.width();
     candf.rcArea.bottom = r.y() + r.height();
 
-    if(haveCaret) 
+    if(haveCaret)
         SetCaretPos(r.x(), r.y());
 
     if (aimm) {
@@ -448,6 +449,7 @@ bool QWinInputContext::endComposition()
         return result;
 
     if (fw) {
+        Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
         HIMC imc = getContext(fw->winId());
         notifyIME(imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0);
         releaseContext(fw->winId(), imc);
@@ -492,6 +494,7 @@ void QWinInputContext::reset()
     imePosition = -1;
 
     if (fw) {
+        Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
         HIMC imc = getContext(fw->winId());
         notifyIME(imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0);
         releaseContext(fw->winId(), imc);
@@ -511,6 +514,7 @@ bool QWinInputContext::startComposition()
 
     QWidget *fw = focusWidget();
     if (fw) {
+        Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
         imePosition = 0;
         haveCaret = CreateCaret(fw->winId(), 0, 1, 1);
         HideCaret(fw->winId());
@@ -553,6 +557,7 @@ bool QWinInputContext::composition(LPARAM lParam)
 
     QWidget *fw = qApp->focusWidget();
     if (fw) {
+        Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
         HIMC imc = getContext(fw->winId());
         if (lParam & GCS_RESULTSTR) {
             if(imePosition == -1)
@@ -615,6 +620,7 @@ void QWinInputContext::enable(QWidget *w, bool e)
 #ifdef Q_IME_DEBUG
         qDebug("enable: w=%s, enable = %s", w ? w->className() : "(null)" , e ? "true" : "false");
 #endif
+        Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
         if(aimm) {
             HIMC oldimc;
             if (!e) {
@@ -659,6 +665,7 @@ void QWinInputContext::mouseHandler(int pos, QMouseEvent *e)
     DWORD button = MK_LBUTTON;
 
     QWidget *fw = focusWidget();
+    Q_ASSERT(fw->testAttribute(Qt::WA_WState_Created));
     HIMC himc = getContext(fw->winId());
     HWND ime_wnd = getDefaultIMEWnd(fw->winId());
     SendMessage(ime_wnd, WM_MSIME_MOUSE, MAKELONG(MAKEWORD(button, pos == 0 ? 2 : 1), pos), (LPARAM)himc);

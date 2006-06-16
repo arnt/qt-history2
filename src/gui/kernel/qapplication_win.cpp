@@ -324,6 +324,7 @@ public:
 
 static void qt_show_system_menu(QWidget* tlw)
 {
+    Q_ASSERT(tlw->testAttribute(Qt::WA_WState_Created));
     HMENU menu = GetSystemMenu(tlw->winId(), FALSE);
     if (!menu)
         return; // no menu for this window
@@ -1152,6 +1153,7 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
             QWidget* mw = QApplicationPrivate::active_window;
             while(mw->parentWidget() && (mw->windowType() == Qt::Dialog))
                 mw = mw->parentWidget()->window();
+            Q_ASSERT(mw->testAttribute(Qt::WA_WState_Created));
             if (mw != QApplicationPrivate::active_window)
                 SetWindowPos(mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
         }
@@ -1777,6 +1779,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                                 while (pw) {
                                     pw = pw->window();
                                     if (pw && pw->isVisible() && pw->focusWidget()) {
+                                        Q_ASSERT(pw->testAttribute(Qt::WA_WState_Created));
                                         SetWindowPos(pw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
                                         break;
                                     }
@@ -1821,6 +1824,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             // FALL THROUGH
         case WM_QUERYNEWPALETTE:                // realize own palette
             if (QColormap::hPal()) {
+                Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
                 HDC hdc = GetDC(widget->winId());
                 HPALETTE hpalOld = SelectPalette(hdc, QColormap::hPal(), FALSE);
                 uint n = RealizePalette(hdc);
@@ -2292,8 +2296,10 @@ void QApplicationPrivate::openPopup(QWidget *popup)
     if (!popup->isEnabled())
         return;
 
-    if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb())
+    if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()) {
+        Q_ASSERT(popup->testAttribute(Qt::WA_WState_Created));
         setAutoCapture(popup->winId());        // grab mouse/keyboard
+    }
     // Popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
@@ -2340,8 +2346,10 @@ void QApplicationPrivate::closePopup(QWidget *popup)
         // manually: A popup was closed, so the previous popup gets
         // the focus.
         QWidget* aw = QApplicationPrivate::popupWidgets->last();
-        if (QApplicationPrivate::popupWidgets->count() == 1)
+        if (QApplicationPrivate::popupWidgets->count() == 1) {
+            Q_ASSERT(aw->testAttribute(Qt::WA_WState_Created));
             setAutoCapture(aw->winId());
+        }
         if (QWidget *fw = aw->focusWidget())
             fw->setFocus(Qt::PopupFocusReason);
     }
@@ -2590,6 +2598,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             return true;                        // same global position
         gpos = curPos;
 
+        Q_ASSERT(testAttribute(Qt::WA_WState_Created));
         ScreenToClient(winId(), &curPos);
 
         pos.rx() = curPos.x;
@@ -2659,6 +2668,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             // the popup dissappeared. Replay the event
             QWidget* w = QApplication::widgetAt(gpos.x, gpos.y);
             if (w && !QApplicationPrivate::isBlockedByModal(w)) {
+                Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
                 if (QWidget::mouseGrabber() == 0)
                     setAutoCapture(w->winId());
                 POINT widgetpt = gpos;
@@ -2678,6 +2688,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         int bs = state & Qt::MouseButtonMask;
         if ((type == QEvent::MouseButtonPress ||
               type == QEvent::MouseButtonDblClick) && bs == button) {
+            Q_ASSERT(testAttribute(Qt::WA_WState_Created));
             if (QWidget::mouseGrabber() == 0)
                 setAutoCapture(winId());
         } else if (type == QEvent::MouseButtonRelease && bs == 0) {
@@ -3076,6 +3087,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 bool store = true;
                 // Alt+<alphanumerical> go to the Win32 menu system if unhandled by Qt
                 if (msg.message == WM_SYSKEYDOWN && !k0 && a) {
+                    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
                     HWND parent = GetParent(winId());
                     while (parent) {
                         if (GetMenu(parent)) {
@@ -3107,6 +3119,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 // don't pass Alt to Windows unless we are embedded in a non-Qt window
                 if ( code == Qt::Key_Alt ) {
                     k0 = true;
+                    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
                     HWND parent = GetParent(winId());
                     while (parent) {
                         if (!QWidget::find(parent) && GetMenu(parent)) {
@@ -3463,6 +3476,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
 bool QETWidget::translatePaintEvent(const MSG &msg)
 {
     QRegion rgn(0, 0, 1, 1);
+    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
     int res = GetUpdateRgn(winId(), rgn.handle(), FALSE);
     if (!GetUpdateRect(winId(), 0, FALSE)  // The update bounding rect is invalid
          || (res == ERROR)

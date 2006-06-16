@@ -203,7 +203,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     static int sw = -1, sh = -1;
 
     Qt::WindowType type = q->windowType();
-    Qt::WindowFlags &flags = data.window_flags;
+    Qt::WindowFlags flags = data.window_flags;
 
     bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
@@ -213,15 +213,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     bool desktop = (type == Qt::Desktop);
     bool tool = (type == Qt::Tool || type == Qt::Drawer);
 
-    bool customize =  (flags & (
-                                Qt::X11BypassWindowManagerHint
-                                | Qt::FramelessWindowHint
-                                | Qt::WindowTitleHint
-                                | Qt::WindowSystemMenuHint
-                                | Qt::WindowMinimizeButtonHint
-                                | Qt::WindowMaximizeButtonHint
-                                | Qt::WindowContextHelpButtonHint
-                                ));
     HINSTANCE appinst  = qWinAppInst();
     HWND parentw, destroyw = 0;
     WId id;
@@ -233,6 +224,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if (popup)
         flags |= Qt::WindowStaysOnTopHint; // a popup stays on top
+
+    if (flags & (Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint | Qt::WindowContextHelpButtonHint)) {
+        flags |= Qt::WindowSystemMenuHint;
+        flags |= Qt::WindowTitleHint;
+        flags &= ~Qt::FramelessWindowHint;
+    }
 
     if (sw < 0) {                                // get the (primary) screen size
         sw = GetSystemMetrics(SM_CXSCREEN);
@@ -267,40 +264,13 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         topLevel = false; // #### needed for some IE plugins??
     } else if (popup || (type == Qt::ToolTip) || (type == Qt::SplashScreen)) {
         style = WS_POPUP;
-    } else if (!topLevel) {
-        if (!customize)
-            flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint;
-    } else if (!desktop) {
-        if (customize) {
-            if (flags & Qt::FramelessWindowHint)
-                style = WS_POPUP;                // no border
-            else
-                style = 0;
-
-            // All these buttons depend on the system menu, so we enable it
-            if (flags & (Qt::WindowMinimizeButtonHint
-                         | Qt::WindowMaximizeButtonHint
-                         | Qt::WindowContextHelpButtonHint))
-                flags |= Qt::WindowSystemMenuHint;
-
-        } else {
+    } else if (topLevel && !desktop) {
+        if (flags & Qt::FramelessWindowHint)
+            style = WS_POPUP;                // no border
+        else if (flags & Qt::WindowTitleHint)
             style = WS_OVERLAPPED;
-#ifndef Q_OS_TEMP
-            if (type == Qt::Dialog)
-                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowContextHelpButtonHint;
-            else if (type == Qt::Tool)
-                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint;
-            else
-                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint;
-#else
-            if (type == Qt::Dialog)
-                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowContextHelpButtonHint;
-            else if (type == Qt::Tool)
-                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint;
-            else
-                flags |= Qt::WindowTitleHint;
-#endif
-        }
+        else
+            style = 0;
     }
     if (!desktop) {
         // if (!testAttribute(Qt::WA_PaintUnclipped))
@@ -391,17 +361,21 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
         id = CreateWindowEx(exsty, cname, ttitle, style, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentw, 0, appinst, 0);
 #else
+        const bool wasResized = q->testAttribute(Qt::WA_Resized);
+        const bool wasMoved = q->testAttribute(Qt::WA_Moved);
+        const int x = wasMoved ? data.crect.left() : CW_USEDEFAULT;
+        const int y = wasMoved ? data.crect.top() : CW_USEDEFAULT;
+        const int w = wasResized ? data.crect.width() : CW_USEDEFAULT;
+        const int h = wasResized ? data.crect.height() : CW_USEDEFAULT;
 
         QT_WA({
             const TCHAR *cname = (TCHAR*)windowClassName.utf16();
             id = CreateWindowEx(exsty, cname, ttitle, style,
-                                CW_USEDEFAULT, CW_USEDEFAULT,
-                                CW_USEDEFAULT, CW_USEDEFAULT,
+                                x, y, w, h,
                                 parentw, 0, appinst, 0);
         } , {
             id = CreateWindowExA(exsty, windowClassName.toLatin1(), title95, style,
-                                 CW_USEDEFAULT, CW_USEDEFAULT,
-                                 CW_USEDEFAULT, CW_USEDEFAULT,
+                                 x, y, w, h,
                                  parentw, 0, appinst, 0);
         });
 
@@ -411,14 +385,16 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             qErrnoWarning("QWidget::create: Failed to create window");
         setWinId(id);
         if ((flags & Qt::WindowStaysOnTopHint) || (type == Qt::ToolTip))
-            SetWindowPos(id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE);
+            SetWindowPos(id, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
     } else {                                        // create child widget
         QT_WA({
             const TCHAR *cname = (TCHAR*)windowClassName.utf16();
-            id = CreateWindowEx(exsty, cname, ttitle, style, 0, 0, 100, 30,
+            id = CreateWindowEx(exsty, cname, ttitle, style,
+                                data.crect.left(), data.crect.top(), data.crect.width(), data.crect.height(),
                             parentw, NULL, appinst, NULL);
         } , {
-            id = CreateWindowExA(exsty, windowClassName.toLatin1(), title95, style, 0, 0, 100, 30,
+            id = CreateWindowExA(exsty, windowClassName.toLatin1(), title95, style,
+                                 data.crect.left(), data.crect.top(), data.crect.width(), data.crect.height(),
                             parentw, NULL, appinst, NULL);
         });
         if (!id)
@@ -429,45 +405,21 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if (desktop) {
         q->setAttribute(Qt::WA_WState_Visible);
-    } else {
-        RECT  fr, cr;
-        GetWindowRect(id, &fr);                // update rects
+    } else if (topLevel){
+        RECT  cr;
         GetClientRect(id, &cr);
-        if (cr.top == cr.bottom && cr.left == cr.right) {
-            if (initializeWindow) {
-                int x, y, w, h;
-                if (topLevel) {
-                    x = sw/4;
-                    y = 3*sh/10;
-                    w = sw/2;
-                    h = 4*sh/10;
-                } else {
-                    x = y = 0;
-                    w = 100;
-                    h = 30;
-                }
-                MoveWindow(q->winId(), x, y, w, h, TRUE);
-            }
-            GetWindowRect(id, &fr);                // update rects
-            GetClientRect(id, &cr);
-        }
-        if (topLevel){
-            // one cannot trust cr.left and cr.top, use a correction POINT instead
-            POINT pt;
-            pt.x = 0;
-            pt.y = 0;
-            ClientToScreen(id, &pt);
-            data.crect = QRect(QPoint(pt.x, pt.y),
-                               QPoint(pt.x+cr.right, pt.y+cr.bottom));
+        // one cannot trust cr.left and cr.top, use a correction POINT instead
+        POINT pt;
+        pt.x = 0;
+        pt.y = 0;
+        ClientToScreen(id, &pt);
+        data.crect = QRect(QPoint(pt.x, pt.y),
+                            QPoint(pt.x+cr.right, pt.y+cr.bottom));
 
-            QTLWExtra *top = topData();
-            top->style = style;
-            top->exstyle = exsty;
-            updateFrameStrut();
-        } else {
-            data.crect.setCoords(cr.left, cr.top, cr.right, cr.bottom);
-            // in case extra data already exists (eg. reparent()).  Set it.
-        }
+        QTLWExtra *top = topData();
+        top->style = style;
+        top->exstyle = exsty;
+        updateFrameStrut();
     }
 
     q->setAttribute(Qt::WA_WState_Created);                // accept move/resize events
@@ -552,7 +504,7 @@ void QWidgetPrivate::reparentChildren()
 void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 {
     Q_Q(QWidget);
-
+    bool wasCreated = q->testAttribute(Qt::WA_WState_Created);
     if (q->isVisible() && q->parentWidget() && parent != q->parentWidget())
         q->parentWidget()->d_func()->invalidateBuffer(q->geometry());
 
@@ -572,26 +524,27 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     setWinId(0);
 
     QObjectPrivate::setParent_helper(parent);
-    bool enable = q->isEnabled();                // remember status
-    Qt::FocusPolicy fp = q->focusPolicy();
-    QSize s = q->size();
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
     data.window_flags = f;
     q->setAttribute(Qt::WA_WState_Created, false);
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
-    q->create();
+    adjustFlags(data.window_flags, q);
+    if (parent && !q->isWindow() && parent->testAttribute(Qt::WA_WState_Created))
+        q->create();
 
     if (q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
 
-    reparentChildren();
+    if (wasCreated) {
+        if (q->winId() != 0)
+            reparentChildren();
+        else
+            uncreateRecursively(false);
+    }
 
-    q->resize(s);
-    setEnabled_helper(enable); //preserving WA_ForceDisabled
-    q->setFocusPolicy(fp);
     if (extra && !extra->mask.isEmpty()) {
         QRegion r = extra->mask;
         extra->mask = QRegion();
@@ -621,7 +574,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 QPoint QWidget::mapToGlobal(const QPoint &pos) const
 {
     Q_D(const QWidget);
-    if (!isVisible() || isMinimized())
+    if (!isVisible() || isMinimized() || !testAttribute(Qt::WA_WState_Created))
         return mapTo(window(), pos) + window()->pos() +
         (window()->geometry().topLeft() - window()->frameGeometry().topLeft());
     POINT p;
@@ -635,7 +588,7 @@ QPoint QWidget::mapToGlobal(const QPoint &pos) const
 QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 {
     Q_D(const QWidget);
-    if (!isVisible() || isMinimized())
+    if (!isVisible() || isMinimized() || !testAttribute(Qt::WA_WState_Created))
         return mapFrom(window(), pos - window()->pos());
     POINT p;
     p.x = pos.x();
@@ -676,6 +629,7 @@ void QWidget::unsetCursor()
 void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
 {
     Q_Q(QWidget);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
     QT_WA({
         SetWindowText(q->winId(), (TCHAR*)caption.utf16());
     } , {
@@ -737,11 +691,13 @@ HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
 void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
 {
     Q_Q(QWidget);
-    if (extra->topextra->iconPixmap && !forceReset)
+    if (!q->testAttribute(Qt::WA_WState_Created))
+        return;
+    QTLWExtra* x = topData();
+    if (x->iconPixmap && !forceReset)
         // already been set
         return;
 
-    QTLWExtra* x = extra->topextra;
     if (x->winIconBig) {
         DestroyIcon(x->winIconBig);
         x->winIconBig = 0;
@@ -792,6 +748,7 @@ void QWidget::grabMouse()
 #ifndef Q_OS_TEMP
         journalRec = SetWindowsHookExA(WH_JOURNALRECORD, (HOOKPROC)qJournalRecordProc, GetModuleHandleA(0), 0);
 #endif
+        Q_ASSERT(testAttribute(Qt::WA_WState_Created));
         SetCapture(winId());
         mouseGrb = this;
     }
@@ -805,6 +762,7 @@ void QWidget::grabMouse(const QCursor &cursor)
 #ifndef Q_OS_TEMP
         journalRec = SetWindowsHookExA(WH_JOURNALRECORD, (HOOKPROC)qJournalRecordProc, GetModuleHandleA(0), 0);
 #endif
+        Q_ASSERT(testAttribute(Qt::WA_WState_Created));
         SetCapture(winId());
         mouseGrbCur = new QCursor(cursor);
         SetCursor(mouseGrbCur->handle());
@@ -858,6 +816,7 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::activateWindow()
 {
+    Q_ASSERT(window()->testAttribute(Qt::WA_WState_Created));
     SetForegroundWindow(window()->winId());
 }
 
@@ -867,6 +826,7 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
     Q_Q(QWidget);
     if (!rgn.isEmpty()) {
+        Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
         QRegion wrgn = rgn;
         if (data.wrect.isValid())
             wrgn.translate(-data.wrect.topLeft());
@@ -886,6 +846,7 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 {
     Q_Q(QWidget);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
     ValidateRgn(q->winId(),rgn.handle());
 }
 
@@ -906,6 +867,8 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
     }
 
     if (isWindow()) {
+        createWinId();
+        Q_ASSERT(testAttribute(Qt::WA_WState_Created));
 
         // Ensure the initial size is valid, since we store it as normalGeometry below.
         if (!testAttribute(Qt::WA_Resized) && !isVisible())
@@ -995,11 +958,24 @@ void QWidgetPrivate::hide_sys()
 {
     Q_Q(QWidget);
     deactivateWidgetCleanup();
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
     ShowWindow(q->winId(), SW_HIDE);
-    if(!q->isWindow())
+    if (q->isWindow()) {
+        if (QTLWExtra *x = maybeTopData()) {
+            const QRect fs = x->frameStrut;
+            data.crect.moveTopLeft(QPoint(data.crect.x() - fs.left(),
+                                          data.crect.y() - fs.top()));
+
+            // zero the frame strut and mark it dirty
+            x->frameStrut.setCoords(0, 0, 0, 0);
+            data.fstrut_dirty = true;
+        }
+        if (QWidgetBackingStore *bs = maybeBackingStore())
+            bs->releaseBuffer();
+    } else {
         invalidateBuffer(q->rect());
-    else if (!QWidgetBackingStore::paintOnScreen(q))
-        extra->topextra->backingStore->releaseBuffer(); // release backing store buffer on hide
+    }
+
 }
 
 
@@ -1018,6 +994,7 @@ void QWidgetPrivate::show_sys()
     if (q->testAttribute(Qt::WA_OutsideWSRange))
         return;
     q->setAttribute(Qt::WA_Mapped);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
 
     int sm = SW_SHOWNORMAL;
     bool fakedMaximize = false;
@@ -1121,6 +1098,7 @@ void QWidget::show_sys()
 void QWidgetPrivate::raise_sys()
 {
     Q_Q(QWidget);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
     SetWindowPos(q->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
     if(!q->isWindow())
         invalidateBuffer(q->rect());
@@ -1129,6 +1107,7 @@ void QWidgetPrivate::raise_sys()
 void QWidgetPrivate::lower_sys()
 {
     Q_Q(QWidget);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
     SetWindowPos(q->winId(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
     invalidateBuffer(q->rect());
 }
@@ -1136,6 +1115,7 @@ void QWidgetPrivate::lower_sys()
 void QWidgetPrivate::stackUnder_sys(QWidget* w)
 {
     Q_Q(QWidget);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
     SetWindowPos(q->winId(), w->winId() , 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     invalidateBuffer(q->rect());
 }
@@ -1154,6 +1134,7 @@ void QWidgetPrivate::stackUnder_sys(QWidget* w)
 void QWidgetPrivate::setWSGeometry(bool dontShow)
 {
     Q_Q(QWidget);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
 
     /*
       There are up to four different coordinate systems here:
@@ -1236,7 +1217,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
         QObject *object = children.at(i);
         if (object->isWidgetType()) {
             QWidget *w = static_cast<QWidget *>(object);
-            if (!w->isWindow())
+            if (!w->isWindow() && w->testAttribute(Qt::WA_WState_Created))
                 w->d_func()->setWSGeometry();
         }
     }
@@ -1265,6 +1246,7 @@ void qWinRequestConfig(WId, int, int, int, int, int);
 void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     Q_Q(QWidget);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
     if (extra) {                                // any size restrictions?
         w = qMin(w,extra->maxw);
         h = qMin(h,extra->maxh);
@@ -1348,7 +1330,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     q->parentWidget()->d_func()->invalidateBuffer(oldRegion);
                 }
             }
-            setWSGeometry();
+            if (q->testAttribute(Qt::WA_WState_Created))
+                setWSGeometry();
         }
         q->setAttribute(Qt::WA_WState_ConfigPending, false);
     }
@@ -1398,6 +1381,7 @@ void QWidget::scroll(int dx, int dy)
         UINT flags = SW_INVALIDATE;
         if (!testAttribute(Qt::WA_OpaquePaintEvent))
             flags |= SW_ERASE;
+        Q_ASSERT(testAttribute(Qt::WA_WState_Created));
         ScrollWindowEx(winId(), dx, dy, 0, 0, 0, 0, flags);
         d->scrollRect(rect(), dx, dy);
         UpdateWindow(winId());
@@ -1425,6 +1409,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         UINT flags = SW_INVALIDATE;
         if (!testAttribute(Qt::WA_OpaquePaintEvent))
             flags |= SW_ERASE;
+        Q_ASSERT(testAttribute(Qt::WA_WState_Created));
         ScrollWindowEx(winId(), dx, dy, &wr, &wr, 0, 0, flags);
         d->scrollRect(rect(), dx, dy);
         UpdateWindow(winId());
@@ -1499,7 +1484,7 @@ void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->winIconSmall = 0;
     extra->topextra->winIconBig = 0;
-    extra->topextra->backingStore = new QWidgetBackingStore(q_func());
+    extra->topextra->backingStore = 0;
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
@@ -1509,6 +1494,7 @@ void QWidgetPrivate::deleteTLSysExtra()
     if (extra->topextra->winIconBig)
         DestroyIcon(extra->topextra->winIconBig);
     delete extra->topextra->backingStore;
+    extra->topextra->backingStore = 0;
 }
 
 void QWidgetPrivate::registerDropSite(bool on)
@@ -1550,7 +1536,7 @@ void QWidget::setMask(const QRegion &region)
     HRGN wr = CreateRectRgn(0,0,0,0);
     CombineRgn(wr, region.handle(), 0, RGN_COPY);
 
-    QPoint offset = (isWindow() 
+    QPoint offset = (isWindow()
                      ? d->frameStrut().topLeft()
                      : QPoint(0, 0));
     OffsetRgn(wr, offset.x(), offset.y());
@@ -1564,6 +1550,7 @@ void QWidget::setMask(const QRegion &region)
             update();
     }
 #endif
+    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
     SetWindowRgn(winId(), wr, true);
 }
 
@@ -1579,6 +1566,7 @@ void QWidget::clearMask()
     d->createExtra();
     if(QWExtra *extra = d->extraData())
         extra->mask = QRegion();
+    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
     SetWindowRgn(winId(), 0, true);
 }
 
@@ -1590,7 +1578,7 @@ void QWidgetPrivate::updateFrameStrut() const
     rect.right = data.crect.right() + 1;
     rect.bottom = data.crect.bottom() + 1;
     RECT frect = rect;
-    
+
     QTLWExtra *top = topData();
     if (AdjustWindowRectEx(&frect, top->style & ~WS_OVERLAPPED, FALSE, top->exstyle)) {
         top->frameStrut.setCoords(rect.left - frect.left,
@@ -1619,6 +1607,9 @@ void QWidget::setWindowOpacity(qreal level)
         return;
 
     level = qBound(0.0, level, 1.0);
+    d->topData()->opacity = (uchar)(level * 255);
+    if (!testAttribute(Qt:WA_WState_Created))
+        return;
     int wl = GetWindowLongA(winId(), GWL_EXSTYLE);
 
     if (level != 1.0) {
@@ -1634,12 +1625,12 @@ void QWidget::setWindowOpacity(qreal level)
     (*ptrSetLayeredWindowAttributes)(winId(), 0, (int)(level * 255), Q_LWA_ALPHA);
     if (exposeTrick)
         d->show_sys(); // Work around Windows (non-)expose bug
-    d->topData()->opacity = (uchar)(level * 255);
 }
 
 qreal QWidget::windowOpacity() const
 {
-    return isWindow() ? (d_func()->topData()->opacity / 255.0) : 1.0;
+    Q_D(const QWidget);
+    return (isWindow() && d->maybeTopData()) ? d->maybeTopData()->opacity / 255. : 1.0;
 }
 
 class QGlobalRasterPaintEngine: public QRasterPaintEngine

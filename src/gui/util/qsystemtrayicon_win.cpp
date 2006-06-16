@@ -13,7 +13,7 @@
 
 #include "qsystemtrayicon_p.h"
 //#define _WIN32_IE 0x0500
-#define _WIN32_IE 0x0600 //required for NOTIFYICONDATAW_V2_SIZE 
+#define _WIN32_IE 0x0600 //required for NOTIFYICONDATAW_V2_SIZE
 #include <QDesktopWidget>
 
 //workaround for MINGW :
@@ -94,12 +94,12 @@ bool QSystemTrayIconSys::supportsMessages()
             dvi.cbSize = sizeof(dvi);
             hr = (*pDllGetVersion)(&dvi);
             if (SUCCEEDED(hr)) {
-                if (dvi.dwMajorVersion >= 5) 
+                if (dvi.dwMajorVersion >= 5)
                 {
 #ifndef NOTIFYICONDATAW_V2_SIZE // for mingw which has version>=3 but has this  undefined
 					notifyIconSizeA = sizeof(NOTIFYICONDATA);
                     notifyIconSizeW = sizeof(NOTIFYICONDATA);
-#elif NOTIFYICON_VERSION >= 3 
+#elif NOTIFYICON_VERSION >= 3
                     notifyIconSizeA = NOTIFYICONDATAW_V2_SIZE;
                     notifyIconSizeW = NOTIFYICONDATAW_V2_SIZE;
 #endif
@@ -162,7 +162,7 @@ void QSystemTrayIconSys::setIconContentsA(NOTIFYICONDATAA &tnd)
 int iconFlag( QSystemTrayIcon::MessageIcon icon )
 {
     int flag = 0;
-#if NOTIFYICON_VERSION >= 3 
+#if NOTIFYICON_VERSION >= 3
     switch (icon) {
         case QSystemTrayIcon::NoIcon:
             break;
@@ -182,9 +182,10 @@ int iconFlag( QSystemTrayIcon::MessageIcon icon )
 
 bool QSystemTrayIconSys::showMessageW(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs)
 {
-#if NOTIFYICON_VERSION>=3 
+#if NOTIFYICON_VERSION>=3
     NOTIFYICONDATA tnd;
     memset(&tnd, 0, notifyIconSizeW);
+    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
 
     setIconContentsW(tnd);
     lstrcpynW(tnd.szInfo, (TCHAR*)message.utf16(), qMin(message.length() + 1, 256));
@@ -204,9 +205,10 @@ bool QSystemTrayIconSys::showMessageW(const QString &title, const QString &messa
 
 bool QSystemTrayIconSys::showMessageA(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, uint uSecs)
 {
-#if NOTIFYICON_VERSION>=3 
+#if NOTIFYICON_VERSION>=3
     NOTIFYICONDATAA tnd;
     memset(&tnd, 0, notifyIconSizeA);
+    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
 
     setIconContentsA(tnd);
     lstrcpynA(tnd.szInfo, message.toLocal8Bit().constData(), qMin(message.length() + 1, 256));
@@ -230,6 +232,7 @@ bool QSystemTrayIconSys::trayMessageA(DWORD msg)
     memset(&tnd, 0, notifyIconSizeA);
     tnd.cbSize = notifyIconSizeA;
     tnd.hWnd = winId();
+    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
 
     if (msg != NIM_DELETE) {
         setIconContentsA(tnd);
@@ -243,6 +246,7 @@ bool QSystemTrayIconSys::trayMessageW(DWORD msg)
     memset(&tnd, 0, notifyIconSizeW);
     tnd.cbSize = notifyIconSizeW;
     tnd.hWnd = winId();
+    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
 
     if (msg != NIM_DELETE) {
         setIconContentsW(tnd);

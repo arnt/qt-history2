@@ -71,7 +71,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
 {
     Q_Q(QWidget);
     Qt::WindowType type = q->windowType();
-    Qt::WindowFlags &flags = data.window_flags;
+    Qt::WindowFlags flags = data.window_flags;
     QWidget *parentWidget = q->parentWidget();
 
     data.alloc_region_index = -1;
@@ -91,16 +91,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
     bool desktop = (type == Qt::Desktop);
     bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::ToolTip);
 
-    bool customize =  (flags & (
-                                Qt::X11BypassWindowManagerHint
-                                | Qt::FramelessWindowHint
-                                | Qt::WindowTitleHint
-                                | Qt::WindowSystemMenuHint
-                                | Qt::WindowMinimizeButtonHint
-                                | Qt::WindowMaximizeButtonHint
-                                | Qt::WindowContextHelpButtonHint
-                                ));
-
     // a popup stays on top
     if (popup)
         flags |= Qt::WindowStaysOnTopHint;
@@ -117,16 +107,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
             flags |= Qt::WindowStaysOnTopHint;
     }
 
-    int sw = dpy->width();
-    int sh = dpy->height();
-
     if (desktop) {                                // desktop widget
         dialog = popup = false;                        // force these flags off
+        int sw = dpy->width();
+        int sh = dpy->height();
         data.crect.setRect(0, 0, sw, sh);
-    } else if (topLevel) {                        // calc pos/size from screen
-        data.crect.setRect(0, 0, sw/2, 4*sh/10);
-    } else {                                        // child widget
-        data.crect.setRect(0, 0, 100, 30);
     }
 
     if (window) {                                // override the old window
@@ -153,19 +138,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
 
     bool hasFrame = true;
     if (topLevel) {
-        if (desktop || popup || tool) {
+        if (desktop || popup || tool)
             hasFrame = false;
-        } else if (customize) {
+        else
             hasFrame = !(flags & Qt::FramelessWindowHint);
-        } else if (dialog) {
-            flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowContextHelpButtonHint;
-        } else {
-            flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint;
-        }
-    } else  if (!customize) {
-        flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint;
     }
-
     q->setAttribute(Qt::WA_MouseTracking, true);
     q->setMouseTracking(false);                        // also sets event mask
     if (desktop) {
@@ -208,6 +185,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
 
         qt_fbdpy->addProperty(id,QT_QWS_PROPERTY_WINDOWNAME);
         qt_fbdpy->setProperty(id,QT_QWS_PROPERTY_WINDOWNAME,0,q->objectName().toLatin1());
+
+        if (!extra->topextra->caption.isEmpty())
+            setWindowTitle_helper(extra->topextra->caption);
 
         //XXX If we are session managed, inform the window manager about it
     } else {
@@ -307,7 +287,6 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
             //@@@@@@@
         }
     }
-    bool     enable = q->isEnabled();                // remember status
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize    s            = q->size();
     //QBrush   bgc    = background();                        // save colors
@@ -317,7 +296,9 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
     q->setAttribute(Qt::WA_WState_Created, false);
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
-    q->create();
+    adjustFlags(data.window_flags, q);
+    if (newparent && !q->isWindow() && newparent->testAttribute(Qt::WA_WState_Created))
+        q->create();
     if (q->isWindow() || (!newparent || newparent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
@@ -329,12 +310,6 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
         q->setGeometry(0, 0, s.width(), s.height());
     }
 
-    if (q->isWindow()) {
-        if (!extra->topextra->caption.isEmpty())
-            setWindowTitle_helper(extra->topextra->caption);
-    }
-
-    setEnabled_helper(enable); //preserving WA_ForceDisabled
     q->setFocusPolicy(fp);
     if (extra && !extra->mask.isEmpty()) {
         QRegion r = extra->mask;
@@ -535,6 +510,7 @@ void QWidget::activateWindow()
 {
     QWidget *tlw = window();
     if (tlw->isVisible()) {
+        Q_ASSERT(tlw->testAttribute(Qt::WA_WState_Created));
         qwsDisplay()->requestFocus(tlw->winId(), true);
     }
 }
@@ -962,6 +938,7 @@ void QWidgetPrivate::raise_sys()
     Q_Q(QWidget);
     //@@@ transaction
     if (q->isWindow()) {
+        Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
         QWidget::qwsDisplay()->setAltitude(q->winId(), 0);
 #ifdef QT_NO_WINDOWGROUPHINT
 #else
@@ -993,6 +970,7 @@ void QWidgetPrivate::lower_sys()
 {
     Q_Q(QWidget);
     if (q->isWindow()) {
+        Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
         QWidget::qwsDisplay()->setAltitude(data.winid, -1);
     } else if (QWidget *p = q->parentWidget()) {
         p->update(q->geometry());
@@ -1045,10 +1023,12 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     if ((q->windowType() == Qt::Desktop))
         return;
 
-    QTLWExtra *topextra = q->window()->d_func()->extra->topextra;
-    bool inTransaction = topextra->inPaintTransaction;
-    topextra->inPaintTransaction = true;
-
+    bool inTransaction = false;
+    QTLWExtra *topextra = q->window()->d_func()->maybeTopData();
+    if (topextra) {
+        inTransaction = topextra->inPaintTransaction;
+        topextra->inPaintTransaction = true;
+    }
     if (q->isVisible()) {
 
         QRegion myregion;
@@ -1115,8 +1095,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if (isResize)
             q->setAttribute(Qt::WA_PendingResizeEvent, true);
     }
-
-    topextra->inPaintTransaction = inTransaction;
+    if (topextra)
+        topextra->inPaintTransaction = inTransaction;
 }
 
 void QWidgetPrivate::setConstraints_sys()
@@ -1180,12 +1160,13 @@ void QWidgetPrivate::deleteSysExtra()
 
 void QWidgetPrivate::createTLSysExtra()
 {
-    extra->topextra->backingStore = new QWidgetBackingStore(q_func());
+    extra->topextra->backingStore = 0;
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
 {
     delete extra->topextra->backingStore;
+    extra->topextra->backingStore = 0;
 }
 
 void QWidgetPrivate::registerDropSite(bool on)

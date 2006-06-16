@@ -573,6 +573,7 @@ void QXIMInputContext::setFocusWidget(QWidget *w)
 bool QXIMInputContext::x11FilterEvent(QWidget *keywidget, XEvent *event)
 {
     int xkey_keycode = event->xkey.keycode;
+    Q_ASSERT(keywidget->testAttribute(Qt::WA_WState_Created));
     if (XFilterEvent(event, keywidget->winId())) {
         qt_ximComposingKeycode = xkey_keycode; // ### not documented in xlib
 
@@ -666,6 +667,7 @@ QXIMInputContext::ICData *QXIMInputContext::createICData(QWidget *w)
                                            (char *) 0);
     }
 
+    Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
     if (preedit_attr) {
         data->ic = XCreateIC(xim,
                              XNInputStyle, xim_style,

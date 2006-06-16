@@ -319,6 +319,7 @@ static bool xdndEnable(QWidget* w, bool on)
 
             // As per Xdnd4, use XdndProxy
             XGrabServer(X11->display);
+            Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
             WId proxy_id = xdndProxy(w->winId());
 
             if (!proxy_id) {
@@ -337,6 +338,7 @@ static bool xdndEnable(QWidget* w, bool on)
         if (xdnd_widget) {
             DNDDEBUG << "setting XdndAware for" << xdnd_widget << xdnd_widget->winId();
             Atom atm = (Atom)xdnd_version;
+            Q_ASSERT(xdnd_widget->testAttribute(Qt::WA_WState_Created));
             XChangeProperty(X11->display, xdnd_widget->winId(), ATOM(XdndAware),
                              XA_ATOM, 32, PropModeReplace, (unsigned char *)&atm, 1);
             return true;

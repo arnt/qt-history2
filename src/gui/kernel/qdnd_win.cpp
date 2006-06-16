@@ -604,7 +604,7 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
         return NOERROR;
     }
 
-    
+
 
     QPoint tmpPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y));
     // see if we should compress this event
@@ -651,7 +651,7 @@ QOleDropTarget::DragLeave()
     QApplication::sendEvent(widget, &e);
 
     QDragManager *manager = QDragManager::self();
-    
+
     if (manager->dropData->currentDataObject) { // Sanity
         manager->dropData->currentDataObject->Release();
         manager->dropData->currentDataObject = 0;
@@ -864,6 +864,7 @@ void qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst)
     dst->Release();
 #ifndef Q_OS_TEMP
     CoLockObjectExternal(dst, FALSE, TRUE);
+    Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
     RevokeDragDrop(widget->winId());
 #endif
 }
@@ -872,6 +873,7 @@ QOleDropTarget* qt_olednd_register(QWidget* widget)
 {
     QOleDropTarget* dst = new QOleDropTarget(widget);
 #ifndef Q_OS_TEMP
+    Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
     RegisterDragDrop(widget->winId(), dst);
     CoLockObjectExternal(dst, TRUE, TRUE);
 #endif

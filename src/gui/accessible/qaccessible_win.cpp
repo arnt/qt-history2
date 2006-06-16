@@ -135,8 +135,10 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
         }
     }
 
-    if (reason != MenuCommand) // MenuCommand is faked
+    if (reason != MenuCommand) { // MenuCommand is faked
+        Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
         ptrNotifyWinEvent(reason, w->winId(), OBJID_CLIENT, who);
+    }
 }
 
 void QAccessible::setRootObject(QObject *o)

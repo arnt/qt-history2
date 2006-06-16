@@ -93,6 +93,7 @@ void setupOwner()
     owner = new QWidget(0);
     owner->setObjectName(QLatin1String("internal clipboard owner"));
     requestor = new QWidget(0);
+    requestor->createWinId();
     requestor->setObjectName(QLatin1String("internal clipboard requestor"));
     qAddPostRoutine(cleanup);
 }
@@ -1056,6 +1057,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
     Display *dpy = X11->display;
     Window   win = requestor->winId();
+    Q_ASSERT(requestor->testAttribute(Qt::WA_WState_Created));
 
     DEBUG("QClipboardWatcher::getDataInFormat: selection '%s' format '%s'",
           X11->xdndAtomToString(atom).data(), X11->xdndAtomToString(fmtatom).data());

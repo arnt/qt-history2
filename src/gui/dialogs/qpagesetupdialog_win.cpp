@@ -36,7 +36,7 @@ int QPageSetupDialog::exec()
 
     if (d->printer->outputFormat() != QPrinter::NativeFormat)
         return Rejected;
-   
+
     QWin32PrintEngine *engine = static_cast<QWin32PrintEngine*>(d->printer->paintEngine());
     QWin32PrintEnginePrivate *ep = static_cast<QWin32PrintEnginePrivate *>(engine->d_ptr);
 
@@ -49,6 +49,7 @@ int QPageSetupDialog::exec()
 
     QWidget *parent = parentWidget();
     parent = parent ? parent->window() : qApp->activeWindow();
+    Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
     psd.hwndOwner = parent ? parent->winId() : 0;
 
     QRect paperRect = d->printer->paperRect();

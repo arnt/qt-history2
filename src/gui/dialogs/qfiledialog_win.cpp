@@ -180,6 +180,7 @@ static OPENFILENAMEA *qt_win_make_OFNA(QWidget *parent,
 #else
     ofn->lStructSize = sizeof(OPENFILENAMEA);
 #endif
+    Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
     ofn->hwndOwner = parent ? parent->winId() : 0;
     ofn->lpstrFilter = aFilter;
     ofn->lpstrFile = aInitSel.data();
@@ -255,6 +256,7 @@ static OPENFILENAME* qt_win_make_OFN(QWidget *parent,
 #else
     ofn->lStructSize = sizeof(OPENFILENAME);
 #endif
+    Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
     ofn->hwndOwner = parent ? parent->winId() : 0;
     ofn->lpstrFilter = (TCHAR *)tFilters.utf16();
     ofn->lpstrFile = tInitSel;
@@ -432,7 +434,7 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
         qt_win_clean_up_OFNA(&ofn);
     });
     QApplicationPrivate::leaveModal(&modal_widget);
-    
+
     qt_win_eatMouseMove();
 
     if (result.isEmpty())
@@ -550,7 +552,7 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
         }
     });
     QApplicationPrivate::leaveModal(&modal_widget);
-    
+
     qt_win_eatMouseMove();
 
     if (!result.isEmpty()) {
@@ -637,6 +639,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         path[0] = 0;
         tTitle = title;
         BROWSEINFO bi;
+        Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
         bi.hwndOwner = (parent ? parent->winId() : 0);
         bi.pidlRoot = NULL;
         bi.lpszTitle = (TCHAR*)tTitle.utf16();
@@ -666,6 +669,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         initPath[0]=0;
         path[0]=0;
         BROWSEINFOA bi;
+        Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
         bi.hwndOwner = (parent ? parent->winId() : 0);
         bi.pidlRoot = NULL;
         bi.lpszTitle = ctitle;

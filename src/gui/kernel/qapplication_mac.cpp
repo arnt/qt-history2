@@ -1427,6 +1427,7 @@ bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhan
                 if(windowPart == inContent) {
                     HIViewRef child;
                     const HIPoint hiPT = CGPointMake(pt.x() - widget->geometry().x(), pt.y() - widget->geometry().y());
+                    Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
                     if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &hiPT, true, &child) == noErr && child) {
                         if(!qt_mac_can_clickThrough(QWidget::find((WId)child))) {
                             if(mouse_down_unhandled)

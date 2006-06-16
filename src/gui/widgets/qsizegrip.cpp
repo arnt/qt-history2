@@ -136,14 +136,6 @@ void QSizeGripPrivate::init()
 #endif
 #endif
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
-#if defined(Q_WS_X11)
-    if (qt_sizegrip_topLevelWidget(q)->isWindow()) {
-        WId id = q->winId();
-        XChangeProperty(X11->display, q->window()->winId(),
-                        ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
-                        (unsigned char *)&id, 1);
-    }
-#endif
     QWidget *tlw = qt_sizegrip_topLevelWidget(q);
     tlw->installEventFilter(q);
 }
@@ -154,14 +146,6 @@ void QSizeGripPrivate::init()
 */
 QSizeGrip::~QSizeGrip()
 {
-#if defined(Q_WS_X11)
-    if (!QApplication::closingDown() && parentWidget()) {
-        WId id = XNone;
-        XChangeProperty(X11->display, window()->winId(),
-                        ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
-                        (unsigned char *)&id, 1);
-    }
-#endif
 }
 
 /*!
@@ -262,11 +246,11 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     ns = ns.expandedTo(tlw->minimumSize()).expandedTo(tlw->minimumSizeHint()).boundedTo(tlw->maximumSize());
 
     QPoint p;
-    QRect nr(p, ns);            
+    QRect nr(p, ns);
     if (d->atBottom) {
-        if (isRightToLeft()) 
+        if (isRightToLeft())
             nr.moveTopRight(d->r.topRight());
-        else 
+        else
             nr.moveTopLeft(d->r.topLeft());
     } else {
         if (isRightToLeft())
@@ -274,17 +258,17 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         else
             nr.moveBottomLeft(d->r.bottomLeft());
     }
-    
+
 #ifdef Q_WS_MAC
-    // If this is a pure resize (i.e. the window position does not change), 
-    // resize the window directly instead of calling setGeometry. This avoids 
+    // If this is a pure resize (i.e. the window position does not change),
+    // resize the window directly instead of calling setGeometry. This avoids
     // painting errors on windows with widgets that have slow repaints.
     if (d->atBottom && isRightToLeft() == false && nr.topLeft() == tlw->geometry().topLeft()) {
         const WindowRef window = HIViewGetWindow(reinterpret_cast<HIViewRef>(tlw->winId()));
         Point start;
         start.h = d->p.x();
         start.v = d->p.y();
-        
+
         const QSize minimumSize = tlw->minimumSize().expandedTo(tlw->minimumSizeHint());
         const QSize maximumSize = tlw->maximumSize().boundedTo(QSize(32767, 32767)); // 32767 is a platform limitation.
         Rect limits;
@@ -292,16 +276,16 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         limits.right = maximumSize.width();
         limits.top = minimumSize.height();
         limits.bottom = maximumSize.height();
-               
+
         Rect dontCare;
         QMacBlockingFunction block;
         ResizeWindow(window, start, &limits, &dontCare);
     } else {
         tlw->setGeometry(nr);
     }
-#else 
+#else
     tlw->setGeometry(nr);
-#endif           
+#endif
 
 #ifdef Q_WS_WIN
     MSG msg;

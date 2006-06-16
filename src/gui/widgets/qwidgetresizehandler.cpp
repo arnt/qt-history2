@@ -263,8 +263,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
         geom = QRect(widget->geometry().topLeft(), QPoint(p.x(), widget->geometry().bottom())) ;
         break;
     case Center:
-        if (moveResizeMode)
-            geom.moveTopLeft(pp);
+        geom.moveTopLeft(pp);
         break;
     default:
         break;
@@ -281,7 +280,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
 
     if (geom != widget->geometry() &&
         (widget->isWindow() || widget->parentWidget()->rect().intersects(geom))) {
-        if (widget->isMinimized())
+        if (mode == Center)
             widget->move(geom.topLeft());
         else
             widget->setGeometry(geom);

@@ -515,12 +515,14 @@ void QWindowsXPStylePrivate::cleanupHandleMap()
 */
 HWND QWindowsXPStylePrivate::winId(const QWidget *widget)
 {
-    if (widget)
+    if (widget) {
+        Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
         return widget->winId();
-
+    }
     if (!limboWidget) {
         limboWidget = new QWidget(0);
         limboWidget->setObjectName(QLatin1String("xp_limbo_widget"));
+        limboWidget->createWinId();
     }
 
     return limboWidget->winId();
@@ -1357,7 +1359,7 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
         break;
     case SE_TabWidgetTabBar: {
         rect = QWindowsStyle::subElementRect(sr, option, widget);
-        const QStyleOptionTabWidgetFrame *twfOption = 
+        const QStyleOptionTabWidgetFrame *twfOption =
             qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option);
         if (twfOption && twfOption->direction == Qt::RightToLeft
             && (twfOption->shape == QTabBar::RoundedNorth
@@ -1389,10 +1391,10 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
                         stateId = PBS_DEFAULTED;
                     else
                         stateId = PBS_NORMAL;
-                    
+
                     int border = pixelMetric(PM_DefaultFrameWidth, btn, widget);
                     rect = option->rect.adjusted(border, border, -border, -border);
-        
+
                     int result = pGetThemeMargins(theme,
                                                   NULL,
                                                   BP_PUSHBUTTON,
@@ -1400,9 +1402,9 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
                                                   TMT_CONTENTMARGINS,
                                                   NULL,
                                                   &borderSize);
-                    
+
                     if (result == S_OK) {
-                        rect.adjust(borderSize.cxLeftWidth, borderSize.cyTopHeight, 
+                        rect.adjust(borderSize.cxLeftWidth, borderSize.cyTopHeight,
                                     -borderSize.cxRightWidth, -borderSize.cyBottomHeight);
                         rect = visualRect(option->direction, option->rect, rect);
                     }
@@ -1567,13 +1569,13 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             bool usePalette = false;
             bool isEnabled = flags & State_Enabled;
             uint resolve_mask = panel->palette.resolve();
-          
+
             if (resolve_mask & (1 << QPalette::Base)) {
                 // Base color is set for this widget, so use it
                 bg = panel->palette.brush(QPalette::Base);
                 usePalette = true;
             }
-            
+
             stateId = isEnabled ? ETS_NORMAL : ETS_DISABLED;
 
             if (usePalette) {
@@ -2378,9 +2380,9 @@ case CE_RubberBand:
             p->save();
             QRect r = option->rect;
             p->setPen(highlight.dark(120));
-            QColor dimHighlight(qMin(highlight.red()/2 + 110, 255), 
-                                qMin(highlight.green()/2 + 110, 255), 
-                                qMin(highlight.blue()/2 + 110, 255), 
+            QColor dimHighlight(qMin(highlight.red()/2 + 110, 255),
+                                qMin(highlight.green()/2 + 110, 255),
+                                qMin(highlight.blue()/2 + 110, 255),
                                 (widget && widget->isTopLevel())? 255 : 127);
             p->setBrush(dimHighlight);
             p->drawRect(option->rect.adjusted(0, 0, -1, -1));

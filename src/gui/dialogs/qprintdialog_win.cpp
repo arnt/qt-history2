@@ -91,6 +91,7 @@ static PRINTDLGA *qt_win_make_PRINTDLGA(QWidget *parent, QPrintDialogPrivate *d,
 
     if (d->ep->printToFile)
         pd->Flags |= PD_PRINTTOFILE;
+    Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
     pd->hwndOwner = parent ? parent->winId() : 0;
     pd->nFromPage = qMax(d->fromPage, d->minPage);
     pd->nToPage   = qMin(d->toPage, d->maxPage);
@@ -178,6 +179,7 @@ static PRINTDLGW *qt_win_make_PRINTDLGW(QWidget *parent, QPrintDialogPrivate *d,
 
     if (d->ep->printToFile)
         pd->Flags |= PD_PRINTTOFILE;
+    Q_ASSERT(!parent ||parent->testAttribute(Qt::WA_WState_Created));
     pd->hwndOwner = parent ? parent->winId() : 0;
     pd->nFromPage = qMax(d->fromPage, d->minPage);
     pd->nToPage   = qMin(d->toPage, d->maxPage);

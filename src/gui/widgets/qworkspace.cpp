@@ -1038,21 +1038,7 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
 
     w->setAutoFillBackground(true);
 
-    bool customize =  (flags & (Qt::WindowTitleHint
-            | Qt::WindowSystemMenuHint
-            | Qt::WindowMinimizeButtonHint
-            | Qt::WindowMaximizeButtonHint
-            | Qt::WindowContextHelpButtonHint));
-
-    uint type = (flags & Qt::WindowType_Mask);
-    if (customize)
-        ;
-    else if (type == Qt::Dialog || type == Qt::Sheet)
-        flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint;
-    else if (type == Qt::Tool)
-        flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
-    else
-        flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint;
+    QWidgetPrivate::adjustFlags(flags);
 
 #if 0
     bool wasMaximized = w->isMaximized();

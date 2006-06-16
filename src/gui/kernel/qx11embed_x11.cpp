@@ -38,7 +38,7 @@
 #define XK_ISO_Left_Tab 0xFE20
 #endif
 
-/*! 
+/*!
     \class QX11EmbedWidget
 
     \brief The QX11EmbedWidget class provides an XEmbed client widget.
@@ -107,7 +107,7 @@
     \sa QX11EmbedContainer, {XEmbed Specification}
 */
 
-/*! 
+/*!
     \class QX11EmbedContainer
 
     \brief The QX11EmbedContainer class provides an XEmbed container
@@ -238,7 +238,7 @@
     \sa QX11EmbedContainer::Error
 */
 
-/*! 
+/*!
     \enum QX11EmbedWidget::Error
 
     \value Unknown An unrecognized error occurred.
@@ -449,6 +449,7 @@ QX11EmbedWidget::QX11EmbedWidget(QWidget *parent)
     XSetErrorHandler(x11ErrorHandler);
     initXEmbedAtoms(x11Info().display());
 
+    createWinId();
     XSelectInput(x11Info().display(), winId(),
                  KeyPressMask | KeyReleaseMask | ButtonPressMask
                     | ButtonReleaseMask

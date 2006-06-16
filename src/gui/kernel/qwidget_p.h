@@ -135,14 +135,12 @@ struct QWExtra {
 #endif
     QRegion mask; // widget mask
     QStyle* style;
-    QSizePolicy size_policy;
 
 //bit flags at the end to improve packing
 #if defined(Q_WS_WIN)
     uint shown_mode : 8; // widget show mode
 #endif
 #if defined(Q_WS_X11)
-    uint children_use_dnd : 1;
     uint compress_events : 1;
 #endif
     uint explicitMinSize : 2;
@@ -159,9 +157,15 @@ public:
 
     QWExtra *extraData() const;
     QTLWExtra *topData() const;
+    QTLWExtra *maybeTopData() const;
+#ifndef Q_WS_MAC
+    QWidgetBackingStore *maybeBackingStore() const;
+#endif
 
     void init(QWidget *desktopWidget, Qt::WFlags f);
     void create_sys(WId window, bool initializeWindow, bool destroyOldWindow);
+    void createRecursively();
+    void uncreateRecursively(bool includeThis = true);
 
     void createTLExtra();
     void createExtra();
@@ -219,9 +223,6 @@ public:
     void focusInputContext();
 
 #if defined(Q_WS_X11)
-    void checkChildrenDnd();
-    void fixupDnd();
-
     void setWindowRole(const char *role);
     void sendStartupMessage(const char *message) const;
 #endif
@@ -261,6 +262,7 @@ public:
     void hide_helper();
     void setEnabled_helper(bool);
     void registerDropSite(bool);
+    static void adjustFlags(Qt::WFlags &flags, QWidget *w = 0);
 
     void updateFrameStrut() const;
     QRect frameStrut() const;
@@ -382,6 +384,8 @@ public:
     mutable const QMetaObject *polished;
 
     void setModal_sys();
+    QSizePolicy size_policy;
+
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const
@@ -394,5 +398,19 @@ inline QTLWExtra *QWidgetPrivate::topData() const
     const_cast<QWidgetPrivate *>(this)->createTLExtra();
     return extra->topextra;
 }
+
+inline QTLWExtra *QWidgetPrivate::maybeTopData() const
+{
+    return extra ? extra->topextra : 0;
+}
+
+#ifndef Q_WS_MAC
+inline QWidgetBackingStore *QWidgetPrivate::maybeBackingStore() const
+{
+    Q_Q(const QWidget);
+    QTLWExtra *x = q->window()->d_func()->maybeTopData();
+    return x ? x->backingStore : 0;
+}
+#endif
 
 #endif // QWIDGET_P_H
