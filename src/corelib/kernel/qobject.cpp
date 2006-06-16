@@ -243,6 +243,11 @@ extern "C" Q_CORE_EXPORT void qt_removeObject(QObject *object)
         set->remove(object);
 }
 
+#ifdef Q_CC_MSVC
+#pragma warning(push)
+#pragma warning(disable:4190)
+#endif
+
 extern "C" Q_CORE_EXPORT QList<QObject *> qt_allTopLevelWidgets()
 {
     QList<QObject *> list;
@@ -259,6 +264,10 @@ extern "C" Q_CORE_EXPORT QList<QObject *> qt_allTopLevelWidgets()
 
     return list;
 }
+
+#ifdef Q_CC_MSVC
+#pragma warning(pop)
+#endif
 
 bool QObjectPrivate::isValidObject(QObject *object)
 {
