@@ -60,6 +60,7 @@ public:
     void flush();
 
     void startingUp();
+    void closingDown();
 
     bool event(QEvent *e);
 
