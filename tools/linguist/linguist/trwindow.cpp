@@ -1730,17 +1730,7 @@ void TrWindow::readConfig()
 
     QRect r( pos(), size() );
     recentFiles = config.value(keybase + "RecentlyOpenedFiles").toStringList();
-    r.setX(config.value(keybase + "Geometry/MainwindowX", r.x()).toInt());
-    r.setY(config.value(keybase + "Geometry/MainwindowY", r.y()).toInt());
-    r.setWidth(config.value(keybase + "Geometry/MainwindowWidth", r.width()).toInt());
-    r.setHeight(config.value(keybase + "Geometry/MainwindowHeight", r.height()).toInt());
-    if (!r.intersects(QApplication::desktop()->geometry()))
-        r.moveTopLeft(QApplication::desktop()->availableGeometry().topLeft());
-
-    if (r.isValid()) {
-        setGeometry(r);
-    } 
-
+    restoreGeometry(config.value(keybase + "Geometry/WindowGeometry").toByteArray());
     restoreState(config.value(keybase + "MainWindowState").toByteArray());
 
     m_ui.actionAccelerators->setChecked(config.value(keybase+ "Validators/Accelerator", true).toBool());
@@ -1757,12 +1747,7 @@ void TrWindow::writeConfig()
                      "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
     QSettings config;
     config.setValue(keybase + "RecentlyOpenedFiles", recentFiles);
-    config.setValue(keybase + "Geometry/MainwindowMaximized", isMaximized());
-    config.setValue(keybase + "Geometry/MainwindowX", normalGeometry().x());
-    config.setValue(keybase + "Geometry/MainwindowY", normalGeometry().y());
-    config.setValue(keybase + "Geometry/MainwindowWidth", normalGeometry().width());
-    config.setValue(keybase + "Geometry/MainwindowHeight", normalGeometry().height());
- 
+    config.setValue(keybase + "Geometry/WindowGeometry", saveGeometry());
     config.setValue(keybase+ "Validators/Accelerator", m_ui.actionAccelerators->isChecked());
     config.setValue(keybase+ "Validators/EndingPunctuation", m_ui.actionEndingPunctuation->isChecked());
     config.setValue(keybase+ "Validators/PhraseMatch", m_ui.actionPhraseMatches->isChecked());

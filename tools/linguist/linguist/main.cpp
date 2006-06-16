@@ -42,16 +42,11 @@ int main(int argc, char **argv)
                      "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
     QSettings config;
 
-    QRect r(QApplication::desktop()->availableGeometry());
-    r.setX(config.value(keybase + "Geometry/MainwindowX", r.x()).toInt());
-    r.setY(config.value(keybase + "Geometry/MainwindowY", r.y()).toInt());
-    r.setWidth(config.value(keybase + "Geometry/MainwindowWidth", r.width()).toInt());
-    r.setHeight(config.value(keybase + "Geometry/MainwindowHeight", r.height()).toInt());
-    if (!r.intersects(QApplication::desktop()->geometry()))
-        r.moveTopLeft(QApplication::desktop()->availableGeometry().topLeft());
-
+    QWidget tmp;
+    tmp.restoreGeometry(config.value(keybase + "Geometry/WindowGeometry").toByteArray());
+    
     QSplashScreen *splash = 0;
-    int screenId = QApplication::desktop()->screenNumber(r.center());
+    int screenId = QApplication::desktop()->screenNumber(tmp.geometry().center());
     splash = new QSplashScreen(QApplication::desktop()->screen(screenId),
         QPixmap(":/images/splash.png"));
     if (QApplication::desktop()->isVirtualDesktop()) {
@@ -62,9 +57,6 @@ int main(int argc, char **argv)
     splash->show();
 
     TrWindow tw;
-
-    if (config.value(keybase + "Geometry/MainwindowMaximized", false).toBool())
-        tw.setWindowState(tw.windowState() | Qt::WindowMaximized);
     tw.show();
 
     if (splash)
