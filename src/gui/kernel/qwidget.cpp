@@ -3741,16 +3741,17 @@ void QWidget::setFocus(Qt::FocusReason reason)
         QApplicationPrivate::setFocusWidget(f, reason);
 
 #if defined(Q_WS_MAC)
-        Q_ASSERT(f->testAttribute(Qt::WA_WState_Created));
-        extern WindowPtr qt_mac_window_for(const QWidget *w); //qwidget_mac.cpp
-        SetKeyboardFocus(qt_mac_window_for(f), (HIViewRef)f->winId(), 1);
+        if (f->testAttribute(Qt::WA_WState_Created)) {
+            extern WindowPtr qt_mac_window_for(const QWidget *w); //qwidget_mac.cpp
+            SetKeyboardFocus(qt_mac_window_for(f), (HIViewRef)f->winId(), 1);
+        }
 #endif
 
 #if defined(Q_WS_WIN)
-        Q_ASSERT(f->testAttribute(Qt::WA_WState_Created));
-        if (!(f->window()->windowType() == Qt::Popup))
-            SetFocus(f->winId());
-        else {
+        if (f->testAttribute(Qt::WA_WState_Created)) {
+            if (!(f->window()->windowType() == Qt::Popup))
+                SetFocus(f->winId());
+        } else {
 #endif
 #ifndef QT_NO_ACCESSIBILITY
             QAccessible::updateAccessibility(f, 0, QAccessible::Focus);
@@ -4152,7 +4153,7 @@ void QWidget::setGeometry(const QRect &r)
     \since 4.2
     Saves the current geometry and state for top-level widgets.
 
-    To save the geometry when the window closes, you can 
+    To save the geometry when the window closes, you can
     implement a close event like this:
 
     \code
