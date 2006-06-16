@@ -1057,12 +1057,9 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 
     //  search model ranges
     QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
-    for (; it != d->ranges.end(); ++it) {
-        if ((*it).contains(index)) {
+    for (; !selected && it != d->ranges.end(); ++it)
+        if ((*it).contains(index))
             selected = true;
-            break;
-        }
-    }
 
     if (selected && (d->model->flags(index) & Qt::ItemIsSelectable))
         return true;
