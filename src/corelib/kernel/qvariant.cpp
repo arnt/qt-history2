@@ -632,6 +632,58 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         case QVariant::UInt:
             *c = QChar(d->data.u);
             break;
+        case QVariant::LongLong:
+            *c = QChar(ushort(d->data.ll));
+        case QVariant::ULongLong:
+            *c = QChar(ushort(d->data.ull));
+        default:
+            return false;
+        }
+        break;
+    }
+
+    case QVariant::Size: {
+        QSize *s = static_cast<QSize *>(result);
+        switch (d->type) {
+        case QVariant::SizeF:
+            *s = v_cast<QSizeF>(d)->toSize();
+            break;
+        default:
+            return false;
+        }
+        break;
+    }
+
+    case QVariant::SizeF: {
+        QSizeF *s = static_cast<QSizeF *>(result);
+        switch (d->type) {
+        case QVariant::Size:
+            *s = QSizeF(*(v_cast<QSize>(d)));
+            break;
+        default:
+            return false;
+        }
+        break;
+    }
+
+    case QVariant::Line: {
+        QLine *s = static_cast<QLine *>(result);
+        switch (d->type) {
+        case QVariant::LineF:
+            *s = v_cast<QLineF>(d)->toLine();
+            break;
+        default:
+            return false;
+        }
+        break;
+    }
+
+    case QVariant::LineF: {
+        QLineF *s = static_cast<QLineF *>(result);
+        switch (d->type) {
+        case QVariant::Line:
+            *s = QLineF(*(v_cast<QLine>(d)));
+            break;
         default:
             return false;
         }
@@ -718,7 +770,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
             break;
         default:
             return false;
-        }          
+        }
     }
     break;
     case QVariant::Int: {
@@ -1003,7 +1055,7 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
             || d->type == QVariant::LongLong || d->type == QVariant::ULongLong
             || d->type == QVariant::Char;
     case QVariant::Char:
-        return d->type == QVariant::Int || d->type == QVariant::UInt;
+        return d->type == QVariant::Int || d->type == QVariant::UInt || d->type == QVariant::LongLong || d->type == QVariant::ULongLong;
     case QVariant::ByteArray:
         return d->type == QVariant::String || d->type == QVariant::Int|| d->type == QVariant::UInt || d->type == QVariant::Double|| d->type == QVariant::LongLong|| d->type == QVariant::ULongLong;
     case QVariant::Date:
@@ -1028,6 +1080,14 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
         return false;
     case QVariant::RectF:
         return d->type == QVariant::Rect;
+    case QVariant::Size:
+        return d->type == QVariant::SizeF;
+    case QVariant::SizeF:
+        return d->type == QVariant::Size;
+    case QVariant::Line:
+        return d->type == QVariant::LineF;
+    case QVariant::LineF:
+        return d->type == QVariant::Line;
     case QVariant::PointF:
         return d->type == QVariant::Point;
     default:
