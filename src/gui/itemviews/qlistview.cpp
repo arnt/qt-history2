@@ -1975,7 +1975,6 @@ void QListViewPrivate::createItems(int to)
     int count = items.count();
     QSize size;
     QStyleOptionViewItem option = q->viewOptions();
-    QModelIndex root = root;
     for (int row = count; row < to; ++row) {
         size = itemSize(option, model->index(row, column, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos
