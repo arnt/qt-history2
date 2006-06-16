@@ -284,7 +284,6 @@ int main( int argc, char ** argv )
         return -1;
     }
 
-    bool max = conf->isMaximized();
     QStringList links = conf->source();
     conf->hideSideBar( hideSidebar );
 
@@ -299,8 +298,6 @@ int main( int argc, char ** argv )
                      mw, SLOT(showLinkFromClient(QString)) );
     }
 
-    if ( max )
-        mw->setWindowState(mw->windowState() | Qt::WindowMaximized);
     mw->show();
 
     if ( !file.isEmpty() ) {

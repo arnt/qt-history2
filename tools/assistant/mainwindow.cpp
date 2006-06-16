@@ -78,11 +78,7 @@ MainWindow::MainWindow()
     // read geometry configuration
     setupGoActions();
 
-    QRect geom = config->geometry();
-    if(geom.isValid()) {
-        setGeometry(geom);
-    }
-
+    restoreGeometry(config->windowGeometry());
     restoreState(config->mainWindowState());
     if (config->sideBarHidden())
         dw->hide();
@@ -504,8 +500,7 @@ void MainWindow::saveSettings()
     Config *config = Config::configuration();
 
     config->setSideBarPage(helpDock->tabWidget()->currentIndex());
-    config->setGeometry(normalGeometry());
-    config->setMaximized(isMaximized());
+    config->setWindowGeometry(saveGeometry());
     config->setMainWindowState(saveState());
     
     // Create list of the tab urls

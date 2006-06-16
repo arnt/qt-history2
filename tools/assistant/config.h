@@ -61,12 +61,9 @@ public:
     int sideBarPage() const { return sideBar; }
     void setSideBarPage( int sbp ) { sideBar = sbp; }
 
-    QRect geometry() const { return geom; }
-    void setGeometry( const QRect &geo ) { geom = geo; }
-
-    bool isMaximized() const { return maximized; }
-    void setMaximized( bool max ) { maximized = max; }
-
+    QByteArray windowGeometry() const { return winGeometry; }
+    void setWindowGeometry( const QByteArray &geometry ) { winGeometry = geometry; }
+    
     QByteArray mainWindowState() const { return mainWinState; }
     void setMainWindowState( const QByteArray &state ) { mainWinState = state; }
 
@@ -97,10 +94,9 @@ private:
     QString home;
     QStringList src;
     QByteArray mainWinState;
+    QByteArray winGeometry;
     qreal pointFntSize;
-    QRect geom;
     int sideBar;
-    bool maximized;
     bool hideSidebar;
     bool rebuildDocs;
 };
