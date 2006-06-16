@@ -1777,9 +1777,12 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
     QAction *action = d->actionAt(e->pos());
     for(QWidget *caused = this; caused;) {
         if (QMenu *m = qobject_cast<QMenu*>(caused)) {
+            QAction *currentAction = d->currentAction;
+            if(currentAction && (!currentAction->isEnabled() || currentAction->menu() || currentAction->isSeparator()))
+                currentAction = 0;
             caused = m->d_func()->causedPopup.widget;
-            if (m->d_func()->eventLoop) // synchronous operation
-                m->d_func()->syncAction = d->currentAction;
+            if (m->d_func()->eventLoop)
+                m->d_func()->syncAction = currentAction; // synchronous operation
         } else {
             break;
         }
@@ -2121,12 +2124,14 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             break;
         }
 
-        QAction *action = d->currentAction;
         for(QWidget *caused = this; caused;) {
             if (QMenu *m = qobject_cast<QMenu*>(caused)) {
+                QAction *currentAction = d->currentAction;
+                if(currentAction && (!currentAction->isEnabled() || currentAction->menu() || currentAction->isSeparator()))
+                    currentAction = 0;
                 caused = m->d_func()->causedPopup.widget;
-                if (m->d_func()->eventLoop && (!action || action->isEnabled())) // synchronous operation
-                    m->d_func()->syncAction = action;
+                if (m->d_func()->eventLoop)
+                    m->d_func()->syncAction = currentAction; // synchronous operation
             } else {
                 break;
             }
