@@ -951,6 +951,18 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             name = prop->attributeName(); // sync the name
 
+            if (className == QLatin1String("QLabel") && name == QLatin1String("alignment")) {
+                QString v = prop->elementSet();
+
+                if (v.contains(QRegExp("\\bWordBreak\\b"))) {
+                    DomProperty *wordWrap = new DomProperty();
+                    wordWrap->setAttributeName(QLatin1String("wordWrap"));
+                    wordWrap->setElementBool(QLatin1String("true"));
+                    properties->append(wordWrap);
+                }
+            }
+
+
             // resolve the flags and enumerator
             if (prop->kind() == DomProperty::Set) {
                 QStringList flags = prop->elementSet().split(QLatin1Char('|'));
@@ -990,6 +1002,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 }
                 prop->setElementEnum(e);
             }
+
 
             if (className.size()
                     && !(className == QLatin1String("QLabel") && name == QLatin1String("buddy"))
