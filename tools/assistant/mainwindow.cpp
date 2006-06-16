@@ -476,9 +476,6 @@ void MainWindow::showSettingsDialog(int page)
         settingsDia = new SettingsDialog(this);
     }
 
-    if (page != -1)
-        settingsDia->settingsTab()->setCurrentIndex(page);
-
     settingsDia->exec();
 }
 

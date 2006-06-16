@@ -25,10 +25,6 @@ class SettingsDialog : public QDialog
 public:
     SettingsDialog(QWidget *parent);
 
-    inline QTabWidget *settingsTab() const
-    { return ui.settingsTab; }
-
-
 private slots:
     void on_buttonOk_clicked();
     void on_buttonCancel_clicked();
