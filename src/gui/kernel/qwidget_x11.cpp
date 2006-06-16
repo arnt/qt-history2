@@ -1113,6 +1113,9 @@ void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
     } else {
         h->flags &= ~(IconPixmapHint | IconMaskHint);
     }
+    if (extra && !extra->mask.isEmpty())
+        XShapeCombineRegion(X11->display, q->winId(), ShapeBounding, 0, 0,
+                            extra->mask.handle(), ShapeSet);
 
     XSetWMHints(X11->display, q->winId(), h);
     if (h != &wm_hints)
@@ -2323,7 +2326,9 @@ void QWidget::setMask(const QRegion& region)
 
     d->extra->mask = region;
 
-    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
+    if (!testAttribute(Qt::WA_WState_Created))
+        return;
+
     XShapeCombineRegion(X11->display, winId(), ShapeBounding, 0, 0,
                         region.handle(), ShapeSet);
 #ifndef QT_NO_BACKINGSTORE
@@ -2377,10 +2382,13 @@ void QWidget::setMask(const QBitmap &bitmap)
 
     d->extra->mask = QRegion(bitmap);
 
+    if (!testAttribute(Qt::WA_WState_Created))
+        return;
+
     QBitmap bm = bitmap;
     if (bm.x11Info().screen() != d->xinfo.screen())
         bm.x11SetScreen(d->xinfo.screen());
-    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
+
     XShapeCombineMask(X11->display, winId(), ShapeBounding, 0, 0,
                       bm.handle(), ShapeSet);
 
@@ -2407,7 +2415,8 @@ void QWidget::clearMask()
     Q_D(QWidget);
     if (QWExtra *extra = d->extraData())
         extra->mask = QRegion();
-    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
+    if (!testAttribute(Qt::WA_WState_Created))
+        return;
     XShapeCombineMask(X11->display, winId(), ShapeBounding, 0, 0,
                        XNone, ShapeSet);
 }
