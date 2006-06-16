@@ -1108,7 +1108,7 @@ void QWidget::scroll(int dx, int dy)
 {
 
     Q_D(QWidget);
-    if (!updatesEnabled() && children().size() == 0)
+    if (!updatesEnabled() && children().size() == 0 || !isVisible())
         return;
     if (dx == 0 && dy == 0)
         return;
@@ -1119,7 +1119,7 @@ void QWidget::scroll(int dx, int dy)
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
    Q_D(QWidget);
-    if (!updatesEnabled() && children().size() == 0)
+    if (!updatesEnabled() && children().size() == 0 || !isVisible())
         return;
     if (dx == 0 && dy == 0)
         return;
