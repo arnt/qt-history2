@@ -515,8 +515,7 @@ void QWindowsXPStylePrivate::cleanupHandleMap()
 */
 HWND QWindowsXPStylePrivate::winId(const QWidget *widget)
 {
-    if (widget) {
-        Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
+    if (widget && widget->testAttribute(Qt::WA_WState_Created)) {
         return widget->winId();
     }
     if (!limboWidget) {

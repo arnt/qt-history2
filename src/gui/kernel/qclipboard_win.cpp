@@ -93,6 +93,7 @@ public:
         , nextClipboardViewer(0)
     {
         clipBoardViewer = new QWidget();
+        clipBoardViewer->createWinId();
         clipBoardViewer->setObjectName(QLatin1String("internal clipboard owner"));
     }
 

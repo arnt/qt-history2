@@ -443,6 +443,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     QWinInputContext::enable(q, q->testAttribute(Qt::WA_InputMethodEnabled) & q->isEnabled());
     if (q != qt_tablet_widget && QWidgetPrivate::mapper)
         qt_tablet_init();
+
+    if (q->testAttribute(Qt::WA_DropSiteRegistered))
+        registerDropSite(true);
 }
 
 
@@ -1500,6 +1503,8 @@ void QWidgetPrivate::deleteTLSysExtra()
 void QWidgetPrivate::registerDropSite(bool on)
 {
     Q_Q(QWidget);
+    if (!q->testAttribute(Qt::WA_WState_Created))
+        return;
     // Enablement is defined by d->extra->dropTarget != 0.
     if (on) {
         // Turn on.
@@ -1608,7 +1613,7 @@ void QWidget::setWindowOpacity(qreal level)
 
     level = qBound(0.0, level, 1.0);
     d->topData()->opacity = (uchar)(level * 255);
-    if (!testAttribute(Qt:WA_WState_Created))
+    if (!testAttribute(Qt::WA_WState_Created))
         return;
     int wl = GetWindowLongA(winId(), GWL_EXSTYLE);
 

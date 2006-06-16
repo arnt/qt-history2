@@ -620,7 +620,8 @@ void QWinInputContext::enable(QWidget *w, bool e)
 #ifdef Q_IME_DEBUG
         qDebug("enable: w=%s, enable = %s", w ? w->className() : "(null)" , e ? "true" : "false");
 #endif
-        Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
+        if (!w->testAttribute(Qt::WA_WState_Created))
+            return;
         if(aimm) {
             HIMC oldimc;
             if (!e) {
