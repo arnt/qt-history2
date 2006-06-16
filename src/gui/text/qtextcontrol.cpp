@@ -1218,8 +1218,8 @@ process:
 
 QVariant QTextControl::loadResource(int type, const QUrl &name)
 {
-    Q_UNUSED(type);
-    Q_UNUSED(name);
+    if (QTextEdit *textEdit = qobject_cast<QTextEdit *>(parent()))
+        return textEdit->loadResource(type, name);
     return QVariant();
 }
 
