@@ -10,7 +10,7 @@
 
     Graphics View provides a surface for managing and interacting with a large
     number of custom-made 2D graphical items, and a view widget for
-    visualizing the items.
+    visualizing the items, with support for zooming and rotation.
 
     The framework includes an event propagation architecture that allows
     precise double-precision interaction capabilities for the items on the
@@ -279,6 +279,36 @@
           first map to the scene, and then map from the scene to the item.
 
     \section1 Essential Features
+
+      \section2 Zooming and rotating
+
+        QGraphicsView supports the same affine transformations as QPainter
+        does through QGraphicsView::setMatrix(). By applying a transformation
+        to the view, you can easily add support for common navigation features
+        such as zooming and rotating.
+
+        Here is an example of how to implement zoom and rotate slots in a
+        subclass of QGraphicsView:
+
+        \code
+            class View : public QGraphicsView
+            {
+            Q_OBJECT
+                ...
+            public slots:
+                void zoomIn() { scale(1.2, 1.2); }
+                void zoomOut() { scale(1 / 1.2, 1 / 1.2); }
+                void rotateLeft() { rotate(-10); }
+                void rotateRight() { rotate(10); }
+                ...
+            };
+        \endcode
+
+        The slots could be connected to \l{QToolButton}{QToolButtons} with
+        \l{QAbstractButton::autoRepeat}{autoRepeat} enabled.
+
+        QGraphicsView keeps the center of the view aligned when you transform
+        the view.
 
       \section2 Printing
 
