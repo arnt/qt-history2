@@ -56,7 +56,7 @@ public:
         return ((MetricAccessor *) m_window)->metric(m);
     }
 
-    QRasterPaintEngine *paintEngine() const
+    QPaintEngine *paintEngine() const
     {
         return const_cast<QRasterPaintEngine *>(&m_engine);
     }
@@ -96,7 +96,7 @@ void QRasterWindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoi
 #ifdef Q_WS_WIN
     QPoint wOffset = qt_qwidget_data(widget)->wrect.topLeft();
 
-    QRasterPaintEngine *engine = d_ptr->device.paintEngine();
+    QRasterPaintEngine *engine = static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine());
     HDC engine_dc = engine->getDC();
     HDC widget_dc = widget->getDC();
     bool tmp_widget_dc = false;
@@ -128,7 +128,7 @@ void QRasterWindowSurface::resize(const QSize &)
 
 void QRasterWindowSurface::release()
 {
-    d_ptr->device.paintEngine()->releaseBuffer();
+    static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine())->releaseBuffer();
 }
 
 
@@ -137,7 +137,7 @@ void QRasterWindowSurface::scroll(const QRegion &area, int dx, int dy)
 #ifdef Q_WS_WIN
     QRect rect = area.boundingRect();
 
-    QRasterPaintEngine *engine = d_ptr->device.paintEngine();
+    QRasterPaintEngine *engine = static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine());
     HDC engine_dc = engine->getDC();
     if (!engine_dc)
         return;
@@ -156,5 +156,5 @@ void QRasterWindowSurface::scroll(const QRegion &area, int dx, int dy)
 
 QSize QRasterWindowSurface::size() const
 {
-    return d_ptr->device.paintEngine()->size();
+    return static_cast<QRasterPaintEngine *>(d_ptr->device.paintEngine())->size();
 }
