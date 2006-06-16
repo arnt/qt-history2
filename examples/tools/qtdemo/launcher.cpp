@@ -64,7 +64,8 @@ Launcher::Launcher(QWidget *parent)
     resizeTimer->setSingleShot(true);
     connect(resizeTimer, SIGNAL(timeout()), this, SLOT(redisplayWindow()));
 
-    assistant = new QAssistantClient("assistant", this);
+    assistant = new QAssistantClient(
+        QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
 
     connect(display, SIGNAL(actionRequested(const QString &)),
             this, SLOT(executeAction(const QString &)));
