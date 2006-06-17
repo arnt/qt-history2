@@ -1580,12 +1580,10 @@ bool QGraphicsItem::collidesWithItem(QGraphicsItem *other) const
 }
 
 /*!
-    \overload
-
     Returns true if this item collides with \a path, which is in local
-    coordinates.
+    coordinates; otherwise returns false.
 
-    \sa contains(), shape()
+    \sa collidesWithItem(), contains(), shape()
 */
 bool QGraphicsItem::collidesWithPath(const QPainterPath &path) const
 {
