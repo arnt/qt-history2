@@ -1489,11 +1489,10 @@ QRectF QGraphicsItem::sceneBoundingRect() const
 
 /*!
     Returns the shape of this item as a QPainterPath in local
-    coordinates. The shape is used for collision detection, hit tests,
-    and for the QGraphicsScene::items() functions that operate on
-    shapes.
+    coordinates. The shape is used for many things, including collision
+    detection, hit tests, and for the QGraphicsScene::items() functions.
 
-    The default implementation calls boundingRect() to return a simple '
+    The default implementation calls boundingRect() to return a simple
     rectangular shape, but subclasses can reimplement this function to return
     a more accurate shape for non-rectangular items. For example, a round item
     may choose to return an elliptic shape for better collision detection. For
