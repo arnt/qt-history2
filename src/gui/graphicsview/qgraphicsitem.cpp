@@ -1538,8 +1538,8 @@ bool QGraphicsItem::contains(const QPointF &point) const
 
 /*!
     Returns true if this item collides with \a other; otherwise returns false.
-    In item is said to collide with another if the items either intersect, or
-    if either item is contained within the other's area.
+    In item collides with another if the items either intersect, or
+    if either item is contained within the other.
 
     The default implementation is based on shape intersection, and it calls
     shape() on both items. Because the complexity of arbitrary shape-shape
