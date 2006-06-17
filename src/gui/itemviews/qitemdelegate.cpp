@@ -35,12 +35,6 @@
 #include <private/qdnd_p.h>
 #include <qdebug.h>
 
-#define USE_TEXTLAYOUT 1
-
-void qt_format_text(const QFont&, const QRectF&,
-                    int, const QString&, QRectF *,
-                    int, int*, int, QPainter*);
-
 class QItemDelegatePrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QItemDelegate)
@@ -65,11 +59,10 @@ public:
 
     QItemEditorFactory *f;
     bool clipPainting;
-#if USE_TEXTLAYOUT
+
     QSizeF doTextLayout(int lineWidth) const;
     mutable QTextLayout textLayout;
     mutable QTextOption textOption;
-#endif
 };
 
 void QItemDelegatePrivate::_q_commitDataAndCloseEditor(QWidget *editor)
@@ -79,7 +72,6 @@ void QItemDelegatePrivate::_q_commitDataAndCloseEditor(QWidget *editor)
     emit q->closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
 }
 
-#if USE_TEXTLAYOUT
 QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
 {
     QFontMetrics fontMetrics(textLayout.font());
@@ -100,7 +92,6 @@ QSizeF QItemDelegatePrivate::doTextLayout(int lineWidth) const
     textLayout.endLayout();
     return QSizeF(widthUsed, height);
 }
-#endif
 
 /*!
     \class QItemDelegate
@@ -517,7 +508,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
-#if USE_TEXTLAYOUT
+
     d->textOption.setWrapMode(QTextOption::NoWrap);
     d->textOption.setTextDirection(option.direction);
     d->textOption.setAlignment(option.displayAlignment);
@@ -533,20 +524,11 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         d->textLayout.setText(elided);
         textLayoutSize = d->doTextLayout(textRect.width());
     }
-    textRect = QStyle::alignedRect(option.direction, option.displayAlignment,
+    textRect = QStyle::alignedRect(option.direction,
+                                   Qt::AlignVCenter|Qt::AlignLeft,
                                    textLayoutSize.toSize().boundedTo(textRect.size()),
                                    textRect);
     d->textLayout.draw(painter, textRect.topLeft(), QVector<QTextLayout::FormatRange>(), textRect);
-#else
-    QFont font = painter->font();
-    painter->setFont(option.font);
-    QString str = text;
-    if (painter->fontMetrics().width(text) > textRect.width() && !text.contains(QLatin1Char('\n')))
-        str = elidedText(option.fontMetrics, textRect.width(), option.textElideMode, text);
-    qt_format_text(option.font, textRect, option.displayAlignment, str, 0, 0, 0, 0, painter);
-    painter->setFont(font);
-    painter->setPen(pen);
-#endif
 }
 
 /*!
@@ -900,31 +882,9 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 QRect QItemDelegate::textRectangle(QPainter *painter, const QRect &rect,
                                    const QFont &font, const QString &text) const
 {
-#if USE_TEXTLAYOUT
     QFontMetrics fontMetrics(font);
     const int lineCount = (text.count(QLatin1Char('\n')) + 1);
     return QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing() * lineCount);
-#else
-    // In qt 4.2 there will be a proper option in QStyleOptionViewItem for rect.width()
-    if (rect.width() == -1) {
-        QFontMetrics fontMetrics(font);
-        return QRect(0, 0, 0, fontMetrics.lineSpacing() * (text.count(QLatin1Char('\n')) + 1));
-    }
-    const QChar *chr = text.constData();
-    const QChar *end = chr + text.length();
-    while (chr != end
-           && *chr != QLatin1Char('\n')
-           && *chr != QLatin1Char('\t')
-           && *chr != QLatin1Char('&')) ++chr;
-    if (chr == end) {
-        QFontMetrics fontMetrics(font);
-        return QRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
-    }
-    QRectF result;
-    qt_format_text(font, rect, Qt::TextDontPrint|Qt::TextDontClip|Qt::TextExpandTabs,
-                   text, &result, 0, 0, 0, painter);
-    return result.toRect();
-#endif
 }
 
 /*!
