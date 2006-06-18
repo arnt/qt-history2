@@ -153,6 +153,7 @@ public:
     QTextFrame *currentFrame() const;
 
     void insertFragment(const QTextDocumentFragment &fragment);
+    void insertHtml(const QString &html);
 
     void insertImage(const QTextImageFormat &format, QTextFrameFormat::Position alignment);
     void insertImage(const QTextImageFormat &format);

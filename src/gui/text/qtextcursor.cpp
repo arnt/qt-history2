@@ -68,10 +68,10 @@ QTextCursorPrivate::AdjustResult QTextCursorPrivate::adjustPosition(int position
             position = positionOfChange;
         else
             position += charsAddedOrRemoved;
-        
+
         currentCharFormat = -1;
     }
-    
+
     if (anchor >= positionOfChange
         && (anchor != positionOfChange || op != QTextUndoCommand::KeepCursor)) {
         if (charsAddedOrRemoved < 0 && anchor < positionOfChange - charsAddedOrRemoved)
@@ -79,7 +79,7 @@ QTextCursorPrivate::AdjustResult QTextCursorPrivate::adjustPosition(int position
         else
             anchor += charsAddedOrRemoved;
     }
-    
+
     if (adjusted_anchor >= positionOfChange
         && (adjusted_anchor != positionOfChange || op != QTextUndoCommand::KeepCursor)) {
         if (charsAddedOrRemoved < 0 && adjusted_anchor < positionOfChange - charsAddedOrRemoved)
@@ -87,7 +87,7 @@ QTextCursorPrivate::AdjustResult QTextCursorPrivate::adjustPosition(int position
         else
             adjusted_anchor += charsAddedOrRemoved;
     }
-    
+
     return result;
 }
 
@@ -548,7 +548,7 @@ static void setBlockCharFormat(QTextDocumentPrivate *priv, int pos1, int pos2,
 void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &_format, QTextDocumentPrivate::FormatChangeMode changeMode)
 {
     priv->beginEditBlock();
-    
+
     QTextCharFormat format = _format;
     format.clearProperty(QTextFormat::ObjectIndex);
 
@@ -639,7 +639,7 @@ void QTextCursorPrivate::setBlockFormat(const QTextBlockFormat &format, QTextDoc
 void QTextCursorPrivate::setCharFormat(const QTextCharFormat &_format, QTextDocumentPrivate::FormatChangeMode changeMode)
 {
     Q_ASSERT(position != anchor);
-    
+
     QTextCharFormat format = _format;
     format.clearProperty(QTextFormat::ObjectIndex);
 
@@ -1050,9 +1050,9 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &_format
 {
     if (!d || !d->priv)
         return;
-    
+
     Q_ASSERT(_format.isValid());
-    
+
     QTextCharFormat format = _format;
     format.clearProperty(QTextFormat::ObjectIndex);
 
@@ -1823,6 +1823,19 @@ void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
 }
 
 /*!
+    \since 4.2
+    Inserts the text \a html at the current position(). The text is interpreted as
+    HTML.
+*/
+void QTextCursor::insertHtml(const QString &html)
+{
+    if (!d || !d->priv)
+        return;
+    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(html, d->priv->document());
+    insertFragment(fragment);
+}
+
+/*!
     \overload
     \since 4.2
 
@@ -1839,10 +1852,10 @@ void QTextCursor::insertImage(const QTextImageFormat &format, QTextFrameFormat::
     QTextFrameFormat ffmt;
     ffmt.setPosition(alignment);
     QTextObject *obj = d->priv->createObject(ffmt);
-    
+
     QTextImageFormat fmt = format;
     fmt.setObjectIndex(obj->objectIndex());
-        
+
     d->priv->beginEditBlock();
     d->remove();
     const int idx = d->priv->formatCollection()->indexForFormat(fmt);

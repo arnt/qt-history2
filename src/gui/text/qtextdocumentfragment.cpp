@@ -896,6 +896,7 @@ QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html)
 
 /*!
     \fn QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &text, const QTextDocument *resourceProvider)
+    \since 4.2
 
     Returns a QTextDocumentFragment based on the arbitrary piece of
     HTML in the given \a text. The formatting is preserved as much as

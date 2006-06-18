@@ -1826,8 +1826,7 @@ void QTextEdit::insertPlainText(const QString &text)
     It is equivalent to:
 
     \code
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
-    edit->textCursor().insertFragment(fragment);
+    edit->textCursor().insertHtml(fragment);
     \endcode
  */
 void QTextEdit::insertHtml(const QString &text)

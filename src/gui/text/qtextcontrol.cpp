@@ -2289,8 +2289,7 @@ void QTextControl::insertPlainText(const QString &text)
 void QTextControl::insertHtml(const QString &text)
 {
     Q_D(QTextControl);
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
-    d->cursor.insertFragment(fragment);
+    d->cursor.insertHtml(text);
 }
 
 QPointF QTextControl::anchorPosition(const QString &name) const
@@ -2367,7 +2366,7 @@ void QTextControl::append(const QString &text)
     // preserve the char format
     QTextCharFormat oldCharFormat = d->cursor.charFormat();
     if (Qt::mightBeRichText(text)) {
-        cursor.insertFragment(QTextDocumentFragment::fromHtml(text));
+        cursor.insertHtml(text);
     } else {
         cursor.insertText(text);
     }
