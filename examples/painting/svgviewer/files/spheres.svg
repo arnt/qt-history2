@@ -30,14 +30,14 @@
         <stop offset="75%" stop-color="yellow" />
         <stop offset="100%" stop-color="#444422" />
       </radialGradient>
-      <radialGradient id="shadow" gradientUnits="userSpaceOnUse"
+      <radialGradient id="shadowGrad" gradientUnits="userSpaceOnUse"
                       cx="0" cy="0" r="100" fx="-50" fy="50">
         <stop offset="0%" stop-color="black" stop-opacity="1.0" />
         <stop offset="100%" stop-color="white" stop-opacity="0.0" />
       </radialGradient>
 
       <!-- Define a shadow for each sphere. -->
-      <circle id="shadow" fill="url(#shadow)" cx="0" cy="0" r="100" />
+      <circle id="shadow" fill="url(#shadowGrad)" cx="0" cy="0" r="100" />
     </defs>
   <g fill="#ffee99" stroke="none" >
     <rect x="0" y="0" width="400" height="400" />
