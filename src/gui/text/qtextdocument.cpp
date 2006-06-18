@@ -306,6 +306,8 @@ QTextDocument *QTextDocument::clone(QObject *parent) const
     doc->d_func()->useDesignMetrics = d->useDesignMetrics;
     doc->d_func()->setDefaultFont(d->defaultFont());
     doc->d_func()->resources = d->resources;
+    doc->d_func()->defaultStyleSheet = d->defaultStyleSheet;
+    doc->d_func()->parsedDefaultStyleSheet = d->parsedDefaultStyleSheet;
     return doc;
 }
 
@@ -520,6 +522,34 @@ int QTextDocument::blockCount() const
 {
     Q_D(const QTextDocument);
     return d->blockMap().numNodes();
+}
+
+/*!
+    \property QTextDocument::defaultStyleSheet
+    \since 4.2
+
+    The default style sheet is applied to all newly HTML formatted text that is
+    inserted into the document, for example using setHtml() or QTextCursor::insertHtml().
+
+    The style sheet needs to be compliant to CSS 2.1 syntax.
+
+    \bold{Note:} Changing the default style sheet does not have any effect to the existing content
+    of the document.
+*/
+
+void QTextDocument::setDefaultStyleSheet(const QString &sheet)
+{
+    Q_D(QTextDocument);
+    d->defaultStyleSheet = sheet;
+    QCss::Parser parser(sheet);
+    d->parsedDefaultStyleSheet = QCss::StyleSheet();
+    parser.parse(&d->parsedDefaultStyleSheet);
+}
+
+QString QTextDocument::defaultStyleSheet() const
+{
+    Q_D(const QTextDocument);
+    return d->defaultStyleSheet;
 }
 
 /*!

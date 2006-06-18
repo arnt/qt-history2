@@ -1687,7 +1687,9 @@ QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(int node) const
     QVector<QCss::Declaration> decls;
 
     QTextHtmlStyleSelector selector(this);
-    selector.styleSheets = externalStyleSheets.values();
+    if (resourceProvider)
+        selector.styleSheets += resourceProvider->docHandle()->parsedDefaultStyleSheet;
+    selector.styleSheets += externalStyleSheets.values();
     selector.styleSheets += inlineStyleSheets;
     selector.medium = QLatin1String("screen");
 

@@ -38,6 +38,7 @@
 #include "QtCore/qmap.h"
 #include "QtCore/qvariant.h"
 #include "QtCore/qurl.h"
+#include "private/qcssparser_p.h"
 
 // #define QT_QMAP_DEBUG
 
@@ -280,11 +281,13 @@ private:
     QMap<int, QTextObject *> objects;
     QMap<QUrl, QVariant> resources;
     QMap<QUrl, QVariant> cachedResources;
+    QString defaultStyleSheet;
 
     QTextDocumentConfig docConfig;
     bool useDesignMetrics;
 
 public:
+    QCss::StyleSheet parsedDefaultStyleSheet;
     bool inContentsChange;
     QSizeF pageSize;
 };
