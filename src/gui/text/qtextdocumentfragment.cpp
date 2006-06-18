@@ -170,7 +170,7 @@ void QTextCopyHelper::copy()
     }
 }
 
-QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate() 
+QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate()
     : ref(1), doc(new QTextDocument), containsCompleteDocument(false), importedFromPlainText(false)
 {
     doc->setUndoRedoEnabled(false);
@@ -345,7 +345,7 @@ QString QTextDocumentFragment::toPlainText() const
 
 // #### Qt 5: merge with other overload
 /*!
-    \overload 
+    \overload
 */
 QString QTextDocumentFragment::toHtml() const
 {
@@ -386,7 +386,7 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     return res;
 }
 
-QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html)
+QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html, const QTextDocument *resourceProvider)
     : indent(0), setNamedAnchorInNextOutput(false), doc(_doc), containsCompleteDoc(false)
 {
     cursor = QTextCursor(doc);
@@ -403,7 +403,7 @@ QTextHtmlImporter::QTextHtmlImporter(QTextDocument *_doc, const QString &_html)
         html.prepend(QLatin1String("<meta name=\"qrichtext\" content=\"1\" />"));
     }
 
-    parse(html, doc);
+    parse(html, resourceProvider ? resourceProvider : doc);
 //    dumpHtml();
 }
 
@@ -692,7 +692,7 @@ bool QTextHtmlImporter::closeTag(int i)
 
             if (!t.isTextFrame) {
                 ++t.currentRow;
-                
+
                 // for broken html with rowspans but missing tr tags
                 while (!t.currentCell.atEnd() && t.currentCell.row < t.currentRow)
                     ++t.currentCell;
@@ -819,7 +819,7 @@ QTextHtmlImporter::Table QTextHtmlImporter::scanTable(int tableNodeIdx)
     const QTextHtmlParserNode &node = at(tableNodeIdx);
     if (node.isTextFrame) {
         // for plain text frames we set the frame margin
-        // for all of top/bottom/left/right, so in the import 
+        // for all of top/bottom/left/right, so in the import
         // here it doesn't matter which one we pick
         fmt.setMargin(node.uncollapsedMargin(QTextHtmlParser::MarginTop));
     } else {
@@ -891,10 +891,26 @@ void QTextHtmlImporter::appendBlock(const QTextBlockFormat &format, QTextCharFor
 */
 QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html)
 {
+    return fromHtml(html, 0);
+}
+
+/*!
+    \fn QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &text, const QTextDocument *resourceProvider)
+
+    Returns a QTextDocumentFragment based on the arbitrary piece of
+    HTML in the given \a text. The formatting is preserved as much as
+    possible; for example, "<b>bold</b>" will become a document
+    fragment with the text "bold" with a bold character format.
+
+    If the provided HTML contains references to external resources such as imported style sheets, then
+    they will be loaded through the \a resourceProvider.
+*/
+QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html, const QTextDocument *resourceProvider)
+{
     QTextDocumentFragment res;
     res.d = new QTextDocumentFragmentPrivate;
 
-    QTextHtmlImporter importer(res.d->doc, html);
+    QTextHtmlImporter importer(res.d->doc, html, resourceProvider);
     importer.import();
     res.d->containsCompleteDocument = importer.containsCompleteDocument();
     return res;

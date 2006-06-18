@@ -519,7 +519,7 @@ QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
                        && at(lastSibling).displayMode == QTextHtmlElement::DisplayInline) {
                     lastSibling = at(lastSibling).parent;
                 }
-                
+
                 if (at(lastSibling).displayMode == QTextHtmlElement::DisplayInline) {
                     reuseLastNode = false;
                 } else {
@@ -551,7 +551,7 @@ QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
     return newNode;
 }
 
-void QTextHtmlParser::parse(const QString &text, QTextDocument *_doc)
+void QTextHtmlParser::parse(const QString &text, const QTextDocument *_resourceProvider)
 {
     nodes.clear();
     nodes.resize(1);
@@ -559,7 +559,7 @@ void QTextHtmlParser::parse(const QString &text, QTextDocument *_doc)
     pos = 0;
     len = txt.length();
     textEditMode = false;
-    doc = _doc;
+    resourceProvider = _resourceProvider;
     parse();
     //dumpHtml();
 }
@@ -682,7 +682,7 @@ void QTextHtmlParser::eatSpace()
 
 void QTextHtmlParser::parse() {
     QTextHtmlParserNode::WhiteSpaceMode wsm = QTextHtmlParserNode::WhiteSpaceNormal;
-    while (pos < len) {        
+    while (pos < len) {
         QChar c = txt.at(pos++);
         if (c == QLatin1Char('<')) {
             parseTag();
@@ -793,9 +793,9 @@ void QTextHtmlParser::parseTag()
     // finish tag
     bool tagClosed = false;
     while (pos < len && txt.at(pos) != QLatin1Char('>')) {
-        if (txt.at(pos) == QLatin1Char('/')) 
+        if (txt.at(pos) == QLatin1Char('/'))
             tagClosed = true;
-        
+
 
         pos++;
     }
@@ -1309,13 +1309,13 @@ void QTextHtmlParserNode::applyCssDeclarations(const QVector<QCss::Declaration> 
 
     if (f.resolve() & QFontPrivate::Underline)
         fontUnderline = f.underline() ? On : Off;
-    
+
     if (f.resolve() & QFontPrivate::Overline)
         fontOverline = f.overline() ? On : Off;
-    
+
     if (f.resolve() & QFontPrivate::StrikeOut)
         fontStrikeOut = f.strikeOut() ? On : Off;
-    
+
     if (adjustment >= -1) {
         hasFontSizeAdjustment = true;
         fontSizeAdjustment = adjustment;
@@ -1550,8 +1550,8 @@ void QTextHtmlParser::applyAttributes(const QStringList &attributes)
                 node->direction = Qt::RightToLeft;
         }
     }
-    
-    if (doc && !linkHref.isEmpty() && linkType == QLatin1String("text/css"))
+
+    if (resourceProvider && !linkHref.isEmpty() && linkType == QLatin1String("text/css"))
         importStyleSheet(linkHref);
 }
 
@@ -1662,10 +1662,10 @@ void QTextHtmlParser::resolveStyleSheetImports(const QCss::StyleSheet &sheet)
 
 void QTextHtmlParser::importStyleSheet(const QString &href)
 {
-    if (externalStyleSheets.contains(href) || !doc)
+    if (externalStyleSheets.contains(href) || !resourceProvider)
         return;
-    
-    QVariant res = doc->resource(QTextDocument::StyleSheetResource, href);
+
+    QVariant res = resourceProvider->resource(QTextDocument::StyleSheetResource, href);
     QString css;
     if (res.type() == QVariant::String) {
         css = res.toString();

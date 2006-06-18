@@ -220,7 +220,7 @@ struct QTextHtmlParserNode {
     inline int uncollapsedMargin(int mar) const { return margin[mar]; }
 
     bool isNestedList(const QTextHtmlParser *parser) const;
-    
+
     void applyCssDeclarations(const QVector<QCss::Declaration> &declarations);
 
     int margin[4];
@@ -251,7 +251,7 @@ public:
 
     void dumpHtml();
 
-    void parse(const QString &text, QTextDocument *doc = 0);
+    void parse(const QString &text, const QTextDocument *resourceProvider);
 
     static int lookupElement(const QString &element);
 protected:
@@ -276,14 +276,14 @@ protected:
     inline bool hasPrefix(QChar c, int lookahead = 0) const
         {return pos + lookahead < len && txt.at(pos) == c; }
     int margin(int i, int mar) const;
-    
+
     QVector<QCss::Declaration> declarationsForNode(int node) const;
     void resolveStyleSheetImports(const QCss::StyleSheet &sheet);
     void importStyleSheet(const QString &href);
-    
+
     QHash<QString, QCss::StyleSheet> externalStyleSheets;
     QList<QCss::StyleSheet> inlineStyleSheets;
-    QTextDocument *doc;
+    const QTextDocument *resourceProvider;
 };
 
 #endif // QTEXTHTMLPARSER_P_H

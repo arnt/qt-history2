@@ -43,6 +43,7 @@ public:
 
     static QTextDocumentFragment fromPlainText(const QString &plainText);
     static QTextDocumentFragment fromHtml(const QString &html);
+    static QTextDocumentFragment fromHtml(const QString &html, const QTextDocument *resourceProvider);
 
 private:
     QTextDocumentFragmentPrivate *d;
