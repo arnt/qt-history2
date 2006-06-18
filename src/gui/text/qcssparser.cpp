@@ -526,9 +526,8 @@ void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, QH
             QPair<int, StyleRule> r;
             r.first = specificities[k]; // vaue for key
             r.second = rule;
-            QVector<QPair<int, StyleRule> > rs = matchingRules->value(states[k]);
-            rs.append(r);
-            (*matchingRules)[states[k]] = rs;
+            const int state = states.at(k);
+            (*matchingRules)[state] += r;
         }
     }
 }
