@@ -301,7 +301,7 @@ QTextDocument *QTextDocument::clone(QObject *parent) const
     Q_D(const QTextDocument);
     QTextDocument *doc = new QTextDocument(parent);
     QTextCursor(doc).insertFragment(QTextDocumentFragment(this));
-    doc->d_func()->config()->title = d->config()->title;
+    doc->d_func()->title = d->title;
     doc->d_func()->pageSize = d->pageSize;
     doc->d_func()->useDesignMetrics = d->useDesignMetrics;
     doc->d_func()->setDefaultFont(d->defaultFont());
@@ -654,7 +654,7 @@ QString QTextDocument::metaInformation(MetaInformation info) const
     if (info != DocumentTitle)
         return QString();
     Q_D(const QTextDocument);
-    return d->config()->title;
+    return d->title;
 }
 
 /*!
@@ -668,7 +668,7 @@ void QTextDocument::setMetaInformation(MetaInformation info, const QString &stri
     if (info != DocumentTitle)
         return;
     Q_D(QTextDocument);
-    d->config()->title = string;
+    d->title = string;
 }
 
 /*!

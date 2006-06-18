@@ -57,11 +57,6 @@ class QTextFrame;
 #define QTextBeginningOfFrame QChar(0xfdd0)
 #define QTextEndOfFrame QChar(0xfdd1)
 
-struct QTextDocumentConfig
-{
-    QString title;
-};
-
 class QTextFragmentData : public QFragment
 {
 public:
@@ -197,9 +192,6 @@ public:
 
     static const QTextBlockData *block(const QTextBlock &it) { return it.p->blocks.fragment(it.n); }
 
-    inline QTextDocumentConfig *config() { return &docConfig; }
-    inline const QTextDocumentConfig *config() const { return &docConfig; }
-
     int nextCursorPosition(int position, QTextLayout::CursorMode mode) const;
     int previousCursorPosition(int position, QTextLayout::CursorMode mode) const;
 
@@ -283,13 +275,13 @@ private:
     QMap<QUrl, QVariant> cachedResources;
     QString defaultStyleSheet;
 
-    QTextDocumentConfig docConfig;
     bool useDesignMetrics;
 
 public:
     QCss::StyleSheet parsedDefaultStyleSheet;
     bool inContentsChange;
     QSizeF pageSize;
+    QString title;
 };
 
 class QTextTable;

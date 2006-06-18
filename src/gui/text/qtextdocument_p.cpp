@@ -203,7 +203,7 @@ void QTextDocumentPrivate::clear()
     // (we're going to delete the object further down)
     objects.clear();
 
-    docConfig = QTextDocumentConfig();
+    title.clear();
     undoState = 0;
     truncateUndoStack();
     text = QString();
