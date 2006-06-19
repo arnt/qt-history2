@@ -2417,6 +2417,8 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
 bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     Q_D(QStandardItemModel);
+    if (!index.isValid())
+        return false;
     QStandardItem *item = d->itemFromIndexWithLazyCreation(index);
     if (item == 0)
         return false;
