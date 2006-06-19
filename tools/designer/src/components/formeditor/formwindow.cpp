@@ -183,6 +183,11 @@ void FormWindow::setCursorToAll(const QCursor &c, QWidget *start)
 
 void FormWindow::init()
 {
+    if (FormWindowManager *manager = qobject_cast<FormWindowManager*> (core()->formWindowManager())) {
+        m_commandHistory = new QUndoStack(this);
+        manager->undoGroup()->addStack(m_commandHistory);
+    }
+
     m_blockSelectionChanged = false;
 
     m_defaultMargin = INT_MIN;
@@ -225,10 +230,9 @@ void FormWindow::init()
     startWidget = 0;
     endWidget = 0;
 
-    m_commandHistory = new QtUndoStack(this);
-    connect(m_commandHistory, SIGNAL(commandExecuted()), this, SLOT(updateDirty()));
-    connect(m_commandHistory, SIGNAL(commandExecuted()), this, SIGNAL(changed()));
-    connect(commandHistory(), SIGNAL(commandExecuted()), this, SLOT(checkSelection()));
+    connect(m_commandHistory, SIGNAL(indexChanged(int)), this, SLOT(updateDirty()));
+    connect(m_commandHistory, SIGNAL(indexChanged(int)), this, SIGNAL(changed()));
+    connect(m_commandHistory, SIGNAL(indexChanged(int)), this, SLOT(checkSelection()));
 
     core()->metaDataBase()->add(this);
 
@@ -876,7 +880,7 @@ void FormWindow::resizeWidget(QWidget *widget, const QRect &geometry)
     r.moveTopLeft(gridPoint(geometry.topLeft()));
     SetPropertyCommand *cmd = new SetPropertyCommand(this);
     cmd->init(widget, QLatin1String("geometry"), r);
-    cmd->setDescription(tr("Resize"));
+    cmd->setText(tr("Resize"));
     m_commandHistory->push(cmd);
 }
 
@@ -1033,7 +1037,7 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
 
     // check if selection is the same as last time
     if (selCount != m_moveSelection.count() ||
-        m_lastUndoIndex != m_commandHistory->currentIndex()) {
+        m_lastUndoIndex != m_commandHistory->index()) {
         m_moveSelection.clear();
         startMacro = true;
     } else {
@@ -1077,7 +1081,7 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
         if (!cmd) {
             cmd = new SetPropertyCommand(this);
             cmd->init(c->selectedWidget(index), QLatin1String("geometry"), geom);
-            cmd->setDescription(tr("Key Move"));
+            cmd->setText(tr("Key Move"));
             m_commandHistory->push(cmd);
 
             if (m_moveSelection.count() > index)
@@ -1092,7 +1096,7 @@ void FormWindow::handleArrowKeyEvent(int key, bool modifier)
 
     if (startMacro) {
         endCommand();
-        m_lastUndoIndex = m_commandHistory->currentIndex();
+        m_lastUndoIndex = m_commandHistory->index();
     }
 }
 
@@ -1391,12 +1395,12 @@ void FormWindow::breakLayout()
 
 void FormWindow::beginCommand(const QString &description)
 {
-    m_commandHistory->push(new QtCommand(QtCommand::MacroBegin, description));
+    m_commandHistory->beginMacro(description);
 }
 
 void FormWindow::endCommand()
 {
-    m_commandHistory->push(new QtCommand(QtCommand::MacroEnd, QString()));
+    m_commandHistory->endMacro();
 }
 
 void FormWindow::raiseWidgets()
@@ -1877,12 +1881,12 @@ void FormWindow::setDirty(bool dirty)
     m_dirty = dirty;
 
     if (!m_dirty)
-        m_lastIndex = m_commandHistory->currentIndex();
+        m_lastIndex = m_commandHistory->index();
 }
 
 void FormWindow::updateDirty()
 {
-    m_dirty = m_commandHistory->currentIndex() != m_lastIndex;
+    m_dirty = m_commandHistory->index() != m_lastIndex;
 }
 
 QWidget *FormWindow::containerAt(const QPoint &pos)

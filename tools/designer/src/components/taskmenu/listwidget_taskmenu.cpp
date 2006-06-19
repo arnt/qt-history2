@@ -73,7 +73,7 @@ void ListWidgetTaskMenu::editItems()
         }
         ChangeListContentsCommand *cmd = new ChangeListContentsCommand(m_formWindow);
         cmd->init(m_listWidget, items);
-        cmd->setDescription(tr("Change List Contents"));
+        cmd->setText(tr("Change List Contents"));
         m_formWindow->commandHistory()->push(cmd);
     }
 }

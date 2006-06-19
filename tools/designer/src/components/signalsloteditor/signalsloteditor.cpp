@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <qtundo_p.h>
+#include <QtGui/QUndoCommand>
 #include "signalsloteditor.h"
 #include "default_membersheet.h"
 #include "signalsloteditor_p.h"
@@ -587,9 +587,8 @@ void SignalSlotConnection::updateVisibility()
 ** Commands
 */
 
-class SetMemberCommand : public QtCommand, public CETypes
+class SetMemberCommand : public QUndoCommand, public CETypes
 {
-    Q_OBJECT
 public:
     SetMemberCommand(SignalSlotConnection *con, EndPoint::Type type,
                         const QString &member, SignalSlotEditor *editor);
@@ -611,7 +610,10 @@ SetMemberCommand::SetMemberCommand(SignalSlotConnection *con, EndPoint::Type typ
     m_old_member = type == EndPoint::Source ? con->signal() : con->slot();
     m_new_member = member;
 
-    setDescription(tr("Change %1").arg(type == EndPoint::Source ? tr("signal") : tr("slot")));
+    if (type == EndPoint::Source)
+        setText(QApplication::translate("Command", "Change signal"));
+    else
+        setText(QApplication::translate("Command", "Change slot"));
 }
 
 void SetMemberCommand::redo()
@@ -819,7 +821,7 @@ void SignalSlotEditor::setSignal(SignalSlotConnection *con, const QString &membe
     if (member == con->signal())
         return;
 
-    m_form_window->beginCommand(tr("Change signal"));
+    m_form_window->beginCommand(QApplication::translate("Command", "Change signal"));
     undoStack()->push(new SetMemberCommand(con, EndPoint::Source, member, this));
     if (!signalMatchesSlot(member, con->slot()))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Target, QString(), this));
@@ -831,7 +833,7 @@ void SignalSlotEditor::setSlot(SignalSlotConnection *con, const QString &member)
     if (member == con->slot())
         return;
 
-    m_form_window->beginCommand(tr("Change slot"));
+    m_form_window->beginCommand(QApplication::translate("Command", "Change slot"));
     undoStack()->push(new SetMemberCommand(con, EndPoint::Target, member, this));
     if (!signalMatchesSlot(con->signal(), member))
         undoStack()->push(new SetMemberCommand(con, EndPoint::Source, QString(), this));
@@ -845,7 +847,7 @@ void SignalSlotEditor::setSource(Connection *_con, const QString &obj_name)
     if (con->sender() == obj_name)
         return;
 
-    m_form_window->beginCommand(tr("Change sender"));
+    m_form_window->beginCommand(QApplication::translate("Command", "Change sender"));
     ConnectionEdit::setSource(con, obj_name);
 
     QObject *sourceObject = con->object(EndPoint::Source);
@@ -866,7 +868,7 @@ void SignalSlotEditor::setTarget(Connection *_con, const QString &obj_name)
     if (con->receiver() == obj_name)
         return;
 
-    m_form_window->beginCommand(tr("Change receiver"));
+    m_form_window->beginCommand(QApplication::translate("Command", "Change receiver"));
     ConnectionEdit::setTarget(con, obj_name);
 
     QWidget *w = con->widget(EndPoint::Target);

@@ -23,7 +23,7 @@
 #include <QtGui/QFont>
 #include <QtGui/QFontMetrics>
 
-class QtUndoStack;
+class QUndoStack;
 class QDesignerFormWindowInterface;
 
 namespace qdesigner_internal {
@@ -61,7 +61,7 @@ private:
     QList<QWidget*> m_tab_order_list;
 
     QWidget *m_bg_widget;
-    QtUndoStack *m_undo_stack;
+    QUndoStack *m_undo_stack;
     QRegion m_indicator_region;
 
     QFontMetrics m_font_metrics;

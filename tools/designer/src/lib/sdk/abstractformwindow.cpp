@@ -447,7 +447,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 */
 
 /*!
-    \fn virtual QtUndoStack *QDesignerFormWindowInterface::commandHistory() const
+    \fn virtual QUndoStack *QDesignerFormWindowInterface::commandHistory() const
 
     Returns an object that can be used to obtain the commands used so
     far in the construction of the form.

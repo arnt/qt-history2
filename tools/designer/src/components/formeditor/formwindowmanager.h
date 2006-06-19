@@ -25,6 +25,7 @@
 
 class QAction;
 class QActionGroup;
+class QUndoGroup;
 class MetaDataBase;
 class QDesignerFormEditorInterface;
 class QDesignerWidgetBoxInterface;
@@ -69,6 +70,8 @@ public:
 
     void dragItems(const QList<QDesignerDnDItemInterface*> &item_list);
 
+    QUndoGroup *undoGroup() const;
+
 public slots:
     void addFormWindow(QDesignerFormWindowInterface *formWindow);
     void removeFormWindow(QDesignerFormWindowInterface *formWindow);
@@ -101,7 +104,7 @@ private:
     void layoutContainerVertical();
     void layoutContainerGrid();
 
-    void setCurrentUndoStack(QtUndoStack *stack);
+    void setCurrentUndoStack(QUndoStack *stack);
 
 private:
     QDesignerFormEditorInterface *m_core;
@@ -140,6 +143,7 @@ private:
     FormWindow *m_last_form_under_mouse;
     QDesignerWidgetBoxInterface *m_widget_box_under_mouse;
     Qt::ContextMenuPolicy m_savedContextMenuPolicy;
+    QUndoGroup *m_undoGroup;
 };
 
 }  // namespace qdesigner_internal

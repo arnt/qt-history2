@@ -20,11 +20,12 @@
 #include "connectionedit_p.h"
 
 #include <QtDesigner/QtDesigner>
-#include <QtDesigner/private/qtundo_p.h>
 #include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_command_p.h>
 #include <layoutinfo_p.h>
 
+#include <QtGui/QUndoGroup>
+#include <QtGui/QUndoStack>
 #include <QtGui/QAction>
 #include <QtGui/QLayout>
 #include <QtGui/QSplitter>
@@ -176,7 +177,7 @@ void FormWindowManager::addFormWindow(QDesignerFormWindowInterface *w)
         return;
 
     connect(formWindow, SIGNAL(selectionChanged()), this, SLOT(slotUpdateActions()));
-    connect(formWindow->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(slotUpdateActions()));
+    connect(formWindow->commandHistory(), SIGNAL(indexChanged(int)), this, SLOT(slotUpdateActions()));
     connect(formWindow, SIGNAL(toolChanged(int)), this, SLOT(slotUpdateActions()));
 
     m_formWindows.append(formWindow);
@@ -222,7 +223,7 @@ void FormWindowManager::setActiveFormWindow(QDesignerFormWindowInterface *w)
 
     if (m_activeFormWindow) {
         m_activeFormWindow->emitSelectionChanged();
-        m_activeFormWindow->commandHistory()->setCurrent();
+        m_activeFormWindow->commandHistory()->setActive();
 
         QWidget *parent = m_activeFormWindow->parentWidget();
         QWorkspace *workspace = 0;
@@ -351,9 +352,11 @@ void FormWindowManager::setupActions()
     connect(m_actionBreakLayout, SIGNAL(triggered()), this, SLOT(slotActionBreakLayoutActivated()));
     m_actionBreakLayout->setEnabled(false);
 
-    m_actionUndo = QtUndoManager::manager()->createUndoAction(this);
+    m_undoGroup = new QUndoGroup(this);
+
+    m_actionUndo = m_undoGroup->createUndoAction(this);
     m_actionUndo->setEnabled(false);
-    m_actionRedo = QtUndoManager::manager()->createRedoAction(this);
+    m_actionRedo = m_undoGroup->createRedoAction(this);
     m_actionRedo->setEnabled(false);
 }
 
@@ -781,3 +784,7 @@ bool FormWindowManager::isDecoration(QWidget *widget) const
     return false;
 }
 
+QUndoGroup *FormWindowManager::undoGroup() const
+{
+    return m_undoGroup;
+}

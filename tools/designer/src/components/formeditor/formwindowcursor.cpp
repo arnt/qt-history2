@@ -142,7 +142,7 @@ void FormWindowCursor::setProperty(const QString &name, const QVariant &value)
     Q_ASSERT(N);
 
     if (N > 1)
-        m_formWindow->commandHistory()->push(new QtCommand(QtCommand::MacroBegin, tr("changed '%1'").arg(name)));
+        m_formWindow->beginCommand(tr("changed '%1'").arg(name));
 
     for (int i=0; i<N; ++i) {
         QWidget *widget = selectedWidget(i);
@@ -150,7 +150,7 @@ void FormWindowCursor::setProperty(const QString &name, const QVariant &value)
     }
 
     if (N > 1)
-        m_formWindow->commandHistory()->push(new QtCommand(QtCommand::MacroEnd));
+        m_formWindow->endCommand();
 }
 
 void FormWindowCursor::setWidgetProperty(QWidget *widget, const QString &name, const QVariant &value)

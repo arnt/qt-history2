@@ -17,7 +17,6 @@ HEADERS += \
     $$PWD/layoutinfo_p.h \
     $$PWD/layout_p.h \
     $$PWD/connectionedit_p.h \
-    $$PWD/qtundo_p.h \
     $$PWD/pluginmanager_p.h \
     $$PWD/metadatabase_p.h \
     $$PWD/qdesigner_command_p.h \
@@ -59,7 +58,6 @@ SOURCES += \
     $$PWD/layoutinfo.cpp \
     $$PWD/layout.cpp \
     $$PWD/connectionedit.cpp \
-    $$PWD/qtundo.cpp \
     $$PWD/pluginmanager.cpp \
     $$PWD/qdesigner_command.cpp \
     $$PWD/qdesigner_formbuilder.cpp \

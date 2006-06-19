@@ -16,6 +16,7 @@
 #include <QtGui/QFontMetrics>
 #include <QtGui/QPixmap>
 #include <QtGui/QMatrix>
+#include <QtGui/QApplication>
 #include <QtGui/qevent.h>
 
 #include <QtCore/qdebug.h>
@@ -106,7 +107,7 @@ static QPoint pointInsideRect(const QRect &r, QPoint p)
 AddConnectionCommand::AddConnectionCommand(ConnectionEdit *edit, Connection *con)
     : CECommand(edit), m_con(con)
 {
-    setDescription(tr("Add connection"));
+    setText(QApplication::translate("Command", "Add connection"));
 }
 
 void AddConnectionCommand::redo()
@@ -132,7 +133,6 @@ void AddConnectionCommand::undo()
 
 class AdjustConnectionCommand : public CECommand
 {
-    Q_OBJECT
 public:
     AdjustConnectionCommand(ConnectionEdit *edit, Connection *con,
                             const QPoint &old_source_pos,
@@ -154,7 +154,7 @@ AdjustConnectionCommand::AdjustConnectionCommand(ConnectionEdit *edit, Connectio
                                                     const QPoint &new_target_pos)
     : CECommand(edit)
 {
-    setDescription(tr("Adjust connection"));
+    setText(QApplication::translate("Command", "Adjust connection"));
     m_con = con;
     m_old_source_pos = old_source_pos;
     m_old_target_pos = old_target_pos;
@@ -178,7 +178,7 @@ DeleteConnectionsCommand::DeleteConnectionsCommand(ConnectionEdit *edit,
                                                     const ConnectionList &con_list)
     : CECommand(edit), m_con_list(con_list)
 {
-   setDescription(tr("Delete connections"));
+   setText(QApplication::translate("Command", "Delete connections"));
 }
 
 void DeleteConnectionsCommand::redo()
@@ -210,7 +210,6 @@ void DeleteConnectionsCommand::undo()
 
 class SetEndPointCommand : public CECommand
 {
-    Q_OBJECT
 public:
     SetEndPointCommand(ConnectionEdit *edit, Connection *con, EndPoint::Type type, QObject *object);
     virtual void redo();
@@ -236,7 +235,10 @@ SetEndPointCommand::SetEndPointCommand(ConnectionEdit *edit, Connection *con,
         m_new_pos = edit->widgetRect(widget).center();
     }
 
-    setDescription(tr("Change %1").arg(m_type == EndPoint::Source ? tr("source") : tr("target")));
+    if (m_type == EndPoint::Source)
+        setText(QApplication::translate("Command", "Change source"));
+    else
+        setText(QApplication::translate("Command", "Change target"));
 }
 
 void SetEndPointCommand::redo()
@@ -1453,5 +1455,3 @@ void ConnectionEdit::setTarget(Connection *con, const QString &obj_name)
 }
 
 } // namespace qdesigner_internal
-
-#include "connectionedit.moc"

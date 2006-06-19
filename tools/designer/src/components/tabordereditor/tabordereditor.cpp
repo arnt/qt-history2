@@ -23,7 +23,7 @@
 
 #include <QtDesigner/QtDesigner>
 
-#include <qtundo_p.h>
+#include <QtGui/QUndoCommand>
 #include <qdesigner_command_p.h>
 #include <qdesigner_widget_p.h>
 #include <qdesigner_utils_p.h>

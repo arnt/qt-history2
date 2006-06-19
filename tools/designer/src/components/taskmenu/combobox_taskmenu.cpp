@@ -73,7 +73,7 @@ void ComboBoxTaskMenu::editItems()
         }
         ChangeListContentsCommand *cmd = new ChangeListContentsCommand(m_formWindow);
         cmd->init(m_comboBox, items);
-        cmd->setDescription(tr("Change Combobox Contents"));
+        cmd->setText(tr("Change Combobox Contents"));
         m_formWindow->commandHistory()->push(cmd);
     }
 }

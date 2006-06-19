@@ -14,7 +14,7 @@
 #include "qdesigner_taskmenu_p.h"
 #include "qdesigner_command_p.h"
 #include "qdesigner_promotedwidget_p.h"
-#include "qtundo_p.h"
+#include <QtGui/QUndoCommand>
 #include "richtexteditor_p.h"
 #include "promotetocustomwidgetdialog_p.h"
 #include "widgetfactory_p.h"
@@ -53,6 +53,7 @@ static QMenuBar *findMenuBar(const QWidget *widget)
     return 0;
 }
 
+#if 0 // ### unused
 static QStatusBar *findStatusBar(const QWidget *widget)
 {
     QList<QObject*> children = widget->children();
@@ -64,6 +65,7 @@ static QStatusBar *findStatusBar(const QWidget *widget)
 
     return 0;
 }
+#endif
 
 QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),

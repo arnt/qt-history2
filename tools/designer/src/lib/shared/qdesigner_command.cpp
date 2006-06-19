@@ -42,7 +42,7 @@ namespace qdesigner_internal {
 
 // ---- QDesignerFormEditorCommand ----
 QDesignerFormEditorCommand::QDesignerFormEditorCommand(const QString &description, QDesignerFormEditorInterface *core)
-    : QtCommand(description),
+    : QUndoCommand(description),
       m_core(core)
 {
 }
@@ -54,7 +54,7 @@ QDesignerFormEditorInterface *QDesignerFormEditorCommand::core() const
 
 // ---- QDesignerFormWindowManagerCommand ----
 QDesignerFormWindowManagerCommand::QDesignerFormWindowManagerCommand(const QString &description, QDesignerFormWindowManagerInterface *formWindowManager)
-    : QtCommand(description),
+    : QUndoCommand(description),
       m_formWindowManager(formWindowManager)
 {
 }
@@ -66,7 +66,7 @@ QDesignerFormWindowManagerInterface *QDesignerFormWindowManagerCommand::formWind
 
 // ---- QDesignerFormWindowCommand ----
 QDesignerFormWindowCommand::QDesignerFormWindowCommand(const QString &description, QDesignerFormWindowInterface *formWindow)
-    : QtCommand(description),
+    : QUndoCommand(description),
       m_formWindow(formWindow)
 {
 }
@@ -158,7 +158,6 @@ SetPropertyCommand::SetPropertyCommand(QDesignerFormWindowInterface *formWindow)
       m_propertySheet(0),
       m_changed(false)
 {
-    setCanMerge(true);
 }
 
 QObject *SetPropertyCommand::object() const
@@ -199,7 +198,7 @@ void SetPropertyCommand::init(QObject *object, const QString &propertyName, cons
     m_changed = m_propertySheet->isChanged(m_index);
     m_oldValue = m_propertySheet->property(m_index);
 
-    setDescription(tr("changed '%1' of '%2'").arg(m_propertyName).arg(object->objectName()));
+    setText(QApplication::translate("Command", "changed '%1' of '%2'").arg(m_propertyName).arg(object->objectName()));
 }
 
 void SetPropertyCommand::redo()
@@ -267,9 +266,17 @@ void SetPropertyCommand::undo()
     }
 }
 
-bool SetPropertyCommand::mergeMeWith(QtCommand *other)
+int SetPropertyCommand::id() const
 {
-    if (SetPropertyCommand *cmd = qobject_cast<SetPropertyCommand*>(other)) {
+    return 1976;
+}
+
+bool SetPropertyCommand::mergeWith(QUndoCommand *other)
+{
+    if (id() != other->id())
+        return false;
+
+    if (SetPropertyCommand *cmd = static_cast<SetPropertyCommand*>(other)) {
         if (cmd->propertyName() == propertyName() && cmd->widget() == widget()) {
             m_newValue = cmd->newValue();
             return true;
@@ -286,7 +293,6 @@ ResetPropertyCommand::ResetPropertyCommand(QDesignerFormWindowInterface *formWin
       m_propertySheet(0),
       m_changed(false)
 {
-    setCanMerge(true);
 }
 
 QObject *ResetPropertyCommand::object() const
@@ -317,7 +323,7 @@ void ResetPropertyCommand::init(QObject *object, const QString &propertyName)
     m_changed = m_propertySheet->isChanged(m_index);
     m_oldValue = m_propertySheet->property(m_index);
 
-    setDescription(tr("reset '%1' of '%2'").arg(m_propertyName).arg(m_object->objectName()));
+    setText(QApplication::translate("Command", "reset '%1' of '%2'").arg(m_propertyName).arg(m_object->objectName()));
 }
 
 void ResetPropertyCommand::redo()
@@ -400,7 +406,7 @@ void InsertWidgetCommand::init(QWidget *widget, bool already_in_form)
 {
     m_widget = widget;
 
-    setDescription(tr("Insert '%1'").arg(widget->objectName()));
+    setText(QApplication::translate("Command", "Insert '%1'").arg(widget->objectName()));
 
     QWidget *parentWidget = m_widget->parentWidget();
     QDesignerFormEditorInterface *core = formWindow()->core();
@@ -489,7 +495,7 @@ RaiseWidgetCommand::RaiseWidgetCommand(QDesignerFormWindowInterface *formWindow)
 void RaiseWidgetCommand::init(QWidget *widget)
 {
     m_widget = widget;
-    setDescription(tr("Raise '%1'").arg(widget->objectName()));
+    setText(QApplication::translate("Command", "Raise '%1'").arg(widget->objectName()));
 }
 
 void RaiseWidgetCommand::redo()
@@ -510,7 +516,7 @@ LowerWidgetCommand::LowerWidgetCommand(QDesignerFormWindowInterface *formWindow)
 void LowerWidgetCommand::init(QWidget *widget)
 {
     m_widget = widget;
-    setDescription(tr("Lower '%1'").arg(widget->objectName()));
+    setText(QApplication::translate("Command", "Lower '%1'").arg(widget->objectName()));
 }
 
 void LowerWidgetCommand::redo()
@@ -573,7 +579,7 @@ void DeleteWidgetCommand::init(QWidget *widget)
             m_managedChildren.append(child);
     }
 
-    setDescription(tr("Delete '%1'").arg(widget->objectName()));
+    setText(QApplication::translate("Command", "Delete '%1'").arg(widget->objectName()));
 }
 
 void DeleteWidgetCommand::redo()
@@ -679,7 +685,7 @@ void ReparentWidgetCommand::init(QWidget *widget, QWidget *parentWidget)
     m_oldPos = m_widget->pos();
     m_newPos = m_newParentWidget->mapFromGlobal(m_oldParentWidget->mapToGlobal(m_oldPos));
 
-    setDescription(tr("Reparent '%1'").arg(widget->objectName()));
+    setText(QApplication::translate("Command", "Reparent '%1'").arg(widget->objectName()));
 }
 
 void ReparentWidgetCommand::redo()
@@ -757,7 +763,7 @@ static void replace_widget_item(QDesignerFormWindowInterface *fw, QWidget *wgt, 
 
 PromoteToCustomWidgetCommand::PromoteToCustomWidgetCommand
                                 (QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Promote to custom widget"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Promote to custom widget"), formWindow)
 {
     m_widget = 0;
     m_promoted = 0;
@@ -807,7 +813,7 @@ void PromoteToCustomWidgetCommand::undo()
 
 DemoteFromCustomWidgetCommand::DemoteFromCustomWidgetCommand
                                     (QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Demote from custom widget"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Demote from custom widget"), formWindow)
 {
     m_promote_cmd = new PromoteToCustomWidgetCommand(formWindow);
 }
@@ -852,17 +858,17 @@ void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, 
     switch (layoutType) {
         case LayoutInfo::Grid:
             m_layout = new GridLayout(widgets, m_parentWidget, formWindow(), layoutBase, sz);
-            setDescription(tr("Lay out using grid"));
+            setText(QApplication::translate("Command", "Lay out using grid"));
             break;
 
         case LayoutInfo::VBox:
             m_layout = new VerticalLayout(widgets, m_parentWidget, formWindow(), layoutBase, splitter);
-            setDescription(tr("Lay out vertically"));
+            setText(QApplication::translate("Command", "Lay out vertically"));
             break;
 
         case LayoutInfo::HBox:
             m_layout = new HorizontalLayout(widgets, m_parentWidget, formWindow(), layoutBase, splitter);
-            setDescription(tr("Lay out horizontally"));
+            setText(QApplication::translate("Command", "Lay out horizontally"));
             break;
         default:
             Q_ASSERT(0);
@@ -903,7 +909,7 @@ void LayoutCommand::undo()
 
 // ---- BreakLayoutCommand ----
 BreakLayoutCommand::BreakLayoutCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Break layout"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Break layout"), formWindow)
 {
 }
 
@@ -1022,7 +1028,7 @@ MoveToolBoxPageCommand::~MoveToolBoxPageCommand()
 void MoveToolBoxPageCommand::init(QToolBox *toolBox, QWidget *page, int newIndex)
 {
     ToolBoxCommand::init(toolBox);
-    setDescription(tr("Move Page"));
+    setText(QApplication::translate("Command", "Move Page"));
 
     m_widget = page;
     m_oldIndex = m_toolBox->indexOf(m_widget);
@@ -1056,7 +1062,7 @@ DeleteToolBoxPageCommand::~DeleteToolBoxPageCommand()
 void DeleteToolBoxPageCommand::init(QToolBox *toolBox)
 {
     ToolBoxCommand::init(toolBox);
-    setDescription(tr("Delete Page"));
+    setText(QApplication::translate("Command", "Delete Page"));
 }
 
 void DeleteToolBoxPageCommand::redo()
@@ -1094,12 +1100,12 @@ void AddToolBoxPageCommand::init(QToolBox *toolBox, InsertionMode mode)
     if (mode == InsertAfter)
         m_index++;
     m_widget = new QDesignerWidget(formWindow(), m_toolBox);
-    m_itemText = tr("Page");
+    m_itemText = QApplication::translate("Command", "Page");
     m_itemIcon = QIcon();
-    m_widget->setObjectName(tr("page"));
+    m_widget->setObjectName(QApplication::translate("Command", "page"));
     formWindow()->ensureUniqueObjectName(m_widget);
 
-    setDescription(tr("Insert Page"));
+    setText(QApplication::translate("Command", "Insert Page"));
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     core->metaDataBase()->add(m_widget);
@@ -1166,7 +1172,7 @@ DeleteTabPageCommand::~DeleteTabPageCommand()
 void DeleteTabPageCommand::init(QTabWidget *tabWidget)
 {
     TabWidgetCommand::init(tabWidget);
-    setDescription(tr("Delete Page"));
+    setText(QApplication::translate("Command", "Delete Page"));
 }
 
 void DeleteTabPageCommand::redo()
@@ -1204,12 +1210,12 @@ void AddTabPageCommand::init(QTabWidget *tabWidget, InsertionMode mode)
     if (mode == InsertAfter)
         m_index++;
     m_widget = new QDesignerWidget(formWindow(), m_tabWidget);
-    m_itemText = tr("Page");
+    m_itemText = QApplication::translate("Command", "Page");
     m_itemIcon = QIcon();
-    m_widget->setObjectName(tr("tab"));
+    m_widget->setObjectName(QApplication::translate("Command", "tab"));
     formWindow()->ensureUniqueObjectName(m_widget);
 
-    setDescription(tr("Insert Page"));
+    setText(QApplication::translate("Command", "Insert Page"));
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     core->metaDataBase()->add(m_widget);
@@ -1242,7 +1248,7 @@ void MoveTabPageCommand::init(QTabWidget *tabWidget, QWidget *page,
                       int index, int newIndex)
 {
     TabWidgetCommand::init(tabWidget);
-    setDescription(tr("Move Page"));
+    setText(QApplication::translate("Command", "Move Page"));
 
     m_page = page;
     m_newIndex = newIndex;
@@ -1311,7 +1317,7 @@ MoveStackedWidgetCommand::~MoveStackedWidgetCommand()
 void MoveStackedWidgetCommand::init(QStackedWidget *stackedWidget, QWidget *page, int newIndex)
 {
     StackedWidgetCommand::init(stackedWidget);
-    setDescription(tr("Move Page"));
+    setText(QApplication::translate("Command", "Move Page"));
 
     m_widget = page;
     m_newIndex = newIndex;
@@ -1343,7 +1349,7 @@ DeleteStackedWidgetPageCommand::~DeleteStackedWidgetPageCommand()
 void DeleteStackedWidgetPageCommand::init(QStackedWidget *stackedWidget)
 {
     StackedWidgetCommand::init(stackedWidget);
-    setDescription(tr("Delete Page"));
+    setText(QApplication::translate("Command", "Delete Page"));
 }
 
 void DeleteStackedWidgetPageCommand::redo()
@@ -1381,10 +1387,10 @@ void AddStackedWidgetPageCommand::init(QStackedWidget *stackedWidget, InsertionM
     if (mode == InsertAfter)
         m_index++;
     m_widget = new QDesignerWidget(formWindow(), m_stackedWidget);
-    m_widget->setObjectName(tr("page"));
+    m_widget->setObjectName(QApplication::translate("Command", "page"));
     formWindow()->ensureUniqueObjectName(m_widget);
 
-    setDescription(tr("Insert Page"));
+    setText(QApplication::translate("Command", "Insert Page"));
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     core->metaDataBase()->add(m_widget);
@@ -1404,7 +1410,7 @@ void AddStackedWidgetPageCommand::undo()
 
 // ---- TabOrderCommand ----
 TabOrderCommand::TabOrderCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Change Tab order"), formWindow),
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Change Tab order"), formWindow),
       m_widgetItem(0)
 {
 }
@@ -1432,7 +1438,7 @@ void TabOrderCommand::undo()
 
 // ---- CreateMenuBarCommand ----
 CreateMenuBarCommand::CreateMenuBarCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Create Menu Bar"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Create Menu Bar"), formWindow)
 {
 }
 
@@ -1476,7 +1482,7 @@ void CreateMenuBarCommand::undo()
 
 // ---- DeleteMenuBarCommand ----
 DeleteMenuBarCommand::DeleteMenuBarCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Delete Menu Bar"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Delete Menu Bar"), formWindow)
 {
 }
 
@@ -1523,7 +1529,7 @@ void DeleteMenuBarCommand::undo()
 
 // ---- CreateStatusBarCommand ----
 CreateStatusBarCommand::CreateStatusBarCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Create Status Bar"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Create Status Bar"), formWindow)
 {
 }
 
@@ -1565,7 +1571,7 @@ void CreateStatusBarCommand::undo()
 
 // ---- AddToolBarCommand ----
 AddToolBarCommand::AddToolBarCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Add Tool Bar"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Add Tool Bar"), formWindow)
 {
 }
 
@@ -1623,7 +1629,7 @@ void DockWidgetCommand::init(QDockWidget *dockWidget)
 
 // ---- SetDockWidgetCommand ----
 SetDockWidgetCommand::SetDockWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : DockWidgetCommand(tr("Set Dock Window Widget"), formWindow)
+    : DockWidgetCommand(QApplication::translate("Command", "Set Dock Window Widget"), formWindow)
 {
 }
 
@@ -1648,7 +1654,7 @@ void SetDockWidgetCommand::redo()
 
 // ---- AddDockWidgetCommand ----
 AddDockWidgetCommand::AddDockWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Add Dock Window"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Add Dock Window"), formWindow)
 {
 }
 
@@ -1703,7 +1709,7 @@ AdjustWidgetSizeCommand::AdjustWidgetSizeCommand(QDesignerFormWindowInterface *f
 void AdjustWidgetSizeCommand::init(QWidget *widget)
 {
     m_widget = widget;
-    setDescription(tr("Adjust Size of '%1'").arg(widget->objectName()));
+    setText(QApplication::translate("Command", "Adjust Size of '%1'").arg(widget->objectName()));
     m_geometry = m_widget->geometry();
 }
 
@@ -1739,7 +1745,7 @@ void AdjustWidgetSizeCommand::undo()
 
 // ---- ChangeLayoutItemGeometry ----
 ChangeLayoutItemGeometry::ChangeLayoutItemGeometry(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Change Layout Item Geometry"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Change Layout Item Geometry"), formWindow)
 {
 }
 
@@ -1801,7 +1807,7 @@ void ChangeLayoutItemGeometry::undo()
 
 // ---- InsertRowCommand ----
 InsertRowCommand::InsertRowCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Insert Row"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Insert Row"), formWindow)
 {
 }
 
@@ -1880,7 +1886,7 @@ DeleteContainerWidgetPageCommand::~DeleteContainerWidgetPageCommand()
 void DeleteContainerWidgetPageCommand::init(QWidget *containerWidget)
 {
     ContainerWidgetCommand::init(containerWidget);
-    setDescription(tr("Delete Page"));
+    setText(QApplication::translate("Command", "Delete Page"));
 }
 
 void DeleteContainerWidgetPageCommand::redo()
@@ -1919,10 +1925,10 @@ void AddContainerWidgetPageCommand::init(QWidget *containerWidget, InsertionMode
         if (mode == InsertAfter)
             m_index++;
         m_widget = new QDesignerWidget(formWindow(), m_containerWidget);
-        m_widget->setObjectName(tr("page"));
+        m_widget->setObjectName(QApplication::translate("Command", "page"));
         formWindow()->ensureUniqueObjectName(m_widget);
 
-        setDescription(tr("Insert Page"));
+        setText(QApplication::translate("Command", "Insert Page"));
 
         QDesignerFormEditorInterface *core = formWindow()->core();
         core->metaDataBase()->add(m_widget);
@@ -1943,7 +1949,7 @@ void AddContainerWidgetPageCommand::undo()
 
 // ---- ChangeTableContentsCommand ----
 ChangeTableContentsCommand::ChangeTableContentsCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Change Table Contents"), formWindow),
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Change Table Contents"), formWindow),
         m_oldColumnCount(0),
         m_newColumnCount(0),
         m_oldRowCount(0),
@@ -2114,7 +2120,7 @@ void ChangeTableContentsCommand::undo()
 
 // ---- ChangeTreeContentsCommand ----
 ChangeTreeContentsCommand::ChangeTreeContentsCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Change Tree Contents"), formWindow),
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Change Tree Contents"), formWindow),
         m_oldHeaderItemState(0),
         m_newHeaderItemState(0),
         m_oldColumnCount(0),
@@ -2356,7 +2362,7 @@ void RemoveActionCommand::undo()
 // ---- InsertActionIntoCommand ----
 
 InsertActionIntoCommand::InsertActionIntoCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Add action"), formWindow),
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Add action"), formWindow),
     m_parentWidget(0), m_action(0), m_beforeAction(0)
 {
 }
@@ -2405,7 +2411,7 @@ void InsertActionIntoCommand::undo()
 // ---- RemoveActionFromCommand ----
 
 RemoveActionFromCommand::RemoveActionFromCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Remove action"), formWindow),
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Remove action"), formWindow),
     m_parentWidget(0), m_action(0), m_beforeAction(0)
 {
 }
@@ -2452,7 +2458,7 @@ void RemoveActionFromCommand::undo()
 
 // ---- AddMenuActionCommand ----
 AddMenuActionCommand::AddMenuActionCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Add menu"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Add menu"), formWindow)
 {
     m_action = 0;
     m_parent = 0;
@@ -2485,7 +2491,7 @@ void AddMenuActionCommand::undo()
 
 // ---- RemoveMenuActionCommand ----
 RemoveMenuActionCommand::RemoveMenuActionCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Remove menu"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Remove menu"), formWindow)
 {
     m_action = 0;
     m_parent = 0;
@@ -2520,7 +2526,7 @@ void RemoveMenuActionCommand::undo()
 
 // ---- CreateSubmenuCommand ----
 CreateSubmenuCommand::CreateSubmenuCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Create submenu"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Create submenu"), formWindow)
 {
     m_action = 0;
     m_menu = 0;
@@ -2546,7 +2552,7 @@ void CreateSubmenuCommand::undo()
 
 // ---- DeleteToolBarCommand ----
 DeleteToolBarCommand::DeleteToolBarCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowCommand(tr("Delete Tool Bar"), formWindow)
+    : QDesignerFormWindowCommand(QApplication::translate("Command", "Delete Tool Bar"), formWindow)
 {
 }
 

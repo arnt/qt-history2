@@ -34,11 +34,11 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QPolygonF>
 
-#include "qtundo_p.h"
+#include <QtGui/QUndoCommand>
 #include "shared_global_p.h"
 
 class QDesignerFormWindowInterface;
-class QtUndoStack;
+class QUndoStack;
 
 namespace qdesigner_internal {
 
@@ -152,10 +152,10 @@ public:
     virtual void setSource(Connection *con, const QString &obj_name);
     virtual void setTarget(Connection *con, const QString &obj_name);
 
-    QtUndoStack *undoStack() const { return m_undo_stack; }
+    QUndoStack *undoStack() const { return m_undo_stack; }
 
     void clear();
-    
+
     void showEvent(QShowEvent * /*e*/)
     {
         updateBackground();
@@ -198,7 +198,7 @@ protected:
 
 private:
     QWidget *m_bg_widget;
-    QtUndoStack *m_undo_stack;
+    QUndoStack *m_undo_stack;
     bool m_enable_update_background;
 
     Connection *m_tmp_con; // the connection we are currently editing
@@ -238,20 +238,22 @@ private:
     friend class SetEndPointCommand;
 };
 
-class QDESIGNER_SHARED_EXPORT CECommand : public QtCommand, public CETypes
+class QDESIGNER_SHARED_EXPORT CECommand : public QUndoCommand, public CETypes
 {
-    Q_OBJECT
 public:
     CECommand(ConnectionEdit *edit)
-        : m_edit(edit) { setCanMerge(false); }
+        : m_edit(edit) {}
+
+    virtual bool mergeWith(const QUndoCommand *) { return false; }
+
     ConnectionEdit *edit() const { return m_edit; }
+
 private:
     ConnectionEdit *m_edit;
 };
 
 class QDESIGNER_SHARED_EXPORT AddConnectionCommand : public CECommand
 {
-    Q_OBJECT
 public:
     AddConnectionCommand(ConnectionEdit *edit, Connection *con);
     virtual void redo();

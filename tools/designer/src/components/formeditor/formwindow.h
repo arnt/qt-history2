@@ -35,7 +35,7 @@ class QLabel;
 class QTimer;
 class QAction;
 class QMenu;
-class QtUndoStack;
+class QUndoStack;
 class QRubberBand;
 
 namespace qdesigner_internal {
@@ -155,7 +155,7 @@ public:
     void manageWidget(QWidget *w);
     void unmanageWidget(QWidget *w);
 
-    inline QtUndoStack *commandHistory() const
+    inline QUndoStack *commandHistory() const
     { return m_commandHistory; }
 
     void beginCommand(const QString &description);
@@ -311,7 +311,7 @@ private:
     QWidget *targetContainer;
     QPalette restorePalette;
 
-    QtUndoStack *m_commandHistory;
+    QUndoStack *m_commandHistory;
 
     QString m_fileName;
 
@@ -342,7 +342,7 @@ private:
     QString m_exportMacro;
     QStringList m_includeHints;
 
-    QList<QPointer<SetPropertyCommand> > m_moveSelection;
+    QList<SetPropertyCommand*> m_moveSelection;
     int m_lastUndoIndex;
 
 private:

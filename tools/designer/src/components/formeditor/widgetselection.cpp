@@ -32,6 +32,7 @@
 #include <QtGui/QMouseEvent>
 #include <QtGui/QStylePainter>
 #include <QtGui/QGridLayout>
+#include <QtGui/QStyleOptionToolButton>
 
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
