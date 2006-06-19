@@ -98,6 +98,7 @@
 #include <qbytearray.h>
 #include <qdebug.h>
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qimage.h>
 #include <qimageiohandler.h>
 #include <qlist.h>
@@ -124,7 +125,52 @@
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QImageIOHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/imageformats")))
 #endif
-    
+
+enum _qt_BuiltInFormatType {
+#ifndef QT_NO_IMAGEFORMAT_PNG
+    _qt_PngFormat,
+#endif
+    _qt_BmpFormat,
+#ifndef QT_NO_IMAGEFORMAT_PPM
+    _qt_PpmFormat,
+    _qt_PgmFormat,
+    _qt_PbmFormat,
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XBM
+    _qt_XbmFormat,
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XPM
+    _qt_XpmFormat,
+#endif
+    _qt_NumFormats,
+    _qt_NoFormat = -1
+};
+
+struct _qt_BuiltInFormatStruct
+{
+    _qt_BuiltInFormatType type;
+    const char extension[4];
+};
+
+static const _qt_BuiltInFormatStruct _qt_BuiltInFormats[] = {
+#ifndef QT_NO_IMAGEFORMAT_PNG
+    {_qt_PngFormat, "png"},
+#endif
+    {_qt_BmpFormat, "bmp"},
+#ifndef QT_NO_IMAGEFORMAT_PPM
+    {_qt_PpmFormat, "ppm"},
+    {_qt_PgmFormat, "pgm"},
+    {_qt_PbmFormat, "pbm"},
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XBM
+    {_qt_XbmFormat, "xbm"},
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XPM
+    {_qt_XpmFormat, "xpm"},
+#endif
+    {_qt_NoFormat, ""}
+};
+
 static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &format)
 {
     QByteArray form = format.toLower();
@@ -134,76 +180,165 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
     // check if we have plugins that support the image format
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
-    const qint64 pos = device->pos();
-    for (int i = 0; i < keys.count(); ++i) {
-        QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
-        if (plugin && plugin->capabilities(device, form) & QImageIOPlugin::CanRead) {
+    QByteArray suffix;
+
+    int suffixPluginIndex = -1;
+    if (device && format.isEmpty()) {
+        // if there's no format, see if \a device is a file, and if so, find
+        // the file suffix and find support for that format among our plugins.
+        // this allows plugins to override our built-in handlers.
+        if (QFile *file = qobject_cast<QFile *>(device)) {
+            if (!(suffix = QFileInfo(file->fileName()).suffix().toLower().toLatin1()).isEmpty()) {
+                int index = keys.indexOf(suffix);
+                if (index != -1)
+                    suffixPluginIndex = index;
+            }
+        }
+    }
+    
+    if (device && suffixPluginIndex != -1) {
+        // check if the plugin that claims support for this format can load
+        // from this device with this format.
+        const qint64 pos = device->pos();
+        QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(suffix));
+        if (plugin && plugin->capabilities(device, form) & QImageIOPlugin::CanRead)
             handler = plugin->create(device, form);
-            break;
+        device->seek(pos);
+    }
+
+    if (!handler && !format.isEmpty()) {
+        // check if any plugin supports the format (they are not allowed to
+        // read from the device yet).
+        const qint64 pos = device->pos();
+        for (int i = 0; i < keys.size(); ++i) {
+            if (i != suffixPluginIndex) {
+                QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
+                if (plugin && plugin->capabilities(0, form) & QImageIOPlugin::CanRead) {
+                    handler = plugin->create(device, form);
+                    break;
+                }
+            }
         }
         device->seek(pos);
     }
 #endif // QT_NO_LIBRARY
 
-    // check if we have built-in support for the format name
-    if (!format.isEmpty()) {
-	if (false) {	
+    // if we don't have a handler yet, check if we have built-in support for
+    // the format
+    if (!handler && (!form.isEmpty() || !suffix.isEmpty())) {
+        QByteArray testFormat = !form.isEmpty() ? form : suffix;
+        if (false) {
 #ifndef QT_NO_IMAGEFORMAT_PNG
-	} else if (form == "png") {
+	} else if (testFormat == "png") {
             handler = new QPngHandler;
 #endif
 #ifndef QT_NO_IMAGEFORMAT_BMP
-        } else if (form == "bmp") {
+        } else if (testFormat == "bmp") {
             handler = new QBmpHandler;
 #endif
 #ifndef QT_NO_IMAGEFORMAT_XPM
-        } else if (form == "xpm") {
+        } else if (testFormat == "xpm") {
             handler = new QXpmHandler;
 #endif
 #ifndef QT_NO_IMAGEFORMAT_XBM
-        } else if (form == "xbm") {
+        } else if (testFormat == "xbm") {
             handler = new QXbmHandler;
-            handler->setOption(QImageIOHandler::SubType, form);
+            handler->setOption(QImageIOHandler::SubType, format);
 #endif
 #ifndef QT_NO_IMAGEFORMAT_PPM
-        } else if (form == "pbm" || form == "pbmraw" || form == "pgm"
-                 || form == "pgmraw" || form == "ppm" || form == "ppmraw") {
+        } else if (testFormat == "pbm" || testFormat == "pbmraw" || testFormat == "pgm"
+                   || testFormat == "pgmraw" || testFormat == "ppm" || testFormat == "ppmraw") {
             handler = new QPpmHandler;
-            handler->setOption(QImageIOHandler::SubType, form);
-#endif
-        }
-    }
-    
-    // check if any of our built-in formats can read images from the device
-    if (!handler) {
-        QByteArray subType;
-	if (false) {	
-#ifndef QT_NO_IMAGEFORMAT_PNG
-	} else if (QPngHandler::canRead(device)) {
-            handler = new QPngHandler;
-#endif
-#ifndef QT_NO_IMAGEFORMAT_BMP
-        } else if (QBmpHandler::canRead(device)) {
-            handler = new QBmpHandler;
-#endif
-#ifndef QT_NO_IMAGEFORMAT_XPM
-        } else if (QXpmHandler::canRead(device)) {
-            handler = new QXpmHandler;
-#endif
-#ifndef QT_NO_IMAGEFORMAT_PPM
-        } else if (QPpmHandler::canRead(device, &subType)) {
-            handler = new QPpmHandler;
-            handler->setOption(QImageIOHandler::SubType, subType);
-#endif
-#ifndef QT_NO_IMAGEFORMAT_XBM
-        } else if (QXbmHandler::canRead(device)) {
-            handler = new QXbmHandler;
+            handler->setOption(QImageIOHandler::SubType, testFormat);
 #endif
         }
     }
 
-    if (!handler)
+#ifndef QT_NO_LIBRARY
+    if (!handler) {
+        // check if any of our plugins recognize the file from its contents.
+        const qint64 pos = device->pos();
+        for (int i = 0; i < keys.size(); ++i) {
+            if (i != suffixPluginIndex) {
+                QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
+                if (plugin && plugin->capabilities(device, 0) & QImageIOPlugin::CanRead) {
+                    handler = plugin->create(device, form);
+                    break;
+                }
+            }
+        }
+        device->seek(pos);
+    }
+#endif
+
+    if (!handler) {
+        // check if any of our built-in handlers recognize the file from its
+        // contents.
+        int currentFormat = 0;
+        if (!suffix.isEmpty()) {
+            // If reading from a file with a suffix, start testing our
+            // built-in handler for that suffix first.
+            for (int i = 0; i < _qt_NumFormats; ++i) {
+                if (_qt_BuiltInFormats[i].extension == suffix) {
+                    currentFormat = i;
+                    break;
+                }
+            }
+        }
+
+        QByteArray subType;
+        int numFormats = _qt_NumFormats;
+        while (numFormats >= 0) {
+            const _qt_BuiltInFormatStruct *formatStruct = &_qt_BuiltInFormats[currentFormat];
+            switch (formatStruct->type) {
+#ifndef QT_NO_IMAGEFORMAT_PNG
+            case _qt_PngFormat:
+                if (QPngHandler::canRead(device))
+                    handler = new QPngHandler;
+                break;
+#endif
+#ifndef QT_NO_IMAGEFORMAT_BMP
+            case _qt_BmpFormat:
+                if (QBmpHandler::canRead(device))
+                    handler = new QBmpHandler;
+                break;
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XPM
+            case _qt_XpmFormat:
+                if (QXpmHandler::canRead(device))
+                    handler = new QXpmHandler;
+                break;
+#endif
+#ifndef QT_NO_IMAGEFORMAT_PPM
+            case _qt_PbmFormat:
+            case _qt_PgmFormat:
+            case _qt_PpmFormat:
+                if (QPpmHandler::canRead(device, &subType)) {
+                    handler = new QPpmHandler;
+                    handler->setOption(QImageIOHandler::SubType, subType);
+                }
+                break;
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XBM
+            case _qt_XbmFormat:
+                if (QXbmHandler::canRead(device))
+                    handler = new QXbmHandler;
+                break;
+#endif
+            default:
+                break;
+            }
+
+            --numFormats;
+            ++currentFormat;
+            currentFormat %= _qt_NumFormats;
+        }
+    }
+
+    if (!handler) {
+        // no handler: give up.
         return 0;
+    }
 
     handler->setDevice(device);
     handler->setFormat(format);
@@ -933,19 +1068,8 @@ QByteArray QImageReader::imageFormat(QIODevice *device)
 QList<QByteArray> QImageReader::supportedImageFormats()
 {
     QSet<QByteArray> formats;
-    formats << "bmp";
-#ifndef QT_NO_IMAGEFORMAT_PPM
-    formats << "ppm" << "pgm" << "pbm";
-#endif
-#ifndef QT_NO_IMAGEFORMAT_XBM
-    formats << "xbm";
-#endif
-#ifndef QT_NO_IMAGEFORMAT_XPM
-    formats << "xpm";
-#endif
-#ifndef QT_NO_IMAGEFORMAT_PNG
-    formats << "png";
-#endif
+    for (int i = 0; i < _qt_NumFormats; ++i)
+        formats << _qt_BuiltInFormats[i].extension;
 
 #ifndef QT_NO_LIBRARY
     QFactoryLoader *l = loader();
