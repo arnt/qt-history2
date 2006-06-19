@@ -954,7 +954,7 @@ void *fetchData(QTestData *data, const char *tagName, int typeId)
 
     int idx = data->parent()->indexOf(tagName);
 
-    if (idx == -1) {
+    if (idx == -1 || idx >= data->dataCount()) {
         qFatal("QFETCH: Requested testdata '%s' not available, check your _data function.",
                 tagName);
     }

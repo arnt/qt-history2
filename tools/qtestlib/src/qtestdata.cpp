@@ -84,3 +84,7 @@ const char *QTestData::dataTag() const
     return d->tag;
 }
 
+int QTestData::dataCount() const
+{
+    return d->dataCount;
+}

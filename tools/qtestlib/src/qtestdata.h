@@ -33,6 +33,7 @@ public:
     void *data(int index) const;
     const char *dataTag() const;
     QTestTable *parent() const;
+    int dataCount() const;
 
 private:
     friend class QTestTable;
