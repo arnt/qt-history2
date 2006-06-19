@@ -276,7 +276,7 @@ bool QObjectPrivate::isValidObject(QObject *object)
 }
 
 QObjectPrivate::QObjectPrivate(int version)
-    : thread(0), currentSender(0)
+    : thread(0), currentSender(0), currentSenderSignalIdStart(-1), currentSenderSignalIdEnd(-1)
 {
     if (version != QObjectPrivateVersion)
         qFatal("Cannot mix incompatible Qt libraries");
@@ -437,8 +437,10 @@ void QObjectPrivate::clearGuards(QObject *object)
 
 /*! \internal
  */
-QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender, int nargs, int *types, void **args)
-    :QEvent(MetaCall), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
+QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender, int idFrom, int idTo,
+                               int nargs, int *types, void **args)
+    : QEvent(MetaCall), id_(id), sender_(sender), idFrom_(idFrom), idTo_(idTo),
+      nargs_(nargs), types_(types), args_(args)
 { }
 
 /*! \internal
@@ -992,7 +994,11 @@ bool QObject::event(QEvent *e)
             Q_D(QObject);
             QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
             QObject *previousSender = d->currentSender;
+            int previousFrom = d->currentSenderSignalIdStart;
+            int previousTo = d->currentSenderSignalIdEnd;
             d->currentSender = const_cast<QObject*>(mce->sender());
+            d->currentSenderSignalIdStart = mce->signalIdStart();
+            d->currentSenderSignalIdEnd = mce->signalIdEnd();
 #if defined(QT_NO_EXCEPTIONS)
             qt_metacall(QMetaObject::InvokeMetaMethod, mce->id(), mce->args());
 #else
@@ -1000,14 +1006,20 @@ bool QObject::event(QEvent *e)
                 qt_metacall(QMetaObject::InvokeMetaMethod, mce->id(), mce->args());
             } catch (...) {
                 QReadLocker locker(QObjectPrivate::readWriteLock());
-                if (QObjectPrivate::isValidObject(this))
+                if (QObjectPrivate::isValidObject(this)) {
                     d->currentSender = previousSender;
+                    d->currentSenderSignalIdStart = previousFrom;
+                    d->currentSenderSignalIdEnd = previousTo;
+                }
                 throw;
             }
 #endif
             QReadLocker locker(QObjectPrivate::readWriteLock());
-            if (QObjectPrivate::isValidObject(this))
+            if (QObjectPrivate::isValidObject(this)) {
                 d->currentSender = previousSender;
+                d->currentSenderSignalIdStart = previousFrom;
+                d->currentSenderSignalIdEnd = previousTo;
+            }
             break;
         }
 
@@ -2659,7 +2671,7 @@ void QMetaObject::connectSlotsByName(QObject *o)
     }
 }
 
-static void queued_activate(QObject *sender, const QConnection &c, void **argv)
+static void queued_activate(QObject *sender, const QConnection &c, void **argv, int idFrom, int idTo)
 {
     if (!c.types && c.types != &DIRECT_CONNECTION_ONLY) {
         QMetaMethod m = sender->metaObject()->method(c.signal);
@@ -2684,6 +2696,8 @@ static void queued_activate(QObject *sender, const QConnection &c, void **argv)
         args[n] = QMetaType::construct((types[n] = c.types[n-1]), argv[n]);
     QCoreApplication::postEvent(c.receiver, new QMetaCallEvent(c.method,
                                                                sender,
+                                                               idFrom,
+                                                               idTo,
                                                                nargs,
                                                                types,
                                                                args));
@@ -2739,7 +2753,8 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         QConnectionList * const list = ::connectionList();
         QConnection &c = list->connections[at];
         c.inUse = 0;
-        if (!c.receiver || (c.signal < from_signal_index || c.signal > to_signal_index))
+        if (!c.receiver || ((c.signal < from_signal_index || c.signal > to_signal_index) &&
+                            c.signal != -1))
             continue;
 
         // determine if this connection should be sent immediately or
@@ -2748,13 +2763,17 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
              && (currentQThreadId != sender->d_func()->thread
                  || c.receiver->d_func()->thread != sender->d_func()->thread))
             || (c.type == Qt::QueuedConnection)) {
-            ::queued_activate(sender, c, argv);
+            ::queued_activate(sender, c, argv, from_signal_index, to_signal_index);
             continue;
         }
 
         const int method = c.method;
         QObject * const previousSender = c.receiver->d_func()->currentSender;
+        int previousFrom = c.receiver->d_func()->currentSenderSignalIdStart;
+        int previousTo = c.receiver->d_func()->currentSenderSignalIdEnd;
         c.receiver->d_func()->currentSender = sender;
+        c.receiver->d_func()->currentSenderSignalIdStart = from_signal_index;
+        c.receiver->d_func()->currentSenderSignalIdEnd = to_signal_index;
         locker.unlock();
 
         if (qt_signal_spy_callback_set.slot_begin_callback != 0)
@@ -2766,8 +2785,11 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
         try {
             c.receiver->qt_metacall(QMetaObject::InvokeMetaMethod, method, argv ? argv : empty_argv);
         } catch (...) {
-            if (c.receiver)
+            if (c.receiver) {
                 c.receiver->d_func()->currentSender = previousSender;
+                c.receiver->d_func()->currentSenderSignalIdStart = previousFrom;
+                c.receiver->d_func()->currentSenderSignalIdEnd = previousTo;
+            }
             throw;
         }
 #endif
@@ -2776,8 +2798,11 @@ void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal
             qt_signal_spy_callback_set.slot_end_callback(c.receiver, method);
 
         locker.relock();
-        if (c.receiver)
+        if (c.receiver) {
             c.receiver->d_func()->currentSender = previousSender;
+            c.receiver->d_func()->currentSenderSignalIdStart = previousFrom;
+            c.receiver->d_func()->currentSenderSignalIdEnd = previousTo;
+        }
     }
 
     locker.unlock();

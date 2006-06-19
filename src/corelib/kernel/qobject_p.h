@@ -73,6 +73,8 @@ public:
 
     // object currently activating the object
     QObject *currentSender;
+    int currentSenderSignalIdStart;
+    int currentSenderSignalIdEnd;
 
     bool isSender(const QObject *receiver, const char *signal) const;
     QObjectList receiverList(const char *signal) const;
@@ -94,17 +96,21 @@ public:
 class Q_CORE_EXPORT QMetaCallEvent : public QEvent
 {
 public:
-    QMetaCallEvent(int id, const QObject *sender = 0,
+    QMetaCallEvent(int id, const QObject *sender = 0, int idFrom = -1, int idTo = -1,
                    int nargs = 0, int *types = 0, void **args = 0);
     ~QMetaCallEvent();
 
     inline int id() const { return id_; }
     inline const QObject *sender() const { return sender_; }
+    inline int signalIdStart() const { return idFrom_; }
+    inline int signalIdEnd() const { return idTo_; }
     inline void **args() const { return args_; }
 
 private:
     int id_;
     const QObject *sender_;
+    int idFrom_;
+    int idTo_;
     int nargs_;
     int *types_;
     void **args_;
