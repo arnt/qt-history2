@@ -37,17 +37,20 @@ QStringList QSvgPlugin::keys() const
 
 QImageIOPlugin::Capabilities QSvgPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
+    //### canRead disabled for now because it's hard to detect
+    //    whether the file is actually svg without parsing it
+    //if (device->isReadable() && QSvgIOHandler::canRead(device))
+
     if (format == "svg")
         return Capabilities(CanRead);
-    if (!format.isEmpty())
+    else
         return 0;
+
+
     if (!device->isOpen())
         return 0;
 
     Capabilities cap;
-    //### canRead disabled for now because it's hard to detect
-    //    whether the file is actually svg without parsing it
-    //if (device->isReadable() && QSvgIOHandler::canRead(device))
     if (device->isReadable())
         cap |= CanRead;
     return cap;
