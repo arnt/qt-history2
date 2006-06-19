@@ -277,7 +277,7 @@ QSize QDockAreaLayoutInfo::maximumSize() const
 
         QSize max_size = item.maximumSize();
         a += pick(o, max_size);
-        a = qMin(a, QWIDGETSIZE_MAX);
+        a = qMin(a, int(QWIDGETSIZE_MAX));
         b = qMax(b, perp(o, max_size));
 
         prev_gap = gap;
@@ -1312,7 +1312,7 @@ void QDockWidgetLayout::remove(QList<int> path)
     Q_ASSERT(!path.isEmpty());
     int index = path.takeFirst();
     Q_ASSERT(index >= 0 && index < PosCount);
-    return docks[index].remove(path);
+    docks[index].remove(path);
 }
 
 static inline int qMin(int i1, int i2, int i3) { return qMin(i1, qMin(i2, i3)); }
