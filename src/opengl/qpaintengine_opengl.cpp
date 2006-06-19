@@ -653,7 +653,7 @@ static const char *const conical_program =
     "\0";
 
 #ifdef Q_WS_WIN
-static bool qt_resolve_frag_program_extensions(QGLContext *ctx)
+bool qt_resolve_frag_program_extensions(QGLContext *ctx)
 {
     if (glProgramStringARB != 0)
         return true;

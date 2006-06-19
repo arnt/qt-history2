@@ -175,7 +175,7 @@ static bool qt_resolve_framebufferobject_extensions(QGLContext *)
 #define glGetFramebufferAttachmentParameterivEXT ctx->d_ptr->qt_glGetFramebufferAttachmentParameterivEXT
 #define glGenerateMipmapEXT ctx->d_ptr->qt_glGenerateMipmapEXT
 
-static bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
+bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
 {
     if (glIsRenderbufferEXT != 0)
 	return true;
