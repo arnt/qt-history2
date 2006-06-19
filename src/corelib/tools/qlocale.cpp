@@ -286,8 +286,8 @@ static QByteArray envVarLocale()
 */
 
 static const char *winLangCodeToIsoName(int code);
-static QString winIso639LangName();
-static QString winIso3116CtryName();
+static QString winIso639LangName(LCID id = LOCALE_USER_DEFAULT);
+static QString winIso3116CtryName(LCID id = LOCALE_USER_DEFAULT);
 
 static QString getWinLocaleInfo(LCTYPE type)
 {
@@ -328,24 +328,27 @@ static QString getWinLocaleInfo(LCTYPE type)
     return result;
 }
 
-QByteArray getWinLocaleName()
+QByteArray getWinLocaleName(LCID id = LOCALE_USER_DEFAULT)
 {
-    QByteArray result = envVarLocale();
-    if ( !result.isEmpty() ) {
-        long id = 0;
-        bool ok = false;
-        id = qstrtoll(result.data(), 0, 0, &ok);
-        if ( !ok || id == 0 || id < INT_MIN || id > INT_MAX )
-            return result;
-        else
-            return winLangCodeToIsoName( (int)id );
+    QByteArray result;
+    if (id == LOCALE_USER_DEFAULT) {
+        result = envVarLocale();
+        if ( !result.isEmpty() ) {
+            long id = 0;
+            bool ok = false;
+            id = qstrtoll(result.data(), 0, 0, &ok);
+            if ( !ok || id == 0 || id < INT_MIN || id > INT_MAX )
+                return result;
+            else
+                return winLangCodeToIsoName( (int)id );
+        }
     }
 
     if (QSysInfo::WindowsVersion == QSysInfo::WV_95) {
-        result = winLangCodeToIsoName(GetUserDefaultLangID());
+        result = winLangCodeToIsoName(id != LOCALE_USER_DEFAULT ? id : GetUserDefaultLangID());
     } else {
-        QString resultuage = winIso639LangName();
-        QString country = winIso3116CtryName();
+        QString resultuage = winIso639LangName(id);
+        QString country = winIso3116CtryName(id);
         result += resultuage.toLatin1();
         if (!country.isEmpty()) {
             result += '_';
@@ -354,6 +357,11 @@ QByteArray getWinLocaleName()
     }
 
     return result;
+}
+
+Q_CORE_EXPORT QLocale qt_localeFromLCID(LCID id)
+{
+    return QLocale(getWinLocaleName(id));
 }
 
 static QString winToQtFormat(const QString &sys_fmt)
@@ -724,7 +732,7 @@ static const char *winLangCodeToIsoName(int code)
 
 }
 
-static QString winIso639LangName()
+static QString winIso639LangName(LCID id)
 {
     QString result;
 
@@ -733,11 +741,11 @@ static QString winIso639LangName()
     QString lang_code;
     QT_WA({
         TCHAR out[256];
-        if (GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_ILANGUAGE, out, 255))
+        if (GetLocaleInfoW(id, LOCALE_ILANGUAGE, out, 255))
             lang_code = QString::fromUtf16((ushort*)out);
     } , {
         char out[256];
-        if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_ILANGUAGE, out, 255))
+        if (GetLocaleInfoA(id, LOCALE_ILANGUAGE, out, 255))
             lang_code = QString::fromLocal8Bit(out);
     });
 
@@ -763,28 +771,28 @@ static QString winIso639LangName()
     // not one of the problematic languages - do the usual lookup
     QT_WA({
         TCHAR out[256];
-        if (GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , out, 255))
+        if (GetLocaleInfoW(id, LOCALE_SISO639LANGNAME , out, 255))
             result = QString::fromUtf16((ushort*)out);
     } , {
         char out[256];
-        if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, out, 255))
+        if (GetLocaleInfoA(id, LOCALE_SISO639LANGNAME, out, 255))
             result = QString::fromLocal8Bit(out);
     });
 
     return result;
 }
 
-static QString winIso3116CtryName()
+static QString winIso3116CtryName(LCID id)
 {
     QString result;
 
     QT_WA({
         TCHAR out[256];
-        if (GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
+        if (GetLocaleInfoW(id, LOCALE_SISO3166CTRYNAME, out, 255))
             result = QString::fromUtf16((ushort*)out);
     } , {
         char out[256];
-        if (GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255))
+        if (GetLocaleInfoA(id, LOCALE_SISO3166CTRYNAME, out, 255))
             result = QString::fromLocal8Bit(out);
     });
 
