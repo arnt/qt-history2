@@ -1,47 +1,82 @@
 TEMPLATE = subdirs
-CONFIG += ordered
 
 # this order is important
-win32:SUBDIRS += winmain
-SUBDIRS += tools/moc tools/rcc tools/uic corelib xml gui sql network svg
-!embedded:contains(QT_CONFIG, opengl): SUBDIRS += opengl
-contains(QT_CONFIG, qt3support): SUBDIRS += qt3support
+win32:SUBDIRS += src_winmain
+SUBDIRS += src_tools_moc src_tools_rcc src_tools_uic src_corelib src_xml src_gui src_sql src_network src_svg
+!embedded:contains(QT_CONFIG, opengl): SUBDIRS += src_opengl
+contains(QT_CONFIG, qt3support): SUBDIRS += src_qt3support
 !cross_compile {
-    contains(QT_CONFIG, qt3support): SUBDIRS += tools/uic3
+    contains(QT_CONFIG, qt3support): SUBDIRS += src_tools_uic3
 }
-win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += activeqt tools/idc
-SUBDIRS += plugins
+win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += src_activeqt src_tools_idc
+SUBDIRS += src_plugins
 
 # This gives us a top level debug/release
 EXTRA_DEBUG_TARGETS =
 EXTRA_RELEASE_TARGETS =
-for(sub, SUBDIRS) {
-sub_pro = $$sub/$${basename(sub)}.pro
-!exists($$sub_pro):next()
-isEqual($$list($$fromfile($$sub_pro, TEMPLATE)), lib) {
-    #debug
-    eval(debug-$${sub}.depends = $${sub}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
-    eval(debug-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) debug))
-    EXTRA_DEBUG_TARGETS += debug-$${sub}
-    QMAKE_EXTRA_TARGETS += debug-$${sub}
-    #release
-    eval(release-$${sub}.depends = $${sub}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
-    eval(release-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) release))
-    EXTRA_RELEASE_TARGETS += release-$${sub}
-    QMAKE_EXTRA_TARGETS += release-$${sub}
-} else { #do not have a real debug target/release
-    #debug
-    eval(debug-$${sub}.depends = $${sub}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
-    eval(debug-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) first))
-    EXTRA_DEBUG_TARGETS += debug-$${sub}
-    QMAKE_EXTRA_TARGETS += debug-$${sub}
-    #release
-    eval(release-$${sub}.depends = $${sub}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
-    eval(release-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) first))
-    EXTRA_RELEASE_TARGETS += release-$${sub}
-    QMAKE_EXTRA_TARGETS += release-$${sub}
-}
+for(subname, SUBDIRS) {
+   subdir = $$subname
+   !isEmpty($${subname}.subdir):subdir = $$eval($${subname}.subdir)
+   subpro = $$subdir/$${basename(subdir)}.pro
+   !exists($$subpro):next()
+   isEqual($$list($$fromfile($$subpro, TEMPLATE)), lib) {
+       #debug
+       eval(debug-$${subdir}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
+       eval(debug-$${subdir}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) debug))
+       EXTRA_DEBUG_TARGETS += debug-$${subdir}
+       QMAKE_EXTRA_TARGETS += debug-$${subdir}
+       #release
+       eval(release-$${subdir}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
+       eval(release-$${subdir}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) release))
+       EXTRA_RELEASE_TARGETS += release-$${subdir}
+       QMAKE_EXTRA_TARGETS += release-$${subdir}
+    } else { #do not have a real debug target/release
+       #debug
+       eval(debug-$${subdir}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
+       eval(debug-$${subdir}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) first))
+       EXTRA_DEBUG_TARGETS += debug-$${subdir}
+       QMAKE_EXTRA_TARGETS += debug-$${subdir}
+       #release
+       eval(release-$${subdir}.depends = $${subdir}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
+       eval(release-$${subdir}.commands = (cd $$subdir && $(MAKE) -f $(MAKEFILE) first))
+       EXTRA_RELEASE_TARGETS += release-$${subdir}
+       QMAKE_EXTRA_TARGETS += release-$${subdir}
+   }
 }
 debug.depends = $$EXTRA_DEBUG_TARGETS
 release.depends = $$EXTRA_RELEASE_TARGETS
 QMAKE_EXTRA_TARGETS += debug release
+
+src_winmain.subdir = winmain
+src_tools_moc.subdir = tools/moc
+src_tools_rcc.subdir = tools/rcc
+src_tools_uic.subdir = tools/uic
+src_corelib.file = corelib/corelib.pro
+src_xml.subdir = xml
+src_gui.subdir = gui
+src_sql.subdir = sql
+src_network.subdir = network
+src_svg.subdir = svg
+src_opengl.subdir = opengl
+src_qt3support.subdir = qt3support
+src_tools_uic3.subdir = tools/uic3
+src_activeqt.subdir = activeqt
+src_tools_idc.subdir = tools/idc
+src_plugins.subdir = plugins
+
+#CONFIG += ordered
+!ordered {
+   src_corelib.depends = src_tools_moc src_tools_rcc
+   src_gui.depends = src_corelib src_tools_uic
+   src_xml.depends = src_corelib
+   src_svg.depends = src_xml src_gui
+   src_network.depends = src_gui
+   src_opengl.depends = src_gui
+   src_sql.depends = src_gui
+   src_qt3support = src_gui src_xml src_network src_sql
+   src_tools_uic3 = src_qt3support src_xml
+   src_tools_activeqt.depends = src_tools_idc src_gui
+   src_plugins.depends = src_gui src_sql
+}
+
+
