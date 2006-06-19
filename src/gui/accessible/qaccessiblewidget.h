@@ -57,6 +57,7 @@ protected:
 
 private:
     QAccessibleWidgetPrivate *d;
+	Q_DISABLE_COPY(QAccessibleWidget)
 };
 
 #endif // QT_NO_ACCESSIBILITY

@@ -203,6 +203,7 @@ protected:
 private:
     void setAutoDestruct(bool autoDestr) { selfDestruct = autoDestr; }
     bool autoDestruct() const { return selfDestruct; }
+	Q_DISABLE_COPY(QPaintEngine)
 
     friend class QFontEngineBox;
     friend class QFontEngineMac;

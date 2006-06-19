@@ -367,7 +367,6 @@ int QNativeSocketEnginePrivate::nativeSocketError() const
     buf.buf = 0;
     buf.len = 0;
     DWORD bytesRead = 0;
-    DWORD readFlags = 0;
     DWORD peekFlags = MSG_PEEK;
 #if !defined(QT_NO_IPV6)
     qt_sockaddr_storage aa;

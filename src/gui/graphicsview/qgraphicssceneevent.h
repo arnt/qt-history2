@@ -38,6 +38,8 @@ protected:
     QGraphicsSceneEvent(QGraphicsSceneEventPrivate &dd, Type type = None);
     QGraphicsSceneEventPrivate *d_ptr;
     Q_DECLARE_PRIVATE(QGraphicsSceneEvent)
+private:
+	Q_DISABLE_COPY(QGraphicsSceneEvent)
 };
 
 class QGraphicsSceneMouseEventPrivate;

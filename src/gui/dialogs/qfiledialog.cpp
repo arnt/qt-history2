@@ -1976,7 +1976,7 @@ QString QFileDialogPrivate::getEnvironmentVariable(const QString &str)
     }
 #else
     if (str.size() > 2 && str.startsWith(QLatin1Char('%')) && str.endsWith(QLatin1Char('%'))) {
-        return QString::fromLocal8Bit(getenv(str.mid(1, str.size() - 2).toLatin1().constData()));
+        return QString::fromLocal8Bit(qgetenv(str.mid(1, str.size() - 2).toLatin1().constData()));
     }
 #endif
     return str;

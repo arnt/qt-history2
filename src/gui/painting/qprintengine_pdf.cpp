@@ -894,11 +894,19 @@ void QPdfEnginePrivate::writeHeader()
 
 void QPdfEnginePrivate::writeInfo()
 {
-    time_t now;
     tm *newtime;
 
+#if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
+    __time32_t now;
+    _time32(&now);
+	tm buffer;
+	_gmtime32_s(&buffer, &now);
+	newtime = &buffer;
+#else
+    time_t now;
     time(&now);
-    newtime = gmtime(&now);
+	newtime = gmtime(&now);
+#endif
     QByteArray y;
 
     if (newtime && newtime->tm_year+1900 > 1992)

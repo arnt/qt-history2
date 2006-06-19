@@ -47,6 +47,7 @@ protected:
 
 private:
     QAccessibleObjectPrivate *d;
+	Q_DISABLE_COPY(QAccessibleObject)
 };
 
 class Q_GUI_EXPORT QAccessibleApplication : public QAccessibleObject

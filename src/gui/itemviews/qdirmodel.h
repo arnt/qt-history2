@@ -41,6 +41,7 @@ public:
 private:
     Q_DECLARE_PRIVATE(QFileIconProvider)
     QFileIconProviderPrivate *d_ptr;
+	Q_DISABLE_COPY(QFileIconProvider)
 };
 
 class Q_GUI_EXPORT QDirModel : public QAbstractItemModel

@@ -46,7 +46,6 @@
 QAbstractProxyModel::QAbstractProxyModel(QObject *parent)
     :QAbstractItemModel(*new QAbstractProxyModelPrivate, parent)
 {
-    Q_D(QAbstractProxyModel);
     setSourceModel(QAbstractItemModelPrivate::staticEmptyModel());
 }
 
@@ -57,7 +56,6 @@ QAbstractProxyModel::QAbstractProxyModel(QObject *parent)
 QAbstractProxyModel::QAbstractProxyModel(QAbstractProxyModelPrivate &dd, QObject *parent)
     : QAbstractItemModel(dd, parent)
 {
-    Q_D(QAbstractProxyModel);
     setSourceModel(QAbstractItemModelPrivate::staticEmptyModel());
 }
 

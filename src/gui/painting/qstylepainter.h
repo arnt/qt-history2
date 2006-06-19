@@ -46,6 +46,7 @@ public:
 private:
     QWidget *widget;
     QStyle *wstyle;
+	Q_DISABLE_COPY(QStylePainter)
 };
 
 void QStylePainter::drawPrimitive(QStyle::PrimitiveElement pe, const QStyleOption &opt)

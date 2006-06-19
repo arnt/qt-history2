@@ -459,7 +459,6 @@ void QCoreApplication::init()
 */
 QCoreApplication::~QCoreApplication()
 {
-    Q_D(QCoreApplication);
     qt_call_post_routines();
 
     self = 0;
@@ -469,11 +468,11 @@ QCoreApplication::~QCoreApplication()
 #ifndef QT_NO_THREAD
     QThread::cleanup();
 #endif
-
-    QThreadData::get(mainThread())->eventDispatcher = 0;
-    if (d->eventDispatcher)
-        d->eventDispatcher->closingDown();
-    d->eventDispatcher = 0;
+    
+	QThreadData::get(mainThread())->eventDispatcher = 0;
+    if (QCoreApplicationPrivate::eventDispatcher)
+        QCoreApplicationPrivate::eventDispatcher->closingDown();
+    QCoreApplicationPrivate::eventDispatcher = 0;
 }
 
 /*!

@@ -171,7 +171,8 @@ protected:
     // new devices coming along, and there seem to be "holes" in the
     // OS-specific events for this.
     void *mExtra;
-
+private:
+	Q_DISABLE_COPY(QTabletEvent)
 };
 #endif // QT_NO_TABLETEVENT
 
@@ -460,6 +461,8 @@ protected:
     Qt::DropAction default_action;
     const QMimeData *mdata;
     mutable QList<QByteArray> fmts; // only used for QT3_SUPPORT
+private:
+	Q_DISABLE_COPY(QDropEvent)
 };
 
 
@@ -574,6 +577,8 @@ public:
 
     inline QAction *action() const { return act; }
     inline QAction *before() const { return bef; }
+private:
+	Q_DISABLE_COPY(QActionEvent)
 };
 #endif
 
@@ -655,6 +660,7 @@ public:
     inline QMenuBar *menuBar() { return m_menuBar; }
 private:
     QMenuBar *m_menuBar;
+	Q_DISABLE_COPY(QMenubarUpdatedEvent)
 };
 #endif
 

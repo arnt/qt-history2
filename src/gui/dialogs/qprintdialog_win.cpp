@@ -35,8 +35,8 @@ public:
 
     inline void _q_printToFileChanged(int) {}
     inline void _q_rbPrintRangeToggled(bool) {}
-    inline void _q_printerChanged(int index) {}
-    inline void _q_paperSizeChanged(int index) {}
+    inline void _q_printerChanged(int) {}
+    inline void _q_paperSizeChanged(int) {}
     inline void _q_btnBrowseClicked() {}
     inline void _q_btnPropertiesClicked() {}
 

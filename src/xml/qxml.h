@@ -77,6 +77,7 @@ private:
     QXmlNamespaceSupportPrivate *d;
 
     friend class QXmlSimpleReaderPrivate;
+	Q_DISABLE_COPY(QXmlNamespaceSupport)
 };
 
 
@@ -115,6 +116,7 @@ private:
     AttributeList attList;
 
     QXmlAttributesPrivate *d;
+	Q_DISABLE_COPY(QXmlAttributes)
 };
 
 //
@@ -378,6 +380,7 @@ public:
 
 private:
     QXmlDefaultHandlerPrivate *d;
+	Q_DISABLE_COPY(QXmlDefaultHandler)
 };
 
 // inlines

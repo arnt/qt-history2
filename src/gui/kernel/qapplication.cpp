@@ -420,6 +420,7 @@ QWidgetList * qt_modal_stack=0;                // stack of modal widgets
 void QApplicationPrivate::process_cmdline()
 {
     Q_Q(QApplication);
+	Q_UNUSED(q);// only static members being used.
     // process platform-indep command line
     if (!qt_is_gui_used || !argc)
         return;
@@ -3975,7 +3976,8 @@ bool QApplication::keypadNavigationEnabled()
 void QApplication::setInputContext(QInputContext *inputContext)
 {
     Q_D(QApplication);
-    if (d->inputContext)
+	Q_UNUSED(d);// only static members being used.
+	if (d->inputContext)
         delete d->inputContext;
     d->inputContext = inputContext;
 }
@@ -3988,6 +3990,7 @@ void QApplication::setInputContext(QInputContext *inputContext)
 QInputContext *QApplication::inputContext() const
 {
     Q_D(const QApplication);
+	Q_UNUSED(d);// only static members being used.
 #ifdef Q_WS_X11
     if (!X11)
         return 0;

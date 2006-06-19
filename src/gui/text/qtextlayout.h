@@ -62,6 +62,7 @@ private:
     friend class QTextLayout;
     int itm;
     QTextEngine *eng;
+	Q_DISABLE_COPY(QTextInlineObject)
 };
 
 class QPaintDevice;
@@ -201,6 +202,7 @@ private:
     friend class QTextLayout;
     int i;
     QTextEngine *eng;
+    Q_DISABLE_COPY(QTextLine)
 };
 
 QT_END_HEADER
