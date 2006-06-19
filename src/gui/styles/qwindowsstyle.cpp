@@ -752,142 +752,6 @@ static const char *const question_xpm[] = {
 ".................cc**...........",
 "..................***...........",
 "...................**..........."};
-/* XPM */
-static const char* const dir_open_xpm[]={
-    "16 16 6 1",
-    ". c None",
-    "b c #ffff00",
-    "d c #000000",
-    "* c #999999",
-    "c c #cccccc",
-    "a c #ffffff",
-    "................",
-    "................",
-    "...*****........",
-    "..*aaaaa*.......",
-    ".*abcbcba******.",
-    ".*acbcbcaaaaaa*d",
-    ".*abcbcbcbcbcb*d",
-    "*************b*d",
-    "*aaaaaaaaaa**c*d",
-    "*abcbcbcbcbbd**d",
-    ".*abcbcbcbcbcd*d",
-    ".*acbcbcbcbcbd*d",
-    "..*acbcbcbcbb*dd",
-    "..*************d",
-    "...ddddddddddddd",
-    "................"};
-
-/* XPM */
-static const char * const dir_closed_xpm[]={
-    "16 16 6 1",
-    ". c None",
-    "b c #ffff00",
-    "d c #000000",
-    "* c #999999",
-    "a c #cccccc",
-    "c c #ffffff",
-    "................",
-    "................",
-    "..*****.........",
-    ".*ababa*........",
-    "*abababa******..",
-    "*cccccccccccc*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "*cabababababa*d.",
-    "*cbababababab*d.",
-    "**************d.",
-    ".dddddddddddddd.",
-    "................"};
-
-/* XPM */
-static const char * const dir_link_xpm[]={
-    "16 16 10 1",
-    "h c #808080",
-    "g c #a0a0a0",
-    "d c #000000",
-    "b c #ffff00",
-    "f c #303030",
-    "# c #999999",
-    "a c #cccccc",
-    "e c #585858",
-    "c c #ffffff",
-    ". c None",
-    "................",
-    "................",
-    "..#####.........",
-    ".#ababa#........",
-    "#abababa######..",
-    "#cccccccccccc#d.",
-    "#cbababababab#d.",
-    "#cabababababa#d.",
-    "#cbababdddddddd.",
-    "#cababadccccccd.",
-    "#cbababdcececcd.",
-    "#cababadcefdfcd.",
-    "#cbababdccgdhcd.",
-    "#######dccchccd.",
-    ".dddddddddddddd.",
-    "................"};
-/* XPM */
-static const char* const file_xpm[]={
-    "16 16 5 1",
-    ". c #7f7f7f",
-    "# c None",
-    "c c #000000",
-    "b c #bfbfbf",
-    "a c #ffffff",
-    "################",
-    "..........######",
-    ".aaaaaaaab.#####",
-    ".aaaaaaaaba.####",
-    ".aaaaaaaacccc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".bbbbbbbbbbbc###",
-    "ccccccccccccc###"};
-/* XPM */
-static const char * const file_link_xpm[]={
-    "16 16 10 1",
-    "h c #808080",
-    "g c #a0a0a0",
-    "d c #c3c3c3",
-    ". c #7f7f7f",
-    "c c #000000",
-    "b c #bfbfbf",
-    "f c #303030",
-    "e c #585858",
-    "a c #ffffff",
-    "# c None",
-    "################",
-    "..........######",
-    ".aaaaaaaab.#####",
-    ".aaaaaaaaba.####",
-    ".aaaaaaaacccc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaadc###",
-    ".aaaaaaaaaadc###",
-    ".aaaacccccccc###",
-    ".aaaacaaaaaac###",
-    ".aaaacaeaeaac###",
-    ".aaaacaefcfac###",
-    ".aaaacaagchac###",
-    ".ddddcaaahaac###",
-    "ccccccccccccc###"};
-
-
 
 #endif //QT_NO_IMAGEFORMAT_XPM
 
@@ -1094,31 +958,31 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
     case SP_TitleBarMenuButton:
-        return QPixmap((const char **)qt_menu_xpm);
+        return QPixmap(qt_menu_xpm);
     case SP_TitleBarShadeButton:
-        return QPixmap((const char **)qt_shade_xpm);
+        return QPixmap(qt_shade_xpm);
     case SP_TitleBarUnshadeButton:
-        return QPixmap((const char **)qt_unshade_xpm);
+        return QPixmap(qt_unshade_xpm);
     case SP_TitleBarNormalButton:
-        return QPixmap((const char **)qt_normalizeup_xpm);
+        return QPixmap(qt_normalizeup_xpm);
     case SP_TitleBarMinButton:
-        return QPixmap((const char **)qt_minimize_xpm);
+        return QPixmap(qt_minimize_xpm);
     case SP_TitleBarMaxButton:
-        return QPixmap((const char **)qt_maximize_xpm);
+        return QPixmap(qt_maximize_xpm);
     case SP_TitleBarCloseButton:
-        return QPixmap((const char **)qt_close_xpm);
+        return QPixmap(qt_close_xpm);
     case SP_TitleBarContextHelpButton:
-        return QPixmap((const char **)qt_help_xpm);
+        return QPixmap(qt_help_xpm);
     case SP_DockWidgetCloseButton:
-        return QPixmap((const char **)dock_widget_close_xpm);
+        return QPixmap(dock_widget_close_xpm);
     case SP_MessageBoxInformation:
-        return QPixmap((const char **)information_xpm);
+        return QPixmap(information_xpm);
     case SP_MessageBoxWarning:
-        return QPixmap((const char **)warning_xpm);
+        return QPixmap(warning_xpm);
     case SP_MessageBoxCritical:
-        return QPixmap((const char **)critical_xpm);
+        return QPixmap(critical_xpm);
     case SP_MessageBoxQuestion:
-        return QPixmap((const char **)question_xpm);
+        return QPixmap(question_xpm);
     default:
         break;
     }

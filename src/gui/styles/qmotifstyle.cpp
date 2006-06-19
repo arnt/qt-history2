@@ -2452,21 +2452,21 @@ QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *o
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
     case SP_TitleBarMenuButton:
-        return QPixmap((const char **)qt_menu_xpm);
+        return QPixmap(qt_menu_xpm);
     case SP_TitleBarShadeButton:
-        return QPixmap((const char **)qt_shade_xpm);
+        return QPixmap(qt_shade_xpm);
     case SP_TitleBarUnshadeButton:
-        return QPixmap((const char **)qt_unshade_xpm);
+        return QPixmap(qt_unshade_xpm);
     case SP_TitleBarNormalButton:
-        return QPixmap((const char **)qt_normalizeup_xpm);
+        return QPixmap(qt_normalizeup_xpm);
     case SP_TitleBarMinButton:
-        return QPixmap((const char **)qt_minimize_xpm);
+        return QPixmap(qt_minimize_xpm);
     case SP_TitleBarMaxButton:
-        return QPixmap((const char **)qt_maximize_xpm);
+        return QPixmap(qt_maximize_xpm);
     case SP_TitleBarCloseButton:
-        return QPixmap((const char **)qt_close_xpm);
+        return QPixmap(qt_close_xpm);
     case SP_DockWidgetCloseButton:
-        return QPixmap((const char **)dock_window_close_xpm);
+        return QPixmap(dock_window_close_xpm);
 
     case SP_MessageBoxInformation:
     case SP_MessageBoxWarning:
