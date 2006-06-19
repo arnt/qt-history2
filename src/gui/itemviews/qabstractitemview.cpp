@@ -2227,7 +2227,7 @@ int QAbstractItemView::sizeHintForRow(int row) const
 {
     Q_D(const QAbstractItemView);
 
-    if (row < 0 || row >= d->model->rowCount())
+    if (row < 0 || row >= d->model->rowCount() || !model())
         return -1;
 
     QStyleOptionViewItem option = viewOptions();
@@ -2256,7 +2256,7 @@ int QAbstractItemView::sizeHintForColumn(int column) const
 {
     Q_D(const QAbstractItemView);
 
-    if (column < 0 || column >= d->model->columnCount())
+    if (column < 0 || column >= d->model->columnCount() || !model())
         return -1;
 
     QStyleOptionViewItem option = viewOptions();

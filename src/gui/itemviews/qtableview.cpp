@@ -270,7 +270,7 @@ void QTableViewPrivate::drawSpans(const QRect &area, QPainter *painter, const QS
         int col = span.left();
         if (isHidden(row, col))
             continue;
-        QModelIndex index = model->index(row, col, q->rootIndex());
+        QModelIndex index = model->index(row, col, root);
         if (!index.isValid())
             continue;
         QRect rect = q->visualRect(index);
@@ -491,7 +491,7 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
     d->horizontalHeader = header;
     d->horizontalHeader->setParent(this);
     if (!d->horizontalHeader->model())
-        d->horizontalHeader->setModel(model());
+        d->horizontalHeader->setModel(d->model);
 
     connect(d->horizontalHeader,SIGNAL(sectionResized(int,int,int)),
             this, SLOT(columnResized(int,int,int)));
@@ -522,7 +522,7 @@ void QTableView::setVerticalHeader(QHeaderView *header)
     d->verticalHeader = header;
     d->verticalHeader->setParent(this);
     if (!d->verticalHeader->model())
-        d->verticalHeader->setModel(model());
+        d->verticalHeader->setModel(d->model);
 
     connect(d->verticalHeader, SIGNAL(sectionResized(int,int,int)),
             this, SLOT(rowResized(int,int,int)));
@@ -698,7 +698,7 @@ void QTableView::paintEvent(QPaintEvent *event)
                     continue;
                 int colp = columnViewportPosition(col) + offset.x();
                 int colw = columnWidth(col) - gridSize;
-                QModelIndex index = d->model->index(row, col, rootIndex());
+                QModelIndex index = d->model->index(row, col, d->root);
                 if (index.isValid()) {
                     option.rect = QRect(colp, rowp, colw, rowh);
                     option.state = state;
@@ -770,7 +770,7 @@ QModelIndex QTableView::indexAt(const QPoint &pos) const
             r = span.top();
             c = span.left();
         }
-        return d->model->index(r, c, rootIndex());
+        return d->model->index(r, c, d->root);
     }
     return QModelIndex();
 }
@@ -816,11 +816,11 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     Q_D(QTableView);
     Q_UNUSED(modifiers);
 
-    int bottom = d->model->rowCount(rootIndex()) - 1;
+    int bottom = d->model->rowCount(d->root) - 1;
     // make sure that bottom is the bottommost *visible* row
     while (bottom >= 0 && isRowHidden(bottom)) --bottom;
 
-    int right = d->model->columnCount(rootIndex()) - 1;
+    int right = d->model->columnCount(d->root) - 1;
     // make sure that right is the rightmost *visible* column
     while (right >= 0 && isColumnHidden(right)) --right;
 
@@ -836,7 +836,7 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
             ++column;
         while (isRowHidden(row) && row < bottom)
             ++row;
-        return d->model->index(row, column, rootIndex());
+        return d->model->index(row, column, d->root);
     }
 
     int visualRow = verticalHeader()->visualIndex(current.row());
@@ -953,22 +953,22 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         break;
     case MovePageUp: {
         int newRow = rowAt(visualRect(current).top() - d->viewport->height());
-        return d->model->index(qBound(0, newRow, bottom), current.column(), rootIndex());
+        return d->model->index(qBound(0, newRow, bottom), current.column(), d->root);
     }
     case MovePageDown: {
         int newRow = rowAt(visualRect(current).bottom() + d->viewport->height());
         if (newRow < 0)
             newRow = bottom;
-        return d->model->index(qBound(0, newRow, bottom), current.column(), rootIndex());
+        return d->model->index(qBound(0, newRow, bottom), current.column(), d->root);
     }}
 
     int logicalRow = verticalHeader()->logicalIndex(visualRow);
     int logicalColumn = horizontalHeader()->logicalIndex(visualColumn);
-    if (!model()->hasIndex(logicalRow, logicalColumn, rootIndex()))
+    if (!d->model->hasIndex(logicalRow, logicalColumn, d->root))
         return QModelIndex();
-    QModelIndex result = d->model->index(logicalRow, logicalColumn, rootIndex());
+    QModelIndex result = d->model->index(logicalRow, logicalColumn, d->root);
     if (!isIndexHidden(result))
-        return d->model->index(logicalRow, logicalColumn, rootIndex());
+        return d->model->index(logicalRow, logicalColumn, d->root);
     return QModelIndex();
 }
 
@@ -985,7 +985,7 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
     QModelIndex tl = indexAt(QPoint(isRightToLeft() ? rect.right() : rect.left(), rect.top()));
     QModelIndex br = indexAt(QPoint(isRightToLeft() ? rect.left() : rect.right(), rect.bottom()));
 
-    if (!selectionModel() || !tl.isValid() || !br.isValid())
+    if (!d->selectionModel || !tl.isValid() || !br.isValid())
         return;
 
     bool verticalMoved = verticalHeader()->sectionsMoved();
@@ -1038,7 +1038,7 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
              int column = horizontalHeader()->logicalIndex(horizontal);
              for (int vertical = top; vertical <= bottom; ++vertical) {
                  int row = verticalHeader()->logicalIndex(vertical);
-                 QModelIndex index = d->model->index(row, column, rootIndex());
+                 QModelIndex index = d->model->index(row, column, d->root);
                  selection.append(QItemSelectionRange(index));
              }
          }
@@ -1051,7 +1051,7 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
              int column = horizontalHeader()->logicalIndex(horizontal);
              for (int vertical = top; vertical <= bottom; ++vertical) {
                  int row = verticalHeader()->logicalIndex(vertical);
-                 QModelIndex index = d->model->index(row, column, rootIndex());
+                 QModelIndex index = d->model->index(row, column, d->root);
                  selection.append(QItemSelectionRange(index));
              }
          }
@@ -1060,8 +1060,8 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
         int right = horizontalHeader()->visualIndex(br.column());
         for (int visual = left; visual <= right; ++visual) {
             int column = horizontalHeader()->logicalIndex(visual);
-            QModelIndex topLeft = d->model->index(tl.row(), column, rootIndex());
-            QModelIndex bottomRight = d->model->index(br.row(), column, rootIndex());
+            QModelIndex topLeft = d->model->index(tl.row(), column, d->root);
+            QModelIndex bottomRight = d->model->index(br.row(), column, d->root);
             selection.append(QItemSelectionRange(topLeft, bottomRight));
         }
     } else if (verticalMoved) {
@@ -1069,15 +1069,15 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
         int bottom = verticalHeader()->visualIndex(br.row());
         for (int visual = top; visual <= bottom; ++visual) {
             int row = verticalHeader()->logicalIndex(visual);
-            QModelIndex topLeft = d->model->index(row, tl.column(), rootIndex());
-            QModelIndex bottomRight = d->model->index(row, br.column(), rootIndex());
+            QModelIndex topLeft = d->model->index(row, tl.column(), d->root);
+            QModelIndex bottomRight = d->model->index(row, br.column(), d->root);
             selection.append(QItemSelectionRange(topLeft, bottomRight));
         }
     } else { // nothing moved
         selection.append(QItemSelectionRange(tl, br));
     }
 
-    selectionModel()->select(selection, command);
+    d->selectionModel->select(selection, command);
 }
 
 /*!
@@ -1100,16 +1100,16 @@ QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) co
     if ((verticalMoved && horizontalMoved) || d->hasSpans()) {
         for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange range = selection.at(i);
-            if (range.parent() != rootIndex() || !range.isValid())
+            if (range.parent() != d->root || !range.isValid())
                 continue;
             for (int r = range.top(); r <= range.bottom(); ++r)
                 for (int c = range.left(); c <= range.right(); ++c)
-                    selectionRegion += QRegion(visualRect(d->model->index(r, c, rootIndex())));
+                    selectionRegion += QRegion(visualRect(d->model->index(r, c, d->root)));
         }
     } else if (horizontalMoved) {
         for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange range = selection.at(i);
-            if (range.parent() != rootIndex() || !range.isValid())
+            if (range.parent() != d->root || !range.isValid())
                 continue;
             int top = rowViewportPosition(range.top());
             int bottom = rowViewportPosition(range.bottom()) + rowHeight(range.bottom());
@@ -1123,7 +1123,7 @@ QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) co
     } else if (verticalMoved) {
         for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange range = selection.at(i);
-            if (range.parent() != rootIndex() || !range.isValid())
+            if (range.parent() != d->root || !range.isValid())
                 continue;
             int left = columnViewportPosition(range.left());
             int right = columnViewportPosition(range.right()) + columnWidth(range.right());
@@ -1137,7 +1137,7 @@ QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) co
     } else { // nothing moved
         for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange range = selection.at(i);
-            if (range.parent() != rootIndex() || !range.isValid())
+            if (range.parent() != d->root || !range.isValid())
                 continue;
             d->trimHiddenSelections(&range);
             QRect tl = visualRect(range.topLeft());
@@ -1155,13 +1155,14 @@ QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) co
 */
 QModelIndexList QTableView::selectedIndexes() const
 {
+    Q_D(const QTableView);
     QModelIndexList viewSelected;
     QModelIndexList modelSelected;
-    if (selectionModel())
-        modelSelected = selectionModel()->selectedIndexes();
+    if (d->selectionModel)
+        modelSelected = d->selectionModel->selectedIndexes();
     for (int i = 0; i < modelSelected.count(); ++i) {
         QModelIndex index = modelSelected.at(i);
-        if (!isIndexHidden(index) && index.parent() == rootIndex())
+        if (!isIndexHidden(index) && index.parent() == d->root)
             viewSelected.append(index);
     }
     return viewSelected;
@@ -1289,17 +1290,20 @@ int QTableView::sizeHintForRow(int row) const
 {
     Q_D(const QTableView);
 
+    if (!model())
+        return -1;
+
     int left = qMax(0, columnAt(0));
     int right = columnAt(d->viewport->width());
     if (right == -1) // the table don't have enought columns to fill the viewport
-        right = d->model->columnCount(rootIndex()) - 1;
+        right = d->model->columnCount(d->root) - 1;
 
     QStyleOptionViewItem option = viewOptions();
 
     int hint = 0;
     QModelIndex index;
     for (int column = left; column <= right; ++column) {
-        index = d->model->index(row, column, rootIndex());
+        index = d->model->index(row, column, d->root);
         hint = qMax(hint, itemDelegate(index)->sizeHint(option, index).height());
     }
 
@@ -1324,17 +1328,20 @@ int QTableView::sizeHintForColumn(int column) const
 {
     Q_D(const QTableView);
 
+    if (!model())
+        return -1;
+
     int top = qMax(0, rowAt(0));
     int bottom = rowAt(d->viewport->height());
     if (!isVisible() || bottom == -1) // the table don't have enought rows to fill the viewport
-        bottom = d->model->rowCount(rootIndex()) - 1;
+        bottom = d->model->rowCount(d->root) - 1;
 
     QStyleOptionViewItem option = viewOptions();
 
     int hint = 0;
     QModelIndex index;
     for (int row = top; row <= bottom; ++row) {
-        index = d->model->index(row, column, rootIndex());
+        index = d->model->index(row, column, d->root);
         hint = qMax(hint, itemDelegate(index)->sizeHint(option, index).width());
     }
 
@@ -1565,7 +1572,7 @@ void QTableView::setGridStyle(Qt::PenStyle style)
 QRect QTableView::visualRect(const QModelIndex &index) const
 {
     Q_D(const QTableView);
-    if (!d->indexValid(index) || index.parent() != rootIndex() || isIndexHidden(index) )
+    if (!d->indexValid(index) || index.parent() != d->root || isIndexHidden(index) )
         return QRect();
 
     d->executePostedLayout();
@@ -1604,7 +1611,7 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
 
     // check if we really need to do anything
     if (!d->indexValid(index)
-        || (d->model->parent(index) != rootIndex())
+        || (d->model->parent(index) != d->root)
         || isIndexHidden(index))
         return;
 
@@ -1836,16 +1843,16 @@ void QTableView::selectRow(int row)
         (selectionMode() == SingleSelection && selectionBehavior() == SelectItems))
         return;
 
-    if (row >= 0 && row < d->model->rowCount(rootIndex())) {
-        QModelIndex index = d->model->index(row, 0, rootIndex());
+    if (row >= 0 && row < d->model->rowCount(d->root)) {
+        QModelIndex index = d->model->index(row, 0, d->root);
         QItemSelectionModel::SelectionFlags command = selectionCommand(index);
-        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+        d->selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
         if (!(command & QItemSelectionModel::Current))
             d->rowSectionAnchor = row;
-        QModelIndex tl = d->model->index(qMin(d->rowSectionAnchor, row), 0, rootIndex());
+        QModelIndex tl = d->model->index(qMin(d->rowSectionAnchor, row), 0, d->root);
         QModelIndex br = d->model->index(qMax(d->rowSectionAnchor, row),
-                                         d->model->columnCount(rootIndex()) - 1, rootIndex());
-        selectionModel()->select(QItemSelection(tl, br), command);
+                                         d->model->columnCount(d->root) - 1, d->root);
+        d->selectionModel->select(QItemSelection(tl, br), command);
     }
 }
 
@@ -1863,16 +1870,16 @@ void QTableView::selectColumn(int column)
         (selectionMode() == SingleSelection && selectionBehavior() == SelectItems))
         return;
 
-    if (column >= 0 && column < d->model->columnCount(rootIndex())) {
-        QModelIndex index = d->model->index(0, column, rootIndex());
+    if (column >= 0 && column < d->model->columnCount(d->root)) {
+        QModelIndex index = d->model->index(0, column, d->root);
         QItemSelectionModel::SelectionFlags command = selectionCommand(index);
-        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+        d->selectionModel->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
         if (!(command & QItemSelectionModel::Current))
             d->columnSectionAnchor = column;
-        QModelIndex tl = d->model->index(0, qMin(d->columnSectionAnchor, column), rootIndex());
-        QModelIndex br = d->model->index(d->model->rowCount(rootIndex()) - 1,
-                                         qMax(d->columnSectionAnchor, column), rootIndex());
-        selectionModel()->select(QItemSelection(tl, br), command);
+        QModelIndex tl = d->model->index(0, qMin(d->columnSectionAnchor, column), d->root);
+        QModelIndex br = d->model->index(d->model->rowCount(d->root) - 1,
+                                         qMax(d->columnSectionAnchor, column), d->root);
+        d->selectionModel->select(QItemSelection(tl, br), command);
     }
 }
 
