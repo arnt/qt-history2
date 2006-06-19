@@ -51,7 +51,7 @@ HRESULT CreateInternetShortcut(LPTSTR pszShortcut, LPTSTR pszURL)
 
       if(SUCCEEDED(hr))
          {
-         hr = purl->SetURL((const char *)pszURL, (DWORD)0);
+         hr = purl->SetURL(pszURL, (DWORD)0);
 
          if(SUCCEEDED(hr))
             {
