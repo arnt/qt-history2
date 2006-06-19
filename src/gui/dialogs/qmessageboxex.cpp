@@ -565,6 +565,9 @@ static QMessageBoxEx::StandardButton showMessageBoxEx(QWidget *parent,
             continue;
         buttonList.append(sb);
         int id = msgBox.addButton((QMessageBoxEx::StandardButton)sb);
+        // Choose the first accept role as the default
+        if (msgBox.defaultButton() != -1)
+            continue;
         QPushButton *button = msgBox.button(id);
         if ((defaultButton == QMessageBoxEx::NoButton && buttonBox->buttonRole(button) == QDialogButtonBox::AcceptRole)
             || (defaultButton != QMessageBoxEx::NoButton && sb == defaultButton))

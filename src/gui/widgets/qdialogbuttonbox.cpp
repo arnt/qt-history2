@@ -150,9 +150,9 @@ static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton but
     case QDialogButtonBox::Abort:
         return QDialogButtonBox::RejectRole;
     case QDialogButtonBox::Retry:
-        return QDialogButtonBox::ActionRole;
+        return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Ignore:
-        return QDialogButtonBox::ActionRole;
+        return QDialogButtonBox::AcceptRole;
     default:
         return QDialogButtonBox::InvalidRole;
     }
@@ -560,8 +560,8 @@ QDialogButtonBox::~QDialogButtonBox()
     \value No A "No" button defined with the \l RejectRole
     \value NoToAll A "No to All" button defined with the \l RejectRole
     \value Abort An "Abort" button defined with the \l RejectRole
-    \value Retry A "Retry" button defined with the \l ActionRole
-    \value Ignore An "Ignore" button defined with the \l ActionRole
+    \value Retry A "Retry" button defined with the \l AcceptRole
+    \value Ignore An "Ignore" button defined with the \l AcceptRole
     \omitvalue NoButtons
 */
 
