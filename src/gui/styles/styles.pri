@@ -7,7 +7,7 @@ HEADERS += \
 	styles/qstyleplugin.h \
 	styles/qcommonstylepixmaps_p.h \
 	styles/qcommonstyle.h \
-	styles/qstylesheetstyle.h
+	styles/qstylesheetstyle_p.h
 SOURCES += \
 	styles/qstyle.cpp \
 	styles/qstylefactory.cpp \

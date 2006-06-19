@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qstylesheetstyle.h"
+#include "qstylesheetstyle_p.h"
 #include <qdebug.h>
 #include <qapplication.h>
 #include <qmenu.h>
@@ -1695,5 +1695,3 @@ void QStyleSheetStyle::unpolish(QApplication *app)
 {
     baseStyle->unpolish(app);
 }
-
-#include "moc_qstylesheetstyle.cpp"

@@ -45,7 +45,7 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qdebug.h"
-#include "qstylesheetstyle.h"
+#include "private/qstylesheetstyle_p.h"
 
 #include "qinputcontext.h"
 

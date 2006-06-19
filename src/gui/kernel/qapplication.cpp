@@ -35,7 +35,7 @@
 #include "qdnd_p.h"
 #include "qcolormap.h"
 #include "qdebug.h"
-#include "qstylesheetstyle.h"
+#include "private/qstylesheetstyle_p.h"
 
 #include "qinputcontext.h"
 #ifdef Q_WS_X11
