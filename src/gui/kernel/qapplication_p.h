@@ -175,6 +175,17 @@ public:
     static void x11_initialize_style();
 #endif
 
+    enum KeyPlatform {
+        KB_Win = 1,
+        KB_Mac = 2,
+        KB_X11 = 4,
+        KB_KDE = 8,
+        KB_Gnome = 16,
+        KB_CDE = 32,
+        KB_All = 0xffff
+    };
+
+    static uint currentPlatform();
     bool inPopupMode() const;
     void closePopup(QWidget *popup);
     void openPopup(QWidget *popup);

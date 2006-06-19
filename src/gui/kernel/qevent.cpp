@@ -14,6 +14,8 @@
 #include "qevent.h"
 #include "qcursor.h"
 #include "qapplication.h"
+#include "private/qapplication_p.h"
+#include "private/qkeysequence_p.h"
 #include "qwidget.h"
 #include "qdebug.h"
 #include "qmime.h"
@@ -673,6 +675,61 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
         return Qt::KeyboardModifiers(QInputEvent::modifiers()^Qt::MetaModifier);
     return QInputEvent::modifiers();
 }
+
+
+/*!
+  Returns true if the key associated with this keyEvent, or false
+  otherwise.
+*/
+bool QKeyEvent::matches(QKeySequence::StandardKey matchKey) const
+{
+    uint searchkey = (modifiers() | key()) & ~(Qt::KeypadModifier); //The keypad modifier should not make a difference
+    uint platform = QApplicationPrivate::currentPlatform();
+    
+    uint N = QKeySequencePrivate::numberOfKeyBindings;
+    int first = 0;
+    int last = N - 1;
+   
+    while (first <= last) {
+        int mid = (first + last) / 2;
+        QKeyBinding midVal = QKeySequencePrivate::keyBindings[mid];
+
+        if (searchkey > midVal.shortcut){ 
+            first = mid + 1;  // Search in top half
+        }
+        else if (searchkey < midVal.shortcut){ 
+            last = mid - 1; // Search in bottom half
+        }
+        else { 
+            //found correct shortcut value, now we must check for platform match
+            if ((midVal.platform & platform) && (midVal.standardKey == matchKey)) {
+                return true;
+            } else { //We may have several equal values for different platforms, so we must search in both directions
+                
+                //search forward
+                for ( unsigned int i = mid + 1 ; i < N - 1 ; ++i) {
+                    QKeyBinding current = QKeySequencePrivate::keyBindings[i];
+                    if (current.shortcut != searchkey)
+                        break;
+                    else if (current.platform & platform && current.standardKey == matchKey)
+                        return true;
+                }
+            
+                //search back
+                for ( int i = mid - 1 ; i >= 0 ; --i) {
+                    QKeyBinding current = QKeySequencePrivate::keyBindings[i];
+                    if (current.shortcut != searchkey)
+                        break;
+                    else if (current.platform & platform && current.standardKey == matchKey)
+                        return true;
+                }
+                return false; //we could not find it among the matching keySequences
+            }
+        }
+    }    
+    return false; //we could not find matching keySequences at all
+}
+
 
 /*!
     \fn bool QKeyEvent::isAutoRepeat() const
@@ -3055,5 +3112,28 @@ QMenubarUpdatedEvent::QMenubarUpdatedEvent(QMenuBar * const menuBar)
     \fn QMenuBar *QMenubarUpdatedEvent::menuBar()
     \internal
 */
+
+/*!
+    \fn bool operator==(QKeyEvent *e, QKeySequence::StandardKey key)
+
+    \relates QKeyEvent
+
+    Returns true if \a the key is currently bound to the key combination 
+    specified by \a e.
+
+    Equivalent to \c {e->matches(key)}.
+*/
+
+/*!
+    \fn bool operator==(QKeySequence::StandardKey key, QKeyEvent *e)
+
+    \relates QKeyEvent
+
+    Returns true if \a key is currently bound to the key combination 
+    specified by \a e.
+
+    Equivalent to \c {e->matches(key)}.
+*/
+
 
 #endif
