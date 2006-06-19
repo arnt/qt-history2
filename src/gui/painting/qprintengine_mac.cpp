@@ -610,13 +610,9 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
         ret = 1;
         break;
     case PPK_Orientation:
-        if (d->state == QPrinter::Idle) {
-            ret = d->orient;
-        } else {
-            PMOrientation orientation;
-            PMGetOrientation(d->format, &orientation);
-            ret = orientation == kPMPortrait ? QPrinter::Portrait : QPrinter::Landscape;
-        }
+        PMOrientation orientation;
+        PMGetOrientation(d->format, &orientation);
+        ret = orientation == kPMPortrait ? QPrinter::Portrait : QPrinter::Landscape;
         break;
     case PPK_OutputFileName:
         ret = d->outputFilename;
