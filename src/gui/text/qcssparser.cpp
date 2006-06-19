@@ -16,6 +16,7 @@
 #include <QDebug>
 #include <QColor>
 #include <QFont>
+#include <QPixmap>
 
 #include "qcssscanner.cpp"
 
@@ -72,7 +73,38 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "-qt-list-indent", QtListIndent },
     { "-qt-paragraph-type", QtParagraphType },
     { "-qt-table-type", QtTableType },
+    { "alternate-background", AlternateBackground },
     { "background-color", BackgroundColor },
+    { "background-image", BackgroundImage },
+    { "background-origin", BackgroundOrigin },
+    { "background-position", BackgroundPosition },
+    { "background-repeat", BackgroundRepeat },
+    { "border", Border },
+    { "border-bottom", BorderBottom },
+    { "border-bottom-color", BorderBottomColor },
+    { "border-bottom-left-radius", BorderBottomLeftRadius },
+    { "border-bottom-right-radius", BorderBottomRightRadius },
+    { "border-bottom-style", BorderBottomStyle },
+    { "border-bottom-width", BorderBottomWidth },
+    { "border-color", BorderColor },
+    { "border-image", BorderImage },
+    { "border-left", BorderLeft },
+    { "border-left-color", BorderLeftColor },
+    { "border-left-style", BorderLeftStyle },
+    { "border-left-width", BorderLeftWidth },
+    { "border-radius", BorderRadius },
+    { "border-right", BorderRight },
+    { "border-right-color", BorderRightColor },
+    { "border-right-style", BorderRightStyle },
+    { "border-right-width", BorderRightWidth },
+    { "border-style", BorderStyles },
+    { "border-top", BorderTop },
+    { "border-top-color", BorderTopColor },
+    { "border-top-left-radius", BorderTopLeftRadius },
+    { "border-top-right-radius", BorderTopRightRadius },
+    { "border-top-style", BorderTopStyle },
+    { "border-top-width", BorderTopWidth },
+    { "border-width", BorderWidth },
     { "color", Color },
     { "float", Float },
     { "font", Font },
@@ -80,10 +112,18 @@ static const QCssKnownValue properties[NumProperties - 1] = {
     { "font-size", FontSize },
     { "font-style", FontStyle },
     { "font-weight", FontWeight },
+    { "margin" , Margin },
     { "margin-bottom", MarginBottom },
     { "margin-left", MarginLeft },
     { "margin-right", MarginRight },
     { "margin-top", MarginTop },
+    { "padding", Padding },
+    { "padding-bottom", PaddingBottom },
+    { "padding-left", PaddingLeft },
+    { "padding-right", PaddingRight },
+    { "padding-top", PaddingTop },
+    { "selection-background", SelectionBackground },
+    { "selection-foreground", SelectionForeground },
     { "text-decoration", TextDecoration },
     { "text-indent", TextIndent },
     { "vertical-align", VerticalAlignment },
@@ -113,13 +153,55 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
 };
 
 static const QCssKnownValue pseudos[NumPseudos - 1] = {
-    { "active", Active },
     { "checked", Checked },
     { "disabled", Disabled },
     { "enabled", Enabled },
     { "focus", Focus },
     { "hover", Hover },
-    { "indeterminate" , Indeterminate }
+    { "indeterminate" , Indeterminate },
+    { "pressed", Pressed },
+    { "unchecked" , Unchecked }
+};
+
+static const QCssKnownValue borderStyles[NumKnownStyles - 1] = {
+    { "dashed", Dashed },
+    { "dotdash", DotDash },
+    { "dotdotdash", DotDotDash },
+    { "dotted", Dotted },
+    { "double", Double },
+    { "groove", Groove },
+    { "inset", Inset },
+    { "none", None },
+    { "outset", Outset },
+    { "ridge", Ridge },
+    { "solid", Solid }
+};
+
+static const QCssKnownValue origins[NumKnownOrigins - 1] = {
+    { "border", BorderOrigin },
+    { "content", ContentOrigin },
+    { "padding", PaddingOrigin }
+};
+
+static const QCssKnownValue repeats[NumKnownRepeats - 1] = {
+    { "no-repeat", NoRepeat },
+    { "repeat-x", RepeatX },
+    { "repeat-xy", RepeatXY },
+    { "repeat-y", RepeatY }
+};
+
+static const QCssKnownValue positions[5] = {
+    { "left", Qt::AlignLeft },
+    { "right", Qt::AlignRight },
+    { "top", Qt::AlignTop },
+    { "bottom", Qt::AlignBottom },
+    { "center", Qt::AlignCenter },
+};
+
+static const QCssKnownValue tileModes[NumKnownTileModes - 1] = {
+    { "repeat", RepeatMode },
+    { "round", RoundMode },
+    { "stretch", StretchMode },
 };
 
 static bool operator<(const QString &name, const QCssKnownValue &prop)
@@ -141,12 +223,21 @@ static int findKnownValue(const QString &name, const QCssKnownValue *start, int 
     return prop->id;
 }
 
+QBrush Declaration::brushValue() const
+{
+    return colorValue(); // FIXME
+}
+
 QColor Declaration::colorValue() const
 {
     if (values.count() != 1)
         return QColor();
 
-    Value v = values.first();
+    return colorValue(values.first());
+}
+
+QColor Declaration::colorValue(Value v) const
+{
     if (v.type == Value::Identifier || v.type == Value::String) {
         v.variant.convert(QVariant::Color);
         v.type = Value::Color;
@@ -213,7 +304,11 @@ bool Declaration::intValue(int *real, const char *unit) const
 {
     if (values.count() != 1)
         return false;
-    Value v = values.first();
+    return intValue(values.first(), real, unit);
+}
+
+bool Declaration::intValue(Value v, int *real, const char *unit) const
+{
     if (unit && v.type != Value::Length)
         return false;
     QString s = v.variant.toString();
@@ -227,6 +322,143 @@ bool Declaration::intValue(int *real, const char *unit) const
     if (ok)
         *real = val;
     return ok;
+}
+
+void Declaration::marginValues(int *m, const char *unit, int offset) const
+{
+    int i;
+    for (i = 0; i < qMin(values.count(), 4); i++) {
+        const Value& v = values.at(i+offset);
+        if (!intValue(v, &m[i], unit))
+            break;
+    }
+    if (i == 0) m[0] = m[1] = m[2] = m[3] = 0;
+    else if (i == 1) m[3] = m[2] = m[1] = m[0];
+    else if (i == 2) m[2] = m[0], m[3] = m[1];
+    else if (i == 3) m[3] = m[1];
+}
+
+void Declaration::colorValues(QColor *c) const
+{
+    int i;
+    for (i = 0; i < qMin(values.count(), 4); i++)
+        c[i] = colorValue(values.at(i));
+    if (i == 0) c[0] = c[1] = c[2] = c[3] = QColor();
+    else if (i == 1) c[3] = c[2] = c[1] = c[0];
+    else if (i == 2) c[2] = c[0], c[3] = c[1];
+    else if (i == 3) c[3] = c[1];
+}
+
+BorderStyle Declaration::styleValue() const
+{
+    if (values.count() != 1)
+        return None;
+    return styleValue(values.first());
+}
+
+BorderStyle Declaration::styleValue(Value v) const
+{
+    return static_cast<BorderStyle>(findKnownValue(v.variant.toString(), 
+                                                borderStyles, NumKnownStyles));
+}
+
+void Declaration::styleValues(BorderStyle *s) const
+{
+    int i;
+    for (i = 0; i < qMin(values.count(), 4); i++)
+        s[i] = styleValue(values.at(i));
+    if (i == 0) s[0] = s[1] = s[2] = s[3] = None;
+    else if (i == 1) s[3] = s[2] = s[1] = s[0];
+    else if (i == 2) s[2] = s[0], s[3] = s[1];
+    else if (i == 3) s[3] = s[1];
+}
+
+void Declaration::radiiValues(QSize *radii, const char *unit) const
+{
+    radiusValue(&radii[0], unit);
+    for (int i = 1; i < 4; i++) 
+        radii[i] = radii[0];
+}
+
+void Declaration::radiusValue(QSize *radius, const char *unit) const
+{
+    if (values.count() > 2 || values.count() < 1)
+        return;
+    int x[2] = { 0, 0 };
+    if (values.count() > 0)
+        intValue(values.at(0), &x[0], unit);
+    if (values.count() > 1)
+        intValue(values.at(1), &x[1], unit);
+    else
+        x[1] = x[0];
+    *radius = QSize(x[0], x[1]);
+}
+
+Repeat Declaration::repeatValue() const
+{
+    if (values.count() != 1)
+        return UnknownRepeat;
+    return static_cast<Repeat>(findKnownValue(values.first().variant.toString(), 
+                                repeats, NumKnownRepeats));
+}
+
+Origin Declaration::originValue() const
+{
+    if (values.count() != 1)
+        return UnknownOrigin;
+    return static_cast<Origin>(findKnownValue(values.first().variant.toString(),
+                               origins, NumKnownOrigins));
+}
+
+QString Declaration::uriValue() const
+{
+    if (values.isEmpty() || values.first().type != Value::Uri)
+        return QString();
+    return values.first().variant.toString();
+}
+
+Qt::Alignment Declaration::alignmentValue() const
+{
+    Qt::Alignment align;
+    if (values.isEmpty() || values.count() > 2)
+        return align;
+    align |= static_cast<Qt::Alignment>(
+                    findKnownValue(values.at(0).variant.toString(), 
+                                   positions, 5));
+    if (values.count() > 1)
+        align |= static_cast<Qt::Alignment>
+                    (findKnownValue(values.at(1).variant.toString(), 
+                                    positions, 5));
+    return align;
+}
+
+void Declaration::borderImageValue(QPixmap *pixmap, int *cuts, 
+                                   TileMode *h, TileMode *v) const
+{
+    *pixmap = QPixmap(uriValue());
+    for (int i = 0; i < 4; i++) cuts[i] = -1;
+    *h = *v = StretchMode;
+
+    if (values.count() < 2)
+        return;
+
+    if (values.at(1).type == Value::Number) // cuts!
+        marginValues(cuts, 0, 1);
+    qDebug() << "After cutting vuttinh" << cuts[0] << cuts[1] << cuts[2] << cuts[3];
+
+    qDebug() << values.last().type;
+    if (values.last().type == Value::Identifier) {
+        qDebug() << "looking for " << values.last().variant.toString();
+        *v = static_cast<TileMode>(findKnownValue(values.last().variant.toString(), 
+                                      tileModes, NumKnownTileModes));
+    }
+    if (values[values.count() - 2].type == Value::Identifier) {
+        qDebug() << values[values.count()-2].variant.toString();
+        *h = static_cast<TileMode>
+                        (findKnownValue(values[values.count()-2].variant.toString(),
+                                        tileModes, NumKnownTileModes));
+    } else
+        *h = *v;
 }
 
 static bool setFontSizeFromValue(Value value, QFont *font, int *fontSizeAdjustment)

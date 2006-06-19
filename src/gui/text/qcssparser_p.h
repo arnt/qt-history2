@@ -18,6 +18,8 @@
 #include <QVector>
 #include <QVariant>
 #include <QPair>
+#include <QSize>
+#include <QBrush>
 
 namespace QCss
 {
@@ -32,6 +34,7 @@ enum Property {
     FontSize,
     FontStyle,
     FontWeight,
+    Margin,
     MarginBottom,
     MarginLeft,
     MarginRight,
@@ -44,6 +47,44 @@ enum Property {
     TextIndent,
     VerticalAlignment,
     Whitespace,
+    SelectionForeground,
+    SelectionBackground,
+    Border,
+    BorderLeft,
+    BorderRight,
+    BorderTop,
+    BorderBottom,
+    Padding,
+    PaddingLeft,
+    PaddingRight,
+    PaddingTop,
+    PaddingBottom,
+    AlternateBackground,
+    BorderLeftStyle,
+    BorderRightStyle,
+    BorderTopStyle,
+    BorderBottomStyle,
+    BorderStyles,
+    BorderLeftColor,
+    BorderRightColor,
+    BorderTopColor,
+    BorderBottomColor,
+    BorderColor,
+    BorderLeftWidth,
+    BorderRightWidth,
+    BorderTopWidth,
+    BorderBottomWidth,
+    BorderWidth,
+    BorderTopLeftRadius,
+    BorderTopRightRadius,
+    BorderBottomLeftRadius,
+    BorderBottomRightRadius,
+    BorderRadius,
+    BackgroundOrigin,
+    BackgroundRepeat,
+    BackgroundPosition,
+    BackgroundImage,
+    BorderImage,
     NumProperties
 };
 
@@ -69,6 +110,73 @@ enum KnownValue {
     Value_Left,
     Value_Right,
     NumKnownValues
+};
+
+enum BorderStyle {
+    UnknownStyle,
+    None,
+    Dotted,
+    Dashed,
+    Solid,
+    Double,
+    DotDash,
+    DotDotDash,
+    Groove,
+    Ridge,
+    Inset,
+    Outset,
+    NumKnownStyles
+};
+
+struct BorderStyles 
+{
+    BorderStyles() : left(None), right(None), top(None), bottom(None) { }
+    BorderStyle left, right, top, bottom;
+};
+
+struct BorderBrushes 
+{
+    QBrush left, right, top, bottom;
+};
+
+enum Edge {
+    TopEdge,
+    RightEdge,
+    BottomEdge,
+    LeftEdge,
+    NumEdges
+};
+
+enum Corner {
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight
+};
+
+enum TileMode {
+    UnknownMode,
+    RoundMode,
+    StretchMode,
+    RepeatMode,
+    NumKnownTileModes
+};
+
+enum Repeat {
+    UnknownRepeat,
+    NoRepeat,
+    RepeatX,
+    RepeatY,
+    RepeatXY,
+    NumKnownRepeats
+};
+
+enum Origin {
+    UnknownOrigin,
+    PaddingOrigin,
+    BorderOrigin,
+    ContentOrigin,
+    NumKnownOrigins
 };
 
 struct Q_AUTOTEST_EXPORT Value
@@ -103,21 +211,37 @@ struct Q_AUTOTEST_EXPORT Declaration
     
     // helper functions
     QColor colorValue() const;
+    QColor colorValue(Value v) const;
+    void colorValues(QColor *c) const;
+    QBrush brushValue() const;
     bool realValue(qreal *value, const char *unit = 0) const;
     bool intValue(int *value, const char *unit = 0) const;
+    bool intValue(Value v, int *real, const char *unit = 0) const;
+    void marginValues(int *margins, const char *unit = 0, int offset = 0) const;
+    BorderStyle styleValue() const;
+    BorderStyle styleValue(Value v) const;
+    void styleValues(BorderStyle *s) const;
+    void radiiValues(QSize *radii, const char *unit = 0) const;
+    void radiusValue(QSize *radius, const char *unit = 0) const;
+    Origin originValue() const;
+    Repeat repeatValue() const;
+    Qt::Alignment alignmentValue() const;
+    QString uriValue() const;
+    void borderImageValue(QPixmap *pixmap, int *cuts, TileMode *h, TileMode *v) const;
 };
 
 enum PseudoType
 {
     Unknown         = 0x00000000,
-    Active          = 0x00000001,
-    Focus           = 0x00000002,
-    Hover           = 0x00000004,
-    Enabled         = 0x00000008,
-    Disabled        = 0x00000010,
+    Enabled         = 0x00000001,
+    Disabled        = 0x00000002,
+    Pressed         = 0x00000004,
+    Focus           = 0x00000008,
+    Hover           = 0x00000010,
     Checked         = 0x00000020,
-    Indeterminate   = 0x00000040,
-    NumPseudos = 8
+    Unchecked       = 0x00000040,
+    Indeterminate   = 0x00000080,
+    NumPseudos = 9
 };
 
 struct Q_AUTOTEST_EXPORT PseudoClass

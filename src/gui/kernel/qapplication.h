@@ -65,6 +65,7 @@ class Q_GUI_EXPORT QApplication : public QCoreApplication
     Q_PROPERTY(int startDragTime  READ startDragTime WRITE setStartDragTime)
     Q_PROPERTY(int startDragDistance  READ startDragDistance WRITE setStartDragDistance)
     Q_PROPERTY(bool quitOnLastWindowClosed  READ quitOnLastWindowClosed WRITE setQuitOnLastWindowClosed)
+    Q_PROPERTY(QString styleSheet READ styleSheet WRITE setStyleSheet)
 
 public:
     QApplication(int &argc, char **argv);
@@ -224,7 +225,10 @@ Q_SIGNALS:
     void saveStateRequest(QSessionManager &sessionManager);
 #endif
 
+public:
+    QString styleSheet() const;
 public Q_SLOTS:
+    void setStyleSheet(const QString& sheet);
     static void closeAllWindows();
     static void aboutQt();
 

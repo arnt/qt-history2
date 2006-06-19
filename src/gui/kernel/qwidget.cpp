@@ -45,6 +45,7 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #include "qdebug.h"
+#include "qstylesheetstyle.h"
 
 #include "qinputcontext.h"
 
@@ -1597,7 +1598,6 @@ QWidget *QWidget::find(WId id)
 */
 
 
-
 /*!
   Ensures that the widget has a window system identifier, i.e. that it is known to the windowing system.
 
@@ -1609,11 +1609,36 @@ void QWidget::createWinId()
         window()->d_func()->createRecursively();
 }
 
+/*!
+    \property QApplication::styleSheet
+    \brief the widget's style sheet
+
+    \sa QWidget::setStyle, QApplication::styleSheet
+*/
+QString QWidget::styleSheet() const
+{
+    Q_D(const QWidget);
+    if (!d->extra)
+        return QString();
+    return d->extra->styleSheet;
+}
+
+void QWidget::setStyleSheet(const QString& styleSheet)
+{
+    Q_D(QWidget);
+    d->createExtra();
+    d->extra->styleSheet = styleSheet;
+    if (styleSheet.isEmpty()) {
+        setStyle(0);
+    } else if (d->extra->style == QStyleSheetStyle::styleSheetStyle()) {
+        d->extra->style->polish(this);
+    } else {
+        setStyle(QStyleSheetStyle::styleSheetStyle());
+    }
+}
 
 
 /*!
-    Returns the GUI style for this widget
-
     \sa QWidget::setStyle(), QApplication::setStyle(), QApplication::style()
 */
 

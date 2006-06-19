@@ -171,6 +171,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(Qt::LayoutDirection layoutDirection READ layoutDirection WRITE setLayoutDirection RESET unsetLayoutDirection)
     QDOC_PROPERTY(Qt::WindowFlags windowFlags READ windowFlags WRITE setWindowFlags)
     Q_PROPERTY(bool autoFillBackground READ autoFillBackground WRITE setAutoFillBackground)
+    Q_PROPERTY(QString styleSheet READ styleSheet WRITE setStyleSheet)
 
 public:
     explicit QWidget(QWidget* parent = 0, Qt::WFlags f = 0);
@@ -294,7 +295,9 @@ public:
 
 public Q_SLOTS:
     void setWindowTitle(const QString &);
+    void setStyleSheet(const QString& styleSheet);
 public:
+    QString styleSheet() const;
     QString windowTitle() const;
     void setWindowIcon(const QIcon &icon);
     QIcon windowIcon() const;

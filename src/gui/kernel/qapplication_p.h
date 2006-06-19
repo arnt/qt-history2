@@ -281,6 +281,7 @@ public:
 #endif
 
     void _q_tryEmitLastWindowClosed();
+    QString styleSheet;
 
 private:
     static QApplicationPrivate *self;

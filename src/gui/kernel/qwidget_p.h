@@ -145,6 +145,7 @@ struct QWExtra {
 #endif
     uint explicitMinSize : 2;
     uint autoFillBackground : 1;
+    QString styleSheet;
 };
 
 class Q_GUI_EXPORT QWidgetPrivate : public QObjectPrivate

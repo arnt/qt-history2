@@ -35,6 +35,7 @@
 #include "qdnd_p.h"
 #include "qcolormap.h"
 #include "qdebug.h"
+#include "qstylesheetstyle.h"
 
 #include "qinputcontext.h"
 #ifdef Q_WS_X11
@@ -983,6 +984,27 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
 }
 
 /*!
+    \property QApplication::styleSheet
+    \brief the application style sheet
+
+    \sa QWidget::setStyle, QApplication::styleSheet
+*/
+QString QApplication::styleSheet() const
+{
+    Q_D(const QApplication);
+    return d->styleSheet;
+}
+
+void QApplication::setStyleSheet(const QString& styleSheet)
+{
+    Q_D(QApplication);
+    d->styleSheet = styleSheet;
+    QStyle *newStyle = QStyleSheetStyle::styleSheetStyle();
+    d->app_style = 0; // so it does not get deleted by setStyle
+    setStyle(newStyle);
+}
+
+/*!
   Returns the application's style object.
 
   \sa setStyle(), QStyle
@@ -1115,24 +1137,25 @@ void QApplication::setStyle(QStyle *style)
     QApplicationPrivate::app_style->polish(qApp);
 
     // re-polish existing widgets if necessary
-    if (old) {
-        if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
-            for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
-                register QWidget *w = *it;
-                if (!(w->windowType() == Qt::Desktop)) {        // except desktop
-                    if (w->testAttribute(Qt::WA_WState_Polished))
-                        QApplicationPrivate::app_style->polish(w);                // repolish
-                    QEvent e(QEvent::StyleChange);
-                    QApplication::sendEvent(w, &e);
+    if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
+        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
+            register QWidget *w = *it;
+            if (!(w->windowType() == Qt::Desktop)) {        // except desktop
+                if (w->testAttribute(Qt::WA_WState_Polished))
+                    QApplicationPrivate::app_style->polish(w);                // repolish
+                QEvent e(QEvent::StyleChange);
+                QApplication::sendEvent(w, &e);
 #ifdef QT3_SUPPORT
+                if (old)
                     w->styleChange(*old);
 #endif
-                    w->update();
-                }
+                w->update();
             }
         }
-        delete old;
     }
+    if (old != QStyleSheetStyle::styleSheetStyle())
+        delete old;
+
     if (QApplicationPrivate::focus_widget) {
         QFocusEvent in(QEvent::FocusIn, Qt::OtherFocusReason);
         QApplication::sendEvent(QApplicationPrivate::focus_widget->style(), &in);
