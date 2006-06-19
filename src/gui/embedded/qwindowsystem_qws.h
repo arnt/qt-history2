@@ -193,15 +193,6 @@ public:
 #endif
 
 #ifndef QT_NO_QWS_KEYBOARD
-    struct KeyMap {
-        int  key_code;
-        ushort unicode;
-        ushort shift_unicode;
-        ushort ctrl_unicode;
-    };
-
-    static const KeyMap *keyMap();
-
     class KeyboardFilter
     {
     public:
