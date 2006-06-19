@@ -52,7 +52,7 @@
     buttons in a standard way.
 
     There are a couple ways of using QDialogButtonBox. One ways is to create
-    the buttons (or button texts) your self and add them to the button box,
+    the buttons (or button texts) yourself and add them to the button box,
     specifying their role.
 
     \quotefromfile dialogs/extension/finddialog.cpp
@@ -314,7 +314,7 @@ void QDialogButtonBoxPrivate::layoutButtons()
             if (list.isEmpty())
                 break;
             // Only the first one
-            QAbstractButton *button = list.at((*currentLayout & Reverse) ? list.size() - 1 : 0);
+            QAbstractButton *button = list.at(0);
             buttonLayout->addWidget(button);
             button->show();
         }
@@ -327,8 +327,9 @@ void QDialogButtonBoxPrivate::layoutButtons()
                 stop,
                 dir;
             if (*currentLayout & Reverse) {
-                start = list.size() - 2;
-                stop = dir = -1;
+                start = list.size() - 1;
+                stop = 0;
+                dir = -1;
             } else {
                 start = dir = 1;
                 stop = list.size();
