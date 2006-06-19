@@ -290,6 +290,7 @@ struct Q_AUTOTEST_EXPORT Selector
 {
     QVector<BasicSelector> basicSelectors;
     int specificity() const;
+    int pseudoState() const;
 };
 
 struct StyleRule;
@@ -341,7 +342,8 @@ public:
         int id;
     };
     
-    QHash<int, QVector<Declaration> > declarationsForNode(NodePtr node);
+    QVector<StyleRule> styleRulesForNode(NodePtr node);
+    QVector<Declaration> declarationsForNode(NodePtr node);
     
     virtual bool hasNodeName(NodePtr node, const QString& nodeName) const = 0;
     virtual QString attribute(NodePtr node, const QString &name) const = 0;
@@ -357,7 +359,7 @@ public:
     QList<StyleSheet> styleSheets;
     QString medium;
 private:
-    void matchRules(NodePtr node, const QVector<StyleRule> &rules, QHash<int, QVector<QPair<int, StyleRule> > > *matchingRules);
+    void matchRules(NodePtr node, const QVector<StyleRule> &rules, QVector<QPair<int, StyleRule> > *weightedRules);
     bool selectorMatches(const Selector &rule, NodePtr node);
     bool basicSelectorMatches(const BasicSelector &rule, NodePtr node);
 };

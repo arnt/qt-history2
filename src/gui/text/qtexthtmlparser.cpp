@@ -1695,7 +1695,7 @@ QVector<QCss::Declaration> QTextHtmlParser::declarationsForNode(int node) const
 
     QCss::StyleSelector::NodePtr n;
     n.id = node;
-    decls = selector.declarationsForNode(n).value(QCss::Enabled);
+    decls = selector.declarationsForNode(n);
 
     return decls;
 }

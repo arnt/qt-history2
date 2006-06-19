@@ -444,16 +444,12 @@ void Declaration::borderImageValue(QPixmap *pixmap, int *cuts,
 
     if (values.at(1).type == Value::Number) // cuts!
         marginValues(cuts, 0, 1);
-    qDebug() << "After cutting vuttinh" << cuts[0] << cuts[1] << cuts[2] << cuts[3];
 
-    qDebug() << values.last().type;
     if (values.last().type == Value::Identifier) {
-        qDebug() << "looking for " << values.last().variant.toString();
         *v = static_cast<TileMode>(findKnownValue(values.last().variant.toString(), 
                                       tileModes, NumKnownTileModes));
     }
     if (values[values.count() - 2].type == Value::Identifier) {
-        qDebug() << values[values.count()-2].variant.toString();
         *h = static_cast<TileMode>
                         (findKnownValue(values[values.count()-2].variant.toString(),
                                         tileModes, NumKnownTileModes));
@@ -613,6 +609,17 @@ int Selector::specificity() const
     return val;
 }
 
+int Selector::pseudoState() const
+{
+    const BasicSelector& bs = basicSelectors.last();
+    if (bs.pseudoClasses.isEmpty())
+        return Enabled; // default
+    int state = Unknown /* 0 */;
+    for (int i = 0; i < bs.pseudoClasses.count(); i++)
+        state |= bs.pseudoClasses.at(i).type;
+    return state;
+}
+
 StyleSelector::~StyleSelector()
 {
 }
@@ -722,85 +729,74 @@ static inline bool qcss_selectorLessThan(const QPair<int, QCss::StyleRule> &lhs,
     return lhs.first < rhs.first;
 }
 
-static inline int pseudoStateForSelector(const Selector& selector)
-{
-    const BasicSelector& bs = selector.basicSelectors.last();
-    if (bs.pseudoClasses.isEmpty())
-        return Enabled; // default
-    int state = Unknown /* 0 */;
-    for (int i = 0; i < bs.pseudoClasses.count(); i++) {
-        state |= bs.pseudoClasses.at(i).type;
-    }
-    return state;
-}
-
-void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, QHash<int, QVector<QPair<int, StyleRule> > > *matchingRules)
+void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules, 
+                               QVector<QPair<int, StyleRule> > *weightedRules)
 {
     for (int i = 0; i < rules.count(); ++i) {
         const StyleRule &rule = rules.at(i);
-        QHash<int, int> maxSpecificities; // (state, specificity)
         for (int j = 0; j < rule.selectors.count(); ++j) {
             const Selector& selector = rule.selectors.at(j);
             if (selectorMatches(selector, node)) {
-                int state = pseudoStateForSelector(selector);
-                int specificity = selector.specificity();
-                if (!maxSpecificities.contains(state))
-                    maxSpecificities[state] = specificity;
-                else
-                    maxSpecificities[state] = qMax(maxSpecificities[state], specificity);
+                QPair<int, StyleRule> weightedRule;
+                weightedRule.first = selector.specificity();
+                weightedRule.second.selectors.append(selector);
+                weightedRule.second.declarations = rule.declarations;
+                weightedRules->append(weightedRule);
             }
-        }
-        if (maxSpecificities.isEmpty())
-            continue;
-        const QList<int>& states = maxSpecificities.keys();
-        const QList<int>& specificities = maxSpecificities.values();
-        for (int k = 0; k < states.count(); k++) {
-            QPair<int, StyleRule> r;
-            r.first = specificities[k]; // vaue for key
-            r.second = rule;
-            const int state = states.at(k);
-            (*matchingRules)[state] += r;
         }
     }
 }
 
-QHash<int, QVector<Declaration> > StyleSelector::declarationsForNode(NodePtr node)
+
+void printDeclarations(const QVector<QPair<int, StyleRule> >& decls)
 {
-    QHash<int, QVector<Declaration> > declsHash;
+    for (int i = 0; i < decls.count(); i++) {
+        const StyleRule& rule = decls.at(i).second;
+        qDebug() << rule.declarations.first().property
+                 << rule.declarations.first().values.first().variant.toString();
+    }
+}
+
+// Returns style rules that are in ascending order of specificity
+QVector<StyleRule> StyleSelector::styleRulesForNode(NodePtr node)
+{
+    QVector<StyleRule> rules;
     if (styleSheets.isEmpty())
-        return declsHash;
+        return rules;
 
-    QHash<int, QVector<QPair<int, StyleRule> > > matchingRulesHash;
-
+    QVector<QPair<int, StyleRule> > weightedRules; // (spec, rule) that will be sorted below
     for (int sheetIdx = 0; sheetIdx < styleSheets.count(); ++sheetIdx) {
         const StyleSheet &styleSheet = styleSheets.at(sheetIdx);
 
-        matchRules(node, styleSheet.styleRules, &matchingRulesHash);
+        matchRules(node, styleSheet.styleRules, &weightedRules);
         if (!medium.isEmpty()) {
             for (int i = 0; i < styleSheet.mediaRules.count(); ++i) {
                 if (styleSheet.mediaRules.at(i).media.contains(medium, Qt::CaseInsensitive)) {
-                    matchRules(node, styleSheet.mediaRules.at(i).styleRules, &matchingRulesHash);
+                    matchRules(node, styleSheet.mediaRules.at(i).styleRules, &weightedRules);
                 }
             }
         }
     }
 
-    const QList<int> pseudoStates = matchingRulesHash.keys();
-    const QList<QVector<QPair<int, StyleRule> > > matchingRulesList = matchingRulesHash.values();
-    for (int i = 0; i < pseudoStates.count(); i++) {
-        QVector<QPair<int, StyleRule> > matchingRules = matchingRulesList.at(i);
-        qSort(matchingRules.begin(), matchingRules.end(), qcss_selectorLessThan);
+    qStableSort(weightedRules.begin(), weightedRules.end(), qcss_selectorLessThan);
+    
+    for (int j = 0; j < weightedRules.count(); j++)
+        rules += weightedRules.at(j).second;
 
-        QVector<Declaration> decls;
-        for (int j = 0; j < matchingRules.count(); ++j)
-            decls += matchingRules.at(j).second.declarations;
-
-        declsHash[pseudoStates.at(i)] = decls;
-    }
-
-    return declsHash;
+    return rules;
 }
 
+// for qtexthtmlparser which requires just the declarations with Enabled state
+QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
+{
+    QVector<Declaration> decls;
+    QVector<StyleRule> rules = styleRulesForNode(node);
+    for (int i = 0; i < rules.count(); i++) {
+        if (rules.at(i).selectors.at(0).pseudoState() == Enabled)
+            decls += rules.at(i).declarations;
+    }
+    return decls;
+}
 static inline bool isHexDigit(const char c)
 {
     return (c >= '0' && c <= '9')
