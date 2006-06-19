@@ -18,7 +18,7 @@
 static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bool italic, int pixelSize, const char *file, bool antialiased)
 {
     QString familyname = QString::fromUtf8(family);
-    QString foundryname = "";
+    QString foundryname = QLatin1String("");
     QtFontStyle::Key styleKey;
     styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
     styleKey.weight = weight;
@@ -58,7 +58,7 @@ static void initializeDb()
 #else
     fn += QLatin1String("/lib");
 #endif
-    fn += "/fonts/fontdir";
+    fn += QLatin1String("/fonts/fontdir");
     FILE* fontdef=fopen(fn.toLocal8Bit().constData(),"r");
     if(!fontdef) {
         qWarning("QFontDatabase: Cannot find font definition file %s - is Qt installed correctly?",

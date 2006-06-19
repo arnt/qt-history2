@@ -136,7 +136,7 @@ bool QVFbScreen::connect(const QString &displaySpec)
     screen_optype=&QVFb_dummy;
     screen_lastop=&QVFb_dummy;
 
-    if (displaySpec.indexOf(":Gray") >= 0)
+    if (displaySpec.indexOf(QLatin1String(":Gray")) >= 0)
         grayscale = true;
 
     key_t key = ftok(QByteArray(QT_VFB_MOUSE_PIPE).replace("%1", QByteArray::number(displayId)), 'b');
@@ -171,7 +171,7 @@ bool QVFbScreen::connect(const QString &displaySpec)
     memcpy(screenclut, hdr->clut, sizeof(QRgb) * screencols);
 
     if (qApp->type() == QApplication::GuiServer) {
-        QString mouseDev = "QVFbMouse:";
+        QString mouseDev = QLatin1String("QVFbMouse:");
         mouseDev += QT_VFB_MOUSE_PIPE;
         QString keyboardDev = "QVFbKbd:";
         keyboardDev += QT_VFB_KEYBOARD_PIPE;
