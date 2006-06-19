@@ -21,6 +21,7 @@
 #include "qdockwidget.h"
 #include "qevent.h"
 #include "qhash.h"
+#include "qlayout.h"
 #include "qmenubar.h"
 #include "qmessagebox.h"
 #include "qmime.h"
@@ -1497,21 +1498,23 @@ bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhan
             SetRect(&limits, extra->minw, extra->minh,
                     extra->maxw < 32767 ? extra->maxw : 32767,
                     extra->maxh < 32767 ? extra->maxh : 32767);
-        int growWindowSize;
+        Rect growWindowSize;
+        Boolean success;
         {
             Point mac_pt;
             mac_pt.h = pt.x();
             mac_pt.v = pt.y();
             QMacBlockingFunction block;
-            growWindowSize = GrowWindow(window, mac_pt, limits.left == -2 ? 0 : &limits);
+            success = ResizeWindow(window, mac_pt, limits.left == -2 ? 0 : &limits, &growWindowSize);
         }
-        if(growWindowSize) {
+        if(success) {
             // nw/nh might not match the actual size if setSizeIncrement is used
-            int nw = LoWord(growWindowSize);
-            int nh = HiWord(growWindowSize);
+            int nw = growWindowSize.right - growWindowSize.left;
+            int nh = growWindowSize.bottom - growWindowSize.top;
             if(nw != widget->width() || nh != widget->height()) {
-                if(nw < q->desktop()->width() && nw > 0 && nh < q->desktop()->height() && nh > 0)
+                if(nw < q->desktop()->width() && nw > 0 && nh < q->desktop()->height() && nh > 0) {
                     widget->resize(nw, nh);
+                }
             }
         }
         break;
@@ -2485,6 +2488,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             Rect nr;
             GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0,
                               sizeof(nr), 0, &nr);
+            QRect newRect(nr.left, nr.top, nr.right - nr.left, nr.bottom - nr.top);
             if((flags & kWindowBoundsChangeOriginChanged)) {
                 int ox = widget->data->crect.x(), oy = widget->data->crect.y();
                 int nx = nr.left, ny = nr.top;
@@ -2495,8 +2499,30 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
             if((flags & kWindowBoundsChangeSizeChanged)) {
-                int nw = nr.right - nr.left, nh = nr.bottom - nr.top;
-                if(widget->width() != nw || widget->height() != nh)
+                if (widget->isWindow()
+                        && widget->layout() && widget->layout()->hasHeightForWidth()) {
+                    QRect rect = widget->geometry();
+                    QSize newSize = QLayout::closestAcceptableSize(widget, newRect.size());
+                    int dh = newSize.height() - newRect.height();
+                    int dw = newSize.width() - newRect.width();
+                    if (dw != 0 || dh != 0) {
+                        handled_event = true;  // We want to change the bounds, so we handle the event
+
+                        // set the rect, so we can also do the resize down below (yes, we need to resize).
+                        newRect.setBottom(newRect.bottom() + dh);
+                        newRect.setRight(newRect.right() + dw);
+
+                        nr.left = newRect.x();
+                        nr.top = newRect.y();
+                        nr.right = nr.left + newRect.width();
+                        nr.bottom = nr.top + newRect.height();
+                        SetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, sizeof(Rect), &nr);
+                    }
+                }
+
+                int nw = newRect.width();
+                int nh = newRect.height();
+                if (widget->width() != nw || widget->height() != nh)
                     widget->resize(nw, nh);
             }
         } else if(ekind == kEventWindowHidden) {
