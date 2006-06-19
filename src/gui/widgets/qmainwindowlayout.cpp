@@ -1472,7 +1472,7 @@ void QMainWindowLayout::restore()
 bool QMainWindowLayout::startSeparatorMove(const QPoint &pos)
 {
     movingSeparator = dockWidgetLayout.findSeparator(pos);
-    qDebug() << "QMainWindowLayout::startSeparatorMove()" << movingSeparator;
+    // qDebug() << "QMainWindowLayout::startSeparatorMove()" << movingSeparator;
 
     if (movingSeparator.isEmpty())
         return false;
@@ -1609,7 +1609,7 @@ bool QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
             const ToolBarLineInfo &lineInfo = tb_layout_info.at(l);
 	    for (int i = 0; i < lineInfo.list.size(); ++i) {
 		const ToolBarLayoutInfo &tmp = lineInfo.list.at(i);
- 		qDebug() << "bar: " << lineInfo.pos << l << i << tmp.item->widget() << tmp.item->widget()->geometry();
+ 		// qDebug() << "bar: " << lineInfo.pos << l << i << tmp.item->widget() << tmp.item->widget()->geometry();
 	    }
 	}
 #endif
