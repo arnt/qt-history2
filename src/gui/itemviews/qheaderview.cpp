@@ -1133,7 +1133,7 @@ bool QHeaderView::cascadingSectionResizes() const
     return d->cascadingResizing;
 }
 
-void QHeaderView::setCascadingResizes(bool enable)
+void QHeaderView::setCascadingSectionResizes(bool enable)
 {
     Q_D(QHeaderView);
     d->cascadingResizing = enable;
