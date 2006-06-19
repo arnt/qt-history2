@@ -178,7 +178,6 @@ public:
     int maxChange(int s) const;
     int potentialValue(const QString &str, int min, int max, int index, const QVariant &currentValue) const;
     int potentialValueHelper(const QString &str, int min, int max, int size) const;
-    int multiplier(int s) const;
 
     QString sectionName(int s) const;
     QString stateName(int s) const;

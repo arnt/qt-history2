@@ -4273,27 +4273,6 @@ int QDateTimeParser::maxChange(int index) const
     return -1;
 }
 
-
-int QDateTimeParser::multiplier(int index) const
-{
-    switch (sectionType(index)) {
-        // Time. unit is msec
-    case MSecSection: return 1;
-    case SecondSection: return 1000;
-    case MinuteSection: return 60 * 1000;
-    case Hour24Section: case Hour12Section: return 60 * 60 * 1000;
-
-        // Date. unit is day
-    case DaySection: return 1;
-    case MonthSection: return 30;
-    case YearSection: return 365;
-
-    default: break;
-    }
-    qFatal("%s passed to multiplier. This should never happen", sectionName(sectionType(index)).toLatin1().constData());
-    return -1;
-}
-
 bool QDateTimeParser::isFixedNumericSection(int index) const
 {
     const SectionNode sn = sectionNode(index);
@@ -4369,9 +4348,7 @@ int QDateTimeParser::potentialValue(const QString &str, int min, int max, int in
     } else if (simplified.toInt() > max && max >= 0) {
         return -1;
     } else {
-        QString temp = simplified;
-        while (temp.size() < size)
-            temp.prepend(QLatin1Char('9'));
+        const QString temp = simplified.leftJustified(size, QLatin1Char('9'));
         const int t = temp.toInt();
         if (t < min) {
             return -1;
@@ -4402,13 +4379,7 @@ int QDateTimeParser::potentialValueHelper(const QString &str, int min, int max, 
 
     for (int i=0; i<=str.size(); ++i) {
         for (int j=0; j<10; ++j) {
-            QString tmp = str;
-            if (i == str.size()) {
-                tmp.append(QChar('0' + j));
-            } else {
-                tmp.insert(i, QChar('0' + j));
-            }
-            int ret = potentialValueHelper(tmp, min, max, size);
+            const int ret = potentialValueHelper(str + QLatin1Char('0' + j), min, max, size);
             if (ret != -1)
                 return ret;
         }
@@ -4468,7 +4439,6 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
             default: {
                 int toMin;
                 int toMax;
-                int multi = multiplier(i);
 
                 if (sn.type & TimeSectionMask) {
                     if (dt.daysTo(minimum.toDateTime()) != 0) {
@@ -4486,14 +4456,12 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                     toMax = dt.daysTo(maximum.toDateTime());
                 }
                 int maxChange = QDateTimeParser::maxChange(i);
-                qlonglong maxChangeUnits = (qint64)maxChange * (qint64)multi;
-                if (toMin > maxChangeUnits) {
-                    QDTPDEBUG << "invalid because toMin > maxChangeUnits" << toMin
-                              << maxChangeUnits << t << dt << minimum.toDateTime()
-                              << multi;
+                if (toMin > maxChange) {
+                    QDTPDEBUG << "invalid because toMin > maxChange" << toMin
+                              << maxChange << t << dt << minimum.toDateTime();
 
                     return Invalid;
-                } else if (toMax > maxChangeUnits) {
+                } else if (toMax > maxChange) {
                     toMax = -1; // can't get to max
                 }
 
@@ -4504,7 +4472,7 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                           << minimum.toDate() << maximum.toDate();
                 if (tmp == -1) {
                     QDTPDEBUG << "invalid because potentialValue(" << t << min << max
-                              << sectionName(sn.type) << "returned" << tmp;
+                              << sectionName(sn.type) << "returned" << tmp << toMax;
                     return Invalid;
                 }
 
