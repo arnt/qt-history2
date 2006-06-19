@@ -2004,6 +2004,9 @@ void QVariant::load(QDataStream &s)
             return;
         u = map_from_three[u];
     }
+    bool is_null = false;
+    if (s.version() >= QDataStream::Qt_4_2)
+        s >> is_null;
     if (u >= QVariant::UserType) {
         QByteArray name;
         s >> name;
@@ -2012,7 +2015,7 @@ void QVariant::load(QDataStream &s)
             qFatal("QVariant::load(QDataStream &s): type %s unknown to QVariant.", name.data());
     }
     create(static_cast<int>(u), 0);
-    d.is_null = false;
+    d.is_null = is_null;
     handler->load(&d, s);
 }
 
@@ -2039,6 +2042,8 @@ void QVariant::save(QDataStream &s) const
         }
     }
     s << tp;
+    if (s.version() >= QDataStream::Qt_4_2)
+        s << bool(d.is_null);
     if (tp == QVariant::UserType) {
         s << QMetaType::typeName(userType());
     }

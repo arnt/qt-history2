@@ -221,7 +221,7 @@
 #endif
 
 enum {
-    DefaultStreamVersion = QDataStream::Qt_4_1
+    DefaultStreamVersion = QDataStream::Qt_4_2
 };
 
 // ### 4.0: when streaming invalid QVariants, just the type should

@@ -50,7 +50,7 @@ public:
         Qt_3_3 = 6,
         Qt_4_0 = 7,
         Qt_4_1 = Qt_4_0,
-        Qt_4_2 = Qt_4_1
+        Qt_4_2 = 8
 #if QT_VERSION >= 0x040300
 #error Add Qt_4_3 = Qt_4_2
 #endif
