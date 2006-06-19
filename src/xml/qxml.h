@@ -77,7 +77,7 @@ private:
     QXmlNamespaceSupportPrivate *d;
 
     friend class QXmlSimpleReaderPrivate;
-	Q_DISABLE_COPY(QXmlNamespaceSupport)
+    Q_DISABLE_COPY(QXmlNamespaceSupport)
 };
 
 
@@ -377,7 +377,7 @@ public:
 
 private:
     QXmlDefaultHandlerPrivate *d;
-	Q_DISABLE_COPY(QXmlDefaultHandler)
+    Q_DISABLE_COPY(QXmlDefaultHandler)
 };
 
 // inlines

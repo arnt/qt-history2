@@ -46,7 +46,7 @@ public:
 private:
     QLibraryPrivate *d;
     bool did_load;
-	Q_DISABLE_COPY(QPluginLoader)
+    Q_DISABLE_COPY(QPluginLoader)
 };
 
 

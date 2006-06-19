@@ -92,7 +92,7 @@ static int _gettemp(char *path, int *doopen, int domkdir, int slen)
         pid = _getpid();
 #else
         pid = getpid();
-#endif		
+#endif
 	while (trv >= path && *trv == 'X' && pid != 0) {
 		*trv-- = (pid % 10) + '0';
 		pid /= 10;
@@ -141,10 +141,10 @@ static int _gettemp(char *path, int *doopen, int domkdir, int slen)
 	for (;;) {
 		if (doopen) {
 #if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
-			if (_sopen_s(doopen, path, O_CREAT|O_EXCL|O_RDWR, _SH_DENYNO, _S_IREAD | _S_IWRITE)== 0)
+                        if (_sopen_s(doopen, path, O_CREAT|O_EXCL|O_RDWR, _SH_DENYNO, _S_IREAD | _S_IWRITE)== 0)
 #else
-			if ((*doopen =
-			    open(path, O_CREAT|O_EXCL|O_RDWR, 0600)) >= 0)
+                        if ((*doopen =
+                            open(path, O_CREAT|O_EXCL|O_RDWR, 0600)) >= 0)
 #endif	
 				return(1);
 			if (errno != EEXIST)

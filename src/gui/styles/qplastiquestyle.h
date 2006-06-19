@@ -64,7 +64,7 @@ protected:
     
 private:
     QPlastiqueStylePrivate *d;
-	Q_DISABLE_COPY(QPlastiqueStyle)
+    Q_DISABLE_COPY(QPlastiqueStyle)
 };
 
 #endif // QT_NO_STYLE_PLASTIQUE

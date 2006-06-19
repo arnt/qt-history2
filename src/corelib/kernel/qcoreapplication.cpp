@@ -469,7 +469,7 @@ QCoreApplication::~QCoreApplication()
     QThread::cleanup();
 #endif
     
-	QThreadData::get(mainThread())->eventDispatcher = 0;
+    QThreadData::get(mainThread())->eventDispatcher = 0;
     if (QCoreApplicationPrivate::eventDispatcher)
         QCoreApplicationPrivate::eventDispatcher->closingDown();
     QCoreApplicationPrivate::eventDispatcher = 0;

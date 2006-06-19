@@ -899,13 +899,13 @@ void QPdfEnginePrivate::writeInfo()
 #if defined(Q_OS_WIN) && defined(_MSC_VER) && _MSC_VER >= 1400
     __time32_t now;
     _time32(&now);
-	tm buffer;
-	_gmtime32_s(&buffer, &now);
-	newtime = &buffer;
+    tm buffer;
+    _gmtime32_s(&buffer, &now);
+    newtime = &buffer;
 #else
     time_t now;
     time(&now);
-	newtime = gmtime(&now);
+    newtime = gmtime(&now);
 #endif
     QByteArray y;
 

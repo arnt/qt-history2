@@ -56,7 +56,7 @@ public:
 private:
     QLibraryPrivate *d;
     bool did_load;
-	Q_DISABLE_COPY(QLibrary)
+    Q_DISABLE_COPY(QLibrary)
 };
 
 #endif //QT_NO_LIBRARY

@@ -80,7 +80,7 @@ protected:
     QImageIOHandler(QImageIOHandlerPrivate &dd);
     QImageIOHandlerPrivate *d_ptr;
 private:
-	Q_DISABLE_COPY(QImageIOHandler)
+    Q_DISABLE_COPY(QImageIOHandler)
 };
 
 struct Q_GUI_EXPORT QImageIOHandlerFactoryInterface : public QFactoryInterface
