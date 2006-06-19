@@ -162,13 +162,16 @@ public:
 
 
 QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
-    : QLayout(mainwindow), statusbar(0),
-    dockWidgetLayout(mainwindow, new QWidgetAnimator(this)),
+    : QLayout(mainwindow), statusbar(0)
+#ifndef QT_NO_DOCKWIDGET
+    , dockWidgetLayout(mainwindow, new QWidgetAnimator(this)),
     savedDockWidgetLayout(mainwindow, dockWidgetLayout.widgetAnimator)
+#endif
 #ifndef QT_NO_TOOLBAR
       , save_tb_layout_info(0)
 #endif
 {
+#ifndef QT_NO_DOCKWIDGET
     pluggingWidget = 0;
     dockNestingEnabled = false;
     animationEnabled = true;
@@ -188,6 +191,7 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
     dockWidgetLayout.corners[Qt::TopRightCorner]    = Qt::TopDockWidgetArea;
     dockWidgetLayout.corners[Qt::BottomLeftCorner]  = Qt::BottomDockWidgetArea;
     dockWidgetLayout.corners[Qt::BottomRightCorner] = Qt::BottomDockWidgetArea;
+#endif
 }
 
 QMainWindowLayout::~QMainWindowLayout()
@@ -201,7 +205,9 @@ QMainWindowLayout::~QMainWindowLayout()
     tb_layout_info.clear();
 #endif
 
+#ifndef QT_NO_DOCKWIDGET
     dockWidgetLayout.deleteAllLayoutItems();
+#endif
 
     delete statusbar;
 }
@@ -222,15 +228,21 @@ void QMainWindowLayout::setStatusBar(QStatusBar *sb)
 
 QWidget *QMainWindowLayout::centralWidget() const
 {
+#ifndef QT_NO_DOCKWIDGET
     return dockWidgetLayout.centralWidgetItem ? dockWidgetLayout.centralWidgetItem->widget() : 0;
+#else
+    return 0;
+#endif
 }
 
 void QMainWindowLayout::setCentralWidget(QWidget *cw)
 {
     if (cw)
         addChildWidget(cw);
+#ifndef QT_NO_DOCKWIDGET
     delete dockWidgetLayout.centralWidgetItem;
     dockWidgetLayout.centralWidgetItem = cw ? new QWidgetItem(cw) : 0;
+#endif
     invalidate();
 }
 
@@ -690,10 +702,12 @@ QLayoutItem *QMainWindowLayout::itemAt(int index) const
     }
 #endif
 
+#ifndef QT_NO_DOCKWIDGET
     if (QLayoutItem *ret = dockWidgetLayout.itemAt(&x, index)) {
         VDEBUG() << "END of itemAt(), found QDockWidget item" << ret;
         return ret;
     }
+#endif
 
     if (statusbar && x++ == index) {
         VDEBUG() << "END of itemAt(), found QStatusBar item" << statusbar;
@@ -725,10 +739,12 @@ QLayoutItem *QMainWindowLayout::takeAt(int index)
     }
 #endif
 
+#ifndef QT_NO_DOCKWIDGET
     if (QLayoutItem *ret = dockWidgetLayout.takeAt(&x, index)) {
         VDEBUG() << "END of itemAt(), removed QDockWidget item" << ret;
         return ret;
     }
+#endif
 
     if (statusbar && x++ == index) {
         QLayoutItem *ret = statusbar;
@@ -775,8 +791,10 @@ static QSize get_real_sh(QLayout *layout)
 
 void QMainWindowLayout::setGeometry(const QRect &_r)
 {
+#ifndef QT_NO_DOCKWIDGET
     if (savedDockWidgetLayout.isValid())
         return;
+#endif
 
     QLayout::setGeometry(_r);
     QRect r = _r;
@@ -1181,10 +1199,12 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     }
 #endif // QT_NO_TOOLBAR
 
+#ifndef QT_NO_DOCKWIDGET
     dockWidgetLayout.rect = r;
     dockWidgetLayout.fitLayout();
     applyDockWidgetLayout(dockWidgetLayout, savedDockWidgetLayout.isValid());
 //    dump(qDebug() << "QMainWindowLayout::setGeometry()", dockWidgetLayout);
+#endif
 }
 
 void QMainWindowLayout::addItem(QLayoutItem *)
@@ -1232,10 +1252,12 @@ QSize QMainWindowLayout::sizeHint() const
         }
 #endif // QT_NO_TOOLBAR
 
+#ifndef QT_NO_DOCKWIDGET
         const QSize szDW = dockWidgetLayout.sizeHint();
         const QSize szSB = statusbar ? statusbar->sizeHint() : QSize(0, 0);
         szHint = QSize(qMax(szSB.width(), szDW.width() + left + right),
                        szSB.height() + szDW.height() + top + bottom);
+#endif
     }
     return szHint;
 }
@@ -1282,10 +1304,12 @@ QSize QMainWindowLayout::minimumSize() const
         }
 #endif // QT_NO_TOOLBAR
 
+#ifndef QT_NO_DOCKWIDGET
         const QSize szDW = dockWidgetLayout.minimumSize();
         const QSize szSB = statusbar ? statusbar->minimumSize() : QSize(0, 0);
         minSize =  QSize(qMax(szSB.width(), szDW.width() + left + right),
                          szSB.height() + szDW.height() + top + bottom);
+#endif
     }
     return minSize;
 }

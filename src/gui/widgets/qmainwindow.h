@@ -67,8 +67,10 @@ public:
     QWidget *centralWidget() const;
     void setCentralWidget(QWidget *widget);
 
+#ifndef QT_NO_DOCKWIDGET
     void setCorner(Qt::Corner corner, Qt::DockWidgetArea area);
     Qt::DockWidgetArea corner(Qt::Corner corner) const;
+#endif
 
 #ifndef QT_NO_TOOLBAR
     void addToolBarBreak(Qt::ToolBarArea area = Qt::TopToolBarArea);

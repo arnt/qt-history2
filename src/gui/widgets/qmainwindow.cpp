@@ -453,6 +453,7 @@ void QMainWindow::setCentralWidget(QWidget *widget)
     d->layout->setCentralWidget(widget);
 }
 
+#ifndef QT_NO_DOCKWIDGET
 /*!
     Sets the given dock widget \a area to occupy the specified \a
     corner.
@@ -490,6 +491,7 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWidgetArea area)
 */
 Qt::DockWidgetArea QMainWindow::corner(Qt::Corner corner) const
 { return d_func()->layout->corner(corner); }
+#endif
 
 #ifndef QT_NO_TOOLBAR
 /*!
@@ -823,6 +825,7 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
 bool QMainWindow::event(QEvent *event)
 {
     Q_D(QMainWindow);
+#ifndef QT_NO_DOCKWIDGET
     if (event->type() == QEvent::HoverMove) {
         if (d->layout->savedDockWidgetLayout.isValid()) {
             d->hoverSeparator.clear();
@@ -871,6 +874,7 @@ bool QMainWindow::event(QEvent *event)
         d->layout->endSeparatorMove(e->pos());
         return true;
     } else
+#endif
 #ifndef QT_NO_TOOLBAR
     if (event->type() == QEvent::ToolBarChange) {
         QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
