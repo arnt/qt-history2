@@ -83,8 +83,14 @@ private:
     void set_altitude(const QWSChangeAltitudeCommand *);
     void set_opacity(const QWSSetOpacityCommand *);
     void request_focus(const QWSRequestFocusCommand *);
+#ifdef QT_WINDOW_SURFACE
+    void request_region(int winId, const QString &surfaceKey,
+                        const QByteArray &surfaceData,
+                        const QRegion &region);
+#else
     void request_region(int winId, QWSMemId memId,
                         int windowtype, QRegion, QImage::Format, QWSWindow* = 0);
+#endif
     void repaint_region(int winId, bool opaque, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);

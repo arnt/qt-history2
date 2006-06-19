@@ -641,6 +641,7 @@ private:
     friend class QWSManager;
     friend class QWSManagerPrivate;
     friend class QDecoration;
+    friend class QWSWindowSurface;
 #endif
 
     friend Q_GUI_EXPORT QWidgetData *qt_qwidget_data(QWidget *widget);

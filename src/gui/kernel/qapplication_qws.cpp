@@ -1132,6 +1132,34 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
         d->sendCommand(cmd);
 }
 
+#ifdef QT_WINDOW_SURFACE
+void QWSDisplay::requestRegion(int winId, const QString &surfaceKey,
+                               const QByteArray &surfaceData,
+                               const QRegion &region)
+{
+    if (d->directServerConnection()) {
+        qwsServer->d_func()->request_region(winId, surfaceKey,
+                                            surfaceData, region);
+    } else {
+        const QByteArray keyData = surfaceKey.toUtf8();
+        QVector<QRect> ra = region.rects();
+        QWSRegionCommand cmd;
+        cmd.simpleData.windowid = winId;
+        cmd.simpleData.surfacekeylength = keyData.size();
+        cmd.simpleData.surfacedatalength = surfaceData.size();
+        cmd.simpleData.nrectangles = ra.count();
+
+        QByteArray data;
+        data.append(keyData);
+        data.append(surfaceData);
+        data.append(QByteArray(reinterpret_cast<const char*>(ra.constData()),
+                               ra.count() * sizeof(QRect)));
+        cmd.setData(data.constData(), data.size(), false);
+
+        d->sendSynchronousCommand(cmd);
+    }
+}
+#else
 void QWSDisplay::requestRegion(int winId, QWSMemId memId,
                                int windowtype, QRegion r, QImage::Format imageFormat)
 {
@@ -1153,6 +1181,7 @@ void QWSDisplay::requestRegion(int winId, QWSMemId memId,
     // if (!r.isEmpty())
     //    d->waitForRegionAck();
 }
+#endif // QT_WINDOW_SURFACE
 
 void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
 {
@@ -1800,7 +1829,7 @@ static void init_display()
 
     if (!QApplicationPrivate::app_font) {
         QFont f;
-        f = QFont("helvetica", 10);
+        f = QFont(QLatin1String("helvetica"), 10);
         QApplication::setFont(f);
     }
     qt_set_qws_resources();

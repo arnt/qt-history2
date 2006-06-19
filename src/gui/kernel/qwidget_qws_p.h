@@ -29,6 +29,8 @@
 #include <qwsmemid_qws.h>
 #include <private/qsharedmemory_p.h>
 
+#ifndef QT_WINDOW_SURFACE
+
 class QWSLock;
 
 class QWSBackingStore
@@ -82,5 +84,7 @@ private:
 
     QWSLock *memLock;
 };
+
+#endif // QT_WINDOW_SURFACE
 
 #endif // QWIDGET_QWS_P_H

@@ -39,9 +39,7 @@
 #include "qinputcontext.h"
 #include "qpainter.h"
 
-#ifdef QTRANSPORTAUTH_DEBUG
 #include <qdebug.h>
-#endif
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -79,6 +77,9 @@
 #include <qbuffer.h>
 
 #include <private/qwidget_qws_p.h>
+#ifdef QT_WINDOW_SURFACE
+#include <private/qwindowsurface_qws_p.h>
+#endif
 
 #include "qwindowsystem_p.h"
 
@@ -305,8 +306,21 @@ QWSWindow::QWSWindow(int i, QWSClient* client)
         : id(i), modified(false),
           onTop(false), c(client), last_focus_time(0), _opacity(255), opaque(true), d(0)
 {
+#ifdef QT_WINDOW_SURFACE
+    surface = 0;
+#else
     _backingStore = new QWSBackingStore;
+#endif
 }
+
+#ifdef QT_WINDOW_SURFACE
+void QWSWindow::createSurface(const QString &key, const QByteArray &data)
+{
+    // XXX should do some kind of attach instead..
+    delete surface;
+    surface = QWSWindowSurfaceFactory::create(key, data);
+}
+#endif
 
 /*!
     \internal
@@ -399,7 +413,11 @@ QWSWindow::~QWSWindow()
     if (current_IM_composing_win == this)
         current_IM_composing_win = 0;
 #endif
+#ifdef QT_WINDOW_SURFACE
+    delete surface;
+#else
     delete _backingStore;
+#endif
 }
 
 /*!
@@ -1793,10 +1811,10 @@ QList<QWSInternalWindowInfo*> * QWSServer::windowList()
             qwi->name=buf;
             free(buf);
         } else {
-            qwi->name="unknown";
+            qwi->name = QLatin1String("unknown");
         }
 #else
-        qwi->name="unknown";
+        qwi->name = QLatin1String("unknown");
 #endif
         ret->append(qwi);
     }
@@ -2181,8 +2199,15 @@ void QWSServerPrivate::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
     QRegion region;
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
 
+#ifdef QT_WINDOW_SURFACE
+    const QByteArray data(cmd->surfaceData, cmd->simpleData.surfacedatalength);
+    const QString key = QString::fromUtf8(cmd->surfaceKey,
+                                          cmd->simpleData.surfacekeylength);
+    request_region(cmd->simpleData.windowid, key, data, region);
+#else
     request_region(cmd->simpleData.windowid, cmd->simpleData.memoryid,
                    cmd->simpleData.windowtype, region, (QImage::Format)cmd->simpleData.imgFormat, changingw);
+#endif
 }
 
 void QWSServerPrivate::invokeRegionMove(const QWSRegionMoveCommand *cmd, QWSClient *client)
@@ -2823,7 +2848,7 @@ QWSMouseHandler* QWSServerPrivate::newMouseHandler(const QString& spec)
         init = 1;
     }
 
-    int c = spec.indexOf(':');
+    int c = spec.indexOf(QLatin1Char(':'));
     QString mouseProto;
     QString mouseDev;
     if (c >= 0) {
@@ -2888,24 +2913,24 @@ void QWSServer::setKeyboardHandler(QWSKeyboardHandler* kh)
 void QWSServer::openKeyboard()
 {
     Q_D(QWSServer);
-    QString keyboards = qgetenv("QWS_KEYBOARD");
+    QString keyboards = QString::fromLatin1(qgetenv("QWS_KEYBOARD"));
     if (keyboards.isEmpty()) {
 #if defined(QT_QWS_CASSIOPEIA)
         keyboards = "Buttons";
 #endif
         if (keyboards.isEmpty()) {
-            keyboards = defaultKeyboard;        // last resort
+            keyboards = QString::fromLatin1(defaultKeyboard); // last resort
         }
     }
     closeKeyboard();
-    if (keyboards == "None")
+    if (keyboards == QLatin1String("None"))
         return;
     QString device;
     QString type;
-    QStringList keyboard = keyboards.split(" ");
+    QStringList keyboard = keyboards.split(QLatin1Char(' '));
     for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
         QString spec = *k;
-        int colon=spec.indexOf(':');
+        int colon=spec.indexOf(QLatin1Char(':'));
         if (colon>=0) {
             type = spec.left(colon);
             device = spec.mid(colon+1);
@@ -2962,6 +2987,32 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
     exposeRegion(region, level);
 }
 
+#ifdef QT_WINDOW_SURFACE
+void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
+                                      const QByteArray &surfaceData,
+                                      const QRegion &region)
+{
+    QWSWindow *changingw = findWindow(wid, 0);
+    if (!changingw)
+        return;
+
+    changingw->createSurface(surfaceKey, surfaceData);
+    setWindowRegion(changingw, region);
+
+    Q_Q(QWSServer);
+
+    bool isShow = !changingw->isVisible() && !region.isEmpty();
+
+    if (isShow)
+        emit q->windowEvent(changingw, QWSServer::Show);
+    if (!region.isEmpty())
+        emit q->windowEvent(changingw, QWSServer::Geometry);
+    else
+        emit q->windowEvent(changingw, QWSServer::Hide);
+    if (region.isEmpty())
+        handleWindowClose(changingw);
+}
+#else
 void QWSServerPrivate::request_region(int wid, QWSMemId mid,
                                       int windowtype, QRegion region, QImage::Format imageFormat,
                                       QWSWindow *changingw)
@@ -3031,6 +3082,7 @@ void QWSServerPrivate::request_region(int wid, QWSMemId mid,
     //     if (containsMouse != changingw->allocatedRegion().contains(mousePosition))
     //         updateClientCursorPos();
 }
+#endif // QT_WINDOW_SURFACE
 
 void QWSServerPrivate::destroy_region(const QWSRegionDestroyCommand *cmd)
 {

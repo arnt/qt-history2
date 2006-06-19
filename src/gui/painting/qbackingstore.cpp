@@ -40,6 +40,8 @@
 #include "qwindowsurface_raster_p.h"
 #ifdef Q_WS_X11
 #include "qwindowsurface_x11_p.h"
+#elif defined(Q_WS_QWS)
+#include "qwindowsurface_qws_p.h"
 #endif
 #endif
 
@@ -87,6 +89,14 @@ bool QWidgetBackingStore::paintOnScreen(QWidget *w)
 #ifdef Q_WS_QWS
 static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec, bool)
 {
+#ifdef QT_WINDOW_SURFACE
+    Q_UNUSED(widget);
+
+    static QWSYellowSurface surface;
+    surface.setDelay(msec);
+    surface.flush(widget, rgn, QPoint());
+#else
+
     static int yWinId = 0;
 
     if (yWinId == 0) {
@@ -107,6 +117,7 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec, bo
     ::usleep(500*msec);
     QWidget::qwsDisplay()->requestRegion(yWinId, -1, QWSBackingStore::DebugHighlighter, QRegion(), QImage::Format_Invalid);
     ::usleep(500*msec);
+#endif // QT_WINDOW_SURFACE
 }
 
 #else
@@ -197,6 +208,7 @@ static void qt_unflushPaint(QWidget *widget, const QRegion &rgn)
         QWidgetBackingStore::copyToScreen(widget, rgn);
 }
 
+#if !(defined(QT_WINDOW_SURFACE) && defined(Q_WS_QWS))
 static bool qt_flushUpdate(QWidget *widget, const QRegion &rgn)
 {
     static int checked_env = -1;
@@ -211,7 +223,7 @@ static bool qt_flushUpdate(QWidget *widget, const QRegion &rgn)
 
     return true;
 }
-
+#endif
 
 void qt_syncBackingStore(QRegion rgn, QWidget *widget, bool recursive)
 {
@@ -235,7 +247,10 @@ QWindowSurface *qt_default_window_surface(QWidget *widget)
 #elif defined(Q_WS_X11)
     Q_UNUSED(widget);
     return new QX11WindowSurface();
+#elif defined(Q_WS_QWS)
+    return QWSWindowSurfaceFactory::create(widget);
 #else
+    Q_UNUSED(widget);
     return 0;
 #endif
 }
@@ -308,6 +323,14 @@ void qt_syncBackingStore(QWidget *widget)
     QWidget *tlw = widget->window();
     QTLWExtra *topData = tlw->d_func()->topData();
 
+#ifdef QT_WINDOW_SURFACE
+    QWidgetBackingStore *bs = tlw->d_func()->topData()->backingStore;
+    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
+    QRegion toClean;
+
+    if (surface)
+        toClean = surface->dirtyRegion();
+#else
     QWidgetBackingStore *wbs = topData->backingStore;
     QRegion toClean = wbs->dirty_on_screen;
 
@@ -316,6 +339,7 @@ void qt_syncBackingStore(QWidget *widget)
     qDebug() << "dirty ==" << wbs->dirty;
     qDebug() << "dirty_on_screen ==" << wbs->dirty_on_screen;
 #endif
+#endif // QT_WINDOW_SURFACE
     if (!toClean.isEmpty())
         topData->backingStore->cleanRegion(toClean, tlw);
 }
@@ -368,6 +392,9 @@ void QWidgetBackingStore::bltRect(const QRect &rect, int dx, int dy, QWidget *wi
 
 
 #ifdef QT_WINDOW_SURFACE
+#ifdef Q_WS_QWS
+    pos += topLevelOffset();
+#endif
     windowSurface->scroll(QRect(pos, rect.size()), dx, dy);
 
 #else
@@ -562,6 +589,10 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
         return;
     Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
 #ifdef Q_WS_QWS
+#ifdef QT_WINDOW_SURFACE
+    Q_UNUSED(recursive);
+    windowSurface->flush(widget, rgn, offset);
+#else
     Q_UNUSED(offset);
     Q_UNUSED(recursive);
     QWidget *win = widget->window();
@@ -573,6 +604,7 @@ void QWidgetBackingStore::copyToScreen(const QRegion &rgn, QWidget *widget, cons
     widget->d_func()->cleanWidget_sys(rgn);
 
     qt_flushUpdate(0, globalrgn);
+#endif
 #else
     if (!QWidgetBackingStore::paintOnScreen(widget)) {
         widget->d_func()->cleanWidget_sys(rgn);
@@ -687,22 +719,36 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #endif
     if(!QWidgetBackingStore::paintOnScreen(widget)) {
         QRegion toClean;
+#if defined(Q_WS_QWS) && defined(QT_WINDOW_SURFACE)
+        QSize tlwSize = tlw->frameGeometry().size();
+#else
         QSize tlwSize = tlw->size();
+#endif
 
 #ifdef QT_WINDOW_SURFACE
+#ifdef Q_WS_QWS
+        if (!static_cast<QWSWindowSurface*>(windowSurface)->isValidFor(tlw)) {
+            delete windowSurface;
+            windowSurface = qt_default_window_surface(tlw);
+        }
+#endif
         if (windowSurface->size() != tlwSize) {
             windowSurface->resize(tlwSize);
-            toClean = QRegion(0, 0, tlw->width(), tlw->height());
+            toClean = QRect(QPoint(0, 0), tlwSize);
         } else {
             toClean = dirty;
         }
-#else
+#ifdef Q_WS_QWS
+        tlwOffset = tlw->geometry().topLeft() - tlw->frameGeometry().topLeft();
+#endif
+
+#else // QT_WINDOW_SURFACE
 
 #ifdef Q_WS_QWS
         bool created = buffer.createIfNecessary(tlw);
 
         if (created) {
-#ifndef QT_NO_QWS_MANAGER
+#if !defined(QT_NO_QWS_MANAGER) && !defined(QT_WINDOW_SURFACE)
             if (topextra->qwsManager)
                 topextra->qwsManager->d_func()->dirtyRegion(QDecoration::All,
                                                             QDecoration::Normal);
@@ -735,7 +781,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 
          // ### move into prerender step
 
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) && !defined(QT_WINDOW_SURFACE)
         buffer.lock();
 #endif
 
@@ -768,7 +814,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         }
 
         QRegion toFlush = rgn;
-#ifdef Q_WS_QWS
+#if defined(Q_WS_QWS) && !defined(QT_WINDOW_SURFACE)
 #ifndef QT_NO_QWS_MANAGER
         if (topextra->qwsManager)
             toFlush += topextra->qwsManager->d_func()->paint(buffer.paintDevice());
@@ -791,8 +837,12 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 #ifdef Q_WS_QWS
 void QWidgetBackingStore::releaseBuffer()
 {
+#ifdef QT_WINDOW_SURFACE
+    windowSurface->release();
+#else
     buffer.detach();
     QWidget::qwsDisplay()->requestRegion(tlw->data->winid, 0, buffer.windowType(), QRegion(0), QImage::Format_Invalid);
+#endif
 }
 #elif defined(Q_WS_WIN)
 void QWidgetBackingStore::releaseBuffer()

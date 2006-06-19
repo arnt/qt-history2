@@ -202,19 +202,34 @@ struct QWSRegionCommand : public QWSCommand
 
     void setData(const char *d, int len, bool allocateMem = true) {
         QWSCommand::setData(d, len, allocateMem);
-        rectangles = reinterpret_cast<QRect*>(rawDataPtr);
+        char *ptr = rawDataPtr;
+#ifdef QT_WINDOW_SURFACE
+        surfaceKey = ptr;
+        ptr += simpleData.surfacekeylength;
+        surfaceData = ptr;
+        ptr += simpleData.surfacedatalength;
+#endif
+        rectangles = reinterpret_cast<QRect*>(ptr);
     }
 
     struct SimpleData {
         int windowid;
+#ifdef QT_WINDOW_SURFACE
+        int surfacekeylength;
+        int surfacedatalength;
+#else
         QWSMemId memoryid;
         uint windowtype:8;
         uint imgFormat:8;
+#endif
         int nrectangles;
     } simpleData;
 
+#ifdef QT_WINDOW_SURFACE
+    char *surfaceKey;
+    char *surfaceData;
+#endif
     QRect *rectangles;
-
 };
 
 struct QWSSetOpacityCommand : public QWSCommand

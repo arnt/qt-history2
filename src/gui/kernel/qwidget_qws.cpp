@@ -30,6 +30,7 @@
 #include "qwsmanager_qws.h"
 #include <private/qwsmanager_p.h>
 #include <private/qbackingstore_p.h>
+#include <private/qwindowsurface_qws_p.h>
 #include <private/qwslock_p.h>
 #include "qpaintengine.h"
 
@@ -83,7 +84,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
     }
 
 
-   bool topLevel = (flags & Qt::Window);
+    bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
     bool dialog = (type == Qt::Dialog
                    || type == Qt::Sheet
@@ -233,7 +234,11 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             }
             if (destroyWindow && isWindow()) {
                 qwsDisplay()->destroyRegion(winId());
+#ifdef QT_WINDOW_SURFACE
+                d->extra->topextra->backingStore->windowSurface->release();
+#else
                 d->extra->topextra->backingStore->buffer.detach();
+#endif
             }
         }
         d->setWinId(0);
@@ -318,7 +323,11 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
     }
     if ((int)old_winid > 0) {
         QWidget::qwsDisplay()->destroyRegion(old_winid);
+#ifdef QT_WINDOW_SURFACE
+        extra->topextra->backingStore->windowSurface->release();
+#else
         extra->topextra->backingStore->buffer.detach();
+#endif
     }
 #ifndef QT_NO_CURSOR
     if (setcurs) {
@@ -519,6 +528,7 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
 {
     Q_Q(QWidget);
     QWidget *tlw = q->window();
+
     QWidgetBackingStore *wbs = tlw->d_func()->topData()->backingStore;
     QRegion wrgn(rgn);
 
@@ -527,13 +537,21 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
         wrgn.translate(offs);
     }
 
+#ifdef QT_WINDOW_SURFACE
+    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
+    surface->setDirty(wrgn);
+#else
     wbs->dirty_on_screen += wrgn;
+#endif
 
     QApplication::postEvent(tlw, new QEvent(QEvent::UpdateRequest));
 }
 
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 {
+#ifdef QT_WINDOW_SURFACE
+    Q_UNUSED(rgn);
+#else
     Q_Q(QWidget);
     QWidget *tlw = q->window();
     QWidgetBackingStore *wbs = tlw->d_func()->topData()->backingStore;
@@ -544,6 +562,7 @@ void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
     }
 
     wbs->dirty_on_screen -= wrgn;
+#endif
 }
 
 
@@ -561,6 +580,8 @@ void QWidgetPrivate::blitToScreen(const QRegion &globalrgn)
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
     QWidget::qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
 }
+
+#ifndef QT_WINDOW_SURFACE
 
 //#define QT_SHAREDMEM_DEBUG
 
@@ -821,6 +842,8 @@ void QWSBackingStore::setLock(QWSLock *l)
     memLock = l;
 }
 
+#endif // QT_WINDOW_BACKINSTORE
+
 void QWidgetPrivate::show_sys()
 {
     Q_Q(QWidget);
@@ -1053,6 +1076,11 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                                                    data.crect.y()-br.y(),
                                                    br.right()-data.crect.right(),
                                                    br.bottom()-data.crect.bottom());
+#ifdef QT_WINDOW_SURFACE
+                    QWindowSurface *surface;
+                    surface = topextra->backingStore->windowSurface;
+                    surface->resize(myregion.boundingRect().size());
+#else
                     QWSBackingStore *bs = &topextra->backingStore->buffer;
                     if (bs->windowType() == QWSBackingStore::NonBuffered) {
                         QWidget::qwsDisplay()->requestRegion(data.winid, bs->memoryId(), bs->windowType(),
@@ -1063,6 +1091,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                                                             QDecoration::Normal);
 #endif
                     }
+#endif // QT_WINDOW_SURFACE
                 }
             }
         }
@@ -1142,7 +1171,7 @@ int QWidget::metric(PaintDeviceMetric m) const
         return qwsDisplay()->depth();
     } else if (m == PdmDpiX || m == PdmPhysicalDpiX) {
         return 72;
-    } else if (m == PdmDpiY || m == PdmPhysicalDpiY) {
+     } else if (m == PdmDpiY || m == PdmPhysicalDpiY) {
         return 72;
     } else {
         val = QPaintDevice::metric(m);// XXX

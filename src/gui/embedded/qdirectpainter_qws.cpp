@@ -93,8 +93,11 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 
     QRegion treg = qt_screen->isTransformed() ? qt_screen->mapFromDevice(reg, devS()) : reg;
 
+#ifdef QT_WINDOW_SURFACE
+    qDebug("QDirectPainter::reserveRegion not implemented");
+#else
     QWidget::qwsDisplay()->requestRegion(ad->directPainterID, -1, QWSBackingStore::ReservedRegion, treg, QImage::Format_Invalid);
-
+#endif
     //### slightly dirty way to do a blocking wait for the region event
 
     ad->seenRegionEvent  = false;

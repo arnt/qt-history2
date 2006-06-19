@@ -78,7 +78,13 @@ public:
 
     void setIdentity(const QString &appName);
     void nameRegion(int winId, const QString& n, const QString &c);
+#ifdef QT_WINDOW_SURFACE
+    void requestRegion(int winId, const QString &surfacekey,
+                       const QByteArray &surfaceData,
+                       const QRegion &region);
+#else
     void requestRegion(int winId, QWSMemId memId, int windowtype, QRegion, QImage::Format);
+#endif
     void repaintRegion(int winId, bool opaque, QRegion);
     void moveRegion(int winId, int dx, int dy);
     void destroyRegion(int winId);
@@ -129,6 +135,7 @@ private:
     Data *d;
 
     friend class QWSBackingStore;
+    friend class QWSSharedMemWindowSurface;
     int getPropertyLen;
     char *getPropertyData;
     static QLock *lock;

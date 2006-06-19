@@ -28,8 +28,9 @@ QT_MODULE(Gui)
 class QScreenCursor;
 class QBrush;
 class QWSWindow;
+class QWSWindowSurface;
 
-#if !defined(QT_NO_QWS_DEPTH_16)
+#ifdef QT_QWS_DEPTH_16
 # ifndef QT_QWS_DEPTH16_RGB
 #  define QT_QWS_DEPTH16_RGB 565
 # endif
@@ -87,7 +88,7 @@ inline void qt_conv16ToRgb(ushort c, int& r, int& g, int& b)
     g = tg >> qt_green_shift | tg >> qt_green_rounding_shift;
     b = tb << qt_neg_blue_shift | tb >> qt_blue_rounding_shift;
 }
-#endif
+#endif // QT_QWS_DEPTH_16
 
 
 const int SourceSolid=0;
@@ -234,6 +235,12 @@ public:
     virtual void blit(const QImage &img, const QPoint &topLeft, const QRegion &region);
     virtual void solidFill(const QColor &color, const QRegion &region);
     void blit(QWSWindow *bs, const QRegion &clip);
+
+#ifdef QT_WINDOW_SURFACE
+    virtual QWSWindowSurface* createSurface(const QString &) { return 0; }
+    virtual QWSWindowSurface* createSurface(QWidget *) { return 0; }
+#endif
+
 protected:
 
     // Only used without QT_NO_QWS_REPEATER, but included so that

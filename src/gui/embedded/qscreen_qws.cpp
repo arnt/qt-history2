@@ -24,6 +24,7 @@
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
 #include <private/qpainter_p.h>
+#include <private/qwindowsurface_qws_p.h>
 #include <qdebug.h>
 
 static const bool simple_8bpp_alloc = true; //### 8bpp support not done
@@ -1233,6 +1234,19 @@ void QScreen::blit(const QImage &img, const QPoint &topLeft, const QRegion &regi
 /*!
     \internal
 */
+#ifdef QT_WINDOW_SURFACE
+void QScreen::blit(QWSWindow *win, const QRegion &clip)
+{
+    QWSWindowSurface *surface = win->windowSurface();
+    if (!surface)
+        return;
+    const QImage &img = surface->image();
+    QRegion rgn = clip & win->requestedRegion();
+    surface->beginPaint(rgn);
+    blit(img, win->requestedRegion().boundingRect().topLeft(), rgn);
+    surface->endPaint(rgn);
+}
+#else
 void QScreen::blit(QWSWindow *win, const QRegion &clip)
 {
     QWSBackingStore *bs = win->backingStore();
@@ -1246,7 +1260,7 @@ void QScreen::blit(QWSWindow *win, const QRegion &clip)
         bs->unlock();
     }
 }
-
+#endif // QT_WINDOW_SURFACE
 
 struct fill_data {
     uint color;
@@ -1434,6 +1448,107 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
 }
 
 
+#ifdef QT_WINDOW_SURFACE
+void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
+                      QImage &blendbuffer, int changing_level)
+{
+    QRect exposed_bounds = exposed.boundingRect();
+    QWSWindow *win = 0;
+    do {
+        win = qwsServer->clientWindows().value(level); // null is background
+        ++level;
+    } while (win && !win->requestedRegion().boundingRect().intersects(exposed_bounds));
+
+    bool above_changing = level <= changing_level; // 0 is topmost
+
+    QRegion exposedBelow = exposed;
+    bool opaque = true;
+
+    if (win) {
+        opaque = win->isOpaque();
+        if (opaque) {
+            exposedBelow -= win->requestedRegion();
+            if (above_changing)
+                blend -= exposed & win->requestedRegion();
+        } else {
+            blend += exposed & win->requestedRegion();
+        }
+    }
+    if (win && !exposedBelow.isEmpty()) {
+        compose(level, exposedBelow, blend, blendbuffer, changing_level);
+    } else {
+        QSize blendSize = blend.boundingRect().size();
+        if (!blendSize.isNull()) {
+            blendbuffer = QImage(blendSize,
+                                 qt_screen->depth() <= 16 ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied);
+        }
+    }
+
+    const QRegion blitRegion = exposed - blend;
+    if (!win)
+        paintBackground(blitRegion);
+    else if (!above_changing)
+        blit(win, blitRegion);
+
+    QRegion blendRegion = exposed & blend;
+    if (win)
+        blendRegion &= win->requestedRegion();
+    if (!blendRegion.isEmpty()) {
+
+        QPoint off = blend.boundingRect().topLeft();
+
+        QRasterBuffer rb;
+        rb.prepare(&blendbuffer);
+        QSpanData spanData;
+        spanData.init(&rb);
+        int opacity = 255;
+        if (!win) {
+            spanData.setup(qwsServer->backgroundBrush(), opacity);
+            spanData.dx = off.x();
+            spanData.dy = off.y();
+        } else {
+            opacity = win->opacity();
+            const QImage &img = win->windowSurface()->image();
+            QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
+            spanData.type = QSpanData::Texture;
+            spanData.initTexture(&img, opacity);
+            spanData.dx = winoff.x();
+            spanData.dy = winoff.y();
+        }
+        if (!spanData.blend)
+            return;
+
+        if (win)
+            win->windowSurface()->beginPaint(blendRegion);
+        const QVector<QRect> rects = blendRegion.rects();
+        const int nspans = 256;
+        QT_FT_Span spans[nspans];
+        for (int i = 0; i < rects.size(); ++i) {
+            int y = rects.at(i).y() - off.y();
+            int ye = y + rects.at(i).height();
+            int x = rects.at(i).x() - off.x();
+            int len = rects.at(i).width();
+            while (y < ye) {
+                int n = qMin(nspans, ye - y);
+                int i = 0;
+                while (i < n) {
+                    spans[i].x = x;
+                    spans[i].len = len;
+                    spans[i].y = y + i;
+                    spans[i].coverage = opacity;
+                    ++i;
+                }
+                spanData.blend(n, spans, &spanData);
+                y += n;
+            }
+        }
+        if (win)
+            win->windowSurface()->endPaint(blendRegion);
+    }
+}
+
+#else // QT_WINDOW_SURFACE
+
 void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage &blendbuffer, int changing_level)
 {
 
@@ -1556,6 +1671,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             win->backingStore()->unlock();
     }
 }
+#endif // QT_WINDOW_SURFACE
 
 void QScreen::paintBackground(const QRegion &r)
 {
