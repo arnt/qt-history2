@@ -196,7 +196,6 @@ public:
 
 private:
     QPainterPathStrokerPrivate *d_ptr;
-	Q_DISABLE_COPY(QPainterPathStroker)
 };
 
 inline void QPainterPath::moveTo(qreal x, qreal y)

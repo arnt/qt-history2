@@ -128,8 +128,6 @@ struct QBasicAtomicPointer
 
     inline T *exchange(T * newval)
     { return static_cast<T *>(q_atomic_set_ptr(&pointer, newval)); }
-private:
-	Q_DISABLE_COPY(QBasicAtomicPointer)
 };
 
 #define Q_ATOMIC_INIT(a) { (a) }

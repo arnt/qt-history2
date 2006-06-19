@@ -116,7 +116,6 @@ private:
     AttributeList attList;
 
     QXmlAttributesPrivate *d;
-	Q_DISABLE_COPY(QXmlAttributes)
 };
 
 //
@@ -149,7 +148,6 @@ protected:
     virtual QString fromRawData(const QByteArray &data, bool beginning = false);
 
 private:
-    Q_DISABLE_COPY(QXmlInputSource)
     void init();
     QXmlInputSourcePrivate *d;
 };
@@ -172,7 +170,6 @@ public:
     QString message() const;
 
 private:
-    Q_DISABLE_COPY(QXmlParseException)
     QXmlParseExceptionPrivate *d;
 };
 

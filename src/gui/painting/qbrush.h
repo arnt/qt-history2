@@ -192,7 +192,6 @@ private:
         } conical;
     } m_data;
     void *dummy;
-	Q_DISABLE_COPY(QGradient)
 };
 
 inline void QGradient::setSpread(Spread aspread)

@@ -223,7 +223,6 @@ private:
     ushort spont : 1;
     ushort m_accept : 1;
     ushort reserved : 13;
-	Q_DISABLE_COPY(QEvent)
 
     friend class QCoreApplication;
     friend class QCoreApplicationPrivate;
@@ -261,8 +260,6 @@ public:
     bool removed() const { return type() == ChildRemoved; }
 protected:
     QObject *c;
-private:
-	Q_DISABLE_COPY(QChildEvent)
 };
 
 #ifdef QT3_SUPPORT

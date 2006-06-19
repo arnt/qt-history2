@@ -25,8 +25,6 @@
 #include <kfuncs.h>
 #include <ctype.h>
 
-QT_MODULE(Gui)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -469,6 +467,7 @@ UINT    GlobalFlags(HGLOBAL hMem);
 
 // silence syncqt
 QT_BEGIN_HEADER
+QT_MODULE(Gui)
 QT_END_HEADER
 
 #endif // QFUNCTIONS_WCE_H
