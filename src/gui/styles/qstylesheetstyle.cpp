@@ -149,7 +149,6 @@ RenderRule::RenderRule(const QHash<int, QVector<Declaration> >& declarations)
         init(declarations[Enabled]);
 
     QList<int> states = declarations.keys();
-    qDebug() << "The states I got are " << states;
 
     QList<QVector<Declaration> > decls = declarations.values();
     for (int i = 0; i < states.count(); i++) {
@@ -161,7 +160,6 @@ RenderRule::RenderRule(const QHash<int, QVector<Declaration> >& declarations)
         RenderRule *pseudoRule = new RenderRule(*this);
         pseudoRule->pseudoRules.clear();
         pseudoRule->init(decls.at(i));
-        qDebug() << "Adding rule for state" << QString("0x%1").arg(state, 0, 16);
         pseudoRules[state] = pseudoRule;
     }
 }
@@ -232,8 +230,6 @@ void RenderRule::init(const QVector<Declaration>& decls)
                           break;
         default:
             if (decl.property.compare("exclusive-indicator", Qt::CaseInsensitive) == 0) {
-                qDebug() << "Adding pixmap " << decl.uriValue()
-                        << QPixmap(decl.uriValue()).isNull();
                 pixmaps["exclusive-indicator"] = QPixmap(decl.uriValue());
             } else if (decl.property.compare("combobox-arrow", Qt::CaseInsensitive) == 0
                        || decl.property.compare("down-arrow", Qt::CaseInsensitive) == 0) {
@@ -300,8 +296,6 @@ void BorderImageData::cutBorderImage()
     const int h = pixmap.height();
     const int &l = cuts[LeftEdge], &r = cuts[RightEdge],
               &t = cuts[TopEdge], &b = cuts[BottomEdge];
-
-    qDebug() << t << r << b << l << horizStretch << vertStretch;
 
     // Perform step 1
     topEdgeRect = QRect(l, 0, w - r - l, t);
@@ -1254,7 +1248,6 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
             if (baseStyleCanRender(LineEdit, rule)) 
                 baseStyle->drawPrimitive(pe, &frmOpt, p, w);
             else {
-                qDebug() << "Drawing frame with " << rule->box()->colors[0];
                 qDrawFrame(p, rule, opt->rect, opt->direction);
             }
         }
@@ -1355,12 +1348,8 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 
     case PM_ExclusiveIndicatorWidth:
     case PM_IndicatorWidth:
-        if (rule->pixmaps.contains("exclusive-indicator")) {
-            qDebug() << "Returning " << rule->pixmaps["exclusive-indicator"].width();
+        if (rule->pixmaps.contains("exclusive-indicator"))
             return rule->pixmaps["exclusive-indicator"].width();
-        } else {
-            qDebug() << "Does not contain";
-        }
         break;
 
     case PM_ExclusiveIndicatorHeight:
@@ -1437,7 +1426,6 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         if (!rule->hasBox()) 
             return baseStyle->sizeFromContents(ct, opt, csz, w);
         else {
-            qDebug() << "Returning the size from contents of sx";
             QSize sz = ParentStyle::sizeFromContents(ct, opt, csz, w);
             return rule->boxRect(QRect(0, 0, sz.width(), sz.height())).size();
         }
@@ -1641,7 +1629,6 @@ void QStyleSheetStyle::polish(QWidget *w)
 {
     baseStyle->polish(w);
 
-    qDebug() << "Polishing " << w;
     StyleSheet appSs;
     Parser parser1(qApp->styleSheet());
     if (!parser1.parse(&appSs))
@@ -1660,19 +1647,21 @@ void QStyleSheetStyle::polish(QWidget *w)
         qWarning("Could not parse widget stylesheet");
     }
 
-    // Add items in the order of priority
+    // Add items in the increasing order of priority
     QSxStyleSelector styleSelector;
     styleSelector.styleSheets += appSs;
     styleSelector.styleSheets += windowSs;
     styleSelector.styleSheets += widgetSs;
     StyleSelector::NodePtr n;
     n.ptr = w;
-    const QHash<int, QVector<Declaration> >& decls = styleSelector.declarationsForNode(n);
-    if (decls.isEmpty()) // no style rule applies to us
-        return;
-    RenderRule *rule = new RenderRule(decls);
-    setPalette(w, rule);
-    qDebug() << "Rule added for widget " << w << rule->pseudoRules.keys();
+    const QVector<StyleRule>& rules = styleSelector.styleRulesForNode(n);
+    RenderRule *rule;
+    if (rules.isEmpty()) { 
+        //rule = new RenderRule(rules);
+        setPalette(w, rule);
+    } else
+        rule = 0; // no rule applies to us
+
     cachedRules[w] = rule;
 }
 
