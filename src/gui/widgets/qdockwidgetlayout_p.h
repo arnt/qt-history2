@@ -126,11 +126,15 @@ public:
 
 // utilities
 
+#endif
+
 static inline int pick(Qt::Orientation o, const QPoint &pos)
 { return o == Qt::Horizontal ? pos.x() : pos.y(); }
 
 static inline int pick(Qt::Orientation o, const QSize &size)
 { return o == Qt::Horizontal ? size.width() : size.height(); }
+
+#ifndef QT_NO_DOCKWIDGET
 
 static inline int &rpick(Qt::Orientation o, QPoint &pos)
 { return o == Qt::Horizontal ? pos.rx() : pos.ry(); }
