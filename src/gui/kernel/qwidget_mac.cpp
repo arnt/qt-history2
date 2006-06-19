@@ -915,7 +915,7 @@ void QWidgetPrivate::determineWindowClass()
                 wattr |= kWindowCloseBoxAttribute;
         }
     }
-    if(tool && type != Qt::SplashScreen && !q->isModal())
+    if((popup || (tool && type != Qt::SplashScreen)) && !q->isModal())
         wattr |= kWindowHideOnSuspendAttribute;
     wattr |= kWindowLiveResizeAttribute;
 
