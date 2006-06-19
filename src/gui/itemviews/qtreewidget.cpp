@@ -826,7 +826,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
   of a drag and drop operation.
   Each item's flags can be changed by calling setFlags() with the appropriate
   value (see \l{Qt::ItemFlags}). Checkable items can be checked and unchecked
-  with the setChecked() function. The corresponding checked() function
+  with the setCheckState() function. The corresponding checkState() function
   indicates whether the item is currently checked.
 
   \section1 Subclassing
