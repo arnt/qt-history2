@@ -3316,6 +3316,8 @@ QDateTimeParser::SectionNode QDateTimeParser::sectionNode(int sectionIndex) cons
     } else if (sectionIndex == NoSectionIndex) {
         return none;
     }
+    if (sectionIndex < 0 || sectionIndex >= sectionNodes.size())
+        qDebug() << sectionIndex << sectionNodes.size();
     Q_ASSERT(sectionIndex >= 0 && sectionIndex < sectionNodes.size());
     return sectionNodes.at(sectionIndex);
 }
@@ -4342,6 +4344,7 @@ int QDateTimeParser::potentialValue(const QString &str, int min, int max, int in
     const int add = (sn.type == YearSection && sn.count == 2) ? currentValue.toDate().year() % 100 : 0;
     min -= add;
     max -= add; // doesn't matter if max is -1 checking for < 0
+
     QString simplified = str.simplified();
     if (simplified.isEmpty()) {
         return min + add;
@@ -4473,6 +4476,10 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
                 if (tmp == -1) {
                     QDTPDEBUG << "invalid because potentialValue(" << t << min << max
                               << sectionName(sn.type) << "returned" << tmp << toMax;
+                    return Invalid;
+                } else if (tmp > absoluteMax(i)) {
+                    QDTPDEBUG << "invalid because potentialValue(" << t << min << max
+                              << sectionName(sn.type) << "returned a larger number than absoluteMax" << tmp << absoluteMax(i);
                     return Invalid;
                 }
 
