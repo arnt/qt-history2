@@ -3054,6 +3054,9 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
 #ifndef QT_NO_GROUPBOX
     case CC_GroupBox:
         if (const QStyleOptionGroupBox *groupBox = qstyleoption_cast<const QStyleOptionGroupBox *>(opt)) {
+            if (!(sc & (SC_GroupBoxFrame | SC_GroupBoxContents
+                        | SC_GroupBoxCheckBox | SC_GroupBoxLabel)))
+                break;
             int topMargin = 0;
             int topHeight = 0;
             int verticalAlignment = styleHint(SH_GroupBox_TextLabelVerticalAlignment, groupBox, widget);
