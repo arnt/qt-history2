@@ -50,8 +50,7 @@ QSvgIOHandler::~QSvgIOHandler()
 
 bool QSvgIOHandler::canRead() const
 {
-    QByteArray contents = device()->readAll();
-    device()->seek(0);
+    QByteArray contents = device()->peek(80);
 
     return contents.contains("<svg");
 }
@@ -127,7 +126,6 @@ bool QSvgIOHandler::supportsOption(ImageOption option) const
 
 bool QSvgIOHandler::canRead(QIODevice *device)
 {
-    QByteArray contents = device->readAll();
-    device->seek(0);
+    QByteArray contents = device->peek(80);
     return contents.contains("<svg");
 }

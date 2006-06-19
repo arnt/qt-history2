@@ -45,7 +45,10 @@ QImageIOPlugin::Capabilities QSvgPlugin::capabilities(QIODevice *device, const Q
         return 0;
 
     Capabilities cap;
-    if (device->isReadable() && QSvgIOHandler::canRead(device))
+    //### canRead disabled for now because it's hard to detect
+    //    whether the file is actually svg without parsing it
+    //if (device->isReadable() && QSvgIOHandler::canRead(device))
+    if (device->isReadable())
         cap |= CanRead;
     return cap;
 }
