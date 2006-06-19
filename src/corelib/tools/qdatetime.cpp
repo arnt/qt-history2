@@ -4435,10 +4435,6 @@ QDateTimeParser::State QDateTimeParser::checkIntermediate(const QDateTime &dt, c
         const SectionNode &sn = sectionNodes.at(i);
         QString t = sectionText(s, i, sn.pos).toLower();
         if (t.contains(space) || t.size() < sectionMaxSize(i)) {
-            if (found) {
-                QDTPDEBUG << "invalid because no spaces";
-                return Invalid;
-            }
             found = true;
             switch (sn.type) {
             case AmPmSection:
