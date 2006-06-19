@@ -294,9 +294,7 @@ bool QProcessPrivate::createChannel(Channel &channel)
             });
             if (channel.pipe[1] != INVALID_Q_PIPE) {
                 if (channel.append) {
-                    LARGE_INTEGER zero;
-                    zero.QuadPart = 0;
-                    SetFilePointerEx(channel.pipe[1], zero, NULL, FILE_END);
+                    SetFilePointer(channel.pipe[1], 0, NULL, FILE_END);
                 }
                 return true;
             }
