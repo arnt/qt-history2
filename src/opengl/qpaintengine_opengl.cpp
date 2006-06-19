@@ -1257,7 +1257,7 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
 
 void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
-    if (!QGLExtensions::glExtensions & QGLExtensions::SampleBuffers)
+    if (!(QGLExtensions::glExtensions & QGLExtensions::SampleBuffers))
         return;
     if (hints & QPainter::Antialiasing)
         glEnable(GL_MULTISAMPLE);
