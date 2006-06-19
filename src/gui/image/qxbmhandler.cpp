@@ -45,16 +45,16 @@ static bool read_xbm_header(QIODevice *device, int& w, int& h)
 
     // "#define .._width <num>"
     readBytes = device->readLine(buf, buflen);
-    if (readBytes == -1)
+    if (readBytes <= 0)
 	return false;
-    buf[readBytes] = '\0';
+    buf[readBytes - 1] = '\0';
 
     // skip initial comment, if any
     while (buf[0] != '#' && (readBytes = device->readLine( buf, buflen )) > 0);
 
-    if (readBytes == -1)
+    if (readBytes <= 0)
 	return false;
-    buf[readBytes] = '\0';
+    buf[readBytes - 1] = '\0';
     QString sbuf;
     sbuf = QString::fromLatin1(buf);
 
@@ -64,9 +64,9 @@ static bool read_xbm_header(QIODevice *device, int& w, int& h)
 
     // "#define .._height <num>"
     readBytes = device->readLine(buf, buflen);
-    if (readBytes == -1)
+    if (readBytes <= 0)
 	return false;
-    buf[readBytes] = '\0';
+    buf[readBytes - 1] = '\0';
 
     sbuf = QString::fromLatin1(buf);
 
