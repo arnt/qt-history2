@@ -258,8 +258,12 @@ SubdirsMetaMakefileGenerator::init()
             sub->indent = recurseDepth;
 
             QFileInfo subdir(subdirs.at(i));
+            if(!project->isEmpty(subdirs.at(i) + ".file"))
+                subdir = project->first(subdirs.at(i) + ".file");
+            else if(!project->isEmpty(subdirs.at(i) + ".subdir"))
+                subdir = project->first(subdirs.at(i) + ".subdir");
             if(subdir.isDir())
-                subdir = QFileInfo(subdirs.at(i) + "/" + subdir.fileName() + Option::pro_ext);
+                subdir = QFileInfo(subdir.filePath() + "/" + subdir.fileName() + Option::pro_ext);
 
             //handle sub project
             QMakeProject *sub_proj = new QMakeProject(project->properities());

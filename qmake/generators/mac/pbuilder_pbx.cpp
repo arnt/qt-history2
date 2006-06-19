@@ -84,10 +84,15 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
     QString oldpwd = qmake_getpwd();
     QMap<QString, QStringList> groups;
     for(int subdir = 0; subdir < subdirs.count(); subdir++) {
-        QFileInfo fi(fileInfo(Option::fixPathToLocalOS(subdirs[subdir], true)));
+        QString tmp = subdirs[subdir];
+        if(!project->isEmpty(tmp + ".file"))
+            tmp = project->first(tmp + ".file");
+        else if(!project->isEmpty(tmp + ".subdir"))
+            tmp = project->first(tmp + ".subdir");
+        QFileInfo fi(fileInfo(Option::fixPathToLocalOS(tmp, true)));
         if(fi.exists()) {
             if(fi.isDir()) {
-                QString profile = subdirs[subdir];
+                QString profile = tmp;
                 if(!profile.endsWith(Option::dir_sep))
                     profile += Option::dir_sep;
                 profile += fi.baseName() + ".pro";

@@ -461,6 +461,10 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 
     for(int i = 0; i < subdirs.size(); ++i) {
         QString tmp = subdirs.at(i);
+        if(!project->isEmpty(tmp + ".file"))
+            tmp = project->first(tmp + ".file");
+        else if(!project->isEmpty(tmp + ".subdir"))
+            tmp = project->first(tmp + ".subdir");
         QFileInfo fi(fileInfo(Option::fixPathToLocalOS(tmp, true)));
         if(fi.exists()) {
             if(fi.isDir()) {
