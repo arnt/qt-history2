@@ -1,0 +1,157 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include <QtTest/QtTest>
+
+
+#include <qdatetime.h>
+
+class tst_QSignalSpy : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void spyWithoutArgs();
+    void spyWithBasicArgs();
+    void spyWithPointers();
+    void spyWithQtClasses();
+    void spyWithBasicQtClasses();
+};
+
+class QtTestObject: public QObject
+{
+    Q_OBJECT
+
+public:
+    QtTestObject();
+
+signals:
+    void sig0();
+    void sig1(int, int);
+    void sigLong(long, long);
+    void sig2(int *, int *);
+
+public:
+    QString slotResult;
+    friend class tst_QSignalSpy;
+};
+
+QtTestObject::QtTestObject()
+{
+}
+
+void tst_QSignalSpy::spyWithoutArgs()
+{
+    QtTestObject obj;
+
+    QSignalSpy spy(&obj, SIGNAL(sig0()));
+    QCOMPARE(spy.count(), 0);
+
+    emit obj.sig0();
+    QCOMPARE(spy.count(), 1);
+    emit obj.sig0();
+    QCOMPARE(spy.count(), 2);
+
+    QList<QVariant> args = spy.takeFirst();
+    QCOMPARE(args.count(), 0);
+}
+
+void tst_QSignalSpy::spyWithBasicArgs()
+{
+    QtTestObject obj;
+    QSignalSpy spy(&obj, SIGNAL(sig1(int,int)));
+
+    emit obj.sig1(1, 2);
+    QCOMPARE(spy.count(), 1);
+
+    QList<QVariant> args = spy.takeFirst();
+    QCOMPARE(args.count(), 2);
+    QCOMPARE(args.at(0).toInt(), 1);
+    QCOMPARE(args.at(1).toInt(), 2);
+
+    QSignalSpy spyl(&obj, SIGNAL(sigLong(long,long)));
+
+    emit obj.sigLong(1l, 2l);
+    args = spyl.takeFirst();
+    QCOMPARE(args.count(), 2);
+    QCOMPARE(qvariant_cast<long>(args.at(0)), 1l);
+    QCOMPARE(qvariant_cast<long>(args.at(1)), 2l);
+}
+
+
+void tst_QSignalSpy::spyWithPointers()
+{
+    qRegisterMetaType<int *>("int*");
+
+    QtTestObject obj;
+    QSignalSpy spy(&obj, SIGNAL(sig2(int*,int*)));
+
+    int i1 = 1;
+    int i2 = 2;
+
+    emit obj.sig2(&i1, &i2);
+    QCOMPARE(spy.count(), 1);
+
+    QList<QVariant> args = spy.takeFirst();
+    QCOMPARE(args.count(), 2);
+    QCOMPARE(*static_cast<int * const *>(args.at(0).constData()), &i1);
+    QCOMPARE(*static_cast<int * const *>(args.at(1).constData()), &i2);
+}
+
+class QtTestObject2: public QObject
+{
+    Q_OBJECT
+    friend class tst_QSignalSpy;
+
+signals:
+    void sig(QString);
+    void sig2(const QDateTime &dt);
+    void sig3(QObject *o);
+    void sig4(QChar c);
+};
+
+void tst_QSignalSpy::spyWithBasicQtClasses()
+{
+    QtTestObject2 obj;
+
+    QSignalSpy spy(&obj, SIGNAL(sig(QString)));
+    emit obj.sig(QString("bubu"));
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).count(), 1);
+    QCOMPARE(spy.at(0).at(0).toString(), QString("bubu"));
+}
+
+void tst_QSignalSpy::spyWithQtClasses()
+{
+    QtTestObject2 obj;
+
+    qRegisterMetaType<QDateTime>("QDateTime");
+
+    QSignalSpy spy(&obj, SIGNAL(sig2(QDateTime)));
+    QDateTime dt = QDateTime::currentDateTime();
+    emit obj.sig2(dt);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.at(0).count(), 1);
+    QCOMPARE(spy.at(0).at(0).typeName(), "QDateTime");
+    QCOMPARE(*static_cast<const QDateTime *>(spy.at(0).at(0).constData()), dt);
+    QCOMPARE(spy.at(0).at(0).toDateTime(), dt);
+
+    QSignalSpy spy2(&obj, SIGNAL(sig3(QObject*)));
+    emit obj.sig3(this);
+    QCOMPARE(*static_cast<QObject * const *>(spy2.value(0).value(0).constData()),
+            (QObject *)this);
+    QCOMPARE(qvariant_cast<QObject *>(spy2.value(0).value(0)), (QObject*)this);
+
+    QSignalSpy spy3(&obj, SIGNAL(sig4(QChar)));
+    emit obj.sig4(QChar('A'));
+    QCOMPARE(qvariant_cast<QChar>(spy3.value(0).value(0)), QChar('A'));
+}
+
+QTEST_APPLESS_MAIN(tst_QSignalSpy)
+#include "tst_qsignalspy.moc"

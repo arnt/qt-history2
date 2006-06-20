@@ -1,0 +1,4 @@
+********* Start testing of tst_FetchBogus *********
+Config: Using QTest library 4.1.0, Qt 4.1.1
+PASS   : tst_FetchBogus::initTestCase()
+QFATAL : tst_FetchBogus::fetchBogus(foo) QFETCH: Requested testdata 'bubu' not available, check your _data function.

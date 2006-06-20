@@ -5027,6 +5027,10 @@ for part in $CFG_BUILD_PARTS; do
     esac
 done
 
+if [ "$Edition" = "Trolltech" ]; then
+    PART_ROOTS="$PART_ROOTS tests"
+fi
+
 echo "Creating makefiles. Please wait..."
 for file in .projects .projects.3; do
     [ '!' -f "$file" ] && continue

@@ -1,0 +1,14 @@
+********* Start testing of tst_StrCmp *********
+Config: Using QTest library 4.1.0, Qt 4.1.0
+PASS   : tst_StrCmp::initTestCase()
+PASS   : tst_StrCmp::compare_charstars()
+XFAIL  : tst_StrCmp::compare_bytearray() Next test should fail
+   Loc: [tst_strcmp.cpp(34)]
+XFAIL  : tst_StrCmp::compare_bytearray() Next test should fail
+   Loc: [tst_strcmp.cpp(41)]
+XFAIL  : tst_StrCmp::compare_bytearray() Next test should fail
+   Loc: [tst_strcmp.cpp(48)]
+PASS   : tst_StrCmp::compare_bytearray()
+PASS   : tst_StrCmp::cleanupTestCase()
+Totals: 4 passed, 0 failed, 0 skipped
+********* Finished testing of tst_StrCmp *********

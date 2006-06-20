@@ -1,0 +1,144 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include <QtCore>
+#include <QtTest/QtTest>
+
+#ifdef Q_OS_LINUX
+# include <pthread.h>
+#endif
+
+class tst_QMetaType: public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY(QList<QVariant> prop READ prop WRITE setProp)
+
+public:
+    tst_QMetaType() { propList << 42 << "Hello"; }
+
+    QList<QVariant> prop() const { return propList; }
+    void setProp(const QList<QVariant> &list) { propList = list; }
+
+private:
+    QList<QVariant> propList;
+
+private slots:
+    void defined();
+    void threadSafety();
+    void namespaces();
+    void qMetaTypeId();
+    void properties();
+};
+
+struct Foo { int i; };
+
+void tst_QMetaType::defined()
+{
+#if QT_VERSION >= 0x040100
+    QCOMPARE(int(QMetaTypeId<QString>::Defined), 1);
+    QCOMPARE(int(QMetaTypeId<Foo>::Defined), 0);
+    QCOMPARE(int(QMetaTypeId<void*>::Defined), 1);
+    QCOMPARE(int(QMetaTypeId<int*>::Defined), 0);
+#endif
+}
+
+struct Bar
+{
+    Bar()
+    {
+        // check re-entrancy
+        Q_ASSERT(QMetaType::isRegistered(qRegisterMetaType<Foo>("Foo")));
+    }
+};
+
+class MetaTypeTorturer: public QThread
+{
+    Q_OBJECT
+protected:
+    void run()
+    {
+        for (int i = 0; i < 1000; ++i) {
+            const QByteArray name = QString("Bar%1_%2").arg(i).arg((int)QThread::currentThreadId()).toLatin1();
+            const char *nm = name.constData();
+            int tp = qRegisterMetaType<Bar>(nm);
+#ifdef Q_OS_LINUX
+            pthread_yield();
+#endif
+            Q_ASSERT(QMetaType::isRegistered(tp));
+            Q_ASSERT(QMetaType::type(nm) == tp);
+            Q_ASSERT(QMetaType::typeName(tp) == name);
+            void *buf = QMetaType::construct(tp, 0);
+            void *buf2 = QMetaType::construct(tp, buf);
+            Q_ASSERT(buf);
+            Q_ASSERT(buf2);
+            QMetaType::destroy(tp, buf);
+            QMetaType::destroy(tp, buf2);
+        }
+    }
+};
+
+void tst_QMetaType::threadSafety()
+{
+#if QT_VERSION >= 0x040100
+    MetaTypeTorturer t1;
+    MetaTypeTorturer t2;
+    MetaTypeTorturer t3;
+
+    t1.start();
+    t2.start();
+    t3.start();
+
+    QVERIFY(t1.wait());
+    QVERIFY(t2.wait());
+    QVERIFY(t3.wait());
+#endif
+}
+
+namespace TestSpace
+{
+    struct Foo { double d; };
+
+}
+Q_DECLARE_METATYPE(TestSpace::Foo)
+
+void tst_QMetaType::namespaces()
+{
+    TestSpace::Foo nf = { 11.12 };
+    QVariant v = qVariantFromValue(nf);
+    QCOMPARE(qvariant_cast<TestSpace::Foo>(v).d, 11.12);
+}
+
+void tst_QMetaType::qMetaTypeId()
+{
+    QCOMPARE(::qMetaTypeId<QString>(), int(QMetaType::QString));
+    QCOMPARE(::qMetaTypeId<int>(), int(QMetaType::Int));
+    QCOMPARE(::qMetaTypeId<TestSpace::Foo>(), QMetaType::type("TestSpace::Foo"));
+}
+
+void tst_QMetaType::properties()
+{
+    qRegisterMetaType<QList<QVariant> >("QList<QVariant>");
+
+    QVariant v = property("prop");
+
+    QCOMPARE(v.typeName(), "QList<QVariant>");
+
+    QList<QVariant> values = v.toList();
+    QCOMPARE(values.count(), 2);
+    QCOMPARE(values.at(0).toInt(), 42);
+
+    values << 43 << "world";
+
+    QVERIFY(setProperty("prop", values));
+    v = property("prop");
+    QCOMPARE(v.toList().count(), 4);
+}
+
+QTEST_MAIN(tst_QMetaType)
+#include "tst_qmetatype.moc"
