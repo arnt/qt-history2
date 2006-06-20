@@ -30,6 +30,9 @@
 #include "qdbusabstractadaptor_p.h"
 #include "qdbusutil.h"
 
+static bool isDebugging;
+#define qDBusDebug              if (!::isDebugging); else qDebug
+
 #ifndef USE_OUTSIDE_DISPATCH
 # define USE_OUTSIDE_DISPATCH    0
 #endif
@@ -46,9 +49,6 @@ struct QDBusPendingCall
     DBusPendingCall *pending;
     const QDBusConnectionPrivate *connection;
 };
-
-static bool isDebugging;
-#define qDBusDebug              if (::isDebugging) qDebug
 
 class CallDeliveryEvent: public QEvent
 {
