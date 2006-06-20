@@ -1672,3 +1672,5 @@ void QStyleSheetStyle::unpolish(QApplication *app)
 {
     baseStyle->unpolish(app);
 }
+
+#include "moc_qstylesheetstyle_p.cpp"
