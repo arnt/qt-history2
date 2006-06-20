@@ -2065,45 +2065,11 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                 cachePainter.fillRect(rect.adjusted(1, 2, -1, -3), option->palette.base());
 
-                if (isEnabled) {
-                    // gradients
-                    QRect buttonRect = upRect.unite(downRect);
-                    qt_cleanlooks_draw_gradient(&cachePainter, buttonRect,
-                                            gradientStartColor,
-                                            gradientStopColor);
-                    if(upIsActive) {
-                        if (sunken) {
-                            cachePainter.fillRect(upRect.adjusted(1, 1, 0, 0), gradientStopColor.dark(110));
-                        } else if (hover) {
-                            qt_cleanlooks_draw_gradient(&cachePainter, upRect.adjusted(1, 1, 0, 0),
-                                                    gradientStartColor.light(120),
-                                                    gradientStopColor.light(120));
-                        }
-                    }
-                    if(downIsActive) {
-                        if (sunken) {
-                            cachePainter.fillRect(downRect.adjusted(1, 0, 0, 1), gradientStopColor.dark(110));
-
-                        } else if (hover) {
-                                qt_cleanlooks_draw_gradient(&cachePainter, downRect.adjusted(1, 1, 0, 1),
-                                                        gradientStartColor.light(120),
-                                                        gradientStopColor.light(120));
-                        }
-                    }
-                }
-
                 //draw frame :
                 QRect r = rect.adjusted(0, 1, 0, -1);
                 cachePainter.setPen(buttonShadowAlpha);
                 cachePainter.drawLine(QPoint(r.left() + 2, r.top() - 1), QPoint(r.right() - 2, r.top() - 1));
-                cachePainter.drawPoint(r.right() - 1, r.top());
-                cachePainter.drawPoint(r.right(), r.top() + 1);
-                cachePainter.drawPoint(r.right() - 1, r.bottom());
-                cachePainter.drawPoint(r.right(), r.bottom() - 1);
-                cachePainter.drawPoint(r.left() + 1, r.top() );
-                cachePainter.drawPoint(r.left(), r.top() + 1);
-                cachePainter.drawPoint(r.left() + 1, r.bottom() );
-                cachePainter.drawPoint(r.left(), r.bottom() - 1);
+                
                 cachePainter.setPen(QPen(option->palette.background().color(), 1));
                 cachePainter.drawLine(QPoint(r.left() + 2, r.top() + 1), QPoint(r.right() - 2, r.top() + 1));
                 cachePainter.setPen(QPen(option->palette.light().color()));
@@ -2114,13 +2080,44 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 //top and bottom lines
                 cachePainter.drawLine(QPoint(r.left() + 2, r.bottom()), QPoint(r.right()- 2, r.bottom()));
                 cachePainter.drawLine(QPoint(r.left() + 2, r.top()), QPoint(r.right() - 2, r.top()));
-                cachePainter.drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
-                cachePainter.drawPoint(QPoint(r.right() - 1, r.top() + 1));
                 cachePainter.drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
                 cachePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
+                cachePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
+                
+                if (isEnabled) {
+                    // gradients
+                    qt_cleanlooks_draw_gradient(&cachePainter, upRect,
+                                            gradientStartColor.dark(106),
+                                            gradientStopColor);
+                    qt_cleanlooks_draw_gradient(&cachePainter, downRect.adjusted(0, 0, 0, 1),
+                                            gradientStartColor.dark(106),
+                                            gradientStopColor);
+                    if(upIsActive) {
+                        if (sunken) {
+                            cachePainter.fillRect(upRect.adjusted(1, 1, 0, 0), gradientStopColor.dark(110));
+                        } else if (hover) {
+                            qt_cleanlooks_draw_gradient(&cachePainter, upRect.adjusted(1, 1, 0, 0),
+                                                    gradientStartColor.light(110),
+                                                    gradientStopColor.light(110));
+                        }
+                    }
+                    if(downIsActive) {
+                        if (sunken) {
+                            cachePainter.fillRect(downRect.adjusted(1, 0, 0, 1), gradientStopColor.dark(110));
+
+                        } else if (hover) {
+                                qt_cleanlooks_draw_gradient(&cachePainter, downRect.adjusted(1, 1, 0, 1),
+                                                        gradientStartColor.light(110),
+                                                        gradientStopColor.light(110));
+                        }
+                    }
+                }
+                
+                //rounded corners
                 cachePainter.drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
                 cachePainter.drawPoint(QPoint(r.left() + 1, r.top() + 1));
-                cachePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
+                cachePainter.drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
+                cachePainter.drawPoint(QPoint(r.right() - 1, r.top() + 1));
                 
                 if (option->state & State_HasFocus) {
                     QColor darkoutline = option->palette.highlight().color().dark(150);
@@ -2149,7 +2146,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                                               QPoint(r.left()+ downRect.width(), r.bottom()));
                     }
                 }
-                
+                                
                 // outline the up/down buttons
                 cachePainter.setPen(borderColor);
                 if (spinBox->direction == Qt::RightToLeft) {
@@ -2166,6 +2163,8 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     cachePainter.drawLine(upRect.left() + 1, upRect.top(), upRect.left() + 1, upRect.bottom());
                     cachePainter.drawLine(upRect.left() , upRect.top(), upRect.right(), upRect.top());
                 } else {
+                    cachePainter.setPen(gradientStartColor.light());
+                    cachePainter.drawLine(upRect.topLeft() + QPoint(2,0), upRect.topRight() - QPoint(1,0));
                     cachePainter.setPen(borderColor);
                     cachePainter.drawLine(upRect.bottomLeft(), upRect.bottomRight());
                 }
