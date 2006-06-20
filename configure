@@ -494,7 +494,7 @@ CFG_XKB=auto
 CFG_NIS=auto
 CFG_CUPS=auto
 CFG_ICONV=auto
-CFG_QTDBUS=auto
+CFG_QDBUS=auto
 CFG_GLIB=auto
 CFG_LARGEFILE=auto
 CFG_STL=auto
@@ -634,7 +634,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qtdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent)
+        -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-fontconfig|-xkb|-nis|-qdbus|-glib|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-universal|-prefix-install|-silent)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -1224,9 +1224,9 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
-    qtdbus)
+    qdbus)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-            CFG_QTDBUS="$VAL"
+            CFG_QDBUS="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2402,7 +2402,7 @@ else
     EXCN=" "
     EXCY="*"
 fi
-if [ "$CFG_QTDBUS" = "no" ]; then
+if [ "$CFG_QDBUS" = "no" ]; then
     DBY=" "
     DBN="+"
 else
@@ -2506,8 +2506,8 @@ Additional options:
  $PHN  -no-pch ............ Do not use precompiled header support.
  $PHY  -pch ............... Use precompiled header support.
 
- $DBN  -no-qtdbus.......... Do not compile the QtDBus module.
- $DBY  -qtdbus............. Compile the QtDBus module.
+ $DBN  -no-qdbus........... Do not compile the QtDBus module.
+ $DBY  -qdbus.............. Compile the QtDBus module.
 
 EOF
 
@@ -3523,23 +3523,23 @@ if [ "$CFG_ICONV" != "no" ]; then
 fi
 
 # auto-detect libdbus-1 support
-if [ "$CFG_QTDBUS" != "no" ]; then
+if [ "$CFG_QDBUS" != "no" ]; then
     if "$WHICH" pkg-config >/dev/null 2>&1 && \
 	pkg-config --atleast-version="$MIN_DBUS_1_VERSION" dbus-1 2>/dev/null; then
         QT_CFLAGS_GLIB=`pkg-config --cflags dbus-1`
         QT_LIBS_GLIB=`pkg-config --libs dbus-1`
-        CFG_QTDBUS=yes
+        CFG_QDBUS=yes
 	QMakeVar set QT_CFLAGS_GLIB "$QT_CFLAGS_GLIB"
 	QMakeVar set QT_LIBS_GLIB "$QT_LIBS_GLIB"
     else
-        if [ "$CFG_QTDBUS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+        if [ "$CFG_QDBUS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
             echo "The QtDBus module cannot be enabled because libdbus-1 version $MIN_DBUS_1_VERSION was not found."
             echo " Turn on verbose messaging (-v) to $0 to see the final report."
             echo " If you believe this message is in error you may use the continue"
             echo " switch (-continue) to $0 to continue."
             exit 101
         else
-            CFG_QTDBUS=no
+            CFG_QDBUS=no
         fi
     fi
 fi
@@ -4082,7 +4082,7 @@ fi
 [ "$CFG_ICONV" = "yes" ] && QT_CONFIG="$QT_CONFIG iconv"
 [ "$CFG_ICONV" = "gnu" ] && QT_CONFIG="$QT_CONFIG gnu-libiconv"
 [ "$CFG_GLIB" = "yes" ] && QT_CONFIG="$QT_CONFIG glib"
-[ "$CFG_QTDBUS" = "yes" ] && QT_CONFIG="$QT_CONFIG qtdbus"
+[ "$CFG_QDBUS" = "yes" ] && QT_CONFIG="$QT_CONFIG qdbus"
 [ "$CFG_NAS" = "system" ] && QT_CONFIG="$QT_CONFIG nas"
 
 if [ "$PLATFORM_X11" = "yes" ]; then
@@ -4478,7 +4478,7 @@ QMakeVar set sql-plugins "$SQL_PLUGINS"
 [ "$CFG_CUPS" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_CUPS"
 [ "$CFG_ICONV" = "no" ]      && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ICONV"
 [ "$CFG_GLIB" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GLIB"
-[ "$CFG_QTDBUS" != "yes" ]   && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QTDBUS"
+[ "$CFG_QDBUS" != "yes" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QDBUS"
 [ "$CFG_GETADDRINFO" = "no" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETADDRINFO"
 [ "$CFG_IPV6IFNAME" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6IFNAME"
 [ "$CFG_GETIFADDRS" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETIFADDRS"
@@ -4778,7 +4778,7 @@ else
    echo "Debug................ $CFG_DEBUG"
 fi
 echo "Qt3 compatibility.... $CFG_QT3SUPPORT"
-echo "QtDBus module........ $CFG_QTDBUS"
+echo "QtDBus module........ $CFG_QDBUS"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
 echo "MMX/SSE support ..... $CFG_HAVE_SSE"
