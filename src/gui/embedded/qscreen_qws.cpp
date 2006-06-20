@@ -24,7 +24,9 @@
 #include <private/qdrawhelper_p.h>
 #include <private/qpaintengine_raster_p.h>
 #include <private/qpainter_p.h>
+#ifdef QT_WINDOW_SURFACE
 #include <private/qwindowsurface_qws_p.h>
+#endif
 #include <qdebug.h>
 
 static const bool simple_8bpp_alloc = true; //### 8bpp support not done
