@@ -61,10 +61,13 @@ tst_Bic::tst_Bic()
     /* this guy is never instanciated, just for compile-time checking */
     bic.addBlacklistedClass(QLatin1String("QMap<*>::PayloadNode"));
 
-      /* QFileEngine was removed in 4.1 */
+    /* QFileEngine was removed in 4.1 */
     bic.addBlacklistedClass(QLatin1String("QFileEngine"));
     bic.addBlacklistedClass(QLatin1String("QFileEngineHandler"));
     bic.addBlacklistedClass(QLatin1String("QFlags<QFileEngine::FileFlag>"));
+
+    /* Private classes */
+    bic.addBlacklistedClass(QLatin1String("QBrushData"));
 }
 
 void tst_Bic::initTestCase_data()
