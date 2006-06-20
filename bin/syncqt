@@ -34,6 +34,7 @@ my %modules = ( # path to module name map
 	    "QtAssistant" => "$basedir/tools/assistant/lib",
 	    "QtDesigner" => "$basedir/tools/designer/src/lib;",
 	    "QtUiTools" => "$basedir/tools/designer/src/uitools;",
+	    "QtDBus" => "$basedir/tools/qdbus/src;",
 );
 #$modules{"QtCore"} .= ";$basedir/mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
 
@@ -599,7 +600,7 @@ my $class_lib_map_contents = "";
 my @ignore_for_master_contents = ( "qt.h", "qpaintdevicedefs.h" );
 my @ignore_for_include_check = ( "qatomic.h" );
 my @ignore_for_qt_begin_header_check = ( "qiconset.h", "qconfig.h", "qconfig-dist.h", "qconfig-large.h", "qconfig-medium.h", "qconfig-minimal.h", "qconfig-small.h", "qfeatures.h" );
-my @ignore_for_qt_module_check = ( "$modules{QtCore}/arch", "$modules{QtCore}/global", "$modules{QtSql}/drivers", "$modules{QtTest}", "$modules{QtAssistant}", "$modules{QtDesigner}", "$modules{QtUiTools}" );
+my @ignore_for_qt_module_check = ( "$modules{QtCore}/arch", "$modules{QtCore}/global", "$modules{QtSql}/drivers", "$modules{QtTest}", "$modules{QtAssistant}", "$modules{QtDesigner}", "$modules{QtUiTools}", "$modules{QtDBus}" );
 
 foreach (@modules_to_sync) {
     #iteration info

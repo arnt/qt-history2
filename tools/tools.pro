@@ -13,6 +13,7 @@ no-png {
     }
     SUBDIRS     += linguist
     unix:!embedded:contains(QT_CONFIG, qt3support):SUBDIRS += qtconfig
+    unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += qdbus
     win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += activeqt
 }
 
