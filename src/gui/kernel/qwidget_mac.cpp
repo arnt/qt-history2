@@ -1492,17 +1492,19 @@ void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
     if (!q->testAttribute(Qt::WA_WState_Created))
         return;
 
-    if (extra->topextra->iconPixmap && !forceReset) // already set
+    QTLWExtra *topData = this->topData();
+    if (topData->iconPixmap && !forceReset) // already set
         return;
 
     QIcon icon = q->windowIcon();
     QPixmap *pm = 0;
     if (!icon.isNull()) {
-        if (!extra->topextra->iconPixmap) {
+        // now create the extra
+        if (!topData->iconPixmap) {
             pm = new QPixmap(icon.pixmap(QSize(22, 22)));
-            extra->topextra->iconPixmap = pm;
+            topData->iconPixmap = pm;
         } else {
-            pm = extra->topextra->iconPixmap;
+            pm = topData->iconPixmap;
         }
     }
     if (q->isWindow()) {
