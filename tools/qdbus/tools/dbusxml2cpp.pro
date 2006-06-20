@@ -1,5 +1,5 @@
-SOURCES = dbusidl2cpp.cpp
-TARGET = dbusidl2cpp
+SOURCES = dbusxml2cpp.cpp
+TARGET = dbusxml2cpp
 INCLUDEPATH += ..
 LIBS += -L../src -lQtDBus
 QT = core
