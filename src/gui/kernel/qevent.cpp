@@ -3221,8 +3221,8 @@ QMenubarUpdatedEvent::QMenubarUpdatedEvent(QMenuBar * const menuBar)
 
     \brief The QKeyEventEx class provides more extended information about a keyevent.
 
-    This class is for internal use only, and exists to aid the clipboard on various
-    platforms to get all the information it needs.  Use QEvent::Clipboard instead.
+    This class is for internal use only, and exists to aid the shortcut system on
+    various platforms to get all the information it needs.
 */
 
 #endif
