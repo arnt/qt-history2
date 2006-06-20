@@ -1370,7 +1370,7 @@ void QWidgetPrivate::setConstraints_sys()
 
 void QWidget::scroll(int dx, int dy)
 {
-    if (!updatesEnabled() && children().size() == 0)
+    if (!updatesEnabled() && children().size() == 0 || !isVisible())
         return;
     if (dx == 0 && dy == 0)
         return;
@@ -1393,7 +1393,7 @@ void QWidget::scroll(int dx, int dy)
 
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-    if (!updatesEnabled())
+    if (!updatesEnabled() || !isVisible())
         return;
     if (dx == 0 && dy == 0)
         return;
