@@ -136,9 +136,14 @@ static const char * const qtlogo_xpm[] = {
 
 /*!
     \class QMessageBox
+    \obsolete
     \brief The QMessageBox class provides a modal dialog with a short message, an icon, and some buttons.
     \ingroup dialogs
     \mainclass
+
+    \e{As of Qt 4.2, QMessageBoxEx provides identical functionality to this 
+    class with a more advanced API. We recommend that you use that class 
+    instead.}
 
     Message boxes are used to provide informative messages and to ask
     simple questions.
@@ -1248,6 +1253,8 @@ int QMessageBox::critical(QWidget *parent,
 
 
 /*!
+    \obsolete
+
     Displays a simple about box with caption \a caption and text \a
     text. The about box's parent is \a parent.
 
@@ -1508,6 +1515,8 @@ extern void qt_read_xpm_image_or_array(QImageReader *, const char * const *, QIm
 #endif
 
 /*!
+    \obsolete
+
     Displays a simple message box about Qt, with caption \a caption
     and centered over \a parent (if \a parent is not 0). The message
     includes the version number of Qt being used by the application.

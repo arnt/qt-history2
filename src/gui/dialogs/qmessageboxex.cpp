@@ -672,5 +672,46 @@ QMessageBoxEx::StandardButton QMessageBoxEx::critical(QWidget *parent, const QSt
     return showMessageBoxEx(parent, Critical, caption, text, buttons, defaultButton);
 }
 
+/*!
+    Displays a simple about box with caption \a caption and text \a
+    text. The about box's parent is \a parent.
+
+    about() looks for a suitable icon in four locations:
+    \list 1
+    \i It prefers \link QWidget::windowIcon() parent->icon() \endlink
+    if that exists.
+    \i If not, it tries the top-level widget containing \a parent.
+    \i If that fails, it tries the \link
+    QApplication::activeWindow() active window. \endlink
+    \i As a last resort it uses the Information icon.
+    \endlist
+
+    The about box has a single button labelled "OK".
+
+    \sa QWidget::windowIcon() QApplication::activeWindow()
+*/
+void QMessageBoxEx::about(QWidget *parent, const QString &caption, 
+                          const QString &text)
+{
+    QMessageBox::about(parent, caption, text);
+}
+
+/*!
+    Displays a simple message box about Qt, with caption \a caption
+    and centered over \a parent (if \a parent is not 0). The message
+    includes the version number of Qt being used by the application.
+
+    This is useful for inclusion in the Help menu of an application.
+    See the examples/menu/menu.cpp example.
+
+    QApplication provides this functionality as a slot.
+
+    \sa QApplication::aboutQt()
+*/
+void QMessageBoxEx::aboutQt(QWidget *parent, const QString &caption)
+{
+    QMessageBox::aboutQt(parent, caption);
+}
+
 #include "moc_qmessageboxex.cpp"
 #endif // QT_NO_MESSAGEBOXEX

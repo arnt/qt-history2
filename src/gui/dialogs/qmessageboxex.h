@@ -117,6 +117,8 @@ public:
     static StandardButton critical(QWidget *parent, const QString &caption,
          const QString &text, StandardButtons buttons = Ok,
          StandardButton defaultButton = NoButton);
+    static void about(QWidget *parent, const QString &caption, const QString &text);
+    static void aboutQt(QWidget *parent, const QString &caption=QString());
 
 protected:
     bool event(QEvent *);
