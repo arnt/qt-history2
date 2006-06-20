@@ -904,7 +904,7 @@ void QFileDialog::accept()
         // check if we have to ask for permission to overwrite the file
         if (!info.exists() || !confirmOverwrite() || acceptMode() == AcceptOpen)
             QDialog::accept();
-        else if (QMessageBox::warning(this, windowTitle(),
+        else if (QMessageBox::warning(this, d->acceptButton->text(),
                                       tr("%1 already exists.\nDo you want to replace it?")
                                       .arg(info.fileName()),
                                       QMessageBox::Yes, QMessageBox::No)
