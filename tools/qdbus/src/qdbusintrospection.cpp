@@ -35,12 +35,12 @@
 */
 
 /*!
-    \var QDBusIntrospection::Argument::type
+    \variable QDBusIntrospection::Argument::type
     The argument type.
 */
 
 /*!
-    \var QDBusIntrospection::Argument::name
+    \variable QDBusIntrospection::Argument::name
     The argument name. The argument name is optional, so this may be a null QString.
 */
 
@@ -59,22 +59,22 @@
 */
 
 /*!
-    \var QDBusIntrospection::Method::name
+    \variable QDBusIntrospection::Method::name
     The method's name.
 */
 
 /*!
-    \var QDBusIntrospection::Method::inputArgs
+    \variable QDBusIntrospection::Method::inputArgs
     A list of the method's input arguments.
 */
 
 /*!
-    \var QDBusIntrospection::Method::outputArgs
+    \variable QDBusIntrospection::Method::outputArgs
     A list of the method's output arguments (i.e., return values).
 */
 
 /*!
-    \var QDBusIntrospection::Method::annotations
+    \variable QDBusIntrospection::Method::annotations
     The annotations associated with the method. Each annotation is a pair of strings, where the key
     is of the same format as a D-Bus interface name. The value is arbitrary.
 */
@@ -93,17 +93,17 @@
 */
 
 /*!
-    \var QDBusIntrospection::Signal::name
+    \variable QDBusIntrospection::Signal::name
     The signal's name.
 */
 
 /*!
-    \var QDBusIntrospection::Signal::outputArgs
+    \variable QDBusIntrospection::Signal::outputArgs
     A list of the signal's arguments.
 */
 
 /*!
-    \var QDBusIntrospection::Signal::annotations
+    \variable QDBusIntrospection::Signal::annotations
     The annotations associated with the signal. Each annotation is a pair of strings, where the key
     is of the same format as a D-Bus interface name. The value is arbitrary.
 */
@@ -122,12 +122,12 @@
 */
 
 /*!
-    \var QDBusIntrospection::Property::name
+    \variable QDBusIntrospection::Property::name
     The property's name.
 */
 
 /*!
-    \var QDBusIntrospection::Property::type
+    \variable QDBusIntrospection::Property::type
     The property's type.
 */
 
@@ -140,12 +140,12 @@
 */
 
 /*!
-    \var QDBusIntrospection::Property::access
+    \variable QDBusIntrospection::Property::access
     The property's access rights.
 */
 
 /*!
-    \var QDBusIntrospection::Property::annotations
+    \variable QDBusIntrospection::Property::annotations
     The annotations associated with the property. Each annotation is a pair of strings, where the key
     is of the same format as a D-Bus interface name. The value is arbitrary.
 */
@@ -164,12 +164,12 @@
 */
 
 /*!
-    \var QDBusIntrospection::Interface::name
+    \variable QDBusIntrospection::Interface::name
     The interface's name.
 */
 
 /*!
-    \var QDBusIntrospection::Interface::introspection
+    \variable QDBusIntrospection::Interface::introspection
     The XML document fragment describing this interface.
 
     If parsed again through parseInterface, the object returned should have the same contents as
@@ -177,19 +177,19 @@
 */
 
 /*!
-    \var QDBusIntrospection::Interface::annotations
+    \variable QDBusIntrospection::Interface::annotations
     The annotations associated with the interface. Each annotation is a pair of strings, where the key
     is of the same format as a D-Bus interface name. The value is arbitrary.
 */
 
 /*!
-    \var QDBusIntrospection::Interface::methods
+    \variable QDBusIntrospection::Interface::methods
     The methods available in this interface. Note that method names are not unique (i.e., methods
     can be overloaded with multiple arguments types).
 */
 
 /*!
-    \var QDBusIntrospection::Interface::signals_
+    \variable QDBusIntrospection::Interface::signals_
     The signals available in this interface. Note that signal names are not unique (i.e., signals
     can be overloaded with multiple argument types).
 
@@ -197,7 +197,7 @@
 */
 
 /*!
-    \var QDBusIntrospection::Interface::properties
+    \variable QDBusIntrospection::Interface::properties
     The properties available in this interface. Property names are unique.
 */
 
@@ -222,21 +222,21 @@
 */
 
 /*!
-    \var QDBusIntrospection::Object::service
+    \variable QDBusIntrospection::Object::service
     The object's service name.
 
     \sa parseObject(), parseObjectTree()
 */
 
 /*!
-    \var QDBusIntrospection::Object::path
+    \variable QDBusIntrospection::Object::path
     The object's path on the service. This is an absolute path.
 
     \sa parseObject(), parseObjectTree()
 */
 
 /*!
-    \var QDBusIntrospection::Object::introspection
+    \variable QDBusIntrospection::Object::introspection
     The XML document fragment describing this object, its interfaces and sub-objects at the time
     of the parsing.
 
@@ -244,12 +244,12 @@
 */
 
 /*!
-    \var QDBusIntrospection::Object::interfaces
+    \variable QDBusIntrospection::Object::interfaces
     The list of interface names in this object.
 */
 
 /*!
-    \var QDBusIntrospection::Object::childObjects
+    \variable QDBusIntrospection::Object::childObjects
     The list of child object names in this object. Note that this is a relative name, not an
     absolute path. To obtain the absolute path, concatenate with \l
     {QDBusIntrospection::Object::path}{path}.
@@ -264,12 +264,12 @@
 */
 
 /*!
-    \var QDBusIntrospection::ObjectTree::interfaceData
+    \variable QDBusIntrospection::ObjectTree::interfaceData
     A map of interfaces and their names.
 */
 
 /*!
-    \var QDBusIntrospection::ObjectTree::childObjectData
+    \variable QDBusIntrospection::ObjectTree::childObjectData
     A map of object paths and their data. The map key contains the relative path to the object.
 
     Note this map contains only the child notes that do have information about the sub-object's

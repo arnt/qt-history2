@@ -1,8 +1,9 @@
 /** -*- mode: C++ -*-
-** Copyright (C) 2006 Trolltech AS. All rights reserved.
-**    Author: Thiago Macieira <thiago.macieira@trolltech.com>
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
-** This file is part of the QtDBus solution.
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -11,7 +12,7 @@
 
 /*!
     \page usingadaptors.html
-    \title Using Adaptors
+    \title Using QtDBus Adaptors
 
     Adaptors are special classes that are attached to any QObject-derived class and provide the
     interface to the external world using D-Bus. Adaptors are intended to be light-weight classes
@@ -31,10 +32,10 @@
     it is exporting.
 
     Any public slot in the class will be accessible through the bus over messages of the MethodCall
-    type. (See \l {declaringslots.html}{the section on declaring slots} for more
+    type. (See \l {qdbusdeclaringslots.html}{the section on declaring slots} for more
     information). Signals in the class will be automatically relayed over D-Bus. However, not all
-    types are allowed signals or slots' parameter lists: see \l {allowedparameters.html}{the section
-    on allowed parameters} for more information.
+    types are allowed signals or slots' parameter lists: see \l {qdbustypesystem.html}{the section
+    on the QtDBus type system} for more information.
 
     Also, any property declared with Q_PROPERTY will be automatically exposed over the Properties
     interface on D-Bus. Since the QObject property system does not allow for non-readable
@@ -42,10 +43,9 @@
 
     More information:
     \list
-      \o \l {declaringslots.html}{Declaring slots}
-      \o \l {declaringsignals.html}{Declaring signals}
-      \o \l {allowedparameters.html}{Allowed parameter types}
-      \o \l {usingannotations.html}{Using annotations}
+      \o \l {qdbusdeclaringslots.html}{Declaring slots}
+      \o \l {qdbusdeclaringsignals.html}{Declaring signals}
+      \o \l {qdbustypesystem.html}{The QtDBus type system}
       \o \l {adaptorexample.html}{An example of adaptors}
     \endlist
 
@@ -103,7 +103,7 @@
             }
 
         public slots:
-            async void quit()
+            Q_ASYNC void quit()
             { app->quit(); }
 
             void reparseConfiguration()
@@ -280,7 +280,7 @@
     The public slots in the example (which will be exported as D-Bus methods) are the following:
     \code
         public slots:
-            async void quit()
+            Q_ASYNC void quit()
             { app->quit(); }
 
             void reparseConfiguration()
@@ -357,11 +357,11 @@
 */
 
 /*!
-    \page declaringslots.html
+    \page qdbusdeclaringslots.html
     \title Declaring slots
 
     Slots in D-Bus adaptors are declared just like normal, public slots, but their parameters must
-    follow certain rules (see \l {allowedparameters.html} for more information). Slots whose
+    follow certain rules (see \l {qdbustypesystem.html} for more information). Slots whose
     parameters do not follow those rules or that are not public will not be accessible via D-Bus.
 
     Slots can be of three kinds:
@@ -380,7 +380,7 @@
          change the order in which the slot is run. Code intending to synchronize with the caller
          should provide its own method of synchronization.
 
-         Asynchronous slots are marked by the keyword \c \l async or \c \l Q_ASYNC in the method
+         Asynchronous slots are marked by the keyword \c \l Q_ASYNC in the method
          signature, before the \c void return type and the slot name. (See the \c quit slot in the
          \l {adaptorexample.html}{adaptor example}).
 
@@ -419,17 +419,17 @@
              documentation so that callers properly set higher timeouts.
 
     \sa {usingadaptors.html}{Using adaptors},
-        {declaringsignals.html}{Declaring signals},
-        {allowedparameters.html}{Allowed parameters}, QDBusConnection, QDBusMessage
+        {qdbusdeclaringsignals.html}{Declaring signals},
+        {qdbustypesystem.html}{The QtDBus type system}, QDBusConnection, QDBusMessage
 */
 
 /*!
-    \page declaringsignals.html
+    \page qdbusdeclaringsignals.html
     \title Declaring signals
 
     Any signal in a class derived from QDBusAbstractAdaptor will be automatically relayed into
     D-Bus, provided that the signal's parameters conform to certain rules (see \l
-    {allowedparameters.html} for more information). No special code is necessary to make this relay.
+    {qdbustypesystem.html} for more information). No special code is necessary to make this relay.
 
     However, signals must still be emitted. The easiest way to emit an adaptor signal is to connect
     another signal to it, so that the Qt signal/slot mechanism automatically emits the adaptor
@@ -441,13 +441,13 @@
     the list of signals in both classes and connect those that have exact parameter match.
 
     \sa {usingadaptors.html}{Using adaptors},
-        {declaringslots.html}{Declaring slots},
-        {allowedparameters.html}{Allowed parameters}, QDBusAbstractAdaptor
+        {qdbusdeclaringslots.html}{Declaring slots},
+        {qdbustypesystem.html}{The QtDBus type system}, QDBusAbstractAdaptor
 */
 
 /*!
-    \page allowedparameters.html
-    \title Allowed parameter types
+    \page qdbustypesystem.html
+    \title The QtDBus type system
 
     D-Bus has a very limited set of types that can be sent and received over the bus. They are
     listed below, along with the D-Bus type they relate to:

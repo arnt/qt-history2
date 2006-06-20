@@ -222,12 +222,57 @@ int QDBusInterfacePrivate::metacall(QMetaObject::Call c, int id, void **argv)
     return id;
 }
 
+/*!
+    \class QDBusInterfacePtr
+    \brief The QDBusInterfacePtr is a container for a QDBusInterface object.
+
+    QDBusInterface objects are always created on the heap and must,
+    therefore, be disposed of when no longer necessary. However, for a
+    simple call to a remote function, QDBusInterfacePtr provides a
+    convenient way of creating an object on the stack, which will be
+    automatically disposed of when freed.
+
+    The following code snippet demonstrates how to perform a
+    mathematical operation of \tt{"2 + 2"} in a remote application
+    called \c com.example.Calculator, accessed via the session bus.
+
+    \code
+        QDBusInterfacePtr remoteApp( "com.example.Calculator", "/Calculator/Operations",
+                                     "org.mathematics.RPNCalculator");
+        remoteApp->call( "PushOperand", 2 );
+        remoteApp->call( "PushOperand", 2 );
+        remoteApp->call( "ExecuteOperation", "+" );
+        QDBusReply<int> reply = remoteApp->call( "PopOperand" );
+
+        if ( reply.isSuccess() )
+            printf( "%d", reply.value() );          // prints 4
+    \endcode
+
+    Since QDBusInterfacePtr creates an object each time it is instantiated
+    and destroys it when it goes out of scope, it is not suitable for
+    use in tight loops. Instead, prefer to create QDBusInterface
+    objects and cache them in your application.
+*/
+
+/*!
+    Creates a QDBusInterfacePtr object that references the remote
+    interface \a iface on the object \a path on application \a
+    service. The connection \a conn is used to access the bus.
+*/
 QDBusInterfacePtr::QDBusInterfacePtr(QDBusConnection &conn, const QString &service, const QString &path,
                    const QString &iface)
     : d(conn.findInterface(service, path, iface))
 {
 }
 
+/*!
+    \overload
+
+    Creates a QDBusInterfacePtr object that references the remote
+    interface \a iface on the object \a path on application \a
+    service. This constructor uses the connection object returned by
+    QDBus::sessionBus() to access the bus.
+*/
 QDBusInterfacePtr::QDBusInterfacePtr(const QString &service, const QString &path, const QString &iface)
     : d(QDBus::sessionBus().findInterface(service, path, iface))
 {

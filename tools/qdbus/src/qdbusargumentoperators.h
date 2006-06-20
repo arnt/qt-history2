@@ -21,7 +21,6 @@
 
 QT_BEGIN_HEADER
 
-
 inline const QDBusArgument &operator>>(const QDBusArgument &a, uchar &arg)
 { arg = a.toByte(); return a; }
 

@@ -91,14 +91,22 @@ protected:
 };
 Q_DECLARE_METATYPE(QDBusArgument)
 
-template<typename T> inline T qdbus_cast(const QDBusArgument &arg, T * = 0)
+template<typename T> inline T qdbus_cast(const QDBusArgument &arg
+#ifndef Q_QDOC
+, T * = 0
+#endif
+    )
 {
     T item;
     arg >> item;
     return item;
 }
 
-template<typename T> inline T qdbus_cast(const QVariant &v, T * = 0)
+template<typename T> inline T qdbus_cast(const QVariant &v
+#ifndef Q_QDOC
+, T * = 0
+#endif
+    )
 {
     int id = v.userType();
     if (id == qMetaTypeId<QDBusArgument>())

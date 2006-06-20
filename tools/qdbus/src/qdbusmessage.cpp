@@ -43,10 +43,12 @@ QDBusMessagePrivate::~QDBusMessagePrivate()
 
     This object can represent any of four different types of messages possible on the bus
     (see MessageType)
-    - Method calls
-    - Method return values
-    - Signal emissions
-    - Error codes
+    \list
+      \o Method calls
+      \o Method return values
+      \o Signal emissions
+      \o Error codes
+    \endlist
 
     Objects of this type are created with the four static functions signal, methodCall,
     methodReply and error.

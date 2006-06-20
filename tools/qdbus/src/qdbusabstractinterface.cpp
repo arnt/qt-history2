@@ -82,13 +82,14 @@ void QDBusAbstractInterfacePrivate::setProperty(const QMetaProperty &mp, const Q
     correct parameters and return values, as well as property type-matching and signal
     parameter-matching.
 
-    \sa {dbusidl2cpp.html}{The dbusidl2cpp compiler}, QDBusInterface
+    \sa {dbusxml2cpp.html}{The dbusxml2cpp compiler}, QDBusInterface
 */
 
 /*!
     \enum QDBusAbstractInterface::CallMode
 
     Specifies how a call should be placed. The valid options are:
+    \value AutoDetect           automatically detect if the called function has a reply to be returned
     \value NoWaitForReply       place the call but don't wait for the reply (the reply's contents
                                 will be discarded)
     \value NoUseEventLoop       don't use an event loop to wait for a reply, but instead block on
@@ -329,7 +330,6 @@ void QDBusAbstractInterface::internalPropSet(const char *propname, const QVarian
 }
 
 /*!
-    \overload
     \fn QDBusMessage QDBusAbstractInterface::call(const QString &method)
 
     Calls the method \a method on this interface and passes the parameters to this function to the
@@ -341,8 +341,8 @@ void QDBusAbstractInterface::internalPropSet(const char *propname, const QVarian
 
     This function is implemented by actually 9 different function overloads called \c call, so you
     can pass up to 8 parameters to your function call, which can be of any type accepted by QtDBus
-    (see the \l {allowedparameters.html}{allowed parameters} page for information on what types are
-    accepted).
+    (see the \l {qdbustypesystem.html}{QtDBus type system} page for information on what types are
+    accepted and how to extend it).
 
     It can be used the following way:
 
@@ -360,10 +360,28 @@ void QDBusAbstractInterface::internalPropSet(const char *propname, const QVarian
     This example illustrates function calling with 0, 1 and 2 parameters and illustrates different
     parameter types passed in each (the first call to \c "ProcessWorkUnicode" will contain one
     Unicode string, the second call to \c "ProcessWork" will contain one string and one byte array).
-        
-    \warning This function reenters the Qt event loop in order to wait for the reply, excluding user
-             input. During the wait, it may deliver signals and other method calls to your
-             application. Therefore, it must be prepared to handle a reentrancy whenever a call is
-             placed with call().
 */
 
+/*!
+    \fn QDBusMessage QDBusAbstractInterface::call(CallMode mode, const QString &method)
+    \overload
+
+    Calls the method \a method on this interface and passes the
+    parameters to this function to the method. If \a mode is \c
+    NoWaitForReply, then this function will return immediately after
+    placing the call, without waiting for a reply from the remote
+    method. Otherwise, \a mode indicates whether this function should
+    activate the Qt Event Loop while waiting for the reply to arrive.
+         
+    If this function reenters the Qt event loop in order to wait for the
+    reply, it will exclude user input. During the wait, it may deliver
+    signals and other method calls to your application. Therefore, it
+    must be prepared to handle a reentrancy whenever a call is placed
+    with call().
+*/
+
+/*!
+    \fn qdbus_cast(const QDBusArgument &argument)
+
+    
+*/

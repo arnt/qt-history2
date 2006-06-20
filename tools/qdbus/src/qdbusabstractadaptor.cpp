@@ -67,12 +67,6 @@ void QDBusAbstractAdaptorPrivate::saveIntrospectionXml(QDBusAbstractAdaptor *ada
 }
 
 /*!
-    \page usingannotations.html Using annotations in adaptors
-
-    It is currently not possible to specify arbitrary annotations in adaptors.
-*/
-
-/*!
     \class QDBusAbstractAdaptor
     \brief Abstract adaptor for D-Bus adaptor classes.
 

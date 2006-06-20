@@ -80,7 +80,7 @@
 */
 
 /*!
-    \fn QDBusReply::value()
+    \fn QDBusReply::value() const
     Returns the remote function's calls return value. If the remote call returned with an error,
     the return value of this function is undefined and may be undistinguishable from a valid return
     value.
@@ -89,7 +89,7 @@
 */
 
 /*!
-    \fn QDBusReply::operator Type()
+    \fn QDBusReply::operator Type() const
     Returns the same as value().
     
     This function is not available if the remote call returns \c void.
@@ -97,14 +97,8 @@
 
 /*!
     \internal
-    \fn QDBusReply::fromVariant(const QDBusReply<QVariant> &variantReply)
-    Converts the QDBusReply<QVariant> object to this type by converting the variant contained in
-    \a variantReply to the template's type and copying the error condition.
-
-    If the QVariant in variantReply is not convertible to this type, it will assume an undefined
-    value.
+    Fills in the QDBusReply data \a error and \a data from the reply message \a reply.
 */
-
 void qDBusReplyFill(const QDBusMessage &reply, QDBusError &error, QVariant &data)
 {
     error = reply;

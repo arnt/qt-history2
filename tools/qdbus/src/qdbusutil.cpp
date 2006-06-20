@@ -28,15 +28,17 @@
 namespace QDBusUtil
 {
     /*!
-        \fn QDBusUtil::isValidInterfaceName(const QString &ifaceName)
+        \fn bool QDBusUtil::isValidInterfaceName(const QString &ifaceName)
         Returns true if this is \a ifaceName is a valid interface name.
 
         Valid interface names must:
-	- not be empty
-	- not exceed 255 characters in length
-	- be composed of dot-separated string components that contain only ASCII letters, digits
-	  and the underscore ("_") character
-        - contain at least two such components
+        \list
+          \o not be empty
+          \o not exceed 255 characters in length
+          \o be composed of dot-separated string components that contain only ASCII letters, digits
+             and the underscore ("_") character
+          \o contain at least two such components
+        \endlist
     */
     bool isValidInterfaceName(const QString& ifaceName)
     {
@@ -55,7 +57,7 @@ namespace QDBusUtil
     }
 
     /*!
-        \fn QDBusUtil::isValidUniqueConnectionName(const QString &connName)
+        \fn bool QDBusUtil::isValidUniqueConnectionName(const QString &connName)
         Returns true if \a connName is a valid unique connection name.
 
         Unique connection names start with a colon (":") and are followed by a list of dot-separated
@@ -80,15 +82,17 @@ namespace QDBusUtil
     }
 
     /*!
-        \fn QDBusUtil::isValidBusName(const QString &busName)
+        \fn bool QDBusUtil::isValidBusName(const QString &busName)
         Returns true if \a busName is a valid bus name.
 
         A valid bus name is either a valid unique connection name or follows the rules:
-	- is not empty
-	- does not exceed 255 characters in length
-	- be composed of dot-separated string components that contain only ASCII letters, digits,
-	  hyphens or underscores ("_"), but don't start with a digit
-        - contains at least two such elements
+        \list
+          \o is not empty
+          \o does not exceed 255 characters in length
+          \o be composed of dot-separated string components that contain only ASCII letters, digits,
+             hyphens or underscores ("_"), but don't start with a digit
+          \o contains at least two such elements
+        \endlist
 
         \sa isValidUniqueConnectionName()
     */
@@ -113,7 +117,7 @@ namespace QDBusUtil
     }
 
     /*!
-        \fn QDBusUtil::isValidMemberName(const QString &memberName)
+        \fn bool QDBusUtil::isValidMemberName(const QString &memberName)
         Returns true if \a memberName is a valid member name. A valid member name does not exceed
         255 characters in length, is not empty, is composed only of ASCII letters, digits and
         underscores, but does not start with a digit.
@@ -128,7 +132,7 @@ namespace QDBusUtil
     }
 
     /*!
-        \fn QDBusUtil::isValidErrorName(const QString &errorName)
+        \fn bool QDBusUtil::isValidErrorName(const QString &errorName)
         Returns true if \a errorName is a valid error name. Valid error names are valid interface
         names and vice-versa, so this function is actually an alias for isValidInterfaceName.
     */
@@ -138,15 +142,17 @@ namespace QDBusUtil
     }
 
     /*!
-        \fn QDBusUtil::isValidObjectPath(const QString &path)
+        \fn bool QDBusUtil::isValidObjectPath(const QString &path)
         Returns true if \a path is valid object path.
 
         Valid object paths follow the rules:
-	- start with the slash character ("/")
-	- do not end in a slash, unless the path is just the initial slash
-	- do not contain any two slashes in sequence
-	- contain slash-separated parts, each of which is composed of ASCII letters, digits and
-	  underscores ("_")
+        \list
+          \o start with the slash character ("/")
+          \o do not end in a slash, unless the path is just the initial slash
+          \o do not contain any two slashes in sequence
+          \o contain slash-separated parts, each of which is composed of ASCII letters, digits and
+             underscores ("_")
+        \endlist
     */
     bool isValidObjectPath(const QString &path)
     {
@@ -170,7 +176,7 @@ namespace QDBusUtil
     }
 
     /*!
-        \fn QDBusUtil::isValidSignature(const QString &signature)
+        \fn bool QDBusUtil::isValidSignature(const QString &signature)
         Returns true if \a signature is a valid D-Bus type signature for one or more types.
         This function returns true if it can all of \a signature into valid, individual types and no
         characters remain in \a signature.
@@ -183,7 +189,7 @@ namespace QDBusUtil
     }
 
     /*!
-        \fn QDBusUtil::isValidSingleSignature(const QString &signature)
+        \fn bool QDBusUtil::isValidSingleSignature(const QString &signature)
         Returns true if \a signature is a valid D-Bus type signature for exactly one full type. This
         function tries to convert the type signature into a D-Bus type and, if it succeeds and no
         characters remain in the signature, it returns true.

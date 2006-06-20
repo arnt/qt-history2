@@ -122,6 +122,61 @@ void QDBusMetaTypeId::init()
 Q_GLOBAL_STATIC(QVector<QDBusCustomTypeInfo>, customTypes)
 Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
 
+/*!
+    \class QDBusMetaType
+    \brief Meta-type registration system for the QtDBus module.
+
+    The QDBusMetaType class allows you to register class types for
+    marshalling and demarshalling over D-BUS. D-BUS supports a very
+    limited set of primitive types, but allows one to extend the type
+    system by creating compound types, such as arrays (lists) and
+    structs. In order to use them with QtDBus, those types must be
+    registered.
+
+    See \l {qdbustypesystem.html}{QtDBus type system} for more
+    information on the type system and how to register additional
+    types.
+
+    \sa {qdbustypesystem.html}{QtDBus type system},
+    qDBusRegisterMetaType(), QMetaType, QVariant, QDBusArgument
+*/
+
+/*!
+    \fn int qDBusRegisterMetaType(const char *typeName)
+    \relates QDBusMetaType
+    \threadsafe
+
+    Registers the \a typename to the type \c{T} with the
+    \l {qdbustypesystem.html}{QtDBus type system} and the Qt \l
+    {QMetaType}{meta type system}, if it's not already registered.
+
+    In order to register a type, it must be declared as a meta-type
+    with the Q_DECLARE_METATYPE() macro, and then registered as in the
+    following example:
+
+    \code
+        qDBusRegisterMetaType<MyClass>("MyClass");
+    \endcode
+
+    If \c{T} isn't a type derived from one of \l
+    {containers.html}{Qt's container classes}, the \c{operator<<} and
+    \c{operator>>} streaming operators between \c{T} and QDBusArgument
+    must be already declared. See the \l {qdbustypesystem.html}{QtDBus
+    type system} page for more information on how to declare such
+    types.
+
+    This function returns the Qt meta type id for the type (the same
+    value that is returned from qRegisterMetaType()).
+
+    \sa {qdbustypesystem.html}{QtDBus type system},
+        qRegisterMetaType(), QDBusMetaType
+*/
+
+/*!
+    \internal
+    Registers the marshalling and demarshalling functions for meta
+    type \a id.
+*/
 void QDBusMetaType::registerMarshallOperators(int id, MarshallFunction mf,
                                               DemarshallFunction df)
 {
@@ -138,6 +193,12 @@ void QDBusMetaType::registerMarshallOperators(int id, MarshallFunction mf,
     info.demarshall = df;
 }
 
+/*!
+    \internal
+    Executes the marshalling of type \a id (whose data is contained in
+    \a data) to the D-BUS marshalling argument \a arg. Returns true if
+    the marshalling succeeded, or false if an error occurred.
+*/
 bool QDBusMetaType::marshall(QDBusArgument &arg, int id, const void *data)
 {
     QDBusMetaTypeId::init();
@@ -161,6 +222,12 @@ bool QDBusMetaType::marshall(QDBusArgument &arg, int id, const void *data)
     return true;
 }
 
+/*!
+    \internal
+    Executes the demarshalling of type \a id (whose data will be placed in
+    \a data) from the D-BUS marshalling argument \a arg. Returns true if
+    the demarshalling succeeded, or false if an error occurred.
+*/
 bool QDBusMetaType::demarshall(const QDBusArgument &arg, int id, void *data)
 {
     QDBusMetaTypeId::init();
@@ -185,7 +252,9 @@ bool QDBusMetaType::demarshall(const QDBusArgument &arg, int id, void *data)
 }
 
 /*!
-    \fn QDBusMetaType::signatureToType(const QString &signature)
+    \fn QDBusMetaType::signatureToType(const char *signature)
+    \internal
+
     Returns the Qt meta type id for the given D-Bus signature for exactly one full type, given
     by \a signature.
 
@@ -301,6 +370,8 @@ int QDBusMetaType::signatureToType(const char *signature)
 
 /*!
     \fn QDBusMetaType::typeToSignature(int type)
+    \internal 
+
     Returns the D-Bus signature equivalent to the supplied meta type id \a type.
 
     More types can be registered with the qDBusRegisterMetaType() function.

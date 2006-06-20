@@ -68,7 +68,6 @@ public:
     bool noReply() const;
 
     QString signature() const;
-    Q_DECL_DEPRECATED void setSignature(const QString &) { }
 
     QDBusConnection connection() const;
 
