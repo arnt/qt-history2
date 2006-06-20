@@ -149,12 +149,12 @@ public:
 
     enum { NullMode, UnicodeMode, OtherMode } keyboard_mode;
     union {
-        UCKeyboardLayout **unicode;
+        UCKeyboardLayout *unicode;
         void *other;
-    } keyboard_layout;
+    } keyboard_layout_format;
+    KeyboardLayoutRef currentKeyboardLayout;
     KeyboardLayoutKind keyboard_kind;
     UInt32 keyboard_dead;
-    SInt16 keyboard_id;
     KeyboardLayoutItem *keyLayout[256];
 #elif defined(Q_WS_QWS)
 #endif

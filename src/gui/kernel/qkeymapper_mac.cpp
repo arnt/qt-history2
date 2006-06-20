@@ -107,7 +107,7 @@ struct mac_enum_mapper
 //modifiers
 static mac_enum_mapper modifier_symbols[] = {
     { shiftKey, MAP_MAC_ENUM(Qt::ShiftModifier) },
-    { rightShiftKeyBit, MAP_MAC_ENUM(Qt::ShiftModifier) },
+    { rightShiftKey, MAP_MAC_ENUM(Qt::ShiftModifier) },
     { controlKey, MAP_MAC_ENUM(Qt::MetaModifier) },
     { rightControlKey, MAP_MAC_ENUM(Qt::MetaModifier) },
     { cmdKey, MAP_MAC_ENUM(Qt::ControlModifier) },
@@ -540,19 +540,40 @@ QKeyMapperPrivate::~QKeyMapperPrivate()
 bool
 QKeyMapperPrivate::updateKeyboard()
 {
-    SInt16 currentKeyScript = GetScriptManagerVariable(smKeyScript);
-    SInt16 ki = GetScriptVariable(currentKeyScript,  smScriptKeys);
-    if(keyboard_mode != NullMode && ki == keyboard_id)
+    KeyboardLayoutRef keyLayoutRef = 0;
+    KLGetCurrentKeyboardLayout(&keyLayoutRef);
+
+    if(keyboard_mode != NullMode && currentKeyboardLayout == keyLayoutRef)
         return false;
 
-    if((keyboard_layout.unicode = (UCKeyboardLayout**)GetResource('uchr', ki))) {
+    OSStatus err;
+    UCKeyboardLayout *uchrData = 0;
+    if (keyLayoutRef != 0) {
+        err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLuchrData,
+                                  const_cast<const void **>(reinterpret_cast<void **>(&uchrData)));
+        if (err != noErr) {
+            qWarning("Qt::internal::unable to get unicode keyboardlayout %ld %s:%d",
+                     err, __FILE__, __LINE__);
+        }
+    }
+
+    if (uchrData) {
+        keyboard_layout_format.unicode = uchrData;
         keyboard_mode = UnicodeMode;
     } else {
-        keyboard_layout.other = (void*)GetScriptVariable(smCurrentScript, smKCHRCache);
+        void *happy;
+        err = KLGetKeyboardLayoutProperty(keyLayoutRef, kKLKCHRData,
+                                  const_cast<const void **>(reinterpret_cast<void **>(&happy)));
+        if (err != noErr) {
+            qFatal("Qt::internal::unable to get non-unicode layout, cannot procede %ld %s:%d",
+                     err, __FILE__, __LINE__);
+        }
+        keyboard_layout_format.other = happy;
         keyboard_mode = OtherMode;
     }
+
     keyboard_kind = LMGetKbdType();
-    keyboard_id = ki;
+    currentKeyboardLayout = keyLayoutRef;
     keyboard_dead = 0;
 
 #if 0
@@ -756,7 +777,7 @@ QKeyMapperPrivate::updateKeyMap(EventHandlerCallRef, EventRef event, void *)
         keyLayout[macVirtualKey]->qtKey[i] = 0;
         if(keyboard_mode == UnicodeMode) {
             const UInt32 keyModifier = ((get_mac_modifiers(ModsTbl[i]) >> 8) & 0xFF);
-            OSStatus err = UCKeyTranslate(*keyboard_layout.unicode, macVirtualKey, kUCKeyActionDown, keyModifier,
+            OSStatus err = UCKeyTranslate(keyboard_layout_format.unicode, macVirtualKey, kUCKeyActionDown, keyModifier,
                                           keyboard_kind, 0, &keyboard_dead, buffer_size, &out_buffer_size, buffer);
             if(err == noErr && out_buffer_size) {
                 const QChar unicode(buffer[0]);
@@ -766,8 +787,10 @@ QKeyMapperPrivate::updateKeyMap(EventHandlerCallRef, EventRef event, void *)
                 keyLayout[macVirtualKey]->qtKey[i] = qtkey;
             }
         } else {
-            const UInt32 keyModifier = get_mac_modifiers(ModsTbl[i]);
-            uchar translatedChar = KeyTranslate(keyboard_layout.other, keyModifier|macVirtualKey, &keyboard_dead);
+            const UInt32 keyModifier = (get_mac_modifiers(ModsTbl[i]));// & ~(rightShiftKey | rightControlKey | rightOptionKey));
+            qDebug() << "foo" << hex << keyModifier;
+
+            uchar translatedChar = KeyTranslate(keyboard_layout_format.other, keyModifier | macVirtualKey, &keyboard_dead);
             if(translatedChar) {
                 static QTextCodec *c = 0;
                 if (!c)
