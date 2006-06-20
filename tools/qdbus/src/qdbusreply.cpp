@@ -61,6 +61,31 @@
 */
 
 /*!
+    \fn QDBusReply::operator=(const QDBusReply &other)
+    Makes this object be a copy of the object \a other.
+*/
+
+/*!
+    \fn QDBusReply::operator=(const QDBusError &error)
+    Sets this object to contain the error code given by \a error. You
+    can later access it with error().
+*/
+
+/*!
+    \fn QDBusError::operator=(const QDBusMessage &message)
+
+    Makes this object contain the reply specified by message \a
+    message. If \a message is an error message, this function will
+    copy the error code and message into this object
+
+    If \a message is a standard reply message and contains at least
+    one parameter, it will be copied into this object, as long as it
+    is of the correct type. If it's not of the same type as this
+    QDBusError object, this function will instead set an error code
+    indicating a type mismatch.
+*/
+
+/*!
     \fn QDBusReply::isError() const
     Returns true if this reply is an error reply. You can extract the error contents using the
     error() function.

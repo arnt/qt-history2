@@ -192,6 +192,24 @@ bool QDBusArgumentPrivate::checkRead()
 */
 
 /*!
+    \fn qdbus_cast(const QDBusArgument &argument)
+
+    Attempts to demarshall the contents of the QDBusArgument object
+    into the type \c{T}.
+
+    This function is used like the following:
+    \code
+        MyType item = qdbus_cast<Type>(argument);
+    \endcode
+
+    It's also valid to note that it is equivalent to the following:
+    \code
+        MyType item;
+        argument >> item;
+    \endcode
+*/
+
+/*!
     Constructs an empty QDBusArgument argument.
 
     An empty QDBusArgument object does not allow either reading or

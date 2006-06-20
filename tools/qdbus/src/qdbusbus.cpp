@@ -28,6 +28,17 @@
     \class QDBusBusService
     \brief Provides access to the D-Bus bus daemon service.
 
+    The D-BUS bus server daemon provides one special interface \c
+    org.freedesktop.DBus that allows clients to access certain
+    properties of the bus, such as the current list of clients
+    connected. The QDBusBusService class provides access to that
+    interface.
+
+    The most common uses of this class are to register and unregister
+    service names on the bus (see requestName() and releaseName()),
+    query about existing names (see listNames(), nameHasOwner() and
+    getNameOwner()), and to receive notification that a client has
+    registered or de-registered (see the nameOwnerChanged() signal).
 */
 
 /*!

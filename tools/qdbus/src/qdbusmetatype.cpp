@@ -125,6 +125,7 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
 /*!
     \class QDBusMetaType
     \brief Meta-type registration system for the QtDBus module.
+    \internal
 
     The QDBusMetaType class allows you to register class types for
     marshalling and demarshalling over D-BUS. D-BUS supports a very
@@ -143,10 +144,10 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
 
 /*!
     \fn int qDBusRegisterMetaType(const char *typeName)
-    \relates QDBusMetaType
+    \relates QDBusArgument
     \threadsafe
 
-    Registers the \a typename to the type \c{T} with the
+    Registers the \a typeName to the type \c{T} with the
     \l {qdbustypesystem.html}{QtDBus type system} and the Qt \l
     {QMetaType}{meta type system}, if it's not already registered.
 
@@ -170,6 +171,16 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
 
     \sa {qdbustypesystem.html}{QtDBus type system},
         qRegisterMetaType(), QDBusMetaType
+*/
+
+/*!
+    \typedef QDBusMetaType::MarshallFunction
+    \internal
+*/
+
+/*!
+    \typedef QDBusMetaType::DemarshallFunction
+    \internal
 */
 
 /*!

@@ -255,6 +255,21 @@ int QDBusInterfacePrivate::metacall(QMetaObject::Call c, int id, void **argv)
 */
 
 /*!
+    \fn QDBusInterfacePtr::QDBusInterfacePtr(QDBusInterface *interface)
+
+    Creates a QDBusInterfacePtr wrapper around the \a interface
+    object. The QDBusInterfacePtr takes ownership the QDBusInterface
+    object and will delete it when going out of scope.
+*/
+
+/*!
+    \fn QDBusInterfacePtr::~QDBusInterfacePtr()
+    \internal
+
+    Disposes of the object.
+*/
+
+/*!
     Creates a QDBusInterfacePtr object that references the remote
     interface \a iface on the object \a path on application \a
     service. The connection \a conn is used to access the bus.
@@ -278,3 +293,15 @@ QDBusInterfacePtr::QDBusInterfacePtr(const QString &service, const QString &path
 {
 }
 
+/*!
+    \fn QDBusInterfacePtr::interface()
+    \internal
+*/
+
+/*!
+    \fn QDBusInterfacePtr::operator->()
+    
+    Returns the QDBusInterface object that this QDBusInterfacePtr
+    holds. You can use this function to get access to the object in
+    order to place calls, get and set properties, etc.
+*/
