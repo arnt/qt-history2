@@ -3084,7 +3084,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             QPoint relpos = tablet->pos();
             bool eventAccepted = tablet->isAccepted();
             while (w) {
-                QTabletEvent te(tablet->type(), tablet->pos(), tablet->globalPos(),
+                QTabletEvent te(tablet->type(), relpos, tablet->globalPos(),
                                 tablet->hiResGlobalPos(), tablet->device(), tablet->pointerType(),
                                 tablet->pressure(), tablet->xTilt(), tablet->yTilt(),
                                 tablet->tangentialPressure(), tablet->rotation(), tablet->z(),
