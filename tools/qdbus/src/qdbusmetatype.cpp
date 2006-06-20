@@ -170,7 +170,7 @@ Q_GLOBAL_STATIC(QReadWriteLock, customTypesLock)
     value that is returned from qRegisterMetaType()).
 
     \sa {qdbustypesystem.html}{QtDBus type system},
-        qRegisterMetaType(), QDBusMetaType
+        qRegisterMetaType(), QMetaType
 */
 
 /*!

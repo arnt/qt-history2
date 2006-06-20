@@ -72,7 +72,7 @@
 */
 
 /*!
-    \fn QDBusError::operator=(const QDBusMessage &message)
+    \fn QDBusReply::operator=(const QDBusMessage &message)
 
     Makes this object contain the reply specified by message \a
     message. If \a message is an error message, this function will

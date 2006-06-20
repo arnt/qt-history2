@@ -187,7 +187,7 @@ bool QDBusArgumentPrivate::checkRead()
     functions may produce a different number of reads/writes. This can
     confuse the QtDBus type system and should be avoided.
 
-    \sa QDBusMetaType, QDBusAbstractInterface,
+    \sa QDBusAbstractInterface, {qdbustypesystem.html}{The QtDBus type system}
     {usingadaptors.html}{Using Adaptors}, qdbus_cast(const QDBusArgument&)
 */
 

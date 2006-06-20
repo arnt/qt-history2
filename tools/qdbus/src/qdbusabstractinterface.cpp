@@ -379,9 +379,3 @@ void QDBusAbstractInterface::internalPropSet(const char *propname, const QVarian
     must be prepared to handle a reentrancy whenever a call is placed
     with call().
 */
-
-/*!
-    \fn qdbus_cast(const QDBusArgument &argument)
-
-    
-*/
