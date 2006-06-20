@@ -3705,7 +3705,31 @@ QIcon QCleanLooksStyle::standardIconImplementation(StandardPixmap standardIcon,
                                                   const QStyleOption *option,
                                                   const QWidget *widget) const
 {
-    return QWindowsStyle::standardIconImplementation(standardIcon, option, widget);
+    Q_D(const QCleanLooksStyle);
+    QIcon icon(standardPixmap(standardIcon, option, widget));
+    QPixmap pixmap;
+    switch (standardIcon) {
+    case SP_DirIcon:
+        icon.addPixmap(standardPixmap(SP_DirClosedIcon, option, widget),
+                       QIcon::Normal, QIcon::Off);
+        pixmap = d->resolveIcon(16, QLatin1String("stock_folder.png"));
+        if (!pixmap.isNull())
+            icon.addPixmap(pixmap, QIcon::Normal, QIcon::Off);
+        pixmap = d->resolveIcon(48, QLatin1String("stock_folder.png"));
+        if (!pixmap.isNull())
+            icon.addPixmap(pixmap, QIcon::Normal, QIcon::Off);
+        pixmap = d->resolveIcon(16, QLatin1String("gnome-fs-directory-accept.png"));
+        if (!pixmap.isNull())
+            icon.addPixmap(pixmap, QIcon::Normal, QIcon::On);
+        pixmap = d->resolveIcon(16, QLatin1String("gnome-fs-directory-accept.png"));
+        if (!pixmap.isNull())
+            icon.addPixmap(pixmap, QIcon::Normal, QIcon::On);
+
+        break;
+    default:
+        break;
+    }
+    return icon;
 }
 
 
@@ -3792,7 +3816,6 @@ QPixmap QCleanLooksStylePrivate::resolveIcon(int size, const QString &name) cons
 #endif
 }
 
-
 /*!
  \reimp
  */
@@ -3832,42 +3855,51 @@ QPixmap QCleanLooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
         }
     case SP_DirOpenIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("folder-open.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-fs-directory-accept.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
-    case SP_DirClosedIcon:
+    case SP_FileIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("folder.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_new.png"));
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    
+    case SP_DirClosedIcon:
+    case SP_DirIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_folder.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DriveFDIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("media-floppy.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-dev-floppy.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ComputerIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("computer.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-fs-client.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DesktopIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("desktop.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-fs-desktop.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_TrashIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("user_trash.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-fs-trash-empty.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
@@ -3875,35 +3907,43 @@ QPixmap QCleanLooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_DriveCDIcon:
     case SP_DriveDVDIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("media-cdrom.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-dev-cdrom.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DriveHDIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("harddrive.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-dev-harddisk.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileDialogBack:
         {
-            QPixmap pixmap = d->resolveIcon(16, QLatin1String("go-previous.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_left.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileDialogToParent:
         {
-            QPixmap pixmap = d->resolveIcon(16, QLatin1String("go-up.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_up.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileDialogNewFolder:
         {
-            QPixmap pixmap = d->resolveIcon(16, QLatin1String("folder.png"));
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_folder.png"));
+
+            if (!pixmap.isNull())
+                return pixmap;
+            break;
+        }
+    case SP_StandardButtonOk:
+        {
+            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_folder.png"));
 
             if (!pixmap.isNull())
                 return pixmap;
