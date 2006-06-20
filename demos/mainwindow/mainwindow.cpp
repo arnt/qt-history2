@@ -25,6 +25,7 @@
 #include <QDataStream>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <qdebug.h>
 
 static const char * const message =
     "<p><b>Qt Main Window Demo</b></p>"
@@ -93,6 +94,16 @@ void MainWindow::setupMenuBar()
     dockWidgetMenu = menuBar()->addMenu(tr("&Dock Widgets"));
 }
 
+static void dump(const QByteArray &array)
+{
+    QString s;
+    for (int i = 0; i < array.count(); ++i) {
+        s += ' ';
+        s += QString::number((uchar)array.at(i));
+    }
+    qDebug() << "dump():" << s;
+}
+
 void MainWindow::saveLayout()
 {
     QString fileName
@@ -107,7 +118,17 @@ void MainWindow::saveLayout()
         QMessageBox::warning(this, tr("Error"), msg);
         return;
     }
-    if (file.write(saveState()) == -1) {
+
+    QByteArray geo_data = saveGeometry();
+    QByteArray layout_data = saveState();
+
+    bool ok = file.putChar((uchar)geo_data.size());
+    if (ok)
+        ok = file.write(geo_data) == geo_data.size();
+    if (ok)
+        ok = file.write(layout_data) == layout_data.size();
+
+    if (!ok) {
         QString msg = tr("Error writing to %1\n%2")
                         .arg(fileName)
                         .arg(file.errorString());
@@ -130,8 +151,28 @@ void MainWindow::loadLayout()
         QMessageBox::warning(this, tr("Error"), msg);
         return;
     }
-    if (!restoreState(file.readAll())) {
-        QString msg = tr("Format error reading %1")
+
+    uchar geo_size;
+    QByteArray geo_data;
+    QByteArray layout_data;
+
+    bool ok = file.getChar((char*)&geo_size);
+    if (ok) {
+        geo_data = file.read(geo_size);
+        ok = geo_data.size() == geo_size;
+    }
+    if (ok) {
+        layout_data = file.readAll();
+        ok = layout_data.size() > 0;
+    }
+
+    if (ok)
+        ok = restoreGeometry(geo_data);
+    if (ok)
+        ok = restoreState(layout_data);
+
+    if (!ok) {
+        QString msg = tr("Error reading %1")
                         .arg(fileName);
         QMessageBox::warning(this, tr("Error"), msg);
         return;
