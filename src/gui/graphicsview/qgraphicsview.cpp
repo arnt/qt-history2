@@ -1861,7 +1861,7 @@ void QGraphicsView::mouseDoubleClickEvent(QMouseEvent *event)
     mouseEvent.setLastScreenPos(mapFromScene(d->lastMouseMoveScenePoint));
     mouseEvent.setButtons(event->buttons());
     mouseEvent.setButtons(event->buttons());
-
+    mouseEvent.setAccepted(false);
     mouseEvent.setButton(event->button());
     mouseEvent.setModifiers(event->modifiers());
     QApplication::sendEvent(d->scene, &mouseEvent);
@@ -1884,6 +1884,24 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
 
     d->storeMouseEvent(event);
 
+    if (d->scene) {
+        QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
+        mouseEvent.setWidget(viewport());
+        mouseEvent.setButtonDownScenePos(d->mousePressButton, d->mousePressScenePoint);
+        mouseEvent.setButtonDownScreenPos(d->mousePressButton, d->mousePressScreenPoint);
+        mouseEvent.setScenePos(d->mousePressScenePoint);
+        mouseEvent.setScreenPos(d->mousePressScreenPoint);
+        mouseEvent.setLastScenePos(d->lastMouseMoveScenePoint);
+        mouseEvent.setLastScreenPos(mapFromScene(d->lastMouseMoveScenePoint));
+        mouseEvent.setButtons(event->buttons());
+        mouseEvent.setButton(event->button());
+        mouseEvent.setModifiers(event->modifiers());
+        mouseEvent.setAccepted(false);
+        QApplication::sendEvent(d->scene, &mouseEvent);
+        if (mouseEvent.isAccepted())
+            return;
+    }
+
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         if (!d->scene) {
             d->rubberBanding = true;
@@ -1892,50 +1910,15 @@ void QGraphicsView::mousePressEvent(QMouseEvent *event)
         }
     } else if (d->dragMode == QGraphicsView::ScrollHandDrag
                && event->button() == Qt::LeftButton) {
-        if (!d->scene) {
-            d->handScrolling = true;
+        d->handScrolling = true;
 #ifndef QT_NO_CURSOR
-            if (!d->hasViewCursor) {
-                d->hasViewCursor = true;
-                d->viewCursor = viewport()->cursor();
-            }
-            viewport()->setCursor(Qt::ClosedHandCursor);
-#endif
-            return;
+        if (!d->hasViewCursor) {
+            d->hasViewCursor = true;
+            d->viewCursor = viewport()->cursor();
         }
-        if ((d->handScrolling = !d->scene->itemAt(d->mousePressScenePoint))) {
-#ifndef QT_NO_CURSOR
-            if (!d->hasViewCursor) {
-                d->hasViewCursor = true;
-                d->viewCursor = viewport()->cursor();
-            }
-            viewport()->setCursor(Qt::ClosedHandCursor);
-#endif
-            return;
-        }
-#ifndef QT_NO_CURSOR
-        if (d->hasViewCursor) {
-            d->hasViewCursor = false;
-            viewport()->setCursor(d->viewCursor);
-        }
+        viewport()->setCursor(Qt::ClosedHandCursor);
 #endif
     }
-
-    if (!d->scene)
-        return;
-
-    QGraphicsSceneMouseEvent mouseEvent(QEvent::GraphicsSceneMousePress);
-    mouseEvent.setWidget(viewport());
-    mouseEvent.setButtonDownScenePos(d->mousePressButton, d->mousePressScenePoint);
-    mouseEvent.setButtonDownScreenPos(d->mousePressButton, d->mousePressScreenPoint);
-    mouseEvent.setScenePos(d->mousePressScenePoint);
-    mouseEvent.setScreenPos(d->mousePressScreenPoint);
-    mouseEvent.setLastScenePos(d->lastMouseMoveScenePoint);
-    mouseEvent.setLastScreenPos(mapFromScene(d->lastMouseMoveScenePoint));
-    mouseEvent.setButtons(event->buttons());
-    mouseEvent.setButton(event->button());
-    mouseEvent.setModifiers(event->modifiers());
-    QApplication::sendEvent(d->scene, &mouseEvent);
 }
 
 /*!
@@ -1998,6 +1981,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     mouseEvent.setButton(event->button());
     mouseEvent.setModifiers(event->modifiers());
     d->lastMouseMoveScenePoint = mouseEvent.scenePos();
+    mouseEvent.setAccepted(false);
     QApplication::sendEvent(d->scene, &mouseEvent);
 
 #ifndef QT_NO_CURSOR
@@ -2006,7 +1990,8 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
             d->hasViewCursor = true;
             d->viewCursor = viewport()->cursor();
         }
-        viewport()->setCursor(item->cursor());
+        if (item->hasCursor())
+            viewport()->setCursor(item->cursor());
     } else {
         if (d->hasViewCursor) {
             d->hasViewCursor = false;
@@ -2059,6 +2044,7 @@ void QGraphicsView::mouseReleaseEvent(QMouseEvent *event)
     mouseEvent.setButtons(event->buttons());
     mouseEvent.setButton(event->button());
     mouseEvent.setModifiers(event->modifiers());
+    mouseEvent.setAccepted(false);
     QApplication::sendEvent(d->scene, &mouseEvent);
 }
 
@@ -2083,6 +2069,7 @@ void QGraphicsView::wheelEvent(QWheelEvent *event)
     wheelEvent.setModifiers(event->modifiers());
     wheelEvent.setDelta(event->delta());
     wheelEvent.setAccepted(event->isAccepted());
+    wheelEvent.setAccepted(false);
     QApplication::sendEvent(d->scene, &wheelEvent);
     event->setAccepted(wheelEvent.isAccepted());
     if (!event->isAccepted())

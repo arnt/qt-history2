@@ -671,7 +671,8 @@ void QGraphicsItem::setToolTip(const QString &toolTip)
 
     If no cursor has been set, the parent's cursor is used.
 
-    \sa QWidget::cursor, QApplication::overrideCursor()
+    \sa setCursor(), hasCursor(), unsetCursor(), QWidget::cursor,
+    QApplication::overrideCursor()
 */
 QCursor QGraphicsItem::cursor() const
 {
@@ -692,12 +693,39 @@ QCursor QGraphicsItem::cursor() const
 
     If no cursor has been set, the parent's cursor is used.
 
-    \sa QWidget::cursor, QApplication::overrideCursor()
+    \sa cursor(), hasCursor(), unsetCursor(), QWidget::cursor,
+    QApplication::overrideCursor()
 */
 void QGraphicsItem::setCursor(const QCursor &cursor)
 {
     d_ptr->setExtra(QGraphicsItemPrivate::ExtraCursor, cursor);
+    d_ptr->hasCursor = 1;
 }
+
+/*!
+    Returns true if this item has a cursor set; otherwise, false is returned.
+
+    By default, items don't have any cursor set. cursor() will return a
+    standard pointing arrow cursor.
+
+    \sa unsetCursor()
+*/
+bool QGraphicsItem::hasCursor() const
+{
+    return d_ptr->hasCursor;
+}
+
+/*!
+    Clears the cursor from this item.
+
+    \sa hasCursor(), setCursor()
+*/
+void QGraphicsItem::unsetCursor()
+{
+    d_ptr->unsetExtra(QGraphicsItemPrivate::ExtraCursor);
+    d_ptr->hasCursor = 0;
+}
+
 #endif // QT_NO_CURSOR
 
 /*!
@@ -2333,8 +2361,13 @@ bool QGraphicsItem::sceneEvent(QEvent *event)
 
 /*!
     This event handler, for event \a event, can be reimplemented to
-    receive context menu events for this item. The default
-    implementation does nothing.
+    receive context menu events for this item.
+
+    If you ignore the event, (i.e., by calling QEvent::ignore(),) \a event
+    will propagate to any item beneath this item. If no items accept the
+    event, it will be ignored by the scene, and propagate to the view.
+
+    The default implementation does nothing.
 
     \sa sceneEvent()
 */
@@ -2588,6 +2621,8 @@ void QGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         }
         d_ptr->selected = 1;
         update();
+    } else {
+        event->ignore();
     }
 }
 
@@ -2630,6 +2665,8 @@ void QGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
             if (!item->parentItem() || !item->parentItem()->isSelected())
                 item->setPos(item == this ? newPos : item->pos() + diff);
         }
+    } else {
+        event->ignore();
     }
 }
 
@@ -2658,6 +2695,8 @@ void QGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             d_ptr->selected = 1;
             update();
         }
+    } else {
+        event->ignore();
     }
 }
 

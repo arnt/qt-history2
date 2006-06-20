@@ -55,6 +55,7 @@ public:
         ancestorHandlesChildEvents = 0;
         itemDiscovered = 0;
         hasMatrix = 0;
+        hasCursor = 0;
         flags = 0;
         pad = 0;
     }
@@ -93,6 +94,16 @@ public:
         }
     }
 
+    inline void unsetExtra(Extra type)
+    {
+        for (int i = 0; i < extras.size(); ++i) {
+            if (extras.at(i).type == type) {
+                extras.removeAt(i);
+                return;
+            }
+        }
+    }
+
     struct ExtraStruct {
         ExtraStruct(Extra type, QVariant value)
             : type(type), value(value)
@@ -123,8 +134,9 @@ public:
     quint32 ancestorHandlesChildEvents : 1;
     quint32 itemDiscovered : 1;
     quint32 hasMatrix : 1;
+    quint32 hasCursor : 1;
     quint32 flags : 11;
-    quint32 pad : 6;
+    quint32 pad : 5;
 
     QGraphicsItem *q_ptr;
 };

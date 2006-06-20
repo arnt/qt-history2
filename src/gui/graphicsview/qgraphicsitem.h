@@ -95,6 +95,8 @@ public:
 #ifndef QT_NO_CURSOR
     QCursor cursor() const;
     void setCursor(const QCursor &cursor);
+    bool hasCursor() const;
+    void unsetCursor();
 #endif
 
     bool isVisible() const;
