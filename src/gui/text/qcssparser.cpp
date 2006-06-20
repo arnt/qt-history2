@@ -612,9 +612,9 @@ int Selector::specificity() const
 int Selector::pseudoState() const
 {
     const BasicSelector& bs = basicSelectors.last();
+    int state = Unknown;
     if (bs.pseudoClasses.isEmpty())
-        return Enabled; // default
-    int state = Unknown /* 0 */;
+        return state;
     for (int i = 0; i < bs.pseudoClasses.count(); i++)
         state |= bs.pseudoClasses.at(i).type;
     return state;
@@ -792,7 +792,8 @@ QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
     QVector<Declaration> decls;
     QVector<StyleRule> rules = styleRulesForNode(node);
     for (int i = 0; i < rules.count(); i++) {
-        if (rules.at(i).selectors.at(0).pseudoState() == Enabled)
+        int pseudoState = rules.at(i).selectors.at(0).pseudoState();
+        if (pseudoState == Enabled || pseudoState == Unknown)
             decls += rules.at(i).declarations;
     }
     return decls;

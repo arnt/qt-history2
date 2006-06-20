@@ -84,10 +84,14 @@ private:
     enum WidgetType {
         PushButton, LineEdit, ComboBox, GroupBox, Frame
     };
-    bool baseStyleCanRender(WidgetType, RenderRule *) const;
-    void setPalette(QWidget *, RenderRule *);
-    RenderRule *renderRule(const QWidget *w, const QStyleOption *opt) const;
-    mutable QHash<const QWidget *, RenderRule *> cachedRules;
+    bool baseStyleCanRender(WidgetType, const RenderRule&) const;
+    void setPalette(QWidget *);
+
+    inline RenderRule renderRule(const QWidget *w, const QStyleOption *opt) const;
+    RenderRule renderRule(const QWidget *w, QStyle::State state) const;
+
+    mutable QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
+    mutable QHash<const QWidget *, QHash<int, RenderRule> > renderRulesCache;
 };
 
 #endif // QSTYLESHEETSTYLE_H
