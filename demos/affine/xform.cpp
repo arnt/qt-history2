@@ -20,8 +20,9 @@
 
 const int alpha = 155;
 
+extern bool USE_OPENGL;
 XFormView::XFormView(QWidget *parent)
-    : ArthurFrame(parent)
+    : ArthurFrame(parent, USE_OPENGL)
 {
     setAttribute(Qt::WA_MouseTracking);
     type = VectorType;
@@ -50,9 +51,10 @@ void XFormView::mousePressEvent(QMouseEvent *)
     setDescriptionEnabled(false);
 }
 
-void XFormView::resizeEvent(QResizeEvent *)
+void XFormView::resizeEvent(QResizeEvent *e)
 {
     pts->setBoundingRect(rect());
+    ArthurFrame::resizeEvent(e);
 }
 
 void XFormView::paint(QPainter *p)

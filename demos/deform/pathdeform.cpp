@@ -135,8 +135,9 @@ static inline QRect circle_bounds(const QPointF &center, double radius, double c
 
 const int LENS_EXTENT = 10;
 
+extern bool USE_OPENGL;
 PathDeformRenderer::PathDeformRenderer(QWidget *widget)
-    : ArthurFrame(widget)
+    : ArthurFrame(widget, USE_OPENGL)
 {
     m_radius = 100;
     m_pos = QPointF(m_radius, m_radius);
@@ -283,9 +284,16 @@ void PathDeformRenderer::timerEvent(QTimerEvent *e)
             m_pos.setY(height() - m_radius);
         }
 
-        QRect rectAfter = circle_bounds(m_pos, m_radius, m_fontSize);
-        update(QRect(rectBefore | rectAfter));
-        QApplication::syncX();
+#ifdef QT_OPENGL_SUPPORT
+        if (glWidget()) {
+            update();
+        } else
+#endif
+        {
+            QRect rectAfter = circle_bounds(m_pos, m_radius, m_fontSize);
+            update();
+            QApplication::syncX();
+        }
     }
 //     else if (e->timerId() == m_fpsTimer.timerId()) {
 //         printf("fps: %d\n", m_fpsCounter);
@@ -325,8 +333,15 @@ void PathDeformRenderer::mouseMoveEvent(QMouseEvent *e)
         m_direction = (m_direction + dir) / 2;
     }
     m_pos = e->pos() + m_offset;
-    QRect rectAfter = circle_bounds(m_pos, m_radius, m_fontSize);
-    update(rectBefore | rectAfter);
+#ifdef QT_OPENGL_SUPPORT
+    if (glWidget()) {
+        update();
+    } else
+#endif
+    {
+        QRect rectAfter = circle_bounds(m_pos, m_radius, m_fontSize);
+        update(rectBefore | rectAfter);
+    }
 }
 
 QPainterPath PathDeformRenderer::lensDeform(const QPainterPath &source, const QPointF &offset)

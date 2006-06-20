@@ -419,9 +419,10 @@ void GradientWidget::setDefault(int config)
     m_renderer->setGradientStops(stops);
 }
 
+extern bool USE_OPENGL;
 
 GradientRenderer::GradientRenderer(QWidget *parent)
-    : ArthurFrame(parent)
+    : ArthurFrame(parent, USE_OPENGL)
 {
     m_hoverPoints = new HoverPoints(this, HoverPoints::CircleShape);
     m_hoverPoints->setPointSize(QSize(20, 20));

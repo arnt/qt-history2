@@ -1,6 +1,11 @@
 SOURCES += main.cpp xform.cpp
 HEADERS += xform.h
 
+contains(QT_CONFIG, opengl) {
+	DEFINES += QT_OPENGL_SUPPORT
+	QT += opengl
+}
+
 SHARED_FOLDER = ../shared
 
 include($$SHARED_FOLDER/shared.pri)

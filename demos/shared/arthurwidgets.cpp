@@ -24,9 +24,22 @@
 
 extern QPixmap cached(const QString &img);
 
-ArthurFrame::ArthurFrame(QWidget *parent)
-    : QWidget(parent), m_prefer_image(false)
+ArthurFrame::ArthurFrame(QWidget *parent, bool use_opengl)
+    : QWidget(parent)
+    , m_prefer_image(false)
 {
+#ifdef QT_OPENGL_SUPPORT
+    if (use_opengl) {
+        glw = new GLWidget(this);
+        glw->setGeometry(0, 0, width(), height());
+        glw->setAutoFillBackground(false);
+        glw->disableAutoBufferSwap();
+    } else {
+        glw = 0;
+    }
+#else
+    Q_UNUSED(use_opengl);
+#endif
     m_document = 0;
     m_show_doc = false;
 
@@ -51,7 +64,6 @@ ArthurFrame::ArthurFrame(QWidget *parent)
 
 void ArthurFrame::paintEvent(QPaintEvent *e)
 {
-
     static QImage *static_image = 0;
     QPainter painter;
     if (preferImage()) {
@@ -71,7 +83,16 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
         painter.fillRect(0, height() - o, o, o, bg);
         painter.fillRect(width() - o, height() - o, o, o, bg);
     } else {
+#ifdef QT_OPENGL_SUPPORT
+        if (glw) {
+            painter.begin(glw);
+            painter.fillRect(QRectF(0, 0, glw->width(), glw->height()), palette().color(backgroundRole()));
+        } else {
+            painter.begin(this);
+        }
+#else
         painter.begin(this);
+#endif
     }
 
     painter.setClipRect(e->rect());
@@ -120,6 +141,20 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
         painter.begin(this);
         painter.drawImage(e->rect(), *static_image, e->rect());
     }
+
+#ifdef QT_OPENGL_SUPPORT
+    if (glw && (inherits("PathDeformRenderer") || inherits("PathStrokeRenderer") || m_show_doc))
+        glw->swapBuffers();
+#endif
+}
+
+void ArthurFrame::resizeEvent(QResizeEvent *e)
+{
+#ifdef QT_OPENGL_SUPPORT
+    if (glw)
+        glw->setGeometry(0, 0, e->size().width()-1, e->size().height()-1);
+#endif
+    QWidget::resizeEvent(e);
 }
 
 void ArthurFrame::setDescriptionEnabled(bool enabled)

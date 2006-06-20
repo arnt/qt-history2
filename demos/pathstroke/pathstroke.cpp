@@ -203,8 +203,9 @@ PathStrokeWidget::PathStrokeWidget()
 }
 
 
+extern bool USE_OPENGL;
 PathStrokeRenderer::PathStrokeRenderer(QWidget *parent)
-    : ArthurFrame(parent)
+    : ArthurFrame(parent, USE_OPENGL)
 {
     m_pointSize = 10;
     m_activePoint = -1;

@@ -11,6 +11,11 @@
 **
 ****************************************************************************/
 
+#ifdef QT_OPENGL_SUPPORT
+#include <QGLWidget>
+#endif
+
+#include "arthurwidgets.h"
 #include "hoverpoints.h"
 
 #define printf
@@ -52,66 +57,66 @@ bool HoverPoints::eventFilter(QObject *object, QEvent *event)
         switch (event->type()) {
 
         case QEvent::MouseButtonPress:
-            {
-                QMouseEvent *me = (QMouseEvent *) event;
+        {
+            QMouseEvent *me = (QMouseEvent *) event;
 
-                QPointF clickPos = me->pos();
-                int index = -1;
-                for (int i=0; i<m_points.size(); ++i) {
-                    QPainterPath path;
-                    if (m_shape == CircleShape)
-                        path.addEllipse(pointBoundingRect(i));
-                    else
-                        path.addRect(pointBoundingRect(i));
+            QPointF clickPos = me->pos();
+            int index = -1;
+            for (int i=0; i<m_points.size(); ++i) {
+                QPainterPath path;
+                if (m_shape == CircleShape)
+                    path.addEllipse(pointBoundingRect(i));
+                else
+                    path.addRect(pointBoundingRect(i));
 
-                    if (path.contains(clickPos)) {
-                        index = i;
-                        break;
-                    }
+                if (path.contains(clickPos)) {
+                    index = i;
+                    break;
                 }
-
-                if (me->button() == Qt::LeftButton) {
-                    if (index == -1) {
-                        if (!m_editable)
-                            return false;
-                        int pos = 0;
-                        // Insert sort for x or y
-                        if (m_sortType == XSort) {
-                            for (int i=0; i<m_points.size(); ++i)
-                                if (m_points.at(i).x() > clickPos.x()) {
-                                    pos = i;
-                                    break;
-                                }
-                        } else if (m_sortType == YSort) {
-                            for (int i=0; i<m_points.size(); ++i)
-                                if (m_points.at(i).y() > clickPos.y()) {
-                                    pos = i;
-                                    break;
-                                }
-                        }
-
-                        m_points.insert(pos, clickPos);
-                        m_locks.insert(pos, 0);
-                        m_currentIndex = pos;
-                        firePointChange();
-                    } else {
-                        m_currentIndex = index;
-                    }
-                    return true;
-
-                } else if (me->button() == Qt::RightButton) {
-                    if (index >= 0 && m_editable) {
-                        if (m_locks[index] == 0) {
-                            m_locks.remove(index);
-                            m_points.remove(index);
-                        }
-                        firePointChange();
-                        return true;
-                    }
-                }
-
             }
-            break;
+
+            if (me->button() == Qt::LeftButton) {
+                if (index == -1) {
+                    if (!m_editable)
+                        return false;
+                    int pos = 0;
+                    // Insert sort for x or y
+                    if (m_sortType == XSort) {
+                        for (int i=0; i<m_points.size(); ++i)
+                            if (m_points.at(i).x() > clickPos.x()) {
+                                pos = i;
+                                break;
+                            }
+                    } else if (m_sortType == YSort) {
+                        for (int i=0; i<m_points.size(); ++i)
+                            if (m_points.at(i).y() > clickPos.y()) {
+                                pos = i;
+                                break;
+                            }
+                    }
+
+                    m_points.insert(pos, clickPos);
+                    m_locks.insert(pos, 0);
+                    m_currentIndex = pos;
+                    firePointChange();
+                } else {
+                    m_currentIndex = index;
+                }
+                return true;
+
+            } else if (me->button() == Qt::RightButton) {
+                if (index >= 0 && m_editable) {
+                    if (m_locks[index] == 0) {
+                        m_locks.remove(index);
+                        m_points.remove(index);
+                    }
+                    firePointChange();
+                    return true;
+                }
+            }
+
+        }
+        break;
 
         case QEvent::MouseButtonRelease:
             m_currentIndex = -1;
@@ -123,28 +128,33 @@ bool HoverPoints::eventFilter(QObject *object, QEvent *event)
             break;
 
         case QEvent::Resize:
-            {
-                QResizeEvent *e = (QResizeEvent *) event;
-                double stretch_x = e->size().width() / double(e->oldSize().width());
-                double stretch_y = e->size().height() / double(e->oldSize().height());
-                for (int i=0; i<m_points.size(); ++i) {
-                    QPointF p = m_points[i];
-                    movePoint(i, QPointF(p.x() * stretch_x, p.y() * stretch_y), false);
-                }
-
-                firePointChange();
-                break;
+        {
+            QResizeEvent *e = (QResizeEvent *) event;
+            double stretch_x = e->size().width() / double(e->oldSize().width());
+            double stretch_y = e->size().height() / double(e->oldSize().height());
+            for (int i=0; i<m_points.size(); ++i) {
+                QPointF p = m_points[i];
+                movePoint(i, QPointF(p.x() * stretch_x, p.y() * stretch_y), false);
             }
+
+            firePointChange();
+            break;
+        }
 
         case QEvent::Paint:
-            {
-                QWidget *that_widget = m_widget;
-                m_widget = 0;
-                QApplication::sendEvent(object, event);
-                m_widget = that_widget;
-                paintPoints();
-                return true;
-            }
+        {
+            QWidget *that_widget = m_widget;
+            m_widget = 0;
+            QApplication::sendEvent(object, event);
+            m_widget = that_widget;
+            paintPoints();
+#ifdef QT_OPENGL_SUPPORT
+            ArthurFrame *af = qobject_cast<ArthurFrame *>(that_widget);
+            if (af && af->glWidget())
+                af->glWidget()->swapBuffers();
+#endif
+            return true;
+        }
         default:
             break;
         }
@@ -156,7 +166,16 @@ bool HoverPoints::eventFilter(QObject *object, QEvent *event)
 
 void HoverPoints::paintPoints()
 {
-    QPainter p(m_widget);
+    QPainter p;
+#ifdef QT_OPENGL_SUPPORT
+    ArthurFrame *af = qobject_cast<ArthurFrame *>(m_widget);
+    if (af && af->glWidget())
+        p.begin(af->glWidget());
+    else
+        p.begin(m_widget);
+#else
+    p.begin(m_widget);
+#endif
 
     p.setRenderHint(QPainter::Antialiasing);
 

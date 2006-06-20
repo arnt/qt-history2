@@ -5,6 +5,11 @@ CONFIG      += designer plugin debug_and_release
 TEMPLATE    = lib
 DESTDIR     = $$QT_BUILD_TREE/plugins/designer
 
+contains(QT_CONFIG, opengl) {
+	DEFINES += QT_OPENGL_SUPPORT
+	QT += opengl
+}
+
 SHARED_FOLDER = ../shared
 include(../shared/shared.pri)
 
@@ -22,7 +27,7 @@ SOURCES = plugin.cpp \
         $$DEMO_DEFORM_DIR/pathdeform.cpp \
         $$DEMO_GRADIENT_DIR/gradients.cpp \
         $$DEMO_STROKE_DIR/pathstroke.cpp \
-             
+
 
 HEADERS = \
 	$$DEMO_COMPOSITION_DIR/composition.h \
