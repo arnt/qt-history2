@@ -57,6 +57,8 @@ public:
         { w = size.width(); h = size.height(); }
     inline void move(const QPoint &position)
         { x = position.x(); y = position.y(); }
+    inline int width() const { return w; }
+    inline int height() const { return h; }
 private:
     inline QRect rect() const
         { return QRect(x, y, w, h); }
@@ -137,6 +139,9 @@ public:
             return index.isValid();
         return true;
     }
+
+    int perItemScrollToValue(int index, int value, int height,
+                             QAbstractItemView::ScrollHint hint) const;
 
     QRect elasticBand;
 

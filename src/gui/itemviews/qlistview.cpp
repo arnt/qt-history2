@@ -505,45 +505,82 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
     if (index.parent() != d->root || index.column() != d->column)
         return;
 
-    QRect area = d->viewport->rect();
-    QRect rect = visualRect(index);
+    const QRect area = d->viewport->rect();
+    const QRect rect = visualRect(index);
     if (hint == EnsureVisible && area.contains(rect)) {
         d->setDirtyRegion(rect);
         return;
     }
 
     // vertical
-    int vy = verticalScrollBar()->value();
-    bool above = (hint == EnsureVisible && rect.top() < area.top());
-    bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
-    if (hint == PositionAtTop || above)
-        verticalScrollBar()->setValue(vy + rect.top());
-    else if (hint == PositionAtBottom || below)
-        verticalScrollBar()->setValue(vy + rect.bottom() - viewport()->height());
-    else if (hint == PositionAtCenter)
-        verticalScrollBar()->setValue(vy + rect.top() - ((viewport()->height() - rect.height()) / 2));
+    const bool above = (hint == EnsureVisible && rect.top() < area.top());
+    const bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
+    const int max = d->flowPositions.count() - 1;
+    int verticalValue = qBound(0, verticalScrollBar()->value(), max);
+    if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
+        const QListViewItem item = d->indexToListViewItem(index);
+        const int itemIndex = d->itemIndex(item);
+        if (above)
+            verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
+                                                    area.height(), PositionAtTop);
+        else if (below)
+            verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
+                                                    area.height(), PositionAtBottom);
+        else
+            verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
+                                                    area.height(), hint);
+    } else {
+        if (hint == PositionAtTop || above)
+            verticalValue += rect.top();
+        else if (hint == PositionAtBottom || below)
+            verticalValue += rect.bottom() - area.height();
+        else if (hint == PositionAtCenter)
+            verticalValue += rect.top() - ((area.height() - rect.height()) / 2);
+    }
+    verticalScrollBar()->setValue(verticalValue);
 
     // horizontal
-    int vx = horizontalScrollBar()->value();
-    if (isRightToLeft()) {
-        if (hint == PositionAtCenter) {
-            horizontalScrollBar()->setValue(vx - rect.left() + ((viewport()->width() - rect.width()) / 2));
-        } else {
-            if ((rect.left() < area.left()) && (rect.right() < area.right())) // left of
-                horizontalScrollBar()->setValue(vx - rect.left());
-            else if (rect.right() > area.right()) // right of
-                horizontalScrollBar()->setValue(vx - rect.right() + viewport()->width());
-        }
+    const bool leftOf = isRightToLeft()
+                        ? (rect.left() < area.left()) && (rect.right() < area.right())
+                        : rect.left() < area.left();
+    const bool rightOf = isRightToLeft()
+                         ? rect.right() > area.right()
+                         : (rect.right() > area.right()) && (rect.left() > area.left());
+    int horizontalValue = horizontalScrollBar()->value();
+    if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
+        const QListViewItem item = d->indexToListViewItem(index);
+        const int itemIndex = d->itemIndex(item);
+        if (leftOf)
+            horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
+                                                      area.width(), PositionAtTop);
+        else if (rightOf)
+            horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
+                                                      area.width(), PositionAtBottom);
+        else
+            horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
+                                                      area.width(), hint);
     } else {
-        if (hint == PositionAtCenter) {
-            horizontalScrollBar()->setValue(vx + rect.left() - ((viewport()->width()- rect.width()) / 2));
+        if (isRightToLeft()) {
+            if (hint == PositionAtCenter) {
+                horizontalValue += ((area.width() - rect.width()) / 2) - rect.left();
+            } else {
+                if (leftOf)
+                    horizontalValue -= rect.left();
+                else if (rightOf)
+                    horizontalValue += area.width() - rect.right();
+            }
         } else {
-            if (rect.left() < area.left()) // left of
-                horizontalScrollBar()->setValue(vx + rect.left());
-            else if ((rect.right() > area.right()) && (rect.left() > area.left())) // right of
-                horizontalScrollBar()->setValue(vx + rect.right() - viewport()->width());
+            if (hint == PositionAtCenter) {
+                horizontalValue += rect.left() - ((area.width()- rect.width()) / 2);
+            } else {
+                if (leftOf)
+                    horizontalValue += rect.left();
+                else if (rightOf)
+                    horizontalValue += rect.right() - area.width();
+            }
         }
     }
+    horizontalScrollBar()->setValue(horizontalValue);
 }
 
 /*!
@@ -2227,6 +2264,30 @@ int QListViewPrivate::perItemScrollingPageSteps(int length, int bounds) const
     }
     // at this point we know that positions has at least one entry
     return pageSteps;
+}
+
+int QListViewPrivate::perItemScrollToValue(int index, int value, int size,
+                                           QAbstractItemView::ScrollHint hint) const
+{
+    const int topIndex = value;
+    const int topCoordinate = flowPositions.at(topIndex);
+    int bottomIndex = topIndex;
+    int bottonCoordinate = topCoordinate;
+    const int flowCount = flowPositions.count() - 2;
+    while (bottonCoordinate - topCoordinate < (size - 1) && bottomIndex < flowCount)
+        bottonCoordinate = flowPositions.at(++bottomIndex);
+    const int itemCount = bottomIndex - topIndex - 1;
+    switch (hint) {
+    case QAbstractItemView::PositionAtTop:
+        return index;
+    case QAbstractItemView::PositionAtBottom:
+        return index - itemCount;
+    case QAbstractItemView::PositionAtCenter:
+        return index - (itemCount / 2);
+    default:
+        break;
+    }
+    return value;
 }
 
 #endif // QT_NO_LISTVIEW
