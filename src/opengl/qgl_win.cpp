@@ -592,6 +592,7 @@ class QGLTempContext
 {
 public:
     QGLTempContext() {
+        dmy.createWinId();
         dmy_pdc = GetDC(dmy.winId());
         PIXELFORMATDESCRIPTOR dmy_pfd;
         memset(&dmy_pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
@@ -653,6 +654,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->hbitmap = CreateDIBSection(qt_win_display_dc(), &bmi, DIB_RGB_COLORS, 0, 0, 0);
         SelectObject(myDc, d->hbitmap);
     } else {
+        ((QWidget*)d->paintDevice)->createWinId();
         d->win = ((QWidget*)d->paintDevice)->winId();
         myDc = GetDC(d->win);
     }
@@ -1322,6 +1324,7 @@ void QGLWidget::setContext(QGLContext *context,
     d->glcx = context;
 
     bool doShow = false;
+    createWinId();
     if (oldcx && oldcx->d_func()->win == winId() && !d->glcx->deviceIsPixmap()) {
         // We already have a context and must therefore create a new
         // window since Windows does not permit setting a new OpenGL
@@ -1359,6 +1362,7 @@ void QGLWidgetPrivate::cleanupColormaps()
 {
     Q_Q(QGLWidget);
     if (cmap.handle()) {
+        q->createWinId();
         HDC hdc = GetDC(q->winId());
         SelectPalette(hdc, (HPALETTE) GetStockObject(DEFAULT_PALETTE), FALSE);
         DeleteObject((HPALETTE) cmap.handle());
@@ -1399,6 +1403,7 @@ void QGLWidget::setColormap(const QGLColormap & c)
     if (!d->cmap.handle())
         return;
 
+    createWinId();
     if (d->cmap.handle()) { // already have an allocated cmap
         HDC hdc = GetDC(winId());
         SelectPalette(hdc, (HPALETTE) d->cmap.handle(), FALSE);
