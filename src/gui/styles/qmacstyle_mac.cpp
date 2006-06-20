@@ -2358,12 +2358,9 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 if (ir.height() > headerHeight)
                     scaleHeader = true;
                 switch (header->position) {
-                case QStyleOptionHeader::Middle:
-                    ir.adjust(-1, 0, 1, 0);
-                    break;
                 case QStyleOptionHeader::Beginning:
-                    ir.adjust(0, 0, 1, 0);
                     break;
+                case QStyleOptionHeader::Middle:
                 case QStyleOptionHeader::End:
                     ir.adjust(-1, 0, 0, 0);
                     break;
