@@ -962,7 +962,7 @@ void QWidgetPrivate::createRecursively()
     q->create(0, true, true);
     for (int i = 0; i < children.size(); ++i) {
         QWidget *child = qobject_cast<QWidget *>(children.at(i));
-        if (child && child->isVisible() && !child->isWindow() && !child->testAttribute(Qt::WA_WState_Created))
+        if (child && !child->isHidden() && !child->isWindow() && !child->testAttribute(Qt::WA_WState_Created))
             child->d_func()->createRecursively();
     }
 }
