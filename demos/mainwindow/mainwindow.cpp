@@ -21,6 +21,10 @@
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QTextEdit>
+#include <QFile>
+#include <QDataStream>
+#include <QFileDialog>
+#include <QMessageBox>
 
 static const char * const message =
     "<p><b>Qt Main Window Demo</b></p>"
@@ -74,10 +78,64 @@ void MainWindow::setupToolBar()
 void MainWindow::setupMenuBar()
 {
     QMenu *menu = menuBar()->addMenu(tr("&File"));
+
+    QAction *action = menu->addAction(tr("Save layout..."));
+    connect(action, SIGNAL(triggered()), this, SLOT(saveLayout()));
+
+    action = menu->addAction(tr("Load layout..."));
+    connect(action, SIGNAL(triggered()), this, SLOT(loadLayout()));
+
+    menu->addSeparator();
+
     menu->addAction(tr("&Quit"), this, SLOT(close()));
 
     menuBar()->addMenu(toolbar->menu);
     dockWidgetMenu = menuBar()->addMenu(tr("&Dock Widgets"));
+}
+
+void MainWindow::saveLayout()
+{
+    QString fileName
+        = QFileDialog::getSaveFileName(this, tr("Save layout"));
+    if (fileName.isEmpty())
+        return;
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly)) {
+        QString msg = tr("Failed to open %1\n%2")
+                        .arg(fileName)
+                        .arg(file.errorString());
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
+    if (file.write(saveState()) == -1) {
+        QString msg = tr("Error writing to %1\n%2")
+                        .arg(fileName)
+                        .arg(file.errorString());
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
+}
+
+void MainWindow::loadLayout()
+{
+    QString fileName
+        = QFileDialog::getOpenFileName(this, tr("Load layout"));
+    if (fileName.isEmpty())
+        return;
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly)) {
+        QString msg = tr("Failed to open %1\n%2")
+                        .arg(fileName)
+                        .arg(file.errorString());
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
+    if (!restoreState(file.readAll())) {
+        QString msg = tr("Format error reading %1")
+                        .arg(fileName);
+        QMessageBox::warning(this, tr("Error"), msg);
+        return;
+    }
 }
 
 void MainWindow::setupDockWidgets()
@@ -91,6 +149,8 @@ void MainWindow::setupDockWidgets()
     action->setCheckable(true);
     action->setChecked(isDockNestingEnabled());
     connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockNestingEnabled(bool)));
+
+    dockWidgetMenu->addSeparator();
 
     static const struct Set {
         const char * name;

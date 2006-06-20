@@ -31,6 +31,8 @@ public:
 
 public slots:
     void actionTriggered(QAction *action);
+    void saveLayout();
+    void loadLayout();
 
 private:
     void setupToolBar();

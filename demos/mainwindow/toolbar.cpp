@@ -44,6 +44,7 @@ ToolBar::ToolBar(QWidget *parent)
     : QToolBar(parent), spinbox(0), spinboxAction(0)
 {
     setWindowTitle(tr("Main Tool Bar"));
+    setObjectName("MainToolBar");
 
     setIconSize(QSize(32, 32));
 
