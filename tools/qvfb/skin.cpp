@@ -28,6 +28,7 @@
 #include <QDir>
 #include <QRegExp>
 #include <QMouseEvent>
+#include <QDebug>
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -190,6 +191,28 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) :
 	skinImageClosedFileName = prefix + skinImageClosedFileName;
     if ( !skinCursorFileName.isEmpty() )
 	skinCursorFileName = prefix + skinCursorFileName;
+
+    // verify skin files exist
+    if (!QFile(skinImageUpFileName).exists()) {
+        qWarning() << "failed to find skin up image file named: " << skinImageUpFileName;
+        skinValid = false;
+        return;
+    }
+    if (!QFile(skinImageDownFileName).exists()) {
+        qWarning() << "failed to find skin down image file named: " << skinImageDownFileName;
+        skinValid = false;
+        return;
+    }
+    if (!skinImageClosedFileName.isEmpty() && !QFile(skinImageClosedFileName).exists()) {
+        qWarning() << "failed to find skin closed image file named: " << skinImageClosedFileName;
+        skinValid = false;
+        return;
+    }
+    if (!skinCursorFileName.isEmpty() && !QFile(skinCursorFileName).exists()) {
+        qWarning() << "failed to find skin cursor image file named: " << skinCursorFileName;
+        skinValid = false;
+        return;
+    }
 
     int i = 0;
     ts.readLine(); // eol
