@@ -582,6 +582,7 @@ QKeyMapperPrivate::updateKeyboard()
     qDebug() << language.fScript << language.fLanguage;
 
     QCFType<CFLocaleRef> cf_locale = CFLocaleCopyCurrent();
+    SInt16 currentKeyScript = GetScriptManagerVariable(smKeyScript);
     SInt16 locale = GetScriptVariable(currentKeyScript, smScriptLang);
     keyboardInputLocale = QLocale();
     keyboardInputDirection = GetScriptVariable(currentKeyScript, smScriptRight) ? Qt::RightToLeft : Qt::LeftToRight;
@@ -787,8 +788,7 @@ QKeyMapperPrivate::updateKeyMap(EventHandlerCallRef, EventRef event, void *)
                 keyLayout[macVirtualKey]->qtKey[i] = qtkey;
             }
         } else {
-            const UInt32 keyModifier = (get_mac_modifiers(ModsTbl[i]));// & ~(rightShiftKey | rightControlKey | rightOptionKey));
-            qDebug() << "foo" << hex << keyModifier;
+            const UInt32 keyModifier = (get_mac_modifiers(ModsTbl[i]));
 
             uchar translatedChar = KeyTranslate(keyboard_layout_format.other, keyModifier | macVirtualKey, &keyboard_dead);
             if(translatedChar) {
