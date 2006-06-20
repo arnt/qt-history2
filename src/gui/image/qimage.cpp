@@ -3923,7 +3923,9 @@ QImage QImage::fromData(const uchar *data, int size, const char *format)
 
 /*!
     Saves the image to the file with the given \a fileName, using the
-    given image file \a format and \a quality factor.
+    given image file \a format and \a quality factor. If \a format is
+    0, QImage will attempt to guess the format by looking at \a fileName's
+    suffix.
 
     The \a quality factor must be in the range 0 to 100 or -1. Specify
     0 to obtain small compressed files, 100 for large uncompressed

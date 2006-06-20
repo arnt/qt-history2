@@ -15,6 +15,7 @@
 #define QIMAGEREADER_H
 
 #include <QtCore/qbytearray.h>
+#include <QtGui/qimageiohandler.h>
 
 QT_BEGIN_HEADER
 
@@ -85,6 +86,8 @@ public:
 
     ImageReaderError error() const;
     QString errorString() const;
+
+    bool supportsOption(QImageIOHandler::ImageOption option) const;
 
     static QByteArray imageFormat(const QString &fileName);
     static QByteArray imageFormat(QIODevice *device);
