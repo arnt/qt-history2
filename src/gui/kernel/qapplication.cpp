@@ -38,6 +38,8 @@
 #include "private/qstylesheetstyle_p.h"
 
 #include "qinputcontext.h"
+#include "qkeymapper_p.h"
+
 #ifdef Q_WS_X11
 #include <private/qt_x11_p.h>
 #include "qinputcontextfactory.h"
@@ -4017,6 +4019,26 @@ uint QApplicationPrivate::currentPlatform(){
         platform |= KB_CDE;
 #endif    
     return platform;
+}
+
+/*!
+    Returns the current keyboard input locale.
+*/
+QLocale QApplication::keyboardInputLocale()
+{
+    if (!QApplicationPrivate::checkInstance("keyboardInputLocale"))
+        return QLocale::c();
+    return qt_keymapper_private()->keyboardInputLocale;
+}
+
+/*!
+    Returns the current keyboard input direction.
+*/
+Qt::LayoutDirection QApplication::keyboardInputDirection()
+{
+    if (!QApplicationPrivate::checkInstance("keyboardInputDirection"))
+        return Qt::LeftToRight;
+    return qt_keymapper_private()->keyboardInputDirection;
 }
 
 #include "moc_qapplication.cpp"

@@ -41,6 +41,7 @@
 #include "private/qapplication_p.h"
 #include "private/qbackingstore_p.h"
 #include "qdebug.h"
+#include <private/qkeymapper_p.h>
 
 #ifndef QT_NO_THREAD
 #include "qmutex.h"
@@ -170,7 +171,41 @@ Q_CORE_EXPORT bool winPostMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
 #define APPCOMMAND_BASS_UP                21
 #define APPCOMMAND_TREBLE_DOWN            22
 #define APPCOMMAND_TREBLE_UP              23
-#endif
+
+// New commands from Windows XP (some even Sp1)
+#ifndef APPCOMMAND_MICROPHONE_VOLUME_MUTE
+#define APPCOMMAND_MICROPHONE_VOLUME_MUTE 24
+#define APPCOMMAND_MICROPHONE_VOLUME_DOWN 25
+#define APPCOMMAND_MICROPHONE_VOLUME_UP   26
+#define APPCOMMAND_HELP                   27
+#define APPCOMMAND_FIND                   28
+#define APPCOMMAND_NEW                    29
+#define APPCOMMAND_OPEN                   30
+#define APPCOMMAND_CLOSE                  31
+#define APPCOMMAND_SAVE                   32
+#define APPCOMMAND_PRINT                  33
+#define APPCOMMAND_UNDO                   34
+#define APPCOMMAND_REDO                   35
+#define APPCOMMAND_COPY                   36
+#define APPCOMMAND_CUT                    37
+#define APPCOMMAND_PASTE                  38
+#define APPCOMMAND_REPLY_TO_MAIL          39
+#define APPCOMMAND_FORWARD_MAIL           40
+#define APPCOMMAND_SEND_MAIL              41
+#define APPCOMMAND_SPELL_CHECK            42
+#define APPCOMMAND_DICTATE_OR_COMMAND_CONTROL_TOGGLE    43
+#define APPCOMMAND_MIC_ON_OFF_TOGGLE      44
+#define APPCOMMAND_CORRECTION_LIST        45
+#define APPCOMMAND_MEDIA_PLAY             46
+#define APPCOMMAND_MEDIA_PAUSE            47
+#define APPCOMMAND_MEDIA_RECORD           48
+#define APPCOMMAND_MEDIA_FAST_FORWARD     49
+#define APPCOMMAND_MEDIA_REWIND           50
+#define APPCOMMAND_MEDIA_CHANNEL_UP       51
+#define APPCOMMAND_MEDIA_CHANNEL_DOWN     52
+#endif // APPCOMMAND_MICROPHONE_VOLUME_MUTE
+
+#endif // WM_APPCOMMAND
 
 UINT WM_QT_REPAINT = 0;
 static UINT WM95_MOUSEWHEEL = 0;
@@ -306,11 +341,7 @@ public:
     bool        winEvent(MSG *m, long *r)        { return QWidget::winEvent(m, r); }
     void        markFrameStrutDirty()        { data->fstrut_dirty = 1; }
     bool        translateMouseEvent(const MSG &msg);
-    bool        translateKeyEvent(const MSG &msg, bool grab);
     bool        translateWheelEvent(const MSG &msg);
-    bool        sendKeyEvent(QEvent::Type type, int code,
-                              int state, bool grab, const QString& text,
-                              bool autor=false);
     bool        translatePaintEvent(const MSG &msg);
     bool        translateConfigEvent(const MSG &msg);
     bool        translateCloseEvent(const MSG &msg);
@@ -322,43 +353,6 @@ public:
     inline uint testWindowState(uint teststate){ return dataPtr()->window_state & teststate; }
 };
 
-static void qt_show_system_menu(QWidget* tlw)
-{
-    Q_ASSERT(tlw->testAttribute(Qt::WA_WState_Created));
-    HMENU menu = GetSystemMenu(tlw->winId(), FALSE);
-    if (!menu)
-        return; // no menu for this window
-
-#define enabled (MF_BYCOMMAND | MF_ENABLED)
-#define disabled (MF_BYCOMMAND | MF_GRAYED)
-
-#ifndef Q_OS_TEMP
-    EnableMenuItem(menu, SC_MINIMIZE, (tlw->windowFlags() & Qt::WindowMinimizeButtonHint)?enabled:disabled);
-    bool maximized = IsZoomed(tlw->winId());
-
-    EnableMenuItem(menu, SC_MAXIMIZE, ! (tlw->windowFlags() & Qt::WindowMaximizeButtonHint) || maximized?disabled:enabled);
-    EnableMenuItem(menu, SC_RESTORE, maximized?enabled:disabled);
-
-    EnableMenuItem(menu, SC_SIZE, maximized?disabled:enabled);
-    EnableMenuItem(menu, SC_MOVE, maximized?disabled:enabled);
-    EnableMenuItem(menu, SC_CLOSE, enabled);
-#endif
-
-#undef enabled
-#undef disabled
-
-    int ret = TrackPopupMenuEx(menu,
-                                TPM_LEFTALIGN  | TPM_TOPALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
-                                tlw->geometry().x(), tlw->geometry().y(),
-                                tlw->winId(),
-                                0);
-    if (ret)
-#ifdef Q_OS_TEMP
-        DefWindowProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
-#else
-        QtWndProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
-#endif
-}
 
 extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 
@@ -622,6 +616,9 @@ void qt_init(QApplicationPrivate *priv, int)
 #if defined(QT_DEBUG)
     GdiSetBatchLimit(1);
 #endif
+
+    // initialize key mapper
+    QKeyMapper::changeKeyboard();
 
     QColormap::initialize();
     QFont::initialize();
@@ -1162,54 +1159,6 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
     }
 }
 
-struct KeyRec {
-    KeyRec(int c, int a, int s, const QString& t) : code(c), ascii(a), state(s), text(t) { }
-    KeyRec() { }
-    int code, ascii, state;
-    QString text;
-};
-
-static const int maxrecs=64; // User has LOTS of fingers...
-static KeyRec key_rec[maxrecs];
-static int nrecs=0;
-
-static KeyRec* find_key_rec(int code, bool remove)
-{
-    KeyRec *result = 0;
-    for (int i=0; i<nrecs; i++) {
-        if (key_rec[i].code == code) {
-            if (remove) {
-                static KeyRec tmp;
-                tmp = key_rec[i];
-                while (i+1 < nrecs) {
-                    key_rec[i] = key_rec[i+1];
-                    i++;
-                }
-                nrecs--;
-                result = &tmp;
-            } else {
-                result = &key_rec[i];
-            }
-            break;
-        }
-    }
-    return result;
-}
-
-static void store_key_rec(int code, int ascii, int state, const QString& text)
-{
-    if (nrecs == maxrecs) {
-        qWarning("Qt: Internal keyboard buffer overflow");
-        return;
-    }
-
-    key_rec[nrecs++] = KeyRec(code,ascii,state,text);
-}
-
-static void clear_key_rec()
-{
-    nrecs = 0;
-}
 
 //
 // QtWndProc() receives all messages from the main event loop
@@ -1440,8 +1389,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
     } else {
         switch (message) {
         case WM_KEYDOWN:                        // keyboard event
-        case WM_KEYUP:
         case WM_SYSKEYDOWN:
+            qt_keymapper_private()->updateKeyMap(msg);
+            // fall-through intended
+        case WM_KEYUP:
         case WM_SYSKEYUP:
         case WM_IME_CHAR:
         case WM_IME_KEYDOWN:
@@ -1457,13 +1408,16 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 widget = (QETWidget*)g;
             else if (QApplication::activePopupWidget())
                 widget = (QETWidget*)QApplication::activePopupWidget()->focusWidget()
-                       ? (QETWidget*)QApplication::activePopupWidget()->focusWidget() : (QETWidget*)QApplication::activePopupWidget();
+                       ? (QETWidget*)QApplication::activePopupWidget()->focusWidget()
+                       : (QETWidget*)QApplication::activePopupWidget();
             else if (qApp->focusWidget())
                 widget = (QETWidget*)QApplication::focusWidget();
             else if (!widget || widget->winId() == GetFocus()) // We faked the message to go to exactly that widget.
                 widget = (QETWidget*)widget->window();
             if (widget->isEnabled())
-                result = widget->translateKeyEvent(msg, g != 0);
+                result = sm_blockUserInput
+                            ? true
+                            : qt_keymapper_private()->translateKeyEvent(widget, msg, g != 0);
             break;
         }
         case WM_SYSCHAR:
@@ -1557,6 +1511,19 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                         case APPCOMMAND_VOLUME_UP:
                             key = Qt::Key_VolumeUp;
                             break;
+                        // Commands new in Windows XP
+                        case APPCOMMAND_HELP:
+                            key = Qt::Key_Help;
+                            break;
+                        case APPCOMMAND_FIND:
+                            key = Qt::Key_Search;
+                            break;
+                        case APPCOMMAND_PRINT:
+                            key = Qt::Key_Print;
+                            break;
+                        case APPCOMMAND_MEDIA_PLAY:
+                            key = Qt::Key_MediaPlay;
+                            break;
                         default:
                             break;
                         }
@@ -1569,8 +1536,11 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                                 widget = (QETWidget*)qApp->focusWidget();
                             else
                                 widget = (QETWidget*)widget->window();
-                            if (widget->isEnabled())
-                                res = ((QETWidget*)widget)->sendKeyEvent(QEvent::KeyPress, key, state, false, QString(), g != 0);
+                            if (widget->isEnabled()) {
+                                res = QKeyMapper::sendKeyEvent(widget, g != 0, QEvent::KeyPress, key,
+                                                               Qt::KeyboardModifier(state),
+                                                               QString(), false, 0, 0, 0, 0);
+                            }
                             if (res)
                                 return true;
                         }
@@ -1759,8 +1729,9 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 if (!QApplicationPrivate::tryModalHelper(widget, &top) && top && widget != top)
                     top->activateWindow();
             }
+            // Ensure nothing gets consider an auto-repeat press later
             if (LOWORD(wParam) == WA_INACTIVE)
-                clear_key_rec(); // Ensure nothing gets consider an auto-repeat press later
+                qt_keymapper_private()->clearRecordedKeys();
 	    break;
 
 #ifndef Q_OS_TEMP
@@ -2038,6 +2009,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WT_PACKET:
             if (ptrWTPacketsGet) {
                 if ((nPackets = ptrWTPacketsGet(qt_tablet_context, QT_TABLET_NPACKETQSIZE, &localPacketBuf))) {
+                    if (!qt_button_down) // flush the Queue but dont send the events if the mouse is down
 	            result = widget->translateTabletEvent(msg, localPacketBuf, nPackets);
                 }
             }
@@ -2088,6 +2060,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             } else {
                 inputcharset = QString(info).toInt();
             }
+            QKeyMapper::changeKeyboard();
             break;
         }
 #else
@@ -2729,414 +2702,6 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
     return res;
 }
 
-
-//
-// Keyboard event translation
-//
-
-static const uint KeyTbl[] = {                // keyboard mapping table
-    VK_ESCAPE,                Qt::Key_Escape,                // misc keys
-    VK_TAB,                Qt::Key_Tab,
-    VK_BACK,                Qt::Key_Backspace,
-    VK_RETURN,                Qt::Key_Return,
-    VK_INSERT,                Qt::Key_Insert,
-    VK_DELETE,                Qt::Key_Delete,
-    VK_CLEAR,                Qt::Key_Clear,
-    VK_PAUSE,                Qt::Key_Pause,
-    VK_SNAPSHOT,        Qt::Key_Print,
-    VK_HOME,                Qt::Key_Home,                // cursor movement
-    VK_END,                Qt::Key_End,
-    VK_LEFT,                Qt::Key_Left,
-    VK_UP,                Qt::Key_Up,
-    VK_RIGHT,                Qt::Key_Right,
-    VK_DOWN,                Qt::Key_Down,
-    VK_PRIOR,                Qt::Key_PageUp,
-    VK_NEXT,                Qt::Key_PageDown,
-    VK_SHIFT,                Qt::Key_Shift,                // modifiers
-    VK_CONTROL,                Qt::Key_Control,
-    VK_LWIN,                Qt::Key_Meta,
-    VK_RWIN,                Qt::Key_Meta,
-    VK_MENU,                Qt::Key_Alt,
-    VK_CAPITAL,                Qt::Key_CapsLock,
-    VK_NUMLOCK,                Qt::Key_NumLock,
-    VK_SCROLL,                Qt::Key_ScrollLock,
-    VK_NUMPAD0,                Qt::Key_0,                        // numeric Keypad
-    VK_NUMPAD1,                Qt::Key_1,
-    VK_NUMPAD2,                Qt::Key_2,
-    VK_NUMPAD3,                Qt::Key_3,
-    VK_NUMPAD4,                Qt::Key_4,
-    VK_NUMPAD5,                Qt::Key_5,
-    VK_NUMPAD6,                Qt::Key_6,
-    VK_NUMPAD7,                Qt::Key_7,
-    VK_NUMPAD8,                Qt::Key_8,
-    VK_NUMPAD9,                Qt::Key_9,
-    VK_MULTIPLY,        Qt::Key_Asterisk,
-    VK_ADD,                Qt::Key_Plus,
-    VK_SEPARATOR,        Qt::Key_Comma,
-    VK_SUBTRACT,        Qt::Key_Minus,
-    VK_DECIMAL,                Qt::Key_Period,
-    VK_DIVIDE,                Qt::Key_Slash,
-    VK_APPS,                Qt::Key_Menu,
-    0,                        0
-};
-
-static int translateKeyCode(int key)                // get Qt::Key_... code
-{
-    int code;
-    if ((key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9')) {
-        code = 0;
-    } else if (key >= VK_F1 && key <= VK_F24) {
-        code = Qt::Key_F1 + (key - VK_F1);                // function keys
-    } else {
-        int i = 0;                                // any other keys
-        code = 0;
-        while (KeyTbl[i]) {
-            if (key == (int)KeyTbl[i]) {
-                code = KeyTbl[i+1];
-                break;
-            }
-            i += 2;
-        }
-    }
-    return code;
-}
-
-Q_GUI_EXPORT int qt_translateKeyCode(int key)
-{
-    return translateKeyCode(key);
-}
-
-static int asciiToKeycode(char a, int state)
-{
-    if (a >= 'a' && a <= 'z')
-        a = toupper(a);
-    if ((state & Qt::ControlModifier) != 0) {
-        if ( a >= 0 && a <= 31 )      // Ctrl+@..Ctrl+A..CTRL+Z..Ctrl+_
-            a += '@';                 // to @..A..Z.._
-    }
-
-    return a & 0xff;
-}
-
-static
-QChar wmchar_to_unicode(DWORD c)
-{
-    // qt_winMB2QString is the generalization of this function.
-    QT_WA({
-        return QChar((ushort)c);
-    } , {
-        char mb[2];
-        mb[0] = c&0xff;
-        mb[1] = 0;
-        WCHAR wc[1];
-        MultiByteToWideChar(inputcharset, MB_PRECOMPOSED, mb, -1, wc, 1);
-        return QChar(wc[0]);
-    });
-}
-
-static
-QChar imechar_to_unicode(DWORD c)
-{
-    // qt_winMB2QString is the generalization of this function.
-    QT_WA({
-        return QChar((ushort)c);
-    } , {
-        char mb[3];
-        mb[0] = (c>>8)&0xff;
-        mb[1] = c&0xff;
-        mb[2] = 0;
-        WCHAR wc[1];
-        MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
-            mb, -1, wc, 1);
-        return QChar(wc[0]);
-    });
-}
-
-bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
-{
-    bool k0=false, k1=false;
-    int  state = 0;
-
-    if (sm_blockUserInput) // block user interaction during session management
-        return true;
-
-    if (GetKeyState(VK_SHIFT) < 0)
-        state |= Qt::ShiftModifier;
-    if (GetKeyState(VK_CONTROL) < 0)
-        state |= Qt::ControlModifier;
-    if (GetKeyState(VK_MENU) < 0)
-        state |= Qt::AltModifier;
-    if ((GetKeyState(VK_LWIN) < 0) ||
-         (GetKeyState(VK_RWIN) < 0))
-        state |= Qt::MetaModifier;
-
-    if (msg.message == WM_CHAR) {
-        // a multi-character key not found by our look-ahead
-        QString s;
-        QChar ch = wmchar_to_unicode(msg.wParam);
-        if (!ch.isNull())
-            s += ch;
-        k0 = sendKeyEvent(QEvent::KeyPress, 0, state, grab, s);
-        k1 = sendKeyEvent(QEvent::KeyRelease, 0, state, grab, s);
-    }
-    else if (msg.message == WM_IME_CHAR) {
-        // input method characters not found by our look-ahead
-        QString s;
-        QChar ch = imechar_to_unicode(msg.wParam);
-        if (!ch.isNull())
-            s += ch;
-        k0 = sendKeyEvent(QEvent::KeyPress, 0, state, grab, s);
-        k1 = sendKeyEvent(QEvent::KeyRelease, 0, state, grab, s);
-    } else {
-        extern bool qt_use_rtl_extensions;
-        if (qt_use_rtl_extensions) {
-            // for Directionality changes (BiDi)
-            static int dirStatus = 0;
-            if (!dirStatus && state == Qt::ControlModifier && msg.wParam == VK_CONTROL && msg.message == WM_KEYDOWN) {
-                if (GetKeyState(VK_LCONTROL) < 0) {
-                    dirStatus = VK_LCONTROL;
-                } else if (GetKeyState(VK_RCONTROL) < 0) {
-                    dirStatus = VK_RCONTROL;
-                }
-            } else if (dirStatus) {
-                if (msg.message == WM_KEYDOWN) {
-                    if (msg.wParam == VK_SHIFT) {
-                        if (dirStatus == VK_LCONTROL && GetKeyState(VK_LSHIFT) < 0) {
-                                dirStatus = VK_LSHIFT;
-                        } else if (dirStatus == VK_RCONTROL && GetKeyState(VK_RSHIFT) < 0) {
-                            dirStatus = VK_RSHIFT;
-                        }
-                    } else {
-                        dirStatus = 0;
-                    }
-                } else if (msg.message == WM_KEYUP) {
-                    if (dirStatus == VK_LSHIFT &&
-                        (msg.wParam == VK_SHIFT && GetKeyState(VK_LCONTROL)  ||
-                          msg.wParam == VK_CONTROL && GetKeyState(VK_LSHIFT))) {
-                        k0 = sendKeyEvent(QEvent::KeyPress, Qt::Key_Direction_L, 0, grab, QString());
-                        k1 = sendKeyEvent(QEvent::KeyRelease, Qt::Key_Direction_L, 0, grab, QString());
-                        dirStatus = 0;
-                    } else if (dirStatus == VK_RSHIFT &&
-                        (msg.wParam == VK_SHIFT && GetKeyState(VK_RCONTROL) ||
-                          msg.wParam == VK_CONTROL && GetKeyState(VK_RSHIFT))) {
-                        k0 = sendKeyEvent(QEvent::KeyPress, Qt::Key_Direction_R, 0, grab, QString());
-                        k1 = sendKeyEvent(QEvent::KeyRelease, Qt::Key_Direction_R, 0, grab, QString());
-                        dirStatus = 0;
-                    } else {
-                        dirStatus = 0;
-                    }
-                } else {
-                    dirStatus = 0;
-                }
-            }
-        }
-
-        if(msg.wParam == VK_PROCESSKEY)
-            // the IME will process these
-            return true;
-
-        int code = translateKeyCode(msg.wParam);
-        // Invert state logic
-        if (code == Qt::Key_Alt)
-            state = state^Qt::AltModifier;
-        else if (code == Qt::Key_Control)
-            state = state^Qt::ControlModifier;
-        else if (code == Qt::Key_Shift)
-            state = state^Qt::ShiftModifier;
-
-        // If the bit 24 of lParm is set you received a enter,
-        // otherwise a Return. (This is the extended key bit)
-        if ((code == Qt::Key_Return) && (msg.lParam & 0x1000000)) {
-            code = Qt::Key_Enter;
-        }
-
-        if (!(msg.lParam & 0x1000000)) {        // All cursor keys without extended bit
-            switch (code) {
-            case Qt::Key_Left:
-            case Qt::Key_Right:
-            case Qt::Key_Up:
-            case Qt::Key_Down:
-            case Qt::Key_PageUp:
-            case Qt::Key_PageDown:
-            case Qt::Key_Home:
-            case Qt::Key_End:
-            case Qt::Key_Insert:
-            case Qt::Key_Delete:
-            case Qt::Key_Asterisk:
-            case Qt::Key_Plus:
-            case Qt::Key_Minus:
-            case Qt::Key_Period:
-            case Qt::Key_0:
-            case Qt::Key_1:
-            case Qt::Key_2:
-            case Qt::Key_3:
-            case Qt::Key_4:
-            case Qt::Key_5:
-            case Qt::Key_6:
-            case Qt::Key_7:
-            case Qt::Key_8:
-            case Qt::Key_9:
-                state |= Qt::KeypadModifier;
-            default:
-                if ((uint)msg.lParam == 0x004c0001 ||
-                     (uint)msg.lParam == 0xc04c0001)
-                    state |= Qt::KeypadModifier;
-                break;
-            }
-        } else {                                // And some with extended bit
-            switch (code) {
-            case Qt::Key_Enter:
-            case Qt::Key_Slash:
-            case Qt::Key_NumLock:
-                state |= Qt::KeypadModifier;
-            default:
-                break;
-            }
-        }
-
-        int t = msg.message;
-        if (t == WM_KEYDOWN || t == WM_IME_KEYDOWN || t == WM_SYSKEYDOWN) {
-            // KEYDOWN
-            KeyRec* rec = find_key_rec(msg.wParam, false);
-            // If rec's state doesn't match the current state, something
-            // has changed without us knowning about it. (Consumed by
-            // modal widget is one posibility) So, remove rec from list.
-            if ( rec && rec->state != state ) {
-                find_key_rec( msg.wParam, TRUE );
-                rec = 0;
-            }
-            // Find uch
-            QChar uch;
-            MSG wm_char;
-            UINT charType = (t == WM_KEYDOWN ? WM_CHAR :
-                              t == WM_IME_KEYDOWN ? WM_IME_CHAR : WM_SYSCHAR);
-            if (winPeekMessage(&wm_char, 0, charType, charType, PM_REMOVE)) {
-                // Found a XXX_CHAR
-                uch = charType == WM_IME_CHAR
-                        ? imechar_to_unicode(wm_char.wParam)
-                        : wmchar_to_unicode(wm_char.wParam);
-                if (t == WM_SYSKEYDOWN &&
-                     uch.isLetter() && (msg.lParam & KF_ALTDOWN)) {
-                    // (See doc of WM_SYSCHAR)
-                    uch = uch.toLower(); //Alt-letter
-                }
-                if (!code && !uch.row())
-                    code = asciiToKeycode(uch.cell(), state);
-            }
-            if (uch.isNull()) {
-                // No XXX_CHAR; deduce uch from XXX_KEYDOWN params
-                if (msg.wParam == VK_DELETE)
-                    uch = QChar((char)0x7f); // Windows doesn't know this one.
-                else {
-                    if (t != WM_SYSKEYDOWN || !code) {
-                        UINT map;
-                        QT_WA({
-                            map = MapVirtualKey(msg.wParam, 2);
-                        } , {
-                            map = MapVirtualKeyA(msg.wParam, 2);
-                            // High-order bit is 0x8000 on '95
-                            if (map & 0x8000)
-                                map = (map^0x8000)|0x80000000;
-                        });
-                        // If the high bit of the return value of
-                        // MapVirtualKey is set, the key is a deadkey.
-                        if (!(map & 0x80000000)) {
-                            uch = wmchar_to_unicode((DWORD)map);
-                        }
-                    }
-                }
-                if (!code && !uch.row())
-                    code = asciiToKeycode(uch.cell(), state);
-            }
-
-            if (state == Qt::AltModifier) {
-                // Special handling of global Windows hotkeys
-                switch (code) {
-                case Qt::Key_Escape:
-                case Qt::Key_Tab:
-                case Qt::Key_Enter:
-                case Qt::Key_F4:
-                    return false;                // Send the event on to Windows
-                case Qt::Key_Space:
-                    // do not pass this key to windows, we will process it ourselves
-                    qt_show_system_menu(window());
-                    return true;
-                default:
-                    break;
-                }
-            }
-
-            // map shift+tab to shift+backtab, QShortcutMap knows about it
-            // and will handle it
-            if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
-                code = Qt::Key_Backtab;
-
-            if (rec) {
-                // it is already down (so it is auto-repeating)
-                if (code < Qt::Key_Shift || code > Qt::Key_ScrollLock) {
-                    k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text, true);
-                    k1 = sendKeyEvent(QEvent::KeyPress, code, state, grab, rec->text, true);
-                }
-            } else {
-                QString text;
-                if (!uch.isNull())
-                    text += uch;
-                char a = uch.row() ? 0 : uch.cell();
-                k0 = sendKeyEvent(QEvent::KeyPress, code, state, grab, text);
-
-                bool store = true;
-                // Alt+<alphanumerical> go to the Win32 menu system if unhandled by Qt
-                if (msg.message == WM_SYSKEYDOWN && !k0 && a) {
-                    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
-                    HWND parent = GetParent(winId());
-                    while (parent) {
-                        if (GetMenu(parent)) {
-                            SendMessage(parent, WM_SYSCOMMAND, SC_KEYMENU, a);
-                            store = false;
-                            k0 = true;
-                            break;
-                        }
-                        parent = GetParent(parent);
-                    }
-                }
-                if (store)
-                    store_key_rec( msg.wParam, a, state, text );
-            }
-        } else {
-            // Must be KEYUP
-            KeyRec* rec = find_key_rec(msg.wParam, true);
-            if (!rec) {
-                // Someone ate the key down event
-            } else {
-                if (!code)
-                    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam, state);
-                // see comment above
-                if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
-                    code = Qt::Key_Backtab;
-
-                k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text);
-
-                // don't pass Alt to Windows unless we are embedded in a non-Qt window
-                if ( code == Qt::Key_Alt ) {
-                    k0 = true;
-                    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
-                    HWND parent = GetParent(winId());
-                    while (parent) {
-                        if (!QWidget::find(parent) && GetMenu(parent)) {
-                            k0 = false;
-                            break;
-                        }
-                        parent = GetParent(parent);
-                    }
-                }
-            }
-        }
-    }
-
-    return k0 || k1;
-}
-
-
 bool QETWidget::translateWheelEvent(const MSG &msg)
 {
     int  state = 0;
@@ -3372,9 +2937,6 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
 
         // make sure the tablet event get's sent to the proper widget...
         QWidget *w = QApplication::widgetAt(globalPos);
-	if (qt_button_down)
-	    w = qt_button_down; // Pass it to the thing that's grabbed it.
-
         if (!w)
             w = this;
         QPoint localPos = w->mapFromGlobal(globalPos);
@@ -3439,36 +3001,6 @@ static void initWinTabFunctions()
     }
 }
 
-static bool isModifierKey(int code)
-{
-    return code >= Qt::Key_Shift && code <= Qt::Key_ScrollLock;
-}
-
-bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
-                              int state, bool grab, const QString& text,
-                              bool autor)
-{
-#if defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
-    if (type == QEvent::KeyPress && !grab
-        && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
-        // send accel events if the keyboard is not grabbed
-        QKeyEvent a(type, code, 0, Qt::KeyboardModifierMask & state, text, autor,
-                    qMax(1, int(text.length())));
-        if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
-            return true;
-    }
-#endif
-    if (!isEnabled())
-        return false;
-    QKeyEvent e(type, code, Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask), text,
-                autor, qMax(1, int(text.length())));
-    QApplication::sendSpontaneousEvent(this, &e);
-    if (!isModifierKey(code) && state == Qt::AltModifier
-         && ((code>=Qt::Key_A && code<=Qt::Key_Z) || (code>=Qt::Key_0 && code<=Qt::Key_9))
-         && type == QEvent::KeyPress && !e.isAccepted())
-        QApplication::beep();  // emulate windows behaviour
-    return e.isAccepted();
-}
 
 //
 // Paint event translation

@@ -23,11 +23,12 @@
 #include "qshortcut.h"
 #include "qapplication_p.h"
 #include <private/qaction_p.h>
+#include <private/qkeymapper_p.h>
 
 #ifndef QT_NO_SHORTCUT
 
 // To enable verbose output uncomment below
-//#define Debug_QShortcutMap
+//#define DEBUG_QSHORTCUTMAP
 
 /* \internal
     Entry data for QShortcutMap
@@ -39,6 +40,10 @@ struct QShortcutEntry
 {
     QShortcutEntry()
         : keyseq(0), context(Qt::WindowShortcut), enabled(false), id(0), owner(0)
+    {}
+
+    QShortcutEntry(const QKeySequence &k)
+        : keyseq(k), context(Qt::WindowShortcut), enabled(false), id(0), owner(0)
     {}
 
     QShortcutEntry(QObject *o, const QKeySequence &k, Qt::ShortcutContext c, int i)
@@ -79,7 +84,10 @@ class QShortcutMapPrivate
 public:
     QShortcutMapPrivate(QShortcutMap* parent)
         : q_ptr(parent), currentId(0), ambigCount(0), currentState(QKeySequence::NoMatch)
-    { identicals.reserve(10); }
+    { 
+        identicals.reserve(10);
+        currentSequences.reserve(10);
+    }
     QShortcutMap *q_ptr;                        // Private's parent
 
     QList<QShortcutEntry> sequences;            // All sequences!
@@ -87,7 +95,7 @@ public:
     int currentId;                              // Global shortcut ID number
     int ambigCount;                             // Index of last enabled ambiguous dispatch
     QKeySequence::SequenceMatch currentState;
-    QKeySequence currentSequence;               // Sequence for the current state
+    QVector<QKeySequence> currentSequences;     // Sequence for the current state
     QKeySequence prevSequence;                  // Sequence for the previous identical match
     QVector<const QShortcutEntry*> identicals;  // Last identical matches
 };
@@ -125,7 +133,7 @@ int QShortcutMap::addShortcut(QObject *owner, const QKeySequence &key, Qt::Short
     QShortcutEntry newEntry(owner, key, context, --(d->currentId));
     QList<QShortcutEntry>::iterator it = qUpperBound(d->sequences.begin(), d->sequences.end(), newEntry);
     d->sequences.insert(it, newEntry); // Insert sorted
-#if defined(Debug_QShortcutMap)
+#if defined(DEBUG_QSHORTCUTMAP)
     qDebug().nospace()
         << "QShortcutMap::addShortcut(" << owner << ", "
         << key << ", " << context << ") = " << d->currentId;
@@ -172,7 +180,7 @@ int QShortcutMap::removeShortcut(int id, QObject *owner, const QKeySequence &key
             return itemsRemoved;
         --i;
     }
-#if defined(Debug_QShortcutMap)
+#if defined(DEBUG_QSHORTCUTMAP)
     qDebug().nospace()
         << "QShortcutMap::removeShortcut(" << id << ", " << owner << ", "
         << key << ") = " << itemsRemoved;
@@ -210,7 +218,7 @@ int QShortcutMap::setShortcutEnabled(bool enable, int id, QObject *owner, const 
             return itemsChanged;
         --i;
     }
-#if defined(Debug_QShortcutMap)
+#if defined(DEBUG_QSHORTCUTMAP)
     qDebug().nospace()
         << "QShortcutMap::setShortcutEnabled(" << enable << ", " << id << ", "
         << owner << ", " << key << ") = " << itemsChanged;
@@ -226,7 +234,7 @@ void QShortcutMap::resetState()
 {
     Q_D(QShortcutMap);
     d->currentState = QKeySequence::NoMatch;
-    clearSequence(d->currentSequence);
+    clearSequence(d->currentSequences);
 }
 
 /*! \internal
@@ -310,12 +318,15 @@ QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
             QKeyEvent pe = QKeyEvent(e->type(), Qt::Key_Tab, e->modifiers(), e->text());
             result = find(&pe);
         }
+#if 0
+        // ### This is not needed anymore, kill it when qkeymapper is done...
         // If still no result, try removing the Shift modifier
         if (result == QKeySequence::NoMatch) {
             QKeyEvent pe = QKeyEvent(e->type(), e->key(),
                                      e->modifiers()&~Qt::ShiftModifier, e->text());
             result = find(&pe);
         }
+#endif
     }
 
     // Should we eat this key press?
@@ -324,10 +335,10 @@ QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
         e->accept();
     // Does the new state require us to clean up?
     if (result == QKeySequence::NoMatch)
-        clearSequence(d->currentSequence);
+        clearSequence(d->currentSequences);
     d->currentState = result;
 
-#if defined(Debug_QShortcutMap)
+#if defined(DEBUG_QSHORTCUTMAP)
     qDebug().nospace() << "QShortcutMap::nextState(" << e << ") = " << result;
 #endif
     return result;
@@ -346,11 +357,15 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     if (!d->sequences.count())
         return QKeySequence::NoMatch;
     
-    static QShortcutEntry newEntry;
-    createNewSequence(e, newEntry.keyseq);
+    static QVector<QKeySequence> okEntries;
+    static QVector<QKeySequence> newEntries;
+    createNewSequences(e, newEntries);
+#if defined(DEBUG_QSHORTCUTMAP)
+    qDebug() << "Possible shortcut keysequences:" << newEntries;
+#endif
 
     // Should never happen
-    if (newEntry.keyseq == d->currentSequence) {
+    if (newEntries == d->currentSequences) {
         Q_ASSERT_X(e->key() != Qt::Key_unknown || e->text().length(),
                    "QShortcutMap::find", "New sequence to find identical to previous");
         return QKeySequence::NoMatch;
@@ -359,34 +374,53 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     // Looking for new identicals, scrap old
     d->identicals.resize(0);
 
-    QList<QShortcutEntry>::ConstIterator itEnd = d->sequences.constEnd();
-    QList<QShortcutEntry>::ConstIterator it =
-        qLowerBound(d->sequences.constBegin(), itEnd, newEntry);
-
     bool partialFound = false;
     bool identicalDisabledFound = false;
-    QKeySequence::SequenceMatch result = QKeySequence::NoMatch;
-    do {
-        if (it == itEnd)
-            break;
-        result = newEntry.keyseq.matches((*it).keyseq);
-        if (result != QKeySequence::NoMatch && correctContext(*it)) {
-            if (result == QKeySequence::ExactMatch) {
-                if ((*it).enabled)
-                    d->identicals.append(&*it);
-                else
-                    identicalDisabledFound = true;
-            } else if (result == QKeySequence::PartialMatch) {
-                // We don't need partials, if we have identicals
-                if (d->identicals.size())
-                    break;
-                // We only care about enabled partials, so we don't consume
-                // key events when all partials are disabled!
-                partialFound |= (*it).enabled;
+    int result = QKeySequence::NoMatch;
+    for (int i = newEntries.count()-1; i >= 0 ; --i) {
+        QShortcutEntry entry(newEntries.at(i)); // needed for searching
+        QList<QShortcutEntry>::ConstIterator itEnd = d->sequences.constEnd();
+        QList<QShortcutEntry>::ConstIterator it =
+             qLowerBound(d->sequences.constBegin(), itEnd, entry);
+
+        QKeySequence::SequenceMatch singleResult = QKeySequence::NoMatch;
+        do {
+            if (it == itEnd)
+                break;
+            result = entry.keyseq.matches((*it).keyseq);
+            if (result != QKeySequence::NoMatch && correctContext(*it)) {
+                if (result == QKeySequence::ExactMatch) {
+                    if ((*it).enabled)
+                        d->identicals.append(&*it);
+                    else
+                        identicalDisabledFound = true;
+                } else if (result == QKeySequence::PartialMatch) {
+                    // We don't need partials, if we have identicals
+                    if (d->identicals.size())
+                        break;
+                    // We only care about enabled partials, so we don't consume
+                    // key events when all partials are disabled!
+                    partialFound |= (*it).enabled;
+                }
             }
+            ++it;
+        } while (singleResult != QKeySequence::NoMatch);
+        // If the type of match improves (ergo, NoMatch->Partial, or Partial->Exact), clear the
+        // previous list. If this match is equal or better than the last match, append to the list
+        if (singleResult > result) {
+            okEntries.clear();
+#if defined(DEBUG_QSHORTCUTMAP)
+            qDebug() << "Found better shortcut match (" << singleResult << "), clearing keysequence list";
+#endif
         }
-        ++it;
-    } while (result != QKeySequence::NoMatch);
+        if (singleResult && singleResult >= result) {
+            okEntries << newEntries.at(i);
+#if defined(DEBUG_QSHORTCUTMAP)
+            qDebug() << "Added ok keysequence" << newEntries;
+#endif
+        }
+        result |= singleResult;
+    }
 
     if (d->identicals.size()) {
         result = QKeySequence::ExactMatch;
@@ -395,12 +429,15 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     } else if (identicalDisabledFound) {
         result = QKeySequence::ExactMatch;
     } else {
-        clearSequence(d->currentSequence);
+        clearSequence(d->currentSequences);
         result = QKeySequence::NoMatch;
     }
     if (result != QKeySequence::NoMatch)
-        d->currentSequence = newEntry.keyseq;
-    return result;
+        d->currentSequences = okEntries;
+#if defined(DEBUG_QSHORTCUTMAP)
+    qDebug() << "Returning shortcut match == " << result;
+#endif
+    return QKeySequence::SequenceMatch(result);
 }
 
 /*! \internal
@@ -410,34 +447,44 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         key = QKeySequence();
     \endcode
 */
-void QShortcutMap::clearSequence(QKeySequence &seq)
+void QShortcutMap::clearSequence(QVector<QKeySequence> &ksl)
 {
-    seq.setKey(0, 0);
-    seq.setKey(0, 1);
-    seq.setKey(0, 2);
-    seq.setKey(0, 3);
+    ksl.clear();
 }
 
 /*! \internal
     Alters \a seq to the new sequence state, based on the
     current sequence state, and the new key event \a e.
 */
-void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
+void QShortcutMap::createNewSequences(QKeyEvent *e, QVector<QKeySequence> &ksl)
 {
     Q_D(QShortcutMap);
-    seq.setKey(d->currentSequence[0], 0);
-    seq.setKey(d->currentSequence[1], 1);
-    seq.setKey(d->currentSequence[2], 2);
-    seq.setKey(d->currentSequence[3], 3);
-    int index = d->currentSequence.count();
-    int modifier = translateModifiers(e->modifiers());
+    QList<int> possibleKeys = QKeyMapper::possibleKeys(e);
+    int pkTotal = possibleKeys.count();
+    if (!pkTotal)
+        return;
 
-    // Use the key code, if possible to prevent Ctrl+<Key> text problems,
-    // else use unicode of text
-    if (e->key() && e->key() != Qt::Key_unknown)
-        seq.setKey(e->key() | modifier, index);
-    else
-        seq.setKey((int)e->text().unicode()->toUpper().unicode() | modifier, index);
+    int ssActual = d->currentSequences.count();
+    int ssTotal = qMax(1, ssActual);
+    // Resize to possible permutations of the current sequence(s).
+    ksl.resize(pkTotal * ssTotal);
+
+    int index = ssActual ? d->currentSequences.at(0).count() : 0;
+    for (int pkNum = 0; pkNum < pkTotal; ++pkNum) {
+        for (int ssNum = 0; ssNum < ssTotal; ++ssNum) {
+            int i = (pkNum * ssTotal) + ssNum;
+            QKeySequence &curKsl = ksl[i];
+            if (ssActual) {
+                const QKeySequence &curSeq = d->currentSequences.at(ssNum);
+                curKsl.setKey(curSeq[0], 0);
+                curKsl.setKey(curSeq[1], 1);
+                curKsl.setKey(curSeq[2], 2);
+                curKsl.setKey(curSeq[3], 3);
+            }
+            // Filtering keycode here with 0xdfffffff to ignore the Keypad modifier
+            curKsl.setKey(possibleKeys.at(pkNum) & 0xdfffffff, index);
+        }
+    }
 }
 
 /*! \internal
@@ -503,7 +550,7 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
         return sw == focus_widget;
     }
 
-#if defined(Debug_QShortcutMap)
+#if defined(DEBUG_QSHORTCUTMAP)
     qDebug().nospace() << "..true [Pass-through]";
 #endif
     return true;
@@ -586,18 +633,18 @@ void QShortcutMap::dispatchEvent()
     if (!next)
         return;
     // Dispatch next enabled
-#if defined(Debug_QShortcutMap)
+#if defined(DEBUG_QSHORTCUTMAP)
     qDebug().nospace()
         << "QShortcutMap::dispatchEvent(): Sending QShortcutEvent(\""
-        << (QString)curKey << "\", " << next->id << ", "
+        << (QString)next->keyseq << "\", " << next->id << ", "
         << (bool)(enabledShortcuts>1) << ") to object(" << next->owner << ")";
 #endif
-    QShortcutEvent se(curKey, next->id, enabledShortcuts>1);
+    QShortcutEvent se(next->keyseq, next->id, enabledShortcuts>1);
     QApplication::sendEvent(const_cast<QObject *>(next->owner), &se);
 }
 
 /* \internal
-    QShortcutMap dump function, only available when Debug_QShortcutMap is
+    QShortcutMap dump function, only available when DEBUG_QSHORTCUTMAP is
     defined.
 */
 #if defined(Dump_QShortcutMap)

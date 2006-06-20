@@ -1,0 +1,1043 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "qkeymapper_p.h"
+#include <windows.h>
+#include <qdebug.h>
+#include <private/qevent_p.h>
+#include <private/qlocale_p.h>
+
+// Uncommend, to show debugging information for the keymapper
+//#define DEBUG_KEYMAPPER
+
+// Implemented elsewhere
+extern "C" LRESULT CALLBACK QtWndProc(HWND, UINT, WPARAM, LPARAM);
+Q_CORE_EXPORT bool winPostMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+Q_CORE_EXPORT bool winPeekMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax,
+                                  UINT wRemoveMsg);
+extern Q_CORE_EXPORT QLocale qt_localeFromLCID(LCID id);
+#ifndef LANG_PASHTO
+#define LANG_PASHTO 0x63
+#endif
+
+
+// Key recorder ------------------------------------------------------------------------[ start ] --
+struct KeyRecord {
+    KeyRecord(int c, int a, int s, const QString &t) : code(c), ascii(a), state(s), text(t) {}
+    KeyRecord() {}
+
+    int code;
+    int ascii;
+    int state;
+    QString text;
+};
+
+static const int QT_MAX_KEY_RECORDINGS = 64; // User has LOTS of fingers...
+struct KeyRecorder
+{
+    KeyRecorder() : nrecs(0) {}
+
+    inline KeyRecord *findKey(int code, bool remove);
+    inline void storeKey(int code, int ascii, int state, const QString& text);
+    inline void clearKeys();
+
+    int nrecs;
+    KeyRecord deleted_record; // A copy of last entry removed from records[]
+    KeyRecord records[QT_MAX_KEY_RECORDINGS];
+};
+static KeyRecorder key_recorder;
+
+KeyRecord *KeyRecorder::findKey(int code, bool remove)
+{
+    KeyRecord *result = 0;
+    for (int i = 0; i < nrecs; ++i) {
+        if (records[i].code == code) {
+            if (remove) {
+                deleted_record = records[i];
+                // Move rest down, and decrease count
+                while (i + 1 < nrecs) {
+                    records[i] = records[i + 1];
+                    ++i;
+                }
+                --nrecs;
+                result = &deleted_record;
+            } else {
+                result = &records[i];
+            }
+            break;
+        }
+    }
+    return result;
+}
+
+void KeyRecorder::storeKey(int code, int ascii, int state, const QString& text)
+{
+    Q_ASSERT_X(nrecs != QT_MAX_KEY_RECORDINGS,
+               "Internal KeyRecorder",
+               "Keyboard recorder buffer overflow, consider increasing QT_MAX_KEY_RECORDINGS");
+
+    if (nrecs == QT_MAX_KEY_RECORDINGS) {
+        qWarning("Qt: Internal keyboard buffer overflow");
+        return;
+    }
+    records[nrecs++] = KeyRecord(code,ascii,state,text);
+}
+
+void KeyRecorder::clearKeys()
+{
+    nrecs = 0;
+}
+// Key recorder --------------------------------------------------------------------------[ end ] --
+
+
+// Key translation ---------------------------------------------------------------------[ start ] --
+// Meaning of values:
+//             0 = Character output key, needs keyboard driver mapping
+//   Key_unknown = Unknown Virtual Key, no translation possible, ignore
+static const uint KeyTbl[] = { // Keyboard mapping table
+                        // Dec |  Hex |Latin1 | Windows Virtual key
+    Qt::Key_unknown,    //   0   0x00   [NUL]
+    Qt::Key_unknown,    //   1   0x01   [SOH]   VK_LBUTTON          | Left mouse button
+    Qt::Key_unknown,    //   2   0x02   [STX]   VK_RBUTTON          | Right mouse button
+    Qt::Key_Cancel,     //   3   0x03   [ETX]   VK_CANCEL           | Control-Break processing
+    Qt::Key_unknown,    //   4   0x04   [EOT]   VK_MBUTTON          | Middle mouse button
+    Qt::Key_unknown,    //   5   0x05   [ENQ]   VK_XBUTTON1         | X1 mouse button
+    Qt::Key_unknown,    //   6   0x06   [ACK]   VK_XBUTTON2         | X2 mouse button
+    Qt::Key_unknown,    //   7   0x07   [BEL]   -- unassigned --
+    Qt::Key_Backspace,  //   8   0x08   [BS ]   VK_BACK             | BackSpace key
+    Qt::Key_Tab,        //   9   0x09   [HT ]   VK_TAB              | Tab key
+    Qt::Key_unknown,    //  10   0x0A   [LF ]   -- reserved --
+    Qt::Key_unknown,    //  11   0x0B   [VT ]   -- reserved --
+    Qt::Key_Clear,      //  12   0x0C   [FF ]   VK_CLEAR            | Clear key
+    Qt::Key_Return,     //  13   0x0D   [CR ]   VK_RETURN           | Enter key
+    Qt::Key_unknown,    //  14   0x0E   [SO ]   -- unassigned --
+    Qt::Key_unknown,    //  15   0x0F   [SI ]   -- unassigned --
+    Qt::Key_Shift,      //  16   0x10   [DLE]   VK_SHIFT            | Shift key
+    Qt::Key_Control,    //  17   0x11   [DC1]   VK_CONTROL          | Ctrl key
+    Qt::Key_Alt,        //  18   0x12   [DC2]   VK_MENU             | Alt key
+    Qt::Key_Pause,      //  19   0x13   [DC3]   VK_PAUSE            | Pause key
+    Qt::Key_CapsLock,   //  20   0x14   [DC4]   VK_CAPITAL          | Caps-Lock
+    Qt::Key_unknown,    //  21   0x15   [NAK]   VK_KANA / VK_HANGUL | IME Kana or Hangul mode
+    Qt::Key_unknown,    //  22   0x16   [SYN]   -- unassigned --
+    Qt::Key_unknown,    //  23   0x17   [ETB]   VK_JUNJA            | IME Junja mode
+    Qt::Key_unknown,    //  24   0x18   [CAN]   VK_FINAL            | IME final mode
+    Qt::Key_unknown,    //  25   0x19   [EM ]   VK_HANJA / VK_KANJI | IME Hanja or Kanji mode
+    Qt::Key_unknown,    //  26   0x1A   [SUB]   -- unassigned --
+    Qt::Key_Escape,     //  27   0x1B   [ESC]   VK_ESCAPE           | Esc key
+    Qt::Key_unknown,    //  28   0x1C   [FS ]   VK_CONVERT          | IME convert
+    Qt::Key_unknown,    //  29   0x1D   [GS ]   VK_NONCONVERT       | IME non-convert
+    Qt::Key_unknown,    //  30   0x1E   [RS ]   VK_ACCEPT           | IME accept
+    Qt::Key_Mode_switch,//  31   0x1F   [US ]   VK_MODECHANGE       | IME mode change request
+    Qt::Key_Space,      //  32   0x20   [SPC]   VK_SPACE            | Spacebar
+    Qt::Key_PageUp,     //  33   0x21    !      VK_PRIOR            | Page Up key
+    Qt::Key_PageDown,   //  34   0x22    "      VK_NEXT             | Page Down key
+    Qt::Key_End,        //  35   0x23    #      VK_END              | End key
+    Qt::Key_Home,       //  36   0x24    $      VK_HOME             | Home key
+    Qt::Key_Left,       //  37   0x25    %      VK_LEFT             | Left arrow key
+    Qt::Key_Up,         //  38   0x26    &      VK_UP               | Up arrow key
+    Qt::Key_Right,      //  39   0x27    '      VK_RIGHT            | Right arrow key
+    Qt::Key_Down,       //  40   0x28    (      VK_DOWN             | Down arrow key
+    Qt::Key_Select,     //  41   0x29    )      VK_SELECT           | Select key
+    Qt::Key_Printer,    //  42   0x2A    *      VK_PRINT            | Print key
+    Qt::Key_Execute,    //  43   0x2B    +      VK_EXECUTE          | Execute key
+    Qt::Key_Print,      //  44   0x2C    ,      VK_SNAPSHOT         | Print Screen key
+    Qt::Key_Insert,     //  45   0x2D    -      VK_INSERT           | Ins key
+    Qt::Key_Delete,     //  46   0x2E    .      VK_DELETE           | Del key
+    Qt::Key_Help,       //  47   0x2F    /      VK_HELP             | Help key
+    0,                  //  48   0x30    0      (VK_0)              | 0 key
+    0,                  //  49   0x31    1      (VK_1)              | 1 key
+    0,                  //  50   0x32    2      (VK_2)              | 2 key
+    0,                  //  51   0x33    3      (VK_3)              | 3 key
+    0,                  //  52   0x34    4      (VK_4)              | 4 key
+    0,                  //  53   0x35    5      (VK_5)              | 5 key
+    0,                  //  54   0x36    6      (VK_6)              | 6 key
+    0,                  //  55   0x37    7      (VK_7)              | 7 key
+    0,                  //  56   0x38    8      (VK_8)              | 8 key
+    0,                  //  57   0x39    9      (VK_9)              | 9 key
+    Qt::Key_unknown,    //  58   0x3A    :      -- unassigned --
+    Qt::Key_unknown,    //  59   0x3B    ;      -- unassigned --
+    Qt::Key_unknown,    //  60   0x3C    <      -- unassigned --
+    Qt::Key_unknown,    //  61   0x3D    =      -- unassigned --
+    Qt::Key_unknown,    //  62   0x3E    >      -- unassigned --
+    Qt::Key_unknown,    //  63   0x3F    ?      -- unassigned --
+    Qt::Key_unknown,    //  64   0x40    @      -- unassigned --
+    0,                  //  65   0x41    A      (VK_A)              | A key
+    0,                  //  66   0x42    B      (VK_B)              | B key
+    0,                  //  67   0x43    C      (VK_C)              | C key
+    0,                  //  68   0x44    D      (VK_D)              | D key
+    0,                  //  69   0x45    E      (VK_E)              | E key
+    0,                  //  70   0x46    F      (VK_F)              | F key
+    0,                  //  71   0x47    G      (VK_G)              | G key
+    0,                  //  72   0x48    H      (VK_H)              | H key
+    0,                  //  73   0x49    I      (VK_I)              | I key
+    0,                  //  74   0x4A    J      (VK_J)              | J key
+    0,                  //  75   0x4B    K      (VK_K)              | K key
+    0,                  //  76   0x4C    L      (VK_L)              | L key
+    0,                  //  77   0x4D    M      (VK_M)              | M key
+    0,                  //  78   0x4E    N      (VK_N)              | N key
+    0,                  //  79   0x4F    O      (VK_O)              | O key
+    0,                  //  80   0x50    P      (VK_P)              | P key
+    0,                  //  81   0x51    Q      (VK_Q)              | Q key
+    0,                  //  82   0x52    R      (VK_R)              | R key
+    0,                  //  83   0x53    S      (VK_S)              | S key
+    0,                  //  84   0x54    T      (VK_T)              | T key
+    0,                  //  85   0x55    U      (VK_U)              | U key
+    0,                  //  86   0x56    V      (VK_V)              | V key
+    0,                  //  87   0x57    W      (VK_W)              | W key
+    0,                  //  88   0x58    X      (VK_X)              | X key
+    0,                  //  89   0x59    Y      (VK_Y)              | Y key
+    0,                  //  90   0x5A    Z      (VK_Z)              | Z key
+    Qt::Key_Meta,       //  91   0x5B    [      VK_LWIN             | Left Windows  - MS Natural kbd
+    Qt::Key_Meta,       //  92   0x5C    \      VK_RWIN             | Right Windows - MS Natural kbd
+    Qt::Key_Menu,       //  93   0x5D    ]      VK_APPS             | Application key-MS Natural kbd
+    Qt::Key_unknown,    //  94   0x5E    ^      -- reserved --
+    Qt::Key_Sleep,      //  95   0x5F    _      VK_SLEEP
+    Qt::Key_0,          //  96   0x60    `      VK_NUMPAD0          | Numeric keypad 0 key
+    Qt::Key_1,          //  97   0x61    a      VK_NUMPAD1          | Numeric keypad 1 key
+    Qt::Key_2,          //  98   0x62    b      VK_NUMPAD2          | Numeric keypad 2 key
+    Qt::Key_3,          //  99   0x63    c      VK_NUMPAD3          | Numeric keypad 3 key
+    Qt::Key_4,          // 100   0x64    d      VK_NUMPAD4          | Numeric keypad 4 key
+    Qt::Key_5,          // 101   0x65    e      VK_NUMPAD5          | Numeric keypad 5 key
+    Qt::Key_6,          // 102   0x66    f      VK_NUMPAD6          | Numeric keypad 6 key
+    Qt::Key_7,          // 103   0x67    g      VK_NUMPAD7          | Numeric keypad 7 key
+    Qt::Key_8,          // 104   0x68    h      VK_NUMPAD8          | Numeric keypad 8 key
+    Qt::Key_9,          // 105   0x69    i      VK_NUMPAD9          | Numeric keypad 9 key
+    Qt::Key_Asterisk,   // 106   0x6A    j      VK_MULTIPLY         | Multiply key
+    Qt::Key_Plus,       // 107   0x6B    k      VK_ADD              | Add key
+    Qt::Key_Comma,      // 108   0x6C    l      VK_SEPARATOR        | Separator key
+    Qt::Key_Minus,      // 109   0x6D    m      VK_SUBTRACT         | Subtract key
+    Qt::Key_Period,     // 110   0x6E    n      VK_DECIMAL          | Decimal key
+    Qt::Key_Slash,      // 111   0x6F    o      VK_DIVIDE           | Divide key
+    Qt::Key_F1,         // 112   0x70    p      VK_F1               | F1 key
+    Qt::Key_F2,         // 113   0x71    q      VK_F2               | F2 key
+    Qt::Key_F3,         // 114   0x72    r      VK_F3               | F3 key
+    Qt::Key_F4,         // 115   0x73    s      VK_F4               | F4 key
+    Qt::Key_F5,         // 116   0x74    t      VK_F5               | F5 key
+    Qt::Key_F6,         // 117   0x75    u      VK_F6               | F6 key
+    Qt::Key_F7,         // 118   0x76    v      VK_F7               | F7 key
+    Qt::Key_F8,         // 119   0x77    w      VK_F8               | F8 key
+    Qt::Key_F9,         // 120   0x78    x      VK_F9               | F9 key
+    Qt::Key_F10,        // 121   0x79    y      VK_F10              | F10 key
+    Qt::Key_F11,        // 122   0x7A    z      VK_F11              | F11 key
+    Qt::Key_F12,        // 123   0x7B    {      VK_F12              | F12 key
+    Qt::Key_F13,        // 124   0x7C    |      VK_F13              | F13 key
+    Qt::Key_F14,        // 125   0x7D    }      VK_F14              | F14 key
+    Qt::Key_F15,        // 126   0x7E    ~      VK_F15              | F15 key
+    Qt::Key_F16,        // 127   0x7F          VK_F16              | F16 key
+    Qt::Key_F17,        // 128   0x80    €      VK_F17              | F17 key
+    Qt::Key_F18,        // 129   0x81    ?      VK_F18              | F18 key
+    Qt::Key_F19,        // 130   0x82    ‚      VK_F19              | F19 key
+    Qt::Key_F20,        // 131   0x83    ƒ      VK_F20              | F20 key
+    Qt::Key_F21,        // 132   0x84    „      VK_F21              | F21 key
+    Qt::Key_F22,        // 133   0x85    …      VK_F22              | F22 key
+    Qt::Key_F23,        // 134   0x86    †      VK_F23              | F23 key
+    Qt::Key_F24,        // 135   0x87    ‡      VK_F24              | F24 key
+    Qt::Key_unknown,    // 136   0x88    ˆ      -- unassigned --
+    Qt::Key_unknown,    // 137   0x89    ‰      -- unassigned --
+    Qt::Key_unknown,    // 138   0x8A    Š      -- unassigned --
+    Qt::Key_unknown,    // 139   0x8B    ‹      -- unassigned --
+    Qt::Key_unknown,    // 140   0x8C    Œ      -- unassigned --
+    Qt::Key_unknown,    // 141   0x8D    ?      -- unassigned --
+    Qt::Key_unknown,    // 142   0x8E    Ž      -- unassigned --
+    Qt::Key_unknown,    // 143   0x8F    ?      -- unassigned --
+    Qt::Key_NumLock,    // 144   0x90    ?      VK_NUMLOCK          | Num Lock key
+    Qt::Key_ScrollLock, // 145   0x91    ‘      VK_SCROLL           | Scroll Lock key
+                        // Fujitsu/OASYS kbd --------------------
+    0, //Qt::Key_Jisho, // 146   0x92    ’      VK_OEM_FJ_JISHO     | 'Dictionary' key /
+                        //                      VK_OEM_NEC_EQUAL  = key on numpad on NEC PC-9800 kbd
+    Qt::Key_Massyo,     // 147   0x93    “      VK_OEM_FJ_MASSHOU   | 'Unregister word' key
+    Qt::Key_Touroku,    // 148   0x94    ”      VK_OEM_FJ_TOUROKU   | 'Register word' key
+    0, //Qt::Key_Oyayubi_Left,//149   0x95    •      VK_OEM_FJ_LOYA      | 'Left OYAYUBI' key
+    0, //Qt::Key_Oyayubi_Right,//150  0x96    –      VK_OEM_FJ_ROYA      | 'Right OYAYUBI' key
+    Qt::Key_unknown,    // 151   0x97    —      -- unassigned --
+    Qt::Key_unknown,    // 152   0x98    ˜      -- unassigned --
+    Qt::Key_unknown,    // 153   0x99    ™      -- unassigned --
+    Qt::Key_unknown,    // 154   0x9A    š      -- unassigned --
+    Qt::Key_unknown,    // 155   0x9B    ›      -- unassigned --
+    Qt::Key_unknown,    // 156   0x9C    œ      -- unassigned --
+    Qt::Key_unknown,    // 157   0x9D    ?      -- unassigned --
+    Qt::Key_unknown,    // 158   0x9E    ž      -- unassigned --
+    Qt::Key_unknown,    // 159   0x9F    Ÿ      -- unassigned --
+    Qt::Key_Shift,      // 160   0xA0    &nbsp; VK_LSHIFT           | Left Shift key
+    Qt::Key_Shift,      // 161   0xA1    ¡      VK_RSHIFT           | Right Shift key
+    Qt::Key_Control,    // 162   0xA2    ¢      VK_LCONTROL         | Left Ctrl key
+    Qt::Key_Control,    // 163   0xA3    £      VK_RCONTROL         | Right Ctrl key
+    Qt::Key_Alt,        // 164   0xA4    ¤      VK_LMENU            | Left Menu key
+    Qt::Key_Alt,        // 165   0xA5    ¥      VK_RMENU            | Right Menu key
+    Qt::Key_Back,       // 166   0xA6    ¦      VK_BROWSER_BACK     | Browser Back key
+    Qt::Key_Forward,    // 167   0xA7    §      VK_BROWSER_FORWARD  | Browser Forward key
+    Qt::Key_Refresh,    // 168   0xA8    ¨      VK_BROWSER_REFRESH  | Browser Refresh key
+    Qt::Key_Stop,       // 169   0xA9    ©      VK_BROWSER_STOP     | Browser Stop key
+    Qt::Key_Search,     // 170   0xAA    ª      VK_BROWSER_SEARCH   | Browser Search key
+    Qt::Key_Favorites,  // 171   0xAB    «      VK_BROWSER_FAVORITES| Browser Favorites key
+    Qt::Key_HomePage,   // 172   0xAC    ¬      VK_BROWSER_HOME     | Browser Start and Home key
+    Qt::Key_VolumeMute, // 173   0xAD    ­      VK_VOLUME_MUTE      | Volume Mute key
+    Qt::Key_VolumeDown, // 174   0xAE    ®      VK_VOLUME_DOWN      | Volume Down key
+    Qt::Key_VolumeUp,   // 175   0xAF    ¯      VK_VOLUME_UP        | Volume Up key
+    Qt::Key_MediaNext,  // 176   0xB0    °      VK_MEDIA_NEXT_TRACK | Next Track key
+    Qt::Key_MediaPrevious, //177 0xB1    ±      VK_MEDIA_PREV_TRACK | Previous Track key
+    Qt::Key_MediaStop,  // 178   0xB2    ²      VK_MEDIA_STOP       | Stop Media key
+    Qt::Key_MediaPlay,  // 179   0xB3    ³      VK_MEDIA_PLAY_PAUSE | Play/Pause Media key
+    Qt::Key_LaunchMail, // 180   0xB4    ´      VK_LAUNCH_MAIL      | Start Mail key
+    Qt::Key_LaunchMedia,// 181   0xB5    µ      VK_LAUNCH_MEDIA_SELECT Select Media key
+    Qt::Key_Launch0,    // 182   0xB6    ¶      VK_LAUNCH_APP1      | Start Application 1 key
+    Qt::Key_Launch1,    // 183   0xB7    ·      VK_LAUNCH_APP2      | Start Application 2 key
+    Qt::Key_unknown,    // 184   0xB8    ¸      -- reserved --
+    Qt::Key_unknown,    // 185   0xB9    ¹      -- reserved --
+    0,                  // 186   0xBA    º      VK_OEM_1            | ';:' for US
+    0,                  // 187   0xBB    »      VK_OEM_PLUS         | '+' any country
+    0,                  // 188   0xBC    ¼      VK_OEM_COMMA        | ',' any country
+    0,                  // 189   0xBD    ½      VK_OEM_MINUS        | '-' any country
+    0,                  // 190   0xBE    ¾      VK_OEM_PERIOD       | '.' any country
+    0,                  // 191   0xBF    ¿      VK_OEM_2            | '/?' for US
+    0,                  // 192   0xC0    À      VK_OEM_3            | '`~' for US
+    Qt::Key_unknown,    // 193   0xC1    Á      -- reserved --
+    Qt::Key_unknown,    // 194   0xC2    Â      -- reserved --
+    Qt::Key_unknown,    // 195   0xC3    Ã      -- reserved --
+    Qt::Key_unknown,    // 196   0xC4    Ä      -- reserved --
+    Qt::Key_unknown,    // 197   0xC5    Å      -- reserved --
+    Qt::Key_unknown,    // 198   0xC6    Æ      -- reserved --
+    Qt::Key_unknown,    // 199   0xC7    Ç      -- reserved --
+    Qt::Key_unknown,    // 200   0xC8    È      -- reserved --
+    Qt::Key_unknown,    // 201   0xC9    É      -- reserved --
+    Qt::Key_unknown,    // 202   0xCA    Ê      -- reserved --
+    Qt::Key_unknown,    // 203   0xCB    Ë      -- reserved --
+    Qt::Key_unknown,    // 204   0xCC    Ì      -- reserved --
+    Qt::Key_unknown,    // 205   0xCD    Í      -- reserved --
+    Qt::Key_unknown,    // 206   0xCE    Î      -- reserved --
+    Qt::Key_unknown,    // 207   0xCF    Ï      -- reserved --
+    Qt::Key_unknown,    // 208   0xD0    Ð      -- reserved --
+    Qt::Key_unknown,    // 209   0xD1    Ñ      -- reserved --
+    Qt::Key_unknown,    // 210   0xD2    Ò      -- reserved --
+    Qt::Key_unknown,    // 211   0xD3    Ó      -- reserved --
+    Qt::Key_unknown,    // 212   0xD4    Ô      -- reserved --
+    Qt::Key_unknown,    // 213   0xD5    Õ      -- reserved --
+    Qt::Key_unknown,    // 214   0xD6    Ö      -- reserved --
+    Qt::Key_unknown,    // 215   0xD7    ×      -- reserved --
+    Qt::Key_unknown,    // 216   0xD8    Ø      -- unassigned --
+    Qt::Key_unknown,    // 217   0xD9    Ù      -- unassigned --
+    Qt::Key_unknown,    // 218   0xDA    Ú      -- unassigned --
+    0,                  // 219   0xDB    Û      VK_OEM_4            | '[{' for US
+    0,                  // 220   0xDC    Ü      VK_OEM_5            | '\|' for US
+    0,                  // 221   0xDD    Ý      VK_OEM_6            | ']}' for US
+    0,                  // 222   0xDE    Þ      VK_OEM_7            | ''"' for US
+    0,                  // 223   0xDF    ß      VK_OEM_8
+    Qt::Key_unknown,    // 224   0xE0    à      -- reserved --
+    Qt::Key_unknown,    // 225   0xE1    á      VK_OEM_AX           | 'AX' key on Japanese AX kbd
+    Qt::Key_unknown,    // 226   0xE2    â      VK_OEM_102          | "<>" or "\|" on RT 102-key kbd
+    Qt::Key_unknown,    // 227   0xE3    ã      VK_ICO_HELP         | Help key on ICO
+    Qt::Key_unknown,    // 228   0xE4    ä      VK_ICO_00           | 00 key on ICO
+    Qt::Key_unknown,    // 229   0xE5    å      VK_PROCESSKEY       | IME Process key
+    Qt::Key_unknown,    // 230   0xE6    æ      VK_ICO_CLEAR        |
+    Qt::Key_unknown,    // 231   0xE7    ç      VK_PACKET           | Unicode char as keystrokes
+    Qt::Key_unknown,    // 232   0xE8    è      -- unassigned --
+                        // Nokia/Ericsson definitions ---------------
+    Qt::Key_unknown,    // 233   0xE9    é      VK_OEM_RESET
+    Qt::Key_unknown,    // 234   0xEA    ê      VK_OEM_JUMP
+    Qt::Key_unknown,    // 235   0xEB    ë      VK_OEM_PA1
+    Qt::Key_unknown,    // 236   0xEC    ì      VK_OEM_PA2
+    Qt::Key_unknown,    // 237   0xED    í      VK_OEM_PA3
+    Qt::Key_unknown,    // 238   0xEE    î      VK_OEM_WSCTRL
+    Qt::Key_unknown,    // 239   0xEF    ï      VK_OEM_CUSEL
+    Qt::Key_unknown,    // 240   0xF0    ð      VK_OEM_ATTN
+    Qt::Key_unknown,    // 241   0xF1    ñ      VK_OEM_FINISH
+    Qt::Key_unknown,    // 242   0xF2    ò      VK_OEM_COPY
+    Qt::Key_unknown,    // 243   0xF3    ó      VK_OEM_AUTO
+    Qt::Key_unknown,    // 244   0xF4    ô      VK_OEM_ENLW
+    Qt::Key_unknown,    // 245   0xF5    õ      VK_OEM_BACKTAB
+    Qt::Key_unknown,    // 246   0xF6    ö      VK_ATTN             | Attn key
+    Qt::Key_unknown,    // 247   0xF7    ÷      VK_CRSEL            | CrSel key
+    Qt::Key_unknown,    // 248   0xF8    ø      VK_EXSEL            | ExSel key
+    Qt::Key_unknown,    // 249   0xF9    ù      VK_EREOF            | Erase EOF key
+    Qt::Key_Play,       // 250   0xFA    ú      VK_PLAY             | Play key
+    Qt::Key_Zoom,       // 251   0xFB    û      VK_ZOOM             | Zoom key
+    Qt::Key_unknown,    // 252   0xFC    ü      VK_NONAME           | Reserved
+    Qt::Key_unknown,    // 253   0xFD    ý      VK_PA1              | PA1 key
+    Qt::Key_Clear,      // 254   0xFE    þ      VK_OEM_CLEAR        | Clear key
+    0
+};
+
+// Possible modifier states.
+// NOTE: The order of these states match the order in QKeyMapperPrivate::updatePossibleKeyCodes()!
+static const Qt::KeyboardModifiers ModsTbl[] = {
+    Qt::NoModifier,                                             // 0
+    Qt::ShiftModifier,                                          // 1
+    Qt::ControlModifier,                                        // 2
+    Qt::ControlModifier | Qt::ShiftModifier,                    // 3
+    Qt::AltModifier,                                            // 4
+    Qt::AltModifier | Qt::ShiftModifier,                        // 5
+    Qt::AltModifier | Qt::ControlModifier,                      // 6
+    Qt::AltModifier | Qt::ShiftModifier | Qt::ControlModifier,  // 7
+};
+
+// Translate a VK into a Qt key code, or unicode character
+static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *kbdBuffer)
+{
+    Q_ASSERT(vk > 0 && vk < 256);
+    int code = 0;
+    QChar unicodeBuffer[5];
+    int res = ToUnicode(vk, scancode, kbdBuffer, reinterpret_cast<LPWSTR>(unicodeBuffer), 5, 0);
+    if (res)
+        code = unicodeBuffer[0].toUpper().unicode();
+
+    // Qt::Key_*'s are not encoded below 0x20, so try again, and DEL keys (0x7f) is encoded with a
+    // proper Qt::Key_ code
+    if (code < 0x20 || code == 0x7f) // Handles res==0 too
+        code = KeyTbl[vk];
+
+    return code == Qt::Key_unknown ? 0 : code;
+}
+
+static inline int asciiToKeycode(char a, int state)
+{
+    if (a >= 'a' && a <= 'z')
+        a = toupper(a);
+    if ((state & Qt::ControlModifier) != 0) {
+        if (a >= 0 && a <= 31)              // Ctrl+@..Ctrl+A..CTRL+Z..Ctrl+_
+            a += '@';                       // to @..A..Z.._
+    }
+    return a & 0xff;
+}
+
+static int inputcharset = CP_ACP;
+static inline QChar wmchar_to_unicode(DWORD c)
+{
+    // qt_winMB2QString is the generalization of this function.
+    QT_WA({
+        return QChar((ushort)c);
+    } , {
+        char mb[2];
+        mb[0] = c & 0xff;
+        mb[1] = 0;
+        WCHAR wc[1];
+        MultiByteToWideChar(inputcharset, MB_PRECOMPOSED, mb, -1, wc, 1);
+        return QChar(wc[0]);
+    });
+}
+
+static inline QChar imechar_to_unicode(DWORD c)
+{
+    // qt_winMB2QString is the generalization of this function.
+    QT_WA({
+        return QChar((ushort)c);
+    } , {
+        char mb[3];
+        mb[0] = (c >> 8) & 0xff;
+        mb[1] = c & 0xff;
+        mb[2] = 0;
+        WCHAR wc[1];
+        MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mb, -1, wc, 1);
+        return QChar(wc[0]);
+    });
+}
+
+static inline bool isModifierKey(int code)
+{
+    return (code >= Qt::Key_Shift) && (code <= Qt::Key_ScrollLock);
+}
+// Key translation -----------------------------------------------------------------------[ end ]---
+
+
+static void qt_show_system_menu(QWidget* tlw)
+{
+    Q_ASSERT(tlw->testAttribute(Qt::WA_WState_Created));
+    HMENU menu = GetSystemMenu(tlw->winId(), FALSE);
+    if (!menu)
+        return; // no menu for this window
+
+#define enabled (MF_BYCOMMAND | MF_ENABLED)
+#define disabled (MF_BYCOMMAND | MF_GRAYED)
+
+#ifndef Q_OS_TEMP
+    EnableMenuItem(menu, SC_MINIMIZE, (tlw->windowFlags() & Qt::WindowMinimizeButtonHint)?enabled:disabled);
+    bool maximized = IsZoomed(tlw->winId());
+
+    EnableMenuItem(menu, SC_MAXIMIZE, ! (tlw->windowFlags() & Qt::WindowMaximizeButtonHint) || maximized?disabled:enabled);
+    EnableMenuItem(menu, SC_RESTORE, maximized?enabled:disabled);
+
+    EnableMenuItem(menu, SC_SIZE, maximized?disabled:enabled);
+    EnableMenuItem(menu, SC_MOVE, maximized?disabled:enabled);
+    EnableMenuItem(menu, SC_CLOSE, enabled);
+#endif
+
+#undef enabled
+#undef disabled
+    int ret = TrackPopupMenuEx(menu,
+                               TPM_LEFTALIGN  | TPM_TOPALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
+                               tlw->geometry().x(), tlw->geometry().y(),
+                               tlw->winId(),
+                               0);
+    if (ret)
+        QtWndProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
+}
+
+
+// QETWidget class is only for accessing the sendSpontaneousEvent function in QApplication
+class QETWidget : public QWidget {
+public:
+    static bool sendSpontaneousEvent(QObject *r, QEvent *e)
+    { return QApplication::sendSpontaneousEvent(r, e); }
+};
+
+
+// Keyboard map private ----------------------------------------------------------------[ start ]---
+
+/*!
+    \internal
+    A Windows KeyboardLayoutItem has 8 possible states:
+        1. Unmodified
+        2. Shift
+        3. Control
+        4. Control + Shift
+        5. Alt
+        6. Alt + Shift
+        7. Alt + Control
+        8. Alt + Control + Shift
+*/
+struct KeyboardLayoutItem {
+    bool dirty;
+    quint32 qtKey[8]; // Can by any Qt::Key_<foo>, or unicode character
+};
+
+QKeyMapperPrivate::QKeyMapperPrivate()
+{
+    memset(keyLayout, 0, sizeof(keyLayout));
+}
+
+QKeyMapperPrivate::~QKeyMapperPrivate()
+{
+    clearMappings();
+}
+
+void QKeyMapperPrivate::clearMappings()
+{
+    for (int i = 0; i < 255; ++i) {
+        if (keyLayout[i]) {
+            delete keyLayout[i];
+            keyLayout[i] = 0;
+        }
+    }
+
+    LCID newLCID = MAKELCID(GetKeyboardLayout(0), SORT_DEFAULT);
+    keyboardInputLocale = qt_localeFromLCID(newLCID);
+
+    bool bidi = false;
+#ifdef UNICODE
+    if (QSysInfo::WindowsVersion >= QSysInfo::WV_2000) {
+        WCHAR wchLCIDFontSig[16];
+        if (GetLocaleInfoW(newLCID,
+                           LOCALE_FONTSIGNATURE,
+                           &wchLCIDFontSig[0],
+                           (sizeof(wchLCIDFontSig)/sizeof(WCHAR)))
+            && (wchLCIDFontSig[7] & (WCHAR)0x0800))
+        bidi = true;
+    } else
+#endif //UNICODE 
+    {
+        if (newLCID == 0x0859 ||  //Sindhi (Arabic script)
+            newLCID == 0x0460)    //Kashmiri (Arabic script)
+            bidi = true;;   
+
+        switch (PRIMARYLANGID(newLCID))
+        {
+            case LANG_ARABIC:
+            case LANG_HEBREW:
+            case LANG_URDU:
+            case LANG_FARSI:
+            case LANG_PASHTO:
+            //case LANG_UIGHUR:
+            case LANG_SYRIAC:
+            case LANG_DIVEHI:
+                bidi = true;
+        }
+    }
+
+    keyboardInputDirection = bidi ? Qt::RightToLeft : Qt::LeftToRight;
+}
+
+void QKeyMapperPrivate::clearRecordedKeys()
+{
+    key_recorder.clearKeys();
+}
+
+
+inline void setKbdState(unsigned char *kbd, bool shift, bool ctrl, bool alt)
+{
+    kbd[VK_LSHIFT  ] = (shift ? 0x80 : 0);
+    kbd[VK_SHIFT   ] = (shift ? 0x80 : 0);
+    kbd[VK_LCONTROL] = (ctrl ? 0x80 : 0);
+    kbd[VK_CONTROL ] = (ctrl ? 0x80 : 0);
+    kbd[VK_RMENU   ] = (alt ? 0x80 : 0);
+    kbd[VK_MENU    ] = (alt ? 0x80 : 0);
+}
+
+void QKeyMapperPrivate::updateKeyMap(const MSG &msg)
+{
+    unsigned char kbdBuffer[256]; // Will hold the complete keyboard state
+    GetKeyboardState(kbdBuffer);
+    quint32 scancode = (msg.lParam >> 16) & 0xfff;
+    updatePossibleKeyCodes(kbdBuffer, scancode, msg.wParam);
+}
+
+void QKeyMapperPrivate::updatePossibleKeyCodes(unsigned char *kbdBuffer, quint32 scancode,
+                                               quint32 vk_key)
+{
+    if (!vk_key || (keyLayout[vk_key] && !keyLayout[vk_key]->dirty))
+        return;
+
+    if (!keyLayout[vk_key])
+        keyLayout[vk_key] = new KeyboardLayoutItem;
+
+    // Copy keyboard state, so we can modify and query output for each possible permutation
+    unsigned char buffer[256];
+    memcpy(buffer, kbdBuffer, sizeof(buffer));
+    // Always 0, as Windows doesn't treat these as modifiers;
+    buffer[VK_LWIN    ] = 0;
+    buffer[VK_RWIN    ] = 0;
+    buffer[VK_CAPITAL ] = 0;
+    buffer[VK_NUMLOCK ] = 0;
+    buffer[VK_SCROLL  ] = 0;
+    // Always 0, since we'll only change the other versions
+    buffer[VK_RSHIFT  ] = 0;
+    buffer[VK_RCONTROL] = 0;
+    buffer[VK_LMENU   ] = 0; // Use right Alt, since left Ctrl + right Alt is considered AltGraph
+
+    keyLayout[vk_key]->dirty = false;
+    setKbdState(buffer, false, false, false);
+    keyLayout[vk_key]->qtKey[0] = toKeyOrUnicode(vk_key, scancode, buffer);
+    setKbdState(buffer, true, false, false);
+    keyLayout[vk_key]->qtKey[1] = toKeyOrUnicode(vk_key, scancode, buffer);
+    setKbdState(buffer, false, true, false);
+    keyLayout[vk_key]->qtKey[2] = toKeyOrUnicode(vk_key, scancode, buffer);
+    setKbdState(buffer, true, true, false);
+    keyLayout[vk_key]->qtKey[3] = toKeyOrUnicode(vk_key, scancode, buffer);
+    setKbdState(buffer, false, false, true);
+    keyLayout[vk_key]->qtKey[4] = toKeyOrUnicode(vk_key, scancode, buffer);
+    setKbdState(buffer, true, false, true);
+    keyLayout[vk_key]->qtKey[5] = toKeyOrUnicode(vk_key, scancode, buffer);
+    setKbdState(buffer, false, true, true);
+    keyLayout[vk_key]->qtKey[6] = toKeyOrUnicode(vk_key, scancode, buffer);
+    setKbdState(buffer, true, true, true);
+    keyLayout[vk_key]->qtKey[7] = toKeyOrUnicode(vk_key, scancode, buffer);
+
+#ifdef DEBUG_KEYMAPPER
+    qDebug("updatePossibleKeyCodes for virtual key = 0x%02x!", vk_key);
+    for (int i = 0; i < 8; ++i) {
+        qDebug("    [%d] (%d,0x%02x,'%c')", i,
+               keyLayout[vk_key]->qtKey[i],
+               keyLayout[vk_key]->qtKey[i],
+               keyLayout[vk_key]->qtKey[i]);
+    }
+#endif // DEBUG_KEYMAPPER
+}
+
+QList<int> QKeyMapperPrivate::possibleKeys(QKeyEvent *e)
+{
+    QList<int> result;
+
+    KeyboardLayoutItem *kbItem = keyLayout[e->nativeVirtualKey()];
+    Q_ASSERT(kbItem);
+
+    int baseKey = kbItem->qtKey[0];
+    Qt::KeyboardModifiers keyMods = e->modifiers();
+    result << int(baseKey + keyMods); // The base key is _always_ valid, of course
+
+    for(int i = 1; i < 8; ++i) {
+        Qt::KeyboardModifiers neededMods = ModsTbl[i];
+        quint32 key = kbItem->qtKey[i];
+        if (key && key != baseKey && ((keyMods & neededMods) == neededMods))
+            result << int(key + (keyMods & ~neededMods));
+    }
+
+    return result;
+}
+
+bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool grab)
+{
+    Q_Q(QKeyMapper);
+    Q_UNUSED(q); // Strange, but the compiler complains on q not being referenced, even if it is..
+    bool k0 = false;
+    bool k1 = false;
+    int  msgType = msg.message;
+
+    unsigned char kbdBuffer[256]; // Will hold the complete keyboard state
+    GetKeyboardState(kbdBuffer);
+    quint32 scancode = (msg.lParam >> 16) & 0xfff;
+    quint32 vk_key = MapVirtualKey(scancode, 1);
+    bool isDeadKey = MapVirtualKey(msg.wParam, 2) & 0x80008000; // High-order on 95 is 0x8000
+    quint32 nModifiers = 0;
+    // Map native modifiers to some bit representation
+    nModifiers |= (kbdBuffer[VK_LSHIFT  ] & 0x80 ? ShiftLeft : 0);
+    nModifiers |= (kbdBuffer[VK_RSHIFT  ] & 0x80 ? ShiftRight : 0);
+    nModifiers |= (kbdBuffer[VK_LCONTROL] & 0x80 ? ControlLeft : 0);
+    nModifiers |= (kbdBuffer[VK_RCONTROL] & 0x80 ? ControlRight : 0);
+    nModifiers |= (kbdBuffer[VK_LMENU   ] & 0x80 ? AltLeft : 0);
+    nModifiers |= (kbdBuffer[VK_RMENU   ] & 0x80 ? AltRight : 0);
+    nModifiers |= (kbdBuffer[VK_LWIN    ] & 0x80 ? MetaLeft : 0);
+    nModifiers |= (kbdBuffer[VK_RWIN    ] & 0x80 ? MetaRight : 0);
+    // Add Lock keys to the same bits
+    nModifiers |= (kbdBuffer[VK_CAPITAL ] & 0x01 ? CapsLock : 0);
+    nModifiers |= (kbdBuffer[VK_NUMLOCK ] & 0x01 ? NumLock : 0);
+    nModifiers |= (kbdBuffer[VK_SCROLL  ] & 0x01 ? ScrollLock : 0);
+
+    // Get the modifier states (may be altered later, depending on key code)
+    int state = 0;
+    state |= (nModifiers & ShiftAny ? Qt::ShiftModifier : 0);
+    state |= (nModifiers & ControlAny ? Qt::ControlModifier : 0);
+    state |= (nModifiers & AltAny ? Qt::AltModifier : 0);
+    state |= (nModifiers & MetaAny ? Qt::MetaModifier : 0);
+
+    // A multi-character key not found by our look-ahead
+    if (msgType == WM_CHAR) {
+        QString s;
+        QChar ch = wmchar_to_unicode(msg.wParam);
+        if (!ch.isNull())
+            s += ch;
+
+        k0 = q->sendKeyEvent(widget, grab, QEvent::KeyPress, 0, Qt::KeyboardModifier(state), s, false, 0, scancode, vk_key, nModifiers);
+        k1 = q->sendKeyEvent(widget, grab, QEvent::KeyRelease, 0, Qt::KeyboardModifier(state), s, false, 0, scancode, vk_key, nModifiers);
+    }
+
+    // Input method characters not found by our look-ahead
+    else if (msgType == WM_IME_CHAR) {
+        QString s;
+        QChar ch = imechar_to_unicode(msg.wParam);
+        if (!ch.isNull())
+            s += ch;
+
+        k0 = q->sendKeyEvent(widget, grab, QEvent::KeyPress, 0, Qt::KeyboardModifier(state), s, false, 0, scancode, vk_key, nModifiers);
+        k1 = q->sendKeyEvent(widget, grab, QEvent::KeyRelease, 0, Qt::KeyboardModifier(state), s, false, 0, scancode, vk_key, nModifiers);
+    }
+
+    else {
+        // handle Directionality changes (BiDi) with RTL extensions
+        extern bool qt_use_rtl_extensions;
+        if (qt_use_rtl_extensions) {
+            static int dirStatus = 0;
+            if (!dirStatus && state == Qt::ControlModifier
+                && msg.wParam == VK_CONTROL
+                && msgType == WM_KEYDOWN) {
+                if (GetKeyState(VK_LCONTROL) < 0)
+                    dirStatus = VK_LCONTROL;
+                else if (GetKeyState(VK_RCONTROL) < 0)
+                    dirStatus = VK_RCONTROL;
+            } else if (dirStatus) {
+                if (msgType == WM_KEYDOWN) {
+                    if (msg.wParam == VK_SHIFT) {
+                        if (dirStatus == VK_LCONTROL && GetKeyState(VK_LSHIFT) < 0)
+                            dirStatus = VK_LSHIFT;
+                        else if (dirStatus == VK_RCONTROL && GetKeyState(VK_RSHIFT) < 0)
+                            dirStatus = VK_RSHIFT;
+                    } else {
+                        dirStatus = 0;
+                    }
+                } else if (msgType == WM_KEYUP) {
+                    if (dirStatus == VK_LSHIFT
+                        && (msg.wParam == VK_SHIFT && GetKeyState(VK_LCONTROL)
+                        || msg.wParam == VK_CONTROL && GetKeyState(VK_LSHIFT))) {
+                            k0 = q->sendKeyEvent(widget, grab, QEvent::KeyPress, Qt::Key_Direction_L, 0,
+                                                 QString(), false, 0,
+                                                 scancode, msg.wParam, nModifiers);
+                            k1 = q->sendKeyEvent(widget, grab, QEvent::KeyRelease, Qt::Key_Direction_L, 0,
+                                                 QString(), false, 0,
+                                                 scancode, msg.wParam, nModifiers);
+                            dirStatus = 0;
+                        } else if (dirStatus == VK_RSHIFT
+                                   && (msg.wParam == VK_SHIFT && GetKeyState(VK_RCONTROL)
+                                   || msg.wParam == VK_CONTROL && GetKeyState(VK_RSHIFT))) {
+                                k0 = q->sendKeyEvent(widget, grab, QEvent::KeyPress, Qt::Key_Direction_R,
+                                                     0, QString(), false, 0,
+                                                     scancode, msg.wParam, nModifiers);
+                                k1 = q->sendKeyEvent(widget, grab, QEvent::KeyRelease, Qt::Key_Direction_R,
+                                                     0, QString(), false, 0,
+                                                     scancode, msg.wParam, nModifiers);
+                                dirStatus = 0;
+                            } else {
+                                dirStatus = 0;
+                            }
+                } else {
+                    dirStatus = 0;
+                }
+            }
+        }
+
+        // IME will process these keys, so simply return
+        if(msg.wParam == VK_PROCESSKEY)
+            return true;
+
+        // Translate VK_* (native) -> Key_* (Qt) keys
+        // If it's a dead key, we cannot use the toKeyOrUnicode() function, since that will change
+        // the internal state of the keyboard driver, resulting in that dead keys no longer works.
+        int code = isDeadKey ? 0 : toKeyOrUnicode(msg.wParam, scancode, kbdBuffer);
+
+        // Invert state logic:
+        // If the key actually pressed is a modifier key, then we remove its modifier key from the
+        // state, since a modifier-key can't have itself as a modifier
+        if (code == Qt::Key_Control)
+            state = state ^ Qt::ControlModifier;
+        else if (code == Qt::Key_Shift)
+            state = state ^ Qt::ShiftModifier;
+        else if (code == Qt::Key_Alt)
+            state = state ^ Qt::AltModifier;
+
+        // If the bit 24 of lParm is set you received a enter,
+        // otherwise a Return. (This is the extended key bit)
+        if ((code == Qt::Key_Return) && (msg.lParam & 0x1000000))
+            code = Qt::Key_Enter;
+
+        // All cursor keys without extended bit
+        if (!(msg.lParam & 0x1000000)) {
+            switch (code) {
+            case Qt::Key_Left:
+            case Qt::Key_Right:
+            case Qt::Key_Up:
+            case Qt::Key_Down:
+            case Qt::Key_PageUp:
+            case Qt::Key_PageDown:
+            case Qt::Key_Home:
+            case Qt::Key_End:
+            case Qt::Key_Insert:
+            case Qt::Key_Delete:
+            case Qt::Key_Asterisk:
+            case Qt::Key_Plus:
+            case Qt::Key_Minus:
+            case Qt::Key_Period:
+            case Qt::Key_0:
+            case Qt::Key_1:
+            case Qt::Key_2:
+            case Qt::Key_3:
+            case Qt::Key_4:
+            case Qt::Key_5:
+            case Qt::Key_6:
+            case Qt::Key_7:
+            case Qt::Key_8:
+            case Qt::Key_9:
+                state |= ((msg.wParam >= '0' && msg.wParam <= '9')
+                         || (msg.wParam >= VK_OEM_PLUS && msg.wParam <= VK_OEM_3))
+                            ? 0 : Qt::KeypadModifier;
+            default:
+                if ((uint)msg.lParam == 0x004c0001 || (uint)msg.lParam == 0xc04c0001)
+                    state |= Qt::KeypadModifier;
+                break;
+            }
+        }
+        // Other keys with with extended bit
+        else {
+            switch (code) {
+            case Qt::Key_Enter:
+            case Qt::Key_Slash:
+            case Qt::Key_NumLock:
+                state |= Qt::KeypadModifier;
+            default:
+                break;
+            }
+        }
+
+        // KEYDOWN ---------------------------------------------------------------------------------
+        if (msgType == WM_KEYDOWN || msgType == WM_IME_KEYDOWN || msgType == WM_SYSKEYDOWN) {
+            // Get the last record of this key press, so we can validate the current state
+            // The record is not removed from the list
+            KeyRecord *rec = key_recorder.findKey(msg.wParam, false);
+
+            // If rec's state doesn't match the current state, something has changed behind our back
+            // (Consumed by modal widget is one possibility) So, remove the record from the list
+            // This will stop the auto-repeat of the key, should a modifier change, for example
+            if (rec && rec->state != state) {
+                key_recorder.findKey(msg.wParam, true);
+                rec = 0;
+            }
+
+            // Find unicode character from Windows Message Queue
+            MSG wm_char;
+            UINT charType = (msgType == WM_KEYDOWN
+                                ? WM_CHAR
+                                : msgType == WM_IME_KEYDOWN ? WM_IME_CHAR : WM_SYSCHAR);
+
+            QChar uch;
+            if (winPeekMessage(&wm_char, 0, charType, charType, PM_REMOVE)) {
+                // Found a ?_CHAR
+                uch = charType == WM_IME_CHAR
+                                    ? imechar_to_unicode(wm_char.wParam)
+                                    : wmchar_to_unicode(wm_char.wParam);
+                if (msgType == WM_SYSKEYDOWN && uch.isLetter() && (msg.lParam & KF_ALTDOWN))
+                    uch = uch.toLower(); // (See doc of WM_SYSCHAR) Alt-letter
+                if (!code && !uch.row())
+                    code = asciiToKeycode(uch.cell(), state);
+            }
+
+            // If no ?_CHAR was found in the queue; deduct character from the ?_KEYDOWN parameters
+            if (uch.isNull()) {
+                if (msg.wParam == VK_DELETE) {
+                    uch = QChar(QLatin1Char(0x7f)); // Windows doesn't know this one.
+                } else {
+                    if (msgType != WM_SYSKEYDOWN || !code) {
+                        UINT map;
+                        QT_WA({
+                            map = MapVirtualKey(msg.wParam, 2);
+                        } , {
+                            map = MapVirtualKeyA(msg.wParam, 2);
+                            // High-order bit is 0x8000 on '95
+                            if (map & 0x8000)
+                                map = (map^0x8000)|0x80000000;
+                        });
+                        // If the high bit of the return value is set, it's a deadkey
+                        if (!(map & 0x80000000))
+                            uch = wmchar_to_unicode((DWORD)map);
+                    }
+                }
+                if (!code && !uch.row())
+                    code = asciiToKeycode(uch.cell(), state);
+            }
+
+            // Special handling of global Windows hotkeys
+            if (state == Qt::AltModifier) {
+                switch (code) {
+                case Qt::Key_Escape:
+                case Qt::Key_Tab:
+                case Qt::Key_Enter:
+                case Qt::Key_F4:
+                    return false; // Send the event on to Windows
+                case Qt::Key_Space:
+                    // do not pass this key to windows, we will process it ourselves
+                    qt_show_system_menu(widget->window());
+                    return true;
+                default:
+                    break;
+                }
+            }
+
+            // Map SHIFT + Tab to SHIFT + BackTab, QShortcutMap knows about this translation
+            if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
+                code = Qt::Key_Backtab;
+
+            // If we have a record, it means that the key is already pressed, the state is the same
+            // so, we have an auto-repeating key
+            if (rec) {
+                if (code < Qt::Key_Shift || code > Qt::Key_ScrollLock) {
+                    k0 = q->sendKeyEvent(widget, grab, QEvent::KeyRelease, code,
+                                         Qt::KeyboardModifier(state), rec->text, true, 0,
+                                         scancode, msg.wParam, nModifiers);
+                    k1 = q->sendKeyEvent(widget, grab, QEvent::KeyPress, code,
+                                         Qt::KeyboardModifier(state), rec->text, true, 0,
+                                         scancode, msg.wParam, nModifiers);
+                }
+            }
+            // No record of the key being previous pressed, so we now send a QEvent::KeyPress event,
+            // and store the key data into our records.
+            else {
+                QString text;
+                if (!uch.isNull())
+                    text += uch;
+                char a = uch.row() ? 0 : uch.cell();
+                k0 = q->sendKeyEvent(widget, grab, QEvent::KeyPress, code, Qt::KeyboardModifier(state),
+                                     text, false, 0, scancode, msg.wParam, nModifiers);
+
+                bool store = true;
+                // Alt+<alphanumerical> go to the Win32 menu system if unhandled by Qt
+                if (msgType == WM_SYSKEYDOWN && !k0 && a) {
+                    HWND parent = GetParent(widget->winId());
+                    while (parent) {
+                        if (GetMenu(parent)) {
+                            SendMessage(parent, WM_SYSCOMMAND, SC_KEYMENU, a);
+                            store = false;
+                            k0 = true;
+                            break;
+                        }
+                        parent = GetParent(parent);
+                    }
+                }
+                if (store)
+                    key_recorder.storeKey(msg.wParam, a, state, text);
+            }
+        }
+
+        // KEYUP -----------------------------------------------------------------------------------
+        else {
+            // Try to locate the key in our records, and remove it if it exists.
+            // The key may not be in our records if, for example, the down event was handled by
+            // win32 natively, or our window gets focus while a key is already press, but now gets
+            // the key release event.
+            KeyRecord* rec = key_recorder.findKey(msg.wParam, true);
+            if (!rec) {
+                // Someone ate the key down event
+            } else {
+                if (!code)
+                    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam, state);
+
+                // Map SHIFT + Tab to SHIFT + BackTab, QShortcutMap knows about this translation
+                if (code == Qt::Key_Tab && (state & Qt::ShiftModifier) == Qt::ShiftModifier)
+                    code = Qt::Key_Backtab;
+
+                k0 = q->sendKeyEvent(widget, grab, QEvent::KeyRelease, code, Qt::KeyboardModifier(state),
+                                     rec->text, false, 0, scancode, msg.wParam, nModifiers);
+
+                // don't pass Alt to Windows unless we are embedded in a non-Qt window
+                if (code == Qt::Key_Alt) {
+                    k0 = true;
+                    HWND parent = GetParent(widget->winId());
+                    while (parent) {
+                        if (!QWidget::find(parent) && GetMenu(parent)) {
+                            k0 = false;
+                            break;
+                        }
+                        parent = GetParent(parent);
+                    }
+                }
+            }
+        }
+    }
+
+    // Return true, if a QKeyEvent was sent to a widget
+    return k0 || k1;
+}
+
+
+// QKeyMapper (Windows) implementation -------------------------------------------------[ start ]---
+
+bool QKeyMapper::sendKeyEvent(QWidget *widget, bool grab,
+                              QEvent::Type type, int code, Qt::KeyboardModifiers modifiers,
+                              const QString &text, bool autorepeat, int count,
+                              quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers)
+{
+    Q_UNUSED(count);
+#if 1 // ####### Enable Support stuff below
+    Q_UNUSED(grab);
+#elif defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
+    if (type == QEvent::KeyPress
+        && !grab
+        && QApplicationPrivate::instance()->use_compat()) {
+        // send accel events if the keyboard is not grabbed
+        QKeyEventEx a(type, code, modifiers,
+                      text, autorepeat, qMax(1, int(text.length())),
+                      nativeScanCode, nativeVirtualKey, nativeModifiers);
+        if (QApplicationPrivate::instance()->qt_tryAccelEvent(this, &a))
+            return true;
+    }
+#endif
+    if (!widget->isEnabled())
+        return false;
+
+    QKeyEventEx e(type, code, modifiers,
+                  text, autorepeat, qMax(1, int(text.length())),
+                  nativeScanCode, nativeVirtualKey, nativeModifiers);
+    QETWidget::sendSpontaneousEvent(widget, &e);
+
+    if (!isModifierKey(code)
+        && modifiers == Qt::AltModifier
+        && ((code >= Qt::Key_A && code <= Qt::Key_Z) || (code >= Qt::Key_0 && code <= Qt::Key_9))
+        && type == QEvent::KeyPress
+        && !e.isAccepted())
+        QApplication::beep();           // Emulate windows behavior
+
+    return e.isAccepted();
+}

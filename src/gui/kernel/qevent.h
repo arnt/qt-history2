@@ -177,8 +177,7 @@ protected:
 class Q_GUI_EXPORT QKeyEvent : public QInputEvent
 {
 public:
-    QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers,
-              const QString& text = QString(),
+    QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const QString& text = QString(),
               bool autorep = false, ushort count = 1);
     ~QKeyEvent();
 
@@ -188,6 +187,17 @@ public:
     inline QString text() const { return txt; }
     inline bool isAutoRepeat() const { return autor; }
     inline int count() const { return int(c); }
+
+    // Functions for the extended key event information
+    static QKeyEvent *createExtendedKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers,
+                                             quint32 nativeScanCode, quint32 nativeVirtualKey,
+                                             quint32 nativeModifiers,
+                                             const QString& text = QString(), bool autorep = false,
+                                             ushort count = 1);
+    inline bool hasExtendedInfo() const { return reinterpret_cast<const QKeyEvent*>(d) == this; }
+    quint32 nativeScanCode() const;
+    quint32 nativeVirtualKey() const;
+    quint32 nativeModifiers() const;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT_CONSTRUCTOR QKeyEvent(Type type, int key, int /*ascii*/,

@@ -14,7 +14,7 @@
 #ifndef QGUIEVENTDISPATCHER_GLIB_P_H
 #define QGUIEVENTDISPATCHER_GLIB_P_H
 
-#include "../../corelib/kernel/qeventdispatcher_glib_p.h"
+#include <QtCore/private/qeventdispatcher_glib_p.h>
 
 class QGuiEventDispatcherGlibPrivate;
 

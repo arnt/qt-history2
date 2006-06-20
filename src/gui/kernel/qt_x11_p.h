@@ -270,6 +270,8 @@ enum DesktopEnvironment {
 
 struct QX11Data
 {
+    static Qt::KeyboardModifiers translateModifiers(int s);
+
     Window findClientWindow(Window, Atom, bool);
 
     // from qclipboard_x11.cpp
@@ -540,6 +542,9 @@ struct QX11Data
 
         XmTRANSFER_SUCCESS,
         XmTRANSFER_FAILURE,
+
+        // Xkb
+        _XKB_RULES_NAMES,
 
         NPredefinedAtoms,
 

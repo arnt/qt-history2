@@ -40,8 +40,9 @@ class QDesktopWidget;
 class QStyle;
 class QEventLoop;
 class QIcon;
-template <typename T> class QList;
 class QInputContext;
+template <typename T> class QList;
+class QLocale;
 #if defined(Q_WS_QWS)
 class QDecoration;
 #endif
@@ -204,6 +205,9 @@ public:
 #endif
     void setInputContext(QInputContext *);
     QInputContext *inputContext() const;
+
+    static QLocale keyboardInputLocale();
+    static Qt::LayoutDirection keyboardInputDirection();
 
     static int exec();
     bool notify(QObject *, QEvent *);

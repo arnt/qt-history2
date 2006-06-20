@@ -70,8 +70,8 @@ private:
 
     QKeySequence::SequenceMatch find(QKeyEvent *e);
     QVector<const QShortcutEntry *> matches() const;
-    void createNewSequence(QKeyEvent *e, QKeySequence &seq);
-    void clearSequence(QKeySequence &seq);
+    void createNewSequences(QKeyEvent *e, QVector<QKeySequence> &ksl);
+    void clearSequence(QVector<QKeySequence> &ksl);
     bool correctContext(const QShortcutEntry &item);
     int translateModifiers(Qt::KeyboardModifiers modifiers);
 };

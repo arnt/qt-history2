@@ -20,6 +20,7 @@
 #include "qdebug.h"
 #include "qmime.h"
 #include "qdnd_p.h"
+#include "qevent_p.h"
 
 /*!
     \class QInputEvent
@@ -618,6 +619,83 @@ QKeyEvent::QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const 
   \internal
 */
 QKeyEvent::~QKeyEvent()
+{
+}
+
+/*!
+*/
+QKeyEvent *QKeyEvent::createExtendedKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers,
+                                             quint32 nativeScanCode, quint32 nativeVirtualKey,
+                                             quint32 nativeModifiers,
+                                             const QString& text, bool autorep, ushort count)
+{
+    return new QKeyEventEx(type, key, modifiers, text, autorep, count,
+                           nativeScanCode, nativeVirtualKey, nativeModifiers);
+}
+
+/*!
+    Returns the native scan code of the key event.
+    If the key event does not contain this data 0 is returned.
+    Note: The native scan code may be 0, even if the key event contains extended information.
+*/
+quint32 QKeyEvent::nativeScanCode() const
+{
+    return (reinterpret_cast<const QKeyEvent*>(d) != this
+            ? 0 : reinterpret_cast<const QKeyEventEx*>(this)->nScanCode);
+}
+
+/*!
+    Returns the native virtual key, or key sym of the key event.
+    If the key event does not contain this data 0 is returned.
+    Note: The native virtual key may be 0, even if the key event contains extended information.
+*/
+quint32 QKeyEvent::nativeVirtualKey() const
+{
+    return (reinterpret_cast<const QKeyEvent*>(d) != this
+            ? 0 : reinterpret_cast<const QKeyEventEx*>(this)->nVirtualKey);
+}
+
+/*!
+    Returns the native modifiers of a key event.
+    If the key event does not contain this data 0 is returned.
+    Note: The native modifiers may be 0, even if the key event contains extended information.
+*/
+quint32 QKeyEvent::nativeModifiers() const
+{
+    return (reinterpret_cast<const QKeyEvent*>(d) != this
+            ? 0 : reinterpret_cast<const QKeyEventEx*>(this)->nModifiers);
+}
+
+/*!
+    \internal
+    Creates an extended key event object, which in addition to the normal key event data, also
+    contains the native scan code, virtual key and modifiers. This extra data is used by the
+    shortcut system, to determine which shortcuts to trigger.
+*/
+QKeyEventEx::QKeyEventEx(Type type, int key, Qt::KeyboardModifiers modifiers,
+                         const QString &text, bool autorep, ushort count,
+                         quint32 nativeScanCode, quint32 nativeVirtualKey, quint32 nativeModifiers)
+    : QKeyEvent(type, key, modifiers, text, autorep, count),
+      nScanCode(nativeScanCode), nVirtualKey(nativeVirtualKey), nModifiers(nativeModifiers)
+{
+    d = reinterpret_cast<QEventPrivate*>(this);
+}
+
+/*!
+    \internal
+    Creates a copy of an other extended key event.
+*/
+QKeyEventEx::QKeyEventEx(const QKeyEventEx &other)
+    : QKeyEvent(QEvent::Type(other.t), other.k, other.modState, other.txt, other.autor, other.c),
+      nScanCode(other.nScanCode), nVirtualKey(other.nVirtualKey), nModifiers(other.nModifiers)
+{
+    d = reinterpret_cast<QEventPrivate*>(this);
+}
+
+/*!
+    \internal
+*/
+QKeyEventEx::~QKeyEventEx()
 {
 }
 
@@ -3135,5 +3213,16 @@ QMenubarUpdatedEvent::QMenubarUpdatedEvent(QMenuBar * const menuBar)
     Equivalent to \c {e->matches(key)}.
 */
 
+/*!
+    \internal
+
+    \class QKeyEventEx
+    \ingroup events
+
+    \brief The QKeyEventEx class provides more extended information about a keyevent.
+
+    This class is for internal use only, and exists to aid the clipboard on various
+    platforms to get all the information it needs.  Use QEvent::Clipboard instead.
+*/
 
 #endif

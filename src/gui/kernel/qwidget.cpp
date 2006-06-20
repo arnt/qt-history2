@@ -5579,6 +5579,21 @@ bool QWidget::event(QEvent *event)
         actionEvent((QActionEvent*)event);
         break;
 #endif
+
+    case QEvent::KeyboardLayoutChange:
+        {
+            changeEvent(event);
+
+            // inform children of the change
+            QList<QObject*> childList = d->children;
+            for (int i = 0; i < childList.size(); ++i) {
+                QWidget *w = qobject_cast<QWidget *>(childList.at(i));
+                if (w && w->isVisible() && !w->isWindow())
+                    QApplication::sendEvent(w, event);
+            }
+            break;
+        }
+
     default:
         return QObject::event(event);
     }
