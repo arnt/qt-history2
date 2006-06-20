@@ -46,7 +46,7 @@ UnixMakefileGenerator::init()
         project->values("QMAKE_CFLAGS_PRECOMPILE").append("-x c-header -c");
     if(project->isEmpty("QMAKE_CXXFLAGS_PRECOMPILE"))
         project->values("QMAKE_CXXFLAGS_PRECOMPILE").append("-x c++-header -c");
-    if(project->isActiveConfig("macx")) {
+    if(project->isActiveConfig("objective_c")) {
         if(project->isEmpty("QMAKE_OBJCFLAGS_PRECOMPILE"))
             project->values("QMAKE_OBJCFLAGS_PRECOMPILE").append("-x objective-c-header -c");
         if(project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE"))
@@ -329,15 +329,17 @@ QStringList
                     if(!ret.contains(precomp_c_h))
                         ret += precomp_c_h;
                 }
-                if(!project->isEmpty("QMAKE_OBJCFLAGS_PRECOMPILE")) {
-                    QString precomp_objc_h = header_prefix + "objective-c";
-                    if(!ret.contains(precomp_objc_h))
-                        ret += precomp_objc_h;
-                }
-                if(!project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE")) {
-                    QString precomp_objcpp_h = header_prefix + "objective-c++";
-                    if(!ret.contains(precomp_objcpp_h))
-                        ret += precomp_objcpp_h;
+                if(project->isActiveConfig("objective_c")) {
+                    if(!project->isEmpty("QMAKE_OBJCFLAGS_PRECOMPILE")) {
+                        QString precomp_objc_h = header_prefix + "objective-c";
+                        if(!ret.contains(precomp_objc_h))
+                            ret += precomp_objc_h;
+                    }
+                    if(!project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE")) {
+                        QString precomp_objcpp_h = header_prefix + "objective-c++";
+                        if(!ret.contains(precomp_objcpp_h))
+                            ret += precomp_objcpp_h;
+                    }
                 }
                 break;
             }
@@ -349,10 +351,12 @@ QStringList
                     if(!ret.contains(precomp_cpp_h))
                         ret += precomp_cpp_h;
                 }
-                if(!project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE")) {
-                    QString precomp_objcpp_h = header_prefix + "objective-c++";
-                    if(!ret.contains(precomp_objcpp_h))
-                        ret += precomp_objcpp_h;
+                if(project->isActiveConfig("objective_c")) {
+                    if(!project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE")) {
+                        QString precomp_objcpp_h = header_prefix + "objective-c++";
+                        if(!ret.contains(precomp_objcpp_h))
+                            ret += precomp_objcpp_h;
+                    }
                 }
                 break;
             }

@@ -808,10 +808,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             precomp_files += precomph_out_dir + header_prefix + "c";
         if(!project->isEmpty("QMAKE_CXXFLAGS_PRECOMPILE"))
             precomp_files += precomph_out_dir + header_prefix + "c++";
-        if(!project->isEmpty("QMAKE_OBJCFLAGS_PRECOMPILE"))
-            precomp_files += precomph_out_dir + header_prefix + "objective-c";
-        if(!project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE"))
-            precomp_files += precomph_out_dir + header_prefix + "objective-c++";
+        if(project->isActiveConfig("objective_c")) {
+            if(!project->isEmpty("QMAKE_OBJCFLAGS_PRECOMPILE"))
+                precomp_files += precomph_out_dir + header_prefix + "objective-c";
+            if(!project->isEmpty("QMAKE_OBJCXXFLAGS_PRECOMPILE"))
+                precomp_files += precomph_out_dir + header_prefix + "objective-c++";
+        }
         t << "-$(DEL_FILE) " << precomp_files.join(" ") << "\n\t";
     }
     if(!project->isEmpty("IMAGES"))
@@ -873,14 +875,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             outdir += project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep;
 
             QString outfile = outdir;
-            if(comps[i] == "C")
+            if(comps[i] == "C") {
                 outfile += header_prefix + "c";
-            else if(comps[i] == "CXX")
+            } else if(comps[i] == "CXX") {
                 outfile += header_prefix + "c++";
-            else if(comps[i] == "OBJC")
-                outfile += header_prefix + "objective-c";
-            else if(comps[i] == "OBJCXX")
-                outfile += header_prefix + "objective-c++";
+            } else if(project->isActiveConfig("objective_c")) {
+                if(comps[i] == "OBJC")
+                    outfile += header_prefix + "objective-c";
+                else if(comps[i] == "OBJCXX")
+                    outfile += header_prefix + "objective-c++";
+            }
+            if(outfile.isEmpty())
+                continue;
 
             QString compiler;
             if(comps[i] == "C" || comps[i] == "OBJC" || comps[i] == "OBJCXX")
