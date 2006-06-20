@@ -88,12 +88,29 @@
 /*!
     \enum QHeaderView::ResizeMode
 
-    \value Interactive Don't automatically change the size (let the
-    user do it manually).
-    \value Stretch Fill all the available visible space.
-    \value Custom Don't automatically change the size here, leave it
-    to some other object.
-    \value ResizeToContents Automatically resize to the contents of the view.
+    The resize mode specifies the behavior of the header sections.
+    It can be set on the entire header view or on individual sections using setResizeMode().
+
+    \value Interactive The user can resize the section.
+                                The section can also be resized programmatically using resizeSection().
+                                The section size defaults to \l defaultSectionSize.
+                                (See also \l cascadingSectionResizes.)
+
+    \value Fixed The user cannot resize the section.
+                         The section can only be resized programmatically using resizeSection().
+                         The section size defaults to \l defaultSectionSize.
+
+    \value Stretch QHeaderView will automatically resize the section to fill the available space.
+                           The size cannot be changed by the user or programmatically.
+
+    \value ResizeToContents QHeaderView will automatically resize the section to its optimal
+                                             size based on the contents of the entire column or row.
+                                             The size cannot be changed by the user or programmatically.
+
+    The following values are obsolete:
+    \value Custom Use Fixed instead.
+
+    \sa setResizeMode() stretchLastSection minimumSectionSize
 */
 
 /*!
@@ -173,6 +190,7 @@
 
     \sa setResizeMode(), stretchLastSection()
 */
+// ### Qt 5: change to sectionAutoResized()
 
 /*!
   \fn void QHeaderView::geometriesChanged()
@@ -667,7 +685,7 @@ void QHeaderView::swapSections(int first, int second)
 /*!
     Resizes the given \a logicalIndex to the given \a size.
 
-    \sa sectionResized()
+    \sa sectionResized() resizeMode()
 */
 
 void QHeaderView::resizeSection(int logical, int size)
@@ -1099,7 +1117,9 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
 
 /*!
     \property QHeaderView::stretchLastSection
-    \brief whether the last visible section in the header takes up all the available space.  The default value is false.
+    \brief whether the last visible section in the header takes up all the available space
+
+    The default value is false.
 
     \sa setResizeMode()
 */
@@ -1125,7 +1145,13 @@ void QHeaderView::setStretchLastSection(bool stretch)
     \since 4.2
     \property QHeaderView::cascadingSectionResizes
     \brief whether interactive resizing will be cascaded to the following sections once the
-    section being resized by the user has reached its minimum size. The default value is true.
+    section being resized by the user has reached its minimum size
+
+    This property only affects sections that have \l Interactive as the resize mode.
+
+    The default value is true.
+
+    \sa setResizeMode()
 */
 bool QHeaderView::cascadingSectionResizes() const
 {
@@ -1143,6 +1169,9 @@ void QHeaderView::setCascadingSectionResizes(bool enable)
     \property QHeaderView::defaultSectionSize
     \brief the default size of the header sections before resizing.
 
+    This property only affects sections that have \l Interactive or \l Fixed as the resize mode.
+
+    \sa setResizeMode() minimumSectionSize
 */
 int QHeaderView::defaultSectionSize() const
 {
@@ -1159,13 +1188,16 @@ void QHeaderView::setDefaultSectionSize(int size)
 /*!
     \since 4.2
     \property QHeaderView::minimumSectionSize
-    \brief the minimum size of the header sections when resizing.
+    \brief the minimum size of the header sections.
 
-    The minimumSectionSize is the smallest section size allowed.
-    If the minimumSectionSize is set to -1, the property will use the
-    maximum of the global strut or the fontmetrics size.
+    The minimum section size is the smallest section size allowed.
+    If the minimum section size is set to -1, QHeaderView will use the
+    maximum of the \l{QApplication::globalStrut()}{global strut}
+    or the \l{fontMetrics()}{font metrics} size.
 
-    \sa QApplication::globalStrut(), fontMetrics()
+    This property is honored by all \l{ResizeMode}{resize modes}.
+
+    \sa setResizeMode() defaultSectionSize
 */
 int QHeaderView::minimumSectionSize() const
 {
@@ -2315,7 +2347,7 @@ bool QHeaderViewPrivate::isSectionSelected(int section) const
   The different resize modes are:
   Interactive - the user decides the size
   Stretch - take up whatever space is left
-  Custom - the size is set programatically outside the header
+  Fixed - the size is set programatically outside the header
  */
 void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool useGlobalMode)
 {
@@ -2358,7 +2390,7 @@ void QHeaderViewPrivate::resizeSections(QHeaderView::ResizeMode globalMode, bool
 
         // because it isn't stretch, determine its width and remove that from lengthToStrech
         int sectionSize = 0;
-        if (resizeMode == QHeaderView::Interactive || resizeMode == QHeaderView::Custom) {
+        if (resizeMode == QHeaderView::Interactive || resizeMode == QHeaderView::Fixed) {
             sectionSize = headerSectionSize(i);
         } else { // resizeMode == QHeaderView::ResizeToContents
             int logicalIndex = q->logicalIndex(i);

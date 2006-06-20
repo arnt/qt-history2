@@ -42,7 +42,8 @@ public:
     {
         Interactive,
         Stretch,
-        Custom,
+        Fixed,
+        Custom = Fixed,
         ResizeToContents
     };
 

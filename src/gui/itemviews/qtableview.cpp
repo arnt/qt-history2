@@ -1946,7 +1946,7 @@ void QTableView::resizeRowToContents(int row)
 void QTableView::resizeRowsToContents()
 {
     Q_D(QTableView);
-    d->verticalHeader->resizeSections(QHeaderView::Custom);
+    d->verticalHeader->resizeSections(QHeaderView::Fixed);
 }
 
 /*!
@@ -1968,7 +1968,7 @@ void QTableView::resizeColumnToContents(int column)
 void QTableView::resizeColumnsToContents()
 {
     Q_D(QTableView);
-    d->horizontalHeader->resizeSections(QHeaderView::Custom);
+    d->horizontalHeader->resizeSections(QHeaderView::Fixed);
 }
 
 /*!
