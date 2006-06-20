@@ -822,9 +822,11 @@ void tst_QGraphicsScene::mouseGrabberItem()
     QVERIFY(!scene.mouseGrabberItem());
 
     QGraphicsItem *item = scene.addRect(QRectF(-10, -10, 20, 20));
+    item->setFlag(QGraphicsItem::ItemIsMovable);
     item->setZValue(1);
 
     QGraphicsItem *item2 = scene.addRect(QRectF(-10, -10, 20, 20));
+    item2->setFlag(QGraphicsItem::ItemIsMovable);
     item2->setZValue(0);
 
     for (int i = 0; i < 3; ++i) {
@@ -1173,6 +1175,11 @@ void tst_QGraphicsScene::mouseEventPropagation()
     b->setParentItem(a);
     c->setParentItem(b);
     d->setParentItem(c);
+
+    a->setFlag(QGraphicsItem::ItemIsMovable);
+    b->setFlag(QGraphicsItem::ItemIsMovable);
+    c->setFlag(QGraphicsItem::ItemIsMovable);
+    d->setFlag(QGraphicsItem::ItemIsMovable);
 
     // scene -> a -> b -> c -> d
     QGraphicsScene scene;

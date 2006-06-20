@@ -702,6 +702,9 @@ void tst_QGraphicsItem::acceptedMouseButtons()
     QGraphicsRectItem *item2 = scene.addRect(QRectF(-10, -10, 20, 20));
     item2->setZValue(1);
 
+    item1->setFlag(QGraphicsItem::ItemIsMovable);
+    item2->setFlag(QGraphicsItem::ItemIsMovable);
+
     QCOMPARE(item1->acceptedMouseButtons(), Qt::MouseButtons(0x1f));
     QCOMPARE(item2->acceptedMouseButtons(), Qt::MouseButtons(0x1f));
 
