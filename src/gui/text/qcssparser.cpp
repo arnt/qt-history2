@@ -422,11 +422,11 @@ Qt::Alignment Declaration::alignmentValue() const
     Qt::Alignment align;
     if (values.isEmpty() || values.count() > 2)
         return align;
-    align |= static_cast<Qt::Alignment>(
+    align |= Qt::Alignment(
                     findKnownValue(values.at(0).variant.toString(), 
                                    positions, 5));
     if (values.count() > 1)
-        align |= static_cast<Qt::Alignment>
+        align |= Qt::Alignment
                     (findKnownValue(values.at(1).variant.toString(), 
                                     positions, 5));
     return align;
