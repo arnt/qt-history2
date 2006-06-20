@@ -893,7 +893,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////
 RenderRule *QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt) const
 {
-    QStyle::State state = opt ? opt->state : QStyle::State_Enabled;
+    QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_Enabled);
     RenderRule *rule = cachedRules.value(w);
     if (!rule)
         return 0;
