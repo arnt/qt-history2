@@ -1744,6 +1744,8 @@ void QSortFilterProxyModel::clear()
 
    This function should be called if you are implementing
    custom filtering, and you filter parameters changed.
+
+   \since 4.2
 */
 void QSortFilterProxyModel::filterChanged()
 {
