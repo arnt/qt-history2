@@ -26,7 +26,7 @@
 #ifndef QDBUSCONNECTION_P_H
 #define QDBUSCONNECTION_P_H
 
-#include "qdbuserror.h"
+#include <QtDBus/qdbuserror.h>
 
 #include <QtCore/qatomic.h>
 #include <QtCore/qeventloop.h>
@@ -40,7 +40,7 @@
 
 #include <dbus/dbus.h>
 
-#include "qdbusmessage.h"
+#include <QtDBus/qdbusmessage.h>
 
 class QDBusMessage;
 class QSocketNotifier;

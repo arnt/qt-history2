@@ -14,7 +14,10 @@
 #ifndef QDBUSINTERFACE_H
 #define QDBUSINTERFACE_H
 
-#include "qdbusabstractinterface.h"
+#include <QtDBus/qdbusabstractinterface.h>
+
+QT_BEGIN_HEADER
+
 
 class QDBusInterfacePrivate;
 class QDBUS_EXPORT QDBusInterface: public QDBusAbstractInterface
@@ -49,5 +52,7 @@ private:
     QDBusInterface *const d;
     Q_DISABLE_COPY(QDBusInterfacePtr)
 };
+
+QT_END_HEADER
 
 #endif

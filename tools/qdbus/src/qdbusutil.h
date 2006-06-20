@@ -17,7 +17,10 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qvariant.h>
 
-#include "qdbusmacros.h"
+#include <QtDBus/qdbusmacros.h>
+
+QT_BEGIN_HEADER
+
 
 namespace QDBusUtil
 {
@@ -37,5 +40,7 @@ namespace QDBusUtil
 
     QDBUS_EXPORT bool isValidSingleSignature(const QString &signature);
 }
+
+QT_END_HEADER
 
 #endif

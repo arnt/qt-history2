@@ -21,8 +21,10 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qstringlist.h>
 #include <QtCore/qvariant.h>
-#include "qdbusextratypes.h"
-#include "qdbusmacros.h"
+#include <QtDBus/qdbusextratypes.h>
+#include <QtDBus/qdbusmacros.h>
+
+QT_BEGIN_HEADER
 
 
 class QDBusArgumentPrivate;
@@ -105,6 +107,8 @@ template<typename T> inline T qdbus_cast(const QVariant &v, T * = 0)
         return qvariant_cast<T>(v);
 }
 
-#include "qdbusargumentoperators.h"
+QT_END_HEADER
+
+#include <QtDBus/qdbusargumentoperators.h>
 
 #endif

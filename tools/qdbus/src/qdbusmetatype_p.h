@@ -14,7 +14,7 @@
 #ifndef QDBUSMETATYPE_P_H
 #define QDBUSMETATYPE_P_H
 
-#include "qdbusmetatype.h"
+#include <QtDBus/qdbusmetatype.h>
 
 struct QDBusMetaTypeId
 {

@@ -13,9 +13,12 @@
 #ifndef QDBUSSERVER_H
 #define QDBUSSERVER_H
 
-#include "qdbusmacros.h"
 #include <QtCore/qobject.h>
 #include <QtCore/qstring.h>
+#include <QtDBus/qdbusmacros.h>
+
+QT_BEGIN_HEADER
+
 
 class QDBusConnectionPrivate;
 class QDBusError;
@@ -34,5 +37,7 @@ private:
     Q_DISABLE_COPY(QDBusServer)
     QDBusConnectionPrivate *d;
 };
+
+QT_END_HEADER
 
 #endif

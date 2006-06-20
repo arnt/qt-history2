@@ -26,7 +26,7 @@
 #ifndef QDBUSABSTRACTADAPTORPRIVATE_H
 #define QDBUSABSTRACTADAPTORPRIVATE_H
 
-#include "qdbusabstractadaptor.h"
+#include <QtDBus/qdbusabstractadaptor.h>
 
 #include <QtCore/qobject.h>
 #include <QtCore/qmap.h>

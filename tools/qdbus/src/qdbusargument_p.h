@@ -14,7 +14,7 @@
 #ifndef QDBUSARGUMENT_P_H
 #define QDBUSARGUMENT_P_H
 
-#include "qdbusargument.h"
+#include <QtDBus/qdbusargument.h>
 #include <dbus/dbus.h>
 
 class QDBusMarshaller;

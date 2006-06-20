@@ -19,8 +19,11 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qobject.h>
 
-#include "qdbusmessage.h"
-#include "qdbusextratypes.h"
+#include <QtDBus/qdbusmessage.h>
+#include <QtDBus/qdbusextratypes.h>
+
+QT_BEGIN_HEADER
+
 
 class QDBusConnection;
 class QDBusError;
@@ -253,5 +256,7 @@ template<> inline QVariant QDBusAbstractInterface::qvfv(const QVariant &t)
 
 template<> inline QVariant QDBusAbstractInterface::qvfv(const QLatin1String &str)
 { return QVariant(str); }
+
+QT_END_HEADER
 
 #endif

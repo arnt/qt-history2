@@ -14,8 +14,11 @@
 #ifndef QDBUSCONNECTION_H
 #define QDBUSCONNECTION_H
 
-#include "qdbusmacros.h"
+#include <QtDBus/qdbusmacros.h>
 #include <QtCore/qstring.h>
+
+QT_BEGIN_HEADER
+
 
 class QDBusAbstractInterfacePrivate;
 class QDBusInterface;
@@ -110,4 +113,7 @@ namespace QDBus {
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDBusConnection::RegisterOptions)
+
+QT_END_HEADER
+
 #endif

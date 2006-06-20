@@ -17,10 +17,13 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/qvariant.h>
 
-#include "qdbusmacros.h"
-#include "qdbusmessage.h"
-#include "qdbuserror.h"
-#include "qdbusextratypes.h"
+#include <QtDBus/qdbusmacros.h>
+#include <QtDBus/qdbusmessage.h>
+#include <QtDBus/qdbuserror.h>
+#include <QtDBus/qdbusextratypes.h>
+
+QT_BEGIN_HEADER
+
 
 QDBUS_EXPORT void qDBusReplyFill(const QDBusMessage &reply, QDBusError &error, QVariant &data);
 
@@ -130,5 +133,7 @@ private:
     QDBusError m_error;
 };
 # endif
+
+QT_END_HEADER
 
 #endif

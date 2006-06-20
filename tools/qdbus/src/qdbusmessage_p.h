@@ -16,7 +16,7 @@
 
 #include <qatomic.h>
 #include <qstring.h>
-#include "qdbusconnection.h"
+#include <QtDBus/qdbusconnection.h>
 struct DBusMessage;
 
 class QDBusMessagePrivate

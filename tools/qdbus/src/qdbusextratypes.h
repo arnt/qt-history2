@@ -19,7 +19,10 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qstring.h>
 
-#include "qdbusutil.h"
+#include <QtDBus/qdbusutil.h>
+
+QT_BEGIN_HEADER
+
 
 struct QDBusObjectPath
 {
@@ -68,5 +71,7 @@ struct QDBusVariant
     QVariant value;
 };
 Q_DECLARE_METATYPE(QDBusVariant)
+
+QT_END_HEADER
 
 #endif

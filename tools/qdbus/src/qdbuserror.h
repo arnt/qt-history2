@@ -14,8 +14,11 @@
 #ifndef QDBUSERROR_H
 #define QDBUSERROR_H
 
-#include "qdbusmacros.h"
+#include <QtDBus/qdbusmacros.h>
 #include <QtCore/qstring.h>
+
+QT_BEGIN_HEADER
+
 
 struct DBusError;
 class QDBusMessage;
@@ -78,5 +81,7 @@ inline bool operator!=(const QDBusError &p1, QDBusError::KnownErrors p2)
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug, const QDBusError &);
 #endif
+
+QT_END_HEADER
 
 #endif

@@ -15,7 +15,10 @@
 #define QDBUSMETATYPE_H
 
 #include "QtCore/qmetatype.h"
-#include "qdbusargument.h"
+#include <QtDBus/qdbusargument.h>
+
+QT_BEGIN_HEADER
+
 
 class QDBUS_EXPORT QDBusMetaType
 {
@@ -57,5 +60,6 @@ int qDBusRegisterMetaType(const char *typeName
     return id;
 }
 
-#endif
+QT_END_HEADER
 
+#endif

@@ -16,8 +16,11 @@
 
 #include <QtCore/qstringlist.h>
 
-#include "qdbusabstractinterface.h"
-#include "qdbusreply.h"
+#include <QtDBus/qdbusabstractinterface.h>
+#include <QtDBus/qdbusreply.h>
+
+QT_BEGIN_HEADER
+
 
 class QDBusConnection;
 class QString;
@@ -143,5 +146,7 @@ template<> inline int qt_variant_metatype_id(QDBusBusService::ReleaseNameReply *
 { return QVariant::UInt; }
 template<> inline int qt_variant_metatype_id(QDBusBusService::RequestNameReply *)
 { return QVariant::UInt; }
+
+QT_END_HEADER
 
 #endif

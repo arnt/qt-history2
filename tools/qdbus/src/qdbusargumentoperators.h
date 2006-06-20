@@ -19,6 +19,9 @@
 #include <QtCore/qrect.h>
 #include <QtCore/qline.h>
 
+QT_BEGIN_HEADER
+
+
 inline const QDBusArgument &operator>>(const QDBusArgument &a, uchar &arg)
 { arg = a.toByte(); return a; }
 
@@ -361,5 +364,6 @@ inline QDBusArgument &operator<<(QDBusArgument &arg, const QVariantMap &map)
     return arg;
 }
 
+QT_END_HEADER
 
 #endif

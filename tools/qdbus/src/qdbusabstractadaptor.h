@@ -15,7 +15,10 @@
 #define QDBUSABSTRACTADAPTOR_H
 
 #include <QtCore/qobject.h>
-#include "qdbusmacros.h"
+#include <QtDBus/qdbusmacros.h>
+
+QT_BEGIN_HEADER
+
 
 class QDBusAbstractAdaptorPrivate;
 class QDBUS_EXPORT QDBusAbstractAdaptor: public QObject
@@ -33,5 +36,7 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QDBusAbstractAdaptor)
 };
+
+QT_END_HEADER
 
 #endif

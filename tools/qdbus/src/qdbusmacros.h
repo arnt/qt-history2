@@ -18,6 +18,9 @@
 #include <QtCore/qmetatype.h>
 #include <QtCore/qvariant.h>
 
+QT_BEGIN_HEADER
+
+
 #ifdef QT_NO_MEMBER_TEMPLATES
 # error Sorry, you need a compiler with support for template member functions to compile QtDBus.
 #endif
@@ -38,5 +41,7 @@
 #include <QtCore/qhash.h>
 #include <QtCore/qvector.h>
 #endif
+
+QT_END_HEADER
 
 #endif

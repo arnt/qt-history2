@@ -14,12 +14,15 @@
 #ifndef QDBUSMESSAGE_H
 #define QDBUSMESSAGE_H
 
-#include "qdbusmacros.h"
-#include "qdbuserror.h"
+#include <QtDBus/qdbusmacros.h>
+#include <QtDBus/qdbuserror.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qvariant.h>
 
 #include <limits.h>
+
+QT_BEGIN_HEADER
+
 
 class QDBusMessagePrivate;
 class QDBusConnection;
@@ -84,6 +87,8 @@ private:
 #ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug, const QDBusMessage &);
 #endif
+
+QT_END_HEADER
 
 #endif
 
