@@ -855,6 +855,18 @@ static void qParseArgs(int argc, char *argv[])
     }
 }
 
+struct QTestDataSetter
+{
+    QTestDataSetter(QTestData *data)
+    {
+        QTestResult::setCurrentTestData(data);
+    }
+    ~QTestDataSetter()
+    {
+        QTestResult::setCurrentTestData(0);
+    }
+};
+
 /*!
     Call init(), slot_data(), slot(), slot(), slot()..., cleanup()
     If data is set then it is the only test that is performed
@@ -896,8 +908,8 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
             do {
                 if (!data || !qstrcmp(data, table.testData(curDataIndex)->dataTag())) {
                     foundFunction = true;
-                    if (!table.isEmpty())
-                        QTestResult::setCurrentTestData(table.testData(curDataIndex));
+                    QTestDataSetter s(table.isEmpty() ? static_cast<QTestData *>(0) 
+                                                      : table.testData(curDataIndex));
                     QTestResult::setCurrentTestLocation(QTestResult::InitFunc);
                     QMetaObject::invokeMethod(QTest::currentTestObject, "init");
                     if (QTest::skipCurrentTest)
@@ -913,7 +925,6 @@ static bool qInvokeTestMethod(const char *slotName, const char *data=0)
                     QTestResult::setCurrentTestLocation(QTestResult::CleanupFunc);
                     QMetaObject::invokeMethod(QTest::currentTestObject, "cleanup");
                     QTestResult::setCurrentTestLocation(QTestResult::NoWhere);
-                    QTestResult::setCurrentTestData(0);
 
                     if (QTest::skipCurrentTest)
                         // check whether SkipAll was requested
