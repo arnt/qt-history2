@@ -82,6 +82,16 @@ void MainWindow::setupMenuBar()
 
 void MainWindow::setupDockWidgets()
 {
+    QAction *action = dockWidgetMenu->addAction(tr("Animation"));
+    action->setCheckable(true);
+    action->setChecked(isAnimationEnabled());
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(setAnimationEnabled(bool)));
+
+    action = dockWidgetMenu->addAction(tr("Nesting"));
+    action->setCheckable(true);
+    action->setChecked(isDockNestingEnabled());
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockNestingEnabled(bool)));
+
     static const struct Set {
         const char * name;
         uint flags;
@@ -92,7 +102,9 @@ void MainWindow::setupDockWidgets()
 #else
         { "Black", Qt::Drawer, Qt::LeftDockWidgetArea },
 #endif
-        { "White", 0, Qt::RightDockWidgetArea },
+        { "White", 0, Qt::LeftDockWidgetArea },
+        { "LightGrey", 0, Qt::RightDockWidgetArea },
+        { "DarkGrey", 0, Qt::RightDockWidgetArea },
         { "Red", 0, Qt::TopDockWidgetArea },
         { "Green", 0, Qt::TopDockWidgetArea },
         { "Blue", 0, Qt::BottomDockWidgetArea },

@@ -38,7 +38,7 @@ QColor bgColorForName(const QString &name)
         return QColor("#D8D8F1");
     else if (name == "Yellow")
         return QColor("#F1F0D8");
-    return QColor();
+    return QColor(name).light(110);
 }
 
 QColor fgColorForName(const QString &name)
@@ -55,7 +55,7 @@ QColor fgColorForName(const QString &name)
         return QColor("#6C6CF8");
     else if (name == "Yellow")
         return QColor("#F8F76C");
-    return QColor();
+    return QColor(name);
 }
 
 class ColorDock : public QFrame
