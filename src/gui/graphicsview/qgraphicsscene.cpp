@@ -883,17 +883,10 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     // Find all items to draw, and reverse the list (we want to draw
     // in reverse order).
     QList<QGraphicsItem *> itemList = items(sourceRect);
-    if (!itemList.isEmpty()) {
-        QGraphicsItem **a = &itemList.first();
-        QGraphicsItem **b = &itemList.last();
-        QGraphicsItem *tmp = 0;
-        while (a < b) {
-            tmp = *a;
-            *a = *b;
-            *b = tmp;
-            ++a; --b;
-        }
-    }
+    QGraphicsItem **itemArray = new QGraphicsItem *[itemList.size()];
+    int numItems = itemList.size();
+    for (int i = 0; i < numItems; ++i)
+        itemArray[numItems - i - 1] = itemList.at(i);
 
     painter->save();
 
@@ -904,7 +897,7 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     painter->translate(-sourceRect.left(), -sourceRect.top());
 
     // Generate the style options
-    QList<QStyleOptionGraphicsItem> styleOptions;
+    QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[itemList.size()];
     for (int i = 0; i < itemList.size(); ++i) {
         QGraphicsItem *item = itemList.at(i);
 
@@ -933,12 +926,12 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
         option.exposedRect = item->boundingRect();
         option.exposedRect &= neo.inverted().mapRect(targetRect);
 
-        styleOptions << option;
+        styleOptionArray[i] = option;
     }
 
     // Render the scene.
     drawBackground(painter, sourceRect);
-    drawItems(painter, itemList, styleOptions);
+    drawItems(painter, numItems, itemArray, styleOptionArray);
     drawForeground(painter, sourceRect);
 
     painter->restore();
@@ -2472,7 +2465,8 @@ void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
     to provide custom painting of all items for the scene. The default
     implementation prepares the painter matrix, and calls
     QGraphicsItem::paint() on all items. \a options is the list of style
-    option objects for each item in \a items.
+    option objects for each item in \a items. \a numItems is the number of
+    items in \a items and options in \a options.
 
     All painting is done in \e scene coordinates. Before drawing each item,
     the painter must be transformed using QGraphicsItem::sceneMatrix().
@@ -2485,14 +2479,15 @@ void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
 
     \code
         void CustomScene::drawItems(QPainter *painter,
-                                    const QList<QGraphicsItem *> &items,
-                                    const QList<QStyleOptionGraphicsItem> &options)
+                                    int numItems,
+                                    QGraphicsItem *items[],
+                                    const QStyleOptionGraphicsItem options[])
         {
-            for (int i = 0; i < items.size(); ++i) {
+            for (int i = 0; i < numItems; ++i) {
                 // Draw the item
                 painter->save();
-                painter->setMatrix(items.at(i)->sceneMatrix(), true);
-                items.at(i)->paint(painter, options.at(i), viewport());
+                painter->setMatrix(items[i]->sceneMatrix(), true);
+                items.at(i)->paint(painter, options[i], viewport());
                 painter->restore();
             }
         }
@@ -2501,14 +2496,15 @@ void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
     \sa drawBackground(), drawForeground()
 */
 void QGraphicsScene::drawItems(QPainter *painter,
-                               const QList<QGraphicsItem *> &items,
-                               const QList<QStyleOptionGraphicsItem> &options)
+                               int numItems,
+                               QGraphicsItem *items[],
+                               const QStyleOptionGraphicsItem options[])
 {
-    for (int i = 0; i < items.size(); ++i) {
-        QGraphicsItem *item = items.at(i);
+    for (int i = 0; i < numItems; ++i) {
+        QGraphicsItem *item = items[i];
         painter->save();
         painter->setMatrix(item->sceneMatrix(), true);
-        item->paint(painter, &options.at(i), 0);//viewport());
+        item->paint(painter, &options[i], 0);//viewport());
         painter->restore();
     }
 }

@@ -479,7 +479,10 @@ QPainter::RenderHints QGraphicsView::renderHints() const
 void QGraphicsView::setRenderHints(QPainter::RenderHints hints)
 {
     Q_D(QGraphicsView);
+    if (hints == d->renderHints)
+        return;
     d->renderHints = hints;
+    viewport()->update();
 }
 
 /*!
@@ -491,11 +494,13 @@ void QGraphicsView::setRenderHints(QPainter::RenderHints hints)
 void QGraphicsView::setRenderHint(QPainter::RenderHint hint, bool enabled)
 {
     Q_D(QGraphicsView);
+    QPainter::RenderHints oldHints = d->renderHints;
     if (enabled)
         d->renderHints |= hint;
     else
         d->renderHints &= ~hint;
-    viewport()->update();
+    if (oldHints != d->renderHints)
+        viewport()->update();
 }
 
 /*!
@@ -1096,17 +1101,11 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     // Find all items to draw, and reverse the list (we want to draw
     // in reverse order).
     QList<QGraphicsItem *> itemList = d->scene->items(mapToScene(sourceRect));
-    if (!itemList.isEmpty()) {
-        QGraphicsItem **a = &itemList.first();
-        QGraphicsItem **b = &itemList.last();
-        QGraphicsItem *tmp = 0;
-        while (a < b) {
-            tmp = *a;
-            *a = *b;
-            *b = tmp;
-            ++a; --b;
-        }
-    }
+    QGraphicsItem **itemArray = new QGraphicsItem *[itemList.size()];
+    int numItems = itemList.size();
+    for (int i = 0; i < numItems; ++i)
+        itemArray[numItems - i - 1] = itemList.at(i);
+    itemList.clear();
 
     // Setup painter
     QMatrix moveMatrix;
@@ -1115,9 +1114,9 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     QMatrix painterMatrix = d->matrix * moveMatrix;
 
     // Generate the style options
-    QList<QStyleOptionGraphicsItem> styleOptions;
-    for (int i = 0; i < itemList.size(); ++i) {
-        QGraphicsItem *item = itemList.at(i);
+    QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[numItems];
+    for (int i = 0; i < numItems; ++i) {
+        QGraphicsItem *item = itemArray[i];
 
         QStyleOptionGraphicsItem option;
         option.state = QStyle::State_None;
@@ -1144,7 +1143,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
         option.exposedRect = item->boundingRect();
         option.exposedRect &= neo.inverted().mapRect(targetRect);
 
-        styleOptions << option;
+        styleOptionArray[i] = option;
     }
 
     painter->save();
@@ -1161,7 +1160,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
 
     // Render the scene.
     d->scene->drawBackground(painter, sourceRect);
-    d->scene->drawItems(painter, itemList, styleOptions);
+    d->scene->drawItems(painter, numItems, itemArray, styleOptionArray);
     d->scene->drawForeground(painter, sourceRect);
 
     painter->restore();
@@ -2129,18 +2128,11 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     tmp.clear();
     QGraphicsScenePrivate::sortItems(&itemList);
 
-    // Reverse the item; we want to draw them in reverse order
-    if (!itemList.isEmpty()) {
-        QGraphicsItem **a = &itemList.first();
-        QGraphicsItem **b = &itemList.last();
-        QGraphicsItem *tmp = 0;
-        while (a < b) {
-            tmp = *a;
-            *a = *b;
-            *b = tmp;
-            ++a; --b;
-        }
-    }
+    QGraphicsItem **itemArray = new QGraphicsItem *[itemList.size()];
+    int numItems = itemList.size();
+    for (int i = 0; i < numItems; ++i)
+        itemArray[numItems - i - 1] = itemList.at(i);
+    itemList.clear();
 
 #ifdef QGRAPHICSVIEW_DEBUG
     int exposedTime = stopWatch.elapsed();
@@ -2190,9 +2182,9 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
 #endif
 
     // Generate the style options
-    QList<QStyleOptionGraphicsItem> styleOptions;
-    for (int i = 0; i < itemList.size(); ++i) {
-        QGraphicsItem *item = itemList.at(i);
+    QStyleOptionGraphicsItem *styleOptionArray = new QStyleOptionGraphicsItem[numItems];
+    for (int i = 0; i < numItems; ++i) {
+        QGraphicsItem *item = itemArray[i];
 
         QStyleOptionGraphicsItem option;
         option.state = QStyle::State_None;
@@ -2223,11 +2215,11 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
             option.exposedRect |= reverseMap.mapRect(rect);
         option.exposedRect &= item->boundingRect();
 
-        styleOptions << option;
+        styleOptionArray[i] = option;
     }
 
     // Items
-    drawItems(&painter, itemList, styleOptions);
+    drawItems(&painter, numItems, itemArray, styleOptionArray);
 
 #ifdef QGRAPHICSVIEW_DEBUG
     int itemsTime = stopWatch.elapsed() - exposedTime - backgroundTime;
@@ -2248,11 +2240,11 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     painter.end();
 
 #ifdef QGRAPHICSVIEW_DEBUG
-    qDebug() << "\tItem discovery....... " << exposedTime << "msecs (" << itemList.size() << "items,"
-             << (exposedTime > 0 ? (itemList.size() * 1000.0 / exposedTime) : -1) << "/ sec )";
+    qDebug() << "\tItem discovery....... " << exposedTime << "msecs (" << numItems << "items,"
+             << (exposedTime > 0 ? (numItems * 1000.0 / exposedTime) : -1) << "/ sec )";
     qDebug() << "\tDrawing background... " << backgroundTime << "msecs (" << exposedRects.size() << "segments )";
     qDebug() << "\tDrawing items........ " << itemsTime << "msecs ("
-             << (itemsTime > 0 ? (itemList.size() * 1000.0 / itemsTime) : -1) << "/ sec )";
+             << (itemsTime > 0 ? (numItems * 1000.0 / itemsTime) : -1) << "/ sec )";
     qDebug() << "\tDrawing foreground... " << foregroundTime << "msecs (" << exposedRects.size() << "segments )";
     qDebug() << "\tTotal rendering time: " << stopWatch.elapsed() << "msecs ("
              << (stopWatch.elapsed() > 0 ? (1000.0 / stopWatch.elapsed()) : -1.0) << "fps )";
@@ -2404,20 +2396,22 @@ void QGraphicsView::drawForeground(QPainter *painter, const QRectF &rect)
 
 /*!
     Draws the items \a items in the scene using \a painter, after the
-    background and before the foreground are drawn. Reimplement this function
-    to provide custom item drawing for this view. \a options is a list of
-    styleoptions; one for each item.
+    background and before the foreground are drawn. \a numItems is the number
+    of items in \a items and options in \a options. \a options is a list of
+    styleoptions; one for each item. Reimplement this function to provide
+    custom item drawing for this view.
 
     The default implementation calls the scene's drawItems() function.
 
     \sa drawForeground(), drawBackground(), QGraphicsScene::drawItems()
 */
-void QGraphicsView::drawItems(QPainter *painter, const QList<QGraphicsItem *> &items,
-                              const QList<QStyleOptionGraphicsItem> &options)
+void QGraphicsView::drawItems(QPainter *painter, int numItems,
+                              QGraphicsItem *items[],
+                              const QStyleOptionGraphicsItem options[])
 {
     Q_D(QGraphicsView);
     if (d->scene)
-        d->scene->drawItems(painter, items, options);
+        d->scene->drawItems(painter, numItems, items, options);
 }
 
 #endif // QT_NO_GRAPHICSVIEW
