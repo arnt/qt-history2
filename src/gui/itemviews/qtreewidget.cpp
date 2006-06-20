@@ -508,7 +508,7 @@ void QTreeModel::ensureSorted(int column, Qt::SortOrder order,
     }
 
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
-    qSort(sorting.begin(), sorting.end(), compare);
+    qStableSort(sorting.begin(), sorting.end(), compare);
 
     QModelIndexList oldPersistentIndexes = persistentIndexList();
     QModelIndexList newPersistentIndexes = oldPersistentIndexes;
@@ -761,7 +761,7 @@ void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int /*column*/, Qt::S
 
     // do the sorting
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
-    qSort(sorting.begin(), sorting.end(), compare);
+    qStableSort(sorting.begin(), sorting.end(), compare);
 
     int colCount = header->columnCount();
     for (int r = 0; r < sorting.count(); ++r) {

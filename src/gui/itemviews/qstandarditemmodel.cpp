@@ -369,10 +369,10 @@ void QStandardItemModelPrivate::sort(QStandardItem *parent, int column, Qt::Sort
 
     if (order == Qt::AscendingOrder) {
         QStandardItemModelLessThan lt;
-        qSort(sortable.begin(), sortable.end(), lt);
+        qStableSort(sortable.begin(), sortable.end(), lt);
     } else {
         QStandardItemModelGreaterThan gt;
-        qSort(sortable.begin(), sortable.end(), gt);
+        qStableSort(sortable.begin(), sortable.end(), gt);
     }
 
     QVector<QPair<QModelIndex, QModelIndex> > changedPersistentIndexes;

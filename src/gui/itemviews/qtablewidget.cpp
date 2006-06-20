@@ -539,7 +539,7 @@ void QTableModel::sort(int column, Qt::SortOrder order)
     }
 
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
-    qSort(sortable.begin(), sortable.end(), compare);
+    qStableSort(sortable.begin(), sortable.end(), compare);
 
     emit layoutAboutToBeChanged();
 
@@ -588,7 +588,7 @@ void QTableModel::ensureSorted(int column, Qt::SortOrder order,
     }
 
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
-    qSort(sorting.begin(), sorting.end(), compare);
+    qStableSort(sorting.begin(), sorting.end(), compare);
 
     QModelIndexList oldPersistentIndexes = persistentIndexList();
     QModelIndexList newPersistentIndexes = oldPersistentIndexes;
@@ -714,7 +714,7 @@ bool QTableModel::itemLessThan(const QPair<QTableWidgetItem*,int> &left,
 bool QTableModel::itemGreaterThan(const QPair<QTableWidgetItem*,int> &left,
                                   const QPair<QTableWidgetItem*,int> &right)
 {
-    return !(*(left .first) < *(right.first));
+    return (*(right.first) < *(left .first));
 }
 
 QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int role) const
