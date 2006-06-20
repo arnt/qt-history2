@@ -1043,7 +1043,7 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
             }
         }
 
-        QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, 0, nargs, types, args));
+        QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, 0, -1, -1, nargs, types, args));
     }
     return true;
 }
