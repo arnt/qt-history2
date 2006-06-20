@@ -26,9 +26,9 @@
 #ifndef QDBUSABSTRACTINTERFACEPRIVATE_H
 #define QDBUSABSTRACTINTERFACEPRIVATE_H
 
-#include <QtDBus/qdbusabstractinterface.h>
-#include <QtDBus/qdbusconnection.h>
-#include <QtDBus/qdbuserror.h>
+#include <qdbusabstractinterface.h>
+#include <qdbusconnection.h>
+#include <qdbuserror.h>
 #include "private/qobject_p.h"
 
 #define ANNOTATION_NO_WAIT      "org.freedesktop.DBus.Method.NoReply"

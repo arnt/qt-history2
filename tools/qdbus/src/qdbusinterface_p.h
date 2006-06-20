@@ -26,9 +26,9 @@
 #ifndef QDBUSINTERFACEPRIVATE_H
 #define QDBUSINTERFACEPRIVATE_H
 
-#include <QtDBus/qdbusabstractinterface_p.h>
-#include <QtDBus/qdbusmetaobject_p.h>
-#include <QtDBus/qdbusinterface.h>
+#include <qdbusabstractinterface_p.h>
+#include <qdbusmetaobject_p.h>
+#include <qdbusinterface.h>
 
 class QDBusInterfacePrivate: public QDBusAbstractInterfacePrivate
 {

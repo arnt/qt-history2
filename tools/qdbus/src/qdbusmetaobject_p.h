@@ -27,7 +27,7 @@
 #define QDBUSMETAOBJECTPRIVATE_H
 
 #include <QtCore/qmetaobject.h>
-#include <QtDBus/qdbusmacros.h>
+#include <qdbusmacros.h>
 
 class QDBusError;
 

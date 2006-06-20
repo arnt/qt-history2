@@ -20,7 +20,7 @@
 #include <QtCore/qmap.h>
 #include <QtCore/qpair.h>
 #include <QtCore/qshareddata.h>
-#include <QtDBus/qdbusmacros.h>
+#include <qdbusmacros.h>
 
 class QDBUS_EXPORT QDBusIntrospection
 {

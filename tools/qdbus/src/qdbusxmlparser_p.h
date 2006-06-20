@@ -16,8 +16,8 @@
 
 #include <QtCore/qmap.h>
 #include <QtXml/qdom.h>
-#include <QtDBus/qdbusmacros.h>
-#include <QtDBus/qdbusintrospection_p.h>
+#include <qdbusmacros.h>
+#include <qdbusintrospection_p.h>
 
 /*!
     \internal
