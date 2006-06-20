@@ -2559,9 +2559,9 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     fi
     if [ "$CFG_GLIB" = "no" ]; then
         GBY=" "
-        GBN="*"
+        GBN="+"
     else
-        GBY="*"
+        GBY="+"
         GBN=" "
     fi
     cat << EOF
@@ -2612,8 +2612,8 @@ Qt/X11 only:
  $XKN  -no-xkb ............ Do not compile XKB (X KeyBoard extension) support.
  $XKY  -xkb ............... Compile XKB support.
 
- $GBY  -no-glib............ Do not compile Glib support.
- $GBN  -glib............... Compile Glib support.
+ $GBN  -no-glib............ Do not compile Glib support.
+ $GBY  -glib............... Compile Glib support.
 
 EOF
 fi
