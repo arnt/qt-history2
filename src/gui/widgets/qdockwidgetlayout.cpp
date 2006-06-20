@@ -756,7 +756,11 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
             QDockAreaLayoutInfo *new_info
                 = new QDockAreaLayoutInfo(sep, opposite, widgetAnimator);
             item.subinfo = new_info;
-            new_info->item_list.append(item.widgetItem);
+            QDockAreaLayoutItem new_item(item.widgetItem);
+            QRect r = item.widgetItem->geometry();
+            new_item.size = pick(opposite, r.size());
+            new_item.pos = pick(opposite, r.topLeft());
+            new_info->item_list.append(new_item);
             item.widgetItem = 0;
         }
 
@@ -800,9 +804,7 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
             sep_size += sep;
     }
     if (gap_size + sep_size > space)
-        gap_size = space - sep_size;
-    if (gap_size < pick(o, gap_item.minimumSize()))
-        return false;
+        gap_size = pick(o, gap_item.minimumSize());
     gap_item.size = gap_size + sep_size;
 
     // finally, insert the gap
