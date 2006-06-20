@@ -1499,9 +1499,9 @@ static void blend_untransformed_rgb16(int count, const QSpan *spans, void *userD
                             MASK(s, coverage);
                             int alpha = qAlpha(s);
                             s = qConvertRgb32To16(s);
-                            if (alpha != 255)
-                                s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
-                            dest[i] = qConvertRgb32To16(s);
+                            Q_ASSERT(alpha < 255);
+                            s += BYTE_MUL_RGB16(dest[i], 255 - alpha);
+                            dest[i] = s;
                         }
                     }
                 }
