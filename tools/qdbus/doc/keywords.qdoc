@@ -1,0 +1,40 @@
+/** -*- mode: C++ -*-
+** Copyright (C) 2006 Trolltech AS. All rights reserved.
+**    Author: Thiago Macieira <thiago.macieira@trolltech.com>
+**
+** This file is part of the QtDBus solution.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \macro Q_ASYNC
+    \relates QDBusAbstractAdaptor
+    \brief Marks a method as "asynchronous"
+
+    The Q_ASYNC macro can be used to mark a method to be called and not wait for it to finish
+    processing before returning from QDBusInterface::call. The called method cannot return any
+    output arguments and, if it does, any such arguments will be discarded.
+
+    You can use this macro in your own adaptors by placing it before your method's return value
+    (which must be "void") in the class declaration, as shown in the example:
+    \code
+        Q_ASYNC void myMethod();
+    \endcode
+
+    Its presence in the method implementation (outside the class declaration) is optional.
+
+    \sa async, usingadaptors.html
+*/
+
+/*!
+    \macro async
+    \relates QDBusAbstractAdaptor
+    \brief Marks a method as "asynchronous"
+
+    This macro is the same as \l Q_ASYNC and is provided as a shorthand. However, it is not defined if
+    QT_NO_KEYWORDS is defined, which makes Qt not use its extensions to the C++ language (keywords
+    emit, signals, slots).
+*/
