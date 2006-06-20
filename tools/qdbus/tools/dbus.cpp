@@ -22,12 +22,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <dbus/qdbus.h>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 #include <QtCore/qmetaobject.h>
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomElement>
+#include <QtDBus>
 
 Q_DECLARE_METATYPE(QVariant)
 QDBusConnection *connection;

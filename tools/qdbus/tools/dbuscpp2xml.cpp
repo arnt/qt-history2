@@ -35,7 +35,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#include "../src/qdbusconnection.h"    // for the Export* flags
+#include "qdbusconnection.h"    // for the Export* flags
 
 // copied from dbus-protocol.h:
 static const char docTypeHeader[] =

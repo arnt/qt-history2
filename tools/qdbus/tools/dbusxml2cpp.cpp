@@ -310,7 +310,7 @@ static QString classNameForInterface(const QString &interface, ClassType classTy
 
 static QByteArray qtTypeName(const QString &signature, const QDBusIntrospection::Annotations &annotations, int paramId = -1, const char *direction = "Out")
 {
-    QVariant::Type type = QDBusUtil::signatureToType(signature);
+    int type = QDBusMetaType::signatureToType(signature.toLatin1());
     if (type == QVariant::Invalid) {
         QString annotationName = QString::fromLatin1("com.trolltech.QtDBus.QtTypeName");
         if (paramId >= 0)
@@ -319,10 +319,13 @@ static QByteArray qtTypeName(const QString &signature, const QDBusIntrospection:
         if (!qttype.isEmpty())
             return qttype.toLatin1();
         
-        qFatal("Got unknown type `%s'", qPrintable(signature));
+        fprintf(stderr, "Got unknown type `%s'", qPrintable(signature));
+        fprintf(stderr, "You should add <annotation name=\"%s\" value=\"<type>\"/> to the XML description",
+                qPrintable(annotationName));
+        exit(1);
     }
     
-    return QVariant::typeToName(type);
+    return QVariant::typeToName(QVariant::Type(type));
 }
 
 static QString nonConstRefArg(const QByteArray &arg)
