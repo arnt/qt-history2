@@ -251,6 +251,10 @@ void QComboBoxPrivateContainer::updateScrollers()
     if (!top || !bottom)
         return;
 
+    // Don't update while the popup is hidden - it might not have the correct geometry.
+    if (isHidden())
+        return;
+
     QStyleOptionComboBox opt = comboStyleOption();
     if (combo->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo) &&
         view->verticalScrollBar()->minimum() < view->verticalScrollBar()->maximum()) {
