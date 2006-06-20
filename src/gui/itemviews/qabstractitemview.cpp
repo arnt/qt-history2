@@ -2366,6 +2366,11 @@ void QAbstractItemView::scrollToTop()
 */
 void QAbstractItemView::scrollToBottom()
 {
+    Q_D(QAbstractItemView);
+    if (d->delayedLayout.isActive()) {
+        d->executePostedLayout();
+        updateGeometries();
+    }
     verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 }
 
