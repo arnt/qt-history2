@@ -17,11 +17,10 @@
 
 #include "qplatformdefs.h"
 
-#if defined(QT_NO_GLIB)
-#  include <private/qeventdispatcher_unix_p.h>
-#else
+#if !defined(QT_NO_GLIB)
 #  include "../kernel/qeventdispatcher_glib_p.h"
 #endif
+#include <private/qeventdispatcher_unix_p.h>
 #include "qthreadstorage.h"
 
 #include "qthread_p.h"
@@ -53,11 +52,12 @@ static void create_current_thread_key()
 
 void QThreadPrivate::createEventDispatcher(QThreadData *data)
 {
-#if defined(QT_NO_GLIB)
-    data->eventDispatcher = new QEventDispatcherUNIX;
-#else
-    data->eventDispatcher = new QEventDispatcherGlib;
+#if !defined(QT_NO_GLIB)
+    if (qgetenv("QT_NO_GLIB").isEmpty())
+        data->eventDispatcher = new QEventDispatcherGlib;
+    else
 #endif
+        data->eventDispatcher = new QEventDispatcherUNIX;
     data->eventDispatcher->startingUp();
 }
 

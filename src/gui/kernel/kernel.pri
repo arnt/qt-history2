@@ -106,12 +106,11 @@ unix:x11 {
             HEADERS += \
                 kernel/qguieventdispatcher_glib_p.h
             QMAKE_CXXFLAGS += $$QT_CFLAGS_GLIB
-        } else {
+	}
             SOURCES += \
 		kernel/qeventdispatcher_x11.cpp
             HEADERS += \
                 kernel/qeventdispatcher_x11_p.h
-        }
 }
 
 embedded {

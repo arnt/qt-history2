@@ -52,11 +52,10 @@
 #include "qstyle.h"
 #include "qmetaobject.h"
 
-#if defined(QT_NO_GLIB)
-#  include "qeventdispatcher_x11_p.h"
-#else
+#if !defined(QT_NO_GLIB)
 #  include "qguieventdispatcher_glib_p.h"
 #endif
+#include "qeventdispatcher_x11_p.h"
 #include <private/qpaintengine_x11_p.h>
 
 #include <private/qkeymapper_p.h>
@@ -356,15 +355,16 @@ public:
 void QApplicationPrivate::createEventDispatcher()
 {
     Q_Q(QApplication);
-#if defined(QT_NO_GLIB)
-    eventDispatcher = (q->type() != QApplication::Tty
-                       ? new QEventDispatcherX11(q)
-                       : new QEventDispatcherUNIX(q));
-#else
-    eventDispatcher = (q->type() != QApplication::Tty
-                       ? new QGuiEventDispatcherGlib(q)
-                       : new QEventDispatcherGlib(q));
+#if !defined(QT_NO_GLIB)
+    if (qgetenv("QT_NO_GLIB").isEmpty())
+        eventDispatcher = (q->type() != QApplication::Tty
+                           ? new QGuiEventDispatcherGlib(q)
+                           : new QEventDispatcherGlib(q));
+    else
 #endif
+        eventDispatcher = (q->type() != QApplication::Tty
+                           ? new QEventDispatcherX11(q)
+                           : new QEventDispatcherUNIX(q));
 }
 
 /*****************************************************************************

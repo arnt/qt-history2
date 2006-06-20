@@ -33,11 +33,10 @@
 
 #ifdef Q_OS_UNIX
 
-#  if defined(QT_NO_GLIB)
-#    include "qeventdispatcher_unix_p.h"
-#  else
+#  if !defined(QT_NO_GLIB)
 #    include "qeventdispatcher_glib_p.h"
 #  endif
+#  include "qeventdispatcher_unix_p.h"
 #endif
 #ifdef Q_OS_WIN
 #  include "qeventdispatcher_win_p.h"
@@ -216,11 +215,12 @@ void QCoreApplicationPrivate::createEventDispatcher()
 {
     Q_Q(QCoreApplication);
 #if defined(Q_OS_UNIX)
-#  if defined(QT_NO_GLIB)
-    eventDispatcher = new QEventDispatcherUNIX(q);
-#  else
-    eventDispatcher = new QEventDispatcherGlib(q);
+#  if !defined(QT_NO_GLIB)
+    if (qgetenv("QT_NO_GLIB").isEmpty())
+        eventDispatcher = new QEventDispatcherGlib(q);
+    else
 #  endif
+        eventDispatcher = new QEventDispatcherUNIX(q);
 #elif defined(Q_OS_WIN)
     eventDispatcher = new QEventDispatcherWin32(q);
 #else

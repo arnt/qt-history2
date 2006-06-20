@@ -72,12 +72,11 @@ unix {
                 kernel/qeventdispatcher_glib_p.h
             QMAKE_CXXFLAGS += $$QT_CFLAGS_GLIB
             LIBS +=$$QT_LIBS_GLIB
-        } else {
+        }
             SOURCES += \
                 kernel/qeventdispatcher_unix.cpp
             HEADERS += \
                 kernel/qeventdispatcher_unix_p.h
-        }
 }
 
 embedded:SOURCES += kernel/qsharedmemory_p.cpp
