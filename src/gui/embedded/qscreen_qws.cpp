@@ -1503,17 +1503,15 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
         rb.prepare(&blendbuffer);
         QSpanData spanData;
         spanData.init(&rb);
-        int opacity = 255;
         if (!win) {
-            spanData.setup(qwsServer->backgroundBrush(), opacity);
+            spanData.setup(qwsServer->backgroundBrush(), 256);
             spanData.dx = off.x();
             spanData.dy = off.y();
         } else {
-            opacity = win->opacity();
             const QImage &img = win->windowSurface()->image();
             QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
             spanData.type = QSpanData::Texture;
-            spanData.initTexture(&img, opacity);
+            spanData.initTexture(&img, win->opacity());
             spanData.dx = winoff.x();
             spanData.dy = winoff.y();
         }
@@ -1537,7 +1535,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
                     spans[i].x = x;
                     spans[i].len = len;
                     spans[i].y = y + i;
-                    spans[i].coverage = opacity;
+                    spans[i].coverage = 255;
                     ++i;
                 }
                 spanData.blend(n, spans, &spanData);
@@ -1611,9 +1609,8 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
         rb.prepare(&blendbuffer);
         QSpanData spanData;
         spanData.init(&rb);
-        int opacity = 255;
         if (!win) {
-            spanData.setup(qwsServer->backgroundBrush(), opacity);
+            spanData.setup(qwsServer->backgroundBrush(), 256);
             spanData.dx = off.x();
             spanData.dy = off.y();
         } else if (windowType == QWSBackingStore::DebugHighlighter) {
@@ -1621,7 +1618,6 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             spanData.dx = off.x();
             spanData.dy = off.y();
         } else {
-            opacity = win->opacity();
             if (!win->backingStore() || win->backingStore()->isNull())
                 return;
             locked = win->backingStore()->lock(max_lock_time);
@@ -1630,7 +1626,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
             const QImage &img = win->backingStore()->image();
             QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
             spanData.type = QSpanData::Texture;
-            spanData.initTexture(&img, opacity);
+            spanData.initTexture(&img, win->opacity());
             spanData.dx = winoff.x();
             spanData.dy = winoff.y();
         }
@@ -1661,7 +1657,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend, QImage 
                     spans[i].x = x;
                     spans[i].len = len;
                     spans[i].y = y + i;
-                    spans[i].coverage = opacity;
+                    spans[i].coverage = 255;
                     ++i;
                 }
                 spanData.blend(n, spans, &spanData);
