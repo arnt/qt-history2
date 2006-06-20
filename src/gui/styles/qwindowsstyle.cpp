@@ -2372,10 +2372,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             int thickness  = pixelMetric(PM_SliderControlThickness, slider, widget);
             int len        = pixelMetric(PM_SliderLength, slider, widget);
             int ticks = slider->tickPosition;
-            QRect groove = QCommonStyle::subControlRect(CC_Slider, slider,
-                                                                SC_SliderGroove, widget);
-            QRect handle = QCommonStyle::subControlRect(CC_Slider, slider,
-                                                                SC_SliderHandle, widget);
+            QRect groove = subControlRect(CC_Slider, slider, SC_SliderGroove, widget);
+            QRect handle = subControlRect(CC_Slider, slider, SC_SliderHandle, widget);
 
             if ((slider->subControls & SC_SliderGroove) && groove.isValid()) {
                 int mid = thickness / 2;
