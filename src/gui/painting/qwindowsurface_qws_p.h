@@ -18,8 +18,6 @@
 #include <qregion.h>
 #include <qimage.h>
 #include <private/qsharedmemory_p.h>
-#include <qsize.h>
-#include <qimage.h>
 
 class QWSWindowSurfacePrivate;
 
@@ -42,10 +40,33 @@ public:
     QWidget *window() const;
     const QRegion dirtyRegion() const;
     void setDirty(const QRegion &) const;
+    const QRegion clipRegion() const;
+    void setClipRegion(const QRegion &);
 
     virtual bool attach(const QByteArray &data) = 0;
     virtual void detach() = 0;
     virtual const QImage image() const = 0;
+
+#if 0
+    virtual bool create(QWidget *window) = 0;
+
+    enum SurfaceFlag {
+        Reserved = 0x0,
+        Buffered = 0x1,
+        Opaque = 0x2
+    };
+    Q_DECLARE_FLAGS(SurfaceFlags, SurfaceFlag);
+
+    SurfaceFlags surfaceFlags() const;
+    bool isBuffered() const { return surfaceFlags() & Buffered; }
+    bool isReserved() const { return surfaceFlags() == Reserved; }
+
+protected:
+    void setSurfaceFlags(SurfaceFlags type);
+#else
+    virtual bool isBuffered() const { return !image().isNull(); }
+    virtual bool isReserved() const { return false; }
+#endif
 
 private:
     QWSWindowSurfacePrivate *d_ptr;
@@ -122,6 +143,7 @@ class QWSYellowSurface : public QWSWindowSurface
 {
 public:
     QWSYellowSurface();
+    QWSYellowSurface(QWidget *);
     ~QWSYellowSurface();
 
     void setDelay(int msec) { delay = msec; }
@@ -148,6 +170,39 @@ private:
     int delay;
     QSize surfaceSize; // client side
     QImage img; // server side
+};
+
+class QWSDirectPainterSurface : public QWSWindowSurface
+{
+public:
+    QWSDirectPainterSurface();
+    QWSDirectPainterSurface(QWidget *);
+    ~QWSDirectPainterSurface();
+
+    void resize(const QSize &size) { resize(QRect(QPoint(0, 0), size)); }
+    void resize(const QRegion &region);
+    QSize size() const { return clipRegion().boundingRect().size(); }
+
+    void flush(QWidget*, const QRegion &, const QPoint &) {};
+    void scroll(const QRegion &, int, int) {};
+
+    bool isValidFor(QWidget*) const { return false; }
+
+    const QString key() const { return QLatin1String("DirectPainter"); }
+    const QByteArray data() const { return QByteArray(); }
+
+    bool attach(const QByteArray &) { return true; }
+    void detach() {}
+    void release();
+
+    const QImage image() const { return QImage(); }
+    QPaintDevice *paintDevice() { return 0; }
+
+    bool isBuffered() const { return false; }
+    bool isReserved() const { return true; }
+
+private:
+    int winId;
 };
 
 #endif // QWINDOWSURFACE_QWS_P_H

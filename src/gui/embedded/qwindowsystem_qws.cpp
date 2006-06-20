@@ -2988,6 +2988,25 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
 }
 
 #ifdef QT_WINDOW_SURFACE
+QRegion QWSServerPrivate::reserve_region(QWSWindow *win, const QRegion &region)
+{
+    QRegion r = region;
+
+    int oldPos = windows.indexOf(win);
+    int newPos = oldPos < nReserved ? nReserved - 1 : nReserved;
+    for (int i = 0; i < nReserved; ++i) {
+        if (i != oldPos) {
+            QWSWindow *w = windows.at(i);
+            r -= w->requested_region;
+        }
+    }
+    windows.move(oldPos, newPos);
+    nReserved = newPos + 1;
+    win->client()->sendRegionEvent(win->winId(), r, 0);
+
+    return r;
+}
+
 void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
                                       const QByteArray &surfaceData,
                                       const QRegion &region)
@@ -2997,7 +3016,17 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
         return;
 
     changingw->createSurface(surfaceKey, surfaceData);
-    setWindowRegion(changingw, region);
+    QWSWindowSurface *surface = changingw->windowSurface();
+
+//    changingw->opaque = windowtype != QWSBackingStore::Transparent && windowtype != QWSBackingStore::DebugHighlighter;
+
+    QRegion r;
+    if (surface->isReserved())
+        r = reserve_region(changingw, region);
+    else
+        r = region;
+
+    setWindowRegion(changingw, r);
 
     Q_Q(QWSServer);
 

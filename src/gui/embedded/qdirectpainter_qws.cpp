@@ -20,9 +20,16 @@
 #include "qwsdisplay_qws.h"
 #include "qwidget.h"
 #include "qimage.h"
+#ifdef QT_WINDOW_SURFACE
+#include <private/qwindowsurface_qws_p.h>
+#endif
 
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
+
+#ifdef QT_WINDOW_SURFACE
+Q_GLOBAL_STATIC_WITH_ARGS(QWSDirectPainterSurface, surface, (0));
+#endif
 
 /*!
     \class QDirectPainter
@@ -79,6 +86,10 @@ static inline QSize devS() { return QSize(qt_screen->deviceWidth(), qt_screen->d
 */
 QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 {
+#ifdef QT_WINDOW_SURFACE
+    surface()->resize(reg);
+    return surface()->clipRegion();
+#else
     static bool firstTime = true;
     //### ideally, application private functionality should be in qapplication...
     QApplicationPrivate *ad = qApp->d_func();
@@ -93,11 +104,7 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 
     QRegion treg = qt_screen->isTransformed() ? qt_screen->mapFromDevice(reg, devS()) : reg;
 
-#ifdef QT_WINDOW_SURFACE
-    qDebug("QDirectPainter::reserveRegion not implemented");
-#else
     QWidget::qwsDisplay()->requestRegion(ad->directPainterID, -1, QWSBackingStore::ReservedRegion, treg, QImage::Format_Invalid);
-#endif
     //### slightly dirty way to do a blocking wait for the region event
 
     ad->seenRegionEvent  = false;
@@ -105,6 +112,7 @@ QRegion QDirectPainter::reserveRegion(const QRegion &reg)
         QApplication::processEvents();
 
     return qt_screen->isTransformed() ? qt_screen->mapToDevice(ad->directPainterRegion, screenS()) : ad->directPainterRegion;
+#endif
 }
 
 /*!
@@ -127,7 +135,11 @@ uchar* QDirectPainter::frameBuffer()
 */
 QRegion QDirectPainter::region()
 {
+#ifdef QT_WINDOW_SURFACE
+    return surface()->clipRegion();
+#else
     return qApp->d_func()->directPainterRegion;
+#endif
 }
 
 /*!

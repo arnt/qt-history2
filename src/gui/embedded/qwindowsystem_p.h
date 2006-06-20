@@ -84,6 +84,7 @@ private:
     void set_opacity(const QWSSetOpacityCommand *);
     void request_focus(const QWSRequestFocusCommand *);
 #ifdef QT_WINDOW_SURFACE
+    QRegion reserve_region(QWSWindow *window, const QRegion &region);
     void request_region(int winId, const QString &surfaceKey,
                         const QByteArray &surfaceData,
                         const QRegion &region);

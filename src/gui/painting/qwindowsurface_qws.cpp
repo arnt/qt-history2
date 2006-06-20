@@ -3,13 +3,14 @@
 #include <qscreen_qws.h>
 #include <qwsmanager_qws.h>
 #include <qapplication.h>
+#include <qwsdisplay_qws.h>
+#include <qdatastream.h>
+#include <qrgb.h>
+#include <private/qapplication_p.h>
 #include <private/qwsdisplay_qws_p.h>
 #include <private/qwidget_p.h>
 #include <private/qwsmanager_p.h>
 #include <private/qwslock_p.h>
-#include <qwsdisplay_qws.h>
-#include <qdatastream.h>
-#include <qrgb.h>
 
 #include <qdebug.h>
 
@@ -20,6 +21,7 @@ public:
 
     QWidget *widget;
     QRegion dirty;
+    QRegion clip;
 };
 
 QWSWindowSurface::QWSWindowSurface()
@@ -51,6 +53,17 @@ void QWSWindowSurface::setDirty(const QRegion &dirty) const
 {
     Q_ASSERT(d_ptr);
     d_ptr->dirty += dirty;
+}
+
+const QRegion QWSWindowSurface::clipRegion() const
+{
+    return (d_ptr ? d_ptr->clip : QRegion());
+}
+
+void QWSWindowSurface::setClipRegion(const QRegion &clip)
+{
+    Q_ASSERT(d_ptr);
+    d_ptr->clip = clip;
 }
 
 void QWSWindowSurface::resize(const QSize &size)
@@ -156,6 +169,8 @@ QWSWindowSurfaceFactory::create(const QString &key,
             surface = new QWSSharedMemWindowSurface;
         else if (key == QLatin1String("YellowThing"))
             surface = new QWSYellowSurface;
+        else if (key == QLatin1String("DirectPainter"))
+            surface = new QWSDirectPainterSurface;
 #if 0
         else if (key == QLatin1String("DirectFB"))
             surface = new QWSDirectFBWindowSurface;
@@ -211,7 +226,7 @@ QWSLocalMemWindowSurface::~QWSLocalMemWindowSurface()
 
 bool QWSLocalMemWindowSurface::attach(const QByteArray &data)
 {
-    QDataStream stream(data);
+    QDataStream stream(data); // XXX: get rid of streaming
 
     uchar *mem;
     int width;
@@ -442,7 +457,12 @@ const QByteArray QWSSharedMemWindowSurface::data() const
 
 
 QWSYellowSurface::QWSYellowSurface()
-    : QWSWindowSurface(0)
+    : QWSWindowSurface()
+{
+}
+
+QWSYellowSurface::QWSYellowSurface(QWidget *widget)
+    : QWSWindowSurface(widget)
 {
     delay = 10;
     winId = QWidget::qwsDisplay()->takeId();
@@ -508,4 +528,54 @@ void QWSYellowSurface::flush(QWidget *widget, const QRegion &region, const QPoin
     ::usleep(500 * delay);
     display->requestRegion(winId, key(), data(), QRegion());
     ::usleep(500 * delay);
+}
+
+QWSDirectPainterSurface::QWSDirectPainterSurface()
+    : QWSWindowSurface()
+{
+}
+
+QWSDirectPainterSurface::QWSDirectPainterSurface(QWidget *widget)
+    : QWSWindowSurface(widget)
+{
+    winId  = QWidget::qwsDisplay()->takeId();
+    qDebug() << "setting directPainterID" << winId;
+    qApp->d_func()->directPainterID = winId;
+    QWidget::qwsDisplay()->nameRegion(winId,
+                                      QLatin1String("QDirectPainter reserved space"),
+                                      QLatin1String("reserved"));
+}
+
+QWSDirectPainterSurface::~QWSDirectPainterSurface()
+{
+}
+
+void QWSDirectPainterSurface::resize(const QRegion &region)
+{
+    QRegion reg = region;
+
+    if (qt_screen->isTransformed()) {
+        const QSize devSize(qt_screen->deviceWidth(), qt_screen->deviceHeight());
+        reg = qt_screen->mapFromDevice(region, devSize);
+    }
+
+    QWidget::qwsDisplay()->requestRegion(winId, key(), data(), reg);
+
+    //### slightly dirty way to do a blocking wait for the region event
+    QApplicationPrivate *ad = qApp->d_func();
+    ad->seenRegionEvent = false;
+    while (!ad->seenRegionEvent)
+        QApplication::processEvents();
+
+    reg = ad->directPainterRegion;
+    if (qt_screen->isTransformed()) {
+        const QSize screenSize(qt_screen->width(), qt_screen->height());
+        reg = qt_screen->mapToDevice(reg, screenSize);
+    }
+    setClipRegion(reg);
+}
+
+void QWSDirectPainterSurface::release()
+{
+    QWidget::qwsDisplay()->requestRegion(winId, key(), data(), QRegion());
 }

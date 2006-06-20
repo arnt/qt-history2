@@ -1242,7 +1242,11 @@ void QScreen::blit(QWSWindow *win, const QRegion &clip)
     QWSWindowSurface *surface = win->windowSurface();
     if (!surface)
         return;
+
     const QImage &img = surface->image();
+    if (img == QImage())
+        return;
+
     QRegion rgn = clip & win->requestedRegion();
     surface->beginPaint(rgn);
     blit(img, win->requestedRegion().boundingRect().topLeft(), rgn);
@@ -1461,10 +1465,16 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
         ++level;
     } while (win && !win->requestedRegion().boundingRect().intersects(exposed_bounds));
 
+    QWSWindowSurface *surface = (win ? win->windowSurface() : 0);
     bool above_changing = level <= changing_level; // 0 is topmost
 
     QRegion exposedBelow = exposed;
     bool opaque = true;
+
+    if (win && !surface->isBuffered()) {
+        exposedBelow -= exposed & win->requestedRegion();
+        blend -= exposed & win->requestedRegion();
+    }
 
     if (win) {
         opaque = win->isOpaque();
@@ -1493,6 +1503,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
         blit(win, blitRegion);
 
     QRegion blendRegion = exposed & blend;
+
     if (win)
         blendRegion &= win->requestedRegion();
     if (!blendRegion.isEmpty()) {
@@ -1507,8 +1518,10 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
             spanData.setup(qwsServer->backgroundBrush(), 256);
             spanData.dx = off.x();
             spanData.dy = off.y();
+        } else if (!surface->isBuffered()) {
+                return;
         } else {
-            const QImage &img = win->windowSurface()->image();
+            const QImage &img = surface->image();
             QPoint winoff = off - win->requestedRegion().boundingRect().topLeft();
             spanData.type = QSpanData::Texture;
             spanData.initTexture(&img, win->opacity());
@@ -1518,8 +1531,8 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
         if (!spanData.blend)
             return;
 
-        if (win)
-            win->windowSurface()->beginPaint(blendRegion);
+        if (surface)
+            surface->beginPaint(blendRegion);
         const QVector<QRect> rects = blendRegion.rects();
         const int nspans = 256;
         QT_FT_Span spans[nspans];
@@ -1542,8 +1555,8 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
                 y += n;
             }
         }
-        if (win)
-            win->windowSurface()->endPaint(blendRegion);
+        if (surface)
+            surface->endPaint(blendRegion);
     }
 }
 
