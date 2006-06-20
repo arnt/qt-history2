@@ -1318,7 +1318,7 @@ void QWidgetPrivate::transferChildren()
             QWidget *w = (QWidget *)obj;
             if(!w->isWindow()) {
                 if (!topData()->caption.isEmpty())
-                    setWindowTitle_sys(extra->topextra->caption);
+                    setWindowTitle_helper(extra->topextra->caption);
                 HIViewAddSubview(qt_mac_hiview_for(q), qt_mac_hiview_for(w));
             }
         }
@@ -1363,7 +1363,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         if (q->winId() != 0) {
             transferChildren();
             if (topData && !topData->caption.isEmpty())
-                setWindowTitle_sys(topData->caption);
+                setWindowTitle_helper(topData->caption);
         } else {
             uncreateRecursively(false);
         }
