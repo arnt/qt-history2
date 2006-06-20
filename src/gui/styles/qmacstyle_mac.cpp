@@ -1432,6 +1432,10 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             ret = 0;
         else
 #endif
+        // The combo box popup has no frame.
+        if (qstyleoption_cast<const QStyleOptionComboBox *>(opt) != 0)
+            ret = 0;
+        else
             ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
     case PM_MaximumDragDistance:
