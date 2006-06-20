@@ -3525,12 +3525,12 @@ fi
 # auto-detect libdbus-1 support
 if [ "$CFG_QDBUS" != "no" ]; then
     if "$WHICH" pkg-config >/dev/null 2>&1 && \
-	pkg-config --atleast-version="$MIN_DBUS_1_VERSION" dbus-1 2>/dev/null; then
-        QT_CFLAGS_GLIB=`pkg-config --cflags dbus-1`
-        QT_LIBS_GLIB=`pkg-config --libs dbus-1`
+        pkg-config --atleast-version="$MIN_DBUS_1_VERSION" dbus-1 2>/dev/null; then
+        QT_CFLAGS_DBUS=`pkg-config --cflags dbus-1`
+        QT_LIBS_DBUS=`pkg-config --libs dbus-1`
         CFG_QDBUS=yes
-	QMakeVar set QT_CFLAGS_GLIB "$QT_CFLAGS_GLIB"
-	QMakeVar set QT_LIBS_GLIB "$QT_LIBS_GLIB"
+        QMakeVar set QT_CFLAGS_DBUS "$QT_CFLAGS_DBUS"
+        QMakeVar set QT_LIBS_DBUS "$QT_LIBS_DBUS"
     else
         if [ "$CFG_QDBUS" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
             echo "The QtDBus module cannot be enabled because libdbus-1 version $MIN_DBUS_1_VERSION was not found."
