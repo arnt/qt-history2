@@ -55,6 +55,9 @@ static void getLocaleAndDirection(QLocale *locale,
 }
 #endif // QT_NO_XKB
 
+extern bool qt_sendSpontaneousEvent(QObject *receiver, QEvent *event); //qapplication_x11.cpp
+
+
 // from qapplication_x11.cpp
 extern uchar qt_alt_mask;
 extern uchar qt_meta_mask;
