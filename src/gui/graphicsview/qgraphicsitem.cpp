@@ -2621,7 +2621,7 @@ void QGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
         }
         d_ptr->selected = 1;
         update();
-    } else {
+    } else if (!(flags() & ItemIsMovable)) {
         event->ignore();
     }
 }
@@ -2695,7 +2695,7 @@ void QGraphicsItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             d_ptr->selected = 1;
             update();
         }
-    } else {
+    } else if (!(flags() & ItemIsMovable)) {
         event->ignore();
     }
 }
