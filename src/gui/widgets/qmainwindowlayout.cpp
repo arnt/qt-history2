@@ -467,9 +467,7 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
     dockWidgetLayout.saveState(stream);
 #endif // QT_NO_DOCKWIDGET
 
-    // save center widget state
-    // ###
-    // stream << layout_info[CENTER].size;
+    stream << dockWidgetLayout.centralWidgetRect.size();
 }
 
 bool QMainWindowLayout::restoreState(QDataStream &stream)
@@ -592,87 +590,48 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
 #ifndef QT_NO_DOCKWIDGET
     // restore dockwidget layout
     QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(parentWidget());
-    if (!dockWidgetLayout.restoreState(stream))
+    savedDockWidgetLayout = dockWidgetLayout;
+    dockWidgetLayout.clear();
+    if (!dockWidgetLayout.restoreState(stream, dockwidgets))
         stream.setStatus(QDataStream::ReadCorruptData);
 #endif // QT_NO_DOCKWIDGET
 
-    // restore center widget size
-    // ###
-    // stream >> layout_info[CENTER].size;
-
     if (stream.status() != QDataStream::Ok) {
-        // restore failed, get rid of the evidence
-        // ###
-#if 0
-        for (int i = 0; i < NPOSITIONS - 1; ++i) {
-            if (layout_info[i].sep)
-                delete layout_info[i].sep->widget();
-            delete layout_info[i].sep;
-            delete layout_info[i].item;
-        }
-        layout_info = *save_layout_info;
-
-        delete save_layout_info;
-        save_layout_info = 0;
-#endif
-
+        dockWidgetLayout.deleteAllLayoutItems();
+        dockWidgetLayout = savedDockWidgetLayout;
+        savedDockWidgetLayout.clear();
         return false;
     }
 
 #ifndef QT_NO_DOCKWIDGET
     // if any of the dockwidgets have not been restored, append them
     // to the end of their current area
-    // ###
-    #if 0
+
     for (int i = 0; i < dockwidgets.size(); ++i) {
-        QDockWidget *dockWidget = dockwidgets.at(i);
-        bool found = false;
-        for (int x = 0; !found && x < NPOSITIONS - 1; ++x) {
-            if (layout_info[x].item)
-                found = findWidgetRecursively(layout_info[x].item, dockWidget);
-        }
-        if (!found) {
-            // append to the dock widget's current area
-            found = false;
-            int x = 0;
-            for (; !found && x < NPOSITIONS - 1; ++x) {
-                if ((*save_layout_info)[x].item)
-                    found = findWidgetRecursively((*save_layout_info)[x].item, dockWidget);
-            }
-            if (!found) {
-                // the dock widget hasn't been added to this layout
+        QDockWidget *w = dockwidgets.at(i);
+
+        QList<int> path = dockWidgetLayout.indexOf(w, IndexOfFindsAll);
+        if (path.isEmpty()) {
+            QList<int> old_path = savedDockWidgetLayout.indexOf(w, IndexOfFindsAll);
+            if (old_path.isEmpty()) {
+                qWarning() << "QMainWindowLayout::restoreState(): failed to find" << w
+                            << "in the old layout";
                 continue;
             }
-            --x;
-            Qt::Orientation orientation = Qt::Horizontal;
-            switch (areaForPosition(x)) {
-            case Qt::LeftDockWidgetArea:
-            case Qt::RightDockWidgetArea:
-                orientation = Qt::Vertical;
-                break;
-            default:
-                break;
+            QDockAreaLayoutInfo *info = dockWidgetLayout.info(old_path);
+            if (info == 0) {
+                qWarning() << "QMainWindowLayout::restoreState(): failed to find location for " << w
+                            << "in the new layout";
+                continue;
             }
-            addDockWidget(static_cast<Qt::DockWidgetArea>(areaForPosition(x)),
-                          dockWidget,
-                          orientation);
+            info->item_list.append(QDockAreaLayoutItem(new QWidgetItem(w)));
         }
     }
 
-    // replace existing dockwidget layout
-    // ###
-    for (int i = 0; i < NPOSITIONS - 1; ++i) {
-        if ((*save_layout_info)[i].sep)
-            delete (*save_layout_info)[i].sep->widget();
-        delete (*save_layout_info)[i].sep;
-        delete (*save_layout_info)[i].item;
-    }
-#endif
 #endif // QT_NO_DOCKWIDGET
 
-    // ###
-    // delete save_layout_info;
-    // save_layout_info = 0;
+    savedDockWidgetLayout.deleteAllLayoutItems();
+    savedDockWidgetLayout.clear();
 
     return true;
 }
@@ -1385,8 +1344,6 @@ QList<int> QMainWindowLayout::hover(QWidgetItem *dockWidgetItem, const QPoint &m
     QList<int> pathToGap = savedDockWidgetLayout.gapIndex(pos, dockNestingEnabled);
     if (pathToGap == currentGapPos)
         return currentGapPos; // the gap is already there
-
-//    qDebug() << "QMainWindowLayout::hover():" << pathToGap;
 
     currentGapPos = pathToGap;
     if (!pathToGap.isEmpty()) {

@@ -25,6 +25,8 @@
 
 #ifndef QT_NO_DOCKWIDGET
 
+enum { StateFlagVisible = 1, StateFlagFloating = 2 };
+
 static void checkLayoutInfo(const QDockAreaLayoutInfo &info)
 {
     int pos = pick(info.o, info.rect.topLeft());
@@ -411,7 +413,6 @@ static QDockWidgetLayout::DockPos dockPos(const QRect &rect, const QPoint &_pos,
 {
     QPoint pos = _pos - rect.topLeft();
 
-
     int x = pos.x();
     int y = pos.y();
     int w = rect.width();
@@ -764,7 +765,8 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
             item.widgetItem = 0;
         }
 
-        return item.subinfo->insertGap(path, dockWidgetItem);
+        bool result = item.subinfo->insertGap(path, dockWidgetItem);
+        return result;
     }
 
     int index = path.first();
@@ -815,10 +817,9 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
 
 QDockAreaLayoutInfo *QDockAreaLayoutInfo::info(QList<int> path)
 {
-    Q_ASSERT(!path.isEmpty());
-
     int index = path.takeFirst();
-    Q_ASSERT(index >= 0 && index < item_list.count());
+    if (index >= 0 && index < item_list.count())
+        return this;
     if (path.isEmpty() || item_list.at(index).subinfo == 0)
         return this;
     return item_list.at(index).subinfo->info(path);
@@ -1120,8 +1121,116 @@ void QDockAreaLayoutInfo::deleteAllLayoutItems()
     }
 }
 
+void QDockAreaLayoutInfo::saveState(QDataStream &stream) const
+{
+    stream << (uchar) Marker << (uchar) o << item_list.count();
+    for (int i = 0; i < item_list.count(); ++i) {
+        const QDockAreaLayoutItem &item = item_list.at(i);
+        if (item.widgetItem != 0) {
+            stream << (uchar) WidgetMarker;
+            QWidget *w = item.widgetItem->widget();
+            QString name = w->objectName();
+            if (name.isEmpty()) {
+                qWarning() << "QMainWindow::saveState(): 'objectName' not set for QDockWidget"
+                            << w << w->windowTitle();
+            }
+            stream << name;
 
+            uchar flags = 0;
+            if (!w->isHidden())
+                flags |= StateFlagVisible;
+            if (w->isWindow())
+                flags |= StateFlagFloating;
+            stream << flags;
 
+            if (w->isWindow()) {
+                stream << w->x() << w->y() << w->width() << w->height();
+            } else {
+                stream << item.pos << item.size << pick(o, item.minimumSize())
+                        << pick(o, item.maximumSize());
+            }
+        } else if (item.subinfo != 0) {
+            stream << (uchar) Marker << item.pos << item.size << pick(o, item.minimumSize())
+                        << pick(o, item.maximumSize());
+            item.subinfo->saveState(stream);
+        }
+    }
+}
+
+bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWidget*> &widgets)
+{
+    uchar marker;
+    stream >> marker;
+    if (marker != Marker)
+        return false;
+
+    uchar orientation;
+    stream >> orientation;
+    o = static_cast<Qt::Orientation>(orientation);
+
+    int cnt;
+    stream >> cnt;
+
+    for (int i = 0; i < cnt; ++i) {
+        uchar nextMarker;
+        stream >> nextMarker;
+        if (nextMarker == WidgetMarker) {
+            QString name;
+            uchar flags;
+            stream >> name >> flags;
+            if (name.isEmpty()) {
+                qWarning() << "QMainWindow::restoreState: Cannot restore "
+                                "a QDockWidget with an empty 'objectName'";
+                int dummy;
+                stream >> dummy >> dummy >> dummy >> dummy;
+                continue;
+            }
+
+            QDockWidget *widget = 0;
+            for (int j = 0; j < widgets.count(); ++j) {
+                if (widgets.at(j)->objectName() == name) {
+                    widget = widgets.at(j);
+                    break;
+                }
+            }
+            if (widget == 0) {
+                qWarning() << "QMainWindow::restoreState(): cannot find a QDockWidget with "
+                                "matching 'objectName' (looking for " << name << ").";
+                int dummy;
+                stream >> dummy >> dummy >> dummy >> dummy;
+                continue;
+            }
+
+            QDockAreaLayoutItem item(new QWidgetItem(widget));
+            if (flags & StateFlagFloating) {
+                widget->hide();
+                widget->setFloating(true);
+                int x, y, w, h;
+                stream >> x >> y >> w >> h;
+                widget->move(x, y);
+                widget->resize(w, h);
+                widget->setVisible(flags & StateFlagVisible);
+            } else {
+                int dummy;
+                stream >> item.pos >> item.size >> dummy >> dummy;
+                widget->setFloating(false);
+                widget->setVisible(flags & StateFlagVisible);
+            }
+
+            item_list.append(item);
+        } else if (nextMarker == Marker) {
+            int dummy;
+            QDockAreaLayoutInfo *info = new QDockAreaLayoutInfo(sep, o, widgetAnimator);
+            QDockAreaLayoutItem item(info);
+            stream >> item.pos >> item.size >> dummy >> dummy;
+            if (!info->restoreState(stream, widgets))
+                return false;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
 
 /******************************************************************************
 ** QDockWidgetLayout
@@ -1146,11 +1255,82 @@ bool QDockWidgetLayout::isValid() const
 
 void QDockWidgetLayout::saveState(QDataStream &stream) const
 {
+    stream << (uchar) DockWidgetStateMarker;
+    int cnt = 0;
+    for (int i = 0; i < PosCount; ++i) {
+        if (!docks[i].isEmpty())
+            ++cnt;
+    }
+    stream << cnt;
+    for (int i = 0; i < PosCount; ++i) {
+        if (docks[i].isEmpty())
+            continue;
+        stream << i << docks[i].rect.size();
+        docks[i].saveState(stream);
+    }
+
 }
 
-bool QDockWidgetLayout::restoreState(QDataStream &stream)
+bool QDockWidgetLayout::restoreState(QDataStream &stream, const QList<QDockWidget*> &dockwidgets)
 {
-    return false;
+    uchar dmarker;
+    stream >> dmarker;
+    if (dmarker != DockWidgetStateMarker)
+        return false;
+    int cnt;
+    stream >> cnt;
+    for (int i = 0; i < cnt; ++i) {
+        int pos;
+        stream >> pos;
+        QSize size;
+        stream >> size;
+        docks[pos].rect = QRect(QPoint(0, 0), size);
+        if (!docks[pos].restoreState(stream, dockwidgets)) {
+            stream.setStatus(QDataStream::ReadCorruptData);
+            return false;
+        }
+    }
+
+    QSize size;
+    stream >> size;
+    centralWidgetRect = QRect(QPoint(0, 0), size);
+
+    return true;
+}
+
+QSize QDockWidgetLayout::calculateSize() const
+{
+    bool have_central = centralWidgetItem != 0 && !centralWidgetItem->isEmpty();
+
+    int w = 0;
+    int h = 0;
+
+    if (have_central || !docks[LeftPos].isEmpty() || !docks[RightPos].isEmpty()) {
+        if (!docks[LeftPos].isEmpty()) {
+            w += docks[LeftPos].rect.width() + sep;
+            h = qMax(h, docks[LeftPos].rect.height());
+        }
+        if (have_central) {
+            w += centralWidgetRect.width();
+            h = qMax(h, centralWidgetRect.height());
+        }
+        if (!docks[RightPos].isEmpty()) {
+            w += docks[RightPos].rect.width() + sep;
+            h = qMax(h, docks[RightPos].rect.height());
+        }
+    }
+
+    if (!docks[LeftPos].isEmpty()) {
+        w = qMax(w, docks[LeftPos].rect.width());
+        h += docks[LeftPos].rect.height() + sep;
+    }
+
+    if (!docks[RightPos].isEmpty()) {
+        w = qMax(w, docks[RightPos].rect.width());
+        h += docks[RightPos].rect.height() + sep;
+    }
+
+    return QSize(w, h);
 }
 
 QList<int> QDockWidgetLayout::indexOf(QDockWidget *dockWidget, IndexOfFlag flag) const

@@ -90,6 +90,13 @@ public:
     QDockAreaLayoutItem &item(QList<int> path);
     QDockAreaLayoutInfo *info(QList<int> path);
 
+    enum { // sentinel values used to validate state data
+        Marker = 0xfc,
+        WidgetMarker = 0xfb
+    };
+    void saveState(QDataStream &stream) const;
+    bool restoreState(QDataStream &stream, const QList<QDockWidget*> &widgets);
+
     void fitItems();
     bool expansive(Qt::Orientation o) const;
     int changeSize(int index, int size, bool below);
@@ -187,8 +194,9 @@ public:
 
     bool isValid() const;
 
+    enum { DockWidgetStateMarker = 0xfd };
     void saveState(QDataStream &stream) const;
-    bool restoreState(QDataStream &stream);
+    bool restoreState(QDataStream &stream, const QList<QDockWidget*> &widgets);
 
     QList<int> indexOf(QDockWidget *dockWidget, IndexOfFlag flag = IndexOfFindsVisible) const;
     QList<int> gapIndex(const QPoint &pos, bool nestingEnabled) const;
@@ -232,6 +240,8 @@ public:
     QLayoutItem *itemAt(int *x, int index) const;
     QLayoutItem *takeAt(int *x, int index);
     void deleteAllLayoutItems();
+
+    QSize calculateSize() const;
 };
 
 void dump(QDebug debug, const QDockAreaLayoutItem &item, QString indent);

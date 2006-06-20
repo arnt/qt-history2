@@ -79,7 +79,6 @@ public:
     enum { // sentinel values used to validate state data
         VersionMarker = 0xff,
         ToolBarStateMarker = 0xfe,
-        DockWidgetStateMarker = 0xfd,
         ToolBarStateMarkerEx = 0xfc
     };
     void saveState(QDataStream &stream) const;
