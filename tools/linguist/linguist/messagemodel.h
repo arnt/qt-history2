@@ -315,6 +315,7 @@ private:
     int m_srcChars;
     int m_srcCharsSpc;
 
+    friend class iterator;
 };
 
 #endif //MESSAGEMODEL_H
