@@ -186,6 +186,10 @@ public:
     qreal leftIndent;
     qreal topIndent;
 
+    // Replaying events
+    QGraphicsItem *lastItemUnderCursor;
+    QPointF lastItemUnderCursorPos;
+    
     // Replaying mouse events
     QMouseEvent lastMouseEvent;
     bool useLastMouseEvent;
@@ -226,7 +230,7 @@ QGraphicsViewPrivate::QGraphicsViewPrivate()
     : renderHints(QPainter::TextAntialiasing | QPainter::Antialiasing),
       dragMode(QGraphicsView::NoDrag),
       sceneInteractionAllowed(true), hasSceneRect(false), accelerateScrolling(true),
-      leftIndent(0), topIndent(0),
+      leftIndent(0), topIndent(0), lastItemUnderCursor(0),
       lastMouseEvent(QEvent::None, QPoint(), Qt::NoButton, 0, 0),
       useLastMouseEvent(false), alignment(Qt::AlignCenter),
       scene(0), rubberBand(0), rubberBanding(false),
@@ -337,11 +341,26 @@ void QGraphicsViewPrivate::updateLastCenterPoint()
 void QGraphicsViewPrivate::replayLastMouseEvent()
 {
     Q_Q(QGraphicsView);
-    if (!useLastMouseEvent)
+    if (!useLastMouseEvent || !scene)
         return;
 
-    QMouseEvent *mouseEvent = new QMouseEvent(QEvent::MouseMove, lastMouseEvent.pos(), lastMouseEvent.globalPos(),
-                                              lastMouseEvent.button(), lastMouseEvent.buttons(), lastMouseEvent.modifiers());
+    // Check if we need to replay the event
+    QPointF newScenePos = q->mapToScene(lastMouseEvent.pos());
+    QGraphicsItem *item = scene->itemAt(newScenePos);
+    QPointF newItemPos = item ? item->mapFromScene(newScenePos) : QPointF();
+    if (item == lastItemUnderCursor && newItemPos == lastItemUnderCursorPos)
+        return;
+
+    // Store updated item data
+    lastItemUnderCursor = item;
+    lastItemUnderCursorPos = newItemPos;
+
+    QMouseEvent *mouseEvent = new QMouseEvent(QEvent::MouseMove,
+                                              lastMouseEvent.pos(),
+                                              lastMouseEvent.globalPos(),
+                                              lastMouseEvent.button(),
+                                              lastMouseEvent.buttons(),
+                                              lastMouseEvent.modifiers());
     QApplication::postEvent(q->viewport(), mouseEvent);
 }
 
@@ -1608,6 +1627,12 @@ bool QGraphicsView::viewportEvent(QEvent *event)
     if (!d->scene)
         return QAbstractScrollArea::viewportEvent(event);
 
+    if (event->type() == QEvent::UpdateRequest
+        || event->type() == QEvent::UpdateLater) {
+        if (d->sceneInteractionAllowed)
+            d->replayLastMouseEvent();
+    }
+
     switch (event->type()) {
     case QEvent::Leave:
 #ifndef QT_NO_CURSOR
@@ -1781,6 +1806,10 @@ void QGraphicsView::dragMoveEvent(QDragMoveEvent *event)
     event->setAccepted(sceneEvent.isAccepted());
     if (sceneEvent.isAccepted())
         event->setDropAction(sceneEvent.dropAction());
+    
+    // Store the last item under the mouse for use when replaying.
+    if ((d->lastItemUnderCursor = d->scene->itemAt(mapToScene(event->pos()))))
+        d->lastItemUnderCursorPos = d->lastItemUnderCursor->mapFromScene(sceneEvent.scenePos());
 #else
     Q_UNUSED(event)
 #endif
@@ -1929,6 +1958,8 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     if (!d->sceneInteractionAllowed)
         return;
 
+    d->storeMouseEvent(event);
+    
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         if (d->rubberBanding) {
             // Invoke El Rubber
@@ -1960,8 +1991,6 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
         }
     }
 
-    d->storeMouseEvent(event);
-
     if (d->handScrolling)
         return;
 
@@ -1983,14 +2012,18 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     mouseEvent.setAccepted(false);
     QApplication::sendEvent(d->scene, &mouseEvent);
 
+    // Store the last item under the mouse for use when replaying.
+    if ((d->lastItemUnderCursor = d->scene->itemAt(mapToScene(event->pos()))))
+        d->lastItemUnderCursorPos = d->lastItemUnderCursor->mapFromScene(mouseEvent.scenePos());
+
 #ifndef QT_NO_CURSOR
-    if (QGraphicsItem *item = d->scene->itemAt(mapToScene(event->pos()))) {
+    if (d->lastItemUnderCursor) {
         if (!d->hasViewCursor) {
             d->hasViewCursor = true;
             d->viewCursor = viewport()->cursor();
         }
-        if (item->hasCursor())
-            viewport()->setCursor(item->cursor());
+        if (d->lastItemUnderCursor->hasCursor())
+            viewport()->setCursor(d->lastItemUnderCursor->cursor());
     } else {
         if (d->hasViewCursor) {
             d->hasViewCursor = false;
