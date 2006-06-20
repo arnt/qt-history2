@@ -44,7 +44,7 @@
   memset for security purposes, guaranteed not to be optimized away
   http://www.faqs.org/docs/Linux-HOWTO/Secure-Programs-HOWTO.html
 */
-void *guaranteed_memset(void *v,int c,size_t n)
+Q_GUI_EXPORT void *guaranteed_memset(void *v,int c,size_t n)
 {
     volatile char *p = (char *)v; while (n--) *p++=c; return v;
 }
