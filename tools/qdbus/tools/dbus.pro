@@ -1,5 +1,4 @@
 SOURCES = dbus.cpp
-TARGET = dbus
-INCLUDEPATH += ..
-LIBS += -L../src -lQtDBus
+TARGET = ../../../bin/dbus
 QT = core
+CONFIG += qdbus

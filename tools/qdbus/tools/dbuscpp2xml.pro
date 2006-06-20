@@ -1,5 +1,4 @@
 SOURCES = dbuscpp2xml.cpp
-TARGET = dbuscpp2xml
-INCLUDEPATH += ..
-LIBS += -L../src -lQtDBus
+TARGET = ../../../dbuscpp2xml
 QT = core
+CONFIG += qdbus
