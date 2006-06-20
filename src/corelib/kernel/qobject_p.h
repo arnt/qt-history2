@@ -96,7 +96,9 @@ public:
 class Q_CORE_EXPORT QMetaCallEvent : public QEvent
 {
 public:
-    QMetaCallEvent(int id, const QObject *sender = 0, int idFrom = -1, int idTo = -1,
+    QMetaCallEvent(int id, const QObject *sender = 0,
+                   int nargs = 0, int *types = 0, void **args = 0);
+    QMetaCallEvent(int id, const QObject *sender, int idFrom, int idTo,
                    int nargs = 0, int *types = 0, void **args = 0);
     ~QMetaCallEvent();
 

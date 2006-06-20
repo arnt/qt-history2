@@ -437,6 +437,14 @@ void QObjectPrivate::clearGuards(QObject *object)
 
 /*! \internal
  */
+QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender,
+                               int nargs, int *types, void **args)
+    :QEvent(MetaCall), id_(id), sender_(sender), idFrom_(-1), idTo_(-1),
+     nargs_(nargs), types_(types), args_(args)
+{ }
+
+/*! \internal
+ */
 QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender, int idFrom, int idTo,
                                int nargs, int *types, void **args)
     : QEvent(MetaCall), id_(id), sender_(sender), idFrom_(idFrom), idTo_(idTo),
