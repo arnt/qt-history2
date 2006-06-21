@@ -25,6 +25,7 @@ int main(int argc, char **argv)
 
     QGraphicsScene scene;
     scene.setSceneRect(-300, -300, 600, 600);
+    scene.setItemIndexMethod(QGraphicsScene::NoIndex);
 
     for (int i = 0; i < MouseCount; ++i) {
         Mouse *mouse = new Mouse;
