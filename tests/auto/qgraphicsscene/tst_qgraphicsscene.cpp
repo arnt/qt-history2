@@ -1339,6 +1339,11 @@ void tst_QGraphicsScene::mouseEventPropagation_focus()
     c->setParentItem(b);
     d->setParentItem(c);
 
+    a->setFlag(QGraphicsItem::ItemIsMovable);
+    b->setFlag(QGraphicsItem::ItemIsMovable);
+    c->setFlag(QGraphicsItem::ItemIsMovable);
+    d->setFlag(QGraphicsItem::ItemIsMovable);
+
     // scene -> a -> b -> c -> d
     QGraphicsScene scene;
     scene.addItem(a);
