@@ -902,6 +902,7 @@ void tst_QStandardItemModel::indexFromItem()
     QStandardItem *dummy = new QStandardItem;
     QModelIndex noSuchIndex = model.indexFromItem(dummy);
     QVERIFY(!noSuchIndex.isValid());
+    delete dummy;
 
     noSuchIndex = model.indexFromItem(0);
     QVERIFY(!noSuchIndex.isValid());
@@ -1117,6 +1118,8 @@ void tst_QStandardItemModel::takeHeaderItem()
     QCOMPARE(model.takeVerticalHeaderItem(0), vheader);
     QCOMPARE(model.takeHorizontalHeaderItem(0), static_cast<QStandardItem*>(0));
     QCOMPARE(model.takeVerticalHeaderItem(0), static_cast<QStandardItem*>(0));
+    delete hheader;
+    delete vheader;
 }
 
 void tst_QStandardItemModel::useCase1()
