@@ -79,5 +79,5 @@ FORMS    += about.ui \
             translatedialog.ui \
             mainwindow.ui \
             finddialog.ui
-INCLUDEPATH        += ../shared $$QTDIR/tools/assistant/lib
+INCLUDEPATH        += ../shared ../../assistant/lib
 RESOURCES += linguist.qrc
