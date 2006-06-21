@@ -3723,7 +3723,9 @@
 
     \section1 QToolTip
 
-    The QToolTip::setGloballyEnable() function does no longer exist.
+    The QToolTip::setGloballyEnabled() function no longer exists.
+    Tooltips can be disabled by consuming events of type
+    QEvent::ToolTip.
 
     \section1 QUriDrag
 
