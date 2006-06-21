@@ -345,8 +345,10 @@ void tst_QStandardItem::getSetChild()
         QCOMPARE(item.child(row, column), anotherChild);
         QCOMPARE(anotherChild->row(), row);
         QCOMPARE(anotherChild->column(), column);
+        item.setChild(row, column, 0);
+    } else {
+        delete child;
     }
-    item.setChild(row, column, 0);
     QCOMPARE(item.child(row, column), static_cast<QStandardItem*>(0));
 }
 
@@ -440,6 +442,7 @@ void tst_QStandardItem::insertColumn()
     } else {
         QCOMPARE(item.columnCount(), columns);
         QCOMPARE(item.rowCount(), rows);
+        qDeleteAll(columnItems);
     }
 }
 
@@ -511,6 +514,7 @@ void tst_QStandardItem::insertRow()
     } else {
         QCOMPARE(item.columnCount(), columns);
         QCOMPARE(item.rowCount(), rows);
+        qDeleteAll(rowItems);
     }
 }
 
@@ -685,6 +689,7 @@ void tst_QStandardItem::takeChild()
         for (int j = i + 1; j < item.rowCount(); ++j)
             QCOMPARE(item.child(j), itemList.at(j));
     }
+    qDeleteAll(itemList);
 }
 
 void tst_QStandardItem::takeColumn_data()
@@ -745,6 +750,7 @@ void tst_QStandardItem::takeColumn()
     } else {
         QVERIFY(taken.isEmpty());
     }
+    qDeleteAll(taken);
 }
 
 void tst_QStandardItem::takeRow_data()
@@ -804,6 +810,7 @@ void tst_QStandardItem::takeRow()
     } else {
         QVERIFY(taken.isEmpty());
     }
+    qDeleteAll(taken);
 }
 
 void tst_QStandardItem::streamItem()
@@ -900,6 +907,7 @@ void tst_QStandardItem::clone()
     QCOMPARE(clone->accessibleDescription(), item.accessibleDescription());
     QCOMPARE(clone->flags(), item.flags());
     QVERIFY(!(*clone < item));
+    delete clone;
 }
 
 QTEST_MAIN(tst_QStandardItem)
