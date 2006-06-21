@@ -148,6 +148,8 @@ static inline bool isTransient(const QWidget *w)
             || (w->windowType() == Qt::Drawer));
 }
 
+static void do_size_hints(QWidget* widget, QWExtra *x);
+
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -1527,6 +1529,9 @@ void QWidgetPrivate::show_sys()
         if (got_hints)
             XFree((char *)h);
 
+        // update WM_NORMAL_HINTS
+        do_size_hints(q, extra);
+
         // udpate WM_TRANSIENT_FOR
         if (isTransient(q)) {
             QWidget *p = q->parentWidget();
@@ -2016,11 +2021,12 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     bool isResize = q->size() != oldSize;
 
     if (q->isWindow()) {
-//         if (isMove)
-//             topData()->uspos = 1;
-//         if (isResize)
-//             topData()->ussize = 1;
-        do_size_hints(q, extra);
+        if (isMove)
+            topData()->uspos = 1;
+        if (isResize)
+            topData()->ussize = 1;
+        if (!q->isVisible())
+            do_size_hints(q, extra);
         if (isMove) {
             if (! qt_broken_wm)
                 // pos() is right according to ICCCM 4.1.5
