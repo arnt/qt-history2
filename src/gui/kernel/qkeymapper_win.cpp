@@ -29,6 +29,18 @@ extern Q_CORE_EXPORT QLocale qt_localeFromLCID(LCID id);
 #ifndef LANG_PASHTO
 #define LANG_PASHTO 0x63
 #endif
+#ifndef LANG_SYRIAC
+#define LANG_SYRIAC 0x5a
+#endif
+#ifndef LANG_DIVEHI
+#define LANG_DIVEHI 0x65
+#endif
+#ifndef VK_OEM_PLUS
+#define VK_OEM_PLUS 0xBB
+#endif
+#ifndef VK_OEM_3
+#define VK_OEM_3 0xC0
+#endif
 
 
 // Key recorder ------------------------------------------------------------------------[ start ] --
