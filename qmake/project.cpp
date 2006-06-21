@@ -578,7 +578,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                 if(sb.iterate) {
                     sb.iterate->exec(this, place);
                     delete sb.iterate;
-                    sb.iterate = false;
+                    sb.iterate = 0;
                 }
                 if(!scope_blocks.top().ignore) {
                     debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.toLatin1().constData(),

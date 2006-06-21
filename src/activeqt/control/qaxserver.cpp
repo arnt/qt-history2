@@ -620,7 +620,7 @@ static QByteArray prototype(const QList<QByteArray> &parameterTypes, const QList
             type.truncate(type.length() - 1);
         }
         if (type.isEmpty()) {
-            ok = false;
+            *ok = false;
             break;
         }
         type = convertTypes(type, ok);
