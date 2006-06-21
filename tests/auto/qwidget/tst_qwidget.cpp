@@ -1929,6 +1929,7 @@ void tst_QWidget::windowTitle()
 {
     QWidget widget(0);
     widget.setWindowTitle("Application Name");
+    widget.createWinId();
     QCOMPARE(visibleWindowTitle(&widget), QString("Application Name"));
 
     widget.setWindowTitle("Application Name *");
