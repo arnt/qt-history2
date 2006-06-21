@@ -808,7 +808,11 @@ function qdoc(packageDir, platform, license)
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
-    var qdocConfigFile = qdocDir + "/test/qt.qdocconf";
+    var qdocConfigFile = qdocDir;
+    if (platform == "mac")
+        qdocConfigFile += "/test/qt-with-xcode.qdocconf";
+    else
+        qdocConfigFile += "/test/qt.qdocconf";
     var qdocDefines = "-Dopensourceedition";
     if (license != "opensource")
         qdocDefines = "-Ddesktopedition";
