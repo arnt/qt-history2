@@ -759,6 +759,24 @@ const char *QPdf::paperSizeToString(QPrinter::PageSize pageSize)
 }
 
 
+QByteArray QPdf::stripSpecialCharacters(const QByteArray &string)
+{
+    QByteArray s = string;
+    s.replace(" ", "");
+    s.replace("(", "");
+    s.replace(")", "");
+    s.replace("<", "");
+    s.replace(">", "");
+    s.replace("[", "");
+    s.replace("]", "");
+    s.replace("{", "");
+    s.replace("}", "");
+    s.replace("/", "");
+    s.replace("%", "");
+    return s;
+}
+
+
 // -------------------------- base engine, shared code between PS and PDF -----------------------
 
 QPdfBaseEngine::QPdfBaseEngine(QPdfBaseEnginePrivate &d, PaintEngineFeatures f)

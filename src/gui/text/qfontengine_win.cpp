@@ -28,6 +28,7 @@
 #include <qbitmap.h>
 
 #include <private/qpainter_p.h>
+#include <private/qpdf_p.h>
 #include "qpaintengine.h"
 #include "qvarlengtharray.h"
 
@@ -840,7 +841,7 @@ QFontEngine::Properties QFontEngineWin::properties() const
     p.italicAngle = otm->otmItalicAngle;
     p.postscriptName = (char *)otm + (int)otm->otmpFamilyName;
     p.postscriptName += (char *)otm + (int)otm->otmpStyleName;
-    p.postscriptName.replace(" ","");
+    p.postscriptName = QPdf::stripSpecialCharacters(p.postscriptName);
     p.boundingBox = QRectF(otm->otmrcFontBox.left, -otm->otmrcFontBox.top,
                            otm->otmrcFontBox.right - otm->otmrcFontBox.left,
                            otm->otmrcFontBox.top - otm->otmrcFontBox.bottom);

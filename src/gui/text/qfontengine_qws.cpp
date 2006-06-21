@@ -17,6 +17,7 @@
 #include <qvarlengtharray.h>
 #include <private/qpainter_p.h>
 #include <private/qpaintengine_raster_p.h>
+#include <private/qpdf_p.h>
 #include "qtextengine_p.h"
 #include "qopentype_p.h"
 
@@ -529,9 +530,8 @@ QFontEngine::Properties QFontEngineFT::properties() const
     QByteArray psname = FT_Get_Postscript_Name(face);
     if (psname.isEmpty()) {
         fontDef.family.toUtf8();
-        psname.replace(" ", "");
     }
-    p.postscriptName = psname;
+    p.postscriptName = QPdf::stripSpecialCharacters(psname);
 #if 0 // doesn't link somehow, but who would want Type1 fonts on embedded anyway.
     PS_FontInfoRec font_info;
     if (FT_Get_PS_Font_Info(face, &font_info) == 0)

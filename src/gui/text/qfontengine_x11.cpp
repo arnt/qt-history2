@@ -36,6 +36,7 @@
 
 #include <private/qpainter_p.h>
 #include <private/qunicodetables_p.h>
+#include <private/qpdf_p.h>
 
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
@@ -2184,7 +2185,7 @@ QFontEngine::Properties QFontEngineFT::properties() const
     Properties p = freetype->properties();
     if (p.postscriptName.isEmpty()) {
         p.postscriptName = fontDef.family.toUtf8();
-        p.postscriptName.replace(" ", "");
+        p.postscriptName = QPdf::stripSpecialCharacters(p.postscriptName);
     }
 
     return freetype->properties();

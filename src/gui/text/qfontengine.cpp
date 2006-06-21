@@ -17,6 +17,7 @@
 #include "qpainter.h"
 #include "qpainterpath.h"
 #include "qvarlengtharray.h"
+#include <private/qpdf_p.h>
 
 #include <math.h>
 
@@ -255,8 +256,7 @@ QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)
 QFontEngine::Properties QFontEngine::properties() const
 {
     Properties p;
-    QByteArray psname = fontDef.family.toUtf8();
-    psname.replace(" ", "");
+    QByteArray psname = QPdf::stripSpecialCharacters(fontDef.family.toUtf8());
     p.postscriptName = psname;
     p.ascent = ascent();
     p.descent = descent();
