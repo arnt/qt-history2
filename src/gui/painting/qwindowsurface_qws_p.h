@@ -25,48 +25,48 @@ class QWSWindowSurface : public QWindowSurface
 {
 public:
     QWSWindowSurface();
-    QWSWindowSurface(QWidget *window);
     ~QWSWindowSurface();
+
+    virtual bool create(QWidget *window);
+    virtual void release();
+
+    virtual bool isValidFor(QWidget *widget) const = 0;
 
     virtual void resize(const QSize &size);
     virtual void flush(QWidget *widget, const QRegion &region,
                        const QPoint &offset);
-    virtual void release();
-    virtual bool isValidFor(QWidget *widget) const = 0;
 
     virtual const QString key() const = 0;
     virtual const QByteArray data() const = 0;
 
-    QWidget *window() const;
-    const QRegion dirtyRegion() const;
-    void setDirty(const QRegion &) const;
-    const QRegion clipRegion() const;
-    void setClipRegion(const QRegion &);
-
     virtual bool attach(const QByteArray &data) = 0;
     virtual void detach() = 0;
+
     virtual const QImage image() const = 0;
 
-#if 0
-    virtual bool create(QWidget *window) = 0;
+    QWidget *window() const;
+
+    const QRegion dirtyRegion() const;
+    void setDirty(const QRegion &) const;
+
+    const QRegion clipRegion() const;
+    void setClipRegion(const QRegion &);
 
     enum SurfaceFlag {
         Reserved = 0x0,
         Buffered = 0x1,
         Opaque = 0x2
     };
-    Q_DECLARE_FLAGS(SurfaceFlags, SurfaceFlag);
+    Q_DECLARE_FLAGS(SurfaceFlags, SurfaceFlag)
 
     SurfaceFlags surfaceFlags() const;
-    bool isBuffered() const { return surfaceFlags() & Buffered; }
-    bool isReserved() const { return surfaceFlags() == Reserved; }
+
+    inline bool isReserved() const { return surfaceFlags() == Reserved; }
+    inline bool isBuffered() const { return surfaceFlags() & Buffered; }
+    inline bool isOpaque() const { return !isBuffered() || surfaceFlags() & Opaque; }
 
 protected:
     void setSurfaceFlags(SurfaceFlags type);
-#else
-    virtual bool isBuffered() const { return !image().isNull(); }
-    virtual bool isReserved() const { return false; }
-#endif
 
 private:
     QWSWindowSurfacePrivate *d_ptr;
@@ -83,19 +83,23 @@ public:
 class QWSLocalMemWindowSurface : public QWSWindowSurface
 {
 public:
-    QWSLocalMemWindowSurface(QWidget *widget = 0);
+    QWSLocalMemWindowSurface();
     ~QWSLocalMemWindowSurface();
+
+    bool create(QWidget *widget);
+    void release();
+
+    void resize(const QSize &size);
+
+    const QString key() const { return QLatin1String("mem"); }
+    const QByteArray data() const;
+
+    bool isValidFor(QWidget *widget) const;
 
     QPaintDevice *paintDevice() { return &img; }
 
-    void resize(const QSize &size);
-    void release();
-    bool isValidFor(QWidget *widget) const;
-
     void scroll(const QRegion &area, int dx, int dy);
     QSize size() const { return img.size(); };
-    const QString key() const { return QLatin1String("mem"); }
-    const QByteArray data() const;
 
     bool attach(const QByteArray &data);
     void detach();
@@ -114,15 +118,17 @@ class QWSLock;
 class QWSSharedMemWindowSurface : public QWSLocalMemWindowSurface
 {
 public:
-    QWSSharedMemWindowSurface(QWidget *widget = 0);
+    QWSSharedMemWindowSurface();
     ~QWSSharedMemWindowSurface();
+
+    bool create(QWidget *widget);
+    void release();
 
     QPaintDevice *paintDevice() { return &img; }
     void beginPaint(const QRegion &);
     void endPaint(const QRegion &);
 
     void resize(const QSize &size);
-    void release();
     void scroll(const QRegion &area, int dx, int dy);
     QSize size() const { return img.size(); };
     const QString key() const { return QLatin1String("shm"); }
@@ -143,8 +149,9 @@ class QWSYellowSurface : public QWSWindowSurface
 {
 public:
     QWSYellowSurface();
-    QWSYellowSurface(QWidget *);
     ~QWSYellowSurface();
+
+    bool create(QWidget *widget);
 
     void setDelay(int msec) { delay = msec; }
 
@@ -176,8 +183,10 @@ class QWSDirectPainterSurface : public QWSWindowSurface
 {
 public:
     QWSDirectPainterSurface();
-    QWSDirectPainterSurface(QWidget *);
     ~QWSDirectPainterSurface();
+
+    bool create(QWidget *);
+    void release();
 
     void resize(const QSize &size) { resize(QRect(QPoint(0, 0), size)); }
     void resize(const QRegion &region);
@@ -193,13 +202,9 @@ public:
 
     bool attach(const QByteArray &) { return true; }
     void detach() {}
-    void release();
 
     const QImage image() const { return QImage(); }
     QPaintDevice *paintDevice() { return 0; }
-
-    bool isBuffered() const { return false; }
-    bool isReserved() const { return true; }
 
 private:
     int winId;

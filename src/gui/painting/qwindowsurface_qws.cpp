@@ -14,24 +14,32 @@
 
 #include <qdebug.h>
 
+static inline bool isWidgetOpaque(const QWidget *w)
+{
+    const QBrush brush = w->palette().brush(w->backgroundRole());
+    return (brush.style() == Qt::NoBrush || brush.isOpaque());
+}
+
 class QWSWindowSurfacePrivate
 {
 public:
-    QWSWindowSurfacePrivate(QWidget *window) : widget(window) {}
+    QWSWindowSurfacePrivate() : widget(0), flags(0) {}
 
     QWidget *widget;
+    QWSWindowSurface::SurfaceFlags flags;
     QRegion dirty;
     QRegion clip;
 };
 
 QWSWindowSurface::QWSWindowSurface()
-    : d_ptr(0)
+    : d_ptr(new QWSWindowSurfacePrivate)
 {
 }
 
-QWSWindowSurface::QWSWindowSurface(QWidget *window)
-    : d_ptr(new QWSWindowSurfacePrivate(window))
+bool QWSWindowSurface::create(QWidget *window)
 {
+    d_ptr->widget = window;
+    return true;
 }
 
 QWSWindowSurface::~QWSWindowSurface()
@@ -41,29 +49,37 @@ QWSWindowSurface::~QWSWindowSurface()
 
 QWidget *QWSWindowSurface::window() const
 {
-    return (d_ptr ? d_ptr->widget : 0);
+    return d_ptr->widget;
 }
 
 const QRegion QWSWindowSurface::dirtyRegion() const
 {
-    return (d_ptr ? d_ptr->dirty : QRegion());
+    return d_ptr->dirty;
 }
 
 void QWSWindowSurface::setDirty(const QRegion &dirty) const
 {
-    Q_ASSERT(d_ptr);
     d_ptr->dirty += dirty;
 }
 
 const QRegion QWSWindowSurface::clipRegion() const
 {
-    return (d_ptr ? d_ptr->clip : QRegion());
+    return d_ptr->clip;
 }
 
 void QWSWindowSurface::setClipRegion(const QRegion &clip)
 {
-    Q_ASSERT(d_ptr);
     d_ptr->clip = clip;
+}
+
+QWSWindowSurface::SurfaceFlags QWSWindowSurface::surfaceFlags() const
+{
+    return d_ptr->flags;
+}
+
+void QWSWindowSurface::setSurfaceFlags(SurfaceFlags flags)
+{
+    d_ptr->flags = flags;
 }
 
 void QWSWindowSurface::resize(const QSize &size)
@@ -71,7 +87,6 @@ void QWSWindowSurface::resize(const QSize &size)
     if (!window())
         return;
 
-    Q_ASSERT(d_ptr);
     Q_ASSERT(size == window()->frameGeometry().size());
     Q_UNUSED(size);
 
@@ -116,11 +131,9 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     if (!window())
         return;
 
-    Q_ASSERT(d_ptr);
-    Q_UNUSED(widget);
+    Q_UNUSED(offset);
 
-    const QBrush bgBrush = window()->palette().brush(window()->backgroundRole());
-    const bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
+    const bool opaque = isWidgetOpaque(window());
     QRegion toFlush = region + dirtyRegion();
 
     QTLWExtra *topextra = window()->d_func()->extra->topextra;
@@ -138,8 +151,7 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
 
 void QWSWindowSurface::release()
 {
-    QWidget::qwsDisplay()->requestRegion(window()->data->winid, key(), data(),
-                                         QRegion());
+    QWidget::qwsDisplay()->requestRegion(window()->data->winid, key(), data(), QRegion());
 }
 
 QWSWindowSurface* QWSWindowSurfaceFactory::create(QWidget *widget)
@@ -149,11 +161,14 @@ QWSWindowSurface* QWSWindowSurfaceFactory::create(QWidget *widget)
         return surface;
 
     if (QApplication::type() == QApplication::GuiServer)
-        return new QWSLocalMemWindowSurface(widget);
+        surface = new QWSLocalMemWindowSurface;
     else
-        return new QWSSharedMemWindowSurface(widget);
+        surface = new QWSSharedMemWindowSurface;
 
-    return 0;
+    if (surface)
+        surface->create(widget);
+
+    return surface;
 }
 
 QWSWindowSurface*
@@ -215,13 +230,23 @@ static void scroll(const QImage &img, const QRect &rect, const QPoint &point)
     } while (--h);
 }
 
-QWSLocalMemWindowSurface::QWSLocalMemWindowSurface(QWidget *w)
-    : QWSWindowSurface(w), mem(0), memsize(0)
+QWSLocalMemWindowSurface::QWSLocalMemWindowSurface()
+    : QWSWindowSurface(), mem(0), memsize(0)
 {
+    setSurfaceFlags(QWSWindowSurface::Buffered);
 }
 
 QWSLocalMemWindowSurface::~QWSLocalMemWindowSurface()
 {
+}
+
+bool QWSLocalMemWindowSurface::create(QWidget *w)
+{
+    SurfaceFlags flags = Buffered;
+    if (isWidgetOpaque(w))
+        flags |= Opaque;
+    setSurfaceFlags(flags);
+    return QWSWindowSurface::create(w);
 }
 
 bool QWSLocalMemWindowSurface::attach(const QByteArray &data)
@@ -233,12 +258,16 @@ bool QWSLocalMemWindowSurface::attach(const QByteArray &data)
     int height;
     int f;
     QImage::Format format;
+    SurfaceFlags flags;
 
     stream.readRawData((char*)(&mem), sizeof(mem));
     stream >> width >> height >> f;
     format = (QImage::Format)(f); // XXX
+    stream >> f;
+    flags = (SurfaceFlags)(f);
 
     img = QImage(mem, width, height, format);
+    setSurfaceFlags(flags);
 
     return true;
 }
@@ -251,8 +280,7 @@ void QWSLocalMemWindowSurface::detach()
 QImage::Format
 QWSLocalMemWindowSurface::preferredImageFormat(const QWidget *widget) const
 {
-    const QBrush brush = widget->palette().brush(window()->backgroundRole());
-    const bool opaque = brush.style() == Qt::NoBrush || brush.isOpaque();
+    const bool opaque = isWidgetOpaque(widget);
 
     if (opaque && qt_screen->depth() <= 16)
         return QImage::Format_RGB16;
@@ -314,7 +342,7 @@ const QByteArray QWSLocalMemWindowSurface::data() const
     QDataStream stream(&array, QIODevice::WriteOnly);
 
     stream.writeRawData((char*)(&mem), sizeof(mem));
-    stream << img.width() << img.height() << int(img.format());
+    stream << img.width() << img.height() << int(img.format()) << surfaceFlags();
     return array;
 }
 
@@ -330,14 +358,19 @@ static inline void unlock(QWSLock *l)
         l->unlock(QWSLock::BackingStore);
 }
 
-QWSSharedMemWindowSurface::QWSSharedMemWindowSurface(QWidget *w)
-    : QWSLocalMemWindowSurface(w)
+QWSSharedMemWindowSurface::QWSSharedMemWindowSurface()
+    : QWSLocalMemWindowSurface(), memlock(0)
 {
-    memlock = QWSDisplay::Data::getClientLock();
 }
 
 QWSSharedMemWindowSurface::~QWSSharedMemWindowSurface()
 {
+}
+
+bool QWSSharedMemWindowSurface::create(QWidget *w)
+{
+    memlock = QWSDisplay::Data::getClientLock();
+    return QWSLocalMemWindowSurface::create(w);
 }
 
 void QWSSharedMemWindowSurface::beginPaint(const QRegion &)
@@ -389,10 +422,14 @@ bool QWSSharedMemWindowSurface::attach(const QByteArray &data)
     int lockId;
     int f;
     QImage::Format format;
+    SurfaceFlags flags;
 
     stream >> memId >> width >> height >> lockId >> f;
     format = (QImage::Format)(f); // XXX
+    stream >> f;
+    flags = (SurfaceFlags)(f);
 
+    setSurfaceFlags(flags);
     setMemory(memId);
     setLock(lockId);
 
@@ -451,25 +488,26 @@ const QByteArray QWSSharedMemWindowSurface::data() const
     QByteArray array;
     QDataStream stream(&array, QIODevice::WriteOnly);
     stream << mem.id() << img.width() << img.height()
-           << (memlock ? memlock->id() : -1) << int(img.format());
+           << (memlock ? memlock->id() : -1) << int(img.format()) << surfaceFlags();
     return array;
 }
 
 
 QWSYellowSurface::QWSYellowSurface()
-    : QWSWindowSurface()
+    : QWSWindowSurface(), delay(10)
 {
+    setSurfaceFlags(QWSWindowSurface::Buffered);
 }
 
-QWSYellowSurface::QWSYellowSurface(QWidget *widget)
-    : QWSWindowSurface(widget)
+bool QWSYellowSurface::create(QWidget *widget)
 {
-    delay = 10;
     winId = QWidget::qwsDisplay()->takeId();
     QWidget::qwsDisplay()->nameRegion(winId,
                                       QLatin1String("Debug flush paint"),
                                       QLatin1String("Silly yellow thing"));
     QWidget::qwsDisplay()->setAltitude(winId, 1, true);
+
+    return QWSWindowSurface::create(widget);
 }
 
 QWSYellowSurface::~QWSYellowSurface()
@@ -531,23 +569,23 @@ void QWSYellowSurface::flush(QWidget *widget, const QRegion &region, const QPoin
 }
 
 QWSDirectPainterSurface::QWSDirectPainterSurface()
-    : QWSWindowSurface()
+    : QWSWindowSurface(), winId(-1)
 {
-}
-
-QWSDirectPainterSurface::QWSDirectPainterSurface(QWidget *widget)
-    : QWSWindowSurface(widget)
-{
-    winId  = QWidget::qwsDisplay()->takeId();
-    qDebug() << "setting directPainterID" << winId;
-    qApp->d_func()->directPainterID = winId;
-    QWidget::qwsDisplay()->nameRegion(winId,
-                                      QLatin1String("QDirectPainter reserved space"),
-                                      QLatin1String("reserved"));
+    setSurfaceFlags(Reserved);
 }
 
 QWSDirectPainterSurface::~QWSDirectPainterSurface()
 {
+}
+
+bool QWSDirectPainterSurface::create(QWidget *widget)
+{
+    winId  = QWidget::qwsDisplay()->takeId();
+    qApp->d_func()->directPainterID = winId;
+    QWidget::qwsDisplay()->nameRegion(winId,
+                                      QLatin1String("QDirectPainter reserved space"),
+                                      QLatin1String("reserved"));
+    return QWSWindowSurface::create(widget);
 }
 
 void QWSDirectPainterSurface::resize(const QRegion &region)

@@ -714,7 +714,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
     if (!widget->isVisible() || !widget->updatesEnabled() || !tlw->testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
 
-#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
+#if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER) && !defined(QT_WINDOW_SURFACE)
     QTLWExtra *topextra = tlw->d_func()->extra->topextra;
 #endif
     if(!QWidgetBackingStore::paintOnScreen(widget)) {

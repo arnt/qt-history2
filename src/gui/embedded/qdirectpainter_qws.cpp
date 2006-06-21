@@ -28,7 +28,7 @@
 #ifndef QT_NO_DIRECTPAINTER
 
 #ifdef QT_WINDOW_SURFACE
-Q_GLOBAL_STATIC_WITH_ARGS(QWSDirectPainterSurface, surface, (0));
+Q_GLOBAL_STATIC(QWSDirectPainterSurface, surface);
 #endif
 
 /*!
@@ -87,6 +87,12 @@ static inline QSize devS() { return QSize(qt_screen->deviceWidth(), qt_screen->d
 QRegion QDirectPainter::reserveRegion(const QRegion &reg)
 {
 #ifdef QT_WINDOW_SURFACE
+    static bool initialized = false;
+    if (!initialized) { // XXX: not thread safe
+        surface()->create(0);
+        initialized = true;
+    }
+
     surface()->resize(reg);
     return surface()->clipRegion();
 #else

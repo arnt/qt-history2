@@ -3018,7 +3018,7 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
     changingw->createSurface(surfaceKey, surfaceData);
     QWSWindowSurface *surface = changingw->windowSurface();
 
-//    changingw->opaque = windowtype != QWSBackingStore::Transparent && windowtype != QWSBackingStore::DebugHighlighter;
+    changingw->opaque = surface->isOpaque();
 
     QRegion r;
     if (surface->isReserved())
