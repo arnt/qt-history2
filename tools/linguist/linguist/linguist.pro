@@ -48,7 +48,7 @@ HEADERS        += finddialog.h \
 contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
 DEFINES        += QT_KEYWORDS
 
-DESTDIR                = $(QTDIR)/bin
+DESTDIR                = ../../../bin
 TARGET                = linguist
 
 win32:RC_FILE        = linguist.rc

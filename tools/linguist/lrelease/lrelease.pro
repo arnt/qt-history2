@@ -29,7 +29,7 @@ SOURCES += $$PROPARSERPATH/proitems.cpp \
 
 TARGET          = lrelease
 INCLUDEPATH     += ../shared
-DESTDIR         = $(QTDIR)/bin
+DESTDIR         = ../../../bin
 
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS        += target
