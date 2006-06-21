@@ -2976,15 +2976,19 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                     && mouse->type() == QEvent::MouseMove && mouse->buttons() == 0) {
                     // but still send them through all application event filters (normally done by notify_helper)
                     QReadWriteLock *lock = QObjectPrivate::readWriteLock();
-                    lock->lockForRead();
+                    if (lock)
+                        lock->lockForRead();
                     for (int i = 0; i < d->eventFilters.size(); ++i) {
                         register QObject *obj = d->eventFilters.at(i);
-                        lock->unlock();
+                        if (lock)
+                            lock->unlock();
                         if (obj && obj->eventFilter(w, w == receiver ? mouse : &me))
                             break;
-                        lock->lockForRead();
+                        if (lock)
+                            lock->lockForRead();
                     }
-                    lock->unlock();
+                    if (lock)
+                        lock->unlock();
                     res = true;
                 } else {
                     w->setAttribute(Qt::WA_NoMouseReplay, false);
@@ -3238,15 +3242,19 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
     QReadWriteLock *lock = QObjectPrivate::readWriteLock();
 
     // send to all application event filters
-    lock->lockForRead();
+    if (lock)
+        lock->lockForRead();
     for (int i = 0; i < eventFilters.size(); ++i) {
         register QObject *obj = eventFilters.at(i);
-        lock->unlock();
+        if (lock)
+            lock->unlock();
         if (obj && obj->eventFilter(receiver,e))
             return true;
-        lock->lockForRead();
+        if (lock)
+            lock->lockForRead();
     }
-    lock->unlock();
+    if (lock)
+        lock->unlock();
 
     if (receiver->isWidgetType()) {
         QWidget *widget = static_cast<QWidget *>(receiver);
@@ -3264,15 +3272,19 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
 
     // send to all receiver event filters
     if (receiver != q) {
-        lock->lockForRead();
+        if (lock)
+            lock->lockForRead();
         for (int i = 0; i < receiver->d_func()->eventFilters.size(); ++i) {
             register QObject *obj = receiver->d_func()->eventFilters.at(i);
-            lock->unlock();
+            if (lock)
+                lock->unlock();
             if (obj && obj->eventFilter(receiver,e))
                 return true;
-            lock->lockForRead();
+            if (lock)
+                lock->lockForRead();
         }
-        lock->unlock();
+        if (lock)
+            lock->unlock();
     }
     bool consumed = receiver->event(e);
     e->spont = false;
@@ -4025,7 +4037,7 @@ uint QApplicationPrivate::currentPlatform(){
     uint platform = KB_Win;
 #ifdef Q_WS_MAC
     platform = KB_Mac;
-#elif defined Q_WS_X11    
+#elif defined Q_WS_X11
     platform = KB_X11;
     if (X11->desktopEnvironment == DE_KDE)
         platform |= KB_KDE;
@@ -4033,7 +4045,7 @@ uint QApplicationPrivate::currentPlatform(){
         platform |= KB_Gnome;
     if (X11->desktopEnvironment == DE_CDE)
         platform |= KB_CDE;
-#endif    
+#endif
     return platform;
 }
 
