@@ -39,6 +39,7 @@ QDBusMessagePrivate::~QDBusMessagePrivate()
 ///////////////
 /*!
     \class QDBusMessage
+    \inmodule QtDBus
     \brief Represents one message sent or received over the DBus bus.
 
     This object can represent any of four different types of messages possible on the bus

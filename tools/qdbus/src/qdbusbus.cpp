@@ -26,6 +26,7 @@
 
 /*!
     \class QDBusBusService
+    \inmodule QtDBus
     \brief Provides access to the D-Bus bus daemon service.
 
     The D-BUS bus server daemon provides one special interface \c

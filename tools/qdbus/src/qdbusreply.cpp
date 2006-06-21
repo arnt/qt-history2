@@ -15,6 +15,7 @@
 
 /*!
     \class QDBusReply
+    \inmodule QtDBus
     \brief The reply for a method call to a remote object.
 
     A QDBusReply object is a subset of the QDBusMessage object that represents a method call's

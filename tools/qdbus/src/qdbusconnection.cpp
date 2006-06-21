@@ -106,6 +106,7 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
 
 /*!
     \class QDBusConnection
+    \inmodule QtDBus
     \brief A connection to the D-Bus bus daemon.
 
     This class is the initial point in a D-Bus session. Using it, you can get access to remote

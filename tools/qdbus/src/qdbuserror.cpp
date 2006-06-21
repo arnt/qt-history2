@@ -84,6 +84,7 @@ Q_GLOBAL_STATIC(ErrorMessageMapping, errorMessages)
 
 /*!
     \class QDBusError
+    \inmodule QtDBus
     \brief Represents an error received from the D-Bus bus or from remote applications found in the bus.
 
     When dealing with the D-Bus bus service or with remote applications over D-Bus, a number of

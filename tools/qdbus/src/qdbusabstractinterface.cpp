@@ -74,6 +74,7 @@ void QDBusAbstractInterfacePrivate::setProperty(const QMetaProperty &mp, const Q
 
 /*!
     \class QDBusAbstractInterface
+    \inmodule QtDBus
     \brief Base class for all D-Bus interfaces in the QtDBus binding, allowing access to remote interfaces.
 
     Generated-code classes also derive from QDBusAbstractInterface, all methods described here are also

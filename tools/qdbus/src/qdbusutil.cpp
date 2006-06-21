@@ -22,8 +22,10 @@
 
 /*!
     \namespace QDBusUtil
-    The QDBusUtil namespace contains a few functions that are of general use when dealing with D-Bus
-    strings.
+    \inmodule QtDBus
+
+    \brief The QDBusUtil namespace contains a few functions that are of general use when
+    dealing with D-Bus strings.
 */
 namespace QDBusUtil
 {

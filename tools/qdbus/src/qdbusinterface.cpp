@@ -91,6 +91,7 @@ static void assign(void *ptr, int id, const QVariant &value)
 
 /*!
     \class QDBusInterface
+    \inmodule QtDBus
     \brief Proxy class for interfaces on remote objects.
 
     QDBusInterface is a generic accessor class that is used to place calls to remote objects,
@@ -224,6 +225,7 @@ int QDBusInterfacePrivate::metacall(QMetaObject::Call c, int id, void **argv)
 
 /*!
     \class QDBusInterfacePtr
+    \inmodule QtDBus
     \brief The QDBusInterfacePtr is a container for a QDBusInterface object.
 
     QDBusInterface objects are always created on the heap and must,
