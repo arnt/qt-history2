@@ -35,8 +35,10 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
 
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
+#ifndef QT_NO_DOCKWIDGET
     Q_PROPERTY(bool animationEnabled READ isAnimationEnabled WRITE setAnimationEnabled)
     Q_PROPERTY(bool dockNestingEnabled READ isDockNestingEnabled WRITE setDockNestingEnabled)
+#endif
 
 public:
     explicit QMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
@@ -106,9 +108,11 @@ public:
     QT3_SUPPORT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
 #endif
 
+#ifndef QT_NO_DOCKWIDGET
 public Q_SLOTS:
     void setAnimationEnabled(bool enabled);
     void setDockNestingEnabled(bool enabled);
+#endif
 
 Q_SIGNALS:
     void iconSizeChanged(const QSize &iconSize);
