@@ -698,6 +698,8 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
     extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
     if (qt_mac_is_macdrawer(dockwidget)) {
         extern bool qt_mac_set_drawer_preferred_edge(QWidget *, Qt::DockWidgetArea); //qwidget_mac.cpp
+        window()->createWinId();
+        dockwidget->window()->createWinId();
         qt_mac_set_drawer_preferred_edge(dockwidget, area);
         if (dockwidget->isVisible()) {
             dockwidget->hide();
