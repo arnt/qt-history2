@@ -158,6 +158,8 @@ public:
         const QVector<int> &proxy_to_source, QVector<int> &source_to_proxy) const;
     void source_items_inserted(
         const QModelIndex &source_parent, int start, int end, Qt::Orientation orient);
+    void source_items_about_to_be_removed(
+        const QModelIndex &source_parent, int start, int end, Qt::Orientation orient);
     void source_items_removed(
         const QModelIndex &source_parent, int start, int end, Qt::Orientation orient);
     void proxy_item_range(
@@ -357,7 +359,8 @@ void QSortFilterProxyModelPrivate::remove_source_items(
         QPair<int, int> interval = proxy_intervals.at(i);
         int proxy_start = interval.first;
         int proxy_end = interval.second;
-        remove_proxy_interval(source_to_proxy, proxy_to_source, proxy_start, proxy_end, proxy_parent, orient, emit_signal);
+        remove_proxy_interval(source_to_proxy, proxy_to_source, proxy_start, proxy_end,
+                              proxy_parent, orient, emit_signal);
     }
 }
 
@@ -551,7 +554,8 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
 
     if (start < old_item_count) {
         // Adjust existing "stale" indexes in proxy-to-source mapping
-        for (int proxy_item = 0; proxy_item < proxy_to_source.size(); ++proxy_item) {
+        int proxy_count = proxy_to_source.size();
+        for (int proxy_item = 0; proxy_item < proxy_count; ++proxy_item) {
             int source_item = proxy_to_source.at(proxy_item);
             if (source_item >= start)
                 proxy_to_source.replace(proxy_item, source_item + delta_item_count);
@@ -578,6 +582,38 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
 /*!
   \internal
 
+  Handles source model items removal
+  (columnsAboutToBeRemoved(), rowsAboutToBeRemoved()).
+*/
+void QSortFilterProxyModelPrivate::source_items_about_to_be_removed(
+    const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
+{
+    IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
+    if (it == source_index_mapping.constEnd()) {
+        // Don't care, since we don't have mapping for this index
+        return;
+    }
+
+    Mapping *m = it.value();
+    QVector<int> &source_to_proxy = (orient == Qt::Vertical) ? m->proxy_rows : m->proxy_columns;
+    QVector<int> &proxy_to_source = (orient == Qt::Vertical) ? m->source_rows : m->source_columns;
+
+    // figure out which items to remove
+    QVector<int> source_items_to_remove;
+    int proxy_count = proxy_to_source.size();
+    for (int proxy_item = 0; proxy_item < proxy_count; ++proxy_item) {
+        int source_item = proxy_to_source.at(proxy_item);
+        if ((source_item >= start) && (source_item <= end))
+            source_items_to_remove.append(source_item);
+    }
+
+    remove_source_items(source_to_proxy, proxy_to_source, source_items_to_remove,
+                        source_parent, orient);
+}
+
+/*!
+  \internal
+
   Handles source model items removal (columnsRemoved(), rowsRemoved()).
 */
 void QSortFilterProxyModelPrivate::source_items_removed(
@@ -589,90 +625,22 @@ void QSortFilterProxyModelPrivate::source_items_removed(
         return;
     }
 
-    int delta_item_count = end - start + 1;
     Mapping *m = it.value();
     QVector<int> &source_to_proxy = (orient == Qt::Vertical) ? m->proxy_rows : m->proxy_columns;
     QVector<int> &proxy_to_source = (orient == Qt::Vertical) ? m->source_rows : m->source_columns;
 
-    // This approach is (and needs to be) a bit different than the one in
-    // source_items_inserted(). We cannot remove the corresponding proxy items
-    // in intervals, because then recipients of the
-    // rowsRemoved()/columnsRemoved() signals can try to access proxy items
-    // that happen to be in the subsequent intervals yet to be removed. We
-    // don't want that, because the corresponding source items have just been
-    // removed from the source model (e.g. their proxy items are no longer
-    // valid). This is a matter of ensuring that the observable state of the
-    // proxy model is kept consistent.  The solution is to find the minimal
-    // interval that can be used to remove all affected proxy items in a single
-    // removeRows()/removeColumns(), then insert back those items not affected
-    // by the source items removal.
-
-    // Figure out "super"-interval of proxy items to remove
-    int proxy_start = INT_MAX;
-    int proxy_end = INT_MIN;
-    for (int i = start; i <= end; ++i) {
-        int proxy_item = source_to_proxy.at(i);
-        if (proxy_item != -1) {
-            if (proxy_item < proxy_start)
-                proxy_start = proxy_item;
-            if (proxy_item > proxy_end)
-                proxy_end = proxy_item;
-        }
-    }
-
-    // Figure out which source items in the "super"-interval to keep (reinsert)
-    QVector<int> source_items;
-    if (proxy_end >= 0) {
-        for (int i = proxy_start+1; i <= proxy_end-1; ++i) {
-            int source_item = proxy_to_source.at(i);
-            if (source_item < start)
-                source_items.append(source_item);
-            else if (source_item > end)
-                source_items.append(source_item - delta_item_count);
-        }
-    }
-
-    QModelIndexList source_indexes = store_persistent_indexes();
-
-    if (proxy_end >= 0) {
-        // Remove the items in "super"-interval
-        QModelIndex proxy_parent = QSortFilterProxyModelPrivate::source_to_proxy(source_parent);
-        remove_proxy_interval(source_to_proxy, proxy_to_source, proxy_start, proxy_end, proxy_parent, orient);
-    }
-
     // Shrink the source-to-proxy mapping to reflect the new item count
+    int delta_item_count = end - start + 1;
     source_to_proxy.remove(start, delta_item_count);
 
     // Adjust "stale" indexes in proxy-to-source mapping
-    for (int proxy_item = 0; proxy_item < proxy_to_source.size(); ++proxy_item) {
+    int proxy_count = proxy_to_source.size();
+    for (int proxy_item = 0; proxy_item < proxy_count; ++proxy_item) {
         int source_item = proxy_to_source.at(proxy_item);
         if (source_item >= start)
             proxy_to_source.replace(proxy_item, source_item - delta_item_count);
     }
-    // Do the same adjustment for persistent indexes
-    for (int i = 0; i < source_indexes.size(); ++i) {
-        QModelIndex source_index = source_indexes.at(i);
-        if (model->parent(source_index) != source_parent)
-            continue;
-        int source_item = (orient == Qt::Vertical) ? source_index.row() : source_index.column();
-        if (source_item >= start) {
-            if (source_item <= end) {
-                // Invalidate
-                source_indexes.replace(i, QModelIndex());
-            } else {
-                // Move
-                int new_source_item = source_item - delta_item_count;
-                int new_source_row = (orient == Qt::Vertical) ? new_source_item : source_index.row();
-                int new_source_column = (orient == Qt::Vertical) ? source_index.column() : new_source_item;
-                source_indexes.replace(i, model->index(new_source_row, new_source_column, source_index.parent()));
-            }
-        }
-    }
-
-    // Add back the source items to keep
-    insert_source_items(source_to_proxy, proxy_to_source, source_items, source_parent, orient);
-
-    update_persistent_indexes(source_indexes);
+    build_source_to_proxy_mapping(proxy_to_source, source_to_proxy);
 }
 
 void QSortFilterProxyModelPrivate::proxy_item_range(
@@ -698,7 +666,8 @@ void QSortFilterProxyModelPrivate::build_source_to_proxy_mapping(
     const QVector<int> &proxy_to_source, QVector<int> &source_to_proxy) const
 {
     source_to_proxy.fill(-1);
-    for (int i = 0; i < proxy_to_source.size(); ++i)
+    int proxy_count = proxy_to_source.size();
+    for (int i = 0; i < proxy_count; ++i)
         source_to_proxy[proxy_to_source.at(i)] = i;
 }
 
@@ -773,7 +742,8 @@ void QSortFilterProxyModelPrivate::handle_filter_changed(
     }
     // Figure out which non-mapped items to insert
     QVector<int> source_items_insert;
-    for (int source_item = 0; source_item < source_to_proxy.size(); ++source_item) {
+    int source_count = source_to_proxy.size();
+    for (int source_item = 0; source_item < source_count; ++source_item) {
         if (source_to_proxy.at(source_item) == -1) {
             if ((orient == Qt::Vertical)
                 ? q->filterAcceptsRow(source_item, source_parent)
@@ -902,9 +872,7 @@ void QSortFilterProxyModelPrivate::_q_sourceRowsInserted(const QModelIndex &sour
 
 void QSortFilterProxyModelPrivate::_q_sourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end)
 {
-    Q_UNUSED(source_parent);
-    Q_UNUSED(start);
-    Q_UNUSED(end);
+    source_items_about_to_be_removed(source_parent, start, end, Qt::Vertical);
 }
 
 void QSortFilterProxyModelPrivate::_q_sourceRowsRemoved(const QModelIndex &source_parent, int start, int end)
@@ -926,9 +894,7 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsInserted(const QModelIndex &s
 
 void QSortFilterProxyModelPrivate::_q_sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end)
 {
-    Q_UNUSED(source_parent);
-    Q_UNUSED(start);
-    Q_UNUSED(end);
+    source_items_about_to_be_removed(source_parent, start, end, Qt::Horizontal);
 }
 
 void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &source_parent, int start, int end)
