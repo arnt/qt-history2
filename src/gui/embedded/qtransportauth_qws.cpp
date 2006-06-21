@@ -822,6 +822,7 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
     char displaybuf[1024];
 #endif
     char header[QSXE_HEADER_LEN];
+    ::memset( header, 0, QSXE_HEADER_LEN );
     qint64 bytes = 0;
     if ( authToMessage( *d, header, data, len ))
     {
