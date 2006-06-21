@@ -35,7 +35,7 @@
 #include "private/qobject_p.h"
 
 // Uncomment to generate debug output
-// #define QTRANSPORTAUTH_DEBUG 1
+//#define QTRANSPORTAUTH_DEBUG 1
 
 #ifdef QTRANSPORTAUTH_DEBUG
 void hexstring( char *buf, const unsigned char* key, size_t sz );
@@ -53,6 +53,20 @@ void hexstring( char *buf, const unsigned char* key, size_t sz );
 void *guaranteed_memset(void *v,int c,size_t n);
 
 class QUnixSocketMessage;
+
+class RequestAnalyzer
+{
+public:
+    RequestAnalyzer();
+    virtual ~RequestAnalyzer();
+    QString operator()( QByteArray *data ) { return analyze( data ); }
+    bool requireMoreData() const { return moreData; }
+    qint64 bytesAnalyzed() const { return dataSize; }
+protected:
+    virtual QString analyze( QByteArray * );
+    bool moreData;
+    qint64 dataSize;
+};
 
 /*!
   \internal
@@ -79,6 +93,7 @@ public:
     void *client() const;
     bool authToMessage( QTransportAuth::Data &, char *, const char *, int );
     bool authFromMessage( QTransportAuth::Data &, const char *, int );
+    void setRequestAnalyzer( RequestAnalyzer * );
     bool isSequential() const;
     bool atEnd() const;
     qint64 bytesAvailable() const;
@@ -93,6 +108,7 @@ protected:
     qint64 writeData(const char *, qint64 );
 private Q_SLOTS:
     void recvReadyRead();
+    void targetBytesWritten( qint64 );
 private:
     bool authorizeMessage();
 
@@ -102,6 +118,9 @@ private:
     void *m_client;
     QByteArray msgQueue;
     qint64 m_bytesAvailable;
+    qint64 m_skipWritten;
+
+    RequestAnalyzer *analyzer;
 };
 
 inline bool QAuthDevice::isSequential() const

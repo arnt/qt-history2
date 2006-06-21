@@ -651,6 +651,84 @@ void QTransportAuthPrivate::invalidateClientKeyCache()
 
 ////////////////////////////////////////////////////////////////////////
 ////
+////  RequestAnalyzer definition
+////
+
+
+RequestAnalyzer::RequestAnalyzer()
+    : moreData( false )
+    , dataSize( 0 )
+{
+}
+
+RequestAnalyzer::~RequestAnalyzer()
+{
+}
+
+/*!
+  Analzye the data in the\a msgQueue according to some protocol
+  and produce a request string for policy analysis.
+
+  If enough data is in the queue for analysis of a complete message,
+  return a non-null string, and set a flag so requireMoreData() will
+  return false; otherwise return a null string and requireMoreData()
+  return true.
+
+  The amount of bytes analyzed is then available via bytesAnalyzed().
+
+  A null string is also returned in the case where the message was
+  corrupt and could not be analyzed.  In this case requireMoreData()
+  returns false.
+
+Note: this method will modify the msgQueue and pull off the data
+  deemed to be corrupt, in the case of corrupt data.
+
+  In all other cases the msgQueue is left alone.  The calling code
+  should then pull off the analyzed data.  Use bytesAnalzyed() to
+  find how much data to pull off the queue.
+*/
+QString RequestAnalyzer::analyze( QByteArray *msgQueue )
+{
+    dataSize = 0;
+    moreData = false;
+    QBuffer cmdBuf( msgQueue );
+    cmdBuf.open( QIODevice::ReadOnly | QIODevice::Unbuffered );
+    QWSCommand::Type command_type = (QWSCommand::Type)(qws_read_uint( &cmdBuf ));
+    QWSCommand *command = QWSCommand::factory(command_type);
+    // if NULL, factory will have already printed warning for bogus
+    // command_type just purge the bad stuff and attempt to recover
+    if ( command == NULL )
+    {
+        *msgQueue = msgQueue->mid( sizeof(int) );
+        return QString();
+    }
+    QString request( qws_getCommandTypeString( command_type ));
+#ifndef QT_NO_COP
+    if ( !command->read( &cmdBuf ))
+    {
+        // not all command arrived yet - come back later
+        delete command;
+        moreData = true;
+        return QString();
+    }
+    if ( command_type == QWSCommand::QCopSend )
+    {
+        QWSQCopSendCommand *sendCommand = static_cast<QWSQCopSendCommand*>(command);
+        request += QString( "/QCop/%1/%2" ).arg( sendCommand->channel ).arg( sendCommand->message );
+    }
+    if ( command_type == QWSCommand::QCopRegisterChannel )
+    {
+        QWSQCopRegisterChannelCommand *registerCommand = static_cast<QWSQCopRegisterChannelCommand*>(command);
+        request += QString( "/QCop/RegisterChannel/%1" ).arg( registerCommand->channel );
+    }
+#endif
+    dataSize = QWS_PROTOCOL_ITEM_SIZE( *command );
+    delete command;
+    return request;
+}
+
+////////////////////////////////////////////////////////////////////////
+////
 ////  AuthDevice definition
 ////
 
@@ -661,19 +739,26 @@ QAuthDevice::QAuthDevice( QIODevice *parent, QTransportAuth::Data *data, AuthDir
     , m_target( parent )
     , m_client( 0 )
     , m_bytesAvailable( 0 )
+    , m_skipWritten( 0 )
+    , analyzer( 0 )
 {
     if ( dir == Receive ) // server side
     {
         connect( m_target, SIGNAL(readyRead()),
                 this, SLOT(recvReadyRead()));
+    } else {
+        connect( m_target, SIGNAL(readyRead()),
+                this, SIGNAL(readyRead()));
     }
     connect( m_target, SIGNAL(bytesWritten(qint64)),
-            this, SIGNAL(bytesWritten(qint64)) );
-    open( QIODevice::WriteOnly | QIODevice::Unbuffered );
+            this, SLOT(targetBytesWritten(qint64)) );
+    open( QIODevice::ReadWrite | QIODevice::Unbuffered );
 }
 
 QAuthDevice::~QAuthDevice()
 {
+    if ( analyzer )
+        delete analyzer;
 }
 
 /*!
@@ -731,10 +816,7 @@ void *QAuthDevice::client() const
 qint64 QAuthDevice::writeData(const char *data, qint64 len)
 {
     if ( way == Receive )  // server
-    {
-        Q_ASSERT( "Dont call writeData in server" );
-        return 0;
-    }
+        return m_target->write( data, len );
     // client
 #ifdef QTRANSPORTAUTH_DEBUG
     char displaybuf[1024];
@@ -748,7 +830,7 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
         hexstring( displaybuf, (const unsigned char *)header, QSXE_HEADER_LEN );
         qDebug( "%li QAuthDevice::writeData - CLIENT: Header written: %s", getpid(), displaybuf );
 #endif
-        bytes += QSXE_HEADER_LEN;
+        m_skipWritten += QSXE_HEADER_LEN;
     }
     m_target->write( data, len );
     bytes += len;
@@ -779,6 +861,8 @@ qint64 QAuthDevice::writeData(const char *data, qint64 len)
 */
 qint64 QAuthDevice::readData( char *data, qint64 maxSize )
 {
+    if ( way == Send )  // client
+        return m_target->read( data, maxSize );
     if ( msgQueue.size() == 0 )
         return 0;
 #ifdef QTRANSPORTAUTH_DEBUG
@@ -814,7 +898,7 @@ void QAuthDevice::recvReadyRead()
 {
     qint64 bytes = m_target->bytesAvailable();
     if ( bytes <= 0 ) return;
-    open( QIODevice::ReadOnly | QIODevice::Unbuffered );
+    open( QIODevice::ReadWrite | QIODevice::Unbuffered );
     QUnixSocket *usock = static_cast<QUnixSocket*>(m_target);
     QUnixSocketMessage msg = usock->read();
     msgQueue.append( msg.bytes() );
@@ -834,7 +918,7 @@ void QAuthDevice::recvReadyRead()
     qDebug( "%li ***** SERVER read %lli bytes - msg %s", getpid(), bytes, displaybuf );
 #endif
 
-    bool bufHasMessages = msgQueue.size() > (int)sizeof(int);
+    bool bufHasMessages = msgQueue.size() >= (int)sizeof(int);
     while ( bufHasMessages )
     {
         unsigned char saveStatus = d->status;
@@ -847,7 +931,6 @@ void QAuthDevice::recvReadyRead()
                 return;
             }
         }
-
         if (( d->status & QTransportAuth::ErrMask ) == QTransportAuth::NoMagic )
         {
             // no msg auth header, don't change the success status for connections
@@ -859,8 +942,28 @@ void QAuthDevice::recvReadyRead()
             // msg auth header detected and auth determined, remove hdr
             msgQueue = msgQueue.mid( QSXE_HEADER_LEN );
         }
+        if ( !authorizeMessage() )
+            break;
+        bufHasMessages = msgQueue.size() >= (int)sizeof(int);
+    }
+}
 
-        bufHasMessages = authorizeMessage();
+/**
+  \internal
+  Handle bytesWritten signals from the underlying target device.
+  We adjust the target's value for bytes that are part of auth packets.
+*/
+void QAuthDevice::targetBytesWritten( qint64 bytes )
+{
+    if ( m_skipWritten >= bytes ) {
+        m_skipWritten -= bytes;
+        bytes = 0;
+    } else if ( m_skipWritten > 0 ) {
+        bytes -= m_skipWritten;
+        m_skipWritten = 0;
+    }
+    if ( bytes > 0 ) {
+        emit bytesWritten( bytes );
     }
 }
 
@@ -877,48 +980,19 @@ void QAuthDevice::recvReadyRead()
 */
 bool QAuthDevice::authorizeMessage()
 {
-    QBuffer cmdBuf( &msgQueue );
-    cmdBuf.open( QIODevice::ReadOnly | QIODevice::Unbuffered );
-    QWSCommand::Type command_type = (QWSCommand::Type)(qws_read_uint( &cmdBuf ));
-    QWSCommand *command = QWSCommand::factory(command_type);
-    // if NULL, factory will have already printed warning for bogus
-    // command_type just purge the bad stuff and attempt to recover
-    if ( command == NULL )
-    {
-        msgQueue = msgQueue.mid( sizeof(int) );
-        // qDebug() << "bad command - removing" << sizeof(int) << "bytes";
-        return msgQueue.size() > (int)sizeof(int);
-    }
-    QString request( qws_getCommandTypeString( command_type ));
-#ifndef QT_NO_COP
-    // not all command arrived yet - come back later
-    if ( !command->read( &cmdBuf ))
-    {
-        delete command;
-        // qDebug() << msgQueue.size() << "buffer size: exhausted before command complete - returning";
+    if ( analyzer == NULL )
+        analyzer = new RequestAnalyzer();
+    QString request = (*analyzer)( &msgQueue );
+    if ( analyzer->requireMoreData() )
         return false;
-    }
-    if ( command_type == QWSCommand::QCopSend )
-    {
-        QWSQCopSendCommand *sendCommand = static_cast<QWSQCopSendCommand*>(command);
-        request += QString( "/QCop/%1/%2" ).arg( sendCommand->channel ).arg( sendCommand->message );
-    }
-    if ( command_type == QWSCommand::QCopRegisterChannel )
-    {
-        QWSQCopRegisterChannelCommand *registerCommand = static_cast<QWSQCopRegisterChannelCommand*>(command);
-        request += QString( "/QCop/RegisterChannel/%1" ).arg( registerCommand->channel );
-    }
-#endif
     bool isAuthorized = true;
     QTransportAuth *auth = QTransportAuth::getInstance();
     if ( !request.isEmpty() && request != "Unknown" )
     {
         d->status &= QTransportAuth::ErrMask;  // clear the status
-        // d is now carrying the PID from the readyRead
         emit policyCheck( *d, request );
         isAuthorized = (( d->status & QTransportAuth::StatusMask ) == QTransportAuth::Allow );
     }
-
 #if defined(SXE_DISCOVERY)
     if (auth->isDiscoveryMode()) {
 #ifndef QT_NO_TEXTSTREAM
@@ -936,16 +1010,15 @@ bool QAuthDevice::authorizeMessage()
         isAuthorized = true;
     }
 #endif
-    // copy message into the authBuf...
-    int commandSize = QWS_PROTOCOL_ITEM_SIZE( *command );
-    bool moreToProcess = ( msgQueue.size() - commandSize ) > (int)sizeof(int);
+    bool moreToProcess = ( msgQueue.size() - analyzer->bytesAnalyzed() ) > (int)sizeof(int);
     if ( isAuthorized )
     {
 #ifdef QTRANSPORTAUTH_DEBUG
-        qDebug() << getpid() << "SERVER authorized: releasing" << commandSize << "byte command" << request;
+        qDebug() << getpid() << "SERVER authorized: releasing" << analyzer->bytesAnalyzed() << "byte command" << request;
 #endif
-        m_bytesAvailable = commandSize;
+        m_bytesAvailable = analyzer->bytesAnalyzed();
         emit QIODevice::readyRead();
+        return moreToProcess;
     }
     else
     {
@@ -954,10 +1027,17 @@ bool QAuthDevice::authorizeMessage()
                 "(to turn on discovery mode, export SXE_DISCOVERY_MODE=1)"
 #endif
                 , qPrintable(request), d->progId, d->processId );
-        msgQueue = msgQueue.mid( commandSize );
+        msgQueue = msgQueue.mid( analyzer->bytesAnalyzed() );
     }
-    delete command;
-    return moreToProcess;
+    return true;
+}
+
+void QAuthDevice::setRequestAnalyzer( RequestAnalyzer *ra )
+{
+    Q_ASSERT( ra );
+    if ( analyzer )
+        delete analyzer;
+    analyzer = ra;
 }
 
 /*!
