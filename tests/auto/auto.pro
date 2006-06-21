@@ -300,3 +300,13 @@ SUBDIRS += bic \
            qxmlsimplereader \
            selftests \
            symbols
+
+contains(QT_CONFIG,qdbus): {
+       SUBDIRS += \
+               qdbusabstractadaptor \
+               qdbusconnection \
+               qdbusinterface \
+               qdbusmarshall \
+               qdbusmetatype \
+               qdbusxmlparser
+}
