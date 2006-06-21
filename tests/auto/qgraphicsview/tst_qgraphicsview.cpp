@@ -80,7 +80,7 @@ private slots:
 void tst_QGraphicsView::construction()
 {
     QGraphicsView view;
-    QCOMPARE(view.renderHints(), QPainter::TextAntialiasing | QPainter::Antialiasing);
+    QCOMPARE(view.renderHints(), QPainter::TextAntialiasing);
     QCOMPARE(view.dragMode(), QGraphicsView::NoDrag);
     QVERIFY(view.isInteractive());
     QVERIFY(!view.scene());
@@ -126,9 +126,9 @@ public:
 void tst_QGraphicsView::renderHints()
 {
     QGraphicsView view;
-    QCOMPARE(view.renderHints(), QPainter::TextAntialiasing | QPainter::Antialiasing);
+    QCOMPARE(view.renderHints(), QPainter::TextAntialiasing);
     view.setRenderHint(QPainter::TextAntialiasing, false);
-    QCOMPARE(view.renderHints(), QPainter::Antialiasing);
+    QCOMPARE(view.renderHints(), 0);
     view.setRenderHint(QPainter::Antialiasing, false);
     QCOMPARE(view.renderHints(), 0);
     view.setRenderHint(QPainter::TextAntialiasing, true);
