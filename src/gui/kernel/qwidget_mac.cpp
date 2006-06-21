@@ -1134,6 +1134,8 @@ void QWidgetPrivate::createWindow_sys()
     else if (topExtra->opacity != 255)
         q->setWindowOpacity(topExtra->opacity);
     qt_mac_update_opaque_sizegrip(q);
+    qt_mac_update_metal_style(q);
+    qt_mac_update_ignore_mouseevents(q);
 }
 
 void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyOldWindow)
@@ -1256,9 +1258,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             setWinId((WId)hiview);
         }
     }
-
-    qt_mac_update_metal_style(q);
-    qt_mac_update_ignore_mouseevents(q);
 
     if(destroyid) {
         //HIViewRemoveFromSuperview(destroyid);
