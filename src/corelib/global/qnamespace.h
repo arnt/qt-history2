@@ -362,6 +362,7 @@ public:
         WA_X11OpenGLOverlay = 83,
         WA_AlwaysShowToolTips = 84,
         WA_MacOpaqueSizeGrip = 85,
+        WA_SetStyle = 86,
 
         // Add new attributes above this
         WA_AttributeCount

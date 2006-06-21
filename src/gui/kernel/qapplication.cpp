@@ -36,6 +36,7 @@
 #include "qcolormap.h"
 #include "qdebug.h"
 #include "private/qstylesheetstyle_p.h"
+#include "private/qstyle_p.h"
 
 #include "qinputcontext.h"
 #include "qkeymapper_p.h"
@@ -836,7 +837,7 @@ QApplication::~QApplication()
     delete QApplicationPrivate::app_font;
     QApplicationPrivate::app_font = 0;
     app_fonts()->clear();
-    delete QApplicationPrivate::app_style;
+    QApplicationPrivate::app_style->d_func()->detach();
     QApplicationPrivate::app_style = 0;
     delete QApplicationPrivate::app_icon;
     QApplicationPrivate::app_icon = 0;
@@ -1066,6 +1067,8 @@ QStyle *QApplication::style()
             qFatal("No styles available!");
     }
 
+    QApplicationPrivate::app_style->d_func()->attach();
+
     if (!QApplicationPrivate::sys_pal)
         QApplicationPrivate::setSystemPalette(QApplicationPrivate::app_style->standardPalette());
     if (QApplicationPrivate::set_pal) // repolish set palette with the new style
@@ -1108,6 +1111,7 @@ void QApplication::setStyle(QStyle *style)
 
     QStyle* old = QApplicationPrivate::app_style;
     QApplicationPrivate::app_style = style;
+    style->d_func()->attach();
 
     // clean up the old style
     if (old) {
@@ -1156,8 +1160,8 @@ void QApplication::setStyle(QStyle *style)
             }
         }
     }
-    if (old != QStyleSheetStyle::styleSheetStyle())
-        delete old;
+    if (old)
+        old->d_func()->detach();
 
     if (QApplicationPrivate::focus_widget) {
         QFocusEvent in(QEvent::FocusIn, Qt::OtherFocusReason);

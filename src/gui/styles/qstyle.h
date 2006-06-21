@@ -685,6 +685,9 @@ protected Q_SLOTS:
 
 private:
     Q_DISABLE_COPY(QStyle)
+    friend class QWidget;
+    friend class QWidgetPrivate;
+    friend class QApplication;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::State)

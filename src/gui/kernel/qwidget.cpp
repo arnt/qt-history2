@@ -46,6 +46,7 @@
 #include "qwhatsthis.h"
 #include "qdebug.h"
 #include "private/qstylesheetstyle_p.h"
+#include "private/qstyle_p.h"
 
 #include "qinputcontext.h"
 
@@ -85,6 +86,7 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         ,polished(0)
 
         , size_policy(QSizePolicy::Preferred, QSizePolicy::Preferred)
+        , style(0)
 {
     if (!qApp) {
         qFatal("QWidget: Must construct a QApplication before a QPaintDevice");
@@ -105,6 +107,9 @@ QWidgetPrivate::QWidgetPrivate(int version) :
 
 QWidgetPrivate::~QWidgetPrivate()
 {
+    Q_Q(QWidget);
+    if (q->testAttribute(Qt::WA_SetStyle))
+        style->d_func()->detach();
     if (extra)
         deleteExtra();
 }
@@ -1212,7 +1217,6 @@ void QWidgetPrivate::createExtra()
         extra->curs = 0;
 #endif
         extra->topextra = 0;
-        extra->style = 0;
         createSysExtra();
 #ifdef QWIDGET_EXTRA_DEBUG
     static int count = 0;
@@ -1633,8 +1637,8 @@ void QWidget::setStyleSheet(const QString& styleSheet)
     d->extra->styleSheet = styleSheet;
     if (styleSheet.isEmpty()) {
         setStyle(0);
-    } else if (d->extra->style == QStyleSheetStyle::styleSheetStyle()) {
-        d->extra->style->polish(this);
+    } else if (d->style == QStyleSheetStyle::styleSheetStyle()) {
+        d->style->polish(this);
     } else {
         setStyle(QStyleSheetStyle::styleSheetStyle());
     }
@@ -1648,20 +1652,25 @@ void QWidget::setStyleSheet(const QString& styleSheet)
 QStyle *QWidget::style() const
 {
     Q_D(const QWidget);
-    if (d->extra && d->extra->style)
-        return d->extra->style;
+    if (d->style)
+        return d->style;
     return qApp->style();
 }
 
 /*!
-    Sets the widget's GUI style to \a style. Ownership of the style
-    object is not transferred.
+    Sets the widget's GUI style to \a style.
 
     If no style is set, the widget uses the application's style,
     QApplication::style() instead.
 
-    Setting a widget's style has no effect on existing or future child
-    widgets.
+    Prior to 4.2, ownership of the style was not transfered and had no effect
+    on child widgets. Starting 4.2, Ownership of the style object is transferred 
+    to QWidget, so QWidget will delete the style object on application exit or 
+    when a new style is set. Additionally, the QStyle object is reference counted 
+    and you may safely set the same style object on multiple widgets. The style
+    is propagated to existing child widgets unless a style has been explicitly set
+    on the child widget. New child widgets automatically follow the style of the
+    parent.
 
     \warning This function is particularly useful for demonstration
     purposes, where you want to show Qt's styling capabilities. Real
@@ -1674,19 +1683,52 @@ QStyle *QWidget::style() const
 void QWidget::setStyle(QStyle *style)
 {
     Q_D(QWidget);
-    QStyle *old  = QWidget::style();
-    d->createExtra();
-    d->extra->style = style;
-    if (!(windowType() == Qt::Desktop) // (except desktop)
-         && d->polished) { // (and have been polished)
-        old->unpolish(this);
-        QWidget::style()->polish(this);
+    QStyle *oldStyle  = d->style;
+    setAttribute(Qt::WA_SetStyle, style != 0);
+    if (style != 0)
+        style->d_func()->attach();
+    d->propagateStyle(style);
+    if (oldStyle)
+        oldStyle->d_func()->detach();
+}
+
+void QWidgetPrivate::propagateStyle(QStyle *newStyle)
+{
+    Q_Q(QWidget);
+    QStyle *oldStyle  = q->style();
+    style = newStyle;
+    newStyle = q->style();
+
+    if (oldStyle == newStyle)
+        return;
+
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget*>(children.at(i));
+        if (w && (!w->testAttribute(Qt::WA_SetStyle))
+              && (!w->isWindow() || w->testAttribute(Qt::WA_WindowPropagation)))
+            w->d_func()->propagateStyle(style);
+    }
+    if (q->windowType() != Qt::Desktop && polished) {
+        oldStyle->unpolish(q);
+        newStyle->polish(q);
     }
     QEvent e(QEvent::StyleChange);
-    QApplication::sendEvent(this, &e);
+    QApplication::sendEvent(q, &e);
 #ifdef QT3_SUPPORT
-    styleChange(*old);
+    q->styleChange(*oldStyle);
 #endif
+}
+
+void QWidgetPrivate::inheritStyle()
+{
+    Q_Q(const QWidget);
+    if (q->testAttribute(Qt::WA_SetStyle))
+        return;
+    QStyle *newStyle = 0; // follow application style by default
+    if (!q->isWindow() || (q->testAttribute(Qt::WA_WindowPropagation) && q->parentWidget()))
+        newStyle = q->parentWidget()->d_func()->style;
+    
+    propagateStyle(newStyle); // propagate to children
 }
 
 #ifdef QT3_SUPPORT
@@ -5321,6 +5363,7 @@ bool QWidget::event(QEvent *event)
         break;
 
     case QEvent::Polish: {
+        qDebug() << style();
         style()->polish(this);
         setAttribute(Qt::WA_WState_Polished);
         if (!testAttribute(Qt::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
@@ -6738,6 +6781,8 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
             QApplication::sendEvent(this, &e);
         }
 
+        d->inheritStyle();
+
 //### ????
         setAttribute(Qt::WA_PendingMoveEvent);
         setAttribute(Qt::WA_PendingResizeEvent);
@@ -7058,6 +7103,7 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_WindowPropagation:
         d->resolvePalette();
         d->resolveFont();
+        d->inheritStyle();
         break;
 #ifdef Q_WS_X11
     case Qt::WA_NoX11EventCompression:

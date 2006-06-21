@@ -134,7 +134,6 @@ struct QWExtra {
     WId xDndProxy; // XDND forwarding to embedded windows
 #endif
     QRegion mask; // widget mask
-    QStyle* style;
 
 //bit flags at the end to improve packing
 #if defined(Q_WS_WIN)
@@ -190,6 +189,9 @@ public:
 
     void setLayoutDirection_helper(Qt::LayoutDirection);
     void resolveLayoutDirection();
+
+    void propagateStyle(QStyle *);
+    void inheritStyle();
 
     bool isBackgroundInherited() const;
 
@@ -387,6 +389,7 @@ public:
     void setModal_sys();
     QSizePolicy size_policy;
 
+    QStyle *style;
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const
