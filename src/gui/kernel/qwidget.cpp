@@ -1664,9 +1664,9 @@ QStyle *QWidget::style() const
     QApplication::style() instead.
 
     Prior to 4.2, ownership of the style was not transfered and had no effect
-    on child widgets. Starting 4.2, Ownership of the style object is transferred 
-    to QWidget, so QWidget will delete the style object on application exit or 
-    when a new style is set. Additionally, the QStyle object is reference counted 
+    on child widgets. Starting 4.2, Ownership of the style object is transferred
+    to QWidget, so QWidget will delete the style object on application exit or
+    when a new style is set. Additionally, the QStyle object is reference counted
     and you may safely set the same style object on multiple widgets. The style
     is propagated to existing child widgets unless a style has been explicitly set
     on the child widget. New child widgets automatically follow the style of the
@@ -1727,7 +1727,7 @@ void QWidgetPrivate::inheritStyle()
     QStyle *newStyle = 0; // follow application style by default
     if (!q->isWindow() || (q->testAttribute(Qt::WA_WindowPropagation) && q->parentWidget()))
         newStyle = q->parentWidget()->d_func()->style;
-    
+
     propagateStyle(newStyle); // propagate to children
 }
 
@@ -5363,7 +5363,6 @@ bool QWidget::event(QEvent *event)
         break;
 
     case QEvent::Polish: {
-        qDebug() << style();
         style()->polish(this);
         setAttribute(Qt::WA_WState_Polished);
         if (!testAttribute(Qt::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
