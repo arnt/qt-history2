@@ -3061,7 +3061,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     case CE_ProgressBarGroove:
         break;
     case CE_SizeGrip: {
-        if (w->testAttribute(Qt::WA_MacOpaqueSizeGrip)) {
+        if (w && w->testAttribute(Qt::WA_MacOpaqueSizeGrip)) {
             HIThemeGrowBoxDrawInfo gdi;
             gdi.version = qt_mac_hitheme_version;
             gdi.state = tds;
@@ -3071,7 +3071,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             HIPoint pt = CGPointMake(opt->rect.x(), opt->rect.y());
             HIThemeDrawGrowBox(&pt, &gdi, cg, kHIThemeOrientationNormal);
         } else {
-            // It isn't possible to draw a transparent size grip with the 
+            // It isn't possible to draw a transparent size grip with the
             // native API, so we do it ourselves here.
             QPen blackish(QColor(128, 128, 128));
             QPen greyish(QColor(200, 200, 200));
