@@ -1499,7 +1499,7 @@ qint64 QUnixSocket::readData(char * data, qint64 maxSize)
     if(size == d->dataBufferLength) {
         d->dataBufferLength = 0;
     } else {
-        memcpy(d->dataBuffer, d->dataBuffer + size, d->dataBufferLength - size);
+        memmove(d->dataBuffer, d->dataBuffer + size, d->dataBufferLength - size);
         d->dataBufferLength -= size;
     }
 
