@@ -934,6 +934,9 @@ void QGraphicsScene::render(QPainter *painter, const QRectF &target, const QRect
     drawItems(painter, numItems, itemArray, styleOptionArray);
     drawForeground(painter, sourceRect);
 
+    delete [] itemArray;
+    delete [] styleOptionArray;
+
     painter->restore();
 }
 

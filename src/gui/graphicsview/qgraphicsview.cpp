@@ -1182,6 +1182,9 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
     d->scene->drawItems(painter, numItems, itemArray, styleOptionArray);
     d->scene->drawForeground(painter, sourceRect);
 
+    delete [] itemArray;
+    delete [] styleOptionArray;
+
     painter->restore();
 }
 
@@ -2265,6 +2268,9 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         drawForeground(&painter, rect);
         painter.restore();
     }
+
+    delete [] itemArray;
+    delete [] styleOptionArray;
 
 #ifdef QGRAPHICSVIEW_DEBUG
     int foregroundTime = stopWatch.elapsed() - exposedTime - backgroundTime - itemsTime;
