@@ -4335,11 +4335,11 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
             switch (widgetSize) {
             default:
             case QAquaSizeLarge:
-                bkind = kThemeBevelButtonLarge;
+                bkind = kThemeLargeBevelButton;
                 break;
             case QAquaSizeMini:
             case QAquaSizeSmall:
-                bkind = kThemeBevelButtonSmall;
+                bkind = kThemeSmallBevelButton;
             }
             break;
         case CT_ComboBox:

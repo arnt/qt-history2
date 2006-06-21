@@ -849,7 +849,7 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
             device->releaseDC(hdc);
         }
     }
-#elif defined(Q_WS_MAC)
+#elif 0 //defined(Q_WS_MAC)
     extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
     extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *, CGAffineTransform *); //qpaintengine_mac.cpp
     if(CGContextRef ctx = qt_mac_cg_context(device)) {

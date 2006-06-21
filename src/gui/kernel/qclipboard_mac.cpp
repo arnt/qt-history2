@@ -531,8 +531,9 @@ QMacPasteBoard::retrieveData(const QString &format, QVariant::Type) const
         QString c_flavor = c->flavorFor(format);
         if(!c_flavor.isEmpty()) {
             // Handle text/plain a little differently. Try handling Unicode first.
-            if(QCFString(c_flavor) == kUTTypeUTF8PlainText && hasFlavor(QCFString(kUTTypeUTF16PlainText)))
-                c_flavor = QCFString(kUTTypeUTF16PlainText);
+            if(c_flavor == QLatin1String("public.utf8-plain-text")
+               && hasFlavor(QLatin1String("public.utf16-plain-text")))
+                c_flavor = QLatin1String("public.utf16-plain-text");
 
             for(uint index = 1; index <= cnt; ++index) {
                 PasteboardItemID id;

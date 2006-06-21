@@ -181,7 +181,7 @@ public:
 };
 
 
-template<class T>
+template <typename T>
 class QReturnArgument: public QGenericReturnArgument
 {
 public:
