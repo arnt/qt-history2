@@ -54,6 +54,10 @@ related classes together. Some classes may appear in more than one group.
 \o Classes for handling date and time.
 
 \row
+\o \l{Desktop Environment}
+\o Classes for interacting with the user's desktop environment.
+
+\row
 \o \l{Drag and Drop}
 \o Classes dealing with drag and drop and mime type
    encoding and decoding.
@@ -236,7 +240,14 @@ These classes provide access to SQL databases.
 
 These classes are complex widgets, composed of simpler widgets; dialog
 boxes, generally.
+*/
 
+/*! \group desktop
+
+\title Desktop Environment Classes
+
+These classes provide ways to interact with the user's desktop environment and
+take advantage of common services.
 */
 
 /*! \group draganddrop
@@ -246,7 +257,6 @@ boxes, generally.
 These classes deal with drag and drop and the necessary mime type
 encoding and decoding. See also \link dnd.html Drag and Drop with
 Qt. \endlink
-
 */
 
 /*! \group environment
