@@ -120,8 +120,12 @@ public:
         { return prototype ? prototype->clone() : new QTableWidgetItem; }
     inline const QTableWidgetItem *itemPrototype() const
         { return prototype; }
-    inline void setItemPrototype(const QTableWidgetItem *item)
-        { prototype = item; }
+    inline void setItemPrototype(const QTableWidgetItem *item) {
+        if (prototype != item) {
+            delete prototype;
+            prototype = item;
+        }
+    }
 
     // dnd
     QStringList mimeTypes() const;
@@ -153,6 +157,7 @@ QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
 QTableModel::~QTableModel()
 {
     clear();
+    delete prototype;
 }
 
 bool QTableModel::insertRows(int row, int count, const QModelIndex &)
@@ -2384,9 +2389,11 @@ const QTableWidgetItem *QTableWidget::itemPrototype() const
 
     The table widget will use the item prototype clone function when it needs
     to create a new table item.  For example when the user is editing
-    editing in an empty cell.  This is usefull when you have a QTableWidgetItem
+    editing in an empty cell.  This is useful when you have a QTableWidgetItem
     subclass and want to make sure that QTableWidget creates instances of
     your subclass.
+
+    The table takes ownership of the prototype.
 
     \sa itemPrototype()
 */

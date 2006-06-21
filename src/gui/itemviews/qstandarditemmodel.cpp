@@ -195,6 +195,7 @@ QStandardItemModelPrivate::QStandardItemModelPrivate()
 QStandardItemModelPrivate::~QStandardItemModelPrivate()
 {
     delete root;
+    delete itemPrototype;
     qDeleteAll(columnHeaderItems);
     qDeleteAll(rowHeaderItems);
 }
@@ -2091,12 +2092,17 @@ void QStandardItemModel::setVerticalHeaderLabels(const QStringList &labels)
     prototype to an instance of your custom class, so that items created
     internally by QStandardItemModel will be instances of that class.
 
+    The model takes ownership of the prototype.
+
     \sa itemPrototype(), itemFromIndex()
 */
 void QStandardItemModel::setItemPrototype(const QStandardItem *item)
 {
     Q_D(QStandardItemModel);
-    d->itemPrototype = item;
+    if (d->itemPrototype != item) {
+        delete d->itemPrototype;
+        d->itemPrototype = item;
+    }
 }
 
 /*!
