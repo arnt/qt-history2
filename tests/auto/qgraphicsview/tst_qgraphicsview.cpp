@@ -1315,6 +1315,7 @@ void tst_QGraphicsView::sendEvent()
     TestItem *item = new TestItem;
     scene.addItem(item);
     item->setFlag(QGraphicsItem::ItemIsFocusable);
+    item->setFlag(QGraphicsItem::ItemIsMovable);
     item->setFocus();
 
     QGraphicsView view(&scene);
