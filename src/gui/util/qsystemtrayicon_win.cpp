@@ -245,6 +245,7 @@ bool QSystemTrayIconSys::trayMessageW(DWORD msg)
     NOTIFYICONDATAW tnd;
     memset(&tnd, 0, notifyIconSizeW);
     tnd.cbSize = notifyIconSizeW;
+    createWinId();
     tnd.hWnd = winId();
     Q_ASSERT(testAttribute(Qt::WA_WState_Created));
 
