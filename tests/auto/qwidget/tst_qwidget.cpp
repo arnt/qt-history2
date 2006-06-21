@@ -148,38 +148,38 @@ void tst_QWidget::getSetCheck()
     // int QWidget::minimumWidth()
     // void QWidget::setMinimumWidth(int)
     obj1.setMinimumWidth(0);
-    QCOMPARE(0, obj1.minimumWidth());
+    QCOMPARE(obj1.minimumWidth(), 0);
     obj1.setMinimumWidth(INT_MIN);
-    QCOMPARE(INT_MIN, obj1.minimumWidth()); // A widgets width can never be less than 0
+    QCOMPARE(obj1.minimumWidth(), 0); // A widgets width can never be less than 0
     obj1.setMinimumWidth(INT_MAX);
-    QCOMPARE(QWIDGETSIZE_MAX, obj1.minimumWidth()); // The largest minimum size should only be as big as the maximium
+    QCOMPARE(obj1.minimumWidth(), QWIDGETSIZE_MAX); // The largest minimum size should only be as big as the maximium
 
     // int QWidget::minimumHeight()
     // void QWidget::setMinimumHeight(int)
     obj1.setMinimumHeight(0);
-    QCOMPARE(0, obj1.minimumHeight());
+    QCOMPARE(obj1.minimumHeight(), 0);
     obj1.setMinimumHeight(INT_MIN);
-    QCOMPARE(0, obj1.minimumHeight()); // A widgets height can never be less than 0
+    QCOMPARE(obj1.minimumHeight(), 0); // A widgets height can never be less than 0
     obj1.setMinimumHeight(INT_MAX);
-    QCOMPARE(QWIDGETSIZE_MAX, obj1.minimumHeight()); // The largest minimum size should only be as big as the maximium
+    QCOMPARE(obj1.minimumHeight(), QWIDGETSIZE_MAX); // The largest minimum size should only be as big as the maximium
 
     // int QWidget::maximumWidth()
     // void QWidget::setMaximumWidth(int)
     obj1.setMaximumWidth(0);
-    QCOMPARE(0, obj1.maximumWidth());
+    QCOMPARE(obj1.maximumWidth(), 0);
     obj1.setMaximumWidth(INT_MIN);
-    QCOMPARE(0, obj1.maximumWidth()); // A widgets width can never be less than 0
+    QCOMPARE(obj1.maximumWidth(), 0); // A widgets width can never be less than 0
     obj1.setMaximumWidth(INT_MAX);
-    QCOMPARE(QWIDGETSIZE_MAX, obj1.maximumWidth()); // QWIDGETSIZE_MAX is the abs max, not INT_MAX
+    QCOMPARE(obj1.maximumWidth(), QWIDGETSIZE_MAX); // QWIDGETSIZE_MAX is the abs max, not INT_MAX
 
     // int QWidget::maximumHeight()
     // void QWidget::setMaximumHeight(int)
     obj1.setMaximumHeight(0);
-    QCOMPARE(0, obj1.maximumHeight());
+    QCOMPARE(obj1.maximumHeight(), 0);
     obj1.setMaximumHeight(INT_MIN);
-    QCOMPARE(INT_MIN, obj1.maximumHeight()); // A widgets height can never be less than 0
+    QCOMPARE(obj1.maximumHeight(), 0); // A widgets height can never be less than 0
     obj1.setMaximumHeight(INT_MAX);
-    QCOMPARE(QWIDGETSIZE_MAX, obj1.maximumHeight()); // QWIDGETSIZE_MAX is the abs max, not INT_MAX
+    QCOMPARE(obj1.maximumHeight(), QWIDGETSIZE_MAX); // QWIDGETSIZE_MAX is the abs max, not INT_MAX
 
     // back to normal
     obj1.setMinimumWidth(0);
