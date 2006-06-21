@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS += svg
+SUBDIRS += svgiconengine
