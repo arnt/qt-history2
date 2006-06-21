@@ -8,15 +8,9 @@
 ****************************************************************************/
 
 #include <QtTest/QtTest>
-
-
-
+#include <private/qapplication_p.h>
 #include <qkeysequence.h>
-
-
-
-
-
+#include <private/qkeysequence_p.h>
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/kernel/qkeysequence.h gui/kernel/qkeysequence.cpp
@@ -40,10 +34,14 @@ private slots:
     void mnemonic();
     void toString_data();
     void toString();
-	void streamOperators_data();
+    void streamOperators_data();
     void streamOperators();
     void fromString_data();
     void fromString();
+    void ensureSorted();
+    void standardKeys_data();
+    void standardKeys();
+    void keyBindings();
 };
 
 // copied from qkeysequence.cpp
@@ -156,6 +154,92 @@ void tst_QKeySequence::checkMultipleNames()
     QKeySequence newK( "Ctrl+PgUp" );
     QVERIFY( oldK == newK );
 }
+
+/*
+* We must ensure that the keyBindings data is allways sorted
+* so that we can safely perform binary searches.
+*/
+void tst_QKeySequence::ensureSorted()
+{
+//### accessing static members from private classes does not work on msvc at the moment
+#ifndef Q_WS_WIN
+    uint N = QKeySequencePrivate::numberOfKeyBindings;
+    uint val = QKeySequencePrivate::keyBindings[0].shortcut;
+    for ( uint i = 1 ; i < N ; ++i) {
+        uint nextval = QKeySequencePrivate::keyBindings[i].shortcut;
+        if (nextval < val)
+            qDebug() << "Data not sorted at index " << i;
+        QVERIFY(nextval >= val);
+        val = nextval;
+    }
+#endif
+}
+
+void tst_QKeySequence::standardKeys_data()
+{ 
+    QTest::addColumn<int>("standardKey");
+    QTest::addColumn<QString>("expected");
+    QTest::newRow("unknownkey") << (int)QKeySequence::UnknownKey<< QString("");
+    QTest::newRow("copy") << (int)QKeySequence::Copy << QString("CTRL+C");
+    QTest::newRow("cut") << (int)QKeySequence::Cut << QString("CTRL+X");
+    QTest::newRow("paste") << (int)QKeySequence::Paste << QString("CTRL+V");
+    QTest::newRow("delete") << (int)QKeySequence::Delete<< QString("DEL");
+    QTest::newRow("open") << (int)QKeySequence::Open << QString("CTRL+O");
+    QTest::newRow("close") << (int)QKeySequence::Close<< QString("CTRL+W");
+    QTest::newRow("addTab") << (int)QKeySequence::AddTab<< QString("CTRL+T");
+    QTest::newRow("find") << (int)QKeySequence::Find<< QString("CTRL+F");
+    QTest::newRow("findNext") << (int)QKeySequence::FindNext<< QString("CTRL+G");
+    QTest::newRow("findPrevious") << (int)QKeySequence::FindPrevious << QString("CTRL+SHIFT+G");
+    QTest::newRow("replace") << (int)QKeySequence::Replace<< QString("CTRL+H");
+    QTest::newRow("bold") << (int)QKeySequence::Bold << QString("CTRL+B");
+    QTest::newRow("italic") << (int)QKeySequence::Italic << QString("CTRL+I");
+    QTest::newRow("underline") << (int)QKeySequence::Underline << QString("CTRL+U");
+    QTest::newRow("selectall") << (int)QKeySequence::SelectAll << QString("CTRL+A");
+    QTest::newRow("print") << (int)QKeySequence::Print << QString("CTRL+P");
+    QTest::newRow("movenextchar") << (int)QKeySequence::MoveToNextChar<< QString("RIGHT");
+    QTest::newRow("zoomIn") << (int)QKeySequence::ZoomIn<< QString("CTRL++");
+    QTest::newRow("zoomOut") << (int)QKeySequence::ZoomOut<< QString("CTRL+-");
+    QTest::newRow("help") << (int)QKeySequence::HelpContents<< QString("F1");
+    QTest::newRow("whatsthis") << (int)QKeySequence::WhatsThis<< QString("SHIFT+F1");
+    
+#ifndef Q_WS_MAC    
+    QTest::newRow("nextChild") << (int)QKeySequence::NextChild<< QString("CTRL+Tab");
+    QTest::newRow("previousChild") << (int)QKeySequence::PreviousChild<< QString("CTRL+SHIFT+TAB");
+    QTest::newRow("forward") << (int)QKeySequence::Forward << QString("ALT+RIGHT");
+    QTest::newRow("backward") << (int)QKeySequence::Back << QString("ALT+LEFT");
+    QTest::newRow("MoveToEndOfBlock") << (int)QKeySequence::MoveToEndOfBlock<< QString(""); //mac only
+    QTest::newRow("SelectEndOfDocument") << (int)QKeySequence::SelectEndOfDocument<< QString("CTRL+SHIFT+END"); //mac only
+#else
+    QTest::newRow("nextChild") << (int)QKeySequence::NextChild<< QString("CTRL+}");
+    QTest::newRow("previousChild") << (int)QKeySequence::PreviousChild<< QString("CTRL+{");
+    QTest::newRow("MoveToEndOfBlock") << (int)QKeySequence::MoveToEndOfBlock<< QString("ALT+DOWN");
+    QTest::newRow("forward") << (int)QKeySequence::Forward << QString("CTRL+]");
+    QTest::newRow("backward") << (int)QKeySequence::Back << QString("CTRL+[");
+    QTest::newRow("SelectEndOfDocument") << (int)QKeySequence::SelectEndOfDocument<< QString("ALT+SHIFT+DOWN"); //mac only
+#endif
+}
+
+void tst_QKeySequence::standardKeys()
+{
+    QFETCH(int, standardKey);
+    QFETCH(QString, expected);
+    QKeySequence ks((QKeySequence::StandardKey)standardKey);
+    QKeySequence ks2(expected);
+    QVERIFY(ks == ks2);
+}
+
+void tst_QKeySequence::keyBindings()
+{
+    QList<QKeySequence> bindings = QKeySequence::keyBindings(QKeySequence::Copy);
+    QList<QKeySequence> expected;
+#ifndef Q_WS_X11
+    expected  << QKeySequence("CTRL+C") << QKeySequence("CTRL+INSERT");
+#else
+    expected  << QKeySequence("CTRL+C") << QKeySequence("F16") << QKeySequence("CTRL+INSERT");
+#endif
+    QVERIFY(bindings == expected);
+}
+
 
 void tst_QKeySequence::mnemonic()
 {
