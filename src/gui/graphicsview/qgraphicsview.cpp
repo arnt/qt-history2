@@ -1960,10 +1960,9 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     Q_D(QGraphicsView);
     if (!d->sceneInteractionAllowed)
         return;
-
-    d->storeMouseEvent(event);
-    
+   
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
+        d->storeMouseEvent(event);
         if (d->rubberBanding) {
             // Invoke El Rubber
             if (!d->rubberBand) {
@@ -1993,6 +1992,8 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
             vBar->setValue(vBar->value() - delta.y());
         }
     }
+
+    d->storeMouseEvent(event);
 
     if (d->handScrolling)
         return;
