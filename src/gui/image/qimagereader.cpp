@@ -148,7 +148,7 @@ enum _qt_BuiltInFormatType {
 struct _qt_BuiltInFormatStruct
 {
     _qt_BuiltInFormatType type;
-    const char extension[4];
+    const char *extension;
 };
 
 static const _qt_BuiltInFormatStruct _qt_BuiltInFormats[] = {
