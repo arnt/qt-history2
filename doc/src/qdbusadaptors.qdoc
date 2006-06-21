@@ -624,3 +624,22 @@
     types listed. This also includes QList<QVariant> and QMap<QString,QVariant>.
 */
 
+/*!
+    \macro Q_ASYNC
+    \relates QDBusAbstractAdaptor
+    \brief Marks a method as "asynchronous"
+
+    The Q_ASYNC macro can be used to mark a method to be called and not wait for it to finish
+    processing before returning from QDBusInterface::call(). The called method cannot return any
+    output arguments and, if it does, any such arguments will be discarded.
+
+    You can use this macro in your own adaptors by placing it before your method's return value
+    (which must be "void") in the class declaration, as shown in the example:
+    \code
+        Q_ASYNC void myMethod();
+    \endcode
+
+    Its presence in the method implementation (outside the class declaration) is optional.
+
+    \sa {usingadaptors.html}{Using adaptors}
+*/
