@@ -960,38 +960,56 @@ void tst_QSortFilterProxyModel::removeSourceRows_data()
     QTest::addColumn<int>("start");
     QTest::addColumn<int>("count");
     QTest::addColumn<int>("sortOrder");
-    QTest::addColumn<IntPairList>("removeIntervals");
-    QTest::addColumn<IntPairList>("insertIntervals");
-    QTest::addColumn<QStringList>("proxyItems");
+    QTest::addColumn<IntPairList>("expectedRemovedProxyIntervals");
+    QTest::addColumn<QStringList>("expectedProxyItems");
 
-    QTest::newRow("remove (1)")
+    QTest::newRow("remove one, no sorting")
+        << (QStringList() << "a" << "b") // sourceItems
+        << 0 // start
+        << 1 // count
+        << -1 // sortOrder (no sorting)
+        << (IntPairList() << IntPair(0, 0)) // expectedRemovedIntervals
+        << (QStringList() << "b") // expectedProxyItems
+        ;
+    QTest::newRow("remove one, ascending sort (same order)")
+        << (QStringList() << "a" << "b") // sourceItems
+        << 0 // start
+        << 1 // count
+        << static_cast<int>(Qt::AscendingOrder) // sortOrder
+        << (IntPairList() << IntPair(0, 0)) // expectedRemovedIntervals
+        << (QStringList() << "b") // expectedProxyItems
+        ;
+    QTest::newRow("remove one, ascending sort (reverse order)")
         << (QStringList() << "b" << "a") // sourceItems
         << 0 // start
         << 1 // count
         << static_cast<int>(Qt::AscendingOrder) // sortOrder
-        << (IntPairList() << IntPair(1, 1)) // removeIntervals
-        << IntPairList() // insertIntervals
-        << (QStringList() << "a") // proxyItems
+        << (IntPairList() << IntPair(1, 1)) // expectedRemovedIntervals
+        << (QStringList() << "a") // expectedProxyItems
         ;
-
-    QTest::newRow("remove (2)")
+    QTest::newRow("remove two, multiple proxy intervals")
         << (QStringList() << "c" << "d" << "a" << "b") // sourceItems
         << 1 // start
         << 2 // count
         << static_cast<int>(Qt::AscendingOrder) // sortOrder
-        << (IntPairList() << IntPair(0, 3)) // removeIntervals
-        << (IntPairList() << IntPair(0, 1)) // insertIntervals
-        << (QStringList() << "b" << "c") // proxyItems
+        << (IntPairList() << IntPair(3, 3) << IntPair(0, 0)) // expectedRemovedIntervals
+        << (QStringList() << "b" << "c") // expectedProxyItems
         ;
-
-    QTest::newRow("remove (3)")
+    QTest::newRow("remove three, multiple proxy intervals")
         << (QStringList() << "b" << "d" << "f" << "a" << "c" << "e") // sourceItems
         << 3 // start
         << 3 // count
         << static_cast<int>(Qt::AscendingOrder) // sortOrder
-        << (IntPairList() << IntPair(0, 4)) // removeIntervals
-        << (IntPairList() << IntPair(0, 1)) // insertIntervals
-        << (QStringList() << "b" << "d" << "f") // proxyItems
+        << (IntPairList() << IntPair(4, 4) << IntPair(2, 2) << IntPair(0, 0)) // expectedRemovedIntervals
+        << (QStringList() << "b" << "d" << "f") // expectedProxyItems
+        ;
+    QTest::newRow("remove all, single proxy intervals")
+        << (QStringList() << "a" << "b" << "c" << "d" << "e" << "f") // sourceItems
+        << 0 // start
+        << 6 // count
+        << static_cast<int>(Qt::DescendingOrder) // sortOrder
+        << (IntPairList() << IntPair(0, 5)) // expectedRemovedIntervals
+        << QStringList() // expectedProxyItems
         ;
 }
 
@@ -1003,9 +1021,8 @@ void tst_QSortFilterProxyModel::removeSourceRows()
     QFETCH(int, start);
     QFETCH(int, count);
     QFETCH(int, sortOrder);
-    QFETCH(IntPairList, removeIntervals);
-    QFETCH(IntPairList, insertIntervals);
-    QFETCH(QStringList, proxyItems);
+    QFETCH(IntPairList, expectedRemovedProxyIntervals);
+    QFETCH(QStringList, expectedProxyItems);
 
     QStandardItemModel model;
     QSortFilterProxyModel proxy;
@@ -1021,36 +1038,41 @@ void tst_QSortFilterProxyModel::removeSourceRows()
         QCOMPARE(proxy.data(pindex, Qt::DisplayRole), model.data(sindex, Qt::DisplayRole));
     }
 
-    proxy.sort(0, static_cast<Qt::SortOrder>(sortOrder));
+    if (sortOrder != -1)
+        proxy.sort(0, static_cast<Qt::SortOrder>(sortOrder));
     (void)proxy.rowCount(QModelIndex()); // force mapping
 
     QSignalSpy removeSpy(&proxy, SIGNAL(rowsRemoved(QModelIndex, int, int)));
     QSignalSpy insertSpy(&proxy, SIGNAL(rowsInserted(QModelIndex, int, int)));
+    QSignalSpy aboutToRemoveSpy(&proxy, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)));
+    QSignalSpy aboutToInsertSpy(&proxy, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)));
     
     model.removeRows(start, count, QModelIndex());
 
-    QCOMPARE(removeSpy.count(), removeIntervals.count());
+    QCOMPARE(aboutToRemoveSpy.count(), expectedRemovedProxyIntervals.count());
+    for (int i = 0; i < aboutToRemoveSpy.count(); ++i) {
+        QList<QVariant> args = aboutToRemoveSpy.at(i);
+        QVERIFY(args.at(1).type() == QVariant::Int);
+        QVERIFY(args.at(2).type() == QVariant::Int);
+        QCOMPARE(args.at(1).toInt(), expectedRemovedProxyIntervals.at(i).first);
+        QCOMPARE(args.at(2).toInt(), expectedRemovedProxyIntervals.at(i).second);
+    }
+    QCOMPARE(removeSpy.count(), expectedRemovedProxyIntervals.count());
     for (int i = 0; i < removeSpy.count(); ++i) {
         QList<QVariant> args = removeSpy.at(i);
         QVERIFY(args.at(1).type() == QVariant::Int);
         QVERIFY(args.at(2).type() == QVariant::Int);
-        QCOMPARE(args.at(1).toInt(), removeIntervals.at(i).first);
-        QCOMPARE(args.at(2).toInt(), removeIntervals.at(i).second);
+        QCOMPARE(args.at(1).toInt(), expectedRemovedProxyIntervals.at(i).first);
+        QCOMPARE(args.at(2).toInt(), expectedRemovedProxyIntervals.at(i).second);
     }
 
-    QCOMPARE(insertSpy.count(), insertIntervals.count());
-    for (int i = 0; i < insertSpy.count(); ++i) {
-        QList<QVariant> args = insertSpy.at(i);
-        QVERIFY(args.at(1).type() == QVariant::Int);
-        QVERIFY(args.at(2).type() == QVariant::Int);
-        QCOMPARE(args.at(1).toInt(), insertIntervals.at(i).first);
-        QCOMPARE(args.at(2).toInt(), insertIntervals.at(i).second);
-    }
+    QCOMPARE(insertSpy.count(), 0);
+    QCOMPARE(aboutToInsertSpy.count(), 0);
 
-    QCOMPARE(proxy.rowCount(QModelIndex()), proxyItems.count());
-    for (int i = 0; i < proxyItems.count(); ++i) {
+    QCOMPARE(proxy.rowCount(QModelIndex()), expectedProxyItems.count());
+    for (int i = 0; i < expectedProxyItems.count(); ++i) {
         QModelIndex pindex = proxy.index(i, 0, QModelIndex());
-        QCOMPARE(proxy.data(pindex, Qt::DisplayRole).toString(), proxyItems.at(i));
+        QCOMPARE(proxy.data(pindex, Qt::DisplayRole).toString(), expectedProxyItems.at(i));
     }
 }
 
