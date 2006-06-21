@@ -111,8 +111,30 @@ void QPrinterPrivate::createDefaultEngines()
   printer dialog) and that applications are expected to obey. See
   QAbstractPrintDialog's documentation for more details.
 
-  Once you start printing, calling newPage() is essential. You will
-  probably also need to look at the device metrics for the
+  Once QPainter::begin() has been called, you must call newPage() for each
+  page that you want to print \e before performing any painting operations.
+
+  \table
+  \header \o Printer and Painter Coordinate Systems
+  \row \o \inlineimage printer-rects.png
+  \o The paperRect() and pageRect() functions provide information about
+  the size of the paper used for printing and the area on it that can be
+  painted on.
+
+  The rectangle returned by pageRect() typically lies inside the rectangle
+  returned by paperRect(). You do not need to take the positions and sizes
+  of these area into account when using a QPainter with a QPrinter as the
+  underlying paint device; the origin of the painter's coordinate system
+  will coincide with the top-left corner of the pageRect() and painting
+  operations will be clipped to the bounds of the drawable part of the page.
+  \endtable
+
+  The paint system automatically uses the correct device metrics when painting
+  text but, if you need to position text using information obtained from
+  font metrics, you need to ensure that the print device is specified when
+  you construct QFontMetrics and QFontMetricsF objects.
+
+  use you will probably also need to look at the device metrics for the
   printer.
 
   If you want to abort the print job, abort() will try its best to
