@@ -2,6 +2,7 @@
     \page graphicsview.html
     \title The Graphics View Framework
     \ingroup architecture
+    \ingroup multimedia
 
     \keyword GraphicsView
     \keyword Graphics
@@ -38,7 +39,7 @@
       \section2 The Scene
 
         QGraphicsScene provides the Graphics View scene. The scene has the
-	following responsibilities:
+        following responsibilities:
 
         \list
         \o Providing a fast interface for managing a large number of items
@@ -66,9 +67,9 @@
         \endcode
 
         QGraphicsScene's event propagation architecture schedules scene events
-	for delivery to items, and also manages propagation between items. If
-	the scene receives a mouse press event at a certain position, the
-	scene passes the event on to whichever item is at that position.
+        for delivery to items, and also manages propagation between items. If
+        the scene receives a mouse press event at a certain position, the
+        scene passes the event on to whichever item is at that position.
 
         QGraphicsScene also manages certain item states, such as item
         selection and focus. You can select items on the scene by calling
@@ -81,18 +82,18 @@
         QGraphicsItem::setFocus(), or get the current focus item by calling
         QGraphicsScene::focusItem().
 
-	Finally, QGraphicsScene allows you to render parts of the scene into a
-	paint device through the QGraphicsScene::render() function. You can
-	read more about this in the Printing section later in this document.
+        Finally, QGraphicsScene allows you to render parts of the scene into a
+        paint device through the QGraphicsScene::render() function. You can
+        read more about this in the Printing section later in this document.
 
       \section2 The View
 
         QGraphicsView provides the view widget, which visualizes the contents
-	of a scene. You can attach several views to the same scene, to provide
-	several viewports into the same data set. The view widget is a scroll
-	area, and provides scrollbars for navigating through large scenes. To
-	enable OpenGL support, you can set a QGLWidget as the viewport by
-	calling QGraphicsView::setViewport().
+        of a scene. You can attach several views to the same scene, to provide
+        several viewports into the same data set. The view widget is a scroll
+        area, and provides scrollbars for navigating through large scenes. To
+        enable OpenGL support, you can set a QGLWidget as the viewport by
+        calling QGraphicsView::setViewport().
 
         \code
             QGraphicsScene scene;
@@ -102,16 +103,16 @@
             view.show();
         \endcode
 
-	The view receives input events from the keyboard and mouse, and
-	translates these from to scene coordinates events (scene events),
-	before sending the events to the visualized scene.
+        The view receives input events from the keyboard and mouse, and
+        translates these from to scene coordinates events (scene events),
+        before sending the events to the visualized scene.
 
-	Using its transformation matrix, QGraphicsView::matrix(), the view can
-	\e transform the scene's coordinate system. This allows advanced
-	navigation features such as zooming and rotation. For convenience,
-	QGraphicsView also provides functions for translating between view and
-	scene coordinates: QGraphicsView::mapToScene() and
-	QGraphicsView::mapFromScene().
+        Using its transformation matrix, QGraphicsView::matrix(), the view can
+        \e transform the scene's coordinate system. This allows advanced
+        navigation features such as zooming and rotation. For convenience,
+        QGraphicsView also provides functions for translating between view and
+        scene coordinates: QGraphicsView::mapToScene() and
+        QGraphicsView::mapFromScene().
 
       \section2 The Item
 
@@ -121,24 +122,24 @@
         (QGraphicsEllipseItem) and text items (QGraphicsTextItem), but the
         most powerful QGraphicsItem features are available when you write a
         custom item. Among other things, QGraphicsItem supports the following
-	features:
+        features:
 
-	\list
-	\o Mouse press, move, release and doubleclick events, as well as mouse
-	hover events, wheel events, and context menu events.
-	\o Keyboard input focus, and key events
+        \list
+        \o Mouse press, move, release and doubleclick events, as well as mouse
+        hover events, wheel events, and context menu events.
+        \o Keyboard input focus, and key events
         \o Drag and drop
         \o Grouping, both through parent-child relationships, and with
         QGraphicsItemGroup
         \o Collision detection
-	\endlist
+        \endlist
 
-	Items live in a local coordinate system, and like QGraphicsView, it
-	also provides many functions for mapping coordinates between the item
-	and the scene, and from item to item. Also, like QGraphicsView, it can
-	transform its coordinate system using a matrix:
-	QGraphicsItem::matrix(). This is useful for rotating and scaling
-	individual items.
+        Items live in a local coordinate system, and like QGraphicsView, it
+        also provides many functions for mapping coordinates between the item
+        and the scene, and from item to item. Also, like QGraphicsView, it can
+        transform its coordinate system using a matrix:
+        QGraphicsItem::matrix(). This is useful for rotating and scaling
+        individual items.
 
         Items can contain other items (children). Parent items'
         transformations are inherited by all its children. Regardless of an
@@ -146,13 +147,13 @@
         QGraphicsItem::contains(), QGraphicsItem::boundingRect(),
         QGraphicsItem::collidesWith()) still operate in local coordinates.
 
-	QGraphicsItem supports collision detection through the
-	QGraphicsItem::shape() function, and QGraphicsItem::collidesWith(),
-	which are both virtual functions. By returning your item's shape as a
-	local coordinate QPainterPath from QGraphicsItem::shape(),
-	QGraphicsItem will handle all collision detection for you. If you want
-	to provide your own collision detection, however, you can reimplement
-	QGraphicsItem::collidesWith().
+        QGraphicsItem supports collision detection through the
+        QGraphicsItem::shape() function, and QGraphicsItem::collidesWith(),
+        which are both virtual functions. By returning your item's shape as a
+        local coordinate QPainterPath from QGraphicsItem::shape(),
+        QGraphicsItem will handle all collision detection for you. If you want
+        to provide your own collision detection, however, you can reimplement
+        QGraphicsItem::collidesWith().
 
     \section1 The Graphics View Coordinate System
 
