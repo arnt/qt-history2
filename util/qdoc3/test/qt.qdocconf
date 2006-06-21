@@ -7,7 +7,7 @@ url                     = http://doc.trolltech.com/4.2
 edition.Console         = QtCore QtNetwork QtSql QtXml QtTest
 edition.Desktop         = QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtXml \
                           QtDesigner QtAssistant Qt3Support QAxContainer \
-                          QAxServer QtUiTools QtTest
+                          QAxServer QtUiTools QtTest QtDBus
 edition.DesktopLight    = QtCore QtGui Qt3SupportLight QtTest
 
 language                = Cpp
@@ -19,7 +19,8 @@ headerdirs              = $QTDIR/src \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib \
-                          $QTDIR/tools/qtestlib/src
+                          $QTDIR/tools/qtestlib/src \
+                          $QTDIR/tools/qdbus/src
 sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
                           $QTDIR/extensions/activeqt \
@@ -28,7 +29,8 @@ sourcedirs              = $QTDIR/src \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib \
-                          $QTDIR/tools/qtestlib/src
+                          $QTDIR/tools/qtestlib/src \
+                          $QTDIR/tools/qdbus
 sources.fileextensions  = "*.cpp *.qdoc"
 exampledirs             = $QTDIR/doc/src \
                           $QTDIR/examples \
@@ -116,7 +118,8 @@ Cpp.ignoretokens        = QAXFACTORY_EXPORT \
                           Q_SVG_EXPORT \
                           Q_TESTLIB_EXPORT \
                           Q_TYPENAME \
-                          Q_XML_EXPORT
+                          Q_XML_EXPORT \
+                          QDBUS_EXPORT
 Cpp.ignoredirectives    = Q_DECLARE_HANDLE \
                           Q_DECLARE_INTERFACE \
                           Q_DECLARE_METATYPE \
