@@ -141,7 +141,7 @@ embedded {
     DEFINES += QT_HAVE_SSE
 }
 
-win32|x11 {
+win32|x11|embedded {
 	DEFINES += QT_WINDOW_SURFACE
 	HEADERS += painting/qwindowsurface_p.h \
 		   painting/qwindowsurface_raster_p.h
