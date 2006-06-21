@@ -572,7 +572,7 @@ bool QWindowsMimeURI::convertFromMime(const FORMATETC &formatetc, const QMimeDat
 
 bool QWindowsMimeURI::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    return mimeType == "text/uri-list" 
+    return mimeType == "text/uri-list"
            && (canGetData(CF_HDROP, pDataObj) || canGetData(CF_INETURL_W, pDataObj) || canGetData(CF_INETURL, pDataObj));
 }
 
@@ -713,11 +713,11 @@ QVariant QWindowsMimeHtml::convertToMime(const QString &mime, IDataObject *pData
     Q_UNUSED(preferredType);
     QVariant result;
     if (canConvertToMime(mime, pDataObj)) {
-        QString html = QString::fromUtf8(getData(CF_HTML, pDataObj));
+        QByteArray html = getData(CF_HTML, pDataObj);
 #ifdef QMIME_DEBUG
         qDebug("QWindowsMimeHtml::convertToMime");
         qDebug("raw :");
-        qDebug(html.toLatin1());
+        qDebug(html);
 #endif
         //int ms = data.size();
         int start = html.indexOf("StartFragment:");
@@ -732,7 +732,7 @@ QVariant QWindowsMimeHtml::convertToMime(const QString &mime, IDataObject *pData
             html.replace("\r", "");
             //result.replace("<o:p>", "");
             //result.replace("</o:p>", "");
-            result = html;
+            result = QString::fromUtf8(html);
         }
     }
     return result;
@@ -779,7 +779,7 @@ public:
     bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const;
     bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const;
     QVector<FORMATETC> formatsForMime(const QString &mimeType, const QMimeData *mimeData) const;
-    
+
     // for converting to Qt
     bool canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const;
     QVariant convertToMime(const QString &mime, IDataObject *pDataObj, QVariant::Type preferredType) const;
@@ -812,7 +812,7 @@ bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, IDataObject *p
 
 bool QWindowsMimeImage::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
 {
-    int cf = getCf(formatetc); 
+    int cf = getCf(formatetc);
     if (cf == CF_DIB && mimeData->hasImage())
         return true;
     return false;
