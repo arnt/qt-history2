@@ -927,6 +927,7 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WFlags f)
 
     q->setAttribute(Qt::WA_QuitOnClose); // might be cleared in create()
 
+    q->setAttribute(Qt::WA_WState_Hidden);
 
     data.crect = QRect(0,0,100,30);
 
@@ -6718,7 +6719,6 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
         if (!testAttribute(Qt::WA_ForceUpdatesDisabled))
             d->setUpdatesEnabled_helper(parent ? parent->updatesEnabled() : true);
 
-
 //### already hidden above ---> must probably do something smart on the mac
 // #ifdef Q_WS_MAC
 //             extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
@@ -6727,7 +6727,6 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
 // #else
 //             q->setAttribute(Qt::WA_WState_Hidden);
 //#endif
-
 
         if (parent && d->sendChildEvents && d->polished) {
             QChildEvent e(QEvent::ChildPolished, this);
@@ -6742,11 +6741,14 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
 //### ????
         setAttribute(Qt::WA_PendingMoveEvent);
         setAttribute(Qt::WA_PendingResizeEvent);
-
-
-
     }
 
+    if (!wasCreated) {
+        if (isWindow() || parentWidget()->isVisible())
+            setAttribute(Qt::WA_WState_Hidden, true);
+        else if (!testAttribute(Qt::WA_WState_ExplicitShowHide))
+            setAttribute(Qt::WA_WState_Hidden, false);
+    }
 }
 
 /*!
