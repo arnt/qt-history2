@@ -34,8 +34,8 @@ QT_BEGIN_HEADER
 # define QTEST_NO_SPECIALIZATIONS
 #endif
 
-#define QTEST_VERSION     0x040200
-#define QTEST_VERSION_STR "4.2.0"
+#define QTEST_VERSION     0x040300
+#define QTEST_VERSION_STR "4.3.0"
 
 namespace QTest
 {
