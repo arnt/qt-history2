@@ -38,6 +38,7 @@ private slots:
     void setIconText_data() { setText_data(); }
     void setIconText();
     void actionEvent();
+    void setStandardKeys();
 
 private:
     int m_lastEventType;
@@ -184,6 +185,24 @@ void tst_QAction::actionEvent()
 
     QCOMPARE(m_lastEventType, (int)QEvent::ActionRemoved);
     QCOMPARE(m_lastAction, &a);
+}
+
+//basic testing of standard keys
+void tst_QAction::setStandardKeys()
+{
+    QAction act(0);
+	act.setShortcut(QKeySequence("CTRL+L"));
+	QList<QKeySequence> list;
+	act.setShortcuts(list);
+	act.setShortcuts(QKeySequence::Copy);
+    QVERIFY(act.shortcut() == act.shortcuts().first());
+#ifndef Q_WS_X11
+    QList<QKeySequence> expected;
+    expected  << QKeySequence("CTRL+C") << QKeySequence("CTRL+INSERT");
+#elif
+    expected  << QKeySequence("CTRL+C") << QKeySequence("F16") << QKeySequence("CTRL+INSERT");
+#endif
+    QVERIFY(act.shortcuts() == expected);
 }
 
 
