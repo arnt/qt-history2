@@ -19,6 +19,10 @@
 #include <private/qgl_p.h>
 #include <qdebug.h>
 
+#ifndef GL_TEXTURE_RECTANGLE_EXT
+#define GL_TEXTURE_RECTANGLE_EXT 0x84F5
+#endif
+
 static int nearest_gl_texture_size(int v)
 {
     int n = 0, last = 0;
@@ -126,12 +130,13 @@ bool QGLPixelBufferPrivate::init(const QSize &size, const QGLFormat &f, QGLWidge
 
     GLenum target = GL_TEXTURE_2D;
 
-    if (size.width() != nearest_gl_texture_size(size.width())
-        || size.height() != nearest_gl_texture_size(size.height()))
+    if ((QGLExtensions::glExtensions & QGLExtensions::TextureRectangle)
+        && (size.width() != nearest_gl_texture_size(size.width())
+            || size.height() != nearest_gl_texture_size(size.height())))
     {
         target = GL_TEXTURE_RECTANGLE_EXT;
     }
-    
+
     if (!aglCreatePBuffer(size.width(), size.height(), target, GL_RGBA, 0, &pbuf)) {
 	qWarning("QGLPixelBuffer: Unable to create a pbuffer (AGL error %d).",
 		 (int) aglGetError());
