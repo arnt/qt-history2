@@ -2003,7 +2003,7 @@ void tst_QWidget::windowModified()
     QWidget widget(0);
     widget.show();
 
-    QTest::ignoreMessage(QtWarningMsg, "QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
+    QTest::ignoreMessage(QtWarningMsg, "QWidget::setWindowModified: The window title does not contain a '[*]' placeholder");
     widget.setWindowTitle("Application Name");
     QApplication::instance()->processEvents();
     QCOMPARE(visibleWindowTitle(&widget), QString("Application Name"));
