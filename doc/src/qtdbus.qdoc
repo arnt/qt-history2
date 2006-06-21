@@ -1,0 +1,49 @@
+/** -*- mode: C++ -*-
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \module QtDBus
+    \title QtDBus module
+    \contentspage Qt's Modules
+    \previouspage QAxServer
+
+    \keyword QtDBus
+
+    \brief The QtDBus module is a Unix-only library that you can use
+    to make Inter-Process Communication using the D-BUS protocol.
+
+    Applications using the QtDBus module can provide services to
+    other, remote applications by exporting objects, as well as use
+    services exported by those applications by placing calls and
+    accessing properties.
+
+    The QtDBus module provides an interface that extends the Qt \l
+    {signalsandslots.html}{Signals and Slots} mechanism, allowing one
+    to connect to a signal emitted remotely as well as to connect a
+    local signal to remote slot.
+
+    To use this module, use the following code in your application:
+
+    \code
+        #include <QtDBus>
+    \endcode
+
+    If you're using qmake to build your application, you can add this
+    line to your .pro file to make it link against the QtDBus
+    libraries:
+
+    \code
+        CONFIG += qdbus
+    \endcode
+
+    This module is part of all \l{Qt editions}.
+*/

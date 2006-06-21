@@ -30,6 +30,13 @@
     \row \o \l{QAxServer} \o Extension for writing ActiveX servers
     \endtable
 
+    The following extension module is available in all \l {Qt Editions}
+    on Unix platforms:
+
+    \table 80%
+    \row \o \l{QtDBus} \o Classes for Inter-Process Communication using the D-BUS
+    \endtable
+
     If you use \l qmake to build your projects, the QtCore and QtGui
     modules are included by default. To link only against QtCore, add
     the following line to your \c .pro file:
