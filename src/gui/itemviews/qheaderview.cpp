@@ -1449,6 +1449,10 @@ void QHeaderView::initializeSections(int start, int end)
     Q_ASSERT(start >= 0);
     Q_ASSERT(end >= 0);
 
+    // Edge case such as when a model emits layoutChanged when removing items
+    if (end < count())
+        d->removeSectionsFromSpans(end + 1, count());
+
     int oldCount = d->sectionCount;
     d->sectionCount = end + 1;
 
