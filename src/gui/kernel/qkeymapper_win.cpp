@@ -410,6 +410,12 @@ static inline int toKeyOrUnicode(int vk, int scancode, unsigned char *kbdBuffer)
     return code == Qt::Key_unknown ? 0 : code;
 }
 
+Q_GUI_EXPORT int qt_translateKeyCode(int vk)
+{
+    int code = (vk < 0 || vk > 255) ? 0 : KeyTbl[vk];
+    return code == Qt::Key_unknown ? 0 : code;
+}
+
 static inline int asciiToKeycode(char a, int state)
 {
     if (a >= 'a' && a <= 'z')
