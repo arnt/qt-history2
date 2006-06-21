@@ -1168,6 +1168,12 @@ void QWSDisplay::requestRegion(int winId, QWSMemId memId,
     } else {
         QVector<QRect> ra = r.rects();
         QWSRegionCommand cmd;
+    /* XXX QWSRegionCommand is padded out in a compiler dependent way.
+       Zeroed out to avoid valgrind reporting uninitialized memory usage.
+       */
+#ifdef QT_DEBUG
+        memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
+#endif
         cmd.simpleData.windowid = winId;
         cmd.simpleData.windowtype = windowtype;
         cmd.simpleData.memoryid = memId;
@@ -1198,6 +1204,12 @@ void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
         */
 
         QWSRepaintRegionCommand cmd;
+    /* XXX QWSRegionCommand is padded out in a compiler dependent way.
+       Zeroed out to avoid valgrind reporting uninitialized memory usage.
+       */
+#ifdef QT_DEBUG
+        memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
+#endif
         cmd.simpleData.windowid = winId;
         cmd.simpleData.opaque = opaque;
         cmd.simpleData.nrectangles = ra.count();

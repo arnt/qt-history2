@@ -212,6 +212,11 @@ struct QWSRegionCommand : public QWSCommand
         rectangles = reinterpret_cast<QRect*>(ptr);
     }
 
+    /* XXX this will pad out in a compiler dependent way,
+       should move nrectangles to before windowtype, and
+       add reserved bytes.
+       Symptom will be valgrind reported uninitialized memory usage
+       */
     struct SimpleData {
         int windowid;
 #ifdef QT_WINDOW_SURFACE
