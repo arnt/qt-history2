@@ -869,11 +869,11 @@ function checkLicense(packageDir, fileList, checkMode)
             content = File.read(absFileName);
 
             if (checkMode == "final") {
-                if (content.find(/\*\* \$TROLLTECH_(DUAL|3RDPARTY|GPL)_LICENSE\$/) != -1) {
+                if (content.find(/\*\* \$TROLLTECH_(DUAL|3RDPARTY|GPL|COMMERCIAL|INTERNAL)_LICENSE\$/) != -1) {
                     throw "%1 contains an invaid license".arg(fileName);
                 }
             } else if (checkMode == "first") {
-                if (content.find(/\*\* \$TROLLTECH_(DUAL|3RDPARTY|GPL|COMMERCIAL)_LICENSE\$/)
+                if (content.find(/\*\* \$TROLLTECH_(DUAL|3RDPARTY|GPL|COMMERCIAL|INTERNAL)_LICENSE\$/)
                     == -1) {
                     warning(fileName + " doesn't contain a valid $TROLLTECH_*_LICENSE$ tag");
                 }
