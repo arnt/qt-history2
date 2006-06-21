@@ -1171,6 +1171,7 @@ static QFontEngine::FaceId face_id(FcPattern *pattern)
 
 QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 {
+    _openType = 0;
     cache_cost = 100;
     fontDef = fd;
     _pattern = pattern;
@@ -1204,6 +1205,12 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     face_id = ::face_id(pattern);
 
     freetype = QFreetypeFace::getFace(face_id);
+    if (!freetype) {
+        xsize = 0;
+        ysize = 0;
+        return;
+    }
+
     if (!freetype->charset) {
         FcCharSet *cs;
         FcPatternGetCharSet (pattern, FC_CHARSET, 0, &cs);
@@ -1262,8 +1269,6 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
         fnt.glyphSet = 0;
     }
 #endif
-
-    _openType = 0;
 }
 
 QFontEngineFT::~QFontEngineFT()
@@ -1271,6 +1276,7 @@ QFontEngineFT::~QFontEngineFT()
     delete _openType;
     _openType = 0;
 
+    if (freetype)
     freetype->release(face_id);
 
     FcPatternDestroy(_pattern);
