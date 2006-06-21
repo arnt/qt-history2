@@ -92,6 +92,7 @@ void setupOwner()
         return;
     owner = new QWidget(0);
     owner->setObjectName(QLatin1String("internal clipboard owner"));
+    owner->createWinId();
     requestor = new QWidget(0);
     requestor->createWinId();
     requestor->setObjectName(QLatin1String("internal clipboard requestor"));
