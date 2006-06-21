@@ -76,7 +76,7 @@ src_plugins.subdir = plugins
    src_qt3support.depends = src_gui src_xml src_network src_sql
    src_tools_uic3.depends = src_qt3support src_xml
    src_tools_activeqt.depends = src_tools_idc src_gui
-   src_plugins.depends = src_gui src_sql
+   src_plugins.depends = src_gui src_sql src_svg src_qt3support
 }
 
 
