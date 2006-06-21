@@ -1805,6 +1805,7 @@ void QObjectPrivate::setParent_helper(QObject *o)
 
 /*!
     \fn void QObject::installEventFilter(QObject *filterObj)
+    \threadsafe
 
     Installs an event filter \a filterObj on this object. For example:
     \code
@@ -1873,6 +1874,9 @@ void QObject::installEventFilter(QObject *obj)
     Q_D(QObject);
     if (!obj)
         return;
+
+    QWriteLocker locker(QObjectPrivate::readWriteLock());
+
     // clean up unused items in the list
     d->eventFilters.removeAll((QObject*)0);
     d->eventFilters.removeAll(obj);
@@ -1880,6 +1884,8 @@ void QObject::installEventFilter(QObject *obj)
 }
 
 /*!
+    \threadsafe
+
     Removes an event filter object \a obj from this object. The
     request is ignored if such an event filter has not been installed.
 
@@ -1895,6 +1901,7 @@ void QObject::installEventFilter(QObject *obj)
 void QObject::removeEventFilter(QObject *obj)
 {
     Q_D(QObject);
+    QWriteLocker locker(QObjectPrivate::readWriteLock());
     d->eventFilters.removeAll(obj);
 }
 

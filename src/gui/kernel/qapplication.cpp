@@ -2975,11 +2975,16 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 if (!w->hasMouseTracking()
                     && mouse->type() == QEvent::MouseMove && mouse->buttons() == 0) {
                     // but still send them through all application event filters (normally done by notify_helper)
+                    QReadWriteLock *lock = QObjectPrivate::readWriteLock();
+                    lock->lockForRead();
                     for (int i = 0; i < d->eventFilters.size(); ++i) {
                         register QObject *obj = d->eventFilters.at(i);
+                        lock->unlock();
                         if (obj && obj->eventFilter(w, w == receiver ? mouse : &me))
                             break;
+                        lock->lockForRead();
                     }
+                    lock->unlock();
                     res = true;
                 } else {
                     w->setAttribute(Qt::WA_NoMouseReplay, false);
@@ -3229,12 +3234,19 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
 {
     Q_Q(QApplication);
+
+    QReadWriteLock *lock = QObjectPrivate::readWriteLock();
+
     // send to all application event filters
+    lock->lockForRead();
     for (int i = 0; i < eventFilters.size(); ++i) {
         register QObject *obj = eventFilters.at(i);
+        lock->unlock();
         if (obj && obj->eventFilter(receiver,e))
             return true;
+        lock->lockForRead();
     }
+    lock->unlock();
 
     if (receiver->isWidgetType()) {
         QWidget *widget = static_cast<QWidget *>(receiver);
@@ -3252,11 +3264,15 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
 
     // send to all receiver event filters
     if (receiver != q) {
+        lock->lockForRead();
         for (int i = 0; i < receiver->d_func()->eventFilters.size(); ++i) {
             register QObject *obj = receiver->d_func()->eventFilters.at(i);
+            lock->unlock();
             if (obj && obj->eventFilter(receiver,e))
                 return true;
+            lock->lockForRead();
         }
+        lock->unlock();
     }
     bool consumed = receiver->event(e);
     e->spont = false;

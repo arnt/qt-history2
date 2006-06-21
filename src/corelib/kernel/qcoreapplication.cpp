@@ -541,21 +541,31 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *event)
 bool QCoreApplicationPrivate::notify_helper(QObject *receiver, QEvent * event)
 {
     Q_Q(QCoreApplication);
+
+    QReadWriteLock *lock = QObjectPrivate::readWriteLock();
+    lock->lockForRead();
+
     // send to all application event filters
     for (int i = 0; i < eventFilters.size(); ++i) {
         register QObject *obj = eventFilters.at(i);
+        lock->unlock();
         if (obj && obj->eventFilter(receiver, event))
             return true;
+        lock->lockForRead();
     }
 
     // send to all receiver event filters
     if (receiver != q) {
         for (int i = 0; i < receiver->d_func()->eventFilters.size(); ++i) {
             register QObject *obj = receiver->d_func()->eventFilters.at(i);
+            lock->unlock();
             if (obj && obj->eventFilter(receiver, event))
                 return true;
+            lock->lockForRead();
         }
     }
+
+    lock->unlock();
 
     return receiver->event(event);
 }
