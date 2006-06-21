@@ -81,7 +81,7 @@
 #define GL_CLAMP_TO_EDGE                  0x812F
 #endif
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_MAC)
 
 #define QGL_FUNC_CONTEXT
 
@@ -129,7 +129,11 @@ static bool qt_resolve_framebufferobject_extensions(QGLContext *)
     else if (resolved)
         return false;
 
+#ifdef Q_WS_X11
     QLibrary lib(QLatin1String("GL"));
+#else // Q_WS_MAC
+    QLibrary lib(QLatin1String("/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib"));
+#endif    
 
     qt_glIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) lib.resolve("glIsRenderbufferEXT");
     qt_glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) lib.resolve("glBindRenderbufferEXT");
@@ -206,12 +210,6 @@ bool qt_resolve_framebufferobject_extensions(QGLContext *ctx)
         (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) wglGetProcAddress("glGetFramebufferAttachmentParameterivEXT");
     glGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) wglGetProcAddress("glGenerateMipmapEXT");
     return glIsRenderbufferEXT;
-}
-#elif defined(Q_WS_MAC)
-#define QGL_FUNC_CONTEXT
-static bool qt_resolve_framebufferobject_extensions(QGLContext *)
-{
-    return true; // assume these are always available on Mac OS X
 }
 #endif
 
