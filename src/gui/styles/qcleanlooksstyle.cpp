@@ -980,12 +980,14 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
                 painter->drawLine(r.bottomLeft() + QPoint(3, 0), r.bottomRight() - QPoint(3, 0));
                 painter->drawLine(r.topLeft() + QPoint(0, 3), r.bottomLeft() - QPoint(0, 3));
                 painter->drawLine(r.topRight() + QPoint(0, 3), r.bottomRight() - QPoint(0, 3));
-
-                painter->drawLine(r.topRight() + QPoint(0, 3), r.topRight() - QPoint(3, 0));
-                painter->drawLine(r.bottomRight() - QPoint(0, 3), r.bottomRight() - QPoint(3, 0));
-
-                painter->drawLine(r.topLeft() + QPoint(0, 3), r.topLeft() + QPoint(3, 0));
-                painter->drawLine(r.bottomLeft() - QPoint(0, 3), r.bottomLeft() + QPoint(3, 0));
+                painter->drawPoint(r.topRight() + QPoint(-2, 1));
+                painter->drawPoint(r.topRight() + QPoint(-1, 2));
+                painter->drawPoint(r.bottomRight() + QPoint(-1, -2));
+                painter->drawPoint(r.bottomRight() + QPoint(-2, -1));
+                painter->drawPoint(r.topLeft() + QPoint(1, 2));
+                painter->drawPoint(r.topLeft() + QPoint(2, 1));
+                painter->drawPoint(r.bottomLeft() + QPoint(1, -2));
+                painter->drawPoint(r.bottomLeft() + QPoint(2, -1));
             }
         }
         painter->restore();
