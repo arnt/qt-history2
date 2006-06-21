@@ -195,6 +195,8 @@ QStandardItemModelPrivate::QStandardItemModelPrivate()
 QStandardItemModelPrivate::~QStandardItemModelPrivate()
 {
     delete root;
+    qDeleteAll(columnHeaderItems);
+    qDeleteAll(rowHeaderItems);
 }
 
 /*!
