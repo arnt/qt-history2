@@ -1798,8 +1798,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                                 && tab->position == QStyleOptionTab::Beginning));
             bool onlyTab = tab->position == QStyleOptionTab::OnlyOneTab;
             bool leftCornerWidget = (tab->cornerWidgets & QStyleOptionTab::LeftCornerWidget);
-            bool atBeginning = ((tab->position == QStyleOptionTab::Beginning) || onlyTab)
-                               && !leftCornerWidget;
+            bool atBeginning = ((tab->position == QStyleOptionTab::Beginning) || onlyTab);
 
             bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
             bool previousSelected =
@@ -1903,12 +1902,12 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 }
             }
             // Left
-            if (atBeginning|| selected ) {
+            if (atBeginning || selected ) {
                 painter->setPen(light);
-                painter->drawLine(x1 + 1, y1 + 2 + 1, x1 + 1, y2 - ((onlyOne || atBeginning) && selected && leftAligned ? 0 : borderThinkness));
+                painter->drawLine(x1 + 1, y1 + 2 + 1, x1 + 1, y2 - ((onlyOne || atBeginning) && selected && leftAligned ? 0 : borderThinkness) - (atBeginning && leftCornerWidget ? 1 : 0));
                 painter->drawPoint(x1 + 1, y1 + 1);
                 painter->setPen(dark);
-                painter->drawLine(x1, y1 + 2, x1, y2 - ((onlyOne || atBeginning)  && leftAligned ? 0 : borderThinkness));
+                painter->drawLine(x1, y1 + 2, x1, y2 - ((onlyOne || atBeginning)  && leftAligned ? 0 : borderThinkness) - (atBeginning && leftCornerWidget ? 1 : 0));
             }
             // Top
             {
