@@ -142,6 +142,12 @@ public:
         endRemoveColumns();
     }
 
+    void cleanup()
+    {
+        cols = 0;
+        emit layoutChanged();
+    }
+
     int cols, rows;
     mutable bool wrongIndex;
 };
@@ -468,6 +474,15 @@ void tst_QHeaderView::length()
     view->show();
 
     QVERIFY(length != view->length());
+
+    // layoutChanged might means rows have been removed
+    QtTestModel model;
+    model.cols = 10;
+    model.rows = 10;
+    view->setModel(&model);
+    int oldLength = view->length();
+    model.cleanup();
+    QVERIFY(oldLength != view->length());
 }
 
 void tst_QHeaderView::offset()
