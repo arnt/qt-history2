@@ -98,6 +98,9 @@ protected:
 
 class QtTestModel: public QAbstractTableModel
 {
+
+Q_OBJECT
+
 public:
     QtTestModel(QObject *parent = 0): QAbstractTableModel(parent),
        cols(0), rows(0), wrongIndex(false) {}
@@ -144,7 +147,8 @@ public:
 
     void cleanup()
     {
-        cols = 0;
+        cols = 3;
+        rows = 3;
         emit layoutChanged();
     }
 
