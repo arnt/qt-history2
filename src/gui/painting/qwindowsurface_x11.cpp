@@ -43,6 +43,8 @@ QPaintDevice *QX11WindowSurface::paintDevice()
 
 void QX11WindowSurface::flush(QWidget *widget, const QRegion &rgn, const QPoint &offset)
 {
+    if (d_ptr->device.isNull())
+        return;
     extern void *qt_getClipRects(const QRegion &r, int &num); // in qpaintengine_x11.cpp
     extern QWidgetData* qt_widget_data(QWidget *);
     QPoint wOffset = qt_qwidget_data(widget)->wrect.topLeft();
@@ -90,6 +92,8 @@ void QX11WindowSurface::scroll(const QRegion &area, int dx, int dy)
 {
     QRect rect = area.boundingRect();
 
+    if (d_ptr->device.isNull())
+        return;
     GC gc = XCreateGC(X11->display, d_ptr->device.handle(), 0, 0);
     XCopyArea(X11->display, d_ptr->device.handle(), d_ptr->device.handle(), gc,
               rect.x(), rect.y(), rect.width(), rect.height(),
