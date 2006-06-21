@@ -1002,7 +1002,7 @@ void QPdfEnginePrivate::embedFont(QFontSubset *font)
           << -properties.boundingBox.y()*scale  << "]\n"
             "/ItalicAngle " << properties.italicAngle.toReal() << "\n"
             "/Ascent " << properties.ascent.toReal()*scale << "\n"
-            "/Descent -" << properties.descent.toReal()*scale << "\n"
+            "/Descent " << -properties.descent.toReal()*scale << "\n"
             "/CapHeight " << properties.capHeight.toReal()*scale << "\n"
             "/StemV " << properties.lineWidth.toReal()*scale << "\n"
             "/FontFile2 " << fontstream << "0 R\n"
