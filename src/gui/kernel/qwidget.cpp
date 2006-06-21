@@ -2663,8 +2663,21 @@ void QWidget::setMinimumSize(int minw, int minh)
             minh = qt_maxWindowRect.height();
     }
 #endif
-    if (minw < 0 || minh < 0)
-        qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
+    if (minw > QWIDGETSIZE_MAX || minh > QWIDGETSIZE_MAX) {
+        qWarning("QWidget::setMinimumSize: (%s/%s) "
+                "The largest allowed size is (%d,%d)",
+                 objectName().toLocal8Bit().data(), metaObject()->className(), QWIDGETSIZE_MAX,
+                QWIDGETSIZE_MAX);
+        minw = qMin<int>(minw, QWIDGETSIZE_MAX);
+        minh = qMin<int>(minh, QWIDGETSIZE_MAX);
+    }
+    if (minw < 0 || minh < 0) {
+        qWarning("QWidget::setMinimumSize: (%s/%s) Negative sizes (%d,%d) "
+                "are not possible",
+                objectName().toLocal8Bit().data(), metaObject()->className(), minw, minh);
+        minw = qMax(minw, 0);
+        minh = qMax(minh, 0);
+    }
     d->createExtra();
     if (d->extra->minw == minw && d->extra->minh == minh)
         return;
