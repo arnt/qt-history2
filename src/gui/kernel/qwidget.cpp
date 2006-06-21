@@ -1051,6 +1051,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     // need to force the resting of the icon after changing parents
     if (testAttribute(Qt::WA_SetWindowIcon))
         d->setWindowIcon_sys(true);
+    if (isWindow() && !d->topData()->iconText.isEmpty())
+        d->setWindowIconText_helper(d->topData()->iconText);
 
     if (windowType() != Qt::Desktop) {
         d->updateSystemBackground();
