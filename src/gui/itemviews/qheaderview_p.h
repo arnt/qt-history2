@@ -56,7 +56,7 @@ public:
           clickableSections(false),
           highlightSelected(false),
           stretchLastSection(false),
-          cascadingResizing(true),
+          cascadingResizing(false),
           stretchSections(0),
           contentsSections(0),
           minimumSectionSize(-1),

@@ -1149,7 +1149,7 @@ void QHeaderView::setStretchLastSection(bool stretch)
 
     This property only affects sections that have \l Interactive as the resize mode.
 
-    The default value is true.
+    The default value is false.
 
     \sa setResizeMode()
 */
