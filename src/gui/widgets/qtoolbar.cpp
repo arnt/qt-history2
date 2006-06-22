@@ -1043,7 +1043,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 #endif // QT_NO_SIGNALMAPPER
                     if (QToolButton *tb = qobject_cast<QToolButton *>(item.widget)) {
                         QAction *ac = pop->addAction(tb->icon(), tb->text());
-                        connect(ac, SIGNAL(triggered()), tb, SIGNAL(clicked()));
+                        connect(ac, SIGNAL(triggered()), tb, SLOT(click()));
                     } else {
                         QList<QAbstractButton *> children = qFindChildren<QAbstractButton *>(item.widget);
                         QList<QAbstractButton *>::const_iterator it = children.constBegin();
