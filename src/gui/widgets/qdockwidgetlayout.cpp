@@ -60,7 +60,10 @@ static void checkLayoutInfo(const QDockAreaLayoutInfo &info)
     }
 }
 
-void dump(QDebug debug, const QDockAreaLayoutItem &item, QString indent)
+static void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent);
+static void dump(QDebug debug, const QDockWidgetLayout &layout);
+
+static void dump(QDebug debug, const QDockAreaLayoutItem &item, QString indent)
 {
     debug << (const char*) indent.toLocal8Bit();
     if (item.skip())

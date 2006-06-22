@@ -69,8 +69,8 @@ struct BackgroundData : public QSharedData
 
 struct BoxData : public QSharedData
 {
-    BoxData() : bi(0) 
-    { 
+    BoxData() : bi(0)
+    {
         for (int i = 0; i < 4; i++) {
             margins[i] = borders[i] = paddings[i] = 0;
             styles[i] = None;
@@ -106,32 +106,32 @@ struct Palette : public QSharedData
     QBrush alternateBackground;
 };
 
-class RenderRule
+class QRenderRule
 {
 public:
-    RenderRule() : pal(0), b(0), fr(0), bg(0) { }
-    ~RenderRule() { }
+    inline QRenderRule() : pal(0), b(0), fr(0), bg(0) { }
+    inline ~QRenderRule() { }
 
     void merge(const QVector<Declaration>& declarations);
     bool isEmpty() const { return pal == 0 && b == 0 && fr == 0 && bg == 0; }
-    
+
     QRect borderRect(const QRect& r) const;
     QRect paddingRect(const QRect& r) const;
     QRect contentsRect(const QRect& r) const;
     QRect boxRect(const QRect& r) const;
 
-    Palette *palette() const { if (!pal) pal = new Palette(); return pal; }
-    BoxData *box() const { if (!b) b = new BoxData(); return b; }
-    BackgroundData *background() const { if (!bg) bg = new BackgroundData(); return bg; }
-    FocusRectData *focusRect() const { if (!fr) fr = new FocusRectData(); return fr; }
+    inline Palette *palette() const { if (!pal) pal = new Palette(); return pal; }
+    inline BoxData *box() const { if (!b) b = new BoxData(); return b; }
+    inline BackgroundData *background() const { if (!bg) bg = new BackgroundData(); return bg; }
+    inline FocusRectData *focusRect() const { if (!fr) fr = new FocusRectData(); return fr; }
 
     void cutBorderImage();
 
-    bool hasPalette() const { return pal != 0; }
-    bool hasBackground() const { return bg != 0; }
-    bool hasBox() const { return b != 0; }
-    bool hasFocusRect() const { return fr != 0; }
-    
+    inline bool hasPalette() const { return pal != 0; }
+    inline bool hasBackground() const { return bg != 0; }
+    inline bool hasBox() const { return b != 0; }
+    inline bool hasFocusRect() const { return fr != 0; }
+
     QHash<QString, QPixmap> pixmaps;
 
 private:
@@ -141,7 +141,7 @@ private:
     mutable QSharedDataPointer<BackgroundData> bg;
 };
 
-void RenderRule::merge(const QVector<Declaration>& decls)
+void QRenderRule::merge(const QVector<Declaration>& decls)
 {
     bool hasBorderImage = false;
     for (int i = 0; i < decls.count(); i++) {
@@ -151,7 +151,7 @@ void RenderRule::merge(const QVector<Declaration>& decls)
         case BackgroundColor: palette()->background = decl.colorValue(); break;
         case SelectionForeground:palette()->selectionForeground = decl.brushValue(); break;
         case SelectionBackground: palette()->selectionBackground = decl.brushValue(); break;
-        
+
         case PaddingLeft: decl.intValue(&box()->paddings[LeftEdge], "px"); break;
         case PaddingRight: decl.intValue(&box()->paddings[RightEdge], "px"); break;
         case PaddingTop: decl.intValue(&box()->paddings[TopEdge], "px"); break;
@@ -230,34 +230,34 @@ void RenderRule::merge(const QVector<Declaration>& decls)
     }
 }
 
-QRect RenderRule::borderRect(const QRect& r) const
+QRect QRenderRule::borderRect(const QRect& r) const
 {
     const int* m = box()->margins;
     return r.adjusted(m[LeftEdge], m[TopEdge], -m[RightEdge], -m[BottomEdge]);
 }
 
-QRect RenderRule::paddingRect(const QRect& r) const
+QRect QRenderRule::paddingRect(const QRect& r) const
 {
     QRect br = borderRect(r);
     const int *b= box()->borders;
     return br.adjusted(b[LeftEdge], b[TopEdge], -b[RightEdge], -b[BottomEdge]);
 }
 
-QRect RenderRule::contentsRect(const QRect& r) const
+QRect QRenderRule::contentsRect(const QRect& r) const
 {
     QRect pr = paddingRect(r);
     const int *p = box()->paddings;
     return pr.adjusted(p[LeftEdge], p[TopEdge], -p[RightEdge], -p[BottomEdge]);
 }
 
-QRect RenderRule::boxRect(const QRect& cr) const
+QRect QRenderRule::boxRect(const QRect& cr) const
 {
     const int *m = box()->margins;
     const int *b = box()->borders;
     const int *p = box()->paddings;
-    return cr.adjusted(-p[LeftEdge] - b[LeftEdge] - m[LeftEdge], 
+    return cr.adjusted(-p[LeftEdge] - b[LeftEdge] - m[LeftEdge],
                        -p[TopEdge] - b[TopEdge] - m[TopEdge],
-                        p[RightEdge] + b[RightEdge] + m[RightEdge], 
+                        p[RightEdge] + b[RightEdge] + m[RightEdge],
                         p[BottomEdge] + b[BottomEdge] + m[BottomEdge]);
 }
 
@@ -288,7 +288,7 @@ void BorderImageData::cutBorderImage()
     }
 
     middleRect = QRect(l, t, w - r -l, h - t - b);
-    if (middleRect.isValid() 
+    if (middleRect.isValid()
         && !(horizStretch == StretchMode && vertStretch == StretchMode)) {
         middle = pixmap.copy(middleRect);
     }
@@ -324,8 +324,8 @@ static QPen qPenFromStyle(const QBrush& b, qreal width, BorderStyle s)
     return QPen(b, width, ps);
 }
 
-static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, 
-                                Edge edge, const QColor& b, BorderStyle s, 
+static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
+                                Edge edge, const QColor& b, BorderStyle s,
                                 const QSizeF& r1, const QSizeF& r2)
 {
     const qreal pw = (edge == TopEdge || edge == BottomEdge) ? y2-y1 : x2-x1;
@@ -359,10 +359,10 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
     switch (edge) {
     case TopEdge:
         if (!r1.isEmpty())
-            p->drawArc(QRectF(x1 - r1.width() + pwby2, y1 + pwby2, 
+            p->drawArc(QRectF(x1 - r1.width() + pwby2, y1 + pwby2,
                        2*r1.width() - pw, 2*r1.height() - pw), 90 * 16, 45 * 16);
         if (!r2.isEmpty())
-            p->drawArc(QRectF(x2 - r2.width() + pwby2, y1 + pwby2, 
+            p->drawArc(QRectF(x2 - r2.width() + pwby2, y1 + pwby2,
                        2*r2.width() - pw, 2*r2.height() - pw), 45* 16, 45 * 16);
         break;
     case BottomEdge:
@@ -370,12 +370,12 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
             p->drawArc(QRectF(x1 - r1.width() + pwby2, y2 - 2 * r1.height() + pwby2,
                               2*r1.width() - pw, 2*r1.height() - pw), -90 * 16, -45 * 16);
         if (!r2.isEmpty())
-            p->drawArc(QRectF(x2 - r2.width() + pwby2, y2 - 2 * r2.height() + pwby2, 
+            p->drawArc(QRectF(x2 - r2.width() + pwby2, y2 - 2 * r2.height() + pwby2,
                        2*r2.width() - pw, 2*r2.height() - pw), -90 * 16, 45 * 16);
         break;
     case LeftEdge:
         if (!r1.isEmpty())
-            p->drawArc(QRectF(x1 + pwby2, y1 - r1.height() + pwby2, 
+            p->drawArc(QRectF(x1 + pwby2, y1 - r1.height() + pwby2,
                        2*r1.width() - pw, 2*r1.height() - pw), 135 * 16, 45 * 16);
         if (!r2.isEmpty())
             p->drawArc(QRectF(x1 + pwby2, y2 - r2.height() + pwby2,
@@ -383,10 +383,10 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
         break;
     case RightEdge:
         if (!r1.isEmpty())
-            p->drawArc(QRectF(x2 - 2*r1.width() + pwby2, y1 - r1.height() + pwby2, 
+            p->drawArc(QRectF(x2 - 2*r1.width() + pwby2, y1 - r1.height() + pwby2,
                        2*r1.width() - pw, 2*r1.height() - pw), 0 * 16, 45 * 16);
         if (!r2.isEmpty())
-            p->drawArc(QRectF(x2 - 2*r2.width() + pwby2, y2 - r2.height() + pwby2, 
+            p->drawArc(QRectF(x2 - 2*r2.width() + pwby2, y2 - r2.height() + pwby2,
                        2*r2.width() - pw, 2*r2.height() - pw), 0 * 16, -45 * 16);
         break;
     default:
@@ -396,7 +396,7 @@ static void qDrawRoundedCorners(QPainter *p, qreal x1, qreal y1, qreal x2, qreal
 }
 
 // Draws edge for the rect (x1, y1) - (x2 - 1, y2 - 1)
-void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2, 
+void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
                 Edge edge, QColor c, BorderStyle style, qreal dw1, qreal dw2)
 {
     p->save();
@@ -480,22 +480,22 @@ void qDrawEdge(QPainter *p, qreal x1, qreal y1, qreal x2, qreal y2,
             switch (edge) {
             case TopEdge:
                 qDrawEdge(p, x1, y1, x2, y1 + wby3, TopEdge, c, Solid, dw1by3, dw2by3);
-                qDrawEdge(p, x1 + dw1 - dw1by3, y2 - wby3, x2 - dw2 + dw1by3, y2, TopEdge, c, 
+                qDrawEdge(p, x1 + dw1 - dw1by3, y2 - wby3, x2 - dw2 + dw1by3, y2, TopEdge, c,
                            Solid, dw1by3, dw2by3);
                 break;
             case LeftEdge:
                 qDrawEdge(p, x1, y1, x1 + wby3, y2, LeftEdge, c, Solid, dw1by3, dw2by3);
-                qDrawEdge(p, x2 - wby3, y1 + dw1 - dw1by3, x2, y2 - dw2 + dw2by3, LeftEdge, c, 
+                qDrawEdge(p, x2 - wby3, y1 + dw1 - dw1by3, x2, y2 - dw2 + dw2by3, LeftEdge, c,
                            Solid, dw1by3, dw2by3);
                 break;
             case BottomEdge:
-                qDrawEdge(p, x1 + dw1 - dw1by3, y1, x2 - dw2 + dw2by3, y1 + wby3, BottomEdge, 
+                qDrawEdge(p, x1 + dw1 - dw1by3, y1, x2 - dw2 + dw2by3, y1 + wby3, BottomEdge,
                            c, Solid, dw1by3, dw2by3);
                 qDrawEdge(p, x1, y2 - wby3, x2, y2 , BottomEdge, c, Solid, dw1by3, dw2by3);
                 break;
             case RightEdge:
                 qDrawEdge(p, x2 - wby3, y1, x2, y2, RightEdge, c, Solid, dw1by3, dw2by3);
-                qDrawEdge(p, x1, y1 + dw1 - dw1by3, x1 + wby3, y2 - dw2 + dw2by3, RightEdge, c, 
+                qDrawEdge(p, x1, y1 + dw1 - dw1by3, x1 + wby3, y2 - dw2 + dw2by3, RightEdge, c,
                            Solid, dw1by3, dw2by3);
                 break;
             default:
@@ -553,10 +553,10 @@ static bool qPaintsOver(Edge e1, BorderStyle s1, Edge, BorderStyle)
             || (s1== Inset && (e1 == BottomEdge || e1 == RightEdge));
 }
 
-// FIXME: 
+// FIXME:
 // 1. Middle image with Round
 // 2. Should Repeat centerize the tile?
-static void qDrawBorderImage(QPainter *p, const RenderRule &rule, const QRect& rect)
+static void qDrawBorderImage(QPainter *p, const QRenderRule &rule, const QRect& rect)
 {
     const QRect br = rule.borderRect(rect);
     const QRect pr = rule.paddingRect(rect);
@@ -579,11 +579,11 @@ static void qDrawBorderImage(QPainter *p, const RenderRule &rule, const QRect& r
     QRect blc = QRect(0, pix.height() - c[BottomEdge], c[LeftEdge], c[BottomEdge]);
     if (blc.isValid())
         p->drawPixmap(QRect(br.x(), br.y() + br.height() - b, l, b), pix, blc);
-    QRect brc = QRect(pix.width() - c[RightEdge], pix.height() - c[BottomEdge], 
+    QRect brc = QRect(pix.width() - c[RightEdge], pix.height() - c[BottomEdge],
                       c[RightEdge], c[BottomEdge]);
     if (brc.isValid())
         p->drawPixmap(QRect(br.x() + br.width() - r, br.y() + br.height() - b, r, b), pix, brc);
- 
+
     int rwh, blank;
 
     switch (bi->horizStretch) {
@@ -605,7 +605,7 @@ static void qDrawBorderImage(QPainter *p, const RenderRule &rule, const QRect& r
         if (!bi->topEdge.isNull())
             p->drawTiledPixmap(QRect(br.x() + l, br.y(), pr.width(), t), bi->topEdge);
         if (!bi->bottomEdge.isNull())
-            p->drawTiledPixmap(QRect(br.x() + l, br.y() + br.height() -b, pr.width(), b), 
+            p->drawTiledPixmap(QRect(br.x() + l, br.y() + br.height() -b, pr.width(), b),
                                bi->bottomEdge);
         if (bi->vertStretch == RepeatMode && !bi->middle.isNull()) {
             p->drawTiledPixmap(pr, bi->middle);
@@ -669,7 +669,7 @@ static void qDrawBorderImage(QPainter *p, const RenderRule &rule, const QRect& r
     }
 }
 
-static void qDrawBackground(QPainter *p, const RenderRule &rule, const QRect& rect, 
+static void qDrawBackground(QPainter *p, const QRenderRule &rule, const QRect& rect,
                              Qt::LayoutDirection dir)
 {
     if (rule.palette()->background.style() != Qt::NoBrush)
@@ -694,17 +694,17 @@ static void qDrawBackground(QPainter *p, const RenderRule &rule, const QRect& re
     const QPixmap& bgp = background->pixmap;
     if (bgp.isNull())
         return;
-    QRect aligned = QStyle::alignedRect(dir, (Qt::Alignment)background->position, 
+    QRect aligned = QStyle::alignedRect(dir, (Qt::Alignment)background->position,
                                         bgp.size(), r);
     QRect inter = aligned.intersect(r);
 
     switch (background->repeat) {
     case NoRepeat:
-        p->drawPixmap(inter.x(), inter.y(), bgp, inter.x() - aligned.x(), 
+        p->drawPixmap(inter.x(), inter.y(), bgp, inter.x() - aligned.x(),
                       inter.y() - aligned.y(), inter.width(), inter.height());
         break;
     case RepeatY:
-        p->drawTiledPixmap(inter.x(), r.y(), inter.width(), r.height(), bgp, 
+        p->drawTiledPixmap(inter.x(), r.y(), inter.width(), r.height(), bgp,
                            0, qMax(((inter.y() - r.y()) % bgp.height()) - 1, 0));
         break;
     case RepeatX:
@@ -720,7 +720,7 @@ static void qDrawBackground(QPainter *p, const RenderRule &rule, const QRect& re
     }
 }
 
-static void qDrawBorder(QPainter *p, const RenderRule& rule, const QRect& rect)
+static void qDrawBorder(QPainter *p, const QRenderRule& rule, const QRect& rect)
 {
     const QRect br = rule.borderRect(rect);
     BoxData *box = rule.box();
@@ -752,15 +752,15 @@ static void qDrawBorder(QPainter *p, const RenderRule& rule, const QRect& rect)
         bool brc = rounded_corners && brr.width() != 0;
         int dw1 = (blc || qPaintsOver(BottomEdge, styles[BottomEdge], LeftEdge, styles[LeftEdge])) ? 0 : pr.x() - br.x();
         int dw2 = (brc || qPaintsOver(BottomEdge, styles[BottomEdge], RightEdge, styles[RightEdge])) ? 0 : br.right() - pr.right();
-        
+
         int x1 = br.x() + (blc ? blr.width() : 0);
         int x2 = br.x() + br.width() - (brc ? brr.width() : 0);
 
-        qDrawEdge(p, x1, pr.y() + pr.height(), x2, br.y() + br.height(), BottomEdge, 
+        qDrawEdge(p, x1, pr.y() + pr.height(), x2, br.y() + br.height(), BottomEdge,
                   colors[BottomEdge], styles[BottomEdge], dw1, dw2);
         if (blc || brc)
-            qDrawRoundedCorners(p, x1, pr.y() + pr.height(), x2, br.y() + br.height(), BottomEdge, 
-                                 colors[BottomEdge], styles[BottomEdge], blr, brr); 
+            qDrawRoundedCorners(p, x1, pr.y() + pr.height(), x2, br.y() + br.height(), BottomEdge,
+                                 colors[BottomEdge], styles[BottomEdge], blr, brr);
     }
     if (styles[RightEdge] != None) {
         bool trc = rounded_corners && trr.height() != 0;
@@ -772,12 +772,12 @@ static void qDrawBorder(QPainter *p, const RenderRule& rule, const QRect& rect)
 
         qDrawEdge(p, pr.x() + pr.width(), y1, br.x() + br.width(), y2, RightEdge, colors[RightEdge], styles[RightEdge], dw1, dw2);
         if (trc || brc)
-            qDrawRoundedCorners(p, pr.right(), y1, br.right(), y2, RightEdge, colors[RightEdge], 
+            qDrawRoundedCorners(p, pr.right(), y1, br.right(), y2, RightEdge, colors[RightEdge],
                                  styles[RightEdge], trr, brr);
     }
     if (styles[LeftEdge] != None) {
-        bool tlc = rounded_corners && tlr.height() != 0; 
-        bool blc = rounded_corners && blr.height() != 0; 
+        bool tlc = rounded_corners && tlr.height() != 0;
+        bool blc = rounded_corners && blr.height() != 0;
         int dw1 = (tlc || qPaintsOver(LeftEdge, styles[LeftEdge], TopEdge, styles[TopEdge])) ? 0 : pr.y() - br.y();
         int dw2 = (blc || qPaintsOver(LeftEdge, styles[LeftEdge], BottomEdge, styles[BottomEdge])) ? 0 : br.bottom() - pr.bottom();
         int y1 = br.y() + (tlc ? tlr.height() : 0);
@@ -801,7 +801,7 @@ static void qDrawBorder(QPainter *p, const RenderRule& rule, const QRect& rect)
     }
 }
 
-static void qDrawFrame(QPainter *p, const RenderRule &rule,
+static void qDrawFrame(QPainter *p, const QRenderRule &rule,
                        const QRect& rect, Qt::LayoutDirection dir)
 {
     qDrawBackground(p, rule, rect, dir);
@@ -809,7 +809,7 @@ static void qDrawFrame(QPainter *p, const RenderRule &rule,
         qDrawBorder(p, rule, rect);
 }
 
-static void qCopyFromRuleToPalette(const RenderRule &rule, QPalette& p,
+static void qCopyFromRuleToPalette(const QRenderRule &rule, QPalette& p,
                                     QPalette::ColorRole fg, QPalette::ColorRole bg)
 {
     Palette *rp = rule.palette();
@@ -834,12 +834,12 @@ class QStyleSheetStyleSelector : public StyleSelector
 public:
     QStyleSheetStyleSelector() { }
 
-    bool hasNodeName(NodePtr node, const QString& name) const 
+    bool hasNodeName(NodePtr node, const QString& name) const
     { return WIDGET(node)->inherits(name.toLatin1()); }
     QString attribute(NodePtr node, const QString& name) const
     {
         if (name == "class")
-            return WIDGET(node)->metaObject()->className(); 
+            return WIDGET(node)->metaObject()->className();
         else
             return WIDGET(node)->property(name.toLatin1()).toString();
     }
@@ -862,7 +862,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-RenderRule QStyleSheetStyle::renderRule(const QWidget *w, QStyle::State state) const
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, QStyle::State state) const
 {
     int pseudoState = (state & QStyle::State_Enabled) ? Enabled : Disabled;
     if (state & QStyle::State_Sunken)
@@ -878,31 +878,31 @@ RenderRule QStyleSheetStyle::renderRule(const QWidget *w, QStyle::State state) c
     if (state & QStyle::State_NoChange)
         pseudoState |= Indeterminate;
 
-    QHash<int, RenderRule>& renderingRules = renderRulesCache[w];
+    QHash<int, QRenderRule>& renderingRules = renderRulesCache[w];
 
     if (renderingRules.contains(pseudoState))
         return renderingRules.value(pseudoState);
 
     Q_ASSERT(styleRulesCache.contains(w)); // style sheet rules must have been computed!
     const QVector<StyleRule>& rules = styleRulesCache.value(w);
-    RenderRule newRule;
+    QRenderRule newRule;
     for (int i = 0; i < rules.count(); i++) {
         int cssState = rules.at(i).selectors.at(0).pseudoState();
         if ((cssState & pseudoState) == cssState)
             newRule.merge(rules.at(i).declarations);
     }
-    
+
     renderingRules[pseudoState] = newRule;
     return newRule;
 }
 
-RenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt) const
+QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *opt) const
 {
     if (!w)
-        return RenderRule();
+        return QRenderRule();
 
     QStyle::State state = opt ? opt->state : QStyle::State_Enabled;
-    
+
     // Add hacks for <w, opt> here
     if (qobject_cast<const QLineEdit *>(w))
         state &= ~QStyle::State_Sunken;
@@ -912,8 +912,8 @@ RenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *op
 
 void QStyleSheetStyle::setPalette(QWidget *w)
 {
-    const RenderRule& rule = renderRule(w, QStyle::State_Enabled);
-    const RenderRule& hoverRule = renderRule(w, QStyle::State_MouseOver);
+    const QRenderRule& rule = renderRule(w, QStyle::State_Enabled);
+    const QRenderRule& hoverRule = renderRule(w, QStyle::State_MouseOver);
     if (!hoverRule.isEmpty())
         w->setAttribute(Qt::WA_Hover);
 
@@ -933,7 +933,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         QPalette p = w->palette();
         if (rp->foreground.style() != Qt::NoBrush)
             p.setBrush(QPalette::Text, rp->foreground);
-        if (rp->background.style() != Qt::NoBrush) 
+        if (rp->background.style() != Qt::NoBrush)
             p.setBrush(QPalette::Base, rp->background);
         if (rp->selectionForeground.style() != Qt::NoBrush)
             p.setBrush(QPalette::HighlightedText, rp->selectionForeground);
@@ -972,7 +972,7 @@ QStyleSheetStyle::QStyleSheetStyle(QStyle *baseStyle)
 {
 }
 
-bool QStyleSheetStyle::baseStyleCanRender(QStyleSheetStyle::WidgetType wt, const RenderRule& rule) const
+bool QStyleSheetStyle::baseStyleCanRender(QStyleSheetStyle::WidgetType wt, const QRenderRule& rule) const
 {
     switch (wt) {
     case PushButton:
@@ -1001,7 +1001,7 @@ bool QStyleSheetStyle::baseStyleCanRender(QStyleSheetStyle::WidgetType wt, const
 void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                                  const QWidget *w) const
 {
-    RenderRule rule = renderRule(w, opt);
+    QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty()) {
         baseStyle->drawComplexControl(cc, opt, p, w);
         return;
@@ -1077,10 +1077,10 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 
 }
 
-void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter *p, 
+void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter *p,
                           const QWidget *w) const
 {
-    RenderRule rule = renderRule(w, opt);
+    QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty()) {
         baseStyle->drawControl(ce, opt, p, w);
         return;
@@ -1172,13 +1172,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 }
 
 
-void QStyleSheetStyle::drawItemPixmap(QPainter *p, const QRect &rect, int alignment, const 
+void QStyleSheetStyle::drawItemPixmap(QPainter *p, const QRect &rect, int alignment, const
                                   QPixmap &pixmap) const
 {
     baseStyle->drawItemPixmap(p, rect, alignment, pixmap);
 }
 
-void QStyleSheetStyle::drawItemText(QPainter *painter, const QRect& rect, int alignment, const QPalette &pal, 
+void QStyleSheetStyle::drawItemText(QPainter *painter, const QRect& rect, int alignment, const QPalette &pal,
                                 bool enabled, const QString& text, QPalette::ColorRole textRole) const
 {
     baseStyle->drawItemText(painter, rect, alignment, pal, enabled, text, textRole);
@@ -1187,7 +1187,7 @@ void QStyleSheetStyle::drawItemText(QPainter *painter, const QRect& rect, int al
 void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                             const QWidget *w) const
 {
-    RenderRule rule = renderRule(w, opt);
+    QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty()) {
         baseStyle->drawPrimitive(pe, opt, p, w);
         return;
@@ -1218,9 +1218,9 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
     case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
             //if (rule.focusRectColor.isValid()) {
-                //RenderRule focusRule = rule;
+                //QRenderRule focusRule = rule;
                 //focusRule.borderStyle = rule.focusRectStyle;
-                //focusRule.border = Margin(rule.focusRectWidth, rule.focusRectWidth, 
+                //focusRule.border = Margin(rule.focusRectWidth, rule.focusRectWidth,
                 //                          rule.focusRectWidth, rule.focusRectWidth);
                 //focusRule.borderBrushes = rule.focusRectColor;
                 //qDrawFrame(p, focusRule, opt->rect, opt->direction);
@@ -1233,7 +1233,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         if (const QStyleOptionFrame *frm = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
             QStyleOptionFrame frmOpt(*frm);
             qCopyFromRuleToPalette(rule, frmOpt.palette, QPalette::Text, QPalette::Base);
-            if (baseStyleCanRender(LineEdit, rule)) 
+            if (baseStyleCanRender(LineEdit, rule))
                 baseStyle->drawPrimitive(pe, &frmOpt, p, w);
             else {
                 qDrawFrame(p, rule, opt->rect, opt->direction);
@@ -1259,7 +1259,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
             baseStyle->drawPrimitive(pe, &optCopy, p, w);
         }
         return;
- 
+
     case PE_FrameMenu:
     case PE_PanelMenuBar:
         if (rule.hasBox())
@@ -1292,7 +1292,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
     baseStyle->drawPrimitive(pe, opt, p, w);
 }
 
-QPixmap QStyleSheetStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap& pixmap, 
+QPixmap QStyleSheetStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap& pixmap,
                                           const QStyleOption *option) const
 {
     return baseStyle->generatedIconPixmap(iconMode, pixmap, option);
@@ -1309,7 +1309,7 @@ QRect QStyleSheetStyle::itemPixmapRect(const QRect &rect, int alignment, const Q
     return baseStyle->itemPixmapRect(rect, alignment, pixmap);
 }
 
-QRect QStyleSheetStyle::itemTextRect(const QFontMetrics &metrics, const QRect& rect, int alignment, 
+QRect QStyleSheetStyle::itemTextRect(const QFontMetrics &metrics, const QRect& rect, int alignment,
                                  bool enabled, const QString& text) const
 {
     return baseStyle->itemTextRect(metrics, rect, alignment, enabled, text);
@@ -1317,7 +1317,7 @@ QRect QStyleSheetStyle::itemTextRect(const QFontMetrics &metrics, const QRect& r
 
 int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWidget *w) const
 {
-    RenderRule rule = renderRule(w, opt);
+    QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty())
         return baseStyle->pixelMetric(m, opt, w);
 
@@ -1350,7 +1350,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
     case PM_ToolTipLabelFrameWidth:
     case PM_ComboBoxFrameWidth:
         break;
-        
+
     case PM_MenuPanelWidth:
     case PM_MenuBarPanelWidth: // support only one border
         if (rule.box())
@@ -1391,7 +1391,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
 QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
                                 const QSize &csz, const QWidget *w) const
 {
-    RenderRule rule = renderRule(w, opt);
+    QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty())
         return baseStyle->sizeFromContents(ct, opt, csz, w);
 
@@ -1411,7 +1411,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
     case CT_CheckBox:
     case CT_RadioButton:
         // any funky border stuff, when this is fixed, fix the CE_RadioButton too
-        if (!rule.hasBox()) 
+        if (!rule.hasBox())
             return baseStyle->sizeFromContents(ct, opt, csz, w);
         else {
             QSize sz = ParentStyle::sizeFromContents(ct, opt, csz, w);
@@ -1445,7 +1445,7 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
     return baseStyle->sizeFromContents(ct, opt, csz, w);
 }
 
-QIcon QStyleSheetStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option, 
+QIcon QStyleSheetStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option,
                                  const QWidget* w) const
 {
     return baseStyle->standardIcon(standardIcon, option, w);
@@ -1456,7 +1456,7 @@ QPalette QStyleSheetStyle::standardPalette() const
     return baseStyle->standardPalette();
 }
 
-QPixmap QStyleSheetStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option, 
+QPixmap QStyleSheetStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option,
                                      const QWidget *w) const
 {
     return baseStyle->standardPixmap(standardPixmap, option, w);
@@ -1471,7 +1471,7 @@ int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWi
 QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
                               const QWidget *w) const
 {
-    RenderRule rule = renderRule(w, opt);
+    QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty())
         return baseStyle->subControlRect(cc, opt, sc, w);
 
@@ -1526,23 +1526,23 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 //                 int h = opt->fontMetrics.height();
 //                 if (rule.padding.valid) {
 //                     Margin p = rule.padding;
-//                     r = opt->rect.adjusted(p.left, p.top, 0, 0); 
+//                     r = opt->rect.adjusted(p.left, p.top, 0, 0);
 //                 } else
 //                     r = opt->rect.adjusted(8, 0, -8, 0);
 //                 bool hasCheckBox = gb->subControls & QStyle::SC_GroupBoxCheckBox;
 //                 r.setHeight(qMax(h, pixelMetric(PM_IndicatorHeight, opt, w)));
-//                 
+//
 //                 int indicatorWidth = 0;
 //                 if (hasCheckBox) {
 //                     indicatorWidth = pixelMetric(PM_IndicatorWidth, opt, w)
-//                                      + pixelMetric(PM_CheckBoxLabelSpacing, opt, w);    
+//                                      + pixelMetric(PM_CheckBoxLabelSpacing, opt, w);
 //                 }
 //                 if (sc == SC_GroupBoxLabel) {
 //                     r.setLeft(r.left() + indicatorWidth);
 //                 } else if (sc == SC_GroupBoxCheckBox) {
 //                     r.setRight(r.left() + indicatorWidth);
 //                 }
-// 
+//
 //                 r = alignedRect(opt->direction, gb->textAlignment, r.size(), r);
 //             }
              break;
@@ -1560,10 +1560,10 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 
 QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, const QWidget *w) const
 {
-    RenderRule rule = renderRule(w, opt);
+    QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty())
         return baseStyle->subElementRect(se, opt, w);
-    
+
     switch (se) {
         // PushButton
     case SE_PushButtonContents:

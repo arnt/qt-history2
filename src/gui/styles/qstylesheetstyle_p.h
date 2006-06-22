@@ -33,7 +33,7 @@
 // We mean it.
 //
 
-class RenderRule;
+class QRenderRule;
 
 class QStyleSheetStyle : public QCommonStyle
 {
@@ -84,14 +84,14 @@ private:
     enum WidgetType {
         PushButton, LineEdit, ComboBox, GroupBox, Frame
     };
-    bool baseStyleCanRender(WidgetType, const RenderRule&) const;
+    bool baseStyleCanRender(WidgetType, const QRenderRule&) const;
     void setPalette(QWidget *);
 
-    inline RenderRule renderRule(const QWidget *w, const QStyleOption *opt) const;
-    RenderRule renderRule(const QWidget *w, QStyle::State state) const;
+    inline QRenderRule renderRule(const QWidget *w, const QStyleOption *opt) const;
+    QRenderRule renderRule(const QWidget *w, QStyle::State state) const;
 
     mutable QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
-    mutable QHash<const QWidget *, QHash<int, RenderRule> > renderRulesCache;
+    mutable QHash<const QWidget *, QHash<int, QRenderRule> > renderRulesCache;
 };
 
 #endif // QSTYLESHEETSTYLE_H
