@@ -41,14 +41,6 @@ void tst_QPicture::getSetCheck()
     QPictureIO obj1;
     // const QPicture & QPictureIO::picture()
     // void QPictureIO::setPicture(const QPicture &)
-#if QT_VERSION >= 0x040200
-    // Compare operator for QPicture will be added for Qt 4.2
-    QPicture var1;
-    obj1.setPicture(var1);
-    QCOMPARE(var1, obj1.picture());
-    obj1.setPicture(QPicture());
-    QCOMPARE(QPicture(), obj1.picture());
-#endif
     // const char * QPictureIO::format()
     // void QPictureIO::setFormat(const char *)
     char *var2 = "PNG";
