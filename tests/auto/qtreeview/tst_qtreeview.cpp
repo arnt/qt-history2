@@ -20,6 +20,22 @@ struct PublicView : public QTreeView
 {
     inline void executeDelayedItemsLayout()
     { QTreeView::executeDelayedItemsLayout(); }
+
+    enum PublicCursorAction {
+        MoveUp = QAbstractItemView::MoveUp,
+        MoveDown = QAbstractItemView::MoveDown,
+        MoveLeft = QAbstractItemView::MoveLeft,
+        MoveRight = QAbstractItemView::MoveRight,
+        MoveHome = QAbstractItemView::MoveHome,
+        MoveEnd = QAbstractItemView::MoveEnd,
+        MovePageUp = QAbstractItemView::MovePageUp,
+        MovePageDown = QAbstractItemView::MovePageDown,
+        MoveNext = QAbstractItemView::MoveNext,
+        MovePrevious = QAbstractItemView::MovePrevious
+    };
+
+    inline QModelIndex moveCursor(PublicCursorAction ca, Qt::KeyboardModifiers kbm)
+    { return QTreeView::moveCursor((CursorAction)ca, kbm); }
 };
 
 class tst_QTreeView : public QObject
@@ -456,19 +472,16 @@ void tst_QTreeView::moveCursor()
     QtTestModel model;
     model.rows = model.cols = 10;
 
-    QTreeView view;
-    view.setModel(&model);
-    view.show();
-
-    QTest::keyClick(&view, Qt::Key_Down);
-
-    view.setModel(0);
+    PublicView view;
     view.setModel(&model);
     view.setRowHidden(0, QModelIndex(), true);
     view.setColumnHidden(0, true);
+    view.show();
 
-    QTest::keyClick(&view, Qt::Key_Down);
-    QCOMPARE(view.selectionModel()->currentIndex(), model.index(1, 0, QModelIndex()));
+    QModelIndex actual = view.moveCursor(PublicView::MoveDown, Qt::NoModifier);
+    QModelIndex expected = model.index(1, 1, QModelIndex());
+
+    QCOMPARE(actual, expected);
 }
 
 void tst_QTreeView::indexBelow()
@@ -816,7 +829,7 @@ void tst_QTreeView::resizeColumnToContents()
     view.show();
     qApp->processEvents(); //must have this, or else it will not scroll
     view.scrollToBottom();
-    view.resizeColumnToContents(0);       
+    view.resizeColumnToContents(0);
     int oldColumnSize = view.header()->sectionSize(0);
     view.setRootIndex(model.index(0, 0));
     view.resizeColumnToContents(0);        //Earlier, this gave an assert
