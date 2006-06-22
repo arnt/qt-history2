@@ -445,7 +445,8 @@ QToolBar::~QToolBar()
         mainwin_layout->removeToolBarInfo(this);
         mainwin_layout->relayout();
 #ifdef Q_WS_MAC
-        if (mainwin_layout && mainwin_layout->tb_layout_info.isEmpty())
+        if (mainwin_layout && mainwin_layout->tb_layout_info.isEmpty()
+                && mainwindow->testAttribute(Qt::WA_WState_Created))
             ChangeWindowAttributes(qt_mac_window_for(mainwindow), kWindowNoAttributes,
                                    kWindowToolbarButtonAttribute);
 #endif
