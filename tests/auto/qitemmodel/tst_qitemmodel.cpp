@@ -371,13 +371,13 @@ void checkChildren(QAbstractItemModel *currentModel, const QModelIndex &parent, 
 {
     QFETCH(bool, readOnly);
 
+    if (currentModel->canFetchMore(parent))
+        currentModel->fetchMore(parent);
+
     int rows = currentModel->rowCount(parent);
     int columns = currentModel->columnCount(parent);
 
     QCOMPARE(rows > 0, (currentModel->hasChildren(parent)));
-
-    if (currentModel->canFetchMore(parent))
-        currentModel->fetchMore(parent);
 
     // Some reasuring testing against rows(),columns(), and hasChildren()
     QVERIFY(rows >= 0);
@@ -389,6 +389,7 @@ void checkChildren(QAbstractItemModel *currentModel, const QModelIndex &parent, 
 
     //qDebug() << "parent:" << currentModel->data(parent).toString() << "rows:" << rows
     //         << "columns:" << columns << "parent column:" << parent.column();
+
     QCOMPARE(currentModel->hasIndex(rows+1, 0, parent), false);
     for (int r = 0; r < rows; ++r) {
         if (currentModel->canFetchMore(parent))
