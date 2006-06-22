@@ -54,11 +54,11 @@ void tst_Q3TabDialog::getSetCheck()
     QTabBar *var1 = new QTabBar;
     obj1.setTabBar(var1);
     QCOMPARE(var1, obj1.tabBar());
-#if QT_VERSION >= 0x040200
-    // Assert in QTabWidget on this. Should be handled gracefully in Qt 4.2
+
+    QTabBar * const oldTabBar = obj1.tabBar();
     obj1.setTabBar((QTabBar *)0);
-    QCOMPARE((QTabBar *)0, obj1.tabBar());
-#endif
+    QCOMPARE(obj1.tabBar(), oldTabBar);
+
     delete var1;
 }
 
