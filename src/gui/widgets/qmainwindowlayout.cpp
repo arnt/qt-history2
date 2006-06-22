@@ -390,6 +390,7 @@ void QMainWindowLayout::addDockWidget(Qt::DockWidgetArea area,
 {
     QDockWidgetLayout::DockPos pos
         = QDockWidgetLayout::DockPos(positionForArea(area));
+    addChildWidget(dockwidget);
     dockWidgetLayout.addDockWidget(pos, dockwidget, orientation);
 }
 
