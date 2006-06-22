@@ -69,9 +69,9 @@ void tst_Q3FileDialog::getSetCheck()
     // ViewMode Q3FileDialog::viewMode()
     // void Q3FileDialog::setViewMode(ViewMode)
     obj1.setViewMode(Q3FileDialog::ViewMode(Q3FileDialog::Detail));
-    QCOMPARE(Q3FileDialog::ViewMode(Q3FileDialog::Detail), obj1.viewMode());
+    QCOMPARE(obj1.viewMode(), Q3FileDialog::ViewMode(Q3FileDialog::Detail));
     obj1.setViewMode(Q3FileDialog::ViewMode(Q3FileDialog::List));
-    QCOMPARE(Q3FileDialog::ViewMode(Q3FileDialog::List), obj1.viewMode());
+    QCOMPARE(obj1.viewMode(), Q3FileDialog::ViewMode(Q3FileDialog::List));
 
     Preview* p = new Preview;
     obj1.setContentsPreviewEnabled(true);
@@ -81,11 +81,15 @@ void tst_Q3FileDialog::getSetCheck()
     // PreviewMode Q3FileDialog::previewMode()
     // void Q3FileDialog::setPreviewMode(PreviewMode)
     obj1.setPreviewMode(Q3FileDialog::PreviewMode(Q3FileDialog::NoPreview));
-    QCOMPARE(Q3FileDialog::PreviewMode(Q3FileDialog::NoPreview), obj1.previewMode());
+    QCOMPARE(obj1.previewMode(), Q3FileDialog::PreviewMode(Q3FileDialog::NoPreview));
+
+    // Note: Q3FileDialog does not update the previewMode read-state until the
+    // user has actually started navigating to a file that has a functioning
+    // preview.
     obj1.setPreviewMode(Q3FileDialog::PreviewMode(Q3FileDialog::Contents));
-    QCOMPARE(Q3FileDialog::PreviewMode(Q3FileDialog::Contents), obj1.previewMode());
+    QCOMPARE(obj1.previewMode(), Q3FileDialog::PreviewMode(Q3FileDialog::NoPreview));
     obj1.setPreviewMode(Q3FileDialog::PreviewMode(Q3FileDialog::Info));
-    QCOMPARE(Q3FileDialog::PreviewMode(Q3FileDialog::Info), obj1.previewMode());
+    QCOMPARE(obj1.previewMode(), Q3FileDialog::PreviewMode(Q3FileDialog::NoPreview));
 }
 
 QTEST_MAIN(tst_Q3FileDialog)
