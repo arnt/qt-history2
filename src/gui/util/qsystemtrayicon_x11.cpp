@@ -159,6 +159,7 @@ void QSystemTrayIconSys::addToTray()
 {
     Q_ASSERT(sysTrayWindow != None);
     Display *display = QX11Info::display();
+    createWinId();
     Window wid = winId();
 
     // GNOME, NET WM Specification
