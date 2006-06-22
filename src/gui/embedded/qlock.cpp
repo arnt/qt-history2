@@ -118,9 +118,10 @@ QLock::QLock(const QString &filename, char id, bool create)
     }
 #endif
     if (data->id == -1) {
+        int eno = errno;
         qWarning("Cannot %s semaphore %s '%c'", (create ? "create" : "get"),
                  qPrintable(filename), id);
-        qDebug() << "Error" << errno << strerror(errno);
+        qDebug() << "Error" << eno << strerror(eno);
     }
 #endif
 }
