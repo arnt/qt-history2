@@ -181,7 +181,7 @@ public:
         BottomPos,
         PosCount
     };
-    enum { EmptyDropAreaSize = 20 }; // when a dock area is empty, how "wide" is it?
+    enum { EmptyDropAreaSize = 80 }; // when a dock area is empty, how "wide" is it?
 
     Qt::DockWidgetArea corners[4]; // use a Qt::Corner for indexing
     QRect rect;
