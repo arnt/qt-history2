@@ -2131,8 +2131,8 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
             }
 #ifdef Q_WS_WIN
             Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created) || widget->winId());
-            Q_ASSERT(modalWidget->testAttribute(Qt::WA_WState_Created));
-            if (IsChild(modalWidget->winId(), widget->winId()))
+            if (modalWidget->testAttribute(Qt::WA_WState_Created)
+                && IsChild(modalWidget->winId(), widget->winId()))
                 return false;
 #endif
         }

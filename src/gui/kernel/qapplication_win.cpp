@@ -1726,7 +1726,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             // This happens when restoring an application after "Show Desktop"
             if (app_do_modal && LOWORD(wParam) == WA_ACTIVE) {
                 QWidget *top = 0;
-                if (!QApplicationPrivate::tryModalHelper(widget, &top) && top && widget != top)
+                if (!QApplicationPrivate::tryModalHelper(widget, &top) && top && widget != top && top->isVisible())
                     top->activateWindow();
             }
             // Ensure nothing gets consider an auto-repeat press later
