@@ -89,6 +89,12 @@ SUBDIRS += bic \
            qdatetime \
            qdatetimeedit \
            qdebug \
+           qdbusabstractadaptor \
+           qdbusconnection \
+           qdbusinterface \
+           qdbusmarshall \
+           qdbusmetatype \
+           qdbusxmlparser \
            qdeepcopy \
            qdesktopservices \
            qdial \
@@ -301,12 +307,3 @@ SUBDIRS += bic \
            selftests \
            symbols
 
-contains(QT_CONFIG,qdbus): {
-       SUBDIRS += \
-               qdbusabstractadaptor \
-               qdbusconnection \
-               qdbusinterface \
-               qdbusmarshall \
-               qdbusmetatype \
-               qdbusxmlparser
-}

@@ -572,6 +572,7 @@ void tst_QDBusAbstractAdaptor::signalEmissions()
 
     QDBusConnection &con = QDBus::sessionBus();
     QVERIFY(con.isConnected());
+    con.busService()->requestName("com.trolltech.tst_QDBusAbstractAdaptor", 0);
 
     MyObject obj(3);
     con.registerObject("/", &obj, QDBusConnection::ExportAdaptors | QDBusConnection::ExportSignals);

@@ -1,5 +1,8 @@
 load(qttest_p4)
-SOURCES += tst_qdbusxmlparser.cpp
-
-QT = core xml
-CONFIG += qdbus
+QT = core
+contains(QT_CONFIG,qdbus): {
+	SOURCES += tst_qdbusxmlparser.cpp
+	CONFIG += qdbus
+} else {
+	SOURCES += ../qdbusmarshall/dummy.cpp
+}
