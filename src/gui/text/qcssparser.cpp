@@ -748,7 +748,7 @@ void StyleSelector::matchRules(NodePtr node, const QVector<StyleRule> &rules,
 }
 
 
-void printDeclarations(const QVector<QPair<int, StyleRule> >& decls)
+static void printDeclarations(const QVector<QPair<int, StyleRule> >& decls)
 {
     for (int i = 0; i < decls.count(); i++) {
         const StyleRule& rule = decls.at(i).second;
