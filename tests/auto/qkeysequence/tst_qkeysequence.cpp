@@ -235,11 +235,11 @@ void tst_QKeySequence::keyBindings()
 #ifdef Q_WS_MAC
     expected  << QKeySequence("CTRL+C");
 #elif defined Q_WS_X11
-    expected  << QKeySequence("CTRL+C") << QKeySequence("CTRL+INSERT");
-#else
     expected  << QKeySequence("CTRL+C") << QKeySequence("F16") << QKeySequence("CTRL+INSERT");
+#else
+    expected  << QKeySequence("CTRL+C") << QKeySequence("CTRL+INSERT");
 #endif
-    QVERIFY(bindings == expected);
+	QVERIFY(bindings == expected);
 }
 
 
