@@ -452,10 +452,10 @@ void QDockWidgetPrivate::unplug(const QRect &rect)
     r.moveTopLeft(q->mapToGlobal(r.topLeft()));
     q->hide();
     q->setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::X11BypassWindowManagerHint);
-    updateButtons();
     resizer->setActive(false);
     q->setGeometry(r);
     q->show();
+    updateButtons();
 }
 
 void QDockWidgetPrivate::plug(const QRect &rect)
