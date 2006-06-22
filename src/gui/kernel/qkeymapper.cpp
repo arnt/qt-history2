@@ -16,6 +16,7 @@
 
 #include <private/qobject_p.h>
 #include "qkeymapper_p.h"
+#include <qwidget.h>
 
 /*!
     \class QKeyMapper QKeyMapper.h
