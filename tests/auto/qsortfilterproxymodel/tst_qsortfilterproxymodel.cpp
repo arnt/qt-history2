@@ -70,6 +70,7 @@ private slots:
 //    void filterCurrent();
 
 #if QT_VERSION >= 0x040200
+    void changeSourceLayout();
     void removeSourceRows_data();
     void removeSourceRows();
     void insertSourceRows_data();
@@ -964,6 +965,30 @@ void tst_QSortFilterProxyModel::filterCurrent()
 #endif
 
 #if QT_VERSION >= 0x040200
+
+void tst_QSortFilterProxyModel::changeSourceLayout()
+{
+    QStandardItemModel model(2, 1);
+    model.setData(model.index(0, 0), QString("b"));
+    model.setData(model.index(1, 0), QString("a"));
+    QSortFilterProxyModel proxy;
+    proxy.setSourceModel(&model);
+
+    QList<QPersistentModelIndex> persistentSourceIndexes;
+    QList<QPersistentModelIndex> persistentProxyIndexes;
+    for (int row = 0; row < model.rowCount(); ++row) {
+        persistentSourceIndexes.append(model.index(row, 0));
+        persistentProxyIndexes.append(proxy.index(row, 0));
+    }
+
+    // change layout of source model
+    model.sort(0, Qt::AscendingOrder);
+
+    for (int row = 0; row < model.rowCount(); ++row) {
+        QCOMPARE(persistentProxyIndexes.at(row).row(),
+                 persistentSourceIndexes.at(row).row());
+    }
+}
 
 void tst_QSortFilterProxyModel::removeSourceRows_data()
 {
