@@ -1170,7 +1170,7 @@ void QLabelPrivate::_q_movieResized(const QSize& size)
 
 /*!
     Sets the label contents to \a movie. Any previous content is
-    cleared.
+    cleared. The label takes ownership of the movie.
 
     The buddy shortcut, if any, is disabled.
 
@@ -1184,6 +1184,10 @@ void QLabel::setMovie(QMovie *movie)
     Q_D(QLabel);
     d->clearContents();
 
+    if (!movie)
+        return;
+
+    movie->setParent(this);
     d->movie = movie;
     connect(movie, SIGNAL(resized(QSize)), this, SLOT(_q_movieResized(QSize)));
     connect(movie, SIGNAL(updated(QRect)), this, SLOT(_q_movieUpdated(QRect)));
@@ -1227,6 +1231,7 @@ void QLabelPrivate::clearContents()
     shortcutId = -1;
 #endif
 #ifndef QT_NO_MOVIE
+    delete movie;
     movie = 0;
 #endif
 }
