@@ -2986,8 +2986,10 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                         register QObject *obj = d->eventFilters.at(i);
                         if (lock)
                             lock->unlock();
-                        if (obj && obj->eventFilter(w, w == receiver ? mouse : &me))
+                        if (obj && obj->eventFilter(w, w == receiver ? mouse : &me)) {
+                            lock = 0;
                             break;
+                        }
                         if (lock)
                             lock->lockForRead();
                     }
