@@ -52,7 +52,8 @@ public:
     inline QSortFilterProxyModelGreaterThan(int column, const QModelIndex &parent,
                                           const QAbstractItemModel *source,
                                           const QSortFilterProxyModel *proxy)
-        : sort_column(column), source_parent(parent), source_model(source), proxy_model(proxy) {}
+        : sort_column(column), source_parent(parent),
+          source_model(source), proxy_model(proxy) {}
 
     inline bool operator()(int r1, int r2) const
     {
@@ -133,40 +134,52 @@ public:
     void _q_sourceLayoutAboutToBeChanged();
     void _q_sourceLayoutChanged();
 
-    void _q_sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end);
-    void _q_sourceRowsInserted(const QModelIndex &source_parent, int start, int end);
-    void _q_sourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end);
-    void _q_sourceRowsRemoved(const QModelIndex &source_parent, int start, int end);
-    void _q_sourceColumnsAboutToBeInserted(const QModelIndex &source_parent, int start, int end);
-    void _q_sourceColumnsInserted(const QModelIndex &source_parent, int start, int end);
-    void _q_sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end);
-    void _q_sourceColumnsRemoved(const QModelIndex &source_parent, int start, int end);
+    void _q_sourceRowsAboutToBeInserted(const QModelIndex &source_parent,
+                                        int start, int end);
+    void _q_sourceRowsInserted(const QModelIndex &source_parent,
+                               int start, int end);
+    void _q_sourceRowsAboutToBeRemoved(const QModelIndex &source_parent,
+                                       int start, int end);
+    void _q_sourceRowsRemoved(const QModelIndex &source_parent,
+                              int start, int end);
+    void _q_sourceColumnsAboutToBeInserted(const QModelIndex &source_parent,
+                                           int start, int end);
+    void _q_sourceColumnsInserted(const QModelIndex &source_parent,
+                                  int start, int end);
+    void _q_sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent,
+                                          int start, int end);
+    void _q_sourceColumnsRemoved(const QModelIndex &source_parent,
+                                 int start, int end);
 
     void clear_mapping();
 
-    void sort_source_rows(QVector<int> &source_rows, const QModelIndex &source_parent) const;
+    void sort_source_rows(QVector<int> &source_rows,
+                          const QModelIndex &source_parent) const;
     QVector<QPair<int, QVector<int > > > proxy_intervals_for_source_items_to_add(
         const QVector<int> &proxy_to_source, const QVector<int> &source_items,
         const QModelIndex &source_parent, Qt::Orientation orient) const;
     QVector<QPair<int, int > > proxy_intervals_for_source_items(
         const QVector<int> &source_to_proxy, const QVector<int> &source_items) const;
     void insert_source_items(
-        QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, const QVector<int> &source_items,
-        const QModelIndex &source_parent, Qt::Orientation orient, bool emit_signal = true);
+        QVector<int> &source_to_proxy, QVector<int> &proxy_to_source,
+        const QVector<int> &source_items, const QModelIndex &source_parent,
+        Qt::Orientation orient, bool emit_signal = true);
     void remove_source_items(
-        QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, const QVector<int> &source_items,
-        const QModelIndex &source_parent, Qt::Orientation orient, bool emit_signal = true);
+        QVector<int> &source_to_proxy, QVector<int> &proxy_to_source,
+        const QVector<int> &source_items, const QModelIndex &source_parent,
+        Qt::Orientation orient, bool emit_signal = true);
     void remove_proxy_interval(
-        QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, int proxy_start, int proxy_end,
-        const QModelIndex &proxy_parent, Qt::Orientation orient, bool emit_signal = true);
+        QVector<int> &source_to_proxy, QVector<int> &proxy_to_source,
+        int proxy_start, int proxy_end, const QModelIndex &proxy_parent,
+        Qt::Orientation orient, bool emit_signal = true);
     void build_source_to_proxy_mapping(
         const QVector<int> &proxy_to_source, QVector<int> &source_to_proxy) const;
-    void source_items_inserted(
-        const QModelIndex &source_parent, int start, int end, Qt::Orientation orient);
-    void source_items_about_to_be_removed(
-        const QModelIndex &source_parent, int start, int end, Qt::Orientation orient);
-    void source_items_removed(
-        const QModelIndex &source_parent, int start, int end, Qt::Orientation orient);
+    void source_items_inserted(const QModelIndex &source_parent,
+                               int start, int end, Qt::Orientation orient);
+    void source_items_about_to_be_removed(const QModelIndex &source_parent,
+                                          int start, int end, Qt::Orientation orient);
+    void source_items_removed(const QModelIndex &source_parent,
+                              int start, int end, Qt::Orientation orient);
     void proxy_item_range(
         const QVector<int> &source_to_proxy, const QVector<int> &source_items,
         int &proxy_low, int &proxy_high) const;
@@ -341,8 +354,9 @@ QVector<QPair<int, int > > QSortFilterProxyModelPrivate::proxy_intervals_for_sou
   rows/columnsRemoved(start, end) signals will be generated.
 */
 void QSortFilterProxyModelPrivate::remove_source_items(
-    QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, const QVector<int> &source_items,
-    const QModelIndex &source_parent, Qt::Orientation orient, bool emit_signal)
+    QVector<int> &source_to_proxy, QVector<int> &proxy_to_source,
+    const QVector<int> &source_items, const QModelIndex &source_parent,
+    Qt::Orientation orient, bool emit_signal)
 {
     QModelIndex proxy_parent = QSortFilterProxyModelPrivate::source_to_proxy(source_parent);
     if (!proxy_parent.isValid() && source_parent.isValid())
@@ -691,7 +705,8 @@ QModelIndexList QSortFilterProxyModelPrivate::store_persistent_indexes()
   Maps \a source_indexes to proxy indexes and stores those
   as persistent indexes.
 */
-void QSortFilterProxyModelPrivate::update_persistent_indexes(const QModelIndexList &source_indexes)
+void QSortFilterProxyModelPrivate::update_persistent_indexes(
+    const QModelIndexList &source_indexes)
 {
     for (int i = 0; i < source_indexes.count(); ++i) {
         QModelIndex source_index = source_indexes.at(i);
@@ -751,10 +766,12 @@ void QSortFilterProxyModelPrivate::handle_filter_changed(
     }
     if (!source_items_remove.isEmpty() || !source_items_insert.isEmpty()) {
         // Do item removal and insertion
-        remove_source_items(source_to_proxy, proxy_to_source, source_items_remove, source_parent, orient);
+        remove_source_items(source_to_proxy, proxy_to_source,
+                            source_items_remove, source_parent, orient);
         if (orient == Qt::Vertical)
             sort_source_rows(source_items_insert, source_parent);
-        insert_source_items(source_to_proxy, proxy_to_source, source_items_insert, source_parent, orient);
+        insert_source_items(source_to_proxy, proxy_to_source,
+                            source_items_insert, source_parent, orient);
     }
 }
 
@@ -801,22 +818,26 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
     }
 
     if (!source_rows_remove.isEmpty())
-        remove_source_items(m->proxy_rows, m->source_rows, source_rows_remove, source_parent, Qt::Vertical);
+        remove_source_items(m->proxy_rows, m->source_rows,
+                            source_rows_remove, source_parent, Qt::Vertical);
 
     if (!source_rows_resort.isEmpty()) {
         // Re-sort the rows
         emit q->layoutAboutToBeChanged();
         QModelIndexList source_indexes = store_persistent_indexes();
-        remove_source_items(m->proxy_rows, m->source_rows, source_rows_resort, source_parent, Qt::Vertical, false);
+        remove_source_items(m->proxy_rows, m->source_rows, source_rows_resort,
+                            source_parent, Qt::Vertical, false);
         sort_source_rows(source_rows_resort, source_parent);
-        insert_source_items(m->proxy_rows, m->source_rows, source_rows_resort, source_parent, Qt::Vertical, false);
+        insert_source_items(m->proxy_rows, m->source_rows, source_rows_resort,
+                            source_parent, Qt::Vertical, false);
         update_persistent_indexes(source_indexes);
         emit q->layoutChanged();
     } else if (!source_rows_change.isEmpty()) {
         // Find the proxy row range
         int proxy_start_row;
         int proxy_end_row;
-        proxy_item_range(m->proxy_rows, source_rows_change, proxy_start_row, proxy_end_row);
+        proxy_item_range(m->proxy_rows, source_rows_change,
+                         proxy_start_row, proxy_end_row);
         // ### Find the proxy column range also
         if (proxy_end_row >= 0) {
             QModelIndex proxy_top_left = create_index(
@@ -829,7 +850,8 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
 
     if (!source_rows_insert.isEmpty()) {
         sort_source_rows(source_rows_insert, source_parent);
-        insert_source_items(m->proxy_rows, m->source_rows, source_rows_insert, source_parent, Qt::Vertical);
+        insert_source_items(m->proxy_rows, m->source_rows,
+                            source_rows_insert, source_parent, Qt::Vertical);
     }
 }
 
@@ -883,46 +905,56 @@ void QSortFilterProxyModelPrivate::_q_sourceLayoutChanged()
     emit q->layoutChanged();
 }
 
-void QSortFilterProxyModelPrivate::_q_sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceRowsAboutToBeInserted(
+    const QModelIndex &source_parent, int start, int end)
 {
     Q_UNUSED(source_parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
 }
 
-void QSortFilterProxyModelPrivate::_q_sourceRowsInserted(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceRowsInserted(
+    const QModelIndex &source_parent, int start, int end)
 {
     source_items_inserted(source_parent, start, end, Qt::Vertical);
 }
 
-void QSortFilterProxyModelPrivate::_q_sourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceRowsAboutToBeRemoved(
+    const QModelIndex &source_parent, int start, int end)
 {
-    source_items_about_to_be_removed(source_parent, start, end, Qt::Vertical);
+    source_items_about_to_be_removed(source_parent, start, end,
+                                     Qt::Vertical);
 }
 
-void QSortFilterProxyModelPrivate::_q_sourceRowsRemoved(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceRowsRemoved(
+    const QModelIndex &source_parent, int start, int end)
 {
     source_items_removed(source_parent, start, end, Qt::Vertical);
 }
 
-void QSortFilterProxyModelPrivate::_q_sourceColumnsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceColumnsAboutToBeInserted(
+    const QModelIndex &source_parent, int start, int end)
 {
     Q_UNUSED(source_parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
 }
 
-void QSortFilterProxyModelPrivate::_q_sourceColumnsInserted(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceColumnsInserted(
+    const QModelIndex &source_parent, int start, int end)
 {
     source_items_inserted(source_parent, start, end, Qt::Horizontal);
 }
 
-void QSortFilterProxyModelPrivate::_q_sourceColumnsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceColumnsAboutToBeRemoved(
+    const QModelIndex &source_parent, int start, int end)
 {
-    source_items_about_to_be_removed(source_parent, start, end, Qt::Horizontal);
+    source_items_about_to_be_removed(source_parent, start, end,
+                                     Qt::Horizontal);
 }
 
-void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &source_parent, int start, int end)
+void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(
+    const QModelIndex &source_parent, int start, int end)
 {
     source_items_removed(source_parent, start, end, Qt::Horizontal);
 }
@@ -1071,8 +1103,8 @@ void QSortFilterProxyModelPrivate::_q_sourceColumnsRemoved(const QModelIndex &so
     \l{itemviews/customsortfiltermodel}{Custom Sort/Filter Model}
     example.)
 
-    \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming}, {Basic Sort/Filter Model Example},
-        {Custom Sort/Filter Model Example}
+    \sa QAbstractProxyModel, QAbstractItemModel, {Model/View Programming},
+    {Basic Sort/Filter Model Example}, {Custom Sort/Filter Model Example}
 */
 
 /*!
