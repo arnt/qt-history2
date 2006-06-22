@@ -151,6 +151,7 @@
 #include "qgraphicsitem_p.h"
 #include "qgraphicsscene_p.h"
 #include "qgraphicssceneevent.h"
+#include "qgraphicsview.h"
 
 #include <private/qobject_p.h>
 #include <QtCore/qcoreapplication.h>
@@ -1748,6 +1749,8 @@ void QGraphicsScene::setBackgroundBrush(const QBrush &brush)
 {
     Q_D(QGraphicsScene);
     d->backgroundBrush = brush;
+    foreach (QGraphicsView *view, d->views)
+        view->resetCachedContent();
     update();
 }
 
@@ -2432,7 +2435,8 @@ void QGraphicsScene::inputMethodEvent(QInputMethodEvent *event)
 */
 void QGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
 {
-    if (backgroundBrush().style() != Qt::NoBrush) {
+    Q_D(QGraphicsScene);
+    if (d->backgroundBrush.style() != Qt::NoBrush) {
         painter->save();
         painter->setBrushOrigin(0, 0);
         painter->fillRect(rect, backgroundBrush());
@@ -2454,7 +2458,8 @@ void QGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect)
 */
 void QGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
 {
-    if (foregroundBrush().style() != Qt::NoBrush) {
+    Q_D(QGraphicsScene);
+    if (d->foregroundBrush.style() != Qt::NoBrush) {
         painter->save();
         painter->setBrushOrigin(0, 0);
         painter->fillRect(rect, foregroundBrush());

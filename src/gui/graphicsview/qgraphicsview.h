@@ -76,6 +76,7 @@ public:
 
     CacheMode cacheMode() const;
     void setCacheMode(CacheMode mode);
+    void resetCachedContent();
 
     bool isInteractive() const;
     void setInteractive(bool allowed);

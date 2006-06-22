@@ -603,7 +603,7 @@ void QGraphicsView::setDragMode(DragMode mode)
 
     By default, nothing is cached.
 
-    \sa QPixmapCache
+    \sa resetCachedContent(), QPixmapCache
 */
 QGraphicsView::CacheMode QGraphicsView::cacheMode() const
 {
@@ -613,21 +613,41 @@ QGraphicsView::CacheMode QGraphicsView::cacheMode() const
 void QGraphicsView::setCacheMode(CacheMode mode)
 {
     Q_D(QGraphicsView);
-    CacheMode oldCacheMode = d->cacheMode;
+    if (mode == d->cacheMode)
+        return;
     d->cacheMode = mode;
+    resetCachedContent();
+}
+
+/*!
+    Resets any cached content. Calling this function will clear
+    QGraphicsView's cache. If the current cache mode is \l CacheNone, this
+    function does nothing.
+
+    This function is called automatically for you when the backgroundBrush or
+    QGraphicsScene::backgroundBrush properties change; you only need to call
+    this function if you have reimplemented QGraphicsScene::drawBackground()
+    or QGraphicsView::drawBackground() to draw a custom background, and need
+    to trigger a full redraw.
+
+    \sa cacheMode()
+*/
+void QGraphicsView::resetCachedContent()
+{
+    Q_D(QGraphicsView);
+    if (d->cacheMode == CacheNone)
+        return;
+    
     if (d->cacheMode & CacheBackground) {
-        if (!(oldCacheMode & CacheBackground)) {
-            // Background cacheing is enabled.
-            d->mustResizeBackgroundPixmap = true;
-        }
-    } else {
-        if (oldCacheMode & CacheBackground) {
-            // Background cacheing is disabled.
-            // Cleanup, free some resources.
-            d->mustResizeBackgroundPixmap = false;
-            d->backgroundPixmap = QPixmap();
-            d->backgroundPixmapExposed = QRegion();
-        }
+        // Background cacheing is enabled.
+        d->mustResizeBackgroundPixmap = true;
+        viewport()->update();
+    } else if (d->mustResizeBackgroundPixmap) {
+        // Background cacheing is disabled.
+        // Cleanup, free some resources.
+        d->mustResizeBackgroundPixmap = false;
+        d->backgroundPixmap = QPixmap();
+        d->backgroundPixmapExposed = QRegion();
     }
 }
 
@@ -2199,10 +2219,11 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
         d->backgroundPixmapExposed = QRegion();
 
         // Blit the background from the background pixmap
-        painter.setMatrixEnabled(false);
+        QMatrix oldMatrix = painter.matrix();
+        painter.setMatrix(QMatrix());
         foreach (QRect rect, event->region().rects())
             painter.drawPixmap(rect, d->backgroundPixmap, rect);
-        painter.setMatrixEnabled(true);
+        painter.setMatrix(oldMatrix);
     } else {
         // Draw the background directly
         foreach (QRectF rect, exposedRects) {
