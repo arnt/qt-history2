@@ -35,6 +35,7 @@ int main(int argc, char **argv)
     }
 
     QGraphicsView view(&scene);
+    view.setRenderHint(QPainter::Antialiasing);
     view.setBackgroundBrush(QPixmap(":/images/cheese.jpg"));
     view.setCacheMode(QGraphicsView::CacheBackground);
     view.setDragMode(QGraphicsView::ScrollHandDrag);

@@ -27,6 +27,7 @@ GraphWidget::GraphWidget()
     scene->setSceneRect(-200, -200, 400, 400);
     setScene(scene);
     setCacheMode(CacheBackground);
+    setRenderHint(QPainter::Antialiasing);
 
     Node *node1 = new Node(this);
     Node *node2 = new Node(this);

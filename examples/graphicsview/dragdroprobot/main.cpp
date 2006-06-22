@@ -38,6 +38,7 @@ int main(int argc, char **argv)
     scene.addItem(robot);
     
     QGraphicsView view(&scene);
+    view.setRenderHint(QPainter::Antialiasing);
     view.setBackgroundBrush(QColor(230, 200, 167));
     view.setWindowTitle("Drag and Drop Robot");
     view.show();
