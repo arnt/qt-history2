@@ -100,11 +100,7 @@ static QSize qt_initial_size(QWidget *w) {
         s.setWidth(qMax(s.width(), 200));
     if (exp & Qt::Vertical)
         s.setHeight(qMax(s.height(), 150));
-#if defined(Q_WS_X11)
-    QRect screen = QApplication::desktop()->screenGeometry(w->x11Info()->screen());
-#else // all others
     QRect screen = QApplication::desktop()->screenGeometry(w->pos());
-#endif
     s.setWidth(qMin(s.width(), screen.width()*2/3));
     s.setHeight(qMin(s.height(), screen.height()*2/3));
     int left, top, right, bottom;
@@ -275,10 +271,10 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
                                      Rect *geo, WindowPtr *w)
 {
     OSStatus ret;
-    if(geo->right == geo->left)
-        geo->right++;
-    if(geo->bottom == geo->top)
-        geo->bottom++;
+    if(geo->right <= geo->left)
+        geo->right = geo->left + 1;
+    if(geo->bottom <= geo->top)
+        geo->bottom = geo->top + 1;
     Rect null_rect; SetRect(&null_rect, 0, 0, 1, 1);
     ret = CreateNewWindow(wclass, wattr, &null_rect, w);
     if(ret == noErr) {
