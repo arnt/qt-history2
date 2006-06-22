@@ -944,7 +944,7 @@ void tst_QObject::emitToManyReceivers()
     int elapsed = 0;
 
     for (int i = 0; i < 3; ++i) {
-        const int size = int(pow(10, i + 2));
+        const int size = int(pow(10.0, i + 2));
 
         QList<SimpleReceiverObject *> receivers;
         for (int k = 0; k < size; ++k) {
