@@ -236,6 +236,21 @@
     \sa QPalette, QBrush, QApplication::setColorSpec()
 */
 
+#define QCOLOR_INT_RANGE_CHECK(fn, var) \
+    do { \
+        if (var < 0 || var > 255) { \
+            qWarning(#fn": invalid value %d", var); \
+            var = qMax(0, qMin(var, 255)); \
+        } \
+    } while (0)
+
+#define QCOLOR_REAL_RANGE_CHECK(fn, var) \
+    do { \
+        if (var < 0.0 || var > 1.0) { \
+            qWarning(#fn": invalid value %g", var); \
+            var = qMax(0.0, qMin(var, 1.0)); \
+        } \
+    } while (0)
 
 /*****************************************************************************
   QColor member functions
@@ -795,6 +810,7 @@ int QColor::alpha() const
 
 void QColor::setAlpha(int alpha)
 {
+    QCOLOR_INT_RANGE_CHECK("QColor::setAlpha", alpha);
     ct.argb.alpha = alpha * 0x101;
 }
 
@@ -817,6 +833,7 @@ qreal QColor::alphaF() const
 */
 void QColor::setAlphaF(qreal alpha)
 {
+    QCOLOR_REAL_RANGE_CHECK("QColor::setAlphaF", alpha);
     qreal tmp = alpha * USHRT_MAX;
     ct.argb.alpha = qRound(tmp);
 }
@@ -842,6 +859,7 @@ int QColor::red() const
 */
 void QColor::setRed(int red)
 {
+    QCOLOR_INT_RANGE_CHECK("QColor::setRed", red);
     ct.argb.red = red * 0x101;
 }
 
@@ -865,6 +883,7 @@ int QColor::green() const
 */
 void QColor::setGreen(int green)
 {
+    QCOLOR_INT_RANGE_CHECK("QColor::setGreen", green);
     ct.argb.green = green * 0x101;
 }
 
@@ -890,6 +909,7 @@ int QColor::blue() const
 */
 void QColor::setBlue(int blue)
 {
+    QCOLOR_INT_RANGE_CHECK("QColor::setBlue", blue);
     ct.argb.blue = blue * 0x101;
 }
 
@@ -914,6 +934,7 @@ qreal QColor::redF() const
 */
 void QColor::setRedF(qreal red)
 {
+    QCOLOR_REAL_RANGE_CHECK("QColor::setRedF", red);
     ct.argb.red = qRound(red * USHRT_MAX);
 }
 
@@ -938,6 +959,7 @@ qreal QColor::greenF() const
 */
 void QColor::setGreenF(qreal green)
 {
+    QCOLOR_REAL_RANGE_CHECK("QColor::setGreenF", green);
     ct.argb.green = qRound(green * USHRT_MAX);
 }
 
@@ -961,6 +983,7 @@ qreal QColor::blueF() const
 */
 void QColor::setBlueF(qreal blue)
 {
+    QCOLOR_REAL_RANGE_CHECK("QColor::setBlueF", blue);
     ct.argb.blue = qRound(blue * USHRT_MAX);
 }
 
