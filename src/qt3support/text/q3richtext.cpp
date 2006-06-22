@@ -1611,7 +1611,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
             if (!hasPrefix(doc, length, pos+1, QChar('/'))) {
                 // open tag
                 QMap<QString, QString> attr;
-                QMap<QString, QString>::ConstIterator it, end = attr.constEnd();
+                QMap<QString, QString>::Iterator it, end = attr.end();
                 bool emptyTag = false;
                 QString tagname = parseOpenTag(doc, length, pos, attr, emptyTag);
                 if (tagname.isEmpty())
@@ -1694,12 +1694,12 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                         custom = parseTable(attr, format, doc, length, pos, curpar);
 #endif
                     } else if (tagname == "qt" || tagname == "body") {
-                        it = attr.constFind("bgcolor");
+                        it = attr.find("bgcolor");
                         if (it != end) {
                             QBrush *b = new QBrush(QColor(*it));
                             setPaper(b);
                         }
-                        it = attr.constFind("background");
+                        it = attr.find("background");
                         if (it != end) {
 #ifndef QT_NO_MIME
                             QImage img;
@@ -1720,22 +1720,22 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                             }
 #endif
                         }
-                        it = attr.constFind("text");
+                        it = attr.find("text");
                         if (it != end) {
                             QColor c(*it);
                             initag.format.setColor(c);
                             curtag.format.setColor(c);
                             bodyText = c;
                         }
-                        it = attr.constFind("link");
+                        it = attr.find("link");
                         if (it != end)
                             linkColor = QColor(*it);
-                        it = attr.constFind("title");
+                        it = attr.find("title");
                         if (it != end)
                             attribs.insert("title", *it);
 
                         if (textEditMode) {
-                            it = attr.constFind("style");
+                            it = attr.find("style");
                             if (it != end) {
                                 QString a = *it;
                                 int count = a.count(';') + 1;
@@ -1873,7 +1873,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                         if (nstyle->name() == "ul")
                             curtag.style = sheet_->item("ol");
 
-                        it = attr.constFind("align");
+                        it = attr.find("align");
                         if (it != end) {
                             QString align = (*it).toLower();
                             if (align == "center")
@@ -1883,7 +1883,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                             else if (align == "justify")
                                 curtag.alignment = Qt::AlignJustify;
                         }
-                        it = attr.constFind("dir");
+                        it = attr.find("dir");
                         if (it != end) {
                             QString dir = (*it).toLower();
                             if (dir == "rtl")
@@ -1895,12 +1895,12 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                         NEWPAR;
 
                         if (curtag.style->displayMode() == Q3StyleSheetItem::DisplayListItem) {
-                            it = attr.constFind("value");
+                            it = attr.find("value");
                             if (it != end)
                                 curpar->setListValue((*it).toInt());
                         }
 
-                        it = attr.constFind("style");
+                        it = attr.find("style");
                         if (it != end) {
                             QString a = *it;
                             bool ok = true;
