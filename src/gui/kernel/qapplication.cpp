@@ -787,6 +787,7 @@ QWidget *QApplication::activeModalWidget()
 QApplication::~QApplication()
 {
     Q_D(QApplication);
+
 #ifndef QT_NO_CLIPBOARD
     // flush clipboard contents
     if (qt_clipboard) {
@@ -837,8 +838,11 @@ QApplication::~QApplication()
     delete QApplicationPrivate::app_font;
     QApplicationPrivate::app_font = 0;
     app_fonts()->clear();
-    QApplicationPrivate::app_style->d_func()->detach();
-    QApplicationPrivate::app_style = 0;
+
+    if (QApplicationPrivate::app_style) {
+        QApplicationPrivate::app_style->d_func()->detach();
+        QApplicationPrivate::app_style = 0;
+    }
     delete QApplicationPrivate::app_icon;
     QApplicationPrivate::app_icon = 0;
 #ifndef QT_NO_CURSOR
