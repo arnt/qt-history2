@@ -162,6 +162,8 @@ QDBusMetaObjectGenerator::findType(const QByteArray &signature,
             return result;      // invalid
 
         type = QVariant::nameToType(typeName);
+        if (type == QVariant::UserType)
+            type = QMetaType::type(typeName);
         if (type == QVariant::Invalid || signature != QDBusMetaType::typeToSignature(type))
             return result;      // unknown type is invalid too
 
@@ -327,7 +329,7 @@ void QDBusMetaObjectGenerator::parseProperties()
         mp.typeName = type.name;
 
         // build the flags:
-        mp.flags = StdCppSet | Scriptable | Stored;
+        mp.flags = StdCppSet | Scriptable | Stored | Designable;
         if (p.access != QDBusIntrospection::Property::Write)
             mp.flags |= Readable;
         if (p.access != QDBusIntrospection::Property::Read)
