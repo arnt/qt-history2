@@ -1464,12 +1464,7 @@ QModelIndexList QSortFilterProxyModel::match(const QModelIndex &start, int role,
                                              const QVariant &value, int hits,
                                              Qt::MatchFlags flags) const
 {
-    Q_D(const QSortFilterProxyModel);
-    QModelIndex source_start = d->proxy_to_source(start);
-    QModelIndexList result = d->model->match(source_start, role, value, hits, flags);
-    for (int i = 0; i < result.count(); ++i)
-        result[i] = d->source_to_proxy(result.at(i));
-    return result;
+    return QAbstractProxyModel::match(start, role, value, hits, flags);
 }
 
 /*!
