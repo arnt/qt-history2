@@ -1425,6 +1425,8 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     Q_D(QTreeView);
     Q_UNUSED(modifiers);
 
+    d->executePostedLayout();
+
     QModelIndex current = currentIndex();
     if (!current.isValid()) {
         int i = 0;
