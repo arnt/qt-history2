@@ -14,6 +14,7 @@
 #include "qdir.h"
 #include "qscreen_qws.h" //so we can check for rotation
 #include "qlibraryinfo.h"
+#include "qabstractfileengine.h"
 
 static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bool italic, int pixelSize, const char *file, bool antialiased)
 {
@@ -321,3 +322,23 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
     }
     return 0;
 }
+
+static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
+{
+    // #######
+    fnt->families.clear();
+}
+
+bool QFontDatabase::removeApplicationFont(int handle)
+{
+    Q_UNUSED(handle);
+    // #######
+    return false;
+}
+
+bool QFontDatabase::removeAllApplicationFonts()
+{
+    // #######
+    return false;
+}
+

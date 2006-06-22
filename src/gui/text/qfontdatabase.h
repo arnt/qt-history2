@@ -105,6 +105,12 @@ public:
     static QString writingSystemName(WritingSystem writingSystem);
     static QString writingSystemSample(WritingSystem writingSystem);
 
+    static int addApplicationFont(const QString &fileName);
+    static int addApplicationFontFromData(const QByteArray &fontData);
+    static QStringList applicationFontFamilies(int id);
+    static bool removeApplicationFont(int id);
+    static bool removeAllApplicationFonts();
+
 private:
     static void createDatabase();
     static void parseFontName(const QString &name, QString &foundry, QString &family);

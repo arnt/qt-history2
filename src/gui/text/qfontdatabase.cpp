@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qdir.h>
 #include "qfontdatabase.h"
 #include "qdebug.h"
 #include "qalgorithms.h"
@@ -405,20 +406,55 @@ QtFontFoundry *QtFontFamily::foundry(const QString &f, bool create)
     return foundries[count++];
 }
 
-class QFontDatabasePrivate
+class QFontDatabasePrivate : public QObject
 {
+    Q_OBJECT
 public:
-    QFontDatabasePrivate() : count(0), families(0) { }
+    QFontDatabasePrivate() : count(0), families(0), reregisterAppFonts(false) { }
     ~QFontDatabasePrivate() {
-        while (count--)
-            delete families[count];
-        free(families);
+        free();
     }
     QtFontFamily *family(const QString &f, bool = false);
+    void free() {
+        while (count--)
+            delete families[count];
+        ::free(families);
+        families = 0;
+        count = 0;
+        // don't clear the memory fonts!
+    }
 
     int count;
     QtFontFamily **families;
+
+    struct ApplicationFont {
+        QString fileName;
+        QByteArray data;
+#if defined(Q_OS_WIN)
+        HANDLE handle;
+#else
+        quint32 handle;
+#endif
+        QStringList families;
+    };
+    QVector<ApplicationFont> applicationFonts;
+    int findAppFontSlot();
+    int addAppFont(const QByteArray &fontData, const QString &fileName);
+    bool reregisterAppFonts;
+
+    void invalidate();
+
+Q_SIGNALS:
+    void fontDatabaseChanged();
 };
+
+void QFontDatabasePrivate::invalidate()
+{
+    if (QFontCache::instance)
+        QFontCache::instance->clear();
+    free();
+    emit fontDatabaseChanged();
+}
 
 QtFontFamily *QFontDatabasePrivate::family(const QString &f, bool create)
 {
@@ -643,6 +679,12 @@ static QStringList familyList(const QFontDef &req)
 #endif
 
 Q_GLOBAL_STATIC(QFontDatabasePrivate, privateDb);
+
+// used in qfontcombobox.cpp
+QObject *qt_fontdatabase_private()
+{
+    return privateDb();
+}
 
 #define SMOOTH_SCALABLE 0xffff
 
@@ -2189,3 +2231,95 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
 
 void QFontDatabase::createDatabase()
 { initializeDb(); }
+
+int QFontDatabasePrivate::findAppFontSlot()
+{
+    for (int i = 0; i < applicationFonts.count(); ++i)
+        if (applicationFonts.at(i).families.isEmpty())
+            return i;
+    applicationFonts.append(ApplicationFont());
+    return applicationFonts.count() - 1;
+}
+
+int QFontDatabasePrivate::addAppFont(const QByteArray &fontData, const QString &fileName)
+{
+    QFontDatabasePrivate::ApplicationFont font;
+    font.data = fontData;
+    font.fileName = fileName;
+
+    const int slot = findAppFontSlot();
+    if (font.fileName.isEmpty() && !fontData.isEmpty())
+        font.fileName = QString::fromLatin1(":qmemoryfonts/") + QString::number(slot);
+
+    registerFont(&font);
+    if (font.families.isEmpty())
+        return -1;
+
+    applicationFonts[slot] = font;
+
+    invalidate();
+    return slot;
+}
+
+/*!
+    Loads the font from the file specified by \a fileName and makes it available to
+    the application. An id is returned that can be used to remove the font again
+    with removeApplicationFont() or to retrieve the list of family names contained
+    in the font.
+
+    The function returns -1 if the font could not be loaded.
+
+    Currently only TrueType fonts and TrueType font collections are supported.
+*/
+int QFontDatabase::addApplicationFont(const QString &fileName)
+{
+    QByteArray data;
+    QFile f(fileName);
+    if (!(f.fileEngine()->fileFlags(QAbstractFileEngine::FlagsMask) & QAbstractFileEngine::LocalDiskFlag)) {
+        if (!f.open(QIODevice::ReadOnly))
+            return -1;
+        data = f.readAll();
+    }
+    return privateDb()->addAppFont(data, fileName);
+}
+
+/*!
+    Loads the font from binary data specified by \a fontData and makes it available to
+    the application. An id is returned that can be used to remove the font again
+    with removeApplicationFont() or to retrieve the list of family names contained
+    in the font.
+
+    The function returns -1 if the font could not be loaded.
+
+    Currently only TrueType fonts and TrueType font collections are supported.
+*/
+int QFontDatabase::addApplicationFontFromData(const QByteArray &fontData)
+{
+    return privateDb()->addAppFont(fontData, /*fileName*/QString());
+}
+
+QStringList QFontDatabase::applicationFontFamilies(int id)
+{
+    return privateDb()->applicationFonts.value(id).families;
+}
+
+/*!
+    \fn bool QFontDatabase::removeApplicationFont(int handle)
+
+    Removes a previously loaded application font.
+    Returns true if unloading of the font succeeded, false otherwise.
+
+    \sa addApplicationFont(), addApplicationFontFromData()
+*/
+
+/*!
+    \fn bool QFontDatabase::removeAllApplicationFonts()
+
+    Removes all application-local fonts previously added using addApplicationFont()
+    and addApplicationFontFromData().
+
+    Returns true if unloading of the fonts succeeded, false otherwise.
+*/
+
+#include "qfontdatabase.moc"
+

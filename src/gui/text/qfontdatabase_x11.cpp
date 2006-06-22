@@ -20,6 +20,9 @@
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
 #include <qdebug.h>
+#include <qfile.h>
+#include <qtemporaryfile.h>
+#include <qabstractfileengine.h>
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -1186,7 +1189,7 @@ static void load(const QString &family = QString(), int script = -1)
 
 static void checkSymbolFont(QtFontFamily *family)
 {
-    if (family->symbol_checked || family->fontFilename.isEmpty())
+    if (!family || family->symbol_checked || family->fontFilename.isEmpty())
         return;
 //     qDebug() << "checking " << family->rawName;
     family->symbol_checked = true;
@@ -1229,6 +1232,7 @@ static void checkSymbolFonts(const QString &family = QString())
 #endif
 }
 
+static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt);
 
 static void initializeDb()
 {
@@ -1240,6 +1244,14 @@ static void initializeDb()
     t.start();
 
 #ifndef QT_NO_FONTCONFIG
+    if (db->reregisterAppFonts) {
+        db->reregisterAppFonts = false;
+        for (int i = 0; i < db->applicationFonts.count(); ++i)
+            if (!db->applicationFonts.at(i).families.isEmpty()) {
+                registerFont(&db->applicationFonts[i]);
+            }
+    }
+
     loadFontConfig();
     FD_DEBUG("QFontDatabase: loaded FontConfig: %d ms", t.elapsed());
 #endif
@@ -1546,6 +1558,7 @@ static QFontEngine *tryPatternLoad(FcPattern *p, int screen,
     FcResult res;
     FcPattern *match = FcFontMatch(0, pattern, &res);
     QFontEngineFT *engine = new QFontEngineFT(match, qt_FcPatternToQFontDef(match, request), screen);
+    FcPatternDestroy(pattern);
     if (engine->invalid()) {
         FM_DEBUG("   --> invalid!\n");
         delete engine;
@@ -1817,5 +1830,103 @@ void QFontDatabase::load(const QFontPrivate *d, int script)
         fe->ref.ref();
     }
     QFontCache::instance->insertEngine(key, fe);
+}
+
+// used from qfontengine_x11.cpp
+QByteArray qt_fontdata_from_index(int index)
+{
+    return privateDb()->applicationFonts.value(index).data;
+}
+
+static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
+{
+#if defined(QT_NO_FONTCONFIG)
+    return;
+#else
+    if (!X11->has_fontconfig)
+        return;
+
+    FcConfig *config = FcConfigGetCurrent();
+    if (!config)
+        return;
+
+    FcFontSet *set = FcConfigGetFonts(config, FcSetApplication);
+    if (!set) {
+        FcConfigAppFontAddFile(config, (const FcChar8 *)":/non-existant");
+        set = FcConfigGetFonts(config, FcSetApplication); // try again
+        if (!set)
+            return;
+    }
+
+    QString fileNameForQuery = fnt->fileName;
+    QTemporaryFile tmp;
+
+    if (!fnt->data.isEmpty()) {
+        if (!tmp.open())
+            return;
+        tmp.write(fnt->data);
+        tmp.flush();
+        fileNameForQuery = tmp.fileName();
+    }
+
+    int id = 0;
+    FcBlanks *blanks = FcConfigGetBlanks(0);
+    int count = 0;
+
+    QStringList families;
+
+    FcPattern *pattern = 0;
+    do {
+        pattern = FcFreeTypeQuery((const FcChar8 *)QFile::encodeName(fileNameForQuery).constData(),
+                                  id, blanks, &count);
+        if (!pattern)
+            return;
+
+        FcPatternDel(pattern, FC_FILE);
+        FcPatternAddString(pattern, FC_FILE, (const FcChar8 *)fnt->fileName.toUtf8().constData());
+
+        FcChar8 *fam = 0;
+        if (FcPatternGetString(pattern, FC_FAMILY, 0, &fam) == FcResultMatch) {
+            QString family = QString::fromUtf8(reinterpret_cast<const char *>(fam));
+            family.replace(QLatin1Char('-'), QLatin1Char(' '));
+            family.remove(QLatin1Char('/'));
+            families << family;
+        }
+
+        if (!FcFontSetAdd(set, pattern))
+            return;
+
+        ++id;
+    } while (pattern && id < count);
+
+    fnt->families = families;
+#endif
+}
+
+bool QFontDatabase::removeApplicationFont(int handle)
+{
+    QFontDatabasePrivate *db = privateDb();
+    if (handle < 0 || handle >= db->applicationFonts.count())
+        return false;
+
+    FcConfigAppFontClear(0);
+
+    db->applicationFonts[handle] = QFontDatabasePrivate::ApplicationFont();
+
+    db->reregisterAppFonts = true;
+    db->invalidate();
+    return true;
+}
+
+bool QFontDatabase::removeAllApplicationFonts()
+{
+    QFontDatabasePrivate *db = privateDb();
+    if (db->applicationFonts.isEmpty())
+        return false;
+
+    FcConfigAppFontClear(0);
+    db->applicationFonts.clear();
+    db->invalidate();
+    return true;
 }
 

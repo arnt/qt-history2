@@ -2110,7 +2110,6 @@ QFontCache::~QFontCache()
     instance = 0;
 }
 
-#ifdef Q_WS_QWS
 void QFontCache::clear()
 {
     {
@@ -2118,32 +2117,41 @@ void QFontCache::clear()
                                  end = engineDataCache.end();
         while (it != end) {
             QFontEngineData *data = it.value();
-            if (data->engine)
+#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+            for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
+                if (data->engines[i]) {
+                    data->engines[i]->ref.deref();
+                    data->engines[i] = 0;
+                }
+            }
+#else
+            if (data->engine) {
                 data->engine->ref.deref();
-            data->engine = 0;
+                data->engine = 0;
+            }
+#endif
             ++it;
         }
     }
 
-    EngineCache::Iterator it = engineCache.begin(),
-                         end = engineCache.end();
-    while (it != end) {
-        if (--it.value().data->cache_count == 0) {
-            if (it.value().data->ref == 0) {
-                FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %g %d %d %d %d)",
-                         it.value().data, it.key().script, it.key().def.pointSize,
-                         it.key().def.pixelSize, it.key().def.weight, it.key().def.style,
-                         it.key().def.fixedPitch);
-                delete it.value().data;
-            } else {
-                FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
-                         it.value().data, it.value().data->ref.atomic);
-            }
+    for (EngineCache::Iterator it = engineCache.begin(), end = engineCache.end();
+         it != end; ++it) {
+        if (it->data->ref == 0) {
+            delete it->data;
+            it->data = 0;
         }
-        ++it;
     }
+
+    for (EngineCache::Iterator it = engineCache.begin(), end = engineCache.end();
+         it != end; ++it) {
+        if (it->data && it->data->ref == 0) {
+            delete it->data;
+            it->data = 0;
+        }
+    }
+
+    engineCache.clear();
 }
-#endif
 
 QFontEngineData *QFontCache::findEngineData(const Key &key) const
 {

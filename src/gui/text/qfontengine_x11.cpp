@@ -26,6 +26,7 @@
 #include "qwidget.h"
 #include "qsettings.h"
 #include "qfile.h"
+#include "qabstractfileengine.h"
 
 #include <private/qpaintengine_x11_p.h>
 #include "qfont.h"
@@ -113,6 +114,7 @@ private:
     ~QFreetypeFace() {}
     QAtomic ref;
     QAtomic _lock;
+    QByteArray fontData;
 };
 
 static FT_Library library = 0;
@@ -145,10 +147,32 @@ QFreetypeFace *QFreetypeFace::getFace(const QFontEngine::FaceId &face_id)
 
     QFreetypeFace *freetype = freetypeFaces->value(face_id, 0);
     if (!freetype) {
-        FT_Face face;
-        if (FT_New_Face(library, face_id.filename, face_id.index, &face))
-            return 0;
         freetype = new QFreetypeFace;
+        FT_Face face;
+        QFile file(QString::fromUtf8(face_id.filename));
+        if (face_id.filename.startsWith(":qmemoryfonts/")) {
+            // from qfontdatabase_x11.cpp
+            extern QByteArray qt_fontdata_from_index(int);
+            QByteArray idx = face_id.filename;
+            idx.remove(0, 14); // remove ':qmemoryfonts/'
+            bool ok = false;
+            freetype->fontData = qt_fontdata_from_index(idx.toInt(&ok));
+            if (!ok)
+                freetype->fontData = QByteArray();
+        } else if (!(file.fileEngine()->fileFlags(QAbstractFileEngine::FlagsMask) & QAbstractFileEngine::LocalDiskFlag)) {
+            if (!file.open(QIODevice::ReadOnly))
+                return 0;
+            freetype->fontData = file.readAll();
+        }
+        if (!freetype->fontData.isEmpty()) {
+            if (FT_New_Memory_Face(library, (const FT_Byte *)freetype->fontData.constData(), freetype->fontData.size(), face_id.index, &face)) {
+                delete freetype;
+                return 0;
+            }
+        } else if (FT_New_Face(library, face_id.filename, face_id.index, &face)) {
+            delete freetype;
+            return 0;
+        }
         freetype->face = face;
         freetype->ref = 0;
         freetype->_lock = 0;

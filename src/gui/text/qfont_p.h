@@ -201,9 +201,7 @@ public:
     QFontCache();
     ~QFontCache();
 
-#ifdef Q_WS_QWS
     void clear();
-#endif
     // universal key structure.  QFontEngineDatas and QFontEngines are cached using
     // the same keys
     struct Key {

@@ -165,14 +165,14 @@ public:
     QFontComboBox::FontFilters filters;
     QFont currentFont;
 
-    void updateModel();
+    void _q_updateModel();
     void _q_currentChanged(const QString &);
 
     Q_DECLARE_PUBLIC(QFontComboBox)
 };
 
 
-void QFontComboBoxPrivate::updateModel()
+void QFontComboBoxPrivate::_q_updateModel()
 {
     Q_Q(QFontComboBox);
     const int scalableMask = (QFontComboBox::ScalableFonts | QFontComboBox::NonScalableFonts);
@@ -266,6 +266,11 @@ QFontComboBox::QFontComboBox(QWidget *parent)
 
     connect(this, SIGNAL(currentIndexChanged(const QString &)),
             this, SLOT(_q_currentChanged(const QString &)));
+
+    // qfontdatabase.cpp
+    extern QObject *qt_fontdatabase_private();
+    connect(qt_fontdatabase_private(), SIGNAL(fontDatabaseChanged()),
+            this, SLOT(_q_updateModel()));
 }
 
 
@@ -292,7 +297,7 @@ void QFontComboBox::setWritingSystem(QFontDatabase::WritingSystem script)
     QFontFamilyDelegate *delegate = qobject_cast<QFontFamilyDelegate *>(view()->itemDelegate());
     if (delegate)
         delegate->writingSystem = script;
-    d->updateModel();
+    d->_q_updateModel();
 }
 
 QFontDatabase::WritingSystem QFontComboBox::writingSystem() const
@@ -328,7 +333,7 @@ void QFontComboBox::setFontFilters(FontFilters filters)
 {
     Q_D(QFontComboBox);
     d->filters = filters;
-    d->updateModel();
+    d->_q_updateModel();
 }
 
 QFontComboBox::FontFilters QFontComboBox::fontFilters() const
@@ -353,7 +358,7 @@ void QFontComboBox::setCurrentFont(const QFont &font)
 {
     Q_D(QFontComboBox);
     d->currentFont = font;
-    d->updateModel();
+    d->_q_updateModel();
 }
 
 /*!
