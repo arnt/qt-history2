@@ -4017,6 +4017,10 @@ void QApplication::setInputContext(QInputContext *inputContext)
 {
     Q_D(QApplication);
     Q_UNUSED(d);// only static members being used.
+    if (!inputContext) {
+        qWarning("QApplication::setInputContext: called with 0 input context");
+        return;
+    }
     if (d->inputContext)
         delete d->inputContext;
     d->inputContext = inputContext;
