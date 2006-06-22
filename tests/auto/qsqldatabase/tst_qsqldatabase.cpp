@@ -131,14 +131,13 @@ void tst_QSqlDatabase::getSetCheck()
     // int QSqlDatabase::port()
     // void QSqlDatabase::setPort(int)
     obj1.setPort(1234);
-    int currentPortNum = obj1.port();
-    QCOMPARE(currentPortNum, 1234);
+    QCOMPARE(obj1.port(), 1234);
     obj1.setPort(0);
-    QCOMPARE(currentPortNum, obj1.port()); // 0 is not a valid port number, expect to keep current
+    QCOMPARE(obj1.port(), 0); // 0 is a valid port number for MySQL
     obj1.setPort(INT_MIN);
-    QCOMPARE(currentPortNum, obj1.port()); // Negative numbers are not valid port numbers, expect to keep current
+    QCOMPARE(obj1.port(), INT_MIN);
     obj1.setPort(INT_MAX);
-    QCOMPARE(INT_MAX, obj1.port());
+    QCOMPARE(obj1.port(), INT_MAX);
 }
 
 // number of records to be inserted per testfunction
