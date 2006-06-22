@@ -958,6 +958,8 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WFlags f)
 
     extraPaintEngine = 0;
 
+    if (QApplicationPrivate::app_compile_version < 0x040200)
+        createWinId();
 }
 
 
@@ -1599,21 +1601,41 @@ QWidget *QWidget::find(WId id)
     Portable in principle, but if you use it you are probably about to
     do something non-portable. Be careful.
 
-    Call createWinId() to make sure that the widget has a window system identifier.
-
     \sa find()
 */
 
 
-/*!
-  Ensures that the widget has a window system identifier, i.e. that it is known to the windowing system.
+WId QWidget::winId() const
+{
+    if (!testAttribute(Qt::WA_WState_Created)) {
+        QWidget *that = const_cast<QWidget*>(this);
+        that->d_func()->createWinId();
+        return that->data->winid;
+    }
+    return data->winid;
+}
 
+
+void QWidgetPrivate::createWinId()
+ {
+     Q_Q(QWidget);
+     if (!q->testAttribute(Qt::WA_WState_Created))
+         q->window()->d_func()->createRecursively();
+ }
+
+
+/*!
+\internal
+Ensures that the widget has a window system identifier, i.e. that it is known to the windowing system.
+
+### going away ###
 */
 
 void QWidget::createWinId()
 {
-    if (!testAttribute(Qt::WA_WState_Created))
-        window()->d_func()->createRecursively();
+    Q_D(QWidget);
+    qWarning("QWidget::createWinId is obsolete, please fix your code.");
+    d->createWinId();
 }
 
 /*!

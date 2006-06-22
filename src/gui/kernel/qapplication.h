@@ -68,14 +68,14 @@ class Q_GUI_EXPORT QApplication : public QCoreApplication
     Q_PROPERTY(bool quitOnLastWindowClosed  READ quitOnLastWindowClosed WRITE setQuitOnLastWindowClosed)
     Q_PROPERTY(QString styleSheet READ styleSheet WRITE setStyleSheet)
 
-public:
-    QApplication(int &argc, char **argv);
-    QApplication(int &argc, char **argv, bool GUIenabled);
+        public:
+    QApplication(int &argc, char **argv, int = QT_VERSION);
+    QApplication(int &argc, char **argv, bool GUIenabled, int = QT_VERSION);
     enum Type { Tty, GuiClient, GuiServer };
-    QApplication(int &argc, char **argv, Type);
+    QApplication(int &argc, char **argv, Type, int = QT_VERSION);
 #if defined(Q_WS_X11)
-    QApplication(Display* dpy, Qt::HANDLE visual = 0, Qt::HANDLE cmap = 0);
-    QApplication(Display *dpy, int &argc, char **argv, Qt::HANDLE visual = 0, Qt::HANDLE cmap= 0);
+    QApplication(Display* dpy, Qt::HANDLE visual = 0, Qt::HANDLE cmap = 0, int = QT_VERSION);
+    QApplication(Display *dpy, int &argc, char **argv, Qt::HANDLE visual = 0, Qt::HANDLE cmap= 0, int = QT_VERSION);
 #endif
     virtual ~QApplication();
 
@@ -280,6 +280,16 @@ public:
     static inline QT3_SUPPORT QWidget *widgetAt(const QPoint &p, bool child)
         { QWidget *w = widgetAt(p); return child ? w : (w ? w->window() : 0); }
 #endif // QT3_SUPPORT
+
+#ifdef Q_INTERNAL_QAPP_SRC
+    QApplication(int &argc, char **argv);
+    QApplication(int &argc, char **argv, bool GUIenabled);
+    QApplication(int &argc, char **argv, Type);
+#if defined(Q_WS_X11)
+    QApplication(Display* dpy, Qt::HANDLE visual = 0, Qt::HANDLE cmap = 0);
+    QApplication(Display *dpy, int &argc, char **argv, Qt::HANDLE visual = 0, Qt::HANDLE cmap= 0);
+#endif
+#endif
 
 private:
     Q_DISABLE_COPY(QApplication)

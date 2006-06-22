@@ -183,7 +183,7 @@ public:
     int devType() const;
 
     WId winId() const;
-    void createWinId();
+    void Q_DECL_DEPRECATED createWinId(); // ### going away ###
 
     // GUI style setting
     QStyle *style() const;
@@ -781,9 +781,6 @@ inline Qt::WindowType QWidget::windowType() const
 { return static_cast<Qt::WindowType>(int(data->window_flags & Qt::WindowType_Mask)); }
 inline Qt::WindowFlags QWidget::windowFlags() const
 { return data->window_flags; }
-
-inline WId QWidget::winId() const
-{ return data->winid; }
 
 inline bool QWidget::isTopLevel() const
 { return (windowType() & Qt::Window); }

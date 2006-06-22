@@ -166,6 +166,7 @@ public:
     void create_sys(WId window, bool initializeWindow, bool destroyOldWindow);
     void createRecursively();
     void uncreateRecursively(bool includeThis = true);
+    void createWinId();
 
     void createTLExtra();
     void createExtra();

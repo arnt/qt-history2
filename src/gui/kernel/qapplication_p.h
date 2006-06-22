@@ -286,6 +286,8 @@ public:
 
     static QString *styleOverride;
 
+    static int app_compile_version;
+
 #ifdef QT_KEYPAD_NAVIGATION
     static bool keypadNavigation;
     static QWidget *oldEditFocus;

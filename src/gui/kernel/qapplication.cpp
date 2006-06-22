@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#define Q_INTERNAL_QAPP_SRC
 
 #include "qabstracteventdispatcher.h"
 #include "qaccessible.h"
@@ -58,6 +59,10 @@ extern void qt_call_post_routines();
 
 #include "qapplication_p.h"
 #include "qwidget_p.h"
+
+#include "qapplication.h"
+
+int QApplicationPrivate::app_compile_version = 0x040000; //we don't know exactly, but it's at least 4.0.0
 
 QApplication::Type qt_appType=QApplication::Tty;
 QApplicationPrivate *QApplicationPrivate::self = 0;
@@ -556,6 +561,10 @@ QApplication::QApplication(int &argc, char **argv)
     : QCoreApplication(*new QApplicationPrivate(argc, argv, GuiClient))
 { Q_D(QApplication); d->construct(); }
 
+QApplication::QApplication(int &argc, char **argv, int _internal)
+    : QCoreApplication(*new QApplicationPrivate(argc, argv, GuiClient))
+{ Q_D(QApplication); d->construct(); QApplicationPrivate::app_compile_version = _internal;}
+
 
 /*!
     Constructs an application object with \a argc command line arguments
@@ -600,6 +609,12 @@ QApplication::QApplication(int &argc, char **argv, bool GUIenabled )
     : QCoreApplication(*new QApplicationPrivate(argc, argv, GUIenabled ? GuiClient : Tty))
 { Q_D(QApplication); d->construct(); }
 
+QApplication::QApplication(int &argc, char **argv, bool GUIenabled , int _internal)
+    : QCoreApplication(*new QApplicationPrivate(argc, argv, GUIenabled ? GuiClient : Tty))
+{ Q_D(QApplication); d->construct();  QApplicationPrivate::app_compile_version = _internal;}
+
+
+
 /*!
   Constructs an application object with \a argc command line arguments
   in \a argv.
@@ -611,6 +626,11 @@ QApplication::QApplication(int &argc, char **argv, bool GUIenabled )
 QApplication::QApplication(int &argc, char **argv, Type type)
     : QCoreApplication(*new QApplicationPrivate(argc, argv, type))
 { Q_D(QApplication); d->construct(); }
+
+QApplication::QApplication(int &argc, char **argv, Type type , int _internal)
+    : QCoreApplication(*new QApplicationPrivate(argc, argv, type))
+{ Q_D(QApplication); d->construct();  QApplicationPrivate::app_compile_version = _internal;}
+
 
 /*!
     \internal
@@ -671,6 +691,16 @@ QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
     d->construct(dpy, visual, colormap);
 }
 
+QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap, int _internal)
+    : QCoreApplication(*new QApplicationPrivate(aargc, aargv, GuiClient))
+{
+    if (! dpy)
+        qWarning("QApplication: Invalid Display* argument");
+    Q_D(QApplication);
+    d->construct(dpy, visual, colormap);
+    QApplicationPrivate::app_compile_version = _internal;
+}
+
 /*!
   \fn QApplication::QApplication(Display *display, int &argc, char **argv,
                            Qt::HANDLE visual, Qt::HANDLE colormap)
@@ -696,6 +726,16 @@ QApplication::QApplication(Display *dpy, int &argc, char **argv,
     d->construct(dpy, visual, colormap);
 }
 
+QApplication::QApplication(Display *dpy, int &argc, char **argv,
+                           Qt::HANDLE visual, Qt::HANDLE colormap, int _internal)
+    : QCoreApplication(*new QApplicationPrivate(argc, argv, GuiClient))
+{
+    if (! dpy)
+        qWarning("QApplication: Invalid Display* argument");
+    Q_D(QApplication);
+    d->construct(dpy, visual, colormap);
+    QApplicationPrivate::app_compile_version = _internal;
+}
 
 #endif // Q_WS_X11
 
