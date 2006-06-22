@@ -4845,6 +4845,10 @@ void Q3TextEdit::updateStyles()
 
 void Q3TextEdit::setDocument(Q3TextDocument *dc)
 {
+    if (dc == 0) {
+        qWarning("Q3TextEdit::setDocument() called with null Q3TextDocument pointer");
+        return;
+    }
     if (dc == doc)
         return;
     doc = dc;
