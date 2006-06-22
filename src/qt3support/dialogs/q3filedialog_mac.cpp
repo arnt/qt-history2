@@ -302,9 +302,10 @@ QStringList Q3FileDialog::macGetOpenFileNames(const QString &filter, QString *pw
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
         QWidget modal_widg(parent, __FILE__ "__modal_dlg",
                            Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
+        modal_widg.createWinId();
         QApplicationPrivate::enterModal(&modal_widg);
         while(g_nav_blocking)
-            qApp->processEvents();
+            qApp->processEvents(QEventLoop::WaitForMoreEvents);
         QApplicationPrivate::leaveModal(&modal_widg);
     }
 
@@ -471,9 +472,10 @@ QString Q3FileDialog::macGetSaveFileName(const QString &start, const QString &fi
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
         QWidget modal_widg(parent, __FILE__ "__modal_dlg",
                            Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
+        modal_widg.createWinId();
         QApplicationPrivate::enterModal(&modal_widg);
         while(g_nav_blocking)
-            qApp->processEvents();
+            qApp->processEvents(QEventLoop::WaitForMoreEvents);
         QApplicationPrivate::leaveModal(&modal_widg);
     }
 
