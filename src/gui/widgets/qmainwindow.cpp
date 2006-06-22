@@ -841,8 +841,19 @@ bool QMainWindow::event(QEvent *event)
             if (!d->hoverSeparator.isEmpty())
                 update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
             d->hoverSeparator = pathToSeparator;
-            if (!d->hoverSeparator.isEmpty())
+            if (d->hoverSeparator.isEmpty()) {
+                unsetCursor();
+            } else {
                 update(d->layout->dockWidgetLayout.separatorRect(d->hoverSeparator));
+                QDockAreaLayoutInfo *info = d->layout->dockWidgetLayout.info(d->hoverSeparator);
+                Q_ASSERT(info != 0);
+                QCursor cursor;
+                if (d->hoverSeparator.size() == 1)
+                    cursor = info->o == Qt::Horizontal ? Qt::SplitVCursor : Qt::SplitHCursor;
+                else
+                    cursor = info->o == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor;
+                setCursor(cursor);
+            }
         }
         d->hoverPos = e->pos();
         return true;

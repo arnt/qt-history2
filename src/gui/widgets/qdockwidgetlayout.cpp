@@ -821,7 +821,7 @@ bool QDockAreaLayoutInfo::insertGap(QList<int> path, QWidgetItem *dockWidgetItem
 QDockAreaLayoutInfo *QDockAreaLayoutInfo::info(QList<int> path)
 {
     int index = path.takeFirst();
-    if (index >= 0 && index < item_list.count())
+    if (index < 0 || index >= item_list.count())
         return this;
     if (path.isEmpty() || item_list.at(index).subinfo == 0)
         return this;
