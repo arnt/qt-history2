@@ -394,7 +394,7 @@ void tst_QTableView::moveCursorDownInOpenEditor()
     QTest::keyClick(fw, Qt::Key_9);
     qApp->processEvents();
     QWidget *editor = view.focusWidget();
-    
+
     QTest::keyClick(qApp->focusWidget(), Qt::Key_Down);
     qApp->processEvents();
     QVariant val = model.data(idx00, Qt::DisplayRole);
@@ -404,7 +404,7 @@ void tst_QTableView::moveCursorDownInOpenEditor()
     QTest::keyClick(qApp->focusWidget(), Qt::Key_Down);
     qApp->processEvents();
     QCOMPARE(view.currentIndex(), model.index(2,0));
-    
+
     // And finally, the focusWidget should be the view, not the editor.
     QCOMPARE((void*)qApp->focusWidget(), (void*)&view);
 }
@@ -699,7 +699,7 @@ void tst_QTableView::moveCursor_data()
         << (int)Qt::NoModifier
         << 1 << 3
         << 0 << -1;
- 
+
     // Use Ctrl modifier
     QTest::newRow("MoveHome + Ctrl (0,0)")
         << 0 << 0
@@ -822,6 +822,7 @@ void tst_QTableView::moveCursor()
     view1.setModel(&model);
     if (hideColumn != -1) view1.setColumnHidden(hideColumn, true);
     if (hideRow != -1) view1.setRowHidden(hideRow, true);
+    view1.show();
 
     QModelIndex index = model.index(starty,startx);
     view1.setCurrentIndex(index);
@@ -881,7 +882,7 @@ void tst_QTableView::selectRow_data()
         << (int)QAbstractItemView::SingleSelection
         << (int)QAbstractItemView::SelectItems
         << false;
-    
+
     QTest::newRow("SingleSelection and SelectRows")
         << 0
         << (int)QAbstractItemView::SingleSelection
@@ -899,7 +900,7 @@ void tst_QTableView::selectRow_data()
         << (int)QAbstractItemView::MultiSelection
         << (int)QAbstractItemView::SelectItems
         << true;
-    
+
     QTest::newRow("MultiSelection and SelectRows")
         << 0
         << (int)QAbstractItemView::MultiSelection
@@ -917,13 +918,13 @@ void tst_QTableView::selectRow_data()
         << (int)QAbstractItemView::ExtendedSelection
         << (int)QAbstractItemView::SelectItems
         << true;
-    
+
     QTest::newRow("ExtendedSelection and SelectRows")
         << 0
         << (int)QAbstractItemView::ExtendedSelection
         << (int)QAbstractItemView::SelectRows
         << true;
-    
+
     QTest::newRow("ExtendedSelection and SelectColumns")
         << 0
         << (int)QAbstractItemView::ExtendedSelection
@@ -935,7 +936,7 @@ void tst_QTableView::selectRow_data()
         << (int)QAbstractItemView::ContiguousSelection
         << (int)QAbstractItemView::SelectItems
         << true;
-    
+
     QTest::newRow("ContiguousSelection and SelectRows")
         << 0
         << (int)QAbstractItemView::ContiguousSelection
