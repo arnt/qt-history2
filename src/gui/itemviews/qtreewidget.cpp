@@ -1445,7 +1445,7 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
                 }
             }
         }
-        break;
+        // Don't break, but fall through
     default:
         if (column < values.count()) {
             bool found = false;
@@ -1491,9 +1491,8 @@ QVariant QTreeWidgetItem::data(int column, int role) const
         break;
     case Qt::CheckStateRole:
         // special case for check state in tristate
-        if(children.count() && itemFlags & Qt::ItemIsTristate)
+        if (children.count() && (itemFlags & Qt::ItemIsTristate))
             return childrenCheckState(column);
-        break;
    default:
         if (column >= 0 && column < values.size()) {
             const QVector<QWidgetItemData> &column_values = values.at(column);
@@ -1677,7 +1676,7 @@ void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &c
     if (model) model->beginInsertItems(this, index, children.count());
     for (int n = 0; n < children.count(); ++n) {
         QTreeWidgetItem *child = children.at(n);
-        if(child->view || child->par)
+        if (child->view || child->par)
             continue;
         if (view && model) {
             QStack<QTreeWidgetItem*> stack;
@@ -2801,7 +2800,7 @@ void QTreeWidget::dropEvent(QDropEvent *event) {
         if (d->dropOn(event, &row, &col, &topIndex)) {
             QList<QModelIndex> idxs = selectedIndexes();
             QList<QPersistentModelIndex> indexes;
-            for(int i = 0; i < idxs.count(); i++)
+            for (int i = 0; i < idxs.count(); i++)
                 indexes.append(idxs.at(i));
 
             if (indexes.contains(topIndex))
