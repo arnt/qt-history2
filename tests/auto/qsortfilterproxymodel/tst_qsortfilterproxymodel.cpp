@@ -19,6 +19,18 @@
 //TESTED CLASS=
 //TESTED_FILES=gui/itemviews/qmappingproxymodel.h gui/itemviews/qmappingproxymodel.cpp
 
+#if QT_VERSION >= 0x040200
+
+typedef QList<int> IntList;
+typedef QPair<int, int> IntPair;
+typedef QList<IntPair> IntPairList;
+
+Q_DECLARE_METATYPE(IntList)
+Q_DECLARE_METATYPE(IntPair)
+Q_DECLARE_METATYPE(IntPairList)
+
+#endif // QT_VERSION
+
 class tst_QSortFilterProxyModel : public QObject
 {
     Q_OBJECT
@@ -68,6 +80,8 @@ private slots:
     void changeSourceData();
     void sortFilterRole();
     void selectionFilteredOut();
+    void match_data();
+    void match();
 #endif // QT_VERSION
 
 protected:
@@ -107,6 +121,9 @@ tst_QSortFilterProxyModel::~tst_QSortFilterProxyModel()
 void tst_QSortFilterProxyModel::initTestCase()
 {
     qRegisterMetaType<QModelIndex>("QModelIndex");
+    qRegisterMetaType<IntList>("IntList");
+    qRegisterMetaType<IntPair>("IntPair");
+    qRegisterMetaType<IntPairList>("IntPairList");
     model = new QStandardItemModel(0, 1);
     proxy = new QSortFilterProxyModel();
     proxy->setSourceModel(model);
@@ -948,12 +965,6 @@ void tst_QSortFilterProxyModel::filterCurrent()
 
 #if QT_VERSION >= 0x040200
 
-typedef QPair<int, int> IntPair;
-typedef QList<IntPair> IntPairList;
-
-Q_DECLARE_METATYPE(IntPair)
-Q_DECLARE_METATYPE(IntPairList)
-
 void tst_QSortFilterProxyModel::removeSourceRows_data()
 {
     QTest::addColumn<QStringList>("sourceItems");
@@ -1485,6 +1496,99 @@ void tst_QSortFilterProxyModel::selectionFilteredOut()
     QCOMPARE(spy.count(), 1);
     proxy.setFilterRegExp(QRegExp("^B"));
     QCOMPARE(spy.count(), 2);
+}
+
+void tst_QSortFilterProxyModel::match_data()
+{
+    QTest::addColumn<QStringList>("sourceItems");
+    QTest::addColumn<int>("sortOrder");
+    QTest::addColumn<QString>("filter");
+    QTest::addColumn<int>("proxyStartRow");
+    QTest::addColumn<QString>("what");
+    QTest::addColumn<int>("matchFlags");
+    QTest::addColumn<IntList>("expectedProxyItems");
+    QTest::newRow("1")
+        << (QStringList() << "a") // sourceItems
+        << static_cast<int>(Qt::AscendingOrder) // sortOrder
+        << "" // filter
+        << 0 // proxyStartRow
+        << "a" // what
+        << static_cast<int>(Qt::MatchExactly) // matchFlags
+        << (IntList() << 0); // expectedProxyItems
+    QTest::newRow("2")
+        << (QStringList() << "a" << "b") // sourceItems
+        << static_cast<int>(Qt::AscendingOrder) // sortOrder
+        << "" // filter
+        << 0 // proxyStartRow
+        << "b" // what
+        << static_cast<int>(Qt::MatchExactly) // matchFlags
+        << (IntList() << 1); // expectedProxyItems
+    QTest::newRow("3")
+        << (QStringList() << "a" << "b") // sourceItems
+        << static_cast<int>(Qt::DescendingOrder) // sortOrder
+        << "" // filter
+        << 0 // proxyStartRow
+        << "a" // what
+        << static_cast<int>(Qt::MatchExactly) // matchFlags
+        << (IntList() << 1); // expectedProxyItems
+    QTest::newRow("4")
+        << (QStringList() << "b" << "d" << "a" << "c") // sourceItems
+        << static_cast<int>(Qt::AscendingOrder) // sortOrder
+        << "" // filter
+        << 1 // proxyStartRow
+        << "a" // what
+        << static_cast<int>(Qt::MatchExactly) // matchFlags
+        << IntList(); // expectedProxyItems
+    QTest::newRow("5")
+        << (QStringList() << "b" << "d" << "a" << "c") // sourceItems
+        << static_cast<int>(Qt::AscendingOrder) // sortOrder
+        << "a|b" // filter
+        << 0 // proxyStartRow
+        << "c" // what
+        << static_cast<int>(Qt::MatchExactly) // matchFlags
+        << IntList(); // expectedProxyItems
+    QTest::newRow("6")
+        << (QStringList() << "b" << "d" << "a" << "c") // sourceItems
+        << static_cast<int>(Qt::DescendingOrder) // sortOrder
+        << "a|b" // filter
+        << 0 // proxyStartRow
+        << "b" // what
+        << static_cast<int>(Qt::MatchExactly) // matchFlags
+        << (IntList() << 0); // expectedProxyItems
+}
+
+void tst_QSortFilterProxyModel::match()
+{
+    QFETCH(QStringList, sourceItems);
+    QFETCH(int, sortOrder);
+    QFETCH(QString, filter);
+    QFETCH(int, proxyStartRow);
+    QFETCH(QString, what);
+    QFETCH(int, matchFlags);
+    QFETCH(IntList, expectedProxyItems);
+
+    QStandardItemModel model;
+    QSortFilterProxyModel proxy;
+
+    proxy.setSourceModel(&model);
+    model.insertColumns(0, 1);
+    model.insertRows(0, sourceItems.count());
+
+    for (int i = 0; i < sourceItems.count(); ++i) {
+        QModelIndex index = model.index(i, 0, QModelIndex());
+        model.setData(index, sourceItems.at(i), Qt::DisplayRole);
+    }
+
+    proxy.sort(0, static_cast<Qt::SortOrder>(sortOrder));
+    proxy.setFilterRegExp(filter);
+
+    QModelIndex startIndex = proxy.index(proxyStartRow, 0);
+    QModelIndexList indexes = proxy.match(startIndex, Qt::DisplayRole, what,
+                                          expectedProxyItems.count(),
+                                          static_cast<Qt::MatchFlags>(matchFlags));
+    QCOMPARE(indexes.count(), expectedProxyItems.count());
+    for (int i = 0; i < indexes.count(); ++i)
+        QCOMPARE(indexes.at(i).row(), expectedProxyItems.at(i));
 }
 
 #endif // QT_VERSION
