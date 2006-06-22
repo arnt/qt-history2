@@ -942,9 +942,10 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WFlags f)
         q->create();
     else if (parentWidget)
         q->setParent(parentWidget, data.window_flags);
-    else
+    else {
         adjustFlags(data.window_flags, q);
-
+        resolveLayoutDirection();
+    }
 #if defined(Q_WS_X11)
     data.fnt.x11SetScreen(xinfo.screen());
 #endif // Q_WS_X11
