@@ -10,8 +10,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#define Q_INTERNAL_QAPP_SRC
-
 #include "qabstracteventdispatcher.h"
 #include "qaccessible.h"
 #include "qapplication.h"
