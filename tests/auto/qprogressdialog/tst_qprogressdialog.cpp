@@ -85,8 +85,14 @@ void tst_QProgressDialog::getSetCheck()
     QCOMPARE(INT_MIN, obj1.value());
     obj1.setValue(INT_MAX-1);
     QCOMPARE(INT_MAX-1, obj1.value());
+
+    obj1.setValue(INT_MAX);
+    QCOMPARE(INT_MIN, obj1.value()); // We set autoReset, the thing is reset
+
+    obj1.setAutoReset(false);
     obj1.setValue(INT_MAX);
     QCOMPARE(INT_MAX, obj1.value());
+    obj1.setAutoReset(true);
 
     // int QProgressDialog::minimumDuration()
     // void QProgressDialog::setMinimumDuration(int)
