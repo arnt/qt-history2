@@ -1268,7 +1268,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
 {
     Q_D(QComboBox);
     if (!edit) {
-        Q_ASSERT(edit != 0);
+        qWarning("QComboBox::setLineEdit: cannot set a 0 line edit");
         return;
     }
 
@@ -1386,7 +1386,10 @@ QAbstractItemDelegate *QComboBox::itemDelegate() const
 */
 void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
 {
-    Q_ASSERT(delegate);
+    if (!delegate) {
+        qWarning("QComboBox::setItemDelegate: cannot set a 0 delegate");
+        return;
+    }
     delete view()->itemDelegate();
     view()->setItemDelegate(delegate);
 }
@@ -1411,10 +1414,10 @@ QAbstractItemModel *QComboBox::model() const
 void QComboBox::setModel(QAbstractItemModel *model)
 {
     Q_D(QComboBox);
-
-    Q_ASSERT(model);
-    if (!model)
+    if (!model) {
+        qWarning("QComboBox::setModel: cannot set a 0 model");
         return;
+    }
 
     if (d->lineEdit && d->lineEdit->completer()
         && d->lineEdit->completer() == d->completer)
@@ -1742,7 +1745,11 @@ QAbstractItemView *QComboBox::view() const
 void QComboBox::setView(QAbstractItemView *itemView)
 {
     Q_D(QComboBox);
-    Q_ASSERT(itemView);
+    if (!itemView) {
+        qWarning("QComboBox::setView: cannot set a 0 view");
+        return;
+    }
+
     if (itemView->model() != d->model)
         itemView->setModel(d->model);
     d->viewContainer()->setItemView(itemView);
