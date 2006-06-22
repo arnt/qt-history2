@@ -43,6 +43,7 @@
 #define XCOORD_MAX 32767
 #define WRECT_MAX 8191
 
+
 /*****************************************************************************
   QWidget debug facilities
  *****************************************************************************/
@@ -1122,7 +1123,7 @@ void QWidgetPrivate::createWindow_sys()
         QCFType<HIViewRef> oldRef = HIViewRef(data.winid);
         setWinId((WId)hiview);
         transferChildren();
-        //HIViewRemoveFromSuperview(oldRef);
+        HIViewRemoveFromSuperview(oldRef);
     }
     initWindowPtr();
     if (qt_mac_is_macsheet(q))
@@ -1256,7 +1257,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     }
 
     if(destroyid) {
-        //HIViewRemoveFromSuperview(destroyid);
+        HIViewRemoveFromSuperview(destroyid);
         CFRelease(destroyid);
     }
 }
@@ -1294,7 +1295,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                     RemoveWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget);
                     ReleaseWindow(window);
                 } else {
-                    //HIViewRemoveFromSuperview(hiview);
+                    HIViewRemoveFromSuperview(hiview);
                     CFRelease(hiview);
                 }
             }
@@ -1378,6 +1379,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
             RemoveWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget);
             ReleaseWindow(window);
         } else {
+            HIViewRemoveFromSuperview(old_id);
             CFRelease(old_id);
         }
     }
