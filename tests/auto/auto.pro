@@ -93,6 +93,7 @@ SUBDIRS += bic \
            qdbusconnection \
            qdbusinterface \
            qdbusmarshall \
+	   qdbusmetaobject \
            qdbusmetatype \
            qdbusxmlparser \
            qdeepcopy \
