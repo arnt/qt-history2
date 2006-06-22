@@ -2173,12 +2173,11 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 }
                 if (downIsActive && sunken) {
                     cachePainter.setPen(gradientStopColor.dark(130));
-                    cachePainter.drawLine(downRect.left() + 1, downRect.top(), downRect.left() + 1, downRect.bottom());
+                    cachePainter.drawLine(downRect.left() + 1, downRect.top(), downRect.left() + 1, downRect.bottom() + 1);
                     cachePainter.drawLine(downRect.left(), downRect.top(), downRect.right(), downRect.top());
                     cachePainter.setPen(gradientStopColor.dark(110));
                     cachePainter.drawLine(downRect.left(), downRect.bottom() + 1, downRect.right(), downRect.bottom() + 1);
-                } 
-                else {
+                } else {
                     cachePainter.setPen(option->palette.light().color().light());
                     cachePainter.drawLine(downRect.topLeft() + QPoint(2,0), downRect.topRight());
                 }
@@ -3231,10 +3230,14 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     case CT_ToolButton:
         newSize += QSize(4, 6);
         break;
-    case CT_LineEdit:
     case CT_SpinBox:
+        newSize += QSize(0, -2);
+        break;
+    case CT_LineEdit:
+        newSize += QSize(0, 6);
+        break;
     case CT_PushButton:
-	case CT_ComboBox:
+    case CT_ComboBox:
         newSize += QSize(0, 4);
         break;
     case CT_MenuBarItem:
