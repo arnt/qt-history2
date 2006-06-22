@@ -49,15 +49,23 @@ QWSWindowSurface::QWSWindowSurface()
 {
 }
 
-bool QWSWindowSurface::create(QWidget *window)
+QWSWindowSurface::QWSWindowSurface(QWidget *window)
+    : d_ptr(new QWSWindowSurfacePrivate)
 {
     d_ptr->widget = window;
-    return true;
 }
 
 QWSWindowSurface::~QWSWindowSurface()
 {
     delete d_ptr;
+}
+
+QPoint QWSWindowSurface::painterOffset() const
+{
+    const QWidget *w = window();
+    if (!w)
+        return QPoint();
+    return w->geometry().topLeft() - w->frameGeometry().topLeft();
 }
 
 QWidget *QWSWindowSurface::window() const
@@ -124,7 +132,7 @@ void QWSWindowSurface::resize(const QSize &size)
 static inline void flushUpdate(QWidget *widget, const QRegion &region,
                                const QPoint &offset)
 {
-    static QWSYellowSurface surface;
+    static QWSYellowSurface surface(true);
     static int delay = -1;
 
     if (delay == -1) {
@@ -164,7 +172,8 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
 
 void QWSWindowSurface::release()
 {
-    QWidget::qwsDisplay()->requestRegion(window()->data->winid, key(), data(), QRegion());
+    QWidget::qwsDisplay()->requestRegion(window()->data->winid, key(), data(),
+                                         QRegion());
 }
 
 QWSWindowSurface* QWSWindowSurfaceFactory::create(QWidget *widget)
@@ -173,13 +182,16 @@ QWSWindowSurface* QWSWindowSurfaceFactory::create(QWidget *widget)
     if (surface)
         return surface;
 
-    if (QApplication::type() == QApplication::GuiServer)
-        surface = new QWSLocalMemWindowSurface;
+    static int doOnScreen = -1;
+    if (doOnScreen == -1) {
+        doOnScreen = qgetenv("QT_ONSCREEN_PAINT").toInt();
+    }
+    if (doOnScreen && isWidgetOpaque(widget))
+        surface = new QWSOnScreenSurface(widget);
+    else if (QApplication::type() == QApplication::GuiServer)
+        surface = new QWSLocalMemSurface(widget);
     else
-        surface = new QWSSharedMemWindowSurface;
-
-    if (surface)
-        surface->create(widget);
+        surface = new QWSSharedMemSurface(widget);
 
     return surface;
 }
@@ -191,11 +203,13 @@ QWSWindowSurfaceFactory::create(const QString &key,
     QWSWindowSurface *surface = qt_screen->createSurface(key);
 
     if (!surface) {
-        if (key == QLatin1String("mem"))
-            surface = new QWSLocalMemWindowSurface;
+        if (key == QLatin1String("OnScreen"))
+            surface = new QWSOnScreenSurface;
+        else if (key == QLatin1String("mem"))
+            surface = new QWSLocalMemSurface;
         else if (key == QLatin1String("shm"))
-            surface = new QWSSharedMemWindowSurface;
-        else if (key == QLatin1String("YellowThing"))
+            surface = new QWSSharedMemSurface;
+        else if (key == QLatin1String("Yellow"))
             surface = new QWSYellowSurface;
         else if (key == QLatin1String("DirectPainter"))
             surface = new QWSDirectPainterSurface;
@@ -243,26 +257,158 @@ static void scroll(const QImage &img, const QRect &rect, const QPoint &point)
     } while (--h);
 }
 
-QWSLocalMemWindowSurface::QWSLocalMemWindowSurface()
-    : QWSWindowSurface(), mem(0), memsize(0)
+static inline void lock(QWSLock *l)
 {
-    setSurfaceFlags(QWSWindowSurface::Buffered);
+    if (l)
+        l->lock(QWSLock::BackingStore);
 }
 
-QWSLocalMemWindowSurface::~QWSLocalMemWindowSurface()
+static inline void unlock(QWSLock *l)
 {
+    if (l)
+        l->unlock(QWSLock::BackingStore);
 }
 
-bool QWSLocalMemWindowSurface::create(QWidget *w)
+QWSMemorySurface::QWSMemorySurface()
+    : QWSWindowSurface(), memlock(0)
+{
+    setSurfaceFlags(Buffered);
+}
+
+QWSMemorySurface::QWSMemorySurface(QWidget *w)
+    : QWSWindowSurface(w)
 {
     SurfaceFlags flags = Buffered;
     if (isWidgetOpaque(w))
         flags |= Opaque;
     setSurfaceFlags(flags);
-    return QWSWindowSurface::create(w);
+
+    memlock = QWSDisplay::Data::getClientLock();
 }
 
-bool QWSLocalMemWindowSurface::attach(const QByteArray &data)
+QWSMemorySurface::~QWSMemorySurface()
+{
+}
+
+void QWSMemorySurface::release()
+{
+    QWSWindowSurface::release();
+    memlock = 0;
+    img = QImage();
+}
+
+void QWSMemorySurface::detach()
+{
+    delete memlock;
+    memlock = 0;
+    img = QImage();
+}
+
+QImage::Format
+QWSMemorySurface::preferredImageFormat(const QWidget *widget) const
+{
+    const bool opaque = isWidgetOpaque(widget);
+
+    if (opaque && qt_screen->depth() <= 16)
+        return QImage::Format_RGB16;
+    else
+        return QImage::Format_ARGB32_Premultiplied;
+}
+
+void QWSMemorySurface::setLock(int lockId)
+{
+    if (memlock && memlock->id() == lockId)
+        return;
+    delete memlock;
+    memlock = (lockId == -1 ? 0 : new QWSLock(lockId));
+    return;
+}
+
+bool QWSMemorySurface::isValidFor(const QWidget *widget) const
+{
+    if (img == QImage())
+        return true;
+
+    if (preferredImageFormat(widget) == img.format())
+        return true;
+
+    // could instead just set the size to 0 to force a resize
+    return false;
+}
+
+void QWSMemorySurface::scroll(const QRegion &area, int dx, int dy)
+{
+    const QVector<QRect> rects = area.rects();
+    lock(memlock);
+    for (int i = 0; i < rects.size(); ++i)
+        ::scroll(img, rects.at(i), QPoint(dx, dy));
+    unlock(memlock);
+}
+
+void QWSMemorySurface::beginPaint(const QRegion &)
+{
+    lock(memlock);
+}
+
+void QWSMemorySurface::endPaint(const QRegion &)
+{
+    unlock(memlock);
+}
+
+QWSLocalMemSurface::QWSLocalMemSurface()
+    : QWSMemorySurface(), mem(0), memsize(0)
+{
+}
+
+QWSLocalMemSurface::QWSLocalMemSurface(QWidget *w)
+    : QWSMemorySurface(w), mem(0), memsize(0)
+{
+}
+
+void QWSLocalMemSurface::resize(const QSize &size)
+{
+    QImage::Format imageFormat = preferredImageFormat(window());
+    const int bytes_per_pixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
+
+    const int bpl = (size.width() * bytes_per_pixel + 3) & ~3;
+    memsize = bpl * size.height();
+
+    delete[] mem;
+    if (memsize == 0) {
+        mem = 0;
+        img = QImage();
+    } else {
+        mem = new uchar[memsize];
+        QWSMemorySurface::img = QImage(mem, size.width(), size.height(),
+                                       imageFormat);
+    }
+
+    QWSWindowSurface::resize(size);
+}
+
+void QWSLocalMemSurface::release()
+{
+    QWSMemorySurface::release();
+    delete[] mem;
+    mem = 0;
+    memsize = 0;
+}
+
+const QByteArray QWSLocalMemSurface::data() const
+{
+    QByteArray array;
+    QDataStream stream(&array, QIODevice::WriteOnly);
+
+    Q_ASSERT(memlock == 0);
+
+    stream.writeRawData(reinterpret_cast<const char*>(&mem), sizeof(mem));
+    stream << img.width() << img.height() << int(img.format())
+           << surfaceFlags();
+
+    return array;
+}
+
+bool QWSLocalMemSurface::attach(const QByteArray &data)
 {
     QDataStream stream(data); // XXX: get rid of streaming
 
@@ -279,136 +425,43 @@ bool QWSLocalMemWindowSurface::attach(const QByteArray &data)
     stream >> f;
     flags = (SurfaceFlags)(f);
 
-    img = QImage(mem, width, height, format);
+    QWSMemorySurface::img = QImage(mem, width, height, format);
     setSurfaceFlags(flags);
 
     return true;
 }
 
-void QWSLocalMemWindowSurface::detach()
+void QWSLocalMemSurface::detach()
 {
-    img = QImage();
-}
-
-QImage::Format
-QWSLocalMemWindowSurface::preferredImageFormat(const QWidget *widget) const
-{
-    const bool opaque = isWidgetOpaque(widget);
-
-    if (opaque && qt_screen->depth() <= 16)
-        return QImage::Format_RGB16;
-    else
-        return QImage::Format_ARGB32_Premultiplied;
-}
-
-bool QWSLocalMemWindowSurface::isValidFor(QWidget *widget) const
-{
-    if (img == QImage())
-        return true;
-
-    if (preferredImageFormat(widget) == img.format())
-        return true;
-
-    // could instead just set the size to 0 to force a resize
-    return false;
-}
-
-void QWSLocalMemWindowSurface::resize(const QSize &size)
-{
-    QImage::Format imageFormat = preferredImageFormat(window());
-    const int bytes_per_pixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
-
-    const int bpl = (size.width() * bytes_per_pixel + 3) & ~3;
-    memsize = bpl * size.height();
-
-    delete[] mem;
-    if (memsize == 0) {
-        mem = 0;
-        img = QImage();
-    } else {
-        mem = new uchar[memsize];
-        img = QImage(mem, size.width(), size.height(), imageFormat);
-    }
-
-    QWSWindowSurface::resize(size);
-}
-
-void QWSLocalMemWindowSurface::release()
-{
-    QWSWindowSurface::release();
-    img = QImage();
+    QWSMemorySurface::detach();
     delete[] mem;
     mem = 0;
     memsize = 0;
 }
 
-void QWSLocalMemWindowSurface::scroll(const QRegion &area, int dx, int dy)
-{
-    const QVector<QRect> rects = area.rects();
-    for (int i = 0; i < rects.size(); ++i)
-        ::scroll(img, rects.at(i), QPoint(dx, dy));
-}
-
-const QByteArray QWSLocalMemWindowSurface::data() const
-{
-    QByteArray array;
-    QDataStream stream(&array, QIODevice::WriteOnly);
-
-    stream.writeRawData((char*)(&mem), sizeof(mem));
-    stream << img.width() << img.height() << int(img.format()) << surfaceFlags();
-    return array;
-}
-
-static inline void lock(QWSLock *l)
-{
-    if (l)
-        l->lock(QWSLock::BackingStore);
-}
-
-static inline void unlock(QWSLock *l)
-{
-    if (l)
-        l->unlock(QWSLock::BackingStore);
-}
-
-QWSSharedMemWindowSurface::QWSSharedMemWindowSurface()
-    : QWSLocalMemWindowSurface(), memlock(0)
+QWSSharedMemSurface::QWSSharedMemSurface()
+    : QWSMemorySurface()
 {
 }
 
-QWSSharedMemWindowSurface::~QWSSharedMemWindowSurface()
+QWSSharedMemSurface::QWSSharedMemSurface(QWidget *widget)
+    : QWSMemorySurface(widget)
 {
 }
 
-bool QWSSharedMemWindowSurface::create(QWidget *w)
+QWSSharedMemSurface::~QWSSharedMemSurface()
 {
-    memlock = QWSDisplay::Data::getClientLock();
-    return QWSLocalMemWindowSurface::create(w);
 }
 
-void QWSSharedMemWindowSurface::beginPaint(const QRegion &)
-{
-    if (!memlock)
-        return;
-    memlock->lock(QWSLock::BackingStore);
-}
-
-void QWSSharedMemWindowSurface::endPaint(const QRegion &)
-{
-    if (!memlock)
-        return;
-    memlock->unlock(QWSLock::BackingStore);
-}
-
-bool QWSSharedMemWindowSurface::setMemory(int memId)
+bool QWSSharedMemSurface::setMemory(int memId)
 {
     if (mem.id() == memId)
         return true;
 
     mem.detach();
     if (!mem.attach(memId)) {
-        perror("QWSSharedMemServerWindowSurface: attaching to shared memory");
-        qCritical("QWSSharedMemServerWindowSurface: Error attaching to"
+        perror("QWSSharedMemSurface: attaching to shared memory");
+        qCritical("QWSSharedMemSurface: Error attaching to"
                   " shared memory 0x%x", memId);
         return false;
     }
@@ -416,16 +469,7 @@ bool QWSSharedMemWindowSurface::setMemory(int memId)
     return true;
 }
 
-bool QWSSharedMemWindowSurface::setLock(int lockId)
-{
-    if (memlock && memlock->id() == lockId)
-        return true;
-    delete memlock;
-    memlock = (lockId == -1 ? 0 : new QWSLock(lockId));
-    return true;
-}
-
-bool QWSSharedMemWindowSurface::attach(const QByteArray &data)
+bool QWSSharedMemSurface::attach(const QByteArray &data)
 {
     QDataStream stream(data);
 
@@ -447,18 +491,18 @@ bool QWSSharedMemWindowSurface::attach(const QByteArray &data)
     setLock(lockId);
 
     uchar *base = static_cast<uchar*>(mem.address());
-    img = QImage(base, width, height, format);
+    QWSMemorySurface::img = QImage(base, width, height, format);
 
     return true;
 }
 
-void QWSSharedMemWindowSurface::detach()
+void QWSSharedMemSurface::detach()
 {
-    img = QImage();
+    QWSMemorySurface::detach();
     mem.detach();
 }
 
-void QWSSharedMemWindowSurface::resize(const QSize &size)
+void QWSSharedMemSurface::resize(const QSize &size)
 {
     QImage::Format imageFormat = preferredImageFormat(window());
     const int bytes_per_pixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
@@ -482,45 +526,91 @@ void QWSSharedMemWindowSurface::resize(const QSize &size)
     QWSWindowSurface::resize(size);
 }
 
-void QWSSharedMemWindowSurface::release()
+void QWSSharedMemSurface::release()
 {
-    QWSWindowSurface::release();
-    img = QImage();
+    QWSMemorySurface::release();
     mem.detach();
 }
 
-void QWSSharedMemWindowSurface::scroll(const QRegion &area, int dx, int dy)
-{
-    lock(memlock);
-    QWSLocalMemWindowSurface::scroll(area, dx, dy);
-    unlock(memlock);
-}
-
-const QByteArray QWSSharedMemWindowSurface::data() const
+const QByteArray QWSSharedMemSurface::data() const
 {
     QByteArray array;
     QDataStream stream(&array, QIODevice::WriteOnly);
     stream << mem.id() << img.width() << img.height()
-           << (memlock ? memlock->id() : -1) << int(img.format()) << surfaceFlags();
+           << (memlock ? memlock->id() : -1) << int(img.format())
+           << surfaceFlags();
     return array;
 }
 
-
-QWSYellowSurface::QWSYellowSurface()
-    : QWSWindowSurface(), delay(10)
+QWSOnScreenSurface::QWSOnScreenSurface(QWidget *w)
+    : QWSMemorySurface(w)
 {
-    setSurfaceFlags(QWSWindowSurface::Buffered);
+    attachToScreen();
+    setSurfaceFlags(Opaque);
 }
 
-bool QWSYellowSurface::create(QWidget *widget)
+QWSOnScreenSurface::QWSOnScreenSurface()
+    : QWSMemorySurface()
 {
-    winId = QWidget::qwsDisplay()->takeId();
-    QWidget::qwsDisplay()->nameRegion(winId,
-                                      QLatin1String("Debug flush paint"),
-                                      QLatin1String("Silly yellow thing"));
-    QWidget::qwsDisplay()->setAltitude(winId, 1, true);
+    attachToScreen();
+    setSurfaceFlags(Opaque);
+}
 
-    return QWSWindowSurface::create(widget);
+void QWSOnScreenSurface::attachToScreen()
+{
+    uchar *base = qt_screen->base();
+    QImage::Format format;
+    switch (qt_screen->depth()) {
+    case 16:
+        format = QImage::Format_RGB16;
+        break;
+    case 32:
+        format = QImage::Format_ARGB32_Premultiplied;
+        break;
+    default:
+        return;
+    }
+    QWSMemorySurface::img = QImage(base, qt_screen->width(),
+                                   qt_screen->height(), format);
+}
+
+QWSOnScreenSurface::~QWSOnScreenSurface()
+{
+}
+
+QPoint QWSOnScreenSurface::painterOffset() const
+{
+    return brect.topLeft() + QWSWindowSurface::painterOffset();
+}
+
+bool QWSOnScreenSurface::isValidFor(const QWidget *widget) const
+{
+    if (img.isNull())
+        return false;
+    if (!isWidgetOpaque(widget))
+        return false;
+    if (brect != widget->frameGeometry())
+        brect = QRect(); // XXX: to force a resize
+    return true;
+}
+
+void QWSOnScreenSurface::resize(const QSize &size)
+{
+    brect = window()->frameGeometry();
+    QWSWindowSurface::resize(size);
+}
+
+QWSYellowSurface::QWSYellowSurface(bool isClient)
+    : QWSWindowSurface(), delay(10)
+{
+    if (isClient) {
+        winId = QWidget::qwsDisplay()->takeId();
+        QWidget::qwsDisplay()->nameRegion(winId,
+                                          QLatin1String("Debug flush paint"),
+                                          QLatin1String("Silly yellow thing"));
+        QWidget::qwsDisplay()->setAltitude(winId, 1, true);
+    }
+    setSurfaceFlags(Buffered);
 }
 
 QWSYellowSurface::~QWSYellowSurface()
@@ -581,24 +671,20 @@ void QWSYellowSurface::flush(QWidget *widget, const QRegion &region, const QPoin
     ::usleep(500 * delay);
 }
 
-QWSDirectPainterSurface::QWSDirectPainterSurface()
-    : QWSWindowSurface(), winId(-1)
-{
-    setSurfaceFlags(Reserved);
-}
-
 QWSDirectPainterSurface::~QWSDirectPainterSurface()
 {
 }
 
-bool QWSDirectPainterSurface::create(QWidget *widget)
+QWSDirectPainterSurface::QWSDirectPainterSurface(bool isClient)
+    : QWSWindowSurface((QWidget*)0)
 {
-    winId  = QWidget::qwsDisplay()->takeId();
-    qApp->d_func()->directPainterID = winId;
-    QWidget::qwsDisplay()->nameRegion(winId,
-                                      QLatin1String("QDirectPainter reserved space"),
-                                      QLatin1String("reserved"));
-    return QWSWindowSurface::create(widget);
+    if (isClient) {
+        winId  = QWidget::qwsDisplay()->takeId();
+        qApp->d_func()->directPainterID = winId;
+        QWidget::qwsDisplay()->nameRegion(winId,
+                                          QLatin1String("QDirectPainter reserved space"),
+                                          QLatin1String("reserved"));
+    }
 }
 
 void QWSDirectPainterSurface::resize(const QRegion &region)

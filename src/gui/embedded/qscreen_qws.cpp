@@ -1471,16 +1471,11 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
     QRegion exposedBelow = exposed;
     bool opaque = true;
 
-    if (win && !surface->isBuffered()) {
-        exposedBelow -= exposed & win->requestedRegion();
-        blend -= exposed & win->requestedRegion();
-    }
-
     if (win) {
         opaque = win->isOpaque();
         if (opaque) {
             exposedBelow -= win->requestedRegion();
-            if (above_changing)
+            if (above_changing || !surface->isBuffered())
                 blend -= exposed & win->requestedRegion();
         } else {
             blend += exposed & win->requestedRegion();
@@ -1499,7 +1494,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
     const QRegion blitRegion = exposed - blend;
     if (!win)
         paintBackground(blitRegion);
-    else if (!above_changing)
+    else if (!above_changing && surface->isBuffered())
         blit(win, blitRegion);
 
     QRegion blendRegion = exposed & blend;

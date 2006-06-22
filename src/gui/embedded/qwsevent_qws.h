@@ -55,6 +55,7 @@ struct QWSEvent : QWSProtocolItem {
     QWSMouseEvent *asMouse()
         { return type == Mouse ? reinterpret_cast<QWSMouseEvent*>(this) : 0; }
     int window() { return *(reinterpret_cast<int*>(simpleDataPtr)); }
+    int window() const { return *(reinterpret_cast<int*>(simpleDataPtr)); }
     static QWSEvent *factory(int type);
 };
 

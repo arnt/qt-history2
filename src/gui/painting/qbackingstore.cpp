@@ -92,7 +92,7 @@ static void qt_showYellowThing(QWidget *widget, const QRegion &rgn, int msec, bo
 #ifdef QT_WINDOW_SURFACE
     Q_UNUSED(widget);
 
-    static QWSYellowSurface surface;
+    static QWSYellowSurface surface(true);
     surface.setDelay(msec);
     surface.flush(widget, rgn, QPoint());
 #else
@@ -739,7 +739,7 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
             toClean = dirty;
         }
 #ifdef Q_WS_QWS
-        tlwOffset = tlw->geometry().topLeft() - tlw->frameGeometry().topLeft();
+        tlwOffset = static_cast<QWSWindowSurface*>(windowSurface)->painterOffset();
 #endif
 
 #else // QT_WINDOW_SURFACE

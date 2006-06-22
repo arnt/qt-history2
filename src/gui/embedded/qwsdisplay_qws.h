@@ -134,8 +134,12 @@ private:
     class Data;
     Data *d;
 
+#ifdef QT_WINDOW_SURFACE
+    friend class QWSMemorySurface;
+    friend class QWSOnScreenSurface;
+#else
     friend class QWSBackingStore;
-    friend class QWSSharedMemWindowSurface;
+#endif
     int getPropertyLen;
     char *getPropertyData;
     static QLock *lock;

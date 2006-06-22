@@ -25,16 +25,18 @@ class QWSWindowSurface : public QWindowSurface
 {
 public:
     QWSWindowSurface();
+    QWSWindowSurface(QWidget *widget);
     ~QWSWindowSurface();
 
-    virtual bool create(QWidget *window);
     virtual void release();
 
-    virtual bool isValidFor(QWidget *widget) const = 0;
+    virtual bool isValidFor(const QWidget *widget) const = 0;
 
     virtual void resize(const QSize &size);
     virtual void flush(QWidget *widget, const QRegion &region,
                        const QPoint &offset);
+
+    virtual QPoint painterOffset() const;
 
     virtual const QString key() const = 0;
     virtual const QByteArray data() const = 0;
@@ -80,94 +82,125 @@ public:
                                     const QByteArray &data);
 };
 
-class QWSLocalMemWindowSurface : public QWSWindowSurface
+class QWSLock;
+
+class QWSMemorySurface : public QWSWindowSurface
 {
 public:
-    QWSLocalMemWindowSurface();
-    ~QWSLocalMemWindowSurface();
+    QWSMemorySurface();
+    QWSMemorySurface(QWidget *widget);
+    ~QWSMemorySurface();
 
-    bool create(QWidget *widget);
     void release();
+    void detach();
+
+    void beginPaint(const QRegion &);
+    void endPaint(const QRegion &);
+
+    bool isValidFor(const QWidget *widget) const;
+
+    QPaintDevice *paintDevice() { return &img; }
+    QSize size() const { return img.size(); };
+    void scroll(const QRegion &area, int dx, int dy);
+
+    const QImage image() const { return img; };
+
+protected:
+    QImage::Format preferredImageFormat(const QWidget *widget) const;
+    void setLock(int lockId);
+
+    QWSLock *memlock;
+    QImage img;
+};
+
+class QWSLocalMemSurface : public QWSMemorySurface
+{
+public:
+    QWSLocalMemSurface();
+    QWSLocalMemSurface(QWidget *widget);
+    ~QWSLocalMemSurface() {}
 
     void resize(const QSize &size);
 
     const QString key() const { return QLatin1String("mem"); }
     const QByteArray data() const;
 
-    bool isValidFor(QWidget *widget) const;
-
-    QPaintDevice *paintDevice() { return &img; }
-
-    void scroll(const QRegion &area, int dx, int dy);
-    QSize size() const { return img.size(); };
-
     bool attach(const QByteArray &data);
     void detach();
-    const QImage image() const { return img; };
-
-protected:
-    QImage::Format preferredImageFormat(const QWidget *widget) const;
-
-    uchar *mem;
-    int memsize;
-    QImage img;
-};
-
-class QWSLock;
-
-class QWSSharedMemWindowSurface : public QWSLocalMemWindowSurface
-{
-public:
-    QWSSharedMemWindowSurface();
-    ~QWSSharedMemWindowSurface();
-
-    bool create(QWidget *widget);
     void release();
 
-    QPaintDevice *paintDevice() { return &img; }
-    void beginPaint(const QRegion &);
-    void endPaint(const QRegion &);
+protected:
+    uchar *mem;
+    int memsize;
+};
+
+class QWSSharedMemSurface : public QWSMemorySurface
+{
+public:
+    QWSSharedMemSurface();
+    QWSSharedMemSurface(QWidget *widget);
+    ~QWSSharedMemSurface();
 
     void resize(const QSize &size);
-    void scroll(const QRegion &area, int dx, int dy);
-    QSize size() const { return img.size(); };
+
     const QString key() const { return QLatin1String("shm"); }
     const QByteArray data() const;
 
     bool attach(const QByteArray &data);
     void detach();
+    void release();
 
 private:
     bool setMemory(int memId);
-    bool setLock(int lockId);
 
     QSharedMemory mem;
-    QWSLock *memlock;
+};
+
+class QWSOnScreenSurface : public QWSMemorySurface
+{
+public:
+    QWSOnScreenSurface();
+    QWSOnScreenSurface(QWidget *widget);
+    ~QWSOnScreenSurface();
+
+    bool isValidFor(const QWidget *widget) const;
+    QPoint painterOffset() const;
+
+    QSize size() const { return brect.size(); };
+    void resize(const QSize &size);
+
+    const QString key() const { return QLatin1String("OnScreen"); }
+    const QByteArray data() const { return QByteArray(); }
+
+    bool attach(const QByteArray &) { return true; }
+    void detach() {}
+
+private:
+    void attachToScreen();
+
+    mutable QRect brect;
 };
 
 class QWSYellowSurface : public QWSWindowSurface
 {
 public:
-    QWSYellowSurface();
+    QWSYellowSurface(bool isClient = false);
     ~QWSYellowSurface();
-
-    bool create(QWidget *widget);
 
     void setDelay(int msec) { delay = msec; }
 
     void resize(const QSize &size);
     void scroll(const QRegion &, int, int) {}
     QSize size() const { return img.size(); };
-    bool isValidFor(QWidget *) const { return true; }
+    bool isValidFor(const QWidget *) const { return true; }
 
     void flush(QWidget *widget, const QRegion &region, const QPoint &offset);
 
-    const QString key() const { return QLatin1String("YellowThing"); }
+    const QString key() const { return QLatin1String("Yellow"); }
     const QByteArray data() const;
 
     bool attach(const QByteArray &data);
     void detach();
-    void blit(const QRegion &, const QPoint &) {}
 
     QPaintDevice *paintDevice() { return &img; }
     const QImage image() const { return img; }
@@ -182,10 +215,9 @@ private:
 class QWSDirectPainterSurface : public QWSWindowSurface
 {
 public:
-    QWSDirectPainterSurface();
+    QWSDirectPainterSurface(bool isClient = false);
     ~QWSDirectPainterSurface();
 
-    bool create(QWidget *);
     void release();
 
     void resize(const QSize &size) { resize(QRect(QPoint(0, 0), size)); }
@@ -195,7 +227,7 @@ public:
     void flush(QWidget*, const QRegion &, const QPoint &) {};
     void scroll(const QRegion &, int, int) {};
 
-    bool isValidFor(QWidget*) const { return false; }
+    bool isValidFor(const QWidget*) const { return false; }
 
     const QString key() const { return QLatin1String("DirectPainter"); }
     const QByteArray data() const { return QByteArray(); }

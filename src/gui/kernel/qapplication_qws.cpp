@@ -57,7 +57,8 @@
 #include "qdebug.h"
 #include "qeventdispatcher_qws_p.h"
 #include "private/qwidget_p.h"
-
+#include "private/qbackingstore_p.h"
+#include "private/qwindowsurface_qws_p.h"
 
 #include <unistd.h>
 #include <stdio.h>
@@ -229,7 +230,7 @@ class QETWidget : public QWidget                 // event translator widget
 public:
     bool translateMouseEvent(const QWSMouseEvent *, int oldstate);
     bool translateKeyEvent(const QWSKeyEvent *, bool grab);
-//    bool translateRegionModifiedEvent(const QWSRegionModifiedEvent *);
+    bool translateRegionEvent(const QWSRegionEvent *);
     bool translateWheelEvent(const QWSMouseEvent *me);
     void repaintDecoration(QRegion r, bool post);
     void updateRegion();
@@ -2410,7 +2411,6 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 //            qDebug() << "QWSEvent::Region" << e->simpleData.type << "region" <<  d->directPainterRegion;
             return 1;
         }
-        return 0;
     }
 #endif
 
@@ -2656,11 +2656,9 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         QWSInputContext::translateIMInitEvent(static_cast<QWSIMInitEvent*>(event));
         break;
 #endif
-#if 0
-    case QWSEvent::RegionModified:
-        widget->translateRegionModifiedEvent(static_cast<QWSRegionModifiedEvent*>(event));
+    case QWSEvent::Region:
+        widget->translateRegionEvent(static_cast<QWSRegionEvent*>(event));
         break;
-#endif
     case QWSEvent::Focus:
         if ((static_cast<QWSFocusEvent*>(event))->simpleData.get_focus) {
             if (widget == static_cast<QWidget *>(desktop()))
@@ -3306,6 +3304,29 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab) /* grab i
     return QApplication::sendSpontaneousEvent(this, &e);
 }
 
+bool QETWidget::translateRegionEvent(const QWSRegionEvent *event)
+{
+    Q_D(QWidget);
+
+    const QWidget *win = QWidget::find(WId(event->window()));
+    if (!win)
+        return true;
+
+    QWidgetBackingStore *bs = d->topData()->backingStore;
+    QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
+    if (surface->isBuffered())
+        return true;
+
+    QRegion r;
+    r.setRects(event->rectangles, event->simpleData.nrectangles);
+    r.translate(-win->geometry().topLeft());
+
+    QRegion expose = r - surface->clipRegion();
+    surface->setClipRegion(r);
+    surface->setDirty(expose); // XXX: make sure this posts an update request
+
+    return true;
+}
 
 void QETWidget::repaintDecoration(QRegion r, bool post)
 {

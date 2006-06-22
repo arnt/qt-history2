@@ -233,10 +233,11 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                 d->hide_sys();
             }
             if (destroyWindow && isWindow()) {
-                qwsDisplay()->destroyRegion(winId());
 #ifdef QT_WINDOW_SURFACE
                 d->extra->topextra->backingStore->windowSurface->release();
+                qwsDisplay()->destroyRegion(winId());
 #else
+                qwsDisplay()->destroyRegion(winId());
                 d->extra->topextra->backingStore->buffer.detach();
 #endif
             }
