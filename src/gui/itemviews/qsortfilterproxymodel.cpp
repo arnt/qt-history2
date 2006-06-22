@@ -1820,6 +1820,8 @@ bool QSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
     QVariant l = (left.model() ? left.model()->data(left, d->sort_role) : QVariant());
     QVariant r = (right.model() ? right.model()->data(right, d->sort_role) : QVariant());
     switch (l.type()) {
+    case QVariant::Invalid:
+        return (r.type() == QVariant::Invalid);
     case QVariant::Int:
         return l.toInt() < r.toInt();
     case QVariant::UInt:

@@ -1510,6 +1510,8 @@ bool QStandardItem::operator<(const QStandardItem &other) const
     const QVariant l = data(Qt::DisplayRole), r = other.data(Qt::DisplayRole);
     // this code is copied from QSortFilterProxyModel::lessThan()
     switch (l.type()) {
+    case QVariant::Invalid:
+        return (r.type() == QVariant::Invalid);
     case QVariant::Int:
         return l.toInt() < r.toInt();
     case QVariant::UInt:
