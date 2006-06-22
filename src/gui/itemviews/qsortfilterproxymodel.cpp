@@ -344,10 +344,12 @@ void QSortFilterProxyModelPrivate::remove_source_items(
     QVector<int> &source_to_proxy, QVector<int> &proxy_to_source, const QVector<int> &source_items,
     const QModelIndex &source_parent, Qt::Orientation orient, bool emit_signal)
 {
+    QModelIndex proxy_parent = QSortFilterProxyModelPrivate::source_to_proxy(source_parent);
+    if (!proxy_parent.isValid() && source_parent.isValid())
+        return; // nothing to do (already removed)
+
     QVector<QPair<int, int> > proxy_intervals;
     proxy_intervals = proxy_intervals_for_source_items(source_to_proxy, source_items);
-
-    QModelIndex proxy_parent = QSortFilterProxyModelPrivate::source_to_proxy(source_parent);
 
     for (int i = proxy_intervals.size()-1; i >= 0; --i) {
         QPair<int, int> interval = proxy_intervals.at(i);
