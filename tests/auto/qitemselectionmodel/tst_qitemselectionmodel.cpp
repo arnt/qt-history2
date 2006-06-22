@@ -1312,7 +1312,7 @@ void tst_QItemSelectionModel::persistentselections_data()
      command << QItemSelectionModel::ClearAndSelect;
      insertRows << 1 << 1;
      expected << IntPair(0, 0)
-              << IntPair(1, 0)
+         // the inserted row should not be selected
               << IntPair(2, 0)
               << IntPair(3, 0)
               << IntPair(4, 0)
@@ -1428,7 +1428,7 @@ void tst_QItemSelectionModel::removeRows_data()
     QTest::addColumn<int>("expectedLeft");
     QTest::addColumn<int>("expectedBottom");
     QTest::addColumn<int>("expectedRight");
-    
+
     QTest::newRow("4x4 <0,1><1,1>")
         << 4 << 4
         << 0 << 1 << 1 << 1
@@ -1511,7 +1511,7 @@ void tst_QItemSelectionModel::removeColumns()
     QFETCH(int, expectedLeft);
     QFETCH(int, expectedBottom);
     QFETCH(int, expectedRight);
-    
+
     MyStandardItemModel model(rowCount, columnCount);
     QItemSelectionModel selections(&model);
     QSignalSpy spy(&selections, SIGNAL(selectionChanged(QItemSelection,QItemSelection)));
@@ -1620,7 +1620,7 @@ void tst_QItemSelectionModel::modelLayoutChanged()
             model.index(br.first, br.second));
         selectionModel.select(selection, QItemSelectionModel::Select);
     }
-    
+
     // sort the model
     model.sort(sortColumn, Qt::SortOrder(sortOrder));
 
