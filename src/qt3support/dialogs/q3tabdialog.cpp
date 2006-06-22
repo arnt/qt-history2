@@ -431,6 +431,11 @@ void Q3TabDialog::insertTab(QWidget *child, const QIcon& iconset, const QString 
 */
 void Q3TabDialog::setTabBar(QTabBar* tb)
 {
+    if (tb == 0){
+        qWarning("Q3TabDialog::setTabBar() called with null QTabBar pointer");
+        return;
+    }
+    
     d->tw->setTabBar(tb);
     setUpLayout();
 }
