@@ -466,9 +466,9 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
 #ifndef QT_NO_DOCKWIDGET
     // save dockwidget state
     dockWidgetLayout.saveState(stream);
-#endif // QT_NO_DOCKWIDGET
 
     stream << dockWidgetLayout.centralWidgetRect.size();
+#endif // QT_NO_DOCKWIDGET
 }
 
 bool QMainWindowLayout::restoreState(QDataStream &stream)
@@ -595,7 +595,6 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     dockWidgetLayout.clear();
     if (!dockWidgetLayout.restoreState(stream, dockwidgets))
         stream.setStatus(QDataStream::ReadCorruptData);
-#endif // QT_NO_DOCKWIDGET
 
     if (stream.status() != QDataStream::Ok) {
         dockWidgetLayout.deleteAllLayoutItems();
@@ -604,7 +603,6 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
         return false;
     }
 
-#ifndef QT_NO_DOCKWIDGET
     // if any of the dockwidgets have not been restored, append them
     // to the end of their current area
 
@@ -629,10 +627,9 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
         }
     }
 
-#endif // QT_NO_DOCKWIDGET
-
     savedDockWidgetLayout.deleteAllLayoutItems();
     savedDockWidgetLayout.clear();
+#endif // QT_NO_DOCKWIDGET
 
     return true;
 }
