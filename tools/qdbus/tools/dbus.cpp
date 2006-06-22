@@ -29,7 +29,6 @@
 #include <QtXml/QDomElement>
 #include <QtDBus>
 
-Q_DECLARE_METATYPE(QVariant)
 QDBusConnection *connection;
 
 void listObjects(const QString &service, const QString &path)
@@ -208,7 +207,7 @@ void placeCall(const QString &service, const QString &path, const QString &inter
     QVariantList params;
     for (int i = 0; argc && i < types.count(); ++i) {
         int id = QVariant::nameToType(types.at(i));
-        if ((id == QVariant::UserType || id == QVariant::Map) && types.at(i) != "QVariant") {
+        if ((id == QVariant::UserType || id == QVariant::Map) && types.at(i) != "QDBusVariant") {
             fprintf(stderr, "Sorry, can't pass arg of type %s yet\n",
                     types.at(i).constData());
             exit(1);
@@ -232,9 +231,9 @@ void placeCall(const QString &service, const QString &path, const QString &inter
                         argv[0], types.at(i).constData());
                 exit(1);
             }
-        } else if (types.at(i) == "QVariant") {
-            QVariant tmp(id, p.constData());
-            p = tmp;
+        } else if (types.at(i) == "QDBusVariant") {
+            QDBusVariant tmp(p);
+            p = qVariantFromValue(tmp);
         }
         params += p;
         --argc;
@@ -260,8 +259,8 @@ void placeCall(const QString &service, const QString &path, const QString &inter
             foreach (QString s, v.toStringList())
                 printf("%s\n", qPrintable(s));
         } else {
-            if (v.userType() == qMetaTypeId<QVariant>())
-                v = qvariant_cast<QVariant>(v);
+            if (v.userType() == qMetaTypeId<QDBusVariant>())
+                v = qvariant_cast<QDBusVariant>(v).value;
             printf("%s\n", qPrintable(v.toString()));
         }
     }
