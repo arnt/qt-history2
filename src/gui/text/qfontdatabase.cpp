@@ -2262,6 +2262,8 @@ int QFontDatabasePrivate::addAppFont(const QByteArray &fontData, const QString &
 }
 
 /*!
+    \since 4.2
+
     Loads the font from the file specified by \a fileName and makes it available to
     the application. An id is returned that can be used to remove the font again
     with removeApplicationFont() or to retrieve the list of family names contained
@@ -2284,6 +2286,8 @@ int QFontDatabase::addApplicationFont(const QString &fileName)
 }
 
 /*!
+    \since 4.2
+
     Loads the font from binary data specified by \a fontData and makes it available to
     the application. An id is returned that can be used to remove the font again
     with removeApplicationFont() or to retrieve the list of family names contained
@@ -2305,6 +2309,7 @@ QStringList QFontDatabase::applicationFontFamilies(int id)
 
 /*!
     \fn bool QFontDatabase::removeApplicationFont(int handle)
+    \since 4.2
 
     Removes a previously loaded application font.
     Returns true if unloading of the font succeeded, false otherwise.
@@ -2314,6 +2319,7 @@ QStringList QFontDatabase::applicationFontFamilies(int id)
 
 /*!
     \fn bool QFontDatabase::removeAllApplicationFonts()
+    \since 4.2
 
     Removes all application-local fonts previously added using addApplicationFont()
     and addApplicationFontFromData().
