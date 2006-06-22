@@ -36,6 +36,8 @@
 // bring in the auto-generated xkbLayoutData
 #include "qkeymapper_x11_p.cpp"
 
+#include <ctype.h>
+
 extern bool qt_sendSpontaneousEvent(QObject*, QEvent*); // qapplication_xxx.cpp
 
 static void getLocaleAndDirection(QLocale *locale,
