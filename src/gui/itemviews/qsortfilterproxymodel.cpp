@@ -95,6 +95,8 @@ public:
 
     bool dynamic_sortfilter;
 
+    QList<QPersistentModelIndex> saved_persistent_indexes;
+
     QMap<QModelIndex, Mapping *>::const_iterator create_mapping(
         const QModelIndex &source_parent) const;
     QModelIndex proxy_to_source(const QModelIndex &proxyIndex) const;
@@ -127,6 +129,9 @@ public:
     void _q_sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end);
 
     void _q_sourceReset();
+
+    void _q_sourceLayoutAboutToBeChanged();
+    void _q_sourceLayoutChanged();
 
     void _q_sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end);
     void _q_sourceRowsInserted(const QModelIndex &source_parent, int start, int end);
@@ -189,24 +194,13 @@ void QSortFilterProxyModelPrivate::remove_from_mapping(const QModelIndex &source
 void QSortFilterProxyModelPrivate::clear_mapping()
 {
     // store the persistent indexes
-    QModelIndexList source_indexes;
-    int persistent_count = persistent.indexes.count();
-    for (int i = 0; i < persistent_count; ++i) {
-        QModelIndex proxy_index = persistent.indexes.at(i)->index;
-        QModelIndex source_index = proxy_to_source(proxy_index);
-        source_indexes.append(source_index);
-    }
+    QModelIndexList source_indexes = store_persistent_indexes();
 
     qDeleteAll(source_index_mapping);
     source_index_mapping.clear();
 
     // update the persistent indexes
-    for (int i = 0; i < persistent_count; ++i) {
-        QModelIndex source_index = source_indexes.at(i);
-        create_mapping(source_index.parent());
-        QModelIndex proxy_index = source_to_proxy(source_index);
-        persistent.indexes[i]->index = proxy_index;
-    }
+    update_persistent_indexes(source_indexes);
 }
 
 IndexMap::const_iterator QSortFilterProxyModelPrivate::create_mapping(
@@ -858,6 +852,35 @@ void QSortFilterProxyModelPrivate::_q_sourceReset()
     q->reset();
 }
 
+void QSortFilterProxyModelPrivate::_q_sourceLayoutAboutToBeChanged()
+{
+    QModelIndexList source_indexes = store_persistent_indexes();
+    saved_persistent_indexes.clear();
+    QModelIndexList::const_iterator it;
+    for(it = source_indexes.begin(); it != source_indexes.end(); ++it)
+        saved_persistent_indexes << (*it);
+}
+
+void QSortFilterProxyModelPrivate::_q_sourceLayoutChanged()
+{
+    Q_Q(QSortFilterProxyModel);
+    QModelIndexList source_indexes;
+    QList<QPersistentModelIndex>::const_iterator it;
+    it = saved_persistent_indexes.begin();
+    for ( ; it != saved_persistent_indexes.end(); ++it)
+        source_indexes << (*it);
+
+    emit q->layoutAboutToBeChanged();
+
+    qDeleteAll(source_index_mapping);
+    source_index_mapping.clear();
+
+    update_persistent_indexes(source_indexes);
+    saved_persistent_indexes.clear();
+
+    emit q->layoutChanged();
+}
+
 void QSortFilterProxyModelPrivate::_q_sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end)
 {
     Q_UNUSED(source_parent);
@@ -1115,8 +1138,13 @@ void QSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
                this, SLOT(_q_sourceColumnsRemoved(QModelIndex,int,int)));
 
+    disconnect(d->model, SIGNAL(layoutAboutToBeChanged()),
+               this, SLOT(_q_sourceLayoutAboutToBeChanged()));
+
+    disconnect(d->model, SIGNAL(layoutChanged()),
+               this, SLOT(_q_sourceLayoutChanged()));
+
     disconnect(d->model, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
-    disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
 
     QAbstractProxyModel::setSourceModel(sourceModel);
 
@@ -1150,8 +1178,13 @@ void QSortFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
     connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
             this, SLOT(_q_sourceColumnsRemoved(QModelIndex,int,int)));
 
+    connect(d->model, SIGNAL(layoutAboutToBeChanged()),
+            this, SLOT(_q_sourceLayoutAboutToBeChanged()));
+
+    connect(d->model, SIGNAL(layoutChanged()),
+            this, SLOT(_q_sourceLayoutChanged()));
+
     connect(d->model, SIGNAL(modelReset()), this, SLOT(_q_sourceReset()));
-    connect(d->model, SIGNAL(layoutChanged()), this, SLOT(clear()));
 
     d->clear_mapping();
     reset();

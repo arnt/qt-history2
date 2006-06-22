@@ -137,6 +137,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_sourceDataChanged(const QModelIndex &source_top_left, const QModelIndex &source_bottom_right))
     Q_PRIVATE_SLOT(d_func(), void _q_sourceHeaderDataChanged(Qt::Orientation orientation, int start, int end))
     Q_PRIVATE_SLOT(d_func(), void _q_sourceReset())
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceLayoutAboutToBeChanged())
+    Q_PRIVATE_SLOT(d_func(), void _q_sourceLayoutChanged())
     Q_PRIVATE_SLOT(d_func(), void _q_sourceRowsAboutToBeInserted(const QModelIndex &source_parent, int start, int end))
     Q_PRIVATE_SLOT(d_func(), void _q_sourceRowsInserted(const QModelIndex &source_parent, int start, int end))
     Q_PRIVATE_SLOT(d_func(), void _q_sourceRowsAboutToBeRemoved(const QModelIndex &source_parent, int start, int end))
