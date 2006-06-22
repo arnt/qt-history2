@@ -694,6 +694,9 @@ void tst_QAccessibility::navigateGeometric()
 
     w->show();
 
+    // this is an evil evil fix to bypass the whole delayed widget creation
+    QApplication::syncX();
+
     // let one widget rotate around center
     for (i = 0; i < 360; i+=skip) {
 	aw->move( int(200.0 + 75.0 * sin(step * (double)i)), int(200.0 + 75.0 * cos(step * (double)i)) );
