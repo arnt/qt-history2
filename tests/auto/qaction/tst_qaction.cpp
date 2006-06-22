@@ -196,10 +196,10 @@ void tst_QAction::setStandardKeys()
 	act.setShortcuts(list);
 	act.setShortcuts(QKeySequence::Copy);
     QVERIFY(act.shortcut() == act.shortcuts().first());
-#ifndef Q_WS_X11
     QList<QKeySequence> expected;
+#ifndef Q_WS_X11
     expected  << QKeySequence("CTRL+C") << QKeySequence("CTRL+INSERT");
-#elif
+#else
     expected  << QKeySequence("CTRL+C") << QKeySequence("F16") << QKeySequence("CTRL+INSERT");
 #endif
     QVERIFY(act.shortcuts() == expected);

@@ -83,7 +83,6 @@ void tst_QLabel::getSetCheck()
     QCOMPARE(var3, obj1.movie());
     obj1.setMovie((QMovie *)0);
     QCOMPARE((QMovie *)0, obj1.movie());
-    delete var3;
 }
 
 
