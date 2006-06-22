@@ -1473,10 +1473,11 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                                     slideWidth / 2, rect.height() - 3);
 
             }
-            painter->setPen(QPen(option->palette.highlight().color().dark(140), 0));
+            QColor highlight = option->palette.color(QPalette::Normal, QPalette::Highlight);
+            painter->setPen(QPen(highlight.dark(140), 0));
 
-            QColor highlightedGradientStartColor = option->palette.highlight().color().light(100);
-            QColor highlightedGradientStopColor = option->palette.highlight().color().light(130);
+            QColor highlightedGradientStartColor = highlight.light(100);
+            QColor highlightedGradientStopColor  = highlight.light(130);
 
             QLinearGradient gradient(rect.topLeft(), QPoint(rect.bottomLeft().x(),
                                                             rect.bottomLeft().y()*2));
@@ -1487,7 +1488,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             painter->setBrush(gradient);
             painter->drawRect(progressBar);
 
-            painter->setPen(QPen(option->palette.highlight().color().light(120), 0));
+            painter->setPen(QPen(highlight.light(120), 0));
             painter->drawLine(QPoint(progressBar.left() + 1, progressBar.top() + 1),
                               QPoint(progressBar.right(), progressBar.top() + 1));
             painter->drawLine(QPoint(progressBar.left() + 1, progressBar.top() + 1),
@@ -1785,7 +1786,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
         painter->restore();
         break;
 #ifndef QT_NO_TABBAR
-    case CE_TabBarTabShape:
+	case CE_TabBarTabShape:
         painter->save();
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
             QColor tabFrameColor = mergedColors(option->palette.background().color(),
@@ -1840,6 +1841,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
             QMatrix rotMatrix;
             bool flip = false;
             painter->setPen(shadow);
+            QColor activeHighlight = option->palette.color(QPalette::Normal, QPalette::Highlight);
             switch (tab->shape) {
             case QTabBar::RoundedNorth:
                 break;
@@ -1892,7 +1894,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
             // Delete border
             if (selected) {
-                painter->setPen(QPen(option->palette.highlight(), 0));
+                painter->setPen(QPen(activeHighlight, 0));
                 painter->drawLine(x1 + 1, y1 + 1, x2 - 1, y1 + 1);
                 painter->drawLine(x1 , y1 + 2, x2 , y1 + 2);
             } else {
@@ -1920,7 +1922,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 if (!selected)painter->drawLine(beg - 2, y1 + 1, end, y1 + 1);
 
                 if (selected)
-                    painter->setPen(QPen(option->palette.highlight().color().dark(150), 0));
+                    painter->setPen(QPen(activeHighlight.dark(150), 0));
                 else
                     painter->setPen(dark);
                 painter->drawLine(beg, y1 , end, y1);
@@ -1943,7 +1945,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
                 painter->setPen(dark);
                 painter->drawLine(x2, y1 + 2, x2, y2 - ((onlyOne || lastTab) && selected && rightAligned ? 0 : borderThinkness));
                 if (selected)
-                    painter->setPen(QPen(option->palette.highlight().color().dark(150), 0));
+                    painter->setPen(QPen(activeHighlight.dark(150), 0));
                 else
                     painter->setPen(dark);
                 painter->drawPoint(x2 - 1, y1 + 1);
