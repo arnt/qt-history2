@@ -70,8 +70,13 @@ QSize Skin::screenSize(const QString &skinFile)
     return QSize(viewW,viewH);
 }
 
-QString Skin::skinFileName(const QString &skinFile, QString* prefix)
+QString Skin::skinFileName(const QString &rawSkinFile, QString* prefix)
 {
+    // remove ending '/' if present
+    QString skinFile = rawSkinFile;
+    if (skinFile.endsWith('/'))
+        skinFile.truncate(skinFile.length() - 1);
+
     QFileInfo fi(skinFile);
     QString pref;
     QString fn;
