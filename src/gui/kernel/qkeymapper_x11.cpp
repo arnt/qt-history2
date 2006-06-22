@@ -1201,7 +1201,9 @@ bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
         case 14: // Korean, no mapping
             mib = -1; // manual conversion
             mapper = 0;
+#if !defined(QT_NO_XIM)
             converted = keysymToUnicode(byte3, keysym & 0xff);
+#endif
         case 0x20:
             // currency symbols
             if (keysym >= 0x20a0 && keysym <= 0x20ac) {
