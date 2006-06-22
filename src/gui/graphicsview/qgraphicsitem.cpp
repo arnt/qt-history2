@@ -2910,7 +2910,7 @@ public:
 */
 QAbstractGraphicsPathItem::QAbstractGraphicsPathItem(QGraphicsItem *parent,
                                                      QGraphicsScene *scene)
-    : QGraphicsItem(parent, scene)
+    : QGraphicsItem(*new QAbstractGraphicsPathItemPrivate, parent, scene)
 {
 }
 
