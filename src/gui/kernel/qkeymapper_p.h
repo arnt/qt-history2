@@ -102,7 +102,7 @@ struct KeyboardLayoutItem;
 class QKeyEvent;
 class QKeyMapperPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QKeyMapper);
+    Q_DECLARE_PUBLIC(QKeyMapper)
 public:
     QKeyMapperPrivate();
     ~QKeyMapperPrivate();
