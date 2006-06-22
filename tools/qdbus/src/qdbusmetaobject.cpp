@@ -51,6 +51,10 @@ private:
         int type;
         int flags;
     };
+    struct Type {
+        int id;
+        QByteArray name;
+    };
 
     enum PropertyFlags  {
         Invalid = 0x00000000,
@@ -94,6 +98,10 @@ private:
     const QDBusIntrospection::Interface *data;
     QString interface;
 
+    Type findType(const QByteArray &signature,
+                  const QDBusIntrospection::Annotations &annotations,
+                  const char *direction = "Out", int id = -1);
+    
     void parseMethods();
     void parseSignals();
     void parseProperties();
@@ -128,12 +136,49 @@ QDBusMetaObjectGenerator::QDBusMetaObjectGenerator(const QString &interfaceName,
     }
 }
 
+QDBusMetaObjectGenerator::Type
+QDBusMetaObjectGenerator::findType(const QByteArray &signature,
+                                   const QDBusIntrospection::Annotations &annotations,
+                                   const char *direction, int id)
+{
+    Type result;
+    result.id = QVariant::Invalid;
+
+    int type = QDBusMetaType::signatureToType(signature);
+    if (type == QVariant::Invalid) {
+        // it's not a type normally handled by our meta type system
+        // it must contain an annotation
+        QString annotationName = QString::fromLatin1("com.trolltech.QtDBus.QtTypeName");
+        if (id >= 0)
+            annotationName += QString::fromLatin1(".%1%2")
+                              .arg(QLatin1String(direction))
+                              .arg(id);
+
+        // extract from annotations:
+        QByteArray typeName = annotations.value(annotationName).toLatin1();
+
+        // verify that it's a valid one
+        if (typeName.isEmpty())
+            return result;      // invalid
+
+        type = QVariant::nameToType(typeName);
+        if (type == QVariant::Invalid || signature != QDBusMetaType::typeToSignature(type))
+            return result;      // unknown type is invalid too
+
+        result.name = typeName;
+    } else {
+        result.name = QVariant::typeToName( QVariant::Type(type) );
+    }
+
+    result.id = type;
+    return result;              // success
+}
+
 void QDBusMetaObjectGenerator::parseMethods()
 {
     //
     // TODO:
     //  Add cloned methods when the remote object has return types
-    //  Use the com.trolltech.QtDBus.QtTypeName.* property to identify method parameters
     //
 
     QDBusIntrospection::Methods::ConstIterator method_it = data->methods.constBegin();
@@ -148,23 +193,22 @@ void QDBusMetaObjectGenerator::parseMethods()
         bool ok = true;
 
         // build the input argument list
-        QDBusIntrospection::Arguments::ConstIterator arg_it = m.inputArgs.constBegin();
-        QDBusIntrospection::Arguments::ConstIterator arg_end = m.inputArgs.constEnd();
-        for ( ; arg_it != arg_end; ++arg_it) {
-            const QDBusIntrospection::Argument &arg = *arg_it;
-            int typeId = QDBusMetaType::signatureToType(arg.type.toLatin1());
-            if (typeId == QVariant::Invalid) {
+        for (int i = 0; i < m.inputArgs.count(); ++i) {
+            const QDBusIntrospection::Argument &arg = m.inputArgs.at(i);
+
+            Type type = findType(arg.type.toLatin1(), m.annotations, "In", i);
+            if (type.id == QVariant::Invalid) {
                 ok = false;
                 break;
             }
 
             mm.inputSignature += arg.type.toLatin1();
-            mm.inputTypes.append(typeId);
+            mm.inputTypes.append(type.id);
 
             mm.parameters.append(arg.name.toLatin1());
             mm.parameters.append(',');
             
-            prototype.append( QVariant::typeToName( QVariant::Type(typeId) ) );
+            prototype.append(type.name);
             prototype.append(',');
         }
         if (!ok) continue;
@@ -173,24 +217,24 @@ void QDBusMetaObjectGenerator::parseMethods()
         for (int i = 0; i < m.outputArgs.count(); ++i) {
             const QDBusIntrospection::Argument &arg = m.outputArgs.at(i);
 
-            int typeId = QDBusMetaType::signatureToType(arg.type.toLatin1());
-            if (typeId == QVariant::Invalid) {
+            Type type = findType(arg.type.toLatin1(), m.annotations, "Out", i);
+            if (type.id == QVariant::Invalid) {
                 ok = false;
                 break;
             }
 
             mm.outputSignature += arg.type.toLatin1();
-            mm.outputTypes.append(typeId);
+            mm.outputTypes.append(type.id);
 
             if (i == 0) {
                 // return value
-                mm.typeName = QVariant::typeToName( QVariant::Type(typeId) );
+                mm.typeName = type.name;
             } else {
                 // non-const ref parameter
                 mm.parameters.append(arg.name.toLatin1());
                 mm.parameters.append(',');
 
-                prototype.append( QVariant::typeToName( QVariant::Type(typeId) ) );
+                prototype.append(type.name);
                 prototype.append("&,");
             }
         }
@@ -218,11 +262,6 @@ void QDBusMetaObjectGenerator::parseMethods()
 
 void QDBusMetaObjectGenerator::parseSignals()
 {
-    //
-    // TODO:
-    //  Use the com.trolltech.QtDBus.QtTypeName.* property to identify method parameters
-    //
-
     QDBusIntrospection::Signals::ConstIterator signal_it = data->signals_.constBegin();
     QDBusIntrospection::Signals::ConstIterator signal_end = data->signals_.constEnd();
     for ( ; signal_it != signal_end; ++signal_it) {
@@ -235,23 +274,22 @@ void QDBusMetaObjectGenerator::parseSignals()
         bool ok = true;
 
         // build the output argument list
-        QDBusIntrospection::Arguments::ConstIterator arg_it = s.outputArgs.constBegin();
-        QDBusIntrospection::Arguments::ConstIterator arg_end = s.outputArgs.constEnd();
-        for ( ; arg_it != arg_end; ++arg_it) {
-            const QDBusIntrospection::Argument &arg = *arg_it;
-            int typeId = QDBusMetaType::signatureToType(arg.type.toLatin1());
-            if (typeId == QVariant::Invalid) {
+        for (int i = 0; i < s.outputArgs.count(); ++i) {
+            const QDBusIntrospection::Argument &arg = s.outputArgs.at(i);
+
+            Type type = findType(arg.type.toLatin1(), s.annotations, "Out", i);
+            if (type.id == QVariant::Invalid) {
                 ok = false;
                 break;
             }
 
             mm.inputSignature += arg.type.toLatin1();
-            mm.inputTypes.append(typeId);
+            mm.inputTypes.append(type.id);
 
             mm.parameters.append(arg.name.toLatin1());
             mm.parameters.append(',');
             
-            prototype.append( QVariant::typeToName( QVariant::Type(typeId) ) );
+            prototype.append(type.name);
             prototype.append(',');
         }
         if (!ok) continue;
@@ -274,23 +312,19 @@ void QDBusMetaObjectGenerator::parseSignals()
 
 void QDBusMetaObjectGenerator::parseProperties()
 {
-    //
-    // TODO:
-    //  Use the com.trolltech.QtDBus.QtTypeName property to identify type
-    //
-
     QDBusIntrospection::Properties::ConstIterator prop_it = data->properties.constBegin();
     QDBusIntrospection::Properties::ConstIterator prop_end = data->properties.constEnd();
     for ( ; prop_it != prop_end; ++prop_it) {
         const QDBusIntrospection::Property &p = *prop_it;
         Property mp;
-        mp.type = QDBusMetaType::signatureToType(p.type.toLatin1());
-        if (mp.type == QVariant::Invalid)
+        Type type = findType(p.type.toLatin1(), p.annotations);
+        if (type.id == QVariant::Invalid)
             continue;
         
         QByteArray name = p.name.toLatin1();
         mp.signature = p.type.toLatin1();
-        mp.typeName = QVariant::typeToName( QVariant::Type(mp.type) );
+        mp.type = type.id;
+        mp.typeName = type.name;
 
         // build the flags:
         mp.flags = StdCppSet | Scriptable | Stored;
@@ -299,7 +333,7 @@ void QDBusMetaObjectGenerator::parseProperties()
         if (p.access != QDBusIntrospection::Property::Read)
             mp.flags |= Writable;
 
-        if (mp.typeName == "QVariant")
+        if (mp.typeName == "QDBusVariant")
             mp.flags |= 0xff << 24;
         else if (mp.type < 0xff)
             // encode the type in the flags
