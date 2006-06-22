@@ -210,12 +210,12 @@ void tst_QKeySequence::standardKeys_data()
     QTest::newRow("MoveToEndOfBlock") << (int)QKeySequence::MoveToEndOfBlock<< QString(""); //mac only
     QTest::newRow("SelectEndOfDocument") << (int)QKeySequence::SelectEndOfDocument<< QString("CTRL+SHIFT+END"); //mac only
 #else
-    QTest::newRow("nextChild") << (int)QKeySequence::NextChild<< QString("CTRL+}");
-    QTest::newRow("previousChild") << (int)QKeySequence::PreviousChild<< QString("CTRL+{");
-    QTest::newRow("MoveToEndOfBlock") << (int)QKeySequence::MoveToEndOfBlock<< QString("ALT+DOWN");
+    QTest::newRow("nextChild") << (int)QKeySequence::NextChild << QString("CTRL+}");
+    QTest::newRow("previousChild") << (int)QKeySequence::PreviousChild << QString("CTRL+{");
+    QTest::newRow("MoveToEndOfBlock") << (int)QKeySequence::MoveToEndOfBlock << QString("ALT+DOWN");
     QTest::newRow("forward") << (int)QKeySequence::Forward << QString("CTRL+]");
     QTest::newRow("backward") << (int)QKeySequence::Back << QString("CTRL+[");
-    QTest::newRow("SelectEndOfDocument") << (int)QKeySequence::SelectEndOfDocument<< QString("ALT+SHIFT+DOWN"); //mac only
+    QTest::newRow("SelectEndOfDocument") << (int)QKeySequence::SelectEndOfDocument<< QString("CTRL+SHIFT+DOWN"); //mac only
 #endif
 }
 
