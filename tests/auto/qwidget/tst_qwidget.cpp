@@ -2336,6 +2336,7 @@ typedef QPair<QWidget *, HIViewRef> WidgetViewPair;
 WidgetViewPair createAndRetain(QWidget * const parent = 0)
 {
     QWidget * const widget = new QWidget(parent);
+    widget->createWinId();
     const HIViewRef view = (HIViewRef)widget->winId();
     // Retain twice so we can safely call CFGetRetaintCount even if the retain count
     // is off by one because of a double release.
