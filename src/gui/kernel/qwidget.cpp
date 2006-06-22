@@ -6755,11 +6755,11 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
         if (newParent) {
             QEvent e(QEvent::ParentAboutToChange);
             QApplication::sendEvent(this, &e);
-
-            if (isAncestorOf(focusWidget()))
-                focusWidget()->clearFocus();
         }
     }
+    if (newParent && isAncestorOf(focusWidget()))
+        focusWidget()->clearFocus();
+
     d->setParent_sys(parent, f);
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
