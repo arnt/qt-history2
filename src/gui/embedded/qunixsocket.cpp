@@ -225,7 +225,12 @@ struct QUnixSocketMessagePrivate : public QSharedData
     QByteArray bytes;
     QList<QUnixSocketRights> rights;
 
-    enum { Default = 0x00, Truncated = 0x01, Credential = 0x02 } state;
+    enum AncillaryDataState {
+        Default = 0x00,
+        Truncated = 0x01,
+        Credential = 0x02
+    };
+    AncillaryDataState state;
 
     pid_t pid;
     gid_t gid;
@@ -1367,8 +1372,8 @@ QUnixSocketMessage QUnixSocket::read()
     }
 
     if(d->message.msg_flags & MSG_CTRUNC) {
-        (int)( data.d->state = QUnixSocketMessagePrivate::Truncated ) |
-                               QUnixSocketMessagePrivate::Credential;
+        data.d->state = (QUnixSocketMessagePrivate::AncillaryDataState)(QUnixSocketMessagePrivate::Truncated |
+                               QUnixSocketMessagePrivate::Credential );
     }
 
     if(!a.isEmpty())
