@@ -350,7 +350,15 @@ void QAbstractScrollAreaPrivate::layoutChildren()
 
     scrollBarContainers[Qt::Horizontal]->setVisible(needh);
     scrollBarContainers[Qt::Vertical]->setVisible(needv);
-    viewportRect.adjust(left, top, -right, -bottom);
+
+    // Existing code expect to have to account for reverse mode when calling 
+    // setViewportMargins(), so we undo that here to preserve the behavior. 
+    // ### Qt 5: Consider changing the behavior.
+    if (QApplication::isRightToLeft())
+        viewportRect.adjust(right, top, -left, -bottom);
+    else
+        viewportRect.adjust(left, top, -right, -bottom);
+
     viewport->setGeometry(QStyle::visualRect(opt.direction, opt.rect, viewportRect)); // resize the viewport last
 }
 
