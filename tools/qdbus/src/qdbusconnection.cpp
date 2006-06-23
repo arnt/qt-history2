@@ -731,6 +731,30 @@ QString QDBusConnection::baseService() const
             : QString();
 }
 
+/*!
+    Attempts to register the \a serviceName on the D-BUS server and
+    returns true if the registration succeded. The registration will
+    fail if the name is already registered by another application.
+
+    \sa unregisterService(), QDBusConnectionInterface::registerService()
+*/
+bool QDBusConnection::registerService(const QString &serviceName)
+{
+    return interface()->registerService(serviceName);
+}
+
+/*!
+    Unregisters the service \a serviceName that was previously
+    registered with registerService() and returns true if it
+    succeeded.
+
+    \sa registerService(), QDBusConnectionInterface::unregisterService()
+*/
+bool QDBusConnection::unregisterService(const QString &serviceName)
+{
+    return interface()->unregisterService(serviceName);
+}
+
 Q_GLOBAL_STATIC(QMutex, defaultBussesMutex)
 static const char sessionBusName[] = "qt_default_session_bus";
 static const char systemBusName[] = "qt_default_system_bus";

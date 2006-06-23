@@ -80,6 +80,9 @@ public:
                         RegisterOptions options = ExportAdaptors);
     void unregisterObject(const QString &path, UnregisterMode mode = UnregisterNode);
 
+    bool registerService(const QString &serviceName);
+    bool unregisterService(const QString &serviceName);
+
     template<class Interface>
     inline Interface *findInterface(const QString &service, const QString &path);
     QDBusInterface *findInterface(const QString& service, const QString& path,
