@@ -32,7 +32,7 @@ QT_BEGIN_HEADER
 #endif
 
 #ifndef Q_MOC_RUN
-# define Q_ASYNC
+# define Q_NOREPLY
 #endif
 
 #ifdef Q_CC_MSVC

@@ -22,19 +22,14 @@
 
 bool qDBusCheckAsyncTag(const char *tag)
 {
+    static const char noReplyTag[] = "Q_NOREPLY";
     if (!tag || !*tag)
         return false;
 
-    const char *p = strstr(tag, "async");
+    const char *p = strstr(tag, noReplyTag);
     if (p != NULL &&
         (p == tag || *(p-1) == ' ') &&
-        (p[5] == '\0' || p[5] == ' '))
-        return true;
-
-    p = strstr(tag, "Q_ASYNC");
-    if (p != NULL &&
-        (p == tag || *(p-1) == ' ') &&
-        (p[7] == '\0' || p[7] == ' '))
+        (p[sizeof noReplyTag] == '\0' || p[sizeof noReplyTag] == ' '))
         return true;
 
     return false;

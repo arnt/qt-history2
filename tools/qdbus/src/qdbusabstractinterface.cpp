@@ -214,7 +214,7 @@ QDBusMessage QDBusAbstractInterface::callWithArgs(const QString& method, const Q
                 // the same name
 
                 QList<QByteArray> tags = QByteArray(mm.tag()).split(' ');
-                if (tags.contains("async") || tags.contains("Q_ASYNC"))
+                if (tags.contains("Q_NOREPLY"))
                     mode = NoWaitForReply;
 
                 break;

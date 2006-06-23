@@ -252,7 +252,7 @@ void QDBusMetaObjectGenerator::parseMethods()
 
         // check the async tag
         if (m.annotations.value(QLatin1String(ANNOTATION_NO_WAIT)) == QLatin1String("true"))
-            mm.tag = "Q_ASYNC";
+            mm.tag = "Q_NOREPLY";
 
         // meta method flags
         mm.flags = AccessPublic | MethodSlot | MethodScriptable;

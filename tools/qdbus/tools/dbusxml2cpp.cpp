@@ -573,9 +573,9 @@ static void writeProxy(const char *filename, const QDBusIntrospection::Interface
         // methods:
         hs << "public Q_SLOTS: // METHODS" << endl;
         foreach (const QDBusIntrospection::Method &method, interface->methods) {
-            bool isAsync =
+            bool isNoReply =
                 method.annotations.value(QLatin1String(ANNOTATION_NO_WAIT)) == QLatin1String("true");
-            if (isAsync && !method.outputArgs.isEmpty()) {
+            if (isNoReply && !method.outputArgs.isEmpty()) {
                 fprintf(stderr, "warning: method %s in interface %s is marked 'async' but has output arguments.\n",
                         qPrintable(method.name), qPrintable(interface->name));
                 continue;
@@ -586,8 +586,8 @@ static void writeProxy(const char *filename, const QDBusIntrospection::Interface
             if (method.annotations.value(QLatin1String("org.freedesktop.DBus.Deprecated")) == QLatin1String("true"))
                 hs << "Q_DECL_DEPRECATED ";
 
-            if (isAsync)
-                hs << "Q_ASYNC void ";
+            if (isNoReply)
+                hs << "Q_NOREPLY void ";
             else if (method.outputArgs.isEmpty())
                 hs << "QDBusReply<void> ";
             else {
@@ -605,7 +605,7 @@ static void writeProxy(const char *filename, const QDBusIntrospection::Interface
 
             if (method.outputArgs.count() > 1)
                 hs << "        QDBusMessage reply = call(QLatin1String(\"";
-            else if (!isAsync)
+            else if (!isNoReply)
                 hs << "        return call(QLatin1String(\"";
             else
                 hs << "        call(NoWaitForReply, QLatin1String(\"";
@@ -871,9 +871,9 @@ static void writeAdaptor(const char *filename, const QDBusIntrospection::Interfa
 
         hs << "public Q_SLOTS: // METHODS" << endl;
         foreach (const QDBusIntrospection::Method &method, interface->methods) {
-            bool isAsync =
+            bool isNoReply =
                 method.annotations.value(QLatin1String(ANNOTATION_NO_WAIT)) == QLatin1String("true");
-            if (isAsync && !method.outputArgs.isEmpty()) {
+            if (isNoReply && !method.outputArgs.isEmpty()) {
                 fprintf(stderr, "warning: method %s in interface %s is marked 'async' but has output arguments.\n",
                         qPrintable(method.name), qPrintable(interface->name));
                 continue;
@@ -885,8 +885,8 @@ static void writeAdaptor(const char *filename, const QDBusIntrospection::Interfa
                 hs << "Q_DECL_DEPRECATED ";
 
             QByteArray returnType;
-            if (isAsync) {
-                hs << "Q_ASYNC void ";
+            if (isNoReply) {
+                hs << "Q_NOREPLY void ";
                 cs << "void ";
             } else if (method.outputArgs.isEmpty()) {
                 hs << "void ";
