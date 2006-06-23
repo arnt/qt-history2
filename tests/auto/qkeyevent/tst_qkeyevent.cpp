@@ -46,6 +46,7 @@ public slots:
 private slots:
     void sendRecieveKeyEvents_data();
     void sendRecieveKeyEvents();
+    void standardKey();
 private:
     KeyEventWidget* testWidget;
 };
@@ -125,6 +126,11 @@ void tst_QKeyEvent::sendRecieveKeyEvents_data()
     for ( a = Qt::Key_Space; a < Qt::Key_ydiaeresis; a++ ) {
 	QTest::newRow( QString("key - %1").arg( a ).toLatin1() ) << a << TRUE << QString( QChar(a) );
     }
+}
+
+void tst_QKeyEvent::standardKey()
+{
+
 }
 
 void tst_QKeyEvent::sendRecieveKeyEvents()

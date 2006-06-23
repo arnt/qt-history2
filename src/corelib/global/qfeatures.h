@@ -312,7 +312,7 @@
 #define QT_NO_STYLE_CDE
 #endif
 
-// QCleanLooksStyle
+// QCleanlooksStyle
 #if !defined(QT_NO_STYLE_CLEANLOOKS) && (defined(QT_NO_STYLE_WINDOWS))
 #define QT_NO_STYLE_CLEANLOOKS
 #endif

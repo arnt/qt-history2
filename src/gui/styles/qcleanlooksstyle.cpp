@@ -420,15 +420,15 @@ static const char * const qt_cleanlooks_checkbox_checked[] = {
     "             ",
     "             "};
 
-class QCleanLooksStylePrivate : public QWindowsStylePrivate
+class QCleanlooksStylePrivate : public QWindowsStylePrivate
 {
-    Q_DECLARE_PUBLIC(QCleanLooksStyle)
+    Q_DECLARE_PUBLIC(QCleanlooksStyle)
 public:
-    QCleanLooksStylePrivate()
+    QCleanlooksStylePrivate()
         : QWindowsStylePrivate()
     {  }
 
-~QCleanLooksStylePrivate()
+~QCleanlooksStylePrivate()
     { }
     QPixmap resolveIcon(int size, const QString &) const;
     QPixmap resolveIconHelper(int size, const QString &, const QString &) const;
@@ -518,30 +518,30 @@ static void qt_cleanlooks_draw_mdibutton(QPainter *painter, const QStyleOptionTi
 }
 
 /*!
-    \class QCleanLooksStyle
-    \brief The QCleanLooksStyle class provides a widget style similar to the
-    ClearLooks style available in GNOME.
+    \class QCleanlooksStyle
+    \brief The QCleanlooksStyle class provides a widget style similar to the
+    Clearlooks style available in GNOME.
     \since 4.2
 
-    The CleanLooks style provides a look and feel for widgets
-    that closely resembles the ClearLooks style, introduced by Richard
+    The Cleanlooks style provides a look and feel for widgets
+    that closely resembles the Clearlooks style, introduced by Richard
     Stellingwerff and Daniel Borgmann.
 
     \sa QWindowsXPStyle, QMacStyle, QWindowsStyle, QCDEStyle, QMotifStyle, QPlastiqueStyle.
 */
 
 /*!
-    Constructs a QCleanLooksStyle object.
+    Constructs a QCleanlooksStyle object.
 */
-QCleanLooksStyle::QCleanLooksStyle() : QWindowsStyle(*new QCleanLooksStylePrivate)
+QCleanlooksStyle::QCleanlooksStyle() : QWindowsStyle(*new QCleanlooksStylePrivate)
 {
     setObjectName(QLatin1String("CleanLooks"));
 }
 
 /*!
-    Destroys the QCleanLooksStyle object.
+    Destroys the QCleanlooksStyle object.
 */
-QCleanLooksStyle::~QCleanLooksStyle()
+QCleanlooksStyle::~QCleanlooksStyle()
 {
 }
 
@@ -559,7 +559,7 @@ QCleanLooksStyle::~QCleanLooksStyle()
 
     \sa Qt::Alignment
 */
-void QCleanLooksStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
+void QCleanlooksStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
                                     bool enabled, const QString& text, QPalette::ColorRole textRole) const
 {
     if (text.isEmpty())
@@ -591,7 +591,7 @@ static QColor mergedColors(const QColor &colorA, const QColor &colorB, int facto
 /*!
     \reimp
 */
-void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
+void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
                         const QStyleOption *option,
                         QPainter *painter, const QWidget *widget) const
 {
@@ -1121,7 +1121,7 @@ void QCleanLooksStyle::drawPrimitive(PrimitiveElement elem,
 /*!
   \reimp
 */
-void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *painter,
+void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *painter,
                                    const QWidget *widget) const
 {
     QRect rect = option->rect;
@@ -1969,7 +1969,7 @@ void QCleanLooksStyle::drawControl(ControlElement element, const QStyleOption *o
 /*!
   \reimp
 */
-QPalette QCleanLooksStyle::standardPalette () const
+QPalette QCleanlooksStyle::standardPalette () const
 {
     QPalette palette = QWindowsStyle::standardPalette();
 
@@ -2013,7 +2013,7 @@ QPalette QCleanLooksStyle::standardPalette () const
 /*!
   \reimp
 */
-void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
+void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                          QPainter *painter, const QWidget *widget) const
 {
     QColor borderColor = option->palette.dark().color().light(110);
@@ -3141,7 +3141,7 @@ void QCleanLooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 /*!
   \reimp
 */
-int QCleanLooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
+int QCleanlooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
     int ret = -1;
     switch (metric) {
@@ -3216,7 +3216,7 @@ int QCleanLooksStyle::pixelMetric(PixelMetric metric, const QStyleOption *option
 /*!
   \reimp
 */
-QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
+QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
                                         const QSize &size, const QWidget *widget) const
 {
     QSize newSize = QWindowsStyle::sizeFromContents(type, option, size, widget);
@@ -3257,11 +3257,11 @@ QSize QCleanLooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
 /*!
   \reimp
 */
-void QCleanLooksStyle::polish(QApplication *app)
+void QCleanlooksStyle::polish(QApplication *app)
 {
     Q_UNUSED(app);
 #ifdef Q_WS_X11
-    Q_D(QCleanLooksStyle);
+    Q_D(QCleanlooksStyle);
 
     d->dataDir = QLatin1String(getenv("XDG_DATA_DIRS"));
 
@@ -3281,7 +3281,7 @@ void QCleanLooksStyle::polish(QApplication *app)
 /*!
   \reimp
 */
-void QCleanLooksStyle::polish(QWidget *widget)
+void QCleanlooksStyle::polish(QWidget *widget)
 {
     if (qobject_cast<QAbstractButton*>(widget)
         || qobject_cast<QComboBox *>(widget)
@@ -3302,7 +3302,7 @@ void QCleanLooksStyle::polish(QWidget *widget)
 /*!
   \reimp
 */
-void QCleanLooksStyle::polish(QPalette &pal)
+void QCleanlooksStyle::polish(QPalette &pal)
 {
     QWindowsStyle::polish(pal);
 }
@@ -3310,7 +3310,7 @@ void QCleanLooksStyle::polish(QPalette &pal)
 /*!
   \reimp
 */
-void QCleanLooksStyle::unpolish(QWidget *widget)
+void QCleanlooksStyle::unpolish(QWidget *widget)
 {
     Q_UNUSED(widget);
 }
@@ -3318,7 +3318,7 @@ void QCleanLooksStyle::unpolish(QWidget *widget)
 /*!
   \reimp
 */
-void QCleanLooksStyle::unpolish(QApplication *app)
+void QCleanlooksStyle::unpolish(QApplication *app)
 {
     QWindowsStyle::unpolish(app);
 }
@@ -3326,7 +3326,7 @@ void QCleanLooksStyle::unpolish(QApplication *app)
 /*!
   \reimp
 */
-QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option,
+QRect QCleanlooksStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option,
                                       SubControl subControl, const QWidget *widget) const
 {
     QRect rect = QWindowsStyle::subControlRect(control, option, subControl, widget);
@@ -3588,7 +3588,7 @@ QRect QCleanLooksStyle::subControlRect(ComplexControl control, const QStyleOptio
 /*!
   \reimp
 */
-QRect QCleanLooksStyle::itemPixmapRect(const QRect &r, int flags, const QPixmap &pixmap) const
+QRect QCleanlooksStyle::itemPixmapRect(const QRect &r, int flags, const QPixmap &pixmap) const
 {
     return itemPixmapRect(r, flags, pixmap);
 }
@@ -3596,7 +3596,7 @@ QRect QCleanLooksStyle::itemPixmapRect(const QRect &r, int flags, const QPixmap 
 /*!
   \reimp
 */
-void QCleanLooksStyle::drawItemPixmap(QPainter *painter, const QRect &rect,
+void QCleanlooksStyle::drawItemPixmap(QPainter *painter, const QRect &rect,
                             int alignment, const QPixmap &pixmap) const
 {
     QWindowsStyle::drawItemPixmap(painter, rect, alignment, pixmap);
@@ -3605,7 +3605,7 @@ void QCleanLooksStyle::drawItemPixmap(QPainter *painter, const QRect &rect,
 /*!
   \reimp
 */
-QStyle::SubControl QCleanLooksStyle::hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
+QStyle::SubControl QCleanlooksStyle::hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                               const QPoint &pt, const QWidget *w) const
 {
     return QWindowsStyle::hitTestComplexControl(cc, opt, pt, w);
@@ -3614,7 +3614,7 @@ QStyle::SubControl QCleanLooksStyle::hitTestComplexControl(ComplexControl cc, co
 /*!
   \reimp
 */
-QPixmap QCleanLooksStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
+QPixmap QCleanlooksStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap,
                                         const QStyleOption *opt) const
 {
     return QWindowsStyle::generatedIconPixmap(iconMode, pixmap, opt);
@@ -3623,7 +3623,7 @@ QPixmap QCleanLooksStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixma
 /*!
   \reimp
 */
-int QCleanLooksStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
+int QCleanlooksStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                                QStyleHintReturn *returnData) const
 {
     int ret = 0;
@@ -3688,7 +3688,7 @@ int QCleanLooksStyle::styleHint(StyleHint hint, const QStyleOption *option, cons
 }
 
 /*! \reimp */
-QRect QCleanLooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *w) const
+QRect QCleanlooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidget *w) const
 {
     QRect r = QWindowsStyle::subElementRect(sr, opt, w);
     switch (sr) {
@@ -3707,11 +3707,11 @@ QRect QCleanLooksStyle::subElementRect(SubElement sr, const QStyleOption *opt, c
 /*!
     \internal
 */
-QIcon QCleanLooksStyle::standardIconImplementation(StandardPixmap standardIcon,
+QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
                                                   const QStyleOption *option,
                                                   const QWidget *widget) const
 {
-    Q_D(const QCleanLooksStyle);
+    Q_D(const QCleanlooksStyle);
     QIcon icon(standardPixmap(standardIcon, option, widget));
     QPixmap pixmap;
     switch (standardIcon) {
@@ -3739,7 +3739,7 @@ QIcon QCleanLooksStyle::standardIconImplementation(StandardPixmap standardIcon,
 }
 
 
-QPixmap QCleanLooksStylePrivate::searchIconDir(const QString &searchRoot,
+QPixmap QCleanlooksStylePrivate::searchIconDir(const QString &searchRoot,
                                                const QString &iconName) const
 {
     QPixmap pixmap;
@@ -3759,7 +3759,7 @@ QPixmap QCleanLooksStylePrivate::searchIconDir(const QString &searchRoot,
 }
 
 
-QPixmap QCleanLooksStylePrivate::resolveIconHelper(int size,
+QPixmap QCleanlooksStylePrivate::resolveIconHelper(int size,
                                                    const QString &themeName,
                                                    const QString &iconName) const
 {
@@ -3796,7 +3796,7 @@ QPixmap QCleanLooksStylePrivate::resolveIconHelper(int size,
     return pixmap;
 }
 
-QPixmap QCleanLooksStylePrivate::resolveIcon(int size, const QString &name) const
+QPixmap QCleanlooksStylePrivate::resolveIcon(int size, const QString &name) const
 {
 #ifdef Q_WS_X11
     QPixmap pixmap;
@@ -3825,10 +3825,10 @@ QPixmap QCleanLooksStylePrivate::resolveIcon(int size, const QString &name) cons
 /*!
  \reimp
  */
-QPixmap QCleanLooksStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
+QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                       const QWidget *widget) const
 {
-    Q_D(const QCleanLooksStyle);
+    Q_D(const QCleanlooksStyle);
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
     case SP_MessageBoxInformation:

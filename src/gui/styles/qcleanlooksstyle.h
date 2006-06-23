@@ -22,15 +22,15 @@ QT_MODULE(Gui)
 
 #if !defined(QT_NO_STYLE_CLEANLOOKS)
 
-class QCleanLooksStylePrivate;
-class Q_GUI_EXPORT QCleanLooksStyle : public QWindowsStyle
+class QCleanlooksStylePrivate;
+class Q_GUI_EXPORT QCleanlooksStyle : public QWindowsStyle
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QCleanLooksStyle)
+    Q_DECLARE_PRIVATE(QCleanlooksStyle)
 
 public:
-    QCleanLooksStyle();
-    ~QCleanLooksStyle();
+    QCleanlooksStyle();
+    ~QCleanlooksStyle();
 
     QPalette standardPalette () const;
     void drawPrimitive(PrimitiveElement elem,

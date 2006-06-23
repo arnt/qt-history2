@@ -116,7 +116,7 @@ QStyle *QStyleFactory::create(const QString& key)
 #endif
 #ifndef QT_NO_STYLE_CLEANLOOKS
     if (style == QLatin1String("cleanlooks"))
-        ret = new QCleanLooksStyle;
+        ret = new QCleanlooksStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_MAC
@@ -174,8 +174,8 @@ QStringList QStyleFactory::keys()
         list << QLatin1String("Plastique");
 #endif
 #ifndef QT_NO_STYLE_CLEANLOOKS
-    if (!list.contains(QLatin1String("CleanLooks")))
-        list << QLatin1String("CleanLooks");
+    if (!list.contains(QLatin1String("Cleanlooks")))
+        list << QLatin1String("Cleanlooks");
 #endif
 #ifndef QT_NO_STYLE_MAC
     QString mstyle = QLatin1String("Macintosh");

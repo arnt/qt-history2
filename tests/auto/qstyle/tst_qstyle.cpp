@@ -24,7 +24,7 @@
 #include <qcommonstyle.h>
 
 #if QT_VERSION >= 0x040200
-#include <QCleanLooksStyle>
+#include <QCleanlooksStyle>
 #endif
 
 #ifdef Q_WS_MAC
@@ -59,7 +59,7 @@ private slots:
     void testWindowsStyle();
     void testCDEStyle();
     void testWindowsXPStyle();
-    void testCleanLooksStyle();
+    void testCleanlooksStyle();
     void testMacStyle();
 
 private:
@@ -157,10 +157,10 @@ void tst_QStyle::testPlastiqueStyle()
     testAllFunctions(&pstyle);
 }
 
-void tst_QStyle::testCleanLooksStyle()
+void tst_QStyle::testCleanlooksStyle()
 {
 #if QT_VERSION >= 0x040200
-    QCleanLooksStyle cstyle;
+    QCleanlooksStyle cstyle;
     testAllFunctions(&cstyle);
 #endif
 }
