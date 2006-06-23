@@ -77,7 +77,7 @@ static void dump(QDebug debug, const QDockAreaLayoutItem &item, QString indent)
     debug << '\n';
 }
 
-void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent)
+static void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent)
 {
     debug << "Info(\n";
     for (int i = 0; i < info.item_list.count(); ++i)
@@ -85,7 +85,7 @@ void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent)
     debug << (const char*) indent.toLocal8Bit() << ")\n";
 }
 
-void dump(QDebug debug, const QDockWidgetLayout &layout)
+static void dump(QDebug debug, const QDockWidgetLayout &layout)
 {
     debug << "Top\n";
     dump(debug, layout.docks[QDockWidgetLayout::TopPos], QString());

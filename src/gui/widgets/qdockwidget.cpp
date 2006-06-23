@@ -392,6 +392,7 @@ void QDockWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
     Q_ASSERT(layout != 0);
 
     if (!state->dragging
+        && layout->pluggingWidget == 0
         && (event->pos() - state->pressPos).manhattanLength() > QApplication::startDragDistance()) {
         state->widgetItem = layout->unplug(q);
         Q_ASSERT(state->widgetItem != 0);

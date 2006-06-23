@@ -1334,6 +1334,9 @@ static QString dumpInfo(const QDockWidgetLayout &l)
 
 QList<int> QMainWindowLayout::hover(QWidgetItem *dockWidgetItem, const QPoint &mousePos)
 {
+    if (pluggingWidget != 0)
+        return QList<int>();
+
     QPoint pos = parentWidget()->mapFromGlobal(mousePos);
 
     if (!savedDockWidgetLayout.isValid())
@@ -1363,10 +1366,14 @@ QList<int> QMainWindowLayout::hover(QWidgetItem *dockWidgetItem, const QPoint &m
         parentWidget()->update(dockWidgetLayout.separatorRegion());
         dockWidgetLayout = newLayout;
         applyDockWidgetLayout(dockWidgetLayout);
+
+//        dump(qDebug() << "QMainWindowLayout::hover(3)", dockWidgetLayout);
+
         return pathToGap;
     }
 
     restore();
+//    dump(qDebug() << "QMainWindowLayout::hover(4)", dockWidgetLayout);
     return QList<int>();
 }
 
@@ -1418,10 +1425,15 @@ void QMainWindowLayout::animationFinished(QWidget *widget)
 
 void QMainWindowLayout::restore()
 {
+    if (!savedDockWidgetLayout.isValid())
+        return;
+
     dockWidgetLayout = savedDockWidgetLayout;
     applyDockWidgetLayout(dockWidgetLayout);
     savedDockWidgetLayout.clear();
     currentGapPos.clear();
+
+//    dump(qDebug() << "QMainWindowLayout::restore()", dockWidgetLayout);
 }
 
 bool QMainWindowLayout::startSeparatorMove(const QPoint &pos)

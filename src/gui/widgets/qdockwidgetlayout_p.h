@@ -244,6 +244,8 @@ public:
     QSize calculateSize() const;
 };
 
+// void dump(QDebug debug, const QDockWidgetLayout &layout);
+
 #endif // QT_NO_MAINWINDOW
 
 #endif // QDYNAMICDOCKWIDGETLAYOUT_P_H
