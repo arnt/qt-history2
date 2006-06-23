@@ -423,7 +423,7 @@ bool QFontEngineMacMulti::stringToCMap(const QChar *str, int len, QGlyphLayout *
         return false;
     }
 
-    {
+    if (!(fontDef.styleStrategy & QFont::NoFontMerging)) {
         int pos = 0;
         do {
             FMFont substFont = 0;
