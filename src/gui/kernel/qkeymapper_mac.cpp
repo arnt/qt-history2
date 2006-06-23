@@ -763,8 +763,6 @@ QKeyMapperPrivate::updateKeyMap(EventHandlerCallRef, EventRef event, void *)
 {
     UInt32 macVirtualKey = 0;
     GetEventParameter(event, kEventParamKeyCode, typeUInt32, 0, sizeof(macVirtualKey), 0, &macVirtualKey);
-    if(!macVirtualKey)
-        return;
     if (updateKeyboard())
        QKeyMapper::changeKeyboard();
     else if(keyLayout[macVirtualKey])
