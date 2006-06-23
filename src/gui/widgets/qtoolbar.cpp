@@ -203,7 +203,6 @@ void QToolBarPrivate::init()
 #ifdef Q_WS_MAC
     if (q->parentWidget() && q->parentWidget()->isWindow()) {
         // Make sure that the window has the "toolbar" button.
-        q->parentWidget()->createWinId();
         extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
         ChangeWindowAttributes(qt_mac_window_for(q->parentWidget()), kWindowToolbarButtonAttribute,
                                kWindowNoAttributes);
