@@ -3749,6 +3749,7 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
     Q_D(const QCleanlooksStyle);
     QIcon icon(standardPixmap(standardIcon, option, widget));
     QPixmap pixmap;
+    QPixmap link;
     switch (standardIcon) {
     case SP_DirIcon:
         icon.addPixmap(standardPixmap(SP_DirClosedIcon, option, widget),
@@ -3765,8 +3766,37 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
         pixmap = d->resolveIcon(16, QLatin1String("gnome-fs-directory-accept.png"));
         if (!pixmap.isNull())
             icon.addPixmap(pixmap, QIcon::Normal, QIcon::On);
-
         break;
+    case SP_DirLinkIcon:
+        {
+            QPixmap link = d->resolveIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            if (!link.isNull()) {
+                icon.addPixmap(standardPixmap(SP_DirLinkIcon, option, widget));
+                pixmap = d->resolveIcon(16, QLatin1String("stock_folder.png"));
+                if (!pixmap.isNull()) {
+                    QPainter painter(&pixmap);
+                    painter.drawPixmap(8, 8, 8, 8, link); 
+                    painter.end();
+                    icon.addPixmap(pixmap);
+                }
+            }
+            break;
+        }
+    case SP_FileLinkIcon:
+        {
+            QPixmap link = d->resolveIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            if (!link.isNull()) {
+                icon.addPixmap(standardPixmap(SP_FileLinkIcon,option, widget));
+                pixmap = d->resolveIcon(16, QLatin1String("stock_new.png"));
+                if (!pixmap.isNull()) {
+                    QPainter painter(&pixmap);
+                    painter.drawPixmap(8, 8, 8, 8, link);
+                    painter.end();
+                    icon.addPixmap(pixmap);
+                }
+            }
+            break;
+        }
     default:
         break;
     }
@@ -3908,7 +3938,17 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
                 return pixmap;
             break;
         }
-    
+    case SP_FileLinkIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            if (!pixmap.isNull()) {
+                QPixmap fileIcon = d->resolveIcon(24, QLatin1String("stock_new.png"));
+                QPainter painter(&fileIcon);
+                painter.drawPixmap(12, 12, 12, 12, pixmap);
+                return fileIcon; 
+            }
+            break;
+       }           
     case SP_DirClosedIcon:
     case SP_DirIcon:
         {
@@ -3917,6 +3957,17 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
                 return pixmap;
             break;
         }
+    case SP_DirLinkIcon:
+        {
+            QPixmap pixmap = d->resolveIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            if (!pixmap.isNull()) {
+                QPixmap dirIcon = d->resolveIcon(24, QLatin1String("stock_folder.png"));
+                QPainter painter(&dirIcon);
+                painter.drawPixmap(12, 12, 12, 12, pixmap);
+                return dirIcon; 
+            }
+            break;
+       }
     case SP_DriveFDIcon:
         {
             QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-dev-floppy.png"));
