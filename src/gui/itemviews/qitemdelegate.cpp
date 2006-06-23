@@ -837,12 +837,8 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
         return check(option, option.rect, value);
     if (value.isValid()) {
         switch (value.type()) {
-        case QVariant::String: {
-            QString text = value.toString();
-            value = index.data(Qt::FontRole);
-            QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
-            fnt.setBold(true);
-            return textRectangle(0, option.rect, fnt, text); }
+        case QVariant::Invalid:
+            break;
         case QVariant::Pixmap:
             return QRect(QPoint(0, 0), qvariant_cast<QPixmap>(value).size());
         case QVariant::Image:
@@ -855,7 +851,13 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
             return QRect(QPoint(0, 0), size); }
         case QVariant::Color:
             return QRect(QPoint(0, 0), option.decorationSize);
-        default: break;
+        case QVariant::String:
+        default: {
+            QString text = value.toString();
+            value = index.data(Qt::FontRole);
+            QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
+            fnt.setBold(true);
+            return textRectangle(0, option.rect, fnt, text); }
         }
     }
     return QRect();
