@@ -54,7 +54,7 @@ void *guaranteed_memset(void *v,int c,size_t n);
 
 class QUnixSocketMessage;
 
-class RequestAnalyzer
+class Q_GUI_EXPORT RequestAnalyzer
 {
 public:
     RequestAnalyzer();
@@ -77,7 +77,7 @@ protected:
    Use this class to forward on or receive forwarded data over a real
    device for authentication.
 */
-class QAuthDevice : public QIODevice
+class Q_GUI_EXPORT QAuthDevice : public QIODevice
 {
     Q_OBJECT
 public:
