@@ -115,19 +115,23 @@ bool QDBusArgumentPrivate::checkRead()
             int count;
             QString name;
         };
-        Q_DECLARE_METATYPE(MyStructure)
+        QDBUS_DECLARE_METATYPE(MyStructure)
 
         // Marshall the MyStructure data into a D-BUS argument
         QDBusArgument &operator<<(QDBusArgument &argument, const MyStructure &mystruct)
         {
-            argument.newStructure() << mystruct.count << mystruct.name;
+            argument.beginStructure();
+            argument << mystruct.count << mystruct.name;
+            argument.endStructure();
             return argument;
         }
 
         // Retrieve the MyStructure data from the D-BUS argument
         const QDBusArgument &operator>>(const QDBusArgument &argument, MyStructure &mystruct)
         {
-            argument.structure() >> mystruct.count >> mystruct.name;
+            argument.beginStructure();
+            argument >> mystruct.count >> mystruct.name;
+            argument.endStructure();
             return argument;
         }
     \endcode
@@ -137,7 +141,7 @@ bool QDBusArgumentPrivate::checkRead()
     program, you should add the following code:
 
     \code
-        qDBusRegisterMetaType<MyStructure>("MyStructure");
+        qDBusRegisterMetaType<MyStructure>();
     \endcode
 
     Once registered, a type can be used in outgoing method calls
@@ -155,31 +159,16 @@ bool QDBusArgumentPrivate::checkRead()
     in context of a class that may contain invalid data:
 
     \badcode
-        struct MyTime
-        {
-            bool isValid;
-            int hour, minute, second;
-        };
-        Q_DECLARE_METATYPE(MyTime)
-
-        // Marshall the MyTime data into a D-BUS argument
+        // Wrongly marshall the MyTime data into a D-BUS argument
         QDBusArgument &operator<<(QDBusArgument &argument, const MyTime &mytime)
         {
+            argument.beginStructure();
             if (mytime.isValid)
-                argument.newStructure() << true << mytime.hour
-                                        << mytime.minute << mytime.second;
+                argument << true << mytime.hour
+                         << mytime.minute << mytime.second;
             else
-                argument.newStructure() << false;
-            return argument;
-        }
-
-        // Retrieve the MyTime data from the D-BUS argument
-        const QDBusArgument &operator>>(const QDBusArgument &argument, MyTime &mytime)
-        {
-            QDBusArgument s = argument.structure();
-            s >> mytime.isValid;
-            if (mytime.isValid)
-                s >> s.hour >> s.minute >> s.second;
+                argument << false;
+            argument.endStructure();
             return argument;
         }
     \endcode
@@ -664,8 +653,7 @@ const QDBusArgument &QDBusArgument::operator>>(QByteArray &arg) const
 }
 
 /*!
-    Creates a D-BUS structure and return a QDBusArgument suitable for
-    appending new arguments.
+    Opens a new D-BUS structure suitable for appending new arguments.
 
     This function is used usually in \c{operator<<} streaming
     operators, as in the following example:
@@ -673,7 +661,9 @@ const QDBusArgument &QDBusArgument::operator>>(QByteArray &arg) const
     \code
         QDBusArgument &operator<<(QDBusArgument &argument, const MyStructure &mystruct)
         {
-            argument.newStructure() << mystruct.member1 << mystruct.member2 << ... ;
+            argument.beginStructure();
+            argument << mystruct.member1 << mystruct.member2 << ... ;
+            argument.endStructure();
             return argument;
         }
     \endcode
@@ -684,19 +674,20 @@ const QDBusArgument &QDBusArgument::operator>>(QByteArray &arg) const
     \code
         QDBusArgument &operator<<(QDBusArgument &argument, const MyStructure &mystruct)
         {
-            QDBusArgument s = argument.newStructure();
-            s << mystruct.member1 << mystruct.member2;
-            s.newStructure() << mystruct.member3.subMember1 << mystruct.member3.subMember2;
-            s << mystruct.member4;
+            argument.beginStructure();
+            argument << mystruct.member1 << mystruct.member2;
+
+            argument.beginStructure();
+            argument << mystruct.member3.subMember1 << mystruct.member3.subMember2;
+            argument.endStructure();
+
+            argument << mystruct.member4;
+            argument.endStructure();
             return argument;
         }
     \endcode
 
-    \b Caveat: The QDBusArgument object returned by this function must
-    be disposed of before you can continue to append elements to this
-    object.
-
-    \sa structure(), newArray(), newMap()
+    \sa endStructure(), beginArray(), beginMap()
 */
 void QDBusArgument::beginStructure()
 {
@@ -704,6 +695,12 @@ void QDBusArgument::beginStructure()
         d = d->marshaller()->beginStructure();
 }
 
+/*!
+    Closes a D-BUS structure opened with beginStructure(). This function must be called
+    same number of times that beginStructure() is called.
+
+    \sa beginStructure(), endArray(), endMap()
+*/
 void QDBusArgument::endStructure()
 {
     if (d && d->checkWrite())
@@ -711,8 +708,7 @@ void QDBusArgument::endStructure()
 }
 
 /*!
-    Creates a D-BUS array and return a QDBusArgument suitable for
-    appending elements of meta-type \a id.
+    Opens a new D-BUS array suitable for appending elements of meta-type \a id.
 
     This function is used usually in \c{operator<<} streaming
     operators, as in the following example:
@@ -721,9 +717,10 @@ void QDBusArgument::endStructure()
         // append an array of MyElement types
         QDBusArgument &operator<<(QDBusArgument &argument, const MyArray &myarray)
         {
-            QDBusArgument argArray = argument.newArray( qMetaTypeId<MyElement>() );
+            argument.beginArray( qMetaTypeId<MyElement>() );
             for ( int i = 0; i < myarray.length; ++i )
-                argArray << myarray.elements[i];
+                argument << myarray.elements[i];
+            argument.endArray();
             return argument;
         }
     \endcode
@@ -735,11 +732,7 @@ void QDBusArgument::endStructure()
     marshalling the data. The same applies for STL's sequence
     containers, such as \c {std::list}, \c {std::vector}, etc.
 
-    \b Caveat: The QDBusArgument object returned by this function must
-    be disposed of before you can continue to append elements to this
-    object.
-
-    \sa array(), newStructure(), newMap()
+    \sa endArray(), beginStructure(), begniMap()
 */
 void QDBusArgument::beginArray(int id)
 {
@@ -747,6 +740,12 @@ void QDBusArgument::beginArray(int id)
         d = d->marshaller()->beginArray(id);
 }
 
+/*!
+    Closes a D-BUS array opened with beginArray(). This function must be called
+    same number of times that beginArray() is called.
+
+    \sa beginArray(), endStructure(), endMap()
+*/
 void QDBusArgument::endArray()
 {
     if (d && d->checkWrite())
@@ -754,7 +753,7 @@ void QDBusArgument::endArray()
 }
 
 /*!
-    Creates a D-BUS map and return a QDBusArgument suitable for
+    Opens a new D-BUS map suitable for
     appending elements. Maps are containers that associate one entry
     (the key) to another (the value), such as Qt's QMap or QHash. The
     ids of the map's key and value meta types must be passed in \a kid
@@ -767,9 +766,13 @@ void QDBusArgument::endArray()
         // append a dictionary that associates ints to MyValue types
         QDBusArgument &operator<<(QDBusArgument &argument, const MyDictionary &mydict)
         {
-            QDBusArgument argMap = argument.newMap( QVariant::Int, qMetaTypeId<MyValue>() );
-            for ( int i = 0; i < mydict.length; ++i )
-                argMap.mapEntry() << mydict.data[i].key << mydict.data[i].value;
+            argument.beginMap( QVariant::Int, qMetaTypeId<MyValue>() );
+            for ( int i = 0; i < mydict.length; ++i ) {
+                argument.beginMapEntry();
+                argument << mydict.data[i].key << mydict.data[i].value;
+                argument.endMapEntry();
+            }
+            argument.endMap();
             return argument;
         }
     \endcode
@@ -778,11 +781,7 @@ void QDBusArgument::endArray()
     declare an \c{operator<<} function for it, since QtDBus provides
     generic templates to do the job of marshalling the data.
 
-    \b Caveat: The QDBusArgument object returned by this function must
-    be disposed of before you can continue to append elements to this
-    object.
-
-    \sa map(), newStructure(), newArray(), newMapEntry()
+    \sa endMap(), beginStructure(), beginArray(), beginMapEntry()
 */
 void QDBusArgument::beginMap(int kid, int vid)
 {
@@ -790,6 +789,12 @@ void QDBusArgument::beginMap(int kid, int vid)
         d = d->marshaller()->beginMap(kid, vid);
 }
 
+/*!
+    Closes a D-BUS map opened with beginMap(). This function must be called
+    same number of times that beginMap() is called.
+
+    \sa beginMap(), endStructure(), endArray()
+*/
 void QDBusArgument::endMap()
 {
     if (d && d->checkWrite())
@@ -797,13 +802,13 @@ void QDBusArgument::endMap()
 }
 
 /*!
-    Creates a D-BUS map entry and return a QDBusArgument suitable for
+    Opens a D-BUS map entry suitable for
     appending the key and value entries. This function is only valid
-    in QDBusArgument objects created with newMap().
+    when a map has been opened with beginMap().
 
-    See newMap() for an example of usage of this function.
+    See beginMap() for an example of usage of this function.
 
-    \sa mapEntry(), newMap()
+    \sa endMapEntry(), beginMap()
 */
 void QDBusArgument::beginMapEntry()
 {
@@ -811,6 +816,12 @@ void QDBusArgument::beginMapEntry()
         d = d->marshaller()->beginMapEntry();
 }
 
+/*!
+    Closes a D-BUS map entry opened with beginMapEntry(). This function must be called
+    same number of times that beginMapEntry() is called.
+
+    \sa beginMapEntry()
+*/
 void QDBusArgument::endMapEntry()
 {
     if (d && d->checkWrite())
@@ -818,8 +829,7 @@ void QDBusArgument::endMapEntry()
 }
 
 /*!
-    Returns a QDBusArgument object suitable for extracting the
-    elements of a D-BUS structure created with newStructure().
+    Opens a D-BUS structure suitable for extracting elements.
 
     This function is used usually in \c{operator>>} streaming
     operators, as in the following example:
@@ -827,12 +837,14 @@ void QDBusArgument::endMapEntry()
     \code
         const QDBusArgument &operator>>(const QDBusArgument &argument, MyStructure &mystruct)
         {
-            argument.structure() >> mystruct.member1 >> mystruct.member2 >> mystruct.member3 >> ...;
+            argument.beginStructure()
+            argument >> mystruct.member1 >> mystruct.member2 >> mystruct.member3 >> ...;
+            argument.endStructure();
             return argument;
         }
     \endcode
 
-    \sa newStructure(), array(), map()
+    \sa endStructure(), beginArray(), beginMap()
 */
 void QDBusArgument::beginStructure() const
 {
@@ -840,6 +852,12 @@ void QDBusArgument::beginStructure() const
         d = d->demarshaller()->beginStructure();
 }
 
+/*!
+    Closes the D-BUS structure and allow extracting of the next element
+    after the structure.
+
+    \sa beginStructure()
+*/
 void QDBusArgument::endStructure() const
 {
     if (d && d->checkRead())
@@ -847,8 +865,8 @@ void QDBusArgument::endStructure() const
 }
 
 /*!
-    Returns a QDBusArgument object suitable for extracting the
-    elements of a D-BUS array created with newArray().
+    Recurses into the D-BUS array to allow extraction of
+    the array elements.
 
     This function is used usually in \c{operator>>} streaming
     operators, as in the following example:
@@ -857,15 +875,16 @@ void QDBusArgument::endStructure() const
         // extract a MyArray array of MyElement elements
         const QDBusArgument &operator>>(const QDBusArgument &argument, MyArray &myarray)
         {
-            QDBusArgument argArray = argument.array();
+            argument.beginArray();
             myarray.clear();
 
-            while ( !argArray.atEnd() ) {
+            while ( !argument.atEnd() ) {
                 MyElement element;
-                argArray >> element;
+                argument >> element;
                 myarray.append( element );
             }
 
+            argument.endArray();
             return argument;
         }
     \endcode
@@ -885,6 +904,12 @@ void QDBusArgument::beginArray() const
         d = d->demarshaller()->beginArray();
 }
 
+/*!
+    Closes the D-BUS array and allow extracting of the next element
+    after the array.
+
+    \sa beginArray()
+*/
 void QDBusArgument::endArray() const
 {
     if (d && d->checkRead())
@@ -892,8 +917,8 @@ void QDBusArgument::endArray() const
 }
 
 /*!
-    Returns a QDBusArgument object suitable for extracting the
-    elements of a D-BUS dictionary created with newMap().
+    Recurses into the D-BUS map to allow extraction of
+    the map's elements.
 
     This function is used usually in \c{operator>>} streaming
     operators, as in the following example:
@@ -902,16 +927,19 @@ void QDBusArgument::endArray() const
         // extract a MyDictionary map that associates ints to MyValue elements
         const QDBusArgument &operator>>(const QDBusArgument &argument, MyDictionary &mydict)
         {
-            QDBusArgument argMap = argument.map();
+            argument.beginMap();
             mydict.clear();
 
             while ( !argMap.atEnd() ) {
                 int key;
                 MyValue value;
-                argMap.mapEntry() >> key >> value;
+                argument.beginMapEntry();
+                argument >> key >> value;
+                argument.endMapEntry();
                 mydict.append( key, value );
             }
 
+            argument.endMap();
             return argument;
         }
     \endcode
@@ -920,7 +948,7 @@ void QDBusArgument::endArray() const
     declare an \c{operator>>} function for it, since QtDBus provides
     generic templates to do the job of demarshalling the data.
 
-    \sa newMap(), atEnd(), mapEntry(), structure(), array()
+    \sa endMap(), beginStructure(), beginArray(), beginMapEntry()
 */
 void QDBusArgument::beginMap() const
 {
@@ -928,6 +956,12 @@ void QDBusArgument::beginMap() const
         d = d->demarshaller()->beginMap();
 }
 
+/*!
+    Closes the D-BUS map and allow extracting of the next element
+    after the map.
+
+    \sa beginMap()
+*/
 void QDBusArgument::endMap() const
 {
     if (d && d->checkRead())
@@ -935,12 +969,12 @@ void QDBusArgument::endMap() const
 }
 
 /*!
-    Returns a QDBusArgument object suitable for extracting the key and
-    value pair that comprises one entry of a dictionary.
+    Recurses into the D-BUS map entry to allow extraction
+    of the key and value pair.
 
-    See map() for an example of how this function is usually used.
+    See beginMap() for an example of how this function is usually used.
 
-    \sa newMapEntry(), map()
+    \sa endMapEntry(), beginMap()
 */
 void QDBusArgument::beginMapEntry() const
 {
@@ -948,6 +982,12 @@ void QDBusArgument::beginMapEntry() const
         d = d->demarshaller()->beginMapEntry();
 }
 
+/*!
+    Closes the D-BUS map entry and allow extracting of the next element
+    on the map.
+
+    \sa beginMapEntry()
+*/
 void QDBusArgument::endMapEntry() const
 {
     if (d && d->checkRead())
@@ -957,7 +997,7 @@ void QDBusArgument::endMapEntry() const
 /*!
     Returns true if there are no more elements to be extracted from
     this QDBusArgument. This function is usually used in QDBusArgument
-    objects returned from map() and array().
+    objects returned from beginMap() and beginArray().
 */
 bool QDBusArgument::atEnd() const
 {
