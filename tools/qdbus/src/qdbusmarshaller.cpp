@@ -22,6 +22,11 @@ static void qIterAppend(DBusMessageIter *it, QByteArray *ba, int type, const voi
         dbus_message_iter_append_basic(it, type, arg);
 }
 
+QDBusMarshaller::~QDBusMarshaller()
+{
+    close();
+}
+
 inline void QDBusMarshaller::append(uchar arg)
 {
     qIterAppend(&iterator, ba, DBUS_TYPE_BYTE, &arg);
@@ -152,12 +157,12 @@ inline void QDBusMarshaller::append(const QStringList &arg)
     // don't call sub.close(): it auto-closes
 }
 
-inline QDBusArgument QDBusMarshaller::recurseStructure()
+inline QDBusMarshaller *QDBusMarshaller::beginStructure()
 {
-    return recurseCommon(DBUS_TYPE_STRUCT, 0);
+    return beginCommon(DBUS_TYPE_STRUCT, 0);
 }
 
-inline QDBusArgument QDBusMarshaller::recurseArray(int id)
+inline QDBusMarshaller *QDBusMarshaller::beginArray(int id)
 {
     const char *signature = QDBusMetaType::typeToSignature( QVariant::Type(id) );
     if (!signature) {
@@ -165,13 +170,13 @@ inline QDBusArgument QDBusMarshaller::recurseArray(int id)
                  "Use qDBusRegisterMetaType to register it",
                  QVariant::typeToName( QVariant::Type(id) ), id);
         error();
-        return QDBusArgument();
+        return this;
     }
 
-    return recurseCommon(DBUS_TYPE_ARRAY, signature);
+    return beginCommon(DBUS_TYPE_ARRAY, signature);
 }
 
-inline QDBusArgument QDBusMarshaller::recurseMap(int kid, int vid)
+inline QDBusMarshaller *QDBusMarshaller::beginMap(int kid, int vid)
 {
     const char *ksignature = QDBusMetaType::typeToSignature( QVariant::Type(kid) );
     if (!ksignature) {
@@ -179,13 +184,13 @@ inline QDBusArgument QDBusMarshaller::recurseMap(int kid, int vid)
                  "Use qDBusRegisterMetaType to register it",
                  QVariant::typeToName( QVariant::Type(kid) ), kid);
         error();
-        return QDBusArgument();
+        return this;
     }
     if (ksignature[1] != 0 || !dbus_type_is_basic(*ksignature)) {
         qWarning("QDBusMarshaller: type '%s' (%d) cannot be used as the key type in a D-BUS map.",
                  QVariant::typeToName( QVariant::Type(kid) ), kid);
         error();
-        return QDBusArgument();
+        return this;
     }
 
     const char *vsignature = QDBusMetaType::typeToSignature( QVariant::Type(vid) );
@@ -194,7 +199,7 @@ inline QDBusArgument QDBusMarshaller::recurseMap(int kid, int vid)
                  "Use qDBusRegisterMetaType to register it",
                  QVariant::typeToName( QVariant::Type(vid) ), vid);
         error();
-        return QDBusArgument();
+        return this;
     }
 
     QByteArray signature;
@@ -202,12 +207,12 @@ inline QDBusArgument QDBusMarshaller::recurseMap(int kid, int vid)
     signature += ksignature;
     signature += vsignature;
     signature += DBUS_DICT_ENTRY_END_CHAR_AS_STRING;
-    return recurseCommon(DBUS_TYPE_ARRAY, signature);
+    return beginCommon(DBUS_TYPE_ARRAY, signature);
 }
 
-inline QDBusArgument QDBusMarshaller::recurseMapEntry()
+inline QDBusMarshaller *QDBusMarshaller::beginMapEntry()
 {
-    return recurseCommon(DBUS_TYPE_DICT_ENTRY, 0);
+    return beginCommon(DBUS_TYPE_DICT_ENTRY, 0);
 }
 
 void QDBusMarshaller::open(QDBusMarshaller &sub, int code, const char *signature)
@@ -236,12 +241,30 @@ void QDBusMarshaller::open(QDBusMarshaller &sub, int code, const char *signature
         dbus_message_iter_open_container(&iterator, code, signature, &sub.iterator);
 }
 
-QDBusArgument QDBusMarshaller::recurseCommon(int code, const char *signature)
+QDBusMarshaller *QDBusMarshaller::beginCommon(int code, const char *signature)
 {
-    QDBusMarshaller *d;
-    d = new QDBusMarshaller;
+    QDBusMarshaller *d = new QDBusMarshaller;
     open(*d, code, signature);
-    return QDBusArgumentPrivate::create(d);
+    return d;
+}
+
+inline QDBusMarshaller *QDBusMarshaller::endStructure()
+{ return endCommon(); }
+
+inline QDBusMarshaller *QDBusMarshaller::endArray()
+{ return endCommon(); }
+
+inline QDBusMarshaller *QDBusMarshaller::endMap()
+{ return endCommon(); }
+
+inline QDBusMarshaller *QDBusMarshaller::endMapEntry()
+{ return endCommon(); }
+
+QDBusMarshaller *QDBusMarshaller::endCommon()
+{
+    QDBusMarshaller *retval = parent;
+    delete this;
+    return retval;
 }
 
 void QDBusMarshaller::close()
@@ -433,8 +456,7 @@ bool QDBusMarshaller::appendCrossMarshalling(QDBusDemarshaller *demarshaller)
     }
 
     // We have to recurse
-    QDBusArgument recursedArg = demarshaller->recurseCommon();
-    QDBusDemarshaller *drecursed = QDBusArgumentPrivate::demarshaller(recursedArg);
+    QDBusDemarshaller *drecursed = demarshaller->beginCommon();
 
     QDBusMarshaller mrecursed;  // create on the stack makes it autoclose
     open(mrecursed, code, drecursed->currentSignature().toLatin1());

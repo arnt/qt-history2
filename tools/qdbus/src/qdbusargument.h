@@ -55,10 +55,14 @@ public:
     QDBusArgument &operator<<(const QStringList &arg);
     QDBusArgument &operator<<(const QByteArray &arg);
 
-    QDBusArgument newStructure();
-    QDBusArgument newArray(int elementMetaTypeId);
-    QDBusArgument newMap(int keyMetaTypeId, int valueMetaTypeId);
-    QDBusArgument newMapEntry();
+    void beginStructure();
+    void endStructure();
+    void beginArray(int elementMetaTypeId);
+    void endArray();
+    void beginMap(int keyMetaTypeId, int valueMetaTypeId);
+    void endMap();
+    void beginMapEntry();
+    void endMapEntry();
 
     // used for de-marshalling (D-BUS -> Qt)
     QString currentSignature() const;
@@ -79,15 +83,19 @@ public:
     const QDBusArgument &operator>>(QStringList &arg) const;
     const QDBusArgument &operator>>(QByteArray &arg) const;
 
-    QDBusArgument structure() const;
-    QDBusArgument array() const;
-    QDBusArgument map() const;
-    QDBusArgument mapEntry() const;
+    void beginStructure() const;
+    void endStructure() const;
+    void beginArray() const;
+    void endArray() const;
+    void beginMap() const;
+    void endMap() const;
+    void beginMapEntry() const;
+    void endMapEntry() const;
     bool atEnd() const;
 
 protected:
     friend class QDBusArgumentPrivate;
-    QDBusArgumentPrivate *d;
+    mutable QDBusArgumentPrivate *d;
 };
 Q_DECLARE_METATYPE(QDBusArgument)
 

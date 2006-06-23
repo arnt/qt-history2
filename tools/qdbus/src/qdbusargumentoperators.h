@@ -34,7 +34,10 @@ inline const QDBusArgument &operator>>(const QDBusArgument &a, QVariant &v)
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QDate &date)
 {
     int y, m, d;
-    a.structure() >> y >> m >> d;
+    a.beginStructure();
+    a >> y >> m >> d;
+    a.endStructure();
+
     if (y != 0 && m != 0 && d != 0)
         date.setYMD(y, m, d);
     else
@@ -43,17 +46,22 @@ inline const QDBusArgument &operator>>(const QDBusArgument &a, QDate &date)
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QDate &date)
 {
+    a.beginStructure();
     if (date.isValid())
-        a.newStructure() << date.year() << date.month() << date.day();
+        a << date.year() << date.month() << date.day();
     else
-        a.newStructure() << 0 << 0 << 0;
+        a << 0 << 0 << 0;
+    a.endStructure();
     return a;
 }
 
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QTime &time)
 {
     int h, m, s, ms;
-    a.structure() >> h >> m >> s >> ms;
+    a.beginStructure();
+    a >> h >> m >> s >> ms;
+    a.endStructure();
+
     if (h < 0)
         time = QTime();
     else
@@ -62,10 +70,12 @@ inline const QDBusArgument &operator>>(const QDBusArgument &a, QTime &time)
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QTime &time)
 {
+    a.beginStructure();
     if (time.isValid())
-        a.newStructure() << time.hour() << time.minute() << time.second() << time.msec();
+        a << time.hour() << time.minute() << time.second() << time.msec();
     else
-        a.newStructure() << -1 << -1 << -1 << -1;
+        a << -1 << -1 << -1 << -1;
+    a.endStructure();
     return a;
 }
 
@@ -74,112 +84,163 @@ inline const QDBusArgument &operator>>(const QDBusArgument &a, QDateTime &dt)
     QDate date;
     QTime time;
     int timespec;
-    a.structure() >> date >> time >> timespec;
+
+    a.beginStructure();
+    a >> date >> time >> timespec;
+    a.endStructure();
+
     dt = QDateTime(date, time, Qt::TimeSpec(timespec));
     return a;
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QDateTime &dt)
 {
-    QDBusArgument sub = a.newStructure();
-    sub << dt.date() << dt.time() << int(dt.timeSpec());
+    a.beginStructure();
+    a << dt.date() << dt.time() << int(dt.timeSpec());
+    a.endStructure();
     return a;
 }
 
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QRect &rect)
 {
     int x, y, width, height;
-    a.structure() >> x >> y >> width >> height;
+    a.beginStructure();
+    a >> x >> y >> width >> height;
+    a.endStructure();
+
     rect.setRect(x, y, width, height);
     return a;
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QRect &rect)
 {
-    a.newStructure() << rect.x() << rect.y() << rect.width() << rect.height();
+    a.beginStructure();
+    a << rect.x() << rect.y() << rect.width() << rect.height();
+    a.endStructure();
+
     return a;
 }
 
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QRectF &rect)
 {
     qreal x, y, width, height;
-    a.structure() >> x >> y >> width >> height;
+    a.beginStructure();
+    a >> x >> y >> width >> height;
+    a.endStructure();
+
     rect.setRect(x, y, width, height);
     return a;
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QRectF &rect)
 {
-    a.newStructure() << rect.x() << rect.y() << rect.width() << rect.height();
+    a.beginStructure();
+    a << rect.x() << rect.y() << rect.width() << rect.height();
+    a.endStructure();
+
     return a;
 }
 
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QSize &size)
 {
-    a.structure() >> size.rwidth() >> size.rheight();
+    a.beginStructure();
+    a >> size.rwidth() >> size.rheight();
+    a.endStructure();
+
     return a;
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QSize &size)
 {
-    a.newStructure() << size.width() << size.height();
+    a.beginStructure();
+    a << size.width() << size.height();
+    a.endStructure();
+
     return a;
 }
 
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QSizeF &size)
 {
-    a.structure() >> size.rwidth() >> size.rheight();
+    a.beginStructure();
+    a >> size.rwidth() >> size.rheight();
+    a.endStructure();
+
     return a;
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QSizeF &size)
 {
-    a.newStructure() << size.width() << size.height();
+    a.beginStructure();
+    a << size.width() << size.height();
+    a.endStructure();
+
     return a;
 }
 
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QPoint &pt)
 {
-    a.structure() >> pt.rx() >> pt.ry();
+    a.beginStructure();
+    a >> pt.rx() >> pt.ry();
+    a.endStructure();
+
     return a;
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QPoint &pt)
 {
-    a.newStructure() << pt.x() << pt.y();
+    a.beginStructure();
+    a << pt.x() << pt.y();
+    a.endStructure();
+
     return a;
 }
 
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QPointF &pt)
 {
-    a.structure() >> pt.rx() >> pt.ry();
+    a.beginStructure();
+    a >> pt.rx() >> pt.ry();
+    a.endStructure();
+
     return a;
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QPointF &pt)
 {
-    a.newStructure() << pt.x() << pt.y();
+    a.beginStructure();
+    a << pt.x() << pt.y();
+    a.endStructure();
+
     return a;
 }
 
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QLine &line)
 {
     QPoint p1, p2;
-    a.structure() >> p1 >> p2;
+    a.beginStructure();
+    a >> p1 >> p2;
+    a.endStructure();
+
     line = QLine(p1, p2);
     return a;
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QLine &line)
 {
-    QDBusArgument sub = a.newStructure();
-    sub << line.p1() << line.p2();
+    a.beginStructure();
+    a << line.p1() << line.p2();
+    a.endStructure();
+
     return a;
 }
 
 inline const QDBusArgument &operator>>(const QDBusArgument &a, QLineF &line)
 {
     QPointF p1, p2;
-    a.structure() >> p1 >> p2;
+    a.beginStructure();
+    a >> p1 >> p2;
+    a.endStructure();
+
     line = QLineF(p1, p2);
     return a;
 }
 inline QDBusArgument &operator<<(QDBusArgument &a, const QLineF &line)
 {
-    QDBusArgument sub = a.newStructure();
-    sub << line.p1() << line.p2();
+    a.beginStructure();
+    a << line.p1() << line.p2();
+    a.endStructure();
+
     return a;
 }
 #endif
@@ -188,25 +249,27 @@ template<template <typename> class Container, typename T>
 inline QDBusArgument &operator<<(QDBusArgument &arg, const Container<T> &list)
 {
     int id = qt_variant_metatype_id((T*)0);
-    QDBusArgument array = arg.newArray(id);
+    arg.beginArray(id);
     typename Container<T>::const_iterator it = list.begin();
     typename Container<T>::const_iterator end = list.end();
     for ( ; it != end; ++it)
-        array << *it;
+        arg << *it;
+    arg.endArray();
     return arg;
 }
 
 template<template <typename> class Container, typename T>
 inline const QDBusArgument &operator>>(const QDBusArgument &arg, Container<T> &list)
 {
-    QDBusArgument array = arg.array();
+    arg.beginArray();
     list.clear();
-    while (!array.atEnd()) {
+    while (!arg.atEnd()) {
         T item;
-        array >> item;
+        arg >> item;
         list.push_back(item);
     }
 
+    arg.endArray();
     return arg;
 }
 
@@ -215,24 +278,26 @@ template<typename T>
 inline QDBusArgument &operator<<(QDBusArgument &arg, const QList<T> &list)
 {
     int id = qt_variant_metatype_id((T*)0);
-    QDBusArgument array = arg.newArray(id);
+    arg.beginArray(id);
     typename QList<T>::ConstIterator it = list.constBegin();
     typename QList<T>::ConstIterator end = list.constEnd();
     for ( ; it != end; ++it)
-        array << *it;
+        arg << *it;
+    arg.endArray();
     return arg;
 }
 
 template<typename T>
 inline const QDBusArgument &operator>>(const QDBusArgument &arg, QList<T> &list)
 {
-    QDBusArgument array = arg.array();
+    arg.beginArray();
     list.clear();
-    while (!array.atEnd()) {
+    while (!arg.atEnd()) {
         T item;
-        array >> item;
+        arg >> item;
         list.push_back(item);
     }
+    arg.endArray();
 
     return arg;
 }
@@ -240,45 +305,14 @@ inline const QDBusArgument &operator>>(const QDBusArgument &arg, QList<T> &list)
 inline QDBusArgument &operator<<(QDBusArgument &arg, const QVariantList &list)
 {
     int id = qMetaTypeId<QDBusVariant>();
-    QDBusArgument array = arg.newArray(id);
+    arg.beginArray(id);
     QVariantList::ConstIterator it = list.constBegin();
     QVariantList::ConstIterator end = list.constEnd();
     for ( ; it != end; ++it)
-        array << QDBusVariant(*it);
+        arg << QDBusVariant(*it);
+    arg.endArray();
     return arg;
 }
-
-#if 0
-template<template <typename, typename> class AssociativeContainer, typename Key, typename T>
-inline QDBusArgument &operator<<(QDBusArgument &arg, const AssociativeContainer<Key, T> &map)
-{
-    int kid = qt_variant_metatype_id((Key*)0);
-    int vid = qt_variant_metatype_id((T*)0);
-    QDBusArgument amap = arg.newMap(kid, vid);
-    typename AssociativeContainer<Key, T>::const_iterator it = map.begin();
-    typename AssociativeContainer<Key, T>::const_iterator end = map.end();
-    for ( ; it != end; ++it) {
-        QDBusArgument entry = amap.newMapEntry();
-        entry << it.key() << it.value();
-    }
-    return arg;
-}
-
-template<template <typename, typename> class AssociativeContainer, typename Key, typename T>
-inline const QDBusArgument &operator>>(const QDBusArgument &arg, AssociativeContainer<Key, T> &map)
-{
-    QDBusArgument amap = arg.map();
-    map.clear();
-    while (!amap.atEnd()) {
-        Key key;
-        T value;
-        QDBusArgument entry = amap.mapEntry();
-        entry >> key >> value;
-        map.insertMulti(key, value);
-    }
-    return arg;
-}
-#endif
 
 // QMap specializations
 template<typename Key, typename T>
@@ -286,40 +320,46 @@ inline QDBusArgument &operator<<(QDBusArgument &arg, const QMap<Key, T> &map)
 {
     int kid = qt_variant_metatype_id((Key*)0);
     int vid = qt_variant_metatype_id((T*)0);
-    QDBusArgument amap = arg.newMap(kid, vid);
+    arg.beginMap(kid, vid);
     typename QMap<Key, T>::ConstIterator it = map.constBegin();
     typename QMap<Key, T>::ConstIterator end = map.constEnd();
     for ( ; it != end; ++it) {
-        QDBusArgument entry = amap.newMapEntry();
-        entry << it.key() << it.value();
+        arg.beginMapEntry();
+        arg << it.key() << it.value();
+        arg.endMapEntry();
     }
+    arg.endMap();
     return arg;
 }
 
 template<typename Key, typename T>
 inline const QDBusArgument &operator>>(const QDBusArgument &arg, QMap<Key, T> &map)
 {
-    QDBusArgument amap = arg.map();
+    arg.beginMap();
     map.clear();
-    while (!amap.atEnd()) {
+    while (!arg.atEnd()) {
         Key key;
         T value;
-        QDBusArgument entry = amap.mapEntry();
-        entry >> key >> value;
+        arg.beginMapEntry();
+        arg >> key >> value;
         map.insertMulti(key, value);
+        arg.endMapEntry();
     }
+    arg.endMap();
     return arg;
 }
 
 inline QDBusArgument &operator<<(QDBusArgument &arg, const QVariantMap &map)
 {
-    QDBusArgument amap = arg.newMap(QVariant::String, qMetaTypeId<QDBusVariant>());
+    arg.beginMap(QVariant::String, qMetaTypeId<QDBusVariant>());
     QVariantMap::ConstIterator it = map.constBegin();
     QVariantMap::ConstIterator end = map.constEnd();
     for ( ; it != end; ++it) {
-        QDBusArgument entry = amap.newMapEntry();
-        entry << it.key() << QDBusVariant(it.value());
+        arg.beginMapEntry();
+        arg << it.key() << QDBusVariant(it.value());
+        arg.endMapEntry();
     }
+    arg.endMap();
     return arg;
 }
 

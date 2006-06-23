@@ -698,12 +698,16 @@ const QDBusArgument &QDBusArgument::operator>>(QByteArray &arg) const
 
     \sa structure(), newArray(), newMap()
 */
-QDBusArgument QDBusArgument::newStructure()
+void QDBusArgument::beginStructure()
 {
     if (d && d->checkWrite())
-        return d->marshaller()->recurseStructure();
+        d = d->marshaller()->beginStructure();
+}
 
-    return QDBusArgument();
+void QDBusArgument::endStructure()
+{
+    if (d && d->checkWrite())
+        d = d->marshaller()->endStructure();
 }
 
 /*!
@@ -737,12 +741,16 @@ QDBusArgument QDBusArgument::newStructure()
 
     \sa array(), newStructure(), newMap()
 */
-QDBusArgument QDBusArgument::newArray(int id)
+void QDBusArgument::beginArray(int id)
 {
     if (d && d->checkWrite())
-        return d->marshaller()->recurseArray(id);
+        d = d->marshaller()->beginArray(id);
+}
 
-    return QDBusArgument();
+void QDBusArgument::endArray()
+{
+    if (d && d->checkWrite())
+        d = d->marshaller()->endArray();
 }
 
 /*!
@@ -776,12 +784,16 @@ QDBusArgument QDBusArgument::newArray(int id)
 
     \sa map(), newStructure(), newArray(), newMapEntry()
 */
-QDBusArgument QDBusArgument::newMap(int kid, int vid)
+void QDBusArgument::beginMap(int kid, int vid)
 {
     if (d && d->checkWrite())
-        return d->marshaller()->recurseMap(kid, vid);
+        d = d->marshaller()->beginMap(kid, vid);
+}
 
-    return QDBusArgument();
+void QDBusArgument::endMap()
+{
+    if (d && d->checkWrite())
+        d = d->marshaller()->endMap();
 }
 
 /*!
@@ -793,13 +805,17 @@ QDBusArgument QDBusArgument::newMap(int kid, int vid)
 
     \sa mapEntry(), newMap()
 */
-QDBusArgument QDBusArgument::newMapEntry()
+void QDBusArgument::beginMapEntry()
 {
     if (d && d->checkWrite())
-        return d->marshaller()->recurseMapEntry();
+        d = d->marshaller()->beginMapEntry();
+}
 
-    return QDBusArgument();
-}    
+void QDBusArgument::endMapEntry()
+{
+    if (d && d->checkWrite())
+        d = d->marshaller()->endMapEntry();
+}
 
 /*!
     Returns a QDBusArgument object suitable for extracting the
@@ -818,12 +834,16 @@ QDBusArgument QDBusArgument::newMapEntry()
 
     \sa newStructure(), array(), map()
 */
-QDBusArgument QDBusArgument::structure() const
+void QDBusArgument::beginStructure() const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->recurseStructure();
+        d = d->demarshaller()->beginStructure();
+}
 
-    return QDBusArgument();
+void QDBusArgument::endStructure() const
+{
+    if (d && d->checkRead())
+        d = d->demarshaller()->endStructure();
 }
 
 /*!
@@ -859,12 +879,16 @@ QDBusArgument QDBusArgument::structure() const
 
     \sa newArray(), atEnd(), structure(), map()
 */
-QDBusArgument QDBusArgument::array() const
+void QDBusArgument::beginArray() const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->recurseArray();
+        d = d->demarshaller()->beginArray();
+}
 
-    return QDBusArgument();
+void QDBusArgument::endArray() const
+{
+    if (d && d->checkRead())
+        d = d->demarshaller()->endArray();
 }
 
 /*!
@@ -898,12 +922,16 @@ QDBusArgument QDBusArgument::array() const
 
     \sa newMap(), atEnd(), mapEntry(), structure(), array()
 */
-QDBusArgument QDBusArgument::map() const
+void QDBusArgument::beginMap() const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->recurseMap();
+        d = d->demarshaller()->beginMap();
+}
 
-    return QDBusArgument();
+void QDBusArgument::endMap() const
+{
+    if (d && d->checkRead())
+        d = d->demarshaller()->endMap();
 }
 
 /*!
@@ -914,12 +942,16 @@ QDBusArgument QDBusArgument::map() const
 
     \sa newMapEntry(), map()
 */
-QDBusArgument QDBusArgument::mapEntry() const
+void QDBusArgument::beginMapEntry() const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->recurseMapEntry();
+        d = d->demarshaller()->beginMapEntry();
+}
 
-    return QDBusArgument();
+void QDBusArgument::endMapEntry() const
+{
+    if (d && d->checkRead())
+        d = d->demarshaller()->endMapEntry();
 }
 
 /*!

@@ -63,16 +63,12 @@ public:
     } direction;
 };
 
-#ifdef Q_CC_GCC
-# pragma GCC visibility push(internal)
-#endif
-
 class QDBusMarshaller: public QDBusArgumentPrivate
 {
 public:
     QDBusMarshaller() : parent(0), ba(0), closeCode(0), ok(true)
     { direction = Marshalling; }
-    ~QDBusMarshaller() { close(); }
+    ~QDBusMarshaller();
 
     void append(uchar arg);
     void append(bool arg);
@@ -90,11 +86,16 @@ public:
     void append(const QByteArray &arg);
     bool append(const QDBusVariant &arg); // this one can fail
 
-    QDBusArgument recurseStructure();
-    QDBusArgument recurseArray(int id);
-    QDBusArgument recurseMap(int kid, int vid);
-    QDBusArgument recurseMapEntry();
-    QDBusArgument recurseCommon(int code, const char *signature);
+    QDBusMarshaller *beginStructure();
+    QDBusMarshaller *endStructure();
+    QDBusMarshaller *beginArray(int id);
+    QDBusMarshaller *endArray();
+    QDBusMarshaller *beginMap(int kid, int vid);
+    QDBusMarshaller *endMap();
+    QDBusMarshaller *beginMapEntry();
+    QDBusMarshaller *endMapEntry();
+    QDBusMarshaller *beginCommon(int code, const char *signature);
+    QDBusMarshaller *endCommon();
     void open(QDBusMarshaller &sub, int code, const char *signature);
     void close();
     void error();
@@ -114,7 +115,7 @@ public:
 class QDBusDemarshaller: public QDBusArgumentPrivate
 {
 public:
-    inline QDBusDemarshaller() : message(0) { direction = Demarshalling; }
+    inline QDBusDemarshaller() : message(0), parent(0) { direction = Demarshalling; }
     ~QDBusDemarshaller();
 
     QString currentSignature();
@@ -135,13 +136,18 @@ public:
     QStringList toStringList();
     QByteArray toByteArray();
 
-    QDBusArgument recurseStructure();
-    QDBusArgument recurseArray();
-    QDBusArgument recurseMap();
-    QDBusArgument recurseMapEntry();
-    QDBusArgument recurseCommon();
+    QDBusDemarshaller *beginStructure();
+    QDBusDemarshaller *endStructure();
+    QDBusDemarshaller *beginArray();
+    QDBusDemarshaller *endArray();
+    QDBusDemarshaller *beginMap();
+    QDBusDemarshaller *endMap();
+    QDBusDemarshaller *beginMapEntry();
+    QDBusDemarshaller *endMapEntry();
+    QDBusDemarshaller *beginCommon();
+    QDBusDemarshaller *endCommon();
     QDBusArgument duplicate();
-    void close() { }
+    inline void close() { }
 
     bool atEnd();
 
@@ -150,11 +156,8 @@ public:
 public:
     DBusMessageIter iterator;
     DBusMessage *message;
+    QDBusDemarshaller *parent;
 };
-
-#ifdef Q_CC_GCC
-# pragma GCC visibility pop
-#endif
 
 inline QDBusMarshaller *QDBusArgumentPrivate::marshaller()
 { return static_cast<QDBusMarshaller *>(this); }

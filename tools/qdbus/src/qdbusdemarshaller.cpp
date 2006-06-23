@@ -193,35 +193,63 @@ bool QDBusDemarshaller::atEnd()
     return dbus_message_iter_get_arg_type(&iterator) == DBUS_TYPE_INVALID;
 }
 
-inline QDBusArgument QDBusDemarshaller::recurseStructure()
+inline QDBusDemarshaller *QDBusDemarshaller::beginStructure()
 {
-    return recurseCommon();
+    return beginCommon();
 }
 
-inline QDBusArgument QDBusDemarshaller::recurseArray()
+inline QDBusDemarshaller *QDBusDemarshaller::beginArray()
 {
-    return recurseCommon();
+    return beginCommon();
 }
 
-inline QDBusArgument QDBusDemarshaller::recurseMap()
+inline QDBusDemarshaller *QDBusDemarshaller::beginMap()
 {
-    return recurseCommon();
+    return beginCommon();
 }
 
-inline QDBusArgument QDBusDemarshaller::recurseMapEntry()
+inline QDBusDemarshaller *QDBusDemarshaller::beginMapEntry()
 {
-    return recurseCommon();
+    return beginCommon();
 }
 
-QDBusArgument QDBusDemarshaller::recurseCommon()
+QDBusDemarshaller *QDBusDemarshaller::beginCommon()
 {
     QDBusDemarshaller *d = new QDBusDemarshaller;
+    d->parent = this;
     d->message = dbus_message_ref(message);
 
     // recurse
     dbus_message_iter_recurse(&iterator, &d->iterator);
     dbus_message_iter_next(&iterator);
-    return QDBusArgumentPrivate::create(d);
+    return d;
+}
+
+inline QDBusDemarshaller *QDBusDemarshaller::endStructure()
+{
+    return endCommon();
+}
+
+inline QDBusDemarshaller *QDBusDemarshaller::endArray()
+{
+    return endCommon();
+}
+
+inline QDBusDemarshaller *QDBusDemarshaller::endMap()
+{
+    return endCommon();
+}
+
+inline QDBusDemarshaller *QDBusDemarshaller::endMapEntry()
+{
+    return endCommon();
+}
+
+QDBusDemarshaller *QDBusDemarshaller::endCommon()
+{
+    QDBusDemarshaller *retval = parent;
+    delete this;
+    return retval;
 }
 
 QDBusArgument QDBusDemarshaller::duplicate()
