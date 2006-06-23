@@ -2972,7 +2972,8 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             bool horizontal = slider->orientation == Qt::Horizontal;
             bool ticksAbove = slider->tickPosition & QSlider::TicksAbove;
             bool ticksBelow = slider->tickPosition & QSlider::TicksBelow;
-
+            QColor activeHighlight = option->palette.color(QPalette::Normal, QPalette::Highlight);
+            
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
                     groove.adjust(0, 0, -1, 0);
                     // draw groove
@@ -2983,19 +2984,19 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     gradient1.setColorAt(1, palette.button().color().dark(115));
 
                     QLinearGradient gradient2(groove.center().x(), groove.top(), groove.center().x(), groove.bottom());
-                    gradient2.setColorAt(0, palette.highlight().color().dark(120));
-                    gradient2.setColorAt(1, palette.highlight().color().light(108));
+                    gradient2.setColorAt(0, activeHighlight.dark(120));
+                    gradient2.setColorAt(1, activeHighlight.light(108));
 
                     painter->setBrush(gradient1);
                     painter->drawRect(groove);
 
                     if (horizontal) {
                         painter->setBrush(gradient2);
-                        painter->setPen(QPen(palette.highlight().color().dark(130), 0));
+                        painter->setPen(QPen(activeHighlight.dark(130), 0));
                         painter->drawRect(QRect(groove.left(), groove.top(), handle.left() , groove.height()));
                     } else {
                         painter->setBrush(gradient2);
-                        painter->setPen(QPen(palette.highlight().color().dark(150), 0));
+                        painter->setPen(QPen(activeHighlight.dark(150), 0));
                         painter->drawRect(QRect(groove.left(), groove.top(), groove.width() , handle.top()));
                     }
                 }
