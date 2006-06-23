@@ -103,8 +103,21 @@ public:
 
     void init();
 
-    QStandardItem *createItem() const;
-    QStandardItem *itemFromIndexWithLazyCreation(const QModelIndex &index) const;
+    inline QStandardItem *createItem() const {
+        return itemPrototype ? itemPrototype->clone() : new QStandardItem;
+    }
+
+    inline QStandardItem *itemFromIndex(const QModelIndex &index) const {
+        Q_Q(const QStandardItemModel);
+        if (!index.isValid())
+            return root;
+        if (index.model() != q)
+        return 0;
+        QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
+        if (parent == 0)
+            return 0;
+        return parent->child(index.row(), index.column());
+    }
 
     void sort(QStandardItem *parent, int column, Qt::SortOrder order);
     void itemChanged(QStandardItem *item);

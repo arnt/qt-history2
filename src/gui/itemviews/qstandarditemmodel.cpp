@@ -213,37 +213,6 @@ void QStandardItemModelPrivate::init()
 /*!
     \internal
 */
-QStandardItem *QStandardItemModelPrivate::createItem() const
-{
-    return itemPrototype ? itemPrototype->clone() : new QStandardItem;
-}
-
-/*!
-    \internal
-*/
-QStandardItem *QStandardItemModelPrivate::itemFromIndexWithLazyCreation(
-    const QModelIndex &index) const
-{
-    Q_Q(const QStandardItemModel);
-    if (!index.isValid())
-        return root;
-    if (index.model() != q)
-        return 0;
-    QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
-    if (parent == 0)
-        return 0;
-    QStandardItem *item = parent->child(index.row(), index.column());
-    // lazy part
-    if (item == 0) {
-        item = createItem();
-        parent->d_func()->setChild(index.row(), index.column(), item);
-    }
-    return item;
-}
-
-/*!
-    \internal
-*/
 void QStandardItemModelPrivate::_q_emitItemChanged(const QModelIndex &topLeft,
                                                    const QModelIndex &bottomRight)
 {
@@ -252,7 +221,7 @@ void QStandardItemModelPrivate::_q_emitItemChanged(const QModelIndex &topLeft,
     for (int row = topLeft.row(); row <= bottomRight.row(); ++row) {
         for (int column = topLeft.column(); column <= bottomRight.column(); ++column) {
             QModelIndex index = q->index(row, column, parent);
-            if (QStandardItem *item = q->itemFromIndex(index))
+            if (QStandardItem *item = itemFromIndex(index))
                 emit q->itemChanged(item);
         }
     }
@@ -1822,6 +1791,9 @@ void QStandardItemModel::clear()
 
     Returns a pointer to the QStandardItem associated with the given \a index.
 
+    Note that this function will lazily create an item for the index (using
+    itemPrototype()) if no item already exists at that index.
+
     \sa indexFromItem()
 */
 QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
@@ -1834,7 +1806,13 @@ QStandardItem *QStandardItemModel::itemFromIndex(const QModelIndex &index) const
     QStandardItem *parent = static_cast<QStandardItem*>(index.internalPointer());
     if (parent == 0)
         return 0;
-    return parent->child(index.row(), index.column());
+    QStandardItem *item = parent->child(index.row(), index.column());
+    // lazy part
+    if (item == 0) {
+        item = d->createItem();
+        parent->d_func()->setChild(index.row(), index.column(), item);
+    }
+    return item;
 }
 
 /*!
@@ -2259,7 +2237,8 @@ QStandardItem *QStandardItemModel::takeVerticalHeaderItem(int row)
 */
 int QStandardItemModel::columnCount(const QModelIndex &parent) const
 {
-    QStandardItem *item = itemFromIndex(parent);
+    Q_D(const QStandardItemModel);
+    QStandardItem *item = d->itemFromIndex(parent);
     return item ? item->columnCount() : 0;
 }
 
@@ -2268,7 +2247,8 @@ int QStandardItemModel::columnCount(const QModelIndex &parent) const
 */
 QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 {
-    QStandardItem *item = itemFromIndex(index);
+    Q_D(const QStandardItemModel);
+    QStandardItem *item = d->itemFromIndex(index);
     return item ? item->data(role) : QVariant();
 }
 
@@ -2280,7 +2260,7 @@ Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
     Q_D(const QStandardItemModel);
     if (!d->indexValid(index))
         return Qt::ItemIsDropEnabled;
-    QStandardItem *item = itemFromIndex(index);
+    QStandardItem *item = d->itemFromIndex(index);
     if (item)
         return item->flags();
     return Qt::ItemIsSelectable
@@ -2295,7 +2275,8 @@ Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 */
 bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 {
-    QStandardItem *item = itemFromIndex(parent);
+    Q_D(const QStandardItemModel);
+    QStandardItem *item = d->itemFromIndex(parent);
     return item ? item->hasChildren() : false;
 }
 
@@ -2332,7 +2313,8 @@ Qt::DropActions QStandardItemModel::supportedDropActions () const
 */
 QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &parent) const
 {
-    QStandardItem *parentItem = itemFromIndex(parent);
+    Q_D(const QStandardItemModel);
+    QStandardItem *parentItem = d->itemFromIndex(parent);
     if ((parentItem == 0)
         || (row < 0)
         || (column < 0)
@@ -2348,8 +2330,7 @@ QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &pa
 */
 bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
-    Q_D(QStandardItemModel);
-    QStandardItem *item = d->itemFromIndexWithLazyCreation(parent);
+    QStandardItem *item = itemFromIndex(parent);
     if (item == 0)
         return false;
     return item->d_func()->insertColumns(column, count, QList<QStandardItem*>());
@@ -2360,8 +2341,7 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
 */
 bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    Q_D(QStandardItemModel);
-    QStandardItem *item = d->itemFromIndexWithLazyCreation(parent);
+    QStandardItem *item = itemFromIndex(parent);
     if (item == 0)
         return false;
     return item->d_func()->insertRows(row, count, QList<QStandardItem*>());
@@ -2372,7 +2352,8 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
 */
 QMap<int, QVariant> QStandardItemModel::itemData(const QModelIndex &index) const
 {
-    QStandardItem *item = itemFromIndex(index);
+    Q_D(const QStandardItemModel);
+    QStandardItem *item = d->itemFromIndex(index);
     return item ? item->d_func()->itemData() : QMap<int, QVariant>();
 }
 
@@ -2393,7 +2374,8 @@ QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 */
 bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
-    QStandardItem *item = itemFromIndex(parent);
+    Q_D(QStandardItemModel);
+    QStandardItem *item = d->itemFromIndex(parent);
     if ((item == 0) || (count < 1) || (column < 0) || ((column + count) > item->columnCount()))
         return false;
     item->removeColumns(column, count);
@@ -2405,7 +2387,8 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
 */
 bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    QStandardItem *item = itemFromIndex(parent);
+    Q_D(QStandardItemModel);
+    QStandardItem *item = d->itemFromIndex(parent);
     if ((item == 0) || (count < 1) || (row < 0) || ((row + count) > item->rowCount()))
         return false;
     item->removeRows(row, count);
@@ -2417,7 +2400,8 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
 */
 int QStandardItemModel::rowCount(const QModelIndex &parent) const
 {
-    QStandardItem *item = itemFromIndex(parent);
+    Q_D(const QStandardItemModel);
+    QStandardItem *item = d->itemFromIndex(parent);
     return item ? item->rowCount() : 0;
 }
 
@@ -2426,10 +2410,9 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
 */
 bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    Q_D(QStandardItemModel);
     if (!index.isValid())
         return false;
-    QStandardItem *item = d->itemFromIndexWithLazyCreation(index);
+    QStandardItem *item = itemFromIndex(index);
     if (item == 0)
         return false;
     item->setData(role, value);
@@ -2475,8 +2458,7 @@ bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
 */
 bool QStandardItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
 {
-    Q_D(QStandardItemModel);
-    QStandardItem *item = d->itemFromIndexWithLazyCreation(index);
+    QStandardItem *item = itemFromIndex(index);
     if (item == 0)
         return false;
     item->d_func()->setItemData(roles);
