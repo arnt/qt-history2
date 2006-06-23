@@ -277,12 +277,12 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGraphicsItem::GraphicsItemFlags)
 
-class QAbstractGraphicsPathItemPrivate;
-class Q_GUI_EXPORT QAbstractGraphicsPathItem : public QGraphicsItem
+class QAbstractGraphicsShapeItemPrivate;
+class Q_GUI_EXPORT QAbstractGraphicsShapeItem : public QGraphicsItem
 {
 public:
-    QAbstractGraphicsPathItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
-    ~QAbstractGraphicsPathItem();
+    QAbstractGraphicsShapeItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
+    ~QAbstractGraphicsShapeItem();
 
     QPen pen() const;
     void setPen(const QPen &pen);
@@ -291,16 +291,16 @@ public:
     void setBrush(const QBrush &brush);
 
 protected:
-    QAbstractGraphicsPathItem(QAbstractGraphicsPathItemPrivate &dd,
-                              QGraphicsItem *parent, QGraphicsScene *scene);
+    QAbstractGraphicsShapeItem(QAbstractGraphicsShapeItemPrivate &dd,
+                               QGraphicsItem *parent, QGraphicsScene *scene);
 
 private:
-    Q_DISABLE_COPY(QAbstractGraphicsPathItem)
-    Q_DECLARE_PRIVATE(QAbstractGraphicsPathItem)
+    Q_DISABLE_COPY(QAbstractGraphicsShapeItem)
+    Q_DECLARE_PRIVATE(QAbstractGraphicsShapeItem)
 };
 
 class QGraphicsPathItemPrivate;
-class Q_GUI_EXPORT QGraphicsPathItem : public QAbstractGraphicsPathItem
+class Q_GUI_EXPORT QGraphicsPathItem : public QAbstractGraphicsShapeItem
 {
 public:
     QGraphicsPathItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
@@ -330,7 +330,7 @@ private:
 };
 
 class QGraphicsRectItemPrivate;
-class Q_GUI_EXPORT QGraphicsRectItem : public QAbstractGraphicsPathItem
+class Q_GUI_EXPORT QGraphicsRectItem : public QAbstractGraphicsShapeItem
 {
 public:
     QGraphicsRectItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
@@ -363,7 +363,7 @@ private:
 };
 
 class QGraphicsEllipseItemPrivate;
-class Q_GUI_EXPORT QGraphicsEllipseItem : public QAbstractGraphicsPathItem
+class Q_GUI_EXPORT QGraphicsEllipseItem : public QAbstractGraphicsShapeItem
 {
 public:
     QGraphicsEllipseItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
@@ -393,7 +393,7 @@ private:
 };
 
 class QGraphicsPolygonItemPrivate;
-class Q_GUI_EXPORT QGraphicsPolygonItem : public QAbstractGraphicsPathItem
+class Q_GUI_EXPORT QGraphicsPolygonItem : public QAbstractGraphicsShapeItem
 {
 public:
     QGraphicsPolygonItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);

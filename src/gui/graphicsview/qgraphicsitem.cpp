@@ -23,6 +23,8 @@
     painting implementation and item interaction through its event handlers.
     QGraphicsItem is part of \l{The Graphics View Framework}
 
+    \img graphicsview-items.png
+    
     For convenience, Qt provides a set of standard graphics items for the most
     common shapes. These are:
 
@@ -2877,8 +2879,8 @@ void QGraphicsItem::removeFromIndex()
 }
 
 /*!
-    \class QAbstractGraphicsPathItem
-    \brief The QAbstractGraphicsPathItem class provides a common base for
+    \class QAbstractGraphicsShapeItem
+    \brief The QAbstractGraphicsShapeItem class provides a common base for
     all path items.
     \since 4.2
     \ingroup multimedia
@@ -2895,9 +2897,9 @@ void QGraphicsItem::removeFromIndex()
     QGraphicsPixmapItem, \l{The Graphics View Framework}
 */
 
-class QAbstractGraphicsPathItemPrivate : public QGraphicsItemPrivate
+class QAbstractGraphicsShapeItemPrivate : public QGraphicsItemPrivate
 {
-    Q_DECLARE_PUBLIC(QAbstractGraphicsPathItem)
+    Q_DECLARE_PUBLIC(QAbstractGraphicsShapeItem)
 public:
 
     QBrush brush;
@@ -2905,19 +2907,19 @@ public:
 };
 
 /*!
-    Constructs a QAbstractGraphicsPathItem. \a parent and \a scene are
+    Constructs a QAbstractGraphicsShapeItem. \a parent and \a scene are
     passed to QGraphicsItem's constructor.
 */
-QAbstractGraphicsPathItem::QAbstractGraphicsPathItem(QGraphicsItem *parent,
+QAbstractGraphicsShapeItem::QAbstractGraphicsShapeItem(QGraphicsItem *parent,
                                                      QGraphicsScene *scene)
-    : QGraphicsItem(*new QAbstractGraphicsPathItemPrivate, parent, scene)
+    : QGraphicsItem(*new QAbstractGraphicsShapeItemPrivate, parent, scene)
 {
 }
 
 /*!
     \internal
 */
-QAbstractGraphicsPathItem::QAbstractGraphicsPathItem(QAbstractGraphicsPathItemPrivate &dd,
+QAbstractGraphicsShapeItem::QAbstractGraphicsShapeItem(QAbstractGraphicsShapeItemPrivate &dd,
                                                      QGraphicsItem *parent,
                                                      QGraphicsScene *scene)
     : QGraphicsItem(dd, parent, scene)
@@ -2925,9 +2927,9 @@ QAbstractGraphicsPathItem::QAbstractGraphicsPathItem(QAbstractGraphicsPathItemPr
 }
 
 /*!
-    Destroys a QAbstractGraphicsPathItem.
+    Destroys a QAbstractGraphicsShapeItem.
 */
-QAbstractGraphicsPathItem::~QAbstractGraphicsPathItem()
+QAbstractGraphicsShapeItem::~QAbstractGraphicsShapeItem()
 {
 }
 
@@ -2935,9 +2937,9 @@ QAbstractGraphicsPathItem::~QAbstractGraphicsPathItem()
     Returns the item's pen. If no pen has been set, this function returns
     QPen(), a default black solid line pen with 0 width.
 */
-QPen QAbstractGraphicsPathItem::pen() const
+QPen QAbstractGraphicsShapeItem::pen() const
 {
-    Q_D(const QAbstractGraphicsPathItem);
+    Q_D(const QAbstractGraphicsShapeItem);
     return d->pen;
 }
 
@@ -2948,9 +2950,9 @@ QPen QAbstractGraphicsPathItem::pen() const
 
     \sa pen()
 */
-void QAbstractGraphicsPathItem::setPen(const QPen &pen)
+void QAbstractGraphicsShapeItem::setPen(const QPen &pen)
 {
-    Q_D(QAbstractGraphicsPathItem);
+    Q_D(QAbstractGraphicsShapeItem);
     bool updateGeometry = (pen.widthF() != d->pen.widthF());
     if (updateGeometry)
         removeFromIndex();
@@ -2966,9 +2968,9 @@ void QAbstractGraphicsPathItem::setPen(const QPen &pen)
 
     \sa setBrush()
 */
-QBrush QAbstractGraphicsPathItem::brush() const
+QBrush QAbstractGraphicsShapeItem::brush() const
 {
-    Q_D(const QAbstractGraphicsPathItem);
+    Q_D(const QAbstractGraphicsShapeItem);
     return d->brush;
 }
 
@@ -2979,9 +2981,9 @@ QBrush QAbstractGraphicsPathItem::brush() const
 
     \sa brush()
 */
-void QAbstractGraphicsPathItem::setBrush(const QBrush &brush)
+void QAbstractGraphicsShapeItem::setBrush(const QBrush &brush)
 {
-    Q_D(QAbstractGraphicsPathItem);
+    Q_D(QAbstractGraphicsShapeItem);
     d->brush = brush;
     update();
 }
@@ -3001,12 +3003,14 @@ void QAbstractGraphicsPathItem::setBrush(const QBrush &brush)
     path using the item's associated pen and brush, which you can set by
     calling setPen() and setBrush().
 
+    \img graphicsview-pathitem.png
+
     \sa QGraphicsRectItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
     QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
     View Framework}
 */
 
-class QGraphicsPathItemPrivate : public QAbstractGraphicsPathItemPrivate
+class QGraphicsPathItemPrivate : public QAbstractGraphicsShapeItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsPathItem)
 public:
@@ -3016,12 +3020,12 @@ public:
 
 /*!
     Constructs a QGraphicsPath item using \a path as the default path.
-    \a parent and \a scene are passed to QAbstractGraphicsPathItem's
+    \a parent and \a scene are passed to QAbstractGraphicsShapeItem's
     constructor.
 */
 QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path,
                                      QGraphicsItem *parent, QGraphicsScene *scene)
-    : QAbstractGraphicsPathItem(*new QGraphicsPathItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsPathItemPrivate, parent, scene)
 {
     if (!path.isEmpty())
         setPath(path);
@@ -3029,10 +3033,10 @@ QGraphicsPathItem::QGraphicsPathItem(const QPainterPath &path,
 
 /*!
     Constructs a QGraphicsPath. \a parent and \a scene are passed to
-    QAbstractGraphicsPathItem's constructor.
+    QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsPathItem::QGraphicsPathItem(QGraphicsItem *parent, QGraphicsScene *scene)
-    : QAbstractGraphicsPathItem(*new QGraphicsPathItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsPathItemPrivate, parent, scene)
 {
 }
 
@@ -3094,7 +3098,7 @@ QPainterPath QGraphicsPathItem::shape() const
 */
 bool QGraphicsPathItem::contains(const QPointF &point) const
 {
-    return QAbstractGraphicsPathItem::contains(point);
+    return QAbstractGraphicsShapeItem::contains(point);
 }
 
 /*!
@@ -3166,12 +3170,14 @@ QVariant QGraphicsPathItem::extension(const QVariant &variant) const
     function draws the rectangle using the item's associated pen and brush,
     which you can set by calling setPen() and setBrush().
 
+    \img graphicsview-rectitem.png
+
     \sa QGraphicsPathItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
     QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
     View Framework}
 */
 
-class QGraphicsRectItemPrivate : public QAbstractGraphicsPathItemPrivate
+class QGraphicsRectItemPrivate : public QAbstractGraphicsShapeItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsRectItem)
 public:
@@ -3181,11 +3187,11 @@ public:
 /*!
     Constructs a QGraphicsRectItem, using \a rect as the default rectangle.
     \a parent and \a scene are passed to
-    QAbstractGraphicsPathItem's constructor.
+    QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent,
                                      QGraphicsScene *scene)
-    : QAbstractGraphicsPathItem(*new QGraphicsRectItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsRectItemPrivate, parent, scene)
 {
     setRect(rect);
 }
@@ -3194,21 +3200,21 @@ QGraphicsRectItem::QGraphicsRectItem(const QRectF &rect, QGraphicsItem *parent,
     Constructs a QGraphicsRectItem with a default rectangle defined
     by \a x, \a y, \a w and \a h.
 
-    \a parent is passed to QAbstractGraphicsPathItem's constructor.
+    \a parent is passed to QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsRectItem::QGraphicsRectItem(qreal x, qreal y, qreal w, qreal h,
                                      QGraphicsItem *parent, QGraphicsScene *scene)
-    : QAbstractGraphicsPathItem(*new QGraphicsRectItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsRectItemPrivate, parent, scene)
 {
     setRect(QRectF(x, y, w, h));
 }
 
 /*!
     Constructs a QGraphicsRectItem. \a parent and \a scene are
-    passed to QAbstractGraphicsPathItem's constructor.
+    passed to QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsRectItem::QGraphicsRectItem(QGraphicsItem *parent, QGraphicsScene *scene)
-    : QAbstractGraphicsPathItem(*new QGraphicsRectItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsRectItemPrivate, parent, scene)
 {
 }
 
@@ -3353,12 +3359,14 @@ QVariant QGraphicsRectItem::extension(const QVariant &variant) const
     paint() function draws the ellipse using the item's associated pen and
     brush, which you can set by calling setPen() and setBrush().
 
+    \img graphicsview-ellipseitem.png
+    
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsPolygonItem,
     QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
     View Framework}
 */
 
-class QGraphicsEllipseItemPrivate : public QAbstractGraphicsPathItemPrivate
+class QGraphicsEllipseItemPrivate : public QAbstractGraphicsShapeItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsEllipseItem)
 public:
@@ -3367,22 +3375,22 @@ public:
 
 /*!
     Constructs a QGraphicsEllipseItem using \a rect as the default rectangle.
-    \a parent and \a scene are passed to QAbstractGraphicsPathItem's
+    \a parent and \a scene are passed to QAbstractGraphicsShapeItem's
     constructor.
 */
 QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *parent,
                                            QGraphicsScene *scene)
-    : QAbstractGraphicsPathItem(*new QGraphicsEllipseItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsEllipseItemPrivate, parent, scene)
 {
     setRect(rect);
 }
 
 /*!
     Constructs a QGraphicsEllipseItem. \a parent and \a scene are passed to
-    QAbstractGraphicsPathItem's constructor.
+    QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsEllipseItem::QGraphicsEllipseItem(QGraphicsItem *parent, QGraphicsScene *scene)
-    : QAbstractGraphicsPathItem(*new QGraphicsEllipseItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsEllipseItemPrivate, parent, scene)
 {
 }
 
@@ -3447,7 +3455,7 @@ QPainterPath QGraphicsEllipseItem::shape() const
 */
 bool QGraphicsEllipseItem::contains(const QPointF &point) const
 {
-    return QAbstractGraphicsPathItem::contains(point);
+    return QAbstractGraphicsShapeItem::contains(point);
 }
 
 /*!
@@ -3520,12 +3528,14 @@ QVariant QGraphicsEllipseItem::extension(const QVariant &variant) const
     paint() function draws the polygon using the item's associated pen and
     brush, which you can set by calling setPen() and setBrush().
 
+    \img graphicsview-polygonitem.png
+
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
     View Framework}
 */
 
-class QGraphicsPolygonItemPrivate : public QAbstractGraphicsPathItemPrivate
+class QGraphicsPolygonItemPrivate : public QAbstractGraphicsShapeItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsPolygonItem)
 public:
@@ -3535,21 +3545,21 @@ public:
 /*!
     Constructs a QGraphicsPolygonItem with \a polygon as the default
     polygon. \a parent and \a scene are passed to
-    QAbstractGraphicsPathItem's constructor.
+    QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsPolygonItem::QGraphicsPolygonItem(const QPolygonF &polygon,
                                            QGraphicsItem *parent, QGraphicsScene *scene)
-    : QAbstractGraphicsPathItem(*new QGraphicsPolygonItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsPolygonItemPrivate, parent, scene)
 {
     setPolygon(polygon);
 }
 
 /*!
     Constructs a QGraphicsPolygonItem. \a parent and \a scene are passed to
-    QAbstractGraphicsPathItem's constructor.
+    QAbstractGraphicsShapeItem's constructor.
 */
 QGraphicsPolygonItem::QGraphicsPolygonItem(QGraphicsItem *parent, QGraphicsScene *scene)
-    : QAbstractGraphicsPathItem(*new QGraphicsPolygonItemPrivate, parent, scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsPolygonItemPrivate, parent, scene)
 {
 }
 
@@ -3612,7 +3622,7 @@ QPainterPath QGraphicsPolygonItem::shape() const
 */
 bool QGraphicsPolygonItem::contains(const QPointF &point) const
 {
-    return QAbstractGraphicsPathItem::contains(point);
+    return QAbstractGraphicsShapeItem::contains(point);
 }
 
 /*!
@@ -3682,6 +3692,8 @@ QVariant QGraphicsPolygonItem::extension(const QVariant &variant) const
     implementation of boundingRect(), shape(), and contains(). The paint()
     function draws the line using the item's associated pen, which you can set
     by calling setPen().
+
+    \img graphicsview-lineitem.png
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsPixmapItem, \l{The
@@ -3914,6 +3926,8 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     setTransformationMode(). By default, Qt::FastTransformation is used, which
     provides fast, non-smooth scaling. Call transformationMode() to get the
     current transformation mode for the item.
+
+    \img graphicsview-pixmapitem.png
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
     QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem, \l{The
@@ -4675,15 +4689,17 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
 }
 
 /*!
-    \fn QGraphicsTextItem::linkActivated(const QString &)
+    \fn QGraphicsTextItem::linkActivated(const QString &link)
 
-    This signal is emitted when the user clicks on a link.
+    This signal is emitted when the user clicks on a link. \a link
+    is the link that was clicked.
 */
 
 /*!
-    \fn QGraphicsTextItem:linkHovered(const QString &)
+    \fn QGraphicsTextItem:linkHovered(const QString &link)
 
-    This signal is emitted when the user hovers over a link.
+    This signal is emitted when the user hovers over a link. \a link is
+    the link that was hovered over.
 */
 
 /*!

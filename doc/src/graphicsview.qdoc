@@ -114,6 +114,8 @@
         scene coordinates: QGraphicsView::mapToScene() and
         QGraphicsView::mapFromScene().
 
+        \img graphicsview-view.png
+
       \section2 The Item
 
         QGraphicsItem is the base class for graphical items in a
@@ -155,6 +157,8 @@
         to provide your own collision detection, however, you can reimplement
         QGraphicsItem::collidesWith().
 
+        \img graphicsview-items.png
+
     \section1 The Graphics View Coordinate System
 
       Graphics View is based on the Cartesian coordinate system; items'
@@ -172,6 +176,8 @@
       QPainter's \e logical coordinates, and view coordinates are the same as
       \e device coordinates.  In \l{The Coordinate System}, you can read about
       the relationship between logical coordinates and device coordinates.
+
+      \img graphicsview-parentchild.png
 
       \section2 Item Coordinates
 
@@ -279,7 +285,7 @@
           QGraphicsView::mapToScene(). To map from a view to an item, you
           first map to the scene, and then map from the scene to the item.
 
-    \section1 Essential Features
+    \section1 Key Features
 
       \section2 Zooming and rotating
 
@@ -311,6 +317,8 @@
         QGraphicsView keeps the center of the view aligned when you transform
         the view.
 
+        \sa \l{Elastic Nodes Example}
+
       \section2 Printing
 
         Graphics View provides single-line printing through its rendering
@@ -332,14 +340,27 @@
             }
         \endcode
 
-        The essential difference between the scene and view rendering
-        functions is that one operates in scene coordinates, and the other in
-        view coordinates.  QGraphicsScene::render() is often preferred for
-        printing whole segments of a scene untransformed, such as for plotting
-        geometrical data, or for printing a text
-        document. QGraphicsView::render(), on the other hand, is suitable for
-        taking screenshots; its default behavior is to render the exact
-        contents of the viewport using the provided painter.
+        The difference between the scene and view rendering functions is that
+        one operates in scene coordinates, and the other in view coordinates.
+        QGraphicsScene::render() is often preferred for printing whole
+        segments of a scene untransformed, such as for plotting geometrical
+        data, or for printing a text document. QGraphicsView::render(), on the
+        other hand, is suitable for taking screenshots; its default behavior
+        is to render the exact contents of the viewport using the provided
+        painter.
+
+        \code
+            QGraphicsScene scene;
+            scene.addRect(QRectF(0, 0, 100, 200), Qt::black, QBrush(Qt::green));
+
+            QPixmap pixmap;
+            QPainter painter(&pixmap);
+            painter.setRenderHint(QPainter::Antialiasing);
+            scene->render(&painter);
+            painter.end();
+
+            pixmap.save("scene.png");
+        \endcode
 
         When the source and target areas' sizes do not match, the source
         contents are stretched to fit into the target area. By passing a
@@ -389,6 +410,8 @@
         QGraphicsItem::dragMoveEvent(), QGraphicsItem::dragLeaveEvent(), and
         QGraphicsItem::dropEvent().
 
+        \sa \l{Drag and Drop Robot Example}
+
       \section2 Cursors and Tooltips
 
         Like QWidget, QGraphicsItem also supports cursors
@@ -399,6 +422,8 @@
 
         You can also set a default cursor directly on the view by calling
         QGraphicsView::setCursor().
+
+        \sa \l{Drag and Drop Robot Example}
 
       \section2 Animation
 
@@ -420,6 +445,8 @@
         QGraphicsScene::advance(), which in turn calls
         QGraphicsItem::advance().
 
+        \sa \l{Drag and Drop Robot Example}
+
       \section2 OpenGL
 
         To enable OpenGL rendering, you simply set a new QGLWidget as the
@@ -434,4 +461,22 @@
             view.setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
         \endcode
 
+      \section2 Item Groups
+
+        By making an item a child of another, you can achieve the most
+        essential feature of item grouping: the items will move together, and
+        all transformations are propagated from parent to child. QGraphicsItem
+        can also handle all events for its children (see
+        QGraphicsItem::setHandlesChildEvents()). This allows the parent item
+        to act on behalf of its children, effectively treating all items as
+        one.
+
+        In addition, QGraphicsItemGroup is a special item that combines child
+        event handling with a useful interface for adding and removing items
+        to and from a group. Adding an item to a QGraphicsItemGroup will keep
+        the item's original position and transformation, whereas reparenting
+        items in general will cause the child to reposition itself relative to
+        its new parent. For convenience, you can create
+        \l{QGraphicsItemGroup}s through the scene by calling
+        QGraphicsScene::createItemGroup().
 */
