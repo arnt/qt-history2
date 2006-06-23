@@ -95,6 +95,7 @@ SUBDIRS += bic \
            qdbusmarshall \
 	   qdbusmetaobject \
            qdbusmetatype \
+	   qdbusreply \
            qdbusxmlparser \
            qdeepcopy \
            qdesktopservices \

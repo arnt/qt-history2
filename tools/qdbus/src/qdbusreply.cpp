@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qdbusreply.h"
+#include "qdbusmetatype.h"
+#include "qdbusmetatype_p.h"
 
 /*!
     \class QDBusReply
@@ -135,9 +137,19 @@ void qDBusReplyFill(const QDBusMessage &reply, QDBusError &error, QVariant &data
 
     if (reply.count() >= 1 && reply.at(0).userType() == data.userType()) {
         data = reply.at(0);
-    } else {
-        error = QDBusError(QDBusError::InvalidSignature,
-                           QLatin1String("Unexpected reply signature"));
-        data = QVariant();      // clear it
+        return;
+    } else if (reply.at(0).userType() == QDBusMetaTypeId::argument) {
+        // compare signatures instead
+        QDBusArgument arg = qvariant_cast<QDBusArgument>(reply.at(0));
+        if (QDBusMetaType::typeToSignature(data.userType()) == arg.currentSignature().toLatin1()) {
+            // matched. Demarshall it
+            QDBusMetaType::demarshall(arg, data.userType(), data.data());
+            return;
+        }
     }
+
+    // error
+    error = QDBusError(QDBusError::InvalidSignature,
+                       QLatin1String("Unexpected reply signature"));
+    data = QVariant();      // clear it
 }
