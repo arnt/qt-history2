@@ -1133,6 +1133,7 @@ void QWidgetPrivate::createWindow_sys()
     qt_mac_update_opaque_sizegrip(q);
     qt_mac_update_metal_style(q);
     qt_mac_update_ignore_mouseevents(q);
+    setWindowTitle_helper(extra->topextra->caption);
 }
 
 void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyOldWindow)
