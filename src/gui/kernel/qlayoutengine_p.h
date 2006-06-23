@@ -69,24 +69,26 @@ Q_GUI_EXPORT QSize qSmartMaxSize(const QWidget *w, Qt::Alignment align = 0);
 
 
 /*
-  Modify total maximum (max) and total expansion (exp)
+  Modify total maximum (max), total expansion (exp), and total empty
   when adding boxmax/boxexp.
 
   Expansive boxes win over non-expansive boxes.
+  Non-empty boxes win over empty boxes.
 */
-static inline void qMaxExpCalc(int & max, bool &exp,
-                               int boxmax, bool boxexp)
+static inline void qMaxExpCalc(int & max, bool &exp, bool &empty,
+                               int boxmax, bool boxexp, bool boxempty)
 {
     if (exp) {
         if (boxexp)
             max = qMax(max, boxmax);
     } else {
-        if (boxexp)
+        if (boxexp || empty && (!boxempty || max == 0))
             max = boxmax;
-        else
+        else if (empty == boxempty)
             max = qMin(max, boxmax);
     }
     exp = exp || boxexp;
+    empty = empty && boxempty;
 }
 
 #endif // QLAYOUTENGINE_P_H

@@ -147,7 +147,7 @@ void QBoxLayoutPrivate::setupGeom()
     geomArray.resize(n);
     QVector<QLayoutStruct> &a = geomArray;
 
-    bool first = true;
+    bool first = true; // empty so far?
     for (int i = 0; i < n; i++) {
         QBoxLayoutItem *box = list.at(i);
         QSize max = box->item->maximumSize();
@@ -158,7 +158,6 @@ void QBoxLayoutPrivate::setupGeom()
         // space before non-empties, except the first:
         int space = (empty || first) ? 0 : q->spacing();
         bool ignore = empty && box->item->widget(); // ignore hidden widgets
-
         if (horz(dir)) {
             bool expand = exp & Qt::Horizontal || box->stretch > 0;
             horexp = horexp || expand;
@@ -166,8 +165,8 @@ void QBoxLayoutPrivate::setupGeom()
             minw += min.width() + space;
             hintw += hint.width() + space;
             if (!ignore)
-                qMaxExpCalc(maxh, verexp,
-                             max.height(), exp & Qt::Vertical);
+                qMaxExpCalc(maxh, verexp, first,
+                            max.height(), exp & Qt::Vertical, box->item->isEmpty());
             minh = qMax(minh, min.height());
             hinth = qMax(hinth, hint.height());
 
@@ -183,8 +182,8 @@ void QBoxLayoutPrivate::setupGeom()
             minh += min.height() + space;
             hinth += hint.height() + space;
             if (!ignore)
-                qMaxExpCalc(maxw, horexp,
-                             max.width(), exp & Qt::Horizontal);
+                qMaxExpCalc(maxw, horexp, first,
+                             max.width(), exp & Qt::Horizontal, box->item->isEmpty());
             minw = qMax(minw, min.width());
             hintw = qMax(hintw, hint.width());
 
@@ -197,7 +196,6 @@ void QBoxLayoutPrivate::setupGeom()
 
         a[i].empty = empty;
         hasHfw = hasHfw || box->item->hasHeightForWidth();
-        first = first && empty;
     }
 
     expanding = (Qt::Orientations)

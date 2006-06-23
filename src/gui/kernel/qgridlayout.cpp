@@ -236,11 +236,10 @@ void QGridLayoutPrivate::recalcHFW(int w, int spacing)
     int mh = 0;
     int n = 0;
     for (int r = 0; r < rr; r++) {
-        if (!rData[r].empty) {
-            h += rData[r].sizeHint;
-            mh += rData[r].minimumSize;
+        h += rData[r].sizeHint;
+        mh += rData[r].minimumSize;
+        if (!rData[r].empty)
             n++;
-        }
     }
     if (n) {
         h += (n - 1) * spacing;
@@ -279,20 +278,20 @@ QSize QGridLayoutPrivate::findSize(int QLayoutStruct::*size, int spacer) const
     int h = 0;
     int n = 0;
 
-    for (int r = 0; r < rr; r++)
-        if (!rowData[r].empty) {
-            h = h + rowData[r].*size;
+    for (int r = 0; r < rr; r++) {
+        h = h + rowData[r].*size;
+        if (!rowData[r].empty)
             n++;
-        }
+    }
     if (n)
         h += (n - 1) * spacer;
 
     n = 0;
-    for (int c = 0; c < cc; c++)
-        if (!colData[c].empty) {
-            w = w + colData[c].*size;
+    for (int c = 0; c < cc; c++) {
+        w = w + colData[c].*size;
+        if (!colData[c].empty)
             n++;
-        }
+    }
     if (n)
         w += (n - 1) * spacer;
 
@@ -347,6 +346,7 @@ void QGridLayoutPrivate::setSize(int r, int c)
         rSpacing.resize(newR);
         for (int i = rr; i < newR; i++) {
             rowData[i].init();
+            rowData[i].maximumSize = 0;
             rStretch[i] = 0;
             rSpacing[i] = 0;
         }
@@ -358,6 +358,7 @@ void QGridLayoutPrivate::setSize(int r, int c)
         cSpacing.resize(newC);
         for (int i = cc; i < newC; i++) {
             colData[i].init();
+            colData[i].maximumSize = 0;
             cStretch[i] = 0;
             cSpacing[i] = 0;
         }
@@ -450,9 +451,8 @@ void QGridLayoutPrivate::addData(QGridBox *box, bool r, bool c)
         colData[box->col].minimumSize = qMax(minS.width(),
                                               colData[box->col].minimumSize);
 
-        qMaxExpCalc(colData[box->col].maximumSize, colData[box->col].expansive,
-                     maxS.width(),
-                     box->expandingDirections() & Qt::Horizontal);
+        qMaxExpCalc(colData[box->col].maximumSize, colData[box->col].expansive, colData[box->col].empty,
+                    maxS.width(), box->expandingDirections() & Qt::Horizontal, box->isEmpty());
     }
     if (r) {
         if (!rStretch[box->row])
@@ -463,17 +463,8 @@ void QGridLayoutPrivate::addData(QGridBox *box, bool r, bool c)
         rowData[box->row].minimumSize = qMax(minS.height(),
                                               rowData[box->row].minimumSize);
 
-        qMaxExpCalc(rowData[box->row].maximumSize, rowData[box->row].expansive,
-                     maxS.height(),
-                     box->expandingDirections() & Qt::Vertical);
-    }
-    if (!box->isEmpty()) {
-        // Empty boxes (i.e. spacers) do not get borders. This is
-        // hacky, but compatible.
-        if (c)
-            colData[box->col].empty = false;
-        if (r)
-            rowData[box->row].empty = false;
+        qMaxExpCalc(rowData[box->row].maximumSize, rowData[box->row].expansive, rowData[box->row].empty,
+                    maxS.height(), box->expandingDirections() & Qt::Vertical, box->isEmpty());
     }
 }
 
@@ -545,11 +536,14 @@ void QGridLayoutPrivate::setupLayoutData(int spacing)
     has_hfw = false;
     int i;
 
-    for (i = 0; i < rr; i++)
+    for (i = 0; i < rr; i++) {
         rowData[i].init(rStretch[i], rSpacing[i]);
-    for (i = 0; i < cc; i++)
+        rowData[i].maximumSize = rStretch[i] ? QLAYOUTSIZE_MAX : rSpacing[i];
+    }
+    for (i = 0; i < cc; i++) {
         colData[i].init(cStretch[i], cSpacing[i]);
-
+        colData[i].maximumSize = cStretch[i] ? QLAYOUTSIZE_MAX : cSpacing[i];
+    }
     for (int pass = 0; pass < 2; ++pass) {
         for (i = 0; i < things.size(); ++i) {
             QGridBox *box = things.at(i);
@@ -1280,6 +1274,7 @@ void QGridLayout::setRowStretch(int row, int stretch)
 {
     Q_D(QGridLayout);
     d->setRowStretch(row, stretch);
+    invalidate();
 }
 
 /*!
@@ -1325,6 +1320,7 @@ void QGridLayout::setColumnStretch(int column, int stretch)
 {
     Q_D(QGridLayout);
     d->setColStretch(column, stretch);
+    invalidate();
 }
 
 
@@ -1338,6 +1334,7 @@ void QGridLayout::setRowMinimumHeight(int row, int minSize)
 {
     Q_D(QGridLayout);
     d->setRowSpacing(row, minSize);
+    invalidate();
 }
 
 /*!
@@ -1360,6 +1357,7 @@ void QGridLayout::setColumnMinimumWidth(int column, int minSize)
 {
     Q_D(QGridLayout);
     d->setColSpacing(column, minSize);
+    invalidate();
 }
 
 /*!
