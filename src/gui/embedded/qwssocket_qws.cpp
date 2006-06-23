@@ -181,6 +181,12 @@ void QWSServerSocket::init(const QString &file)
 
 // create socket
     int s = ::socket(PF_LOCAL, SOCK_STREAM, 0);
+    if (s == -1) {
+        perror("QWSServerSocket::init");
+        qWarning("QWSServerSocket: unable to create socket.");
+        return;
+    }
+
     QByteArray fn = file.toLocal8Bit();
     unlink(fn.constData()); // doesn't have to succeed
 
