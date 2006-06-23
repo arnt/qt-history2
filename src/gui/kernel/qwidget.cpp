@@ -1069,6 +1069,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if (isWindow() && !testAttribute(Qt::WA_SetWindowIcon))
             d->setWindowIcon_sys();
     }
+    if (testAttribute(Qt::WA_WState_ExplicitShowHide) && testAttribute(Qt::WA_WState_Hidden))
+        d->hide_helper();
 }
 
 /*!
@@ -4851,10 +4853,9 @@ void QWidget::setVisible(bool visible)
 
         Q_D(QWidget);
         setAttribute(Qt::WA_WState_Hidden);
-        if (testAttribute(Qt::WA_WState_ExplicitShowHide) && testAttribute(Qt::WA_WState_Created))
+        setAttribute(Qt::WA_WState_ExplicitShowHide);
+        if (testAttribute(Qt::WA_WState_Created))
             d->hide_helper();
-        else
-            setAttribute(Qt::WA_WState_ExplicitShowHide);
 
         // invalidate layout similar to updateGeometry()
         if (!isWindow() && parentWidget()) {
@@ -4863,7 +4864,6 @@ void QWidget::setVisible(bool visible)
             else if (parentWidget()->isVisible())
                 QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
         }
-
 
         QEvent hideToParentEvent(QEvent::HideToParent);
         QApplication::sendEvent(this, &hideToParentEvent);
