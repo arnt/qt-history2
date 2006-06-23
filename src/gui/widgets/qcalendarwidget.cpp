@@ -700,6 +700,7 @@ void QCalendarWidgetPrivate::_q_slotChangeDate(const QDate &date, bool changeMon
     if (changeMonth)
         showMonth(newDate.year(), newDate.month());
     if (oldDate != newDate) {
+        update();
         Q_Q(QCalendarWidget);
         emit q->selectionChanged();
     }
