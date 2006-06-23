@@ -26,6 +26,7 @@
 #include <QScrollBar>
 #include <QPainter>
 #include <QDebug>
+#include <QPageSetupDialog>
 
 #ifdef Q_WS_MAC
 const QString rsrcPath = ":/images/mac";
@@ -43,11 +44,53 @@ static inline qreal mmToInches(double mm)
     return mm*0.039370147;
 }
 
+#define Q_MM(n) int((n * 720 + 127) / 254)
+#define Q_IN(n) int(n * 72)
+
+static const struct Size {
+   int width;
+   int height;
+} paperSizes[QPrinter::NPageSize] =
+{
+    {  Q_MM(210), Q_MM(297) },      // A4
+    {  Q_MM(176), Q_MM(250) },      // B5
+    {  Q_IN(8.5), Q_IN(11) },       // Letter
+    {  Q_IN(8.5), Q_IN(14) },       // Legal
+    {  Q_IN(7.5), Q_IN(10) },       // Executive
+    {  Q_MM(841), Q_MM(1189) },     // A0
+    {  Q_MM(594), Q_MM(841) },      // A1
+    {  Q_MM(420), Q_MM(594) },      // A2
+    {  Q_MM(297), Q_MM(420) },      // A3
+    {  Q_MM(148), Q_MM(210) },      // A5
+    {  Q_MM(105), Q_MM(148) },      // A6
+    {  Q_MM(74), Q_MM(105)},        // A7
+    {  Q_MM(52), Q_MM(74) },        // A8
+    {  Q_MM(37), Q_MM(52) },        // A9
+    {  Q_MM(1000), Q_MM(1414) },    // B0
+    {  Q_MM(707), Q_MM(1000) },     // B1
+    {  Q_MM(31), Q_MM(44) },        // B10
+    {  Q_MM(500), Q_MM(707) },      // B2
+    {  Q_MM(353), Q_MM(500) },      // B3
+    {  Q_MM(250), Q_MM(353) },      // B4
+    {  Q_MM(125), Q_MM(176) },      // B6
+    {  Q_MM(88), Q_MM(125) },       // B7
+    {  Q_MM(62), Q_MM(88) },        // B8
+    {  Q_MM(44), Q_MM(62) },        // B9
+    {  Q_MM(162),    Q_MM(229) },   // C5E
+    {  Q_IN(4.125),  Q_IN(9.5) },   // Comm10E
+    {  Q_MM(110),    Q_MM(220) },   // DLE
+    {  Q_IN(8.5),    Q_IN(13) },    // Folio
+    {  Q_IN(17),     Q_IN(11) },    // Ledger
+    {  Q_IN(11),     Q_IN(17) }     // Tabloid
+};
+
 class PreviewView : public QAbstractScrollArea
 {
     Q_OBJECT
 public:
     PreviewView(QTextDocument *document);
+
+    inline void updateLayout() { resizeEvent(0); }
 
 public slots:
     void zoomIn();
@@ -184,8 +227,9 @@ void PreviewView::mouseReleaseEvent(QMouseEvent *e)
 }
 
 PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent), printer(QPrinter::HighResolution)
 {
+    printer.setFullPage(true);
     doc = document->clone();
 
     view = new PreviewView(doc);
@@ -195,32 +239,33 @@ PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
     doc->setUseDesignMetrics(true);
     doc->documentLayout()->setPaintDevice(view->viewport());
 
-    const float A4Width = 8.268; // inches
-    const float A4Height = 11.693;
-
-    // A4 page size
-    QSizeF page(inchesToPixels(A4Width, this),
-                inchesToPixels(A4Height, this));
-
     // add a nice 2 cm margin
     const qreal margin = inchesToPixels(mmToInches(20), this);
     QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
     fmt.setMargin(margin);
     doc->rootFrame()->setFrameFormat(fmt);
 
-    doc->setPageSize(page);
+    setup();
 
     QFont f(doc->defaultFont());
     f.setPointSize(10);
     doc->setDefaultFont(f);
 
     QToolBar *tb = addToolBar(tr("Print"));
+    tb->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
     QAction *a;
-    a = new QAction(QIcon(rsrcPath + "/fileprint.png"), tr("&Print..."), this);
+    a = new QAction(/*QIcon(rsrcPath + "/fileprint.png"),*/ tr("&Print..."), this);
     a->setShortcut(Qt::CTRL + Qt::Key_P);
     connect(a, SIGNAL(triggered()), this, SLOT(print()));
     tb->addAction(a);
+
+    a = new QAction(this);
+    a->setText(tr("Page Setup..."));
+    connect(a, SIGNAL(triggered()), this, SLOT(pageSetup()));
+    tb->addAction(a);
+
+    tb->addSeparator();
 
     a = new QAction(QIcon(rsrcPath + "/zoomin.png"), tr("Zoom In"), this);
     connect(a, SIGNAL(triggered()), view, SLOT(zoomIn()));
@@ -229,6 +274,33 @@ PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
     a = new QAction(QIcon(rsrcPath + "/zoomout.png"), tr("Zoom Out"), this);
     connect(a, SIGNAL(triggered()), view, SLOT(zoomOut()));
     tb->addAction(a);
+
+    tb->addSeparator();
+
+    a = new QAction(this);
+    a->setText(tr("&Close"));
+    connect(a, SIGNAL(triggered()), this, SLOT(close()));
+    tb->addAction(a);
+}
+
+void PrintPreview::setup()
+{
+    QSizeF page(paperSizes[printer.pageSize()].width,
+                paperSizes[printer.pageSize()].height);
+    page.setWidth(page.width() * view->logicalDpiX() / 72.);
+    page.setHeight(page.height() * view->logicalDpiY() / 72.);
+
+    if (printer.orientation() == QPrinter::Landscape) {
+        qSwap(page.rwidth(), page.rheight());
+    }
+
+    // add a nice 2 cm margin
+    const qreal margin = inchesToPixels(mmToInches(20), this);
+    QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
+    fmt.setMargin(margin);
+    doc->rootFrame()->setFrameFormat(fmt);
+
+    doc->setPageSize(page);
 }
 
 PrintPreview::~PrintPreview()
@@ -238,14 +310,20 @@ PrintPreview::~PrintPreview()
 
 void PrintPreview::print()
 {
-    QPrinter printer(QPrinter::HighResolution);
-    printer.setFullPage(true);
-
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
     if (dlg->exec() == QDialog::Accepted) {
         doc->print(&printer);
     }
     delete dlg;
+}
+
+void PrintPreview::pageSetup()
+{
+    QPageSetupDialog dlg(&printer, this);
+    if (dlg.exec() == QDialog::Accepted) {
+        setup();
+        view->updateLayout();
+    }
 }
 
 #include "printpreview.moc"

@@ -15,6 +15,7 @@
 #define PRINTPREVIEW_H
 
 #include <QMainWindow>
+#include <QPrinter>
 
 class PreviewView;
 class QTextDocument;
@@ -28,10 +29,14 @@ public:
 
 private slots:
     void print();
+    void pageSetup();
 
 private:
+    void setup();
+
     QTextDocument *doc;
     PreviewView *view;
+    QPrinter printer;
 };
 
 #endif // PRINTPREVIEW_H
