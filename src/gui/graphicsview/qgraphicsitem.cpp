@@ -5061,12 +5061,15 @@ void QGraphicsItemGroup::addToGroup(QGraphicsItem *item)
         return;
     }
 
-    QPointF oldPos = mapFromItem(item, 0, 0);
+    QMatrix oldSceneMatrix = item->sceneMatrix();
+    item->setPos(mapFromItem(item, 0, 0));
     item->setParentItem(this);
-    item->setPos(oldPos);
+    item->setMatrix(oldSceneMatrix
+                    * sceneMatrix().inverted()
+                    * QMatrix().translate(-item->x(), -item->y()));
     item->d_func()->setIsMemberOfGroup(true);
     removeFromIndex();
-    d->itemsBoundingRect |= (item->matrix() * QMatrix().translate(oldPos.x(), oldPos.y()))
+    d->itemsBoundingRect |= (item->matrix() * QMatrix().translate(item->x(), item->y()))
                             .mapRect(item->boundingRect() | item->childrenBoundingRect());
     addToIndex();
 }
