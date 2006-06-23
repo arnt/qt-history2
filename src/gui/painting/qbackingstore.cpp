@@ -370,7 +370,10 @@ QWidgetBackingStore::QWidgetBackingStore(QWidget *t) : tlw(t)
 
 QWidgetBackingStore::~QWidgetBackingStore()
 {
-
+#ifdef QT_WINDOW_SURFACE
+    if (!tlw->windowSurface())
+        delete windowSurface;
+#endif
 }
 
 /*
