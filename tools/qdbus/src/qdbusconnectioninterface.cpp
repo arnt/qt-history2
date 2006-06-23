@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qdbusbus.h"
+#include "qdbusconnectioninterface.h"
 
 #include <QtCore/QByteArray>
 #include <QtCore/QList>

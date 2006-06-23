@@ -91,7 +91,7 @@ target.path = $$[QT_INSTALL_LIBS]
 INSTALLS += target targ_headers targ_pkgconfig
 
 PUB_HEADERS =  qdbusargument.h \
-	       qdbusbus.h \
+	       qdbusconnectioninterface.h \
 	       qdbusmacros.h \
 	       qdbuserror.h \
 	       qdbusextratypes.h \
@@ -110,7 +110,7 @@ HEADERS += $$PUB_HEADERS \
            qdbusargument_p.h qdbusutil_p.h
 
 SOURCES += qdbusconnection.cpp  \
-	qdbusbus.cpp		\
+	qdbusconnectioninterface.cpp \
 	qdbuserror.cpp		\
 	qdbusintegrator.cpp	\
 	qdbusmessage.cpp	\

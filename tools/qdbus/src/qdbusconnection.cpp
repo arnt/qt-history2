@@ -15,8 +15,8 @@
 #include <qcoreapplication.h>
 #include <qstringlist.h>
 
-#include "qdbusbus.h"
 #include "qdbusconnection.h"
+#include "qdbusconnectioninterface.h"
 #include "qdbuserror.h"
 #include "qdbusmessage.h"
 #include "qdbusconnection_p.h"
