@@ -65,6 +65,9 @@ public:
     void setScaledSize(const QSize &size);
     QSize scaledSize() const;
 
+    void setQuality(int quality);
+    int quality() const;
+
     void setScaledClipRect(const QRect &rect);
     QRect scaledClipRect() const;
 

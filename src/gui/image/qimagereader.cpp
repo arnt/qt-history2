@@ -367,6 +367,7 @@ public:
     QRect clipRect;
     QSize scaledSize;
     QRect scaledClipRect;
+    int quality;
     QMap<QString, QString> text;
     void getText();
 
@@ -385,6 +386,7 @@ QImageReaderPrivate::QImageReaderPrivate(QImageReader *qq)
     device = 0;
     deleteDevice = false;
     handler = 0;
+    quality = -1;
     imageReaderError = QImageReader::UnknownError;
     errorString = QLatin1String(QT_TRANSLATE_NOOP(QImageReader, "Unknown error"));
 
@@ -614,6 +616,38 @@ QString QImageReader::fileName() const
 }
 
 /*!
+    \since 4.2
+    
+    This is an image format specific function that sets the quality
+    level of the image to \a quality. For image formats that do not
+    support setting the quality, this value is ignored.
+
+    The value range of \a quality depends on the image format. For
+    example, the "jpeg" format supports a quality range from 0 (low
+    quality, high compression) to 100 (high quality, low compression).
+
+
+    \sa quality()
+*/
+void QImageReader::setQuality(int quality)
+{
+    d->quality = quality;
+}
+
+/*!
+    \since 4.2
+
+    Returns the quality level of the image.
+
+    \sa setQuality()
+*/
+int QImageReader::quality() const
+{
+    return d->quality;
+}
+
+
+/*!
     Returns the size of the image, without actually reading the image
     contents.
 
@@ -837,6 +871,8 @@ QImage QImageReader::read()
         d->handler->setOption(QImageIOHandler::ScaledSize, d->scaledSize);
     if (d->handler->supportsOption(QImageIOHandler::ScaledClipRect))
         d->handler->setOption(QImageIOHandler::ScaledClipRect, d->scaledClipRect);
+    if (d->handler->supportsOption(QImageIOHandler::Quality))
+        d->handler->setOption(QImageIOHandler::Quality, d->quality);
 
     // read the image
     QImage image;
