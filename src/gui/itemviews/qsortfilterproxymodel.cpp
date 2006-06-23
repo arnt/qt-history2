@@ -547,6 +547,8 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
     const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
 {
     Q_Q(QSortFilterProxyModel);
+    if ((start < 0) || (end < 0))
+        return;
     IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
     if (it == source_index_mapping.constEnd()) {
         // Don't care, since we don't have mapping for this index
@@ -598,6 +600,8 @@ void QSortFilterProxyModelPrivate::source_items_inserted(
 void QSortFilterProxyModelPrivate::source_items_about_to_be_removed(
     const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
 {
+    if ((start < 0) || (end < 0))
+        return;
     IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
     if (it == source_index_mapping.constEnd()) {
         // Don't care, since we don't have mapping for this index
@@ -629,6 +633,8 @@ void QSortFilterProxyModelPrivate::source_items_about_to_be_removed(
 void QSortFilterProxyModelPrivate::source_items_removed(
     const QModelIndex &source_parent, int start, int end, Qt::Orientation orient)
 {
+    if ((start < 0) || (end < 0))
+        return;
     IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
     if (it == source_index_mapping.constEnd()) {
         // Don't care, since we don't have mapping for this index
@@ -638,6 +644,9 @@ void QSortFilterProxyModelPrivate::source_items_removed(
     Mapping *m = it.value();
     QVector<int> &source_to_proxy = (orient == Qt::Vertical) ? m->proxy_rows : m->proxy_columns;
     QVector<int> &proxy_to_source = (orient == Qt::Vertical) ? m->source_rows : m->source_columns;
+
+    if (end >= source_to_proxy.size())
+        end = source_to_proxy.size() - 1;
 
     // Shrink the source-to-proxy mapping to reflect the new item count
     int delta_item_count = end - start + 1;
@@ -653,6 +662,9 @@ void QSortFilterProxyModelPrivate::source_items_removed(
     build_source_to_proxy_mapping(proxy_to_source, source_to_proxy);
 }
 
+/*!
+  \internal
+*/
 void QSortFilterProxyModelPrivate::proxy_item_range(
     const QVector<int> &source_to_proxy, const QVector<int> &source_items,
     int &proxy_low, int &proxy_high) const
@@ -779,6 +791,8 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
                                                      const QModelIndex &source_bottom_right)
 {
     Q_Q(QSortFilterProxyModel);
+    if (!source_top_left.isValid() || !source_bottom_right.isValid())
+        return;
     QModelIndex source_parent = source_top_left.parent();
     IndexMap::const_iterator it = source_index_mapping.constFind(source_parent);
     if (it == source_index_mapping.constEnd()) {
@@ -792,7 +806,8 @@ void QSortFilterProxyModelPrivate::_q_sourceDataChanged(const QModelIndex &sourc
     QVector<int> source_rows_insert;
     QVector<int> source_rows_change;
     QVector<int> source_rows_resort;
-    for (int source_row = source_top_left.row(); source_row <= source_bottom_right.row(); ++source_row) {
+    int end = qMin(source_bottom_right.row(), m->proxy_rows.count() - 1);
+    for (int source_row = source_top_left.row(); source_row <= end; ++source_row) {
         if (dynamic_sortfilter) {
             if (m->proxy_rows.at(source_row) != -1) {
                 if (!q->filterAcceptsRow(source_row, source_parent)) {
