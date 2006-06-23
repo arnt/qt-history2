@@ -187,7 +187,7 @@ QByteArray QDBusDemarshaller::toByteArray()
     return QByteArray(data,len);
 }
 
-inline bool QDBusDemarshaller::atEnd()
+bool QDBusDemarshaller::atEnd()
 {
     // dbus_message_iter_has_next is broken if the list has one single element
     return dbus_message_iter_get_arg_type(&iterator) == DBUS_TYPE_INVALID;
