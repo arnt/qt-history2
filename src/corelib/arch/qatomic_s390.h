@@ -14,6 +14,8 @@
 #ifndef S390_QATOMIC_H
 #define S390_QATOMIC_H
 
+#include <QtCore/qglobal.h>
+
 QT_BEGIN_HEADER
 
 #define __CS_LOOP(ptr, op_val, op_string) ({				\
