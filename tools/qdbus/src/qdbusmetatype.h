@@ -19,6 +19,19 @@
 
 QT_BEGIN_HEADER
 
+#define QDBUS_DECLARE_METATYPE(TYPE) \
+template <> \
+struct QMetaTypeId< TYPE > \
+{ \
+    enum { Defined = 1 }; \
+    static int qt_metatype_id() \
+    { \
+        static QBasicAtomic id = Q_ATOMIC_INIT(0); \
+        if (!id) \
+           id = qDBusRegisterMetaType< TYPE >(#TYPE); \
+        return id; \
+    } \
+};
 
 class QDBUS_EXPORT QDBusMetaType
 {
@@ -58,6 +71,16 @@ int qDBusRegisterMetaType(const char *typeName
         reinterpret_cast<QDBusMetaType::MarshallFunction>(mf),
         reinterpret_cast<QDBusMetaType::DemarshallFunction>(df));
     return id;
+}
+
+template <typename T>
+inline int qDBusRegisterMetaType(
+#ifndef qdoc
+    T * dummy = 0
+#endif
+)
+{
+    return qMetaTypeId(dummy);
 }
 
 QT_END_HEADER
