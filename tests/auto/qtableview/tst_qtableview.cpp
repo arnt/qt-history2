@@ -50,8 +50,9 @@ private slots:
     void visualRect_data();
     void visualRect();
     void fetchMore();
-
     void setHeaders();
+    void resizeColumnsToContents();
+    void resizeRowsToContents();
 };
 
 // Testing get/set functions
@@ -1183,6 +1184,71 @@ void tst_QTableView::setHeaders()
     view2.verticalHeader()->count();
     view2.horizontalHeader()->count();
 
+}
+
+class MyTableView : public QTableView
+{
+    Q_OBJECT
+public:
+    MyTableView(QWidget *parent = 0) : QTableView(parent) { }
+    int columnWidthHint(int column) const
+        { return sizeHintForColumn(column); }
+    int rowHeightHint(int row) const
+        { return sizeHintForRow(row); }
+};
+
+void tst_QTableView::resizeColumnsToContents()
+{
+    MyTableView view;
+    const int rows = 2;
+    const int columns = 8;
+    QStandardItemModel model(rows, columns);
+    view.setModel(&model);
+    for (int c = 0; c < columns; ++c)
+        view.setColumnWidth(c, 1);
+    view.show();
+    QApplication::instance()->processEvents();
+
+    QList<int> hints;
+    for (int c = 0; c < columns; ++c) {
+        QString s((c+1)*8, QLatin1Char('M'));
+        model.setData(model.index(0, c), s, Qt::DisplayRole);
+        hints.append(view.columnWidthHint(c));
+    }
+    QSignalSpy resizedSpy(view.horizontalHeader(), SIGNAL(sectionResized(int, int, int)));
+    view.resizeColumnsToContents();
+    QApplication::instance()->processEvents();
+
+    QCOMPARE(resizedSpy.count(), columns);
+    for (int c = 0; c < columns; ++c)
+        QCOMPARE(view.columnWidth(c), hints.at(c));
+}
+
+void tst_QTableView::resizeRowsToContents()
+{
+    MyTableView view;
+    const int rows = 8;
+    const int columns = 2;
+    QStandardItemModel model(rows, columns);
+    view.setModel(&model);
+    for (int r = 0; r < rows; ++r)
+        view.setRowHeight(r, 1);
+    view.show();
+    QApplication::instance()->processEvents();
+
+    QList<int> hints;
+    for (int r = 0; r < rows; ++r) {
+        QString s((r+1)*4, QLatin1Char('\n'));
+        model.setData(model.index(r, 0), s, Qt::DisplayRole);
+        hints.append(view.rowHeightHint(r));
+    }
+    QSignalSpy resizedSpy(view.verticalHeader(), SIGNAL(sectionResized(int, int, int)));
+    view.resizeRowsToContents();
+    QApplication::instance()->processEvents();
+
+    QCOMPARE(resizedSpy.count(), rows);
+    for (int r = 0; r < rows; ++r)
+        QCOMPARE(view.rowHeight(r), hints.at(r));
 }
 
 QTEST_MAIN(tst_QTableView)
