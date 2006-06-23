@@ -839,9 +839,9 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         return d->model->index(row, column, d->root);
     }
 
-    int visualRow = verticalHeader()->visualIndex(current.row());
+    int visualRow = d->visualRow(current.row());
     Q_ASSERT(visualRow != -1);
-    int visualColumn = horizontalHeader()->visualIndex(current.column());
+    int visualColumn = d->visualColumn(current.column());
     Q_ASSERT(visualColumn != -1);
 
     if (isRightToLeft()) {
@@ -854,27 +854,27 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     switch (cursorAction) {
     case MoveUp:
         --visualRow;
-        while (visualRow > 0 && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+        while (visualRow > 0 && isRowHidden(d->logicalRow(visualRow)))
             --visualRow;
         if (d->hasSpans()) {
-            int row = verticalHeader()->logicalIndex(visualRow);
+            int row = d->logicalRow(visualRow);
             QTableViewPrivate::Span span = d->span(row, current.column());
-            visualRow = verticalHeader()->visualIndex(span.top());
-            visualColumn = horizontalHeader()->visualIndex(span.left());
+            visualRow = d->visualRow(span.top());
+            visualColumn = d->visualColumn(span.left());
         }
         break;
     case MoveDown:
         if (d->hasSpans()) {
             QTableViewPrivate::Span span = d->span(current.row(), current.column());
-            visualRow = verticalHeader()->visualIndex(d->rowSpanEndLogical(span.top(), span.height()));
+            visualRow = d->visualRow(d->rowSpanEndLogical(span.top(), span.height()));
         }
         ++visualRow;
-        while (visualRow < bottom && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+        while (visualRow < bottom && isRowHidden(d->logicalRow(visualRow)))
             ++visualRow;
         if (d->hasSpans()) {
-            int row = verticalHeader()->logicalIndex(visualRow);
+            int row = d->logicalRow(visualRow);
             QTableViewPrivate::Span span = d->span(row, current.column());
-            visualColumn = horizontalHeader()->visualIndex(span.left());
+            visualColumn = d->visualColumn(span.left());
         }
         break;
     case MovePrevious: {
@@ -884,65 +884,65 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         if (visualColumn == left) {
             visualColumn = right;
             int top = 0;
-            while (top < bottom && isRowHidden(verticalHeader()->logicalIndex(top)))
+            while (top < bottom && isRowHidden(d->logicalRow(top)))
                 ++top;
             if (visualRow == top)
                 visualRow = bottom;
             else
                 --visualRow;
-            while (visualRow > 0 && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+            while (visualRow > 0 && isRowHidden(d->logicalRow(visualRow)))
                 --visualRow;
             break;
         } // else MoveLeft
     }
     case MoveLeft:
         --visualColumn;
-        while (visualColumn > 0 && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
+        while (visualColumn > 0 && isColumnHidden(d->logicalColumn(visualColumn)))
             --visualColumn;
         if (d->hasSpans()) {
-            int column = horizontalHeader()->logicalIndex(visualColumn);
+            int column = d->logicalColumn(visualColumn);
             QTableViewPrivate::Span span = d->span(current.row(), column);
-            visualRow = verticalHeader()->visualIndex(span.top());
-            visualColumn = horizontalHeader()->visualIndex(span.left());
+            visualRow = d->visualRow(span.top());
+            visualColumn = d->visualColumn(span.left());
         }
         break;
     case MoveNext:
         if (visualColumn == right) {
             visualColumn = 0;
             while (visualColumn < right
-                   && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
+                   && isColumnHidden(d->logicalColumn(visualColumn)))
                 ++visualColumn;
             if (visualRow == bottom)
                 visualRow = 0;
             else
                 ++visualRow;
-            while (visualRow < bottom && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+            while (visualRow < bottom && isRowHidden(d->logicalRow(visualRow)))
                 ++visualRow;
             break;
         } // else MoveRight
     case MoveRight:
         if (d->hasSpans()) {
             QTableViewPrivate::Span span = d->span(current.row(), current.column());
-            visualColumn = horizontalHeader()->visualIndex(d->columnSpanEndLogical(span.left(), span.width()));
+            visualColumn = d->visualColumn(d->columnSpanEndLogical(span.left(), span.width()));
         }
         ++visualColumn;
         while (visualColumn < right
-               && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
+               && isColumnHidden(d->logicalColumn(visualColumn)))
             ++visualColumn;
         if (d->hasSpans()) {
-            int column = horizontalHeader()->logicalIndex(visualColumn);
+            int column = d->logicalColumn(visualColumn);
             QTableViewPrivate::Span span = d->span(current.row(), column);
-            visualRow = verticalHeader()->visualIndex(span.top());
+            visualRow = d->visualRow(span.top());
         }
         break;
     case MoveHome:
         visualColumn = 0;
         while (visualColumn < right
-               && isColumnHidden(horizontalHeader()->logicalIndex(visualColumn)))
+               && isColumnHidden(d->logicalColumn(visualColumn)))
             ++visualColumn;
         if (modifiers & Qt::ControlModifier) {
             visualRow = 0;
-            while (visualRow < bottom && isRowHidden(verticalHeader()->logicalIndex(visualRow)))
+            while (visualRow < bottom && isRowHidden(d->logicalRow(visualRow)))
                 ++visualRow;
         }
         break;
@@ -962,8 +962,8 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
         return d->model->index(qBound(0, newRow, bottom), current.column(), d->root);
     }}
 
-    int logicalRow = verticalHeader()->logicalIndex(visualRow);
-    int logicalColumn = horizontalHeader()->logicalIndex(visualColumn);
+    int logicalRow = d->logicalRow(visualRow);
+    int logicalColumn = d->logicalColumn(visualColumn);
     if (!d->model->hasIndex(logicalRow, logicalColumn, d->root))
         return QModelIndex();
     QModelIndex result = d->model->index(logicalRow, logicalColumn, d->root);
@@ -995,23 +995,23 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
 
     if (d->hasSpans()) {
         bool expanded;
-        int top = qMin(verticalHeader()->visualIndex(tl.row()),
-                       verticalHeader()->visualIndex(br.row()));
-        int left = qMin(horizontalHeader()->visualIndex(tl.column()),
-                        horizontalHeader()->visualIndex(br.column()));
-        int bottom = qMax(verticalHeader()->visualIndex(tl.row()),
-                          verticalHeader()->visualIndex(br.row()));
-        int right = qMax(horizontalHeader()->visualIndex(tl.column()),
-                         horizontalHeader()->visualIndex(br.column()));
+        int top = qMin(d->visualRow(tl.row()),
+                       d->visualRow(br.row()));
+        int left = qMin(d->visualColumn(tl.column()),
+                        d->visualColumn(br.column()));
+        int bottom = qMax(d->visualRow(tl.row()),
+                          d->visualRow(br.row()));
+        int right = qMax(d->visualColumn(tl.column()),
+                         d->visualColumn(br.column()));
         do {
             expanded = false;
             QList<QTableViewPrivate::Span>::const_iterator it;
             for (it = d->spans.constBegin(); it != d->spans.constEnd(); ++it) {
                 QTableViewPrivate::Span span = *it;
-                int t = verticalHeader()->visualIndex(span.top());
-                int l = horizontalHeader()->visualIndex(span.left());
-                int b = verticalHeader()->visualIndex(d->rowSpanEndLogical(span.top(), span.height()));
-                int r = horizontalHeader()->visualIndex(d->columnSpanEndLogical(span.left(), span.width()));
+                int t = d->visualRow(span.top());
+                int l = d->visualColumn(span.left());
+                int b = d->visualRow(d->rowSpanEndLogical(span.top(), span.height()));
+                int r = d->visualColumn(d->columnSpanEndLogical(span.left(), span.width()));
                 if ((t > bottom) || (l > right) || (top > b) || (left > r))
                     continue; // no intersect
                 if (t < top) {
@@ -1035,40 +1035,40 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
             }
         } while (expanded);
          for (int horizontal = left; horizontal <= right; ++horizontal) {
-             int column = horizontalHeader()->logicalIndex(horizontal);
+             int column = d->logicalColumn(horizontal);
              for (int vertical = top; vertical <= bottom; ++vertical) {
-                 int row = verticalHeader()->logicalIndex(vertical);
+                 int row = d->logicalRow(vertical);
                  QModelIndex index = d->model->index(row, column, d->root);
                  selection.append(QItemSelectionRange(index));
              }
          }
     } else if (verticalMoved && horizontalMoved) {
-         int top = verticalHeader()->visualIndex(tl.row());
-         int left = horizontalHeader()->visualIndex(tl.column());
-         int bottom = verticalHeader()->visualIndex(br.row());
-         int right = horizontalHeader()->visualIndex(br.column());
+         int top = d->visualRow(tl.row());
+         int left = d->visualColumn(tl.column());
+         int bottom = d->visualRow(br.row());
+         int right = d->visualColumn(br.column());
          for (int horizontal = left; horizontal <= right; ++horizontal) {
-             int column = horizontalHeader()->logicalIndex(horizontal);
+             int column = d->logicalColumn(horizontal);
              for (int vertical = top; vertical <= bottom; ++vertical) {
-                 int row = verticalHeader()->logicalIndex(vertical);
+                 int row = d->logicalRow(vertical);
                  QModelIndex index = d->model->index(row, column, d->root);
                  selection.append(QItemSelectionRange(index));
              }
          }
     } else if (horizontalMoved) {
-        int left = horizontalHeader()->visualIndex(tl.column());
-        int right = horizontalHeader()->visualIndex(br.column());
+        int left = d->visualColumn(tl.column());
+        int right = d->visualColumn(br.column());
         for (int visual = left; visual <= right; ++visual) {
-            int column = horizontalHeader()->logicalIndex(visual);
+            int column = d->logicalColumn(visual);
             QModelIndex topLeft = d->model->index(tl.row(), column, d->root);
             QModelIndex bottomRight = d->model->index(br.row(), column, d->root);
             selection.append(QItemSelectionRange(topLeft, bottomRight));
         }
     } else if (verticalMoved) {
-        int top = verticalHeader()->visualIndex(tl.row());
-        int bottom = verticalHeader()->visualIndex(br.row());
+        int top = d->visualRow(tl.row());
+        int bottom = d->visualRow(br.row());
         for (int visual = top; visual <= bottom; ++visual) {
-            int row = verticalHeader()->logicalIndex(visual);
+            int row = d->logicalRow(visual);
             QModelIndex topLeft = d->model->index(row, tl.column(), d->root);
             QModelIndex bottomRight = d->model->index(row, br.column(), d->root);
             selection.append(QItemSelectionRange(topLeft, bottomRight));
