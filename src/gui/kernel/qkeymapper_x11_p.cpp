@@ -1,15 +1,17 @@
 /****************************************************************************
-  **
-  ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
-  **
-  ** This file is part of the $MODULE$ of the Qt Toolkit.
-  **
-  ** $TROLLTECH_DUAL_LICENSE$
-  **
-  ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-  ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-  **
-  ****************************************************************************/
+**
+** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $TROLLTECH_DUAL_LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+// This file is auto-generated, do not edit!
 
 static struct {
     const char *layout;
@@ -241,13 +243,13 @@ static struct {
     // name = is:nodeadkeys, description = Iceland
     { "is", "nodeadkeys", Qt::LeftToRight, QLocale::Icelandic, QLocale::Iceland },
     // name = il, description = Israel
-    { "il", "", Qt::RightToLeft, QLocale::Hebrew, QLocale::Israel },
+    { "il", "", Qt::LeftToRight, QLocale::Hebrew, QLocale::Israel },
     // name = il:lyx, description = Israel
-    { "il", "lyx", Qt::RightToLeft, QLocale::Hebrew, QLocale::Israel },
+    { "il", "lyx", Qt::LeftToRight, QLocale::Hebrew, QLocale::Israel },
     // name = il:si1452, description = Israel
-    { "il", "si1452", Qt::RightToLeft, QLocale::Hebrew, QLocale::Israel },
+    { "il", "si1452", Qt::LeftToRight, QLocale::Hebrew, QLocale::Israel },
     // name = il:phonetic, description = Israel
-    { "il", "phonetic", Qt::RightToLeft, QLocale::Hebrew, QLocale::Israel },
+    { "il", "phonetic", Qt::LeftToRight, QLocale::Hebrew, QLocale::Israel },
     // name = it, description = Italy
     { "it", "", Qt::LeftToRight, QLocale::Italian, QLocale::Italy },
     // name = it:nodeadkeys, description = Italy

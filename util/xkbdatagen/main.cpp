@@ -373,7 +373,24 @@ int main(int argc, char **argv)
 
     QList<XKBLayout> layouts = findLayouts(layoutList);
 
-    // header
+    // copyright and stuff
+    printf("/****************************************************************************\n"
+           "**\n"
+           "** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.\n"
+           "**\n"
+           "** This file is part of the $MODULE$ of the Qt Toolkit.\n"
+           "**\n"
+           "** $TROLLTECH_DUAL_LICENSE$\n"
+           "**\n"
+           "** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE\n"
+           "** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.\n"
+           "**\n"
+           "****************************************************************************/\n"
+           "\n"
+           "// This file is auto-generated, do not edit!\n"
+           "\n");
+
+    // data structure
     printf("static struct {\n"
            "    const char *layout;\n"
            "    const char *variant; // 0 means any variant\n"
@@ -382,6 +399,7 @@ int main(int argc, char **argv)
            "    QLocale::Country country;\n"
            "} xkbLayoutData[] = {\n");
 
+    // contents
     foreach (const XKBLayout &l, layouts) {
         const QString country = mapCountry(l.description);
         QString lang = mapLanguage(l.name);
@@ -412,6 +430,7 @@ int main(int argc, char **argv)
         }
     }
 
+    // wrapping up
     printf("    { 0, 0, Qt::LeftToRight, QLocale::C, QLocale::AnyCountry }\n"
            "};\n");
 
