@@ -27,6 +27,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QPageSetupDialog>
+#include <QStatusBar>
 
 #ifdef Q_WS_MAC
 const QString rsrcPath = ":/images/mac";
@@ -229,6 +230,8 @@ void PreviewView::mouseReleaseEvent(QMouseEvent *e)
 PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
     : QMainWindow(parent), printer(QPrinter::HighResolution)
 {
+    setWindowTitle(tr("TextEdit Demo - Print Preview"));
+
     printer.setFullPage(true);
     doc = document->clone();
 
@@ -281,6 +284,8 @@ PrintPreview::PrintPreview(const QTextDocument *document, QWidget *parent)
     a->setText(tr("&Close"));
     connect(a, SIGNAL(triggered()), this, SLOT(close()));
     tb->addAction(a);
+
+    statusBar()->setSizeGripEnabled(true);
 }
 
 void PrintPreview::setup()
