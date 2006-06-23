@@ -2732,7 +2732,8 @@ void QWSServerPrivate::update_regions()
         QWSWindow *w = windows.at(i);
         const QRegion r = (w->requested_region & available);
 
-        available -= r;
+        if (w->isOpaque())
+            available -= r;
         if (r == w->allocated_region)
             continue;
 
