@@ -37,7 +37,7 @@ void listObjects(const QString &service, const QString &path)
     }
     QDBusReply<QString> xml = iface->call("Introspect");
 
-    if (xml.isError())
+    if (!xml.isValid())
         return;                 // silently
 
     QDomDocument doc;
@@ -120,7 +120,7 @@ void listAllInterfaces(const QString &service, const QString &path)
     }
     QDBusReply<QString> xml = iface->call("Introspect");
 
-    if (xml.isError())
+    if (!xml.isValid())
         return;                 // silently
 
     QDomDocument doc;

@@ -63,8 +63,7 @@ public:
         return *this;
     }
 
-    inline bool isError() const { return m_error.isValid(); }
-    inline bool isSuccess() const { return !m_error.isValid(); }
+    inline bool isValid() const { return !m_error.isValid(); }
 
     inline const QDBusError& error() { return m_error; }
 
