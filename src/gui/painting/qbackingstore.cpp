@@ -785,6 +785,12 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
         buffer.lock();
 #endif
 
+#if defined(Q_WS_QWS) && defined(QT_WINDOW_SURFACE)
+        const QRegion clip = static_cast<QWSWindowSurface*>(windowSurface)->clipRegion();
+        if (!clip.isEmpty())
+            toClean &= clip;
+#endif
+
         if(!toClean.isEmpty()) {
             dirty -= toClean;
             if (tlw->updatesEnabled()) {

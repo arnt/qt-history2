@@ -1247,7 +1247,7 @@ void QScreen::blit(QWSWindow *win, const QRegion &clip)
     if (img == QImage())
         return;
 
-    QRegion rgn = clip & win->requestedRegion();
+    QRegion rgn = clip & win->allocatedRegion();
     surface->beginPaint(rgn);
     blit(img, win->requestedRegion().boundingRect().topLeft(), rgn);
     surface->endPaint(rgn);
@@ -1463,7 +1463,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
     do {
         win = qwsServer->clientWindows().value(level); // null is background
         ++level;
-    } while (win && !win->requestedRegion().boundingRect().intersects(exposed_bounds));
+    } while (win && !win->allocatedRegion().boundingRect().intersects(exposed_bounds));
 
     QWSWindowSurface *surface = (win ? win->windowSurface() : 0);
     bool above_changing = level <= changing_level; // 0 is topmost
@@ -1474,11 +1474,11 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
     if (win) {
         opaque = win->isOpaque();
         if (opaque) {
-            exposedBelow -= win->requestedRegion();
+            exposedBelow -= win->allocatedRegion();
             if (above_changing || !surface->isBuffered())
-                blend -= exposed & win->requestedRegion();
+                blend -= exposed & win->allocatedRegion();
         } else {
-            blend += exposed & win->requestedRegion();
+            blend += exposed & win->allocatedRegion();
         }
     }
     if (win && !exposedBelow.isEmpty()) {
@@ -1500,7 +1500,7 @@ void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
     QRegion blendRegion = exposed & blend;
 
     if (win)
-        blendRegion &= win->requestedRegion();
+        blendRegion &= win->allocatedRegion();
     if (!blendRegion.isEmpty()) {
 
         QPoint off = blend.boundingRect().topLeft();

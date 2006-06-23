@@ -75,7 +75,7 @@ public:
     const QString &caption() const { return rgnCaption; }
     QWSClient* client() const { return c; }
     const QRegion &requestedRegion() const { return requested_region; }
-    QRegion allocatedRegion() const { return allocated_region; }
+    const QRegion allocatedRegion() const { return allocated_region; }
     bool isVisible() const { return !requested_region.isEmpty(); }
 //    bool isPartiallyObscured() const { return requested_region!=allocated_region; }
     bool isFullyObscured() const { return false; /* ### allocated_region.isEmpty();*/ }

@@ -106,14 +106,6 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
     if (clip == d_ptr->clip)
         return;
 
-    QPaintDevice *pdevice = paintDevice();
-    if (pdevice) {
-        QPaintEngine *pengine = pdevice->paintEngine();
-        if (pengine) {
-            pengine->setSystemClip(clip.translated(painterOffset()));
-        }
-    }
-
     QRegion expose = (clip - d_ptr->clip);
     d_ptr->clip = clip;
 
