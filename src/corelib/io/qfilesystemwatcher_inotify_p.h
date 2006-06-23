@@ -14,6 +14,17 @@
 #ifndef QFILESYSTEMWATCHER_INOTIFY_P_H
 #define QFILESYSTEMWATCHER_INOTIFY_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of the QLibrary class.  This header file may change from
+// version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #include "qfilesystemwatcher_p.h"
 
 #include <QHash>
