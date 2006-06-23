@@ -22,7 +22,7 @@ static inline T qIterGet(DBusMessageIter *it)
     return t;
 }
 
-inline QDBusDemarshaller::~QDBusDemarshaller()
+QDBusDemarshaller::~QDBusDemarshaller()
 {
     if (message)
         dbus_message_unref(message);
