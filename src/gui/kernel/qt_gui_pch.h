@@ -36,7 +36,9 @@
 #include <qstringlist.h>
 #include <qtextcodec.h>
 
+#define Q_INTERNAL_QAPP_SRC
 #include <qapplication.h>
+#undef Q_INTERNAL_QAPP_SRC
 #include <qbitmap.h>
 #include <qcursor.h>
 #include <qdesktopwidget.h>
