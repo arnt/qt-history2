@@ -443,10 +443,10 @@ public:
 ~QCleanlooksStylePrivate()
     { }
     QPixmap resolveIcon(int size, const QString &) const;
-    QPixmap resolveIconHelper(int size, const QString &, const QString &) const;
+    QPixmap resolveIconHelper(int size, const QString &, const QString &, const QString &) const;
     QPixmap searchIconDir(const QString &, const QString &) const;
     QString themeName;
-    QString dataDir;
+    QString dataDirs;
 };
 
 static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
@@ -3298,12 +3298,7 @@ void QCleanlooksStyle::polish(QApplication *app)
 #ifdef Q_WS_X11
     Q_D(QCleanlooksStyle);
 
-    d->dataDir = QLatin1String(getenv("XDG_DATA_DIRS"));
-
-    if (d->dataDir.isEmpty())
-        d->dataDir = QLatin1String("/usr/share");
-
-    d->dataDir += QLatin1String("/icons/");
+    d->dataDirs = QLatin1String(getenv("XDG_DATA_DIRS"));
 
     QProcess gconftool;
     gconftool.start(QLatin1String("gconftool-2 --get /desktop/gnome/interface/icon_theme"));
@@ -3825,6 +3820,7 @@ QPixmap QCleanlooksStylePrivate::searchIconDir(const QString &searchRoot,
 
 
 QPixmap QCleanlooksStylePrivate::resolveIconHelper(int size,
+                                                   const QString &iconDir,
                                                    const QString &themeName,
                                                    const QString &iconName) const
 {
@@ -3834,14 +3830,14 @@ QPixmap QCleanlooksStylePrivate::resolveIconHelper(int size,
         //### directory name is only an assumption
         QString subpath = themeName + QLatin1Char('/') + QString::number(size) +
                           QLatin1Char('x') + QString::number(size)+ QLatin1Char('/');
-        QString themePath = dataDir + subpath;
+        QString themePath = iconDir + subpath;
         pixmap = searchIconDir(themePath, iconName);
     }
 
     if (pixmap.isNull()) {
         //search recursively through inherited themes
         QStringList inheritedThemes;
-        QFile themeIndex(dataDir + themeName + QLatin1String("/index.theme"));
+        QFile themeIndex(iconDir + themeName + QLatin1String("/index.theme"));
         if (themeIndex.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream in(&themeIndex);
             while (!in.atEnd()) {
@@ -3855,7 +3851,7 @@ QPixmap QCleanlooksStylePrivate::resolveIconHelper(int size,
         }
         for (int i = 0 ; pixmap.isNull() && i < inheritedThemes.size() ; ++i) {
            //### add guard against endless recursion
-           pixmap = resolveIconHelper(size, inheritedThemes[i].trimmed(), iconName);
+           pixmap = resolveIconHelper(size, iconDir, inheritedThemes[i].trimmed(), iconName);
         }
     }
     return pixmap;
@@ -3871,11 +3867,21 @@ QPixmap QCleanlooksStylePrivate::resolveIcon(int size, const QString &name) cons
     if (!pixmap.isNull())
         return pixmap;
 
-    if (!themeName.isEmpty())
-        pixmap = resolveIconHelper(size, themeName, name);
-
+    if (!themeName.isEmpty()) {
+        if (dataDirs.isEmpty())
+            pixmap = resolveIconHelper(size, "/usr/share/icons/", themeName, name);
+        else {
+            QStringList dirs = dataDirs.split(":");
+            for ( int i=0 ; i < dirs.size() ; ++i) {
+                QString dir = dirs[i] + "/icons/";
+                pixmap = resolveIconHelper(size, dir, themeName, name);                
+                if (!pixmap.isNull())
+                    break;
+            }
+        }
+    }
     if (pixmap.isNull())
-        pixmap = resolveIconHelper(size, QLatin1String("hicolor"), name);
+        pixmap = resolveIconHelper(size, "/usr/share/icons/", QLatin1String("hicolor"), name);
 
     if (!pixmap.isNull())
         QPixmapCache::insert(pixmapName, pixmap);
