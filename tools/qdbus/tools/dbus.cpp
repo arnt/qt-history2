@@ -20,6 +20,7 @@
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomElement>
 #include <QtDBus>
+#include <private/qdbusutil_p.h>
 
 QDBusConnection *connection;
 

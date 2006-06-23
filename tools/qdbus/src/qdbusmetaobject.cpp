@@ -18,7 +18,7 @@
 #include <QtCore/qstring.h>
 #include <QtCore/qvarlengtharray.h>
 
-#include "qdbusutil.h"
+#include "qdbusutil_p.h"
 #include "qdbuserror.h"
 #include "qdbusmetatype.h"
 #include "qdbusargument.h"

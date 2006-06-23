@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qdbusargument_p.h"
-#include "qdbusutil.h"
+#include "qdbusutil_p.h"
 
 static void qIterAppend(DBusMessageIter *it, QByteArray *ba, int type, const void *arg)
 {

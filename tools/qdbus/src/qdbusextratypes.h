@@ -19,10 +19,7 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qstring.h>
 
-#include <QtDBus/qdbusutil.h>
-
 QT_BEGIN_HEADER
-
 
 struct QDBusObjectPath
 {
@@ -30,17 +27,20 @@ struct QDBusObjectPath
 
     inline explicit QDBusObjectPath(const char *path)
         : value(QString::fromLatin1(path))
-    { if (!QDBusUtil::isValidObjectPath(value)) value.clear(); }
+    { check(); }
 
     inline explicit QDBusObjectPath(const QLatin1String &path)
         : value(path)
-    { if (!QDBusUtil::isValidObjectPath(value)) value.clear(); }
+    { check(); }
 
     inline explicit QDBusObjectPath(const QString &path)
         : value(path)
-    { if (!QDBusUtil::isValidObjectPath(value)) value.clear(); }
+    { check(); }
 
     QString value;
+
+private:
+    void check();
 };
 Q_DECLARE_METATYPE(QDBusObjectPath)
 
@@ -50,17 +50,20 @@ struct QDBusSignature
 
     inline explicit QDBusSignature(const char *signature)
         : value(QString::fromLatin1(signature))
-    { if (!QDBusUtil::isValidSignature(value)) value.clear(); }
+    { check(); }
 
     inline explicit QDBusSignature(const QLatin1String &signature)
         : value(signature)
-    { if (!QDBusUtil::isValidSignature(value)) value.clear(); }
+    { check(); }
 
     inline explicit QDBusSignature(const QString &signature)
         : value(signature)
-    { if (!QDBusUtil::isValidSignature(value)) value.clear(); }
+    { check(); }
 
     QString value;
+
+private:
+    void check();
 };
 Q_DECLARE_METATYPE(QDBusSignature)
 

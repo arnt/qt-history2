@@ -28,7 +28,7 @@
 #include "qdbusmetatype_p.h"
 #include "qdbusabstractadaptor.h"
 #include "qdbusabstractadaptor_p.h"
-#include "qdbusutil.h"
+#include "qdbusutil_p.h"
 
 static bool isDebugging;
 #define qDBusDebug              if (!::isDebugging); else qDebug

@@ -16,7 +16,7 @@
 #include <QtCore/qvariant.h>
 #include <QtCore/qmetaobject.h>
 
-#include "qdbusutil.h"
+#include "qdbusutil_p.h"
 #include "qdbusconnection_p.h"
 #include "qdbusmetatype_p.h"
 

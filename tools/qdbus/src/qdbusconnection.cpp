@@ -21,7 +21,7 @@
 #include "qdbusmessage.h"
 #include "qdbusconnection_p.h"
 #include "qdbusinterface_p.h"
-#include "qdbusutil.h"
+#include "qdbusutil_p.h"
 
 class QDBusConnectionManager
 {

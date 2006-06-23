@@ -22,7 +22,7 @@
 #include <qvector.h>
 
 #include "qdbusmessage.h"
-#include "qdbusutil.h"
+#include "qdbusutil_p.h"
 #include "qdbusmetatype_p.h"
 #include "qdbusargument_p.h"
 

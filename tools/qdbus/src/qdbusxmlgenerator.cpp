@@ -20,7 +20,7 @@
 #include "qdbusconnection_p.h"  // for the flags
 #include "qdbusmetatype_p.h"
 #include "qdbusmetatype.h"
-#include "qdbusutil.h"
+#include "qdbusutil_p.h"
 
 extern QDBUS_EXPORT QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo,
                                                        const QMetaObject *base, int flags);

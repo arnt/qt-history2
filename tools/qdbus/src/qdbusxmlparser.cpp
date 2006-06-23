@@ -15,7 +15,7 @@
 #include "qdbusinterface.h"
 #include "qdbusinterface_p.h"
 #include "qdbusconnection_p.h"
-#include "qdbusutil.h"
+#include "qdbusutil_p.h"
 
 #include <QtXml/qdom.h>
 #include <QtCore/qmap.h>

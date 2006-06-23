@@ -23,7 +23,7 @@
 #include "qdbusconnection.h"
 #include "qdbusextratypes.h"
 #include "qdbusmessage.h"
-#include "qdbusutil.h"
+#include "qdbusutil_p.h"
 
 // defined in qdbusxmlgenerator.cpp
 extern QString qDBusGenerateMetaObjectXml(QString interface, const QMetaObject *mo,
