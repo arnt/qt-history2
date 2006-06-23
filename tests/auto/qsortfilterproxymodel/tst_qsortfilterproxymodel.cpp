@@ -1149,6 +1149,7 @@ void tst_QSortFilterProxyModel::insertSourceRows()
 
     QStandardItemModel model;
     QSortFilterProxyModel proxy;
+    proxy.setDynamicSortFilter(true);
 
     proxy.setSourceModel(&model);
     model.insertColumns(0, 1);
