@@ -2783,13 +2783,12 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 theme.stateId = stateId;
                 d->drawBackground(theme);
             }
-            //if (flags & State_HasFocus) {
-            //    Q3StyleOptionFocusRect option(0);
-            //    option.rect = subElementRect(SE_SliderFocusRect, sl);
-            //    option.palette = pal;
-            //    option.state = State_Default;
-            //    drawPrimitive(PE_FrameFocusRect, p, re, pal);
-            //}
+            if (slider->state & State_HasFocus) {
+                QStyleOptionFocusRect fropt;
+                fropt.QStyleOption::operator=(*slider);
+                fropt.rect = subElementRect(SE_SliderFocusRect, slider, widget);
+                drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
+            }
         }
         break;
 #endif
