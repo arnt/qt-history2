@@ -157,7 +157,7 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 
 Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(const QWidget *w)
 {
-    return (HIViewRef)w->winId();
+    return (HIViewRef)w->data->winid;
 }
 Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(WindowPtr w)
 {
@@ -1357,7 +1357,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
 
     if (wasCreated) {
-        if (q->winId() != 0) {
+        if (q->data->winid != 0) {
             transferChildren();
             if (topData && !topData->caption.isEmpty())
                 setWindowTitle_helper(topData->caption);
@@ -1763,7 +1763,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
             }
         }
 
-        createWinId();
+        d->createWinId();
 
         WindowRef window = qt_mac_window_for(this);
         if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))

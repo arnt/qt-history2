@@ -3849,7 +3849,8 @@ void QWidget::setFocus(Qt::FocusReason reason)
 #if defined(Q_WS_MAC)
         if (f->testAttribute(Qt::WA_WState_Created)) {
             extern WindowPtr qt_mac_window_for(const QWidget *w); //qwidget_mac.cpp
-            SetKeyboardFocus(qt_mac_window_for(f), (HIViewRef)f->winId(), 1);
+            extern HIViewRef qt_mac_hiview_for(const QWidget *w); //qwidget_mac.cpp
+            SetKeyboardFocus(qt_mac_window_for(f), qt_mac_hiview_for(f), 1);
         }
 #endif
 

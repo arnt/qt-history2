@@ -1040,8 +1040,10 @@ void Q3MainWindow::addDockWindow(Q3DockWindow *dockWindow,
     Q_D(Q3MainWindow);
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
-    if(isWindow() && edge == Qt::DockTop)
+    if(isWindow() && edge == Qt::DockTop) {
+        d->createWinId();
         ChangeWindowAttributes(qt_mac_window_for(this), kWindowToolbarButtonAttribute, 0);
+    }
 #endif
     moveDockWindow(dockWindow, edge);
     dockWindow->setNewLine(newLine);

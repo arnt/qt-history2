@@ -635,6 +635,7 @@ private:
     friend QPoint qt_mac_posInWindow(const QWidget *w);
     friend WindowPtr qt_mac_window_for(const QWidget *w);
     friend bool qt_mac_is_metal(const QWidget *w);
+    friend HIViewRef qt_mac_hiview_for(const QWidget *w);
 #endif
 #ifdef Q_WS_QWS
     friend class QWSBackingStore;
