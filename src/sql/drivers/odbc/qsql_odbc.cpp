@@ -52,7 +52,7 @@
 # define QSQLULEN SQLUINTEGER
 #endif
 
-static const int COLNAMESIZE = 255;
+static const int COLNAMESIZE = 256;
 //Map Qt parameter types to ODBC types
 static const SQLSMALLINT qParamType[4] = { SQL_PARAM_INPUT, SQL_PARAM_INPUT, SQL_PARAM_OUTPUT, SQL_PARAM_INPUT_OUTPUT };
 
