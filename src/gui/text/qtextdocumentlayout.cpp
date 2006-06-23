@@ -1645,13 +1645,10 @@ QRectF QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, in
     QTextFrame::Iterator it = f->begin();
     layoutFlow(it, &layoutStruct, layoutFrom, layoutTo);
 
-    qreal actualWidth = qMax(maxChildFrameWidth, layoutStruct.contentsWidth);
-    qreal maxFrameWidth = qMax(actualWidth, newContentsWidth);
-    fd->contentsWidth = maxFrameWidth;
-    if (f->parentFrame()) {
-        actualWidth = maxFrameWidth;
-    } else if (newContentsWidth <= 0) { // nowrap layout?
-            fd->contentsWidth = newContentsWidth;
+    qreal actualWidth = qMax(newContentsWidth, qMax(maxChildFrameWidth, layoutStruct.contentsWidth));
+    fd->contentsWidth = actualWidth;
+    if (newContentsWidth <= 0) { // nowrap layout?
+        fd->contentsWidth = newContentsWidth;
     }
 
     fd->minimumWidth = layoutStruct.minimumWidth;
