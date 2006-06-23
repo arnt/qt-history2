@@ -99,8 +99,8 @@ public:
     bool load(const QString& fileName, const char *format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
     bool loadFromData(const uchar *buf, uint len, const char* format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
     inline bool loadFromData(const QByteArray &data, const char* format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
-    bool save(const QString& fileName, const char* format, int quality = -1) const;
-    bool save(QIODevice* device, const char* format, int quality = -1) const;
+    bool save(const QString& fileName, const char* format = 0, int quality = -1) const;
+    bool save(QIODevice* device, const char* format = 0, int quality = -1) const;
 
 #if defined(Q_WS_WIN)
     enum HBitmapFormat {
