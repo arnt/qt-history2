@@ -627,7 +627,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             else if (header->sortIndicator & QStyleOptionHeader::SortDown)
                 arrow = QImage(qt_cleanlooks_arrow_down_xpm);
             if (!arrow.isNull()) {
-                r.setHeight(arrow.height());
+                r.setSize(arrow.size());
                 r.moveCenter(header->rect.center());
                 arrow.setColor(1, header->palette.foreground().color().rgba());
                 painter->drawImage(r, arrow);
@@ -2265,7 +2265,6 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 #endif // QT_NO_SPINBOX
     case CC_TitleBar:
         painter->save();
-
         if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
             bool active = (titleBar->titleBarState & State_Active);
             QRect fullRect = titleBar->rect;
