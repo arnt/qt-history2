@@ -2272,6 +2272,9 @@ int QFontDatabasePrivate::addAppFont(const QByteArray &fontData, const QString &
     The function returns -1 if the font could not be loaded.
 
     Currently only TrueType fonts and TrueType font collections are supported.
+
+    \bold{Note:} Adding application fonts on Unix/X11 platforms without fontconfig is
+    currently not supported.
 */
 int QFontDatabase::addApplicationFont(const QString &fileName)
 {
@@ -2296,6 +2299,9 @@ int QFontDatabase::addApplicationFont(const QString &fileName)
     The function returns -1 if the font could not be loaded.
 
     Currently only TrueType fonts and TrueType font collections are supported.
+
+    \bold{Note:} Adding application fonts on Unix/X11 platforms without fontconfig is
+    currently not supported.
 */
 int QFontDatabase::addApplicationFontFromData(const QByteArray &fontData)
 {
