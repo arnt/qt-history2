@@ -1905,6 +1905,9 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
 
 bool QFontDatabase::removeApplicationFont(int handle)
 {
+#if defined(QT_NO_FONTCONFIG)
+    return false;
+#else
     QFontDatabasePrivate *db = privateDb();
     if (handle < 0 || handle >= db->applicationFonts.count())
         return false;
@@ -1916,10 +1919,14 @@ bool QFontDatabase::removeApplicationFont(int handle)
     db->reregisterAppFonts = true;
     db->invalidate();
     return true;
+#endif
 }
 
 bool QFontDatabase::removeAllApplicationFonts()
 {
+#if defined(QT_NO_FONTCONFIG)
+    return false;
+#else
     QFontDatabasePrivate *db = privateDb();
     if (db->applicationFonts.isEmpty())
         return false;
@@ -1928,5 +1935,6 @@ bool QFontDatabase::removeAllApplicationFonts()
     db->applicationFonts.clear();
     db->invalidate();
     return true;
+#endif
 }
 
