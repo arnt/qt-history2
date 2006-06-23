@@ -207,13 +207,12 @@ int QFontEngine::getGlyphIndexes(const QChar *str, int numChars, QGlyphLayout *g
                 last = tm.a.tmLastChar;
             });
             for (int i = 0; i < numChars; ++i) {
-                ushort ucs = ::mirroredChar(str->unicode()).unicode();
+                uint ucs = ::mirroredChar(getChar(str, i, numChars)).unicode();
                 if (ucs >= first && ucs <= last)
                     glyphs->glyph = ucs;
                 else
                     glyphs->glyph = 0;
                 glyphs++;
-                str++;
             }
         }
     } else {
@@ -241,12 +240,12 @@ int QFontEngine::getGlyphIndexes(const QChar *str, int numChars, QGlyphLayout *g
                 last = tm.a.tmLastChar;
             });
             for (int i = 0; i < numChars; ++i) {
-                if (str->unicode() >= first && str->unicode() <= last)
-                    glyphs->glyph = str->unicode();
+                uint uc = getChar(str, i, numChars);
+                if (uc >= first && uc <= last)
+                    glyphs->glyph = uc;
                 else
                     glyphs->glyph = 0;
                 glyphs++;
-                str++;
             }
         }
     }
