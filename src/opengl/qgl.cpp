@@ -570,7 +570,7 @@ void QGLFormat::setSamples(int numSamples)
     d->numSamples = numSamples;
 }
 
-/*!  
+/*!
     Set the preferred swap interval. This can be used to sync the GL
     drawing into a system window to the vertical refresh of the screen.
     Setting an \a interval value of 0 will turn the vertical refresh syncing
@@ -952,7 +952,7 @@ QGLContext* QGLContext::currentCtx = 0;
 
 // returns the highest number closest to v, which is a power of 2
 // NB! assumes 32 bit ints
-static int nearest_gl_texture_size(int v)
+int nearest_gl_texture_size(int v)
 {
     int n = 0, last = 0;
     for (int s = 0; s < 32; ++s) {
