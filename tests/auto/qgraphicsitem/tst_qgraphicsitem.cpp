@@ -104,6 +104,7 @@ private slots:
     void group();
     void setGroup();
     void nestedGroups();
+    void warpChildrenIntoGroup();
     void handlesChildEvents();
     void handlesChildEvents2();
     void ensureVisible();
@@ -1699,6 +1700,35 @@ void tst_QGraphicsItem::nestedGroups()
     QCOMPARE(rect2->group(), group1);
     QCOMPARE(group1->group(), (QGraphicsItemGroup *)0);
     QVERIFY(group2->children().isEmpty());
+}
+
+void tst_QGraphicsItem::warpChildrenIntoGroup()
+{
+    QGraphicsScene scene;
+    QGraphicsRectItem *parentRectItem = scene.addRect(QRectF(0, 0, 100, 100));
+    QGraphicsRectItem *childRectItem = scene.addRect(QRectF(0, 0, 100, 100));
+    parentRectItem->rotate(90);
+    childRectItem->setPos(-50, -25);
+    childRectItem->setParentItem(parentRectItem);
+
+    QCOMPARE(childRectItem->mapToScene(50, 0), QPointF(25, 0));
+    QCOMPARE(childRectItem->scenePos(), QPointF(25, -50));
+
+    QGraphicsRectItem *parentOfGroup = scene.addRect(QRectF(0, 0, 100, 100));
+    parentOfGroup->setPos(-200, -200);
+    parentOfGroup->scale(2, 2);
+
+    QGraphicsItemGroup *group = new QGraphicsItemGroup;
+    group->setPos(50, 50);
+    group->setParentItem(parentOfGroup);
+    scene.addItem(group);
+
+    QCOMPARE(group->scenePos(), QPointF(-100, -100));
+
+    group->addToGroup(childRectItem);
+
+    QCOMPARE(childRectItem->mapToScene(50, 0), QPointF(25, 0));
+    QCOMPARE(childRectItem->scenePos(), QPointF(25, -50));
 }
 
 class ChildEventTester : public QGraphicsRectItem
