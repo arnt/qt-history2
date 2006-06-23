@@ -455,10 +455,10 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     widget->d_func()->hd = old_qdref;
 
 #ifdef DEBUG_WIDGET_PAINT
-                qDebug("asked to draw %p [%s::%s] %p [%d]", hiview, widget->metaObject()->className(),
+                qDebug("asked to draw %p [%s::%s] %p [%d] [%dx%d]", hiview, widget->metaObject()->className(),
                        widget->objectName().local8Bit().data(),
-                       (HIViewRef)(widget->parentWidget() ? qt_mac_hiview_for(widget->parentWidget()) : (WId)-1),
-                       HIViewIsCompositingEnabled(hiview));
+                       (HIViewRef)(widget->parentWidget() ? qt_mac_hiview_for(widget->parentWidget()) : (HIViewRef)0),
+                       HIViewIsCompositingEnabled(hiview), qt_mac_posInWindow(widget).x(), qt_mac_posInWindow(widget).y());
 #if 0
                 QVector<QRect> region_rects = qrgn.rects();
                 qDebug("Region! %d", region_rects.count());
