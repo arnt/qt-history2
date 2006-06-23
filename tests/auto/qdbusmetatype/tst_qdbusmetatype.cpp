@@ -47,57 +47,67 @@ struct Invalid5 { };            // ii
 struct Invalid6 { };            // <invalid>
 struct Invalid7 { };            // (<invalid>)
 
-Q_DECLARE_METATYPE(Struct1)
-Q_DECLARE_METATYPE(Struct2)
-Q_DECLARE_METATYPE(Struct3)
-Q_DECLARE_METATYPE(Struct4)
-Q_DECLARE_METATYPE(StringPair)
+QDBUS_DECLARE_METATYPE(Struct1)
+QDBUS_DECLARE_METATYPE(Struct2)
+QDBUS_DECLARE_METATYPE(Struct3)
+QDBUS_DECLARE_METATYPE(Struct4)
+QDBUS_DECLARE_METATYPE(StringPair)
 
-Q_DECLARE_METATYPE(QList<Struct1>)
-Q_DECLARE_METATYPE(QList<Struct2>)
-Q_DECLARE_METATYPE(QList<Struct3>)
-Q_DECLARE_METATYPE(QList<Struct4>)
+QDBUS_DECLARE_METATYPE(QList<Struct1>)
+QDBUS_DECLARE_METATYPE(QList<Struct2>)
+QDBUS_DECLARE_METATYPE(QList<Struct3>)
+QDBUS_DECLARE_METATYPE(QList<Struct4>)
 
-Q_DECLARE_METATYPE(Invalid0)
-Q_DECLARE_METATYPE(Invalid1)
-Q_DECLARE_METATYPE(Invalid2)
-Q_DECLARE_METATYPE(Invalid3)
-Q_DECLARE_METATYPE(Invalid4)
-Q_DECLARE_METATYPE(Invalid5)
+QDBUS_DECLARE_METATYPE(Invalid0)
+QDBUS_DECLARE_METATYPE(Invalid1)
+QDBUS_DECLARE_METATYPE(Invalid2)
+QDBUS_DECLARE_METATYPE(Invalid3)
+QDBUS_DECLARE_METATYPE(Invalid4)
+QDBUS_DECLARE_METATYPE(Invalid5)
 Q_DECLARE_METATYPE(Invalid6)
-Q_DECLARE_METATYPE(Invalid7)
+QDBUS_DECLARE_METATYPE(Invalid7)
 
-Q_DECLARE_METATYPE(QList<Invalid0>)
+QDBUS_DECLARE_METATYPE(QList<Invalid0>)
 
 Q_DECLARE_METATYPE(QVariant::Type)
 
 QDBusArgument &operator<<(QDBusArgument &arg, const Struct1 &)
 {
-    arg.newStructure() << QString();
+    arg.beginStructure();
+    arg << QString();
+    arg.endStructure();
     return arg;
 }
 
 QDBusArgument &operator<<(QDBusArgument &arg, const Struct2 &)
 {
-    arg.newStructure() << QString() << QDBusObjectPath() << QString();
+    arg.beginStructure();
+    arg << QString() << QDBusObjectPath() << QString();
+    arg.endStructure();
     return arg;
 }
 
 QDBusArgument &operator<<(QDBusArgument &arg, const Struct3 &)
 {
-    arg.newStructure() << QString() << QStringList();
+    arg.beginStructure();
+    arg << QString() << QStringList();
+    arg.endStructure();
     return arg;
 }
 
 QDBusArgument &operator<<(QDBusArgument &arg, const StringPair &s)
 {
-    arg.newStructure() << s.first << s.second;
+    arg.beginStructure();
+    arg << s.first << s.second;
+    arg.endStructure();
     return arg;
 }
 
 QDBusArgument &operator<<(QDBusArgument &arg, const Struct4 &s)
 {
-    arg.newStructure() << s.m1 << s.m2 << s.m3 << s.m4 << s.m5 << s.m6 << s.m7;
+    arg.beginStructure();
+    arg << s.m1 << s.m2 << s.m3 << s.m4 << s.m5 << s.m6 << s.m7;
+    arg.endStructure();
     return arg;
 }
 
@@ -140,8 +150,9 @@ QDBusArgument &operator<<(QDBusArgument &arg, const Invalid5 &)
 
 QDBusArgument &operator<<(QDBusArgument &arg, const Invalid7 &)
 {
-    QDBusArgument substruct = arg.newStructure();
-    substruct << Invalid0();
+    arg.beginStructure();
+    arg << Invalid0();
+    arg.endStructure();
     return arg;
 }
 
@@ -174,27 +185,27 @@ const QDBusArgument &operator>>(const QDBusArgument &arg, Invalid7 &)
 
 void tst_QDBusMetaType::initTestCase()
 {
-    qDBusRegisterMetaType<Struct1>("Struct1");
-    qDBusRegisterMetaType<Struct2>("Struct2");
-    qDBusRegisterMetaType<Struct3>("Struct3");
-    qDBusRegisterMetaType<Struct4>("Struct4");
-    qDBusRegisterMetaType<StringPair>("StringPair");
+    qDBusRegisterMetaType<Struct1>();
+    qDBusRegisterMetaType<Struct2>();
+    qDBusRegisterMetaType<Struct3>();
+    qDBusRegisterMetaType<Struct4>();
+    qDBusRegisterMetaType<StringPair>();
 
-    qDBusRegisterMetaType<QList<Struct1> >("QList<Struct1>");
-    qDBusRegisterMetaType<QList<Struct2> >("QList<Struct2>");
-    qDBusRegisterMetaType<QList<Struct3> >("QList<Struct3>");
-    qDBusRegisterMetaType<QList<Struct4> >("QList<Struct4>");
+    qDBusRegisterMetaType<QList<Struct1> >();
+    qDBusRegisterMetaType<QList<Struct2> >();
+    qDBusRegisterMetaType<QList<Struct3> >();
+    qDBusRegisterMetaType<QList<Struct4> >();
 
-    qDBusRegisterMetaType<Invalid0>("Invalid0");
-    qDBusRegisterMetaType<Invalid1>("Invalid1");
-    qDBusRegisterMetaType<Invalid2>("Invalid2");
-    qDBusRegisterMetaType<Invalid3>("Invalid3");
-    qDBusRegisterMetaType<Invalid4>("Invalid4");
-    qDBusRegisterMetaType<Invalid5>("Invalid5");
+    qDBusRegisterMetaType<Invalid0>();
+    qDBusRegisterMetaType<Invalid1>();
+    qDBusRegisterMetaType<Invalid2>();
+    qDBusRegisterMetaType<Invalid3>();
+    qDBusRegisterMetaType<Invalid4>();
+    qDBusRegisterMetaType<Invalid5>();
     // don't register Invalid6
-    qDBusRegisterMetaType<Invalid7>("Invalid7");
+    qDBusRegisterMetaType<Invalid7>();
 
-    qDBusRegisterMetaType<QList<Invalid0> >("QList<Invalid0>");
+    qDBusRegisterMetaType<QList<Invalid0> >();
 
     intStringMap = qDBusRegisterMetaType<QMap<int, QString> >("QMap<int,QString>");
     stringStringMap = qDBusRegisterMetaType<QMap<QString, QString> >("QMap<QString,QString>");

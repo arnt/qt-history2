@@ -21,13 +21,17 @@ Q_DECLARE_METATYPE(MyStruct)
 
 QDBusArgument &operator<<(QDBusArgument &arg, const MyStruct &ms)
 {
-    arg.newStructure() << ms.i << ms.s;
+    arg.beginStructure();
+    arg << ms.i << ms.s;
+    arg.endStructure();
     return arg;
 }
 
 const QDBusArgument &operator>>(const QDBusArgument &arg, MyStruct &ms)
 {
-    arg.structure() >> ms.i >> ms.s;
+    arg.beginStructure();
+    arg >> ms.i >> ms.s;
+    arg.endStructure();
     return arg;
 }
 

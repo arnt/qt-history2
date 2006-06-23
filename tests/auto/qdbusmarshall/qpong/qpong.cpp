@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     if (!con.isConnected())
         exit(1);
 
-    if (con.busService()->requestName("org.kde.selftest", QDBusBusService::DoNotQueueName).isError())
+    if (!con.registerService("org.kde.selftest"))
         exit(2);
 
     Pong pong;

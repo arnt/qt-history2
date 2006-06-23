@@ -39,30 +39,36 @@ struct Struct4                  // (ssa(ss)sayasx)
     qlonglong m7;
 };
 
-Q_DECLARE_METATYPE(Struct1)
-Q_DECLARE_METATYPE(Struct4)
-Q_DECLARE_METATYPE(StringPair)
+QDBUS_DECLARE_METATYPE(Struct1)
+QDBUS_DECLARE_METATYPE(Struct4)
+QDBUS_DECLARE_METATYPE(StringPair)
 
-Q_DECLARE_METATYPE(QList<Struct1>)
-Q_DECLARE_METATYPE(QList<Struct4>)
+QDBUS_DECLARE_METATYPE(QList<Struct1>)
+QDBUS_DECLARE_METATYPE(QList<Struct4>)
 
 Q_DECLARE_METATYPE(const QMetaObject*)
 
 QDBusArgument &operator<<(QDBusArgument &arg, const Struct1 &)
 {
-    arg.newStructure() << QString();
+    arg.beginStructure();
+    arg << QString();
+    arg.endStructure();
     return arg;
 }
 
 QDBusArgument &operator<<(QDBusArgument &arg, const StringPair &s)
 {
-    arg.newStructure() << s.first << s.second;
+    arg.beginStructure();
+    arg << s.first << s.second;
+    arg.endStructure();
     return arg;
 }
 
 QDBusArgument &operator<<(QDBusArgument &arg, const Struct4 &s)
 {
-    arg.newStructure() << s.m1 << s.m2 << s.m3 << s.m4 << s.m5 << s.m6 << s.m7;
+    arg.beginStructure();
+    arg << s.m1 << s.m2 << s.m3 << s.m4 << s.m5 << s.m6 << s.m7;
+    arg.endStructure();
     return arg;
 }
 
@@ -75,12 +81,12 @@ const QDBusArgument &operator>>(const QDBusArgument &arg, StringPair &)
 
 void tst_QDBusMetaObject::initTestCase()
 {
-    qDBusRegisterMetaType<Struct1>("Struct1");
-    qDBusRegisterMetaType<Struct4>("Struct4");
-    qDBusRegisterMetaType<StringPair>("StringPair");
+    qDBusRegisterMetaType<Struct1>();
+    qDBusRegisterMetaType<Struct4>();
+    qDBusRegisterMetaType<StringPair>();
 
-    qDBusRegisterMetaType<QList<Struct1> >("QList<Struct1>");
-    qDBusRegisterMetaType<QList<Struct4> >("QList<Struct4>");
+    qDBusRegisterMetaType<QList<Struct1> >();
+    qDBusRegisterMetaType<QList<Struct4> >();
 }
 
 void tst_QDBusMetaObject::init()
@@ -487,7 +493,7 @@ class MethodTest9: public QObject
     Q_OBJECT
     
 public slots:
-    Q_ASYNC void method(int) { }
+    Q_NOREPLY void method(int) { }
 };
 const char MethodTest9_xml[] =
     "<method name=\"method\">"

@@ -572,7 +572,7 @@ void tst_QDBusAbstractAdaptor::signalEmissions()
 
     QDBusConnection &con = QDBus::sessionBus();
     QVERIFY(con.isConnected());
-    con.busService()->requestName("com.trolltech.tst_QDBusAbstractAdaptor", 0);
+    con.registerService("com.trolltech.tst_QDBusAbstractAdaptor");
 
     MyObject obj(3);
     con.registerObject("/", &obj, QDBusConnection::ExportAdaptors | QDBusConnection::ExportSignals);
@@ -1114,7 +1114,7 @@ void tst_QDBusAbstractAdaptor::methodWithMoreThanOneReturnValue()
     QVERIFY(reply.count() == 2);
 
     QDBusReply<int> intreply = reply;
-    QVERIFY(intreply.isSuccess());
+    QVERIFY(intreply.isValid());
     QCOMPARE(intreply.value(), 42);
 
     QCOMPARE(reply.at(1).userType(), int(QVariant::String));
