@@ -1142,7 +1142,6 @@ void QGLWidget::setContext(QGLContext *context,
     a.border_pixel = colmap.pixel(Qt::black);
     Window p = RootWindow(X11->display, vi->screen);
     if (parentWidget()) {
-        parentWidget()->createWinId();
         p = parentWidget()->winId();
     }
 
@@ -1153,7 +1152,6 @@ void QGLWidget::setContext(QGLContext *context,
     Window *cmw;
     Window *cmwret;
     int count;
-    window()->createWinId();
     if (XGetWMColormapWindows(X11->display, window()->winId(),
                                 &cmwret, &count)) {
         cmw = new Window[count+1];
