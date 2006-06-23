@@ -86,17 +86,29 @@ static const char * const dock_widget_close_xpm[] = {
     "               ",
     "               "};
 
-static const char * const qt_cleanlooks_arrow_xpm[] = {
+static const char * const qt_cleanlooks_arrow_down_xpm[] = {
     "11 7 2 1",
     " 	c None",
-    ".	c #000000",
+    "x	c #000000",
     "           ",
-    "  .     .  ",
-    " ...   ... c",
-    "  .......  ",
-    "   .....   ",
-    "    ...    ",
-    "     .     "};
+    "  x     x  ",
+    " xxx   xxx ",
+    "  xxxxxxx  ",
+    "   xxxxx   ",
+    "    xxx    ",
+    "     x     "};
+
+static const char * const qt_cleanlooks_arrow_up_xpm[] = {
+    "11 7 2 1",
+    " 	c None",
+    "x	c #000000",
+    "     x     ",
+    "    xxx    ",
+    "   xxxxx   ",
+    "  xxxxxxx  ",
+    " xxx   xxx ",
+    "  x     x  ",
+    "           "};
 
 static const char * const dock_widget_restore_xpm[] = {
     "15 15 7 1",
@@ -606,6 +618,22 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     QColor shadow = option->palette.background().color().dark(120);
 
     switch(elem) {
+    case PE_IndicatorHeaderArrow:
+        if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
+            QRect r = header->rect;
+            QImage arrow;
+            if (header->sortIndicator & QStyleOptionHeader::SortUp)
+                arrow = QImage(qt_cleanlooks_arrow_up_xpm);
+            else if (header->sortIndicator & QStyleOptionHeader::SortDown)
+                arrow = QImage(qt_cleanlooks_arrow_down_xpm);
+            if (!arrow.isNull()) {
+                r.setHeight(arrow.height());
+                r.moveCenter(header->rect.center());
+                arrow.setColor(1, header->palette.foreground().color().rgba());
+                painter->drawImage(r, arrow);
+            }
+        }
+        break;
     case PE_IndicatorButtonDropDown:
         drawPrimitive(PE_PanelButtonCommand, option, painter, widget);
         break;
@@ -1376,15 +1404,15 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                     cachePainter.drawLine(pixmapRect.topRight(), pixmapRect.bottomRight());
                     if (header->position != QStyleOptionHeader::End) {
                         cachePainter.setPen(QPen(shadow));
-                        cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, -1), pixmapRect.bottomRight() + QPoint(-3, -1));                       cachePainter.setPen(QPen(option->palette.light().color()));
-                        cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, 0), pixmapRect.bottomRight() + QPoint(-3, 0));                     }
+                        cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, -1), pixmapRect.bottomRight() + QPoint(-3, -1));                            cachePainter.setPen(QPen(option->palette.light().color()));
+                        cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, 0), pixmapRect.bottomRight() + QPoint(-3, 0));                          }
                 } else {
                     cachePainter.setPen(QPen(option->palette.dark().color()));
                     cachePainter.drawLine(pixmapRect.bottomLeft(), pixmapRect.bottomRight());
                     if (header->position != QStyleOptionHeader::End) {
                         cachePainter.setPen(QPen(shadow));
-                        cachePainter.drawLine(pixmapRect.topRight() + QPoint(-1, 3), pixmapRect.bottomRight() + QPoint(-1, -3));                         cachePainter.setPen(QPen(option->palette.light().color()));
-                        cachePainter.drawLine(pixmapRect.topRight() + QPoint(0, 3), pixmapRect.bottomRight() + QPoint(0, -3));                       }
+                        cachePainter.drawLine(pixmapRect.topRight() + QPoint(-1, 3), pixmapRect.bottomRight() + QPoint(-1, -3));                              cachePainter.setPen(QPen(option->palette.light().color()));
+                        cachePainter.drawLine(pixmapRect.topRight() + QPoint(0, 3), pixmapRect.bottomRight() + QPoint(0, -3));                            }
                 }
                 cachePainter.end();
                 if (UsePixmapCache)
@@ -2137,7 +2165,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         cachePainter.drawPoint(QPoint(r.left() + 1, r.top() + 1));
                         cachePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
                     } else {
-                        cachePainter.drawRect(rect.adjusted(downRect.width(), 2, -2, -3));
+                        cachePainter.drawRect(rect.adjusted(downRect.width() + 2, 2, -2, -3));
                         cachePainter.setPen(QPen(darkoutline, 0));
                         cachePainter.drawLine(QPoint(r.left() + downRect.width(), r.bottom()), QPoint(r.right()- 2 - 1, r.bottom()));
                         cachePainter.drawLine(QPoint(r.left() + downRect.width(), r.top()), QPoint(r.right() - 2 - 1, r.top()));
@@ -2145,8 +2173,8 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         cachePainter.drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
                         cachePainter.drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
                         cachePainter.drawPoint(QPoint(r.right() - 1, r.top() + 1));
-                        cachePainter.drawLine(QPoint(r.left() + downRect.width(), r.top()),     
-                                              QPoint(r.left()+ downRect.width(), r.bottom()));
+                        cachePainter.drawLine(QPoint(r.left() + downRect.width() + 1, r.top()),     
+                                              QPoint(r.left() + downRect.width() + 1, r.bottom()));
                     }
                 }
                                 
@@ -2778,25 +2806,32 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                 cache.fill(Qt::transparent);
                 QPainter cachePainter(&cache);
                 QRect pixmapRect(0, 0, comboBox->rect.width(), comboBox->rect.height());
-                cachePainter.fillRect(pixmapRect, painter->brush());
-
                 QStyleOptionComboBox comboBoxCopy = *comboBox;
                 comboBoxCopy.rect = pixmapRect;
 
                 QRect rect = pixmapRect;
                 QRect downArrowRect = subControlRect(CC_ComboBox, &comboBoxCopy,
                                                      SC_ComboBoxArrow, widget);
+                QRect editRect = subControlRect(CC_ComboBox, &comboBoxCopy,
+                                                     SC_ComboBoxEditField, widget);
                 // Draw a push button
                 if (comboBox->editable) {
                     QStyleOptionFrame  buttonOption;
                     buttonOption.QStyleOption::operator=(*comboBox);
                     buttonOption.rect = rect;
                     buttonOption.state = comboBox->state & (State_Enabled | State_MouseOver);
+                    
                     if (sunken) {
                         buttonOption.state |= State_Sunken;
                         buttonOption.state &= ~State_MouseOver;
                     }
+                    
                     drawPrimitive(PE_PanelButtonCommand, &buttonOption, &cachePainter, widget);
+                    
+                    //remove shadow from left side of edit field when pressed:
+                    if (comboBox->direction == Qt::RightToLeft)
+                        cachePainter.fillRect(editRect.left() - 1, editRect.top() + 1, editRect.left(), editRect.bottom() - 3, option->palette.base());
+                                    
                     cachePainter.setPen(option->palette.dark().color());
                     if (!sunken) {
                         int borderSize = 2;
@@ -2867,7 +2902,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
                 if (comboBox->editable) {
                     // Draw the down arrow
-                    QImage downArrow(qt_cleanlooks_arrow_xpm);
+                    QImage downArrow(qt_cleanlooks_arrow_down_xpm);
                     downArrow.setColor(1, comboBox->palette.foreground().color().rgba());
                     int offset = comboBox->direction == Qt::RightToLeft ? -2 : 2;
                     cachePainter.drawImage(downArrowRect.center().x() - downArrow.width() / 2 + offset,
