@@ -11,19 +11,23 @@
 **
 ****************************************************************************/
 
+#include "qresource.h"
 #include "qresource_p.h"
 #include "qset.h"
 #include "qhash.h"
 #include "qlocale.h"
 #include "qglobal.h"
+#include <qdebug.h>
 #include "qdatetime.h"
 #include "qbytearray.h"
 #include "qstringlist.h"
 #include "qvector.h"
+#include <qshareddata.h>
+#include <qplatformdefs.h>
 #include "private/qabstractfileengine_p.h"
 
 //resource glue
-class QResource
+class QResourceRoot
 {
     enum Flags
     {
@@ -35,23 +39,369 @@ class QResource
     inline int findOffset(int node) const { return node * 14; } //sizeof each tree element
     inline int hash(int offset) const;
     inline QString name(int offset) const;
+    short flags(const QString &path) const;
 public:
-    inline QResource(): tree(0), names(0), payloads(0) {}
-    inline QResource(const uchar *t, const uchar *n, const uchar *d)
-        : tree(t), names(n), payloads(d) {}
-    bool isContainer(const QString &path) const;
+    mutable QAtomic ref;
+
+    inline QResourceRoot(): tree(0), names(0), payloads(0) {}
+    inline QResourceRoot(const uchar *t, const uchar *n, const uchar *d) { setSource(t, n, d); }
+    virtual ~QResourceRoot() { }
+    inline bool isContainer(const QString &path) const { return flags(path) & Directory; }
+    inline bool isCompressed(const QString &path) const { return flags(path) & Compressed; }
     bool exists(const QString &path) const;
-    QByteArray data(const QString &path) const;
+    const uchar *data(const QString &path, qint64 *size) const;
     QStringList children(const QString &path) const;
-    inline bool operator==(const QResource &other) const
+    inline bool operator==(const QResourceRoot &other) const
     { return tree == other.tree && names == other.names && payloads == other.payloads; }
-    inline bool operator!=(const QResource &other) const
+    inline bool operator!=(const QResourceRoot &other) const
     { return !operator==(other); }
+
+protected:
+    inline void setSource(const uchar *t, const uchar *n, const uchar *d) {
+        tree = t;
+        names = n;
+        payloads = d;
+    }
 };
 
-Q_DECLARE_TYPEINFO(QResource, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QResourceRoot, Q_MOVABLE_TYPE);
 
-inline int QResource::hash(int node) const
+typedef QList<QResourceRoot*> ResourceList;
+Q_GLOBAL_STATIC(ResourceList, resourceList)
+
+Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
+
+/*!
+    \class QResource
+    \brief The QResource class provides an interface for reading directly from resources.
+
+    \ingroup io
+    \mainclass
+    \reentrant
+
+    QResource is an object that represents a set of data (and possibly
+    children) relating to a single resource entity. QResource gives direct
+    access to the bytes in their raw format. In this way direct access
+    allows reading data without buffer copying or indirection. Indirection
+    is often useful when interacting with the resource entity as if it is a
+    file, this can be achieved with QFile. The data and children behind a
+    QResource are normally compiled into an application/library, but it is
+    also possible to load a resource at runtime. When loaded at run time
+    the resource file will be loaded as one big set of data and then given
+    out in pieces via references into the resource tree.
+
+    A QResource can either be loaded with an absolute path (either treated
+    as a file system rooted with /, or in resource notation rooted with
+    :). A relative resource can also be opened which will be found through
+    the searchPaths().
+
+    A QResource that is representing a file will have data backing it, this
+    data can possibly be compressed, in which case qUncompress() must be
+    used to access the real data; this happens implicitly when accessed
+    through a QFile. A QResource that is representing a directory will have
+    only children and no data.
+
+    \sa {The Qt Resource System}, QFile, QDir, QFileInfo
+*/
+
+class QResourcePrivate {
+public:
+    inline QResourcePrivate(QResource *_q, const QString &file=QString()) : q_ptr(_q) { clear(); filePath = file; }
+    inline ~QResourcePrivate() { clear(); }
+
+    void ensureInitialized() const;
+    void ensureChildren() const;
+
+    bool load(const QString &file);
+    void clear();
+
+    QString filePath, canonicalFilePath;
+    QList<QResourceRoot*> related;
+    uint container : 1;
+    mutable uint initialized : 1;
+    mutable uint compressed : 1;
+    mutable qint64 size;
+    mutable const uchar *data;
+    mutable QStringList children;
+
+    QResource *q_ptr;
+    Q_DECLARE_PUBLIC(QResource)
+};
+
+void
+QResourcePrivate::clear()
+{
+    initialized = 0;
+    canonicalFilePath.clear();
+    compressed = 0;
+    filePath.clear();
+    data = 0;
+    size = 0;
+    children.clear();
+    container = 0;
+    for(int i = 0; i < related.size(); ++i) {
+        QResourceRoot *root = related.at(i);
+        if(!root->ref.deref())
+            delete root;
+    }
+    related.clear();
+}
+
+bool
+QResourcePrivate::load(const QString &file)
+{
+    const ResourceList *list = resourceList();
+    for(int i = 0; i < list->size(); ++i) {
+        QResourceRoot *res = list->at(i);
+        if(res->exists(file)) {
+            if(related.isEmpty())
+                container = res->isContainer(file);
+            else if(res->isContainer(file) != container)
+                qWarning("QResourceInfo: Resource [%s] has both data and children!", file.toLatin1().constData());
+            if(!container) {
+                data = res->data(file, &size);
+                compressed = res->isCompressed(file);
+            }
+            res->ref.ref();
+            related.append(res);
+        }
+    }
+    return !related.isEmpty();
+}
+
+void
+QResourcePrivate::ensureInitialized() const
+{
+    if (initialized)
+        return;
+    initialized = 1;
+    QResourcePrivate *that = const_cast<QResourcePrivate *>(this);
+    if(filePath == QLatin1String(":"))
+        that->filePath += QLatin1Char('/');
+    that->canonicalFilePath = filePath;
+
+    QString path = filePath;
+    if(path.startsWith(QLatin1Char(':')))
+        path = path.mid(1);
+    if(path.startsWith(QLatin1Char('/'))) {
+        that->load(path);
+    } else {
+        QStringList searchPaths = *qt_resource_search_paths();
+        searchPaths << QLatin1String("");
+        for(int i = 0; i < searchPaths.size(); ++i) {
+            const QString searchPath(searchPaths.at(i) + QLatin1Char('/') + path);
+            if(that->load(searchPath)) {
+                that->canonicalFilePath = QLatin1Char(':') + searchPath;
+                break;
+            }
+        }
+    }
+}
+
+void
+QResourcePrivate::ensureChildren() const
+{
+    ensureInitialized();
+    if(!children.isEmpty() || !container || related.isEmpty())
+        return;
+
+    QString path = canonicalFilePath;
+    if(path.startsWith(QLatin1Char(':')))
+        path = path.mid(1);
+    QSet<QString> kids;
+    for(int i = 0; i < related.size(); ++i) {
+        QStringList related_children = related.at(i)->children(path);
+        for(int kid = 0; kid < related_children.size(); ++kid) {
+            QString k = related_children.at(kid);
+            if(!kids.contains(k)) {
+                children += k;
+                kids.insert(k);
+            }
+        }
+    }
+}
+
+/*!
+    Constructs a QResource pointing to \a file.
+
+    \sa QFileInfo, searchPaths(), setFile()
+*/
+
+QResource::QResource(const QString &file) : d_ptr(new QResourcePrivate(this, file))
+{
+}
+
+/*!
+    Sets a QResource to point to \a file. \a file can either be absolute,
+    in which case it is opened directly, if relative then the file will be
+    tried to be found in searchPaths().
+
+    \sa filePath(), canonicalFilePath()
+*/
+
+void QResource::setFile(const QString &file)
+{
+    Q_D(QResource);
+    d->clear();
+    d->filePath = file;
+}
+
+/*!
+    Returns the full path to the file that this QResource represents as it
+    was passed.
+
+    \sa setFilePath(), canonicalFilePath()
+*/
+
+QString QResource::filePath() const
+{
+    Q_D(const QResource);
+    d->ensureInitialized();
+    return d->filePath;
+}
+
+/*!
+    Returns the real path that this QResource represents, if the resource
+    was found via the searchPaths() it will be indicated in the path.
+
+    \sa filePath()
+*/
+
+QString QResource::canonicalFilePath() const
+{
+    Q_D(const QResource);
+    d->ensureInitialized();
+    return d->canonicalFilePath;
+}
+
+/*!
+    Returns true if the resource really exists in the resource heirarchy,
+    false otherwise.
+
+*/
+
+bool QResource::exists() const
+{
+    Q_D(const QResource);
+    d->ensureInitialized();
+    return !d->related.isEmpty();
+}
+
+/*!
+    \fn bool QResource::isFile() const
+
+    Returns true if the resource represents a file and thus has data
+    backing it, false if it represents a directory.
+
+    \sa isDir()
+*/
+
+
+/*!
+    Returns true if the resource represents a file and the data backing it
+    is in a compressed format, false otherwise.
+
+    \sa data(), isFile()
+*/
+
+bool QResource::isCompressed() const
+{
+    Q_D(const QResource);
+    d->ensureInitialized();
+    return d->compressed;
+}
+
+/*!
+    Returns the size of the data backing the resource.
+
+    \sa data(), isFile()
+*/
+
+qint64 QResource::size() const
+{
+    Q_D(const QResource);
+    d->ensureInitialized();
+    return d->size;
+}
+
+/*!
+    Returns direct access to a read only segment of data that this resource
+    represents. If the resource is compressed the data returns is
+    compressed and qUncompress() must be used to access the data. If the
+    resource is a directory 0 is returned.
+
+    \sa size(), isCompressed(), isFile()
+*/
+
+const uchar *QResource::data() const
+{
+    Q_D(const QResource);
+    d->ensureInitialized();
+    return d->data;
+}
+
+/*!
+    Returns true if the resource represents a directory and thus may have
+    children() in it, false if it represents a file.
+
+    \sa isFile()
+*/
+
+bool QResource::isDir() const
+{
+    Q_D(const QResource);
+    d->ensureInitialized();
+    return d->container;
+}
+
+/*!
+    Returns a list of all resources in this directory, if the resource
+    represents a file the list will be empty.
+
+    \sa isDir()
+*/
+
+QStringList QResource::children() const
+{
+    Q_D(const QResource);
+    d->ensureChildren();
+    return d->children;
+}
+
+/*!
+  Adds \a path to the search paths searched in to find resources that are
+  not specified with an absolute path. The default search path is to search
+  only in the root (\c{:/}). The last path added will be consulted first
+  upon next QResource creation.
+
+  \sa QResource::QResource, addSearchPath()
+*/
+
+void
+QResource::addSearchPath(const QString &path)
+{
+    if(path[0] != QLatin1Char('/')) {
+        qWarning("QDir::addResourceSearchPath: Search paths must be absolute (start with /) [%s]",
+                 path.toLocal8Bit().data());
+        return;
+    }
+    qt_resource_search_paths()->prepend(path);
+}
+
+/*!
+  Returns the current search path list. This list is consulted when
+  creating a relative resource.
+
+  \sa QResource::QResource, addSearchPath()
+*/
+
+QStringList
+QResource::searchPaths()
+{
+    return *qt_resource_search_paths();
+}
+
+inline int QResourceRoot::hash(int node) const
 {
     if(!node) //root
         return 0;
@@ -62,7 +412,7 @@ inline int QResource::hash(int node) const
     return (names[name_offset+0] << 24) + (names[name_offset+1] << 16) +
            (names[name_offset+2] << 8) + (names[name_offset+3] << 0);
 }
-inline QString QResource::name(int node) const
+inline QString QResourceRoot::name(int node) const
 {
     if(!node) // root
         return QString();
@@ -79,7 +429,7 @@ inline QString QResource::name(int node) const
         ret += QChar(names[name_offset+i+1], names[name_offset+i]);
     return ret;
 }
-int QResource::findNode(const QString &path) const
+int QResourceRoot::findNode(const QString &path) const
 {
     if(path == QLatin1String("/"))
         return 0;
@@ -165,24 +515,25 @@ int QResource::findNode(const QString &path) const
     }
     return node;
 }
-bool QResource::isContainer(const QString &path) const
+short QResourceRoot::flags(const QString &path) const
 {
     int node = findNode(path);
     if(node == -1)
-        return false;
+        return 0;
     const int offset = findOffset(node) + 4; //jump past name
-    const short flags = (tree[offset+0] << 8) + (tree[offset+1] << 0);
-    return flags & Directory;
+    return (tree[offset+0] << 8) + (tree[offset+1] << 0);
 }
-bool QResource::exists(const QString &path) const
+bool QResourceRoot::exists(const QString &path) const
 {
     return findNode(path) != -1;
 }
-QByteArray QResource::data(const QString &path) const
+const uchar *QResourceRoot::data(const QString &path, qint64 *size) const
 {
     const int node = findNode(path);
-    if(node == -1)
-        return QByteArray();
+    if(node == -1) {
+        *size = 0;
+        return 0;
+    }
     int offset = findOffset(node) + 4; //jump past name
 
     const short flags = (tree[offset+0] << 8) + (tree[offset+1] << 0);
@@ -190,26 +541,19 @@ QByteArray QResource::data(const QString &path) const
 
     offset += 4; //jump past locale
 
-    QByteArray ret;
     if(!(flags & Directory)) {
         const int data_offset = (tree[offset+0] << 24) + (tree[offset+1] << 16) +
                                 (tree[offset+2] << 8) + (tree[offset+3] << 0);
         const uint data_length = (payloads[data_offset+0] << 24) + (payloads[data_offset+1] << 16) +
                                  (payloads[data_offset+2] << 8) + (payloads[data_offset+3] << 0);
-        const uchar *data = payloads+data_offset+4;
-#ifndef QT_NO_COMPRESS
-        if(flags & Compressed)
-            ret = qUncompress(data, data_length);
-        else
-            ret = QByteArray((char*)data, data_length);
-#else
-        Q_ASSERT_X(!(flags & Compressed), "QResource::data",
-                   "Qt built without support for compression");        
-#endif
+        const uchar *ret = payloads+data_offset+4;
+        *size = data_length;
+        return ret;
     }
-    return ret;
+    *size = 0;
+    return 0;
 }
-QStringList QResource::children(const QString &path) const
+QStringList QResourceRoot::children(const QString &path) const
 {
     int node = findNode(path);
     if(node == -1)
@@ -232,148 +576,23 @@ QStringList QResource::children(const QString &path) const
     return ret;
 }
 
-Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
-bool qt_resource_add_search_path(const QString &path)
-{
-    if(path[0] != QLatin1Char('/')) {
-        qWarning("QDir::addResourceSearchPath: Search paths must be absolute (start with /) [%s]",
-                 path.toLocal8Bit().data());
-        return false;
-    }
-    qt_resource_search_paths()->prepend(path);
-    return true;
-}
-
-typedef QVector<QResource> ResourceList;
-Q_GLOBAL_STATIC(ResourceList, resourceList)
-
-class QResourceInfo
-{
-    QString file, searchFile;
-    ResourceList related;
-    uint container : 1;
-    mutable uint hasData : 1;
-    mutable uint hasChildren : 1;
-    mutable uint initialized : 1;
-    mutable QByteArray mData;
-    mutable QStringList mChildren;
-
-    inline void clear() {
-        searchFile.clear();
-        file.clear();
-        hasData = hasChildren = 0;
-        container = 0;
-        related.clear();
-        initialized = 0;
-    }
-    bool loadResource(const QString &);
-public:
-    QResourceInfo() { clear(); }
-    QResourceInfo(const QString &f) : file(f), initialized(0) {}
-
-    void setFileName(const QString &f) { clear(); file = f; }
-    QString fileName() const { return file; }
-    QString searchFileName() const { ensureInitialized(); return searchFile; }
-
-    bool exists() const { ensureInitialized(); return !related.isEmpty(); }
-    bool isContainer() const { ensureInitialized(); return container; }
-    QByteArray data() const;
-    QStringList children() const;
-    void ensureInitialized() const;
-};
-bool
-QResourceInfo::loadResource(const QString &path)
-{
-    ensureInitialized();
-    const ResourceList *list = resourceList();
-    for(int i = 0; i < list->size(); ++i) {
-        QResource res = list->at(i);
-        if(res.exists(path)) {
-            if(related.isEmpty())
-                container = res.isContainer(path);
-            else if(res.isContainer(path) != container)
-                qWarning("QResource: Resource [%s] has both data and children!", file.toLatin1().constData());
-            related.append(res);
-        }
-    }
-    return !related.isEmpty();
-}
-void QResourceInfo::ensureInitialized() const
-{
-    if (initialized)
-        return;
-
-    initialized = 1;
-    QResourceInfo *that = const_cast<QResourceInfo *>(this);
-    if(file == QLatin1String(":"))
-        that->file += QLatin1Char('/');
-    that->searchFile = file;
-
-    QString path = file;
-    if(path.startsWith(QLatin1Char(':')))
-        path = path.mid(1);
-    if(path.startsWith(QLatin1Char('/'))) {
-        that->loadResource(path);
-        return;
-    } else {
-        QStringList searchPaths = *qt_resource_search_paths();
-        searchPaths << QLatin1String("");
-        for(int i = 0; i < searchPaths.size(); ++i) {
-            const QString searchPath(searchPaths.at(i) + QLatin1Char('/') + path);
-            if(that->loadResource(searchPath)) {
-                that->searchFile = QLatin1Char(':') + searchPath;
-                break;
-            }
-        }
-    }
-}
-QByteArray QResourceInfo::data() const
-{
-    if(container || related.isEmpty())
-        return QByteArray();
-
-    if(!hasData) {
-        hasData = true;
-        QString path = searchFile;
-        if(path.startsWith(QLatin1Char(':')))
-            path = path.mid(1);
-        mData = related.at(0).data(path);
-    }
-    return mData;
-}
-
-QStringList QResourceInfo::children() const
-{
-    if(!container || related.isEmpty())
-        return QStringList();
-
-    if(!hasChildren) {
-        hasChildren = true;
-        QString path = searchFile;
-        if(path.startsWith(QLatin1Char(':')))
-            path = path.mid(1);
-        QSet<QString> kids;
-        for(int i = 0; i < related.size(); ++i) {
-            QStringList related_children = related.at(i).children(path);
-            for(int kid = 0; kid < related_children.size(); ++kid) {
-                QString k = related_children.at(kid);
-                if(!kids.contains(k)) {
-                    mChildren += k;
-                    kids.insert(k);
-                }
-            }
-        }
-    }
-    return mChildren;
-}
-
 Q_CORE_EXPORT bool qRegisterResourceData(int version, const unsigned char *tree,
                                          const unsigned char *name, const unsigned char *data)
 {
     if(version == 0x01 && resourceList()) {
-        QResource res(tree, name, data);
-        if (!resourceList()->contains(res))
-            resourceList()->append(res);
+        bool found = false;
+        QResourceRoot res(tree, name, data);
+        for(int i = 0; i < resourceList()->size(); ++i) {
+            if(*resourceList()->at(i) == res) {
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            QResourceRoot *root = new QResourceRoot(tree, name, data);
+            root->ref.ref();
+            resourceList()->append(root);
+        }
         return true;
     }
     return false;
@@ -383,17 +602,195 @@ Q_CORE_EXPORT bool qUnregisterResourceData(int version, const unsigned char *tre
                                            const unsigned char *name, const unsigned char *data)
 {
     if(version == 0x01 && resourceList()) {
-        QResource res(tree, name, data);
+        QResourceRoot res(tree, name, data);
         for(int i = 0; i < resourceList()->size(); ) {
-            if(resourceList()->at(i) == res)
-                resourceList()->remove(i);
-            else
+            if(*resourceList()->at(i) == res) {
+                QResourceRoot *root = resourceList()->takeAt(i);
+                if(!root->ref.deref())
+                    delete root;
+            } else {
                 ++i;
+            }
         }
         return true;
     }
     return false;
 }
+
+//run time resource creation
+
+#if defined(Q_OS_UNIX)
+#define QT_USE_MMAP
+#endif
+
+// most of the headers below are already included in qplatformdefs.h
+// also this lacks Large File support but that's probably irrelevant
+#if defined(QT_USE_MMAP)
+// for mmap
+#include <sys/mman.h>
+#include <errno.h>
+#endif
+
+class QDynamicResourceRoot: public QResourceRoot
+{
+    // for mmap'ed files, this is what needs to be unmapped.
+    uchar *unmapPointer;
+    unsigned int unmapLength;
+    bool fromMM;
+
+public:
+    inline QDynamicResourceRoot() : unmapPointer(0), unmapLength(0) { }
+    ~QDynamicResourceRoot() {
+        if (unmapPointer && unmapLength) {
+#if defined(QT_USE_MMAP)
+            if(fromMM)
+                munmap(unmapPointer, unmapLength);
+            else
+#endif
+                delete [] unmapPointer;
+            unmapPointer = 0;
+            unmapLength = 0;
+        }
+    }
+
+    bool load(const QString &filename) {
+        bool ok = false;
+#ifdef QT_USE_MMAP
+
+#ifndef MAP_FILE
+#define MAP_FILE 0
+#endif
+#ifndef MAP_FAILED
+#define MAP_FAILED -1
+#endif
+
+        int fd = QT_OPEN(QFile::encodeName(filename), O_RDONLY,
+#if defined(Q_OS_WIN)
+                         _S_IREAD | _S_IWRITE
+#else
+                         0666
+#endif
+            );
+        if (fd >= 0) {
+            struct stat st;
+            if (!fstat(fd, &st)) {
+                uchar *ptr;
+                ptr = reinterpret_cast<uchar *>(
+                    mmap(0, st.st_size,             // any address, whole file
+                         PROT_READ,                 // read-only memory
+                         MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
+                         fd, 0));                   // from offset 0 of fd
+                if (ptr && ptr != reinterpret_cast<uchar *>(MAP_FAILED)) {
+                    unmapPointer = ptr;
+                    unmapLength = st.st_size;
+                    fromMM = true;
+                    ok = true;
+                }
+            }
+            ::close(fd);
+        }
+#endif // QT_USE_MMAP
+        if(!ok) {
+            QFile file(filename);
+            if (!file.exists())
+                return false;
+            unmapLength = file.size();
+            unmapPointer = new uchar[unmapLength];
+
+            if (file.open(QIODevice::ReadOnly))
+                ok = (unmapLength == (uint)file.read((char*)unmapPointer, unmapLength));
+
+            if (!ok) {
+                delete [] unmapPointer;
+                unmapPointer = 0;
+                unmapLength = 0;
+                return false;
+            }
+            fromMM = false;
+        }
+        if(!ok)
+            return false;
+
+        //setup the data now
+        int offset = 0;
+
+        //magic number
+        if(unmapPointer[offset+0] != 'q' || unmapPointer[offset+1] != 'r' ||
+           unmapPointer[offset+2] != 'e' || unmapPointer[offset+3] != 's') {
+            return false;
+        }
+        offset += 4;
+
+        const int version = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
+                         (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
+        offset += 4;
+
+        const int tree_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
+                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
+        offset += 4;
+
+        const int data_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
+                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
+        offset += 4;
+
+        const int name_offset = (unmapPointer[offset+0] << 24) + (unmapPointer[offset+1] << 16) +
+                                (unmapPointer[offset+2] << 8) + (unmapPointer[offset+3] << 0);
+        offset += 4;
+
+        if(version == 0x01) {
+            setSource(unmapPointer+tree_offset, unmapPointer+name_offset, unmapPointer+data_offset);
+            return true;
+        }
+        return false;
+    }
+};
+
+/*!
+   A resource can be left out of your binary and then loaded at runtime,
+   this can often be useful to load a large set of icons into your
+   application that may change based on a setting or that can be edited by
+   a user and later recreated. The resource is immediately loaded into
+   memory (either by reading as a single file, or being memory mapped),
+   this can prove to be a significant gain as only a single file will be
+   loaded and then pieces of the data will be given out via the path
+   requested in QResource::setFile(). Returns true upon successful opening
+   of \a rccFileName, false upon failure.
+
+   \sa unregisterResource()
+*/
+
+bool
+QResource::registerResource(const QString &rccFilename)
+{
+    QDynamicResourceRoot *root = new QDynamicResourceRoot;
+    if(root->load(rccFilename)) {
+        root->ref.ref();
+        resourceList()->append(root);
+        return true;
+    }
+    delete root;
+    return false;
+}
+
+/*!
+  Removes a reference to \a rccFilename, returns true if the resource could
+  be unloaded, false otherwise. If there are QResources that currently
+  reference resources inside of the resource they will continue to be valid
+  but the resource file itself will be removed from the resource roots and
+  thus no further QResource can be created pointing into this resource
+  data. The resource itself will be unmapped from memory when the last
+  QResource points into it.
+
+  \sa registerResource()
+*/
+
+bool
+QResource::unregisterResource(const QString &rccFilename)
+{
+    Q_UNUSED(rccFilename); //### implement!
+    return false;
+}
+
 
 //file type handler
 class QResourceFileEngineHandler : public QAbstractFileEngineHandler
@@ -417,7 +814,8 @@ protected:
     Q_DECLARE_PUBLIC(QResourceFileEngine)
 private:
     qint64 offset;
-    QResourceInfo resource;
+    QResource resource;
+    QByteArray uncompressed;
 protected:
     QResourceFileEnginePrivate() : offset(0) { }
 };
@@ -448,14 +846,14 @@ QStringList QResourceFileEngine::entryList(QDir::Filters filters, const QStringL
     QStringList ret;
     if((!doDirs && !doFiles) || ((filters & QDir::PermissionMask) && !doReadable))
         return ret;
-    if(!d->resource.exists() || !d->resource.isContainer())
+    if(!d->resource.exists() || !d->resource.isDir())
         return ret; // cannot read the "directory"
 
     QStringList entries = d->resource.children();
     for(int i = 0; i < entries.size(); i++) {
-        QResourceInfo entry(d->resource.fileName() + QLatin1String("/") + entries[i]);
+        QResource entry(d->resource.filePath() + QLatin1String("/") + entries[i]);
 #ifndef QT_NO_REGEXP
-        if(!(filters & QDir::AllDirs && entry.isContainer())) {
+        if(!(filters & QDir::AllDirs && entry.isDir())) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
                 QRegExp rx(*sit,
@@ -470,8 +868,8 @@ QStringList QResourceFileEngine::entryList(QDir::Filters filters, const QStringL
                 continue;
         }
 #endif
-        if  ((doDirs && entry.isContainer()) ||
-             (doFiles && !entry.isContainer()))
+        if  ((doDirs && entry.isDir()) ||
+             (doFiles && !entry.isDir()))
             ret.append(entries[i]);
     }
     return ret;
@@ -486,7 +884,14 @@ QResourceFileEngine::QResourceFileEngine(const QString &file) :
     QAbstractFileEngine(*new QResourceFileEnginePrivate)
 {
     Q_D(QResourceFileEngine);
-    d->resource.setFileName(file);
+    d->resource.setFile(file);
+    if(d->resource.isCompressed() && d->resource.size()) {
+#ifndef QT_NO_COMPRESS
+        d->uncompressed = qUncompress(d->resource.data(), d->resource.size());
+#else
+        Q_ASSERT("QResourceFileEngine::open: Qt built without support for compression");
+#endif
+    }
 }
 
 QResourceFileEngine::~QResourceFileEngine()
@@ -496,13 +901,13 @@ QResourceFileEngine::~QResourceFileEngine()
 void QResourceFileEngine::setFileName(const QString &file)
 {
     Q_D(QResourceFileEngine);
-    d->resource.setFileName(file);
+    d->resource.setFile(file);
 }
 
 bool QResourceFileEngine::open(QIODevice::OpenMode flags)
 {
     Q_D(QResourceFileEngine);
-    if (d->resource.fileName().isEmpty()) {
+    if (d->resource.filePath().isEmpty()) {
         qWarning("QResourceFileEngine::open: Missing file name");
         return false;
     }
@@ -517,6 +922,7 @@ bool QResourceFileEngine::close()
 {
     Q_D(QResourceFileEngine);
     d->offset = 0;
+    d->uncompressed.clear();
     return true;
 }
 
@@ -528,11 +934,14 @@ bool QResourceFileEngine::flush()
 qint64 QResourceFileEngine::read(char *data, qint64 len)
 {
     Q_D(QResourceFileEngine);
-    if(len > d->resource.data().size()-d->offset)
-        len = d->resource.data().size()-d->offset;
+    if(len > size()-d->offset)
+        len = size()-d->offset;
     if(len <= 0)
         return 0;
-    memcpy(data, d->resource.data().constData()+d->offset, len);
+    if(d->resource.isCompressed())
+        memcpy(data, d->uncompressed.constData()+d->offset, len);
+    else
+        memcpy(data, d->resource.data()+d->offset, len);
     d->offset += len;
     return len;
 }
@@ -567,7 +976,9 @@ qint64 QResourceFileEngine::size() const
     Q_D(const QResourceFileEngine);
     if(!d->resource.exists())
         return 0;
-    return d->resource.data().size();
+    if(d->resource.isCompressed())
+        return d->uncompressed.size();
+    return d->resource.size();
 }
 
 qint64 QResourceFileEngine::pos() const
@@ -581,7 +992,7 @@ bool QResourceFileEngine::atEnd() const
     Q_D(const QResourceFileEngine);
     if(!d->resource.exists())
         return true;
-    return d->offset == d->resource.data().size();
+    return d->offset == size();
 }
 
 bool QResourceFileEngine::seek(qint64 pos)
@@ -590,7 +1001,7 @@ bool QResourceFileEngine::seek(qint64 pos)
     if(!d->resource.exists())
         return false;
 
-    if(d->offset > d->resource.data().size())
+    if(d->offset > size())
         return false;
     d->offset = pos;
     return true;
@@ -607,17 +1018,18 @@ QAbstractFileEngine::FileFlags QResourceFileEngine::fileFlags(QAbstractFileEngin
     QAbstractFileEngine::FileFlags ret = 0;
     if(!d->resource.exists())
         return ret;
+
     if(type & PermsMask)
         ret |= QAbstractFileEngine::FileFlags(ReadOwnerPerm|ReadUserPerm|ReadGroupPerm|ReadOtherPerm);
     if(type & TypesMask) {
-        if(d->resource.isContainer())
+        if(d->resource.isDir())
             ret |= DirectoryType;
         else
             ret |= FileType;
     }
     if(type & FlagsMask) {
         ret |= ExistsFlag;
-        if(d->resource.fileName() == QLatin1String(":/"))
+        if(d->resource.canonicalFilePath() == QLatin1String(":/"))
             ret |= RootFlag;
     }
     return ret;
@@ -632,24 +1044,24 @@ QString QResourceFileEngine::fileName(FileName file) const
 {
     Q_D(const QResourceFileEngine);
     if(file == BaseName) {
-	int slash = d->resource.fileName().lastIndexOf(QLatin1Char('/'));
+	int slash = d->resource.filePath().lastIndexOf(QLatin1Char('/'));
 	if (slash == -1)
-	    return d->resource.fileName();
-	return d->resource.fileName().mid(slash + 1);
+	    return d->resource.filePath();
+	return d->resource.filePath().mid(slash + 1);
     } else if(file == PathName || file == AbsolutePathName) {
-	const int slash = d->resource.fileName().lastIndexOf(QLatin1Char('/'));
+	const int slash = d->resource.filePath().lastIndexOf(QLatin1Char('/'));
 	if (slash != -1)
-	    return d->resource.fileName().left(slash);
+	    return d->resource.filePath().left(slash);
     } else if(file == CanonicalName || file == CanonicalPathName) {
-        const QString canonicalPath = d->resource.searchFileName();
+        const QString canonicalFilePath = d->resource.canonicalFilePath();
         if(file == CanonicalPathName) {
-            const int slash = canonicalPath.lastIndexOf(QLatin1Char('/'));
+            const int slash = canonicalFilePath.lastIndexOf(QLatin1Char('/'));
             if (slash != -1)
-                return canonicalPath.left(slash);
+                return canonicalFilePath.left(slash);
         }
-        return canonicalPath;
+        return canonicalFilePath;
     }
-    return d->resource.fileName();
+    return d->resource.filePath();
 }
 
 bool QResourceFileEngine::isRelativePath() const
@@ -694,3 +1106,6 @@ static int qt_force_resource_init() { resource_file_handler(); return 1; }
 Q_CORE_EXPORT void qInitResourceIO() { resource_file_handler(); }
 static int qt_forced_resource_init = qt_force_resource_init();
 Q_CONSTRUCTOR_FUNCTION(qt_force_resource_init)
+
+
+

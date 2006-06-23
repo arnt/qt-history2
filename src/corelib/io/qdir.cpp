@@ -22,6 +22,9 @@
 #include "qstring.h"
 #include "qregexp.h"
 #include "qvector.h"
+#ifdef QT_BUILD_CORE_LIB
+# include "qresource.h"
+#endif
 
 #include <stdlib.h>
 
@@ -874,14 +877,13 @@ void QDir::setNameFilters(const QStringList &nameFilters)
     that are not specified with an absolute path. The default search
     path is to search only in the root (\c{:/}).
 
-    \sa {The Qt Resource System}
+    \sa {The Qt Resource System}, QResource::addSearchPath()
 */
 
 void QDir::addResourceSearchPath(const QString &path)
 {
 #ifdef QT_BUILD_CORE_LIB
-    extern bool qt_resource_add_search_path(const QString &);
-    qt_resource_add_search_path(path);
+    QResource::addSearchPath(path);
 #else
     Q_UNUSED(path)
 #endif

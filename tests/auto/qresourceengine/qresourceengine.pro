@@ -3,7 +3,14 @@
 ######################################################################
 
 load(qttest_p4)
+load(resources)
 
 # Input
 SOURCES += tst_resourceengine.cpp
 RESOURCES += testqrc/test.qrc 
+
+runtime_resource.target = runtime_resource.rcc 
+runtime_resource.depends = testqrc/test.qrc
+runtime_resource.commands = $$QMAKE_RCC -root /runtime_resource/ -binary $${runtime_resource.depends} -o $${runtime_resource.target}
+QMAKE_EXTRA_TARGETS = runtime_resource
+ALL_DEPS += $${runtime_resource.target}
