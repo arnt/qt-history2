@@ -88,6 +88,7 @@ private:
     void request_region(int winId, const QString &surfaceKey,
                         const QByteArray &surfaceData,
                         const QRegion &region);
+    void update_regions();
 #else
     void request_region(int winId, QWSMemId memId,
                         int windowtype, QRegion, QImage::Format, QWSWindow* = 0);

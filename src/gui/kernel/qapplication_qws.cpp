@@ -3314,16 +3314,12 @@ bool QETWidget::translateRegionEvent(const QWSRegionEvent *event)
 
     QWidgetBackingStore *bs = d->topData()->backingStore;
     QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
-    if (surface->isBuffered())
-        return true;
 
     QRegion r;
     r.setRects(event->rectangles, event->simpleData.nrectangles);
     r.translate(-win->geometry().topLeft());
 
-    QRegion expose = r - surface->clipRegion();
     surface->setClipRegion(r);
-    surface->setDirty(expose); // XXX: make sure this posts an update request
 
     return true;
 }

@@ -75,7 +75,7 @@ public:
     const QString &caption() const { return rgnCaption; }
     QWSClient* client() const { return c; }
     const QRegion &requestedRegion() const { return requested_region; }
-//    QRegion allocatedRegion() const { return allocated_region; }
+    QRegion allocatedRegion() const { return allocated_region; }
     bool isVisible() const { return !requested_region.isEmpty(); }
 //    bool isPartiallyObscured() const { return requested_region!=allocated_region; }
     bool isFullyObscured() const { return false; /* ### allocated_region.isEmpty();*/ }
@@ -115,7 +115,7 @@ private:
     bool onTop;
     QWSClient* c;
     QRegion requested_region;
-//    QRegion allocated_region;
+    QRegion allocated_region;
     QRegion exposed;
     int last_focus_time;
 #ifdef QT_WINDOW_SURFACE

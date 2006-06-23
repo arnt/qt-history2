@@ -2722,12 +2722,37 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
     emit q->windowEvent(changingw, QWSServer::Lower);
 }
 
+void QWSServerPrivate::update_regions()
+{
+    QRegion available = QRect(0, 0, qt_screen->width(), qt_screen->height());
+
+    // XXX (try?)grab display lock
+
+    for (int i = 0; i < windows.count(); ++i) {
+        QWSWindow *w = windows.at(i);
+        const QRegion r = (w->requested_region & available);
+
+        available -= r;
+        if (r == w->allocated_region)
+            continue;
+
+        w->allocated_region = r;
+        w->client()->sendRegionEvent(w->winId(), w->allocated_region,
+                                     QWSRegionEvent::Allocation);
+    }
+
+    // XXX ungrab display lock
+}
+
 void QWSServerPrivate::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 {
-    if (!changingw) return;
+    if (!changingw)
+        return;
 
-    QRegion oldRegion(changingw->requested_region);
+    const QRegion oldRegion(changingw->requested_region);
     changingw->requested_region.translate(dx, dy);
+
+    update_regions();
 
     int idx = windows.indexOf(changingw);
     exposeRegion(oldRegion + changingw->requested_region, idx);
@@ -2748,6 +2773,8 @@ void QWSServerPrivate::setWindowRegion(QWSWindow* changingw, QRegion r)
         return;
     QRegion oldRegion(changingw->requested_region);
     changingw->requested_region = r;
+
+    update_regions();
 
     int idx = windows.indexOf(changingw);
     exposeRegion(oldRegion - changingw->requested_region, idx);

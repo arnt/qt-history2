@@ -49,6 +49,9 @@ public:
 
     virtual QPoint painterOffset() const;
 
+    virtual void beginPaint(const QRegion &) {}
+    virtual void endPaint(const QRegion &) {}
+
     virtual const QString key() const = 0;
     virtual const QByteArray data() const = 0;
 

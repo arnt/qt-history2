@@ -543,9 +543,8 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
     surface->setDirty(wrgn);
 #else
     wbs->dirty_on_screen += wrgn;
-#endif
-
     QApplication::postEvent(tlw, new QEvent(QEvent::UpdateRequest));
+#endif
 }
 
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)

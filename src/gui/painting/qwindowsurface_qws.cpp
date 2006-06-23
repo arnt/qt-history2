@@ -19,6 +19,7 @@
 #include <qwsdisplay_qws.h>
 #include <qdatastream.h>
 #include <qrgb.h>
+#include <qpaintengine.h>
 #include <private/qapplication_p.h>
 #include <private/qwsdisplay_qws_p.h>
 #include <private/qwidget_p.h>
@@ -42,6 +43,7 @@ public:
     QWSWindowSurface::SurfaceFlags flags;
     QRegion dirty;
     QRegion clip;
+    QRegion clippedDirty; // dirty, but currently outside the clip region
 };
 
 QWSWindowSurface::QWSWindowSurface()
@@ -80,7 +82,18 @@ const QRegion QWSWindowSurface::dirtyRegion() const
 
 void QWSWindowSurface::setDirty(const QRegion &dirty) const
 {
-    d_ptr->dirty += dirty;
+    if (dirty.isEmpty())
+        return;
+
+    QRegion unclipped = dirty;
+    if (!d_ptr->clip.isEmpty()) {
+        d_ptr->clippedDirty += (dirty - d_ptr->clip);
+        unclipped &= d_ptr->clip;
+    }
+    d_ptr->dirty += unclipped;
+
+    if (window() && !unclipped.isEmpty())
+        QApplication::postEvent(window(), new QEvent(QEvent::UpdateRequest));
 }
 
 const QRegion QWSWindowSurface::clipRegion() const
@@ -90,7 +103,26 @@ const QRegion QWSWindowSurface::clipRegion() const
 
 void QWSWindowSurface::setClipRegion(const QRegion &clip)
 {
+    if (clip == d_ptr->clip)
+        return;
+
+    QPaintDevice *pdevice = paintDevice();
+    if (pdevice) {
+        QPaintEngine *pengine = pdevice->paintEngine();
+        if (pengine) {
+            pengine->setSystemClip(clip.translated(painterOffset()));
+        }
+    }
+
+    QRegion expose = (clip - d_ptr->clip);
     d_ptr->clip = clip;
+
+    if (isBuffered()) {
+        expose &= d_ptr->clippedDirty;
+        d_ptr->clippedDirty -= expose;
+    }
+    if (!expose.isEmpty())
+        setDirty(expose);
 }
 
 QWSWindowSurface::SurfaceFlags QWSWindowSurface::surfaceFlags() const
@@ -345,13 +377,15 @@ void QWSMemorySurface::scroll(const QRegion &area, int dx, int dy)
     unlock(memlock);
 }
 
-void QWSMemorySurface::beginPaint(const QRegion &)
+void QWSMemorySurface::beginPaint(const QRegion &region)
 {
     lock(memlock);
+    QWSWindowSurface::beginPaint(region);
 }
 
-void QWSMemorySurface::endPaint(const QRegion &)
+void QWSMemorySurface::endPaint(const QRegion &region)
 {
+    QWSWindowSurface::endPaint(region);
     unlock(memlock);
 }
 
