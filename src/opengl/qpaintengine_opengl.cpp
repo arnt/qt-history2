@@ -1665,10 +1665,9 @@ QOpenGLPaintEngine::handle() const
     return 0;
 }
 
-const int glyph_tex_width = 1024;
-const int glyph_tex_height = 64;
 static const int x_margin = 1;
 static const int y_margin = 0;
+extern int nearest_gl_texture_size(int v);
 
 struct QGLGlyphCoord {
     // stores the offset and size of a glyph texture
@@ -1676,6 +1675,8 @@ struct QGLGlyphCoord {
     qreal y;
     qreal width;
     qreal height;
+    qreal log_width;
+    qreal log_height;
     QFixed x_offset;
     QFixed y_offset;
 };
@@ -1684,6 +1685,8 @@ struct QGLFontTexture {
     int x_offset; // glyph offset within the
     int y_offset;
     GLuint texture;
+    int width;
+    int height;
 };
 
 typedef QHash<glyph_t, QGLGlyphCoord*>  QGLGlyphHash;
@@ -1820,20 +1823,28 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
     if (it == qt_font_textures.constEnd()) {
         GLuint font_texture;
         glGenTextures(1, &font_texture);
-        uchar *tex_data = (uchar *) malloc(glyph_tex_width*glyph_tex_height*2);
-        memset(tex_data, 0, glyph_tex_width*glyph_tex_height*2);
+        int tex_height = nearest_gl_texture_size(qRound(ti.ascent.toReal() + ti.descent.toReal())+2);
+        int tex_width = nearest_gl_texture_size(tex_height*30); // ###
+        if (tex_width > 2048)
+            tex_width = 2048;
+
+        uchar *tex_data = (uchar *) malloc(tex_width*tex_height*2);
+        memset(tex_data, 0, tex_width*tex_height*2);
         glBindTexture(GL_TEXTURE_2D, font_texture);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8_ALPHA8,
-                     glyph_tex_width, glyph_tex_height, 0,
+                     tex_width, tex_height, 0,
                      GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
         free(tex_data);
         font_tex = new QGLFontTexture;
         font_tex->texture = font_texture;
         font_tex->x_offset = x_margin;
         font_tex->y_offset = y_margin;
-//         qDebug() << "new font tex: " << hex << font_key << font_tex->texture;
+        font_tex->width = tex_width;
+        font_tex->height = tex_height;
+//         qDebug() << "new font tex - width:" << tex_width << "height:"<< tex_height
+//                  << hex << "tex id:" << font_tex->texture << "key:" << font_key;
         qt_font_textures.insert(font_key, font_tex);
     } else {
         font_tex = it.value();
@@ -1848,17 +1859,19 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
             int glyph_width = qRound(metrics.width.toReal())+2;
             int glyph_height = qRound(ti.ascent.toReal() + ti.descent.toReal())+2;
 
-            if (font_tex->x_offset + glyph_width + x_margin > glyph_tex_width) {
+            if (font_tex->x_offset + glyph_width + x_margin > font_tex->width) {
                 font_tex->x_offset = x_margin;
                 font_tex->y_offset += glyph_height + y_margin;
             }
 
             const int scale = 1;
             QGLGlyphCoord *qgl_glyph = new QGLGlyphCoord;
-            qgl_glyph->x = float(font_tex->x_offset) / glyph_tex_width;
-            qgl_glyph->y = float(font_tex->y_offset) / glyph_tex_height;
-            qgl_glyph->width = float(glyph_width/scale) / glyph_tex_width;
-            qgl_glyph->height = float(glyph_height/scale) / glyph_tex_height;
+            qgl_glyph->x = float(font_tex->x_offset) / font_tex->width;
+            qgl_glyph->y = float(font_tex->y_offset) / font_tex->height;
+            qgl_glyph->width = float(glyph_width/scale) / font_tex->width;
+            qgl_glyph->height = float(glyph_height/scale) / font_tex->height;
+            qgl_glyph->log_width = qgl_glyph->width * font_tex->width;
+            qgl_glyph->log_height = qgl_glyph->height * font_tex->height;
             qgl_glyph->x_offset = -metrics.x;
             qgl_glyph->y_offset = metrics.y;
 
@@ -1887,7 +1900,7 @@ void QGLGlyphCache::cacheGlyphs(QGLContext *context, const QTextItemInt &ti,
                             GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, tex_data);
             free(tex_data);
 
-            if (font_tex->x_offset + glyph_width + x_margin > glyph_tex_width) {
+            if (font_tex->x_offset + glyph_width + x_margin > font_tex->width) {
                 font_tex->x_offset = x_margin;
                 font_tex->y_offset += glyph_height + y_margin;
             } else {
@@ -1930,7 +1943,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     // make sure the glyphs we want to draw are in the cache
     qt_glyph_cache()->cacheGlyphs(d->drawable.context(), ti, glyphs);
 
-    d->setGradientOps(d->pen_brush_style); // ## gradients
+    d->setGradientOps(Qt::SolidPattern); // turns off gradient ops
     glColor4ubv(d->pen_color);
     glEnable(GL_TEXTURE_2D);
 
@@ -1949,8 +1962,7 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             QPointF logical_pos((positions[i].x - g->x_offset).toReal(),
                                 (positions[i].y + g->y_offset).toReal());
 
-            QRectF r(logical_pos, QSizeF(g->width*glyph_tex_width,
-                                         g->height*glyph_tex_height));
+            QRectF r(logical_pos, QSizeF(g->log_width, g->log_height));
             glTexCoord2d(x1, y1);
             glVertex2d(r.x(), r.y());
 
