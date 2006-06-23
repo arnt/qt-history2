@@ -466,12 +466,11 @@ QString QDBusArgument::currentSignature() const
     Extracts one D-BUS primitive argument of type \c{BYTE} from the
     D-BUS stream.
 */
-uchar QDBusArgument::toByte() const
+const QDBusArgument &QDBusArgument::operator>>(uchar &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toByte();
-
-    return 0;
+        arg = d->demarshaller()->toByte();
+    return *this;
 }
 
 /*!
@@ -479,11 +478,11 @@ uchar QDBusArgument::toByte() const
     Extracts one D-BUS primitive argument of type \c{BOOLEAN} from the
     D-BUS stream.
 */
-bool QDBusArgument::toBool() const
+const QDBusArgument &QDBusArgument::operator>>(bool &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toBool();
-    return false;
+        arg = d->demarshaller()->toBool();
+    return *this;
 }
 
 /*!
@@ -491,12 +490,11 @@ bool QDBusArgument::toBool() const
     Extracts one D-BUS primitive argument of type \c{UINT16} from the
     D-BUS stream.
 */
-ushort QDBusArgument::toUShort() const
+const QDBusArgument &QDBusArgument::operator>>(ushort &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toUShort();
-
-    return 0;
+        arg = d->demarshaller()->toUShort();
+    return *this;
 }
 
 /*!
@@ -504,12 +502,11 @@ ushort QDBusArgument::toUShort() const
     Extracts one D-BUS primitive argument of type \c{INT16} from the
     D-BUS stream.
 */
-short QDBusArgument::toShort() const
+const QDBusArgument &QDBusArgument::operator>>(short &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toShort();
-
-    return 0;
+        arg = d->demarshaller()->toShort();
+    return *this;
 }
 
 /*!
@@ -517,12 +514,11 @@ short QDBusArgument::toShort() const
     Extracts one D-BUS primitive argument of type \c{INT32} from the
     D-BUS stream.
 */
-int QDBusArgument::toInt() const
+const QDBusArgument &QDBusArgument::operator>>(int &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toInt();
-
-    return 0;
+        arg = d->demarshaller()->toInt();
+    return *this;
 }
 
 /*!
@@ -530,13 +526,11 @@ int QDBusArgument::toInt() const
     Extracts one D-BUS primitive argument of type \c{UINT32} from the
     D-BUS stream.
 */
-uint QDBusArgument::toUInt() const
+const QDBusArgument &QDBusArgument::operator>>(uint &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toUInt();
-
-
-    return 0;
+        arg = d->demarshaller()->toUInt();
+    return *this;
 }
 
 /*!
@@ -544,13 +538,11 @@ uint QDBusArgument::toUInt() const
     Extracts one D-BUS primitive argument of type \c{INT64} from the
     D-BUS stream.
 */
-qlonglong QDBusArgument::toLongLong() const
+const QDBusArgument &QDBusArgument::operator>>(qlonglong &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toLongLong();
-
-
-    return 0;
+        arg = d->demarshaller()->toLongLong();
+    return *this;
 }
 
 /*!
@@ -558,13 +550,11 @@ qlonglong QDBusArgument::toLongLong() const
     Extracts one D-BUS primitive argument of type \c{UINT64} from the
     D-BUS stream.
 */
-qulonglong QDBusArgument::toULongLong() const
+const QDBusArgument &QDBusArgument::operator>>(qulonglong &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toULongLong();
-
-
-    return 0;
+        arg = d->demarshaller()->toULongLong();
+    return *this;
 }
 
 /*!
@@ -572,13 +562,11 @@ qulonglong QDBusArgument::toULongLong() const
     Extracts one D-BUS primitive argument of type \c{DOUBLE}
     (double-precision floating pount) from the D-BUS stream.
 */
-double QDBusArgument::toDouble() const
+const QDBusArgument &QDBusArgument::operator>>(double &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toDouble();
-
-
-    return 0;
+        arg = d->demarshaller()->toDouble();
+    return *this;
 }
 
 /*!
@@ -586,13 +574,11 @@ double QDBusArgument::toDouble() const
     Extracts one D-BUS primitive argument of type \c{STRING} (Unicode
     character string) from the D-BUS stream.
 */
-QString QDBusArgument::toString() const
+const QDBusArgument &QDBusArgument::operator>>(QString &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toString();
-
-
-    return QString();
+        arg = d->demarshaller()->toString();
+    return *this;
 }
 
 /*!
@@ -601,12 +587,11 @@ QString QDBusArgument::toString() const
     Extracts one D-BUS primitive argument of type \c{OBJECT_PATH}
     (D-BUS path to an object) from the D-BUS stream.
 */
-QDBusObjectPath QDBusArgument::toObjectPath() const
+const QDBusArgument &QDBusArgument::operator>>(QDBusObjectPath &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toObjectPath();
-
-    return QDBusObjectPath();
+        arg = d->demarshaller()->toObjectPath();
+    return *this;
 }
 
 /*!
@@ -615,12 +600,11 @@ QDBusObjectPath QDBusArgument::toObjectPath() const
     Extracts one D-BUS primitive argument of type \c{SIGNATURE} (D-BUS
     type signature) from the D-BUS stream.
 */
-QDBusSignature QDBusArgument::toSignature() const
+const QDBusArgument &QDBusArgument::operator>>(QDBusSignature &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toSignature();
-
-    return QDBusSignature();
+        arg = d->demarshaller()->toSignature();
+    return *this;
 }
 
 /*!
@@ -636,12 +620,11 @@ QDBusSignature QDBusArgument::toSignature() const
     another QDBusArgument. It is your responsibility to further
     demarshall it into another type.
 */
-QDBusVariant QDBusArgument::toVariant() const
+const QDBusArgument &QDBusArgument::operator>>(QDBusVariant &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toVariant();
-
-    return QDBusVariant();
+        arg = d->demarshaller()->toVariant();
+    return *this;
 }
 
 /*!
@@ -655,12 +638,11 @@ QDBusVariant QDBusArgument::toVariant() const
 
     Other arrays are supported through compound types in QtDBus.
 */    
-QStringList QDBusArgument::toStringList() const
+const QDBusArgument &QDBusArgument::operator>>(QStringList &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toStringList();
-
-    return QStringList();
+        arg = d->demarshaller()->toStringList();
+    return *this;
 }
 
 /*!
@@ -674,12 +656,11 @@ QStringList QDBusArgument::toStringList() const
 
     Other arrays are supported through compound types in QtDBus.
 */    
-QByteArray QDBusArgument::toByteArray() const
+const QDBusArgument &QDBusArgument::operator>>(QByteArray &arg) const
 {
     if (d && d->checkRead())
-        return d->demarshaller()->toByteArray();
-
-    return QByteArray();
+        arg = d->demarshaller()->toByteArray();
+    return *this;
 }
 
 /*!

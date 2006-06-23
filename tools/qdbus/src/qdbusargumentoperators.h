@@ -21,53 +21,13 @@
 
 QT_BEGIN_HEADER
 
-inline const QDBusArgument &operator>>(const QDBusArgument &a, uchar &arg)
-{ arg = a.toByte(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, bool &arg)
-{ arg = a.toBool(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, ushort &arg)
-{ arg = a.toUShort(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, short &arg)
-{ arg = a.toShort(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, int &arg)
-{ arg = a.toInt(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, uint &arg)
-{ arg = a.toUInt(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, qlonglong &arg)
-{ arg = a.toLongLong(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, qulonglong &arg)
-{ arg = a.toULongLong(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, double &arg)
-{ arg = a.toDouble(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, QString &arg)
-{ arg = a.toString(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, QDBusObjectPath &arg)
-{ arg = a.toObjectPath(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, QDBusSignature &arg)
-{ arg = a.toSignature(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, QVariant &arg)
-{ arg = a.toVariant().value; return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, QDBusVariant &arg)
-{ arg = a.toVariant(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, QStringList &arg)
-{ arg = a.toStringList(); return a; }
-
-inline const QDBusArgument &operator>>(const QDBusArgument &a, QByteArray &arg)
-{ arg = a.toByteArray(); return a; }
+inline const QDBusArgument &operator>>(const QDBusArgument &a, QVariant &v)
+{
+    QDBusVariant dbv;
+    a >> dbv;
+    v = dbv.value;
+    return a;
+}
 
 // QVariant types
 #ifndef QDBUS_NO_SPECIALTYPES

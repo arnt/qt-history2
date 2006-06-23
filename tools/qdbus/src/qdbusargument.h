@@ -63,21 +63,21 @@ public:
     // used for de-marshalling (D-BUS -> Qt)
     QString currentSignature() const;
 
-    uchar toByte() const;
-    bool toBool() const;
-    ushort toUShort() const;
-    short toShort() const;
-    int toInt() const;
-    uint toUInt() const;
-    qlonglong toLongLong() const;
-    qulonglong toULongLong() const;
-    double toDouble() const;
-    QString toString() const;
-    QDBusObjectPath toObjectPath() const;
-    QDBusSignature toSignature() const;
-    QDBusVariant toVariant() const;
-    QStringList toStringList() const;
-    QByteArray toByteArray() const;
+    const QDBusArgument &operator>>(uchar &arg) const;
+    const QDBusArgument &operator>>(bool &arg) const;
+    const QDBusArgument &operator>>(short &arg) const;
+    const QDBusArgument &operator>>(ushort &arg) const;
+    const QDBusArgument &operator>>(int &arg) const;
+    const QDBusArgument &operator>>(uint &arg) const;
+    const QDBusArgument &operator>>(qlonglong &arg) const;
+    const QDBusArgument &operator>>(qulonglong &arg) const;
+    const QDBusArgument &operator>>(double &arg) const;
+    const QDBusArgument &operator>>(QString &arg) const;
+    const QDBusArgument &operator>>(QDBusVariant &arg) const;
+    const QDBusArgument &operator>>(QDBusObjectPath &arg) const;
+    const QDBusArgument &operator>>(QDBusSignature &arg) const;
+    const QDBusArgument &operator>>(QStringList &arg) const;
+    const QDBusArgument &operator>>(QByteArray &arg) const;
 
     QDBusArgument structure() const;
     QDBusArgument array() const;
