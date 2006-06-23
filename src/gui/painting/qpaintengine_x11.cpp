@@ -1775,23 +1775,10 @@ void QX11PaintEngine::drawImage(const QRectF &r, const QImage &image, const QRec
         int w = qRound(r.width());
         int h = qRound(r.height());
         XImage *xi;
-
-        if (r.size() == image.size()) {
-            // fast path - draw it all
-            xi = XCreateImage(d->dpy, (Visual *) d->xinfo->visual(), d->pdev_depth, ZPixmap,
-                              0, (char *) image.bits(), w, h, 32, image.bytesPerLine());
-            XPutImage(d->dpy, d->hd, d->gc, xi, sx, sy, x, y, w, h);
-            xi->data = 0; // QImage owns these bits
-        } else {
-            // cut out the bit we need and draw that
-            uint *data = (uint *) malloc(sizeof(uint)*w*h); // free'ed by XDestroyImage() farther down
-            for (int src_y=sy; src_y<sy+h; ++src_y)
-                memcpy(data + (src_y-sy)*w, image.scanLine(src_y) + sx*sizeof(uint), w*sizeof(uint));
-
-            xi = XCreateImage(d->dpy, (Visual *) d->xinfo->visual(), d->pdev_depth, ZPixmap,
-                              0, (char *) data, w, h, 32, sizeof(uint)*w);
-            XPutImage(d->dpy, d->hd, d->gc, xi, 0, 0, x, y, w, h);
-        }
+        xi = XCreateImage(d->dpy, (Visual *) d->xinfo->visual(), d->pdev_depth, ZPixmap,
+                          0, (char *) image.scanLine(sy)+sx*sizeof(uint), w, h, 32, image.bytesPerLine());
+        XPutImage(d->dpy, d->hd, d->gc, xi, 0, 0, x, y, w, h);
+        xi->data = 0; // QImage owns these bits
         XDestroyImage(xi);
     } else {
         QPaintEngine::drawImage(r, image, sr, flags);
