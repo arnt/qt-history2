@@ -24,7 +24,7 @@ class QDBusAbstractInterfacePrivate;
 class QDBusInterface;
 class QDBusError;
 class QDBusMessage;
-class QDBusBusService;
+class QDBusConnectionInterface;
 class QObject;
 
 class QDBusConnectionPrivate;
@@ -85,7 +85,7 @@ public:
     QDBusInterface *findInterface(const QString& service, const QString& path,
                                   const QString& interface = QString());
 
-    QDBusBusService *busService() const;
+    QDBusConnectionInterface *interface() const;
 
     static QDBusConnection addConnection(BusType type, const QString &name);
     static QDBusConnection addConnection(const QString &address, const QString &name);

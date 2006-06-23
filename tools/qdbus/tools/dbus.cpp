@@ -281,38 +281,6 @@ bool splitInterfaceAndName(const QString &interfaceAndName, const char *type,
     return true;
 }
 
-void getProperty(const QString &service, const QString &path, const QString &interfaceAndName)
-{
-    QString property;
-    QString interface;
-    if (!splitInterfaceAndName(interfaceAndName, "Property", interface, property))
-        exit(1);
-    
-    QDBusInterfacePtr iface(*connection, service, path, interface);
-    QVariant reply = iface->property(property.toLatin1());
-    if (reply.isNull()) {
-        QDBusError error = iface->lastError();
-        fprintf(stderr, "Could not get property '%s' on interface '%s': %s (%s)\n",
-                qPrintable(property), qPrintable(interface), qPrintable(error.name()),
-                qPrintable(error.message()));
-        exit(1);
-    }
-
-    printf("%s\n", qPrintable(reply.toString()));
-}
-
-void setProperty(const QString &service, const QString &path, const QString &interfaceAndName,
-                 const QString &valueStr)
-{
-    QString property;
-    QString interface;
-    if (!splitInterfaceAndName(interfaceAndName, "Property", interface, property))
-        exit(1);
-
-    QDBusInterfacePtr iface(*connection, service, path, interface);
-    iface->setProperty(property.toLatin1(), valueStr);
-}
-
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
@@ -329,10 +297,10 @@ int main(int argc, char **argv)
                 qPrintable(connection->lastError().message()));
         return 1;
     }
-    QDBusBusService *bus = connection->busService();
+    QDBusConnectionInterface *bus = connection->interface();
 
     if (argc == 1) {
-        QStringList names = bus->ListNames();
+        QStringList names = bus->registeredServiceNames();
         foreach (QString name, names)
             printf("%s\n", qPrintable(name));
         exit(0);
@@ -343,7 +311,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Service '%s' is not a valid name.\n", qPrintable(service));
         exit(1);
     }
-    if (!bus->NameHasOwner(service)) {
+    if (!bus->isServiceRegistered(service)) {
         fprintf(stderr, "Service '%s' does not exist.\n", qPrintable(service));
         exit(1);
     }
@@ -383,15 +351,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    if (interface.isEmpty()) {
-        if (member.toLower() == QLatin1String("get") && argc == 5) {
-            getProperty(service, path, QLatin1String(argv[4]));
-            return 0;
-        } else if (member.toLower() == QLatin1String("set") && argc == 6) {
-            setProperty(service, path, QLatin1String(argv[4]), QLatin1String(argv[5]));
-            return 0;
-        }
-    }    
     placeCall(service, path, interface, member, argc - 4, argv + 4);
 }
 

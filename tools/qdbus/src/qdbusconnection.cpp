@@ -291,9 +291,10 @@ QDBusConnection QDBusConnection::addConnection(BusType type, const QString &name
                                     QLatin1String(DBUS_PATH_DBUS),
                                     DBUS_INTERFACE_DBUS);
     if (p) {
-        d->busService = new QDBusBusService(p);
+        d->busService = new QDBusConnectionInterface(p);
         d->busService->setParent(d); // auto-deletion
         d->ref.deref();              // busService has a increased the refcounting to us
+                                     // avoid cyclic refcounting
     }
 
     return retval;
@@ -327,7 +328,7 @@ QDBusConnection QDBusConnection::addConnection(const QString &address,
                                     QLatin1String(DBUS_PATH_DBUS),
                                     DBUS_INTERFACE_DBUS);
     if (p) {
-        d->busService = new QDBusBusService(p);
+        d->busService = new QDBusConnectionInterface(p);
         d->busService->setParent(d); // auto-deletion
         d->ref.deref();              // busService has a increased the refcounting to us
     }
@@ -648,11 +649,10 @@ QDBusInterface *QDBusConnection::findInterface(const QString& service, const QSt
 */
 
 /*!
-    Returns a QDBusBusService object that represents the D-Bus bus service on this connection.
-
-    This function returns 0 for peer-to-peer connections.
+    Returns a QDBusConnectionInterface object that represents the
+    D-BUS server interface on this connection.
 */
-QDBusBusService *QDBusConnection::busService() const
+QDBusConnectionInterface *QDBusConnection::interface() const
 {
     if (!d)
         return 0;

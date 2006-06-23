@@ -51,7 +51,7 @@ class QMetaMethod;
 class QDBusInterfacePrivate;
 struct QDBusMetaObject;
 class QDBusAbstractInterface;
-class QDBusBusService;
+class QDBusConnectionInterface;
 
 class QDBusConnectionPrivate: public QObject
 {
@@ -183,7 +183,7 @@ public:
     ConnectionMode mode;
     DBusConnection *connection;
     DBusServer *server;
-    QDBusBusService *busService;
+    QDBusConnectionInterface *busService;
 
     WatcherHash watchers;
     TimeoutHash timeouts;

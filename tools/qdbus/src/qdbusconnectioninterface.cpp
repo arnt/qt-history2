@@ -20,19 +20,21 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
 
+#include <dbus/dbus.h>          // for the DBUS_* constants
+
 /*
- * Implementation of interface class QDBusBusService
+ * Implementation of interface class QDBusConnectionInterface
  */
 
 /*!
-    \class QDBusBusService
+    \class QDBusConnectionInterface
     \inmodule QtDBus
     \brief Provides access to the D-Bus bus daemon service.
 
     The D-BUS bus server daemon provides one special interface \c
     org.freedesktop.DBus that allows clients to access certain
     properties of the bus, such as the current list of clients
-    connected. The QDBusBusService class provides access to that
+    connected. The QDBusConnectionInterface class provides access to that
     interface.
 
     The most common uses of this class are to register and unregister
@@ -43,247 +45,260 @@
 */
 
 /*!
-    \enum QDBusBusService::RequestNameOption
+    \enum QDBusConnectionInterface::ServiceQueueOptions
 
-    Flags for requesting a name on the bus.
+    Flags for determining how a service registration should behave, in
+    case the service name is already registered.
 
-    \value QueueName            Attempts to register the requested name, but do not try to replace
-                                it if another application already has it registered. Instead, simply
-                                put this application in queue. This is the default.
-    \value AllowReplacingName   Allow another application requesting the same name to take the name
-                                from this application.
-    \value ReplaceExistingName  If another application already has the name and allows replacing,
-                                take the name and assign it to us.
-    \value DoNotQueueName       Without this flag, if an application requests a name that is already
-                                owned and does not allow replacing, it will be queued until the
-                                name is given up. If this flag is given, no queueing will be
-                                performed and the requestName() call will simply fail.
+    \value DontQueueService     If an application requests a name that
+                                is already owned, no queueing will be
+                                performed. The registeredService()
+                                call will simply fail.
+                                This is the default.
+
+    \value QueueService         Attempts to register the requested
+                                service, but do not try to replace it
+                                if another application already has it
+                                registered. Instead, simply put this
+                                application in queue, until it is
+                                given up. The serviceRegistered()
+                                signal will be emitted when that
+                                happens.
+
+    \value ReplaceExistingService If another application already has
+                                the service name registered, attempt
+                                to replace it.
+
+    \sa ServiceReplacementOptions
 */
 
 /*!
-    \enum QDBusBusService::RequestNameReply
+    \enum QDBusConnectionInterface::ServiceReplacementOptions
 
-    The possible return values from requestName():
+    Flags for determining if the D-BUS server should allow another
+    application to replace a name that this application has registered
+    with the ReplaceExistingService option.
 
-    \value PrimaryOwnerReply    The caller is now the primary owner of the name.
-    \value InQueueReply         The caller is in queue for the name, but does not own it.
-    \value NameExistsReply      The name exists and could not be replaced, or the caller did
-                                specify DoNotQueueName.
-    \value AlreadyOwnerReply    The caller tried to request a name that it already owns.
+    The possible values are:
+
+    \value DontAllowReplacement Do not allow another application to
+                                replace us. The service must be
+                                explicitly unregistered with
+                                unregisterService() for another
+                                application to acquire it.
+                                This is the default.
+
+    \value AllowReplacement     Allow other applications to replace us
+                                with the ReplaceExistingService option
+                                to registerService() without
+                                intervention. If that happens, the
+                                serviceUnregistered() signal will be
+                                emitted.
+
+    \sa ServiceQueueOptions
 */
 
 /*!
-    \enum QDBusBusService::ReleaseNameReply
+    \enum QDBusConnectionInterface::RegisterServiceReply
 
-    The possible return values from releaseName():
+    The possible return values from registerService():
 
-    \value NameReleasedReply    The caller released his claim on the name.
-    \value NameNonExistentReply The caller tried to release a name that did not exist.
-    \value NotOwnerReply        The caller tried to release a name that it did not own or was not in
-                                queue for.
-*/
+    \value ServiceNotRegistered The call failed and the service name was not registered.
+    \value ServiceRegistered    The caller is now the owner of the service name.
+    \value ServiceQueued        The caller specified the QueueService flag and the
+                                service was already registered, so we are in queue.
 
-/*!
-    \enum QDBusBusService::StartServiceReply
-
-    The possible return values from startServiceByName():
-
-    \value Success              The service was successfully started.
-    \value AlreadyRunning       The service was already running.
+    The serviceRegistered() signal will be emitted when the service is
+    acquired by this application.
 */
 
 /*!
     \internal
 */
-const char *QDBusBusService::staticInterfaceName()
+const char *QDBusConnectionInterface::staticInterfaceName()
 { return "org.freedesktop.DBus"; }
 
 
 /*!
     \internal
 */
-QDBusBusService::QDBusBusService(QDBusAbstractInterfacePrivate *p)
+QDBusConnectionInterface::QDBusConnectionInterface(QDBusAbstractInterfacePrivate *p)
     : QDBusAbstractInterface(p)
 {
-    connect(this, SIGNAL(NameAcquired(QString)), this, SIGNAL(nameAcquired(QString)));
-    connect(this, SIGNAL(NameLost(QString)), this, SIGNAL(nameLost(QString)));
+    connect(this, SIGNAL(NameAcquired(QString)), this, SIGNAL(serviceRegistered(QString)));
+    connect(this, SIGNAL(NameLost(QString)), this, SIGNAL(serviceUnregistered(QString)));
     connect(this, SIGNAL(NameOwnerChanged(QString,QString,QString)),
-            this, SIGNAL(nameOwnerChanged(QString,QString,QString)));
+            this, SIGNAL(serviceOwnerChanged(QString,QString,QString)));
 }
 
 /*!
     \internal
 */
-QDBusBusService::~QDBusBusService()
+QDBusConnectionInterface::~QDBusConnectionInterface()
 {
 }
 
 /*!
-    \fn QDBusBusService::hello()
-    \internal
-    Sends a "Hello" request to the bus service. You do not want to call this.
-*/
-QDBusReply<QString> QDBusBusService::Hello()
-{
-    return call(QLatin1String("Hello"));
-}
-
-/*!
-    \fn QDBusBusService::nameOwner(const QString &name)
     Returns the unique connection name of the primary owner of the name \a name. If the requested
     name doesn't have an owner, returns a org.freedesktop.DBus.Error.NameHasNoOwner error.
 */
-QDBusReply<QString> QDBusBusService::GetNameOwner(const QString &name)
+QDBusReply<QString> QDBusConnectionInterface::serviceOwner(const QString &name)
 {
-    return call(QLatin1String("GetNameOwner.s"), name);
+    return call(QLatin1String("GetNameOwner"), name);
 }
 
 /*!
-    \fn QDBusBusService::listNames()
-    Lists all names currently existing on the bus.
+    Lists all names currently registered on the bus.
 */
-QDBusReply<QStringList> QDBusBusService::ListNames()
+QDBusReply<QStringList> QDBusConnectionInterface::registeredServiceNames()
 {
     return call(QLatin1String("ListNames"));
 }
 
 /*!
-    \fn QDBusBusService::listQueuedOwners(const QString &serviceName)
-    Returns a list of all unique connection names in queue for the service name \a serviceName.
+    Returns true if the service name \a serviceName has is currently
+    registered.
 */
-QDBusReply<QStringList> QDBusBusService::ListQueuedOwners(const QString &serviceName)
+QDBusReply<bool> QDBusConnectionInterface::isServiceRegistered(const QString &serviceName)
 {
-    return call(QLatin1String("ListQueuedOwners.s"), serviceName);
+    return call(QLatin1String("NameHasOwner"), serviceName);
 }
 
 /*!
-    \fn QDBusBusService::nameHasOwner(const QString &serviceName)
-    Returns true if the service name \a serviceName has an owner.
+    Returns the Unix Process ID (PID) for the process currently
+    holding the bus service \a serviceName.
 */
-QDBusReply<bool> QDBusBusService::NameHasOwner(const QString &serviceName)
+QDBusReply<uint> QDBusConnectionInterface::servicePid(const QString &serviceName)
 {
-    return call(QLatin1String("NameHasOwner.s"), serviceName);
+    return call(QLatin1String("GetConnectionUnixProcessID"), serviceName);
 }
 
 /*!
-    \fn QDBusBusService::addMatch(const QString &rule)
-    Adds the rule \a rule for requesting messages from the bus.
-
-    \sa removeMatch()
+    Returns the Unix User ID (UID) for the process currently holding
+    the bus service \a serviceName.
 */
-QDBusReply<void> QDBusBusService::AddMatch(const QString &rule)
+QDBusReply<uint> QDBusConnectionInterface::serviceUid(const QString &serviceName)
 {
-    return call(QLatin1String("AddMatch.s"), rule);
+    return call(QLatin1String("GetConnectionUnixUser"), serviceName);
 }
 
 /*!
-    \fn QDBusBusService::removeMatch(const QString &rule)
-    Removes the rule \a rule, that had previously been added with addMatch().
-*/
-QDBusReply<void> QDBusBusService::RemoveMatch(const QString &rule)
-{
-    return call(QLatin1String("RemoveMatch.s"), rule);
-}
-
-/*!
-    \fn QDBusBusService::connectionSELinuxSecurityContext(const QString &serviceName)
-    Returns the SELinux security context of the process currently holding the bus service \a
-    serviceName.
-*/
-QDBusReply<QByteArray> QDBusBusService::GetConnectionSELinuxSecurityContext(const QString &serviceName)
-{
-    return call(QLatin1String("GetConnectionSELinuxSecurityContext.s"), serviceName);
-}
-
-/*!
-    \fn QDBusBusService::connectionUnixProcessID(const QString &serviceName)
-    Returns the Unix Process ID (PID) for the process currently holding the bus service \a serviceName.
-*/
-QDBusReply<uint> QDBusBusService::GetConnectionUnixProcessID(const QString &serviceName)
-{
-    return call(QLatin1String("GetConnectionUnixProcessID.s"), serviceName);
-}
-
-/*!
-    \fn QDBusBusService::connectionUnixUser(const QString &serviceName)
-    Returns the Unix User ID (UID) for the process currently holding the bus service \a serviceName.
-*/
-QDBusReply<uint> QDBusBusService::GetConnectionUnixUser(const QString &serviceName)
-{
-    return call(QLatin1String("GetConnectionUnixUser.s"), serviceName);
-}
-
-/*!
-    \fn QDBusBusService::reloadConfig()
-    Asks the D-Bus server daemon to reload its configuration.
-*/
-QDBusReply<void> QDBusBusService::ReloadConfig()
-{
-    return call(QLatin1String("ReloadConfig"));
-}
-
-/*!
-    \fn QDBusBusService::startServiceByName(const QString &name, uint flags)
     Requests that the bus start the service given by the name \a name.
-
-    The \a flags parameter is currently not used.
 */
-QDBusReply<QDBusBusService::StartServiceReply>
-QDBusBusService::StartServiceByName(const QString &name, uint flags)
+QDBusReply<void> QDBusConnectionInterface::startService(const QString &name)
 {
-    return call(QLatin1String("StartServiceByName.su"), name, flags);
+    return call(QLatin1String("StartServiceByName"), name, uint(0));
 }
 
 /*!
-    \fn QDBusBusService::requestName(const QString &serviceName, RequestNameOptions flags)
-    Requests the bus service name \a serviceName from the bus. The \a flags parameter specifies how the
-    bus server daemon should act when the same name is requested by two different applications.
+    Requests to register the service name \a serviceName on the
+    bus. The \a qoption flag specifies how the D-BUS server should behave
+    if \a serviceName is already registered. The \a roption flag
+    specifies if the server should allow another application to
+    replace our registered name.
 
-    \sa releaseName()
+    If the service registration succeeds, the serviceRegistered()
+    signal will be emitted. If we are placed in queue, the signal will
+    be emitted when we obtain the name. If \a roption is
+    AllowReplacement, the serviceUnregistered() signal will be emitted
+    if another application replaces this one.
+
+    \sa unregisterService()
 */
-QDBusReply<QDBusBusService::RequestNameReply>
-QDBusBusService::RequestName(const QString &serviceName, RequestNameOptions flags)
+QDBusReply<QDBusConnectionInterface::RegisterServiceReply>
+QDBusConnectionInterface::registerService(const QString &serviceName,
+                                          ServiceQueueOptions qoption,
+                                          ServiceReplacementOptions roption)
 {
-    return call(QLatin1String("RequestName.su"), serviceName, uint(int(flags)));
+    // reconstruct the low-level flags
+    uint flags;
+    switch (qoption) {
+    case DontQueueService:
+        flags = DBUS_NAME_FLAG_DO_NOT_QUEUE;
+        break;
+    case QueueService:
+        flags = 0;
+        break;
+    case ReplaceExistingService:
+        flags = DBUS_NAME_FLAG_REPLACE_EXISTING;
+        break;
+    }
+
+    switch (roption) {
+    case DontAllowReplacement:
+        break;
+    case AllowReplacement:
+        flags |= DBUS_NAME_FLAG_ALLOW_REPLACEMENT;
+        break;
+    }
+
+    QDBusMessage reply = call(QLatin1String("RequestName"), serviceName, flags);
+
+    // convert the low-level flags to something that we can use
+    if (reply.type() == QDBusMessage::ReplyMessage) {
+        QVariant &code = reply[0];
+        switch (code.toUInt()) {
+        case DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER:
+        case DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER:
+            code = uint(ServiceRegistered);
+            break;
+
+        case DBUS_REQUEST_NAME_REPLY_EXISTS:
+            code = uint(ServiceNotRegistered);
+            break;
+
+        case DBUS_REQUEST_NAME_REPLY_IN_QUEUE:
+            code = uint(ServiceQueued);
+            break;
+        }
+    }
+
+    return reply;
 }
 
 /*!
-    \fn QDBusBusService::releaseName(const QString &serviceName)
-    Releases the claim on the bus service name \a serviceName, that had been previously requested with
-    requestName(). If this application had ownership of the name, it will be released for other
-    applications to claim. If it only had the name queued, it gives up its position in the queue.
+    Releases the claim on the bus service name \a serviceName, that
+    had been previously registered with registerService(). If this
+    application had ownership of the name, it will be released for
+    other applications to claim. If it only had the name queued, it
+    gives up its position in the queue.
 */
-QDBusReply<QDBusBusService::ReleaseNameReply>
-QDBusBusService::ReleaseName(const QString &serviceName)
+QDBusReply<bool>
+QDBusConnectionInterface::unregisterService(const QString &serviceName)
 {
-    return call(QLatin1String("ReleaseName.s"), serviceName);
+    QDBusMessage reply = call(QLatin1String("ReleaseName"), serviceName);
+    if (reply.type() == QDBusMessage::ReplyMessage) {
+        QVariant &code = reply[0];
+        code = code.toUInt() == DBUS_RELEASE_NAME_REPLY_RELEASED;
+    }
+    return reply;
 }
 
 // signals
 /*!
-    \fn QDBusBusService::nameAcquired(const QString &serviceName)
+    \fn QDBusConnectionInterface::serviceRegistered(const QString &serviceName)
 
-    This signal is emitted by the D-Bus bus server when the bus service name (unique connection name
+    This signal is emitted by the D-BUS server when the bus service name (unique connection name
     or well-known service name) given by \a serviceName is acquired by this application.
 
-    Name acquisition happens after the application requested a name using requestName().
+    Acquisition happens after the application requested a name using registerService().
 */
 
 /*!
-    \fn QDBusBusService::nameLost(const QString &serviceName)
+    \fn QDBusConnectionInterface::serviceUnregistered(const QString &serviceName)
 
-    This signal is emitted by the D-Bus bus server when the application loses ownership of the bus
+    This signal is emitted by the D-BUS server when the application loses ownership of the bus
     service name given by \a serviceName.
 */
 
 /*!
-    \fn QDBusBusService::nameOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner)
+    \fn QDBusConnectionInterface::serviceOwnerChanged(const QString &name, const QString &oldOwner, const QString &newOwner)
 
-    This signal is emitted by the D-Bus bus server whenever a name ownership change happens in the
+    This signal is emitted by the D-BUS server whenever a service ownership change happens in the
     bus, including apparition and disparition of names.
 
     This signal means the application \a oldOwner lost ownership of bus name \a name to application
     \a newOwner. If \a oldOwner is an empty string, it means the name \a name has just been created;
-    if \a newOwner is empty, the name \a name has no current owner.
+    if \a newOwner is empty, the name \a name has no current owner and is no longer available.
 */
 
