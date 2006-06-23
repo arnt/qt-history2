@@ -18,10 +18,11 @@
 
 #include <QtCore/qvariant.h>
 #include <QtCore/qstring.h>
+#include <QtDBus/qdbusmacros.h>
 
 QT_BEGIN_HEADER
 
-struct QDBusObjectPath
+struct QDBUS_EXPORT QDBusObjectPath
 {
     inline QDBusObjectPath() { }
 
@@ -44,7 +45,7 @@ private:
 };
 Q_DECLARE_METATYPE(QDBusObjectPath)
 
-struct QDBusSignature
+struct QDBUS_EXPORT QDBusSignature
 {
     inline QDBusSignature() { }
 
