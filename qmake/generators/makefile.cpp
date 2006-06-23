@@ -2221,7 +2221,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             targets.append(st);
 
             bool fromFile = false;
-            QString file = Option::fixPathToTargetOS(subdirs[subdir]);
+            QString file = subdirs[subdir];
             if(!project->isEmpty(fixedSubdir + ".file")) {
                 if(!project->isEmpty(fixedSubdir + ".subdir"))
                     warn_msg(WarnLogic, "Cannot assign both file and subdir for subdir %s",
@@ -2234,6 +2234,8 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             } else {
                 fromFile = file.endsWith(Option::pro_ext);
             }
+	    file = Option::fixPathToTargetOS(file);
+
             if(fromFile) {
                 int slsh = file.lastIndexOf(Option::dir_sep);
                 if(slsh != -1) {
@@ -2286,7 +2288,6 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                     }
                     if(!found) {
                         QString depend_str = depends.at(depend);
-                        qDebug() << fixedSubdir << depend_str;
                         st->depends += depend_str.replace('/','_').replace('.', '_');
                     }
                 }
@@ -2296,6 +2297,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             } else {
                 st->target = "sub-" + file;
                 st->target.replace('/', '_');
+                st->target.replace('\\', '_');
                 st->target.replace('.', '_');
             }
         }
