@@ -20,6 +20,7 @@
 #include <QTranslator>
 #include <QSettings>
 #include <QSplashScreen>
+#include <QLibraryInfo>
 #include <QLocale>
 
 int main(int argc, char **argv)
