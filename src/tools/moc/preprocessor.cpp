@@ -154,19 +154,20 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
                 case QUOTE:
                     data = skipQuote(data);
                     token = STRING_LITERAL;
-                    if (!Preprocessor::preprocessOnly) {
-                        // concatenate multi-line strings for easier
-                        // STRING_LITERAAL handling in moc
-                        if (!symbols.isEmpty() && symbols.last().token == STRING_LITERAL) {
-                            QByteArray newString = symbols.last().unquotedLexem();
-                            newString += input.mid(lexem - begin + 1, data - lexem - 2);
-                            newString.prepend('\"');
-                            newString.append('\"');
-                            symbols.last() = Symbol(symbols.last().lineNum,
-                                                    STRING_LITERAL,
-                                                    newString);
-                            continue;
-                        }
+                    // concatenate multi-line strings for easier
+                    // STRING_LITERAAL handling in moc
+                    if (!Preprocessor::preprocessOnly
+                        && !symbols.isEmpty()
+                        && symbols.last().token == STRING_LITERAL) {
+
+                        QByteArray newString = symbols.last().unquotedLexem();
+                        newString += input.mid(lexem - begin + 1, data - lexem - 2);
+                        newString.prepend('\"');
+                        newString.append('\"');
+                        symbols.last() = Symbol(symbols.last().lineNum,
+                                                STRING_LITERAL,
+                                                newString);
+                        continue;
                     }
                     break;
                 case SINGLEQUOTE:
