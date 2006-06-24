@@ -270,11 +270,11 @@ int main( int argc, char ** argv )
         resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 
     QTranslator translator( 0 );
-    translator.load( QLatin1String("assistant_") + QLocale::system().name().toLower(), resourceDir );
+    translator.load( QLatin1String("assistant_") + QLocale::system().name(), resourceDir );
     a.installTranslator( &translator );
 
     QTranslator qtTranslator( 0 );
-    qtTranslator.load( QLatin1String("qt_") + QLocale::system().name().toLower(), resourceDir );
+    qtTranslator.load( QLatin1String("qt_") + QLocale::system().name(), resourceDir );
     a.installTranslator( &qtTranslator );
 
     Config *conf = Config::loadConfig( profileName );
