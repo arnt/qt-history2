@@ -7,6 +7,8 @@ exists(/usr/include/boost/spirit.hpp) {
     INCLUDEPATH += /usr/include
 }
 
+DEFINES += SRCDIR=\\\"$$PWD\\\"
+
 HEADERS += using-namespaces.h no-keywords.h task87883.h c-comments.h backslash-newlines.h oldstyle-casts.h \
            slots-with-void-template.h
 SOURCES += tst_moc.cpp

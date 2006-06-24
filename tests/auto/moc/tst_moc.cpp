@@ -273,6 +273,11 @@ public:
     inline PropertyTestClass::TestEnum foo() const { return PropertyTestClass::One; }
 };
 
+static QString srcify(const char *path)
+{
+    return QString(SRCDIR) + QLatin1Char('/') + QLatin1String(path);
+}
+
 class tst_Moc : public QObject
 {
     Q_OBJECT
@@ -355,7 +360,7 @@ void tst_Moc::oldStyleCasts()
     QVERIFY(!qgetenv("QTDIR").isNull());
 
     QProcess proc;
-    proc.start("moc", QStringList("oldstyle-casts.h"));
+    proc.start("moc", QStringList(srcify("/oldstyle-casts.h")));
     QVERIFY(proc.waitForFinished());
     QCOMPARE(proc.exitCode(), 0);
     QByteArray mocOut = proc.readAllStandardOutput();
@@ -384,15 +389,15 @@ void tst_Moc::warnOnExtraSignalSlotQualifiaction()
     QVERIFY(!qgetenv("QTDIR").isNull());
 
     QProcess proc;
-    proc.start("moc", QStringList("extraqualification.h"));
+    proc.start("moc", QStringList(srcify("extraqualification.h")));
     QVERIFY(proc.waitForFinished());
     QCOMPARE(proc.exitCode(), 0);
     QByteArray mocOut = proc.readAllStandardOutput();
     QVERIFY(!mocOut.isEmpty());
     QString mocWarning = QString::fromLocal8Bit(proc.readAllStandardError());
-    QCOMPARE(mocWarning, QString(""
-                "extraqualification.h:13: Warning: Function declaration Test::badFunctionDeclaration contains extra qualification. Ignoring as signal or slot.\n"
-                "extraqualification.h:16: Warning: parsemaybe: Function declaration Test::anotherOne contains extra qualification. Ignoring as signal or slot.\n"));
+    QCOMPARE(mocWarning, QString(SRCDIR) + 
+                QString("/extraqualification.h:13: Warning: Function declaration Test::badFunctionDeclaration contains extra qualification. Ignoring as signal or slot.\n") +
+                QString(SRCDIR) + QString("/extraqualification.h:16: Warning: parsemaybe: Function declaration Test::anotherOne contains extra qualification. Ignoring as signal or slot.\n"));
 #else
     QSKIP("Only tested on linux/gcc", SkipAll);
 #endif
@@ -427,7 +432,7 @@ void tst_Moc::inputFileNameWithDotsButNoExtension()
     QVERIFY(!qgetenv("QTDIR").isNull());
 
     QProcess proc;
-    proc.setWorkingDirectory(QDir::currentPath() + "/task71021");
+    proc.setWorkingDirectory(QString(SRCDIR) + "/task71021");
     proc.start("moc", QStringList("../Header"));
     QVERIFY(proc.waitForFinished());
     QCOMPARE(proc.exitCode(), 0);
