@@ -29,12 +29,13 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    QString lang = QLocale::system().name();
-    lang.chop(3); //remove country
     QTranslator translator(0);
-    translator.load(QString("linguist_") + lang, ".");
-
+    translator.load(QLatin1String("linguist_") + QLocale::system().name(), ".");
     app.installTranslator(&translator);
+
+    QTranslator qtTranslator(0);
+    qtTranslator.load(QLatin1String("qt_") + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
 
     app.setOrganizationName("Trolltech");
     app.setApplicationName("Linguist");
