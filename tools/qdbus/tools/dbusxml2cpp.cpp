@@ -610,13 +610,7 @@ static void writeProxy(const char *filename, const QDBusIntrospection::Interface
             else
                 hs << "        call(NoWaitForReply, QLatin1String(\"";
 
-            // rebuild the method input signature:
-            QString signature = QLatin1String(".");
-            foreach (const QDBusIntrospection::Argument &arg, method.inputArgs)
-                signature += arg.type;
-            if (signature.length() == 1)
-                signature.clear();
-            hs << method.name << signature << "\")";
+            hs << method.name << "\")";
 
             int argPos = 0;
             for (int i = 0; i < method.inputArgs.count(); ++i)
