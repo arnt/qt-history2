@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#ifndef __QRESOURCE_H__
-#define __QRESOURCE_H__
+#ifndef QRESOURCE_H
+#define QRESOURCE_H
 
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qlist.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
+#include <QtCore/qlist.h>
 
 QT_BEGIN_HEADER
 
@@ -59,4 +59,4 @@ private:
 
 QT_END_HEADER
 
-#endif /* __QRESOURCE_H__ */
+#endif // QRESOURCE_H
