@@ -1669,7 +1669,7 @@ void QSortFilterProxyModel::setSortCaseSensitivity(Qt::CaseSensitivity cs)
     Sets the regular expression used to filter the contents
     of the source model to \a pattern.
 
-    \sa setFilterCaseSensitivity(), setFilterWildcard(), setFilterFixedString()
+    \sa setFilterCaseSensitivity(), setFilterWildcard(), setFilterFixedString(), filterRegExp()
 */
 void QSortFilterProxyModel::setFilterRegExp(const QString &pattern)
 {
@@ -1683,7 +1683,7 @@ void QSortFilterProxyModel::setFilterRegExp(const QString &pattern)
     Sets the wildcard expression used to filter the contents
     of the source model to the given \a pattern.
 
-    \sa setFilterCaseSensitivity(), setFilterRegExp(), setFilterFixedString()
+    \sa setFilterCaseSensitivity(), setFilterRegExp(), setFilterFixedString(), filterRegExp()
 */
 void QSortFilterProxyModel::setFilterWildcard(const QString &pattern)
 {
@@ -1697,7 +1697,7 @@ void QSortFilterProxyModel::setFilterWildcard(const QString &pattern)
     Sets the fixed string used to filter the contents
     of the source model to the given \a pattern.
 
-    \sa setFilterCaseSensitivity(), setFilterRegExp(), setFilterWildcard()
+    \sa setFilterCaseSensitivity(), setFilterRegExp(), setFilterWildcard(), filterRegExp()
 */
 void QSortFilterProxyModel::setFilterFixedString(const QString &pattern)
 {
@@ -1773,6 +1773,8 @@ void QSortFilterProxyModel::setFilterRole(int role)
 
 /*!
     Clears this sorting filter model, removing all mapping.
+
+    \sa filterChanged()
 */
 void QSortFilterProxyModel::clear()
 {
@@ -1783,12 +1785,13 @@ void QSortFilterProxyModel::clear()
 }
 
 /*!
-  Updates the mapping// , to reflect the change in the filter.
+   \since 4.2
+   Updates the mapping// , to reflect the change in the filter.
 
    This function should be called if you are implementing
    custom filtering, and you filter parameters changed.
 
-   \since 4.2
+   \sa clear()
 */
 void QSortFilterProxyModel::filterChanged()
 {
