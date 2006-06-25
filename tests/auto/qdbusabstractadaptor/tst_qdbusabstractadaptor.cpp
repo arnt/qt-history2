@@ -40,6 +40,7 @@ class tst_QDBusAbstractAdaptor: public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase() { commonInit(); }
     void methodCalls_data();
     void methodCalls();
     void signalEmissions_data();
@@ -287,6 +288,9 @@ public:
     QStringList stringlistSpy;
     QByteArray bytearraySpy;
     QVariantMap mapSpy;
+    StringStringMap ssmapSpy;
+    LLDateTimeMap lldtmapSpy;
+    MyStruct structSpy;
 
 public slots:
     void methodBool(bool b)
@@ -349,6 +353,18 @@ public slots:
         stringSpy = s;
     }
 
+    void methodObjectPath(const QDBusObjectPath &op)
+    {
+        slotSpy = __PRETTY_FUNCTION__;
+        stringSpy = op.value;
+    }
+
+    void methodSignature(const QDBusSignature &s)
+    {
+        slotSpy = __PRETTY_FUNCTION__;
+        stringSpy = s.value;
+    }
+
     void methodVariant(const QDBusVariant &v)
     {
         slotSpy = __PRETTY_FUNCTION__;
@@ -377,6 +393,24 @@ public slots:
     {
         slotSpy = __PRETTY_FUNCTION__;
         mapSpy = m;
+    }
+
+    void methodSSMap(const StringStringMap &ssmap)
+    {
+        slotSpy = __PRETTY_FUNCTION__;
+        ssmapSpy = ssmap;
+    }
+
+    void methodLLDateTimeMap(const LLDateTimeMap &lldtmap)
+    {
+        slotSpy = __PRETTY_FUNCTION__;
+        lldtmapSpy = lldtmap;
+    }
+
+    void methodStruct(const MyStruct &s)
+    {
+        slotSpy = __PRETTY_FUNCTION__;
+        structSpy = s;
     }
     
     bool retrieveBool()
@@ -429,6 +463,16 @@ public slots:
         return stringSpy;
     }
 
+    QDBusObjectPath retrieveObjectPath()
+    {
+        return QDBusObjectPath(stringSpy);
+    }
+
+    QDBusSignature retrieveSignature()
+    {
+        return QDBusSignature(stringSpy);
+    }
+
     QDBusVariant retrieveVariant()
     {
         return QDBusVariant(variantSpy);
@@ -452,6 +496,21 @@ public slots:
     QVariantMap retrieveMap()
     {
         return mapSpy;
+    }
+
+    StringStringMap retrieveSSMap()
+    {
+        return ssmapSpy;
+    }
+
+    LLDateTimeMap retrieveLLDateTimeMap()
+    {
+        return lldtmapSpy;
+    }
+
+    MyStruct retrieveStruct()
+    {
+        return structSpy;
     }
 };
 
@@ -1068,6 +1127,22 @@ void tst_QDBusAbstractAdaptor::typeMatching_data()
     map["but Unix came and said"] = QByteArray("\"Hello, World\""); // bytearray
     map["two"] = qVariantFromValue(short(2)); // short
     QTest::newRow("map") << "Map" << "a{sv}" << QVariant(map);
+
+    StringStringMap ssmap;
+    ssmap["a"] = "A";
+    ssmap["A"] = "a";
+    QTest::newRow("ssmap") << "SSMap" << "a{ss}" << qVariantFromValue(ssmap);
+
+    LLDateTimeMap lldtmap;
+    lldtmap[-1] = QDateTime();
+    QDateTime now = QDateTime::currentDateTime();
+    lldtmap[now.toTime_t()] = now;
+    QTest::newRow("lldtmap") << "LLDateTimeMap" << "a{x((iii)(iiii)i)}" << qVariantFromValue(lldtmap);
+
+    MyStruct s;
+    s.i = 42;
+    s.s = "A value";
+    QTest::newRow("struct") << "Struct" << "(is)" << qVariantFromValue(s);
 }
 
 void tst_QDBusAbstractAdaptor::typeMatching()

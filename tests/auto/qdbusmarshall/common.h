@@ -35,6 +35,32 @@ Q_DECLARE_METATYPE(IntStringMap)
 Q_DECLARE_METATYPE(StringStringMap)
 Q_DECLARE_METATYPE(LLDateTimeMap)
 
+struct MyStruct
+{
+    int i;
+    QString s;
+
+    inline bool operator==(const MyStruct &other) const
+    { return i == other.i && s == other.s; }
+};
+QDBUS_DECLARE_METATYPE(MyStruct)
+
+QDBusArgument &operator<<(QDBusArgument &arg, const MyStruct &ms)
+{
+    arg.beginStructure();
+    arg << ms.i << ms.s;
+    arg.endStructure();
+    return arg;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &arg, MyStruct &ms)
+{
+    arg.beginStructure();
+    arg >> ms.i >> ms.s;
+    arg.endStructure();
+    return arg;
+}
+
 void commonInit()
 {
     qDBusRegisterMetaType<QList<QDateTime> >("QList<QDateTime>");
@@ -388,6 +414,9 @@ bool compareToArgument(const QDBusArgument &arg, const QVariant &v2)
             return compare<QList<QStringList> >(arg, v2);
         else if (id == qMetaTypeId<QList<QVariantList> >())
             return compare<QList<QVariantList> >(arg, v2);
+
+        else if (id == qMetaTypeId<MyStruct>())
+            return compare<MyStruct>(arg, v2);
     }
 
     qWarning() << "Unexpected QVariant type" << v2.userType()
