@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSIGNALDUMPER_H
-#define QSIGNALDUMPER_H
+#ifndef QSIGNALDUMPER_P_H
+#define QSIGNALDUMPER_P_H
 
 //
 //  W A R N I N G

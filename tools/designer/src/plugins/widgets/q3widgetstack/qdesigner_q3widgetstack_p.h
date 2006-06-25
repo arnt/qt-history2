@@ -22,8 +22,8 @@
 // We mean it.
 //
 
-#ifndef QDESIGNER_Q3WIDGETSTACK_H
-#define QDESIGNER_Q3WIDGETSTACK_H
+#ifndef QDESIGNER_Q3WIDGETSTACK_P_H
+#define QDESIGNER_Q3WIDGETSTACK_P_H
 
 #include <Qt3Support/Q3WidgetStack>
 
@@ -73,4 +73,4 @@ private:
     QToolButton *prev, *next;
 };
 
-#endif // !QDESIGNER_Q3WIDGETSTACK_H
+#endif // !QDESIGNER_Q3WIDGETSTACK_P_H

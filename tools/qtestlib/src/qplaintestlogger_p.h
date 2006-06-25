@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QPLAINTESTLOGGER_H
-#define QPLAINTESTLOGGER_H
+#ifndef QPLAINTESTLOGGER_P_H
+#define QPLAINTESTLOGGER_P_H
 
 //
 //  W A R N I N G

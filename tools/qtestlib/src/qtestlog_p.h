@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTESTLOG_H
-#define QTESTLOG_H
+#ifndef QTESTLOG_P_H
+#define QTESTLOG_P_H
 
 //
 //  W A R N I N G

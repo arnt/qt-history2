@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QCssPARSER_H
-#define QCssPARSER_H
+#ifndef QCSSPARSER_P_H
+#define QCSSPARSER_P_H
 
 //
 //  W A R N I N G
@@ -526,4 +526,3 @@ public:
 }
 
 #endif
-

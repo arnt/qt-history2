@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QXMLTESTLOGGER_H
-#define QXMLTESTLOGGER_H
+#ifndef QXMLTESTLOGGER_P_H
+#define QXMLTESTLOGGER_P_H
 
 //
 //  W A R N I N G

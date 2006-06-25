@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSTYLESHEETSTYLE_H
-#define QSTYLESHEETSTYLE_H
+#ifndef QSTYLESHEETSTYLE_P_H
+#define QSTYLESHEETSTYLE_P_H
 
 #include "QtGui/qcommonstyle.h"
 #include "QtGui/qstyleoption.h"
@@ -94,4 +94,4 @@ private:
     mutable QHash<const QWidget *, QHash<int, QRenderRule> > renderRulesCache;
 };
 
-#endif // QSTYLESHEETSTYLE_H
+#endif // QSTYLESHEETSTYLE_P_H

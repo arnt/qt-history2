@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTESTCASE_P_H
-#define QTESTCASE_P_H
+#ifndef QTESTCASE_H
+#define QTESTCASE_H
 
 #include <QtTest/qtest_global.h>
 

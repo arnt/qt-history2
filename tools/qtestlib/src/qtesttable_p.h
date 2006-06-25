@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTESTTABLE_H
-#define QTESTTABLE_H
+#ifndef QTESTTABLE_P_H
+#define QTESTTABLE_P_H
 
 //
 //  W A R N I N G

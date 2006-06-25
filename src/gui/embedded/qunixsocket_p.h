@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef _QUNIXSOCKET_H_
-#define _QUNIXSOCKET_H_
+#ifndef QUNIXSOCKET_P_H
+#define QUNIXSOCKET_P_H
 
 //
 //  W A R N I N G
@@ -167,5 +167,4 @@ private:
     QUnixSocketPrivate * d;
 };
 
-#endif // _QUNIXSOCKET_H_
-
+#endif // QUNIXSOCKET_P_H

@@ -1437,4 +1437,3 @@ static const char * const qt_mac_toolbar_ext[]={
     "aab###bb###baa",
     "ab###bb###baaa",
     ".###..###.aaaa"};
-

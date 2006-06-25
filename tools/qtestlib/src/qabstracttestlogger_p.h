@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QABSTRACTTESTLOGGER_H
-#define QABSTRACTTESTLOGGER_H
+#ifndef QABSTRACTTESTLOGGER_P_H
+#define QABSTRACTTESTLOGGER_P_H
 
 //
 //  W A R N I N G

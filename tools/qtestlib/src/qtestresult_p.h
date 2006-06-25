@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTESTRESULT_H
-#define QTESTRESULT_H
+#ifndef QTESTRESULT_P_H
+#define QTESTRESULT_P_H
 
 //
 //  W A R N I N G

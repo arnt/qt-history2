@@ -10,8 +10,9 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef QSVGICONENGINE_P_H
-#define QSVGICONENGINE_P_H
+
+#ifndef QSVGICONENGINE_H
+#define QSVGICONENGINE_H
 
 #include <QtGui/qiconengine.h>
 #include <QtCore/qshareddata.h>

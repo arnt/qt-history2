@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWSLOCK_H
-#define QWSLOCK_H
+#ifndef QWSLOCK_P_H
+#define QWSLOCK_P_H
 
 //
 //  W A R N I N G
@@ -46,4 +46,4 @@ private:
     bool hasLock(LockType type);
 };
 
-#endif // QWSLOCK_H
+#endif // QWSLOCK_P_H
