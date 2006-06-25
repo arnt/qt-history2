@@ -14,6 +14,7 @@
 #include "about.h"
 
 #include <QPixmap>
+#include <QStyle>
 
 AboutDialog::AboutDialog(QWidget* parent, Qt::WFlags fl)
     : QDialog(parent, fl)
@@ -21,6 +22,9 @@ AboutDialog::AboutDialog(QWidget* parent, Qt::WFlags fl)
     setupUi(this);
     
     PixmapLabel1->setPixmap(QPixmap(":/images/splash.png"));
+    Qt::TextInteractionFlags f(style()->styleHint(QStyle::SH_MessageBox_TextInteractionFlags));
+    versionLabel->setTextInteractionFlags(f);
+    infoText->setTextInteractionFlags(f);
     connect(PushButton1, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
