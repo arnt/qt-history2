@@ -699,7 +699,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
     case PE_FrameMenu:
         painter->save();
         {
-            painter->setPen(QPen(option->palette.shadow().color().light(120), 1));
+            painter->setPen(QPen(option->palette.dark().color().dark(110), 1));
             painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
             QColor frameLight = option->palette.background().color().light(160);
             QColor frameShadow = option->palette.background().color().dark(110);
@@ -767,7 +767,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
         painter->save();
         {
             QRect rect= option->rect;
-            painter->setPen(QPen(option->palette.shadow().color().dark(140), 0));
+            painter->setPen(QPen(option->palette.dark().color().dark(160), 0));
             painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
             painter->setPen(QPen(option->palette.light(), 0));
             painter->drawLine(QPoint(rect.left() + 1, rect.top() + 1),
@@ -922,7 +922,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             QRect rect = focusFrame->rect;
             painter->save();
             painter->setBackgroundMode(Qt::TransparentMode);
-            painter->setBrush(QBrush(focusFrame->palette.shadow().color().dark(110), Qt::Dense4Pattern));
+            painter->setBrush(QBrush(focusFrame->palette.dark().color().dark(130), Qt::Dense4Pattern));
             painter->setBrushOrigin(rect.topLeft());
             painter->setPen(Qt::NoPen);
             painter->drawRect(rect.left(), rect.top(), rect.width(), 1);    // Top
@@ -1007,7 +1007,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             painter->drawPoint(QPoint(r.left() + 1, r.top() + 1));
 
             if (!isDefault && !hasFocus && isEnabled)
-                painter->setPen(QPen(option->palette.shadow(), 1));
+                painter->setPen(QPen(option->palette.dark().color().dark(120), 0));
 
             painter->drawLine(QPoint(r.left() + 2, r.top()),
                               QPoint(r.right() - 2, r.top()));
@@ -1877,7 +1877,7 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
             QColor light = tab->palette.light().color();
             QColor midlight = tab->palette.midlight().color();
             QColor dark = tab->palette.dark().color();
-            QColor shadow = tab->palette.shadow().color();
+            QColor shadow = tab->palette.dark().color().dark(120);
             QColor background = tab->palette.background().color();
             int borderThinkness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
             if (selected)
@@ -2602,7 +2602,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         gradient.setColorAt(0, gradientStartColor);
                         gradient.setColorAt(1, gradientStopColor);
                     }
-                    painter->setPen(QPen(option->palette.shadow(), 1));
+                    painter->setPen(QPen(option->palette.dark().color().dark(120), 0));
                     painter->setBrush(gradient);
                     painter->drawRect(pixmapRect);
 
@@ -2719,7 +2719,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     subButton = QImage(qt_scrollbar_button_up);
                 }
                 subButton.setColor(1, alphaCornerColor.rgba());
-                subButton.setColor(2, option->palette.shadow().color().light(110).rgba());
+                subButton.setColor(2, option->palette.dark().color().dark(110).rgba());
                 if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && sunken) {
                     subButton.setColor(3, gradientStopColor.dark(140).rgba());
                     subButton.setColor(4, gradientStopColor.dark(120).rgba());
@@ -2771,7 +2771,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                         addButton = QImage(qt_scrollbar_button_down);
                     }
                     addButton.setColor(1, alphaCornerColor.rgba());
-                    addButton.setColor(2, option->palette.shadow().color().light(110).rgba());
+                    addButton.setColor(2, option->palette.dark().color().dark(110).rgba());
                     if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && sunken) {
                         addButton.setColor(3, gradientStopColor.dark(140).rgba());
                         addButton.setColor(4, gradientStopColor.dark(120).rgba());
