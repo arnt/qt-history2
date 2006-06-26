@@ -1744,6 +1744,9 @@ void QGraphicsView::dragEnterEvent(QDragEnterEvent *event)
     if (!d->scene || !d->sceneInteractionAllowed)
         return;
 
+    // Disable replaying of mouse move events.
+    d->useLastMouseEvent = false;
+    
     // Generate a scene event.
     QGraphicsSceneDragDropEvent sceneEvent(QEvent::GraphicsSceneDragEnter);
     d->populateSceneDragDropEvent(&sceneEvent, event);
