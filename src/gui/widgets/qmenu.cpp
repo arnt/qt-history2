@@ -319,6 +319,9 @@ void QMenuPrivate::popupAction(QAction *action, int delay, bool activateFirst)
             QMenuPrivate::menuDelayTimer.start(delay, q);
         if (activateFirst && action->menu())
             action->menu()->d_func()->setFirstActionActive();
+    } else if (QMenu *menu = activeMenu) {  //hide the current item
+        activeMenu = 0;
+        menu->hide();
     }
 }
 
