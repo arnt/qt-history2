@@ -288,6 +288,8 @@ for (var p in validPlatforms) {
             // run qdoc
             print("Running qdoc...");
             qdoc(platDir, platform, license);
+            replaceTags(platDir + "/doc", getFileList(platDir + "/doc"),
+                        defaultTags(platform, license, platName));
 
             // purge platform and license files
             print("Purging platform and license specific files...");
@@ -842,11 +844,8 @@ function defaultTags(platform, license, platName)
     replace["\\%DISTNAME\\%"] = platName;
     replace["\\*\\* \\$TROLLTECH_DUAL_LICENSE\\$\\n"] = licenseHeaders[license];
     replace["\\*\\* \\$TROLLTECH_3RDPARTY_LICENSE\\$\\n"] = licenseHeaders["3rdparty"];
-    if (license == "opensource") {
-        replace["\\*\\* \\$TROLLTECH_GPL_LICENSE\\$\\n"] = licenseHeaders[license];
-    } else if (license == "commercial" || license == "eval") {
-        replace["\\*\\* \\$TROLLTECH_COMMERCIAL_LICENSE\\$\\n"] = licenseHeaders[license];
-    }
+    replace["\\*\\* \\$TROLLTECH_GPL_LICENSE\\$\\n"] = licenseHeaders[license];
+    replace["\\*\\* \\$TROLLTECH_COMMERCIAL_LICENSE\\$\\n"] = licenseHeaders[license];
 
     return replace;
 }
@@ -869,6 +868,7 @@ function checkLicense(packageDir, fileList, checkMode)
             content = File.read(absFileName);
 
             if (checkMode == "final") {
+                /** FIXME, licenses were already replaced due to doc-generation **/
                 if (content.find(/\*\* \$TROLLTECH_(DUAL|3RDPARTY|GPL|COMMERCIAL|INTERNAL)_LICENSE\$/) != -1) {
                     throw "%1 contains an invaid license".arg(fileName);
                 }
@@ -904,7 +904,9 @@ function replaceTags(packageDir, fileList, replace)
             //only replace for non binary files
             content = File.read(absFileName);
             for (var i in replace) {
-                content = content.replace(new RegExp(i), replace[i]);
+                var re = new RegExp(i);
+		re.global = true;
+                content = content.replace(re, replace[i]);
             }
             // special case for $MODULE$
             if (content.find(/\$MODULE\$/) != -1) {
