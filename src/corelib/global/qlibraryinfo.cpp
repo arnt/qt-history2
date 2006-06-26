@@ -17,10 +17,10 @@
 #include "qsettings.h"
 #include "qlibraryinfo.h"
 #include "qpointer.h"
-#ifdef QT_BUILD_CORE
-# include "qcoreapplication.h"
+#ifdef QT_BUILD_QMAKE
+extern QString qmake_libraryInfoFile();
 #else
-extern QString qt_libraryInfoFile();
+# include "qcoreapplication.h"
 #endif
 #ifdef Q_OS_MAC
 #  include "private/qcore_mac_p.h"
@@ -74,7 +74,7 @@ public:
 QLibrarySettings::QLibrarySettings()
 {
     settings = QLibraryInfoPrivate::findConfiguration();
-#ifdef QT_BUILD_CORE
+#ifndef QT_BUILD_QMAKE
     qAddPostRoutine(QLibraryInfoPrivate::cleanup);
 #endif
 }
@@ -82,7 +82,10 @@ QLibrarySettings::QLibrarySettings()
 QSettings *QLibraryInfoPrivate::findConfiguration()
 {
     QString qtconfig = QLatin1String(":/qt/etc/qt.conf");
-#ifdef QT_BUILD_CORE
+#ifdef QT_BUILD_QMAKE
+    if(!QFile::exists(qtconfig))
+        qtconfig = qmake_libraryInfoFile();
+#else
     if (!QFile::exists(qtconfig) && QCoreApplication::instance()) {
 #ifdef Q_OS_MAC
 	CFBundleRef bundleRef = CFBundleGetMainBundle();
@@ -103,9 +106,6 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
                 qtconfig = pwd.filePath(QLatin1String("qt.conf"));
 	    }
     }
-#else
-    if(!QFile::exists(qtconfig))
-        qtconfig = qt_libraryInfoFile();
 #endif
     if (QFile::exists(qtconfig))
         return new QSettings(qtconfig, QSettings::IniFormat);
@@ -398,7 +398,9 @@ QLibraryInfo::location(LibraryLocation loc)
     if (QDir::isRelativePath(ret)) {
         if (loc == PrefixPath) {
             // we make the prefix path absolute to the executable's directory
-#ifdef QT_BUILD_CORE
+#ifdef QT_BUILD_QMAKE
+            return QFileInfo(qmake_libraryInfoFile()).absolutePath();
+#else
             if (QCoreApplication::instance()) {
 #ifdef Q_OS_MAC
 	        CFBundleRef bundleRef = CFBundleGetMainBundle();
@@ -414,8 +416,6 @@ QLibraryInfo::location(LibraryLocation loc)
             } else {
                 return QDir::current().absoluteFilePath(ret);
             }
-#else
-            return QFileInfo(qt_libraryInfoFile()).absolutePath();
 #endif
         } else {
             // we make any other path absolute to the prefix directory

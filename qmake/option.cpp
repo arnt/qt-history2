@@ -639,7 +639,7 @@ qmakeAddCacheClear(qmakeCacheClearFunc func, void **data)
 # include <windows.h>
 #endif
 
-QString qt_libraryInfoFile()
+QString qmake_libraryInfoFile()
 {
     QString ret;
 #if defined( Q_OS_WIN )
