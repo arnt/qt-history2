@@ -22,7 +22,7 @@ class AboutDialog : public QDialog, public Ui::AboutDialog
     Q_OBJECT
 
 public:
-    AboutDialog(QWidget* parent = 0, Qt::WFlags fl = 0);
+    AboutDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);
     ~AboutDialog() {}
 
 protected slots:

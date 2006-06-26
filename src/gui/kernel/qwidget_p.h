@@ -77,7 +77,7 @@ struct QTLWExtra {
 #if defined(Q_WS_WIN)
     ulong savedFlags; // Save window flags while showing fullscreen
 #else
-    Qt::WFlags savedFlags; // Save widget flags while showing fullscreen
+    Qt::WindowFlags savedFlags; // Save widget flags while showing fullscreen
 #endif
     short basew, baseh; // base sizes
 #if defined(Q_WS_X11)
@@ -162,7 +162,7 @@ public:
     QWidgetBackingStore *maybeBackingStore() const;
 #endif
 
-    void init(QWidget *desktopWidget, Qt::WFlags f);
+    void init(QWidget *desktopWidget, Qt::WindowFlags f);
     void create_sys(WId window, bool initializeWindow, bool destroyOldWindow);
     void createRecursively();
     void uncreateRecursively(bool includeThis = true);
@@ -256,7 +256,7 @@ public:
     void setWinId(WId);
     void showChildren(bool spontaneous);
     void hideChildren(bool spontaneous);
-    void setParent_sys(QWidget *parent, Qt::WFlags);
+    void setParent_sys(QWidget *parent, Qt::WindowFlags);
     void deactivateWidgetCleanup();
     void setGeometry_sys(int, int, int, int, bool);
     void show_recursive();
@@ -266,7 +266,7 @@ public:
     void hide_helper();
     void setEnabled_helper(bool);
     void registerDropSite(bool);
-    static void adjustFlags(Qt::WFlags &flags, QWidget *w = 0);
+    static void adjustFlags(Qt::WindowFlags &flags, QWidget *w = 0);
 
     void updateFrameStrut() const;
     QRect frameStrut() const;

@@ -22,7 +22,7 @@
 #include <QGroupBox>
 
 PaletteEditorAdvanced::PaletteEditorAdvanced( QWidget * parent,
-                                              const char * name, bool modal, Qt::WFlags f )
+                                              const char * name, bool modal, Qt::WindowFlags f )
     : PaletteEditorAdvancedBase( parent, name, modal, f ), selectedPalette(0)
 {
     // work around buggy ui file

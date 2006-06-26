@@ -178,7 +178,7 @@ public:
   \sa getFont()
 */
 
-QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
+QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WindowFlags f)
     : QDialog(*new QFontDialogPrivate, parent, f)
 {
     Q_D(QFontDialog);

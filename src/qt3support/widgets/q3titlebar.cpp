@@ -45,7 +45,7 @@ public:
     {
     }
 
-    Qt::WFlags flags;
+    Qt::WindowFlags flags;
     QStyle::SubControl buttonDown;
     QPoint moveOffset;
     QToolTip *toolTip;
@@ -85,7 +85,7 @@ QStyleOptionTitleBar Q3TitleBarPrivate::getStyleOption() const
     return opt;
 }
 
-Q3TitleBar::Q3TitleBar(QWidget *w, QWidget *parent, Qt::WFlags f)
+Q3TitleBar::Q3TitleBar(QWidget *w, QWidget *parent, Qt::WindowFlags f)
     : QWidget(*new Q3TitleBarPrivate, parent, Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     Q_D(Q3TitleBar);

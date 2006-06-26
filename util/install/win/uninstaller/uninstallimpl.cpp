@@ -2,7 +2,7 @@
 #include <qsettings.h>
 #include <qmessagebox.h>
 
-UninstallDlgImpl::UninstallDlgImpl( QWidget* parent, const char* name, bool modal, WFlags f )
+UninstallDlgImpl::UninstallDlgImpl( QWidget* parent, const char* name, bool modal, WindowFlags f )
     : UninstallDlg( parent, name, modal, f )
 {
 }

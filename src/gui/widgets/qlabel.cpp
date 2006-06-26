@@ -206,7 +206,7 @@ const QPicture *QLabel::picture() const
 
     \sa setAlignment(), setFrameStyle(), setIndent()
 */
-QLabel::QLabel(QWidget *parent, Qt::WFlags f)
+QLabel::QLabel(QWidget *parent, Qt::WindowFlags f)
     : QFrame(*new QLabelPrivate(), parent, f)
 {
     Q_D(QLabel);
@@ -221,7 +221,7 @@ QLabel::QLabel(QWidget *parent, Qt::WFlags f)
 
     \sa setText(), setAlignment(), setFrameStyle(), setIndent()
 */
-QLabel::QLabel(const QString &text, QWidget *parent, Qt::WFlags f)
+QLabel::QLabel(const QString &text, QWidget *parent, Qt::WindowFlags f)
         : QFrame(*new QLabelPrivate(), parent, f)
 {
     Q_D(QLabel);
@@ -240,7 +240,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, Qt::WFlags f)
     \sa setAlignment(), setFrameStyle(), setIndent()
 */
 
-QLabel::QLabel(QWidget *parent, const char *name, Qt::WFlags f)
+QLabel::QLabel(QWidget *parent, const char *name, Qt::WindowFlags f)
     : QFrame(*new QLabelPrivate(), parent, f)
 {
     Q_D(QLabel);
@@ -260,7 +260,7 @@ QLabel::QLabel(QWidget *parent, const char *name, Qt::WFlags f)
 */
 
 QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
-                Qt::WFlags f)
+                Qt::WindowFlags f)
         : QFrame(*new QLabelPrivate(), parent, f)
 {
     Q_D(QLabel);
@@ -287,7 +287,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
     setIndent()
 */
 QLabel::QLabel(QWidget *buddy, const QString &text,
-                QWidget *parent, const char *name, Qt::WFlags f)
+                QWidget *parent, const char *name, Qt::WindowFlags f)
     : QFrame(*new QLabelPrivate(), parent, f)
 {
     Q_D(QLabel);

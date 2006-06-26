@@ -24,7 +24,7 @@ class Q_COMPAT_EXPORT Q3Button : public QAbstractButton
 {
     Q_OBJECT
 public:
-    Q3Button( QWidget* parent=0, const char* name=0, Qt::WFlags f=0 );
+    Q3Button( QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0 );
     ~Q3Button();
 
 protected:

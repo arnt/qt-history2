@@ -2620,7 +2620,7 @@ void Q3IconViewItem::checkRect()
     parent and using the widget flags \a f.
 */
 
-Q3IconView::Q3IconView(QWidget *parent, const char *name, Qt::WFlags f)
+Q3IconView::Q3IconView(QWidget *parent, const char *name, Qt::WindowFlags f)
     : Q3ScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase  | f)
 {
     if (!unknown_icon) {

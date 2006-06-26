@@ -856,7 +856,7 @@ void WidgetBoxTreeView::dropWidgets(const QList<QDesignerDnDItemInterface*> &ite
 ** WidgetBox
 */
 
-WidgetBox::WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WFlags flags)
+WidgetBox::WidgetBox(QDesignerFormEditorInterface *core, QWidget *parent, Qt::WindowFlags flags)
     : QDesignerWidgetBoxInterface(parent, flags), m_core(core)
 {
     m_core = core;

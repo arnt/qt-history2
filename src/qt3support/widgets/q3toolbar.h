@@ -35,7 +35,7 @@ public:
               Q3MainWindow *, Qt::ToolBarDock = Qt::DockTop,
               bool newLine = false, const char* name=0);
     Q3ToolBar(const QString &label, Q3MainWindow *, QWidget *,
-              bool newLine = false, const char* name=0, Qt::WFlags f = 0);
+              bool newLine = false, const char* name=0, Qt::WindowFlags f = 0);
     Q3ToolBar(Q3MainWindow* parent=0, const char* name=0);
     ~Q3ToolBar();
 

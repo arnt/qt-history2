@@ -763,7 +763,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     }
 }
 
-void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
+void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
 {
     Q_Q(QWidget);
     QTLWExtra *topData = maybeTopData();

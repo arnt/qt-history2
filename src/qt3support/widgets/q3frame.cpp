@@ -25,7 +25,7 @@
     Creates a new frame with the given \a parent, object \a name, and
     with widget flags \a f.
 */
-Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WFlags f)
+Q3Frame::Q3Frame(QWidget* parent, const char* name, Qt::WindowFlags f)
     :QFrame(parent, f), marg(0)
 {
     if (name)

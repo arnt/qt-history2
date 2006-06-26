@@ -25,12 +25,12 @@
 
 extern SetupWizardImpl *wizard;
 
-BuildPageImpl::BuildPageImpl( QWidget* parent, const char* name, WFlags fl )
+BuildPageImpl::BuildPageImpl( QWidget* parent, const char* name, WindowFlags fl )
     : BuildPage( parent, name, fl )
 {
 }
 
-ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WFlags fl )
+ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WindowFlags fl )
     : ConfigPage( parent, name, fl )
 {
     if( globalInformation.reconfig() ) {
@@ -63,7 +63,7 @@ ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WFlags fl )
 #endif
 }
 
-FinishPageImpl::FinishPageImpl( QWidget* parent, const char* name, WFlags fl )
+FinishPageImpl::FinishPageImpl( QWidget* parent, const char* name, WindowFlags fl )
     : FinishPage( parent, name, fl )
 {
 #if !defined(Q_OS_WIN32)
@@ -71,7 +71,7 @@ FinishPageImpl::FinishPageImpl( QWidget* parent, const char* name, WFlags fl )
 #endif
 }
 
-FoldersPageImpl::FoldersPageImpl( QWidget* parent, const char* name, WFlags fl )
+FoldersPageImpl::FoldersPageImpl( QWidget* parent, const char* name, WindowFlags fl )
     : FoldersPage( parent, name, fl )
 {
 #if defined(Q_OS_WIN32)
@@ -94,7 +94,7 @@ FoldersPageImpl::FoldersPageImpl( QWidget* parent, const char* name, WFlags fl )
 #endif
 }
 
-LicenseAgreementPageImpl::LicenseAgreementPageImpl( QWidget* parent, const char* name, WFlags fl )
+LicenseAgreementPageImpl::LicenseAgreementPageImpl( QWidget* parent, const char* name, WindowFlags fl )
     : LicenseAgreementPage( parent, name, fl ),
       titleStr("License agreement")
 {
@@ -132,7 +132,7 @@ void LicenseAgreementPageImpl::countryChanged(int index)
     }
 }
 
-LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
+LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WindowFlags fl )
     : LicensePage( parent, name, fl )
 {
 #if defined(Q_OS_MAC)
@@ -208,7 +208,7 @@ QValidator::State InstallPathValidator::validate( QString& input, int& ) const
     return Acceptable;
 }
 
-OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
+OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WindowFlags fl )
     : OptionsPage( parent, name, fl ),
       titleStr("Options"),
       shortTitleStr("Choose options")
@@ -288,7 +288,7 @@ void OptionsPageImpl::choosePath()
 #endif
 }
 
-ProgressPageImpl::ProgressPageImpl( QWidget* parent, const char* name, WFlags fl )
+ProgressPageImpl::ProgressPageImpl( QWidget* parent, const char* name, WindowFlags fl )
     : ProgressPage( parent, name, fl )
 {
     // ######### At the moment, we show only one line when unpacking. So the
@@ -297,7 +297,7 @@ ProgressPageImpl::ProgressPageImpl( QWidget* parent, const char* name, WFlags fl
 }
 
 #if defined(Q_OS_WIN32)
-WinIntroPageImpl::WinIntroPageImpl( QWidget* parent, const char* name, WFlags fl )
+WinIntroPageImpl::WinIntroPageImpl( QWidget* parent, const char* name, WindowFlags fl )
     : WinIntroPage( parent, name, fl )
 {
 #if defined(QSA)

@@ -766,7 +766,7 @@ int Q3ListBoxPixmap::rtti() const
     should be cleared on the viewport() after construction.
 */
 
-Q3ListBox::Q3ListBox(QWidget *parent, const char *name, Qt::WFlags f)
+Q3ListBox::Q3ListBox(QWidget *parent, const char *name, Qt::WindowFlags f)
     : Q3ScrollView(parent, name, f | Qt::WStaticContents | Qt::WNoAutoErase)
 {
     d = new Q3ListBoxPrivate(this);

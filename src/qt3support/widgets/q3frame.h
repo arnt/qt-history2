@@ -27,7 +27,7 @@ class Q_COMPAT_EXPORT Q3Frame : public QFrame
     Q_PROPERTY(QRect contentsRect READ contentsRect)
 
 public:
-    Q3Frame(QWidget* parent, const char* name = 0, Qt::WFlags f = 0);
+    Q3Frame(QWidget* parent, const char* name = 0, Qt::WindowFlags f = 0);
     ~Q3Frame();
 #ifndef qdoc
     bool        lineShapesOk()  const { return true; }

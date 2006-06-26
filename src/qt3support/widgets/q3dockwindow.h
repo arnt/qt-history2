@@ -66,8 +66,8 @@ public:
     enum Place { InDock, OutsideDock };
     enum CloseMode { Never = 0, Docked = 1, Undocked = 2, Always = Docked | Undocked };
 
-    Q3DockWindow(Place p = InDock, QWidget* parent=0, const char* name=0, Qt::WFlags f = 0);
-    Q3DockWindow(QWidget* parent, const char* name=0, Qt::WFlags f = 0);
+    Q3DockWindow(Place p = InDock, QWidget* parent=0, const char* name=0, Qt::WindowFlags f = 0);
+    Q3DockWindow(QWidget* parent, const char* name=0, Qt::WindowFlags f = 0);
     ~Q3DockWindow();
 
     virtual void setWidget(QWidget *w);
@@ -147,7 +147,7 @@ private Q_SLOTS:
     void toggleVisible() { setVisible(!isVisible()); }
 
 private:
-    Q3DockWindow(Place p, QWidget* parent, const char* name, Qt::WFlags f, bool toolbar);
+    Q3DockWindow(Place p, QWidget* parent, const char* name, Qt::WindowFlags f, bool toolbar);
 
     void handleMove(const QPoint &pos, const QPoint &gp, bool drawRect);
     void updateGui();

@@ -467,7 +467,7 @@ QMessageBox::QMessageBox(QWidget *parent)
 QMessageBox::QMessageBox(const QString& caption,
                           const QString &text, Icon icon,
                           int button0, int button1, int button2,
-                          QWidget *parent, Qt::WFlags f)
+                          QWidget *parent, Qt::WindowFlags f)
     : QDialog(*new QMessageBoxPrivate, parent,
               f | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
@@ -704,7 +704,7 @@ QMessageBox::QMessageBox(const QString& caption,
                           const QString &text, Icon icon,
                           int button0, int button1, int button2,
                           QWidget *parent, const char *name,
-                          bool modal, Qt::WFlags f)
+                          bool modal, Qt::WindowFlags f)
     : QDialog(*new QMessageBoxPrivate, parent,
               f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {

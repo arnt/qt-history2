@@ -532,7 +532,7 @@ void QDockWidgetPrivate::plug(const QRect &rect)
     flags. The dock widget will be placed in the left dock widget
     area.
 */
-QDockWidget::QDockWidget(QWidget *parent, Qt::WFlags flags)
+QDockWidget::QDockWidget(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(*new QDockWidgetPrivate, parent, flags)
 {
     Q_D(QDockWidget);
@@ -550,7 +550,7 @@ QDockWidget::QDockWidget(QWidget *parent, Qt::WFlags flags)
 
     \sa setWindowTitle()
 */
-QDockWidget::QDockWidget(const QString &title, QWidget *parent, Qt::WFlags flags)
+QDockWidget::QDockWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
     : QWidget(*new QDockWidgetPrivate, parent, flags)
 {
     Q_D(QDockWidget);

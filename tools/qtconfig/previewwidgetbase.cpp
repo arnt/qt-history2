@@ -19,7 +19,7 @@
  *  Constructs a PreviewWidgetBase as a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'.
  */
-PreviewWidgetBase::PreviewWidgetBase(QWidget* parent, const char* name, Qt::WFlags fl)
+PreviewWidgetBase::PreviewWidgetBase(QWidget* parent, const char* name, Qt::WindowFlags fl)
     : QWidget(parent, name, fl)
 {
     setupUi(this);

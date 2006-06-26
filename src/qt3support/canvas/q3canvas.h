@@ -318,8 +318,8 @@ class Q_COMPAT_EXPORT Q3CanvasView : public Q3ScrollView
     Q_OBJECT
 public:
 
-    Q3CanvasView(QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-    Q3CanvasView(Q3Canvas* viewing, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+    Q3CanvasView(QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0);
+    Q3CanvasView(Q3Canvas* viewing, QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0);
     ~Q3CanvasView();
 
     Q3Canvas* canvas() const

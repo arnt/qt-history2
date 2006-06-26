@@ -26,14 +26,14 @@ class Q_COMPAT_EXPORT Q3HBox : public Q3Frame
 {
     Q_OBJECT
 public:
-    Q3HBox(QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+    Q3HBox(QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0);
 
     void setSpacing(int);
     bool setStretchFactor(QWidget*, int stretch);
     QSize sizeHint() const;
 
 protected:
-    Q3HBox(bool horizontal, QWidget* parent, const char* name, Qt::WFlags f = 0);
+    Q3HBox(bool horizontal, QWidget* parent, const char* name, Qt::WindowFlags f = 0);
     void frameChanged();
 
 private:

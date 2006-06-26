@@ -42,7 +42,7 @@ class ColorSwatch : public QDockWidget
     QAction *bottomAction;
 
 public:
-    ColorSwatch(const QString &colorName, QWidget *parent = 0, Qt::WFlags flags = 0);
+    ColorSwatch(const QString &colorName, QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
     QMenu *menu;
 

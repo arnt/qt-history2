@@ -11,7 +11,7 @@ class SideDecorationImpl : public SideDecoration
     Q_OBJECT
 
 public:
-    SideDecorationImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    SideDecorationImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~SideDecorationImpl();
 
 public slots:

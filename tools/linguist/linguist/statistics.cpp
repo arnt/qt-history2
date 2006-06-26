@@ -13,7 +13,7 @@
 
 #include "statistics.h"
 
-Statistics::Statistics(QWidget* parent, Qt::WFlags fl)
+Statistics::Statistics(QWidget* parent, Qt::WindowFlags fl)
 : QDialog(parent, fl)
 {
     setupUi(this);

@@ -42,14 +42,14 @@ class Q_COMPAT_EXPORT Q3ProgressDialog : public QDialog
 
 public:
     Q3ProgressDialog(QWidget* parent, const char* name, bool modal=false,
-                                           Qt::WFlags f=0);
+                                           Qt::WindowFlags f=0);
     Q3ProgressDialog(const QString& labelText,
                                            const QString &cancelButtonText, int totalSteps,
                                            QWidget* parent=0, const char* name=0,
-                                           bool modal=false, Qt::WFlags f=0);
-    Q3ProgressDialog(QWidget* parent = 0, Qt::WFlags f = 0);
+                                           bool modal=false, Qt::WindowFlags f=0);
+    Q3ProgressDialog(QWidget* parent = 0, Qt::WindowFlags f = 0);
     Q3ProgressDialog(const QString& labelText, const QString &cancelButtonText,
-                     int totalSteps, QWidget* parent=0, Qt::WFlags f=0);
+                     int totalSteps, QWidget* parent=0, Qt::WindowFlags f=0);
     ~Q3ProgressDialog();
 
     void setLabel(QLabel *);

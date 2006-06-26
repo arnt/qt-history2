@@ -5,7 +5,7 @@
 #include <qpixmap.h>
 #include <qdir.h>
 
-FolderDlgImpl::FolderDlgImpl( QWidget* parent, const char* name, bool modal, WFlags f ) :
+FolderDlgImpl::FolderDlgImpl( QWidget* parent, const char* name, bool modal, WindowFlags f ) :
     FolderDlg( parent, name, modal, f )
 {
 }

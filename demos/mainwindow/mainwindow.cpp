@@ -45,7 +45,7 @@ static const char * const message =
 #endif
     ;
 
-MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
+MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags)
 {
     setObjectName("MainWindow");
@@ -214,7 +214,7 @@ void MainWindow::setupDockWidgets()
     const int setCount = sizeof(sets) / sizeof(Set);
 
     for (int i = 0; i < setCount; ++i) {
-        ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, Qt::WFlags(sets[i].flags));
+        ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, Qt::WindowFlags(sets[i].flags));
         if (i%2)
             swatch->setWindowIcon(QIcon(QPixmap(":/res/qt.png")));
         addDockWidget(sets[i].area, swatch);

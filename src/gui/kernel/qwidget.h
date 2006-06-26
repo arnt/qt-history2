@@ -174,9 +174,9 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(QString styleSheet READ styleSheet WRITE setStyleSheet)
 
 public:
-    explicit QWidget(QWidget* parent = 0, Qt::WFlags f = 0);
+    explicit QWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
 #ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QWidget(QWidget* parent, const char *name, Qt::WFlags f = 0);
+    QT3_SUPPORT_CONSTRUCTOR QWidget(QWidget* parent, const char *name, Qt::WindowFlags f = 0);
 #endif
     ~QWidget();
 
@@ -452,7 +452,7 @@ public:
     void updateGeometry();
 
     void setParent(QWidget *parent);
-    void setParent(QWidget *parent, Qt::WFlags f);
+    void setParent(QWidget *parent, Qt::WindowFlags f);
 
     void scroll(int dx, int dy);
     void scroll(int dx, int dy, const QRect&);
@@ -604,7 +604,7 @@ protected:
     inline bool focusPreviousChild() { return focusNextPrevChild(false); }
 
 protected:
-    QWidget(QWidgetPrivate &d, QWidget* parent, Qt::WFlags f);
+    QWidget(QWidgetPrivate &d, QWidget* parent, Qt::WindowFlags f);
 private:
 
     bool testAttribute_helper(Qt::WidgetAttribute) const;
@@ -661,11 +661,11 @@ public:
     inline QT3_SUPPORT void iconify() { showMinimized(); }
     inline QT3_SUPPORT void constPolish() const { ensurePolished(); }
     inline QT3_SUPPORT void polish() { ensurePolished(); }
-    inline QT3_SUPPORT void reparent(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt=false)
+    inline QT3_SUPPORT void reparent(QWidget *parent, Qt::WindowFlags f, const QPoint &p, bool showIt=false)
     { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT3_SUPPORT void reparent(QWidget *parent, const QPoint &p, bool showIt=false)
     { setParent(parent, windowFlags() & ~Qt::WindowType_Mask); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
-    inline QT3_SUPPORT void recreate(QWidget *parent, Qt::WFlags f, const QPoint & p, bool showIt=false)
+    inline QT3_SUPPORT void recreate(QWidget *parent, Qt::WindowFlags f, const QPoint & p, bool showIt=false)
     { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT3_SUPPORT void setSizePolicy(QSizePolicy::Policy hor, QSizePolicy::Policy ver, bool hfw)
     { QSizePolicy sp(hor, ver); sp.setHeightForWidth(hfw); setSizePolicy(sp);}

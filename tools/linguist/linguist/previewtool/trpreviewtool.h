@@ -29,7 +29,7 @@ class FormHolder : public QWidget
     Q_OBJECT
 
 public:
-    FormHolder(QWidget *parent = 0, Qt::WFlags flags = 0);
+    FormHolder(QWidget *parent = 0, Qt::WindowFlags flags = 0);
 
     bool loadFormFile(const QString& path);
     void retranslate();
@@ -49,7 +49,7 @@ class TrPreviewTool : public QMainWindow
     Q_OBJECT
 
 public:
-    TrPreviewTool(QWidget *parent = 0, Qt::WFlags flags = 0);
+    TrPreviewTool(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     ~TrPreviewTool();
     bool addFormFile(const QString &path);
     bool loadTranslation(const QString &path, const QString &displayName = QString());

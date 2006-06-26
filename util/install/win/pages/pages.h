@@ -25,7 +25,7 @@ class BuildPageImpl : public BuildPage, public Page
 {
     Q_OBJECT
 public:
-    BuildPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    BuildPageImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~BuildPageImpl() {}
     QString title() const
     {
@@ -49,7 +49,7 @@ class ConfigPageImpl : public ConfigPage, public Page
 {
     Q_OBJECT
 public:
-    ConfigPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    ConfigPageImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~ConfigPageImpl() {}
     QString title() const
     {
@@ -66,7 +66,7 @@ class FinishPageImpl : public FinishPage, public Page
 {
     Q_OBJECT
 public:
-    FinishPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    FinishPageImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~FinishPageImpl() {}
     QString title() const
     { return "Finished"; }
@@ -78,7 +78,7 @@ class FoldersPageImpl : public FoldersPage, public Page
 {
     Q_OBJECT
 public:
-    FoldersPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    FoldersPageImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~FoldersPageImpl() {}
     QString title() const
     { return "Folders"; }
@@ -90,7 +90,7 @@ class LicenseAgreementPageImpl : public LicenseAgreementPage, public Page
 {
     Q_OBJECT
 public:
-    LicenseAgreementPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    LicenseAgreementPageImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~LicenseAgreementPageImpl() {}
     QString title() const
     { return titleStr; }
@@ -109,7 +109,7 @@ class LicensePageImpl : public LicensePage, public Page
 {
     Q_OBJECT
 public:
-    LicensePageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    LicensePageImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~LicensePageImpl() {}
     QString title() const
     {
@@ -144,7 +144,7 @@ class OptionsPageImpl : public OptionsPage, public Page
 {
     Q_OBJECT
 public:
-    OptionsPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    OptionsPageImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~OptionsPageImpl() {}
     QString title() const
     { return titleStr; }
@@ -163,7 +163,7 @@ class ProgressPageImpl : public ProgressPage, public Page
 {
     Q_OBJECT
 public:
-    ProgressPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    ProgressPageImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~ProgressPageImpl() {}
     QString title() const
     { return "Installing"; }
@@ -175,7 +175,7 @@ class WinIntroPageImpl : public WinIntroPage, public Page
 {
     Q_OBJECT
 public:
-    WinIntroPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
+    WinIntroPageImpl( QWidget* parent = 0, const char* name = 0, WindowFlags fl = 0 );
     ~WinIntroPageImpl() {}
     QString title() const
     { return "Introduction"; }

@@ -29,7 +29,7 @@ class Q_COMPAT_EXPORT Q3WidgetStack: public Q3Frame
 {
     Q_OBJECT
 public:
-    Q3WidgetStack(QWidget* parent, const char* name=0, Qt::WFlags f=0);
+    Q3WidgetStack(QWidget* parent, const char* name=0, Qt::WindowFlags f=0);
 
     ~Q3WidgetStack();
 

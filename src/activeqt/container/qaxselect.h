@@ -25,7 +25,7 @@ class QAxSelect : public QDialog, private Ui::QAxSelect
 {
     Q_OBJECT
 public:
-    QAxSelect(QWidget *parent = 0, Qt::WFlags f = 0);
+    QAxSelect(QWidget *parent = 0, Qt::WindowFlags f = 0);
 
     QString clsid() const { return ActiveX->text(); }
 

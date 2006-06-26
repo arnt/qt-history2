@@ -157,7 +157,7 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
   \sa getText(), getInteger(), getDouble(), getItem()
 */
 
-QInputDialog::QInputDialog(const QString &label, QWidget* parent, Type type, Qt::WFlags f)
+QInputDialog::QInputDialog(const QString &label, QWidget* parent, Type type, Qt::WindowFlags f)
     : QDialog(*new QInputDialogPrivate, parent, f)
 {
     Q_D(QInputDialog);
@@ -198,7 +198,7 @@ QInputDialog::~QInputDialog()
 
 QString QInputDialog::getText(QWidget *parent, const QString &title, const QString &label,
                                QLineEdit::EchoMode mode, const QString &text,
-                               bool *ok, Qt::WFlags f)
+                               bool *ok, Qt::WindowFlags f)
 {
     QInputDialog dlg(label, parent, LineEdit, f);
 
@@ -248,7 +248,7 @@ QString QInputDialog::getText(QWidget *parent, const QString &title, const QStri
 
 int QInputDialog::getInteger(QWidget *parent, const QString &title, const QString &label,
                              int value, int minValue, int maxValue, int step, bool *ok,
-                             Qt::WFlags f)
+                             Qt::WindowFlags f)
 {
     QInputDialog dlg(label, parent, SpinBox, f);
 
@@ -294,7 +294,7 @@ int QInputDialog::getInteger(QWidget *parent, const QString &title, const QStrin
 
 double QInputDialog::getDouble( QWidget *parent, const QString &title, const QString &label,
                                 double value, double minValue, double maxValue,
-                                int decimals, bool *ok, Qt::WFlags f)
+                                int decimals, bool *ok, Qt::WindowFlags f)
 {
     QInputDialog dlg(label, parent, DoubleSpinBox, f);
     dlg.setWindowTitle(title);
@@ -338,7 +338,7 @@ double QInputDialog::getDouble( QWidget *parent, const QString &title, const QSt
 */
 
 QString QInputDialog::getItem(QWidget *parent, const QString &title, const QString &label, const QStringList &list,
-                              int current, bool editable, bool *ok, Qt::WFlags f)
+                              int current, bool editable, bool *ok, Qt::WindowFlags f)
 {
     QInputDialog dlg(label, parent, editable ? EditableComboBox : ComboBox, f);
     dlg.setWindowTitle(title);
@@ -358,7 +358,7 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
     \fn QString QInputDialog::getText(const QString &title, const QString &label,
                                       QLineEdit::EchoMode echo = QLineEdit::Normal,
                                       const QString &text = QString(), bool *ok = 0,
-                                      QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0)
+                                      QWidget *parent = 0, const char *name = 0, Qt::WindowFlags f = 0)
 
     Call getText(\a parent, \a title, \a label, \a echo, \a text, \a
     ok, \a f) instead.
@@ -370,7 +370,7 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
     \fn int QInputDialog::getInteger(const QString &title, const QString &label, int value = 0,
                                      int minValue = -2147483647, int maxValue = 2147483647,
                                      int step = 1, bool *ok = 0,
-                                     QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0)
+                                     QWidget *parent = 0, const char *name = 0, Qt::WindowFlags f = 0)
 
 
     Call getInteger(\a parent, \a title, \a label, \a value, \a
@@ -383,7 +383,7 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
     \fn double QInputDialog::getDouble(const QString &title, const QString &label, double value = 0,
                                        double minValue = -2147483647, double maxValue = 2147483647,
                                        int decimals = 1, bool *ok = 0,
-                                       QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0)
+                                       QWidget *parent = 0, const char *name = 0, Qt::WindowFlags f = 0)
 
     Call getDouble(\a parent, \a title, \a label, \a value, \a
     minValue, \a maxValue, \a decimals, \a ok, \a f).
@@ -394,7 +394,7 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
 /*!
     \fn QString QInputDialog::getItem(const QString &title, const QString &label, const QStringList &list,
                                       int current = 0, bool editable = true, bool *ok = 0,
-                                      QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0)
+                                      QWidget *parent = 0, const char *name = 0, Qt::WindowFlags f = 0)
 
     Call getItem(\a parent, \a title, \a label, \a list, \a current,
     \a editable, \a ok, \a f) instead.

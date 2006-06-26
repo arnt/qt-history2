@@ -1279,7 +1279,7 @@ QIcon *QAbstractButton::iconSet() const
     Call setObjectName() if you want to specify an object name, and
     setParent() if you want to set the window flags.
 */
-QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f)
+QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WindowFlags f)
     : QWidget(*new QAbstractButtonPrivate, parent, f)
 {
     Q_D(QAbstractButton);

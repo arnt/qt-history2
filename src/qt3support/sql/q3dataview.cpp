@@ -51,7 +51,7 @@ public:
     name, and with widget flags \a fl.
 */
 
-Q3DataView::Q3DataView(QWidget *parent, const char *name, Qt::WFlags fl)
+Q3DataView::Q3DataView(QWidget *parent, const char *name, Qt::WindowFlags fl)
     : QWidget(parent, name, fl)
 {
     d = new Q3DataViewPrivate();

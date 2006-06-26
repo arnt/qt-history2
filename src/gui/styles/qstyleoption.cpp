@@ -3508,7 +3508,7 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 
     The default value is Qt::Widget.
 
-    \sa Qt::WFlags
+    \sa Qt::WindowFlags
 */
 
 /*!

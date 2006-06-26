@@ -260,7 +260,7 @@ void QMainWindowPrivate::init()
     Constructs a QMainWindow with the given \a parent and the specified
     widget \a flags.
  */
-QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
+QMainWindow::QMainWindow(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::Window)
 {
     d_func()->init();
@@ -272,7 +272,7 @@ QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
     Constructs a QMainWindow with the given \a parent, \a name, and
     with the specified widget \a flags.
  */
-QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
+QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WindowFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::WType_TopLevel)
 {
     setObjectName(QString::fromAscii(name));

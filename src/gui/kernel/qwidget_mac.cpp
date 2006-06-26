@@ -1328,7 +1328,7 @@ void QWidgetPrivate::transferChildren()
     }
 }
 
-void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
+void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
 {
     Q_Q(QWidget);
     QTLWExtra *topData = maybeTopData();

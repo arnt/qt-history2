@@ -80,7 +80,7 @@ protected:
     QString color;
 };
 
-ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags flags)
+ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WindowFlags flags)
     : QDockWidget(parent, flags)
 {
     setObjectName(colorName + QLatin1String(" Dock Widget"));

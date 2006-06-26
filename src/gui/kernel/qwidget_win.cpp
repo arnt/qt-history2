@@ -175,7 +175,7 @@ static void qt_tablet_cleanup()
     qt_tablet_widget = 0;
 }
 
-const QString qt_reg_winclass(Qt::WFlags flags);                // defined in qapplication_win.cpp
+const QString qt_reg_winclass(Qt::WindowFlags flags);                // defined in qapplication_win.cpp
 void            qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst); // dnd_win
 QOleDropTarget* qt_olednd_register(QWidget* widget);
 
@@ -504,7 +504,7 @@ void QWidgetPrivate::reparentChildren()
     }
 }
 
-void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
+void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
 {
     Q_Q(QWidget);
     bool wasCreated = q->testAttribute(Qt::WA_WState_Created);

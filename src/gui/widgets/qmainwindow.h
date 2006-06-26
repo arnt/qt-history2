@@ -41,7 +41,7 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
 #endif
 
 public:
-    explicit QMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
+    explicit QMainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     ~QMainWindow();
 
     QSize iconSize() const;
@@ -105,7 +105,7 @@ public:
 #endif
 
 #ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
+    QT3_SUPPORT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WindowFlags flags = 0);
 #endif
 
 #ifndef QT_NO_DOCKWIDGET

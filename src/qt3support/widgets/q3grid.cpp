@@ -48,7 +48,7 @@
     rows. The widget flags \a f are passed to the Q3Frame constructor.
 */
 Q3Grid::Q3Grid(int n, Qt::Orientation orient, QWidget *parent, const char *name,
-               Qt::WFlags f)
+               Qt::WindowFlags f)
     : Q3Frame(parent, name, f)
 {
     int nCols, nRows;
@@ -69,7 +69,7 @@ Q3Grid::Q3Grid(int n, Qt::Orientation orient, QWidget *parent, const char *name,
     \a n specifies the number of columns. The widget flags \a f are
     passed to the Q3Frame constructor.
  */
-Q3Grid::Q3Grid(int n, QWidget *parent, const char *name, Qt::WFlags f)
+Q3Grid::Q3Grid(int n, QWidget *parent, const char *name, Qt::WindowFlags f)
     : Q3Frame(parent, name, f)
 {
     (new QGridLayout(this, -1, n, 0, 0, name))->setAutoAdd(true);

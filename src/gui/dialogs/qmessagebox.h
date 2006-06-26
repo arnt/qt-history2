@@ -46,7 +46,7 @@ public:
     explicit QMessageBox(QWidget *parent = 0);
     QMessageBox(const QString &caption, const QString &text, Icon icon,
                 int button0, int button1, int button2,
-                QWidget *parent = 0, Qt::WFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+                QWidget *parent = 0, Qt::WindowFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
     ~QMessageBox();
 
     enum Button { NoButton = 0, Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5,
@@ -122,7 +122,7 @@ public:
     QT3_SUPPORT_CONSTRUCTOR QMessageBox(const QString &caption, const QString &text, Icon icon,
                                       int button0, int button1, int button2,
                                       QWidget *parent, const char *name, bool modal,
-                                      Qt::WFlags f =  Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+                                      Qt::WindowFlags f =  Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
     QT3_SUPPORT_CONSTRUCTOR QMessageBox(QWidget *parent, const char *name);
 
     static QT3_SUPPORT QPixmap standardIcon(Icon icon, Qt::GUIStyle);

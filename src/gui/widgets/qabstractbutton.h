@@ -116,7 +116,7 @@ protected:
 
 #ifdef QT3_SUPPORT
 public:
-    QT3_SUPPORT_CONSTRUCTOR QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f=0);
+    QT3_SUPPORT_CONSTRUCTOR QAbstractButton(QWidget *parent, const char *name, Qt::WindowFlags f=0);
     inline QT3_SUPPORT bool isOn() const { return isChecked(); }
     inline QT3_SUPPORT const QPixmap *pixmap() const { return 0; } // help styles compile
     inline QT3_SUPPORT void setPixmap( const QPixmap &p ) {

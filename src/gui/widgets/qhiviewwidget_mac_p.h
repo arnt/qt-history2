@@ -33,8 +33,8 @@ class QHIViewWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QHIViewWidget(WindowRef windowref, bool createSubs=true, QWidget *parent=0, Qt::WFlags flags = 0);
-    QHIViewWidget(HIViewRef hiviewref, bool createSubs=true, QWidget *parent=0, Qt::WFlags flags = 0);
+    QHIViewWidget(WindowRef windowref, bool createSubs=true, QWidget *parent=0, Qt::WindowFlags flags = 0);
+    QHIViewWidget(HIViewRef hiviewref, bool createSubs=true, QWidget *parent=0, Qt::WindowFlags flags = 0);
     ~QHIViewWidget();
 
 private:

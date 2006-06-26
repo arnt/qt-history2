@@ -2031,7 +2031,7 @@ const QGLContext* QGLContext::currentContext()
     \sa QGLFormat::defaultFormat(), {Textures Example}
 */
 
-QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f)
+QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WindowFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
@@ -2071,7 +2071,7 @@ QGLWidget::QGLWidget(QWidget *parent, const QGLWidget* shareWidget, Qt::WFlags f
 */
 
 QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* shareWidget,
-                     Qt::WFlags f)
+                     Qt::WindowFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
@@ -2107,7 +2107,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent, const QGLWidget* 
     \sa QGLFormat::defaultFormat(), isValid()
 */
 QGLWidget::QGLWidget(QGLContext *context, QWidget *parent, const QGLWidget *shareWidget,
-                     Qt::WFlags f)
+                     Qt::WindowFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
@@ -3136,7 +3136,7 @@ QPaintEngine *QGLWidget::paintEngine() const
     \obsolete
  */
 QGLWidget::QGLWidget(QWidget *parent, const char *name,
-                      const QGLWidget* shareWidget, Qt::WFlags f)
+                      const QGLWidget* shareWidget, Qt::WindowFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
@@ -3154,7 +3154,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
  */
 QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
                       const char *name, const QGLWidget* shareWidget,
-                      Qt::WFlags f)
+                      Qt::WindowFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);
@@ -3171,7 +3171,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
     \obsolete
  */
 QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
-                      const char *name, const QGLWidget *shareWidget, Qt::WFlags f)
+                      const char *name, const QGLWidget *shareWidget, Qt::WindowFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::MSWindowsOwnDC)
 {
     Q_D(QGLWidget);

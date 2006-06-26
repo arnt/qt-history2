@@ -50,7 +50,7 @@ class Q_COMPAT_EXPORT Q3ListBox : public Q3ScrollView
     Q_PROPERTY(bool variableHeight READ variableHeight WRITE setVariableHeight)
 
 public:
-    Q3ListBox(QWidget* parent=0, const char* name=0, Qt::WFlags f=0 );
+    Q3ListBox(QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0 );
     ~Q3ListBox();
 
     uint count() const;

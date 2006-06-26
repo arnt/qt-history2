@@ -124,7 +124,7 @@ protected:
 
 #ifdef QT3_SUPPORT
 public:
-    QT3_SUPPORT_CONSTRUCTOR QTabWidget(QWidget *parent, const char *name, Qt::WFlags f = 0);
+    QT3_SUPPORT_CONSTRUCTOR QTabWidget(QWidget *parent, const char *name, Qt::WindowFlags f = 0);
 
     inline QT3_SUPPORT void insertTab(QWidget * w, const QString &s, int index = -1) { insertTab(index, w, s); }
     inline QT3_SUPPORT void insertTab(QWidget *child, const QIcon& icon,

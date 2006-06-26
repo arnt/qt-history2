@@ -24,7 +24,7 @@ class Q_COMPAT_EXPORT Q3VBox : public Q3HBox
 {
     Q_OBJECT
 public:
-    Q3VBox(QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+    Q3VBox(QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0);
 
 private:
     Q_DISABLE_COPY(Q3VBox)

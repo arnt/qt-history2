@@ -1696,7 +1696,7 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     and \a f to the QWidget constructor. To initialize a control,
     call setControl().
 */
-QAxWidget::QAxWidget(QWidget *parent, Qt::WFlags f)
+QAxWidget::QAxWidget(QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f), container(0)
 {
 }
@@ -1707,7 +1707,7 @@ QAxWidget::QAxWidget(QWidget *parent, Qt::WFlags f)
 
     \sa setControl()
 */
-QAxWidget::QAxWidget(const QString &c, QWidget *parent, Qt::WFlags f)
+QAxWidget::QAxWidget(const QString &c, QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f), container(0)
 {
     setControl(c);
@@ -1717,7 +1717,7 @@ QAxWidget::QAxWidget(const QString &c, QWidget *parent, Qt::WFlags f)
     Creates a QAxWidget that wraps the COM object referenced by \a iface.
     \a parent and \a f are propagated to the QWidget contructor.
 */
-QAxWidget::QAxWidget(IUnknown *iface, QWidget *parent, Qt::WFlags f)
+QAxWidget::QAxWidget(IUnknown *iface, QWidget *parent, Qt::WindowFlags f)
 : QWidget(parent, f), QAxBase(iface), container(0)
 {
 }

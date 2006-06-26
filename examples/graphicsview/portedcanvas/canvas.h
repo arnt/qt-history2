@@ -29,7 +29,7 @@ class FigureEditor : public QGraphicsView {
     Q_OBJECT
 
 public:
-    FigureEditor(QGraphicsScene&, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+    FigureEditor(QGraphicsScene&, QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0);
     void clear();
 
 signals:
@@ -40,7 +40,7 @@ class Main : public Q3MainWindow {
     Q_OBJECT
 
 public:
-    Main(QGraphicsScene&, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+    Main(QGraphicsScene&, QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0);
     ~Main();
 
 public slots:

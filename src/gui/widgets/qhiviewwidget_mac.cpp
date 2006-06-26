@@ -17,7 +17,7 @@
 extern HIViewRef qt_mac_hiview_for(const QWidget *w); //qwidget_mac.cpp
 extern HIViewRef qt_mac_hiview_for(WindowPtr w); //qwidget_mac.cpp
 
-QHIViewWidget::QHIViewWidget(WindowRef windowref, bool createSubs, QWidget *parent, Qt::WFlags flags)
+QHIViewWidget::QHIViewWidget(WindowRef windowref, bool createSubs, QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
     create((WId)qt_mac_hiview_for(windowref), false);
@@ -32,7 +32,7 @@ QHIViewWidget::~QHIViewWidget()
 {
 }
 
-QHIViewWidget::QHIViewWidget(HIViewRef hiviewref, bool createSubs, QWidget *parent, Qt::WFlags flags)
+QHIViewWidget::QHIViewWidget(HIViewRef hiviewref, bool createSubs, QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
     create((WId)hiviewref, false);

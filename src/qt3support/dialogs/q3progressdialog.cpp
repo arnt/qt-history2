@@ -224,7 +224,7 @@ Q3ProgressBar *Q3ProgressDialog::bar() const
 */
 
 Q3ProgressDialog::Q3ProgressDialog(QWidget *creator, const char *name,
-                                  bool modal, Qt::WFlags f)
+                                  bool modal, Qt::WindowFlags f)
     : QDialog(creator, f)
 {
     setObjectName(name);
@@ -264,7 +264,7 @@ Q3ProgressDialog::Q3ProgressDialog(const QString &labelText,
                                   const QString &cancelButtonText,
                                   int totalSteps,
                                   QWidget *creator, const char *name,
-                                  bool modal, Qt::WFlags f)
+                                  bool modal, Qt::WindowFlags f)
     : QDialog(creator, f)
 {
     setObjectName(name);
@@ -288,7 +288,7 @@ Q3ProgressDialog::Q3ProgressDialog(const QString &labelText,
   \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
   setTotalSteps()
 */
-Q3ProgressDialog::Q3ProgressDialog(QWidget *creator, Qt::WFlags f)
+Q3ProgressDialog::Q3ProgressDialog(QWidget *creator, Qt::WindowFlags f)
     : QDialog(creator, f)
 {
     init(creator, QString::fromLatin1(""), tr("Cancel"), 100);
@@ -318,7 +318,7 @@ Q3ProgressDialog::Q3ProgressDialog(QWidget *creator, Qt::WFlags f)
 */
 Q3ProgressDialog::Q3ProgressDialog(const QString &labelText,
                                   const QString &cancelButtonText,
-                                  int totalSteps, QWidget *creator, Qt::WFlags f)
+                                  int totalSteps, QWidget *creator, Qt::WindowFlags f)
     : QDialog(creator, f)
 {
     init(creator, labelText, cancelButtonText, totalSteps);

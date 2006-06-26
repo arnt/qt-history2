@@ -303,7 +303,7 @@ Q3ToolBar::Q3ToolBar(const QString &label,
 
 Q3ToolBar::Q3ToolBar(const QString &label, Q3MainWindow * mainWindow,
                     QWidget * parent, bool newLine, const char * name,
-                    Qt::WFlags f)
+                    Qt::WindowFlags f)
     : Q3DockWindow(InDock, parent, name, f, true)
 {
     mw = mainWindow;

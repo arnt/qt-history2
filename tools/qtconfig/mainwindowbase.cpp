@@ -24,7 +24,7 @@
  *  name 'name' and widget flags set to 'f'.
  *
  */
-MainWindowBase::MainWindowBase(QWidget* parent, const char* name, Qt::WFlags fl)
+MainWindowBase::MainWindowBase(QWidget* parent, const char* name, Qt::WindowFlags fl)
     : Q3MainWindow(parent, name, fl)
 {
     setupUi(this);

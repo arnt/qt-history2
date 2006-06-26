@@ -25,7 +25,7 @@
 
 Q_DECLARE_METATYPE(QPointer<FormHolder>)
 
-TrPreviewTool::TrPreviewTool(QWidget *parent, Qt::WFlags flags)
+TrPreviewTool::TrPreviewTool(QWidget *parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags), currentTr(0)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
@@ -328,7 +328,7 @@ bool TrPreviewTool::event(QEvent *e)
 
 QUiLoader* FormHolder::uiLoader = 0;
 
-FormHolder::FormHolder(QWidget* parent, Qt::WFlags flags)
+FormHolder::FormHolder(QWidget* parent, Qt::WindowFlags flags)
     : QWidget(parent,flags), form(0)
 {
     setAttribute(Qt::WA_DeleteOnClose);

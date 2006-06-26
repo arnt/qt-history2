@@ -281,7 +281,7 @@ public:
         Right
     };
 
-    Q3IconView(QWidget* parent=0, const char* name=0, Qt::WFlags f = 0);
+    Q3IconView(QWidget* parent=0, const char* name=0, Qt::WindowFlags f = 0);
     virtual ~Q3IconView();
 
     virtual void insertItem(Q3IconViewItem *item, Q3IconViewItem *after = 0L);

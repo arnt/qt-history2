@@ -85,7 +85,7 @@ public:
   The \a parent, \a name and \a f arguments are passed to the Q3Frame
   constructor.
 */
-Q3WidgetStack::Q3WidgetStack(QWidget * parent, const char *name, Qt::WFlags f)
+Q3WidgetStack::Q3WidgetStack(QWidget * parent, const char *name, Qt::WindowFlags f)
     : Q3Frame(parent, name, f) //## merge constructors in 4.0
 {
     init();

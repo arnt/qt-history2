@@ -31,7 +31,7 @@ class Q_COMPAT_EXPORT Q3GridView : public Q3ScrollView
     Q_PROPERTY(int cellHeight READ cellHeight WRITE setCellHeight)
 public:
 
-    Q3GridView(QWidget *parent=0, const char *name=0, Qt::WFlags f=0);
+    Q3GridView(QWidget *parent=0, const char *name=0, Qt::WindowFlags f=0);
    ~Q3GridView();
 
     int numRows() const;

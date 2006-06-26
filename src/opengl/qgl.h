@@ -260,18 +260,18 @@ class Q_OPENGL_EXPORT QGLWidget : public QWidget
     Q_DECLARE_PRIVATE(QGLWidget)
 public:
     explicit QGLWidget(QWidget* parent=0,
-                       const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+                       const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0);
     explicit QGLWidget(QGLContext *context, QWidget* parent=0,
-                       const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+                       const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0);
     explicit QGLWidget(const QGLFormat& format, QWidget* parent=0,
-                       const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+                       const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0);
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QGLWidget(QWidget* parent, const char* name,
-                                    const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+                                    const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0);
     QT3_SUPPORT_CONSTRUCTOR QGLWidget(QGLContext *context, QWidget* parent, const char* name,
-                                    const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+                                    const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0);
     QT3_SUPPORT_CONSTRUCTOR QGLWidget(const QGLFormat& format, QWidget* parent, const char* name,
-                                    const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+                                    const QGLWidget* shareWidget = 0, Qt::WindowFlags f=0);
 #endif
     ~QGLWidget();
 

@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-UnpackDlgImpl::UnpackDlgImpl( QString key, QWidget* pParent, const char* pName, WFlags f ) : 
+UnpackDlgImpl::UnpackDlgImpl( QString key, QWidget* pParent, const char* pName, WindowFlags f ) : 
     UnpackDlg( pParent, pName, f )
 {
     destPath->setText( QDir::currentDirPath() );

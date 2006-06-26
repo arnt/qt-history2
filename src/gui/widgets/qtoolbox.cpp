@@ -279,7 +279,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
 /*!
     Constructs a toolbox called \a name with parent \a parent and flags \a f.
 */
-QToolBox::QToolBox(QWidget *parent, const char *name, Qt::WFlags f)
+QToolBox::QToolBox(QWidget *parent, const char *name, Qt::WindowFlags f)
     :  QFrame(*new QToolBoxPrivate, parent, f)
 {
     Q_D(QToolBox);
@@ -293,7 +293,7 @@ QToolBox::QToolBox(QWidget *parent, const char *name, Qt::WFlags f)
 /*!
     Constructs a new toolbox with the given \a parent and the flags, \a f.
 */
-QToolBox::QToolBox(QWidget *parent, Qt::WFlags f)
+QToolBox::QToolBox(QWidget *parent, Qt::WindowFlags f)
     :  QFrame(*new QToolBoxPrivate, parent, f)
 {
     Q_D(QToolBox);

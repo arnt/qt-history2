@@ -67,7 +67,7 @@
     \sa setTotalSteps()
 */
 
-Q3ProgressBar::Q3ProgressBar(QWidget *parent, const char *name, Qt::WFlags f)
+Q3ProgressBar::Q3ProgressBar(QWidget *parent, const char *name, Qt::WindowFlags f)
     : QFrame(parent, f),
       total_steps(100),
       progress_val(-1),
@@ -97,7 +97,7 @@ Q3ProgressBar::Q3ProgressBar(QWidget *parent, const char *name, Qt::WFlags f)
     \sa setTotalSteps(), setProgress()
 */
 
-Q3ProgressBar::Q3ProgressBar(int totalSteps, QWidget *parent, const char *name, Qt::WFlags f)
+Q3ProgressBar::Q3ProgressBar(int totalSteps, QWidget *parent, const char *name, Qt::WindowFlags f)
     : QFrame(parent, f),
       total_steps(totalSteps),
       progress_val(-1),
@@ -123,7 +123,7 @@ Q3ProgressBar::Q3ProgressBar(int totalSteps, QWidget *parent, const char *name, 
     \sa setTotalSteps()
 */
 
-Q3ProgressBar::Q3ProgressBar(QWidget *parent, Qt::WFlags f)
+Q3ProgressBar::Q3ProgressBar(QWidget *parent, Qt::WindowFlags f)
     : QFrame(parent, f),
       total_steps(100),
       progress_val(-1),
@@ -152,7 +152,7 @@ Q3ProgressBar::Q3ProgressBar(QWidget *parent, Qt::WFlags f)
     \sa setTotalSteps(), setProgress()
 */
 
-Q3ProgressBar::Q3ProgressBar(int totalSteps, QWidget *parent, Qt::WFlags f)
+Q3ProgressBar::Q3ProgressBar(int totalSteps, QWidget *parent, Qt::WindowFlags f)
     : QFrame(parent, f),
       total_steps(totalSteps),
       progress_val(-1),

@@ -39,7 +39,7 @@ class Q_COMPAT_EXPORT Q3ScrollView : public Q3Frame
     Q_PROPERTY( bool dragAutoScroll READ dragAutoScroll WRITE setDragAutoScroll )
 
 public:
-    Q3ScrollView(QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+    Q3ScrollView(QWidget* parent=0, const char* name=0, Qt::WindowFlags f=0);
     ~Q3ScrollView();
 
     enum ResizePolicy { Default, Manual, AutoOne, AutoOneFit };

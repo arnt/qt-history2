@@ -16,7 +16,7 @@
 #include <QPixmap>
 #include <QStyle>
 
-AboutDialog::AboutDialog(QWidget* parent, Qt::WFlags fl)
+AboutDialog::AboutDialog(QWidget* parent, Qt::WindowFlags fl)
     : QDialog(parent, fl)
 {
     setupUi(this);

@@ -77,7 +77,7 @@ QVariant ControlList::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QAxSelect::QAxSelect(QWidget *parent, Qt::WFlags f)
+QAxSelect::QAxSelect(QWidget *parent, Qt::WindowFlags f)
 : QDialog(parent, f)
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);

@@ -120,7 +120,7 @@ public:
     modal and \a f arguments are passed to the QDialog constructor.
 */
 
-Q3Wizard::Q3Wizard(QWidget *parent, const char *name, bool modal, Qt::WFlags f )
+Q3Wizard::Q3Wizard(QWidget *parent, const char *name, bool modal, Qt::WindowFlags f )
     : QDialog( parent, name, modal, f )
 {
     d = new Q3WizardPrivate();

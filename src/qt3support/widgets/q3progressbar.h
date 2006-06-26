@@ -34,11 +34,11 @@ class Q_COMPAT_EXPORT Q3ProgressBar : public QFrame
     Q_PROPERTY(bool percentageVisible READ percentageVisible WRITE setPercentageVisible)
 
 public:
-    Q3ProgressBar(QWidget *parent, const char *name, Qt::WFlags f=0);
+    Q3ProgressBar(QWidget *parent, const char *name, Qt::WindowFlags f=0);
     Q3ProgressBar(int totalSteps, QWidget *parent, const char *name,
-                  Qt::WFlags f=0);
-    Q3ProgressBar(QWidget *parent = 0, Qt::WFlags f = 0);
-    Q3ProgressBar(int totalSteps, QWidget *parent = 0, Qt::WFlags f=0);
+                  Qt::WindowFlags f=0);
+    Q3ProgressBar(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    Q3ProgressBar(int totalSteps, QWidget *parent = 0, Qt::WindowFlags f=0);
 
     int totalSteps() const;
     int progress() const;

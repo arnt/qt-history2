@@ -173,7 +173,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         if (category & Licensed)
             out << "const QString &licenseKey = QString(), ";
         if (category & ActiveX)
-            out << "QWidget *parent = 0, Qt::WFlags f";
+            out << "QWidget *parent = 0, Qt::WindowFlags f";
         else if (category & SubObject)
             out << "IDispatch *subobject = 0, QAxObject *parent";
         else

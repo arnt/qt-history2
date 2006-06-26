@@ -287,12 +287,12 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
 */
 
 /*!
-    \fn QFileDialog::QFileDialog(QWidget *parent, Qt::WFlags flags)
+    \fn QFileDialog::QFileDialog(QWidget *parent, Qt::WindowFlags flags)
 
     Constructs a file dialog with the given \a parent and widget \a flags.
 */
 
-QFileDialog::QFileDialog(QWidget *parent, Qt::WFlags f)
+QFileDialog::QFileDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(*new QFileDialogPrivate, parent, f)
 {
     QDir dir = QDir::current();

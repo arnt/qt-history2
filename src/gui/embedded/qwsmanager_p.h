@@ -66,7 +66,7 @@ public:
     struct RegionCaching {
         int regionType;
         QRegion region;
-        Qt::WFlags windowFlags;
+        Qt::WindowFlags windowFlags;
         QRect windowGeometry;
     } cached_region;
 

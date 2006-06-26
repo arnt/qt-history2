@@ -46,7 +46,7 @@ class QWorkspaceTitleBar : public QWidget
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
 
 public:
-    QWorkspaceTitleBar (QWidget *w, QWidget *parent, Qt::WFlags f = 0);
+    QWorkspaceTitleBar (QWidget *w, QWidget *parent, Qt::WindowFlags f = 0);
     ~QWorkspaceTitleBar();
 
     bool isActive() const;
@@ -108,7 +108,7 @@ public:
     {
     }
 
-    Qt::WFlags flags;
+    Qt::WindowFlags flags;
     QStyle::SubControl buttonDown;
     QStyle::SubControl lastControl;
     QPoint moveOffset;
@@ -155,7 +155,7 @@ QStyleOptionTitleBar QWorkspaceTitleBarPrivate::getStyleOption() const
     return opt;
 }
 
-QWorkspaceTitleBar::QWorkspaceTitleBar(QWidget *w, QWidget *parent, Qt::WFlags f)
+QWorkspaceTitleBar::QWorkspaceTitleBar(QWidget *w, QWidget *parent, Qt::WindowFlags f)
     : QWidget(*new QWorkspaceTitleBarPrivate, parent, Qt::FramelessWindowHint)
 {
     Q_D(QWorkspaceTitleBar);
@@ -717,7 +717,7 @@ class QWorkspaceChild : public QWidget
     friend class QWorkspaceTitleBar;
 
 public:
-    QWorkspaceChild(QWidget* window, QWorkspace* parent=0, Qt::WFlags flags = 0);
+    QWorkspaceChild(QWidget* window, QWorkspace* parent=0, Qt::WindowFlags flags = 0);
     ~QWorkspaceChild();
 
     void setActive(bool);
@@ -1030,7 +1030,7 @@ void QWorkspace::setBackground(const QBrush &background)
     setParent() with the new parent (or 0 to make it a stand-alone
     window).
 */
-QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
+QWidget * QWorkspace::addWindow(QWidget *w, Qt::WindowFlags flags)
 {
     Q_D(QWorkspace);
     if (!w)
@@ -2340,7 +2340,7 @@ void QWorkspace::arrangeIcons()
 }
 
 
-QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags flags)
+QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WindowFlags flags)
     : QWidget(parent,
              Qt::FramelessWindowHint | Qt::SubWindow)
 {

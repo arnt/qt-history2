@@ -3344,7 +3344,7 @@ void Q3CanvasSprite::draw(QPainter& painter)
     with a canvas, so you must to call setCanvas() to view a
     canvas.
 */
-Q3CanvasView::Q3CanvasView(QWidget* parent, const char* name, Qt::WFlags f)
+Q3CanvasView::Q3CanvasView(QWidget* parent, const char* name, Qt::WindowFlags f)
     : Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
     d = new Q3CanvasViewData;
@@ -3358,7 +3358,7 @@ Q3CanvasView::Q3CanvasView(QWidget* parent, const char* name, Qt::WFlags f)
     Constructs a Q3CanvasView which views canvas \a canvas, with parent
     \a parent, and name \a name, using the widget flags \a f.
 */
-Q3CanvasView::Q3CanvasView(Q3Canvas* canvas, QWidget* parent, const char* name, Qt::WFlags f)
+Q3CanvasView::Q3CanvasView(Q3Canvas* canvas, QWidget* parent, const char* name, Qt::WindowFlags f)
     : Q3ScrollView(parent,name,f|WResizeNoErase|WStaticContents)
 {
     d = new Q3CanvasViewData;

@@ -147,7 +147,7 @@ class PPDPropertiesDialog : public QDialog , Ui::QPrintPropertiesDialog
 {
     Q_OBJECT
 public:
-    PPDPropertiesDialog(PPDOptionsModel* model, QWidget* parent = 0, Qt::WFlags f = 0);
+    PPDPropertiesDialog(PPDOptionsModel* model, QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~PPDPropertiesDialog();
 
     void showEvent(QShowEvent * event);
@@ -1227,7 +1227,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PPDPropertiesDialog::PPDPropertiesDialog(PPDOptionsModel* model, QWidget* parent, Qt::WFlags f) : QDialog(parent, f)
+PPDPropertiesDialog::PPDPropertiesDialog(PPDOptionsModel* model, QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f)
 {
     setupUi(this);
     treeView->setItemDelegate(new PPDOptionsEditor(this));

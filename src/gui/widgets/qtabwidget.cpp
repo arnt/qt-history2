@@ -249,7 +249,7 @@ QTabWidget::QTabWidget(QWidget *parent)
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
 */
-QTabWidget::QTabWidget(QWidget *parent, const char *name, Qt::WFlags f)
+QTabWidget::QTabWidget(QWidget *parent, const char *name, Qt::WindowFlags f)
     : QWidget(*new QTabWidgetPrivate, parent, f)
 {
     Q_D(QTabWidget);

@@ -44,7 +44,7 @@ class Q_COMPAT_EXPORT Q3MainWindow: public QWidget
     Q_PROPERTY(bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving)
 
 public:
-    Q3MainWindow(QWidget* parent=0, const char* name=0, Qt::WFlags f = Qt::WType_TopLevel);
+    Q3MainWindow(QWidget* parent=0, const char* name=0, Qt::WindowFlags f = Qt::WType_TopLevel);
     ~Q3MainWindow();
 
 #ifndef QT_NO_MENUBAR

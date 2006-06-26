@@ -106,7 +106,7 @@ public:
     There should be no need to set the widget flags, \a f, except
     perhaps Qt::WindowStaysOnTopHint.
 */
-QSplashScreen::QSplashScreen(const QPixmap &pixmap, Qt::WFlags f)
+QSplashScreen::QSplashScreen(const QPixmap &pixmap, Qt::WindowFlags f)
     : QWidget(*(new QSplashScreenPrivate()), 0, Qt::SplashScreen | f)
 {
     d_func()->pixmap = pixmap;
@@ -121,7 +121,7 @@ QSplashScreen::QSplashScreen(const QPixmap &pixmap, Qt::WFlags f)
     prefer to have the splash screen on a different screen than your primary
     one. In that case pass the proper desktop() as the \a parent.
 */
-QSplashScreen::QSplashScreen(QWidget *parent, const QPixmap &pixmap, Qt::WFlags f)
+QSplashScreen::QSplashScreen(QWidget *parent, const QPixmap &pixmap, Qt::WindowFlags f)
     : QWidget(*new QSplashScreenPrivate, parent, Qt::SplashScreen | f)
 {
     d_func()->pixmap = pixmap;

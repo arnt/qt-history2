@@ -381,7 +381,7 @@ static bool createDir( const QString& fullPath )
     return success;
 }
 
-SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal, WFlags flag ) :
+SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal, WindowFlags flag ) :
     QWizard( parent, name, modal, flag ),
     tmpPath( QEnvironment::getTempPath() ),
     fixedPath(false),

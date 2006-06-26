@@ -29,7 +29,7 @@ class Q_COMPAT_EXPORT Q3Wizard : public QDialog
     Q_PROPERTY( QFont titleFont READ titleFont WRITE setTitleFont )
 
 public:
-    Q3Wizard( QWidget* parent=0, const char* name=0, bool modal=false, Qt::WFlags f=0 );
+    Q3Wizard( QWidget* parent=0, const char* name=0, bool modal=false, Qt::WindowFlags f=0 );
     ~Q3Wizard();
 
     void setVisible(bool);

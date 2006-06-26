@@ -26,9 +26,9 @@ class Q_COMPAT_EXPORT Q3Grid : public Q3Frame
 {
     Q_OBJECT
 public:
-    Q3Grid(int n, QWidget* parent=0, const char* name=0, Qt::WFlags f = 0);
+    Q3Grid(int n, QWidget* parent=0, const char* name=0, Qt::WindowFlags f = 0);
     Q3Grid(int n, Qt::Orientation orient, QWidget* parent=0, const char* name=0,
-	   Qt::WFlags f = 0);
+	   Qt::WindowFlags f = 0);
 
     void setSpacing(int);
     QSize sizeHint() const;

@@ -79,7 +79,7 @@ public:
     explicit QMessageBoxEx(QWidget *parent = 0);
     QMessageBoxEx(const QString &caption, const QString &text, Icon icon,
                   QWidget *parent = 0, 
-                  Qt::WFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+                  Qt::WindowFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
     ~QMessageBoxEx();
 
     int addButton(const QString &text, ButtonRole role);

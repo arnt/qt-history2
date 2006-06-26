@@ -149,7 +149,7 @@ NodeItem::NodeItem( )
 
 FigureEditor::FigureEditor(
 	QGraphicsScene& c, QWidget* parent,
-	const char* name, Qt::WFlags f) :
+	const char* name, Qt::WindowFlags f) :
     QGraphicsView(&c,parent)
 {
     setObjectName(name);
@@ -274,7 +274,7 @@ static uint mainCount = 0;
 static QImage *butterflyimg;
 static QImage *logoimg;
 
-Main::Main(QGraphicsScene& c, QWidget* parent, const char* name, Qt::WFlags f) :
+Main::Main(QGraphicsScene& c, QWidget* parent, const char* name, Qt::WindowFlags f) :
     Q3MainWindow(parent,name,f),
     canvas(c)
 {

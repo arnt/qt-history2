@@ -222,7 +222,7 @@ void QProgressDialogPrivate::layout()
   setMinimum(), setMaximum()
 */
 
-QProgressDialog::QProgressDialog(QWidget *parent, Qt::WFlags f)
+QProgressDialog::QProgressDialog(QWidget *parent, Qt::WindowFlags f)
     : QDialog(*(new QProgressDialogPrivate), parent, f)
 {
     Q_D(QProgressDialog);
@@ -254,7 +254,7 @@ QProgressDialog::QProgressDialog(QWidget *parent, Qt::WFlags f)
 QProgressDialog::QProgressDialog(const QString &labelText,
                                   const QString &cancelButtonText,
                                   int minimum, int maximum,
-                                  QWidget *parent, Qt::WFlags f)
+                                  QWidget *parent, Qt::WindowFlags f)
     : QDialog(*(new QProgressDialogPrivate), parent, f)
 {
     Q_D(QProgressDialog);

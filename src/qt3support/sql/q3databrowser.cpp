@@ -130,7 +130,7 @@ public:
     name \a name and widget flags set to \a fl.
 */
 
-Q3DataBrowser::Q3DataBrowser(QWidget *parent, const char *name, Qt::WFlags fl)
+Q3DataBrowser::Q3DataBrowser(QWidget *parent, const char *name, Qt::WindowFlags fl)
     : QWidget(parent, name, fl)
 {
     d = new Q3DataBrowserPrivate();

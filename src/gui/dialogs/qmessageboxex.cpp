@@ -163,7 +163,7 @@ QMessageBoxEx::QMessageBoxEx(QWidget *parent)
     \sa setWindowTitle(), setText(), setIcon()
 */
 QMessageBoxEx::QMessageBoxEx(const QString &caption, const QString &text,
-                             Icon icon, QWidget *parent, Qt::WFlags f)
+                             Icon icon, QWidget *parent, Qt::WindowFlags f)
 : QDialog(*new QMessageBoxExPrivate, parent, f | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     Q_D(QMessageBoxEx);

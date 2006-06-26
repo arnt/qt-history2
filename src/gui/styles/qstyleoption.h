@@ -609,7 +609,7 @@ public:
     QString text;
     QIcon icon;
     int titleBarState;
-    Qt::WFlags titleBarFlags;
+    Qt::WindowFlags titleBarFlags;
 
     QStyleOptionTitleBar();
     QStyleOptionTitleBar(const QStyleOptionTitleBar &other) : QStyleOptionComplex(Version, Type) { *this = other; }

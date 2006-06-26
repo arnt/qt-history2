@@ -74,7 +74,7 @@ static char *cross_data[] = {
 };
 
 
-SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WFlags fl ) :
+SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WindowFlags fl ) :
     SideDecoration( parent, name, fl ),
     checkPix( ( const char** ) check_data ),
     arrowPix( ( const char** ) arrow_data ),

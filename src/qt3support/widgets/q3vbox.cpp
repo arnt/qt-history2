@@ -34,7 +34,7 @@
     Constructs a vbox widget called \a name with parent \a parent and
     widget flags \a f.
  */
-Q3VBox::Q3VBox( QWidget *parent, const char *name, Qt::WFlags f )
+Q3VBox::Q3VBox( QWidget *parent, const char *name, Qt::WindowFlags f )
     :Q3HBox( false, parent, name, f )
 {
 }

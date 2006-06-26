@@ -37,8 +37,8 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(Qt::TextInteractionFlags textInteractionFlags READ textInteractionFlags WRITE setTextInteractionFlags)
 
 public:
-    explicit QLabel(QWidget *parent=0, Qt::WFlags f=0);
-    explicit QLabel(const QString &text, QWidget *parent=0, Qt::WFlags f=0);
+    explicit QLabel(QWidget *parent=0, Qt::WindowFlags f=0);
+    explicit QLabel(const QString &text, QWidget *parent=0, Qt::WindowFlags f=0);
     ~QLabel();
 
     QString text() const;
@@ -112,11 +112,11 @@ protected:
 
 #ifdef QT3_SUPPORT
 public:
-    QT3_SUPPORT_CONSTRUCTOR QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
+    QT3_SUPPORT_CONSTRUCTOR QLabel(QWidget *parent, const char* name, Qt::WindowFlags f=0);
     QT3_SUPPORT_CONSTRUCTOR QLabel(const QString &text, QWidget *parent, const char* name,
-           Qt::WFlags f=0);
+           Qt::WindowFlags f=0);
     QT3_SUPPORT_CONSTRUCTOR QLabel(QWidget *buddy, const QString &,
-           QWidget *parent=0, const char* name=0, Qt::WFlags f=0);
+           QWidget *parent=0, const char* name=0, Qt::WindowFlags f=0);
     QT3_SUPPORT void setAlignment(int alignment);
 
     // don't mark the next function with QT3_SUPPORT

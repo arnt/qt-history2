@@ -257,7 +257,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 }
 
 
-void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
+void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WindowFlags f)
 {
     Q_Q(QWidget);
      if (q->isVisible() && q->parentWidget() && parent != q->parentWidget())

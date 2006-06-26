@@ -913,7 +913,7 @@ void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
     with widget flags \a f.
 */
 
-Q3DockWindow::Q3DockWindow(QWidget* parent, const char* name, Qt::WFlags f)
+Q3DockWindow::Q3DockWindow(QWidget* parent, const char* name, Qt::WindowFlags f)
     : Q3Frame(parent, name, f | Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     curPlace = InDock;
@@ -938,7 +938,7 @@ Q3DockWindow::Q3DockWindow(QWidget* parent, const char* name, Qt::WFlags f)
     dock window where you want it.
 */
 
-Q3DockWindow::Q3DockWindow(Place p, QWidget *parent, const char *name, Qt::WFlags f)
+Q3DockWindow::Q3DockWindow(Place p, QWidget *parent, const char *name, Qt::WindowFlags f)
     : Q3Frame(parent, name, f | Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     curPlace = p;
@@ -949,7 +949,7 @@ Q3DockWindow::Q3DockWindow(Place p, QWidget *parent, const char *name, Qt::WFlag
 /*! \internal
 */
 
-Q3DockWindow::Q3DockWindow(Place p, QWidget *parent, const char *name, Qt::WFlags f, bool toolbar)
+Q3DockWindow::Q3DockWindow(Place p, QWidget *parent, const char *name, Qt::WindowFlags f, bool toolbar)
     : Q3Frame(parent, name, f | Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
     curPlace = p;

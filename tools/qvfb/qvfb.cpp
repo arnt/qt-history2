@@ -153,7 +153,7 @@ void Zoomer::zoom(int z)
 
 // =====================================================================
 
-QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent, Qt::WFlags flags )
+QVFb::QVFb( int display_id, int w, int h, int d, int r, const QString &skin, QWidget *parent, Qt::WindowFlags flags )
     : QMainWindow( parent, flags )
 {
     view = 0;

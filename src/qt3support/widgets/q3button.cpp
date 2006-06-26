@@ -35,7 +35,7 @@
     using the widget flags \a f.
 */
 
-Q3Button::Q3Button( QWidget *parent, const char *name, Qt::WFlags f )
+Q3Button::Q3Button( QWidget *parent, const char *name, Qt::WindowFlags f )
     : QAbstractButton( parent, name, f )
 {
 }

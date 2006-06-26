@@ -79,7 +79,7 @@ class QAbstractScrollAreaWidget : public QWidget
     Q_OBJECT
 
 public:
-    QAbstractScrollAreaWidget(Q3ScrollView* parent=0, const char* name=0, Qt::WFlags f = 0)
+    QAbstractScrollAreaWidget(Q3ScrollView* parent=0, const char* name=0, Qt::WindowFlags f = 0)
         : QWidget(parent, name, f)
     {
         setAutoFillBackground(true);
@@ -91,7 +91,7 @@ class QClipperWidget : public QWidget
     Q_OBJECT
 
 public:
-    QClipperWidget(QWidget * parent=0, const char * name=0, Qt::WFlags f=0)
+    QClipperWidget(QWidget * parent=0, const char * name=0, Qt::WindowFlags f=0)
         : QWidget (parent,name,f) {}
 };
 
@@ -545,10 +545,10 @@ void Q3ScrollViewData::viewportResized(int w, int h)
     widget flags are propagated to the parent constructor as usual.
 */
 
-Q3ScrollView::Q3ScrollView(QWidget *parent, const char *name, Qt::WFlags f) :
+Q3ScrollView::Q3ScrollView(QWidget *parent, const char *name, Qt::WindowFlags f) :
     Q3Frame(parent, name, f & (~WStaticContents) & (~WNoAutoErase) & (~WResizeNoErase))
 {
-    WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WStaticContents);
+    WindowFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WStaticContents);
     d = new Q3ScrollViewData(this, flags);
 
 #ifndef QT_NO_DRAGANDDROP

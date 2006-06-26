@@ -719,7 +719,7 @@ bool qt_nograb()                                // application no-grab option
 typedef QHash<QString, int> WinClassNameHash;
 Q_GLOBAL_STATIC(WinClassNameHash, winclassNames)
 
-const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
+const QString qt_reg_winclass(Qt::WindowFlags flags)        // register window class
 {
     int type = flags & Qt::WindowType_Mask;
 

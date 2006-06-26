@@ -522,7 +522,7 @@ void QWidget::setAutoFillBackground(bool enabled)
     If not, it will be a child of \e parent, and be constrained by \e
     parent's geometry (unless you specify Qt::Window as
     window flag).
-    \i \c{Qt::WFlags f = 0} (where available) sets the window flags; the
+    \i \c{Qt::WindowFlags f = 0} (where available) sets the window flags; the
     default is suitable for almost all widgets, but to get, for
     example, a window without a window system frame, you
     must use special flags.
@@ -818,7 +818,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     \sa windowFlags
 */
 
-QWidget::QWidget(QWidget *parent, Qt::WFlags f)
+QWidget::QWidget(QWidget *parent, Qt::WindowFlags f)
     : QObject(*new QWidgetPrivate, 0), QPaintDevice()
 {
     d_func()->init(parent, f);
@@ -829,7 +829,7 @@ QWidget::QWidget(QWidget *parent, Qt::WFlags f)
     \overload
     \obsolete
  */
-QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
+QWidget::QWidget(QWidget *parent, const char *name, Qt::WindowFlags f)
     : QObject(*new QWidgetPrivate, 0), QPaintDevice()
 {
     d_func()->init(parent , f);
@@ -839,7 +839,7 @@ QWidget::QWidget(QWidget *parent, const char *name, Qt::WFlags f)
 
 /*! \internal
 */
-QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, Qt::WFlags f)
+QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, Qt::WindowFlags f)
     : QObject(dd, 0), QPaintDevice()
 {
     d_func()->init(parent, f);
@@ -855,7 +855,7 @@ int QWidget::devType() const
 
 
 //### w is a "this" ptr, passed as a param because QWorkspace needs special logic
-void QWidgetPrivate::adjustFlags(Qt::WFlags &flags, QWidget *w)
+void QWidgetPrivate::adjustFlags(Qt::WindowFlags &flags, QWidget *w)
 {
     bool customize =  (flags & (Qt::CustomizeWindowHint
             | Qt::FramelessWindowHint
@@ -884,7 +884,7 @@ void QWidgetPrivate::adjustFlags(Qt::WFlags &flags, QWidget *w)
 
 }
 
-void QWidgetPrivate::init(QWidget *parentWidget, Qt::WFlags f)
+void QWidgetPrivate::init(QWidget *parentWidget, Qt::WindowFlags f)
 {
     Q_Q(QWidget);
 
@@ -6751,7 +6751,7 @@ void QWidget::setParent(QWidget *parent)
     This function also takes widget flags, \a f as an argument.
 */
 
-void QWidget::setParent(QWidget *parent, Qt::WFlags f)
+void QWidget::setParent(QWidget *parent, Qt::WindowFlags f)
 {
     Q_D(QWidget);
     bool resized = testAttribute(Qt::WA_Resized);
@@ -7587,7 +7587,7 @@ void QWidget::languageChange() { }  // compat
 */
 
 /*!
-    \fn void QWidget::reparent(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt)
+    \fn void QWidget::reparent(QWidget *parent, Qt::WindowFlags f, const QPoint &p, bool showIt)
 
     Use setParent() to change the parent or the widget's widget flags;
     use move() to move the widget, and use show() to show the widget.
@@ -7601,7 +7601,7 @@ void QWidget::languageChange() { }  // compat
 */
 
 /*!
-    \fn void QWidget::recreate(QWidget *parent, Qt::WFlags f, const QPoint & p, bool showIt)
+    \fn void QWidget::recreate(QWidget *parent, Qt::WindowFlags f, const QPoint & p, bool showIt)
 
     Use setParent() to change the parent or the widget's widget flags;
     use move() to move the widget, and use show() to show the widget.

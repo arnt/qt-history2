@@ -58,7 +58,7 @@ public:
     };
     Q_DECLARE_FLAGS(Options, Option)
 
-    QFileDialog(QWidget *parent, Qt::WFlags f);
+    QFileDialog(QWidget *parent, Qt::WindowFlags f);
     explicit QFileDialog(QWidget *parent = 0,
                          const QString &caption = QString(),
                          const QString &directory = QString(),

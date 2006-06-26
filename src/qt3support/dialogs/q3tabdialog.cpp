@@ -143,7 +143,7 @@ Q3TabDialogPrivate::Q3TabDialogPrivate()
   are passed on to the QDialog constructor.
 */
 
-Q3TabDialog::Q3TabDialog(QWidget *parent, const char *name, bool modal, Qt::WFlags f)
+Q3TabDialog::Q3TabDialog(QWidget *parent, const char *name, bool modal, Qt::WindowFlags f)
     : QDialog(parent, name, modal, f)
 {
     d = new Q3TabDialogPrivate;

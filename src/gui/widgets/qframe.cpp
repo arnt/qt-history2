@@ -174,13 +174,13 @@ QFramePrivate::QFramePrivate()
     constructor.
 */
 
-QFrame::QFrame(QWidget* parent, Qt::WFlags f)
+QFrame::QFrame(QWidget* parent, Qt::WindowFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
 }
 
 /*! \internal */
-QFrame::QFrame(QFramePrivate &dd, QWidget* parent, Qt::WFlags f)
+QFrame::QFrame(QFramePrivate &dd, QWidget* parent, Qt::WindowFlags f)
     : QWidget(dd, parent, f)
 {
 }
@@ -190,7 +190,7 @@ QFrame::QFrame(QFramePrivate &dd, QWidget* parent, Qt::WFlags f)
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
 */
-QFrame::QFrame(QWidget *parent, const char *name, Qt::WFlags f)
+QFrame::QFrame(QWidget *parent, const char *name, Qt::WindowFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {
     setObjectName(QString::fromAscii(name));

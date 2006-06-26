@@ -42,7 +42,7 @@ class Q_COMPAT_EXPORT Q3TitleBar : public QWidget
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
 
 public:
-    Q3TitleBar (QWidget *w, QWidget *parent, Qt::WFlags f = 0);
+    Q3TitleBar (QWidget *w, QWidget *parent, Qt::WindowFlags f = 0);
     ~Q3TitleBar();
 
     bool isActive() const;
