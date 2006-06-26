@@ -2342,7 +2342,6 @@ QPaintEngine *QWidget::paintEngine() const
 
 void QWidgetPrivate::setModal_sys()
 {
-    return;
     Q_Q(QWidget);
     const WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
     const QWidget *windowParent = q->window()->parentWidget();
