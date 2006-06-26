@@ -153,6 +153,7 @@ void MainWindow::printImage()
     QModelIndex parent = QModelIndex();
 
     QProgressDialog progress(tr("Printing..."), tr("Cancel"), 0, rows, this);
+    progress.setWindowModality(Qt::ApplicationModal);
     float y = ItemSize/2;
 
     for (int row = 0; row < rows; ++row) {
