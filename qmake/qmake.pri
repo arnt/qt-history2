@@ -60,6 +60,7 @@ bootstrap { #Qt code
         qunicodetables.cpp \
         quuid.cpp \
 	qsettings.cpp \
+	qlibraryinfo.cpp \
 	qvariant.cpp \
         qvector.cpp \
         qvsnprintf.cpp

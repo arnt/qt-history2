@@ -100,6 +100,7 @@ QTOBJS= \
 	quuid.obj \
 	qvector.obj \
 	qsettings.obj \
+	qlibraryinfo.obj \
 	qvariant.obj \
         qurl.obj \
 	qsettings_win.obj \
@@ -142,6 +143,7 @@ clean::
 	-del quuid.obj
 	-del qvector.obj
 	-del qsettings.obj
+	-del qlibraryinfo.obj
 	-del qvariant.obj
         -del qurl.obj
 	-del qsettings_win.obj
@@ -193,6 +195,9 @@ qsettings_win.obj: ..\src\corelib\io\qsettings_win.cpp
 
 qsettings.obj: ..\src\corelib\io\qsettings.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qsettings.cpp
+
+qlibraryinfo.obj: ..\src\corelib\global\qlibraryinfo.cpp
+	$(CXX) $(CXXFLAGS) ..\src\corelib\global\qlibraryinfo.cpp
 
 qvariant.obj: ..\src\corelib\kernel\qvariant.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\kernel\qvariant.cpp

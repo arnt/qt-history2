@@ -16,11 +16,13 @@
 #include <qdir.h>
 #include <qregexp.h>
 #include <qhash.h>
+#include <qdebug.h>
 #include <qsettings.h>
 #include <stdlib.h>
 #include <stdarg.h>
 
 //convenience
+const char *Option::application_argv0 = 0;
 QString Option::prf_ext;
 QString Option::prl_ext;
 QString Option::libtool_ext;
@@ -301,6 +303,7 @@ Option::parseCommandLine(int argc, char **argv, int skip)
 int
 Option::init(int argc, char **argv)
 {
+    Option::application_argv0 = argv[0];
     Option::cpp_moc_mod = "";
     Option::h_moc_mod = "moc_";
     Option::lex_mod = "_lex";
@@ -606,89 +609,6 @@ void warn_msg(QMakeWarn type, const char *fmt, ...)
     fprintf(stderr, "\n");
 }
 
-#if !defined(QT_BUILD_QMAKE_LIBRARY)
-
-#include "../src/corelib/global/qconfig.cpp"
-QString QLibraryInfo::location(QLibraryInfo::LibraryLocation loc)
-{
-    QString ret;
-    const char *path = 0;
-    switch (loc) {
-#ifdef QT_CONFIGURE_PREFIX_PATH
-    case PrefixPath:
-        path = QT_CONFIGURE_PREFIX_PATH;
-        break;
-#endif
-#ifdef QT_CONFIGURE_DOCUMENTATION_PATH
-    case DocumentationPath:
-        path = QT_CONFIGURE_DOCUMENTATION_PATH;
-        break;
-#endif
-#ifdef QT_CONFIGURE_HEADERS_PATH
-    case HeadersPath:
-        path = QT_CONFIGURE_HEADERS_PATH;
-        break;
-#endif
-#ifdef QT_CONFIGURE_LIBRARIES_PATH
-    case LibrariesPath:
-        path = QT_CONFIGURE_LIBRARIES_PATH;
-        break;
-#endif
-#ifdef QT_CONFIGURE_BINARIES_PATH
-    case BinariesPath:
-        path = QT_CONFIGURE_BINARIES_PATH;
-        break;
-#endif
-#ifdef QT_CONFIGURE_PLUGINS_PATH
-    case PluginsPath:
-        path = QT_CONFIGURE_PLUGINS_PATH;
-        break;
-#endif
-#ifdef QT_CONFIGURE_DATA_PATH
-    case DataPath:
-        path = QT_CONFIGURE_DATA_PATH;
-        break;
-#endif
-#ifdef QT_CONFIGURE_TRANSLATIONS_PATH
-    case TranslationsPath:
-        path = QT_CONFIGURE_TRANSLATIONS_PATH;
-        break;
-#endif
-#ifdef QT_CONFIGURE_SETTINGS_PATH
-    case SettingsPath:
-        path = QT_CONFIGURE_SETTINGS_PATH;
-        break;
-#endif
-#ifdef QT_CONFIGURE_EXAMPLES_PATH
-        case ExamplesPath:
-            path = QT_CONFIGURE_EXAMPLES_PATH;
-            break;
-#endif
-#ifdef QT_CONFIGURE_DEMOS_PATH
-        case DemosPath:
-            path = QT_CONFIGURE_DEMOS_PATH;
-            break;
-#endif
-    default:
-        break;
-    }
-
-    if (path)
-        ret = QString::fromLocal8Bit(path);
-
-    if (QDir::isRelativePath(ret)) {
-        if (loc == PrefixPath) {
-            // we make the prefix path absolute to the current directory
-            return QDir::current().absoluteFilePath(ret);
-        } else {
-            // we make any other path absolute to the prefix directory
-            return QDir(location(PrefixPath)).absoluteFilePath(ret);
-        }
-    }
-    return ret;
-}
-#endif
-
 class QMakeCacheClearItem {
 private:
     qmakeCacheClearFunc func;
@@ -713,4 +633,65 @@ void
 qmakeAddCacheClear(qmakeCacheClearFunc func, void **data)
 {
     cache_items.append(new QMakeCacheClearItem(func, data));
+}
+
+
+QString qt_libraryInfoFile()
+{
+    QString ret;
+#if defined( Q_WS_WIN )
+    QFileInfo filePath;
+    QT_WA({
+        unsigned short module_name[256];
+        GetModuleFileNameW(0, reinterpret_cast<wchar_t *>(module_name), sizeof(module_name));
+        filePath = QString::fromUtf16(module_name);
+    }, {
+        char module_name[256];
+        GetModuleFileNameA(0, module_name, sizeof(module_name));
+        filePath = QString::fromLocal8Bit(module_name);
+    });
+    ret = filePath.filePath();
+#else
+    QString argv0 = QFile::decodeName(QByteArray(Option::application_argv0));
+    QString absPath;
+
+    if (!argv0.isEmpty() && argv0.at(0) == QLatin1Char('/')) {
+        /*
+          If argv0 starts with a slash, it is already an absolute
+          file path.
+        */
+        absPath = argv0;
+    } else if (argv0.contains(QLatin1Char('/'))) {
+        /*
+          If argv0 contains one or more slashes, it is a file path
+          relative to the current directory.
+        */
+        absPath = QDir::current().absoluteFilePath(argv0);
+    } else {
+        /*
+          Otherwise, the file path has to be determined using the
+          PATH environment variable.
+        */
+        QByteArray pEnv = qgetenv("PATH");
+        QDir currentDir = QDir::current();
+        QStringList paths = QString::fromLocal8Bit(pEnv.constData()).split(QLatin1String(":"));
+        for (QStringList::const_iterator p = paths.constBegin(); p != paths.constEnd(); ++p) {
+            if ((*p).isEmpty())
+                continue;
+            QString candidate = currentDir.absoluteFilePath(*p + QLatin1Char('/') + argv0);
+            if (QFile::exists(candidate)) {
+                absPath = candidate;
+                break;
+            }
+        }
+    }
+
+    absPath = QDir::cleanPath(absPath);
+
+    QFileInfo fi(absPath);
+    ret = fi.exists() ? fi.canonicalFilePath() : QString();
+#endif
+    if(!ret.isEmpty())
+        ret = QDir(QFileInfo(ret).absolutePath()).filePath("qt.conf");
+    return ret;
 }
