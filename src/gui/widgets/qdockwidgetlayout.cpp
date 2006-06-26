@@ -1099,7 +1099,7 @@ QLayoutItem *QDockAreaLayoutInfo::takeAt(int *x, int index)
     for (int i = 0; i < item_list.count(); ++i) {
         const QDockAreaLayoutItem &item = item_list.at(i);
         if (item.subinfo) {
-            if (QLayoutItem *ret = item.subinfo->itemAt(x, index))
+            if (QLayoutItem *ret = item.subinfo->takeAt(x, index))
                 return ret;
         }
         if ((*x)++ == index) {
@@ -1747,7 +1747,7 @@ void QDockWidgetLayout::addDockWidget(DockPos pos, QDockWidget *dockWidget,
 {
     QWidgetItem *dockWidgetItem = new QWidgetItem(dockWidget);
     QDockAreaLayoutInfo &info = docks[pos];
-    if (orientation == info.o) {
+    if (orientation == info.o || info.isEmpty()) {
         info.item_list.append(QDockAreaLayoutItem(dockWidgetItem));
     } else {
         QDockAreaLayoutInfo new_info(sep, orientation, widgetAnimator);
@@ -1765,11 +1765,9 @@ void QDockWidgetLayout::splitDockWidget(QDockWidget *after,
     if (path.isEmpty())
         return;
 
-    int index = path.takeLast();
-    QDockAreaLayoutItem &item = this->item(path);
-    Q_ASSERT(item.subinfo != 0);
-
-    item.subinfo->split(index, orientation, new QWidgetItem(dockWidget));
+    QDockAreaLayoutInfo *info = this->info(path);
+    Q_ASSERT(info != 0);
+    info->split(path.last(), orientation, new QWidgetItem(dockWidget));
 }
 
 void QDockWidgetLayout::apply(bool animate)
