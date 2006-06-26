@@ -1,0 +1,287 @@
+/*!
+    \page graphicsview-porting.html
+    \title Porting from QCanvas to Graphics View
+    \ingroup architecture
+    \ingroup multimedia
+
+    \keyword QGraphicsView GraphicsView Porting Graphics Canvas
+    \since 4.2
+
+    Graphics View provides a surface for managing and interacting with a large
+    number of custom-made 2D graphical items, and a view widget for
+    visualizing the items, with support for zooming and rotation. Graphics
+    View was introduced in Qt 4.2, replacing its predecessor, QCanvas. For
+    more on Graphics View, see \l{The Graphics View Framework}.
+
+    This document walks through the steps needed, class by class and function
+    by function, to port an application written with QCanvas to use Graphics
+    View.
+
+    Qt 4.2 provides two complete examples of Q3Canvas applications ported to
+    Graphics View:
+
+    \list
+    \o \l{Ported Canvas Example}, the canvas example from Qt 3.
+    \o \l{Ported Asteroids Example}, the Asteroids game from the Qt 3 demo.
+    \endlist
+
+    \tableofcontents
+
+    \section1 Introduction
+
+        Conceptually, the Graphics View classes from Qt 4 and the Canvas
+        classes from Qt 3 provide similar functionality. Instead of "canvas",
+        we use the term "scene". Otherwise, the class names and functions are
+        almost the same as in Qt 3. The easiest classes to port will be
+        QCanvas and QCanvasView. Experience shows that most time is spent
+        porting the item classes; depending on the complexity of the
+        QCanvasItem classes you have been using before.
+
+        This porting guide will assume you have already ported your
+        application to Qt 4, using Q3Canvas. If you have not done so already,
+        as a first step, run the \l qt3to4 tool on your project. This tool
+        will automate the most tedious part of the porting effort. Otherwise,
+        you can skip to the next section.
+
+        Some additional steps are usually required before your application
+        will compile and run. You can read more about the porting process in
+        \l{Porting to Qt 4}.
+
+    \section1 Porting from Q3Canvas
+
+        QGraphicsScene is the equivalent of Q3Canvas. There is one major
+        noticable difference in this API: Whereas the Q3Canvas classes use
+        integer precision, QGraphicsScene is entirely based on double
+        coordinates, with graphical primitives such as QPointF, QRectF,
+        QPolygonF and QPainterPath.
+
+        In addition, the tiles are gone, and the chunks system has been
+        replaced with an implicitly maintained internal BSP tree.
+
+        The following table lists how to port functions in Q3Canvas to
+        QGraphicsScene.
+
+        \table
+        \header \o Q3Canvas function \o QGraphicsScene equivalent
+
+        \row \o Q3Canvas::Q3Canvas() \o There is no QPixmap based constructor,
+           and the concept of tiles is gone. You can use
+           QGraphicsScene::setBackgroundBrush() to set a brush pattern for the
+           background, or reimplement QGraphicsScene::drawBackground() in a
+           QGraphicsScene subclass. In addition, the QGraphicsScene geometry
+           is provided as a full QRectF. Instead of Q3Canvas(int width, int
+           height), you can use QGraphicsScene(int top, int left, int width,
+           int height).
+
+        \row \o Q3Canvas::allItems() \o QGraphicsScene::items()
+
+        \row \o Q3Canvas::backgroundColor() \o QGraphicsScene::backgroundBrush()
+
+        \row \o Q3Canvas::backgroundPixmap() \o QGraphicsScene::backgroundBrush()
+
+        \row \o Q3Canvas::chunkSize() \o No equivalent. See QGraphicsScene::itemIndexMethod.
+
+        \row \o Q3Canvas::collisions() \o QGraphicsScene::items()
+
+        \row \o Q3Canvas::drawArea() \o QGraphicsScene::render()
+
+        \row \o Q3Canvas::height() \o QGraphicsScene::height()
+
+        \row \o Q3Canvas::onCanvas() \o QGraphicsScene::sceneRect() and
+        QRectF::contains().
+
+        \row \o Q3Canvas::rect() \o QGraphicsScene::sceneRect()
+
+        \row \o Q3Canvas::resize() \o QGraphicsScene::setSceneRect()
+
+        \row \o Q3Canvas::retune() \o No equivalent. See
+        QGraphicsScene::itemIndexMethod.
+
+        \row \o Q3Canvas::setAdvancePeriod() \o Connect QTimer::timeout() to
+        the QGraphicsScene::advance() slot.
+
+        \row \o Q3Canvas::setAllChanged() \o QGraphicsScene::update()
+
+        \row \o Q3Canvas::setChanged() \o QGraphicsScene::update()
+
+        \row \o Q3Canvas::setDoubleBuffering() \o No equivalent; double
+        buffering is implicitly enabled in all widget in Qt 4. See
+        Qt::WA_PaintOnScreen for how to disable double buffering.
+
+        \row \o Q3Canvas::tile() \o No
+        equivalent. Use QGraphicsScene::backgroundBrush() or
+        QGraphicsScene::drawBackground().
+
+        \row \o Q3Canvas::setTiles() \o No equivalent. Use
+        QGraphicsScene::backgroundBrush() or QGraphicsScene::drawBackground().
+
+        \row \o Q3Canvas::setUnchanged() \o No equivalent. This call can
+        usually be removed with no side effects.
+
+        \row \o Q3Canvas::setUpdatePeriod() \o Connect QTimer::timeout() to
+        the QGraphicsScene::update() slot.
+
+        \row \o Q3Canvas::size() \o QGraphicsScene::sceneRect() and
+        QRectF::size().
+
+        \row \o Q3Canvas::validChunk() \o QGraphicsScene::sceneRect() and
+        QRectF::contains().
+
+        \row \o Q3Canvas::width() \o QGraphicsScene::width()
+
+        \row \o Q3Canvas::advance() \o QGraphicsScene::advance()
+
+        \row \o Q3Canvas::update() \o QGraphicsScene::update()
+
+        \row \o Q3Canvas::resized() \o QGraphicsScene::sceneRectChanged()
+
+        \row \o Q3Canvas::drawForeground() \o QGraphicsScene::drawForeground()
+
+        \row \o Q3Canvas::drawBackground() \o QGraphicsScene::drawBackground()
+
+        \endtable
+
+    \section1 Porting from Q3CanvasView
+
+        The equivalent of Q3CanvasView in Qt 4 is called QGraphicsView.  For
+        most cases, this is the easiest class to port. In addition to
+        providing all of Q3CanvasView's functionality, QGraphicsView provides
+        new functionality. You can read more about this in QGraphicsView's
+        documentation.
+
+        \table
+        \header \o Q3CanvasView function \o QGraphicsView equivalent
+
+        \row \o Q3CanvasView::Q3CanvasView() \o QGraphicsView provides the
+        same constructors as Q3CanvasView, but without the name and flags
+        arguments.
+
+        \row \o Q3CanvasView::canvas() \o QGraphicsView::scene()
+
+        \row \o Q3CanvasView::inverseWorldMatrix() \o QGraphicsView::matrix()
+        and QMatrix::inverted(). See also QGraphicsView::mapToScene() and
+        QGraphicsView::mapFromScene().
+
+        \row \o Q3CanvasView::setCanvas() \o QGraphicsView::setScene()
+
+        \row \o Q3CanvasView::setWorldMatrix() \o QGraphicsView::setMatrix(),
+        QGraphicsView::rotate(), QGraphicsView::scale(), and more.
+
+        \row \o Q3CanvasView::worldMatrix() \o QGraphicsView::matrix()
+
+        \row \o Q3CanvasView::drawContents() \o QGraphicsView::render()
+
+        \endtable
+
+    \section1 Porting from Q3CanvasItem
+
+        The equivalent of Q3CanvasItem in Qt 4 is called
+        QGraphicsItem. Deriving from this class is very common, and because of
+        that, porting from Q3CanvasItem often involves more work than Q3Canvas
+        and Q3CanvasView.
+
+        Q3CanvasItem has become easier to use, easier to subclass, and more
+        powerful with QGraphicsItem. The key difference from Q3CanvasItem lies
+        in event propagation and item groups, but you will also find several
+        convenient new features, such as support for tooltips, cursors, item
+        transformation and drag and drop. You can read all about QGraphicsItem
+        in its own class documentation.
+
+        This section starts with a table that shows how to port each function
+        from Q3CanvasItem to QGraphicsItem. Immediately after that, each of
+        Q3CanvasItem's standard subclasses have a section of their own.
+
+        \table
+        \header \o Q3CanvasItem function \o QGraphicsItem equivalent
+
+        \row \o Q3CanvasItem::Q3CanvasItem() \o QGraphicsScene's constructor
+        is compatible.
+
+        \row \o Q3CanvasItem::advance() \o QGraphicsItem::advance(). See also
+        QTimeLine and QGraphicsItemAnimation.
+
+        \row \o Q3CanvasItem::animated() \o No equivalent.
+
+        \row \o Q3CanvasItem::boundingRect() \o
+        QGraphicsItem::boundingRect(). Now returns a QRectF.
+
+        \row \o Q3CanvasItem::boundingRectAdvanced() \o No equivalent. You can
+        translate QGraphicsItem::boundingRect() instead (see
+        QRectF::translate()).
+
+        \row \o Q3CanvasItem::canvas() \o QGraphicsItem::scene()
+
+        \row \o Q3CanvasItem::collidesWith() \o
+        QGraphicsItem::collidesWithItem() and
+        QGraphicsItem::collidesWithPath().
+
+        \row \o Q3CanvasItem::collisions() \o QGraphicsItem::collidingItems()
+
+        \row \o Q3CanvasItem::draw() \o QGraphicsItem::paint(). See also
+        QStyleOptionGraphicsItem.
+
+        \row \o Q3CanvasItem::hide() \o QGraphicsItem::hide() or
+        QGraphicsItem::setVisible(). \l{QGraphicsItem}s are \e visible by
+        default; \l{Q3CanvasItem}s, however, are not.
+
+        \row \o Q3CanvasItem::isActive() \o No equivalent.
+
+        \row \o Q3CanvasItem::isEnabled() \o QGraphicsItem::isEnabled().
+
+        \row \o Q3CanvasItem::isSelected() \o QGraphicsItem::isSelected().
+
+        \row \o Q3CanvasItem::isVisible() \o
+        QGraphicsItem::isVisible(). \l{QGraphicsItem}s are \e visible by
+        default; \l{Q3CanvasItem}s, however, are not.
+
+        \row \o Q3CanvasItem::move() \o QGraphicsItem::setPos().
+        \row \o Q3CanvasItem::moveBy() \o QGraphicsItem::moveBy().
+        \row \o Q3CanvasItem::rtti() \o QGraphicsItem::type() and qgraphicsitem_cast().
+        \row \o Q3CanvasItem::setActive() \o No equivalent.
+        \row \o Q3CanvasItem::setAnimated() \o No equivalent.
+        \row \o Q3CanvasItem::setCanvas() \o QGraphicsScene::addItem().
+        \row \o Q3CanvasItem::setEnabled() \o QGraphicsItem::setEnabled().
+        \row \o Q3CanvasItem::setSelected() \o QGraphicsItem::setSelected().
+
+        \row \o Q3CanvasItem::setVelocity() \o No equivalent. You can add x
+        and y velocity as member data of your class, and call
+        QGraphicsItem::moveBy(x, y) from inside QGraphicsItem::advance(). See
+        also QTimeLine and QGraphicsItemAnimation.
+
+        \row \o Q3CanvasItem::setVisible() \o
+        QGraphicsItem::setVisible(). \l{QGraphicsItem}s are \e visible by
+        default; \l{Q3CanvasItem}s, however, are not.
+
+        \row \o Q3CanvasItem::setX() \o QGraphicsItem::setPos()
+        \row \o Q3CanvasItem::setY() \o QGraphicsItem::setPos()
+
+        \row \o Q3CanvasItem::setXVelocity() \o No equivalent.
+        \row \o Q3CanvasItem::setYVelocity() \o No equivalent.
+
+        \row \o Q3CanvasItem::setZ() \o QGraphicsItem::setZValue()
+        \row \o Q3CanvasItem::show() \o QGraphicsItem::show() or
+        QGraphicsItem::setVisible()
+        \row \o Q3CanvasItem::xVelocity() \o No equivalent.
+        \row \o Q3CanvasItem::yVelocity() \o No equivalent.
+        \row \o Q3CanvasItem::update() \o QGraphicsItem::update().
+
+        \endtable
+
+        \section2 Q3CanvasPolygonalItem
+
+            \section3 Q3CanvasEllipse
+            \section3 Q3CanvasLine
+            \section3 Q3CanvasPolygon
+
+                \section4 Q3CanvasSpline
+
+            \section3 Q3CanvasRectangle
+
+        \section2 Q3CanvasSprite
+        \section2 Q3CanvasText
+
+        \section2 Q3CanvasItemList
+        \section2 Q3CanvasPixmap, Q3CanvasPixmapArray
+
+
+*/

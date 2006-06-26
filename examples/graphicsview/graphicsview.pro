@@ -1,5 +1,5 @@
 TEMPLATE      = subdirs
-SUBDIRS       = elasticnodes collidingmice dragdroprobot
+SUBDIRS       = elasticnodes collidingmice dragdroprobot portedcanvas portedasteroids
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/graphicsview
