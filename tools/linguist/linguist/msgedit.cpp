@@ -470,7 +470,7 @@ void EditorPage::fontChange(const QFont &)
    Handle layout of dock windows and the editor page.
 */
 MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
-    : QScrollArea(parent), m_contextModel(model)
+    : QScrollArea(parent->centralWidget()), m_contextModel(model)
 {
     cutAvail = false;
     copyAvail = false;
