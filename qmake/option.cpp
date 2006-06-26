@@ -635,11 +635,14 @@ qmakeAddCacheClear(qmakeCacheClearFunc func, void **data)
     cache_items.append(new QMakeCacheClearItem(func, data));
 }
 
+#ifdef Q_OS_WIN
+# include <windows.h>
+#endif
 
 QString qt_libraryInfoFile()
 {
     QString ret;
-#if defined( Q_WS_WIN )
+#if defined( Q_OS_WIN )
     QFileInfo filePath;
     QT_WA({
         unsigned short module_name[256];
