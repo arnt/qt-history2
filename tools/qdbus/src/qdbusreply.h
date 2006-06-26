@@ -77,21 +77,6 @@ public:
         return m_data;
     }
 
-#if 0
-    static QDBusReply<T> fromVariant(const QDBusReply<QVariant> &variantReply)
-    {
-        QDBusReply<T> retval;
-        retval.m_error = variantReply.m_error;
-        if (retval.isSuccess()) {
-            retval.m_data = qvariant_cast<Type>(variantReply.m_data);
-            if (!qVariantCanConvert<Type>(variantReply.m_data))
-                retval.m_error = QDBusError(QDBusError::InvalidSignature,
-                                            QLatin1String("Unexpected reply signature"));
-        }
-        return retval;
-    }
-#endif
-
 private:
     QDBusError m_error;
     Type m_data;
