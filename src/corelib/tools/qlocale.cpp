@@ -172,7 +172,7 @@ static void getLangAndCountry(const QString &name, QLocale::Language &lang, QLoc
 {
     lang = QLocale::C;
     cntry = QLocale::AnyCountry;
-    
+
     uint l = name.length();
 
     do {
@@ -430,7 +430,7 @@ static QString winToQtFormat(const QString &sys_fmt)
 
 
 
-static QString winDateToString(const QDate &date, DWORD flags) 
+static QString winDateToString(const QDate &date, DWORD flags)
 {
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
@@ -451,7 +451,7 @@ static QString winDateToString(const QDate &date, DWORD flags)
     return QString();
 }
 
-static QString winTimeToString(const QTime &time) 
+static QString winTimeToString(const QTime &time)
 {
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
@@ -475,7 +475,7 @@ static QString winTimeToString(const QTime &time)
     return QString();
 }
 
-static QString winDayName(int day, bool short_format) 
+static QString winDayName(int day, bool short_format)
 {
     static const LCTYPE short_day_map[]
         = { LOCALE_SABBREVDAYNAME1, LOCALE_SABBREVDAYNAME2,
@@ -488,13 +488,13 @@ static QString winDayName(int day, bool short_format)
             LOCALE_SDAYNAME6, LOCALE_SDAYNAME7 };
 
     day -= 1;
-    
+
     LCTYPE type = short_format
                     ? short_day_map[day] : long_day_map[day];
     return getWinLocaleInfo(type);
 }
 
-static QString winMonthName(int month, bool short_format) 
+static QString winMonthName(int month, bool short_format)
 {
     static const LCTYPE short_month_map[]
         = { LOCALE_SABBREVMONTHNAME1, LOCALE_SABBREVMONTHNAME2, LOCALE_SABBREVMONTHNAME3,
@@ -562,7 +562,7 @@ QVariant QSystemLocale::query(QueryType type, QVariant in = QVariant()) const
     case ZeroDigit:
         locale_info = LOCALE_SNATIVEDIGITS;
         break;
-        
+
     case LanguageId:
     case CountryId: {
             QString locale = getWinLocaleName();
@@ -1087,7 +1087,7 @@ static QLocalePrivate *system_lp = 0;
 ** Default system locale behavior
 */
 
-/*! 
+/*!
     \class QSystemLocale
     \brief The QSystemLocale class can be used to finetune the system locale
     of the user.
@@ -3314,7 +3314,9 @@ static bool removeGroupSeparators(QLocalePrivate::CharBuff *num)
             --decpt_idx;
         } else {
             // Check that we are not missing a separator
-            if (i < decpt_idx && (decpt_idx - i) % 4 == 0)
+            if (i < decpt_idx
+                    && (decpt_idx - i) % 4 == 0
+                    && !(i == 0 && c == '-')) // check for negative sign at start of string
                 return false;
             ++i;
         }
