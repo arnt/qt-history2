@@ -16,6 +16,7 @@
 #ifndef QT_NO_STANDARDITEMMODEL
 
 #include <QtCore/qdatetime.h>
+#include <QtCore/qlist.h>
 #include <QtCore/qmap.h>
 #include <QtCore/qpair.h>
 #include <QtCore/qvariant.h>
