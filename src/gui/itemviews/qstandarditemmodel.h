@@ -15,7 +15,6 @@
 #define QSTANDARDITEMMODEL_H
 
 #include <QtCore/qabstractitemmodel.h>
-#include <QtCore/qlist.h>
 #include <QtGui/qfont.h>
 #include <QtGui/qicon.h>
 #ifndef QT_NO_DATASTREAM
@@ -27,6 +26,8 @@ QT_BEGIN_HEADER
 QT_MODULE(Gui)
 
 #ifndef QT_NO_STANDARDITEMMODEL
+
+template <class T> class QList;
 
 class QStandardItemModel;
 
