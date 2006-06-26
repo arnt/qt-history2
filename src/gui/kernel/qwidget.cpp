@@ -4227,12 +4227,14 @@ void QWidget::move(const QPoint &p)
 {
     Q_D(QWidget);
     setAttribute(Qt::WA_Moved);
-    if (testAttribute(Qt::WA_WState_Created))
+    if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(p.x() + geometry().x() - QWidget::x(),
                        p.y() + geometry().y() - QWidget::y(),
                        width(), height(), true);
-    else
+    } else {
         data->crect.moveTopLeft(p); // no frame yet
+        setAttribute(Qt::WA_PendingMoveEvent);
+    }
 }
 
 /*! \fn void QWidget::resize(int w, int h)
@@ -4245,10 +4247,12 @@ void QWidget::resize(const QSize &s)
 {
     Q_D(QWidget);
     setAttribute(Qt::WA_Resized);
-    if (testAttribute(Qt::WA_WState_Created))
+    if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(geometry().x(), geometry().y(), s.width(), s.height(), false);
-    else
+    } else {
         data->crect.setSize(s);
+        setAttribute(Qt::WA_PendingResizeEvent);
+    }
 }
 
 void QWidget::setGeometry(const QRect &r)
@@ -4256,10 +4260,13 @@ void QWidget::setGeometry(const QRect &r)
     Q_D(QWidget);
     setAttribute(Qt::WA_Resized);
     setAttribute(Qt::WA_Moved);
-    if (testAttribute(Qt::WA_WState_Created))
+    if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
-    else
+    } else {
         data->crect = r;
+        setAttribute(Qt::WA_PendingMoveEvent);
+        setAttribute(Qt::WA_PendingResizeEvent);
+    }
 }
 
 /*!
