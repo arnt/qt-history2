@@ -250,7 +250,7 @@ QPrinter *QAbstractPrintDialog::printer() const
     means that some QWidget and QDialog properties set on the dialog
     won't be respected.
 
-    \sa QPageSizeDialog, QPrinter, {Pixelator Example}, {Order Form Example},
+    \sa QPageSetupDialog, QPrinter, {Pixelator Example}, {Order Form Example},
         {Image Viewer Example}, {Scribble Example}
 */
 
