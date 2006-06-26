@@ -469,9 +469,9 @@ QDomDocument WidgetBoxTreeView::categoryListToDom(const CategoryList &cat_list) 
             DomWidget *dom_wgt = xmlToUi(widgetDomXml(wgt));
             QDomElement wgt_elt = dom_wgt->write(doc);
             wgt_elt.setAttribute(QLatin1String("name"), wgt.name());
-	    QString iconName = wgt.iconName();
-	    if (!iconName.startsWith("__qt_icon__"))
-	      wgt_elt.setAttribute(QLatin1String("icon"), wgt.iconName());
+            QString iconName = wgt.iconName();
+            if (!iconName.startsWith("__qt_icon__"))
+              wgt_elt.setAttribute(QLatin1String("icon"), wgt.iconName());
             wgt_elt.setAttribute(QLatin1String("type"), QLatin1String("default"));
             cat_elt.appendChild(wgt_elt);
         }
@@ -508,9 +508,14 @@ WidgetBoxTreeView::CategoryList
 
 WidgetBoxTreeView::Category WidgetBoxTreeView::domToCategory(const QDomElement &cat_elt) const
 {
-    Category result(cat_elt.attribute(QLatin1String("name")));
-    if (cat_elt.attribute(QLatin1String("type"))
-                                        == QLatin1String("scratchpad"))
+    QString name = cat_elt.attribute(QLatin1String("name"));
+
+    if (name == QLatin1String("[invisible]"))
+        return Category();
+
+    Category result(name);
+
+    if (cat_elt.attribute(QLatin1String("type")) == QLatin1String("scratchpad"))
         result.setType(Category::Scratchpad);
 
     QDomElement widget_elt = cat_elt.firstChildElement();
@@ -571,11 +576,11 @@ WidgetBoxTreeView::CategoryList WidgetBoxTreeView::loadCustomCategoryList() cons
 
         QString icon_name;
         if (icon.isNull())
-	    icon_name = QLatin1String("qtlogo.png");
-	else {
-	    icon_name = QLatin1String("__qt_icon__") + c->name();
-	    m_pluginIcons.insert(icon_name, icon);
-	}
+            icon_name = QLatin1String("qtlogo.png");
+        else {
+            icon_name = QLatin1String("__qt_icon__") + c->name();
+            m_pluginIcons.insert(icon_name, icon);
+        }
 
         cat.addWidget(Widget(c->name(), dom_xml, icon_name, Widget::Custom));
     }

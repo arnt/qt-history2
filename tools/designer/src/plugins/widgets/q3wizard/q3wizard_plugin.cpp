@@ -29,7 +29,7 @@ QString Q3WizardPlugin::name() const
 { return QLatin1String("Q3Wizard"); }
 
 QString Q3WizardPlugin::group() const
-{ return QLatin1String("[[invisible]]"); }
+{ return QLatin1String("[invisible]"); }
 
 QString Q3WizardPlugin::toolTip() const
 { return QString(); }
