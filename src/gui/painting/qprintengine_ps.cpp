@@ -1519,6 +1519,8 @@ const ppd_file_t* QCUPSSupport::currentPPD() const
 const ppd_file_t* QCUPSSupport::setCurrentPrinter(int index)
 {
     Q_ASSERT(index >= 0 && index <= prnCount);
+    if (index == prnCount)
+        return 0;
 
     currPrinterIndex = index;
 

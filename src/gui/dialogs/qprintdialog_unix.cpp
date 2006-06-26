@@ -913,7 +913,8 @@ void QPrintDialogPrivate::init()
             if (cupsPrinters[i].is_default)
                 ui.cbPrinters->setCurrentIndex(i);
         }
-        ui.btnProperties->setEnabled(true);
+        if (cupsPrinterCount)
+            ui.btnProperties->setEnabled(true);
         _q_printerChanged(cups->currentPrinterIndex());
     } else {
 #endif
@@ -1029,7 +1030,9 @@ void QPrintDialogPrivate::_q_printerChanged(int index)
         cupsPPD = cups->currentPPD();
 
         // set printer info line
-        QString info = QString::fromLocal8Bit(cupsPPD->manufacturer) + QLatin1String(" - ") + QString::fromLocal8Bit(cupsPPD->modelname);
+        QString info;
+        if (cupsPPD)
+            info = QString::fromLocal8Bit(cupsPPD->manufacturer) + QLatin1String(" - ") + QString::fromLocal8Bit(cupsPPD->modelname);
         ui.lbPrinterInfo->setText(info);
     } else {
 #endif
@@ -1050,6 +1053,8 @@ void QPrintDialogPrivate::_q_paperSizeChanged(int index)
 {
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     const ppd_option_t* pageSizes = cups->pageSizes();
+    if (!pageSizes)
+        return;
     cups->markOption(pageSizes->keyword, pageSizes->choices[index].choice);
 #else
     Q_UNUSED(index);
@@ -1064,8 +1069,9 @@ void QPrintDialogPrivate::refreshPageSizes()
 #if !defined(QT_NO_CUPS) && !defined(QT_NO_LIBRARY)
     if (cups->isAvailable() && ui.chbPrintToFile->checkState() !=  Qt::Checked) {
         const ppd_option_t* pageSizes = cups->pageSizes();
+        int numChoices = pageSizes ? pageSizes->num_choices : 0;
 
-        for (int i = 0; i < pageSizes->num_choices; ++i) {
+        for (int i = 0; i < numChoices; ++i) {
             ui.cbPaperSize->addItem(QString::fromLocal8Bit(pageSizes->choices[i].text), QString::fromLocal8Bit(pageSizes->choices[i].choice));
             if (static_cast<int>(pageSizes->choices[i].marked) == 1) {
                 ui.cbPaperSize->setCurrentIndex(i);
@@ -1099,7 +1105,8 @@ void QPrintDialogPrivate::_q_btnPropertiesClicked()
     dialog.exec();
 
     const ppd_option_t* pageSizes = cups->pageSizes();
-    for (int i = 0; i < pageSizes->num_choices; ++i) {
+    int numChoices = pageSizes ? pageSizes->num_choices : 0;
+    for (int i = 0; i < numChoices; ++i) {
         if (static_cast<int>(pageSizes->choices[i].marked) == 1)
             ui.cbPaperSize->setCurrentIndex(i);
     }
