@@ -713,16 +713,9 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     // Set up the polygon clipper. Note: This will only work in
     // polyline mode as long as we have a buffer zone, since a
     // polyline may be clipped into several non-connected polylines.
-    const int BUFFERZONE = 100;
-    QRect devClipRect;
-    QRegion sysClip = systemClip();
-    if (!sysClip.isEmpty()) {
-        devClipRect = sysClip.boundingRect();
-        devClipRect.adjust(-BUFFERZONE, -BUFFERZONE, 2*BUFFERZONE, 2*BUFFERZONE);
-    } else {
-        devClipRect.setRect(-BUFFERZONE, -BUFFERZONE,
-                            pdev->width() + 2*BUFFERZONE, pdev->height() + 2 * BUFFERZONE);
-    }
+    const int BUFFERZONE = 1000;
+    QRect devClipRect(-BUFFERZONE, -BUFFERZONE,
+                      pdev->width() + 2*BUFFERZONE, pdev->height() + 2*BUFFERZONE);
     d->polygonClipper.setBoundingRect(devClipRect);
     setActive(true);
 
