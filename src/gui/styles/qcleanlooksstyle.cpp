@@ -19,7 +19,9 @@
 #include <QComboBox>
 #include <qpainter.h>
 #include <QFile>
+#include <QTextStream>
 #include <QDir>
+#include <QHash>
 #include <qstyleoption.h>
 #include <QApplication>
 #include <QComboBox>
@@ -432,21 +434,40 @@ static const char * const qt_cleanlooks_checkbox_checked[] = {
     "             ",
     "             "};
 
+
+class IconTheme {
+
+public:
+    IconTheme(QHash <int, QString> dirList, QStringList parents) : 
+          _dirList(dirList), _parents(parents), _valid(true){ }
+    IconTheme() : _valid(false){ }
+    
+    QHash <int, QString> dirList() {return _dirList;}
+    QStringList parents() {return _parents;}
+    bool isValid() {return _valid;}
+        
+private:
+    QHash <int, QString> _dirList;
+    QStringList _parents;
+    bool _valid;
+};
+
 class QCleanlooksStylePrivate : public QWindowsStylePrivate
 {
     Q_DECLARE_PUBLIC(QCleanlooksStyle)
 public:
     QCleanlooksStylePrivate()
         : QWindowsStylePrivate()
-    {  }
+    { }
 
 ~QCleanlooksStylePrivate()
     { }
-    QPixmap resolveIcon(int size, const QString &) const;
-    QPixmap resolveIconHelper(int size, const QString &, const QString &, const QString &) const;
-    QPixmap searchIconDir(const QString &, const QString &) const;
+    QPixmap findIcon(int size, const QString &) const;
+    QPixmap findIconHelper(int size, const QString &, const QString &) const;
+    IconTheme parseIndexFile(const QString &themeName) const;
     QString themeName;
-    QString dataDirs;
+    QStringList iconDirs;
+    mutable QHash <QString, IconTheme> themeList;
 };
 
 static void qt_cleanlooks_draw_gradient(QPainter *painter, const QRect &rect, const QColor &gradientStart,
@@ -3288,8 +3309,6 @@ QSize QCleanlooksStyle::sizeFromContents(ContentsType type, const QStyleOption *
     return newSize;
 }
 
-#include "qdebug.h"
-
 /*!
   \reimp
 */
@@ -3299,8 +3318,13 @@ void QCleanlooksStyle::polish(QApplication *app)
 #ifdef Q_WS_X11
     Q_D(QCleanlooksStyle);
 
-    d->dataDirs = QLatin1String(getenv("XDG_DATA_DIRS"));
-
+    QString dataDirs = QLatin1String(getenv("XDG_DATA_DIRS"));
+    
+    if (dataDirs.isEmpty())
+        dataDirs = "/usr/local/share/:/usr/share/";
+    
+    d->iconDirs = dataDirs.split(":");
+    
     QProcess gconftool;
     gconftool.start(QLatin1String("gconftool-2 --get /desktop/gnome/interface/icon_theme"));
 
@@ -3750,25 +3774,25 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
     case SP_DirIcon:
         icon.addPixmap(standardPixmap(SP_DirClosedIcon, option, widget),
                        QIcon::Normal, QIcon::Off);
-        pixmap = d->resolveIcon(16, QLatin1String("stock_folder.png"));
+        pixmap = d->findIcon(16, QLatin1String("stock_folder.png"));
         if (!pixmap.isNull())
             icon.addPixmap(pixmap, QIcon::Normal, QIcon::Off);
-        pixmap = d->resolveIcon(48, QLatin1String("stock_folder.png"));
+        pixmap = d->findIcon(48, QLatin1String("stock_folder.png"));
         if (!pixmap.isNull())
             icon.addPixmap(pixmap, QIcon::Normal, QIcon::Off);
-        pixmap = d->resolveIcon(16, QLatin1String("gnome-fs-directory-accept.png"));
+        pixmap = d->findIcon(16, QLatin1String("gnome-fs-directory-accept.png"));
         if (!pixmap.isNull())
             icon.addPixmap(pixmap, QIcon::Normal, QIcon::On);
-        pixmap = d->resolveIcon(16, QLatin1String("gnome-fs-directory-accept.png"));
+        pixmap = d->findIcon(16, QLatin1String("gnome-fs-directory-accept.png"));
         if (!pixmap.isNull())
             icon.addPixmap(pixmap, QIcon::Normal, QIcon::On);
         break;
     case SP_DirLinkIcon:
         {
-            QPixmap link = d->resolveIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            QPixmap link = d->findIcon(12, QLatin1String("emblem-symbolic-link.png"));
             if (!link.isNull()) {
                 icon.addPixmap(standardPixmap(SP_DirLinkIcon, option, widget));
-                pixmap = d->resolveIcon(16, QLatin1String("stock_folder.png"));
+                pixmap = d->findIcon(16, QLatin1String("stock_folder.png"));
                 if (!pixmap.isNull()) {
                     QPainter painter(&pixmap);
                     painter.drawPixmap(8, 8, 8, 8, link); 
@@ -3780,10 +3804,10 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
         }
     case SP_FileLinkIcon:
         {
-            QPixmap link = d->resolveIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            QPixmap link = d->findIcon(12, QLatin1String("emblem-symbolic-link.png"));
             if (!link.isNull()) {
                 icon.addPixmap(standardPixmap(SP_FileLinkIcon,option, widget));
-                pixmap = d->resolveIcon(16, QLatin1String("stock_new.png"));
+                pixmap = d->findIcon(16, QLatin1String("stock_new.png"));
                 if (!pixmap.isNull()) {
                     QPainter painter(&pixmap);
                     painter.drawPixmap(8, 8, 8, 8, link);
@@ -3799,93 +3823,111 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
     return icon;
 }
 
-
-QPixmap QCleanlooksStylePrivate::searchIconDir(const QString &searchRoot,
-                                               const QString &iconName) const
+IconTheme QCleanlooksStylePrivate::parseIndexFile(const QString &themeName) const
 {
-    QPixmap pixmap;
-    QDir themeDir(searchRoot);
-    if (themeDir.exists()) {
-        QStringList list = themeDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-        for (int i = 0 ; i < list.size() ; ++i) {
-            QString path = searchRoot + list[i] + QLatin1Char('/') + iconName;
-            pixmap.load(path);
-            if (pixmap.isNull())
-                pixmap = searchIconDir(searchRoot + list[i] + QLatin1Char('/'), iconName);
-            if (!pixmap.isNull())
-                break;
-        }
+    IconTheme theme;
+    QFile themeIndex;
+    QStringList parents;
+    QHash <int, QString> dirList;
+
+    for ( int i = 0 ; i < iconDirs.size() && !themeIndex.exists() ; ++i) {
+          themeIndex.setFileName(iconDirs[i] + "/icons/" + 
+                                 themeName + QLatin1String("/index.theme"));
     }
-    return pixmap;
+    
+    if (themeIndex.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        
+        QTextStream in(&themeIndex);
+        
+        while (!in.atEnd()) {
+        
+            QString line = in.readLine();
+            
+            if (line.startsWith(QLatin1String("Inherits="))) {
+                line = line.right(line.length() - 9);
+                parents = line.split(QLatin1Char(','));
+            }
+
+            if (line.startsWith(QLatin1String("["))) {
+                line = line.trimmed();
+                line.chop(1);
+                QString dirName = line.right(line.length() - 1);
+                if (!in.atEnd()) {
+                    line = in.readLine();
+                    int size;
+                    if (line.startsWith("Size=")) {
+                        size = line.right(line.length() - 5).toInt();
+                        if (size)
+                            dirList.insertMulti(size, dirName);
+                    }
+                }
+            }
+        }
+    }   
+        
+    if (parents.isEmpty() && themeName != "hicolor")
+        parents.append("hicolor");
+    
+    theme = IconTheme(dirList, parents);
+    return theme;
 }
 
-
-QPixmap QCleanlooksStylePrivate::resolveIconHelper(int size,
-                                                   const QString &iconDir,
+QPixmap QCleanlooksStylePrivate::findIconHelper(int size,
                                                    const QString &themeName,
                                                    const QString &iconName) const
 {
     QPixmap pixmap;
-
+    
     if (!themeName.isEmpty()) {
-        //### directory name is only an assumption
-        QString subpath = themeName + QLatin1Char('/') + QString::number(size) +
-                          QLatin1Char('x') + QString::number(size)+ QLatin1Char('/');
-        QString themePath = iconDir + subpath;
-        pixmap = searchIconDir(themePath, iconName);
-    }
-
-    if (pixmap.isNull()) {
-        //search recursively through inherited themes
-        QStringList inheritedThemes;
-        QFile themeIndex(iconDir + themeName + QLatin1String("/index.theme"));
-        if (themeIndex.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&themeIndex);
-            while (!in.atEnd()) {
-                QString line = in.readLine();
-                if (line.startsWith(QLatin1String("Inherits="))) {
-                    line = line.right(line.length() - 9);
-                    inheritedThemes = line.split(QLatin1Char(','));
-                    break;
-                }
+        
+        IconTheme theme = themeList.value(themeName);        
+    
+        if (!theme.isValid()) {
+            theme = parseIndexFile(themeName);
+            themeList.insert(themeName, theme);
+        }
+        
+        if (!theme.isValid())
+            return QPixmap();
+            
+        QList <QString> subDirs = theme.dirList().values(size);
+        
+        for ( int i = 0 ; i < iconDirs.size() ; ++i) {
+            for ( int j = 0 ; j < subDirs.size() ; ++j) {
+                QString fileName = iconDirs[i] + "/icons/" + themeName + "/" + subDirs[j] + QLatin1Char('/') + iconName; 
+                pixmap.load(fileName);
+                if (!pixmap.isNull())
+                    break;      
             }
         }
-        for (int i = 0 ; pixmap.isNull() && i < inheritedThemes.size() ; ++i) {
-           //### add guard against endless recursion
-           pixmap = resolveIconHelper(size, iconDir, inheritedThemes[i].trimmed(), iconName);
+    
+        if (pixmap.isNull()) {
+            QStringList parents = theme.parents();
+            //search recursively through inherited themes
+            for (int i = 0 ; pixmap.isNull() && i < parents.size() ; ++i) {
+               QString parentTheme = parents[i].trimmed();
+               if (parentTheme != themeName)
+                  pixmap = findIconHelper(size, parentTheme, iconName);
+            }
         }
     }
     return pixmap;
 }
 
-QPixmap QCleanlooksStylePrivate::resolveIcon(int size, const QString &name) const
+QPixmap QCleanlooksStylePrivate::findIcon(int size, const QString &name) const
 {
 #ifdef Q_WS_X11
     QPixmap pixmap;
-    QString pixmapName = name + QString::number(size);
-    QPixmapCache::find(pixmapName, pixmap);
-
-    if (!pixmap.isNull())
+    QString pixmapName = QLatin1String("$qt") + name + QString::number(size);
+    
+    if (QPixmapCache::find(pixmapName, pixmap))
         return pixmap;
 
-    if (!themeName.isEmpty()) {
-        if (dataDirs.isEmpty())
-            pixmap = resolveIconHelper(size, "/usr/share/icons/", themeName, name);
-        else {
-            QStringList dirs = dataDirs.split(":");
-            for ( int i=0 ; i < dirs.size() ; ++i) {
-                QString dir = dirs[i] + "/icons/";
-                pixmap = resolveIconHelper(size, dir, themeName, name);                
-                if (!pixmap.isNull())
-                    break;
-            }
-        }
-    }
-    if (pixmap.isNull())
-        pixmap = resolveIconHelper(size, "/usr/share/icons/", QLatin1String("hicolor"), name);
+    if (!themeName.isEmpty())
+        pixmap = findIconHelper(size, themeName, name);                
+    
+    QPixmapCache::insert(pixmapName, pixmap);
 
-    if (!pixmap.isNull())
-        QPixmapCache::insert(pixmapName, pixmap);
     return pixmap;
 #else
     Q_UNUSED(size);
@@ -3901,55 +3943,57 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
                                       const QWidget *widget) const
 {
     Q_D(const QCleanlooksStyle);
+    QPixmap pixmap;
 #ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
     case SP_MessageBoxInformation:
         {
-            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-info.png"));
+            pixmap = d->findIcon(48, QLatin1String("stock_dialog-info.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxWarning:
         {
-            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-warning.png"));
+            pixmap = d->findIcon(48, QLatin1String("stock_dialog-warning.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxCritical:
         {
-            QPixmap pixmap = d->resolveIcon(48, QLatin1String("stock_dialog-error.png"));
+            pixmap = d->findIcon(48, QLatin1String("stock_dialog-error.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_MessageBoxQuestion:
         {
-            QPixmap pixmap = d->resolveIcon(48, QLatin1String("dialog-question.png"));
+            pixmap = d->findIcon(48, QLatin1String("dialog-question.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
+    case SP_StandardButtonOpen:
     case SP_DirOpenIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-fs-directory-accept.png"));
+            pixmap = d->findIcon(24, QLatin1String("gnome-fs-directory-accept.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_new.png"));
+            pixmap = d->findIcon(24, QLatin1String("stock_new.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileLinkIcon:
         {
-            QPixmap pixmap = d->resolveIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            pixmap = d->findIcon(12, QLatin1String("emblem-symbolic-link.png"));
             if (!pixmap.isNull()) {
-                QPixmap fileIcon = d->resolveIcon(24, QLatin1String("stock_new.png"));
+                QPixmap fileIcon = d->findIcon(24, QLatin1String("stock_new.png"));
                 QPainter painter(&fileIcon);
                 painter.drawPixmap(12, 12, 12, 12, pixmap);
                 return fileIcon; 
@@ -3959,16 +4003,16 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_DirClosedIcon:
     case SP_DirIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_folder.png"));
+            pixmap = d->findIcon(24, QLatin1String("stock_folder.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DirLinkIcon:
         {
-            QPixmap pixmap = d->resolveIcon(12, QLatin1String("emblem-symbolic-link.png"));
+            pixmap = d->findIcon(12, QLatin1String("emblem-symbolic-link.png"));
             if (!pixmap.isNull()) {
-                QPixmap dirIcon = d->resolveIcon(24, QLatin1String("stock_folder.png"));
+                QPixmap dirIcon = d->findIcon(24, QLatin1String("stock_folder.png"));
                 QPainter painter(&dirIcon);
                 painter.drawPixmap(12, 12, 12, 12, pixmap);
                 return dirIcon; 
@@ -3977,28 +4021,28 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
        }
     case SP_DriveFDIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-dev-floppy.png"));
+            pixmap = d->findIcon(24, QLatin1String("gnome-dev-floppy.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_ComputerIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-fs-client.png"));
+            pixmap = d->findIcon(24, QLatin1String("gnome-fs-client.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DesktopIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-fs-desktop.png"));
+            pixmap = d->findIcon(24, QLatin1String("gnome-fs-desktop.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_TrashIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-fs-trash-empty.png"));
+            pixmap = d->findIcon(24, QLatin1String("gnome-fs-trash-empty.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
@@ -4006,43 +4050,35 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
     case SP_DriveCDIcon:
     case SP_DriveDVDIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-dev-cdrom.png"));
+            pixmap = d->findIcon(24, QLatin1String("gnome-dev-cdrom.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_DriveHDIcon:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("gnome-dev-harddisk.png"));
+            pixmap = d->findIcon(24, QLatin1String("gnome-dev-harddisk.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileDialogBack:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_left.png"));
+            pixmap = d->findIcon(16, QLatin1String("stock_left.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileDialogToParent:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_up.png"));
+            pixmap = d->findIcon(16, QLatin1String("stock_up.png"));
             if (!pixmap.isNull())
                 return pixmap;
             break;
         }
     case SP_FileDialogNewFolder:
         {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_folder.png"));
-
-            if (!pixmap.isNull())
-                return pixmap;
-            break;
-        }
-    case SP_StandardButtonOk:
-        {
-            QPixmap pixmap = d->resolveIcon(24, QLatin1String("stock_folder.png"));
+            pixmap = d->findIcon(16, QLatin1String("stock_folder.png"));
 
             if (!pixmap.isNull())
                 return pixmap;
@@ -4065,6 +4101,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
         break;
     }
 #endif //QT_NO_IMAGEFORMAT_XPM
+        
     return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
 }
 
