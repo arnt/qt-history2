@@ -52,14 +52,22 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
             int typeId = qDBusNameToTypeId(mp.typeName());
             if (!typeId)
                 continue;
-            const char *typeName = QDBusMetaType::typeToSignature( typeId );
-            if (!typeName)
+            const char *signature = QDBusMetaType::typeToSignature( typeId );
+            if (!signature)
                 continue;
 
-            retval += QString(QLatin1String("    <property name=\"%1\" type=\"%2\" access=\"%3\" />\n"))
+            retval += QString(QLatin1String("    <property name=\"%1\" type=\"%2\" access=\"%3\""))
                       .arg(QLatin1String( mp.name() ))
-                      .arg(QLatin1String( typeName ))
+                      .arg(QLatin1String( signature ))
                       .arg(QLatin1String( accessvalues[access] ));
+
+            if (QDBusMetaType::signatureToType(signature) == QVariant::Invalid) {
+                const char *typeName = QVariant::typeToName( QVariant::Type(typeId) );
+                retval += QString::fromLatin1("      <annotation name=\"com.trolltech.QtDBus.QtTypeName\" value=\"%3\"/>\n    </property>\n")
+                          .arg(QLatin1String(typeName));
+            } else {
+                retval += QLatin1String("/>\n");
+            }
         }
     }
 
@@ -90,10 +98,15 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
         int typeId = qDBusNameToTypeId(mm.typeName());
         if (typeId) {
             const char *typeName = QDBusMetaType::typeToSignature( typeId );
-            if (typeName)
+            if (typeName) {
                 xml += QString(QLatin1String("      <arg type=\"%1\" direction=\"out\"/>\n"))
                        .arg(QLatin1String(typeName));
-            else
+
+                // do we need to describe this argument?
+                if (QDBusMetaType::signatureToType(typeName) == QVariant::Invalid)
+                    xml += QString::fromLatin1("      <annotation name=\"com.trolltech.QtDBus.QtTypeName.Out0\" value=\"%1\"/>\n")
+                           .arg(QLatin1String(mm.typeName()));
+            } else
                 continue;
         }
         else if (*mm.typeName())
@@ -126,10 +139,20 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
 
             bool isOutput = isSignal || j > inputCount;
 
+            const char *signature = QDBusMetaType::typeToSignature( types.at(j) );
             xml += QString(QLatin1String("      <arg %1type=\"%2\" direction=\"%3\"/>\n"))
                    .arg(name)
-                   .arg(QLatin1String(QDBusMetaType::typeToSignature( types.at(j) )))
+                   .arg(QLatin1String(signature))
                    .arg(isOutput ? QLatin1String("out") : QLatin1String("in"));
+
+            // do we need to describe this argument?
+            if (QDBusMetaType::signatureToType(signature) == QVariant::Invalid) {
+                const char *typeName = QVariant::typeToName( QVariant::Type(types.at(j)) );
+                xml += QString::fromLatin1("      <annotation name=\"com.trolltech.QtDBus.QtTypeName.%1%2\" value=\"%3\"/>\n")
+                       .arg(isOutput ? QLatin1String("Out") : QLatin1String("In"))
+                       .arg(isOutput ? j - 1 : j - inputCount)
+                       .arg(QLatin1String(typeName));
+            }
         }
 
         if (!isScriptable) {

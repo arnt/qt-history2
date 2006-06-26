@@ -26,29 +26,6 @@
 #include "qdbusmetatype_p.h"
 #include "qdbusargument_p.h"
 
-static QByteArray constructListType(const QByteArray &signature)
-{
-    QByteArray result;
-    int count = 0;
-    while (count < signature.length() && signature.at(count) == DBUS_TYPE_ARRAY) {
-        result += "QList<";
-        ++count;
-    }
-
-    QByteArray partialSignature = signature;
-    partialSignature.truncate(count);
-    int type = QDBusMetaType::signatureToType(partialSignature);
-    result += QVariant::typeToName( QVariant::Type(type) );
-
-    while (count--) {
-        if (result.endsWith('>'))
-            result += ' ';
-        result += '>';
-    }
-
-    return result;
-}
-
 class QDBusCustomTypeInfo
 {
 public:
@@ -276,11 +253,10 @@ bool QDBusMetaType::demarshall(const QDBusArgument &arg, int id, void *data)
 */
 int QDBusMetaType::signatureToType(const char *signature)
 {
-    QDBusMetaTypeId::init();
-    if (!signature || !*signature ||
-        !QDBusUtil::isValidSingleSignature(QString::fromLatin1(signature)))
+    if (!signature)
         return QVariant::Invalid;
 
+    QDBusMetaTypeId::init();
     switch (signature[0])
     {
     case DBUS_TYPE_BOOLEAN:
@@ -324,9 +300,6 @@ int QDBusMetaType::signatureToType(const char *signature)
 
     case DBUS_TYPE_ARRAY:       // special case
         switch (signature[1]) {
-        case '\0':              // invalid
-            return QVariant::Invalid;
-
         case DBUS_TYPE_BYTE:
             return QVariant::ByteArray;
 
@@ -336,44 +309,8 @@ int QDBusMetaType::signatureToType(const char *signature)
         case DBUS_TYPE_VARIANT:
             return QVariant::List;
 
-        case DBUS_DICT_ENTRY_BEGIN_CHAR: {
-            if (strcmp(signature, "a{sv}") == 0)
-                return QVariant::Map;
-
-            // Try to construct a name
-            if (strlen(signature) < 5)
-                return QVariant::Invalid; // can't be a valid map signature
-            if (!dbus_type_is_basic(signature[2]))
-                return QVariant::Invalid;
-            
-            char key[2] = { signature[2], 0 };
-            int kid = signatureToType(key);
-            if (kid == QVariant::Invalid)
-                return QVariant::Invalid;
-
-            QByteArray value = signature + 3;
-            value.truncate(value.length() - 1);
-            int vid = signatureToType(value);
-            if (vid == QVariant::Invalid)
-                return QVariant::Invalid;
-
-            QByteArray name = "QMap<";
-            name += QVariant::typeToName( QVariant::Type(kid) );
-            name += ',';
-            name += QVariant::typeToName( QVariant::Type(vid) );
-            if (name.endsWith('>'))
-                name += ' ';
-            name += '>';
-
-            QVariant::Type result = QVariant::nameToType(name);
-            if (result != QVariant::Invalid)
-                return result;
         }
-
-        default: {
-            return QVariant::nameToType( constructListType(signature) );
-        }
-        }
+        // fall through
     default:
         return QVariant::Invalid;
     }
