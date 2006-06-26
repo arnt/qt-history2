@@ -164,13 +164,13 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
                 break;
             if ((pe = tryMatch(size, QIcon::Active, state)))
                 break;
-            if ((pe = tryMatch(size, oppositeMode, state)))
-                break;
             if ((pe = tryMatch(size, mode, oppositeState)))
                 break;
             if ((pe = tryMatch(size, QIcon::Normal, oppositeState)))
                 break;
             if ((pe = tryMatch(size, QIcon::Active, oppositeState)))
+                break;
+            if ((pe = tryMatch(size, oppositeMode, state)))
                 break;
             if ((pe = tryMatch(size, oppositeMode, oppositeState)))
                 break;
