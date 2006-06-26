@@ -32,24 +32,24 @@ MainWindow::MainWindow()
     createContextMenu();
 
     QGridLayout *mainLayout = new QGridLayout;
-    mainLayout->addWidget(imagesGroupBox, 0, 0);
-    mainLayout->addWidget(iconSizeGroupBox, 1, 0);
-    mainLayout->addWidget(previewGroupBox, 0, 1, 2, 1);
+    mainLayout->addWidget(previewGroupBox, 0, 0, 1, 2);
+    mainLayout->addWidget(imagesGroupBox, 1, 0);
+    mainLayout->addWidget(iconSizeGroupBox, 1, 1);
     centralWidget->setLayout(mainLayout);
 
     setWindowTitle(tr("Icons"));
     checkCurrentStyle();
     otherRadioButton->click();
 
-    resize(860, 400);
+    resize(minimumSizeHint());
 }
 
 void MainWindow::about()
 {
     QMessageBox::about(this, tr("About Icons"),
             tr("The <b>Icons</b> example illustrates how Qt renders an icon in "
-               "different modes (active, normal, and disabled) and states (on "
-               "and off) based on a set of images."));
+               "different modes (active, normal, disabled, and selected) and "
+               "states (on and off) based on a set of images."));
 }
 
 void MainWindow::changeStyle(bool checked)
@@ -147,7 +147,7 @@ void MainWindow::changeIcon()
     previewArea->setIcon(icon);
 }
 
-void MainWindow::addImage()
+void MainWindow::addImages()
 {
     QStringList fileNames = QFileDialog::getOpenFileNames(this,
                                     tr("Open Images"), "",
@@ -219,13 +219,14 @@ void MainWindow::createImagesGroupBox()
     imagesTable = new QTableWidget;
     imagesTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
     imagesTable->setSelectionMode(QAbstractItemView::NoSelection);
-    imagesTable->setColumnCount(3);
-    imagesTable->setHorizontalHeaderLabels(labels);
     imagesTable->setItemDelegate(new ImageDelegate(this));
 
-    imagesTable->horizontalHeader()->resizeSection(0, 160);
-    imagesTable->horizontalHeader()->resizeSection(1, 80);
-    imagesTable->horizontalHeader()->resizeSection(2, 80);
+    imagesTable->horizontalHeader()->setDefaultSectionSize(90);
+    imagesTable->setColumnCount(3);
+    imagesTable->setHorizontalHeaderLabels(labels);
+    imagesTable->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
+    imagesTable->horizontalHeader()->setResizeMode(1, QHeaderView::Fixed);
+    imagesTable->horizontalHeader()->setResizeMode(2, QHeaderView::Fixed);
     imagesTable->verticalHeader()->hide();
 
     connect(imagesTable, SIGNAL(itemChanged(QTableWidgetItem *)),
@@ -281,14 +282,15 @@ void MainWindow::createIconSizeGroupBox()
     layout->addWidget(iconViewRadioButton, 1, 1);
     layout->addWidget(tabBarRadioButton, 2, 1);
     layout->addLayout(otherSizeLayout, 3, 0, 1, 2);
+    layout->setRowStretch(4, 1);
     iconSizeGroupBox->setLayout(layout);
 }
 
 void MainWindow::createActions()
 {
-    addImageAct = new QAction(tr("&Add Image..."), this);
-    addImageAct->setShortcut(tr("Ctrl+A"));
-    connect(addImageAct, SIGNAL(triggered()), this, SLOT(addImage()));
+    addImagesAct = new QAction(tr("&Add Images..."), this);
+    addImagesAct->setShortcut(tr("Ctrl+A"));
+    connect(addImagesAct, SIGNAL(triggered()), this, SLOT(addImages()));
 
     removeAllImagesAct = new QAction(tr("&Remove All Images"), this);
     removeAllImagesAct->setShortcut(tr("Ctrl+R"));
@@ -322,7 +324,7 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(addImageAct);
+    fileMenu->addAction(addImagesAct);
     fileMenu->addAction(removeAllImagesAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
@@ -343,7 +345,7 @@ void MainWindow::createMenus()
 void MainWindow::createContextMenu()
 {
     imagesTable->setContextMenuPolicy(Qt::ActionsContextMenu);
-    imagesTable->addAction(addImageAct);
+    imagesTable->addAction(addImagesAct);
     imagesTable->addAction(removeAllImagesAct);
 }
 
