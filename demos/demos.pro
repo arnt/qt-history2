@@ -21,7 +21,6 @@ sources.files = README *.pro
 sources.path = $$[QT_INSTALL_DEMOS]
 INSTALLS += sources
 
-
 demos_shared.subdir = shared
 demos_deform.subdir = deform
 demos_gradients.subdir = gradients
