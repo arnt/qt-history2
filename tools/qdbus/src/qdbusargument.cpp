@@ -44,7 +44,7 @@ QByteArray QDBusArgumentPrivate::createSignature(int id)
 
     if (signature.isEmpty() || !ok || !dbus_signature_validate_single(signature, 0)) {
         qWarning("QDBusMarshaller: type `%s' produces invalid D-BUS signature `%s' "
-                 "(Did you forget to call newStructure() ?)",
+                 "(Did you forget to call beginStructure() ?)",
                  QVariant::typeToName( QVariant::Type(id) ),
                  signature.isEmpty() ? "<empty>" : signature.constData());
         return "";
@@ -52,7 +52,7 @@ QByteArray QDBusArgumentPrivate::createSignature(int id)
                (signature.at(0) == DBUS_TYPE_ARRAY && (signature.at(1) == DBUS_TYPE_BYTE ||
                                                        signature.at(1) == DBUS_TYPE_STRING))) {
         qWarning("QDBusMarshaller: type `%s' attempts to redefine basic D-BUS type '%s' (%s) "
-                 "(Did you forget to call newStructure() ?)",
+                 "(Did you forget to call begiStructure() ?)",
                  QVariant::typeToName( QVariant::Type(id) ),
                  signature.constData(),
                  QVariant::typeToName( QVariant::Type(QDBusMetaType::signatureToType(signature))) );
