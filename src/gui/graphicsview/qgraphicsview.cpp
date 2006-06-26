@@ -1700,7 +1700,7 @@ void QGraphicsView::contextMenuEvent(QContextMenuEvent *event)
     contextEvent.setScenePos(d->mousePressScenePoint);
     contextEvent.setScreenPos(d->mousePressScreenPoint);
     contextEvent.setModifiers(event->modifiers());
-    contextEvent.setReason(static_cast<QGraphicsSceneContextMenuEvent::Reason>(event->reason()));
+    contextEvent.setReason((QGraphicsSceneContextMenuEvent::Reason)(event->reason()));
     QApplication::sendEvent(d->scene, &contextEvent);
 }
 
