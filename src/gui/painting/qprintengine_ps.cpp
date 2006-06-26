@@ -843,7 +843,8 @@ static void closeAllOpenFds()
 #else
     i = 256;
 #endif
-    while(--i > 0)
+    // leave stdin/out/err untouched
+    while(--i > 2)
 	::close(i);
 }
 
