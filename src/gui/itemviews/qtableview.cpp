@@ -556,7 +556,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
                 for (int c = previousScrollbarValue; c < currentScrollbarValue; ++c) {
                     int l = d->horizontalHeader->logicalIndex(c);
                     if (l == -1)
-                        dx += d->horizontalHeader->defaultSectionSize();
+                        dx -= d->horizontalHeader->defaultSectionSize();
                     else
                         dx -= d->horizontalHeader->sectionSize(l);
                 }
