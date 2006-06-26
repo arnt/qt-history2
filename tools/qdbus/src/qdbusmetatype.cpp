@@ -26,6 +26,15 @@
 #include "qdbusmetatype_p.h"
 #include "qdbusargument_p.h"
 
+Q_DECLARE_METATYPE(QList<bool>)
+Q_DECLARE_METATYPE(QList<short>)
+Q_DECLARE_METATYPE(QList<ushort>)
+Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(QList<uint>)
+Q_DECLARE_METATYPE(QList<qlonglong>)
+Q_DECLARE_METATYPE(QList<qulonglong>)
+Q_DECLARE_METATYPE(QList<double>)
+
 class QDBusCustomTypeInfo
 {
 public:
@@ -82,14 +91,14 @@ void QDBusMetaTypeId::init()
         registerHelper<QVariantList>();
         registerHelper<QVariantMap>();
 
-        qDBusRegisterMetaType<QList<bool> >("QList<bool>");
-        qDBusRegisterMetaType<QList<short> >("QList<short>");
-        qDBusRegisterMetaType<QList<ushort> >("QList<ushort>");
-        qDBusRegisterMetaType<QList<int> >("QList<int>");
-        qDBusRegisterMetaType<QList<uint> >("QList<uint>");
-        qDBusRegisterMetaType<QList<qlonglong> >("QList<qlonglong>");
-        qDBusRegisterMetaType<QList<qulonglong> >("QList<qulonglong>");
-        qDBusRegisterMetaType<QList<double> >("QList<double>");
+        qDBusRegisterMetaType<QList<bool> >();
+        qDBusRegisterMetaType<QList<short> >();
+        qDBusRegisterMetaType<QList<ushort> >();
+        qDBusRegisterMetaType<QList<int> >();
+        qDBusRegisterMetaType<QList<uint> >();
+        qDBusRegisterMetaType<QList<qlonglong> >();
+        qDBusRegisterMetaType<QList<qulonglong> >();
+        qDBusRegisterMetaType<QList<double> >();
 #endif
 
         initialized = true;
@@ -398,6 +407,8 @@ const char *QDBusMetaType::typeToSignature(int type)
     // call to user code to construct the signature type
     QDBusCustomTypeInfo *info;
     {
+        // createSignature will never return a null QByteArray
+        // if there was an error, it'll return ""
         QByteArray signature = QDBusArgumentPrivate::createSignature(type);
 
         // re-acquire lock

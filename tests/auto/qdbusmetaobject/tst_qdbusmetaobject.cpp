@@ -39,12 +39,12 @@ struct Struct4                  // (ssa(ss)sayasx)
     qlonglong m7;
 };
 
-QDBUS_DECLARE_METATYPE(Struct1)
-QDBUS_DECLARE_METATYPE(Struct4)
-QDBUS_DECLARE_METATYPE(StringPair)
+Q_DECLARE_METATYPE(Struct1)
+Q_DECLARE_METATYPE(Struct4)
+Q_DECLARE_METATYPE(StringPair)
 
-QDBUS_DECLARE_METATYPE(QList<Struct1>)
-QDBUS_DECLARE_METATYPE(QList<Struct4>)
+Q_DECLARE_METATYPE(QList<Struct1>)
+Q_DECLARE_METATYPE(QList<Struct4>)
 
 Q_DECLARE_METATYPE(const QMetaObject*)
 

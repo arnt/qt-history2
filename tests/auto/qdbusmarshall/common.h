@@ -43,7 +43,7 @@ struct MyStruct
     inline bool operator==(const MyStruct &other) const
     { return i == other.i && s == other.s; }
 };
-QDBUS_DECLARE_METATYPE(MyStruct)
+Q_DECLARE_METATYPE(MyStruct)
 
 QDBusArgument &operator<<(QDBusArgument &arg, const MyStruct &ms)
 {
@@ -63,24 +63,24 @@ const QDBusArgument &operator>>(const QDBusArgument &arg, MyStruct &ms)
 
 void commonInit()
 {
-    qDBusRegisterMetaType<QList<QDateTime> >("QList<QDateTime>");
-    qDBusRegisterMetaType<QList<QStringList> >("QList<QStringList>");
-    qDBusRegisterMetaType<QList<QByteArray> >("QList<QByteArray>");
-    qDBusRegisterMetaType<QList<QList<bool> > >("QList<QList<bool> >");
-    qDBusRegisterMetaType<QList<QList<short> > >("QList<QList<short> >");
-    qDBusRegisterMetaType<QList<QList<ushort> > >("QList<QList<ushort> >");
-    qDBusRegisterMetaType<QList<QList<int> > >("QList<QList<int> >");
-    qDBusRegisterMetaType<QList<QList<uint> > >("QList<QList<uint> >");
-    qDBusRegisterMetaType<QList<QList<qlonglong> > >("QList<QList<qlonglong> >");
-    qDBusRegisterMetaType<QList<QList<qulonglong> > >("QList<QList<qulonglong> >");
-    qDBusRegisterMetaType<QList<QList<double> > >("QList<QList<double> >");
-    qDBusRegisterMetaType<QList<QList<QDBusObjectPath> > >("QList<QList<QDBusObjectPath> >");
-    qDBusRegisterMetaType<QList<QList<QDBusSignature> > >("QList<QList<QDBusSignature> >");
-    qDBusRegisterMetaType<QList<QVariantList> >("QList<QVariantList>");
+    qDBusRegisterMetaType<QList<QDateTime> >();
+    qDBusRegisterMetaType<QList<QStringList> >();
+    qDBusRegisterMetaType<QList<QByteArray> >();
+    qDBusRegisterMetaType<QList<QList<bool> > >();
+    qDBusRegisterMetaType<QList<QList<short> > >();
+    qDBusRegisterMetaType<QList<QList<ushort> > >();
+    qDBusRegisterMetaType<QList<QList<int> > >();
+    qDBusRegisterMetaType<QList<QList<uint> > >();
+    qDBusRegisterMetaType<QList<QList<qlonglong> > >();
+    qDBusRegisterMetaType<QList<QList<qulonglong> > >();
+    qDBusRegisterMetaType<QList<QList<double> > >();
+    qDBusRegisterMetaType<QList<QList<QDBusObjectPath> > >();
+    qDBusRegisterMetaType<QList<QList<QDBusSignature> > >();
+    qDBusRegisterMetaType<QList<QVariantList> >();
 
-    qDBusRegisterMetaType<QMap<int, QString> >("IntStringMap");
-    qDBusRegisterMetaType<QMap<QString, QString> >("StringStringMap");
-    qDBusRegisterMetaType<QMap<qlonglong, QDateTime> >("LLDateTimeMap");
+    qDBusRegisterMetaType<QMap<int, QString> >();
+    qDBusRegisterMetaType<QMap<QString, QString> >();
+    qDBusRegisterMetaType<QMap<qlonglong, QDateTime> >();
 }
 #ifdef USE_PRIVATE_CODE
 #include "private/qdbusintrospection_p.h"
