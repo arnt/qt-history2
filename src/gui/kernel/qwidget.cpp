@@ -1623,8 +1623,11 @@ WId QWidget::winId() const
 void QWidgetPrivate::createWinId()
  {
      Q_Q(QWidget);
-     if (!q->testAttribute(Qt::WA_WState_Created))
-         q->window()->d_func()->createRecursively();
+     if (!q->testAttribute(Qt::WA_WState_Created)) {
+         if (!q->isWindow() && !q->parentWidget()->testAttribute(Qt::WA_WState_Created))
+             q->parentWidget()->d_func()->createWinId();
+         q->create();
+     }
  }
 
 
