@@ -162,6 +162,8 @@ embedded {
 	contains( kbd-drivers, um ) {
 		HEADERS +=embedded/qkbdum_qws.h
 		SOURCES +=embedded/qkbdum_qws.cpp
+	} else {
+            DEFINES+=QT_NO_QWS_KBD_UM
 	}
 
 	contains( kbd-drivers, pc101 ) {
