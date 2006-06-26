@@ -694,7 +694,7 @@ qint64 QIODevice::read(char *data, qint64 maxSize)
     CHECK_MAXLEN(read, qint64(-1));
 
 #if defined QIODEVICE_DEBUG
-                printf("%p QIODevice::read(%p, %d), d->pos = %d, d->buffer.size() = %d\n",
+                printf("%p QIODevice::read(%p, %d), d->pos = %d, d->buffer.size() = %d\n",
                        this, data, int(maxSize), int(d->pos), int(d->buffer.size()));
 #endif
     const bool sequential = isSequential();
@@ -862,7 +862,7 @@ QByteArray QIODevice::read(qint64 maxSize)
     qint64 readSoFar = 0;
     char buffer[4096];
 #if defined QIODEVICE_DEBUG
-    printf("%p QIODevice::read(%d), d->pos = %d, d->buffer.size() = %d\n",
+    printf("%p QIODevice::read(%d), d->pos = %d, d->buffer.size() = %d\n",
            this, int(maxSize), int(d->pos), int(d->buffer.size()));
 #else
     Q_UNUSED(d);
@@ -894,7 +894,7 @@ QByteArray QIODevice::readAll()
 {
 #if defined QIODEVICE_DEBUG
     Q_D(QIODevice);
-    printf("%p QIODevice::readAll(), d->pos = %d, d->buffer.size() = %d\n",
+    printf("%p QIODevice::readAll(), d->pos = %d, d->buffer.size() = %d\n",
            this, int(d->pos), int(d->buffer.size()));
 #endif
 
@@ -971,7 +971,7 @@ qint64 QIODevice::readLine(char *data, qint64 maxSize)
     }
 
 #if defined QIODEVICE_DEBUG
-    printf("%p QIODevice::readLine(%p, %d), d->pos = %d, d->buffer.size() = %d\n",
+    printf("%p QIODevice::readLine(%p, %d), d->pos = %d, d->buffer.size() = %d\n",
            this, data, int(maxSize), int(d->pos), int(d->buffer.size()));
 #endif
 
@@ -1057,7 +1057,7 @@ QByteArray QIODevice::readLine(qint64 maxSize)
     qint64 readBytes = 0;
 
 #if defined QIODEVICE_DEBUG
-    printf("%p QIODevice::readLine(%d), d->pos = %d, d->buffer.size() = %d\n",
+    printf("%p QIODevice::readLine(%d), d->pos = %d, d->buffer.size() = %d\n",
            this, int(maxSize), int(d->pos), int(d->buffer.size()));
 #else
     Q_UNUSED(d);
@@ -1108,7 +1108,7 @@ qint64 QIODevice::readLineData(char *data, qint64 maxSize)
 
 #if defined QIODEVICE_DEBUG
     Q_D(QIODevice);
-    printf("%p QIODevice::readLineData(%p, %d), d->pos = %d, d->buffer.size() = %d, returns %d\n",
+    printf("%p QIODevice::readLineData(%p, %d), d->pos = %d, d->buffer.size() = %d, returns %d\n",
            this, data, int(maxSize), int(d->pos), int(d->buffer.size()), int(readSoFar));
 #endif
     if (!lastGetSucceeded && readSoFar == 0)
