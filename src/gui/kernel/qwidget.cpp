@@ -953,14 +953,15 @@ void QWidgetPrivate::init(QWidget *parentWidget, Qt::WFlags f)
     if (++QWidgetPrivate::instanceCounter > QWidgetPrivate::maxInstances)
         QWidgetPrivate::maxInstances = QWidgetPrivate::instanceCounter;
 
+    if (QApplicationPrivate::app_compile_version < 0x040200)
+        q->create();
+
+
     QEvent e(QEvent::Create);
     QApplication::sendEvent(q, &e);
     QApplication::postEvent(q, new QEvent(QEvent::PolishRequest));
 
     extraPaintEngine = 0;
-
-    if (QApplicationPrivate::app_compile_version < 0x040200)
-        createWinId();
 }
 
 
