@@ -30,9 +30,9 @@
 
     \inmodule QtDesigner
 
-    QDesignerFormWindowInterface provides you with information about
-    the associated form window as well as allowing you to alter its
-    properties. The interface is not intended to be instantiated
+    QDesignerFormWindowInterface provides information about
+    the associated form window as well as allowing its properties to be
+    altered. The interface is not intended to be instantiated
     directly, but to provide access to \QD's current form windows
     controlled by \QD's \l {QDesignerFormWindowManagerInterface}{form
     window manager}.
