@@ -1769,8 +1769,8 @@ QStandardItemModel::~QStandardItemModel()
 }
 
 /*!
-    Removes all items from the model and resets both the horizontal
-    and vertical headers.
+    Removes all items from the model, resets the number of rows and columns
+    to zero, and resets both the horizontal and vertical headers.
 
     \sa removeColumns(), removeRows()
 */
