@@ -52,7 +52,7 @@ QByteArray QDBusArgumentPrivate::createSignature(int id)
                (signature.at(0) == DBUS_TYPE_ARRAY && (signature.at(1) == DBUS_TYPE_BYTE ||
                                                        signature.at(1) == DBUS_TYPE_STRING))) {
         qWarning("QDBusMarshaller: type `%s' attempts to redefine basic D-BUS type '%s' (%s) "
-                 "(Did you forget to call begiStructure() ?)",
+                 "(Did you forget to call beginStructure() ?)",
                  QVariant::typeToName( QVariant::Type(id) ),
                  signature.constData(),
                  QVariant::typeToName( QVariant::Type(QDBusMetaType::signatureToType(signature))) );
