@@ -54,6 +54,8 @@ private slots:
     void formatDate_data();
     void formatTime();
     void formatTime_data();
+    void negativeNumbers();
+
 private:
     QString m_decimal, m_thousand, m_sdate, m_ldate, m_time;
 };
@@ -752,20 +754,20 @@ public:
         m_thousand = getWinLocaleInfo(LOCALE_STHOUSAND);
         m_sdate = getWinLocaleInfo(LOCALE_SSHORTDATE);
         m_ldate = getWinLocaleInfo(LOCALE_SLONGDATE);
-        m_time = getWinLocaleInfo(LOCALE_STIMEFORMAT);        
+        m_time = getWinLocaleInfo(LOCALE_STIMEFORMAT);
     }
 
     ~RestoreLocaleHelper() {
         // restore these, or the user will get a surprise
         setWinLocaleInfo(LOCALE_SDECIMAL, m_decimal);
-        setWinLocaleInfo(LOCALE_STHOUSAND, m_thousand);    
+        setWinLocaleInfo(LOCALE_STHOUSAND, m_thousand);
         setWinLocaleInfo(LOCALE_SSHORTDATE, m_sdate);
         setWinLocaleInfo(LOCALE_SLONGDATE, m_ldate);
         setWinLocaleInfo(LOCALE_STIMEFORMAT, m_time);
     }
 
     QString m_decimal, m_thousand, m_sdate, m_ldate, m_time;
-    
+
 };
 
 #endif
@@ -800,6 +802,50 @@ void tst_QLocale::windowsDefaultLocale()
     QCOMPARE(locale.toString(QTime(1,2,3), QLocale::LongFormat), QString("1^2^3"));
 
 #endif
+}
+
+void tst_QLocale::negativeNumbers()
+{
+    QLocale locale(QLocale::C);
+
+    bool ok;
+    int i;
+
+    i = locale.toInt(QLatin1String("-100"), &ok);
+    QVERIFY(ok);
+    QCOMPARE(i, -100);
+
+    i = locale.toInt(QLatin1String("-1,000"), &ok);
+    QVERIFY(ok);
+    QCOMPARE(i, -1000);
+
+    i = locale.toInt(QLatin1String("-1000"), &ok);
+    QVERIFY(ok);
+    QCOMPARE(i, -1000);
+
+    i = locale.toInt(QLatin1String("-10,000"), &ok);
+    QVERIFY(ok);
+    QCOMPARE(i, -10000);
+
+    i = locale.toInt(QLatin1String("-10000"), &ok);
+    QVERIFY(ok);
+    QCOMPARE(i, -10000);
+
+    i = locale.toInt(QLatin1String("-100,000"), &ok);
+    QVERIFY(ok);
+    QCOMPARE(i, -100000);
+
+    i = locale.toInt(QLatin1String("-100000"), &ok);
+    QVERIFY(ok);
+    QCOMPARE(i, -100000);
+
+    i = locale.toInt(QLatin1String("-1,000,000"), &ok);
+    QVERIFY(ok);
+    QCOMPARE(i, -1000000);
+
+    i = locale.toInt(QLatin1String("-1000000"), &ok);
+    QVERIFY(ok);
+    QCOMPARE(i, -1000000);
 }
 
 QTEST_APPLESS_MAIN(tst_QLocale)
