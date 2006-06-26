@@ -150,7 +150,7 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents)
         logText += Logger::instance()->globalState.value("currentFileName").toLocal8Bit();
         logText += ": Added the following include directives:\n";
         foreach (QByteArray headerName, insertHeaders) {
-            insertText = insertText + headerName + "\n";
+            insertText = insertText + headerName + lineEnding;
             logText += "\t";
             logText += headerName + " ";
         }
