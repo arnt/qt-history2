@@ -555,12 +555,18 @@ void QTableView::scrollContentsBy(int dx, int dy)
             if (previousScrollbarValue < currentScrollbarValue) { // scrolling right
                 for (int c = previousScrollbarValue; c < currentScrollbarValue; ++c) {
                     int l = d->horizontalHeader->logicalIndex(c);
-                    dx -= d->horizontalHeader->sectionSize(l);
+                    if (l == -1)
+                        dx += d->horizontalHeader->defaultSectionSize();
+                    else
+                        dx -= d->horizontalHeader->sectionSize(l);
                 }
             } else if (previousScrollbarValue > currentScrollbarValue) { // scrolling left
                 for (int c = previousScrollbarValue; c > currentScrollbarValue; --c) {
                     int l = d->horizontalHeader->logicalIndex(c);
-                    dx += d->horizontalHeader->sectionSize(l);
+                    if (l == -1)
+                        dx += d->horizontalHeader->defaultSectionSize();
+                    else
+                        dx += d->horizontalHeader->sectionSize(l);
                 }
             }
         } else {
@@ -607,9 +613,7 @@ QStyleOptionViewItem QTableView::viewOptions() const
 void QTableView::paintEvent(QPaintEvent *event)
 {
     Q_D(QTableView);
-
     // setup temp variables for the painting
-
     QStyleOptionViewItem option = viewOptions();
     const QPoint offset = d->scrollDelayOffset;
     const bool showGrid = d->showGrid;
@@ -621,6 +625,7 @@ void QTableView::paintEvent(QPaintEvent *event)
     const QHeaderView *horizontalHeader = d->horizontalHeader;
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
+    const bool rightToLeft = isRightToLeft();
 
     QPainter painter(d->viewport);
 
@@ -632,39 +637,23 @@ void QTableView::paintEvent(QPaintEvent *event)
 
     QVector<QRect> rects = event->region().rects();
     for (int i = 0; i < rects.size(); ++i) {
+        QRect dirtyArea = rects.at(i);
+        dirtyArea.translate(offset);
 
-        QRect area = rects.at(i);
-        area.translate(offset);
+        // get the horizontal start and end visual sections
+        int left = horizontalHeader->visualIndexAt(dirtyArea.left());
+        int right = horizontalHeader->visualIndexAt(dirtyArea.right());
+        if (rightToLeft)
+            qSwap(left, right);
+        if (left == -1) left = 0;
+        if (right == -1) right = horizontalHeader->count() - 1;
 
-        // get the horizontal start and end sections (visual indexes)
-        int left = horizontalHeader->visualIndexAt(area.left());
-        int right = horizontalHeader->visualIndexAt(area.right());
-
-        if (isRightToLeft()) {
-            if (left == -1)
-                left = horizontalHeader->count() - 1;
-            if (right == -1)
-                right =  0;
-        } else {
-            if (left == -1)
-                left = 0;
-            if (right == -1)
-                right = horizontalHeader->count() - 1;
-        }
-
-        int tmp = left;
-        left = qMin(left, right);
-        right = qMax(tmp, right);
-
-        // get the vertical start and end sections (visual indexes)
-        int bottom = verticalHeader->visualIndexAt(area.bottom());
-        bottom = (bottom == -1 ? verticalHeader->count() - 1 : bottom);
-        if (bottom == -1)
-            return; // empty model
-
+        // get the vertical start and end visual sections and if alternate color
+        int bottom = verticalHeader->visualIndexAt(dirtyArea.bottom());
+        if (bottom == -1) bottom = verticalHeader->count() - 1;
         int top = 0;
         bool alternateBase = false;
-        if (verticalHeader->sectionsHidden()) {
+        if (alternate && verticalHeader->sectionsHidden()) {
             int verticalOffset = verticalHeader->offset();
             int row = verticalHeader->logicalIndex(top);
             for (int y = 0;
@@ -675,76 +664,101 @@ void QTableView::paintEvent(QPaintEvent *event)
                     alternateBase = !alternateBase;
             }
         } else {
-            top = verticalHeader->visualIndexAt(area.top());
-            if (top == -1)
-                return; // no visible rows inside area
+            top = verticalHeader->visualIndexAt(dirtyArea.top());
             alternateBase = (top & 1) && alternate;
         }
+        if (top == -1 || top > bottom)
+            continue;
 
-        if (top > bottom)
-            return;
-        //Q_ASSERT(top >= 0 && top <= bottom);
-
-        // do the actual painting
-        for (int v = top; v <= bottom; ++v) {
-            int row = verticalHeader->logicalIndex(v);
-            if (verticalHeader->isSectionHidden(row))
+        // Paint each row item
+        for (int visualIndex = top; visualIndex <= bottom; ++visualIndex) {
+            int row = verticalHeader->logicalIndex(visualIndex);
+            int rowY = rowViewportPosition(row);
+            if (rowY == -1) // hiddenSection
                 continue;
-            int rowp = rowViewportPosition(row) + offset.y();
+            rowY += offset.y();
             int rowh = rowHeight(row) - gridSize;
+
+            // Paint each column item
             for (int h = left; h <= right; ++h) {
                 int col = horizontalHeader->logicalIndex(h);
-                if (horizontalHeader->isSectionHidden(col))
+                int colp = columnViewportPosition(col);
+                if (colp == -1) // hiddenSection
                     continue;
-                int colp = columnViewportPosition(col) + offset.x();
+                colp += offset.x();
                 int colw = columnWidth(col) - gridSize;
-                QModelIndex index = d->model->index(row, col, d->root);
+
+                const QModelIndex index = d->model->index(row, col, d->root);
                 if (index.isValid()) {
-                    option.rect = QRect(colp, rowp, colw, rowh);
-                    option.state = state;
-                    if (alternateBase)
-                        option.state |= QStyle::State_Alternate;
-                    else
-                        option.state &= ~QStyle::State_Alternate;
+                    option.rect = QRect(colp, rowY, colw, rowh);
+                    if (alternate) {
+                        option.state = state;
+                        if (alternateBase)
+                            option.state |= QStyle::State_Alternate;
+                        else
+                            option.state &= ~QStyle::State_Alternate;
+                    }
                     d->drawCell(&painter, option, index);
                 }
-                if (v == top && showGrid) {
-                    QPen old = painter.pen();
-                    painter.setPen(gridPen);
-                    painter.drawLine(colp + colw, area.top(), colp + colw, area.bottom() + 1);
-                    painter.setPen(old);
-                }
-            }
-            if (showGrid) {
-                QPen old = painter.pen();
-                painter.setPen(gridPen);
-                painter.drawLine(area.left(), rowp + rowh, area.right(), rowp + rowh);
-                painter.setPen(old);
             }
             alternateBase = !alternateBase && alternate;
         }
 
+        if (showGrid) {
+            // Find the bottom right (the last rows/coloumns might be hidden)
+            while (verticalHeader->isSectionHidden(verticalHeader->logicalIndex(bottom))) --bottom;
+            int gridHeight = rowViewportPosition(bottom) + rowHeight(bottom) - gridSize;
+            QPen old = painter.pen();
+            painter.setPen(gridPen);
+            // Paint each row
+            for (int visualIndex = top; visualIndex <= bottom; ++visualIndex) {
+                int row = verticalHeader->logicalIndex(visualIndex);
+                int rowY = rowViewportPosition(row);
+                if (rowY == -1) // hiddenSection
+                    continue;
+                rowY += offset.y();
+                int rowh = rowHeight(row) - gridSize;
+                painter.drawLine(dirtyArea.left(), rowY + rowh, dirtyArea.right(), rowY + rowh);
+            }
+
+            // Paint each column
+            for (int h = left; h <= right; ++h) {
+                int col = horizontalHeader->logicalIndex(h);
+                int colp = columnViewportPosition(col);
+                if (colp == -1) // hiddenSection
+                    continue;
+                colp += offset.x();
+                if (!rightToLeft)
+                    colp +=  columnWidth(col) - gridSize;
+                painter.drawLine(colp, dirtyArea.top(),
+                                 colp, gridHeight);
+            }
+            painter.setPen(old);
+        }
+
         if (d->hasSpans())
-            d->drawSpans(area, &painter, option);
+            d->drawSpans(dirtyArea, &painter, option);
 
         option.palette.setCurrentColorGroup(state & QStyle::State_Enabled
                                             ? QPalette::Normal : QPalette::Disabled);
 
-        int w = d->viewport->width();
-        int h = d->viewport->height();
-        int x = horizontalHeader->length();
-        int y = verticalHeader->length();
-        QRect b(0, y, w, h - y);
-        if (y < h && area.intersects(b))
-            painter.fillRect(b, option.palette.brush(QPalette::Base));
-        if (isRightToLeft()) {
-            QRect r(0, 0, w - x, h);
-            if (x > 0 && area.intersects(r))
-                painter.fillRect(r, option.palette.brush(QPalette::Base));
+        // Fill white space under and to the right of the viewport
+        int viewportWidth = d->viewport->width();
+        int viewportHeight = d->viewport->height();
+        int x = horizontalHeader->length() - horizontalHeader->offset();
+        int y = verticalHeader->length() - verticalHeader->offset();
+        QRect bottomEmptyArea(0, y, viewportWidth, viewportHeight - y);
+        if (y < viewportHeight && dirtyArea.intersects(bottomEmptyArea))
+            painter.fillRect(bottomEmptyArea, option.palette.brush(QPalette::Base));
+
+        if (rightToLeft) {
+            QRect rightEmptyArea(0, 0, viewportWidth - x, viewportHeight);
+            if ((viewportWidth - x) > 0 && dirtyArea.intersects(rightEmptyArea))
+                painter.fillRect(rightEmptyArea, option.palette.brush(QPalette::Base));
         } else {
-            QRect l(x, 0, w - x, h);
-            if (x < w && area.intersects(l))
-                painter.fillRect(l, option.palette.brush(QPalette::Base));
+            QRect leftEmptyArea(x, 0, viewportWidth - x, viewportHeight);
+            if (x < viewportWidth && dirtyArea.intersects(leftEmptyArea))
+                painter.fillRect(leftEmptyArea, option.palette.brush(QPalette::Base));
         }
     }
 
