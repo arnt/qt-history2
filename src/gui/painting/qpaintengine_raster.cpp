@@ -3443,7 +3443,8 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 
             while (x < x2) {
                 if (d > 0) {
-                    ++current;
+                    if (spans[current].len > 0)
+                        ++current;
                     if (current == NSPANS) {
                         span_func(NSPANS, spans, data);
                         current = 0;
@@ -3487,7 +3488,8 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
 
             while (x < x2) {
                 if (d < 0) {
-                    ++current;
+                    if (spans[NSPANS - 1 - current].len > 0)
+                        ++current;
                     if (current == NSPANS) {
                         span_func(NSPANS, spans, data);
                         current = 0;
