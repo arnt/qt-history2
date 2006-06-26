@@ -716,11 +716,11 @@ void QCalendarWidgetPrivate::_q_editingFinished()
 
 /*!
     \class QCalendarWidget
-
     \brief The QCalendarWidget class provides a monthly based
     calendar widget allowing the user to select a date.
+    \since 4.2
 
-    \image qtcalendarwidget.png
+    \image cleanlooks-calendarwidget.png
 
     The widget is initialized with the current month and year, but
     QCalendarWidget provides several public slots to change the year
@@ -756,11 +756,10 @@ void QCalendarWidgetPrivate::_q_editingFinished()
 
     \table
     \row \o
-        \image qtcalendarwidget-grid.png
+        \image qcalendarwidget-grid.png
     \row \o
         \code
             QCalendarWidget *calendar;
-
             calendar->setGridVisible(true);
         \endcode
     \endtable
@@ -1054,19 +1053,18 @@ void QCalendarWidget::showToday()
 
     \table
     \row
-    \o \image qtcalendarwidget-minimum.png
+    \o \image qcalendarwidget-minimum.png
     \row
     \o
     \code
     QCalendarWidget *calendar;
-
     calendar->setGridVisible(true);
-    calendar->setMinimumDate(QDate(2006, 1, 5));
+    calendar->setMinimumDate(QDate(2006, 6, 19));
     \endcode
     \endtable
 
     By default, the minimum date is the earliest date that the QDate
-    class can handle, i.e. 14 September 1752.
+    class can handle.
 
     When setting a minimum date, the maximumDate and \l date
     properties are adjusted if the selection range becomes invalid. If
@@ -1107,19 +1105,18 @@ void QCalendarWidget::setMinimumDate(const QDate &date)
 
     \table
     \row
-    \o \image qtcalendarwidget-maximum.png
+    \o \image qcalendarwidget-maximum.png
     \row
     \o
     \code
     QCalendarWidget *calendar;
-
     calendar->setGridVisible(true);
-    calendar->setMaximumDate(QDate(2006, 1, 20));
+    calendar->setMaximumDate(QDate(2006, 7, 3));
     \endcode
     \endtable
 
     By default, the maximum date is the last day the QDate class can
-    handle, i.e. 31. December 7999.
+    handle.
 
     When setting a maximum date, the minimumDate and \l date
     properties are adjusted if the selection range becomes invalid. If
@@ -1287,12 +1284,11 @@ void QCalendarWidget::setVerticalHeaderFormat(QCalendarWidget::VerticalHeaderFor
 
     \table
     \row
-        \o \inlineimage qtcalendarwidget-grid.png
+        \o \inlineimage qcalendarwidget-grid.png
     \row
         \o
         \code
             QCalendarWidget *calendar;
-
             calendar->setGridVisible(true);
         \endcode
     \endtable
