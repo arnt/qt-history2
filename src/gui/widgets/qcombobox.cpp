@@ -559,7 +559,9 @@ QComboBox::QComboBox(QWidget *parent)
     d->init();
 }
 
-
+/*!
+  \internal
+*/
 QComboBox::QComboBox(QComboBoxPrivate &dd, QWidget *parent)
     : QWidget(dd, parent, 0)
 {
