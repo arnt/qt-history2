@@ -634,7 +634,8 @@ void QMetaType::destroy(int type, void *data)
     \internal
 */
 
-/*! \fn int qRegisterMetaType()
+/*!     
+    \fn int qRegisterMetaType()
     \relates QMetaType
     \threadsafe
     \since 4.2
@@ -648,7 +649,7 @@ void QMetaType::destroy(int type, void *data)
         int id = qRegisterMetaType<MyStruct>();
     \endcode
 
-    Note: To use the type \c T in QVariant, using Q_DECLARE_METATYPE() is
+    \bold{Note:} To use the type \c T in QVariant, using Q_DECLARE_METATYPE() is
     sufficient. To use the type \c T in queued signal and slot connections,
     \c{qRegisterMetaType<T>()} must be called before the first connection
     is established.
