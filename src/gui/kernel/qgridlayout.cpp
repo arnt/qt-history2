@@ -478,6 +478,8 @@ static void distributeMultiBox(QVector<QLayoutStruct> &chain, int spacing, int s
     for (i = start; i <= end; i++) {
         w += chain[i].minimumSize;
         wh += chain[i].sizeHint;
+        if (chain[i].empty)
+            chain[i].maximumSize = QWIDGETSIZE_MAX;
         max += chain[i].maximumSize;
         chain[i].empty = false;
         if (stretchArray[i] == 0)
