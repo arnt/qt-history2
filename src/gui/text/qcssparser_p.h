@@ -241,23 +241,24 @@ struct Q_AUTOTEST_EXPORT Declaration
     void borderImageValue(QPixmap *pixmap, int *cuts, TileMode *h, TileMode *v) const;
 };
 
-enum PseudoType
+enum PseudoState
 {
-    Unknown         = 0x00000000,
-    Enabled         = 0x00000001,
-    Disabled        = 0x00000002,
-    Pressed         = 0x00000004,
-    Focus           = 0x00000008,
-    Hover           = 0x00000010,
-    Checked         = 0x00000020,
-    Unchecked       = 0x00000040,
-    Indeterminate   = 0x00000080,
+    PseudoState_Unknown         = 0x00000000,
+    PseudoState_Enabled         = 0x00000001,
+    PseudoState_Disabled        = 0x00000002,
+    PseudoState_Pressed         = 0x00000004,
+    PseudoState_Focus           = 0x00000008,
+    PseudoState_Hover           = 0x00000010,
+    PseudoState_Checked         = 0x00000020,
+    PseudoState_Unchecked       = 0x00000040,
+    PseudoState_Indeterminate   = 0x00000080,
+    PseudoState_Unspecified     = 0x00000100,
     NumPseudos = 9
 };
 
 struct Q_AUTOTEST_EXPORT PseudoClass
 {
-    PseudoType type;
+    PseudoState type;
     QString name;
     QString function;
 };

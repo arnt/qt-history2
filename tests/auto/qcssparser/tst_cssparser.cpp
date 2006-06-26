@@ -885,6 +885,8 @@ void tst_CssParser::styleSelector_data()
     QTest::newRow("ancestry_firstmismatch") << false << QString("parent child[foo=bar]")
                                             << QString("<parent><child /></parent>")
                                             << QString("parent/child");
+
+    QTest::newRow("unknown-pseudo") << false << QString("p:enabled:foobar") << QString("<p/>") << QString();
 }
 
 void tst_CssParser::styleSelector()
@@ -1038,26 +1040,26 @@ void tst_CssParser::rulesForNode_data()
     QTest::addColumn<QString>("value1");
 
     QTest::newRow("universal1") << QString("<p/>") << QString("* { color: red }") 
-                                << (int)QCss::Enabled << 1 << "red" << "";
+                                << (int)QCss::PseudoState_Unspecified << 1 << "red" << "";
 
     QTest::newRow("basic") << QString("<p/>") << QString("p:enabled { color: red; bg:blue; }")
-        << (int)QCss::Enabled << 2 << "red" << "blue";
+        << (int)QCss::PseudoState_Enabled << 2 << "red" << "blue";
 
     QTest::newRow("single") << QString("<p/>")
         << QString("p:enabled { color: red; } *:hover { color: white }")
-        << (int)QCss::Hover << 1 << "white" << "";
+        << (int)QCss::PseudoState_Hover << 1 << "white" << "";
 
     QTest::newRow("multisel") << QString("<p/>")
         << QString("p:enabled { color: red; } p:hover { color: gray } *:hover { color: white } ")
-        << (int)QCss::Hover << 2 << "white" << "gray";
+        << (int)QCss::PseudoState_Hover << 2 << "white" << "gray";
 
     QTest::newRow("multisel2") << QString("<p/>")
         << QString("p:enabled { color: red; } p:hover:focus { color: gray } *:hover { color: white } ")
-        << int(QCss::Hover|QCss::Focus) << 1 << "gray" << "";
+        << int(QCss::PseudoState_Hover|QCss::PseudoState_Focus) << 1 << "gray" << "";
 
     QTest::newRow("multisel3-diffspec") << QString("<p/>")
         << QString("p:enabled { color: red; } p:hover:focus { color: gray } *:hover { color: white } ")
-        << int(QCss::Hover) << 2 << "white" << "gray";
+        << int(QCss::PseudoState_Hover) << 2 << "white" << "gray";
 }
 
 void tst_CssParser::rulesForNode()

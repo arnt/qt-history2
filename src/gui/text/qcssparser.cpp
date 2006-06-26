@@ -153,14 +153,14 @@ static const QCssKnownValue values[NumKnownValues - 1] = {
 };
 
 static const QCssKnownValue pseudos[NumPseudos - 1] = {
-    { "checked", Checked },
-    { "disabled", Disabled },
-    { "enabled", Enabled },
-    { "focus", Focus },
-    { "hover", Hover },
-    { "indeterminate" , Indeterminate },
-    { "pressed", Pressed },
-    { "unchecked" , Unchecked }
+    { "checked", PseudoState_Checked },
+    { "disabled", PseudoState_Disabled },
+    { "enabled", PseudoState_Enabled },
+    { "focus", PseudoState_Focus },
+    { "hover", PseudoState_Hover },
+    { "indeterminate" , PseudoState_Indeterminate },
+    { "pressed", PseudoState_Pressed },
+    { "unchecked" , PseudoState_Unchecked }
 };
 
 static const QCssKnownValue borderStyles[NumKnownStyles - 1] = {
@@ -613,10 +613,13 @@ int Selector::pseudoState() const
 {
     const BasicSelector& bs = basicSelectors.last();
     if (bs.pseudoClasses.isEmpty())
-        return Enabled;
-    int state = Unknown;
-    for (int i = 0; i < bs.pseudoClasses.count(); i++)
+        return PseudoState_Unspecified;
+    int state = PseudoState_Unknown;
+    for (int i = 0; i < bs.pseudoClasses.count(); i++) {
+        if (bs.pseudoClasses.at(i).type == PseudoState_Unknown)
+            return PseudoState_Unknown;
         state |= bs.pseudoClasses.at(i).type;
+    }
     return state;
 }
 
@@ -793,7 +796,7 @@ QVector<Declaration> StyleSelector::declarationsForNode(NodePtr node)
     QVector<StyleRule> rules = styleRulesForNode(node);
     for (int i = 0; i < rules.count(); i++) {
         int pseudoState = rules.at(i).selectors.at(0).pseudoState();
-        if (pseudoState == Enabled)
+        if (pseudoState == PseudoState_Enabled || pseudoState == PseudoState_Unspecified)
             decls += rules.at(i).declarations;
     }
     return decls;
@@ -1222,7 +1225,7 @@ bool Parser::parsePseudo(PseudoClass *pseudo)
 {
     if (test(IDENT)) {
         pseudo->name = lexem();
-        pseudo->type = static_cast<PseudoType>(findKnownValue(pseudo->name, pseudos, NumPseudos));
+        pseudo->type = static_cast<PseudoState>(findKnownValue(pseudo->name, pseudos, NumPseudos));
         return true;
     }
     if (!next(FUNCTION)) return false;

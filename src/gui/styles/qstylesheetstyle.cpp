@@ -864,19 +864,19 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, QStyle::State state) const
 {
-    int pseudoState = (state & QStyle::State_Enabled) ? Enabled : Disabled;
+    int pseudoState = (state & QStyle::State_Enabled) ? PseudoState_Enabled : PseudoState_Disabled;
     if (state & QStyle::State_Sunken)
-        pseudoState |= Pressed;
+        pseudoState |= PseudoState_Pressed;
     if (state & QStyle::State_MouseOver)
-        pseudoState |= Hover;
+        pseudoState |= PseudoState_Hover;
     if (state & QStyle::State_HasFocus)
-        pseudoState |= Focus;
+        pseudoState |= PseudoState_Focus;
     if (state & QStyle::State_On)
-        pseudoState |= Checked;
+        pseudoState |= PseudoState_Checked;
     if (state & QStyle::State_Off)
-        pseudoState |= Unchecked;
+        pseudoState |= PseudoState_Unchecked;
     if (state & QStyle::State_NoChange)
-        pseudoState |= Indeterminate;
+        pseudoState |= PseudoState_Indeterminate;
 
     QHash<int, QRenderRule>& renderingRules = renderRulesCache[w];
 
