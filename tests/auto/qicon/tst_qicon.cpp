@@ -27,6 +27,7 @@ private slots:
     void actualSize2_data(); // test with 2 pixmaps with different aspect ratio
     void actualSize2();
     void isNull();
+    void bestMatch();
 };
 
 tst_QIcon::tst_QIcon()
@@ -157,6 +158,106 @@ void tst_QIcon::isNull() {
     QIcon iconSupportedFormat = QIcon("image.png");
     QVERIFY(!iconSupportedFormat.isNull());
     QVERIFY(iconSupportedFormat.actualSize(QSize(32, 32)).isValid());
+}
+
+void tst_QIcon::bestMatch()
+{
+    QPixmap p1(1, 1);
+    QPixmap p2(2, 2);
+    QPixmap p3(3, 3);
+    QPixmap p4(4, 4);
+    QPixmap p5(5, 5);
+    QPixmap p6(6, 6);
+    QPixmap p7(7, 7);
+    QPixmap p8(8, 8);
+
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            QIcon::State state = (j == 0) ? QIcon::On : QIcon::Off;
+            QIcon::State oppositeState = (state == QIcon::On) ? QIcon::Off
+                                                              : QIcon::On;
+            QIcon::Mode mode;
+            QIcon::Mode oppositeMode;
+
+            QIcon icon;
+
+            switch (i) {
+            case 0:
+            default:
+                mode = QIcon::Normal;
+                oppositeMode = QIcon::Active;
+                break;
+            case 1:
+                mode = QIcon::Active;
+                oppositeMode = QIcon::Normal;
+                break;
+            case 2:
+                mode = QIcon::Disabled;
+                oppositeMode = QIcon::Selected;
+                break;
+            case 3:
+                mode = QIcon::Selected;
+                oppositeMode = QIcon::Disabled;
+            }
+
+            /*
+                The test mirrors the code in
+                QPixmapIconEngine::bestMatch(), to make sure that
+                nobody breaks QPixmapIconEngine by mistake. Before
+                you change this test or the code that it tests,
+                please talk to Jasmin if possible.
+            */
+            if (mode == QIcon::Disabled || mode == QIcon::Selected) {
+                icon.addPixmap(p1, oppositeMode, oppositeState);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p1.size());
+
+                icon.addPixmap(p2, oppositeMode, state);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p2.size());
+
+                icon.addPixmap(p3, QIcon::Active, oppositeState);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p3.size());
+
+                icon.addPixmap(p4, QIcon::Normal, oppositeState);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p4.size());
+
+                icon.addPixmap(p5, mode, oppositeState);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p5.size());
+
+                icon.addPixmap(p6, QIcon::Active, state);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p6.size());
+
+                icon.addPixmap(p7, QIcon::Normal, state);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p7.size());
+
+                icon.addPixmap(p8, mode, state);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p8.size());
+            } else {
+                icon.addPixmap(p1, QIcon::Selected, oppositeState);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p1.size());
+
+                icon.addPixmap(p2, QIcon::Disabled, oppositeState);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p2.size());
+
+                icon.addPixmap(p3, QIcon::Selected, state);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p3.size());
+
+                icon.addPixmap(p4, QIcon::Disabled, state);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p4.size());
+
+                icon.addPixmap(p5, oppositeMode, oppositeState);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p5.size());
+
+                icon.addPixmap(p6, mode, oppositeState);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p6.size());
+
+                icon.addPixmap(p7, oppositeMode, state);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p7.size());
+
+                icon.addPixmap(p8, mode, state);
+                QVERIFY(icon.pixmap(100, mode, state).size() == p8.size());
+            }
+        }
+    }
 }
 
 QTEST_MAIN(tst_QIcon)
