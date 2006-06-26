@@ -29,9 +29,10 @@
 
 /*!
     \class QSystemTrayIcon
-    \brief The QSystemTrayIcon class provides a way to add an entry to the system tray.
+    \brief The QSystemTrayIcon class provides an icon for an application in the system tray.
     \since 4.2
     \ingroup application
+    \ingroup desktop
 
     Modern operating systems usually provide a special area on the desktop,
     called the \e{system tray} or \e{notification area}, where long-running
@@ -91,7 +92,7 @@ QSystemTrayIcon::QSystemTrayIcon(QObject *parent)
 }
 
 /*!
-    Constructs a QSystemTrayIcon object with the given icon and \a parent.
+    Constructs a QSystemTrayIcon object with the given \a icon and \a parent.
 
     The icon is initially invisible.
 
