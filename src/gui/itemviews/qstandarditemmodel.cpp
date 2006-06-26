@@ -2152,6 +2152,41 @@ void QStandardItemModel::appendColumn(const QList<QStandardItem*> &items)
 /*!
     \since 4.2
 
+    Inserts a row at \a row containing \a items. If necessary, the row count is
+    increased to the size of \a items.
+
+    \sa insertColumn(), appendRow()
+*/
+
+/*!
+    \since 4.2
+
+    Inserts a row at \a row containing \a items. If necessary, the column
+    count is increased to the size of \a items.
+
+    \sa takeRow(), appendRow(), insertColumn()
+*/
+void QStandardItemModel::insertRow(int row, const QList<QStandardItem*> &items)
+{
+    topLevelParent()->insertRow(row, items);
+}
+
+/*!
+    \since 4.2
+
+    Inserts a column at \a column containing \a items. If necessary, the row
+    count is increased to the size of \a items.
+
+    \sa takeColumn(), appendColumn(), insertRow()
+*/
+void QStandardItemModel::insertColumn(int column, const QList<QStandardItem*> &items)
+{
+    topLevelParent()->insertColumn(column, items);
+}
+
+/*!
+    \since 4.2
+
     Removes the item at \a(row, column) without deleting it. The model
     releases ownership of the item.
 

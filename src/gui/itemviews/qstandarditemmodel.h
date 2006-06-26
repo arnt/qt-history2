@@ -337,6 +337,10 @@ public:
     void appendColumn(const QList<QStandardItem*> &items);
     inline void appendRow(QStandardItem *item);
 
+    void insertRow(int row, const QList<QStandardItem*> &items);
+    void insertColumn(int column, const QList<QStandardItem*> &items);
+    inline void insertRow(int row, QStandardItem *item);
+
     QStandardItem *takeItem(int row, int column = 0);
     QList<QStandardItem*> takeRow(int row);
     QList<QStandardItem*> takeColumn(int column);
@@ -370,6 +374,9 @@ inline void QStandardItemModel::setItem(int arow, QStandardItem *aitem)
 
 inline void QStandardItemModel::appendRow(QStandardItem *aitem)
 { appendRow(QList<QStandardItem*>() << aitem); }
+
+inline void QStandardItemModel::insertRow(int arow, QStandardItem *aitem)
+{ insertRow(arow, QList<QStandardItem*>() << aitem); }
 
 #ifndef QT_NO_DATASTREAM
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QStandardItem &item);
