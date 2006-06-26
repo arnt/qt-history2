@@ -1138,6 +1138,7 @@ void QWidgetPrivate::createWindow_sys()
     qt_mac_update_ignore_mouseevents(q);
     setWindowTitle_helper(extra->topextra->caption);
     setWindowIconText_helper(extra->topextra->iconText);
+    setWindowModified_sys(q->isWindowModified());
 }
 
 void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyOldWindow)
@@ -1483,7 +1484,7 @@ void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
 void QWidgetPrivate::setWindowModified_sys(bool mod)
 {
     Q_Q(QWidget);
-    if(q->isWindow())
+    if (q->isWindow() && q->testAttribute(Qt::WA_WState_Created))
         SetWindowModified(qt_mac_window_for(q), mod);
 }
 
