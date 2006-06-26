@@ -1130,10 +1130,14 @@ void QWidgetPrivate::createWindow_sys()
         q->setWindowOpacity(0.95);
     else if (topExtra->opacity != 255)
         q->setWindowOpacity(topExtra->opacity);
+
+
+    // Since we only now have a window, sync our state.
     qt_mac_update_opaque_sizegrip(q);
     qt_mac_update_metal_style(q);
     qt_mac_update_ignore_mouseevents(q);
     setWindowTitle_helper(extra->topextra->caption);
+    setWindowIconText_helper(extra->topextra->iconText);
 }
 
 void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyOldWindow)
