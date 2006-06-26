@@ -180,6 +180,7 @@ Q_GUI_EXPORT WindowPtr qt_mac_window_for(const QWidget *w)
     WindowPtr window = qt_mac_window_for(hiview);
     if(!window && HIObjectIsOfClass((HIObjectRef)hiview, kObjectQWidget)) {
         w->window()->d_func()->createWindow_sys();
+        hiview = qt_mac_hiview_for(w);
         window = qt_mac_window_for(hiview);
     }
     return window;
