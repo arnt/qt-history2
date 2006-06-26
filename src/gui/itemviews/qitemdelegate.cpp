@@ -856,7 +856,6 @@ QRect QItemDelegate::rect(const QStyleOptionViewItem &option,
             QString text = value.toString();
             value = index.data(Qt::FontRole);
             QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
-            fnt.setBold(true);
             return textRectangle(0, option.rect, fnt, text); }
         }
     }
