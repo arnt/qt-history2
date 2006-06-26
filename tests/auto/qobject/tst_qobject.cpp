@@ -942,9 +942,12 @@ void tst_QObject::emitToManyReceivers()
 
     SimpleSenderObject sender;
     int elapsed = 0;
+    const int increase = 3000;
+    const int base = 5000; 
 
-    for (int i = 0; i < 3; ++i) {
-        const int size = int(pow(10.0, i + 2));
+    for (int i = 0; i < 4; ++i) {
+        const int size = base + i * increase;
+        const double increaseRatio = double(size) / (double)(size - increase);
 
         QList<SimpleReceiverObject *> receivers;
         for (int k = 0; k < size; ++k) {
@@ -958,9 +961,9 @@ void tst_QObject::emitToManyReceivers()
         sender.emitSignal();
         int e = timer.elapsed();
 
-        if (elapsed != 0) {
+        if (elapsed != 1) {
             qDebug() << size << "receivers, elapsed time" << e << "compared to previous time" << elapsed;
-            QVERIFY(e / elapsed <= 20);
+            QVERIFY(double(e) / double(elapsed) <= increaseRatio * 2.0);
         } else {
             qDebug() << size << "receivers, elapsed time" << e << "cannot be compared to previous, unmeasurable time";
         }
