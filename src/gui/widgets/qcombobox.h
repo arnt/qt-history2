@@ -69,9 +69,6 @@ public:
     Qt::CaseSensitivity autoCompletionCaseSensitivity() const;
     void setAutoCompletionCaseSensitivity(Qt::CaseSensitivity sensitivity);
 
-    Qt::CaseSensitivity caseSensitivity() const;
-    void setCaseSensitivity(Qt::CaseSensitivity sensitivity);
-
     bool duplicatesEnabled() const;
     void setDuplicatesEnabled(bool enable);
 
