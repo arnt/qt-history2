@@ -794,13 +794,13 @@ static QDBusConnection *openConnection(QDBusConnection::BusType type)
 }
 
 namespace QDBus {
-    QDBusConnection &sessionBus()
+    QDBusConnection sessionBus()
     {
         if (::sessionBus) return *::sessionBus;
         return *openConnection(QDBusConnection::SessionBus);
     }
 
-    QDBusConnection &systemBus()
+    QDBusConnection systemBus()
     {
         if (::systemBus) return *::systemBus;
         return *openConnection(QDBusConnection::SystemBus);

@@ -111,8 +111,8 @@ inline Interface *QDBusConnection::findInterface(const QString &service, const Q
 }
 
 namespace QDBus {
-    QDBUS_EXPORT QDBusConnection &sessionBus();
-    QDBUS_EXPORT QDBusConnection &systemBus();
+    QDBUS_EXPORT QDBusConnection sessionBus();
+    QDBUS_EXPORT QDBusConnection systemBus();
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDBusConnection::RegisterOptions)
