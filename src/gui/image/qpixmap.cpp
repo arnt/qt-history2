@@ -745,7 +745,12 @@ int QPixmap::serialNumber() const
 static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
                               const QRect &r, const QPoint &offset)
 {
-    buf.fill(widget, r.topLeft());
+    if(widget->isWindow() || widget->autoFillBackground()) {
+        buf.fill(widget, r.topLeft());
+    } else {
+        QPainter p(&buf);
+        p.drawPixmap(0, 0, res, r.x()+offset.x(), r.y()+offset.y(), r.width(), r.height());
+    }
     QPainter::setRedirected(widget, &buf, r.topLeft());
     QPaintEvent e(r & widget->rect());
     QApplication::sendEvent(widget, &e);
