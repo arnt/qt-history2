@@ -14,7 +14,7 @@
 #include "qkbdum_qws.h"
 #include "qvfbhdr.h"
 
-#ifndef QT_NO_QWS_KEYBOARD
+#if !defined(QT_NO_QWS_KEYBOARD) && !defined(QT_NO_QWS_KBD_UM)
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -108,4 +108,4 @@ QWSUmKeyboardHandler::~QWSUmKeyboardHandler()
 
 #include "qkbdum_qws.moc"
 
-#endif
+#endif // QT_NO_QWS_KEYBOARD && QT_NO_QWS_KBD_UM
