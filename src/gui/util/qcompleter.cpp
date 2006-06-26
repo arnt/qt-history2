@@ -14,6 +14,7 @@
 /*!
     \class QCompleter
     \brief The QCompleter class provides completions based on a item model.
+    \since 4.2
 
     You can use QCompleter to provide autocompletions in any Qt
     widget (e.g. QLineEdit, QComboBox or QTextEdit). When the user
@@ -762,7 +763,7 @@ void QCompleterPrivate::showPopup(const QRect& rect)
 }
 
 /*!
-    Constructs a QCompleter object with the given \a parent.
+    Constructs a completer object with the given \a parent.
 */
 QCompleter::QCompleter(QObject *parent)
 : QObject(*new QCompleterPrivate(), parent)
@@ -772,8 +773,8 @@ QCompleter::QCompleter(QObject *parent)
 }
 
 /*!
-    Constructs a QCompleter object that provides completions from \a model
-    and with the given \a parent.
+    Constructs a completer object with the given \a parent that provides completions
+    from the specified \a model.
 */
 QCompleter::QCompleter(QAbstractItemModel *model, QObject *parent)
     : QObject(*new QCompleterPrivate(), parent)
@@ -783,8 +784,8 @@ QCompleter::QCompleter(QAbstractItemModel *model, QObject *parent)
 }
 
 /*!
-    Constructs a QCompleter object with provides \a list as the possible
-    completions and with the given \a parent.
+    Constructs a QCompleter object with the given \a parent that uses the specified
+    \a list as a source of possible completions.
 */
 QCompleter::QCompleter(const QStringList& list, QObject *parent)
 : QObject(*new QCompleterPrivate(), parent)
@@ -794,7 +795,7 @@ QCompleter::QCompleter(const QStringList& list, QObject *parent)
 }
 
 /*!
-    Destroys the QCompleter object.
+    Destroys the completer object.
 */
 QCompleter::~QCompleter()
 {
@@ -805,6 +806,8 @@ QCompleter::~QCompleter()
     widget is set automatically when a QCompleter is set on a QLineEdit using
     QLineEdit::setCompleter(). The widget needs to be set explicity when
     providing completions for custom widgets.
+
+    \sa widget(), setModel(), setPopup()
  */
 void QCompleter::setWidget(QWidget *widget)
 {
@@ -814,7 +817,9 @@ void QCompleter::setWidget(QWidget *widget)
 }
 
 /*!
-    Returns the widget for which QCompleter is providing completions.
+    Returns the widget for which the completer object is providing completions.
+
+    \sa setWidget()
  */
 QWidget *QCompleter::widget() const
 {
@@ -869,10 +874,10 @@ QAbstractItemModel *QCompleter::model() const
 
     This enum specifies how completions are provided to the user.
 
-    \value PopupCompletion                Displays a popup contains the current completions
-    \value InlineCompletion               Completions appear inline
-    \value UnfilteredPopupCompletion      Displays a popup containing all the possible completions \
-                                          with the most likely suggestion selected in the popup.
+    \value PopupCompletion            Current completions are displayed in a popup window.
+    \value InlineCompletion           Completions appear inline.
+    \value UnfilteredPopupCompletion  All possible completions are displayed in a popup window
+                                      with the most likely suggestion selected.
 */
 
 /*!
@@ -915,6 +920,8 @@ QCompleter::CompletionMode QCompleter::completionMode() const
     Ensure that this function is called before the view settings are modified. This is
     required since view's properties may require that a model has been set on the view
     (for example, hiding columns in the view requires a model to be set on the view).
+
+    \sa popup()
 */
 void QCompleter::setPopup(QAbstractItemView *popup)
 {
@@ -1104,7 +1111,7 @@ void QCompleter::complete(const QRect& rect)
 }
 
 /*!
-    Sets the current row to \a row. This function may be used along with
+    Sets the current row to the \a row specified. This function may be used along with
     currentCompletion() to iterate through all the possible completions.
 
     \sa currentCompletion(), completionCount()
@@ -1140,7 +1147,7 @@ int QCompleter::completionCount() const
 /*!
     \enum QCompleter::ModelSorting
 
-    This enum specifies how the items in the model is sorted.
+    This enum specifies how the items in the model are sorted.
 
     \value UnsortedModel                    The model is unsorted.
     \value CaseSensitivelySortedModel       The model is sorted case sensitively.
@@ -1151,18 +1158,20 @@ int QCompleter::completionCount() const
 
 /*!
     \property QCompleter::modelSorting
-    \brief whether and how the model is sorted
+    \brief the way the model is sorted
 
     By default, no assumptions are made about the order of the items
-    in the model that provides the completions. If the model's data
-    for the matchColumn() and matchRole() is sorted in ascending order, you
-    can set this property to CaseSensitivelySortedModel or
-    CaseInsensitivelySortedModel. On large models, this can lead to
-    significant performance improvements, because QCompleter can
-    then use binary search instead of linear search. (Be aware that
-    these performance improvements cannot take place when
-    QCompleter's caseSensitivity and the model's sorting case
-    differ.)
+    in the model that provides the completions.
+
+    If the model's data for the matchColumn() and matchRole() is sorted in
+    ascending order, you can set this property to \l CaseSensitivelySortedModel
+    or \l CaseInsensitivelySortedModel. On large models, this can lead to
+    significant performance improvements because the completer object can
+    then use a binary search algorithm instead of linear search algorithm.
+
+    \bold{Note:} The performance improvements described above cannot take place
+    when the completer's \l caseSensitivity is different to the case sensitivity
+    used by the model's when sorting.
 
     \sa setCaseSensitivity(), QCompleter::ModelSorting
 */
@@ -1278,9 +1287,9 @@ QString QCompleter::completionPrefix() const
 }
 
 /*!
-    Returns the current completion index.
+    Returns the model index of the current completion in the model.
 
-    \sa setCurrentRow(), currentCompletion()
+    \sa setCurrentRow(), currentCompletion(), model()
 */
 QModelIndex QCompleter::currentIndex() const
 {
@@ -1289,7 +1298,7 @@ QModelIndex QCompleter::currentIndex() const
 }
 
 /*!
-    Returns the current completion string. This includes the completionPrefix.
+    Returns the current completion string. This includes the \l completionPrefix.
     When used alongside setCurrentRow(), it can be used to iterate through
     all the matches.
 
@@ -1314,10 +1323,10 @@ QAbstractItemModel *QCompleter::completionModel() const
 }
 
 /*!
-    Returns the path from index \a index. QCompleter uses this to provide
-    the completion text for the index \a index.
+    Returns the path for the given \a index. The completer object uses this to obtain
+    the completion text from the underlying model.
 
-    The default implementation returns the Qt::Edit role of the item for
+    The default implementation returns the \l{Qt::EditRole}{edit role} of the item for
     list models. It returns the absolute file path if the model is a QDirModel.
 
     \sa splitPath()
@@ -1354,7 +1363,9 @@ QString QCompleter::pathFromIndex(const QModelIndex& index) const
 }
 
 /*!
-    Splits \a path into strings that are used to match at each level in the model().
+    Splits the given \a path into strings that are used to match at each level in the
+    model().
+
     The default implementation of splitPath() splits a file system path based on
     QDir::separator() when the sourceModel() is a QDirModel.
 
