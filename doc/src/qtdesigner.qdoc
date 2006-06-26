@@ -979,49 +979,26 @@
     \class QDesignerCustomWidgetInterface
 
     \brief The QDesignerCustomWidgetInterface class enables Qt Designer
-    to access and construct a custom widget.
+    to access and construct custom widgets.
 
     \inmodule QtDesigner
 
     QDesignerCustomWidgetInterface provides a custom widget with an
-    interface. The class contains a set of functions that gives \QD
-    the basic information about the widget, such as its class name and
-    its include file. Furthermore the interface is able to create
-    instances of the custom widget, and it defines the initialize()
-    function which is called after the custom widget plugin is loaded
-    into \QD. This latter function's
-    QDesignerFormEditorInterface parameter provides the plugin with a
-    gateway to all of \QD's API.
+    interface. The class contains a set of functions that must be subclassed
+    to return basic information about the widget, such as its class name and
+    the name of its header file. Other functions must be implemented to
+    initialize the plugin when it is loaded, and to construct instances of
+    the custom widget for \QD to use.
 
     When implementing a custom widget you must subclass
     QDesignerCustomWidgetInterface to expose your widget to \QD. For
-    example:
+    example, this is the declaration for the plugin used in the
+    \l{Custom Widget Plugin Example}{Custom Widget Plugin example} that
+    enables an analog clock custom widget to be used by \QD:
 
-    \code
-    class MyCustomWidgetPlugin : public QObject, public QDesignerCustomWidgetInterface
-    {
-        Q_OBJECT
-        Q_INTERFACES(QDesignerCustomWidgetInterface)
-
-    public:
-        MyCustomWidgetPlugin(QObject *parent = 0);
-
-        bool isContainer() const;
-        bool isInitialized() const;
-        QIcon icon() const;
-        QString domXml() const;
-        QString group() const;
-        QString includeFile() const;
-        QString name() const;
-        QString toolTip() const;
-        QString whatsThis() const;
-        QWidget *createWidget(QWidget *parent);
-        void initialize(QDesignerFormEditorInterface *core);
-
-    private:
-        bool initialized;
-    };
-    \endcode
+    \quotefromfile designer/customwidgetplugin/customwidgetplugin.h
+    \skipto class AnalogClockPlugin
+    \printuntil /^\};/
 
     Note that the only part of the class definition that is specific
     to this particular custom widget is the class name. In addition,
@@ -1030,6 +1007,16 @@
     macro. This enables \QD to use the qobject_cast() function to
     query for supported interfaces using nothing but a QObject
     pointer.
+
+    After \QD loads a custom widget plugin, it calls the interface's
+    initialize() function to enable it to set up any resources that it
+    may need. This function is called with a QDesignerFormEditorInterface
+    parameter that provides the plugin with a gateway to all of \QD's API.
+
+    \QD constructs instances of the custom widget by calling the plugin's
+    createWidget() function with a suitable parent widget. Plugins must
+    construct and return an instance of a custom widget with the specified
+    parent widget. 
 
     In the implementation of the class you must remember to export
     your custom widget plugin to \QD using the Q_EXPORT_PLUGIN2()
@@ -1040,8 +1027,7 @@
     \endcode
 
     This macro ensures that \QD can access and construct the
-    custom widget. Without this macro, there is no way for Qt
-    Designer to use it.
+    custom widget. Without this macro, there is no way for \QD to use it.
 
     When implementing a custom widget plugin, you build it as a
     separate library. If you want to include several custom widget
@@ -1363,8 +1349,8 @@
 
     \inmodule QtDesigner
 
-    QDesignerPropertySheetExtension is a collection of functions that
-    is typically used to query a widget's properties, and to
+    QDesignerPropertySheetExtension provides a collection of functions that
+    are typically used to query a widget's properties, and to
     manipulate the properties' appearance in the property editor. For
     example:
 
