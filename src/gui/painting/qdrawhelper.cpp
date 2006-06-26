@@ -1398,6 +1398,7 @@ static void blend_untransformed_generic(int count, const QSpan *spans, void *use
                     if (op.dest_store)
                         op.dest_store(data->rasterBuffer, x, spans->y, dest, l);
                     x += l;
+                    sx += l;
                     length -= l;
                 }
             }
@@ -1585,8 +1586,10 @@ static void blend_tiled_generic(int count, const QSpan *spans, void *userData)
             if (op.dest_store)
                 op.dest_store(data->rasterBuffer, x, spans->y, dest, l);
             x += l;
+            sx += l;
             length -= l;
-            sx = 0;
+            if (sx >= image_width)
+                sx = 0;
         }
         ++spans;
     }
