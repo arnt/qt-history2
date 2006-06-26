@@ -101,8 +101,6 @@ void tst_QPrinter::getSetCheck()
     QCOMPARE(QPrinter::PageSize(QPrinter::Letter), obj1.pageSize());
     obj1.setPageSize(QPrinter::PageSize(QPrinter::Legal));
     QCOMPARE(QPrinter::PageSize(QPrinter::Legal), obj1.pageSize());
-    obj1.setPageSize(QPrinter::PageSize(QPrinter::Custom));
-    QCOMPARE(QPrinter::PageSize(QPrinter::Custom), obj1.pageSize());
 
     // PrintRange QPrinter::printRange()
     // void QPrinter::setPrintRange(PrintRange)
