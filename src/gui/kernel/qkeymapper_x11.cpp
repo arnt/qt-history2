@@ -262,8 +262,9 @@ QList<int> QKeyMapperPrivate::possibleKeysXKB(QKeyEvent *event)
     if (baseCode == -1)
         return QList<int>();
 
-    QChar baseChar = QChar(baseCode).toUpper();
-    result += (baseChar.unicode() | baseModifiers);
+    if (baseCode && baseCode < 0xfffe)
+        baseCode = QChar(baseCode).toUpper().unicode();
+    result += (baseCode | baseModifiers);
 
     int pos1Bits[MaxBits];
     int num1Bits = 0;
@@ -299,11 +300,12 @@ QList<int> QKeyMapperPrivate::possibleKeysXKB(QKeyEvent *event)
         if (code == -1)
             continue;
 
-        QChar ch = QChar(code).toUpper();
-        if (ch == baseChar)
+        if (code && code < 0xfffe)
+            code = QChar(code).toUpper().unicode();
+        if (code == baseCode)
             continue;
 
-        result += (ch.unicode() | modifiers);
+        result += (code | modifiers);
     }
 
 #if 0
@@ -337,8 +339,9 @@ QList<int> QKeyMapperPrivate::possibleKeysCore(QKeyEvent *event)
     if (baseCode == -1)
         return QList<int>();
 
-    QChar baseChar = QChar(baseCode).toUpper();
-    result += (baseChar.unicode() | baseModifiers);
+    if (baseCode && baseCode < 0xfffe)
+        baseCode = QChar(baseCode).toUpper().unicode();
+    result += (baseCode | baseModifiers);
 
     int pos1Bits[MaxBits];
     int num1Bits = 0;
@@ -374,11 +377,12 @@ QList<int> QKeyMapperPrivate::possibleKeysCore(QKeyEvent *event)
         if (code == -1)
             continue;
 
-        QChar ch = QChar(code).toUpper();
-        if (ch == baseChar)
+        if (code && code < 0xfffe)
+            code = QChar(code).toUpper().unicode();
+        if (code == baseCode)
             continue;
 
-        result += (ch.unicode() | modifiers);
+        result += (code | modifiers);
     }
 
 #if 0
