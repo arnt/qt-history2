@@ -19,6 +19,8 @@
 #include "QtCore/qhash.h"
 #include "QtGui/qevent.h"
 #include "QtCore/qvector.h"
+#include "QtCore/qshareddata.h"
+#include "QtGui/qapplication.h"
 
 #include "private/qcssparser_p.h"
 
@@ -33,7 +35,102 @@
 // We mean it.
 //
 
-class QRenderRule;
+struct Q_AUTOTEST_EXPORT BorderImageData : public QSharedData
+{
+    QPixmap topEdge, bottomEdge, leftEdge, rightEdge, middle;
+    QRect topEdgeRect, bottomEdgeRect, leftEdgeRect, rightEdgeRect, middleRect;
+    QRect topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner;
+    int cuts[4];
+    QPixmap pixmap;
+    QImage image;
+    QCss::TileMode horizStretch, vertStretch;
+
+    void cutBorderImage();
+};
+
+struct Q_AUTOTEST_EXPORT BackgroundData : public QSharedData
+{
+    BackgroundData() : position(Qt::AlignTop | Qt::AlignLeft),
+                        origin(QCss::PaddingOrigin), repeat(QCss::RepeatXY) { }
+    QPixmap pixmap;
+    Qt::Alignment position;
+    QCss::Origin origin;
+    QCss::Repeat repeat;
+};
+
+struct Q_AUTOTEST_EXPORT BoxData : public QSharedData
+{
+    BoxData() : bi(0)
+    {
+        for (int i = 0; i < 4; i++) {
+            margins[i] = borders[i] = paddings[i] = 0;
+            styles[i] = QCss::None;
+            colors[i] = Qt::transparent;
+        }
+    }
+
+    int margins[4];
+    int borders[4];
+    int paddings[4];
+    QCss::BorderStyle styles[4];
+    QColor colors[4];
+
+    QSize radii[4]; // topleft, topright, bottomleft, bottomright
+    BorderImageData *borderImage() { if (!bi) bi = new BorderImageData; return bi; }
+    bool hasBorderImage() const { return bi!=0; }
+    QSharedDataPointer<BorderImageData> bi;
+};
+
+struct Q_AUTOTEST_EXPORT FocusRectData : public QSharedData
+{
+    QColor color;
+    int width;
+    QCss::BorderStyle style;
+};
+
+struct Q_AUTOTEST_EXPORT Palette : public QSharedData
+{
+    QBrush foreground;
+    QBrush background;
+    QBrush selectionForeground;
+    QBrush selectionBackground;
+    QBrush alternateBackground;
+};
+
+class Q_AUTOTEST_EXPORT QRenderRule
+{
+public:
+    inline QRenderRule() : pal(0), b(0), fr(0), bg(0) { }
+    inline ~QRenderRule() { }
+
+    void merge(const QVector<QCss::Declaration>& declarations);
+    bool isEmpty() const { return pal == 0 && b == 0 && fr == 0 && bg == 0; }
+
+    QRect borderRect(const QRect& r) const;
+    QRect paddingRect(const QRect& r) const;
+    QRect contentsRect(const QRect& r) const;
+    QRect boxRect(const QRect& r) const;
+
+    inline Palette *palette() const { if (!pal) pal = new Palette(); return pal; }
+    inline BoxData *box() const { if (!b) b = new BoxData(); return b; }
+    inline BackgroundData *background() const { if (!bg) bg = new BackgroundData(); return bg; }
+    inline FocusRectData *focusRect() const { if (!fr) fr = new FocusRectData(); return fr; }
+
+    void cutBorderImage();
+
+    inline bool hasPalette() const { return pal != 0; }
+    inline bool hasBackground() const { return bg != 0; }
+    inline bool hasBox() const { return b != 0; }
+    inline bool hasFocusRect() const { return fr != 0; }
+
+    QHash<QString, QPixmap> pixmaps;
+
+private:
+    mutable QSharedDataPointer<Palette> pal;
+    mutable QSharedDataPointer<BoxData> b;
+    mutable QSharedDataPointer<FocusRectData> fr;
+    mutable QSharedDataPointer<BackgroundData> bg;
+};
 
 class QStyleSheetStyle : public QCommonStyle
 {
@@ -41,6 +138,8 @@ class QStyleSheetStyle : public QCommonStyle
 
     Q_OBJECT
 public:
+    QStyleSheetStyle(QStyle *baseStyle, QObject *parent);
+
     void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter *p,
                             const QWidget *w = 0) const;
     void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
@@ -75,11 +174,11 @@ public:
     void unpolish(QWidget *widget);
     void unpolish(QApplication *app);
 
-    static QStyle *styleSheetStyle();
+    void setBaseStyle(QStyle *base) { bs = base; }
+    QStyle *baseStyle() const { return bs ? bs : qApp->style(); }
 
 private:
-    QStyleSheetStyle(QStyle *baseStyle);
-    QStyle *baseStyle;
+    QStyle *bs;
 
     enum WidgetType {
         PushButton, LineEdit, ComboBox, GroupBox, Frame

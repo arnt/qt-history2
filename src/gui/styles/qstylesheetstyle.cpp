@@ -32,114 +32,8 @@
 
 using namespace QCss;
 
-static QStyleSheetStyle *solitaryStyleSheetStyle = 0;
-
-QStyle *QStyleSheetStyle::styleSheetStyle()
-{
-    if (!solitaryStyleSheetStyle)
-        solitaryStyleSheetStyle = new QStyleSheetStyle(qApp->style());
-    return solitaryStyleSheetStyle;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 #define ceil(x) ((int)(x) + ((x) > 0 && (x) != (int)(x)))
-
-struct BorderImageData : public QSharedData
-{
-    QPixmap topEdge, bottomEdge, leftEdge, rightEdge, middle;
-    QRect topEdgeRect, bottomEdgeRect, leftEdgeRect, rightEdgeRect, middleRect;
-    QRect topLeftCorner, topRightCorner, bottomRightCorner, bottomLeftCorner;
-    int cuts[4];
-    QPixmap pixmap;
-    QImage image;
-    TileMode horizStretch, vertStretch;
-
-    void cutBorderImage();
-};
-
-struct BackgroundData : public QSharedData
-{
-    BackgroundData() : position(Qt::AlignTop | Qt::AlignLeft),
-                        origin(PaddingOrigin), repeat(RepeatXY) { }
-    QPixmap pixmap;
-    Qt::Alignment position;
-    Origin origin;
-    Repeat repeat;
-};
-
-struct BoxData : public QSharedData
-{
-    BoxData() : bi(0)
-    {
-        for (int i = 0; i < 4; i++) {
-            margins[i] = borders[i] = paddings[i] = 0;
-            styles[i] = None;
-            colors[i] = Qt::transparent;
-        }
-    }
-
-    int margins[4];
-    int borders[4];
-    int paddings[4];
-    BorderStyle styles[4];
-    QColor colors[4];
-
-    QSize radii[4]; // topleft, topright, bottomleft, bottomright
-    BorderImageData *borderImage() { if (!bi) bi = new BorderImageData; return bi; }
-    bool hasBorderImage() const { return bi!=0; }
-    QSharedDataPointer<BorderImageData> bi;
-};
-
-struct FocusRectData : public QSharedData
-{
-    QColor color;
-    int width;
-    BorderStyle style;
-};
-
-struct Palette : public QSharedData
-{
-    QBrush foreground;
-    QBrush background;
-    QBrush selectionForeground;
-    QBrush selectionBackground;
-    QBrush alternateBackground;
-};
-
-class QRenderRule
-{
-public:
-    inline QRenderRule() : pal(0), b(0), fr(0), bg(0) { }
-    inline ~QRenderRule() { }
-
-    void merge(const QVector<Declaration>& declarations);
-    bool isEmpty() const { return pal == 0 && b == 0 && fr == 0 && bg == 0; }
-
-    QRect borderRect(const QRect& r) const;
-    QRect paddingRect(const QRect& r) const;
-    QRect contentsRect(const QRect& r) const;
-    QRect boxRect(const QRect& r) const;
-
-    inline Palette *palette() const { if (!pal) pal = new Palette(); return pal; }
-    inline BoxData *box() const { if (!b) b = new BoxData(); return b; }
-    inline BackgroundData *background() const { if (!bg) bg = new BackgroundData(); return bg; }
-    inline FocusRectData *focusRect() const { if (!fr) fr = new FocusRectData(); return fr; }
-
-    void cutBorderImage();
-
-    inline bool hasPalette() const { return pal != 0; }
-    inline bool hasBackground() const { return bg != 0; }
-    inline bool hasBox() const { return b != 0; }
-    inline bool hasFocusRect() const { return fr != 0; }
-
-    QHash<QString, QPixmap> pixmaps;
-
-private:
-    mutable QSharedDataPointer<Palette> pal;
-    mutable QSharedDataPointer<BoxData> b;
-    mutable QSharedDataPointer<FocusRectData> fr;
-    mutable QSharedDataPointer<BackgroundData> bg;
-};
 
 void QRenderRule::merge(const QVector<Declaration>& decls)
 {
@@ -862,6 +756,12 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
+QStyleSheetStyle::QStyleSheetStyle(QStyle *baseStyle, QObject *parent)
+: bs(baseStyle)
+{
+    setParent(parent);
+}
+
 QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, QStyle::State state) const
 {
     int pseudoState = (state & QStyle::State_Enabled) ? PseudoState_Enabled : PseudoState_Disabled;
@@ -966,12 +866,6 @@ void QStyleSheetStyle::setPalette(QWidget *w)
     w->updateGeometry();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-QStyleSheetStyle::QStyleSheetStyle(QStyle *baseStyle)
-: baseStyle(baseStyle)
-{
-}
-
 bool QStyleSheetStyle::baseStyleCanRender(QStyleSheetStyle::WidgetType wt, const QRenderRule& rule) const
 {
     switch (wt) {
@@ -1003,7 +897,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 {
     QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty()) {
-        baseStyle->drawComplexControl(cc, opt, p, w);
+        baseStyle()->drawComplexControl(cc, opt, p, w);
         return;
     }
 
@@ -1013,7 +907,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
             QStyleOptionComboBox cmbOpt(*cb);
             if (baseStyleCanRender(ComboBox, rule)) {
                 qCopyFromRuleToPalette(rule, cmbOpt.palette, QPalette::Text, QPalette::Base);
-                baseStyle->drawComplexControl(cc, &cmbOpt, p, w);
+                baseStyle()->drawComplexControl(cc, &cmbOpt, p, w);
                 return;
             }
             if ((cb->subControls & SC_ComboBoxFrame) && cb->frame)
@@ -1063,7 +957,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 //             if (rule.foreground.style() != Qt::NoBrush)
 //                 gbOpt.textColor = rule.foreground.color();
 //             if (baseStyleCanRender(GroupBox, rule))
-//                 baseStyle->drawComplexControl(cc, &gbOpt, p, w);
+//                 baseStyle()->drawComplexControl(cc, &gbOpt, p, w);
 //             else
 //                 ParentStyle::drawComplexControl(cc, &gbOpt, p, w);
 //         }
@@ -1071,7 +965,7 @@ void QStyleSheetStyle::drawComplexControl(ComplexControl cc, const QStyleOptionC
 
     default:
         qDebug() << "drawComplexControl: panic " << cc;
-        baseStyle->drawComplexControl(cc, opt, p, w);
+        baseStyle()->drawComplexControl(cc, opt, p, w);
         break;
     }
 
@@ -1082,7 +976,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
 {
     QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty()) {
-        baseStyle->drawControl(ce, opt, p, w);
+        baseStyle()->drawControl(ce, opt, p, w);
         return;
     }
 
@@ -1098,7 +992,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
                 QStyleOptionButton butOpt(*btn);
                 qCopyFromRuleToPalette(rule, butOpt.palette, QPalette::ButtonText, QPalette::Button);
                 if (baseStyleCanRender(PushButton, rule))
-                    baseStyle->drawControl(ce, &butOpt, p, w);
+                    baseStyle()->drawControl(ce, &butOpt, p, w);
                 else
                     ParentStyle::drawControl(ce, &butOpt, p, w);
             }
@@ -1119,7 +1013,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
                 QStyleOptionButton butOpt(*btn);
                 qCopyFromRuleToPalette(rule, butOpt.palette, QPalette::ButtonText, QPalette::Button);
-                baseStyle->drawControl(ce, &butOpt, p, w);
+                baseStyle()->drawControl(ce, &butOpt, p, w);
             }
             return;
 
@@ -1128,7 +1022,7 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             if (const QStyleOptionMenuItem *mb = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
                 QStyleOptionMenuItem mi(*mb);
                 qCopyFromRuleToPalette(rule, mi.palette, QPalette::ButtonText, QPalette::Button);
-                baseStyle->drawControl(ce, &mi, p, w);
+                baseStyle()->drawControl(ce, &mi, p, w);
             }
             return;
 
@@ -1137,13 +1031,13 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             if (const QStyleOptionMenuItem *m = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
                 QStyleOptionMenuItem menuOpt(*m);
                 qCopyFromRuleToPalette(rule, menuOpt.palette, QPalette::ButtonText, QPalette::Button);
-                baseStyle->drawControl(ce, &menuOpt, p, w);
+                baseStyle()->drawControl(ce, &menuOpt, p, w);
             }
             return;
 
         case CE_MenuScroller:
         case QStyle::CE_MenuTearoff:
-            baseStyle->drawControl(ce, opt, p, w);
+            baseStyle()->drawControl(ce, opt, p, w);
             return;
 
         case CE_ComboBoxLabel:
@@ -1168,20 +1062,20 @@ void QStyleSheetStyle::drawControl(ControlElement ce, const QStyleOption *opt, Q
             break;
     }
 
-    baseStyle->drawControl(ce, opt, p, w);
+    baseStyle()->drawControl(ce, opt, p, w);
 }
 
 
 void QStyleSheetStyle::drawItemPixmap(QPainter *p, const QRect &rect, int alignment, const
                                   QPixmap &pixmap) const
 {
-    baseStyle->drawItemPixmap(p, rect, alignment, pixmap);
+    baseStyle()->drawItemPixmap(p, rect, alignment, pixmap);
 }
 
 void QStyleSheetStyle::drawItemText(QPainter *painter, const QRect& rect, int alignment, const QPalette &pal,
                                 bool enabled, const QString& text, QPalette::ColorRole textRole) const
 {
-    baseStyle->drawItemText(painter, rect, alignment, pal, enabled, text, textRole);
+    baseStyle()->drawItemText(painter, rect, alignment, pal, enabled, text, textRole);
 }
 
 void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
@@ -1189,14 +1083,14 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 {
     QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty()) {
-        baseStyle->drawPrimitive(pe, opt, p, w);
+        baseStyle()->drawPrimitive(pe, opt, p, w);
         return;
     }
 
     switch (pe) {
     case PE_IndicatorArrowDown:
         if (rule.pixmaps.contains("down-arrow"))
-            baseStyle->drawPrimitive(pe, opt, p, w);
+            baseStyle()->drawPrimitive(pe, opt, p, w);
         return;
 
     case PE_PanelButtonCommand:
@@ -1204,7 +1098,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
             QStyleOptionButton butOpt(*btn);
             qCopyFromRuleToPalette(rule, butOpt.palette, QPalette::ButtonText, QPalette::Button);
             if (baseStyleCanRender(PushButton, rule))
-                baseStyle->drawPrimitive(pe, &butOpt, p, w);
+                baseStyle()->drawPrimitive(pe, &butOpt, p, w);
             else
                 qDrawFrame(p, rule, opt->rect, opt->direction);
         }
@@ -1212,7 +1106,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     // how do we specify these in the css?
     case PE_FrameDefaultButton:
-        baseStyle->drawPrimitive(pe, opt, p, w);
+        baseStyle()->drawPrimitive(pe, opt, p, w);
         return;
 
     case PE_FrameFocusRect:
@@ -1225,7 +1119,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
                 //focusRule.borderBrushes = rule.focusRectColor;
                 //qDrawFrame(p, focusRule, opt->rect, opt->direction);
             //} else
-                baseStyle->drawPrimitive(pe, opt, p, w);
+                baseStyle()->drawPrimitive(pe, opt, p, w);
         }
         return;
 
@@ -1234,7 +1128,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
             QStyleOptionFrame frmOpt(*frm);
             qCopyFromRuleToPalette(rule, frmOpt.palette, QPalette::Text, QPalette::Base);
             if (baseStyleCanRender(LineEdit, rule))
-                baseStyle->drawPrimitive(pe, &frmOpt, p, w);
+                baseStyle()->drawPrimitive(pe, &frmOpt, p, w);
             else {
                 qDrawFrame(p, rule, opt->rect, opt->direction);
             }
@@ -1245,7 +1139,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         if (rule.hasBox())
             qDrawFrame(p, rule, opt->rect, opt->direction);
         else
-            baseStyle->drawPrimitive(pe, opt, p, w);
+            baseStyle()->drawPrimitive(pe, opt, p, w);
         return;
 
     // RadioButton and CheckBox
@@ -1256,7 +1150,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         } else {
             QStyleOption optCopy(*opt);
             qCopyFromRuleToPalette(rule, optCopy.palette, QPalette::ButtonText, QPalette::Button);
-            baseStyle->drawPrimitive(pe, &optCopy, p, w);
+            baseStyle()->drawPrimitive(pe, &optCopy, p, w);
         }
         return;
 
@@ -1265,14 +1159,14 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         if (rule.hasBox())
             qDrawFrame(p, rule, opt->rect, opt->direction);
         else
-            baseStyle->drawPrimitive(pe, opt, p, w);
+            baseStyle()->drawPrimitive(pe, opt, p, w);
         return;
 
         // Menu stuff that would be nice to customize
     case PE_IndicatorMenuCheckMark:
     case PE_IndicatorArrowLeft:
     case PE_IndicatorArrowRight:
-        baseStyle->drawPrimitive(pe, opt, p, w);
+        baseStyle()->drawPrimitive(pe, opt, p, w);
         return;
 
     case PE_PanelTipLabel: // the frame is drawn in PE_Frame
@@ -1282,20 +1176,20 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
         if (rule.hasBox()) {
             qDrawFrame(p, rule, opt->rect, opt->direction);
         } else
-            baseStyle->drawPrimitive(pe, opt, p, w);
+            baseStyle()->drawPrimitive(pe, opt, p, w);
         return;
 
     default:
         break;
     }
 
-    baseStyle->drawPrimitive(pe, opt, p, w);
+    baseStyle()->drawPrimitive(pe, opt, p, w);
 }
 
 QPixmap QStyleSheetStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap& pixmap,
                                           const QStyleOption *option) const
 {
-    return baseStyle->generatedIconPixmap(iconMode, pixmap, option);
+    return baseStyle()->generatedIconPixmap(iconMode, pixmap, option);
 }
 
 QStyle::SubControl QStyleSheetStyle::hitTestComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
@@ -1306,25 +1200,25 @@ QStyle::SubControl QStyleSheetStyle::hitTestComplexControl(ComplexControl cc, co
 
 QRect QStyleSheetStyle::itemPixmapRect(const QRect &rect, int alignment, const QPixmap &pixmap) const
 {
-    return baseStyle->itemPixmapRect(rect, alignment, pixmap);
+    return baseStyle()->itemPixmapRect(rect, alignment, pixmap);
 }
 
 QRect QStyleSheetStyle::itemTextRect(const QFontMetrics &metrics, const QRect& rect, int alignment,
                                  bool enabled, const QString& text) const
 {
-    return baseStyle->itemTextRect(metrics, rect, alignment, enabled, text);
+    return baseStyle()->itemTextRect(metrics, rect, alignment, enabled, text);
 }
 
 int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWidget *w) const
 {
     QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty())
-        return baseStyle->pixelMetric(m, opt, w);
+        return baseStyle()->pixelMetric(m, opt, w);
 
     switch (m) {
     case PM_MenuButtonIndicator:
         //if (rule.hasPixmaps() && !rule.pixmaps()->downArrow.isNull())
-            return baseStyle->pixelMetric(m, opt, w);
+            return baseStyle()->pixelMetric(m, opt, w);
         break;
 
     case PM_ButtonMargin:
@@ -1385,7 +1279,7 @@ int QStyleSheetStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const 
              }
     }
 
-    return baseStyle->pixelMetric(m, opt, w);
+    return baseStyle()->pixelMetric(m, opt, w);
 }
 
 QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
@@ -1393,26 +1287,26 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
 {
     QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty())
-        return baseStyle->sizeFromContents(ct, opt, csz, w);
+        return baseStyle()->sizeFromContents(ct, opt, csz, w);
 
     switch (ct) {
     case CT_PushButton:
         if (baseStyleCanRender(PushButton, rule))
-            return baseStyle->sizeFromContents(ct, opt, csz, w);
+            return baseStyle()->sizeFromContents(ct, opt, csz, w);
         else
             return rule.boxRect(QRect(0, 0, csz.width(), csz.height())).size();
         break;
 
     case CT_LineEdit: // does not contains fw
         return baseStyleCanRender(LineEdit, rule)
-               ? baseStyle->sizeFromContents(ct, opt, csz, w)
+               ? baseStyle()->sizeFromContents(ct, opt, csz, w)
                : rule.boxRect(QRect(0, 0, csz.width(), csz.height())).size();
 
     case CT_CheckBox:
     case CT_RadioButton:
         // any funky border stuff, when this is fixed, fix the CE_RadioButton too
         if (!rule.hasBox())
-            return baseStyle->sizeFromContents(ct, opt, csz, w);
+            return baseStyle()->sizeFromContents(ct, opt, csz, w);
         else {
             QSize sz = ParentStyle::sizeFromContents(ct, opt, csz, w);
             return rule.boxRect(QRect(0, 0, sz.width(), sz.height())).size();
@@ -1422,11 +1316,11 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
     case CT_Menu:
     case CT_MenuItem:
     case CT_MenuBarItem:
-        return baseStyle->sizeFromContents(ct, opt, csz, w);
+        return baseStyle()->sizeFromContents(ct, opt, csz, w);
 
     case CT_ComboBox: {
         if (baseStyleCanRender(ComboBox, rule))
-            return baseStyle->sizeFromContents(ct, opt, csz, w);
+            return baseStyle()->sizeFromContents(ct, opt, csz, w);
         // FIXME
         QPixmap downArrow = rule.pixmaps.value("down-arrow");
         QRect br = rule.boxRect(QRect(0, 0, csz.width() + downArrow.width() + 23,
@@ -1442,30 +1336,30 @@ QSize QStyleSheetStyle::sizeFromContents(ContentsType ct, const QStyleOption *op
         break;
     }
 
-    return baseStyle->sizeFromContents(ct, opt, csz, w);
+    return baseStyle()->sizeFromContents(ct, opt, csz, w);
 }
 
 QIcon QStyleSheetStyle::standardIcon(StandardPixmap standardIcon, const QStyleOption *option,
                                  const QWidget* w) const
 {
-    return baseStyle->standardIcon(standardIcon, option, w);
+    return baseStyle()->standardIcon(standardIcon, option, w);
 }
 
 QPalette QStyleSheetStyle::standardPalette() const
 {
-    return baseStyle->standardPalette();
+    return baseStyle()->standardPalette();
 }
 
 QPixmap QStyleSheetStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *option,
                                      const QWidget *w) const
 {
-    return baseStyle->standardPixmap(standardPixmap, option, w);
+    return baseStyle()->standardPixmap(standardPixmap, option, w);
 }
 
 int QStyleSheetStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
                            QStyleHintReturn *shret) const
 {
-    return baseStyle->styleHint(sh, opt, w, shret);
+    return baseStyle()->styleHint(sh, opt, w, shret);
 }
 
 QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
@@ -1473,14 +1367,14 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 {
     QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty())
-        return baseStyle->subControlRect(cc, opt, sc, w);
+        return baseStyle()->subControlRect(cc, opt, sc, w);
 
     QRect r = opt->rect;
     switch (cc) {
     case CC_ComboBox:
     {
         if (baseStyleCanRender(ComboBox, rule))
-            return baseStyle->subControlRect(cc, opt, sc, w);
+            return baseStyle()->subControlRect(cc, opt, sc, w);
         QPixmap downArrow = rule.pixmaps.value("down-arrow");
         switch (sc) {
         case SC_ComboBoxArrow:
@@ -1512,7 +1406,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
     }
     case CC_GroupBox:
         if (baseStyleCanRender(GroupBox, rule))
-            return baseStyle->subControlRect(cc, opt, sc, w);
+            return baseStyle()->subControlRect(cc, opt, sc, w);
         switch (sc) {
         case SC_GroupBoxFrame:
             r = visualRect(opt->direction, opt->rect, rule.borderRect(opt->rect));
@@ -1552,7 +1446,7 @@ QRect QStyleSheetStyle::subControlRect(ComplexControl cc, const QStyleOptionComp
 
         break;
     default:
-        r = baseStyle->subControlRect(cc, opt, sc, w);
+        r = baseStyle()->subControlRect(cc, opt, sc, w);
         break;
     }
     return r;
@@ -1562,24 +1456,24 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
 {
     QRenderRule rule = renderRule(w, opt);
     if (rule.isEmpty())
-        return baseStyle->subElementRect(se, opt, w);
+        return baseStyle()->subElementRect(se, opt, w);
 
     switch (se) {
         // PushButton
     case SE_PushButtonContents:
     case SE_PushButtonFocusRect:
         return (baseStyleCanRender(PushButton, rule))
-               ? baseStyle->subElementRect(se, opt, w)
+               ? baseStyle()->subElementRect(se, opt, w)
                : visualRect(opt->direction, opt->rect, rule.contentsRect(opt->rect));
 
     case SE_LineEditContents:
         return (baseStyleCanRender(LineEdit, rule))
-               ? baseStyle->subElementRect(se, opt, w)
+               ? baseStyle()->subElementRect(se, opt, w)
                : visualRect(opt->direction, opt->rect, rule.contentsRect(opt->rect));
 
     case SE_FrameContents:
         return (baseStyleCanRender(Frame, rule))
-               ? baseStyle->subElementRect(se, opt, w)
+               ? baseStyle()->subElementRect(se, opt, w)
                : visualRect(opt->direction, opt->rect, rule.contentsRect(opt->rect));
 
         // RadioButton and CheckBox
@@ -1606,12 +1500,12 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
         break;
     }
 
-    return baseStyle->subElementRect(se, opt, w);
+    return baseStyle()->subElementRect(se, opt, w);
 }
 
 void QStyleSheetStyle::polish(QWidget *w)
 {
-    baseStyle->polish(w);
+    baseStyle()->polish(w);
 
     StyleSheet appSs;
     Parser parser1(qApp->styleSheet());
@@ -1655,22 +1549,22 @@ void QStyleSheetStyle::polish(QWidget *w)
 
 void QStyleSheetStyle::polish(QApplication *app)
 {
-    baseStyle->polish(app);
+    baseStyle()->polish(app);
 }
 
 void QStyleSheetStyle::polish(QPalette &pal)
 {
-    baseStyle->polish(pal);
+    baseStyle()->polish(pal);
 }
 
 void QStyleSheetStyle::unpolish(QWidget *widget)
 {
-    baseStyle->unpolish(widget);
+    baseStyle()->unpolish(widget);
 }
 
 void QStyleSheetStyle::unpolish(QApplication *app)
 {
-    baseStyle->unpolish(app);
+    baseStyle()->unpolish(app);
 }
 
 #include "moc_qstylesheetstyle_p.cpp"
