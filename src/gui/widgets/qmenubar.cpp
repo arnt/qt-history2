@@ -1159,8 +1159,13 @@ void QMenuBar::changeEvent(QEvent *e)
         setMouseTracking(style()->styleHint(QStyle::SH_MenuBar_MouseTracking, 0, this));
         if(parentWidget())
             resize(parentWidget()->width(), heightForWidth(parentWidget()->width()));
-    } else if (e->type() == QEvent::ParentChange)
+    } else if (e->type() == QEvent::ParentChange) {
         d->handleReparent();
+    } else if (e->type() == QEvent::FontChange
+               || e->type() == QEvent::ApplicationFontChange) {
+        d->itemsDirty = true;
+        d->updateGeometries();
+    }
     QWidget::changeEvent(e);
 }
 
