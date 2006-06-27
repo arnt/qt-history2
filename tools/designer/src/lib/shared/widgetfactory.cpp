@@ -333,7 +333,8 @@ void WidgetFactory::initialize(QObject *object) const
 
     if (QWidget *widget = qobject_cast<QWidget*>(object)) {
         QSize sz = widget->sizeHint();
-        if (sz.width() <= 0 && sz.height() <= 0)
+
+        if (qobject_cast<QFrame*>(object) && sz.width() <= 0 && sz.height() <= 0)
             widget->setMinimumSize(QSize(16, 16));
 
         widget->setAttribute(Qt::WA_TransparentForMouseEvents, false);
