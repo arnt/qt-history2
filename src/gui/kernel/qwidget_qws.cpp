@@ -1062,6 +1062,18 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (isMove && !isResize) {
                 QWidget::qwsDisplay()->moveRegion(data.winid, x - oldp.x(), y - oldp.y());
                 toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting
+
+#ifdef QT_WINDOW_SURFACE
+                QWidgetBackingStore *bs = maybeBackingStore();
+                if (bs) {
+                    QWSWindowSurface *surface;
+                    surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
+                    // XXX TODO: wait for new region, do accelerated scroll
+                    if (!surface->isBuffered())
+                        q->update();
+                }
+#endif // QT_WINDOW_SURFACE
+
             } else {
                 myregion = localRequestedRegion();
                 myregion.translate(x,y);
