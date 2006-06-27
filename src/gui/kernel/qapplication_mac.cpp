@@ -1855,7 +1855,13 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             widget = QApplication::focusWidget();
         else
             widget = app->activeWindow();
-        if(!widget || (app_do_modal && !qt_try_modal(widget, event)))
+
+        if (!widget) {
+            handled_event = false;
+            break;
+        }
+
+        if(app_do_modal && !qt_try_modal(widget, event))
             break;
         handled_event = qt_keymapper_private()->translateKeyEvent(widget, er, event, data, widget == mac_keyboard_grabber);
         break; }
