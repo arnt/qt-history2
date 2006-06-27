@@ -33,13 +33,8 @@ class QStylePrivate: public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QStyle)
 public:
-    inline QStylePrivate() : ref(0) { }
-    ~QStylePrivate() { Q_ASSERT(ref == 0); }
-    void attach() { ++ref; }
-    void detach() { Q_Q(QStyle); Q_ASSERT(ref >= 1); if (--ref == 0) delete q; }
-
-private:
-    int ref;
+    inline QStylePrivate()
+    { }
 };
 
 #endif //QSTYLE_P_H
