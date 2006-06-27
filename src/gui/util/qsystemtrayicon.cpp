@@ -47,7 +47,7 @@
     \o All window managers for X11 that implement the \l{freedesktop.org} system
        tray specification, including recent versions of KDE and GNOME.
     \omit
-    \o On Mac OS X, when the \c growl program is running.
+    \o Mac OS X, with the exception of showMessage()
     \endomit
     \endlist
 
@@ -284,7 +284,8 @@ bool QSystemTrayIcon::isSystemTrayAvailable()
 
     Note that display of messages are dependent on the system configuration and user
     preferences, and that messages may not appear at all. Hence, it should not be
-    relied upon as the sole means for providing critical information.
+    relied upon as the sole means for providing critical information. Mac OS X does
+    not support balloon messages.
 
     \sa show()
   */
