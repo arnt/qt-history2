@@ -729,7 +729,7 @@ void QLabel::setOpenExternalLinks(bool open)
 }
 
 /*!
-    \property QLabel::TextInteractionFlags
+    \property QLabel::textInteractionFlags
 
     Specifies how the label should interact with user input if it displays text.
 
