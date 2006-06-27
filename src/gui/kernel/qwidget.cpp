@@ -1639,13 +1639,12 @@ void QWidgetPrivate::createWinId()
 \internal
 Ensures that the widget has a window system identifier, i.e. that it is known to the windowing system.
 
-### going away ###
 */
 
 void QWidget::createWinId()
 {
     Q_D(QWidget);
-    qWarning("QWidget::createWinId is obsolete, please fix your code.");
+//    qWarning("QWidget::createWinId is obsolete, please fix your code.");
     d->createWinId();
 }
 
