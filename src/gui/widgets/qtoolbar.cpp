@@ -1033,13 +1033,19 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                     QMenu *cb_menu = new QMenu(cb->windowTitle(), pop);
                     QSignalMapper *cb_mapper = new QSignalMapper(cb_menu);
                     pop->addMenu(cb_menu);
+                    QActionGroup *ag = new QActionGroup(cb_menu);
+                    ag->setExclusive(true);
                     for (int i=0; i<cb->count(); ++i) {
                         QAction *ac = cb_menu->addAction(cb->itemIcon(i), cb->itemText(i));
+                        ac->setActionGroup(ag);
+                        ac->setCheckable(true);
+                        ac->setChecked(cb->currentIndex() == i);
                         connect(ac, SIGNAL(triggered(bool)), cb_mapper, SLOT(map()));
                         cb_mapper->setMapping(ac, i);
                         cb_mapper->setMapping(ac, cb->itemText(i));
                     }
                     connect(cb_mapper, SIGNAL(mapped(int)), cb, SIGNAL(activated(int)));
+                    connect(cb_mapper, SIGNAL(mapped(int)), cb, SLOT(setCurrentIndex(int)));
                     connect(cb_mapper, SIGNAL(mapped(QString)), cb, SIGNAL(activated(QString)));
                 } else
 #endif // QT_NO_SIGNALMAPPER
