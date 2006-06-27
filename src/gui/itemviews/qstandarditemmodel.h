@@ -341,10 +341,8 @@ public:
     void insertColumn(int column, const QList<QStandardItem*> &items);
     inline void insertRow(int row, QStandardItem *item);
 
-    inline void insertRow(int row, const QModelIndex &parent = QModelIndex())
-    { QAbstractItemModel::insertRow(row, parent); }
-    inline void insertColumn(int column, const QModelIndex &parent = QModelIndex())
-    { QAbstractItemModel::insertColumn(column, parent); }
+    inline void insertRow(int row, const QModelIndex &parent = QModelIndex());
+    inline void insertColumn(int column, const QModelIndex &parent = QModelIndex());
 
     QStandardItem *takeItem(int row, int column = 0);
     QList<QStandardItem*> takeRow(int row);
@@ -382,6 +380,11 @@ inline void QStandardItemModel::appendRow(QStandardItem *aitem)
 
 inline void QStandardItemModel::insertRow(int arow, QStandardItem *aitem)
 { insertRow(arow, QList<QStandardItem*>() << aitem); }
+
+inline void QStandardItemModel::insertRow(int arow, const QModelIndex &aparent)
+{ QAbstractItemModel::insertRow(arow, aparent); }
+inline void QStandardItemModel::insertColumn(int acolumn, const QModelIndex &aparent)
+{ QAbstractItemModel::insertColumn(acolumn, aparent); }
 
 #ifndef QT_NO_DATASTREAM
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QStandardItem &item);
