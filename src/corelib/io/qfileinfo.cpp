@@ -111,6 +111,19 @@ QFileInfoPrivate::initFileEngine(const QString &file)
 
 bool QFileInfoPrivate::hasAccess(Access access) const
 {
+    if (!(data->fileEngine->fileFlags() & QAbstractFileEngine::LocalDiskFlag)) {
+        switch (access) {
+        case ReadAccess:
+            return getFileFlags(QAbstractFileEngine::ReadUserPerm);
+        case WriteAccess:
+            return getFileFlags(QAbstractFileEngine::WriteUserPerm);
+        case ExecuteAccess:
+            return getFileFlags(QAbstractFileEngine::ExeUserPerm);
+        default:
+            return false;
+        }
+    }
+
     int mode = 0;
     switch (access) {
     case ReadAccess:
