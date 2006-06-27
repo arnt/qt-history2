@@ -432,6 +432,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             q->setAttribute(Qt::WA_WState_Visible, false);
     }
 
+    if (extra && !extra->mask.isEmpty())
+        setMask_sys(extra->mask);
+
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_WIDGET_CREATE
 #endif
@@ -1535,16 +1538,11 @@ void QWidget::setMask(const QRegion &region)
 #endif
 
     d->extra->mask = region;
+    if (!testAttribute(Qt::WA_WState_Created))
+        return;
 
-    // Since SetWindowRegion takes ownership, and we need to translate,
-    // we take a copy.
-    HRGN wr = CreateRectRgn(0,0,0,0);
-    CombineRgn(wr, region.handle(), 0, RGN_COPY);
+    setMask_sys(region);
 
-    QPoint offset = (isWindow()
-                     ? d->frameStrut().topLeft()
-                     : QPoint(0, 0));
-    OffsetRgn(wr, offset.x(), offset.y());
 #ifndef QT_NO_BACKINGSTORE
     if (isVisible()) {
         if (!isWindow()) {
@@ -1555,8 +1553,23 @@ void QWidget::setMask(const QRegion &region)
             update();
     }
 #endif
-    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
-    SetWindowRgn(internalWinId(), wr, true);
+}
+
+void QWidgetPrivate::setMask_sys(const QRegion &region);
+{
+    Q_Q(QWidget);
+    // Since SetWindowRegion takes ownership, and we need to translate,
+    // we take a copy.
+    HRGN wr = CreateRectRgn(0,0,0,0);
+    CombineRgn(wr, region.handle(), 0, RGN_COPY);
+
+    QPoint offset = (q->isWindow()
+                     ? q->frameStrut().topLeft()
+                     : QPoint(0, 0));
+    OffsetRgn(wr, offset.x(), offset.y());
+
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
+    SetWindowRgn(data.winid, wr, true);
 }
 
 void QWidget::setMask(const QBitmap &bitmap)
@@ -1568,11 +1581,13 @@ void QWidget::setMask(const QBitmap &bitmap)
 void QWidget::clearMask()
 {
     Q_D(QWidget);
-    d->createExtra();
+    if (!d->extra || d->extra->mask.isEmpty())
+        return;
+
     if(QWExtra *extra = d->extraData())
         extra->mask = QRegion();
-    Q_ASSERT(testAttribute(Qt::WA_WState_Created));
-    SetWindowRgn(internalWinId(), 0, true);
+    if (testAttribute(Qt::WA_WState_Created))
+        SetWindowRgn(internalWinId(), 0, true);
 }
 
 void QWidgetPrivate::updateFrameStrut() const

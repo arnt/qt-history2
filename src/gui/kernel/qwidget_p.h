@@ -183,6 +183,10 @@ public:
     void setPalette_helper(const QPalette &);
     void resolvePalette();
 
+#ifdef Q_WS_WIN
+    void setMask_sys(const QRegion &);
+#endif
+
     void raise_sys();
     void lower_sys();
     void stackUnder_sys(QWidget *);
