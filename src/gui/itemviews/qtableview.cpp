@@ -1650,10 +1650,11 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
         if (horizontalPosition - horizontalOffset < 0)
             horizontalScrollBar()->setValue(horizontalIndex);
-        else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth)
+        else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth) {
             for (int w = viewportWidth - cellWidth; w > 0 && horizontalIndex > 0;
                  w -= columnWidth(horizontalIndex--));
             horizontalScrollBar()->setValue(horizontalIndex);
+        }
     } else { // ScrollPerPixel
         if (hint == PositionAtCenter) {
             horizontalScrollBar()->setValue(horizontalPosition - ((viewportWidth - cellWidth) / 2));
