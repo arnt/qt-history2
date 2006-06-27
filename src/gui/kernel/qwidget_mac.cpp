@@ -650,6 +650,7 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
         qWarning("QWidget: Internal error (%d)", __LINE__);
     if(ret && parent)
         HIViewAddSubview(parent, ret);
+    //HIViewSetVisible(ret, false);
     return ret;
 }
 
@@ -2138,7 +2139,7 @@ void QWidget::scroll(int dx, int dy)
 
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-    bool valid_rect = r.isValid();
+    const bool valid_rect = r.isValid();
     if(!updatesEnabled() &&  (valid_rect || children().isEmpty()))
         return;
 
@@ -2170,8 +2171,10 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
             QApplication::sendEvent(w, &e);
         }
     }
-    HIRect scrollrect = CGRectMake(r.x(), r.y(), r.width(), r.height());
-    HIViewScrollRect(qt_mac_hiview_for(this), valid_rect ? &scrollrect : 0, dx, dy);
+    if(isVisible()) {
+        HIRect scrollrect = CGRectMake(r.x(), r.y(), r.width(), r.height());
+        HIViewScrollRect(qt_mac_hiview_for(this), valid_rect ? &scrollrect : 0, dx, dy);
+    }
 }
 
 int QWidget::metric(PaintDeviceMetric m) const
@@ -2361,7 +2364,7 @@ void QWidgetPrivate::setModal_sys()
     const QWidget * const primaryWindow = windowParent ? windowParent->window() : 0;
     const bool primaryWindowModal = primaryWindow ? primaryWindow->testAttribute(Qt::WA_ShowModal) : false;
     const bool modal = q->testAttribute(Qt::WA_ShowModal);
-    
+
     //setup the proper window class
     const WindowRef window = qt_mac_window_for(qt_mac_hiview_for(q));
     WindowClass old_wclass;
