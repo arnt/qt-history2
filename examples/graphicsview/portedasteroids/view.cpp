@@ -21,7 +21,7 @@
 
 #include "view.h"
 
-#define IMG_BACKGROUND "bg.png"
+#define IMG_BACKGROUND ":/trolltech/examples/graphicsview/portedasteroids/bg.png"
 
 #define REFRESH_DELAY           33
 #define SHIP_SPEED              0.3
@@ -258,7 +258,7 @@ void KAsteroidsView::brake( bool b )
 
 bool KAsteroidsView::readSprites()
 {
-    QString sprites_prefix = "sprites/";
+    QString sprites_prefix = ":/trolltech/examples/graphicsview/portedasteroids/sprites/";
 
     int i = 0;
     while ( kas_animations[i].id )

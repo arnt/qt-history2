@@ -159,7 +159,7 @@ KAstTopLevel::KAstTopLevel( QWidget *parent, const char *name )
     QFont smallFont( "helvetica", 14 );
     hbd->addSpacing( 10 );
 
-    QString sprites_prefix = "sprites/";
+    QString sprites_prefix = ":/trolltech/examples/graphicsview/portedasteroids/sprites/";
 /*
     label = new QLabel( tr( "T" ), mainWin );
     label->setFont( smallFont );
