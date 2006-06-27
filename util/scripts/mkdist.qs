@@ -347,7 +347,7 @@ function parseArgc()
         var optionKey;
         var optionValue;
         if (argc[i].startsWith("-do")) {
-            optionKey = argc[i].split("-")[2];
+            optionKey = argc[i].mid(4);
             optionValue = true;
         } else if (argc[i].startsWith("-no")) {
             optionKey = argc[i].split("-")[2];
