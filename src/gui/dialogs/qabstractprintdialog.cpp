@@ -239,12 +239,24 @@ QPrinter *QAbstractPrintDialog::printer() const
     If the dialog is accepted by the user, the QPrinter object is
     correctly configured for printing.
 
-    \table
-    \row
-    \o \inlineimage qprintdialog-plastique.png Screenshot of a Plastique style printer dialog
-    \row
-    \o A printer dialog in Plastique style
-    \endtable
+    \raw HTML
+    <table align="center">
+    <tr><td>
+    \endraw
+    \inlineimage plastique-printdialog.png
+    \raw HTML
+    </td><td>
+    \endraw
+    \inlineimage plastique-printdialog-properties.png
+    \raw HTML
+    </td></tr>
+    </table>
+    \endraw
+
+    The printer dialog (shown above in Plastique style) enables access to common
+    printing properties. On X11 platforms that use the CUPS printing system, the
+    settings for each available printer can be modified via the dialog's
+    \gui{Properties} push button.
 
     On Windows and Mac OS X, the native print dialog is used, which
     means that some QWidget and QDialog properties set on the dialog
