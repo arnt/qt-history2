@@ -88,7 +88,7 @@ public:
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
-    
+
     //    QPoint center() { return boundingRect().center(); }
 private:
     Q3PtrList<EdgeItem> inList;
@@ -154,6 +154,7 @@ FigureEditor::FigureEditor(
 {
     setObjectName(name);
     setWindowFlags(f);
+    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 }
 
 void FigureEditor::clear()
@@ -570,7 +571,7 @@ void Main::addPolygon()
 void Main::addSpline()
 {
     const int size = int(canvas.width()/6);
-       
+
     Q3PointArray pa(12);
     pa[0] = QPoint(0,0);
     pa[1] = QPoint(size/2,0);
@@ -586,10 +587,14 @@ void Main::addSpline()
     pa[11]= QPoint(-size/2,0);
 
     QPainterPath path;
-    for (int i = 0; i < pa.size(); i += 3) {
-        path.moveTo(pa[i]);
-        path.cubicTo(pa[i + 1], pa[i + 2], pa[i + 3]);
+    path.moveTo(pa[0]);
+    for (int i = 1; i < pa.size(); i += 3) {
+        path.cubicTo(pa[i], pa[(i + 1) % pa.size()], pa[(i + 2) % pa.size()]);
     }
+
+
+
+    path.closeSubpath();
 
     QGraphicsPathItem* i = canvas.addPath(path);
     i->setFlag(QGraphicsItem::ItemIsMovable);
