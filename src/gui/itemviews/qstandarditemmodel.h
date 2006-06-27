@@ -39,7 +39,6 @@ public:
     QStandardItem(const QString &text);
     QStandardItem(const QIcon &icon, const QString &text);
     QStandardItem(int rows, int columns = 1);
-    QStandardItem(const QList<QStandardItem*> &items);
     virtual ~QStandardItem();
 
     virtual QVariant data(int role) const;
@@ -275,7 +274,6 @@ class Q_GUI_EXPORT QStandardItemModel : public QAbstractItemModel
 public:
     explicit QStandardItemModel(QObject *parent = 0);
     QStandardItemModel(int rows, int columns, QObject *parent = 0);
-    QStandardItemModel(const QList<QStandardItem*> &items, QObject *parent = 0);
     ~QStandardItemModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;

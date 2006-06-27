@@ -633,19 +633,6 @@ QStandardItem::QStandardItem(int rows, int columns)
 }
 
 /*!
-   Constructs an item with a single column of children containing \a items.
-*/
-QStandardItem::QStandardItem(const QList<QStandardItem*> &items)
-    : d_ptr(new QStandardItemPrivate)
-{
-    Q_D(QStandardItem);
-    d->q_ptr = this;
-    setColumnCount(1);
-    for (int i = 0; i < items.count(); ++i)
-        setChild(i, items.at(i));
-}
-
-/*!
   \internal
 */
 QStandardItem::QStandardItem(QStandardItemPrivate &dd)
@@ -1912,24 +1899,6 @@ QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent)
     d->root->d_func()->setModel(this);
     d->root->setRowCount(rows);
     d->root->setColumnCount(columns);
-}
-
-/*!
-    \since 4.2
-
-    Constructs a new item model with a single column containing \a items, and
-    with the given \a parent.
-*/
-QStandardItemModel::QStandardItemModel(const QList<QStandardItem*> &items, QObject *parent)
-    : QAbstractItemModel(*new QStandardItemModelPrivate, parent)
-{
-    Q_D(QStandardItemModel);
-    d->init();
-    d->root->d_func()->setModel(this); 
-    d->root->setColumnCount(1);
-    d->root->setRowCount(items.count());
-    for (int i = 0; i < items.count(); ++i)
-        d->root->setChild(i, items.at(i));
 }
 
 /*!
