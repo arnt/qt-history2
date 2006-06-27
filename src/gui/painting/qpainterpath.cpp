@@ -1629,6 +1629,8 @@ QList<QPolygonF> QPainterPath::toFillPolygons(const QMatrix &matrix) const
 
     // find all intersections
     for (int j=0; j<count; ++j) {
+        if (subpaths.at(j).size() <= 2)
+            continue;
         QRectF cbounds = bounds.at(j);
         for (int i=0; i<count; ++i) {
             if (rect_intersects(cbounds, bounds.at(i))) {
