@@ -404,7 +404,8 @@ QRegion QWSManagerPrivate::paint(QPaintDevice *paintDevice)
     QWSWindowSurface *surface;
     surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
     const QRegion surfaceClip = surface->clipRegion().translated(bs->topLevelOffset());
-    paintDevice->paintEngine()->setSystemClip(surfaceClip);
+    if (!surface->isBuffered())
+        paintDevice->paintEngine()->setSystemClip(surfaceClip);
 #endif
 
     QRegion updated;
