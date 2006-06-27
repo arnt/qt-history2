@@ -1196,7 +1196,7 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
         if (!ptrAddFontResourceExW)
             return;
 
-        if (ptrAddFontResourceExW(fnt->fileName.utf16(), FR_PRIVATE, 0) == 0)
+        if (ptrAddFontResourceExW((LPCWSTR)fnt->fileName.utf16(), FR_PRIVATE, 0) == 0)
             return;
 
         fnt->families = families;
@@ -1224,7 +1224,7 @@ bool QFontDatabase::removeApplicationFont(int handle)
         if (!ptrRemoveFontResourceExW)
             return false;
 
-        if (!ptrRemoveFontResourceExW(font.fileName.utf16(), FR_PRIVATE, 0))
+        if (!ptrRemoveFontResourceExW((LPCWSTR)font.fileName.utf16(), FR_PRIVATE, 0))
             return false;
     }
 
