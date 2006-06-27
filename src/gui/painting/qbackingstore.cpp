@@ -324,7 +324,7 @@ void qt_syncBackingStore(QWidget *widget)
     QTLWExtra *topData = tlw->d_func()->topData();
 
 #ifdef QT_WINDOW_SURFACE
-    QWidgetBackingStore *bs = tlw->d_func()->topData()->backingStore;
+    QWidgetBackingStore *bs = topData->backingStore;
     QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
     QRegion toClean;
 
@@ -509,7 +509,7 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
     Q_Q(QWidget);
     QWidget *tlw = q->window();
     QTLWExtra* x = tlw->d_func()->topData();
-
+    QWidgetBackingStore *wbs = x->backingStore;
 
     static int accelEnv = -1;
     if (accelEnv == -1) {
@@ -518,6 +518,26 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
 
     bool accelerateScroll = accelEnv &&  isOpaque()  && !isOverlapped(data.crect);
 
+#if defined(Q_WS_QWS) && defined(QT_WINDOW_SURFACE)
+    QWSWindowSurface *surface;
+    surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
+
+    if (accelerateScroll && !surface->isBuffered()) {
+        const QRegion surfaceClip = surface->clipRegion();
+        const QRegion outsideClip = QRegion(rect) - surfaceClip;
+        if (!outsideClip.isEmpty()) {
+            const QVector<QRect> clipped = (surfaceClip & rect).rects();
+            if (clipped.size() < 8) {
+                for (int i = 0; i < clipped.size(); ++i)
+                    scrollRect(clipped.at(i), dx, dy);
+                return;
+            } else {
+                accelerateScroll = false;
+            }
+        }
+    }
+#endif // Q_WS_QWS && QT_WINDOW_SURFACE
+
     if (!accelerateScroll) {
         invalidateBuffer(rect);
     } else {
@@ -525,8 +545,6 @@ void QWidgetPrivate::scrollRect(const QRect &rect, int dx, int dy)
 
         QRect destRect = scrollRect.isValid() ? scrollRect.translated(dx,dy).intersect(scrollRect) : QRect();
         QRect sourceRect = destRect.translated(-dx, -dy);
-
-        QWidgetBackingStore *wbs = x->backingStore;
 
         QPoint toplevelOffset = q->mapTo(tlw, QPoint());
 
