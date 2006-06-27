@@ -2477,13 +2477,15 @@ void QTreeViewPrivate::updateScrollBars()
 
     if (horizontalScrollMode == QAbstractItemView::ScrollPerItem) {
         const int columnCount = header->count();
-        int x = viewportSize.width();
-        int c = columnCount;
-        while (x > 0 && c > 0) {
-            int l = header->logicalIndex(--c);
-            x -= header->sectionSize(l);
+        const int viewportWidth = viewportSize.width();
+        int columnsInViewport = 0;
+        for (int width = 0, column = columnCount - 1; column >= 0; --column) {
+            int logical = header->logicalIndex(column);
+            width += header->sectionSize(logical);
+            if (width > viewportWidth)
+                break;
+            ++columnsInViewport;
         }
-        int columnsInViewport = (c > 0 ? (columnCount - c - 1) : columnCount);
         q->horizontalScrollBar()->setRange(0, columnCount - columnsInViewport);
         q->horizontalScrollBar()->setPageStep(columnsInViewport);
     } else { // scroll per pixel
