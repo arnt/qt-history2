@@ -335,7 +335,7 @@ bool FormWindow::handleMousePressEvent(QWidget * /*widget*/, QWidget *managedWid
 
     bool selected = isWidgetSelected(managedWidget);
 
-    if (e->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) {
+    if (e->modifiers() & Qt::ShiftModifier) {
         // shift-click - toggle selection state of widget
         selectWidget(managedWidget, !selected);
         return true;
