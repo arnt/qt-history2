@@ -117,7 +117,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     QDate is the year before 1 A.D. = 1 C.E. (that is 1 B.C.E.), the
     year -1 is year 2 B.C.E and so forth.
 
-    \sa QTime QDateTime QDateEdit QDateTimeEdit
+    \sa QTime, QDateTime, QDateEdit, QDateTimeEdit, QCalendarWidget
 */
 
 /*!
