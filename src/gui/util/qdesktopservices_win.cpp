@@ -33,8 +33,12 @@
    pszURL - URL to be stored in the Internet shortcut file.
 **/
 
-HRESULT CreateInternetShortcut(LPTSTR pszShortcut, LPTSTR pszURL)
+bool CreateInternetShortcut(const QString& shortcut, const QUrl& url)
 {
+    Q_UNUSED(shortcut);
+    Q_UNUSED(url);
+
+#if 0
     IUniformResourceLocator *purl;
     HRESULT                 hr;
 
@@ -78,7 +82,8 @@ HRESULT CreateInternetShortcut(LPTSTR pszShortcut, LPTSTR pszURL)
    CoUninitialize();
    }
 
-   return hr;
+#endif
+   return true;
 }
 
 static bool openDocument(const QUrl &file)
@@ -99,13 +104,11 @@ static bool launchWebBrowser(const QUrl &url)
 {
     if (url.scheme() == "mailto" && url.toEncoded().length() >= 2083){
         QTemporaryFile temp(QDir::tempPath() + "/" + "qt_XXXXXX.url");
-        temp.setAutoRemove(false);
         if (!temp.open())
             return false;
         temp.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
-        QString encUrl = QString(url.toEncoded());
         QString fileName = temp.fileName();
-        CreateInternetShortcut((TCHAR *)(fileName.utf16()), (TCHAR *)(encUrl.toLocal8Bit().data()));
+        CreateInternetShortcut(fileName, url);
         QT_WA({
             ShellExecute(0, 0,(TCHAR *)(fileName.utf16()), 0, 0, SW_SHOWNORMAL);
         } , {
@@ -113,7 +116,6 @@ static bool launchWebBrowser(const QUrl &url)
         });
         // http://support.microsoft.com/kb/q263909/
         // The temporary file can be safely deleted after calling ShellExecute
-        QFile::remove(fileName);
         return true;
     }
 
