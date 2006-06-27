@@ -470,6 +470,8 @@ void QBalloonTip::balloon(const QPoint& pos, int msecs, bool showArrow)
     QPainter painter(&pixmap);
     painter.setPen(QPen(Qt::black, border));
     painter.setBrush(palette().color(QPalette::Window));
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.translate(0.5, 0.5);
     painter.drawPath(path);
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
     setMask(pixmap.createHeuristicMask());
