@@ -2265,6 +2265,7 @@ int QTreeViewPrivate::coordinateForItem(int item) const
 int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
 {
     Q_Q(const QTreeView);
+    const int itemCount = viewItems.count();
     if (verticalScrollMode == QAbstractItemView::ScrollPerPixel) {
         if (uniformRowHeights) {
             Q_ASSERT(defaultItemHeight != 0);
@@ -2276,13 +2277,14 @@ int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
         for (int viewItemIndex = 0; viewItemIndex < viewItems.count(); ++viewItemIndex) {
             viewItemCoordinate += itemHeight(viewItemIndex);
             if (viewItemCoordinate >= contentsCoordinate)
-                return viewItemIndex;
+                return (viewItemIndex >= itemCount ? -1 : viewItemIndex);
         }
     } else { // ScrollPerItem
         int topViewItemIndex = q->verticalScrollBar()->value();
         if (uniformRowHeights) {
             Q_ASSERT(defaultItemHeight != 0);
-            return topViewItemIndex + (coordinate / defaultItemHeight);
+            const int viewItemIndex = topViewItemIndex + (coordinate / defaultItemHeight);
+            return (viewItemIndex >= itemCount ? -1 : viewItemIndex);
         }
         if (coordinate >= 0) {
             // the coordinate is in or below the viewport
@@ -2290,14 +2292,14 @@ int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
             for (int viewItemIndex = topViewItemIndex; viewItemIndex < viewItems.count(); ++viewItemIndex) {
                 viewItemCoordinate += itemHeight(viewItemIndex);
                 if (viewItemCoordinate > coordinate)
-                    return viewItemIndex;
+                    return (viewItemIndex >= itemCount ? -1 : viewItemIndex);
             }
         } else {
             // the coordinate is above the viewport
             int viewItemCoordinate = 0;
             for (int viewItemIndex = topViewItemIndex; viewItemIndex >= 0; --viewItemIndex) {
                 if (viewItemCoordinate <= coordinate)
-                    return viewItemIndex;
+                    return (viewItemIndex >= itemCount ? -1 : viewItemIndex);
                 viewItemCoordinate -= itemHeight(viewItemIndex);
             }
         }
