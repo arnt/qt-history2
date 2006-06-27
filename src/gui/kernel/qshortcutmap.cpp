@@ -357,7 +357,6 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     if (!d->sequences.count())
         return QKeySequence::NoMatch;
     
-    static QVector<QKeySequence> okEntries;
     static QVector<QKeySequence> newEntries;
     createNewSequences(e, newEntries);
 #if defined(DEBUG_QSHORTCUTMAP)
@@ -376,6 +375,7 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
 
     bool partialFound = false;
     bool identicalDisabledFound = false;
+    QVector<QKeySequence> okEntries;
     int result = QKeySequence::NoMatch;
     for (int i = newEntries.count()-1; i >= 0 ; --i) {
         QShortcutEntry entry(newEntries.at(i)); // needed for searching
@@ -383,18 +383,20 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         QList<QShortcutEntry>::ConstIterator it =
              qLowerBound(d->sequences.constBegin(), itEnd, entry);
 
-        QKeySequence::SequenceMatch singleResult = QKeySequence::NoMatch;
+        int oneKSResult = QKeySequence::NoMatch;
+        int tempRes = QKeySequence::NoMatch;
         do {
             if (it == itEnd)
                 break;
-            result = entry.keyseq.matches((*it).keyseq);
-            if (result != QKeySequence::NoMatch && correctContext(*it)) {
-                if (result == QKeySequence::ExactMatch) {
+            tempRes = entry.keyseq.matches((*it).keyseq);
+            oneKSResult = qMax(oneKSResult, tempRes);
+            if (tempRes != QKeySequence::NoMatch && correctContext(*it)) {
+                if (tempRes == QKeySequence::ExactMatch) {
                     if ((*it).enabled)
                         d->identicals.append(&*it);
                     else
                         identicalDisabledFound = true;
-                } else if (result == QKeySequence::PartialMatch) {
+                } else if (tempRes == QKeySequence::PartialMatch) {
                     // We don't need partials, if we have identicals
                     if (d->identicals.size())
                         break;
@@ -404,22 +406,25 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
                 }
             }
             ++it;
-        } while (singleResult != QKeySequence::NoMatch);
+            // If we got a valid match on this run, there might still be more keys to check against,
+            // so we'll loop once more. If we get NoMatch, there's guaranteed no more possible
+            // matches in the shortcutmap.
+        } while (tempRes != QKeySequence::NoMatch);
+
         // If the type of match improves (ergo, NoMatch->Partial, or Partial->Exact), clear the
         // previous list. If this match is equal or better than the last match, append to the list
-        if (singleResult > result) {
+        if (oneKSResult > result) {
             okEntries.clear();
 #if defined(DEBUG_QSHORTCUTMAP)
-            qDebug() << "Found better shortcut match (" << singleResult << "), clearing keysequence list";
+            qDebug() << "Found better match (" << singleResult << "), clearing keysequence list";
 #endif
         }
-        if (singleResult && singleResult >= result) {
+        if (oneKSResult && oneKSResult >= result) {
             okEntries << newEntries.at(i);
 #if defined(DEBUG_QSHORTCUTMAP)
             qDebug() << "Added ok keysequence" << newEntries;
 #endif
         }
-        result |= singleResult;
     }
 
     if (d->identicals.size()) {
@@ -480,6 +485,11 @@ void QShortcutMap::createNewSequences(QKeyEvent *e, QVector<QKeySequence> &ksl)
                 curKsl.setKey(curSeq[1], 1);
                 curKsl.setKey(curSeq[2], 2);
                 curKsl.setKey(curSeq[3], 3);
+            } else {
+                curKsl.setKey(0, 0);
+                curKsl.setKey(0, 1);
+                curKsl.setKey(0, 2);
+                curKsl.setKey(0, 3);
             }
             // Filtering keycode here with 0xdfffffff to ignore the Keypad modifier
             curKsl.setKey(possibleKeys.at(pkNum) & 0xdfffffff, index);
