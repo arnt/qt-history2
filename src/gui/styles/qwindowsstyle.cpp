@@ -2896,7 +2896,7 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
 {
     QIcon icon;
     QPixmap pixmap;
-    
+#ifdef Q_OS_WIN
     switch (standardIcon) {
     case SP_DirIcon:
         for (int size = 16 ; size <= 32 ; size += 16) {
@@ -2992,7 +2992,8 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
     default:
         break;
     }
-    
+#endif
+
     if (icon.isNull())
         icon = QIcon(standardPixmap(standardIcon, option, widget));
     
