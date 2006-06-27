@@ -432,8 +432,8 @@ public:
         QByteArray data;
 #if defined(Q_OS_WIN)
         HANDLE handle;
-#else
-        quint32 handle;
+#elif defined(Q_WS_MAC)
+        ATSFontContainerRef handle;
 #endif
         QStringList families;
     };

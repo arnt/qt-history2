@@ -230,6 +230,7 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
                                            kATSOptionFlagsDefault,
                                            &handle);
  
+        fnt->data = QByteArray();
     }
 
     if (e != noErr)
