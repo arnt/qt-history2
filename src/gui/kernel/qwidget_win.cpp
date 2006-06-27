@@ -1541,7 +1541,7 @@ void QWidget::setMask(const QRegion &region)
     if (!testAttribute(Qt::WA_WState_Created))
         return;
 
-    setMask_sys(region);
+    d->setMask_sys(region);
 
 #ifndef QT_NO_BACKINGSTORE
     if (isVisible()) {
@@ -1555,7 +1555,7 @@ void QWidget::setMask(const QRegion &region)
 #endif
 }
 
-void QWidgetPrivate::setMask_sys(const QRegion &region);
+void QWidgetPrivate::setMask_sys(const QRegion &region)
 {
     Q_Q(QWidget);
     // Since SetWindowRegion takes ownership, and we need to translate,
@@ -1564,7 +1564,7 @@ void QWidgetPrivate::setMask_sys(const QRegion &region);
     CombineRgn(wr, region.handle(), 0, RGN_COPY);
 
     QPoint offset = (q->isWindow()
-                     ? q->frameStrut().topLeft()
+                     ? frameStrut().topLeft()
                      : QPoint(0, 0));
     OffsetRgn(wr, offset.x(), offset.y());
 
