@@ -1057,6 +1057,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
     QByteArray buf;
 
     Display *dpy = X11->display;
+    requestor->createWinId();
     Window   win = requestor->internalWinId();
     Q_ASSERT(requestor->testAttribute(Qt::WA_WState_Created));
 
