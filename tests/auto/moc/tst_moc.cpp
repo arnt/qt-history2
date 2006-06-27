@@ -523,7 +523,7 @@ void tst_Moc::trNoopInClassInfo()
     TestClass t;
     const QMetaObject *mobj = t.metaObject();
     QVERIFY(mobj);
-    QCOMPARE(mobj->classInfoCount(), 1);
+    QCOMPARE(mobj->classInfoCount(), 2);
     QCOMPARE(mobj->indexOfClassInfo("help"), 0);
     QCOMPARE(QString(mobj->classInfo(0).value()), QString("Opening this will let you configure something"));
 #else
