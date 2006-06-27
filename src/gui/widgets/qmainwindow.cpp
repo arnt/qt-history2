@@ -921,6 +921,12 @@ bool QMainWindow::event(QEvent *event)
     return QWidget::event(event);
 }
 
+bool QMainWindow::isSeparator(const QPoint &pos) const
+{
+    Q_D(const QMainWindow);
+    return !d->layout->dockWidgetLayout.findSeparator(pos).isEmpty();
+}
+
 /*!
     \reimp
 */

@@ -53,6 +53,8 @@ public:
     bool isAnimationEnabled() const;
     bool isDockNestingEnabled() const;
 
+    bool isSeparator(const QPoint &pos) const;
+
 #ifndef QT_NO_MENUBAR
     QMenuBar *menuBar() const;
     void setMenuBar(QMenuBar *menubar);
