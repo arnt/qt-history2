@@ -385,10 +385,6 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
         return (m_lastWasAPassiveInteractor = true);
     else if (qobject_cast<QMenuBar*>(widget))
         return (m_lastWasAPassiveInteractor = true);
-    else if (qstrcmp(widget->metaObject()->className(), "QDockSeparator") == 0)
-        return (m_lastWasAPassiveInteractor = true);
-    else if (qstrcmp(widget->metaObject()->className(), "QDockWidgetSeparator") == 0)
-        return (m_lastWasAPassiveInteractor = true);
     else if (qstrcmp(widget->metaObject()->className(), "QDockWidgetTitle") == 0)
         return (m_lastWasAPassiveInteractor = true);
     else if (qstrcmp(widget->metaObject()->className(), "QToolBarHandle") == 0)
