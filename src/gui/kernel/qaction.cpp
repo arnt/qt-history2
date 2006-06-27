@@ -289,7 +289,7 @@ QWidget *QAction::parentWidget() const
 /*!
   \since 4.2
   Returns a list of widgets this action has been added to.
-  
+
   \sa QWidget::addAction
 */
 QList<QWidget *> QAction::associatedWidgets() const
@@ -320,22 +320,22 @@ void QAction::setShortcut(const QKeySequence &shortcut)
 /*!
     \since 4.2
 
-    Sets a list of shortcuts that trigger the action. 
+    Sets a list of shortcuts that trigger the action.
     The first element of the list is the primary shortcut.
 */
 void QAction::setShortcuts(const QList<QKeySequence> &shortcuts)
 {
     Q_D(QAction);
-    
+
     QList <QKeySequence> listCopy = shortcuts;
-    
+
     QKeySequence primary;
     if (!listCopy.isEmpty())
         primary = listCopy.takeFirst();
-    
+
     if (d->shortcut == primary && d->alternateShortcuts == listCopy)
         return;
-        
+
     d->shortcut = primary;
     d->alternateShortcuts = listCopy;
     d->redoGrabAlternate(qApp->d_func()->shortcutMap);
@@ -345,16 +345,15 @@ void QAction::setShortcuts(const QList<QKeySequence> &shortcuts)
 /*!
     \since 4.2
 
-    Sets a platform dependent list of shortcuts based on the \a key. 
-    The result of calling this function will depend on the currently running platform. 
-    Note that more than one shortcut can assigned by this action. 
+    Sets a platform dependent list of shortcuts based on the \a key.
+    The result of calling this function will depend on the currently running platform.
+    Note that more than one shortcut can assigned by this action.
     If only the primary shortcut is required, use setShortcut instead.
-    
+
     \sa QKeySequence::keyBindings
 */
 void QAction::setShortcuts(QKeySequence::StandardKey key)
 {
-    Q_D(QAction);
     QList <QKeySequence> list = QKeySequence::keyBindings(key);
     setShortcuts(list);
 }
@@ -373,7 +372,7 @@ QKeySequence QAction::shortcut() const
 /*!
     \since 4.2
 
-    Returns the list of shortcuts, with the primary shortcut as 
+    Returns the list of shortcuts, with the primary shortcut as
     the first element of the list.
 
     \sa setShortcuts()
