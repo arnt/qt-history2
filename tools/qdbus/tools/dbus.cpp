@@ -22,11 +22,11 @@
 #include <QtDBus>
 #include <private/qdbusutil_p.h>
 
-QDBusConnection *connection;
+QDBusConnection connection = QString();
 
 void listObjects(const QString &service, const QString &path)
 {
-    QDBusInterfacePtr iface(*connection, service, path.isEmpty() ? "/" : path,
+    QDBusInterfacePtr iface(connection, service, path.isEmpty() ? "/" : path,
                    "org.freedesktop.DBus.Introspectable");
     if (!iface->isValid()) {
         QDBusError err(iface->lastError());
@@ -56,7 +56,7 @@ void listObjects(const QString &service, const QString &path)
 
 void listInterface(const QString &service, const QString &path, const QString &interface)
 {
-    QDBusInterfacePtr iface(*connection, service, path, interface);
+    QDBusInterfacePtr iface(connection, service, path, interface);
     if (!iface->isValid()) {
         QDBusError err(iface->lastError());
         fprintf(stderr, "Interface '%s' not available in object %s at %s:\n%s (%s)\n",
@@ -110,7 +110,7 @@ void listInterface(const QString &service, const QString &path, const QString &i
 
 void listAllInterfaces(const QString &service, const QString &path)
 {
-    QDBusInterfacePtr iface(*connection, service, path, "org.freedesktop.DBus.Introspectable");
+    QDBusInterfacePtr iface(connection, service, path, "org.freedesktop.DBus.Introspectable");
     if (!iface->isValid()) {
         QDBusError err(iface->lastError());
         fprintf(stderr, "Cannot introspect object %s at %s:\n%s (%s)\n",
@@ -156,7 +156,7 @@ QStringList readList(int &argc, const char *const *&argv)
 void placeCall(const QString &service, const QString &path, const QString &interface,
                const QString &member, int argc, const char *const *argv)
 {
-    QDBusInterfacePtr iface(*connection, service, path, interface);
+    QDBusInterfacePtr iface(connection, service, path, interface);
     if (!iface->isValid()) {
         QDBusError err(iface->lastError());
         fprintf(stderr, "Interface '%s' not available in object %s at %s:\n%s (%s)\n",
@@ -285,19 +285,19 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     if (argc >= 1 && qstrcmp(argv[1], "--system") == 0) {
-        connection = &QDBus::systemBus();
+        connection = QDBus::systemBus();
         --argc;
         ++argv;
     } else
-        connection = &QDBus::sessionBus();
+        connection = QDBus::sessionBus();
 
-    if (!connection->isConnected()) {
+    if (!connection.isConnected()) {
         fprintf(stderr, "Could not connect to D-Bus server: %s: %s\n",
-                qPrintable(connection->lastError().name()),
-                qPrintable(connection->lastError().message()));
+                qPrintable(connection.lastError().name()),
+                qPrintable(connection.lastError().message()));
         return 1;
     }
-    QDBusConnectionInterface *bus = connection->interface();
+    QDBusConnectionInterface *bus = connection.interface();
 
     if (argc == 1) {
         QStringList names = bus->registeredServiceNames();
