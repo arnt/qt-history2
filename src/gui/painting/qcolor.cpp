@@ -246,9 +246,9 @@
 
 #define QCOLOR_REAL_RANGE_CHECK(fn, var) \
     do { \
-        if (var < 0.0 || var > 1.0) { \
+        if (var < qreal(0.0) || var > qreal(1.0)) { \
             qWarning(#fn": invalid value %g", var); \
-            var = qMax(0.0, qMin(var, 1.0)); \
+            var = qMax(qreal(0.0), qMin(var, qreal(1.0)));      \
         } \
     } while (0)
 
