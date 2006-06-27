@@ -3422,13 +3422,16 @@ static void drawLine_midpoint_i(int x1, int y1, int x2, int y2, ProcessSpans spa
         if (y2 <= y1)
             ordered = false;
 
-        if (x>=0 && y>=0 && y < devRect.height()) {
-            Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
-            int index = (ordered ? current : NSPANS - 1 - current);
-            spans[index].len = 1;
+        {
+            const int index = (ordered ? current : NSPANS - 1 - current);
             spans[index].coverage = 255;
             spans[index].x = x;
             spans[index].y = y;
+
+            if (x >= 0 && y >= 0 && y < devRect.height())
+                spans[index].len = 1;
+            else
+                spans[index].len = 0;
         }
 
         if (y2 > y1) { // 315 -> 360 and 135 -> 180 (unit circle degrees)
