@@ -1109,7 +1109,7 @@ void QStandardItem::setCheckable(bool checkable)
     Q_D(QStandardItem);
     if (checkable && !isCheckable()) {
         // make sure there's data for the checkstate role
-        if (data(Qt::CheckStateRole).isValid())
+        if (!data(Qt::CheckStateRole).isValid())
             setData(Qt::CheckStateRole, Qt::Unchecked);
     }
     d->changeFlags(checkable, Qt::ItemIsUserCheckable);
