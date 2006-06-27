@@ -341,6 +341,11 @@ public:
     void insertColumn(int column, const QList<QStandardItem*> &items);
     inline void insertRow(int row, QStandardItem *item);
 
+    inline void insertRow(int row, const QModelIndex &parent = QModelIndex())
+    { QAbstractItemModel::insertRow(row, parent); }
+    inline void insertColumn(int column, const QModelIndex &parent = QModelIndex())
+    { QAbstractItemModel::insertColumn(column, parent); }
+
     QStandardItem *takeItem(int row, int column = 0);
     QList<QStandardItem*> takeRow(int row);
     QList<QStandardItem*> takeColumn(int column);
