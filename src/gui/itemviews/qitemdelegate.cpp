@@ -511,7 +511,6 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 
     d->textOption.setWrapMode(QTextOption::NoWrap);
     d->textOption.setTextDirection(option.direction);
-    d->textOption.setAlignment(option.displayAlignment);
     d->textLayout.setTextOption(d->textOption);
     d->textLayout.setFont(option.font);
     d->textLayout.setText(QString(text).replace(QLatin1Char('\n'), QChar::LineSeparator));
@@ -880,7 +879,7 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 /*!
   \internal
 */
-QRect QItemDelegate::textRectangle(QPainter *painter, const QRect &rect,
+QRect QItemDelegate::textRectangle(QPainter * /* painter */, const QRect & /* rect */,
                                    const QFont &font, const QString &text) const
 {
     QFontMetrics fontMetrics(font);
