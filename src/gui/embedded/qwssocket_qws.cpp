@@ -197,12 +197,14 @@ void QWSServerSocket::init(const QString &file)
     strncpy(a.sun_path, fn.constData(), sizeof(a.sun_path) - 1);
     int r = ::bind(s, (struct sockaddr*)&a, SUN_LEN(&a));
     if (r < 0) {
+        perror("QWSServerSocket::init");
         qWarning("QWSServerSocket: could not bind to file %s", fn.constData());
         ::close(s);
         return;
     }
 
     if (chmod(fn.constData(), 0600) < 0) {
+        perror("QWSServerSocket::init");
         qWarning("Could not set permissions of %s", fn.constData());
         ::close(s);
         return;
@@ -213,6 +215,7 @@ void QWSServerSocket::init(const QString &file)
         if (!setSocketDescriptor(s))
             qWarning( "QWSServerSocket could not set descriptor %d : %s", s, errorString().toLatin1().constData());
     } else {
+        perror("QWSServerSocket::init");
         qWarning("QWSServerSocket: could not listen to file %s", fn.constData());
         ::close(s);
     }
