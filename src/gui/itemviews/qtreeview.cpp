@@ -2266,6 +2266,8 @@ int QTreeViewPrivate::itemAtCoordinate(int coordinate) const
 {
     Q_Q(const QTreeView);
     const int itemCount = viewItems.count();
+    if (itemCount == 0)
+        return -1;
     if (verticalScrollMode == QAbstractItemView::ScrollPerPixel) {
         if (uniformRowHeights) {
             Q_ASSERT(defaultItemHeight != 0);
