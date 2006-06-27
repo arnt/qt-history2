@@ -566,7 +566,7 @@ void populate_database(const QString& fam)
 
     for (int i = 0; i < d->applicationFonts.count(); ++i) {
         QFontDatabasePrivate::ApplicationFont fnt = d->applicationFonts.at(i);
-        if (fnt.data.isEmpty())
+        if (!fnt.memoryFont)
             continue;
         for (int j = 0; j < fnt.families.count(); ++j) {
             const QString familyName = fnt.families.at(j);
@@ -1181,6 +1181,8 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
 
         fnt->families = families;
         fnt->handle = handle;
+        fnt->data = QByteArray();
+        fnt->memoryFont = true;
     } else {
         QFile f(fnt->fileName);
         if (!f.open(QIODevice::ReadOnly))
@@ -1198,6 +1200,7 @@ static void registerFont(QFontDatabasePrivate::ApplicationFont *fnt)
             return;
 
         fnt->families = families;
+        fnt->memoryFont = false;
     }
 }
 
@@ -1209,7 +1212,7 @@ bool QFontDatabase::removeApplicationFont(int handle)
 
     const QFontDatabasePrivate::ApplicationFont font = db->applicationFonts.at(handle);
     db->applicationFonts[handle] = QFontDatabasePrivate::ApplicationFont();
-    if (!font.data.isEmpty()) {
+    if (font.memoryFont) {
         PtrRemoveFontMemResourceEx ptrRemoveFontMemResourceEx = (PtrRemoveFontMemResourceEx)QLibrary::resolve("gdi32", "RemoveFontMemResourceEx");
         if (!ptrRemoveFontMemResourceEx)
             return false;

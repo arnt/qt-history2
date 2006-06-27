@@ -432,6 +432,7 @@ public:
         QByteArray data;
 #if defined(Q_OS_WIN)
         HANDLE handle;
+        bool memoryFont;
 #elif defined(Q_WS_MAC)
         ATSFontContainerRef handle;
 #endif
