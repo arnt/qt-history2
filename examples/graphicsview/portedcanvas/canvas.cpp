@@ -170,7 +170,7 @@ void FigureEditor::clear()
 BouncyLogo::BouncyLogo() :
     xvel(0), yvel(0)
 {
-    setPixmap(QPixmap("qt-trans.xpm"));
+    setPixmap(QPixmap(":/trolltech/examples/graphicsview/portedcanvas/qt-trans.xpm"));
 }
 
 const int logo_rtti = 1234;

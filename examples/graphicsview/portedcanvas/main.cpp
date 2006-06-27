@@ -20,12 +20,12 @@ int main(int argc, char** argv)
     if ( argc > 1 )
 	butterfly_fn = argv[1];
     else
-	butterfly_fn = "butterfly.png";
+	butterfly_fn = ":/trolltech/examples/graphicsview/portedcanvas/butterfly.png";
     
     if ( argc > 2 )
 	logo_fn = argv[2];
     else
-	logo_fn = "qtlogo.png";
+	logo_fn = ":/trolltech/examples/graphicsview/portedcanvas/qtlogo.png";
     
     QGraphicsScene canvas;
     canvas.setSceneRect(0, 0, 800, 600);
