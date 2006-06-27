@@ -29,6 +29,8 @@ bool USE_OPENGL = false;
 
 class QDesignerFormEditorInterface;
 
+bool USE_OPENGL = false;
+
 class PathDeformRendererEx : public PathDeformRenderer
 {
     Q_OBJECT
