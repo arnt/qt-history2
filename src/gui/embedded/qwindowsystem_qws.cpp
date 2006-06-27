@@ -1274,7 +1274,7 @@ void QWSServerPrivate::_q_clientClosed()
     cl->deleteLater();
 
     exposeRegion(exposed);
-//    syncRegions();
+    update_regions();
 }
 
 void QWSServerPrivate::_q_deleteWindowsLater()
@@ -1542,7 +1542,7 @@ void QWSServer::refresh()
 {
     Q_D(QWSServer);
     d->exposeRegion(QRegion(0, 0, d->swidth, d->sheight));
-//    syncRegions();
+    d->update_regions();
 }
 
 /*!
@@ -1555,7 +1555,7 @@ void QWSServer::refresh(QRegion & r)
 {
     Q_D(QWSServer);
     d->exposeRegion(r);
-//    syncRegions();
+    d->update_regions();
 }
 
 /*!
@@ -2251,7 +2251,7 @@ void QWSServerPrivate::invokeRegionDestroy(const QWSRegionDestroyCommand *cmd, Q
             break;
         }
     }
-//    syncRegions();
+    update_regions();
     handleWindowClose(changingw);
 #ifndef QT_NO_QWS_PROPERTIES
     propertyManager.removeProperties(changingw->winId());
@@ -2704,7 +2704,7 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
     if (windowPos != newPos) {
         exposeRegion(changingw->requestedRegion(), newPos); //### exposes too much, including what was already visible
     }
-//    syncRegions(changingw);
+    update_regions();
     emit q->windowEvent(changingw, QWSServer::Raise);
 }
 
