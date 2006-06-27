@@ -161,7 +161,8 @@ void QWSWindowSurface::resize(const QSize &size)
 
     QWidget::qwsDisplay()->requestRegion(window()->data->winid,
                                          key(), data(), region);
-    d_ptr->dirty = region.translated(-window()->geometry().topLeft());
+
+    setDirty(region.translated(-window()->geometry().topLeft()));
 }
 
 static inline void flushUpdate(QWidget *widget, const QRegion &region,
