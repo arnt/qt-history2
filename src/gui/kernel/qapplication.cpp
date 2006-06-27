@@ -1730,7 +1730,7 @@ void QApplicationPrivate::setFocusWidget(QWidget *focus, Qt::FocusReason reason)
             }
             if(focus && QApplicationPrivate::focus_widget == focus) {
                 QInputContext *qic = focus->inputContext();
-                if ( qic )
+                if (qic && focus_widget->testAttribute(Qt::WA_WState_Created))
 	            qic->setFocusWidget( focus_widget );
                 QFocusEvent in(QEvent::FocusIn, reason);
                 QApplication::sendEvent(focus, &in);

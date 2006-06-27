@@ -679,6 +679,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             qt_x11_enforce_cursor(q);
     }
 
+    if (q->testAttribute(Qt::WA_InputMethodEnabled))
+        q->inputContext()->setFocusWidget(q);
+
+
     if (destroyw)
         qt_XDestroyWindow(q, dpy, destroyw);
 
