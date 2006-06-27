@@ -183,6 +183,98 @@ void QFontEngine::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs,
     addGlyphsToPath(positioned_glyphs.data(), positions.data(), positioned_glyphs.size(), path, flags);
 }
 
+#define GRID(x, y) grid[(y)*(w+1) + (x)]
+#define SET(x, y) (*(image_data + (y)*bpl + ((x) >> 3)) & (0x80 >> ((x) & 7)))
+
+enum { EdgeRight = 0x1,
+       EdgeDown = 0x2,
+       EdgeLeft = 0x4,
+       EdgeUp = 0x8
+};
+
+static void collectSingleContour(qreal x0, qreal y0, uint *grid, int x, int y, int w, int h, QPainterPath *path)
+{
+    path->moveTo(x + x0, y + y0);
+    while (GRID(x, y)) {
+        if (GRID(x, y) & EdgeRight) {
+            while (GRID(x, y) & EdgeRight) {
+                GRID(x, y) &= ~EdgeRight;
+                ++x;
+            }
+            Q_ASSERT(x <= w);
+            path->lineTo(x + x0, y + y0);
+            continue;
+        }
+        if (GRID(x, y) & EdgeDown) {
+            while (GRID(x, y) & EdgeDown) {
+                GRID(x, y) &= ~EdgeDown;
+                ++y;
+            }
+            Q_ASSERT(y <= h);
+            path->lineTo(x + x0, y + y0);
+            continue;
+        }
+        if (GRID(x, y) & EdgeLeft) {
+            while (GRID(x, y) & EdgeLeft) {
+                GRID(x, y) &= ~EdgeLeft;
+                --x;
+            }
+            Q_ASSERT(x >= 0);
+            path->lineTo(x + x0, y + y0);
+            continue;
+        }
+        if (GRID(x, y) & EdgeUp) {
+            while (GRID(x, y) & EdgeUp) {
+                GRID(x, y) &= ~EdgeUp;
+                --y;
+            }
+            Q_ASSERT(y >= 0);
+            path->lineTo(x + x0, y + y0);
+            continue;
+        }
+    }
+    path->closeSubpath();
+}
+
+void qt_addBitmapToPath(qreal x0, qreal y0, const uchar *image_data, int bpl, int w, int h, QPainterPath *path)
+{
+    uint *grid = new uint[(w+1)*(h+1)];
+    // set up edges
+    for (int y = 0; y <= h; ++y) {
+        for (int x = 0; x <= w; ++x) {
+            bool topLeft = (x == 0)|(y == 0) ? false : SET(x - 1, y - 1);
+            bool topRight = (x == w)|(y == 0) ? false : SET(x, y - 1);
+            bool bottomLeft = (x == 0)|(y == h) ? false : SET(x - 1, y);
+            bool bottomRight = (x == w)|(y == h) ? false : SET(x, y);
+
+            GRID(x, y) = 0;
+            if ((!topRight) & bottomRight)
+                GRID(x, y) |= EdgeRight;
+            if ((!bottomRight) & bottomLeft)
+                GRID(x, y) |= EdgeDown;
+            if ((!bottomLeft) & topLeft)
+                GRID(x, y) |= EdgeLeft;
+            if ((!topLeft) & topRight)
+                GRID(x, y) |= EdgeUp;
+        }
+    }
+
+    // collect edges
+    for (int y = 0; y < h; ++y) {
+        for (int x = 0; x < w; ++x) {
+            if (!GRID(x, y))
+                continue;
+            // found start of a contour, follow it
+            collectSingleContour(x0, y0, grid, x, y, w, h, path);
+        }
+    }
+    delete [] grid;
+}
+
+#undef GRID
+#undef SET
+
+
 void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
                                       QPainterPath *path, QTextItem::RenderFlags flags)
 {
@@ -208,9 +300,11 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     p.drawTextItem(QPointF(0, item.ascent.toReal()), item);
     p.end();
 
-    QRegion region(bm);
-    region.translate(qRound(x), qRound(y - item.ascent.toReal()));
-    path->addRegion(region);
+    QImage image = bm.toImage();
+    image = image.convertToFormat(QImage::Format_Mono);
+    const uchar *image_data = image.bits();
+    uint bpl = image.bytesPerLine();
+    qt_addBitmapToPath(x, y - item.ascent.toReal(), image_data, bpl, image.width(), image.height(), path);
 }
 
 QImage QFontEngine::alphaMapForGlyph(glyph_t glyph)

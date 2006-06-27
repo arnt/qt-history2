@@ -412,6 +412,8 @@ static void addGlyphToPath(FT_GlyphSlot g, const QFixedPoint &point, QPainterPat
     }
 }
 
+extern void qt_addBitmapToPath(qreal x0, qreal y0, const uchar *image_data, int bpl, int w, int h, QPainterPath *path);
+
 static void addBitmapToPath(FT_GlyphSlot slot, const QFixedPoint &point, QPainterPath *path, bool = false)
 {
     if (slot->format != FT_GLYPH_FORMAT_BITMAP
@@ -419,28 +421,8 @@ static void addBitmapToPath(FT_GlyphSlot slot, const QFixedPoint &point, QPainte
         return;
 
     QPointF cp = point.toPointF();
-
-    uchar *src = slot->bitmap.buffer;
-    int h = slot->bitmap.rows;
-    int w = slot->bitmap.width;
-    for (int y = 0; y < h; ++y) {
-        for (int x = 0; x < w; ++x) {
-            uchar pixel = src[x >> 3];
-            if (!pixel) {
-                x += 8;
-                continue;
-            }
-            if (pixel & (0x80 >> (x & 7))) {
-                int rx = x;
-                while (x < w && src[(x+1) >> 3] & (0x80 >> ((x+1) & 7)))
-                    ++x;
-                path->addRect(QRectF(cp.x() + rx + TRUNC(slot->metrics.horiBearingX),
-                                     cp.y() + y - TRUNC(slot->metrics.horiBearingY),
-                                     x - rx + 1, 1));
-            }
-        }
-        src += slot->bitmap.pitch;
-    }
+    qt_addBitmapToPath(cp.x() + TRUNC(slot->metrics.horiBearingX), cp.y() - TRUNC(slot->metrics.horiBearingY),
+                       slot->bitmap.buffer, slot->bitmap.pitch, slot->bitmap.width, slot->bitmap.rows, path);
 }
 
 #endif // QT_NO_FREETYPE
