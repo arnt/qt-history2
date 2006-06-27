@@ -348,7 +348,7 @@ QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title
     msgLabel->setTextFormat(Qt::PlainText);
     msgLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
-    QStyle::StandardPixmap p=QStyle::SP_MessageBoxWarning;
+    QStyle::StandardPixmap p;
     switch (icon) {
     case QSystemTrayIcon::Warning:
         p = QStyle::SP_MessageBoxWarning;
@@ -359,6 +359,7 @@ QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title
     case QSystemTrayIcon::Information:
         p = QStyle::SP_MessageBoxInformation;
         break;
+    case QSystemTrayIcon::NoIcon:
     default:
         break;
     }
