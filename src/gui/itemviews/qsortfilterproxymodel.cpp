@@ -903,6 +903,11 @@ void QSortFilterProxyModelPrivate::_q_sourceLayoutAboutToBeChanged()
 void QSortFilterProxyModelPrivate::_q_sourceLayoutChanged()
 {
     Q_Q(QSortFilterProxyModel);
+    if (saved_persistent_indexes.isEmpty()) {
+        q->clear();
+        return;
+    }
+
     QModelIndexList source_indexes;
     QList<QPersistentModelIndex>::const_iterator it;
     it = saved_persistent_indexes.begin();
