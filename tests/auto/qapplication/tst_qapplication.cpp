@@ -101,8 +101,9 @@ void tst_QApplication::getSetCheck()
     MyInputContext *var1 = new MyInputContext;
     obj1.setInputContext(var1);
     QCOMPARE(var1, obj1.inputContext());
+    QTest::ignoreMessage(QtWarningMsg, "QApplication::setInputContext: called with 0 input context");
     obj1.setInputContext((QInputContext *)0);
-    QCOMPARE((QInputContext *)0, obj1.inputContext());
+    QCOMPARE(var1, obj1.inputContext());
     // delete var1; // No delete, since QApplication takes ownership
 }
 
