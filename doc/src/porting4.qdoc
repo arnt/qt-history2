@@ -890,8 +890,8 @@
     \row \o \c QCanvasView \o Q3CanvasView
     \endtable
 
-    A replacement module for these classes, based on Qt 4's powerful
-    painting system, is planned for release as part of Qt 4.2.
+    \l{The Graphics View Framework} replaces QCanvas. For more on porting to
+    Graphics View, see \l {Porting to Graphics View}.
 
     \section1 QColor
 

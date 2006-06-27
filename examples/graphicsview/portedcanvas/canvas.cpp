@@ -529,6 +529,7 @@ void Main::addCircle()
 {
     QAbstractGraphicsShapeItem* i = canvas.addEllipse(QRectF(0,0,50,50));
     i->setFlag(QGraphicsItem::ItemIsMovable);
+    i->setPen(Qt::NoPen);
     i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
     i->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
     i->setZValue(rand()%256);
@@ -546,6 +547,7 @@ void Main::addHexagon()
     pa[5] = QPoint(size,size*173/100);
     QGraphicsPolygonItem* i = canvas.addPolygon(pa);
     i->setFlag(QGraphicsItem::ItemIsMovable);
+    i->setPen(Qt::NoPen);
     i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
     i->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
     i->setZValue(rand()%256);
@@ -563,6 +565,7 @@ void Main::addPolygon()
     pa[5] = QPoint(size*3/4,size/4);
     QGraphicsPolygonItem* i = canvas.addPolygon(pa);
     i->setFlag(QGraphicsItem::ItemIsMovable);
+    i->setPen(Qt::NoPen);
     i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
     i->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
     i->setZValue(rand()%256);
@@ -588,16 +591,12 @@ void Main::addSpline()
 
     QPainterPath path;
     path.moveTo(pa[0]);
-    for (int i = 1; i < pa.size(); i += 3) {
+    for (int i = 1; i < pa.size(); i += 3)
         path.cubicTo(pa[i], pa[(i + 1) % pa.size()], pa[(i + 2) % pa.size()]);
-    }
-
-
-
-    path.closeSubpath();
 
     QGraphicsPathItem* i = canvas.addPath(path);
     i->setFlag(QGraphicsItem::ItemIsMovable);
+    i->setPen(Qt::NoPen);
     i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
     i->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
     i->setZValue(rand()%256);

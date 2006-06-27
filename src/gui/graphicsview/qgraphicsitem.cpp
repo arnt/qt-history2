@@ -290,6 +290,7 @@
 #include <QtCore/qbitarray.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qpoint.h>
+#include <QtCore/qtimer.h>
 #include <QtCore/qvariant.h>
 #include <QtGui/qapplication.h>
 #include <QtGui/qbitmap.h>
@@ -2879,6 +2880,43 @@ void QGraphicsItem::removeFromIndex()
 }
 
 /*!
+    Prepares the item for a geometry change. Call this function before
+    changing the bounding rect of an item to keep QGraphicsScene's index up to
+    date.
+
+    prepareGeometryChange() will call update() if this is necessary.
+
+    Example:
+
+    \code
+        void CircleItem::setRadius(qreal newRadius)
+        {
+            if (radius != newRadius) {
+                prepareGeometryChange();
+                radius = newRadius;
+            }
+        }
+    \endcode
+
+    \sa boundingRect()
+*/
+void QGraphicsItem::prepareGeometryChange()
+{
+    if (d_ptr->scene) {
+        QGraphicsScenePrivate *scenePrivate = d_ptr->scene->d_func();
+        if (d_ptr->index != -1) {
+            update();
+            scenePrivate->removeFromIndex(this);
+        }
+        scenePrivate->newItems << this;
+        if (!scenePrivate->calledEmitUpdated) {
+            scenePrivate->calledEmitUpdated = true;
+            QTimer::singleShot(0, d_ptr->scene, SLOT(_q_emitUpdated()));
+        }
+    }
+}
+
+/*!
     \class QAbstractGraphicsShapeItem
     \brief The QAbstractGraphicsShapeItem class provides a common base for
     all path items.
@@ -3350,6 +3388,10 @@ QVariant QGraphicsRectItem::extension(const QVariant &variant) const
     \since 4.2
     \ingroup multimedia
 
+    QGraphicsEllipseItem respresents an ellipse with a fill and an outline,
+    and you can also use it for ellipse segments (see startAngle(),
+    spanAngle()).
+    
     To set the item's ellipse, pass a QRectF to QGraphicsEllipseItem's
     constructor, or call setRect(). rect() returns the current ellipse
     geometry.
@@ -3360,6 +3402,7 @@ QVariant QGraphicsRectItem::extension(const QVariant &variant) const
     brush, which you can set by calling setPen() and setBrush().
 
     \img graphicsview-ellipseitem.png
+    \img graphicsview-ellipseitem-pie.png
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsPolygonItem,
     QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, {The Graphics
@@ -3370,7 +3413,13 @@ class QGraphicsEllipseItemPrivate : public QAbstractGraphicsShapeItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsEllipseItem)
 public:
+    inline QGraphicsEllipseItemPrivate()
+        : startAngle(0), spanAngle(360 * 16)
+    { }
+    
     QRectF rect;
+    int startAngle;
+    int spanAngle;
 };
 
 /*!
@@ -3429,6 +3478,66 @@ void QGraphicsEllipseItem::setRect(const QRectF &rect)
 }
 
 /*!
+    Returns the start angle for an ellipse segment in 16ths of a degree. This
+    angle is used together with spanAngle() for representing an ellipse
+    segment (a pie). By default, the start angle is 0.
+
+    \sa setStartAngle(), spanAngle()
+*/
+int QGraphicsEllipseItem::startAngle() const
+{
+    Q_D(const QGraphicsEllipseItem);
+    return d->startAngle;
+}
+
+/*!
+    Sets the start angle for an ellipse segment to \a angle, which is in 16ths
+    of a degree. This angle is used together with spanAngle() for representing
+    an ellipse segment (a pie). By default, the start angle is 0.
+
+    \sa startAngle(), setSpanAngle(), QPainter::drawPie()
+*/
+void QGraphicsEllipseItem::setStartAngle(int angle)
+{
+    Q_D(QGraphicsEllipseItem);
+    if (angle != d->startAngle) {
+        d->startAngle = angle;
+        update();
+    }
+}
+
+/*!
+    Returns the span angle of an ellipse segment in 16ths of a degree. This
+    angle is used together with startAngle() for representing an ellipse
+    segment (a pie). By default, this function returns 5760 (360 * 16, a full
+    ellipse).
+
+    \sa setSpanAngle(), startAngle()
+*/
+int QGraphicsEllipseItem::spanAngle() const
+{
+    Q_D(const QGraphicsEllipseItem);
+    return d->spanAngle;
+}
+
+/*!
+    Sets the span angle for an ellipse segment to \a agnel, which is in 16ths
+    of a degree. This angle is used together with startAngle() to represent an
+    ellipse segment (a pie). By default, the span angle is 5760 (360 * 16, a
+    full ellipse).
+
+    \sa spanAngle(), setStartAngle(), QPainter::drawPie()
+*/
+void QGraphicsEllipseItem::setSpanAngle(int angle)
+{
+    Q_D(QGraphicsEllipseItem);
+    if (angle != d->spanAngle) {
+        d->spanAngle = angle;
+        update();
+    }
+}
+
+/*!
     \reimp
 */
 QRectF QGraphicsEllipseItem::boundingRect() const
@@ -3446,7 +3555,8 @@ QPainterPath QGraphicsEllipseItem::shape() const
 {
     Q_D(const QGraphicsEllipseItem);
     QPainterPath path;
-    path.addEllipse(d->rect);
+    path.moveTo(d->rect.center());
+    path.arcTo(d->rect, d->startAngle / 16.0, d->spanAngle / 16.0);
     return path;
 }
 
@@ -3468,7 +3578,7 @@ void QGraphicsEllipseItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     Q_UNUSED(widget);
     painter->setPen(d->pen);
     painter->setBrush(d->brush);
-    painter->drawEllipse(d->rect);
+    painter->drawPie(d->rect, d->startAngle, d->spanAngle);
 
     if (option->state & QStyle::State_Selected) {
         painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
@@ -3539,7 +3649,12 @@ class QGraphicsPolygonItemPrivate : public QAbstractGraphicsShapeItemPrivate
 {
     Q_DECLARE_PUBLIC(QGraphicsPolygonItem)
 public:
+    inline QGraphicsPolygonItemPrivate()
+        : fillRule(Qt::OddEvenFill)
+    { }
+    
     QPolygonF polygon;
+    Qt::FillRule fillRule;
 };
 
 /*!
@@ -3596,6 +3711,33 @@ void QGraphicsPolygonItem::setPolygon(const QPolygonF &polygon)
 }
 
 /*!
+     Returns the fill rule of the polygon. The default fill rule is
+     Qt::OddEvenFill.
+
+     \sa setFillRule(), QPainterPath::fillRule(), QPainter::drawPolygon()
+*/
+Qt::FillRule QGraphicsPolygonItem::fillRule() const
+{
+     Q_D(const QGraphicsPolygonItem);
+     return d->fillRule;
+}
+
+/*!
+     Sets the fill rule of the polygon to \a rule. The default fill rule is
+     Qt::OddEvenFill.
+
+     \sa fillRule(), QPainterPath::fillRule(), QPainter::drawPolygon()
+*/
+void QGraphicsPolygonItem::setFillRule(Qt::FillRule rule)
+{
+     Q_D(QGraphicsPolygonItem);
+     if (rule != d->fillRule) {
+         d->fillRule = rule;
+         update();
+     }
+}
+
+/*!
     \reimp
 */
 QRectF QGraphicsPolygonItem::boundingRect() const
@@ -3634,7 +3776,7 @@ void QGraphicsPolygonItem::paint(QPainter *painter, const QStyleOptionGraphicsIt
     Q_UNUSED(widget);
     painter->setPen(d->pen);
     painter->setBrush(d->brush);
-    painter->drawPolygon(d->polygon);
+    painter->drawPolygon(d->polygon, d->fillRule);
 
     if (option->state & QStyle::State_Selected) {
         painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));

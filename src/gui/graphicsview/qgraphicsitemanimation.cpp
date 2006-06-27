@@ -19,6 +19,14 @@
     \ingroup multimedia
 */
 
+/*!
+    \fn void QGraphicsItemAnimation::newTransformation(const QPointF &pos, const QMatrix &matrix);
+
+    This signal is emitted whenever the current transformation has changed
+    (i.e., by calling QGraphicsItemAnimation::setStep()). \a pos is the target
+    item's new position, and \a matrix is its new transformation.
+*/
+
 #include "qgraphicsitemanimation.h"
 
 #ifndef QT_NO_GRAPHICSVIEW
@@ -267,7 +275,7 @@ qreal QGraphicsItemAnimation::yTranslationAt(qreal step) const
   Sets the translation of the item at the given \a step value using the horizontal
   and vertical coordinates specified by \a dx and \a dy.
 
-  \sa translationAt()
+  \sa xTranslationAt(), yTranslationAt()
 */
 void QGraphicsItemAnimation::setTranslationAt(qreal step, qreal dx, qreal dy)
 {
@@ -312,7 +320,7 @@ qreal QGraphicsItemAnimation::horizontalScaleAt(qreal step) const
   Sets the scale of the item at the given \a step value using the horizontal and
   vertical scale factors specified by \a sx and \a sy.
 
-  \sa scaleAt()
+  \sa verticalScaleAt(), horizontalScaleAt()
 */
 void QGraphicsItemAnimation::setScaleAt(qreal step, qreal sx, qreal sy)
 {
@@ -357,7 +365,7 @@ qreal QGraphicsItemAnimation::horizontalShearAt(qreal step) const
   Sets the shear of the item at the given \a step value using the horizontal and
   vertical shear factors specified by \a sh and \a sv.
 
-  \sa shearAt()
+  \sa verticalShearAt(), horizontalShearAt()
 */
 void QGraphicsItemAnimation::setShearAt(qreal step, qreal sh, qreal sv)
 {

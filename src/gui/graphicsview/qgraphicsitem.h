@@ -263,6 +263,7 @@ protected:
 
     void addToIndex();
     void removeFromIndex();
+    void prepareGeometryChange();
 
 private:
     Q_DISABLE_COPY(QGraphicsItem)
@@ -368,10 +369,19 @@ class Q_GUI_EXPORT QGraphicsEllipseItem : public QAbstractGraphicsShapeItem
 public:
     QGraphicsEllipseItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
     QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
+    QGraphicsEllipseItem(qreal x, qreal y, qreal w, qreal h, QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
     ~QGraphicsEllipseItem();
 
     QRectF rect() const;
     void setRect(const QRectF &rect);
+    inline void setRect(qreal x, qreal y, qreal w, qreal h)
+    { setRect(QRectF(x, y, w, h)); }
+
+    int startAngle() const;
+    void setStartAngle(int angle);
+
+    int spanAngle() const;
+    void setSpanAngle(int angle);
 
     QRectF boundingRect() const;
     QPainterPath shape() const;
@@ -404,6 +414,9 @@ public:
     QPolygonF polygon() const;
     void setPolygon(const QPolygonF &polygon);
 
+    Qt::FillRule fillRule() const;
+    void setFillRule(Qt::FillRule rule);
+
     QRectF boundingRect() const;
     QPainterPath shape() const;
     bool contains(const QPointF &point) const;
@@ -429,6 +442,7 @@ class Q_GUI_EXPORT QGraphicsLineItem : public QGraphicsItem
 public:
     QGraphicsLineItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
     QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
+    QGraphicsLineItem(qreal x1, qreal y1, qreal x2, qreal y2, QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
     ~QGraphicsLineItem();
 
     QPen pen() const;
@@ -436,6 +450,8 @@ public:
 
     QLineF line() const;
     void setLine(const QLineF &line);
+    inline void setLine(qreal x1, qreal y1, qreal x2, qreal y2)
+    { setLine(QLineF(x1, y1, x2, y2)); }
 
     QRectF boundingRect() const;
     QPainterPath shape() const;

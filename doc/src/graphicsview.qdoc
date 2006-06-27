@@ -23,7 +23,8 @@
     scenes in real-time, even with millions of items.
 
     Graphics View was introduced in Qt 4.2, replacing its predecessor,
-    QCanvas.
+    QCanvas. If you are porting from QCanvas, see \l{Porting to Graphics
+    View}.
 
     Topics:
 
