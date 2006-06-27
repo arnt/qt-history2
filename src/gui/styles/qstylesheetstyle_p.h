@@ -35,7 +35,7 @@
 // We mean it.
 //
 
-struct Q_AUTOTEST_EXPORT BorderImageData : public QSharedData
+struct Q_AUTOTEST_EXPORT QStyleSheetBorderImageData : public QSharedData
 {
     QPixmap topEdge, bottomEdge, leftEdge, rightEdge, middle;
     QRect topEdgeRect, bottomEdgeRect, leftEdgeRect, rightEdgeRect, middleRect;
@@ -48,9 +48,9 @@ struct Q_AUTOTEST_EXPORT BorderImageData : public QSharedData
     void cutBorderImage();
 };
 
-struct Q_AUTOTEST_EXPORT BackgroundData : public QSharedData
+struct Q_AUTOTEST_EXPORT QStyleSheetBackgroundData : public QSharedData
 {
-    BackgroundData() : position(Qt::AlignTop | Qt::AlignLeft),
+    QStyleSheetBackgroundData() : position(Qt::AlignTop | Qt::AlignLeft),
                         origin(QCss::PaddingOrigin), repeat(QCss::RepeatXY) { }
     QPixmap pixmap;
     Qt::Alignment position;
@@ -58,9 +58,9 @@ struct Q_AUTOTEST_EXPORT BackgroundData : public QSharedData
     QCss::Repeat repeat;
 };
 
-struct Q_AUTOTEST_EXPORT BoxData : public QSharedData
+struct Q_AUTOTEST_EXPORT QStyleSheetBoxData : public QSharedData
 {
-    BoxData() : bi(0)
+    QStyleSheetBoxData() : bi(0)
     {
         for (int i = 0; i < 4; i++) {
             margins[i] = borders[i] = paddings[i] = 0;
@@ -76,19 +76,20 @@ struct Q_AUTOTEST_EXPORT BoxData : public QSharedData
     QColor colors[4];
 
     QSize radii[4]; // topleft, topright, bottomleft, bottomright
-    BorderImageData *borderImage() { if (!bi) bi = new BorderImageData; return bi; }
+    QStyleSheetBorderImageData *borderImage() 
+    { if (!bi) bi = new QStyleSheetBorderImageData; return bi; }
     bool hasBorderImage() const { return bi!=0; }
-    QSharedDataPointer<BorderImageData> bi;
+    QSharedDataPointer<QStyleSheetBorderImageData> bi;
 };
 
-struct Q_AUTOTEST_EXPORT FocusRectData : public QSharedData
+struct Q_AUTOTEST_EXPORT QStyleSheetFocusRectData : public QSharedData
 {
     QColor color;
     int width;
     QCss::BorderStyle style;
 };
 
-struct Q_AUTOTEST_EXPORT Palette : public QSharedData
+struct Q_AUTOTEST_EXPORT QStyleSheetPalette : public QSharedData
 {
     QBrush foreground;
     QBrush background;
@@ -111,10 +112,14 @@ public:
     QRect contentsRect(const QRect& r) const;
     QRect boxRect(const QRect& r) const;
 
-    inline Palette *palette() const { if (!pal) pal = new Palette(); return pal; }
-    inline BoxData *box() const { if (!b) b = new BoxData(); return b; }
-    inline BackgroundData *background() const { if (!bg) bg = new BackgroundData(); return bg; }
-    inline FocusRectData *focusRect() const { if (!fr) fr = new FocusRectData(); return fr; }
+    inline QStyleSheetPalette *palette() const 
+    { if (!pal) pal = new QStyleSheetPalette(); return pal; }
+    inline QStyleSheetBoxData *box() const 
+    { if (!b) b = new QStyleSheetBoxData(); return b; }
+    inline QStyleSheetBackgroundData *background() const 
+    { if (!bg) bg = new QStyleSheetBackgroundData(); return bg; }
+    inline QStyleSheetFocusRectData *focusRect() const 
+    { if (!fr) fr = new QStyleSheetFocusRectData(); return fr; }
 
     void cutBorderImage();
 
@@ -126,10 +131,10 @@ public:
     QHash<QString, QPixmap> pixmaps;
 
 private:
-    mutable QSharedDataPointer<Palette> pal;
-    mutable QSharedDataPointer<BoxData> b;
-    mutable QSharedDataPointer<FocusRectData> fr;
-    mutable QSharedDataPointer<BackgroundData> bg;
+    mutable QSharedDataPointer<QStyleSheetPalette> pal;
+    mutable QSharedDataPointer<QStyleSheetBoxData> b;
+    mutable QSharedDataPointer<QStyleSheetFocusRectData> fr;
+    mutable QSharedDataPointer<QStyleSheetBackgroundData> bg;
 };
 
 class QStyleSheetStyle : public QCommonStyle

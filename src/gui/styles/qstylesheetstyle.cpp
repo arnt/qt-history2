@@ -106,7 +106,7 @@ void QRenderRule::merge(const QVector<Declaration>& decls)
 
     if (hasBorderImage) {
         // inspect the border image
-        BorderImageData *borderImage = box()->borderImage();
+        QStyleSheetBorderImageData *borderImage = box()->borderImage();
         const QPixmap& pixmap = borderImage->pixmap;
         if (pixmap.isNull()) {
             box()->bi = 0; // delete it
@@ -155,7 +155,7 @@ QRect QRenderRule::boxRect(const QRect& cr) const
                         p[BottomEdge] + b[BottomEdge] + m[BottomEdge]);
 }
 
-void BorderImageData::cutBorderImage()
+void QStyleSheetBorderImageData::cutBorderImage()
 {
     const int w = pixmap.width();
     const int h = pixmap.height();
@@ -454,7 +454,7 @@ static void qDrawBorderImage(QPainter *p, const QRenderRule &rule, const QRect& 
 {
     const QRect br = rule.borderRect(rect);
     const QRect pr = rule.paddingRect(rect);
-    const BorderImageData* bi = rule.box()->borderImage();
+    const QStyleSheetBorderImageData* bi = rule.box()->borderImage();
     const int *borders = rule.box()->borders;
     const int& l = borders[LeftEdge];
     const int& r = borders[RightEdge];
@@ -571,7 +571,7 @@ static void qDrawBackground(QPainter *p, const QRenderRule &rule, const QRect& r
     if (!rule.hasBackground())
         return;
     QRect r;
-    BackgroundData *background = rule.background();
+    QStyleSheetBackgroundData *background = rule.background();
     switch (background->origin) {
         case PaddingOrigin:
             r = rule.paddingRect(rect);
@@ -617,7 +617,7 @@ static void qDrawBackground(QPainter *p, const QRenderRule &rule, const QRect& r
 static void qDrawBorder(QPainter *p, const QRenderRule& rule, const QRect& rect)
 {
     const QRect br = rule.borderRect(rect);
-    BoxData *box = rule.box();
+    QStyleSheetBoxData *box = rule.box();
     if (box->hasBorderImage()) {
         qDrawBorderImage(p, rule, rect);
         return;
@@ -706,7 +706,7 @@ static void qDrawFrame(QPainter *p, const QRenderRule &rule,
 static void qCopyFromRuleToPalette(const QRenderRule &rule, QPalette& p,
                                     QPalette::ColorRole fg, QPalette::ColorRole bg)
 {
-    Palette *rp = rule.palette();
+    QStyleSheetPalette *rp = rule.palette();
     if (rp->foreground.style() != Qt::NoBrush) {
         p.setBrush(fg, rp->foreground);
         p.setBrush(QPalette::WindowText, rp->foreground);
@@ -818,7 +818,7 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         w->setAttribute(Qt::WA_Hover);
 
     // FIXME: For all roles
-    Palette *rp = rule.palette();
+    QStyleSheetPalette *rp = rule.palette();
 
     if (qobject_cast<QMenu *>(w)) {
         QPalette p = w->palette();
