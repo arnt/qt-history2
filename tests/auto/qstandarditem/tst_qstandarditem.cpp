@@ -128,88 +128,120 @@ void tst_QStandardItem::itemsCtor()
 void tst_QStandardItem::getSetData()
 {
     QStandardItem item;
-    
-    QLatin1String text("text");
-    item.setText(text);
-    QCOMPARE(item.text(), text);
-    
-    QPixmap pixmap(32, 32);
-    pixmap.fill(Qt::red);
-    QIcon icon(pixmap);
-    item.setIcon(icon);
-    QCOMPARE(item.icon(), icon);
-    
-    QLatin1String toolTip("toolTip");
-    item.setToolTip(toolTip);
-    QCOMPARE(item.toolTip(), toolTip);
-    
-    QLatin1String statusTip("statusTip");
-    item.setStatusTip(statusTip);
-    QCOMPARE(item.statusTip(), statusTip);
-
-    QLatin1String whatsThis("whatsThis");
-    item.setWhatsThis(whatsThis);
-    QCOMPARE(item.whatsThis(), whatsThis);
-
-    QSize sizeHint(64, 48);
-    item.setSizeHint(sizeHint);
-    QCOMPARE(item.sizeHint(), sizeHint);
-
-    QFont font;
-    item.setFont(font);
-    QCOMPARE(item.font(), font);
-
-    Qt::Alignment textAlignment(Qt::AlignLeft|Qt::AlignVCenter);
-    item.setTextAlignment(textAlignment);
-    QCOMPARE(item.textAlignment(), textAlignment);
-
-    QColor backgroundColor(Qt::blue);
-    item.setBackgroundColor(backgroundColor);
-    QCOMPARE(item.backgroundColor(), backgroundColor);
-    
-    QColor textColor(Qt::green);
-    item.setTextColor(textColor);
-    QCOMPARE(item.textColor(), textColor);
-
-    Qt::CheckState checkState(Qt::PartiallyChecked);
-    item.setCheckState(checkState);
-    QCOMPARE(item.checkState(), checkState);
-
-    QLatin1String accessibleText("accessibleText");
-    item.setAccessibleText(accessibleText);
-    QCOMPARE(item.accessibleText(), accessibleText);
-
-    QLatin1String accessibleDescription("accessibleDescription");
-    item.setAccessibleDescription(accessibleDescription);
-    QCOMPARE(item.accessibleDescription(), accessibleDescription);
-
-    QCOMPARE(item.text(), text);
-    QCOMPARE(item.icon(), icon);
-    QCOMPARE(item.toolTip(), toolTip);
-    QCOMPARE(item.statusTip(), statusTip);
-    QCOMPARE(item.whatsThis(), whatsThis);
-    QCOMPARE(item.sizeHint(), sizeHint);
-    QCOMPARE(item.font(), font);
-    QCOMPARE(item.textAlignment(), textAlignment);
-    QCOMPARE(item.backgroundColor(), backgroundColor);
-    QCOMPARE(item.textColor(), textColor);
-    QCOMPARE(item.checkState(), checkState);
-    QCOMPARE(item.accessibleText(), accessibleText);
-    QCOMPARE(item.accessibleDescription(), accessibleDescription);
-
-    QCOMPARE(qvariant_cast<QString>(item.data(Qt::DisplayRole)), text);
-    QCOMPARE(qvariant_cast<QIcon>(item.data(Qt::DecorationRole)), icon);
-    QCOMPARE(qvariant_cast<QString>(item.data(Qt::ToolTipRole)), toolTip);
-    QCOMPARE(qvariant_cast<QString>(item.data(Qt::StatusTipRole)), statusTip);
-    QCOMPARE(qvariant_cast<QString>(item.data(Qt::WhatsThisRole)), whatsThis);
-    QCOMPARE(qvariant_cast<QSize>(item.data(Qt::SizeHintRole)), sizeHint);
-    QCOMPARE(qvariant_cast<QFont>(item.data(Qt::FontRole)), font);
-    QCOMPARE(qvariant_cast<int>(item.data(Qt::TextAlignmentRole)), int(textAlignment));
-    QCOMPARE(qvariant_cast<QColor>(item.data(Qt::BackgroundColorRole)), backgroundColor);
-    QCOMPARE(qvariant_cast<QColor>(item.data(Qt::TextColorRole)), textColor);
-    QCOMPARE(qvariant_cast<int>(item.data(Qt::CheckStateRole)), int(checkState));
-    QCOMPARE(qvariant_cast<QString>(item.data(Qt::AccessibleTextRole)), accessibleText);
-    QCOMPARE(qvariant_cast<QString>(item.data(Qt::AccessibleDescriptionRole)), accessibleDescription);
+    for (int x = 0; x < 2; ++x) {
+        for (int i = 1; i <= 2; ++i) {
+            QString text = QString("text %0").arg(i);
+            item.setText(text);
+            QCOMPARE(item.text(), text);
+            
+            QPixmap pixmap(32, 32);
+            pixmap.fill((i == 1) ? Qt::red : Qt::green);
+            QIcon icon(pixmap);
+            item.setIcon(icon);
+            QCOMPARE(item.icon(), icon);
+            
+            QString toolTip = QString("toolTip %0").arg(i);
+            item.setToolTip(toolTip);
+            QCOMPARE(item.toolTip(), toolTip);
+            
+            QString statusTip = QString("statusTip %0").arg(i);
+            item.setStatusTip(statusTip);
+            QCOMPARE(item.statusTip(), statusTip);
+        
+            QString whatsThis = QString("whatsThis %0").arg(i);
+            item.setWhatsThis(whatsThis);
+            QCOMPARE(item.whatsThis(), whatsThis);
+            
+            QSize sizeHint(64*i, 48*i);
+            item.setSizeHint(sizeHint);
+            QCOMPARE(item.sizeHint(), sizeHint);
+            
+            QFont font;
+            item.setFont(font);
+            QCOMPARE(item.font(), font);
+        
+            Qt::Alignment textAlignment((i == 1)
+                                        ? Qt::AlignLeft|Qt::AlignVCenter
+                                        : Qt::AlignRight);
+            item.setTextAlignment(textAlignment);
+            QCOMPARE(item.textAlignment(), textAlignment);
+            
+            QColor backgroundColor((i == 1) ? Qt::blue : Qt::yellow);
+            item.setBackgroundColor(backgroundColor);
+            QCOMPARE(item.backgroundColor(), backgroundColor);
+            
+            QColor textColor((i == i) ? Qt::green : Qt::cyan);
+            item.setTextColor(textColor);
+            QCOMPARE(item.textColor(), textColor);
+            
+            Qt::CheckState checkState((i == 1) ? Qt::PartiallyChecked : Qt::Checked);
+            item.setCheckState(checkState);
+            QCOMPARE(item.checkState(), checkState);
+            
+            QString accessibleText = QString("accessibleText %0").arg(i);
+            item.setAccessibleText(accessibleText);
+            QCOMPARE(item.accessibleText(), accessibleText);
+            
+            QString accessibleDescription = QString("accessibleDescription %0").arg(i);
+            item.setAccessibleDescription(accessibleDescription);
+            QCOMPARE(item.accessibleDescription(), accessibleDescription);
+            
+            QCOMPARE(item.text(), text);
+            QCOMPARE(item.icon(), icon);
+            QCOMPARE(item.toolTip(), toolTip);
+            QCOMPARE(item.statusTip(), statusTip);
+            QCOMPARE(item.whatsThis(), whatsThis);
+            QCOMPARE(item.sizeHint(), sizeHint);
+            QCOMPARE(item.font(), font);
+            QCOMPARE(item.textAlignment(), textAlignment);
+            QCOMPARE(item.backgroundColor(), backgroundColor);
+            QCOMPARE(item.textColor(), textColor);
+            QCOMPARE(item.checkState(), checkState);
+            QCOMPARE(item.accessibleText(), accessibleText);
+            QCOMPARE(item.accessibleDescription(), accessibleDescription);
+            
+            QCOMPARE(qvariant_cast<QString>(item.data(Qt::DisplayRole)), text);
+            QCOMPARE(qvariant_cast<QIcon>(item.data(Qt::DecorationRole)), icon);
+            QCOMPARE(qvariant_cast<QString>(item.data(Qt::ToolTipRole)), toolTip);
+            QCOMPARE(qvariant_cast<QString>(item.data(Qt::StatusTipRole)), statusTip);
+            QCOMPARE(qvariant_cast<QString>(item.data(Qt::WhatsThisRole)), whatsThis);
+            QCOMPARE(qvariant_cast<QSize>(item.data(Qt::SizeHintRole)), sizeHint);
+            QCOMPARE(qvariant_cast<QFont>(item.data(Qt::FontRole)), font);
+            QCOMPARE(qvariant_cast<int>(item.data(Qt::TextAlignmentRole)), int(textAlignment));
+            QCOMPARE(qvariant_cast<QColor>(item.data(Qt::BackgroundColorRole)), backgroundColor);
+            QCOMPARE(qvariant_cast<QColor>(item.data(Qt::TextColorRole)), textColor);
+            QCOMPARE(qvariant_cast<int>(item.data(Qt::CheckStateRole)), int(checkState));
+            QCOMPARE(qvariant_cast<QString>(item.data(Qt::AccessibleTextRole)), accessibleText);
+            QCOMPARE(qvariant_cast<QString>(item.data(Qt::AccessibleDescriptionRole)), accessibleDescription);
+        }
+        item.setData(Qt::DisplayRole, QVariant());
+        item.setData(Qt::DecorationRole, QVariant());
+        item.setData(Qt::ToolTipRole, QVariant());
+        item.setData(Qt::StatusTipRole, QVariant());
+        item.setData(Qt::WhatsThisRole, QVariant());
+        item.setData(Qt::SizeHintRole, QVariant());
+        item.setData(Qt::FontRole, QVariant());
+        item.setData(Qt::TextAlignmentRole, QVariant());
+        item.setData(Qt::BackgroundColorRole, QVariant());
+        item.setData(Qt::TextColorRole, QVariant());
+        item.setData(Qt::CheckStateRole, QVariant());
+        item.setData(Qt::AccessibleTextRole, QVariant());
+        item.setData(Qt::AccessibleDescriptionRole, QVariant());
+        
+        QCOMPARE(item.data(Qt::DisplayRole), QVariant());
+        QCOMPARE(item.data(Qt::DecorationRole), QVariant());
+        QCOMPARE(item.data(Qt::ToolTipRole), QVariant());
+        QCOMPARE(item.data(Qt::StatusTipRole), QVariant());
+        QCOMPARE(item.data(Qt::WhatsThisRole), QVariant());
+        QCOMPARE(item.data(Qt::SizeHintRole), QVariant());
+        QCOMPARE(item.data(Qt::FontRole), QVariant());
+        QCOMPARE(item.data(Qt::TextAlignmentRole), QVariant());
+        QCOMPARE(item.data(Qt::BackgroundColorRole), QVariant());
+        QCOMPARE(item.data(Qt::TextColorRole), QVariant());
+        QCOMPARE(item.data(Qt::CheckStateRole), QVariant());
+        QCOMPARE(item.data(Qt::AccessibleTextRole), QVariant());
+        QCOMPARE(item.data(Qt::AccessibleDescriptionRole), QVariant());
+    }
 }
 
 void tst_QStandardItem::getSetFlags()
