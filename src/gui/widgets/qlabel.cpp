@@ -1230,8 +1230,10 @@ void QLabelPrivate::clearContents()
     shortcutId = -1;
 #endif
 #ifndef QT_NO_MOVIE
-    QObject::disconnect(movie, SIGNAL(resized(QSize)), q, SLOT(_q_movieResized(QSize)));
-    QObject::disconnect(movie, SIGNAL(updated(QRect)), q, SLOT(_q_movieUpdated(QRect)));
+    if (movie) {
+        QObject::disconnect(movie, SIGNAL(resized(QSize)), q, SLOT(_q_movieResized(QSize)));
+        QObject::disconnect(movie, SIGNAL(updated(QRect)), q, SLOT(_q_movieUpdated(QRect)));
+    }
     movie = 0;
 #endif
 }
