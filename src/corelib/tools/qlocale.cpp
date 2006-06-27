@@ -36,6 +36,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <qdebug.h>
+#include <time.h>
 
 #if defined(Q_OS_LINUX) && !defined(__UCLIBC__)
 #    include <fenv.h>
