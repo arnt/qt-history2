@@ -1,5 +1,4 @@
 <ui version="4.0" >
- <author></author>
  <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
@@ -12,15 +11,14 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <exportmacro></exportmacro>
  <class>NewActionDialog</class>
  <widget class="QDialog" name="NewActionDialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>354</width>
-    <height>225</height>
+    <width>299</width>
+    <height>181</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -75,7 +73,7 @@
           <string>...</string>
          </property>
          <property name="icon" >
-          <iconset resource="../../components/formeditor/formeditor.qrc" >:/trolltech/formeditor/images/win/editdelete.png</iconset>
+          <iconset/>
          </property>
         </widget>
        </item>
@@ -140,89 +138,56 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="spacing" >
-      <number>6</number>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
      </property>
-     <item>
-      <spacer>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" >
-        <size>
-         <width>131</width>
-         <height>31</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="okButton" >
-       <property name="text" >
-        <string>OK</string>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancelButton" >
-       <property name="text" >
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    </widget>
    </item>
   </layout>
  </widget>
- <pixmapfunction></pixmapfunction>
  <tabstops>
   <tabstop>editActionText</tabstop>
   <tabstop>editObjectName</tabstop>
   <tabstop>iconButton</tabstop>
   <tabstop>removeIconButton</tabstop>
-  <tabstop>okButton</tabstop>
-  <tabstop>cancelButton</tabstop>
  </tabstops>
  <resources>
   <include location="../../components/formeditor/formeditor.qrc" />
  </resources>
  <connections>
   <connection>
-   <sender>okButton</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
    <receiver>NewActionDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>213</x>
-     <y>182</y>
+     <x>165</x>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>96</x>
-     <y>254</y>
+     <x>291</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>cancelButton</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
    <receiver>NewActionDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>304</x>
-     <y>182</y>
+     <x>259</x>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>179</x>
-     <y>282</y>
+     <x>293</x>
+     <y>128</y>
     </hint>
    </hints>
   </connection>
