@@ -124,7 +124,7 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
         }
     }
 
-    if (!expose.isEmpty())
+    if (window() && !expose.isEmpty())
         window()->d_func()->invalidateBuffer(expose);
 }
 
