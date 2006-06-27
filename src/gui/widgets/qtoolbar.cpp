@@ -1037,8 +1037,10 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                         QAction *ac = cb_menu->addAction(cb->itemIcon(i), cb->itemText(i));
                         connect(ac, SIGNAL(triggered(bool)), cb_mapper, SLOT(map()));
                         cb_mapper->setMapping(ac, i);
+                        cb_mapper->setMapping(ac, cb->itemText(i));
                     }
                     connect(cb_mapper, SIGNAL(mapped(int)), cb, SIGNAL(activated(int)));
+                    connect(cb_mapper, SIGNAL(mapped(QString)), cb, SIGNAL(activated(QString)));
                 } else
 #endif // QT_NO_SIGNALMAPPER
                     if (QToolButton *tb = qobject_cast<QToolButton *>(item.widget)) {
