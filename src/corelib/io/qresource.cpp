@@ -35,22 +35,21 @@ class QResourceRoot
         Directory = 0x02
     };
     const uchar *tree, *names, *payloads;
-    int findNode(const QString &path) const;
     inline int findOffset(int node) const { return node * 14; } //sizeof each tree element
-    inline int hash(int offset) const;
-    inline QString name(int offset) const;
-    short flags(const QString &path) const;
+    int hash(int offset) const;
+    QString name(int offset) const;
+    short flags(int node) const;
 public:
     mutable QAtomic ref;
 
     inline QResourceRoot(): tree(0), names(0), payloads(0) {}
     inline QResourceRoot(const uchar *t, const uchar *n, const uchar *d) { setSource(t, n, d); }
     virtual ~QResourceRoot() { }
-    inline bool isContainer(const QString &path) const { return flags(path) & Directory; }
-    inline bool isCompressed(const QString &path) const { return flags(path) & Compressed; }
-    bool exists(const QString &path) const;
-    const uchar *data(const QString &path, qint64 *size) const;
-    QStringList children(const QString &path) const;
+    int findNode(const QString &path) const;
+    inline bool isContainer(int node) const { return flags(node) & Directory; }
+    inline bool isCompressed(int node) const { return flags(node) & Compressed; }
+    const uchar *data(int node, qint64 *size) const;
+    QStringList children(int node) const;
     inline bool operator==(const QResourceRoot &other) const
     { return tree == other.tree && names == other.names && payloads == other.payloads; }
     inline bool operator!=(const QResourceRoot &other) const
@@ -118,7 +117,6 @@ public:
     QString filePath, canonicalFilePath;
     QList<QResourceRoot*> related;
     uint container : 1;
-    mutable uint initialized : 1;
     mutable uint compressed : 1;
     mutable qint64 size;
     mutable const uchar *data;
@@ -131,7 +129,6 @@ public:
 void
 QResourcePrivate::clear()
 {
-    initialized = 0;
     canonicalFilePath.clear();
     compressed = 0;
     filePath.clear();
@@ -150,17 +147,24 @@ QResourcePrivate::clear()
 bool
 QResourcePrivate::load(const QString &file)
 {
+    related.clear();
     const ResourceList *list = resourceList();
     for(int i = 0; i < list->size(); ++i) {
         QResourceRoot *res = list->at(i);
-        if(res->exists(file)) {
-            if(related.isEmpty())
-                container = res->isContainer(file);
-            else if(res->isContainer(file) != container)
+        const int node = res->findNode(file);
+        if(node != -1) {
+            if(related.isEmpty()) {
+                container = res->isContainer(node);
+                if(!container) {
+                    data = res->data(node, &size);
+                    compressed = res->isCompressed(node);
+                } else {
+                    data = 0;
+                    size = 0;
+                    compressed = 0;
+                }
+            } else if(res->isContainer(node) != container) {
                 qWarning("QResourceInfo: Resource [%s] has both data and children!", file.toLatin1().constData());
-            if(!container) {
-                data = res->data(file, &size);
-                compressed = res->isCompressed(file);
             }
             res->ref.ref();
             related.append(res);
@@ -172,9 +176,8 @@ QResourcePrivate::load(const QString &file)
 void
 QResourcePrivate::ensureInitialized() const
 {
-    if (initialized)
+    if(!related.isEmpty())
         return;
-    initialized = 1;
     QResourcePrivate *that = const_cast<QResourcePrivate *>(this);
     if(filePath == QLatin1String(":"))
         that->filePath += QLatin1Char('/');
@@ -210,12 +213,15 @@ QResourcePrivate::ensureChildren() const
         path = path.mid(1);
     QSet<QString> kids;
     for(int i = 0; i < related.size(); ++i) {
-        QStringList related_children = related.at(i)->children(path);
-        for(int kid = 0; kid < related_children.size(); ++kid) {
-            QString k = related_children.at(kid);
-            if(!kids.contains(k)) {
-                children += k;
-                kids.insert(k);
+        const int node = related.at(i)->findNode(path);
+        if(node != -1) {
+            QStringList related_children = related.at(i)->children(node);
+            for(int kid = 0; kid < related_children.size(); ++kid) {
+                QString k = related_children.at(kid);
+                if(!kids.contains(k)) {
+                    children += k;
+                    kids.insert(k);
+                }
             }
         }
     }
@@ -288,7 +294,7 @@ QString QResource::canonicalFilePath() const
 
 */
 
-bool QResource::exists() const
+bool QResource::isValid() const
 {
     Q_D(const QResource);
     d->ensureInitialized();
@@ -297,6 +303,7 @@ bool QResource::exists() const
 
 /*!
     \fn bool QResource::isFile() const
+    \internal
 
     Returns true if the resource represents a file and thus has data
     backing it, false if it represents a directory.
@@ -348,7 +355,8 @@ const uchar *QResource::data() const
     return d->data;
 }
 
-/*!
+/*! \internal
+
     Returns true if the resource represents a directory and thus may have
     children() in it, false if it represents a file.
 
@@ -362,7 +370,9 @@ bool QResource::isDir() const
     return d->container;
 }
 
-/*!
+/*! \internal
+
+
     Returns a list of all resources in this directory, if the resource
     represents a file the list will be empty.
 
@@ -523,21 +533,15 @@ int QResourceRoot::findNode(const QString &path) const
     }
     return node;
 }
-short QResourceRoot::flags(const QString &path) const
+short QResourceRoot::flags(int node) const
 {
-    int node = findNode(path);
     if(node == -1)
         return 0;
     const int offset = findOffset(node) + 4; //jump past name
     return (tree[offset+0] << 8) + (tree[offset+1] << 0);
 }
-bool QResourceRoot::exists(const QString &path) const
+const uchar *QResourceRoot::data(int node, qint64 *size) const
 {
-    return findNode(path) != -1;
-}
-const uchar *QResourceRoot::data(const QString &path, qint64 *size) const
-{
-    const int node = findNode(path);
     if(node == -1) {
         *size = 0;
         return 0;
@@ -561,9 +565,8 @@ const uchar *QResourceRoot::data(const QString &path, qint64 *size) const
     *size = 0;
     return 0;
 }
-QStringList QResourceRoot::children(const QString &path) const
+QStringList QResourceRoot::children(int node) const
 {
-    int node = findNode(path);
     if(node == -1)
         return QStringList();
     int offset = findOffset(node) + 4; //jump past name
@@ -854,7 +857,7 @@ QStringList QResourceFileEngine::entryList(QDir::Filters filters, const QStringL
     QStringList ret;
     if((!doDirs && !doFiles) || ((filters & QDir::PermissionMask) && !doReadable))
         return ret;
-    if(!d->resource.exists() || !d->resource.isDir())
+    if(!d->resource.isValid() || !d->resource.isDir())
         return ret; // cannot read the "directory"
 
     QStringList entries = d->resource.children();
@@ -921,7 +924,7 @@ bool QResourceFileEngine::open(QIODevice::OpenMode flags)
     }
     if(flags & QIODevice::WriteOnly)
         return false;
-    if(!d->resource.exists())
+    if(!d->resource.isValid())
        return false;
     return true;
 }
@@ -982,7 +985,7 @@ bool QResourceFileEngine::link(const QString &)
 qint64 QResourceFileEngine::size() const
 {
     Q_D(const QResourceFileEngine);
-    if(!d->resource.exists())
+    if(!d->resource.isValid())
         return 0;
     if(d->resource.isCompressed())
         return d->uncompressed.size();
@@ -998,7 +1001,7 @@ qint64 QResourceFileEngine::pos() const
 bool QResourceFileEngine::atEnd() const
 {
     Q_D(const QResourceFileEngine);
-    if(!d->resource.exists())
+    if(!d->resource.isValid())
         return true;
     return d->offset == size();
 }
@@ -1006,7 +1009,7 @@ bool QResourceFileEngine::atEnd() const
 bool QResourceFileEngine::seek(qint64 pos)
 {
     Q_D(QResourceFileEngine);
-    if(!d->resource.exists())
+    if(!d->resource.isValid())
         return false;
 
     if(d->offset > size())
@@ -1024,7 +1027,7 @@ QAbstractFileEngine::FileFlags QResourceFileEngine::fileFlags(QAbstractFileEngin
 {
     Q_D(const QResourceFileEngine);
     QAbstractFileEngine::FileFlags ret = 0;
-    if(!d->resource.exists())
+    if(!d->resource.isValid())
         return ret;
 
     if(type & PermsMask)

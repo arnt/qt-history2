@@ -35,21 +35,24 @@ public:
 
     QString canonicalFilePath() const;
 
-    bool exists() const;
+    bool isValid() const;
 
-    inline bool isFile() const { return !isDir(); }
     bool isCompressed() const;
     qint64 size() const;
     const uchar *data() const;
-
-    bool isDir() const;
-    QStringList children() const;
 
     static void addSearchPath(const QString &path);
     static QStringList searchPaths();
 
     static bool registerResource(const QString &rccFilename);
     static bool unregisterResource(const QString &rccFilename);
+
+
+protected:
+    friend class QResourceFileEngine;
+    bool isDir() const;
+    inline bool isFile() const { return !isDir(); }
+    QStringList children() const;
 
 protected:
     QResourcePrivate *d_ptr;
