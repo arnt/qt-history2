@@ -24,6 +24,7 @@
 #include <qwidget.h>
 #include <qwindowsstyle.h>
 #include <qinputcontext.h>
+#include <private/qstylesheetstyle_p.h>
 
 // I *MUST* have QtTest afterwards or this test won't work with newer headers
 #if defined(Q_WS_MAC)
@@ -117,7 +118,8 @@ private slots:
     void task110173();
 
     void testDeletionInEventHandlers();
-    void stylePropagation();
+    void style();
+
 private:
     QWidget *testWidget;
 };
@@ -2193,129 +2195,95 @@ void tst_QWidget::testDeletionInEventHandlers()
     QVERIFY(w == 0);
 }
 
-void tst_QWidget::stylePropagation()
+void tst_QWidget::style()
 {
-    for (int i = 0; i < 2; i++) {
-        // Application style is never null
-        QVERIFY(qApp->style() != 0);
+    QWidget *window1 = new QWidget;
+    window1->setObjectName("window1");
+    QWidget *widget1 = new QWidget(window1);
+    widget1->setObjectName("widget1");
+    QWidget *widget2 = new QWidget;
+    widget2->setObjectName("widget2");
+    QWidget *window2 = new QWidget;
+    window2->setObjectName("window2");
+    window1->ensurePolished();
+    window2->ensurePolished();
+    widget1->ensurePolished();
+    widget2->ensurePolished();
 
-        // Setting a new style must auto delete old style
-        QPointer<QStyle> oldStyle = qApp->style();
-        QPointer<QStyle> appStyle = new QCommonStyle;
-        qApp->setStyle(appStyle);
-        QVERIFY(qApp->style() == appStyle);
-        QVERIFY(oldStyle.isNull());
+    QPointer<QStyle> style1, style2;
+    QPointer<QStyle> appStyle = new QCommonStyle;
+    qApp->setStyle(appStyle);
+    QVERIFY(qApp->style() == appStyle);
 
-        // Setting a null style must not crash
-        qApp->setStyle(0);
+    // Sanity: By default, a window inherits the application style
+    QVERIFY(appStyle == window1->style());
 
-        QWidget *window1 = new QWidget;
-        QWidget *widget1 = new QWidget(window1);
-        QWidget *widget2 = new QWidget;
-        QWidget *window2 = new QWidget;
-        if (i == 1) {
-            window1->ensurePolished();
-            window2->ensurePolished();
-            widget1->ensurePolished();
-            widget2->ensurePolished();
-        }
+    // Setting a custom style on a widget
+    style1 = new QWindowsStyle;
+    window1->setStyle(style1);
+    QVERIFY(style1 == window1->style());
 
-        // By default, a window inherits the application style
-        QVERIFY(appStyle == window1->style());
+    // Setting another style must not delete the older style
+    style2 = new QWindowsStyle;
+    window1->setStyle(style2);
+    QVERIFY(style2 == window1->style());
+    QVERIFY(!style1.isNull()); // should not have disappeared
 
-        // Setting a custom style on a widget
-        QPointer<QStyle> wndStyle = new QWindowsStyle;
-        window1->setStyle(wndStyle);
-        QVERIFY(wndStyle == window1->style());
-        // Custom style must propagated to the children
-        QVERIFY(widget1->style() == wndStyle);
-        
-        // Custom style on a reparent must have propagated to child
-        QVERIFY(appStyle == widget2->style());
-        widget2->setParent(window1);
-        QVERIFY(wndStyle == widget2->style());
+    // Setting null style must make it follow the qApp style
+    window1->setStyle(0);
+    QVERIFY(window1->style() == appStyle);
 
-        // Setting custom style on application should not propagate to
-        // widgets on which style has been explicitly set
-        appStyle = new QWindowsStyle;
-        qApp->setStyle(appStyle);
-        QVERIFY(wndStyle == window1->style());
-        QVERIFY(wndStyle == widget2->style());
-        QVERIFY(wndStyle == widget1->style());
-        QVERIFY(qApp->style() == window2->style());
+    // Sanity: Set the stylesheet
+    window1->setStyleSheet(":x { }");
 
-        // Reverting custom style must fall back to application style
-        window1->setStyle(0);
-        QVERIFY(appStyle == window1->style());
-        // and the children
-        QVERIFY(appStyle == widget1->style());
-        QVERIFY(appStyle == widget2->style());
-        // and the style should be dead
-        QVERIFY(wndStyle.isNull());
+    QPointer<QStyleSheetStyle> sss = (QStyleSheetStyle *)window1->style();
+    QVERIFY(!sss.isNull());
+    QCOMPARE(sss->className(), "QStyleSheetStyle"); // must be our proxy
+    QVERIFY(sss->baseStyle() == appStyle); // and follows the application
 
-        // Check that setStyle takes ownership of the style
-        wndStyle = new QWindowsStyle;
-        window2->setStyle(wndStyle);
-        delete window2;
-        window2 = 0;
-        QVERIFY(wndStyle.isNull());
+    // Set the stylesheet
+    window1->setStyle(style1);
+    QVERIFY(sss.isNull()); // we create a new one each time
+    sss = (QStyleSheetStyle *)window1->style();
+    QCOMPARE(sss->className(), "QStyleSheetStyle"); // it is a proxy
+    QVERIFY(sss->baseStyle() == style1); // must have been replaced with the new one
 
-        // Windows that are children of other windows have their styles propagated
-        // if Qt::WA_WindowPropagation is set
-        wndStyle = new QWindowsStyle;
-        window1->setStyle(wndStyle);
-        window2 = new QWidget(window1, Qt::Window);
-        window2->setAttribute(Qt::WA_WindowPropagation);
-        QVERIFY(wndStyle == window2->style());
-        window1->setStyle(0); // revert to application style
-        QVERIFY(appStyle == window2->style());
-        QVERIFY(wndStyle.isNull());
-        delete window2;
-        window2 = 0;
+    // Update the stylesheet and check nothing changes
+    window1->setStyleSheet(":y { }");
+    QCOMPARE(window1->style()->className(), "QStyleSheetStyle"); // it is a proxy
+    QVERIFY(sss->baseStyle() == style1); // must have been replaced with the new one
+    
+    // Remove the stylesheet
+    sss = (QStyleSheetStyle *)window1->style();
+    window1->setStyleSheet("");
+    QVERIFY(sss.isNull()); // should have disappeared
+    QVERIFY(window1->style() == style1); // its restored
 
-        // Windows that are children of other windows do not have their styles propagated
-        // if Qt::WA_WindowPropagation is not set (default)
-        wndStyle = new QWindowsStyle;
-        window1->setStyle(wndStyle);
-        window2 = new QWidget(window1, Qt::Window);
-        if (i == 1)
-            window2->ensurePolished();
-        QVERIFY(appStyle == window2->style()); // the application style
-        
-        // delete windows
-        delete window1;
-        delete wndStyle;
+    // Style Sheet existing children propagation
+    window1->setStyleSheet(":z { }");
+    sss = (QStyleSheetStyle *)window1->style();
+    QCOMPARE(sss->className(), "QStyleSheetStyle");
+    QVERIFY(window1->style() == widget1->style()); // proxy must have propagated
+    QVERIFY(widget2->style() == qApp->style()); // widget2 is following the app style
 
-        // lets starts again.
-        window1 = new QWidget;
-        widget1 = new QWidget(window1);
-        if (i == 1) {
-            window1->ensurePolished();
-            widget1->ensurePolished();
-        }
-        wndStyle = new QWindowsStyle;
-        window1->setStyle(wndStyle);
-        // normal propagation
-        QVERIFY(wndStyle == widget1->style()); // done above
-        // reparent out
-        widget1->setParent(0);
-        QVERIFY(widget1->style() == appStyle);
-        // reparent to another window having custom style
-        window2 = new QWidget;
-        if (i == 1)
-            window2->ensurePolished();
-        QPointer<QStyle> cmnStyle = new QCommonStyle;
-        window2->setStyle(cmnStyle);
-        widget1->setParent(window2);
-        QVERIFY(widget1->style() == cmnStyle);
-        // reparent back!
-        widget1->setParent(window1);
-        QVERIFY(widget1->style() == wndStyle);
+    // Style Sheet automatic propagation to new children
+    widget2->setParent(window1); // reparent in!
+    QVERIFY(window1->style() == widget2->style()); // proxy must have propagated
 
-        // shows over, be gone
-        delete window1;
-        delete window2;
-    }
+    // Style Sheet automatic removal from children who abandoned their parents
+    window2->setStyle(style2);
+    widget2->setParent(window2); // reparent
+    QVERIFY(widget2->style() == qApp->style()); // widget2 is following the app style
+
+#if 0
+    // Style Sheet propagation on a child widget with a custom style
+    window2->setStyleSheet(":x { }");
+    widget2->setStyle(new QWindowsStyle);
+    sss = (QStyleSheetStyle *)widget2->style();
+    QCOMPARE(sss->className(), "QStyleSheetStyle");
+#endif
+
+    // QApplication, QWidget both have a style sheet
 }
 
 #ifdef Q_WS_MAC

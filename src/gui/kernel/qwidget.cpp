@@ -86,7 +86,6 @@ QWidgetPrivate::QWidgetPrivate(int version) :
         ,polished(0)
 
         , size_policy(QSizePolicy::Preferred, QSizePolicy::Preferred)
-        , style(0)
 {
     if (!qApp) {
         qFatal("QWidget: Must construct a QApplication before a QPaintDevice");
@@ -107,9 +106,6 @@ QWidgetPrivate::QWidgetPrivate(int version) :
 
 QWidgetPrivate::~QWidgetPrivate()
 {
-    Q_Q(QWidget);
-    if (q->testAttribute(Qt::WA_SetStyle))
-        style->d_func()->detach();
     if (extra)
         deleteExtra();
 }
@@ -1222,6 +1218,7 @@ void QWidgetPrivate::createExtra()
 #ifndef QT_NO_CURSOR
         extra->curs = 0;
 #endif
+        extra->style = 0;
         extra->topextra = 0;
         createSysExtra();
 #ifdef QWIDGET_EXTRA_DEBUG
@@ -1663,16 +1660,21 @@ void QWidget::setStyleSheet(const QString& styleSheet)
 {
     Q_D(QWidget);
     d->createExtra();
+
+    if (styleSheet == d->extra->styleSheet)
+        return;
+
+    QString oldStyleSheet = d->extra->styleSheet;
     d->extra->styleSheet = styleSheet;
-    if (styleSheet.isEmpty()) {
-        setStyle(0);
-    } else if (d->style == QStyleSheetStyle::styleSheetStyle()) {
-        d->style->polish(this);
-    } else {
-        setStyle(QStyleSheetStyle::styleSheetStyle());
+    if (styleSheet.isEmpty()) { // user wants to remove stylesheet
+        QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(d->extra->style);
+        d->setStyle_helper(proxy->baseStyle());
+    } else if (!oldStyleSheet.isEmpty()) { // style sheet update
+        d->propagateStyle(true);
+    } else { // stylesheet is set the first time 
+        setStyle(d->extra->style);
     }
 }
-
 
 /*!
     \sa QWidget::setStyle(), QApplication::setStyle(), QApplication::style()
@@ -1681,8 +1683,8 @@ void QWidget::setStyleSheet(const QString& styleSheet)
 QStyle *QWidget::style() const
 {
     Q_D(const QWidget);
-    if (d->style)
-        return d->style;
+    if (d->extra && d->extra->style)
+        return d->extra->style;
     return qApp->style();
 }
 
@@ -1712,40 +1714,52 @@ QStyle *QWidget::style() const
 void QWidget::setStyle(QStyle *style)
 {
     Q_D(QWidget);
-    QStyle *oldStyle  = d->style;
     setAttribute(Qt::WA_SetStyle, style != 0);
-    if (style != 0)
-        style->d_func()->attach();
-    d->propagateStyle(style);
-    if (oldStyle)
-        oldStyle->d_func()->detach();
+    d->setStyle_helper(style);
 }
 
-void QWidgetPrivate::propagateStyle(QStyle *newStyle)
+void QWidgetPrivate::setStyle_helper(QStyle *newStyle)
 {
     Q_Q(QWidget);
+    createExtra();
     QStyle *oldStyle  = q->style();
-    style = newStyle;
-    newStyle = q->style();
+    if (!extra->styleSheet.isEmpty()) {
+        extra->style = new QStyleSheetStyle(newStyle, q);
+        propagateStyle();
+    } else
+        extra->style = newStyle;
 
-    if (oldStyle == newStyle)
+    if (oldStyle == q->style())
         return;
 
-    for (int i = 0; i < children.size(); ++i) {
-        QWidget *w = qobject_cast<QWidget*>(children.at(i));
-        if (w && (!w->testAttribute(Qt::WA_SetStyle))
-              && (!w->isWindow() || w->testAttribute(Qt::WA_WindowPropagation)))
-            w->d_func()->propagateStyle(style);
-    }
+    // repolish
     if (q->windowType() != Qt::Desktop && polished) {
         oldStyle->unpolish(q);
-        newStyle->polish(q);
+        q->style()->polish(q);
     }
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(q, &e);
 #ifdef QT3_SUPPORT
     q->styleChange(*oldStyle);
 #endif
+
+    if (oldStyle->parent() == q && qobject_cast<QStyleSheetStyle *>(oldStyle))
+        delete oldStyle;
+}
+
+void QWidgetPrivate::propagateStyle(bool justPolish)
+{
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget*>(children.at(i));
+        if (!w)
+            continue;
+        if (!justPolish && !w->testAttribute(Qt::WA_SetStyle)) {
+            w->d_func()->setStyle_helper(extra->style);
+        } else {
+            w->style()->polish(w); // repolish!
+            w->d_func()->propagateStyle(true);
+        }
+    }
 }
 
 void QWidgetPrivate::inheritStyle()
@@ -1753,11 +1767,14 @@ void QWidgetPrivate::inheritStyle()
     Q_Q(const QWidget);
     if (q->testAttribute(Qt::WA_SetStyle))
         return;
-    QStyle *newStyle = 0; // follow application style by default
-    if (!q->isWindow() || (q->testAttribute(Qt::WA_WindowPropagation) && q->parentWidget()))
-        newStyle = q->parentWidget()->d_func()->style;
 
-    propagateStyle(newStyle); // propagate to children
+    QStyle *newStyle = 0;
+
+    if (q->parentWidget() 
+        && qobject_cast<QStyleSheetStyle *>(q->parentWidget()->style()))
+        newStyle = q->parentWidget()->style();
+
+    setStyle_helper(newStyle);
 }
 
 #ifdef QT3_SUPPORT
@@ -7137,7 +7154,6 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_WindowPropagation:
         d->resolvePalette();
         d->resolveFont();
-        d->inheritStyle();
         break;
 #ifdef Q_WS_X11
     case Qt::WA_NoX11EventCompression:

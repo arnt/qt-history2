@@ -144,6 +144,8 @@ struct QWExtra {
 #endif
     uint explicitMinSize : 2;
     uint autoFillBackground : 1;
+
+    QStyle *style;
     QString styleSheet;
 };
 
@@ -191,7 +193,8 @@ public:
     void setLayoutDirection_helper(Qt::LayoutDirection);
     void resolveLayoutDirection();
 
-    void propagateStyle(QStyle *);
+    void setStyle_helper(QStyle *);
+    void propagateStyle(bool justPolish=false);
     void inheritStyle();
 
     bool isBackgroundInherited() const;
@@ -389,8 +392,6 @@ public:
 
     void setModal_sys();
     QSizePolicy size_policy;
-
-    QStyle *style;
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const

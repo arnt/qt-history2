@@ -338,6 +338,7 @@ Qt::MouseButtons QApplicationPrivate::mouse_buttons = Qt::NoButton;
 Qt::KeyboardModifiers QApplicationPrivate::modifier_buttons = Qt::NoModifier;
 
 QStyle *QApplicationPrivate::app_style = 0;        // default application style
+QString QApplicationPrivate::styleSheet;           // default application stylesheet
 
 int QApplicationPrivate::app_cspec = QApplication::NormalColor;
 QPalette *QApplicationPrivate::app_pal = 0;        // default application palette
@@ -877,10 +878,8 @@ QApplication::~QApplication()
     QApplicationPrivate::app_font = 0;
     app_fonts()->clear();
 
-    if (QApplicationPrivate::app_style) {
-        QApplicationPrivate::app_style->d_func()->detach();
-        QApplicationPrivate::app_style = 0;
-    }
+    delete QApplicationPrivate::app_style;
+    QApplicationPrivate::app_style = 0;
     delete QApplicationPrivate::app_icon;
     QApplicationPrivate::app_icon = 0;
 #ifndef QT_NO_CURSOR
@@ -1037,17 +1036,27 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
 */
 QString QApplication::styleSheet() const
 {
-    Q_D(const QApplication);
-    return d->styleSheet;
+    return QApplicationPrivate::styleSheet;
 }
 
 void QApplication::setStyleSheet(const QString& styleSheet)
 {
-    Q_D(QApplication);
-    d->styleSheet = styleSheet;
-    QStyle *newStyle = QStyleSheetStyle::styleSheetStyle();
-    d->app_style = 0; // so it does not get deleted by setStyle
-    setStyle(newStyle);
+    if (QApplicationPrivate::styleSheet == styleSheet)
+        return;
+
+    QString oldStyleSheet = QApplicationPrivate::styleSheet;
+    QApplicationPrivate::styleSheet = styleSheet;
+    if (styleSheet.isEmpty()) { // user wants to remove application style sheet
+        QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle*>(QApplicationPrivate::app_style);
+        Q_ASSERT(proxy != 0);
+        proxy->baseStyle()->setParent(0);
+        setStyle(proxy->baseStyle());
+    } else if (!oldStyleSheet.isEmpty()) { // style sheet update
+        Q_ASSERT(qobject_cast<QStyleSheetStyle *>(QApplicationPrivate::app_style));
+        QApplicationPrivate::app_style->polish(qApp);
+    } else { // stylesheet set the first time
+        setStyle(new QStyleSheetStyle(QApplicationPrivate::app_style, 0));
+    }
 }
 
 /*!
@@ -1109,8 +1118,6 @@ QStyle *QApplication::style()
             qFatal("No styles available!");
     }
 
-    QApplicationPrivate::app_style->d_func()->attach();
-
     if (!QApplicationPrivate::sys_pal)
         QApplicationPrivate::setSystemPalette(QApplicationPrivate::app_style->standardPalette());
     if (QApplicationPrivate::set_pal) // repolish set palette with the new style
@@ -1151,23 +1158,34 @@ void QApplication::setStyle(QStyle *style)
     if (!style || style == QApplicationPrivate::app_style)
         return;
 
-    QStyle* old = QApplicationPrivate::app_style;
-    QApplicationPrivate::app_style = style;
-    style->d_func()->attach();
-
     // clean up the old style
-    if (old) {
+    if (QApplicationPrivate::app_style) {
         if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
             for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
                 if (!(w->windowType() == Qt::Desktop) &&        // except desktop
                      w->testAttribute(Qt::WA_WState_Polished)) { // has been polished
-                    old->unpolish(w);
+                    QApplicationPrivate::app_style->unpolish(w);
                 }
             }
         }
-        old->unpolish(qApp);
+        QApplicationPrivate::app_style->unpolish(qApp);
     }
+
+    QStyle* old = QApplicationPrivate::app_style; // save
+    
+    if (!QApplicationPrivate::styleSheet.isEmpty()) {
+        if (qobject_cast<QStyleSheetStyle *>(style) == 0) { // switch the base style
+            QStyleSheetStyle *proxy =
+                qobject_cast<QStyleSheetStyle*>(QApplicationPrivate::app_style);
+            Q_ASSERT(proxy != 0);
+            delete proxy->baseStyle();
+            style->setParent(proxy);
+            proxy->setBaseStyle(style);
+        } else // style sheet was just set
+            QApplicationPrivate::app_style = style;
+    } else
+        QApplicationPrivate::app_style = style;
 
     // take care of possible palette requirements of certain gui
     // styles. Do it before polishing the application since the style
@@ -1202,8 +1220,8 @@ void QApplication::setStyle(QStyle *style)
             }
         }
     }
-    if (old)
-        old->d_func()->detach();
+    if (QApplicationPrivate::styleSheet.isEmpty())
+        delete old;
 
     if (QApplicationPrivate::focus_widget) {
         QFocusEvent in(QEvent::FocusIn, Qt::OtherFocusReason);
