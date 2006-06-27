@@ -71,6 +71,7 @@ struct QTLWExtra {
      // frame strut, don't use these directly, use QWidgetPrivate::frameStrut() instead.
     QRect frameStrut;
     uint opacity : 8;
+    uint posFromMove : 1;
 #ifndef Q_WS_MAC
     QWidgetBackingStore *backingStore;
 #endif

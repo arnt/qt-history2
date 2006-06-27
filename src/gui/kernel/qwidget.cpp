@@ -1172,6 +1172,7 @@ void QWidgetPrivate::createTLExtra()
         x->windowSurface = 0;
 #endif
         x->opacity = 255;
+        x->posFromMove = 0;
         x->icon = 0;
         x->iconPixmap = 0;
         x->frameStrut.setCoords(0, 0, 0, 0);
@@ -4255,6 +4256,8 @@ void QWidget::move(const QPoint &p)
                        p.y() + geometry().y() - QWidget::y(),
                        width(), height(), true);
     } else {
+        if (isWindow())
+            d->topData()->posFromMove = true;
         data->crect.moveTopLeft(p); // no frame yet
         setAttribute(Qt::WA_PendingMoveEvent);
     }
@@ -4286,6 +4289,8 @@ void QWidget::setGeometry(const QRect &r)
     if (testAttribute(Qt::WA_WState_Created)) {
         d->setGeometry_sys(r.x(), r.y(), r.width(), r.height(), true);
     } else {
+        if (isWindow())
+            d->topData()->posFromMove = false;
         data->crect = r;
         setAttribute(Qt::WA_PendingMoveEvent);
         setAttribute(Qt::WA_PendingResizeEvent);

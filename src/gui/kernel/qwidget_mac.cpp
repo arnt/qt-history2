@@ -1127,6 +1127,17 @@ void QWidgetPrivate::createWindow_sys()
         HIViewRemoveFromSuperview(oldRef);
     }
     initWindowPtr();
+
+    if (topExtra->posFromMove) {
+        updateFrameStrut();
+        const QRect &fStrut = frameStrut();
+        SetRect(&r, r.left + fStrut.left(), r.top + fStrut.top(),
+                    (r.left + fStrut.left() + data.crect.width()) - fStrut.right(),
+                    (r.top + fStrut.top() + data.crect.height()) - fStrut.bottom());
+        SetWindowBounds(windowRef, kWindowContentRgn, &r);
+        topExtra->posFromMove = false;
+    }
+
     if (qt_mac_is_macsheet(q))
         q->setWindowOpacity(0.95);
     else if (topExtra->opacity != 255)
