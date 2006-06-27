@@ -2113,18 +2113,6 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
         CFG_OPENGL=no
     fi
 
-    # mouse drivers
-    for mouse in ${CFG_MOUSE_ON} ${CFG_MOUSE_PLUGIN}; do
-	if [ "${mouse}" = "tslib" ] && [ "${CFG_CONFIGURE_EXIT_ON_ERROR}" = "yes" ]; then
-	    if ! "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/tslib "tslib" $L_FLAGS $I_FLAGS $l_FLAGS; then
-		echo "The tslib functionality test failed!"
-		echo " You might need to add additional include and library search paths"
-		echo " by passing the -I and -L switches to $0."
-		exit 1
-	    fi
-	fi
-    done
-
 fi # QWS
 
 #setup the build parts
@@ -3761,6 +3749,23 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         fi
     fi
 fi # X11
+
+# QWS
+if [ "$PLATFORM_QWS" = "yes" ]; then
+
+    # mouse drivers
+    for mouse in ${CFG_MOUSE_ON} ${CFG_MOUSE_PLUGIN}; do
+	if [ "${mouse}" = "tslib" ] && [ "${CFG_CONFIGURE_EXIT_ON_ERROR}" = "yes" ]; then
+	    if ! "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/tslib "tslib" $L_FLAGS $I_FLAGS $l_FLAGS; then
+		echo "The tslib functionality test failed!"
+		echo " You might need to add additional include and library search paths"
+		echo " by passing the -I and -L switches to $0."
+		exit 1
+	    fi
+	fi
+    done
+
+fi # QWS
 
 # freetype support
 [ "x$CFG_EMBEDDED" != "xno" ] && CFG_LIBFREETYPE="$CFG_QWS_FREETYPE"
