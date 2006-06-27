@@ -31,6 +31,7 @@
 #include <private/qwidget_p.h>
 #include <private/qwidget_qws_p.h>
 #include <private/qbackingstore_p.h>
+#include <private/qwindowsurface_qws_p.h>
 #include "qdecorationfactory_qws.h"
 
 #include "qlayout.h"
@@ -398,6 +399,13 @@ QRegion QWSManagerPrivate::paint(QPaintDevice *paintDevice)
 
     const QRect clipRect = managed->rect().translated(bs->topLevelOffset());
     QDecoration &dec = QApplication::qwsDecoration();
+
+#ifdef QT_WINDOW_SURFACE
+    QWSWindowSurface *surface;
+    surface = static_cast<QWSWindowSurface*>(bs->windowSurface);
+    const QRegion surfaceClip = surface->clipRegion().translated(bs->topLevelOffset());
+    paintDevice->paintEngine()->setSystemClip(surfaceClip);
+#endif
 
     QRegion updated;
     QPainter painter(paintDevice);
