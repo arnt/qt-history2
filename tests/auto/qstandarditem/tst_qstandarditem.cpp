@@ -265,6 +265,11 @@ void tst_QStandardItem::getSetFlags()
     item.setDropEnabled(false);
     QVERIFY(!item.isDropEnabled());
     QVERIFY(!(item.flags() & Qt::ItemIsDropEnabled));
+
+    item.setCheckable(false);
+    item.setCheckState(Qt::Checked);
+    item.setCheckable(true);
+    QCOMPARE(item.checkState(), Qt::Checked);
 }    
 
 void tst_QStandardItem::getSetRowAndColumnCount()
