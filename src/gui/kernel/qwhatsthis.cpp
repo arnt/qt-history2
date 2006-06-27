@@ -212,7 +212,7 @@ QWhatsThat::~QWhatsThat()
 
 void QWhatsThat::showEvent(QShowEvent *)
 {
-    background = QPixmap::grabWindow(QApplication::desktop()->winId(),
+    background = QPixmap::grabWindow(QApplication::desktop()->internalWinId(),
                                      x(), y(), width(), height());
 }
 

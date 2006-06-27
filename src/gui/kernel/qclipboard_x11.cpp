@@ -801,7 +801,7 @@ bool QClipboard::event(QEvent *e)
             // someone wants our data
             XSelectionRequestEvent *req = &xevent->xselectionrequest;
 
-            if (requestor && req->requestor == requestor->winId())
+            if (requestor && req->requestor == requestor->internalWinId())
                 break;
 
             XEvent event;
@@ -981,7 +981,7 @@ bool QClipboardWatcher::empty() const
     Display *dpy = X11->display;
     Window win = XGetSelectionOwner(dpy, atom);
 
-    if(win == requestor->winId()) {
+    if(win == requestor->internalWinId()) {
         qWarning("QClipboardWatcher::empty: Internal error: Application owns the selection");
         return true;
     }
@@ -1057,7 +1057,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
     QByteArray buf;
 
     Display *dpy = X11->display;
-    Window   win = requestor->winId();
+    Window   win = requestor->internalWinId();
     Q_ASSERT(requestor->testAttribute(Qt::WA_WState_Created));
 
     DEBUG("QClipboardWatcher::getDataInFormat: selection '%s' format '%s'",
@@ -1170,7 +1170,7 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
     } else {
         setupOwner();
 
-        newOwner = owner->winId();
+        newOwner = owner->internalWinId();
 
         d->setSource(src);
         d->timestamp = X11->time;
@@ -1196,7 +1196,7 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
     Window owners[2];
     owners[0] = newOwner;
     owners[1] = prevOwner;
-    XChangeProperty(dpy, QApplication::desktop()->screen(0)->winId(),
+    XChangeProperty(dpy, QApplication::desktop()->screen(0)->internalWinId(),
                      sentinel_atom, XA_WINDOW, 32, PropModeReplace,
                      (unsigned char*)&owners, 2);
 }
@@ -1231,12 +1231,12 @@ bool qt_check_selection_sentinel()
         ulong bytesLeft;
 
         if (XGetWindowProperty(X11->display,
-                               QApplication::desktop()->screen(0)->winId(),
+                               QApplication::desktop()->screen(0)->internalWinId(),
                                ATOM(_QT_SELECTION_SENTINEL), 0, 2, False, XA_WINDOW,
                                &actualType, &actualFormat, &nitems,
                                &bytesLeft, (unsigned char**)&owners) == Success) {
             if (actualType == XA_WINDOW && actualFormat == 32 && nitems == 2) {
-                Window win = owner->winId();
+                Window win = owner->internalWinId();
                 if (owners[0] == win || owners[1] == win)
                     doIt = false;
             }
@@ -1270,12 +1270,12 @@ bool qt_check_clipboard_sentinel()
         unsigned long nitems, bytesLeft;
 
         if (XGetWindowProperty(X11->display,
-                               QApplication::desktop()->screen(0)->winId(),
+                               QApplication::desktop()->screen(0)->internalWinId(),
                                ATOM(_QT_CLIPBOARD_SENTINEL), 0, 2, False, XA_WINDOW,
                                &actualType, &actualFormat, &nitems, &bytesLeft,
                                (unsigned char **) &owners) == Success) {
             if (actualType == XA_WINDOW && actualFormat == 32 && nitems == 2) {
-                Window win = owner->winId();
+                Window win = owner->internalWinId();
                 if (owners[0] == win || owners[1] == win)
                     doIt = false;
             }

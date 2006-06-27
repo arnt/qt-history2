@@ -1152,7 +1152,7 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
                 mw = mw->parentWidget()->window();
             Q_ASSERT(mw->testAttribute(Qt::WA_WState_Created));
             if (mw != QApplicationPrivate::active_window)
-                SetWindowPos(mw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+                SetWindowPos(mw->internalWinId(), HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
         }
     } else {
         setActiveWindow(0);
@@ -1320,7 +1320,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
     case WM_XBUTTONUP:
 	if (qt_win_ignoreNextMouseReleaseEvent) {
 	    qt_win_ignoreNextMouseReleaseEvent = false;
-	    if (qt_button_down && qt_button_down->winId() == autoCaptureWnd) {
+	    if (qt_button_down && qt_button_down->internalWinId() == autoCaptureWnd) {
 		releaseAutoCapture();
 		qt_button_down = 0;
 	    }
@@ -1412,7 +1412,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                        : (QETWidget*)QApplication::activePopupWidget();
             else if (qApp->focusWidget())
                 widget = (QETWidget*)QApplication::focusWidget();
-            else if (!widget || widget->winId() == GetFocus()) // We faked the message to go to exactly that widget.
+            else if (!widget || widget->internalWinId() == GetFocus()) // We faked the message to go to exactly that widget.
                 widget = (QETWidget*)widget->window();
             if (widget->isEnabled())
                 result = sm_blockUserInput
@@ -1751,7 +1751,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                                     pw = pw->window();
                                     if (pw && pw->isVisible() && pw->focusWidget()) {
                                         Q_ASSERT(pw->testAttribute(Qt::WA_WState_Created));
-                                        SetWindowPos(pw->winId(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+                                        SetWindowPos(pw->internalWinId(), HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
                                         break;
                                     }
                                     pw = pw->parentWidget();
@@ -1784,26 +1784,26 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                         widget->hideChildren(true);
                     }
                 }
-                if  (!wParam && autoCaptureWnd == widget->winId())
+                if  (!wParam && autoCaptureWnd == widget->internalWinId())
                     releaseAutoCapture();
                 result = false;
                 break;
 
         case WM_PALETTECHANGED:                        // our window changed palette
-            if (QColormap::hPal() && (WId)wParam == widget->winId())
+            if (QColormap::hPal() && (WId)wParam == widget->internalWinId())
                 RETURN(0);                        // otherwise: FALL THROUGH!
             // FALL THROUGH
         case WM_QUERYNEWPALETTE:                // realize own palette
             if (QColormap::hPal()) {
                 Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
-                HDC hdc = GetDC(widget->winId());
+                HDC hdc = GetDC(widget->internalWinId());
                 HPALETTE hpalOld = SelectPalette(hdc, QColormap::hPal(), FALSE);
                 uint n = RealizePalette(hdc);
                 if (n)
-                    InvalidateRect(widget->winId(), 0, TRUE);
+                    InvalidateRect(widget->internalWinId(), 0, TRUE);
                 SelectPalette(hdc, hpalOld, TRUE);
                 RealizePalette(hdc);
-                ReleaseDC(widget->winId(), hdc);
+                ReleaseDC(widget->internalWinId(), hdc);
                 RETURN(n);
             }
             break;
@@ -2026,7 +2026,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 if (!widget->hasFocus()) // work around Windows bug after minimizing/restoring
                     widget = (QETWidget*)qApp->focusWidget();
                 HWND focus = ::GetFocus();
-                if (!widget || (focus && ::IsChild(widget->winId(), focus))) {
+                if (!widget || (focus && ::IsChild(widget->internalWinId(), focus))) {
                     result = false;
                 } else {
                     widget->clearFocus();
@@ -2078,7 +2078,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WM_MOUSELEAVE:
             // We receive a mouse leave for curWin, meaning
             // the mouse was moved outside our widgets
-            if (widget->winId() == curWin) {
+            if (widget->internalWinId() == curWin) {
                 bool dispatch = !widget->underMouse();
                 // hasMouse is updated when dispatching enter/leave,
                 // so test if it is actually up-to-date
@@ -2093,7 +2093,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                     dispatch = !geom.contains(cpos);
                     if ( !dispatch) {
                         QWidget *hittest = QApplication::widgetAt(cpos);
-                        dispatch = !hittest || hittest->winId() != curWin;
+                        dispatch = !hittest || hittest->internalWinId() != curWin;
                     }
                     if (!dispatch) {
                         HRGN hrgn = CreateRectRgn(0,0,0,0);
@@ -2183,7 +2183,7 @@ void QApplicationPrivate::leaveModal_sys(QWidget *widget)
             app_do_modal = false; // necessary, we may get recursively into qt_try_modal below
             QWidget* w = QApplication::widgetAt(p.x(), p.y());
             QApplicationPrivate::dispatchEnterLeave(w, QWidget::find(curWin)); // send synthetic enter event
-            curWin = w? w->winId() : 0;
+            curWin = w? w->internalWinId() : 0;
         }
         qt_win_ignoreNextMouseReleaseEvent = true;
     }
@@ -2271,7 +2271,7 @@ void QApplicationPrivate::openPopup(QWidget *popup)
 
     if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()) {
         Q_ASSERT(popup->testAttribute(Qt::WA_WState_Created));
-        setAutoCapture(popup->winId());        // grab mouse/keyboard
+        setAutoCapture(popup->internalWinId());        // grab mouse/keyboard
     }
     // Popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
@@ -2321,7 +2321,7 @@ void QApplicationPrivate::closePopup(QWidget *popup)
         QWidget* aw = QApplicationPrivate::popupWidgets->last();
         if (QApplicationPrivate::popupWidgets->count() == 1) {
             Q_ASSERT(aw->testAttribute(Qt::WA_WState_Created));
-            setAutoCapture(aw->winId());
+            setAutoCapture(aw->internalWinId());
         }
         if (QWidget *fw = aw->focusWidget())
             fw->setFocus(Qt::PopupFocusReason);
@@ -2542,9 +2542,9 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
                 w = w->parentWidget();
             SetCursor(w->cursor().handle());
         }
-        if (curWin != winId()) {                // new current window
+        if (curWin != internalWinId()) {                // new current window
             QApplicationPrivate::dispatchEnterLeave(this, QWidget::find(curWin));
-            curWin = winId();
+            curWin = internalWinId();
 #ifndef Q_OS_TEMP
             static bool trackMouseEventLookup = false;
             typedef BOOL (WINAPI *PtrTrackMouseEvent)(LPTRACKMOUSEEVENT);
@@ -2572,7 +2572,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         gpos = curPos;
 
         Q_ASSERT(testAttribute(Qt::WA_WState_Created));
-        ScreenToClient(winId(), &curPos);
+        ScreenToClient(internalWinId(), &curPos);
 
         pos.rx() = curPos.x;
         pos.ry() = curPos.y;
@@ -2643,11 +2643,11 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             if (w && !QApplicationPrivate::isBlockedByModal(w)) {
                 Q_ASSERT(w->testAttribute(Qt::WA_WState_Created));
                 if (QWidget::mouseGrabber() == 0)
-                    setAutoCapture(w->winId());
+                    setAutoCapture(w->internalWinId());
                 POINT widgetpt = gpos;
-                ScreenToClient(w->winId(), &widgetpt);
+                ScreenToClient(w->internalWinId(), &widgetpt);
                 LPARAM lParam = MAKELPARAM(widgetpt.x, widgetpt.y);
-                winPostMessage(w->winId(), msg.message, msg.wParam, lParam);
+                winPostMessage(w->internalWinId(), msg.message, msg.wParam, lParam);
             }
          } else if (type == QEvent::MouseButtonRelease && button == Qt::RightButton
                    && qApp->activePopupWidget() == activePopupWidget) {
@@ -2663,7 +2663,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
               type == QEvent::MouseButtonDblClick) && bs == button) {
             Q_ASSERT(testAttribute(Qt::WA_WState_Created));
             if (QWidget::mouseGrabber() == 0)
-                setAutoCapture(winId());
+                setAutoCapture(internalWinId());
         } else if (type == QEvent::MouseButtonRelease && bs == 0) {
             if (QWidget::mouseGrabber() == 0)
                 releaseAutoCapture();
@@ -3009,8 +3009,8 @@ bool QETWidget::translatePaintEvent(const MSG &msg)
 {
     QRegion rgn(0, 0, 1, 1);
     Q_ASSERT(testAttribute(Qt::WA_WState_Created));
-    int res = GetUpdateRgn(winId(), rgn.handle(), FALSE);
-    if (!GetUpdateRect(winId(), 0, FALSE)  // The update bounding rect is invalid
+    int res = GetUpdateRgn(internalWinId(), rgn.handle(), FALSE);
+    if (!GetUpdateRect(internalWinId(), 0, FALSE)  // The update bounding rect is invalid
          || (res == ERROR)
          || (res == NULLREGION)) {
         d_func()->hd = 0;
@@ -3022,13 +3022,13 @@ bool QETWidget::translatePaintEvent(const MSG &msg)
     } else {
         setAttribute(Qt::WA_PendingUpdate, false);
         PAINTSTRUCT ps;
-        d_func()->hd = BeginPaint(winId(), &ps);
+        d_func()->hd = BeginPaint(internalWinId(), &ps);
 
         // Mapping region from system to qt (32 bit) coordinate system.
         rgn.translate(data->wrect.topLeft());
         qt_syncBackingStore(rgn, this, (msg.message == WM_QT_REPAINT));
         d_func()->hd = 0;
-        EndPaint(winId(), &ps);
+        EndPaint(internalWinId(), &ps);
     }
     return true;
 }
@@ -3074,7 +3074,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
         }
         QString txt;
 #ifndef Q_OS_TEMP
-        if (IsIconic(winId()) && windowIconText().size())
+        if (IsIconic(internalWinId()) && windowIconText().size())
             txt = windowIconText();
         else
 #endif
@@ -3103,7 +3103,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
         QPoint oldPos = geometry().topLeft();
         QPoint newCPos(a, b);
         // Ignore silly Windows move event to wild pos after iconify.
-        if (!IsIconic(winId()) && newCPos != oldPos) {
+        if (!IsIconic(internalWinId()) && newCPos != oldPos) {
             cr.moveTopLeft(newCPos);
             data->crect = cr;
             if (isVisible()) {

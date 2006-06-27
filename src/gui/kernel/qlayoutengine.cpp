@@ -21,6 +21,7 @@
 #include <qalgorithms.h>
 
 #include <qdebug.h>
+//#define QLAYOUT_EXTRA_DEBUG
 
 typedef qint64 Fixed;
 static inline Fixed toFixed(int i) { return (Fixed)i * 256; }

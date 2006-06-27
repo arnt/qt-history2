@@ -469,7 +469,7 @@ static inline bool isModifierKey(int code)
 static void qt_show_system_menu(QWidget* tlw)
 {
     Q_ASSERT(tlw->testAttribute(Qt::WA_WState_Created));
-    HMENU menu = GetSystemMenu(tlw->winId(), FALSE);
+    HMENU menu = GetSystemMenu(tlw->internalWinId(), FALSE);
     if (!menu)
         return; // no menu for this window
 
@@ -478,7 +478,7 @@ static void qt_show_system_menu(QWidget* tlw)
 
 #ifndef Q_OS_TEMP
     EnableMenuItem(menu, SC_MINIMIZE, (tlw->windowFlags() & Qt::WindowMinimizeButtonHint)?enabled:disabled);
-    bool maximized = IsZoomed(tlw->winId());
+    bool maximized = IsZoomed(tlw->internalWinId());
 
     EnableMenuItem(menu, SC_MAXIMIZE, ! (tlw->windowFlags() & Qt::WindowMaximizeButtonHint) || maximized?disabled:enabled);
     EnableMenuItem(menu, SC_RESTORE, maximized?enabled:disabled);
@@ -493,10 +493,10 @@ static void qt_show_system_menu(QWidget* tlw)
     int ret = TrackPopupMenuEx(menu,
                                TPM_LEFTALIGN  | TPM_TOPALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
                                tlw->geometry().x(), tlw->geometry().y(),
-                               tlw->winId(),
+                               tlw->internalWinId(),
                                0);
     if (ret)
-        QtWndProc(tlw->winId(), WM_SYSCOMMAND, ret, 0);
+        QtWndProc(tlw->internalWinId(), WM_SYSCOMMAND, ret, 0);
 }
 
 
@@ -560,11 +560,11 @@ void QKeyMapperPrivate::clearMappings()
             && (wchLCIDFontSig[7] & (WCHAR)0x0800))
         bidi = true;
     } else
-#endif //UNICODE 
+#endif //UNICODE
     {
         if (newLCID == 0x0859 ||  //Sindhi (Arabic script)
             newLCID == 0x0460)    //Kashmiri (Arabic script)
-            bidi = true;;   
+            bidi = true;;
 
         switch (PRIMARYLANGID(newLCID))
         {
@@ -963,7 +963,7 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
                 bool store = true;
                 // Alt+<alphanumerical> go to the Win32 menu system if unhandled by Qt
                 if (msgType == WM_SYSKEYDOWN && !k0 && a) {
-                    HWND parent = GetParent(widget->winId());
+                    HWND parent = GetParent(widget->internalWinId());
                     while (parent) {
                         if (GetMenu(parent)) {
                             SendMessage(parent, WM_SYSCOMMAND, SC_KEYMENU, a);
@@ -1002,7 +1002,7 @@ bool QKeyMapperPrivate::translateKeyEvent(QWidget *widget, const MSG &msg, bool 
                 // don't pass Alt to Windows unless we are embedded in a non-Qt window
                 if (code == Qt::Key_Alt) {
                     k0 = true;
-                    HWND parent = GetParent(widget->winId());
+                    HWND parent = GetParent(widget->internalWinId());
                     while (parent) {
                         if (!QWidget::find(parent) && GetMenu(parent)) {
                             k0 = false;

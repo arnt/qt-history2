@@ -865,7 +865,7 @@ void qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst)
 #ifndef Q_OS_TEMP
     CoLockObjectExternal(dst, FALSE, TRUE);
     Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
-    RevokeDragDrop(widget->winId());
+    RevokeDragDrop(widget->internalWinId());
 #endif
 }
 
@@ -874,7 +874,7 @@ QOleDropTarget* qt_olednd_register(QWidget* widget)
     QOleDropTarget* dst = new QOleDropTarget(widget);
 #ifndef Q_OS_TEMP
     Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
-    RegisterDragDrop(widget->winId(), dst);
+    RegisterDragDrop(widget->internalWinId(), dst);
     CoLockObjectExternal(dst, TRUE, TRUE);
 #endif
     return dst;

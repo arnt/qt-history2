@@ -154,7 +154,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
             //XXX XDefineCursor(dpy, winid, oc ? oc->handle() : cursor().handle());
         }
         q->setAttribute(Qt::WA_SetCursor);
-        QWidget::qwsDisplay()->nameRegion(q->winId(), q->objectName(), q->windowTitle());
+        QWidget::qwsDisplay()->nameRegion(q->internalWinId(), q->objectName(), q->windowTitle());
     }
 
     if (topLevel) {
@@ -235,9 +235,9 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             if (destroyWindow && isWindow()) {
 #ifdef QT_WINDOW_SURFACE
                 d->extra->topextra->backingStore->windowSurface->release();
-                qwsDisplay()->destroyRegion(winId());
+                qwsDisplay()->destroyRegion(internalWinId());
 #else
-                qwsDisplay()->destroyRegion(winId());
+                qwsDisplay()->destroyRegion(internalWinId());
                 d->extra->topextra->backingStore->buffer.detach();
 #endif
             }
@@ -373,7 +373,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 #ifndef QT_NO_QWS_INPUTMETHODS
     if (text) {
         QWidget *tlw = window();
-        int winid = tlw->winId();
+        int winid = tlw->internalWinId();
         QPoint p(x, y + height);
         QPoint gp = mapToGlobal(p);
 
@@ -521,7 +521,7 @@ void QWidget::activateWindow()
     QWidget *tlw = window();
     if (tlw->isVisible()) {
         Q_ASSERT(tlw->testAttribute(Qt::WA_WState_Created));
-        qwsDisplay()->requestFocus(tlw->winId(), true);
+        qwsDisplay()->requestFocus(tlw->internalWinId(), true);
     }
 }
 
@@ -962,7 +962,7 @@ void QWidgetPrivate::raise_sys()
     //@@@ transaction
     if (q->isWindow()) {
         Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
-        QWidget::qwsDisplay()->setAltitude(q->winId(), 0);
+        QWidget::qwsDisplay()->setAltitude(q->internalWinId(), 0);
 #ifdef QT_NO_WINDOWGROUPHINT
 #else
         QObjectList childObjects =  q->children();

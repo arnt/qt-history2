@@ -1107,7 +1107,7 @@ static void qt_get_net_virtual_roots()
 static void qt_net_update_user_time(QWidget *tlw)
 {
     Q_ASSERT(tlw->testAttribute(Qt::WA_WState_Created));
-    XChangeProperty(X11->display, tlw->winId(), ATOM(_NET_WM_USER_TIME),
+    XChangeProperty(X11->display, tlw->internalWinId(), ATOM(_NET_WM_USER_TIME),
                     XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &X11->userTime, 1);
 }
 
@@ -2129,7 +2129,7 @@ void QApplication::setMainWidget(QWidget *mainWidget)
                   "has a parent",
                   mainWidget->metaObject()->className(), mainWidget->objectName().toLocal8Bit().constData());
 #endif
-    mainWidget->createWinId();
+    mainWidget->d_func()->createWinId();
     QApplicationPrivate::main_widget = mainWidget;
     if (QApplicationPrivate::main_widget) // give WM command line
         QApplicationPrivate::applyX11SpecificCommandLineArguments(QApplicationPrivate::main_widget);
@@ -2143,11 +2143,11 @@ void QApplicationPrivate::applyX11SpecificCommandLineArguments(QWidget *main_wid
         return;
     beenHereDoneThat = true;
     Q_ASSERT(main_widget->testAttribute(Qt::WA_WState_Created));
-    XSetWMProperties(X11->display, main_widget->winId(), 0, 0, qApp->d_func()->argv, qApp->d_func()->argc, 0, 0, 0);
+    XSetWMProperties(X11->display, main_widget->internalWinId(), 0, 0, qApp->d_func()->argv, qApp->d_func()->argc, 0, 0, 0);
     if (mwTitle) {
-        XStoreName(X11->display, main_widget->winId(), (char*)mwTitle);
+        XStoreName(X11->display, main_widget->internalWinId(), (char*)mwTitle);
         QByteArray net_wm_name = QString::fromLocal8Bit(mwTitle).toUtf8();
-        XChangeProperty(X11->display, main_widget->winId(), ATOM(_NET_WM_NAME), ATOM(UTF8_STRING), 8,
+        XChangeProperty(X11->display, main_widget->internalWinId(), ATOM(_NET_WM_NAME), ATOM(UTF8_STRING), 8,
                         PropModeReplace, (unsigned char *)net_wm_name.data(), net_wm_name.size());
     }
     if (mwGeometry) { // parse geometry
@@ -2323,7 +2323,7 @@ QWidget *QApplication::topLevelAt(const QPoint &p)
                 Window ctarget = target;
                 if (widget->isVisible() && !(widget->windowType() == Qt::Desktop)) {
                     Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
-                    Window wid = widget->winId();
+                    Window wid = widget->internalWinId();
                     while (ctarget && !w) {
                         XTranslateCoordinates(X11->display,
                                               QX11Info::appRootWindow(screen),
@@ -2689,7 +2689,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
     switch (event->type) {
 
     case ButtonRelease:                        // mouse event
-        if (!d->inPopupMode() && !QWidget::mouseGrabber() && pressed_window != widget->winId()
+        if (!d->inPopupMode() && !QWidget::mouseGrabber() && pressed_window != widget->internalWinId()
             && (widget = (QETWidget*) QWidget::find((WId)pressed_window)) == 0)
             break;
         // fall through intended
@@ -2804,7 +2804,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 setActiveWindow(widget);
         }
         QApplicationPrivate::dispatchEnterLeave(widget, QWidget::find(curWin));
-        curWin = widget->winId();
+        curWin = widget->internalWinId();
         widget->translateMouseEvent(event); //we don't get MotionNotify, emulate it
     }
         break;
@@ -2812,7 +2812,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
     case LeaveNotify: {                        // leave window
         if (QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber())
             break;
-        if (curWin && widget->winId() != curWin)
+        if (curWin && widget->internalWinId() != curWin)
             break;
         if (event->xcrossing.mode != NotifyNormal)
             break;
@@ -2854,7 +2854,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
         QApplicationPrivate::dispatchEnterLeave(enter, widget);
         if (enter && QApplicationPrivate::tryModalHelper(enter, 0)) {
-            curWin = enter->winId();
+            curWin = enter->internalWinId();
             static_cast<QETWidget *>(enter)->translateMouseEvent(&ev); //we don't get MotionNotify, emulate it
         } else {
             curWin = 0;
@@ -2882,7 +2882,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 if (idx != -1) {
                     X11->deferred_map.removeAt(idx);
                     Q_ASSERT(widget->testAttribute(Qt::WA_WState_Created));
-                    XMapWindow(X11->display, widget->winId());
+                    XMapWindow(X11->display, widget->internalWinId());
                 }
             }
         }
@@ -2917,7 +2917,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
     case ReparentNotify:                        // window manager reparents
         while (XCheckTypedWindowEvent(X11->display,
-                                      widget->winId(),
+                                      widget->internalWinId(),
                                       ReparentNotify,
                                       event))
             ;        // skip old reparent events
@@ -3105,7 +3105,7 @@ void QApplicationPrivate::leaveModal_sys(QWidget *widget)
             QPoint p(QCursor::pos());
             QWidget* w = QApplication::widgetAt(p.x(), p.y());
             QApplicationPrivate::dispatchEnterLeave(w, QWidget::find(curWin)); // send synthetic enter event
-            curWin = w? w->winId() : 0;
+            curWin = w? w->internalWinId() : 0;
         }
     }
     app_do_modal = qt_modal_stack != 0;
@@ -3178,10 +3178,10 @@ void QApplicationPrivate::openPopup(QWidget *popup)
     Display *dpy = X11->display;
     if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
         Q_ASSERT(popup->testAttribute(Qt::WA_WState_Created));
-        int r = XGrabKeyboard(dpy, popup->winId(), false,
+        int r = XGrabKeyboard(dpy, popup->internalWinId(), false,
                               GrabModeAsync, GrabModeAsync, X11->time);
         if ((popupGrabOk = (r == GrabSuccess))) {
-            r = XGrabPointer(dpy, popup->winId(), true,
+            r = XGrabPointer(dpy, popup->internalWinId(), true,
                              (ButtonPressMask | ButtonReleaseMask | ButtonMotionMask
                               | EnterWindowMask | LeaveWindowMask | PointerMotionMask),
                              GrabModeAsync, GrabModeAsync, XNone, XNone, X11->time);
@@ -3253,10 +3253,10 @@ void QApplicationPrivate::closePopup(QWidget *popup)
         if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
             Display *dpy = X11->display;
             Q_ASSERT(aw->testAttribute(Qt::WA_WState_Created));
-            int r = XGrabKeyboard(dpy, aw->winId(), false,
+            int r = XGrabKeyboard(dpy, aw->internalWinId(), false,
                                   GrabModeAsync, GrabModeAsync, X11->time);
             if ((popupGrabOk = (r == GrabSuccess))) {
-                r = XGrabPointer(dpy, aw->winId(), true,
+                r = XGrabPointer(dpy, aw->internalWinId(), true,
                                  (ButtonPressMask | ButtonReleaseMask | ButtonMotionMask
                                   | EnterWindowMask | LeaveWindowMask | PointerMotionMask),
                                  GrabModeAsync, GrabModeAsync, XNone, XNone, X11->time);
@@ -3404,7 +3404,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 // or not)
                 int delta = 1;
                 XEvent xevent;
-                while (XCheckTypedWindowEvent(X11->display, winId(), ButtonPress, &xevent)){
+                while (XCheckTypedWindowEvent(X11->display, internalWinId(), ButtonPress, &xevent)){
                     if (xevent.xbutton.button != event->xbutton.button){
                         XPutBackEvent(X11->display, &xevent);
                         break;
@@ -3493,7 +3493,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             type = QEvent::MouseButtonRelease;
         }
     }
-    mouseActWindow = winId();                        // save some event params
+    mouseActWindow = internalWinId();                        // save some event params
     mouseButtonState = buttons;
     if (type == 0)                                // don't send event
         return false;
@@ -3696,9 +3696,9 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const QTabletDeviceData *
     if (ev->type == tablet->xinput_motion) {
         motion = reinterpret_cast<const XDeviceMotionEvent*>(ev);
         for (;;) {
-            if (!XCheckTypedWindowEvent(X11->display, winId(), MotionNotify, &mouseMotionEvent))
+            if (!XCheckTypedWindowEvent(X11->display, internalWinId(), MotionNotify, &mouseMotionEvent))
                 break;
-            if (!XCheckTypedWindowEvent(X11->display, winId(), tablet->xinput_motion, &xinputMotionEvent)) {
+            if (!XCheckTypedWindowEvent(X11->display, internalWinId(), tablet->xinput_motion, &xinputMotionEvent)) {
                 XPutBackEvent(X11->display, &mouseMotionEvent);
                 break;
             }
@@ -3953,7 +3953,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             // map the window if we were waiting for a transition to
             // withdrawn
             if (X11->deferred_map.removeAll(this)) {
-                XMapWindow(X11->display, winId());
+                XMapWindow(X11->display, internalWinId());
             } else if (isVisible() && !testAttribute(Qt::WA_Mapped)) {
                 // so that show() will work again. As stated in the
                 // ICCCM section 4.1.4: "Only the client can effect a
@@ -3967,7 +3967,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
             // the window manager has changed the WM State property...
             // we are wanting to see if we are withdrawn so that we
             // can reuse this window...
-            e = XGetWindowProperty(X11->display, winId(), ATOM(WM_STATE), 0, 2, False,
+            e = XGetWindowProperty(X11->display, internalWinId(), ATOM(WM_STATE), 0, 2, False,
                                    ATOM(WM_STATE), &ret, &format, &nitems, &after, &data);
 
             if (e == Success && ret == ATOM(WM_STATE) && format == 32 && nitems > 0) {
@@ -3977,7 +3977,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     // if we are in the withdrawn state, we are free
                     // to reuse this window provided we remove the
                     // WM_STATE property (ICCCM 4.1.3.1)
-                    XDeleteProperty(X11->display, winId(), ATOM(WM_STATE));
+                    XDeleteProperty(X11->display, internalWinId(), ATOM(WM_STATE));
 
                     // set the parent id to zero, so that show() will
                     // work again
@@ -3986,7 +3986,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                     // map the window if we were waiting for a
                     // transition to withdrawn
                     if (X11->deferred_map.removeAll(this)) {
-                        XMapWindow(X11->display, winId());
+                        XMapWindow(X11->display, internalWinId());
                     } else if (isVisible() && !testAttribute(Qt::WA_Mapped)) {
                         // so that show() will work again. As stated
                         // in the ICCCM section 4.1.4: "Only the
@@ -4112,7 +4112,7 @@ void QETWidget::translatePaintEvent(const XEvent *event)
                      event->xexpose.width, event->xexpose.height);
     XEvent xevent;
     PaintEventInfo info;
-    info.window = winId();
+    info.window = internalWinId();
     translateBySips(this, paintRect);
     paintRect = d->mapFromWS(paintRect);
 
@@ -4192,7 +4192,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
         if (d->extra->compress_events) {
             // ConfigureNotify compression for faster opaque resizing
             XEvent otherEvent;
-            while (XCheckTypedWindowEvent(X11->display, winId(), ConfigureNotify,
+            while (XCheckTypedWindowEvent(X11->display, internalWinId(), ConfigureNotify,
                                           &otherEvent)) {
                 if (qt_x11EventFilter(&otherEvent))
                     continue;
@@ -4255,7 +4255,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
 
     } else {
         XEvent xevent;
-        while (XCheckTypedWindowEvent(X11->display,winId(), ConfigureNotify,&xevent) &&
+        while (XCheckTypedWindowEvent(X11->display,internalWinId(), ConfigureNotify,&xevent) &&
                !qt_x11EventFilter(&xevent)  &&
                !x11Event(&xevent)) // send event through filter
             ;
@@ -4264,7 +4264,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
     if (wasResize && !testAttribute(Qt::WA_StaticContents)) {
         XEvent xevent;
         PaintEventInfo info;
-        info.window = winId();
+        info.window = internalWinId();
         while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
                              (XPointer)&info) &&
                !qt_x11EventFilter(&xevent)  &&

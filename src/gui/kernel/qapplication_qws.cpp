@@ -1443,7 +1443,7 @@ QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
 void QWSDisplay::setWindowCaption(QWidget *w, const QString &c)
 {
     if (w->isWindow()) {
-        nameRegion(w->winId(), w->objectName(), c);
+        nameRegion(w->internalWinId(), w->objectName(), c);
         static_cast<QETWidget *>(w)->repaintDecoration(qApp->desktop()->rect(), true);
     }
 }
@@ -1455,7 +1455,7 @@ void QWSDisplay::selectCursor(QWidget *w, unsigned int cursId)
         QWidget *top = w->window();
         qt_last_cursor = cursId;
         QWSSelectCursorCommand cmd;
-        cmd.simpleData.windowid = top->winId();
+        cmd.simpleData.windowid = top->internalWinId();
         cmd.simpleData.id = cursId;
         d->sendCommand(cmd);
         d->flush();
@@ -1478,7 +1478,7 @@ void QWSDisplay::grabMouse(QWidget *w, bool grab)
 #ifdef QT_DEBUG
     memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
 #endif
-    cmd.simpleData.windowid = top->winId();
+    cmd.simpleData.windowid = top->internalWinId();
     cmd.simpleData.grab = grab;
     d->sendCommand(cmd);
     d->flush();
@@ -1491,7 +1491,7 @@ void QWSDisplay::grabKeyboard(QWidget *w, bool grab)
 #ifdef QT_DEBUG
     memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
 #endif
-    cmd.simpleData.windowid = top->winId();
+    cmd.simpleData.windowid = top->internalWinId();
     cmd.simpleData.grab = grab;
     d->sendCommand(cmd);
     d->flush();

@@ -184,6 +184,7 @@ public:
 
     WId winId() const;
     void Q_DECL_DEPRECATED createWinId(); // ### going away ###
+    inline WId internalWinId() const { return data->winid; }
 
     // GUI style setting
     QStyle *style() const;

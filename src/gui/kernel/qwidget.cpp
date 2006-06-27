@@ -1123,7 +1123,7 @@ QWidget::~QWidget()
 
     clearFocus();
 
-    if (isWindow() && isVisible() && winId())
+    if (isWindow() && isVisible() && internalWinId())
         hide();
 
     // set all QPointers for this object to zero
@@ -1595,6 +1595,13 @@ QWidget *QWidget::find(WId id)
 
 
 /*!
+    \fn WId QWidget::internalWinId() const
+    \internal
+    Returns the window system identifier of the widget, or 0 if the widget is not created yet.
+
+*/
+
+/*!
     \fn WId QWidget::winId() const
 
     Returns the window system identifier of the widget.
@@ -1671,7 +1678,7 @@ void QWidget::setStyleSheet(const QString& styleSheet)
         d->setStyle_helper(proxy->baseStyle());
     } else if (!oldStyleSheet.isEmpty()) { // style sheet update
         d->propagateStyle(true);
-    } else { // stylesheet is set the first time 
+    } else { // stylesheet is set the first time
         setStyle(d->extra->style);
     }
 }
@@ -1770,7 +1777,7 @@ void QWidgetPrivate::inheritStyle()
 
     QStyle *newStyle = 0;
 
-    if (q->parentWidget() 
+    if (q->parentWidget()
         && qobject_cast<QStyleSheetStyle *>(q->parentWidget()->style()))
         newStyle = q->parentWidget()->style();
 
@@ -3848,7 +3855,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
 
     if (QApplication::focusWidget() == f
 #if defined(Q_WS_WIN)
-        && GetFocus() == f->winId()
+        && GetFocus() == f->internalWinId()
 #endif
        )
         return;
@@ -3880,7 +3887,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
 #if defined(Q_WS_WIN)
         if (f->testAttribute(Qt::WA_WState_Created)) {
             if (!(f->window()->windowType() == Qt::Popup))
-                SetFocus(f->winId());
+                SetFocus(f->internalWinId());
         } else {
 #endif
 #ifndef QT_NO_ACCESSIBILITY
@@ -3925,7 +3932,7 @@ void QWidget::clearFocus()
     if (hasFocus()) {
         QApplicationPrivate::setFocusWidget(0, Qt::OtherFocusReason);
 #if defined(Q_WS_WIN)
-        if (!(windowType() == Qt::Popup) && GetFocus() == winId())
+        if (!(windowType() == Qt::Popup) && GetFocus() == internalWinId())
             SetFocus(0);
         else {
 #endif
@@ -4067,7 +4074,7 @@ bool QWidget::isActiveWindow() const
     }
 #if defined(Q_WS_WIN32)
     HWND active = GetActiveWindow();
-    return active == tlw->winId() || ::IsChild(active, tlw->winId());
+    return active == tlw->internalWinId() || ::IsChild(active, tlw->internalWinId());
 #else
     return false;
 #endif

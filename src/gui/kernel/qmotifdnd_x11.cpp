@@ -700,25 +700,25 @@ QByteArray QX11Data::motifdndObtainData(const char *mimeType)
 
     // convert selection to the appropriate type
     XConvertSelection (X11->display, Dnd_selection, conversion_type,
-                       Dnd_selection, tw->winId(), Dnd_selection_time);
+                       Dnd_selection, tw->internalWinId(), Dnd_selection_time);
 
     XFlush(X11->display);
 
     XEvent xevent;
-    bool got=X11->clipboardWaitForEvent(tw->winId(), SelectionNotify, &xevent, 5000);
+    bool got=X11->clipboardWaitForEvent(tw->internalWinId(), SelectionNotify, &xevent, 5000);
     if (got) {
         Atom type;
 
-        if (X11->clipboardReadProperty(tw->winId(), Dnd_selection, true, &result, 0, &type, 0, true)) {
+        if (X11->clipboardReadProperty(tw->internalWinId(), Dnd_selection, true, &result, 0, &type, 0, true)) {
         }
     }
 
     //   we have to convert selection in order to indicate success to the initiator
     XConvertSelection (X11->display, Dnd_selection, ATOM(XmTRANSFER_SUCCESS),
-                       Dnd_selection, tw->winId(), Dnd_selection_time);
+                       Dnd_selection, tw->internalWinId(), Dnd_selection_time);
 
     // wait again for SelectionNotify event
-    X11->clipboardWaitForEvent(tw->winId(), SelectionNotify, &xevent, 5000);
+    X11->clipboardWaitForEvent(tw->internalWinId(), SelectionNotify, &xevent, 5000);
 
     if ((drop_widget->windowType() == Qt::Desktop)) {
         delete tw;
@@ -730,7 +730,7 @@ QByteArray QX11Data::motifdndObtainData(const char *mimeType)
 
 void QX11Data::motifdndEnable(QWidget *widget, bool)
 {
-    DndWriteReceiverProperty(display, widget->winId(), DND_DRAG_DYNAMIC);
+    DndWriteReceiverProperty(display, widget->internalWinId(), DND_DRAG_DYNAMIC);
 }
 
 
@@ -882,7 +882,7 @@ void QX11Data::motifdndHandle(QWidget * /* w */ , const XEvent * xe, bool /* pas
         dnd_data.reason = DND_DROP_START ;
 
         DndFillClientMessage (event.xclient.display,
-                              drop_widget->winId(),
+                              drop_widget->internalWinId(),
                               &cm, &dnd_data, 0);
 
         XSendEvent(event.xbutton.display,

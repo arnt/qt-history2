@@ -1257,7 +1257,7 @@ bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
 		directionKeyEvent = keysym;
 		// This code exists in order to check that
 		// the event is occurred in the same widget.
-		lastWinId = keyWidget->winId();
+		lastWinId = keyWidget->internalWinId();
 	    }
         } else {
             // this can no longer be a direction-changing accel.
@@ -1265,7 +1265,7 @@ bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
             directionKeyEvent = Qt::Key_Space;
         }
 
-        if (directionKeyEvent && lastWinId == keyWidget->winId()) {
+        if (directionKeyEvent && lastWinId == keyWidget->internalWinId()) {
             if (keysym == XK_Shift_L && directionKeyEvent == XK_Control_L ||
                 keysym == XK_Control_L && directionKeyEvent == XK_Shift_L) {
                 directionKeyEvent = Qt::Key_Direction_L;

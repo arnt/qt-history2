@@ -1173,7 +1173,7 @@ void QApplication::setStyle(QStyle *style)
     }
 
     QStyle* old = QApplicationPrivate::app_style; // save
-    
+
     if (!QApplicationPrivate::styleSheet.isEmpty()) {
         if (qobject_cast<QStyleSheetStyle *>(style) == 0) { // switch the base style
             QStyleSheetStyle *proxy =
@@ -2190,9 +2190,9 @@ bool QApplicationPrivate::isBlockedByModal(QWidget *widget)
                 w = w->parentWidget();
             }
 #ifdef Q_WS_WIN
-            if ((widget->testAttribute(Qt::WA_WState_Created) || widget->winId())
-                && (modalWidget->testAttribute(Qt::WA_WState_Created) || modalWidget->winId())
-                && IsChild(modalWidget->winId(), widget->winId()))
+            if ((widget->testAttribute(Qt::WA_WState_Created) || widget->data->winid)
+                && (modalWidget->testAttribute(Qt::WA_WState_Created) || modalWidget->data->winid)
+                && IsChild(modalWidget->data->winid, widget->data->winid))
                 return false;
 #endif
         }

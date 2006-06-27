@@ -100,7 +100,7 @@ public:
     ~QClipboardData()
     {
         Q_ASSERT(clipBoardViewer->testAttribute(Qt::WA_WState_Created));
-        ChangeClipboardChain(clipBoardViewer->winId(), nextClipboardViewer);
+        ChangeClipboardChain(clipBoardViewer->internalWinId(), nextClipboardViewer);
         delete clipBoardViewer;
         releaseIData();
     }
@@ -129,7 +129,7 @@ static QClipboardData *clipboardData()
         ptrClipboardData = new QClipboardData;
         // this needs to be done here to avoid recursion
         Q_ASSERT(ptrClipboardData->clipBoardViewer->testAttribute(Qt::WA_WState_Created));
-        ptrClipboardData->nextClipboardViewer = SetClipboardViewer(ptrClipboardData->clipBoardViewer->winId());
+        ptrClipboardData->nextClipboardViewer = SetClipboardViewer(ptrClipboardData->clipBoardViewer->internalWinId());
     }
     return ptrClipboardData;
 }
