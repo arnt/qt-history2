@@ -438,7 +438,6 @@ public:
         QStringList families;
     };
     QVector<ApplicationFont> applicationFonts;
-    int findAppFontSlot();
     int addAppFont(const QByteArray &fontData, const QString &fileName);
     bool reregisterAppFonts;
 
@@ -2232,33 +2231,32 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
 void QFontDatabase::createDatabase()
 { initializeDb(); }
 
-int QFontDatabasePrivate::findAppFontSlot()
-{
-    for (int i = 0; i < applicationFonts.count(); ++i)
-        if (applicationFonts.at(i).families.isEmpty())
-            return i;
-    applicationFonts.append(ApplicationFont());
-    return applicationFonts.count() - 1;
-}
-
 int QFontDatabasePrivate::addAppFont(const QByteArray &fontData, const QString &fileName)
 {
     QFontDatabasePrivate::ApplicationFont font;
     font.data = fontData;
     font.fileName = fileName;
 
-    const int slot = findAppFontSlot();
+    int i;
+    for (i = 0; i < applicationFonts.count(); ++i)
+        if (applicationFonts.at(i).families.isEmpty())
+            break;
+    if (i >= applicationFonts.count()) {
+        applicationFonts.append(ApplicationFont());
+        i = applicationFonts.count() - 1;
+    }
+
     if (font.fileName.isEmpty() && !fontData.isEmpty())
-        font.fileName = QString::fromLatin1(":qmemoryfonts/") + QString::number(slot);
+        font.fileName = QString::fromLatin1(":qmemoryfonts/") + QString::number(i);
 
     registerFont(&font);
     if (font.families.isEmpty())
         return -1;
 
-    applicationFonts[slot] = font;
+    applicationFonts[i] = font;
 
     invalidate();
-    return slot;
+    return i;
 }
 
 /*!
