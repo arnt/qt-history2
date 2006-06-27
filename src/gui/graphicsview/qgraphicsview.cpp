@@ -189,7 +189,7 @@ public:
     // Replaying events
     QGraphicsItem *lastItemUnderCursor;
     QPointF lastItemUnderCursorPos;
-    
+
     // Replaying mouse events
     QMouseEvent lastMouseEvent;
     bool useLastMouseEvent;
@@ -637,7 +637,7 @@ void QGraphicsView::resetCachedContent()
     Q_D(QGraphicsView);
     if (d->cacheMode == CacheNone)
         return;
-    
+
     if (d->cacheMode & CacheBackground) {
         // Background cacheing is enabled.
         d->mustResizeBackgroundPixmap = true;
@@ -1746,7 +1746,7 @@ void QGraphicsView::dragEnterEvent(QDragEnterEvent *event)
 
     // Disable replaying of mouse move events.
     d->useLastMouseEvent = false;
-    
+
     // Generate a scene event.
     QGraphicsSceneDragDropEvent sceneEvent(QEvent::GraphicsSceneDragEnter);
     d->populateSceneDragDropEvent(&sceneEvent, event);
@@ -1831,7 +1831,7 @@ void QGraphicsView::dragMoveEvent(QDragMoveEvent *event)
     event->setAccepted(sceneEvent.isAccepted());
     if (sceneEvent.isAccepted())
         event->setDropAction(sceneEvent.dropAction());
-    
+
     // Store the last item under the mouse for use when replaying.
     if ((d->lastItemUnderCursor = d->scene->itemAt(mapToScene(event->pos()))))
         d->lastItemUnderCursorPos = d->lastItemUnderCursor->mapFromScene(sceneEvent.scenePos());
@@ -1982,7 +1982,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
     Q_D(QGraphicsView);
     if (!d->sceneInteractionAllowed)
         return;
-   
+
     if (d->dragMode == QGraphicsView::RubberBandDrag) {
         d->storeMouseEvent(event);
         if (d->rubberBanding) {
@@ -2368,7 +2368,7 @@ void QGraphicsView::scrollContentsBy(int dx, int dy)
 
         // Scroll the background pixmap
         if (!d->backgroundPixmap.isNull()) {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(Q_WS_QWS)
             QPixmap tmp = d->backgroundPixmap;
             QPainter painter(&d->backgroundPixmap);
             painter.drawPixmap(dx, dy, tmp);
