@@ -531,13 +531,36 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
 
     QDomElement e = w.firstChild().toElement();
     bool inQ3ToolBar = className == QLatin1String("Q3ToolBar");
+    bool inQ3GroupBox = (className == QLatin1String("Q3GroupBox")) || (className == QLatin1String("Q3ButtonGroup"));
 
     while (!e.isNull()) {
         QString t = e.tagName().toLower();
         if (t == QLatin1String("vbox") || t == QLatin1String("hbox") || t == QLatin1String("grid")) {
             DomLayout *lay = createLayout(e);
             Q_ASSERT(lay != 0);
+
             if (ui_layout_list.isEmpty()) {
+                DomProperty *pmargin = 0;
+
+                if (inQ3GroupBox) {
+                    foreach (DomProperty *prop, lay->elementProperty()) {
+                        if (prop->attributeName() == QLatin1String("margin")) {
+                            pmargin = prop;
+                            break;
+                        }
+                    }
+
+                    if (! pmargin) {
+                        pmargin = new DomProperty();
+                        pmargin->setAttributeName(QLatin1String("margin"));
+                        pmargin->setElementNumber(0);
+
+                        QList<DomProperty*> plist = lay->elementProperty();
+                        plist.append(pmargin);
+                        lay->setElementProperty(plist);
+                    }
+                }
+
                 ui_layout_list.append(lay);
             } else {
                 // it's not possible to have more than one layout for widget!
