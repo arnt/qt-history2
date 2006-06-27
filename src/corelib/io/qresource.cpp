@@ -232,6 +232,14 @@ QResource::QResource(const QString &file) : d_ptr(new QResourcePrivate(this, fil
 }
 
 /*!
+    Releases the resources of the QResource object.
+*/
+QResource::~QResource()
+{
+    delete d_ptr;
+}
+
+/*!
     Sets a QResource to point to \a file. \a file can either be absolute,
     in which case it is opened directly, if relative then the file will be
     tried to be found in searchPaths().

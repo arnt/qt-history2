@@ -28,6 +28,7 @@ class Q_CORE_EXPORT QResource
 {
 public:
     QResource(const QString &file=QString());
+    ~QResource();
 
     void setFile(const QString &file);
     QString filePath() const;
