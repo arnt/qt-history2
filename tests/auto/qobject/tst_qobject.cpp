@@ -961,7 +961,7 @@ void tst_QObject::emitToManyReceivers()
         sender.emitSignal();
         int e = timer.elapsed();
 
-        if (elapsed != 1) {
+        if (elapsed > 1) {
             qDebug() << size << "receivers, elapsed time" << e << "compared to previous time" << elapsed;
             QVERIFY(double(e) / double(elapsed) <= increaseRatio * 2.0);
         } else {
