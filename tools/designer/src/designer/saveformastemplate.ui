@@ -1,6 +1,5 @@
 <ui version="4.0" >
- <author></author>
-  <comment>*********************************************************************
+ <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
@@ -12,7 +11,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <exportmacro></exportmacro>
  <class>SaveFormAsTemplate</class>
  <widget class="QDialog" name="SaveFormAsTemplate" >
   <property name="geometry" >
@@ -43,14 +41,6 @@
      </property>
      <item row="0" column="1" >
       <widget class="QLineEdit" name="templateNameEdit" >
-       <property name="geometry" >
-        <rect>
-         <x>67</x>
-         <y>1</y>
-         <width>285</width>
-         <height>22</height>
-        </rect>
-       </property>
        <property name="text" >
         <string/>
        </property>
@@ -60,27 +50,10 @@
       </widget>
      </item>
      <item row="1" column="1" >
-      <widget class="QComboBox" name="categoryCombo" >
-       <property name="geometry" >
-        <rect>
-         <x>67</x>
-         <y>29</y>
-         <width>285</width>
-         <height>26</height>
-        </rect>
-       </property>
-      </widget>
+      <widget class="QComboBox" name="categoryCombo" />
      </item>
      <item row="1" column="0" >
       <widget class="QLabel" name="label_2" >
-       <property name="geometry" >
-        <rect>
-         <x>1</x>
-         <y>29</y>
-         <width>60</width>
-         <height>26</height>
-        </rect>
-       </property>
        <property name="frameShape" >
         <enum>QFrame::NoFrame</enum>
        </property>
@@ -100,14 +73,6 @@
      </item>
      <item row="0" column="0" >
       <widget class="QLabel" name="label" >
-       <property name="geometry" >
-        <rect>
-         <x>1</x>
-         <y>1</y>
-         <width>60</width>
-         <height>22</height>
-        </rect>
-       </property>
        <property name="frameShape" >
         <enum>QFrame::NoFrame</enum>
        </property>
@@ -129,35 +94,19 @@
    </item>
    <item>
     <spacer>
-     <property name="geometry" >
-      <rect>
-       <x>9</x>
-       <y>71</y>
-       <width>373</width>
-       <height>20</height>
-      </rect>
-     </property>
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" >
       <size>
-       <width>20</width>
-       <height>40</height>
+       <width>373</width>
+       <height>16</height>
       </size>
      </property>
     </spacer>
    </item>
    <item>
     <widget class="QFrame" name="horizontalLine" >
-     <property name="geometry" >
-      <rect>
-       <x>9</x>
-       <y>97</y>
-       <width>373</width>
-       <height>3</height>
-      </rect>
-     </property>
      <property name="frameShape" >
       <enum>QFrame::HLine</enum>
      </property>
@@ -167,72 +116,50 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>1</number>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="spacing" >
-      <number>6</number>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
      </property>
-     <item>
-      <spacer>
-       <property name="geometry" >
-        <rect>
-         <x>1</x>
-         <y>1</y>
-         <width>197</width>
-         <height>32</height>
-        </rect>
-       </property>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" >
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="okButton" >
-       <property name="geometry" >
-        <rect>
-         <x>204</x>
-         <y>1</y>
-         <width>81</width>
-         <height>32</height>
-        </rect>
-       </property>
-       <property name="text" >
-        <string>OK</string>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancelButton" >
-       <property name="geometry" >
-        <rect>
-         <x>291</x>
-         <y>1</y>
-         <width>81</width>
-         <height>32</height>
-        </rect>
-       </property>
-       <property name="text" >
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    </widget>
    </item>
   </layout>
  </widget>
- <pixmapfunction></pixmapfunction>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SaveFormAsTemplate</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>256</x>
+     <y>124</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>113</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>SaveFormAsTemplate</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>332</x>
+     <y>127</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>372</x>
+     <y>147</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

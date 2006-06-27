@@ -26,8 +26,7 @@ public:
     virtual ~SaveFormAsTemplate();
 
 private slots:
-    void on_okButton_clicked();
-    void on_cancelButton_clicked();
+    void accept();
     void updateOKButton(const QString &str);
     void checkToAddPath(int itemIndex);
 

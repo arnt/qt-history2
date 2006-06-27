@@ -18,6 +18,7 @@
 
 #include <QtGui/QRegExpValidator>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
 
 #include <QtCore/qdebug.h>
 
@@ -50,14 +51,15 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(QDesignerWidgetDataBase
 
     ui->m_class_name_input->setValidator(new QRegExpValidator(QRegExp(QLatin1String("[_a-zA-Z:][:_a-zA-Z0-9]*")), ui->m_class_name_input));
     ui->m_base_class_name_label->setText(base_class_name);
-    connect(ui->m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(ui->m_cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
+
     connect(ui->m_class_name_input->lineEdit(), SIGNAL(textChanged(QString)),
             this, SLOT(checkInputs()));
     connect(ui->m_class_name_input, SIGNAL(activated(QString)),
             this, SLOT(setIncludeForClass(QString)));
     connect(ui->m_header_file_input, SIGNAL(textChanged(QString)), this, SLOT(checkInputs()));
-    ui->m_ok_button->setEnabled(false);
+
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
     m_automatic_include = true;
 
     ui->m_class_name_input->setFocus();
@@ -85,8 +87,8 @@ void PromoteToCustomWidgetDialog::checkInputs()
     }
     ui->m_header_file_input->blockSignals(blocked);
 
-    ui->m_ok_button->setEnabled(!customClassName().isEmpty()
-                                && !includeFile().isEmpty());
+    bool enabled = !customClassName().isEmpty() && !includeFile().isEmpty();
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enabled);
 }
 
 void PromoteToCustomWidgetDialog::setIncludeForClass(const QString &name)

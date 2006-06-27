@@ -1,5 +1,4 @@
 <ui version="4.0" >
- <author></author>
  <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
@@ -12,7 +11,6 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
- <exportmacro></exportmacro>
  <class>TableWidgetEditor</class>
  <widget class="QDialog" name="TableWidgetEditor" >
   <property name="geometry" >
@@ -20,7 +18,7 @@
     <x>0</x>
     <y>0</y>
     <width>582</width>
-    <height>306</height>
+    <height>366</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -28,11 +26,21 @@
   </property>
   <layout class="QGridLayout" >
    <property name="margin" >
-    <number>8</number>
+    <number>9</number>
    </property>
    <property name="spacing" >
     <number>6</number>
    </property>
+   <item row="2" column="0" colspan="2" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="1" >
     <widget class="QGroupBox" name="rowsBox" >
      <property name="title" >
@@ -199,6 +207,99 @@
          </spacer>
         </item>
        </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item rowspan="2" row="0" column="0" >
+    <widget class="QGroupBox" name="itemsBox" >
+     <property name="title" >
+      <string>Table Items</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>8</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="1" column="3" >
+       <widget class="QLabel" name="textLabel" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>0</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text" >
+         <string>&amp;Text</string>
+        </property>
+        <property name="buddy" >
+         <cstring>itemTextLineEdit</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4" >
+       <widget class="QLineEdit" name="itemTextLineEdit" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>7</hsizetype>
+          <vsizetype>4</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip" >
+         <string>Set Item Text</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QToolButton" name="deletePixmapItemButton" >
+        <property name="toolTip" >
+         <string>Reset Item Pixmap</string>
+        </property>
+        <property name="text" >
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QToolButton" name="previewPixmapItemButton" >
+        <property name="toolTip" >
+         <string>Set Item Pixmap</string>
+        </property>
+        <property name="text" >
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="pixmapLabel" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>0</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text" >
+         <string>&amp;Pixmap</string>
+        </property>
+        <property name="buddy" >
+         <cstring>previewPixmapItemButton</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="5" >
+       <widget class="QTableWidget" name="tableWidget" >
+        <property name="toolTip" >
+         <string>Table Items</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -373,142 +474,8 @@
      </layout>
     </widget>
    </item>
-   <item rowspan="2" row="0" column="0" >
-    <widget class="QGroupBox" name="itemsBox" >
-     <property name="title" >
-      <string>Table Items</string>
-     </property>
-     <layout class="QGridLayout" >
-      <property name="margin" >
-       <number>8</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item row="1" column="3" >
-       <widget class="QLabel" name="textLabel" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>5</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text" >
-         <string>&amp;Text</string>
-        </property>
-        <property name="buddy" >
-         <cstring>itemTextLineEdit</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4" >
-       <widget class="QLineEdit" name="itemTextLineEdit" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>7</hsizetype>
-          <vsizetype>4</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip" >
-         <string>Set Item Text</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" >
-       <widget class="QToolButton" name="deletePixmapItemButton" >
-        <property name="toolTip" >
-         <string>Reset Item Pixmap</string>
-        </property>
-        <property name="text" >
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1" >
-       <widget class="QToolButton" name="previewPixmapItemButton" >
-        <property name="toolTip" >
-         <string>Set Item Pixmap</string>
-        </property>
-        <property name="text" >
-         <string>...</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" >
-       <widget class="QLabel" name="pixmapLabel" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>0</hsizetype>
-          <vsizetype>5</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text" >
-         <string>&amp;Pixmap</string>
-        </property>
-        <property name="buddy" >
-         <cstring>previewPixmapItemButton</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="5" >
-       <widget class="QTableWidget" name="tableWidget" >
-        <property name="toolTip" >
-         <string>Table Items</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2" >
-    <layout class="QHBoxLayout" >
-     <property name="margin" >
-      <number>0</number>
-     </property>
-     <property name="spacing" >
-      <number>6</number>
-     </property>
-     <item>
-      <spacer>
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" >
-        <size>
-         <width>431</width>
-         <height>30</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="okButton" >
-       <property name="text" >
-        <string>OK</string>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="cancelButton" >
-       <property name="text" >
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
- <pixmapfunction></pixmapfunction>
  <tabstops>
   <tabstop>tableWidget</tabstop>
   <tabstop>previewPixmapItemButton</tabstop>
@@ -530,40 +497,38 @@
   <tabstop>previewPixmapRowButton</tabstop>
   <tabstop>deletePixmapRowButton</tabstop>
   <tabstop>moveRowDownButton</tabstop>
-  <tabstop>okButton</tabstop>
-  <tabstop>cancelButton</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>okButton</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
    <receiver>TableWidgetEditor</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>342</x>
-     <y>344</y>
+     <x>431</x>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>159</x>
-     <y>339</y>
+     <x>373</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>cancelButton</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
    <receiver>TableWidgetEditor</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>437</x>
-     <y>336</y>
+     <x>547</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>178</x>
-     <y>331</y>
+     <x>562</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>

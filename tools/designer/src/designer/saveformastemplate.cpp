@@ -17,6 +17,7 @@
 #include <QtCore/QFile>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtGui/QPushButton>
 
 #include <QtDesigner/abstractformwindow.h>
 
@@ -45,7 +46,7 @@ SaveFormAsTemplate::~SaveFormAsTemplate()
 {
 }
 
-void SaveFormAsTemplate::on_okButton_clicked()
+void SaveFormAsTemplate::accept()
 {
     QString templateFileName = ui.categoryCombo->currentText() + QLatin1Char('/') + ui.templateNameEdit->text();
     if (!templateFileName.endsWith(QLatin1String(".ui")))
@@ -90,14 +91,10 @@ void SaveFormAsTemplate::on_okButton_clicked()
     accept();
 }
 
-void SaveFormAsTemplate::on_cancelButton_clicked()
-{
-    reject();
-}
-
 void SaveFormAsTemplate::updateOKButton(const QString &str)
 {
-    ui.okButton->setEnabled(!str.isEmpty());
+    QPushButton *okButton = ui.buttonBox->button(QDialogButtonBox::Ok);
+    okButton->setEnabled(!str.isEmpty());
 }
 
 void SaveFormAsTemplate::checkToAddPath(int itemIndex)

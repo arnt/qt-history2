@@ -31,6 +31,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QComboBox>
 #include <QtGui/QLineEdit>
+#include <QtGui/QPushButton>
 
 namespace qdesigner_internal {
 
@@ -118,8 +119,8 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
     layout->addWidget(m_resource_editor);
     m_resource_editor->layout()->setMargin(0);
 
-    connect(ui->m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(ui->m_cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
     connect(ui->m_specify_file_input, SIGNAL(clicked()), this, SLOT(setActiveBox()));
     connect(ui->m_specify_resource_input, SIGNAL(clicked()), this, SLOT(setActiveBox()));
     connect(ui->m_icon_view, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
@@ -311,7 +312,7 @@ void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
 
 void FindIconDialog::updateButtons()
 {
-    ui->m_ok_button->setEnabled(isIconValid(filePath()));
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isIconValid(filePath()));
 }
 
 void FindIconDialog::setActiveBox()

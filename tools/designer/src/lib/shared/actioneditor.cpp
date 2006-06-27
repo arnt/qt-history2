@@ -31,6 +31,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLineEdit>
 #include <QtGui/QLabel>
+#include <QtGui/QPushButton>
 
 #include <QtCore/QRegExp>
 

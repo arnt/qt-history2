@@ -46,7 +46,7 @@ void OrderDialog::setPageList(QList<QWidget*> *pages)
         ui.pageList->setCurrentRow(0);
 }
 
-void OrderDialog::on_okButton_clicked()
+void OrderDialog::accept()
 {
     m_pages->clear();
     for (int i=0; i<ui.pageList->count(); ++i)
@@ -54,8 +54,6 @@ void OrderDialog::on_okButton_clicked()
         if (QWidget *w = qvariant_cast<QWidget*>(ui.pageList->item(i)->data(Qt::UserRole)))
             m_pages->append(w);
     }
-
-    accept();
 }
 
 void OrderDialog::on_upButton_clicked()

@@ -18,7 +18,8 @@
 #include <QtDesigner/abstractformwindow.h>
 #include <QtDesigner/abstractformeditor.h>
 
-#include <QRegExp>
+#include <QtGui/QPushButton>
+#include <QtCore/QRegExp>
 
 namespace qdesigner_internal {
 
@@ -119,7 +120,8 @@ void NewActionDialog::on_removeIconButton_clicked()
 
 void NewActionDialog::updateButtons()
 {
-    ui.okButton->setEnabled(!actionText().isEmpty() && !actionName().isEmpty());
+    QPushButton *okButton = ui.buttonBox->button(QDialogButtonBox::Ok);
+    okButton->setEnabled(!actionText().isEmpty() && !actionName().isEmpty());
     ui.removeIconButton->setEnabled(!ui.iconButton->icon().isNull());
 }
 

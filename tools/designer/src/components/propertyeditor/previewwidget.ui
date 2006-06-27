@@ -1,6 +1,5 @@
 <ui version="4.0" >
- <class>PreviewWidget</class>
-  <comment>*********************************************************************
+ <comment>*********************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ $TROLLTECH$. All rights reserved.
 **
@@ -12,13 +11,14 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 *********************************************************************</comment>
+ <class>PreviewWidget</class>
  <widget class="QWidget" name="PreviewWidget" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>375</width>
-    <height>303</height>
+    <width>471</width>
+    <height>251</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -32,15 +32,15 @@
   <property name="windowTitle" >
    <string>Preview Window</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QGridLayout" >
    <property name="margin" >
-    <number>11</number>
+    <number>9</number>
    </property>
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item>
-    <layout class="QHBoxLayout" >
+   <item rowspan="3" row="0" column="1" >
+    <layout class="QVBoxLayout" >
      <property name="margin" >
       <number>0</number>
      </property>
@@ -48,7 +48,23 @@
       <number>6</number>
      </property>
      <item>
-      <layout class="QVBoxLayout" >
+      <widget class="QLineEdit" name="LineEdit1" >
+       <property name="text" >
+        <string>LineEdit</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="ComboBox1" >
+       <item>
+        <property name="text" >
+         <string>ComboBox</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" >
        <property name="margin" >
         <number>0</number>
        </property>
@@ -56,285 +72,45 @@
         <number>6</number>
        </property>
        <item>
-        <widget class="QGroupBox" name="ButtonGroup1" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>123</width>
-           <height>111</height>
-          </rect>
-         </property>
-         <property name="title" >
-          <string>ButtonGroup</string>
-         </property>
-         <layout class="QVBoxLayout" >
-          <property name="margin" >
-           <number>11</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <widget class="QRadioButton" name="RadioButton1" >
-            <property name="geometry" >
-             <rect>
-              <x>13</x>
-              <y>23</y>
-              <width>97</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text" >
-             <string>RadioButton1</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="RadioButton2" >
-            <property name="geometry" >
-             <rect>
-              <x>13</x>
-              <y>50</y>
-              <width>97</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text" >
-             <string>RadioButton2</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="RadioButton3" >
-            <property name="geometry" >
-             <rect>
-              <x>13</x>
-              <y>77</y>
-              <width>97</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text" >
-             <string>RadioButton3</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+        <widget class="QSpinBox" name="SpinBox1" />
        </item>
        <item>
-        <widget class="QGroupBox" name="ButtonGroup2" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>117</y>
-           <width>123</width>
-           <height>84</height>
-          </rect>
-         </property>
-         <property name="title" >
-          <string>ButtonGroup2</string>
-         </property>
-         <layout class="QVBoxLayout" >
-          <property name="margin" >
-           <number>11</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <widget class="QCheckBox" name="CheckBox1" >
-            <property name="geometry" >
-             <rect>
-              <x>13</x>
-              <y>23</y>
-              <width>97</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text" >
-             <string>CheckBox1</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="CheckBox2" >
-            <property name="geometry" >
-             <rect>
-              <x>13</x>
-              <y>50</y>
-              <width>97</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text" >
-             <string>CheckBox2</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QProgressBar" name="ProgressBar1" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>207</y>
-           <width>123</width>
-           <height>25</height>
-          </rect>
+        <widget class="QPushButton" name="PushButton1" >
+         <property name="text" >
+          <string>PushButton</string>
          </property>
         </widget>
        </item>
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" >
-       <property name="margin" >
-        <number>0</number>
+      <widget class="QScrollBar" name="ScrollBar1" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
        </property>
-       <property name="spacing" >
-        <number>6</number>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="Slider1" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
        </property>
-       <item>
-        <widget class="QLineEdit" name="LineEdit1" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>6</y>
-           <width>224</width>
-           <height>23</height>
-          </rect>
-         </property>
-         <property name="text" >
-          <string>LineEdit</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="ComboBox1" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>41</y>
-           <width>224</width>
-           <height>25</height>
-          </rect>
-         </property>
-         <item>
-          <property name="text" >
-           <string>ComboBox</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
-         </property>
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <item>
-          <widget class="QSpinBox" name="SpinBox1" >
-           <property name="geometry" >
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>109</width>
-             <height>25</height>
-            </rect>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="PushButton1" >
-           <property name="geometry" >
-            <rect>
-             <x>115</x>
-             <y>0</y>
-             <width>109</width>
-             <height>26</height>
-            </rect>
-           </property>
-           <property name="text" >
-            <string>PushButton</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QScrollBar" name="ScrollBar1" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>116</y>
-           <width>224</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="Slider1" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>144</y>
-           <width>224</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="listWidget" >
-         <property name="geometry" >
-          <rect>
-           <x>0</x>
-           <y>172</y>
-           <width>224</width>
-           <height>50</height>
-          </rect>
-         </property>
-         <property name="maximumSize" >
-          <size>
-           <width>32767</width>
-           <height>50</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="listWidget" >
+       <property name="maximumSize" >
+        <size>
+         <width>32767</width>
+         <height>50</height>
+        </size>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
-   <item>
+   <item row="3" column="0" colspan="2" >
     <spacer>
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>249</y>
-       <width>353</width>
-       <height>43</height>
-      </rect>
-     </property>
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
@@ -349,6 +125,86 @@
      </property>
     </spacer>
    </item>
+   <item row="2" column="0" >
+    <widget class="QProgressBar" name="ProgressBar1" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QGroupBox" name="ButtonGroup2" >
+     <property name="title" >
+      <string>ButtonGroup2</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QCheckBox" name="CheckBox1" >
+        <property name="text" >
+         <string>CheckBox1</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="CheckBox2" >
+        <property name="text" >
+         <string>CheckBox2</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="ButtonGroup1" >
+     <property name="title" >
+      <string>ButtonGroup</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QRadioButton" name="RadioButton1" >
+        <property name="text" >
+         <string>RadioButton1</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="RadioButton2" >
+        <property name="text" >
+         <string>RadioButton2</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="RadioButton3" >
+        <property name="text" >
+         <string>RadioButton3</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <resources/>
+ <connections/>
 </ui>
