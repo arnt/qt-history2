@@ -303,7 +303,7 @@ Option::parseCommandLine(int argc, char **argv, int skip)
 int
 Option::init(int argc, char **argv)
 {
-    Option::application_argv0 = argv[0];
+    Option::application_argv0 = 0;
     Option::cpp_moc_mod = "";
     Option::h_moc_mod = "moc_";
     Option::lex_mod = "_lex";
@@ -336,6 +336,7 @@ Option::init(int argc, char **argv)
     Option::field_sep = ' ';
 
     if(argc && argv) {
+        Option::application_argv0 = argv[0];
         QString argv0 = argv[0];
         if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
             Option::qmake_mode = default_mode(argv0);
