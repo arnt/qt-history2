@@ -2894,7 +2894,7 @@ void QGraphicsItem::removeFromIndex()
 
     \sa QGraphicsRectItem, QGraphicsEllipseItem, QGraphicsPathItem,
     QGraphicsPolygonItem, QGraphicsTextItem, QGraphicsLineItem,
-    QGraphicsPixmapItem, \l{The Graphics View Framework}
+    QGraphicsPixmapItem, {The Graphics View Framework}
 */
 
 class QAbstractGraphicsShapeItemPrivate : public QGraphicsItemPrivate
@@ -3006,7 +3006,7 @@ void QAbstractGraphicsShapeItem::setBrush(const QBrush &brush)
     \img graphicsview-pathitem.png
 
     \sa QGraphicsRectItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
-    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, {The Graphics
     View Framework}
 */
 
@@ -3173,7 +3173,7 @@ QVariant QGraphicsPathItem::extension(const QVariant &variant) const
     \img graphicsview-rectitem.png
 
     \sa QGraphicsPathItem, QGraphicsEllipseItem, QGraphicsPolygonItem,
-    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, {The Graphics
     View Framework}
 */
 
@@ -3360,9 +3360,9 @@ QVariant QGraphicsRectItem::extension(const QVariant &variant) const
     brush, which you can set by calling setPen() and setBrush().
 
     \img graphicsview-ellipseitem.png
-    
+
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsPolygonItem,
-    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, {The Graphics
     View Framework}
 */
 
@@ -3531,7 +3531,7 @@ QVariant QGraphicsEllipseItem::extension(const QVariant &variant) const
     \img graphicsview-polygonitem.png
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
-    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, \l{The Graphics
+    QGraphicsTextItem, QGraphicsLineItem, QGraphicsPixmapItem, {The Graphics
     View Framework}
 */
 
@@ -3696,7 +3696,7 @@ QVariant QGraphicsPolygonItem::extension(const QVariant &variant) const
     \img graphicsview-lineitem.png
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
-    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsPixmapItem, \l{The
+    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsPixmapItem, {The
     Graphics View Framework}
 */
 
@@ -3930,7 +3930,7 @@ QVariant QGraphicsLineItem::extension(const QVariant &variant) const
     \img graphicsview-pixmapitem.png
 
     \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
-    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem, \l{The
+    QGraphicsTextItem, QGraphicsPolygonItem, QGraphicsLineItem, {The
     Graphics View Framework}
 */
 
@@ -4165,9 +4165,9 @@ QVariant QGraphicsPixmapItem::extension(const QVariant &variant) const
     to provide a reasonable implementation of boundingRect(), shape(),
     and contains(). You can set the font by calling setFont().
 
-    \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
-    QGraphicsPixmapItem, QGraphicsPolygonItem, QGraphicsLineItem, \l{The
-    Graphics View Framework}
+    \sa QGraphicsSimpleTextItem, QGraphicsPathItem, QGraphicsRectItem,
+        QGraphicsEllipseItem, QGraphicsPixmapItem, QGraphicsPolygonItem,
+        QGraphicsLineItem, {The Graphics View Framework}
 */
 
 class QGraphicsTextItemPrivate
@@ -4696,7 +4696,7 @@ QTextControl *QGraphicsTextItemPrivate::textControl() const
 */
 
 /*!
-    \fn QGraphicsTextItem:linkHovered(const QString &link)
+    \fn QGraphicsTextItem::linkHovered(const QString &link)
 
     This signal is emitted when the user hovers over a link. \a link is
     the link that was hovered over.
@@ -4833,8 +4833,8 @@ void QGraphicsSimpleTextItemPrivate::updateBoundingRect()
     QGraphicsSimpleText does not display rich text. It is optimized for drawing
     plain text fast and with low memory overhead.
 
-    \sa QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
-    QGraphicsPixmapItem, QGraphicsPolygonItem, QGraphicsLineItem, \l{The
+    \sa QGraphicsTextItem, QGraphicsPathItem, QGraphicsRectItem, QGraphicsEllipseItem,
+    QGraphicsPixmapItem, QGraphicsPolygonItem, QGraphicsLineItem, {The
     Graphics View Framework}
 */
 
@@ -5016,7 +5016,7 @@ QVariant QGraphicsSimpleTextItem::extension(const QVariant &variant) const
     \since 4.2
     \ingroup multimedia
 
-    \sa \l{The Graphics View Framework}
+    \sa QGraphicsItem, {The Graphics View Framework}
 */
 
 class QGraphicsItemGroupPrivate : public QGraphicsItemPrivate

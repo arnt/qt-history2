@@ -23,6 +23,8 @@
     \class QGraphicsSceneMouseEvent
     \since 4.2
     \ingroup multimedia
+
+    \sa QGraphicsSceneContextMenuEvent, QGraphicsSceneHoverEvent, QGraphicsSceneWheelEvent
 */
 
 /*!
@@ -35,6 +37,8 @@
     \class QGraphicsSceneContextMenuEvent
     \since 4.2
     \ingroup multimedia
+
+    \sa QGraphicsSceneMouseEvent
 */
 
 /*!
@@ -56,6 +60,8 @@
     \class QGraphicsSceneHoverEvent
     \since 4.2
     \ingroup multimedia
+
+    \sa QGraphicsSceneMouseEvent
 */
 
 #include "qgraphicssceneevent.h"

@@ -81,10 +81,10 @@
     \value Close                            Widget was closed (QCloseEvent).
     \value ContextMenu                      Context popup menu (QContextMenuEvent).
     \value DeferredDelete                   The object will be deleted after it has cleaned up.
-    \value DragEnter                        The cursor enters a widget during a drag and drop action (QDragEnterEvent).
-    \value DragLeave                        The cursor leaves a widget during a drag and drop action (QDragLeaveEvent).
-    \value DragMove                         A drag and drop action is in progress (QDragMoveEvent).
-    \value Drop                             A drag and drop action is completed (QDropEvent).
+    \value DragEnter                        The cursor enters a widget during a drag and drop operation (QDragEnterEvent).
+    \value DragLeave                        The cursor leaves a widget during a drag and drop operation (QDragLeaveEvent).
+    \value DragMove                         A drag and drop operation is in progress (QDragMoveEvent).
+    \value Drop                             A drag and drop operation is completed (QDropEvent).
     \value EnabledChange                    Widget's enabled state has changed.
     \value Enter                            Mouse enters widget's boundaries.
     \value EnterEditFocus                   An editor widget gains focus for editing.
@@ -94,6 +94,10 @@
     \value FocusOut                         Widget loses keyboard focus (QFocusEvent).
     \value FontChange                       Widget's font has changed.
     \value GraphicsSceneContextMenu         Context popup menu over a graphics scene (QGraphicsSceneContextMenuEvent).
+    \value GraphicsSceneDragEnter           The cursor enters a graphics scene during a drag and drop operation.
+    \value GraphicsSceneDragLeave           The cursor leaves a graphics scene during a drag and drop operation.
+    \value GraphicsSceneDragMove            A drag and drop operation is in progress over a scene.
+    \value GraphicsSceneDrop                A drag and drop operation is completed over a scene.
     \value GraphicsSceneHelp                The user requests help for a graphics scene (QHelpEvent).
     \value GraphicsSceneHoverEnter          The mouse cursor enters a hover item in a graphics scene (QGraphicsSceneHoverEvent).
     \value GraphicsSceneHoverLeave          The mouse cursor leaves a hover item in a graphics scene (QGraphicsSceneHoverEvent).

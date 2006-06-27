@@ -498,6 +498,9 @@ class QTextCursor;
 class Q_GUI_EXPORT QGraphicsTextItem : public QObject, public QGraphicsItem
 {
     Q_OBJECT
+    QDOC_PROPERTY(bool openExternalLinks READ openExternalLinks() WRITE setOpenExternalLinks)
+    QDOC_PROPERTY(QTextCursor textCursor READ textCursor WRITE setTextCursor)
+
 public:
     QGraphicsTextItem(QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);
     QGraphicsTextItem(const QString &text, QGraphicsItem *parent = 0, QGraphicsScene *scene = 0);

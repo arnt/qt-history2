@@ -93,39 +93,72 @@ qreal QGraphicsItemAnimationPrivate::linearValueForStep(qreal step, QList<Pair> 
     return valueBefore + (valueAfter - valueBefore) * ((step - stepBefore) / (stepAfter - stepBefore));
 }
 
+/*!
+  Constructs an animation object with the given \a parent.
+*/
 QGraphicsItemAnimation::QGraphicsItemAnimation(QObject *parent)
     : QObject(parent), d(new QGraphicsItemAnimationPrivate)
 {
     d->q = this;
 }
 
+/*!
+  Destroys the animation object.
+*/
 QGraphicsItemAnimation::~QGraphicsItemAnimation()
 {
     delete d;
 }
 
+/*!
+  Returns the item operated on by the animation object.
+
+  \sa setItem()
+*/
 QGraphicsItem *QGraphicsItemAnimation::item() const
 {
     return d->item;
 }
 
+/*!
+  Sets the specified \a item to be used in the animation.
+
+  \sa item()
+*/
 void QGraphicsItemAnimation::setItem(QGraphicsItem *item)
 {
     d->item = item;
     d->startPos = d->item->pos();
 }
 
+/*!
+  Returns the time line object used to control the rate at which the animation
+  occurs.
+
+  \sa setTimeLine()
+*/
 QTimeLine *QGraphicsItemAnimation::timeLine() const
 {
     return d->timeLine;
 }
 
+/*!
+  Sets the time line object used to control the rate of animation to the \a timeLine
+  specified.
+
+  \sa timeLine()
+*/
 void QGraphicsItemAnimation::setTimeLine(QTimeLine *timeLine)
 {
     d->timeLine = timeLine;
     connect(timeLine, SIGNAL(valueChanged(qreal)), this, SLOT(setStep(qreal)));
 }
 
+/*!
+  Returns the point corresponding to the given \a step value.
+
+  \sa setPosAt()
+*/
 QPointF QGraphicsItemAnimation::posAt(qreal step) const
 {
     if (step < 0.0 || step > 1.0)
@@ -135,6 +168,13 @@ QPointF QGraphicsItemAnimation::posAt(qreal step) const
                    d->linearValueForStep(step, &d->yPosition, d->startPos.y()));
 }
 
+/*!
+  \fn void QGraphicsItemAnimation::setPosAt(qreal step, const QPointF &point)
+
+  Sets the position of the item at the given \a step value to the \a point specified.
+
+  \sa posAt()
+*/
 void QGraphicsItemAnimation::setPosAt(qreal step, const QPointF &pos)
 {
     if (step < 0.0 || step > 1.0) {
@@ -148,6 +188,9 @@ void QGraphicsItemAnimation::setPosAt(qreal step, const QPointF &pos)
     qSort(d->yPosition.begin(), d->yPosition.end());
 }
 
+/*!
+  Returns the matrix used to transform the item at the specified \a step value.
+*/
 QMatrix QGraphicsItemAnimation::matrixAt(qreal step) const
 {
     if (step < 0.0 || step > 1.0)
@@ -165,6 +208,11 @@ QMatrix QGraphicsItemAnimation::matrixAt(qreal step) const
     return matrix;
 }
 
+/*!
+  Returns the angle at which the item is rotated at the specified \a step value.
+
+  \sa setRotationAt()
+*/
 qreal QGraphicsItemAnimation::rotationAt(qreal step) const
 {
     if (step < 0.0 || step > 1.0)
@@ -173,6 +221,11 @@ qreal QGraphicsItemAnimation::rotationAt(qreal step) const
     return d->linearValueForStep(step, &d->rotation);
 }
 
+/*!
+  Sets the rotation of the item at the given \a step value to the \a angle specified.
+
+  \sa rotationAt()
+*/
 void QGraphicsItemAnimation::setRotationAt(qreal step, qreal angle)
 {
     if (step < 0.0 || step > 1.0) {
@@ -184,6 +237,11 @@ void QGraphicsItemAnimation::setRotationAt(qreal step, qreal angle)
     qSort(d->rotation.begin(), d->rotation.end());
 }
 
+/*!
+  Returns the horizontal translation of the item at the specified \a step value.
+
+  \sa setTranslationAt()
+*/
 qreal QGraphicsItemAnimation::xTranslationAt(qreal step) const
 {
     if (step < 0.0 || step > 1.0)
@@ -192,6 +250,11 @@ qreal QGraphicsItemAnimation::xTranslationAt(qreal step) const
     return d->linearValueForStep(step, &d->xTranslation);
 }
 
+/*!
+  Returns the vertical translation of the item at the specified \a step value.
+
+  \sa setTranslationAt()
+*/
 qreal QGraphicsItemAnimation::yTranslationAt(qreal step) const
 {
     if (step < 0.0 || step > 1.0)
@@ -200,6 +263,12 @@ qreal QGraphicsItemAnimation::yTranslationAt(qreal step) const
     return d->linearValueForStep(step, &d->yTranslation);
 }
 
+/*!
+  Sets the translation of the item at the given \a step value using the horizontal
+  and vertical coordinates specified by \a dx and \a dy.
+
+  \sa translationAt()
+*/
 void QGraphicsItemAnimation::setTranslationAt(qreal step, qreal dx, qreal dy)
 {
     if (step < 0.0 || step > 1.0) {
@@ -213,6 +282,11 @@ void QGraphicsItemAnimation::setTranslationAt(qreal step, qreal dx, qreal dy)
     qSort(d->yTranslation.begin(), d->yTranslation.end());
 }
 
+/*!
+  Returns the vertical scale for the item at the specified \a step value.
+
+  \sa setScaleAt()
+*/
 qreal QGraphicsItemAnimation::verticalScaleAt(qreal step) const
 {
     if (step < 0.0 || step > 1.0)
@@ -221,6 +295,11 @@ qreal QGraphicsItemAnimation::verticalScaleAt(qreal step) const
     return d->linearValueForStep(step, &d->verticalScale, 1);
 }
 
+/*!
+  Returns the horizontal scale for the item at the specified \a step value.
+
+  \sa setScaleAt()
+*/
 qreal QGraphicsItemAnimation::horizontalScaleAt(qreal step) const
 {
     if (step < 0.0 || step > 1.0)
@@ -229,6 +308,12 @@ qreal QGraphicsItemAnimation::horizontalScaleAt(qreal step) const
     return d->linearValueForStep(step, &d->horizontalScale, 1);
 }
 
+/*!
+  Sets the scale of the item at the given \a step value using the horizontal and
+  vertical scale factors specified by \a sx and \a sy.
+
+  \sa scaleAt()
+*/
 void QGraphicsItemAnimation::setScaleAt(qreal step, qreal sx, qreal sy)
 {
     if (step < 0.0 || step > 1.0) {
@@ -242,6 +327,11 @@ void QGraphicsItemAnimation::setScaleAt(qreal step, qreal sx, qreal sy)
     qSort(d->verticalScale.begin(), d->verticalScale.end());
 }
 
+/*!
+  Returns the vertical shear for the item at the specified \a step value.
+
+  \sa setShearAt()
+*/
 qreal QGraphicsItemAnimation::verticalShearAt(qreal step) const
 {
     if (step < 0.0 || step > 1.0)
@@ -250,6 +340,11 @@ qreal QGraphicsItemAnimation::verticalShearAt(qreal step) const
     return d->linearValueForStep(step, &d->verticalShear, 0);
 }
 
+/*!
+  Returns the horizontal shear for the item at the specified \a step value.
+
+  \sa setShearAt()
+*/
 qreal QGraphicsItemAnimation::horizontalShearAt(qreal step) const
 {
     if (step < 0.0 || step > 1.0)
@@ -258,6 +353,12 @@ qreal QGraphicsItemAnimation::horizontalShearAt(qreal step) const
     return d->linearValueForStep(step, &d->horizontalShear, 0);
 }
 
+/*!
+  Sets the shear of the item at the given \a step value using the horizontal and
+  vertical shear factors specified by \a sh and \a sv.
+
+  \sa shearAt()
+*/
 void QGraphicsItemAnimation::setShearAt(qreal step, qreal sh, qreal sv)
 {
     if (step < 0.0 || step > 1.0) {
@@ -271,6 +372,10 @@ void QGraphicsItemAnimation::setShearAt(qreal step, qreal sh, qreal sv)
     qSort(d->verticalShear.begin(), d->verticalShear.end());
 }
 
+/*!
+  Clears the lists of points and transformations used for the animation, but
+  retains the item and time line.
+*/
 void QGraphicsItemAnimation::clear()
 {
     d->xPosition.clear();
@@ -284,6 +389,13 @@ void QGraphicsItemAnimation::clear()
     d->yTranslation.clear();
 }
 
+/*!
+  \fn void QGraphicsItemAnimation::setStep(qreal step)
+
+  Sets the current \a step value for the animation, causing the item to be
+  transformed according to the specified parameter and the transformations
+  previously set up for the animation.
+*/
 void QGraphicsItemAnimation::setStep(qreal x)
 {
     if (x < 0.0 || x > 1.0) {
@@ -308,6 +420,9 @@ void QGraphicsItemAnimation::setStep(qreal x)
     }
 }
 
+/*!
+Resets the item to its starting position and transformation.
+*/
 void QGraphicsItemAnimation::reset()
 {
     if (!d->item)
