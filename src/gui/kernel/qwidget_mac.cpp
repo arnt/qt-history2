@@ -2344,53 +2344,24 @@ QPaintEngine *QWidget::paintEngine() const
 void QWidgetPrivate::setModal_sys()
 {
     Q_Q(QWidget);
-    const WindowGroupRef wgr = GetWindowGroupOfClass(kMovableModalWindowClass);
-    const QWidget *windowParent = q->window()->parentWidget();
-    const QWidget *primaryWindow = windowParent ? windowParent->window() : 0;
-    bool modal = q->testAttribute(Qt::WA_ShowModal);
+    Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
 
-#if 1
-    if (q->testAttribute(Qt::WA_WState_Created)) {
-        //setup the proper window class
-        WindowRef window = qt_mac_window_for(qt_mac_hiview_for(q));
-        WindowClass old_wclass;
-        GetWindowClass(window, &old_wclass);
+    const QWidget * const windowParent = q->window()->parentWidget();
+    const QWidget * const primaryWindow = windowParent ? windowParent->window() : 0;
+    const bool primaryWindowModal = primaryWindow ? primaryWindow->testAttribute(Qt::WA_ShowModal) : false;
+    const bool modal = q->testAttribute(Qt::WA_ShowModal);
+    
+    //setup the proper window class
+    const WindowRef window = qt_mac_window_for(qt_mac_hiview_for(q));
+    WindowClass old_wclass;
+    GetWindowClass(window, &old_wclass);
 
-        if (modal || (primaryWindow && primaryWindow->testAttribute(Qt::WA_ShowModal))) {
-            if(old_wclass == kDocumentWindowClass || old_wclass == kFloatingWindowClass || old_wclass == kUtilityWindowClass) {
-                HIWindowChangeClass(window ? window : qt_mac_window_for(q), kMovableModalWindowClass);
-            }
-        } else if(window) {
-            if (old_wclass != topData()->wclass)
-                HIWindowChangeClass(qt_mac_window_for(q), topData()->wclass);
+    if (modal || primaryWindowModal) {
+        if(old_wclass == kDocumentWindowClass || old_wclass == kFloatingWindowClass || old_wclass == kUtilityWindowClass) {
+            HIWindowChangeClass(window ? window : qt_mac_window_for(q), kMovableModalWindowClass);
         }
-    }
-#else
-    // disappear, so Apple recommends changing the window group instead.
-    // Also, of this widget's window is a secondary window, we need to set the window
-    // type if the primary window is modal.
-    if (modal || (primaryWindow && primaryWindow->testAttribute(Qt::WA_ShowModal))) {
-        if (q->testAttribute(Qt::WA_WState_Created) && !topData()->group) {
-            SetWindowGroup(qt_mac_window_for(q), wgr);
-        }
-    }
-#endif
-
-    // Set the window group for child windows. This is done to make sure that non-modal
-    // child windows that were created before this window became modal are shown on top
-    // of this window.
-    if (modal) {
-        const QObjectList children = q->children();
-        for (QObjectList::ConstIterator it = children.constBegin(); it != children.constEnd(); ++it) {
-            const QObject * const child = *it;
-            if (child->isWidgetType() == false)
-                continue;
-            const QWidget *widget = static_cast<const QWidget*>(child);
-            if (widget->isWindow() == false)
-                continue;
-            if (widget->windowFlags() & Qt::WindowStaysOnTopHint)
-                continue;
-            SetWindowGroup(qt_mac_window_for(widget), wgr);
-        }
+    } else if(window) {
+        if (old_wclass != topData()->wclass)
+            HIWindowChangeClass(qt_mac_window_for(q), topData()->wclass);
     }
 }
