@@ -22,6 +22,9 @@
 #include <qvarlengtharray.h>
 
 #include <math.h>
+/*!
+  \class QTextItem
+*/
 
 qreal QTextItem::descent() const
 {
