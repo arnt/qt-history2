@@ -723,7 +723,10 @@ void QStandardItem::setData(int role, const QVariant &value)
     QVector<QWidgetItemData>::iterator it;
     for (it = d->values.begin(); it != d->values.end(); ++it) {
         if ((*it).role == role) {
-            (*it).value = value;
+            if (value.isValid())
+                (*it).value = value;
+            else
+                d->values.erase(it);
             if (d->model)
                 d->model->d_func()->itemChanged(this);
             return;
