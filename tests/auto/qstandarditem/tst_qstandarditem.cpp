@@ -31,7 +31,6 @@ private slots:
     void textCtor();
     void iconTextCtor();
     void rowsColumnsCtor();
-    void itemsCtor();
     void getSetData();
     void getSetFlags();
     void getSetRowAndColumnCount();
@@ -110,19 +109,6 @@ void tst_QStandardItem::rowsColumnsCtor()
     QStandardItem item(rows, columns);
     QCOMPARE(item.rowCount(), rows);
     QCOMPARE(item.columnCount(), columns);
-}
-
-void tst_QStandardItem::itemsCtor()
-{
-    const int count = 10;
-    QList<QStandardItem*> itemList;
-    for (int i = 0; i < count; ++i)
-        itemList.append(new QStandardItem(QString("%0").arg(i)));
-    QStandardItem item(itemList);
-    QCOMPARE(item.columnCount(), 1);
-    QCOMPARE(item.rowCount(), count);
-    for (int i = 0; i < count; ++i)
-        QCOMPARE(item.child(i), itemList.at(i));
 }
 
 void tst_QStandardItem::getSetData()
@@ -718,7 +704,8 @@ void tst_QStandardItem::takeChild()
     QList<QStandardItem*> itemList;
     for (int i = 0; i < 10; ++i)
         itemList.append(new QStandardItem);
-    QStandardItem item(itemList);
+    QStandardItem item;
+    item.appendColumn(itemList);
 
     for (int i = 0; i < item.rowCount(); ++i) {
         QCOMPARE(item.takeChild(i), itemList.at(i));
