@@ -10,7 +10,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "core"];
-const validLicenses = ["opensource", "commercial", "preview", "eval"];
+const validLicenses = ["opensource", "commercial", "preview-opensource", "preview-commercial", "eval"];
 const validSwitches = ["gzip", "bzip", "zip", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"]; // variables with arbitrary values, set by -foo value
 
@@ -199,7 +199,8 @@ licenseRemove["opensource"] = [ new RegExp("^README-QT.TXT"),
                                 new RegExp("^tools/designer/src/plugins/activeqt"),
                                 new RegExp("^src/activeqt") ];
 
-licenseRemove["preview"] = licenseRemove["opensource"];
+licenseRemove["preview-opensource"] = licenseRemove["opensource"];
+licenseRemove["preview-commercial"] = licenseRemove["commercial"];
 
 var binaryFileList = [ new RegExp("examples/tools/codecs/encodedfiles/utf-16.txt"),
                        new RegExp("examples/tools/codecs/encodedfiles/utf-16be.txt"),
@@ -751,7 +752,7 @@ function copyDist(packageDir, platform, license)
     } else if (license == "commercial") {
         keyFiles.push(".LICENSE");
         keyFiles.push(".LICENSE-US");
-    } else if (license == "preview") {
+    } else if ((license == "preview-opensource") || (license == "preview-commercial")) {
         keyFiles.push("LICENSE.PREVIEW");
     }
     for (var i in keyFiles) {
