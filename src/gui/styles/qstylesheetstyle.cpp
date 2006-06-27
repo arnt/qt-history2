@@ -901,7 +901,7 @@ QRenderRule QStyleSheetStyle::renderRule(const QWidget *w, const QStyleOption *o
     if (!w)
         return QRenderRule();
 
-    QStyle::State state = opt ? opt->state : QStyle::State_Enabled;
+    QStyle::State state = opt ? opt->state : QStyle::State(QStyle::State_Enabled);
 
     // Add hacks for <w, opt> here
     if (qobject_cast<const QLineEdit *>(w))
