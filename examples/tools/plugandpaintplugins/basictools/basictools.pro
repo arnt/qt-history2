@@ -4,6 +4,7 @@ INCLUDEPATH  += ../..
 HEADERS       = basictoolsplugin.h
 SOURCES       = basictoolsplugin.cpp
 TARGET        = pnp_basictools
+DESTDIR       = ./
 
 CONFIG(debug, debug|release) {
    unix:TARGET = $$member(TARGET, 0)_debug
