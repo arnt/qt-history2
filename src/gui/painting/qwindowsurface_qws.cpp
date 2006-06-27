@@ -112,9 +112,20 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
     if (isBuffered()) {
         expose &= d_ptr->clippedDirty;
         d_ptr->clippedDirty -= expose;
+    } else  if (window() && !expose.isEmpty()) {
+        QTLWExtra *topextra = window()->d_func()->extra->topextra;
+        QWSManager *manager = topextra->qwsManager;
+        if (manager) {
+            const QRegion r = manager->region().translated(
+                -window()->geometry().topLeft());
+            if (!(r & expose).isEmpty())
+                manager->d_func()->dirtyRegion(QDecoration::All,
+                                               QDecoration::Normal);
+        }
     }
+
     if (!expose.isEmpty())
-        setDirty(expose);
+        window()->d_func()->invalidateBuffer(expose);
 }
 
 QWSWindowSurface::SurfaceFlags QWSWindowSurface::surfaceFlags() const
@@ -140,7 +151,7 @@ void QWSWindowSurface::resize(const QSize &size)
 
     QRegion region = window()->geometry();
     if (manager)
-        region += topextra->qwsManager->region();
+        region += manager->region();
     if (!window()->d_func()->extra->mask.isEmpty())
         region &= window()->d_func()->extra->mask.translated(
             window()->geometry().topLeft());
