@@ -248,7 +248,7 @@ inline QDBusArgument &operator<<(QDBusArgument &a, const QLineF &line)
 template<template <typename> class Container, typename T>
 inline QDBusArgument &operator<<(QDBusArgument &arg, const Container<T> &list)
 {
-    int id = qt_variant_metatype_id((T*)0);
+    int id = qt_variant_metatype_id(static_cast<T *>(0));
     arg.beginArray(id);
     typename Container<T>::const_iterator it = list.begin();
     typename Container<T>::const_iterator end = list.end();
@@ -277,7 +277,7 @@ inline const QDBusArgument &operator>>(const QDBusArgument &arg, Container<T> &l
 template<typename T>
 inline QDBusArgument &operator<<(QDBusArgument &arg, const QList<T> &list)
 {
-    int id = qt_variant_metatype_id((T*)0);
+    int id = qt_variant_metatype_id(static_cast<T *>(0));
     arg.beginArray(id);
     typename QList<T>::ConstIterator it = list.constBegin();
     typename QList<T>::ConstIterator end = list.constEnd();
@@ -318,8 +318,8 @@ inline QDBusArgument &operator<<(QDBusArgument &arg, const QVariantList &list)
 template<typename Key, typename T>
 inline QDBusArgument &operator<<(QDBusArgument &arg, const QMap<Key, T> &map)
 {
-    int kid = qt_variant_metatype_id((Key*)0);
-    int vid = qt_variant_metatype_id((T*)0);
+    int kid = qt_variant_metatype_id(static_cast<Key *>(0));
+    int vid = qt_variant_metatype_id(static_cast<T *>(0));
     arg.beginMap(kid, vid);
     typename QMap<Key, T>::ConstIterator it = map.constBegin();
     typename QMap<Key, T>::ConstIterator end = map.constEnd();
