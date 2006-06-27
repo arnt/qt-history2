@@ -1273,8 +1273,8 @@ void QWSServerPrivate::_q_clientClosed()
         (qt_screen->clearCacheFunc)(qt_screen, cl->clientId());  // remove any remaining cache entries.
     cl->deleteLater();
 
-    exposeRegion(exposed);
     update_regions();
+    exposeRegion(exposed);
 }
 
 void QWSServerPrivate::_q_deleteWindowsLater()
@@ -1542,7 +1542,7 @@ void QWSServer::refresh()
 {
     Q_D(QWSServer);
     d->exposeRegion(QRegion(0, 0, d->swidth, d->sheight));
-    d->update_regions();
+//### send repaint to non-buffered windows
 }
 
 /*!
@@ -1555,7 +1555,7 @@ void QWSServer::refresh(QRegion & r)
 {
     Q_D(QWSServer);
     d->exposeRegion(r);
-    d->update_regions();
+//### send repaint to non-buffered windows
 }
 
 /*!
@@ -2251,7 +2251,7 @@ void QWSServerPrivate::invokeRegionDestroy(const QWSRegionDestroyCommand *cmd, Q
             break;
         }
     }
-    update_regions();
+
     handleWindowClose(changingw);
 #ifndef QT_NO_QWS_PROPERTIES
     propertyManager.removeProperties(changingw->winId());
@@ -2702,9 +2702,9 @@ void QWSServerPrivate::raiseWindow(QWSWindow *changingw, int /*alt*/)
     }
 
     if (windowPos != newPos) {
+        update_regions();
         exposeRegion(changingw->requestedRegion(), newPos); //### exposes too much, including what was already visible
     }
-    update_regions();
     emit q->windowEvent(changingw, QWSServer::Raise);
 }
 
@@ -2718,6 +2718,7 @@ void QWSServerPrivate::lowerWindow(QWSWindow *changingw, int /*alt*/)
     windows.move(i,windows.size()-1);
 
     QRegion exposed = changingw->requestedRegion(); //### exposes too much, including what was already visible
+    update_regions();
     exposeRegion(exposed, i);
     emit q->windowEvent(changingw, QWSServer::Lower);
 }
