@@ -18,6 +18,10 @@
 
 #include <QtTest/QtTest>
 
+#ifndef QT_NO_MEMBER_TEMPLATES
+#include <QtDBus/QtDBus>
+#endif
+
 #ifndef Q_OS_MAC
 int main(int, char **)
 {
