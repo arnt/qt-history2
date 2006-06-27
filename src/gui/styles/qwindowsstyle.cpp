@@ -2894,9 +2894,111 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
 QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, const QStyleOption *option,
                                          const QWidget *widget) const
 {
-    QIcon icon = QCommonStyle::standardIconImplementation(standardIcon, option, widget);
-    if (standardIcon == QStyle::SP_DirIcon)
+    QIcon icon;
+    QPixmap pixmap;
+    
+    switch (standardIcon) {
+    case SP_DirIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(4, size);
+            icon.addPixmap(pixmap, QIcon::Normal, QIcon::Off);
+            pixmap = loadIconFromShell32(5, size);
+            icon.addPixmap(pixmap, QIcon::Normal, QIcon::On);
+        }
+        break;
+        
+    case SP_DirLinkIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            QPixmap link = loadIconFromShell32(30, size);
+            pixmap = loadIconFromShell32(4, size);
+            if (!pixmap.isNull() && !link.isNull()) {
+                QPainter painter(&pixmap);
+                painter.drawPixmap(0, 0, size, size, link);
+                icon.addPixmap(pixmap, QIcon::Normal, QIcon::Off);
+            }
+            link = loadIconFromShell32(30, size);
+            pixmap = loadIconFromShell32(5, size);
+            if (!pixmap.isNull() && !link.isNull()) {
+                QPainter painter(&pixmap);
+                painter.drawPixmap(0, 0, size, size, link);
+                icon.addPixmap(pixmap, QIcon::Normal, QIcon::On);
+            }
+        }
+        break;
+        
+    case SP_FileIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(1, size);
+            icon.addPixmap(pixmap, QIcon::Normal);
+        }
+        break;
+    
+    case SP_ComputerIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(16, size);
+            icon.addPixmap(pixmap, QIcon::Normal);
+        }
+        break;
+
+    case SP_DesktopIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(35, size);
+            icon.addPixmap(pixmap, QIcon::Normal);
+        }
+        break;
+    
+    case SP_DriveCDIcon:
+    case SP_DriveDVDIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(12, size);
+            icon.addPixmap(pixmap, QIcon::Normal);
+        }
+        break;
+        
+    case SP_DriveNetIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(10, size);
+            icon.addPixmap(pixmap, QIcon::Normal);
+        }
+        break;
+    
+    case SP_DriveHDIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(9, size);
+            icon.addPixmap(pixmap, QIcon::Normal);
+        }
+        break;
+    
+    case SP_DriveFDIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            pixmap = loadIconFromShell32(7, size);
+            icon.addPixmap(pixmap, QIcon::Normal);
+        }
+        break;
+    
+    case SP_FileLinkIcon:
+        for (int size = 16 ; size <= 32 ; size += 16) {
+            QPixmap link;
+            link = loadIconFromShell32(30, size);
+            pixmap = loadIconFromShell32(1, size);
+            if (!pixmap.isNull() && !link.isNull()) {
+                QPainter painter(&pixmap);
+                painter.drawPixmap(0, 0, size, size, link);
+                icon.addPixmap(pixmap, QIcon::Normal);
+            }
+        }
+        break;
+        
+    default:
+        break;
+    }
+    
+    if (icon.isNull())
+        icon = QIcon(standardPixmap(standardIcon, option, widget));
+    
+    if (standardIcon == QStyle::SP_DirIcon || standardIcon == QStyle::SP_DirLinkIcon)
         return icon; // SP_DirIcon already has an On pixmap
+    
     // ### this should _only_ be done if the icon doesn't have a pixmap for QIcon::Normal, QIcon::On
     for (int s = 16; s <= 32; s += 16) {
     //Include a translated icon for use with pressed buttons
