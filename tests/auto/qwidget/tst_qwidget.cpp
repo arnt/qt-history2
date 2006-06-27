@@ -1239,20 +1239,19 @@ void tst_QWidget::showFullScreen()
 }
 
 class ResizeWidget : public QWidget {
-    public:
-        ResizeWidget(QWidget *p = 0) : QWidget(p)
-        {
-            m_resizeEventCount = 0;
-        }
-    protected:
-        void resizeEvent(QResizeEvent *e){
-            QCOMPARE(size(), e->size());
-            ++m_resizeEventCount;
-        }
+public:
+    ResizeWidget(QWidget *p = 0) : QWidget(p)
+    {
+        m_resizeEventCount = 0;
+    }
+protected:
+    void resizeEvent(QResizeEvent *e){
+        QCOMPARE(size(), e->size());
+        ++m_resizeEventCount;
+    }
 
-    public:
-        int m_resizeEventCount;
-
+public:
+    int m_resizeEventCount;
 };
 
 void tst_QWidget::resizeEvent()
@@ -1929,7 +1928,7 @@ void tst_QWidget::windowTitle()
 {
     QWidget widget(0);
     widget.setWindowTitle("Application Name");
-    widget.createWinId();
+    widget.winId(); // Make sure the window is created...
     QCOMPARE(visibleWindowTitle(&widget), QString("Application Name"));
 
     widget.setWindowTitle("Application Name *");
@@ -2336,7 +2335,6 @@ typedef QPair<QWidget *, HIViewRef> WidgetViewPair;
 WidgetViewPair createAndRetain(QWidget * const parent = 0)
 {
     QWidget * const widget = new QWidget(parent);
-    widget->createWinId();
     const HIViewRef view = (HIViewRef)widget->winId();
     // Retain twice so we can safely call CFGetRetaintCount even if the retain count
     // is off by one because of a double release.
