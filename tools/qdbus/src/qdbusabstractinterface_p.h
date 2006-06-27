@@ -38,23 +38,23 @@ class QDBusAbstractInterfacePrivate: public QObjectPrivate
 public:
     Q_DECLARE_PUBLIC(QDBusAbstractInterface)
     
-    QDBusConnection conn;
-    QDBusConnectionPrivate *connp;
+    QDBusConnection connection;
     QString service;
     QString path;
     QString interface;
     mutable QDBusError lastError;
     bool isValid;
 
-    inline QDBusAbstractInterfacePrivate(const QDBusConnection& con, QDBusConnectionPrivate *conp,
-                                         const QString &serv, const QString &p, const QString &iface)
-        : conn(con), connp(conp), service(serv), path(p), interface(iface), isValid(true)
-    { }
+    QDBusAbstractInterfacePrivate(const QDBusConnection& con, const QString &serv,
+                                  const QString &p, const QString &iface, bool dynamic);
     virtual ~QDBusAbstractInterfacePrivate() { }
 
     // these functions do not check if the property is valid
     QVariant property(const QMetaProperty &mp) const;
     void setProperty(const QMetaProperty &mp, const QVariant &value);
+
+    // return conn's d pointer
+    QDBusConnectionPrivate *connectionPrivate() const;
 };
 
 

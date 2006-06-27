@@ -19,6 +19,7 @@
 #include "qdbusconnectioninterface.h"
 #include "qdbuserror.h"
 #include "qdbusmessage.h"
+#include "qdbusmessage_p.h"
 #include "qdbusconnection_p.h"
 #include "qdbusinterface_p.h"
 #include "qdbusutil_p.h"
@@ -286,17 +287,9 @@ QDBusConnection QDBusConnection::addConnection(BusType type, const QString &name
     QDBusConnection retval(name);
 
     // create the bus service
-    QDBusAbstractInterfacePrivate *p;
-    p = retval.findInterface_helper(QLatin1String(DBUS_SERVICE_DBUS),
-                                    QLatin1String(DBUS_PATH_DBUS),
-                                    DBUS_INTERFACE_DBUS);
-    if (p) {
-        d->busService = new QDBusConnectionInterface(p);
-        d->busService->setParent(d); // auto-deletion
-        d->ref.deref();              // busService has a increased the refcounting to us
-                                     // avoid cyclic refcounting
-    }
-
+    d->busService = new QDBusConnectionInterface(retval, d);
+    d->ref.deref();              // busService has a increased the refcounting to us
+                                 // avoid cyclic refcounting
     return retval;
 }
 
@@ -323,16 +316,10 @@ QDBusConnection QDBusConnection::addConnection(const QString &address,
     QDBusConnection retval(name);
 
     // create the bus service
-    QDBusAbstractInterfacePrivate *p;
-    p = retval.findInterface_helper(QLatin1String(DBUS_SERVICE_DBUS),
-                                    QLatin1String(DBUS_PATH_DBUS),
-                                    DBUS_INTERFACE_DBUS);
-    if (p) {
-        d->busService = new QDBusConnectionInterface(p);
-        d->busService->setParent(d); // auto-deletion
-        d->ref.deref();              // busService has a increased the refcounting to us
-    }
-
+    // create the bus service
+    d->busService = new QDBusConnectionInterface(retval, d);
+    d->ref.deref();              // busService has a increased the refcounting to us
+                                 // avoid cyclic refcounting
     return retval;
 }
 
@@ -377,8 +364,8 @@ bool QDBusConnection::send(const QDBusMessage &message) const
 
     Returns the identification of the message that was sent or 0 if nothing was sent.
 */
-int QDBusConnection::sendWithReplyAsync(const QDBusMessage &message, QObject *receiver,
-        const char *method) const
+bool QDBusConnection::call(const QDBusMessage &message, QObject *receiver,
+                           const char *method, int timeout) const
 {
     if (!d || !d->connection) {
         QDBusError err = QDBusError(QDBusError::Disconnected,
@@ -389,7 +376,7 @@ int QDBusConnection::sendWithReplyAsync(const QDBusMessage &message, QObject *re
         return 0;
     }
 
-    return d->sendWithReplyAsync(message, receiver, method);
+    return d->sendWithReplyAsync(message, receiver, method, timeout) != 0;
 }
 
 /*!
@@ -404,7 +391,7 @@ int QDBusConnection::sendWithReplyAsync(const QDBusMessage &message, QObject *re
              your application. Therefore, it must be prepared to handle a reentrancy whenever a call
              is placed with sendWithReply.
 */
-QDBusMessage QDBusConnection::sendWithReply(const QDBusMessage &message, WaitMode mode) const
+QDBusMessage QDBusConnection::call(const QDBusMessage &message, QDBus::CallMode mode, int timeout) const
 {
     if (!d || !d->connection) {
         QDBusError err = QDBusError(QDBusError::Disconnected,
@@ -412,9 +399,16 @@ QDBusMessage QDBusConnection::sendWithReply(const QDBusMessage &message, WaitMod
         if (d)
             d->lastError = err;
 
-        return QDBusMessage::error(message, err);
+        return QDBusMessagePrivate::fromError(err);
     }
-    return d->sendWithReply(message, mode);
+
+    if (mode != QDBus::NoBlock)
+        return d->sendWithReply(message, mode, timeout);
+
+    d->send(message);
+    QDBusMessage retval;
+    retval << QVariant(); // add one argument (to avoid .at(0) problems)
+    return retval; 
 }
 
 /*!
@@ -609,34 +603,6 @@ void QDBusConnection::unregisterObject(const QString &path, UnregisterMode mode)
 }
 
 /*!
-    Returns a dynamic QDBusInterface associated with the interface \a interface on object at path \a
-    path on service \a service.
-
-    This function creates a new object. It is your resposibility to ensure it is properly deleted
-    (you can use all normal QObject deletion mechanisms, including the QObject::deleteLater() slot
-    and QObject::setParent()).
-
-    If the searching for this interface on the remote object failed, this function returns 0.
-*/
-QDBusInterface *QDBusConnection::findInterface(const QString& service, const QString& path,
-                                               const QString& interface)
-{
-    Q_ASSERT_X(QDBusUtil::isValidBusName(service),
-               "QDBusConnection::findInterface", "Invalid service name");
-    Q_ASSERT_X(QDBusUtil::isValidObjectPath(path),
-               "QDBusConnection::findInterface", "Invalid object path given");
-    Q_ASSERT_X(interface.isEmpty() || QDBusUtil::isValidInterfaceName(interface),
-               "QDBusConnection::findInterface", "Invalid interface name");
-    if (!d)
-        return 0;
-    
-    QDBusInterfacePrivate *p = d->findInterface(service, path, interface);
-    QDBusInterface *retval = new QDBusInterface(p);
-    retval->setParent(d);
-    return retval;
-}
-
-/*!
     \fn QDBusConnection::findInterface(const QString &service, const QString &path)
     Returns an interface of type \c Interface associated with the object on path \a path at service
     \a service.
@@ -657,37 +623,6 @@ QDBusConnectionInterface *QDBusConnection::interface() const
     if (!d)
         return 0;
     return d->busService;
-}
-
-QDBusAbstractInterfacePrivate *
-QDBusConnection::findInterface_helper(const QString &service, const QString &path,
-                                      const char *iface)
-{
-    QString interface = QLatin1String(iface);
-    // service and path can be empty here, but interface can't
-    Q_ASSERT_X(service.isEmpty() || QDBusUtil::isValidBusName(service),
-               "QDBusConnection::findInterface", "Invalid service name");
-    Q_ASSERT_X(path.isEmpty() || QDBusUtil::isValidObjectPath(path),
-               "QDBusConnection::findInterface", "Invalid object path given");
-    Q_ASSERT_X(QDBusUtil::isValidInterfaceName(interface),
-               "QDBusConnection::findInterface", "Invalid interface class!");
-    if (!d)
-        return 0;
-
-    QString owner;
-    if (!service.isEmpty()) {
-        // check if it's there first -- FIXME: add binding mode
-        owner = d->getNameOwner(service);
-        if (owner.isEmpty()) {
-            QDBusAbstractInterfacePrivate *p;
-            p = new QDBusAbstractInterfacePrivate(*this, d, service, path, interface);
-            p->isValid = false;
-            p->lastError = d->lastError;
-            return p;
-        }
-    }
-    
-    return new QDBusAbstractInterfacePrivate(*this, d, owner, path, interface);
 }
 
 /*!

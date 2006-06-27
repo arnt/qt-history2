@@ -18,6 +18,7 @@
 
 QT_BEGIN_HEADER
 
+namespace QDBus { QDBUS_EXPORT QDBusConnection sessionBus(); }
 
 class QDBusInterfacePrivate;
 class QDBUS_EXPORT QDBusInterface: public QDBusAbstractInterface
@@ -27,6 +28,9 @@ private:
     QDBusInterface(QDBusInterfacePrivate *p);
     
 public:
+    QDBusInterface(const QString &service, const QString &path, const QString &interface = QString(),
+                   const QDBusConnection &connection = QDBus::sessionBus(),
+                   QObject *parent = 0);
     ~QDBusInterface();
     
     virtual const QMetaObject *metaObject() const;
@@ -35,22 +39,6 @@ public:
 
 private:
     Q_DECLARE_PRIVATE(QDBusInterface)
-    Q_DISABLE_COPY(QDBusInterface)
-};
-
-struct QDBUS_EXPORT QDBusInterfacePtr
-{
-    QDBusInterfacePtr(QDBusInterface *iface) : d(iface) { }
-    QDBusInterfacePtr(QDBusConnection &conn, const QString &service, const QString &path,
-             const QString &interface = QString());
-    QDBusInterfacePtr(const QString &service, const QString &path, const QString &interface = QString());
-    ~QDBusInterfacePtr() { delete d; }
-
-    QDBusInterface *interface() { return d; }
-    QDBusInterface *operator->() { return d; }
-private:
-    QDBusInterface *const d;
-    Q_DISABLE_COPY(QDBusInterfacePtr)
 };
 
 QT_END_HEADER

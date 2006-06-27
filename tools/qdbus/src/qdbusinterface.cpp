@@ -89,6 +89,31 @@ static void assign(void *ptr, int id, const QVariant &value)
     }
 }
 
+QDBusInterfacePrivate::QDBusInterfacePrivate(const QDBusConnection &con, const QString &serv,
+                                             const QString &p, const QString &iface)
+    : QDBusAbstractInterfacePrivate(con, serv, p, iface, true), metaObject(0)
+{
+    // QDBusAbstractInterfacePrivate's constructor checked the parameters for us
+    if (connection.isConnected()) {
+        metaObject = connectionPrivate()->findMetaObject(service, path, interface);
+
+        if (!metaObject) {
+            // creation failed, somehow
+            isValid = false;
+            lastError = connectionPrivate()->lastError;
+            if (!lastError.isValid())
+                lastError = QDBusError(QDBusError::InternalError, QLatin1String("Unknown error"));
+        }
+    }
+}
+
+QDBusInterfacePrivate::~QDBusInterfacePrivate()
+{
+    if (metaObject && !metaObject->cached)
+        delete metaObject;
+}
+
+
 /*!
     \class QDBusInterface
     \inmodule QtDBus
@@ -103,10 +128,39 @@ static void assign(void *ptr, int id, const QVariant &value)
     over the bus, waits for the reply and decodes the reply. Signals are connected to by using the
     normal QObject::connect() function. Finally, properties are accessed using the
     QObject::property() and QObject::setProperty() functions. 
+
+    The following code snippet demonstrates how to perform a
+    mathematical operation of \tt{"2 + 2"} in a remote application
+    called \c com.example.Calculator, accessed via the session bus.
+
+    \code
+        QDBusInterface remoteApp( "com.example.Calculator", "/Calculator/Operations",
+                                  "org.mathematics.RPNCalculator" );
+        remoteApp.call( "PushOperand", 2 );
+        remoteApp.call( "PushOperand", 2 );
+        remoteApp.call( "ExecuteOperation", "+" );
+        QDBusReply<int> reply = remoteApp.call( "PopOperand" );
+
+        if ( reply.isValid() )
+            printf( "%d", reply.value() );          // prints 4
+    \endcode
+
+    \sa dbusxml2cpp
 */
 
-QDBusInterface::QDBusInterface(QDBusInterfacePrivate *p)
-    : QDBusAbstractInterface(p)
+/*!
+    Creates a dynamic QDBusInterface associated with the interface \a interface on object at path \a
+    path on service \a service. If \a interface is an empty string, the object created will
+    refer to the merging of all interfaces found in that object.
+
+    If the remote service \a service is not present or if an error occurs trying
+    to obtain the description of the remote interface \a interface, the object created
+    will not be valid (see isValid()).
+*/
+QDBusInterface::QDBusInterface(const QString &service, const QString &path, const QString &interface,
+                               const QDBusConnection &connection, QObject *parent)
+    : QDBusAbstractInterface(*new QDBusInterfacePrivate(connection, service, path,
+                                                        interface), parent)
 {
 }
 
@@ -223,87 +277,3 @@ int QDBusInterfacePrivate::metacall(QMetaObject::Call c, int id, void **argv)
     return id;
 }
 
-/*!
-    \class QDBusInterfacePtr
-    \inmodule QtDBus
-    \brief The QDBusInterfacePtr is a container for a QDBusInterface object.
-
-    QDBusInterface objects are always created on the heap and must,
-    therefore, be disposed of when no longer necessary. However, for a
-    simple call to a remote function, QDBusInterfacePtr provides a
-    convenient way of creating an object on the stack, which will be
-    automatically disposed of when freed.
-
-    The following code snippet demonstrates how to perform a
-    mathematical operation of \tt{"2 + 2"} in a remote application
-    called \c com.example.Calculator, accessed via the session bus.
-
-    \code
-        QDBusInterfacePtr remoteApp( "com.example.Calculator", "/Calculator/Operations",
-                                     "org.mathematics.RPNCalculator");
-        remoteApp->call( "PushOperand", 2 );
-        remoteApp->call( "PushOperand", 2 );
-        remoteApp->call( "ExecuteOperation", "+" );
-        QDBusReply<int> reply = remoteApp->call( "PopOperand" );
-
-        if ( reply.isSuccess() )
-            printf( "%d", reply.value() );          // prints 4
-    \endcode
-
-    Since QDBusInterfacePtr creates an object each time it is instantiated
-    and destroys it when it goes out of scope, it is not suitable for
-    use in tight loops. Instead, prefer to create QDBusInterface
-    objects and cache them in your application.
-*/
-
-/*!
-    \fn QDBusInterfacePtr::QDBusInterfacePtr(QDBusInterface *interface)
-
-    Creates a QDBusInterfacePtr wrapper around the \a interface
-    object. The QDBusInterfacePtr takes ownership the QDBusInterface
-    object and will delete it when going out of scope.
-*/
-
-/*!
-    \fn QDBusInterfacePtr::~QDBusInterfacePtr()
-    \internal
-
-    Disposes of the object.
-*/
-
-/*!
-    Creates a QDBusInterfacePtr object that references the remote
-    interface \a iface on the object \a path on application \a
-    service. The connection \a conn is used to access the bus.
-*/
-QDBusInterfacePtr::QDBusInterfacePtr(QDBusConnection &conn, const QString &service, const QString &path,
-                   const QString &iface)
-    : d(conn.findInterface(service, path, iface))
-{
-}
-
-/*!
-    \overload
-
-    Creates a QDBusInterfacePtr object that references the remote
-    interface \a iface on the object \a path on application \a
-    service. This constructor uses the connection object returned by
-    QDBus::sessionBus() to access the bus.
-*/
-QDBusInterfacePtr::QDBusInterfacePtr(const QString &service, const QString &path, const QString &iface)
-    : d(QDBus::sessionBus().findInterface(service, path, iface))
-{
-}
-
-/*!
-    \fn QDBusInterfacePtr::interface()
-    \internal
-*/
-
-/*!
-    \fn QDBusInterfacePtr::operator->()
-    
-    Returns the QDBusInterface object that this QDBusInterfacePtr
-    holds. You can use this function to get access to the object in
-    order to place calls, get and set properties, etc.
-*/

@@ -6,11 +6,9 @@ class Pong: public QObject
     Q_OBJECT
 public slots:
 
-    void ping(const QDBusMessage &msg)
+    void ping(QDBusMessage msg)
     {
-        QDBusMessage reply = QDBusMessage::methodReply(msg);
-        reply << static_cast<QList<QVariant> >(msg);
-        if (!msg.connection().send(reply))
+        if (!msg.sendReply(msg)) // QDBusMessage is a QVariantList
             exit(1);
     }
 };
@@ -19,7 +17,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
-    QDBusConnection &con = QDBus::sessionBus();
+    QDBusConnection con = QDBus::sessionBus();
     if (!con.isConnected())
         exit(1);
 

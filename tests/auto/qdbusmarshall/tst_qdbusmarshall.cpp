@@ -391,15 +391,15 @@ void tst_QDBusMarshall::sendBasic()
 {
     QFETCH(QVariant, value);
 
-    QDBusConnection &con = QDBus::sessionBus();
+    QDBusConnection con = QDBus::sessionBus();
 
     QVERIFY(con.isConnected());
 
     QDBusMessage msg = QDBusMessage::methodCall("org.kde.selftest",
-            "/org/kde/selftest", "org.kde.selftest", "ping");
+        "/org/kde/selftest", "org.kde.selftest", "ping", con);
     msg << value;
 
-    QDBusMessage reply = con.sendWithReply(msg);
+    QDBusMessage reply = con.call(msg);
  //   qDebug() << reply;
 
     QCOMPARE(reply.count(), msg.count());
@@ -412,15 +412,15 @@ void tst_QDBusMarshall::sendVariant()
 {
     QFETCH(QVariant, value);
 
-    QDBusConnection &con = QDBus::sessionBus();
+    QDBusConnection con = QDBus::sessionBus();
 
     QVERIFY(con.isConnected());
 
     QDBusMessage msg = QDBusMessage::methodCall("org.kde.selftest",
-            "/org/kde/selftest", "org.kde.selftest", "ping");
+        "/org/kde/selftest", "org.kde.selftest", "ping", con);
     msg << qVariantFromValue(QDBusVariant(value));
 
-    QDBusMessage reply = con.sendWithReply(msg);
+    QDBusMessage reply = con.call(msg);
  //   qDebug() << reply;
 
     QCOMPARE(reply.count(), msg.count());

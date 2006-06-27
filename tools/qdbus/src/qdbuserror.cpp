@@ -175,11 +175,9 @@ QDBusError::QDBusError(const QDBusMessage &qdmsg)
     if (qdmsg.type() != QDBusMessage::ErrorMessage)
         return;
 
-    nm = qdmsg.name();
+    nm = qdmsg.member();        // FIXME, wrong
     if (qdmsg.count())
-        msg = qdmsg[0].toString();
-    else
-        msg = qdmsg.d_ptr->message;
+        msg = qdmsg.at(0).toString();
     code = errorMessages()->get(nm.toUtf8().constData());
 }
 

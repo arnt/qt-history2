@@ -37,17 +37,9 @@ public:
 
     QDBusMetaObject *metaObject;
 
-    inline QDBusInterfacePrivate(const QDBusConnection &con, QDBusConnectionPrivate *conp,
-                                 const QString &serv, const QString &p, const QString &iface,
-                                 QDBusMetaObject *mo = 0)
-        : QDBusAbstractInterfacePrivate(con, conp, serv, p, iface), metaObject(mo)
-    {
-    }
-    ~QDBusInterfacePrivate()
-    {
-        if (metaObject && !metaObject->cached)
-            delete metaObject;
-    }
+    QDBusInterfacePrivate(const QDBusConnection &con, const QString &serv,
+                          const QString &p, const QString &iface);
+    ~QDBusInterfacePrivate();
 
     int metacall(QMetaObject::Call c, int id, void **argv);
 };

@@ -8,12 +8,11 @@ class MyObject: public QObject
 {
     Q_OBJECT
 public slots:
-    void method(const QDBusMessage &msg) { serial = msg.serialNumber(); path = msg.path(); }
+    void method(const QDBusMessage &msg) { path = msg.path(); }
 
 public:
-    int serial;
     QString path;
-    MyObject() : serial(0) { }
+    MyObject() { }
 };
 
 class tst_QDBusConnection: public QObject
@@ -39,11 +38,10 @@ class QDBusSpy: public QObject
     Q_OBJECT
 public slots:
     void handlePing(const QString &str) { args.clear(); args << str; }
-    void asyncReply(const QDBusMessage &msg) { args << msg; serial = msg.replySerialNumber(); }
+    void asyncReply(const QDBusMessage &msg) { args << msg; }
 
 public:
     QList<QVariant> args;
-    int serial;
 };
 
 void tst_QDBusConnection::noConnection()
@@ -53,15 +51,15 @@ void tst_QDBusConnection::noConnection()
 
     // try sending a message. This should fail
     QDBusMessage msg = QDBusMessage::methodCall("org.kde.selftest", "/org/kde/selftest",
-                                                "org.kde.selftest", "Ping");
+                                                "org.kde.selftest", "Ping", con);
     msg << QLatin1String("ping");
 
     QVERIFY(!con.send(msg));
 
     QDBusSpy spy;
-    QVERIFY(con.sendWithReplyAsync(msg, &spy, SLOT(asyncReply)) == 0);
+    QVERIFY(con.call(msg, &spy, SLOT(asyncReply)) == 0);
 
-    QDBusMessage reply = con.sendWithReply(msg);
+    QDBusMessage reply = con.call(msg);
     QVERIFY(reply.type() == QDBusMessage::ErrorMessage);
 
     QDBusReply<void> voidreply(reply);
@@ -73,12 +71,12 @@ void tst_QDBusConnection::noConnection()
 
 void tst_QDBusConnection::sendSignal()
 {
-    QDBusConnection &con = QDBus::sessionBus();
+    QDBusConnection con = QDBus::sessionBus();
 
     QVERIFY(con.isConnected());
 
     QDBusMessage msg = QDBusMessage::signal("/org/kde/selftest", "org.kde.selftest",
-            "Ping");
+                                            "Ping", con);
     msg << QLatin1String("ping");
 
     QVERIFY(con.send(msg));
@@ -88,14 +86,14 @@ void tst_QDBusConnection::sendSignal()
 
 void tst_QDBusConnection::send()
 {
-    QDBusConnection &con = QDBus::sessionBus();
+    QDBusConnection con = QDBus::sessionBus();
 
     QVERIFY(con.isConnected());
 
     QDBusMessage msg = QDBusMessage::methodCall("org.freedesktop.DBus",
-            "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames");
+        "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames", con);
 
-    QDBusMessage reply = con.sendWithReply(msg);
+    QDBusMessage reply = con.call(msg);
 
     QCOMPARE(reply.count(), 1);
     QCOMPARE(reply.at(0).typeName(), "QStringList");
@@ -104,34 +102,32 @@ void tst_QDBusConnection::send()
 
 void tst_QDBusConnection::sendAsync()
 {
-    QDBusConnection &con = QDBus::sessionBus();
+    QDBusConnection con = QDBus::sessionBus();
     QVERIFY(con.isConnected());
 
     QDBusSpy spy;
 
     QDBusMessage msg = QDBusMessage::methodCall("org.freedesktop.DBus",
-            "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames");
-    int msgId = con.sendWithReplyAsync(msg, &spy, SLOT(asyncReply(QDBusMessage)));
-    QVERIFY(msgId != 0);
+            "/org/freedesktop/DBus", "org.freedesktop.DBus", "ListNames", con);
+    QVERIFY(con.call(msg, &spy, SLOT(asyncReply(QDBusMessage))));
 
     QTest::qWait(1000);
 
     QCOMPARE(spy.args.value(0).typeName(), "QStringList");
     QVERIFY(spy.args.at(0).toStringList().contains(con.baseService()));
-    QCOMPARE(spy.serial, msgId);
 }
 
 void tst_QDBusConnection::connect()
 {
     QDBusSpy spy;
 
-    QDBusConnection &con = QDBus::sessionBus();
+    QDBusConnection con = QDBus::sessionBus();
 
     con.connect(con.baseService(), "/org/kde/selftest", "org.kde.selftest", "ping", &spy,
                  SLOT(handlePing(QString)));
 
     QDBusMessage msg = QDBusMessage::signal("/org/kde/selftest", "org.kde.selftest",
-            "ping");
+                                            "ping", con);
     msg << QLatin1String("ping");
 
     QVERIFY(con.send(msg));
@@ -179,7 +175,7 @@ void tst_QDBusConnection::addConnection()
 
 void tst_QDBusConnection::registerObject()
 {
-    QDBusConnection &con = QDBus::sessionBus();
+    QDBusConnection con = QDBus::sessionBus();
     QVERIFY(con.isConnected());
 
     // make sure nothing is using our paths:
@@ -270,8 +266,8 @@ void tst_QDBusConnection::registerObject()
 
 bool tst_QDBusConnection::callMethod(const QDBusConnection &conn, const QString &path)
 {
-    QDBusMessage msg = QDBusMessage::methodCall(conn.baseService(), path, "local.any", "method");
-    QDBusMessage reply = conn.sendWithReply(msg, QDBusConnection::UseEventLoop);
+    QDBusMessage msg = QDBusMessage::methodCall(conn.baseService(), path, "local.any", "method", conn);
+    QDBusMessage reply = conn.call(msg, QDBus::BlockWithGui);
 
     return reply.type() == QDBusMessage::ReplyMessage;
 }    

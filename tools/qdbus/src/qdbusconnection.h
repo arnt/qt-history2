@@ -19,6 +19,15 @@
 
 QT_BEGIN_HEADER
 
+namespace QDBus
+{
+    enum CallMode {
+        NoBlock,
+        Block,
+        BlockWithGui,
+        AutoDetect
+    };
+}
 
 class QDBusAbstractInterfacePrivate;
 class QDBusInterface;
@@ -32,7 +41,6 @@ class QDBUS_EXPORT QDBusConnection
 {
 public:
     enum BusType { SessionBus, SystemBus, ActivationBus };
-    enum WaitMode { UseEventLoop, NoUseEventLoop };
     enum RegisterOption {
         ExportAdaptors = 0x01,
 
@@ -66,9 +74,10 @@ public:
     QDBusError lastError() const;
 
     bool send(const QDBusMessage &message) const;
-    QDBusMessage sendWithReply(const QDBusMessage &message, WaitMode mode = NoUseEventLoop) const;
-    int sendWithReplyAsync(const QDBusMessage &message, QObject *receiver,
-                           const char *slot) const;
+    QDBusMessage call(const QDBusMessage &message, QDBus::CallMode mode = QDBus::Block,
+                      int timeout = -1) const;
+    bool call(const QDBusMessage &message, QObject *receiver,
+              const char *slot, int timeout = -1) const;
 
     bool connect(const QString &service, const QString &path, const QString &interface,
                  const QString &name, QObject *receiver, const char *slot);
@@ -83,11 +92,6 @@ public:
     bool registerService(const QString &serviceName);
     bool unregisterService(const QString &serviceName);
 
-    template<class Interface>
-    inline Interface *findInterface(const QString &service, const QString &path);
-    QDBusInterface *findInterface(const QString& service, const QString& path,
-                                  const QString& interface = QString());
-
     QDBusConnectionInterface *interface() const;
 
     static QDBusConnection addConnection(BusType type, const QString &name);
@@ -95,20 +99,9 @@ public:
     static void closeConnection(const QString &name);
 
 private:
-    QDBusAbstractInterfacePrivate *findInterface_helper(const QString &, const QString &,
-                                                        const char*);
+    friend class QDBusConnectionPrivate;
     QDBusConnectionPrivate *d;
 };
-
-template<class Interface>
-inline Interface *QDBusConnection::findInterface(const QString &service, const QString &path)
-{
-    register QDBusAbstractInterfacePrivate *d_ptr;
-    d_ptr = findInterface_helper(service, path, Interface::staticInterfaceName());
-    if (d_ptr)
-        return new Interface(d_ptr);
-    return 0;
-}
 
 namespace QDBus {
     QDBUS_EXPORT QDBusConnection sessionBus();

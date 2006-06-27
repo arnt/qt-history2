@@ -35,8 +35,7 @@ class QDBUS_EXPORT QDBusConnectionInterface: public QDBusAbstractInterface
     friend class QDBusConnection;
     static inline const char *staticInterfaceName();
 
-    explicit QDBusConnectionInterface(QDBusAbstractInterfacePrivate *p);
-
+    explicit QDBusConnectionInterface(const QDBusConnection &connection, QObject *parent);
     ~QDBusConnectionInterface();
 
 public:

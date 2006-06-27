@@ -21,25 +21,16 @@
 
 #include <QtDBus/qdbusmessage.h>
 #include <QtDBus/qdbusextratypes.h>
+#include <QtDBus/qdbusconnection.h>
 
 QT_BEGIN_HEADER
 
-
-class QDBusConnection;
 class QDBusError;
 
 class QDBusAbstractInterfacePrivate;
 class QDBUS_EXPORT QDBusAbstractInterface: public QObject
 {
     Q_OBJECT
-
-public:
-    enum CallMode {
-        NoWaitForReply,
-        UseEventLoop,
-        NoUseEventLoop,
-        AutoDetect
-    };
 
 public:
     virtual ~QDBusAbstractInterface();
@@ -54,7 +45,7 @@ public:
     QDBusError lastError() const;
 
     QDBusMessage callWithArgs(const QString &method, const QList<QVariant> &args = QList<QVariant>(),
-                              CallMode mode = AutoDetect);
+                              QDBus::CallMode mode = QDBus::AutoDetect);
     bool callWithArgs(const QString &method, QObject *receiver, const char *slot,
                       const QList<QVariant> &args = QList<QVariant>());
 
@@ -63,7 +54,7 @@ public:
         return callWithArgs(m);
     }
 
-    inline QDBusMessage call(CallMode mode, const QString &m)
+    inline QDBusMessage call(QDBus::CallMode mode, const QString &m)
     {
         return callWithArgs(m, QList<QVariant>(), mode);
     }
@@ -155,7 +146,7 @@ public:
     }
 
     template<typename T1>
-    inline QDBusMessage call(CallMode mode, const QString &m, const T1 &t1)
+    inline QDBusMessage call(QDBus::CallMode mode, const QString &m, const T1 &t1)
     {
         QList<QVariant> args;
         args << qvfv(t1);
@@ -163,7 +154,7 @@ public:
     }
 
     template<typename T1, typename T2>
-    inline QDBusMessage call(CallMode mode, const QString &m, const T1 &t1, const T2 &t2)
+    inline QDBusMessage call(QDBus::CallMode mode, const QString &m, const T1 &t1, const T2 &t2)
     {
         QList<QVariant> args;
         args << qvfv(t1) << qvfv(t2);
@@ -171,7 +162,7 @@ public:
     }
 
     template<typename T1, typename T2, typename T3>
-    inline QDBusMessage call(CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
+    inline QDBusMessage call(QDBus::CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
                              const T3 &t3)
     {
         QList<QVariant> args;
@@ -180,7 +171,7 @@ public:
     }
       
     template<typename T1, typename T2, typename T3, typename T4>
-    inline QDBusMessage call(CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
+    inline QDBusMessage call(QDBus::CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
                              const T3 &t3, const T4 &t4)
     {
         QList<QVariant> args;
@@ -190,7 +181,7 @@ public:
     }
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5>
-    inline QDBusMessage call(CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
+    inline QDBusMessage call(QDBus::CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
                              const T3 &t3, const T4 &t4, const T5 &t5)
     {
         QList<QVariant> args;
@@ -200,7 +191,7 @@ public:
     }
   
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-    inline QDBusMessage call(CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
+    inline QDBusMessage call(QDBus::CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
                              const T3 &t3, const T4 &t4, const T5 &t5, const T6 &t6)
     {
         QList<QVariant> args;
@@ -210,7 +201,7 @@ public:
     }
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-    inline QDBusMessage call(CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
+    inline QDBusMessage call(QDBus::CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
                              const T3 &t3, const T4 &t4, const T5 &t5, const T6 &t6, const T7 &t7)
     {
         QList<QVariant> args;
@@ -222,7 +213,7 @@ public:
 
     template<typename T1, typename T2, typename T3, typename T4, typename T5,
              typename T6, typename T7, typename T8>
-    inline QDBusMessage call(CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
+    inline QDBusMessage call(QDBus::CallMode mode, const QString &m, const T1 &t1, const T2 &t2,
                              const T3 &t3, const T4 &t4, const T5 &t5, const T6 &t6, const T7 &t7,
                              const T8 &t8)
     {
@@ -235,17 +226,17 @@ public:
 #endif
 
 protected:
-    QDBusAbstractInterface(QDBusAbstractInterfacePrivate *);
+    QDBusAbstractInterface(const QDBusConnection &connection, const QString &service,
+                           const QString &path, const char *interface, QObject *parent = 0);
+    QDBusAbstractInterface(QDBusAbstractInterfacePrivate &, QObject *parent = 0);
+
     void connectNotify(const char *signal);
     void disconnectNotify(const char *signal);
     QVariant internalPropGet(const char *propname) const;
     void internalPropSet(const char *propname, const QVariant &value);
 
 private:
-    friend class QDBusInterface;
-
     Q_DECLARE_PRIVATE(QDBusAbstractInterface)
-    Q_DISABLE_COPY(QDBusAbstractInterface)
 };
 
 template<typename T> inline QVariant QDBusAbstractInterface::qvfv(const T &t)

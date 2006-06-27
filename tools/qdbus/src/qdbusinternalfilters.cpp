@@ -105,9 +105,10 @@ QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node
             }
         }
 
-        xml_data += QLatin1String( introspectableInterfaceXml );
         xml_data += QLatin1String( propertiesInterfaceXml );
     }
+
+    xml_data += QLatin1String( introspectableInterfaceXml );
 
     if (node->flags & QDBusConnection::ExportChildObjects) {
         xml_data += generateSubObjectXml(node->obj);
@@ -132,21 +133,17 @@ QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node
 void qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node,
                            const QDBusMessage &msg)
 {
-    // now send it
-    QDBusMessage reply = QDBusMessage::methodReply(msg);
-    reply << qDBusIntrospectObject(node);
-    msg.connection().send(reply);
+    msg.sendReply(qDBusIntrospectObject(node));
 }
 
 // implement the D-Bus interface org.freedesktop.DBus.Properties
 
 static void sendPropertyError(const QDBusMessage &msg, const QString &interface_name)
 {
-    QDBusMessage error = QDBusMessage::error(msg, QLatin1String(DBUS_ERROR_INVALID_ARGS),
-                                   QString::fromLatin1("Interface %1 was not found in object %2")
-                                   .arg(interface_name)
-                                   .arg(msg.path()));
-    msg.connection().send(error);
+    msg.sendError(QLatin1String(DBUS_ERROR_INVALID_ARGS),
+                  QString::fromLatin1("Interface %1 was not found in object %2")
+                  .arg(interface_name)
+                  .arg(msg.path()));
 }
 
 void qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode *node, const QDBusMessage &msg)
@@ -185,9 +182,7 @@ void qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode *node, const 
         return;
     }
 
-    QDBusMessage reply = QDBusMessage::methodReply(msg);
-    reply << qVariantFromValue(QDBusVariant(value));
-    msg.connection().send(reply);
+    msg.sendReply( qVariantFromValue(QDBusVariant(value)) );
 }
 
 void qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode *node, const QDBusMessage &msg)
@@ -207,7 +202,7 @@ void qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode *node, const 
                          interface_name);
         if (it != connector->adaptors.end() && interface_name == QLatin1String(it->interface))
             if (it->adaptor->setProperty(property_name, value)) {
-                msg.connection().send(QDBusMessage::methodReply(msg));
+                msg.sendReply();
                 return;
             }
     }
@@ -221,7 +216,7 @@ void qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode *node, const 
                 QDBusConnection::ExportAllProperties) {
 
                 if (mp.write(node->obj, value)) {
-                    msg.connection().send(QDBusMessage::methodReply(msg));
+                    msg.sendReply();
                     return;
                 }
             }

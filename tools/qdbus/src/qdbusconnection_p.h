@@ -129,9 +129,9 @@ public:
     QString getNameOwner(const QString &service);    
 
     int send(const QDBusMessage &message) const;
-    QDBusMessage sendWithReply(const QDBusMessage &message, int mode);
+    QDBusMessage sendWithReply(const QDBusMessage &message, int mode, int timeout = -1);
     int sendWithReplyAsync(const QDBusMessage &message, QObject *receiver,
-                           const char *method);
+                           const char *method, int timeout = -1);
     void connectSignal(const QString &key, const SignalHook &hook);
     void registerObject(const ObjectTreeNode *node);
     void connectRelay(const QString &service, const QString &path, const QString &interface,
@@ -153,15 +153,11 @@ public:
     CallDeliveryEvent *postedCallDeliveryEvent();
     void deliverCall(const CallDeliveryEvent &data) const;
 
-    QDBusInterfacePrivate *findInterface(const QString &service, const QString &path,
-                                         const QString &interface);
+    QDBusMetaObject *findMetaObject(const QString &service, const QString &path,
+                                    const QString &interface);        
 
 protected:
     virtual void customEvent(QEvent *event);
-
-private:
-    QDBusMetaObject *findMetaObject(const QString &service, const QString &path,
-                                    const QString &interface);        
 
 public slots:
     // public slots
@@ -206,6 +202,9 @@ public:
                             bool buildSignature);
     static DBusHandlerResult messageFilter(DBusConnection *, DBusMessage *, void *);
     static void messageResultReceived(DBusPendingCall *, void *);
+
+    static QDBusConnectionPrivate *d(const QDBusConnection& q)
+    { return q.d; }
 };
 
 class QDBusReplyWaiter: public QEventLoop

@@ -16,6 +16,7 @@
 
 #include <QtDBus/qdbusmacros.h>
 #include <QtDBus/qdbuserror.h>
+#include <QtDBus/qdbusconnection.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qvariant.h>
 
@@ -23,63 +24,58 @@
 
 QT_BEGIN_HEADER
 
-
-class QDBusMessagePrivate;
 class QDBusConnection;
 class QDBusConnectionPrivate;
-struct DBusMessage;
 
+class QDBusMessagePrivate;
 class QDBUS_EXPORT QDBusMessage: public QList<QVariant>
 {
-    //friend class QDBusConnection;
-    friend class QDBusConnectionPrivate;
 public:
-    enum { DefaultTimeout = -1, NoTimeout = INT_MAX};
     enum MessageType { InvalidMessage, MethodCallMessage, ReplyMessage,
                        ErrorMessage, SignalMessage };
 
     QDBusMessage();
     QDBusMessage(const QDBusMessage &other);
+    QDBusMessage &operator=(const QDBusMessage &other);
     ~QDBusMessage();
 
-    QDBusMessage &operator=(const QDBusMessage &other);
-
     static QDBusMessage signal(const QString &path, const QString &interface,
-                               const QString &name);
+                               const QString &name,
+                               const QDBusConnection &connection /*= QDBus::sessionBus()*/);
     static QDBusMessage methodCall(const QString &destination, const QString &path,
-                                   const QString &interface, const QString &method);
-    static QDBusMessage methodReply(const QDBusMessage &other);
-    static QDBusMessage error(const QDBusMessage &other, const QString &name,
-                              const QString &message = QString());
-    static QDBusMessage error(const QDBusMessage &other, const QDBusError &error);
-
-    QString path() const;
-    QString interface() const;
-    QString name() const;
-    inline QString member() const { return name(); }
-    inline QString method() const { return name(); }
-    QString service() const;
-    inline QString sender() const { return service(); }
-    MessageType type() const;
-
-    int timeout() const;
-    void setTimeout(int ms);
-
-    bool noReply() const;
-
-    QString signature() const;
+                                   const QString &interface, const QString &method,
+                                   const QDBusConnection &connection /*= QDBus::sessionBus()*/);
 
     QDBusConnection connection() const;
+    QString service() const;
+    QString path() const;
+    QString interface() const;
+    QString member() const;
+    MessageType type() const;
 
-    int serialNumber() const;
-    int replySerialNumber() const;
-    bool wasRepliedTo() const;
+    bool isReplyRequired() const;
+    QString signature() const;
+
+    void setDelayedReply(bool enable);
+    bool isDelayedReply() const;
+
+    bool send();
+    bool sendError(const QString &name, const QString &message = QString()) const;
+    bool sendError(const QDBusError &error) const;
+    bool sendReply(const QVariantList &arguments = QVariantList()) const;
+    inline bool sendReply(const QVariant &returnValue) const
+    { return sendReply(QVariantList() << returnValue); }
 
 private:
-    friend class QDBusError;
-    DBusMessage *toDBusMessage() const;
-    static QDBusMessage fromDBusMessage(DBusMessage *dmsg, const QDBusConnection &connection);
-    static QDBusMessage fromError(const QDBusError& error);
+#ifndef Q_QDOC
+    template<typename T> inline QVariant qvfv(const T &t);
+#ifndef QT_NO_CAST_FROM_ASCII
+    inline QVariant qvfv(const char *t)
+    { return QVariant(t); }
+#endif
+#endif
+
+    friend class QDBusMessagePrivate;
     QDBusMessagePrivate *d_ptr;
 };
 

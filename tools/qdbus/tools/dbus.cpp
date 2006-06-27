@@ -22,20 +22,20 @@
 #include <QtDBus>
 #include <private/qdbusutil_p.h>
 
-QDBusConnection connection = QString();
+QDBusConnection connection("");
 
 void listObjects(const QString &service, const QString &path)
 {
-    QDBusInterfacePtr iface(connection, service, path.isEmpty() ? "/" : path,
-                   "org.freedesktop.DBus.Introspectable");
-    if (!iface->isValid()) {
-        QDBusError err(iface->lastError());
+    QDBusInterface iface(service, path.isEmpty() ? "/" : path,
+                         "org.freedesktop.DBus.Introspectable", connection);
+    if (!iface.isValid()) {
+        QDBusError err(iface.lastError());
         fprintf(stderr, "Cannot introspect object %s at %s:\n%s (%s)\n",
                 qPrintable(path.isEmpty() ? "/" : path), qPrintable(service),
                 qPrintable(err.name()), qPrintable(err.message()));
         exit(1);
     }
-    QDBusReply<QString> xml = iface->call("Introspect");
+    QDBusReply<QString> xml = iface.call("Introspect");
 
     if (!xml.isValid())
         return;                 // silently
@@ -56,15 +56,15 @@ void listObjects(const QString &service, const QString &path)
 
 void listInterface(const QString &service, const QString &path, const QString &interface)
 {
-    QDBusInterfacePtr iface(connection, service, path, interface);
-    if (!iface->isValid()) {
-        QDBusError err(iface->lastError());
+    QDBusInterface iface(service, path, interface, connection);
+    if (!iface.isValid()) {
+        QDBusError err(iface.lastError());
         fprintf(stderr, "Interface '%s' not available in object %s at %s:\n%s (%s)\n",
                 qPrintable(interface), qPrintable(path), qPrintable(service),
                 qPrintable(err.name()), qPrintable(err.message()));
         exit(1);
     }
-    const QMetaObject *mo = iface->metaObject();
+    const QMetaObject *mo = iface.metaObject();
 
     // properties
     for (int i = mo->propertyOffset(); i < mo->propertyCount(); ++i) {
@@ -110,15 +110,15 @@ void listInterface(const QString &service, const QString &path, const QString &i
 
 void listAllInterfaces(const QString &service, const QString &path)
 {
-    QDBusInterfacePtr iface(connection, service, path, "org.freedesktop.DBus.Introspectable");
-    if (!iface->isValid()) {
-        QDBusError err(iface->lastError());
+    QDBusInterface iface(service, path, "org.freedesktop.DBus.Introspectable", connection);
+    if (!iface.isValid()) {
+        QDBusError err(iface.lastError());
         fprintf(stderr, "Cannot introspect object %s at %s:\n%s (%s)\n",
                 qPrintable(path), qPrintable(service),
                 qPrintable(err.name()), qPrintable(err.message()));
         exit(1);
     }
-    QDBusReply<QString> xml = iface->call("Introspect");
+    QDBusReply<QString> xml = iface.call("Introspect");
 
     if (!xml.isValid())
         return;                 // silently
@@ -156,16 +156,16 @@ QStringList readList(int &argc, const char *const *&argv)
 void placeCall(const QString &service, const QString &path, const QString &interface,
                const QString &member, int argc, const char *const *argv)
 {
-    QDBusInterfacePtr iface(connection, service, path, interface);
-    if (!iface->isValid()) {
-        QDBusError err(iface->lastError());
+    QDBusInterface iface(service, path, interface, connection);
+    if (!iface.isValid()) {
+        QDBusError err(iface.lastError());
         fprintf(stderr, "Interface '%s' not available in object %s at %s:\n%s (%s)\n",
                 qPrintable(interface), qPrintable(path), qPrintable(service),
                 qPrintable(err.name()), qPrintable(err.message()));
         exit(1);
     }
 
-    const QMetaObject *mo = iface->metaObject();
+    const QMetaObject *mo = iface.metaObject();
     QByteArray match = member.toLatin1();
     match += '(';
 
@@ -237,7 +237,7 @@ void placeCall(const QString &service, const QString &path, const QString &inter
         exit(1);
     }
 
-    QDBusMessage reply = iface->callWithArgs(member, params, QDBusInterface::NoUseEventLoop);
+    QDBusMessage reply = iface.callWithArgs(member, params, QDBus::Block);
     if (reply.type() == QDBusMessage::ErrorMessage) {
         QDBusError err = reply;
         printf("Error: %s\n%s\n", qPrintable(err.name()), qPrintable(err.message()));

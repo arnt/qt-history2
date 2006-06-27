@@ -81,6 +81,8 @@ void commonInit()
     qDBusRegisterMetaType<QMap<int, QString> >();
     qDBusRegisterMetaType<QMap<QString, QString> >();
     qDBusRegisterMetaType<QMap<qlonglong, QDateTime> >();
+
+    qDBusRegisterMetaType<MyStruct>();
 }
 #ifdef USE_PRIVATE_CODE
 #include "private/qdbusintrospection_p.h"

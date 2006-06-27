@@ -47,8 +47,8 @@ public:
 private slots:
     void initTestCase()
     {
-        qDBusRegisterMetaType<IntStringMap>("IntStringMap");
-        qDBusRegisterMetaType<MyStruct>("MyStruct");
+        qDBusRegisterMetaType<IntStringMap>();
+        qDBusRegisterMetaType<MyStruct>();
     }
 
     void init();
@@ -178,9 +178,9 @@ tst_QDBusReply::tst_QDBusReply()
     adaptor = new TypesInterface(this);
     QDBus::sessionBus().registerObject("/", this);
 
-    iface = QDBus::sessionBus().findInterface(QDBus::sessionBus().baseService(),
-                                              "/",
-                                              "com.trolltech.Qt.Autotests.TypesInterface");
+    iface = new QDBusInterface(QDBus::sessionBus().baseService(), "/",
+                               "com.trolltech.Qt.Autotests.TypesInterface", QDBus::sessionBus(),
+                               this);
 }
 
 void tst_QDBusReply::init()
@@ -191,117 +191,117 @@ void tst_QDBusReply::init()
 
 void tst_QDBusReply::simpleTypes()
 {
-    QDBusReply<bool> rbool = iface->call(QDBusInterface::UseEventLoop, "retrieveBool");
+    QDBusReply<bool> rbool = iface->call(QDBus::BlockWithGui, "retrieveBool");
     QVERIFY(rbool.isValid());
     QCOMPARE(rbool.value(), adaptor->retrieveBool());
 
-    QDBusReply<uchar> ruchar = iface->call(QDBusInterface::UseEventLoop, "retrieveUChar");
+    QDBusReply<uchar> ruchar = iface->call(QDBus::BlockWithGui, "retrieveUChar");
     QVERIFY(ruchar.isValid());
     QCOMPARE(ruchar.value(), adaptor->retrieveUChar());
 
-    QDBusReply<short> rshort = iface->call(QDBusInterface::UseEventLoop, "retrieveShort");
+    QDBusReply<short> rshort = iface->call(QDBus::BlockWithGui, "retrieveShort");
     QVERIFY(rshort.isValid());
     QCOMPARE(rshort.value(), adaptor->retrieveShort());
 
-    QDBusReply<ushort> rushort = iface->call(QDBusInterface::UseEventLoop, "retrieveUShort");
+    QDBusReply<ushort> rushort = iface->call(QDBus::BlockWithGui, "retrieveUShort");
     QVERIFY(rushort.isValid());
     QCOMPARE(rushort.value(), adaptor->retrieveUShort());
 
-    QDBusReply<int> rint = iface->call(QDBusInterface::UseEventLoop, "retrieveInt");
+    QDBusReply<int> rint = iface->call(QDBus::BlockWithGui, "retrieveInt");
     QVERIFY(rint.isValid());
     QCOMPARE(rint.value(), adaptor->retrieveInt());
 
-    QDBusReply<uint> ruint = iface->call(QDBusInterface::UseEventLoop, "retrieveUInt");
+    QDBusReply<uint> ruint = iface->call(QDBus::BlockWithGui, "retrieveUInt");
     QVERIFY(ruint.isValid());
     QCOMPARE(ruint.value(), adaptor->retrieveUInt());
 
-    QDBusReply<qlonglong> rqlonglong = iface->call(QDBusInterface::UseEventLoop, "retrieveLongLong");
+    QDBusReply<qlonglong> rqlonglong = iface->call(QDBus::BlockWithGui, "retrieveLongLong");
     QVERIFY(rqlonglong.isValid());
     QCOMPARE(rqlonglong.value(), adaptor->retrieveLongLong());
 
-    QDBusReply<qulonglong> rqulonglong = iface->call(QDBusInterface::UseEventLoop, "retrieveULongLong");
+    QDBusReply<qulonglong> rqulonglong = iface->call(QDBus::BlockWithGui, "retrieveULongLong");
     QVERIFY(rqulonglong.isValid());
     QCOMPARE(rqulonglong.value(), adaptor->retrieveULongLong());
 
-    QDBusReply<double> rdouble = iface->call(QDBusInterface::UseEventLoop, "retrieveDouble");
+    QDBusReply<double> rdouble = iface->call(QDBus::BlockWithGui, "retrieveDouble");
     QVERIFY(rdouble.isValid());
     QCOMPARE(rdouble.value(), adaptor->retrieveDouble());
 
-    QDBusReply<QString> rstring = iface->call(QDBusInterface::UseEventLoop, "retrieveString");
+    QDBusReply<QString> rstring = iface->call(QDBus::BlockWithGui, "retrieveString");
     QVERIFY(rstring.isValid());
     QCOMPARE(rstring.value(), adaptor->retrieveString());
 
-    QDBusReply<QDBusObjectPath> robjectpath = iface->call(QDBusInterface::UseEventLoop, "retrieveObjectPath");
+    QDBusReply<QDBusObjectPath> robjectpath = iface->call(QDBus::BlockWithGui, "retrieveObjectPath");
     QVERIFY(robjectpath.isValid());
     QCOMPARE(robjectpath.value().value, adaptor->retrieveObjectPath().value);
 
-    QDBusReply<QDBusSignature> rsignature = iface->call(QDBusInterface::UseEventLoop, "retrieveSignature");
+    QDBusReply<QDBusSignature> rsignature = iface->call(QDBus::BlockWithGui, "retrieveSignature");
     QVERIFY(rsignature.isValid());
     QCOMPARE(rsignature.value().value, adaptor->retrieveSignature().value);
 
-    QDBusReply<QDBusVariant> rdbusvariant = iface->call(QDBusInterface::UseEventLoop, "retrieveVariant");
+    QDBusReply<QDBusVariant> rdbusvariant = iface->call(QDBus::BlockWithGui, "retrieveVariant");
     QVERIFY(rdbusvariant.isValid());
     QCOMPARE(rdbusvariant.value().value, adaptor->retrieveVariant().value);
 
-    QDBusReply<QVariant> rvariant = iface->call(QDBusInterface::UseEventLoop, "retrieveVariant");
+    QDBusReply<QVariant> rvariant = iface->call(QDBus::BlockWithGui, "retrieveVariant");
     QVERIFY(rvariant.isValid());
     QCOMPARE(rvariant.value(), adaptor->retrieveVariant().value);
 
-    QDBusReply<QByteArray> rbytearray = iface->call(QDBusInterface::UseEventLoop, "retrieveByteArray");
+    QDBusReply<QByteArray> rbytearray = iface->call(QDBus::BlockWithGui, "retrieveByteArray");
     QVERIFY(rbytearray.isValid());
     QCOMPARE(rbytearray.value(), adaptor->retrieveByteArray());
     
-    QDBusReply<QStringList> rstringlist = iface->call(QDBusInterface::UseEventLoop, "retrieveStringList");
+    QDBusReply<QStringList> rstringlist = iface->call(QDBus::BlockWithGui, "retrieveStringList");
     QVERIFY(rstringlist.isValid());
     QCOMPARE(rstringlist.value(), adaptor->retrieveStringList());
 }
 
 void tst_QDBusReply::complexTypes()
 {
-    QDBusReply<QVariantList> rlist = iface->call(QDBusInterface::UseEventLoop, "retrieveList");
+    QDBusReply<QVariantList> rlist = iface->call(QDBus::BlockWithGui, "retrieveList");
     QVERIFY(rlist.isValid());
     QCOMPARE(rlist.value(), adaptor->retrieveList());
 
-    QDBusReply<QVariantMap> rmap = iface->call(QDBusInterface::UseEventLoop, "retrieveMap");
+    QDBusReply<QVariantMap> rmap = iface->call(QDBus::BlockWithGui, "retrieveMap");
     QVERIFY(rmap.isValid());
     QCOMPARE(rmap.value(), adaptor->retrieveMap());
 
-    QDBusReply<IntStringMap> rismap = iface->call(QDBusInterface::UseEventLoop, "retrieveIntStringMap");
+    QDBusReply<IntStringMap> rismap = iface->call(QDBus::BlockWithGui, "retrieveIntStringMap");
     QVERIFY(rismap.isValid());
     QCOMPARE(rismap.value(), adaptor->retrieveIntStringMap());
 
-    QDBusReply<MyStruct> rstruct = iface->call(QDBusInterface::UseEventLoop, "retrieveStruct");
+    QDBusReply<MyStruct> rstruct = iface->call(QDBus::BlockWithGui, "retrieveStruct");
     QVERIFY(rstruct.isValid());
     QCOMPARE(rstruct.value(), adaptor->retrieveStruct());
 }
 
 void tst_QDBusReply::wrongTypes()
 {
-    QDBusReply<bool> rbool = iface->call(QDBusInterface::UseEventLoop, "retrieveInt");
+    QDBusReply<bool> rbool = iface->call(QDBus::BlockWithGui, "retrieveInt");
     QVERIFY(!rbool.isValid());
 
-    rbool = iface->call(QDBusInterface::UseEventLoop, "retrieveShort");
+    rbool = iface->call(QDBus::BlockWithGui, "retrieveShort");
     QVERIFY(!rbool.isValid());
 
-    rbool = iface->call(QDBusInterface::UseEventLoop, "retrieveStruct");
+    rbool = iface->call(QDBus::BlockWithGui, "retrieveStruct");
     QVERIFY(!rbool.isValid());
 
-    QDBusReply<short> rshort = iface->call(QDBusInterface::UseEventLoop, "retrieveInt");
+    QDBusReply<short> rshort = iface->call(QDBus::BlockWithGui, "retrieveInt");
     QVERIFY(!rshort.isValid());
 
-    rshort = iface->call(QDBusInterface::UseEventLoop, "retrieveBool");
+    rshort = iface->call(QDBus::BlockWithGui, "retrieveBool");
     QVERIFY(!rshort.isValid());
 
-    rshort = iface->call(QDBusInterface::UseEventLoop, "retrieveStruct");
+    rshort = iface->call(QDBus::BlockWithGui, "retrieveStruct");
     QVERIFY(!rshort.isValid());
 
-    QDBusReply<MyStruct> rstruct = iface->call(QDBusInterface::UseEventLoop, "retrieveInt");
+    QDBusReply<MyStruct> rstruct = iface->call(QDBus::BlockWithGui, "retrieveInt");
     QVERIFY(!rstruct.isValid());
 
-    rstruct = iface->call(QDBusInterface::UseEventLoop, "retrieveShort");
+    rstruct = iface->call(QDBus::BlockWithGui, "retrieveShort");
     QVERIFY(!rstruct.isValid());
 
-    rstruct = iface->call(QDBusInterface::UseEventLoop, "retrieveIntStringMap");
+    rstruct = iface->call(QDBus::BlockWithGui, "retrieveIntStringMap");
     QVERIFY(!rstruct.isValid());
 }
 

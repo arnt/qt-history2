@@ -44,11 +44,9 @@ public:
 
 public slots:
 
-    void ping(const QDBusMessage &msg)
+    void ping(QDBusMessage msg)
     {
-        QDBusMessage reply = QDBusMessage::methodReply(msg);
-        reply << static_cast<QList<QVariant> >(msg);
-        if (!msg.connection().send(reply))
+        if (!msg.sendReply(msg)) // QDBusMessage is a QVariantList
             exit(1);
     }
 };
@@ -74,11 +72,11 @@ public slots:
 // helper function
 void emitSignal(const QString &interface, const QString &name, const QString &arg)
 {
-    QDBusMessage msg = QDBusMessage::signal("/", interface, name);
+    QDBusMessage msg = QDBusMessage::signal("/", interface, name, QDBus::sessionBus());
     msg << arg;
-    QDBus::sessionBus().send(msg);
+    msg.send();
 
-    QTest::qWait(200);
+    QTest::qWait(1000);
 }
 
 class tst_QDBusInterface: public QObject
@@ -95,8 +93,9 @@ private slots:
 
 void tst_QDBusInterface::initTestCase()
 {
-    QDBusConnection &con = QDBus::sessionBus();
+    QDBusConnection con = QDBus::sessionBus();
     QVERIFY(con.isConnected());
+    QTest::qWait(500);
 
     con.registerObject("/", &obj, QDBusConnection::ExportAdaptors | QDBusConnection::ExportSlots |
                        QDBusConnection::ExportChildObjects);
@@ -104,11 +103,11 @@ void tst_QDBusInterface::initTestCase()
 
 void tst_QDBusInterface::introspect()
 {
-    QDBusConnection &con = QDBus::sessionBus();
-    QDBusInterface *iface = con.findInterface(QDBus::sessionBus().baseService(), QLatin1String("/"),
-                                              TEST_INTERFACE_NAME);
+    QDBusConnection con = QDBus::sessionBus();
+    QDBusInterface iface(QDBus::sessionBus().baseService(), QLatin1String("/"),
+                         TEST_INTERFACE_NAME);
 
-    const QMetaObject *mo = iface->metaObject();
+    const QMetaObject *mo = iface.metaObject();
 
     qDebug("Improve to a better testcase of QDBusMetaObject");
     QCOMPARE(mo->methodCount() - mo->methodOffset(), 3);
@@ -116,27 +115,23 @@ void tst_QDBusInterface::introspect()
 
     QCOMPARE(mo->propertyCount() - mo->propertyOffset(), 1);
     QVERIFY(mo->indexOfProperty("prop1") != -1);
-
-    iface->deleteLater();
 }
 
 void tst_QDBusInterface::signal()
 {
-    QDBusConnection &con = QDBus::sessionBus();
-    QDBusInterface *iface = con.findInterface(con.baseService(), QLatin1String("/"),
-                                              TEST_INTERFACE_NAME);
+    QDBusConnection con = QDBus::sessionBus();
+    QDBusInterface iface(QDBus::sessionBus().baseService(), QLatin1String("/"),
+                         TEST_INTERFACE_NAME);
 
     QString arg = "So long and thanks for all the fish";
     {
         Spy spy;
-        spy.connect(iface, SIGNAL(somethingHappened(QString)), SLOT(spySlot(QString)));
+        spy.connect(&iface, SIGNAL(somethingHappened(QString)), SLOT(spySlot(QString)));
 
         emitSignal(TEST_INTERFACE_NAME, TEST_SIGNAL_NAME, arg);
         QCOMPARE(spy.count, 1);
         QCOMPARE(spy.received, arg);
     }
-
-    iface->deleteLater();
 }
 
 QTEST_MAIN(tst_QDBusInterface)

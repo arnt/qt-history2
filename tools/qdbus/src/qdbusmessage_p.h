@@ -44,7 +44,11 @@ public:
     int timeout;
     QAtomic ref;
 
-    mutable bool repliedTo : 1;
+    bool delayedReply : 1;
+
+    static DBusMessage *toDBusMessage(const QDBusMessage &message);
+    static QDBusMessage fromDBusMessage(DBusMessage *dmsg, const QDBusConnection &connection);
+    static QDBusMessage fromError(const QDBusError& error);
 };
 
 #endif
