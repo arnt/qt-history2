@@ -15,6 +15,7 @@
 #include "qabstracteventdispatcher.h"
 #include <QtGui>
 
+#include "private/qstylesheetstyle_p.h"
 
 //TESTED_CLASS=
 //TESTED_FILES=gui/kernel/qapplication.h gui/kernel/qapplication.cpp
@@ -69,6 +70,7 @@ private slots:
 
     void task109149();
 
+    void style();
 private:
     inline QChar pathSeparator(void)
     {
@@ -1072,6 +1074,47 @@ void tst_QApplication::wheelScrollLines()
     QApplication app(argc, &argv0);
     // If wheelScrollLines returns 0, the mose wheel will be disabled.
     QVERIFY(app.wheelScrollLines() > 0);
+}
+
+void tst_QApplication::style()
+{
+    int argc = 1;
+    QApplication app(argc, &argv0);
+
+    // qApp style can never be 0
+    QVERIFY(QApplication::style() != 0);
+    QPointer<QStyle> style1 = new QWindowsStyle;
+    QPointer<QStyle> style2 = new QWindowsStyle;
+    qApp->setStyle(style1);
+    // Basic sanity
+    QVERIFY(qApp->style() == style1);
+    qApp->setStyle(style2);
+    QVERIFY(style1.isNull()); // qApp must have taken ownership and deleted it
+    // Setting null should not crash
+    qApp->setStyle(0);
+    QVERIFY(qApp->style() == style2);
+
+    // Set the stylesheet
+    qApp->setStyleSheet("whatever");
+    QPointer<QStyleSheetStyle> sss = (QStyleSheetStyle *)qApp->style();
+    QVERIFY(!sss.isNull()); 
+    QCOMPARE(sss->metaObject()->className(), "QStyleSheetStyle"); // must be our proxy now
+    QVERIFY(!style2.isNull()); // this should exist
+    QVERIFY(sss->baseStyle() == style2);
+    style1 = new QWindowsStyle;
+    qApp->setStyle(style1);
+    QVERIFY(style2.isNull()); // should disappear automatically
+    QVERIFY(sss->baseStyle() == style1); // and replaced with the new one
+    
+    // Update the stylesheet and check nothing changes
+    qApp->setStyleSheet("whatever2");
+    QVERIFY(qApp->style() == sss);
+    QVERIFY(sss->baseStyle() == style1);
+    
+    // Revert the stylesheet
+    qApp->setStyleSheet("");
+    QVERIFY(sss.isNull()); // should have disappeared
+    QVERIFY(qApp->style() == style1);
 }
 
 //QTEST_APPLESS_MAIN(tst_QApplication)
