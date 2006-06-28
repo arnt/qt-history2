@@ -1253,11 +1253,13 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 if (lineEdit->direction == Qt::RightToLeft) {
                     region -= QRect(option->rect.left() + 1, option->rect.top(), 1, 2);
                     region -= QRect(option->rect.left() + 1, option->rect.bottom() - 1, 1, 2);
-                    region -= QRect(option->rect.right()-1, option->rect.top(), 2, option->rect.height());
+                    if (widget->parentWidget()->inherits("QComboBox"))
+                        region -= QRect(option->rect.right()-1, option->rect.top(), 2, option->rect.height());
                 } else {
                     region -= QRect(option->rect.right() - 1, option->rect.top(), 1, 2);
                     region -= QRect(option->rect.right() - 1, option->rect.bottom() - 1, 1, 2);
-                    region -= QRect(option->rect.left(), option->rect.top(), 2, option->rect.height());
+                    if (widget->parentWidget()->inherits("QComboBox"))
+                        region -= QRect(option->rect.left(), option->rect.top(), 2, option->rect.height());
                 }
                 painter->setClipRegion(region);
             }
