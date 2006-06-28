@@ -175,6 +175,9 @@ public:
     bool hasSceneRect;
     void updateLastCenterPoint();
 
+    qint64 horizontalScroll() const;
+    qint64 verticalScroll() const;
+
     QPointF mousePressItemPoint;
     QPointF mousePressScenePoint;
     QPoint mousePressViewPoint;
@@ -332,7 +335,41 @@ void QGraphicsViewPrivate::recalculateContentSize()
 void QGraphicsViewPrivate::updateLastCenterPoint()
 {
     Q_Q(QGraphicsView);
-    lastCenterPoint = q->mapToScene(q->mapFromScene(q->mapToScene(q->viewport()->rect().center())));
+    lastCenterPoint = q->mapToScene(q->viewport()->rect().center());
+}
+
+/*!
+    \internal
+
+    Returns the horizontal scroll value (the X value of the left edge of the
+    viewport).
+*/
+qint64 QGraphicsViewPrivate::horizontalScroll() const
+{
+    Q_Q(const QGraphicsView);
+    qint64 horizontal = qint64(-leftIndent);
+    if (q->isRightToLeft()) {
+        if (!leftIndent) {
+            horizontal += q->horizontalScrollBar()->minimum();
+            horizontal += q->horizontalScrollBar()->maximum();
+            horizontal -= q->horizontalScrollBar()->value();
+        }
+    } else {
+        horizontal += q->horizontalScrollBar()->value();
+    }
+    return horizontal;
+}
+
+/*!
+    \internal
+
+    Returns the vertical scroll value (the X value of the top edge of the
+    viewport).
+*/
+qint64 QGraphicsViewPrivate::verticalScroll() const
+{
+    Q_Q(const QGraphicsView);
+    return qint64(q->verticalScrollBar()->value() - topIndent);
 }
 
 /*!
@@ -893,8 +930,18 @@ void QGraphicsView::centerOn(const QPointF &pos)
     qreal height = viewport()->height();
     QPointF viewPoint = d->matrix.map(pos);
     QPointF oldCenterPoint = pos;
-    if (!d->leftIndent)
-        horizontalScrollBar()->setValue(int(viewPoint.x() - width / 2.0));
+
+    if (!d->leftIndent) {
+        if (isRightToLeft()) {
+            qint64 horizontal = 0;
+            horizontal += horizontalScrollBar()->minimum();
+            horizontal += horizontalScrollBar()->maximum();
+            horizontal -= int(viewPoint.x() - width / 2.0);
+            horizontalScrollBar()->setValue(horizontal);
+        } else {
+            horizontalScrollBar()->setValue(int(viewPoint.x() - width / 2.0));
+        }
+    }
     if (!d->topIndent)
         verticalScrollBar()->setValue(int(viewPoint.y() - height / 2.0));
     d->lastCenterPoint = oldCenterPoint;
@@ -939,9 +986,9 @@ void QGraphicsView::ensureVisible(const QRectF &rect, int xmargin, int ymargin)
     qreal height = viewport()->height();
     QRectF viewRect = d->matrix.mapRect(rect);
 
-    qreal left = d->leftIndent ? d->leftIndent : horizontalScrollBar()->value();
+    qreal left = d->horizontalScroll();
     qreal right = left + width;
-    qreal top = d->topIndent ? d->topIndent : verticalScrollBar()->value();
+    qreal top = d->verticalScroll();
     qreal bottom = top + height;
 
     if (viewRect.left() <= left + xmargin) {
@@ -1147,8 +1194,7 @@ void QGraphicsView::render(QPainter *painter, const QRectF &target, const QRect 
 
     // Setup painter
     QMatrix moveMatrix;
-    moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
-                         -verticalScrollBar()->value() + d->topIndent);
+    moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
     QMatrix painterMatrix = d->matrix * moveMatrix;
 
     // Generate the style options
@@ -1346,8 +1392,8 @@ QPointF QGraphicsView::mapToScene(const QPoint &point) const
 {
     Q_D(const QGraphicsView);
     QPointF p = point;
-    p.rx() += horizontalScrollBar()->value() - d->leftIndent;
-    p.ry() += verticalScrollBar()->value() - d->topIndent;
+    p.rx() += d->horizontalScroll();
+    p.ry() += d->verticalScroll();
     return d->matrix.inverted().map(p);
 }
 
@@ -1406,8 +1452,7 @@ QPainterPath QGraphicsView::mapToScene(const QPainterPath &path) const
 {
     Q_D(const QGraphicsView);
     QMatrix moveMatrix;
-    moveMatrix.translate(horizontalScrollBar()->value() - d->leftIndent,
-                         verticalScrollBar()->value() - d->topIndent);
+    moveMatrix.translate(d->horizontalScroll(), d->verticalScroll());
     return (moveMatrix * d->matrix.inverted()).map(path);
 }
 
@@ -1420,8 +1465,8 @@ QPoint QGraphicsView::mapFromScene(const QPointF &point) const
 {
     Q_D(const QGraphicsView);
     QPointF p = d->matrix.map(point);
-    p.rx() -= horizontalScrollBar()->value() - d->leftIndent;
-    p.ry() -= verticalScrollBar()->value() - d->topIndent;
+    p.rx() -= d->horizontalScroll();
+    p.ry() -= d->verticalScroll();
     return p.toPoint();
 }
 
@@ -1480,8 +1525,7 @@ QPainterPath QGraphicsView::mapFromScene(const QPainterPath &path) const
 {
     Q_D(const QGraphicsView);
     QMatrix moveMatrix;
-    moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
-                         -verticalScrollBar()->value() + d->topIndent);
+    moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
     return (d->matrix * moveMatrix).map(path);
 }
 
@@ -2010,7 +2054,7 @@ void QGraphicsView::mouseMoveEvent(QMouseEvent *event)
             QScrollBar *hBar = horizontalScrollBar();
             QScrollBar *vBar = verticalScrollBar();
             QPoint delta = event->pos() - d->lastMouseEvent.pos();
-            hBar->setValue(hBar->value() - delta.x());
+            hBar->setValue(hBar->value() + (isRightToLeft() ? delta.x() : -delta.x()));
             vBar->setValue(vBar->value() - delta.y());
         }
     }
@@ -2157,8 +2201,7 @@ void QGraphicsView::paintEvent(QPaintEvent *event)
     painter.setRenderHint(QPainter::SmoothPixmapTransform,
                           d->renderHints & QPainter::SmoothPixmapTransform);
     QMatrix moveMatrix;
-    moveMatrix.translate(-horizontalScrollBar()->value() + d->leftIndent,
-                         -verticalScrollBar()->value() + d->topIndent);
+    moveMatrix.translate(-d->horizontalScroll(), -d->verticalScroll());
     QMatrix painterMatrix = d->matrix * moveMatrix;
     painter.setMatrix(painterMatrix);
 
@@ -2343,6 +2386,9 @@ void QGraphicsView::resizeEvent(QResizeEvent *event)
 void QGraphicsView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QGraphicsView);
+    if (isRightToLeft())
+        dx = -dx;
+        
     if (d->accelerateScrolling)
         viewport()->scroll(dx, dy);
     else
