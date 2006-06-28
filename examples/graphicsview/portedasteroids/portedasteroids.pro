@@ -11,3 +11,9 @@ HEADERS += animateditem.h
 SOURCES += animateditem.cpp
 
 RESOURCES += portedasteroids.qrc
+
+# install
+target.path = $$[QT_INSTALL_EXAMPLES]/graphicsview/portedasteroids
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS portedasteroids.pro bg.png sounds sprites
+sources.path = $$[QT_INSTALL_EXAMPLES]/graphicsview/portedasteroids
+INSTALLS += target sources
