@@ -1385,6 +1385,7 @@ void QPrinter::setFromTo(int from, int to)
 }
 
 
+#ifndef QT_NO_PRINTDIALOG
 /*!
     \since 4.1
 
@@ -1392,13 +1393,9 @@ void QPrinter::setFromTo(int from, int to)
 */
 void QPrinter::setPrintRange( PrintRange range )
 {
-#ifndef QT_NO_PRINTDIALOG
     Q_D(QPrinter);
     d->ensurePrintDialog();
     d->printDialog->setPrintRange(QPrintDialog::PrintRange(range));
-#else
-    Q_UNUSED(range);
-#endif
 }
 
 /*!
@@ -1412,14 +1409,11 @@ void QPrinter::setPrintRange( PrintRange range )
 */
 QPrinter::PrintRange QPrinter::printRange() const
 {
-#ifndef QT_NO_PRINTDIALOG
     Q_D(const QPrinter);
     d->ensurePrintDialog();
     return PrintRange(d->printDialog->printRange());
-#else
-    return AllPages;
-#endif
 }
+#endif // QT_NO_PRINTDIALOG
 
 #if defined(QT3_SUPPORT)
 
