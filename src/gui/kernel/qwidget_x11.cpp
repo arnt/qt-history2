@@ -683,9 +683,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         XShapeCombineRegion(X11->display, q->internalWinId(), ShapeBounding, 0, 0,
                             extra->mask.handle(), ShapeSet);
 
-    if (q->testAttribute(Qt::WA_InputMethodEnabled))
+    if (q->hasFocus() && q->testAttribute(Qt::WA_InputMethodEnabled))
         q->inputContext()->setFocusWidget(q);
-
 
     if (destroyw)
         qt_XDestroyWindow(q, dpy, destroyw);
