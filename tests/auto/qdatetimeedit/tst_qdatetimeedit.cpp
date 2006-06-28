@@ -2309,6 +2309,11 @@ void tst_QDateTimeEdit::newCase()
     QTest::keyClick(testWidget, Qt::Key_Right);
     QTest::keyClick(testWidget, Qt::Key_Delete);
     QTest::keyClick(testWidget, Qt::Key_Left);
+
+#ifdef Q_WS_QWS
+    QEXPECT_FAIL(0, "Qt/Embedded does Ctrl-arrow behaviour by default", Abort);
+#endif
+
     QCOMPARE(testWidget->text(), QString("Jula7bJulc07"));
     QTest::keyClick(testWidget, Qt::Key_Delete);
     QCOMPARE(testWidget->text(), QString("Jua7bJulc07"));
