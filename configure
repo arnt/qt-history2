@@ -162,13 +162,20 @@ elif [ -f "$relpath"/LICENSE.QPL -o -f "$relpath"/LICENSE.GPL ]; then
     Edition="OpenSource"
     EditionString="Open Source"
     QT_EDITION="QT_EDITION_OPENSOURCE"
-elif [ -f "$relpath"/LICENSE.PREVIEW ]; then
-    # tech preview
+elif [ -f "$relpath"/LICENSE.PREVIEW.OPENSOURCE ]; then
+    # tech preview - opensource
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Licensee="Preview"
     Edition="Preview"
     QT_EDITION="QT_EDITION_OPENSOURCE"
+elif [ -f "$relpath"/LICENSE.PREVIEW.COMMERCIAL ]; then
+    # tech preview - commercial
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
+    Licensee="Preview"
+    Edition="Preview"
+    QT_EDITION="QT_EDITION_DESKTOP"
 elif [ -f "$relpath"/LICENSE.TROLL ]; then
     # internal Trolltech edition
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
@@ -2834,7 +2841,11 @@ elif [ "$Edition" = "Preview" ]; then
             echo
             exit 0
         elif [ "$acceptance" = "?" ]; then
-            more "$relpath/LICENSE.PREVIEW"
+            if [ "$QT_EDITION" = "QT_EDITION_OPENSOURCE" ]; then
+                more "$relpath/LICENSE.PREVIEW.OPENSOURCE"
+            else
+                more "$relpath/LICENSE.PREVIEW.COMMERCIAL"
+            fi
         fi
     done
 elif [ "$Edition" != "Trolltech" ]; then
@@ -3106,7 +3117,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
         setBootstrapVariable QMAKE_CXXFLAGS 's,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS),'
         setBootstrapVariable QMAKE_LFLAGS
 
-        if [ "$Edition" = "OpenSource" -o "$Edition" = "Preview" ]; then
+        if [ $QT_EDITION = "QT_EDITION_OPENSOURCE" ]; then
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DQMAKE_OPENSOURCE_EDITION"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -DQMAKE_OPENSOURCE_EDITION"
         else

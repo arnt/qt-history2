@@ -752,8 +752,10 @@ function copyDist(packageDir, platform, license)
     } else if (license == "commercial") {
         keyFiles.push(".LICENSE");
         keyFiles.push(".LICENSE-US");
-    } else if ((license == "preview-opensource") || (license == "preview-commercial")) {
-        keyFiles.push("LICENSE.PREVIEW");
+    } else if (license == "preview-opensource") {
+        keyFiles.push("LICENSE.PREVIEW.OPENSOURCE");
+    } else if (license == "preview-commercial") {
+        keyFiles.push("LICENSE.PREVIEW.COMMERCIAL");
     }
     for (var i in keyFiles) {
         if (!File.exists(packageDir + "/" + keyFiles[i]))
