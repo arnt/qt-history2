@@ -28,7 +28,7 @@ class QDBusConnection;
 class QDBusConnectionPrivate;
 
 class QDBusMessagePrivate;
-class QDBUS_EXPORT QDBusMessage: public QList<QVariant>
+class QDBUS_EXPORT QDBusMessage
 {
 public:
     enum MessageType { InvalidMessage, MethodCallMessage, ReplyMessage,
@@ -59,12 +59,24 @@ public:
     void setDelayedReply(bool enable);
     bool isDelayedReply() const;
 
+    void setArguments(const QList<QVariant> &arguments);
+    const QList<QVariant> &arguments() const;
+
+    int count() const;
+    inline bool isEmpty() const { return count() == 0; }
+    const QVariant &at(int index) const;
+
+    inline QDBusMessage &operator<<(const QVariant &arg)
+    { append(arg); return *this; }
+    inline QDBusMessage &operator+=(const QVariant &arg)
+    { append(arg); return *this; }
+    void append(const QVariant &arg);
+
     bool send();
     bool sendError(const QString &name, const QString &message = QString()) const;
     bool sendError(const QDBusError &error) const;
     bool sendReply(const QVariantList &arguments = QVariantList()) const;
-    inline bool sendReply(const QVariant &returnValue) const
-    { return sendReply(QVariantList() << returnValue); }
+    bool sendReply(const QVariant &returnValue) const;
 
 private:
 #ifndef Q_QDOC

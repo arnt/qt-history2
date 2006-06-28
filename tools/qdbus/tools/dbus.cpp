@@ -247,7 +247,7 @@ void placeCall(const QString &service, const QString &path, const QString &inter
         exit(1);
     }
     
-    foreach (QVariant v, reply) {
+    foreach (QVariant v, reply.arguments()) {
         if (v.userType() == QVariant::StringList) {
             foreach (QString s, v.toStringList())
                 printf("%s\n", qPrintable(s));

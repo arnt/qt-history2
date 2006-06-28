@@ -282,7 +282,7 @@ QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode, 
     }
 
     QDBusMessage msg = QDBusMessage::methodCall(service(), path(), interface(), m, d->connection);
-    msg.QList<QVariant>::operator=(args);
+    msg.setArguments(args);
 
     QDBusMessage reply = d->connection.call(msg, mode);
     d->lastError = reply;       // will clear if reply isn't an error
@@ -319,7 +319,7 @@ bool QDBusAbstractInterface::callWithArgumentList(const QString &method, const Q
         m.truncate(pos);
 
     QDBusMessage msg = QDBusMessage::methodCall(service(), path(), interface(), m, d->connection);
-    msg.QList<QVariant>::operator=(args);
+    msg.setArguments(args);
 
     d->lastError = 0;           // clear
     return d->connection.call(msg, receiver, slot);

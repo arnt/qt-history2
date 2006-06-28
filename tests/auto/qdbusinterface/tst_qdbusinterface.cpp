@@ -46,7 +46,7 @@ public slots:
 
     void ping(QDBusMessage msg)
     {
-        if (!msg.sendReply(msg)) // QDBusMessage is a QVariantList
+        if (!msg.sendReply(msg.arguments()))
             exit(1);
     }
 };

@@ -36,6 +36,7 @@ public:
     QDBusMessagePrivate();
     ~QDBusMessagePrivate();
 
+    QList<QVariant> arguments;
     QString service, path, interface, name, message, signature;
     QDBusConnection connection;
     DBusMessage *msg;

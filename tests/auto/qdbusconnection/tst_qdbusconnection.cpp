@@ -38,7 +38,7 @@ class QDBusSpy: public QObject
     Q_OBJECT
 public slots:
     void handlePing(const QString &str) { args.clear(); args << str; }
-    void asyncReply(const QDBusMessage &msg) { args << msg; }
+    void asyncReply(const QDBusMessage &msg) { args = msg.arguments(); }
 
 public:
     QList<QVariant> args;

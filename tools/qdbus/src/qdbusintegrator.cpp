@@ -797,7 +797,7 @@ void QDBusConnectionPrivate::relaySignal(QObject *obj, const QMetaObject *mo, in
     QDBusMessage message = QDBusMessage::signal(QLatin1String("/"), QLatin1String(interface),
                                                 QLatin1String(memberName),
                                                 QDBusConnection(QString()));
-    message += args;
+    message.setArguments(args);
     DBusMessage *msg = QDBusMessagePrivate::toDBusMessage(message);
     if (!msg) {
         qWarning("QDBusConnection: Could not emit signal %s.%s", interface, memberName.constData());
@@ -1436,7 +1436,7 @@ QString QDBusConnectionPrivate::getNameOwner(const QString& serviceName)
     msg << serviceName;
     QDBusMessage reply = sendWithReply(msg, QDBus::Block);
     if (!lastError.isValid() && reply.type() == QDBusMessage::ReplyMessage)
-        return reply.first().toString();
+        return reply.at(0).toString();
     return QString();
 }
 
@@ -1500,7 +1500,7 @@ QDBusConnectionPrivate::findMetaObject(const QString &service, const QString &pa
     QString xml;
     if (reply.type() == QDBusMessage::ReplyMessage)
         // fetch the XML description
-        xml = reply.first().toString();
+        xml = reply.at(0).toString();
     else {
         lastError = reply;
         if (reply.type() != QDBusMessage::ErrorMessage || lastError != QDBusError::UnknownMethod)

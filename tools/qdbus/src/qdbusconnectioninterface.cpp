@@ -239,8 +239,9 @@ QDBusConnectionInterface::registerService(const QString &serviceName,
 
     // convert the low-level flags to something that we can use
     if (reply.type() == QDBusMessage::ReplyMessage) {
-        QVariant &code = reply[0];
-        switch (code.toUInt()) {
+        uint code = 0;
+
+        switch (reply.at(0).toUInt()) {
         case DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER:
         case DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER:
             code = uint(ServiceRegistered);
@@ -254,6 +255,8 @@ QDBusConnectionInterface::registerService(const QString &serviceName,
             code = uint(ServiceQueued);
             break;
         }
+
+        reply.setArguments(QVariantList() << code);
     }
 
     return reply;
@@ -271,8 +274,8 @@ QDBusConnectionInterface::unregisterService(const QString &serviceName)
 {
     QDBusMessage reply = call(QLatin1String("ReleaseName"), serviceName);
     if (reply.type() == QDBusMessage::ReplyMessage) {
-        QVariant &code = reply[0];
-        code = code.toUInt() == DBUS_RELEASE_NAME_REPLY_RELEASED;
+        bool success = reply.at(0).toUInt() == DBUS_RELEASE_NAME_REPLY_RELEASED;
+        reply.setArguments(QVariantList() << success);
     }
     return reply;
 }

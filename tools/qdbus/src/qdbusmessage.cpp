@@ -84,8 +84,8 @@ DBusMessage *QDBusMessagePrivate::toDBusMessage(const QDBusMessage &message)
         return 0;
 
     QDBusMarshaller marshaller;
-    QDBusMessage::ConstIterator it = message.constBegin();
-    QDBusMessage::ConstIterator cend = message.constEnd();
+    QVariantList::ConstIterator it =  d_ptr->arguments.constBegin();
+    QVariantList::ConstIterator cend = d_ptr->arguments.constEnd();
     dbus_message_iter_init_append(msg, &marshaller.iterator);
     for ( ; it != cend; ++it)
         marshaller.appendVariantInternal(*it);
@@ -144,8 +144,9 @@ QDBusMessage QDBusMessagePrivate::fromDBusMessage(DBusMessage *dmsg, const QDBus
       \o Error codes
     \endlist
 
-    Objects of this type are created with the four static functions signal, methodCall,
-    methodReply and error.
+    Objects of this type are created with the static functions signal or methodCall.
+    Method return values and errors are sent using the sendError() and sendReply() functions
+    and are only available on received method calls.
 */
 
 /*!
@@ -233,7 +234,6 @@ QDBusMessage::QDBusMessage()
     for more information.
 */
 QDBusMessage::QDBusMessage(const QDBusMessage &other)
-    : QList<QVariant>(other)
 {
     d_ptr = other.d_ptr;
     d_ptr->ref.ref();
@@ -257,7 +257,6 @@ QDBusMessage::~QDBusMessage()
 */
 QDBusMessage &QDBusMessage::operator=(const QDBusMessage &other)
 {
-    QList<QVariant>::operator=(other);
     qAtomicAssign(d_ptr, other.d_ptr);
     return *this;
 }
@@ -358,6 +357,71 @@ QDBusConnection QDBusMessage::connection() const
 }
 
 /*!
+    Sets the arguments that are going to be sent over D-BUS to \a arguments. Those
+    will be the arguments to a method call or the parameters in the signal.
+
+    \sa arguments()
+*/
+void QDBusMessage::setArguments(const QList<QVariant> &arguments)
+{
+    d_ptr->arguments = arguments;
+}
+
+/*!
+    Returns the list of arguments that are going to be sent or were received from
+    D-BUS.
+*/
+const QList<QVariant> &QDBusMessage::arguments() const
+{
+    return d_ptr->arguments;
+}
+
+/*!
+    Returns the number of arguments that were received from D-BUS. The value
+    returned from this function is the size of the QList that is returned by
+    arguments().
+*/
+int QDBusMessage::count() const
+{
+    return d_ptr->arguments.count();
+}
+
+/*!
+    Returns the argument at position \a index in the argument list. The value of
+    \a index must be larger than or equal to 0 and less than argumentCount(). This
+    is equivalent to calling QList::at() on the value returned by arguments().
+*/
+const QVariant &QDBusMessage::at(int index) const
+{
+    return d_ptr->arguments.at(index);
+}
+
+/*!
+    \fn QDBusMessage::operator<<(const QVariant &arg)
+    Appends the argument \a arg to the list of arguments to be sent over D-BUS in
+    a method call or signal emission.
+
+    \sa append()
+*/
+
+/*!
+    \fn QDBusMessage::operator+=(const QVariant &arg)
+    Appends the argument \a arg to the list of arguments to be sent over D-BUS in
+    a method call or signal emission.
+
+    \sa append()
+*/
+
+/*!
+    Appends the argument \a arg to the list of arguments to be sent over D-BUS in
+    a method call or signal emission.
+*/
+void QDBusMessage::append(const QVariant &arg)
+{
+    d_ptr->arguments.append(arg);
+}
+
+/*!
     Returns the message type.
 */
 QDBusMessage::MessageType QDBusMessage::type() const
@@ -425,13 +489,23 @@ bool QDBusMessage::sendReply(const QVariantList &arguments) const
         return false; // can't send a reply to something that doesn't exist
 
     QDBusMessage message;
-    message.QVariantList::operator=(arguments);
+    message.setArguments(arguments);
     message.d_ptr->connection = d_ptr->connection;
     message.d_ptr->type = DBUS_MESSAGE_TYPE_METHOD_RETURN;
     message.d_ptr->reply = dbus_message_ref(d_ptr->msg);
     d_ptr->delayedReply = true;
 
     return message.send();
+}
+
+/*!
+    Constructs a new D-BUS message representing the return values from a called method
+    and sends it to the caller. The \a arg value will be sent to the caller as
+    a return value.
+*/
+bool QDBusMessage::sendReply(const QVariant &arg) const
+{
+    return sendReply(QVariantList() << arg);
 }
 
 #ifndef QT_NO_DEBUG_STREAM
@@ -556,7 +630,7 @@ QDebug operator<<(QDebug dbg, const QDBusMessage &msg)
                   << ", member=" << msg.member()
                   << ", signature=" << msg.signature()
                   << ", contents=(";
-    debugVariantList(dbg, msg);
+    debugVariantList(dbg, msg.arguments());
     dbg.nospace() << ") )";
     return dbg.space();
 }
