@@ -401,6 +401,7 @@ void QWidgetPrivate::updateSystemBackground() {}
 
 void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
 {
+    Q_UNUSED(cursor);
 //    if (isVisible())
 //        d->updateCursor(d->paintableRegion());
     //@@@@@@ cursor stuff
