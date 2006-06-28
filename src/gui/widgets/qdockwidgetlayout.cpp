@@ -29,6 +29,7 @@ enum { StateFlagVisible = 1, StateFlagFloating = 2 };
 
 static void checkLayoutInfo(const QDockAreaLayoutInfo &info)
 {
+    return;
     int pos = pick(info.o, info.rect.topLeft());
     bool prev_gap = false;
     bool first = true;
