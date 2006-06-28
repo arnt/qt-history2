@@ -16,21 +16,22 @@
 #ifndef QT_NO_PRINTDIALOG
 
 #include "private/qabstractprintdialog_p.h"
-#include <QtGui/QApplication>
-#include <QtGui/QCheckBox>
-#include <QtCore/QLibrary>
-#include <QtCore/QList>
-#include <QtGui/QPrinter>
-#include <QtGui/QTreeView>
-#include <QtGui/QListView>
-#include <QtGui/QShowEvent>
+#include <QtGui/qapplication.h>
+#include <QtGui/qcheckbox.h>
+#include <QtCore/qlibrary.h>
+#include <QtCore/qlist.h>
+#include <QtGui/qprinter.h>
+#include <QtGui/qtreeview.h>
+#include <QtGui/qlistview.h>
+#include <QtGui/qevent.h>
 #include "qprintdialog.h"
 #include "qfiledialog.h"
 #include <QtCore/qdebug.h>
 
-#include <QtCore/QObject>
-#include <QtGui/QAbstractPrintDialog>
-#include <QtGui/QItemDelegate>
+#include <QtCore/qobject.h>
+#include <QtGui/qabstractprintdialog.h>
+#include <QtGui/qitemdelegate.h>
+#include <QtGui/qmessageboxex.h>
 
 #include "ui_qprintdialog.h"
 #include "ui_qprintpropertiesdialog.h"
@@ -87,7 +88,7 @@ public:
     void _q_btnPropertiesClicked();
     void refreshPageSizes();
 
-    void setupPrinter();
+    bool setupPrinter();
 
     Ui::QPrintDialog ui;
     QList<QPrinterDescription> lprPrinters;
@@ -1118,14 +1119,30 @@ void QPrintDialogPrivate::_q_btnPropertiesClicked()
 #endif
 }
 
-void QPrintDialogPrivate::setupPrinter()
+bool QPrintDialogPrivate::setupPrinter()
 {
     Q_Q(QPrintDialog);
     QPrinter* p = q->printer();
 
     // printer or file name
     if (ui.chbPrintToFile->isChecked()) {
-        p->setOutputFileName(ui.leFile->text());
+        QString file = ui.leFile->text();
+#ifndef QT_NO_MESSAGEBOX
+        QFileInfo fi(file);
+        if(!fi.isWritable()) {
+            QMessageBoxEx::warning(q, q->windowTitle(),
+                                   q->tr("File %1 is not writable.\nPlease choose a different file name.").arg(file));
+            return false;
+        } else if (fi.exists()) {
+            QMessageBoxEx::StandardButton button
+                    = QMessageBoxEx::question(q, q->windowTitle(),
+                                              q->tr("%1 already exists.\nDo you want to overwrite it?").arg(file),
+                                              QMessageBoxEx::Yes|QMessageBoxEx::No, QMessageBoxEx::No);
+            if (button == QMessageBoxEx::No)
+                return false;
+        }
+#endif
+        p->setOutputFileName(file);
     } else {
         p->setPrinterName(ui.cbPrinters->currentText());
         p->setOutputFileName(QString::null);
@@ -1158,6 +1175,7 @@ void QPrintDialogPrivate::setupPrinter()
     else
         p->setColorMode(QPrinter::GrayScale);
 
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1174,9 +1192,11 @@ QPrintDialog::~QPrintDialog()
 int QPrintDialog::exec()
 {
     Q_D(QPrintDialog);
+  redo:
     int status = QDialog::exec();
     if (status == QDialog::Accepted)
-        d->setupPrinter();
+        if (!d->setupPrinter())
+            goto redo;
     return status;
 }
 

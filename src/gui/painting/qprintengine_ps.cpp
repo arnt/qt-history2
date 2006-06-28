@@ -864,6 +864,8 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
                         0666
 #endif
             );
+        if (d->fd < 0)
+            return false;
     } else {
         QString pr;
         if (!d->printerName.isEmpty())
