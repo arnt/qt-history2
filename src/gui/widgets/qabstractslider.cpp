@@ -486,7 +486,7 @@ void QAbstractSlider::setValue(int value)
 {
     Q_D(QAbstractSlider);
     value = d->bound(value);
-    if (d->value == value)
+    if (d->value == value && d->position == value)
         return;
     d->value = value;
     if (d->position != value) {
