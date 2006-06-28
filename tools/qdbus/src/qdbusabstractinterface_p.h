@@ -29,6 +29,7 @@
 #include <qdbusabstractinterface.h>
 #include <qdbusconnection.h>
 #include <qdbuserror.h>
+#include "qdbusconnection_p.h"
 #include "private/qobject_p.h"
 
 #define ANNOTATION_NO_WAIT      "org.freedesktop.DBus.Method.NoReply"
@@ -54,7 +55,8 @@ public:
     void setProperty(const QMetaProperty &mp, const QVariant &value);
 
     // return conn's d pointer
-    QDBusConnectionPrivate *connectionPrivate() const;
+    inline QDBusConnectionPrivate *connectionPrivate() const
+    { return QDBusConnectionPrivate::d(connection); }
 };
 
 

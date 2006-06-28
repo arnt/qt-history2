@@ -15,11 +15,7 @@
 
 #include "qdbusabstractinterface_p.h"
 #include "qdbusmetaobject_p.h"
-#include "qdbusconnection_p.h"
 #include "qdbusutil_p.h"
-
-inline QDBusConnectionPrivate *QDBusAbstractInterfacePrivate::connectionPrivate() const
-{ return QDBusConnectionPrivate::d(connection); }
 
 QDBusAbstractInterfacePrivate::QDBusAbstractInterfacePrivate(const QDBusConnection& con,
                                                              const QString &serv,
