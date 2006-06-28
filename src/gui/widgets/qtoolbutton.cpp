@@ -49,6 +49,8 @@ public:
     Qt::ArrowType arrowType;
     Qt::ToolButtonStyle toolButtonStyle;
     QToolButton::ToolButtonPopupMode popupMode;
+    enum { NoButtonPressed=0, MenuButtonPressed=1, ToolButtonPressed=2 };
+    uint buttonPressed : 2;
     uint menuButtonDown          : 1;
     uint autoRaise             : 1;
     uint repeat                : 1;
@@ -233,7 +235,7 @@ void QToolButtonPrivate::init()
     arrowType = Qt::NoArrow;
     menuButtonDown = false;
     popupMode = QToolButton::DelayedPopup;
-
+    buttonPressed = QToolButtonPrivate::NoButtonPressed;
 
     toolButtonStyle = Qt::ToolButtonIconOnly;
 
@@ -560,22 +562,43 @@ void QToolButton::changeEvent(QEvent *e)
 */
 void QToolButton::mousePressEvent(QMouseEvent *e)
 {
-#ifndef QT_NO_MENU
     Q_D(QToolButton);
+#ifndef QT_NO_MENU
     QStyleOptionToolButton opt = d->getStyleOption();
     if (e->button() == Qt::LeftButton && d->popupMode == MenuButtonPopup) {
         QRect popupr = style()->subControlRect(QStyle::CC_ToolButton, &opt,
                                                QStyle::SC_ToolButtonMenu, this);
         if (popupr.isValid() && popupr.contains(e->pos())) {
+            d->buttonPressed = QToolButtonPrivate::MenuButtonPressed;
             showMenu();
             return;
         }
     }
 #endif
+    d->buttonPressed = QToolButtonPrivate::ToolButtonPressed;
     QAbstractButton::mousePressEvent(e);
 }
 
+/*!
+    \reimp
+*/
+void QToolButton::mouseReleaseEvent(QMouseEvent *e)
+{
+    Q_D(QToolButton);
+    QAbstractButton::mouseReleaseEvent(e);
+    d->buttonPressed = QToolButtonPrivate::NoButtonPressed;
+}
 
+/*!
+    \reimp
+*/
+bool QToolButton::hitButton(const QPoint &pos) const
+{
+    Q_D(const QToolButton);
+    if(QAbstractButton::hitButton(pos))
+        return (d->buttonPressed != QToolButtonPrivate::MenuButtonPressed);
+    return false;
+}
 
 #ifdef QT3_SUPPORT
 

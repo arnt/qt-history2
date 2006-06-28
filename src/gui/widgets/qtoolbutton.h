@@ -54,10 +54,10 @@ public:
     Qt::ArrowType arrowType() const;
     void setArrowType(Qt::ArrowType type);
 
-#ifndef QT_NO_MENU    
+#ifndef QT_NO_MENU
     void setMenu(QMenu* menu);
     QMenu* menu() const;
-    
+
     void setPopupMode(ToolButtonPopupMode mode);
     ToolButtonPopupMode popupMode() const;
 #endif
@@ -81,6 +81,7 @@ protected:
     QToolButton(QToolButtonPrivate &, QWidget* parent);
     bool event(QEvent *e);
     void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
     void paintEvent(QPaintEvent *);
     void actionEvent(QActionEvent *);
 
@@ -89,6 +90,7 @@ protected:
     void timerEvent(QTimerEvent *);
     void changeEvent(QEvent *);
 
+    bool hitButton(const QPoint &pos) const;
     void nextCheckState();
 
 private:
