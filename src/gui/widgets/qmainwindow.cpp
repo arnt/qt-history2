@@ -924,7 +924,11 @@ bool QMainWindow::event(QEvent *event)
 bool QMainWindow::isSeparator(const QPoint &pos) const
 {
     Q_D(const QMainWindow);
+#ifndef QT_NO_DOCKWIDGET
     return !d->layout->dockWidgetLayout.findSeparator(pos).isEmpty();
+#else
+    return false;
+#endif
 }
 
 /*!
