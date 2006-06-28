@@ -20,7 +20,7 @@
 #include <QWheelEvent>
 
 GraphWidget::GraphWidget()
-    : timerId(0)
+    : timerId(0), currentScale(0.8)
 {
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -69,9 +69,9 @@ GraphWidget::GraphWidget()
     node7->setPos(-50, 50);
     node8->setPos(0, 50);
     node9->setPos(50, 50);
-    
+
     setMinimumSize(400, 400);
-    scale(0.8, 0.8);
+    scale(currentScale, currentScale);
 
     itemMoved();
 
@@ -88,32 +88,32 @@ void GraphWidget::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Up:
-       centerNode->moveBy(0, -20);
-       break;
+        centerNode->moveBy(0, -20);
+        break;
     case Qt::Key_Down:
-       centerNode->moveBy(0, 20);
-       break;
+        centerNode->moveBy(0, 20);
+        break;
     case Qt::Key_Left:
-       centerNode->moveBy(-20, 0);
-       break;
+        centerNode->moveBy(-20, 0);
+        break;
     case Qt::Key_Right:
-       centerNode->moveBy(20, 0);
-       break;
+        centerNode->moveBy(20, 0);
+        break;
     case Qt::Key_Plus:
-       scale(1.2, 1.2);
-       break;
+        scaleView(currentScale * 1.2);
+        break;
     case Qt::Key_Minus:
-       scale(1 / 1.2, 1 / 1.2);
-       break;
+        scaleView(currentScale * (1/1.2));
+        break;
     case Qt::Key_Space:
     case Qt::Key_Enter:
-       foreach (QGraphicsItem *item, scene()->items()) {
-           if (qgraphicsitem_cast<Node *>(item))
-               item->setPos(-150 + rand() % 300, -150 + rand() % 300);
-       }
-       break;
+        foreach (QGraphicsItem *item, scene()->items()) {
+            if (qgraphicsitem_cast<Node *>(item))
+                item->setPos(-150 + rand() % 300, -150 + rand() % 300);
+        }
+        break;
     default:
-       QGraphicsView::keyPressEvent(event);
+        QGraphicsView::keyPressEvent(event);
     }
 }
 
@@ -144,7 +144,8 @@ void GraphWidget::timerEvent(QTimerEvent *event)
 
 void GraphWidget::wheelEvent(QWheelEvent *event)
 {
-    scale(1 + event->delta() / 1200.0, 1 + event->delta() / 1200.0);
+    qreal scaleFactor = currentScale * (1 + event->delta() / 1200.0);
+    scaleView(scaleFactor);
 }
 
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
@@ -183,4 +184,15 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
 	painter->drawText(sceneRect, Qt::AlignTop | Qt::AlignHCenter,
 			  message);
     }
+}
+
+void GraphWidget::scaleView(qreal scaleFactor)
+{
+    if (scaleFactor < 0.07 || scaleFactor > 30)
+        return;
+
+    QMatrix matrix;
+    matrix.scale(scaleFactor, scaleFactor);
+    setMatrix(matrix);
+    currentScale = scaleFactor;
 }
