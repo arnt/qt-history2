@@ -1498,7 +1498,7 @@ bool QMainWindowLayout::contains(QWidget *widget) const
 #ifndef QT_NO_DOCKWIDGET
     // is it a dock widget?
     if (QDockWidget *dockWidget = qobject_cast<QDockWidget *>(widget)) {
-        if (!dockWidgetLayout.indexOf(dockWidget).isEmpty())
+        if (!dockWidgetLayout.indexOf(dockWidget, IndexOfFindsAll).isEmpty())
             return true;
     }
 #endif //QT_NO_DOCKWIDGET
