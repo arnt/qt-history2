@@ -399,26 +399,15 @@ void QWidgetPrivate::updateSystemBackground() {}
 
 #ifndef QT_NO_CURSOR
 
-void QWidget::setCursor(const QCursor &cursor)
+void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
 {
-    Q_D(QWidget);
-    d->createExtra();
-    delete d->extra->curs;
-    d->extra->curs = new QCursor(cursor);
-    setAttribute(Qt::WA_SetCursor);
 //    if (isVisible())
 //        d->updateCursor(d->paintableRegion());
     //@@@@@@ cursor stuff
 }
 
-void QWidget::unsetCursor()
+void QWidgetPrivate::unsetCursor_sys()
 {
-    Q_D(QWidget);
-    if (d->extra) {
-        delete d->extra->curs;
-        d->extra->curs = 0;
-    }
-    setAttribute(Qt::WA_SetCursor, false);
 //    if (isVisible())
 //        d->updateCursor(d->paintableRegion());
     //@@@@@@ cursor stuff

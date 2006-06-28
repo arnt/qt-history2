@@ -282,6 +282,12 @@ public:
     void setWindowIconText_sys(const QString &cap);
     void setWindowIconText_helper(const QString &cap);
     void setWindowTitle_sys(const QString &cap);
+    
+#ifndef QT_NO_CURSOR
+    void setCursor_sys(const QCursor &cursor);
+    void unsetCursor_sys();
+#endif
+        
 #ifdef Q_WS_MAC
     void setWindowModified_sys(bool b);
     void createWindow_sys();

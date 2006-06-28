@@ -1438,17 +1438,11 @@ void QWidgetPrivate::updateSystemBackground()
 {
 }
 
-
-void QWidget::setCursor(const QCursor &cursor)
+void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
 {
-    Q_D(QWidget);
-    d->createExtra();
-    delete d->extraData()->curs;
-    d->extraData()->curs = new QCursor(cursor);
-    setAttribute(Qt::WA_SetCursor);
-
-    if(qApp && isEnabled() && qApp->activeWindow() &&
-       QApplication::widgetAt(QCursor::pos()) == this) {
+    Q_Q(QWidget);
+    if(qApp && q->isEnabled() && qApp->activeWindow() &&
+       QApplication::widgetAt(QCursor::pos()) == q) {
         const QCursor *n = &cursor;
         if(QApplication::overrideCursor())
             n = QApplication::overrideCursor();
@@ -1456,24 +1450,16 @@ void QWidget::setCursor(const QCursor &cursor)
     }
 }
 
-void QWidget::unsetCursor()
+void QWidgetPrivate::unsetCursor_sys()
 {
-    Q_D(QWidget);
-    if(!isWindow()) {
-        if(QWExtra *extra = d->extraData()) {
-            delete extra->curs;
-            extra->curs = 0;
-        }
-        setAttribute(Qt::WA_SetCursor, false);
-    }
-
-    if(qApp && isEnabled() && qApp->activeWindow() &&
-       QApplication::widgetAt(QCursor::pos()) == this) {
+    Q_Q(QWidget);
+    if(qApp && q->isEnabled() && qApp->activeWindow() &&
+       QApplication::widgetAt(QCursor::pos()) == q) {
         const QCursor *n = 0;
         if(QApplication::overrideCursor()) {
             n = QApplication::overrideCursor();
         } else {
-            for(QWidget *p = this; p; p = p->parentWidget()) {
+            for(QWidget *p = q; p; p = p->parentWidget()) {
                 QWExtra *extra = p->d_func()->extraData();
                 if(extra && extra->curs) {
                     n = extra->curs;

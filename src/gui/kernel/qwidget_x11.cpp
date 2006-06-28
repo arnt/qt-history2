@@ -965,31 +965,18 @@ void QWidgetPrivate::updateSystemBackground()
                              QColormap::instance(xinfo.screen()).pixel(brush.color()));
 }
 
-void QWidget::setCursor(const QCursor &cursor)
+void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
 {
-    Q_D(QWidget);
-    if (cursor.shape() != Qt::ArrowCursor
-        || (d->extra && d->extra->curs)) {
-        d->createExtra();
-        delete d->extra->curs;
-        d->extra->curs = new QCursor(cursor);
-    }
-    setAttribute(Qt::WA_SetCursor);
-    qt_x11_enforce_cursor(this);
-    XFlush(X11->display);
+    Q_Q(QWidget);
+    qt_x11_enforce_cursor(q);
+    XFlush(q->X11->display);
 }
 
-void QWidget::unsetCursor()
+void QWidgetPrivate::unsetCursor_sys()
 {
-    Q_D(QWidget);
-    if (d->extra) {
-        delete d->extra->curs;
-        d->extra->curs = 0;
-    }
-    if (!isWindow())
-        setAttribute(Qt::WA_SetCursor, false);
-    qt_x11_enforce_cursor(this);
-    XFlush(X11->display);
+    Q_Q(QWidget);
+    qt_x11_enforce_cursor(q);
+    XFlush(q->X11->display);
 }
 
 static XTextProperty*

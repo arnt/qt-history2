@@ -607,29 +607,16 @@ void QWidgetPrivate::updateSystemBackground() {}
 
 extern void qt_win_set_cursor(QWidget *, const QCursor &); // qapplication_win.cpp
 
-void QWidget::setCursor(const QCursor &cursor)
+void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
 {
-    Q_D(QWidget);
-    if (cursor.shape() != Qt::ArrowCursor
-        || (d->extra && d->extra->curs)) {
-        d->createExtra();
-        delete d->extra->curs;
-        d->extra->curs = new QCursor(cursor);
-    }
-    setAttribute(Qt::WA_SetCursor);
-    qt_win_set_cursor(this, QWidget::cursor());
+    Q_Q(QWidget);
+    qt_win_set_cursor(q, q->cursor());
 }
 
-void QWidget::unsetCursor()
+void QWidgetPrivate::unsetCursor_sys()
 {
-    Q_D(QWidget);
-    if (d->extra) {
-        delete d->extra->curs;
-        d->extra->curs = 0;
-    }
-    if (!isWindow())
-        setAttribute(Qt::WA_SetCursor, false);
-    qt_win_set_cursor(this, cursor());
+    Q_Q(QWidget);
+    qt_win_set_cursor(q, q->cursor());
 }
 
 void QWidgetPrivate::setWindowTitle_sys(const QString &caption)

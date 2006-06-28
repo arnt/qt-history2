@@ -3531,8 +3531,7 @@ void QWidget::unsetLayoutDirection()
     \endcode
 
     If no cursor has been set, or after a call to unsetCursor(), the
-    parent's cursor is used. The function unsetCursor() has no effect
-    on windows.
+    parent's cursor is used.
 
     \sa QApplication::setOverrideCursor()
 */
@@ -3549,6 +3548,32 @@ QCursor QWidget::cursor() const
         return QCursor(Qt::ArrowCursor);
     return parentWidget()->cursor();
 }
+
+void QWidget::setCursor(const QCursor &cursor)
+{
+    Q_D(QWidget);
+    if (cursor.shape() != Qt::ArrowCursor
+        || (d->extra && d->extra->curs)) {
+        d->createExtra();
+        delete d->extra->curs;
+        d->extra->curs = new QCursor(cursor);
+    }
+    setAttribute(Qt::WA_SetCursor);
+    d->setCursor_sys(cursor);
+}
+
+void QWidget::unsetCursor()
+{
+    Q_D(QWidget);
+    if (d->extra) {
+        delete d->extra->curs;
+        d->extra->curs = 0;
+    }
+    if (!isWindow())
+        setAttribute(Qt::WA_SetCursor, false);
+    d->unsetCursor_sys();
+}
+
 #endif
 /*!
     \property QWidget::windowTitle
