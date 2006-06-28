@@ -20,11 +20,6 @@
 
 QT_BEGIN_HEADER
 
-
-#ifdef QT_NO_MEMBER_TEMPLATES
-# error Sorry, you need a compiler with support for template member functions to compile QtDBus.
-#endif
-
 #if defined(QDBUS_MAKEDLL)
 # define QDBUS_EXPORT Q_DECL_EXPORT
 #else
