@@ -2946,8 +2946,9 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
         break;
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
-        n = "Wheel";
-        break;
+        dbg.nospace() << "QWheelEvent("  << static_cast<const QWheelEvent *>(e)->delta()
+                      << ")";
+        return dbg.space();
 #endif
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
