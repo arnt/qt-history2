@@ -18,7 +18,7 @@
 #include <QSlider>
 #include <QLCDNumber>
 #include <QLineEdit>
-#include <QMessageBox>
+#include <QMessageBoxEx>
 
 class QSimpleAX : public QWidget, public QAxBindable
 {
@@ -73,7 +73,7 @@ public slots:
     }
     void about()
     {
-	QMessageBox::information( this, "About QSimpleAX", "This is a Qt widget, and this slot has been\n"
+	QMessageBoxEx::information( this, "About QSimpleAX", "This is a Qt widget, and this slot has been\n"
 							  "called through ActiveX/OLE automation!" );
     }
     void setValue( int i )
