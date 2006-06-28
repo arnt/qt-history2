@@ -421,7 +421,7 @@ if [ "$Edition" = "Trolltech" ]; then
     QMakeVar add mouse-drivers "pc linuxtp" # adjust below as well
 else
     QMakeVar add kbd-drivers tty
-    QMakeVar mouse-drivers pc # adjust below as well
+    QMakeVar add mouse-drivers pc # adjust below as well
 fi
 
 # QTDIR may be set and point to an old or system-wide Qt installation
