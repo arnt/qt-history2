@@ -148,11 +148,11 @@ static QDialogButtonBox::ButtonRole roleFor(QDialogButtonBox::StandardButton but
     case QDialogButtonBox::SaveAll:
         return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Abort:
-        return QDialogButtonBox::RejectRole;
+        return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Retry:
         return QDialogButtonBox::AcceptRole;
     case QDialogButtonBox::Ignore:
-        return QDialogButtonBox::AcceptRole;
+        return QDialogButtonBox::RejectRole;
     default:
         return QDialogButtonBox::InvalidRole;
     }
