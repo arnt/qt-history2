@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdbusargument_p.h"
+#include <stdlib.h>
 
 template <typename T>
 static inline T qIterGet(DBusMessageIter *it)
