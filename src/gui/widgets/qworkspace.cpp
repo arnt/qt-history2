@@ -1526,6 +1526,9 @@ void QWorkspacePrivate::maximizeWindow(QWidget* w)
     QRect r(c->geometry());
     QWorkspaceChild *oldMaxWindow = maxWindow;
     maxWindow = c;
+
+    showMaximizeControls();
+
     c->adjustToFullscreen();
     c->show();
     c->internalRaise();
@@ -1540,7 +1543,7 @@ void QWorkspacePrivate::maximizeWindow(QWidget* w)
     }
 
     activateWindow(w);
-    showMaximizeControls();
+
     if(!maxmenubar || q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
         if (!active && becomeActive) {
             active = (QWorkspaceChild*)becomeActive->parentWidget();
@@ -1750,7 +1753,7 @@ void QWorkspacePrivate::showMaximizeControls()
         }
         q->window()->setWindowModified(maxWindow->windowWidget()->isWindowModified());
     }
-    
+
     if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
         QMenuBar* b = 0;
 
