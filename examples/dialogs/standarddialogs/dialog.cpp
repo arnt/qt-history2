@@ -76,21 +76,21 @@ Dialog::Dialog(QWidget *parent)
     criticalLabel = new QLabel;
     criticalLabel->setFrameStyle(frameStyle);
     QPushButton *criticalButton =
-            new QPushButton(tr("QMessageBox::critica&l()"));
+            new QPushButton(tr("QMessageBoxEx::critica&l()"));
 
     informationLabel = new QLabel;
     informationLabel->setFrameStyle(frameStyle);
     QPushButton *informationButton =
-            new QPushButton(tr("QMessageBox::i&nformation()"));
+            new QPushButton(tr("QMessageBoxEx::i&nformation()"));
 
     questionLabel = new QLabel;
     questionLabel->setFrameStyle(frameStyle);
     QPushButton *questionButton =
-            new QPushButton(tr("QMessageBox::&question()"));
+            new QPushButton(tr("QMessageBoxEx::&question()"));
 
     warningLabel = new QLabel;
     warningLabel->setFrameStyle(frameStyle);
-    QPushButton *warningButton = new QPushButton(tr("QMessageBox::&warning()"));
+    QPushButton *warningButton = new QPushButton(tr("QMessageBoxEx::&warning()"));
 
     errorLabel = new QLabel;
     errorLabel->setFrameStyle(frameStyle);
@@ -261,14 +261,13 @@ void Dialog::setSaveFileName()
 
 void Dialog::criticalMessage()
 {
-    int reply = QMessageBox::critical(this, tr("QMessageBox::showCritical()"),
-                                      MESSAGE,
-                                      QMessageBox::Abort,
-                                      QMessageBox::Retry,
-                                      QMessageBox::Ignore);
-    if (reply == QMessageBox::Abort)
+    QMessageBoxEx::StandardButton reply;
+    reply = QMessageBoxEx::critical(this, tr("QMessageBoxEx::critical()"),
+                                    MESSAGE,
+                                    QMessageBoxEx::Abort | QMessageBoxEx::Retry | QMessageBoxEx::Ignore);
+    if (reply == QMessageBoxEx::Abort)
         criticalLabel->setText(tr("Abort"));
-    else if (reply == QMessageBox::Retry)
+    else if (reply == QMessageBoxEx::Retry)
         criticalLabel->setText(tr("Retry"));
     else
         criticalLabel->setText(tr("Ignore"));
@@ -276,20 +275,23 @@ void Dialog::criticalMessage()
 
 void Dialog::informationMessage()
 {
-    QMessageBox::information(this, tr("QMessageBox::showInformation()"), MESSAGE);
-    informationLabel->setText(tr("Closed with OK or Esc"));
+    QMessageBoxEx::StandardButton reply;
+    reply = QMessageBoxEx::information(this, tr("QMessageBox::information()"), MESSAGE);
+    if (reply == QMessageBoxEx::Ok)
+        informationLabel->setText(tr("OK"));
+    else
+        informationLabel->setText(tr("Escape"));
 }
 
 void Dialog::questionMessage()
 {
-    int reply = QMessageBox::question(this, tr("QMessageBox::showQuestion()"),
-                                      MESSAGE,
-                                      QMessageBox::Yes,
-                                      QMessageBox::No,
-                                      QMessageBox::Cancel);
-    if (reply == QMessageBox::Yes)
+    QMessageBoxEx::StandardButton reply;
+    reply = QMessageBoxEx::question(this, tr("QMessageBoxEx::question()"),
+                                    MESSAGE,
+                                    QMessageBoxEx::Yes | QMessageBoxEx::No | QMessageBoxEx::Cancel);
+    if (reply == QMessageBoxEx::Yes)
         questionLabel->setText(tr("Yes"));
-    else if (reply == QMessageBox::No)
+    else if (reply == QMessageBoxEx::No)
         questionLabel->setText(tr("No"));
     else
         questionLabel->setText(tr("Cancel"));
@@ -297,11 +299,10 @@ void Dialog::questionMessage()
 
 void Dialog::warningMessage()
 {
-    int reply = QMessageBox::warning(this, tr("QMessageBox::showWarning()"),
-                                     MESSAGE,
-                                     tr("Save &Again"),
-                                     tr("&Continue"));
-    if (reply == 0)
+    QMessageBoxEx msgBox(tr("QMessageBoxEx::warning()"), MESSAGE, QMessageBoxEx::Warning, this);
+    int saveButton = msgBox.addButton(tr("Save &Again"), QMessageBoxEx::AcceptRole);
+    msgBox.addButton(tr("&Continue"), QMessageBoxEx::RejectRole);
+    if (msgBox.exec() == saveButton)
         warningLabel->setText(tr("Save Again"));
     else
         warningLabel->setText(tr("Continue"));
