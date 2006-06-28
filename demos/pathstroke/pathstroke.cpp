@@ -72,11 +72,21 @@ PathStrokeWidget::PathStrokeWidget()
     dashDotLine->setText("Dash Dot Line");
     dashDotDotLine->setText("Dash Dot Dot Line");
 #else
-    solidLine->setIcon(QPixmap(":res/images/line_solid.png"));
-    dashLine->setIcon(QPixmap(":res/images/line_dashed.png"));
-    dotLine->setIcon(QPixmap(":res/images/line_dotted.png"));
-    dashDotLine->setIcon(QPixmap(":res/images/line_dash_dot.png"));
-    dashDotDotLine->setIcon(QPixmap(":res/images/line_dash_dot_dot.png"));
+    QPixmap line_solid(":res/images/line_solid.png");
+    solidLine->setIcon(line_solid);
+    solidLine->setIconSize(line_solid.size());
+    QPixmap line_dashed(":res/images/line_dashed.png");
+    dashLine->setIcon(line_dashed);
+    dashLine->setIconSize(line_dashed.size());
+    QPixmap line_dotted(":res/images/line_dotted.png");
+    dotLine->setIcon(line_dotted);
+    dotLine->setIconSize(line_dotted.size());
+    QPixmap line_dash_dot(":res/images/line_dash_dot.png");
+    dashDotLine->setIcon(line_dash_dot);
+    dashDotLine->setIconSize(line_dash_dot.size());
+    QPixmap line_dash_dot_dot(":res/images/line_dash_dot_dot.png");
+    dashDotDotLine->setIcon(line_dash_dot_dot);
+    dashDotDotLine->setIconSize(line_dash_dot_dot.size());
     customDashLine->setText("Custom Style");
 
     int fixedHeight = bevelJoin->sizeHint().height();
