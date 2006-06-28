@@ -537,7 +537,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
-    if (parent && !q->isWindow() && parent->testAttribute(Qt::WA_WState_Created) || q->isWindow()) //### Note! This is a temporary workaround for 4.2 TP
+    if (parent && !q->isWindow() && parent->testAttribute(Qt::WA_WState_Created) || wasCreated && q->isWindow())
         q->create();
 
     if (q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)
