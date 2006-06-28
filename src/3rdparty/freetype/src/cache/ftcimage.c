@@ -78,7 +78,6 @@
       /* we will now load the glyph image */
       error = clazz->family_load_glyph( family, gindex, cache,
                                         &inode->glyph );
-
       if ( error )
       {
         FTC_INode_Free( inode, cache );
