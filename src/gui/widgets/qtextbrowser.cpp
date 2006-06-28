@@ -114,6 +114,9 @@ QString QTextBrowserPrivate::findFile(const QUrl &name) const
             return path;
     }
 
+    if (stack.isEmpty())
+        return fileName;
+
     QFileInfo path(QFileInfo(currentURL.toLocalFile()).absolutePath(), fileName);
     return path.absoluteFilePath();
 }
