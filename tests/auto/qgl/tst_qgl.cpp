@@ -11,8 +11,9 @@
 
 #include <qcoreapplication.h>
 #include <qdebug.h>
+#ifndef Q_WS_QWS
 #include <qgl.h>
-
+#endif
 
 //TESTED_CLASS=
 //TESTED_FILES=qgl.h
@@ -37,6 +38,7 @@ tst_QGL::~tst_QGL()
 {
 }
 
+#ifndef Q_WS_QWS
 class MyGLContext : public QGLContext
 {
 public:
@@ -54,10 +56,13 @@ public:
     bool autoBufferSwap() const { return QGLWidget::autoBufferSwap(); }
     void setAutoBufferSwap(bool on) { QGLWidget::setAutoBufferSwap(on); }
 };
-    
+#endif
 // Testing get/set functions
 void tst_QGL::getSetCheck()
 {
+#ifdef Q_WS_QWS
+    QSKIP("QGL not yet supported on QWS", SkipAll);
+#else
     QGLFormat obj1;
     // int QGLFormat::depthBufferSize()
     // void QGLFormat::setDepthBufferSize(int)
@@ -198,6 +203,7 @@ void tst_QGL::getSetCheck()
     QCOMPARE(false, obj3.autoBufferSwap());
     obj3.setAutoBufferSwap(true);
     QCOMPARE(true, obj3.autoBufferSwap());
+#endif
 }
 
 QTEST_MAIN(tst_QGL)

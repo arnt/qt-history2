@@ -3,6 +3,6 @@
 ############################################################
 
 load(qttest_p4)
-QT += opengl
+!embedded: QT += opengl
 
 SOURCES += tst_qgl.cpp
