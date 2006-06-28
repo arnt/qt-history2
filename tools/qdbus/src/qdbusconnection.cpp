@@ -61,7 +61,11 @@ QDBusConnectionManager::~QDBusConnectionManager()
 {
     for (QHash<QString, QDBusConnectionPrivate *>::const_iterator it = connectionHash.constBegin();
          it != connectionHash.constEnd(); ++it) {
-             delete it.value();
+        QDBusConnectionPrivate *d = it.value();
+        if (d && !d->ref.deref())
+            delete d;
+        else
+            d->closeConnection();
     }
     connectionHash.clear();
     dbus_shutdown();
@@ -332,7 +336,8 @@ QDBusConnection QDBusConnection::addConnection(const QString &address,
 */
 void QDBusConnection::closeConnection(const QString &name)
 {
-    manager()->removeConnection(name);
+    if (manager())
+        manager()->removeConnection(name);
 }
 
 /*!
@@ -690,55 +695,35 @@ bool QDBusConnection::unregisterService(const QString &serviceName)
     return interface()->unregisterService(serviceName);
 }
 
-Q_GLOBAL_STATIC(QMutex, defaultBussesMutex)
 static const char sessionBusName[] = "qt_default_session_bus";
 static const char systemBusName[] = "qt_default_system_bus";
-static QDBusConnection *sessionBus = 0;
-static QDBusConnection *systemBus = 0;
 
-static void closeConnections()
+class QDBusDefaultConnection: public QDBusConnection
 {
-    QMutexLocker locker(defaultBussesMutex());
-    delete sessionBus;
-    delete systemBus;
-    QDBusConnection::closeConnection(QLatin1String(sessionBusName));
-    QDBusConnection::closeConnection(QLatin1String(systemBusName));
-    sessionBus = systemBus = 0;
-}
+    const char *ownName;
+public:
+    inline QDBusDefaultConnection(BusType type, const char *name)
+        : QDBusConnection(addConnection(type, QString::fromLatin1(name))), ownName(name)
+    { }
 
-static QDBusConnection *openConnection(QDBusConnection::BusType type)
-{
-    QMutexLocker locker(defaultBussesMutex());
-    qAddPostRoutine(closeConnections);
-    
-    if (type == QDBusConnection::SystemBus) {
-        if (systemBus)
-            // maybe it got created before we locked the mutex
-            return systemBus;
-        systemBus = new QDBusConnection(QDBusConnection::addConnection(QDBusConnection::SystemBus,
-                           QLatin1String(systemBusName)));
-        return systemBus;
-    } else {
-        if (sessionBus)
-            // maybe it got created before we locked the mutex
-            return sessionBus;
-        sessionBus = new QDBusConnection(QDBusConnection::addConnection(QDBusConnection::SessionBus,
-                           QLatin1String(sessionBusName)));
-        return sessionBus;
-    }
-}
+    inline ~QDBusDefaultConnection()
+    { closeConnection(QString::fromLatin1(ownName)); }
+};
+
+Q_GLOBAL_STATIC_WITH_ARGS(QDBusDefaultConnection, sessionBus,
+                          (QDBusConnection::SessionBus, sessionBusName))
+Q_GLOBAL_STATIC_WITH_ARGS(QDBusDefaultConnection, systemBus,
+                          (QDBusConnection::SystemBus, systemBusName))        
 
 namespace QDBus {
     QDBusConnection sessionBus()
     {
-        if (::sessionBus) return *::sessionBus;
-        return *openConnection(QDBusConnection::SessionBus);
+        return *::sessionBus();
     }
 
     QDBusConnection systemBus()
     {
-        if (::systemBus) return *::systemBus;
-        return *openConnection(QDBusConnection::SystemBus);
+        return *::systemBus();
     }
 }
 
