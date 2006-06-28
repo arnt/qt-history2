@@ -1675,11 +1675,12 @@ void QWidget::setStyleSheet(const QString& styleSheet)
     d->extra->styleSheet = styleSheet;
     if (styleSheet.isEmpty()) { // user wants to remove stylesheet
         QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(d->extra->style);
-        d->setStyle_helper(proxy->baseStyle());
+        d->setStyle_helper(proxy->baseStyle(), true);
     } else if (!oldStyleSheet.isEmpty()) { // style sheet update
-        d->propagateStyle(true);
+        QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(d->extra->style);
+        proxy->repolish(this);
     } else { // stylesheet is set the first time
-        setStyle(d->extra->style);
+        d->setStyle_helper(new QStyleSheetStyle(d->extra->style, this), true);
     }
 }
 
@@ -1696,19 +1697,11 @@ QStyle *QWidget::style() const
 }
 
 /*!
-    Sets the widget's GUI style to \a style.
+    Sets the widget's GUI style to \a style. The ownership of the style
+    object is not transferred.
 
     If no style is set, the widget uses the application's style,
     QApplication::style() instead.
-
-    Prior to 4.2, ownership of the style was not transfered and had no effect
-    on child widgets. Starting 4.2, Ownership of the style object is transferred
-    to QWidget, so QWidget will delete the style object on application exit or
-    when a new style is set. Additionally, the QStyle object is reference counted
-    and you may safely set the same style object on multiple widgets. The style
-    is propagated to existing child widgets unless a style has been explicitly set
-    on the child widget. New child widgets automatically follow the style of the
-    parent.
 
     \warning This function is particularly useful for demonstration
     purposes, where you want to show Qt's styling capabilities. Real
@@ -1722,22 +1715,34 @@ void QWidget::setStyle(QStyle *style)
 {
     Q_D(QWidget);
     setAttribute(Qt::WA_SetStyle, style != 0);
-    d->setStyle_helper(style);
+    d->createExtra();
+    if (qobject_cast<QStyleSheetStyle *>(d->extra->style))
+        d->setStyle_helper(new QStyleSheetStyle(style, this), true);
+    else
+        d->setStyle_helper(style, false);
 }
 
-void QWidgetPrivate::setStyle_helper(QStyle *newStyle)
+void QWidgetPrivate::setStyle_helper(QStyle *newStyle, bool propagate)
 {
     Q_Q(QWidget);
     createExtra();
     QStyle *oldStyle  = q->style();
-    if (!extra->styleSheet.isEmpty()) {
-        extra->style = new QStyleSheetStyle(newStyle, q);
-        propagateStyle();
-    } else
-        extra->style = newStyle;
+    extra->style = newStyle;
 
-    if (oldStyle == q->style())
-        return;
+    if (propagate) {
+        for (int i = 0; i < children.size(); ++i) {
+            QWidget *c = qobject_cast<QWidget*>(children.at(i));
+            if (!c)
+                continue;
+            // if the child has no custom style then propagate our style
+            // else ask the child to inherit appropriately from us
+            if (!c->testAttribute(Qt::WA_SetStyle)) {
+                c->d_func()->setStyle_helper(extra->style, true);
+            } else {
+                c->d_func()->inheritStyle();
+            }
+        }
+    }
 
     // repolish
     if (q->windowType() != Qt::Desktop && polished) {
@@ -1750,38 +1755,42 @@ void QWidgetPrivate::setStyle_helper(QStyle *newStyle)
     q->styleChange(*oldStyle);
 #endif
 
+    // delete the old stylesheet style
     if (oldStyle->parent() == q && qobject_cast<QStyleSheetStyle *>(oldStyle))
         delete oldStyle;
 }
 
-void QWidgetPrivate::propagateStyle(bool justPolish)
-{
-    for (int i = 0; i < children.size(); ++i) {
-        QWidget *w = qobject_cast<QWidget*>(children.at(i));
-        if (!w)
-            continue;
-        if (!justPolish && !w->testAttribute(Qt::WA_SetStyle)) {
-            w->d_func()->setStyle_helper(extra->style);
-        } else {
-            w->style()->polish(w); // repolish!
-            w->d_func()->propagateStyle(true);
-        }
-    }
-}
-
+// Inherits style from the current parent and propagates it as necessary
 void QWidgetPrivate::inheritStyle()
 {
-    Q_Q(const QWidget);
-    if (q->testAttribute(Qt::WA_SetStyle))
+    Q_Q(QWidget);
+
+    if (!q->styleSheet().isEmpty()) {
+        QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(extra->style);
+        proxy->repolish(q);
         return;
+    }
 
     QStyle *newStyle = 0;
 
+    // check if parent has a style sheet
     if (q->parentWidget()
-        && qobject_cast<QStyleSheetStyle *>(q->parentWidget()->style()))
-        newStyle = q->parentWidget()->style();
+        && qobject_cast<QStyleSheetStyle *>(q->parentWidget()->style())) {
+        if (q->testAttribute(Qt::WA_SetStyle))
+            newStyle = new QStyleSheetStyle(extra->style, q);
+        else
+            newStyle = q->parentWidget()->style();
+    } else if (q->testAttribute(Qt::WA_SetStyle)) { // explicitly set style
+        if (QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle *>(extra->style))
+            newStyle = proxy->baseStyle();
+        else
+            newStyle = extra->style;
+    }
 
-    setStyle_helper(newStyle);
+    if (newStyle == (extra ? extra->style : 0)) // nothing to propagate
+        return;
+
+    setStyle_helper(newStyle, true);
 }
 
 #ifdef QT3_SUPPORT

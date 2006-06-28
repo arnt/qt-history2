@@ -1057,8 +1057,9 @@ void QApplication::setStyleSheet(const QString& styleSheet)
         proxy->baseStyle()->setParent(0);
         setStyle(proxy->baseStyle());
     } else if (!oldStyleSheet.isEmpty()) { // style sheet update
-        Q_ASSERT(qobject_cast<QStyleSheetStyle *>(QApplicationPrivate::app_style));
-        QApplicationPrivate::app_style->polish(qApp);
+        QStyleSheetStyle *proxy = qobject_cast<QStyleSheetStyle*>(QApplicationPrivate::app_style);
+        Q_ASSERT(proxy != 0);
+        proxy->repolish(qApp);
     } else { // stylesheet set the first time
         setStyle(new QStyleSheetStyle(QApplicationPrivate::app_style, 0));
     }

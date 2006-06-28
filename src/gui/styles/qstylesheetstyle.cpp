@@ -1504,6 +1504,19 @@ QRect QStyleSheetStyle::subElementRect(SubElement se, const QStyleOption *opt, c
     return baseStyle()->subElementRect(se, opt, w);
 }
 
+void QStyleSheetStyle::repolish(QWidget *w)
+{
+    polish(w);
+    QList<QWidget *> children = qFindChildren<QWidget *>(w, QString());
+    for (int i = 0; i < children.size(); ++i)
+        polish(children.at(i));
+}
+
+void QStyleSheetStyle::repolish(QApplication *)
+{
+    // fixme
+}
+
 void QStyleSheetStyle::polish(QWidget *w)
 {
     baseStyle()->polish(w);

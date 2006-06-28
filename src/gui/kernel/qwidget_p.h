@@ -198,8 +198,7 @@ public:
     void setLayoutDirection_helper(Qt::LayoutDirection);
     void resolveLayoutDirection();
 
-    void setStyle_helper(QStyle *);
-    void propagateStyle(bool justPolish=false);
+    void setStyle_helper(QStyle *, bool);
     void inheritStyle();
 
     bool isBackgroundInherited() const;

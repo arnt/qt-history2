@@ -182,6 +182,9 @@ public:
     void setBaseStyle(QStyle *base) { bs = base; }
     QStyle *baseStyle() const { return bs ? bs : qApp->style(); }
 
+    void repolish(QWidget *widget);
+    void repolish(QApplication *app);
+
 private:
     QStyle *bs;
 
