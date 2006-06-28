@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qwslock_p.h"
+#include "qwssignalhandler_p.h"
 
 #include <qglobal.h>
 #include <qdebug.h>
@@ -38,6 +39,7 @@ QWSLock::QWSLock()
         perror("QWSLock::QWSLock");
         qFatal("Unable to create semaphore");
     }
+    QWSSignalHandler::instance()->addSemaphore(semId);
 
     if (semctl(semId, BackingStore, SETVAL, 1) == -1) {
         perror("QWSLock::QWSLock");
@@ -63,6 +65,7 @@ QWSLock::~QWSLock()
     if (semId == -1)
         return;
     semctl(semId, 0, IPC_RMID, 0);
+    QWSSignalHandler::instance()->removeSemaphore(semId);
 }
 
 static bool forceLock(int semId, int semNum, int)

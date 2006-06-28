@@ -15,6 +15,7 @@
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
+#include "qwssignalhandler_p.h"
 #include <unistd.h>
 #include <sys/types.h>
 #if defined(Q_OS_DARWIN)
@@ -115,6 +116,8 @@ QLock::QLock(const QString &filename, char id, bool create)
         data->id = semget(semkey,1,IPC_CREAT|0600);
         arg.val = MAX_LOCKS;
         semctl(data->id,0,SETVAL,arg);
+
+        QWSSignalHandler::instance()->addSemaphore(data->id);
     }
 #endif
     if (data->id == -1) {
@@ -147,6 +150,7 @@ QLock::~QLock()
     if(data->owned) {
         semun arg; arg.val = 0;
         semctl(data->id, 0, IPC_RMID, arg);
+        QWSSignalHandler::instance()->removeSemaphore(data->id);
     }
 #endif
     delete data;
