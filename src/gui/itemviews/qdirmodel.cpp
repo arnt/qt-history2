@@ -987,18 +987,21 @@ void QDirModel::refresh(const QModelIndex &parent)
 
     int rows = n->children.count();
     if (rows == 0) {
+        emit layoutAboutToBeChanged();
         n->stat = true; // make sure that next time we read all the info
         n->populated = false;
         emit layoutChanged();
         return;
     }
 
+    emit layoutAboutToBeChanged();
     d->savePersistentIndexes();
-    beginRemoveRows(parent, 0, rows - 1);
+    d->rowsAboutToBeRemoved(parent, 0, rows - 1);
     n->stat = true; // make sure that next time we read all the info
     d->clear(n);
-    endRemoveRows();
+    d->rowsRemoved(parent, 0, rows - 1);
     d->restorePersistentIndexes();
+    emit layoutChanged();
 }
 
 /*!
