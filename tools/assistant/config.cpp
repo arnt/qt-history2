@@ -337,8 +337,7 @@ QString Config::docImageDir( const QString &docfile ) const
 
 QString Config::indexPage( const QString &title ) const
 {
-    return profil->indexPages
-        [title];
+    return profil->indexPages[title];
 }
 
 void Config::hideSideBar( bool b )

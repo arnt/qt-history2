@@ -602,7 +602,7 @@
   </action>
   <action name="actionAbout" >
    <property name="text" >
-    <string>&amp;About</string>
+    <string>&amp;About Qt Linguist</string>
    </property>
   </action>
   <action name="actionAboutQt" >
