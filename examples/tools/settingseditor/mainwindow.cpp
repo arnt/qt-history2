@@ -86,7 +86,7 @@ void MainWindow::openRegistryPath()
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, tr("About Settings Editor"),
+    QMessageBoxEx::about(this, tr("About Settings Editor"),
             tr("The <b>Settings Editor</b> example shows how to access "
                "application settings using Qt."));
 }

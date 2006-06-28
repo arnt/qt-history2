@@ -117,7 +117,7 @@ void FtpWindow::downloadFile()
     QString fileName = fileList->currentItem()->text();
 
     if (QFile::exists(fileName)) {
-        QMessageBox::information(this, tr("FTP"),
+        QMessageBoxEx::information(this, tr("FTP"),
                                  tr("There already exists a file called %1 in "
                                     "the current directory.")
                                  .arg(fileName));
@@ -126,7 +126,7 @@ void FtpWindow::downloadFile()
 
     file = new QFile(fileName);
     if (!file->open(QIODevice::WriteOnly)) {
-        QMessageBox::information(this, tr("FTP"),
+        QMessageBoxEx::information(this, tr("FTP"),
                                  tr("Unable to save the file %1: %2.")
                                  .arg(fileName).arg(file->errorString()));
         delete file;
@@ -151,7 +151,7 @@ void FtpWindow::ftpCommandFinished(int, bool error)
 
     if (ftp->currentCommand() == QFtp::ConnectToHost) {
         if (error) {
-            QMessageBox::information(this, tr("FTP"),
+            QMessageBoxEx::information(this, tr("FTP"),
                                      tr("Unable to connect to the FTP server "
                                         "at %1. Please check that the host "
                                         "name is correct.")

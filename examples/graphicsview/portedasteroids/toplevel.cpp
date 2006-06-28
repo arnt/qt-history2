@@ -387,7 +387,7 @@ void KAstTopLevel::keyReleaseEvent( QKeyEvent *event )
         case Pause:
             {
                 view->pause( TRUE );
-                QMessageBox::information( this,
+                QMessageBoxEx::information( this,
                                           tr("KAsteroids is paused"),
                                           tr("Paused") );
                 view->pause( FALSE );

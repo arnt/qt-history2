@@ -111,19 +111,19 @@ void Client::displayError(QAbstractSocket::SocketError socketError)
     case QAbstractSocket::RemoteHostClosedError:
         break;
     case QAbstractSocket::HostNotFoundError:
-        QMessageBox::information(this, tr("Fortune Client"),
+        QMessageBoxEx::information(this, tr("Fortune Client"),
                                  tr("The host was not found. Please check the "
                                     "host name and port settings."));
         break;
     case QAbstractSocket::ConnectionRefusedError:
-        QMessageBox::information(this, tr("Fortune Client"),
+        QMessageBoxEx::information(this, tr("Fortune Client"),
                                  tr("The connection was refused by the peer. "
                                     "Make sure the fortune server is running, "
                                     "and check that the host name and port "
                                     "settings are correct."));
         break;
     default:
-        QMessageBox::information(this, tr("Fortune Client"),
+        QMessageBoxEx::information(this, tr("Fortune Client"),
                                  tr("The following error occurred: %1.")
                                  .arg(tcpSocket->errorString()));
     }

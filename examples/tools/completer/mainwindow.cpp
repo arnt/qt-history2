@@ -216,7 +216,7 @@ void MainWindow::updateModel()
 
 void MainWindow::about()
 {
-    QMessageBox::about(this, tr("About"), tr("This example demonstrates the "
+    QMessageBoxEx::about(this, tr("About"), tr("This example demonstrates the "
         "different features of the QCompleter class."));
 }
 

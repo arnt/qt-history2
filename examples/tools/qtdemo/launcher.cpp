@@ -98,18 +98,18 @@ bool Launcher::setup()
     if (!documentationDir.cd("html")) {
         // Failed to find the HTML documentation.
         // We can continue without it.
-        QMessageBox::warning(this, tr("No Documentation Found"),
+        QMessageBoxEx::warning(this, tr("No Documentation Found"),
             tr("I could not find the Qt documentation."),
-            QMessageBox::Cancel, QMessageBox::NoButton);
+            QMessageBoxEx::Cancel);
     }
 
     imagesDir = documentationDir;
     if (!imagesDir.cd("images")) {
         // Failed to find the accompanying images for the documentation.
         // We can continue without them.
-        QMessageBox::warning(this, tr("No Images Found"),
+        QMessageBoxEx::warning(this, tr("No Images Found"),
             tr("I could not find any images for the Qt documentation."),
-            QMessageBox::Cancel, QMessageBox::NoButton);
+            QMessageBoxEx::Cancel);
     }
 
     maximumLabels = 0;
@@ -122,10 +122,10 @@ bool Launcher::setup()
 
     if (demoCategories + exampleCategories <= 0) {
         // Failed to find the examples.
-        QMessageBox::warning(this, tr("No Examples or Demos found"),
+        QMessageBoxEx::warning(this, tr("No Examples or Demos found"),
             tr("I could not find any Qt examples or demos.\n"
                "Please ensure that Qt is installed correctly."),
-            QMessageBox::Cancel, QMessageBox::NoButton);
+            QMessageBoxEx::Cancel);
         return false;
     }
 
@@ -446,9 +446,9 @@ void Launcher::executeAction(const QString &action)
 void Launcher::closeEvent(QCloseEvent *event)
 {
     if (runningExamples.size() > 0) {
-        if (QMessageBox::warning(this, tr("Examples Running"),
+        if (QMessageBoxEx::warning(this, tr("Examples Running"),
                 tr("There are examples running. Do you really want to exit?"),
-                QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+                QMessageBoxEx::Yes|QMessageBoxEx::No) == QMessageBoxEx::No)
             event->ignore();
             return;
     }

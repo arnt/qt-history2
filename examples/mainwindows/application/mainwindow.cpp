@@ -80,7 +80,7 @@ bool MainWindow::saveAs()
 
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About Application"),
+   QMessageBoxEx::about(this, tr("About Application"),
             tr("The <b>Application</b> example demonstrates how to "
                "write modern GUI applications using Qt, with a menu bar, "
                "toolbars, and a status bar."));
@@ -210,15 +210,14 @@ void MainWindow::writeSettings()
 bool MainWindow::maybeSave()
 {
     if (textEdit->document()->isModified()) {
-        int ret = QMessageBox::warning(this, tr("Application"),
+        QMessageBoxEx::StandardButton ret;
+        ret = QMessageBoxEx::warning(this, tr("Application"),
                      tr("The document has been modified.\n"
                         "Do you want to save your changes?"),
-                     QMessageBox::Yes | QMessageBox::Default,
-                     QMessageBox::No,
-                     QMessageBox::Cancel | QMessageBox::Escape);
-        if (ret == QMessageBox::Yes)
+                     QMessageBoxEx::Save | QMessageBoxEx::Discard | QMessageBoxEx::Cancel);
+        if (ret == QMessageBoxEx::Save)
             return save();
-        else if (ret == QMessageBox::Cancel)
+        else if (ret == QMessageBoxEx::Cancel)
             return false;
     }
     return true;
@@ -228,7 +227,7 @@ void MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
+        QMessageBoxEx::warning(this, tr("Application"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -248,7 +247,7 @@ bool MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
+        QMessageBoxEx::warning(this, tr("Application"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));

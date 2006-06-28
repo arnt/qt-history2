@@ -58,13 +58,13 @@ void MainWindow::saveAs()
         return;
 
     if (QFile::exists(fileName)) {
-        int ret = QMessageBox::warning(this, tr("Recent Files"),
+	QMessageBoxEx::StandardButton ret;
+        ret = QMessageBoxEx::warning(this, tr("Recent Files"),
                      tr("File %1 already exists.\n"
                         "Do you want to overwrite it?")
                      .arg(QDir::convertSeparators(fileName)),
-                     QMessageBox::Yes | QMessageBox::Default,
-                     QMessageBox::No | QMessageBox::Escape);
-        if (ret == QMessageBox::No)
+                     QMessageBoxEx::Yes | QMessageBoxEx::Cancel);
+        if (ret == QMessageBoxEx::Cancel)
             return;
     }
     saveFile(fileName);
@@ -79,7 +79,7 @@ void MainWindow::openRecentFile()
 
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About Recent Files"),
+   QMessageBoxEx::about(this, tr("About Recent Files"),
             tr("The <b>Recent Files</b> example demonstrates how to provide a "
                "recently used file menu in a Qt application."));
 }
@@ -151,7 +151,7 @@ void MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Recent Files"),
+        QMessageBoxEx::warning(this, tr("Recent Files"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -171,7 +171,7 @@ void MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Recent Files"),
+        QMessageBoxEx::warning(this, tr("Recent Files"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));

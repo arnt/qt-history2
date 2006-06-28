@@ -138,15 +138,15 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
         if (numFrames > 20) {
             if (avgRate > 20 && X11->use_xrender) {
                 timer.stop();
-                int result = QMessageBox::question(this,
+                int result = QMessageBoxEx::question(this,
                                                    QObject::tr("Disable XRender?"),
                                                    QObject::tr("Your XRender implementation does not appear to be accelerated.\n"
                                                                "This may cause this demo to run very slowly.\n"
                                                                "Do you wish to turn XRender support off in this demo to improve\n"
                                                                "the frame rate?"),
-                                                   QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton);
+                                                   QMessageBoxEx::Yes|QMessageBoxEx::No);
 
-                if (result == QMessageBox::Yes)
+                if (result == QMessageBoxEx::Yes)
                     X11->use_xrender = false;
                 enableUpdates();
             }

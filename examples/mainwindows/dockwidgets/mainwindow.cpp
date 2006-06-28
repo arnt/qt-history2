@@ -100,7 +100,7 @@ void MainWindow::save()
         return;
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Dock Widgets"),
+        QMessageBoxEx::warning(this, tr("Dock Widgets"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -164,7 +164,7 @@ void MainWindow::addParagraph(const QString &paragraph)
 
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About Dock Widgets"),
+   QMessageBoxEx::about(this, tr("About Dock Widgets"),
             tr("The <b>Dock Widgets</b> example demonstrates how to "
                "use Qt's dock widgets. You can enter your own text, "
                "click a customer to add a customer name and "

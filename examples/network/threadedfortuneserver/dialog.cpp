@@ -27,7 +27,7 @@ Dialog::Dialog(QWidget *parent)
     quitButton->setAutoDefault(false);
 
     if (!server.listen()) {
-        QMessageBox::critical(this, tr("Threaded Fortune Server"),
+        QMessageBoxEx::critical(this, tr("Threaded Fortune Server"),
                               tr("Unable to start the server: %1.")
                               .arg(server.errorString()));
         close();

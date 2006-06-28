@@ -45,7 +45,7 @@ void MainWindow::open()
                                     tr("Open File"), QDir::currentPath());
     if (!fileName.isEmpty()) {
         if (!paintArea->openImage(fileName)) {
-            QMessageBox::information(this, tr("Plug & Paint"),
+            QMessageBoxEx::information(this, tr("Plug & Paint"),
                                      tr("Cannot load %1.").arg(fileName));
             return;
         }
@@ -116,7 +116,7 @@ void MainWindow::applyFilter()
 
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About Plug & Paint"),
+   QMessageBoxEx::about(this, tr("About Plug & Paint"),
             tr("The <b>Plug & Paint</b> example demonstrates how to write Qt "
                "applications that can be extended through plugins."));
 }

@@ -29,8 +29,8 @@ MainWindow::MainWindow()
 
 void MainWindow::about()
 {
-    QMessageBox::information(this, tr("About Troll Print 1.0"),
-                   tr("Troll Print 1.0.\n\n"
+    QMessageBoxEx::information(this, tr("About Troll Print 1.0"),
+                      tr("Troll Print 1.0.\n\n"
                       "Copyright 1999 Software, Inc."));
 }
 

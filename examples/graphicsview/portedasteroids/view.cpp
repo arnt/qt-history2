@@ -22,7 +22,7 @@
 #include <qapplication.h>
 #include <qnamespace.h>
 #include <q3accel.h>
-#include <qmessagebox.h>
+#include <qmessageboxex.h>
 #include <q3scrollview.h>
 #include <qdir.h>
 #include <QGraphicsItem>
@@ -923,7 +923,7 @@ void KAsteroidsView::showEvent( QShowEvent *e )
 
     if ( !wasThere ) {
 	wasThere = TRUE;
-	QMessageBox::information( this, tr("QCanvas demo"),
+	QMessageBoxEx::information( this, tr("QCanvas demo"),
 				  tr("This game has been implemented using the QCanvas class.\n"
 				     "The QCanvas class is not part of the Professional Edition. Please \n"
 				     "contact Trolltech if you want to upgrade to the Enterprise Edition.") );
