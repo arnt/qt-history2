@@ -109,7 +109,6 @@ void tst_QDBusInterface::introspect()
 
     const QMetaObject *mo = iface.metaObject();
 
-    qDebug("Improve to a better testcase of QDBusMetaObject");
     QCOMPARE(mo->methodCount() - mo->methodOffset(), 3);
     QVERIFY(mo->indexOfSignal(TEST_SIGNAL_NAME "(QString)") != -1);
 
