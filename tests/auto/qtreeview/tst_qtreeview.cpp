@@ -81,17 +81,28 @@ private slots:
     void insertAfterSelect();
     void removeAfterSelect();
 };
-
 class QtTestModel: public QAbstractItemModel
 {
 public:
     QtTestModel(QObject *parent = 0): QAbstractItemModel(parent),
        cols(0), rows(0), wrongIndex(false) {}
-    int rowCount(const QModelIndex& parent = QModelIndex()) const { Q_UNUSED(parent); return rows; }
-    int columnCount(const QModelIndex& parent = QModelIndex()) const { Q_UNUSED(parent); return cols; }
-    bool isEditable(const QModelIndex &) const { return true; }
 
-    mutable QMap<QModelIndex,QModelIndex> parentHash;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const {
+        if (parent.column() > 0)
+            return 0;
+        return rows;
+    }
+    int columnCount(const QModelIndex& parent = QModelIndex()) const {
+        if (parent.column() > 0)
+            return 0;
+        return cols;
+    }
+
+    bool isEditable(const QModelIndex &index) const {
+        if (index.isValid())
+            return true;
+        return false;
+    }
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const
     {
@@ -113,7 +124,7 @@ public:
 
     QVariant data(const QModelIndex &idx, int role) const
     {
-        if (role != Qt::DisplayRole)
+        if (!idx.isValid() || role != Qt::DisplayRole)
             return QVariant();
 
         if (idx.row() < 0 || idx.column() < 0 || idx.column() >= cols || idx.row() >= rows) {
@@ -162,6 +173,7 @@ public:
 
     int cols, rows;
     mutable bool wrongIndex;
+    mutable QMap<QModelIndex,QModelIndex> parentHash;
 };
 
 // Testing get/set functions
