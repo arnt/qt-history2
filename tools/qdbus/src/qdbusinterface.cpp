@@ -233,7 +233,7 @@ int QDBusInterfacePrivate::metacall(QMetaObject::Call c, int id, void **argv)
 
             // make the call
             QPointer<QDBusInterface> qq = q;
-            QDBusMessage reply = q->callWithArgs(methodName, args);
+            QDBusMessage reply = q->callWithArgumentList(QDBus::Block, methodName, args);
             args.clear();
 
             // we ignore return values

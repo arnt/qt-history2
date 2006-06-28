@@ -249,8 +249,7 @@ QDBusError QDBusAbstractInterface::lastError() const
 
     \threadsafe
 */
-QDBusMessage QDBusAbstractInterface::callWithArgs(const QString& method, const QList<QVariant>& args,
-                                                  QDBus::CallMode mode)
+QDBusMessage QDBusAbstractInterface::callWithArgumentList(QDBus::CallMode mode, const QString& method, const QList<QVariant>& args)
 {
     Q_D(QDBusAbstractInterface);
 
@@ -308,8 +307,8 @@ QDBusMessage QDBusAbstractInterface::callWithArgs(const QString& method, const Q
 
     \sa QDBusError, QDBusMessage
 */
-bool QDBusAbstractInterface::callWithArgs(const QString &method, QObject *receiver, const char *slot,
-                                          const QList<QVariant> &args)
+bool QDBusAbstractInterface::callWithArgumentList(const QString &method, const QList<QVariant> &args,
+                                                  QObject *receiver, const char *slot)
 {
     Q_D(QDBusAbstractInterface);
     
@@ -385,8 +384,6 @@ void QDBusAbstractInterface::internalPropSet(const char *propname, const QVarian
 }
 
 /*!
-    \fn QDBusMessage QDBusAbstractInterface::call(const QString &method)
-
     Calls the method \a method on this interface and passes the parameters to this function to the
     method.
 
@@ -394,10 +391,10 @@ void QDBusAbstractInterface::internalPropSet(const char *propname, const QVarian
     arguments. Output arguments are returned in the QDBusMessage reply. If the reply is an error
     reply, lastError() will also be set to the contents of the error message.
 
-    This function is implemented by actually 9 different function overloads called \c call, so you
-    can pass up to 8 parameters to your function call, which can be of any type accepted by QtDBus
-    (see the \l {qdbustypesystem.html}{QtDBus type system} page for information on what types are
-    accepted and how to extend it).
+    This function can be used with up to 8 parameters, passed in arguments \a arg1, \a arg2,
+    \a arg3, \a arg4, \a arg5, \a arg6, \a arg7 and \a arg8. If you need more than 8
+    parameters or if you have a variable number of parameters to be passed, use
+    callWithArgumentList().
 
     It can be used the following way:
 
@@ -416,9 +413,20 @@ void QDBusAbstractInterface::internalPropSet(const char *propname, const QVarian
     parameter types passed in each (the first call to \c "ProcessWorkUnicode" will contain one
     Unicode string, the second call to \c "ProcessWork" will contain one string and one byte array).
 */
+QDBusMessage QDBusAbstractInterface::call(const QString &method, const QVariant &arg1,
+                                          const QVariant &arg2,
+                                          const QVariant &arg3,
+                                          const QVariant &arg4,
+                                          const QVariant &arg5,
+                                          const QVariant &arg6,
+                                          const QVariant &arg7,
+                                          const QVariant &arg8)
+{
+    return call(QDBus::AutoDetect, method, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+}
+    
 
 /*!
-    \fn QDBusMessage QDBusAbstractInterface::call(CallMode mode, const QString &method)
     \overload
 
     Calls the method \a method on this interface and passes the
@@ -428,9 +436,49 @@ void QDBusAbstractInterface::internalPropSet(const char *propname, const QVarian
     method. Otherwise, \a mode indicates whether this function should
     activate the Qt Event Loop while waiting for the reply to arrive.
          
+    This function can be used with up to 8 parameters, passed in arguments \a arg1, \a arg2,
+    \a arg3, \a arg4, \a arg5, \a arg6, \a arg7 and \a arg8. If you need more than 8
+    parameters or if you have a variable number of parameters to be passed, use
+    callWithArgumentList().
+
     If this function reenters the Qt event loop in order to wait for the
     reply, it will exclude user input. During the wait, it may deliver
     signals and other method calls to your application. Therefore, it
     must be prepared to handle a reentrancy whenever a call is placed
     with call().
 */
+QDBusMessage QDBusAbstractInterface::call(QDBus::CallMode mode, const QString &method,
+                                          const QVariant &arg1,
+                                          const QVariant &arg2,
+                                          const QVariant &arg3,
+                                          const QVariant &arg4,
+                                          const QVariant &arg5,
+                                          const QVariant &arg6,
+                                          const QVariant &arg7,
+                                          const QVariant &arg8)
+{
+    QList<QVariant> argList;
+    int count = 0 + arg1.isValid() + arg2.isValid() + arg3.isValid() + arg4.isValid() +
+                arg5.isValid() + arg6.isValid() + arg7.isValid() + arg8.isValid();
+
+    switch (count) {
+    case 8:
+        argList.prepend(arg8);
+    case 7:
+        argList.prepend(arg7);
+    case 6:
+        argList.prepend(arg6);
+    case 5:
+        argList.prepend(arg5);
+    case 4:
+        argList.prepend(arg4);
+    case 3:
+        argList.prepend(arg3);
+    case 2:
+        argList.prepend(arg2);
+    case 1:
+        argList.prepend(arg1);
+    }
+
+    return callWithArgumentList(mode, method, argList);
+}

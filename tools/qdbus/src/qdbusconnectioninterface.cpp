@@ -214,7 +214,7 @@ QDBusConnectionInterface::registerService(const QString &serviceName,
                                           ServiceReplacementOptions roption)
 {
     // reconstruct the low-level flags
-    uint flags;
+    uint flags = 0;
     switch (qoption) {
     case DontQueueService:
         flags = DBUS_NAME_FLAG_DO_NOT_QUEUE;

@@ -529,65 +529,59 @@ void tst_QDBusAbstractAdaptor::methodCalls()
     QDBusConnection con = QDBus::sessionBus();
     QVERIFY(con.isConnected());
 
-    //QDBusInterface *empty = new QDBusInterface(con.baseService(), "/", QString());
-    QDBusInterface *if1 = new QDBusInterface(con.baseService(), "/", "local.Interface1", con);
-    QDBusInterface *if2 = new QDBusInterface(con.baseService(), "/", "local.Interface2", con);
-    QDBusInterface *if3 = new QDBusInterface(con.baseService(), "/", "local.Interface3", con);
-    QDBusInterface *if4 = new QDBusInterface(con.baseService(), "/", "local.Interface4", con);
-
-    QObject deleter;
-    if1->setParent(&deleter);
-    if2->setParent(&deleter);
-    if3->setParent(&deleter);
-    if4->setParent(&deleter);
+    //QDBusInterface emptycon.baseService(), "/", QString());
+    QDBusInterface if1(con.baseService(), "/", "local.Interface1", con);
+    QDBusInterface if2(con.baseService(), "/", "local.Interface2", con);
+    QDBusInterface if3(con.baseService(), "/", "local.Interface3", con);
+    QDBusInterface if4(con.baseService(), "/", "local.Interface4", con);
 
     // must fail: no object
     //QCOMPARE(empty->call("method").type(), QDBusMessage::ErrorMessage);
-    QCOMPARE(if1->call(QDBus::BlockWithGui, "method").type(), QDBusMessage::ErrorMessage);
+    QCOMPARE(if1.call(QDBus::BlockWithGui, "method").type(), QDBusMessage::ErrorMessage);
 
     QFETCH(int, nInterfaces);
     MyObject obj(nInterfaces);
     con.registerObject("/", &obj);
 
     // must fail: no such method
-    QCOMPARE(if1->call(QDBus::BlockWithGui, "method").type(), QDBusMessage::ErrorMessage);
+    QCOMPARE(if1.call(QDBus::BlockWithGui, "method").type(), QDBusMessage::ErrorMessage);
     if (!nInterfaces--)
         return;
     if (!nInterfaces--)
         return;
 
     // simple call: one such method exists
-    QCOMPARE(if2->call(QDBus::BlockWithGui, "method").type(), QDBusMessage::ReplyMessage);
+    QCOMPARE(if2.call(QDBus::BlockWithGui, "method").type(), QDBusMessage::ReplyMessage);
     QCOMPARE(slotSpy, "void Interface2::method()");
     if (!nInterfaces--)
         return;
 
     // multiple methods in multiple interfaces, no name overlap
-    QCOMPARE(if1->call(QDBus::BlockWithGui, "methodVoid").type(), QDBusMessage::ErrorMessage);
-    QCOMPARE(if1->call(QDBus::BlockWithGui, "methodInt").type(), QDBusMessage::ErrorMessage);
-    QCOMPARE(if1->call(QDBus::BlockWithGui, "methodString").type(), QDBusMessage::ErrorMessage);
-    QCOMPARE(if2->call(QDBus::BlockWithGui, "methodVoid").type(), QDBusMessage::ErrorMessage);
-    QCOMPARE(if2->call(QDBus::BlockWithGui, "methodInt").type(), QDBusMessage::ErrorMessage);
-    QCOMPARE(if2->call(QDBus::BlockWithGui, "methodString").type(), QDBusMessage::ErrorMessage);
+    QCOMPARE(if1.call(QDBus::BlockWithGui, "methodVoid").type(), QDBusMessage::ErrorMessage);
+    QCOMPARE(if1.call(QDBus::BlockWithGui, "methodInt").type(), QDBusMessage::ErrorMessage);
+    QCOMPARE(if1.call(QDBus::BlockWithGui, "methodString").type(), QDBusMessage::ErrorMessage);
+    QCOMPARE(if2.call(QDBus::BlockWithGui, "methodVoid").type(), QDBusMessage::ErrorMessage);
+    QCOMPARE(if2.call(QDBus::BlockWithGui, "methodInt").type(), QDBusMessage::ErrorMessage);
+    QCOMPARE(if2.call(QDBus::BlockWithGui, "methodString").type(), QDBusMessage::ErrorMessage);
 
-    QCOMPARE(if3->call(QDBus::BlockWithGui, "methodVoid").type(), QDBusMessage::ReplyMessage);
+    QCOMPARE(if3.call(QDBus::BlockWithGui, "methodVoid").type(), QDBusMessage::ReplyMessage);
     QCOMPARE(slotSpy, "void Interface3::methodVoid()");
-    QCOMPARE(if3->call(QDBus::BlockWithGui, "methodInt", 42).type(), QDBusMessage::ReplyMessage);
+    QCOMPARE(if3.call(QDBus::BlockWithGui, "methodInt", 42).type(), QDBusMessage::ReplyMessage);
     QCOMPARE(slotSpy, "void Interface3::methodInt(int)");
-    QCOMPARE(if3->call(QDBus::BlockWithGui, "methodString", QString("")).type(), QDBusMessage::ReplyMessage);
+    QCOMPARE(if3.call(QDBus::BlockWithGui, "methodString", QString("")).type(), QDBusMessage::ReplyMessage);
     QCOMPARE(slotSpy, "void Interface3::methodString(QString)");
 
     if (!nInterfaces--)
         return;
 
     // method overloading: different interfaces
-    QCOMPARE(if4->call(QDBus::BlockWithGui, "method").type(), QDBusMessage::ReplyMessage);
+    QCOMPARE(if4.call(QDBus::BlockWithGui, "method").type(), QDBusMessage::ReplyMessage);
     QCOMPARE(slotSpy, "void Interface4::method()");
 
     // method overloading: different parameters
-    QCOMPARE(if4->call(QDBus::BlockWithGui, "method.i", 42).type(), QDBusMessage::ReplyMessage);
+    QCOMPARE(if4.call(QDBus::BlockWithGui, "method.i", 42).type(), QDBusMessage::ReplyMessage);
     QCOMPARE(slotSpy, "void Interface4::method(int)");
-    QCOMPARE(if4->call(QDBus::BlockWithGui, "method.s", QString()).type(), QDBusMessage::ReplyMessage);
+    QCOMPARE(if4.call(QDBus::BlockWithGui, "method.s", QString()).type(), QDBusMessage::ReplyMessage);
     QCOMPARE(slotSpy, "void Interface4::method(QString)");
     
 }
@@ -903,7 +897,7 @@ void tst_QDBusAbstractAdaptor::writeProperties()
         QVERIFY(valueSpy.isEmpty()); // call mustn't have succeeded
 
         properties.call(QDBus::BlockWithGui, "Set", "local." + name, QString("prop2"),
-                        QDBusVariant(name));
+                        qVariantFromValue(QDBusVariant(name)));
         QCOMPARE(valueSpy, name);
         QCOMPARE(QString(slotSpy), QString("void %1::setProp2(const QString&)").arg(name));
     }
@@ -1160,20 +1154,18 @@ void tst_QDBusAbstractAdaptor::typeMatching()
     QFETCH(QVariant, value);
 
     QDBusMessage reply;
-    QDBusInterface *iface = new QDBusInterface(con.baseService(), "/types", "local.TypesInterface", con);
+    QDBusInterface iface(con.baseService(), "/types", "local.TypesInterface", con);
 
-    reply = iface->callWithArgs("method" + basename, QVariantList() << value,
-                                QDBus::BlockWithGui);
+    reply = iface.callWithArgumentList(QDBus::BlockWithGui, "method" + basename,
+                                        QVariantList() << value);
     QCOMPARE(reply.type(), QDBusMessage::ReplyMessage);
 
-    reply = iface->call(QDBus::BlockWithGui, "retrieve" + basename);
+    reply = iface.call(QDBus::BlockWithGui, "retrieve" + basename);
     QCOMPARE(reply.type(), QDBusMessage::ReplyMessage);
     QCOMPARE(reply.count(), 1);
 
     const QVariant &retval = reply.at(0);
     QVERIFY(compare(retval, value));
-
-    iface->deleteLater();
 }
 
 void tst_QDBusAbstractAdaptor::methodWithMoreThanOneReturnValue()
