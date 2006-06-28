@@ -1,7 +1,7 @@
 TEMPLATE	= app
 TARGET		= portedcanvas
 
-CONFIG		+= qt warn_on release
+CONFIG		+= qt warn_on
 
 HEADERS		= canvas.h
 SOURCES		= canvas.cpp main.cpp
