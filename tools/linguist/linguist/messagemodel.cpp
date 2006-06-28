@@ -612,7 +612,8 @@ bool MessageModel::load(const QString &fileName)
 bool MessageModel::save(const QString &fileName)
 {
     MetaTranslator tor;
-    for (iterator it = begin(); MessageItem *m = it.current(); ++it) {
+    MessageItem *m;
+    for (iterator it = begin(); m = it.current(); ++it) {
         tor.insert(m->message());
     }
     bool ok = tor.save(fileName);
@@ -638,7 +639,8 @@ bool MessageModel::release(QIODevice *iod,
                 Translator::SaveMode mode  /*= Translator::Stripped */)
 {
     MetaTranslator tor;
-    for (MessageModel::iterator it = begin(); MessageItem *m = it.current(); ++it) {
+    MessageItem *m;
+    for (MessageModel::iterator it = begin() ; m = it.current() ; ++it) {
         tor.insert(m->message());
     }
     return tor.release(iod, verbose, ignoreUnfinished, mode);

@@ -278,7 +278,8 @@ void TrWindow::openFile( const QString& name )
         QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot open '%1'.").arg(name));
         return;
     }
-    for (MessageModel::iterator it = cmdl->begin(); MessageItem *m = it.current();++it) {
+    MessageItem *m;
+    for (MessageModel::iterator it = cmdl->begin() ; m = it.current() ; ++it) {
         updateDanger(m);
     }
 
