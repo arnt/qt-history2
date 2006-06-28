@@ -1777,7 +1777,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Enter:
     case Qt::Key_Return:
     case Qt::Key_Select:
-        if (currentIndex().isValid())
+        if (currentIndex().isValid() && state() != EditingState)
             emit activated(currentIndex());
         break;
 #endif
