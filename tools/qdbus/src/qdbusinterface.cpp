@@ -89,9 +89,9 @@ static void assign(void *ptr, int id, const QVariant &value)
     }
 }
 
-QDBusInterfacePrivate::QDBusInterfacePrivate(const QDBusConnection &con, const QString &serv,
-                                             const QString &p, const QString &iface)
-    : QDBusAbstractInterfacePrivate(con, serv, p, iface, true), metaObject(0)
+QDBusInterfacePrivate::QDBusInterfacePrivate(const QString &serv, const QString &p,
+                                             const QString &iface, const QDBusConnection &con)
+    : QDBusAbstractInterfacePrivate(serv, p, iface, con, true), metaObject(0)
 {
     // QDBusAbstractInterfacePrivate's constructor checked the parameters for us
     if (connection.isConnected()) {
@@ -159,8 +159,8 @@ QDBusInterfacePrivate::~QDBusInterfacePrivate()
 */
 QDBusInterface::QDBusInterface(const QString &service, const QString &path, const QString &interface,
                                const QDBusConnection &connection, QObject *parent)
-    : QDBusAbstractInterface(*new QDBusInterfacePrivate(connection, service, path,
-                                                        interface), parent)
+    : QDBusAbstractInterface(*new QDBusInterfacePrivate(service, path, interface, connection),
+                             parent)
 {
 }
 

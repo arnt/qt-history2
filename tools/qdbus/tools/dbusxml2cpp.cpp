@@ -311,8 +311,8 @@ static QByteArray qtTypeName(const QString &signature, const QDBusIntrospection:
         if (!qttype.isEmpty())
             return qttype.toLatin1();
         
-        fprintf(stderr, "Got unknown type `%s'", qPrintable(signature));
-        fprintf(stderr, "You should add <annotation name=\"%s\" value=\"<type>\"/> to the XML description",
+        fprintf(stderr, "Got unknown type `%s'\n", qPrintable(signature));
+        fprintf(stderr, "You should add <annotation name=\"%s\" value=\"<type>\"/> to the XML description\n",
                 qPrintable(annotationName));
         exit(1);
     }
@@ -476,7 +476,7 @@ static void writeProxy(const char *filename, const QDBusIntrospection::Interface
     // include our stuff:
     hs << "#include <QtCore/QObject>" << endl
        << includeList
-       << "#include <dbus/qdbus.h>" << endl;
+       << "#include <QtDBus/QtDBus>" << endl;
 
     foreach (QByteArray include, includes)
         hs << "#include \"" << include << "\"" << endl;
@@ -514,12 +514,12 @@ static void writeProxy(const char *filename, const QDBusIntrospection::Interface
         
         // constructors/destructors:
         hs << "public:" << endl
-           << "    explicit " << className << "(QDBusAbstractInterfacePrivate *p);" << endl
+           << "    " << className << "(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent = 0);" << endl
            << endl
            << "    ~" << className << "();" << endl
            << endl;
-        cs << className << "::" << className << "(QDBusAbstractInterfacePrivate *p)" << endl
-           << "    : QDBusAbstractInterface(p)" << endl
+        cs << className << "::" << className << "(const QString &service, const QString &path, const QDBusConnection &connection, QObject *parent)" << endl
+           << "    : QDBusAbstractInterface(service, path, staticInterfaceName(), connection, parent)" << endl
            << "{" << endl
            << "}" << endl
            << endl
@@ -576,7 +576,7 @@ static void writeProxy(const char *filename, const QDBusIntrospection::Interface
             bool isNoReply =
                 method.annotations.value(QLatin1String(ANNOTATION_NO_WAIT)) == QLatin1String("true");
             if (isNoReply && !method.outputArgs.isEmpty()) {
-                fprintf(stderr, "warning: method %s in interface %s is marked 'async' but has output arguments.\n",
+                fprintf(stderr, "warning: method %s in interface %s is marked 'no-reply' but has output arguments.\n",
                         qPrintable(method.name), qPrintable(interface->name));
                 continue;
             }
@@ -601,27 +601,31 @@ static void writeProxy(const char *filename, const QDBusIntrospection::Interface
             writeArgList(hs, argNames, method.annotations, method.inputArgs, method.outputArgs);
 
             hs << ")" << endl
-               << "    {" << endl;
-
-            if (method.outputArgs.count() > 1)
-                hs << "        QDBusMessage reply = call(QLatin1String(\"";
-            else if (!isNoReply)
-                hs << "        return call(QLatin1String(\"";
-            else
-                hs << "        call(NoWaitForReply, QLatin1String(\"";
-
-            hs << method.name << "\")";
+               << "    {" << endl
+               << "        QList<QVariant> argumentList;" << endl;
 
             int argPos = 0;
-            for (int i = 0; i < method.inputArgs.count(); ++i)
-                hs << ", " << argNames.at(argPos++);
+            if (!method.inputArgs.isEmpty()) {
+                hs << "        argumentList";
+                for (argPos = 0; argPos < method.inputArgs.count(); ++argPos)
+                    hs << " << qVariantFromValue(" << argNames.at(argPos) << ')';
+                hs << ";" << endl;
+            }
 
-            // close the QDBusIntrospection::call call
-            hs << ");" << endl;
+            if (method.outputArgs.count() > 1)
+                hs << "        QDBusMessage reply = callWithArgumentList(QDBus::Block, "
+                   <<  "QLatin1String(\"" << method.name << "\"), argumentList);" << endl;
+            else if (!isNoReply)
+                hs << "        return callWithArgumentList(QDBus::Block, "
+                   <<  "QLatin1String(\"" << method.name << "\"), argumentList);" << endl;
+            else
+                hs << "        callWithArgumentList(QDBus::NoBlock, "
+                   <<  "QLatin1String(\"" << method.name << "\"), argumentList);" << endl;
 
             argPos++;
             if (method.outputArgs.count() > 1) {
-                hs << "        if (reply.type() == QDBusMessage::ReplyMessage) {" << endl;
+                hs << "        if (reply.type() == QDBusMessage::ReplyMessage && reply.count() == "
+                   << method.outputArgs.count() << ") {" << endl;
                 
                 // yes, starting from 1
                 for (int i = 1; i < method.outputArgs.count(); ++i)
@@ -757,7 +761,7 @@ static void writeAdaptor(const char *filename, const QDBusIntrospection::Interfa
     if (cppName == headerName)
         hs << "#include <QtCore/QMetaObject>" << endl
            << "#include <QtCore/QVariant>" << endl;
-    hs << "#include <dbus/qdbus.h>" << endl;
+    hs << "#include <QtDBus/QtDBus>" << endl;
     
     foreach (QByteArray include, includes)
         hs << "#include \"" << include << "\"" << endl;
@@ -868,7 +872,7 @@ static void writeAdaptor(const char *filename, const QDBusIntrospection::Interfa
             bool isNoReply =
                 method.annotations.value(QLatin1String(ANNOTATION_NO_WAIT)) == QLatin1String("true");
             if (isNoReply && !method.outputArgs.isEmpty()) {
-                fprintf(stderr, "warning: method %s in interface %s is marked 'async' but has output arguments.\n",
+                fprintf(stderr, "warning: method %s in interface %s is marked 'no-reply' but has output arguments.\n",
                         qPrintable(method.name), qPrintable(interface->name));
                 continue;
             }
@@ -904,14 +908,18 @@ static void writeAdaptor(const char *filename, const QDBusIntrospection::Interfa
                << "{" << endl
                << "    // handle method call " << interface->name << "." << method.name << endl;
 
-            // create the return type
-            int j = method.inputArgs.count();
-            if (!returnType.isEmpty())
-                cs << "    " << returnType << " " << argNames.at(j) << ";" << endl;
-
             // make the call
-            if (!parentClassName && method.inputArgs.count() <= 10 && method.outputArgs.count() <= 1) {
-                // we can use QMetaObject::invokeMethod
+            bool usingInvokeMethod = false;
+            if (!parentClassName && method.inputArgs.count() <= 10
+                && method.outputArgs.count() <= 1)
+                usingInvokeMethod = true;
+
+            if (usingInvokeMethod) {
+                // we are using QMetaObject::invokeMethod
+                if (!returnType.isEmpty())
+                    cs << "    " << returnType << " " << argNames.at(method.inputArgs.count())
+                       << ";" << endl;
+
                 static const char invoke[] = "    QMetaObject::invokeMethod(parent(), \"";
                 cs << invoke << name << "\"";
 
@@ -932,37 +940,38 @@ static void writeAdaptor(const char *filename, const QDBusIntrospection::Interfa
                        << ")";
                     
                 cs << ");" << endl;
-            }
 
-            if (!parentClassName)
-                cs << endl
-                   << "    // Alternative:" << endl
-                   << "    //";
-            else
-                cs << "    ";
-            if (!method.outputArgs.isEmpty())
-                cs << argNames.at(method.inputArgs.count()) << " = ";
-            if (!parentClassName)
-                cs << "static_cast<YourObjectType *>(parent())->";
-            else
-                cs << "parent()->";
-            cs << name << "(";
+                if (!returnType.isEmpty())
+                    cs << "    return " << argNames.at(method.inputArgs.count()) << ";" << endl;
+            } else {
+                if (!parentClassName)
+                    cs << "    //";
+                else
+                    cs << "    ";
 
-            int argPos = 0;
-            bool first = true;
-            for (int i = 0; i < method.inputArgs.count(); ++i) {
-                cs << (first ? "" : ", ") << argNames.at(argPos++);
-                first = false;
-            }
-            ++argPos;           // skip retval, if any
-            for (int i = 1; i < method.outputArgs.count(); ++i) {
-                cs << (first ? "" : ", ") << argNames.at(argPos++);
-                first = false;
-            }
+                if (!method.outputArgs.isEmpty())
+                    cs << "return ";
 
-            cs << ");" << endl;
-            if (!method.outputArgs.isEmpty())
-                cs << "    return " << argNames.at(method.inputArgs.count()) << ";" << endl;
+                if (!parentClassName)
+                    cs << "static_cast<YourObjectType *>(parent())->";
+                else
+                    cs << "parent()->";
+                cs << name << "(";
+
+                int argPos = 0;
+                bool first = true;
+                for (int i = 0; i < method.inputArgs.count(); ++i) {
+                    cs << (first ? "" : ", ") << argNames.at(argPos++);
+                    first = false;
+                }
+                ++argPos;           // skip retval, if any
+                for (int i = 1; i < method.outputArgs.count(); ++i) {
+                    cs << (first ? "" : ", ") << argNames.at(argPos++);
+                    first = false;
+                }
+
+                cs << ");" << endl;
+            }
             cs << "}" << endl
                << endl;
         }

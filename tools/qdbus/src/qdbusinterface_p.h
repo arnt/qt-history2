@@ -37,8 +37,8 @@ public:
 
     QDBusMetaObject *metaObject;
 
-    QDBusInterfacePrivate(const QDBusConnection &con, const QString &serv,
-                          const QString &p, const QString &iface);
+    QDBusInterfacePrivate(const QString &serv, const QString &p, const QString &iface,
+                          const QDBusConnection &con);
     ~QDBusInterfacePrivate();
 
     int metacall(QMetaObject::Call c, int id, void **argv);

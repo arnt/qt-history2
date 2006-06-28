@@ -124,9 +124,9 @@ const char *QDBusConnectionInterface::staticInterfaceName()
 */
 QDBusConnectionInterface::QDBusConnectionInterface(const QDBusConnection &connection,
                                                    QObject *parent)
-    : QDBusAbstractInterface(connection, QLatin1String(DBUS_SERVICE_DBUS),
+    : QDBusAbstractInterface(QLatin1String(DBUS_SERVICE_DBUS),
                              QLatin1String(DBUS_PATH_DBUS),
-                             DBUS_INTERFACE_DBUS, parent)
+                             DBUS_INTERFACE_DBUS, connection, parent)
 {
     connect(this, SIGNAL(NameAcquired(QString)), this, SIGNAL(serviceRegistered(QString)));
     connect(this, SIGNAL(NameLost(QString)), this, SIGNAL(serviceUnregistered(QString)));

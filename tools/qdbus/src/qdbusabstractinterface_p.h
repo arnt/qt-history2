@@ -46,8 +46,8 @@ public:
     mutable QDBusError lastError;
     bool isValid;
 
-    QDBusAbstractInterfacePrivate(const QDBusConnection& con, const QString &serv,
-                                  const QString &p, const QString &iface, bool dynamic);
+    QDBusAbstractInterfacePrivate(const QString &serv, const QString &p,
+                                  const QString &iface, const QDBusConnection& con, bool dynamic);
     virtual ~QDBusAbstractInterfacePrivate() { }
 
     // these functions do not check if the property is valid

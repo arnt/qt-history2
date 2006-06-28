@@ -67,9 +67,9 @@ public:
                               QObject *receiver, const char *member);
 
 protected:
-    QDBusAbstractInterface(const QDBusConnection &connection, const QString &service,
-                           const QString &path, const char *interface, QObject *parent = 0);
-    QDBusAbstractInterface(QDBusAbstractInterfacePrivate &, QObject *parent = 0);
+    QDBusAbstractInterface(const QString &service, const QString &path, const char *interface,
+                           const QDBusConnection &connection, QObject *parent);
+    QDBusAbstractInterface(QDBusAbstractInterfacePrivate &, QObject *parent);
 
     void connectNotify(const char *signal);
     void disconnectNotify(const char *signal);
