@@ -26,7 +26,7 @@ Browser::Browser(QWidget *parent)
     table->addAction(deleteRowAction);
 
     if (QSqlDatabase::drivers().isEmpty())
-        QMessageBox::information(this, tr("No database drivers found"),
+        QMessageBoxEx::information(this, tr("No database drivers found"),
                                  tr("This demo requires at least one Qt database driver. "
                                     "Please check the documentation how to build the "
                                     "Qt SQL plugins."));
@@ -87,7 +87,7 @@ void Browser::addConnection()
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "in_mem_db");
         db.setDatabaseName(":memory:");
         if (!db.open())
-            QMessageBox::warning(this, tr("Unable to open database"), tr("An error occured while "
+            QMessageBoxEx::warning(this, tr("Unable to open database"), tr("An error occured while "
                                                                          "opening the connection: ") + db.lastError().text());
         QSqlQuery q("", db);
         q.exec("drop table Movies");
@@ -109,7 +109,7 @@ void Browser::addConnection()
         QSqlError err = addConnection(dialog.driverName(), dialog.databaseName(), dialog.hostName(),
                            dialog.userName(), dialog.password(), dialog.port());
         if (err.type() != QSqlError::NoError)
-            QMessageBox::warning(this, tr("Unable to open database"), tr("An error occured while "
+            QMessageBoxEx::warning(this, tr("Unable to open database"), tr("An error occured while "
                                       "opening the connection: ") + err.text());
     }
 }

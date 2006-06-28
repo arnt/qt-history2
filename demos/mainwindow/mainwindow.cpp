@@ -24,7 +24,7 @@
 #include <QFile>
 #include <QDataStream>
 #include <QFileDialog>
-#include <QMessageBox>
+#include <QMessageBoxEx>
 #include <qdebug.h>
 
 static const char * const message =
@@ -115,7 +115,7 @@ void MainWindow::saveLayout()
         QString msg = tr("Failed to open %1\n%2")
                         .arg(fileName)
                         .arg(file.errorString());
-        QMessageBox::warning(this, tr("Error"), msg);
+        QMessageBoxEx::warning(this, tr("Error"), msg);
         return;
     }
 
@@ -132,7 +132,7 @@ void MainWindow::saveLayout()
         QString msg = tr("Error writing to %1\n%2")
                         .arg(fileName)
                         .arg(file.errorString());
-        QMessageBox::warning(this, tr("Error"), msg);
+        QMessageBoxEx::warning(this, tr("Error"), msg);
         return;
     }
 }
@@ -148,7 +148,7 @@ void MainWindow::loadLayout()
         QString msg = tr("Failed to open %1\n%2")
                         .arg(fileName)
                         .arg(file.errorString());
-        QMessageBox::warning(this, tr("Error"), msg);
+        QMessageBoxEx::warning(this, tr("Error"), msg);
         return;
     }
 
@@ -174,7 +174,7 @@ void MainWindow::loadLayout()
     if (!ok) {
         QString msg = tr("Error reading %1")
                         .arg(fileName);
-        QMessageBox::warning(this, tr("Error"), msg);
+        QMessageBoxEx::warning(this, tr("Error"), msg);
         return;
     }
 }

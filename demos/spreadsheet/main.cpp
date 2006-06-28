@@ -903,7 +903,7 @@ const char *htmlText =
 
 void SpreadSheet::showAbout()
 {
-    QMessageBox::about(this, "About Spreadsheet", htmlText);
+    QMessageBoxEx::about(this, "About Spreadsheet", htmlText);
 }
 
 int main(int argc, char** argv) {
