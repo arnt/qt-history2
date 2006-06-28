@@ -490,7 +490,8 @@ int QHeaderView::sectionSize(int logicalIndex) const
 }
 
 /*!
-    Returns the section position of the given \a logicalIndex.
+    Returns the section position of the given \a logicalIndex, or -1
+    if the section is hidden.
 
     \sa sectionViewportPosition()
 */
@@ -508,9 +509,10 @@ int QHeaderView::sectionPosition(int logicalIndex) const
 
 /*!
     Returns the section viewport position of the given \a logicalIndex.
-    If the section is hidden the function returns -1.
 
-    \sa sectionPosition()
+    If the section is hidden, this function returns an undefined value.
+
+    \sa sectionPosition(), isSectionHidden()
 */
 
 int QHeaderView::sectionViewportPosition(int logicalIndex) const

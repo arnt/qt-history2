@@ -673,18 +673,18 @@ void QTableView::paintEvent(QPaintEvent *event)
         // Paint each row item
         for (int visualIndex = top; visualIndex <= bottom; ++visualIndex) {
             int row = verticalHeader->logicalIndex(visualIndex);
-            int rowY = rowViewportPosition(row);
-            if (rowY == -1) // hiddenSection
+            if (verticalHeader->isSectionHidden(row))
                 continue;
+            int rowY = rowViewportPosition(row);
             rowY += offset.y();
             int rowh = rowHeight(row) - gridSize;
 
             // Paint each column item
             for (int h = left; h <= right; ++h) {
                 int col = horizontalHeader->logicalIndex(h);
-                int colp = columnViewportPosition(col);
-                if (colp == -1) // hiddenSection
+                if (horizontalHeader->isSectionHidden(col))
                     continue;
+                int colp = columnViewportPosition(col);
                 colp += offset.x();
                 int colw = columnWidth(col) - gridSize;
 
@@ -713,9 +713,9 @@ void QTableView::paintEvent(QPaintEvent *event)
             // Paint each row
             for (int visualIndex = top; visualIndex <= bottom; ++visualIndex) {
                 int row = verticalHeader->logicalIndex(visualIndex);
-                int rowY = rowViewportPosition(row);
-                if (rowY == -1) // hiddenSection
+                if (verticalHeader->isSectionHidden(row))
                     continue;
+                int rowY = rowViewportPosition(row);
                 rowY += offset.y();
                 int rowh = rowHeight(row) - gridSize;
                 painter.drawLine(dirtyArea.left(), rowY + rowh, dirtyArea.right(), rowY + rowh);
@@ -724,9 +724,9 @@ void QTableView::paintEvent(QPaintEvent *event)
             // Paint each column
             for (int h = left; h <= right; ++h) {
                 int col = horizontalHeader->logicalIndex(h);
-                int colp = columnViewportPosition(col);
-                if (colp == -1) // hiddenSection
+                if (horizontalHeader->isSectionHidden(col))
                     continue;
+                int colp = columnViewportPosition(col);
                 colp += offset.x();
                 if (!rightToLeft)
                     colp +=  columnWidth(col) - gridSize;
