@@ -497,6 +497,7 @@ MessageEditor::MessageEditor(MessageModel *model, QMainWindow *parent)
     phraseTv->setSelectionBehavior(QAbstractItemView::SelectRows);
     phraseTv->setSelectionMode(QAbstractItemView::SingleSelection);
     phraseTv->setRootIsDecorated(false);
+    phraseTv->setItemsExpandable(false);
     QPalette pal = phraseTv->palette();
     pal.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
     phraseTv->setPalette(pal);
@@ -585,7 +586,7 @@ bool MessageEditor::eventFilter(QObject *o, QEvent *e)
             return false;
         }
 
-        if (o == editorPage->transText 
+        if (o == editorPage->transText
             && ke->modifiers() & Qt::ControlModifier)
         {
             if ((ke->key() == Qt::Key_A) &&
@@ -792,7 +793,7 @@ void MessageEditor::cut()
 void MessageEditor::copy()
 {
     if (editorPage->srcText->textCursor().hasSelection()) {
-        editorPage->srcText->copySelection();        
+        editorPage->srcText->copySelection();
     } else if (editorPage->transText->textCursor().hasSelection()) {
         editorPage->transText->copy();
     }
