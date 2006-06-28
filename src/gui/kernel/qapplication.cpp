@@ -88,6 +88,11 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
     qt_tryComposeUnicode = 0;
     qt_dispatchAccelEvent = 0;
 #endif
+#if defined(Q_WS_QWS) && !defined(QT_NO_DIRECTPAINTER)
+    directPainterID = -1;
+    seenRegionEvent = false;
+#endif
+
     if (!self)
         self = this;
 }
