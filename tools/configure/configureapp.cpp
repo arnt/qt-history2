@@ -181,7 +181,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "SQL_PSQL" ]	    = "no";
     dictionary[ "SQL_TDS" ]	    = "no";
     dictionary[ "SQL_DB2" ]	    = "no";
-    dictionary[ "SQL_SQLITE" ]	    = "no";
+    dictionary[ "SQL_SQLITE" ]	    = "yes";
     dictionary[ "SQL_SQLITE2" ]	    = "no";
     dictionary[ "SQL_IBASE" ]	    = "no";
 
