@@ -57,7 +57,8 @@ LocationDialog::LocationDialog(QWidget *parent)
     labels << tr("Location") << tr("Access");
 
     locationsTable = new QTableWidget;
-    locationsTable->setSelectionMode(QAbstractItemView::NoSelection);
+    locationsTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    locationsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     locationsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     locationsTable->setColumnCount(2);
     locationsTable->setHorizontalHeaderLabels(labels);
