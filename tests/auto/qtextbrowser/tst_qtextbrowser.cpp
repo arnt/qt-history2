@@ -78,6 +78,7 @@ tst_QTextBrowser::~tst_QTextBrowser()
 
 void tst_QTextBrowser::init()
 {
+    QDir::setCurrent(SRCDIR);
     browser = new TestBrowser;
     browser->show();
 }

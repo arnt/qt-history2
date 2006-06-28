@@ -1,6 +1,6 @@
 load(qttest_p4)
-HEADERS += 
 SOURCES += tst_qtextbrowser.cpp
+DEFINES += SRCDIR=\\\"$$PWD\\\"
 
 QT += qt3support
 
