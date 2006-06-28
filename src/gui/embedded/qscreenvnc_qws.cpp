@@ -85,7 +85,7 @@ class QRfbServerInit
 {
 public:
     QRfbServerInit() { name = 0; }
-    ~QRfbServerInit() { delete name; }
+    ~QRfbServerInit() { delete[] name; }
 
     int size() const { return QRfbPixelFormat::size() + 8 + strlen(name); }
     void setName(const char *n);
@@ -325,7 +325,7 @@ void QRfbPixelFormat::write(QTcpSocket *s)
  */
 void QRfbServerInit::setName(const char *n)
 {
-    delete name;
+    delete[] name;
     name = new char [strlen(n) + 1];
     strcpy(name, n);
 }
