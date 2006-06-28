@@ -23,6 +23,7 @@ ConfigurationPage::ConfigurationPage(QWidget *parent)
     QLabel *serverLabel = new QLabel(tr("Server:"));
     QComboBox *serverCombo = new QComboBox;
     serverCombo->addItem(tr("Trolltech (Australia)"));
+    serverCombo->addItem(tr("Trolltech (Germany)"));
     serverCombo->addItem(tr("Trolltech (Norway)"));
     serverCombo->addItem(tr("Trolltech (People's Republic of China)"));
     serverCombo->addItem(tr("Trolltech (USA)"));
