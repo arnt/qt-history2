@@ -13,30 +13,29 @@
 
     \tableofcontents
 
-    \section1 New Technologies
+    \section1 New Technologies in Qt 4
 
     Qt 4 introduces the following core technologies:
 
     \list
-    \o \link qt4-tulip.html Tulip \endlink, a new set of template container classes.
+    \o \l{The Tulip Container Classes}{Tulip}, a new set of template container classes.
 
-    \o \link qt4-interview.html Interview \endlink, a model/view architecture for item views.
+    \o \l{The Interview Framework}{Interview}, a model/view architecture for item views.
 
-    \o \link qt4-arthur.html Arthur \endlink, the Qt 4 painting framework.
+    \o \l{The Arthur Paint System}{Arthur}, the Qt 4 painting framework.
 
-    \o \link qt4-scribe.html Scribe \endlink, the Unicode text
-    renderer with a public API for performing low-level text layout.
+    \o \l{The Scribe Classes}{Scribe}, the Unicode text renderer with a public API
+    for performing low-level text layout.
 
-    \o \link qt4-mainwindow.html Mainwindow \endlink, a modern
-    action-based mainwindow, toolbar, menu, and docking architecture.
+    \o \l{The Qt 4 Main Window Classes}{Mainwindow}, a modern action-based
+    mainwindow, toolbar, menu, and docking architecture.
+
+    \o The new \l{The New Qt Designer}{\QD} user interface design tool.
     \endlist
 
-    Qt 4 also includes the new \l{The New Qt Designer}{\QD} user interface design
-    tool.
+    \section1 Recent Additions to Qt 4
 
-    \section2 What's New in Qt 4.2
-
-    Qt 4.2 extends Qt 4's new technologies with the following features:
+    The following features have been added to Qt since the first release of Qt 4:
 
     \list
     \o Integrated support for rendering
@@ -60,9 +59,6 @@
     \o Support for \l{QNetworkProxy}{network proxy} servers using the SOCKS5
        protocol.
     \o Support for OLE verbs and MIME data handling in \l{ActiveQt}.
-    \o The \l{QCleanLooksStyle}{CleanLooks} widget style, designed to resemble
-       the ClearLooks style for GTK+ applications, enables Qt applications to
-       fit in with non-Qt applications on suitably-configured GNOME desktops.
     \endlist
 
     For more information about improvements in the current release, see

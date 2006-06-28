@@ -1,0 +1,170 @@
+/*!
+  \page qt4.2-intro.html
+  \title What's New in Qt 4.2
+
+  \section1 What's New in Qt 4.2
+
+  Qt 4.2 provides many improvements and enhancements over the previous releases
+  in the Qt 4 series. This documents covers the most important features in this
+  release, separated by category.
+
+  Since we will continue to improve and fine-tune Qt as a result of feedback
+  and suggestions from customers and the open source community, we have not
+  included a detailed list of changes between Qt 4.1 and this release.
+  A comprehensive list of changes between Qt 4.1 and Qt 4.2 will be included
+  in the Qt 4.2 final release.
+
+  A list of other Qt 4 features can be found on the \l{What's New in Qt 4} page.
+
+  \section2 Desktop Integration
+
+  This release introduces a set of features that are designed to make it easier
+  to write applications that are integrated into users' desktop environments.
+
+  \raw HTML
+  <table align="center">
+  <tr><td>
+  \endraw
+  \inlineimage cleanlooks-tabwidget.png
+  \raw HTML
+  </td><td>
+  \endraw
+  \inlineimage cleanlooks-treeview.png
+  \raw HTML
+  </td><td>
+  \endraw
+  \inlineimage cleanlooks-combobox.png
+  \BR
+  \inlineimage cleanlooks-timeedit.png
+  \BR
+  \inlineimage cleanlooks-dateedit.png
+  \raw HTML
+  </td></tr>
+  </table>
+  \endraw
+
+  \bold{The \l{QCleanlooksStyle}{Cleanlooks} widget style}, designed to closely
+  resemble the Clearlooks style for GTK+ applications, enables Qt applications
+  to fit in with non-Qt applications on suitably-configured GNOME desktops.
+  See the \l{Cleanlooks Style Widget Gallery} to see how Qt's widgets look
+  in this style.
+
+  QDesktopServices provides \bold{cross-platform support for opening and launching
+  URLs}, making it possible for applications to launch a web browser, mail
+  composer, and other external resources by using the facilities of the user's
+  desktop environment.
+
+  To enable \bold{closer integration with the GNOME deskop environment} and tools,
+  Qt 4.2 now contains support for the Glib eventloop. This makes it possible
+  for Qt applications to use plugins made using other Glib-based frameworks,
+  and even Qt plugins for .
+
+  \raw HTML
+  <div align="center">
+  \endraw
+  \inlineimage plastique-dialogbuttonbox.png
+  \inlineimage cleanlooks-dialogbuttonbox.png
+  \raw HTML
+  </div>
+  \endraw
+
+  The QDialogButtonBox class enables dialogs to be created that use the
+  \bold{appropriate button order for the user's chosen desktop environment}.
+  This enables dialogs created for KDE and Windows to be reused for Mac OS X
+  and GNOME.
+
+  \raw HTML
+  <table align="center">
+  <tr><td>
+  \endraw
+  \inlineimage plastique-printdialog.png
+  \raw HTML
+  </td><td>
+  \endraw
+  \inlineimage plastique-printdialog-properties.png
+  \raw HTML
+  </td></tr>
+  </table>
+  \endraw
+
+  On X11 platforms, \bold{support for the \l{Common Unix Printing System (CUPS)}
+  has been greatly enhanced}. Printer settings made available by CUPS can now be
+  accessed via QPrintDialog for improved control over the printing process.
+
+  \bold{System tray support} on all desktop platforms is provided by the new
+  QSystemTrayIcon class, which exposes a comprehensive set of features via an
+  intuitive Qt-style API.
+
+  \section2 Graphics View
+
+  Support for interactive graphics is provided by the \l{Graphics View} framework.
+  This framework is an enhanced replacement for the Canvas module, previously
+  provided with Qt 3, with the following features:
+
+  \list
+  \o Responsive handling of large numbers of canvas items through the use of a
+     space-partitioning scheme.
+  \o An improved API that aims to make common uses easier while making advanced
+     uses more accessible to developers.
+  \o A greatly enhanced presentation system, taking advantage of Qt 4's paint
+     system.
+  \o A selection of predefined item types containing, amongst others, a text item
+     that support inline editing.
+  \endlist
+
+  \section2 New Widgets and GUI Features
+
+  \raw HTML
+  <table align="center">
+  <tr><td>
+  \endraw
+  \inlineimage plastique-fontcombobox.png
+  \raw HTML
+  </td><td>
+  \endraw
+  \inlineimage plastique-fontcombobox-open.png
+  \raw HTML
+  </td></tr>
+  </table>
+  \endraw
+
+  A \l{QFontComboBox}{specialized font combobox} is now available for use in text
+  editing and related applications.
+
+  \o Support for widgets in menus.
+  \o QCompleter framework
+          Setup completions and use them in QLineEdit, QComboBox and
+          your own widgets.
+  \o Improved widget stylability that allows easy customization and styling
+      of widgets through a syntax similar to the Cascading Style Sheets (CSS)
+      syntax.
+  \o Visual enhancements to the
+     \l{Main Window and Related Classes}{main window classes}.
+  \o QGLFrameBufferObject provides access to OpenGL framebuffer objects.
+  \endlist
+
+  \section2 Extended Infrastructure
+
+  \list
+  \o An \l{Undo framework} based on the
+     \l{Books about GUI Design#Design Patterns}{Command pattern}.
+  \o QFileSystemWatcher enables applications to monitor files and directories
+     for changes.
+  \o Optimizations to the \l{Model/View Classes}{item view classes} and new
+     classes:
+     \list
+     \o QStandardItem and QStandardItemEditorCreator aim to make the
+        QStandardItemModel class easier to use.
+     \o QDataWidgetMapper enables mappings to be made between items in a model
+        to a selection of widgets, making it possible to design data-aware
+        widgets and forms.
+     \endlist
+  \o Enhanced HTML import and export facilities in the
+     \l{Rich Text Processing}{rich text classes}, and support for CSS stylesheets.
+  \o A \l{QTimeLine}{time line class} for use in widgets that provide animations.
+  \o A brush editor for \QD's \l{Qt Designer's Widget Editing Mode#The Palette Editor}{palette editor}.
+  \endlist
+  \omit
+  * Text control (not 100% certain we'll have a public API)
+  \endomit
+*/

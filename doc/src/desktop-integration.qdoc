@@ -1,0 +1,48 @@
+/*!
+  \page desktop-integration.html
+  \title Desktop Integration
+
+  Various classes in Qt are designed to help developers integrate applications into
+  users' desktop environments. These classes enable developers to take advantage
+  of native services while still using a cross-platform API.
+
+  \tableofcontents
+
+  \section1 Opening External Resources
+
+  Although Qt provides facilities to handle and display resources, such as
+  \l{QImageIOHandler}{common image formats} and \l{QTextDocument}{HTML},
+  it is sometimes necessary to open files and external resources using external
+  applications.
+
+  QDesktopServices provides an interface to services offered by the user's desktop
+  environment. In particular, the \l{QDesktopServices::}{openUrl()} function is
+  used to open resources using the appropriate application, which may have been
+  specifically configured by the user.
+
+  \section1 System Tray Icons
+
+  Many modern desktop environments feature docks or panels with \e{system trays}
+  in which applications can install icons. Applications often use system tray icons
+  to display status information, either by updating the icon itself or by showing
+  information in "balloon messages". Additionally, many applications provide
+  popup menus that can be accessed via their system tray icons.
+
+  The QSystemTrayIcon class exposes all of the above features via an intuitive
+  Qt-style API that can be used on all desktop platforms.
+
+  \section1 Desktop Widgets
+
+  On systems where the user's desktop is displayed using more than one screen,
+  certain types of applications may need to obtain information about the
+  configuration of the user's workspace to ensure that new windows and dialogs
+  are opened in appropriate locations.
+
+  The QDesktopWidget class can be used to monitor the positions of widgets and
+  notify applications about changes to the way the desktop is split over the
+  available screens. This enables applications to implement policies for
+  positioning new windows so that, for example, they do not distract a user
+  who is working on a specific task.
+
+
+*/
