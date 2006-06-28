@@ -14,7 +14,8 @@
   A comprehensive list of changes between Qt 4.1 and Qt 4.2 will be included
   in the Qt 4.2 final release.
 
-  A list of other Qt 4 features can be found on the \l{What's New in Qt 4} page.
+  A list of other Qt 4 features can be found on the
+  \bold{\l{What's New in Qt 4}} page.
 
   \section2 Desktop Integration
 
@@ -99,24 +100,46 @@
 
   Support for interactive graphics is provided by the \l{Graphics View} framework.
   This framework is an enhanced replacement for the Canvas module, previously
-  provided with Qt 3, with the following features:
+  provided with Qt 3, with a refined set of features.
 
-  \list
-  \o Responsive handling of large numbers of canvas items through the use of a
-     space-partitioning scheme.
-  \o An improved API that aims to make common uses easier while making advanced
-     uses more accessible to developers.
-  \o A greatly enhanced presentation system, taking advantage of Qt 4's paint
-     system.
-  \o A selection of predefined item types containing, amongst others, a text item
-     that support inline editing.
-  \endlist
+  \image graphicsview-shapes.png
+
+  The framework enables \bold{responsive handling of large numbers of canvas items}
+  through the use of a space-partitioning scheme. Support for collision detection,
+  coordinate transformations, and item groups make it easier than before to manage
+  items for interactive displays.
+
+  \image elasticnodes-example.png
+
+  An \bold{improved API aims to make common uses easier} while making advanced
+  uses more accessible to developers.
+
+  \image graphicsview-map.png
+
+  Graphics View's \bold{enhanced presentation system}, takes advantage of Qt 4's
+  paint system to render items using anti-aliasing, and taking advantage of OpenGL
+  to improve rendering performance. Support for printing is built into the
+  framework, making it possible to produce high quality documents from interactive
+  applications.
+
+  \image graphicsview-text.png
+
+  A selection of \bold{predefined item types} is provided that contains, amongst
+  others, a text item that supports inline editing.
+
+  In addition, various \l{Qt Examples#Graphics View Examples}{graphics view examples}
+  have been written to demonstrate key features of the framework, including ports
+  of Canvas module examples from Qt 3.
 
   \section2 New Widgets and GUI Features
 
+  Qt 4.2 also provides a number of new features for graphical user interface
+  applications, expanding the range of available widgets while extending overall
+  functionality.
+
   \raw HTML
   <table align="center">
-  <tr><td>
+  <tr><td valign="top">
   \endraw
   \inlineimage plastique-fontcombobox.png
   \raw HTML
@@ -131,39 +154,72 @@
   A \l{QFontComboBox}{specialized font combobox} is now available for use in text
   editing and related applications.
 
-  \o Support for widgets in menus.
-  \o QCompleter framework
-          Setup completions and use them in QLineEdit, QComboBox and
-          your own widgets.
-  \o Improved widget stylability that allows easy customization and styling
-      of widgets through a syntax similar to the Cascading Style Sheets (CSS)
-      syntax.
-  \o Visual enhancements to the
-     \l{Main Window and Related Classes}{main window classes}.
-  \o QGLFrameBufferObject provides access to OpenGL framebuffer objects.
-  \endlist
+  \image completer-example.png
+
+  The new QCompleter class provides a \bold{framework for handling text completion
+  in input widgets}. Completion facilities can be set up for use in QLineEdit,
+  QComboBox and custom widgets. An \l{tools/completer}{example of 
+
+  \image stylesheets-example-detail.png
+
+  \bold{Widgets can be styled according to rules specified in stylesheets} using
+  a syntax similar to that used by Cascading Style Sheets (CSS) for HTML.
+
+  The \bold{\l{Main Window and Related Classes}{main window classes} have been
+  updated to be more responsive to user activity}. In particular, when a user
+  moves a floating dock window over a dock area by the user, any other dock
+  windows in that area will automatically make room to allow it to be dropped
+  there. These enhancements can be seen in the
+  \l{Dock Widgets Example}{Dock Widgets} example.
+
+  \bold{Access to OpenGL framebuffer objects} is provided by the
+  QGLFrameBufferObject class; this enables textures to be painted with a series
+  of calls to QPainter functions in the usual way for QPaintDevice subclasses.
 
   \section2 Extended Infrastructure
 
+  Many improvements have been made to the classes and tools that provide
+  underlying functionality in Qt. Many of these changes involve introducing
+  higher level functionality that aims to make application development easier
+  while providing a more robust working environment for users.
+
+  \bold{An \l{Undo framework} based on the
+  \l{Books about GUI Design#Design Patterns}{Command pattern}} has been introduced
+  to help developers provide undo/redo features in applications.
+
+  The QFileSystemWatcher class enables applications to \bold{monitor files and
+  directories for changes}. This feature is often used by applications and
+  libraries that share access to files with other applications.
+
+
+
+  The \l{Model/View Classes}{item view classes} have been optimized for
+  performance and reliability, and new classes have been introduced:
   \list
-  \o An \l{Undo framework} based on the
-     \l{Books about GUI Design#Design Patterns}{Command pattern}.
-  \o QFileSystemWatcher enables applications to monitor files and directories
-     for changes.
-  \o Optimizations to the \l{Model/View Classes}{item view classes} and new
-     classes:
-     \list
-     \o QStandardItem and QStandardItemEditorCreator aim to make the
-        QStandardItemModel class easier to use.
-     \o QDataWidgetMapper enables mappings to be made between items in a model
-        to a selection of widgets, making it possible to design data-aware
-        widgets and forms.
-     \endlist
-  \o Enhanced HTML import and export facilities in the
-     \l{Rich Text Processing}{rich text classes}, and support for CSS stylesheets.
-  \o A \l{QTimeLine}{time line class} for use in widgets that provide animations.
-  \o A brush editor for \QD's \l{Qt Designer's Widget Editing Mode#The Palette Editor}{palette editor}.
+  \o QStandardItem and QStandardItemEditorCreator aim to make the
+     QStandardItemModel class easier to use.
+  \o \bold{QDataWidgetMapper enables mappings to be made between items in a model
+     and selections of widgets} in a user interface, making it possible to design
+     data-aware widgets and forms.
   \endlist
+
+
+  The \bold{HTML import and export facilities have been enhanced} in the
+  \l{Rich Text Processing}{rich text classes}, and now include support for CSS
+  stylesheets.
+
+  \bold{A \l{QTimeLine}{time line class} has been introduced for use in widgets
+  that provide animations.} By using a mechanism that uses signals and slots to
+  notify other application components about changes to a time line, this class
+  can also be used for other timing purposes with non-GUI classes.
+
+  The scope of \bold{\QD's \l{Qt Designer's Widget Editing Mode#The Palette Editor}{palette editor}
+  has been significantly extended} to include a comprehensive brush editor that
+  features pattern and gradient editors alongside standard color selection and
+  image import facilities.
+
+  Support for widgets in menus.
+
   \omit
   * Text control (not 100% certain we'll have a public API)
   \endomit
