@@ -1923,16 +1923,7 @@ void Q3IconViewItem::paintItem(QPainter *p, const QColorGroup &cg)
             p2.end();
 
             p2.begin(buffer);
-#if defined(Q_WS_X11)
             p2.fillRect(pix->rect(), QBrush(cg.highlight(), Qt::Dense4Pattern));
-#else // in WIN32 Qt::Dense4Pattern doesn't work correctly (transparency problem), so work around it
-            if (iconView()->d->drawActiveSelection) {
-                if (!qiv_selection)
-                    createSelectionPixmap(cg);
-                p2.drawTiledPixmap(0, 0, pix->width(), pix->height(),
-                                    *qiv_selection);
-            }
-#endif
             p2.end();
             buffer->setMask(mask);
 
@@ -4450,7 +4441,7 @@ void Q3IconView::contentsMouseReleaseEvent(QMouseEvent *e)
 
     if ((d->selectionMode == Extended || d->selectionMode == Multi) &&
          d->currentItem == d->pressedItem &&
-	 d->pressedSelected && d->currentItem) {
+         d->pressedSelected && d->currentItem) {
         if (d->selectionMode == Extended) {
             bool block = signalsBlocked();
             blockSignals(true);
