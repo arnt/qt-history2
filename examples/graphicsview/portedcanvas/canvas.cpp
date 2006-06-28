@@ -387,9 +387,7 @@ void Main::newView()
 {
     // Open a new view... have it delete when closed.
     Main *m = new Main(canvas, 0, 0, Qt::WDestructiveClose);
-    qApp->setMainWidget(m);
     m->show();
-    qApp->setMainWidget(0);
 }
 
 void Main::clear()
