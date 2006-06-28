@@ -519,6 +519,16 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
         else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(widget)) {
             if (DomProperty *attr = attributes.value(QLatin1String("dockWidgetArea"))) {
                 Qt::DockWidgetArea area = static_cast<Qt::DockWidgetArea>(attr->elementNumber());
+                if (!dockWidget->isAreaAllowed(area)) {
+                    if (dockWidget->isAreaAllowed(Qt::LeftDockWidgetArea))
+                        area = Qt::LeftDockWidgetArea;
+                    else if (dockWidget->isAreaAllowed(Qt::RightDockWidgetArea))
+                        area = Qt::RightDockWidgetArea;
+                    else if (dockWidget->isAreaAllowed(Qt::TopDockWidgetArea))
+                        area = Qt::TopDockWidgetArea;
+                    else if (dockWidget->isAreaAllowed(Qt::BottomDockWidgetArea))
+                        area = Qt::BottomDockWidgetArea;
+                }
                 mw->addDockWidget(area, dockWidget);
             } else {
                 mw->addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
