@@ -414,7 +414,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         pt.y = 0;
         ClientToScreen(id, &pt);
         data.crect = QRect(QPoint(pt.x, pt.y),
-                            QPoint(pt.x+cr.right, pt.y+cr.bottom));
+                            QPoint(pt.x + cr.right - 1, pt.y + cr.bottom - 1));
 
         QTLWExtra *top = topData();
         top->style = style;
