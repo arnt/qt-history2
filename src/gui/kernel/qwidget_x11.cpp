@@ -679,6 +679,10 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             qt_x11_enforce_cursor(q);
     }
 
+    if (extra && !extra->mask.isEmpty())
+        XShapeCombineRegion(X11->display, q->internalWinId(), ShapeBounding, 0, 0,
+                            extra->mask.handle(), ShapeSet);
+
     if (q->testAttribute(Qt::WA_InputMethodEnabled))
         q->inputContext()->setFocusWidget(q);
 
@@ -1122,9 +1126,6 @@ void QWidgetPrivate::setWindowIcon_sys(bool forceReset)
     } else {
         h->flags &= ~(IconPixmapHint | IconMaskHint);
     }
-    if (extra && !extra->mask.isEmpty())
-        XShapeCombineRegion(X11->display, q->internalWinId(), ShapeBounding, 0, 0,
-                            extra->mask.handle(), ShapeSet);
 
     XSetWMHints(X11->display, q->internalWinId(), h);
     if (h != &wm_hints)
