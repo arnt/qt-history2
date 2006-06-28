@@ -1110,9 +1110,8 @@ void QWidgetPrivate::createWindow_sys()
 #endif
     if (extra && !extra->mask.isEmpty())
         ReshapeCustomWindow(windowRef);
-    if ((q->windowType() == Qt::Popup) || (q->windowType() == Qt::Tool))
-        SetWindowModality(windowRef, kWindowModalityNone, 0);
-    else if (qt_mac_is_macdrawer(q))
+    SetWindowModality(windowRef, kWindowModalityNone, 0);
+    if (qt_mac_is_macdrawer(q))
         SetDrawerOffsets(windowRef, 0.0, 25.0);
     data.fstrut_dirty = true; // when we create a toplevel widget, the frame strut should be dirty
     HIViewRef window_hiview = qt_mac_hiview_for (windowRef);
