@@ -32,8 +32,19 @@ void CharacterWidget::updateFont(const QFont &font)
 void CharacterWidget::updateStyle(const QString &fontStyle)
 {
     QFontDatabase fontDatabase;
+    const QFont::StyleStrategy oldStrategy = displayFont.styleStrategy();
     displayFont = fontDatabase.font(displayFont.family(), fontStyle, 12);
     displayFont.setPixelSize(16);
+    displayFont.setStyleStrategy(oldStrategy);
+    update();
+}
+
+void CharacterWidget::updateFontMerging(bool enable)
+{
+    if (enable)
+        displayFont.setStyleStrategy(QFont::PreferDefault);
+    else
+        displayFont.setStyleStrategy(QFont::NoFontMerging);
     update();
 }
 

@@ -22,6 +22,7 @@ class QComboBox;
 class QFontComboBox;
 class QLineEdit;
 class QScrollArea;
+class QCheckBox;
 class CharacterWidget;
 
 class MainWindow : public QMainWindow
@@ -43,6 +44,7 @@ private:
     QFontComboBox *fontCombo;
     QLineEdit *lineEdit;
     QScrollArea *scrollArea;
+    QCheckBox *fontMerging;
 };
 
 #endif

@@ -34,6 +34,7 @@ public:
 public slots:
     void updateFont(const QFont &font);
     void updateStyle(const QString &fontStyle);
+    void updateFontMerging(bool enable);
 
 signals:
     void characterSelected(const QString &character);

@@ -24,6 +24,9 @@ MainWindow::MainWindow()
     fontCombo = new QFontComboBox;
     QLabel *styleLabel = new QLabel(tr("Style:"));
     styleCombo = new QComboBox;
+    QLabel *fontMergingLabel = new QLabel(tr("Automatic Font Merging:"));
+    fontMerging = new QCheckBox;
+    fontMerging->setChecked(true);
 
     scrollArea = new QScrollArea;
     characterWidget = new CharacterWidget;
@@ -45,12 +48,15 @@ MainWindow::MainWindow()
     connect(characterWidget, SIGNAL(characterSelected(const QString &)),
             this, SLOT(insertCharacter(const QString &)));
     connect(clipboardButton, SIGNAL(clicked()), this, SLOT(updateClipboard()));
+    connect(fontMerging, SIGNAL(toggled(bool)), characterWidget, SLOT(updateFontMerging(bool)));
 
     QHBoxLayout *controlsLayout = new QHBoxLayout;
     controlsLayout->addWidget(fontLabel);
     controlsLayout->addWidget(fontCombo, 1);
     controlsLayout->addWidget(styleLabel);
     controlsLayout->addWidget(styleCombo, 1);
+    controlsLayout->addWidget(fontMergingLabel, 1);
+    controlsLayout->addWidget(fontMerging, 1);
     controlsLayout->addStretch(1);
 
     QHBoxLayout *lineLayout = new QHBoxLayout;
