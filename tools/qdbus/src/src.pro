@@ -75,7 +75,6 @@ mac:!static:contains(QT_CONFIG, qt_framework) {
 embedded:QMAKE_CXXFLAGS+=-fno-rtti
 
 target.path=$$[QT_INSTALL_LIBS]
-INSTALLS        += target
 
 qt_install_headers {
     qtdbus_headers.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
