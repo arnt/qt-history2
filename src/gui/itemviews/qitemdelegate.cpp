@@ -439,9 +439,9 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         return;
     Q_ASSERT(index.isValid());
     QPixmap pixmap = decoration(option, index.data(Qt::DecorationRole));
-    QString text = index.data(Qt::EditRole).toString();
-    QRect pixmapRect = pixmap.rect();
-    QRect textRect(0, 0, editor->fontMetrics().width(text), editor->fontMetrics().lineSpacing());
+    QString text = index.data(Qt::DisplayRole).toString();
+    QRect pixmapRect = QRect(QPoint(0, 0), option.decorationSize).intersect(pixmap.rect());
+    QRect textRect = textRectangle(0, option.rect, option.font, text);
     QRect checkRect = check(option, textRect, index.data(Qt::CheckStateRole));
     QStyleOptionViewItem opt = option;
     opt.showDecorationSelected = true; // let the editor take up all available space
