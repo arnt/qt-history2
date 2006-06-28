@@ -34,8 +34,9 @@ QWSSignalHandler::QWSSignalHandler()
 
 void QWSSignalHandler::handleSignal(int signum)
 {
-    const QList<int> semnos = instance()->semaphores.values();
+    Q_UNUSED(signum);
 
+    const QList<int> semnos = instance()->semaphores.values();
     for (int i = 0; i < semnos.size(); ++i)
         semctl(semnos.at(i), 0, IPC_RMID, 0);
 
