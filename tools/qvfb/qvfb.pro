@@ -56,5 +56,6 @@ RESOURCES	+= qvfb.qrc \
                    SmartPhoneWithButtons.qrc \
                    TouchscreenPhone.qrc \
                    Trolltech-Keypad.qrc \
-                   Trolltech-Touchscreen.qrc
+                   Trolltech-Touchscreen.qrc \
+                   PortableMedia.qrc
 
