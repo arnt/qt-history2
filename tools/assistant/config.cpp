@@ -181,13 +181,16 @@ void Config::loadDefaultProfile()
     QStringList::ConstIterator indexIt = indexLst.constBegin();
     QStringList::ConstIterator imageIt = imgDirLst.constBegin();
     QStringList::ConstIterator dcfIt = dcfs.constBegin();
-    for( ; it != titles.constEnd();
-        ++it, ++iconIt, ++indexIt, ++imageIt, ++dcfIt )
-    {
+    while((it != titles.constEnd())
+          && (iconIt != iconLst.constEnd())
+          && (indexIt != indexLst.constEnd())
+          && (imageIt != imgDirLst.constEnd())
+          && (dcfIt != dcfs.constEnd())) {
         profil->addDCFIcon( *it, *iconIt );
         profil->addDCFIndexPage( *it, *indexIt );
         profil->addDCFImageDir( *it, *imageIt );
         profil->addDCFTitle( *dcfIt, *it );
+        ++it, ++iconIt, ++indexIt, ++imageIt, ++dcfIt;
     }
 #if ASSISTANT_DEBUG
     dumpmap( profil->icons, QLatin1String("Icons") );
