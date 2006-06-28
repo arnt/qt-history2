@@ -548,10 +548,8 @@ void QTableView::scrollContentsBy(int dx, int dy)
     dx = isRightToLeft() ? -dx : dx;
     if (dx) {
         if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
-            int currentScrollbarValue = horizontalScrollBar()->value();
-            int previousScrollbarValue = currentScrollbarValue + dx; // -(-dx)
             int oldOffset = d->horizontalHeader->offset();
-            d->horizontalHeader->setOffsetToSectionPosition(currentScrollbarValue);
+            d->horizontalHeader->setOffsetToSectionPosition(horizontalScrollBar()->value());
             int newOffset = d->horizontalHeader->offset();
             dx = isRightToLeft() ? newOffset - oldOffset : oldOffset - newOffset;
         } else {
@@ -560,10 +558,8 @@ void QTableView::scrollContentsBy(int dx, int dy)
     }
     if (dy) {
         if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
-            int currentScrollbarValue = verticalScrollBar()->value();
-            int previousScrollbarValue = currentScrollbarValue + dy; // -(-dy)
             int oldOffset = d->verticalHeader->offset();
-            d->verticalHeader->setOffsetToSectionPosition(currentScrollbarValue);
+            d->verticalHeader->setOffsetToSectionPosition(verticalScrollBar()->value());
             int newOffset = d->verticalHeader->offset();
             dy = oldOffset - newOffset;
         } else {
