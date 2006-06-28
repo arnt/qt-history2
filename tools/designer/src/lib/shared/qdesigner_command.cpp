@@ -271,12 +271,12 @@ int SetPropertyCommand::id() const
     return 1976;
 }
 
-bool SetPropertyCommand::mergeWith(QUndoCommand *other)
+bool SetPropertyCommand::mergeWith(const QUndoCommand *other)
 {
     if (id() != other->id())
         return false;
 
-    if (SetPropertyCommand *cmd = static_cast<SetPropertyCommand*>(other)) {
+    if (const SetPropertyCommand *cmd = static_cast<const SetPropertyCommand*>(other)) {
         if (cmd->propertyName() == propertyName() && cmd->widget() == widget()) {
             m_newValue = cmd->newValue();
             return true;

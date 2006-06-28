@@ -149,7 +149,7 @@ public:
     virtual void undo();
 
     virtual int id() const;
-    virtual bool mergeWith(QUndoCommand *other);
+    virtual bool mergeWith(const QUndoCommand *other);
 
 private:
     QString m_propertyName;
@@ -186,7 +186,7 @@ public:
     virtual void undo();
 
 protected:
-    virtual bool mergeWith(QUndoCommand *other) { Q_UNUSED(other); return false; }
+    virtual bool mergeWith(const QUndoCommand *other) { Q_UNUSED(other); return false; }
 
 private:
     QString m_propertyName;
