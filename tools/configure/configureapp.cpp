@@ -1570,7 +1570,7 @@ void Configure::generateConfigfiles()
 	    outStream << "#define Q_BYTE_ORDER Q_LITTLE_ENDIAN" << endl;
 
 	outStream << endl << "// Compile time features" << endl;
-
+        outStream << "#define QT_ARCH_" << dictionary["ARCHITECTURE"].toUpper() << endl;
         QStringList qconfigList;
         if(dictionary["STL"] == "no")                qconfigList += "QT_NO_STL";
         if(dictionary["STYLE_WINDOWS"] != "yes")     qconfigList += "QT_NO_STYLE_WINDOWS";
