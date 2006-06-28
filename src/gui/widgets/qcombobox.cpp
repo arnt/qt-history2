@@ -29,11 +29,12 @@
 #include "qinputcontext.h"
 #endif
 #include <private/qcombobox_p.h>
+#include <private/qabstractitemmodel_p.h>
 #include <qdebug.h>
 
 QComboBoxPrivate::QComboBoxPrivate()
     : QWidgetPrivate(),
-      model(0),
+      model(QAbstractItemModelPrivate::staticEmptyModel()),
       lineEdit(0),
       container(0),
       insertPolicy(QComboBox::InsertAtBottom),
@@ -106,7 +107,7 @@ void QComboBoxPrivate::_q_modelReset()
 void QComboBoxPrivate::_q_modelDestroyed()
 {
     Q_Q(QComboBox);
-    model = 0;
+    model = QAbstractItemModelPrivate::staticEmptyModel();
     q->setModel(new QStandardItemModel(0, 1, q));
 }
 
@@ -1005,8 +1006,8 @@ int QComboBox::maxCount() const
     \since 4.1
     \obsolete
 
-    Use setCompleter() instead. 
-    
+    Use setCompleter() instead.
+
     \sa editable
 */
 
@@ -1347,7 +1348,7 @@ const QValidator *QComboBox::validator() const
     Sets the \a completer to use instead of the current completer.
     If \a completer is 0, auto completion is disabled.
 
-    By default, for an editable combo box, a QCompleter that 
+    By default, for an editable combo box, a QCompleter that
     performs case insensitive inline completion is automatically created.
 */
 void QComboBox::setCompleter(QCompleter *c)
@@ -1444,7 +1445,7 @@ void QComboBox::setModel(QAbstractItemModel *model)
             delete d->model;
     }
 
-    d->model = model;
+    d->model = (model ? model : QAbstractItemModelPrivate::staticEmptyModel());
 
     connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
