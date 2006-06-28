@@ -550,25 +550,10 @@ void QTableView::scrollContentsBy(int dx, int dy)
         if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem) {
             int currentScrollbarValue = horizontalScrollBar()->value();
             int previousScrollbarValue = currentScrollbarValue + dx; // -(-dx)
+            int oldOffset = d->horizontalHeader->offset();
             d->horizontalHeader->setOffsetToSectionPosition(currentScrollbarValue);
-            dx = 0;
-            if (previousScrollbarValue < currentScrollbarValue) { // scrolling right
-                for (int c = previousScrollbarValue; c < currentScrollbarValue; ++c) {
-                    int l = d->horizontalHeader->logicalIndex(c);
-                    if (l == -1)
-                        dx -= d->horizontalHeader->defaultSectionSize();
-                    else
-                        dx -= d->horizontalHeader->sectionSize(l);
-                }
-            } else if (previousScrollbarValue > currentScrollbarValue) { // scrolling left
-                for (int c = previousScrollbarValue; c > currentScrollbarValue; --c) {
-                    int l = d->horizontalHeader->logicalIndex(c);
-                    if (l == -1)
-                        dx += d->horizontalHeader->defaultSectionSize();
-                    else
-                        dx += d->horizontalHeader->sectionSize(l);
-                }
-            }
+            int newOffset = d->horizontalHeader->offset();
+            dx = oldOffset - newOffset;
         } else {
             d->horizontalHeader->setOffset(horizontalScrollBar()->value());
         }
@@ -577,19 +562,10 @@ void QTableView::scrollContentsBy(int dx, int dy)
         if (verticalScrollMode() == QAbstractItemView::ScrollPerItem) {
             int currentScrollbarValue = verticalScrollBar()->value();
             int previousScrollbarValue = currentScrollbarValue + dy; // -(-dy)
+            int oldOffset = d->verticalHeader->offset();
             d->verticalHeader->setOffsetToSectionPosition(currentScrollbarValue);
-            dy = 0;
-            if (previousScrollbarValue < currentScrollbarValue) { // scrolling down
-                for (int r = previousScrollbarValue; r < currentScrollbarValue; ++r) {
-                    int l = d->verticalHeader->logicalIndex(r);
-                    dy -= d->verticalHeader->sectionSize(l);
-                }
-            } else if (previousScrollbarValue > currentScrollbarValue) { // scrolling up
-                for (int r = previousScrollbarValue; r > currentScrollbarValue; --r) {
-                    int l = d->verticalHeader->logicalIndex(r);
-                    dy += d->verticalHeader->sectionSize(l);
-                }
-            }
+            int newOffset = d->verticalHeader->offset();
+            dy = oldOffset - newOffset;
         } else {
             d->verticalHeader->setOffset(verticalScrollBar()->value());
         }
