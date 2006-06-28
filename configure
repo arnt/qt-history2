@@ -4591,7 +4591,7 @@ fi
 if [ "$CFG_FRAMEWORK" = "no" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG qt_no_framework"
 else
-    QT_CONFIG="$QT_CONFIG qt_framework"
+    QTCONFIG_CONFIG="$QTCONFIG_CONFIG qt_framework"
 fi
 if [ "$CFG_UNIVERSAL_BINARY" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG x86 ppc"
