@@ -248,7 +248,7 @@ QWindowSurface *qt_default_window_surface(QWidget *widget)
     Q_UNUSED(widget);
     return new QX11WindowSurface();
 #elif defined(Q_WS_QWS)
-    return QWSWindowSurfaceFactory::create(widget);
+    return qt_screen->createSurface(widget);
 #else
     Q_UNUSED(widget);
     return 0;

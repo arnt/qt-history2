@@ -1453,8 +1453,57 @@ void QScreen::solidFill(const QColor &color, const QRegion &region)
     QWSDisplay::ungrab();
 }
 
-
 #ifdef QT_WINDOW_SURFACE
+
+/*!
+    Creates a new QWSWindowSurface matching the name given by \a key.
+
+    This function is used by the application that runs as a GuiServer when
+    when it needs to create a server side representation of a surface.
+
+    \sa QApplication::Type
+*/
+QWSWindowSurface* QScreen::createSurface(const QString &key) const
+{
+    if (key == QLatin1String("OnScreen"))
+        return new QWSOnScreenSurface;
+    else if (key == QLatin1String("mem"))
+        return new QWSLocalMemSurface;
+    else if (key == QLatin1String("shm"))
+        return new QWSSharedMemSurface;
+    else if (key == QLatin1String("Yellow"))
+        return new QWSYellowSurface;
+    else if (key == QLatin1String("DirectPainter"))
+        return new QWSDirectPainterSurface;
+
+    return 0;
+}
+
+static inline bool isWidgetOpaque(const QWidget *w)
+{
+    const QBrush brush = w->palette().brush(w->backgroundRole());
+    return (brush.style() == Qt::NoBrush || brush.isOpaque());
+}
+
+/*!
+    Creates a new QWSWindowSurface for \a widget.
+*/
+QWSWindowSurface* QScreen::createSurface(QWidget *widget) const
+{
+    static int doOnScreen = -1;
+    if (doOnScreen == -1)
+        doOnScreen = qgetenv("QT_ONSCREEN_PAINT").toInt();
+
+    if (doOnScreen && isWidgetOpaque(widget))
+        return new QWSOnScreenSurface(widget);
+    else if (QApplication::type() == QApplication::GuiServer)
+        return new QWSLocalMemSurface(widget);
+    else
+        return new QWSSharedMemSurface(widget);
+
+    return 0;
+}
+
 void QScreen::compose(int level, const QRegion &exposed, QRegion &blend,
                       QImage &blendbuffer, int changing_level)
 {

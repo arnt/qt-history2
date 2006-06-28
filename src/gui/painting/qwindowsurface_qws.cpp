@@ -212,55 +212,6 @@ void QWSWindowSurface::release()
                                          QRegion());
 }
 
-QWSWindowSurface* QWSWindowSurfaceFactory::create(QWidget *widget)
-{
-    QWSWindowSurface* surface = qt_screen->createSurface(widget);
-    if (surface)
-        return surface;
-
-    static int doOnScreen = -1;
-    if (doOnScreen == -1) {
-        doOnScreen = qgetenv("QT_ONSCREEN_PAINT").toInt();
-    }
-    if (doOnScreen && isWidgetOpaque(widget))
-        surface = new QWSOnScreenSurface(widget);
-    else if (QApplication::type() == QApplication::GuiServer)
-        surface = new QWSLocalMemSurface(widget);
-    else
-        surface = new QWSSharedMemSurface(widget);
-
-    return surface;
-}
-
-QWSWindowSurface*
-QWSWindowSurfaceFactory::create(const QString &key,
-                                const QByteArray &data)
-{
-    QWSWindowSurface *surface = qt_screen->createSurface(key);
-
-    if (!surface) {
-        if (key == QLatin1String("OnScreen"))
-            surface = new QWSOnScreenSurface;
-        else if (key == QLatin1String("mem"))
-            surface = new QWSLocalMemSurface;
-        else if (key == QLatin1String("shm"))
-            surface = new QWSSharedMemSurface;
-        else if (key == QLatin1String("Yellow"))
-            surface = new QWSYellowSurface;
-        else if (key == QLatin1String("DirectPainter"))
-            surface = new QWSDirectPainterSurface;
-#if 0
-        else if (key == QLatin1String("DirectFB"))
-            surface = new QWSDirectFBWindowSurface;
-#endif
-    }
-
-    if (surface)
-        surface->attach(data);
-
-    return surface;
-}
-
 static void scroll(const QImage &img, const QRect &rect, const QPoint &point)
 {
     uchar *mem = const_cast<uchar*>(img.bits());

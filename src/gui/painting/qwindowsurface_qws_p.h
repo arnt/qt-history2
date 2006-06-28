@@ -88,14 +88,6 @@ private:
     QWSWindowSurfacePrivate *d_ptr;
 };
 
-class QWSWindowSurfaceFactory
-{
-public:
-    static QWSWindowSurface* create(QWidget *widget);
-    static QWSWindowSurface* create(const QString &key,
-                                    const QByteArray &data);
-};
-
 class QWSLock;
 
 class QWSMemorySurface : public QWSWindowSurface

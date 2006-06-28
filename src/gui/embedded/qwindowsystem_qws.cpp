@@ -316,9 +316,9 @@ QWSWindow::QWSWindow(int i, QWSClient* client)
 #ifdef QT_WINDOW_SURFACE
 void QWSWindow::createSurface(const QString &key, const QByteArray &data)
 {
-    // XXX should do some kind of attach instead..
     delete surface;
-    surface = QWSWindowSurfaceFactory::create(key, data);
+    surface = qt_screen->createSurface(key);
+    surface->attach(data);
 }
 #endif
 
