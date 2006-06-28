@@ -1,6 +1,7 @@
 /*!
   \page desktop-integration.html
   \title Desktop Integration
+  \ingroup gui-programming
 
   Various classes in Qt are designed to help developers integrate applications into
   users' desktop environments. These classes enable developers to take advantage
