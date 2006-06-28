@@ -2284,23 +2284,9 @@ void tst_QDateTimeEdit::weirdCase()
     QTest::keyClick(testWidget, Qt::Key_4);
     QCOMPARE(testWidget->text(), QString("01//01//005"));}
 
-#if 1
-#define WAIT QTest::qWait(500);
-#else
-#define WAIT
-#endif
 
 void tst_QDateTimeEdit::newCase()
 {
-    EditorDateEdit *testWidget2 = new EditorDateEdit(0);
-
-    testWidget2->setDisplayFormat("MMMM'a'MbMMMcMM");
-    testWidget2->setDate(QDate(2005, 6, 1));
-    testWidget2->show();
-
-    QTest::qWait(530000);
-
-
     testWidget->setDisplayFormat("MMMM'a'MbMMMcMM");
     testWidget->setDate(QDate(2005, 6, 1));
     QCOMPARE(testWidget->text(), QString("Junea6bJunc06"));
@@ -2318,17 +2304,11 @@ void tst_QDateTimeEdit::newCase()
     QTest::keyClick(testWidget, Qt::Key_Home);
 #endif
     QCOMPARE(testWidget->lineEdit()->selectedText(), QString());
-WAIT
     QTest::keyClick(testWidget, Qt::Key_Right);
-WAIT
     QTest::keyClick(testWidget, Qt::Key_Right);
-WAIT
     QTest::keyClick(testWidget, Qt::Key_Right);
-WAIT
     QTest::keyClick(testWidget, Qt::Key_Delete);
-WAIT
     QTest::keyClick(testWidget, Qt::Key_Left);
-WAIT
     QCOMPARE(testWidget->text(), QString("Jula7bJulc07"));
     QTest::keyClick(testWidget, Qt::Key_Delete);
     QCOMPARE(testWidget->text(), QString("Jua7bJulc07"));
