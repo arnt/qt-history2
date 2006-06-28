@@ -99,8 +99,11 @@ private slots:
     void inputMaskAndValidator_data();
     void inputMaskAndValidator();
 
-    void hasAcceptableInput_data();
-    void hasAcceptableInput();
+    void hasAcceptableInputMask_data();
+    void hasAcceptableInputMask();
+
+    void hasAcceptableInputValidator();
+
 
     void redo_data();
     void redo();
@@ -288,8 +291,6 @@ void tst_QLineEdit::init()
 }
 
 void tst_QLineEdit::cleanup()
-
-
 {
 }
 
@@ -315,7 +316,7 @@ void tst_QLineEdit::upperAndLowercase()
     testWidget->setInputMask("");
     testWidget->setText("");
 
-    QTest::keyClicks(testWidget,               "aAzZ`1234567890-=~!@#$%^&*()_+[]{}\\|;:'\",.<>/?");
+    QTest::keyClicks(testWidget, "aAzZ`1234567890-=~!@#$%^&*()_+[]{}\\|;:'\",.<>/?");
     qApp->processEvents();
     QCOMPARE(testWidget->text(), QString("aAzZ`1234567890-=~!@#$%^&*()_+[]{}\\|;:'\",.<>/?"));
 }
@@ -672,7 +673,7 @@ void tst_QLineEdit::keypress_inputMask()
 }
 
 
-void tst_QLineEdit::hasAcceptableInput_data()
+void tst_QLineEdit::hasAcceptableInputMask_data()
 {
     QTest::addColumn<QString>("optionalMask");
     QTest::addColumn<QString>("requiredMask");
@@ -691,7 +692,7 @@ void tst_QLineEdit::hasAcceptableInput_data()
 	<< QString("dddd") << QString("DDDD") << QString("12") << QString("1234");
 }
 
-void tst_QLineEdit::hasAcceptableInput()
+void tst_QLineEdit::hasAcceptableInputMask()
 {
     QFocusEvent lostFocus(QEvent::FocusOut);
     QFETCH(QString, optionalMask);
@@ -721,6 +722,45 @@ void tst_QLineEdit::hasAcceptableInput()
     qApp->sendEvent(testWidget, &lostFocus);
     QVERIFY(validInput);
 }
+
+static const int chars = 8;
+class ValidatorWithFixup : public QValidator
+{
+public:
+    ValidatorWithFixup(QWidget *parent = 0)
+        : QValidator(parent)
+    {}
+
+    QValidator::State validate(QString &str, int &) const
+    {
+        const int s = str.size();
+        if (s < chars) {
+            return Intermediate;
+        } else if (s > chars) {
+            return Invalid;
+        }
+        return Acceptable;
+    }
+
+    void fixup(QString &str) const
+    {
+        str = str.leftJustified(chars, 'X', true);
+    }
+};
+
+
+
+void tst_QLineEdit::hasAcceptableInputValidator()
+{
+    QFocusEvent lostFocus(QEvent::FocusOut);
+    ValidatorWithFixup val;
+    testWidget->setValidator(&val);
+    testWidget->setText("foobar");
+    qApp->sendEvent(testWidget, &lostFocus);
+    QVERIFY(testWidget->hasAcceptableInput());
+}
+
+
 
 void tst_QLineEdit::maskCharacter_data()
 {
@@ -940,7 +980,7 @@ void tst_QLineEdit::undo()
     QVERIFY(!testWidget->isUndoAvailable());
     QVERIFY(testWidget->text().isEmpty());
 
-#ifdef Q_WS_WIN 
+#ifdef Q_WS_WIN
     // Repeat the test using shortcut instead of undo()
     for (i=0; i<insertString.size(); ++i) {
 	if (insertIndex[i] > -1)
