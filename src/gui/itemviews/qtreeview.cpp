@@ -1975,7 +1975,7 @@ void QTreeViewPrivate::expand(int item, bool emitSignal)
         prepareAnimatedOperation(item, AnimatedOperation::Expand);
 
     q->setState(QAbstractItemView::ExpandingState);
-    const QModelIndex &index = viewItems.at(item).index;
+    const QModelIndex index = viewItems.at(item).index;
         expandedIndexes.append(index);
     viewItems[item].expanded = true;
     layout(item);
