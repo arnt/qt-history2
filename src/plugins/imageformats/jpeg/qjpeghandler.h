@@ -15,6 +15,7 @@
 #define QJPEGHANDLER_H
 
 #include <QtGui/qimageiohandler.h>
+#include <QSize>
 
 class QJpegHandler : public QImageIOHandler
 {
@@ -36,6 +37,7 @@ public:
 private:
     int quality;
     QByteArray parameters;
+    QSize scaledSize;
 };
 
 #endif // QJPEGHANDLER_H
