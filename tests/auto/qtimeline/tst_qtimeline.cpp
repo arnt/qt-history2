@@ -167,7 +167,7 @@ void tst_QTimeLine::duration()
     QTest::qWait(999);
     QCOMPARE(timeLine.state(), QTimeLine::Running);
     QVERIFY(timeLine.currentTime() > 0.9);
-    QTest::qWait(30);
+    QTest::qWait(50);
     QCOMPARE(timeLine.state(), QTimeLine::NotRunning);
     // The duration shouldn't change
     QCOMPARE(timeLine.duration(), 1000);
