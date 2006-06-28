@@ -1192,6 +1192,7 @@ void QTableView::rowCountChanged(int /*oldCount*/, int /*newCount*/ )
 {
     Q_D(QTableView);
     updateGeometries();
+    d->verticalHeader->setOffset(verticalScrollBar()->value());
     d->viewport->update();
 }
 
@@ -1204,6 +1205,7 @@ void QTableView::columnCountChanged(int, int)
 {
     Q_D(QTableView);
     updateGeometries();
+    d->horizontalHeader->setOffset(horizontalScrollBar()->value());
     d->viewport->update();
 }
 
