@@ -144,7 +144,11 @@ void GraphWidget::timerEvent(QTimerEvent *event)
 
 void GraphWidget::wheelEvent(QWheelEvent *event)
 {
-    qreal scaleFactor = currentScale * (1 + event->delta() / 1200.0);
+    qreal delta = event->delta();
+    if (delta < -120)
+        delta = -120;
+
+    qreal scaleFactor = currentScale * (1 + delta / 1200.0);
     scaleView(scaleFactor);
 }
 
@@ -188,9 +192,8 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
 
 void GraphWidget::scaleView(qreal scaleFactor)
 {
-    if (scaleFactor < 0.07 || scaleFactor > 30)
+    if (scaleFactor < 0.07 || scaleFactor > 250)
         return;
-
     QMatrix matrix;
     matrix.scale(scaleFactor, scaleFactor);
     setMatrix(matrix);
