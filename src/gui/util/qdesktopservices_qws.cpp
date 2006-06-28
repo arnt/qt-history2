@@ -15,12 +15,14 @@
 
 static bool launchWebBrowser(const QUrl &url)
 {
+    Q_UNUSED(url);
     qWarning("QDesktopServices::launchWebBrowser not implemented");
     return false;
 }
 
 static bool openDocument(const QUrl &file)
 {
+    Q_UNUSED(file);
     qWarning("QDesktopServices::openDocument not implemented");
     return false;
 }

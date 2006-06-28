@@ -191,7 +191,7 @@ void QStyleSheetBorderImageData::cutBorderImage()
 ///////////////////////////////////////////////////////////////////////////////////
 static QPen qPenFromStyle(const QBrush& b, qreal width, BorderStyle s)
 {
-    Qt::PenStyle ps;
+    Qt::PenStyle ps = Qt::NoPen;
 
     switch (s) {
     case Dotted:
@@ -1111,6 +1111,7 @@ void QStyleSheetStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *op
 
     case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
+            Q_UNUSED(fropt);
             //if (rule.focusRectColor.isValid()) {
                 //QRenderRule focusRule = rule;
                 //focusRule.borderStyle = rule.focusRectStyle;
