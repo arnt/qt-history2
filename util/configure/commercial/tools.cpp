@@ -58,27 +58,27 @@ bool Tools::checkInternalLicense(QMap<QString,QString> &dictionary)
         dictionary["QMAKE_INTERNAL"] = "yes";
         return true;
     }
-
-    licenseFile = dictionary["QT_SOURCE_TREE"] + "/LICENSE.PREVIEW.OPENSOURCE";
-    if (QFile::exists(licenseFile)) {
-        dictionary["EDITION"] = "Preview";
-        dictionary["LICENSE FILE"] = licenseFile;
-        dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
-        return true;
-    }
-    licenseFile = dictionary["QT_SOURCE_TREE"] + "/LICENSE.PREVIEW.COMMERCIAL";
-    if (QFile::exists(licenseFile)) {
-        dictionary["EDITION"] = "Preview";
-        dictionary["LICENSE FILE"] = licenseFile;
-        dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
-        return true;
-    }
     return false;
 }
 
 void Tools::checkLicense(QMap<QString,QString> &dictionary, QMap<QString,QString> &licenseInfo,
                          const QString &path)
 {
+    QString tpLicense = dictionary["QT_SOURCE_TREE"] + "/LICENSE.PREVIEW.OPENSOURCE";
+    if (QFile::exists(tpLicense)) {
+        dictionary["EDITION"] = "Preview";
+        dictionary["LICENSE FILE"] = tpLicense;
+        dictionary["QT_EDITION"] = "QT_EDITION_OPENSOURCE";
+        return; // No license key checking in Tech Preview
+    }
+    tpLicense = dictionary["QT_SOURCE_TREE"] + "/LICENSE.PREVIEW.COMMERCIAL";
+    if (QFile::exists(tpLicense)) {
+        dictionary["EDITION"] = "Preview";
+        dictionary["LICENSE FILE"] = tpLicense;
+        dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
+        return; // No license key checking in Tech Preview
+    }
+
     // Read in the license file
     QFile licenseFile(path);
     if( !path.isEmpty() && licenseFile.open( QFile::ReadOnly ) ) {

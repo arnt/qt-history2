@@ -1839,7 +1839,7 @@ void Configure::buildQmake()
 
         QStringList additionalEnv;
         additionalEnv.append("QMAKESPEC=" + dictionary["QMAKESPEC"]);
-        if (dictionary["EDITION"] == "OpenSource")
+        if (dictionary["EDITION"] == "OpenSource" || dictionary["QT_EDITION"].contains("OPENSOURCE"))
             additionalEnv.append("QMAKE_OPENSOURCE_EDITION=yes");
 
 	cout << "Creating qmake..." << endl;
