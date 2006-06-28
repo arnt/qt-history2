@@ -1192,7 +1192,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             qBrushSetAlphaF(&innerBottomRight, 0.23);
             QBrush corner = option->palette.shadow();
             qBrushSetAlphaF(&corner, 0.25);
-            
+
             if (tbb->shape == QTabBar::RoundedSouth)
                 painter->setPen(QPen(corner, 0));
             else
@@ -1250,11 +1250,18 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 QRegion region = painter->clipRegion();
                 if (region.isEmpty())
                     region = option->rect;
-                region -= QRect(option->rect.right() - 1, option->rect.top(), 1, 2);
-                region -= QRect(option->rect.right() - 1, option->rect.bottom() - 1, 1, 2);
+                if (lineEdit->direction == Qt::RightToLeft) {
+                    region -= QRect(option->rect.left() + 1, option->rect.top(), 1, 2);
+                    region -= QRect(option->rect.left() + 1, option->rect.bottom() - 1, 1, 2);
+                    region -= QRect(option->rect.right()-1, option->rect.top(), 2, option->rect.height());
+                } else {
+                    region -= QRect(option->rect.right() - 1, option->rect.top(), 1, 2);
+                    region -= QRect(option->rect.right() - 1, option->rect.bottom() - 1, 1, 2);
+                    region -= QRect(option->rect.left(), option->rect.top(), 2, option->rect.height());
+                }
                 painter->setClipRegion(region);
             }
-            
+
             // Fill the line edit insides
             QRect filledRect = lineEdit->rect.adjusted(1, 1, -1, -1);
             QBrush baseBrush = qMapBrushToRect(lineEdit->palette.base(), filledRect);
@@ -1272,7 +1279,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                               filledRect.right() - 1, filledRect.bottom());
             qt_plastique_draw_frame(painter, option->rect, option, QFrame::Sunken);
 
-            painter->restore();            
+            painter->restore();
             break;
         }
 #endif
@@ -1438,7 +1445,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 
             QPen oldPen = p->pen();
             bool hover = (button->state & State_Enabled) && (button->state & State_MouseOver);
-           
+
             // Give the painter a different brush origin for sunken buttons
             if (sunken) {
                 // ### No such function
@@ -1896,7 +1903,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             QRect adjustedRect;
             bool atEnd = (tab->position == QStyleOptionTab::End) || onlyTab;
             bool atBeginning = ((tab->position == QStyleOptionTab::Beginning) || onlyTab)
-                && !leftCornerWidget;
+                               && !leftCornerWidget;
             bool reverseShadow = false;
 
             int borderThickness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
@@ -2195,7 +2202,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                             buttonGradient3.setColorAt(1.0, buttonBrush.color());
                             leftLineGradientBrush = QBrush(buttonGradient3);
                         }
-                        
+
                         if (!selected)
                             painter->setPen(QPen(leftLineGradientBrush, 0));
 
@@ -2384,7 +2391,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             int progressIndicatorPos = int(((bar->progress - bar->minimum) / double(bar->maximum - bar->minimum)) * rect.width());
 
             bool flip = (!vertical && (((bar->direction == Qt::RightToLeft) && !inverted)
-                          || ((bar->direction == Qt::LeftToRight) && inverted))) || (vertical && ((!inverted && !bottomToTop) || (inverted && bottomToTop)));
+                                       || ((bar->direction == Qt::LeftToRight) && inverted))) || (vertical && ((!inverted && !bottomToTop) || (inverted && bottomToTop)));
             if (flip) {
                 int indicatorPos = rect.width() - progressIndicatorPos;
                 if (indicatorPos >= 0 && indicatorPos <= rect.width()) {
@@ -2592,7 +2599,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     cachePainter.drawLine(pixmapRect.left() + leftEdge - 1, pixmapRect.bottom(),
                                           pixmapRect.left() + leftEdge + 9, pixmapRect.bottom());
                     cachePainter.fillRect(QRect(pixmapRect.left() + leftEdge, pixmapRect.top(),
-                                          10, pixmapRect.height()), rectColor);
+                                                10, pixmapRect.height()), rectColor);
 
                     leftEdge += 10;
                 }
@@ -3020,7 +3027,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     r = dockWidget->rect;
                 } else
 #endif
-                r.setRect(titleRect.left(), titleRect.top(), titleRect.width(), titleRect.bottom());
+                    r.setRect(titleRect.left(), titleRect.top(), titleRect.width(), titleRect.bottom());
                 int nchunks = (r.width() / handle.width()) - 1;
                 int indent = (r.width() - (nchunks * handle.width())) / 2;
                 for (int i = 0; i < nchunks; ++i) {
@@ -3475,7 +3482,39 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 // would usually use Text.
                 painter->setPen(QPen(comboBox->palette.buttonText(), 0));
             }
-            QWindowsStyle::drawControl(element, option, painter, widget);
+            if (comboBox->editable) {
+                QStyleOptionComboBox frameOpt(*comboBox);
+                {
+                    QRect editRect = subControlRect(CC_ComboBox, comboBox, SC_ComboBoxEditField, widget);
+                    if (comboBox->direction == Qt::RightToLeft)
+                        editRect.adjust(-2, 1, -2, -1);
+                    else
+                        editRect.adjust(1, 1, 0, -1);
+                    painter->save();
+                    painter->setClipRect(editRect);
+                    if (!comboBox->currentIcon.isNull()) {
+                        QIcon::Mode mode = comboBox->state & State_Enabled ? QIcon::Normal
+                                           : QIcon::Disabled;
+                        QPixmap pixmap = comboBox->currentIcon.pixmap(comboBox->iconSize, mode);
+                        QRect iconRect(editRect);
+                        iconRect.setWidth(comboBox->iconSize.width() + 5);
+                        iconRect = alignedRect(QApplication::layoutDirection(),
+                                               Qt::AlignLeft | Qt::AlignVCenter,
+                                               iconRect.size(), editRect);
+                        frameOpt.rect = iconRect.adjusted(-1, -1, 0, 1);
+                        painter->fillRect(iconRect, option->palette.brush(QPalette::Base));
+                        drawItemPixmap(painter, iconRect, Qt::AlignCenter, pixmap);
+                    }
+                    painter->restore();
+                }
+                painter->setClipRect(frameOpt.rect);
+                if (comboBox->direction != Qt::RightToLeft)
+                    frameOpt.rect.adjust(0, 0, 4, 0);
+                qt_plastique_draw_frame(painter, frameOpt.rect, &frameOpt, QFrame::Sunken);
+            } else {
+                QWindowsStyle::drawControl(element, option, painter, widget);
+            }
+
             if (!comboBox->editable)
                 painter->setPen(oldPen);
         }
@@ -3523,7 +3562,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             //The clickable region is 5 px wider than the visible groove for improved usability
             if (grooveRegion.isValid())
                 groove = horizontal ? grooveRegion.adjusted(0, 5, 0, -5) : grooveRegion.adjusted(5, 0, -5, 0);
-            
+
 
             QPixmap cache;
 
@@ -3752,7 +3791,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             qBrushSetAlphaF(&corner, 0.25);
             QBrush border = qMapBrushToRect(option->palette.shadow(), buttonRect);
             qBrushSetAlphaF(&border, 0.4);
-            
+
             // Touchups for missing pixels in the line edit corners
             painter->setPen(QPen(corner, 0));
             painter->drawPoint(buttonRect.left() - 1, buttonRect.top() + 1);
@@ -3849,7 +3888,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                                  : leftLineGradientBrush, downRect), 1));
             painter->drawLine(downRect.left() + 1, downRect.top() + 2,
                               downRect.left() + 1, downRect.bottom() - 1);
-            
+
             // Bottom line
             painter->setPen(QPen(qBrushDark(qMapBrushToRect(upSunken ? sunkenButtonGradientBrush
                                                             : buttonGradientBrush, upRect), 105), 0));
@@ -3890,7 +3929,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     painter->drawLine(center.x(), center.y() - 2, center.x(), center.y() + 2);
                     painter->drawLine(center.x() - 2, center.y(), center.x() + 2, center.y());
                 }
-                if (spinBox->subControls & SC_SpinBoxDown) {               
+                if (spinBox->subControls & SC_SpinBoxDown) {
                     // .......
                     // .......
                     // .......
@@ -3918,7 +3957,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     offset = upSunken ? 1 : 0;
                     QRect upArrowRect(upRect.center().x() - 3 + offset, upRect.center().y() - 2 + offset, 7, 4);
                     centerX = upArrowRect.center().x();
-                    painter->drawPoint(centerX, upArrowRect.top());                
+                    painter->drawPoint(centerX, upArrowRect.top());
                     painter->drawLine(centerX - 1, upArrowRect.top() + 1, centerX + 1, upArrowRect.top() + 1);
                     painter->drawLine(centerX - 2, upArrowRect.top() + 2, centerX + 2, upArrowRect.top() + 2);
                     painter->drawLine(centerX - 3, upArrowRect.top() + 3, centerX + 3, upArrowRect.top() + 3);
@@ -4026,7 +4065,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 painter->setPen(QPen(border, 0));
                 painter->drawPoint(buttonRect.left() - 1, buttonRect.top());
                 painter->drawPoint(buttonRect.left() - 1, buttonRect.bottom());
-                
+
                 // Outline the button border
                 if (!reverse) {
                     painter->drawLine(buttonRect.left(), buttonRect.top(),
@@ -4118,7 +4157,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                              .adjusted(-2, 0, 2, 0);
                 drawPrimitive(PE_FrameFocusRect, &focus, painter, widget);
             }
-            
+
             painter->setPen(oldPen);
         }
         break;
