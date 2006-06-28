@@ -329,16 +329,9 @@ static void huntAndEmit(DBusConnection *connection, DBusMessage *msg,
 static int findSlot(const QMetaObject *mo, const QByteArray &name, int flags,
                     const QString &signature_, QList<int>& metaTypes)
 {
-    // find the first slot
-    const QMetaObject *super = mo;
-    while (super != &QObject::staticMetaObject &&
-           super != &QDBusAbstractAdaptor::staticMetaObject)
-        super = super->superClass();
-
     QByteArray msgSignature = signature_.toLatin1();
 
-    // FIXME: invert the search order
-    for (int idx = super->methodCount() ; idx <= mo->methodCount(); ++idx) {
+    for (int idx = mo->methodCount() - 1 ; idx >= QObject::staticMetaObject.methodCount(); --idx) {
         QMetaMethod mm = mo->method(idx);
 
         // check access:
