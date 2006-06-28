@@ -16,6 +16,7 @@
 #include "qcolormap.h"
 #include "qscreendriverfactory_qws.h"
 #include "qwindowsystem_qws.h"
+#include "qwidget.h"
 #include "private/qwidget_qws_p.h"
 #include "qcolor.h"
 #include "qpixmap.h"
