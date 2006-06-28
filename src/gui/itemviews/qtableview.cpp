@@ -553,7 +553,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
             int oldOffset = d->horizontalHeader->offset();
             d->horizontalHeader->setOffsetToSectionPosition(currentScrollbarValue);
             int newOffset = d->horizontalHeader->offset();
-            dx = oldOffset - newOffset;
+            dx = isRightToLeft() ? newOffset - oldOffset : oldOffset - newOffset;
         } else {
             d->horizontalHeader->setOffset(horizontalScrollBar()->value());
         }
