@@ -178,7 +178,11 @@ void QDesignerSettings::setUIMode(int mode)
 
 int QDesignerSettings::uiMode() const
 {
+#if defined(Q_WS_WIN)
+    return value(QLatin1String("UI/currentMode"), QDesignerWorkbench::DockedMode).toInt();
+#else
     return value(QLatin1String("UI/currentMode"), QDesignerWorkbench::TopLevelMode).toInt();
+#endif
 }
 
 QByteArray QDesignerSettings::mainWindowState() const
