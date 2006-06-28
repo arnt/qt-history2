@@ -34,32 +34,46 @@ QString Tools::specialRot13(const QString &original)
 
 bool Tools::checkInternalLicense(QMap<QString,QString> &dictionary)
 {
-    if (!QFile::exists( dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL"))
-        return false;
+    QString licenseFile = dictionary["QT_SOURCE_TREE"] + "/LICENSE.TROLL";
+    if (QFile::exists(licenseFile)) {
+        QFile internalLicenseFile(licenseFile);
+        bool ok = internalLicenseFile.open(QFile::ReadOnly);
+        if (ok) {
+            QString buffer = internalLicenseFile.readLine(1024);
+            QString checkFor = "Gebyygrpu+rzcyblrrf+naq+ntragf"; //SR13:"Trolltech employees and agents"
+            ok = buffer.startsWith(specialRot13(checkFor));
+        }
+        internalLicenseFile.close();
 
-    bool ok = false;
-
-    QFile internalLicenseFile(dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL");
-    ok = internalLicenseFile.open(QFile::ReadOnly);
-    if (ok) {
-        QString buffer = internalLicenseFile.readLine(1024);
-        QString checkFor = "Gebyygrpu+rzcyblrrf+naq+ntragf"; //SR13:"Trolltech employees and agents"
-        ok = buffer.startsWith(specialRot13(checkFor));
+        if(!ok) {
+            cout << "Configuration aborted since license was not accepted";
+            dictionary["DONE"] = "error";
+            return false;
+        }
+        
+        cout << endl << "This is the Qt/Windows Trolltech Edition." << endl << endl;
+        dictionary["EDITION"] = "Trolltech";
+        dictionary["LICENSE FILE"] = licenseFile;
+        dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
+        dictionary["QMAKE_INTERNAL"] = "yes";
+        return true;
     }
-    internalLicenseFile.close();
 
-    if(!ok) {
-        cout << "Configuration aborted since license was not accepted";
-        dictionary["DONE"] = "error";
-        return false;
+    licenseFile = dictionary["QT_SOURCE_TREE"] + "/LICENSE.PREVIEW.OPENSOURCE";
+    if (QFile::exists(licenseFile)) {
+        dictionary["EDITION"] = "Preview";
+        dictionary["LICENSE FILE"] = licenseFile;
+        dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
+        return true;
     }
-    
-    cout << endl << "This is the Qt/Windows Trolltech Edition." << endl << endl;
-    dictionary["EDITION"] = "Trolltech";
-    dictionary["LICENSE FILE"] = dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL";
-    dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
-    dictionary["QMAKE_INTERNAL"] = "yes";
-    return true;
+    licenseFile = dictionary["QT_SOURCE_TREE"] + "/LICENSE.PREVIEW.COMMERCIAL";
+    if (QFile::exists(licenseFile)) {
+        dictionary["EDITION"] = "Preview";
+        dictionary["LICENSE FILE"] = licenseFile;
+        dictionary["QT_EDITION"] = "QT_EDITION_DESKTOP";
+        return true;
+    }
+    return false;
 }
 
 void Tools::checkLicense(QMap<QString,QString> &dictionary, QMap<QString,QString> &licenseInfo,
