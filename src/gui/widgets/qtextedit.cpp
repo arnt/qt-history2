@@ -13,6 +13,7 @@
 
 #include "qtextedit_p.h"
 #include "qlineedit.h"
+#include "qtextbrowser.h"
 
 QStringList QTextEditMimeData::formats() const
 {
@@ -1740,10 +1741,27 @@ bool QTextEdit::isReadOnly() const
 void QTextEdit::setReadOnly(bool ro)
 {
     Q_D(QTextEdit);
-    if (ro)
-        d->control->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    else
-        d->control->setTextInteractionFlags(Qt::TextEditorInteraction);
+    Qt::TextInteractionFlags flags = Qt::NoTextInteraction;
+    if (ro) {
+        flags = Qt::TextSelectableByMouse;
+        if (qobject_cast<QTextBrowser *>(this))
+            flags |= Qt::TextBrowserInteraction;
+    } else {
+        flags = Qt::TextEditorInteraction;
+    }
+    d->control->setTextInteractionFlags(flags);
+}
+
+void QTextEdit::setTextInteractionFlags(Qt::TextInteractionFlags flags)
+{
+    Q_D(QTextEdit);
+    d->control->setTextInteractionFlags(flags);
+}
+
+Qt::TextInteractionFlags QTextEdit::textInteractionFlags() const
+{
+    Q_D(const QTextEdit);
+    return d->control->textInteractionFlags();
 }
 
 /*!

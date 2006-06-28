@@ -57,12 +57,11 @@ private slots:
     void viewportPositionInHistory();
     void relativeLinks();
     void anchors();
-#if QT_VERSION >= 0x040200
     void resourceAutoDetection();
     void forwardBackwardAvailable();
     void clearHistory();
     void sourceInsideLoadResource();
-#endif
+    void textInteractionFlags_vs_readOnly();
 
 private:
     TestBrowser *browser;
@@ -204,7 +203,6 @@ void tst_QTextBrowser::anchors()
     QVERIFY(browser->verticalScrollBar()->value() > 0);
 }
 
-#if QT_VERSION >= 0x040200
 void tst_QTextBrowser::resourceAutoDetection()
 {
     browser->setHtml("<img src=\":/some/resource\"/>");
@@ -355,7 +353,17 @@ void tst_QTextBrowser::sourceInsideLoadResource()
     QCOMPARE(browser->sourceInsideLoadResource.toString(), url.toString());
 }
 
-#endif
+void tst_QTextBrowser::textInteractionFlags_vs_readOnly()
+{
+    QVERIFY(browser->isReadOnly());
+    QVERIFY(browser->textInteractionFlags() == Qt::TextBrowserInteraction);
+    browser->setReadOnly(true);
+    QVERIFY(browser->textInteractionFlags() == Qt::TextBrowserInteraction);
+    browser->setReadOnly(false);
+    QVERIFY(browser->textInteractionFlags() == Qt::TextEditorInteraction);
+    browser->setReadOnly(true);
+    QVERIFY(browser->textInteractionFlags() == Qt::TextBrowserInteraction);
+}
 
 QTEST_MAIN(tst_QTextBrowser)
 #include "tst_qtextbrowser.moc"

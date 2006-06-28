@@ -105,6 +105,9 @@ public:
     bool isReadOnly() const;
     void setReadOnly(bool ro);
 
+    void setTextInteractionFlags(Qt::TextInteractionFlags flags);
+    Qt::TextInteractionFlags textInteractionFlags() const;
+
     qreal fontPointSize() const;
     QString fontFamily() const;
     int fontWeight() const;
