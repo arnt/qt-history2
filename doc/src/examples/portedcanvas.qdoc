@@ -5,7 +5,7 @@
     This GraphicsView example is a port of the old
     QCanvas example from Qt 3.
 
-    \sa \l{Porting to Graphics View}
- 
+    \sa {Porting to Graphics View}
+
     \image portedcanvas-example.png
 */

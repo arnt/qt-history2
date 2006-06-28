@@ -121,6 +121,16 @@
     \o \l{painting/transformations}{Transformations}\raisedaster
     \endlist
 
+    \section1 Graphics View Examples
+
+    \list
+    \o \l{graphicsview/collidingmice}{Colliding Mice}
+    \o \l{graphicsview/draganddroprobot}{Drag and Drop Robot}
+    \o \l{graphicsview/elasticnodes}{Elastic Nodes}
+    \o \l{graphicsview/portedasteroids}{Ported Asteroids}
+    \o \l{graphicsview/portedcanvas}{Ported Canvas}
+    \endlist
+
     \section1 Rich Text Examples
 
     \list

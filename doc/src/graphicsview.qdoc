@@ -4,6 +4,7 @@
     \ingroup architecture
     \ingroup multimedia
 
+    \keyword Graphics View
     \keyword GraphicsView
     \keyword Graphics
     \keyword Canvas
@@ -16,7 +17,7 @@
     The framework includes an event propagation architecture that allows
     precise double-precision interaction capabilities for the items on the
     scene. Items can handle key events, mouse press, move, release and
-    doubleclick events, and they can also track mouse movement.
+    double click events, and they can also track mouse movement.
 
     Graphics View uses a BSP (Binary Space Partitioning) tree to provide very
     fast item discovery, and as a result of this, it can visualize large
@@ -365,7 +366,7 @@
 
         When the source and target areas' sizes do not match, the source
         contents are stretched to fit into the target area. By passing a
-        qQt::AspectRatioMode to the rendering function you are using, you can
+        Qt::AspectRatioMode to the rendering function you are using, you can
         choose to maintain or ignore the aspect ratio of the scene when the
         contents are stretched.
 
