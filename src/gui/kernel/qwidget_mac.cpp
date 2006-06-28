@@ -1124,6 +1124,8 @@ void QWidgetPrivate::createWindow_sys()
         HIViewSetVisible(hiview, true);
         QCFType<HIViewRef> oldRef = HIViewRef(data.winid);
         setWinId((WId)hiview);
+        if (q->testAttribute(Qt::WA_DropSiteRegistered))
+            registerDropSite(true);
         transferChildren();
         HIViewRemoveFromSuperview(oldRef);
     }
@@ -1272,6 +1274,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             HIRect bounds = CGRectMake(data.crect.x(), data.crect.y(), data.crect.width(), data.crect.height());
             HIViewSetFrame(hiview, &bounds);
             setWinId((WId)hiview);
+            if (q->testAttribute(Qt::WA_DropSiteRegistered))
+                registerDropSite(true);
         }
     }
 
@@ -2253,6 +2257,8 @@ void QWidgetPrivate::updateFrameStrut() const
 void QWidgetPrivate::registerDropSite(bool on)
 {
     Q_Q(QWidget);
+    if (!q->testAttribute(Qt::WA_WState_Created))
+        return;
     SetControlDragTrackingEnabled(qt_mac_hiview_for(q), on);
 }
 
