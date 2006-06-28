@@ -55,7 +55,7 @@ MainWindow::MainWindow()
     controlsLayout->addWidget(fontCombo, 1);
     controlsLayout->addWidget(styleLabel);
     controlsLayout->addWidget(styleCombo, 1);
-    controlsLayout->addWidget(fontMergingLabel, 1);
+    controlsLayout->addWidget(fontMergingLabel);
     controlsLayout->addWidget(fontMerging, 1);
     controlsLayout->addStretch(1);
 

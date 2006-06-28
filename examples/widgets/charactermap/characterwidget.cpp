@@ -56,8 +56,13 @@ QSize CharacterWidget::sizeHint() const
 void CharacterWidget::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint widgetPosition = mapFromGlobal(event->globalPos());
-    int key = (widgetPosition.y()/24)*32 + widgetPosition.x()/24;
-    QToolTip::showText(event->globalPos(), QString::number(key), this);
+    uint key = (widgetPosition.y()/24)*32 + widgetPosition.x()/24;
+
+    QString text = QString::fromLatin1("<p>Character: <span style=\"font-size: 24pt; font-family: %1\">").arg(displayFont.family())
+                  + QChar(key)
+                  + QString::fromLatin1("</span><p>Value: 0x")
+                  + QString::number(key, 16);
+    QToolTip::showText(event->globalPos(), text, this);
 }
 
 void CharacterWidget::mousePressEvent(QMouseEvent *event)
