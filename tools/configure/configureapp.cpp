@@ -1617,7 +1617,7 @@ void Configure::generateConfigfiles()
         }
     }
 
-    QString archFile = qtDir + "/src/corelib/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h";
+    QString archFile = qtDir + "/src/corelib/arch/qatomic_" + dictionary["ARCHITECTURE"].toLower() + ".h";
     QFileInfo archInfo(archFile);
     if (!archInfo.exists()) {
 	qDebug("Architecture file %s does not exist!", qPrintable(archFile) );
@@ -1632,7 +1632,7 @@ void Configure::generateConfigfiles()
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
     // Create qatomic.h "symlinks"
-    QString atomicContents = QString("#include \"../../../src/corelib/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h\"\n");
+    QString atomicContents = QString("#include \"../../../src/corelib/arch/qatomic_" + dictionary[ "ARCHITECTURE" ].toLower() + ".h\"\n");
     if (!writeToFile(atomicContents.toLocal8Bit(),    qtDir + "/include/QtCore/arch/qatomic.h")
         || !writeToFile(atomicContents.toLocal8Bit(), qtDir + "/include/Qt/arch/qatomic.h")) {
         dictionary[ "DONE" ] = "error";
