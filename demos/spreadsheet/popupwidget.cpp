@@ -16,8 +16,8 @@
 #include <QtGui>
 
 PopupWidget::PopupWidget(QWidget *parent)
-    :QWidget(parent, Qt::Popup),returnCode(QDialog::Rejected),
-    eventLoop(0), childWidget(0)
+    :QWidget(parent, Qt::Popup), childWidget(0),
+    eventLoop(0), returnCode(QDialog::Rejected)
 {
 }
 
