@@ -969,14 +969,14 @@ void QWidgetPrivate::setCursor_sys(const QCursor &cursor)
 {
     Q_Q(QWidget);
     qt_x11_enforce_cursor(q);
-    XFlush(q->X11->display);
+    XFlush(X11->display);
 }
 
 void QWidgetPrivate::unsetCursor_sys()
 {
     Q_Q(QWidget);
     qt_x11_enforce_cursor(q);
-    XFlush(q->X11->display);
+    XFlush(X11->display);
 }
 
 static XTextProperty*
