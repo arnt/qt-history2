@@ -913,8 +913,12 @@ void QPrintDialogPrivate::init()
             if (cupsPrinters[i].is_default)
                 ui.cbPrinters->setCurrentIndex(i);
         }
-        if (cupsPrinterCount)
+        //the model depends on valid ppd. so before enabling
+        //the properties button we make sure the ppd is in fact
+        //valid.
+        if (cupsPrinterCount && cups->currentPPD()) {
             ui.btnProperties->setEnabled(true);
+        }
         _q_printerChanged(cups->currentPrinterIndex());
     } else {
 #endif
@@ -1028,7 +1032,8 @@ void QPrintDialogPrivate::_q_printerChanged(int index)
     if (cups->isAvailable()) {
         cups->setCurrentPrinter(index);
         cupsPPD = cups->currentPPD();
-
+        //only enable properties if ppd is valid
+        ui.btnProperties->setEnabled(cupsPPD != 0);
         // set printer info line
         QString info;
         if (cupsPPD)
