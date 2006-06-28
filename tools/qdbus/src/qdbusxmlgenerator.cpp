@@ -33,14 +33,15 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
     QString retval;
 
     // start with properties:
-    if (flags & QDBusConnection::ExportProperties) {
+    if (flags & (QDBusConnection::ExportProperties |
+                 QDBusConnection::ExportNonScriptableProperties)) {
         for (int i = propOffset; i < mo->propertyCount(); ++i) {
             static const char *accessvalues[] = {0, "read", "write", "readwrite"};
 
             QMetaProperty mp = mo->property(i);
 
-            if (!mp.isScriptable() && (flags & QDBusConnection::ExportAllProperties) !=
-                QDBusConnection::ExportAllProperties)
+            if (!((mp.isScriptable() && (flags & QDBusConnection::ExportProperties)) ||
+                  (!mp.isScriptable() && (flags & QDBusConnection::ExportNonScriptableProperties))))
                 continue;
 
             int access = 0;
@@ -86,9 +87,12 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
         else
             continue;           // neither signal nor public slot
 
-        if ((isSignal && !(flags & QDBusConnection::ExportSignals)) ||
-            (!isSignal && !(flags & QDBusConnection::ExportSlots)))
-            continue;
+        if (isSignal && !(flags & (QDBusConnection::ExportSignals |
+                                   QDBusConnection::ExportNonScriptableSignals)))
+            continue;           // we're not exporting any signals
+        if (!isSignal && !(flags & (QDBusConnection::ExportSlots |
+                                    QDBusConnection::ExportNonScriptableSlots)))
+            continue;           // we're not exporting any slots
 
         QString xml = QString(QLatin1String("    <%1 name=\"%2\">\n"))
                       .arg(isSignal ? QLatin1String("signal") : QLatin1String("method"))
@@ -155,13 +159,14 @@ static QString generateInterfaceXml(const QMetaObject *mo, int flags, int method
             }
         }
 
-        if (!isScriptable) {
-            // check if this was added by other means
-            if (isSignal && (flags & QDBusConnection::ExportAllSignals) != QDBusConnection::ExportAllSignals)
-                continue;
-            if (!isSignal && (flags & QDBusConnection::ExportAllSlots) != QDBusConnection::ExportAllSlots)
-                continue;
-        }
+        int wantedMask;
+        if (isScriptable)
+            wantedMask = isSignal ? QDBusConnection::ExportSignals : QDBusConnection::ExportSlots;
+        else
+            wantedMask = isSignal ? QDBusConnection::ExportNonScriptableSignals :
+                         QDBusConnection::ExportNonScriptableSlots;
+        if ((flags & wantedMask) != wantedMask)
+            continue;
 
         if (qDBusCheckAsyncTag(mm.tag()))
             // add the no-reply annotation

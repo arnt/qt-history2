@@ -276,36 +276,32 @@ static void parseCmdLine(int argc, char **argv)
     while ((c = getopt(argc, argv, cmdlineOptions)) != -1)
         switch (c)
         {
+        case 'P':
+            flags |= QDBusConnection::ExportNonScriptableProperties;
+            // fall through
         case 'p':
             flags |= QDBusConnection::ExportProperties;
             break;
 
+        case 'S':
+            flags |= QDBusConnection::ExportNonScriptableSignals;
+            // fall through
         case 's':
             flags |= QDBusConnection::ExportSignals;
             break;
 
+        case 'M':
+            flags |= QDBusConnection::ExportNonScriptableSlots;
+            // fall through
         case 'm':
             flags |= QDBusConnection::ExportSlots;
             break;
 
+        case 'A':
+            flags |= QDBusConnection::ExportNonScriptableContents;
+            // fall through
         case 'a':
             flags |= QDBusConnection::ExportContents;
-            break;
-
-        case 'P':
-            flags |= QDBusConnection::ExportAllProperties;
-            break;
-
-        case 'S':
-            flags |= QDBusConnection::ExportAllSignals;
-            break;
-
-        case 'M':
-            flags |= QDBusConnection::ExportAllSlots;
-            break;
-
-        case 'A':
-            flags |= QDBusConnection::ExportAllContents;
             break;
 
         case 'o':
@@ -327,7 +323,7 @@ static void parseCmdLine(int argc, char **argv)
         }
 
     if (flags == 0)
-        flags = QDBusConnection::ExportAllContents;
+        flags = QDBusConnection::ExportContents | QDBusConnection::ExportNonScriptableContents;
 }
 
 int main(int argc, char **argv)

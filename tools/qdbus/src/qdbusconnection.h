@@ -49,10 +49,10 @@ public:
         ExportProperties = 0x40,
         ExportContents = 0xf0,
 
-        ExportAllSlots = 0x110,
-        ExportAllSignals = 0x220,
-        ExportAllProperties = 0x440,
-        ExportAllContents = 0xff0,
+        ExportNonScriptableSlots = 0x100,
+        ExportNonScriptableSignals = 0x200,
+        ExportNonScriptableProperties = 0x400,
+        ExportNonScriptableContents = 0xf00,
 
         ExportChildObjects = 0x1000
     };

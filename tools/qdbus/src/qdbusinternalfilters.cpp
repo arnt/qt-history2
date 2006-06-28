@@ -73,7 +73,8 @@ QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node
     xml_data += QLatin1String("<node>\n");
 
     if (node->obj) {
-        if (node->flags & QDBusConnection::ExportContents) {
+        if (node->flags & (QDBusConnection::ExportContents | QDBusConnection::ExportNonScriptableContents)) {
+            // create XML for the object itself
             const QMetaObject *mo = node->obj->metaObject();
             for ( ; mo != &QObject::staticMetaObject; mo = mo->superClass())
                 xml_data += qDBusGenerateMetaObjectXml(QString(), mo, mo->superClass(),
@@ -96,7 +97,8 @@ QString qDBusIntrospectObject(const QDBusConnectionPrivate::ObjectTreeNode *node
                     ifaceXml += qDBusGenerateMetaObjectXml(QString::fromLatin1(it->interface),
                                                            it->adaptor->metaObject(),
                                                            &QDBusAbstractAdaptor::staticMetaObject,
-                                                           QDBusConnection::ExportAllContents);
+                                                           QDBusConnection::ExportContents |
+                                                           QDBusConnection::ExportNonScriptableContents);
 
                     QDBusAbstractAdaptorPrivate::saveIntrospectionXml(it->adaptor, ifaceXml);
                 }
@@ -165,13 +167,14 @@ void qDBusPropertyGet(const QDBusConnectionPrivate::ObjectTreeNode *node, const 
             value = it->adaptor->property(property_name);
     }
 
-    if (!value.isValid() && node->flags & QDBusConnection::ExportProperties) {
+    if (!value.isValid() && node->flags & (QDBusConnection::ExportProperties |
+                                           QDBusConnection::ExportNonScriptableProperties)) {
         // try the object itself
         int pidx = node->obj->metaObject()->indexOfProperty(property_name);
         if (pidx != -1) {
             QMetaProperty mp = node->obj->metaObject()->property(pidx);
-            if (mp.isScriptable() || (node->flags & QDBusConnection::ExportAllProperties) ==
-                QDBusConnection::ExportAllProperties)
+            if ((mp.isScriptable() && (node->flags & QDBusConnection::ExportProperties)) ||
+                (!mp.isScriptable() && (node->flags & QDBusConnection::ExportNonScriptableProperties)))
                 value = mp.read(node->obj);
         }
     }
@@ -207,19 +210,18 @@ void qDBusPropertySet(const QDBusConnectionPrivate::ObjectTreeNode *node, const 
             }
     }
 
-    if (node->flags & QDBusConnection::ExportProperties) {
+    if (node->flags & (QDBusConnection::ExportProperties |
+                       QDBusConnection::ExportNonScriptableProperties)) {
         // try the object itself
         int pidx = node->obj->metaObject()->indexOfProperty(property_name);
         if (pidx != -1) {
             QMetaProperty mp = node->obj->metaObject()->property(pidx);
-            if (mp.isScriptable() || (node->flags & QDBusConnection::ExportAllProperties) ==
-                QDBusConnection::ExportAllProperties) {
-
+            if ((mp.isScriptable() && (node->flags & QDBusConnection::ExportProperties)) ||
+                (!mp.isScriptable() && (node->flags & QDBusConnection::ExportNonScriptableProperties)))
                 if (mp.write(node->obj, value)) {
                     msg.sendReply();
                     return;
                 }
-            }
         }
     }
 

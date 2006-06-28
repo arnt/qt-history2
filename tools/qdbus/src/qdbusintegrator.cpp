@@ -307,12 +307,12 @@ static void huntAndEmit(DBusConnection *connection, DBusMessage *msg,
     if (needle == haystack->obj) {
         // is this a signal we should relay?
         if (isAdaptor && (haystack->flags & QDBusConnection::ExportAdaptors) == 0)
-            return;             // no
+            return;             // no: it comes from an adaptor and we're not exporting adaptors
         else if (!isAdaptor) {
-            int mask = haystack->flags & QDBusConnection::ExportAllSignals;
-            if (mask == 0 ||
-                (!isScriptable && mask != QDBusConnection::ExportAllSignals))
-                return;
+            int mask = isScriptable ? QDBusConnection::ExportSignals :
+                       QDBusConnection::ExportNonScriptableSignals;
+            if ((haystack->flags & mask) == 0)
+                return;         // signal was not exported
         }
 
         QByteArray p = path.toLatin1();
@@ -335,10 +335,9 @@ static int findSlot(const QMetaObject *mo, const QByteArray &name, int flags,
            super != &QDBusAbstractAdaptor::staticMetaObject)
         super = super->superClass();
 
-    int attributeMask = (flags & QDBusConnection::ExportAllSlots) ?
-                        0 : QMetaMethod::Scriptable;
     QByteArray msgSignature = signature_.toLatin1();
 
+    // FIXME: invert the search order
     for (int idx = super->methodCount() ; idx <= mo->methodCount(); ++idx) {
         QMetaMethod mm = mo->method(idx);
 
@@ -359,6 +358,7 @@ static int findSlot(const QMetaObject *mo, const QByteArray &name, int flags,
 
         int returnType = qDBusNameToTypeId(mm.typeName());
         bool isAsync = qDBusCheckAsyncTag(mm.tag());
+        bool isScriptable = mm.attributes() & QMetaMethod::Scriptable;
 
         // consistency check:
         if (isAsync && returnType != QMetaType::Void)
@@ -369,11 +369,12 @@ static int findSlot(const QMetaObject *mo, const QByteArray &name, int flags,
             continue;           // problem parsing
 
         metaTypes[0] = returnType;
-        bool hasMessage = false;
+        int hasMessage = false;
         if (inputCount > 0 &&
             metaTypes.at(inputCount) == QDBusMetaTypeId::message) {
             // "no input parameters" is allowed as long as the message meta type is there
             hasMessage = true;
+            isScriptable = true; // pretend it's scriptable
             --inputCount;
         }
 
@@ -393,7 +394,9 @@ static int findSlot(const QMetaObject *mo, const QByteArray &name, int flags,
         if (isAsync && metaTypes.count() > i + 1 + (hasMessage ? 1 : 0))
             continue;
 
-        if (hasMessage && (mm.attributes() & attributeMask) != attributeMask)
+        if (isScriptable && (flags & QDBusConnection::ExportSlots) == 0)
+            continue;           // not exported
+        if (!isScriptable && (flags & QDBusConnection::ExportNonScriptableSlots) == 0)
             continue;           // not exported
 
         // if we got here, this slot matched
@@ -909,7 +912,7 @@ bool QDBusConnectionPrivate::activateObject(const ObjectTreeNode *node, const QD
     QDBusAdaptorConnector *connector;
     if (node->flags & QDBusConnection::ExportAdaptors &&
         (connector = qDBusFindAdaptorConnector(node->obj))) {
-        int newflags = node->flags | QDBusConnection::ExportAllSlots;
+        int newflags = node->flags | QDBusConnection::ExportNonScriptableSlots;
 
         if (msg.interface().isEmpty()) {
             // place the call in all interfaces
@@ -939,7 +942,8 @@ bool QDBusConnectionPrivate::activateObject(const ObjectTreeNode *node, const QD
         return true;
 
     // try the object itself:
-    if (node->flags & QDBusConnection::ExportSlots && activateCall(node->obj, node->flags, msg))
+    if (node->flags & (QDBusConnection::ExportSlots | QDBusConnection::ExportNonScriptableSlots) &&
+        activateCall(node->obj, node->flags, msg))
         return true;
 #if 0
     // nothing matched
@@ -1346,10 +1350,11 @@ void QDBusConnectionPrivate::registerObject(const ObjectTreeNode *node)
 {
     connect(node->obj, SIGNAL(destroyed(QObject*)), SLOT(objectDestroyed(QObject*)));
 
-    if (node->flags & (QDBusConnection::ExportAdaptors | QDBusConnection::ExportSignals)) {
+    if (node->flags & (QDBusConnection::ExportAdaptors | QDBusConnection::ExportSignals |
+                       QDBusConnection::ExportNonScriptableSignals)) {
         QDBusAdaptorConnector *connector = qDBusCreateAdaptorConnector(node->obj);
 
-        if (node->flags & QDBusConnection::ExportSignals) {
+        if (node->flags & (QDBusConnection::ExportSignals | QDBusConnection::ExportNonScriptableSignals)) {
             connector->disconnectAllSignals(node->obj);
             connector->connectAllSignals(node->obj);
         }

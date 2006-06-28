@@ -177,19 +177,17 @@ void QDBusConnectionManager::setConnection(const QString &name, QDBusConnectionP
     \value ExportContents                       shorthand form for ExportSlots | ExportSignals |
                                                 ExportProperties
 
-    \value ExportAllSlots                       export all of this object's slots, including
-                                                non-scriptable ones
-    \value ExportAllSignals                     export all of this object's signals, including
-                                                non-scriptable ones
-    \value ExportAllProperties                  export all of this object's properties, including
-                                                non-scriptable ones
-    \value ExportAllContents                    export all of this object's slots, signals and
-                                                properties, including non-scriptable ones
+    \value ExportNonScriptableSlots             export this object's non-scriptable slots
+    \value ExportNonScriptableSignals           export this object's non-scriptable signals
+    \value ExportNonScriptableProperties        export this object's non-scriptable properties
+    \value ExportNonScriptableContents          shorthand form for ExportNonScriptableSlots |
+                                                ExportNonScriptableSignals |
+                                                ExportNonScriptableProperties
 
     \value ExportChildObjects                   export this object's child objects
 
     \warning It is currently not possible to export signals from objects. If you pass the flag
-    ExportSignals or ExportAllSignals, the registerObject() function will print a warning.
+    ExportSignals or ExportNonScriptableSignals, the registerObject() function will print a warning.
 
     \sa registerObject(), QDBusAbstractAdaptor, {usingadaptors.html}{Using adaptors}
 */

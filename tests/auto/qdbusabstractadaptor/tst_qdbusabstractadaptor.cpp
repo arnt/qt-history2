@@ -765,7 +765,8 @@ void tst_QDBusAbstractAdaptor::scriptableSignalOrNot()
         MyObject obj(0);
 
         con.registerObject("/p1",&obj, QDBusConnection::ExportSignals);
-        con.registerObject("/p2",&obj, QDBusConnection::ExportAllSignals);
+        con.registerObject("/p2",&obj, QDBusConnection::ExportSignals |
+                           QDBusConnection::ExportNonScriptableSignals);
 
         QDBusSignalSpy spy;
         con.connect(con.baseService(), "/p1", "local.MyObject", "nonScriptableSignalVoid", &spy, SLOT(slot(QDBusMessage)));
@@ -789,7 +790,8 @@ void tst_QDBusAbstractAdaptor::scriptableSignalOrNot()
             MyObject obj(0);
 
             con.registerObject("/p1",&obj, QDBusConnection::ExportSignals);
-            con.registerObject("/p2",&obj, QDBusConnection::ExportAllSignals);
+            con.registerObject("/p2",&obj, QDBusConnection::ExportSignals |
+                               QDBusConnection::ExportNonScriptableSignals);
         } // <--- QObject emits the destroyed(QObject*) signal at this point
         
         QTest::qWait(200);
