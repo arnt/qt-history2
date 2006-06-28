@@ -1651,8 +1651,13 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
         if (horizontalPosition - horizontalOffset < 0)
             horizontalScrollBar()->setValue(horizontalIndex);
         else if (horizontalPosition - horizontalOffset + cellWidth > viewportWidth) {
-            for (int w = viewportWidth - cellWidth; w > 0 && horizontalIndex > 0;
-                 w -= columnWidth(horizontalIndex--));
+            int x = cellWidth;
+            while (horizontalIndex > 0) {
+                x += columnWidth(d->horizontalHeader->logicalIndex(horizontalIndex-1));
+                if (x > viewportWidth)
+                    break;
+                --horizontalIndex;
+            }
             horizontalScrollBar()->setValue(horizontalIndex);
         }
     } else { // ScrollPerPixel
@@ -1688,8 +1693,13 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
         if (verticalPosition - verticalOffset < 0)
             verticalScrollBar()->setValue(verticalIndex);
         else if (verticalPosition - verticalOffset + cellHeight > viewportHeight) {
-            for (int h = viewportHeight - cellHeight; h > 0 && verticalIndex > 0;
-                 h -= rowHeight(verticalIndex--));
+            int y = cellHeight;
+            while (verticalIndex > 0) {
+                y += rowHeight(d->verticalHeader->logicalIndex(verticalIndex-1));
+                if (y > viewportHeight)
+                    break;
+                --verticalIndex;
+            }
             verticalScrollBar()->setValue(verticalIndex);
         }
     } else { // ScrollPerPixel
