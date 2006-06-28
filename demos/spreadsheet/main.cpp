@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include "popupwidget.h"
+
 #include <QtGui>
 
 static QString encode_pos(int row, int col) {
@@ -21,6 +23,147 @@ static void decode_pos(const QString &pos, int *row, int *col)
 {
     *col = pos.at(0).toLatin1() - 'A';
     *row = pos.right(pos.size() - 1).toInt() - 1;
+}
+
+//Widget with calender widget and controls for month & year.
+class CalendarPopup : public QWidget
+{
+    Q_OBJECT
+public:
+    CalendarPopup(const QDate &date, QWidget * parent = 0);
+    QDate selectedDate(){return myDate;}; 
+signals:
+    void done();
+public slots:
+    void calendarPageChanged(int year, int month);
+    void dateSelected(const QDate &date);
+    void monthChanged(int month);
+    void yearChanged(int year);
+private:
+    QComboBox *monthsCombo;
+    QSpinBox *yearEdit;
+    QCalendarWidget *calendar;
+    QDate myDate;
+};
+
+CalendarPopup::CalendarPopup(const QDate &date, QWidget * parent)
+: QWidget(parent), myDate(date)
+{
+    monthsCombo = new QComboBox(this);
+    yearEdit = new QSpinBox(this);
+    calendar = new QCalendarWidget(this);
+    yearEdit->setMaximum(9999);
+    yearEdit->setMinimum(1);
+
+    QHBoxLayout *controlLayout = new QHBoxLayout;
+    controlLayout->setMargin(0);
+    controlLayout->addWidget(monthsCombo);
+    controlLayout->addSpacing(5);
+    controlLayout->addWidget(yearEdit);
+    controlLayout->insertStretch(controlLayout->count());
+
+    QStringList months;
+    for(int i=1; i<=12; i++)
+        months.append(QDate::longMonthName(i));
+    monthsCombo->addItems(months);
+    monthsCombo->setCurrentIndex(myDate.month()-1);
+    yearEdit->setValue(myDate.year());
+    calendar->setSelectedDate(myDate);
+
+    QVBoxLayout *widgetLayout = new QVBoxLayout(this);
+    widgetLayout->setMargin(0);
+    widgetLayout->setSpacing(0);
+    widgetLayout->addItem(controlLayout);
+    widgetLayout->addWidget(calendar);
+
+    connect(monthsCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(monthChanged(int)));
+    connect(yearEdit, SIGNAL(valueChanged(int)), this, SLOT(yearChanged(int)));
+    connect(calendar, SIGNAL(currentPageChanged(int, int)), this, SLOT(calendarPageChanged(int, int)));
+    connect(calendar, SIGNAL(activated(const QDate&)), this, SLOT(dateSelected(const QDate&)));
+}
+
+void CalendarPopup::calendarPageChanged(int year, int month)
+{
+    monthsCombo->setCurrentIndex(month-1);
+    yearEdit->setValue(year);
+}
+
+void CalendarPopup::dateSelected(const QDate &date)
+{
+    myDate = date;
+    //'done' signal has to be conneted with PopupWidget's 'closePopup' Slot.
+    emit done();
+}
+
+void CalendarPopup::monthChanged(int month)
+{
+    calendar->setCurrentPage(yearEdit->text().toInt(), month+1);
+}
+
+void CalendarPopup::yearChanged(int year) 
+{
+    calendar->setCurrentPage(year, monthsCombo->currentIndex()+1);
+}
+
+class SpreadSheetDelegate : public QItemDelegate
+{
+    Q_OBJECT
+public:
+    SpreadSheetDelegate(QObject *parent = 0);
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
+        const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+        const QModelIndex &index) const;
+private slots:
+    void commitAndCloseEditor();
+};
+
+SpreadSheetDelegate::SpreadSheetDelegate(QObject *parent)
+    : QItemDelegate(parent) {}
+
+QWidget *SpreadSheetDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem&,
+    const QModelIndex &index) const
+{
+    //ignore the column '1', we handle that in doubleclick of the table
+    if(index.column() == 1) 
+        return 0;
+    QLineEdit *editor = new QLineEdit(parent);
+    //create a completer with the strings in the column as model.
+    QStringList allStrings;
+    for(int i = 1; i<index.model()->rowCount(); i++){
+        QString strItem(index.model()->data(index.sibling(i, index.column()), Qt::EditRole).toString());
+        if(!allStrings.contains(strItem))
+            allStrings.append(strItem);    
+    }
+    QCompleter *autoComplete = new QCompleter(allStrings);
+    editor->setCompleter(autoComplete);
+    connect(editor, SIGNAL(editingFinished()), this, SLOT(commitAndCloseEditor()));
+    return editor;
+}
+
+void SpreadSheetDelegate::commitAndCloseEditor()
+{
+    QLineEdit *editor = qobject_cast<QLineEdit *>(sender());
+    emit commitData(editor);
+    emit closeEditor(editor);
+}
+
+void SpreadSheetDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    QLineEdit *edit = qobject_cast<QLineEdit *>(editor);
+    if (edit) {
+        edit->setText(index.model()->data(index, Qt::EditRole).toString());
+    }
+}
+
+void SpreadSheetDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
+    const QModelIndex &index) const
+{
+    QLineEdit *edit = qobject_cast<QLineEdit *>(editor);
+    if (edit) {
+        model->setData(index, edit->text());
+    }
 }
 
 class SpreadSheetItem : public QTableWidgetItem
@@ -164,6 +307,7 @@ public slots:
     void actionAdd();
     void actionMultiply();
     void actionDivide();
+    void dateChangeRequest(int row, int column);
 
 protected:
     void setupContextMenu();
@@ -218,7 +362,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
         table->setHorizontalHeaderItem(c, new QTableWidgetItem(character));
     }
     table->setItemPrototype(table->item(rows - 1, cols - 1));
-
+    table->setItemDelegate(new SpreadSheetDelegate());
     createActions();
 
     updateColor(0);
@@ -239,8 +383,34 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     connect(formulaInput, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateLineEdit(QTableWidgetItem*)));
+    connect(table, SIGNAL(cellDoubleClicked(int, int)),
+            this, SLOT(dateChangeRequest(int, int)));
 
     setWindowTitle(tr("Spreadsheet"));
+}
+
+void SpreadSheet::dateChangeRequest(int row, int column)
+{
+    if(column == 1){
+        SpreadSheetItem *item = (SpreadSheetItem *)table->item(row, column);
+        QDate selected = QDate::fromString(item->display().toString(),QString("dd/M/yyyy"));
+        //find the position of the item.
+        QRect itemRect = table->visualItemRect(item);
+        //map the point to screen coordinates
+        QPoint startPos(itemRect.topLeft());
+        startPos = table->viewport()->mapToGlobal(startPos);
+        //create popup in this position.
+        PopupWidget *popup = new PopupWidget(this);
+        CalendarPopup *calPopup = new CalendarPopup(selected, popup);
+        popup->setWidget(calPopup);
+        //add the 'date selected' signal to PopupWidget's close slot 
+        connect(calPopup, SIGNAL(done()), popup, SLOT(closePopup()));
+        if(popup->exec(QRect(startPos, itemRect.size()))) {
+            selected = calPopup->selectedDate();
+            item->setData(Qt::DisplayRole, selected.toString(QString("dd/M/yyyy")));
+        }
+        delete popup;
+    }
 }
 
 void SpreadSheet::createActions()
@@ -557,9 +727,9 @@ void SpreadSheet::actionSum()
 
 void SpreadSheet::actionMath_helper(const QString &title, const QString &op)
 {
-    QString cell1 = "B1";
-    QString cell2 = "B2";
-    QString out = "B3";
+    QString cell1 = "C1";
+    QString cell2 = "C2";
+    QString out = "C3";
 
     QTableWidgetItem *current = table->currentItem();
     if (current)
@@ -638,65 +808,80 @@ void SpreadSheet::setupContents()
     table->item(9, 0)->setFont(titleFont);
     table->item(9,0)->setBackgroundColor(Qt::lightGray);
     // column 1
-    table->setItem(0, 1, new SpreadSheetItem("Price"));
+    table->setItem(0, 1, new SpreadSheetItem("Date"));
     table->item(0, 1)->setBackgroundColor(titleBackground);
-    table->item(0, 1)->setToolTip("This column shows the price of the purchase");
+    table->item(0, 1)->setToolTip("This column shows the purchase date, double click to change");
     table->item(0, 1)->setFont(titleFont);
-    table->setItem(1, 1, new SpreadSheetItem("150"));
-    table->setItem(2, 1, new SpreadSheetItem("2350"));
-    table->setItem(3, 1, new SpreadSheetItem("-14"));
-    table->setItem(4, 1, new SpreadSheetItem("980"));
-    table->setItem(5, 1, new SpreadSheetItem("5"));
-    table->setItem(6, 1, new SpreadSheetItem("120"));
-    table->setItem(7, 1, new SpreadSheetItem("300"));
-    table->setItem(8, 1, new SpreadSheetItem("1240"));
+    table->setItem(1, 1, new SpreadSheetItem("15/6/2006"));
+    table->setItem(2, 1, new SpreadSheetItem("15/6/2006"));
+    table->setItem(3, 1, new SpreadSheetItem("15/6/2006"));
+    table->setItem(4, 1, new SpreadSheetItem("21/5/2006"));
+    table->setItem(5, 1, new SpreadSheetItem("16/6/2006"));
+    table->setItem(6, 1, new SpreadSheetItem("16/6/2006"));
+    table->setItem(7, 1, new SpreadSheetItem("16/6/2006"));
+    table->setItem(8, 1, new SpreadSheetItem("18/6/2006"));
     table->setItem(9, 1, new SpreadSheetItem());
     table->item(9,1)->setBackgroundColor(Qt::lightGray);
     // column 2
-    table->setItem(0, 2, new SpreadSheetItem("Currency"));
+    table->setItem(0, 2, new SpreadSheetItem("Price"));
     table->item(0, 2)->setBackgroundColor(titleBackground);
-    table->item(0, 2)->setToolTip("This column shows the currency");
+    table->item(0, 2)->setToolTip("This column shows the price of the purchase");
     table->item(0, 2)->setFont(titleFont);
-    table->setItem(1, 2, new SpreadSheetItem("NOK"));
-    table->setItem(2, 2, new SpreadSheetItem("NOK"));
-    table->setItem(3, 2, new SpreadSheetItem("EUR"));
-    table->setItem(4, 2, new SpreadSheetItem("EUR"));
-    table->setItem(5, 2, new SpreadSheetItem("USD"));
-    table->setItem(6, 2, new SpreadSheetItem("USD"));
-    table->setItem(7, 2, new SpreadSheetItem("USD"));
-    table->setItem(8, 2, new SpreadSheetItem("USD"));
+    table->setItem(1, 2, new SpreadSheetItem("150"));
+    table->setItem(2, 2, new SpreadSheetItem("2350"));
+    table->setItem(3, 2, new SpreadSheetItem("-14"));
+    table->setItem(4, 2, new SpreadSheetItem("980"));
+    table->setItem(5, 2, new SpreadSheetItem("5"));
+    table->setItem(6, 2, new SpreadSheetItem("120"));
+    table->setItem(7, 2, new SpreadSheetItem("300"));
+    table->setItem(8, 2, new SpreadSheetItem("1240"));
     table->setItem(9, 2, new SpreadSheetItem());
     table->item(9,2)->setBackgroundColor(Qt::lightGray);
     // column 3
-    table->setItem(0, 3, new SpreadSheetItem("Ex.Rate"));
+    table->setItem(0, 3, new SpreadSheetItem("Currency"));
     table->item(0, 3)->setBackgroundColor(titleBackground);
-    table->item(0, 3)->setToolTip("This column shows the exchange rate to NOK");
+    table->item(0, 3)->setToolTip("This column shows the currency");
     table->item(0, 3)->setFont(titleFont);
-    table->setItem(1, 3, new SpreadSheetItem("1"));
-    table->setItem(2, 3, new SpreadSheetItem("1"));
-    table->setItem(3, 3, new SpreadSheetItem("8"));
-    table->setItem(4, 3, new SpreadSheetItem("8"));
-    table->setItem(5, 3, new SpreadSheetItem("7"));
-    table->setItem(6, 3, new SpreadSheetItem("7"));
-    table->setItem(7, 3, new SpreadSheetItem("7"));
-    table->setItem(8, 3, new SpreadSheetItem("7"));
+    table->setItem(1, 3, new SpreadSheetItem("NOK"));
+    table->setItem(2, 3, new SpreadSheetItem("NOK"));
+    table->setItem(3, 3, new SpreadSheetItem("EUR"));
+    table->setItem(4, 3, new SpreadSheetItem("EUR"));
+    table->setItem(5, 3, new SpreadSheetItem("USD"));
+    table->setItem(6, 3, new SpreadSheetItem("USD"));
+    table->setItem(7, 3, new SpreadSheetItem("USD"));
+    table->setItem(8, 3, new SpreadSheetItem("USD"));
     table->setItem(9, 3, new SpreadSheetItem());
     table->item(9,3)->setBackgroundColor(Qt::lightGray);
     // column 4
-    table->setItem(0, 4, new SpreadSheetItem("NOK"));
+    table->setItem(0, 4, new SpreadSheetItem("Ex.Rate"));
     table->item(0, 4)->setBackgroundColor(titleBackground);
-    table->item(0, 4)->setToolTip("This column shows the expenses in NOK");
+    table->item(0, 4)->setToolTip("This column shows the exchange rate to NOK");
     table->item(0, 4)->setFont(titleFont);
-    table->setItem(1, 4, new SpreadSheetItem("* B2 D2"));
-    table->setItem(2, 4, new SpreadSheetItem("* B3 D3"));
-    table->setItem(3, 4, new SpreadSheetItem("* B4 D4"));
-    table->setItem(4, 4, new SpreadSheetItem("* B5 D5"));
-    table->setItem(5, 4, new SpreadSheetItem("* B6 D6"));
-    table->setItem(6, 4, new SpreadSheetItem("* B7 D7"));
-    table->setItem(7, 4, new SpreadSheetItem("* B8 D8"));
-    table->setItem(8, 4, new SpreadSheetItem("* B9 D9"));
-    table->setItem(9, 4, new SpreadSheetItem("sum E2 E9"));
+    table->setItem(1, 4, new SpreadSheetItem("1"));
+    table->setItem(2, 4, new SpreadSheetItem("1"));
+    table->setItem(3, 4, new SpreadSheetItem("8"));
+    table->setItem(4, 4, new SpreadSheetItem("8"));
+    table->setItem(5, 4, new SpreadSheetItem("7"));
+    table->setItem(6, 4, new SpreadSheetItem("7"));
+    table->setItem(7, 4, new SpreadSheetItem("7"));
+    table->setItem(8, 4, new SpreadSheetItem("7"));
+    table->setItem(9, 4, new SpreadSheetItem());
     table->item(9,4)->setBackgroundColor(Qt::lightGray);
+    // column 5
+    table->setItem(0, 5, new SpreadSheetItem("NOK"));
+    table->item(0, 5)->setBackgroundColor(titleBackground);
+    table->item(0, 5)->setToolTip("This column shows the expenses in NOK");
+    table->item(0, 5)->setFont(titleFont);
+    table->setItem(1, 5, new SpreadSheetItem("* C2 E2"));
+    table->setItem(2, 5, new SpreadSheetItem("* C3 E3"));
+    table->setItem(3, 5, new SpreadSheetItem("* C4 E4"));
+    table->setItem(4, 5, new SpreadSheetItem("* C5 E5"));
+    table->setItem(5, 5, new SpreadSheetItem("* C6 E6"));
+    table->setItem(6, 5, new SpreadSheetItem("* C7 E7"));
+    table->setItem(7, 5, new SpreadSheetItem("* C8 E8"));
+    table->setItem(8, 5, new SpreadSheetItem("* C9 E9"));
+    table->setItem(9, 5, new SpreadSheetItem("sum F2 F9"));
+    table->item(9,5)->setBackgroundColor(Qt::lightGray);
 
 }
 
@@ -721,13 +906,12 @@ void SpreadSheet::showAbout()
     QMessageBox::about(this, "About Spreadsheet", htmlText);
 }
 
-
 int main(int argc, char** argv) {
     Q_INIT_RESOURCE(spreadsheet);
     QApplication app(argc, argv);
-    SpreadSheet sheet(10, 5);
+    SpreadSheet sheet(10, 6);
     sheet.setWindowIcon(QPixmap(":/images/interview.png"));
-    sheet.resize(600, 400);
+    sheet.resize(640, 420);
     sheet.show();
     return app.exec();
 }
