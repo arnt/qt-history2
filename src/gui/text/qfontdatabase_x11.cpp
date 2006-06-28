@@ -1529,24 +1529,6 @@ static QFontEngine *tryPatternLoad(FcPattern *p, int screen,
     FcPatternGetString(p, FC_FAMILY, 0, &fam);
     FM_DEBUG("==== trying %s\n", fam);
 #endif
-    if (script != QUnicodeTables::Common) {
-        // skip font if it doesn't support the language we want
-        if (specialChars[script]) {
-            // need to check the charset, as the langset doesn't work for these scripts
-            FcCharSet *cs;
-            if (FcPatternGetCharSet(p, FC_CHARSET, 0, &cs) != FcResultMatch)
-                return 0;
-            if (!FcCharSetHasChar(cs, specialChars[script]))
-                return 0;
-        } else {
-            FcLangSet *langSet = 0;
-            if (FcPatternGetLangSet(p, FC_LANG, 0, &langSet) != FcResultMatch)
-                return 0;
-            if (FcLangSetHasLang(langSet, (const FcChar8*)specialLanguages[script]) != FcLangEqual)
-                return 0;
-        }
-    }
-
     FM_DEBUG("passes charset test\n");
     FcPattern *pattern = FcPatternDuplicate(p);
     // add properties back in as the font selected from the
@@ -1557,20 +1539,41 @@ static QFontEngine *tryPatternLoad(FcPattern *p, int screen,
     FcDefaultSubstitute(pattern);
     FcResult res;
     FcPattern *match = FcFontMatch(0, pattern, &res);
-    QFontEngineFT *engine = new QFontEngineFT(match, qt_FcPatternToQFontDef(match, request), screen);
-    FcPatternDestroy(pattern);
+    QFontEngineFT *engine = 0;
+
+    if (script != QUnicodeTables::Common) {
+        // skip font if it doesn't support the language we want
+        if (specialChars[script]) {
+            // need to check the charset, as the langset doesn't work for these scripts
+            FcCharSet *cs;
+            if (FcPatternGetCharSet(match, FC_CHARSET, 0, &cs) != FcResultMatch)
+                goto done;
+            if (!FcCharSetHasChar(cs, specialChars[script]))
+                goto done;
+        } else {
+            FcLangSet *langSet = 0;
+            if (FcPatternGetLangSet(match, FC_LANG, 0, &langSet) != FcResultMatch)
+                goto done;
+            if (FcLangSetHasLang(langSet, (const FcChar8*)specialLanguages[script]) != FcLangEqual)
+                goto done;
+        }
+    }
+
+    engine = new QFontEngineFT(match, qt_FcPatternToQFontDef(match, request), screen);
     if (engine->invalid()) {
         FM_DEBUG("   --> invalid!\n");
         delete engine;
-        return 0;
+        engine = 0;
     } else if (scriptRequiresOpenType(script)) {
         QOpenType *ot = engine->openType();
         if (!ot || !ot->supportsScript(script)) {
             FM_DEBUG("  OpenType support missing for script\n");
             delete engine;
-            return 0;
+            engine = 0;
         }
     }
+done:
+    FcPatternDestroy(pattern);
     return engine;
 }
 
