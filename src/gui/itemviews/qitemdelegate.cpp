@@ -322,7 +322,7 @@ void QItemDelegate::paint(QPainter *painter,
     else
         drawDecoration(painter, opt, decorationRect, pixmap);
     drawDisplay(painter, opt, displayRect, text);
-    drawFocus(painter, opt, displayRect);
+    drawFocus(painter, opt, text.isEmpty() ? QRect() : displayRect);
 
     // done
     painter->restore();
