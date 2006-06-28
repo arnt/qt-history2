@@ -1663,30 +1663,12 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 
     d->setCursorVisible(true);
     if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
-        if (hasAcceptableInput()) {
+        if (hasAcceptableInput() || d->fixup()) {
             emit returnPressed();
             d->emitingEditingFinished = true;
             emit editingFinished();
             d->emitingEditingFinished = false;
         }
-#ifndef QT_NO_VALIDATOR
-        else {
-            const QValidator * v = d->validator;
-            QString textCopy = d->text;
-            int cursorCopy = d->cursor;
-            if (v && v->validate(textCopy, cursorCopy) != QValidator::Acceptable)
-                v->fixup(textCopy);
-
-            if (d->hasAcceptableInput(textCopy)) {
-                if (v && (textCopy != d->text || cursorCopy != d->cursor))
-                    d->setText(textCopy, cursorCopy);
-                emit returnPressed();
-                d->emitingEditingFinished = true;
-                emit editingFinished();
-                d->emitingEditingFinished = false;
-            }
-        }
-#endif
         event->ignore();
         return;
     }
@@ -2135,8 +2117,13 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
     d->cursorTimer = 0;
     if (reason != Qt::PopupFocusReason
         && !(QApplication::activePopupWidget() && QApplication::activePopupWidget()->parentWidget() == this)) {
-        if (!d->emitingEditingFinished)
+        if (!d->emitingEditingFinished) {
+            if (!hasAcceptableInput())
+                d->fixup();
+            d->emitingEditingFinished = true;
             emit editingFinished();
+            d->emitingEditingFinished = false;
+        }
 #ifdef QT3_SUPPORT
         emit lostFocus();
 #endif
@@ -2530,6 +2517,24 @@ QRect QLineEditPrivate::cursorRect() const
     int ch = qMin(cr.height(), q->fontMetrics().height() + 1);
     return QRect(cix-5, cr.y() + (cr.height() -  ch) / 2, 10, ch);
 }
+
+bool QLineEditPrivate::fixup() // this function assumes that validate currently returns != Acceptable
+{
+#ifndef QT_NO_VALIDATOR
+    if (validator) {
+        QString textCopy = text;
+        int cursorCopy = cursor;
+        validator->fixup(textCopy);
+        if (validator->validate(textCopy, cursorCopy) == QValidator::Acceptable) {
+            if (textCopy != text || cursorCopy != cursor)
+                setText(textCopy, cursorCopy);
+            return true;
+        }
+    }
+#endif
+    return false;
+}
+
 
 void QLineEditPrivate::moveCursor(int pos, bool mark)
 {

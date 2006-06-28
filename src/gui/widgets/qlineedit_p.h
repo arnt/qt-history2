@@ -167,6 +167,7 @@ public:
     void setText(const QString& txt, int pos = -1, bool edited = true);
     int xToPos(int x, QTextLine::CursorPosition = QTextLine::CursorBetweenCharacters) const;
     QRect cursorRect() const;
+    bool fixup();
 
 #ifndef QT_NO_DRAGANDDROP
     // drag and drop
