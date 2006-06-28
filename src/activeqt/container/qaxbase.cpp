@@ -1250,7 +1250,7 @@ bool QAxBase::initializeLicensedHelper(void *f, const QString &key, IUnknown **p
             } else if (licinfo.fRuntimeKeyAvail) {
                 BSTR licenseKey;
                 factory2->RequestLicKey(0, &licenseKey);
-                QString qlicenseKey = QString::fromUtf16(licenseKey);
+                QString qlicenseKey = QString::fromUtf16((const ushort *)licenseKey);
                 SysFreeString(licenseKey);
                 qWarning("Use license key is '%s' to create object on unlicensed machine.",
                     qlicenseKey.toLatin1().constData());
@@ -1260,7 +1260,7 @@ bool QAxBase::initializeLicensedHelper(void *f, const QString &key, IUnknown **p
             if (licinfo.fRuntimeKeyAvail) {
                 BSTR licenseKey;
                 factory2->RequestLicKey(0, &licenseKey);
-                QString qlicenseKey = QString::fromUtf16(licenseKey);
+                QString qlicenseKey = QString::fromUtf16((const ushort *)licenseKey);
                 SysFreeString(licenseKey);
 
                 if (qlicenseKey != key)
