@@ -510,8 +510,10 @@ void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &botto
         }
     }
 
-    if (sizeChanged)
+    if (sizeChanged) {
+        d->updateScrollBars();
         d->viewport->update();
+    }
     QAbstractItemView::dataChanged(topLeft, bottomRight);
 }
 
