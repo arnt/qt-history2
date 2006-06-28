@@ -348,29 +348,34 @@ QBalloonTip::QBalloonTip(QSystemTrayIcon::MessageIcon icon, const QString& title
     msgLabel->setTextFormat(Qt::PlainText);
     msgLabel->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 
-    QStyle::StandardPixmap p;
+    QIcon si;
     switch (icon) {
     case QSystemTrayIcon::Warning:
-        p = QStyle::SP_MessageBoxWarning;
+        si = style()->standardIcon(QStyle::SP_MessageBoxWarning);
         break;
     case QSystemTrayIcon::Critical:
-        p = QStyle::SP_MessageBoxCritical;
+	si = style()->standardIcon(QStyle::SP_MessageBoxCritical);
         break;
     case QSystemTrayIcon::Information:
-        p = QStyle::SP_MessageBoxInformation;
+	si = style()->standardIcon(QStyle::SP_MessageBoxInformation);
         break;
     case QSystemTrayIcon::NoIcon:
     default:
         break;
     }
-    QLabel *iconLabel = new QLabel;
-    iconLabel->setPixmap(style()->standardIcon(p).pixmap(15, 15));
-    iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    iconLabel->setMargin(2);
 
     QGridLayout *layout = new QGridLayout;
-    layout->addWidget(iconLabel, 0, 0);
-    layout->addWidget(titleLabel, 0, 1);
+    if (!si.isNull()) {
+        QLabel *iconLabel = new QLabel;
+        iconLabel->setPixmap(si.pixmap(15, 15));
+        iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        iconLabel->setMargin(2);
+        layout->addWidget(iconLabel, 0, 0);
+	layout->addWidget(titleLabel, 0, 1);
+    } else {
+	layout->addWidget(titleLabel, 0, 0, 1, 2);
+    }
+
     layout->addWidget(closeButton, 0, 2);
     layout->addWidget(msgLabel, 1, 0, 1, 3);
     layout->setSizeConstraint(QLayout::SetFixedSize);
