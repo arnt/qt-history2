@@ -591,7 +591,9 @@ void QDesignerActions::previewForm(QAction *action)
         Q_ASSERT(widget);
 
         widget->setParent(fw->window(), Qt::Dialog);
+#ifndef Q_WS_MAC
         widget->setWindowModality(Qt::ApplicationModal);
+#endif
         widget->setAttribute(Qt::WA_DeleteOnClose, true);
         widget->move(fw->mapToGlobal(QPoint(0, 0)) + QPoint(10, 10));
 
