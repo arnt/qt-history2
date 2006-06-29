@@ -546,9 +546,7 @@ void tst_QUdpSocket::writeToNonExistingPeer_data()
 
 void tst_QUdpSocket::writeToNonExistingPeer()
 {
-#if QT_VERSION < 0x40200
-    QSKIP("Connected-mode UDP sockets and their behaviour in Qt 4.1.x are erratic", SkipAll);
-#else
+    QSKIP("Connected-mode UDP sockets and their behaviour are erratic", SkipAll);
     QFETCH(QHostAddress, peerAddress);
     quint16 peerPort = 34534;
     qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
@@ -590,7 +588,6 @@ void tst_QUdpSocket::writeToNonExistingPeer()
 
     // we should still be connected
     QCOMPARE(int(sConnected.state()), int(QUdpSocket::ConnectedState));
-#endif
 }
 
 
