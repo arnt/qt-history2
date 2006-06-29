@@ -1,6 +1,6 @@
 /*!
   \page qt4.2-intro.html
-  \title What's New in Qt 4.2
+  \title What's New in Qt 4.2 Technical Preview
 
   Qt 4.2 provides many improvements and enhancements over the previous releases
   in the Qt 4 series. This documents covers the most important features in this
@@ -147,11 +147,21 @@
 
   \section1 Widget Stylesheets
 
+  \omit
   \image stylesheets-example-detail.png
+  \endomit
 
   \bold{Widgets can be styled using stylesheets} that follow a syntax similar to
-  that used by Cascading Style Sheets (CSS) for HTML.
+  that used by Cascading Style Sheets (CSS) for HTML. Many of the more common
+  customizations to widget styles can be made using stylesheets, making it largely
+  unnecessary for developers to create entire custom widget styles with QStyle
+  subclasses.
 
+  The stylesheet for any given widget can be accessed via its
+  \l{QWidget::}{styleSheet} property.
+
+  This functionality is being constantly improved, and full documentation
+  for this feature will be introduced during the development of Qt 4.2.
 
   \section1 Undo Framework
 
@@ -210,6 +220,10 @@
   QGLFrameBufferObject class; this enables textures to be painted with a series
   of calls to QPainter functions in the usual way for QPaintDevice subclasses.
 
+  \bold{Improved support for platform-native message boxes} is provided by
+  QMessageBoxEx. This class uses QDialogButtonBox to positioned buttons using
+  the appropriate conventions for the user's platform and desktop environment.
+
   \section1 Extended Infrastructure
 
   Many improvements have been made to the classes and tools that provide
@@ -240,7 +254,6 @@
      data-aware widgets and forms.
   \endlist
 
-
   The \bold{HTML import and export facilities have been enhanced} in the
   \l{Rich Text Processing}{rich text classes}, and now include support for CSS
   stylesheets.
@@ -255,9 +268,11 @@
   features pattern and gradient editors alongside standard color selection and
   image import facilities.
 
-  Support for widgets in menus.
-
-  Icons An SVG icon engine is provided to 
+  The addition of a \bold{Scalable Vector Graphics (SVG) icon engine} enables
+  icons to be created from pictures in this vector graphics format. This reduces
+  the number of fixed-size images that developers need to include with
+  applications, and avoids the need to provide sufficiently high resolution
+  images to cover all possible icon sizes.
 
   Support for detection and reporting of network interfaces is provided by the
   QNetworkInterface class.
@@ -271,10 +286,30 @@
   such as \gui{Undo}, \gui{Copy}, and \gui{Paste}, and enable shortcuts to be
   specified in a true cross-platform way.
 
-  \bold{Improved support for platform-native message boxes} is provided by the
-  QMessageBoxEx. This class uses QDialogButtonBox 
+  \section1 Qtopia Core
 
+  Many improvements in Qt are specific to Qtopia Core and are concerned with
+  graphics support and rendering performance.
+
+  Direct painting to the screen can be enabled on by
+  \l{Performance Tuning#Bypassing the Backing Store}{bypassing the backing store}
+  on a per-application basis.
+
+  Support for 18 and 24 bits-per-pixel color depths has been added to the paint
+  system. Color depths that assign 6 bits to each color (or alpha) channel are
+  commonly used on mobile devices.
+
+  Alongside many general improvements and optimizations, the transformed screen
+  driver has been optimized to improve performance when rendering rotated content.
   \omit
+
+  \section1 Other Improvements
+
+  Many other enhancements have been made Internally, Other improvements
+  Menu handling has been updated to allow widgets to be inserted as menu items.
+
+  Support for widgets in menus.
+
   * Backing store interface
 
   * delayed widget creation

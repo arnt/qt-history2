@@ -92,7 +92,7 @@
     \list
     \o \l{layouts/basiclayouts}{Basic Layouts}\raisedaster
     \o \l{layouts/borderlayout}{Border Layout}
-    \o \l{layouts/borderlayout}{Dynamic Layouts}
+    \o \l{layouts/dynamiclayouts}{Dynamic Layouts}
     \o \l{layouts/flowlayout}{Flow Layout}
     \endlist
 

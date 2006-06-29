@@ -1648,7 +1648,7 @@ void QWidget::createWinId()
 }
 
 /*!
-    \property QApplication::styleSheet
+    \property QWidget::styleSheet
     \brief the widget's style sheet
 
     \sa QWidget::setStyle, QApplication::styleSheet

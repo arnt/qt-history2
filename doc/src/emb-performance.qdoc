@@ -121,4 +121,25 @@
     The example above shows the necessary code to switch to the plain
     C memory allocators.
 
+    \section1 Bypassing the Backing Store
+
+    The backing store is a paint buffer that is used to reduce flicker,
+    and to support graphics operations such as blending. On some devices,
+    the memory requirements of the backing store are 
+
+    \omit
+    Memory = number of visible top-level windows * size of each widget * bit depth
+    \endomit
+
+    To bypass the backing store for any given application, it must be executed
+    with the following value set in the running environment:
+
+    \code
+    QT_ONSCREEN_PAINT = 1
+    \endcode
+
+    This option only has an effect on opaque top-level windows. Enabling this
+    option also has the side effect that software-based mouse cursors will be
+    invisible when positioned any of the application's opaque windows since the
+    cursor image cannot be superimposed on them.
 */
