@@ -34,9 +34,9 @@ protected:
     void drawBackground(QPainter *painter, const QRectF &rect);
 
     void scaleView(qreal scaleFactor);
+
 private:
     int timerId;
-    qreal currentScale;
     Node *centerNode;
 };
 
