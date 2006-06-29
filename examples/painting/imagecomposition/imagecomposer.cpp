@@ -91,6 +91,7 @@ void ImageComposer::recalculateResult()
     painter.drawImage(0, 0, sourceImage);
     painter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
     painter.fillRect(resultImage.rect(), Qt::white);
+    painter.end();
 
     resultLabel->setPixmap(QPixmap::fromImage(resultImage));
 }
