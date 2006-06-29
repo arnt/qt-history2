@@ -300,8 +300,9 @@ void QAssistantClient::closeAssistant()
 }
 
 /*!
-    Brings Qt Assistant to the forground showing the given \a page.
-    The \a page parameter is a filename (e.g. \c myhelpfile.html).
+    Brings Qt Assistant to the foreground showing the given \a page.
+    The \a page parameter is a path to an HTML file
+    (e.g., "/home/pasquale/superproduct/docs/html/intro.html").
 
     If Qt Assistant hasn't been opened yet, this function will call
     the openAssistant() slot with the specified page as the start
