@@ -422,6 +422,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         ClientToScreen(id, &pt);
         data.crect = QRect(QPoint(pt.x, pt.y),
                             QPoint(pt.x + cr.right - 1, pt.y + cr.bottom - 1));
+
+        if (data.fstrut_dirty) {
+            // be nice to activeqt
+            updateFrameStrut();
+        }
     }
 
     q->setAttribute(Qt::WA_WState_Created);                // accept move/resize events
