@@ -1426,16 +1426,14 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
                     cachePainter.drawLine(pixmapRect.topRight(), pixmapRect.bottomRight());
                     if (header->position != QStyleOptionHeader::End) {
                         cachePainter.setPen(QPen(shadow));
-                        cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, -1), pixmapRect.bottomRight() + QPoint(-3, -1));                            cachePainter.setPen(QPen(option->palette.light().color()));
-                        cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, 0), pixmapRect.bottomRight() + QPoint(-3, 0));                          }
+                        cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, -1), pixmapRect.bottomRight() + QPoint(-3, -1));                                cachePainter.setPen(QPen(option->palette.light().color()));
+                        cachePainter.drawLine(pixmapRect.bottomLeft() + QPoint(3, 0), pixmapRect.bottomRight() + QPoint(-3, 0));                              }
                 } else {
                     cachePainter.setPen(QPen(option->palette.dark().color()));
                     cachePainter.drawLine(pixmapRect.bottomLeft(), pixmapRect.bottomRight());
-                    if (header->position != QStyleOptionHeader::End) {
-                        cachePainter.setPen(QPen(shadow));
-                        cachePainter.drawLine(pixmapRect.topRight() + QPoint(-1, 3), pixmapRect.bottomRight() + QPoint(-1, -3));                              cachePainter.setPen(QPen(option->palette.light().color()));
-                        cachePainter.drawLine(pixmapRect.topRight() + QPoint(0, 3), pixmapRect.bottomRight() + QPoint(0, -3));                            }
-                }
+                    cachePainter.setPen(QPen(shadow));
+                    cachePainter.drawLine(pixmapRect.topRight() + QPoint(-1, 3), pixmapRect.bottomRight() + QPoint(-1, -3));                                  cachePainter.setPen(QPen(option->palette.light().color()));
+                    cachePainter.drawLine(pixmapRect.topRight() + QPoint(0, 3), pixmapRect.bottomRight() + QPoint(0, -3));                                }
                 cachePainter.end();
                 if (UsePixmapCache)
                     QPixmapCache::insert(pixmapName, cache);
