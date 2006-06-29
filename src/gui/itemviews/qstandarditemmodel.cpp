@@ -1765,36 +1765,37 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
     data types. It is one of the \l {Model/View Classes} and is part
     of Qt's \l {Model/View Programming}{model/view} framework.
 
-    Data is written to the model, and read back, using the standard
-    QAbstractItemModel interface. The way each item of information is
-    referenced depends on how the data is inserted into the model. The
-    QStandardItemModel class reimplements several of the
-    QAbstractItemModel class's functions, and implements in addition a
-    clear() function which removes all items from the model and resets
-    both the horizontal and vertical headers.
-
-    Since Qt 4.2, QStandardItemModel also provides an item-based approach to
-    working with the model. The items in a QStandardItemModel are provided by
+    QStandardItemModel provides a classic item-based approach to working with
+    the model.  The items in a QStandardItemModel are provided by
     QStandardItem.
 
-    For performance and flexibility, you may want to subclass
-    QAbstractItemModel to provide support for different kinds of
-    repositories. For example, the QDirModel provides a model
-    interface to the underlying file system, and does not actually
-    store file information internally.
+    QStandardItemModel implements the QAbstractItemModel interface, which
+    means that the model can be used to provide data in any view that supports
+    that interface (such as QListView, QTableView and QTreeView, and your own
+    custom views). For performance and flexibility, you may want to subclass
+    QAbstractItemModel to provide support for different kinds of data
+    repositories. For example, the QDirModel provides a model interface to the
+    underlying file system, and does not actually store file information
+    internally.
 
-    An example usage of QStandardItemModel to create a table (using the
-    QAbstractItemModel interface):
+    When you want a list or tree, you typically create an empty
+    QStandardItemModel and use appendRow() to add items to the model, and
+    item() to access an item.  If your model represents a table, you typically
+    pass the dimensions of the table to the QStandardItemModel constructor and
+    use setItem() to position items into the table. You can also use setRowCount()
+    and setColumnCount() to alter the dimensions of the model. To insert items,
+    use insertRow() or insertColumn(), and to remove items, use removeRow() or
+    removeColumn().
 
-    \quotefromfile itemviews/spinboxdelegate/main.cpp
-    \skipto QStandardItemModel model
-    \printline model
+    You can set the header labels of your model with setHorizontalHeaderLabels()
+    and setVerticalHeaderLabels().
 
-    \skipto for (int row
-    \printuntil }
-    \printline }
+    You can search for items in the model with findItems(), and sort the model by
+    calling sort().
 
-    An example of using the item-based approach to create a table:
+    Call clear() to remove all items from the model.
+
+    An example usage of QStandardItemModel to create a table:
 
     \code
             QStandardItemModel model(4, 4);
@@ -1806,14 +1807,7 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
             }
     \endcode
 
-    An example usage of QStandardItemModel to create a tree (using the
-    QAbstractItemModel interface):
-
-    \quotefromfile snippets/qstandarditemmodel/main.cpp
-    \skipto QStandardItemModel
-    \printuntil }
-
-    An example of using the item-based approach to create a tree:
+    An example usage of QStandardItemModel to create a tree:
 
     \code
             QStandardItemModel model;
@@ -1825,29 +1819,27 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
             }
     \endcode
 
-    The item-based approach hides much of the QModelIndex-based interface of
-    QAbstractItemModel; instead, a more convenient and intuitive interface
-    based on direct manipulation of item objects is provided. When items are
-    manipulated, QStandardItemModel takes care of emitting the proper
-    QAbstractItemModel signals (e.g. dataChanged() and rowsInserted()) behind
-    the scenes, so that the model state observed by other objects (e.g. views)
-    is consistent.
-
-    When using the item-based approach, itemFromIndex() and indexFromItem()
-    provide a bridge between the item-based interface and the
-    QAbstractItemModel/QAbstractItemView interface. Typical usage of
-    itemFromIndex() includes obtaining the item at the current index in a
-    view, and obtaining the item that corresponds to an index carried by a
-    QAbstractItemView signal, such as QAbstractItemView::clicked():
+    After setting the model on a view, you typically want to react to user
+    actions, such as an item being clicked. Since a QAbstractItemView provides
+    QModelIndex-based signals and functions, you need a way to obtain the
+    QStandardItem that corresponds to a given QModelIndex, and vice
+    versa. itemFromIndex() and indexFromItem() provide this mapping. Typical
+    usage of itemFromIndex() includes obtaining the item at the current index
+    in a view, and obtaining the item that corresponds to an index carried by
+    a QAbstractItemView signal, such as QAbstractItemView::clicked(). First
+    you connect the view's signal to a slot in your class:
 
     \code
-        // In constructor or similar
         QTreeView *treeView = new QTreeView(this);
         treeView->setModel(myStandardItemModel);
         connect(treeView, SIGNAL(clicked(const QModelIndex &)),
                 this, SLOT(clicked(const QModelIndex &)));
-        ...
+    \endcode
 
+    When you receive the signal, you call itemFromIndex() on the given model
+    index to get a pointer to the item:
+
+    \code
         void MyWidget::clicked(const QModelIndex &index)
         {
             QStandardItem *item = myStandardItemModel->itemFromIndex(index);
@@ -1864,7 +1856,11 @@ QDataStream &operator<<(QDataStream &out, const QStandardItem &item)
         treeView->scrollTo(item->index());
     \endcode
 
-    \sa {Model/View Programming}, QAbstractItemModel,
+    You are, of course, not required to use the item-based approach; you could
+    instead rely entirely on the QAbstractItemModel interface when working with
+    the model, or use a combination of the two as appropriate.
+
+    \sa QStandardItem, {Model/View Programming}, QAbstractItemModel,
     {itemviews/simpletreemodel}{Simple Tree Model example},
     {Item View Convenience Classes}
 */
