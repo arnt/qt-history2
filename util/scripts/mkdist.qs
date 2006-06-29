@@ -699,7 +699,7 @@ function copyTarget(packageDir, platform)
         return;
 
     for (var i in vfbFiles) {
-        if (!File.exists(packageDir + vfbFiles[i])
+        if (!File.exists(packageDir + vfbFiles[i]))
             throw "%1 cannot be found".arg(packageDir + vfbFiles[i]);
         execute("cp", packageDir + vfbFiles[i], packageDir + "/tools/qvfb/");
     }
