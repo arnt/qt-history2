@@ -1673,9 +1673,11 @@ void QDockWidgetLayout::setGrid(QVector<QLayoutStruct> *ver_struct_list,
 
         if (hor_struct_list != 0) {
             r.setLeft(corners[Qt::TopLeftCorner] == Qt::TopDockWidgetArea
-                        ? rect.left() : hor_struct_list->at(1).pos);
+                        || docks[LeftPos].isEmpty()
+                            ? rect.left() : hor_struct_list->at(1).pos);
             r.setRight(corners[Qt::TopRightCorner] == Qt::TopDockWidgetArea
-                        ? rect.right() : hor_struct_list->at(2).pos - sep - 1);
+                        || docks[RightPos].isEmpty()
+                            ? rect.right() : hor_struct_list->at(2).pos - sep - 1);
         }
         if (ver_struct_list != 0) {
             r.setTop(rect.top());
@@ -1691,9 +1693,11 @@ void QDockWidgetLayout::setGrid(QVector<QLayoutStruct> *ver_struct_list,
 
         if (hor_struct_list != 0) {
             r.setLeft(corners[Qt::BottomLeftCorner] == Qt::BottomDockWidgetArea
-                        ? rect.left() : hor_struct_list->at(1).pos);
+                        || docks[LeftPos].isEmpty()
+                            ? rect.left() : hor_struct_list->at(1).pos);
             r.setRight(corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea
-                        ? rect.right() : hor_struct_list->at(2).pos - sep - 1);
+                        || docks[RightPos].isEmpty()
+                            ? rect.right() : hor_struct_list->at(2).pos - sep - 1);
         }
         if (ver_struct_list != 0) {
             r.setTop(ver_struct_list->at(2).pos);
@@ -1713,8 +1717,10 @@ void QDockWidgetLayout::setGrid(QVector<QLayoutStruct> *ver_struct_list,
         }
         if (ver_struct_list != 0) {
             r.setTop(corners[Qt::TopLeftCorner] == Qt::LeftDockWidgetArea
-                        ? rect.top() : ver_struct_list->at(1).pos);
+                        || docks[TopPos].isEmpty()
+                            ? rect.top() : ver_struct_list->at(1).pos);
             r.setBottom(corners[Qt::BottomLeftCorner] == Qt::LeftDockWidgetArea
+                        || docks[BottomPos].isEmpty()
                             ? rect.bottom() : ver_struct_list->at(2).pos - sep - 1);
         }
 
@@ -1731,8 +1737,10 @@ void QDockWidgetLayout::setGrid(QVector<QLayoutStruct> *ver_struct_list,
         }
         if (ver_struct_list != 0) {
             r.setTop(corners[Qt::TopRightCorner] == Qt::RightDockWidgetArea
-                        ? rect.top() : ver_struct_list->at(1).pos);
+                        || docks[TopPos].isEmpty()
+                            ? rect.top() : ver_struct_list->at(1).pos);
             r.setBottom(corners[Qt::BottomRightCorner] == Qt::RightDockWidgetArea
+                        || docks[BottomPos].isEmpty()
                             ? rect.bottom() : ver_struct_list->at(2).pos - sep - 1);
         }
 
