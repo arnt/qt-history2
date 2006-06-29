@@ -364,9 +364,10 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
         if(oldFont)
             DeleteObject(SelectObject(hdc, oldFont));
     } else {
-        HGDIOBJ oldFont = SelectObject(hdc, hfont);
         int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
         int glyph_pos = 0;
+        HGDIOBJ oldFont = 0;
+
         for(register int i = 0; i < len; i++) {
             bool surrogate = (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00 && i < len-1
                               && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
@@ -376,6 +377,8 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             // font-width cache failed
             if (glyphs[glyph_pos].advance.x == 0) {
                 SIZE size = {0, 0};
+                if (!oldFont)
+                    oldFont = SelectObject(hdc, hfont);
                 GetTextExtentPoint32W(hdc, (wchar_t *)str + i, surrogate ? 2 : 1, &size);
                 size.cx -= overhang;
                 glyphs[glyph_pos].advance.x = size.cx;
@@ -387,7 +390,9 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
                 ++i;
             ++glyph_pos;
         }
-        SelectObject(hdc, oldFont);
+
+        if (oldFont)
+            SelectObject(hdc, oldFont);
     }
     return true;
 }
