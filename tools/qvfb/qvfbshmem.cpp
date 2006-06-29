@@ -122,17 +122,19 @@ QShMemViewProtocol::QShMemViewProtocol(int displayid, const QSize &s,
 
     QString oldPipe = "/tmp/qtembedded-" + username + "/" + QString( QTE_PIPE ).arg( displayid );
     int oldPipeSemkey = ftok( oldPipe.toLatin1().constData(), 'd' );
-    int oldPipeLockId = semget( oldPipeSemkey, 0, 0 );
-    if (oldPipeLockId >= 0){
-        sembuf sops;
-        sops.sem_num = 0;
-        sops.sem_op = 1;
-        sops.sem_flg = SEM_UNDO;
-        int rv;
-        do {
-            rv = semop(lockId,&sops,1);
-        } while ( rv == -1 && errno == EINTR );
-        qFatal("Cannot create lock file as an old version of QVFb has opened %s. Close other QVFb and try again", oldPipe.toLatin1().constData());
+    if (oldPipeSemkey != -1) {
+        int oldPipeLockId = semget( oldPipeSemkey, 0, 0 );
+        if (oldPipeLockId >= 0){
+            sembuf sops;
+            sops.sem_num = 0;
+            sops.sem_op = 1;
+            sops.sem_flg = SEM_UNDO;
+            int rv;
+            do {
+                rv = semop(lockId,&sops,1);
+            } while ( rv == -1 && errno == EINTR );
+            qFatal("Cannot create lock file as an old version of QVFb has opened %s. Close other QVFb and try again", oldPipe.toLatin1().constData());
+        }
     }
 
     kh = new QVFbKeyPipeProtocol(displayid);
