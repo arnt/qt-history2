@@ -12,10 +12,14 @@
 ****************************************************************************/
 
 #include "qkeymapper_p.h"
+
 #include <windows.h>
 #include <qdebug.h>
 #include <private/qevent_p.h>
 #include <private/qlocale_p.h>
+#include <qwidget.h>
+#include <qapplication.h>
+
 
 // Uncommend, to show debugging information for the keymapper
 //#define DEBUG_KEYMAPPER

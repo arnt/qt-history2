@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qglobal.h> // for Q_WS_WIN define (non-PCH)
 #ifdef Q_WS_WIN
 #include <qt_windows.h>
 #endif

@@ -31,6 +31,7 @@
 #include "qwhatsthis.h" // ######## dependency
 #include "qwidget.h"
 #include "qcolormap.h"
+#include "qlayout.h"
 #include "qt_windows.h"
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
