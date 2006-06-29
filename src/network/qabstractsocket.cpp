@@ -847,7 +847,7 @@ bool QAbstractSocketPrivate::readFromSocket()
     qint64 readBytes = socketEngine->read(ptr, bytesToRead);
     if (readBytes == -2) {
         // No bytes currently available for reading.
-        readBuffer.truncate(bytesToRead);
+        readBuffer.chop(bytesToRead);
         return true;
     }
     readBuffer.chop(int(bytesToRead - (readBytes < 0 ? qint64(0) : readBytes)));
