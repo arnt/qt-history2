@@ -45,6 +45,7 @@ QDBusAbstractInterfacePrivate::QDBusAbstractInterfacePrivate(const QString &serv
     if (!connection.isConnected()) {
         lastError = QDBusError(QDBusError::Disconnected,
                                QLatin1String("Not connected to D-Bus server"));
+        isValid = false;
     } else if (!service.isEmpty()) {
         // check if it's there first -- FIXME: add binding mode
         QString owner = connectionPrivate()->getNameOwner(service);

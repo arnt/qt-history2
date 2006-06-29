@@ -86,6 +86,7 @@ class tst_QDBusInterface: public QObject
 private slots:
     void initTestCase();
 
+    void notConnected();
     void introspect();
 
     void signal();
@@ -99,6 +100,17 @@ void tst_QDBusInterface::initTestCase()
 
     con.registerObject("/", &obj, QDBusConnection::ExportAdaptors | QDBusConnection::ExportSlots |
                        QDBusConnection::ExportChildObjects);
+}
+
+void tst_QDBusInterface::notConnected()
+{
+    QDBusConnection connection("");
+    QVERIFY(!connection.isConnected());
+
+    QDBusInterface interface("org.freedesktop.DBus", "/", "org.freedesktop.DBus",
+                             connection);
+
+    QVERIFY(!interface.isValid());
 }
 
 void tst_QDBusInterface::introspect()
