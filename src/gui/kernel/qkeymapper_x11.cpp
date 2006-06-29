@@ -495,7 +495,7 @@ void QKeyMapperPrivate::clearMappings()
     if (useXKB) {
         XkbDescPtr xkbDesc = XkbGetMap(X11->display, XkbAllClientInfoMask, XkbUseCoreKbd);
         for (int i = xkbDesc->min_key_code; i < xkbDesc->max_key_code; ++i) {
-            const uint mask = xkbDesc->map->modmap[i];
+            const uint mask = xkbDesc->map->modmap ? xkbDesc->map->modmap[i] : 0;
             if (mask == 0) {
                 // key is not bound to a modifier
                 continue;
