@@ -725,30 +725,39 @@ void tst_QMainWindow::setCorner()
 
 void tst_QMainWindow::addToolBarBreak()
 {
-    QMainWindow mw;
-    QToolBar tb1(&mw);
-    mw.addToolBar(Qt::TopToolBarArea, &tb1);
-    mw.addToolBarBreak(Qt::TopToolBarArea);
-    QToolBar tb2(&mw);
-    mw.addToolBar(Qt::TopToolBarArea, &tb2);
-    mw.addToolBarBreak(Qt::TopToolBarArea);
-    QToolBar tb3(&mw);
-    mw.addToolBar(Qt::TopToolBarArea, &tb3);
-    mw.addToolBarBreak(Qt::TopToolBarArea);
-    QToolBar tb4(&mw);
-    mw.addToolBar(Qt::TopToolBarArea, &tb4);
+    {
+        QMainWindow mw;
+        QToolBar tb1(&mw);
+        mw.addToolBar(Qt::TopToolBarArea, &tb1);
+        mw.addToolBarBreak(Qt::TopToolBarArea);
+        QToolBar tb2(&mw);
+        mw.addToolBar(Qt::TopToolBarArea, &tb2);
+        mw.addToolBarBreak(Qt::TopToolBarArea);
+        QToolBar tb3(&mw);
+        mw.addToolBar(Qt::TopToolBarArea, &tb3);
+        mw.addToolBarBreak(Qt::TopToolBarArea);
+        QToolBar tb4(&mw);
+        mw.addToolBar(Qt::TopToolBarArea, &tb4);
 
-    mw.layout()->invalidate();
-    mw.layout()->activate();
+        mw.layout()->invalidate();
+        mw.layout()->activate();
 
-    QCOMPARE(tb1.x(), 0);
-    QCOMPARE(tb1.y(), 0);
-    QCOMPARE(tb2.x(), 0);
-    QVERIFY(tb1.y() != tb2.y());
-    QCOMPARE(tb3.x(), 0);
-    QVERIFY(tb2.y() != tb3.y());
-    QCOMPARE(tb4.x(), 0);
-    QVERIFY(tb3.y() != tb4.y());
+        QCOMPARE(tb1.x(), 0);
+        QCOMPARE(tb1.y(), 0);
+        QCOMPARE(tb2.x(), 0);
+        QVERIFY(tb1.y() != tb2.y());
+        QCOMPARE(tb3.x(), 0);
+        QVERIFY(tb2.y() != tb3.y());
+        QCOMPARE(tb4.x(), 0);
+        QVERIFY(tb3.y() != tb4.y());
+    }
+
+    {
+        QMainWindow mw;
+        // should not crash, should get a warning instead
+        QTest::ignoreMessage(QtWarningMsg, "QMainWindow::addToolBarBreak: invalid 'area' argument");
+        mw.addToolBarBreak(Qt::NoToolBarArea);
+    }
 }
 
 void tst_QMainWindow::insertToolBarBreak()
@@ -827,6 +836,14 @@ void tst_QMainWindow::addToolBar()
         QVERIFY(!findWidgetRecursively(mw.layout(), &tb));
         mw.addToolBar(&tb);
         QVERIFY(findWidgetRecursively(mw.layout(), &tb));
+    }
+
+    {
+        QMainWindow mw;
+        QToolBar tb(&mw);
+        // should not crash, should get a warning instead
+        QTest::ignoreMessage(QtWarningMsg, "QMainWindow::addToolBar: invalid 'area' argument");
+        mw.addToolBar(Qt::NoToolBarArea, &tb);
     }
 }
 
@@ -996,6 +1013,14 @@ void tst_QMainWindow::addDockWidget()
             mw.addDockWidget(area, &dw, Qt::Vertical);
             QVERIFY(findWidgetRecursively(mw.layout(), &dw));
         }
+    }
+
+    {
+        QMainWindow mw;
+        QDockWidget dw(&mw);
+        // should not crash, should get a warning instead
+        QTest::ignoreMessage(QtWarningMsg, "QMainWindow::addDockWidget: invalid 'area' argument");
+        mw.addDockWidget(Qt::NoDockWidgetArea, &dw);
     }
 }
 

@@ -494,12 +494,32 @@ Qt::DockWidgetArea QMainWindow::corner(Qt::Corner corner) const
 #endif
 
 #ifndef QT_NO_TOOLBAR
+
+static bool checkToolBarArea(Qt::ToolBarArea area, const char *where)
+{
+    switch (area) {
+    case Qt::LeftToolBarArea:
+    case Qt::RightToolBarArea:
+    case Qt::TopToolBarArea:
+    case Qt::BottomToolBarArea:
+        return true;
+    default:
+        break;
+    }
+    qWarning("%s: invalid 'area' argument", where);
+    return false;
+}
+
 /*!
     Adds a toolbar break to the given \a area after all the other
     objects that are present.
 */
 void QMainWindow::addToolBarBreak(Qt::ToolBarArea area)
-{ d_func()->layout->addToolBarBreak(area); }
+{
+    if (!checkToolBarArea(area, "QMainWindow::addToolBarBreak"))
+        return;
+    d_func()->layout->addToolBarBreak(area);
+}
 
 /*!
     Inserts a toolbar break before the toolbar specified by \a before.
@@ -517,6 +537,9 @@ void QMainWindow::insertToolBarBreak(QToolBar *before)
 */
 void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 {
+    if (!checkToolBarArea(area, "QMainWindow::addToolBar"))
+        return;
+
     Q_D(QMainWindow);
     Q_ASSERT_X(toolbar->isAreaAllowed(area),
                "QMainWIndow::addToolBar", "specified 'area' is not an allowed area");
@@ -676,11 +699,29 @@ void QMainWindow::setDockNestingEnabled(bool enabled)
     d_func()->layout->dockNestingEnabled = enabled;
 }
 
+static bool checkDockWidgetArea(Qt::DockWidgetArea area, const char *where)
+{
+    switch (area) {
+    case Qt::LeftDockWidgetArea:
+    case Qt::RightDockWidgetArea:
+    case Qt::TopDockWidgetArea:
+    case Qt::BottomDockWidgetArea:
+        return true;
+    default:
+        break;
+    }
+    qWarning("%s: invalid 'area' argument", where);
+    return false;
+}
+
 /*!
     Adds the given \a dockwidget to the specified \a area.
 */
 void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget)
 {
+    if (!checkDockWidgetArea(area, "QMainWindow::addDockWidget"))
+        return;
+
     Q_ASSERT_X(dockwidget->isAreaAllowed(area),
                "QMainWindow::addDockWidget", "specified 'area' is not an allowed area");
     Qt::Orientation orientation = Qt::Vertical;
@@ -716,6 +757,9 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
 void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                                 Qt::Orientation orientation)
 {
+    if (!checkDockWidgetArea(area, "QMainWindow::addDockWidget"))
+        return;
+
     // add a window to an area, placing done relative to the previous
     Q_ASSERT_X(dockwidget->isAreaAllowed(area),
                "QMainWindow::addDockWidget", "specified 'area' is not an allowed area");
