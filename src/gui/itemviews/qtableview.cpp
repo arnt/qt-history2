@@ -1164,7 +1164,10 @@ void QTableView::rowCountChanged(int /*oldCount*/, int /*newCount*/ )
 {
     Q_D(QTableView);
     updateGeometries();
-    d->verticalHeader->setOffset(verticalScrollBar()->value());
+    if (verticalScrollMode() == QAbstractItemView::ScrollPerItem)
+        d->verticalHeader->setOffsetToSectionPosition(verticalScrollBar()->value());
+    else
+        d->verticalHeader->setOffset(verticalScrollBar()->value());
     d->viewport->update();
 }
 
@@ -1177,7 +1180,10 @@ void QTableView::columnCountChanged(int, int)
 {
     Q_D(QTableView);
     updateGeometries();
-    d->horizontalHeader->setOffset(horizontalScrollBar()->value());
+    if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem)
+        d->horizontalHeader->setOffsetToSectionPosition(horizontalScrollBar()->value());
+    else
+        d->horizontalHeader->setOffset(horizontalScrollBar()->value());
     d->viewport->update();
 }
 
