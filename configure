@@ -1550,6 +1550,15 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     ln -s "$relpath/tools/porting/src/q3porting.xml" "$outpath/tools/porting/src"
 fi
 
+# symlink files from src/gui/embedded neccessary to build qvfb
+if [ "$Edition" = "Trolltech" ]; then
+    for f in qvfbhdr.h qlock_p.h qlock.cpp qwssignalhandler_p.h qwssignalhandler.cpp; do
+	dest="${relpath}/tools/qvfb/${f}"
+	rm -f "$dest"
+	ln -s "${relpath}/src/gui/embedded/${f}" "${dest}"
+    done
+fi
+
 if [ "$OPT_FAST" = "auto" ]; then
    if [ '!' -z "$AWK" ] && [ "$Edition" = "Trolltech" ]; then
        OPT_FAST=yes
