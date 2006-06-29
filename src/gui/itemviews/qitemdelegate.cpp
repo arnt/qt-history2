@@ -511,6 +511,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 
     d->textOption.setWrapMode(QTextOption::NoWrap);
     d->textOption.setTextDirection(option.direction);
+    d->textOption.setAlignment(option.displayAlignment);
     d->textLayout.setTextOption(d->textOption);
     d->textLayout.setFont(option.font);
     d->textLayout.setText(QString(text).replace(QLatin1Char('\n'), QChar::LineSeparator));
@@ -523,10 +524,10 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
         d->textLayout.setText(elided);
         textLayoutSize = d->doTextLayout(textRect.width());
     }
-    textRect = QStyle::alignedRect(option.direction,
-                                   Qt::AlignVCenter|Qt::AlignLeft,
-                                   textLayoutSize.toSize().boundedTo(textRect.size()),
-                                   textRect);
+
+    textRect.setTop(textRect.top() + (textRect.height() / 2)
+                    - (textLayoutSize.toSize().height() / 2));
+
     d->textLayout.draw(painter, textRect.topLeft(), QVector<QTextLayout::FormatRange>(), textRect);
 }
 
@@ -1018,7 +1019,7 @@ QStyleOptionViewItem QItemDelegate::setOptions(const QModelIndex &index,
     // set text alignment
     value = index.data(Qt::TextAlignmentRole);
     if (value.isValid())
-        opt.displayAlignment = QFlag(value.toInt());
+        opt.displayAlignment = (Qt::Alignment)value.toInt();
 
     // set text color
     value = index.data(Qt::TextColorRole);
