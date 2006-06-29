@@ -1,12 +1,12 @@
 Afghanistan                     AF
 Albania                         AL
 Algeria                         DZ
-AmericanSamoa                   AS
+American Samoa                   AS
 Andorra                         AD
 Angola                          AO
 Anguilla                        AI
 Antarctica                      AQ
-AntiguaAndBarbuda               AG
+Antigua And Barbuda               AG
 Argentina                       AR
 Armenia                         AM
 Aruba                           AW
@@ -24,57 +24,57 @@ Benin                           BJ
 Bermuda                         BM
 Bhutan                          BT
 Bolivia                         BO
-BosniaAndHerzegowina            BA
+Bosnia And Herzegowina            BA
 Botswana                        BW
-BouvetIsland                    BV
+Bouvet Island                    BV
 Brazil                          BR
-BritishIndianOceanTerritory     IO
-BritishVirginIslands            VG
-BruneiDarussalam                BN
+British Indian Ocean Territory     IO
+British Virgin Islands            VG
+Brunei Darussalam                BN
 Bulgaria                        BG
-BurkinaFaso                     BF
+Burkina Faso                     BF
 Burundi                         BI
 Cambodia                        KH
 Cameroon                        CM
 Canada                          CA
-CapeVerde                       CV
-CaymanIslands                   KY
-CentralAfricanRepublic          CF
+Cape Verde                       CV
+Cayman Islands                   KY
+Central African Republic          CF
 Chad                            TD
 Chile                           CL
 China                           CN
-ChristmasIsland                 CX
-CocosIslands                    CC
+Christmas Island                 CX
+Cocos Islands                    CC
 Colombia                        CO
 Comoros                         KM
-CookIslands                     CK
-CostaRica                       CR
+Cook Islands                     CK
+Costa Rica                       CR
 Croatia                         HR
 Cuba                            CU
 Cyprus                          CY
-CzechRepublic                   CZ
-DemocraticRepublicOfCongo       CD
-DemocraticRepublicOfKorea       KP
+Czech Republic                   CZ
+Democratic Republic Of Congo       CD
+Democratic Republic Of Korea       KP
 Denmark                         DK
 Djibouti                        DJ
 Dominica                        DM
-DominicanRepublic               DO
+Dominican Republic               DO
 EastTimor                       TL
 Ecuador                         EC
 Egypt                           EG
-ElSalvador                      SV
-EquatorialGuinea                GQ
+El Salvador                      SV
+Equatorial Guinea                GQ
 Eritrea                         ER
 Estonia                         EE
 Ethiopia                        ET
-FalklandIslands                 FK
-FaroeIslands                    FO
+Falkland Islands                 FK
+Faroe Islands                    FO
 Fiji                            FJ
 Finland                         FI
 France                          FR
-FrenchGuiana                    GF
-FrenchPolynesia                 PF
-FrenchSouthernTerritories       TF
+French Guiana                    GF
+French Polynesia                 PF
+French Southern Territories       TF
 Gabon                           GA
 Gambia                          GM
 Georgia                         GE
@@ -88,12 +88,12 @@ Guadeloupe                      GP
 Guam                            GU
 Guatemala                       GT
 Guinea                          GN
-GuineaBissau                    GW
+Guinea Bissau                    GW
 Guyana                          GY
 Haiti                           HT
-HeardAndMcDonaldIslands         HM
+Heard And McDonald Islands         HM
 Honduras                        HN
-HongKong                        HK
+Hong Kong                        HK
 Hungary                         HU
 Iceland                         IS
 India                           IN
@@ -103,7 +103,7 @@ Iraq                            IQ
 Ireland                         IE
 Israel                          IL
 Italy                           IT
-IvoryCoast                      CI
+Ivory Coast                      CI
 Jamaica                         JM
 Japan                           JP
 Jordan                          JO
@@ -117,7 +117,7 @@ Latvia                          LV
 Lebanon                         LB
 Lesotho                         LS
 Liberia                         LR
-LibyanArabJamahiriya            LY
+Libyan Arab Jamahiriya            LY
 Liechtenstein                   LI
 Lithuania                       LT
 Luxembourg                      LU
@@ -129,12 +129,12 @@ Malaysia                        MY
 Maldives                        MV
 Mali                            ML
 Malta                           MT
-MarshallIslands                 MH
+Marshall Islands                 MH
 Martinique                      MQ
 Mauritania                      MR
 Mauritius                       MU
 Mayotte                         YT
-MetropolitanFrance              FX
+Metropolitan France              FX
 Mexico                          MX
 Micronesia                      FM
 Moldova                         MD
@@ -148,65 +148,65 @@ Namibia                         NA
 Nauru                           NR
 Nepal                           NP
 Netherlands                     NL
-NetherlandsAntilles             AN
-NewCaledonia                    NC
-NewZealand                      NZ
+Netherlands Antilles             AN
+New Caledonia                    NC
+New Zealand                      NZ
 Nicaragua                       NI
 Niger                           NE
 Nigeria                         NG
 Niue                            NU
-NorfolkIsland                   NF
-NorthernMarianaIslands          MP
+Norfolk Island                   NF
+Northern Mariana Islands          MP
 Norway                          NO
 Oman                            OM
 Pakistan                        PK
 Palau                           PW
-PalestinianTerritory            PS
+Palestinian Territory            PS
 Panama                          PA
-PapuaNewGuinea                  PG
+Papua New Guinea                  PG
 Paraguay                        PY
-PeoplesRepublicOfCongo          CG
+Peoples Republic Of Congo          CG
 Peru                            PE
 Philippines                     PH
 Pitcairn                        PN
 Poland                          PL
 Portugal                        PT
-PuertoRico                      PR
+Puerto Rico                      PR
 Qatar                           QA
-RepublicOfKorea                 KR
+Republic Of Korea                 KR
 Reunion                         RE
 Romania                         RO
-RussianFederation               RU
+Russian Federation               RU
 Rwanda                          RW
-SaintKittsAndNevis              KN
+Saint Kitts And Nevis              KN
 Samoa                           WS
-SanMarino                       SM
-SaoTomeAndPrincipe              ST
-SaudiArabia                     SA
+San Marino                       SM
+Sao Tome And Principe              ST
+Saudi Arabia                     SA
 Senegal                         SN
-SerbiaAndMontenegro             CS
+Serbia And Montenegro             CS
 Seychelles                      SC
-SierraLeone                     SL
+Sierra Leone                     SL
 Singapore                       SG
 Slovakia                        SK
 Slovenia                        SI
-SolomonIslands                  SB
+Solomon Islands                  SB
 Somalia                         SO
-SouthAfrica                     ZA
-SouthGeorgiaAndTheSouthSandwichIslandsGS
+South Africa                     ZA
+South Georgia And The South Sandwich Islands GS
 Spain                           ES
-SriLanka                        LK
-StHelena                        SH
-StLucia                         LC
-StPierreAndMiquelon             PM
-StVincentAndTheGrenadines       VC
+Sri Lanka                        LK
+St Helena                        SH
+St Lucia                         LC
+St Pierre And Miquelon             PM
+St Vincent And The Grenadines       VC
 Sudan                           SD
 Suriname                        SR
-SvalbardAndJanMayenIslands      SJ
+Svalbard And Jan Mayen Islands      SJ
 Swaziland                       SZ
 Sweden                          SE
 Switzerland                     CH
-SyrianArabRepublic              SY
+Syrian Arab Republic              SY
 Taiwan                          TW
 Tajikistan                      TJ
 Tanzania                        TZ
@@ -214,27 +214,27 @@ Thailand                        TH
 Togo                            TG
 Tokelau                         TK
 Tonga                           TO
-TrinidadAndTobago               TT
+Trinidad And Tobago               TT
 Tunisia                         TN
 Turkey                          TR
 Turkmenistan                    TM
-TurksAndCaicosIslands           TC
+Turks And Caicos Islands           TC
 Tuvalu                          TV
-USVirginIslands                 VI
+US Virgin Islands                 VI
 Uganda                          UG
 Ukraine                         UA
-UnitedArabEmirates              AE
-UnitedKingdom                   GB
-UnitedStates                    US
-UnitedStatesMinorOutlyingIslandsUM
+United Arab Emirates              AE
+United Kingdom                   GB
+United States                    US
+United States Minor Outlying Islands UM
 Uruguay                         UY
 Uzbekistan                      UZ
 Vanuatu                         VU
-VaticanCityState                VA
+Vatican City State                VA
 Venezuela                       VE
-VietNam                         VN
-WallisAndFutunaIslands          WF
-WesternSahara                   EH
+Viet Nam                         VN
+Wallis And Futuna Islands          WF
+Western Sahara                   EH
 Yemen                           YE
 Yugoslavia                      YU
 Zambia                          ZM
