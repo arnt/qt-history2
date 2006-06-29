@@ -888,9 +888,6 @@ void tst_QDBusAbstractAdaptor::writeProperties()
     for (int i = 2; i <= 4; ++i) {
         QString name = QString("Interface%1").arg(i);
 
-        QByteArray warningMsg = name.toLatin1() + "::setProperty: Property \"prop1\" invalid, read-only or does not exist";
-        QTest::ignoreMessage(QtWarningMsg, warningMsg);
-
         valueSpy.clear();
         properties.call(QDBus::BlockWithGui, "Set", "local." + name, QString("prop1"),
                         qVariantFromValue(QDBusVariant(name)));
