@@ -22,6 +22,13 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
+    if (!QDBus::sessionBus().isConnected()) {
+        fprintf(stderr, "Cannot connect to the D-BUS session bus.\n"
+                "To start it, run:\n"
+                "\teval `dbus-launch --auto-syntax`\n");
+        return 1;
+    }
+
     QDBusInterface iface(SERVICE_NAME, "/", "", QDBus::sessionBus());
     if (iface.isValid()) {
         QDBusReply<QString> reply = iface.call("ping", argc > 1 ? argv[1] : "");

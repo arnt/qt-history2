@@ -70,6 +70,14 @@ void Ping::start(const QString &name, const QString &oldValue, const QString &ne
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
+
+    if (!QDBus::sessionBus().isConnected()) {
+        fprintf(stderr, "Cannot connect to the D-BUS session bus.\n"
+                "To start it, run:\n"
+                "\teval `dbus-launch --auto-syntax`\n");
+        return 1;
+    }
+
     Ping ping;
     ping.connect(QDBus::sessionBus().interface(),
                  SIGNAL(serviceOwnerChanged(QString,QString,QString)),

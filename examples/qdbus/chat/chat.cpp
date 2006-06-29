@@ -120,6 +120,12 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
+    if (!QDBus::systemBus().isConnected()) {
+        fprintf(stderr, "Cannot connect to the D-BUS system bus.\n"
+                "Please check your system settings and try again.\n");
+        return 1;
+    }
+
     ChatMainWindow chat;
     chat.show();
     return app.exec();
