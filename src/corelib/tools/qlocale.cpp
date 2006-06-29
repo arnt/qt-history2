@@ -442,11 +442,11 @@ static QString winDateToString(const QDate &date, DWORD flags)
     QT_WA({
         TCHAR buf[255];
         if (GetDateFormatW(LOCALE_USER_DEFAULT, flags, &st, 0, buf, 255))
-            return winToQtFormat(QString::fromUtf16((ushort*)buf));
+            return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
         if (GetDateFormatA(LOCALE_USER_DEFAULT, flags, &st, 0, (char*)&buf, 255))
-            return winToQtFormat(QString::fromLocal8Bit(buf));
+            return QString::fromLocal8Bit(buf);
     });
 
     return QString();
@@ -466,11 +466,11 @@ static QString winTimeToString(const QTime &time)
     QT_WA({
         TCHAR buf[255];
         if (GetTimeFormatW(LOCALE_USER_DEFAULT, flags, &st, 0, buf, 255))
-            return winToQtFormat(QString::fromUtf16((ushort*)buf));
+            return QString::fromUtf16((ushort*)buf);
     } , {
         char buf[255];
         if (GetTimeFormatA(LOCALE_USER_DEFAULT, flags, &st, 0, (char*)&buf, 255))
-            return winToQtFormat(QString::fromLocal8Bit(buf));
+            return QString::fromLocal8Bit(buf);
     });
 
     return QString();
