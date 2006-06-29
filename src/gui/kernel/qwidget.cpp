@@ -5726,6 +5726,7 @@ bool QWidget::event(QEvent *event)
     case QEvent::EmbeddingControl:
         data->window_flags & ~Qt::WindowType_Mask;
         d->topData()->frameStrut.setCoords(0 ,0, 0, 0);
+        data->fstrut_dirty = 0;
         break;
 #ifndef QT_NO_ACTION
     case QEvent::ActionAdded:
@@ -8069,8 +8070,10 @@ QRect QWidgetPrivate::frameStrut() const
         return QRect(0, 0, 1, 1);
     }
 
-    if (data.fstrut_dirty && q->isVisible())
-        updateFrameStrut();
+    if (data.fstrut_dirty && q->isVisible()) {
+        Q_ASSERT(q->testAttribute(Qt::WA_WState_Created));
+        const_cast<QWidgetPrivate *>(this)->updateFrameStrut();
+    }
     return maybeTopData() ? maybeTopData()->frameStrut : QRect();
 }
 

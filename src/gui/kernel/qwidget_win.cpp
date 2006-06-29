@@ -361,12 +361,19 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
         id = CreateWindowEx(exsty, cname, ttitle, style, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentw, 0, appinst, 0);
 #else
-        const bool wasResized = q->testAttribute(Qt::WA_Resized);
         const bool wasMoved = q->testAttribute(Qt::WA_Moved);
         const int x = wasMoved ? data.crect.left() : CW_USEDEFAULT;
         const int y = wasMoved ? data.crect.top() : CW_USEDEFAULT;
-        const int w = wasResized ? data.crect.width() : CW_USEDEFAULT;
-        const int h = wasResized ? data.crect.height() : CW_USEDEFAULT;
+        int w = CW_USEDEFAULT;
+        int h = CW_USEDEFAULT;
+
+        if (q->testAttribute(Qt::WA_Resized)) {
+            RECT rect = {0,0,0,0};
+            if (AdjustWindowRectEx(&rect, style & ~WS_OVERLAPPED, FALSE, exsty)) {
+                w = data.crect.width() + (rect.right - rect.left);
+                h = data.crect.height() + (rect.bottom - rect.top);
+            }
+        }
 
         QT_WA({
             const TCHAR *cname = (TCHAR*)windowClassName.utf16();
@@ -415,11 +422,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         ClientToScreen(id, &pt);
         data.crect = QRect(QPoint(pt.x, pt.y),
                             QPoint(pt.x + cr.right - 1, pt.y + cr.bottom - 1));
-
-        QTLWExtra *top = topData();
-        top->style = style;
-        top->exstyle = exsty;
-        updateFrameStrut();
     }
 
     q->setAttribute(Qt::WA_WState_Created);                // accept move/resize events
@@ -1577,21 +1579,18 @@ void QWidget::clearMask()
         SetWindowRgn(internalWinId(), 0, true);
 }
 
-void QWidgetPrivate::updateFrameStrut() const
+void QWidgetPrivate::updateFrameStrut()
 {
-    RECT rect;
-    rect.left = data.crect.left();
-    rect.top = data.crect.top();
-    rect.right = data.crect.right() + 1;
-    rect.bottom = data.crect.bottom() + 1;
-    RECT frect = rect;
+    Q_Q(QWidget);
+
+    RECT rect = {0,0,0,0};
 
     QTLWExtra *top = topData();
-    if (AdjustWindowRectEx(&frect, top->style & ~WS_OVERLAPPED, FALSE, top->exstyle)) {
-        top->frameStrut.setCoords(rect.left - frect.left,
-                                  rect.top - frect.top,
-                                  frect.right - rect.right,
-                                  frect.bottom - rect.bottom);
+    uint exstyle = GetWindowLong(q->internalWinId(), GWL_EXSTYLE);
+    uint style = GetWindowLong(q->internalWinId(), GWL_STYLE);
+
+    if (AdjustWindowRectEx(&rect, style & ~WS_OVERLAPPED, FALSE, exstyle)) {
+        top->frameStrut.setCoords(-rect.left, -rect.top, rect.right, rect.bottom);
         data.fstrut_dirty = false;
     }
 }

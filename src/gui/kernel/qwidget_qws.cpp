@@ -1270,10 +1270,10 @@ void QWidget::clearMask()
     setMask(QRegion());
 }
 
-void QWidgetPrivate::updateFrameStrut() const
+void QWidgetPrivate::updateFrameStrut()
 {
 #if 0
-    Q_Q(const QWidget);
+    Q_Q(QWidget);
 
     if(!q->isVisible() || (q->windowType() == Qt::Desktop)) {
         data.fstrut_dirty = q->isVisible();

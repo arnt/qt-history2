@@ -111,9 +111,6 @@ struct QTLWExtra {
     HICON winIconSmall; // internal small Windows icon
 #endif
     QRect normalGeometry; // used by showMin/maximized/FullScreen
-#ifdef Q_WS_WIN
-    uint style, exstyle;
-#endif
 
 #ifdef QT_WINDOW_SURFACE
     QWindowSurface *windowSurface;
@@ -275,7 +272,7 @@ public:
     void registerDropSite(bool);
     static void adjustFlags(Qt::WindowFlags &flags, QWidget *w = 0);
 
-    void updateFrameStrut() const;
+    void updateFrameStrut();
     QRect frameStrut() const;
 
     void setWindowIconText_sys(const QString &cap);

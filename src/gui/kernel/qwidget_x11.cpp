@@ -2428,9 +2428,9 @@ void QWidget::clearMask()
   should never call this.
 */
 
-void QWidgetPrivate::updateFrameStrut() const
+void QWidgetPrivate::updateFrameStrut()
 {
-    Q_Q(const QWidget);
+    Q_Q(QWidget);
 
     if (!q->testAttribute(Qt::WA_WState_Created))
         return;
