@@ -192,13 +192,14 @@ private:
         PushButton, LineEdit, ComboBox, GroupBox, Frame
     };
     bool baseStyleCanRender(WidgetType, const QRenderRule&) const;
-    void setPalette(QWidget *);
+    void update(QList<QWidget *>& widgets);
 
-    inline QRenderRule renderRule(const QWidget *w, const QStyleOption *opt) const;
-    QRenderRule renderRule(const QWidget *w, QStyle::State state) const;
-
-    mutable QHash<const QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
-    mutable QHash<const QWidget *, QHash<int, QRenderRule> > renderRulesCache;
+    static void setPalette(QWidget *);
+    static void computeStyleSheet(QWidget *widget);
+    static QRenderRule renderRule(const QWidget *w, const QStyleOption *opt);
+    static QRenderRule renderRule(QWidget *w, QStyle::State state);
+    static QHash<QWidget *, QVector<QCss::StyleRule> > styleRulesCache;
+    static QHash<QWidget *, QHash<int, QRenderRule> > renderRulesCache;
 };
 
 #endif // QSTYLESHEETSTYLE_P_H
