@@ -490,7 +490,6 @@ QRect QListView::visualRect(const QModelIndex &index) const
     Q_D(const QListView);
     if (!d->indexValid(index) || isIndexHidden(index))
         return QRect();
-
     d->executePostedLayout();
     return d->mapToViewport(rectForIndex(index));
 }
@@ -2069,14 +2068,14 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
             return QListViewItem();
 
     // movement == Static
-    if (flowPositions.isEmpty() || segmentPositions.isEmpty())
-        return QListViewItem();
-
-    if (index.row() >= flowPositions.count())
+    if (flowPositions.isEmpty()
+        || segmentPositions.isEmpty()
+        || index.row() >= flowPositions.count())
         return QListViewItem();
 
     const int segment = qBinarySearch<int>(segmentStartRows, index.row(),
                                            0, segmentStartRows.count() - 1);
+
     QPoint pos;
     if (flow == QListView::LeftToRight) {
         pos.setX(flowPositions.at(index.row()));
@@ -2282,7 +2281,7 @@ int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewp
                                            Qt::Orientation orientation) const
 {
     if (index < 0)
-        return 0;
+        return scrollValue;
     if (segmentPositions.count() == 1) {
         const int flowCount = flowPositions.count() - 2;
         const int topIndex = scrollValue;
