@@ -135,7 +135,7 @@ struct QGradientBrushData : public QBrushData
 
     \list
     \o The alpha component of the color() is 255.
-    \o Its texture() does not an alpha channel and is not a QBitmap.
+    \o Its texture() does not have an alpha channel and is not a QBitmap.
     \o The colors in the gradient() all have an alpha component that is 255.
     \endlist
 
@@ -619,7 +619,7 @@ const QGradient *QBrush::gradient() const
 
     \list
     \i The alpha component of the color() is 255.
-    \i Its texture() does not an alpha channel and is not a QBitmap.
+    \i Its texture() does not have an alpha channel and is not a QBitmap.
     \i The colors in the gradient() all have an alpha component that is 255.
     \endlist
 */

@@ -1286,7 +1286,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
         x.convert(QVariant::Int);
         // x.isNull() == true
         // y.isNull() == true, z.isNull() == false
-        // y.isEmpty() == true, z.Empty() == true
+        // y.isEmpty() == true, z.isEmpty() == true
     \endcode
 
     QVariant can be extended to support other types than those
