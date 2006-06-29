@@ -70,7 +70,7 @@ Qt::DockWidgetArea QDesignerDockWidget::dockWidgetArea() const
 void QDesignerDockWidget::setDockWidgetArea(Qt::DockWidgetArea dockWidgetArea)
 {
     if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget())) {
-        if ((!docked() || (dockWidgetArea != Qt::NoDockWidgetArea))
+        if ((dockWidgetArea != Qt::NoDockWidgetArea)
             && isAreaAllowed(dockWidgetArea)) {
             mainWindow->addDockWidget(dockWidgetArea, this);
         }
