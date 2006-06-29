@@ -423,12 +423,12 @@ done
 
 QMakeVar add styles "cde mac motif plastique cleanlooks windows"
 QMakeVar add decorations "default windows styled"
+QMakeVar add kbd-drivers "tty"
+QMakeVar add mouse-drivers "pc"
+
 if [ "$Edition" = "Trolltech" ]; then
-    QMakeVar add kbd-drivers "tty um"
-    QMakeVar add mouse-drivers "pc linuxtp" # adjust below as well
-else
-    QMakeVar add kbd-drivers tty
-    QMakeVar add mouse-drivers pc # adjust below as well
+    QMakeVar add kbd-drivers "um"
+    QMakeVar add mouse-drivers "linuxtp" # adjust below as well
 fi
 
 # QTDIR may be set and point to an old or system-wide Qt installation
@@ -474,16 +474,14 @@ QT_DEFAULT_BUILD_PARTS="libs tools examples"
 CFG_BUILD_PARTS=""
 CFG_NOBUILD_PARTS=""
 
+CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx qvfb"
+CFG_KBD_ON="tty"    #default, see QMakeVar above
+CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib qvfb"
+CFG_MOUSE_ON="pc linuxtp"   #default, see QMakeVar above
+
 if [ "$Edition" = "Trolltech" ]; then
-    CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx um qvfb"
-    CFG_KBD_ON="tty um"    #default, see QMakeVar above
-    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib qvfb"
-    CFG_MOUSE_ON="pc linuxtp"   #default, see QMakeVar above
-else
-    CFG_KBD_AVAILABLE="tty usb sl5000 yopy vr41xx qvfb"
-    CFG_KBD_ON="tty"    #default, see QMakeVar above
-    CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx tslib qvfb"
-    CFG_MOUSE_ON="pc linuxtp"   #default, see QMakeVar above
+    CFG_KBD_AVAILABLE="${CFG_KBD_AVAILABLE} um"
+    CFG_KBD_ON="${CFG_KBD_ON} um"
 fi
 
 CFG_KBD_OFF=
