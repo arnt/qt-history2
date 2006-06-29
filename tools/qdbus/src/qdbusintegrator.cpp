@@ -375,13 +375,27 @@ static int findSlot(const QMetaObject *mo, const QByteArray &name, int flags,
         int i;
         QByteArray reconstructedSignature;
         for (i = 1; i <= inputCount; ++i) {
-            reconstructedSignature += QDBusMetaType::typeToSignature( metaTypes.at(i) );
+            const char *typeSignature = QDBusMetaType::typeToSignature( metaTypes.at(i) );
+            if (!typeSignature)
+                break;          // invalid
+
+            reconstructedSignature += typeSignature;
             if (!msgSignature.startsWith(reconstructedSignature))
                 break;
         }
 
         if (reconstructedSignature != msgSignature)
             continue;           // we didn't match them all
+
+        // make sure that the output parameters have signatures too
+        if (QDBusMetaType::typeToSignature(returnType) == 0)
+            continue;
+        bool ok = true;
+        for (int j = i; ok && j < metaTypes.count(); ++j)
+            if (QDBusMetaType::typeToSignature(metaTypes.at(i)) == 0)
+                ok = false;
+        if (!ok)
+            continue;
 
         // consistency check:
         if (isAsync && metaTypes.count() > i + 1 + (hasMessage ? 1 : 0))
