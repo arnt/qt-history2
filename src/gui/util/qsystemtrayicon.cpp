@@ -64,6 +64,8 @@
     application in the system tray if the icon is \l visible.
 
     The activated() signal is emitted when the user activates the icon.
+
+    \sa QDesktopServices, QDesktopWidget, {Desktop Integration}
 */
 
 /*!
