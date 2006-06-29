@@ -2281,6 +2281,8 @@ int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewp
                                            QAbstractItemView::ScrollHint hint,
                                            Qt::Orientation orientation) const
 {
+    if (index < 0)
+        return 0;
     if (segmentPositions.count() == 1) {
         const int flowCount = flowPositions.count() - 2;
         const int topIndex = scrollValue;
