@@ -2135,7 +2135,14 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
 fi # QWS
 
 #setup the build parts
-[ -z "$CFG_BUILD_PARTS" ] && CFG_BUILD_PARTS="$QT_DEFAULT_BUILD_PARTS"
+if [ -z "$CFG_BUILD_PARTS" ]; then
+    CFG_BUILD_PARTS="$QT_DEFAULT_BUILD_PARTS"
+    
+    # don't build tools by default when cross-compiling
+    if [ "$PLATFORM" != "$XPLATFORM" ]; then
+	CFG_BUILD_PARTS=`echo "$CFG_BUILD_PARTS" | sed "s, tools,,g"`
+    fi
+fi
 for nobuild in $CFG_NOBUILD_PARTS; do
     CFG_BUILD_PARTS=`echo "$CFG_BUILD_PARTS" | sed "s, $nobuild,,g"`
 done
