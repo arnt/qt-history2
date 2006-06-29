@@ -216,6 +216,7 @@ void tst_QComboBox::getSetCheck()
 #if QT_VERSION >= 0x040200
     // QComboBox in Qt < 4.2 have asserts for this, but handles the situation by ignoring it.
     // Qt >= 4.2 should handle this gracefully (no asserts, but define behavior as keeping current)
+    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setLineEdit: cannot set a 0 line edit");
     obj1.setLineEdit((QLineEdit *)0);
     QCOMPARE(var8, obj1.lineEdit());
 #endif
@@ -238,6 +239,7 @@ void tst_QComboBox::getSetCheck()
 #if QT_VERSION >= 0x040200
     // QComboBox in Qt < 4.2 have asserts for this, but handles the situation by ignoring it.
     // Qt >= 4.2 should handle this gracefully (no asserts, but define behavior as keeping current)
+    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setItemDelegate: cannot set a 0 delegate");
     obj1.setItemDelegate((QAbstractItemDelegate *)0);
     QCOMPARE(var10, obj1.itemDelegate());
 #endif
@@ -251,6 +253,7 @@ void tst_QComboBox::getSetCheck()
 #if QT_VERSION >= 0x040200
     // QComboBox in Qt < 4.2 have asserts for this, but handles the situation by ignoring it.
     // Qt >= 4.2 should handle this gracefully (no asserts, but define behavior as keeping current)
+    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setModel: cannot set a 0 model");
     obj1.setModel((QAbstractItemModel *)0);
     QCOMPARE(var11, obj1.model());
 #endif
@@ -274,6 +277,7 @@ void tst_QComboBox::getSetCheck()
 #if QT_VERSION >= 0x040200
     // QComboBox in Qt < 4.2 have asserts for this
     // Qt >= 4.2 should handle this gracefully (no asserts, but define behavior as keeping current view)
+    QTest::ignoreMessage(QtWarningMsg, "QComboBox::setView: cannot set a 0 view");
     obj1.setView((QAbstractItemView *)0);
     QCOMPARE(var13, obj1.view());
 #endif
