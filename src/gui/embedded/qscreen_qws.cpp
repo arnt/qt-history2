@@ -1474,8 +1474,10 @@ QWSWindowSurface* QScreen::createSurface(const QString &key) const
         return new QWSSharedMemSurface;
     else if (key == QLatin1String("Yellow"))
         return new QWSYellowSurface;
+#ifndef QT_NO_DIRECTPAINTER
     else if (key == QLatin1String("DirectPainter"))
         return new QWSDirectPainterSurface;
+#endif
 
     return 0;
 }

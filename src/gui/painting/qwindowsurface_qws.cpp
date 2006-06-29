@@ -667,6 +667,8 @@ void QWSYellowSurface::flush(QWidget *widget, const QRegion &region, const QPoin
     ::usleep(500 * delay);
 }
 
+#ifndef QT_NO_DIRECTPAINTER
+
 QWSDirectPainterSurface::~QWSDirectPainterSurface()
 {
 }
@@ -712,3 +714,5 @@ void QWSDirectPainterSurface::release()
 {
     QWidget::qwsDisplay()->requestRegion(winId, key(), data(), QRegion());
 }
+
+#endif // QT_NO_DIRECTPAINTER

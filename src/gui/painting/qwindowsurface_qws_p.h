@@ -218,6 +218,7 @@ private:
     QImage img; // server side
 };
 
+#ifndef QT_NO_DIRECTPAINTER
 class QWSDirectPainterSurface : public QWSWindowSurface
 {
 public:
@@ -247,5 +248,6 @@ public:
 private:
     int winId;
 };
+#endif // QT_NO_DIRECTPAINTER
 
 #endif // QWINDOWSURFACE_QWS_P_H
