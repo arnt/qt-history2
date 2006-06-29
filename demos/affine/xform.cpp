@@ -228,11 +228,12 @@ void XFormView::drawPixmapType(QPainter *painter)
 
 void XFormView::drawTextType(QPainter *painter)
 {
+    QPainterPath path;
     QFont f("times new roman,utopia");
     f.setStyleStrategy(QFont::ForceOutline);
     f.setPointSize(72);
     f.setStyleHint(QFont::Times);
-    painter->setFont(f);
+    path.addText(0, 0, f, textEditor->text());
 
     QFontMetrics fm(f);
     QRectF br(fm.boundingRect(textEditor->text()));
@@ -245,7 +246,8 @@ void XFormView::drawTextType(QPainter *painter)
     painter->shear(0, m_shear);
     painter->translate(-center);
 
-    painter->drawText(0, 0, textEditor->text());
+    painter->fillPath(path, Qt::black);
+
     painter->setPen(QPen(QColor(255, 0, 0, alpha), 0.25, Qt::SolidLine, Qt::FlatCap, Qt::BevelJoin));
     painter->setBrush(Qt::NoBrush);
     painter->drawRect(br.adjusted(-1, -1, 1, 1));
