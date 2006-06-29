@@ -1930,9 +1930,11 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
 {
     Q_ASSERT(widget);
 
-    QWidget *container = findContainer(widget, false);
+    if (QMainWindow *mainWindow = qobject_cast<QMainWindow*> (widget)) {
+        widget = mainWindow->centralWidget();
+    }
 
-    Q_ASSERT(!qobject_cast<ConnectionEdit*>(widget));
+    QWidget *container = findContainer(widget, false);
 
     if (container == 0 || core()->metaDataBase()->item(container) == 0)
         return;
@@ -1954,7 +1956,7 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
         }
     }
 
-    QMainWindow *mw = qobject_cast<QMainWindow*>(mainContainer());
+    QMainWindow *mw = qobject_cast<QMainWindow*> (container);
     if (container == mainContainer() || (mw && mw->centralWidget() && mw->centralWidget() == container))
         return;
 
