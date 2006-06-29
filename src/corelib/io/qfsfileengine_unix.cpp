@@ -326,7 +326,7 @@ bool QFSFileEnginePrivate::isMacHidden(const QString &path) const
 {
     OSErr err = noErr;
     FSRef fsRef;
-    err = FSPathMakeRef((const UInt8 *)QFile::encodeName(path).data(), &fsRef, NULL);
+    err = FSPathMakeRef((const UInt8 *)QFile::encodeName(QDir::cleanPath(path)).data(), &fsRef, 0);
     if (err != noErr)
         return false;
 
@@ -386,7 +386,8 @@ QAbstractFileEngine::FileFlags QFSFileEngine::fileFlags(QAbstractFileEngine::Fil
         bool foundAlias = false;
         {
             FSRef fref;
-            if(FSPathMakeRef((const UInt8 *)QFile::encodeName(d->file).data(), &fref, NULL) == noErr) {
+            if(FSPathMakeRef((const UInt8 *)QFile::encodeName(QDir::cleanPath(d->file)).data(),
+                             &fref, NULL) == noErr) {
                 Boolean isAlias, isFolder;
                 if(FSIsAliasFile(&fref, &isAlias, &isFolder) == noErr && isAlias) {
                     foundAlias = true;
@@ -519,7 +520,7 @@ QString QFSFileEngine::fileName(FileName file) const
 #if !defined(QWS) && defined(Q_OS_MAC)
         {
             FSRef fref;
-            if(FSPathMakeRef((const UInt8 *)QFile::encodeName(d->file).data(), &fref, NULL) == noErr) {
+            if(FSPathMakeRef((const UInt8 *)QFile::encodeName(QDir::cleanPath(d->file)).data(), &fref, 0) == noErr) {
                 Boolean isAlias, isFolder;
                 if(FSResolveAliasFile(&fref, true, &isFolder, &isAlias) == noErr && isAlias) {
                     AliasHandle alias;
