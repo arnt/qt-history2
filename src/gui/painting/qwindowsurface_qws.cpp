@@ -112,6 +112,7 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
     if (isBuffered()) {
         expose &= d_ptr->clippedDirty;
         d_ptr->clippedDirty -= expose;
+#ifndef QT_NO_QWS_MANAGER
     } else  if (window() && !expose.isEmpty()) {
         QTLWExtra *topextra = window()->d_func()->extra->topextra;
         QWSManager *manager = topextra->qwsManager;
@@ -122,6 +123,7 @@ void QWSWindowSurface::setClipRegion(const QRegion &clip)
                 manager->d_func()->dirtyRegion(QDecoration::All,
                                                QDecoration::Normal);
         }
+#endif
     }
 
     if (window() && !expose.isEmpty())
@@ -146,18 +148,21 @@ void QWSWindowSurface::resize(const QSize &size)
     Q_ASSERT(size == window()->frameGeometry().size());
     Q_UNUSED(size);
 
+    QRegion region = window()->geometry();
+
+#ifndef QT_NO_QWS_MANAGER
     QTLWExtra *topextra = window()->d_func()->extra->topextra;
     QWSManager *manager = topextra->qwsManager;
 
-    QRegion region = window()->geometry();
-    if (manager)
+    if (manager) {
         region += manager->region();
+        manager->d_func()->dirtyRegion(QDecoration::All, QDecoration::Normal);
+    }
+#endif
+
     if (!window()->d_func()->extra->mask.isEmpty())
         region &= window()->d_func()->extra->mask.translated(
             window()->geometry().topLeft());
-
-    if (manager)
-        manager->d_func()->dirtyRegion(QDecoration::All, QDecoration::Normal);
 
     QWidget::qwsDisplay()->requestRegion(window()->data->winid,
                                          key(), data(), region);
@@ -193,10 +198,12 @@ void QWSWindowSurface::flush(QWidget *widget, const QRegion &region,
     const bool opaque = isWidgetOpaque(window());
     QRegion toFlush = region + dirtyRegion();
 
+#ifndef QT_NO_QWS_MANAGER
     QTLWExtra *topextra = window()->d_func()->extra->topextra;
     QWSManager *manager = topextra->qwsManager;
     if (manager)
         toFlush += manager->d_func()->paint(paintDevice());
+#endif
 
     flushUpdate(widget, toFlush, QPoint(0, 0));
 
