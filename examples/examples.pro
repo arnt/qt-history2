@@ -19,8 +19,8 @@ SUBDIRS       = \
                 widgets \
                 xml
 embedded:SUBDIRS += qtopiacore
-!contains(QT_EDITION, Console):contains(QT_BUILD_PARTS, tools):SUBDIRS += designer
-contains(QT_BUILD_PARTS, tools): SUBDIRS += assistant
+!contains(QT_EDITION, Console):!cross_compile:contains(QT_BUILD_PARTS, tools):SUBDIRS += designer
+contains(QT_BUILD_PARTS, tools):!cross_compile:SUBDIRS += assistant
 contains(QT_CONFIG, opengl): SUBDIRS += opengl
 contains(QT_CONFIG, qdbus): SUBDIRS += qdbus
 win32:!contains(QT_EDITION, OpenSource|Console):SUBDIRS += activeqt
