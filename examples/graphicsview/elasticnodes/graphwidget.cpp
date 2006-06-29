@@ -143,7 +143,7 @@ void GraphWidget::timerEvent(QTimerEvent *event)
 
 void GraphWidget::wheelEvent(QWheelEvent *event)
 {
-    scaleView(pow(2, -event->delta() / 240.0));
+    scaleView(pow((double)2, -event->delta() / 240.0));
 }
 
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
