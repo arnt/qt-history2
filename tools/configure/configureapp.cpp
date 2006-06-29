@@ -1476,7 +1476,11 @@ void Configure::generateCachefile()
 	    configStream << " rtti";
 	configStream << endl;
         configStream << "QT_CONFIG += " << qtConfig.join(" ") << endl;
-        configStream << "QT_EDITION = " << dictionary["EDITION"];
+        if (dictionary["QT_EDITION"].contains("OPENSOURCE"))
+            configStream << "QT_EDITION = " << QLatin1String("OpenSource");
+        else
+            configStream << "QT_EDITION = " << dictionary["EDITION"];
+        
         configStream.flush();
 	configFile.close();
     }
