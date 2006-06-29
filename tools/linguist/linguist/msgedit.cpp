@@ -646,7 +646,7 @@ static CandidateList similarTextHeuristicCandidates( MessageModel::iterator it,
 
     StringSimilarityMatcher stringmatcher(QString::fromLatin1(text));
 
-    for (; MessageItem *m = it.current(); ++it) {
+    for (MessageItem *m = 0; m = it.current(); ++it) {
         MetaTranslatorMessage mtm = m->message();
         if ( mtm.type() == MetaTranslatorMessage::Unfinished ||
              mtm.translation().isEmpty() )
