@@ -225,11 +225,11 @@ void FindIconDialog::currentItemChanged(QListWidgetItem *item)
 
 void FindIconDialog::setViewDir(const QString &path)
 {
-
     static const QIcon dir_icon(style()->standardPixmap(QStyle::SP_DirClosedIcon));
 
-    if (path == m_view_dir.path())
+    if (path == m_view_dir.path() || ! QFile::exists(path))
         return;
+
     m_view_dir.setPath(path);
     ui->m_icon_view->clear();
     QStringList subdir_list = m_view_dir.entryList(QStringList() << "*", QDir::Dirs | QDir::NoDotAndDotDot);
