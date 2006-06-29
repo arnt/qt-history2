@@ -43,7 +43,7 @@ void CharacterWidget::updateStyle(const QString &fontStyle)
 {
     QFontDatabase fontDatabase;
     const QFont::StyleStrategy oldStrategy = displayFont.styleStrategy();
-    displayFont = fontDatabase.font(displayFont.family(), fontStyle, 12);
+    displayFont = fontDatabase.font(displayFont.family(), fontStyle, displayFont.pointSize());
     displayFont.setStyleStrategy(oldStrategy);
     squareSize = qMax(24, QFontMetrics(displayFont).xHeight() * 3);
     adjustSize();

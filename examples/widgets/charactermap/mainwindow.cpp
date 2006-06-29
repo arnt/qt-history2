@@ -106,6 +106,7 @@ void MainWindow::findSizes(const QFont &font)
 {
     QFontDatabase fontDatabase;
     QString currentSize = sizeCombo->currentText();
+    sizeCombo->blockSignals(true);
     sizeCombo->clear();
 
     int size;
@@ -121,6 +122,8 @@ void MainWindow::findSizes(const QFont &font)
             sizeCombo->setEditable(false);
         }
     }
+
+    sizeCombo->blockSignals(false);
 
     int sizeIndex = sizeCombo->findText(currentSize);
 
