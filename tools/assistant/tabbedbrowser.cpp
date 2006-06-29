@@ -340,6 +340,11 @@ void TabbedBrowser::keyPressEvent(QKeyEvent *e)
 	} else {
 		if (text.isEmpty() || text[0].isSpace() || !text[0].isPrint())
 			return QWidget::keyPressEvent(e);
+        if (text.startsWith(QLatin1Char('/'))) {
+            ui.editFind->clear();
+            find();
+            return;
+        }
 		ttf = text;
 		ui.frameFind->show();
 	}
