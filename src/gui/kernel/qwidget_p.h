@@ -86,8 +86,6 @@ struct QTLWExtra {
     uint embedded : 1; // window is embedded in another Qt application
     uint spont_unmapped: 1; // window was spontaneously unmapped
     uint dnd : 1; // DND properties installed
-    uint uspos : 1; // User defined position
-    uint ussize : 1; // User defined size
     uint validWMState : 1; // is WM_STATE valid?
     uint waitingForMapNotify : 1; // show() has been called, haven't got the MapNotify yet
     QPoint fullScreenOffset;
@@ -278,12 +276,12 @@ public:
     void setWindowIconText_sys(const QString &cap);
     void setWindowIconText_helper(const QString &cap);
     void setWindowTitle_sys(const QString &cap);
-    
+
 #ifndef QT_NO_CURSOR
     void setCursor_sys(const QCursor &cursor);
     void unsetCursor_sys();
 #endif
-        
+
 #ifdef Q_WS_MAC
     void setWindowModified_sys(bool b);
     void createWindow_sys();

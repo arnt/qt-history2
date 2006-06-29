@@ -1184,8 +1184,6 @@ void QWidgetPrivate::createTLExtra()
         x->parentWinId = 0;
         x->spont_unmapped = 0;
         x->dnd = 0;
-        x->uspos = 0;
-        x->ussize = 0;
 #endif
         x->savedFlags = 0;
 #if defined(Q_WS_QWS)

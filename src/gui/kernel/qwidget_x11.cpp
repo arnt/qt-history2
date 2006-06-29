@@ -1817,16 +1817,16 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
             s.base_width = x->topextra->basew;
             s.base_height = x->topextra->baseh;
         }
-        if (x->topextra && x->topextra->uspos) {
-            // user (i.e. command-line) specified position
-            s.flags |= USPosition;
-            s.flags |= PPosition;
-        }
-        if (x->topextra && x->topextra->ussize) {
-            // user (i.e. command-line) specified size
-            s.flags |= USSize;
-            s.flags |= PSize;
-        }
+    }
+    if (widget->testAttribute(Qt::WA_Moved)) {
+        // user (i.e. command-line) specified position
+        s.flags |= USPosition;
+        s.flags |= PPosition;
+    }
+    if (widget->testAttribute(Qt::WA_Resized)) {
+        // user (i.e. command-line) specified size
+        s.flags |= USSize;
+        s.flags |= PSize;
     }
     s.flags |= PWinGravity;
     s.win_gravity = QApplication::isRightToLeft() ? NorthEastGravity : NorthWestGravity;
@@ -2015,10 +2015,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     bool isResize = q->size() != oldSize;
 
     if (q->isWindow()) {
-        if (isMove)
-            topData()->uspos = 1;
-        if (isResize)
-            topData()->ussize = 1;
         if (!q->isVisible())
             do_size_hints(q, extra);
         if (isMove) {
