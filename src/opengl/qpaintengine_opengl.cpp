@@ -1740,7 +1740,10 @@ void QGLGlyphCache::fontEngineDestroyed(QObject *o)
     quint64 font_key = (reinterpret_cast<quint64>(ctx) << 32) | reinterpret_cast<quint64>(fe);
     QGLFontTexture *tex = qt_font_textures.take(font_key);
     if (tex) {
-        glDeleteTextures(1, &tex->texture);
+#ifdef Q_WS_MAC
+        if (aglGetCurrentContext() == 0)
+#endif
+            glDeleteTextures(1, &tex->texture);
         delete tex;
     }
 }
@@ -1755,6 +1758,10 @@ void QGLGlyphCache::cleanCache()
 {
     QGLFontTexHash::const_iterator it = qt_font_textures.constBegin();
     while (it != qt_font_textures.constEnd()) {
+#ifdef Q_WS_MAC
+        if (aglGetCurrentContext() == 0)
+            break;
+ #endif
         glDeleteTextures(1, &it.value()->texture);
         ++it;
     }
