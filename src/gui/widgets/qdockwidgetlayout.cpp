@@ -62,7 +62,7 @@ static void checkLayoutInfo(const QDockAreaLayoutInfo &info)
 }
 
 static void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent);
-static void dump(QDebug debug, const QDockWidgetLayout &layout);
+void dump(QDebug debug, const QDockWidgetLayout &layout);
 
 static void dump(QDebug debug, const QDockAreaLayoutItem &item, QString indent)
 {
@@ -71,6 +71,7 @@ static void dump(QDebug debug, const QDockAreaLayoutItem &item, QString indent)
         debug << "skip";
     if (item.gap)
         debug << "gap";
+    debug << item.pos << item.size;
     if (item.widgetItem != 0)
         debug << item.widgetItem->widget();
     else if (item.subinfo != 0)
@@ -86,15 +87,15 @@ static void dump(QDebug debug, const QDockAreaLayoutInfo &info, QString indent)
     debug << (const char*) indent.toLocal8Bit() << ")\n";
 }
 
-static void dump(QDebug debug, const QDockWidgetLayout &layout)
+void dump(QDebug debug, const QDockWidgetLayout &layout)
 {
-    debug << "Top\n";
+    debug << "Top " << layout.docks[QDockWidgetLayout::TopPos].rect << "\n";
     dump(debug, layout.docks[QDockWidgetLayout::TopPos], QString());
-    debug << "Left\n";
+    debug << "Left " << layout.docks[QDockWidgetLayout::LeftPos].rect << "\n";
     dump(debug, layout.docks[QDockWidgetLayout::LeftPos], QString());
-    debug << "Bottom\n";
+    debug << "Bottom " << layout.docks[QDockWidgetLayout::BottomPos].rect << "\n";
     dump(debug, layout.docks[QDockWidgetLayout::BottomPos], QString());
-    debug << "Right\n";
+    debug << "Right " << layout.docks[QDockWidgetLayout::RightPos].rect << "\n";
     dump(debug, layout.docks[QDockWidgetLayout::RightPos], QString());
 }
 
@@ -103,12 +104,12 @@ static void dump(QDebug debug, const QDockWidgetLayout &layout)
 */
 
 QDockAreaLayoutItem::QDockAreaLayoutItem(QWidgetItem *_widgetItem)
-    : widgetItem(_widgetItem), subinfo(0), pos(0), size(0), gap(false)
+    : widgetItem(_widgetItem), subinfo(0), pos(0), size(-1), gap(false)
 {
 }
 
 QDockAreaLayoutItem::QDockAreaLayoutItem(QDockAreaLayoutInfo *_subinfo)
-    : widgetItem(0), subinfo(_subinfo), pos(0), size(0), gap(false)
+    : widgetItem(0), subinfo(_subinfo), pos(0), size(-1), gap(false)
 {
 }
 
@@ -211,20 +212,25 @@ QDockAreaLayoutItem
 */
 
 QDockAreaLayoutInfo::QDockAreaLayoutInfo()
-    : sep(0), o(Qt::Horizontal), widgetAnimator(0)
+    : sep(0), o(Qt::Horizontal), rect(0, 0, -1, -1), widgetAnimator(0)
 {
 }
 
 QDockAreaLayoutInfo::QDockAreaLayoutInfo(int _sep, Qt::Orientation _o,
                                                         QWidgetAnimator *animator)
-    : sep(_sep), o(_o), widgetAnimator(animator)
+    : sep(_sep), o(_o), rect(0, 0, -1, -1), widgetAnimator(animator)
 {
+}
+
+QSize QDockAreaLayoutInfo::size() const
+{
+    return isEmpty() ? QSize(0, 0) : rect.size();
 }
 
 void QDockAreaLayoutInfo::clear()
 {
     item_list.clear();
-    rect = QRect();
+    rect = QRect(0, 0, -1, -1);
 }
 
 bool QDockAreaLayoutInfo::isEmpty() const
@@ -299,7 +305,7 @@ QSize QDockAreaLayoutInfo::maximumSize() const
 QSize QDockAreaLayoutInfo::sizeHint() const
 {
     if (isEmpty())
-        return QSize(-1, -1);
+        return QSize(0, 0);
 
     int a = 0, b = 0;
     bool prev_gap = false;
@@ -371,9 +377,9 @@ void QDockAreaLayoutInfo::fitItems()
             ls.expansive = item.expansive(o);
             if (ls.expansive) {
                 ls.sizeHint = ls.minimumSize;
-                ls.stretch = item.size == 0 ? pick(o, item.sizeHint()) : item.size;
+                ls.stretch = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
             } else {
-                ls.sizeHint = item.size == 0 ? pick(o, item.sizeHint()) : item.size;
+                ls.sizeHint = item.size == -1 ? pick(o, item.sizeHint()) : item.size;
             }
         }
 
@@ -1241,7 +1247,7 @@ bool QDockAreaLayoutInfo::restoreState(QDataStream &stream, const QList<QDockWid
 */
 
 QDockWidgetLayout::QDockWidgetLayout(QMainWindow *win,
-                                                    QWidgetAnimator *animator)
+                                        QWidgetAnimator *animator)
 {
     sep = win->style()->pixelMetric(QStyle::PM_DockWidgetSeparatorExtent);
     widgetAnimator = animator;
@@ -1250,6 +1256,12 @@ QDockWidgetLayout::QDockWidgetLayout(QMainWindow *win,
     docks[TopPos] = QDockAreaLayoutInfo(sep, Qt::Horizontal, animator);
     docks[BottomPos] = QDockAreaLayoutInfo(sep, Qt::Horizontal, animator);
     centralWidgetItem = 0;
+    centralWidgetRect = QRect(0, 0, -1, -1);
+
+    corners[Qt::TopLeftCorner] = Qt::TopDockWidgetArea;
+    corners[Qt::TopRightCorner] = Qt::TopDockWidgetArea;
+    corners[Qt::BottomLeftCorner] = Qt::BottomDockWidgetArea;
+    corners[Qt::BottomRightCorner] = Qt::BottomDockWidgetArea;
 }
 
 bool QDockWidgetLayout::isValid() const
@@ -1300,41 +1312,6 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream, const QList<QDockWidge
     centralWidgetRect = QRect(QPoint(0, 0), size);
 
     return true;
-}
-
-QSize QDockWidgetLayout::calculateSize() const
-{
-    bool have_central = centralWidgetItem != 0 && !centralWidgetItem->isEmpty();
-
-    int w = 0;
-    int h = 0;
-
-    if (have_central || !docks[LeftPos].isEmpty() || !docks[RightPos].isEmpty()) {
-        if (!docks[LeftPos].isEmpty()) {
-            w += docks[LeftPos].rect.width() + sep;
-            h = qMax(h, docks[LeftPos].rect.height());
-        }
-        if (have_central) {
-            w += centralWidgetRect.width();
-            h = qMax(h, centralWidgetRect.height());
-        }
-        if (!docks[RightPos].isEmpty()) {
-            w += docks[RightPos].rect.width() + sep;
-            h = qMax(h, docks[RightPos].rect.height());
-        }
-    }
-
-    if (!docks[LeftPos].isEmpty()) {
-        w = qMax(w, docks[LeftPos].rect.width());
-        h += docks[LeftPos].rect.height() + sep;
-    }
-
-    if (!docks[RightPos].isEmpty()) {
-        w = qMax(w, docks[RightPos].rect.width());
-        h += docks[RightPos].rect.height() + sep;
-    }
-
-    return QSize(w, h);
 }
 
 QList<int> QDockWidgetLayout::indexOf(QDockWidget *dockWidget, IndexOfFlag flag) const
@@ -1504,133 +1481,289 @@ void QDockWidgetLayout::remove(QList<int> path)
 static inline int qMin(int i1, int i2, int i3) { return qMin(i1, qMin(i2, i3)); }
 static inline int qMax(int i1, int i2, int i3) { return qMax(i1, qMax(i2, i3)); }
 
-void QDockWidgetLayout::fitLayout()
+void QDockWidgetLayout::getGrid(QVector<QLayoutStruct> *_ver_struct_list,
+                                QVector<QLayoutStruct> *_hor_struct_list)
 {
-    QSize central_hint(0, 0);
-    QSize central_size(0, 0);
-    QSize central_min(0, 0);
+    QSize center_hint(0, 0);
+    QSize center_min(0, 0);
     bool have_central = centralWidgetItem != 0 && !centralWidgetItem->isEmpty();
     if (have_central) {
-        central_size = centralWidgetItem->geometry().size();
-        central_hint = centralWidgetItem->sizeHint();
-        central_min = centralWidgetItem->minimumSize();
+        center_hint = centralWidgetRect.size();
+        if (!center_hint.isValid())
+            center_hint = centralWidgetItem->sizeHint();
+        center_min = centralWidgetItem->minimumSize();
     }
 
-    // vertical
-    QVector<QLayoutStruct> ver_struct_list(3);
+    QRect center_rect = rect;
+    if (!docks[LeftPos].isEmpty())
+        center_rect.setLeft(rect.left() + docks[LeftPos].rect.width() + sep);
+    if (!docks[TopPos].isEmpty())
+        center_rect.setTop(rect.top() + docks[TopPos].rect.height() + sep);
+    if (!docks[RightPos].isEmpty())
+        center_rect.setRight(rect.right() - docks[RightPos].rect.width() - sep - 1);
+    if (!docks[BottomPos].isEmpty())
+        center_rect.setBottom(rect.bottom() - docks[BottomPos].rect.height() - sep - 1);
 
-    ver_struct_list[0].stretch = 0;
-    ver_struct_list[0].sizeHint
-        = !docks[TopPos].isEmpty() && docks[TopPos].rect.isValid()
-            ? docks[TopPos].rect.height()
-            : docks[TopPos].sizeHint().height();
-    ver_struct_list[0].minimumSize = docks[TopPos].minimumSize().height();
-    ver_struct_list[0].maximumSize = docks[TopPos].maximumSize().height();
-    ver_struct_list[0].expansive = false;
-    ver_struct_list[0].empty = docks[TopPos].isEmpty();
+    QSize left_hint = docks[LeftPos].size();
+    if (!left_hint.isValid())
+        left_hint = docks[LeftPos].sizeHint();
+    QSize left_min = docks[LeftPos].minimumSize();
+    QSize left_max = docks[LeftPos].maximumSize();
+    int left_sep = docks[LeftPos].isEmpty() ? 0 : sep;
 
-    ver_struct_list[1].stretch = central_size.height();
-    int h = central_size.height();
-    if (h == 0 && !docks[LeftPos].isEmpty())
-        h = docks[LeftPos].rect.height();
-    if (h == 0 && !docks[RightPos].isEmpty())
-        h = docks[RightPos].rect.height();
-    ver_struct_list[1].sizeHint = h == 0
-                                    ? qMax(docks[LeftPos].sizeHint().height(),
-                                            central_hint.height(),
-                                            docks[RightPos].sizeHint().height())
-                                    : h;
-    ver_struct_list[1].minimumSize = qMax(docks[LeftPos].minimumSize().height(),
-                                            central_min.height(),
-                                            docks[RightPos].minimumSize().height());
-    ver_struct_list[1].maximumSize = have_central ? QWIDGETSIZE_MAX : 0;
-    ver_struct_list[1].expansive = have_central;
-    ver_struct_list[1].empty = docks[LeftPos].isEmpty()
-                                    && !have_central
-                                    && docks[RightPos].isEmpty();
+    QSize right_hint = docks[RightPos].size();
+    if (!right_hint.isValid())
+        right_hint = docks[RightPos].sizeHint();
+    QSize right_min = docks[RightPos].minimumSize();
+    QSize right_max = docks[RightPos].maximumSize();
+    int right_sep = docks[RightPos].isEmpty() ? 0 : sep;
 
-    ver_struct_list[2].stretch = 0;
-    ver_struct_list[2].sizeHint
-        = !docks[BottomPos].isEmpty() && docks[BottomPos].rect.isValid()
-            ? docks[BottomPos].rect.height()
-            : docks[BottomPos].sizeHint().height();
-    ver_struct_list[2].minimumSize = docks[BottomPos].minimumSize().height();
-    ver_struct_list[2].maximumSize = docks[BottomPos].maximumSize().height();
-    ver_struct_list[2].expansive = false;
-    ver_struct_list[2].empty = docks[BottomPos].isEmpty();
+    QSize top_hint = docks[TopPos].size();
+    if (!top_hint.isValid())
+        top_hint = docks[TopPos].sizeHint();
+    QSize top_min = docks[TopPos].minimumSize();
+    QSize top_max = docks[TopPos].maximumSize();
+    int top_sep = docks[TopPos].isEmpty() ? 0 : sep;
 
-    for (int i = 0; i < 3; ++i) {
-        ver_struct_list[i].sizeHint
-            = qMax(ver_struct_list[i].sizeHint, ver_struct_list[i].minimumSize);
+    QSize bottom_hint = docks[BottomPos].size();
+    if (!bottom_hint.isValid())
+        bottom_hint = docks[BottomPos].sizeHint();
+    QSize bottom_min = docks[BottomPos].minimumSize();
+    QSize bottom_max = docks[BottomPos].maximumSize();
+    int bottom_sep = docks[BottomPos].isEmpty() ? 0 : sep;
+
+    if (_ver_struct_list != 0) {
+        QVector<QLayoutStruct> &ver_struct_list = *_ver_struct_list;
+        ver_struct_list.resize(3);
+
+        // top --------------------------------------------------
+
+        ver_struct_list[0].stretch = 0;
+        ver_struct_list[0].sizeHint = top_hint.height();
+        ver_struct_list[0].minimumSize = top_min.height();
+        ver_struct_list[0].maximumSize = top_max.height();
+        ver_struct_list[0].expansive = false;
+        ver_struct_list[0].empty = docks[TopPos].isEmpty();
+        ver_struct_list[0].pos = docks[TopPos].rect.top();
+        ver_struct_list[0].size = docks[TopPos].rect.height();
+
+        // center --------------------------------------------------
+
+        ver_struct_list[1].stretch = center_hint.height();
+        int left = left_hint.height();
+        if (corners[Qt::TopLeftCorner] == Qt::LeftDockWidgetArea)
+            left -= top_hint.height() + top_sep;
+        if (corners[Qt::BottomLeftCorner] == Qt::LeftDockWidgetArea)
+            left -= bottom_hint.height() + bottom_sep;
+        int right = right_hint.height();
+        if (corners[Qt::TopRightCorner] == Qt::RightDockWidgetArea)
+            right -= top_hint.height() + top_sep;
+        if (corners[Qt::BottomRightCorner] == Qt::RightDockWidgetArea)
+            right -= bottom_hint.height() + bottom_sep;
+        ver_struct_list[1].sizeHint = qMax(left, center_hint.height(), right);
+
+        left = left_min.height();
+        if (corners[Qt::TopLeftCorner] == Qt::LeftDockWidgetArea)
+            left -= top_min.height() + top_sep;
+        if (corners[Qt::BottomLeftCorner] == Qt::LeftDockWidgetArea)
+            left -= bottom_min.height() + bottom_sep;
+        right = right_min.height();
+        if (corners[Qt::TopRightCorner] == Qt::RightDockWidgetArea)
+            right -= top_min.height() + top_sep;
+        if (corners[Qt::BottomRightCorner] == Qt::RightDockWidgetArea)
+            right -= bottom_min.height() + bottom_sep;
+        ver_struct_list[1].minimumSize = qMax(left, center_min.height(), right);
+        ver_struct_list[1].maximumSize = have_central ? QWIDGETSIZE_MAX : 0;
+        ver_struct_list[1].expansive = have_central;
+        ver_struct_list[1].empty = docks[LeftPos].isEmpty()
+                                        && !have_central
+                                        && docks[RightPos].isEmpty();
+        ver_struct_list[1].pos = center_rect.top();
+        ver_struct_list[1].size = center_rect.height();
+
+        // bottom --------------------------------------------------
+
+        ver_struct_list[2].stretch = 0;
+        ver_struct_list[2].sizeHint = bottom_hint.height();
+        ver_struct_list[2].minimumSize = bottom_min.height();
+        ver_struct_list[2].maximumSize = bottom_max.height();
+        ver_struct_list[2].expansive = false;
+        ver_struct_list[2].empty = docks[BottomPos].isEmpty();
+        ver_struct_list[2].pos = docks[BottomPos].rect.top();
+        ver_struct_list[2].size = docks[BottomPos].rect.height();
+
+        for (int i = 0; i < 3; ++i) {
+            ver_struct_list[i].sizeHint
+                = qMax(ver_struct_list[i].sizeHint, ver_struct_list[i].minimumSize);
+        }
     }
 
-    qGeomCalc(ver_struct_list, 0, 3, rect.top(), rect.height(), sep);
+    if (_hor_struct_list != 0) {
+        QVector<QLayoutStruct> &hor_struct_list = *_hor_struct_list;
+        hor_struct_list.resize(3);
 
-    // horizontal
-    QVector<QLayoutStruct> hor_struct_list(3);
+        // left --------------------------------------------------
 
-    hor_struct_list[0].stretch = 0;
-    hor_struct_list[0].sizeHint
-        = !docks[LeftPos].isEmpty() && docks[LeftPos].rect.isValid()
-            ? docks[LeftPos].rect.width()
-            : docks[LeftPos].sizeHint().width();
-    hor_struct_list[0].minimumSize = docks[LeftPos].minimumSize().width();
-    hor_struct_list[0].maximumSize = docks[LeftPos].maximumSize().width();
-    hor_struct_list[0].expansive = false;
-    hor_struct_list[0].empty = docks[LeftPos].isEmpty();
+        hor_struct_list[0].stretch = 0;
+        hor_struct_list[0].sizeHint = left_hint.width();
+        hor_struct_list[0].minimumSize = left_min.width();
+        hor_struct_list[0].maximumSize = left_max.width();
+        hor_struct_list[0].expansive = false;
+        hor_struct_list[0].empty = docks[LeftPos].isEmpty();
+        hor_struct_list[0].pos = docks[LeftPos].rect.left();
+        hor_struct_list[0].size = docks[LeftPos].rect.width();
 
-    hor_struct_list[1].stretch = central_size.width();
-    hor_struct_list[1].sizeHint
-        = central_size.width() == 0 ? central_hint.width() : central_size.width();
-    hor_struct_list[1].minimumSize = central_min.width();
-    hor_struct_list[1].maximumSize = have_central ? QWIDGETSIZE_MAX : 0;
-    hor_struct_list[1].expansive = have_central;
-    hor_struct_list[1].empty = !have_central;
+        // center --------------------------------------------------
 
-    hor_struct_list[2].stretch = 0;
-    hor_struct_list[2].sizeHint
-        = !docks[RightPos].isEmpty() && docks[RightPos].rect.isValid()
-            ? docks[RightPos].rect.width()
-            : docks[RightPos].sizeHint().width();
-    hor_struct_list[2].minimumSize = docks[RightPos].minimumSize().width();
-    hor_struct_list[2].maximumSize = docks[RightPos].maximumSize().width();
-    hor_struct_list[2].expansive = false;
-    hor_struct_list[2].empty = docks[RightPos].isEmpty();
+        hor_struct_list[1].stretch = center_hint.width();
+        int top = top_hint.width();
+        if (corners[Qt::TopLeftCorner] == Qt::TopDockWidgetArea)
+            top -= left_hint.width() + left_sep;
+        if (corners[Qt::TopRightCorner] == Qt::TopDockWidgetArea)
+            top -= right_hint.width() + right_sep;
+        int bottom = bottom_hint.width();
+        if (corners[Qt::BottomLeftCorner] == Qt::BottomDockWidgetArea)
+            bottom -= left_hint.width() + left_sep;
+        if (corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea)
+            bottom -= right_hint.width() + right_sep;
+        hor_struct_list[1].sizeHint = qMax(top, center_hint.width(), bottom);
 
-    for (int i = 0; i < 3; ++i) {
-        hor_struct_list[i].sizeHint
-            = qMax(hor_struct_list[i].sizeHint, hor_struct_list[i].minimumSize);
+        top = top_min.width();
+        if (corners[Qt::TopLeftCorner] == Qt::TopDockWidgetArea)
+            top -= left_min.width() + left_sep;
+        if (corners[Qt::TopRightCorner] == Qt::TopDockWidgetArea)
+            top -= right_min.width() + right_sep;
+        bottom = bottom_min.width();
+        if (corners[Qt::BottomLeftCorner] == Qt::BottomDockWidgetArea)
+            bottom -= left_min.width() + left_sep;
+        if (corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea)
+            bottom -= right_min.width() + right_sep;
+        hor_struct_list[1].minimumSize = qMax(top, center_min.width(), bottom);
+        hor_struct_list[1].maximumSize = have_central ? QWIDGETSIZE_MAX : 0;
+        hor_struct_list[1].expansive = have_central;
+        hor_struct_list[1].empty = !have_central;
+        hor_struct_list[1].pos = center_rect.left();
+        hor_struct_list[1].size = center_rect.width();
+
+        // right --------------------------------------------------
+
+        hor_struct_list[2].stretch = 0;
+        hor_struct_list[2].sizeHint = right_hint.width();
+        hor_struct_list[2].minimumSize = right_min.width();
+        hor_struct_list[2].maximumSize = right_max.width();
+        hor_struct_list[2].expansive = false;
+        hor_struct_list[2].empty = docks[RightPos].isEmpty();
+        hor_struct_list[2].pos = docks[RightPos].rect.left();
+        hor_struct_list[2].size = docks[RightPos].rect.width();
+
+        for (int i = 0; i < 3; ++i) {
+            hor_struct_list[i].sizeHint
+                = qMax(hor_struct_list[i].sizeHint, hor_struct_list[i].minimumSize);
+        }
     }
+}
 
-    qGeomCalc(hor_struct_list, 0, 3, rect.left(), rect.width(), sep);
+void QDockWidgetLayout::setGrid(QVector<QLayoutStruct> *ver_struct_list,
+                                QVector<QLayoutStruct> *hor_struct_list)
+{
+    bool have_central = centralWidgetItem != 0 && !centralWidgetItem->isEmpty();
 
     if (!docks[TopPos].isEmpty()) {
-        docks[TopPos].rect = QRect(rect.left(), rect.top(), rect.width(), ver_struct_list[0].size);
+        QRect r = docks[TopPos].rect;
+
+        if (hor_struct_list != 0) {
+            r.setLeft(corners[Qt::TopLeftCorner] == Qt::TopDockWidgetArea
+                        ? rect.left() : hor_struct_list->at(1).pos);
+            r.setRight(corners[Qt::TopRightCorner] == Qt::TopDockWidgetArea
+                        ? rect.right() : hor_struct_list->at(2).pos - sep - 1);
+        }
+        if (ver_struct_list != 0) {
+            r.setTop(rect.top());
+            r.setBottom(ver_struct_list->at(1).pos - sep - 1);
+        }
+
+        docks[TopPos].rect = r;
         docks[TopPos].fitItems();
     }
 
     if (!docks[BottomPos].isEmpty()) {
-        docks[BottomPos].rect = QRect(rect.left(), ver_struct_list[2].pos,
-                                        rect.width(), ver_struct_list[2].size);
+        QRect r = docks[BottomPos].rect;
+
+        if (hor_struct_list != 0) {
+            r.setLeft(corners[Qt::BottomLeftCorner] == Qt::BottomDockWidgetArea
+                        ? rect.left() : hor_struct_list->at(1).pos);
+            r.setRight(corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea
+                        ? rect.right() : hor_struct_list->at(2).pos - sep - 1);
+        }
+        if (ver_struct_list != 0) {
+            r.setTop(ver_struct_list->at(2).pos);
+            r.setBottom(rect.bottom());
+        }
+
+        docks[BottomPos].rect = r;
         docks[BottomPos].fitItems();
     }
 
     if (!docks[LeftPos].isEmpty()) {
-        docks[LeftPos].rect = QRect(rect.left(), ver_struct_list[1].pos,
-                                    hor_struct_list[0].size, ver_struct_list[1].size);
+        QRect r = docks[LeftPos].rect;
+
+        if (hor_struct_list != 0) {
+            r.setLeft(rect.left());
+            r.setRight(hor_struct_list->at(1).pos - sep - 1);
+        }
+        if (ver_struct_list != 0) {
+            r.setTop(corners[Qt::TopLeftCorner] == Qt::LeftDockWidgetArea
+                        ? rect.top() : ver_struct_list->at(1).pos);
+            r.setBottom(corners[Qt::BottomLeftCorner] == Qt::LeftDockWidgetArea
+                            ? rect.bottom() : ver_struct_list->at(2).pos - sep - 1);
+        }
+
+        docks[LeftPos].rect = r;
         docks[LeftPos].fitItems();
     }
 
     if (!docks[RightPos].isEmpty()) {
-        docks[RightPos].rect = QRect(hor_struct_list[2].pos, ver_struct_list[1].pos,
-                                    hor_struct_list[2].size, ver_struct_list[1].size);
+        QRect r = docks[RightPos].rect;
+
+        if (hor_struct_list != 0) {
+            r.setLeft(hor_struct_list->at(2).pos);
+            r.setRight(rect.right());
+        }
+        if (ver_struct_list != 0) {
+            r.setTop(corners[Qt::TopRightCorner] == Qt::RightDockWidgetArea
+                        ? rect.top() : ver_struct_list->at(1).pos);
+            r.setBottom(corners[Qt::BottomRightCorner] == Qt::RightDockWidgetArea
+                            ? rect.bottom() : ver_struct_list->at(2).pos - sep - 1);
+        }
+
+        docks[RightPos].rect = r;
         docks[RightPos].fitItems();
     }
 
     if (have_central) {
-        centralWidgetRect = QRect(hor_struct_list[1].pos, ver_struct_list[1].pos,
-                                    hor_struct_list[1].size, ver_struct_list[1].size);
+        if (hor_struct_list != 0) {
+            centralWidgetRect.setLeft(hor_struct_list->at(1).pos);
+            centralWidgetRect.setWidth(hor_struct_list->at(1).size);
+        }
+
+        if (ver_struct_list != 0) {
+            centralWidgetRect.setTop(ver_struct_list->at(1).pos);
+            centralWidgetRect.setHeight(ver_struct_list->at(1).size);
+        }
     }
+}
+
+void QDockWidgetLayout::fitLayout()
+{
+    QVector<QLayoutStruct> ver_struct_list(3);
+    QVector<QLayoutStruct> hor_struct_list(3);
+    getGrid(&ver_struct_list, &hor_struct_list);
+
+    qGeomCalc(ver_struct_list, 0, 3, rect.top(), rect.height(), sep);
+    qGeomCalc(hor_struct_list, 0, 3, rect.left(), rect.width(), sep);
+
+    setGrid(&ver_struct_list, &hor_struct_list);
+
 }
 
 void QDockWidgetLayout::clear()
@@ -1638,57 +1771,12 @@ void QDockWidgetLayout::clear()
     for (int i = 0; i < PosCount; ++i)
         docks[i].clear();
 
-    rect = QRect();
-}
-
-QSize QDockWidgetLayout::calculateSize(const QSize &szC,
-                                              const QSize &szL,
-                                              const QSize &szR,
-                                              const QSize &szT,
-                                              const QSize &szB) const
-{
-    int h1, h2, h3, w1, w2, w3;
-
-    w1 = (corners[Qt::TopLeftCorner] == Qt::LeftDockWidgetArea ? szL.width() : 0)
-         + szT.width()
-         + (corners[Qt::TopRightCorner] == Qt::RightDockWidgetArea ? szR.width() : 0);
-    w2 = szL.width() + szR.width() + szC.width();
-    w3 = (corners[Qt::BottomLeftCorner] == Qt::LeftDockWidgetArea ? szL.width() : 0)
-         + szB.width()
-         + (corners[Qt::BottomRightCorner] == Qt::RightDockWidgetArea ? szR.width() : 0);
-
-    h1 = (corners[Qt::TopLeftCorner] == Qt::TopDockWidgetArea ? szT.height() : 0)
-         + szL.height()
-         + (corners[Qt::BottomLeftCorner] == Qt::BottomDockWidgetArea ? szB.height() : 0);
-    h2 = szT.height() + szB.height() + szC.height();
-    h3 = (corners[Qt::TopRightCorner] == Qt::TopDockWidgetArea ? szT.height() : 0)
-         + szR.height()
-         + (corners[Qt::BottomRightCorner] == Qt::BottomDockWidgetArea ? szB.height() : 0);
-
-    int left = 0, right = 0, top = 0, bottom = 0;
-    if (!docks[LeftPos].isEmpty() && !szL.isEmpty())
-        left += sep;
-    if (!docks[RightPos].isEmpty() && !szR.isEmpty())
-        right += sep;
-    if (!docks[TopPos].isEmpty() && !szT.isEmpty())
-        top += sep;
-    if (!docks[BottomPos].isEmpty() && !szB.isEmpty())
-        bottom += sep;
-
-    return QSize(qMax(qMax(w1, w2), w3) + left + right, qMax(qMax(h1, h2), h3) + top + bottom);
+    rect = QRect(0, 0, -1, -1);
+    centralWidgetRect = QRect(0, 0, -1, -1);
 }
 
 QSize QDockWidgetLayout::sizeHint() const
 {
-/*
-    return calculateSize((centralWidgetItem
-                          ? centralWidgetItem->sizeHint()
-                          : QSize(0, 0)),
-                         docks[LeftPos].sizeHint(),
-                         docks[RightPos].sizeHint(),
-                         docks[TopPos].sizeHint(),
-                         docks[BottomPos].sizeHint()); */
-
     QSize ls = docks[LeftPos].sizeHint();
     QSize rs = docks[RightPos].sizeHint();
     QSize ts = docks[TopPos].sizeHint();
@@ -1713,14 +1801,6 @@ QSize QDockWidgetLayout::sizeHint() const
 
 QSize QDockWidgetLayout::minimumSize() const
 {
-/*
-    return calculateSize((centralWidgetItem
-                          ? centralWidgetItem->minimumSize()
-                          : QSize(0, 0)),
-                         docks[LeftPos].minimumSize(),
-                         docks[RightPos].minimumSize(),
-                         docks[TopPos].minimumSize(),
-                         docks[BottomPos].minimumSize()); */
     QSize ls = docks[LeftPos].minimumSize();
     QSize rs = docks[RightPos].minimumSize();
     QSize ts = docks[TopPos].minimumSize();
@@ -1831,90 +1911,13 @@ int QDockWidgetLayout::separatorMove(QList<int> separator, const QPoint &origin,
         return delta;
     }
 
-    bool have_central = centralWidgetItem != 0 && !centralWidgetItem->isEmpty();
-    QSize central_min(0, 0);
-    QSize central_max(0, 0);
-    if (have_central) {
-        central_min = centralWidgetItem->minimumSize();
-        central_max = QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-    }
-
     if (cache->isEmpty()) {
         QVector<QLayoutStruct> &list = *cache;
 
-        list.resize(3);
-        if (index == LeftPos || index == RightPos) {
-            if (docks[LeftPos].isEmpty()) {
-                list[0].empty = true;
-            } else {
-                list[0].empty = false;
-                list[0].pos = docks[LeftPos].rect.left();
-                list[0].size = docks[LeftPos].rect.width();
-                list[0].minimumSize = docks[LeftPos].minimumSize().width();
-                list[0].maximumSize = docks[LeftPos].maximumSize().width();
-            }
-            if (!have_central) {
-                list[1].empty = true;
-            } else {
-                list[1].empty = false;
-                list[1].pos = centralWidgetRect.left();
-                list[1].size = centralWidgetRect.width();
-                list[1].minimumSize = central_min.width();
-                list[1].maximumSize = central_max.width();
-            }
-            if (docks[RightPos].isEmpty()) {
-                list[2].empty = true;
-            } else {
-                list[2].empty = false;
-                list[2].pos = docks[RightPos].rect.left();
-                list[2].size = docks[RightPos].rect.width();
-                list[2].minimumSize = docks[RightPos].minimumSize().width();
-                list[2].maximumSize = docks[RightPos].maximumSize().width();
-            }
-        } else {
-            if (docks[TopPos].isEmpty()) {
-                list[0].empty = true;
-            } else {
-                list[0].empty = false;
-                list[0].pos = docks[TopPos].rect.top();
-                list[0].size = docks[TopPos].rect.height();
-                list[0].minimumSize = docks[TopPos].minimumSize().height();
-                list[0].maximumSize = docks[TopPos].maximumSize().height();
-            }
-            if (!have_central
-                    && docks[LeftPos].isEmpty()
-                    && docks[RightPos].isEmpty()) {
-                list[1].empty = true;
-            } else {
-                list[1].empty = false;
-                QRect r;
-                if (!docks[LeftPos].isEmpty())
-                    r = docks[LeftPos].rect;
-                if (!r.isValid() && have_central)
-                    r = centralWidgetRect;
-                if (!r.isValid() && !docks[RightPos].isEmpty())
-                    r = docks[RightPos].rect;
-                list[1].pos = r.top();
-                list[1].size = r.height();
-                list[1].minimumSize
-                    = qMax(docks[LeftPos].minimumSize().height(),
-                            central_min.height(),
-                            docks[RightPos].minimumSize().height());
-                list[1].maximumSize
-                    = qMin(docks[LeftPos].maximumSize().height(),
-                            central_max.height(),
-                            docks[RightPos].maximumSize().height());
-            }
-            if (docks[BottomPos].isEmpty()) {
-                list[2].empty = true;
-            } else {
-                list[2].empty = false;
-                list[2].pos = docks[BottomPos].rect.top();
-                list[2].size = docks[BottomPos].rect.height();
-                list[2].minimumSize = docks[BottomPos].minimumSize().height();
-                list[2].maximumSize = docks[BottomPos].maximumSize().height();
-            }
-        }
+        if (index == LeftPos || index == RightPos)
+            getGrid(0, &list);
+        else
+            getGrid(&list, 0);
     }
 
     QVector<QLayoutStruct> list = *cache;
@@ -1927,71 +1930,11 @@ int QDockWidgetLayout::separatorMove(QList<int> separator, const QPoint &origin,
     delta = pick(o, dest - origin);
     delta = ::separatorMove(list, sep_index, delta, sep);
 
-    if (index == LeftPos || index == RightPos) {
-        if (!docks[LeftPos].isEmpty()) {
-            QRect r(list[0].pos, docks[LeftPos].rect.top(),
-                    list[0].size, docks[LeftPos].rect.height());
-            if (r != docks[LeftPos].rect) {
-                docks[LeftPos].rect = r;
-                docks[LeftPos].fitItems();
-            }
-        }
-        if (have_central) {
-            centralWidgetRect
-                = QRect(list[1].pos, centralWidgetRect.top(),
-                        list[1].size, centralWidgetRect.height());
-        }
-        if (!docks[RightPos].isEmpty()) {
-            QRect r(list[2].pos, docks[RightPos].rect.top(),
-                    list[2].size, docks[RightPos].rect.height());
-            if (r != docks[RightPos].rect) {
-                docks[RightPos].rect = r;
-                docks[RightPos].fitItems();
-            }
-        }
-    } else {
-        if (!docks[TopPos].isEmpty()) {
-            QRect r(docks[TopPos].rect.left(), list[0].pos,
-                    docks[TopPos].rect.width(), list[0].size);
-            if (r != docks[TopPos].rect) {
-                docks[TopPos].rect = r;
-                docks[TopPos].fitItems();
-            }
-        }
-        if (have_central
-                || !docks[LeftPos].isEmpty()
-                || !docks[RightPos].isEmpty()) {
-            if (!docks[LeftPos].isEmpty()) {
-                QRect r(docks[LeftPos].rect.left(), list[1].pos,
-                        docks[LeftPos].rect.width(), list[1].size);
-                if (r != docks[LeftPos].rect) {
-                    docks[LeftPos].rect = r;
-                    docks[LeftPos].fitItems();
-                }
-            }
-            if (have_central) {
-                centralWidgetRect
-                    = QRect(centralWidgetRect.left(), list[1].pos,
-                            centralWidgetRect.width(), list[1].size);
-            }
-            if (!docks[RightPos].isEmpty()) {
-                QRect r(docks[RightPos].rect.left(), list[1].pos,
-                        docks[RightPos].rect.width(), list[1].size);
-                if (r != docks[RightPos].rect) {
-                    docks[RightPos].rect = r;
-                    docks[RightPos].fitItems();
-                }
-            }
-        }
-        if (!docks[BottomPos].isEmpty()) {
-            QRect r(docks[BottomPos].rect.left(), list[2].pos,
-                    docks[BottomPos].rect.width(), list[2].size);
-            if (r != docks[BottomPos].rect) {
-                docks[BottomPos].rect = r;
-                docks[BottomPos].fitItems();
-            }
-        }
-    }
+    if (index == LeftPos || index == RightPos)
+        setGrid(0, &list);
+    else
+        setGrid(&list, 0);
+
     apply(false);
 
     return delta;

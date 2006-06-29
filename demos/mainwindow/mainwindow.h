@@ -18,6 +18,7 @@
 
 class ToolBar;
 class QMenu;
+class QSignalMapper;
 
 class MainWindow : public QMainWindow
 {
@@ -25,6 +26,7 @@ class MainWindow : public QMainWindow
 
     ToolBar *toolbar;
     QMenu *dockWidgetMenu;
+    QSignalMapper *mapper;
 
 public:
     MainWindow(QWidget *parent = 0, Qt::WindowFlags flags = 0);
@@ -33,6 +35,7 @@ public slots:
     void actionTriggered(QAction *action);
     void saveLayout();
     void loadLayout();
+    void setCorner(int id);
 
 private:
     void setupToolBar();

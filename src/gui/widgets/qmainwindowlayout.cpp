@@ -376,7 +376,10 @@ Qt::ToolBarArea QMainWindowLayout::toolBarArea(QToolBar *toolbar) const
 
 void QMainWindowLayout::setCorner(Qt::Corner corner, Qt::DockWidgetArea area)
 {
+    if (dockWidgetLayout.corners[corner] == area)
+        return;
     dockWidgetLayout.corners[corner] = area;
+    relayout();
 }
 
 Qt::DockWidgetArea QMainWindowLayout::corner(Qt::Corner corner) const

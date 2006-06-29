@@ -25,6 +25,7 @@
 #include <QDataStream>
 #include <QFileDialog>
 #include <QMessageBoxEx>
+#include <QSignalMapper>
 #include <qdebug.h>
 
 static const char * const message =
@@ -179,6 +180,19 @@ void MainWindow::loadLayout()
     }
 }
 
+QAction *addAction(QMenu *menu, const QString &text, QActionGroup *group, QSignalMapper *mapper,
+                    int id)
+{
+    bool first = group->actions().isEmpty();
+    QAction *result = menu->addAction(text);
+    result->setCheckable(true);
+    result->setChecked(first);
+    group->addAction(result);
+    QObject::connect(result, SIGNAL(triggered()), mapper, SLOT(map()));
+    mapper->setMapping(result, id);
+    return result;
+}
+
 void MainWindow::setupDockWidgets()
 {
     QAction *action = dockWidgetMenu->addAction(tr("Animation"));
@@ -190,6 +204,35 @@ void MainWindow::setupDockWidgets()
     action->setCheckable(true);
     action->setChecked(isDockNestingEnabled());
     connect(action, SIGNAL(toggled(bool)), this, SLOT(setDockNestingEnabled(bool)));
+
+    dockWidgetMenu->addSeparator();
+
+    mapper = new QSignalMapper(this);
+    connect(mapper, SIGNAL(mapped(int)), this, SLOT(setCorner(int)));
+
+    QMenu *corner_menu = dockWidgetMenu->addMenu(tr("Top left corner"));
+    QActionGroup *group = new QActionGroup(this);
+    group->setExclusive(true);
+    ::addAction(corner_menu, tr("Top dock area"), group, mapper, 0);
+    ::addAction(corner_menu, tr("Left dock area"), group, mapper, 1);
+
+    corner_menu = dockWidgetMenu->addMenu(tr("Top right corner"));
+    group = new QActionGroup(this);
+    group->setExclusive(true);
+    ::addAction(corner_menu, tr("Top dock area"), group, mapper, 2);
+    ::addAction(corner_menu, tr("Right dock area"), group, mapper, 3);
+
+    corner_menu = dockWidgetMenu->addMenu(tr("Bottom left corner"));
+    group = new QActionGroup(this);
+    group->setExclusive(true);
+    ::addAction(corner_menu, tr("Bottom dock area"), group, mapper, 4);
+    ::addAction(corner_menu, tr("Left dock area"), group, mapper, 5);
+
+    corner_menu = dockWidgetMenu->addMenu(tr("Bottom right corner"));
+    group = new QActionGroup(this);
+    group->setExclusive(true);
+    ::addAction(corner_menu, tr("Bottom dock area"), group, mapper, 6);
+    ::addAction(corner_menu, tr("Right dock area"), group, mapper, 7);
 
     dockWidgetMenu->addSeparator();
 
@@ -219,5 +262,35 @@ void MainWindow::setupDockWidgets()
             swatch->setWindowIcon(QIcon(QPixmap(":/res/qt.png")));
         addDockWidget(sets[i].area, swatch);
         dockWidgetMenu->addMenu(swatch->menu);
+    }
+}
+
+void MainWindow::setCorner(int id)
+{
+    switch (id) {
+        case 0:
+            QMainWindow::setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
+            break;
+        case 1:
+            QMainWindow::setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+            break;
+        case 2:
+            QMainWindow::setCorner(Qt::TopRightCorner, Qt::TopDockWidgetArea);
+            break;
+        case 3:
+            QMainWindow::setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+            break;
+        case 4:
+            QMainWindow::setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
+            break;
+        case 5:
+            QMainWindow::setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+            break;
+        case 6:
+            QMainWindow::setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
+            break;
+        case 7:
+            QMainWindow::setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+            break;
     }
 }

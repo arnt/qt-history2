@@ -79,6 +79,7 @@ public:
     QSize minimumSize() const;
     QSize maximumSize() const;
     QSize sizeHint() const;
+    QSize size() const;
 
     bool insertGap(QList<int> path, QWidgetItem *dockWidgetItem);
     QWidgetItem *convertToGap(QList<int> path);
@@ -217,11 +218,6 @@ public:
 
     void clear();
 
-    QSize calculateSize(const QSize &szC,
-                        const QSize &szL,
-                        const QSize &szR,
-                        const QSize &szT,
-                        const QSize &szB) const;
     QSize sizeHint() const;
     QSize minimumSize() const;
 
@@ -241,7 +237,10 @@ public:
     QLayoutItem *takeAt(int *x, int index);
     void deleteAllLayoutItems();
 
-    QSize calculateSize() const;
+    void getGrid(QVector<QLayoutStruct> *ver_struct_list,
+                    QVector<QLayoutStruct> *hor_struct_list);
+    void setGrid(QVector<QLayoutStruct> *ver_struct_list,
+                    QVector<QLayoutStruct> *hor_struct_list);
 };
 
 // void dump(QDebug debug, const QDockWidgetLayout &layout);
