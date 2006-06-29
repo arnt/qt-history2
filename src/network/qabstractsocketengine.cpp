@@ -80,11 +80,6 @@ QAbstractSocketEngine *QAbstractSocketEngine::createSocketEngine(int socketDescr
     return new QNativeSocketEngine(parent);
 }
 
-bool QAbstractSocketEngine::hasPendingSocketError()
-{
-    return false;
-}
-
 QAbstractSocket::SocketError QAbstractSocketEngine::error() const
 {
     return d_func()->socketError;

@@ -350,46 +350,15 @@ bool QNativeSocketEnginePrivate::createNewSocket(QAbstractSocket::SocketType soc
     }
 
     socketDescriptor = socket;
-    lastSocketError = 0;
     return true;
 
-}
-
-/*
-    Returns the native socket error, if any.
-*/
-int QNativeSocketEnginePrivate::nativeSocketError() const
-{
-    if (lastSocketError)
-        return lastSocketError; // keep returning
-
-    WSABUF buf;
-    buf.buf = 0;
-    buf.len = 0;
-    DWORD bytesRead = 0;
-    DWORD peekFlags = MSG_PEEK;
-#if !defined(QT_NO_IPV6)
-    qt_sockaddr_storage aa;
-#else
-
-    struct sockaddr_in aa;
-#endif
-    memset(&aa, 0, sizeof(aa));
-    QT_SOCKLEN_T sz;
-    sz = sizeof(aa);
-
-    if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &peekFlags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR) {
-        lastSocketError = WSAGetLastError();
-        return lastSocketError;
-    }
-    return 0;                   // no error
 }
 
 /*
     Converts the native socket error condition to a QAbstractSocket::SocketError
     code and clears the state.
 */
-void QNativeSocketEnginePrivate::setErrorFromNative()
+void QNativeSocketEnginePrivate::setErrorFromNative(int socketError)
 {
     switch (lastSocketError)
     {
@@ -468,12 +437,10 @@ void QNativeSocketEnginePrivate::setErrorFromNative()
         break;
 
     default:
-        qWarning("QNativeSocketEngine::setErrorFromNative: got unknown errno=%d", lastSocketError);
+        qWarning("QNativeSocketEngine::setErrorFromNative: got unknown errno=%d", socketError);
         setError(QAbstractSocket::UnknownSocketError, UnknownSocketErrorString);
         break;
     }
-
-    lastSocketError = 0;        // clear it
 }
 
 /*! \internal
@@ -837,8 +804,6 @@ int QNativeSocketEnginePrivate::nativeAccept()
 
 qint64 QNativeSocketEnginePrivate::nativeBytesAvailable() const
 {
-    if (nativeSocketError())
-        return 0;
     unsigned long  nbytes = 0;
     unsigned long dummy = 0;
     DWORD sizeWritten = 0;
@@ -867,9 +832,6 @@ qint64 QNativeSocketEnginePrivate::nativeBytesAvailable() const
 
 bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
 {
-    if (nativeSocketError())
-        return false;
-
     // Create a sockaddr struct and reset its port number.
 #if !defined(QT_NO_IPV6)
     qt_sockaddr_in6 storage;
@@ -919,9 +881,6 @@ bool QNativeSocketEnginePrivate::nativeHasPendingDatagrams() const
 
 qint64 QNativeSocketEnginePrivate::nativePendingDatagramSize() const
 {
-    if (nativeSocketError())
-        return -1;
-
     qint64 ret = -1;
     int recvResult = 0;
     DWORD flags;
@@ -969,11 +928,6 @@ qint64 QNativeSocketEnginePrivate::nativePendingDatagramSize() const
 qint64 QNativeSocketEnginePrivate::nativeReceiveDatagram(char *data, qint64 maxLength,
                                                       QHostAddress *address, quint16 *port)
 {
-    if (nativeSocketError()) {
-        setErrorFromNative();
-        return -1;
-    }
-
     qint64 ret = 0;
 
 #if !defined(QT_NO_IPV6)
@@ -1021,11 +975,6 @@ qint64 QNativeSocketEnginePrivate::nativeReceiveDatagram(char *data, qint64 maxL
 qint64 QNativeSocketEnginePrivate::nativeSendDatagram(const char *data, qint64 len,
                                                    const QHostAddress &address, quint16 port)
 {
-    if (nativeSocketError()) {
-        setErrorFromNative();
-        return -1;
-    }
-
     qint64 ret = -1;
     struct sockaddr_in sockAddrIPv4;
     qt_sockaddr_in6 sockAddrIPv6;
@@ -1071,11 +1020,6 @@ qint64 QNativeSocketEnginePrivate::nativeSendDatagram(const char *data, qint64 l
 
 qint64 QNativeSocketEnginePrivate::nativeWrite(const char *data, qint64 len)
 {
-    if (nativeSocketError()) {
-        setErrorFromNative();
-        return -1;
-    }
-
     Q_Q(QNativeSocketEngine);
     qint64 ret = 0;
     // don't send more than 49152 per call to WSASendTo to avoid getting a WSAENOBUFS
@@ -1125,11 +1069,6 @@ qint64 QNativeSocketEnginePrivate::nativeWrite(const char *data, qint64 len)
 
 qint64 QNativeSocketEnginePrivate::nativeRead(char *data, qint64 maxLength)
 {
-    if (nativeSocketError()) {
-        setErrorFromNative();
-        return -1;
-    }
-
     qint64 ret = -1;
     WSABUF buf;
     buf.buf = data;
@@ -1263,5 +1202,4 @@ void QNativeSocketEnginePrivate::nativeClose()
     qDebug("QNativeSocketEnginePrivate::nativeClose()");
 #endif
     ::closesocket(socketDescriptor);
-    lastSocketError = 0;
 }

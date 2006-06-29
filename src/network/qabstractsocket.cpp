@@ -492,13 +492,7 @@ bool QAbstractSocketPrivate::_q_canReadNotification()
     // only emit readyRead() when not recursing.
     if (!emittedReadyRead && (!isBuffered || newBytes > 0)) {
         emittedReadyRead = true;
-        if (socketEngine->hasPendingSocketError()) {
-            socketError = socketEngine->error();
-            q->setErrorString(socketEngine->errorString());
-            emit q->error(socketError);
-        }
-        else
-            emit q->readyRead();
+        emit q->readyRead();
         emittedReadyRead = false;
     }
 

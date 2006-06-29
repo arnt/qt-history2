@@ -122,7 +122,6 @@ QNativeSocketEnginePrivate::QNativeSocketEnginePrivate()
     readNotifier = 0;
     writeNotifier = 0;
     exceptNotifier = 0;
-    lastSocketError = 0;
 }
 
 /*! \internal
@@ -789,15 +788,6 @@ bool QNativeSocketEngine::waitForReadOrWrite(bool *readyToRead, bool *readyToWri
         return false;
     }
     return ret > 0;
-}
-
-bool QNativeSocketEngine::hasPendingSocketError()
-{
-    if (d_func()->nativeSocketError()) {
-        d_func()->setErrorFromNative();
-        return true;
-    }
-    return false;
 }
 
 /*!

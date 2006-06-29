@@ -76,7 +76,6 @@ public:
     bool waitForReadOrWrite(bool *readyToRead, bool *readyToWrite,
 			    bool checkRead, bool checkWrite,
 			    int msecs = 30000, bool *timedOut = 0) const;
-    bool hasPendingSocketError();
 
     bool isReadNotificationEnabled() const;
     void setReadNotificationEnabled(bool enable);
@@ -110,7 +109,6 @@ public:
     ~QNativeSocketEnginePrivate();
 
     int socketDescriptor;
-    mutable int lastSocketError;
 
     QSocketNotifier *readNotifier, *writeNotifier, *exceptNotifier;
 
@@ -148,10 +146,9 @@ public:
     };
 
     void setError(QAbstractSocket::SocketError error, ErrorString errorString) const;
-    void setErrorFromNative();
+    void setErrorFromNative(int socketError);
 
     // native functions
-    int nativeSocketError() const;
     int option(QNativeSocketEngine::SocketOption option) const;
     bool setOption(QNativeSocketEngine::SocketOption option, int value);
 
