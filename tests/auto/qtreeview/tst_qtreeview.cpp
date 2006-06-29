@@ -559,9 +559,16 @@ void tst_QTreeView::mouseDoubleClick()
 {
     // Test double clicks outside the viewport.
     // (Should be a no-op and should not expand any item.)
-    QtTestModel model;
-    model.rows = 20;
-    model.cols = 2;
+
+    QStandardItemModel model(20, 2);
+    for (int i = 0; i < model.rowCount(); i++) {
+        QModelIndex index = model.index(i, 0, QModelIndex());
+        model.insertRows(0, 20, index);
+        model.insertColumns(0,2,index);
+        for (int i1 = 0; i1 <  model.rowCount(index); i1++) {
+            QModelIndex index2 = model.index(i1, 0, index);
+        }
+    }
 
     QTreeView view;
     view.setModel(&model);
