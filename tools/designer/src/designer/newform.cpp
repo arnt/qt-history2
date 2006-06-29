@@ -172,6 +172,9 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
         qdesigner_internal::QDesignerFormBuilder formBuilder(workbench()->core());
 
         QWidget *fake = new QWidget(0);
+#ifdef Q_WS_MAC
+        fake->winId();
+#endif
         fake->setAttribute(Qt::WA_WState_Visible);
 
         if (QWidget *widget = formBuilder.load(&f, fake)) {
