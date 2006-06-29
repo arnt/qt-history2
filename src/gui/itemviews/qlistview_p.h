@@ -141,7 +141,8 @@ public:
     }
 
     int perItemScrollToValue(int index, int value, int height,
-                             QAbstractItemView::ScrollHint hint) const;
+                             QAbstractItemView::ScrollHint hint,
+                             Qt::Orientation orientation) const;
 
     QRect elasticBand;
 

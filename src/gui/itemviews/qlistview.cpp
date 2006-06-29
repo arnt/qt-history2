@@ -522,13 +522,16 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
         verticalValue = qBound(0, verticalValue, d->flowPositions.count() - 1);
         if (above)
             verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
-                                                    area.height(), PositionAtTop);
+                                                    area.height(), PositionAtTop,
+                                                    Qt::Vertical);
         else if (below)
             verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
-                                                    area.height(), PositionAtBottom);
-        else
+                                                    area.height(), PositionAtBottom,
+                                                    Qt::Vertical);
+        else if (hint != EnsureVisible)
             verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
-                                                    area.height(), hint);
+                                                    area.height(), hint,
+                                                    Qt::Vertical);
     } else {
         if (hint == PositionAtTop || above)
             verticalValue += rect.top();
@@ -553,13 +556,16 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
         horizontalValue = qBound(0, horizontalValue, d->flowPositions.count() - 1);
         if (leftOf)
             horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
-                                                      area.width(), PositionAtTop);
+                                                      area.width(), PositionAtTop,
+                                                      Qt::Horizontal);
         else if (rightOf)
             horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
-                                                      area.width(), PositionAtBottom);
-        else
+                                                      area.width(), PositionAtBottom,
+                                                      Qt::Horizontal);
+        else if (hint != EnsureVisible)
             horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
-                                                      area.width(), hint);
+                                                      area.width(), hint,
+                                                      Qt::Horizontal);
     } else {
         if (isRightToLeft()) {
             if (hint == PositionAtCenter) {
@@ -1452,7 +1458,7 @@ void QListView::updateGeometries()
         const bool horizontal = horizontalScrollMode() == QAbstractItemView::ScrollPerItem;
 
         if (d->flow == TopToBottom) {
-            if (horizontal && d->wrap && d->movement == Static) { // ###
+            if (horizontal && d->wrap && d->movement == Static) {
                 int steps = d->segmentPositions.count();
                 int pageSteps = d->perItemScrollingPageSteps(vsize.width(), csize.width());
                 horizontalScrollBar()->setSingleStep(1);
@@ -1469,6 +1475,8 @@ void QListView::updateGeometries()
                 verticalScrollBar()->setSingleStep(1);
                 verticalScrollBar()->setPageStep(pageSteps);
                 verticalScrollBar()->setRange(0, steps - pageSteps);
+    //            } else if (vertical && d->wrap && d->movement == Static) {
+                // ### wrapped scrolling in flow direction
             } else {
                 verticalScrollBar()->setSingleStep(step.height() + d->spacing);
                 verticalScrollBar()->setPageStep(vsize.height());
@@ -1481,12 +1489,14 @@ void QListView::updateGeometries()
                 horizontalScrollBar()->setSingleStep(1);
                 horizontalScrollBar()->setPageStep(pageSteps);
                 horizontalScrollBar()->setRange(0, steps - pageSteps);
+//            } else if (horizontal && d->wrap && d->movement == Static) {
+                // ### wrapped scrolling in flow direction
             } else {
                 horizontalScrollBar()->setSingleStep(step.width() + d->spacing);
                 horizontalScrollBar()->setPageStep(vsize.width());
                 horizontalScrollBar()->setRange(0, d->contentsSize.width() - vsize.width());
             }
-            if (vertical && d->wrap && d->movement == Static) { // ###
+            if (vertical && d->wrap && d->movement == Static) {
                 int steps = d->segmentPositions.count();
                 int pageSteps = d->perItemScrollingPageSteps(vsize.height(), csize.height());
                 verticalScrollBar()->setSingleStep(1);
@@ -2065,15 +2075,15 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
     if (index.row() >= flowPositions.count())
         return QListViewItem();
 
-    int l = segmentStartRows.count() - 1;
-    int s = qBinarySearch<int>(segmentStartRows, index.row(), 0, l);
+    const int segment = qBinarySearch<int>(segmentStartRows, index.row(),
+                                           0, segmentStartRows.count() - 1);
     QPoint pos;
     if (flow == QListView::LeftToRight) {
         pos.setX(flowPositions.at(index.row()));
-        pos.setY(segmentPositions.at(s));
+        pos.setY(segmentPositions.at(segment));
     } else { // TopToBottom
         pos.setY(flowPositions.at(index.row()));
-        pos.setX(segmentPositions.at(s));
+        pos.setX(segmentPositions.at(segment));
     }
 
     QSize size = (uniformItemSizes && cachedItemSize.isValid())
@@ -2267,28 +2277,61 @@ int QListViewPrivate::perItemScrollingPageSteps(int length, int bounds) const
     return pageSteps;
 }
 
-int QListViewPrivate::perItemScrollToValue(int index, int value, int size,
-                                           QAbstractItemView::ScrollHint hint) const
+int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewportSize,
+                                           QAbstractItemView::ScrollHint hint,
+                                           Qt::Orientation orientation) const
 {
-    const int topIndex = value;
-    const int topCoordinate = flowPositions.at(topIndex);
-    int bottomIndex = topIndex;
-    int bottonCoordinate = topCoordinate;
-    const int flowCount = flowPositions.count() - 2;
-    while (bottonCoordinate - topCoordinate < (size - 1) && bottomIndex < flowCount)
-        bottonCoordinate = flowPositions.at(++bottomIndex);
-    const int itemCount = bottomIndex - topIndex - 1;
-    switch (hint) {
-    case QAbstractItemView::PositionAtTop:
-        return index;
-    case QAbstractItemView::PositionAtBottom:
-        return index - itemCount;
-    case QAbstractItemView::PositionAtCenter:
-        return index - (itemCount / 2);
-    default:
-        break;
+    if (segmentPositions.count() == 1) {
+        const int flowCount = flowPositions.count() - 2;
+        const int topIndex = scrollValue;
+        const int topCoordinate = flowPositions.at(topIndex);
+        int bottomIndex = topIndex;
+        int bottomCoordinate = topCoordinate;
+        while ((bottomCoordinate - topCoordinate) < (viewportSize - 1)
+               && bottomIndex < flowCount)
+            bottomCoordinate = flowPositions.at(++bottomIndex);
+        const int itemCount = bottomIndex - topIndex - 1;
+        switch (hint) {
+        case QAbstractItemView::PositionAtTop:
+            return index;
+        case QAbstractItemView::PositionAtBottom:
+            return index - itemCount + 1; // ###
+        case QAbstractItemView::PositionAtCenter:
+            return index - (itemCount / 2);
+        default:
+            break;
+        }
+    } else { // wrapping
+        Qt::Orientation flowOrientation =
+            (flow == QListView::LeftToRight ? Qt::Horizontal : Qt::Vertical);
+        if (flowOrientation == orientation) { // scrolling in the "flow" direction
+            // ### wrapped scrolling in the flow direction
+            return flowPositions.at(index); // ### always pixel based for now
+        } else { // we are scrolling in the "segment" direction
+            int segment = qBinarySearch<int>(segmentStartRows, index,
+                                             0, segmentStartRows.count() - 1);
+            const int segmentPositionCount = segmentPositions.count() - 2;
+            const int leftSegment = segment;
+            const int leftCoordinate = segmentPositions.at(leftSegment);
+            int rightSegment = leftSegment;
+            int rightCoordinate = leftCoordinate;
+            while ((rightCoordinate - leftCoordinate) < (viewportSize - 1)
+                   && rightSegment < segmentPositionCount)
+                rightCoordinate = segmentPositions.at(++rightSegment);
+            const int segmentCount = rightSegment - leftSegment - 1;
+            switch (hint) {
+            case QAbstractItemView::PositionAtTop:
+                return segment;
+            case QAbstractItemView::PositionAtBottom:
+                return segment - segmentCount + 1; // ###
+            case QAbstractItemView::PositionAtCenter:
+                return segment - (segmentCount / 2);
+            default:
+                break;
+            }
+        }
     }
-    return value;
+    return scrollValue;
 }
 
 #endif // QT_NO_LISTVIEW
