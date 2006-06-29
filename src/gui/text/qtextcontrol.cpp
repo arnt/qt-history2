@@ -1559,7 +1559,8 @@ void QTextControlPrivate::mouseReleaseEvent(Qt::MouseButton button, const QPoint
 void QTextControlPrivate::mouseDoubleClickEvent(QEvent *e, Qt::MouseButton button, const QPointF &pos)
 {
     Q_Q(QTextControl);
-    if (button != Qt::LeftButton) {
+    if (button != Qt::LeftButton
+        || !(interactionFlags & Qt::TextSelectableByMouse)) {
         e->ignore();
         return;
     }
@@ -1783,6 +1784,15 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
 {
     Q_D(QTextControl);
 
+    const bool showTextSelectionActions = d->interactionFlags & (Qt::TextEditable | Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
+
+    d->linkToCopy = QString();
+    if (!pos.isNull())
+        d->linkToCopy = anchorAt(pos);
+
+    if (d->linkToCopy.isEmpty() && !showTextSelectionActions)
+        return 0;
+
     QMenu *menu = new QMenu;
     QAction *a;
 
@@ -1797,14 +1807,14 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
         a->setEnabled(d->cursor.hasSelection());
     }
 
-    a = menu->addAction(tr("&Copy") + ACCEL_KEY(C), this, SLOT(copy()));
-    a->setEnabled(d->cursor.hasSelection());
+    if (showTextSelectionActions) {
+        a = menu->addAction(tr("&Copy") + ACCEL_KEY(C), this, SLOT(copy()));
+        a->setEnabled(d->cursor.hasSelection());
+    }
 
-    d->linkToCopy = QString();
-    if (!pos.isNull())
-        d->linkToCopy = anchorAt(pos);
     if ((d->interactionFlags & Qt::LinksAccessibleByKeyboard)
             || (d->interactionFlags & Qt::LinksAccessibleByMouse)) {
+
         a = menu->addAction(tr("Copy &Link Location"), this, SLOT(_q_copyLink()));
         a->setEnabled(!d->linkToCopy.isEmpty());
     }
@@ -1820,10 +1830,11 @@ QMenu *QTextControl::createStandardContextMenu(const QPointF &pos)
     }
 
 
-    menu->addSeparator();
-    a = menu->addAction(tr("Select All") + ACCEL_KEY(A), this, SLOT(selectAll()));
-
-    a->setEnabled(!d->doc->isEmpty());
+    if (showTextSelectionActions) {
+        menu->addSeparator();
+        a = menu->addAction(tr("Select All") + ACCEL_KEY(A), this, SLOT(selectAll()));
+        a->setEnabled(!d->doc->isEmpty());
+    }
 
     if (d->interactionFlags & Qt::TextEditable) {
         menu->addSeparator();
