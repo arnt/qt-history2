@@ -279,6 +279,7 @@ for (var p in validPlatforms) {
             //copying dist files
             print("Copying dist files...");
             copyDist(platDir, platform, license);
+            copyTarget(platDir, platform);
 
             checkLicense(platDir, getFileList(platDir), "first");
 
@@ -680,6 +681,28 @@ function cleanup()
     dir = new Dir(distDir);
     if (dir.exists)
         dir.rmdirs();
+}
+
+
+/************************************************************
+ * copies some files according to platform
+ */
+function copyTarget(packageDir, platform)
+{
+    const vfbFiles = ["/src/gui/embedded/qlock.cpp",
+                      "/src/gui/embedded/qlock_p.h",
+                      "/src/gui/embedded/qwssignalhandler.cpp",
+                      "/src/gui/embedded/qwssignalhandler_p.h",
+                      "/src/gui/embedded/qvfbhdr.h"];
+
+    if (platform != "x11")
+        return;
+
+    for (var i in vfbFiles) {
+        if (!File.exists(packageDir + vfbFiles[i])
+            throw "%1 cannot be found".arg(packageDir + vfbFiles[i]);
+        execute("cp", packageDir + vfbFiles[i], packageDir + "/tools/qvfb/");
+    }
 }
 
 
