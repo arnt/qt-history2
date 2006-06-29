@@ -110,14 +110,23 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
         meta = promoted->child()->metaObject();
 
     foreach (DomProperty *p, properties) {
-        int index = sheet->indexOf(p->attributeName());
         QVariant v = toVariant(meta, p);
 
-        if (!v.isNull()) {
-            if (strcmp(meta->className(), "QAxWidget") != 0)
-                sheet->setProperty(index, v);
-            else if (o->metaObject()->indexOfProperty(p->attributeName().toUtf8()) != -1)
-                o->setProperty(p->attributeName().toUtf8(), v);
+        if (v.isNull())
+            continue;
+
+        QByteArray pname = p->attributeName().toUtf8();
+        int index = o->metaObject()->indexOfProperty(pname);
+
+        if (index != -1) {
+            // a real property
+            o->setProperty(pname, v);
+        }
+
+        else if (strcmp(meta->className(), "QAxWidget") != 0) {
+            // a fake property (but we have have to ignore QAxWidget)
+            index = sheet->indexOf(p->attributeName());
+            sheet->setProperty(index, v);
         }
     }
 }
