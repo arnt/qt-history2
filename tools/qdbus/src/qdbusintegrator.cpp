@@ -387,8 +387,11 @@ static int findSlot(const QMetaObject *mo, const QByteArray &name, int flags,
         if (reconstructedSignature != msgSignature)
             continue;           // we didn't match them all
 
+        if (hasMessage)
+            ++i;
+
         // make sure that the output parameters have signatures too
-        if (QDBusMetaType::typeToSignature(returnType) == 0)
+        if (returnType != 0 && QDBusMetaType::typeToSignature(returnType) == 0)
             continue;
         bool ok = true;
         for (int j = i; ok && j < metaTypes.count(); ++j)
@@ -398,7 +401,7 @@ static int findSlot(const QMetaObject *mo, const QByteArray &name, int flags,
             continue;
 
         // consistency check:
-        if (isAsync && metaTypes.count() > i + 1 + (hasMessage ? 1 : 0))
+        if (isAsync && metaTypes.count() > i + 1)
             continue;
 
         if (isScriptable && (flags & QDBusConnection::ExportSlots) == 0)
