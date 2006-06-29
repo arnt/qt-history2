@@ -2432,9 +2432,6 @@ void QWidgetPrivate::updateFrameStrut()
 {
     Q_Q(QWidget);
 
-    if (!q->testAttribute(Qt::WA_WState_Created))
-        return;
-
     Atom type_ret;
     Window l = q->internalWinId(), w = l, p, r; // target window, it's parent, root
     Window *c;

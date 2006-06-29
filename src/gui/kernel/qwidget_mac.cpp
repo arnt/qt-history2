@@ -2229,9 +2229,6 @@ void QWidgetPrivate::updateFrameStrut()
 {
     Q_Q(QWidget);
 
-    if (!q->testAttribute(Qt::WA_WState_Created))
-        return;
-
     QWidgetPrivate *that = const_cast<QWidgetPrivate*>(this);
 
     that->data.fstrut_dirty = false;
