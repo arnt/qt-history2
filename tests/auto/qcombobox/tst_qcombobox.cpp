@@ -1424,9 +1424,9 @@ void tst_QComboBox::findText_data()
     QTest::newRow("CaseSensitive_4") << list << (int)(Qt::MatchExactly|Qt::MatchCaseSensitive)
                                      << QString("one") << 6;
     QTest::newRow("CaseInsensitive_1") << list << (int)(Qt::MatchExactly) << QString("Two") << 1;
-    QTest::newRow("CaseInsensitive_2") << list << (int)(Qt::MatchExactly) << QString("two") << 1;
+    QTest::newRow("CaseInsensitive_2") << list << (int)(Qt::MatchExactly) << QString("two") << -1;
     QTest::newRow("CaseInsensitive_3") << list << (int)(Qt::MatchExactly) << QString("One") << 0;
-    QTest::newRow("CaseInsensitive_4") << list << (int)(Qt::MatchExactly) << QString("one") << 0;
+    QTest::newRow("CaseInsensitive_4") << list << (int)(Qt::MatchExactly) << QString("one") << 6;
 }
 void tst_QComboBox::findText()
 {
@@ -1437,10 +1437,6 @@ void tst_QComboBox::findText()
 
     testWidget->clear();
     testWidget->addItems(items);
-#if QT_VERSION < 0x040200
-    QEXPECT_FAIL("CaseInsensitive_2", "match doesn't work properly with MatchExactly and not MatchCaseSensitive in 4.1.x", Continue);
-    QEXPECT_FAIL("CaseInsensitive_4", "match doesn't work properly with MatchExactly and not MatchCaseSensitive in 4.1.x", Continue);
-#endif
 
     QCOMPARE(testWidget->findText(search, (Qt::MatchFlags)matchflags), result);
 }
