@@ -2,8 +2,6 @@
   \page qt4.2-intro.html
   \title What's New in Qt 4.2
 
-  \section1 What's New in Qt 4.2
-
   Qt 4.2 provides many improvements and enhancements over the previous releases
   in the Qt 4 series. This documents covers the most important features in this
   release, separated by category.
@@ -17,7 +15,47 @@
   A list of other Qt 4 features can be found on the
   \bold{\l{What's New in Qt 4}} page.
 
-  \section2 Desktop Integration
+  Highlights
+
+  \tableofcontents
+
+  \section1 Graphics View
+
+  Support for interactive graphics is provided by the \l{Graphics View} framework.
+  This framework is an enhanced replacement for the Canvas module, previously
+  provided with Qt 3, with a refined set of features.
+
+  \image graphicsview-shapes.png
+
+  The framework enables \bold{responsive handling of large numbers of canvas items}
+  through the use of a space-partitioning scheme. Support for collision detection,
+  coordinate transformations, and item groups make it easier than before to manage
+  items for interactive displays.
+
+  \image elasticnodes-example.png
+
+  An \bold{improved API} aims to make common uses easier while making advanced
+  uses more accessible to developers.
+
+  \image graphicsview-map.png
+
+  Graphics View's \bold{enhanced presentation system}, takes advantage of Qt 4's
+  paint system to render items using anti-aliasing, and taking advantage of OpenGL
+  to improve rendering performance. Support for printing is built into the
+  framework, making it possible to produce high quality documents from interactive
+  applications.
+
+  \image graphicsview-text.png
+
+  A selection of \bold{predefined item types} is provided that contains, amongst
+  others, a text item that supports inline editing.
+
+  In addition, various \l{Qt Examples#Graphics View Examples}{graphics view examples}
+  have been written to demonstrate key features of the framework, including ports
+  of Canvas module examples from Qt 3.
+
+
+  \section1 Desktop Integration
 
   This release introduces a set of features that are designed to make it easier
   to write applications that are integrated into users' desktop environments.
@@ -88,50 +126,51 @@
   </table>
   \endraw
 
-  On X11 platforms, \bold{support for the \l{Common Unix Printing System (CUPS)}
-  has been greatly enhanced}. Printer settings made available by CUPS can now be
+  On X11 platforms, \bold{support for the \l{Common Unix Printing System (CUPS)}}
+  has been greatly enhanced. Printer settings made available by CUPS can now be
   accessed via QPrintDialog for improved control over the printing process.
 
   \bold{System tray support} on all desktop platforms is provided by the new
   QSystemTrayIcon class, which exposes a comprehensive set of features via an
   intuitive Qt-style API.
 
-  \section2 Graphics View
 
-  Support for interactive graphics is provided by the \l{Graphics View} framework.
-  This framework is an enhanced replacement for the Canvas module, previously
-  provided with Qt 3, with a refined set of features.
+  \section1 Text Completion Framework
 
-  \image graphicsview-shapes.png
+  \image completer-example.png
 
-  The framework enables \bold{responsive handling of large numbers of canvas items}
-  through the use of a space-partitioning scheme. Support for collision detection,
-  coordinate transformations, and item groups make it easier than before to manage
-  items for interactive displays.
+  The new QCompleter class provides a \bold{framework for handling text completion
+  in input widgets}. Completion facilities can be set up for use in QLineEdit,
+  QComboBox and custom widgets. An \l{tools/completer}{example is included} which
+  shows how text completion can be used with a selection of different models and
+  data sets.
 
-  \image elasticnodes-example.png
+  \section1 Widget Stylesheets
 
-  An \bold{improved API aims to make common uses easier} while making advanced
-  uses more accessible to developers.
+  \image stylesheets-example-detail.png
 
-  \image graphicsview-map.png
+  \bold{Widgets can be styled using stylesheets} that follow a syntax similar to
+  that used by Cascading Style Sheets (CSS) for HTML.
 
-  Graphics View's \bold{enhanced presentation system}, takes advantage of Qt 4's
-  paint system to render items using anti-aliasing, and taking advantage of OpenGL
-  to improve rendering performance. Support for printing is built into the
-  framework, making it possible to produce high quality documents from interactive
-  applications.
 
-  \image graphicsview-text.png
+  \section1 Undo Framework
 
-  A selection of \bold{predefined item types} is provided that contains, amongst
-  others, a text item that supports inline editing.
+  \bold{An \l{Undo framework} based on the
+  \l{Books about GUI Design#Design Patterns}{Command pattern}} has been introduced
+  to help developers provide undo/redo features in applications. The provision of
+  an undo framework in Qt means that developers can take advantage of a common,
+  well-tested set of classes to improve usability and concentrate on higher-level
+  functionality.
 
-  In addition, various \l{Qt Examples#Graphics View Examples}{graphics view examples}
-  have been written to demonstrate key features of the framework, including ports
-  of Canvas module examples from Qt 3.
+  The framework provides support for command compression to improve usability
+  when many low-level or similar repetitive commands are used. Command macros
+  can also be employed by developers to enable sequences of commands to be
+  programatically applied via the framework in single steps.
+  Additionally, the concept of a \e{clean state} is supported, enabling
+  applications to clear the undo buffer when certain operations are performed,
+  such as saving a file.
 
-  \section2 New Widgets and GUI Features
+  \section1 New Widgets and GUI Features
 
   Qt 4.2 also provides a number of new features for graphical user interface
   applications, expanding the range of available widgets while extending overall
@@ -154,16 +193,11 @@
   A \l{QFontComboBox}{specialized font combobox} is now available for use in text
   editing and related applications.
 
-  \image completer-example.png
+  \image qcalendarwidget-maximum.png
 
-  The new QCompleter class provides a \bold{framework for handling text completion
-  in input widgets}. Completion facilities can be set up for use in QLineEdit,
-  QComboBox and custom widgets. An \l{tools/completer}{example of 
-
-  \image stylesheets-example-detail.png
-
-  \bold{Widgets can be styled according to rules specified in stylesheets} using
-  a syntax similar to that used by Cascading Style Sheets (CSS) for HTML.
+  Facilities for \bold{displaying monthly calendars and date selection} are
+  provided by QCalendarWidget, a class adapted from the \l{Calendar Widget}
+  Qt Solution.
 
   The \bold{\l{Main Window and Related Classes}{main window classes} have been
   updated to be more responsive to user activity}. In particular, when a user
@@ -176,22 +210,25 @@
   QGLFrameBufferObject class; this enables textures to be painted with a series
   of calls to QPainter functions in the usual way for QPaintDevice subclasses.
 
-  \section2 Extended Infrastructure
+  \section1 Extended Infrastructure
 
   Many improvements have been made to the classes and tools that provide
   underlying functionality in Qt. Many of these changes involve introducing
   higher level functionality that aims to make application development easier
   while providing a more robust working environment for users.
 
-  \bold{An \l{Undo framework} based on the
-  \l{Books about GUI Design#Design Patterns}{Command pattern}} has been introduced
-  to help developers provide undo/redo features in applications.
+  \target D-BUS
+  Qt 4.2 provides \bold{support for Inter-Process Communication (IPC) using the
+  D-BUS protocol} on Linux and Unix systems. This service-oriented protocol
+  provides fast, low latency communication that can be used for same-machine
+  communication between applications, yet also allows Remote Procedure Calling
+  (RPC) mechanisms to be implemented.
+  See the \l{Introduction to D-BUS} document for more information about using
+  D-BUS with Qt.
 
   The QFileSystemWatcher class enables applications to \bold{monitor files and
   directories for changes}. This feature is often used by applications and
   libraries that share access to files with other applications.
-
-
 
   The \l{Model/View Classes}{item view classes} have been optimized for
   performance and reliability, and new classes have been introduced:
@@ -220,7 +257,30 @@
 
   Support for widgets in menus.
 
+  Icons An SVG icon engine is provided to 
+
+  Support for detection and reporting of network interfaces is provided by the
+  QNetworkInterface class.
+
+  Qt's keyboard handling has been improved to support physical key recognition.
+  This allows keyboard shortcuts to be created that specify the keys that users
+  see on their keyboard instead of generic logical key assignments.
+
+  QKeySequence now provides a range of standard shortcuts that developers can
+  use when creating actions. These describe commonly-used high-level actions,
+  such as \gui{Undo}, \gui{Copy}, and \gui{Paste}, and enable shortcuts to be
+  specified in a true cross-platform way.
+
+  \bold{Improved support for platform-native message boxes} is provided by the
+  QMessageBoxEx. This class uses QDialogButtonBox 
+
   \omit
+  * Backing store interface
+
+  * delayed widget creation
+
+  * Linguist improvements
+
   * Text control (not 100% certain we'll have a public API)
   \endomit
 */
