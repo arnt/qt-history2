@@ -437,12 +437,14 @@ int QHeaderView::visualIndexAt(int position) const
 {
     Q_D(const QHeaderView);
     d->executePostedLayout();
-    int count = d->sectionCount;
+    const int count = d->sectionCount;
     if (count < 1)
         return -1;
+
     if (d->reverse())
         position = d->viewport->width() - position;
     position += d->offset;
+
     if (position < 0 || position > length())
         return -1;
     int visual = d->headerVisualIndexAt(position);
@@ -465,8 +467,9 @@ int QHeaderView::visualIndexAt(int position) const
 
 int QHeaderView::logicalIndexAt(int position) const
 {
-    if (position >= 0 && position < length())
-        return logicalIndex(visualIndexAt(position));
+    const int visual = visualIndexAt(position);
+    if (visual > -1)
+        return logicalIndex(visual);
     return -1;
 }
 
