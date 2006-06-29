@@ -420,6 +420,7 @@ void TextEdit::filePrint()
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
+    dlg->setWindowTitle(tr("Print Document"));
     if (dlg->exec() == QDialog::Accepted) {
         textEdit->document()->print(&printer);
     }
