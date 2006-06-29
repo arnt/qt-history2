@@ -605,12 +605,12 @@ void Main::addSpline()
     for (int i = 1; i < pa.size(); i += 3)
         path.cubicTo(pa[i], pa[(i + 1) % pa.size()], pa[(i + 2) % pa.size()]);
 
-    QGraphicsPathItem* i = canvas.addPath(path);
-    i->setFlag(QGraphicsItem::ItemIsMovable);
-    i->setPen(Qt::NoPen);
-    i->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
-    i->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
-    i->setZValue(rand()%256);
+    QGraphicsPathItem* item = canvas.addPath(path);
+    item->setFlag(QGraphicsItem::ItemIsMovable);
+    item->setPen(Qt::NoPen);
+    item->setBrush( QColor(rand()%32*8,rand()%32*8,rand()%32*8) );
+    item->setPos(rand()%int(canvas.width()),rand()%int(canvas.height()));
+    item->setZValue(rand()%256);
 }
 
 void Main::addText()
