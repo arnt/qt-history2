@@ -34,6 +34,7 @@ public:
 
 public slots:
     void findStyles(const QFont &font);
+    void findSizes(const QFont &font);
     void insertCharacter(const QString &character);
     void updateClipboard();
 
@@ -41,6 +42,7 @@ private:
     CharacterWidget *characterWidget;
     QClipboard *clipboard;
     QComboBox *styleCombo;
+    QComboBox *sizeCombo;
     QFontComboBox *fontCombo;
     QLineEdit *lineEdit;
     QScrollArea *scrollArea;

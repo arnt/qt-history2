@@ -33,6 +33,7 @@ public:
 
 public slots:
     void updateFont(const QFont &font);
+    void updateSize(const QString &fontSize);
     void updateStyle(const QString &fontStyle);
     void updateFontMerging(bool enable);
 
@@ -47,6 +48,7 @@ protected:
 private:
     QFont displayFont;
     int lastKey;
+    int squareSize;
 };
 
 #endif

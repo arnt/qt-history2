@@ -22,6 +22,8 @@ MainWindow::MainWindow()
 
     QLabel *fontLabel = new QLabel(tr("Font:"));
     fontCombo = new QFontComboBox;
+    QLabel *sizeLabel = new QLabel(tr("Size:"));
+    sizeCombo = new QComboBox;
     QLabel *styleLabel = new QLabel(tr("Style:"));
     styleCombo = new QComboBox;
     QLabel *fontMergingLabel = new QLabel(tr("Automatic Font Merging:"));
@@ -33,6 +35,7 @@ MainWindow::MainWindow()
     scrollArea->setWidget(characterWidget);
 
     findStyles(fontCombo->currentFont());
+    findSizes(fontCombo->currentFont());
 
     lineEdit = new QLineEdit;
     QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"));
@@ -42,7 +45,11 @@ MainWindow::MainWindow()
     connect(fontCombo, SIGNAL(currentFontChanged(const QFont &)),
             this, SLOT(findStyles(const QFont &)));
     connect(fontCombo, SIGNAL(currentFontChanged(const QFont &)),
+            this, SLOT(findSizes(const QFont &)));
+    connect(fontCombo, SIGNAL(currentFontChanged(const QFont &)),
             characterWidget, SLOT(updateFont(const QFont &)));
+    connect(sizeCombo, SIGNAL(currentIndexChanged(const QString &)),
+            characterWidget, SLOT(updateSize(const QString &)));
     connect(styleCombo, SIGNAL(currentIndexChanged(const QString &)),
             characterWidget, SLOT(updateStyle(const QString &)));
     connect(characterWidget, SIGNAL(characterSelected(const QString &)),
@@ -53,6 +60,8 @@ MainWindow::MainWindow()
     QHBoxLayout *controlsLayout = new QHBoxLayout;
     controlsLayout->addWidget(fontLabel);
     controlsLayout->addWidget(fontCombo, 1);
+    controlsLayout->addWidget(sizeLabel);
+    controlsLayout->addWidget(sizeCombo, 1);
     controlsLayout->addWidget(styleLabel);
     controlsLayout->addWidget(styleCombo, 1);
     controlsLayout->addWidget(fontMergingLabel);
@@ -91,6 +100,34 @@ void MainWindow::findStyles(const QFont &font)
         styleCombo->setCurrentIndex(0);
     else
         styleCombo->setCurrentIndex(styleIndex);
+}
+
+void MainWindow::findSizes(const QFont &font)
+{
+    QFontDatabase fontDatabase;
+    QString currentSize = sizeCombo->currentText();
+    sizeCombo->clear();
+
+    int size;
+    if(fontDatabase.isSmoothlyScalable(font.family(), fontDatabase.styleString(font))) {
+        foreach(size, QFontDatabase::standardSizes()) {
+            sizeCombo->addItem(QVariant(size).toString());
+            sizeCombo->setEditable(true);
+        }
+
+    } else {
+        foreach(size, fontDatabase.smoothSizes(font.family(), fontDatabase.styleString(font))) {
+            sizeCombo->addItem(QVariant(size).toString());
+            sizeCombo->setEditable(false);
+        }
+    }
+
+    int sizeIndex = sizeCombo->findText(currentSize);
+
+    if(sizeIndex == -1)
+        sizeCombo->setCurrentIndex(qMax(0, sizeCombo->count() / 3));
+    else
+        sizeCombo->setCurrentIndex(sizeIndex);
 }
 
 void MainWindow::insertCharacter(const QString &character)
