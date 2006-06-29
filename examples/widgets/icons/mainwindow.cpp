@@ -210,16 +210,13 @@ void MainWindow::createPreviewGroupBox()
 void MainWindow::createImagesGroupBox()
 {
     imagesGroupBox = new QGroupBox(tr("Images"));
-    imagesGroupBox->setSizePolicy(QSizePolicy::Expanding,
-                                  QSizePolicy::Expanding);
+
+    imagesTable = new QTableWidget;
+    imagesTable->setSelectionMode(QAbstractItemView::NoSelection);
+    imagesTable->setItemDelegate(new ImageDelegate(this));
 
     QStringList labels;
     labels << tr("Image") << tr("Mode") << tr("State");
-
-    imagesTable = new QTableWidget;
-    imagesTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-    imagesTable->setSelectionMode(QAbstractItemView::NoSelection);
-    imagesTable->setItemDelegate(new ImageDelegate(this));
 
     imagesTable->horizontalHeader()->setDefaultSectionSize(90);
     imagesTable->setColumnCount(3);
