@@ -698,8 +698,15 @@ void QAbstractSocketPrivate::_q_connectToNextAddress()
 #endif
             state = QAbstractSocket::UnconnectedState;
             if (socketEngine) {
-                socketError = socketEngine->error();
-                q->setErrorString(socketEngine->errorString());
+                if (socketEngine->error() == QAbstractSocket::UnknownSocketError
+                    && socketEngine->state() == QAbstractSocket::ConnectingState) {
+                    socketError = QAbstractSocket::ConnectionRefusedError;
+                    q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP("QAbstractSocket",
+                                                                      "Connection refused")));
+                } else {
+                    socketError = socketEngine->error();
+                    q->setErrorString(socketEngine->errorString());
+                }
             } else {
                 socketError = QAbstractSocket::ConnectionRefusedError;
                 q->setErrorString(QLatin1String(QT_TRANSLATE_NOOP("QAbstractSocket",

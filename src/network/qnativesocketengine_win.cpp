@@ -41,7 +41,7 @@ void verboseWSErrorDebug(int r)
         case WSAEINPROGRESS: qDebug("WSA error : WSAEINPROGRESS"); break;
         case WSAEALREADY: qDebug("WSA error : WSAEALREADY"); break;
         case WSAENOTSOCK: qDebug("WSA error : WSAENOTSOCK"); break;
-        case WSAEDESTADDRREQ: qDebug("WSA error : WSAEDESTADDRREQ"; break;
+        case WSAEDESTADDRREQ: qDebug("WSA error : WSAEDESTADDRREQ"); break;
         case WSAEMSGSIZE: qDebug("WSA error : WSAEMSGSIZE"); break;
         case WSAEPROTOTYPE: qDebug("WSA error : WSAEPROTOTYPE"); break;
         case WSAENOPROTOOPT: qDebug("WSA error : WSAENOPROTOOPT"); break;
