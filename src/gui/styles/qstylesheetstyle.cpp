@@ -766,7 +766,7 @@ QStyleSheetStyle::QStyleSheetStyle(QStyle *baseStyle, QObject *parent)
 
 QRenderRule QStyleSheetStyle::renderRule(QWidget *w, QStyle::State state)
 {
-    int pseudoState = (state & QStyle::State_Enabled) 
+    int pseudoState = (state & QStyle::State_Enabled)
                                 ? PseudoState_Enabled : PseudoState_Disabled;
     if (state & QStyle::State_Sunken)
         pseudoState |= PseudoState_Pressed;
@@ -832,8 +832,10 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         if (w->palette() != p)
             w->setPalette(p);
     } else if (qobject_cast<QComboBox *>(w)
+#ifndef QT_NO_MENUBAR
                || qobject_cast<QMenuBar *>(w)
-               || qobject_cast<QComboBox *>(w)) {
+#endif
+        ) {
                    // FIXME adjust the palette here.
     } else if (qobject_cast<QLineEdit *>(w)) {
         QPalette p = w->palette();
