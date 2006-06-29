@@ -758,15 +758,15 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         if (testAttribute(Qt::WA_WState_Reparented))
             qPRCleanup(this);
 
-	if(d->ic) {
-	    delete d->ic;
-	} else {
-	    // release previous focus information participating with
-	    // preedit preservation of qic
-	    QInputContext *qic = inputContext();
-	    if (qic)
-		qic->widgetDestroyed(this);
-	}
+        if(d->ic) {
+            delete d->ic;
+        } else {
+            // release previous focus information participating with
+            // preedit preservation of qic
+            QInputContext *qic = inputContext();
+            if (qic)
+                qic->widgetDestroyed(this);
+        }
     }
 }
 
@@ -807,7 +807,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
         XUnmapWindow(X11->display, old_winid);
         XReparentWindow(X11->display, old_winid, RootWindow(X11->display, xinfo.screen()), 0, 0);
     }
-    if (topData) {
+    if (topData) {3
         topData->parentWinId = 0;
         // zero the frame strut and mark it dirty
         topData->frameStrut.setCoords(0, 0, 0, 0);
@@ -826,6 +826,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
+    //### simplify logic after TP
+    if (wasCreated && !q->isWindow() && !parent->testAttribute(Qt::WA_WState_Created))
+        parent->d_func()->createWinId();
     if (parent && !q->isWindow() && parent->testAttribute(Qt::WA_WState_Created))
         q->create();
     if (q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)
@@ -1344,7 +1347,7 @@ void QWidget::activateWindow()
     QWidget *tlw = window();
     if (tlw->isVisible() && !tlw->d_func()->topData()->embedded && !X11->deferred_map.contains(tlw)) {
         XSetInputFocus(X11->display, tlw->internalWinId(), XRevertToParent, X11->time);
- 	d->focusInputContext();
+        d->focusInputContext();
     }
 }
 
@@ -2602,18 +2605,18 @@ Picture QX11Data::getSolidFill(int screen, const QColor &c)
     int i = rand() % 16;
 
     if (X11->solid_fills[i].screen != screen && X11->solid_fills[i].picture) {
-	XRenderFreePicture (X11->display, X11->solid_fills[i].picture);
-	X11->solid_fills[i].picture = 0;
+        XRenderFreePicture (X11->display, X11->solid_fills[i].picture);
+        X11->solid_fills[i].picture = 0;
     }
 
     if (!X11->solid_fills[i].picture) {
-	Pixmap pixmap = XCreatePixmap (X11->display, RootWindow (X11->display, screen), 1, 1, 32);
+        Pixmap pixmap = XCreatePixmap (X11->display, RootWindow (X11->display, screen), 1, 1, 32);
         XRenderPictureAttributes attrs;
-	attrs.repeat = True;
-	X11->solid_fills[i].picture = XRenderCreatePicture (X11->display, pixmap,
+        attrs.repeat = True;
+        X11->solid_fills[i].picture = XRenderCreatePicture (X11->display, pixmap,
                                                             XRenderFindStandardFormat(X11->display, PictStandardARGB32),
                                                             CPRepeat, &attrs);
-	XFreePixmap (X11->display, pixmap);
+        XFreePixmap (X11->display, pixmap);
     }
 
     X11->solid_fills[i].color = color;

@@ -659,9 +659,9 @@ bool qt_mac_can_clickThrough(const QWidget *w)
     // Idea here is that if a parent doesn't have a clickthrough property,
     // neither can it's child
     while (w) {
-	if (w->testAttribute(Qt::WA_MacNoClickThrough))
-	    return false;
-	w = w->parentWidget();
+        if (w->testAttribute(Qt::WA_MacNoClickThrough))
+            return false;
+        w = w->parentWidget();
     }
     return true;
 }
@@ -1371,6 +1371,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
+    //### simplify logic after TP
+    if (wasCreated && !q->isWindow() && !parent->testAttribute(Qt::WA_WState_Created))
+        parent->d_func()->createWinId();
     if (parent && !q->isWindow() && parent->testAttribute(Qt::WA_WState_Created))
         q->create(0, true, false);
     if (q->isWindow() || (!parent || parent->isVisible()) || explicitlyHidden)

@@ -539,6 +539,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
     adjustFlags(data.window_flags, q);
+    //### simplify logic after TP
+    if (wasCreated && !q->isWindow() && !parent->testAttribute(Qt::WA_WState_Created))
+        parent->d_func()->createWinId();
     if (parent && !q->isWindow() && parent->testAttribute(Qt::WA_WState_Created) || wasCreated && q->isWindow())
         q->create();
 
@@ -1310,7 +1313,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 InvalidateRect(q->internalWinId(), 0, FALSE);
             RECT rect;
             GetClientRect(q->internalWinId(), &rect);
-    	    data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
+            data.crect.setRect(x, y, rect.right - rect.left, rect.bottom - rect.top);
         } else {
             QRect oldGeom(data.crect);
             data.crect.setRect(x, y, w, h);
