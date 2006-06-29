@@ -2112,7 +2112,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     return true;
 }
 
-QString MakefileGenerator::buildArgs()
+QString MakefileGenerator::buildArgs(const QString &outdir)
 {
     QString ret;
     //special variables
@@ -2138,7 +2138,7 @@ QString MakefileGenerator::buildArgs()
     if(!Option::mkfile::do_dep_heuristics)
         ret += " -nodependheuristics";
     if(!Option::mkfile::qmakespec_commandline.isEmpty())
-        ret += " -spec " + specdir();
+        ret += " -spec " + specdir(outdir);
     if(Option::target_mode == Option::TARG_MAC9_MODE)
         ret += " -mac9";
     else if(Option::target_mode == Option::TARG_MACX_MODE)
@@ -2173,12 +2173,12 @@ QString MakefileGenerator::buildArgs()
 
 //could get stored argv, but then it would have more options than are
 //probably necesary this will try to guess the bare minimum..
-QString MakefileGenerator::build_args()
+QString MakefileGenerator::build_args(const QString &outdir)
 {
     QString ret = "$(QMAKE)";
 
     // general options and arguments
-    ret += buildArgs();
+    ret += buildArgs(outdir);
 
     //output
     QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
@@ -2186,7 +2186,7 @@ QString MakefileGenerator::build_args()
         ret += " -o " + escapeFilePath(ofile);
 
     //inputs
-    ret += " " + escapeFilePath(fileFixify(project->projectFile()));
+    ret += " " + escapeFilePath(fileFixify(project->projectFile(), outdir));
 
     return ret;
 }
@@ -2388,10 +2388,10 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             if(have_dir) {
                 t << mkdir_p_asstring(directory)
                   << cdin
-                  << "$(QMAKE) " << in << buildArgs() << out
+                  << "$(QMAKE) " << in << buildArgs(directory) << out
                   << cdout << endl;
             } else {
-                t << "$(QMAKE) " << in << buildArgs() << out << endl;
+                t << "$(QMAKE) " << in << buildArgs(directory) << out << endl;
             }
             t << subtarget->target << "-qmake_all: ";
             if(project->isEmpty("QMAKE_NOFORCE"))
@@ -2400,10 +2400,10 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             if(have_dir) {
                 t << mkdir_p_asstring(directory)
                   << cdin
-                  << "$(QMAKE) " << in << buildArgs() << out
+                  << "$(QMAKE) " << in << buildArgs(directory) << out
                   << cdout << endl;
             } else {
-                t << "$(QMAKE) " << in << buildArgs() << out << endl;
+                t << "$(QMAKE) " << in << buildArgs(directory) << out << endl;
             }
         }
 
@@ -3020,11 +3020,13 @@ QStringList
 }
 
 QString
-MakefileGenerator::specdir()
+MakefileGenerator::specdir(const QString &outdir)
 {
+#if 0
     if(!spec.isEmpty())
         return spec;
-    spec = fileFixify(Option::mkfile::qmakespec);
+#endif
+    spec = fileFixify(Option::mkfile::qmakespec, outdir);
     return spec;
 }
 

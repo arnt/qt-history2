@@ -445,6 +445,8 @@ Option::init(int argc, char **argv)
             }
 #endif
         }
+        if(!Option::mkfile::qmakespec.isEmpty() && QDir::isRelativePath(Option::mkfile::qmakespec))
+            Option::mkfile::qmakespec = QFileInfo(Option::mkfile::qmakespec).absoluteFilePath();
     }
 
     //defaults for globals

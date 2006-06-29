@@ -50,7 +50,7 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     bool init_opath_already, init_already, no_io;
     QHash<QString, bool> init_compiler_already;
     QStringList createObjectList(const QStringList &sources);
-    QString build_args();
+    QString build_args(const QString &outdir=QString());
     void checkMultipleDefinition(const QString &, const QString &);
 
     //internal caches
@@ -129,8 +129,8 @@ protected:
     QString mkdir_p_asstring(const QString &dir, bool escape=true) const;
 
     //subclasses can use these to query information about how the generator was "run"
-    QString buildArgs();
-    QString specdir();
+    QString buildArgs(const QString &outdir=QString());
+    QString specdir(const QString &outdir=QString());
 
     virtual QStringList &findDependencies(const QString &file);
     virtual bool doDepends() const { return Option::mkfile::do_deps; }
