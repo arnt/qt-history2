@@ -512,81 +512,87 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
     }
 
     // vertical
-    const bool above = (hint == EnsureVisible && rect.top() < area.top());
-    const bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
-    int verticalValue = verticalScrollBar()->value();
-    if (verticalScrollMode() == QAbstractItemView::ScrollPerItem && viewMode() != IconMode) {
-        const QListViewItem item = d->indexToListViewItem(index);
-        const int itemIndex = d->itemIndex(item);
-        verticalValue = qBound(0, verticalValue, d->flowPositions.count() - 1);
-        if (above)
-            verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
-                                                    area.height(), PositionAtTop,
-                                                    Qt::Vertical);
-        else if (below)
-            verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
-                                                    area.height(), PositionAtBottom,
-                                                    Qt::Vertical);
-        else if (hint != EnsureVisible)
-            verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
-                                                    area.height(), hint,
-                                                    Qt::Vertical);
-    } else {
-        if (hint == PositionAtTop || above)
-            verticalValue += rect.top();
-        else if (hint == PositionAtBottom || below)
-            verticalValue += rect.bottom() - area.height();
-        else if (hint == PositionAtCenter)
-            verticalValue += rect.top() - ((area.height() - rect.height()) / 2);
+    if (d->flow == QListView::TopToBottom || d->wrap) {
+        const bool above = (hint == EnsureVisible && rect.top() < area.top());
+        const bool below = (hint == EnsureVisible && rect.bottom() > area.bottom());
+        int verticalValue = verticalScrollBar()->value();
+        if (verticalScrollMode() == QAbstractItemView::ScrollPerItem && viewMode() != IconMode) {
+            const QListViewItem item = d->indexToListViewItem(index);
+            const int itemIndex = d->itemIndex(item);
+            verticalValue = qBound(0, verticalValue, d->flowPositions.count() - 1);
+            if (above)
+                verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
+                                                        area.height(), PositionAtTop,
+                                                        Qt::Vertical);
+            else if (below)
+                verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
+                                                        area.height(), PositionAtBottom,
+                                                        Qt::Vertical);
+            else if (hint != EnsureVisible)
+                verticalValue = d->perItemScrollToValue(itemIndex, verticalValue,
+                                                        area.height(), hint,
+                                                        Qt::Vertical);
+        } else {
+            if (hint == PositionAtTop || above)
+                verticalValue += rect.top();
+            else if (hint == PositionAtBottom || below)
+                verticalValue += rect.bottom() - area.height();
+            else if (hint == PositionAtCenter)
+                verticalValue += rect.top() - ((area.height() - rect.height()) / 2);
+        }
+        verticalScrollBar()->setValue(verticalValue);
     }
-    verticalScrollBar()->setValue(verticalValue);
 
     // horizontal
-    const bool leftOf = isRightToLeft()
-                        ? (rect.left() < area.left()) && (rect.right() < area.right())
-                        : rect.left() < area.left();
-    const bool rightOf = isRightToLeft()
-                         ? rect.right() > area.right()
-                         : (rect.right() > area.right()) && (rect.left() > area.left());
-    int horizontalValue = horizontalScrollBar()->value();
-    if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem && viewMode() != IconMode) {
-        const QListViewItem item = d->indexToListViewItem(index);
-        const int itemIndex = d->itemIndex(item);
-        horizontalValue = qBound(0, horizontalValue, d->flowPositions.count() - 1);
-        if (leftOf)
-            horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
-                                                      area.width(), PositionAtTop,
+    if (d->flow == QListView::LeftToRight || d->wrap) {
+        const bool leftOf = isRightToLeft()
+                            ? (rect.left() < area.left()) && (rect.right() < area.right())
+                            : rect.left() < area.left();
+        const bool rightOf = isRightToLeft()
+                             ? rect.right() > area.right()
+                             : (rect.right() > area.right()) && (rect.left() > area.left());
+        int horizontalValue = horizontalScrollBar()->value();
+
+        if (horizontalScrollMode() == QAbstractItemView::ScrollPerItem && viewMode() != IconMode) {
+            const QListViewItem item = d->indexToListViewItem(index);
+            const int itemIndex = d->itemIndex(item);
+            horizontalValue = qBound(0, horizontalValue, d->flowPositions.count() - 1);
+            if (leftOf)
+                horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
+                                                          area.width(), PositionAtTop,
+                                                          Qt::Horizontal);
+            else if (rightOf)
+                horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
+                                                          area.width(), PositionAtBottom,
+                                                          Qt::Horizontal);
+            else if (hint != EnsureVisible) {
+                horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
+                                                          area.width(), hint,
                                                       Qt::Horizontal);
-        else if (rightOf)
-            horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
-                                                      area.width(), PositionAtBottom,
-                                                      Qt::Horizontal);
-        else if (hint != EnsureVisible)
-            horizontalValue = d->perItemScrollToValue(itemIndex, horizontalValue,
-                                                      area.width(), hint,
-                                                      Qt::Horizontal);
-    } else {
-        if (isRightToLeft()) {
-            if (hint == PositionAtCenter) {
-                horizontalValue += ((area.width() - rect.width()) / 2) - rect.left();
-            } else {
-                if (leftOf)
-                    horizontalValue -= rect.left();
-                else if (rightOf)
-                    horizontalValue += area.width() - rect.right();
             }
         } else {
-            if (hint == PositionAtCenter) {
-                horizontalValue += rect.left() - ((area.width()- rect.width()) / 2);
+            if (isRightToLeft()) {
+                if (hint == PositionAtCenter) {
+                    horizontalValue += ((area.width() - rect.width()) / 2) - rect.left();
+                } else {
+                    if (leftOf)
+                        horizontalValue -= rect.left();
+                    else if (rightOf)
+                        horizontalValue += area.width() - rect.right();
+                }
             } else {
-                if (leftOf)
-                    horizontalValue += rect.left();
-                else if (rightOf)
-                    horizontalValue += rect.right() - area.width();
+                if (hint == PositionAtCenter) {
+                    horizontalValue += rect.left() - ((area.width()- rect.width()) / 2);
+                } else {
+                    if (leftOf)
+                        horizontalValue += rect.left();
+                    else if (rightOf)
+                        horizontalValue += rect.right() - area.width();
+                }
             }
         }
+        horizontalScrollBar()->setValue(horizontalValue);
     }
-    horizontalScrollBar()->setValue(horizontalValue);
 }
 
 /*!
@@ -2282,7 +2288,7 @@ int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewp
 {
     if (index < 0)
         return scrollValue;
-    if (segmentPositions.count() == 1) {
+    if (!wrap) {
         const int flowCount = flowPositions.count() - 2;
         const int topIndex = scrollValue;
         const int topCoordinate = flowPositions.at(topIndex);
@@ -2308,7 +2314,7 @@ int QListViewPrivate::perItemScrollToValue(int index, int scrollValue, int viewp
         if (flowOrientation == orientation) { // scrolling in the "flow" direction
             // ### wrapped scrolling in the flow direction
             return flowPositions.at(index); // ### always pixel based for now
-        } else { // we are scrolling in the "segment" direction
+        } else if (!segmentStartRows.isEmpty()) { // we are scrolling in the "segment" direction
             int segment = qBinarySearch<int>(segmentStartRows, index,
                                              0, segmentStartRows.count() - 1);
             const int segmentPositionCount = segmentPositions.count() - 2;
