@@ -70,12 +70,6 @@ void IProperty::setChanged(bool b)
     setDirty(true);
 }
 
-void IProperty::setFakeChanged(bool b)
-{
-    m_changed = b;
-    m_dirty = true;
-}
-
 // -------------------------------------------------------------------------
 
 QWidget *AbstractPropertyGroup::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
@@ -711,7 +705,6 @@ FontProperty::FontProperty(const QFont &value, const QString &name, QWidget *sel
     i = new ListProperty(fonts, index, QLatin1String("Family"));
     i->setFake(true);
     i->setHasReset(true);
-    i->setFakeChanged(mask & QFontPrivate::Family);
     i->setParent(this);
     m_properties << i;
 
@@ -725,35 +718,30 @@ FontProperty::FontProperty(const QFont &value, const QString &name, QWidget *sel
     ii->setFake(true);
     ii->setHasReset(true);
     ii->setRange(1, INT_MAX); // ### check
-    ii->setFakeChanged(mask & QFontPrivate::Size);
     ii->setParent(this);
     m_properties << ii;
 
     i = new BoolProperty(value.bold(), QLatin1String("Bold"));
     i->setFake(true);
     i->setHasReset(true);
-    i->setFakeChanged(mask & QFontPrivate::Weight);
     i->setParent(this);
     m_properties << i;
 
     i = new BoolProperty(value.italic(), QLatin1String("Italic"));
     i->setFake(true);
     i->setHasReset(true);
-    i->setFakeChanged(mask & QFontPrivate::Style);
     i->setParent(this);
     m_properties << i;
 
     i = new BoolProperty(value.underline(), QLatin1String("Underline"));
     i->setFake(true);
     i->setHasReset(true);
-    i->setFakeChanged(mask & QFontPrivate::Underline);
     i->setParent(this);
     m_properties << i;
 
     i = new BoolProperty(value.strikeOut(), QLatin1String("Strikeout"));
     i->setFake(true);
     i->setHasReset(true);
-    i->setFakeChanged(mask & QFontPrivate::StrikeOut);
     i->setParent(this);
     m_properties << i;
 
@@ -777,34 +765,28 @@ void FontProperty::setValue(const QVariant &value)
                 parentFont = m_selectedWidget->parentWidget()->font();
         }
     }
+
     uint mask = m_font.resolve();
     m_font = m_font.resolve(parentFont);
     m_font.resolve(mask);
 
-    m_changed = bool(mask);
+    m_changed = mask != 0;
 
     int family = fontDatabase()->families().indexOf(m_font.family());
-
-    propertyAt(0)->setValue(family);
-    propertyAt(0)->setFakeChanged(mask & QFontPrivate::Family);
-
     int pointSize = m_font.pointSize();
+
     if (pointSize < 1) {
         // try to convert from pixel size and resolved font
         // see also code in FontProperty constructor
         pointSize = QFontInfo(m_font).pointSize();
     }
-    propertyAt(1)->setValue(pointSize);
-    propertyAt(1)->setFakeChanged(mask & QFontPrivate::Size);
 
+    propertyAt(0)->setValue(family);
+    propertyAt(1)->setValue(pointSize);
     propertyAt(2)->setValue(m_font.bold());
-    propertyAt(2)->setFakeChanged(mask & QFontPrivate::Weight);
     propertyAt(3)->setValue(m_font.italic());
-    propertyAt(3)->setFakeChanged(mask & QFontPrivate::Style);
     propertyAt(4)->setValue(m_font.underline());
-    propertyAt(4)->setFakeChanged(mask & QFontPrivate::Underline);
     propertyAt(5)->setValue(m_font.strikeOut());
-    propertyAt(5)->setFakeChanged(mask & QFontPrivate::StrikeOut);
 }
 
 QVariant FontProperty::decoration() const

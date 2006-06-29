@@ -67,8 +67,6 @@ public:
     bool changed() const { return m_changed; }
     void setChanged(bool b);
 
-    void setFakeChanged(bool b);
-
     bool dirty() const { return m_dirty; }
     void setDirty(bool b);
 
