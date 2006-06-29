@@ -146,7 +146,6 @@ public:
     };
 
     void setError(QAbstractSocket::SocketError error, ErrorString errorString) const;
-    void setErrorFromNative(int socketError);
 
     // native functions
     int option(QNativeSocketEngine::SocketOption option) const;
