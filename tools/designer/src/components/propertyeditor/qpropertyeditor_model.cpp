@@ -89,7 +89,7 @@ bool QPropertyEditorModel::setData(const QModelIndex &index, const QVariant &val
                 emit propertyChanged(nonfake);
             }
         }
-        
+
         return true;
     }
 
@@ -147,42 +147,20 @@ QString QPropertyEditorModel::columnText(int col) const
     }
 }
 
-
-
-void QPropertyEditorModel::refreshHelper(IProperty *property)
-{
-    Q_ASSERT(property);
-    QModelIndex index0 = indexOf(property, 0);
-    QModelIndex index1 = indexOf(property, 1);
-    emit dataChanged(index0, index1);
-}
-
 void QPropertyEditorModel::refresh(IProperty *property)
 {
-    Q_ASSERT(property);
-
-    // Refresh everyone up to the root
-
     IProperty *prop = property;
-    while (prop != 0) {
-        refreshHelper(prop);
+
+    while (prop && prop->isFake())
         prop = prop->parent();
+
+    if (prop != property) {
+        QModelIndex index = indexOf(prop, 0);
+        emit dataChanged(index.sibling(0, 0), index.sibling(rowCount(index), 1));
+        property = prop;
     }
 
-    // Refresh all children
-
-    if (property->kind() == IProperty::Property_Group) {
-        IPropertyGroup *prop_group = static_cast<IPropertyGroup*>(property);
-        for (int i = 0; i < prop_group->propertyCount(); ++i) {
-            IProperty *child_prop = prop_group->propertyAt(i);
-            refreshHelper(child_prop);
-        }
-    }
-}
-
-void QPropertyEditorModel::refresh()
-{
-    refresh(m_initialInput);
+    emit dataChanged(indexOf(property, 0), indexOf(property, 1));
 }
 
 bool QPropertyEditorModel::isEditable(const QModelIndex &index) const
@@ -194,6 +172,7 @@ QModelIndex QPropertyEditorModel::buddy(const QModelIndex &index) const
 {
     if (index.column() == 0)
         return createIndex(index.row(), 1, index.internalPointer());
+
     return index;
 }
 
@@ -202,8 +181,10 @@ QVariant QPropertyEditorModel::headerData(int section, Qt::Orientation orientati
     if (orientation == Qt::Horizontal) {
         if (role != Qt::DisplayRole)
             return QVariant();
+
         return columnText(section);
     }
+
     return QAbstractItemModel::headerData(section, orientation, role);
 }
 
@@ -212,8 +193,10 @@ Qt::ItemFlags QPropertyEditorModel::flags(const QModelIndex &index) const
     Q_ASSERT(index.isValid());
 
     Qt::ItemFlags foo = QAbstractItemModel::flags(index);
+
     if (isEditable(index))
         foo |= Qt::ItemIsEditable;
+
     return foo;
 }
 

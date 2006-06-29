@@ -66,7 +66,6 @@ signals:
 public slots:
     void setInitialInput(IProperty *initialInput);
     void refresh(IProperty *property);
-    void refresh();
 
 public:
 //
@@ -112,7 +111,6 @@ protected:
     }
 
 private:
-    void refreshHelper(IProperty *property);
     IProperty *m_initialInput;
 };
 
