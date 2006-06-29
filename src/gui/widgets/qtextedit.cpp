@@ -1902,9 +1902,7 @@ void QTextEdit::zoomIn(int range)
 */
 void QTextEdit::zoomOut(int range)
 {
-    QFont f = font();
-    f.setPointSize(qMax(1, f.pointSize() - range));
-    setFont(f);
+    zoomIn(-range);
 }
 
 /*!
