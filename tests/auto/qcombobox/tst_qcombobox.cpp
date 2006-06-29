@@ -1252,7 +1252,6 @@ void tst_QComboBox::modelDeleted()
     QCOMPARE(box.model(), static_cast<QAbstractItemModel *>(model));
     delete model;
     QVERIFY(box.model());
-    QVERIFY(box.model() != model);
     QCOMPARE(box.findText("bubu"), -1);
 
     delete box.model();
