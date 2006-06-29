@@ -573,6 +573,11 @@ QT_LIBS_GLIB=
 # check SQL drivers, mouse drivers and decorations available in this package
 #-------------------------------------------------------------------------------
 
+# opensource version removes some drivers, so force them to be off
+CFG_SQL_tds=no
+CFG_SQL_oci=no
+CFG_SQL_db2=no
+
 CFG_SQL_AVAILABLE=`find "$relpath"/src/plugins/sqldrivers/* -prune -type d -exec basename {} \;`
 CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`               # normalize whitespace
 # by default, auto-detect which sql drivers can be built
