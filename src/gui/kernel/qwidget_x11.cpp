@@ -807,7 +807,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WindowFlags f)
         XUnmapWindow(X11->display, old_winid);
         XReparentWindow(X11->display, old_winid, RootWindow(X11->display, xinfo.screen()), 0, 0);
     }
-    if (topData) {3
+    if (topData) {
         topData->parentWinId = 0;
         // zero the frame strut and mark it dirty
         topData->frameStrut.setCoords(0, 0, 0, 0);
