@@ -56,9 +56,15 @@ QFactoryLoader::QFactoryLoader(const char *iid,
         QLibraryPrivate *library = 0;
         for (int j = 0; j < plugins.count(); ++j) {
             QString fileName = QDir::cleanPath(path + QLatin1Char('/') + plugins.at(j));
+#ifdef QT_DEBUG_COMPONENT
+            qDebug() << "QFactoryLoader::QFactoryLoader() looking at" << fileName;
+#endif
             library = QLibraryPrivate::findOrCreate(QFileInfo(fileName).canonicalFilePath());
             if (!library->isPlugin()) {
                 library->release();
+#ifdef QT_DEBUG_COMPONENT
+                qDebug() << "         not a plugin";
+#endif
                 continue;
             }
             QString regkey = QString::fromLatin1("Qt Factory Cache %1.%2/%3:/%4")
@@ -73,6 +79,9 @@ QFactoryLoader::QFactoryLoader(const char *iid,
                 keys.removeFirst();
             } else {
                 if (!library->loadPlugin()) {
+#ifdef QT_DEBUG_COMPONENT
+                    qDebug() << "           could not load";
+#endif
                     library->release();
                     continue;
                 }
@@ -90,6 +99,9 @@ QFactoryLoader::QFactoryLoader(const char *iid,
                 reg += keys;
                 settings.setValue(regkey, reg);
             }
+#ifdef QT_DEBUG_COMPONENT
+            qDebug() << "keys" << keys;
+#endif
             if (keys.isEmpty()) {
                 library->release();
                 continue;
