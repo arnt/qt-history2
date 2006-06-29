@@ -106,9 +106,7 @@ void QComboBoxPrivate::_q_modelReset()
 
 void QComboBoxPrivate::_q_modelDestroyed()
 {
-    Q_Q(QComboBox);
     model = QAbstractItemModelPrivate::staticEmptyModel();
-    q->setModel(new QStandardItemModel(0, 1, q));
 }
 
 bool QComboBoxPrivate::updateHoverControl(const QPoint &pos)
@@ -280,6 +278,15 @@ void QComboBoxPrivateContainer::updateScrollers()
 }
 
 /*
+    Cleans up when the view is destroyed.
+*/
+void QComboBoxPrivateContainer::viewDestroyed()
+{
+    view = 0;
+    setItemView(new QComboBoxListView());
+}
+
+/*
     Sets currentIndex on entered if the LeftButton is not pressed. This
     means that if mouseTracking(...) is on, we setCurrentIndex and select
     even when LeftButton is not pressed.
@@ -316,6 +323,8 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
 #endif
         disconnect(view, SIGNAL(entered(QModelIndex)),
                    this, SLOT(setCurrentIndex(QModelIndex)));
+        disconnect(view, SIGNAL(destroyed()),
+                   this, SLOT(viewDestroyed()));
         delete view;
         view = 0;
     }
@@ -348,6 +357,8 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
 #endif
     connect(view, SIGNAL(entered(QModelIndex)),
             this, SLOT(setCurrentIndex(QModelIndex)));
+    connect(view, SIGNAL(destroyed()),
+            this, SLOT(viewDestroyed()));
 }
 
 /*!
@@ -657,7 +668,6 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name)
 void QComboBoxPrivate::init()
 {
     Q_Q(QComboBox);
-    q->setModel(new QStandardItemModel(0, 1, q));
     q->setFocusPolicy(Qt::WheelFocus);
     q->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }
@@ -969,8 +979,7 @@ void QComboBox::setMaxVisibleItems(int maxItems)
 
 int QComboBox::count() const
 {
-    Q_D(const QComboBox);
-    return d->model->rowCount(rootModelIndex());
+    return model()->rowCount(rootModelIndex());
 }
 
 /*!
@@ -1029,7 +1038,7 @@ void QComboBox::setAutoCompletion(bool enable)
         d->completer = new QCompleter(d->lineEdit);
         d->completer->setCaseSensitivity(d->autoCompletionCaseSensitivity);
         d->completer->setCompletionMode(QCompleter::InlineCompletion);
-        d->completer->setModel(d->model);
+        d->completer->setModel(model());
         d->completer->setCompletionColumn(d->modelColumn);
         d->lineEdit->setCompleter(d->completer);
     } else {
@@ -1404,6 +1413,10 @@ void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
 QAbstractItemModel *QComboBox::model() const
 {
     Q_D(const QComboBox);
+    if (d->model == QAbstractItemModelPrivate::staticEmptyModel()) {
+        QComboBox *that = const_cast<QComboBox*>(this);
+        that->setModel(new QStandardItemModel(0, 1, that));
+    }
     return d->model;
 }
 
@@ -1426,24 +1439,22 @@ void QComboBox::setModel(QAbstractItemModel *model)
         && d->lineEdit->completer() == d->completer)
         d->lineEdit->completer()->setModel(model);
 
-    if (d->model) {
-        disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                   this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
-        disconnect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
-                   this, SLOT(_q_rowsAboutToBeInserted(QModelIndex,int,int)));
-        disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                   this, SLOT(_q_rowsInserted(QModelIndex,int,int)));
-        disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                   this, SLOT(_q_rowsAboutToBeRemoved(QModelIndex,int,int)));
-        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                   this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
-        disconnect(d->model, SIGNAL(destroyed()),
-                   this, SLOT(_q_modelDestroyed()));
-        disconnect(d->model, SIGNAL(modelReset()),
-                   this, SLOT(_q_modelReset()));
-        if (d->model->QObject::parent() == this)
-            delete d->model;
-    }
+    disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+               this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
+    disconnect(d->model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)),
+               this, SLOT(_q_rowsAboutToBeInserted(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+               this, SLOT(_q_rowsInserted(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+               this, SLOT(_q_rowsAboutToBeRemoved(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+               this, SLOT(_q_rowsRemoved(QModelIndex,int,int)));
+    disconnect(d->model, SIGNAL(destroyed()),
+               this, SLOT(_q_modelDestroyed()));
+    disconnect(d->model, SIGNAL(modelReset()),
+               this, SLOT(_q_modelReset()));
+    if (d->model->QObject::parent() == this)
+        delete d->model;
 
     d->model = (model ? model : QAbstractItemModelPrivate::staticEmptyModel());
 
@@ -1513,8 +1524,6 @@ int QComboBox::currentIndex() const
 void QComboBox::setCurrentIndex(int index)
 {
     Q_D(QComboBox);
-    if (!model())
-        return;
     QModelIndex mi = model()->index(index, d->modelColumn, rootModelIndex());
 
     bool indexChanged = (mi != d->currentIndex);
