@@ -946,9 +946,9 @@ public:
 void tst_QStandardItemModel::getSetItemPrototype()
 {
     QStandardItemModel model;
-    QCOMPARE(model.itemPrototype(), static_cast<QStandardItem*>(0));
+    QCOMPARE(model.itemPrototype(), static_cast<const QStandardItem*>(0));
 
-    CustomItem *proto = new CustomItem;
+    const CustomItem *proto = new CustomItem;
     model.setItemPrototype(proto);
     QCOMPARE(model.itemPrototype(), proto);
 
@@ -961,7 +961,7 @@ void tst_QStandardItemModel::getSetItemPrototype()
     QCOMPARE(item->type(), static_cast<int>(QStandardItem::UserType));
 
     model.setItemPrototype(0);
-    QCOMPARE(model.itemPrototype(), static_cast<QStandardItem*>(0));
+    QCOMPARE(model.itemPrototype(), static_cast<const QStandardItem*>(0));
 }
 
 void tst_QStandardItemModel::getSetItemData()
