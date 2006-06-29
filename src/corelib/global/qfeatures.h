@@ -83,6 +83,9 @@
 // QMessageBox
 //#define QT_NO_MESSAGEBOX
 
+// QMessageBoxEx
+//#define QT_NO_MESSAGEBOXEX
+
 // QMovie
 //#define QT_NO_MOVIE
 

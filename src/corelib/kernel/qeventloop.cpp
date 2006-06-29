@@ -126,7 +126,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
     dispatches these to the application widgets.
 
     Generally speaking, no user interaction can take place before
-    calling exec(). As a special case, modal widgets like QMessageBox
+    calling exec(). As a special case, modal widgets like QMessageBoxEx
     can be used before calling exec(), because modal widgets call
     use their own local event loop.
 

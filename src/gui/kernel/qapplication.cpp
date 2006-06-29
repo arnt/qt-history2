@@ -23,7 +23,7 @@
 #include "qhash.h"
 #include "qset.h"
 #include "qlayout.h"
-#include "qmessagebox.h"
+#include "qmessageboxex.h"
 #include "qsessionmanager.h"
 #include "qstyle.h"
 #include "qstylefactory.h"
@@ -1820,13 +1820,13 @@ void QApplication::closeAllWindows()
     This is useful for inclusion in the Help menu of an application.
     See the examples/menu/menu.cpp example.
 
-    This function is a convenience slot for QMessageBox::aboutQt().
+    This function is a convenience slot for QMessageBoxEx::aboutQt().
 */
 void QApplication::aboutQt()
 {
-#ifndef QT_NO_MESSAGEBOX
-    QMessageBox::aboutQt(activeWindow());
-#endif // QT_NO_MESSAGEBOX
+#ifndef QT_NO_MESSAGEBOXEX
+    QMessageBoxEx::aboutQt(activeWindow());
+#endif // QT_NO_MESSAGEBOXEX
 }
 
 
@@ -2847,7 +2847,7 @@ void QApplication::changeOverrideCursor(const QCursor &cursor)
     dispatches these to the application widgets.
 
     Generally speaking, no user interaction can take place before
-    calling exec(). As a special case, modal widgets like QMessageBox
+    calling exec(). As a special case, modal widgets like QMessageBoxEx
     can be used before calling exec(), because modal widgets call
     exec() to start a local event loop.
 
@@ -3492,23 +3492,22 @@ bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
         void MyApplication::commitData(QSessionManager& manager)
         {
             if (manager.allowsInteraction()) {
-                int ret = QMessageBox::warning(
+                QMessageBoxEx::StandardButton ret;
+                ret = QMessageBoxEx::warning(
                             mainWindow,
                             tr("My Application"),
                             tr("Save changes to document?"),
-                            QMessageBox::Yes | QMessageBox::Default,
-                            QMessageBox::No,
-                            QMessageBox::Cancel | QMessageBox::Escape);
+                            QMessageBoxEx::Save | QMessageBoxEx::Discard | QMessageBox::Cancel);
 
                 switch (ret) {
-                case QMessageBox::Yes:
+                case QMessageBoxEx::Save:
                     manager.release();
                     if (!saveDocument())
                         manager.cancel();
                     break;
-                case QMessageBox::No:
+                case QMessageBoxEx::Discard:
                     break;
-                case QMessageBox::Cancel:
+                case QMessageBoxEx::Cancel:
                 default:
                     manager.cancel();
                 }

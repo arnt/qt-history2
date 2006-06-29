@@ -68,6 +68,7 @@ QStringList AccessibleFactory::keys() const
     list << "QClipperWidget";
     list << "QDialog";
     list << "QMessageBox";
+    list << "QMessageBoxEx";
     list << "QMainWindow";
     list << "QLabel";
     list << "QLCDNumber";
@@ -161,6 +162,8 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QDialog") {
         iface = new QAccessibleWidget(widget, Dialog);
     } else if (classname == "QMessageBox") {
+        iface = new QAccessibleWidget(widget, AlertMessage);
+    } else if (classname == "QMessageBoxEx") {
         iface = new QAccessibleWidget(widget, AlertMessage);
     } else if (classname == "QMainWindow") {
         iface = new QAccessibleWidget(widget, Application);

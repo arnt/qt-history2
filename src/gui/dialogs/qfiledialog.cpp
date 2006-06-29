@@ -29,7 +29,7 @@
 #include <qpushbutton.h>
 #include <qregexp.h>
 #include <qtoolbutton.h>
-#include <qmessagebox.h>
+#include <qmessageboxex.h>
 #include <qapplication.h>
 
 #ifdef Q_WS_WIN
@@ -883,8 +883,8 @@ void QFileDialog::accept()
         if (!info.exists()) {
             QString message = tr("\nFile not found.\nPlease verify the "
                                  "correct file name was given");
-            QMessageBox::warning(this, d->acceptButton->text(),
-                                 info.fileName() + message);
+            QMessageBoxEx::warning(this, d->acceptButton->text(),
+                                  info.fileName() + message);
             return;
         }
         if (info.isDir()) {
@@ -904,11 +904,11 @@ void QFileDialog::accept()
         // check if we have to ask for permission to overwrite the file
         if (!info.exists() || !confirmOverwrite() || acceptMode() == AcceptOpen)
             QDialog::accept();
-        else if (QMessageBox::warning(this, d->acceptButton->text(),
+        else if (QMessageBoxEx::warning(this, d->acceptButton->text(),
                                       tr("%1 already exists.\nDo you want to replace it?")
                                       .arg(info.fileName()),
-                                      QMessageBox::Yes, QMessageBox::No)
-                 == QMessageBox::Yes)
+                                      QMessageBoxEx::Yes | QMessageBoxEx::No)
+                 == QMessageBoxEx::Yes)
             QDialog::accept();
         return;
     }
@@ -921,8 +921,8 @@ void QFileDialog::accept()
             if (!info.exists()) {
                 QString message = tr("%1\nFile not found.\nPlease verify the "
                                      "correct file name was given.");
-                QMessageBox::warning(this, d->acceptButton->text(),
-                                     message.arg(info.fileName()));
+                QMessageBoxEx::warning(this, d->acceptButton->text(),
+                                       message.arg(info.fileName()));
                 return;
             }
             if (info.isDir()) {
@@ -1060,7 +1060,7 @@ void QFileDialogPrivate::_q_enterDirectory(const QString &path)
     } else {
         QString message = QFileDialog::tr("%1\nDirectory not found.\nPlease verify the "
                                           "correct directory name was given.");
-        QMessageBox::warning(q, q->windowTitle(), message.arg(path));
+        QMessageBoxEx::warning(q, q->windowTitle(), message.arg(path));
     }
 }
 
@@ -1435,21 +1435,21 @@ void QFileDialogPrivate::_q_deleteCurrent()
 
     QString fileName = model->fileName(index);
     if (!model->fileInfo(index).isWritable()
-        && (QMessageBox::warning(q_func(), q_func()->windowTitle(),
+        && (QMessageBoxEx::warning(q_func(), q_func()->windowTitle(),
                                 tr("'%1' is write protected.\nDo you want to delete it anyway?")
                                 .arg(fileName),
-                                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No))
+                                 QMessageBoxEx::Yes | QMessageBoxEx::No) == QMessageBoxEx::No))
         return;
-    else if (QMessageBox::warning(q_func(), q_func()->windowTitle(),
+    else if (QMessageBoxEx::warning(q_func(), q_func()->windowTitle(),
                                   tr("Are sure you want to delete '%1'?")
                                   .arg(fileName),
-                                  QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+                                  QMessageBoxEx::Yes | QMessageBoxEx::No) == QMessageBoxEx::No)
         return;
 
     if (model->isDir(index)) {
         if (!model->rmdir(index)) {
-            QMessageBox::warning(q, q->windowTitle(),
-                                 tr("Could not delete directory."));
+            QMessageBoxEx::warning(q, q->windowTitle(),
+                                   tr("Could not delete directory."));
         }
     } else {
         model->remove(index);

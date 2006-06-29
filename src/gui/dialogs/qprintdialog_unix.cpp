@@ -1127,7 +1127,7 @@ bool QPrintDialogPrivate::setupPrinter()
     // printer or file name
     if (ui.chbPrintToFile->isChecked()) {
         QString file = ui.leFile->text();
-#ifndef QT_NO_MESSAGEBOX
+#ifndef QT_NO_MESSAGEBOXEX
         QFileInfo fi(file);
         if(!fi.isWritable()) {
             QMessageBoxEx::warning(q, q->windowTitle(),
