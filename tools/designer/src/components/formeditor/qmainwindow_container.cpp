@@ -13,6 +13,7 @@
 
 #include "qmainwindow_container.h"
 #include "qdesigner_toolbar_p.h"
+#include "formwindow.h"
 
 #include <QtCore/qdebug.h>
 
@@ -117,6 +118,10 @@ void QMainWindowContainer::addWidget(QWidget *widget)
         m_widgets.append(widget);
         m_mainWindow->addDockWidget(dockWidgetArea(dockWidget), dockWidget);
         dockWidget->show();
+
+        if (FormWindow *fw = FormWindow::findFormWindow(m_mainWindow)) {
+            fw->manageWidget(widget);
+        }
     }
 
     else if (widget) {
