@@ -699,8 +699,6 @@ FontProperty::FontProperty(const QFont &value, const QString &name, QWidget *sel
     if (index == -1)
         index = 0;
 
-    uint mask = value.resolve();
-
     IProperty *i = 0;
     i = new ListProperty(fonts, index, QLatin1String("Family"));
     i->setFake(true);
