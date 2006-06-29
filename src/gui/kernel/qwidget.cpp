@@ -6485,7 +6485,7 @@ bool QWidget::qwsEvent(QWSEvent *)
     If you need to change some settings when a widget is polished,
     reimplement event() and handle the QEvent::Polish event type.
 
-    Note: The function is declared const so that it can be called from
+    \bold{Note:} The function is declared const so that it can be called from
     other const functions (e.g., sizeHint()).
 
     \sa event()
