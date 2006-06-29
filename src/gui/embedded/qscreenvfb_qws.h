@@ -23,7 +23,7 @@ QT_MODULE(Gui)
 
 #ifndef QT_NO_QWS_QVFB
 
-class QVFbScreen : public QScreen
+class Q_GUI_EXPORT QVFbScreen : public QScreen
 {
 public:
     explicit QVFbScreen(int display_id);
