@@ -442,6 +442,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
     Q_D(QAbstractItemView);
     if (model == d->model)
         return;
+    disconnect(d->model, SIGNAL(destroyed()),
+               this, SLOT(_q_modelDestroyed()));
     disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                this, SLOT(dataChanged(QModelIndex,QModelIndex)));
     disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
@@ -469,6 +471,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
                "QAbstractItemView::setModel",
                "The parent of a top level index should be invalid");
 
+    connect(d->model, SIGNAL(destroyed()),
+            this, SLOT(_q_modelDestroyed()));
     connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(dataChanged(QModelIndex,QModelIndex)));
     connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
@@ -2519,6 +2523,14 @@ void QAbstractItemViewPrivate::_q_columnsRemoved(const QModelIndex &, int, int)
 {
     Q_Q(QAbstractItemView);
     q->setState(QAbstractItemView::NoState);
+}
+
+/*!
+    \internal
+*/
+void QAbstractItemViewPrivate::_q_modelDestroyed()
+{
+    model = QAbstractItemModelPrivate::staticEmptyModel();
 }
 
 /*!

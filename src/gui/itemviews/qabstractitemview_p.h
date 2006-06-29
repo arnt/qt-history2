@@ -70,6 +70,7 @@ public:
     void _q_rowsRemoved(const QModelIndex &parent, int start, int end);
     void _q_columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
     void _q_columnsRemoved(const QModelIndex &parent, int start, int end);
+    void _q_modelDestroyed();
 
     void fetchMore();
     bool shouldEdit(QAbstractItemView::EditTrigger trigger, const QModelIndex &index) const;
@@ -217,7 +218,7 @@ public:
         return QPoint(q->horizontalOffset(), q->verticalOffset());
     }
 
-    QPointer<QAbstractItemModel> model;
+    QAbstractItemModel *model;
     QPointer<QAbstractItemDelegate> itemDelegate;
     QMap<int, QPointer<QAbstractItemDelegate> > rowDelegates;
     QMap<int, QPointer<QAbstractItemDelegate> > columnDelegates;

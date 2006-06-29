@@ -309,6 +309,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_columnsAboutToBeRemoved(const QModelIndex&, int, int))
     Q_PRIVATE_SLOT(d_func(), void _q_columnsRemoved(const QModelIndex&, int, int))
     Q_PRIVATE_SLOT(d_func(), void _q_rowsRemoved(const QModelIndex&, int, int))
+    Q_PRIVATE_SLOT(d_func(), void _q_modelDestroyed())
 
     friend class QTreeViewPrivate; // needed to compile with MSVC
 };
