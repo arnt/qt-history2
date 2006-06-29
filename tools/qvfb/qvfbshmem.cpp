@@ -11,14 +11,7 @@
 **
 ****************************************************************************/
 
-#if !defined( Q_WS_QWS ) || defined( QT_NO_QWS_MULTIPROCESS )
-#define QLock QWSSemaphore
-#undef QT_NO_QWS_MULTIPROCESS
-#include "../../src/gui/embedded/qlock.cpp"
-#include "../../src/gui/embedded/qwssignalhandler.cpp"
-#else
 #include "qlock_p.h"
-#endif
 
 #include "qvfbshmem.h"
 #include "qvfbhdr.h"
