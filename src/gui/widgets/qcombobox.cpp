@@ -679,7 +679,7 @@ QComboBoxPrivateContainer* QComboBoxPrivate::viewContainer()
 
     Q_Q(QComboBox);
     container = new QComboBoxPrivateContainer(new QComboBoxListView(), q);
-    container->itemView()->setModel(model);
+    container->itemView()->setModel(q->model());
     container->itemView()->setTextElideMode(Qt::ElideMiddle);
     QStyleOptionComboBox opt = getStyleOption();
     if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
