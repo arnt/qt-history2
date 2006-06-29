@@ -70,7 +70,10 @@ Qt::DockWidgetArea QDesignerDockWidget::dockWidgetArea() const
 void QDesignerDockWidget::setDockWidgetArea(Qt::DockWidgetArea dockWidgetArea)
 {
     if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget())) {
-        mainWindow->addDockWidget(dockWidgetArea, this);
+        if ((!docked() || (dockWidgetArea != Qt::NoDockWidgetArea))
+            && isAreaAllowed(dockWidgetArea)) {
+            mainWindow->addDockWidget(dockWidgetArea, this);
+        }
     }
 }
 
@@ -79,7 +82,8 @@ bool QDesignerDockWidget::inMainWindow() const
     if (parentWidget() && parentWidget()->layout()) {
         QLayout *layout = parentWidget()->layout();
 
-        if (layout->indexOf(const_cast<QDesignerDockWidget*>(this)) != -1)
+        int index = layout->indexOf(const_cast<QDesignerDockWidget*>(this));
+        if ((index != -1) && (qobject_cast<QMainWindow*>(parentWidget()) == 0))
             return false;
     }
 
