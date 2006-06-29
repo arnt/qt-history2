@@ -519,7 +519,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
             "Linux, and all major commercial Unix variants. Qt is also"
             " available for embedded devices as Qtopia Core.</p>"
             "<p>Qt is a Trolltech product. See "
-            "<tt><a href=\"http://www.trolltech.com/qt/\">http://www.trolltech.com/qt/</a></tt> for more information.</p>"
+            "<a href=\"http://www.trolltech.com/qt/\">www.trolltech.com/qt/</a> for more information.</p>"
            )
 #if QT_EDITION != QT_EDITION_OPENSOURCE
            .arg(QMessageBox::tr("<p>This program uses Qt version %1.</p>"))
@@ -529,7 +529,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
                    "of Open Source applications. You need a commercial Qt "
                    "license for development of proprietary (closed source) "
                    "applications.</p>"
-                   "<p>Please see <tt><a href=\"http://www.trolltech.com/company/model.html\">http://www.trolltech.com/company/model.html</a></tt> "
+                   "<p>Please see <a href=\"http://www.trolltech.com/company/model.html\">www.trolltech.com/company/model.html</a> "
                    "for an overview of Qt licensing.</p>"))
 #endif
            .arg(QLatin1String(QT_VERSION_STR));
