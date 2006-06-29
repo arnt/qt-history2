@@ -113,7 +113,7 @@ static void initializeDb()
         int u3 = dir[i].indexOf('.',u1+1);
         if (u2 < 0) u2 = u3;
 
-#if 1
+#if 0
         /*
           Skip fonts for other screen orientations. Such fonts may be
           installed even on a production device. Different orientations
