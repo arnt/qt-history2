@@ -800,8 +800,10 @@ QSize QLabel::minimumSizeHint() const
 void QLabel::mousePressEvent(QMouseEvent *ev)
 {
     Q_D(QLabel);
-    if (!d->doc)
+    if (!d->doc) {
+        ev->ignore();
         return;
+    }
 
     d->sendControlEvent(ev);
 }
@@ -811,8 +813,10 @@ void QLabel::mousePressEvent(QMouseEvent *ev)
 void QLabel::mouseMoveEvent(QMouseEvent *ev)
 {
     Q_D(QLabel);
-    if (!d->doc)
+    if (!d->doc) {
+        ev->ignore();
         return;
+    }
 
     d->sendControlEvent(ev);
 }
@@ -822,8 +826,10 @@ void QLabel::mouseMoveEvent(QMouseEvent *ev)
 void QLabel::mouseReleaseEvent(QMouseEvent *ev)
 {
     Q_D(QLabel);
-    if (!d->doc)
+    if (!d->doc) {
+        ev->ignore();
         return;
+    }
 
     d->sendControlEvent(ev);
 }
@@ -1390,8 +1396,10 @@ void QLabelPrivate::ensureTextControl()
 void QLabelPrivate::sendControlEvent(QEvent *e)
 {
     Q_Q(QLabel);
-    if (!control)
+    if (!control) {
+        e->ignore();
         return;
+    }
     control->processEvent(e, -layoutRect().topLeft(), q);
 }
 
