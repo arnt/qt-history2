@@ -1825,7 +1825,8 @@ QFixed QTextEngine::nextTab(const QScriptItem *si, QFixed x) const
 void QTextEngine::resolveAdditionalFormats() const
 {
     if (!specialData || specialData->addFormats.isEmpty()
-        || !block.docHandle())
+        || !block.docHandle()
+        || !specialData->resolvedFormatIndices.isEmpty())
         return;
 
     QTextFormatCollection *collection = this->formats();
