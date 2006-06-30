@@ -234,7 +234,7 @@ QWidget *QMainWindowLayout::centralWidget() const
 #else
     item = centralWidgetItem;
 #endif
-    return item == 0 ? 0 : centralWidgetItem->widget();
+    return item == 0 ? 0 : item->widget();
 }
 
 void QMainWindowLayout::setCentralWidget(QWidget *cw)
