@@ -1524,6 +1524,8 @@ void QStyleSheetStyle::repolish(QWidget *w)
 
 void QStyleSheetStyle::repolish(QApplication *app)
 {
+    Q_UNUSED(app);
+
     QList<QWidget *> widgets = styleRulesCache.keys();
     styleRulesCache.clear();
     renderRulesCache.clear();
