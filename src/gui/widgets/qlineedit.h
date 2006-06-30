@@ -81,10 +81,12 @@ public:
     void setValidator(const QValidator *);
     const QValidator * validator() const;
 #endif
-    
+
+#ifndef QT_NO_COMPLETER
     void setCompleter(QCompleter *completer);
     QCompleter *completer() const;
-    
+#endif
+
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
@@ -140,7 +142,7 @@ public:
 #ifndef QT_NO_CONTEXTMENU
     QMenu *createStandardContextMenu();
 #endif
-    
+
 Q_SIGNALS:
     void textChanged(const QString &);
     void textEdited(const QString &);
@@ -204,7 +206,9 @@ private:
     Q_DECLARE_PRIVATE(QLineEdit)
     Q_PRIVATE_SLOT(d_func(), void _q_clipboardChanged())
     Q_PRIVATE_SLOT(d_func(), void _q_deleteSelected())
+#ifndef QT_NO_COMPLETER
     Q_PRIVATE_SLOT(d_func(), void _q_completionHighlighted(QString))
+#endif
 };
 
 #endif // QT_NO_LINEEDIT

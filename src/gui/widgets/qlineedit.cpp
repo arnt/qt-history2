@@ -524,6 +524,7 @@ void QLineEdit::setValidator(const QValidator *v)
 }
 #endif // QT_NO_VALIDATOR
 
+#ifndef QT_NO_COMPLETER
 /*!
     Sets this line edit to provide auto completions from the completer, \a c.
     The completion mode is set using QCompleter::setCompletionMode().
@@ -614,6 +615,7 @@ void QLineEditPrivate::_q_completionHighlighted(QString newText)
         q->setSelection(text.length(), c - newText.length());
     }
 }
+#endif // QT_NO_COMPLETER
 
 /*!
     Returns a recommended size for the widget.
@@ -1786,11 +1788,12 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             if (!d->readOnly)
                 redo();
             break;
+#ifndef QT_NO_COMPLETER
         case Qt::Key_Up:
         case Qt::Key_Down:
             d->complete(event->key());
             break;
-
+#endif
         default:
             unknown = true;
         }
@@ -1828,7 +1831,9 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 #endif
             if (!d->readOnly) {
                 backspace();
+#ifndef QT_NO_COMPLETER
                 d->complete(Qt::Key_Backspace);
+#endif
             }
             break;
         case Qt::Key_Home:
@@ -1923,7 +1928,9 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
         QString t = event->text();
         if (!t.isEmpty() && t.at(0).isPrint()) {
             insert(t);
+#ifndef QT_NO_COMPLETER
             d->complete(event->key());
+#endif
             event->accept();
             return;
         }
@@ -2616,8 +2623,10 @@ void QLineEditPrivate::finishChange(int validateFromState, bool update, bool edi
                 emit q->textEdited(actualText);
             q->updateMicroFocus();
             emit q->textChanged(actualText);
+#ifndef QT_NO_COMPLETER
             if (edited && completer && completer->completionMode() != QCompleter::InlineCompletion)
                 complete(-1); // update the popup on cut/paste/del
+#endif
         }
 #ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(q, 0, QAccessible::ValueChanged);

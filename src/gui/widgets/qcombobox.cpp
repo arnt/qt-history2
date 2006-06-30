@@ -50,8 +50,10 @@ QComboBoxPrivate::QComboBoxPrivate()
       arrowState(QStyle::State_None),
       hoverControl(QStyle::SC_None),
       autoCompletionCaseSensitivity(Qt::CaseInsensitive),
-      indexBeforeChange(-1),
-      completer(0)
+      indexBeforeChange(-1)
+#ifndef QT_NO_COMPLETER
+      , completer(0)
+#endif
 {
 }
 
@@ -1009,6 +1011,8 @@ int QComboBox::maxCount() const
     return d->maxCount;
 }
 
+#ifndef QT_NO_COMPLETER
+
 /*!
     \property QComboBox::autoCompletion
     \brief whether the combobox provides auto-completion for editable items
@@ -1072,6 +1076,8 @@ void QComboBox::setAutoCompletionCaseSensitivity(Qt::CaseSensitivity sensitivity
     if (d->lineEdit && d->lineEdit->completer())
         d->lineEdit->completer()->setCaseSensitivity(sensitivity);
 }
+
+#endif // QT_NO_COMPLETER
 
 /*!
     \property QComboBox::duplicatesEnabled
@@ -1351,6 +1357,8 @@ const QValidator *QComboBox::validator() const
 }
 #endif // QT_NO_VALIDATOR
 
+#ifndef QT_NO_COMPLETER
+
 /*!
     \fn void QComboBox::setCompleter(QCompleter *completer)
 
@@ -1379,6 +1387,8 @@ QCompleter *QComboBox::completer() const
     Q_D(const QComboBox);
     return d->lineEdit ? d->lineEdit->completer() : 0;
 }
+
+#endif // QT_NO_COMPLETER
 
 /*!
     Returns the item delegate used by the popup list view.
@@ -1435,9 +1445,11 @@ void QComboBox::setModel(QAbstractItemModel *model)
         return;
     }
 
+#ifndef QT_NO_COMPLETER
     if (d->lineEdit && d->lineEdit->completer()
         && d->lineEdit->completer() == d->completer)
         d->lineEdit->completer()->setModel(model);
+#endif
 
     disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                this, SLOT(_q_dataChanged(QModelIndex,QModelIndex)));
@@ -2425,9 +2437,12 @@ void QComboBox::setModelColumn(int visibleColumn)
     QListView *lv = qobject_cast<QListView *>(d->viewContainer()->itemView());
     if (lv)
         lv->setModelColumn(visibleColumn);
+
+#ifndef QT_NO_COMPLETER
     if (d->lineEdit && d->lineEdit->completer()
         && d->lineEdit->completer() == d->completer)
         d->lineEdit->completer()->setCompletionColumn(visibleColumn);
+#endif
 }
 
 /*!

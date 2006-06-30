@@ -46,8 +46,12 @@ class Q_GUI_EXPORT QComboBox : public QWidget
     Q_PROPERTY(SizeAdjustPolicy sizeAdjustPolicy READ sizeAdjustPolicy WRITE setSizeAdjustPolicy)
     Q_PROPERTY(int minimumContentsLength READ minimumContentsLength WRITE setMinimumContentsLength)
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
+
+#ifndef QT_NO_COMPLETER
     Q_PROPERTY(bool autoCompletion READ autoCompletion WRITE setAutoCompletion DESIGNABLE false)
     Q_PROPERTY(Qt::CaseSensitivity autoCompletionCaseSensitivity READ autoCompletionCaseSensitivity WRITE setAutoCompletionCaseSensitivity DESIGNABLE false)
+#endif // QT_NO_COMPLETER
+
     Q_PROPERTY(bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
     Q_PROPERTY(bool modelColumn READ modelColumn WRITE setModelColumn)
@@ -127,8 +131,10 @@ public:
     const QValidator *validator() const;
 #endif
 
+#ifndef QT_NO_COMPLETER
     void setCompleter(QCompleter *c);
     QCompleter *completer() const;
+#endif
 
     QAbstractItemDelegate *itemDelegate() const;
     void setItemDelegate(QAbstractItemDelegate *delegate);

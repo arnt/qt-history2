@@ -239,7 +239,9 @@ public:
     QPersistentModelIndex root;
     Qt::CaseSensitivity autoCompletionCaseSensitivity;
     int indexBeforeChange;
+#ifndef QT_NO_COMPLETER
     QPointer<QCompleter> completer;
+#endif
 };
 
 #endif // QT_NO_COMBOBOX

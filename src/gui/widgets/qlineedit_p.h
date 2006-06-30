@@ -46,7 +46,10 @@ public:
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
           modifiedState(0), undoState(0), selstart(0), selend(0), userInput(false),
-          emitingEditingFinished(false), resumePassword(false), completer(0)
+          emitingEditingFinished(false), resumePassword(false)
+#ifndef QT_NO_COMPLETER
+        , completer(0)
+#endif
         {}
     ~QLineEditPrivate()
     {
@@ -188,9 +191,11 @@ public:
 
     bool resumePassword;
 
+#ifndef QT_NO_COMPLETER
     QPointer<QCompleter> completer;
     void complete(int key = -1);
     void _q_completionHighlighted(QString);
+#endif
 };
 
 #endif // QT_NO_LINEEDIT
