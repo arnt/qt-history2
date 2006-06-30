@@ -58,7 +58,7 @@ public:
     QPicture *picture;
 #endif
 #ifndef QT_NO_MOVIE
-    QMovie *movie;
+    QPointer<QMovie> movie;
     void _q_movieUpdated(const QRect&);
     void _q_movieResized(const QSize&);
 #endif
