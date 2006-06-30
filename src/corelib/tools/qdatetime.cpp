@@ -1404,7 +1404,7 @@ QTime QTime::addMSecs(int ms) const
 
     Because QTime measures time within a day and there are 86400
     seconds in a day, the result is always between -86400000 and
-    86400000 msec.
+    86400000 ms.
 
     \sa secsTo(), addMSecs()
 */

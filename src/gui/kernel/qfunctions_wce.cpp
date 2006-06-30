@@ -70,7 +70,7 @@ time_t ftToTime_t(const FILETIME ft)
     li.LowPart  = ft.dwLowDateTime;
     li.HighPart = ft.dwHighDateTime;
 
-    // 100-nanosec to seconds
+    // 100-ns to seconds
     li.QuadPart /= 10000000;
 
     // FILETIME is from 1601-01-01 T 00:00:00

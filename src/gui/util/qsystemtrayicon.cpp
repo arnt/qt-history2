@@ -311,7 +311,7 @@ void QBalloonTip::showBalloon(QSystemTrayIcon::MessageIcon icon, const QString& 
     hideBalloon();
     theSolitaryBalloonTip = new QBalloonTip(icon, title, message, trayIcon);
     if (timeout < 0)
-        timeout = 10000; //10 sec default
+        timeout = 10000; //10 s default
     theSolitaryBalloonTip->balloon(pos, timeout, showArrow);
 }
 

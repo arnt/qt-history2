@@ -813,7 +813,7 @@ QButtonGroup *QAbstractButton::group() const
 
 /*!
 Performs an animated click: the button is pressed and released
-\a msec milliseconds later (the default is 100 msecs).
+\a msec milliseconds later (the default is 100 ms).
 
 All signals associated with a click are emitted as appropriate.
 
