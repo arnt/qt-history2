@@ -1179,21 +1179,24 @@ QMakeProject::read(uchar cmd)
                 Option::mkfile::qmakespec = qmakespec;
             }
 
-            if(QDir::isRelativePath(qmakespec) &&
-               !QFile::exists(qmakespec+"/qmake.conf")) {
-                bool found_mkspec = false;
-                for(QStringList::ConstIterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
-                    QString mkspec = (*it) + QDir::separator() + qmakespec;
-                    if(QFile::exists(mkspec)) {
-                        found_mkspec = true;
-                        Option::mkfile::qmakespec = qmakespec = mkspec;
-                        break;
+            if(QDir::isRelativePath(qmakespec)) {
+                if (!QFile::exists(qmakespec+"/qmake.conf")) {
+                    bool found_mkspec = false;
+                    for(QStringList::ConstIterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
+                        QString mkspec = (*it) + QDir::separator() + qmakespec;
+                        if(QFile::exists(mkspec)) {
+                            found_mkspec = true;
+                            Option::mkfile::qmakespec = qmakespec = mkspec;
+                            break;
+                        }
                     }
-                }
-                if(!found_mkspec) {
-                    fprintf(stderr, "Could not find mkspecs for your QMAKESPEC after trying:\n\t%s\n",
-                            mkspec_roots.join("\n\t").toLatin1().constData());
-                    return false;
+                    if(!found_mkspec) {
+                        fprintf(stderr, "Could not find mkspecs for your QMAKESPEC after trying:\n\t%s\n",
+                                mkspec_roots.join("\n\t").toLatin1().constData());
+                        return false;
+                    }
+                } else {
+                    Option::mkfile::qmakespec = QFileInfo(Option::mkfile::qmakespec).absoluteFilePath();
                 }
             }
 
