@@ -406,7 +406,7 @@ bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int ti
 
             XFlush(X11->display);
 
-            // sleep 50ms, so we don't use up CPU cycles all the time.
+            // sleep 50 ms, so we don't use up CPU cycles all the time.
             struct timeval usleep_tv;
             usleep_tv.tv_sec = 0;
             usleep_tv.tv_usec = 50000;

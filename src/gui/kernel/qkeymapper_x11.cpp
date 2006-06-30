@@ -1285,7 +1285,7 @@ bool QKeyMapperPrivate::translateKeyEventInternal(QWidget *keyWidget,
 
 struct qt_auto_repeat_data
 {
-    // match the window and keycode with timestamp delta of 10ms
+    // match the window and keycode with timestamp delta of 10 ms
     Window window;
     KeyCode keycode;
     Time timestamp;

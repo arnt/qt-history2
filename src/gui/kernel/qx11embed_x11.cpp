@@ -1110,13 +1110,13 @@ void QX11EmbedContainer::embedClient(WId id)
       we should wait for the WM_STATE property to either be deleted or
       set to WithdrawnState.
 
-      For safety, we will not wait more than 500ms, so that we can
+      For safety, we will not wait more than 500 ms, so that we can
       preemptively workaround buggy window managers.
     */
     QTime t;
     t.start();
     for (;;) {
-	if (t.elapsed() > 500) // time-out after 500ms
+	if (t.elapsed() > 500) // time-out after 500 ms
 	    break;
 
 	XEvent event;

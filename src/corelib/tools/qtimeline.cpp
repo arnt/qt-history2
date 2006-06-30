@@ -210,7 +210,7 @@ void QTimeLinePrivate::setCurrentTime(int msecs)
     \value EaseOutCurve The value starts growing steadily, then ends slowly.
     \value EaseInOutCurve The value starts growing slowly, the runs steadily, then grows slowly again.
     \value LinearCurve The value grows linearily (e.g., if the duration is 1000 ms,
-           the value at time 500ms is 0.5).
+           the value at time 500 ms is 0.5).
 */
 
 /*!
@@ -406,7 +406,7 @@ void QTimeLine::setFrameRange(int startFrame, int endFrame)
     When updating the current time, QTimeLine will emit valueChanged() if the
     current value changed, and frameChanged() if the frame changed.
 
-    By default, the interval is 40ms, which corresponds to a rate of 25
+    By default, the interval is 40 ms, which corresponds to a rate of 25
     updates per second.
 */
 int QTimeLine::updateInterval() const
@@ -552,8 +552,8 @@ qreal QTimeLine::valueForTime(int msec) const
 /*!
     Starts the timeline. QTimeLine will enter Running state, and once it
     enters the event loop, it will update its current time, frame and value at
-    regular intervals. The default interval is 40ms (i.e., 25 times per
-    second,). You can change the update interval by calling setUpdateInterval().
+    regular intervals. The default interval is 40 ms (i.e., 25 times per
+    second). You can change the update interval by calling setUpdateInterval().
 
     \sa updateInterval(), frameChanged(), valueChanged()
 */

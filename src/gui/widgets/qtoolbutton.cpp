@@ -117,7 +117,7 @@ bool QToolButtonPrivate::hasMenu() const
     menu set. The default mode is DelayedPopupMode which is sometimes
     used with the "Back" button in a web browser.  After pressing and
     holding the button down for a while, a menu pops up showing a list
-    of possible pages to jump to. The default delay is 600ms; you can
+    of possible pages to jump to. The default delay is 600 ms; you can
     adjust it with setPopupDelay().
 
     \table 100%
