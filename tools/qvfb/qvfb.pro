@@ -53,9 +53,6 @@ RESOURCES	+= qvfb.qrc \
                    ClamshellPhone.qrc \
                    PDAPhone.qrc \
                    pda.qrc \
-                   QtopiaPDA.qrc \
-                   QtopiaPhone-Advanced.qrc \
-                   QtopiaPhone-Simple.qrc \
                    SmartPhone2.qrc \
                    SmartPhone.qrc \
                    SmartPhoneWithButtons.qrc \
