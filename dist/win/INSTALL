@@ -47,7 +47,7 @@
     ensure that all traces of the previous configuration are removed
     by entering the build directory and typing
 
-        make confclean
+        nmake confclean
 
     before running the configure script again.
 
