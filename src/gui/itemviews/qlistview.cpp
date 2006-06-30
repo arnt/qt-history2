@@ -2273,7 +2273,7 @@ int QListViewPrivate::perItemScrollingPageSteps(int length, int bounds) const
     int max = qMax(length, bounds);
     int min = qMin(length, bounds);
     int pos = min - (max - positions.last());
-    while (pos > 0 && steps > 0) {
+    while (pos >= 0 && steps > 0) {
         pos -= (positions.at(steps) - positions.at(steps - 1));
         ++pageSteps;
         --steps;
