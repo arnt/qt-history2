@@ -842,7 +842,7 @@ function qdoc(packageDir, platform, license)
     else
         qdocConfigFile += "/test/qt.qdocconf";
     var qdocDefines = "-Dopensourceedition";
-    if (license != "opensource")
+    if (license.find("opensource") == -1)
         qdocDefines = "-Ddesktopedition";
     if (platform == "core")
         qdocDefines = "-Dqtopiacore";
