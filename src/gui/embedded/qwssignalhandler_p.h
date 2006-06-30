@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <QtCore/qset.h>
+#include <QtCore/qvector.h>
 
 class QWSSignalHandler
 {
