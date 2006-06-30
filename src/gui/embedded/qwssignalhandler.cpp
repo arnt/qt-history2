@@ -13,7 +13,6 @@
 
 #include "qwssignalhandler_p.h"
 
-#include <qlist.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
