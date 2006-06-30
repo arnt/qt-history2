@@ -1128,12 +1128,14 @@ bool QPrintDialogPrivate::setupPrinter()
     if (ui.chbPrintToFile->isChecked()) {
         QString file = ui.leFile->text();
 #ifndef QT_NO_MESSAGEBOXEX
-        QFileInfo fi(file);
-        if(!fi.isWritable()) {
+        QFile f(file);
+        QFileInfo fi(f);
+        bool exists = fi.exists();
+        if((exists && !fi.isWritable()) || !f.open(QFile::WriteOnly)) {
             QMessageBoxEx::warning(q, q->windowTitle(),
                                    q->tr("File %1 is not writable.\nPlease choose a different file name.").arg(file));
             return false;
-        } else if (fi.exists()) {
+        } else if (exists) {
             QMessageBoxEx::StandardButton button
                     = QMessageBoxEx::question(q, q->windowTitle(),
                                               q->tr("%1 already exists.\nDo you want to overwrite it?").arg(file),
