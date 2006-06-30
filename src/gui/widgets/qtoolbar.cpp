@@ -21,6 +21,7 @@
 #include <qlayout.h>
 #include <qmainwindow.h>
 #include <qmenu.h>
+#include <qmenubar.h>
 #include <qpainter.h>
 #include <qrubberband.h>
 #include <qsignalmapper.h>
@@ -987,18 +988,20 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     }
 
     int box_spacing = (d->items.size() > 1) ? box->spacing()*2 : box->spacing();
+    int item_min_size = (orientation == Qt::Horizontal) ? d->iconSize.width() : d->iconSize.height();
+    if (!d->items.isEmpty()) {
+        QSize sz(d->items[0].widget->sizeHint());
+        if (qobject_cast<QMenuBar *>(d->items[0].widget))
+            sz = d->items[0].widget->minimumSizeHint();
+        item_min_size = (orientation == Qt::Horizontal) ? sz.width() : sz.height();
+    }
     if (orientation == Qt::Horizontal) {
         setMinimumSize(d->handle->sizeHint().width() + box_spacing + extension_size + margin*2
-                       + (d->items.isEmpty()
-                          ? d->iconSize.width()
-                          : d->items[0].widget->minimumSizeHint().width()),
-                       max_item_extent + margin*2);
+                       + item_min_size, max_item_extent + margin*2);
     } else {
         setMinimumSize(max_item_extent + margin*2,
                        d->handle->sizeHint().height() + box_spacing + extension_size
-                       + margin*2 + (d->items.isEmpty()
-                                     ? d->iconSize.height()
-                                     : d->items[0].widget->minimumSizeHint().height()));
+                       + margin*2 + item_min_size);
     }
 
     if (hidden_count > 0) {
