@@ -63,6 +63,7 @@ private slots:
     void highlightToEndOfDocument2();
     void preservePreeditArea();
     void task108530();
+    void avoidUnnecessaryRehighlight();
 
 private:
     QTextDocument *doc;
@@ -432,6 +433,19 @@ void tst_QSyntaxHighlighter::task108530()
     
     QCOMPARE(hl->highlightedText, QString("test"));
     QCOMPARE(hl->callCount, 2);
+}
+
+void tst_QSyntaxHighlighter::avoidUnnecessaryRehighlight()
+{
+    TestHighlighter *hl = new TestHighlighter(doc);
+    QVERIFY(!hl->highlighted);
+
+    doc->setPlainText("Hello World");
+    QVERIFY(hl->highlighted);
+
+    hl->highlighted = false;
+    QApplication::processEvents();
+    QVERIFY(!hl->highlighted);
 }
 
 QTEST_MAIN(tst_QSyntaxHighlighter)

@@ -29,16 +29,24 @@ class QSyntaxHighlighterPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QSyntaxHighlighter)
 public:
-    inline QSyntaxHighlighterPrivate() {}
+    inline QSyntaxHighlighterPrivate() : rehighlightPending(false) {}
 
     QPointer<QTextDocument> doc;
 
     void _q_reformatBlocks(int from, int charsRemoved, int charsAdded);
     void reformatBlock(QTextBlock block);
 
+    inline void _q_delayedRehighlight() {
+        if (!rehighlightPending)
+            return;
+        rehighlightPending = false;
+        return q_func()->rehighlight();
+    }
+
     void applyFormatChanges();
     QVector<QTextCharFormat> formatChanges;
     QTextBlock currentBlock;
+    bool rehighlightPending;
 };
 
 void QSyntaxHighlighterPrivate::applyFormatChanges()
@@ -112,6 +120,7 @@ void QSyntaxHighlighterPrivate::applyFormatChanges()
 void QSyntaxHighlighterPrivate::_q_reformatBlocks(int from, int charsRemoved, int charsAdded)
 {
     Q_UNUSED(charsRemoved);
+    rehighlightPending = false;
 
     QTextBlock block = doc->findBlock(from);
     if (!block.isValid())
@@ -342,7 +351,8 @@ void QSyntaxHighlighter::setDocument(QTextDocument *doc)
     if (d->doc) {
         connect(d->doc, SIGNAL(contentsChange(int, int, int)),
                 this, SLOT(_q_reformatBlocks(int, int, int)));
-        QTimer::singleShot(0, this, SLOT(rehighlight()));
+        QTimer::singleShot(0, this, SLOT(_q_delayedRehighlight()));
+        d->rehighlightPending = true;
     }
 }
 
