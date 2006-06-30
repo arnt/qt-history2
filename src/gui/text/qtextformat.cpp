@@ -128,8 +128,19 @@ class QTextFormatPrivate : public QSharedData
 public:
     QTextFormatPrivate() : hashDirty(true), fontDirty(true), hashValue(0) {}
 
-    // keep qint* types here, so we can safely stream to a datastream
-    typedef QMap<qint32, QVariant> PropertyMap;
+    struct Property
+    {
+        inline Property(qint32 k, const QVariant &v) : key(k), value(v) {}
+        inline Property() {}
+
+        qint32 key;
+        QVariant value;
+
+        inline bool operator==(const Property &other) const
+        { return key == other.key && value == other.value; }
+        inline bool operator!=(const Property &other) const
+        { return key != other.key || value != other.value; }
+    };
 
     inline uint hash() const
     {
@@ -149,19 +160,45 @@ public:
     {
         hashDirty = true;
         fontDirty = true;
-        props.insert(key, value);
+        for (int i = 0; i < props.count(); ++i)
+            if (props.at(i).key == key) {
+                props[i].value = value;
+                return;
+            }
+        props.append(Property(key, value));
     }
 
     inline void clearProperty(qint32 key)
     {
         hashDirty = true;
         fontDirty = true;
-        props.remove(key);
+        for (int i = 0; i < props.count(); ++i)
+            if (props.at(i).key == key) {
+                props.remove(i);
+                return;
+            }
     }
 
-    void resolveFont(const QFont &defaultFont);
+    inline int propertyIndex(qint32 key) const
+    {
+        for (int i = 0; i < props.count(); ++i)
+            if (props.at(i).key == key)
+                return i;
+        return -1;
+    }
 
-    const PropertyMap &properties() const { return props; }
+    inline QVariant property(qint32 key) const
+    {
+        const int idx = propertyIndex(key);
+        if (idx < 0)
+            return QVariant();
+        return props.at(idx).value;
+    }
+
+    inline bool hasProperty(qint32 key) const
+    { return propertyIndex(key) != -1; }
+
+    void resolveFont(const QFont &defaultFont);
 
     inline const QFont &font() const {
         if (fontDirty)
@@ -169,8 +206,8 @@ public:
         return fnt;
     }
 
+    QVector<Property> props;
 private:
-    PropertyMap props;
 
     uint recalcHash() const;
     void recalcFont() const;
@@ -201,8 +238,8 @@ static uint variantHash(const QVariant &variant)
 uint QTextFormatPrivate::recalcHash() const
 {
     hashValue = 0;
-    for (PropertyMap::ConstIterator it = props.begin(); it != props.end(); ++it)
-        hashValue += (it.key() << 16) + variantHash(*it);
+    for (QVector<Property>::ConstIterator it = props.constBegin(); it != props.constEnd(); ++it)
+        hashValue += (it->key << 16) + variantHash(it->value);
 
     hashDirty = false;
 
@@ -215,10 +252,10 @@ void QTextFormatPrivate::resolveFont(const QFont &defaultFont)
     const uint oldMask = fnt.resolve();
     fnt = fnt.resolve(defaultFont);
 
-    if (props.contains(QTextFormat::FontSizeAdjustment)) {
+    if (hasProperty(QTextFormat::FontSizeAdjustment)) {
         const qreal scaleFactors[7] = {0.7, 0.8, 1.0, 1.2, 1.5, 2, 2.4};
 
-        const int htmlFontSize = qBound(0, props.value(QTextFormat::FontSizeAdjustment).toInt() + 3 - 1, 6);
+        const int htmlFontSize = qBound(0, property(QTextFormat::FontSizeAdjustment).toInt() + 3 - 1, 6);
 
 
         if (defaultFont.pointSize() <= 0) {
@@ -238,47 +275,59 @@ void QTextFormatPrivate::recalcFont() const
     // update cached font as well
     QFont f;
 
-    if (props.contains(QTextFormat::FontFamily))
-        f.setFamily(props.value(QTextFormat::FontFamily).toString());
-
-    if (props.contains(QTextFormat::FontPointSize))
-        f.setPointSizeF(props.value(QTextFormat::FontPointSize).toDouble());
-    else if (props.contains(QTextFormat::FontPixelSize))
-        f.setPixelSize(props.value(QTextFormat::FontPixelSize).toInt());
-
-    if (props.contains(QTextFormat::FontWeight))
-        f.setWeight(props.value(QTextFormat::FontWeight).toInt());
-
-    if (props.contains(QTextFormat::FontItalic))
-        f.setItalic(props.value(QTextFormat::FontItalic).toBool());
-
-    if (props.contains(QTextFormat::FontUnderline))
-        f.setUnderline(props.value(QTextFormat::FontUnderline).toBool());
-    
-    if (props.contains(QTextFormat::TextUnderlineStyle))
-        f.setUnderline(static_cast<QTextCharFormat::UnderlineStyle>(props.value(QTextFormat::TextUnderlineStyle).toInt()) == QTextCharFormat::SingleUnderline);
-
-    if (props.contains(QTextFormat::FontOverline))
-        f.setOverline(props.value(QTextFormat::FontOverline).toBool());
-
-    if (props.contains(QTextFormat::FontStrikeOut))
-        f.setStrikeOut(props.value(QTextFormat::FontStrikeOut).toBool());
-
-    if (props.contains(QTextFormat::FontFixedPitch))
-        f.setFixedPitch(props.value(QTextFormat::FontFixedPitch).toBool());
+    for (int i = 0; i < props.count(); ++i) {
+        switch (props.at(i).key) {
+            case QTextFormat::FontFamily:
+                f.setFamily(props.at(i).value.toString());
+                break;
+            case QTextFormat::FontPointSize:
+                f.setPointSizeF(props.at(i).value.toDouble());
+                break;
+            case  QTextFormat::FontPixelSize:
+                f.setPixelSize(props.at(i).value.toInt());
+                break;
+            case QTextFormat::FontWeight:
+                f.setWeight(props.at(i).value.toInt());
+                break;
+            case QTextFormat::FontItalic:
+                f.setItalic(props.at(i).value.toBool());
+                break;
+            case QTextFormat::FontUnderline:
+                f.setUnderline(props.at(i).value.toBool());
+                break;
+            case QTextFormat::TextUnderlineStyle:
+                f.setUnderline(static_cast<QTextCharFormat::UnderlineStyle>(props.at(i).value.toInt()) == QTextCharFormat::SingleUnderline);
+                break;
+            case QTextFormat::FontOverline:
+                f.setOverline(props.at(i).value.toBool());
+                break;
+            case QTextFormat::FontStrikeOut:
+                f.setStrikeOut(props.at(i).value.toBool());
+                break;
+            case QTextFormat::FontFixedPitch:
+                f.setFixedPitch(props.at(i).value.toBool());
+                break;
+            default:
+                break;
+            }
+    }
     fnt = f;
     fontDirty = false;
 }
 
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QTextFormat &fmt)
 {
-    stream << fmt.format_type << fmt.d->props;
+    stream << fmt.format_type << fmt.properties();
     return stream;
 }
 
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 {
-    stream >> fmt.format_type >> fmt.d->props;
+    QMap<qint32, QVariant> properties;
+    stream >> fmt.format_type >> properties;
+    for (QMap<qint32, QVariant>::ConstIterator it = properties.constBegin();
+         it != properties.constEnd(); ++it)
+        fmt.d->insertProperty(it.key(), it.value());
     return stream;
 }
 
@@ -560,10 +609,13 @@ void QTextFormat::merge(const QTextFormat &other)
     if (!other.d)
         return;
 
-    // don't use QMap's += operator, as it uses insertMulti!
-    for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties().begin();
-         it != other.d->properties().end(); ++it) {
-        d->insertProperty(it.key(), it.value());
+    QTextFormatPrivate *d = this->d;
+
+    const QVector<QTextFormatPrivate::Property> &otherProps = other.d->props;
+    d->props.reserve(d->props.size() + otherProps.size());
+    for (int i = 0; i < otherProps.count(); ++i) {
+        const QTextFormatPrivate::Property &p = otherProps.at(i);
+        d->insertProperty(p.key, p.value);
     }
 }
 
@@ -647,7 +699,7 @@ bool QTextFormat::boolProperty(int propertyId) const
 {
     if (!d)
         return false;
-    const QVariant prop = d->properties().value(propertyId);
+    const QVariant prop = d->property(propertyId);
     if (prop.type() != QVariant::Bool)
         return false;
     return prop.toBool();
@@ -663,7 +715,7 @@ int QTextFormat::intProperty(int propertyId) const
 {
     if (!d)
         return 0;
-    const QVariant prop = d->properties().value(propertyId);
+    const QVariant prop = d->property(propertyId);
     if (prop.type() != QVariant::Int)
         return 0;
     return prop.toInt();
@@ -679,7 +731,7 @@ qreal QTextFormat::doubleProperty(int propertyId) const
 {
     if (!d)
         return 0.;
-    const QVariant prop = d->properties().value(propertyId);
+    const QVariant prop = d->property(propertyId);
     if (prop.type() != QVariant::Double)
         return 0.;
     return prop.toDouble(); // ####
@@ -696,7 +748,7 @@ QString QTextFormat::stringProperty(int propertyId) const
 {
     if (!d)
         return QString();
-    const QVariant prop = d->properties().value(propertyId);
+    const QVariant prop = d->property(propertyId);
     if (prop.type() != QVariant::String)
         return QString();
     return prop.toString();
@@ -714,7 +766,7 @@ QColor QTextFormat::colorProperty(int propertyId) const
 {
     if (!d)
         return QColor();
-    const QVariant prop = d->properties().value(propertyId);
+    const QVariant prop = d->property(propertyId);
     if (prop.type() != QVariant::Color)
         return QColor();
     return qvariant_cast<QColor>(prop);
@@ -731,7 +783,7 @@ QPen QTextFormat::penProperty(int propertyId) const
 {
     if (!d)
         return QPen(Qt::NoPen);
-    const QVariant prop = d->properties().value(propertyId);
+    const QVariant prop = d->property(propertyId);
     if (prop.type() != QVariant::Pen)
         return QPen(Qt::NoPen);
     return qvariant_cast<QPen>(prop);
@@ -748,7 +800,7 @@ QBrush QTextFormat::brushProperty(int propertyId) const
 {
     if (!d)
         return QBrush(Qt::NoBrush);
-    const QVariant prop = d->properties().value(propertyId);
+    const QVariant prop = d->property(propertyId);
     if (prop.type() != QVariant::Brush)
         return QBrush(Qt::NoBrush);
     return qvariant_cast<QBrush>(prop);
@@ -763,7 +815,7 @@ QTextLength QTextFormat::lengthProperty(int propertyId) const
 {
     if (!d)
         return QTextLength();
-    return qvariant_cast<QTextLength>(d->properties().value(propertyId));
+    return qvariant_cast<QTextLength>(d->property(propertyId));
 }
 
 /*!
@@ -778,7 +830,7 @@ QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
     QVector<QTextLength> vector;
     if (!d)
         return vector;
-    const QVariant prop = d->properties().value(propertyId);
+    const QVariant prop = d->property(propertyId);
     if (prop.type() != QVariant::List)
         return vector;
 
@@ -797,7 +849,7 @@ QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
 */
 QVariant QTextFormat::property(int propertyId) const
 {
-    return d ? d->properties().value(propertyId) : QVariant();
+    return d ? d->property(propertyId) : QVariant();
 }
 
 /*!
@@ -862,7 +914,7 @@ int QTextFormat::objectIndex() const
 {
     if (!d)
         return -1;
-    const QVariant prop = d->properties().value(ObjectIndex);
+    const QVariant prop = d->property(ObjectIndex);
     if (prop.type() != QVariant::Int) // ####
         return -1;
     return prop.toInt();
@@ -896,7 +948,7 @@ void QTextFormat::setObjectIndex(int o)
 */
 bool QTextFormat::hasProperty(int propertyId) const
 {
-    return d ? d->properties().contains(propertyId) : false;
+    return d ? d->hasProperty(propertyId) : false;
 }
 
 /*
@@ -910,7 +962,12 @@ bool QTextFormat::hasProperty(int propertyId) const
 */
 QMap<int, QVariant> QTextFormat::properties() const
 {
-    return d ? d->properties() : QMap<int, QVariant>();
+    QMap<int, QVariant> map;
+    if (d) {
+        for (int i = 0; i < d->props.count(); ++i)
+            map.insert(d->props.at(i).key, d->props.at(i).value);
+    }
+    return map;
 }
 
 
@@ -936,10 +993,10 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
     if (d == rhs.d)
         return true;
 
-    if (d && d->properties().isEmpty() && !rhs.d)
+    if (d && d->props.isEmpty() && !rhs.d)
         return true;
 
-    if (!d && rhs.d && rhs.d->properties().isEmpty())
+    if (!d && rhs.d && rhs.d->props.isEmpty())
         return true;
 
     if (!d || !rhs.d)
