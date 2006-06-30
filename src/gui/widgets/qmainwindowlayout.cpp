@@ -1347,6 +1347,7 @@ QWidgetItem *QMainWindowLayout::unplug(QDockWidget *dockWidget)
     return dockWidgetItem;
 }
 
+#if 0
 static QString dumpSize(const QSize &size)
 {
     return QString::number(size.width()) + 'x' + QString::number(size.height());
@@ -1362,6 +1363,7 @@ static QString dumpInfo(const QDockWidgetLayout &l)
         + " center:" + dumpSize(l.centralWidgetItem->minimumSize())
         + " total:" + dumpSize(l.minimumSize());
 }
+#endif
 
 QList<int> QMainWindowLayout::hover(QWidgetItem *dockWidgetItem, const QPoint &mousePos)
 {
