@@ -28,6 +28,8 @@
 #include "qsystemtrayicon.h"
 #include "private/qobject_p.h"
 
+#ifndef QT_NO_SYSTEMTRAYICON
+
 #include "QtGui/qmenu.h"
 #include "QtGui/qpixmap.h"
 #include "QtCore/qstring.h"
@@ -86,5 +88,6 @@ private:
     int timerId;
 };
 
+#endif // QT_NO_SYSTEMTRAYICON
 #endif // QSYSTEMTRAYICON_P_H
 

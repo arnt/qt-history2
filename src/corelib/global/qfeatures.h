@@ -330,6 +330,11 @@
 #define QT_NO_SXE
 #endif
 
+// QSystemTrayIcon
+#if !defined(QT_NO_SYSTEMTRAYICON) && (defined(QT_NO_ICON))
+#define QT_NO_SYSTEMTRAYICON
+#endif
+
 // Context menu
 #if !defined(QT_NO_CONTEXTMENU) && (defined(QT_NO_MENU))
 #define QT_NO_CONTEXTMENU

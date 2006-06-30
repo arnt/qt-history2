@@ -13,6 +13,8 @@
 
 #include "qsystemtrayicon_p.h"
 
+#ifndef QT_NO_SYSTEMTRAYICON
+
 void QSystemTrayIconPrivate::install()
 {
 }
@@ -49,3 +51,4 @@ void QSystemTrayIconPrivate::showMessage(const QString &message,
     Q_UNUSED(msecs);
 }
 
+#endif // QT_NO_SYSTEMTRAYICON

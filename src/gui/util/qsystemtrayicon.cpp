@@ -14,6 +14,8 @@
 #include "qsystemtrayicon.h"
 #include "qsystemtrayicon_p.h"
 
+#ifndef QT_NO_SYSTEMTRAYICON
+
 #include "qmenu.h"
 #include "qevent.h"
 #include "qpoint.h"
@@ -514,3 +516,5 @@ bool QBalloonTip::eventFilter(QObject *o, QEvent *e)
 }
 
 void qtsystray_sendActivated(QSystemTrayIcon *i, int r) { emit i->activated(r); }
+
+#endif // QT_NO_SYSTEMTRAYICON

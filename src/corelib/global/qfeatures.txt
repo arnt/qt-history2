@@ -894,6 +894,13 @@ Requires:
 Name: QDesktopServices
 SeeAlso: ???
 
+Feature: SYSTEMTRAYICON
+Description: Provides an icon for an application in the system tray.
+Section: Utilities
+Requires: ICON
+Name: QSystemTrayIcon
+SeeAlso: ???
+
 # Qtopia Core
 
 Feature: QWS_SOUNDSERVER
