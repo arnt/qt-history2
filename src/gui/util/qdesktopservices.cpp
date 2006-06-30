@@ -13,6 +13,8 @@
 
 #include "qdesktopservices.h"
 
+#ifndef QT_NO_DESKTOPSERVICES
+
 #include <qdebug.h>
 
 #if defined(Q_WS_QWS)
@@ -223,3 +225,5 @@ void QDesktopServices::unsetUrlHandler(const QString &scheme)
 }
 
 #include "qdesktopservices.moc"
+
+#endif // QT_NO_DESKTOPSERVICES

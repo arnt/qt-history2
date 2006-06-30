@@ -887,6 +887,13 @@ Requires: PROXYMODEL
 Name: QCompleter
 SeeAlso: ???
 
+Feature: DESKTOPSERVICES
+Description: Provides methods for accessing common desktop services.
+Section: Utilities
+Requires:
+Name: QDesktopServices
+SeeAlso: ???
+
 # Qtopia Core
 
 Feature: QWS_SOUNDSERVER

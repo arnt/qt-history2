@@ -32,6 +32,9 @@
 // QCursor
 //#define QT_NO_CURSOR
 
+// QDesktopServices
+//#define QT_NO_DESKTOPSERVICES
+
 // QDirectPainter
 //#define QT_NO_DIRECTPAINTER
 
