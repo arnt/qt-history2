@@ -157,7 +157,7 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 
 Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(const QWidget *w)
 {
-    return (HIViewRef)w->data->winid;
+    return (HIViewRef)w->winId();
 }
 Q_GUI_EXPORT HIViewRef qt_mac_hiview_for(WindowPtr w)
 {
