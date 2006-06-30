@@ -4,9 +4,12 @@ SUBDIRS       = 2dpainting \
                 hellogl \
                 overpainting \
                 pbuffers \
+                pbuffers2 \
+		framebufferobject \
+		framebufferobject2 \
                 samplebuffers \
                 textures
-		
+
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/opengl
