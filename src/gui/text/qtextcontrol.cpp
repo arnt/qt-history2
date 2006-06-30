@@ -415,11 +415,16 @@ void QTextControlPrivate::setContent(Qt::TextFormat format, const QString &text,
         // document.
         cursor = QTextCursor();
         if (format == Qt::PlainText) {
+            QTextCursor formatCursor(doc);
+            // put the setPlainText and the setCharFormat into one edit block,
+            // so that the syntax highlight triggers only /once/ for the entire
+            // document, not twice.
+            formatCursor.beginEditBlock();
             doc->setPlainText(text);
             doc->setUndoRedoEnabled(false);
-            QTextCursor formatCursor(doc);
             formatCursor.select(QTextCursor::Document);
             formatCursor.setCharFormat(charFormatForInsertion);
+            formatCursor.endEditBlock();
         } else {
             doc->setHtml(text);
             doc->setUndoRedoEnabled(false);
