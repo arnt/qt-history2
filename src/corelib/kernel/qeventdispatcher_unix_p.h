@@ -32,8 +32,82 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
+// get time of day
+inline void getTime(timeval &t)
+{
+    gettimeofday(&t, 0);
+    // NTP-related fix
+    while (t.tv_usec >= 1000000l) {
+        t.tv_usec -= 1000000l;
+        ++t.tv_sec;
+    }
+    while (t.tv_usec < 0l) {
+        if (t.tv_sec > 0l) {
+            t.tv_usec += 1000000l;
+            --t.tv_sec;
+        } else {
+            t.tv_usec = 0l;
+            break;
+        }
+    }
+}
+
+// Internal operator functions for timevals
+inline bool operator<(const timeval &t1, const timeval &t2)
+{ return t1.tv_sec < t2.tv_sec || (t1.tv_sec == t2.tv_sec && t1.tv_usec < t2.tv_usec); }
+inline bool operator==(const timeval &t1, const timeval &t2)
+{ return t1.tv_sec == t2.tv_sec && t1.tv_usec == t2.tv_usec; }
+inline timeval &operator+=(timeval &t1, const timeval &t2)
+{
+    t1.tv_sec += t2.tv_sec;
+    if ((t1.tv_usec += t2.tv_usec) >= 1000000l) {
+        ++t1.tv_sec;
+        t1.tv_usec -= 1000000l;
+    }
+    return t1;
+}
+inline timeval operator+(const timeval &t1, const timeval &t2)
+{
+    timeval tmp;
+    tmp.tv_sec = t1.tv_sec + t2.tv_sec;
+    if ((tmp.tv_usec = t1.tv_usec + t2.tv_usec) >= 1000000l) {
+        ++tmp.tv_sec;
+        tmp.tv_usec -= 1000000l;
+    }
+    return tmp;
+}
+inline timeval operator-(const timeval &t1, const timeval &t2)
+{
+    timeval tmp;
+    tmp.tv_sec = t1.tv_sec - t2.tv_sec;
+    if ((tmp.tv_usec = t1.tv_usec - t2.tv_usec) < 0l) {
+        --tmp.tv_sec;
+        tmp.tv_usec += 1000000l;
+    }
+    return tmp;
+}
+
 // internal timer info
-struct QTimerInfo;
+struct QTimerInfo {
+    int id;           // - timer identifier
+    timeval interval; // - timer interval
+    timeval timeout;  // - when to sent event
+    QObject *obj;     // - object to receive event
+};
+
+class QTimerInfoList : public QList<QTimerInfo*>
+{
+
+public:
+    QTimerInfoList();
+
+    timeval watchtime;
+    void updateWatchTime(const timeval &currentTime);
+
+    bool timerWait(timeval &);
+    void timerInsert(QTimerInfo *);
+    void timerRepair(const timeval &);
+};
 
 struct Q_CORE_EXPORT QSockNot
 {
@@ -107,18 +181,12 @@ public:
     bool mainThread;
     int thread_pipe[2];
 
-    // watch if time is turned back
-    timeval watchtime;
-
     // highest fd for all socket notifiers
     int sn_highest;
     // 3 socket notifier types - read, write and exception
     QSockNotType sn_vec[3];
 
-    QList<QTimerInfo*> timerList;
-    bool timerWait(timeval &);
-    void timerInsert(QTimerInfo *);
-    void timerRepair(const timeval &);
+    QTimerInfoList timerList;
 
     // pending socket notifiers list
     QList<QSockNot*> sn_pending_list;

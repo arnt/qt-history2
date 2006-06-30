@@ -72,8 +72,8 @@ public:
     QEventDispatcherGlibPrivate();
     GMainContext *mainContext;
     GPostEventSource *postEventSource;
-    QHash<QSocketNotifier *, GSocketNotifierSource *> socketNotifierSources;
-    QList<GTimerSource *> timerSources;
+    GSocketNotifierSource *socketNotifierSource;
+    GTimerSource *timerSource;
 };
 
 #endif // QEVENTDISPATCHER_GLIB_P_H

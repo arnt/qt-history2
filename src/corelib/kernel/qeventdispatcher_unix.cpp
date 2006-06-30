@@ -27,71 +27,6 @@
 
 Q_CORE_EXPORT bool qt_disable_lowpriority_timers=false;
 
-// Internal operator functions for timevals
-static inline bool operator<(const timeval &t1, const timeval &t2)
-{ return t1.tv_sec < t2.tv_sec || (t1.tv_sec == t2.tv_sec && t1.tv_usec < t2.tv_usec); }
-static inline bool operator==(const timeval &t1, const timeval &t2)
-{ return t1.tv_sec == t2.tv_sec && t1.tv_usec == t2.tv_usec; }
-static inline timeval &operator+=(timeval &t1, const timeval &t2)
-{
-    t1.tv_sec += t2.tv_sec;
-    if ((t1.tv_usec += t2.tv_usec) >= 1000000l) {
-        ++t1.tv_sec;
-        t1.tv_usec -= 1000000l;
-    }
-    return t1;
-}
-static inline timeval operator+(const timeval &t1, const timeval &t2)
-{
-    timeval tmp;
-    tmp.tv_sec = t1.tv_sec + t2.tv_sec;
-    if ((tmp.tv_usec = t1.tv_usec + t2.tv_usec) >= 1000000l) {
-        ++tmp.tv_sec;
-        tmp.tv_usec -= 1000000l;
-    }
-    return tmp;
-}
-static inline timeval operator-(const timeval &t1, const timeval &t2)
-{
-    timeval tmp;
-    tmp.tv_sec = t1.tv_sec - t2.tv_sec;
-    if ((tmp.tv_usec = t1.tv_usec - t2.tv_usec) < 0l) {
-        --tmp.tv_sec;
-        tmp.tv_usec += 1000000l;
-    }
-    return tmp;
-}
-
-// get time of day
-static inline void getTime(timeval &t)
-{
-    gettimeofday(&t, 0);
-    // NTP-related fix
-    while (t.tv_usec >= 1000000l) {
-        t.tv_usec -= 1000000l;
-        ++t.tv_sec;
-    }
-    while (t.tv_usec < 0l) {
-        if (t.tv_sec > 0l) {
-            t.tv_usec += 1000000l;
-            --t.tv_sec;
-        } else {
-            t.tv_usec = 0l;
-            break;
-        }
-    }
-}
-
-struct QTimerInfo {
-    int id;           // - timer identifier
-    timeval interval; // - timer interval
-    timeval timeout;  // - when to sent event
-    QObject *obj;     // - object to receive event
-};
-
-
-
-
 /*****************************************************************************
  UNIX signal handling
  *****************************************************************************/
@@ -123,8 +58,6 @@ QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
     sn_highest = -1;
 
     interrupt = false;
-
-    getTime(watchtime);
 }
 
 QEventDispatcherUNIXPrivate::~QEventDispatcherUNIXPrivate()
@@ -263,22 +196,36 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
  * timerBitVec array is used for keeping track of timer identifiers.
  */
 
+QTimerInfoList::QTimerInfoList()
+{
+    getTime(watchtime);
+}
+
+
+void QTimerInfoList::updateWatchTime(const timeval &currentTime)
+{
+    if (currentTime < watchtime)        // clock was turned back
+        timerRepair(watchtime - currentTime);
+    watchtime = currentTime;
+}
+
 /*
   insert timer info into list
-*/ void QEventDispatcherUNIXPrivate::timerInsert(QTimerInfo *ti)
+*/
+void QTimerInfoList::timerInsert(QTimerInfo *ti)
 {
     int index = 0;
 #if defined(QT_DEBUG)
     int dangerCount = 0;
 #endif
-    for (; index < timerList.size(); ++index) {
-        register const QTimerInfo * const t = timerList.at(index);
+    for (; index < size(); ++index) {
+        register const QTimerInfo * const t = at(index);
 #if defined(QT_DEBUG)
         if (t->obj == ti->obj) ++dangerCount;
 #endif
         if (ti->timeout < t->timeout) break;
     }
-    timerList.insert(index, ti);
+    insert(index, ti);
 
 #if defined(QT_DEBUG)
     if (dangerCount > 16)
@@ -291,12 +238,11 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
 /*
   repair broken timer
 */
-void QEventDispatcherUNIXPrivate::timerRepair(const timeval &time)
+void QTimerInfoList::timerRepair(const timeval &diff)
 {
-    timeval diff = watchtime - time;
     // repair all timers
-    for (int i = 0; i < timerList.size(); ++i) {
-        register QTimerInfo *t = timerList.at(i);
+    for (int i = 0; i < size(); ++i) {
+        register QTimerInfo *t = at(i);
         t->timeout = t->timeout - diff;
     }
 }
@@ -305,18 +251,16 @@ void QEventDispatcherUNIXPrivate::timerRepair(const timeval &time)
   Returns the time to wait for the next timer, or null if no timers
   are waiting.
 */
-bool QEventDispatcherUNIXPrivate::timerWait(timeval &tm)
+bool QTimerInfoList::timerWait(timeval &tm)
 {
     timeval currentTime;
     getTime(currentTime);
-    if (currentTime < watchtime)        // clock was turned back
-        timerRepair(currentTime);
-    watchtime = currentTime;
+    updateWatchTime(currentTime);
 
-    if (timerList.isEmpty())
+    if (isEmpty())
         return false;
 
-    QTimerInfo *t = timerList.first();        // first waiting timer
+    QTimerInfo *t = first();        // first waiting timer
     if (currentTime < t->timeout) {
         // time to wait
         tm = t->timeout - currentTime;
@@ -347,7 +291,7 @@ int QEventDispatcherUNIX::select(int nfds, fd_set *readfds, fd_set *writefds, fd
     if (timeout) {
         // handle the case where select returns with a timeout, too
         // soon.
-        timeval tvStart = d->watchtime;
+        timeval tvStart = d->timerList.watchtime;
         timeval tvCurrent = tvStart;
         timeval originalTimeout = *timeout;
 
@@ -387,7 +331,7 @@ void QEventDispatcherUNIX::registerTimer(int timerId, int interval, QObject *obj
     t->obj = obj;
 
     Q_D(QEventDispatcherUNIX);
-    d->timerInsert(t);                                // put timer in list
+    d->timerList.timerInsert(t);                                // put timer in list
 }
 
 /*!
@@ -630,11 +574,8 @@ int QEventDispatcherUNIX::activateTimers()
     while (maxCount--) {
         getTime(currentTime);
         if (first) {
-            if (currentTime < d->watchtime)
-                d->timerRepair(currentTime); // clock was turned back
-
+            d->timerList.updateWatchTime(currentTime);
             first = false;
-            d->watchtime = currentTime;
         }
 
         if (d->timerList.isEmpty()) break;
@@ -658,7 +599,7 @@ int QEventDispatcherUNIX::activateTimers()
             t->timeout = currentTime + t->interval;
 
         // reinsert timer
-        d->timerInsert(t);
+        d->timerList.timerInsert(t);
         if (t->interval.tv_usec > 0 || t->interval.tv_sec > 0)
             n_act++;
 
@@ -735,7 +676,7 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
         timeval *tm = 0;
         timeval wait_tm = { 0l, 0l };
         if (!(flags & QEventLoop::X11ExcludeTimers)) {
-            if (d->timerWait(wait_tm))
+            if (d->timerList.timerWait(wait_tm))
                 tm = &wait_tm;
 
             if (!canWait) {
