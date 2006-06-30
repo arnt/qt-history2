@@ -722,7 +722,7 @@ QString QUndoStack::redoText() const
 
 QAction *QUndoStack::createUndoAction(QObject *parent, const QString &prefix) const
 {
-    QString pref = prefix.isEmpty() ? tr("Redo") : prefix;
+    QString pref = prefix.isEmpty() ? tr("Undo") : prefix;
     QUndoAction *result = new QUndoAction(pref, parent);
     result->setEnabled(canUndo());
     result->setPrefixedText(undoText());

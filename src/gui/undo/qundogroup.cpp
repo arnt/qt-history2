@@ -334,7 +334,7 @@ bool QUndoGroup::isClean() const
 
 QAction *QUndoGroup::createUndoAction(QObject *parent, const QString &prefix) const
 {
-    QString pref = prefix.isEmpty() ? tr("Redo") : prefix;
+    QString pref = prefix.isEmpty() ? tr("Undo") : prefix;
     QUndoAction *result = new QUndoAction(pref, parent);
     result->setEnabled(canUndo());
     result->setPrefixedText(undoText());
