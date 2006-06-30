@@ -1817,7 +1817,9 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
     lookInCombo->setInsertPolicy(QComboBox::NoInsert);
     lookInCombo->setDuplicatesEnabled(false);
     lookInCombo->setEditable(true);
+#ifndef QT_NO_COMPLETER
     lookInCombo->setAutoCompletion(false);
+#endif
     QObject::connect(lookInCombo, SIGNAL(activated(QString)), q, SLOT(_q_enterDirectory(QString)));
     lookInEdit = new QFileDialogLineEdit(lookInCombo);
     QObject::connect(lookInEdit, SIGNAL(textChanged(QString)),

@@ -67,11 +67,13 @@ public:
     void setMaxCount(int max);
     int maxCount() const;
 
+#ifndef QT_NO_COMPLETER
     bool autoCompletion() const;
     void setAutoCompletion(bool enable);
 
     Qt::CaseSensitivity autoCompletionCaseSensitivity() const;
     void setAutoCompletionCaseSensitivity(Qt::CaseSensitivity sensitivity);
+#endif
 
     bool duplicatesEnabled() const;
     void setDuplicatesEnabled(bool enable);

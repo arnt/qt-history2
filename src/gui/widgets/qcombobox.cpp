@@ -1307,7 +1307,9 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     d->lineEdit->setFrame(false);
     d->lineEdit->setContextMenuPolicy(Qt::NoContextMenu);
     d->lineEdit->setFocusProxy(this);
+#ifndef QT_NO_COMPLETER
     setAutoCompletion(d->autoCompletion);
+#endif
     setAttribute(Qt::WA_InputMethodEnabled);
     d->updateLineEditGeometry();
 
