@@ -27,6 +27,9 @@
 //
 
 #include "private/qobject_p.h"
+
+#ifndef QT_NO_COMPLETER
+
 #include "QtGui/qtreeview.h"
 #include "QtGui/qabstractproxymodel.h"
 #include "qcompleter.h"
@@ -203,4 +206,5 @@ public Q_SLOTS:
     void modelDestroyed();
 };
 
+#endif // QT_NO_COMPLETER
 #endif // QCOMPLETER_P_H

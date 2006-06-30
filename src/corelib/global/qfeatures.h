@@ -83,9 +83,6 @@
 // QMessageBox
 //#define QT_NO_MESSAGEBOX
 
-// QMessageBoxEx
-//#define QT_NO_MESSAGEBOXEX
-
 // QMovie
 //#define QT_NO_MOVIE
 
@@ -315,7 +312,7 @@
 #define QT_NO_STYLE_CDE
 #endif
 
-// QCleanlooksStyle
+// QCleanLooksStyle
 #if !defined(QT_NO_STYLE_CLEANLOOKS) && (defined(QT_NO_STYLE_WINDOWS))
 #define QT_NO_STYLE_CLEANLOOKS
 #endif
@@ -488,6 +485,11 @@
 // QColorDialog
 #if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_SPINBOX))
 #define QT_NO_COLORDIALOG
+#endif
+
+// QCompleter
+#if !defined(QT_NO_COMPLETER) && (defined(QT_NO_PROXYMODEL))
+#define QT_NO_COMPLETER
 #endif
 
 // QDateTimeEdit

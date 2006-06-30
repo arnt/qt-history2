@@ -878,6 +878,15 @@ Requires:
 Name: QCopChannel
 SeeAlso: ???
 
+# Utilities
+
+Feature: COMPLETER
+Description: Provides completions based on an item model.
+Section: Utilities
+Requires: PROXYMODEL
+Name: QCompleter
+SeeAlso: ???
+
 # Qtopia Core
 
 Feature: QWS_SOUNDSERVER

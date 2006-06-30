@@ -24,6 +24,8 @@ QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
 
+#ifndef QT_NO_COMPLETER
+
 class QCompleterPrivate;
 class QAbstractItemView;
 class QAbstractProxyModel;
@@ -38,7 +40,7 @@ class Q_GUI_EXPORT QCompleter : public QObject
     Q_PROPERTY(int completionColumn READ completionColumn WRITE setCompletionColumn)
     Q_PROPERTY(int completionRole READ completionRole WRITE setCompletionRole)
     Q_PROPERTY(Qt::CaseSensitivity caseSensitivity READ caseSensitivity WRITE setCaseSensitivity)
-    
+
 public:
     enum CompletionMode {
         PopupCompletion,
@@ -65,7 +67,7 @@ public:
 
     void setCompletionMode(CompletionMode mode);
     CompletionMode completionMode() const;
-    
+
     QAbstractItemView *popup() const;
     void setPopup(QAbstractItemView *popup);
 
@@ -113,10 +115,12 @@ Q_SIGNALS:
 private:
     Q_DISABLE_COPY(QCompleter)
     Q_DECLARE_PRIVATE(QCompleter)
-    
+
     Q_PRIVATE_SLOT(d_func(), void _q_complete(QModelIndex))
     Q_PRIVATE_SLOT(d_func(), void _q_completionSelected(const QItemSelection&))
 };
+
+#endif // QT_NO_COMPLETER
 
 QT_END_HEADER
 

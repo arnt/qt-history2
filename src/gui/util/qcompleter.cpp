@@ -115,6 +115,9 @@
 */
 
 #include "qcompleter_p.h"
+
+#ifndef QT_NO_COMPLETER
+
 #include "QtGui/qscrollbar.h"
 #include "QtGui/qstringlistmodel.h"
 #include "QtGui/qdirmodel.h"
@@ -829,10 +832,10 @@ QWidget *QCompleter::widget() const
 
 /*!
     Sets the model which provides completions to \a model. The \a model can
-    be list model or a tree model. If a model has been already previously set 
+    be list model or a tree model. If a model has been already previously set
     and it has the QCompleter as its parent, it is deleted.
 
-    For convenience, if \a model is a QDirModel, QCompleter switches its 
+    For convenience, if \a model is a QDirModel, QCompleter switches its
     caseSensitivity to Qt::CaseInsensitive on Windows and Qt::CaseSensitive
     on other platforms.
 
@@ -1443,3 +1446,5 @@ QStringList QCompleter::splitPath(const QString& path) const
 */
 
 #include "moc_qcompleter.cpp"
+
+#endif // QT_NO_COMPLETER
