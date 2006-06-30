@@ -64,6 +64,7 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent)
     {
         QMacBlockingFunction block;
         QWidget modal_widg(parent, Qt::Sheet);
+        modal_widg.createWinId();
         QApplicationPrivate::enterModal(&modal_widg);
         rval = GetColor(place, title, &rgb, &rgbout);
         QApplicationPrivate::leaveModal(&modal_widg);
