@@ -1143,18 +1143,19 @@ void QWSDisplay::requestRegion(int winId, const QString &surfaceKey,
                                             surfaceData, region);
     } else {
         const QByteArray keyData = surfaceKey.toUtf8();
-        QVector<QRect> ra = region.rects();
+        const QVector<QRect> ra = region.rects();
         QWSRegionCommand cmd;
+
         cmd.simpleData.windowid = winId;
         cmd.simpleData.surfacekeylength = keyData.size();
         cmd.simpleData.surfacedatalength = surfaceData.size();
         cmd.simpleData.nrectangles = ra.count();
 
         QByteArray data;
-        data.append(keyData);
-        data.append(surfaceData);
         data.append(QByteArray(reinterpret_cast<const char*>(ra.constData()),
                                ra.count() * sizeof(QRect)));
+        data.append(keyData);
+        data.append(surfaceData);
         cmd.setData(data.constData(), data.size(), false);
 
         d->sendSynchronousCommand(cmd);

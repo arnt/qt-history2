@@ -36,6 +36,7 @@
 #include <QtGui/qfont.h>
 #include <QtCore/qdatastream.h>
 #include <QtCore/qvariant.h>
+#include <QtCore/qrect.h>
 #include "qwsprotocolitem_qws.h"
 #include "qwsmemid_qws.h"
 
@@ -203,13 +204,15 @@ struct QWSRegionCommand : public QWSCommand
     void setData(const char *d, int len, bool allocateMem = true) {
         QWSCommand::setData(d, len, allocateMem);
         char *ptr = rawDataPtr;
+
+        rectangles = reinterpret_cast<QRect*>(ptr);
 #ifdef QT_WINDOW_SURFACE
+        ptr += simpleData.nrectangles * sizeof(QRect);
         surfaceKey = ptr;
         ptr += simpleData.surfacekeylength;
         surfaceData = ptr;
         ptr += simpleData.surfacedatalength;
 #endif
-        rectangles = reinterpret_cast<QRect*>(ptr);
     }
 
     /* XXX this will pad out in a compiler dependent way,
