@@ -324,7 +324,8 @@ public:
 #ifndef QT_NO_CAST_FROM_ASCII
     inline QT_ASCII_CAST_WARN_CONSTRUCTOR QString(const char *ch) : d(fromAscii_helper(ch))
     {}
-    inline QT_ASCII_CAST_WARN_CONSTRUCTOR QString(const QByteArray &a) : d(fromAscii_helper(a.constData()))
+    inline QT_ASCII_CAST_WARN_CONSTRUCTOR QString(const QByteArray &a)
+        : d(fromAscii_helper(a.constData(), a.size()))
     {}
     inline QT_ASCII_CAST_WARN QString &operator=(const char *ch)
     { return (*this = fromAscii(ch)); }
