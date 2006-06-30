@@ -111,8 +111,9 @@ void QFontFamilyDelegate::paint(QPainter *painter,
     if (option.state & QStyle::State_Selected) {
         painter->save();
         painter->setBrush(option.palette.highlight());
-        painter->setPen(QPen(option.palette.highlightedText(), 0));
+        painter->setPen(Qt::NoPen);
         painter->drawRect(option.rect);
+        painter->setPen(QPen(option.palette.highlightedText(), 0));
     }
 
     const QIcon *icon = &bitmap;
