@@ -122,7 +122,10 @@ void QFontFamilyDelegate::paint(QPainter *painter,
     QSize actualSize = icon->actualSize(r.size());
 
     icon->paint(painter, r, Qt::AlignLeft|Qt::AlignVCenter);
-    r.setLeft(r.left() + actualSize.width() + 4);
+    if (option.direction == Qt::RightToLeft)
+        r.setRight(r.right() - actualSize.width() - 4);
+    else
+        r.setLeft(r.left() + actualSize.width() + 4);
 
     QFont old = painter->font();
     painter->setFont(font);
@@ -135,7 +138,10 @@ void QFontFamilyDelegate::paint(QPainter *painter,
         int w = painter->fontMetrics().width(text + QLatin1String("  "));
         painter->setFont(font2);
         QString sample = QFontDatabase().writingSystemSample(system);
-        r.setLeft(r.left() + w);
+        if (option.direction == Qt::RightToLeft)
+            r.setRight(r.right() - w);
+        else
+            r.setLeft(r.left() + w);
         painter->drawText(r, Qt::AlignVCenter|Qt::AlignLeading|Qt::TextSingleLine, sample);
     }
     painter->setFont(old);
@@ -195,7 +201,7 @@ void QFontComboBoxPrivate::_q_updateModel()
                     continue;
             }
             if ((filters & spacingMask) && (filters & spacingMask) != spacingMask) {
-                if (bool(filters & QFontComboBox::MonospacedFonts) != fdb.isFixedPitch(list.at(i))) 
+                if (bool(filters & QFontComboBox::MonospacedFonts) != fdb.isFixedPitch(list.at(i)))
                     continue;
             }
             result += list.at(i);
@@ -313,7 +319,7 @@ QFontDatabase::WritingSystem QFontComboBox::writingSystem() const
   \enum QFontComboBox::FontFilter
 
   This enum can be used to only shopw certain types of fonts in the font combo box.
-  
+
   \value AllFonts
   \value ScalableFonts Only show scalable fonts
   \value NonScalableFonts Only show non scalable fonts
