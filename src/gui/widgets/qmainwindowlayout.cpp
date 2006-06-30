@@ -187,10 +187,8 @@ QMainWindowLayout::QMainWindowLayout(QMainWindow *mainwindow)
     setObjectName(mainwindow->objectName() + QLatin1String("_layout"));
 
     widgetAnimator = dockWidgetLayout.widgetAnimator;
-    dockWidgetLayout.corners[Qt::TopLeftCorner]     = Qt::TopDockWidgetArea;
-    dockWidgetLayout.corners[Qt::TopRightCorner]    = Qt::TopDockWidgetArea;
-    dockWidgetLayout.corners[Qt::BottomLeftCorner]  = Qt::BottomDockWidgetArea;
-    dockWidgetLayout.corners[Qt::BottomRightCorner] = Qt::BottomDockWidgetArea;
+#else
+    centralWidgetItem = 0;
 #endif
 }
 
@@ -207,6 +205,8 @@ QMainWindowLayout::~QMainWindowLayout()
 
 #ifndef QT_NO_DOCKWIDGET
     dockWidgetLayout.deleteAllLayoutItems();
+#else
+    delete centralWidgetItem;
 #endif
 
     delete statusbar;
@@ -228,21 +228,31 @@ void QMainWindowLayout::setStatusBar(QStatusBar *sb)
 
 QWidget *QMainWindowLayout::centralWidget() const
 {
+    QLayoutItem *item = 0;
 #ifndef QT_NO_DOCKWIDGET
-    return dockWidgetLayout.centralWidgetItem ? dockWidgetLayout.centralWidgetItem->widget() : 0;
+    item = dockWidgetLayout.centralWidgetItem;
 #else
-    return 0;
+    item = centralWidgetItem;
 #endif
+    return item == 0 ? 0 : centralWidgetItem->widget();
 }
 
 void QMainWindowLayout::setCentralWidget(QWidget *cw)
 {
-    if (cw)
+    QWidgetItem *item = 0;
+    if (cw != 0) {
         addChildWidget(cw);
+        item = new QWidgetItem(cw);
+    }
+
 #ifndef QT_NO_DOCKWIDGET
     delete dockWidgetLayout.centralWidgetItem;
-    dockWidgetLayout.centralWidgetItem = cw ? new QWidgetItem(cw) : 0;
+    dockWidgetLayout.centralWidgetItem = item;
+#else
+    delete centralWidgetItem;
+    centralWidgetItem = item;
 #endif
+
     invalidate();
 }
 
@@ -469,8 +479,6 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
 #ifndef QT_NO_DOCKWIDGET
     // save dockwidget state
     dockWidgetLayout.saveState(stream);
-
-    stream << dockWidgetLayout.centralWidgetRect.size();
 #endif // QT_NO_DOCKWIDGET
 }
 
@@ -667,6 +675,9 @@ QLayoutItem *QMainWindowLayout::itemAt(int index) const
         VDEBUG() << "END of itemAt(), found QDockWidget item" << ret;
         return ret;
     }
+#else
+    if (centralWidgetItem != 0 && x++ == index)
+        return centralWidgetItem;
 #endif
 
     if (statusbar && x++ == index) {
@@ -702,6 +713,12 @@ QLayoutItem *QMainWindowLayout::takeAt(int index)
 #ifndef QT_NO_DOCKWIDGET
     if (QLayoutItem *ret = dockWidgetLayout.takeAt(&x, index)) {
         VDEBUG() << "END of itemAt(), removed QDockWidget item" << ret;
+        return ret;
+    }
+#else
+    if (centralWidgetItem != 0 && x++ == index) {
+        QLayoutItem *ret = centralWidgetItem;
+        centralWidgetItem = 0;
         return ret;
     }
 #endif
@@ -1164,6 +1181,9 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     dockWidgetLayout.fitLayout();
     applyDockWidgetLayout(dockWidgetLayout, savedDockWidgetLayout.isValid());
 //    dump(qDebug() << "QMainWindowLayout::setGeometry()", dockWidgetLayout);
+#else
+    if (centralWidgetItem != 0)
+        centralWidgetItem->setGeometry(r);
 #endif
 }
 
@@ -1212,12 +1232,16 @@ QSize QMainWindowLayout::sizeHint() const
         }
 #endif // QT_NO_TOOLBAR
 
+        QSize szDW(0, 0);
 #ifndef QT_NO_DOCKWIDGET
-        const QSize szDW = dockWidgetLayout.sizeHint();
+        szDW = dockWidgetLayout.sizeHint();
+#else
+        if (centralWidgetItem != 0)
+            szDW = centralWidgetItem->sizeHint();
+#endif
         const QSize szSB = statusbar ? statusbar->sizeHint() : QSize(0, 0);
         szHint = QSize(qMax(szSB.width(), szDW.width() + left + right),
                        szSB.height() + szDW.height() + top + bottom);
-#endif
     }
     return szHint;
 }
@@ -1264,12 +1288,16 @@ QSize QMainWindowLayout::minimumSize() const
         }
 #endif // QT_NO_TOOLBAR
 
+        QSize szDW;
 #ifndef QT_NO_DOCKWIDGET
-        const QSize szDW = dockWidgetLayout.minimumSize();
+        szDW = dockWidgetLayout.minimumSize();
+#else
+        if (centralWidgetItem != 0)
+            szDW = centralWidgetItem->minimumSize();
+#endif
         const QSize szSB = statusbar ? statusbar->minimumSize() : QSize(0, 0);
         minSize =  QSize(qMax(szSB.width(), szDW.width() + left + right),
                          szSB.height() + szDW.height() + top + bottom);
-#endif
     }
     return minSize;
 }

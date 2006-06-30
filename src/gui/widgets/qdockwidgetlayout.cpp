@@ -1287,6 +1287,7 @@ void QDockWidgetLayout::saveState(QDataStream &stream) const
         docks[i].saveState(stream);
     }
 
+    stream << centralWidgetRect.size();
 }
 
 bool QDockWidgetLayout::restoreState(QDataStream &stream, const QList<QDockWidget*> &dockwidgets)
@@ -1313,7 +1314,7 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream, const QList<QDockWidge
     stream >> size;
     centralWidgetRect = QRect(QPoint(0, 0), size);
 
-    return true;
+    return stream.status() == QDataStream::Ok;
 }
 
 QList<int> QDockWidgetLayout::indexOf(QDockWidget *dockWidget, IndexOfFlag flag) const

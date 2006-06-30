@@ -133,6 +133,9 @@ private slots:
     void allAnimationsFinished();
     void doSeparatorMove();
 public:
+#else
+    QLayoutItem *centralWidgetItem; // a window compiled with QT_NO_TOOLBAR still needs
+                                    // a centralWidget
 #endif
 
 #ifndef QT_NO_TOOLBAR
