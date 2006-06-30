@@ -171,6 +171,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
     dictionary[ "STYLE_WINDOWSXP" ] = "auto";
     dictionary[ "STYLE_PLASTIQUE" ] = "yes";
+    dictionary[ "STYLE_CLEANLOOKS" ] = "yes";
     dictionary[ "STYLE_POCKETPC" ]  = "no";
     dictionary[ "STYLE_MOTIF" ]     = "yes";
     dictionary[ "STYLE_CDE" ]	    = "yes";
@@ -372,6 +373,11 @@ void Configure::parseCmdLine()
 	    dictionary[ "STYLE_PLASTIQUE" ] = "yes";
 	else if( configCmdLine.at(i) == "-no-style-plastique" )
 	    dictionary[ "STYLE_PLASTIQUE" ] = "no";
+
+        else if( configCmdLine.at(i) == "-qt-style-cleanlooks" )
+	    dictionary[ "STYLE_CLEANLOOKS" ] = "yes";
+	else if( configCmdLine.at(i) == "-no-style-cleanlooks" )
+	    dictionary[ "STYLE_CLEANLOOKS" ] = "no";
 
 	else if( configCmdLine.at(i) == "-qt-style-motif" )
 	    dictionary[ "STYLE_MOTIF" ] = "yes";
@@ -989,6 +995,7 @@ bool Configure::displayHelp()
         desc("STYLE_WINDOWS", "yes", "",                "  windows", ' ');
         desc("STYLE_WINDOWSXP", "auto", "",             "  windowsxp", ' ');
         desc("STYLE_PLASTIQUE", "yes", "",              "  plastique", ' ');
+        desc("STYLE_CLEANLOOKS", "yes", "",             "  cleanlooks", ' ');
         desc("STYLE_MOTIF", "yes", "",                  "  motif", ' ');
         desc("STYLE_CDE", "yes", "",                    "  cde\n", ' ');
 
@@ -1269,6 +1276,9 @@ void Configure::generateOutputVars()
     if ( dictionary[ "STYLE_PLASTIQUE" ] == "yes" )
 	qmakeStyles += "plastique";
 
+    if ( dictionary[ "STYLE_CLEANLOOKS" ] == "yes" )
+	qmakeStyles += "cleanlooks";
+
     if ( dictionary[ "STYLE_WINDOWSXP" ] == "yes" )
 	qmakeStyles += "windowsxp";
 
@@ -1480,7 +1490,7 @@ void Configure::generateCachefile()
             configStream << "QT_EDITION = " << QLatin1String("OpenSource");
         else
             configStream << "QT_EDITION = " << dictionary["EDITION"];
-        
+
         configStream.flush();
 	configFile.close();
     }
@@ -1579,6 +1589,7 @@ void Configure::generateConfigfiles()
         if(dictionary["STL"] == "no")                qconfigList += "QT_NO_STL";
         if(dictionary["STYLE_WINDOWS"] != "yes")     qconfigList += "QT_NO_STYLE_WINDOWS";
         if(dictionary["STYLE_PLASTIQUE"] != "yes")   qconfigList += "QT_NO_STYLE_PLASTIQUE";
+        if(dictionary["STYLE_CLEANLOOKS"] != "yes")   qconfigList += "QT_NO_STYLE_CLEANLOOKS";
 	if(dictionary["STYLE_WINDOWSXP"] != "yes")   qconfigList += "QT_NO_STYLE_WINDOWSXP";
 	if(dictionary["STYLE_MOTIF"] != "yes")       qconfigList += "QT_NO_STYLE_MOTIF";
 	if(dictionary["STYLE_CDE"] != "yes")         qconfigList += "QT_NO_STYLE_CDE";
@@ -1770,6 +1781,7 @@ void Configure::displayConfig()
     cout << "    Windows................." << dictionary[ "STYLE_WINDOWS" ] << endl;
     cout << "    Windows XP.............." << dictionary[ "STYLE_WINDOWSXP" ] << endl;
     cout << "    Plastique..............." << dictionary[ "STYLE_PLASTIQUE" ] << endl;
+    cout << "    Cleanlooks.............." << dictionary[ "STYLE_CLEANLOOKS" ] << endl;
     cout << "    Motif..................." << dictionary[ "STYLE_MOTIF" ] << endl;
     cout << "    CDE....................." << dictionary[ "STYLE_CDE" ] << endl << endl;
     // Only show the PocketPC style option for CE users
