@@ -248,6 +248,8 @@ QWindowSurface *qt_default_window_surface(QWidget *widget)
     Q_UNUSED(widget);
     return new QX11WindowSurface();
 #elif defined(Q_WS_QWS)
+    if (widget->windowType() == Qt::Desktop)
+        return 0;
     return qt_screen->createSurface(widget);
 #else
     Q_UNUSED(widget);
@@ -865,7 +867,8 @@ void QWidgetBackingStore::cleanRegion(const QRegion &rgn, QWidget *widget, bool 
 void QWidgetBackingStore::releaseBuffer()
 {
 #ifdef QT_WINDOW_SURFACE
-    windowSurface->release();
+    if (windowSurface)
+        windowSurface->release();
 #else
     buffer.detach();
     QWidget::qwsDisplay()->requestRegion(tlw->data->winid, 0, buffer.windowType(), QRegion(0), QImage::Format_Invalid);
