@@ -64,12 +64,6 @@ GLWidget::~GLWidget()
 
 void GLWidget::initializeGL()
 {
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    glFrustum(-1, 1, -1, 1, 10, 100);
-    glTranslatef(-0.5f, -0.5f, -0.5f);
-    glTranslatef(0.0f, 0.0f, -15.0f);
     glMatrixMode(GL_MODELVIEW);
 
     glEnable(GL_CULL_FACE);
@@ -132,6 +126,12 @@ void GLWidget::initializeGL()
 void GLWidget::resizeGL(int w, int h)
 {
     glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    float aspect = w/(float)(h ? h : 1);
+    glFrustum(-aspect, aspect, -1, 1, 10, 100);
+    glTranslatef(-0.5f, -0.5f, -0.5f);
+    glTranslatef(0.0f, 0.0f, -15.0f);
 }
 
 void GLWidget::paintGL()
@@ -189,12 +189,12 @@ void GLWidget::paintGL()
 
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
 
     // draw the bouncing cubes
     drawCube(0, 0.0f, 1.5f, 2.5f, 1.5f);
     drawCube(1, 1.0f, 2.0f, 2.5f, 2.0f);
     drawCube(2, 2.0f, 3.5f, 2.5f, 2.5f);
+    glPopMatrix();
 }
 
 void GLWidget::drawCube(int i, GLfloat z, GLfloat rotation, GLfloat jmp, GLfloat amp)
