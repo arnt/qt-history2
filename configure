@@ -4438,7 +4438,7 @@ else
 fi
 
 echo '/* Machine Architecture */' >>"$outpath/src/corelib/global/qconfig.h.new"
-ARCH_STR=`echo $ARCH | tr '[:lower:]' '[:upper:]'`
+ARCH_STR=`echo $ARCH | tr 'a-z' 'A-Z'`
 echo "#define QT_ARCH_${ARCH_STR}" >>"$outpath/src/corelib/global/qconfig.h.new"
 
 echo '/* Compile time features */' >>"$outpath/src/corelib/global/qconfig.h.new"
