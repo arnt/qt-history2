@@ -22,9 +22,11 @@
 
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
-#include <linux/types.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+#if defined(QT_NO_INOTIFY)
+#include <linux/types.h>
 
 #if defined(__i386__)
 # define __NR_inotify_init      291
@@ -151,6 +153,10 @@ struct inotify_event {
 }
 
 // --------- inotify.h end ----------
+
+#else /* QT_NO_INOTIFY */
+#include <sys/inotify.h>
+#endif
 
 QInotifyFileSystemWatcherEngine *QInotifyFileSystemWatcherEngine::create()
 {

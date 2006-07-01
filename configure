@@ -516,6 +516,7 @@ CFG_IWMMXT=no
 CFG_GETADDRINFO=auto
 CFG_IPV6IFNAME=auto
 CFG_GETIFADDRS=auto
+CFG_INOTIFY=auto
 CFG_RPATH=yes
 CFG_FRAMEWORK=auto
 CFG_UNIVERSAL_BINARY=auto
@@ -3882,6 +3883,23 @@ if [ "$CFG_GETADDRINFO" != "no" ]; then
     fi
 fi
 
+# find if the platform provides inotify
+if [ "$CFG_INOTIFY" != "no" ]; then
+    if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/inotify "inotify" $L_FLAGS $I_FLAGS $l_FLAGS; then
+        CFG_INOTIFY=yes
+    else
+	if [ "$CFG_INOTIFY" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+            echo "inotify support cannot be enabled due to functionality tests!"
+            echo " Turn on verbose messaging (-v) to $0 to see the final report."
+            echo " If you believe this message is in error you may use the continue"
+            echo " switch (-continue) to $0 to continue."
+            exit 101
+	else
+	    CFG_INOTIFY=no
+	fi
+    fi
+fi
+
 # find if the platform provides if_nametoindex (ipv6 interface name support)
 if [ "$CFG_IPV6IFNAME" != "no" ]; then
     if "$unixtests/compile.test" "$XQMAKESPEC" $OPT_VERBOSE "$relpath" "$outpath" config.tests/unix/ipv6ifname "IPv6 interface name" $L_FLAGS $I_FLAGS $l_FLAGS; then
@@ -4055,6 +4073,9 @@ if [ "$CFG_IPV6IFNAME" = "yes" ]; then
 fi
 if [ "$CFG_GETIFADDRS" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG getifaddrs"
+fi
+if [ "$CFG_INOTIFY" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG inotify"
 fi
 if [ "$CFG_LIBJPEG" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-jpeg"
@@ -4514,6 +4535,7 @@ QMakeVar set sql-plugins "$SQL_PLUGINS"
 [ "$CFG_GETADDRINFO" = "no" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETADDRINFO"
 [ "$CFG_IPV6IFNAME" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6IFNAME"
 [ "$CFG_GETIFADDRS" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_GETIFADDRS"
+[ "$CFG_INOTIFY" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_INOTIFY"
 [ "$CFG_NAS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NAS"
 [ "$CFG_NIS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NIS"
 [ "$CFG_SM" = "no" ]         && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SESSIONMANAGER"
