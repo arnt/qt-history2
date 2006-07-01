@@ -17,6 +17,8 @@
 #include <QtGui/qcombobox.h>
 #include <QtGui/qfontdatabase.h>
 
+#ifndef QT_NO_FONTCOMBOBOX
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
@@ -73,4 +75,5 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QFontComboBox::FontFilters)
 
 QT_END_HEADER
 
+#endif // QT_NO_FONTCOMBOBOX
 #endif

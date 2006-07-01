@@ -258,6 +258,13 @@ Requires: LINEEDIT STANDARDITEMMODEL LISTVIEW
 Name: QComboBox
 SeeAlso: ???
 
+Feature: FONTCOMBOBOX
+Description: Supports a combobox that lets the user select a font family.
+Section: Widgets
+Requires: COMBOBOX STRINGLISTMODEL
+Name: QFontComboBox
+SeeAlso: ???
+
 Feature: TOOLBUTTON
 Description: Supports quick-access buttons to commands and options.
 Section: Widgets

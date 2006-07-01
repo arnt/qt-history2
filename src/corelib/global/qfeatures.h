@@ -555,6 +555,11 @@
 #define QT_NO_INPUTDIALOG
 #endif
 
+// QFontComboBox
+#if !defined(QT_NO_FONTCOMBOBOX) && (defined(QT_NO_COMBOBOX) || defined(QT_NO_STRINGLISTMODEL))
+#define QT_NO_FONTCOMBOBOX
+#endif
+
 // QFontDialog
 #if !defined(QT_NO_FONTDIALOG) && (defined(QT_NO_STRINGLISTMODEL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_VALIDATOR) || defined(QT_NO_GROUPBOX))
 #define QT_NO_FONTDIALOG
