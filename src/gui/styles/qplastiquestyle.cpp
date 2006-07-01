@@ -1247,21 +1247,34 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             // Clip away a couple of pixels off the end of the edit field for
             // editable comboboxes and spin boxes.
             if (widget) {
+#ifndef QT_NO_COMBOBOX
                 QComboBox *comboBox = qobject_cast<QComboBox *>(widget->parentWidget());
-                if (comboBox || qobject_cast<QAbstractSpinBox *>(widget->parentWidget())) {
+#else
+                const bool comboBox = false;
+#endif
+#ifndef QT_NO_SPINBOX
+                QAbstractSpinBox *spinBox = qobject_cast<QAbstractSpinBox *>(widget->parentWidget());
+#else
+                const bool spinBox = false;
+#endif
+                if (comboBox || spinBox) {
                     QRegion region = painter->clipRegion();
                     if (region.isEmpty())
                         region = option->rect;
                     if (option->direction == Qt::RightToLeft) {
                         region -= QRect(1, 0, 1, 2);
                         region -= QRect(1, option->rect.bottom() - 1, 1, 2);
+#ifndef QT_NO_COMBOBOX
                         if (comboBox && !comboBox->itemIcon(comboBox->currentIndex()).isNull())
                             region -= QRect(option->rect.right() - 1, option->rect.top(), 2, option->rect.height());
+#endif
                     } else {
                         region -= QRect(option->rect.right() - 1, option->rect.top(), 1, 2);
                         region -= QRect(option->rect.right() - 1, option->rect.bottom() - 1, 1, 2);
+#ifndef QT_NO_COMBOBOX
                         if (comboBox && !comboBox->itemIcon(comboBox->currentIndex()).isNull())
                             region -= QRect(option->rect.left(), option->rect.top(), 2, option->rect.height());
+#endif
                     }
                     painter->setClipRegion(region);
                 }
@@ -3901,7 +3914,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             painter->fillRect(downRect.adjusted(2, 2, -2, -2),
                               qMapBrushToRect(downSunken ? sunkenButtonGradientBrush
                                               : buttonGradientBrush, downRect));
-                
+
             // Top line
             painter->setPen(QPen(qBrushLight(qMapBrushToRect(upSunken ? sunkenButtonGradientBrush
                                                              : buttonGradientBrush, upRect), 105), 0));

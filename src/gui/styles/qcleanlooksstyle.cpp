@@ -438,14 +438,14 @@ static const char * const qt_cleanlooks_checkbox_checked[] = {
 class IconTheme {
 
 public:
-    IconTheme(QHash <int, QString> dirList, QStringList parents) : 
+    IconTheme(QHash <int, QString> dirList, QStringList parents) :
           _dirList(dirList), _parents(parents), _valid(true){ }
     IconTheme() : _valid(false){ }
-    
+
     QHash <int, QString> dirList() {return _dirList;}
     QStringList parents() {return _parents;}
     bool isValid() {return _valid;}
-        
+
 private:
     QHash <int, QString> _dirList;
     QStringList _parents;
@@ -800,7 +800,7 @@ void QCleanlooksStyle::drawPrimitive(PrimitiveElement elem,
             if (option->state & State_Enabled) {
                 painter->setPen(QPen(option->palette.background(), 0));
                 painter->drawRect(rect.adjusted(0, 0, 0, 0));
-                painter->drawRect(rect.adjusted(1, 1, -1, -1));            
+                painter->drawRect(rect.adjusted(1, 1, -1, -1));
             } else {
                 painter->fillRect(rect, option->palette.background());
             }
@@ -1652,8 +1652,10 @@ void QCleanlooksStyle::drawControl(ControlElement element, const QStyleOption *o
 
             bool ignoreCheckMark = false;
 
+#ifndef QT_NO_COMBOBOX
             if (qobject_cast<const QComboBox*>(widget))
                 ignoreCheckMark = true; //ignore the checkmarks provided by the QComboMenuDelegate
+#endif
 
             if (!ignoreCheckMark) {
                 // Check
@@ -2089,9 +2091,9 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
 
     QColor highlightedDarkInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 35);
     QColor highlightedLightInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 58);
-    
+
     QColor buttonShadowAlpha = option->palette.background().color().dark(105);
-    
+
     QPalette palette = option->palette;
 
     switch (control) {
@@ -2189,7 +2191,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                             cachePainter.setPen(QPen(darkoutline, 0));
                             cachePainter.drawLine(QPoint(r.left() + 2, r.bottom()), QPoint(r.right()- downRect.width() - 1, r.bottom()));
                             cachePainter.drawLine(QPoint(r.left() + 2, r.top()), QPoint(r.right() - downRect.width() - 1, r.top()));
-                            cachePainter.drawLine(QPoint(r.right() - downRect.width() - 1, r.top() + 1), QPoint(r.right()- downRect.width() - 1, r.bottom() - 1));                  
+                            cachePainter.drawLine(QPoint(r.right() - downRect.width() - 1, r.top() + 1), QPoint(r.right()- downRect.width() - 1, r.bottom() - 1));
                             cachePainter.drawLine(QPoint(r.left(), r.top() + 2), QPoint(r.left(), r.bottom() - 2));
                             cachePainter.drawPoint(QPoint(r.left() + 1, r.bottom() - 1));
                             cachePainter.drawPoint(QPoint(r.left() + 1, r.top() + 1));
@@ -2203,7 +2205,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                             cachePainter.drawLine(QPoint(r.right(), r.top() + 2), QPoint(r.right(), r.bottom() - 2));
                             cachePainter.drawPoint(QPoint(r.right() - 1, r.bottom() - 1));
                             cachePainter.drawPoint(QPoint(r.right() - 1, r.top() + 1));
-                            cachePainter.drawLine(QPoint(r.left() + downRect.width() + 1, r.top()),     
+                            cachePainter.drawLine(QPoint(r.left() + downRect.width() + 1, r.top()),
                                                   QPoint(r.left() + downRect.width() + 1, r.bottom()));
                         }
                     }
@@ -2850,18 +2852,18 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
                     buttonOption.QStyleOption::operator=(*comboBox);
                     buttonOption.rect = rect;
                     buttonOption.state = comboBox->state & (State_Enabled | State_MouseOver);
-                    
+
                     if (sunken) {
                         buttonOption.state |= State_Sunken;
                         buttonOption.state &= ~State_MouseOver;
                     }
-                    
+
                     drawPrimitive(PE_PanelButtonCommand, &buttonOption, &cachePainter, widget);
-                    
+
                     //remove shadow from left side of edit field when pressed:
                     if (comboBox->direction == Qt::RightToLeft)
                         cachePainter.fillRect(editRect.left() - 1, editRect.top() + 1, editRect.left(), editRect.bottom() - 3, option->palette.base());
-                                    
+
                     cachePainter.setPen(option->palette.dark().color());
                     if (!sunken) {
                         int borderSize = 2;
@@ -3038,7 +3040,7 @@ void QCleanlooksStyle::drawComplexControl(ComplexControl control, const QStyleOp
             bool ticksAbove = slider->tickPosition & QSlider::TicksAbove;
             bool ticksBelow = slider->tickPosition & QSlider::TicksBelow;
             QColor activeHighlight = option->palette.color(QPalette::Normal, QPalette::Highlight);
-            
+
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
                     groove.adjust(0, 0, -1, 0);
                     // draw groove
@@ -3328,12 +3330,12 @@ void QCleanlooksStyle::polish(QApplication *app)
     Q_D(QCleanlooksStyle);
 
     QString dataDirs = QLatin1String(getenv("XDG_DATA_DIRS"));
-    
+
     if (dataDirs.isEmpty())
         dataDirs = "/usr/local/share/:/usr/share/";
-    
+
     d->iconDirs = dataDirs.split(":");
-    
+
     QProcess gconftool;
     gconftool.start(QLatin1String("gconftool-2 --get /desktop/gnome/interface/icon_theme"));
 
@@ -3348,9 +3350,15 @@ void QCleanlooksStyle::polish(QApplication *app)
 void QCleanlooksStyle::polish(QWidget *widget)
 {
     if (qobject_cast<QAbstractButton*>(widget)
+#ifndef QT_NO_COMBOBOX
         || qobject_cast<QComboBox *>(widget)
+#endif
+#ifndef QT_NO_PROGRESSBAR
         || qobject_cast<QProgressBar *>(widget)
+#endif
+#ifndef QT_NO_SCROLLBAR
         || qobject_cast<QScrollBar *>(widget)
+#endif
 #ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
 #endif
@@ -3804,7 +3812,7 @@ QIcon QCleanlooksStyle::standardIconImplementation(StandardPixmap standardIcon,
                 pixmap = d->findIcon(16, QLatin1String("stock_folder.png"));
                 if (!pixmap.isNull()) {
                     QPainter painter(&pixmap);
-                    painter.drawPixmap(8, 8, 8, 8, link); 
+                    painter.drawPixmap(8, 8, 8, 8, link);
                     painter.end();
                     icon.addPixmap(pixmap);
                 }
@@ -3840,18 +3848,18 @@ IconTheme QCleanlooksStylePrivate::parseIndexFile(const QString &themeName) cons
     QHash <int, QString> dirList;
 
     for ( int i = 0 ; i < iconDirs.size() && !themeIndex.exists() ; ++i) {
-          themeIndex.setFileName(iconDirs[i] + "/icons/" + 
+          themeIndex.setFileName(iconDirs[i] + "/icons/" +
                                  themeName + QLatin1String("/index.theme"));
     }
-    
+
     if (themeIndex.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        
+
         QTextStream in(&themeIndex);
-        
+
         while (!in.atEnd()) {
-        
+
             QString line = in.readLine();
-            
+
             if (line.startsWith(QLatin1String("Inherits="))) {
                 line = line.right(line.length() - 9);
                 parents = line.split(QLatin1Char(','));
@@ -3872,11 +3880,11 @@ IconTheme QCleanlooksStylePrivate::parseIndexFile(const QString &themeName) cons
                 }
             }
         }
-    }   
-        
+    }
+
     if (parents.isEmpty() && themeName != "hicolor")
         parents.append("hicolor");
-    
+
     theme = IconTheme(dirList, parents);
     return theme;
 }
@@ -3886,30 +3894,30 @@ QPixmap QCleanlooksStylePrivate::findIconHelper(int size,
                                                    const QString &iconName) const
 {
     QPixmap pixmap;
-    
+
     if (!themeName.isEmpty()) {
-        
-        IconTheme theme = themeList.value(themeName);        
-    
+
+        IconTheme theme = themeList.value(themeName);
+
         if (!theme.isValid()) {
             theme = parseIndexFile(themeName);
             themeList.insert(themeName, theme);
         }
-        
+
         if (!theme.isValid())
             return QPixmap();
-            
+
         QList <QString> subDirs = theme.dirList().values(size);
-        
+
         for ( int i = 0 ; i < iconDirs.size() ; ++i) {
             for ( int j = 0 ; j < subDirs.size() ; ++j) {
-                QString fileName = iconDirs[i] + "/icons/" + themeName + "/" + subDirs[j] + QLatin1Char('/') + iconName; 
+                QString fileName = iconDirs[i] + "/icons/" + themeName + "/" + subDirs[j] + QLatin1Char('/') + iconName;
                 pixmap.load(fileName);
                 if (!pixmap.isNull())
-                    break;      
+                    break;
             }
         }
-    
+
         if (pixmap.isNull()) {
             QStringList parents = theme.parents();
             //search recursively through inherited themes
@@ -3928,13 +3936,13 @@ QPixmap QCleanlooksStylePrivate::findIcon(int size, const QString &name) const
 #ifdef Q_WS_X11
     QPixmap pixmap;
     QString pixmapName = QLatin1String("$qt") + name + QString::number(size);
-    
+
     if (QPixmapCache::find(pixmapName, pixmap))
         return pixmap;
 
     if (!themeName.isEmpty())
-        pixmap = findIconHelper(size, themeName, name);                
-    
+        pixmap = findIconHelper(size, themeName, name);
+
     QPixmapCache::insert(pixmapName, pixmap);
 
     return pixmap;
@@ -4005,10 +4013,10 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
                 QPixmap fileIcon = d->findIcon(24, QLatin1String("stock_new.png"));
                 QPainter painter(&fileIcon);
                 painter.drawPixmap(12, 12, 12, 12, pixmap);
-                return fileIcon; 
+                return fileIcon;
             }
             break;
-       }           
+       }
     case SP_DirClosedIcon:
     case SP_DirIcon:
         {
@@ -4024,7 +4032,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
                 QPixmap dirIcon = d->findIcon(24, QLatin1String("stock_folder.png"));
                 QPainter painter(&dirIcon);
                 painter.drawPixmap(12, 12, 12, 12, pixmap);
-                return dirIcon; 
+                return dirIcon;
             }
             break;
        }
@@ -4110,7 +4118,7 @@ QPixmap QCleanlooksStyle::standardPixmap(StandardPixmap standardPixmap, const QS
         break;
     }
 #endif //QT_NO_IMAGEFORMAT_XPM
-        
+
     return QWindowsStyle::standardPixmap(standardPixmap, opt, widget);
 }
 

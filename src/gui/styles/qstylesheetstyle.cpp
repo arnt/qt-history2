@@ -831,7 +831,10 @@ void QStyleSheetStyle::setPalette(QWidget *w)
         qCopyFromRuleToPalette(rule, p, QPalette::ButtonText, QPalette::Button);
         if (w->palette() != p)
             w->setPalette(p);
-    } else if (qobject_cast<QComboBox *>(w)
+    } else if (false
+#ifndef QT_NO_COMBOBOX
+               || qobject_cast<QComboBox *>(w)
+#endif
 #ifndef QT_NO_MENUBAR
                || qobject_cast<QMenuBar *>(w)
 #endif
