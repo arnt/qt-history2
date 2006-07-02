@@ -106,7 +106,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
     hasCheckableItems = false;
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
-        if (qobject_cast<QWidgetAction *>(action))
+        if (widgetItems.value(action))
             continue;
         hasCheckableItems |= action->isCheckable();
         QIcon is = action->icon();
@@ -124,10 +124,8 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
         QFontMetrics fm(action->font().resolve(q->font()));
         QSize sz;
 
-        if (qobject_cast<QWidgetAction *>(action)) {
-            QWidget *w = widgetItems.value(action);
-            if (w)
-                sz = w->sizeHint();
+        if (QWidget *w = widgetItems.value(action)) {
+            sz = w->sizeHint();
         } else {
             //calc what I think the size is..
             if (action->isSeparator()) {
