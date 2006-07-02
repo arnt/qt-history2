@@ -2348,7 +2348,8 @@ void QMenu::actionEvent(QActionEvent *e)
             d->currentAction = 0;
         if (QWidgetAction *wa = qobject_cast<QWidgetAction *>(e->action())) {
             QWidget *widget = d->widgetItems.take(wa);
-            wa->releaseWidget(widget);
+            if (widget)
+                wa->releaseWidget(widget);
         }
     }
 
