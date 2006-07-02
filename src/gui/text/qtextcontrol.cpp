@@ -1606,6 +1606,8 @@ void QTextControlPrivate::contextMenuEvent(const QPoint &screenPos, const QPoint
     if (!hasFocus)
         return;
     QMenu *menu = q->createStandardContextMenu(docPos);
+    if (!menu)
+        return;
     menu->exec(screenPos);
     delete menu;
 #endif
