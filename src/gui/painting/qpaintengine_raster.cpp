@@ -849,14 +849,30 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
             device->releaseDC(hdc);
         }
     }
-#elif 0 //defined(Q_WS_MAC)
+#elif defined(Q_WS_MAC)
     extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
     extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *, CGAffineTransform *); //qpaintengine_mac.cpp
     if(CGContextRef ctx = qt_mac_cg_context(device)) {
         qt_mac_clip_cg(ctx, systemClip(), 0, 0);
         const CGRect source = CGRectMake(0, 0, d->deviceRect.width(), d->deviceRect.height());
-        CGImageRef subimage = CGImageCreateWithImageInRect(d->rasterBuffer->m_data, source);
-
+        QCFType<CGImageRef> subimage;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+        if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+            subimage = CGImageCreateWithImageInRect(d->rasterBuffer->m_data, source);
+        } else
+#endif
+        {
+            int dw = d->deviceRect.width();
+            int dh = d->deviceRect.height();
+            QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(
+                                                            d->rasterBuffer->buffer(),
+                                                            d->rasterBuffer->buffer(),
+                                                            dw*dh*sizeof(uint), 0);
+            subimage = CGImageCreate(dw, dh, 8, 32, d->rasterBuffer->width() * sizeof(uint),
+                                     QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
+                                     kCGImageAlphaPremultipliedFirst, provider, 0, 0,
+                                     kCGRenderingIntentDefault);
+        }
         const CGRect dest = CGRectMake(offset.x(), offset.y(),
                                        d->deviceRect.width(), d->deviceRect.height());
         HIViewDrawCGImage(ctx, &dest, subimage); //top left
@@ -1433,7 +1449,6 @@ void QRasterPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polyg
 
 }
 
-
 void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr)
 {
 #ifdef QT_DEBUG_DRAW
@@ -1453,13 +1468,31 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
             drawImage(r, d->rasterBuffer->colorizeBitmap(pixmap.toImage(), d->pen.color()), sr);
         }
     } else {
-#if defined(Q_WS_MAC) && 0
+#if defined(Q_WS_MAC)
         if(CGContextRef ctx = macCGContext()) {
-            const CGRect source = CGRectMake(sr.x(), sr.y(), sr.width(), sr.height());
-            CGImageRef subimage = CGImageCreateWithImageInRect(pixmap.data->cg_data, source);
             const CGRect dest = CGRectMake(r.x(), r.y(), r.width(), r.height());
+            QCFType<CGImageRef> subimage;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+                const CGRect source = CGRectMake(sr.x(), sr.y(), sr.width(), sr.height());
+                subimage = CGImageCreateWithImageInRect(pixmap.data->cg_data, source);
+            } else
+#endif
+            {
+                int sx = qRound(sr.x());
+                int sy = qRound(sr.y());
+                int sw = qRound(sr.width());
+                int sh = qRound(sr.height());
+                quint32 *pantherData = pixmap.data->pixels + (sy * pixmap.width() + sx);
+                QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(pantherData,
+                                                                   pantherData, sw*sh*sizeof(uint),
+                                                                   0);
+                subimage = CGImageCreate(sw, sh, 8, 32, pixmap.width() * sizeof(uint),
+                                QCFType<CGColorSpaceRef>(CGColorSpaceCreateDeviceRGB()),
+                                kCGImageAlphaPremultipliedFirst, provider, 0, 0,
+                                kCGRenderingIntentDefault);
+            }
             HIViewDrawCGImage(ctx, &dest, subimage); //top left
-            CGImageRelease(subimage);
         } else
 #endif
             drawImage(r, pixmap.toImage(), sr);
