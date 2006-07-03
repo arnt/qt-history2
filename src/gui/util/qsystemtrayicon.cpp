@@ -48,7 +48,6 @@
     \o All supported versions of Windows.
     \o All window managers for X11 that implement the \l{freedesktop.org} system
        tray specification, including recent versions of KDE and GNOME.
-    \omit
     \o Mac OS X, with the exception of showMessage()
     \endomit
     \endlist
