@@ -5809,7 +5809,7 @@ void QWidget::changeEvent(QEvent * event)
     This is a feature of the underlying window system, not Qt.
 
     \sa setMouseTracking(), mousePressEvent(), mouseReleaseEvent(),
-    mouseDoubleClickEvent(), event(), QMouseEvent
+    mouseDoubleClickEvent(), event(), QMouseEvent, {Scribble Example}
 */
 
 void QWidget::mouseMoveEvent(QMouseEvent *event)
@@ -5831,7 +5831,7 @@ void QWidget::mouseMoveEvent(QMouseEvent *event)
     nothing.
 
     \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
-    mouseMoveEvent(), event(), QMouseEvent
+    mouseMoveEvent(), event(), QMouseEvent, {Scribble Example}
 */
 
 void QWidget::mousePressEvent(QMouseEvent *event)
@@ -5856,7 +5856,7 @@ void QWidget::mousePressEvent(QMouseEvent *event)
     subclass to receive mouse release events for the widget.
 
     \sa mousePressEvent(), mouseDoubleClickEvent(),
-    mouseMoveEvent(), event(), QMouseEvent
+    mouseMoveEvent(), event(), QMouseEvent, {Scribble Example}
 */
 
 void QWidget::mouseReleaseEvent(QMouseEvent *event)
@@ -6081,7 +6081,7 @@ void QWidget::leaveEvent(QEvent *)
     window system sends several paint events, Qt merges these events
     into one event with a larger region (see QRegion::unite()).
     repaint() does not permit this optimization, so we suggest using
-    update() when possible.
+    update() whenever possible.
 
     When the paint event occurs, the update region has normally been
     erased, so that you're painting on the widget's background.
@@ -6103,7 +6103,7 @@ void QWidget::leaveEvent(QEvent *)
     ...
     \endcode
 
-    \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
+    \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent, {Analog Clock Example}
 */
 
 void QWidget::paintEvent(QPaintEvent *)
@@ -6130,8 +6130,6 @@ void QWidget::moveEvent(QMoveEvent *)
 
 
 /*!
-    \fn void QWidget::resizeEvent(QResizeEvent *event)
-
     This event handler can be reimplemented in a subclass to receive
     widget resize events which are passed in the \a event parameter.
     When resizeEvent() is called, the widget already has its new
@@ -6143,10 +6141,11 @@ void QWidget::moveEvent(QMoveEvent *)
     be) done inside this handler.
 
 
-    \sa moveEvent(), event(), resize(), QResizeEvent, paintEvent()
+    \sa moveEvent(), event(), resize(), QResizeEvent, paintEvent(),
+        {Scribble Example}
 */
 
-void QWidget::resizeEvent(QResizeEvent *)
+void QWidget::resizeEvent(QResizeEvent * /* event */)
 {
 }
 
@@ -6965,7 +6964,7 @@ void QWidget::repaint(const QRect &r)
     If the Qt::WA_OpaquePaintEvent widget attribute is set, the widget is
     responsible for painting all its pixels with an opaque color.
 
-    \sa repaint() paintEvent(), setUpdatesEnabled()
+    \sa repaint() paintEvent(), setUpdatesEnabled(), {Analog Clock Example}
 */
 
 /*! \fn void QWidget::update(int x, int y, int w, int h)
