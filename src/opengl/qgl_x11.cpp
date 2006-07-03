@@ -1330,50 +1330,7 @@ void QGLExtensions::init()
         return;
     init_done = true;
 
-    Window win;
-    int attribs[] = { GLX_RGBA, XNone };
-    int attribs_dbl[] = { GLX_RGBA, GLX_DOUBLEBUFFER, XNone };
-
-    XSetWindowAttributes attr;
-    unsigned long mask;
-    Window root;
-    GLXContext ctx;
-    XVisualInfo *visinfo;
-    int width = 10, height = 10;
-
-    root = RootWindow(X11->display, 0);
-
-    visinfo = glXChooseVisual(X11->display, 0, attribs);
-    if (!visinfo) {
-        visinfo = glXChooseVisual(X11->display, 0, attribs_dbl);
-        if (!visinfo) {
-            qDebug("QGLExtensions: couldn't find any RGB visuals.");
-            return;
-        }
-    }
-
-    attr.background_pixel = 0;
-    attr.border_pixel = 0;
-    attr.colormap = XCreateColormap(X11->display, root, visinfo->visual, AllocNone);
-    attr.event_mask = StructureNotifyMask | ExposureMask;
-    mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
-    win = XCreateWindow(X11->display, root, 0, 0, width, height, 0,
-                        visinfo->depth, InputOutput, visinfo->visual, mask, &attr);
-
-    ctx = glXCreateContext(X11->display, visinfo, NULL, true);
-
-    if (visinfo)
-        XFree(visinfo);
-
-    if (ctx) {
-        if (glXMakeCurrent(X11->display, win, ctx))
-            init_extensions();
-        else
-            qDebug("QGLExtensions: glXMakeCurrent() failed.");
-        glXDestroyContext(X11->display, ctx);
-    } else {
-        qDebug("QGLExtensions: glXCreateContext failed.");
-    }
-    XDestroyWindow(X11->display, win);
-    XFreeColormap(X11->display, attr.colormap);
+    QGLWidget dmy;
+    dmy.makeCurrent();
+    init_extensions();
 }
