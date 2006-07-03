@@ -21,6 +21,7 @@
 #include <QtTest/QSignalSpy>
 #include <QLibraryInfo>
 
+static const char *ArthurDir = "../../arthur";
 
 #include <string.h>
 
@@ -543,7 +544,7 @@ bool atWrapper::loadConfig( QString path )
 
     settings.endArray();
 
-    framework = QString(ARTHURDIR) + QDir::separator() + settings.value( "framework" ).toString();
+    framework = QString(ArthurDir) + QDir::separator() + settings.value( "framework" ).toString();
     suite = settings.value( "suite" ).toString();
     output = settings.value( "output" ).toString();
     ftpUser = settings.value( "ftpUser" ).toString();

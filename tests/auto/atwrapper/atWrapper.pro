@@ -19,5 +19,4 @@ HEADERS += atWrapper.h
 
 SOURCES += atWrapperAutotest.cpp atWrapper.cpp
 
-DEFINES+=ARTHURDIR=\"$$ARTHUR\"
 #include($$COMMON_FOLDER/common.pri)
