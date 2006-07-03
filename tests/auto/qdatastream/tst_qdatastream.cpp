@@ -2232,9 +2232,22 @@ void tst_QDataStream::setVersion()
 class SequentialBuffer : public QBuffer
 {
 public:
-    SequentialBuffer(QByteArray *data) : QBuffer(data) {}
+    SequentialBuffer(QByteArray *data) : QBuffer(data) { offset = 0; }
 
     bool isSequential() const { return true; }
+    bool seek(qint64 pos) { offset = pos; return QBuffer::seek(pos); }
+    qint64 pos() const { return qint64(offset); }
+
+protected:
+    qint64 readData(char *data, qint64 maxSize)
+    {
+        qint64 ret = QBuffer::readData(data, maxSize);
+        offset += ret;
+        return ret;
+    }
+    
+private:
+    int offset;
 };
 
 #if QT_VERSION >= 0x040100
