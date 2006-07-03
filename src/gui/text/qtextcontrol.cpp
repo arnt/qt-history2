@@ -92,35 +92,65 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 
     const QTextCursor oldSelection = cursor;
     const int oldCursorPos = cursor.position();
-    QTextCursor::MoveMode mode = e->modifiers() & Qt::ShiftModifier
-                                   ? QTextCursor::KeepAnchor
-                                   : QTextCursor::MoveAnchor;
 
+    QTextCursor::MoveMode mode = QTextCursor::MoveAnchor;
     QTextCursor::MoveOperation op = QTextCursor::NoMove;
-#ifdef Q_WS_MAC
-    // There can be only one modifier (+ shift), but we also need to make sure
-    // that we have a "move key" pressed before we reject it.
-    bool twoModifiers
-        = ((e->modifiers() & (Qt::ControlModifier | Qt::AltModifier))
-           == (Qt::ControlModifier | Qt::AltModifier))
-        || ((e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
-            == (Qt::ControlModifier | Qt::MetaModifier))
-        || ((e->modifiers() & (Qt::AltModifier | Qt::MetaModifier))
-            == (Qt::AltModifier | Qt::MetaModifier));
-#else
-    if (e->modifiers() & (Qt::AltModifier | Qt::MetaModifier)) {
-        e->ignore();
-        return false;
+    
+
+    if (e == QKeySequence::MoveToNextChar) {
+            op = QTextCursor::Right;
     }
-#endif
-    switch (e->key()) {
-#ifndef Q_WS_MAC  // Use the default Windows bindings.
-        case Qt::Key_Up:
+    else if (e == QKeySequence::MoveToPreviousChar) {
+            op = QTextCursor::Left;
+    }
+    else if (e == QKeySequence::SelectNextChar) {
+           op = QTextCursor::Right;
+           mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectPreviousChar) {
+            op = QTextCursor::Left;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectNextWord) {
+            op = QTextCursor::WordRight;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectPreviousWord) {
+            op = QTextCursor::WordLeft;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectStartOfLine) {
+            op = QTextCursor::StartOfLine;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectEndOfLine) {
+            op = QTextCursor::EndOfLine;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectStartOfBlock) {
+            op = QTextCursor::StartOfBlock;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectEndOfBlock) {
+            op = QTextCursor::EndOfBlock;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectStartOfDocument) {
+            op = QTextCursor::Start;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectEndOfDocument) {
+            op = QTextCursor::End;
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectPreviousLine) {
             op = QTextCursor::Up;
-            break;
-        case Qt::Key_Down:
+            mode = QTextCursor::KeepAnchor;
+    }
+    else if (e == QKeySequence::SelectNextLine) {
             op = QTextCursor::Down;
-            if (mode == QTextCursor::KeepAnchor) {
+            mode = QTextCursor::KeepAnchor;
+            {
                 QTextBlock block = cursor.block();
                 QTextLine line = currentTextLine(cursor);
                 if (!block.next().isValid()
@@ -128,28 +158,55 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
                     && line.lineNumber() == block.layout()->lineCount() - 1)
                     op = QTextCursor::End;
             }
-            break;
-        case Qt::Key_Left:
-            op = e->modifiers() & Qt::ControlModifier
-                 ? QTextCursor::WordLeft
-                 : QTextCursor::Left;
-            break;
-        case Qt::Key_Right:
-            op = e->modifiers() & Qt::ControlModifier
-                 ? QTextCursor::WordRight
-                 : QTextCursor::Right;
-            break;
-        case Qt::Key_Home:
-            op = e->modifiers() & Qt::ControlModifier
-                 ? QTextCursor::Start
-                 : QTextCursor::StartOfLine;
-            break;
-        case Qt::Key_End:
-            op = e->modifiers() & Qt::ControlModifier
-                 ? QTextCursor::End
-                 : QTextCursor::EndOfLine;
-            break;
-#else
+    }
+    else if (e == QKeySequence::SelectNextLine) {
+            op = QTextCursor::Down;
+            mode = QTextCursor::KeepAnchor;
+            {
+                QTextBlock block = cursor.block();
+                QTextLine line = currentTextLine(cursor);
+                if (!block.next().isValid()
+                    && line.isValid()
+                    && line.lineNumber() == block.layout()->lineCount() - 1)
+                    op = QTextCursor::End;
+            }
+    }
+    else if (e == QKeySequence::MoveToNextWord) {
+            op = QTextCursor::WordRight;
+    }
+    else if (e == QKeySequence::MoveToPreviousWord) {
+            op = QTextCursor::WordLeft;
+    }
+    else if (e == QKeySequence::MoveToEndOfBlock) {
+            op = QTextCursor::EndOfBlock;
+    }
+    else if (e == QKeySequence::MoveToStartOfBlock) {
+            op = QTextCursor::StartOfBlock;
+    }
+    else if (e == QKeySequence::MoveToNextLine) {
+            op = QTextCursor::Down;
+    }
+    else if (e == QKeySequence::MoveToPreviousLine) {
+            op = QTextCursor::Up;
+    }
+    else if (e == QKeySequence::MoveToPreviousLine) {
+            op = QTextCursor::Up;
+    }
+    else if (e == QKeySequence::MoveToStartOfLine) {
+            op = QTextCursor::StartOfLine;
+    }
+    else if (e == QKeySequence::MoveToEndOfLine) {
+            op = QTextCursor::EndOfLine;
+    }
+    else if (e == QKeySequence::MoveToStartOfDocument) {
+            op = QTextCursor::Start;
+    }
+    else if (e == QKeySequence::MoveToEndOfDocument) {
+            op = QTextCursor::End;
+    } 
+    else {
+        return false;
+    }
 // Except for pageup and pagedown, Mac OS X has very different behavior, we don't do it all, but
 // here's the breakdown:
 // Shift still works as an anchor, but only one of the other keys can be down Ctrl (Command),
@@ -159,88 +216,7 @@ bool QTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 // Option + Left/Right -- Move one word Left/right.
 //        + Up/Down  -- Begin/End of Paragraph.
 // Home/End Top/Bottom of file. (usually don't move the cursor, but will select)
-        case Qt::Key_Up:
-            if (twoModifiers) {
-                QApplication::beep();
-                return true;
-            } else {
-                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
-                    op = QTextCursor::Start;
-                else if (e->modifiers() & Qt::AltModifier)
-                    op = QTextCursor::StartOfBlock;
-                else
-                    op = QTextCursor::Up;
-            }
-            break;
-        case Qt::Key_Down:
-            if (twoModifiers) {
-                QApplication::beep();
-                return true;
-            } else {
-                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)) {
-                    op = QTextCursor::End;
-                } else if (e->modifiers() & Qt::AltModifier) {
-                    op = QTextCursor::EndOfBlock;
-                } else {
-                    op = QTextCursor::Down;
-                    if (mode == QTextCursor::KeepAnchor) {
-                        QTextBlock block = cursor.block();
-                        QTextLine line = currentTextLine(cursor);
-                        if (!block.next().isValid()
-                            && line.isValid()
-                            && line.lineNumber() == block.layout()->lineCount() - 1)
-                            op = QTextCursor::End;
-                    }
-                }
-            }
-            break;
-        case Qt::Key_Left:
-            if (twoModifiers) {
-                QApplication::beep();
-                return true;
-            } else {
-                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
-                    op = QTextCursor::StartOfLine;
-                else if (e->modifiers() & Qt::AltModifier)
-                    op = QTextCursor::WordLeft;
-                else
-                    op = QTextCursor::Left;
-            }
-            break;
-        case Qt::Key_Right:
-            if (twoModifiers) {
-                QApplication::beep();
-                return true;
-            } else {
-                if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier))
-                    op = QTextCursor::EndOfLine;
-                else if (e->modifiers() & Qt::AltModifier)
-                    op = QTextCursor::WordRight;
-                else
-                    op = QTextCursor::Right;
-            }
-            break;
-        case Qt::Key_Home:
-            if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier | Qt::AltModifier)) {
-                QApplication::beep();
-                return true;
-            } else {
-                op = QTextCursor::Start;
-            }
-            break;
-        case Qt::Key_End:
-            if (e->modifiers() & (Qt::ControlModifier | Qt::MetaModifier | Qt::AltModifier)) {
-                QApplication::beep();
-                return true;
-            } else {
-                op = QTextCursor::End;
-            }
-            break;
-#endif
-    default:
-        return false;
-    }
-
+   
     const bool moved = cursor.movePosition(op, mode);
     q->ensureCursorVisible();
 
@@ -1034,26 +1010,16 @@ void QTextControl::setHtml(const QString &text)
 void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
 {
     Q_Q(QTextControl);
-    cursorIsFocusIndicator = false;
-
-    if (e->modifiers() & Qt::ControlModifier) {
-        switch( e->key() ) {
-#ifndef QT_NO_CLIPBOARD
-        case Qt::Key_C:
-        case Qt::Key_Insert:
-        case Qt::Key_F16: // Copy key on Sun keyboards
-            e->accept();
-            q->copy();
-            return;
-#endif // QT_NO_CLIPBOARD
-        case Qt::Key_A:
+    if (e == QKeySequence::SelectAll) {
             e->accept();
             q->selectAll();
             return;
-        default:
-            break;
-        }
     }
+    else if (e == QKeySequence::Copy) {
+            e->accept();
+            q->copy();
+            return;
+    } 
 
     if (interactionFlags & Qt::TextSelectableByKeyboard
         && cursorMoveKeyEvent(e))
@@ -1101,60 +1067,9 @@ void QTextControlPrivate::keyPressEvent(QKeyEvent *e)
     // example)
     repaintSelection();
 
-    if (e->modifiers() & Qt::ControlModifier) {
-        switch( e->key() ) {
-        case Qt::Key_Z:
-            if (e->modifiers() & Qt::ShiftModifier)
-                q->redo();
-            else
-                q->undo();
-            break;
-        case Qt::Key_Y:
-            q->redo();
-            break;
-#ifndef QT_NO_CLIPBOARD
-        case Qt::Key_X:
-        case Qt::Key_F20:  // Cut key on Sun keyboards
-            q->cut();
-            break;
-        case Qt::Key_V:
-        case Qt::Key_F18:  // Paste key on Sun keyboards
-            q->paste();
-            break;
-#endif // QT_NO_CLIPBOARD
+    if (!e->modifiers()) { 
+        switch (e->key()) {
         case Qt::Key_Backspace:
-            cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
-            goto process;
-        case Qt::Key_Delete:
-            cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-            goto process;
-        case Qt::Key_K: {
-            QTextBlock block = cursor.block();
-
-            if (cursor.position() == block.position() + block.length() - 2)
-                cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
-            else
-                cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-            cursor.deleteChar();
-            break;
-        }
-        default:
-            goto process;
-        }
-        goto accept;
-    }
-
-process:
-    switch( e->key() ) {
-    case Qt::Key_Backspace: {
-#if defined(Q_WS_WIN)
-        if (e->modifiers() & Qt::AltModifier) {
-            if (e->modifiers() & Qt::ShiftModifier)
-                q->redo();
-            else
-		q->undo();
-        } else
-#endif
         {
             QTextBlockFormat blockFmt = cursor.blockFormat();
             QTextList *list = cursor.currentList();
@@ -1166,53 +1081,80 @@ process:
             } else {
                 cursor.deletePreviousChar();
             }
+            goto accept;
         }
-        break;
-    }
-    case Qt::Key_Delete:
-#ifndef QT_NO_CLIPBOARD
-        if (e->modifiers() & Qt::ShiftModifier)
-            q->cut();
-	else
-#endif
-            cursor.deleteChar();
-        break;
-#ifndef QT_NO_CLIPBOARD
-    case Qt::Key_Insert:
-        if (e->modifiers() & Qt::ShiftModifier)
-            q->paste();
-        break;
-#endif
-    case Qt::Key_Return:
-    case Qt::Key_Enter:
-        if (e->modifiers() & Qt::ControlModifier)
-            cursor.insertText(QString(QChar::LineSeparator));
-        else
-            cursor.insertBlock();
-        break;
-    default:
-        {
-            QString text = e->text();
-
-            if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
-                if (overwriteMode
-                    // no need to call deleteChar() if we have a selection, insertText
-                    // does it already
-                    && !cursor.hasSelection()
-                    && !cursor.atBlockEnd())
-                    cursor.deleteChar();
-
-                cursor.insertText(text);
-                selectionChanged();
-            } else {
-                e->ignore();
-                return;
-            }
+        case Qt::Key_Enter:
+        case Qt::Key_Return:
+            if (e->modifiers() & Qt::ControlModifier)
+                cursor.insertText(QString(QChar::LineSeparator));
+            else
+                cursor.insertBlock();
+            e->accept();
+            goto accept;
+        default:
             break;
+        }
+    }
+    
+    if (e == QKeySequence::Undo) {
+            q->undo();
+    }
+    else if (e == QKeySequence::Redo) {
+           q->redo();
+    }
+#ifndef QT_NO_CLIPBOARD
+    else if (e == QKeySequence::Cut) {
+           q->cut();
+    }
+    else if (e == QKeySequence::Paste) {
+           q->paste();
+    }    
+#endif
+    else if (e == QKeySequence::Delete) {
+        cursor.deleteChar();
+    }
+    else if (e == QKeySequence::DeleteEndOfWord) {
+        cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
+        cursor.deleteChar();
+    }
+    else if (e == QKeySequence::DeleteStartOfWord) {
+        cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
+        cursor.deleteChar();
+    }
+    else if (e == QKeySequence::DeleteEndOfLine) {
+        QTextBlock block = cursor.block();
+        if (cursor.position() == block.position() + block.length() - 2)
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+        else
+            cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        cursor.deleteChar();
+    }
+    else {
+        goto process;
+    }
+    goto accept;
+    
+process:
+    {
+        QString text = e->text();
+        if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
+            if (overwriteMode
+                // no need to call deleteChar() if we have a selection, insertText
+                // does it already
+                && !cursor.hasSelection()
+                && !cursor.atBlockEnd())
+                cursor.deleteChar();
+
+            cursor.insertText(text);
+            selectionChanged();
+        } else {
+            e->ignore();
+            return;
         }
     }
 
  accept:
+ 
     e->accept();
     cursorOn = true;
 
