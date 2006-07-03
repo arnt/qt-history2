@@ -173,7 +173,7 @@ QString qws_dataDir()
 }
 
 // Get the filename of the pipe Qtopia Core uses for server/client comms
-QString qws_qtePipeFilename()
+Q_GUI_EXPORT QString qws_qtePipeFilename()
 {
     return (qws_dataDir() + QString(QTE_PIPE).arg(qws_display_id));
 }
