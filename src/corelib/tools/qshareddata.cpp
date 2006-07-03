@@ -57,9 +57,9 @@
     implicitly shared. The procedure is:
 
     \list
-    \i Define the \c Employee class with a single data member variable of
+    \o Define the \c Employee class with a single data member variable of
        type QSharedDataPointer<\c{EmployeeData}>.
-    \i Define an \c EmployeeData class that derives from \l QSharedData
+    \o Define an \c EmployeeData class that derives from \l QSharedData
        and that contains all the variables that you would normally
        put in \c Employee.
     \endlist
@@ -76,41 +76,60 @@
     that modifications to one \c Employee object don't affect other
     \c Employee objects.
 
-    In this example, the \c EmployeeData type is a simple class with a
-    default constructor and a copy constructor provided by C++. If
-    member-per-member copy isn't sufficient for your own data type,
-    you must implement your own copy constructor.
+    The \c EmployeeData type is a simple class that inherits QSharedData
+    and that provides a default constructor, a copy constructor,
+    and a destructor. Normally, this is all you need in the "data"
+    class.
+
+    Here's the implementation of the \c EmployeeData members:
+
+    \quotefromfile snippets/sharedemployee/employee.cpp
+    \skipto ::EmployeeData()
+    \printuntil /^\}/
+    \printline ::EmployeeData(const
+    \printuntil /^\}/
+    \printline ::~EmployeeData
+    \printuntil /^\}/
 
     Let's now see how to implement the \c Employee constructors:
 
-    \quotefile snippets/sharedemployee/employee.cpp
-
-    \skipto ::Employee()
+    \printline ::Employee()
     \printuntil }
 
     In the default constructor, we create an object of type
     \c EmployeeData and assign it to the \c d pointer using operator=().
 
-    \skipto ::Employee(int
+    Behind the scenes, QSharedDataPointer automatically increments or
+    decrements the reference count of the shared data object pointed
+    to by \c d, and deletes shared objects when the reference count
+    reaches 0.
+
+    \printline ::Employee(int
     \printuntil }
 
     In the constructor that takes an ID and an employee's name, we
     also create an object of type \c EmployeeData and assign it to the
     \c d pointer.
 
-    In this example, we don't need to provide a copy constructor, an
-    assignment operator, or a destructor for \c Employee. The default
-    implementations provided by C++, which invoke QSharedDataPointer's
-    copy constructor, assignment operator, or destructor, are
-    sufficient. And this is true in general, i.e. for any QSharedData
-    subclass which only stores values (or implicitly shared classes),
-    such as int, double, QString, QStringList, QList\<QWidget*\>, and
-    so on.
+    \printline ::setName
+    \printuntil /^\}/
 
-    Behind the scenes, QSharedDataPointer automatically increments or
-    decrements the reference count of the shared data object pointed
-    to by \c d, and deletes shared objects when the reference count
-    reaches 0.
+    When we use the \c d pointer from a non-const function, detach()
+    is automatically called to ensure that we work on our own copy
+    of the data.
+
+    \printline ::name
+    \printuntil /^\}/
+
+    When we use the \c d pointer in a const function, detach() is \e not
+    called.
+
+    Notice that there is no need to implement a copy constructor or
+    assignment operator in the \c Employee class. This is because the
+    C++ compiler provides default implementations that simply perform
+    member-by-member copy. Here, the only member is \c d, and its
+    operator=() simply increments a reference count (which is precisely
+    what we want).
 
     \sa QSharedData
 */

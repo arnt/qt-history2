@@ -7,8 +7,12 @@
 class EmployeeData : public QSharedData
 {
 public:
+    EmployeeData();
+    EmployeeData(const EmployeeData &other);
+    ~EmployeeData();
+
     int id;
-    QString name;
+    QString *name;
 };
 
 class Employee
@@ -18,10 +22,10 @@ public:
     Employee(int id, const QString &name);
 
     void setId(int id) { d->id = id; }
-    void setName(const QString &name) { d->name = name; }
+    void setName(const QString &name);
 
     int id() const { return d->id; }
-    QString name() const { return d->name; }
+    QString name() const;
 
 private:
     QSharedDataPointer<EmployeeData> d;
