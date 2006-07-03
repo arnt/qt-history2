@@ -1494,14 +1494,12 @@ QString QTextStream::readAll()
     If \a maxlen is 0, the lines can be of any length. A common value
     for \a maxlen is 75.
 
-    The returned line has no trailing end-of-line characters, so
-    calling QString::trimmed() is unnecessary.
+    The returned line has no trailing end-of-line characters ("\\n"
+    or "\\r\\n"), so calling QString::trimmed() is unnecessary.
 
     If the stream has read to the end of the file, the returned string
-    will be a null string - see QString::isNull(). Empty lines are
-    represented by empty, but non-null strings - see QString::isEmpty().
-
-    You can also explicitly test for the end of the file using atEnd().
+    will be an empty string. You can explicitly test for the end of the
+    file using atEnd().
 
     \sa readAll()
 */
