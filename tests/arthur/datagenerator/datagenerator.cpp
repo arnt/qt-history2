@@ -1,0 +1,393 @@
+#include "datagenerator.h"
+
+#include "qengines.h"
+#include "xmlgenerator.h"
+
+#include <QDateTime>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QSvgRenderer>
+#include <QImage>
+#include <QPainter>
+#include <QProcess>
+#include <QSettings>
+#include <QtDebug>
+
+#include <iostream>
+
+#define W3C_SVG_BASE "http://www.w3.org/Graphics/SVG/Test/20030813/png/"
+
+static QString createW3CReference(const QString &refUrl, const QString &filename)
+{
+    QString base(refUrl);
+
+    QString pngFile = filename;
+    pngFile.replace(".svg", ".png");
+
+    base += "full-";
+
+    base += pngFile;
+    return base;
+}
+
+
+static QString createOutFilename(const QString &baseDir, const QString &filename,
+                                 QEngine *engine)
+{
+    QString outFile = filename;
+    outFile.replace(".svg", ".png");
+    outFile.replace(".qps", ".qps.png");
+
+    if (!baseDir.isEmpty())
+        outFile = QString("%1/%2/%3").arg(baseDir)
+                  .arg(engine->name()).arg(outFile);
+    else
+        outFile = QString("%1/%2").arg(engine->name())
+                  .arg(outFile);
+
+    return outFile;
+}
+
+static void usage(const char *progname)
+{
+    std::cerr << "Couldn't find 'framework.ini' "
+              << "file and no suite has been specified."<<std::endl;
+    std::cerr << "Usage: "<<progname <<  "\n"
+              << "\t-framework <framework.ini>\n"
+              << "\t-engine <engine name>\n"
+              << "\t-suite <suite name>\n"
+              << "\t-testcase <file.svg>\n"
+              << "\t-file </path/to/file.svg>\n"
+              << "\t-output <dirname>\n"
+              << std::endl;
+}
+
+DataGenerator::DataGenerator()
+    : iterations(1)
+{
+    settings.load(QString("framework.ini"));
+    renderer = new QSvgRenderer();
+}
+
+DataGenerator::~DataGenerator()
+{
+}
+
+void DataGenerator::run(int argc, char **argv)
+{
+    processArguments(argc, argv);
+
+    if (!fileName.isEmpty()) {
+        testGivenFile();
+        return;
+    }
+    if (!settings.isValid() && suiteName.isEmpty()) {
+        usage(argv[0]);
+        return;
+    }
+
+    prepareDirs();
+    if (!settings.isValid()) { //only suite specified
+        XMLGenerator generator(outputDirName);
+        testSuite(generator, suiteName,
+                  QString(), QString());
+        return;
+    }
+
+    XMLGenerator generator(outputDirName);
+    QStringList tests = settings.suites();
+    qDebug()<<"tests = "<<tests;
+    foreach(QString test, tests) {
+        if (!suiteName.isEmpty()) {
+            if (test != suiteName)
+                continue;
+        }
+        qDebug()<<"testing "<<test;
+        settings.settings()->beginGroup(test);
+        QString dirName = settings.settings()->value("dir").toString();
+        QString refUrl  = settings.settings()->value("reference").toString();
+        QDir dir(dirName);
+        if (!dir.isAbsolute() && !dir.exists()) {
+            dir = QDir(QString("%1/%2").arg(baseDataDir)
+                       .arg(dirName));
+        }
+
+        testSuite(generator, test, dir.absolutePath(), refUrl);
+        settings.settings()->endGroup();
+    }
+    generator.generateOutput(outputDirName);
+}
+
+void DataGenerator::testEngines(XMLGenerator &generator, const QString &file,
+                                const QString &refUrl)
+{
+    QFileInfo fileInfo(file);
+
+    generator.startTestcase(file);
+
+    if (!refUrl.isEmpty()) {
+        QString ref = createW3CReference(refUrl, fileInfo.fileName());
+        generator.addImage("Reference", ref, XMLData(), Reference);
+    }
+
+    bool qpsScript = file.endsWith("qps");
+    if (!qpsScript) {
+        QDir oldDir = QDir::current();
+        if (!baseDataDir.isEmpty()) {
+            QDir::setCurrent(baseDataDir);
+        }
+        renderer->load(fileInfo.absoluteFilePath());
+        if (!baseDataDir.isEmpty()) {
+            QDir::setCurrent(oldDir.absolutePath());
+        }
+        if (!renderer->isValid()) {
+            qWarning()<<"Error while processing " <<file;
+            return;
+        }
+    }
+
+    QList<QEngine*> engines = QtEngines::self()->engines();
+    testGivenEngines(engines, fileInfo, file, generator, Normal);
+
+    engines = QtEngines::self()->foreignEngines();
+    testGivenEngines(engines, fileInfo, file, generator, Foreign);
+
+    generator.endTestcase();
+}
+
+void DataGenerator::prepareDirs()
+{
+    QList<QEngine*> engines = QtEngines::self()->engines();
+    QDir outDirs;
+    foreach(QEngine *engine, engines) {
+        if (!engineName.isEmpty() &&
+            engine->name() != engineName)
+            continue;
+
+        QString dirName = engine->name();
+        if (!outputDirName.isEmpty())
+            dirName = QString("%1/%2").arg(outputDirName).arg(dirName);
+        outDirs.mkpath(dirName);
+    }
+
+    engines = QtEngines::self()->foreignEngines();
+    foreach(QEngine *engine, engines) {
+        if (!engineName.isEmpty() &&
+            engine->name() != engineName)
+            continue;
+
+        QString dirName = engine->name();
+        if (!outputDirName.isEmpty())
+            dirName = QString("%1/%2").arg(outputDirName).arg(dirName);
+        outDirs.mkpath(dirName);
+    }
+}
+
+void DataGenerator::processArguments(int argc, char **argv)
+{
+    QString frameworkFile;
+    for (int i=1; i < argc; ++i) {
+        QString opt(argv[i]);
+        if (opt == "-framework") {
+            frameworkFile = QString(argv[i+1]);
+        } else if (opt == "-engine") {
+            engineName = QString(argv[i+1]);
+        } else if (opt == "-suite") {
+            suiteName = QString(argv[i+1]);
+        } else if (opt == "-testcase") {
+            testcase = QString(argv[i+1]);
+        } else if (opt == "-file") {
+            fileName = QString(argv[i+1]);
+        } else if (opt == "-output") {
+            outputDirName = QString(argv[i+1]);
+        } else if (opt == "-iterations") {
+            iterations = QString(argv[i+1]).toInt();
+        } else if (opt.startsWith('-')) {
+            qDebug()<<"Unknown option "<<opt;
+        }
+    }
+    if (!frameworkFile.isEmpty() && QFile::exists(frameworkFile)) {
+        baseDataDir = QFileInfo(frameworkFile).absoluteDir().absolutePath();
+        settings.load(frameworkFile);
+    }
+
+    if (outputDirName.isEmpty() && settings.isValid()) {
+        outputDirName = settings.outputDir();
+    }
+
+    if (!outputDirName.isEmpty()) {
+        QDir dir;
+        dir.mkpath(outputDirName);
+    }
+
+    if (!fileName.isEmpty()) {
+        baseDataDir = QFileInfo(fileName).absoluteDir().absolutePath();
+    }
+}
+
+void DataGenerator::testGivenFile()
+{
+    prepareDirs();
+
+    XMLGenerator generator(baseDataDir);
+    generator.startSuite("Single");
+
+    QFileInfo fileInfo(fileName);
+
+    bool qpsScript = fileName.endsWith("qps");
+    if (!qpsScript) {
+        QDir oldDir = QDir::current();
+        if (!baseDataDir.isEmpty()) {
+            QDir::setCurrent(baseDataDir);
+        }
+        renderer->load(fileInfo.absoluteFilePath());
+
+        if (!baseDataDir.isEmpty()) {
+            QDir::setCurrent(oldDir.absolutePath());
+        }
+
+        if (!renderer->isValid()) {
+            qWarning()<<"Error while processing " <<fileInfo.absolutePath();
+            return;
+        }
+    }
+
+    QList<QEngine*> engines = QtEngines::self()->engines();
+    testGivenEngines(engines, fileInfo, fileInfo.fileName(), generator,
+                     Normal);
+    generator.endSuite();
+
+    std::cout<< qPrintable(generator.generateData());
+}
+
+void DataGenerator::testSuite(XMLGenerator &generator, const QString &test,
+                              const QString &dirName, const QString &refUrl)
+{
+    generator.startSuite(test);
+
+    QDir dir(dirName);
+    dir.setFilter(QDir::Files | QDir::NoSymLinks);
+    QFileInfoList list = dir.entryInfoList();
+
+    for (int i = 0; i < list.size(); ++i) {
+        QFileInfo fileInfo = list.at(i);
+        if (!testcase.isEmpty()) {
+            if (fileInfo.fileName() != testcase)
+                continue;
+        }
+        qDebug()<<"Testing: "<<fileInfo.absoluteFilePath();
+        testEngines(generator, fileInfo.absoluteFilePath(), refUrl);
+    }
+
+    generator.endSuite();
+}
+
+static QString loadFile(const QString &name)
+{
+    QFile file(name);
+    if (!file.open(QFile::ReadOnly)) {
+        qDebug("Can't open file '%s'", qPrintable(name));
+        return QString();
+    }
+    QTextStream str(&file);
+    return str.readAll();
+}
+
+void DataGenerator::testGivenEngines(const QList<QEngine*> engines,
+                                     const QFileInfo &fileInfo,
+                                     const QString &file,
+                                     XMLGenerator &generator,
+                                     GeneratorFlags eflags)
+{
+    bool qpsScript = false;
+    QString fileName = fileInfo.absoluteFilePath();
+    QStringList qpsContents;
+    if (fileName.endsWith("qps")) {
+        QString script = loadFile(fileName);
+        qpsContents = script.split("\n", QString::SkipEmptyParts);
+        qpsScript = true;
+    }
+
+    //foreign one don't generate qpsScripts
+    if ((eflags & Foreign) && qpsScript)
+        return;
+
+    foreach(QEngine *engine, engines) {
+        if (!engineName.isEmpty()) {
+            if (engine->name() != engineName)
+                continue;
+        }
+        if (settings.isTestBlacklisted(engine->name(),
+                                       fileInfo.fileName())) {
+            XMLData data;
+            data.details    = QString("Test blacklisted");
+            data.iterations = 1;
+            generator.addImage(engine->name(), QString(""),
+                               data, eflags);
+            continue;
+        }
+
+        QString outFilename = createOutFilename(outputDirName,
+                                                fileInfo.fileName(), engine);
+        engine->prepare(qpsScript ? QSize(800, 800) : QSize(480, 360));
+        int elapsed = -1;
+        int maxElapsed = 0;
+        int minElapsed = 0;
+        if ((eflags & Foreign)) {
+            engine->render(renderer, file);
+            engine->save(outFilename);
+        } else {
+            bool saved = false;
+            //only measure Qt engines
+            QTime time;
+            int currentElapsed = 0;
+            for (int i = 0; i < iterations; ++i) {
+                if (qpsScript) {
+                    QDir oldDir = QDir::current();
+                    if (!baseDataDir.isEmpty()) {
+                        QDir::setCurrent(baseDataDir+"/images");
+                    }
+                    time.start();
+                    engine->render(qpsContents, fileName);
+                    currentElapsed = time.elapsed();
+                    if (!baseDataDir.isEmpty()) {
+                        QDir::setCurrent(oldDir.absolutePath());
+                    }
+                } else {
+                    time.start();
+                    engine->render(renderer, file);
+                    currentElapsed = time.elapsed();
+                }
+                if (currentElapsed > maxElapsed)
+                    maxElapsed = currentElapsed;
+                if (!minElapsed ||
+                    currentElapsed < minElapsed)
+                    minElapsed = currentElapsed;
+                elapsed += currentElapsed;
+                if (!saved) {
+                    //qDebug()<<"saving "<<i<<engine->name();
+                    engine->save(outFilename);
+                    engine->cleanup();
+                    engine->prepare(QSize(480, 360));
+                    saved = true;
+                }
+            }
+            engine->cleanup();
+        }
+        GeneratorFlags flags = Normal;
+        if (QtEngines::self()->defaultEngine() == engine)
+            flags |= Default;
+        flags |= eflags;
+        if ((eflags & Foreign))
+            flags ^= Normal;
+        XMLData data;
+        data.date = QDateTime::currentDateTime();
+        data.timeToRender = elapsed;
+        data.iterations = iterations;
+        data.maxElapsed = maxElapsed;
+        data.minElapsed = minElapsed;
+        generator.addImage(engine->name(), outFilename,
+                           data, flags);
+    }
+}
