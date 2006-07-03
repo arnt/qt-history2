@@ -25,6 +25,7 @@ public:
 private slots:
     void getSetCheck();
     void readBlock();
+    void readBlockPastEnd();
     void writeBlock_data();
     void writeBlock();
     void seek();
@@ -104,6 +105,21 @@ void tst_QBuffer::readBlock()
     QCOMPARE(b.read(a + arraySize/2, arraySize - arraySize/2),
             (qint64)(arraySize - arraySize/2));
     QVERIFY(b.atEnd());
+}
+    
+void tst_QBuffer::readBlockPastEnd()
+{
+    QByteArray arr(4096 + 3616, 'd');
+    QBuffer buf(&arr);
+	
+    buf.open(QIODevice::ReadOnly);
+    char dummy[4096];
+	
+    buf.read(1);
+
+    QCOMPARE(buf.read(dummy, 4096), qint64(4096));
+    QCOMPARE(buf.read(dummy, 4096), qint64(3615));
+    QVERIFY(buf.atEnd());
 }
 
 void tst_QBuffer::writeBlock_data()
