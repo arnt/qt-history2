@@ -1195,7 +1195,7 @@ void QApplication::setStyle(QStyle *style)
 
     // take care of possible palette requirements of certain gui
     // styles. Do it before polishing the application since the style
-    // might call QApplication::setStyle() itself
+    // might call QApplication::setPalette() itself
     if (QApplicationPrivate::set_pal) {
         QApplication::setPalette(*QApplicationPrivate::set_pal);
     } else if (QApplicationPrivate::sys_pal) {
@@ -1211,18 +1211,24 @@ void QApplication::setStyle(QStyle *style)
 
     // re-polish existing widgets if necessary
     if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing) {
-        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
-            register QWidget *w = *it;
-            if (!(w->windowType() == Qt::Desktop)) {        // except desktop
-                if (w->testAttribute(Qt::WA_WState_Polished))
+        for (QWidgetMapper::ConstIterator it1 = QWidgetPrivate::mapper->constBegin(); it1 != QWidgetPrivate::mapper->constEnd(); ++it1) {
+            register QWidget *w = *it1;
+            if (w->windowType() != Qt::Desktop && w->testAttribute(Qt::WA_WState_Polished)
+                && !w->testAttribute(Qt::WA_SetStyle))
                     QApplicationPrivate::app_style->polish(w);                // repolish
-                QEvent e(QEvent::StyleChange);
-                QApplication::sendEvent(w, &e);
+        }
+
+        for (QWidgetMapper::ConstIterator it2 = QWidgetPrivate::mapper->constBegin(); it2 != QWidgetPrivate::mapper->constEnd(); ++it2) {
+            register QWidget *w = *it2;
+            if (w->windowType() != Qt::Desktop && w->testAttribute(Qt::WA_WState_Polished)
+                && !w->testAttribute(Qt::WA_SetStyle)) {
+                    QEvent e(QEvent::StyleChange);
+                    QApplication::sendEvent(w, &e);
 #ifdef QT3_SUPPORT
-                if (old)
-                    w->styleChange(*old);
+                    if (old)
+                        w->styleChange(*old);
 #endif
-                w->update();
+                    w->update();
             }
         }
     }
