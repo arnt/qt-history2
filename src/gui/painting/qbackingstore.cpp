@@ -69,7 +69,7 @@ bool QWidgetBackingStore::paintOnScreen(QWidget *w)
     Q_UNUSED(w);
     return true;
 #else
-    if (w && w->testAttribute(Qt::WA_PaintOnScreen))
+    if (w && (w->testAttribute(Qt::WA_PaintOnScreen) || !w->isWindow() && w->window()->testAttribute(Qt::WA_PaintOnScreen)))
         return true;
 
     // sanity check for overlarge toplevels. Better: store at least screen size and move offset.
@@ -467,13 +467,11 @@ void QWidgetBackingStore::dirtyRegion(const QRegion &rgn, QWidget *widget)
 #ifndef Q_WS_QWS
     widget->d_func()->dirtyWidget_sys(wrgn);
 #endif
-    if(!QWidgetBackingStore::paintOnScreen(widget)) {
-        wrgn.translate(widget->mapTo(tlw, QPoint(0, 0)));
-        dirty += wrgn;
+    wrgn.translate(widget->mapTo(tlw, QPoint(0, 0)));
+    dirty += wrgn;
 #ifdef Q_WS_QWS
-        tlw->d_func()->dirtyWidget_sys(wrgn); //optimization: don't translate twice
+    tlw->d_func()->dirtyWidget_sys(wrgn); //optimization: don't translate twice
 #endif
-    }
 }
 
 
