@@ -150,7 +150,7 @@ bool QLibraryPrivate::load_sys()
 # endif
 #if defined(QT_DEBUG_COMPONENT)
     if (!pHnd) {
-        qWarning("QLibrary: Cannot load '%s' :%s", QFile::encodeName(fileName).constData(),
+        qWarning("QLibrary: Cannot load %s: %s", QFile::encodeName(fileName).constData(),
                  qdlerror());
     }
 #endif
