@@ -36,7 +36,6 @@ private:
     QLineEdit *titleEdit;
     QTextEdit *msgEdit;
     QComboBox *typeCombo;
-    QSpinBox *timeoutSpin;
     QSystemTrayIcon *trayIcon;
     QAction *toggleVisibilityAction;
     QMenu *menu;

@@ -52,15 +52,11 @@ MainWindow::MainWindow(QWidget *parent)
     types << "NoIcon" << "Information" << "Warning" << "Critical";
     typeCombo->addItems(types);
     typeCombo->setCurrentIndex(2);
-    QLabel *timeoutLabel = new QLabel(tr("Timeout (msecs)"));
-    timeoutSpin = new QSpinBox;
-    timeoutSpin->setMinimum(-1);
-    timeoutSpin->setMaximum(INT_MAX);
-    timeoutSpin->setValue(10000);
     QPushButton *balloonButton = new QPushButton(tr("Balloon message"));
     balloonButton->setToolTip(tr("Click here to balloon the message"));
     QObject::connect(balloonButton, SIGNAL(clicked()), this, SLOT(showMessage()));
     info = new QTextEdit(tr("Status messages will be visible here"));
+    info->setMaximumHeight(100);
     QCheckBox *toggleIconCheckBox = new QCheckBox(tr("Show system tray icon"));
     toggleIconCheckBox->setChecked(true);
     QObject::connect(toggleIconCheckBox, SIGNAL(clicked(bool)), trayIcon, SLOT(setVisible(bool)));
@@ -77,7 +73,6 @@ MainWindow::MainWindow(QWidget *parent)
     layout->addWidget(titleLabel, 0, 0); layout->addWidget(titleEdit, 0, 1);
     layout->addWidget(msgLabel, 1, 0);   layout->addWidget(msgEdit, 1, 1);
     layout->addWidget(typeLabel, 2, 0);  layout->addWidget(typeCombo, 2, 1);
-    layout->addWidget(timeoutLabel, 3, 0); layout->addWidget(timeoutSpin, 3, 1);
                                            layout->addWidget(balloonButton, 4, 1);
     layout->addWidget(info, 5, 0, 1, 2);
     layout->addWidget(toggleIconCheckBox, 6, 0);
@@ -101,7 +96,7 @@ void MainWindow::toggleVisibility()
 void MainWindow::showMessage()
 {
     QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::MessageIcon(typeCombo->currentIndex());
-    trayIcon->showMessage(titleEdit->text(), msgEdit->toPlainText(), icon, timeoutSpin->value());
+    trayIcon->showMessage(titleEdit->text(), msgEdit->toPlainText(), icon, 10000);
     trayIcon->setToolTip(titleEdit->text());
 }
 
@@ -141,7 +136,7 @@ void MainWindow::changeIcon(int index)
     case 1:
         iconname = QLatin1String(":/resources/icon_22x22.png");
         break;
-   case 2:
+    case 2:
         iconname = QLatin1String(":/resources/icon_32x32.png");
         break;
     }
