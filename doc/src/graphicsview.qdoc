@@ -129,7 +129,7 @@
         features:
 
         \list
-        \o Mouse press, move, release and doubleclick events, as well as mouse
+        \o Mouse press, move, release and double click events, as well as mouse
         hover events, wheel events, and context menu events.
         \o Keyboard input focus, and key events
         \o Drag and drop
@@ -166,7 +166,7 @@
       Graphics View is based on the Cartesian coordinate system; items'
       position and geometry on the scene are represented by sets of two
       numbers: the x-coordinate, and the y-coordinate. When observing a scene
-      using an untransformed view, one unit on the scene is respresented by
+      using an untransformed view, one unit on the scene is represented by
       one pixel on the screen.
 
       There are three effective coordinate systems in play in Graphics View:
@@ -185,7 +185,7 @@
 
           Items live in their own local coordinate system. Their coordinates
           are usually centered around its center point (0, 0), and this is
-          also the center for all tranformations. Geometric primitives in the
+          also the center for all transformations. Geometric primitives in the
           item coordinate system are often referred to as item points, item
           lines, or item rectangles.
 
@@ -196,13 +196,13 @@
           event, the event position is given in item coordinates. The
           QGraphicsItem::contains() virtual function, which returns true if a
           certain point is inside your item, and false otherwise, takes a
-          point argument in item coordinates. Similarily, an item's bounding
+          point argument in item coordinates. Similarly, an item's bounding
           rect and shape are in item coordinates.
 
           At item's \e position is the coordinate of the item's center point
           in its parent's coordinate system; sometimes referred to as \e
           parent coordinates. The scene is in this sense regarded as all
-          parentless items' "parent". Top level items' position are in scene
+          parent-less items' "parent". Top level items' position are in scene
           coordinates.
 
           Child coordinates are relative to the parent's coordinates. If the
@@ -216,11 +216,11 @@
 
           Because items' position and transformation are relative to the
           parent, child items' coordinates are unaffected by the parent's
-          transformation, although the parent's tranformation implicitly
+          transformation, although the parent's transformation implicitly
           transforms the child. In the above example, even if the parent is
-          rotated and scaled, the child's (10, 0) point will still correspond
+          rotated and scaled, the child's (0, 10) point will still correspond
           to the parent's (10, 10) point. Relative to the scene, however, the
-          child will follow the parent's tranformation and position. If the
+          child will follow the parent's transformation and position. If the
           parent is scaled (2x, 2x), the child's position will be at scene
           coordinate (20, 0), and its (10, 0) point will correspond to the
           point (40, 0) on the scene.
