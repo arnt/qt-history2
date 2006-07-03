@@ -206,6 +206,9 @@
 // QUdpSocket
 //#define QT_NO_UDPSOCKET
 
+// QUndoCommand
+//#define QT_NO_UNDOCOMMAND
+
 // QUrlInfo
 //#define QT_NO_URLINFO
 
@@ -335,6 +338,16 @@
 #define QT_NO_SYSTEMTRAYICON
 #endif
 
+// QUndoGroup
+#if !defined(QT_NO_UNDOGROUP) && (defined(QT_NO_UNDOCOMMAND))
+#define QT_NO_UNDOGROUP
+#endif
+
+// QUndoStack
+#if !defined(QT_NO_UNDOSTACK) && (defined(QT_NO_UNDOCOMMAND))
+#define QT_NO_UNDOSTACK
+#endif
+
 // Context menu
 #if !defined(QT_NO_CONTEXTMENU) && (defined(QT_NO_MENU))
 #define QT_NO_CONTEXTMENU
@@ -445,6 +458,11 @@
 #define QT_NO_WHATSTHIS
 #endif
 
+// QDataWidgetMapper
+#if !defined(QT_NO_DATAWIDGETMAPPER) && (defined(QT_NO_ITEMVIEWS))
+#define QT_NO_DATAWIDGETMAPPER
+#endif
+
 // QDirModel
 #if !defined(QT_NO_DIRMODEL) && (defined(QT_NO_ITEMVIEWS))
 #define QT_NO_DIRMODEL
@@ -533,6 +551,11 @@
 // QToolBar
 #if !defined(QT_NO_TOOLBAR) && (defined(QT_NO_MAINWINDOW))
 #define QT_NO_TOOLBAR
+#endif
+
+// QUndoView
+#if !defined(QT_NO_UNDOVIEW) && (defined(QT_NO_UNDOCOMMAND) || defined(QT_NO_LISTVIEW))
+#define QT_NO_UNDOVIEW
 #endif
 
 // QDockwidget

@@ -596,6 +596,13 @@ Requires: ITEMVIEWS
 Name: QTreeView
 SeeAlso: ???
 
+Feature: DATAWIDGETMAPPER
+Description: Provides mapping between a section of a data model to widgets.
+Section: ItemViews
+Requires: ITEMVIEWS
+Name: QDataWidgetMapper
+SeeAlso: ???
+
 # Styles
 
 Feature: STYLE_WINDOWS
@@ -906,6 +913,34 @@ Description: Provides an icon for an application in the system tray.
 Section: Utilities
 Requires: ICON
 Name: QSystemTrayIcon
+SeeAlso: ???
+
+Feature: UNDOCOMMAND
+Description:
+Section: Utilities
+Requires:
+Name: QUndoCommand
+SeeAlso: ???
+
+Feature: UNDOSTACK
+Description:
+Section: Utilities
+Requires: UNDOCOMMAND
+Name: QUndoStack
+SeeAlso: ???
+
+Feature: UNDOGROUP
+Description:
+Section: Utilities
+Requires: UNDOCOMMAND
+Name: QUndoGroup
+SeeAlso: ???
+
+Feature: UNDOVIEW
+Description:
+Section: Utilities
+Requires: UNDOCOMMAND LISTVIEW
+Name: QUndoView
 SeeAlso: ???
 
 # Qtopia Core

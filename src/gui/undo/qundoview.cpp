@@ -13,6 +13,9 @@
 
 #include "qundostack.h"
 #include "qundoview.h"
+
+#ifndef QT_NO_UNDOVIEW
+
 #include "qundogroup.h"
 #include <QtCore/qabstractitemmodel.h>
 #include <QtCore/qpointer.h>
@@ -420,3 +423,5 @@ QIcon QUndoView::cleanIcon() const
 }
 
 #include "qundoview.moc"
+
+#endif // QT_NO_UNDOVIEW

@@ -16,6 +16,8 @@
 #include "qundogroup.h"
 #include "qundostack_p.h"
 
+#ifndef QT_NO_UNDOCOMMAND
+
 /*!
     \class QUndoCommand
     \brief The QUndoCommand class is the base class of all commands stored on a QUndoStack.
@@ -232,6 +234,10 @@ void QUndoCommand::setText(const QString &text)
 {
     d->text = text;
 }
+
+#endif // QT_NO_UNDOCOMMAND
+
+#ifndef QT_NO_UNDOSTACK
 
 /*!
     \class QUndoStack
@@ -957,3 +963,4 @@ bool QUndoStack::isActive() const
     \a canUndo specifies the new value.
 */
 
+#endif // QT_NO_UNDOSTACK

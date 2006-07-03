@@ -15,6 +15,8 @@
 #include "qundostack.h"
 #include "qundostack_p.h"
 
+#ifndef QT_NO_UNDOGROUP
+
 class QUndoGroupPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QUndoGroup)
@@ -443,3 +445,5 @@ QAction *QUndoGroup::createRedoAction(QObject *parent, const QString &prefix) co
 
     \sa QUndoStack::redoTextChanged() setActiveStack()
 */
+
+#endif // QT_NO_UNDOGROUP

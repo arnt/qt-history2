@@ -61,10 +61,12 @@ public:
     inline void setToolTip(const QString &toolTip);
 #endif
 
+#ifndef QT_NO_STATUSTIP
     inline QString statusTip() const {
         return qvariant_cast<QString>(data(Qt::StatusTipRole));
     }
     inline void setStatusTip(const QString &statusTip);
+#endif
 
 #ifndef QT_NO_WHATSTHIS
     inline QString whatsThis() const {
@@ -221,11 +223,15 @@ inline void QStandardItem::setToolTip(const QString &atoolTip)
 { setData(Qt::ToolTipRole, atoolTip); }
 #endif
 
+#ifndef QT_NO_STATUSTIP
 inline void QStandardItem::setStatusTip(const QString &astatusTip)
 { setData(Qt::StatusTipRole, astatusTip); }
+#endif
 
+#ifndef QT_NO_WHATSTHIS
 inline void QStandardItem::setWhatsThis(const QString &awhatsThis)
 { setData(Qt::WhatsThisRole, awhatsThis); }
+#endif
 
 inline void QStandardItem::setSizeHint(const QSize &asizeHint)
 { setData(Qt::SizeHintRole, asizeHint); }
@@ -356,7 +362,7 @@ public:
 
 Q_SIGNALS:
     void itemChanged(QStandardItem *item);
-    
+
 protected:
     QStandardItemModel(QStandardItemModelPrivate &dd, QObject *parent = 0);
 

@@ -16,6 +16,8 @@
 
 #include "QtCore/qobject.h"
 
+#ifndef QT_NO_DATAWIDGETMAPPER
+
 QT_BEGIN_HEADER
 
 QT_MODULE(Gui)
@@ -87,5 +89,6 @@ private:
 
 QT_END_HEADER
 
+#endif // QT_NO_DATAWIDGETMAPPER
 #endif
 

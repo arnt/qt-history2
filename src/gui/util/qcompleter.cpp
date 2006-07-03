@@ -667,6 +667,9 @@ void QCompleterPrivate::init(QAbstractItemModel *m)
     Q_Q(QCompleter);
     proxy = new QCompletionModel(this, q);
     q->setModel(m);
+#ifdef QT_NO_LISTVIEW
+    q->setCompletionMode(QCompleter::InlineCompletion);
+#else
     QListView *listView = new QListView;
     listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -675,6 +678,7 @@ void QCompleterPrivate::init(QAbstractItemModel *m)
     listView->setModelColumn(column);
     q->setPopup(listView);
     q->setCompletionMode(QCompleter::PopupCompletion);
+#endif // QT_NO_LISTVIEW
 }
 
 void QCompleterPrivate::setCurrentIndex(const QModelIndex& index, bool select)
@@ -1212,8 +1216,10 @@ void QCompleter::setCompletionColumn(int column)
     Q_D(QCompleter);
     if (d->column == column)
         return;
+#ifndef QT_NO_LISTVIEW
     if (QListView *listView = qobject_cast<QListView *>(d->popup))
         listView->setModelColumn(column);
+#endif
     d->column = column;
     d->proxy->invalidate();
 }

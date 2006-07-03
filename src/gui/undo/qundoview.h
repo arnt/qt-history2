@@ -17,6 +17,8 @@
 #include <QtGui/qlistview.h>
 #include <QtCore/qstring.h>
 
+#ifndef QT_NO_UNDOVIEW
+
 QT_BEGIN_HEADER
 
 class QUndoViewPrivate;
@@ -58,4 +60,5 @@ private:
 
 QT_END_HEADER
 
+#endif // QT_NO_UNDOVIEW
 #endif // QUNDOVIEW_H

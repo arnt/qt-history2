@@ -25,6 +25,8 @@ class QAction;
 class QUndoCommandPrivate;
 class QUndoStackPrivate;
 
+#ifndef QT_NO_UNDOCOMMAND
+
 class Q_GUI_EXPORT QUndoCommand
 {
     QUndoCommandPrivate *d;
@@ -47,6 +49,10 @@ private:
     Q_DISABLE_COPY(QUndoCommand)
     friend class QUndoStack;
 };
+
+#endif // QT_NO_UNDOCOMMAND
+
+#ifndef QT_NO_UNDOSTACK
 
 class Q_GUI_EXPORT QUndoStack : public QObject
 {
@@ -101,6 +107,8 @@ private:
     Q_DISABLE_COPY(QUndoStack)
     friend class QUndoGroup;
 };
+
+#endif // QT_NO_UNDOSTACK
 
 QT_END_HEADER
 

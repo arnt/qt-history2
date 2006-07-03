@@ -13,6 +13,8 @@
 
 #include "qdatawidgetmapper.h"
 
+#ifndef QT_NO_DATAWIDGETMAPPER
+
 #include "qabstractitemmodel.h"
 #include "qitemdelegate.h"
 #include "qmetaobject.h"
@@ -761,3 +763,5 @@ int QDataWidgetMapper::currentIndex() const
 }
 
 #include "moc_qdatawidgetmapper.cpp"
+
+#endif // QT_NO_DATAWIDGETMAPPER

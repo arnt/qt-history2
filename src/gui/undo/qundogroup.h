@@ -25,6 +25,8 @@ class QAction;
 
 QT_MODULE(Gui)
 
+#ifndef QT_NO_UNDOGROUP
+
 class Q_GUI_EXPORT QUndoGroup : public QObject
 {
     Q_OBJECT
@@ -65,6 +67,8 @@ Q_SIGNALS:
 private:
     Q_DISABLE_COPY(QUndoGroup)
 };
+
+#endif // QT_NO_UNDOGROUP
 
 QT_END_HEADER
 
