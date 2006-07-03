@@ -2705,8 +2705,7 @@ Qtopia Core only:
                          default ($CFG_QCONFIG).
 
     -depths list ....... Comma-separated list of supported bit-per-pixel
-                         depths, from:  4, 8, 16, 18, 24, and 32.
-                         (8bpp is required by the VGA16 driver)
+                         depths, from: 4, 8, 16, 18, 24, and 32.
 
     -qt-decoration-<style> ....Enable a decoration <style> in the QtGui library,
                                by default all available decorations are on.
