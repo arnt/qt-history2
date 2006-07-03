@@ -1484,7 +1484,7 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
                 int sw = qRound(sr.width());
                 int sh = qRound(sr.height());
                 quint32 *pantherData = pixmap.data->pixels + (sy * pixmap.width() + sx);
-                QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(pantherData,
+                QCFType<CGDataProviderRef> provider = CGDataProviderCreateWithData(0,
                                                                    pantherData, sw*sh*sizeof(uint),
                                                                    0);
                 subimage = CGImageCreate(sw, sh, 8, 32, pixmap.width() * sizeof(uint),
