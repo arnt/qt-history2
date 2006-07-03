@@ -253,6 +253,8 @@ void QFontComboBoxPrivate::_q_currentChanged(const QString &text)
     setFontFilters(FontFilters) to filter out certain types of fonts
     as e.g. non scalable fonts or monospaced fonts.
 
+    \image windowsxp-fontcombobox.png Screenshot of QFontComboBox on Windows XP
+
     \sa QComboBox, QFont, QFontInfo, QFontMetrics, QFontDatabase, {Character Map Example}
 */
 
