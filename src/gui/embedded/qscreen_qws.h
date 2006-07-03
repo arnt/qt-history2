@@ -236,10 +236,8 @@ public:
     virtual void solidFill(const QColor &color, const QRegion &region);
     void blit(QWSWindow *bs, const QRegion &clip);
 
-#ifdef QT_WINDOW_SURFACE
     virtual QWSWindowSurface* createSurface(QWidget *widget) const;
     virtual QWSWindowSurface* createSurface(const QString &key) const;
-#endif
 
 protected:
 

@@ -88,12 +88,8 @@ public:
 
     bool isOpaque() const {return opaque && _opacity == 255;}
     uint opacity() const { return _opacity; }
-#ifndef QT_WINDOW_SURFACE
-    QWSBackingStore *backingStore() { return _backingStore; }
-#else
     QWSWindowSurface* windowSurface() { return surface; }
     void createSurface(const QString &key, const QByteArray &data);
-#endif
 
 private:
     bool hidden() const { return requested_region.isEmpty(); }
@@ -118,11 +114,7 @@ private:
     QRegion allocated_region;
     QRegion exposed;
     int last_focus_time;
-#ifdef QT_WINDOW_SURFACE
     QWSWindowSurface *surface;
-#else
-    QWSBackingStore *_backingStore;
-#endif
     uint _opacity;
     bool opaque;
     QWSWindowPrivate *d;

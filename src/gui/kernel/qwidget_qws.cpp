@@ -37,7 +37,6 @@
 #include "qdebug.h"
 
 #include "qwidget_p.h"
-#include "qwidget_qws_p.h"
 
 extern int *qt_last_x;
 extern int *qt_last_y;
@@ -233,13 +232,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                 d->hide_sys();
             }
             if (destroyWindow && isWindow()) {
-#ifdef QT_WINDOW_SURFACE
                 d->extra->topextra->backingStore->windowSurface->release();
                 qwsDisplay()->destroyRegion(internalWinId());
-#else
-                qwsDisplay()->destroyRegion(internalWinId());
-                d->extra->topextra->backingStore->buffer.detach();
-#endif
             }
         }
         d->setWinId(0);
@@ -324,11 +318,7 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WindowFlags f)
     }
     if ((int)old_winid > 0) {
         QWidget::qwsDisplay()->destroyRegion(old_winid);
-#ifdef QT_WINDOW_SURFACE
         extra->topextra->backingStore->windowSurface->release();
-#else
-        extra->topextra->backingStore->buffer.detach();
-#endif
     }
 #ifndef QT_NO_CURSOR
     if (setcurs) {
@@ -528,31 +518,13 @@ void QWidgetPrivate::dirtyWidget_sys(const QRegion &rgn)
         wrgn.translate(offs);
     }
 
-#ifdef QT_WINDOW_SURFACE
     QWSWindowSurface *surface = static_cast<QWSWindowSurface*>(wbs->windowSurface);
     surface->setDirty(wrgn);
-#else
-    wbs->dirty_on_screen += wrgn;
-    QApplication::postEvent(tlw, new QEvent(QEvent::UpdateRequest));
-#endif
 }
 
 void QWidgetPrivate::cleanWidget_sys(const QRegion& rgn)
 {
-#ifdef QT_WINDOW_SURFACE
     Q_UNUSED(rgn);
-#else
-    Q_Q(QWidget);
-    QWidget *tlw = q->window();
-    QWidgetBackingStore *wbs = tlw->d_func()->topData()->backingStore;
-    QRegion wrgn(rgn);
-    if (tlw != q) {
-        QPoint offs(q->mapTo(tlw, QPoint()));
-        wrgn.translate(offs);
-    }
-
-    wbs->dirty_on_screen -= wrgn;
-#endif
 }
 
 
@@ -570,269 +542,6 @@ void QWidgetPrivate::blitToScreen(const QRegion &globalrgn)
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
     QWidget::qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
 }
-
-#ifndef QT_WINDOW_SURFACE
-
-//#define QT_SHAREDMEM_DEBUG
-
-QWSBackingStore::QWSBackingStore()
-{
-    isSharedMemory = false;
-    memLock = 0;
-    ownsMemory = false;
-    _windowType = Invalid;
-}
-
-QWSBackingStore::~QWSBackingStore()
-{
-    detach();
-}
-
-void QWSBackingStore::blit(const QRect &r, const QPoint &p)
-{
-    int lineskip = img.bytesPerLine();
-    int depth = img.depth() >> 3;
-
-    const uchar *src;
-    uchar *dest;
-
-    if (r.top() < p.y()) {
-        // backwards vertically
-        src = mem + r.bottom()*lineskip + r.left()*depth;
-        dest = mem + (p.y()+r.height()-1)*lineskip + p.x()*depth;
-        lineskip = -lineskip;
-    } else {
-        src = mem + r.top()*lineskip + r.left()*depth;
-        dest = mem + p.y()*lineskip + p.x()*depth;
-    }
-
-    const int w = r.width();
-    int h = r.height();
-    const int bytes = w * depth;
-    lock();
-    do {
-        ::memmove(dest, src, bytes);
-        dest += lineskip;
-        src += lineskip;
-    } while (--h);
-    unlock();
-}
-
-QWSMemId QWSBackingStore::memoryId() const
-{
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if (isSharedMemory)
-        return shm.id();
-    else
-#endif
-        return mem;
-}
-
-void QWSBackingStore::detach()
-{
-#ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::detach shmid" << shm.id() << "shmaddr" << shm.address();
-#endif
-    img = QImage();
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if (isSharedMemory)
-        shm.detach();
-    else
-#endif
-        if (ownsMemory)
-            delete[] mem;
-    isSharedMemory = false;
-    ownsMemory = false;
-    mem = 0;
-}
-
-
-
-bool QWSBackingStore::createIfNecessary(QWidget *tlw)
-{
-    QRegion tlwRegion = tlw->geometry();
-#ifndef QT_NO_QWS_MANAGER
-    QTLWExtra *topextra = tlw->d_func()->extra->topextra;
-    if (topextra->qwsManager)
-        tlwRegion += topextra->qwsManager->region();
-#endif
-    if (!tlw->d_func()->extra->mask.isEmpty())
-        tlwRegion &= tlw->d_func()->extra->mask.translated(tlw->geometry().topLeft());
-    QSize tlwSize = tlwRegion.boundingRect().size();
-
-
-    QBrush bgBrush = tlw->palette().brush(tlw->backgroundRole());
-    bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
-
-    QImage::Format imageFormat = (opaque && qt_screen->depth() <= 16) ? QImage::Format_RGB16 : QImage::Format_ARGB32_Premultiplied;
-
-#ifdef EXPERIMENTAL_ONSCREEN_PAINT
-    bool useBS = !opaque || tlw->windowOpacity() != qreal(1.0);
-#else
-    bool useBS = true;
-#endif
-    bool doCreate = false;
-    if (useBS)
-        doCreate = tlwSize != size() || imageFormat != img.format() || _windowType == NonBuffered; // ...
-    else
-        doCreate = _windowType != NonBuffered;
-
-    if (doCreate)
-        create(tlwSize, imageFormat, useBS ? int(opaque) : int(NonBuffered));
-
-    if (doCreate || windowRgn != tlwRegion) {
-        QWidget::qwsDisplay()->requestRegion(tlw->data->winid,
-            memoryId(),
-            _windowType, tlwRegion, imageFormat);
-        offs = tlw->geometry().topLeft() - tlwRegion.boundingRect().topLeft();
-        windowRgn = tlwRegion;
-    }
-
-    if (windowType() == QWSBackingStore::NonBuffered)
-        offs = tlw->geometry().topLeft();
-
-    return doCreate;
-}
-
-
-void QWSBackingStore::create(QSize s, QImage::Format imageFormat, int windowType)
-{
-    if (size() == s && imageFormat == img.format() && windowType == _windowType)
-        return;
-    detach();
-    _windowType = windowType;
-
-    if (_windowType == QWSBackingStore::NonBuffered) {
-        mem = qt_screen->base();
-        img = QImage(mem, qt_screen->width(), qt_screen->height(), imageFormat);
-        return;
-    }
-    if (s.isNull()) {
-#ifdef QT_SHAREDMEM_DEBUG
-        qDebug() << "QWSBackingStore::create null size";
-#endif
-        return;
-    }
-    const int bytes_per_pixel = imageFormat == QImage::Format_RGB16 ? 2 : 4;
-    int extradatasize = 0;//2 * sizeof(int); //store height and width ???
-    int bpl = (s.width() * bytes_per_pixel + 3) & ~3;
-    int datasize = bpl * s.height() + extradatasize;
-
-    if (isServerProcess()) { // I'm the server process
-        mem = new uchar[datasize];
-        isSharedMemory = false;
-        ownsMemory = true;
-#ifndef QT_NO_QWS_MULTIPROCESS
-    } else {
-        isSharedMemory = true;
-        ownsMemory = false;
-        if (!shm.create(datasize)) {
-            perror("QWSBackingStore::create allocating shared memory");
-            qFatal("Error creating shared memory of size %d", datasize);
-        }
-        mem = static_cast<uchar*>(shm.address());
-        memLock = QWSDisplay::Data::getClientLock();
-#endif
-    }
-
-    img = QImage(mem + extradatasize, s.width(), s.height(), imageFormat);
-#ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::create size" << s << "shmid" << shm.id() << "shmaddr" << shm.address() << "imageFormat" << imageFormat;
-#endif
-}
-
-#ifndef QT_NO_QWS_MULTIPROCESS
-void QWSBackingStore::attach(QWSMemId id, QSize s, QImage::Format imageFormat, int windowType)
-{
-    if (shm.id() == id && s == size() && _windowType == windowType)
-        return;
-    detach();
-    _windowType = windowType;
-    if (windowType == QWSBackingStore::NonBuffered) {
-        mem  = qt_screen->base();
-        return;
-    }
-    if (s.isNull())
-        return;
-    if (windowType == DebugHighlighter) {
-        // QT_FLUSH_PAINT
-        //detach has already set everything
-        return;
-    }
-    if (!shm.attach(id)) {
-        perror("QWSBackingStore::attach attaching to shared memory");
-        qWarning("QWSBackingStore::attach: Error attaching to shared memory 0x%x of size %d",
-                 int(id), s.width() * s.height());
-        return;
-    }
-    isSharedMemory = true;
-    ownsMemory = false;
-    mem = static_cast<uchar*>(shm.address());
-
-    int extradatasize = 0;
-    img = QImage(mem + extradatasize, s.width(), s.height(), imageFormat);
-#ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::attach size" << s << "shmid" << shm.id() << "shmaddr" << shm.address() << "imageFormat" << imageFormat;
-#endif
-}
-#endif // QT_NO_QWS_MULTIPROCESS
-
-void QWSBackingStore::setMemory(QWSMemId id, const QSize &s, QImage::Format imageFormat, int windowType)
-{
-    detach();
-    _windowType = windowType;
-    if (_windowType == QWSBackingStore::NonBuffered) {
-        //qDebug("QWSBackingStore::setMemory");
-        mem = qt_screen->base();
-
-        img = QImage(mem, qt_screen->width(), qt_screen->height(), imageFormat);
-        isSharedMemory = false;
-        ownsMemory = false;
-        return;
-    }
-    if (windowType == DebugHighlighter) {
-        // Handle QT_FLUSH_PAINT
-        mem = 0;
-        img = QImage();
-        isSharedMemory = false;
-        ownsMemory = false;
-        return;
-    }
-    mem = id;
-    img = QImage(mem, s.width(), s.height(), imageFormat);
-    isSharedMemory = false;
-    ownsMemory = false;
-#ifdef QT_SHAREDMEM_DEBUG
-    qDebug() << "QWSBackingStore::setMemory size" << s << "shmid" << shm.id() << "shmaddr" << shm.address() << "imageFormat" << imageFormat;
-#endif
-}
-
-bool QWSBackingStore::lock(int timeout)
-{
-    return !memLock || memLock->lock(QWSLock::BackingStore, timeout);
-}
-
-void QWSBackingStore::unlock()
-{
-    if (memLock)
-        memLock->unlock(QWSLock::BackingStore);
-}
-
-bool QWSBackingStore::wait(int timeout)
-{
-    return !memLock || memLock->wait(QWSLock::BackingStore, timeout);
-}
-
-/*!
-    Set the lock to be used for backingstore synchronization.
-    The backingstore will not take ownership of the lock.
-*/
-void QWSBackingStore::setLock(QWSLock *l)
-{
-    memLock = l;
-}
-
-#endif // QT_WINDOW_BACKINSTORE
 
 void QWidgetPrivate::show_sys()
 {
@@ -1053,7 +762,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                 QWidget::qwsDisplay()->moveRegion(data.winid, x - oldp.x(), y - oldp.y());
                 toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting
 
-#ifdef QT_WINDOW_SURFACE
                 QWidgetBackingStore *bs = maybeBackingStore();
                 if (bs) {
                     QWSWindowSurface *surface;
@@ -1062,8 +770,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     if (!surface->isBuffered())
                         q->update();
                 }
-#endif // QT_WINDOW_SURFACE
-
             } else {
                 myregion = localRequestedRegion();
                 myregion.translate(x,y);
@@ -1078,22 +784,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                                                    data.crect.y()-br.y(),
                                                    br.right()-data.crect.right(),
                                                    br.bottom()-data.crect.bottom());
-#ifdef QT_WINDOW_SURFACE
                     QWindowSurface *surface;
                     surface = topextra->backingStore->windowSurface;
                     surface->resize(myregion.boundingRect().size());
-#else
-                    QWSBackingStore *bs = &topextra->backingStore->buffer;
-                    if (bs->windowType() == QWSBackingStore::NonBuffered) {
-                        QWidget::qwsDisplay()->requestRegion(data.winid, bs->memoryId(), bs->windowType(),
-                                                             myregion, bs->image().format());
-#ifndef QT_NO_QWS_MANAGER
-                        if (topextra->qwsManager)
-                            topextra->qwsManager->d_func()->dirtyRegion(QDecoration::All,
-                                                            QDecoration::Normal);
-#endif
-                    }
-#endif // QT_WINDOW_SURFACE
                 }
             }
         }

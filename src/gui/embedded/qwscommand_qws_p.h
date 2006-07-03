@@ -206,13 +206,11 @@ struct QWSRegionCommand : public QWSCommand
         char *ptr = rawDataPtr;
 
         rectangles = reinterpret_cast<QRect*>(ptr);
-#ifdef QT_WINDOW_SURFACE
         ptr += simpleData.nrectangles * sizeof(QRect);
         surfaceKey = ptr;
         ptr += simpleData.surfacekeylength;
         surfaceData = ptr;
         ptr += simpleData.surfacedatalength;
-#endif
     }
 
     /* XXX this will pad out in a compiler dependent way,
@@ -222,21 +220,13 @@ struct QWSRegionCommand : public QWSCommand
        */
     struct SimpleData {
         int windowid;
-#ifdef QT_WINDOW_SURFACE
         int surfacekeylength;
         int surfacedatalength;
-#else
-        QWSMemId memoryid;
-        uint windowtype:8;
-        uint imgFormat:8;
-#endif
         int nrectangles;
     } simpleData;
 
-#ifdef QT_WINDOW_SURFACE
     char *surfaceKey;
     char *surfaceData;
-#endif
     QRect *rectangles;
 };
 

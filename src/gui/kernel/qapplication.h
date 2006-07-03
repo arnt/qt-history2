@@ -309,11 +309,7 @@ private:
 
 #if defined(Q_WS_QWS)
     friend class QInputContext;
-#ifdef QT_WINDOW_SURFACE
     friend class QWSDirectPainterSurface;
-#else
-    friend class QDirectPainter;
-#endif
 #endif
 
     Q_PRIVATE_SLOT(d_func(), void _q_tryEmitLastWindowClosed())

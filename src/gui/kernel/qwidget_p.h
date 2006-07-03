@@ -110,9 +110,7 @@ struct QTLWExtra {
 #endif
     QRect normalGeometry; // used by showMin/maximized/FullScreen
 
-#ifdef QT_WINDOW_SURFACE
     QWindowSurface *windowSurface;
-#endif
 };
 
 struct QWExtra {

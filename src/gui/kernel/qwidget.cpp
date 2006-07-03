@@ -1168,9 +1168,7 @@ void QWidgetPrivate::createTLExtra()
         createExtra();
     if (!extra->topextra) {
         QTLWExtra* x = extra->topextra = new QTLWExtra;
-#ifdef QT_WINDOW_SURFACE
         x->windowSurface = 0;
-#endif
         x->opacity = 255;
         x->posFromMove = 0;
         x->icon = 0;
@@ -8077,28 +8075,20 @@ QRect QWidgetPrivate::frameStrut() const
 
 void QWidget::setWindowSurface(QWindowSurface *surface)
 {
-#ifdef QT_WINDOW_SURFACE
     if (!isTopLevel())
         return;
 
     // ### Global update ??
     d_func()->topData()->windowSurface = surface;
-#else
-    Q_UNUSED(surface);
-#endif
 }
 
 
 QWindowSurface *QWidget::windowSurface() const
 {
-#ifdef QT_WINDOW_SURFACE
     if (!isTopLevel())
         return 0;
 
     return d_func()->topData()->windowSurface;
-#else
-    return 0;
-#endif
 }
 
 

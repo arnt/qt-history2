@@ -76,10 +76,7 @@
 
 #include <qbuffer.h>
 
-#include <private/qwidget_qws_p.h>
-#ifdef QT_WINDOW_SURFACE
 #include <private/qwindowsurface_qws_p.h>
-#endif
 
 #include "qwindowsystem_p.h"
 
@@ -306,21 +303,15 @@ QWSWindow::QWSWindow(int i, QWSClient* client)
         : id(i), modified(false),
           onTop(false), c(client), last_focus_time(0), _opacity(255), opaque(true), d(0)
 {
-#ifdef QT_WINDOW_SURFACE
     surface = 0;
-#else
-    _backingStore = new QWSBackingStore;
-#endif
 }
 
-#ifdef QT_WINDOW_SURFACE
 void QWSWindow::createSurface(const QString &key, const QByteArray &data)
 {
     delete surface;
     surface = qt_screen->createSurface(key);
     surface->attach(data);
 }
-#endif
 
 /*!
     \internal
@@ -413,11 +404,7 @@ QWSWindow::~QWSWindow()
     if (current_IM_composing_win == this)
         current_IM_composing_win = 0;
 #endif
-#ifdef QT_WINDOW_SURFACE
     delete surface;
-#else
-    delete _backingStore;
-#endif
 }
 
 /*!
@@ -2199,15 +2186,10 @@ void QWSServerPrivate::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
     QRegion region;
     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);
 
-#ifdef QT_WINDOW_SURFACE
     const QByteArray data(cmd->surfaceData, cmd->simpleData.surfacedatalength);
     const QString key = QString::fromUtf8(cmd->surfaceKey,
                                           cmd->simpleData.surfacekeylength);
     request_region(cmd->simpleData.windowid, key, data, region);
-#else
-    request_region(cmd->simpleData.windowid, cmd->simpleData.memoryid,
-                   cmd->simpleData.windowtype, region, (QImage::Format)cmd->simpleData.imgFormat, changingw);
-#endif
 }
 
 void QWSServerPrivate::invokeRegionMove(const QWSRegionMoveCommand *cmd, QWSClient *client)
@@ -3042,7 +3024,6 @@ void QWSServerPrivate::repaint_region(int wid, bool opaque, QRegion region)
     exposeRegion(region, level);
 }
 
-#ifdef QT_WINDOW_SURFACE
 QRegion QWSServerPrivate::reserve_region(QWSWindow *win, const QRegion &region)
 {
     QRegion r = region;
@@ -3096,77 +3077,6 @@ void QWSServerPrivate::request_region(int wid, const QString &surfaceKey,
     if (region.isEmpty())
         handleWindowClose(changingw);
 }
-#else
-void QWSServerPrivate::request_region(int wid, QWSMemId mid,
-                                      int windowtype, QRegion region, QImage::Format imageFormat,
-                                      QWSWindow *changingw)
-{
-    Q_Q(QWSServer);
-    if (!changingw)
-        changingw = findWindow(wid, 0);
-    if (!changingw) {
-        return;
-    }
-    bool isShow = !changingw->isVisible() && !region.isEmpty();
-
-    if (windowtype == QWSBackingStore::ReservedRegion) {
-        int i = 0;
-
-        int oldPos = windows.indexOf(changingw);
-        int newPos = oldPos < nReserved ? nReserved-1 : nReserved;
-        while (i < nReserved) {
-            QWSWindow *rw = windows.at(i);
-            if (i != oldPos) {
-                //for Reserved regions, requested_region is really the allocated region
-                region -= rw->requested_region;
-            }
-            ++i;
-        }
-        windows.move(oldPos, newPos);
-        nReserved = newPos + 1;
-        if (isShow) {
-            changingw->backingStore()->setMemory(0, QSize(), imageFormat, windowtype);
-            changingw->requested_region = region;
-        } else {
-            //handle change
-            QRegion oldRegion = changingw->requested_region;
-            changingw->requested_region = region;
-            exposeRegion(oldRegion - region, newPos);
-        }
-        changingw->client()->sendRegionEvent(wid, region, 0);
-    } else {
-        QWSBackingStore *backingStore = changingw->backingStore();
-        QWSClient *client = changingw->client();
-
-        if (client->clientId() == 0) {
-            backingStore->setMemory(mid, region.boundingRect().size(), imageFormat, windowtype);
-#ifndef QT_NO_QWS_MULTIPROCESS
-        } else {
-            backingStore->attach(mid, region.boundingRect().size(), imageFormat, windowtype);
-            backingStore->setLock(changingw->client()->d_func()->clientLock);
-#endif
-        }
-
-        changingw->opaque = windowtype != QWSBackingStore::Transparent && windowtype != QWSBackingStore::DebugHighlighter;
-
-        setWindowRegion(changingw, region);
-    }
-    if (isShow)
-        emit q->windowEvent(changingw, QWSServer::Show);
-    if (!region.isEmpty())
-        emit q->windowEvent(changingw, QWSServer::Geometry);
-    else
-        emit q->windowEvent(changingw, QWSServer::Hide);
-    if (region.isEmpty())
-        handleWindowClose(changingw);
-
-
-
-    //### if the window under our mouse changes, send update.
-    //     if (containsMouse != changingw->allocatedRegion().contains(mousePosition))
-    //         updateClientCursorPos();
-}
-#endif // QT_WINDOW_SURFACE
 
 void QWSServerPrivate::destroy_region(const QWSRegionDestroyCommand *cmd)
 {

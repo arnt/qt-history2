@@ -1133,7 +1133,6 @@ void QWSDisplay::nameRegion(int winId, const QString& n, const QString &c)
         d->sendCommand(cmd);
 }
 
-#ifdef QT_WINDOW_SURFACE
 void QWSDisplay::requestRegion(int winId, const QString &surfaceKey,
                                const QByteArray &surfaceData,
                                const QRegion &region)
@@ -1161,35 +1160,6 @@ void QWSDisplay::requestRegion(int winId, const QString &surfaceKey,
         d->sendSynchronousCommand(cmd);
     }
 }
-#else
-void QWSDisplay::requestRegion(int winId, QWSMemId memId,
-                               int windowtype, QRegion r, QImage::Format imageFormat)
-{
-    if (d->directServerConnection()) {
-        qwsServer->d_func()->request_region(winId, memId, windowtype, r, imageFormat);
-    } else {
-        QVector<QRect> ra = r.rects();
-        QWSRegionCommand cmd;
-    /* XXX QWSRegionCommand is padded out in a compiler dependent way.
-       Zeroed out to avoid valgrind reporting uninitialized memory usage.
-       */
-#ifdef QT_DEBUG
-        memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
-#endif
-        cmd.simpleData.windowid = winId;
-        cmd.simpleData.windowtype = windowtype;
-        cmd.simpleData.memoryid = memId;
-        cmd.simpleData.imgFormat = imageFormat;
-        cmd.simpleData.nrectangles = ra.count();
-        cmd.setData(reinterpret_cast<const char *>(r.rects().constData()),
-                    ra.count() * sizeof(QRect), false);
-        d->sendSynchronousCommand(cmd);
-    }
-
-    // if (!r.isEmpty())
-    //    d->waitForRegionAck();
-}
-#endif // QT_WINDOW_SURFACE
 
 void QWSDisplay::repaintRegion(int winId, bool opaque, QRegion r)
 {

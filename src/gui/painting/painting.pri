@@ -142,7 +142,6 @@ embedded {
 }
 
 win32|x11|embedded {
-	DEFINES += QT_WINDOW_SURFACE
 	HEADERS += painting/qwindowsurface_p.h \
 		   painting/qwindowsurface_raster_p.h
 	SOURCES += painting/qwindowsurface_raster.cpp

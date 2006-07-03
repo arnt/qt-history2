@@ -27,7 +27,6 @@
 //
 
 #include "private/qobject_p.h"
-#include "private/qwidget_qws_p.h"
 #include "qwindowsystem_qws.h"
 #include "qbrush.h"
 #include "qwsproperty_qws.h"
@@ -83,16 +82,11 @@ private:
     void set_altitude(const QWSChangeAltitudeCommand *);
     void set_opacity(const QWSSetOpacityCommand *);
     void request_focus(const QWSRequestFocusCommand *);
-#ifdef QT_WINDOW_SURFACE
     QRegion reserve_region(QWSWindow *window, const QRegion &region);
     void request_region(int winId, const QString &surfaceKey,
                         const QByteArray &surfaceData,
                         const QRegion &region);
     void update_regions();
-#else
-    void request_region(int winId, QWSMemId memId,
-                        int windowtype, QRegion, QImage::Format, QWSWindow* = 0);
-#endif
     void repaint_region(int winId, bool opaque, QRegion);
     void destroy_region(const QWSRegionDestroyCommand *);
     void name_region(const QWSRegionNameCommand *);

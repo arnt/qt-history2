@@ -28,7 +28,7 @@
 #include "qwsdisplay_qws.h"
 #include "qwssocket_qws.h"
 #include "qwsevent_qws.h"
-#include "private/qwidget_qws_p.h"
+#include <private/qsharedmemory_p.h>
 #include "qwscommand_qws_p.h"
 #include "qwslock_p.h"
 
