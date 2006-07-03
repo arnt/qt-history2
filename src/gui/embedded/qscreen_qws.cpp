@@ -1476,7 +1476,7 @@ QWSWindowSurface* QScreen::createSurface(QWidget *widget) const
     if (doOnScreen == -1)
         doOnScreen = qgetenv("QT_ONSCREEN_PAINT").toInt();
 
-    if (doOnScreen && isWidgetOpaque(widget))
+    if (doOnScreen && isWidgetOpaque(widget) && base())
         return new QWSOnScreenSurface(widget);
     else if (QApplication::type() == QApplication::GuiServer)
         return new QWSLocalMemSurface(widget);
