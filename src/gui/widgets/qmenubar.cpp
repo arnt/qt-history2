@@ -1921,7 +1921,7 @@ int QMenuBar::findIdForAction(QAction *act) const
 /*!
     \fn int QMenuBar::itemAtPos(const QPoint &p)
 
-    Use actionAt() instead.
+    There is no equivalent way to achieve this in Qt 4.
 */
 
 /*!
