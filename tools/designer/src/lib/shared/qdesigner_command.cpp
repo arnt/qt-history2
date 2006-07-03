@@ -1720,6 +1720,10 @@ void AdjustWidgetSizeCommand::redo()
         widget = formWindow()->parentWidget();
 
     m_geometry = widget->geometry();
+    if (widget != m_widget && widget->parentWidget() && QLatin1String(widget->parentWidget()->metaObject()->className()) == QLatin1String("QWorkspaceChild")) {
+        QApplication::processEvents();
+        widget->parentWidget()->adjustSize();
+    }
     QApplication::processEvents();
     widget->adjustSize();
 
@@ -1733,6 +1737,10 @@ void AdjustWidgetSizeCommand::undo()
 {
     if (formWindow()->mainContainer() == m_widget && formWindow()->parentWidget()) {
         formWindow()->parentWidget()->resize(m_geometry.width(), m_geometry.height());
+        QWidget *widget = formWindow()->parentWidget();
+        if (widget->parentWidget() && QLatin1String(widget->parentWidget()->metaObject()->className()) == QLatin1String("QWorkspaceChild")) {
+            widget->parentWidget()->setGeometry(m_geometry);
+        }
     } else {
         m_widget->setGeometry(m_geometry);
     }
