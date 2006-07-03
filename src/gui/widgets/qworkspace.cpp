@@ -2167,7 +2167,7 @@ void QWorkspace::cascade()
 
     for (it = d->focus.begin(); it != d->focus.end(); ++it) {
         wc = *it;
-        if (wc->windowWidget()->isVisibleTo(this) && !(wc->titlebar && !wc->titlebar->isTool()))
+        if (wc->windowWidget()->isVisibleTo(this) && !(wc->titlebar && wc->titlebar->isTool()))
             widgets.append(wc);
     }
 
