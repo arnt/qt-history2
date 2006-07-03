@@ -119,11 +119,7 @@ QSystemTrayIconSys::QSystemTrayIconSys(QSystemTrayIcon *object)
 
     // For restoring the tray icon after explorer crashes
     if (!MYWM_TASKBARCREATED) {
-        QT_WA({
-            MYWM_TASKBARCREATED = RegisterWindowMessageW((TCHAR*)"TaskbarCreated");
-        }, {
-            MYWM_TASKBARCREATED = RegisterWindowMessageA("TaskbarCreated");
-        });
+        MYWM_TASKBARCREATED = RegisterWindowMessageA("TaskbarCreated");
     }
 }
 
