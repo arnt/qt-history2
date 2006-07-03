@@ -879,20 +879,9 @@ QKeySequence::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
 
 
 /*!
-    Creates a shortcut string for the key sequence.
+    \obsolete
 
-    For example, the value Qt::CTRL+Qt::Key_O results in "Ctrl+O".
-    If the key sequence has multiple key codes, each is separated
-    by commas in the string returned, such as "Alt+X, Ctrl+Y, Z".
-    The strings, "Ctrl", "Shift", etc. are translated using
-    QObject::tr() in the "QShortcut" scope.
-
-    If the key sequence has no keys, an empty string is returned.
-
-    On Mac OS X, the string returned resembles the sequence that is
-    shown in the menubar.
-
-    \sa toString()
+    Use toString() instead.
 */
 QKeySequence::operator QString() const
 {
@@ -1020,7 +1009,19 @@ bool QKeySequence::isDetached() const
 /*!
     \since 4.1
 
-    Return a string representation of the key sequence based on \a format.
+    Return a string representation of the key sequence,
+    based on \a format.
+
+    For example, the value Qt::CTRL+Qt::Key_O results in "Ctrl+O".
+    If the key sequence has multiple key codes, each is separated
+    by commas in the string returned, such as "Alt+X, Ctrl+Y, Z".
+    The strings, "Ctrl", "Shift", etc. are translated using
+    QObject::tr() in the "QShortcut" context.
+
+    If the key sequence has no keys, an empty string is returned.
+
+    On Mac OS X, the string returned resembles the sequence that is
+    shown in the menubar.
 
     \sa fromString()
 */
