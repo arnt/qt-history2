@@ -497,7 +497,7 @@ QPoint QSystemTrayIconSys::findIconPosition(const int iconId)
 }
 
 
-void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &title, QSystemTrayIcon::MessageIcon type, int timeOut)
+void QSystemTrayIconPrivate::showMessage(const QString &title, const QString &message, QSystemTrayIcon::MessageIcon type, int timeOut)
 {
     if (!sys)
         return;
@@ -512,12 +512,12 @@ void QSystemTrayIconPrivate::showMessage(const QString &message, const QString &
     QString messageString = message.left(255) + QChar();
     //title is limited to 64 chars + NULL
     QString titleString = title.left(63) + QChar();
-
+    
     if (sys->supportsMessages()) {
         QT_WA({
-            sys->showMessageW(messageString, titleString, type, (unsigned int)uSecs);
+            sys->showMessageW(titleString, messageString, type, (unsigned int)uSecs);
         }, {
-            sys->showMessageA(messageString, titleString, type, (unsigned int)uSecs);
+            sys->showMessageA(titleString, messageString, type, (unsigned int)uSecs);
         });
     } else {
         //use fallbacks
