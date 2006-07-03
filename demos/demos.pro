@@ -12,6 +12,7 @@ SUBDIRS     = \
         demos_spreadsheet \
         demos_textedit 
 
+unix:!embedded:contains(QT_CONFIG, qdbus):SUBDIRS += dbus-viewer
 !contains(QT_EDITION, Console):!cross_compile:SUBDIRS += demos_arthurplugin
 
 !cross_compile:SUBDIRS += demos_sqlbrowser
