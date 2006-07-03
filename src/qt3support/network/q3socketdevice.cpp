@@ -33,10 +33,11 @@ public:
 
 
 /*!
-    \class Q3SocketDevice q3socketdevice.h
+    \class Q3SocketDevice
     \brief The Q3SocketDevice class provides a platform-independent low-level socket API.
 
     \compat
+    \reentrant
 
     This class provides a low level API for working with sockets.  Users of
     this class are assumed to have networking experience. For most users the
