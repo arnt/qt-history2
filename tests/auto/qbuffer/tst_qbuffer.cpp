@@ -78,13 +78,13 @@ void tst_QBuffer::readBlock()
     char a[arraySize];
     QBuffer b;
     QCOMPARE(b.read(a, arraySize), (qint64) -1); // not opened
-    QVERIFY(!b.atEnd());
+    QVERIFY(b.atEnd());
 
     QByteArray ba;
     ba.resize(arraySize);
     b.setBuffer(&ba);
     b.open(QIODevice::WriteOnly);
-    QTest::ignoreMessage(QtWarningMsg, "QIODevice::read called on a WriteOnly device");
+    QTest::ignoreMessage(QtWarningMsg, "QIODevice::read: WriteOnly device");
     QCOMPARE(b.read(a, arraySize), (qint64) -1); // no read access
     b.close();
 
@@ -198,6 +198,7 @@ void tst_QBuffer::seek()
     buffer.open(QIODevice::WriteOnly);
     QCOMPARE(buffer.size(), qint64(0));
     QCOMPARE(buffer.pos(), qint64(0));
+    QTest::ignoreMessage(QtWarningMsg, "QIODevice::seek: Invalid pos: 10");
     QVERIFY(!buffer.seek(10));
     QCOMPARE(buffer.size(), qint64(0));
 }
@@ -235,7 +236,10 @@ void tst_QBuffer::seekTest()
     QByteArray data = str.toLatin1();
     QCOMPARE(buf.write( data.constData(), data.size() ), qint64(data.size()));
  
+    QTest::ignoreMessage(QtWarningMsg, "QIODevice::seek: Invalid pos: -1");
     DO_INVALID_SEEK(-1);
+    QTest::ignoreMessage(QtWarningMsg, (QByteArray("QIODevice::seek: Invalid pos: ")
+                                        + QByteArray::number(ba.size() + 1)).data());
     DO_INVALID_SEEK(str.size()+1);
 
     DO_VALID_SEEK(0);
