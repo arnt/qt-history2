@@ -55,6 +55,7 @@ private slots:
     void formatTime();
     void formatTime_data();
     void negativeNumbers();
+    void numberOptions();
 
 private:
     QString m_decimal, m_thousand, m_sdate, m_ldate, m_time;
@@ -802,6 +803,38 @@ void tst_QLocale::windowsDefaultLocale()
     QCOMPARE(locale.toString(QTime(1,2,3), QLocale::LongFormat), QString("1^2^3"));
 
 #endif
+}
+
+void tst_QLocale::numberOptions()
+{
+    bool ok;
+
+    QLocale locale(QLocale::C);
+    QCOMPARE(locale.numberOptions(), 0);
+    QCOMPARE(locale.toInt(QString("12,345"), &ok), 12345);
+    QVERIFY(ok);
+    QCOMPARE(locale.toInt(QString("12345"), &ok), 12345);
+    QVERIFY(ok);
+    QCOMPARE(locale.toString(12345), QString("12,345"));
+
+    locale.setNumberOptions(QLocale::OmitGroupSeparator);
+    QCOMPARE(locale.numberOptions(), QLocale::OmitGroupSeparator);
+    QCOMPARE(locale.toInt(QString("12,345"), &ok), 12345);
+    QVERIFY(ok);
+    QCOMPARE(locale.toInt(QString("12345"), &ok), 12345);
+    QVERIFY(ok);
+    QCOMPARE(locale.toString(12345), QString("12345"));
+
+    locale.setNumberOptions(QLocale::RejectGroupSeparator);
+    QCOMPARE(locale.numberOptions(), QLocale::RejectGroupSeparator);
+    locale.toInt(QString("12,345"), &ok);
+    QVERIFY(!ok);
+    QCOMPARE(locale.toInt(QString("12345"), &ok), 12345);
+    QVERIFY(ok);
+    QCOMPARE(locale.toString(12345), QString("12,345"));
+
+    QLocale locale2 = locale;
+    QCOMPARE(locale2.numberOptions(), QLocale::RejectGroupSeparator);
 }
 
 void tst_QLocale::negativeNumbers()

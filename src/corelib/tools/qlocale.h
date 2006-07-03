@@ -23,8 +23,8 @@ QT_MODULE(Core)
 class QDataStream;
 class QDate;
 class QTime;
-struct QLocalePrivate;
 class QVariant;
+struct QLocalePrivate;
 
 class Q_CORE_EXPORT QLocale
 {
@@ -428,6 +428,8 @@ public:
     };
 
     enum FormatType { LongFormat, ShortFormat };
+    enum NumberOption { OmitGroupSeparator = 0x01, RejectGroupSeparator = 0x02 };
+    Q_DECLARE_FLAGS(NumberOptions, NumberOption)
 
     QLocale();
     QLocale(const QString &name);
@@ -485,9 +487,15 @@ public:
     static QLocale c() { return QLocale(C); }
     static QLocale system();
 
+    void setNumberOptions(NumberOptions options);
+    NumberOptions numberOptions() const;
+
 private:
     friend struct QLocalePrivate;
-    const QLocalePrivate *d;
+    // ### We now use this field to pack an index into locale_data and NumberOptions.
+    // change to a QLocaleData *d; uint numberOptions; in Qt 5
+    void *v;
+    const QLocalePrivate *d() const;
 };
 Q_DECLARE_TYPEINFO(QLocale, Q_MOVABLE_TYPE);
 
@@ -502,9 +510,9 @@ inline QString QLocale::toString(uint i) const
 inline QString QLocale::toString(float i, char f, int prec) const
     { return toString(double(i), f, prec); }
 inline bool QLocale::operator==(const QLocale &other) const
-    { return d == other.d; }
+    { return d() == other.d(); }
 inline bool QLocale::operator!=(const QLocale &other) const
-    { return d != other.d; }
+    { return d() != other.d(); }
 
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QLocale &);
