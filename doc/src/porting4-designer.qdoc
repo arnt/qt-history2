@@ -133,7 +133,9 @@
 
     The second approach is to inherit from both the \c Ui::HelloWorld
     class and the main container, and to call \c setupUi() in the
-    constructor of the subclass:
+    constructor of the subclass. In that case, QWidget (or one of
+    its subclasses, e.g. QDialog) must appear first in the base class
+    list so that \l{moc} picks it up correctly. For example:
 
     \code
         #include <QApplication>
@@ -143,6 +145,8 @@
 
         class HelloWorldWidget : public QWidget, public Ui::HelloWorld
         {
+            Q_OBJECT
+
         public:
             HelloWorldWidget(QWidget *parent = 0)
                 : QWidget(parent)
@@ -152,10 +156,8 @@
         int main(int argc, char *argv[])
         {
             QApplication app(argc, argv);
-
             HelloWorldWidget w;
             w.show();
-
             return app.exec();
         }
     \endcode
