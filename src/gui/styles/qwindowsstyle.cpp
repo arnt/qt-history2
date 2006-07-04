@@ -2997,18 +2997,7 @@ QIcon QWindowsStyle::standardIconImplementation(StandardPixmap standardIcon, con
     if (icon.isNull())
         icon = QIcon(standardPixmap(standardIcon, option, widget));
     
-    if (standardIcon == QStyle::SP_DirIcon || standardIcon == QStyle::SP_DirLinkIcon)
-        return icon; // SP_DirIcon already has an On pixmap
     
-    // ### this should _only_ be done if the icon doesn't have a pixmap for QIcon::Normal, QIcon::On
-    for (int s = 16; s <= 32; s += 16) {
-    //Include a translated icon for use with pressed buttons
-        QPixmap pressedIconPixmap(s, s);
-        pressedIconPixmap.fill(Qt::transparent);
-        QPainter p(&pressedIconPixmap);
-        p.drawPixmap(1, 1, s, s, icon.pixmap(s, s));
-        icon.addPixmap(pressedIconPixmap, QIcon::Normal, QIcon::On);
-    }
     return icon;
 }
 

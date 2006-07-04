@@ -3251,6 +3251,15 @@ int QWindowsXPStyle::pixelMetric(PixelMetric pm, const QStyleOption *option, con
     case PM_DockWidgetTitleMargin:
         res = 3;
         break;
+
+    case PM_ButtonShiftHorizontal:
+    case PM_ButtonShiftVertical:
+        if (qstyleoption_cast<const QStyleOptionToolButton *>(option))
+            res = 1;
+        else
+            res = 0;
+        break;
+        
     default:
         res = QWindowsStyle::pixelMetric(pm, option, widget);
     }

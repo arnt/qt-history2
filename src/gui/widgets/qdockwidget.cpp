@@ -136,8 +136,13 @@ void QDockWidgetTitleButton::paintEvent(QPaintEvent *)
     if (isDown())
         opt.state |= QStyle::State_Sunken;
     style()->drawPrimitive(QStyle::PE_PanelButtonTool, &opt, &p, this);
-
+    
+    int shiftHorizontal = opt.state & QStyle::State_Sunken ? style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal, &opt, this) : 0;
+    int shiftVertical = opt.state & QStyle::State_Sunken ? style()->pixelMetric(QStyle::PM_ButtonShiftVertical, &opt, this) : 0;
+    
     r.adjust(2, 2, -2, -2);
+    r.translate(shiftHorizontal, shiftVertical);
+    
     QPixmap pm = icon().pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize), isEnabled() ?
                                 underMouse() ? QIcon::Active : QIcon::Normal
                                     : QIcon::Disabled,
