@@ -3435,6 +3435,20 @@ QGraphicsEllipseItem::QGraphicsEllipseItem(const QRectF &rect, QGraphicsItem *pa
 }
 
 /*!
+    Constructs a QGraphicsEllipseItem using \a x \a y \a w \a h as the default rectangle.
+    \a parent and \a scene are passed to QAbstractGraphicsShapeItem's
+    constructor.
+*/
+QGraphicsEllipseItem::QGraphicsEllipseItem(qreal x, qreal y, qreal w, qreal h,
+                                           QGraphicsItem *parent, QGraphicsScene *scene)
+    : QAbstractGraphicsShapeItem(*new QGraphicsEllipseItemPrivate, parent, scene)
+{
+    setRect(x,y,w,h);
+}
+
+
+
+/*!
     Constructs a QGraphicsEllipseItem. \a parent and \a scene are passed to
     QAbstractGraphicsShapeItem's constructor.
 */
@@ -3870,6 +3884,19 @@ QGraphicsLineItem::QGraphicsLineItem(const QLineF &line, QGraphicsItem *parent,
 {
     setLine(line);
 }
+
+/*!
+    Constructs a QGraphicsLineItem, using \a x1 \a y1 - \a x2 \a y2 as the default line.  \a
+    parent and \a scene are passed to QGraphicsItem's constructor.
+*/
+QGraphicsLineItem::QGraphicsLineItem(qreal x1, qreal y1, qreal x2, qreal y2, QGraphicsItem *parent,
+                                     QGraphicsScene *scene)
+    : QGraphicsItem(*new QGraphicsLineItemPrivate, parent, scene)
+{
+    setLine(x1, y2, x2, y2);
+}
+
+
 
 /*!
     Constructs a QGraphicsLineItem.  \a parent and \a scene are
